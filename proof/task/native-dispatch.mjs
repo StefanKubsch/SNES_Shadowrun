@@ -117,6 +117,14 @@ import {
 
 import { addObjectHeightReference } from '../game-reference/object-fields.mjs';
 
+import {
+  hasNoObjectAnimationReference,
+  resetObjectRecordPropertyReference,
+  setObjectDialogReference,
+  setObjectPositionReference,
+  setObjectRecordPropertyFromGroupReference,
+} from '../game-reference/object-fields.mjs';
+
 // Lifted natives whose proofs run their register-level references (the game runs the
 // lifted ones, src/task/native-targets.mjs).
 const REFERENCE_TARGETS = new Map([
@@ -191,6 +199,11 @@ const REFERENCE_TARGETS = new Map([
   [0x80ccdb, addNuyenReference],
   [0x808b8a, addMagicPointsReference],
   [0x80a977, addObjectHeightReference],
+  [0x8094ee, setObjectDialogReference],
+  [0x80d14a, setObjectPositionReference],
+  [0x80bb90, hasNoObjectAnimationReference],
+  [0x809d6a, setObjectRecordPropertyFromGroupReference],
+  [0x809d7a, resetObjectRecordPropertyReference],
 ]);
 
 // A fixed, independently source-checked set of native equations. This is no

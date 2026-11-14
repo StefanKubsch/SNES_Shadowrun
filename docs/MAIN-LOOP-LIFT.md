@@ -363,6 +363,15 @@ which the render proof of 81:8076 keeps using.
   of the saturation and of the member's halving fail it. The height's raise 80:A977 (four
   times the second argument, wrapping) runs `raiseObjectHeight` of
   src/game/object-fields.mjs, compared by the object field test.
+- The natives 80:94EE (the object's dialog record at 7E:4450 plus the slot), 80:D14A (its
+  X, Y and height set), 80:BB90 (FFFF when its animation selection is FFFF, else 0),
+  80:9D6A (its record's property word set to the first group number at 7E:2DF0) and
+  80:9D7A (reset to 1538; both without a record unchanged) run `setObjectDialog`,
+  `setObjectPosition`, `hasNoAnimation`, `setRecordPropertyFromGroup` and
+  `resetRecordProperty` of src/game/object-fields.mjs (block 95); the references joined
+  proof/game-reference/object-fields.mjs, which the instruction test of 80:BB90 now runs;
+  the object field test compares them (with samples where the selection is FFFF);
+  planted changes of the record guard, the reset value and the selection test fail it.
 - The getters 80:9E59 and 80:9E5F (the buttons held and newly pressed), 80:CD97 and its
   byte-identical copy 80:D18A (the player figure's slot) and 80:C0F7 and 80:C100 (the
   glove sprite's screen X and Y bytes) run `padHeld`, `padPressed`, `playerObject`,

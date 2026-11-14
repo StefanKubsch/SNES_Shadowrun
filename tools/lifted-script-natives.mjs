@@ -39,6 +39,8 @@ export const LIFTED_SCRIPT_NATIVES = new Set([
   // The karma, nuyen and magic point sums (src/game/party-funds.mjs) and the height (object-fields.mjs).
   0x80cdb2,
   0x80ccdb, 0x808b8a, 0x80a977,
+  // The dialog, position, animation test and record property natives (src/game/object-fields.mjs).
+  0x8094ee, 0x80d14a, 0x80bb90, 0x809d6a, 0x809d7a,
 ]);
 // Direct page bytes a lifted native does not produce: the sample loader's scratch
 // (7E:0089-008B, 008F-0099) after any, and after the sight natives the line of sight's

@@ -7,7 +7,9 @@
 // cheat, src/game/cheats.mjs), and the armour word's get 80:8EF5, set 80:8AF1, sum 80:8AFA
 // and difference 80:8B08, the motion getters 80:A941 to 80:A96D, the direction 80:D255,
 // number 80:D1CA and sprite mode 80:D17B and 80:D16D, the task link 80:A91D and 80:A926
-// and the velocity setters 80:A92F and 80:D13E and the height's raise 80:A977. Both sides run the native from
+// and the velocity setters 80:A92F and 80:D13E, the height's raise 80:A977, the dialog
+// 80:94EE, the position 80:D14A, the animation test 80:BB90 and the record property's
+// group value 80:9D6A and reset 80:9D7A. Both sides run the native from
 // its script call (data bank 80, direct page 0, the RTS frame). Game state only
 // (docs/STRATEGY.md, 2026-11-14): WRAM outside the stacks, the device writes and the
 // return (program counter and stack pointer) must be equal; the script interpreter
@@ -46,6 +48,11 @@ import {
   setObjectVelocityReference,
   clearObjectVelocityReference,
   addObjectHeightReference,
+  setObjectDialogReference,
+  setObjectPositionReference,
+  hasNoObjectAnimationReference,
+  setObjectRecordPropertyFromGroupReference,
+  resetObjectRecordPropertyReference,
 } from '../proof/game-reference/object-fields.mjs';
 import { getObjectRecordFirstByte } from '../src/task/native-object-record-byte0.mjs';
 import { getObjectRecordFlags } from '../src/task/native-object-record-flags.mjs';
@@ -74,9 +81,14 @@ import { bindObjectToCurrentTask } from '../src/task/native-object-task-bind.mjs
 import { setObjectVelocity } from '../src/task/native-object-velocity-set.mjs';
 import { clearObjectVelocity } from '../src/task/native-object-velocity-clear.mjs';
 import { addObjectHeight } from '../src/task/native-object-height-add.mjs';
+import { setObjectDialog } from '../src/task/native-object-dialog-set.mjs';
+import { setObjectPosition } from '../src/task/native-object-position-set.mjs';
+import { hasNoObjectAnimation } from '../src/task/native-object-selection-empty.mjs';
+import { setObjectRecordPropertyFromGroup } from '../src/task/native-object-record-property-from-group.mjs';
+import { resetObjectRecordProperty } from '../src/task/native-object-record-property-reset.mjs';
 import { JAKE_STATE_RECORD } from '../src/game/cheats.mjs';
 import { CHEAT } from '../src/game/cheat-settings.mjs';
-import { JAKE_BODY, OBJECT_RECORD } from '../src/task/wram.mjs';
+import { JAKE_BODY, OBJECT_RECORD, OBJECT_SELECTION } from '../src/task/wram.mjs';
 import { RECORD_ATTRIBUTE } from '../src/data/runners.mjs';
 import { getObjectFlags } from '../src/task/native-object-flags-get.mjs';
 import { setObjectFlags } from '../src/task/native-object-flags-set.mjs';
@@ -115,6 +127,9 @@ function sample(seed) {
       [0, JAKE_STATE_RECORD, 0x2000 + rnd(0x2000), rnd(WORD), 0xfffd + rnd(3)][rnd(5)],
     );
   if (!rnd(4)) wram[JAKE_BODY + RECORD_ATTRIBUTE.count_max] = 0;
+  // Sometimes no animation selected (FFFF) where the low WRAM mirror holds the selection.
+  const selection = (OBJECT_SELECTION + object) & 0xffff;
+  if (selection < 0x2000 && rnd(2)) setWord(wram, selection, 0xffff);
   return { seed, wram, rnd };
 }
 const returned = (h) => [h.ctx.pc, h.ctx.s].map((v) => v.toString(HEX)).join();
@@ -241,6 +256,26 @@ registerCases(
       clearObjectVelocity,
     ),
     field('addObjectHeight 80:A977', 0x80a977, addObjectHeightReference, addObjectHeight),
+    field('setObjectDialog 80:94EE', 0x8094ee, setObjectDialogReference, setObjectDialog),
+    field('setObjectPosition 80:D14A', 0x80d14a, setObjectPositionReference, setObjectPosition),
+    field(
+      'hasNoObjectAnimation 80:BB90',
+      0x80bb90,
+      hasNoObjectAnimationReference,
+      hasNoObjectAnimation,
+    ),
+    field(
+      'setObjectRecordPropertyFromGroup 80:9D6A',
+      0x809d6a,
+      setObjectRecordPropertyFromGroupReference,
+      setObjectRecordPropertyFromGroup,
+    ),
+    field(
+      'resetObjectRecordProperty 80:9D7A',
+      0x809d7a,
+      resetObjectRecordPropertyReference,
+      resetObjectRecordProperty,
+    ),
   ],
   { sample, side: (s) => createSide(s, new Map()), runtime: (h) => h, ignored: IGNORED },
 );

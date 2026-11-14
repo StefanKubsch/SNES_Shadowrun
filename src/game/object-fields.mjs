@@ -3,8 +3,9 @@
 // 80:CAA2, 80:CAB4, 80:CACA and 80:CAE0 for the record, 80:8EF5, 80:8AF1, 80:8AFA and
 // 80:8B08 for the armour, 80:A941 to 80:A96D for the motion, 80:D255, 80:D1CA, 80:D17B and
 // 80:D16D for the direction, number and sprite mode, 80:A91D and 80:A926 for the task link
-// and 80:A92F and 80:D13E for the velocity, 80:A977 for the height; register-level
-// references in
+// and 80:A92F and 80:D13E for the velocity, 80:A977 for the height, 80:94EE for the
+// dialog, 80:D14A for the position, 80:BB90 for the animation and 80:9D6A and 80:9D7A for
+// the record property; register-level references in
 // proof/game-reference/object-fields.mjs).
 //
 // An object's flag word (7E:1458 plus its slot) and its record pointer (7E:13A8 plus its
@@ -31,6 +32,10 @@ import {
   OBJECT_RECORD,
   OBJECT_TASK,
   NO_TASK,
+  OBJECT_DIALOG,
+  OBJECT_SELECTION,
+  GROUP_NUMBERS,
+  RECORD_PROPERTY_RESET,
   RECORD_COUNT,
   RECORD_FLAGS,
   RECORD_PROPERTY,
@@ -161,3 +166,31 @@ export const raiseObjectHeight = (mem, object, amount) =>
     object,
     (((amount * QUARTERS) & WORD_MASK) + dataBankWord(mem, OBJECT_HEIGHT, object)) & WORD_MASK,
   );
+
+// 80:94EE: the dialog record the action glove starts for the object (7E:4450 plus its
+// slot, a long index).
+export const setObjectDialog = (mem, object, dialog) =>
+  mem.write16((WRAM + OBJECT_DIALOG + object) & LONG_MASK, dialog);
+// 80:D14A: place the object at x, y and height.
+export function setObjectPosition(mem, object, x, y, height) {
+  setDataBankWord(mem, OBJECT_X, object, x);
+  setDataBankWord(mem, OBJECT_Y, object, y);
+  setDataBankWord(mem, OBJECT_HEIGHT, object, height);
+}
+// 80:BB90: TRUE (FFFF) when the object has no animation selected (FFFF), else 0.
+export const hasNoAnimation = (mem, object) =>
+  dataBankWord(mem, OBJECT_SELECTION, object) === WORD_MASK ? WORD_MASK : 0;
+// The property word of the object's record set to value unless it has no record.
+function setRecordProperty(mem, object, value) {
+  const record = objectRecord(mem, object);
+  if (record === 0) return;
+  const at = recordAddress(record, RECORD_PROPERTY);
+  mem.write8(at, value & BYTE_MASK);
+  mem.write8((at + 1) & LONG_MASK, value >>> BYTE_BITS);
+}
+// 80:9D6A: the record property set to the first group member's number (7E:2DF0).
+export const setRecordPropertyFromGroup = (mem, object) =>
+  setRecordProperty(mem, object, mem.read16(WRAM + GROUP_NUMBERS));
+// 80:9D7A: the record property reset to 1538.
+export const resetRecordProperty = (mem, object) =>
+  setRecordProperty(mem, object, RECORD_PROPERTY_RESET);

@@ -1,7 +1,8 @@
 // Register-level references of the object field script natives (moved from
 // src/task/native-object-flags-*.mjs, src/task/native-object-record-*.mjs and
 // src/task/native-object-armour-*.mjs, the motion getters, the direction, number and
-// sprite mode, the task link and the velocity setters; lifted in
+// sprite mode, the task link and the velocity setters, the dialog, the position, the
+// animation test and the record property's group and reset values; lifted in
 // src/game/object-fields.mjs). The proof plans and the Native58 dispatch of
 // proof/task/native-dispatch.mjs run these; the game runs the lifted natives.
 import {
@@ -25,6 +26,13 @@ import {
   OBJECT_RECORD,
   OBJECT_TASK,
   NO_TASK,
+  OBJECT_DIALOG,
+  OBJECT_SELECTION,
+  GROUP_NUMBERS,
+  RECORD_PROPERTY_RESET,
+  DP_OBJECT_X,
+  DP_OBJECT_Y,
+  DP_OBJECT_HEIGHT,
   OBJECT_VELOCITY_X,
   OBJECT_VELOCITY_Y,
   OBJECT_VELOCITY_Z,
@@ -35,7 +43,8 @@ import {
   RECORD_PROPERTY,
   WRAM,
 } from '../../src/task/wram.mjs';
-import { BYTE_MASK, LONG_MASK } from '../../src/constants/bits.mjs';
+import { BANK_WRAP, BYTE_MASK, LONG_MASK, WORD_MASK } from '../../src/constants/bits.mjs';
+import { FLAG_CARRY, FLAG_ZERO } from '../../src/constants/cpu-flags.mjs';
 import { FLAG_MEMORY_8BIT } from '../../src/constants/cpu-flags.mjs';
 import { protectedJakeHealth } from '../../src/game/cheats.mjs';
 import { TASK_CURSOR } from '../../src/vm/layout.mjs';
@@ -385,6 +394,77 @@ export const addObjectHeightReference = (a, outerReturn = true) =>
       h.asl();
       const height = h.abs(OBJECT_HEIGHT) + object;
       h.longWrite(height, h.add(h.ctx.a, h.longRead(height)));
+    },
+    outerReturn,
+  );
+// 80:94EE: set the dialog record of the object (first argument) to the second argument.
+export const setObjectDialogReference = (a, outerReturn = true) =>
+  leaf(
+    a,
+    (h) => {
+      const object = h.index('x', h.dp(FIRST_ARGUMENT)),
+        dialog = h.load(h.dp(SECOND_ARGUMENT));
+      h.longWrite(WRAM + OBJECT_DIALOG + object, dialog);
+    },
+    outerReturn,
+  );
+// 80:D14A: set the X, Y and height of the object (first argument) to the second,
+// third and fourth argument.
+export const setObjectPositionReference = (a, outerReturn = true) =>
+  leaf(
+    a,
+    (h) => {
+      const object = h.index('x', h.dp(FIRST_ARGUMENT));
+      for (const [argument, field] of [
+        [DP_OBJECT_X, OBJECT_X],
+        [DP_OBJECT_Y, OBJECT_Y],
+        [DP_OBJECT_HEIGHT, OBJECT_HEIGHT],
+      ])
+        h.longWrite(h.abs(field) + object, h.load(h.dp(argument)));
+    },
+    outerReturn,
+  );
+// 80:BB90: return TRUE (FFFF) when the object (first argument) has no animation
+// selected (selection word FFFF), else FALSE (0). The flags come from the CMP or the
+// load of FALSE.
+export const hasNoObjectAnimationReference = (a, outerReturn = true) =>
+  leaf(
+    a,
+    (h) => {
+      const { ctx } = h;
+      const object = h.index('x', h.dp(FIRST_ARGUMENT)),
+        selection = h.load(h.longRead(h.abs(OBJECT_SELECTION) + object));
+      // CMP #FFFF: carry when the selection is FFFF, N and Z from the difference.
+      h.nz((selection - WORD_MASK) & WORD_MASK);
+      ctx.status = (ctx.status & ~FLAG_CARRY) | Number(selection >= WORD_MASK);
+      if (!(ctx.status & FLAG_ZERO)) h.load(0);
+      a.writeWord(FIRST_ARGUMENT, ctx.a, BANK_WRAP, 'bb90-DP00');
+    },
+    outerReturn,
+  );
+// 80:9D6A: set the property word of the record of the object (first argument) to the
+// first word of the group numbers (7E:2DF0); an object without a record is unchanged.
+export const setObjectRecordPropertyFromGroupReference = (a, outerReturn = true) =>
+  leaf(
+    a,
+    (h) => {
+      const object = h.index('y', h.dp(FIRST_ARGUMENT)),
+        record = h.index('x', h.longRead(h.abs(OBJECT_RECORD) + object));
+      if (record === 0) return;
+      h.longWrite(WRAM + RECORD_PROPERTY + record, h.load(h.longRead(WRAM + GROUP_NUMBERS)));
+    },
+    outerReturn,
+  );
+// 80:9D7A: reset the property word of the record of the object (first argument).
+// Without a record nothing changes and A keeps its value (no record preread).
+export const resetObjectRecordPropertyReference = (a, outerReturn = true) =>
+  leaf(
+    a,
+    (h) => {
+      const object = h.index('y', h.dp(FIRST_ARGUMENT)),
+        record = h.index('x', h.longRead(h.abs(OBJECT_RECORD) + object));
+      if (record === 0) return;
+      h.longWrite(WRAM + RECORD_PROPERTY + record, h.load(RECORD_PROPERTY_RESET));
     },
     outerReturn,
   );
