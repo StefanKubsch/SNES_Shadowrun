@@ -1,6 +1,7 @@
 // Object fields that scripts read and change (lifted from the script natives 80:CA05,
 // 80:CA0D, 80:CA15 and 80:CA20 for the flag word and 80:CA2B, 80:CA3A, 80:CA49, 80:CA58,
-// 80:CAA2, 80:CAB4, 80:CACA and 80:CAE0 for the record; register-level references in
+// 80:CAA2, 80:CAB4, 80:CACA and 80:CAE0 for the record, 80:8EF5, 80:8AF1, 80:8AFA and
+// 80:8B08 for the armour; register-level references in
 // proof/game-reference/object-fields.mjs).
 //
 // An object's flag word (7E:1458 plus its slot) and its record pointer (7E:13A8 plus its
@@ -11,6 +12,7 @@
 // 0) the reads return the bytes at 7E:0000 and the writes change nothing.
 import { dataBankWord, setDataBankWord } from '../system/data-bank.mjs';
 import {
+  OBJECT_ARMOUR,
   OBJECT_FLAGS,
   OBJECT_RECORD,
   RECORD_COUNT,
@@ -69,3 +71,23 @@ export const keepRecordFlagBits = (mem, object, bits) =>
 // (record, count) may change the count stored (the health cheat, src/game/cheats.mjs).
 export const setRecordCount = (mem, object, count, guard = (_record, value) => value) =>
   changeRecordByte(mem, object, RECORD_COUNT, (_old, record) => guard(record, count & BYTE_MASK));
+
+// The object's armour word (7E:43F8 plus its slot, a long index: a slot near FFFF
+// reaches bank 7F).
+const armourAddress = (object) => (WRAM + OBJECT_ARMOUR + object) & LONG_MASK;
+// 80:8EF5: the object's armour.
+export function objectArmour(mem, object) {
+  const at = armourAddress(object);
+  return mem.read8(at) | (mem.read8((at + 1) & LONG_MASK) << BYTE_BITS);
+}
+// 80:8AF1: the object's armour set.
+export function storeObjectArmour(mem, object, armour) {
+  const at = armourAddress(object);
+  mem.write8(at, armour & BYTE_MASK);
+  mem.write8((at + 1) & LONG_MASK, (armour >>> BYTE_BITS) & BYTE_MASK);
+}
+// 80:8AFA and 80:8B08: the armour raised or lowered by amount, wrapping in 16 bits.
+export const raiseObjectArmour = (mem, object, amount) =>
+  storeObjectArmour(mem, object, objectArmour(mem, object) + amount);
+export const lowerObjectArmour = (mem, object, amount) =>
+  storeObjectArmour(mem, object, objectArmour(mem, object) - amount);

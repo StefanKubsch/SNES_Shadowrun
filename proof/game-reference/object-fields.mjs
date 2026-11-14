@@ -1,5 +1,6 @@
 // Register-level references of the object field script natives (moved from
-// src/task/native-object-flags-*.mjs and src/task/native-object-record-*.mjs; lifted in
+// src/task/native-object-flags-*.mjs, src/task/native-object-record-*.mjs and
+// src/task/native-object-armour-*.mjs; lifted in
 // src/game/object-fields.mjs). The proof plans and the Native58 dispatch of
 // proof/task/native-dispatch.mjs run these; the game runs the lifted natives.
 import {
@@ -10,6 +11,7 @@ import {
   readRecordField,
 } from '../../src/task/native-leaf-support.mjs';
 import {
+  OBJECT_ARMOUR,
   OBJECT_FLAGS,
   OBJECT_RECORD,
   RECORD_COUNT,
@@ -143,6 +145,51 @@ export const setObjectRecordCountReference = (a, outerReturn = true) =>
       if (a.vm?.cheats) count = h.load(protectedJakeHealth(a, record, count), 1);
       h.longWrite(WRAM + RECORD_COUNT + record, count, 1);
       h.ctx.status &= ~FLAG_MEMORY_8BIT;
+    },
+    outerReturn,
+  );
+// 80:8EF5: return the armour of the object (first argument).
+export const getObjectArmourReference = (a, outerReturn = true) =>
+  leaf(
+    a,
+    (h) => {
+      const object = h.index('x', h.dp(FIRST_ARGUMENT));
+      h.result(h.load(h.longRead(WRAM + OBJECT_ARMOUR + object)));
+    },
+    outerReturn,
+  );
+// 80:8AF1: set the armour of the object (first argument) to the second argument.
+export const setObjectArmourReference = (a, outerReturn = true) =>
+  leaf(
+    a,
+    (h) => {
+      const object = h.index('x', h.dp(FIRST_ARGUMENT)),
+        armour = h.load(h.dp(SECOND_ARGUMENT));
+      h.longWrite(WRAM + OBJECT_ARMOUR + object, armour);
+    },
+    outerReturn,
+  );
+// 80:8AFA: armour of the object (first argument) plus the second argument,
+// as a wrapping 16-bit sum without a limit. X keeps the object index.
+export const addObjectArmourReference = (a, outerReturn = true) =>
+  leaf(
+    a,
+    (h) => {
+      const object = h.index('x', h.dp(FIRST_ARGUMENT)),
+        armour = h.add(h.longRead(WRAM + OBJECT_ARMOUR + object), h.dp(SECOND_ARGUMENT));
+      h.longWrite(WRAM + OBJECT_ARMOUR + object, armour);
+    },
+    outerReturn,
+  );
+// 80:8B08: armour of the object (first argument) minus the second argument,
+// as a wrapping 16-bit difference without a lower limit. X keeps the object index.
+export const subtractObjectArmourReference = (a, outerReturn = true) =>
+  leaf(
+    a,
+    (h) => {
+      const object = h.index('x', h.dp(FIRST_ARGUMENT)),
+        armour = h.subtract(h.longRead(WRAM + OBJECT_ARMOUR + object), h.dp(SECOND_ARGUMENT));
+      h.longWrite(WRAM + OBJECT_ARMOUR + object, armour);
     },
     outerReturn,
   );

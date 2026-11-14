@@ -35,6 +35,13 @@ import {
   keepActorStateFlagBitsReference,
 } from '../game-reference/actor-state.mjs';
 
+import {
+  getObjectArmourReference,
+  setObjectArmourReference,
+  addObjectArmourReference,
+  subtractObjectArmourReference,
+} from '../game-reference/object-fields.mjs';
+
 // Lifted natives whose proofs run their register-level references (the game runs the
 // lifted ones, src/task/native-targets.mjs).
 const REFERENCE_TARGETS = new Map([
@@ -61,6 +68,10 @@ const REFERENCE_TARGETS = new Map([
   [0x80cb9f, setActorStateFlagsReference],
   [0x80cbb3, setActorStateFlagBitsReference],
   [0x80cbcb, keepActorStateFlagBitsReference],
+  [0x808ef5, getObjectArmourReference],
+  [0x808af1, setObjectArmourReference],
+  [0x808afa, addObjectArmourReference],
+  [0x808b08, subtractObjectArmourReference],
 ]);
 
 // A fixed, independently source-checked set of native equations. This is no

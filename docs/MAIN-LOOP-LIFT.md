@@ -281,6 +281,12 @@ which the render proof of 81:8076 keeps using.
   Jake's count maximum 0 or not); planted changes of the missing record test, the OR,
   the AND, the cheat guard, the property's high byte, byte 0's offset and the bank
   crossing fail it.
+- The object armour natives 80:8EF5 (the armour word at 7E:43F8 plus the object as the
+  result), 80:8AF1 (set), 80:8AFA (plus the second argument) and 80:8B08 (minus it, both
+  wrapping in 16 bits) run `objectArmour`, `storeObjectArmour`, `raiseObjectArmour` and
+  `lowerObjectArmour` of the same module (block 84), with their references in the same
+  reference module; the same test compares them (400 samples each); planted changes of
+  the sum, the difference, the stored high byte and the bank crossing fail it.
 - The script variable natives 80:CC07 (the variable at the byte offset of the first
   argument as the result), 80:CC10 (set to the second argument), 80:CC19 (its bits set)
   and 80:CC26 (only its bits kept) run `scriptVariable`, `storeScriptVariable`,

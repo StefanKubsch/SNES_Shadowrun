@@ -1,15 +1,15 @@
-import { FIRST_ARGUMENT, SECOND_ARGUMENT, leaf } from './native-leaf-support.mjs';
-import { OBJECT_ARMOUR, WRAM } from './wram.mjs';
+import {
+  FIRST_ARGUMENT,
+  SECOND_ARGUMENT,
+  finishLeaf,
+  leafArgument,
+} from './native-leaf-support.mjs';
+import { raiseObjectArmour } from '../game/object-fields.mjs';
 
-// 80:8AFA: armour of the object (first argument) plus the second argument,
-// as a wrapping 16-bit sum without a limit. X keeps the object index.
-export const addObjectArmour = (a, outerReturn = true) =>
-  leaf(
-    a,
-    (h) => {
-      const object = h.index('x', h.dp(FIRST_ARGUMENT)),
-        armour = h.add(h.longRead(WRAM + OBJECT_ARMOUR + object), h.dp(SECOND_ARGUMENT));
-      h.longWrite(WRAM + OBJECT_ARMOUR + object, armour);
-    },
-    outerReturn,
-  );
+// 80:8AFA (lifted in src/game/object-fields.mjs; register-level reference in
+// proof/game-reference/object-fields.mjs): the armour of the object (first argument) plus the
+// second argument, a wrapping 16-bit sum without a limit.
+export const addObjectArmour = (a, outerReturn = true) => {
+  raiseObjectArmour(a.mem, leafArgument(a, FIRST_ARGUMENT), leafArgument(a, SECOND_ARGUMENT));
+  return finishLeaf(a, outerReturn);
+};
