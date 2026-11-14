@@ -74,6 +74,8 @@ export const LIFTED_SCRIPT_NATIVES = new Set([
   0x80d85b, 0x80d2e7,
   // The object creation and the swarm starts (object-create.mjs, swarm-start.mjs).
   0x80a835, 0x80d7dd, 0x80d260, 0x80d63c,
+  // The spell start, the runner Strength and the player object after a BRK.
+  0x808eda, 0x80d067, 0x80d186,
 ]);
 // Direct page bytes a lifted native does not produce: the sample loader's scratch
 // (7E:0089-008B, 008F-0099) after any, and after the sight natives the line of sight's

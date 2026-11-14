@@ -9,6 +9,7 @@
 // count byte of its object record.
 import { taskStop } from '../task/plan.mjs';
 import { dataBankWord } from '../system/data-bank.mjs';
+import { pointerWord } from '../system/open-bus.mjs';
 import {
   GROUP_INDEX,
   GROUP_NUMBERS,
@@ -27,7 +28,14 @@ import {
   RUNNER_RECORD_POINTERS,
 } from '../data/runners.mjs';
 import { ACTOR_RECORD, ACTOR_TABLE } from '../data/actors.mjs';
-import { BYTE_BITS, BYTE_MASK, WORD_BITS, WORD_MASK, WORD_SIGN } from '../constants/bits.mjs';
+import {
+  BYTE_BITS,
+  BYTE_MASK,
+  LONG_MASK,
+  WORD_BITS,
+  WORD_MASK,
+  WORD_SIGN,
+} from '../constants/bits.mjs';
 import { CODE_BANK_BASE } from '../constants/memory-map.mjs';
 
 // The magic points are ten times the magic attribute: twice it plus eight times it.
@@ -35,6 +43,10 @@ const MAGIC_DOUBLE_SHIFT = 1,
   MAGIC_EIGHT_SHIFT = 3;
 
 const wramWord = (wram, at) => wram[at] | (wram[at + 1] << BYTE_BITS);
+const setWramWord = (wram, at, value) => {
+  wram[at] = value & BYTE_MASK;
+  wram[at + 1] = (value >>> BYTE_BITS) & BYTE_MASK;
+};
 // The object fields are reached through the data bank 80 as the original does
 // (src/system/data-bank.mjs).
 const romWord = (mem, address) => mem.read8(address) | (mem.read8(address + 1) << BYTE_BITS);
@@ -136,4 +148,39 @@ export function restoreRunners(mem) {
     wram[RECORD_COUNT + objectRecord] = mem.read8(record);
   }
   return { record, doubleMagic };
+}
+
+// 80:D02F: the byte at offset of the runner record of the object in word 00 (its number
+// searched in the runners' object numbers from the last down; a miss reads the entry
+// before the table's first). The record's long pointer stays in the direct page words A2
+// and A4 (only its bank byte written); the byte goes to word 00. A pointer into the
+// system area reads the open bus (src/system/open-bus.mjs).
+const DP_RECORD_POINTER = 0xa2,
+  DP_RECORD_BANK = 0xa4,
+  DP_RECORD_OFFSET = 2,
+  STRENGTH_BYTE = 2,
+  RUNNER_BYTES = 2,
+  RECORD_LOOKUP_RETURN = 0xd06e;
+function runnerRecordByte(mem) {
+  const { wram } = mem,
+    number = dataBankWord(mem, OBJECT_NUMBER, wramWord(wram, 0));
+  let runner = RUNNER_LAST_INDEX;
+  while (number !== dataBankWord(mem, RUNNER_OBJECT_NUMBERS, runner)) {
+    runner = (runner - RUNNER_BYTES) & WORD_MASK;
+    if (runner & WORD_SIGN) break;
+  }
+  const pointer = dataBankWord(mem, RUNNER_RECORD_POINTERS, runner),
+    bank = mem.read8((CODE_BANK_BASE + RUNNER_RECORD_BANKS + runner) & LONG_MASK);
+  setWramWord(wram, DP_RECORD_POINTER, pointer);
+  wram[DP_RECORD_BANK] = bank;
+  const value = pointerWord(mem, (bank << WORD_BITS) | pointer, wramWord(wram, DP_RECORD_OFFSET));
+  setWramWord(wram, 0, value & BYTE_MASK);
+}
+// 80:D067: the Strength (record byte 2) of the runner object in word 00, returned in word
+// 00; a takes the lookup's call frame.
+export function runnerStrength(mem, a) {
+  setWramWord(mem.wram, DP_RECORD_OFFSET, STRENGTH_BYTE);
+  a.pushWord(RECORD_LOOKUP_RETURN);
+  runnerRecordByte(mem);
+  a.pullWord();
 }

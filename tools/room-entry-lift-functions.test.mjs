@@ -51,6 +51,8 @@ import {
   startWaveSwarmReference,
 } from '../proof/game-reference/swarm-start.mjs';
 import { createObjectNative } from '../src/task/native-object-create.mjs';
+import { appendSelectedSpellTaskReference } from '../proof/game-reference/script-starts.mjs';
+import { appendSelectedSpellTask } from '../src/task/native-task-append-from-list.mjs';
 import {
   circleSwarmLeader,
   startPathSwarm,
@@ -605,6 +607,19 @@ const swarmOrigin = (s) =>
     ],
   ]);
 const SCRIPT_NATIVES = [
+  // The selected spell's task 80:8EDA: a script of the table, its level byte anywhere
+  // in bank 7E.
+  scriptNative(
+    'appendSelectedSpellTask 80:8EDA',
+    0x808eda,
+    appendSelectedSpellTaskReference,
+    appendSelectedSpellTask,
+    (s) =>
+      nativeWords(s, [
+        [0x3c13, s.rnd(SCRIPTS)],
+        [0x3c1a, s.pick([0x3c80 + s.rnd(0x40), s.rnd(0x10000)])],
+      ]),
+  ),
   scriptNative(
     'createObject native 80:A835',
     0x80a835,

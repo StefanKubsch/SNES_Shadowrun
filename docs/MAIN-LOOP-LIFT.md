@@ -461,6 +461,16 @@ which the render proof of 81:8076 keeps using.
   proof/game-reference/motion-targets.mjs; the motion target test compares them (point
   lists in banks 7E and 7F); planted changes of the borrow, the height's field and the
   stopped motion fail it.
+- The selected spell's task 80:8EDA (its level byte the first argument of the lifted task
+  append) runs `startSelectedSpell` of [src/game/spell-start.mjs](../src/game/spell-start.mjs),
+  compared in tools/room-entry-lift-functions.test.mjs; a runner's Strength 80:D067 (the
+  record lookup 80:D02F with the open bus of src/system/open-bus.mjs) runs
+  `runnerStrength` of [src/game/runner-state.mjs](../src/game/runner-state.mjs), and the
+  player object after a BRK 80:D186 runs `playerObject` of
+  [src/game/script-queries.mjs](../src/game/script-queries.mjs) (the BRK returns at once
+  and leaves only dead stack bytes), both compared by
+  [tools/runner-record-lift-functions.test.mjs](../tools/runner-record-lift-functions.test.mjs).
+  Block 111; the register-level versions moved to proof/game-reference/script-starts.mjs.
 - The object creation 80:A835 as a script native runs `createObject` of
   [src/game/object-create.mjs](../src/game/object-create.mjs) through `createObjectNative`
   (the register-level version stays for the register-level natives that call it); the

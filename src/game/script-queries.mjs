@@ -18,7 +18,8 @@ import { BYTE_MASK, WORD_SIGN } from '../constants/bits.mjs';
 export const padHeld = (mem) => dataBankWord(mem, PAD_HELD);
 // 80:9E5F: the buttons newly pressed this frame.
 export const padPressed = (mem) => dataBankWord(mem, PAD_PRESSED);
-// 80:CD97 and 80:D18A: the player figure's object slot (negative: none).
+// 80:CD97, 80:D18A and 80:D186 (D18A after a BRK that returns at once): the player
+// figure's object slot (negative: none).
 export const playerObject = (mem) => dataBankWord(mem, PLAYER_OBJECT);
 // 80:C0F7 and 80:C100: the glove sprite's screen X and Y (bytes).
 export const gloveScreenX = (mem) => dataBankWord(mem, GLOVE_SCREEN_X) & BYTE_MASK;

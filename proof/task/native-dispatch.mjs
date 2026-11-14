@@ -225,6 +225,12 @@ import {
   startWaveSwarmReference,
 } from '../game-reference/swarm-start.mjs';
 
+import {
+  appendSelectedSpellTaskReference,
+  getPlayerObjectAfterBreakReference,
+  getRunnerStrengthReference,
+} from '../game-reference/script-starts.mjs';
+
 // Lifted natives whose proofs run their register-level references (the game runs the
 // lifted ones, src/task/native-targets.mjs).
 const REFERENCE_TARGETS = new Map([
@@ -364,6 +370,9 @@ const REFERENCE_TARGETS = new Map([
   [0x80d7dd, startPathSwarmReference],
   [0x80d260, startWaveSwarmReference],
   [0x80d63c, circleSwarmLeaderReference],
+  [0x808eda, appendSelectedSpellTaskReference],
+  [0x80d067, getRunnerStrengthReference],
+  [0x80d186, getPlayerObjectAfterBreakReference],
 ]);
 
 // A fixed, independently source-checked set of native equations. This is no
