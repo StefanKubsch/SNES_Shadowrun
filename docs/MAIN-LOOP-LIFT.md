@@ -461,6 +461,20 @@ which the render proof of 81:8076 keeps using.
   proof/game-reference/motion-targets.mjs; the motion target test compares them (point
   lists in banks 7E and 7F); planted changes of the borrow, the height's field and the
   stopped motion fail it.
+- The collision test of an action box 80:8371 (the box of the object's action in a
+  direction from the action table's shape, the grid cells of its corners searched for
+  moving boxes above its bottom, result FFFF or 0) runs `testActionBoxCollision` of
+  [src/game/action-box-collision.mjs](../src/game/action-box-collision.mjs) with the
+  data bank 7E it sets; halting and resuming an object 80:8E96 and 80:8EB8 (its halt bit
+  and wait bit 12 of the first task down its links not waiting for a child) run
+  `haltObject` and `resumeObject` of [src/game/object-halt.mjs](../src/game/object-halt.mjs).
+  [tools/action-box-collision-lift-functions.test.mjs](../tools/action-box-collision-lift-functions.test.mjs)
+  (600 samples) and
+  [tools/object-halt-lift-functions.test.mjs](../tools/object-halt-lift-functions.test.mjs)
+  (500 samples each) compare them. Block 115; the register-level versions moved to
+  proof/game-reference/action-box-collision.mjs and object-halt.mjs. With it every script
+  native of src/task/native-targets.mjs runs lifted code (80:CF2E runs the lifted body of
+  src/game/runner-state.mjs).
 - Entering the Matrix 80:E30F (the scene request FFFE, the room to return to, the deck's
   memory 40, the system, extra nodes and message list bytes; the decker's Computer skill
   from the runner record, the health byte and record pointer of the group member's

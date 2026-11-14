@@ -80,6 +80,10 @@ export const LIFTED_SCRIPT_NATIVES = new Set([
   0x80a8f5, 0x80aa4c,
   // Entering the Matrix and a group member added to the scene.
   0x80e30f, 0x80a1e6,
+  // The collision test of an action box (src/game/action-box-collision.mjs).
+  0x808371,
+  // Halting and resuming an object (src/game/object-halt.mjs).
+  0x808e96, 0x808eb8,
 ]);
 // Direct page bytes a lifted native does not produce: the sample loader's scratch
 // (7E:0089-008B, 008F-0099) after any, and after the sight natives the line of sight's
