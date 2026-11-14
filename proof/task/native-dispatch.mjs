@@ -135,6 +135,15 @@ import {
   stopMotionReference,
 } from '../game-reference/motion-targets.mjs';
 
+import { hasObjectRecordPropertyReference } from '../game-reference/object-fields.mjs';
+
+import { isActorStatePropertyReference } from '../game-reference/actor-state.mjs';
+
+import {
+  endDialogReference,
+  resetPlayerControlReference,
+} from '../game-reference/script-requests.mjs';
+
 // Lifted natives whose proofs run their register-level references (the game runs the
 // lifted ones, src/task/native-targets.mjs).
 const REFERENCE_TARGETS = new Map([
@@ -221,6 +230,10 @@ const REFERENCE_TARGETS = new Map([
   [0x80c79c, moveObjectStraightToPointReference],
   [0x80c7a1, moveObjectToPointReference],
   [0x80c7c2, stopMotionReference],
+  [0x809d98, hasObjectRecordPropertyReference],
+  [0x809dae, isActorStatePropertyReference],
+  [0x80cdcf, endDialogReference],
+  [0x80de7e, resetPlayerControlReference],
 ]);
 
 // A fixed, independently source-checked set of native equations. This is no

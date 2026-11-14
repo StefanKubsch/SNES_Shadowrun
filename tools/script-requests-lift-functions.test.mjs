@@ -1,7 +1,8 @@
 // Random per-function tests of the lifted room, scene and main loop requests
 // (src/game/script-requests.mjs through their natives in src/task) against their
 // register-level references (proof/game-reference/script-requests.mjs): 80:CC97 (room),
-// 80:CC33 (scene), 80:D016 (reload) and 80:D9A0 (exit). Both sides run the native from
+// 80:CC33 (scene), 80:D016 (reload), 80:D9A0 (exit), 80:CDCF (dialog end) and 80:DE7E
+// (player control reset). Both sides run the native from
 // its script call (data bank 80, direct page 0, the RTS frame). Game state only
 // (docs/STRATEGY.md, 2026-11-14): WRAM outside the stacks, the device writes and the
 // return must be equal.
@@ -10,6 +11,8 @@ import { createSide, registerCases } from './lift-function-harness.mjs';
 import {
   changeRoomReference,
   changeSceneReference,
+  endDialogReference,
+  resetPlayerControlReference,
   requestMainLoopExitReference,
   requestRoomReloadReference,
 } from '../proof/game-reference/script-requests.mjs';
@@ -17,6 +20,8 @@ import { changeRoom } from '../src/task/native-room-change.mjs';
 import { changeScene } from '../src/task/native-scene-change.mjs';
 import { requestRoomReload } from '../src/task/native-room-reload.mjs';
 import { requestMainLoopExit } from '../src/task/native-main-loop-exit.mjs';
+import { endDialog } from '../src/task/native-dialog-end.mjs';
+import { resetPlayerControl } from '../src/task/native-player-control-reset.mjs';
 
 const WRAM_BYTES = 0x20000,
   HEX = 16,
@@ -57,6 +62,13 @@ registerCases(
       0x80d9a0,
       requestMainLoopExitReference,
       requestMainLoopExit,
+    ),
+    request('endDialog 80:CDCF', 0x80cdcf, endDialogReference, endDialog),
+    request(
+      'resetPlayerControl 80:DE7E',
+      0x80de7e,
+      resetPlayerControlReference,
+      resetPlayerControl,
     ),
   ],
   { sample, side: (s) => createSide(s, new Map()), runtime: (h) => h, ignored: [] },

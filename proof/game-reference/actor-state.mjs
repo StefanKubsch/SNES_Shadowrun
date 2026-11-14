@@ -1,5 +1,5 @@
 // Register-level references of the actor state natives 80:CB2B, 80:CB3C, 80:CB4D,
-// 80:CB9F, 80:CBB3 and 80:CBCB (moved from src/task/native-record-*.mjs; lifted in
+// 80:CB9F, 80:CBB3, 80:CBCB and 80:9DAE (moved from src/task/native-record-*.mjs; lifted in
 // src/game/actor-state.mjs). The proof plans and the Native58 dispatch of
 // proof/task/native-dispatch.mjs run these; the game runs the lifted natives.
 import {
@@ -10,8 +10,8 @@ import {
 } from '../../src/task/native-leaf-support.mjs';
 import { RECORD_COUNT, RECORD_FLAGS, RECORD_PROPERTY, WRAM } from '../../src/task/wram.mjs';
 import { akimiArrivalFlags, fixesEnabled, keepVampireDefeated } from '../../src/game/bugfixes.mjs';
-import { BYTE_MASK, LONG_MASK } from '../../src/constants/bits.mjs';
-import { FLAG_MEMORY_8BIT } from '../../src/constants/cpu-flags.mjs';
+import { BANK_WRAP, BYTE_MASK, LONG_MASK, WORD_MASK } from '../../src/constants/bits.mjs';
+import { FLAG_CARRY, FLAG_MEMORY_8BIT } from '../../src/constants/cpu-flags.mjs';
 // 80:CB2B: return the flag byte of the state record of the actor entry (first argument).
 // With bug fixes enabled, Akimi's arrival flags are corrected (src/game/bugfixes.mjs).
 export const getActorStateFlagsReference = (a, outerReturn = true) =>
@@ -108,6 +108,30 @@ export const keepActorStateFlagBitsReference = (a, outerReturn = true) =>
       const flags = h.load(a.read(field, 'record-and-field-BYTE'), 1);
       h.longWrite(field, h.load(flags & h.dp(SECOND_ARGUMENT, 1), 1), 1);
       h.ctx.status &= ~FLAG_MEMORY_8BIT;
+    },
+    outerReturn,
+  );
+// 80:9DAE: return TRUE (FFFF) when the property word of the state record of the actor
+// entry (second argument) equals the first argument, else FALSE (0); FALSE without a
+// record. The flags come from the CMP or the load of TRUE.
+export const isActorStatePropertyReference = (a, outerReturn = true) =>
+  leaf(
+    a,
+    (h) => {
+      const actor = h.index('x', h.dp(SECOND_ARGUMENT));
+      if (readActorState(h, actor) !== 0) {
+        const state = h.index('x', h.ctx.a),
+          property = h.load(h.longRead(WRAM + RECORD_PROPERTY + state)),
+          wanted = h.dp(FIRST_ARGUMENT);
+        // CMP: carry when property >= wanted, N and Z from the difference.
+        h.ctx.status = (h.ctx.status & ~FLAG_CARRY) | Number(property >= wanted);
+        h.nz((property - wanted) & WORD_MASK);
+        if (property === wanted) {
+          h.result(h.load(WORD_MASK), 'leaf-equal-DP00');
+          return;
+        }
+      }
+      a.writeWord(FIRST_ARGUMENT, 0, BANK_WRAP, 'leaf-zero-DP00');
     },
     outerReturn,
   );

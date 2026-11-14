@@ -15,6 +15,7 @@ import {
   keepActorStateFlagBitsReference,
   setActorStateFlagBitsReference,
   setActorStateFlagsReference,
+  isActorStatePropertyReference,
 } from '../proof/game-reference/actor-state.mjs';
 import { getActorStateFlags } from '../src/task/native-record-flags-get.mjs';
 import { getActorStateCount } from '../src/task/native-record-count-get.mjs';
@@ -22,7 +23,12 @@ import { getActorStateProperty } from '../src/task/native-record-property-get.mj
 import { setActorStateFlags } from '../src/task/native-record-flags-set.mjs';
 import { setActorStateFlagBits } from '../src/task/native-record-flags-or.mjs';
 import { keepActorStateFlagBits } from '../src/task/native-record-flags-and.mjs';
-import { ACTOR_BYTES, ACTORS } from '../src/data/actors.mjs';
+import { isActorStateProperty } from '../src/task/native-record-property-equals.mjs';
+import { ACTOR_BYTES, ACTOR_RECORD, ACTOR_TABLE, ACTORS } from '../src/data/actors.mjs';
+import { DialogTestMemory } from './task-native-dialog-harness.mjs';
+
+// The ROM for the property test's wanted word (the state record's pointer).
+const ROM = new DialogTestMemory(new Uint8Array(0x20000));
 
 const WRAM_BYTES = 0x20000,
   HEX = 16,
@@ -98,6 +104,35 @@ registerCases(
       keepActorStateFlagBitsReference,
       keepActorStateFlagBits,
     ),
+    // 80:9DAE takes the actor as the second argument and the wanted property as the
+    // first; in half the samples the wanted word is the record's property.
+    {
+      ...native(
+        'isActorStateProperty 80:9DAE',
+        0x809dae,
+        isActorStatePropertyReference,
+        isActorStateProperty,
+      ),
+      prepare: (s) => {
+        current = s;
+        const w = s.wram,
+          actor = w[0] | (w[1] << 8);
+        w[2] = w[0];
+        w[3] = w[1];
+        // An offset past the table's bank reaches no ROM: no wanted word then.
+        const at = ACTOR_TABLE + ACTOR_RECORD + actor,
+          state =
+            (at & 0xffff) >= 0x8000 && (at & 0xffff) < 0xffff
+              ? ROM.read8(at) | (ROM.read8(at + 1) << 8)
+              : null,
+          property = (state + 3) & 0x1ffff;
+        if (state !== null && s.rnd(2)) {
+          w[0] = w[property];
+          w[1] = w[(property + 1) & 0x1ffff];
+        }
+        return { bank: CODE_BANK, status: s.rnd(BYTE) & 0xc3 };
+      },
+    },
   ],
   { sample, side: (s) => createSide(s, new Map()), runtime: (h) => h, ignored: IGNORED },
 );

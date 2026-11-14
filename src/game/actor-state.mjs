@@ -8,7 +8,10 @@
 // a record the reads return the bytes at 7E:0001 to 0004 and the writes change nothing.
 import { ACTOR_RECORD, ACTOR_TABLE } from '../data/actors.mjs';
 import { RECORD_COUNT, RECORD_FLAGS, RECORD_PROPERTY, WRAM } from '../task/wram.mjs';
-import { BYTE_BITS, BYTE_MASK, LONG_MASK } from '../constants/bits.mjs';
+import { BYTE_BITS, BYTE_MASK, LONG_MASK, WORD_MASK } from '../constants/bits.mjs';
+
+// A script's truth value.
+const TRUE = WORD_MASK;
 
 const longWord = (mem, at) =>
   mem.read8(at & LONG_MASK) | (mem.read8((at + 1) & LONG_MASK) << BYTE_BITS);
@@ -42,3 +45,7 @@ export const setActorStateFlagBits = (mem, actor, bits) =>
 // 80:CBCB: only these bits (low byte) kept in the flag byte.
 export const keepActorStateFlagBits = (mem, actor, bits) =>
   changeFlags(mem, actor, (old) => old & bits);
+// 80:9DAE: TRUE (FFFF) when the actor has a state record whose property word is wanted,
+// else 0.
+export const isActorStateProperty = (mem, actor, wanted) =>
+  actorState(mem, actor) !== 0 && actorStateProperty(mem, actor) === wanted ? TRUE : 0;

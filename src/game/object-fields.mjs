@@ -5,7 +5,7 @@
 // 80:D16D for the direction, number and sprite mode, 80:A91D and 80:A926 for the task link
 // and 80:A92F and 80:D13E for the velocity, 80:A977 for the height, 80:94EE for the
 // dialog, 80:D14A for the position, 80:BB90 for the animation and 80:9D6A and 80:9D7A for
-// the record property; register-level references in
+// the record property and 80:9D98 for its test; register-level references in
 // proof/game-reference/object-fields.mjs).
 //
 // An object's flag word (7E:1458 plus its slot) and its record pointer (7E:13A8 plus its
@@ -42,7 +42,7 @@ import {
   WRAM,
 } from '../task/wram.mjs';
 import { TASK_CURSOR } from '../vm/layout.mjs';
-import { BYTE_BITS, BYTE_MASK, LONG_MASK, WORD_MASK } from '../constants/bits.mjs';
+import { BYTE_BITS, BYTE_MASK, LONG_MASK, WORD_MASK, WORD_SIGN } from '../constants/bits.mjs';
 
 // 80:CA05: the object's flag word.
 export const objectFlags = (mem, object) => dataBankWord(mem, OBJECT_FLAGS, object);
@@ -194,3 +194,9 @@ export const setRecordPropertyFromGroup = (mem, object) =>
 // 80:9D7A: the record property reset to 1538.
 export const resetRecordProperty = (mem, object) =>
   setRecordProperty(mem, object, RECORD_PROPERTY_RESET);
+// 80:9D98: TRUE (FFFF) when the object has a record whose property word is not
+// negative, else 0.
+export function hasRecordProperty(mem, object) {
+  const record = objectRecord(mem, object);
+  return record !== 0 && !(recordProperty(mem, object) & WORD_SIGN) ? WORD_MASK : 0;
+}

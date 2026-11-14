@@ -1,15 +1,9 @@
-import { leaf } from './native-leaf-support.mjs';
-import { DIALOG_END } from './wram.mjs';
-import { WORD_MASK } from '../constants/bits.mjs';
+import { finishLeaf } from './native-leaf-support.mjs';
+import { endDialog as end } from '../game/script-requests.mjs';
 
-const DIALOG_ENDED = WORD_MASK;
-
-// 80:CDCF: end the running dialog or menu.
-export const endDialog = (a, outerReturn = true) =>
-  leaf(
-    a,
-    (h) => {
-      h.longWrite(h.abs(DIALOG_END), h.load(DIALOG_ENDED));
-    },
-    outerReturn,
-  );
+// 80:CDCF (lifted in src/game/script-requests.mjs; register-level reference in
+// proof/game-reference/script-requests.mjs): end the running dialog or menu.
+export const endDialog = (a, outerReturn = true) => {
+  end(a.mem);
+  return finishLeaf(a, outerReturn);
+};

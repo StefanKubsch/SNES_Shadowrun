@@ -383,6 +383,16 @@ which the render proof of 81:8076 keeps using.
   [tools/motion-targets-lift-functions.test.mjs](../tools/motion-targets-lift-functions.test.mjs)
   compares both (300 samples each; game slots, any index and slots near FFFF); planted
   changes of the mode, the point's scale and the argument word left fail it.
+- The property tests 80:9D98 (FFFF when the object has a record whose property word is
+  not negative) and 80:9DAE (FFFF when the actor entry in the second argument has a state
+  record whose property word is the first argument) run `hasRecordProperty` of
+  src/game/object-fields.mjs and `isActorStateProperty` of src/game/actor-state.mjs; the
+  natives 80:CDCF (the dialog end 7E:1D63 set to FFFF) and 80:DE7E (the player control
+  reset of a scene change) run `endDialog` and `resetPlayerControl` of
+  src/game/script-requests.mjs (block 97). Their references joined the reference modules
+  of the same names; the object field, actor state and script request tests compare
+  them (the actor test with the record's property as the wanted word in half the
+  samples); planted changes of the sign test, the equality and a reset field fail them.
 - The getters 80:9E59 and 80:9E5F (the buttons held and newly pressed), 80:CD97 and its
   byte-identical copy 80:D18A (the player figure's slot) and 80:C0F7 and 80:C100 (the
   glove sprite's screen X and Y bytes) run `padHeld`, `padPressed`, `playerObject`,

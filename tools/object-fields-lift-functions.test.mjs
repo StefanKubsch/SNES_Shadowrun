@@ -9,7 +9,7 @@
 // number 80:D1CA and sprite mode 80:D17B and 80:D16D, the task link 80:A91D and 80:A926
 // and the velocity setters 80:A92F and 80:D13E, the height's raise 80:A977, the dialog
 // 80:94EE, the position 80:D14A, the animation test 80:BB90 and the record property's
-// group value 80:9D6A and reset 80:9D7A. Both sides run the native from
+// group value 80:9D6A, reset 80:9D7A and test 80:9D98. Both sides run the native from
 // its script call (data bank 80, direct page 0, the RTS frame). Game state only
 // (docs/STRATEGY.md, 2026-11-14): WRAM outside the stacks, the device writes and the
 // return (program counter and stack pointer) must be equal; the script interpreter
@@ -53,6 +53,7 @@ import {
   hasNoObjectAnimationReference,
   setObjectRecordPropertyFromGroupReference,
   resetObjectRecordPropertyReference,
+  hasObjectRecordPropertyReference,
 } from '../proof/game-reference/object-fields.mjs';
 import { getObjectRecordFirstByte } from '../src/task/native-object-record-byte0.mjs';
 import { getObjectRecordFlags } from '../src/task/native-object-record-flags.mjs';
@@ -86,6 +87,7 @@ import { setObjectPosition } from '../src/task/native-object-position-set.mjs';
 import { hasNoObjectAnimation } from '../src/task/native-object-selection-empty.mjs';
 import { setObjectRecordPropertyFromGroup } from '../src/task/native-object-record-property-from-group.mjs';
 import { resetObjectRecordProperty } from '../src/task/native-object-record-property-reset.mjs';
+import { hasObjectRecordProperty } from '../src/task/native-object-record-property-test.mjs';
 import { JAKE_STATE_RECORD } from '../src/game/cheats.mjs';
 import { CHEAT } from '../src/game/cheat-settings.mjs';
 import { JAKE_BODY, OBJECT_RECORD, OBJECT_SELECTION } from '../src/task/wram.mjs';
@@ -275,6 +277,12 @@ registerCases(
       0x809d7a,
       resetObjectRecordPropertyReference,
       resetObjectRecordProperty,
+    ),
+    field(
+      'hasObjectRecordProperty 80:9D98',
+      0x809d98,
+      hasObjectRecordPropertyReference,
+      hasObjectRecordProperty,
     ),
   ],
   { sample, side: (s) => createSide(s, new Map()), runtime: (h) => h, ignored: IGNORED },

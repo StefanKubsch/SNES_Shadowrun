@@ -2,7 +2,7 @@
 // src/task/native-object-flags-*.mjs, src/task/native-object-record-*.mjs and
 // src/task/native-object-armour-*.mjs, the motion getters, the direction, number and
 // sprite mode, the task link and the velocity setters, the dialog, the position, the
-// animation test and the record property's group and reset values; lifted in
+// animation test, the record property's group and reset values and its test; lifted in
 // src/game/object-fields.mjs). The proof plans and the Native58 dispatch of
 // proof/task/native-dispatch.mjs run these; the game runs the lifted natives.
 import {
@@ -44,7 +44,7 @@ import {
   WRAM,
 } from '../../src/task/wram.mjs';
 import { BANK_WRAP, BYTE_MASK, LONG_MASK, WORD_MASK } from '../../src/constants/bits.mjs';
-import { FLAG_CARRY, FLAG_ZERO } from '../../src/constants/cpu-flags.mjs';
+import { FLAG_CARRY, FLAG_NEGATIVE, FLAG_ZERO } from '../../src/constants/cpu-flags.mjs';
 import { FLAG_MEMORY_8BIT } from '../../src/constants/cpu-flags.mjs';
 import { protectedJakeHealth } from '../../src/game/cheats.mjs';
 import { TASK_CURSOR } from '../../src/vm/layout.mjs';
@@ -465,6 +465,26 @@ export const resetObjectRecordPropertyReference = (a, outerReturn = true) =>
         record = h.index('x', h.longRead(h.abs(OBJECT_RECORD) + object));
       if (record === 0) return;
       h.longWrite(WRAM + RECORD_PROPERTY + record, h.load(RECORD_PROPERTY_RESET));
+    },
+    outerReturn,
+  );
+// 80:9D98: return TRUE (FFFF) when the object (first argument) has a record whose
+// property word is not negative, else FALSE (0).
+export const hasObjectRecordPropertyReference = (a, outerReturn = true) =>
+  leaf(
+    a,
+    (h) => {
+      const record = indexObjectRecord(h);
+      if (record !== 0) {
+        h.load(h.longRead(WRAM + RECORD_PROPERTY + record));
+        if (!(h.ctx.status & FLAG_NEGATIVE)) {
+          h.result(h.load(WORD_MASK), 'C6-true-DP00');
+          return;
+        }
+      }
+      // The original STZ does not load A or change N/Z/C/V, even after a negative
+      // record word. These live flags and register bytes survive the actual RTS.
+      a.writeWord(FIRST_ARGUMENT, 0, BANK_WRAP, 'C6-zero-DP00');
     },
     outerReturn,
   );
