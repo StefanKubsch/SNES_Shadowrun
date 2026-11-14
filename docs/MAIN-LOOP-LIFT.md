@@ -372,6 +372,17 @@ which the render proof of 81:8076 keeps using.
   proof/game-reference/object-fields.mjs, which the instruction test of 80:BB90 now runs;
   the object field test compares them (with samples where the selection is FFFF);
   planted changes of the record guard, the reset value and the selection test fail it.
+- The motion target natives 80:C6F3 and 80:C6F8 (towards the object in the second
+  argument, straight or axis by axis), 80:C716 and 80:C71D (towards the player figure,
+  whose slot is also left in the second argument word), 80:C79C and 80:C7A1 (towards the
+  point in the second and third argument times four) and 80:C7C2 (the motion stopped)
+  run `moveToObject`, `moveToPlayer`, `moveToPoint` and `stopMotion` of
+  [src/game/motion-targets.mjs](../src/game/motion-targets.mjs) (block 96); the
+  register-level versions moved to proof/game-reference/motion-targets.mjs, which the
+  instruction tests of 80:C6F8, 80:C71D and 80:C7A1 now run.
+  [tools/motion-targets-lift-functions.test.mjs](../tools/motion-targets-lift-functions.test.mjs)
+  compares both (300 samples each; game slots, any index and slots near FFFF); planted
+  changes of the mode, the point's scale and the argument word left fail it.
 - The getters 80:9E59 and 80:9E5F (the buttons held and newly pressed), 80:CD97 and its
   byte-identical copy 80:D18A (the player figure's slot) and 80:C0F7 and 80:C100 (the
   glove sprite's screen X and Y bytes) run `padHeld`, `padPressed`, `playerObject`,

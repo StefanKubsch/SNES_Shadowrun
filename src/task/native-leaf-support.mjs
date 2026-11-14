@@ -135,9 +135,13 @@ export function leafArgument(a, offset) {
   return wram[offset] | (wram[offset + 1] << BYTE_BITS);
 }
 export function setLeafResult(a, value) {
+  setLeafWord(a, FIRST_ARGUMENT, value);
+}
+// An argument word of the direct page at 0 replaced (as some natives leave one).
+export function setLeafWord(a, offset, value) {
   const { wram } = a.mem;
-  wram[FIRST_ARGUMENT] = value & BYTE_MASK;
-  wram[FIRST_ARGUMENT + 1] = (value >>> BYTE_BITS) & BYTE_MASK;
+  wram[offset] = value & BYTE_MASK;
+  wram[offset + 1] = (value >>> BYTE_BITS) & BYTE_MASK;
 }
 export function finishLeaf(a, outerReturn = true) {
   const rawReturnWord = a.readWord(

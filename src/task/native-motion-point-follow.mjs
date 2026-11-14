@@ -1,8 +1,19 @@
-import { leaf } from './native-leaf-support.mjs';
-import { startMotionToPoint } from './native-motion-point-move.mjs';
-import { MOTION_STRAIGHT } from './wram.mjs';
+import {
+  FIRST_ARGUMENT,
+  SECOND_ARGUMENT,
+  THIRD_ARGUMENT,
+  finishLeaf,
+  leafArgument,
+} from './native-leaf-support.mjs';
+import { moveToPoint } from '../game/motion-targets.mjs';
 
-// 80:C79C: move the object (first argument) straight towards the point in the second
-// and third argument (body of 80:C7A1 with mode 0).
-export const moveObjectStraightToPoint = (a, outerReturn = true) =>
-  leaf(a, (h) => startMotionToPoint(h, MOTION_STRAIGHT), outerReturn);
+// 80:C79C (lifted in src/game/motion-targets.mjs; register-level reference in
+// proof/game-reference/motion-targets.mjs): move the object (first
+// argument) straight towards the point in the second and third argument.
+export const moveObjectStraightToPoint = (a, outerReturn = true) => {
+  const [object, x, y] = [FIRST_ARGUMENT, SECOND_ARGUMENT, THIRD_ARGUMENT].map((offset) =>
+    leafArgument(a, offset),
+  );
+  moveToPoint(a.mem, object, x, y, true);
+  return finishLeaf(a, outerReturn);
+};

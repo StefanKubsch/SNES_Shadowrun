@@ -1,6 +1,7 @@
 // Source-specific atomic plans for proof tools. The game executes the shared routines directly.
 import { prepareTaskPlan } from './plan.mjs';
-import { moveObjectStraightToObject } from '../../src/task/native-motion-object-follow.mjs';
+// The register-level reference; the game runs the lifted native.
+import { moveObjectStraightToObjectReference } from '../game-reference/motion-targets.mjs';
 
 export const prepareTaskNativeC6F3 = (options) =>
-  prepareTaskPlan(options, [0x80c6f3], (a) => moveObjectStraightToObject(a));
+  prepareTaskPlan(options, [0x80c6f3], (a) => moveObjectStraightToObjectReference(a));

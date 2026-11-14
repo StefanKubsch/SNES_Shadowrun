@@ -41,6 +41,8 @@ export const LIFTED_SCRIPT_NATIVES = new Set([
   0x80ccdb, 0x808b8a, 0x80a977,
   // The dialog, position, animation test and record property natives (src/game/object-fields.mjs).
   0x8094ee, 0x80d14a, 0x80bb90, 0x809d6a, 0x809d7a,
+  // The motion target natives (src/game/motion-targets.mjs).
+  0x80c6f3, 0x80c6f8, 0x80c716, 0x80c71d, 0x80c79c, 0x80c7a1, 0x80c7c2,
 ]);
 // Direct page bytes a lifted native does not produce: the sample loader's scratch
 // (7E:0089-008B, 008F-0099) after any, and after the sight natives the line of sight's

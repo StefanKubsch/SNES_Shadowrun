@@ -125,6 +125,16 @@ import {
   setObjectRecordPropertyFromGroupReference,
 } from '../game-reference/object-fields.mjs';
 
+import {
+  moveObjectStraightToObjectReference,
+  moveObjectStraightToPlayerReference,
+  moveObjectStraightToPointReference,
+  moveObjectToObjectReference,
+  moveObjectToPlayerReference,
+  moveObjectToPointReference,
+  stopMotionReference,
+} from '../game-reference/motion-targets.mjs';
+
 // Lifted natives whose proofs run their register-level references (the game runs the
 // lifted ones, src/task/native-targets.mjs).
 const REFERENCE_TARGETS = new Map([
@@ -204,6 +214,13 @@ const REFERENCE_TARGETS = new Map([
   [0x80bb90, hasNoObjectAnimationReference],
   [0x809d6a, setObjectRecordPropertyFromGroupReference],
   [0x809d7a, resetObjectRecordPropertyReference],
+  [0x80c6f3, moveObjectStraightToObjectReference],
+  [0x80c6f8, moveObjectToObjectReference],
+  [0x80c716, moveObjectStraightToPlayerReference],
+  [0x80c71d, moveObjectToPlayerReference],
+  [0x80c79c, moveObjectStraightToPointReference],
+  [0x80c7a1, moveObjectToPointReference],
+  [0x80c7c2, stopMotionReference],
 ]);
 
 // A fixed, independently source-checked set of native equations. This is no

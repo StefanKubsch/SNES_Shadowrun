@@ -1,17 +1,17 @@
-import { SECOND_ARGUMENT, leaf } from './native-leaf-support.mjs';
-import { startMotionToObject } from './native-motion-object-move.mjs';
-import { MOTION_STRAIGHT, PLAYER_OBJECT } from './wram.mjs';
-import { BANK_WRAP } from '../constants/bits.mjs';
+import {
+  FIRST_ARGUMENT,
+  SECOND_ARGUMENT,
+  finishLeaf,
+  leafArgument,
+  setLeafWord,
+} from './native-leaf-support.mjs';
+import { moveToPlayer } from '../game/motion-targets.mjs';
 
-// 80:C716: move the object (first argument) straight towards the player object (0CC2):
-// the player object becomes the second argument, then the body of 80:C6F3 follows.
-export const moveObjectStraightToPlayer = (a, outerReturn = true) =>
-  leaf(
-    a,
-    (h) => {
-      const player = h.load(h.longRead(h.abs(PLAYER_OBJECT)));
-      a.writeWord(SECOND_ARGUMENT, player, BANK_WRAP, 'leaf-reset-parameter');
-      startMotionToObject(h, MOTION_STRAIGHT);
-    },
-    outerReturn,
-  );
+// 80:C716 (lifted in src/game/motion-targets.mjs; register-level reference in
+// proof/game-reference/motion-targets.mjs): move the object (first
+// argument) straight towards the player object; the player object becomes the second
+// argument.
+export const moveObjectStraightToPlayer = (a, outerReturn = true) => {
+  setLeafWord(a, SECOND_ARGUMENT, moveToPlayer(a.mem, leafArgument(a, FIRST_ARGUMENT), true));
+  return finishLeaf(a, outerReturn);
+};
