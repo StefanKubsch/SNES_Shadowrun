@@ -461,6 +461,14 @@ which the render proof of 81:8076 keeps using.
   proof/game-reference/motion-targets.mjs; the motion target test compares them (point
   lists in banks 7E and 7F); planted changes of the borrow, the height's field and the
   stopped motion fail it.
+- The facing natives 80:CF93 (the object turns towards another object unless its low byte
+  is FF), 80:D1D2 (towards the player object) and 80:D1DD (the direction towards the
+  player object) with their direction body 80:D1E3 run `turnTowardsObject`,
+  `turnTowardsPlayer` and `getDirectionToPlayer` of
+  [src/game/object-facing.mjs](../src/game/object-facing.mjs) (block 106); the
+  register-level versions moved to proof/game-reference/object-facing.mjs.
+  [tools/object-facing-lift-functions.test.mjs](../tools/object-facing-lift-functions.test.mjs)
+  compares them (500 samples each).
 - The script natives 80:A985 (animation selection), 80:AAAF (turn) and 80:D15C (both)
   run `selectObjectAnimation` and `turnObject` of
   [src/game/object-turn.mjs](../src/game/object-turn.mjs) and `setActionAndDirection` of

@@ -1,20 +1,12 @@
-import { FIRST_ARGUMENT, leaf } from './native-leaf-support.mjs';
-import { taskSelectionSupport } from './native-object-turn.mjs';
-import { findDirectionToPlayer } from './native-player-direction-slot.mjs';
-import { BANK_WRAP } from '../constants/bits.mjs';
+import { taskStop } from './plan.mjs';
+import { finishLeaf } from './native-leaf-support.mjs';
+import { getDirectionToPlayer as directionToPlayer } from '../game/object-facing.mjs';
 
-const DIRECTION_RETURN_WORD = 0xd1df;
-
-// 80:D1DD: return the direction from the object in the first argument towards the
-// player object (0CC2), through 80:D1E3 with a real JSR frame (as in 80:D1D2); the
-// result is the direction in Y.
-export const getDirectionToPlayer = (a, outerReturn = true) =>
-  leaf(
-    a,
-    (h) => {
-      const support = taskSelectionSupport(h);
-      support.call(DIRECTION_RETURN_WORD, () => findDirectionToPlayer(h, support));
-      a.writeWord(FIRST_ARGUMENT, h.ctx.y, BANK_WRAP, 'leaf-direction-STY');
-    },
-    outerReturn,
-  );
+// 80:D1DD (lifted in src/game/object-facing.mjs; register-level reference in
+// proof/game-reference/object-facing.mjs): return the direction from the object in the
+// first argument towards the player object.
+export const getDirectionToPlayer = (a, outerReturn = true) => {
+  if (a.ctx.d !== 0) taskStop('task_direct_page_zero_required');
+  directionToPlayer(a.mem, a);
+  return finishLeaf(a, outerReturn);
+};

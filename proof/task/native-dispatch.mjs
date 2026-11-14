@@ -197,6 +197,12 @@ import {
   setObjectDirectionReference,
 } from '../game-reference/object-turn.mjs';
 
+import {
+  getDirectionToPlayerReference,
+  turnObjectToObjectReference,
+  turnObjectToPlayerReference,
+} from '../game-reference/object-facing.mjs';
+
 // Lifted natives whose proofs run their register-level references (the game runs the
 // lifted ones, src/task/native-targets.mjs).
 const REFERENCE_TARGETS = new Map([
@@ -321,6 +327,9 @@ const REFERENCE_TARGETS = new Map([
   [0x80a985, setObjectAnimationReference],
   [0x80aaaf, setObjectDirectionReference],
   [0x80d15c, setObjectActionAndDirectionReference],
+  [0x80cf93, turnObjectToObjectReference],
+  [0x80d1d2, turnObjectToPlayerReference],
+  [0x80d1dd, getDirectionToPlayerReference],
 ]);
 
 // A fixed, independently source-checked set of native equations. This is no
