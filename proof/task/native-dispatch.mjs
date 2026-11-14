@@ -231,6 +231,11 @@ import {
   getRunnerStrengthReference,
 } from '../game-reference/script-starts.mjs';
 
+import {
+  releaseObjectGraphicsReference,
+  removeObjectReference,
+} from '../game-reference/object-release.mjs';
+
 // Lifted natives whose proofs run their register-level references (the game runs the
 // lifted ones, src/task/native-targets.mjs).
 const REFERENCE_TARGETS = new Map([
@@ -373,6 +378,8 @@ const REFERENCE_TARGETS = new Map([
   [0x808eda, appendSelectedSpellTaskReference],
   [0x80d067, getRunnerStrengthReference],
   [0x80d186, getPlayerObjectAfterBreakReference],
+  [0x80a8f5, removeObjectReference],
+  [0x80aa4c, releaseObjectGraphicsReference],
 ]);
 
 // A fixed, independently source-checked set of native equations. This is no

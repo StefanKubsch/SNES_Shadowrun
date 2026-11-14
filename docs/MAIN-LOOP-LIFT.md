@@ -461,6 +461,16 @@ which the render proof of 81:8076 keeps using.
   proof/game-reference/motion-targets.mjs; the motion target test compares them (point
   lists in banks 7E and 7F); planted changes of the borrow, the height's field and the
   stopped motion fail it.
+- The object release natives 80:AA4C (the box, motion, picture and animation fields of
+  the object cleared, its chain of VRAM slots back to the free list) and 80:A8F5 (that,
+  then the kind freed and the object taken off the draw list, the entries above it moving
+  down) run `releaseObjectGraphics` and `removeObject` of
+  [src/game/object-release.mjs](../src/game/object-release.mjs) (block 113), with the
+  original's long, data bank and direct page addressing; a draw list without the object,
+  whose search the original never ends, stops after a full turn of the index. The
+  register-level versions moved to proof/game-reference/object-release.mjs.
+  [tools/object-release-lift-functions.test.mjs](../tools/object-release-lift-functions.test.mjs)
+  compares both (500 samples each, game slots and damaged indexes).
 - The selected spell's task 80:8EDA (its level byte the first argument of the lifted task
   append) runs `startSelectedSpell` of [src/game/spell-start.mjs](../src/game/spell-start.mjs),
   compared in tools/room-entry-lift-functions.test.mjs; a runner's Strength 80:D067 (the
