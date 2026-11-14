@@ -50,7 +50,17 @@ function runVm(scenario, maxSteps) {
   const memory = new TracingMemory(romBytes, scenario.wram.slice());
   const vm = new ScriptInterpreter(memory);
   vm.setContext(scenario.context);
-  if (scenario.natives) vm.natives = new NativeCalls(vm, {admitted: nativeOpcodeTargets, implementation: nativeTarget});
+  // The lifted script natives that run (tools/lifted-script-natives.mjs).
+  const lifted = new Set();
+  if (scenario.natives) {
+    vm.natives = new NativeCalls(vm, {admitted: nativeOpcodeTargets, implementation: nativeTarget});
+    const call = vm.natives.call.bind(vm.natives);
+    vm.natives.call = () => {
+      const target = 0x800000 | vm.mem.read16(NATIVE_POINTERS + vm.x);
+      if (LIFTED_SCRIPT_NATIVES.has(target)) lifted.add(target);
+      return call();
+    };
+  }
   const observations = [];
   let steps = 0, exit = EXIT_BUDGET, fault = null;
   while (steps < maxSteps) {
@@ -63,7 +73,7 @@ function runVm(scenario, maxSteps) {
     steps++;
     if (exit !== EXIT_BUDGET) break;
   }
-  return {vm, memory, steps, exit, fault, observations};
+  return {vm, memory, steps, exit, fault, observations, lifted};
 }
 
 function seedData(scenario) {
@@ -109,7 +119,7 @@ function compareOnce(scenario, maxSteps) {
   // Nach einem Fehler ist der VM-Zustand teilweise verändert: sauberen Stand neu rechnen.
   const failed = run.fault;
   if (failed) run = {...runVm(scenario, run.steps), fault: failed};
-  const {vm, steps, exit, fault, observations} = run;
+  const {vm, steps, exit, fault, observations, lifted: liftedRan} = run;
   // Ein nicht zugelassenes Native ist für das Orakel mit Native-Komposition ein Fehler: davor vergleichen.
   if (scenario.natives && exit === EXIT_NATIVE_CALL) {
     if (steps <= 1) return {result: 'equal-before-native', steps};
@@ -134,8 +144,9 @@ function compareOnce(scenario, maxSteps) {
     const out = plan.outputContext, got = vm.context();
     // A lifted native leaves no carry or overflow (tools/lifted-script-natives.mjs: no
     // opcode reads them before it sets them), so these two status bits are not compared.
-    const lifted = scenario.nativeId !== undefined &&
-      LIFTED_SCRIPT_NATIVES.has(0x800000 | vm.mem.read16(NATIVE_POINTERS + 2 * scenario.nativeId));
+    const named = scenario.nativeId !== undefined ? 0x800000 | vm.mem.read16(NATIVE_POINTERS + 2 * scenario.nativeId) : null;
+    if (LIFTED_SCRIPT_NATIVES.has(named)) liftedRan.add(named);
+    const lifted = liftedRan.size > 0;
     const statusMask = lifted ? ~(CARRY_FLAG | OVERFLOW_FLAG) : ~0;
     for (const key of ['a', 'x', 'y', 's', 'd', 'bank', 'status', 'pc'])
       if (key === 'status' ? (out[key] & statusMask) !== (got[key] & statusMask) : out[key] !== got[key]) throw Error(`Register ${key}: Orakel ${out[key]}, VM ${got[key]}; Szenario ${scenario.label}, Schritte ${steps}`);
@@ -143,8 +154,7 @@ function compareOnce(scenario, maxSteps) {
     // Nor the dead stack below its outer return word (an inner JSR frame) or its direct
     // page scratch: game state only (docs/STRATEGY.md, 2026-11-14), as in
     // tools/vm-special-natives-differential.mjs.
-    const target = lifted ? 0x800000 | vm.mem.read16(NATIVE_POINTERS + 2 * scenario.nativeId) : null;
-    const free = n => lifted && ((n <= outer && n > outer - 0x40) || inLiftedScratch(target, n));
+    const free = n => lifted && ((n <= outer && n > outer - 0x40) || [...liftedRan].some(target => inLiftedScratch(target, n)));
     for (let n = 0; n < expected.length; n++)
       if (expected[n] !== wram[n] && !free(n)) throw Error(`WRAM $${(0x7E0000 + n).toString(16)}: Orakel ${expected[n]}, VM ${wram[n]}; Szenario ${scenario.label}`);
   }

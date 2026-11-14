@@ -22,6 +22,13 @@ import { nativeOpcodeTargets } from '../src/task/native-opcode-targets.mjs';
 import { nativeTarget } from '../src/task/native-targets.mjs';
 import { createRenderData, renderAddress } from '../src/render/data.mjs';
 import { rom, IO_PCS, TracingMemory } from './vm-differential.mjs';
+import { LIFTED_SCRIPT_NATIVES, inLiftedScratch } from './lifted-script-natives.mjs';
+
+const CARRY_FLAG = 0x01,
+  OVERFLOW_FLAG = 0x40,
+  SCHEDULER_S = 0x1f2,
+  LIFTED_FRAME_BYTES = 0x40,
+  BYTE_BITS = 8;
 
 const romBytes = new Uint8Array(rom.buffer, rom.byteOffset, rom.length);
 const admitted = new Set(nativeOpcodeTargets);
@@ -92,7 +99,11 @@ export const PROOF_LIMITS = [
   'task_output_budget_required',
 ];
 
-export function check(label, plan, wram, vm, memory) {
+// lifted: the lifted script natives that ran (tools/lifted-script-natives.mjs). They leave
+// no carry or overflow (no opcode reads them before it sets them), nor their pushes below
+// the scheduler's S (7E:01F2) or their direct page scratch: game state only
+// (docs/STRATEGY.md, 2026-11-14), as in tools/vm-body-specs.mjs.
+export function check(label, plan, wram, vm, memory, lifted = new Set()) {
   if (!plan.handled) {
     if (PROOF_LIMITS.includes(plan.reason)) return 'skipped:' + plan.reason;
     throw Error(
@@ -102,15 +113,21 @@ export function check(label, plan, wram, vm, memory) {
   const expected = wram.slice();
   for (const access of plan.accesses)
     if (access.kind === 'write') expected[renderAddress(access.address) - 0x7e0000] = access.value;
-  const out = plan.outputContext,
-    got = vm.context();
+  const flags = lifted.size ? ~(CARRY_FLAG | OVERFLOW_FLAG) : ~0,
+    out = { ...plan.outputContext, status: plan.outputContext.status & flags },
+    got = { ...vm.context(), status: vm.context().status & flags };
   for (const key of ['a', 'x', 'y', 's', 'd', 'bank', 'status', 'pc'])
     if (out[key] !== got[key])
       throw Error(
         `Register ${key}: oracle ${out[key]?.toString(16)}, VM ${got[key]?.toString(16)}; ${label}`,
       );
+  const outer = memory.wram[SCHEDULER_S] | (memory.wram[SCHEDULER_S + 1] << BYTE_BITS),
+    free = (n) =>
+      lifted.size > 0 &&
+      ((n <= outer && n > outer - LIFTED_FRAME_BYTES) ||
+        [...lifted].some((target) => inLiftedScratch(target, n)));
   for (let n = 0; n < expected.length; n++)
-    if (expected[n] !== memory.wram[n])
+    if (expected[n] !== memory.wram[n] && !free(n))
       throw Error(
         `WRAM $${(0x7e0000 + n).toString(16)}: oracle ${expected[n]}, VM ${memory.wram[n]}; ${label}`,
       );
@@ -126,6 +143,7 @@ export function check(label, plan, wram, vm, memory) {
 // Optional stats count the flows established by the oracle plan.
 export function compareVisit(state, entry, maxSteps, label, stats = null) {
   const run = (budget) => {
+    const lifted = new Set();
     const { vm, memory, scheduler } = createVm(state.wram);
     vm.setContext(state.context);
     const observations = [];
@@ -135,6 +153,7 @@ export function compareVisit(state, entry, maxSteps, label, stats = null) {
       waitPending = false;
     while (stop === STOP_BUDGET && steps < budget) {
       const target = pendingNative(vm);
+      if (LIFTED_SCRIPT_NATIVES.has(target)) lifted.add(target);
       if (target !== null && !admitted.has(target)) {
         waitPending = target === WAIT;
         break;
@@ -167,7 +186,7 @@ export function compareVisit(state, entry, maxSteps, label, stats = null) {
       );
       steps++;
     }
-    return { vm, memory, steps, stop, fault, observations, waitPending };
+    return { vm, memory, steps, stop, fault, observations, waitPending, lifted };
   };
   // The oracle composes a saved native continuation ($F508) only without
   // further opcodes and only from $C1F9.
@@ -185,7 +204,7 @@ export function compareVisit(state, entry, maxSteps, label, stats = null) {
   }
   // After a fault, compare the clean state immediately before it.
   if (result.fault) result = run(result.steps);
-  const { vm, memory, steps, observations } = result;
+  const { vm, memory, steps, observations, lifted } = result;
   const protectedStackBytes = [
     renderAddress(state.context.s + 1),
     renderAddress(state.context.s + 2),
@@ -208,7 +227,7 @@ export function compareVisit(state, entry, maxSteps, label, stats = null) {
       ioObservations: Object.freeze(observations),
     });
   }
-  const outcome = check(`${label}, ${steps} opcodes`, plan, state.wram, vm, memory);
+  const outcome = check(`${label}, ${steps} opcodes`, plan, state.wram, vm, memory, lifted);
   // Compare a pending native wait separately, starting from this state.
   if (result.waitPending && outcome === 'equal') {
     const waited = compareWait(memory.wram.slice(), vm.context(), label + ' wait');
