@@ -4,7 +4,7 @@ import { unpackStep } from './native-unpack-body.mjs';
 import { SCENE_GRAPHICS_ROUTINES } from './main-scene-graphics.mjs';
 import { TALK_ROUTINES } from './native-dialog.mjs';
 import { createObject } from './native-object-create.mjs';
-import { setObjectDirection } from './native-object-action-set.mjs';
+import { turnRegisters } from './native-object-turn.mjs';
 import { drawWindowListAdapter } from './native-render-compose.mjs';
 import { sendApuCommand } from './native-input-apu.mjs';
 import { clampToCameraBox, updateCameraTileBuffers } from './main-loop-camera.mjs';
@@ -639,7 +639,7 @@ export const TRANSITION_ROUTINES = new Map([
   [0x80a2fa, createGroupMembers],
   [0x80a3b6, runActorsPlace],
   [0x80a835, (h) => createObject(h.a, false)],
-  [0x80aaaf, (h) => setObjectDirection(h.a, false)],
+  [0x80aaaf, (h) => turnRegisters(h.a, false)],
   [0x81ad92, drawWindowListAdapter],
   [0x81f007, (h) => sendApuCommand(h.a, false)],
   [0x818a05, clampToCameraBox],

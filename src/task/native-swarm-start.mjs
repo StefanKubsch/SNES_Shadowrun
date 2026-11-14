@@ -1,7 +1,7 @@
 import { taskStop } from './plan.mjs';
 import { FIRST_ARGUMENT, SECOND_ARGUMENT, leaf } from './native-leaf-support.mjs';
 import { createObject } from './native-object-create.mjs';
-import { setObjectDirection } from './native-object-action-set.mjs';
+import { turnRegisters } from './native-object-turn.mjs';
 import { lsr, clc, WAVE_TABLE, PHASE_MASK, QUARTER_PHASE } from './native-object-bob.mjs';
 import {
   CIRCLE_FOLLOWER_COUNTDOWN,
@@ -79,7 +79,7 @@ const CIRCLE_SPEED_LIMIT = 0x14,
   FOLLOWERS_END = 0x10;
 const SWARM_ROUTINES = Object.freeze({
   create: (a) => createObject(a, false),
-  action: (a) => setObjectDirection(a, false),
+  action: (a) => turnRegisters(a, false),
 });
 const support = (a, h) => ({
   compare: (left, right) => {

@@ -4,7 +4,7 @@ import { leaf } from './native-leaf-support.mjs';
 import { testLineOfSight, SIGHT_ROUTINE } from './line-of-sight.mjs';
 import { randomBelow } from './native-random.mjs';
 import { createObject } from './native-object-create.mjs';
-import { setObjectDirection } from './native-object-action-set.mjs';
+import { turnRegisters } from './native-object-turn.mjs';
 import { hitObject, DP_HIT_RESULT, DP_HIT_SHOOTER } from './native-object-hit.mjs';
 import { playSoundEffect } from './native-audio-compose.mjs';
 import { validateTaskActionsOptions } from './native-actions.mjs';
@@ -136,7 +136,7 @@ export const NATIVE_8AB5_ROUTINES = Object.freeze({
   sight: (h) => testLineOfSight(h),
   random: (a) => randomBelow(a, false),
   slot: (a) => createObject(a, false),
-  action: (a) => setObjectDirection(a, false),
+  action: (a) => turnRegisters(a, false),
   hit: (a, events) => hitObject(a, events, false),
   sound: (a, events) => playSoundEffect(a, events, false),
 });

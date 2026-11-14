@@ -16,8 +16,7 @@ import {
   GLOVE_LIMITS,
   GLOVE_OVER_PLAYER,
 } from './native-glove-crosshair-limits.mjs';
-import { setObjectAnimation } from './native-object-action-apply.mjs';
-import { setObjectDirection } from './native-object-action-set.mjs';
+import { selectAnimationRegisters, turnRegisters } from './native-object-turn.mjs';
 import {
   STATUS_SCREEN_ROUTINES,
   statusRoutineSequence,
@@ -366,8 +365,8 @@ function runFacingTowardsGlove(h, k, jsr) {
 // Called routines with their own proofs, by target (tests may replace them).
 export const PLAYER_CONTROL_ROUTINES = new Map([
   ...STATUS_SCREEN_ROUTINES,
-  [0x80a985, (h) => setObjectAnimation(h.a, false)],
-  [0x80aaaf, (h) => setObjectDirection(h.a, false)],
+  [0x80a985, (h) => selectAnimationRegisters(h.a, false)],
+  [0x80aaaf, (h) => turnRegisters(h.a, false)],
 ]);
 const routineCall =
   (d, events, routines) =>

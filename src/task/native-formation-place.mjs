@@ -1,7 +1,6 @@
 import { taskStop } from './plan.mjs';
 import { leaf } from './native-leaf-support.mjs';
-import { setObjectDirection } from './native-object-action-set.mjs';
-import { setObjectAnimation } from './native-object-action-apply.mjs';
+import { selectAnimationRegisters, turnRegisters } from './native-object-turn.mjs';
 import {
   GROUP_INDEX,
   GROUP_NUMBERS,
@@ -73,13 +72,13 @@ export const placeObjectInFormation = (a, outerReturn = true) =>
       h.load(h.longRead(WRAM + FORMATION_DIRECTION + ctx.x));
       a.writeWord(2, ctx.a, BANK_WRAP, 'BB2C-DP02');
       a.pushWord(h.dp(0), 'BB2C-PEI-DP00');
-      callLeaf(a, FORMATION_ACTION_RETURN_WORD, setObjectDirection);
+      callLeaf(a, FORMATION_ACTION_RETURN_WORD, turnRegisters);
       h.load(h.longRead(h.abs(FORMATION_UNMOVED)));
       h.load(ctx.status & FLAG_ZERO ? 2 : 0);
       a.writeWord(2, ctx.a, BANK_WRAP, 'BB2C-DP02');
       h.load(a.pullWord('BB2C-PLA'));
       a.writeWord(0, ctx.a, BANK_WRAP, 'BB2C-DP00');
-      callLeaf(a, FORMATION_SELECTION_RETURN_WORD, setObjectAnimation);
+      callLeaf(a, FORMATION_SELECTION_RETURN_WORD, selectAnimationRegisters);
     },
     outerReturn,
   );

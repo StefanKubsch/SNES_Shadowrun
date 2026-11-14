@@ -1,7 +1,7 @@
 import { taskStop } from './plan.mjs';
 import { FIRST_ARGUMENT, SECOND_ARGUMENT, leaf } from './native-leaf-support.mjs';
 import { createObject } from './native-object-create.mjs';
-import { setObjectDirection } from './native-object-action-set.mjs';
+import { turnRegisters } from './native-object-turn.mjs';
 import {
   GROUP_INDEX,
   GROUP_SLOTS,
@@ -94,7 +94,7 @@ export const addSceneObject = (a, outerReturn = true) =>
       a.pushWord(ctx.a, 'A1E6-PHA-slot');
       h.load(h.dp(DP_SCENE_OBJECT_SCRATCH));
       store(SECOND_ARGUMENT, ctx.a);
-      call(ACTION_RETURN_WORD, () => setObjectDirection(a, false));
+      call(ACTION_RETURN_WORD, () => turnRegisters(a, false));
       h.load(h.longRead(WRAM + GROUP_INDEX));
       if (ctx.status & FLAG_ZERO) {
         h.load(h.dp(FIRST_ARGUMENT));

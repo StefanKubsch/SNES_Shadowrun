@@ -1,5 +1,5 @@
 import { WORD_MASK } from '../constants/bits.mjs';
-import { setObjectDirection } from './native-object-action-set.mjs';
+import { turnRegisters } from './native-object-turn.mjs';
 
 import {
   MOTION_ACTIVE,
@@ -240,7 +240,7 @@ function moveDirect(h, action) {
   return h.rts();
 }
 
-export function moveObjectTowardsTarget(h, action = (h) => setObjectDirection(h.a, false)) {
+export function moveObjectTowardsTarget(h, action = (h) => turnRegisters(h.a, false)) {
   h.load(farField(h, MOTION_MODE) & MODE_AXES);
   if (!zero(h)) h.call(0x80c9e9, 0x80c84d, () => moveAxes(h, action));
   else h.call(0x80c9ed, 0x80c913, () => moveDirect(h, action));

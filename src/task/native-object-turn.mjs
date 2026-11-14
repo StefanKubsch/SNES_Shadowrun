@@ -1,5 +1,5 @@
 import { taskStop } from './plan.mjs';
-import { FIRST_ARGUMENT, SECOND_ARGUMENT, finishLeaf } from './native-leaf-support.mjs';
+import { FIRST_ARGUMENT, SECOND_ARGUMENT, finishLeaf, leaf } from './native-leaf-support.mjs';
 import { setActionAndDirection } from '../game/member-facing.mjs';
 
 import {
@@ -256,9 +256,34 @@ export function runTaskAction(h, k) {
   h.load(WORD_MASK);
   h.longWrite(h.abs(OBJECT_PICTURE_CHANGE) + ctx.x, ctx.a);
 }
-// 80:D15C (lifted in src/game/member-facing.mjs; register-level reference in
-// proof/game-reference/object-turn.mjs): set the object's action selection (A985), then
-// its direction (AAAF).
+// The register-level natives 80:A985, 80:AAAF and 80:D15C (the references of
+// proof/game-reference/object-turn.mjs). The register-level natives that still call them
+// keep these: they read the registers the original leaves, and their proof plans run
+// without the game's memory.
+export const selectAnimationRegisters = (a, outerReturn = true) =>
+  leaf(a, (h) => runTaskSelection(h, taskSelectionSupport(h)), outerReturn);
+export const turnRegisters = (a, outerReturn = true) =>
+  leaf(a, (h) => runTaskAction(h, taskSelectionSupport(h)), outerReturn);
+// D15C arguments: DP00 object, DP02 selection, DP04 direction (restored to DP02 for AAAF).
+const DP_DIRECTION_ARGUMENT = 4;
+export const setActionAndDirectionRegisters = (a, outerReturn = true) =>
+  leaf(
+    a,
+    (h) => {
+      const k = taskSelectionSupport(h);
+      a.pushWord(h.dp(DP_DIRECTION_ARGUMENT), 'd2-PEI04');
+      a.pushWord(h.dp(FIRST_ARGUMENT), 'd2-PEI00');
+      k.call(callReturn(0x80d162), () => runTaskSelection(h, k));
+      h.load(a.pullWord('d2-restore-slot-PLA'));
+      a.writeWord(FIRST_ARGUMENT, h.ctx.a, BANK_WRAP, 'd2-restored-slot');
+      h.load(a.pullWord('d2-restore-action-PLA'));
+      a.writeWord(SECOND_ARGUMENT, h.ctx.a, BANK_WRAP, 'd2-restored-action');
+      k.call(callReturn(0x80d16b), () => runTaskAction(h, k));
+    },
+    outerReturn,
+  );
+// 80:D15C (lifted in src/game/member-facing.mjs; register-level reference above): set the
+// object's action selection (A985), then its direction (AAAF).
 export const setObjectActionAndDirection = (a, outerReturn = true) => {
   if (a.ctx.d !== 0) taskStop('task_direct_page_zero_required');
   setActionAndDirection(a.mem, a);

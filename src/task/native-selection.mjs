@@ -7,7 +7,7 @@ import { requestWindowUploadSequence } from './native-menu-compose.mjs';
 import { setTextCursor } from './native-list-prerequisites.mjs';
 import { printTextSequence } from './native-text-compose.mjs';
 import { observedContinuation, drainNativeSequence } from './native-call-continuation.mjs';
-import { setObjectActionAndDirection } from './native-object-turn.mjs';
+import { setActionAndDirectionRegisters } from './native-object-turn.mjs';
 import { TEXT_NUMBERS } from './native-notice.mjs';
 import { DP_PORTRAIT_FRAME } from './native-dialog.mjs';
 
@@ -184,7 +184,7 @@ function* selectionSequence(a, events, entry, outerReturn) {
       h.load(SELECTION_ACTION);
       h.dpWrite(2, ctx.a);
     };
-    yield* call(0x80bbf6, 0x80d15c, () => segment(() => setObjectActionAndDirection(a, false)));
+    yield* call(0x80bbf6, 0x80d15c, () => segment(() => setActionAndDirectionRegisters(a, false)));
   }
   let result;
   yield () => {
