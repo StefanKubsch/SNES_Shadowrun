@@ -292,6 +292,15 @@ which the render proof of 81:8076 keeps using.
   to `objectCoarseHeight` of the same module through the data bank 80 (block 85), with
   their references in the same reference module; the same test compares them (400
   samples each); planted changes of the shift and of the Z table fail it.
+- The getters 80:9E59 and 80:9E5F (the buttons held and newly pressed), 80:CD97 and its
+  byte-identical copy 80:D18A (the player figure's slot) and 80:C0F7 and 80:C100 (the
+  glove sprite's screen X and Y bytes) run `padHeld`, `padPressed`, `playerObject`,
+  `gloveScreenX` and `gloveScreenY` of
+  [src/game/script-queries.mjs](../src/game/script-queries.mjs) (block 86); the
+  register-level versions moved to proof/game-reference/script-queries.mjs.
+  [tools/script-queries-lift-functions.test.mjs](../tools/script-queries-lift-functions.test.mjs)
+  compares both (200 samples each); planted changes of the glove byte's mask and the
+  pressed buttons' field fail it.
 - The script variable natives 80:CC07 (the variable at the byte offset of the first
   argument as the result), 80:CC10 (set to the second argument), 80:CC19 (its bits set)
   and 80:CC26 (only its bits kept) run `scriptVariable`, `storeScriptVariable`,

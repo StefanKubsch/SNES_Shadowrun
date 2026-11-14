@@ -51,6 +51,15 @@ import {
   getObjectCoarseHeightReference,
 } from '../game-reference/object-fields.mjs';
 
+import {
+  getPadHeldReference,
+  getPadPressedReference,
+  getPlayerObjectReference,
+  getPlayerObjectCopyReference,
+  getGloveScreenXReference,
+  getGloveScreenYReference,
+} from '../game-reference/script-queries.mjs';
+
 // Lifted natives whose proofs run their register-level references (the game runs the
 // lifted ones, src/task/native-targets.mjs).
 const REFERENCE_TARGETS = new Map([
@@ -87,6 +96,12 @@ const REFERENCE_TARGETS = new Map([
   [0x80a959, getObjectCoarseXReference],
   [0x80a963, getObjectCoarseYReference],
   [0x80a96d, getObjectCoarseHeightReference],
+  [0x809e59, getPadHeldReference],
+  [0x809e5f, getPadPressedReference],
+  [0x80cd97, getPlayerObjectReference],
+  [0x80d18a, getPlayerObjectCopyReference],
+  [0x80c0f7, getGloveScreenXReference],
+  [0x80c100, getGloveScreenYReference],
 ]);
 
 // A fixed, independently source-checked set of native equations. This is no
