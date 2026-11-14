@@ -1,12 +1,9 @@
-import { leaf } from './native-leaf-support.mjs';
-import { MAIN_LOOP_RELOAD, MAIN_LOOP_REQUESTED } from './wram.mjs';
+import { finishLeaf } from './native-leaf-support.mjs';
+import { requestRoomReload as requestReload } from '../game/script-requests.mjs';
 
-// 80:D016: ask the main loop to reload the current room.
-export const requestRoomReload = (a, outerReturn = true) =>
-  leaf(
-    a,
-    (h) => {
-      h.longWrite(h.abs(MAIN_LOOP_RELOAD), h.load(MAIN_LOOP_REQUESTED));
-    },
-    outerReturn,
-  );
+// 80:D016 (lifted in src/game/script-requests.mjs; register-level reference in
+// proof/game-reference/script-requests.mjs): ask the main loop to reload the current room.
+export const requestRoomReload = (a, outerReturn = true) => {
+  requestReload(a.mem);
+  return finishLeaf(a, outerReturn);
+};

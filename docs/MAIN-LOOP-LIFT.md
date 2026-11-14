@@ -331,6 +331,16 @@ which the render proof of 81:8076 keeps using.
   [tools/kind-values-lift-functions.test.mjs](../tools/kind-values-lift-functions.test.mjs)
   compares both (400 samples each; actor entries, object slots and any offset; game
   kinds and any word); planted changes of the carry and of the flag field fail it.
+- The request natives 80:CC97 (the room 7E:2DE2 set, the scene request 7FFF: room
+  only), 80:CC33 (the scene request and its argument at 7E:1CE9 and 7E:1CEB and the room
+  set), 80:D016 (the room reload 7E:1FD8 set to FFFF) and 80:D9A0 (the main loop exit
+  7E:1FDA set to FFFF) run `requestRoomChange`, `requestScene`, `requestRoomReload` and
+  `requestMainLoopExit` of [src/game/script-requests.mjs](../src/game/script-requests.mjs)
+  (block 92); the register-level versions moved to
+  proof/game-reference/script-requests.mjs.
+  [tools/script-requests-lift-functions.test.mjs](../tools/script-requests-lift-functions.test.mjs)
+  compares both (200 samples each); planted changes of the room-only value and of the
+  scene argument's order fail it.
 - The getters 80:9E59 and 80:9E5F (the buttons held and newly pressed), 80:CD97 and its
   byte-identical copy 80:D18A (the player figure's slot) and 80:C0F7 and 80:C100 (the
   glove sprite's screen X and Y bytes) run `padHeld`, `padPressed`, `playerObject`,
