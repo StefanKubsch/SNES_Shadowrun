@@ -60,6 +60,13 @@ import {
   getGloveScreenYReference,
 } from '../game-reference/script-queries.mjs';
 
+import {
+  getObjectDirectionReference,
+  getObjectNumberReference,
+  getSpriteModeReference,
+  setSpriteModeReference,
+} from '../game-reference/object-fields.mjs';
+
 // Lifted natives whose proofs run their register-level references (the game runs the
 // lifted ones, src/task/native-targets.mjs).
 const REFERENCE_TARGETS = new Map([
@@ -102,6 +109,10 @@ const REFERENCE_TARGETS = new Map([
   [0x80d18a, getPlayerObjectCopyReference],
   [0x80c0f7, getGloveScreenXReference],
   [0x80c100, getGloveScreenYReference],
+  [0x80d255, getObjectDirectionReference],
+  [0x80d1ca, getObjectNumberReference],
+  [0x80d17b, getSpriteModeReference],
+  [0x80d16d, setSpriteModeReference],
 ]);
 
 // A fixed, independently source-checked set of native equations. This is no

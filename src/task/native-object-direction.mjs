@@ -1,15 +1,10 @@
-import { FIRST_ARGUMENT, leaf } from './native-leaf-support.mjs';
-import { OBJECT_DIRECTION } from './wram.mjs';
-import { BYTE_MASK } from '../constants/bits.mjs';
+import { FIRST_ARGUMENT, finishLeaf, leafArgument, setLeafResult } from './native-leaf-support.mjs';
+import { objectDirection } from '../game/object-fields.mjs';
 
-// 80:D255: return the facing direction (low byte) of the object (first argument).
-export const getObjectDirection = (a, outerReturn = true) =>
-  leaf(
-    a,
-    (h) => {
-      const object = h.index('x', h.dp(FIRST_ARGUMENT)),
-        word = h.load(h.longRead(h.abs(OBJECT_DIRECTION) + object));
-      h.result(h.load(word & BYTE_MASK));
-    },
-    outerReturn,
-  );
+// 80:D255 (lifted in src/game/object-fields.mjs; register-level reference in
+// proof/game-reference/object-fields.mjs): return the facing direction (low byte) of the
+// object (first argument).
+export const getObjectDirection = (a, outerReturn = true) => {
+  setLeafResult(a, objectDirection(a.mem, leafArgument(a, FIRST_ARGUMENT)));
+  return finishLeaf(a, outerReturn);
+};

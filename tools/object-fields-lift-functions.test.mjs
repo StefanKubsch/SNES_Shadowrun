@@ -5,7 +5,8 @@
 // flag byte 80:CA3A, count 80:CA49 and property 80:CA58, the flag byte's set 80:CAA2, OR
 // 80:CAB4 and AND 80:CACA and the count's set 80:CAE0 (with and without the health
 // cheat, src/game/cheats.mjs), and the armour word's get 80:8EF5, set 80:8AF1, sum 80:8AFA
-// and difference 80:8B08, and the motion getters 80:A941 to 80:A96D. Both sides run the native from
+// and difference 80:8B08, the motion getters 80:A941 to 80:A96D, the direction 80:D255,
+// number 80:D1CA and sprite mode 80:D17B and 80:D16D. Both sides run the native from
 // its script call (data bank 80, direct page 0, the RTS frame). Game state only
 // (docs/STRATEGY.md, 2026-11-14): WRAM outside the stacks, the device writes and the
 // return (program counter and stack pointer) must be equal; the script interpreter
@@ -35,6 +36,10 @@ import {
   getObjectCoarseXReference,
   getObjectCoarseYReference,
   getObjectCoarseHeightReference,
+  getObjectDirectionReference,
+  getObjectNumberReference,
+  getSpriteModeReference,
+  setSpriteModeReference,
 } from '../proof/game-reference/object-fields.mjs';
 import { getObjectRecordFirstByte } from '../src/task/native-object-record-byte0.mjs';
 import { getObjectRecordFlags } from '../src/task/native-object-record-flags.mjs';
@@ -54,6 +59,10 @@ import { getObjectVelocityZ } from '../src/task/native-object-velocity-z.mjs';
 import { getObjectCoarseX } from '../src/task/native-object-position-x.mjs';
 import { getObjectCoarseY } from '../src/task/native-object-position-y.mjs';
 import { getObjectCoarseHeight } from '../src/task/native-object-height.mjs';
+import { getObjectDirection } from '../src/task/native-object-direction.mjs';
+import { getObjectNumber } from '../src/task/native-object-number.mjs';
+import { getSpriteMode } from '../src/task/native-sprite-mode-get.mjs';
+import { setSpriteMode } from '../src/task/native-sprite-mode-set.mjs';
 import { JAKE_STATE_RECORD } from '../src/game/cheats.mjs';
 import { CHEAT } from '../src/game/cheat-settings.mjs';
 import { JAKE_BODY, OBJECT_RECORD } from '../src/task/wram.mjs';
@@ -202,6 +211,10 @@ registerCases(
       getObjectCoarseHeightReference,
       getObjectCoarseHeight,
     ),
+    field('getObjectDirection 80:D255', 0x80d255, getObjectDirectionReference, getObjectDirection),
+    field('getObjectNumber 80:D1CA', 0x80d1ca, getObjectNumberReference, getObjectNumber),
+    field('getSpriteMode 80:D17B', 0x80d17b, getSpriteModeReference, getSpriteMode),
+    field('setSpriteMode 80:D16D', 0x80d16d, setSpriteModeReference, setSpriteMode),
   ],
   { sample, side: (s) => createSide(s, new Map()), runtime: (h) => h, ignored: IGNORED },
 );

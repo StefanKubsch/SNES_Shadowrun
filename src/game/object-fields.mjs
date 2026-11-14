@@ -1,7 +1,8 @@
 // Object fields that scripts read and change (lifted from the script natives 80:CA05,
 // 80:CA0D, 80:CA15 and 80:CA20 for the flag word and 80:CA2B, 80:CA3A, 80:CA49, 80:CA58,
 // 80:CAA2, 80:CAB4, 80:CACA and 80:CAE0 for the record, 80:8EF5, 80:8AF1, 80:8AFA and
-// 80:8B08 for the armour, 80:A941 to 80:A96D for the motion; register-level references in
+// 80:8B08 for the armour, 80:A941 to 80:A96D for the motion, 80:D255, 80:D1CA, 80:D17B and
+// 80:D16D for the direction, number and sprite mode; register-level references in
 // proof/game-reference/object-fields.mjs).
 //
 // An object's flag word (7E:1458 plus its slot) and its record pointer (7E:13A8 plus its
@@ -13,7 +14,12 @@
 import { dataBankWord, setDataBankWord } from '../system/data-bank.mjs';
 import {
   OBJECT_ARMOUR,
+  OBJECT_DEPTH_MODE_CLEAR_MASK,
+  OBJECT_DEPTH_MODE_MASK,
+  OBJECT_DEPTH_ORDER,
+  OBJECT_DIRECTION,
   OBJECT_FLAGS,
+  OBJECT_NUMBER,
   OBJECT_HEIGHT,
   OBJECT_VELOCITY_X,
   OBJECT_VELOCITY_Y,
@@ -108,3 +114,21 @@ export const objectCoarseX = (mem, object) => dataBankWord(mem, OBJECT_X, object
 export const objectCoarseY = (mem, object) => dataBankWord(mem, OBJECT_Y, object) >>> BOX_SHIFT;
 export const objectCoarseHeight = (mem, object) =>
   dataBankWord(mem, OBJECT_HEIGHT, object) >>> BOX_SHIFT;
+
+// 80:D255: the object's facing direction (low byte).
+export const objectDirection = (mem, object) =>
+  dataBankWord(mem, OBJECT_DIRECTION, object) & BYTE_MASK;
+// 80:D1CA: the object's number.
+export const objectNumber = (mem, object) => dataBankWord(mem, OBJECT_NUMBER, object);
+// 80:D17B: the sprite mode bits of the object's depth order word.
+export const spriteMode = (mem, object) =>
+  dataBankWord(mem, OBJECT_DEPTH_ORDER, object) & OBJECT_DEPTH_MODE_MASK;
+// 80:D16D: the sprite mode bits replaced by mode (not masked: other bits it holds are
+// set too); the other depth order bits stay.
+export const storeSpriteMode = (mem, object, mode) =>
+  setDataBankWord(
+    mem,
+    OBJECT_DEPTH_ORDER,
+    object,
+    (dataBankWord(mem, OBJECT_DEPTH_ORDER, object) & OBJECT_DEPTH_MODE_CLEAR_MASK) | mode,
+  );

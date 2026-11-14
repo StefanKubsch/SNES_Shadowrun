@@ -1,6 +1,7 @@
 // Register-level references of the object field script natives (moved from
 // src/task/native-object-flags-*.mjs, src/task/native-object-record-*.mjs and
-// src/task/native-object-armour-*.mjs and the motion getters; lifted in
+// src/task/native-object-armour-*.mjs, the motion getters, the direction, number and
+// sprite mode; lifted in
 // src/game/object-fields.mjs). The proof plans and the Native58 dispatch of
 // proof/task/native-dispatch.mjs run these; the game runs the lifted natives.
 import {
@@ -12,7 +13,12 @@ import {
 } from '../../src/task/native-leaf-support.mjs';
 import {
   OBJECT_ARMOUR,
+  OBJECT_DEPTH_MODE_CLEAR_MASK,
+  OBJECT_DEPTH_MODE_MASK,
+  OBJECT_DEPTH_ORDER,
+  OBJECT_DIRECTION,
   OBJECT_FLAGS,
+  OBJECT_NUMBER,
   OBJECT_HEIGHT,
   OBJECT_RECORD,
   OBJECT_VELOCITY_X,
@@ -265,6 +271,52 @@ export const getObjectCoarseHeightReference = (a, outerReturn = true) =>
       h.load(h.longRead(h.abs(OBJECT_HEIGHT) + object));
       h.lsr();
       h.result(h.lsr());
+    },
+    outerReturn,
+  );
+// 80:D255: return the facing direction (low byte) of the object (first argument).
+export const getObjectDirectionReference = (a, outerReturn = true) =>
+  leaf(
+    a,
+    (h) => {
+      const object = h.index('x', h.dp(FIRST_ARGUMENT)),
+        word = h.load(h.longRead(h.abs(OBJECT_DIRECTION) + object));
+      h.result(h.load(word & BYTE_MASK));
+    },
+    outerReturn,
+  );
+// 80:D1CA: return the object number of the object slot (first argument).
+export const getObjectNumberReference = (a, outerReturn = true) =>
+  leaf(
+    a,
+    (h) => {
+      const object = h.index('x', h.dp(FIRST_ARGUMENT));
+      h.result(h.load(h.longRead(h.abs(OBJECT_NUMBER) + object)));
+    },
+    outerReturn,
+  );
+// 80:D17B: return the sprite mode bits of the depth order word of the object (first argument).
+export const getSpriteModeReference = (a, outerReturn = true) =>
+  leaf(
+    a,
+    (h) => {
+      const object = h.index('x', h.dp(FIRST_ARGUMENT)),
+        order = h.load(h.longRead(h.abs(OBJECT_DEPTH_ORDER) + object));
+      h.result(h.load(order & OBJECT_DEPTH_MODE_MASK));
+    },
+    outerReturn,
+  );
+// 80:D16D: replace the sprite mode bits of the object (first argument) with the
+// second argument; the other depth order bits stay. The argument is not masked.
+export const setSpriteModeReference = (a, outerReturn = true) =>
+  leaf(
+    a,
+    (h) => {
+      const object = h.index('x', h.dp(FIRST_ARGUMENT)),
+        address = h.abs(OBJECT_DEPTH_ORDER) + object,
+        order = h.load(h.longRead(address)),
+        kept = h.load(order & OBJECT_DEPTH_MODE_CLEAR_MASK);
+      h.longWrite(address, h.load(kept | h.dp(SECOND_ARGUMENT)));
     },
     outerReturn,
   );

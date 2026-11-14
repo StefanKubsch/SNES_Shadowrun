@@ -292,6 +292,12 @@ which the render proof of 81:8076 keeps using.
   to `objectCoarseHeight` of the same module through the data bank 80 (block 85), with
   their references in the same reference module; the same test compares them (400
   samples each); planted changes of the shift and of the Z table fail it.
+- The natives 80:D255 (the facing direction's low byte), 80:D1CA (the object number),
+  80:D17B (the sprite mode bits of the depth order word) and 80:D16D (those bits replaced
+  by the unmasked second argument) run `objectDirection`, `objectNumber`, `spriteMode`
+  and `storeSpriteMode` of the same module (block 87); the same test compares them;
+  planted changes of the direction's mask, the kept depth bits and the mode mask fail
+  it.
 - The getters 80:9E59 and 80:9E5F (the buttons held and newly pressed), 80:CD97 and its
   byte-identical copy 80:D18A (the player figure's slot) and 80:C0F7 and 80:C100 (the
   glove sprite's screen X and Y bytes) run `padHeld`, `padPressed`, `playerObject`,

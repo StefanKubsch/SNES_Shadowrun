@@ -22,6 +22,8 @@ export const LIFTED_SCRIPT_NATIVES = new Set([
   0x80a941, 0x80a949, 0x80a951, 0x80a959, 0x80a963, 0x80a96d,
   // The pad, player and glove getters (src/game/script-queries.mjs).
   0x809e59, 0x809e5f, 0x80cd97, 0x80d18a, 0x80c0f7, 0x80c100,
+  // The direction, number and sprite mode natives (src/game/object-fields.mjs).
+  0x80d255, 0x80d1ca, 0x80d17b, 0x80d16d,
 ]);
 // Direct page bytes a lifted native does not produce: the sample loader's scratch
 // (7E:0089-008B, 008F-0099) after any, and after the sight natives the line of sight's
