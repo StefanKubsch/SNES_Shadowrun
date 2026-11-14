@@ -427,6 +427,19 @@ which the render proof of 81:8076 keeps using.
   compares both (400 samples each; lists of 0 to 38 game slots below the hardware
   registers; listed, other, negative and any objects); planted changes of the target
   bits, the missing object's start and the empty result fail it.
+- The state counts 80:9DC8 (the count byte of the object's actor's state record counted
+  down, with the health cheat's protection of Jake's; FFFF when it reaches 0 or without
+  a record) and 80:9DEC (the actor's count raised by the argument's low byte, at most six)
+  run `countDownObjectState` and `raiseActorStateCount` of src/game/actor-state.mjs, and
+  the group member position 80:A297 (the formation position of the member object, 0 for
+  none) `groupMemberPosition` of
+  [src/game/group-members.mjs](../src/game/group-members.mjs) (block 101). Their
+  references joined proof/game-reference/actor-state.mjs and group-members.mjs, which the
+  instruction tests of 80:9DC8 and 80:A297 now run; the actor state test (with Jake's
+  entry and the cheat) and
+  [tools/group-members-lift-functions.test.mjs](../tools/group-members-lift-functions.test.mjs)
+  compare them; planted changes of the limit six, the cheat guard and the member's
+  position fail them.
 - The getters 80:9E59 and 80:9E5F (the buttons held and newly pressed), 80:CD97 and its
   byte-identical copy 80:D18A (the player figure's slot) and 80:C0F7 and 80:C100 (the
   glove sprite's screen X and Y bytes) run `padHeld`, `padPressed`, `playerObject`,

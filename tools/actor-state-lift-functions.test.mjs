@@ -16,6 +16,8 @@ import {
   setActorStateFlagBitsReference,
   setActorStateFlagsReference,
   isActorStatePropertyReference,
+  decrementObjectStateCountReference,
+  addActorStateCountReference,
 } from '../proof/game-reference/actor-state.mjs';
 import { getActorStateFlags } from '../src/task/native-record-flags-get.mjs';
 import { getActorStateCount } from '../src/task/native-record-count-get.mjs';
@@ -24,11 +26,24 @@ import { setActorStateFlags } from '../src/task/native-record-flags-set.mjs';
 import { setActorStateFlagBits } from '../src/task/native-record-flags-or.mjs';
 import { keepActorStateFlagBits } from '../src/task/native-record-flags-and.mjs';
 import { isActorStateProperty } from '../src/task/native-record-property-equals.mjs';
+import { decrementObjectStateCount } from '../src/task/native-object-record-count-decrement.mjs';
+import { addActorStateCount } from '../src/task/native-record-count-add.mjs';
+import { CHEAT } from '../src/game/cheat-settings.mjs';
+import { JAKE_STATE_RECORD } from '../src/game/cheats.mjs';
+import { OBJECT_NUMBER } from '../src/task/wram.mjs';
 import { ACTOR_BYTES, ACTOR_RECORD, ACTOR_TABLE, ACTORS } from '../src/data/actors.mjs';
 import { DialogTestMemory } from './task-native-dialog-harness.mjs';
 
 // The ROM for the property test's wanted word (the state record's pointer).
 const ROM = new DialogTestMemory(new Uint8Array(0x20000));
+// The actor entry whose state record is Jake's (for the health cheat).
+const JAKE_ACTOR = (() => {
+  for (let actor = 0; actor < ACTORS * ACTOR_BYTES; actor += ACTOR_BYTES) {
+    const at = ACTOR_TABLE + ACTOR_RECORD + actor;
+    if ((ROM.read8(at) | (ROM.read8(at + 1) << 8)) === JAKE_STATE_RECORD) return actor;
+  }
+  return 0;
+})();
 
 const WRAM_BYTES = 0x20000,
   HEX = 16,
@@ -104,6 +119,40 @@ registerCases(
       keepActorStateFlagBitsReference,
       keepActorStateFlagBits,
     ),
+    native('addActorStateCount 80:9DEC', 0x809dec, addActorStateCountReference, addActorStateCount),
+    // 80:9DC8 takes an object (a game slot) whose number is an actor entry, Jake's in some
+    // samples, with and without the health cheat.
+    ...[0, CHEAT.health].map((cheats) => ({
+      ...native(
+        `decrementObjectStateCount 80:9DC8${cheats ? ' with the health cheat' : ''}`,
+        0x809dc8,
+        (a, o) => {
+          a.vm = { ...a.vm, cheats };
+          return decrementObjectStateCountReference(a, o);
+        },
+        (a, o) => {
+          a.vm = { ...a.vm, cheats };
+          return decrementObjectStateCount(a, o);
+        },
+      ),
+      prepare: (s) => {
+        current = s;
+        const w = s.wram,
+          object = 2 * s.rnd(44),
+          number = OBJECT_NUMBER + object;
+        w[0] = object;
+        w[1] = 0;
+        const actor = ACTOR_BYTES * s.rnd(ACTORS);
+        w[number] = actor & 0xff;
+        w[number + 1] = actor >>> 8;
+        if (!s.rnd(4)) {
+          // Jake's entry: an actor whose state record is Jake's, found in the ROM table.
+          w[number] = JAKE_ACTOR & 0xff;
+          w[number + 1] = JAKE_ACTOR >>> 8;
+        }
+        return { bank: CODE_BANK, status: s.rnd(BYTE) & 0xc3 };
+      },
+    })),
     // 80:9DAE takes the actor as the second argument and the wanted property as the
     // first; in half the samples the wanted word is the record's property.
     {

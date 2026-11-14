@@ -53,6 +53,8 @@ export const LIFTED_SCRIPT_NATIVES = new Set([
   0x809159, 0x80913c, 0x8090eb,
   // The fight list queries (src/game/fight-list.mjs).
   0x808656, 0x80866f, 0x808631,
+  // The state counts (actor-state.mjs) and the group member position (group-members.mjs).
+  0x809dc8, 0x809dec, 0x80a297,
 ]);
 // Direct page bytes a lifted native does not produce: the sample loader's scratch
 // (7E:0089-008B, 008F-0099) after any, and after the sight natives the line of sight's

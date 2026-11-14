@@ -7,7 +7,8 @@
 // +2 and the property word at +3, in bank 7E (an address near FFFF reaches 7F). Without
 // a record the reads return the bytes at 7E:0001 to 0004 and the writes change nothing.
 import { ACTOR_RECORD, ACTOR_TABLE } from '../data/actors.mjs';
-import { RECORD_COUNT, RECORD_FLAGS, RECORD_PROPERTY, WRAM } from '../task/wram.mjs';
+import { OBJECT_NUMBER, RECORD_COUNT, RECORD_FLAGS, RECORD_PROPERTY, WRAM } from '../task/wram.mjs';
+import { dataBankWord } from '../system/data-bank.mjs';
 import { BYTE_BITS, BYTE_MASK, LONG_MASK, WORD_MASK } from '../constants/bits.mjs';
 
 // A script's truth value.
@@ -49,3 +50,24 @@ export const keepActorStateFlagBits = (mem, actor, bits) =>
 // else 0.
 export const isActorStateProperty = (mem, actor, wanted) =>
   actorState(mem, actor) !== 0 && actorStateProperty(mem, actor) === wanted ? TRUE : 0;
+// 80:9DC8: the count byte of the state record of the object's actor entry (the object's
+// number at 7E:150A, through the data bank 80) counted down, wrapping; guard (record,
+// count) may change the count stored (the health cheat, src/game/cheats.mjs). TRUE (FFFF)
+// when it reaches 0 or there is no record, else 0.
+export function countDownObjectState(mem, object, guard = (_record, value) => value) {
+  const state = actorState(mem, dataBankWord(mem, OBJECT_NUMBER, object));
+  if (state === 0) return TRUE;
+  const at = fieldAddress(state, RECORD_COUNT),
+    count = guard(state, (mem.read8(at) - 1) & BYTE_MASK);
+  mem.write8(at, count);
+  return count === 0 ? TRUE : 0;
+}
+// 80:9DEC: the count byte of the actor's state record raised by amount (its low byte),
+// wrapping in a byte, then at most six; no record, no change.
+const COUNT_MAX = 6;
+export function raiseActorStateCount(mem, actor, amount) {
+  const state = actorState(mem, actor);
+  if (state === 0) return;
+  const at = fieldAddress(state, RECORD_COUNT);
+  mem.write8(at, Math.min((mem.read8(at) + amount) & BYTE_MASK, COUNT_MAX));
+}

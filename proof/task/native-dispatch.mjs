@@ -164,6 +164,13 @@ import {
   isInFightListReference,
 } from '../game-reference/fight-list-queries.mjs';
 
+import {
+  addActorStateCountReference,
+  decrementObjectStateCountReference,
+} from '../game-reference/actor-state.mjs';
+
+import { getGroupMemberPositionReference } from '../game-reference/group-members.mjs';
+
 // Lifted natives whose proofs run their register-level references (the game runs the
 // lifted ones, src/task/native-targets.mjs).
 const REFERENCE_TARGETS = new Map([
@@ -265,6 +272,9 @@ const REFERENCE_TARGETS = new Map([
   [0x808656, isInFightListReference],
   [0x80866f, hasFightTargetReference],
   [0x808631, getPreviousFightObjectReference],
+  [0x809dc8, decrementObjectStateCountReference],
+  [0x809dec, addActorStateCountReference],
+  [0x80a297, getGroupMemberPositionReference],
 ]);
 
 // A fixed, independently source-checked set of native equations. This is no
