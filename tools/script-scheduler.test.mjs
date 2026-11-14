@@ -275,10 +275,10 @@ function jsWorld(wram, effects, stats) {
     ready = scheduler.ready.bind(scheduler),
     child = scheduler.child.bind(scheduler),
     release = scheduler.release.bind(scheduler);
-  scheduler.run = (slot, how, input) => {
+  scheduler.run = function* (slot, how, input) {
     if (how === RESUME_CHILD) count('child-resume');
     if (how === RESUME_WAIT) count('wait-resume');
-    const exit = run(slot, how, input);
+    const exit = yield* run(slot, how, input);
     if (exit.ended) count('end');
     return exit;
   };

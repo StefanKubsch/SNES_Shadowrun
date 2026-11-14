@@ -167,6 +167,59 @@ budget)` runs opcodes until END (`{kind: 'end', result}`), a native or script ca
 - The test's outer stack lies below the game stack top 7E:1CBB: scripts write state
   words at 7E:1D09-1F60, which a stack at 7E:1FE0 overlaps.
 
+## Phase 3 result (2026-11-14)
+
+- [src/script/scheduler.mjs](../src/script/scheduler.mjs): the round (`rounds`), the head
+  visit (`headVisit`), the visit, the resumption and the task run are generators. The
+  native callback may return a pending call (`resume()` returns true once the native has
+  returned, its word in `result`); it stays the slot's `native` until then, and the
+  generators yield while it pauses. `round()` and `visitHead()` run to the end (a pause
+  there stops at `script_native_paused_synchronously`); `beginRound()` and
+  `continueRound()` hand each pause to the caller. The round has no opcode budget: it
+  pauses only where a native pauses.
+- [src/script/natives.mjs](../src/script/natives.mjs): `ScriptNatives` is the bridge F4F6
+  to F509 over a JS task. The argument words go to the direct page words 00.. (args[0] at
+  00, as call_native F4CB leaves them); the native runs with A = its pointer, X = 2 * ID,
+  Y = the task's PC, D = 0, DBR = 80 and S = the stack F378 saved at 01F2, with the
+  return word F508 pushed; after its RTS to F509 on that stack the result is the word at
+  7E:0000. The natives are the lifted modules of the register-level bridge: the admitted
+  natives and the special natives with live devices, unchanged. A native's JSR 80:C1CA
+  (topic action, spell menu) is a nested head visit of the JS scheduler on the native's
+  stack less six bytes (C1CA saves the cursor, the visit and the task push their
+  returns; C1E3 is four bytes), ending as the original with A = the restored cursor (C1CA)
+  or the list head (C1E3), DBR = 80 and its RTS. With a finite work budget the special
+  natives with a resumable sequence pause, and a nested visit inside one pauses with it.
+- [proof/script/js-rounds.mjs](../proof/script/js-rounds.mjs) attaches the JS rounds to a
+  live game: the driver's round C1E3 after the main interval and the owner's resumable
+  round 96C0 (attract demo). Until phase 4 the rest of the game keeps the task tables and
+  the heap in WRAM, so each round loads the JS scheduler through the conversion layer and
+  stores its projection at the end, and the projection is stored before each native; when
+  register-level code inside a native changed the tables or the heap, the conversion
+  layer reads them back in place (`reload`, tasks with unchanged frames keep their
+  objects), also before a nested visit.
+- [tools/script-natives.test.mjs](../tools/script-natives.test.mjs) runs two live games in
+  lockstep from the reset, one with the register-level rounds and one with the JS rounds,
+  and compares the WRAM (task bytes through the projection), VRAM, CGRAM and OAM at every
+  NMI: the benchmark route for 6000 NMIs with synchronous natives, the closed badge route
+  from the apartment save (16348 NMIs: 8882 rounds, 42549 native calls, 2942 native
+  pauses across steps, five nested visits of topic dialogs, projectiles appended by
+  80:8AB5) with pausing natives, and 6000 NMIs of the attract demo with the owner's
+  rounds. All are equal. Exploratory runs: the benchmark route for 9000 NMIs (5570
+  rounds, 51792 native calls) in both modes and the attract demo for 12000 NMIs (1452
+  rounds) are equal as well.
+- Findings:
+  - No native on these routes reads the word 7E:0000 after a nested visit: the topic
+    dialogs continue equal although the JS scheduler leaves neither the END result nor
+    the ready check's word there. The JS scheduler keeps not writing it.
+  - The original's scheduler leaves its return words on the main program's stack in page
+    1 (S near 013Ah during the game); they are dead, and the JS rounds do not write them.
+  - Register-level code inside natives that changes the task state on these routes (the
+    callers of the task API of phase 4): the topic action's append 80:C34A before the
+    nested visit, the projectiles of 80:8AB5, the scene object of a group member 80:A1E6
+    and the object creation 80:A835 (attract demo).
+  - The live game never runs a synchronous owner round; js-rounds stops there
+    (`js_rounds_synchronous_owner`).
+
 ## Open points
 
 - Opcode use (2026-11-14, the decoded corpus analysis/event-scripts.txt of
@@ -191,11 +244,10 @@ budget)` runs opcodes until END (`{kind: 'end', result}`), a native or script ca
   unwritten, ORs it with the distance test (native 0A, `< 100`) and leaves the loop when
   the result is not zero. In the original a nonzero heap residue there ends the loop
   after the first five frames, whatever the distance; zeroed JS frames keep waiting for
-  the event or the approach, which is what the code evidently intends. User decision 2026-11-14: zeroed frames, recorded as a port correction in [BUGFIXES.md](BUGFIXES.md#uninitialized-local-in-script-dd). Until phase 3 loads the new modules, tools/production-boundary.test.mjs exempts them (user decision 2026-11-14).
-- For phase 3: the JS scheduler writes no word 7E:0000 (the original leaves the END
-  result and the ready check's word there) and its round has no opcode budget. Natives
-  that read 7E:0000 after a nested visit, and natives that pause across frames (their
-  sequences), must take these from the task state instead.
+  the event or the approach, which is what the code evidently intends. User decision 2026-11-14: zeroed frames, recorded as a port correction in [BUGFIXES.md](BUGFIXES.md#uninitialized-local-in-script-dd). Until game code reaches the task state through the JS scheduler (phase 4) and the plain game loop drives it (phase 5), tools/production-boundary.test.mjs exempts the new modules (user decision 2026-11-14 for phases 1 and 2, extended to the native bridge of phase 3).
+- The JS scheduler writes no word 7E:0000 (the original leaves the END result and the
+  ready check's word there). No native read it after a nested visit in the phase 3
+  differential; a native on another path that does would diverge there.
 - Heap and slot exhaustion stay frontiers (`task_heap_required`, `task_slot_required`);
   the JS model keeps the original's 48 slots and the frame sizes so that the
   conversion layer reproduces the original heap.

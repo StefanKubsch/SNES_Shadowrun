@@ -14,6 +14,11 @@
 // The game needs no heap: the frame of a task is its JS state. The optional observers
 // onCreate(slot, task) and onRelease(slot, task) let the conversion layer in proof/
 // replay the original heap allocation in the same order.
+//
+// Natives may pause (phase 3): the native callback then returns a pending call, which
+// becomes the slot's `native` until it finishes. The round, the nested visit and the
+// task run are generators that yield while a native pauses; round() and visitHead() run
+// them to the end, beginRound() and continueRound() hand each pause to the caller.
 import { taskStop } from '../task/plan.mjs';
 import { createTask, finishCall } from './tasks.mjs';
 import { runTask, EXIT_END, EXIT_SCRIPT } from './interpreter.mjs';
@@ -42,6 +47,21 @@ const LOOP_LIMIT = 0x10000;
 
 const isWaitNative = (mem, id) => mem.read16(NATIVE_POINTERS + 2 * id) === WAIT_NATIVE;
 
+// A pending native call: resume() continues it and returns true once it has returned,
+// with its result word in `result`.
+export const isPendingNative = (value) =>
+  value !== null && typeof value === 'object' && typeof value.resume === 'function';
+
+// Runs a scheduler generator to its end; a native that pauses here has no caller to
+// hand the pause to.
+function finish(steps) {
+  for (;;) {
+    const { done, value } = steps.next();
+    if (done) return value;
+    taskStop('script_native_paused_synchronously');
+  }
+}
+
 // C1A6: every slot free (free list 0, 1, ..., 47), the task list empty.
 function freeSlot(next) {
   return {
@@ -52,12 +72,13 @@ function freeSlot(next) {
     counter: 0,
     events: 0,
     continuation: null,
+    native: null, // the pending call of a native that paused
   };
 }
 
 export class Scheduler {
   // native(id, args, scheduler, slot) runs a script native other than the wait and
-  // returns its result word (null when it leaves none).
+  // returns its result word (null when it leaves none) or a pending call when it paused.
   constructor(mem, { native = null, onCreate = null, onRelease = null } = {}) {
     this.mem = mem;
     this.native = native;
@@ -70,6 +91,21 @@ export class Scheduler {
     this.free = 0;
     this.cursor = NONE; // the task being visited
     this.running = new Set(); // slots whose bytecode runs (a native may visit others)
+    this.job = null; // a round paused by a native (beginRound)
+  }
+
+  // A round that hands native pauses to the caller: true while it is paused;
+  // continueRound() goes on with it.
+  beginRound() {
+    if (this.job !== null) taskStop('script_round_paused');
+    this.job = this.rounds();
+    return this.continueRound();
+  }
+  continueRound() {
+    if (this.job === null) taskStop('script_round_not_paused');
+    if (!this.job.next().done) return true;
+    this.job = null;
+    return false;
   }
 
   // C34A: a new task for `script` at the head of the task list; returns its slot.
@@ -86,9 +122,12 @@ export class Scheduler {
 
   // C1E3: visit the tasks from the cursor to the end of the list, then rewind the cursor.
   round() {
+    finish(this.rounds());
+  }
+  *rounds() {
     for (let n = 0; this.cursor !== NONE; n++) {
       if (n >= LOOP_LIMIT) taskStop('original_endless_loop', { slot: this.cursor });
-      this.visit(this.cursor);
+      yield* this.visit(this.cursor);
     }
     this.cursor = this.head;
   }
@@ -96,18 +135,21 @@ export class Scheduler {
   // C1CA: visit the head task (natives such as the dialog run it at once after C34A),
   // then restore the cursor.
   visitHead() {
+    finish(this.headVisit());
+  }
+  *headVisit() {
     const saved = this.cursor;
     this.cursor = this.head;
-    if (this.head !== NONE) this.visit(this.head);
+    if (this.head !== NONE) yield* this.visit(this.head);
     this.cursor = saved;
   }
 
   // C1F9: run the task if it is ready, otherwise move the cursor on.
-  visit(slot) {
+  *visit(slot) {
     if (this.running.has(slot)) taskStop('task_reentered', { slot });
     const value = this.ready(slot);
     if (value === NOT_READY) this.cursor = this.slots[slot].next;
-    else this.resume(slot, this.slots[slot].continuation, value);
+    else yield* this.resume(slot, this.slots[slot].continuation, value);
   }
 
   // C3C9: NOT_READY, or the word the original leaves at 7E:0000 for a waiting native's
@@ -131,13 +173,13 @@ export class Scheduler {
 
   // C1FE with the tail C20B: run the task, start the child task it called at once, and
   // after a task ends, free it and resume the parent task waiting behind it.
-  resume(slot, continuation, value) {
+  *resume(slot, continuation, value) {
     let current = slot,
       how = continuation,
       input = value;
     for (let n = 0; ; n++) {
       if (n >= LOOP_LIMIT) taskStop('original_endless_loop', { slot: current });
-      const exit = this.run(current, how, input);
+      const exit = yield* this.run(current, how, input);
       // C20B reads the cursor; a native's nested visit restores it.
       const at = this.cursor,
         entry = this.slots[at];
@@ -175,7 +217,7 @@ export class Scheduler {
   // F378 (enter) or the continuation F495/F509, then bytecode until the task ends,
   // calls a script or waits. Returns { ended, word } with the word left at 7E:0000:
   // the END result (null after an empty stack) or the wait mask.
-  run(slot, how, input) {
+  *run(slot, how, input) {
     const entry = this.slots[slot],
       task = entry.task;
     if (task === null) taskStop('task_slot_free', { slot });
@@ -202,11 +244,24 @@ export class Scheduler {
           return { ended: false, word: mask };
         }
         if (this.native === null) taskStop('script_native_required', { native: exit.id });
-        finishCall(this.mem, task, this.native(exit.id, exit.args, this, slot));
+        finishCall(this.mem, task, yield* this.callNative(entry, exit.id, exit.args, slot));
       }
     } finally {
       this.running.delete(slot);
     }
+  }
+
+  // A native call; a native that pauses stays the slot's continuation until it returns.
+  *callNative(entry, id, args, slot) {
+    const result = this.native(id, args, this, slot);
+    if (!isPendingNative(result)) return result;
+    entry.native = result;
+    try {
+      while (!result.resume()) yield;
+    } finally {
+      entry.native = null;
+    }
+    return result.result;
   }
 
   // C36A (from F488): a child task for `script` linked in before the current task,

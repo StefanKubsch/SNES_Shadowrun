@@ -45,11 +45,14 @@ test('every src module is loaded by the game and none imports proof code', () =>
   }
   assert.deepEqual(proofImports, [], 'game modules must not import proof/');
   assert.deepEqual(missing, [], 'game imports resolve');
-  // Temporary exception (user decision 2026-11-14): the JS script interpreter and
-  // scheduler of docs/SCRIPT-VM-LIFT.md phases 1 and 2 are loaded by the game from phase 3
-  // on; remove the entries then.
+  // Temporary exception (user decision 2026-11-14): the JS script interpreter, scheduler
+  // and native bridge of docs/SCRIPT-VM-LIFT.md phases 1 to 3 run in the game only once
+  // game code reaches the task state through the JS scheduler (phase 4) and the plain game
+  // loop drives it (phase 5); until then proof/script/js-rounds.mjs attaches them. Remove
+  // the entries then.
   const notYetLoaded = new Set([
     'src/script/interpreter.mjs',
+    'src/script/natives.mjs',
     'src/script/scheduler.mjs',
     'src/script/tasks.mjs',
   ]);

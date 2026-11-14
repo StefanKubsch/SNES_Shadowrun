@@ -66,9 +66,14 @@ const FRAME_BANK = 2;
 const slotWord = (slot) => (slot === NONE ? WORD_MASK : 2 * slot);
 
 // Script ID per bytecode address (several IDs may share one script; the first is kept).
+// Cached per memory: the ROM tables do not change.
+const SCRIPTS_BY_CODE = new WeakMap();
 function scriptsByCode(mem) {
-  const ids = new Map();
+  let ids = SCRIPTS_BY_CODE.get(mem);
+  if (ids) return ids;
+  ids = new Map();
   for (let id = SCRIPT_COUNT - 1; id >= 0; id--) ids.set(scriptInfo(mem, id).code, id);
+  SCRIPTS_BY_CODE.set(mem, ids);
   return ids;
 }
 
@@ -77,7 +82,8 @@ function scriptsByCode(mem) {
 export function loadScheduler(mem, wram, { native = null, onCreate = null } = {}) {
   const word = (at) => wram[at] | (wram[at + 1] << BYTE_BITS);
   // The heap from 03D2: one header and HEAP_INITIAL_SIZE bytes after C1A6.
-  const heap = wram.slice(HEAP_SIZE_WORD, HEAP_SIZE_WORD + HEAP_HEADER_BYTES + HEAP_INITIAL_SIZE);
+  const heapRange = [HEAP_SIZE_WORD, HEAP_SIZE_WORD + HEAP_HEADER_BYTES + HEAP_INITIAL_SIZE],
+    heap = wram.slice(...heapRange);
   const heapWord = (offset) => heap[offset] | (heap[offset + 1] << BYTE_BITS);
   const setHeapWord = (offset, value) => {
     heap[offset] = value & BYTE_MASK;
@@ -153,31 +159,44 @@ export function loadScheduler(mem, wram, { native = null, onCreate = null } = {}
     }
     return value >>> 1;
   };
-  scheduler.head = readSlot(TASK_LIST_HEAD, null);
-  scheduler.free = readSlot(TASK_FREE_LIST, null);
-  scheduler.cursor = readSlot(TASK_CURSOR, null);
-  scheduler.slots.forEach((entry, slot) => {
-    const x = 2 * slot;
-    entry.next = readSlot(TASK_NEXT + x, null);
-    entry.previous = readSlot(TASK_PREVIOUS + x, `previous:${slot}`);
-    entry.wait = word(TASK_WAIT + x);
-    entry.counter = word(TASK_COUNTER + x);
-    entry.events = word(TASK_EVENTS + x);
-    const continuation = word(TASK_CONTINUATION + x);
-    if (CONTINUATIONS.has(continuation)) entry.continuation = CONTINUATIONS.get(continuation);
-    else unknown.add(`continuation:${slot}`);
-    frames[slot] = word(TASK_FRAME + x);
-  });
-
-  // The live tasks: the frames of the slots in the task list.
   const ids = scriptsByCode(mem);
-  for (let slot = scheduler.head, n = 0; slot !== NONE; n++) {
-    if (n >= TASK_SLOTS) throw Error('cyclic task list');
-    const entry = scheduler.slots[slot];
-    if (unknown.has(`continuation:${slot}`)) throw Error(`continuation of slot ${slot}`);
-    entry.task = readTask(slot, entry.continuation);
-    slot = entry.next;
+  // Reads the tables, the heap and the live tasks from the WRAM. keep(slot, task, read)
+  // may keep a task object the scheduler already holds for the same frame.
+  function read(keep = () => false) {
+    heap.set(wram.subarray(...heapRange));
+    unknown.clear();
+    scheduler.head = readSlot(TASK_LIST_HEAD, null);
+    scheduler.free = readSlot(TASK_FREE_LIST, null);
+    scheduler.cursor = readSlot(TASK_CURSOR, null);
+    const before = scheduler.slots.map(({ task }, slot) => ({ task, frame: frames[slot] }));
+    scheduler.slots.forEach((entry, slot) => {
+      const x = 2 * slot;
+      entry.next = readSlot(TASK_NEXT + x, null);
+      entry.previous = readSlot(TASK_PREVIOUS + x, `previous:${slot}`);
+      entry.wait = word(TASK_WAIT + x);
+      entry.counter = word(TASK_COUNTER + x);
+      entry.events = word(TASK_EVENTS + x);
+      const continuation = word(TASK_CONTINUATION + x);
+      if (CONTINUATIONS.has(continuation)) entry.continuation = CONTINUATIONS.get(continuation);
+      else unknown.add(`continuation:${slot}`);
+      frames[slot] = word(TASK_FRAME + x);
+      entry.task = null;
+    });
+    // The live tasks: the frames of the slots in the task list.
+    for (let slot = scheduler.head, n = 0; slot !== NONE; n++) {
+      if (n >= TASK_SLOTS) throw Error('cyclic task list');
+      const entry = scheduler.slots[slot],
+        old = before[slot];
+      if (unknown.has(`continuation:${slot}`)) throw Error(`continuation of slot ${slot}`);
+      const task = readTask(slot, entry.continuation);
+      entry.task =
+        old.task !== null && old.frame === frames[slot] && keep(slot, old.task, task)
+          ? old.task
+          : task;
+      slot = entry.next;
+    }
   }
+  read();
   function readTask(slot, continuation) {
     const frame = frames[slot],
       code = word(frame) | (wram[frame + FRAME_BANK] << WORD_BITS),
@@ -258,5 +277,12 @@ export function loadScheduler(mem, wram, { native = null, onCreate = null } = {}
     return bytes;
   }
 
-  return { scheduler, frames, project };
+  // Writes the projection into the WRAM (live bytes only).
+  function store(options) {
+    const bytes = project(options);
+    for (const [at, value] of bytes) wram[at] = value;
+    return bytes;
+  }
+
+  return { scheduler, frames, project, store, reload: read };
 }
