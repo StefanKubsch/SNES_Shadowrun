@@ -158,6 +158,12 @@ import {
   markTopicReference,
 } from '../game-reference/topic-list.mjs';
 
+import {
+  getPreviousFightObjectReference,
+  hasFightTargetReference,
+  isInFightListReference,
+} from '../game-reference/fight-list-queries.mjs';
+
 // Lifted natives whose proofs run their register-level references (the game runs the
 // lifted ones, src/task/native-targets.mjs).
 const REFERENCE_TARGETS = new Map([
@@ -256,6 +262,9 @@ const REFERENCE_TARGETS = new Map([
   [0x809159, isTopicKnownReference],
   [0x80913c, markTopicReference],
   [0x8090eb, addTopicReference],
+  [0x808656, isInFightListReference],
+  [0x80866f, hasFightTargetReference],
+  [0x808631, getPreviousFightObjectReference],
 ]);
 
 // A fixed, independently source-checked set of native equations. This is no

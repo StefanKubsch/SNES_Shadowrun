@@ -416,6 +416,17 @@ which the render proof of 81:8076 keeps using.
   compares both (400 samples each; sorted lists of up to 50 topics, empty lists and
   random bytes; known, new and FF topics); planted changes of the order test, the
   inserted flag and the carried flag fail it.
+- The fight list queries 80:8656 (FFFF when the object is in the list), 80:866F (FFFF
+  when an object of the list is drawn on screen and may be targeted) and 80:8631 (the
+  object before the object; a negative one gives the last, one not in the list the one
+  before the last, none FFFF) run `isInFightList`, `hasFightTarget` and
+  `previousFightObject` of [src/game/fight-list.mjs](../src/game/fight-list.mjs) (block
+  100); the register-level versions moved to proof/game-reference/fight-list-queries.mjs,
+  which the instruction tests of 80:8656 and 80:8631 now run.
+  [tools/fight-list-queries-lift-functions.test.mjs](../tools/fight-list-queries-lift-functions.test.mjs)
+  compares both (400 samples each; lists of 0 to 38 game slots below the hardware
+  registers; listed, other, negative and any objects); planted changes of the target
+  bits, the missing object's start and the empty result fail it.
 - The getters 80:9E59 and 80:9E5F (the buttons held and newly pressed), 80:CD97 and its
   byte-identical copy 80:D18A (the player figure's slot) and 80:C0F7 and 80:C100 (the
   glove sprite's screen X and Y bytes) run `padHeld`, `padPressed`, `playerObject`,

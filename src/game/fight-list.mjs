@@ -41,6 +41,9 @@ import {
   MUSIC,
   MUSIC_FIGHT,
   OPTION_MUSIC,
+  OBJECT_FLAGS,
+  OBJECT_NO_TARGET,
+  OBJECT_ON_SCREEN,
 } from '../task/wram.mjs';
 import { BYTE_BITS, BYTE_MASK, WORD_MASK, WORD_SIGN } from '../constants/bits.mjs';
 
@@ -198,4 +201,46 @@ export function* removeFromFightListSequence(h, events, routines) {
     result = h.rts();
   };
   return result;
+}
+
+// The fight list's script queries (lifted from 80:8656, 80:866F and 80:8631; register-level
+// references in proof/game-reference/fight-list-queries.mjs). The list's last index
+// (7E:1FB0, negative: empty) and its object words (7E:1FB2) are read through the data bank
+// 80; each query walks the list from the last index down by two.
+const LIST_STEP = 2,
+  NONE = WORD_MASK;
+const listIndex = (mem) => dataBankWord(mem, FIGHT_LIST_INDEX);
+const listObject = (mem, entry) => dataBankWord(mem, FIGHT_LIST, entry);
+// The entries from the last index down while not negative.
+function* listEntries(mem) {
+  for (let entry = listIndex(mem); !(entry & WORD_SIGN); entry = (entry - LIST_STEP) & WORD_MASK)
+    yield entry;
+}
+// The entry of the object in the list, or -1.
+function findInList(mem, object) {
+  for (const entry of listEntries(mem)) if (listObject(mem, entry) === object) return entry;
+  return -1;
+}
+
+// 80:8656: TRUE (FFFF) when the object is in the fight list, else 0.
+export const isInFightList = (mem, object) => (findInList(mem, object) < 0 ? 0 : WORD_MASK);
+// 80:866F: TRUE (FFFF) when an object of the fight list is drawn on screen and may be
+// targeted, else 0.
+export function hasFightTarget(mem) {
+  for (const entry of listEntries(mem)) {
+    const flags = dataBankWord(mem, OBJECT_FLAGS, listObject(mem, entry));
+    if (flags & OBJECT_ON_SCREEN && !(flags & OBJECT_NO_TARGET)) return WORD_MASK;
+  }
+  return 0;
+}
+// 80:8631: the object before the object in the fight list. A negative object gives the
+// last one, an object not in the list the one before the last; none (an empty list or
+// the object first) gives FFFF.
+export function previousFightObject(mem, object) {
+  const last = listIndex(mem);
+  if (last & WORD_SIGN) return NONE;
+  if (object & WORD_SIGN) return listObject(mem, last);
+  const found = findInList(mem, object),
+    entry = ((found < 0 ? last : found) - LIST_STEP) & WORD_MASK;
+  return entry & WORD_SIGN ? NONE : listObject(mem, entry);
 }
