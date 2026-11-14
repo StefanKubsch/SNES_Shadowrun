@@ -250,6 +250,16 @@ and flags left over, unless a caller or callee reads them as an argument or resu
 that compare more stay valid and are relaxed when their module is next worked on; the
 rules are in [MATRIX-LIFT.md](MATRIX-LIFT.md) and [MAIN-LOOP-LIFT.md](MAIN-LOOP-LIFT.md).
 
+## Decision of 2026-11-14: script VM as JS state, src/task dissolves
+
+The bytecode interpreter and the task scheduler are lifted to plain JS state (tasks,
+frames, operand stacks and continuations as JS objects); a conversion layer in `proof`
+produces the original task tables and heap where the oracles and the register-level
+references need them. `src/task` disappears: the game in `src` knows only the lag-free
+frame model, and replays with recorded interrupt observations run only against the
+references in `proof`. The game code stays as clean and simple as possible. Plan and
+phases: [SCRIPT-VM-LIFT.md](SCRIPT-VM-LIFT.md).
+
 ## Later quality-of-life changes and other platforms
 
 The interpreter route blocks none of these, it rather makes them easier:
