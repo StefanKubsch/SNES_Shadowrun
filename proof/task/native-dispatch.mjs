@@ -102,6 +102,13 @@ import {
   requestRoomReloadReference,
 } from '../game-reference/script-requests.mjs';
 
+import {
+  getCurrentRoomHeaderReference,
+  getRoomHeaderReference,
+  getStoryStageReference,
+  raiseStoryStageReference,
+} from '../game-reference/room-story.mjs';
+
 // Lifted natives whose proofs run their register-level references (the game runs the
 // lifted ones, src/task/native-targets.mjs).
 const REFERENCE_TARGETS = new Map([
@@ -168,6 +175,10 @@ const REFERENCE_TARGETS = new Map([
   [0x80cc33, changeSceneReference],
   [0x80d016, requestRoomReloadReference],
   [0x80d9a0, requestMainLoopExitReference],
+  [0x80cccc, getRoomHeaderReference],
+  [0x80ccb9, getCurrentRoomHeaderReference],
+  [0x80d134, getStoryStageReference],
+  [0x80cca4, raiseStoryStageReference],
 ]);
 
 // A fixed, independently source-checked set of native equations. This is no

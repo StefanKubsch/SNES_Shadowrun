@@ -6,7 +6,7 @@ import {prepared,commit,unchangedFailure} from './task-native-test-support.mjs';
 import {createRenderData,renderAddress} from '../src/render/data.mjs';
 import {readFileSync} from 'node:fs';import {inspectRom} from './rom.mjs';import {decodeTaskWindows} from './task-partial-source.mjs';
 import {runReference} from './w65c816-reference.mjs';import {proveLeafSource} from './task-native-leaf-source.mjs';import {VmMemory,VmFault} from '../src/vm/memory.mjs';import {TaskAccessor} from '../src/vm/task-accessor.mjs';
-import {getDistanceBetweenObjects} from '../src/task/native-object-distance-direct.mjs';import {getStoryStage} from '../src/task/native-story-stage-get.mjs';
+import {getDistanceBetweenObjects} from '../src/task/native-object-distance-direct.mjs';import {getStoryStageReference as getStoryStage} from '../proof/game-reference/room-story.mjs';
 import {moveObjectToObject} from '../src/task/native-motion-object-move.mjs';import {getDirectionToPlayer} from '../src/task/native-player-direction.mjs';
 import {getRunnerStrength} from '../src/task/native-runner-record-byte.mjs';import {addMagicPoints} from '../src/task/native-magic-points-add.mjs';
 import {haltObject} from '../src/task/native-object-halt-set.mjs';import {resumeObject} from '../src/task/native-object-halt-clear.mjs';import {appendSelectedSpellTask} from '../src/task/native-task-append-from-list.mjs';import {getPlayerObjectAfterBreak} from '../src/task/native-player-object-break.mjs';import {addObjectHeight} from '../src/task/native-object-height-add.mjs';

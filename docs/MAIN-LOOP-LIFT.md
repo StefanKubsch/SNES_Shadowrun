@@ -341,6 +341,16 @@ which the render proof of 81:8076 keeps using.
   [tools/script-requests-lift-functions.test.mjs](../tools/script-requests-lift-functions.test.mjs)
   compares both (200 samples each); planted changes of the room-only value and of the
   scene argument's order fail it.
+- The natives 80:CCCC and 80:CCB9 (the header word of a room and of the current room
+  7E:2DE2, with the original's 16-bit entry offset 9 * room including the ADC's carry
+  from bit 13), 80:D134 (the story stage's low byte, 7E:2DE4) and 80:CCA4 (the stage
+  word of stage n, a 17-bit rotation through the carry, stored unless below the current
+  word) run `roomHeader`, `currentRoomHeader`, `storyStage` and `raiseStoryStage` of
+  [src/game/room-story.mjs](../src/game/room-story.mjs) (block 93); the register-level
+  versions moved to proof/game-reference/room-story.mjs.
+  [tools/room-story-lift-functions.test.mjs](../tools/room-story-lift-functions.test.mjs)
+  compares both (400 samples each; game rooms, stages 0 to 20 and any word); planted
+  changes of the carry and of the stage 0 rotation count fail it.
 - The getters 80:9E59 and 80:9E5F (the buttons held and newly pressed), 80:CD97 and its
   byte-identical copy 80:D18A (the player figure's slot) and 80:C0F7 and 80:C100 (the
   glove sprite's screen X and Y bytes) run `padHeld`, `padPressed`, `playerObject`,

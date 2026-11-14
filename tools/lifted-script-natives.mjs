@@ -34,6 +34,8 @@ export const LIFTED_SCRIPT_NATIVES = new Set([
   0x80c9f1, 0x80caf2, 0x80cb06, 0x80d0fc,
   // The room, scene and main loop requests (src/game/script-requests.mjs).
   0x80cc97, 0x80cc33, 0x80d016, 0x80d9a0,
+  // The room header and story stage natives (src/game/room-story.mjs).
+  0x80cccc, 0x80ccb9, 0x80d134, 0x80cca4,
 ]);
 // Direct page bytes a lifted native does not produce: the sample loader's scratch
 // (7E:0089-008B, 008F-0099) after any, and after the sight natives the line of sight's
