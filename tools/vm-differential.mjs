@@ -11,7 +11,7 @@ import {prepareTaskOpcodeSequence, prepareTaskNativeOpcodeSequence} from '../pro
 import {nativeOpcodeTargets} from '../src/task/native-opcode-targets.mjs';
 import {nativeTarget} from '../src/task/native-targets.mjs';
 import {NATIVE_POINTERS} from '../src/vm/layout.mjs';
-import {LIFTED_SCRIPT_NATIVES} from './lifted-script-natives.mjs';
+import {LIFTED_SCRIPT_NATIVES, inLiftedScratch} from './lifted-script-natives.mjs';
 import {createRenderData, renderAddress} from '../src/render/data.mjs';
 import {inspectScriptTables} from './scripts.mjs';
 
@@ -140,8 +140,13 @@ function compareOnce(scenario, maxSteps) {
     for (const key of ['a', 'x', 'y', 's', 'd', 'bank', 'status', 'pc'])
       if (key === 'status' ? (out[key] & statusMask) !== (got[key] & statusMask) : out[key] !== got[key]) throw Error(`Register ${key}: Orakel ${out[key]}, VM ${got[key]}; Szenario ${scenario.label}, Schritte ${steps}`);
     const wram = run.memory.wram;
+    // Nor the dead stack below its outer return word (an inner JSR frame) or its direct
+    // page scratch: game state only (docs/STRATEGY.md, 2026-11-14), as in
+    // tools/vm-special-natives-differential.mjs.
+    const target = lifted ? 0x800000 | vm.mem.read16(NATIVE_POINTERS + 2 * scenario.nativeId) : null;
+    const free = n => lifted && ((n <= outer && n > outer - 0x40) || inLiftedScratch(target, n));
     for (let n = 0; n < expected.length; n++)
-      if (expected[n] !== wram[n]) throw Error(`WRAM $${(0x7E0000 + n).toString(16)}: Orakel ${expected[n]}, VM ${wram[n]}; Szenario ${scenario.label}`);
+      if (expected[n] !== wram[n] && !free(n)) throw Error(`WRAM $${(0x7E0000 + n).toString(16)}: Orakel ${expected[n]}, VM ${wram[n]}; Szenario ${scenario.label}`);
   }
   if (fault) {
     const plan = oracle(scenario, steps + 1, observations, protectedStackBytes);
