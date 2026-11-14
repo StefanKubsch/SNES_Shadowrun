@@ -312,6 +312,16 @@ which the render proof of 81:8076 keeps using.
   [tools/script-timer-lift-functions.test.mjs](../tools/script-timer-lift-functions.test.mjs)
   compares both (200 samples each; the hours and the frames each zero in half);
   planted changes of the start hours and of the running test fail it.
+- The swarm setup natives 80:D97C, 80:D985, 80:D98E and 80:D997 (the goals of the
+  height wave's start phase, the path wave's start phase and speed and the height wave's
+  speed at 7E:1D41 to 7E:1D47, each the first argument as a wave word index) and
+  80:D622 (the orbit reset: follower index 0, countdown 64, sixteen member phases 180)
+  run `setSwarmHeightPhaseGoal` to `resetSwarmOrbit` of
+  [src/game/swarm-setup.mjs](../src/game/swarm-setup.mjs) (block 90); the register-level
+  versions moved to proof/game-reference/swarm-setup.mjs.
+  [tools/swarm-setup-lift-functions.test.mjs](../tools/swarm-setup-lift-functions.test.mjs)
+  compares both (200 samples each); planted changes of the index mask and of the member
+  count fail it.
 - The getters 80:9E59 and 80:9E5F (the buttons held and newly pressed), 80:CD97 and its
   byte-identical copy 80:D18A (the player figure's slot) and 80:C0F7 and 80:C100 (the
   glove sprite's screen X and Y bytes) run `padHeld`, `padPressed`, `playerObject`,

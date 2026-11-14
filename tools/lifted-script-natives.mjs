@@ -28,6 +28,8 @@ export const LIFTED_SCRIPT_NATIVES = new Set([
   0x80a91d, 0x80a926, 0x80a92f, 0x80d13e,
   // The time limit natives (src/game/time-limit.mjs).
   0x80e255, 0x80e24e, 0x80e262,
+  // The swarm setup natives (src/game/swarm-setup.mjs).
+  0x80d97c, 0x80d985, 0x80d98e, 0x80d997, 0x80d622,
 ]);
 // Direct page bytes a lifted native does not produce: the sample loader's scratch
 // (7E:0089-008B, 008F-0099) after any, and after the sight natives the line of sight's

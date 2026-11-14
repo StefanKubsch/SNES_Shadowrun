@@ -80,6 +80,14 @@ import {
   stopTimerReference,
 } from '../game-reference/script-timer.mjs';
 
+import {
+  resetSwarmPhasesReference,
+  setSwarmHeightPhaseTargetReference,
+  setSwarmHeightSpeedTargetReference,
+  setSwarmPathPhaseTargetReference,
+  setSwarmPathSpeedTargetReference,
+} from '../game-reference/swarm-setup.mjs';
+
 // Lifted natives whose proofs run their register-level references (the game runs the
 // lifted ones, src/task/native-targets.mjs).
 const REFERENCE_TARGETS = new Map([
@@ -133,6 +141,11 @@ const REFERENCE_TARGETS = new Map([
   [0x80e255, startTimerReference],
   [0x80e24e, stopTimerReference],
   [0x80e262, isTimerRunningReference],
+  [0x80d97c, setSwarmHeightPhaseTargetReference],
+  [0x80d985, setSwarmPathPhaseTargetReference],
+  [0x80d98e, setSwarmPathSpeedTargetReference],
+  [0x80d997, setSwarmHeightSpeedTargetReference],
+  [0x80d622, resetSwarmPhasesReference],
 ]);
 
 // A fixed, independently source-checked set of native equations. This is no
