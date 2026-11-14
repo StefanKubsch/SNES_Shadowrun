@@ -281,6 +281,19 @@ which the render proof of 81:8076 keeps using.
   Jake's count maximum 0 or not); planted changes of the missing record test, the OR,
   the AND, the cheat guard, the property's high byte, byte 0's offset and the bank
   crossing fail it.
+- The script variable natives 80:CC07 (the variable at the byte offset of the first
+  argument as the result), 80:CC10 (set to the second argument), 80:CC19 (its bits set)
+  and 80:CC26 (only its bits kept) run `scriptVariable`, `storeScriptVariable`,
+  `setVariableBits` and `keepVariableBits` of
+  [src/game/script-variables.mjs](../src/game/script-variables.mjs) in the game's native
+  table, as the object fields above (block 82): the words at 7E:3BBB plus the offset,
+  an offset near FFFF reaching bank 7F. The register-level versions moved to
+  proof/game-reference/script-variables.mjs for the proof plans and the Native58
+  dispatch.
+  [tools/script-variables-lift-functions.test.mjs](../tools/script-variables-lift-functions.test.mjs)
+  compares both (400 samples each; the game's offsets, any offset and offsets near
+  FFFF); planted changes of the OR, the AND, the stored high byte and the bank crossing
+  fail it.
 - The modals 80:CD20 (pay the nuyen of the first argument: FFFF if paid, else 0; a
   low word too small borrows from a nonzero high word) and 80:CBF7 (the actor of the
   first argument, an entry offset in the actor table 8D:B01F, gets the holder of the

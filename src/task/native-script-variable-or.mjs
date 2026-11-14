@@ -1,16 +1,15 @@
-import { FIRST_ARGUMENT, SECOND_ARGUMENT, leaf } from './native-leaf-support.mjs';
-import { SCRIPT_VARIABLES, WRAM } from './wram.mjs';
+import {
+  FIRST_ARGUMENT,
+  SECOND_ARGUMENT,
+  finishLeaf,
+  leafArgument,
+} from './native-leaf-support.mjs';
+import { setVariableBits } from '../game/script-variables.mjs';
 
-// 80:CC19: set the bits of the second argument in the script variable at the
-// byte offset in the first argument.
-export const setScriptVariableBits = (a, outerReturn = true) =>
-  leaf(
-    a,
-    (h) => {
-      const variable = h.index('x', h.dp(FIRST_ARGUMENT)),
-        address = WRAM + SCRIPT_VARIABLES + variable,
-        value = h.load(h.longRead(address));
-      h.longWrite(address, h.load(value | h.dp(SECOND_ARGUMENT)));
-    },
-    outerReturn,
-  );
+// 80:CC19 (lifted in src/game/script-variables.mjs; register-level reference in
+// proof/game-reference/script-variables.mjs): set the bits of the second argument in the script
+// variable at the byte offset in the first argument.
+export const setScriptVariableBits = (a, outerReturn = true) => {
+  setVariableBits(a.mem, leafArgument(a, FIRST_ARGUMENT), leafArgument(a, SECOND_ARGUMENT));
+  return finishLeaf(a, outerReturn);
+};

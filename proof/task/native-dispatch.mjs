@@ -19,6 +19,13 @@ import {
   setObjectRecordCountReference,
 } from '../game-reference/object-fields.mjs';
 
+import {
+  getScriptVariableReference,
+  setScriptVariableReference,
+  setScriptVariableBitsReference,
+  keepScriptVariableBitsReference,
+} from '../game-reference/script-variables.mjs';
+
 // Lifted natives whose proofs run their register-level references (the game runs the
 // lifted ones, src/task/native-targets.mjs).
 const REFERENCE_TARGETS = new Map([
@@ -35,6 +42,10 @@ const REFERENCE_TARGETS = new Map([
   [0x80cab4, setObjectRecordFlagBitsReference],
   [0x80caca, keepObjectRecordFlagBitsReference],
   [0x80cae0, setObjectRecordCountReference],
+  [0x80cc07, getScriptVariableReference],
+  [0x80cc10, setScriptVariableReference],
+  [0x80cc19, setScriptVariableBitsReference],
+  [0x80cc26, keepScriptVariableBitsReference],
 ]);
 
 // A fixed, independently source-checked set of native equations. This is no
