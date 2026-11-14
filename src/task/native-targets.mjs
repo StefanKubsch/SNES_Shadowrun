@@ -37,7 +37,7 @@ import { setObjectActionAndDirection } from './native-object-turn.mjs';
 import { changeScene } from './native-scene-change.mjs';
 import { changeRoom } from './native-room-change.mjs';
 import { removeObject } from './native-object-release.mjs';
-import { createObject } from './native-object-create.mjs';
+import { createObjectNative } from './native-object-create.mjs';
 import { setSwarmPathPhaseTarget } from './native-swarm-path-phase-target.mjs';
 import { setSwarmPathSpeedTarget } from './native-swarm-path-speed-target.mjs';
 import { halveArgumentSigned } from './native-shift-right-signed.mjs';
@@ -219,7 +219,7 @@ const targets = new Map([
   [0x80cc33, changeScene],
   [0x80cc97, changeRoom],
   [0x80a8f5, removeObject],
-  [0x80a835, createObject],
+  [0x80a835, createObjectNative],
   [0x80a963, getObjectCoarseY],
   [0x80a96d, getObjectCoarseHeight],
   [0x80a91d, clearObjectTask],

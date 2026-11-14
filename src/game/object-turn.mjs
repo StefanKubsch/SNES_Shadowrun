@@ -190,11 +190,14 @@ export function turnObject(mem, wram, a) {
     setDataBankWord(mem, OBJECT_SELECTION, slot, NONE);
     // The selection's check for an unchanged selection: it holds only where that word
     // did not take the write (ROM above the WRAM mirror); the selection then returns
-    // with A the selection, Y the slot and the comparison's flags.
+    // with A the selection, Y the slot and the comparison's flags. Its JSR's return
+    // word lies on the stack either way.
     const wanted = word(wram, DP_ARGUMENT);
-    if (wanted === dataBankWord(mem, OBJECT_SELECTION, slot))
-      return { a: wanted, x: slot, y: slot, sign: 0, carry: true };
     a.pushWord(SELECTION_RETURN);
+    if (wanted === dataBankWord(mem, OBJECT_SELECTION, slot)) {
+      a.pullWord();
+      return { a: wanted, x: slot, y: slot, sign: 0, carry: true };
+    }
     const { carry, overflow } = selectAnimation(mem, wram);
     a.pullWord();
     return { a: NONE, x: slot, y: RECORD_BOX_HEIGHT, sign: NONE, carry, overflow };

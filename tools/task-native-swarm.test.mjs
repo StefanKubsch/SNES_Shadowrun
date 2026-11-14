@@ -7,7 +7,7 @@ import {proveLeafSource} from './task-native-leaf-source.mjs';
 import {runReference} from './w65c816-reference.mjs';
 import {VmMemory} from '../src/vm/memory.mjs';
 import {TaskAccessor} from '../src/vm/task-accessor.mjs';
-import {startPathSwarm,startWaveSwarm,circleSwarmLeader} from '../src/task/native-swarm-start.mjs';
+import {startPathSwarmReference as startPathSwarm,startWaveSwarmReference as startWaveSwarm,circleSwarmLeaderReference as circleSwarmLeader} from '../proof/game-reference/swarm-start.mjs';
 
 // Swarm natives D7DD, D260 and D63C against the original instructions of their own windows. The object
 // creation A835 and the action AAAF have their own proofs (whole graphs pinned in the leaf specs); here both

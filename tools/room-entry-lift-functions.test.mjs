@@ -45,6 +45,18 @@ import { OBJECT_TYPES } from '../src/data/object-types.mjs';
 import { drainNativeSequence } from '../src/task/native-call-continuation.mjs';
 import { enterRoomReference } from '../proof/game-reference/room-entry.mjs';
 import {
+  circleSwarmLeaderReference,
+  createObjectReference,
+  startPathSwarmReference,
+  startWaveSwarmReference,
+} from '../proof/game-reference/swarm-start.mjs';
+import { createObjectNative } from '../src/task/native-object-create.mjs';
+import {
+  circleSwarmLeader,
+  startPathSwarm,
+  startWaveSwarm,
+} from '../src/task/native-swarm-start.mjs';
+import {
   OBJECT_ACTION_DIRECTIONS,
   OBJECT_DIRECTION,
   OBJECT_FRAME_COUNT,
@@ -552,6 +564,87 @@ const OBJECT_CREATION = {
 // the stack compared too: any script of the table in X, the arguments in the direct
 // page words, the heap and task slots of the object creation; A, X, Y, sign,
 // overflow, zero and carry as the original leaves them (src/task/task-append.mjs).
+// The script natives that create objects (80:A835 alone, the swarm starts 80:D7DD,
+// 80:D260 and the circling leader 80:D63C), called by the script VM (return word 1234)
+// with the stack compared too: an origin object (with or without its flag bit), the
+// circle's words small or any word, its follower countdown at 1, 0 or below.
+const nativeWords = (s, words) => {
+  for (const [at, value] of words) {
+    s.wram[at] = value & 0xff;
+    s.wram[at + 1] = (value >>> 8) & 0xff;
+  }
+};
+const scriptNative = (name, entry, reference, run, prepare) => ({
+  name,
+  entry,
+  samples: 300,
+  prepare: (s) => {
+    prepare(s);
+    return { bank: 0x80, s: GAME_STACK };
+  },
+  reference: (h) => reference(h.a, false),
+  result: (h) => [h.ctx.pc, h.ctx.s].map((v) => v.toString(16)).join(),
+  lifted: (h, input) => {
+    Object.assign(h.ctx, input);
+    h.ctx.programBank = 0x80;
+    h.push(0x1234, 2);
+    run(h.a, false);
+    return [h.ctx.pc, h.ctx.s].map((v) => v.toString(16)).join();
+  },
+});
+const swarmOrigin = (s) =>
+  nativeWords(s, [
+    [
+      0,
+      s.pick([
+        2 * s.rnd(OBJECT_SLOTS),
+        0x80 | (2 * s.rnd(0x20)),
+        1 | (2 * s.rnd(0x20)),
+        s.rnd(0x10000),
+      ]),
+    ],
+  ]);
+const SCRIPT_NATIVES = [
+  scriptNative(
+    'createObject native 80:A835',
+    0x80a835,
+    createObjectReference,
+    createObjectNative,
+    (s) =>
+      nativeWords(s, [
+        [DP_OBJECT_KIND, s.pick([s.rnd(0x100), s.rnd(0x10000)])],
+        [DP_OBJECT_SCRIPT, s.pick([0xffff, s.rnd(SCRIPTS), s.rnd(SCRIPTS)])],
+      ]),
+  ),
+  scriptNative(
+    'startPathSwarm 80:D7DD',
+    0x80d7dd,
+    startPathSwarmReference,
+    startPathSwarm,
+    swarmOrigin,
+  ),
+  scriptNative(
+    'startWaveSwarm 80:D260',
+    0x80d260,
+    startWaveSwarmReference,
+    startWaveSwarm,
+    swarmOrigin,
+  ),
+  scriptNative(
+    'circleSwarmLeader 80:D63C',
+    0x80d63c,
+    circleSwarmLeaderReference,
+    circleSwarmLeader,
+    (s) =>
+      nativeWords(s, [
+        [0x1d4d, s.pick([2 * s.rnd(OBJECT_SLOTS), s.rnd(0x10000)])],
+        [0x1d35, s.pick([s.rnd(0x20), 0xffec + s.rnd(0x14), s.rnd(0x10000)])],
+        [0x1d37, s.pick([s.rnd(0x10), s.rnd(0x10000)])],
+        [0x1d33, s.pick([1, 1, 0, 0xffff, s.rnd(8), s.rnd(0x10000)])],
+        [0x1d31, s.pick([2 * s.rnd(8), 0x0e, s.rnd(0x10000)])],
+      ]),
+  ),
+];
 const TASK_APPEND = {
   name: 'task append 80:C34A',
   entry: 0x80c34a,
@@ -646,7 +739,7 @@ const TURN_REGISTERS = {
 const FRONTIERS = new Set(['task_heap_required', 'task_slot_required', 'object_slot_required']);
 
 registerCases(CASES, { sample, side, runtime: (h) => h, ignored: IGNORED, outside: FRONTIERS });
-registerCases([OBJECT_CREATION, OBJECT_TURN, TURN_REGISTERS, TASK_APPEND], {
+registerCases([OBJECT_CREATION, OBJECT_TURN, TURN_REGISTERS, TASK_APPEND, ...SCRIPT_NATIVES], {
   sample,
   side,
   runtime: (h) => h,

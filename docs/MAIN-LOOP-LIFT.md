@@ -461,6 +461,16 @@ which the render proof of 81:8076 keeps using.
   proof/game-reference/motion-targets.mjs; the motion target test compares them (point
   lists in banks 7E and 7F); planted changes of the borrow, the height's field and the
   stopped motion fail it.
+- The object creation 80:A835 as a script native runs `createObject` of
+  [src/game/object-create.mjs](../src/game/object-create.mjs) through `createObjectNative`
+  (the register-level version stays for the register-level natives that call it); the
+  swarm starts 80:D7DD (four path members), 80:D260 (twelve wave members) and the
+  circling leader 80:D63C (one step on the circle, the turn, every eighth call a
+  follower) run [src/game/swarm-start.mjs](../src/game/swarm-start.mjs) with the lifted
+  creation and turn (block 110); the register-level versions moved to
+  proof/game-reference/swarm-start.mjs.
+  [tools/room-entry-lift-functions.test.mjs](../tools/room-entry-lift-functions.test.mjs)
+  compares the four natives on its object, heap and task samples.
 - The swarm motion natives 80:D85B (five members along a swinging path; the speeds and
   start phases step towards their goals) and 80:D2E7 (thirteen members as a wave, or the
   wave's target from the room's point list) run `moveSwarmAlongPath` and `moveSwarmWave`
