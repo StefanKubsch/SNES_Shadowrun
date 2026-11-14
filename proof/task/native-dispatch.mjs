@@ -9,6 +9,14 @@ import {
   keepObjectFlagBitsReference,
   setObjectFlagBitsReference,
   setObjectFlagsReference,
+  getObjectRecordFirstByteReference,
+  getObjectRecordFlagsReference,
+  getObjectRecordCountReference,
+  getObjectRecordPropertyReference,
+  setObjectRecordFlagsReference,
+  setObjectRecordFlagBitsReference,
+  keepObjectRecordFlagBitsReference,
+  setObjectRecordCountReference,
 } from '../game-reference/object-fields.mjs';
 
 // Lifted natives whose proofs run their register-level references (the game runs the
@@ -19,6 +27,14 @@ const REFERENCE_TARGETS = new Map([
   [0x80ca0d, setObjectFlagsReference],
   [0x80ca15, setObjectFlagBitsReference],
   [0x80ca20, keepObjectFlagBitsReference],
+  [0x80ca2b, getObjectRecordFirstByteReference],
+  [0x80ca3a, getObjectRecordFlagsReference],
+  [0x80ca49, getObjectRecordCountReference],
+  [0x80ca58, getObjectRecordPropertyReference],
+  [0x80caa2, setObjectRecordFlagsReference],
+  [0x80cab4, setObjectRecordFlagBitsReference],
+  [0x80caca, keepObjectRecordFlagBitsReference],
+  [0x80cae0, setObjectRecordCountReference],
 ]);
 
 // A fixed, independently source-checked set of native equations. This is no

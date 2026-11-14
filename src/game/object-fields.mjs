@@ -1,13 +1,24 @@
 // Object fields that scripts read and change (lifted from the script natives 80:CA05,
-// 80:CA0D, 80:CA15 and 80:CA20; register-level references in
+// 80:CA0D, 80:CA15 and 80:CA20 for the flag word and 80:CA2B, 80:CA3A, 80:CA49, 80:CA58,
+// 80:CAA2, 80:CAB4, 80:CACA and 80:CAE0 for the record; register-level references in
 // proof/game-reference/object-fields.mjs).
 //
-// An object's flag word (7E:1458 plus its slot) is reached through the data bank 80 as
-// the original does (src/system/data-bank.mjs), so a slot of FFFF (none) reaches the
-// word just below the table.
+// An object's flag word (7E:1458 plus its slot) and its record pointer (7E:13A8 plus its
+// slot) are reached through the data bank 80 as the original does
+// (src/system/data-bank.mjs), so a slot of FFFF (none) reaches the word just below the
+// table. A record lies in bank 7E at its pointer: byte 0, the flag byte at +1, the count
+// byte (ammunition or body) at +2 and the property word at +3. Without a record (pointer
+// 0) the reads return the bytes at 7E:0000 and the writes change nothing.
 import { dataBankWord, setDataBankWord } from '../system/data-bank.mjs';
-import { OBJECT_FLAGS } from '../task/wram.mjs';
-import { WORD_MASK } from '../constants/bits.mjs';
+import {
+  OBJECT_FLAGS,
+  OBJECT_RECORD,
+  RECORD_COUNT,
+  RECORD_FLAGS,
+  RECORD_PROPERTY,
+  WRAM,
+} from '../task/wram.mjs';
+import { BYTE_BITS, BYTE_MASK, LONG_MASK, WORD_MASK } from '../constants/bits.mjs';
 
 // 80:CA05: the object's flag word.
 export const objectFlags = (mem, object) => dataBankWord(mem, OBJECT_FLAGS, object);
@@ -20,3 +31,41 @@ export const setObjectFlagBits = (mem, object, bits) =>
 // 80:CA20: keep only these bits of the object's flag word.
 export const keepObjectFlagBits = (mem, object, bits) =>
   setObjectFlags(mem, object, objectFlags(mem, object) & bits);
+
+// The object's record pointer (0: none).
+export const objectRecord = (mem, object) => dataBankWord(mem, OBJECT_RECORD, object);
+// A record field's address in bank 7E (a pointer near the bank's end reaches 7F).
+const recordAddress = (record, offset) => (WRAM + offset + record) & LONG_MASK;
+const recordByte = (mem, object, offset) =>
+  mem.read8(recordAddress(objectRecord(mem, object), offset));
+// 80:CA2B: byte 0 of the object's record (its meaning is still open).
+export const recordFirstByte = (mem, object) => recordByte(mem, object, 0);
+// 80:CA3A: the flag byte of the object's record.
+export const recordFlags = (mem, object) => recordByte(mem, object, RECORD_FLAGS);
+// 80:CA49: the count byte of the object's record.
+export const recordCount = (mem, object) => recordByte(mem, object, RECORD_COUNT);
+// 80:CA58: the property word of the object's record.
+export function recordProperty(mem, object) {
+  const at = recordAddress(objectRecord(mem, object), RECORD_PROPERTY);
+  return mem.read8(at) | (mem.read8((at + 1) & LONG_MASK) << BYTE_BITS);
+}
+// A byte of the object's record changed by change(old) unless it has no record.
+function changeRecordByte(mem, object, offset, change) {
+  const record = objectRecord(mem, object);
+  if (record === 0) return;
+  const at = recordAddress(record, offset);
+  mem.write8(at, change(mem.read8(at), record) & BYTE_MASK);
+}
+// 80:CAA2: the flag byte of the object's record set to the low byte of flags.
+export const setRecordFlags = (mem, object, flags) =>
+  changeRecordByte(mem, object, RECORD_FLAGS, () => flags);
+// 80:CAB4: bits (low byte) set in the flag byte of the object's record.
+export const setRecordFlagBits = (mem, object, bits) =>
+  changeRecordByte(mem, object, RECORD_FLAGS, (old) => old | bits);
+// 80:CACA: only these bits (low byte) kept in the flag byte of the object's record.
+export const keepRecordFlagBits = (mem, object, bits) =>
+  changeRecordByte(mem, object, RECORD_FLAGS, (old) => old & bits);
+// 80:CAE0: the count byte of the object's record set to the low byte of count; guard
+// (record, count) may change the count stored (the health cheat, src/game/cheats.mjs).
+export const setRecordCount = (mem, object, count, guard = (_record, value) => value) =>
+  changeRecordByte(mem, object, RECORD_COUNT, (_old, record) => guard(record, count & BYTE_MASK));

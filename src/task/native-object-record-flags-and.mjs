@@ -1,22 +1,15 @@
-import { SECOND_ARGUMENT, indexObjectRecord, leaf } from './native-leaf-support.mjs';
-import { RECORD_FLAGS, WRAM } from './wram.mjs';
-import { LONG_MASK, BYTE_MASK } from '../constants/bits.mjs';
-import { FLAG_MEMORY_8BIT } from '../constants/cpu-flags.mjs';
+import {
+  FIRST_ARGUMENT,
+  SECOND_ARGUMENT,
+  finishLeaf,
+  leafArgument,
+} from './native-leaf-support.mjs';
+import { keepRecordFlagBits } from '../game/object-fields.mjs';
 
-// 80:CACA: keep only the bits of the second argument's low byte in the flag byte of
-// the record of the object (first argument); no record, no change. The record pointer
-// is read as a full word; the AND and the store are byte wide.
-export const keepObjectRecordFlagBits = (a, outerReturn = true) =>
-  leaf(
-    a,
-    (h) => {
-      const record = indexObjectRecord(h);
-      if (record === 0) return;
-      h.ctx.status |= FLAG_MEMORY_8BIT;
-      const address = WRAM + RECORD_FLAGS + record,
-        flags = h.load(a.read(address & LONG_MASK, 'native7a-record-BYTE'), 1);
-      h.longWrite(address, h.load(flags & BYTE_MASK & h.dp(SECOND_ARGUMENT, 1), 1), 1);
-      h.ctx.status &= ~FLAG_MEMORY_8BIT;
-    },
-    outerReturn,
-  );
+// 80:CACA (lifted in src/game/object-fields.mjs; register-level reference in
+// proof/game-reference/object-fields.mjs): keep only the bits of the second
+// argument's low byte in the flag byte of the record of the object (first argument).
+export const keepObjectRecordFlagBits = (a, outerReturn = true) => {
+  keepRecordFlagBits(a.mem, leafArgument(a, FIRST_ARGUMENT), leafArgument(a, SECOND_ARGUMENT));
+  return finishLeaf(a, outerReturn);
+};

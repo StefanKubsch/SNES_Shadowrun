@@ -265,6 +265,22 @@ which the render proof of 81:8076 keeps using.
   [tools/object-fields-lift-functions.test.mjs](../tools/object-fields-lift-functions.test.mjs)
   compares both (400 samples each; game slots, none and any index in the low WRAM
   mirror); planted changes of the OR, the AND and the index fail it.
+- The object record natives 80:CA2B (byte 0), 80:CA3A (the flag byte), 80:CA49 (the
+  count byte) and 80:CA58 (the property word) as the result, and 80:CAA2 (the flag byte
+  set), 80:CAB4 (its bits set), 80:CACA (only its bits kept) and 80:CAE0 (the count set,
+  with the health cheat's protection of Jake's count) run `recordFirstByte`,
+  `recordFlags`, `recordCount`, `recordProperty`, `setRecordFlags`,
+  `setRecordFlagBits`, `keepRecordFlagBits` and `setRecordCount` of
+  [src/game/object-fields.mjs](../src/game/object-fields.mjs) in the same way (block
+  81): the record pointer through the data bank 80, the record in bank 7E (a pointer
+  near FFFF reaches 7F); without a record the reads return the bytes at 7E:0000 and the
+  writes change nothing. The register-level versions moved to the same reference module,
+  which their proof plans and the Native58 dispatch run. The same test compares them
+  (400 samples each; no record, Jake's state record, records in low WRAM, any pointer
+  and pointers near the bank's end; the count with and without the health cheat and
+  Jake's count maximum 0 or not); planted changes of the missing record test, the OR,
+  the AND, the cheat guard, the property's high byte, byte 0's offset and the bank
+  crossing fail it.
 - The modals 80:CD20 (pay the nuyen of the first argument: FFFF if paid, else 0; a
   low word too small borrows from a nonzero high word) and 80:CBF7 (the actor of the
   first argument, an entry offset in the actor table 8D:B01F, gets the holder of the

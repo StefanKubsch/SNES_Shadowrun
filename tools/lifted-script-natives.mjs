@@ -10,7 +10,8 @@ export const LIFTED_SCRIPT_NATIVES = new Set([
   0x808521, 0x80c461, 0x80c46e, 0x80c51f, 0x80c560, 0x808d7f, 0x808d3f, 0x808d4e, 0x808bc5,
   0x808c08, 0x808c8d, 0x808ccf, 0x80cd20, 0x80cbf7, 0x80bba0,
   // The object field natives (src/game/object-fields.mjs).
-  0x80ca05, 0x80ca0d, 0x80ca15, 0x80ca20,
+  0x80ca05, 0x80ca0d, 0x80ca15, 0x80ca20, 0x80ca2b, 0x80ca3a, 0x80ca49, 0x80ca58, 0x80caa2,
+  0x80cab4, 0x80caca, 0x80cae0,
 ]);
 // Direct page bytes a lifted native does not produce: the sample loader's scratch
 // (7E:0089-008B, 008F-0099) after any, and after the sight natives the line of sight's
