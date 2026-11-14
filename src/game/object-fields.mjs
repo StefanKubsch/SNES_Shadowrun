@@ -3,7 +3,8 @@
 // 80:CAA2, 80:CAB4, 80:CACA and 80:CAE0 for the record, 80:8EF5, 80:8AF1, 80:8AFA and
 // 80:8B08 for the armour, 80:A941 to 80:A96D for the motion, 80:D255, 80:D1CA, 80:D17B and
 // 80:D16D for the direction, number and sprite mode, 80:A91D and 80:A926 for the task link
-// and 80:A92F and 80:D13E for the velocity; register-level references in
+// and 80:A92F and 80:D13E for the velocity, 80:A977 for the height; register-level
+// references in
 // proof/game-reference/object-fields.mjs).
 //
 // An object's flag word (7E:1458 plus its slot) and its record pointer (7E:13A8 plus its
@@ -150,3 +151,13 @@ export const setObjectVelocity = (mem, object, x, y, z) => {
 };
 // 80:D13E: stop the object (all three velocities zero).
 export const clearObjectVelocity = (mem, object) => setObjectVelocity(mem, object, 0, 0, 0);
+// 80:A977: raise the object's height by four times amount (heights are in quarter
+// units), wrapping in 16 bits.
+const QUARTERS = 4;
+export const raiseObjectHeight = (mem, object, amount) =>
+  setDataBankWord(
+    mem,
+    OBJECT_HEIGHT,
+    object,
+    (((amount * QUARTERS) & WORD_MASK) + dataBankWord(mem, OBJECT_HEIGHT, object)) & WORD_MASK,
+  );

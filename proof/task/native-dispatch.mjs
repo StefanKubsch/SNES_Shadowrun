@@ -109,6 +109,14 @@ import {
   raiseStoryStageReference,
 } from '../game-reference/room-story.mjs';
 
+import {
+  addKarmaReference,
+  addMagicPointsReference,
+  addNuyenReference,
+} from '../game-reference/party-funds.mjs';
+
+import { addObjectHeightReference } from '../game-reference/object-fields.mjs';
+
 // Lifted natives whose proofs run their register-level references (the game runs the
 // lifted ones, src/task/native-targets.mjs).
 const REFERENCE_TARGETS = new Map([
@@ -179,6 +187,10 @@ const REFERENCE_TARGETS = new Map([
   [0x80ccb9, getCurrentRoomHeaderReference],
   [0x80d134, getStoryStageReference],
   [0x80cca4, raiseStoryStageReference],
+  [0x80cdb2, addKarmaReference],
+  [0x80ccdb, addNuyenReference],
+  [0x808b8a, addMagicPointsReference],
+  [0x80a977, addObjectHeightReference],
 ]);
 
 // A fixed, independently source-checked set of native equations. This is no

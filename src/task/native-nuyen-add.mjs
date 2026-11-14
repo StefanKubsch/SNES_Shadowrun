@@ -1,28 +1,10 @@
-import { FIRST_ARGUMENT, leaf } from './native-leaf-support.mjs';
-import { NUYEN, WRAM } from './wram.mjs';
-import { WORD_MASK } from '../constants/bits.mjs';
+import { FIRST_ARGUMENT, finishLeaf, leafArgument } from './native-leaf-support.mjs';
+import { addNuyen as add } from '../game/party-funds.mjs';
 
-const NUYEN_LOW = WRAM + NUYEN,
-  NUYEN_HIGH = NUYEN_LOW + 2,
-  MAXIMUM_WORD = WORD_MASK;
-
-// 80:CCDB: the 32-bit nuyen balance plus the first script argument. A carry
-// increments the high word; if that wraps, both words saturate at the maximum.
-export const addNuyen = (a, outerReturn = true) =>
-  leaf(
-    a,
-    (h) => {
-      let low = h.add(h.longRead(NUYEN_LOW), h.dp(FIRST_ARGUMENT));
-      if (h.carried()) {
-        h.longWrite(NUYEN_LOW, low);
-        const high = h.load((h.longRead(NUYEN_HIGH) + 1) & WORD_MASK);
-        h.longWrite(NUYEN_HIGH, high);
-        if (high !== 0) return;
-        // The ROM stores the wrapped high word before the saturated one.
-        low = h.load(MAXIMUM_WORD);
-        h.longWrite(NUYEN_HIGH, MAXIMUM_WORD);
-      }
-      h.longWrite(NUYEN_LOW, low);
-    },
-    outerReturn,
-  );
+// 80:CCDB (lifted in src/game/party-funds.mjs; register-level reference in
+// proof/game-reference/party-funds.mjs): the 32-bit nuyen balance plus the first script
+// argument, saturating at the maximum.
+export const addNuyen = (a, outerReturn = true) => {
+  add(a.mem, leafArgument(a, FIRST_ARGUMENT));
+  return finishLeaf(a, outerReturn);
+};

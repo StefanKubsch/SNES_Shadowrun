@@ -1,13 +1,10 @@
-import { FIRST_ARGUMENT, leaf } from './native-leaf-support.mjs';
-import { KARMA, WRAM } from './wram.mjs';
+import { FIRST_ARGUMENT, finishLeaf, leafArgument } from './native-leaf-support.mjs';
+import { addKarma as add } from '../game/party-funds.mjs';
 
-// 80:CDB2: karma plus the first script argument, as a wrapping 16-bit sum without a limit.
-export const addKarma = (a, outerReturn = true) =>
-  leaf(
-    a,
-    (h) => {
-      const karma = h.add(h.longRead(WRAM + KARMA), h.dp(FIRST_ARGUMENT));
-      h.longWrite(WRAM + KARMA, karma);
-    },
-    outerReturn,
-  );
+// 80:CDB2 (lifted in src/game/party-funds.mjs; register-level reference in
+// proof/game-reference/party-funds.mjs): karma plus the first script argument, as a
+// wrapping 16-bit sum without a limit.
+export const addKarma = (a, outerReturn = true) => {
+  add(a.mem, leafArgument(a, FIRST_ARGUMENT));
+  return finishLeaf(a, outerReturn);
+};

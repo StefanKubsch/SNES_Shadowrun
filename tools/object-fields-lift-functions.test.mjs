@@ -7,7 +7,7 @@
 // cheat, src/game/cheats.mjs), and the armour word's get 80:8EF5, set 80:8AF1, sum 80:8AFA
 // and difference 80:8B08, the motion getters 80:A941 to 80:A96D, the direction 80:D255,
 // number 80:D1CA and sprite mode 80:D17B and 80:D16D, the task link 80:A91D and 80:A926
-// and the velocity setters 80:A92F and 80:D13E. Both sides run the native from
+// and the velocity setters 80:A92F and 80:D13E and the height's raise 80:A977. Both sides run the native from
 // its script call (data bank 80, direct page 0, the RTS frame). Game state only
 // (docs/STRATEGY.md, 2026-11-14): WRAM outside the stacks, the device writes and the
 // return (program counter and stack pointer) must be equal; the script interpreter
@@ -45,6 +45,7 @@ import {
   bindObjectToCurrentTaskReference,
   setObjectVelocityReference,
   clearObjectVelocityReference,
+  addObjectHeightReference,
 } from '../proof/game-reference/object-fields.mjs';
 import { getObjectRecordFirstByte } from '../src/task/native-object-record-byte0.mjs';
 import { getObjectRecordFlags } from '../src/task/native-object-record-flags.mjs';
@@ -72,6 +73,7 @@ import { clearObjectTask } from '../src/task/native-object-task-clear.mjs';
 import { bindObjectToCurrentTask } from '../src/task/native-object-task-bind.mjs';
 import { setObjectVelocity } from '../src/task/native-object-velocity-set.mjs';
 import { clearObjectVelocity } from '../src/task/native-object-velocity-clear.mjs';
+import { addObjectHeight } from '../src/task/native-object-height-add.mjs';
 import { JAKE_STATE_RECORD } from '../src/game/cheats.mjs';
 import { CHEAT } from '../src/game/cheat-settings.mjs';
 import { JAKE_BODY, OBJECT_RECORD } from '../src/task/wram.mjs';
@@ -238,6 +240,7 @@ registerCases(
       clearObjectVelocityReference,
       clearObjectVelocity,
     ),
+    field('addObjectHeight 80:A977', 0x80a977, addObjectHeightReference, addObjectHeight),
   ],
   { sample, side: (s) => createSide(s, new Map()), runtime: (h) => h, ignored: IGNORED },
 );

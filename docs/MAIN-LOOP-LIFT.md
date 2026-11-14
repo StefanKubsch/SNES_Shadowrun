@@ -351,6 +351,18 @@ which the render proof of 81:8076 keeps using.
   [tools/room-story-lift-functions.test.mjs](../tools/room-story-lift-functions.test.mjs)
   compares both (400 samples each; game rooms, stages 0 to 20 and any word); planted
   changes of the carry and of the stage 0 rotation count fail it.
+- The sums 80:CDB2 (karma 7E:3C11 plus the argument, wrapping), 80:CCDB (the 32-bit
+  nuyen 7E:3C0D plus the argument, saturating at FFFFFFFF when the high word wraps) and
+  80:8B8A (the magic point byte of the member shown at 7E:1F60 plus the argument's low
+  byte, wrapping) run `addKarma`, `addNuyen` and `addMemberMagicPoints` of
+  [src/game/party-funds.mjs](../src/game/party-funds.mjs) (block 94); the
+  register-level versions moved to proof/game-reference/party-funds.mjs, which the
+  instruction test of 80:8B8A (tools/task-native-m1d.test.mjs) now runs.
+  [tools/party-funds-lift-functions.test.mjs](../tools/party-funds-lift-functions.test.mjs)
+  compares both (400 samples each; the nuyen's high word near its wrap); planted changes
+  of the saturation and of the member's halving fail it. The height's raise 80:A977 (four
+  times the second argument, wrapping) runs `raiseObjectHeight` of
+  src/game/object-fields.mjs, compared by the object field test.
 - The getters 80:9E59 and 80:9E5F (the buttons held and newly pressed), 80:CD97 and its
   byte-identical copy 80:D18A (the player figure's slot) and 80:C0F7 and 80:C100 (the
   glove sprite's screen X and Y bytes) run `padHeld`, `padPressed`, `playerObject`,
