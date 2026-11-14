@@ -1,7 +1,11 @@
-import { leaf } from './native-leaf-support.mjs';
-import { applyGloveLimits, GLOVE_LIMITS } from './native-glove-crosshair-limits.mjs';
+import { finishLeaf } from './native-leaf-support.mjs';
+import { GLOVE_LIMITS } from './native-glove-crosshair-limits.mjs';
+import { setGloveLimits } from '../game/glove-target.mjs';
 
-// 80:BC9C: keep the spell glove inside its screen limits (the tail of 80:BC99 after
-// its JSR 80:BC36), see native-glove-crosshair-limits.mjs.
-export const limitSpellGlove = (a, outerReturn = true) =>
-  leaf(a, (h) => applyGloveLimits(h, GLOVE_LIMITS.spell), outerReturn);
+// 80:BC9C (lifted in src/game/glove-target.mjs; register-level reference in
+// proof/game-reference/script-measures.mjs): keep the spell glove inside its screen
+// limits (the tail of 80:BC99 after its JSR 80:BC36).
+export const limitSpellGlove = (a, outerReturn = true) => {
+  setGloveLimits(a.mem, GLOVE_LIMITS.spell);
+  return finishLeaf(a, outerReturn);
+};

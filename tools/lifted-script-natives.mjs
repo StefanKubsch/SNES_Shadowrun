@@ -46,6 +46,9 @@ export const LIFTED_SCRIPT_NATIVES = new Set([
   // The property tests (object-fields.mjs, actor-state.mjs), the dialog end and the player control reset (script-requests.mjs).
   0x809d98,
   0x809dae, 0x80cdcf, 0x80de7e,
+  // The glove limits (glove-target.mjs), distances (object-distance.mjs) and halving (script-queries.mjs).
+  0x80bc83,
+  0x80bc9c, 0x80c68d, 0x80c694, 0x80d9a7,
 ]);
 // Direct page bytes a lifted native does not produce: the sample loader's scratch
 // (7E:0089-008B, 008F-0099) after any, and after the sight natives the line of sight's

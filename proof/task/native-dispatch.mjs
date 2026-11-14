@@ -144,6 +144,14 @@ import {
   resetPlayerControlReference,
 } from '../game-reference/script-requests.mjs';
 
+import {
+  getDistanceBetweenObjectsReference,
+  getDistanceToPlayerReference,
+  halveArgumentSignedReference,
+  limitCrosshairReference,
+  limitSpellGloveReference,
+} from '../game-reference/script-measures.mjs';
+
 // Lifted natives whose proofs run their register-level references (the game runs the
 // lifted ones, src/task/native-targets.mjs).
 const REFERENCE_TARGETS = new Map([
@@ -234,6 +242,11 @@ const REFERENCE_TARGETS = new Map([
   [0x809dae, isActorStatePropertyReference],
   [0x80cdcf, endDialogReference],
   [0x80de7e, resetPlayerControlReference],
+  [0x80bc83, limitCrosshairReference],
+  [0x80bc9c, limitSpellGloveReference],
+  [0x80c68d, getDistanceToPlayerReference],
+  [0x80c694, getDistanceBetweenObjectsReference],
+  [0x80d9a7, halveArgumentSignedReference],
 ]);
 
 // A fixed, independently source-checked set of native equations. This is no

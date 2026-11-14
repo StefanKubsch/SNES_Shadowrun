@@ -393,6 +393,18 @@ which the render proof of 81:8076 keeps using.
   of the same names; the object field, actor state and script request tests compare
   them (the actor test with the record's property as the wanted word in half the
   samples); planted changes of the sign test, the equality and a reset field fail them.
+- The glove limits 80:BC83 and 80:BC9C (the crosshair's and the spell glove's projection
+  bases and kind) run `setGloveLimits` of src/game/glove-target.mjs, the distances
+  80:C68D (to the player figure) and 80:C694 (between two objects: the larger position
+  difference's magnitude over four) `distanceToPlayer` and `objectDistance` of
+  [src/game/object-distance.mjs](../src/game/object-distance.mjs), and the signed
+  halving 80:D9A7 `halveSigned` of src/game/script-queries.mjs (block 98). The
+  register-level versions moved to proof/game-reference/script-measures.mjs, which the
+  instruction tests of 80:BC83, 80:BC9C and 80:C694 now run.
+  [tools/script-measures-lift-functions.test.mjs](../tools/script-measures-lift-functions.test.mjs)
+  compares both (300 samples each; game slots, the same object, any words and an X
+  difference of 8000); planted changes of the quarter shift, the larger difference and
+  the sign bit fail it.
 - The getters 80:9E59 and 80:9E5F (the buttons held and newly pressed), 80:CD97 and its
   byte-identical copy 80:D18A (the player figure's slot) and 80:C0F7 and 80:C100 (the
   glove sprite's screen X and Y bytes) run `padHeld`, `padPressed`, `playerObject`,

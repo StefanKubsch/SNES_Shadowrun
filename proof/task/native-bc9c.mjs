@@ -1,6 +1,7 @@
 // Source-specific atomic plans for proof tools. The game executes the shared routines directly.
 import { prepareTaskPlan } from './plan.mjs';
-import { limitSpellGlove } from '../../src/task/native-glove-spell-limits.mjs';
+// The register-level reference; the game runs the lifted native.
+import { limitSpellGloveReference } from '../game-reference/script-measures.mjs';
 
 export const prepareTaskNativeBC9C = (options) =>
-  prepareTaskPlan(options, [0x80bc9c], (a) => limitSpellGlove(a));
+  prepareTaskPlan(options, [0x80bc9c], (a) => limitSpellGloveReference(a));

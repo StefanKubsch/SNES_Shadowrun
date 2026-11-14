@@ -639,3 +639,13 @@ export function* choosePlaceWithGloveSequence(h, events, routines) {
   yield* callSequence(h, events, routines, sites.putAway, PUT_AWAY);
   return yield* returnSequence(h);
 }
+
+// 80:BC83 and 80:BC9C (the script natives' tails of 80:BC80 and 80:BC99): the projection
+// bases and the kind of a GLOVE_LIMITS entry, and the kind as the active glove kind.
+export function setGloveLimits(mem, [baseX, baseY, kind]) {
+  const { wram } = mem;
+  setWord(wram, GLOVE_BASE_X, baseX);
+  setWord(wram, GLOVE_BASE_Y, baseY);
+  setWord(wram, GLOVE_LIMIT_KIND, kind);
+  setWord(wram, GLOVE_KIND, kind);
+}
