@@ -5,6 +5,7 @@ import { ACTOR_KIND, ACTOR_RECORD, ACTOR_TABLE } from '../data/actors.mjs';
 import { KIND_TABLE, KIND_VALUE_OFFSET } from '../data/kinds.mjs';
 import {
   HIGH_BYTE_MASK,
+  BYTE_BITS,
   BANK_WRAP,
   BANK_SIZE,
   LONG_WRAP,
@@ -123,6 +124,18 @@ export function leafAccess(a) {
 export function leaf(a, run, outerReturn = true) {
   run(leafAccess(a));
   return finishLeaf(a, outerReturn);
+}
+// For lifted script natives (game state only): a script argument word from the direct
+// page at 0, and the result word in place of the first argument.
+export function leafArgument(a, offset) {
+  if (a.ctx.d !== 0) taskStop('task_direct_page_zero_required');
+  const { wram } = a.mem;
+  return wram[offset] | (wram[offset + 1] << BYTE_BITS);
+}
+export function setLeafResult(a, value) {
+  const { wram } = a.mem;
+  wram[FIRST_ARGUMENT] = value & BYTE_MASK;
+  wram[FIRST_ARGUMENT + 1] = (value >>> BYTE_BITS) & BYTE_MASK;
 }
 export function finishLeaf(a, outerReturn = true) {
   const rawReturnWord = a.readWord(

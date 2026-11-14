@@ -4,10 +4,22 @@ import { nativeTarget } from '../../src/task/native-targets.mjs';
 import { runTaskNativeBridge } from './native-bridge.mjs';
 import { runTaskNativeResume } from './native-resume.mjs';
 import { raiseMemberMagicPointsReference } from '../game-reference/runner-state.mjs';
+import {
+  getObjectFlagsReference,
+  keepObjectFlagBitsReference,
+  setObjectFlagBitsReference,
+  setObjectFlagsReference,
+} from '../game-reference/object-fields.mjs';
 
 // Lifted natives whose proofs run their register-level references (the game runs the
 // lifted ones, src/task/native-targets.mjs).
-const REFERENCE_TARGETS = new Map([[0x80cf2e, raiseMemberMagicPointsReference]]);
+const REFERENCE_TARGETS = new Map([
+  [0x80cf2e, raiseMemberMagicPointsReference],
+  [0x80ca05, getObjectFlagsReference],
+  [0x80ca0d, setObjectFlagsReference],
+  [0x80ca15, setObjectFlagBitsReference],
+  [0x80ca20, keepObjectFlagBitsReference],
+]);
 
 // A fixed, independently source-checked set of native equations. This is no
 // opcode runner: unproved pointers never invoke an arbitrary function or ROM.

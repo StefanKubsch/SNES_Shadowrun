@@ -250,6 +250,21 @@ which the render proof of 81:8076 keeps using.
   mirror of bank 81. Scripts pass the object FFFF (none) on, for example from 80:8C8D to
   80:8CCF, and the original then reads the word below the field; an earlier stop at
   indices past 80:2000 broke a user session (recording of 2026-11-13, NMI 12947).
+- The object field natives 80:CA05 (the object's flag word as the result), 80:CA0D (the
+  flag word replaced by the second argument), 80:CA15 (its bits set) and 80:CA20 (only
+  its bits kept) run `objectFlags`, `setObjectFlags`, `setObjectFlagBits` and
+  `keepObjectFlagBits` of [src/game/object-fields.mjs](../src/game/object-fields.mjs)
+  in the game's native table (src/task/native-object-flags-*.mjs call them with the
+  script arguments; `leafArgument` and `setLeafResult` of
+  src/task/native-leaf-support.mjs read the arguments and write the result word). Game
+  state only: they leave no registers (LIFTED_SCRIPT_NATIVES of
+  tools/lifted-script-natives.mjs). The flag word lies at 7E:1458 plus the object
+  through the data bank 80. The register-level versions moved to
+  proof/game-reference/object-fields.mjs; the proof plans 80:CA05 to 80:CA20 and the
+  Native58 dispatch of proof/task/native-dispatch.mjs run them.
+  [tools/object-fields-lift-functions.test.mjs](../tools/object-fields-lift-functions.test.mjs)
+  compares both (400 samples each; game slots, none and any index in the low WRAM
+  mirror); planted changes of the OR, the AND and the index fail it.
 - The modals 80:CD20 (pay the nuyen of the first argument: FFFF if paid, else 0; a
   low word too small borrows from a nonzero high word) and 80:CBF7 (the actor of the
   first argument, an entry offset in the actor table 8D:B01F, gets the holder of the

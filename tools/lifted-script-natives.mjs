@@ -1,4 +1,5 @@
-// The script natives that run lifted code (src/task/native-script-leaves.mjs) and what
+// The script natives that run lifted code (src/task/native-script-leaves.mjs and the leaf
+// natives of src/task/native-targets.mjs that call src/game) and what
 // the oracle comparisons may expect of them (docs/MAIN-LOOP-LIFT.md). After the
 // native's RTS the script interpreter's $F509 replaces A, X, Y, the direct page and N/Z
 // and reads the result from the direct page word 00; no opcode reads the carry or
@@ -8,6 +9,8 @@
 export const LIFTED_SCRIPT_NATIVES = new Set([
   0x808521, 0x80c461, 0x80c46e, 0x80c51f, 0x80c560, 0x808d7f, 0x808d3f, 0x808d4e, 0x808bc5,
   0x808c08, 0x808c8d, 0x808ccf, 0x80cd20, 0x80cbf7, 0x80bba0,
+  // The object field natives (src/game/object-fields.mjs).
+  0x80ca05, 0x80ca0d, 0x80ca15, 0x80ca20,
 ]);
 // Direct page bytes a lifted native does not produce: the sample loader's scratch
 // (7E:0089-008B, 008F-0099) after any, and after the sight natives the line of sight's
