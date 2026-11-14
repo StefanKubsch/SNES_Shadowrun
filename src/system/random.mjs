@@ -4,9 +4,13 @@
 // permutation random_bytes; a number below a range takes two such bytes as a word,
 // masks it to the range's bit length (random_masks) and draws again until it fits.
 import { decodeOnce, tableEntries } from '../data/named-tables.mjs';
-import { RANDOM_BYTE, RANDOM_STATE, RANDOM_STATE_HIGH } from '../task/wram.mjs';
+import { DP_RANDOM_MASK, RANDOM_BYTE, RANDOM_STATE, RANDOM_STATE_HIGH } from '../task/wram.mjs';
 import { OPHCT, OPVCT, SLHV } from '../constants/hardware-registers.mjs';
 import { BYTE_BITS, BYTE_MASK, WORD_SIGN } from '../constants/bits.mjs';
+
+// The direct page words of 80:C51F: the range (and the draw) and the range's copy.
+const DP_DRAW = 0,
+  DP_RANGE = 2;
 
 // Original instructions, the sites of the device model: the latch (its value is
 // not used), then the horizontal and the vertical counter byte.
@@ -53,5 +57,22 @@ export function randomBelow(mem, port, range, registers = null, counter = null) 
     value = randomWord(mem, port, registers) & mask;
     if (counter) counter.draws = (counter.draws ?? 0) + 1;
   } while (value >= range);
+  return value;
+}
+// 80:C51F as its callers see it in the direct page (data bank 80, direct page 0): a draw
+// below range into DP 00, which also keeps the range in DP 02 and its mask in DP 04 (a
+// range of 0 leaves them and draws 0); returns the draw.
+export function drawBelowInDirectPage(mem, port, range) {
+  const { wram } = mem,
+    setWord = (at, value) => {
+      wram[at] = value & BYTE_MASK;
+      wram[at + 1] = (value >>> BYTE_BITS) & BYTE_MASK;
+    };
+  setWord(DP_DRAW, range);
+  if (range === 0) return 0;
+  const value = randomBelow(mem, port, range);
+  setWord(DP_RANGE, range);
+  setWord(DP_RANDOM_MASK, rangeMask(mem, range));
+  setWord(DP_DRAW, value);
   return value;
 }

@@ -13,12 +13,7 @@ import { waitForConfirmKeySequence } from './native-input-wait.mjs';
 import { dialogAccess } from './native-dialog-support.mjs';
 import { ObservedWaitContinuation, lagFree } from './main-wait-interrupt.mjs';
 import { drawWindowListJslSequence } from '../game/window-list.mjs';
-import {
-  NATIVE_CALL_CONTINUATIONS,
-  NativeCallContinuation,
-  observedContinuation,
-  drainNativeSequence,
-} from './native-call-continuation.mjs';
+import { observedContinuation, drainNativeSequence } from './native-call-continuation.mjs';
 import { taskActionsDevices, validateTaskActionsOptions } from './native-actions.mjs';
 import { taskRandomTableSources } from './native-random-tables.mjs';
 import { native8E36Table } from './native-object-hit-tables.mjs';
@@ -86,7 +81,7 @@ export const DP_HIT_RESULT = 0xb4,
 // no harm.", 74BA at 06/06/14/04), the eighth costs 8 karma eighths, one karma point
 // ("Jake, I must punish you for your lack of compassion. -1 Karma.", 74D2 at 04/04/19/04).
 // Each notice waits thirty B0A1 counters before the key input F953.
-const HARMLESS_WARNING = Object.freeze({ hits: 4, margin: 6, columns: 20, text: 0x74ba }),
+export const HARMLESS_WARNING = Object.freeze({ hits: 4, margin: 6, columns: 20, text: 0x74ba }),
   HARMLESS_PENALTY = Object.freeze({ hits: 8, margin: 4, columns: 25, text: 0x74d2 }),
   HARMLESS_NOTICE_ROWS = 4,
   KARMA_PENALTY = 8,
@@ -94,7 +89,7 @@ const HARMLESS_WARNING = Object.freeze({ hits: 4, margin: 6, columns: 20, text: 
 // A damaged object wakes its root task with event bit 11; the hit effect object A1 runs
 // script 10F four units above the box. With a shooter the impact object E7 (script 80)
 // sits one unit towards the shooter's facing (offsets 80:8850) with the facing of 80:8840.
-const HIT_EVENT = 0x800,
+export const HIT_EVENT = 0x800,
   HIT_EFFECT_KIND = 0xa1,
   HIT_EFFECT_SCRIPT = 0x10f,
   HIT_EFFECT_RAISE = 4,
@@ -103,7 +98,7 @@ const HIT_EVENT = 0x800,
   IMPACT_OFFSETS = 0x8850,
   IMPACT_FACINGS = 0x8840;
 // 881C: a hit player plays sound 20 at level FF on voices 7 and stays stunned 11 frames.
-const PLAYER_HIT_SOUND = 0x20,
+export const PLAYER_HIT_SOUND = 0x20,
   PLAYER_HIT_SOUND_LEVEL = BYTE_MASK,
   PLAYER_HIT_SOUND_VOICES = 7,
   PLAYER_HIT_STUN = 11;
@@ -197,8 +192,25 @@ function access(a, events) {
   };
   return { ...h, index, compare, bit, finish, call, segment };
 }
+// A callee from the routine table when it has one (tests share stand-ins), else body.
+function tableCall(h, a, events, routines, pc, target, body, long = false) {
+  const run = routines?.get(target);
+  if (!run) return h.call(pc, target, body, long);
+  return h.call(
+    pc,
+    target,
+    function* () {
+      let result;
+      yield () => {
+        result = run(dialogAccess(a), events);
+      };
+      return result;
+    },
+    long,
+  );
+}
 // Original routine $80:881C.
-function* runPlayerHit(a, events) {
+function* runPlayerHit(a, events, routines) {
   const h = access(a, events),
     { ctx } = h;
   h.compare(ctx.y, h.read(h.abs(PLAYER_OBJECT)));
@@ -215,27 +227,35 @@ function* runPlayerHit(a, events) {
   yield* h.call(0x808832, 0x80c46e, () => h.segment(() => playSoundEffect(a, events, false)));
   h.load(PLAYER_HIT_STUN);
   h.write(h.abs(PLAYER_HIT_FRAMES), ctx.a);
-  yield* h.call(0x80883b, 0x81ad92, () => drawWindowListJslSequence(a, events), true);
+  yield* tableCall(
+    h,
+    a,
+    events,
+    routines,
+    0x80883b,
+    0x81ad92,
+    () => drawWindowListJslSequence(a, events),
+    true,
+  );
   return h.finish(false);
 }
-// 80:8691: hit the object in X with the damage in A (see the notes above).
-export function hitObject(a, events, outerReturn = true) {
-  return drainNativeSequence(hitObjectSequence(a, events, outerReturn));
+// 80:8691: hit the object in X with the damage in A (see the notes above). routines
+// (optional): a table whose notice callees and window list run instead (tests share
+// stand-ins).
+export function hitObject(a, events, outerReturn = true, routines = null) {
+  return drainNativeSequence(hitObjectSequence(a, events, outerReturn, routines));
 }
-// 80:8691 for routine tables: called with its JSR frame pushed (h, events), it returns
-// with its RTS; its notices pause in the scheduler's continuation.
-export const runHitObject = (h, events) => hitObject(h.a, events, false);
-NATIVE_CALL_CONTINUATIONS.set(runHitObject, {
-  run: runHitObject,
-  create: ({ h, events }) => new NativeCallContinuation(h.a, hitObjectSequence(h.a, events, false)),
-});
-function* hitObjectSequence(a, events, outerReturn) {
+function* hitObjectSequence(a, events, outerReturn, routines = null) {
   const h = access(a, events),
     { ctx } = h,
     interrupts = events.interrupts !== undefined;
   const slice = (values, index) => Object.freeze((values ?? []).slice(index));
   const counter = (pc) =>
-    h.call(
+    tableCall(
+      h,
+      a,
+      events,
+      routines,
       pc,
       0x81b0a1,
       function* () {
@@ -277,7 +297,7 @@ function* hitObjectSequence(a, events, outerReturn) {
       h.dpWrite(o, ctx.a);
     }
     fitListWindow(a.mem, h, [pointer], { column: 0 });
-    yield* h.call(allocate, 0x80f963, function* () {
+    yield* tableCall(h, a, events, routines, allocate, 0x80f963, function* () {
       const p = yield* f963Sequence(
         a,
         {
@@ -294,13 +314,15 @@ function* hitObjectSequence(a, events, outerReturn) {
     });
     h.load(pointer);
     h.dpWrite(2, ctx.a);
-    yield* h.call(text, 0x80fe69, () => printTextSequence(a, events, false));
+    yield* tableCall(h, a, events, routines, text, 0x80fe69, () =>
+      printTextSequence(a, events, false),
+    );
     h.index('x', NOTICE_COUNTER_WAITS);
     do {
       yield* counter(wait);
       h.index('x', (ctx.x - 1) & WORD_MASK);
     } while (!(ctx.status & FLAG_ZERO));
-    yield* h.call(input, 0x80f953, function* () {
+    yield* tableCall(h, a, events, routines, input, 0x80f953, function* () {
       const p = yield* waitForConfirmKeySequence(
         a,
         {
@@ -320,7 +342,9 @@ function* hitObjectSequence(a, events, outerReturn) {
       };
       return p;
     });
-    yield* h.call(remove, 0x80fa3e, () => releaseWindowJsrSequence(a, events));
+    yield* tableCall(h, a, events, routines, remove, 0x80fa3e, () =>
+      releaseWindowJsrSequence(a, events),
+    );
   };
   h.dpWrite(0, ctx.a);
   h.load(h.read(h.abs(OBJECT_FLAGS) + ctx.x));
@@ -470,7 +494,7 @@ function* hitObjectSequence(a, events, outerReturn) {
     h.index('x', h.dp(0));
     h.write(WRAM + OBJECT_ARMOUR + ctx.x, ctx.a);
   }
-  yield* h.call(0x808772, 0x80881c, () => runPlayerHit(a, events));
+  yield* h.call(0x808772, 0x80881c, () => runPlayerHit(a, events, routines));
   ctx.status &= ~FLAG_MEMORY_8BIT;
   return h.finish(outerReturn);
 }

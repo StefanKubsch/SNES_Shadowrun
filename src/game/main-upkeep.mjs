@@ -85,7 +85,7 @@ import {
   shootWithOwnWeaponSequence,
 } from './object-shoot.mjs';
 import { selectAnimationRoutine, turnObjectRoutine } from './object-turn.mjs';
-import { runHitObject } from '../task/native-object-hit.mjs';
+import { hitObjectSequence } from './object-hit.mjs';
 import { hitObjectsInBlastSequence } from './object-blast.mjs';
 import { chooseSpellSequence } from './spell-choice.mjs';
 import { openSpellMenuSequence, spellMenuSequence, STATUS_ENTRY } from './member-spell-menu.mjs';
@@ -750,9 +750,21 @@ export const liftedSpellGloveTargetSequence = (h, events) =>
 // The lifted place choice 80:C724, as the script native runs it with lag-free frames.
 export const liftedChoosePlaceSequence = (h, events) =>
   choosePlaceWithGloveSequence(h, events, GLOVE_CHOICE_ROUTINES);
-// The callee of the lifted shooting natives that runs through its frame: the
-// register-level hit 80:8691, whose notices wait with lag-free frames (the sight, random
-// numbers, object slot, turn and sound run lifted inside src/game/object-shoot.mjs).
+// The lifted hit 80:8691 (src/game/object-hit.mjs), called with JSR by the shooting
+// natives and the blast: its notices' window, text, word wait, confirm key and release
+// and the player hit's window list run lifted through their frames.
+const HIT_ROUTINES = new Map([
+  [0x80f963, runOpenWindow],
+  [0x80fe69, runPrintText],
+  [0x81b0a1, runFrameWait],
+  [0x80f953, runConfirmKey],
+  [0x80fa3e, runReleaseWindow],
+  [0x81ad92, runDrawWindowList],
+]);
+export const runHitObject = sequenceRun((h, events) => hitObjectSequence(h, events, HIT_ROUTINES));
+// The callee of the lifted shooting natives that runs through its frame: the hit, whose
+// notices wait for frames (the sight, random numbers, object slot, turn and sound run
+// lifted inside src/game/object-shoot.mjs).
 const SHOOT_ROUTINES = new Map([[0x808691, runHitObject]]);
 // The lifted shooting natives 80:8AB5, 80:8A51 and 80:8A8C, as the script natives run
 // them with lag-free frames.
@@ -762,10 +774,10 @@ export const liftedShootAtGloveTargetSequence = (h, events) =>
   shootAtGloveTargetSequence(h, events, SHOOT_ROUTINES);
 export const liftedShootWithOwnWeaponSequence = (h, events) =>
   shootWithOwnWeaponSequence(h, events, SHOOT_ROUTINES);
-// The lifted blast 80:8E36 with the register-level hit, as the script native runs it with
+// The lifted blast 80:8E36 with the lifted hit, as the script native runs it with
 // lag-free frames.
 export const liftedBlastSequence = (h, events) =>
-  hitObjectsInBlastSequence(h, events, new Map([[0x808691, runHitObject]]));
+  hitObjectsInBlastSequence(h, events, SHOOT_ROUTINES);
 // 80:E270, called with JSR; its notice and text wait for the NMI of their uploads, so
 // it is a native call continuation of the main loop.
 export function runTimeLimit(h, events, routines = UPKEEP_ROUTINES) {

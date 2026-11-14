@@ -30,7 +30,7 @@
 import { nativeCallSequence } from '../task/native-call-continuation.mjs';
 import { dataBankWord, setDataBankWord } from '../system/data-bank.mjs';
 import { accessorPort } from '../system/hardware-port.mjs';
-import { randomBelow, rangeMask } from '../system/random.mjs';
+import { drawBelowInDirectPage } from '../system/random.mjs';
 import { playSoundEffect } from '../apu/sound-effect.mjs';
 import { taskStop } from '../task/plan.mjs';
 import { lineOfSight } from './line-of-sight.mjs';
@@ -89,7 +89,6 @@ import {
   DP_OBJECT_SCRIPT,
   DP_OBJECT_X,
   DP_OBJECT_Y,
-  DP_RANDOM_MASK,
   DP_SOUND_LEVEL,
   DP_SOUND_VOICE,
   GLOVE_TARGET_OBJECT,
@@ -125,8 +124,6 @@ const GLOVE_BLOCKED = 1,
   WEAPON_ENTRY_SHIFT = 2,
   // Box units: coordinates over 4.
   BOX_SHIFT = 2,
-  // The random draw's range in the direct page.
-  DP_RANDOM_RANGE = 2,
   // A low box lowers the close bonus by this much.
   LOW_BOX_PENALTY = 2;
 
@@ -150,18 +147,8 @@ function shotRuntime(h) {
   const { mem } = h.a;
   return { h, mem, wram: mem.wram, port: accessorPort(h.a) };
 }
-// 80:C51F: a draw below range into DP 00, which also keeps the range in DP 02 and its
-// mask in DP 04; returns the draw.
-function drawBelow(run, range) {
-  const { mem, wram, port } = run;
-  setWord(wram, 0, range);
-  if (range === 0) return 0;
-  const value = randomBelow(mem, port, range);
-  setWord(wram, DP_RANDOM_RANGE, range);
-  setWord(wram, DP_RANDOM_MASK, rangeMask(mem, range));
-  setWord(wram, 0, value);
-  return value;
-}
+// 80:C51F: a draw below range into DP 00 (src/system/random.mjs).
+const drawBelow = ({ mem, port }, range) => drawBelowInDirectPage(mem, port, range);
 
 // The shot sound of a weapon kind, or null.
 const shotSound = (kind) =>

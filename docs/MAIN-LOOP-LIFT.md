@@ -373,10 +373,9 @@ which the render proof of 81:8076 keeps using.
   ([src/game/line-of-sight.mjs](../src/game/line-of-sight.mjs), without its direct page
   working bytes 7E:000E-006C, user decision 2026-11-13), the random numbers
   (src/system/random.mjs, with the range and mask in DP 02 and 04), the object slot
-  80:A835, the turn 80:AAAF and the sound 80:C46E run lifted as plain calls. Only the
-  register-level hit 80:8691 (whose notices wait with lag-free frames) runs through its
-  JSR frame from the routine table, with the damage in A, the target in X and the
-  shooter in Y. [tools/object-shoot-lift-functions.test.mjs](../tools/object-shoot-lift-functions.test.mjs)
+  80:A835, the turn 80:AAAF and the sound 80:C46E run lifted as plain calls. Only the hit 80:8691
+  (lifted, below; its notices wait for frames) runs through its JSR frame from the
+  routine table, with the damage in A, the target in X and the shooter in Y. [tools/object-shoot-lift-functions.test.mjs](../tools/object-shoot-lift-functions.test.mjs)
   runs the register-level natives with their real callees against the lifted ones (400
   samples each; a cell list with boxes on the shot's line, a free heap block for the
   miss marker's task, the shooters' direction tables in ROM, small bonuses and range
@@ -393,9 +392,9 @@ which the render proof of 81:8076 keeps using.
   to 0 hit by 80:8691 with the damage DP 02 and no shooter when it holds an object
   that can be hit within 60 of the centre DP 00 on each axis) runs
   `hitObjectsInBlastSequence` of [src/game/object-blast.mjs](../src/game/object-blast.mjs)
-  with the register-level hit, which the hit module now offers to routine tables as
-  `runHitObject` (its notices pause in the scheduler's continuation; the shooting
-  natives use it too). The register-level native takes the hit from a routine table
+  with the hit from the routine table (since block 78 the lifted hit below, `runHitObject`
+  of src/game/main-upkeep.mjs; its notices pause in the scheduler's continuation; the
+  shooting natives use it too). The register-level native takes the hit from a routine table
   when given one, so
   [tools/object-blast-lift-functions.test.mjs](../tools/object-blast-lift-functions.test.mjs)
   compares both with a shared stand-in (400 samples; objects or none, hittable or not,
@@ -403,6 +402,30 @@ which the render proof of 81:8076 keeps using.
   bound, the overflow, the hittable test, the kind's sign, the height axis, the
   shooter word, the Y restored and the damage fail it. No live session reaches a
   blast.
+- With lag-free frames the hit 80:8691 with the player hit 80:881C (called with JSR by
+  the shooting natives and the blast: the damage in A, the target in X, the shooter in
+  Y) runs `hitObjectSequence` of [src/game/object-hit.mjs](../src/game/object-hit.mjs):
+  harmless hits counted with the warning and the karma penalty, the damage drawn below
+  the damage plus 1 less the armour byte, the record's count or the root task's event
+  bit 11, the hit effect and impact objects and the player figure's sound, shake and
+  window list. Game state only: the random number 80:C51F
+  (`drawBelowInDirectPage` of src/system/random.mjs, now shared with the shots), the
+  object slots 80:A835 and the sound 80:C46E run lifted as plain calls; the notices'
+  window 80:F963, text 80:FE69, word waits 81:B0A1 (X keeps the original's count), key
+  wait 80:F953 and release 80:FA3E and the window list 81:AD92 run lifted through their
+  frames from the routine table. The register-level hit takes those callees from a
+  routine table when given one, so
+  [tools/object-hit-lift-functions.test.mjs](../tools/object-hit-lift-functions.test.mjs)
+  compares both with shared stand-ins that record their inputs (600 samples; damageable,
+  harmless or neither targets, hit counts before both notices, karma around the
+  penalty, records or none, task chains or a negative task, a shooter or none, the
+  player figure hit or not). Planted differences in the wait count, the karma bound, the
+  damage's sign, the count's floor and zero, the negative task's store, the root walk,
+  the event bit, the impact height and facing, the stun, the effect armour and its
+  carry, the results, the warning count, the shooter word, the sound, the text pointer
+  and the window rows fail it. The live comparison of
+  [tools/script-native-lift.test.mjs](../tools/script-native-lift.test.mjs) runs the
+  lifted hit inside 80:8AB5.
 - With lag-free frames the script native 80:E1CF (with learned spells a window
   80:F963, the spells' names after Exit as a menu 80:A6C7, the chosen spell or 0; the
   window DP 0E released 80:FA3E in every case) runs `chooseSpellSequence` of
