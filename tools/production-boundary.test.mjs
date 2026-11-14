@@ -45,7 +45,13 @@ test('every src module is loaded by the game and none imports proof code', () =>
   }
   assert.deepEqual(proofImports, [], 'game modules must not import proof/');
   assert.deepEqual(missing, [], 'game imports resolve');
-  const unreached = modules('src').filter((file) => !reached.has(file));
+  // Temporary exception (user decision 2026-11-14): the JS script interpreter of
+  // docs/SCRIPT-VM-LIFT.md phase 1 is loaded by the game from phase 3 on; remove the
+  // entries then.
+  const notYetLoaded = new Set(['src/script/interpreter.mjs', 'src/script/tasks.mjs']);
+  for (const file of notYetLoaded)
+    assert.ok(!reached.has(file), `${file} is loaded now; drop its exception`);
+  const unreached = modules('src').filter((file) => !reached.has(file) && !notYetLoaded.has(file));
   assert.deepEqual(unreached, [], 'modules the game never loads belong in proof/');
 });
 

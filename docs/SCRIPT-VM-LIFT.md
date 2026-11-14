@@ -84,6 +84,44 @@ each group as before (four lift blocks per release check).
 7. **Dissolve `src/task`.** Constants to `src/data`, `taskStop` and sequences to
    `src/system`, the rest to `proof/`. Done when `src/task` is empty.
 
+## Phase 1 result (2026-11-14)
+
+- [src/script/tasks.mjs](../src/script/tasks.mjs): a task is plain JS state: script ID,
+  code address, PC, local bytes (header byte 0 of the script, zeroed), operand stack
+  (words, bottom first; the script's arguments are its first content, as 80:C2C8 copies
+  them to the top of the frame), local return stack and the pending call.
+  `createTask(mem, id, args)` takes the arguments in the order the caller pulled them;
+  `finishCall(mem, task, result)` pushes a call's result when the tables 82:D970 (native)
+  or 82:E623 (script) say it has one (80:F509, 80:F495).
+- [src/script/interpreter.mjs](../src/script/interpreter.mjs): `runTask(mem, task,
+budget)` runs opcodes until END (`{kind: 'end', result}`), a native or script call
+  (`{kind, id, args}`, args in pull order, as the original passes them in the words 00..)
+  or the budget. State words are reached through `mem` in bank 7E.
+- Bounds the original does not check are frontiers: a push into the locals
+  (`script_operand_stack_overflow`; capacity header byte 1 plus 4 bytes), a pull above
+  the frame (`script_operand_stack_underflow`), a fifth local call
+  (`script_local_call_depth`: its return word would overwrite the call ID at +09), a
+  return without a call (`script_local_return_empty`), a local outside the declared
+  bytes (`script_local_outside`), an odd argument byte count
+  (`script_argument_bytes_odd`) and the unused opcodes including division and remainder
+  (`script_opcode_unused`).
+- Findings of the differential:
+  - Many scripts end with an empty operand stack; 80:F4BE then returns the word above
+    the frame (the next heap block's header). The JS result is null; a caller whose
+    table entry takes the result stops at `script_result_undefined`. No such pair
+    appeared in the corpus runs.
+  - The multiply 80:F584 is not the true product: it writes the right factor's high
+    byte to WRMPYA before the third 8x8 product, so the result is
+    `ll*rl + ((ll*rh + lh*rh) << 8)` in 16 bits (for example 12Ch x 12Ch = 3490h, not
+    5F90h). The JS interpreter reproduces it; the signed variants multiply the
+    magnitudes and negate for one negative factor.
+- [tools/script-interpreter.test.mjs](../tools/script-interpreter.test.mjs) runs all 937
+  scripts from two random states each on both interpreters, with random native and
+  script results so the runs go deep (up to 1000 opcodes), and compares PC, operand
+  stack, local returns and written locals after every opcode and the game WRAM at the
+  end. All runs are equal up to the fresh read sites below. A synthetic test compares
+  every implemented arithmetic, logic and comparison opcode at edge values.
+
 ## Open points
 
 - Opcode use (2026-11-14, the decoded corpus analysis/event-scripts.txt of
@@ -100,6 +138,15 @@ each group as before (four lift blocks per release check).
   index only their declared locals. So JS frames start zeroed; the phase 1
   differential keeps the fresh read check as a guard, and the conversion layer masks the
   dead frame bytes.
+- Fresh reads found by the phase 1 differential (random native results): eight sites.
+  Seven follow a chain of equality tests that writes a local for a fixed set of values
+  only (directions, the result of native 57) and need a value outside that set. Script
+  DD at 84 is a real path: the loop 71-8D writes local 4 only when the wait native 9F
+  (mask 0801h, counter 5 frames) ends by event 0800h. After a timeout it pushes local 4
+  unwritten, ORs it with the distance test (native 0A, `< 100`) and leaves the loop when
+  the result is not zero. In the original a nonzero heap residue there ends the loop
+  after the first five frames, whatever the distance; zeroed JS frames keep waiting for
+  the event or the approach, which is what the code evidently intends. User decision 2026-11-14: zeroed frames, recorded as a port correction in [BUGFIXES.md](BUGFIXES.md#uninitialized-local-in-script-dd). Until phase 3 loads the new modules, tools/production-boundary.test.mjs exempts them (user decision 2026-11-14).
 - Heap and slot exhaustion stay frontiers (`task_heap_required`, `task_slot_required`);
   the JS model keeps the original's 48 slots and the frame sizes so that the
   conversion layer reproduces the original heap.

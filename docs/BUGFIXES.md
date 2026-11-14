@@ -192,6 +192,21 @@ compares the collision case with the register-level handler apart from the
 restored setup; replaying the user's recording now continues past the fault
 with the portrait's 4096 bytes in VRAM.
 
+### Uninitialized local in script DD
+
+User decision, 2026-11-14 ([SCRIPT-VM-LIFT.md](SCRIPT-VM-LIFT.md)): task frames of
+the JS script interpreter start zeroed. The original allocates frames from the heap
+without clearing them (80:C2C8). Script DD's loop 71-8D writes local 4 only when the
+wait native 9F (mask 0801h, counter 5 frames) ends by event 0800h. After a timeout
+it ORs the unwritten local 4 with the distance test (native 0A, `< 100`), so a
+nonzero heap residue there ends the loop after five frames whatever the distance.
+With zeroed frames the script waits for the event or the approach, as its code
+intends. The correction does not depend on `bugfixes`: the residue depends on the
+heap allocation order, which the port does not keep. It takes effect once the game
+runs scripts on [interpreter.mjs](../src/script/interpreter.mjs) (phases 2 and 3 of
+the lift); the fresh read guard of
+[script-interpreter.test.mjs](../tools/script-interpreter.test.mjs) lists the site.
+
 ## Verification
 
 [gameplay-bugfixes.test.mjs](../tools/gameplay-bugfixes.test.mjs) covers both
