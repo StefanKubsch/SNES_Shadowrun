@@ -143,21 +143,23 @@ Format every changed file with Prettier right away.
 
 ## Agent hooks
 
-Both agents run the same hooks from [tools/hooks/](../tools/hooks/) (user
-decisions 2026-11-05): Claude Code through `.claude/settings.json`, Codex
+Both agents run the same hooks from `tools/hooks/` (user decisions
+2026-11-05). Like the agent settings, the hooks and their test
+`tools/post-edit-eslint.test.mjs` are local only and not versioned (user,
+2026-11-14). Claude Code runs them through `.claude/settings.json`, Codex
 through `.codex/hooks.json` (the project must be trusted; approve new or
 changed hooks once with `/hooks`). Codex commands assume the session starts
 in the repository root.
 
-- [session-start.mjs](../tools/hooks/session-start.mjs) adds `git status`,
+- `session-start.mjs` adds `git status`,
   the last three commits, HANDOFF.md and `npm run status:next` to the context
   at session start, resume, clear and compaction, and warns when `analysis/`
   is missing.
-- [pre-read-guard.mjs](../tools/hooks/pre-read-guard.mjs) denies whole-file
+- `pre-read-guard.mjs` denies whole-file
   reads of `docs/PORTIERUNGSSTAND.json` and of files above 64 KiB in
   `analysis/` and `docs/handoff-archiv/`. Read a line range, or limit a shell
   read with a pipe or a line count.
-- [post-edit.mjs](../tools/hooks/post-edit.mjs) formats each edited file with
+- `post-edit.mjs` formats each edited file with
   Prettier, then reports findings on lines changed since HEAD (new files
   count fully):
   - Magic numbers in `src/`, `proof/` and `tools/` (tests excluded). Replace
@@ -188,8 +190,8 @@ in the repository root.
     recommended rules) in `.mjs` and `.js` files: findings on changed lines,
     and findings the HEAD version does not have, such as an import whose last
     use was removed elsewhere. Older findings on untouched lines stay quiet.
-    [post-edit-eslint.test.mjs](../tools/post-edit-eslint.test.mjs) covers
-    the comparison and both adapters.
+    The local test `tools/post-edit-eslint.test.mjs` covers the comparison
+    and both adapters.
 
   The release check validates the same text limit before formatting, generation
   or tests, so edits made through shell scripts are covered too. The shared

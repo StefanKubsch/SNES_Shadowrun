@@ -8,7 +8,7 @@ At this point, the game is clearly targeted to be played on a computer: Browser,
 
 - a newly recorded soundtrack by [Julian Daniels](https://juliandaniels.com/)
 - customizable controls (mouse/keyboard/controller)
-- full German and English localization (both are taken from the original cartridges)
+- full German and English localization
 - optional highlighting of interactive objects in the game
 - optional bug fixes for the original game
 - optional cheats
@@ -26,7 +26,7 @@ I’ve been a fan of the pen-and-paper role-playing game “Shadowrun” since t
 
 Unfortunately, the controls were always a bit clunky with a controller, there were a few (very few...) game-breaking bugs, and for 20 years I’ve been toying with the idea of porting this game. Here it is now, almost completely disassembled and in readable code, with some nice quality-of-life features.
 
-AI disclaimer: This project was created with the help of AI; I want to make that clear here. AI was used for reverse engineering and code, but no graphics or audio were altered or created by AI.
+AI disclaimer: This project was created with the help of AI; I want to make that clear here. AI was/is used for reverse engineering and code, but no graphics or audio were altered or created by AI.
 
 This project is still "work-in-progress", as I always find stuff I like to change and optimize. Maybe there are still bugs, please report them to me. Or fork the project and do whatever you want!
 

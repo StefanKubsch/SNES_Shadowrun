@@ -15,10 +15,12 @@ node_modules/
 !/analysis/rom-vram.json
 # Static copy of the game page (npm run build:web).
 /dist/
-# Local agent instructions, hook settings and handoffs; kept on disk, not versioned.
+# Local agent instructions, hooks, hook settings and handoffs; kept on disk, not versioned.
 /.claude/
 /.codex/
 /docs/handoff-archiv/
 /CLAUDE.md
 /AGENTS.md
 /HANDOFF.md
+/tools/hooks/
+/tools/post-edit-eslint.test.mjs
