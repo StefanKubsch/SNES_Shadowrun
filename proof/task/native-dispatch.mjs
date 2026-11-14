@@ -220,7 +220,6 @@ import {
 
 import {
   circleSwarmLeaderReference,
-  createObjectReference,
   startPathSwarmReference,
   startWaveSwarmReference,
 } from '../game-reference/swarm-start.mjs';
@@ -366,7 +365,6 @@ const REFERENCE_TARGETS = new Map([
   [0x80bb2c, placeObjectInFormationReference],
   [0x80d85b, moveSwarmAlongPathReference],
   [0x80d2e7, moveSwarmWaveReference],
-  [0x80a835, createObjectReference],
   [0x80d7dd, startPathSwarmReference],
   [0x80d260, startWaveSwarmReference],
   [0x80d63c, circleSwarmLeaderReference],

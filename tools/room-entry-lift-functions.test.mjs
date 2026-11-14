@@ -46,11 +46,9 @@ import { drainNativeSequence } from '../src/task/native-call-continuation.mjs';
 import { enterRoomReference } from '../proof/game-reference/room-entry.mjs';
 import {
   circleSwarmLeaderReference,
-  createObjectReference,
   startPathSwarmReference,
   startWaveSwarmReference,
 } from '../proof/game-reference/swarm-start.mjs';
-import { createObjectNative } from '../src/task/native-object-create.mjs';
 import { appendSelectedSpellTaskReference } from '../proof/game-reference/script-starts.mjs';
 import { appendSelectedSpellTask } from '../src/task/native-task-append-from-list.mjs';
 import {
@@ -618,17 +616,6 @@ const SCRIPT_NATIVES = [
       nativeWords(s, [
         [0x3c13, s.rnd(SCRIPTS)],
         [0x3c1a, s.pick([0x3c80 + s.rnd(0x40), s.rnd(0x10000)])],
-      ]),
-  ),
-  scriptNative(
-    'createObject native 80:A835',
-    0x80a835,
-    createObjectReference,
-    createObjectNative,
-    (s) =>
-      nativeWords(s, [
-        [DP_OBJECT_KIND, s.pick([s.rnd(0x100), s.rnd(0x10000)])],
-        [DP_OBJECT_SCRIPT, s.pick([0xffff, s.rnd(SCRIPTS), s.rnd(SCRIPTS)])],
       ]),
   ),
   scriptNative(

@@ -1,6 +1,5 @@
 import { taskStop } from './plan.mjs';
-import { FIRST_ARGUMENT, finishLeaf, leaf } from './native-leaf-support.mjs';
-import { createObject as createLiftedObject } from '../game/object-create.mjs';
+import { FIRST_ARGUMENT, leaf } from './native-leaf-support.mjs';
 import { appendScriptTask } from './task-append.mjs';
 
 import {
@@ -162,10 +161,3 @@ export const createObject = (a, outerReturn = true) =>
     },
     outerReturn,
   );
-// 80:A835 as the script native (lifted in src/game/object-create.mjs; register-level
-// reference above, which the register-level natives still call).
-export const createObjectNative = (a, outerReturn = true) => {
-  if (a.ctx.d !== 0) taskStop('task_direct_page_zero_required');
-  createLiftedObject(a.mem, a.mem.wram, a);
-  return finishLeaf(a, outerReturn);
-};

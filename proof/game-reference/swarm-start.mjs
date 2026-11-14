@@ -1,10 +1,7 @@
 // Register-level references of the swarm start natives 80:D7DD, 80:D260 and 80:D63C
-// (moved from src/task/native-swarm-start.mjs; lifted in src/game/swarm-start.mjs) and of
-// the object creation native 80:A835 (src/task/native-object-create.mjs, which the
-// register-level natives still call; lifted in src/game/object-create.mjs). The proof
+// (moved from src/task/native-swarm-start.mjs; lifted in src/game/swarm-start.mjs). The proof
 // plans, the Native58 dispatch of proof/task/native-dispatch.mjs and the instruction tests
 // run these; the game runs the lifted natives.
-export { createObject as createObjectReference } from '../../src/task/native-object-create.mjs';
 import { taskStop } from '../../src/task/plan.mjs';
 import { FIRST_ARGUMENT, SECOND_ARGUMENT, leaf } from '../../src/task/native-leaf-support.mjs';
 import { createObject } from '../../src/task/native-object-create.mjs';
