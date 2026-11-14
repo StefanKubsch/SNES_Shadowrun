@@ -88,6 +88,13 @@ import {
   setSwarmPathSpeedTargetReference,
 } from '../game-reference/swarm-setup.mjs';
 
+import {
+  getActorKindFlagsReference,
+  getActorKindReference,
+  getActorKindValueReference,
+  getObjectKindValueReference,
+} from '../game-reference/kind-values.mjs';
+
 // Lifted natives whose proofs run their register-level references (the game runs the
 // lifted ones, src/task/native-targets.mjs).
 const REFERENCE_TARGETS = new Map([
@@ -146,6 +153,10 @@ const REFERENCE_TARGETS = new Map([
   [0x80d98e, setSwarmPathSpeedTargetReference],
   [0x80d997, setSwarmHeightSpeedTargetReference],
   [0x80d622, resetSwarmPhasesReference],
+  [0x80c9f1, getObjectKindValueReference],
+  [0x80caf2, getActorKindValueReference],
+  [0x80cb06, getActorKindFlagsReference],
+  [0x80d0fc, getActorKindReference],
 ]);
 
 // A fixed, independently source-checked set of native equations. This is no

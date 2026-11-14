@@ -1,14 +1,10 @@
-import { FIRST_ARGUMENT, leaf, readActorKind, returnKindValue } from './native-leaf-support.mjs';
-import { KIND_FLAGS_OFFSET } from '../data/kinds.mjs';
+import { FIRST_ARGUMENT, finishLeaf, leafArgument, setLeafResult } from './native-leaf-support.mjs';
+import { actorKindFlags } from '../game/kind-values.mjs';
 
-// 80:CB06: return the kind flags of the actor entry (offset in the first argument).
-export const getActorKindFlags = (a, outerReturn = true) =>
-  leaf(
-    a,
-    (h) => {
-      const actor = h.index('x', h.dp(FIRST_ARGUMENT));
-      readActorKind(h, actor);
-      returnKindValue(h, 'leaf-scaled-word', 'leaf-table-result', KIND_FLAGS_OFFSET);
-    },
-    outerReturn,
-  );
+// 80:CB06 (lifted in src/game/kind-values.mjs; register-level reference in
+// proof/game-reference/kind-values.mjs): return the kind flags of the actor entry
+// (offset in the first argument).
+export const getActorKindFlags = (a, outerReturn = true) => {
+  setLeafResult(a, actorKindFlags(a.mem, leafArgument(a, FIRST_ARGUMENT)));
+  return finishLeaf(a, outerReturn);
+};

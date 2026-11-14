@@ -1,14 +1,10 @@
-import { FIRST_ARGUMENT, leaf, returnKindValue } from './native-leaf-support.mjs';
-import { OBJECT_KIND, WRAM } from './wram.mjs';
+import { FIRST_ARGUMENT, finishLeaf, leafArgument, setLeafResult } from './native-leaf-support.mjs';
+import { objectKindValue } from '../game/kind-values.mjs';
 
-// 80:C9F1: return the kind value of the object (first argument).
-export const getObjectKindValue = (a, outerReturn = true) =>
-  leaf(
-    a,
-    (h) => {
-      const object = h.index('x', h.dp(FIRST_ARGUMENT));
-      h.load(h.longRead(WRAM + OBJECT_KIND + object));
-      returnKindValue(h, 'leaf-intermediate-DP00', 'leaf-result-DP00');
-    },
-    outerReturn,
-  );
+// 80:C9F1 (lifted in src/game/kind-values.mjs; register-level reference in
+// proof/game-reference/kind-values.mjs): return the kind value of the object
+// (first argument).
+export const getObjectKindValue = (a, outerReturn = true) => {
+  setLeafResult(a, objectKindValue(a.mem, leafArgument(a, FIRST_ARGUMENT)));
+  return finishLeaf(a, outerReturn);
+};

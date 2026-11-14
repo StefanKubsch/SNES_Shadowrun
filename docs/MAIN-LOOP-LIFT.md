@@ -322,6 +322,15 @@ which the render proof of 81:8076 keeps using.
   [tools/swarm-setup-lift-functions.test.mjs](../tools/swarm-setup-lift-functions.test.mjs)
   compares both (200 samples each); planted changes of the index mask and of the member
   count fail it.
+- The kind natives 80:C9F1 (the value of the object's kind, 7E:3F28 plus the slot),
+  80:CAF2 and 80:CB06 (the value and the flags of an actor entry's kind) and 80:D0FC (the
+  actor entry's kind) run `objectKindValue`, `actorKindValue`, `actorKindFlags` and
+  `actorKind` of [src/game/kind-values.mjs](../src/game/kind-values.mjs) (block 91),
+  with the original's 16-bit entry offset 6 * kind including the ADC's carry from bit
+  14; the register-level versions moved to proof/game-reference/kind-values.mjs.
+  [tools/kind-values-lift-functions.test.mjs](../tools/kind-values-lift-functions.test.mjs)
+  compares both (400 samples each; actor entries, object slots and any offset; game
+  kinds and any word); planted changes of the carry and of the flag field fail it.
 - The getters 80:9E59 and 80:9E5F (the buttons held and newly pressed), 80:CD97 and its
   byte-identical copy 80:D18A (the player figure's slot) and 80:C0F7 and 80:C100 (the
   glove sprite's screen X and Y bytes) run `padHeld`, `padPressed`, `playerObject`,
