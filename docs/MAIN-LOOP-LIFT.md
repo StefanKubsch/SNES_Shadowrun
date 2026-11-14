@@ -471,17 +471,21 @@ which the render proof of 81:8076 keeps using.
   and leaves only dead stack bytes), both compared by
   [tools/runner-record-lift-functions.test.mjs](../tools/runner-record-lift-functions.test.mjs).
   Block 111; the register-level versions moved to proof/game-reference/script-starts.mjs.
-- The swarm starts 80:D7DD (four path members), 80:D260 (twelve wave members) and the
+- The object creation 80:A835 as a script native runs `createObject` of
+  [src/game/object-create.mjs](../src/game/object-create.mjs) through `createObjectNative`
+  (the register-level version stays for the register-level natives that call it); the
+  swarm starts 80:D7DD (four path members), 80:D260 (twelve wave members) and the
   circling leader 80:D63C (one step on the circle, the turn, every eighth call a
   follower) run [src/game/swarm-start.mjs](../src/game/swarm-start.mjs) with the lifted
   creation and turn (block 110); the register-level versions moved to
   proof/game-reference/swarm-start.mjs.
   [tools/room-entry-lift-functions.test.mjs](../tools/room-entry-lift-functions.test.mjs)
-  compares the three natives on its object, heap and task samples. The object creation
-  80:A835 stays register-level as a script native: the lifted task append it calls
-  addresses the heap, the frame and the task tables directly in WRAM, while the original
-  reaches them through its data bank, so a damaged heap pointer from 1C2E on reads the
-  system area there (found by tools/vm-interpreter.test.mjs, scenario romnat104).
+  compares the four natives on its object, heap and task samples. The lifted task append
+  of src/game/task-append.mjs reaches the heap, the task tables, the frame fields and the
+  argument source through the data bank and the direct page words and copied arguments
+  in bank 0, as the original; first it read them as WRAM indexes, and a damaged heap
+  pointer from 1C2E on read WRAM where the original reads the system area (found by
+  tools/vm-interpreter.test.mjs, scenario romnat104).
 - The swarm motion natives 80:D85B (five members along a swinging path; the speeds and
   start phases step towards their goals) and 80:D2E7 (thirteen members as a wave, or the
   wave's target from the room's point list) run `moveSwarmAlongPath` and `moveSwarmWave`
@@ -1348,7 +1352,7 @@ word's byte swap and the y offset. The pushed object slot (overwritten by the na
 pointer's push) and the carry of the vertical shift (shifted out again) cannot
 differ. The task append (600 samples, in tools/room-entry-lift-functions.test.mjs)
 runs both versions on the object creation's heap and task slot samples; a changed
-overflow or X fails it. The carry of the frame's end cannot differ, as the game-sized
+overflow or X fails it. The carry of the frame's end cannot differ, as the game's
 frames end below 2000.
 
 The notice (600 samples) runs the register-level and the lifted notice with recording

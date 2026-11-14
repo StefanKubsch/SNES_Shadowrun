@@ -35,6 +35,6 @@ export function startSelectedSpell(mem, a) {
   setWord(wram, DP_SELECTION_POINTER_BANK, WRAM_BANK);
   setWord(wram, DP_ARGUMENT, mem.read8(WRAM + pointer));
   a.pushWord(APPEND_RETURN);
-  appendScriptTask(mem, wram, a, script);
+  appendScriptTask(a, script);
   a.pullWord();
 }

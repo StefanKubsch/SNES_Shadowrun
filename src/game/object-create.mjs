@@ -11,7 +11,9 @@
 //
 // The kind times two is left in word 02. The return words of the calls (a JSL to
 // 80:A8EB, which calls C34A) lie on the stack as in the original. The object tables lie
-// in bank 7E below 2000, where the original's data bank 80 reads them.
+// in bank 7E below 2000, where the original's data bank 80 reads them; the draw list
+// entry and the task word, whose index may be damaged, are written through the data
+// bank as in the original.
 import { sceneRuntime } from '../system/scene-runtime.mjs';
 import { appendScriptTask } from './task-append.mjs';
 import {
@@ -76,6 +78,7 @@ const setWord = (wram, at, value) => {
   wram[at] = value & BYTE_MASK;
   wram[at + 1] = (value >>> BYTE_BITS) & BYTE_MASK;
 };
+const dataBankAddress = (a, offset) => ((a.ctx.bank << WORD_BITS) + offset) & LONG_MASK;
 const readWord = (mem, at) =>
   mem.read8(at & LONG_MASK) | (mem.read8((at + 1) & LONG_MASK) << BYTE_BITS);
 
@@ -132,18 +135,21 @@ export function createObject(mem, wram, a) {
   setWord(wram, OBJECT_FLAGS + slot, readWord(mem, KIND_TABLE + KIND_FLAGS_OFFSET + entry));
   const last = (word(wram, DRAW_LIST_INDEX) + 2) & WORD_MASK;
   setWord(wram, DRAW_LIST_INDEX, last);
-  setWord(wram, DRAW_LIST + last, slot);
+  // The draw list index may be damaged: the entry is written through the data bank.
+  mem.write16(dataBankAddress(a, DRAW_LIST + last), slot);
   const script = word(wram, DP_OBJECT_SCRIPT);
   if (script & WORD_SIGN) return;
   a.write(a.ctx.s, CODE_BANK);
   a.ctx.s = (a.ctx.s - 1) & WORD_MASK;
   a.pushWord(APPEND_JSL_RETURN);
   a.pushWord(APPEND_JSR_RETURN);
-  const task = appendScriptTask(mem, wram, a, script);
+  const task = appendScriptTask(a, script);
   a.pullWord();
   a.pullWord();
   a.ctx.s = (a.ctx.s + 1) & WORD_MASK;
-  setWord(wram, OBJECT_TASK + slot, task);
+  // The slot is read again from the direct page word 00, which the argument copy of
+  // the append may have overwritten.
+  mem.write16(dataBankAddress(a, OBJECT_TASK + word(wram, DP_OBJECT_KIND)), task);
 }
 
 // The object creation as the caller's JSR at site.
