@@ -10,9 +10,12 @@ import {NativeCalls} from '../src/vm/native-call.mjs';
 import {prepareTaskOpcodeSequence, prepareTaskNativeOpcodeSequence} from '../proof/task/opcode-sequence.mjs';
 import {nativeOpcodeTargets} from '../src/task/native-opcode-targets.mjs';
 import {nativeTarget} from '../src/task/native-targets.mjs';
+import {NATIVE_POINTERS} from '../src/vm/layout.mjs';
+import {LIFTED_SCRIPT_NATIVES} from './lifted-script-natives.mjs';
 import {createRenderData, renderAddress} from '../src/render/data.mjs';
 import {inspectScriptTables} from './scripts.mjs';
 
+const CARRY_FLAG = 0x01, OVERFLOW_FLAG = 0x40;
 export const rom = readFileSync(new URL('../Shadowrun (E).smc', import.meta.url));
 const romBytes = new Uint8Array(rom.buffer, rom.byteOffset, rom.length);
 export const scriptTable = inspectScriptTables(rom).scripts;
@@ -129,8 +132,13 @@ function compareOnce(scenario, maxSteps) {
     const expected = scenario.wram.slice();
     for (const access of plan.accesses) if (access.kind === 'write') expected[renderAddress(access.address) - 0x7E0000] = access.value;
     const out = plan.outputContext, got = vm.context();
+    // A lifted native leaves no carry or overflow (tools/lifted-script-natives.mjs: no
+    // opcode reads them before it sets them), so these two status bits are not compared.
+    const lifted = scenario.nativeId !== undefined &&
+      LIFTED_SCRIPT_NATIVES.has(0x800000 | vm.mem.read16(NATIVE_POINTERS + 2 * scenario.nativeId));
+    const statusMask = lifted ? ~(CARRY_FLAG | OVERFLOW_FLAG) : ~0;
     for (const key of ['a', 'x', 'y', 's', 'd', 'bank', 'status', 'pc'])
-      if (out[key] !== got[key]) throw Error(`Register ${key}: Orakel ${out[key]}, VM ${got[key]}; Szenario ${scenario.label}, Schritte ${steps}`);
+      if (key === 'status' ? (out[key] & statusMask) !== (got[key] & statusMask) : out[key] !== got[key]) throw Error(`Register ${key}: Orakel ${out[key]}, VM ${got[key]}; Szenario ${scenario.label}, Schritte ${steps}`);
     const wram = run.memory.wram;
     for (let n = 0; n < expected.length; n++)
       if (expected[n] !== wram[n]) throw Error(`WRAM $${(0x7E0000 + n).toString(16)}: Orakel ${expected[n]}, VM ${wram[n]}; Szenario ${scenario.label}`);
@@ -204,5 +212,6 @@ export function nativeScenario(rnd, id, label) {
   scenario.wram[at + 1] = id;
   scenario.context.status &= ~0x08;
   scenario.natives = true;
+  scenario.nativeId = id;
   return scenario;
 }
