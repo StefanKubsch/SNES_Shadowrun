@@ -11,6 +11,7 @@ import { accessorPort } from '../system/hardware-port.mjs';
 import { sceneRuntime } from '../system/scene-runtime.mjs';
 import { uploadMapEdges } from './camera-scroll.mjs';
 import { readJoypad } from '../system/joypad.mjs';
+import { writePortraitTileChannel } from './portrait-upload.mjs';
 import { NATIVE_CALL_CONTINUATIONS } from '../task/native-call-continuation.mjs';
 import { taskStop } from '../task/plan.mjs';
 import { lagFree } from '../task/main-wait-interrupt.mjs';
@@ -251,10 +252,11 @@ export function uploadScenePalettes(wram, port) {
 
 // 81:80C4: a requested palette cycle step by DMA on channel 0 from its pointer in the
 // cycle table's bank to the colour in the low byte of its slot's direction word; the
-// length is the single PALETTE_BYTES word. The request is then cleared.
+// length is the single PALETTE_BYTES word. The request is then cleared. Returns whether
+// a step was sent (channel 0 then holds the step's registers).
 export function uploadPaletteCycleStep(wram, port) {
   const pointer = word(wram, PALETTE_REQUEST_POINTER);
-  if (!pointer) return;
+  if (!pointer) return false;
   port.write(A1T0L, pointer, 2, CYCLE_SITES.source);
   const slot = word(wram, PALETTE_REQUEST_SLOT);
   port.write(DAS0L, word(wram, PALETTE_BYTES), 2, CYCLE_SITES.bytes);
@@ -263,6 +265,7 @@ export function uploadPaletteCycleStep(wram, port) {
   port.write(A1B0, CYCLE_BANK, 1, CYCLE_SITES.bank);
   port.write(MDMAEN, channel(DMAP0), 1, CYCLE_SITES.start);
   setWord(wram, PALETTE_REQUEST_POINTER, 0);
+  return true;
 }
 
 // 81:A958: with open NMI job lists, each VRAM upload record (from the index in the
@@ -528,10 +531,17 @@ export function handleGameNmi(h) {
   uploadReadyMapEdges(wram, video);
   clearTextTiles(wram, port);
   uploadScenePalettes(wram, port);
-  uploadPaletteCycleStep(wram, port);
+  const cycled = uploadPaletteCycleStep(wram, port);
   uploadObjectPalettes(wram, port);
   uploadVramRecords(wram, port);
   uploadOam(wram, port);
+  // Correction: the portrait job 80:8FBA starts channel 0 as the portrait code set it up
+  // before the NMI, but a palette cycle step in the same NMI has replaced that setup. The
+  // original code then starts a 64 KiB transfer (count 0) from the cycle table's bank to
+  // CGDATA, through the I/O area 8B:2000-5FFF, and the portrait never reaches VRAM; the
+  // port restores the portrait's channel setup first (docs/BUGFIXES.md, "Portrait upload
+  // after a palette cycle step").
+  if (cycled && !(word(wram, PORTRAIT_DMA_REQUEST) & WORD_SIGN)) writePortraitTileChannel(port);
   uploadPortraitGraphics(wram, port);
   setWord(wram, PAD_HELD, readJoypad(port));
   uploadGlove(wram, port);

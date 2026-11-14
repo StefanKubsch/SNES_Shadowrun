@@ -166,6 +166,32 @@ sale restriction is included. In particular, the Zip Gun exception must be
 considered before changing a Firearms cap. No code from the fan patches is
 executed, so their spell-selection changes are not inherited.
 
+## Port corrections independent of the settings
+
+### Portrait upload after a palette cycle step
+
+User report, 2026-11-14: calling Glutman on the videophone stopped the session
+with `ppu_dma_source_required` (recording from save slot 1, fault after NMI 38395).
+The portrait code 80:8FF5 sets up DMA channel 0 (4096 bytes from 7F:5250 to
+VMDATA) and then waits for the NMI, whose portrait job 80:8FBA only starts the
+channel. In the same NMI the palette cycle step 81:80C4 runs earlier and
+programs channel 0 for itself. The portrait job then starts channel 0 with the
+cycle step's leftovers: bank 8B, a source just past the cycle data and a count
+of 0, that is 65,536 bytes (Book I, PDF page 151) to CGDATA, which runs through
+the I/O area 8B:2000-5FFF. The port's DMA model rejects such a source, and the
+portrait would not reach VRAM in any case.
+
+The lifted handler ([game-nmi.mjs](../src/game/game-nmi.mjs), `handleGameNmi`)
+writes the portrait's channel setup again (`writePortraitTileChannel` of
+[portrait-upload.mjs](../src/game/portrait-upload.mjs)) when a cycle step was
+sent and a portrait waits. Without that collision its device writes stay those
+of the original. The correction does not depend on `bugfixes`, because the
+original outcome reads undefined bus values the port cannot reproduce.
+[game-nmi-lift-functions.test.mjs](../tools/game-nmi-lift-functions.test.mjs)
+compares the collision case with the register-level handler apart from the
+restored setup; replaying the user's recording now continues past the fault
+with the portrait's 4096 bytes in VRAM.
+
 ## Verification
 
 [gameplay-bugfixes.test.mjs](../tools/gameplay-bugfixes.test.mjs) covers both

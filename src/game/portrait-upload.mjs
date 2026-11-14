@@ -219,18 +219,25 @@ export function* uploadSecondPortraitSequence(h, events, routines) {
   };
   return yield* rts(h);
 }
+// The portrait job's DMA channel 0 setup of 80:8FF5: 1000 bytes from 7F:5250 to VMDATA
+// in word mode, with the VRAM address incremented after the high byte. The game NMI
+// (src/game/game-nmi.mjs) repeats it when the palette cycle step took channel 0 first.
+export function writePortraitTileChannel(port) {
+  port.write(DAS0L, TILE_BYTES, 2, DMA_SITES.bytes);
+  port.write(A1T0L, TILE_SOURCE, 2, DMA_SITES.source);
+  port.write(A1B0, TILE_BANK, 1, DMA_SITES.bank);
+  port.write(BBAD0, VMDATAL & BYTE_MASK, 1, DMA_SITES.target);
+  port.write(VMAINC, VMAINC_INCREMENT_AFTER_HIGH, 1, DMA_SITES.increment);
+  port.write(DMAP0, TILE_MODE, 1, DMA_SITES.mode);
+}
+
 // Upload the unpacked portrait to the VRAM word address in X (80:8FF5), a sequence for a
 // native call continuation, called with JSR.
 export function* uploadPortraitTilesSequence(h, events) {
   const { ctx } = h,
     { wram, port } = sceneRuntime(h);
   yield () => {
-    port.write(DAS0L, TILE_BYTES, 2, DMA_SITES.bytes);
-    port.write(A1T0L, TILE_SOURCE, 2, DMA_SITES.source);
-    port.write(A1B0, TILE_BANK, 1, DMA_SITES.bank);
-    port.write(BBAD0, VMDATAL & BYTE_MASK, 1, DMA_SITES.target);
-    port.write(VMAINC, VMAINC_INCREMENT_AFTER_HIGH, 1, DMA_SITES.increment);
-    port.write(DMAP0, TILE_MODE, 1, DMA_SITES.mode);
+    writePortraitTileChannel(port);
     // The 8-bit loads keep the source's high byte.
     ctx.a = (TILE_SOURCE & HIGH_BYTE_MASK) | TILE_MODE;
     setWord(wram, PORTRAIT_DMA_REQUEST, ctx.x);

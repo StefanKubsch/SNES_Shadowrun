@@ -3,10 +3,13 @@
 // src/task/main-game-nmi.mjs; docs/MAIN-LOOP-LIFT.md). Both sides must leave the same
 // WRAM, the same device writes and the registers the handler keeps (S, PC, program
 // bank, 16-bit modes); the handler restores the others.
+import test from 'node:test';
+import assert from 'node:assert/strict';
 import { prng } from './task-native-dialog-harness.mjs';
-import { createSide, registerCases } from './lift-function-harness.mjs';
+import { compareCase, createSide, differences, registerCases } from './lift-function-harness.mjs';
 import { GAME_NMI_ROUTINES } from '../src/task/main-game-nmi.mjs';
 import { GAME_NMI_LIFTED_ROUTINES } from '../src/game/game-nmi.mjs';
+import { writePortraitTileChannel } from '../src/game/portrait-upload.mjs';
 import {
   BRIGHTNESS_FADE,
   BRIGHTNESS_FADE_FRAMES,
@@ -40,6 +43,7 @@ const WRAM_BYTES = 0x20000,
   // on the NMI stack (from 7E:1C7C) and the lifted one does not.
   IGNORED = [[0x1c7c, NMI_STACK - 2]];
 
+const word = (wram, at) => wram[at] | (wram[at + 1] << 8);
 const setWord = (wram, at, value) => {
   wram[at] = value & 0xff;
   wram[at + 1] = (value >>> 8) & 0xff;
@@ -142,17 +146,23 @@ const job = (name, entry, long = true) => ({
   },
 });
 const longJob = (name, entry) => job(name, entry);
+// The handler's inputs with lists of the game's sizes.
+function handlerInput(s) {
+  setWord(s.wram, PALETTE_UPLOAD_LIST_BYTES, 2 * s.rnd(9));
+  setWord(s.wram, SCENE_PALETTE_COUNT, s.rnd(16));
+  setWord(s.wram, DP_VRAM_UPLOAD_INDEX, s.pick([0xfffe, 2 * s.rnd(64)]));
+  setWord(s.wram, PALETTE_REQUEST_SLOT, 2 * s.rnd(8));
+  return { bank: 0, d: 0, status: s.rnd(256) & 0xc7, s: NMI_STACK };
+}
 const CASES = [
   {
     ...longJob('handleGameNmi 80:C152', 0x80c152),
     samples: 300,
-    // All jobs in one sample: lists of the game's sizes only.
+    // All jobs in one sample: lists of the game's sizes only. A palette cycle step and a
+    // waiting portrait in the same NMI take the port's correction (checked below).
     prepare: (s) => {
-      setWord(s.wram, PALETTE_UPLOAD_LIST_BYTES, 2 * s.rnd(9));
-      setWord(s.wram, SCENE_PALETTE_COUNT, s.rnd(16));
-      setWord(s.wram, DP_VRAM_UPLOAD_INDEX, s.pick([0xfffe, 2 * s.rnd(64)]));
-      setWord(s.wram, PALETTE_REQUEST_SLOT, 2 * s.rnd(8));
-      return { bank: 0, d: 0, status: s.rnd(256) & 0xc7, s: NMI_STACK };
+      if (word(s.wram, PALETTE_REQUEST_POINTER)) s.wram[PORTRAIT_DMA_REQUEST + 1] |= 0x80;
+      return handlerInput(s);
     },
   },
   job('uploadScenePalettes 80:999A', 0x80999a, false),
@@ -175,4 +185,34 @@ registerCases(CASES, {
   samples: 600,
   // Lists past 2000 (an odd palette byte count ends at index FFFF) lie outside the game.
   outside: new Set(['nmi_list_required']),
+});
+
+// The correction for a palette cycle step and a waiting portrait in the same NMI (the
+// user's videophone call to Glutman stopped with ppu_dma_source_required): the lifted
+// handler writes the portrait's channel 0 setup again right before the portrait job and
+// otherwise leaves the same WRAM and device writes as the register-level one.
+test('handleGameNmi 80:C152 restores the portrait channel after a palette cycle step', () => {
+  const channel = [];
+  writePortraitTileChannel({
+    write: (address, value, width) => channel.push([address & 0xffff, value, width].join()),
+  });
+  const handler = CASES[0];
+  for (let seed = 1; seed <= 100; seed++) {
+    const s = sample(seed);
+    setWord(s.wram, PALETTE_REQUEST_POINTER, 0x8000 | s.rnd(0x8000));
+    s.wram[PORTRAIT_DMA_REQUEST + 1] &= 0x7f;
+    const request = word(s.wram, PORTRAIT_DMA_REQUEST);
+    const pair = compareCase({ ...handler, prepare: handlerInput }, s, {
+      side,
+      runtime: (h) => h,
+      ignored: IGNORED,
+    });
+    if (pair.want.stop || pair.got.stop) continue;
+    const writes = pair.got.writes,
+      at = writes.findIndex((_, n) => channel.every((w, k) => writes[n + k] === w));
+    assert.ok(at >= 0, `seed ${seed}: no channel restore`);
+    assert.equal(writes[at + channel.length], `${0x2116},${request},2`, `seed ${seed}`);
+    const without = writes.slice(0, at).concat(writes.slice(at + channel.length));
+    assert.deepEqual(differences({ want: pair.want, got: { ...pair.got, writes: without } }), []);
+  }
 });
