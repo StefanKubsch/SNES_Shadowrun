@@ -179,6 +179,12 @@ import { learnSpellReference } from '../game-reference/party-funds.mjs';
 
 import { startBrightnessFadeReference } from '../game-reference/brightness-fade.mjs';
 
+import {
+  moveObjectStraightToWaypointReference,
+  moveObjectToWaypointReference,
+  placeObjectOnWaypointReference,
+} from '../game-reference/motion-targets.mjs';
+
 // Lifted natives whose proofs run their register-level references (the game runs the
 // lifted ones, src/task/native-targets.mjs).
 const REFERENCE_TARGETS = new Map([
@@ -287,6 +293,9 @@ const REFERENCE_TARGETS = new Map([
   [0x80d0d3, updateObjectDepthModeReference],
   [0x80e1b3, learnSpellReference],
   [0x80d9ad, startBrightnessFadeReference],
+  [0x80c6bf, moveObjectStraightToWaypointReference],
+  [0x80c6c4, moveObjectToWaypointReference],
+  [0x80d105, placeObjectOnWaypointReference],
 ]);
 
 // A fixed, independently source-checked set of native equations. This is no

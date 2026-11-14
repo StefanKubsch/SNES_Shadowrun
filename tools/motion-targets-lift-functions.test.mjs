@@ -2,7 +2,8 @@
 // (src/game/motion-targets.mjs through their natives in src/task) against their
 // register-level references (proof/game-reference/motion-targets.mjs): towards an object
 // 80:C6F3 and 80:C6F8, towards the player 80:C716 and 80:C71D, towards a point 80:C79C
-// and 80:C7A1, and the stop 80:C7C2. Both sides run the native from its script call (data
+// and 80:C7A1, the stop 80:C7C2, towards a waypoint 80:C6BF and 80:C6C4 and onto one
+// 80:D105. Both sides run the native from its script call (data
 // bank 80, direct page 0, the RTS frame). Game state only (docs/STRATEGY.md, 2026-11-14):
 // WRAM outside the stacks, the device writes and the return must be equal.
 import { prng } from './task-native-dialog-harness.mjs';
@@ -15,6 +16,9 @@ import {
   moveObjectToPlayerReference,
   moveObjectToPointReference,
   stopMotionReference,
+  moveObjectStraightToWaypointReference,
+  moveObjectToWaypointReference,
+  placeObjectOnWaypointReference,
 } from '../proof/game-reference/motion-targets.mjs';
 import { moveObjectStraightToObject } from '../src/task/native-motion-object-follow.mjs';
 import { moveObjectToObject } from '../src/task/native-motion-object-move.mjs';
@@ -23,6 +27,12 @@ import { moveObjectToPlayer } from '../src/task/native-motion-player-move.mjs';
 import { moveObjectStraightToPoint } from '../src/task/native-motion-point-follow.mjs';
 import { moveObjectToPoint } from '../src/task/native-motion-point-move.mjs';
 import { stopMotion } from '../src/task/native-motion-stop.mjs';
+import {
+  moveObjectStraightToWaypoint,
+  moveObjectToWaypoint,
+} from '../src/task/native-motion-waypoint-move.mjs';
+import { placeObjectOnWaypoint } from '../src/task/native-object-to-waypoint.mjs';
+import { DP_POINT_LIST } from '../src/task/wram.mjs';
 
 const WRAM_BYTES = 0x20000,
   HEX = 16,
@@ -42,6 +52,10 @@ function sample(seed) {
   for (let i = 0; i < wram.length; i++) wram[i] = rnd(BYTE);
   // An object of the game's slots or any index (near FFFF: bank 7F).
   setWord(wram, 0, [2 * rnd(44), rnd(WORD), 0xfffe + rnd(2)][rnd(3)]);
+  // A point list in WRAM (bank 7E or 7F) and a waypoint of it or any word.
+  setWord(wram, DP_POINT_LIST, rnd(WORD));
+  wram[DP_POINT_LIST + 2] = 0x7e + rnd(2);
+  if (rnd(2)) setWord(wram, 2, rnd(64));
   return { seed, wram, rnd };
 }
 const returned = (h) => [h.ctx.pc, h.ctx.s].map((v) => v.toString(HEX)).join();
@@ -84,6 +98,24 @@ registerCases(
     ),
     motion('moveObjectToPoint 80:C7A1', 0x80c7a1, moveObjectToPointReference, moveObjectToPoint),
     motion('stopMotion 80:C7C2', 0x80c7c2, stopMotionReference, stopMotion),
+    motion(
+      'moveObjectStraightToWaypoint 80:C6BF',
+      0x80c6bf,
+      moveObjectStraightToWaypointReference,
+      moveObjectStraightToWaypoint,
+    ),
+    motion(
+      'moveObjectToWaypoint 80:C6C4',
+      0x80c6c4,
+      moveObjectToWaypointReference,
+      moveObjectToWaypoint,
+    ),
+    motion(
+      'placeObjectOnWaypoint 80:D105',
+      0x80d105,
+      placeObjectOnWaypointReference,
+      placeObjectOnWaypoint,
+    ),
   ],
   { sample, side: (s) => createSide(s, new Map()), runtime: (h) => h, ignored: [] },
 );

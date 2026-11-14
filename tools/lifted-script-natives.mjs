@@ -57,6 +57,8 @@ export const LIFTED_SCRIPT_NATIVES = new Set([
   0x809dc8, 0x809dec, 0x80a297,
   // The group removal, depth mode, learned spell and brightness fade natives.
   0x80a2b5, 0x80d0d3, 0x80e1b3, 0x80d9ad,
+  // The waypoint motion natives (src/game/motion-targets.mjs).
+  0x80c6bf, 0x80c6c4, 0x80d105,
 ]);
 // Direct page bytes a lifted native does not produce: the sample loader's scratch
 // (7E:0089-008B, 008F-0099) after any, and after the sight natives the line of sight's

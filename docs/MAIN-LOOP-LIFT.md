@@ -452,6 +452,15 @@ which the render proof of 81:8076 keeps using.
   the instruction tests of 80:A2B5 and 80:D9AD run them. The group, object field and
   party funds tests compare them; planted changes of the shifted lists, the covered mode,
   the end marker and the frame base fail them.
+- The waypoint natives 80:C6BF and 80:C6C4 (a motion towards the waypoint in the second
+  argument, straight or axis by axis) and 80:D105 (the object placed on it, its motion
+  stopped) run `moveToWaypoint` and `placeOnWaypoint` of src/game/motion-targets.mjs
+  (block 103): the waypoint's X, Y and height words times four from the room's point list
+  (the long pointer at direct page F3), at the original's 16-bit entry offset 6 *
+  waypoint with the second subtraction's borrow. Their references joined
+  proof/game-reference/motion-targets.mjs; the motion target test compares them (point
+  lists in banks 7E and 7F); planted changes of the borrow, the height's field and the
+  stopped motion fail it.
 - The getters 80:9E59 and 80:9E5F (the buttons held and newly pressed), 80:CD97 and its
   byte-identical copy 80:D18A (the player figure's slot) and 80:C0F7 and 80:C100 (the
   glove sprite's screen X and Y bytes) run `padHeld`, `padPressed`, `playerObject`,

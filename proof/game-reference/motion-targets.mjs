@@ -1,5 +1,6 @@
 // Register-level references of the scripts' motion target natives (moved from
-// src/task/native-motion-*.mjs; lifted in src/game/motion-targets.mjs). The proof plans,
+// src/task/native-motion-*.mjs and native-object-to-waypoint.mjs; lifted in
+// src/game/motion-targets.mjs). The proof plans,
 // the Native58 dispatch of proof/task/native-dispatch.mjs and the instruction tests of
 // tools/task-native-m1d.test.mjs run these; the game runs the lifted natives.
 import {
@@ -9,6 +10,11 @@ import {
   leaf,
 } from '../../src/task/native-leaf-support.mjs';
 import {
+  DP_POINT_LIST,
+  DP_POINT_LIST_BANK,
+  OBJECT_HEIGHT,
+  OBJECT_X,
+  OBJECT_Y,
   MOTION_ACTIVE,
   MOTION_BY_AXES,
   MOTION_MODE,
@@ -19,7 +25,14 @@ import {
   PLAYER_OBJECT,
   WRAM,
 } from '../../src/task/wram.mjs';
-import { BANK_WRAP } from '../../src/constants/bits.mjs';
+import {
+  BANK_WRAP,
+  LONG_MASK,
+  LONG_WRAP,
+  WORD_BITS,
+  WORD_MASK,
+} from '../../src/constants/bits.mjs';
+import { FLAG_CARRY } from '../../src/constants/cpu-flags.mjs';
 
 const NO_MOTION = 0;
 
@@ -102,6 +115,100 @@ export const stopMotionReference = (a, outerReturn = true) =>
     (h) => {
       const object = h.index('x', h.dp(FIRST_ARGUMENT));
       h.longWrite(WRAM + MOTION_ACTIVE + object, h.load(NO_MOTION));
+    },
+    outerReturn,
+  );
+// Waypoint entries are 6 bytes; the X word is at entry + 1, the Y word two bytes later.
+const WAYPOINT_Y_STEP = 2;
+
+// 80:C6C7..C6F2, the shared tail of 80:C6BF and C6C4: the object (first argument) gets
+// a motion with the mode in A towards the waypoint (second argument) of the room's point
+// list (long pointer DP F3..F5). The entry offset is 6 * waypoint (three ASLs, SEC,
+// two SBCs of the waypoint; the second SBC uses the borrow of the first), then INY
+// selects the X word; both coordinates are stored times four.
+function startMotionToWaypoint(h) {
+  const a = h.a;
+  const object = h.index('x', h.dp(FIRST_ARGUMENT));
+  h.longWrite(WRAM + MOTION_MODE + object, h.ctx.a);
+  h.load(h.dp(SECOND_ARGUMENT));
+  h.asl();
+  h.asl();
+  h.asl();
+  h.ctx.status |= FLAG_CARRY;
+  h.arithmetic(h.dp(SECOND_ARGUMENT), true);
+  h.arithmetic(h.dp(SECOND_ARGUMENT), true);
+  h.index('y', h.ctx.a);
+  let entry = h.index('y', (h.ctx.y + 1) & WORD_MASK);
+  // The long pointer is read fresh for each coordinate, as LDA [F3],Y does.
+  const pointer = () =>
+    a.readWord(DP_POINT_LIST, BANK_WRAP, 'leaf-long-pointer') |
+    (a.read(DP_POINT_LIST_BANK, 'leaf-long-bank') << WORD_BITS);
+  for (const target of [MOTION_X, MOTION_Y]) {
+    if (target === MOTION_Y) entry = h.index('y', (entry + WAYPOINT_Y_STEP) & WORD_MASK);
+    h.load(h.longRead(pointer() + entry));
+    h.asl();
+    h.asl();
+    h.longWrite(WRAM + target + object, h.ctx.a);
+  }
+  h.longWrite(WRAM + MOTION_ACTIVE + object, h.load(MOTION_START));
+}
+
+// 80:C6C4: move the object (first argument) axis by axis towards the waypoint in the
+// second argument.
+export const moveObjectToWaypointReference = (a, outerReturn = true) =>
+  leaf(
+    a,
+    (h) => {
+      h.load(MOTION_BY_AXES);
+      startMotionToWaypoint(h);
+    },
+    outerReturn,
+  );
+
+// 80:C6BF: move the object (first argument) straight towards the waypoint in the
+// second argument.
+export const moveObjectStraightToWaypointReference = (a, outerReturn = true) =>
+  leaf(
+    a,
+    (h) => {
+      h.load(MOTION_STRAIGHT);
+      startMotionToWaypoint(h);
+    },
+    outerReturn,
+  );
+// 80:D105: place the object (first argument) on the waypoint (second argument) of the
+// room's point list and stop its motion. The entry offset is 6 * waypoint as in
+// startMotionToWaypoint above; X, Y and height follow at
+// entry + 1, + 3 and + 5 (INY twice between them), each stored times four. The long
+// pointer DP F3..F5 is read fresh for each word.
+export const placeObjectOnWaypointReference = (a, outerReturn = true) =>
+  leaf(
+    a,
+    (h) => {
+      const object = h.index('x', h.dp(FIRST_ARGUMENT));
+      h.load(h.dp(SECOND_ARGUMENT));
+      h.asl();
+      h.asl();
+      h.asl();
+      h.ctx.status |= FLAG_CARRY;
+      h.arithmetic(h.dp(SECOND_ARGUMENT), true);
+      h.arithmetic(h.dp(SECOND_ARGUMENT), true);
+      h.index('y', h.ctx.a);
+      let entry = h.index('y', (h.ctx.y + 1) & WORD_MASK);
+      for (const field of [OBJECT_X, OBJECT_Y, OBJECT_HEIGHT]) {
+        const pointer =
+          a.readWord(DP_POINT_LIST, BANK_WRAP, 'position-fresh-pointer') |
+          (a.read(DP_POINT_LIST_BANK, 'position-fresh-bank') << WORD_BITS);
+        h.load(a.readWord((pointer + entry) & LONG_MASK, LONG_WRAP, 'position-indirect-WORD'));
+        h.asl();
+        h.asl();
+        h.longWrite(h.abs(field) + object, h.ctx.a);
+        if (field !== OBJECT_HEIGHT) {
+          h.index('y', (entry + 1) & WORD_MASK);
+          entry = h.index('y', (entry + 2) & WORD_MASK);
+        }
+      }
+      h.longWrite(WRAM + MOTION_ACTIVE + object, h.load(0));
     },
     outerReturn,
   );
