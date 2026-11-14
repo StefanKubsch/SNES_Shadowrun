@@ -461,6 +461,17 @@ which the render proof of 81:8076 keeps using.
   proof/game-reference/motion-targets.mjs; the motion target test compares them (point
   lists in banks 7E and 7F); planted changes of the borrow, the height's field and the
   stopped motion fail it.
+- The equipment natives 80:8B16 (the member shown in the menus wears an armour; the
+  object under the glove, or the player object, gets its rating), 80:8B9F (the member
+  wields a weapon with its kind, damage and range), 80:9D15 and 80:9CE4 (an item's or
+  actor entry's property word, then the item taken off the first runner from the last
+  down who wears it, who gets the default armour or weapon again, with the bug fix of
+  docs/BUGFIXES.md) run `equipArmour`, `equipWeapon`, `setItemProperty` and
+  `setActorItemProperty` of [src/game/runner-equipment.mjs](../src/game/runner-equipment.mjs)
+  (block 107); the register-level versions moved to
+  proof/game-reference/runner-equipment.mjs.
+  [tools/runner-equipment-lift-functions.test.mjs](../tools/runner-equipment-lift-functions.test.mjs)
+  compares them with the bug fixes off and on (500 samples each).
 - The facing natives 80:CF93 (the object turns towards another object unless its low byte
   is FF), 80:D1D2 (towards the player object) and 80:D1DD (the direction towards the
   player object) with their direction body 80:D1E3 run `turnTowardsObject`,

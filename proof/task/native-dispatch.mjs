@@ -203,6 +203,13 @@ import {
   turnObjectToPlayerReference,
 } from '../game-reference/object-facing.mjs';
 
+import {
+  equipRunnerArmourReference,
+  equipRunnerWeaponReference,
+  setActorItemPropertyAndUnequipReference,
+  setItemPropertyAndUnequipReference,
+} from '../game-reference/runner-equipment.mjs';
+
 // Lifted natives whose proofs run their register-level references (the game runs the
 // lifted ones, src/task/native-targets.mjs).
 const REFERENCE_TARGETS = new Map([
@@ -330,6 +337,10 @@ const REFERENCE_TARGETS = new Map([
   [0x80cf93, turnObjectToObjectReference],
   [0x80d1d2, turnObjectToPlayerReference],
   [0x80d1dd, getDirectionToPlayerReference],
+  [0x808b16, equipRunnerArmourReference],
+  [0x808b9f, equipRunnerWeaponReference],
+  [0x809d15, setItemPropertyAndUnequipReference],
+  [0x809ce4, setActorItemPropertyAndUnequipReference],
 ]);
 
 // A fixed, independently source-checked set of native equations. This is no

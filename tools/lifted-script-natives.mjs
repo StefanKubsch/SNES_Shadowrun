@@ -66,6 +66,8 @@ export const LIFTED_SCRIPT_NATIVES = new Set([
   0x80a985, 0x80aaaf, 0x80d15c,
   // The facing natives (src/game/object-facing.mjs).
   0x80cf93, 0x80d1d2, 0x80d1dd,
+  // The equipment natives (src/game/runner-equipment.mjs).
+  0x808b16, 0x808b9f, 0x809d15, 0x809ce4,
 ]);
 // Direct page bytes a lifted native does not produce: the sample loader's scratch
 // (7E:0089-008B, 008F-0099) after any, and after the sight natives the line of sight's
