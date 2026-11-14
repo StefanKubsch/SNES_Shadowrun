@@ -86,6 +86,7 @@ import {
   setSwarmHeightSpeedTargetReference,
   setSwarmPathPhaseTargetReference,
   setSwarmPathSpeedTargetReference,
+  startSwarmOrbitReference,
 } from '../game-reference/swarm-setup.mjs';
 
 import {
@@ -209,6 +210,8 @@ import {
   setActorItemPropertyAndUnequipReference,
   setItemPropertyAndUnequipReference,
 } from '../game-reference/runner-equipment.mjs';
+
+import { placeObjectInFormationReference } from '../game-reference/formation-place.mjs';
 
 // Lifted natives whose proofs run their register-level references (the game runs the
 // lifted ones, src/task/native-targets.mjs).
@@ -341,6 +344,8 @@ const REFERENCE_TARGETS = new Map([
   [0x808b9f, equipRunnerWeaponReference],
   [0x809d15, setItemPropertyAndUnequipReference],
   [0x809ce4, setActorItemPropertyAndUnequipReference],
+  [0x80d604, startSwarmOrbitReference],
+  [0x80bb2c, placeObjectInFormationReference],
 ]);
 
 // A fixed, independently source-checked set of native equations. This is no

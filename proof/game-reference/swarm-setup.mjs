@@ -1,25 +1,34 @@
 // Register-level references of the swarm setup's script natives (moved from
-// src/task/native-swarm-*-target.mjs and native-swarm-phases-reset.mjs; lifted in
+// src/task/native-swarm-*-target.mjs, native-swarm-phases-reset.mjs and
+// native-swarm-orbit-start.mjs; lifted in
 // src/game/swarm-setup.mjs). The proof plans and the Native58 dispatch of
 // proof/task/native-dispatch.mjs run these; the game runs the lifted natives.
 import { FIRST_ARGUMENT, leaf } from '../../src/task/native-leaf-support.mjs';
-import { FLAG_CARRY } from '../../src/constants/cpu-flags.mjs';
+import { taskSelectionSupport } from '../../src/task/native-object-turn.mjs';
+import { FLAG_CARRY, FLAG_ZERO } from '../../src/constants/cpu-flags.mjs';
 import { LONG_WRAP, WORD_MASK } from '../../src/constants/bits.mjs';
 import {
+  BOB_PHASE,
+  BOB_SECOND_PHASE,
   CIRCLE_FOLLOWER_COUNTDOWN,
   CIRCLE_FOLLOWER_INDEX,
+  CIRCLE_HEIGHT_PHASE,
+  CIRCLE_LEADER,
+  CIRCLE_PHASE,
+  CIRCLE_PHASE_SPEED,
+  CIRCLE_SPEED,
   PATH_SPEED_HEIGHT_GOAL,
   PATH_SPEED_XY_GOAL,
   PATH_START_HEIGHT_GOAL,
   PATH_START_XY_GOAL,
   SWARM_MEMBERS,
 } from '../../src/task/wram.mjs';
-import { WAVE_WORD_INDEX_MASK } from '../../src/task/native-object-bob.mjs';
+import { HALF_PHASE, WAVE_WORD_INDEX_MASK } from '../../src/game/object-bob.mjs';
 import {
   FIRST_FOLLOWER_FRAMES,
   ORBIT_START_PHASE,
   ORBIT_PHASES_END,
-} from '../../src/task/native-swarm-orbit-start.mjs';
+} from '../../src/game/swarm-setup.mjs';
 
 const PHASE_BYTES = 2;
 
@@ -81,6 +90,46 @@ export const resetSwarmPhasesReference = (a, outerReturn = true) =>
         h.ctx.status = (h.ctx.status & ~FLAG_CARRY) | Number(phase >= ORBIT_PHASES_END);
         h.nz((phase - ORBIT_PHASES_END) & WORD_MASK);
       } while (phase !== ORBIT_PHASES_END);
+    },
+    outerReturn,
+  );
+
+const CIRCLE_START_PHASE = HALF_PHASE,
+  CLEAR_RETURN_WORD = 0x80d620 & WORD_MASK;
+// 80:D604: start the swarm orbit around the leader object (first argument): leader to
+// CIRCLE_LEADER, circle phase 0100, height phase, bob phases and speeds cleared; then
+// the real JSR 80:D622 resets the followers and member phases (body inlined here).
+export const startSwarmOrbitReference = (a, outerReturn = true) =>
+  leaf(
+    a,
+    (h) => {
+      const { ctx } = h,
+        k = taskSelectionSupport(h);
+      h.load(h.dp(FIRST_ARGUMENT));
+      h.longWrite(h.abs(CIRCLE_LEADER), ctx.a);
+      h.load(CIRCLE_START_PHASE);
+      h.longWrite(h.abs(CIRCLE_PHASE), ctx.a);
+      for (const offset of [
+        CIRCLE_HEIGHT_PHASE,
+        BOB_PHASE,
+        BOB_SECOND_PHASE,
+        CIRCLE_SPEED,
+        CIRCLE_PHASE_SPEED,
+      ])
+        h.longWrite(h.abs(offset), 0);
+      k.call(CLEAR_RETURN_WORD, () => {
+        h.longWrite(h.abs(CIRCLE_FOLLOWER_INDEX), 0);
+        h.load(FIRST_FOLLOWER_FRAMES);
+        h.longWrite(h.abs(CIRCLE_FOLLOWER_COUNTDOWN), ctx.a);
+        h.index('x', 0);
+        h.load(ORBIT_START_PHASE);
+        do {
+          h.longWrite(h.abs(SWARM_MEMBERS) + ctx.x, ctx.a);
+          h.index('x', ctx.x + 2);
+          h.nz((ctx.x - ORBIT_PHASES_END) & WORD_MASK);
+          ctx.status = (ctx.status & ~FLAG_CARRY) | Number(ctx.x >= ORBIT_PHASES_END);
+        } while (!(ctx.status & FLAG_ZERO));
+      });
     },
     outerReturn,
   );

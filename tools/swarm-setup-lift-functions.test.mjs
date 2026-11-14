@@ -1,7 +1,7 @@
 // Random per-function tests of the lifted swarm setup natives (src/game/swarm-setup.mjs
 // through their natives in src/task) against their register-level references
 // (proof/game-reference/swarm-setup.mjs): the wave goals 80:D97C, 80:D985, 80:D98E and
-// 80:D997 and the orbit reset 80:D622. Both sides run the native from its script call
+// 80:D997, the orbit reset 80:D622 and the orbit start 80:D604. Both sides run the native from its script call
 // (data bank 80, direct page 0, the RTS frame). Game state only (docs/STRATEGY.md,
 // 2026-11-14): WRAM outside the stacks, the device writes and the return must be equal.
 import { prng } from './task-native-dialog-harness.mjs';
@@ -12,12 +12,14 @@ import {
   setSwarmHeightSpeedTargetReference,
   setSwarmPathPhaseTargetReference,
   setSwarmPathSpeedTargetReference,
+  startSwarmOrbitReference,
 } from '../proof/game-reference/swarm-setup.mjs';
 import { setSwarmHeightPhaseTarget } from '../src/task/native-swarm-height-phase-target.mjs';
 import { setSwarmPathPhaseTarget } from '../src/task/native-swarm-path-phase-target.mjs';
 import { setSwarmPathSpeedTarget } from '../src/task/native-swarm-path-speed-target.mjs';
 import { setSwarmHeightSpeedTarget } from '../src/task/native-swarm-height-speed-target.mjs';
 import { resetSwarmPhases } from '../src/task/native-swarm-phases-reset.mjs';
+import { startSwarmOrbit } from '../src/task/native-swarm-orbit-start.mjs';
 
 const WRAM_BYTES = 0x20000,
   HEX = 16,
@@ -75,6 +77,7 @@ registerCases(
       setSwarmHeightSpeedTarget,
     ),
     setup('resetSwarmPhases 80:D622', 0x80d622, resetSwarmPhasesReference, resetSwarmPhases),
+    setup('startSwarmOrbit 80:D604', 0x80d604, startSwarmOrbitReference, startSwarmOrbit),
   ],
   { sample, side: (s) => createSide(s, new Map()), runtime: (h) => h, ignored: [] },
 );

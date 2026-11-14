@@ -68,6 +68,8 @@ export const LIFTED_SCRIPT_NATIVES = new Set([
   0x80cf93, 0x80d1d2, 0x80d1dd,
   // The equipment natives (src/game/runner-equipment.mjs).
   0x808b16, 0x808b9f, 0x809d15, 0x809ce4,
+  // The swarm orbit start and the formation place (swarm-setup.mjs, formation-place.mjs).
+  0x80d604, 0x80bb2c,
 ]);
 // Direct page bytes a lifted native does not produce: the sample loader's scratch
 // (7E:0089-008B, 008F-0099) after any, and after the sight natives the line of sight's

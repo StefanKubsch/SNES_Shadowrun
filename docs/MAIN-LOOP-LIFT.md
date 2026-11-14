@@ -461,6 +461,17 @@ which the render proof of 81:8076 keeps using.
   proof/game-reference/motion-targets.mjs; the motion target test compares them (point
   lists in banks 7E and 7F); planted changes of the borrow, the height's field and the
   stopped motion fail it.
+- The swarm orbit start 80:D604 (the leader, the circle phase 100, the height phase, both
+  bob phases and the circle speeds cleared, then the reset 80:D622) runs `startSwarmOrbit`
+  of [src/game/swarm-setup.mjs](../src/game/swarm-setup.mjs), compared by
+  [tools/swarm-setup-lift-functions.test.mjs](../tools/swarm-setup-lift-functions.test.mjs);
+  the formation place 80:BB2C (the member's step behind the newest trail entry selects
+  the object's height, position and direction, then the walking or standing action) runs
+  `placeInFormation` of [src/game/formation-place.mjs](../src/game/formation-place.mjs),
+  compared by
+  [tools/formation-place-lift-functions.test.mjs](../tools/formation-place-lift-functions.test.mjs)
+  (600 samples). Block 108; the register-level versions moved to
+  proof/game-reference/swarm-setup.mjs and formation-place.mjs.
 - The equipment natives 80:8B16 (the member shown in the menus wears an armour; the
   object under the glove, or the player object, gets its rating), 80:8B9F (the member
   wields a weapon with its kind, damage and range), 80:9D15 and 80:9CE4 (an item's or
