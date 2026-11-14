@@ -49,6 +49,8 @@ export const LIFTED_SCRIPT_NATIVES = new Set([
   // The glove limits (glove-target.mjs), distances (object-distance.mjs) and halving (script-queries.mjs).
   0x80bc83,
   0x80bc9c, 0x80c68d, 0x80c694, 0x80d9a7,
+  // The topic list natives (src/game/topic-list.mjs).
+  0x809159, 0x80913c, 0x8090eb,
 ]);
 // Direct page bytes a lifted native does not produce: the sample loader's scratch
 // (7E:0089-008B, 008F-0099) after any, and after the sight natives the line of sight's

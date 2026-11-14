@@ -11,7 +11,7 @@ import {moveObjectToObjectReference as moveObjectToObject} from '../proof/game-r
 import {getRunnerStrength} from '../src/task/native-runner-record-byte.mjs';import {addMagicPointsReference as addMagicPoints} from '../proof/game-reference/party-funds.mjs';
 import {haltObject} from '../src/task/native-object-halt-set.mjs';import {resumeObject} from '../src/task/native-object-halt-clear.mjs';import {appendSelectedSpellTask} from '../src/task/native-task-append-from-list.mjs';import {getPlayerObjectAfterBreak} from '../src/task/native-player-object-break.mjs';import {addObjectHeightReference as addObjectHeight} from '../proof/game-reference/object-fields.mjs';
 import {moveObjectToPlayerReference as moveObjectToPlayer} from '../proof/game-reference/motion-targets.mjs';import {raiseMemberMagicPointsReference as raiseMemberMagicPoints} from '../proof/game-reference/runner-state.mjs';
-import {addTopic} from '../src/task/native-topic-add.mjs';import {getPreviousFightObject} from '../src/task/native-fight-list-previous.mjs';
+import {addTopicReference as addTopic} from '../proof/game-reference/topic-list.mjs';import {getPreviousFightObject} from '../src/task/native-fight-list-previous.mjs';
 import {isInFightList} from '../src/task/native-fight-list-contains.mjs';import {setItemPropertyAndUnequip} from '../src/task/native-object-record-property-equip.mjs';
 import {bobObject,bobSecondObject} from '../src/task/native-object-bob.mjs';import {advanceOrbit,D796_ENTRIES} from '../src/task/native-orbit.mjs';
 import {decrementObjectStateCount} from '../src/task/native-object-record-count-decrement.mjs';import {removeGroupMember} from '../src/task/native-group-remove.mjs';import {startBrightnessFade} from '../src/task/native-signed-offset-set.mjs';

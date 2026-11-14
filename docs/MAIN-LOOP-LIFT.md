@@ -405,6 +405,17 @@ which the render proof of 81:8076 keeps using.
   compares both (300 samples each; game slots, the same object, any words and an X
   difference of 8000); planted changes of the quarter shift, the larger difference and
   the sign bit fail it.
+- The topic list natives 80:9159 (FFFF when the topic is in the list 7E:3CA3 before its
+  FF), 80:913C (its flag byte at 7E:3CD6 marked FF) and 80:90EB (the topic inserted in
+  order with flag 0 unless known, the rest shifted up; the shifted flag carried in the
+  direct page bytes 23 and 24) run `isTopicKnown`, `markTopic` and `addTopic` of
+  [src/game/topic-list.mjs](../src/game/topic-list.mjs) (block 99); the register-level
+  versions moved to proof/game-reference/topic-list.mjs, which the instruction test of
+  80:90EB now runs.
+  [tools/topic-list-lift-functions.test.mjs](../tools/topic-list-lift-functions.test.mjs)
+  compares both (400 samples each; sorted lists of up to 50 topics, empty lists and
+  random bytes; known, new and FF topics); planted changes of the order test, the
+  inserted flag and the carried flag fail it.
 - The getters 80:9E59 and 80:9E5F (the buttons held and newly pressed), 80:CD97 and its
   byte-identical copy 80:D18A (the player figure's slot) and 80:C0F7 and 80:C100 (the
   glove sprite's screen X and Y bytes) run `padHeld`, `padPressed`, `playerObject`,

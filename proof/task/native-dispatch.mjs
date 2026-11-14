@@ -152,6 +152,12 @@ import {
   limitSpellGloveReference,
 } from '../game-reference/script-measures.mjs';
 
+import {
+  addTopicReference,
+  isTopicKnownReference,
+  markTopicReference,
+} from '../game-reference/topic-list.mjs';
+
 // Lifted natives whose proofs run their register-level references (the game runs the
 // lifted ones, src/task/native-targets.mjs).
 const REFERENCE_TARGETS = new Map([
@@ -247,6 +253,9 @@ const REFERENCE_TARGETS = new Map([
   [0x80c68d, getDistanceToPlayerReference],
   [0x80c694, getDistanceBetweenObjectsReference],
   [0x80d9a7, halveArgumentSignedReference],
+  [0x809159, isTopicKnownReference],
+  [0x80913c, markTopicReference],
+  [0x8090eb, addTopicReference],
 ]);
 
 // A fixed, independently source-checked set of native equations. This is no
