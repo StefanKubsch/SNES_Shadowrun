@@ -26,6 +26,15 @@ import {
   keepScriptVariableBitsReference,
 } from '../game-reference/script-variables.mjs';
 
+import {
+  getActorStateFlagsReference,
+  getActorStateCountReference,
+  getActorStatePropertyReference,
+  setActorStateFlagsReference,
+  setActorStateFlagBitsReference,
+  keepActorStateFlagBitsReference,
+} from '../game-reference/actor-state.mjs';
+
 // Lifted natives whose proofs run their register-level references (the game runs the
 // lifted ones, src/task/native-targets.mjs).
 const REFERENCE_TARGETS = new Map([
@@ -46,6 +55,12 @@ const REFERENCE_TARGETS = new Map([
   [0x80cc10, setScriptVariableReference],
   [0x80cc19, setScriptVariableBitsReference],
   [0x80cc26, keepScriptVariableBitsReference],
+  [0x80cb2b, getActorStateFlagsReference],
+  [0x80cb3c, getActorStateCountReference],
+  [0x80cb4d, getActorStatePropertyReference],
+  [0x80cb9f, setActorStateFlagsReference],
+  [0x80cbb3, setActorStateFlagBitsReference],
+  [0x80cbcb, keepActorStateFlagBitsReference],
 ]);
 
 // A fixed, independently source-checked set of native equations. This is no

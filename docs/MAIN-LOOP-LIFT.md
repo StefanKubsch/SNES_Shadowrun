@@ -294,6 +294,24 @@ which the render proof of 81:8076 keeps using.
   compares both (400 samples each; the game's offsets, any offset and offsets near
   FFFF); planted changes of the OR, the AND, the stored high byte and the bank crossing
   fail it.
+- The actor state natives 80:CB2B (the flag byte of the state record of the actor entry
+  in the first argument), 80:CB3C (its count byte) and 80:CB4D (its property word) as the
+  result, and 80:CB9F (the flag byte set), 80:CBB3 (its bits set) and 80:CBCB (only its
+  bits kept) run `actorStateFlags`, `actorStateCount`, `actorStateProperty`,
+  `setActorStateFlags`, `setActorStateFlagBits` and `keepActorStateFlagBits` of
+  [src/game/actor-state.mjs](../src/game/actor-state.mjs) in the game's native table
+  (block 83): the record address from the actor table 8D:B01F, the record in bank 7E;
+  without a record the reads return the bytes at 7E:0001-0004 and the writes change
+  nothing. The native wrappers keep the bug fix of Akimi's arrival flags and the exploit
+  fix that keeps a defeated vampire defeated (src/game/bugfixes.mjs). The register-level
+  versions moved to proof/game-reference/actor-state.mjs for the proof plans and the
+  Native58 dispatch.
+  [tools/actor-state-lift-functions.test.mjs](../tools/actor-state-lift-functions.test.mjs)
+  compares both (400 samples each; table entries, Akimi's, the vampire's and any offset,
+  the bug fixes and the exploit prevention on or off); planted changes of the missing
+  record test, the vampire's guard, the OR, the AND and the property's high byte fail
+  it, as does a dropped Akimi fix in tools/gameplay-bugfixes.test.mjs. A record address
+  near the bank's end does not occur in the ROM's table.
 - The modals 80:CD20 (pay the nuyen of the first argument: FFFF if paid, else 0; a
   low word too small borrows from a nonzero high word) and 80:CBF7 (the actor of the
   first argument, an entry offset in the actor table 8D:B01F, gets the holder of the

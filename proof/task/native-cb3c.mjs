@@ -1,6 +1,7 @@
 // Source-specific atomic plans for proof tools. The game executes the shared routines directly.
 import { prepareTaskPlan } from './plan.mjs';
-import { getActorStateCount } from '../../src/task/native-record-count-get.mjs';
+// The register-level reference; the game runs the lifted native.
+import { getActorStateCountReference } from '../game-reference/actor-state.mjs';
 
 export const prepareTaskNativeCB3C = (options) =>
-  prepareTaskPlan(options, [0x80cb3c], (a) => getActorStateCount(a));
+  prepareTaskPlan(options, [0x80cb3c], (a) => getActorStateCountReference(a));
