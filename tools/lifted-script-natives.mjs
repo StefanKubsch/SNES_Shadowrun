@@ -26,6 +26,8 @@ export const LIFTED_SCRIPT_NATIVES = new Set([
   0x80d255, 0x80d1ca, 0x80d17b, 0x80d16d,
   // The task link and velocity setters (src/game/object-fields.mjs).
   0x80a91d, 0x80a926, 0x80a92f, 0x80d13e,
+  // The time limit natives (src/game/time-limit.mjs).
+  0x80e255, 0x80e24e, 0x80e262,
 ]);
 // Direct page bytes a lifted native does not produce: the sample loader's scratch
 // (7E:0089-008B, 008F-0099) after any, and after the sight natives the line of sight's

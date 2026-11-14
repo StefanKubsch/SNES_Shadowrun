@@ -1,12 +1,9 @@
-import { leaf } from './native-leaf-support.mjs';
-import { TIMER, TIMER_STOPPED } from './wram.mjs';
+import { finishLeaf } from './native-leaf-support.mjs';
+import { stopTimeLimit } from '../game/time-limit.mjs';
 
-// 80:E24E: stop the countdown timer.
-export const stopTimer = (a, outerReturn = true) =>
-  leaf(
-    a,
-    (h) => {
-      h.longWrite(h.abs(TIMER), h.load(TIMER_STOPPED));
-    },
-    outerReturn,
-  );
+// 80:E24E (lifted in src/game/time-limit.mjs; register-level reference in
+// proof/game-reference/script-timer.mjs): stop the countdown timer.
+export const stopTimer = (a, outerReturn = true) => {
+  stopTimeLimit(a.mem);
+  return finishLeaf(a, outerReturn);
+};

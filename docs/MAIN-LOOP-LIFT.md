@@ -304,6 +304,14 @@ which the render proof of 81:8076 keeps using.
   `clearObjectTask`, `bindObjectToCurrentTask`, `setObjectVelocity` and
   `clearObjectVelocity` of the same module (block 88); the same test compares them;
   planted changes of the task cursor and of the Y velocity's argument fail it.
+- The time limit natives 80:E255 (start: 29 hours at 7E:1D89, DD4 frames at 7E:1D87),
+  80:E24E (stop: the hours FFFF) and 80:E262 (FFFF while the hours or the frames are
+  nonzero, else 0) run `startTimeLimit`, `stopTimeLimit` and `timeLimitRunning` of
+  [src/game/time-limit.mjs](../src/game/time-limit.mjs) (block 89); the register-level
+  versions moved to proof/game-reference/script-timer.mjs.
+  [tools/script-timer-lift-functions.test.mjs](../tools/script-timer-lift-functions.test.mjs)
+  compares both (200 samples each; the hours and the frames each zero in half);
+  planted changes of the start hours and of the running test fail it.
 - The getters 80:9E59 and 80:9E5F (the buttons held and newly pressed), 80:CD97 and its
   byte-identical copy 80:D18A (the player figure's slot) and 80:C0F7 and 80:C100 (the
   glove sprite's screen X and Y bytes) run `padHeld`, `padPressed`, `playerObject`,

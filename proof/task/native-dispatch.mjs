@@ -74,6 +74,12 @@ import {
   setObjectVelocityReference,
 } from '../game-reference/object-fields.mjs';
 
+import {
+  isTimerRunningReference,
+  startTimerReference,
+  stopTimerReference,
+} from '../game-reference/script-timer.mjs';
+
 // Lifted natives whose proofs run their register-level references (the game runs the
 // lifted ones, src/task/native-targets.mjs).
 const REFERENCE_TARGETS = new Map([
@@ -124,6 +130,9 @@ const REFERENCE_TARGETS = new Map([
   [0x80a926, bindObjectToCurrentTaskReference],
   [0x80a92f, setObjectVelocityReference],
   [0x80d13e, clearObjectVelocityReference],
+  [0x80e255, startTimerReference],
+  [0x80e24e, stopTimerReference],
+  [0x80e262, isTimerRunningReference],
 ]);
 
 // A fixed, independently source-checked set of native equations. This is no

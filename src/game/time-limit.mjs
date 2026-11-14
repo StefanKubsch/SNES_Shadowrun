@@ -1,5 +1,10 @@
-// The time limit of the Cortex bomb (lifted from 80:E270; register-level reference
-// in proof/game-reference/main-timer.mjs).
+// The time limit of the Cortex bomb (lifted from 80:E270 and the script natives 80:E255,
+// 80:E24E and 80:E262; register-level references in proof/game-reference/main-timer.mjs
+// and proof/game-reference/script-timer.mjs).
+//
+// A script starts the time limit with 29 hours of DD4 frames each, stops it by setting
+// the hours to FFFF (negative: the main loop no longer counts) and asks whether either
+// the hours or the frames are nonzero.
 //
 // While the hours 7E:1D89 are not negative and either they or the frames 7E:1D87 are
 // not zero, the main loop counts the frames down in every pass. When the frames of
@@ -34,9 +39,11 @@ import {
   DP_WINDOW_TOP,
   TIMER,
   TIMER_FRAMES,
+  TIMER_STOPPED,
 } from '../task/wram.mjs';
 import { BYTE_BITS, BYTE_MASK, WORD_MASK, WORD_SIGN } from '../constants/bits.mjs';
 import { FLAG_CARRY } from '../constants/cpu-flags.mjs';
+import { dataBankWord, setDataBankWord } from '../system/data-bank.mjs';
 
 const FRAMES_PER_HOUR = 0xdd4,
   NOTICE = Object.freeze({ left: 8, top: 2, columns: 0x11, rows: 4, text: 4, frames: 0xb4 }),
@@ -147,3 +154,19 @@ export function* timeLimitSequence(h, events, routines) {
   };
   return result;
 }
+
+// The hours a script's time limit starts with.
+const START_HOURS = 29,
+  // A script's truth value.
+  TRUE = WORD_MASK;
+
+// 80:E255: start the time limit (29 hours, a full hour of frames).
+export function startTimeLimit(mem) {
+  setDataBankWord(mem, TIMER_FRAMES, 0, FRAMES_PER_HOUR);
+  setDataBankWord(mem, TIMER, 0, START_HOURS);
+}
+// 80:E24E: stop the time limit (the hours FFFF; the frames stay).
+export const stopTimeLimit = (mem) => setDataBankWord(mem, TIMER, 0, TIMER_STOPPED);
+// 80:E262: TRUE while the hours or the frames are nonzero, else 0.
+export const timeLimitRunning = (mem) =>
+  dataBankWord(mem, TIMER_FRAMES) | dataBankWord(mem, TIMER) ? TRUE : 0;
