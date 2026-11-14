@@ -30,6 +30,8 @@ import { CODE_BANK_BASE } from '../constants/memory-map.mjs';
 // (workspace filled by runTaskScriptArguments in script-arguments.mjs).
 export const FIRST_ARGUMENT = 0;
 export const SECOND_ARGUMENT = 2;
+export const THIRD_ARGUMENT = 4;
+export const FOURTH_ARGUMENT = 6;
 
 export function leafAccess(a) {
   if (a.ctx.d !== 0) taskStop('task_direct_page_zero_required');

@@ -298,6 +298,12 @@ which the render proof of 81:8076 keeps using.
   and `storeSpriteMode` of the same module (block 87); the same test compares them;
   planted changes of the direction's mask, the kept depth bits and the mode mask fail
   it.
+- The natives 80:A91D (the object's task link set to none, FFFF), 80:A926 (set to the
+  running task, 7E:0250 through the data bank 80), 80:A92F (the X, Y and Z velocity set
+  to the second, third and fourth argument) and 80:D13E (all three zero) run
+  `clearObjectTask`, `bindObjectToCurrentTask`, `setObjectVelocity` and
+  `clearObjectVelocity` of the same module (block 88); the same test compares them;
+  planted changes of the task cursor and of the Y velocity's argument fail it.
 - The getters 80:9E59 and 80:9E5F (the buttons held and newly pressed), 80:CD97 and its
   byte-identical copy 80:D18A (the player figure's slot) and 80:C0F7 and 80:C100 (the
   glove sprite's screen X and Y bytes) run `padHeld`, `padPressed`, `playerObject`,

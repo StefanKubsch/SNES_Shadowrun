@@ -1,12 +1,14 @@
 // Register-level references of the object field script natives (moved from
 // src/task/native-object-flags-*.mjs, src/task/native-object-record-*.mjs and
 // src/task/native-object-armour-*.mjs, the motion getters, the direction, number and
-// sprite mode; lifted in
+// sprite mode, the task link and the velocity setters; lifted in
 // src/game/object-fields.mjs). The proof plans and the Native58 dispatch of
 // proof/task/native-dispatch.mjs run these; the game runs the lifted natives.
 import {
   FIRST_ARGUMENT,
   SECOND_ARGUMENT,
+  THIRD_ARGUMENT,
+  FOURTH_ARGUMENT,
   indexObjectRecord,
   leaf,
   readRecordField,
@@ -21,6 +23,8 @@ import {
   OBJECT_NUMBER,
   OBJECT_HEIGHT,
   OBJECT_RECORD,
+  OBJECT_TASK,
+  NO_TASK,
   OBJECT_VELOCITY_X,
   OBJECT_VELOCITY_Y,
   OBJECT_VELOCITY_Z,
@@ -34,6 +38,7 @@ import {
 import { BYTE_MASK, LONG_MASK } from '../../src/constants/bits.mjs';
 import { FLAG_MEMORY_8BIT } from '../../src/constants/cpu-flags.mjs';
 import { protectedJakeHealth } from '../../src/game/cheats.mjs';
+import { TASK_CURSOR } from '../../src/vm/layout.mjs';
 
 // 80:CA05: return the flag word of the object (first argument).
 export const getObjectFlagsReference = (a, outerReturn = true) =>
@@ -317,6 +322,54 @@ export const setSpriteModeReference = (a, outerReturn = true) =>
         order = h.load(h.longRead(address)),
         kept = h.load(order & OBJECT_DEPTH_MODE_CLEAR_MASK);
       h.longWrite(address, h.load(kept | h.dp(SECOND_ARGUMENT)));
+    },
+    outerReturn,
+  );
+// 80:A91D: detach the object (first argument) from its task.
+export const clearObjectTaskReference = (a, outerReturn = true) =>
+  leaf(
+    a,
+    (h) => {
+      const object = h.index('x', h.dp(FIRST_ARGUMENT));
+      h.longWrite(h.abs(OBJECT_TASK) + object, h.load(NO_TASK));
+    },
+    outerReturn,
+  );
+// 80:A926: bind the object (first argument) to the currently running task.
+export const bindObjectToCurrentTaskReference = (a, outerReturn = true) =>
+  leaf(
+    a,
+    (h) => {
+      const object = h.index('x', h.dp(FIRST_ARGUMENT)),
+        task = h.load(h.longRead(h.abs(TASK_CURSOR)));
+      h.longWrite(h.abs(OBJECT_TASK) + object, task);
+    },
+    outerReturn,
+  );
+// 80:A92F: set the X, Y and Z velocity of the object (first argument) to the second,
+// third and fourth argument.
+export const setObjectVelocityReference = (a, outerReturn = true) =>
+  leaf(
+    a,
+    (h) => {
+      const object = h.index('x', h.dp(FIRST_ARGUMENT));
+      for (const [argument, velocity] of [
+        [SECOND_ARGUMENT, OBJECT_VELOCITY_X],
+        [THIRD_ARGUMENT, OBJECT_VELOCITY_Y],
+        [FOURTH_ARGUMENT, OBJECT_VELOCITY_Z],
+      ])
+        h.longWrite(h.abs(velocity) + object, h.load(h.dp(argument)));
+    },
+    outerReturn,
+  );
+// 80:D13E: set the X, Y and Z velocity of the object (first argument) to zero.
+export const clearObjectVelocityReference = (a, outerReturn = true) =>
+  leaf(
+    a,
+    (h) => {
+      const object = h.index('x', h.dp(FIRST_ARGUMENT));
+      for (const velocity of [OBJECT_VELOCITY_X, OBJECT_VELOCITY_Y, OBJECT_VELOCITY_Z])
+        h.longWrite(h.abs(velocity) + object, 0);
     },
     outerReturn,
   );

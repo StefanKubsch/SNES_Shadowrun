@@ -2,7 +2,8 @@
 // 80:CA0D, 80:CA15 and 80:CA20 for the flag word and 80:CA2B, 80:CA3A, 80:CA49, 80:CA58,
 // 80:CAA2, 80:CAB4, 80:CACA and 80:CAE0 for the record, 80:8EF5, 80:8AF1, 80:8AFA and
 // 80:8B08 for the armour, 80:A941 to 80:A96D for the motion, 80:D255, 80:D1CA, 80:D17B and
-// 80:D16D for the direction, number and sprite mode; register-level references in
+// 80:D16D for the direction, number and sprite mode, 80:A91D and 80:A926 for the task link
+// and 80:A92F and 80:D13E for the velocity; register-level references in
 // proof/game-reference/object-fields.mjs).
 //
 // An object's flag word (7E:1458 plus its slot) and its record pointer (7E:13A8 plus its
@@ -27,11 +28,14 @@ import {
   OBJECT_X,
   OBJECT_Y,
   OBJECT_RECORD,
+  OBJECT_TASK,
+  NO_TASK,
   RECORD_COUNT,
   RECORD_FLAGS,
   RECORD_PROPERTY,
   WRAM,
 } from '../task/wram.mjs';
+import { TASK_CURSOR } from '../vm/layout.mjs';
 import { BYTE_BITS, BYTE_MASK, LONG_MASK, WORD_MASK } from '../constants/bits.mjs';
 
 // 80:CA05: the object's flag word.
@@ -132,3 +136,17 @@ export const storeSpriteMode = (mem, object, mode) =>
     object,
     (dataBankWord(mem, OBJECT_DEPTH_ORDER, object) & OBJECT_DEPTH_MODE_CLEAR_MASK) | mode,
   );
+
+// 80:A91D: detach the object from its task.
+export const clearObjectTask = (mem, object) => setDataBankWord(mem, OBJECT_TASK, object, NO_TASK);
+// 80:A926: bind the object to the currently running task.
+export const bindObjectToCurrentTask = (mem, object) =>
+  setDataBankWord(mem, OBJECT_TASK, object, dataBankWord(mem, TASK_CURSOR));
+// 80:A92F: set the object's X, Y and Z velocity.
+export const setObjectVelocity = (mem, object, x, y, z) => {
+  setDataBankWord(mem, OBJECT_VELOCITY_X, object, x);
+  setDataBankWord(mem, OBJECT_VELOCITY_Y, object, y);
+  setDataBankWord(mem, OBJECT_VELOCITY_Z, object, z);
+};
+// 80:D13E: stop the object (all three velocities zero).
+export const clearObjectVelocity = (mem, object) => setObjectVelocity(mem, object, 0, 0, 0);

@@ -67,6 +67,13 @@ import {
   setSpriteModeReference,
 } from '../game-reference/object-fields.mjs';
 
+import {
+  bindObjectToCurrentTaskReference,
+  clearObjectTaskReference,
+  clearObjectVelocityReference,
+  setObjectVelocityReference,
+} from '../game-reference/object-fields.mjs';
+
 // Lifted natives whose proofs run their register-level references (the game runs the
 // lifted ones, src/task/native-targets.mjs).
 const REFERENCE_TARGETS = new Map([
@@ -113,6 +120,10 @@ const REFERENCE_TARGETS = new Map([
   [0x80d1ca, getObjectNumberReference],
   [0x80d17b, getSpriteModeReference],
   [0x80d16d, setSpriteModeReference],
+  [0x80a91d, clearObjectTaskReference],
+  [0x80a926, bindObjectToCurrentTaskReference],
+  [0x80a92f, setObjectVelocityReference],
+  [0x80d13e, clearObjectVelocityReference],
 ]);
 
 // A fixed, independently source-checked set of native equations. This is no
