@@ -56,6 +56,9 @@ export function scriptInfo(mem, id) {
   };
 }
 
+// Operand stack words that fit between the locals and the end of the frame.
+export const stackCapacity = (info) => (info.stackBytes + STACK_EXTRA_BYTES) >>> 1;
+
 export const scriptArgumentWords = (mem, id) => mem.read8(SCRIPT_ARGUMENT_BYTES + id) >>> 1;
 export const nativeArgumentWords = (mem, id) => mem.read8(NATIVE_ARGUMENT_COUNTS + id);
 
@@ -69,8 +72,8 @@ export function createTask(mem, id, args = []) {
     taskStop('script_argument_count', { script: id, args: args.length });
   // 80:C2C8 adds the header bytes in 8 bits; a carry would shrink the frame.
   if (info.frameBytes > BYTE_MASK) taskStop('script_frame_size_carry', { script: id });
-  const stackCapacity = (info.stackBytes + STACK_EXTRA_BYTES) >>> 1;
-  if (args.length > stackCapacity) taskStop('script_operand_stack_overflow', { script: id });
+  const capacity = stackCapacity(info);
+  if (args.length > capacity) taskStop('script_operand_stack_overflow', { script: id });
   return {
     script: id,
     code: info.code,
@@ -78,7 +81,7 @@ export function createTask(mem, id, args = []) {
     pc: 0,
     locals: new Uint8Array(info.localBytes),
     stack: args.slice().reverse(),
-    stackCapacity,
+    stackCapacity: capacity,
     returns: [],
     call: null, // { kind: CALL_NATIVE | CALL_SCRIPT, id } while a call is pending
   };

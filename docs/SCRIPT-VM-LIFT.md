@@ -122,6 +122,51 @@ budget)` runs opcodes until END (`{kind: 'end', result}`), a native or script ca
   end. All runs are equal up to the fresh read sites below. A synthetic test compares
   every implemented arithmetic, logic and comparison opcode at edge values.
 
+## Phase 2 result (2026-11-14)
+
+- [src/script/scheduler.mjs](../src/script/scheduler.mjs): `Scheduler` keeps the 48 slots
+  as plain records (task, next, previous, wait mask, counter, events, continuation
+  `null`/`child`/`wait`); the free list reuses `next` as in the original, so slots are
+  assigned in the original order. `append` (C34A), `round` (C1E3), `visitHead` (C1CA, the
+  nested visit of natives), `visit` (C1F9), `ready` (C3C9), `resume` (C1FE with the tail
+  C20B), `child` (C36A), `allocate` (C2C8) and `release` (C396). The wait native C401 (ID
+  9F, the only one) runs inside the scheduler; every other native goes to the `native`
+  callback with its arguments in pull order and returns the result word.
+- A reused slot keeps its counter and events, as the original does. The ready check
+  returns the word the original leaves at 7E:0000 (met events, bit 0 for the counter);
+  it becomes the result of the waiting native. The END result of a child task becomes
+  the result of its parent's script call.
+- The game needs no heap: the optional observers `onCreate` and `onRelease` let the
+  conversion layer replay it.
+  [proof/script/task-layout.mjs](../proof/script/task-layout.mjs) reads a state the
+  original left in WRAM into a JS scheduler, replays the allocator 80:C242/C2BD on a copy
+  of the heap and projects the live bytes back: the task tables, the headers of the heap
+  chain and each frame's code pointer, PC, return pointer, operand stack pointer, call ID
+  (while a call is pending), return words, locals and operand stack. Table words C1A6
+  leaves stale (previous and continuation of unused slots) are projected once the slot
+  is allocated.
+- New frontiers: `task_slot_required` (a 49th task; the original goes on with slot
+  FFFFh), `task_heap_required` (conversion layer only; the original writes a frame at
+  7E:0000), `task_reentered` (a nested visit reaches a task whose bytecode runs; the
+  original would resume it through its stale continuation), `task_ended_waiting` (a task
+  ends while a native set its wait mask; the original keeps it and would resume it after
+  its last call), `task_list_end_resume` (the last task of the list ends while slot 0's
+  wait mask has bit 7 set, for example while slot 0 waits for a child: 80:C224 reads the
+  word at 7E:0BA1 past the wait table and jumps through stale table words) and
+  `task_wait_arguments`.
+- [tools/script-scheduler.test.mjs](../tools/script-scheduler.test.mjs): 300 scenarios
+  from random WRAM with one to four ROM scripts, twelve rounds each, on the register-level
+  scheduler and on the JS scheduler loaded through the conversion layer. Natives return
+  the same random result on both sides and may append a task and visit it at once, send
+  events to a task or toggle its halt bit. After every round the native calls, the
+  projected bytes and the rest of the WRAM (outside the interpreter's work bytes) are
+  equal: 297 scenarios run all rounds; one stops at `task_list_end_resume` and two at
+  the known fresh reads of phase 1 (23D at FE, 3A3 at 54). Every flow occurs: child
+  tasks and their resumption, ends and releases, counter and event wakeups, waits,
+  halts, appends and nested visits.
+- The test's outer stack lies below the game stack top 7E:1CBB: scripts write state
+  words at 7E:1D09-1F60, which a stack at 7E:1FE0 overlaps.
+
 ## Open points
 
 - Opcode use (2026-11-14, the decoded corpus analysis/event-scripts.txt of
@@ -147,6 +192,10 @@ budget)` runs opcodes until END (`{kind: 'end', result}`), a native or script ca
   the result is not zero. In the original a nonzero heap residue there ends the loop
   after the first five frames, whatever the distance; zeroed JS frames keep waiting for
   the event or the approach, which is what the code evidently intends. User decision 2026-11-14: zeroed frames, recorded as a port correction in [BUGFIXES.md](BUGFIXES.md#uninitialized-local-in-script-dd). Until phase 3 loads the new modules, tools/production-boundary.test.mjs exempts them (user decision 2026-11-14).
+- For phase 3: the JS scheduler writes no word 7E:0000 (the original leaves the END
+  result and the ready check's word there) and its round has no opcode budget. Natives
+  that read 7E:0000 after a nested visit, and natives that pause across frames (their
+  sequences), must take these from the task state instead.
 - Heap and slot exhaustion stay frontiers (`task_heap_required`, `task_slot_required`);
   the JS model keeps the original's 48 slots and the frame sizes so that the
   conversion layer reproduces the original heap.
