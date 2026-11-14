@@ -85,17 +85,6 @@ import {
   WRAM,
 } from '../task/wram.mjs';
 import {
-  HEAP_INITIAL_SIZE,
-  HEAP_NEXT_WORD,
-  HEAP_SIZE_WORD,
-  TASK_CURSOR,
-  TASK_FREE_LIST,
-  TASK_LAST_SLOT,
-  TASK_LIST_HEAD,
-  TASK_NEXT,
-  TASK_PREVIOUS,
-} from '../vm/layout.mjs';
-import {
   NMITIMEN,
   NMITIMEN_AUTO_JOYPAD,
   NMITIMEN_NMI_ENABLE,
@@ -353,16 +342,6 @@ export function resetObjectSlots(wram, video) {
     setWord(wram, VRAM_SLOT_NEXT + x, next + (next & VRAM_SLOT_LOWER_ROW));
   }
 }
-// All task slots linked into the free list, the task list empty, the heap one free
-// block (80:C1A6).
-export function resetTaskScheduler(wram) {
-  setWord(wram, TASK_FREE_LIST, 0);
-  setWords(wram, [TASK_LIST_HEAD, TASK_CURSOR, TASK_PREVIOUS], NONE);
-  for (let x = TASK_LAST_SLOT; x >= 0; x -= 2)
-    setWord(wram, TASK_NEXT + x, x === TASK_LAST_SLOT ? NONE : x + 2);
-  setWord(wram, HEAP_SIZE_WORD, HEAP_INITIAL_SIZE);
-  setWord(wram, HEAP_NEXT_WORD, 0);
-}
 // No current song, sound set or voices (81:EF26).
 function resetMusic(wram) {
   setWord(wram, MUSIC, NONE);
@@ -529,8 +508,8 @@ function uploadFont(m) {
   runTextUploads(m);
 }
 
-// Build the game screen (80:9629). m: {mem, wram, video, port}.
-export function setUpGameScreen(m) {
+// Build the game screen (80:9629). m: {mem, wram, video, port}; tasks: the task API.
+export function setUpGameScreen(m, tasks) {
   const { wram, video, port } = m;
   port.write(MEMSEL, FAST_ROM, 1, MEMSEL_SITE);
   port.write(NMITIMEN, 0, 1, NMI_OFF_SITE);
@@ -543,7 +522,7 @@ export function setUpGameScreen(m) {
   clearPaletteSlots(wram);
   resetObjectSlots(wram, video);
   uploadFont(m);
-  resetTaskScheduler(wram);
+  tasks.reset();
   setWord(wram, SCENE_REQUEST, NONE);
   setWord(wram, MEMBER_MENU_ACTIVE, 0);
   resetMusic(wram);

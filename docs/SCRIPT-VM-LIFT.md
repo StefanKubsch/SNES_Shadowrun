@@ -220,6 +220,48 @@ budget)` runs opcodes until END (`{kind: 'end', result}`), a native or script ca
   - The live game never runs a synchronous owner round; js-rounds stops there
     (`js_rounds_synchronous_owner`).
 
+## Phase 4 result (2026-11-14)
+
+- [src/script/task-api.mjs](../src/script/task-api.mjs): the task API of game code. A task
+  is named by its task word (twice the slot, negative for none), the value objects keep in
+  7E:1350; any other word stops at `task_slot_required`. Calls: `current()`, `wait`,
+  `setWait`, `events`, `setEvents`, `previous`, `code` (the bytecode address),
+  `append(script, args)` (C34A) and `reset()` (C1A6), with the helpers `waitingTask` (the
+  task that runs for a parent waiting for its child; a chain longer than the 48 slots
+  stops at `task_chain_unbounded`), `sendEvents` and `argumentWords` (the words a caller
+  leaves at 7E:0000 for C34A). `JsTasks` implements it over the JS scheduler (new
+  `Scheduler.reset()` with the observer `onReset`, which the conversion layer uses for
+  its heap), `WramTasks` over the original's tables and heap for the register-level
+  scheduler that still drives the game. `tasksOf(a)` gives an accessor's tasks: the JS
+  scheduler's when one is attached (`a.tasks`), else the WRAM tables;
+  `appendScriptTaskCall(a)` is C34A as called with JSR on either.
+- Game code on the API: the halt natives (object-halt.mjs), object hits, the glove
+  action, the object animation and motion target (events), the task bind 80:A926, the
+  Akimi bug fix (the current task's script), the game screen and room entry (reset), the
+  object creation, the spell start, the menus' and zones' C34A, the dialog's topic action
+  (native-dialog-text.mjs on the JS scheduler) and the mouse control (`LiveGame.tasks`).
+  The register-level forms in `src/task` (main-initialize, main-motion-target,
+  native-object-hit, native-scene-tiles, script-yield, task-append, native-object-create,
+  the member spell menu and the zone gate) keep their direct table accesses; they run
+  only with recorded observations and move to `proof/` in phase 6.
+- [src/script/natives.mjs](../src/script/natives.mjs) attaches the JS scheduler's API to
+  each native's accessor. [proof/script/js-rounds.mjs](../proof/script/js-rounds.mjs) no
+  longer stores the projection before natives or reads the tables back after them: while
+  a round is open (also while it is paused across steps) any read or write of
+  7E:0246-0CC1 through the memory stops with `RegisterLevelTaskAccess`; `sync()` stores
+  the projection of an open round for the comparison at an NMI. Rounds still load from
+  and store to the WRAM, as the main loop between rounds stays on the WRAM tables until
+  phase 5.
+- [tools/script-natives.test.mjs](../tools/script-natives.test.mjs): all three routes are
+  equal with the trap armed; on the badge route the projectiles of 80:8AB5 and the topic
+  tasks are appended through the API inside natives.
+  [tools/task-api.test.mjs](../tools/task-api.test.mjs): 200 random sequences of 120 API
+  calls on both implementations give the same results and frontiers, and the projection
+  of the JS side equals the WRAM side's tables and heap after every call.
+- The lifted functions now stop at `task_slot_required` for a task word that names no
+  slot, where the original read garbage table words; the halt test samples such words
+  rarely (game state only).
+
 ## Open points
 
 - Opcode use (2026-11-14, the decoded corpus analysis/event-scripts.txt of
@@ -244,7 +286,7 @@ budget)` runs opcodes until END (`{kind: 'end', result}`), a native or script ca
   unwritten, ORs it with the distance test (native 0A, `< 100`) and leaves the loop when
   the result is not zero. In the original a nonzero heap residue there ends the loop
   after the first five frames, whatever the distance; zeroed JS frames keep waiting for
-  the event or the approach, which is what the code evidently intends. User decision 2026-11-14: zeroed frames, recorded as a port correction in [BUGFIXES.md](BUGFIXES.md#uninitialized-local-in-script-dd). Until game code reaches the task state through the JS scheduler (phase 4) and the plain game loop drives it (phase 5), tools/production-boundary.test.mjs exempts the new modules (user decision 2026-11-14 for phases 1 and 2, extended to the native bridge of phase 3).
+  the event or the approach, which is what the code evidently intends. User decision 2026-11-14: zeroed frames, recorded as a port correction in [BUGFIXES.md](BUGFIXES.md#uninitialized-local-in-script-dd). Since phase 4 the game loads the interpreter, the scheduler and the task model through the task API; until the plain game loop drives the scheduler (phase 5), tools/production-boundary.test.mjs still exempts the native bridge src/script/natives.mjs (user decision 2026-11-14 for phases 1 and 2, extended to the native bridge of phase 3).
 - The JS scheduler writes no word 7E:0000 (the original leaves the END result and the
   ready check's word there). No native read it after a nested visit in the phase 3
   differential; a native on another path that does would diverge there.

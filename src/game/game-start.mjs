@@ -10,6 +10,7 @@
 // SRAM, then the room start 80:9699 builds the game screen and enters the room.
 // The start ends before the first call of the main loop (80:96AB). The attract game
 // enters the room start directly with room AB (src/task/main-frontend.mjs).
+import { tasksOf } from '../script/task-api.mjs';
 import { drainNativeSequence } from '../task/native-call-continuation.mjs';
 import { taskStop } from '../task/plan.mjs';
 import { unpackStream } from '../system/unpack.mjs';
@@ -194,7 +195,7 @@ export function* gameStartSequence(h, events, routines) {
 // and exit requests are cleared. Ends before the main loop at 80:96AB.
 export function* roomStartSequence(h, events, routines, room) {
   const { ctx } = h;
-  yield () => setUpGameScreen(sceneRuntime(h));
+  yield () => setUpGameScreen(sceneRuntime(h), tasksOf(h.a));
   // The routines the room entry still calls through their frames come from routines.
   yield* enterRoomSequence(h, events, routines, room);
   yield () => {

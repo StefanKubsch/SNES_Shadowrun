@@ -1,14 +1,16 @@
 // The live game's scheduler rounds on the JS scheduler with the natives of
-// src/script/natives.mjs (docs/SCRIPT-VM-LIFT.md, phase 3), for the differential of
-// tools/script-natives.test.mjs. Until phase 4 the rest of the game still keeps the task
-// tables and the heap in WRAM, so every round goes through the conversion layer:
+// src/script/natives.mjs (docs/SCRIPT-VM-LIFT.md, phases 3 and 4), for the differential
+// of tools/script-natives.test.mjs. Until the plain game loop (phase 5) the main loop
+// still keeps the task tables and the heap in WRAM between rounds, so every round goes
+// through the conversion layer:
 //
 // - each round (the driver's C1E3 after the main interval, the owner's 96C0) loads the
 //   JS scheduler from the WRAM and stores its projection back at the end;
-// - before each native the projection is stored, so register-level code inside the native
-//   (the task append C34A, object creation, the halt natives, task cursor reads) sees the
-//   tables; when the native changed the tables or the heap, they are read back in place
-//   (tasks whose frames are unchanged keep their JS objects), also before a nested visit.
+// - game code inside the round's natives reaches the tasks through the task API on the
+//   JS scheduler (src/script/task-api.mjs); a read or write of the task tables or the
+//   heap through the memory while a round is open (also while it is paused) stops with
+//   RegisterLevelTaskAccess;
+// - sync() stores the projection of an open round, for a comparison at an NMI.
 //
 // Locals of a task are tracked per frame: only written locals are projected, and a load
 // of an unwritten local stops as a fresh read (the original would read heap residue).
@@ -25,16 +27,24 @@ import {
   BANK_WITHOUT_IO,
   CODE_BANK,
   CODE_BANK_BASE,
+  LOW_RAM_END,
   MIRROR_BANK_MASK,
   WRAM_BANK,
 } from '../../src/constants/memory-map.mjs';
-import { HEX_RADIX, WORD_BITS, WORD_MASK } from '../../src/constants/bits.mjs';
+import { BYTE_BITS, HEX_RADIX, WORD_BITS, WORD_MASK } from '../../src/constants/bits.mjs';
 
 // The task tables, scheduler work words and the heap (layout.mjs).
 export const SCHEDULER_BYTES = Object.freeze([0x0246, 0x0cc2]);
 
 const isIndex = (key) => typeof key === 'string' && /^\d+$/.test(key);
-const sameWords = (a, b) => a.length === b.length && a.every((value, n) => value === b[n]);
+
+// Register-level code read or wrote a task table or heap byte while a round was open.
+export class RegisterLevelTaskAccess extends Error {
+  constructor(kind, offset, target) {
+    const native = target === null ? 'outside a native' : `in native ${target.toString(HEX_RADIX)}`;
+    super(`register-level task ${kind} at 7E:${offset.toString(HEX_RADIX)} ${native}`);
+  }
+}
 
 export class FreshLocalRead extends Error {
   constructor(task) {
@@ -60,31 +70,48 @@ export function attachJsRounds(game, { synchronous = false } = {}) {
     calls: 0,
     pauses: 0,
     visits: 0,
+    // Tasks game code appended through the task API inside a round, by native target.
+    appends: new Map(),
     // Rounds by entry path: the driver's C1E3 and the owner's resumable 96C0.
     paths: { driver: 0, owner: 0 },
-    // Native target -> number of calls that changed the task tables or the heap.
-    tableNatives: new Map(),
     projection: new Map(),
+    sync() {
+      if (open) store();
+    },
   };
   // Written local indexes per slot ({frame, code, written}), across rounds. A frame word
-  // written by register-level code (80:C2C8 from an append outside the JS scheduler)
-  // starts a new task in the slot; the layout's store writes the WRAM directly.
+  // written by register-level code between rounds (80:C2C8 from an append on the WRAM
+  // tables) starts a new task in the slot; the layout's store writes the WRAM directly.
   const marks = new Map(),
     tracked = new WeakMap(),
+    read8 = mem.read8.bind(mem),
     write8 = mem.write8.bind(mem);
-  mem.write8 = (address, value) => {
+  // The WRAM offset of a CPU address in bank 7E or a mirror of its first 8 KiB, else -1.
+  const wramOffset = (address) => {
     const offset = address & WORD_MASK,
       bank = address >>> WORD_BITS;
-    if (
-      offset >= TASK_FRAME &&
-      offset < TASK_FRAME + 2 * TASK_SLOTS &&
-      (bank === WRAM_BANK || (bank & MIRROR_BANK_MASK) < BANK_WITHOUT_IO)
-    )
+    if (bank === WRAM_BANK) return offset;
+    return (bank & MIRROR_BANK_MASK) < BANK_WITHOUT_IO && offset < LOW_RAM_END ? offset : -1;
+  };
+  const isTaskByte = (offset) => offset >= SCHEDULER_BYTES[0] && offset < SCHEDULER_BYTES[1];
+  function guard(address, kind) {
+    const offset = wramOffset(address);
+    if (open && isTaskByte(offset)) throw new RegisterLevelTaskAccess(kind, offset, target);
+    return offset;
+  }
+  mem.read8 = (address) => {
+    guard(address, 'read');
+    return read8(address);
+  };
+  mem.write8 = (address, value) => {
+    const offset = guard(address, 'write');
+    if (offset >= TASK_FRAME && offset < TASK_FRAME + 2 * TASK_SLOTS)
       marks.delete((offset - TASK_FRAME) >>> 1);
     write8(address, value);
   };
   let layout = null,
-    snapshot = null;
+    open = false,
+    target = null;
 
   function track(slot, task, created) {
     const frame = layout.frames[slot],
@@ -118,54 +145,35 @@ export function attachJsRounds(game, { synchronous = false } = {}) {
 
   function store() {
     state.projection = layout.store({ includeLocal });
-    snapshot = wram.slice(...SCHEDULER_BYTES);
-  }
-  const changed = () => {
-    const [start, end] = SCHEDULER_BYTES;
-    for (let n = start; n < end; n++) if (wram[n] !== snapshot[n - start]) return true;
-    return false;
-  };
-  // A task object stays when register-level code left its frame unchanged.
-  function keep(slot, old, read) {
-    const { written, raw } = tracked.get(old);
-    if (
-      old.code !== read.code ||
-      old.pc !== read.pc ||
-      !sameWords(old.stack, read.stack) ||
-      !sameWords(old.returns, read.returns) ||
-      [...written].some((n) => raw[n] !== read.locals[n])
-    )
-      throw Error(`register-level code changed the frame of slot ${slot}`);
-    return true;
-  }
-  function syncIn(target) {
-    if (!changed()) return;
-    state.tableNatives.set(target, (state.tableNatives.get(target) ?? 0) + 1);
-    layout.reload(keep);
-    trackLive();
   }
 
+  // The native's target while it runs (nested natives restore the outer one).
   const native = (id, args, scheduler, slot) => {
-    store();
     state.calls++;
-    const target = CODE_BANK_BASE | mem.read16(NATIVE_POINTERS + 2 * id),
-      result = natives.native(id, args, scheduler, slot);
-    if (!isPendingNative(result)) {
-      syncIn(target);
-      return result;
-    }
+    const outer = target,
+      own = CODE_BANK_BASE | read16(NATIVE_POINTERS + 2 * id);
+    const run = (step) => {
+      target = own;
+      try {
+        return step();
+      } finally {
+        target = outer;
+      }
+    };
+    const result = run(() => natives.native(id, args, scheduler, slot));
+    if (!isPendingNative(result)) return result;
     return {
       get result() {
         return result.result;
       },
       resume() {
-        const done = result.resume();
-        if (done) syncIn(target);
-        else state.pauses++;
+        const done = run(() => result.resume());
+        if (!done) state.pauses++;
         return done;
       },
     };
   };
+  const read16 = (address) => read8(address) | (read8(address + 1) << BYTE_BITS);
 
   function begin() {
     layout = loadScheduler(mem, wram, {
@@ -175,20 +183,25 @@ export function attachJsRounds(game, { synchronous = false } = {}) {
     trackLive();
     const scheduler = layout.scheduler,
       headVisit = scheduler.headVisit.bind(scheduler),
+      append = scheduler.append.bind(scheduler),
       release = scheduler.release.bind(scheduler);
     scheduler.release = (slot) => {
       marks.delete(slot);
       release(slot);
     };
+    scheduler.append = (script, args) => {
+      state.appends.set(target, (state.appends.get(target) ?? 0) + 1);
+      return append(script, args);
+    };
     scheduler.headVisit = function* () {
       state.visits++;
-      syncIn('visit');
       yield* headVisit();
-      store();
     };
+    open = true;
     return scheduler;
   }
   function end() {
+    open = false;
     store();
     state.rounds++;
   }

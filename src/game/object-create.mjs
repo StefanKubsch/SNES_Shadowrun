@@ -15,7 +15,7 @@
 // entry and the task word, whose index may be damaged, are written through the data
 // bank as in the original.
 import { sceneRuntime } from '../system/scene-runtime.mjs';
-import { appendScriptTask } from './task-append.mjs';
+import { argumentWords, tasksOf } from '../script/task-api.mjs';
 import {
   ANIMATION_CLOCK_START,
   DP_OBJECT_HEIGHT,
@@ -143,7 +143,7 @@ export function createObject(mem, wram, a) {
   a.ctx.s = (a.ctx.s - 1) & WORD_MASK;
   a.pushWord(APPEND_JSL_RETURN);
   a.pushWord(APPEND_JSR_RETURN);
-  const task = appendScriptTask(a, script);
+  const task = tasksOf(a).append(script, argumentWords(mem, script));
   a.pullWord();
   a.pullWord();
   a.ctx.s = (a.ctx.s + 1) & WORD_MASK;

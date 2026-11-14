@@ -42,7 +42,7 @@ import {
   OBJECT_X,
   OBJECT_Y,
 } from '../task/wram.mjs';
-import { TASK_EVENTS, TASK_PREVIOUS, TASK_WAIT } from '../vm/layout.mjs';
+import { sendEvents, tasksOf } from '../script/task-api.mjs';
 import { BYTE_BITS, BYTE_MASK, WORD_MASK, WORD_SIGN } from '../constants/bits.mjs';
 import { FLAG_CARRY, FLAG_NEGATIVE, FLAG_OVERFLOW, FLAG_ZERO } from '../constants/cpu-flags.mjs';
 
@@ -174,9 +174,8 @@ export function walkTowardsTarget(h, action = turnObjectRoutine) {
     ctx.y = task;
     signAndZero(ctx, task);
     if (task & WORD_SIGN) return h.rts();
-    while (get(TASK_WAIT, task) & WORD_SIGN) task = get(TASK_PREVIOUS, task);
-    const events = get(TASK_EVENTS, task) | MOTION_END_EVENT;
-    setWord(wram, low(TASK_EVENTS, task), events);
+    let events;
+    ({ task, events } = sendEvents(tasksOf(h.a), task, MOTION_END_EVENT));
     ctx.y = task;
     ctx.a = events;
     signAndZero(ctx, events);

@@ -2,9 +2,9 @@
 // and resuming an object and its task (src/game/object-halt.mjs through
 // src/task/native-object-halt-set.mjs), against their register-level references
 // (proof/game-reference/object-halt.mjs). Both run from their script call (data bank 80,
-// direct page 0, the RTS frame). The object is a game slot (or any word) with a task, none
-// or any word; the task waits for a child up to three links deep, the links among the
-// task slots (or any word). Game state only (docs/STRATEGY.md, 2026-11-14): WRAM outside
+// direct page 0, the RTS frame). The object is a game slot (rarely any word) with a task, none
+// or rarely any word; the task waits for a child up to three links deep, the links among
+// the task slots (or rarely any word). Game state only (docs/STRATEGY.md, 2026-11-14): WRAM outside
 // the stacks, the device writes and the return must be equal.
 import { prng } from './task-native-dialog-harness.mjs';
 import { createSide, registerCases } from './lift-function-harness.mjs';
@@ -35,9 +35,10 @@ function sample(seed) {
     pick = (list) => list[rnd(list.length)],
     wram = new Uint8Array(WRAM_BYTES);
   for (let i = 0; i < wram.length; i++) wram[i] = rnd(BYTE);
-  const object = rnd(8) ? 2 * rnd(SLOTS) : rnd(WORD);
+  const object = rnd(32) ? 2 * rnd(SLOTS) : rnd(WORD);
   setWord(wram, 0, object);
-  let task = pick([2 * rnd(TASKS), 2 * rnd(TASKS), 0xffff, rnd(WORD)]);
+  // A word that names no task slot is rare: the task API stops there (task_slot_required).
+  let task = rnd(16) ? pick([2 * rnd(TASKS), 2 * rnd(TASKS), 0xffff]) : rnd(WORD);
   if (object < 2 * SLOTS) setWord(wram, OBJECT_TASK + object, task);
   // Waiting for children up to three links deep, then a task not waiting for one.
   if (task < 2 * TASKS)
@@ -47,7 +48,7 @@ function sample(seed) {
         break;
       }
       setWord(wram, TASK_WAIT + task, 0x8000 | rnd(0x8000));
-      const previous = rnd(8) ? 2 * rnd(TASKS) : rnd(WORD);
+      const previous = rnd(32) ? 2 * rnd(TASKS) : rnd(WORD);
       setWord(wram, TASK_PREVIOUS + task, previous);
       if (previous >= 2 * TASKS) break;
       task = previous;
@@ -80,6 +81,6 @@ registerCases(
     side: (s) => createSide(s, new Map()),
     runtime: (h) => h,
     ignored: [],
-    outside: new Set(['task_native_link_chain_unbounded']),
+    outside: new Set(['task_slot_required', 'task_chain_unbounded']),
   },
 );

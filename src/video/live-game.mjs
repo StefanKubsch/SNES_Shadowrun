@@ -32,6 +32,7 @@ import { LagFreeFrames, LiveDevices } from '../vm/frame-events.mjs';
 import { Apu } from '../apu/apu.mjs';
 import { gameplaySettings, ORIGINAL_GAMEPLAY } from '../game/bugfixes.mjs';
 import { serviceTextWait } from '../game/instant-text.mjs';
+import { WramTasks } from '../script/task-api.mjs';
 // Player control 80:E014 runs every frame while the player steers freely.
 const PLAYER_CONTROL = 0x80e014;
 // WRAM target of the channel 5 VRAM read (A9E1, src/video/ppu-state.mjs).
@@ -187,6 +188,11 @@ export class LiveGame {
   }
   get nmis() {
     return this.frames.nmis;
+  }
+  // The task API of the game's script tasks (the task tables in WRAM until the plain
+  // game loop drives the JS scheduler).
+  get tasks() {
+    return (this.taskApi ??= new WramTasks({ mem: this.memory }));
   }
   // Switches the text language; it applies from the next decoded text.
   setLanguage(code) {

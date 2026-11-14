@@ -16,6 +16,7 @@
 // continuation, and a nested visit inside it pauses with it.
 import { taskStop } from '../task/plan.mjs';
 import { TaskAccessor } from '../vm/task-accessor.mjs';
+import { JsTasks } from './task-api.mjs';
 import { interruptEventsOf } from '../vm/devices.mjs';
 import { SPECIAL_NATIVES, SPECIAL_NATIVE_CONTINUATIONS } from '../vm/special-natives.mjs';
 import { WAIT_PAUSED, WAIT_RETURNED } from '../task/native-wait-continuation.mjs';
@@ -130,6 +131,8 @@ export class ScriptNatives {
     const a = this.accessor(),
       ctx = a.ctx,
       pointer = target & WORD_MASK;
+    // Game code inside the native reaches the tasks through the task API.
+    a.tasks = scheduler.tasks ??= new JsTasks(scheduler);
     a.resetAccessBudget(target);
     Object.assign(ctx, {
       e: 0,

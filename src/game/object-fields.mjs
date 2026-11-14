@@ -44,7 +44,6 @@ import {
   RECORD_PROPERTY,
   WRAM,
 } from '../task/wram.mjs';
-import { TASK_CURSOR } from '../vm/layout.mjs';
 import { BYTE_BITS, BYTE_MASK, LONG_MASK, WORD_MASK, WORD_SIGN } from '../constants/bits.mjs';
 
 // 80:CA05: the object's flag word.
@@ -148,9 +147,9 @@ export const storeSpriteMode = (mem, object, mode) =>
 
 // 80:A91D: detach the object from its task.
 export const clearObjectTask = (mem, object) => setDataBankWord(mem, OBJECT_TASK, object, NO_TASK);
-// 80:A926: bind the object to the currently running task.
-export const bindObjectToCurrentTask = (mem, object) =>
-  setDataBankWord(mem, OBJECT_TASK, object, dataBankWord(mem, TASK_CURSOR));
+// 80:A926: bind the object to the currently running task (of the task API).
+export const bindObjectToCurrentTask = (mem, object, tasks) =>
+  setDataBankWord(mem, OBJECT_TASK, object, tasks.current());
 // 80:A92F: set the object's X, Y and Z velocity.
 export const setObjectVelocity = (mem, object, x, y, z) => {
   setDataBankWord(mem, OBJECT_VELOCITY_X, object, x);

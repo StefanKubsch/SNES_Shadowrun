@@ -18,6 +18,7 @@ import {
   drainNativeSequence,
 } from './native-call-continuation.mjs';
 import { appendScriptTask } from './task-append.mjs';
+import { appendScriptTaskCall } from '../script/task-api.mjs';
 
 import { DIALOG_END, TOPIC_FLAGS, TOPIC_LIST, WRAM } from './wram.mjs';
 import { NIBBLE_MASK, BYTE_MASK, WORD_MASK } from '../constants/bits.mjs';
@@ -149,9 +150,9 @@ export function* dialogTopicSequence(h, events) {
     h.load(h.dp(DP_TOPIC_TASK_ARGUMENT));
     h.dpWrite(0, ctx.a);
   };
-  yield* dialogCallBody(h, 0x8091d1, 0x80c34a, () =>
-    segmentSequence(() => appendScriptTask(h.a, false)),
-  );
+  // On the JS scheduler the task API appends the task.
+  const append = (a) => (a.tasks ? appendScriptTaskCall(a) : appendScriptTask(a, false));
+  yield* dialogCallBody(h, 0x8091d1, 0x80c34a, () => segmentSequence(() => append(h.a)));
   yield* dialogCallBody(h, 0x8091d4, 0x80c1ca, function* () {
     yield { continuation: events.nestedRound(0x80c1ca) };
   });

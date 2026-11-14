@@ -108,7 +108,7 @@ import {
 } from './karma-menu.mjs';
 import { mainMenuSequence, saveMenuSequence } from './main-menu.mjs';
 import { playerZonesSequence } from './player-zones.mjs';
-import { appendScriptTaskCall } from './task-append.mjs';
+import { appendScriptTaskCall } from '../script/task-api.mjs';
 import { moveAndAnimate } from './object-motion.mjs';
 import { walkTowardsTarget } from './object-target.mjs';
 import { stepAnimation } from './object-animation.mjs';

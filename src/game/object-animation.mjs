@@ -59,7 +59,7 @@ import {
   VRAM_UPLOAD_SOURCES,
   WRAM,
 } from '../task/wram.mjs';
-import { TASK_EVENTS, TASK_PREVIOUS, TASK_WAIT } from '../vm/layout.mjs';
+import { sendEvents, tasksOf } from '../script/task-api.mjs';
 import {
   BYTE_BITS,
   BYTE_MASK,
@@ -113,9 +113,7 @@ const RESTART = WORD_MASK,
   SHADOW_MASK = 7,
   SHADOW_RULE = WORD_SIGN,
   BIAS_SHIFT = 2,
-  LOW_WRAM_END = 0x2000,
-  // More steps up a task chain than slots: the waits never end.
-  TASK_CHAIN_LIMIT = 0x10000;
+  LOW_WRAM_END = 0x2000;
 
 const word = (wram, at) => wram[at] | (wram[at + 1] << BYTE_BITS);
 const setWord = (wram, at, value) => {
@@ -194,14 +192,9 @@ export function stepAnimation(h, events) {
         put(OBJECT_SELECTION, get(OBJECT_SELECTION) | ENDED);
         result = get(OBJECT_TASK);
         if (!(result & WORD_SIGN)) {
-          let task = result;
-          for (let steps = 0; get(TASK_WAIT, task) & WORD_SIGN; steps++) {
-            if (steps === TASK_CHAIN_LIMIT) taskStop('task_chain_required', { task });
-            task = get(TASK_PREVIOUS, task);
-          }
-          result = get(TASK_EVENTS, task) | END_EVENT;
-          put(TASK_EVENTS, result, task);
-          ctx.x = task;
+          const sent = sendEvents(tasksOf(a), result, END_EVENT);
+          result = sent.events;
+          ctx.x = sent.task;
         }
         return done();
       }

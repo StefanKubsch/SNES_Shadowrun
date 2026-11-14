@@ -1,3 +1,4 @@
+import { tasksOf } from '../script/task-api.mjs';
 import { setNmiCallback } from './main-scene-video.mjs';
 import { unpackStreamLong } from './native-unpack.mjs';
 import { unpackWindowMap } from './native-render-unpack.mjs';
@@ -239,7 +240,7 @@ const downX = (h) => {
 // state bar (src/game/game-screen.mjs; register-level reference in
 // proof/game-reference/game-screen.mjs).
 export function setUpGameScreenRoutine(h) {
-  setUpGameScreen(sceneRuntime(h));
+  setUpGameScreen(sceneRuntime(h), tasksOf(h.a));
   return h.rts();
 }
 // 81:B064: set mode 1, the BG map and character bases and blank the screen through the shadows.

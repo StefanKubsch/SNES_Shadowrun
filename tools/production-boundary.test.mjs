@@ -45,17 +45,11 @@ test('every src module is loaded by the game and none imports proof code', () =>
   }
   assert.deepEqual(proofImports, [], 'game modules must not import proof/');
   assert.deepEqual(missing, [], 'game imports resolve');
-  // Temporary exception (user decision 2026-11-14): the JS script interpreter, scheduler
-  // and native bridge of docs/SCRIPT-VM-LIFT.md phases 1 to 3 run in the game only once
-  // game code reaches the task state through the JS scheduler (phase 4) and the plain game
-  // loop drives it (phase 5); until then proof/script/js-rounds.mjs attaches them. Remove
-  // the entries then.
-  const notYetLoaded = new Set([
-    'src/script/interpreter.mjs',
-    'src/script/natives.mjs',
-    'src/script/scheduler.mjs',
-    'src/script/tasks.mjs',
-  ]);
+  // Temporary exception (user decision 2026-11-14): the native bridge of
+  // docs/SCRIPT-VM-LIFT.md phase 3 runs in the game only once the plain game loop drives
+  // the JS scheduler (phase 5); until then proof/script/js-rounds.mjs attaches it. The game
+  // loads the JS scheduler through the task API (phase 4). Remove the entry then.
+  const notYetLoaded = new Set(['src/script/natives.mjs']);
   for (const file of notYetLoaded)
     assert.ok(!reached.has(file), `${file} is loaded now; drop its exception`);
   const unreached = modules('src').filter((file) => !reached.has(file) && !notYetLoaded.has(file));

@@ -79,11 +79,12 @@ function freeSlot(next) {
 export class Scheduler {
   // native(id, args, scheduler, slot) runs a script native other than the wait and
   // returns its result word (null when it leaves none) or a pending call when it paused.
-  constructor(mem, { native = null, onCreate = null, onRelease = null } = {}) {
+  constructor(mem, { native = null, onCreate = null, onRelease = null, onReset = null } = {}) {
     this.mem = mem;
     this.native = native;
     this.onCreate = onCreate;
     this.onRelease = onRelease;
+    this.onReset = onReset;
     this.slots = Array.from({ length: TASK_SLOTS }, (_, n) =>
       freeSlot(n + 1 < TASK_SLOTS ? n + 1 : NONE),
     );
@@ -92,6 +93,22 @@ export class Scheduler {
     this.cursor = NONE; // the task being visited
     this.running = new Set(); // slots whose bytecode runs (a native may visit others)
     this.job = null; // a round paused by a native (beginRound)
+    this.tasks = null; // the task API over this scheduler (task-api.mjs JsTasks)
+  }
+
+  // C1A6: every slot free (free list 0, 1, ..., 47), the task list empty. The wait
+  // masks, counters and events stay, as do the links C1A6 does not write; slot 0 has no
+  // previous task. A task whose bytecode runs would go on in a freed slot.
+  reset() {
+    if (this.running.size !== 0 || this.job !== null) taskStop('task_reset_while_running');
+    this.slots.forEach((entry, n) => {
+      entry.task = null;
+      entry.next = n + 1 < TASK_SLOTS ? n + 1 : NONE;
+    });
+    this.slots[0].previous = NONE;
+    this.head = this.cursor = NONE;
+    this.free = 0;
+    this.onReset?.();
   }
 
   // A round that hands native pauses to the caller: true while it is paused;

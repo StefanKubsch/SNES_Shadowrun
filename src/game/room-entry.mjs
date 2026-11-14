@@ -32,13 +32,14 @@
 // register-level versions replay, so with recorded interrupt observations they run
 // through their frames (docs/AUDIO-ROUTINES-LIFT.md keeps EF47 in the table for this
 // caller).
+import { tasksOf } from '../script/task-api.mjs';
 import { nativeCallSequence } from '../task/native-call-continuation.mjs';
 import { lagFree } from '../task/main-wait-interrupt.mjs';
 import { waitForCounterWord } from '../system/frame-wait.mjs';
 import { sceneRuntime } from '../system/scene-runtime.mjs';
 import { setMusicMode } from '../apu/music-mode.mjs';
 import { APU_COMMAND_VOLUME_TARGET } from '../constants/sound-commands.mjs';
-import { resetObjectSlots, resetTaskScheduler } from './game-screen.mjs';
+import { resetObjectSlots } from './game-screen.mjs';
 import { resetFixedColour } from './fixed-colour.mjs';
 import { createGroupSequence, placeRoomActorsSequence } from './room-actors.mjs';
 import { clampToCameraBox } from './camera-box.mjs';
@@ -373,7 +374,7 @@ export function* enterRoomSequence(h, events, routines, room) {
     h.a.pushWord(entry);
   };
   yield* putGloveAwayCall(h, events, GLOVE_SITE);
-  yield () => resetTaskScheduler(wram);
+  yield () => tasksOf(h.a).reset();
   // Without lag-free frames the music routines run register-level through their frames.
   const liftedMusic = Boolean(lagFree(events));
   if (!keepsMusic(mem, wram))

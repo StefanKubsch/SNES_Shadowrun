@@ -93,7 +93,7 @@ import {
   RECORD_COUNT,
   WRAM,
 } from '../task/wram.mjs';
-import { TASK_EVENTS, TASK_PREVIOUS, TASK_WAIT } from '../vm/layout.mjs';
+import { sendEvents, tasksOf } from '../script/task-api.mjs';
 import {
   BYTE_BITS,
   BYTE_MASK,
@@ -130,8 +130,6 @@ const WARNING_CALLS = Object.freeze({
 // Box units: coordinates over 4; the result of a notice.
 const BOX_SHIFT = 2,
   NOTICE_RESULT = 1;
-// The guard of the task chain: a wait chain longer than the task slots is no game state.
-const TASK_CHAIN_LIMIT = 0x100;
 
 const word = (wram, at) => wram[at] | (wram[at + 1] << BYTE_BITS);
 const setWord = (wram, at, value) => {
@@ -200,15 +198,6 @@ function* harmlessSequence(h, events, routines, flags) {
   };
 }
 
-// The root task of the object's task: up the chain while a task waits for a child.
-function rootTask(mem, task) {
-  for (let n = 0; dataBankWord(mem, TASK_WAIT, task) & WORD_SIGN; n++) {
-    if (n === TASK_CHAIN_LIMIT) taskStop('task_chain_unbounded', { task });
-    task = dataBankWord(mem, TASK_PREVIOUS, task);
-  }
-  return task;
-}
-
 // The damage on the target's record: its count byte lowered, or the root task woken.
 // draw is the random word, damage the low byte; returns nothing.
 function damageRecord(h, target, draw, damage) {
@@ -232,8 +221,7 @@ function damageRecord(h, target, draw, damage) {
     mem.write8((at + 1) & LONG_MASK, draw >>> BYTE_BITS);
     return;
   }
-  const root = rootTask(mem, task);
-  setDataBankWord(mem, TASK_EVENTS, root, dataBankWord(mem, TASK_EVENTS, root) | HIT_EVENT);
+  sendEvents(tasksOf(h.a), task, HIT_EVENT);
   setWord(wram, DP_HIT_RESULT, WORD_MASK);
 }
 

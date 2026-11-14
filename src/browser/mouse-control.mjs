@@ -39,7 +39,7 @@
 import { PAD_BIT, DIRECTIONS } from './controls.mjs';
 import { BYTE_BITS, BYTE_MASK, WORD_MASK, WORD_SIGN } from '../constants/bits.mjs';
 import { OBJECT_TASK } from '../task/wram.mjs';
-import { TASK_PREVIOUS, TASK_WAIT } from '../vm/layout.mjs';
+import { waitingTask } from '../script/task-api.mjs';
 
 const HAND = 0xffff,
   OPEN = 0x01d8,
@@ -68,28 +68,27 @@ const clamp = (v, [lo, hi]) => Math.min(hi, Math.max(lo, Math.round(v)));
 // offers an action, USE_EVENTS selects the event of R, and USE_NONE alone is none.
 const ACTION_EVENTS = 0x67f2,
   USE_EVENTS = 0x0610,
-  USE_NONE = 0x0600,
-  // Upper bound of the chain walk (more than the 48 task slots).
-  MAX_CHAIN = 64;
+  USE_NONE = 0x0600;
 // Context-dependent right mouse button (user decision 2026-10-30): after 80:BF3B,
 // R ('Use') only acts when the object under the hand has a use event:
-// slot 01DE, task 1350+Y, chain 0BA2+X (negative: continue with 0372+X); flag&67F2
+// slot 01DE, task 1350+Y, the wait mask of the task that runs for it; flag&67F2
 // zero means no action at all, otherwise flag&0610 is the event of R (exactly
 // 0600 counts as none). Without an event the button opens the action list (B),
 // for example for people; this way a click opens, takes or uses directly.
-export function useEvent(wram) {
+export function useEvent(wram, tasks) {
   const read = (a) => wram[a] | (wram[a + 1] << BYTE_BITS);
-  let task = read(OBJECT_TASK + read(SLOT));
-  for (let n = 0; n < MAX_CHAIN && !(task & WORD_SIGN); n++) {
-    const flags = read(TASK_WAIT + task);
-    if (!(flags & WORD_SIGN)) {
-      if (!(flags & ACTION_EVENTS)) return 0;
-      const use = flags & USE_EVENTS;
-      return use === USE_NONE ? 0 : use;
-    }
-    task = read(TASK_PREVIOUS + task);
+  const task = read(OBJECT_TASK + read(SLOT));
+  if (task & WORD_SIGN) return 0;
+  let flags;
+  try {
+    flags = tasks.wait(waitingTask(tasks, task));
+  } catch (error) {
+    if (error?.taskBoundary) return 0; // no task state of the game
+    throw error;
   }
-  return 0;
+  if (!(flags & ACTION_EVENTS)) return 0;
+  const use = flags & USE_EVENTS;
+  return use === USE_NONE ? 0 : use;
 }
 export class MouseControl {
   constructor(game) {
@@ -177,7 +176,7 @@ export class MouseControl {
                 ? 0
                 : B
               : b && context
-                ? useEvent(wram)
+                ? useEvent(wram, this.game.tasks)
                   ? R
                   : B
                 : null;

@@ -80,7 +80,7 @@ function clickAt(end, button) {
   const before = {
     open: word(OPEN),
     object: word(TARGET),
-    use: useEvent(wram),
+    use: useEvent(wram, game.tasks),
     x: wram[0x1d5],
     y: wram[0x1d7],
   };

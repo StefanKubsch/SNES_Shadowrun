@@ -60,7 +60,7 @@ import {
   PAD_R,
   PLAYER_OBJECT,
 } from '../task/wram.mjs';
-import { TASK_EVENTS, TASK_PREVIOUS, TASK_WAIT } from '../vm/layout.mjs';
+import { sendEvents, tasksOf, waitingTask } from '../script/task-api.mjs';
 import { BYTE_BITS, BYTE_MASK, WORD_MASK, WORD_SIGN } from '../constants/bits.mjs';
 import { FLAG_CARRY, FLAG_NEGATIVE, FLAG_OVERFLOW, FLAG_ZERO } from '../constants/cpu-flags.mjs';
 
@@ -76,8 +76,7 @@ const GLOVE_BUTTONS = PAD_B | PAD_L | PAD_R,
   TALK_ACTION = 2,
   ACTION_WITHOUT_DIALOG = 2,
   NOTICE = Object.freeze({ left: 2, top: 2, columns: 0x0c, rows: 3, text: 0, frames: 0x3c }),
-  LOW_WRAM_END = 0x2000,
-  CHAIN_LIMIT = 0x10000;
+  LOW_WRAM_END = 0x2000;
 // The direct page word the original keeps the pressed buttons in, then the x distance;
 // the dialog's object and record.
 const DP_SCRATCH = 0x6b,
@@ -136,14 +135,6 @@ function reach(wram, player, object) {
   const height = distance(wram, OBJECT_HEIGHT, player, object);
   return { dx, near: height.value < HEIGHT_REACH, height: height.value, overflow: height.overflow };
 }
-// The task that actually waits: from a task, the children it waits for.
-function waitingTask(wram, task) {
-  for (let step = 0; step < CHAIN_LIMIT; step++) {
-    if (!(lowField(wram, TASK_WAIT, task, 'task_slot_required') & WORD_SIGN)) return task;
-    task = lowField(wram, TASK_PREVIOUS, task, 'task_slot_required');
-  }
-  return taskStop('task_chain_required', { task });
-}
 
 // Pass a glove action on to the object's task (80:BF3B), a sequence for a native call
 // continuation: h the main loop's access (direct page 0, data bank 80), events its
@@ -151,6 +142,7 @@ function waitingTask(wram, task) {
 export function* gloveActionSequence(h, events, routines) {
   const { ctx } = h,
     { wram } = h.a.mem,
+    tasks = tasksOf(h.a),
     call = ([site, target]) => nativeCallSequence(h, events, routines, site, target);
   let path = 'return';
   yield () => {
@@ -172,7 +164,7 @@ export function* gloveActionSequence(h, events, routines) {
     ctx.x = task;
     if (task & WORD_SIGN) return exit(buttons, task);
     setWord(wram, DP_SCRATCH, buttons);
-    const offer = lowField(wram, TASK_WAIT, waitingTask(wram, task), 'task_slot_required');
+    const offer = tasks.wait(waitingTask(tasks, task));
     if (buttons === PAD_B && offer & OFFER_WAIT_BITS)
       setWord(wram, ACTION_MENU_OVERRIDE, offer & OFFERED_ACTIONS);
     const player = word(wram, PLAYER_OBJECT);
@@ -205,9 +197,9 @@ export function* gloveActionSequence(h, events, routines) {
     const again = lowField(wram, OBJECT_TASK, object, 'object_slot_required');
     ctx.x = again;
     if (again & WORD_SIGN) return exit(a, again);
-    const waiting = waitingTask(wram, again);
+    const waiting = waitingTask(tasks, again);
     ctx.x = waiting;
-    const accepted = lowField(wram, TASK_WAIT, waiting, 'task_slot_required') & ACCEPTED_ACTIONS;
+    const accepted = tasks.wait(waiting) & ACCEPTED_ACTIONS;
     if (!accepted) return exit(0);
     ctx.x = accepted;
     const pressed = word(wram, PAD_PRESSED);
@@ -268,10 +260,9 @@ export function* gloveActionSequence(h, events, routines) {
         path = 'return';
         return;
       }
-      const waiting = waitingTask(wram, task);
-      ctx.x = waiting;
-      ctx.a = lowField(wram, TASK_EVENTS, waiting, 'task_slot_required') | action;
-      setWord(wram, TASK_EVENTS + waiting, ctx.a);
+      const sent = sendEvents(tasks, task, action);
+      ctx.x = sent.task;
+      ctx.a = sent.events;
     };
     if (path === 'pass') {
       yield* call(CALL.release);

@@ -1,4 +1,5 @@
-// Script VM lift phase 3 (docs/SCRIPT-VM-LIFT.md): the natives on the JS scheduler.
+// Script VM lift phases 3 and 4 (docs/SCRIPT-VM-LIFT.md): the natives on the JS scheduler,
+// game code inside them on the task API.
 // Two live games run in lockstep from the reset with the same pad: A with the
 // register-level scheduler and native bridge (src/vm/scheduler.mjs, native-call.mjs), B
 // with its rounds on the JS scheduler (src/script/scheduler.mjs) and the natives through
@@ -102,6 +103,8 @@ function lockstep({ options, nmis, synchronous = false, done = () => false }) {
     const onNmi = game.frames.onNmi;
     game.frames.onNmi = (k) => {
       onNmi(k);
+      // The open round's task state as the original's tables and heap.
+      if (side === 1) js.sync();
       const mine = snapshot(game),
         other = pending[1 - side];
       if (!other.has(k)) {
@@ -165,10 +168,10 @@ test(
     });
     assert.ok(plan.done(), 'the badge route ends');
     assert.ok(js.pauses > 1000, `pauses ${js.pauses}`);
-    // The topic dialogs append a task (C34A, register-level) and visit it at once (C1CA).
+    // The topic dialogs append a task (C34A, through the task API) and visit it at once (C1CA).
     assert.ok(js.visits >= 5, `nested visits ${js.visits}`);
-    // Enemies shoot (80:8AB5): their projectiles are appended register-level.
-    assert.ok(js.tableNatives.get(0x808ab5) > 0, 'register-level appends inside a native');
+    // Enemies shoot (80:8AB5): their projectiles are appended through the task API.
+    assert.ok(js.appends.get(0x808ab5) > 0, 'appends inside a native');
   },
 );
 

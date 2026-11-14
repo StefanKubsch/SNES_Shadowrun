@@ -1,8 +1,8 @@
 // Optional departures from the European original. Source contracts and
 // regression cases: docs/BUGFIXES.md. Oracle callers keep ORIGINAL_GAMEPLAY.
 import { VmFault } from '../vm/memory.mjs';
-import { BYTE_MASK, WORD_BITS, WORD_MASK } from '../constants/bits.mjs';
-import { TASK_CURSOR, TASK_FRAME } from '../vm/layout.mjs';
+import { BYTE_MASK, WORD_MASK } from '../constants/bits.mjs';
+import { tasksOf } from '../script/task-api.mjs';
 import {
   GROUP_INDEX,
   JAKE_CHARISMA,
@@ -147,14 +147,8 @@ export function akimiArrivalFlags(a, object, flags) {
     flags & AKIMI_ARRIVED
   )
     return flags;
-  const slot = a.readWord(TASK_CURSOR),
-    frame = a.readWord(TASK_FRAME + slot);
-  if (
-    a.readWord(frame) !== (AKIMI_ARRIVAL_SCRIPT & WORD_MASK) ||
-    a.read(frame + 2) !== AKIMI_ARRIVAL_SCRIPT >>> WORD_BITS ||
-    canAkimiJoin(a)
-  )
-    return flags;
+  const tasks = tasksOf(a);
+  if (tasks.code(tasks.current()) !== AKIMI_ARRIVAL_SCRIPT || canAkimiJoin(a)) return flags;
   // The proxy leaves without consuming the reservation. Revisiting Daley
   // Station after making room retries the original arrival sequence.
   return flags & (BYTE_MASK ^ AKIMI_RESERVED);

@@ -15,6 +15,7 @@
 // lifted scenes (src/cutscene, src/matrix) and keep the original's JSL frames: their
 // waits take NMIs on that stack. The room entry runs below the return word of the
 // original's JSR, as its frame waits do too.
+import { tasksOf } from '../script/task-api.mjs';
 import {
   NativeCallContinuation,
   NATIVE_CALL_CONTINUATIONS,
@@ -106,7 +107,7 @@ export function* sceneRequestSequence(h, events, routines = SCENE_REQUEST_ROUTIN
         ctx.x = record;
       };
     }
-    yield () => setUpGameScreen(sceneRuntime(h));
+    yield () => setUpGameScreen(sceneRuntime(h), tasksOf(h.a));
   }
   let room;
   yield () => {

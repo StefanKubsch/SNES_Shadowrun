@@ -146,6 +146,11 @@ export function loadScheduler(mem, wram, { native = null, onCreate = null } = {}
       const offset = frames[slot] - HEAP_DATA;
       setHeapWord(offset, heapWord(offset) & HEAP_SIZE_MASK);
     },
+    // 80:C1A6: the heap is one free block again.
+    onReset() {
+      setHeapWord(0, HEAP_INITIAL_SIZE);
+      setHeapWord(2, 0);
+    },
   });
 
   const readSlot = (at, field) => {

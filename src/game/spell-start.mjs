@@ -6,7 +6,7 @@
 // lifted task append 80:C34A (src/game/task-append.mjs) starts with the script; the long
 // pointer stays in the direct page words A2 and A4 (bank 7E) as in the original, and the
 // JSR's return word lies on the stack.
-import { appendScriptTask } from './task-append.mjs';
+import { argumentWords, tasksOf } from '../script/task-api.mjs';
 import {
   DP_SELECTION_POINTER,
   DP_SELECTION_POINTER_BANK,
@@ -35,6 +35,6 @@ export function startSelectedSpell(mem, a) {
   setWord(wram, DP_SELECTION_POINTER_BANK, WRAM_BANK);
   setWord(wram, DP_ARGUMENT, mem.read8(WRAM + pointer));
   a.pushWord(APPEND_RETURN);
-  appendScriptTask(a, script);
+  tasksOf(a).append(script, argumentWords(mem, script));
   a.pullWord();
 }
