@@ -1,7 +1,7 @@
 // Object fields that scripts read and change (lifted from the script natives 80:CA05,
 // 80:CA0D, 80:CA15 and 80:CA20 for the flag word and 80:CA2B, 80:CA3A, 80:CA49, 80:CA58,
 // 80:CAA2, 80:CAB4, 80:CACA and 80:CAE0 for the record, 80:8EF5, 80:8AF1, 80:8AFA and
-// 80:8B08 for the armour; register-level references in
+// 80:8B08 for the armour, 80:A941 to 80:A96D for the motion; register-level references in
 // proof/game-reference/object-fields.mjs).
 //
 // An object's flag word (7E:1458 plus its slot) and its record pointer (7E:13A8 plus its
@@ -14,6 +14,12 @@ import { dataBankWord, setDataBankWord } from '../system/data-bank.mjs';
 import {
   OBJECT_ARMOUR,
   OBJECT_FLAGS,
+  OBJECT_HEIGHT,
+  OBJECT_VELOCITY_X,
+  OBJECT_VELOCITY_Y,
+  OBJECT_VELOCITY_Z,
+  OBJECT_X,
+  OBJECT_Y,
   OBJECT_RECORD,
   RECORD_COUNT,
   RECORD_FLAGS,
@@ -91,3 +97,14 @@ export const raiseObjectArmour = (mem, object, amount) =>
   storeObjectArmour(mem, object, objectArmour(mem, object) + amount);
 export const lowerObjectArmour = (mem, object, amount) =>
   storeObjectArmour(mem, object, objectArmour(mem, object) - amount);
+
+// The object's velocities (80:A941, 80:A949, 80:A951) through the data bank 80.
+export const objectVelocityX = (mem, object) => dataBankWord(mem, OBJECT_VELOCITY_X, object);
+export const objectVelocityY = (mem, object) => dataBankWord(mem, OBJECT_VELOCITY_Y, object);
+export const objectVelocityZ = (mem, object) => dataBankWord(mem, OBJECT_VELOCITY_Z, object);
+// The object's position and height in box units, over 4 (80:A959, 80:A963, 80:A96D).
+const BOX_SHIFT = 2;
+export const objectCoarseX = (mem, object) => dataBankWord(mem, OBJECT_X, object) >>> BOX_SHIFT;
+export const objectCoarseY = (mem, object) => dataBankWord(mem, OBJECT_Y, object) >>> BOX_SHIFT;
+export const objectCoarseHeight = (mem, object) =>
+  dataBankWord(mem, OBJECT_HEIGHT, object) >>> BOX_SHIFT;

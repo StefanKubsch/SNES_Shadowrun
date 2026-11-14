@@ -18,6 +18,8 @@ export const LIFTED_SCRIPT_NATIVES = new Set([
   0x80cb2b, 0x80cb3c, 0x80cb4d, 0x80cb9f, 0x80cbb3, 0x80cbcb,
   // The object armour natives (src/game/object-fields.mjs).
   0x808ef5, 0x808af1, 0x808afa, 0x808b08,
+  // The object motion getters (src/game/object-fields.mjs).
+  0x80a941, 0x80a949, 0x80a951, 0x80a959, 0x80a963, 0x80a96d,
 ]);
 // Direct page bytes a lifted native does not produce: the sample loader's scratch
 // (7E:0089-008B, 008F-0099) after any, and after the sight natives the line of sight's

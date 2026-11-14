@@ -1,6 +1,6 @@
 // Register-level references of the object field script natives (moved from
 // src/task/native-object-flags-*.mjs, src/task/native-object-record-*.mjs and
-// src/task/native-object-armour-*.mjs; lifted in
+// src/task/native-object-armour-*.mjs and the motion getters; lifted in
 // src/game/object-fields.mjs). The proof plans and the Native58 dispatch of
 // proof/task/native-dispatch.mjs run these; the game runs the lifted natives.
 import {
@@ -13,7 +13,13 @@ import {
 import {
   OBJECT_ARMOUR,
   OBJECT_FLAGS,
+  OBJECT_HEIGHT,
   OBJECT_RECORD,
+  OBJECT_VELOCITY_X,
+  OBJECT_VELOCITY_Y,
+  OBJECT_VELOCITY_Z,
+  OBJECT_X,
+  OBJECT_Y,
   RECORD_COUNT,
   RECORD_FLAGS,
   RECORD_PROPERTY,
@@ -190,6 +196,75 @@ export const subtractObjectArmourReference = (a, outerReturn = true) =>
       const object = h.index('x', h.dp(FIRST_ARGUMENT)),
         armour = h.subtract(h.longRead(WRAM + OBJECT_ARMOUR + object), h.dp(SECOND_ARGUMENT));
       h.longWrite(WRAM + OBJECT_ARMOUR + object, armour);
+    },
+    outerReturn,
+  );
+// 80:A941: return the X velocity of the object (first argument).
+export const getObjectVelocityXReference = (a, outerReturn = true) =>
+  leaf(
+    a,
+    (h) => {
+      const object = h.index('x', h.dp(FIRST_ARGUMENT));
+      h.result(h.load(h.longRead(h.abs(OBJECT_VELOCITY_X) + object)));
+    },
+    outerReturn,
+  );
+// 80:A949: return the Y velocity of the object (first argument).
+export const getObjectVelocityYReference = (a, outerReturn = true) =>
+  leaf(
+    a,
+    (h) => {
+      const object = h.index('x', h.dp(FIRST_ARGUMENT));
+      h.result(h.load(h.longRead(h.abs(OBJECT_VELOCITY_Y) + object)));
+    },
+    outerReturn,
+  );
+// 80:A951: return the Z (height) velocity of the object (first argument).
+export const getObjectVelocityZReference = (a, outerReturn = true) =>
+  leaf(
+    a,
+    (h) => {
+      const object = h.index('x', h.dp(FIRST_ARGUMENT));
+      h.result(h.load(h.longRead(h.abs(OBJECT_VELOCITY_Z) + object)));
+    },
+    outerReturn,
+  );
+// 80:A959: return the X position of the object (first argument) divided by four
+// (two LSRs; the carry keeps the second shifted-out bit).
+export const getObjectCoarseXReference = (a, outerReturn = true) =>
+  leaf(
+    a,
+    (h) => {
+      const object = h.index('x', h.dp(FIRST_ARGUMENT));
+      h.load(h.longRead(h.abs(OBJECT_X) + object));
+      h.lsr();
+      h.result(h.lsr());
+    },
+    outerReturn,
+  );
+// 80:A963: return the Y position of the object (first argument) divided by four
+// (two LSRs; the carry keeps the second shifted-out bit).
+export const getObjectCoarseYReference = (a, outerReturn = true) =>
+  leaf(
+    a,
+    (h) => {
+      const object = h.index('x', h.dp(FIRST_ARGUMENT));
+      h.load(h.longRead(h.abs(OBJECT_Y) + object));
+      h.lsr();
+      h.result(h.lsr());
+    },
+    outerReturn,
+  );
+// 80:A96D: return the height of the object (first argument) divided by four
+// (two LSRs; the carry keeps the second shifted-out bit).
+export const getObjectCoarseHeightReference = (a, outerReturn = true) =>
+  leaf(
+    a,
+    (h) => {
+      const object = h.index('x', h.dp(FIRST_ARGUMENT));
+      h.load(h.longRead(h.abs(OBJECT_HEIGHT) + object));
+      h.lsr();
+      h.result(h.lsr());
     },
     outerReturn,
   );

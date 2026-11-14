@@ -42,6 +42,15 @@ import {
   subtractObjectArmourReference,
 } from '../game-reference/object-fields.mjs';
 
+import {
+  getObjectVelocityXReference,
+  getObjectVelocityYReference,
+  getObjectVelocityZReference,
+  getObjectCoarseXReference,
+  getObjectCoarseYReference,
+  getObjectCoarseHeightReference,
+} from '../game-reference/object-fields.mjs';
+
 // Lifted natives whose proofs run their register-level references (the game runs the
 // lifted ones, src/task/native-targets.mjs).
 const REFERENCE_TARGETS = new Map([
@@ -72,6 +81,12 @@ const REFERENCE_TARGETS = new Map([
   [0x808af1, setObjectArmourReference],
   [0x808afa, addObjectArmourReference],
   [0x808b08, subtractObjectArmourReference],
+  [0x80a941, getObjectVelocityXReference],
+  [0x80a949, getObjectVelocityYReference],
+  [0x80a951, getObjectVelocityZReference],
+  [0x80a959, getObjectCoarseXReference],
+  [0x80a963, getObjectCoarseYReference],
+  [0x80a96d, getObjectCoarseHeightReference],
 ]);
 
 // A fixed, independently source-checked set of native equations. This is no

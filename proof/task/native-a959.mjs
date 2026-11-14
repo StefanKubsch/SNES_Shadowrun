@@ -1,6 +1,7 @@
 // Source-specific atomic plans for proof tools. The game executes the shared routines directly.
 import { prepareTaskPlan } from './plan.mjs';
-import { getObjectCoarseX } from '../../src/task/native-object-position-x.mjs';
+// The register-level reference; the game runs the lifted native.
+import { getObjectCoarseXReference } from '../game-reference/object-fields.mjs';
 
 export const prepareTaskNativeA959 = (options) =>
-  prepareTaskPlan(options, [0x80a959], (a) => getObjectCoarseX(a));
+  prepareTaskPlan(options, [0x80a959], (a) => getObjectCoarseXReference(a));

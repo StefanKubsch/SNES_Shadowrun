@@ -1,16 +1,10 @@
-import { FIRST_ARGUMENT, leaf } from './native-leaf-support.mjs';
-import { OBJECT_HEIGHT } from './wram.mjs';
+import { FIRST_ARGUMENT, finishLeaf, leafArgument, setLeafResult } from './native-leaf-support.mjs';
+import { objectCoarseHeight } from '../game/object-fields.mjs';
 
-// 80:A96D: return the height of the object (first argument) divided by four
-// (two LSRs; the carry keeps the second shifted-out bit).
-export const getObjectCoarseHeight = (a, outerReturn = true) =>
-  leaf(
-    a,
-    (h) => {
-      const object = h.index('x', h.dp(FIRST_ARGUMENT));
-      h.load(h.longRead(h.abs(OBJECT_HEIGHT) + object));
-      h.lsr();
-      h.result(h.lsr());
-    },
-    outerReturn,
-  );
+// 80:A96D (lifted in src/game/object-fields.mjs; register-level reference in
+// proof/game-reference/object-fields.mjs): return the height of the object (first argument)
+// divided by four.
+export const getObjectCoarseHeight = (a, outerReturn = true) => {
+  setLeafResult(a, objectCoarseHeight(a.mem, leafArgument(a, FIRST_ARGUMENT)));
+  return finishLeaf(a, outerReturn);
+};

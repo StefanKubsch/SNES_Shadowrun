@@ -5,7 +5,7 @@
 // flag byte 80:CA3A, count 80:CA49 and property 80:CA58, the flag byte's set 80:CAA2, OR
 // 80:CAB4 and AND 80:CACA and the count's set 80:CAE0 (with and without the health
 // cheat, src/game/cheats.mjs), and the armour word's get 80:8EF5, set 80:8AF1, sum 80:8AFA
-// and difference 80:8B08. Both sides run the native from
+// and difference 80:8B08, and the motion getters 80:A941 to 80:A96D. Both sides run the native from
 // its script call (data bank 80, direct page 0, the RTS frame). Game state only
 // (docs/STRATEGY.md, 2026-11-14): WRAM outside the stacks, the device writes and the
 // return (program counter and stack pointer) must be equal; the script interpreter
@@ -29,6 +29,12 @@ import {
   setObjectArmourReference,
   addObjectArmourReference,
   subtractObjectArmourReference,
+  getObjectVelocityXReference,
+  getObjectVelocityYReference,
+  getObjectVelocityZReference,
+  getObjectCoarseXReference,
+  getObjectCoarseYReference,
+  getObjectCoarseHeightReference,
 } from '../proof/game-reference/object-fields.mjs';
 import { getObjectRecordFirstByte } from '../src/task/native-object-record-byte0.mjs';
 import { getObjectRecordFlags } from '../src/task/native-object-record-flags.mjs';
@@ -42,6 +48,12 @@ import { getObjectArmour } from '../src/task/native-object-armour-get.mjs';
 import { setObjectArmour } from '../src/task/native-object-armour-set.mjs';
 import { addObjectArmour } from '../src/task/native-object-armour-add.mjs';
 import { subtractObjectArmour } from '../src/task/native-object-armour-subtract.mjs';
+import { getObjectVelocityX } from '../src/task/native-object-velocity-x.mjs';
+import { getObjectVelocityY } from '../src/task/native-object-velocity-y.mjs';
+import { getObjectVelocityZ } from '../src/task/native-object-velocity-z.mjs';
+import { getObjectCoarseX } from '../src/task/native-object-position-x.mjs';
+import { getObjectCoarseY } from '../src/task/native-object-position-y.mjs';
+import { getObjectCoarseHeight } from '../src/task/native-object-height.mjs';
 import { JAKE_STATE_RECORD } from '../src/game/cheats.mjs';
 import { CHEAT } from '../src/game/cheat-settings.mjs';
 import { JAKE_BODY, OBJECT_RECORD } from '../src/task/wram.mjs';
@@ -178,6 +190,17 @@ registerCases(
       0x808b08,
       subtractObjectArmourReference,
       subtractObjectArmour,
+    ),
+    field('getObjectVelocityX 80:A941', 0x80a941, getObjectVelocityXReference, getObjectVelocityX),
+    field('getObjectVelocityY 80:A949', 0x80a949, getObjectVelocityYReference, getObjectVelocityY),
+    field('getObjectVelocityZ 80:A951', 0x80a951, getObjectVelocityZReference, getObjectVelocityZ),
+    field('getObjectCoarseX 80:A959', 0x80a959, getObjectCoarseXReference, getObjectCoarseX),
+    field('getObjectCoarseY 80:A963', 0x80a963, getObjectCoarseYReference, getObjectCoarseY),
+    field(
+      'getObjectCoarseHeight 80:A96D',
+      0x80a96d,
+      getObjectCoarseHeightReference,
+      getObjectCoarseHeight,
     ),
   ],
   { sample, side: (s) => createSide(s, new Map()), runtime: (h) => h, ignored: IGNORED },

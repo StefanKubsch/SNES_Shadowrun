@@ -1,13 +1,10 @@
-import { FIRST_ARGUMENT, leaf } from './native-leaf-support.mjs';
-import { OBJECT_VELOCITY_X } from './wram.mjs';
+import { FIRST_ARGUMENT, finishLeaf, leafArgument, setLeafResult } from './native-leaf-support.mjs';
+import { objectVelocityX } from '../game/object-fields.mjs';
 
-// 80:A941: return the X velocity of the object (first argument).
-export const getObjectVelocityX = (a, outerReturn = true) =>
-  leaf(
-    a,
-    (h) => {
-      const object = h.index('x', h.dp(FIRST_ARGUMENT));
-      h.result(h.load(h.longRead(h.abs(OBJECT_VELOCITY_X) + object)));
-    },
-    outerReturn,
-  );
+// 80:A941 (lifted in src/game/object-fields.mjs; register-level reference in
+// proof/game-reference/object-fields.mjs): return the X velocity of the object (first
+// argument).
+export const getObjectVelocityX = (a, outerReturn = true) => {
+  setLeafResult(a, objectVelocityX(a.mem, leafArgument(a, FIRST_ARGUMENT)));
+  return finishLeaf(a, outerReturn);
+};

@@ -1,16 +1,10 @@
-import { FIRST_ARGUMENT, leaf } from './native-leaf-support.mjs';
-import { OBJECT_Y } from './wram.mjs';
+import { FIRST_ARGUMENT, finishLeaf, leafArgument, setLeafResult } from './native-leaf-support.mjs';
+import { objectCoarseY } from '../game/object-fields.mjs';
 
-// 80:A963: return the Y position of the object (first argument) divided by four
-// (two LSRs; the carry keeps the second shifted-out bit).
-export const getObjectCoarseY = (a, outerReturn = true) =>
-  leaf(
-    a,
-    (h) => {
-      const object = h.index('x', h.dp(FIRST_ARGUMENT));
-      h.load(h.longRead(h.abs(OBJECT_Y) + object));
-      h.lsr();
-      h.result(h.lsr());
-    },
-    outerReturn,
-  );
+// 80:A963 (lifted in src/game/object-fields.mjs; register-level reference in
+// proof/game-reference/object-fields.mjs): return the Y position of the object (first
+// argument) divided by four.
+export const getObjectCoarseY = (a, outerReturn = true) => {
+  setLeafResult(a, objectCoarseY(a.mem, leafArgument(a, FIRST_ARGUMENT)));
+  return finishLeaf(a, outerReturn);
+};
