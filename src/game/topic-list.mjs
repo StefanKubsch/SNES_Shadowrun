@@ -4,8 +4,8 @@
 //
 // The known topics are bytes in ascending order at 7E:3CA3, ended by FF, each with a flag
 // byte at the same index from 7E:3CD6 (FF: marked). The list index is a 16-bit word, so a
-// list without FF reaches bank 7F; adding to one stops after 65536 entries as the
-// register-level scan does. Adding a topic inserts it with flag 0 before the first
+// list without FF reaches bank 7F; a scan of such a list stops the task after 65536
+// entries (the original would run on forever). Adding a topic inserts it with flag 0 before the first
 // greater one, shifting the rest (its FF included) up by one; the shifted flag is carried
 // in the direct page bytes 23 and 24, which keep their last values as in the original.
 import { taskStop } from '../task/plan.mjs';
@@ -26,13 +26,15 @@ const TRUE = WORD_MASK,
 const listAddress = (entry) => (WRAM + TOPIC_LIST + entry) & LONG_MASK;
 const flagAddress = (entry) => (WRAM + TOPIC_FLAGS + entry) & LONG_MASK;
 
-// The index of topic in the list, or -1 when FF comes first.
+// The index of topic in the list, or -1 when FF comes first. A list with neither in all
+// 65536 entries would keep the original scanning forever; it stops the task instead.
 function findTopic(mem, topic) {
-  for (let entry = 0; ; entry = (entry + 1) & WORD_MASK) {
+  for (let entry = 0, steps = 0; steps < SCAN_LIMIT; entry = (entry + 1) & WORD_MASK, steps++) {
     const known = mem.read8(listAddress(entry));
     if (known === TOPIC_LIST_END) return -1;
     if (known === topic) return entry;
   }
+  return taskStop('task_native_topic_list_unbounded');
 }
 
 // 80:9159: TRUE (FFFF) when the topic is known, else 0.
