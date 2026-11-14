@@ -213,6 +213,11 @@ import {
 
 import { placeObjectInFormationReference } from '../game-reference/formation-place.mjs';
 
+import {
+  moveSwarmAlongPathReference,
+  moveSwarmWaveReference,
+} from '../game-reference/swarm-motion.mjs';
+
 // Lifted natives whose proofs run their register-level references (the game runs the
 // lifted ones, src/task/native-targets.mjs).
 const REFERENCE_TARGETS = new Map([
@@ -346,6 +351,8 @@ const REFERENCE_TARGETS = new Map([
   [0x809ce4, setActorItemPropertyAndUnequipReference],
   [0x80d604, startSwarmOrbitReference],
   [0x80bb2c, placeObjectInFormationReference],
+  [0x80d85b, moveSwarmAlongPathReference],
+  [0x80d2e7, moveSwarmWaveReference],
 ]);
 
 // A fixed, independently source-checked set of native equations. This is no

@@ -461,6 +461,15 @@ which the render proof of 81:8076 keeps using.
   proof/game-reference/motion-targets.mjs; the motion target test compares them (point
   lists in banks 7E and 7F); planted changes of the borrow, the height's field and the
   stopped motion fail it.
+- The swarm motion natives 80:D85B (five members along a swinging path; the speeds and
+  start phases step towards their goals) and 80:D2E7 (thirteen members as a wave, or the
+  wave's target from the room's point list) run `moveSwarmAlongPath` and `moveSwarmWave`
+  of [src/game/swarm-motion.mjs](../src/game/swarm-motion.mjs) (block 109); the
+  register-level versions moved to proof/game-reference/swarm-motion.mjs. The open bus
+  test of the point list read is shared with the turn in
+  [src/system/open-bus.mjs](../src/system/open-bus.mjs).
+  [tools/swarm-motion-lift-functions.test.mjs](../tools/swarm-motion-lift-functions.test.mjs)
+  compares both (600 samples each).
 - The swarm orbit start 80:D604 (the leader, the circle phase 100, the height phase, both
   bob phases and the circle speeds cleared, then the reset 80:D622) runs `startSwarmOrbit`
   of [src/game/swarm-setup.mjs](../src/game/swarm-setup.mjs), compared by

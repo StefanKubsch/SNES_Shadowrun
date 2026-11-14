@@ -17,8 +17,8 @@
 // 0A (8C); the turn's fast path leaves 08 and 0A.
 //
 // The records lie in bank 8C. A pointer into 2000-7FFF of a bank with a system area
-// that hits no register reads the open bus: the pointer's bank byte (Book I PDF 93;
-// Mesen evidence in native-object-turn.mjs). Only a damaged object reaches it.
+// that hits no register reads the open bus: the pointer's bank byte
+// (src/system/open-bus.mjs). Only a damaged object reaches it.
 //
 // The fields the original reads through its data bank 80 are reached the same way
 // (src/system/data-bank.mjs): a slot past them, such as FFFF, reads the WRAM mirror of
@@ -26,6 +26,7 @@
 // the selection lie on the stack as in the original.
 import { sceneRuntime } from '../system/scene-runtime.mjs';
 import { dataBankWord, setDataBankWord } from '../system/data-bank.mjs';
+import { isOpenBus } from '../system/open-bus.mjs';
 import { taskStop } from '../task/plan.mjs';
 import {
   ANIMATION_CLOCK_START,
@@ -54,13 +55,7 @@ import {
   FLAG_OVERFLOW,
   FLAG_ZERO,
 } from '../constants/cpu-flags.mjs';
-import { INIDISP, NMITIMEN, DMAP0 } from '../constants/hardware-registers.mjs';
-import {
-  BANK_WITHOUT_IO,
-  CODE_BANK_BASE,
-  IO_AREA_END,
-  IO_AREA_START,
-} from '../constants/memory-map.mjs';
+import { CODE_BANK_BASE } from '../constants/memory-map.mjs';
 import {
   BYTE_BITS,
   BYTE_MASK,
@@ -97,14 +92,6 @@ const ACTION_BANK = ACTION_TABLE >>> WORD_BITS,
 // The return words of the JSRs (the bank offsets of their last bytes).
 const JSR_LAST_BYTE = 2,
   SELECTION_RETURN = 0xaadc;
-// Registers inside 2000-7FFF (Book I PDF 93): the B bus 2100-21FF, the joypad ports
-// 4016/4017, the CPU registers 4200-421F and the DMA channels 4300-437F.
-const B_BUS_END = 0x2200,
-  JOYPAD_PORT_1 = 0x4016,
-  JOYPAD_PORT_2 = 0x4017,
-  CPU_REGISTERS_END = 0x4220,
-  DMA_REGISTERS_END = 0x4380,
-  NO_IO_BANK_BIT = BANK_WITHOUT_IO << WORD_BITS;
 
 const flag = (ctx, bit, set) => {
   ctx.status = set ? ctx.status | bit : ctx.status & ~bit;
@@ -114,20 +101,10 @@ const setWord = (wram, at, value) => {
   wram[at] = value & BYTE_MASK;
   wram[at + 1] = (value >>> BYTE_BITS) & BYTE_MASK;
 };
-const register = (low) =>
-  (low >= INIDISP && low < B_BUS_END) ||
-  low === JOYPAD_PORT_1 ||
-  low === JOYPAD_PORT_2 ||
-  (low >= NMITIMEN && low < CPU_REGISTERS_END) ||
-  (low >= DMAP0 && low < DMA_REGISTERS_END);
-const openBus = (address) => {
-  const low = address & WORD_MASK;
-  return !(address & NO_IO_BANK_BIT) && low >= IO_AREA_START && low < IO_AREA_END && !register(low);
-};
 // A byte of bank 8C at pointer + offset (which may cross into the next bank).
 function actionByte(mem, pointer, offset) {
   const address = ((ACTION_BANK << WORD_BITS) + pointer + offset) & LONG_MASK;
-  return openBus(address) ? ACTION_BANK : mem.read8(address);
+  return isOpenBus(address) ? ACTION_BANK : mem.read8(address);
 }
 const actionWord = (mem, pointer, offset) =>
   actionByte(mem, pointer, offset) | (actionByte(mem, pointer, offset + 1) << BYTE_BITS);
