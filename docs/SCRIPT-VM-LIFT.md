@@ -93,6 +93,13 @@ each group as before (four lift blocks per release check).
   comparisons 8E, 96, 9E, A2, A4, A6, AE and B6. The JS interpreter implements the used
   opcodes and the cheap arithmetic ones; F927 becomes the frontier `script_opcode_unused`
   instead of a return through the operand stack.
+- Frame residue: C2C8 does not clear a new frame, so locals start with the residue of
+  earlier frames. [tools/probe-fresh-script-locals.mjs](../tools/probe-fresh-script-locals.mjs)
+  found no local load of an unwritten byte (12000 NMIs of the benchmark route: 32
+  frames, 21023 local loads in 6000 NMIs, none fresh). All 937 scripts of the corpus
+  index only their declared locals. So JS frames start zeroed; the phase 1
+  differential keeps the fresh read check as a guard, and the conversion layer masks the
+  dead frame bytes.
 - Heap and slot exhaustion stay frontiers (`task_heap_required`, `task_slot_required`);
   the JS model keeps the original's 48 slots and the frame sizes so that the
   conversion layer reproduces the original heap.
