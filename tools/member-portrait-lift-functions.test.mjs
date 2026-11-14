@@ -6,12 +6,17 @@
 // X, Y, the flags N, V, Z and C, the direct page words 00 and 02 and S (a wait takes
 // its NMI there: the JSR frames of 80:E48D and 80:E433 count), and leaves
 // registers and flags drawn from the sample's own sequence. WRAM outside the stack, the
-// calls, the return and the registers left must be equal.
+// calls, the return and the registers left must be equal. A second case runs the real
+// unpack and row shift on both sides (the register-level ones of the dialog's table and
+// the lifted ones of src/game/portrait-upload.mjs that the game's table binds), with
+// stand-ins for the uploads and the word wait only.
 import { prng } from './task-native-dialog-harness.mjs';
 import { createSide, registerCases } from './lift-function-harness.mjs';
 import { e4b3Sequence } from '../src/task/native-member-spell-menu.mjs';
 import { memberPortraitSequence } from '../src/game/member-portrait.mjs';
 import { MEMBER_PORTRAIT } from '../src/task/wram.mjs';
+import { TALK_ROUTINES } from '../src/task/native-dialog.mjs';
+import { shiftPortraitRowsRoutine, unpackPortraitRoutine } from '../src/game/portrait-upload.mjs';
 import { drainNativeSequence } from '../src/task/native-call-continuation.mjs';
 
 const WRAM_BYTES = 0x20000,
@@ -25,7 +30,9 @@ const WRAM_BYTES = 0x20000,
   IGNORED = [[0x0100, 0x01ca]],
   // The dialogs with portraits (80:94F7 has a word per dialog).
   DIALOGS = 0x50,
-  TARGETS = [0x809f6d, 0x808f20, 0x809022, 0x808ff5, 0x81b0a1];
+  TARGETS = [0x809f6d, 0x808f20, 0x809022, 0x808ff5, 0x81b0a1],
+  UNPACK = 0x809f6d,
+  SHIFT_ROWS = 0x808f20;
 
 const setWord = (w, at, v) => {
   w[at] = v & 0xff;
@@ -80,8 +87,52 @@ const returned = (h, calls) =>
   ' ' +
   calls.join(' ');
 let referenceCalls, current;
+// The case with the real unpack and row shift (bind: the map of target to routine).
+const portraitCase = (name, referenceBind, liftedBind, samples) => ({
+  name,
+  entry: 0x80e4b3,
+  samples,
+  prepare: (s) => {
+    current = s;
+    return {
+      bank: CODE_BANK,
+      a: s.rnd(WORD),
+      x: s.rnd(WORD),
+      y: s.rnd(WORD),
+      status: s.rnd(BYTE) & LEFT_FLAGS,
+    };
+  },
+  reference: (h) => {
+    const { routines, calls } = standIns(current);
+    referenceCalls = calls;
+    for (const [target, run] of referenceBind) routines.set(target, run);
+    drainNativeSequence(e4b3Sequence(h, null, routines));
+  },
+  result: (h) => returned(h, referenceCalls),
+  lifted: (h, input) => {
+    Object.assign(h.ctx, input);
+    h.ctx.programBank = CODE_BANK;
+    h.push(CALLER_RETURN, 2);
+    const { routines, calls } = standIns(current);
+    for (const [target, run] of liftedBind) routines.set(target, run);
+    drainNativeSequence(memberPortraitSequence(h, null, routines));
+    return returned(h, calls);
+  },
+});
 registerCases(
   [
+    portraitCase(
+      'memberPortrait 80:E4B3 with the real unpack and row shift',
+      [
+        [UNPACK, TALK_ROUTINES.get(UNPACK)],
+        [SHIFT_ROWS, TALK_ROUTINES.get(SHIFT_ROWS)],
+      ],
+      [
+        [UNPACK, unpackPortraitRoutine],
+        [SHIFT_ROWS, shiftPortraitRowsRoutine],
+      ],
+      100,
+    ),
     {
       name: 'memberPortrait 80:E4B3',
       entry: 0x80e4b3,

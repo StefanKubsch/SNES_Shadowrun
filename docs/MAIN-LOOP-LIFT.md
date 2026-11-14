@@ -500,11 +500,15 @@ which the render proof of 81:8076 keeps using.
   colour window 80:E433 on HDMA channel 0 opening over eleven frames with the edges of
   80:E41F) runs `memberPortraitSequence` of
   [src/game/member-portrait.mjs](../src/game/member-portrait.mjs) as `runMemberPortrait`
-  of the spell menu's table, with the lifted word wait and the register-level unpack and
-  uploads.
+  of the spell menu's table, with the lifted word wait and (since block 79) the dialog's
+  lifted unpack 80:9F6D, row shift 80:8F20, first upload 80:9022 and DMA job 80:8FF5 of
+  [src/game/portrait-upload.mjs](../src/game/portrait-upload.mjs), which keep the
+  register interface of the register-level ones.
   [tools/member-portrait-lift-functions.test.mjs](../tools/member-portrait-lift-functions.test.mjs)
   compares it with the register-level routine and shared stand-ins (400 samples; the
-  portraits of the dialogs and any word), port writes included. Planted differences in
+  portraits of the dialogs and any word), port writes included; a second case runs the
+  real unpack and row shift on both sides (100 samples), where a skipped row shift or a
+  shifted unpack offset fails it. Planted differences in
   the A left by the edges, the HDMA target port, the NMI job, the portrait index's carry,
   the HDMA table, the record bank byte in Y and the edge compare's sign and zero fail
   it; the left edge's carry from the right edge never occurs with the edges up to 20.

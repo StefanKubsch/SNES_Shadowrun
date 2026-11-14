@@ -481,9 +481,15 @@ NATIVE_CALL_CONTINUATIONS.set(runEquipmentRows, {
   create: ({ h, events }) =>
     new NativeCallContinuation(h.a, equipmentRowsSequence(h, events, EQUIPMENT_ROUTINES)),
 });
-// The lifted member portrait 80:E4B3 with the lifted word wait; the unpack and uploads
-// stay register-level.
-const PORTRAIT_ROUTINES = new Map(WEAPON_MENU_ROUTINES).set(0x81b0a1, runFrameWait);
+// The lifted member portrait 80:E4B3 with the lifted word wait and the dialog's lifted
+// portrait unpack 80:9F6D, row shift 80:8F20, first upload 80:9022 and DMA job 80:8FF5
+// (src/game/portrait-upload.mjs; the same register interface as the register-level ones).
+const PORTRAIT_ROUTINES = new Map(WEAPON_MENU_ROUTINES)
+  .set(0x81b0a1, runFrameWait)
+  .set(0x809f6d, unpackPortraitRoutine)
+  .set(0x808f20, shiftPortraitRowsRoutine)
+  .set(0x809022, runUploadFirstPortrait)
+  .set(0x808ff5, runPortraitTiles);
 export function runMemberPortrait(h, events) {
   return drainNativeSequence(memberPortraitSequence(h, events, PORTRAIT_ROUTINES));
 }
