@@ -7,16 +7,8 @@
 // tools/task-native-m1d.test.mjs run these; the game runs the lifted natives.
 import { taskStop } from '../../src/task/plan.mjs';
 import { FIRST_ARGUMENT, SECOND_ARGUMENT, leaf } from '../../src/task/native-leaf-support.mjs';
-import { GLOVE_LIMITS } from '../../src/task/native-glove-crosshair-limits.mjs';
-import {
-  GLOVE_BASE_X,
-  GLOVE_BASE_Y,
-  GLOVE_KIND,
-  GLOVE_LIMIT_KIND,
-  OBJECT_X,
-  OBJECT_Y,
-  PLAYER_OBJECT,
-} from '../../src/task/wram.mjs';
+import { GLOVE_LIMITS, applyGloveLimits } from '../../src/task/native-glove-crosshair-limits.mjs';
+import { OBJECT_X, OBJECT_Y, PLAYER_OBJECT } from '../../src/task/wram.mjs';
 import { BANK_WRAP, WORD_BITS, WORD_MASK, WORD_SIGN } from '../../src/constants/bits.mjs';
 import { FLAG_CARRY } from '../../src/constants/cpu-flags.mjs';
 
@@ -25,17 +17,6 @@ const DISTANCE_RETURN_WORD = 0xc692,
   DISTANCE_RESUME = 0x80c693 & WORD_MASK,
   SIGN_SHIFT = WORD_BITS - 1;
 
-// Store the projection bases and the kind of one GLOVE_LIMITS entry, then the kind
-// again as the active glove kind (each value by LDA #, STA at DBR).
-function applyGloveLimits(h, [left, top, kind]) {
-  for (const [field, value] of [
-    [GLOVE_BASE_X, left],
-    [GLOVE_BASE_Y, top],
-    [GLOVE_LIMIT_KIND, kind],
-  ])
-    h.longWrite(h.abs(field), h.load(value));
-  h.longWrite(h.abs(GLOVE_KIND), h.ctx.a);
-}
 // 80:BC83: switch to the crosshair limits (the tail of 80:BC80 after its JSR 80:BC36).
 export const limitCrosshairReference = (a, outerReturn = true) =>
   leaf(a, (h) => applyGloveLimits(h, GLOVE_LIMITS.crosshair), outerReturn);
