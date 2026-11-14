@@ -185,6 +185,12 @@ import {
   placeObjectOnWaypointReference,
 } from '../game-reference/motion-targets.mjs';
 
+import {
+  advanceOrbitReference,
+  bobObjectReference,
+  bobSecondObjectReference,
+} from '../game-reference/object-bob.mjs';
+
 // Lifted natives whose proofs run their register-level references (the game runs the
 // lifted ones, src/task/native-targets.mjs).
 const REFERENCE_TARGETS = new Map([
@@ -296,6 +302,16 @@ const REFERENCE_TARGETS = new Map([
   [0x80c6bf, moveObjectStraightToWaypointReference],
   [0x80c6c4, moveObjectToWaypointReference],
   [0x80d105, placeObjectOnWaypointReference],
+  [0x80d714, bobObjectReference],
+  [0x80d73b, bobSecondObjectReference],
+  [0x80d769, (a, o) => advanceOrbitReference(a, 0, o)],
+  [0x80d76f, (a, o) => advanceOrbitReference(a, 2, o)],
+  [0x80d775, (a, o) => advanceOrbitReference(a, 4, o)],
+  [0x80d77b, (a, o) => advanceOrbitReference(a, 6, o)],
+  [0x80d781, (a, o) => advanceOrbitReference(a, 8, o)],
+  [0x80d787, (a, o) => advanceOrbitReference(a, 10, o)],
+  [0x80d78d, (a, o) => advanceOrbitReference(a, 12, o)],
+  [0x80d793, (a, o) => advanceOrbitReference(a, 14, o)],
 ]);
 
 // A fixed, independently source-checked set of native equations. This is no

@@ -461,6 +461,17 @@ which the render proof of 81:8076 keeps using.
   proof/game-reference/motion-targets.mjs; the motion target test compares them (point
   lists in banks 7E and 7F); planted changes of the borrow, the height's field and the
   stopped motion fail it.
+- The bobbing natives 80:D714 and 80:D73B (one bob step: the object stored, the phase
+  plus 20, the height the wave byte over 8 plus 160, the second bob half a period later)
+  and the orbit entries 80:D769 to 80:D793 with their body 80:D796 (the slot's phase plus
+  8, the height twice the wave byte folded up below 28 plus 174, the X position the wave
+  byte a quarter period later plus 648) run `bobObject` and `advanceOrbit` of
+  [src/game/object-bob.mjs](../src/game/object-bob.mjs) (block 104); the register-level
+  versions moved to proof/game-reference/object-bob.mjs, which the instruction tests of
+  tools/task-native-m1d.test.mjs now run.
+  [tools/object-bob-lift-functions.test.mjs](../tools/object-bob-lift-functions.test.mjs)
+  compares both (300 samples each); planted changes of the half period, the fold and the
+  quarter period fail it.
 - The getters 80:9E59 and 80:9E5F (the buttons held and newly pressed), 80:CD97 and its
   byte-identical copy 80:D18A (the player figure's slot) and 80:C0F7 and 80:C100 (the
   glove sprite's screen X and Y bytes) run `padHeld`, `padPressed`, `playerObject`,

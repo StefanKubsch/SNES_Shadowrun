@@ -1,6 +1,7 @@
 // Source-specific atomic plans for proof tools. The game executes the shared routines directly.
 import { prepareTaskPlan } from './plan.mjs';
-import { advanceOrbitSlot8 } from '../../src/task/native-orbit-slot-8.mjs';
+// The register-level reference; the game runs the lifted native.
+import { advanceOrbitReference } from '../game-reference/object-bob.mjs';
 
 export const prepareTaskNativeD793 = (options) =>
-  prepareTaskPlan(options, [0x80d793], (a) => advanceOrbitSlot8(a));
+  prepareTaskPlan(options, [0x80d793], (a) => advanceOrbitReference(a, 14));

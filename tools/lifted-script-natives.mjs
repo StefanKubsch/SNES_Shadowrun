@@ -59,6 +59,9 @@ export const LIFTED_SCRIPT_NATIVES = new Set([
   0x80a2b5, 0x80d0d3, 0x80e1b3, 0x80d9ad,
   // The waypoint motion natives (src/game/motion-targets.mjs).
   0x80c6bf, 0x80c6c4, 0x80d105,
+  // The bobbing and orbit natives (src/game/object-bob.mjs).
+  0x80d714, 0x80d73b, 0x80d769, 0x80d76f, 0x80d775, 0x80d77b, 0x80d781, 0x80d787, 0x80d78d,
+  0x80d793,
 ]);
 // Direct page bytes a lifted native does not produce: the sample loader's scratch
 // (7E:0089-008B, 008F-0099) after any, and after the sight natives the line of sight's
