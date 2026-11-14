@@ -236,6 +236,10 @@ import {
   removeObjectReference,
 } from '../game-reference/object-release.mjs';
 
+import { enterMatrixReference } from '../game-reference/matrix-enter.mjs';
+
+import { addSceneObjectReference } from '../game-reference/scene-object-add.mjs';
+
 // Lifted natives whose proofs run their register-level references (the game runs the
 // lifted ones, src/task/native-targets.mjs).
 const REFERENCE_TARGETS = new Map([
@@ -380,6 +384,8 @@ const REFERENCE_TARGETS = new Map([
   [0x80d186, getPlayerObjectAfterBreakReference],
   [0x80a8f5, removeObjectReference],
   [0x80aa4c, releaseObjectGraphicsReference],
+  [0x80e30f, enterMatrixReference],
+  [0x80a1e6, addSceneObjectReference],
 ]);
 
 // A fixed, independently source-checked set of native equations. This is no

@@ -461,6 +461,20 @@ which the render proof of 81:8076 keeps using.
   proof/game-reference/motion-targets.mjs; the motion target test compares them (point
   lists in banks 7E and 7F); planted changes of the borrow, the height's field and the
   stopped motion fail it.
+- Entering the Matrix 80:E30F (the scene request FFFE, the room to return to, the deck's
+  memory 40, the system, extra nodes and message list bytes; the decker's Computer skill
+  from the runner record, the health byte and record pointer of the group member's
+  object) runs `enterMatrix` of [src/game/matrix-enter.mjs](../src/game/matrix-enter.mjs),
+  compared by
+  [tools/matrix-enter-lift-functions.test.mjs](../tools/matrix-enter-lift-functions.test.mjs)
+  (500 samples). A group member's object 80:A1E6 (the group lists, the lifted creation
+  and turn, the player object and class bits for the first member, the object's number,
+  depth order, record and the runner's armour rating) runs `addSceneObject` of
+  [src/game/scene-object-add.mjs](../src/game/scene-object-add.mjs), compared in
+  tools/room-entry-lift-functions.test.mjs on its object, heap and task samples (no
+  runner's actor has depth flags, so the depth order's rotation is not exercised). Block
+  114; the register-level versions moved to proof/game-reference/matrix-enter.mjs and
+  scene-object-add.mjs.
 - The object release natives 80:AA4C (the box, motion, picture and animation fields of
   the object cleared, its chain of VRAM slots back to the free list) and 80:A8F5 (that,
   then the kind freed and the object taken off the draw list, the entries above it moving

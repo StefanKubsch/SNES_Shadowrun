@@ -51,6 +51,8 @@ import {
   startWaveSwarmReference,
 } from '../proof/game-reference/swarm-start.mjs';
 import { createObjectNative } from '../src/task/native-object-create.mjs';
+import { addSceneObjectReference } from '../proof/game-reference/scene-object-add.mjs';
+import { addSceneObject } from '../src/task/native-scene-object-add.mjs';
 import { appendSelectedSpellTaskReference } from '../proof/game-reference/script-starts.mjs';
 import { appendSelectedSpellTask } from '../src/task/native-task-append-from-list.mjs';
 import {
@@ -631,6 +633,19 @@ const SCRIPT_NATIVES = [
         [DP_OBJECT_SCRIPT, s.pick([0xffff, s.rnd(SCRIPTS), s.rnd(SCRIPTS)])],
       ]),
   ),
+  // A group member's object 80:A1E6: a kind, a direction or any word, a runner's actor
+  // entry, any position; an empty group (the first member) or up to three members. No
+  // runner's actor has depth flags, so the depth order's rotation stays untested here.
+  scriptNative('addSceneObject 80:A1E6', 0x80a1e6, addSceneObjectReference, addSceneObject, (s) => {
+    const at = RUNNER_TABLE + 2 * s.rnd(RUNNERS);
+    nativeWords(s, [
+      [0, s.pick([JAKE_KIND, s.rnd(0x100)])],
+      [8, s.pick([s.rnd(8), s.rnd(0x10000)])],
+      [0x0a, ROM_MEMORY.read8(at) | (ROM_MEMORY.read8(at + 1) << 8)],
+      [0x0c, s.rnd(0x10000)],
+      [GROUP_INDEX, s.pick([0xfffe, 0xfffe, 0, 2, 4])],
+    ]);
+  }),
   scriptNative(
     'startPathSwarm 80:D7DD',
     0x80d7dd,
