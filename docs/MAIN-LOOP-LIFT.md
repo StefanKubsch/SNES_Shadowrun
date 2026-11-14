@@ -461,6 +461,15 @@ which the render proof of 81:8076 keeps using.
   proof/game-reference/motion-targets.mjs; the motion target test compares them (point
   lists in banks 7E and 7F); planted changes of the borrow, the height's field and the
   stopped motion fail it.
+- The script natives 80:A985 (animation selection), 80:AAAF (turn) and 80:D15C (both)
+  run `selectObjectAnimation` and `turnObject` of
+  [src/game/object-turn.mjs](../src/game/object-turn.mjs) and `setActionAndDirection` of
+  [src/game/member-facing.mjs](../src/game/member-facing.mjs) (block 105); the
+  register-level versions moved to proof/game-reference/object-turn.mjs. The shared
+  register-level bodies stay in src/task/native-object-turn.mjs for the register-level
+  natives that still call them.
+  [tools/script-leaves-lift-functions.test.mjs](../tools/script-leaves-lift-functions.test.mjs)
+  compares the three natives (300 samples each).
 - The bobbing natives 80:D714 and 80:D73B (one bob step: the object stored, the phase
   plus 20, the height the wave byte over 8 plus 160, the second bob half a period later)
   and the orbit entries 80:D769 to 80:D793 with their body 80:D796 (the slot's phase plus

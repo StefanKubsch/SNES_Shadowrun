@@ -29,7 +29,7 @@ import { createObject } from '../src/game/object-create.mjs';
 import { appendScriptTaskCall } from '../src/game/task-append.mjs';
 import { appendScriptTask as appendScriptTaskReference } from '../src/task/task-append.mjs';
 import { turnObject, turnObjectRoutine } from '../src/game/object-turn.mjs';
-import { setObjectDirection } from '../src/task/native-object-action-set.mjs';
+import { setObjectDirectionReference as setObjectDirection } from '../proof/game-reference/object-turn.mjs';
 import {
   HEAP_NEXT_WORD,
   HEAP_SIZE_WORD,

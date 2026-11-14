@@ -1,5 +1,6 @@
 import { taskStop } from './plan.mjs';
-import { FIRST_ARGUMENT, SECOND_ARGUMENT, leaf } from './native-leaf-support.mjs';
+import { FIRST_ARGUMENT, SECOND_ARGUMENT, finishLeaf } from './native-leaf-support.mjs';
+import { setActionAndDirection } from '../game/member-facing.mjs';
 
 import {
   ANIMATION_CLOCK_START,
@@ -63,8 +64,6 @@ const ACTION_BANK = ACTION_TABLE >>> WORD_BITS,
   FRAME_LOOP_FLAG = 0x80,
   NO_SELECTION = WORD_MASK,
   SELECTION_MASK = WORD_MASK ^ WORD_SIGN;
-// D15C arguments: DP00 object, DP02 selection, DP04 direction (restored to DP02 for AAAF).
-const DP_DIRECTION_ARGUMENT = 4;
 // Return word of a JSR: the bank offset of the call's last byte.
 const callReturn = (address) => address & WORD_MASK;
 // Turning towards another object (CF93, D1E3): magnitudes and sign flags (FFFF: negative) of
@@ -257,21 +256,11 @@ export function runTaskAction(h, k) {
   h.load(WORD_MASK);
   h.longWrite(h.abs(OBJECT_PICTURE_CHANGE) + ctx.x, ctx.a);
 }
-// 80:D15C (arguments above): set the object's action selection (A985), then its
-// direction (AAAF).
-export const setObjectActionAndDirection = (a, outerReturn = true) =>
-  leaf(
-    a,
-    (h) => {
-      const k = taskSelectionSupport(h);
-      a.pushWord(h.dp(DP_DIRECTION_ARGUMENT), 'd2-PEI04');
-      a.pushWord(h.dp(FIRST_ARGUMENT), 'd2-PEI00');
-      k.call(callReturn(0x80d162), () => runTaskSelection(h, k));
-      h.load(a.pullWord('d2-restore-slot-PLA'));
-      a.writeWord(FIRST_ARGUMENT, h.ctx.a, BANK_WRAP, 'd2-restored-slot');
-      h.load(a.pullWord('d2-restore-action-PLA'));
-      a.writeWord(SECOND_ARGUMENT, h.ctx.a, BANK_WRAP, 'd2-restored-action');
-      k.call(callReturn(0x80d16b), () => runTaskAction(h, k));
-    },
-    outerReturn,
-  );
+// 80:D15C (lifted in src/game/member-facing.mjs; register-level reference in
+// proof/game-reference/object-turn.mjs): set the object's action selection (A985), then
+// its direction (AAAF).
+export const setObjectActionAndDirection = (a, outerReturn = true) => {
+  if (a.ctx.d !== 0) taskStop('task_direct_page_zero_required');
+  setActionAndDirection(a.mem, a);
+  return finishLeaf(a, outerReturn);
+};

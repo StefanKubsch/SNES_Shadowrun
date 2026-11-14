@@ -191,6 +191,12 @@ import {
   bobSecondObjectReference,
 } from '../game-reference/object-bob.mjs';
 
+import {
+  setObjectActionAndDirectionReference,
+  setObjectAnimationReference,
+  setObjectDirectionReference,
+} from '../game-reference/object-turn.mjs';
+
 // Lifted natives whose proofs run their register-level references (the game runs the
 // lifted ones, src/task/native-targets.mjs).
 const REFERENCE_TARGETS = new Map([
@@ -312,6 +318,9 @@ const REFERENCE_TARGETS = new Map([
   [0x80d787, (a, o) => advanceOrbitReference(a, 10, o)],
   [0x80d78d, (a, o) => advanceOrbitReference(a, 12, o)],
   [0x80d793, (a, o) => advanceOrbitReference(a, 14, o)],
+  [0x80a985, setObjectAnimationReference],
+  [0x80aaaf, setObjectDirectionReference],
+  [0x80d15c, setObjectActionAndDirectionReference],
 ]);
 
 // A fixed, independently source-checked set of native equations. This is no

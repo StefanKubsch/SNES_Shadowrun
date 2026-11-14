@@ -62,6 +62,8 @@ export const LIFTED_SCRIPT_NATIVES = new Set([
   // The bobbing and orbit natives (src/game/object-bob.mjs).
   0x80d714, 0x80d73b, 0x80d769, 0x80d76f, 0x80d775, 0x80d77b, 0x80d781, 0x80d787, 0x80d78d,
   0x80d793,
+  // The animation selection, the turn and both (src/game/object-turn.mjs, member-facing.mjs).
+  0x80a985, 0x80aaaf, 0x80d15c,
 ]);
 // Direct page bytes a lifted native does not produce: the sample loader's scratch
 // (7E:0089-008B, 008F-0099) after any, and after the sight natives the line of sight's

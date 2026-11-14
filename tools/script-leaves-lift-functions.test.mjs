@@ -22,7 +22,13 @@ import {
 } from '../src/task/native-combat.mjs';
 import { runTaskModalObserved } from '../src/task/native-modal.mjs';
 import { runTaskSelectionObserved } from '../src/task/native-selection.mjs';
+import {
+  setObjectActionAndDirectionReference,
+  setObjectAnimationReference,
+  setObjectDirectionReference,
+} from '../proof/game-reference/object-turn.mjs';
 import { setObjectActionAndDirection } from '../src/task/native-object-turn.mjs';
+import { setObjectDirection } from '../src/task/native-object-action-set.mjs';
 import { setActionAndDirection } from '../src/game/member-facing.mjs';
 import { setObjectAnimation } from '../src/task/native-object-action-apply.mjs';
 import { selectAnimationRoutine } from '../src/game/object-turn.mjs';
@@ -306,7 +312,7 @@ const CASES = [
     name: 'selectAnimation 80:A985',
     entry: 0x80a985,
     samples: 600,
-    reference: (h) => setObjectAnimation(h.a, false),
+    reference: (h) => setObjectAnimationReference(h.a, false),
     prepare: (s) => {
       const object = 2 * s.rnd(44);
       word(s.wram, 0, object);
@@ -331,7 +337,7 @@ const CASES = [
     name: 'setActionAndDirection 80:D15C',
     entry: 0x80d15c,
     samples: 600,
-    reference: (h) => setObjectActionAndDirection(h.a, false),
+    reference: (h) => setObjectActionAndDirectionReference(h.a, false),
     prepare: (s) => {
       const object = 2 * s.rnd(44);
       word(s.wram, 0, object);
@@ -348,6 +354,61 @@ const CASES = [
       setActionAndDirection(a.mem, a);
       return finishLeaf(a, outerReturn);
     }),
+  },
+  {
+    // The script natives 80:A985, 80:AAAF and 80:D15C as the script VM calls them.
+    name: 'setObjectAnimation native 80:A985',
+    entry: 0x80a985,
+    samples: 300,
+    reference: (h) => setObjectAnimationReference(h.a, false),
+    prepare: (s) => {
+      const object = 2 * s.rnd(44);
+      word(s.wram, 0, object);
+      word(s.wram, 2, s.pick([2, s.rnd(16), s.rnd(16), s.rnd(65536)]));
+      word(s.wram, OBJECT_KIND + object, s.rnd(16) ? s.rnd(64) : s.rnd(65536));
+      word(s.wram, OBJECT_SELECTION + object, s.pick([2, 0xffff, s.rnd(16), s.rnd(65536)]));
+      word(s.wram, OBJECT_DIRECTION + object, s.pick([s.rnd(8), s.rnd(8), s.rnd(65536)]));
+      return { bank: CODE_BANK, status: s.rnd(256) & 0xc3 };
+    },
+    result: returned,
+    lifted: lifted(setObjectAnimation),
+  },
+  {
+    name: 'setObjectDirection native 80:AAAF',
+    entry: 0x80aaaf,
+    samples: 300,
+    reference: (h) => setObjectDirectionReference(h.a, false),
+    prepare: (s) => {
+      const object = 2 * s.rnd(44);
+      word(s.wram, 0, object);
+      word(s.wram, 2, s.pick([s.rnd(8), s.rnd(8), s.rnd(65536)]));
+      word(s.wram, OBJECT_KIND + object, s.rnd(16) ? s.rnd(64) : s.rnd(65536));
+      word(s.wram, OBJECT_SELECTION + object, s.pick([2, 0xffff, s.rnd(16), s.rnd(65536)]));
+      word(s.wram, OBJECT_DIRECTION + object, s.pick([s.rnd(8), s.rnd(8), s.rnd(65536)]));
+      word(s.wram, OBJECT_FRAME_COUNT + object, s.pick([0, 0x80, s.rnd(0x80), s.rnd(65536)]));
+      return { bank: CODE_BANK, status: s.rnd(256) & 0xc3 };
+    },
+    result: returned,
+    lifted: lifted(setObjectDirection),
+  },
+  {
+    name: 'setObjectActionAndDirection native 80:D15C',
+    entry: 0x80d15c,
+    samples: 300,
+    reference: (h) => setObjectActionAndDirectionReference(h.a, false),
+    prepare: (s) => {
+      const object = 2 * s.rnd(44);
+      word(s.wram, 0, object);
+      word(s.wram, 2, s.pick([2, s.rnd(16), 0x8000 | s.rnd(16), s.rnd(65536)]));
+      word(s.wram, 4, s.pick([s.rnd(8), s.rnd(65536)]));
+      word(s.wram, OBJECT_KIND + object, s.rnd(16) ? s.rnd(64) : s.rnd(65536));
+      word(s.wram, OBJECT_SELECTION + object, s.pick([2, 0xffff, s.rnd(16), s.rnd(65536)]));
+      word(s.wram, OBJECT_DIRECTION + object, s.pick([s.rnd(8), s.rnd(8), s.rnd(65536)]));
+      word(s.wram, OBJECT_FRAME_COUNT + object, s.pick([0, 0x80, s.rnd(0x80), s.rnd(65536)]));
+      return { bank: CODE_BANK, status: s.rnd(256) & 0xc3 };
+    },
+    result: returned,
+    lifted: lifted(setObjectActionAndDirection),
   },
 ];
 // A point far beyond the list lies in the unmapped register area, where the original
