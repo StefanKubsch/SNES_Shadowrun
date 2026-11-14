@@ -171,6 +171,14 @@ import {
 
 import { getGroupMemberPositionReference } from '../game-reference/group-members.mjs';
 
+import { removeGroupMemberReference } from '../game-reference/group-members.mjs';
+
+import { updateObjectDepthModeReference } from '../game-reference/object-fields.mjs';
+
+import { learnSpellReference } from '../game-reference/party-funds.mjs';
+
+import { startBrightnessFadeReference } from '../game-reference/brightness-fade.mjs';
+
 // Lifted natives whose proofs run their register-level references (the game runs the
 // lifted ones, src/task/native-targets.mjs).
 const REFERENCE_TARGETS = new Map([
@@ -275,6 +283,10 @@ const REFERENCE_TARGETS = new Map([
   [0x809dc8, decrementObjectStateCountReference],
   [0x809dec, addActorStateCountReference],
   [0x80a297, getGroupMemberPositionReference],
+  [0x80a2b5, removeGroupMemberReference],
+  [0x80d0d3, updateObjectDepthModeReference],
+  [0x80e1b3, learnSpellReference],
+  [0x80d9ad, startBrightnessFadeReference],
 ]);
 
 // A fixed, independently source-checked set of native equations. This is no

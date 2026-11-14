@@ -5,7 +5,8 @@
 // 80:D16D for the direction, number and sprite mode, 80:A91D and 80:A926 for the task link
 // and 80:A92F and 80:D13E for the velocity, 80:A977 for the height, 80:94EE for the
 // dialog, 80:D14A for the position, 80:BB90 for the animation and 80:9D6A and 80:9D7A for
-// the record property and 80:9D98 for its test; register-level references in
+// the record property, 80:9D98 for its test and 80:D0D3 for the depth mode;
+// register-level references in
 // proof/game-reference/object-fields.mjs).
 //
 // An object's flag word (7E:1458 plus its slot) and its record pointer (7E:13A8 plus its
@@ -34,6 +35,8 @@ import {
   NO_TASK,
   OBJECT_DIALOG,
   OBJECT_SELECTION,
+  OBJECT_HIDDEN,
+  OBJECT_COVERED,
   GROUP_NUMBERS,
   RECORD_PROPERTY_RESET,
   RECORD_COUNT,
@@ -199,4 +202,18 @@ export const resetRecordProperty = (mem, object) =>
 export function hasRecordProperty(mem, object) {
   const record = objectRecord(mem, object);
   return record !== 0 && !(recordProperty(mem, object) & WORD_SIGN) ? WORD_MASK : 0;
+}
+// 80:D0D3: unless the object is hidden, its depth mode from its drawing flags: covered
+// gives both mode bits (8001), else bit 0; the other depth bits stay.
+const DEPTH_MODE_FRONT = 1;
+export function updateDepthMode(mem, object) {
+  const flags = dataBankWord(mem, OBJECT_FLAGS, object);
+  if (flags & OBJECT_HIDDEN) return;
+  const mode = flags & OBJECT_COVERED ? OBJECT_DEPTH_MODE_MASK : DEPTH_MODE_FRONT;
+  setDataBankWord(
+    mem,
+    OBJECT_DEPTH_ORDER,
+    object,
+    (dataBankWord(mem, OBJECT_DEPTH_ORDER, object) & OBJECT_DEPTH_MODE_CLEAR_MASK) | mode,
+  );
 }

@@ -1,13 +1,21 @@
-// Register-level references of the party's karma, nuyen and magic point sums (moved from
-// src/task/native-karma-add.mjs, native-nuyen-add.mjs and native-magic-points-add.mjs;
+// Register-level references of the party's karma, nuyen and magic point sums and its
+// learned spells (moved from src/task/native-karma-add.mjs, native-nuyen-add.mjs,
+// native-magic-points-add.mjs and native-spell-add.mjs;
 // lifted in src/game/party-funds.mjs). The proof plans, the Native58 dispatch of
 // proof/task/native-dispatch.mjs and the instruction test of 80:8B8A run these; the game
 // runs the lifted natives.
 import { FIRST_ARGUMENT, leaf } from '../../src/task/native-leaf-support.mjs';
 import { taskSelectionSupport } from '../../src/task/native-object-turn.mjs';
-import { KARMA, MAGIC_POINTS, MEMBER_INDEX, NUYEN, WRAM } from '../../src/task/wram.mjs';
+import {
+  KARMA,
+  MAGIC_POINTS,
+  MEMBER_INDEX,
+  NUYEN,
+  SPELL_LIST,
+  WRAM,
+} from '../../src/task/wram.mjs';
 import { BYTE_MASK, WORD_MASK } from '../../src/constants/bits.mjs';
-import { FLAG_CARRY } from '../../src/constants/cpu-flags.mjs';
+import { FLAG_CARRY, FLAG_ZERO } from '../../src/constants/cpu-flags.mjs';
 
 const NUYEN_LOW = WRAM + NUYEN,
   NUYEN_HIGH = NUYEN_LOW + 2,
@@ -60,6 +68,34 @@ export const addMagicPointsReference = (a, outerReturn = true) =>
       h.load(a.read(address, '8b8a-BYTE'), 1);
       byteArithmetic(a.read(FIRST_ARGUMENT, '8b8a-DP00-BYTE'), false);
       a.write(address, ctx.a & BYTE_MASK, '8b8a-BYTE');
+    },
+    outerReturn,
+  );
+const END = 0,
+  SPELL_BYTES = 2;
+// 80:E1B3: add the spell (first argument) to the end of the learned spell list (words,
+// 0 ends it) unless the list already holds it. The new end marker is written before
+// the spell; the flags come from the last load or CMP.
+export const learnSpellReference = (a, outerReturn = true) =>
+  leaf(
+    a,
+    (h) => {
+      let entry = h.index('x', 0);
+      while (true) {
+        const spell = h.load(h.longRead(WRAM + SPELL_LIST + entry));
+        if (spell === END) {
+          h.longWrite(WRAM + SPELL_LIST + SPELL_BYTES + entry, spell);
+          h.longWrite(WRAM + SPELL_LIST + entry, h.load(h.dp(FIRST_ARGUMENT)));
+          return;
+        }
+        // CMP DP00: carry when the entry >= the spell, N and Z from the difference.
+        const wanted = h.dp(FIRST_ARGUMENT);
+        h.nz((spell - wanted) & WORD_MASK);
+        h.ctx.status = (h.ctx.status & ~FLAG_CARRY) | Number(spell >= wanted);
+        if (h.ctx.status & FLAG_ZERO) return;
+        h.index('x', (entry + 1) & WORD_MASK);
+        entry = h.index('x', (entry + 2) & WORD_MASK);
+      }
     },
     outerReturn,
   );

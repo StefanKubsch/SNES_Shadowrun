@@ -440,6 +440,18 @@ which the render proof of 81:8076 keeps using.
   [tools/group-members-lift-functions.test.mjs](../tools/group-members-lift-functions.test.mjs)
   compare them; planted changes of the limit six, the cheat guard and the member's
   position fail them.
+- The natives 80:A2B5 (a member removed from the group: the entries above it in the
+  object, number, position and slot lists move down, the last index drops by one),
+  80:D0D3 (an object's depth mode from its flags unless hidden), 80:E1B3 (a spell added to
+  the learned spells 7E:3C1C unless known; a list without an end stops the task after
+  32768 words) and 80:D9AD (a brightness fade by n: fade word -n, frames |n| + 8) run
+  `removeGroupMember` of src/game/group-members.mjs, `updateDepthMode` of
+  src/game/object-fields.mjs, `learnSpell` of src/game/party-funds.mjs and
+  `startBrightnessFade` of src/game/game-nmi.mjs (block 102). Their references joined
+  the reference modules of the same names and proof/game-reference/brightness-fade.mjs;
+  the instruction tests of 80:A2B5 and 80:D9AD run them. The group, object field and
+  party funds tests compare them; planted changes of the shifted lists, the covered mode,
+  the end marker and the frame base fail them.
 - The getters 80:9E59 and 80:9E5F (the buttons held and newly pressed), 80:CD97 and its
   byte-identical copy 80:D18A (the player figure's slot) and 80:C0F7 and 80:C100 (the
   glove sprite's screen X and Y bytes) run `padHeld`, `padPressed`, `playerObject`,

@@ -619,3 +619,13 @@ NATIVE_CALL_CONTINUATIONS.set(GAME_NMI_LIFTED_JOBS.get(HANDLER), {
   create: (call) =>
     lagFree(call.events) ? null : NATIVE_CALL_CONTINUATIONS.get(HANDLER).create(call),
 });
+
+// 80:D9AD with 81:B0AC (the script native's JSL): start a brightness fade by n steps (n
+// positive darkens): the fade word is -n, its frames |n| + 8, both wrapping in 16 bits.
+const FADE_FRAMES_BASE = 8;
+export function startBrightnessFade(wram, n) {
+  const step = -n & WORD_MASK,
+    magnitude = step & WORD_SIGN ? -step & WORD_MASK : step;
+  setWord(wram, BRIGHTNESS_FADE, step);
+  setWord(wram, BRIGHTNESS_FADE_FRAMES, (magnitude + FADE_FRAMES_BASE) & WORD_MASK);
+}

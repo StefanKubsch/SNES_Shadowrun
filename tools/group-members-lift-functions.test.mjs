@@ -1,13 +1,17 @@
-// Random per-function test of the lifted group member position 80:A297
-// (src/game/group-members.mjs through its native in src/task) against its register-level
-// reference (proof/game-reference/group-members.mjs). Both sides run the native from its
+// Random per-function tests of the lifted group member position 80:A297 and removal
+// 80:A2B5 (src/game/group-members.mjs through their natives in src/task) against their
+// register-level references (proof/game-reference/group-members.mjs). Both sides run the native from its
 // script call (data bank 80, direct page 0, the RTS frame). Game state only
 // (docs/STRATEGY.md, 2026-11-14): WRAM outside the stacks, the device writes and the
 // return must be equal.
 import { prng } from './task-native-dialog-harness.mjs';
 import { createSide, registerCases } from './lift-function-harness.mjs';
-import { getGroupMemberPositionReference } from '../proof/game-reference/group-members.mjs';
+import {
+  getGroupMemberPositionReference,
+  removeGroupMemberReference,
+} from '../proof/game-reference/group-members.mjs';
 import { getGroupMemberPosition } from '../src/task/native-group-member-position.mjs';
+import { removeGroupMember } from '../src/task/native-group-remove.mjs';
 import { GROUP_INDEX, GROUP_SLOTS } from '../src/task/wram.mjs';
 
 const WRAM_BYTES = 0x20000,
@@ -39,23 +43,30 @@ function sample(seed) {
   return { seed, wram, rnd };
 }
 const returned = (h) => [h.ctx.pc, h.ctx.s].map((v) => v.toString(HEX)).join();
+const member = (name, entry, reference, run) => ({
+  name,
+  entry,
+  samples: 400,
+  reference: (h) => reference(h.a, false),
+  prepare: (s) => ({ bank: CODE_BANK, status: s.rnd(BYTE) & 0xc3 }),
+  result: returned,
+  lifted: (h, input) => {
+    Object.assign(h.ctx, input);
+    h.ctx.programBank = CODE_BANK;
+    h.push(CALLER_RETURN, 2);
+    run(h.a, false);
+    return returned(h);
+  },
+});
 registerCases(
   [
-    {
-      name: 'getGroupMemberPosition 80:A297',
-      entry: 0x80a297,
-      samples: 400,
-      reference: (h) => getGroupMemberPositionReference(h.a, false),
-      prepare: (s) => ({ bank: CODE_BANK, status: s.rnd(BYTE) & 0xc3 }),
-      result: returned,
-      lifted: (h, input) => {
-        Object.assign(h.ctx, input);
-        h.ctx.programBank = CODE_BANK;
-        h.push(CALLER_RETURN, 2);
-        getGroupMemberPosition(h.a, false);
-        return returned(h);
-      },
-    },
+    member(
+      'getGroupMemberPosition 80:A297',
+      0x80a297,
+      getGroupMemberPositionReference,
+      getGroupMemberPosition,
+    ),
+    member('removeGroupMember 80:A2B5', 0x80a2b5, removeGroupMemberReference, removeGroupMember),
   ],
   { sample, side: (s) => createSide(s, new Map()), runtime: (h) => h, ignored: [] },
 );

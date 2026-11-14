@@ -2,7 +2,8 @@
 // src/task/native-object-flags-*.mjs, src/task/native-object-record-*.mjs and
 // src/task/native-object-armour-*.mjs, the motion getters, the direction, number and
 // sprite mode, the task link and the velocity setters, the dialog, the position, the
-// animation test, the record property's group and reset values and its test; lifted in
+// animation test, the record property's group and reset values and its test and the
+// depth mode from the flags; lifted in
 // src/game/object-fields.mjs). The proof plans and the Native58 dispatch of
 // proof/task/native-dispatch.mjs run these; the game runs the lifted natives.
 import {
@@ -28,6 +29,8 @@ import {
   NO_TASK,
   OBJECT_DIALOG,
   OBJECT_SELECTION,
+  OBJECT_HIDDEN,
+  OBJECT_COVERED,
   GROUP_NUMBERS,
   RECORD_PROPERTY_RESET,
   DP_OBJECT_X,
@@ -485,6 +488,29 @@ export const hasObjectRecordPropertyReference = (a, outerReturn = true) =>
       // The original STZ does not load A or change N/Z/C/V, even after a negative
       // record word. These live flags and register bytes survive the actual RTS.
       a.writeWord(FIRST_ARGUMENT, 0, BANK_WRAP, 'C6-zero-DP00');
+    },
+    outerReturn,
+  );
+// Depth mode of a visible object that is not covered: bit 0 only.
+const DEPTH_MODE_FRONT = 1;
+// 80:D0D3: unless the object (first argument) is hidden, set its depth mode from its
+// drawing flags: covered gives both mode bits (8001), else bit 0. The other depth bits
+// stay. BIT # changes only Z.
+export const updateObjectDepthModeReference = (a, outerReturn = true) =>
+  leaf(
+    a,
+    (h) => {
+      const object = h.index('y', h.dp(FIRST_ARGUMENT));
+      h.load(h.longRead(h.abs(OBJECT_FLAGS) + object));
+      const bit = (mask) => {
+        h.ctx.status = (h.ctx.status & ~FLAG_ZERO) | ((h.ctx.a & mask) === 0 ? FLAG_ZERO : 0);
+        return (h.ctx.a & mask) !== 0;
+      };
+      if (bit(OBJECT_HIDDEN)) return;
+      const covered = bit(OBJECT_COVERED),
+        depth = h.abs(OBJECT_DEPTH_ORDER) + object;
+      h.load(h.longRead(depth) & OBJECT_DEPTH_MODE_CLEAR_MASK);
+      h.longWrite(depth, h.load(h.ctx.a | (covered ? OBJECT_DEPTH_MODE_MASK : DEPTH_MODE_FRONT)));
     },
     outerReturn,
   );
