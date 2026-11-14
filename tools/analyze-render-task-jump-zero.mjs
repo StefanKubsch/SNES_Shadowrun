@@ -1,0 +1,2 @@
+import {emitTaskControlSource} from './task-control-source.mjs';import {spec,prove,describeJumpZero} from './render-task-jump-zero-source-proof.mjs';
+await emitTaskControlSource(spec,prove,[{d:0x3D6,bank:0x80,s:65535,y:65535,conditionWord:0,targetWord:0x8001,pointerBefore:0x1200,pointerAfter:0x1200},{d:0x3D6,bank:0x80,s:0x3F0,y:65535,conditionWord:0x100,pointerAfter:0x1200}].map(describeJumpZero));

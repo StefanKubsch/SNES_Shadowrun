@@ -1,0 +1,24 @@
+node_modules/
+.cache/
+# Local ROM inputs for generators and original comparisons.
+*.smc
+*.sfc
+# Personal browser save export; keep the local file outside version control.
+/Shadowrun.srm
+# Generated analysis reports; rebuild them with npm run rebuild:artifacts.
+# Recorded and retained inputs stay versioned.
+/analysis/*
+!/analysis/mesen-coverage.json
+!/analysis/rom-code-observed.json
+!/analysis/rom-palettes.json
+!/analysis/rom-reads.json
+!/analysis/rom-vram.json
+# Static copy of the game page (npm run build:web).
+/dist/
+# Local agent instructions, hook settings and handoffs; kept on disk, not versioned.
+/.claude/
+/.codex/
+/docs/handoff-archiv/
+/CLAUDE.md
+/AGENTS.md
+/HANDOFF.md

@@ -1,0 +1,1860 @@
+{
+ "windows_requested": [
+  "room",
+  "door",
+  "exit",
+  "street",
+  "southwest",
+  "alley",
+  "fight",
+  "dialog",
+  "dog",
+  "status",
+  "select",
+  "items",
+  "bed",
+  "shades",
+  "desk",
+  "badge",
+  "morgue",
+  "fridge",
+  "punk",
+  "random",
+  "arch",
+  "rail",
+  "afterdog",
+  "doorkey",
+  "sleep",
+  "loaded"
+ ],
+ "seconds": 162,
+ "scope": "Mesen-Orakel: in gleichen Intervallen ausgeführte Scripts, Natives (Opcode $58) und Opcodes. Pfade innerhalb eines Natives sind nicht gemessen.",
+ "windows": [
+  {
+   "name": "room",
+   "intervals": 10411,
+   "clean": true,
+   "new_scripts": 7,
+   "new_natives": 13
+  },
+  {
+   "name": "door",
+   "intervals": 2579,
+   "clean": true,
+   "new_scripts": 1,
+   "new_natives": 8
+  },
+  {
+   "name": "exit",
+   "intervals": 13922,
+   "clean": true,
+   "new_scripts": 5,
+   "new_natives": 2
+  },
+  {
+   "name": "street",
+   "intervals": 1635,
+   "clean": true,
+   "new_scripts": 15,
+   "new_natives": 10
+  },
+  {
+   "name": "southwest",
+   "intervals": 9897,
+   "clean": true,
+   "new_scripts": 2,
+   "new_natives": 5
+  },
+  {
+   "name": "alley",
+   "intervals": 3104,
+   "clean": true,
+   "new_scripts": 1,
+   "new_natives": 5
+  },
+  {
+   "name": "fight",
+   "intervals": 831,
+   "clean": true,
+   "new_scripts": 5,
+   "new_natives": 12
+  },
+  {
+   "name": "dialog",
+   "intervals": 475,
+   "clean": true,
+   "new_scripts": 0,
+   "new_natives": 1
+  },
+  {
+   "name": "dog",
+   "intervals": 263,
+   "clean": true,
+   "new_scripts": 1,
+   "new_natives": 0
+  },
+  {
+   "name": "status",
+   "intervals": 4453,
+   "clean": true,
+   "new_scripts": 2,
+   "new_natives": 4
+  },
+  {
+   "name": "select",
+   "intervals": 694,
+   "clean": true,
+   "new_scripts": 0,
+   "new_natives": 0
+  },
+  {
+   "name": "items",
+   "intervals": 766,
+   "clean": true,
+   "new_scripts": 0,
+   "new_natives": 0
+  },
+  {
+   "name": "bed",
+   "intervals": 315,
+   "clean": true,
+   "new_scripts": 1,
+   "new_natives": 3
+  },
+  {
+   "name": "shades",
+   "intervals": 8626,
+   "clean": true,
+   "new_scripts": 4,
+   "new_natives": 1
+  },
+  {
+   "name": "desk",
+   "intervals": 24097,
+   "clean": true,
+   "new_scripts": 3,
+   "new_natives": 2
+  },
+  {
+   "name": "badge",
+   "intervals": 19,
+   "clean": true,
+   "new_scripts": 1,
+   "new_natives": 3
+  },
+  {
+   "name": "morgue",
+   "intervals": 831,
+   "clean": true,
+   "new_scripts": 1,
+   "new_natives": 1
+  },
+  {
+   "name": "fridge",
+   "intervals": 913,
+   "clean": true,
+   "new_scripts": 1,
+   "new_natives": 2
+  },
+  {
+   "name": "punk",
+   "intervals": 1130,
+   "clean": true,
+   "new_scripts": 0,
+   "new_natives": 1
+  },
+  {
+   "name": "random",
+   "intervals": 466,
+   "clean": true,
+   "new_scripts": 9,
+   "new_natives": 2
+  },
+  {
+   "name": "arch",
+   "intervals": 265,
+   "clean": true,
+   "new_scripts": 7,
+   "new_natives": 1
+  },
+  {
+   "name": "rail",
+   "intervals": 440,
+   "clean": true,
+   "new_scripts": 8,
+   "new_natives": 3
+  },
+  {
+   "name": "afterdog",
+   "intervals": 369,
+   "clean": true,
+   "new_scripts": 0,
+   "new_natives": 1
+  },
+  {
+   "name": "doorkey",
+   "intervals": 2441,
+   "clean": true,
+   "new_scripts": 5,
+   "new_natives": 2
+  },
+  {
+   "name": "sleep",
+   "intervals": 97,
+   "clean": true,
+   "new_scripts": 1,
+   "new_natives": 1
+  },
+  {
+   "name": "loaded",
+   "intervals": 6856,
+   "clean": true,
+   "new_scripts": 5,
+   "new_natives": 0
+  }
+ ],
+ "scripts": {
+  "total": 937,
+  "run": 85,
+  "ids": [
+   "$006",
+   "$011",
+   "$031",
+   "$03C",
+   "$04B",
+   "$04C",
+   "$04D",
+   "$054",
+   "$060",
+   "$065",
+   "$06B",
+   "$074",
+   "$07E",
+   "$080",
+   "$083",
+   "$090",
+   "$099",
+   "$0AD",
+   "$0D2",
+   "$0D4",
+   "$0E2",
+   "$0E8",
+   "$0F9",
+   "$101",
+   "$103",
+   "$10E",
+   "$10F",
+   "$13B",
+   "$141",
+   "$154",
+   "$17A",
+   "$193",
+   "$195",
+   "$1A2",
+   "$1A4",
+   "$1A6",
+   "$1B2",
+   "$1B3",
+   "$1BF",
+   "$1C0",
+   "$1C6",
+   "$1D0",
+   "$1D4",
+   "$1D5",
+   "$1D9",
+   "$1DC",
+   "$206",
+   "$214",
+   "$215",
+   "$21C",
+   "$22E",
+   "$22F",
+   "$245",
+   "$246",
+   "$251",
+   "$26B",
+   "$279",
+   "$294",
+   "$2A3",
+   "$2A4",
+   "$2A6",
+   "$2A8",
+   "$2A9",
+   "$2AB",
+   "$2AF",
+   "$2B6",
+   "$2BA",
+   "$2BD",
+   "$2C0",
+   "$2C2",
+   "$2C6",
+   "$2C7",
+   "$2D8",
+   "$2F8",
+   "$31A",
+   "$31F",
+   "$337",
+   "$33C",
+   "$35C",
+   "$37E",
+   "$380",
+   "$384",
+   "$396",
+   "$39C",
+   "$3A0"
+  ],
+  "unknown_bases": {}
+ },
+ "natives": {
+  "used_by_scripts": 183,
+  "run": 83,
+  "special_used": 44,
+  "special_run": 22,
+  "run_counts": {
+   "$808371": 3,
+   "$808521": 1,
+   "$80855E": 1,
+   "$80866F": 208,
+   "$808A51": 4,
+   "$808AB5": 6,
+   "$808B9F": 1,
+   "$808BC5": 14,
+   "$808EF5": 13,
+   "$809159": 1,
+   "$80933A": 2,
+   "$80936C": 2,
+   "$8094EE": 5,
+   "$809BA0": 2,
+   "$809BC6": 1,
+   "$809D6A": 1,
+   "$809D7A": 4,
+   "$809D98": 8,
+   "$809DEC": 1,
+   "$80A1E6": 1,
+   "$80A835": 5,
+   "$80A8F5": 31,
+   "$80A91D": 2,
+   "$80A926": 1,
+   "$80A92F": 6,
+   "$80A959": 12,
+   "$80A963": 21,
+   "$80A96D": 8,
+   "$80A985": 227,
+   "$80AA4C": 17,
+   "$80AAAF": 11,
+   "$80C401": 4988,
+   "$80C46E": 29,
+   "$80C51F": 8,
+   "$80C560": 24,
+   "$80C68D": 35,
+   "$80C6C4": 5,
+   "$80C716": 4,
+   "$80C7C2": 5,
+   "$80CA05": 1,
+   "$80CA15": 7,
+   "$80CA20": 4,
+   "$80CA3A": 1662,
+   "$80CA49": 7,
+   "$80CAA2": 4,
+   "$80CAB4": 5,
+   "$80CACA": 10,
+   "$80CAE0": 3,
+   "$80CB2B": 53,
+   "$80CBB3": 4,
+   "$80CBF7": 1,
+   "$80CC07": 2961,
+   "$80CC10": 12,
+   "$80CC97": 3,
+   "$80CCB9": 2,
+   "$80CCCC": 2,
+   "$80CCDB": 1,
+   "$80CD20": 1,
+   "$80CD43": 1,
+   "$80CD9D": 1,
+   "$80CDA8": 15,
+   "$80CDB2": 1,
+   "$80CDCF": 1,
+   "$80CE6D": 1,
+   "$80CF93": 6,
+   "$80D067": 1,
+   "$80D079": 1,
+   "$80D105": 3,
+   "$80D134": 2,
+   "$80D13E": 5,
+   "$80D14A": 3,
+   "$80D15C": 43,
+   "$80D16D": 5,
+   "$80D17B": 1,
+   "$80D18A": 6,
+   "$80D1D2": 1,
+   "$80D255": 2,
+   "$80DE7E": 8,
+   "$80E014": 2925,
+   "$80E1B3": 1,
+   "$80E262": 2918,
+   "$80FEC1": 10,
+   "$80FF79": 1
+  },
+  "not_run": [
+   {
+    "target": "$808E36",
+    "ids": [
+     "$7C"
+    ],
+    "special": true,
+    "direct_users": 15,
+    "users_already_run": 0,
+    "example_scripts": [
+     "$104",
+     "$136",
+     "$160",
+     "$1B0",
+     "$1E8",
+     "$217",
+     "$21D",
+     "$22D"
+    ]
+   },
+   {
+    "target": "$80F953",
+    "ids": [
+     "$A3"
+    ],
+    "special": true,
+    "direct_users": 14,
+    "users_already_run": 2,
+    "example_scripts": [
+     "$0C4",
+     "$0D1",
+     "$0FE",
+     "$105",
+     "$10E",
+     "$11D",
+     "$1AD",
+     "$1F7"
+    ]
+   },
+   {
+    "target": "$808B43",
+    "ids": [
+     "$AB"
+    ],
+    "special": true,
+    "direct_users": 12,
+    "users_already_run": 0,
+    "example_scripts": [
+     "$022",
+     "$037",
+     "$062",
+     "$077",
+     "$1E2",
+     "$1EC",
+     "$1F3",
+     "$1FC"
+    ]
+   },
+   {
+    "target": "$808D7F",
+    "ids": [
+     "$73"
+    ],
+    "special": true,
+    "direct_users": 11,
+    "users_already_run": 0,
+    "example_scripts": [
+     "$104",
+     "$12A",
+     "$160",
+     "$19F",
+     "$1EC",
+     "$205",
+     "$268",
+     "$275"
+    ]
+   },
+   {
+    "target": "$808D3F",
+    "ids": [
+     "$62"
+    ],
+    "special": true,
+    "direct_users": 6,
+    "users_already_run": 0,
+    "example_scripts": [
+     "$034",
+     "$03E",
+     "$16F",
+     "$2B3",
+     "$34B",
+     "$375"
+    ]
+   },
+   {
+    "target": "$809BD3",
+    "ids": [
+     "$BD"
+    ],
+    "special": true,
+    "direct_users": 5,
+    "users_already_run": 0,
+    "example_scripts": [
+     "$037",
+     "$077",
+     "$1FC",
+     "$20C",
+     "$2D9"
+    ]
+   },
+   {
+    "target": "$80CECB",
+    "ids": [
+     "$27"
+    ],
+    "special": true,
+    "direct_users": 5,
+    "users_already_run": 1,
+    "example_scripts": [
+     "$1D9",
+     "$1F3",
+     "$20C",
+     "$315",
+     "$331"
+    ]
+   },
+   {
+    "target": "$808C08",
+    "ids": [
+     "$86"
+    ],
+    "special": true,
+    "direct_users": 4,
+    "users_already_run": 0,
+    "example_scripts": [
+     "$0F5",
+     "$104",
+     "$19F",
+     "$275"
+    ]
+   },
+   {
+    "target": "$808C8D",
+    "ids": [
+     "$4E"
+    ],
+    "special": true,
+    "direct_users": 4,
+    "users_already_run": 0,
+    "example_scripts": [
+     "$045",
+     "$1AD",
+     "$1E9",
+     "$329"
+    ]
+   },
+   {
+    "target": "$808CCF",
+    "ids": [
+     "$69"
+    ],
+    "special": true,
+    "direct_users": 4,
+    "users_already_run": 0,
+    "example_scripts": [
+     "$1AD",
+     "$1E9",
+     "$2CA",
+     "$329"
+    ]
+   },
+   {
+    "target": "$808D0B",
+    "ids": [
+     "$A6"
+    ],
+    "special": true,
+    "direct_users": 4,
+    "users_already_run": 0,
+    "example_scripts": [
+     "$1AD",
+     "$1E9",
+     "$329",
+     "$375"
+    ]
+   },
+   {
+    "target": "$80935B",
+    "ids": [
+     "$D7"
+    ],
+    "special": true,
+    "direct_users": 3,
+    "users_already_run": 0,
+    "example_scripts": [
+     "$0C3",
+     "$1E3",
+     "$29A"
+    ]
+   },
+   {
+    "target": "$80C724",
+    "ids": [
+     "$A8"
+    ],
+    "special": true,
+    "direct_users": 3,
+    "users_already_run": 0,
+    "example_scripts": [
+     "$1AD",
+     "$1E9",
+     "$329"
+    ]
+   },
+   {
+    "target": "$80EA6E",
+    "ids": [
+     "$B0"
+    ],
+    "special": true,
+    "direct_users": 3,
+    "users_already_run": 0,
+    "example_scripts": [
+     "$1AD",
+     "$1E9",
+     "$329"
+    ]
+   },
+   {
+    "target": "$808A8C",
+    "ids": [
+     "$5A"
+    ],
+    "special": true,
+    "direct_users": 2,
+    "users_already_run": 0,
+    "example_scripts": [
+     "$045",
+     "$1AD"
+    ]
+   },
+   {
+    "target": "$808D4E",
+    "ids": [
+     "$D9"
+    ],
+    "special": true,
+    "direct_users": 2,
+    "users_already_run": 0,
+    "example_scripts": [
+     "$217",
+     "$275"
+    ]
+   },
+   {
+    "target": "$809BB9",
+    "ids": [
+     "$8F"
+    ],
+    "special": true,
+    "direct_users": 2,
+    "users_already_run": 1,
+    "example_scripts": [
+     "$011",
+     "$321"
+    ]
+   },
+   {
+    "target": "$80C461",
+    "ids": [
+     "$52"
+    ],
+    "special": true,
+    "direct_users": 2,
+    "users_already_run": 0,
+    "example_scripts": [
+     "$1CC",
+     "$234"
+    ]
+   },
+   {
+    "target": "$80F254",
+    "ids": [
+     "$01"
+    ],
+    "special": true,
+    "direct_users": 2,
+    "users_already_run": 0,
+    "example_scripts": [
+     "$1CD",
+     "$29F"
+    ]
+   },
+   {
+    "target": "$809C33",
+    "ids": [
+     "$C1"
+    ],
+    "special": true,
+    "direct_users": 1,
+    "users_already_run": 0,
+    "example_scripts": [
+     "$315"
+    ]
+   },
+   {
+    "target": "$80BBA0",
+    "ids": [
+     "$1A"
+    ],
+    "special": true,
+    "direct_users": 1,
+    "users_already_run": 0,
+    "example_scripts": [
+     "$194"
+    ]
+   },
+   {
+    "target": "$80E1CF",
+    "ids": [
+     "$8A"
+    ],
+    "special": true,
+    "direct_users": 1,
+    "users_already_run": 1,
+    "example_scripts": [
+     "$206"
+    ]
+   },
+   {
+    "target": "$808AF1",
+    "ids": [
+     "$24"
+    ],
+    "special": false,
+    "direct_users": 43,
+    "users_already_run": 0,
+    "example_scripts": [
+     "$027",
+     "$02C",
+     "$038",
+     "$03D",
+     "$06C",
+     "$071",
+     "$07A",
+     "$0A0"
+    ]
+   },
+   {
+    "target": "$80C6BF",
+    "ids": [
+     "$81"
+    ],
+    "special": false,
+    "direct_users": 22,
+    "users_already_run": 4,
+    "example_scripts": [
+     "$042",
+     "$07A",
+     "$096",
+     "$0A7",
+     "$0AB",
+     "$0FB",
+     "$10C",
+     "$111"
+    ]
+   },
+   {
+    "target": "$80C694",
+    "ids": [
+     "$92"
+    ],
+    "special": false,
+    "direct_users": 21,
+    "users_already_run": 0,
+    "example_scripts": [
+     "$016",
+     "$034",
+     "$03E",
+     "$06C",
+     "$076",
+     "$07A",
+     "$08D",
+     "$0A0"
+    ]
+   },
+   {
+    "target": "$80CC33",
+    "ids": [
+     "$54"
+    ],
+    "special": false,
+    "direct_users": 18,
+    "users_already_run": 0,
+    "example_scripts": [
+     "$025",
+     "$137",
+     "$150",
+     "$151",
+     "$156",
+     "$158",
+     "$159",
+     "$16D"
+    ]
+   },
+   {
+    "target": "$80913C",
+    "ids": [
+     "$7E"
+    ],
+    "special": false,
+    "direct_users": 16,
+    "users_already_run": 0,
+    "example_scripts": [
+     "$081",
+     "$09E",
+     "$0A4",
+     "$10D",
+     "$127",
+     "$134",
+     "$158",
+     "$15A"
+    ]
+   },
+   {
+    "target": "$80CD97",
+    "ids": [
+     "$85"
+    ],
+    "special": false,
+    "direct_users": 14,
+    "users_already_run": 0,
+    "example_scripts": [
+     "$005",
+     "$034",
+     "$06E",
+     "$0AC",
+     "$20B",
+     "$242",
+     "$272",
+     "$2B3"
+    ]
+   },
+   {
+    "target": "$809DAE",
+    "ids": [
+     "$42"
+    ],
+    "special": false,
+    "direct_users": 12,
+    "users_already_run": 0,
+    "example_scripts": [
+     "$0D1",
+     "$0D7",
+     "$0FE",
+     "$199",
+     "$1F7",
+     "$23F",
+     "$244",
+     "$2DE"
+    ]
+   },
+   {
+    "target": "$80CBCB",
+    "ids": [
+     "$4B"
+    ],
+    "special": false,
+    "direct_users": 12,
+    "users_already_run": 0,
+    "example_scripts": [
+     "$00A",
+     "$025",
+     "$092",
+     "$0C4",
+     "$18D",
+     "$1A5",
+     "$234",
+     "$2FC"
+    ]
+   },
+   {
+    "target": "$80CA0D",
+    "ids": [
+     "$3F"
+    ],
+    "special": false,
+    "direct_users": 10,
+    "users_already_run": 0,
+    "example_scripts": [
+     "$00E",
+     "$053",
+     "$127",
+     "$185",
+     "$18F",
+     "$1A9",
+     "$23E",
+     "$271"
+    ]
+   },
+   {
+    "target": "$80CB9F",
+    "ids": [
+     "$60"
+    ],
+    "special": false,
+    "direct_users": 10,
+    "users_already_run": 0,
+    "example_scripts": [
+     "$03D",
+     "$06C",
+     "$0C4",
+     "$1F7",
+     "$21E",
+     "$223",
+     "$24F",
+     "$257"
+    ]
+   },
+   {
+    "target": "$80D1CA",
+    "ids": [
+     "$CC"
+    ],
+    "special": false,
+    "direct_users": 10,
+    "users_already_run": 1,
+    "example_scripts": [
+     "$011",
+     "$079",
+     "$1CF",
+     "$1D2",
+     "$25D",
+     "$2C9",
+     "$2D6",
+     "$315"
+    ]
+   },
+   {
+    "target": "$80D0D3",
+    "ids": [
+     "$49"
+    ],
+    "special": false,
+    "direct_users": 9,
+    "users_already_run": 1,
+    "example_scripts": [
+     "$022",
+     "$037",
+     "$090",
+     "$15C",
+     "$15E",
+     "$15F",
+     "$164",
+     "$1B8"
+    ]
+   },
+   {
+    "target": "$80CB4D",
+    "ids": [
+     "$CD"
+    ],
+    "special": false,
+    "direct_users": 8,
+    "users_already_run": 1,
+    "example_scripts": [
+     "$011",
+     "$135",
+     "$1BD",
+     "$234",
+     "$25D",
+     "$28D",
+     "$321",
+     "$397"
+    ]
+   },
+   {
+    "target": "$808B8A",
+    "ids": [
+     "$8C"
+    ],
+    "special": false,
+    "direct_users": 7,
+    "users_already_run": 0,
+    "example_scripts": [
+     "$037",
+     "$077",
+     "$1EC",
+     "$1FC",
+     "$205",
+     "$20C",
+     "$2D9"
+    ]
+   },
+   {
+    "target": "$80A977",
+    "ids": [
+     "$9C"
+    ],
+    "special": false,
+    "direct_users": 6,
+    "users_already_run": 0,
+    "example_scripts": [
+     "$034",
+     "$03E",
+     "$234",
+     "$2B3",
+     "$34B",
+     "$375"
+    ]
+   },
+   {
+    "target": "$80C6F3",
+    "ids": [
+     "$25"
+    ],
+    "special": false,
+    "direct_users": 6,
+    "users_already_run": 0,
+    "example_scripts": [
+     "$016",
+     "$06C",
+     "$08D",
+     "$18A",
+     "$2F7",
+     "$32C"
+    ]
+   },
+   {
+    "target": "$80CC19",
+    "ids": [
+     "$9B"
+    ],
+    "special": false,
+    "direct_users": 6,
+    "users_already_run": 0,
+    "example_scripts": [
+     "$00A",
+     "$02E",
+     "$15A",
+     "$19F",
+     "$1F6",
+     "$2CE"
+    ]
+   },
+   {
+    "target": "$809D15",
+    "ids": [
+     "$75"
+    ],
+    "special": false,
+    "direct_users": 5,
+    "users_already_run": 1,
+    "example_scripts": [
+     "$011",
+     "$059",
+     "$1BB",
+     "$321",
+     "$38F"
+    ]
+   },
+   {
+    "target": "$80A941",
+    "ids": [
+     "$44"
+    ],
+    "special": false,
+    "direct_users": 5,
+    "users_already_run": 0,
+    "example_scripts": [
+     "$00F",
+     "$0EF",
+     "$17F",
+     "$19F",
+     "$241"
+    ]
+   },
+   {
+    "target": "$80A949",
+    "ids": [
+     "$46"
+    ],
+    "special": false,
+    "direct_users": 5,
+    "users_already_run": 0,
+    "example_scripts": [
+     "$00F",
+     "$0EF",
+     "$17F",
+     "$19F",
+     "$241"
+    ]
+   },
+   {
+    "target": "$80CCA4",
+    "ids": [
+     "$DB"
+    ],
+    "special": false,
+    "direct_users": 5,
+    "users_already_run": 0,
+    "example_scripts": [
+     "$025",
+     "$150",
+     "$171",
+     "$2F6",
+     "$3A3"
+    ]
+   },
+   {
+    "target": "$808E96",
+    "ids": [
+     "$64"
+    ],
+    "special": false,
+    "direct_users": 4,
+    "users_already_run": 0,
+    "example_scripts": [
+     "$022",
+     "$037",
+     "$0F5",
+     "$268"
+    ]
+   },
+   {
+    "target": "$808EB8",
+    "ids": [
+     "$9E"
+    ],
+    "special": false,
+    "direct_users": 4,
+    "users_already_run": 0,
+    "example_scripts": [
+     "$022",
+     "$037",
+     "$0F5",
+     "$268"
+    ]
+   },
+   {
+    "target": "$8090EB",
+    "ids": [
+     "$71"
+    ],
+    "special": false,
+    "direct_users": 4,
+    "users_already_run": 0,
+    "example_scripts": [
+     "$09E",
+     "$0C4",
+     "$19E",
+     "$353"
+    ]
+   },
+   {
+    "target": "$80BB2C",
+    "ids": [
+     "$0B"
+    ],
+    "special": false,
+    "direct_users": 4,
+    "users_already_run": 0,
+    "example_scripts": [
+     "$1AD",
+     "$1E9",
+     "$209",
+     "$329"
+    ]
+   },
+   {
+    "target": "$80C6F8",
+    "ids": [
+     "$B1"
+    ],
+    "special": false,
+    "direct_users": 4,
+    "users_already_run": 0,
+    "example_scripts": [
+     "$076",
+     "$221",
+     "$336",
+     "$399"
+    ]
+   },
+   {
+    "target": "$80CB06",
+    "ids": [
+     "$5C"
+    ],
+    "special": false,
+    "direct_users": 4,
+    "users_already_run": 0,
+    "example_scripts": [
+     "$085",
+     "$0FF",
+     "$1B1",
+     "$37B"
+    ]
+   },
+   {
+    "target": "$80CB3C",
+    "ids": [
+     "$C7"
+    ],
+    "special": false,
+    "direct_users": 4,
+    "users_already_run": 0,
+    "example_scripts": [
+     "$1A3",
+     "$1FE",
+     "$28D",
+     "$392"
+    ]
+   },
+   {
+    "target": "$80CF2E",
+    "ids": [
+     "$CB"
+    ],
+    "special": false,
+    "direct_users": 4,
+    "users_already_run": 1,
+    "example_scripts": [
+     "$1D9",
+     "$1F7",
+     "$331",
+     "$346"
+    ]
+   },
+   {
+    "target": "$80D1DD",
+    "ids": [
+     "$29"
+    ],
+    "special": false,
+    "direct_users": 4,
+    "users_already_run": 0,
+    "example_scripts": [
+     "$00F",
+     "$0EF",
+     "$1F1",
+     "$23D"
+    ]
+   },
+   {
+    "target": "$808B16",
+    "ids": [
+     "$34"
+    ],
+    "special": false,
+    "direct_users": 3,
+    "users_already_run": 0,
+    "example_scripts": [
+     "$07C",
+     "$26C",
+     "$321"
+    ]
+   },
+   {
+    "target": "$80BB90",
+    "ids": [
+     "$6E"
+    ],
+    "special": false,
+    "direct_users": 3,
+    "users_already_run": 0,
+    "example_scripts": [
+     "$1AD",
+     "$1E9",
+     "$329"
+    ]
+   },
+   {
+    "target": "$80CC26",
+    "ids": [
+     "$03"
+    ],
+    "special": false,
+    "direct_users": 3,
+    "users_already_run": 0,
+    "example_scripts": [
+     "$00A",
+     "$19F",
+     "$1F6"
+    ]
+   },
+   {
+    "target": "$808631",
+    "ids": [
+     "$48"
+    ],
+    "special": false,
+    "direct_users": 2,
+    "users_already_run": 0,
+    "example_scripts": [
+     "$1EC",
+     "$205"
+    ]
+   },
+   {
+    "target": "$808656",
+    "ids": [
+     "$5F"
+    ],
+    "special": false,
+    "direct_users": 2,
+    "users_already_run": 0,
+    "example_scripts": [
+     "$022",
+     "$037"
+    ]
+   },
+   {
+    "target": "$808AFA",
+    "ids": [
+     "$14"
+    ],
+    "special": false,
+    "direct_users": 2,
+    "users_already_run": 0,
+    "example_scripts": [
+     "$1E2",
+     "$1FC"
+    ]
+   },
+   {
+    "target": "$808B08",
+    "ids": [
+     "$30"
+    ],
+    "special": false,
+    "direct_users": 2,
+    "users_already_run": 0,
+    "example_scripts": [
+     "$1E2",
+     "$1FC"
+    ]
+   },
+   {
+    "target": "$809DC8",
+    "ids": [
+     "$2B"
+    ],
+    "special": false,
+    "direct_users": 2,
+    "users_already_run": 0,
+    "example_scripts": [
+     "$315",
+     "$375"
+    ]
+   },
+   {
+    "target": "$80A297",
+    "ids": [
+     "$D6"
+    ],
+    "special": false,
+    "direct_users": 2,
+    "users_already_run": 0,
+    "example_scripts": [
+     "$1AD",
+     "$329"
+    ]
+   },
+   {
+    "target": "$80A2B5",
+    "ids": [
+     "$84"
+    ],
+    "special": false,
+    "direct_users": 2,
+    "users_already_run": 0,
+    "example_scripts": [
+     "$096",
+     "$331"
+    ]
+   },
+   {
+    "target": "$80C71D",
+    "ids": [
+     "$AE"
+    ],
+    "special": false,
+    "direct_users": 2,
+    "users_already_run": 0,
+    "example_scripts": [
+     "$336",
+     "$386"
+    ]
+   },
+   {
+    "target": "$80C79C",
+    "ids": [
+     "$2F"
+    ],
+    "special": false,
+    "direct_users": 2,
+    "users_already_run": 0,
+    "example_scripts": [
+     "$137",
+     "$36D"
+    ]
+   },
+   {
+    "target": "$80D0FC",
+    "ids": [
+     "$1F"
+    ],
+    "special": false,
+    "direct_users": 2,
+    "users_already_run": 0,
+    "example_scripts": [
+     "$25D",
+     "$2AC"
+    ]
+   },
+   {
+    "target": "$80D714",
+    "ids": [
+     "$5E"
+    ],
+    "special": false,
+    "direct_users": 2,
+    "users_already_run": 0,
+    "example_scripts": [
+     "$114",
+     "$1C8"
+    ]
+   },
+   {
+    "target": "$80D73B",
+    "ids": [
+     "$65"
+    ],
+    "special": false,
+    "direct_users": 2,
+    "users_already_run": 0,
+    "example_scripts": [
+     "$12D",
+     "$1C8"
+    ]
+   },
+   {
+    "target": "$80D7DD",
+    "ids": [
+     "$77"
+    ],
+    "special": false,
+    "direct_users": 2,
+    "users_already_run": 0,
+    "example_scripts": [
+     "$15D",
+     "$19F"
+    ]
+   },
+   {
+    "target": "$80D85B",
+    "ids": [
+     "$1E"
+    ],
+    "special": false,
+    "direct_users": 2,
+    "users_already_run": 0,
+    "example_scripts": [
+     "$15D",
+     "$19F"
+    ]
+   },
+   {
+    "target": "$80D97C",
+    "ids": [
+     "$05"
+    ],
+    "special": false,
+    "direct_users": 2,
+    "users_already_run": 0,
+    "example_scripts": [
+     "$15D",
+     "$19F"
+    ]
+   },
+   {
+    "target": "$80D985",
+    "ids": [
+     "$A2"
+    ],
+    "special": false,
+    "direct_users": 2,
+    "users_already_run": 0,
+    "example_scripts": [
+     "$15D",
+     "$19F"
+    ]
+   },
+   {
+    "target": "$80D98E",
+    "ids": [
+     "$BE"
+    ],
+    "special": false,
+    "direct_users": 2,
+    "users_already_run": 0,
+    "example_scripts": [
+     "$15D",
+     "$19F"
+    ]
+   },
+   {
+    "target": "$80D997",
+    "ids": [
+     "$16"
+    ],
+    "special": false,
+    "direct_users": 2,
+    "users_already_run": 0,
+    "example_scripts": [
+     "$15D",
+     "$19F"
+    ]
+   },
+   {
+    "target": "$80E24E",
+    "ids": [
+     "$2A"
+    ],
+    "special": false,
+    "direct_users": 2,
+    "users_already_run": 0,
+    "example_scripts": [
+     "$0C4",
+     "$2B2"
+    ]
+   },
+   {
+    "target": "$808EDA",
+    "ids": [
+     "$94"
+    ],
+    "special": false,
+    "direct_users": 1,
+    "users_already_run": 1,
+    "example_scripts": [
+     "$1D9"
+    ]
+   },
+   {
+    "target": "$809CE4",
+    "ids": [
+     "$BC"
+    ],
+    "special": false,
+    "direct_users": 1,
+    "users_already_run": 0,
+    "example_scripts": [
+     "$1E3"
+    ]
+   },
+   {
+    "target": "$80A951",
+    "ids": [
+     "$47"
+    ],
+    "special": false,
+    "direct_users": 1,
+    "users_already_run": 0,
+    "example_scripts": [
+     "$19F"
+    ]
+   },
+   {
+    "target": "$80BC83",
+    "ids": [
+     "$B8"
+    ],
+    "special": false,
+    "direct_users": 1,
+    "users_already_run": 1,
+    "example_scripts": [
+     "$1D9"
+    ]
+   },
+   {
+    "target": "$80BC9C",
+    "ids": [
+     "$6B"
+    ],
+    "special": false,
+    "direct_users": 1,
+    "users_already_run": 1,
+    "example_scripts": [
+     "$1D9"
+    ]
+   },
+   {
+    "target": "$80C7A1",
+    "ids": [
+     "$BA"
+    ],
+    "special": false,
+    "direct_users": 1,
+    "users_already_run": 0,
+    "example_scripts": [
+     "$137"
+    ]
+   },
+   {
+    "target": "$80D016",
+    "ids": [
+     "$DA"
+    ],
+    "special": false,
+    "direct_users": 1,
+    "users_already_run": 0,
+    "example_scripts": [
+     "$2B2"
+    ]
+   },
+   {
+    "target": "$80D186",
+    "ids": [
+     "$00"
+    ],
+    "special": false,
+    "direct_users": 1,
+    "users_already_run": 0,
+    "example_scripts": [
+     "$2AA"
+    ]
+   },
+   {
+    "target": "$80D260",
+    "ids": [
+     "$09"
+    ],
+    "special": false,
+    "direct_users": 1,
+    "users_already_run": 0,
+    "example_scripts": [
+     "$00B"
+    ]
+   },
+   {
+    "target": "$80D2E7",
+    "ids": [
+     "$AA"
+    ],
+    "special": false,
+    "direct_users": 1,
+    "users_already_run": 0,
+    "example_scripts": [
+     "$00B"
+    ]
+   },
+   {
+    "target": "$80D604",
+    "ids": [
+     "$AD"
+    ],
+    "special": false,
+    "direct_users": 1,
+    "users_already_run": 0,
+    "example_scripts": [
+     "$19E"
+    ]
+   },
+   {
+    "target": "$80D622",
+    "ids": [
+     "$18"
+    ],
+    "special": false,
+    "direct_users": 1,
+    "users_already_run": 0,
+    "example_scripts": [
+     "$070"
+    ]
+   },
+   {
+    "target": "$80D63C",
+    "ids": [
+     "$8D"
+    ],
+    "special": false,
+    "direct_users": 1,
+    "users_already_run": 0,
+    "example_scripts": [
+     "$19E"
+    ]
+   },
+   {
+    "target": "$80D769",
+    "ids": [
+     "$31"
+    ],
+    "special": false,
+    "direct_users": 1,
+    "users_already_run": 0,
+    "example_scripts": [
+     "$055"
+    ]
+   },
+   {
+    "target": "$80D76F",
+    "ids": [
+     "$32"
+    ],
+    "special": false,
+    "direct_users": 1,
+    "users_already_run": 0,
+    "example_scripts": [
+     "$05A"
+    ]
+   },
+   {
+    "target": "$80D775",
+    "ids": [
+     "$35"
+    ],
+    "special": false,
+    "direct_users": 1,
+    "users_already_run": 0,
+    "example_scripts": [
+     "$05F"
+    ]
+   },
+   {
+    "target": "$80D77B",
+    "ids": [
+     "$36"
+    ],
+    "special": false,
+    "direct_users": 1,
+    "users_already_run": 0,
+    "example_scripts": [
+     "$063"
+    ]
+   },
+   {
+    "target": "$80D781",
+    "ids": [
+     "$37"
+    ],
+    "special": false,
+    "direct_users": 1,
+    "users_already_run": 0,
+    "example_scripts": [
+     "$066"
+    ]
+   },
+   {
+    "target": "$80D787",
+    "ids": [
+     "$38"
+    ],
+    "special": false,
+    "direct_users": 1,
+    "users_already_run": 0,
+    "example_scripts": [
+     "$069"
+    ]
+   },
+   {
+    "target": "$80D78D",
+    "ids": [
+     "$39"
+    ],
+    "special": false,
+    "direct_users": 1,
+    "users_already_run": 0,
+    "example_scripts": [
+     "$06A"
+    ]
+   },
+   {
+    "target": "$80D793",
+    "ids": [
+     "$3A"
+    ],
+    "special": false,
+    "direct_users": 1,
+    "users_already_run": 0,
+    "example_scripts": [
+     "$070"
+    ]
+   },
+   {
+    "target": "$80D9A0",
+    "ids": [
+     "$11"
+    ],
+    "special": false,
+    "direct_users": 1,
+    "users_already_run": 0,
+    "example_scripts": [
+     "$042"
+    ]
+   },
+   {
+    "target": "$80D9A7",
+    "ids": [
+     "$B4"
+    ],
+    "special": false,
+    "direct_users": 1,
+    "users_already_run": 0,
+    "example_scripts": [
+     "$19F"
+    ]
+   },
+   {
+    "target": "$80D9AD",
+    "ids": [
+     "$55"
+    ],
+    "special": false,
+    "direct_users": 1,
+    "users_already_run": 0,
+    "example_scripts": [
+     "$189"
+    ]
+   },
+   {
+    "target": "$80E255",
+    "ids": [
+     "$C9"
+    ],
+    "special": false,
+    "direct_users": 1,
+    "users_already_run": 0,
+    "example_scripts": [
+     "$09E"
+    ]
+   },
+   {
+    "target": "$80E30F",
+    "ids": [
+     "$7D"
+    ],
+    "special": false,
+    "direct_users": 1,
+    "users_already_run": 0,
+    "example_scripts": [
+     "$2E8"
+    ]
+   }
+  ]
+ },
+ "opcodes": {
+  "used_by_scripts": 50,
+  "run": 41,
+  "not_run": [
+   "$60",
+   "$62",
+   "$78",
+   "$8C",
+   "$92",
+   "$94",
+   "$9C",
+   "$AC",
+   "$B4"
+  ]
+ }
+}

@@ -1,0 +1,7 @@
+import {proveTaskControl,taskWord,taskStream} from './task-control-source.mjs';
+export const spec={name:'jump',opcode:0x48,entry:0x80F43C,window:{start:0x80F43C,hex:'B100A84C89F3'},s_delta:0,
+  contract:'Full targetWORD LDA(DP00),entryY then WORD TAY, no preceding INY/mask/stackread/store. S unchanged, X unchanged untilfreshfetch. Targetread fullLow/High via actualDBR/freshDP00; F389 freshpointer/fullopcode attargetWORD, finalY=targetWORD+1 mod65536. FinalA/X=opcodeLow,N0/Z(opcodeLow==0); C/V/I/decimal/D/DBR preserved. No target/parity/decodedboundary/capacity/init guards or additionalreturnframe.',
+  host_boundary:'Host48 uses predecoded boundedtargets and stopsPC beforeactual nextopcodefetch; no native/physical Taskbytebridge promotion.'};
+export const prove=map=>proveTaskControl(map,spec);
+export function describeJump({d,bank,s,y,targetWord,pointerBefore,pointerAfter}){if(![s,y,targetWord].every(taskWord))throw Error('Explicit jump WORDs');return {target_sources:taskStream(d,bank,pointerBefore,y),next_opcode_sources:taskStream(d,bank,pointerAfter,targetWord),stack_reads:[],memory_writes:[],output_operand_s:s,fetch_y:targetWord,frontier_y:(targetWord+1)&65535,
+  qualification:'Pure supplied WORD/address equations only, no memory/CPU execution. TargetLow/High read then TAY; fresh pointer/fullopcode after. No physicalowner/permission/init/decodedboundary or globalstack/nativebridge proof.'};}

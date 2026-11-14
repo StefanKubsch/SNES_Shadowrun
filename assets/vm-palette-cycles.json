@@ -1,0 +1,10 @@
+{"format":"shadowrun-palette-cycles-v1",
+"scope":"Palette cycles of the table 8B:FD75 (81:801A, 81:8076, 81:80C4): palette number, first colour within its slot, reverse direction, DMA length in bytes, speed added per frame, steps, and the colours (BGR555 hex); each step sends length bytes from colour 2 index on. See src/data/palette-cycles.mjs.",
+"source_rom_sha256":"91dbfecf9017264b01885e065cf015840223b8e8d2f95dfa62c4c0d654c2f690",
+"cycles":[
+{"palette":"20","first":"000D","reverse":false,"length":"0006","speed":"000E","steps":3,"colors":["000A","004E","00F2","000A","004E"]},
+{"palette":"21","first":"000A","reverse":true,"length":"0006","speed":"000B","steps":3,"colors":["0120","0160","01C0","0120","0160"]},
+{"palette":"25","first":"000A","reverse":true,"length":"000A","speed":"000D","steps":5,"colors":["1080","18A0","20E2","2505","2D48","1080","18A0","20E2","2505"]},
+{"palette":"2A","first":"0001","reverse":true,"length":"0008","speed":"000E","steps":4,"colors":["1080","18A1","24E4","2D48","1080","18A1","24E4"]},
+{"palette":"31","first":"000D","reverse":true,"length":"0006","speed":"000E","steps":3,"colors":["2880","3CA0","50C0","2880","3CA0"]},
+{"palette":"3C","first":"000F","reverse":false,"length":"0002","speed":"0011","steps":16,"colors":["0012","0009","0000","09A2","1745","09A2","0000","2400","5000","2400","0000","2408","4812","2408","0000","0009"]}]}

@@ -1,0 +1,4 @@
+export const nativeCBCBSpec={name:'native-cbcb',id:0x4B,entry:0x80CBCB,
+ windows:[{start:0x80CBCB,hex:'A600BF20B08DF00FAAE220BF01007E25029F01007EC22060'}],
+ anchors:[{kind:'pointer',start:0x82D84E,hex:'CBCB'},{kind:'argument-metadata',start:0x82DA97,hex:'0204'},{kind:'return-metadata',start:0x82D9BB,hex:'0000'}],
+ contract:'Whole original4B/CBCB24byte/10instruction call-free leaf. FullDP00 WORD index into fresh8DB020+X WORD pointer, zero pointer returns before field/mask reads. Nonzero TAX/SEP20, actual7E0001+fullX BYTE read AND freshDP02 BYTE then BYTE store and REP20/typedRTS. HighA retains pointerhigh, BYTE NZ, carry/V untouched, full X/24bit field carry, DBR/Y retained and no WORDmask/field-high write. Own0204/0000 metadata: two actualWORDpops and noresult; adjacent metadata highs sourceguards. Original record/field init/caller/task/scene/frames remain separate.'};

@@ -1,0 +1,2 @@
+import {emitTaskNativeProbe} from './task-native-probe.mjs';import {prepareTaskBitLogic} from '../proof/task/bit-logic.mjs';import {proveBitLogicToDispatch} from './render-task-bit-logic-source-proof.mjs';
+await emitTaskNativeProbe({name:'bit-logic',module:'proof/task/bit-logic.mjs',prepare:prepareTaskBitLogic,exportName:'prepareTaskBitLogic',sourceName:'bit-logic',proofField:'bit_logic',entries:[8451861,8451869,8451877,8451885],proveSource:proveBitLogicToDispatch});

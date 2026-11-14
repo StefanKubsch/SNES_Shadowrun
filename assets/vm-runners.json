@@ -1,0 +1,257 @@
+{
+ "format": "shadowrun-runners-v3",
+ "scope": "Runner table of bank 80, one row per member (Jake first): object number (9700), member record (971A/9734; inline when in ROM: attributes as the status screen labels them, skills, spell levels), portrait dialog (974E), datajack (9768 to 1F56), name (9782, vm-texts.json), new-game magic points for 7E:3C96 (979C) and the new-game armour and weapon for 7E:3C2E (97A9: object numbers, armour rating, weapon kind, damage and range). See src/data/runners.mjs.",
+ "source_rom_sha256": "91dbfecf9017264b01885e065cf015840223b8e8d2f95dfa62c4c0d654c2f690",
+ "runners": [
+  {
+   "object": "08B2",
+   "record": "7E:3BFB",
+   "portrait": 78,
+   "datajack": true,
+   "name": "9D:F4F6",
+   "magic_points": 0,
+   "armour": {"object":"FFFF","rating":0},
+   "weapon": {"object":"FFFF","kind":5,"damage":1,"range":0}
+  },
+  {
+   "object": "0A4F",
+   "record": "80:9811",
+   "portrait": 124,
+   "datajack": false,
+   "name": "9E:8ED9",
+   "magic_points": 80,
+   "armour": {"object":"0888","rating":1},
+   "weapon": {"object":"0142","kind":0,"damage":6,"range":2},
+   "stats": {
+    "body": 6,
+    "magic": 8,
+    "strength": 4,
+    "byte3": 5,
+    "charisma": 1,
+    "count_max": 60,
+    "skills": {"firearms":4,"unarmed_combat":0,"armed_combat":0,"computer":0,"leadership":0,"negotiation":2},
+    "spells": {"powerball":5,"heal":3,"invisibility":0,"armour":4,"summon_spirit":0,"freeze":0}
+   }
+  },
+  {
+   "object": "0D2E",
+   "record": "80:988F",
+   "portrait": 115,
+   "datajack": true,
+   "name": "9E:8ECD",
+   "magic_points": 0,
+   "armour": {"object":"088F","rating":1},
+   "weapon": {"object":"194B","kind":6,"damage":3,"range":1},
+   "stats": {
+    "body": 3,
+    "magic": 0,
+    "strength": 3,
+    "byte3": 2,
+    "charisma": 1,
+    "count_max": 30,
+    "skills": {"firearms":2,"unarmed_combat":0,"armed_combat":1,"computer":3,"leadership":0,"negotiation":0},
+    "spells": {"powerball":0,"heal":0,"invisibility":0,"armour":0,"summon_spirit":0,"freeze":0}
+   }
+  },
+  {
+   "object": "1458",
+   "record": "80:9835",
+   "portrait": 120,
+   "datajack": false,
+   "name": "9D:8658",
+   "magic_points": 0,
+   "armour": {"object":"086C","rating":1},
+   "weapon": {"object":"0196","kind":1,"damage":6,"range":3},
+   "stats": {
+    "body": 6,
+    "magic": 0,
+    "strength": 5,
+    "byte3": 2,
+    "charisma": 2,
+    "count_max": 60,
+    "skills": {"firearms":8,"unarmed_combat":0,"armed_combat":0,"computer":0,"leadership":0,"negotiation":0},
+    "spells": {"powerball":0,"heal":0,"invisibility":0,"armour":0,"summon_spirit":0,"freeze":0}
+   }
+  },
+  {
+   "object": "079A",
+   "record": "80:9847",
+   "portrait": 109,
+   "datajack": false,
+   "name": "9E:8EB8",
+   "magic_points": 0,
+   "armour": {"object":"18B1","rating":3},
+   "weapon": {"object":"0BEC","kind":0,"damage":6,"range":2},
+   "stats": {
+    "body": 7,
+    "magic": 0,
+    "strength": 5,
+    "byte3": 1,
+    "charisma": 1,
+    "count_max": 70,
+    "skills": {"firearms":8,"unarmed_combat":0,"armed_combat":5,"computer":0,"leadership":0,"negotiation":0},
+    "spells": {"powerball":0,"heal":0,"invisibility":0,"armour":0,"summon_spirit":0,"freeze":0}
+   }
+  },
+  {
+   "object": "089D",
+   "record": "80:9859",
+   "portrait": 105,
+   "datajack": false,
+   "name": "9D:8581",
+   "magic_points": 0,
+   "armour": {"object":"0873","rating":1},
+   "weapon": {"object":"019D","kind":1,"damage":5,"range":2},
+   "stats": {
+    "body": 5,
+    "magic": 0,
+    "strength": 5,
+    "byte3": 4,
+    "charisma": 1,
+    "count_max": 50,
+    "skills": {"firearms":10,"unarmed_combat":6,"armed_combat":6,"computer":0,"leadership":0,"negotiation":0},
+    "spells": {"powerball":0,"heal":0,"invisibility":0,"armour":0,"summon_spirit":0,"freeze":0}
+   }
+  },
+  {
+   "object": "1B6D",
+   "record": "80:986B",
+   "portrait": 103,
+   "datajack": false,
+   "name": "9D:857C",
+   "magic_points": 200,
+   "armour": {"object":"FFFF","rating":0},
+   "weapon": {"object":"FFFF","kind":5,"damage":0,"range":0},
+   "stats": {
+    "body": 7,
+    "magic": 20,
+    "strength": 1,
+    "byte3": 1,
+    "charisma": 6,
+    "count_max": 70,
+    "skills": {"firearms":0,"unarmed_combat":0,"armed_combat":0,"computer":0,"leadership":4,"negotiation":3},
+    "spells": {"powerball":5,"heal":4,"invisibility":5,"armour":2,"summon_spirit":4,"freeze":3}
+   }
+  },
+  {
+   "object": "0B52",
+   "record": "80:987D",
+   "portrait": 117,
+   "datajack": false,
+   "name": "9D:8617",
+   "magic_points": 170,
+   "armour": {"object":"FFFF","rating":0},
+   "weapon": {"object":"FFFF","kind":5,"damage":0,"range":0},
+   "stats": {
+    "body": 5,
+    "magic": 17,
+    "strength": 1,
+    "byte3": 7,
+    "charisma": 7,
+    "count_max": 50,
+    "skills": {"firearms":0,"unarmed_combat":0,"armed_combat":0,"computer":0,"leadership":1,"negotiation":3},
+    "spells": {"powerball":4,"heal":6,"invisibility":2,"armour":0,"summon_spirit":5,"freeze":0}
+   }
+  },
+  {
+   "object": "15D2",
+   "record": "80:9823",
+   "portrait": 126,
+   "datajack": true,
+   "name": "9D:86E8",
+   "magic_points": 0,
+   "armour": {"object":"18AA","rating":4},
+   "weapon": {"object":"0134","kind":6,"damage":9,"range":4},
+   "stats": {
+    "body": 10,
+    "magic": 0,
+    "strength": 4,
+    "byte3": 4,
+    "charisma": 2,
+    "count_max": 100,
+    "skills": {"firearms":4,"unarmed_combat":0,"armed_combat":0,"computer":6,"leadership":0,"negotiation":0},
+    "spells": {"powerball":0,"heal":0,"invisibility":0,"armour":0,"summon_spirit":0,"freeze":0}
+   }
+  },
+  {
+   "object": "0BA6",
+   "record": "80:98A1",
+   "portrait": 112,
+   "datajack": false,
+   "name": "9E:8EC6",
+   "magic_points": 40,
+   "armour": {"object":"0857","rating":2},
+   "weapon": {"object":"12FA","kind":0,"damage":4,"range":1},
+   "stats": {
+    "body": 3,
+    "magic": 4,
+    "strength": 3,
+    "byte3": 2,
+    "charisma": 3,
+    "count_max": 30,
+    "skills": {"firearms":1,"unarmed_combat":0,"armed_combat":1,"computer":0,"leadership":1,"negotiation":2},
+    "spells": {"powerball":2,"heal":2,"invisibility":0,"armour":1,"summon_spirit":0,"freeze":0}
+   }
+  },
+  {
+   "object": "078C",
+   "record": "80:98B3",
+   "portrait": 110,
+   "datajack": true,
+   "name": "9E:8EC0",
+   "magic_points": 0,
+   "armour": {"object":"0881","rating":1},
+   "weapon": {"object":"0268","kind":0,"damage":5,"range":2},
+   "stats": {
+    "body": 3,
+    "magic": 0,
+    "strength": 4,
+    "byte3": 2,
+    "charisma": 4,
+    "count_max": 30,
+    "skills": {"firearms":1,"unarmed_combat":0,"armed_combat":1,"computer":3,"leadership":0,"negotiation":0},
+    "spells": {"powerball":0,"heal":0,"invisibility":0,"armour":0,"summon_spirit":0,"freeze":0}
+   }
+  },
+  {
+   "object": "0B3D",
+   "record": "80:98C5",
+   "portrait": 121,
+   "datajack": false,
+   "name": "9E:8ED3",
+   "magic_points": 0,
+   "armour": {"object":"0865","rating":1},
+   "weapon": {"object":"026F","kind":1,"damage":6,"range":3},
+   "stats": {
+    "body": 4,
+    "magic": 0,
+    "strength": 4,
+    "byte3": 1,
+    "charisma": 1,
+    "count_max": 40,
+    "skills": {"firearms":4,"unarmed_combat":0,"armed_combat":3,"computer":0,"leadership":0,"negotiation":0},
+    "spells": {"powerball":0,"heal":0,"invisibility":0,"armour":0,"summon_spirit":0,"freeze":0}
+   }
+  },
+  {
+   "object": "098B",
+   "record": "80:98D7",
+   "portrait": 106,
+   "datajack": false,
+   "name": "9D:F51B",
+   "magic_points": 50,
+   "armour": {"object":"FFFF","rating":0},
+   "weapon": {"object":"FFFF","kind":5,"damage":2,"range":1},
+   "stats": {
+    "body": 3,
+    "magic": 5,
+    "strength": 4,
+    "byte3": 1,
+    "charisma": 1,
+    "count_max": 30,
+    "skills": {"firearms":0,"unarmed_combat":0,"armed_combat":0,"computer":0,"leadership":3,"negotiation":1},
+    "spells": {"powerball":3,"heal":1,"invisibility":5,"armour":1,"summon_spirit":3,"freeze":0}
+   }
+  }
+ ]
+}

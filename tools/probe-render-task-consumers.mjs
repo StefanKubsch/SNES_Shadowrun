@@ -1,0 +1,2 @@
+import {emitTaskNativeProbe} from './task-native-probe.mjs';import {prepareTaskConsumers} from '../proof/task/consumers.mjs';import {proveConsumerToDispatch} from './render-task-consumers-source-proof.mjs';
+await emitTaskNativeProbe({name:'consumers',module:'proof/task/consumers.mjs',prepare:prepareTaskConsumers,exportName:'prepareTaskConsumers',sourceName:'consumers',proofField:'consumers',entries:[8452283,8451378,8451387],proveSource:proveConsumerToDispatch});

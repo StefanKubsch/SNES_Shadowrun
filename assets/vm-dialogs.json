@@ -1,0 +1,1844 @@
+{
+ "format": "shadowrun-dialogs-v1",
+ "scope": "Dialog records of 80:936C/9178 in address order (8D:80C0 on): dialog number (table 80:94F7), portrait record (vm-portraits.json), music (80:94E8, 0 keeps), mirror (second portrait), entries per key (greeting FF, talk FE, fallback FD or topic number): topic numbers added to the topic list, optional script appended by the action, text address (vm-texts.json). See src/data/dialogs.mjs.",
+ "source_rom_sha256": "91dbfecf9017264b01885e065cf015840223b8e8d2f95dfa62c4c0d654c2f690",
+ "dialogs": [
+  {
+   "dialog": 116,
+   "portrait": "85:FF42",
+   "music": 0,
+   "mirror": false,
+   "entries": [
+    {"key":"greeting","topics":[],"text":"9D:D8C0"},
+    {"key":"talk","topics":[],"text":"9D:D8C7"},
+    {"key":"fallback","topics":[],"text":"9D:D908"},
+    {"key":13,"topics":[],"script":897,"text":"9D:87B6"},
+    {"key":42,"topics":[],"text":"9D:D91C"},
+    {"key":27,"topics":[],"text":"9D:D94C"},
+    {"key":22,"topics":[],"script":2,"text":"9D:87B6"},
+    {"key":25,"topics":[9],"text":"9D:D973"},
+    {"key":30,"topics":[],"text":"9D:D9AA"},
+    {"key":62,"topics":[],"text":"9D:D9CC"},
+    {"key":9,"topics":[62],"text":"9D:D9E4"}
+   ]
+  },
+  {
+   "dialog": 111,
+   "portrait": "87:FFB4",
+   "music": 1,
+   "mirror": false,
+   "entries": [
+    {"key":"greeting","topics":[],"text":"9D:D33F"},
+    {"key":"fallback","topics":[],"text":"9D:D370"},
+    {"key":"talk","topics":[],"text":"9D:D38A"},
+    {"key":17,"topics":[],"text":"9D:D251"},
+    {"key":14,"topics":[],"text":"9D:D272"},
+    {"key":9,"topics":[],"text":"9D:D29D"},
+    {"key":19,"topics":[61,31],"text":"9D:D3B1"},
+    {"key":18,"topics":[],"text":"9D:D3E5"},
+    {"key":42,"topics":[],"text":"9D:D414"},
+    {"key":22,"topics":[],"script":730,"text":"9D:87B6"},
+    {"key":11,"topics":[],"text":"9D:D445"}
+   ]
+  },
+  {
+   "dialog": 64,
+   "portrait": "89:C777",
+   "music": 2,
+   "mirror": false,
+   "entries": [
+    {"key":"greeting","topics":[],"text":"9D:B340"},
+    {"key":"talk","topics":[],"text":"9D:B367"},
+    {"key":"fallback","topics":[],"text":"9D:B38D"},
+    {"key":2,"topics":[],"text":"9D:B397"},
+    {"key":4,"topics":[],"text":"9D:B3C7"},
+    {"key":9,"topics":[],"text":"9D:B3F2"},
+    {"key":13,"topics":[],"text":"9D:B41C"},
+    {"key":14,"topics":[63],"text":"9D:B43C"},
+    {"key":25,"topics":[],"text":"9D:B496"},
+    {"key":63,"topics":[],"text":"9D:B4BB"},
+    {"key":28,"topics":[],"text":"9D:B4EB"}
+   ]
+  },
+  {
+   "dialog": 126,
+   "portrait": "85:FDF8",
+   "music": 0,
+   "mirror": false,
+   "entries": [
+    {"key":"greeting","topics":[],"text":"9D:E0E7"},
+    {"key":"talk","topics":[],"text":"9D:E11F"},
+    {"key":"fallback","topics":[],"text":"9D:E136"},
+    {"key":42,"topics":[1],"text":"9D:E170"},
+    {"key":1,"topics":[],"text":"9D:E1A3"},
+    {"key":0,"topics":[],"text":"9D:E1DE"},
+    {"key":56,"topics":[],"text":"9D:E202"},
+    {"key":22,"topics":[],"script":437,"text":"9D:87B6"},
+    {"key":60,"topics":[],"text":"9D:E233"},
+    {"key":55,"topics":[],"text":"9D:E0C8"}
+   ]
+  },
+  {
+   "dialog": 130,
+   "portrait": "84:FFB3",
+   "music": 1,
+   "mirror": false,
+   "entries": [
+    {"key":"greeting","topics":[58],"text":"9D:E3B1"},
+    {"key":"talk","topics":[],"text":"9D:E3EC"},
+    {"key":"fallback","topics":[],"text":"9D:E40A"},
+    {"key":58,"topics":[43],"script":286,"text":"9D:E41B"},
+    {"key":43,"topics":[],"text":"9D:E453"},
+    {"key":21,"topics":[],"text":"9D:E490"},
+    {"key":30,"topics":[],"text":"9D:E4B8"},
+    {"key":9,"topics":[],"script":830,"text":"9D:E4EB"},
+    {"key":62,"topics":[],"text":"9D:E543"}
+   ]
+  },
+  {
+   "dialog": 115,
+   "portrait": "85:FF63",
+   "music": 0,
+   "mirror": true,
+   "entries": [
+    {"key":"greeting","topics":[],"text":"9D:D6DE"},
+    {"key":"talk","topics":[],"text":"9D:D701"},
+    {"key":"fallback","topics":[],"text":"9D:D729"},
+    {"key":32,"topics":[38],"text":"9D:D74A"},
+    {"key":38,"topics":[],"text":"9D:D7A1"},
+    {"key":14,"topics":[],"text":"9D:D7D6"},
+    {"key":42,"topics":[],"text":"9D:D81D"},
+    {"key":40,"topics":[],"script":783,"text":"9D:D872"},
+    {"key":22,"topics":[],"script":904,"text":"9D:87B6"}
+   ]
+  },
+  {
+   "dialog": 117,
+   "portrait": "85:FF21",
+   "music": 1,
+   "mirror": false,
+   "entries": [
+    {"key":"greeting","topics":[],"text":"9D:DA00"},
+    {"key":"talk","topics":[],"text":"9D:DA11"},
+    {"key":"fallback","topics":[],"text":"9D:DA27"},
+    {"key":13,"topics":[],"script":897,"text":"9D:87B6"},
+    {"key":9,"topics":[62],"text":"9D:D9E4"},
+    {"key":25,"topics":[9],"text":"9D:D973"},
+    {"key":30,"topics":[],"text":"9D:D9AA"},
+    {"key":27,"topics":[],"text":"9D:D94C"},
+    {"key":62,"topics":[],"text":"9D:D9CC"}
+   ]
+  },
+  {
+   "dialog": 37,
+   "portrait": "89:CAF2",
+   "music": 0,
+   "mirror": true,
+   "entries": [
+    {"key":"greeting","topics":[],"text":"9D:9E1A"},
+    {"key":"talk","topics":[27],"text":"9D:9E52"},
+    {"key":"fallback","topics":[],"text":"9D:9E86"},
+    {"key":27,"topics":[],"text":"9D:9E9B"},
+    {"key":42,"topics":[],"text":"9D:9EDE"},
+    {"key":56,"topics":[],"script":323,"text":"9D:9F2E"},
+    {"key":62,"topics":[57],"text":"9D:9F5F"},
+    {"key":57,"topics":[],"text":"9D:9FB2"},
+    {"key":25,"topics":[],"text":"9D:9FE9"}
+   ]
+  },
+  {
+   "dialog": 61,
+   "portrait": "89:C7DA",
+   "music": 0,
+   "mirror": false,
+   "entries": [
+    {"key":"greeting","topics":[],"text":"9D:B0F4"},
+    {"key":"talk","topics":[24],"text":"9D:B114"},
+    {"key":"fallback","topics":[],"text":"9D:B13D"},
+    {"key":24,"topics":[],"text":"9D:B152"},
+    {"key":42,"topics":[],"text":"9D:B17A"},
+    {"key":22,"topics":[],"text":"9D:B1A8"},
+    {"key":23,"topics":[40],"text":"9D:B1D3"},
+    {"key":9,"topics":[62],"text":"9D:B242"},
+    {"key":40,"topics":[],"text":"9D:B286"}
+   ]
+  },
+  {
+   "dialog": 19,
+   "portrait": "89:CD44",
+   "music": 2,
+   "mirror": false,
+   "entries": [
+    {"key":"greeting","topics":[],"script":483,"text":"9D:87B6"},
+    {"key":"talk","topics":[],"text":"9D:9115"},
+    {"key":"fallback","topics":[],"text":"9D:9125"},
+    {"key":42,"topics":[22],"text":"9D:9156"},
+    {"key":22,"topics":[34],"text":"9D:9176"},
+    {"key":29,"topics":[],"script":77,"text":"9D:87B6"},
+    {"key":16,"topics":[],"script":914,"text":"9D:91BA"},
+    {"key":34,"topics":[],"text":"9D:91F6"}
+   ]
+  },
+  {
+   "dialog": 136,
+   "portrait": "81:FFC1",
+   "music": 1,
+   "mirror": false,
+   "entries": [
+    {"key":"greeting","topics":[],"text":"9D:E83D"},
+    {"key":"talk","topics":[],"text":"9D:E858"},
+    {"key":"fallback","topics":[],"text":"9D:E897"},
+    {"key":58,"topics":[],"text":"9D:E8C9"},
+    {"key":43,"topics":[],"text":"9D:E453"},
+    {"key":21,"topics":[],"text":"9D:E490"},
+    {"key":30,"topics":[],"text":"9D:E8E0"},
+    {"key":9,"topics":[],"script":830,"text":"9D:E8FF"},
+    {"key":62,"topics":[],"text":"9D:E543"}
+   ]
+  },
+  {
+   "dialog": 118,
+   "portrait": "85:FF00",
+   "music": 1,
+   "mirror": false,
+   "entries": [
+    {"key":"greeting","topics":[],"text":"9D:DA35"},
+    {"key":"talk","topics":[],"text":"9D:DA54"},
+    {"key":"fallback","topics":[],"text":"9D:DA27"},
+    {"key":13,"topics":[],"text":"9D:DA7D"},
+    {"key":9,"topics":[62],"text":"9D:D9E4"},
+    {"key":42,"topics":[],"text":"9D:DAAC"},
+    {"key":25,"topics":[9],"text":"9D:DACF"},
+    {"key":27,"topics":[],"text":"9D:D94C"},
+    {"key":62,"topics":[],"text":"9D:D9CC"}
+   ]
+  },
+  {
+   "dialog": 109,
+   "portrait": "89:C1AA",
+   "music": 0,
+   "mirror": false,
+   "entries": [
+    {"key":"greeting","topics":[],"text":"9D:D11C"},
+    {"key":"talk","topics":[],"text":"9D:D137"},
+    {"key":"fallback","topics":[],"text":"9D:D15C"},
+    {"key":14,"topics":[],"text":"9D:D082"},
+    {"key":9,"topics":[],"text":"9D:D17C"},
+    {"key":40,"topics":[],"text":"9D:D0D7"},
+    {"key":39,"topics":[],"text":"9D:D19E"},
+    {"key":22,"topics":[],"script":152,"text":"9D:87B6"},
+    {"key":42,"topics":[],"text":"9D:D1DE"}
+   ]
+  },
+  {
+   "dialog": 20,
+   "portrait": "89:CD23",
+   "music": 2,
+   "mirror": false,
+   "entries": [
+    {"key":"greeting","topics":[],"text":"9D:921A"},
+    {"key":"talk","topics":[42],"text":"9D:925B"},
+    {"key":"fallback","topics":[],"text":"9D:9279"},
+    {"key":42,"topics":[22],"text":"9D:9156"},
+    {"key":22,"topics":[34],"text":"9D:9176"},
+    {"key":29,"topics":[],"script":77,"text":"9D:87B6"},
+    {"key":16,"topics":[],"script":914,"text":"9D:91BA"},
+    {"key":34,"topics":[],"text":"9D:91F6"}
+   ]
+  },
+  {
+   "dialog": 41,
+   "portrait": "89:CA6E",
+   "music": 2,
+   "mirror": false,
+   "entries": [
+    {"key":"greeting","topics":[],"text":"9D:A1F0"},
+    {"key":"talk","topics":[],"text":"9D:A24C"},
+    {"key":14,"topics":[],"text":"9D:A2A0"},
+    {"key":"fallback","topics":[],"text":"9D:A2ED"},
+    {"key":2,"topics":[],"text":"9D:A2FF"},
+    {"key":9,"topics":[],"text":"9D:A363"},
+    {"key":25,"topics":[],"text":"9D:A3AD"},
+    {"key":38,"topics":[],"text":"9D:A40E"},
+    {"key":13,"topics":[],"text":"9D:A43C"}
+   ]
+  },
+  {
+   "dialog": 105,
+   "portrait": "89:C22E",
+   "music": 0,
+   "mirror": true,
+   "entries": [
+    {"key":"greeting","topics":[],"text":"9D:CDAC"},
+    {"key":"talk","topics":[],"text":"9D:CDE6"},
+    {"key":"fallback","topics":[],"text":"9D:CE05"},
+    {"key":1,"topics":[],"text":"9D:CD84"},
+    {"key":42,"topics":[0,55],"text":"9D:CE23"},
+    {"key":55,"topics":[],"text":"9D:CE54"},
+    {"key":0,"topics":[],"text":"9D:CEA5"},
+    {"key":22,"topics":[],"script":410,"text":"9D:87B6"}
+   ]
+  },
+  {
+   "dialog": 32,
+   "portrait": "89:CB97",
+   "music": 2,
+   "mirror": false,
+   "entries": [
+    {"key":"greeting","topics":[20],"script":129,"text":"9D:9A54"},
+    {"key":"talk","topics":[32],"text":"9D:9AA7"},
+    {"key":"fallback","topics":[],"text":"9D:9B06"},
+    {"key":8,"topics":[],"script":248,"text":"9D:87B6"},
+    {"key":32,"topics":[],"text":"9D:9B17"},
+    {"key":20,"topics":[],"text":"9D:9B4C"},
+    {"key":21,"topics":[],"script":419,"text":"9D:9A1D"}
+   ]
+  },
+  {
+   "dialog": 103,
+   "portrait": "89:C270",
+   "music": 1,
+   "mirror": false,
+   "entries": [
+    {"key":"talk","topics":[],"text":"9D:CC3A"},
+    {"key":"greeting","topics":[],"text":"9D:CC61"},
+    {"key":"fallback","topics":[],"text":"9D:CC7F"},
+    {"key":25,"topics":[],"text":"9D:CBB5"},
+    {"key":42,"topics":[],"text":"9D:CCA3"},
+    {"key":14,"topics":[],"text":"9D:CBEF"},
+    {"key":22,"topics":[],"script":32,"text":"9D:87B6"},
+    {"key":0,"topics":[],"text":"9D:CCD6"}
+   ]
+  },
+  {
+   "dialog": 125,
+   "portrait": "85:FE19",
+   "music": 1,
+   "mirror": false,
+   "entries": [
+    {"key":"greeting","topics":[],"text":"9D:DF88"},
+    {"key":"talk","topics":[],"text":"9D:DFB7"},
+    {"key":"fallback","topics":[],"text":"9D:DFEF"},
+    {"key":1,"topics":[],"text":"9D:E00D"},
+    {"key":0,"topics":[],"text":"9D:E03F"},
+    {"key":56,"topics":[],"text":"9D:E062"},
+    {"key":60,"topics":[],"text":"9D:E083"},
+    {"key":55,"topics":[],"text":"9D:E0C8"}
+   ]
+  },
+  {
+   "dialog": 110,
+   "portrait": "87:FFD5",
+   "music": 1,
+   "mirror": false,
+   "entries": [
+    {"key":"greeting","topics":[],"text":"9D:D210"},
+    {"key":"fallback","topics":[],"text":"9D:D224"},
+    {"key":"talk","topics":[],"text":"9D:D232"},
+    {"key":17,"topics":[],"text":"9D:D251"},
+    {"key":14,"topics":[],"text":"9D:D272"},
+    {"key":9,"topics":[],"text":"9D:D29D"},
+    {"key":18,"topics":[],"text":"9D:D2C4"},
+    {"key":42,"topics":[],"text":"9D:D2FE"}
+   ]
+  },
+  {
+   "dialog": 23,
+   "portrait": "89:CCC0",
+   "music": 1,
+   "mirror": false,
+   "entries": [
+    {"key":"greeting","topics":[],"text":"9D:9350"},
+    {"key":"talk","topics":[],"text":"9D:9361"},
+    {"key":"fallback","topics":[],"text":"9D:9383"},
+    {"key":6,"topics":[],"text":"9D:93A4"},
+    {"key":16,"topics":[],"text":"9D:93C1"},
+    {"key":26,"topics":[],"text":"9D:93E6"},
+    {"key":58,"topics":[],"text":"9D:9401"},
+    {"key":42,"topics":[],"text":"9D:941D"}
+   ]
+  },
+  {
+   "dialog": 92,
+   "portrait": "89:C3DB",
+   "music": 2,
+   "mirror": false,
+   "entries": [
+    {"key":"greeting","topics":[43],"text":"9D:C2D6"},
+    {"key":"talk","topics":[30],"script":474,"text":"9D:C33F"},
+    {"key":"fallback","topics":[],"text":"9D:C360"},
+    {"key":17,"topics":[],"text":"9D:C370"},
+    {"key":13,"topics":[],"text":"9D:C394"},
+    {"key":43,"topics":[],"text":"9D:C3B9"},
+    {"key":30,"topics":[],"text":"9D:C3E7"}
+   ]
+  },
+  {
+   "dialog": 38,
+   "portrait": "89:CAD1",
+   "music": 1,
+   "mirror": false,
+   "entries": [
+    {"key":"greeting","topics":[],"text":"9D:A00B"},
+    {"key":"talk","topics":[],"text":"9D:A01B"},
+    {"key":"fallback","topics":[],"text":"9D:A043"},
+    {"key":15,"topics":[],"text":"9D:A055"},
+    {"key":8,"topics":[],"script":330,"text":"9D:A0B7"},
+    {"key":56,"topics":[],"text":"9D:A0CC"},
+    {"key":7,"topics":[],"script":123,"text":"9D:A0EB"}
+   ]
+  },
+  {
+   "dialog": 14,
+   "portrait": "89:CDE9",
+   "music": 1,
+   "mirror": false,
+   "entries": [
+    {"key":"greeting","topics":[],"text":"9D:8E13"},
+    {"key":"talk","topics":[42],"text":"9D:8E46"},
+    {"key":"fallback","topics":[],"text":"9D:8E5E"},
+    {"key":42,"topics":[11,22],"text":"9D:8E76"},
+    {"key":11,"topics":[10],"text":"9D:8EA2"},
+    {"key":22,"topics":[],"text":"9D:8EEE"},
+    {"key":10,"topics":[],"text":"9D:8F0F"}
+   ]
+  },
+  {
+   "dialog": 113,
+   "portrait": "85:FFA5",
+   "music": 1,
+   "mirror": false,
+   "entries": [
+    {"key":"greeting","topics":[],"text":"9D:D531"},
+    {"key":"talk","topics":[],"text":"9D:D558"},
+    {"key":"fallback","topics":[],"text":"9D:D598"},
+    {"key":42,"topics":[],"text":"9D:D4C8"},
+    {"key":17,"topics":[],"text":"9D:D4F3"},
+    {"key":25,"topics":[],"text":"9D:D509"},
+    {"key":22,"topics":[],"script":211,"text":"9D:87B6"}
+   ]
+  },
+  {
+   "dialog": 107,
+   "portrait": "89:C1EC",
+   "music": 1,
+   "mirror": false,
+   "entries": [
+    {"key":"greeting","topics":[],"text":"9D:CEE8"},
+    {"key":"talk","topics":[],"text":"9D:CF42"},
+    {"key":"fallback","topics":[],"text":"9D:CF63"},
+    {"key":42,"topics":[],"text":"9D:CF7F"},
+    {"key":22,"topics":[],"script":385,"text":"9D:87B6"},
+    {"key":58,"topics":[],"text":"9D:CFA0"},
+    {"key":30,"topics":[],"text":"9D:CFED"}
+   ]
+  },
+  {
+   "dialog": 104,
+   "portrait": "89:C24F",
+   "music": 1,
+   "mirror": true,
+   "entries": [
+    {"key":"greeting","topics":[],"text":"9D:CCF6"},
+    {"key":"talk","topics":[],"text":"9D:CD0F"},
+    {"key":"fallback","topics":[],"text":"9D:CD37"},
+    {"key":42,"topics":[0,55],"text":"9D:CD49"},
+    {"key":55,"topics":[],"text":"9D:CD57"},
+    {"key":0,"topics":[],"text":"9D:CD69"},
+    {"key":1,"topics":[],"text":"9D:CD84"}
+   ]
+  },
+  {
+   "dialog": 100,
+   "portrait": "89:C2D3",
+   "music": 1,
+   "mirror": false,
+   "entries": [
+    {"key":"greeting","topics":[],"text":"9D:C911"},
+    {"key":"talk","topics":[],"text":"9D:C93B"},
+    {"key":"fallback","topics":[],"text":"9D:C962"},
+    {"key":6,"topics":[],"text":"9D:C979"},
+    {"key":26,"topics":[],"text":"9D:C9E8"},
+    {"key":37,"topics":[],"text":"9D:CA26"},
+    {"key":21,"topics":[],"script":510,"text":"9D:CA66"}
+   ]
+  },
+  {
+   "dialog": 95,
+   "portrait": "89:C378",
+   "music": 2,
+   "mirror": false,
+   "entries": [
+    {"key":"greeting","topics":[],"text":"9D:C576"},
+    {"key":"talk","topics":[],"script":195,"text":"9D:87B6"},
+    {"key":"fallback","topics":[],"text":"9D:C45C"},
+    {"key":6,"topics":[],"text":"9D:C57E"},
+    {"key":26,"topics":[],"text":"9D:C498"},
+    {"key":37,"topics":[],"text":"9D:C4BC"},
+    {"key":16,"topics":[],"text":"9D:C5A6"}
+   ]
+  },
+  {
+   "dialog": 69,
+   "portrait": "89:C6D2",
+   "music": 1,
+   "mirror": false,
+   "entries": [
+    {"key":"greeting","topics":[],"text":"9D:B876"},
+    {"key":"talk","topics":[21],"text":"9D:B890"},
+    {"key":"fallback","topics":[],"text":"9D:B8C4"},
+    {"key":42,"topics":[],"text":"9D:B8DF"},
+    {"key":21,"topics":[56],"text":"9D:B91F"},
+    {"key":56,"topics":[],"text":"9D:B955"},
+    {"key":10,"topics":[],"text":"9D:B98A"}
+   ]
+  },
+  {
+   "dialog": 51,
+   "portrait": "89:C924",
+   "music": 2,
+   "mirror": false,
+   "entries": [
+    {"key":"greeting","topics":[],"text":"9D:AA7F"},
+    {"key":"talk","topics":[],"text":"9D:AAB1"},
+    {"key":"fallback","topics":[],"text":"9D:AADC"},
+    {"key":2,"topics":[],"text":"9D:AAFC"},
+    {"key":4,"topics":[],"text":"9D:AB1E"},
+    {"key":14,"topics":[],"text":"9D:AB3E"},
+    {"key":63,"topics":[],"script":481,"text":"9D:AB67"}
+   ]
+  },
+  {
+   "dialog": 114,
+   "portrait": "85:FF84",
+   "music": 1,
+   "mirror": false,
+   "entries": [
+    {"key":"greeting","topics":[],"text":"9D:D5B5"},
+    {"key":"talk","topics":[],"text":"9D:D5DD"},
+    {"key":"fallback","topics":[],"text":"9D:D5EE"},
+    {"key":32,"topics":[38],"text":"9D:D60A"},
+    {"key":38,"topics":[],"text":"9D:D641"},
+    {"key":14,"topics":[],"text":"9D:D675"},
+    {"key":40,"topics":[],"text":"9D:D6B2"}
+   ]
+  },
+  {
+   "dialog": 67,
+   "portrait": "89:C714",
+   "music": 2,
+   "mirror": false,
+   "entries": [
+    {"key":"greeting","topics":[],"text":"9D:B627"},
+    {"key":"talk","topics":[],"text":"9D:B64C"},
+    {"key":"fallback","topics":[],"text":"9D:B69E"},
+    {"key":38,"topics":[20],"script":570,"text":"9D:B6B2"},
+    {"key":20,"topics":[],"script":915,"text":"9D:B718"},
+    {"key":14,"topics":[2],"text":"9D:B779"}
+   ]
+  },
+  {
+   "dialog": 108,
+   "portrait": "89:C1CB",
+   "music": 1,
+   "mirror": false,
+   "entries": [
+    {"key":"greeting","topics":[],"text":"9D:D01E"},
+    {"key":"talk","topics":[],"text":"9D:D047"},
+    {"key":"fallback","topics":[],"text":"9D:D06E"},
+    {"key":14,"topics":[],"text":"9D:D082"},
+    {"key":9,"topics":[],"text":"9D:D0B5"},
+    {"key":40,"topics":[],"text":"9D:D0D7"},
+    {"key":39,"topics":[],"text":"9D:D110"}
+   ]
+  },
+  {
+   "dialog": 93,
+   "portrait": "89:C3BA",
+   "music": 2,
+   "mirror": false,
+   "entries": [
+    {"key":"greeting","topics":[],"text":"9D:C40D"},
+    {"key":"talk","topics":[],"text":"9D:C415"},
+    {"key":"fallback","topics":[],"text":"9D:C45C"},
+    {"key":6,"topics":[],"text":"9D:C470"},
+    {"key":26,"topics":[],"text":"9D:C498"},
+    {"key":37,"topics":[],"text":"9D:C4BC"},
+    {"key":16,"topics":[],"text":"9D:C4D9"}
+   ]
+  },
+  {
+   "dialog": 2,
+   "portrait": "89:CF75",
+   "music": 2,
+   "mirror": false,
+   "entries": [
+    {"key":"greeting","topics":[],"script":666,"text":"9D:87B6"},
+    {"key":"talk","topics":[],"script":495,"text":"9D:87B6"},
+    {"key":"fallback","topics":[],"script":495,"text":"9D:87B6"},
+    {"key":26,"topics":[],"script":215,"text":"9D:87B6"},
+    {"key":34,"topics":[],"script":634,"text":"9D:87B6"}
+   ]
+  },
+  {
+   "dialog": 31,
+   "portrait": "89:CBB8",
+   "music": 1,
+   "mirror": false,
+   "entries": [
+    {"key":"greeting","topics":[],"text":"9D:9985"},
+    {"key":"talk","topics":[],"text":"9D:99A6"},
+    {"key":"fallback","topics":[],"text":"9D:99C5"},
+    {"key":7,"topics":[],"script":182,"text":"9D:99DA"},
+    {"key":56,"topics":[],"text":"9D:9A02"},
+    {"key":21,"topics":[],"script":419,"text":"9D:9A1D"}
+   ]
+  },
+  {
+   "dialog": 12,
+   "portrait": "89:CE2B",
+   "music": 1,
+   "mirror": false,
+   "entries": [
+    {"key":"greeting","topics":[],"text":"9D:8C8C"},
+    {"key":"talk","topics":[61],"text":"9D:8C9F"},
+    {"key":"fallback","topics":[],"text":"9D:8CC3"},
+    {"key":61,"topics":[31,19],"text":"9D:8CD2"},
+    {"key":31,"topics":[],"text":"9D:8D06"},
+    {"key":19,"topics":[29],"text":"9D:8D35"}
+   ]
+  },
+  {
+   "dialog": 98,
+   "portrait": "89:C315",
+   "music": 1,
+   "mirror": true,
+   "entries": [
+    {"key":"greeting","topics":[11],"text":"9D:C724"},
+    {"key":"talk","topics":[60],"text":"9D:C741"},
+    {"key":"fallback","topics":[],"text":"9D:C75A"},
+    {"key":11,"topics":[10],"text":"9D:C76C"},
+    {"key":42,"topics":[],"text":"9D:C7C1"},
+    {"key":60,"topics":[],"text":"9D:C7E5"}
+   ]
+  },
+  {
+   "dialog": 91,
+   "portrait": "89:C3FC",
+   "music": 0,
+   "mirror": false,
+   "entries": [
+    {"key":"greeting","topics":[],"text":"9D:C1D6"},
+    {"key":"talk","topics":[17],"text":"9D:C1F7"},
+    {"key":"fallback","topics":[],"text":"9D:C20B"},
+    {"key":17,"topics":[],"script":314,"text":"9D:C228"},
+    {"key":31,"topics":[],"text":"9D:C280"},
+    {"key":22,"topics":[],"text":"9D:C2A4"}
+   ]
+  },
+  {
+   "dialog": 52,
+   "portrait": "89:C903",
+   "music": 0,
+   "mirror": true,
+   "entries": [
+    {"key":"greeting","topics":[],"text":"9D:AB97"},
+    {"key":"talk","topics":[],"text":"9D:ABA4"},
+    {"key":"fallback","topics":[],"text":"9D:ABC6"},
+    {"key":57,"topics":[],"script":164,"text":"9D:ABDB"},
+    {"key":9,"topics":[62],"text":"9D:AC1E"},
+    {"key":27,"topics":[],"text":"9D:AC3D"}
+   ]
+  },
+  {
+   "dialog": 26,
+   "portrait": "89:CC5D",
+   "music": 2,
+   "mirror": false,
+   "entries": [
+    {"key":"greeting","topics":[7],"text":"9D:957A"},
+    {"key":"talk","topics":[],"text":"9D:95AD"},
+    {"key":"fallback","topics":[],"text":"9D:94F0"},
+    {"key":7,"topics":[],"script":386,"text":"9D:95DE"},
+    {"key":56,"topics":[],"text":"9D:963D"},
+    {"key":15,"topics":[],"text":"9D:9684"}
+   ]
+  },
+  {
+   "dialog": 1,
+   "portrait": "89:CF96",
+   "music": 2,
+   "mirror": false,
+   "entries": [
+    {"key":"greeting","topics":[],"text":"9D:8771"},
+    {"key":"talk","topics":[],"script":721,"text":"9D:87B6"},
+    {"key":"fallback","topics":[],"script":721,"text":"9D:87B6"},
+    {"key":26,"topics":[],"script":215,"text":"9D:87B6"},
+    {"key":34,"topics":[],"script":634,"text":"9D:87B6"}
+   ]
+  },
+  {
+   "dialog": 122,
+   "portrait": "85:FE7C",
+   "music": 1,
+   "mirror": false,
+   "entries": [
+    {"key":"greeting","topics":[],"text":"9D:DD30"},
+    {"key":"talk","topics":[],"text":"9D:DD56"},
+    {"key":"fallback","topics":[],"text":"9D:DD76"},
+    {"key":16,"topics":[],"text":"9D:DD9F"},
+    {"key":42,"topics":[],"text":"9D:DDF3"},
+    {"key":22,"topics":[],"script":852,"text":"9D:87B6"}
+   ]
+  },
+  {
+   "dialog": 83,
+   "portrait": "89:C504",
+   "music": 1,
+   "mirror": true,
+   "entries": [
+    {"key":"greeting","topics":[],"text":"9D:BD05"},
+    {"key":"talk","topics":[],"text":"9D:BD1A"},
+    {"key":"fallback","topics":[],"text":"9D:BEBB"},
+    {"key":61,"topics":[],"text":"9D:BED6"},
+    {"key":41,"topics":[],"text":"9D:BD80"},
+    {"key":19,"topics":[],"script":493,"text":"9D:BF01"}
+   ]
+  },
+  {
+   "dialog": 65,
+   "portrait": "89:C756",
+   "music": 2,
+   "mirror": false,
+   "entries": [
+    {"key":"greeting","topics":[],"text":"9D:B501"},
+    {"key":"talk","topics":[],"text":"9D:B52E"},
+    {"key":"fallback","topics":[],"text":"9D:B557"},
+    {"key":35,"topics":[],"text":"9D:B576"},
+    {"key":28,"topics":[],"script":554,"text":"9D:87B6"},
+    {"key":25,"topics":[],"text":"9D:B586"}
+   ]
+  },
+  {
+   "dialog": 49,
+   "portrait": "89:C966",
+   "music": 1,
+   "mirror": false,
+   "entries": [
+    {"key":"greeting","topics":[12],"text":"9D:A888"},
+    {"key":"talk","topics":[],"text":"9D:A8AA"},
+    {"key":"fallback","topics":[],"text":"9D:A8D0"},
+    {"key":4,"topics":[33],"text":"9D:A8F0"},
+    {"key":33,"topics":[],"text":"9D:A92D"},
+    {"key":12,"topics":[],"text":"9D:A994"}
+   ]
+  },
+  {
+   "dialog": 29,
+   "portrait": "89:CBFA",
+   "music": 2,
+   "mirror": false,
+   "entries": [
+    {"key":"greeting","topics":[],"script":483,"text":"9D:87B6"},
+    {"key":"talk","topics":[],"text":"9D:97BC"},
+    {"key":"fallback","topics":[],"text":"9D:97D6"},
+    {"key":9,"topics":[],"text":"9D:97F2"},
+    {"key":42,"topics":[],"text":"9D:9844"},
+    {"key":16,"topics":[],"text":"9D:9882"}
+   ]
+  },
+  {
+   "dialog": 13,
+   "portrait": "89:CE0A",
+   "music": 1,
+   "mirror": false,
+   "entries": [
+    {"key":"greeting","topics":[],"text":"9D:8D6A"},
+    {"key":"talk","topics":[],"text":"9D:8D87"},
+    {"key":"fallback","topics":[],"text":"9D:8D99"},
+    {"key":23,"topics":[42],"text":"9D:8DA2"},
+    {"key":42,"topics":[16],"text":"9D:8DCC"},
+    {"key":16,"topics":[],"text":"9D:8DF7"}
+   ]
+  },
+  {
+   "dialog": 68,
+   "portrait": "89:C6F3",
+   "music": 1,
+   "mirror": false,
+   "entries": [
+    {"key":"greeting","topics":[],"text":"9D:B7C8"},
+    {"key":"talk","topics":[],"text":"9D:B7DE"},
+    {"key":"fallback","topics":[],"text":"9D:B80A"},
+    {"key":59,"topics":[],"text":"9D:B813"},
+    {"key":31,"topics":[59],"text":"9D:B82F"},
+    {"key":61,"topics":[],"text":"9D:B84F"}
+   ]
+  },
+  {
+   "dialog": 15,
+   "portrait": "89:CDC8",
+   "music": 0,
+   "mirror": false,
+   "entries": [
+    {"key":"greeting","topics":[],"text":"9D:8F4A"},
+    {"key":"talk","topics":[],"text":"9D:8F56"},
+    {"key":"fallback","topics":[],"text":"9D:8F7F"},
+    {"key":18,"topics":[],"text":"9D:8F8C"},
+    {"key":31,"topics":[],"text":"9D:8FB7"},
+    {"key":42,"topics":[16],"text":"9D:8FD0"}
+   ]
+  },
+  {
+   "dialog": 112,
+   "portrait": "85:FFC6",
+   "music": 1,
+   "mirror": false,
+   "entries": [
+    {"key":"greeting","topics":[],"text":"9D:D476"},
+    {"key":"talk","topics":[],"text":"9D:D497"},
+    {"key":"fallback","topics":[],"text":"9D:D4B8"},
+    {"key":42,"topics":[],"text":"9D:D4C8"},
+    {"key":17,"topics":[],"text":"9D:D4F3"},
+    {"key":25,"topics":[],"text":"9D:D509"}
+   ]
+  },
+  {
+   "dialog": 102,
+   "portrait": "89:C291",
+   "music": 1,
+   "mirror": false,
+   "entries": [
+    {"key":"talk","topics":[],"text":"9D:CB62"},
+    {"key":"greeting","topics":[],"text":"9D:CB87"},
+    {"key":"fallback","topics":[],"text":"9D:CB9F"},
+    {"key":25,"topics":[],"text":"9D:CBB5"},
+    {"key":14,"topics":[],"text":"9D:CBEF"},
+    {"key":0,"topics":[],"text":"9D:CC1C"}
+   ]
+  },
+  {
+   "dialog": 80,
+   "portrait": "89:C567",
+   "music": 1,
+   "mirror": true,
+   "entries": [
+    {"key":"greeting","topics":[],"text":"9D:BD05"},
+    {"key":"talk","topics":[],"text":"9D:BD1A"},
+    {"key":"fallback","topics":[],"text":"9D:BD33"},
+    {"key":61,"topics":[],"text":"9D:BD51"},
+    {"key":41,"topics":[],"text":"9D:BD80"},
+    {"key":19,"topics":[],"text":"9D:BDAC"}
+   ]
+  },
+  {
+   "dialog": 44,
+   "portrait": "89:CA0B",
+   "music": 2,
+   "mirror": false,
+   "entries": [
+    {"key":"greeting","topics":[],"text":"9D:A52A"},
+    {"key":"talk","topics":[],"text":"9D:A544"},
+    {"key":"fallback","topics":[],"text":"9D:A589"},
+    {"key":9,"topics":[],"text":"9D:97F2"},
+    {"key":42,"topics":[],"text":"9D:9844"},
+    {"key":16,"topics":[],"text":"9D:9882"}
+   ]
+  },
+  {
+   "dialog": 33,
+   "portrait": "89:CB76",
+   "music": 1,
+   "mirror": false,
+   "entries": [
+    {"key":"greeting","topics":[32],"text":"9D:9B83"},
+    {"key":"talk","topics":[],"text":"9D:9BBE"},
+    {"key":"fallback","topics":[],"text":"9D:9BE5"},
+    {"key":8,"topics":[],"script":248,"text":"9D:87B6"},
+    {"key":21,"topics":[],"script":419,"text":"9D:9A1D"}
+   ]
+  },
+  {
+   "dialog": 27,
+   "portrait": "89:CC3C",
+   "music": 2,
+   "mirror": false,
+   "entries": [
+    {"key":"greeting","topics":[],"text":"9D:96B1"},
+    {"key":"talk","topics":[],"text":"9D:96C9"},
+    {"key":"fallback","topics":[],"text":"9D:94F0"},
+    {"key":7,"topics":[],"text":"9D:96E9"},
+    {"key":56,"topics":[],"text":"9D:970A"},
+    {"key":15,"topics":[],"text":"9D:9684"}
+   ]
+  },
+  {
+   "dialog": 5,
+   "portrait": "89:CF12",
+   "music": 2,
+   "mirror": false,
+   "entries": [
+    {"key":"greeting","topics":[],"text":"9D:88D6"},
+    {"key":"talk","topics":[],"text":"9D:88E6"},
+    {"key":"fallback","topics":[],"text":"9D:890B"},
+    {"key":26,"topics":[],"script":215,"text":"9D:87B6"},
+    {"key":34,"topics":[],"script":634,"text":"9D:87B6"}
+   ]
+  },
+  {
+   "dialog": 4,
+   "portrait": "89:CF33",
+   "music": 2,
+   "mirror": false,
+   "entries": [
+    {"key":"greeting","topics":[],"script":308,"text":"9D:884C"},
+    {"key":"talk","topics":[],"text":"9D:886B"},
+    {"key":"fallback","topics":[],"text":"9D:888D"},
+    {"key":26,"topics":[],"text":"9D:88A4"},
+    {"key":34,"topics":[],"script":634,"text":"9D:87B6"}
+   ]
+  },
+  {
+   "dialog": 90,
+   "portrait": "89:C41D",
+   "music": 1,
+   "mirror": false,
+   "entries": [
+    {"key":"greeting","topics":[],"text":"9D:C147"},
+    {"key":"talk","topics":[],"text":"9D:C156"},
+    {"key":"fallback","topics":[],"text":"9D:C16F"},
+    {"key":59,"topics":[],"text":"9D:C17C"},
+    {"key":18,"topics":[59],"script":906,"text":"9D:C1A2"}
+   ]
+  },
+  {
+   "dialog": 25,
+   "portrait": "89:CC7E",
+   "music": 1,
+   "mirror": false,
+   "entries": [
+    {"key":"greeting","topics":[],"text":"9D:9498"},
+    {"key":"talk","topics":[],"text":"9D:94CE"},
+    {"key":"fallback","topics":[],"text":"9D:94F0"},
+    {"key":15,"topics":[],"script":486,"text":"9D:9510"},
+    {"key":10,"topics":[15],"text":"9D:9537"}
+   ]
+  },
+  {
+   "dialog": 3,
+   "portrait": "89:CF54",
+   "music": 2,
+   "mirror": false,
+   "entries": [
+    {"key":"greeting","topics":[],"text":"9D:87B7"},
+    {"key":"talk","topics":[21],"text":"9D:87E1"},
+    {"key":"fallback","topics":[],"text":"9D:8812"},
+    {"key":26,"topics":[],"text":"9D:8826"},
+    {"key":34,"topics":[],"script":634,"text":"9D:87B6"}
+   ]
+  },
+  {
+   "dialog": 135,
+   "portrait": "84:FF0E",
+   "music": 1,
+   "mirror": false,
+   "entries": [
+    {"key":"greeting","topics":[],"text":"9D:E77E"},
+    {"key":"talk","topics":[],"text":"9D:E799"},
+    {"key":"fallback","topics":[],"text":"9D:E7A6"},
+    {"key":30,"topics":[],"script":149,"text":"9D:E7C3"},
+    {"key":9,"topics":[],"text":"9D:E81A"}
+   ]
+  },
+  {
+   "dialog": 124,
+   "portrait": "85:FE3A",
+   "music": 0,
+   "mirror": false,
+   "entries": [
+    {"key":"greeting","topics":[],"text":"9D:DEAA"},
+    {"key":"talk","topics":[],"text":"9D:DEF1"},
+    {"key":"fallback","topics":[],"text":"9D:DF28"},
+    {"key":42,"topics":[],"text":"9D:DF3C"},
+    {"key":22,"topics":[],"script":511,"text":"9D:87B6"}
+   ]
+  },
+  {
+   "dialog": 120,
+   "portrait": "85:FEBE",
+   "music": 0,
+   "mirror": false,
+   "entries": [
+    {"key":"talk","topics":[],"text":"9D:DB9F"},
+    {"key":"greeting","topics":[],"text":"9D:DBDE"},
+    {"key":"fallback","topics":[],"text":"9D:DC20"},
+    {"key":42,"topics":[],"text":"9D:DC37"},
+    {"key":22,"topics":[],"script":70,"text":"9D:87B6"}
+   ]
+  },
+  {
+   "dialog": 99,
+   "portrait": "89:C2F4",
+   "music": 1,
+   "mirror": true,
+   "entries": [
+    {"key":"greeting","topics":[],"text":"9D:C82D"},
+    {"key":"talk","topics":[26],"text":"9D:C83F"},
+    {"key":"fallback","topics":[],"text":"9D:C86F"},
+    {"key":6,"topics":[],"text":"9D:C889"},
+    {"key":26,"topics":[37],"text":"9D:C8BB"}
+   ]
+  },
+  {
+   "dialog": 97,
+   "portrait": "89:C336",
+   "music": 1,
+   "mirror": true,
+   "entries": [
+    {"key":"greeting","topics":[14],"text":"9D:C665"},
+    {"key":"talk","topics":[6],"text":"9D:C691"},
+    {"key":"fallback","topics":[],"text":"9D:C6B4"},
+    {"key":37,"topics":[],"text":"9D:C6C0"},
+    {"key":14,"topics":[],"text":"9D:C6F0"}
+   ]
+  },
+  {
+   "dialog": 75,
+   "portrait": "89:C60C",
+   "music": 2,
+   "mirror": false,
+   "entries": [
+    {"key":"greeting","topics":[],"script":445,"text":"9D:87B6"},
+    {"key":"talk","topics":[],"text":"9D:BBA1"},
+    {"key":"fallback","topics":[],"text":"9D:BBE1"},
+    {"key":18,"topics":[],"text":"9D:BBFC"},
+    {"key":16,"topics":[],"text":"9D:BC13"}
+   ]
+  },
+  {
+   "dialog": 47,
+   "portrait": "89:C9A8",
+   "music": 0,
+   "mirror": false,
+   "entries": [
+    {"key":"greeting","topics":[],"text":"9D:A6D3"},
+    {"key":"talk","topics":[],"text":"9D:A6E9"},
+    {"key":"fallback","topics":[],"text":"9D:A70D"},
+    {"key":12,"topics":[],"script":645,"text":"9D:A72E"},
+    {"key":4,"topics":[],"text":"9D:A74C"}
+   ]
+  },
+  {
+   "dialog": 46,
+   "portrait": "89:C9C9",
+   "music": 0,
+   "mirror": false,
+   "entries": [
+    {"key":"greeting","topics":[],"text":"9D:A639"},
+    {"key":"talk","topics":[],"text":"9D:A64D"},
+    {"key":"fallback","topics":[],"text":"9D:A662"},
+    {"key":24,"topics":[],"script":745,"text":"9D:A687"},
+    {"key":33,"topics":[],"text":"9D:A6BA"}
+   ]
+  },
+  {
+   "dialog": 34,
+   "portrait": "89:CB55",
+   "music": 1,
+   "mirror": false,
+   "entries": [
+    {"key":"greeting","topics":[],"text":"9D:9C0A"},
+    {"key":"talk","topics":[],"script":339,"text":"9D:9C3E"},
+    {"key":"fallback","topics":[],"text":"9D:9C62"},
+    {"key":42,"topics":[],"text":"9D:9C88"},
+    {"key":22,"topics":[],"text":"9D:9CC2"}
+   ]
+  },
+  {
+   "dialog": 30,
+   "portrait": "89:CBD9",
+   "music": 1,
+   "mirror": false,
+   "entries": [
+    {"key":"greeting","topics":[],"text":"9D:98BB"},
+    {"key":"talk","topics":[],"text":"9D:98D8"},
+    {"key":"fallback","topics":[],"text":"9D:98FA"},
+    {"key":9,"topics":[],"text":"9D:9915"},
+    {"key":30,"topics":[],"script":127,"text":"9D:9944"}
+   ]
+  },
+  {
+   "dialog": 6,
+   "portrait": "89:CEF1",
+   "music": 2,
+   "mirror": false,
+   "entries": [
+    {"key":"greeting","topics":[],"text":"9D:8921"},
+    {"key":"talk","topics":[],"text":"9D:8940"},
+    {"key":"fallback","topics":[],"text":"9D:895A"},
+    {"key":26,"topics":[],"text":"9D:896E"},
+    {"key":34,"topics":[],"script":634,"text":"9D:87B6"}
+   ]
+  },
+  {
+   "dialog": 131,
+   "portrait": "84:FF92",
+   "music": 0,
+   "mirror": false,
+   "entries": [
+    {"key":"greeting","topics":[],"text":"9D:E568"},
+    {"key":"talk","topics":[31],"text":"9D:E572"},
+    {"key":"fallback","topics":[],"text":"9D:E591"},
+    {"key":31,"topics":[],"text":"9D:E5A4"},
+    {"key":59,"topics":[],"text":"9D:E5D9"}
+   ]
+  },
+  {
+   "dialog": 10,
+   "portrait": "89:CE6D",
+   "music": 1,
+   "mirror": true,
+   "entries": [
+    {"key":"greeting","topics":[],"text":"9D:8B9A"},
+    {"key":"talk","topics":[56],"text":"9D:8BA9"},
+    {"key":"fallback","topics":[],"text":"9D:8BD1"},
+    {"key":11,"topics":[],"text":"9D:8BDE"},
+    {"key":56,"topics":[],"text":"9D:8C19"}
+   ]
+  },
+  {
+   "dialog": 9,
+   "portrait": "89:CE8E",
+   "music": 1,
+   "mirror": false,
+   "entries": [
+    {"key":"greeting","topics":[11],"text":"9D:8AE5"},
+    {"key":"talk","topics":[],"text":"9D:8B0A"},
+    {"key":"fallback","topics":[],"text":"9D:8B26"},
+    {"key":60,"topics":[],"text":"9D:8B30"},
+    {"key":11,"topics":[],"text":"9D:8B66"}
+   ]
+  },
+  {
+   "dialog": 132,
+   "portrait": "84:FF71",
+   "music": 0,
+   "mirror": false,
+   "entries": [
+    {"key":"greeting","topics":[],"text":"9D:E5FE"},
+    {"key":"talk","topics":[],"text":"9D:E611"},
+    {"key":"fallback","topics":[],"text":"9D:E634"},
+    {"key":8,"topics":[],"text":"9D:E66E"},
+    {"key":56,"topics":[],"text":"9D:E69C"}
+   ]
+  },
+  {
+   "dialog": 121,
+   "portrait": "85:FE9D",
+   "music": 1,
+   "mirror": false,
+   "entries": [
+    {"key":"greeting","topics":[],"text":"9D:DC9E"},
+    {"key":"talk","topics":[],"text":"9D:DCB1"},
+    {"key":"fallback","topics":[],"text":"9D:DCC8"},
+    {"key":16,"topics":[],"text":"9D:DCDC"},
+    {"key":7,"topics":[],"text":"9D:DD00"}
+   ]
+  },
+  {
+   "dialog": 101,
+   "portrait": "89:C2B2",
+   "music": 1,
+   "mirror": false,
+   "entries": [
+    {"key":"greeting","topics":[],"text":"9D:CA8F"},
+    {"key":"talk","topics":[],"text":"9D:CABC"},
+    {"key":"fallback","topics":[],"text":"9D:CAD1"},
+    {"key":56,"topics":[],"text":"9D:CAED"},
+    {"key":21,"topics":[],"text":"9D:CB28"}
+   ]
+  },
+  {
+   "dialog": 57,
+   "portrait": "89:C85E",
+   "music": 2,
+   "mirror": false,
+   "entries": [
+    {"key":"greeting","topics":[],"text":"9D:ADF3"},
+    {"key":"talk","topics":[],"text":"9D:AE20"},
+    {"key":"fallback","topics":[],"text":"9D:AE40"},
+    {"key":30,"topics":[],"text":"9D:AE59"},
+    {"key":25,"topics":[],"text":"9D:AE86"}
+   ]
+  },
+  {
+   "dialog": 8,
+   "portrait": "89:CEAF",
+   "music": 1,
+   "mirror": false,
+   "entries": [
+    {"key":"greeting","topics":[],"text":"9D:8A0A"},
+    {"key":"talk","topics":[],"text":"9D:8A31"},
+    {"key":"fallback","topics":[],"text":"9D:8A46"},
+    {"key":56,"topics":[],"text":"9D:8A6A"},
+    {"key":16,"topics":[],"text":"9D:8A9B"}
+   ]
+  },
+  {
+   "dialog": 74,
+   "portrait": "89:C62D",
+   "music": 1,
+   "mirror": false,
+   "entries": [
+    {"key":"greeting","topics":[],"text":"9D:BB0B"},
+    {"key":"talk","topics":[5],"text":"9D:BB20"},
+    {"key":"fallback","topics":[],"text":"9D:BB75"},
+    {"key":5,"topics":[18],"script":346,"text":"9D:BB7C"}
+   ]
+  },
+  {
+   "dialog": 94,
+   "portrait": "89:C399",
+   "music": 1,
+   "mirror": false,
+   "entries": [
+    {"key":"greeting","topics":[6],"text":"9D:C4FB"},
+    {"key":"talk","topics":[],"text":"9D:C51C"},
+    {"key":"fallback","topics":[26],"text":"9D:C541"},
+    {"key":6,"topics":[26],"text":"9D:C562"}
+   ]
+  },
+  {
+   "dialog": 127,
+   "portrait": "85:FDD7",
+   "music": 2,
+   "mirror": false,
+   "entries": [
+    {"key":"greeting","topics":[23],"text":"9D:E289"},
+    {"key":"talk","topics":[16],"text":"9D:E2AE"},
+    {"key":"fallback","topics":[],"text":"9D:E2EA"},
+    {"key":23,"topics":[],"text":"9D:E31B"}
+   ]
+  },
+  {
+   "dialog": 66,
+   "portrait": "89:C735",
+   "music": 2,
+   "mirror": false,
+   "entries": [
+    {"key":"greeting","topics":[],"text":"9D:B5A3"},
+    {"key":"talk","topics":[],"text":"9D:B5CF"},
+    {"key":"fallback","topics":[],"text":"9D:B5F1"},
+    {"key":14,"topics":[],"script":227,"text":"9D:B60A"}
+   ]
+  },
+  {
+   "dialog": 60,
+   "portrait": "89:C7FB",
+   "music": 2,
+   "mirror": false,
+   "entries": [
+    {"key":"greeting","topics":[],"text":"9D:B05F"},
+    {"key":"talk","topics":[],"text":"9D:B075"},
+    {"key":"fallback","topics":[],"text":"9D:B08E"},
+    {"key":25,"topics":[28,4],"text":"9D:B0A6"}
+   ]
+  },
+  {
+   "dialog": 59,
+   "portrait": "89:C81C",
+   "music": 2,
+   "mirror": false,
+   "entries": [
+    {"key":"greeting","topics":[],"text":"9D:AFCD"},
+    {"key":"talk","topics":[],"text":"9D:AFEB"},
+    {"key":"fallback","topics":[],"text":"9D:B010"},
+    {"key":25,"topics":[35,4],"text":"9D:B030"}
+   ]
+  },
+  {
+   "dialog": 58,
+   "portrait": "89:C83D",
+   "music": 2,
+   "mirror": false,
+   "entries": [
+    {"key":"greeting","topics":[],"text":"9D:AEF6"},
+    {"key":"talk","topics":[],"text":"9D:AF22"},
+    {"key":"fallback","topics":[],"text":"9D:AF4A"},
+    {"key":25,"topics":[35,4],"text":"9D:AF61"}
+   ]
+  },
+  {
+   "dialog": 50,
+   "portrait": "89:C945",
+   "music": 1,
+   "mirror": false,
+   "entries": [
+    {"key":"greeting","topics":[],"text":"9D:A9E4"},
+    {"key":"talk","topics":[],"text":"9D:A9F1"},
+    {"key":"fallback","topics":[],"text":"9D:AA0D"},
+    {"key":4,"topics":[],"script":362,"text":"9D:AA2F"}
+   ]
+  },
+  {
+   "dialog": 24,
+   "portrait": "89:CC9F",
+   "music": 2,
+   "mirror": true,
+   "entries": [
+    {"key":"greeting","topics":[],"script":483,"text":"9D:87B6"},
+    {"key":"talk","topics":[],"text":"9D:944E"},
+    {"key":"fallback","topics":[],"text":"9D:9461"},
+    {"key":16,"topics":[],"text":"9D:9475"}
+   ]
+  },
+  {
+   "dialog": 70,
+   "portrait": "89:C6B1",
+   "music": 1,
+   "mirror": false,
+   "entries": [
+    {"key":"greeting","topics":[],"text":"9D:B9BA"},
+    {"key":"talk","topics":[29],"text":"9D:B9DB"},
+    {"key":"fallback","topics":[],"text":"9D:BA18"},
+    {"key":29,"topics":[],"text":"9D:BA25"}
+   ]
+  },
+  {
+   "dialog": 62,
+   "portrait": "89:C7B9",
+   "music": 0,
+   "mirror": false,
+   "entries": [
+    {"key":"greeting","topics":[],"text":"9D:B2A9"},
+    {"key":"talk","topics":[24],"text":"9D:B2BB"},
+    {"key":"fallback","topics":[],"text":"9D:B13D"},
+    {"key":24,"topics":[],"text":"9D:B2E3"}
+   ]
+  },
+  {
+   "dialog": 54,
+   "portrait": "89:C8C1",
+   "music": 2,
+   "mirror": false,
+   "entries": [
+    {"key":"greeting","topics":[14],"text":"9D:ACC0"},
+    {"key":"talk","topics":[],"text":"9D:AD00"},
+    {"key":"fallback","topics":[],"text":"9D:AD16"},
+    {"key":14,"topics":[],"text":"9D:AD24"}
+   ]
+  },
+  {
+   "dialog": 48,
+   "portrait": "89:C987",
+   "music": 2,
+   "mirror": false,
+   "entries": [
+    {"key":"greeting","topics":[25],"text":"9D:A771"},
+    {"key":"talk","topics":[],"text":"9D:A7B7"},
+    {"key":"fallback","topics":[],"text":"9D:A818"},
+    {"key":25,"topics":[],"text":"9D:A84B"}
+   ]
+  },
+  {
+   "dialog": 16,
+   "portrait": "89:CDA7",
+   "music": 0,
+   "mirror": true,
+   "entries": [
+    {"key":"greeting","topics":[61],"text":"9D:903F"},
+    {"key":"talk","topics":[],"text":"9D:905C"},
+    {"key":"fallback","topics":[],"text":"9D:906D"},
+    {"key":61,"topics":[],"text":"9D:9075"}
+   ]
+  },
+  {
+   "dialog": 7,
+   "portrait": "89:CED0",
+   "music": 1,
+   "mirror": false,
+   "entries": [
+    {"key":"greeting","topics":[],"text":"9D:897D"},
+    {"key":"talk","topics":[],"text":"9D:899D"},
+    {"key":"fallback","topics":[],"text":"9D:89BF"},
+    {"key":42,"topics":[22],"text":"9D:89D2"}
+   ]
+  },
+  {
+   "dialog": 138,
+   "portrait": "81:FF7F",
+   "music": 0,
+   "mirror": false,
+   "entries": [
+    {"key":"greeting","topics":[],"text":"9D:E9CA"},
+    {"key":"talk","topics":[],"text":"9D:E9D8"},
+    {"key":"fallback","topics":[],"text":"9D:E9F5"},
+    {"key":18,"topics":[],"text":"9D:EA05"}
+   ]
+  },
+  {
+   "dialog": 137,
+   "portrait": "81:FFA0",
+   "music": 0,
+   "mirror": false,
+   "entries": [
+    {"key":"greeting","topics":[],"text":"9D:E967"},
+    {"key":"talk","topics":[],"text":"9D:E97B"},
+    {"key":42,"topics":[],"text":"9D:E994"},
+    {"key":"fallback","topics":[],"text":"9D:E9B3"}
+   ]
+  },
+  {
+   "dialog": 134,
+   "portrait": "84:FF2F",
+   "music": 0,
+   "mirror": false,
+   "entries": [
+    {"key":"greeting","topics":[],"text":"9D:E6E4"},
+    {"key":"talk","topics":[],"text":"9D:E706"},
+    {"key":"fallback","topics":[],"text":"9D:E71E"},
+    {"key":16,"topics":[],"text":"9D:E74F"}
+   ]
+  },
+  {
+   "dialog": 119,
+   "portrait": "85:FEDF",
+   "music": 1,
+   "mirror": false,
+   "entries": [
+    {"key":"talk","topics":[],"text":"9D:DB0A"},
+    {"key":"greeting","topics":[],"text":"9D:DB38"},
+    {"key":"fallback","topics":[],"text":"9D:DB67"},
+    {"key":42,"topics":[],"text":"9D:DB86"}
+   ]
+  },
+  {
+   "dialog": 96,
+   "portrait": "89:C357",
+   "music": 1,
+   "mirror": true,
+   "entries": [
+    {"key":"greeting","topics":[],"text":"9D:C5D6"},
+    {"key":"talk","topics":[],"text":"9D:C5FC"},
+    {"key":"fallback","topics":[],"text":"9D:C627"},
+    {"key":26,"topics":[],"text":"9D:C64B"}
+   ]
+  },
+  {
+   "dialog": 77,
+   "portrait": "89:C5CA",
+   "music": 2,
+   "mirror": true,
+   "entries": [
+    {"key":"greeting","topics":[],"text":"9D:BC9A"},
+    {"key":"talk","topics":[],"text":"9D:BCAE"},
+    {"key":"fallback","topics":[],"text":"9D:BCEC"},
+    {"key":16,"topics":[],"text":"9D:9475"}
+   ]
+  },
+  {
+   "dialog": 76,
+   "portrait": "89:C5EB",
+   "music": 1,
+   "mirror": true,
+   "entries": [
+    {"key":"greeting","topics":[],"text":"9D:BC26"},
+    {"key":"talk","topics":[],"text":"9D:BC38"},
+    {"key":"fallback","topics":[],"text":"9D:BC6D"},
+    {"key":16,"topics":[],"text":"9D:BC7F"}
+   ]
+  },
+  {
+   "dialog": 55,
+   "portrait": "89:C8A0",
+   "music": 2,
+   "mirror": true,
+   "entries": [
+    {"key":"greeting","topics":[],"text":"9D:AD3D"},
+    {"key":"talk","topics":[],"text":"9D:AD58"},
+    {"key":"fallback","topics":[],"text":"9D:AD7F"},
+    {"key":40,"topics":[],"text":"9D:AD9B"}
+   ]
+  },
+  {
+   "dialog": 35,
+   "portrait": "89:CB34",
+   "music": 2,
+   "mirror": false,
+   "entries": [
+    {"key":"greeting","topics":[],"text":"9D:9CF2"},
+    {"key":"talk","topics":[],"text":"9D:9D33"},
+    {"key":"fallback","topics":[],"text":"9D:9D76"},
+    {"key":42,"topics":[],"text":"9D:9DA0"}
+   ]
+  },
+  {
+   "dialog": 28,
+   "portrait": "89:CC1B",
+   "music": 2,
+   "mirror": true,
+   "entries": [
+    {"key":"greeting","topics":[],"text":"9D:972C"},
+    {"key":"talk","topics":[],"text":"9D:9746"},
+    {"key":"fallback","topics":[],"text":"9D:9772"},
+    {"key":56,"topics":[],"text":"9D:979B"}
+   ]
+  },
+  {
+   "dialog": 21,
+   "portrait": "89:CD02",
+   "music": 2,
+   "mirror": false,
+   "entries": [
+    {"key":"greeting","topics":[],"text":"9D:9292"},
+    {"key":"talk","topics":[],"text":"9D:92A7"},
+    {"key":"fallback","topics":[],"text":"9D:92CE"},
+    {"key":14,"topics":[],"text":"9D:92E0"}
+   ]
+  },
+  {
+   "dialog": 39,
+   "portrait": "89:CAB0",
+   "music": 2,
+   "mirror": false,
+   "entries": [
+    {"key":"greeting","topics":[],"text":"9D:A111"},
+    {"key":"talk","topics":[],"script":918,"text":"9D:A12B"},
+    {"key":"fallback","topics":[],"script":918,"text":"9D:A138"}
+   ]
+  },
+  {
+   "dialog": 40,
+   "portrait": "89:CA8F",
+   "music": 2,
+   "mirror": false,
+   "entries": [
+    {"key":"greeting","topics":[],"text":"9D:A144"},
+    {"key":"talk","topics":[39],"script":836,"text":"9D:A16E"},
+    {"key":"fallback","topics":[],"text":"9D:A1CF"}
+   ]
+  },
+  {
+   "dialog": 0,
+   "portrait": "89:CFB7",
+   "music": 2,
+   "mirror": false,
+   "entries": [
+    {"key":"greeting","topics":[],"text":"9D:8724"},
+    {"key":"talk","topics":[13],"text":"9D:8740"},
+    {"key":"fallback","topics":[],"script":918,"text":"9D:876C"}
+   ]
+  },
+  {
+   "dialog": 45,
+   "portrait": "89:C9EA",
+   "music": 1,
+   "mirror": true,
+   "entries": [
+    {"key":"greeting","topics":[],"text":"9D:A5A6"},
+    {"key":"talk","topics":[],"script":134,"text":"9D:A5E6"},
+    {"key":"fallback","topics":[],"text":"9D:A61A"}
+   ]
+  },
+  {
+   "dialog": 53,
+   "portrait": "89:C8E2",
+   "music": 2,
+   "mirror": true,
+   "entries": [
+    {"key":"greeting","topics":[],"text":"9D:AC64"},
+    {"key":"talk","topics":[40],"text":"9D:AC71"},
+    {"key":"fallback","topics":[],"text":"9D:ACB3"}
+   ]
+  },
+  {
+   "dialog": 133,
+   "portrait": "84:FF50",
+   "music": 0,
+   "mirror": false,
+   "entries": [
+    {"key":"greeting","topics":[],"text":"9D:E6B8"},
+    {"key":"talk","topics":[],"text":"9D:E6CF"},
+    {"key":"fallback","topics":[],"text":"9D:E6D8"}
+   ]
+  },
+  {
+   "dialog": 129,
+   "portrait": "84:FFD4",
+   "music": 1,
+   "mirror": false,
+   "entries": [
+    {"key":"greeting","topics":[],"text":"9D:E360"},
+    {"key":"talk","topics":[],"text":"9D:E37C"},
+    {"key":"fallback","topics":[],"text":"9D:E3A3"}
+   ]
+  },
+  {
+   "dialog": 128,
+   "portrait": "85:FDB6",
+   "music": 1,
+   "mirror": false,
+   "entries": [
+    {"key":"greeting","topics":[],"text":"9D:E339"},
+    {"key":"talk","topics":[],"text":"9D:E346"},
+    {"key":"fallback","topics":[],"text":"9D:E353"}
+   ]
+  },
+  {
+   "dialog": 123,
+   "portrait": "85:FE5B",
+   "music": 1,
+   "mirror": false,
+   "entries": [
+    {"key":"greeting","topics":[],"text":"9D:DE65"},
+    {"key":"talk","topics":[],"text":"9D:DE83"},
+    {"key":"fallback","topics":[],"text":"9D:DE9A"}
+   ]
+  },
+  {
+   "dialog": 106,
+   "portrait": "89:C20D",
+   "music": 1,
+   "mirror": false,
+   "entries": [
+    {"key":"greeting","topics":[],"text":"9D:CEE8"},
+    {"key":"talk","topics":[],"text":"9D:CF0F"},
+    {"key":"fallback","topics":[],"text":"9D:CF26"}
+   ]
+  },
+  {
+   "dialog": 89,
+   "portrait": "89:C43E",
+   "music": 1,
+   "mirror": false,
+   "entries": [
+    {"key":"greeting","topics":[],"text":"9D:C108"},
+    {"key":"talk","topics":[],"text":"9D:C11B"},
+    {"key":"fallback","topics":[],"text":"9D:C13E"}
+   ]
+  },
+  {
+   "dialog": 88,
+   "portrait": "89:C45F",
+   "music": 1,
+   "mirror": true,
+   "entries": [
+    {"key":"greeting","topics":[],"text":"9D:C0B2"},
+    {"key":"talk","topics":[],"text":"9D:C0C6"},
+    {"key":"fallback","topics":[],"text":"9D:C0F8"}
+   ]
+  },
+  {
+   "dialog": 87,
+   "portrait": "89:C480",
+   "music": 1,
+   "mirror": false,
+   "entries": [
+    {"key":"greeting","topics":[],"text":"9D:C039"},
+    {"key":"talk","topics":[],"text":"9D:C057"},
+    {"key":"fallback","topics":[],"text":"9D:C09A"}
+   ]
+  },
+  {
+   "dialog": 86,
+   "portrait": "89:C4A1",
+   "music": 1,
+   "mirror": true,
+   "entries": [
+    {"key":"greeting","topics":[],"text":"9D:BFDC"},
+    {"key":"talk","topics":[],"text":"9D:BFF7"},
+    {"key":"fallback","topics":[],"text":"9D:C01C"}
+   ]
+  },
+  {
+   "dialog": 85,
+   "portrait": "89:C4C2",
+   "music": 1,
+   "mirror": true,
+   "entries": [
+    {"key":"greeting","topics":[],"text":"9D:BF87"},
+    {"key":"talk","topics":[],"text":"9D:BFAA"},
+    {"key":"fallback","topics":[],"text":"9D:BFBD"}
+   ]
+  },
+  {
+   "dialog": 84,
+   "portrait": "89:C4E3",
+   "music": 1,
+   "mirror": false,
+   "entries": [
+    {"key":"greeting","topics":[],"text":"9D:BF42"},
+    {"key":"talk","topics":[],"text":"9D:BF57"},
+    {"key":"fallback","topics":[],"text":"9D:BF7B"}
+   ]
+  },
+  {
+   "dialog": 82,
+   "portrait": "89:C525",
+   "music": 1,
+   "mirror": true,
+   "entries": [
+    {"key":"greeting","topics":[],"text":"9D:BE54"},
+    {"key":"talk","topics":[],"text":"9D:BE83"},
+    {"key":"fallback","topics":[],"text":"9D:BEAB"}
+   ]
+  },
+  {
+   "dialog": 81,
+   "portrait": "89:C546",
+   "music": 1,
+   "mirror": false,
+   "entries": [
+    {"key":"greeting","topics":[],"text":"9D:BDDE"},
+    {"key":"talk","topics":[],"text":"9D:BE10"},
+    {"key":"fallback","topics":[],"text":"9D:BE2F"}
+   ]
+  },
+  {
+   "dialog": 73,
+   "portrait": "89:C64E",
+   "music": 0,
+   "mirror": false,
+   "entries": [
+    {"key":"greeting","topics":[],"text":"9D:BADF"},
+    {"key":"talk","topics":[],"text":"9D:BAF5"},
+    {"key":"fallback","topics":[],"text":"9D:BB06"}
+   ]
+  },
+  {
+   "dialog": 72,
+   "portrait": "89:C66F",
+   "music": 0,
+   "mirror": true,
+   "entries": [
+    {"key":"greeting","topics":[],"text":"9D:BA9A"},
+    {"key":"talk","topics":[],"text":"9D:BAAE"},
+    {"key":"fallback","topics":[],"text":"9D:BACA"}
+   ]
+  },
+  {
+   "dialog": 71,
+   "portrait": "89:C690",
+   "music": 0,
+   "mirror": false,
+   "entries": [
+    {"key":"greeting","topics":[],"text":"9D:BA4F"},
+    {"key":"talk","topics":[],"text":"9D:BA6C"},
+    {"key":"fallback","topics":[],"text":"9D:BA83"}
+   ]
+  },
+  {
+   "dialog": 63,
+   "portrait": "89:C798",
+   "music": 0,
+   "mirror": false,
+   "entries": [
+    {"key":"greeting","topics":[],"text":"9D:B2FB"},
+    {"key":"talk","topics":[],"text":"9D:B31B"},
+    {"key":"fallback","topics":[],"text":"9D:B331"}
+   ]
+  },
+  {
+   "dialog": 56,
+   "portrait": "89:C87F",
+   "music": 1,
+   "mirror": false,
+   "entries": [
+    {"key":"greeting","topics":[],"text":"9D:ADBC"},
+    {"key":"talk","topics":[],"text":"9D:ADD0"},
+    {"key":"fallback","topics":[],"text":"9D:ADE2"}
+   ]
+  },
+  {
+   "dialog": 43,
+   "portrait": "89:CA2C",
+   "music": 2,
+   "mirror": false,
+   "entries": [
+    {"key":"greeting","topics":[],"text":"9D:A4C7"},
+    {"key":"talk","topics":[],"text":"9D:A4E9"},
+    {"key":"fallback","topics":[],"text":"9D:A4FD"}
+   ]
+  },
+  {
+   "dialog": 42,
+   "portrait": "89:CA4D",
+   "music": 2,
+   "mirror": false,
+   "entries": [
+    {"key":"greeting","topics":[],"text":"9D:A463"},
+    {"key":"talk","topics":[],"text":"9D:A486"},
+    {"key":"fallback","topics":[],"text":"9D:A4AA"}
+   ]
+  },
+  {
+   "dialog": 36,
+   "portrait": "89:CB13",
+   "music": 1,
+   "mirror": true,
+   "entries": [
+    {"key":"greeting","topics":[],"text":"9D:9DDE"},
+    {"key":"talk","topics":[],"text":"9D:9DFF"},
+    {"key":"fallback","topics":[],"text":"9D:9E14"}
+   ]
+  },
+  {
+   "dialog": 22,
+   "portrait": "89:CCE1",
+   "music": 1,
+   "mirror": false,
+   "entries": [
+    {"key":"greeting","topics":[],"text":"9D:9312"},
+    {"key":"talk","topics":[],"text":"9D:931E"},
+    {"key":"fallback","topics":[],"text":"9D:9336"}
+   ]
+  },
+  {
+   "dialog": 18,
+   "portrait": "89:CD65",
+   "music": 1,
+   "mirror": false,
+   "entries": [
+    {"key":"greeting","topics":[],"text":"9D:90C4"},
+    {"key":"talk","topics":[],"text":"9D:90DB"},
+    {"key":"fallback","topics":[],"text":"9D:90F3"}
+   ]
+  },
+  {
+   "dialog": 17,
+   "portrait": "89:CD86",
+   "music": 0,
+   "mirror": true,
+   "entries": [
+    {"key":"greeting","topics":[],"text":"9D:908A"},
+    {"key":"talk","topics":[],"text":"9D:909C"},
+    {"key":"fallback","topics":[],"text":"9D:90B1"}
+   ]
+  },
+  {
+   "dialog": 11,
+   "portrait": "89:CE4C",
+   "music": 1,
+   "mirror": false,
+   "entries": [
+    {"key":"greeting","topics":[],"text":"9D:8C52"},
+    {"key":"talk","topics":[],"text":"9D:8C66"},
+    {"key":"fallback","topics":[],"text":"9D:8C7D"}
+   ]
+  },
+  {
+   "dialog": 79,
+   "portrait": "89:C588",
+   "music": 0,
+   "mirror": false,
+   "entries": []
+  },
+  {
+   "dialog": 78,
+   "portrait": "89:C5A9",
+   "music": 0,
+   "mirror": false,
+   "entries": []
+  }
+ ]
+}

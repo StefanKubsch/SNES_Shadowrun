@@ -1,0 +1,2 @@
+import {emitTaskNativeProbe} from './task-native-probe.mjs';import {prepareTaskLocalReads} from '../proof/task/local-reads.mjs';import {proveLocalReadToDispatch} from './render-task-local-reads-source-proof.mjs';
+await emitTaskNativeProbe({name:'local-reads',module:'proof/task/local-reads.mjs',prepare:prepareTaskLocalReads,exportName:'prepareTaskLocalReads',sourceName:'local-reads',proofField:'local_reads',entries:[8450977,8451001,8452299],proveSource:proveLocalReadToDispatch});

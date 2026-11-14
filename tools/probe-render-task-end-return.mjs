@@ -1,0 +1,2 @@
+import {emitTaskNativeProbe} from './task-native-probe.mjs';import {prepareTaskEndReturn} from '../proof/task/end-return.mjs';import {prove} from './render-task-end-return-source-proof.mjs';
+await emitTaskNativeProbe({name:'end-return',module:'proof/task/end-return.mjs',prepare:prepareTaskEndReturn,exportName:'prepareTaskEndReturn',sourceName:'end-return',proofField:'proofs',entries:[0x80F4BE],proveSource:map=>prove(map)[0]});

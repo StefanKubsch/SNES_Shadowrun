@@ -1,0 +1,2 @@
+import {emitTaskNativeProbe} from './task-native-probe.mjs';import {prepareTaskLocalWrites} from '../proof/task/local-writes.mjs';import {proveLocalWriteToDispatch} from './render-task-local-writes-source-proof.mjs';
+await emitTaskNativeProbe({name:'local-writes',module:'proof/task/local-writes.mjs',prepare:prepareTaskLocalWrites,exportName:'prepareTaskLocalWrites',sourceName:'local-writes',proofField:'local_writes',entries:[8451014,8451031],proveSource:proveLocalWriteToDispatch});

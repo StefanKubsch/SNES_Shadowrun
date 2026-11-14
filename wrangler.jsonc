@@ -1,0 +1,7 @@
+// Private static copy of the game page on Cloudflare Workers (docs/STATIC-HOSTING.md).
+// "name" must equal the Worker's name in the Cloudflare dashboard.
+{
+  "name": "shadowrun",
+  "compatibility_date": "2025-09-01",
+  "assets": { "directory": "./dist" },
+}

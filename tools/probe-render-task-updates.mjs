@@ -1,0 +1,2 @@
+import {emitTaskNativeProbe} from './task-native-probe.mjs';import {prepareTaskUpdates} from '../proof/task/updates.mjs';import {proveUpdateToDispatch} from './render-task-updates-source-proof.mjs';
+await emitTaskNativeProbe({name:'updates',module:'proof/task/updates.mjs',prepare:prepareTaskUpdates,exportName:'prepareTaskUpdates',sourceName:'updates',proofField:'updates',entries:[8451044,8451050,8451056],proveSource:proveUpdateToDispatch});

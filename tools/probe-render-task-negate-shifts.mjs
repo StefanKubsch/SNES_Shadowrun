@@ -1,0 +1,2 @@
+import {emitTaskNativeProbe} from './task-native-probe.mjs';import {prepareTaskNegateShifts} from '../proof/task/negate-shifts.mjs';import {proveNegateShiftToDispatch} from './render-task-negate-shifts-source-proof.mjs';
+await emitTaskNativeProbe({name:'negate-shifts',module:'proof/task/negate-shifts.mjs',prepare:prepareTaskNegateShifts,exportName:'prepareTaskNegateShifts',sourceName:'negate-shifts',proofField:'negate_shifts',entries:[8451828,8451837,8451849],proveSource:proveNegateShiftToDispatch});

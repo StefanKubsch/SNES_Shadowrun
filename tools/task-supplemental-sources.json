@@ -1,0 +1,161 @@
+[
+  {
+    "source": "analysis/render-task-state-sign-extension.json",
+    "entries": [
+      "80:F90F"
+    ]
+  },
+  {
+    "source": "analysis/render-task-jump-zero.json",
+    "entries": [
+      "80:F420"
+    ]
+  },
+  {
+    "source": "analysis/render-task-jump-nonzero.json",
+    "entries": [
+      "80:F42E"
+    ]
+  },
+  {
+    "source": "analysis/render-task-jump.json",
+    "entries": [
+      "80:F43C"
+    ]
+  },
+  {
+    "source": "analysis/render-task-call-local.json",
+    "entries": [
+      "80:F442"
+    ]
+  },
+  {
+    "source": "analysis/render-task-return-local.json",
+    "entries": [
+      "80:F454"
+    ]
+  },
+  {
+    "source": "analysis/render-task-script-arguments.json",
+    "entries": [
+      "80:F460"
+    ],
+    "closed_dispatch": false,
+    "classification": "script-argument-prefix"
+  },
+  {
+    "source": "analysis/render-task-child-yield.json",
+    "entries": [
+      "80:C36A"
+    ],
+    "closed_dispatch": false,
+    "classification": "child-insertion-outer-yield"
+  },
+  {
+    "source": "analysis/render-task-script-bridge.json",
+    "entries": [
+      "80:F488",
+      "80:F495"
+    ],
+    "closed_dispatch": false,
+    "classification": "separate-script-yield-and-resume"
+  },
+  {
+    "source": "analysis/render-task-multiply-unsigned.json",
+    "entries": [
+      "80:F581"
+    ],
+    "closed_dispatch": false,
+    "classification": "mul-observation-and-stack-source"
+  },
+  {
+    "source": "analysis/render-task-multiply-su.json",
+    "entries": [
+      "80:F546"
+    ],
+    "closed_dispatch": false,
+    "classification": "mul-observation-and-stack-source"
+  },
+  {
+    "source": "analysis/render-task-multiply-us.json",
+    "entries": [
+      "80:F556"
+    ],
+    "closed_dispatch": false,
+    "classification": "mul-observation-and-stack-source"
+  },
+  {
+    "source": "analysis/render-task-multiply-ss.json",
+    "entries": [
+      "80:F566"
+    ],
+    "closed_dispatch": false,
+    "classification": "mul-observation-and-stack-source"
+  },
+  {
+    "source": "analysis/render-task-divide-unsigned.json",
+    "entries": [
+      "80:F609"
+    ],
+    "closed_dispatch": false,
+    "classification": "div-observation-and-stack-source"
+  },
+  {
+    "source": "analysis/render-task-divide-su.json",
+    "entries": [
+      "80:F5CC"
+    ],
+    "closed_dispatch": false,
+    "classification": "div-observation-and-stack-source"
+  },
+  {
+    "source": "analysis/render-task-divide-us.json",
+    "entries": [
+      "80:F5DE"
+    ],
+    "closed_dispatch": false,
+    "classification": "div-observation-and-stack-source"
+  },
+  {
+    "source": "analysis/render-task-divide-ss.json",
+    "entries": [
+      "80:F5F0"
+    ],
+    "closed_dispatch": false,
+    "classification": "div-observation-and-stack-source"
+  },
+  {
+    "source": "analysis/render-task-remainder-unsigned.json",
+    "entries": [
+      "80:F6AE"
+    ],
+    "closed_dispatch": false,
+    "classification": "rem-observation-and-stack-source"
+  },
+  {
+    "source": "analysis/render-task-remainder-signed.json",
+    "entries": [
+      "80:F67A",
+      "80:F689",
+      "80:F696"
+    ],
+    "closed_dispatch": false,
+    "classification": "rem-observation-and-stack-source"
+  },
+  {
+    "source": "analysis/render-task-end-return.json",
+    "entries": [
+      "80:F4BE"
+    ],
+    "closed_dispatch": false,
+    "classification": "end-stack-restoration-and-return"
+  },
+  {
+    "source": "analysis/render-task-native-dispatch.json",
+    "entries": [
+      "80:F52F"
+    ],
+    "closed_dispatch": false,
+    "classification": "native58-indirect-target-frontier"
+  }
+]

@@ -1,0 +1,63 @@
+{
+ "format": "shadowrun-orphan-scripts-v1",
+ "scope": "Script bytecode no table entry names (src/data/orphan-scripts.mjs): headed scripts with locals, stack header and fully covered bytecode, and a dead tail behind the final end of a table script, decoded in its frame from PC entry. No reader is claimed.",
+ "source_rom_sha256": "91dbfecf9017264b01885e065cf015840223b8e8d2f95dfa62c4c0d654c2f690",
+ "scripts": [
+  {
+   "address": "82:F281",
+   "localBytes": 1,
+   "stackHeaderBytes": 2,
+   "bytecode": [44,0,0,82,88,109,86]
+  },
+  {
+   "address": "82:F28A",
+   "localBytes": 1,
+   "stackHeaderBytes": 2,
+   "bytecode": [44,0,0,83,88,109,86]
+  },
+  {
+   "address": "82:FA25",
+   "localBytes": 0,
+   "stackHeaderBytes": 2,
+   "bytecode": [0,18,88,113,86]
+  },
+  {
+   "address": "9B:D79F",
+   "localBytes": 1,
+   "stackHeaderBytes": 6,
+   "bytecode": [44,0,192,192,194,88,210,88,99,0,127,126,0,100,92,0,1,88,159,188,194,88,175,0,7,192,194,88,210,88,99,0,127,126,0,100,92,0,1,88,159,188,194,88,175,72,2,0]
+  },
+  {
+   "address": "9E:B0B7",
+   "localBytes": 1,
+   "stackHeaderBytes": 8,
+   "bytecode": [44,0,88,99,0,1,126,190,68,18,0,192,194,88,182,72,23,0,0,1,194,88,182,0,2,192,194,88,210,192,192,0,10,194,88,121,0,8,0,1,88,159,188,194,88,79,20,138,2,154,68,36,0,194,88,185,86]
+  },
+  {
+   "address": "9F:8624",
+   "localBytes": 1,
+   "stackHeaderBytes": 2,
+   "bytecode": [44,0,86]
+  },
+  {
+   "address": "9F:89AD",
+   "localBytes": 1,
+   "stackHeaderBytes": 6,
+   "bytecode": [44,0,0,3,192,194,88,210,86]
+  },
+  {
+   "address": "9F:D7AF",
+   "localBytes": 10,
+   "stackHeaderBytes": 14,
+   "bytecode": [44,0,52,1,52,3,194,82,137,0,194,88,198,44,7,20,0,1,12,7,82,171,2,186,52,8,0,128,170,68,52,0,0,240,22,3,20,0,8,0,3,0,30,0,20,0,2,88,200,72,117,0,22,8,0,16,170,68,73,0,194,88,111,82,75,0,10,255,44,7,72,117,0,22,8,20,0,1,170,68,117,0,88,167,88,216,186,52,5,10,255,184,68,117,0,22,5,22,1,176,68,112,0,0,1,22,5,88,13,72,117,0,22,5,82,133,0,12,7,68,10,0,194,88,185,86]
+  }
+ ],
+ "tails": [
+  {
+   "address": "9C:E720",
+   "script": 829,
+   "entry": 7,
+   "bytecode": [0,255,186,0,102,194,88,76,0,6,52,5,22,3,0,16,194,88,81,92,194,88,80,88,99,0,31,126,92,0,16,94,194,88,79,88,99,0,7,126,92,22,1,88,169,188,0,4,88,99,0,15,126,92,0,1,88,159,188,22,5,136,186,52,5,192,170,68,19,0,86]
+  }
+ ]
+}

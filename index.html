@@ -1,0 +1,495 @@
+<!doctype html>
+<html lang="en">
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Shadowrun Enhanced</title>
+  <style>
+    :root {
+      color-scheme: dark;
+      font-family: system-ui, sans-serif;
+      background: #080c10;
+      color: #e7eeeb;
+      --window-zoom: 1;
+      --window-picture-width: calc(min(90vw, 640px) * var(--window-zoom));
+    }
+    body {
+      margin: 0;
+      min-height: 100vh;
+      display: grid;
+      place-items: center;
+    }
+    main {
+      width: max(min(90vw, 880px), var(--window-picture-width));
+      padding: 48px 0;
+    }
+    h1 {
+      font-size: clamp(28px, 5vw, 48px);
+      font-weight: 500;
+      letter-spacing: 0.08em;
+      margin: 0;
+    }
+    p {
+      color: #9fafa8;
+      line-height: 1.6;
+    }
+    canvas {
+      display: block;
+      width: min(100%, 640px);
+      height: auto;
+      margin: 24px 0;
+      background: black;
+      border: 1px solid #24332d;
+    }
+    label,
+    button {
+      display: inline-block;
+      padding: 12px 20px;
+      border: 1px solid #6fbb91;
+      cursor: pointer;
+      color: #a0e2ba;
+      background: transparent;
+      font: inherit;
+    }
+    [hidden] {
+      display: none !important;
+    }
+    button:disabled {
+      opacity: 0.5;
+      cursor: wait;
+    }
+    button[aria-disabled='true'] {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+    label:focus-within {
+      outline: 2px solid #b7f8d0;
+      outline-offset: 4px;
+    }
+    input {
+      position: absolute;
+      width: 1px;
+      height: 1px;
+      opacity: 0;
+    }
+    .screen-reader-only {
+      position: absolute;
+      width: 1px;
+      height: 1px;
+      padding: 0;
+      margin: -1px;
+      overflow: hidden;
+      clip-path: inset(50%);
+      white-space: nowrap;
+      border: 0;
+    }
+    #frame {
+      position: relative;
+      display: grid;
+      place-items: center;
+    }
+    canvas.glove {
+      cursor: none;
+    }
+    /* Fit the active picture inside the glass opening, cropping raster padding
+     behind the cabinet. The CRT canvas retains its source aspect ratio. */
+    #monitor {
+      position: relative;
+      width: var(--window-picture-width);
+      margin: 24px 0;
+    }
+    #monitor canvas {
+      margin: 0;
+    }
+    #frame:not(:fullscreen) #monitor[data-bezel='off'] #screen {
+      width: 100%;
+    }
+    #monitor[data-bezel='on'] {
+      aspect-ratio: var(--bezel-aspect);
+      overflow: hidden;
+    }
+    #monitor[data-bezel='on'] #screen {
+      position: absolute;
+      left: var(--bezel-canvas-x);
+      top: var(--bezel-canvas-y);
+      width: var(--bezel-canvas-width);
+      height: auto;
+      border: 0;
+      clip-path: var(--bezel-canvas-clip);
+    }
+    #pvm-bezel {
+      position: absolute;
+      left: var(--bezel-image-x);
+      top: var(--bezel-image-y);
+      width: var(--bezel-image-width);
+      height: auto;
+      pointer-events: none;
+      user-select: none;
+    }
+    #frame:fullscreen {
+      display: grid;
+      place-items: center;
+      background: black;
+    }
+    #frame:fullscreen #monitor {
+      width: auto;
+      margin: 0;
+    }
+    #frame:fullscreen #menu-toggle {
+      position: fixed;
+      left: auto;
+      right: 12px;
+      top: 12px;
+      z-index: 11;
+    }
+    #frame:fullscreen canvas {
+      width: auto;
+      height: 100vh;
+      max-width: 100vw;
+      margin: 0;
+      border: 0;
+    }
+    #frame:fullscreen #monitor[data-bezel='on'] {
+      width: min(100vw, var(--bezel-full-width));
+      height: auto;
+    }
+    #frame:fullscreen #monitor[data-bezel='on'] #screen {
+      width: var(--bezel-canvas-width);
+      height: auto;
+      max-width: none;
+    }
+    #isolation {
+      color: #f0c27a;
+    }
+    /* Options: every control except "Start game" lives in a panel opened by the burger button. */
+    #menu-toggle {
+      position: absolute;
+      left: calc(50% + var(--window-picture-width) / 2);
+      top: 24px;
+      width: 48px;
+      height: 48px;
+      padding: 0;
+      display: grid;
+      place-content: center;
+      gap: 6px;
+    }
+    #menu-toggle span {
+      display: block;
+      width: 22px;
+      height: 2px;
+      background: currentColor;
+    }
+    #menu {
+      position: fixed;
+      top: 0;
+      right: 0;
+      bottom: auto;
+      width: min(92vw, 260px);
+      max-height: 100dvh;
+      overflow-y: auto;
+      box-sizing: border-box;
+      padding: 12px 14px;
+      font-size: 13px;
+      line-height: 1.35;
+      background: #0d1318;
+      border-left: 1px solid #24332d;
+      z-index: 10;
+    }
+    #menu-close {
+      float: right;
+    }
+    /* Keep the entire scrollable panel below the fullscreen menu button. */
+    #frame:fullscreen #menu {
+      top: 72px;
+      max-height: calc(100dvh - 72px);
+    }
+    #menu h2 {
+      font-size: 15px;
+      font-weight: 500;
+      margin: 0 0 10px;
+    }
+    /* Compact controls inside the panel; the page's own buttons keep their size. */
+    #menu button,
+    #menu label {
+      padding: 4px 10px;
+    }
+    #menu p {
+      line-height: 1.35;
+      margin: 8px 0;
+    }
+    #menu-actions {
+      display: grid;
+      gap: 4px;
+      margin-bottom: 4px;
+    }
+    #menu-actions button {
+      text-align: left;
+    }
+  </style>
+  <link rel="stylesheet" href="./src/browser/overlays.css" />
+  <main>
+    <div id="frame">
+      <button
+        id="menu-toggle"
+        type="button"
+        aria-label="Options"
+        data-menu-label="options"
+        aria-expanded="false"
+        aria-controls="menu"
+      >
+        <span></span><span></span><span></span>
+      </button>
+      <h1 class="screen-reader-only">Shadowrun Enhanced</h1>
+      <button id="start" class="screen-reader-only" hidden disabled>Start Game</button>
+      <p id="status" class="screen-reader-only" role="status">Loading game data …</p>
+      <progress
+        id="loading-progress"
+        class="screen-reader-only"
+        aria-labelledby="status"
+        max="1"
+        value="0"
+      ></progress>
+      <img id="start-logo" src="./src/browser/shadowrun-logo.png" alt="" hidden />
+      <div id="monitor" data-bezel="off">
+        <canvas id="screen" width="256" height="224" aria-label="Shadowrun"></canvas>
+        <img
+          id="pvm-bezel"
+          src="./src/browser/pvm-20m2e-bezel.png"
+          alt=""
+          aria-hidden="true"
+          draggable="false"
+          hidden
+        />
+      </div>
+    </div>
+    <p id="isolation" hidden>
+      This page runs without cross-origin isolation, so input reacts with a delay. Please open it
+      through <code>npm start</code>.
+    </p>
+  </main>
+  <nav id="menu" aria-label="Options" data-menu-label="options" hidden>
+    <button id="menu-close" type="button" data-menu-text="close">Close</button>
+    <h2 data-menu-text="options">Options</h2>
+    <div id="menu-actions">
+      <button id="language" type="button">Language: English</button>
+      <button id="about-settings-open" type="button">About this project</button>
+      <button id="manual-open" type="button">Handbook</button>
+      <button id="video-settings-open" type="button">Graphics</button>
+      <button id="audio-settings-open" type="button">Audio</button>
+      <button id="controls-settings-open" type="button">Controls</button>
+      <button id="game-settings-open" type="button">Game</button>
+      <button id="cheats-open" type="button">Cheats</button>
+      <button
+        id="debug-room"
+        data-menu-text="debugRoom"
+        type="button"
+        aria-disabled="true"
+        title="Warps Jake into the hidden debug room; its invisible exit at the bottom centre leads back"
+      >
+        Debug room
+      </button>
+
+      <button id="saves-settings-open" type="button">Save/load game</button>
+      <button id="recording-settings-open" type="button">Recording</button>
+      <button id="fullscreen" type="button">Fullscreen</button>
+    </div>
+  </nav>
+  <section id="about-project-content" hidden>
+    <p data-menu-text="tributeCredit">
+      Tribute soundtrack arranged, performed and produced by Julian Daniels
+    </p>
+    <p data-menu-text="originalSoundtrackCredit">Original soundtrack by Marshall Parker</p>
+    <p>
+      <a href="https://www.juliandaniels.com/" target="_blank" rel="noopener noreferrer">
+        https://www.juliandaniels.com/
+      </a>
+    </p>
+    <hr />
+    <p data-menu-text="projectGithub">This project on GitHub:</p>
+    <p>
+      <a
+        href="https://github.com/StefanKubsch/SNES_Shadowrun"
+        target="_blank"
+        rel="noopener noreferrer"
+      >
+        https://github.com/StefanKubsch/SNES_Shadowrun
+      </a>
+    </p>
+  </section>
+  <section id="controls" hidden>
+    <p data-menu-text="controlsHelp">
+      Moving the mouse over the picture shows the glove; in menus the mouse wheel and a click
+      choose. Choose “change”, then press the new key or mouse button. Letters count by their label.
+      A gamepad with standard mapping works without setup. P pauses the game.
+    </p>
+    <button
+      id="control-explanations"
+      type="button"
+      aria-pressed="false"
+      data-menu-text="controlExplanations"
+    >
+      Explanations
+    </button>
+    <div id="bindings"></div>
+    <p id="mouse-controls-help"></p>
+    <button id="reset-bindings" type="button" data-menu-text="defaults">Restore defaults</button>
+  </section>
+  <section id="saves" hidden>
+    <button id="four-save-slots" type="button" aria-pressed="false">Four save slots: off</button>
+    <p data-menu-text="savesHelp">
+      Save at a bed or with “Save now” below. Only saved progress is kept in this browser profile;
+      clearing browser data can erase it. Load a slot through “Start saved game” in the game’s title
+      menu.
+    </p>
+    <p id="save-status"></p>
+    <div id="save-now" hidden>
+      <p data-menu-text="saveNowHelp">
+        Save now, without a bed, while Jake can move freely. Loading starts at the entrance of the
+        current room, as after a bed.
+      </p>
+      <button type="button" data-slot="0">Save now: game 1</button>
+      <button type="button" data-slot="1">Save now: game 2</button>
+      <button type="button" data-slot="2" hidden>Save now: game 3</button>
+      <button type="button" data-slot="3" hidden>Save now: game 4</button>
+    </div>
+    <div class="overlay-card">
+      <p id="save-export-help" data-menu-text="saveExportHelp"></p>
+      <button
+        id="save-export"
+        type="button"
+        data-menu-text="saveExport"
+        aria-describedby="save-export-help"
+        disabled
+      >
+        Export (.srm)
+      </button>
+    </div>
+    <div class="overlay-card">
+      <p id="save-import-help" data-menu-text="saveImportHelp"></p>
+      <label
+        ><span data-menu-text="saveImport">Import (.srm)</span
+        ><input id="save-file" type="file" accept=".srm" aria-describedby="save-import-help"
+      /></label>
+    </div>
+  </section>
+  <section id="recording" hidden>
+    <p data-menu-text="recordingHelp">
+      The game records all input since the start. If something goes wrong, export the recording and
+      send it along: it replays the session exactly.
+    </p>
+    <button id="recording-export" type="button" data-menu-text="recordingExport">
+      Export recording (.json)
+    </button>
+  </section>
+  <div id="game-settings-controls" class="settings-buttons" hidden>
+    <p data-menu-text="gameplayHelp">
+      Choose gameplay fixes before starting. Reload the page to change them during a game.
+    </p>
+    <section class="overlay-card">
+      <button id="bugfixes" type="button" aria-pressed="true" aria-describedby="bugfixes-help">
+        Original bug fixes: on
+      </button>
+      <p id="bugfixes-help" data-menu-text="bugfixesHelp"></p>
+    </section>
+    <section class="overlay-card">
+      <button
+        id="prevent-exploits"
+        type="button"
+        aria-pressed="false"
+        aria-describedby="prevent-exploits-help"
+      >
+        Prevent vampire farming: off
+      </button>
+      <p id="prevent-exploits-help" data-menu-text="preventExploitsHelp"></p>
+    </section>
+    <section class="overlay-card">
+      <button
+        id="instant-text"
+        type="button"
+        aria-pressed="true"
+        aria-describedby="instant-text-help"
+      >
+        Instant menus and dialogs: on
+      </button>
+      <p id="instant-text-help" data-menu-text="instantTextHelp"></p>
+    </section>
+    <section class="overlay-card">
+      <button
+        id="fluid-controls"
+        type="button"
+        aria-pressed="true"
+        aria-describedby="fluid-controls-help"
+      >
+        Fluid controls: on
+      </button>
+      <p id="fluid-controls-help" data-menu-text="fluidControlsHelp"></p>
+    </section>
+    <section class="overlay-card">
+      <button
+        id="object-markers"
+        type="button"
+        aria-pressed="false"
+        aria-describedby="object-markers-help"
+      >
+        Highlight objects: off
+      </button>
+      <p id="object-markers-help" data-menu-text="markersHelp"></p>
+    </section>
+  </div>
+  <section id="audio-soundtrack" class="overlay-card" hidden>
+    <h3 data-menu-text="soundtrackSettings">Soundtrack</h3>
+    <p data-menu-text="soundtrackHelp"></p>
+    <button id="soundtrack" type="button" aria-pressed="true">Soundtrack: Tribute</button>
+    <label for="tribute-volume"
+      ><span data-menu-text="volume">Tribute volume:</span>
+      <output id="tribute-volume-value" for="tribute-volume">25%</output></label
+    >
+    <input id="tribute-volume" type="range" min="0" max="100" step="1" value="25" />
+    <span id="soundtrack-status" role="status"></span>
+  </section>
+  <div id="video-controls" hidden>
+    <section class="overlay-card settings-buttons">
+      <button id="crt" type="button" aria-pressed="false" hidden>CRT picture: off (F9)</button>
+      <button id="bezel" type="button" aria-pressed="true" hidden>Monitor bezel: on</button>
+      <button id="window-zoom" type="button" aria-pressed="false">Window zoom: 100%</button>
+    </section>
+    <section id="crt-settings" class="overlay-card" hidden>
+      <h3 data-menu-text="crtSettings">CRT settings</h3>
+      <fieldset aria-label="CRT picture controls" data-menu-label="crtControls">
+        <label for="crt-brightness"
+          ><span data-menu-text="brightness">Brightness</span>
+          <output id="crt-brightness-value" for="crt-brightness">0%</output>
+          <input
+            id="crt-brightness"
+            name="brightness"
+            type="range"
+            min="-100"
+            max="100"
+            step="1"
+            value="0"
+            data-scale="1000"
+            aria-describedby="crt-brightness-help"
+          />
+        </label>
+        <p id="crt-brightness-help" data-menu-text="brightnessHelp">Sets the black level.</p>
+        <label for="crt-contrast"
+          ><span data-menu-text="contrast">Contrast</span>
+          <output id="crt-contrast-value" for="crt-contrast">100%</output>
+          <input
+            id="crt-contrast"
+            name="contrast"
+            type="range"
+            min="0"
+            max="200"
+            step="1"
+            value="100"
+            data-scale="100"
+            aria-describedby="crt-contrast-help"
+          />
+        </label>
+        <p id="crt-contrast-help" data-menu-text="contrastHelp">Sets the picture intensity.</p>
+        <button id="crt-reset" type="button" data-menu-text="defaults">Restore defaults</button>
+      </fieldset>
+    </section>
+  </div>
+  <script type="module" src="./src/browser/start.mjs"></script>
+</html>

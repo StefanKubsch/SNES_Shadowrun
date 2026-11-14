@@ -1,0 +1,74 @@
+import { taskStop } from '../../src/task/plan.mjs';
+import { prepareTaskPlan } from './plan.mjs';
+import { runTaskOpcodeTarget } from './opcode-target.mjs';
+import { runTaskNativeArguments } from './native-arguments.mjs';
+import { runTaskNativeBridge } from './native-bridge.mjs';
+import { runTaskNativeResume } from './native-resume.mjs';
+import {
+  showNoticeObserved,
+  validateNoticeOptions,
+  fec1Registers,
+} from '../../src/task/native-notice.mjs';
+// One individually proved Native58/C8 call. No arbitrary target admission,
+// instruction decoding, device calculations or inner publication.
+export function runTaskNativeC8Opcode(a, options, allowRemainingWaitObservations = false) {
+  if (a.ctx.x !== 0x58) taskStop('task_native_c8_opcode_required');
+  const slot = runTaskOpcodeTarget(a);
+  if (slot.target !== 0x80f4cb) taskStop('task_opcode_target_required', { target: slot.target });
+  const argumentsResult = runTaskNativeArguments(a);
+  if (
+    argumentsResult.id !== 0xc8 ||
+    argumentsResult.freshId !== 0xc8 ||
+    argumentsResult.metadataWord !== 7
+  )
+    taskStop('task_native_c8_argument_source_required', {
+      id: argumentsResult.id,
+      freshId: argumentsResult.freshId,
+      metadataWord: argumentsResult.metadataWord,
+    });
+  const bridge = runTaskNativeBridge(a, options.protectedStackBytes),
+    pointerWord = a.readWord(0xa2, 16, 'native-c8-fresh-A2');
+  if (bridge.pointerWord !== 0xfec1 || pointerWord !== 0xfec1)
+    taskStop('task_native_c8_target_required', {
+      tablePointerWord: bridge.pointerWord,
+      pointerWord,
+    });
+  a.ctx.pc = pointerWord;
+  const callee = showNoticeObserved(a, options, false, allowRemainingWaitObservations);
+  if (callee.returnTarget !== 0x80f509)
+    taskStop('task_native_resume_target_required', { returnTarget: callee.returnTarget });
+  if (a.ctx.d !== 0 || a.ctx.bank !== 0x80 || a.ctx.status & 0x30)
+    taskStop('task_native_resume_context_required');
+  const resume = runTaskNativeResume(a, options.protectedStackBytes, 0x82d970, true, 0xc8);
+  if (resume.metadataWord !== 0 || resume.resultPushed)
+    taskStop('task_native_c8_return_source_required', { metadataWord: resume.metadataWord });
+  return {
+    ...resume,
+    scope: 'manual-original-native58-c8-through-fec1-actual-f508-and-f509-before-F390',
+    argumentPrefixExecuted: true,
+    stackMigrationExecuted: true,
+    boundedNativeDispatchExecuted: true,
+    dynamicDispatchExecuted: false,
+    calleeEntry: 0x80fec1,
+    tablePointerWord: bridge.pointerWord,
+    dispatchPointerWord: pointerWord,
+    calleeReturnWord: callee.rawReturnWord,
+    calleeReturnTarget: callee.returnTarget,
+    calleeReturnTargetExecuted: true,
+    arguments: argumentsResult,
+    callee,
+    waitObservationsUsed: callee.waitObservationsUsed,
+    waitEvents: callee.waitEvents,
+    fullTaskBinding: false,
+  };
+}
+export function prepareTaskNativeOpcodeFEC1(options) {
+  const invalid = validateNoticeOptions(options);
+  if (invalid) return invalid;
+  return prepareTaskPlan(
+    options,
+    [0x80f390],
+    (a) => runTaskNativeC8Opcode(a, options),
+    fec1Registers,
+  );
+}

@@ -1,0 +1,13 @@
+import {emitCombatSources} from './task-native-combat-source.mjs';import {emit8D0BSource} from './task-native-9bc6-source.mjs';
+await emitCombatSources();
+await emit8D0BSource();
+await (await import('./task-native-cd9d-source.mjs')).emitCD9DSource();
+await (await import('./task-native-e1cf-source.mjs')).emitE1CFSources();
+await (await import('./task-native-9bc6-source.mjs')).emit9BD3Sources();
+await (await import('./task-native-cecb-source.mjs')).emitCECBSource();
+await (await import('./task-native-f254-source.mjs')).emitF254Source();
+await (await import('./task-native-d079-source.mjs')).emitD079Source();
+await (await import('./task-native-9bc6-source.mjs')).emitC724Source();
+await (await import('./task-native-ea6e-source.mjs')).emitEA6ESource();
+await (await import('./task-native-ce6d-source.mjs')).emitCE6DSource();
+await (await import('./task-native-e014-source.mjs')).emitE014Source();

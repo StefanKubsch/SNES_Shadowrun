@@ -1,0 +1,537 @@
+{
+  "schema_version": 1,
+  "scope": "Source-reviewed classification of the 58 producer gaps remaining after Script52 declarations. This is not a complete output manifest, an observed write record or a bootstrap plan. Prerequisites name ROM or recording requirements, not an exhaustive dependency list.",
+  "groups": [
+    {
+      "kind": "generated-outside-graph",
+      "tool": "tools/analyze-rom.mjs",
+      "npm_command": "analyze",
+      "command": "node tools/analyze-rom.mjs",
+      "prerequisites": [
+        "Shadowrun (E).smc"
+      ],
+      "outputs": [
+        "analysis/reset.asm.txt",
+        "analysis/main-entry.asm.txt",
+        "analysis/main-first-callee.asm.txt",
+        "analysis/nmi-after-rep.asm.txt",
+        "analysis/default-interrupt.asm.txt",
+        "analysis/script-allocation-tables.asm.txt",
+        "analysis/script-return-table.asm.txt",
+        "analysis/native-argument-table.asm.txt",
+        "analysis/native-pointer-table.asm.txt",
+        "analysis/native-return-table.asm.txt",
+        "analysis/native-dispatch.asm.txt",
+        "analysis/nmi-dispatch.asm.txt",
+        "analysis/script-opcode-dispatch.asm.txt",
+        "analysis/script-push-zero.asm.txt",
+        "analysis/script-push-u8.asm.txt",
+        "analysis/script-push-u16.asm.txt",
+        "analysis/script-drop.asm.txt"
+      ],
+      "evidence": [
+        "reset",
+        "main-entry",
+        "main-first-callee",
+        "nmi-after-rep",
+        "default-interrupt",
+        "script-allocation-tables",
+        "script-return-table",
+        "native-argument-table",
+        "native-pointer-table",
+        "native-return-table",
+        "native-dispatch",
+        "nmi-dispatch",
+        "script-opcode-dispatch",
+        "script-push-zero",
+        "script-push-u8",
+        "script-push-u16",
+        "script-drop",
+        "`${name}.asm.txt`",
+        "await writeFile(resolve(out,"
+      ]
+    },
+    {
+      "kind": "generated-outside-graph",
+      "tool": "tools/decode-scripts.mjs",
+      "npm_command": "decode:scripts",
+      "command": "node tools/decode-scripts.mjs",
+      "prerequisites": [
+        "Shadowrun (E).smc"
+      ],
+      "outputs": [
+        "analysis/opcode-handlers.asm.txt",
+        "assets/scripts.json"
+      ],
+      "evidence": [
+        "opcode-handlers.asm.txt",
+        "scripts.json"
+      ]
+    },
+    {
+      "kind": "generated-outside-graph",
+      "tool": "tools/analyze-task-flow.mjs",
+      "npm_command": "analyze:tasks",
+      "command": "node tools/analyze-task-flow.mjs",
+      "prerequisites": [
+        "Shadowrun (E).smc"
+      ],
+      "outputs": [
+        "analysis/task-flow.asm.txt"
+      ],
+      "evidence": [
+        "task-flow.asm.txt"
+      ]
+    },
+    {
+      "kind": "generated-outside-graph",
+      "tool": "tools/analyze-task-heap.mjs",
+      "npm_command": "analyze:heap",
+      "command": "node tools/analyze-task-heap.mjs",
+      "prerequisites": [
+        "Shadowrun (E).smc"
+      ],
+      "outputs": [
+        "analysis/task-heap.asm.txt",
+        "analysis/task-heap.json"
+      ],
+      "evidence": [
+        "task-heap.asm.txt",
+        "task-heap.json"
+      ]
+    },
+    {
+      "kind": "generated-outside-graph",
+      "tool": "tools/analyze-task-frames.mjs",
+      "npm_command": "analyze:frames",
+      "command": "node tools/analyze-task-frames.mjs",
+      "prerequisites": [
+        "Shadowrun (E).smc"
+      ],
+      "outputs": [
+        "analysis/task-frames.asm.txt",
+        "analysis/task-frames.json",
+        "assets/task-frame-profiles.json"
+      ],
+      "evidence": [
+        "task-frames.asm.txt",
+        "task-frames.json",
+        "task-frame-profiles.json"
+      ]
+    },
+    {
+      "kind": "generated-outside-graph",
+      "tool": "tools/analyze-state-actions.mjs",
+      "npm_command": "analyze:state",
+      "command": "node tools/analyze-state-actions.mjs",
+      "prerequisites": [
+        "Shadowrun (E).smc"
+      ],
+      "outputs": [
+        "analysis/state-actions.asm.txt",
+        "analysis/state-b9.asm.txt"
+      ],
+      "evidence": [
+        "state-actions.asm.txt",
+        "state-b9.asm.txt"
+      ]
+    },
+    {
+      "kind": "generated-outside-graph",
+      "tool": "tools/analyze-slot-state.mjs",
+      "npm_command": "analyze:slots",
+      "command": "node tools/analyze-slot-state.mjs",
+      "prerequisites": [
+        "Shadowrun (E).smc"
+      ],
+      "outputs": [
+        "analysis/slot-state.asm.txt",
+        "analysis/slot-state.json"
+      ],
+      "evidence": [
+        "slot-state.asm.txt",
+        "slot-state.json"
+      ]
+    },
+    {
+      "kind": "generated-outside-graph",
+      "tool": "tools/analyze-slot-actions.mjs",
+      "npm_command": "analyze:slot-actions",
+      "command": "node tools/analyze-slot-actions.mjs",
+      "prerequisites": [
+        "Shadowrun (E).smc"
+      ],
+      "outputs": [
+        "analysis/slot-actions.asm.txt"
+      ],
+      "evidence": [
+        "slot-actions.asm.txt"
+      ]
+    },
+    {
+      "kind": "generated-outside-graph",
+      "tool": "tools/analyze-caller-actions.mjs",
+      "npm_command": "analyze:caller-actions",
+      "command": "node tools/analyze-caller-actions.mjs",
+      "prerequisites": [
+        "Shadowrun (E).smc"
+      ],
+      "outputs": [
+        "analysis/caller-actions.asm.txt"
+      ],
+      "evidence": [
+        "caller-actions.asm.txt"
+      ]
+    },
+    {
+      "kind": "generated-outside-graph",
+      "tool": "tools/analyze-ac-state.mjs",
+      "npm_command": "analyze:ac-state",
+      "command": "node tools/analyze-ac-state.mjs",
+      "prerequisites": [
+        "Shadowrun (E).smc"
+      ],
+      "outputs": [
+        "analysis/ac-state.asm.txt"
+      ],
+      "evidence": [
+        "ac-state.asm.txt"
+      ]
+    },
+    {
+      "kind": "generated-outside-graph",
+      "tool": "tools/analyze-slot-motion.mjs",
+      "npm_command": "analyze:motion",
+      "command": "node tools/analyze-slot-motion.mjs",
+      "prerequisites": [
+        "Shadowrun (E).smc"
+      ],
+      "outputs": [
+        "analysis/slot-motion.asm.txt"
+      ],
+      "evidence": [
+        "slot-motion.asm.txt"
+      ]
+    },
+    {
+      "kind": "generated-outside-graph",
+      "tool": "tools/analyze-motion-prelude-8799.mjs",
+      "npm_command": "analyze:motion-prelude",
+      "command": "node tools/analyze-motion-prelude-8799.mjs",
+      "prerequisites": [
+        "Shadowrun (E).smc"
+      ],
+      "outputs": [
+        "analysis/motion-prelude-8799.asm.txt"
+      ],
+      "evidence": [
+        "motion-prelude-8799.asm.txt"
+      ]
+    },
+    {
+      "kind": "generated-outside-graph",
+      "tool": "tools/analyze-motion-postpass-ac2f.mjs",
+      "npm_command": "analyze:motion-postpass",
+      "command": "node tools/analyze-motion-postpass-ac2f.mjs",
+      "prerequisites": [
+        "Shadowrun (E).smc"
+      ],
+      "outputs": [
+        "analysis/motion-postpass-ac2f.asm.txt",
+        "analysis/motion-postpass-ac2f.json"
+      ],
+      "evidence": [
+        "motion-postpass-ac2f.asm.txt",
+        "motion-postpass-ac2f.json"
+      ]
+    },
+    {
+      "kind": "generated-outside-graph",
+      "tool": "tools/analyze-motion-prefix-de94.mjs",
+      "npm_command": "analyze:motion-prefix",
+      "command": "node tools/analyze-motion-prefix-de94.mjs",
+      "prerequisites": [
+        "Shadowrun (E).smc"
+      ],
+      "outputs": [
+        "analysis/motion-prefix-de94.asm.txt"
+      ],
+      "evidence": [
+        "motion-prefix-de94.asm.txt"
+      ]
+    },
+    {
+      "kind": "generated-outside-graph",
+      "tool": "tools/analyze-motion-prefix-writers.mjs",
+      "npm_command": "analyze:motion-prefix-writers",
+      "command": "node tools/analyze-motion-prefix-writers.mjs",
+      "prerequisites": [
+        "Shadowrun (E).smc"
+      ],
+      "outputs": [
+        "analysis/motion-prefix-writers.asm.txt",
+        "analysis/motion-prefix-writers.json"
+      ],
+      "evidence": [
+        "motion-prefix-writers.asm.txt",
+        "motion-prefix-writers.json"
+      ]
+    },
+    {
+      "kind": "generated-outside-graph",
+      "tool": "tools/analyze-motion-gate-8000.mjs",
+      "npm_command": "analyze:motion-gate",
+      "command": "node tools/analyze-motion-gate-8000.mjs",
+      "prerequisites": [
+        "Shadowrun (E).smc"
+      ],
+      "outputs": [
+        "analysis/motion-gate-8000.asm.txt",
+        "analysis/motion-gate-8000.json"
+      ],
+      "evidence": [
+        "motion-gate-8000.asm.txt",
+        "motion-gate-8000.json"
+      ]
+    },
+    {
+      "kind": "generated-outside-graph",
+      "tool": "tools/analyze-motion-transition-a4bf.mjs",
+      "npm_command": "analyze:motion-transition",
+      "command": "node tools/analyze-motion-transition-a4bf.mjs",
+      "prerequisites": [
+        "Shadowrun (E).smc"
+      ],
+      "outputs": [
+        "analysis/motion-transition-a4bf.asm.txt",
+        "analysis/motion-transition-a4bf.json"
+      ],
+      "evidence": [
+        "motion-transition-a4bf.asm.txt",
+        "motion-transition-a4bf.json"
+      ]
+    },
+    {
+      "kind": "generated-outside-graph",
+      "tool": "tools/analyze-motion-reset-bcb2.mjs",
+      "npm_command": "analyze:motion-reset",
+      "command": "node tools/analyze-motion-reset-bcb2.mjs",
+      "prerequisites": [
+        "Shadowrun (E).smc"
+      ],
+      "outputs": [
+        "analysis/motion-reset-bcb2.asm.txt",
+        "analysis/motion-reset-bcb2.json"
+      ],
+      "evidence": [
+        "motion-reset-bcb2.asm.txt",
+        "motion-reset-bcb2.json"
+      ]
+    },
+    {
+      "kind": "generated-outside-graph",
+      "tool": "tools/analyze-motion-helper-8133.mjs",
+      "npm_command": "analyze:motion-helper",
+      "command": "node tools/analyze-motion-helper-8133.mjs",
+      "prerequisites": [
+        "Shadowrun (E).smc"
+      ],
+      "outputs": [
+        "analysis/motion-helper-8133.asm.txt"
+      ],
+      "evidence": [
+        "motion-helper-8133.asm.txt"
+      ]
+    },
+    {
+      "kind": "generated-outside-graph",
+      "tool": "tools/analyze-motion-helper-80b2.mjs",
+      "npm_command": "analyze:motion-helper-80b2",
+      "command": "node tools/analyze-motion-helper-80b2.mjs",
+      "prerequisites": [
+        "Shadowrun (E).smc"
+      ],
+      "outputs": [
+        "analysis/motion-helper-80b2.asm.txt"
+      ],
+      "evidence": [
+        "motion-helper-80b2.asm.txt"
+      ]
+    },
+    {
+      "kind": "generated-outside-graph",
+      "tool": "tools/analyze-motion-helper-81b4.mjs",
+      "npm_command": null,
+      "command": "node tools/analyze-motion-helper-81b4.mjs",
+      "prerequisites": [
+        "Shadowrun (E).smc"
+      ],
+      "outputs": [
+        "analysis/motion-helper-81b4.asm.txt"
+      ],
+      "evidence": [
+        "motion-helper-81b4.asm.txt"
+      ]
+    },
+    {
+      "kind": "generated-outside-graph",
+      "tool": "tools/analyze-motion-helper-8238.mjs",
+      "npm_command": "analyze:motion-helper-8238",
+      "command": "node tools/analyze-motion-helper-8238.mjs",
+      "prerequisites": [
+        "Shadowrun (E).smc"
+      ],
+      "outputs": [
+        "analysis/motion-helper-8238.asm.txt"
+      ],
+      "evidence": [
+        "motion-helper-8238.asm.txt"
+      ]
+    },
+    {
+      "kind": "generated-outside-graph",
+      "tool": "tools/analyze-motion-helper-82bc.mjs",
+      "npm_command": "analyze:motion-helper-82bc",
+      "command": "node tools/analyze-motion-helper-82bc.mjs",
+      "prerequisites": [
+        "Shadowrun (E).smc"
+      ],
+      "outputs": [
+        "analysis/motion-helper-82bc.asm.txt"
+      ],
+      "evidence": [
+        "motion-helper-82bc.asm.txt"
+      ]
+    },
+    {
+      "kind": "generated-outside-graph",
+      "tool": "tools/analyze-motion-helper-c9e0.mjs",
+      "npm_command": null,
+      "command": "node tools/analyze-motion-helper-c9e0.mjs",
+      "prerequisites": [
+        "Shadowrun (E).smc"
+      ],
+      "outputs": [
+        "analysis/motion-helper-c9e0.asm.txt"
+      ],
+      "evidence": [
+        "motion-helper-c9e0.asm.txt"
+      ]
+    },
+    {
+      "kind": "generated-outside-graph",
+      "tool": "tools/analyze-slot-action-d9.mjs",
+      "npm_command": "analyze:d9",
+      "command": "node tools/analyze-slot-action-d9.mjs",
+      "prerequisites": [
+        "Shadowrun (E).smc"
+      ],
+      "outputs": [
+        "analysis/slot-action-d9.asm.txt"
+      ],
+      "evidence": [
+        "slot-action-d9.asm.txt"
+      ]
+    },
+    {
+      "kind": "generated-outside-graph",
+      "tool": "tools/analyze-target-pointer.mjs",
+      "npm_command": "analyze:target-pointer",
+      "command": "node tools/analyze-target-pointer.mjs",
+      "prerequisites": [
+        "Shadowrun (E).smc"
+      ],
+      "outputs": [
+        "analysis/target-pointer.asm.txt"
+      ],
+      "evidence": [
+        "target-pointer.asm.txt"
+      ]
+    },
+    {
+      "kind": "generated-outside-graph",
+      "tool": "tools/extract-slot-motion-direction-data.mjs",
+      "npm_command": null,
+      "command": "node tools/extract-slot-motion-direction-data.mjs",
+      "prerequisites": [
+        "Shadowrun (E).smc"
+      ],
+      "outputs": [
+        "assets/slot-motion-direction-data.json"
+      ],
+      "evidence": [
+        "slot-motion-direction-data.json"
+      ]
+    },
+    {
+      "kind": "recording-dependent",
+      "tool": "tools/rom-code-coverage.mjs",
+      "npm_command": null,
+      "command": "node tools/rom-code-coverage.mjs",
+      "prerequisites": [
+        "Mesen2",
+        "tools/mesen/explore.lua",
+        "Shadowrun (E).smc",
+        "existing analysis/rom-code-observed.json when present"
+      ],
+      "outputs": [
+        "analysis/rom-code-observed.json"
+      ],
+      "evidence": [
+        "rom-code-observed.json"
+      ],
+      "note": "Runs explicit Mesen scenarios and merges newly observed instruction states into the retained report. Recreating prior observations requires their scenario and tool state."
+    },
+    {
+      "kind": "recording-dependent",
+      "tool": "tools/rom-reads.mjs",
+      "npm_command": null,
+      "command": "node tools/rom-reads.mjs",
+      "prerequisites": [
+        ".cache/rom-reads.bin",
+        "existing analysis/rom-reads.json when present"
+      ],
+      "outputs": [
+        "analysis/rom-reads.json"
+      ],
+      "evidence": [
+        "rom-reads.json"
+      ],
+      "note": "Merges recorded native ROM reads with retained ranges; the retained report is an input as well as an output."
+    },
+    {
+      "kind": "recording-dependent",
+      "tool": "tools/rom-vram.mjs",
+      "npm_command": null,
+      "command": "node tools/rom-vram.mjs",
+      "prerequisites": [
+        ".cache/rom-vram/*.json",
+        "Shadowrun (E).smc",
+        "analysis/rom-palettes.json"
+      ],
+      "outputs": [
+        "analysis/rom-vram.json"
+      ],
+      "evidence": [
+        "rom-vram.json"
+      ],
+      "note": "Builds DMA and unpacking observations from recorded live runs, including screen-use classification."
+    },
+    {
+      "kind": "retained-input",
+      "tool": null,
+      "npm_command": null,
+      "command": null,
+      "prerequisites": [],
+      "outputs": [
+        "analysis/rom-palettes.json"
+      ],
+      "evidence": [
+        "Palette ranges:",
+        "Plus the other ROM ranges sent by DMA straight to CGRAM in all live tests."
+      ],
+      "evidence_file": "analysis/rom-palettes.json",
+      "note": "Retained palette ranges combine statically bounded tables and recorded CGRAM transfers. No writer is present in the current tools. extract:vm-palettes reads this input; it does not produce it. Preserve the checked-in file."
+    }
+  ]
+}

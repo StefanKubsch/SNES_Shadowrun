@@ -1,0 +1,103 @@
+{
+ "format": "shadowrun-matrix-texts-v1",
+ "scope": "Matrix texts of bank 81: the six text lists of 81:C515 by matrix screen (1D90, C39F) and the 22 texts 81:C539 to CDB2 that 81:B282/B2D1 print. \"\\n\" is the new line 04, {palette n} the commands 01 to 03, {wait n} 05 n, {back} 06, {xHH} any other byte. See src/data/matrix-texts.mjs.",
+ "source_rom_sha256": "91dbfecf9017264b01885e065cf015840223b8e8d2f95dfa62c4c0d654c2f690",
+ "lists": [
+  ["81:C539"],
+  ["81:C72B"],
+  ["81:C863"],
+  ["81:CB60"],
+  ["81:C959"],
+  ["81:CC33"]
+ ],
+ "texts": [
+  {
+   "address": "81:C539",
+   "text": "{palette 1}\nERROR CONDITION!{palette 0}\n\nERROR ANALYSIS.{wait 20}.{wait 20}.{wait 20}.{wait 20}.{wait 20}{wait 128}\n\n{palette 2}- DATAJACK MALFUNCTION\n\n{palette 0}CONNECTION TERMINATED\n\n{palette 1}\nNO CONNECTION ESTABLISHED.\n{wait 255}"
+  },
+  {
+   "address": "81:C5C0",
+   "text": "{palette 1}\nATTACKED BY IC\n"
+  },
+  {
+   "address": "81:C5D2",
+   "text": "{palette 0}\nEXEC. COMBAT.EXE\n"
+  },
+  {
+   "address": "81:C5E6",
+   "text": "{palette 1}\nCOMBAT SUCCESSFUL\n"
+  },
+  {
+   "address": "81:C5FB",
+   "text": "{palette 1}\nCOMBAT FAILED!\n"
+  },
+  {
+   "address": "81:C60D",
+   "text": "{palette 0}\nFOUND X IC!\n"
+  },
+  {
+   "address": "81:C61C",
+   "text": "{palette 2}\n\nJACKED OUT..\n\n"
+  },
+  {
+   "address": "81:C62E",
+   "text": "{palette 0}\n\nCONDITION:{wait 60} OK\n"
+  },
+  {
+   "address": "81:C642",
+   "text": "{palette 0}\nEXEC. TRANSFER.EXE\n"
+  },
+  {
+   "address": "81:C658",
+   "text": "{palette 1}\nPHONEBOOK RECEIVED.\n"
+  },
+  {
+   "address": "81:C66F",
+   "text": "{palette 1}\nDATA RECEIVED.\n"
+  },
+  {
+   "address": "81:C681",
+   "text": "{palette 1}\nPROGRAM MODIFIED.\n"
+  },
+  {
+   "address": "81:C696",
+   "text": "{palette 1}\nGUARD IC DESTROYED...{wait 30}\n"
+  },
+  {
+   "address": "81:C6B1",
+   "text": "{palette 1}\nLINES OPENED..\n"
+  },
+  {
+   "address": "81:C6C3",
+   "text": "{palette 1}\nPASSWORD NEEDED..\n"
+  },
+  {
+   "address": "81:C6D8",
+   "text": "{palette 1}\nERROR :{palette 0} OUT OF STORAGE{wait 30}\n"
+  },
+  {
+   "address": "81:C6F5",
+   "text": "\n\n{palette 1}ERR2912 - CODE 3\n\n\n{palette 2}THANK YOU FOR USING ALPHA.\n\n{wait 240}"
+  },
+  {
+   "address": "81:C72B",
+   "text": "\n\n{palette 1}NAUCAS-SEA-2309\n\n\n\nAllegiance Alpha\nControl System Type II\n\n\n{palette 0}Network patching.{wait 45}.{wait 45}.{wait 45}.{wait 45}{back}{back}{back}{back}{back}{back}{back}ed!\n\n\n\n{palette 1}Logging to CENTRAL ALPHA\n\n{palette 0}Current security status:\n\n{palette 2}Please wait{palette 1}{wait 60}{back}{back}{back}{back}{back}{back}{back}{back}{back}{back}{back}0 - WHITE\n1 - WHITE\n2 - WHITE\n3 - WHITE\n4 - BLUE\n5 - GREEN\n6 - ORANGE\n7 - RED\n8 - BLACK\n\n{palette 0}\n\n\n{palette 2}THANK YOU FOR USING ALPHA.\n\n{wait 240}"
+  },
+  {
+   "address": "81:C863",
+   "text": "\n\n\n\n\n\n{palette 1}NAUCAS-SEA-5437-DRAKEHQ\n\n\n\n{palette 0}Logging all activity{wait 120}\n\n\n{palette 1}Local Network Patch.{wait 5}.{wait 5}.{wait 5}.{wait 5}.{wait 5}.{wait 5}.{wait 5}.{wait 5}{wait 60}\n\n\n\nICE Active\n\n{palette 0}Log-In Location :\n{palette 1}  5437-Drake Towers\n\n{palette 0}Logging Destination :\n{palette 1}  8196-Drake Volcano{wait 60}\n\n\n{palette 2}Transferring Control Now....\n\n{wait 240}"
+  },
+  {
+   "address": "81:C959",
+   "text": "\n\n\n\n\n\n{palette 1}NAUCAS-SEA-8194-DRAKEVOLC\n\n\n-----   ----   ----\n--  -- --  -- --  --\n--  -- --     --\n--  -- -- --- --\n--  -- --  -- --\n--  -- --  -- --  --\n----- . ---- . ---- .\n\n{palette 2}Digital Guardian Corp\n\n\n\n\n{palette 1}ICE Specialists.{wait 20}.{wait 20}.{wait 20}.{wait 20}.{wait 20}.{wait 20}.{wait 20}.{wait 20}.{wait 20}.{wait 20}\n{palette 0}{palette 1}\n\n\n\nSTATUS:\n{wait 50}\n\n{palette 0}INACTIVE    LOG FILE\nINACTIVE    ERROR TRACKING\nINACTIVE    WHITE\nACTIVE      BLUE\nACTIVE      GREEN\nACTIVE      ORANGE\nACTIVE      RED\nACTIVE      BLACK\nOVERSCAN    VIEW\n912600NEV   CURRENT SITE\n912749NEV   TARGET SITE\n\n\n{palette 2}-- TRANSFERRING CONTROL. --\n\n{wait 180}"
+  },
+  {
+   "address": "81:CB60",
+   "text": "\n\n\n\n{palette 2}NAUCAS-SEA-3458-ANEKIHQ\n{palette 0}\n\nPatching to :\n{palette 1}ANEKI CORPORATION NETWORK\n\n\n{palette 2}Please wait...{wait 255}\n\n\n{palette 0}Error tracking is{palette 1} ON.\n{palette 0}Remote sensing is{palette 1} ON.\n{palette 0}\n\n{wait 60}Transfer of control shortly.\n\n9{wait 20}{back}8{wait 20}{back}7{wait 20}{back}6{wait 20}{back}5{wait 17}{back}4{wait 14}{back}3{wait 11}{back}2{wait 10}{back}"
+  },
+  {
+   "address": "81:CC33",
+   "text": "\n\n{wait 20}{palette 1}X   X X  XXXXXXXXX  X  X   X \nXX XX XX     X    X     X X  \nX X X X X    X XXX  X    X   \nX   X XXXX   X  X   X   X X  \nX   X X   X  X   X  X  X   X \nX   X X    X X    X X X     X\n\n MATRIX SYSTEMS INCORPORATED\n{palette 0} ---------------------------\n\n{palette 1}    Cyberspace Solutions\n    --------------------\n{palette 2}\n\n\n  Specialists in Intrusion\n Countermeasure Electronics\n\n\n{palette 1}       Connecting...\n{wait 120}"
+  }
+ ]
+}

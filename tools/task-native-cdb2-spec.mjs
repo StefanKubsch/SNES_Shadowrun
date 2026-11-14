@@ -1,0 +1,4 @@
+export const nativeCDB2Spec={name:'native-cdb2',id:0x7B,entry:0x80CDB2,
+ windows:[{start:0x80CDB2,hex:'18AF113C7E65008F113C7E60'}],
+ anchors:[{kind:'pointer',start:0x82D8AE,hex:'B2CD'},{kind:'argument-metadata',start:0x82DAC7,hex:'0102'},{kind:'return-metadata',start:0x82D9EB,hex:'0002'}],
+ contract:'Original7B whole12byte/5instruction leaf: CLC, fresh explicit7E3C11 WORD, ADC freshDP00 WORD in binary mode, store wrapped16bit sum to7E3C11, actual protected WORD RTS. Full carry/overflow/NZ, no saturation/high-word increment or inferred initialization. Actual one argument WORD and zero result bytes; adjacent metadata highs02 do not change low-byte counts. Fresh original Native58 argument/bridge/typedF508/F509 ownership separately. ActualDBR preserved; no entity/caller/task/scene/frame claim.'};

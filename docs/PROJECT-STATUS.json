@@ -1,0 +1,53 @@
+{
+  "updated": "2026-11-10",
+  "focus": "Audited all 209 shape footprints and construction of 165 scenes against source and native results. Shared tile stacks peak at 973/1024 without overlap; walls reach 23400/24000 bytes and BG palettes 7/7. docs/SCENE-SHAPE-EDITING.md defines a conservative value-only contract. No shape editor is enabled.",
+  "next_step": "On user instruction, implement atomic fixed-slot shape value edits under docs/SCENE-SHAPE-EDITING.md. Preserve geometry, block attributes and tile zero masks; preflight full construction and shared stack allocation before publishing. Geometry, objects, language fonts and specialized maps stay separate. Deferred: S-MIX measurement and naming (zero blocks since release).",
+  "porting_resume": "188 original-form bytes remain: 93 retained code bytes and 95 unidentified data bytes. Recorded CPU reads, hardware-only observations and true data margins are distinguished in docs/ROM-CODE-AUDIT.md. Unknown bytes and unused graphics remain preserved; unrecorded paths can still report rom_byte_absent.",
+  "open_issues": [
+    "Examination: unreproduced report to watch during the final user test run. Its European cleanup condition is tested; other story routes remain unproved. A change requires a reproducible counterexample. See docs/BUGFIXES.md."
+  ],
+  "accepted_model_assumptions": [
+    "OBJ time over: a partly loaded OBJ keeps its leftmost on-screen tiles in screen order, whatever the H flip. Book I leaves the choice open; the evidence is a synthetic Mesen2 2.2.1 comparison (tools/mesen-obj-time-over.test.mjs), not Nintendo hardware documentation; docs/PPU-ROOM.md.",
+    "PAL 1CHIP audio remains a nominal 32 kHz baseband model: 100 nF input coupling, 100 kohm input and ideal source, flat normalized S-MIX, assumed 330 pF AV shunts and 47 kohm load. Other profiles are labelled hypotheses. Original impedances/transfer, DAC images, noise and nonlinearity remain unresolved; docs/AUDIO-OUTPUT.md.",
+    "PAL 1CHIP RGB assumes C11 = 470 nF and negligible residual ghosting. Nominal 0.8 V DAC swing, 6.5 dB S-RGB gain and ideal buffer/clamp remain assumptions. An assumed 2 m solid-PE coax cable adds lumped capacitance. Exact gain, internal bandwidth, coupling, real cable construction, line inductance/loss/reflections and brightness-DAC settling remain unresolved; see docs/VIDEO-OUTPUT.md.",
+    "CRT centre convergence translation is retained after profile-specific sampled quadrature. The result is not a global error bound or support for arbitrary gradients; displacement variation and footprint scale/shear remain an explicit approximation (docs/CRT-FILTER.md).",
+    "The curved surface retains centre intersections and diagonal footprints. A combined curvature/convergence review with grille, wires and halo found small sampled differences for the current profile; omitted intra-pixel shear and changing derivatives remain approximations, not globally bounded errors (docs/CRT-FILTER.md)."
+  ],
+  "implementation_limits": [
+    "Supported profiles remain bounded by shader limits: LIGHT radius 64, spot radius 64, halo radius 128, at most 16 oversamples and two wires. Unsupported profiles are rejected; these are explicit implementation limits."
+  ],
+  "optional_quality_checks": [],
+  "references": [
+    "docs/PPU-BROWSER.md",
+    "docs/LANGUAGES.md",
+    "docs/CHARACTER-STREAM-EDITING.md",
+    "docs/CHEATS.md",
+    "docs/MANUAL.md",
+    "docs/TRIBUTE-SOUNDTRACK.md",
+    "docs/STRATEGY.md",
+    "docs/ROM-FREE.md",
+    "docs/PACKED-ASSET-EDITING.md",
+    "docs/ROM-UNREAD-AUDIT.md",
+    "docs/ROM-CODE-AUDIT.md",
+    "docs/TEXT-REFERENCES.md",
+    "docs/EDITABLE-TEXT.md",
+    "docs/MATRIX-TEXT-EDITING.md",
+    "docs/PACKED-TEXT-EDITING.md",
+    "docs/WORKFLOW.md",
+    "docs/GENERATOR-DEPENDENCIES.md",
+    "docs/RECORDING.md",
+    "docs/BUGFIXES.md",
+    "docs/CRT-FILTER.md",
+    "docs/VIDEO-OUTPUT.md",
+    "docs/CRT-BEZEL.md",
+    "docs/START-SCREEN.md",
+    "docs/TCRF-NOTES.md",
+    "docs/CRT-RESEARCH.md",
+    "docs/VM-ARCHITECTURE.md",
+    "docs/SOUND-DRIVER.md",
+    "docs/AUDIO-OUTPUT.md",
+    "docs/MAP-STREAM-EDITING.md",
+    "docs/SCENE-STREAM-EDITING.md",
+    "docs/SCENE-SHAPE-EDITING.md"
+  ]
+}

@@ -1,0 +1,358 @@
+/* One visual contract for the handbook, settings and future overlays. */
+:root:has(.overlay-dialog[open]) {
+  overflow: hidden;
+}
+.overlay-dialog {
+  --overlay-gap: 8px;
+  --overlay-inset: 14px;
+  --overlay-title-size: 15px;
+  --overlay-section-size: 14px;
+  --overlay-text-size: 13px;
+  --overlay-copy-size: 12px;
+  box-sizing: border-box;
+  width: min(880px, calc(100vw - 24px));
+  height: fit-content;
+  max-width: none;
+  max-height: min(780px, calc(100dvh - 24px));
+  padding: 0;
+  overflow: hidden;
+  font-family: inherit;
+  font-size: var(--overlay-text-size);
+  font-weight: 400;
+  line-height: 1.4;
+  color: #e1ece5;
+  background: #0d1318;
+  border: 1px solid #426453;
+  border-radius: 8px;
+  box-shadow: 0 16px 80px #0009;
+  text-align: left;
+}
+.overlay-dialog[open] {
+  display: flex;
+  flex-direction: column;
+}
+.overlay-dialog::backdrop {
+  background: #000b;
+}
+.overlay-header {
+  display: flex;
+  flex-shrink: 0;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--overlay-gap);
+  padding: 9px var(--overlay-inset);
+  border-bottom: 1px solid #24332d;
+}
+.overlay-dialog h2,
+.overlay-dialog h3,
+.overlay-dialog legend {
+  margin: 0;
+  font-weight: 700;
+  color: #a0e2ba;
+}
+.overlay-dialog h2 {
+  font-size: var(--overlay-title-size);
+}
+.overlay-dialog h3,
+.overlay-dialog legend {
+  font-size: var(--overlay-section-size);
+}
+.overlay-header button {
+  flex-shrink: 0;
+}
+.overlay-dialog button,
+.overlay-dialog label {
+  padding: 6px 9px;
+  font: inherit;
+}
+.overlay-dialog button:disabled {
+  cursor: default;
+}
+.overlay-dialog p,
+.overlay-dialog small {
+  margin: 4px 0;
+  font-size: var(--overlay-copy-size);
+  line-height: inherit;
+}
+.overlay-dialog :focus-visible {
+  outline: 2px solid #a0e2ba;
+  outline-offset: 2px;
+}
+.overlay-dialog [aria-pressed='true'] {
+  background: #234534;
+  border-color: #a0e2ba;
+  color: #fff;
+}
+.overlay-body {
+  min-width: 0;
+  min-height: 0;
+  padding: 10px var(--overlay-inset) var(--overlay-inset);
+  overflow-y: auto;
+  overscroll-behavior: contain;
+}
+.overlay-card {
+  min-width: 0;
+  margin: 0;
+  padding: 9px 10px;
+  background: #121e21;
+  border: 1px solid #243b32;
+  border-radius: 6px;
+}
+.about-content {
+  text-align: center;
+}
+.about-content a {
+  color: #a0e2ba;
+  overflow-wrap: anywhere;
+}
+.about-content hr {
+  margin: 14px 0;
+  border: 0;
+  border-top: 1px solid #243b32;
+}
+.settings-content,
+.audio-profile-list {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  align-content: start;
+  gap: var(--overlay-gap);
+}
+.settings-content > :is(h3, p, fieldset, #bindings, #save-now, #four-save-slots) {
+  grid-column: 1 / -1;
+}
+.settings-content .overlay-card button {
+  width: 100%;
+  text-align: left;
+}
+.overlay-dialog fieldset {
+  min-width: 0;
+}
+.audio-profile-list {
+  padding: 0;
+  margin: 0;
+  border: 0;
+}
+.audio-profile-list > p {
+  grid-column: 1 / -1;
+}
+.audio-profile-list legend {
+  margin-bottom: 4px;
+}
+#audio-settings label {
+  display: flex;
+  align-items: center;
+  gap: var(--overlay-gap);
+  padding: 3px 0;
+  border: 0;
+}
+.overlay-dialog input[type='radio'] {
+  position: static;
+  width: auto;
+  height: auto;
+  opacity: 1;
+  flex-shrink: 0;
+  accent-color: #a0e2ba;
+}
+.overlay-dialog input[type='range'] {
+  box-sizing: border-box;
+  position: static;
+  width: 100%;
+  height: auto;
+  opacity: 1;
+  accent-color: #a0e2ba;
+}
+.overlay-dialog input[type='search'] {
+  box-sizing: border-box;
+  position: static;
+  width: 100%;
+  height: auto;
+  min-width: 0;
+  margin: 0;
+  padding: 6px 9px;
+  opacity: 1;
+  font: inherit;
+  color: inherit;
+  background: #080d10;
+  border: 1px solid #426453;
+  border-radius: 4px;
+}
+.audio-profile-list .overlay-card:has(input:checked) {
+  background: #234534;
+  border-color: #a0e2ba;
+}
+#soundtrack-status {
+  display: block;
+  font-size: var(--overlay-copy-size);
+}
+.settings-buttons {
+  display: grid;
+  gap: var(--overlay-gap);
+  align-content: start;
+}
+#controls {
+  display: block;
+}
+#controls #bindings div {
+  min-height: 28px;
+  gap: var(--overlay-gap);
+  padding: 4px 0;
+  border-bottom: 1px solid #24332d;
+}
+#controls #bindings small {
+  margin-top: 2px;
+}
+#controls:not([data-explanations='on']) #bindings small {
+  display: none;
+}
+/* The handbook adds navigation and independent reading scroll to the same body. */
+.manual-layout {
+  display: flex;
+  flex-direction: column;
+  gap: var(--overlay-gap);
+  overflow: hidden;
+}
+.manual-body {
+  display: grid;
+  grid-template-columns: 150px minmax(0, 1fr);
+  gap: var(--overlay-gap);
+  flex: 1;
+  min-height: 0;
+}
+.manual-nav,
+.manual-scroll {
+  min-width: 0;
+  min-height: 0;
+  padding: 2px;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+}
+.manual-nav {
+  display: flex;
+  flex-direction: column;
+  gap: var(--overlay-gap);
+}
+.manual-nav button {
+  flex-shrink: 0;
+  text-align: left;
+  overflow-wrap: normal;
+  hyphens: auto;
+}
+.manual-content,
+.manual-chapter {
+  display: grid;
+  gap: var(--overlay-gap);
+}
+.manual-content {
+  width: 100%;
+}
+.manual-welcome {
+  padding: 0;
+}
+.manual-results {
+  color: #a8bcb1;
+}
+.manual-results:empty {
+  display: none;
+}
+.overlay-dialog table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: var(--overlay-copy-size);
+  overflow-wrap: anywhere;
+}
+.overlay-dialog th,
+.overlay-dialog td {
+  text-align: left;
+  padding: 6px;
+  border-bottom: 1px solid #2c4037;
+}
+@media (max-width: 600px) {
+  .overlay-dialog {
+    --overlay-gap: 6px;
+    --overlay-inset: 10px;
+    --overlay-title-size: 13px;
+  }
+  .overlay-header {
+    padding-block: 8px;
+  }
+  .overlay-body {
+    padding-top: 8px;
+  }
+  .settings-content,
+  .audio-profile-list {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .manual-body {
+    grid-template-columns: 120px minmax(0, 1fr);
+  }
+}
+
+/* Layout and decorations of specific settings inside the common shell. */
+#bindings {
+  display: grid;
+  gap: 3px;
+  margin: 8px 0;
+}
+#bindings div {
+  display: grid;
+  grid-template-columns: minmax(0, 1.4fr) minmax(0, 1fr) auto;
+  gap: 8px;
+  align-items: center;
+}
+#bindings span {
+  overflow-wrap: anywhere;
+}
+#bindings strong,
+#bindings small {
+  display: block;
+}
+#bindings small {
+  margin-top: 4px;
+  color: #a0b6aa;
+}
+/* Slot occupancy dot (start.mjs showSlots): red used, green free. */
+#save-now button {
+  position: relative;
+  padding-right: 20px;
+}
+#save-now button[data-occupied]::after {
+  content: '';
+  position: absolute;
+  top: 5px;
+  right: 5px;
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: #3fcf6a;
+}
+#save-now button[data-occupied='true']::after {
+  background: #e0443a;
+}
+#crt-settings fieldset {
+  border: 0;
+  padding: 6px 0 0;
+  margin: 0;
+  min-width: 0;
+}
+#crt-settings label {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 4px;
+  padding: 4px 0;
+  border: 0;
+  background: transparent;
+}
+#crt-settings input[type='range'] {
+  position: static;
+  width: 100%;
+  height: auto;
+  opacity: 1;
+  grid-column: 1 / -1;
+  accent-color: #a0e2ba;
+}
+#crt-settings fieldset:disabled {
+  opacity: 0.5;
+}
+#crt-reset {
+  margin-top: 4px;
+}

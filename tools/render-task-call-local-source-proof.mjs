@@ -1,0 +1,15 @@
+import {proveTaskControl,taskWord,taskStream,taskOwner} from './task-control-source.mjs';
+export const spec={name:'call-local',opcode:0x4C,entry:0x80F442,window:{start:0x80F442,hex:'B100AAC8C8989205A5053A3A85059B4C89F3'},s_delta:0,
+  contract:'FulltargetWORD via freshDP00/DBR/entryY then WORD TAX latched; twoINY/TYA produce returnY=entryY+2. WORD STA(DP05) uses freshbank00:D+5/+6 pointer andactualDBR, low/high. LDA05 rereadsDP05 afterstore; two WORD DEC onlyA, STA05 low/high storesfreshReload-2 mod65536. TXY restoresfulltargetY, S unchanged/no CPUJSR/PHA/PLA/returnframe. StoresmayoverwriteownDP00/DP05/header/control/outerstack/opcode; fullX latched, freshF389 pointer/opcode after allstores. FinalY=target+1,A/X=opcodeLow,N0/Z, C/V/I/decimal/D/DBR preserved, no caps/init/decodedtarget guards.',
+  host_boundary:'Host4C uses guarded decodedtargets and hostcalls array; no original DP05/DBR/localreturn memory/alias/physical Taskbytebridge proof.'};
+export const prove=map=>proveTaskControl(map,spec);
+export function describeLocalCall({d,bank,s,y,targetWord,pointerBefore,pointerAfter,localPointerBefore,localPointerAfterReturnStore}){
+  if(![d,s,y,targetWord,localPointerBefore,localPointerAfterReturnStore].every(taskWord))throw Error('Explicit localcall WORDs');
+  const target=taskStream(d,bank,pointerBefore,y),returnY=(y+2)&65535,local=taskStream((d+5)&65535,bank,localPointerBefore,0),newPointer=(localPointerAfterReturnStore-2)&65535;
+  const writes=(owners,value)=>owners.map((owner,n)=>({...owner,order:n+1,byte:n?'high':'low',value:n?Math.floor(value/256):value%256}));
+  const returnWrites=writes(local.word_reads,returnY),pointerBytes=[taskOwner((d+5)&65535),taskOwner((d+6)&65535)],pointerWrites=writes(pointerBytes,newPointer),next=taskStream(d,bank,pointerAfter,targetWord);
+  return {target_sources:target,return_pointer_sources:local.pointer_reads,return_writes:returnWrites,fresh_pointer_reload:{bytes:pointerBytes,value:localPointerAfterReturnStore},pointer_writes:pointerWrites,new_local_pointer:newPointer,
+    next_opcode_sources:next,output_operand_s:s,return_y:returnY,fetch_y:targetWord,frontier_y:(targetWord+1)&65535,
+    ordered_accesses:[{kind:'target-pointer',operation:'read',bytes:target.pointer_reads},{kind:'target-WORD',operation:'read',bytes:target.word_reads},{kind:'return-pointer',operation:'read',bytes:local.pointer_reads},...returnWrites.map(b=>({kind:'return-'+b.byte,operation:'write',bytes:[b]})),{kind:'fresh-DP05-WORD',operation:'read',bytes:pointerBytes},...pointerWrites.map(b=>({kind:'DP05-'+b.byte,operation:'write',bytes:[b]})),{kind:'next-pointer',operation:'read',bytes:next.pointer_reads},{kind:'next-opcode-WORD',operation:'read',bytes:next.word_reads}],
+    qualification:'Pure supplied WORD/address equations only, not checked against memory. Return stores low/high beforefreshDP05 reload/DEC2/stores andfreshopcode; targetX latched beforeallwrites. DP/S bank00/16bit, indirectdata24bit actualDBR. No execution/ownership/permission/init/globalstack/nativebridge proof.'};
+}

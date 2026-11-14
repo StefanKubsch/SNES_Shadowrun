@@ -1,0 +1,715 @@
+{
+ "format": "shadowrun-fillers-v1",
+ "scope": "Unknown runs of one repeated byte with a structural reason and no reader (src/data/fillers.mjs): script_end is the unreachable end opcode 56 behind a final script jump, bank_end FF up to a bank end, zero_run and ff_run other runs of only 00 or FF.",
+ "source_rom_sha256": "91dbfecf9017264b01885e065cf015840223b8e8d2f95dfa62c4c0d654c2f690",
+ "counts": {
+  "script_end": 99,
+  "bank_end": 16,
+  "zero_run": 2,
+  "ff_run": 0
+ },
+ "fillers": [
+  {
+   "address": "82:EDC8",
+   "length": 1,
+   "value": 86,
+   "kind": "script_end"
+  },
+  {
+   "address": "82:F020",
+   "length": 1,
+   "value": 86,
+   "kind": "script_end"
+  },
+  {
+   "address": "82:F265",
+   "length": 1,
+   "value": 86,
+   "kind": "script_end"
+  },
+  {
+   "address": "82:FFF4",
+   "length": 1,
+   "value": 86,
+   "kind": "script_end"
+  },
+  {
+   "address": "83:E6A5",
+   "length": 1,
+   "value": 86,
+   "kind": "script_end"
+  },
+  {
+   "address": "83:E6DA",
+   "length": 1,
+   "value": 86,
+   "kind": "script_end"
+  },
+  {
+   "address": "83:E71E",
+   "length": 1,
+   "value": 86,
+   "kind": "script_end"
+  },
+  {
+   "address": "83:F060",
+   "length": 1,
+   "value": 86,
+   "kind": "script_end"
+  },
+  {
+   "address": "83:F14B",
+   "length": 1,
+   "value": 86,
+   "kind": "script_end"
+  },
+  {
+   "address": "83:F23E",
+   "length": 1,
+   "value": 86,
+   "kind": "script_end"
+  },
+  {
+   "address": "83:F312",
+   "length": 1,
+   "value": 86,
+   "kind": "script_end"
+  },
+  {
+   "address": "83:F357",
+   "length": 1,
+   "value": 86,
+   "kind": "script_end"
+  },
+  {
+   "address": "83:F417",
+   "length": 1,
+   "value": 86,
+   "kind": "script_end"
+  },
+  {
+   "address": "83:F52C",
+   "length": 1,
+   "value": 86,
+   "kind": "script_end"
+  },
+  {
+   "address": "83:F559",
+   "length": 1,
+   "value": 86,
+   "kind": "script_end"
+  },
+  {
+   "address": "83:F650",
+   "length": 1,
+   "value": 86,
+   "kind": "script_end"
+  },
+  {
+   "address": "83:F67B",
+   "length": 1,
+   "value": 86,
+   "kind": "script_end"
+  },
+  {
+   "address": "83:F6A8",
+   "length": 1,
+   "value": 86,
+   "kind": "script_end"
+  },
+  {
+   "address": "83:F6D5",
+   "length": 1,
+   "value": 86,
+   "kind": "script_end"
+  },
+  {
+   "address": "83:F772",
+   "length": 1,
+   "value": 86,
+   "kind": "script_end"
+  },
+  {
+   "address": "83:F80D",
+   "length": 1,
+   "value": 86,
+   "kind": "script_end"
+  },
+  {
+   "address": "83:F8AB",
+   "length": 1,
+   "value": 86,
+   "kind": "script_end"
+  },
+  {
+   "address": "83:FBDD",
+   "length": 1,
+   "value": 86,
+   "kind": "script_end"
+  },
+  {
+   "address": "83:FCFA",
+   "length": 1,
+   "value": 86,
+   "kind": "script_end"
+  },
+  {
+   "address": "83:FFFF",
+   "length": 1,
+   "value": 255,
+   "kind": "bank_end"
+  },
+  {
+   "address": "84:FFFE",
+   "length": 2,
+   "value": 255,
+   "kind": "bank_end"
+  },
+  {
+   "address": "85:FFFF",
+   "length": 1,
+   "value": 255,
+   "kind": "bank_end"
+  },
+  {
+   "address": "86:FFFD",
+   "length": 3,
+   "value": 255,
+   "kind": "bank_end"
+  },
+  {
+   "address": "87:FFFF",
+   "length": 1,
+   "value": 255,
+   "kind": "bank_end"
+  },
+  {
+   "address": "89:FFFD",
+   "length": 3,
+   "value": 255,
+   "kind": "bank_end"
+  },
+  {
+   "address": "8A:8071",
+   "length": 192,
+   "value": 0,
+   "kind": "zero_run"
+  },
+  {
+   "address": "8A:FFFB",
+   "length": 5,
+   "value": 255,
+   "kind": "bank_end"
+  },
+  {
+   "address": "8B:FFFD",
+   "length": 3,
+   "value": 255,
+   "kind": "bank_end"
+  },
+  {
+   "address": "95:FFFF",
+   "length": 1,
+   "value": 255,
+   "kind": "bank_end"
+  },
+  {
+   "address": "96:FFFE",
+   "length": 2,
+   "value": 255,
+   "kind": "bank_end"
+  },
+  {
+   "address": "97:FFFB",
+   "length": 5,
+   "value": 255,
+   "kind": "bank_end"
+  },
+  {
+   "address": "99:FFFC",
+   "length": 4,
+   "value": 255,
+   "kind": "bank_end"
+  },
+  {
+   "address": "9A:FFFF",
+   "length": 1,
+   "value": 255,
+   "kind": "bank_end"
+  },
+  {
+   "address": "9B:8000",
+   "length": 1,
+   "value": 0,
+   "kind": "zero_run"
+  },
+  {
+   "address": "9B:C59E",
+   "length": 1,
+   "value": 86,
+   "kind": "script_end"
+  },
+  {
+   "address": "9B:C646",
+   "length": 1,
+   "value": 86,
+   "kind": "script_end"
+  },
+  {
+   "address": "9B:C778",
+   "length": 1,
+   "value": 86,
+   "kind": "script_end"
+  },
+  {
+   "address": "9B:CB44",
+   "length": 1,
+   "value": 86,
+   "kind": "script_end"
+  },
+  {
+   "address": "9B:CCC8",
+   "length": 1,
+   "value": 86,
+   "kind": "script_end"
+  },
+  {
+   "address": "9B:CDDE",
+   "length": 1,
+   "value": 86,
+   "kind": "script_end"
+  },
+  {
+   "address": "9B:CE08",
+   "length": 1,
+   "value": 86,
+   "kind": "script_end"
+  },
+  {
+   "address": "9B:CFED",
+   "length": 1,
+   "value": 86,
+   "kind": "script_end"
+  },
+  {
+   "address": "9B:D011",
+   "length": 1,
+   "value": 86,
+   "kind": "script_end"
+  },
+  {
+   "address": "9B:D1E7",
+   "length": 1,
+   "value": 86,
+   "kind": "script_end"
+  },
+  {
+   "address": "9B:D265",
+   "length": 1,
+   "value": 86,
+   "kind": "script_end"
+  },
+  {
+   "address": "9B:D27E",
+   "length": 1,
+   "value": 86,
+   "kind": "script_end"
+  },
+  {
+   "address": "9B:D3DD",
+   "length": 1,
+   "value": 86,
+   "kind": "script_end"
+  },
+  {
+   "address": "9B:D5D3",
+   "length": 1,
+   "value": 86,
+   "kind": "script_end"
+  },
+  {
+   "address": "9B:D5EB",
+   "length": 1,
+   "value": 86,
+   "kind": "script_end"
+  },
+  {
+   "address": "9B:D63E",
+   "length": 1,
+   "value": 86,
+   "kind": "script_end"
+  },
+  {
+   "address": "9B:D699",
+   "length": 1,
+   "value": 86,
+   "kind": "script_end"
+  },
+  {
+   "address": "9B:D6A7",
+   "length": 1,
+   "value": 86,
+   "kind": "script_end"
+  },
+  {
+   "address": "9B:D736",
+   "length": 1,
+   "value": 86,
+   "kind": "script_end"
+  },
+  {
+   "address": "9B:D774",
+   "length": 1,
+   "value": 86,
+   "kind": "script_end"
+  },
+  {
+   "address": "9B:D79E",
+   "length": 1,
+   "value": 86,
+   "kind": "script_end"
+  },
+  {
+   "address": "9B:D7D1",
+   "length": 1,
+   "value": 86,
+   "kind": "script_end"
+  },
+  {
+   "address": "9B:D871",
+   "length": 1,
+   "value": 86,
+   "kind": "script_end"
+  },
+  {
+   "address": "9B:D899",
+   "length": 1,
+   "value": 86,
+   "kind": "script_end"
+  },
+  {
+   "address": "9B:D8BC",
+   "length": 1,
+   "value": 86,
+   "kind": "script_end"
+  },
+  {
+   "address": "9B:D91D",
+   "length": 1,
+   "value": 86,
+   "kind": "script_end"
+  },
+  {
+   "address": "9B:D969",
+   "length": 1,
+   "value": 86,
+   "kind": "script_end"
+  },
+  {
+   "address": "9B:D9EB",
+   "length": 1,
+   "value": 86,
+   "kind": "script_end"
+  },
+  {
+   "address": "9B:F7DB",
+   "length": 1,
+   "value": 86,
+   "kind": "script_end"
+  },
+  {
+   "address": "9B:F81B",
+   "length": 1,
+   "value": 86,
+   "kind": "script_end"
+  },
+  {
+   "address": "9B:FEEC",
+   "length": 1,
+   "value": 86,
+   "kind": "script_end"
+  },
+  {
+   "address": "9B:FF0C",
+   "length": 1,
+   "value": 86,
+   "kind": "script_end"
+  },
+  {
+   "address": "9B:FF35",
+   "length": 1,
+   "value": 86,
+   "kind": "script_end"
+  },
+  {
+   "address": "9B:FFFC",
+   "length": 4,
+   "value": 255,
+   "kind": "bank_end"
+  },
+  {
+   "address": "9C:DCF0",
+   "length": 1,
+   "value": 86,
+   "kind": "script_end"
+  },
+  {
+   "address": "9C:DF71",
+   "length": 1,
+   "value": 86,
+   "kind": "script_end"
+  },
+  {
+   "address": "9C:E128",
+   "length": 1,
+   "value": 86,
+   "kind": "script_end"
+  },
+  {
+   "address": "9C:E166",
+   "length": 1,
+   "value": 86,
+   "kind": "script_end"
+  },
+  {
+   "address": "9C:E1A4",
+   "length": 1,
+   "value": 86,
+   "kind": "script_end"
+  },
+  {
+   "address": "9C:E1E2",
+   "length": 1,
+   "value": 86,
+   "kind": "script_end"
+  },
+  {
+   "address": "9C:E220",
+   "length": 1,
+   "value": 86,
+   "kind": "script_end"
+  },
+  {
+   "address": "9C:E352",
+   "length": 1,
+   "value": 86,
+   "kind": "script_end"
+  },
+  {
+   "address": "9C:E42A",
+   "length": 1,
+   "value": 86,
+   "kind": "script_end"
+  },
+  {
+   "address": "9C:EEE5",
+   "length": 1,
+   "value": 86,
+   "kind": "script_end"
+  },
+  {
+   "address": "9C:F5E9",
+   "length": 1,
+   "value": 86,
+   "kind": "script_end"
+  },
+  {
+   "address": "9C:F659",
+   "length": 1,
+   "value": 86,
+   "kind": "script_end"
+  },
+  {
+   "address": "9C:F70B",
+   "length": 1,
+   "value": 86,
+   "kind": "script_end"
+  },
+  {
+   "address": "9C:F759",
+   "length": 1,
+   "value": 86,
+   "kind": "script_end"
+  },
+  {
+   "address": "9C:FFFC",
+   "length": 4,
+   "value": 255,
+   "kind": "bank_end"
+  },
+  {
+   "address": "9E:B14B",
+   "length": 1,
+   "value": 86,
+   "kind": "script_end"
+  },
+  {
+   "address": "9E:B46E",
+   "length": 1,
+   "value": 86,
+   "kind": "script_end"
+  },
+  {
+   "address": "9E:B597",
+   "length": 1,
+   "value": 86,
+   "kind": "script_end"
+  },
+  {
+   "address": "9E:B9F8",
+   "length": 1,
+   "value": 86,
+   "kind": "script_end"
+  },
+  {
+   "address": "9E:CF67",
+   "length": 1,
+   "value": 86,
+   "kind": "script_end"
+  },
+  {
+   "address": "9E:D489",
+   "length": 1,
+   "value": 86,
+   "kind": "script_end"
+  },
+  {
+   "address": "9E:D501",
+   "length": 1,
+   "value": 86,
+   "kind": "script_end"
+  },
+  {
+   "address": "9E:D59A",
+   "length": 1,
+   "value": 86,
+   "kind": "script_end"
+  },
+  {
+   "address": "9E:D5C1",
+   "length": 1,
+   "value": 86,
+   "kind": "script_end"
+  },
+  {
+   "address": "9E:D75A",
+   "length": 1,
+   "value": 86,
+   "kind": "script_end"
+  },
+  {
+   "address": "9E:D8C6",
+   "length": 1,
+   "value": 86,
+   "kind": "script_end"
+  },
+  {
+   "address": "9E:DA5F",
+   "length": 1,
+   "value": 86,
+   "kind": "script_end"
+  },
+  {
+   "address": "9E:DB0D",
+   "length": 1,
+   "value": 86,
+   "kind": "script_end"
+  },
+  {
+   "address": "9E:E0A7",
+   "length": 1,
+   "value": 86,
+   "kind": "script_end"
+  },
+  {
+   "address": "9E:E189",
+   "length": 1,
+   "value": 86,
+   "kind": "script_end"
+  },
+  {
+   "address": "9E:E1CF",
+   "length": 1,
+   "value": 86,
+   "kind": "script_end"
+  },
+  {
+   "address": "9E:E223",
+   "length": 1,
+   "value": 86,
+   "kind": "script_end"
+  },
+  {
+   "address": "9E:E521",
+   "length": 1,
+   "value": 86,
+   "kind": "script_end"
+  },
+  {
+   "address": "9E:E5DF",
+   "length": 1,
+   "value": 86,
+   "kind": "script_end"
+  },
+  {
+   "address": "9E:E631",
+   "length": 1,
+   "value": 86,
+   "kind": "script_end"
+  },
+  {
+   "address": "9E:E6C7",
+   "length": 1,
+   "value": 86,
+   "kind": "script_end"
+  },
+  {
+   "address": "9E:E8C9",
+   "length": 1,
+   "value": 86,
+   "kind": "script_end"
+  },
+  {
+   "address": "9E:EA16",
+   "length": 1,
+   "value": 86,
+   "kind": "script_end"
+  },
+  {
+   "address": "9E:EA3C",
+   "length": 1,
+   "value": 86,
+   "kind": "script_end"
+  },
+  {
+   "address": "9E:FBE7",
+   "length": 1,
+   "value": 86,
+   "kind": "script_end"
+  },
+  {
+   "address": "9F:891A",
+   "length": 1,
+   "value": 86,
+   "kind": "script_end"
+  },
+  {
+   "address": "9F:8947",
+   "length": 1,
+   "value": 86,
+   "kind": "script_end"
+  },
+  {
+   "address": "9F:B7D4",
+   "length": 1,
+   "value": 86,
+   "kind": "script_end"
+  },
+  {
+   "address": "9F:FFD6",
+   "length": 42,
+   "value": 255,
+   "kind": "bank_end"
+  }
+ ]
+}

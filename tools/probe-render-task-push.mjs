@@ -1,0 +1,2 @@
+import {emitTaskNativeProbe} from './task-native-probe.mjs';import {prepareTaskPush} from '../proof/task/push.mjs';import {provePushToDispatch} from './render-task-push-source-proof.mjs';
+await emitTaskNativeProbe({name:'push',module:'proof/task/push.mjs',prepare:prepareTaskPush,exportName:'prepareTaskPush',sourceName:'push',proofField:'primitives',entries:[0x80F393,0x80F398,0x80F3B1],proveSource:provePushToDispatch});

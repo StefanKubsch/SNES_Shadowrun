@@ -1,0 +1,2 @@
+import {emitTaskNativeProbe} from './task-native-probe.mjs';import {prepareTaskTruth} from '../proof/task/truth.mjs';import {proveTruthToDispatch} from './render-task-truth-source-proof.mjs';
+await emitTaskNativeProbe({name:'truth',module:'proof/task/truth.mjs',prepare:prepareTaskTruth,exportName:'prepareTaskTruth',sourceName:'truth',proofField:'truth',entries:[8452287,8452163,8452223],proveSource:proveTruthToDispatch});

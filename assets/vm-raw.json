@@ -1,0 +1,380 @@
+{
+ "format": "shadowrun-raw-v1",
+ "scope": "The last ROM bytes in original form (src/data/raw.mjs): code_bytes are code bytes a data reader touches (the first code byte behind each data range and every code byte the live runs read); unread are data ranges with no known reader, each with a note. Runs as address and hex bytes.",
+ "source_rom_sha256": "91dbfecf9017264b01885e065cf015840223b8e8d2f95dfa62c4c0d654c2f690",
+ "code_bytes": [
+  {
+   "address": "80:8860",
+   "hex": "5A"
+  },
+  {
+   "address": "80:8A43",
+   "hex": "F0"
+  },
+  {
+   "address": "80:8F97",
+   "hex": "A2"
+  },
+  {
+   "address": "80:9215",
+   "hex": "AF"
+  },
+  {
+   "address": "80:94EE",
+   "hex": "A6"
+  },
+  {
+   "address": "80:960D",
+   "hex": "20"
+  },
+  {
+   "address": "80:98E9",
+   "hex": "A9"
+  },
+  {
+   "address": "80:98FE",
+   "hex": "7ECA"
+  },
+  {
+   "address": "80:9906",
+   "hex": "97A0"
+  },
+  {
+   "address": "80:9A5E",
+   "hex": "996A"
+  },
+  {
+   "address": "80:9A66",
+   "hex": "1FA9"
+  },
+  {
+   "address": "80:A133",
+   "hex": "20"
+  },
+  {
+   "address": "80:AFC4",
+   "hex": "22"
+  },
+  {
+   "address": "80:B0ED",
+   "hex": "0A"
+  },
+  {
+   "address": "80:B130",
+   "hex": "F0"
+  },
+  {
+   "address": "80:B20A",
+   "hex": "8C"
+  },
+  {
+   "address": "80:B8DE",
+   "hex": "20"
+  },
+  {
+   "address": "80:BB90",
+   "hex": "A6"
+  },
+  {
+   "address": "80:BC1A",
+   "hex": "9C"
+  },
+  {
+   "address": "80:C51F",
+   "hex": "A5"
+  },
+  {
+   "address": "80:C560",
+   "hex": "08"
+  },
+  {
+   "address": "80:C68D",
+   "hex": "AC"
+  },
+  {
+   "address": "80:C80C",
+   "hex": "64"
+  },
+  {
+   "address": "80:CD97",
+   "hex": "AD"
+  },
+  {
+   "address": "80:CE6D",
+   "hex": "A9"
+  },
+  {
+   "address": "80:CECB",
+   "hex": "A4"
+  },
+  {
+   "address": "80:D2E7",
+   "hex": "A5"
+  },
+  {
+   "address": "80:D5D1",
+   "hex": "AD"
+  },
+  {
+   "address": "80:D714",
+   "hex": "A5"
+  },
+  {
+   "address": "80:DE7E",
+   "hex": "A9"
+  },
+  {
+   "address": "80:DF6B",
+   "hex": "AD"
+  },
+  {
+   "address": "80:E48D",
+   "hex": "A9"
+  },
+  {
+   "address": "80:E834",
+   "hex": "A2"
+  },
+  {
+   "address": "80:E8C8",
+   "hex": "AD"
+  },
+  {
+   "address": "80:ED3C",
+   "hex": "20"
+  },
+  {
+   "address": "80:EF82",
+   "hex": "AD"
+  },
+  {
+   "address": "80:F006",
+   "hex": "A7"
+  },
+  {
+   "address": "80:F378",
+   "hex": "BD"
+  },
+  {
+   "address": "80:FE69",
+   "hex": "8B"
+  },
+  {
+   "address": "80:FF79",
+   "hex": "A2"
+  },
+  {
+   "address": "81:8000",
+   "hex": "A2"
+  },
+  {
+   "address": "81:A117",
+   "hex": "8B"
+  },
+  {
+   "address": "81:A7FC",
+   "hex": "A9"
+  },
+  {
+   "address": "81:ACAF",
+   "hex": "AD"
+  },
+  {
+   "address": "81:B064",
+   "hex": "E2"
+  },
+  {
+   "address": "81:B12C",
+   "hex": "20"
+  },
+  {
+   "address": "81:B259",
+   "hex": "AE"
+  },
+  {
+   "address": "81:B37E",
+   "hex": "EB"
+  },
+  {
+   "address": "81:B609",
+   "hex": "64"
+  },
+  {
+   "address": "81:B66A",
+   "hex": "18"
+  },
+  {
+   "address": "81:B959",
+   "hex": "64"
+  },
+  {
+   "address": "81:B9D0",
+   "hex": "A2"
+  },
+  {
+   "address": "81:BA70",
+   "hex": "A9"
+  },
+  {
+   "address": "81:BBF6",
+   "hex": "AD"
+  },
+  {
+   "address": "81:BC2B",
+   "hex": "AC"
+  },
+  {
+   "address": "81:BCC3",
+   "hex": "AD"
+  },
+  {
+   "address": "81:BD62",
+   "hex": "A2"
+  },
+  {
+   "address": "81:BEC3",
+   "hex": "22"
+  },
+  {
+   "address": "81:BFD8",
+   "hex": "08"
+  },
+  {
+   "address": "81:C108",
+   "hex": "A2"
+  },
+  {
+   "address": "81:C25C",
+   "hex": "DA"
+  },
+  {
+   "address": "81:C2E4",
+   "hex": "C9"
+  },
+  {
+   "address": "81:C339",
+   "hex": "C9"
+  },
+  {
+   "address": "81:C39F",
+   "hex": "AD"
+  },
+  {
+   "address": "81:CDF8",
+   "hex": "C9"
+  },
+  {
+   "address": "81:D02A",
+   "hex": "A2"
+  },
+  {
+   "address": "81:D10D",
+   "hex": "AD"
+  },
+  {
+   "address": "81:D479",
+   "hex": "22"
+  },
+  {
+   "address": "81:D531",
+   "hex": "B9"
+  },
+  {
+   "address": "81:D59E",
+   "hex": "08"
+  },
+  {
+   "address": "81:D694",
+   "hex": "08"
+  },
+  {
+   "address": "81:D87C",
+   "hex": "4B"
+  },
+  {
+   "address": "81:D927",
+   "hex": "08"
+  },
+  {
+   "address": "81:DC43",
+   "hex": "08"
+  },
+  {
+   "address": "81:DCAC",
+   "hex": "22"
+  },
+  {
+   "address": "81:DDB1",
+   "hex": "4B"
+  },
+  {
+   "address": "81:DFE7",
+   "hex": "08"
+  },
+  {
+   "address": "81:E14A",
+   "hex": "08"
+  },
+  {
+   "address": "81:E3DA",
+   "hex": "4B"
+  },
+  {
+   "address": "81:E446",
+   "hex": "4B"
+  },
+  {
+   "address": "81:E50C",
+   "hex": "4B"
+  },
+  {
+   "address": "81:E5DB",
+   "hex": "DA"
+  },
+  {
+   "address": "81:E623",
+   "hex": "08"
+  },
+  {
+   "address": "81:E7BC",
+   "hex": "08"
+  },
+  {
+   "address": "81:E8E5",
+   "hex": "08"
+  },
+  {
+   "address": "81:E971",
+   "hex": "86"
+  },
+  {
+   "address": "81:EB7B",
+   "hex": "08"
+  },
+  {
+   "address": "81:EC41",
+   "hex": "60"
+  },
+  {
+   "address": "81:EE4F",
+   "hex": "08"
+  }
+ ],
+ "unread": [
+  {
+   "address": "80:FFB5",
+   "hex": "FFFFFF7E000300B9060E00",
+   "note": "Eleven bytes between the sound data and the title of the cartridge header (80:FFC0); the extended header would need 00 at FFB6 to FFBC. No reader is established; preserve the bytes (docs/ROM-UNREAD-AUDIT.md)."
+  },
+  {
+   "address": "8B:FD61",
+   "hex": "6BFD6DFD6FFD71FD73FD00000000000000000000",
+   "note": "Five words 8B:FD6B to FD73, each pointing to a zero word right behind the table, before the palette cycle table 8B:FD75. No owning reader is established (docs/ROM-UNREAD-AUDIT.md)."
+  },
+  {
+   "address": "8D:8080",
+   "hex": "3C3C3C3E3C013E3E3C3C03033C3F3E3E3F0701011F033F07043C023C0C0107013C04030C3E3E3C3C3C003F3F00000000000000000000003E3F3C3E013F013C3C",
+   "note": "Sixty-four bytes with values 00 to 3F behind the 64 topic words of 8D:8000 and before the dialog records. Their meaning is unknown; out-of-range topic IDs can index them (docs/ROM-UNREAD-AUDIT.md)."
+  }
+ ]
+}

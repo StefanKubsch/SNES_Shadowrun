@@ -1,0 +1,7825 @@
+{
+ "format": "shadowrun-texts-v1",
+ "scope": "Dialogue and term texts, decoded from the Huffman bit stream read by $80:FE69. Each text must keep its address; see src/data/texts.mjs.",
+ "source_rom_sha256": "91dbfecf9017264b01885e065cf015840223b8e8d2f95dfa62c4c0d654c2f690",
+ "tree": [
+  [
+   1,
+   155
+  ],
+  [
+   2,
+   62
+  ],
+  [
+   3,
+   39
+  ],
+  [
+   4,
+   21
+  ],
+  [
+   5,
+   17
+  ],
+  [
+   "in",
+   6
+  ],
+  [
+   " m",
+   7
+  ],
+  [
+   8,
+   16
+  ],
+  [
+   "id",
+   9
+  ],
+  [
+   "Y",
+   10
+  ],
+  [
+   ":",
+   11
+  ],
+  [
+   12,
+   "\u0007"
+  ],
+  [
+   13,
+   "Q"
+  ],
+  [
+   14,
+   15
+  ],
+  [
+   "\u000f",
+   "\u000e"
+  ],
+  [
+   "\u0006",
+   "/"
+  ],
+  [
+   "bl",
+   "|"
+  ],
+  [
+   "re",
+   18
+  ],
+  [
+   "ha",
+   19
+  ],
+  [
+   20,
+   "d"
+  ],
+  [
+   "Do",
+   "We"
+  ],
+  [
+   22,
+   27
+  ],
+  [
+   23,
+   24
+  ],
+  [
+   "it",
+   "me"
+  ],
+  [
+   25,
+   26
+  ],
+  [
+   "un",
+   "ti"
+  ],
+  [
+   "ut",
+   "'"
+  ],
+  [
+   28,
+   34
+  ],
+  [
+   29,
+   32
+  ],
+  [
+   30,
+   31
+  ],
+  [
+   "7",
+   "8"
+  ],
+  [
+   "uy",
+   "ig"
+  ],
+  [
+   33,
+   "O"
+  ],
+  [
+   "rt",
+   "N"
+  ],
+  [
+   35,
+   " i"
+  ],
+  [
+   36,
+   37
+  ],
+  [
+   "w ",
+   "v"
+  ],
+  [
+   38,
+   "K"
+  ],
+  [
+   " 1",
+   "So"
+  ],
+  [
+   40,
+   57
+  ],
+  [
+   41,
+   47
+  ],
+  [
+   42,
+   45
+  ],
+  [
+   "ve",
+   43
+  ],
+  [
+   44,
+   "I'"
+  ],
+  [
+   "Ma",
+   "1"
+  ],
+  [
+   46,
+   " o"
+  ],
+  [
+   " p",
+   "?\n"
+  ],
+  [
+   48,
+   53
+  ],
+  [
+   49,
+   50
+  ],
+  [
+   "nt",
+   "e."
+  ],
+  [
+   51,
+   "ow"
+  ],
+  [
+   52,
+   "sh"
+  ],
+  [
+   "sp",
+   "io"
+  ],
+  [
+   54,
+   "u"
+  ],
+  [
+   "ca",
+   55
+  ],
+  [
+   "rs",
+   56
+  ],
+  [
+   " C",
+   " W"
+  ],
+  [
+   58,
+   "e "
+  ],
+  [
+   59,
+   "th"
+  ],
+  [
+   "o ",
+   60
+  ],
+  [
+   "'s",
+   61
+  ],
+  [
+   "ul",
+   "No"
+  ],
+  [
+   63,
+   103
+  ],
+  [
+   64,
+   82
+  ],
+  [
+   65,
+   73
+  ],
+  [
+   66,
+   71
+  ],
+  [
+   67,
+   70
+  ],
+  [
+   "fo",
+   68
+  ],
+  [
+   "am",
+   69
+  ],
+  [
+   "ak",
+   "nc"
+  ],
+  [
+   "a",
+   "no"
+  ],
+  [
+   " h",
+   72
+  ],
+  [
+   "b",
+   "00"
+  ],
+  [
+   74,
+   "ou"
+  ],
+  [
+   75,
+   80
+  ],
+  [
+   76,
+   "as"
+  ],
+  [
+   77,
+   79
+  ],
+  [
+   " M",
+   78
+  ],
+  [
+   "_",
+   "!"
+  ],
+  [
+   "U",
+   "ts"
+  ],
+  [
+   81,
+   "ee"
+  ],
+  [
+   "M",
+   "bu"
+  ],
+  [
+   83,
+   91
+  ],
+  [
+   84,
+   88
+  ],
+  [
+   " w",
+   85
+  ],
+  [
+   "f ",
+   86
+  ],
+  [
+   "ay",
+   87
+  ],
+  [
+   " H",
+   "od"
+  ],
+  [
+   89,
+   90
+  ],
+  [
+   "nd",
+   "hi"
+  ],
+  [
+   "D",
+   "do"
+  ],
+  [
+   92,
+   98
+  ],
+  [
+   93,
+   97
+  ],
+  [
+   94,
+   95
+  ],
+  [
+   "tt",
+   "ry"
+  ],
+  [
+   96,
+   "3"
+  ],
+  [
+   "gu",
+   "ny"
+  ],
+  [
+   "ea",
+   "oo"
+  ],
+  [
+   99,
+   102
+  ],
+  [
+   "ro",
+   100
+  ],
+  [
+   "4",
+   101
+  ],
+  [
+   "r.",
+   "ia"
+  ],
+  [
+   "S",
+   "s"
+  ],
+  [
+   104,
+   124
+  ],
+  [
+   105,
+   114
+  ],
+  [
+   106,
+   112
+  ],
+  [
+   107,
+   "at"
+  ],
+  [
+   108,
+   111
+  ],
+  [
+   109,
+   110
+  ],
+  [
+   "mu",
+   "pr"
+  ],
+  [
+   "mi",
+   "vi"
+  ],
+  [
+   "e!",
+   "s."
+  ],
+  [
+   113,
+   "to"
+  ],
+  [
+   "se",
+   " I"
+  ],
+  [
+   115,
+   121
+  ],
+  [
+   "!\n",
+   116
+  ],
+  [
+   117,
+   118
+  ],
+  [
+   "ai",
+   "we"
+  ],
+  [
+   119,
+   120
+  ],
+  [
+   "rd",
+   "j"
+  ],
+  [
+   "V",
+   "ns"
+  ],
+  [
+   122,
+   "y "
+  ],
+  [
+   "-",
+   123
+  ],
+  [
+   "ac",
+   "fi"
+  ],
+  [
+   125,
+   142
+  ],
+  [
+   126,
+   137
+  ],
+  [
+   127,
+   136
+  ],
+  [
+   "ma",
+   128
+  ],
+  [
+   129,
+   130
+  ],
+  [
+   ")",
+   "("
+  ],
+  [
+   131,
+   " |"
+  ],
+  [
+   "ty",
+   132
+  ],
+  [
+   133,
+   134
+  ],
+  [
+   "\"",
+   "."
+  ],
+  [
+   "\u0003",
+   135
+  ],
+  [
+   "X",
+   "\u0011"
+  ],
+  [
+   "te",
+   ".."
+  ],
+  [
+   138,
+   140
+  ],
+  [
+   "m ",
+   139
+  ],
+  [
+   "la",
+   "ey"
+  ],
+  [
+   141,
+   "k "
+  ],
+  [
+   "bo",
+   "el"
+  ],
+  [
+   143,
+   148
+  ],
+  [
+   144,
+   "n "
+  ],
+  [
+   "wa",
+   145
+  ],
+  [
+   146,
+   147
+  ],
+  [
+   "ug",
+   "d."
+  ],
+  [
+   "ik",
+   "op"
+  ],
+  [
+   149,
+   153
+  ],
+  [
+   150,
+   151
+  ],
+  [
+   "He",
+   "ly"
+  ],
+  [
+   ",",
+   152
+  ],
+  [
+   "if",
+   " k"
+  ],
+  [
+   "al",
+   154
+  ],
+  [
+   "H",
+   "em"
+  ],
+  [
+   156,
+   245
+  ],
+  [
+   157,
+   194
+  ],
+  [
+   158,
+   174
+  ],
+  [
+   159,
+   165
+  ],
+  [
+   160,
+   161
+  ],
+  [
+   " s",
+   "on"
+  ],
+  [
+   162,
+   "an"
+  ],
+  [
+   163,
+   "r"
+  ],
+  [
+   164,
+   "gh"
+  ],
+  [
+   "z",
+   "ev"
+  ],
+  [
+   " t",
+   166
+  ],
+  [
+   167,
+   170
+  ],
+  [
+   168,
+   "n'"
+  ],
+  [
+   169,
+   "wh"
+  ],
+  [
+   " D",
+   "y."
+  ],
+  [
+   "ng",
+   171
+  ],
+  [
+   172,
+   "ki"
+  ],
+  [
+   "ok",
+   173
+  ],
+  [
+   "J",
+   "da"
+  ],
+  [
+   175,
+   183
+  ],
+  [
+   176,
+   "t "
+  ],
+  [
+   177,
+   180
+  ],
+  [
+   178,
+   "o"
+  ],
+  [
+   "5",
+   179
+  ],
+  [
+   "kn",
+   "St"
+  ],
+  [
+   181,
+   "g"
+  ],
+  [
+   182,
+   "I"
+  ],
+  [
+   "t!",
+   "rm"
+  ],
+  [
+   184,
+   189
+  ],
+  [
+   185,
+   186
+  ],
+  [
+   "p",
+   "ur"
+  ],
+  [
+   "en",
+   187
+  ],
+  [
+   "ck",
+   188
+  ],
+  [
+   "na",
+   "0"
+  ],
+  [
+   190,
+   "d "
+  ],
+  [
+   191,
+   192
+  ],
+  [
+   "so",
+   "\b\b"
+  ],
+  [
+   193,
+   "u'"
+  ],
+  [
+   "ol",
+   "e,"
+  ],
+  [
+   195,
+   216
+  ],
+  [
+   196,
+   206
+  ],
+  [
+   197,
+   205
+  ],
+  [
+   198,
+   200
+  ],
+  [
+   "et",
+   199
+  ],
+  [
+   "0 ",
+   "av"
+  ],
+  [
+   201,
+   203
+  ],
+  [
+   202,
+   "P"
+  ],
+  [
+   "'r",
+   " T"
+  ],
+  [
+   204,
+   "ta"
+  ],
+  [
+   "nn",
+   " Y"
+  ],
+  [
+   " ",
+   "yo"
+  ],
+  [
+   207,
+   208
+  ],
+  [
+   "r ",
+   " y"
+  ],
+  [
+   209,
+   213
+  ],
+  [
+   "l ",
+   210
+  ],
+  [
+   "nu",
+   211
+  ],
+  [
+   212,
+   "ju"
+  ],
+  [
+   "9",
+   "\b"
+  ],
+  [
+   214,
+   215
+  ],
+  [
+   "k",
+   "F"
+  ],
+  [
+   "tr",
+   "h "
+  ],
+  [
+   217,
+   229
+  ],
+  [
+   218,
+   226
+  ],
+  [
+   219,
+   221
+  ],
+  [
+   "le",
+   220
+  ],
+  [
+   "pe",
+   "il"
+  ],
+  [
+   222,
+   224
+  ],
+  [
+   "? ",
+   223
+  ],
+  [
+   "po",
+   "ba"
+  ],
+  [
+   225,
+   "w"
+  ],
+  [
+   "ht",
+   "wo"
+  ],
+  [
+   "u ",
+   227
+  ],
+  [
+   "n",
+   228
+  ],
+  [
+   " r",
+   "p "
+  ],
+  [
+   230,
+   233
+  ],
+  [
+   231,
+   232
+  ],
+  [
+   " g",
+   "ke"
+  ],
+  [
+   " f",
+   " n"
+  ],
+  [
+   234,
+   ". "
+  ],
+  [
+   235,
+   "be"
+  ],
+  [
+   236,
+   237
+  ],
+  [
+   " S",
+   "pl"
+  ],
+  [
+   238,
+   "mm"
+  ],
+  [
+   239,
+   "ap"
+  ],
+  [
+   240,
+   241
+  ],
+  [
+   "=",
+   "\u0005"
+  ],
+  [
+   242,
+   "$"
+  ],
+  [
+   243,
+   "Z"
+  ],
+  [
+   "",
+   244
+  ],
+  [
+   "\u001f",
+   "\u001e"
+  ],
+  [
+   246,
+   289
+  ],
+  [
+   247,
+   265
+  ],
+  [
+   248,
+   258
+  ],
+  [
+   249,
+   251
+  ],
+  [
+   250,
+   ".\n"
+  ],
+  [
+   "c",
+   "es"
+  ],
+  [
+   252,
+   256
+  ],
+  [
+   253,
+   255
+  ],
+  [
+   "ge",
+   254
+  ],
+  [
+   "W",
+   "im"
+  ],
+  [
+   "G",
+   "us"
+  ],
+  [
+   257,
+   " l"
+  ],
+  [
+   "ce",
+   "2"
+  ],
+  [
+   "\n",
+   259
+  ],
+  [
+   260,
+   263
+  ],
+  [
+   "l",
+   261
+  ],
+  [
+   "ye",
+   262
+  ],
+  [
+   "ss",
+   "di"
+  ],
+  [
+   "a ",
+   264
+  ],
+  [
+   "m",
+   "of"
+  ],
+  [
+   266,
+   278
+  ],
+  [
+   267,
+   269
+  ],
+  [
+   268,
+   ", "
+  ],
+  [
+   " d",
+   "ne"
+  ],
+  [
+   270,
+   273
+  ],
+  [
+   271,
+   272
+  ],
+  [
+   "B",
+   "wi"
+  ],
+  [
+   "ho",
+   "om"
+  ],
+  [
+   274,
+   275
+  ],
+  [
+   "ra",
+   "ic"
+  ],
+  [
+   276,
+   "R"
+  ],
+  [
+   277,
+   "ru"
+  ],
+  [
+   "q",
+   "tl"
+  ],
+  [
+   279,
+   284
+  ],
+  [
+   " a",
+   280
+  ],
+  [
+   281,
+   283
+  ],
+  [
+   "x",
+   282
+  ],
+  [
+   "It",
+   "si"
+  ],
+  [
+   "n.",
+   "li"
+  ],
+  [
+   285,
+   286
+  ],
+  [
+   "Th",
+   " c"
+  ],
+  [
+   287,
+   "g "
+  ],
+  [
+   288,
+   "ir"
+  ],
+  [
+   "ds",
+   "ld"
+  ],
+  [
+   290,
+   321
+  ],
+  [
+   291,
+   301
+  ],
+  [
+   292,
+   294
+  ],
+  [
+   "s ",
+   293
+  ],
+  [
+   "st",
+   "f"
+  ],
+  [
+   295,
+   300
+  ],
+  [
+   296,
+   "is"
+  ],
+  [
+   297,
+   299
+  ],
+  [
+   "Wh",
+   298
+  ],
+  [
+   "rr",
+   " J"
+  ],
+  [
+   " u",
+   "If"
+  ],
+  [
+   "! ",
+   "e"
+  ],
+  [
+   302,
+   308
+  ],
+  [
+   "er",
+   303
+  ],
+  [
+   304,
+   306
+  ],
+  [
+   "lo",
+   305
+  ],
+  [
+   "mo",
+   "Ja"
+  ],
+  [
+   "ad",
+   307
+  ],
+  [
+   " A",
+   "6"
+  ],
+  [
+   309,
+   318
+  ],
+  [
+   "A",
+   310
+  ],
+  [
+   "de",
+   311
+  ],
+  [
+   "my",
+   312
+  ],
+  [
+   313,
+   "e'"
+  ],
+  [
+   314,
+   "*"
+  ],
+  [
+   315,
+   "\u0004"
+  ],
+  [
+   "\u0010",
+   316
+  ],
+  [
+   317,
+   "?"
+  ],
+  [
+   "\u0001",
+   "\u0002"
+  ],
+  [
+   319,
+   "y"
+  ],
+  [
+   "h",
+   320
+  ],
+  [
+   "ec",
+   "i"
+  ],
+  [
+   322,
+   337
+  ],
+  [
+   323,
+   328
+  ],
+  [
+   324,
+   326
+  ],
+  [
+   " b",
+   325
+  ],
+  [
+   "E",
+   "ri"
+  ],
+  [
+   "Yo",
+   327
+  ],
+  [
+   "L",
+   "T"
+  ],
+  [
+   329,
+   333
+  ],
+  [
+   330,
+   "ll"
+  ],
+  [
+   331,
+   "ot"
+  ],
+  [
+   "t.",
+   332
+  ],
+  [
+   "sa",
+   "os"
+  ],
+  [
+   "ar",
+   334
+  ],
+  [
+   "co",
+   335
+  ],
+  [
+   336,
+   "ag"
+  ],
+  [
+   "ie",
+   "uc"
+  ],
+  [
+   338,
+   347
+  ],
+  [
+   339,
+   342
+  ],
+  [
+   "I ",
+   340
+  ],
+  [
+   "t",
+   341
+  ],
+  [
+   "iv",
+   " e"
+  ],
+  [
+   343,
+   344
+  ],
+  [
+   "C",
+   "ed"
+  ],
+  [
+   345,
+   "go"
+  ],
+  [
+   "'t",
+   346
+  ],
+  [
+   "'l",
+   "g."
+  ],
+  [
+   348,
+   "he"
+  ],
+  [
+   "or",
+   349
+  ],
+  [
+   350,
+   "ch"
+  ],
+  [
+   "pa",
+   "su"
+  ]
+ ],
+ "texts": [
+  {
+   "address": "9D:857C",
+   "text": "Akimi"
+  },
+  {
+   "address": "9D:8581",
+   "text": "Anders"
+  },
+  {
+   "address": "9D:8586",
+   "text": "Aneki"
+  },
+  {
+   "address": "9D:858A",
+   "text": "Arena"
+  },
+  {
+   "address": "9D:858E",
+   "text": "Bremerton"
+  },
+  {
+   "address": "9D:8594",
+   "text": "Calls"
+  },
+  {
+   "address": "9D:8599",
+   "text": "Caryards"
+  },
+  {
+   "address": "9D:85A0",
+   "text": "Cortex Bomb"
+  },
+  {
+   "address": "9D:85AA",
+   "text": "Cyberware"
+  },
+  {
+   "address": "9D:85B1",
+   "text": "Dark Blade"
+  },
+  {
+   "address": "9D:85B9",
+   "text": "Datajack"
+  },
+  {
+   "address": "9D:85C1",
+   "text": "Decker"
+  },
+  {
+   "address": "9D:85C6",
+   "text": "Docks"
+  },
+  {
+   "address": "9D:85CA",
+   "text": "Dog"
+  },
+  {
+   "address": "9D:85CD",
+   "text": "Drake"
+  },
+  {
+   "address": "9D:85D1",
+   "text": "Examination"
+  },
+  {
+   "address": "9D:85D9",
+   "text": "Firearms"
+  },
+  {
+   "address": "9D:85E0",
+   "text": "Ghouls"
+  },
+  {
+   "address": "9D:85E6",
+   "text": "Glutman"
+  },
+  {
+   "address": "9D:85EC",
+   "text": "Grinder"
+  },
+  {
+   "address": "9D:85F1",
+   "text": "Head Computer"
+  },
+  {
+   "address": "9D:85FA",
+   "text": "Heal"
+  },
+  {
+   "address": "9D:85FD",
+   "text": "Hiring"
+  },
+  {
+   "address": "9D:8602",
+   "text": "HitMen"
+  },
+  {
+   "address": "9D:8607",
+   "text": "Ice"
+  },
+  {
+   "address": "9D:860A",
+   "text": "Jester Spirit"
+  },
+  {
+   "address": "9D:8613",
+   "text": "King"
+  },
+  {
+   "address": "9D:8617",
+   "text": "Kitsune"
+  },
+  {
+   "address": "9D:861C",
+   "text": "Laughlyn"
+  },
+  {
+   "address": "9D:8624",
+   "text": "Lone Star"
+  },
+  {
+   "address": "9D:862A",
+   "text": "Magic Fetish"
+  },
+  {
+   "address": "9D:8634",
+   "text": "Maria"
+  },
+  {
+   "address": "9D:8638",
+   "text": "Matrix Systems"
+  },
+  {
+   "address": "9D:8643",
+   "text": "Mermaids"
+  },
+  {
+   "address": "9D:8649",
+   "text": "Negotiation"
+  },
+  {
+   "address": "9D:8652",
+   "text": "Nirwanda"
+  },
+  {
+   "address": "9D:8658",
+   "text": "Norbert"
+  },
+  {
+   "address": "9D:865D",
+   "text": "Nuyen"
+  },
+  {
+   "address": "9D:8661",
+   "text": "Raitsov"
+  },
+  {
+   "address": "9D:8668",
+   "text": "Rat"
+  },
+  {
+   "address": "9D:866B",
+   "text": "Rust Stilettos"
+  },
+  {
+   "address": "9D:8674",
+   "text": "Scalper"
+  },
+  {
+   "address": "9D:867A",
+   "text": "Shadowrunners"
+  },
+  {
+   "address": "9D:8684",
+   "text": "Shaman"
+  },
+  {
+   "address": "9D:8689",
+   "text": "Spare Word 1"
+  },
+  {
+   "address": "9D:8691",
+   "text": "Spare Word 10"
+  },
+  {
+   "address": "9D:869B",
+   "text": "Spare Word 11"
+  },
+  {
+   "address": "9D:86A5",
+   "text": "Spare Word 12"
+  },
+  {
+   "address": "9D:86AF",
+   "text": "Spare Word 2"
+  },
+  {
+   "address": "9D:86B7",
+   "text": "Spare Word 3"
+  },
+  {
+   "address": "9D:86BF",
+   "text": "Spare Word 4"
+  },
+  {
+   "address": "9D:86C7",
+   "text": "Spare Word 5"
+  },
+  {
+   "address": "9D:86CF",
+   "text": "Spare Word 7"
+  },
+  {
+   "address": "9D:86D7",
+   "text": "Spare Word 8"
+  },
+  {
+   "address": "9D:86DF",
+   "text": "Spare Word 9"
+  },
+  {
+   "address": "9D:86E8",
+   "text": "Steelflight"
+  },
+  {
+   "address": "9D:86F1",
+   "text": "Street Doc"
+  },
+  {
+   "address": "9D:86F8",
+   "text": "Strobes"
+  },
+  {
+   "address": "9D:86FD",
+   "text": "Talismans"
+  },
+  {
+   "address": "9D:8704",
+   "text": "The Cage"
+  },
+  {
+   "address": "9D:870A",
+   "text": "The Matrix"
+  },
+  {
+   "address": "9D:8711",
+   "text": "Tickets"
+  },
+  {
+   "address": "9D:8717",
+   "text": "Vampires"
+  },
+  {
+   "address": "9D:871E",
+   "text": "Volcano"
+  },
+  {
+   "address": "9D:8724",
+   "text": "Tread carefully whelp, you have much to overcome."
+  },
+  {
+   "address": "9D:8740",
+   "text": "|Dog controls your destiny. Seek out three items of his favour and then seek his shrine."
+  },
+  {
+   "address": "9D:876C",
+   "text": "Grrr!"
+  },
+  {
+   "address": "9D:8771",
+   "text": "Hey you! Yeah you! You gots meat? You gots brains? You low on creds, eh? Why not you wanna try fighting here for the money, eh?"
+  },
+  {
+   "address": "9D:87B6",
+   "text": ""
+  },
+  {
+   "address": "9D:87B7",
+   "text": "Hey, that too bad. He need nuyen more than you anyway! Maybe you come back later."
+  },
+  {
+   "address": "9D:87E1",
+   "text": "You don't look so good. Crawl somewhere else if you goin' to check out. You need time to |heal."
+  },
+  {
+   "address": "9D:8812",
+   "text": "I don't know. You need some rest maybe."
+  },
+  {
+   "address": "9D:8826",
+   "text": "You not last long enough. Crowds not like unfair fight. Get some rest!"
+  },
+  {
+   "address": "9D:884C",
+   "text": "I don't believe it. You beat the King! Here's 3000 nuyen!"
+  },
+  {
+   "address": "9D:886B",
+   "text": "Things different now in caryards. No-one to protect the people!"
+  },
+  {
+   "address": "9D:888D",
+   "text": "Better you leave! Go now, no more talk!"
+  },
+  {
+   "address": "9D:88A4",
+   "text": "You do enough damage for one day! King was best fighter. You leave before crowds join arena!"
+  },
+  {
+   "address": "9D:88D6",
+   "text": "You some sort of warrior!?!"
+  },
+  {
+   "address": "9D:88E6",
+   "text": "You must do this thing for a living, eh?! You better than I thought!"
+  },
+  {
+   "address": "9D:890B",
+   "text": "Huh? No more people are left to fight!"
+  },
+  {
+   "address": "9D:8921",
+   "text": "King was only playing that time. Lucky he let you live!"
+  },
+  {
+   "address": "9D:8940",
+   "text": "He much too good. Maybe you rest and try again."
+  },
+  {
+   "address": "9D:895A",
+   "text": "I don't know. You need some rest maybe!"
+  },
+  {
+   "address": "9D:896E",
+   "text": "King like you even less now!"
+  },
+  {
+   "address": "9D:897D",
+   "text": "How's ya goin' kid? You look like you need refreshments!"
+  },
+  {
+   "address": "9D:899D",
+   "text": "Looks like it's your shout too! I'll have whatever you're having."
+  },
+  {
+   "address": "9D:89BF",
+   "text": "Do I look like an encyclopaedia?"
+  },
+  {
+   "address": "9D:89D2",
+   "text": "|Hiring them isn't cheap... but if you need the extra muscle or the expertise, they're the ones you want."
+  },
+  {
+   "address": "9D:8A0A",
+   "text": "Har har! Show me your wallet and I'll show you a man with twenty fingers."
+  },
+  {
+   "address": "9D:8A31",
+   "text": "What? You don't believe me, just try me!"
+  },
+  {
+   "address": "9D:8A46",
+   "text": "Buzz, chummer! I can only stand talking to breeders for so long!"
+  },
+  {
+   "address": "9D:8A6A",
+   "text": "Don't need 'em, except for the doc round the corner who did some work on my face. You like it?"
+  },
+  {
+   "address": "9D:8A9B",
+   "text": "If you just want guns there's Vivyan's around the corner. If you're looking for something not quite legal, then you won't find 'em around here."
+  },
+  {
+   "address": "9D:8AE5",
+   "text": "I'm not for hire! If you're looking for a |decker, look somewhere else!"
+  },
+  {
+   "address": "9D:8B0A",
+   "text": "My price is not even worth discussing, chummer."
+  },
+  {
+   "address": "9D:8B26",
+   "text": "Can't help you..."
+  },
+  {
+   "address": "9D:8B30",
+   "text": "It's where all the information is. It's where the power is. Control the Matrix, and you control the world."
+  },
+  {
+   "address": "9D:8B66",
+   "text": "Unless you do it yourself, a good decker can get into the Matrix and grab the information you need."
+  },
+  {
+   "address": "9D:8B9A",
+   "text": "You don't look too healthy."
+  },
+  {
+   "address": "9D:8BA9",
+   "text": "You should maybe see a |street |doc. You look like you've been through a lot."
+  },
+  {
+   "address": "9D:8BD1",
+   "text": "Can't help you there..."
+  },
+  {
+   "address": "9D:8BDE",
+   "text": "I never work alone. If you need someone to spring some doors open, try Wastelands. There's plenty of deckers there."
+  },
+  {
+   "address": "9D:8C19",
+   "text": "Ed's round the corner is OK I guess. He fixed my datajack when I had trouble jacking into the Matrix."
+  },
+  {
+   "address": "9D:8C52",
+   "text": "I've had a rough day. I need some rest."
+  },
+  {
+   "address": "9D:8C66",
+   "text": "Look, I just want to relax and unwind."
+  },
+  {
+   "address": "9D:8C7D",
+   "text": "I'm too tired, maybe later..."
+  },
+  {
+   "address": "9D:8C8C",
+   "text": "Cheers chummer, my favourite too..."
+  },
+  {
+   "address": "9D:8C9F",
+   "text": "I almost had them, I had the |tickets in my hand! *SOB*SOB*"
+  },
+  {
+   "address": "9D:8CC3",
+   "text": "I'm too beat. What was that?"
+  },
+  {
+   "address": "9D:8CD2",
+   "text": "Tickets to the |Maria Mercurial concert. They were almost mine. I even gave |Grinder the money!"
+  },
+  {
+   "address": "9D:8D06",
+   "text": "Maria Mercurial is the hottest thing in town! She doesn't come by these parts too often."
+  },
+  {
+   "address": "9D:8D35",
+   "text": "Poor Grinder. He got wasted by |Lone |Star. The morgue guys carried off what was left of him."
+  },
+  {
+   "address": "9D:8D6A",
+   "text": "Haven't seen you for a while! Your usual I suppose..."
+  },
+  {
+   "address": "9D:8D87",
+   "text": "One iced tea, comin' right up!"
+  },
+  {
+   "address": "9D:8D99",
+   "text": "You look pale..."
+  },
+  {
+   "address": "9D:8DA2",
+   "text": "Someone after you? Maybe you should hire some |shadowrunners to watch your back!"
+  },
+  {
+   "address": "9D:8DCC",
+   "text": "Some of them carry some pretty lethal |firearms! They could really help you out."
+  },
+  {
+   "address": "9D:8DF7",
+   "text": "If you haven't got one already, you'd best get armed."
+  },
+  {
+   "address": "9D:8E13",
+   "text": "So what's been happening with you? Last I heard, some Mr. Johnson had you lined up for a run."
+  },
+  {
+   "address": "9D:8E46",
+   "text": "I never quite picked you as a |shadowrunner."
+  },
+  {
+   "address": "9D:8E5E",
+   "text": "Ain't heard... but I'll let you know if I do."
+  },
+  {
+   "address": "9D:8E76",
+   "text": "There's a few who are regulars. |Deckers mostly. Why you thinking of |hiring?"
+  },
+  {
+   "address": "9D:8EA2",
+   "text": "If you don't have a cyberdeck, I wouldn't go jacking in to the Matrix with only your |datajack. Best hire a decker to do the job for you!"
+  },
+  {
+   "address": "9D:8EEE",
+   "text": "Hiring them can be expensive. But if it keeps you alive..."
+  },
+  {
+   "address": "9D:8F0F",
+   "text": "Something wrong? Last time I saw you, you didn't have that datajack. Can't you remember even having it fitted?"
+  },
+  {
+   "address": "9D:8F4A",
+   "text": "Hi, what'll it be?"
+  },
+  {
+   "address": "9D:8F56",
+   "text": "Working here at The Cage hasn't done my hearing any good. What was it you wanted?"
+  },
+  {
+   "address": "9D:8F7F",
+   "text": "You'll have to speak up."
+  },
+  {
+   "address": "9D:8F8C",
+   "text": "Mr Glutman has run up quite a bill tonight. I think he's waiting for someone."
+  },
+  {
+   "address": "9D:8FB7",
+   "text": "She's one talented lady. Just look at her move."
+  },
+  {
+   "address": "9D:8FD0",
+   "text": "Very few of 'em frequent this joint. The Cage don't allow |firearms inside and the runners don't like leavin' em at the door in case trouble breaks out. The Orc at the door sometimes forgets to check though."
+  },
+  {
+   "address": "9D:903F",
+   "text": "Duuuh, no entry without an official... |ticket!"
+  },
+  {
+   "address": "9D:905C",
+   "text": "Come back when you got a ticket."
+  },
+  {
+   "address": "9D:906D",
+   "text": "Duh? What?"
+  },
+  {
+   "address": "9D:9075",
+   "text": "You're not getting in without 'em, bub!"
+  },
+  {
+   "address": "9D:908A",
+   "text": "Huh? Don't do anything stupid!"
+  },
+  {
+   "address": "9D:909C",
+   "text": "Don't bother me, and stay out of trouble!"
+  },
+  {
+   "address": "9D:90B1",
+   "text": "You trying to be smart, drekhead?"
+  },
+  {
+   "address": "9D:90C4",
+   "text": "What do you want? Can't you see I'm busy?"
+  },
+  {
+   "address": "9D:90DB",
+   "text": "Take a hike, bowb. I've got nothing for you."
+  },
+  {
+   "address": "9D:90F3",
+   "text": "Go buy yourself a new Stim, Wirehead and get out of my life."
+  },
+  {
+   "address": "9D:9115",
+   "text": "You drive a hard bargain..."
+  },
+  {
+   "address": "9D:9125",
+   "text": "Not sure about that. You know where to find me though if you've run out of uses for your hardware."
+  },
+  {
+   "address": "9D:9156",
+   "text": "If you're |hiring, they have almost any skill you could want."
+  },
+  {
+   "address": "9D:9176",
+   "text": "You're going to need plenty of money... at least 500 nuyen. If you're a fast talker you might |negotiate your way to something better."
+  },
+  {
+   "address": "9D:91BA",
+   "text": "That stuff moves fast. All I've got are some grenades from a munitions dump heist. 100 nuyen. You want one?"
+  },
+  {
+   "address": "9D:91F6",
+   "text": "On the streets, a good negotiator can save themselves a lot of money."
+  },
+  {
+   "address": "9D:921A",
+   "text": "Keep your voice down. Do you have something you want to offload? It had better be good, and the less heat behind it the better!"
+  },
+  {
+   "address": "9D:925B",
+   "text": "You don't seem to know what I mean! Are you a |shadowrunner?"
+  },
+  {
+   "address": "9D:9279",
+   "text": "No more questions! You'll have to leave. Now!"
+  },
+  {
+   "address": "9D:9292",
+   "text": "Jake, you is lucky man. You still alive!"
+  },
+  {
+   "address": "9D:92A7",
+   "text": "If you're not going to hide boy, you'd best go after them that are after you!"
+  },
+  {
+   "address": "9D:92CE",
+   "text": "V'at? Your head still broken?"
+  },
+  {
+   "address": "9D:92E0",
+   "text": "Drake is after you man. No v'un ever see Drake for real. Or at least no v'un who lived."
+  },
+  {
+   "address": "9D:9312",
+   "text": "Hey Mac. What ya want?"
+  },
+  {
+   "address": "9D:931E",
+   "text": "Cut the yappin'. Ya want something or not?"
+  },
+  {
+   "address": "9D:9336",
+   "text": "If ya ain't gonna buy something, beat it, joker."
+  },
+  {
+   "address": "9D:9350",
+   "text": "Yeah Mac? What's the problem?"
+  },
+  {
+   "address": "9D:9361",
+   "text": "If ya just want to yap, talk to the customers. I've got work to do."
+  },
+  {
+   "address": "9D:9383",
+   "text": "How would I know? Ask around and you might not get beat up."
+  },
+  {
+   "address": "9D:93A4",
+   "text": "What do you think the thing is at the end of the street, Mac?"
+  },
+  {
+   "address": "9D:93C1",
+   "text": "There's a place around the corner - next to the wholesale weirdo shop."
+  },
+  {
+   "address": "9D:93E6",
+   "text": "King! Mac, you don't wanna shorten your life span."
+  },
+  {
+   "address": "9D:9401",
+   "text": "Talismans? Hey guys, we got a weirdo on our hands!"
+  },
+  {
+   "address": "9D:941D",
+   "text": "Shadowrunners? Sure, there's people for hire. You want muscle, you wanna try the Orcs."
+  },
+  {
+   "address": "9D:944E",
+   "text": "You won't get a better price than that!"
+  },
+  {
+   "address": "9D:9461",
+   "text": "Let's stick to the price of weapons..."
+  },
+  {
+   "address": "9D:9475",
+   "text": "Yar har har. Cost ya good nuyen or two little puppy dogs."
+  },
+  {
+   "address": "9D:9498",
+   "text": "Come in! Come in! Don't let a small problem turn into a big one! Welcome to Ed's Patch 'n' Fix."
+  },
+  {
+   "address": "9D:94CE",
+   "text": "You look pretty beat-up. Anything you want me to take a look at?"
+  },
+  {
+   "address": "9D:94F0",
+   "text": "Sorry, small lapse in concentration. What were you saying?"
+  },
+  {
+   "address": "9D:9510",
+   "text": "Sure. Sure. Just hop up on the table here. You do have 500 nuyen, right?"
+  },
+  {
+   "address": "9D:9537",
+   "text": "Well if you're having trouble getting in to the Matrix, that could be your problem. I can do a quick |examination for 500 nuyen."
+  },
+  {
+   "address": "9D:957A",
+   "text": "Jake, the problem seems to be in your head computer. There's a |cortex |bomb attached to it!"
+  },
+  {
+   "address": "9D:95AD",
+   "text": "It's um... designed to destroy anything stored in your head computer if it is tampered with!"
+  },
+  {
+   "address": "9D:95DE",
+   "text": "Um, I think it started ticking... if it goes off, it's likely to take a good portion of your head along with it. Sorry, here's a refund... try some aspirin. I don't think I can help you."
+  },
+  {
+   "address": "9D:963D",
+   "text": "The only guy I know who might be able to help you is Dr Maplethorpe. He's expensive though. You should save your money for a good funeral!"
+  },
+  {
+   "address": "9D:9684",
+   "text": "I don't think I should mess with it anymore. You'd best find yourself another street doc."
+  },
+  {
+   "address": "9D:96B1",
+   "text": "How are you feeling Jake? Is your head OK?"
+  },
+  {
+   "address": "9D:96C9",
+   "text": "I hope you get someone to look at that cortex bomb of yours."
+  },
+  {
+   "address": "9D:96E9",
+   "text": "They're quite dangerous. Maybe you should stand back a little."
+  },
+  {
+   "address": "9D:970A",
+   "text": "Dr Maplethorpe is the only guy I know who might be able to help."
+  },
+  {
+   "address": "9D:972C",
+   "text": "Do you have any business being 'round these parts?"
+  },
+  {
+   "address": "9D:9746",
+   "text": "I'm just doing my job. Now out with it or I'm going to have to run a check on you!"
+  },
+  {
+   "address": "9D:9772",
+   "text": "If you've got no reason for being here then take off! You're lucky this time!"
+  },
+  {
+   "address": "9D:979B",
+   "text": "Well why didn't you say so! The doc's in through those doors."
+  },
+  {
+   "address": "9D:97BC",
+   "text": "Nice hardware. There aren't many of those around..."
+  },
+  {
+   "address": "9D:97D6",
+   "text": "Huh? You got any other stuff you wanna get rid of?"
+  },
+  {
+   "address": "9D:97F2",
+   "text": "Those lying creeps next door? We had a deal, they'd handle the cops, and I'd supply their hardware needs. Lone Star almost busted through here last week."
+  },
+  {
+   "address": "9D:9844",
+   "text": "I outfit whoever can pay. A few of my clients can be found at Jagged Nails, but I suggest you forget who told you!"
+  },
+  {
+   "address": "9D:9882",
+   "text": "The biggest and the best. I'll even give you a good price on any hardware you don't see yourself needing anymore."
+  },
+  {
+   "address": "9D:98BB",
+   "text": "Excuse me sir. The Dark Blade is for members only."
+  },
+  {
+   "address": "9D:98D8",
+   "text": "I'm sorry, but I'm going to have to ask you to leave the premises."
+  },
+  {
+   "address": "9D:98FA",
+   "text": "Please leave or I will be forced to call security."
+  },
+  {
+   "address": "9D:9915",
+   "text": "We have a very strict policy. Non-members are not allowed in without prior appointment."
+  },
+  {
+   "address": "9D:9944",
+   "text": "Ahh, the amulet. Mr Vladimir is expecting you. He's in the reading room. First room on your left. Please go through."
+  },
+  {
+   "address": "9D:9985",
+   "text": "Nice to meet you Jake. I hear you have a problem with your head."
+  },
+  {
+   "address": "9D:99A6",
+   "text": "Is that so? You couldn't be a bit more specific could you?"
+  },
+  {
+   "address": "9D:99C5",
+   "text": "Irrelevant! Stick to the facts, Jake."
+  },
+  {
+   "address": "9D:99DA",
+   "text": "Yes, nasty... Get up on the table here and I will disarm it immediately."
+  },
+  {
+   "address": "9D:9A02",
+   "text": "You've come to the best. I'm sure I can help, Jake."
+  },
+  {
+   "address": "9D:9A1D",
+   "text": "If you get into difficulty, maybe you should buy some of these slap patches. I sell them for 100 nuyen."
+  },
+  {
+   "address": "9D:9A54",
+   "text": "Jake, I've managed to remove the cortex bomb. It seems to have been fitted to protect your |head |computer. Whatever is stored in there must be very valuable!"
+  },
+  {
+   "address": "9D:9AA7",
+   "text": "The data in your head computer looks like some bio-storage graft. I couldn't access it with my equipment. The maker is |Matrix |Systems, a little outfit over by the bay."
+  },
+  {
+   "address": "9D:9B06",
+   "text": "Jake, I've got other work to do."
+  },
+  {
+   "address": "9D:9B17",
+   "text": "I know very little about them. Except their work mainly revolved around software for the Matrix."
+  },
+  {
+   "address": "9D:9B4C",
+   "text": "I'm afraid I can't access it. You'll have to find someone who knows what's in there and how to get it out."
+  },
+  {
+   "address": "9D:9B83",
+   "text": "Well that was quick! I thought you'd be trying to track down that |Matrix |Systems place. What can I do for you?"
+  },
+  {
+   "address": "9D:9BBE",
+   "text": "You just can't beat the best Chiba has to offer. Quality costs, you know."
+  },
+  {
+   "address": "9D:9BE5",
+   "text": "Hmmm... I don't see how that relates to our present situation, Jake."
+  },
+  {
+   "address": "9D:9C0A",
+   "text": "Hoi chummer, always room for a true shadowrunner. You handled that Stilettos gang mighty fine."
+  },
+  {
+   "address": "9D:9C3E",
+   "text": "It's a bit busier than usual tonight. You wanna come in? 50 nuyen."
+  },
+  {
+   "address": "9D:9C62",
+   "text": "I don't know. Anyway, I'd better get back to weeding out these pretenders."
+  },
+  {
+   "address": "9D:9C88",
+   "text": "Since that guy who went batty on the dance floor, the Jagged Nails has been exclusively for shadowrunners."
+  },
+  {
+   "address": "9D:9CC2",
+   "text": "As long as you got the money, you won't be disappointed. If you need some magic, try Kitsune."
+  },
+  {
+   "address": "9D:9CF2",
+   "text": "You don't look like a regular, bowb. The Jagged Nail is for shadowrunners only. Come back when you're a little less green."
+  },
+  {
+   "address": "9D:9D33",
+   "text": "Sorry, can't help you tonight. You'll need 50 nuyen and a good rep before you'll grace the insides of these walls. Now jet!"
+  },
+  {
+   "address": "9D:9D76",
+   "text": "Look bowb, if you don't back off, I'm gonna bounce you right out of Seattle!"
+  },
+  {
+   "address": "9D:9DA0",
+   "text": "If you have to ask, then you obviously ain't one. Make sure you hire some real runners if ya ever go walking the shadows."
+  },
+  {
+   "address": "9D:9DDE",
+   "text": "What you want? Just got meself some sleep an' you mess it up."
+  },
+  {
+   "address": "9D:9DFF",
+   "text": "You ain't one of them pointy ears are you?"
+  },
+  {
+   "address": "9D:9E14",
+   "text": "Beats me."
+  },
+  {
+   "address": "9D:9E1A",
+   "text": "Darling - nice outfit! Very street level. Not like some weirdos we've had in here. Unusual aftershave!"
+  },
+  {
+   "address": "9D:9E52",
+   "text": "Oooh, oodles of entertainment tonight. |Kitsune's performing until twelve, and I get off at one."
+  },
+  {
+   "address": "9D:9E86",
+   "text": "Is there anything special I can get you?"
+  },
+  {
+   "address": "9D:9E9B",
+   "text": "Hmmmph! Well catch her act if you've got the time. She just uses this place as a cover to pick up on any good runs on offer."
+  },
+  {
+   "address": "9D:9EDE",
+   "text": "Oh, so you're one of that crowd. Well it's who you know that counts! You should mingle a little...and there's also Kitsune if you can get her off the stage."
+  },
+  {
+   "address": "9D:9F2E",
+   "text": "Hmmm. Maybe I can help you, and maybe I can't. For only 100 nuyen, I'll put you in touch."
+  },
+  {
+   "address": "9D:9F5F",
+   "text": "We get all types. We even had a vampire in here once. The |strobes sent him catatonic. Took us fifteen minutes to realise he wasn't doing some new dance craze."
+  },
+  {
+   "address": "9D:9FB2",
+   "text": "We just got a new lighting rig. Makes the place look much nicer. The old ones are around here somewhere."
+  },
+  {
+   "address": "9D:9FE9",
+   "text": "That sounds like something you're better off asking a magic user."
+  },
+  {
+   "address": "9D:A00B",
+   "text": "Welcome! How can I help you?"
+  },
+  {
+   "address": "9D:A01B",
+   "text": "Mr Maplethorpe is quite a busy man. Is there anything specific you need?"
+  },
+  {
+   "address": "9D:A043",
+   "text": "Maybe you should come back later."
+  },
+  {
+   "address": "9D:A055",
+   "text": "The doctor is a skilled surgeon. Perhaps you could come back when you have something more specific he can help you with. Ed's Patch'n'Fix over by the caryards might be able to help you."
+  },
+  {
+   "address": "9D:A0B7",
+   "text": "I'll just go see if the doctor is free."
+  },
+  {
+   "address": "9D:A0CC",
+   "text": "This is the office of Mr Maplethorpe MD. Can I help you?"
+  },
+  {
+   "address": "9D:A0EB",
+   "text": "Oh no! I'll get the doctor right away! He charges 2000 nuyen though."
+  },
+  {
+   "address": "9D:A111",
+   "text": "Dog calls to you. Seek him soon or you will be lost."
+  },
+  {
+   "address": "9D:A12B",
+   "text": "Woof. Woof. Grrr."
+  },
+  {
+   "address": "9D:A138",
+   "text": "Grrr. Woof. Woof."
+  },
+  {
+   "address": "9D:A144",
+   "text": "I am H'oochin-ikwa, the spirit of the Dog. I smell the power burning in your soul."
+  },
+  {
+   "address": "9D:A16E",
+   "text": "Prove to me that you are truly a friend to the Dog, and I shall grant you my guidance. Destroy the |Rat shaman and then return. You will find the entrance to his lair where souls are at rest."
+  },
+  {
+   "address": "9D:A1CF",
+   "text": "Go now! Do not return until you have vanquished your enemy."
+  },
+  {
+   "address": "9D:A1F0",
+   "text": "You have done well. You have served H'oochin-ikwa. You have cleaned the world of an enemy. Dog takes you as his own. From this time on, you travel with H'oochin-ikwa at your side."
+  },
+  {
+   "address": "9D:A24C",
+   "text": "Jake, you are in truth a shaman. Follow your calling. You know it to be true. Technology has been thrust upon you. You are fated to use it to destroy your nemesis."
+  },
+  {
+   "address": "9D:A2A0",
+   "text": "The serpent who walks like a man. You will not defeat him with your own power. Capture a mighty spirit and use this as your weapon against Drake."
+  },
+  {
+   "address": "9D:A2ED",
+   "text": "That answer is hidden in the mists."
+  },
+  {
+   "address": "9D:A2FF",
+   "text": "It is a place where technology rules. A foul place. They seek to usurp the ancient order and conquer magic through using machines. You are fated to destroy Aneki, or yourself be destroyed."
+  },
+  {
+   "address": "9D:A363",
+   "text": "Children besotted by the evil path. They spill blood, but only the one who leads them drinks. He is a dark child - a vampire. Beware!"
+  },
+  {
+   "address": "9D:A3AD",
+   "text": "A powerful enemy! He toys with you. He is a spirit of technology in decay. Find such a place, and you will have found his lair. Recite his true name, and you will have bound him to your will."
+  },
+  {
+   "address": "9D:A40E",
+   "text": "A soul struck down. You carry the result of his labour. You are entrusted with the future."
+  },
+  {
+   "address": "9D:A43C",
+   "text": "I am H'oochin-ikwa, the spirit of the Dog. I will guide you to your destiny."
+  },
+  {
+   "address": "9D:A463",
+   "text": "Jake! It's me Sassie. I've been waiting for you. Come closer..."
+  },
+  {
+   "address": "9D:A486",
+   "text": "I'm sorry we ever broke up, Jake. Come closer... don't leave me!"
+  },
+  {
+   "address": "9D:A4AA",
+   "text": "Come closer, Jake! I'll tell you if you come closer!"
+  },
+  {
+   "address": "9D:A4C7",
+   "text": "Hey, you! Stop right there! Aneki Security. Where's your pass?"
+  },
+  {
+   "address": "9D:A4E9",
+   "text": "No pass. No entry. No exceptions."
+  },
+  {
+   "address": "9D:A4FD",
+   "text": "You have exactly 5 seconds to produce a pass before I remove you from this planet!"
+  },
+  {
+   "address": "9D:A52A",
+   "text": "Don't touch! Unless you're buying of course..."
+  },
+  {
+   "address": "9D:A544",
+   "text": "I've got pieces you can't even get on the open market. There's some more stuff coming soon. I'm just waiting for the heat to die down."
+  },
+  {
+   "address": "9D:A589",
+   "text": "We don't deal in information, bub! Strictly guns!"
+  },
+  {
+   "address": "9D:A5A6",
+   "text": "Darned music! Them shadowrunner types blasting away with that racket at all hours. It's no wonder guests don't stay long!"
+  },
+  {
+   "address": "9D:A5E6",
+   "text": "You looking for a room? There's only one left. First room on the left! 50 nuyen. You want it?"
+  },
+  {
+   "address": "9D:A61A",
+   "text": "You look mighty tired! Sure you don't want to take a rest?"
+  },
+  {
+   "address": "9D:A639",
+   "text": "You got a reason for being in my face?"
+  },
+  {
+   "address": "9D:A64D",
+   "text": "Hey I'm trying to watch the band - OK?"
+  },
+  {
+   "address": "9D:A662",
+   "text": "You wanna start pushing daisies, just keep on annoyin' me, joker."
+  },
+  {
+   "address": "9D:A687",
+   "text": "Sure, I can get you ice. I only deal in it a ton at a time though. Cost you 100 nuyen. You interested?"
+  },
+  {
+   "address": "9D:A6BA",
+   "text": "Mermaid? I suppose you'd find them in the water!"
+  },
+  {
+   "address": "9D:A6D3",
+   "text": "Give me a place where you want it dumped."
+  },
+  {
+   "address": "9D:A6E9",
+   "text": "Come on pal, I've got other deliveries to make. Where do you want it?"
+  },
+  {
+   "address": "9D:A70D",
+   "text": "I don't think we're understanding each other! Got any other ideas?"
+  },
+  {
+   "address": "9D:A72E",
+   "text": "You got it! I'll do it as soon as the band finishes this song."
+  },
+  {
+   "address": "9D:A74C",
+   "text": "No way! You'll be lucky to find anyone delivering out there. Forget it!"
+  },
+  {
+   "address": "9D:A771",
+   "text": "Oh, woe is me. The Rat shaman has been defeated. Jake, you are getting good at this! Do you think you are a match for the |Jester?"
+  },
+  {
+   "address": "9D:A7B7",
+   "text": "Do you like games, little man? How about one where you guess my name! If you return lacking that simple truth, I'm afraid there are no losers... I'll just vaporise you! Ha ha ha ha!!!"
+  },
+  {
+   "address": "9D:A818",
+   "text": "Run and hide, flesh bag. Time is on your side, but nothing is going to save you! Ha ha ha ha!!!"
+  },
+  {
+   "address": "9D:A84B",
+   "text": "Not so fast! You leave me no time to toy with you...and nevertheless, you are wrong. Do not return as foolish as you are!"
+  },
+  {
+   "address": "9D:A888",
+   "text": "Well, ye be a lookin' for a ship? The |docks are the right place."
+  },
+  {
+   "address": "9D:A8AA",
+   "text": "Longhorn Jack they call me. Finest taxi-boat driver in this fine city."
+  },
+  {
+   "address": "9D:A8D0",
+   "text": "That be a little out of my area. Could ye keep it to Seattle?"
+  },
+  {
+   "address": "9D:A8F0",
+   "text": "Bremerton - sorry, that be not possible. |Mermaids in the waters 'round here attack anybody who heads in that direction."
+  },
+  {
+   "address": "9D:A92D",
+   "text": "They turned up a while back and have been here ever since. They seem to like the warm run-off from the sewers. Keeps the waters warm. Can't say I don't like it myself, but it's been bad for business."
+  },
+  {
+   "address": "9D:A994",
+   "text": "Except for the spirits, they be mostly deserted now. People came shooting and taking people away a while back. Some rough types now guard the warehouses."
+  },
+  {
+   "address": "9D:A9E4",
+   "text": "Ye be lookin for a boat?"
+  },
+  {
+   "address": "9D:A9F1",
+   "text": "Me boats ready for hire or me name ain't Longhorn Jack!"
+  },
+  {
+   "address": "9D:AA0D",
+   "text": "OK so me name is Shirley Temple. Ye wanna hire me boat or what?"
+  },
+  {
+   "address": "9D:AA2F",
+   "text": "Bremerton. That's a fair way. There be dragons and other nasties around there. You can hire me boat for 1,000 nuyen upfront. If ye don't like ye can leave it."
+  },
+  {
+   "address": "9D:AA7F",
+   "text": "Let's stay calm. I'm sure we can deal! Ease off the trigger and I'll fly you where you wanna go..."
+  },
+  {
+   "address": "9D:AAB1",
+   "text": "Look, just decide where you want to go, and stop pointing that gun at me, will ya!"
+  },
+  {
+   "address": "9D:AADC",
+   "text": "You need to tell me where you want me to fly this bird, chummer."
+  },
+  {
+   "address": "9D:AAFC",
+   "text": "Hold on, chummer! That place don't take to visitors too kindly."
+  },
+  {
+   "address": "9D:AB1E",
+   "text": "Where do you want me to land? On the water? Sorry, no can do."
+  },
+  {
+   "address": "9D:AB3E",
+   "text": "I just keep my eyes open and my mouth shut. Less heat from the boss that way."
+  },
+  {
+   "address": "9D:AB67",
+   "text": "The Drake Volcano? It's YOUR funeral! Climb aboard and get that gun outta my face!"
+  },
+  {
+   "address": "9D:AB97",
+   "text": "Hi, what can I get you?"
+  },
+  {
+   "address": "9D:ABA4",
+   "text": "I let Cecil do the socialising. I merely serve the customers, dear!"
+  },
+  {
+   "address": "9D:ABC6",
+   "text": "I don't know... how about some juice?"
+  },
+  {
+   "address": "9D:ABDB",
+   "text": "Well seeing that you talked to Cecil, I suppose you can have them. Careful where you shine them though, they're a bit hard on the eyes."
+  },
+  {
+   "address": "9D:AC1E",
+   "text": "I can't see what you'd ever want with a bunch of |vampires."
+  },
+  {
+   "address": "9D:AC3D",
+   "text": "When she's not running the shadows, she's running around howling on stage."
+  },
+  {
+   "address": "9D:AC64",
+   "text": "Aaarrggh. You swine!"
+  },
+  {
+   "address": "9D:AC71",
+   "text": "Drek, you've bought into more trouble than you know. The |Rust |Stilettos always finish a job! Aaarrggh, bye sucker!"
+  },
+  {
+   "address": "9D:ACB3",
+   "text": "GASP... URGH..."
+  },
+  {
+   "address": "9D:ACC0",
+   "text": "You're dead, Armitage! You're dog-meat! |Drake's gonna fry you. Don't even try running. You can't hide from the Drake."
+  },
+  {
+   "address": "9D:AD00",
+   "text": "He's gonna rip you apart, Armitage!"
+  },
+  {
+   "address": "9D:AD16",
+   "text": "I ain't telling you nothing!"
+  },
+  {
+   "address": "9D:AD24",
+   "text": "Drake's not gonna let you live. You're history!"
+  },
+  {
+   "address": "9D:AD3D",
+   "text": "Back off, chummer. You're on Rust Stiletto turf."
+  },
+  {
+   "address": "9D:AD58",
+   "text": "Get off our zone, drekhead... or I'll wear your fingers as jewellery!"
+  },
+  {
+   "address": "9D:AD7F",
+   "text": "You hard of hearing? You'll be hard of breathing soon!"
+  },
+  {
+   "address": "9D:AD9B",
+   "text": "Well you found us! Now take off or I'll feed you to the boss!"
+  },
+  {
+   "address": "9D:ADBC",
+   "text": "Huh? What? Are you speaking to me?"
+  },
+  {
+   "address": "9D:ADD0",
+   "text": "Look I'm in a real hurry. Bye."
+  },
+  {
+   "address": "9D:ADE2",
+   "text": "Will you please leave me alone!"
+  },
+  {
+   "address": "9D:ADF3",
+   "text": "Welcome to the Dark Blade. We don't often have guests, but when we do they tend to stay."
+  },
+  {
+   "address": "9D:AE20",
+   "text": "You come here on business? I'd be happy to have you for dinner!"
+  },
+  {
+   "address": "9D:AE40",
+   "text": "Don't waste my time. I can be most unpleasant!"
+  },
+  {
+   "address": "9D:AE59",
+   "text": "An amulet inscribed with a bat? You have my interest. What do you ask for such a prize."
+  },
+  {
+   "address": "9D:AE86",
+   "text": "So you seek to control the Jester Spirit! Even if I gave you his true name, you would never get close enough to utter it to his face. Give me the fetish first, then I shall give you the word that will be your downfall!"
+  },
+  {
+   "address": "9D:AEF6",
+   "text": "Finally! I have been waiting for this. It brings back memories of Transylvania..."
+  },
+  {
+   "address": "9D:AF22",
+   "text": "This holds a spirit of true power... and you want to play with Jesters. Ha!"
+  },
+  {
+   "address": "9D:AF4A",
+   "text": "Do not annoy me. I wish to be left alone."
+  },
+  {
+   "address": "9D:AF61",
+   "text": "You are a fool, but nevertheless, I will tell you. To control the Jester's power, you must utter his true name in his presence. He can be found in the ship's bones at |Bremerton. The name you seek is... |Nirwanda!"
+  },
+  {
+   "address": "9D:AFCD",
+   "text": "Arrgghh! I can't see! Wait! A stake! Arrgghh! No!"
+  },
+  {
+   "address": "9D:AFEB",
+   "text": "I'll tell you anything! Anything! Just keep that stake away from me!"
+  },
+  {
+   "address": "9D:B010",
+   "text": "I've told you everything I know! I'm not lying - believe me!"
+  },
+  {
+   "address": "9D:B030",
+   "text": "His name is |Nirwanda. It's Nirwanda! You'll find him at |Bremerton. Please go away!"
+  },
+  {
+   "address": "9D:B05F",
+   "text": "Leave me alone! I'm not hurting anyone!"
+  },
+  {
+   "address": "9D:B075",
+   "text": "Go away! I've told you everything that I know."
+  },
+  {
+   "address": "9D:B08E",
+   "text": "That's all I know, honest. Why would I lie?"
+  },
+  {
+   "address": "9D:B0A6",
+   "text": "It's Nirwanda... No, OK it's |Laughlyn! It's Laughlyn! You'll find him in |Bremerton. He haunts some ship down there. Now go away!"
+  },
+  {
+   "address": "9D:B0F4",
+   "text": "Yo man. What's been happenin'? You gone underground lately?"
+  },
+  {
+   "address": "9D:B114",
+   "text": "Say what? Man, what a bummer! Want an iced tea? I'll have to hold the |ice."
+  },
+  {
+   "address": "9D:B13D",
+   "text": "That's like, nothing I can help you with."
+  },
+  {
+   "address": "9D:B152",
+   "text": "Sorry, no ice. The freezer's on the fritz. We're waiting on a delivery..."
+  },
+  {
+   "address": "9D:B17A",
+   "text": "All kinds hang here! Mercs, mages, deckers... If you've got the money then, no problem!"
+  },
+  {
+   "address": "9D:B1A8",
+   "text": "You'd better be a good leader, or they'll take off and go where the money is better."
+  },
+  {
+   "address": "9D:B1D3",
+   "text": "Man, I shouldn't be telling ya this, but I wouldn't wanna lose a good customer like you. There's a price on your head! Rust Stilettos gang are aiming to collect. Small gang, big plans. They got backing somewhere."
+  },
+  {
+   "address": "9D:B242",
+   "text": "Those blood suckers!? They're holed up at some club they have on the outskirts of town. You sure you wanna mess with |vampires?"
+  },
+  {
+   "address": "9D:B286",
+   "text": "They're hiding out somewhere near here. You'd better watch your back."
+  },
+  {
+   "address": "9D:B2A9",
+   "text": "Yo dude! What's been going down?"
+  },
+  {
+   "address": "9D:B2BB",
+   "text": "Things are like so cool! Especially now that the guy with the |ice delivered."
+  },
+  {
+   "address": "9D:B2E3",
+   "text": "The chiller is the dude over there in the corner."
+  },
+  {
+   "address": "9D:B2FB",
+   "text": "I'm your waitress for tonight. Is there anything I can get you?"
+  },
+  {
+   "address": "9D:B31B",
+   "text": "I'd love to chat, but the boss would sack me."
+  },
+  {
+   "address": "9D:B331",
+   "text": "Stick to what's on the menu!"
+  },
+  {
+   "address": "9D:B340",
+   "text": "You have defeated me the only way possible. My power is yours to command."
+  },
+  {
+   "address": "9D:B367",
+   "text": "Choose wisely where you wish to summon my power, for only once it will be."
+  },
+  {
+   "address": "9D:B38D",
+   "text": "That I do not know."
+  },
+  {
+   "address": "9D:B397",
+   "text": "Great jokers are they, but their games are deadly. A great surprise they have in store for all."
+  },
+  {
+   "address": "9D:B3C7",
+   "text": "This is my home, Bremerton provides me with a portal to what you call the real world."
+  },
+  {
+   "address": "9D:B3F2",
+   "text": "Traitors to the world of spirits. For this they will suffer... but not from me."
+  },
+  {
+   "address": "9D:B41C",
+   "text": "Your totem is your strength. Do not question his guidance."
+  },
+  {
+   "address": "9D:B43C",
+   "text": "Protector of the jokers. You will be in for a warm reception if you plan to challenge him, for a |volcano is his home. If this is where you intend to call on me then so be it!"
+  },
+  {
+   "address": "9D:B496",
+   "text": "Beware, for I have already warned you... you may call on me only once!"
+  },
+  {
+   "address": "9D:B4BB",
+   "text": "The lair of Drake. He watches all from there! If that where my power be needed, then it will be!"
+  },
+  {
+   "address": "9D:B4EB",
+   "text": "That is my true name. You have guessed well."
+  },
+  {
+   "address": "9D:B501",
+   "text": "Ha ha ha ha! A little flesh-bag! How sad - it really does think it has the power."
+  },
+  {
+   "address": "9D:B52E",
+   "text": "Run, run, run as fast as you can! You can't catch me, I'm the razorblade man!"
+  },
+  {
+   "address": "9D:B557",
+   "text": "Boys and girls come out to play! On the busy motorway!"
+  },
+  {
+   "address": "9D:B576",
+   "text": "You guessed wrong, little man!"
+  },
+  {
+   "address": "9D:B586",
+   "text": "I am the Jester, and you are no match for me, little man!"
+  },
+  {
+   "address": "9D:B5A3",
+   "text": "I'm surprised to see you're still alive. A few more minutes and I was gonna take off!"
+  },
+  {
+   "address": "9D:B5CF",
+   "text": "I bet Drake wasn't happy to see you. You were crazy coming here!"
+  },
+  {
+   "address": "9D:B5F1",
+   "text": "Calm down, chummer! I can't understand you..."
+  },
+  {
+   "address": "9D:B60A",
+   "text": "So, do you wanna pack it in and go back to Drake Towers?"
+  },
+  {
+   "address": "9D:B627",
+   "text": "Thank you! Thank you for freeing me. My name is Professor Pushkin."
+  },
+  {
+   "address": "9D:B64C",
+   "text": "I have been kept prisoner like a caged animal. Drake is after an ANTI-AI program professor Raitsov was meant to send me. The courier never arrived."
+  },
+  {
+   "address": "9D:B69E",
+   "text": "There is no time to waste! We must hurry!"
+  },
+  {
+   "address": "9D:B6B2",
+   "text": "Professor Raitsov developed a program that could split the AI in Aneki's computer and destroy it! A courier with the ANTI-AI stored in his |head |computer was meant to deliver it to me."
+  },
+  {
+   "address": "9D:B718",
+   "text": "So you're the courier! You're head computer must still have the ANTI-AI stored in it. We must interface it directly into Aneki's AI and destroy it! I have the code to get you in to Aneki!"
+  },
+  {
+   "address": "9D:B779",
+   "text": "Drake is working for |Aneki. Aneki has developed an AI computer that can dominate the whole Matrix. If they succeed, they will control the world!"
+  },
+  {
+   "address": "9D:B7C8",
+   "text": "Why, hello... Are you off to the club?"
+  },
+  {
+   "address": "9D:B7DE",
+   "text": "Well I'm off to party. You look like you could do with some loosening up yourself!"
+  },
+  {
+   "address": "9D:B80A",
+   "text": "Hey? Not sure..."
+  },
+  {
+   "address": "9D:B813",
+   "text": "All the in people go there... but you'll need tickets."
+  },
+  {
+   "address": "9D:B82F",
+   "text": "Yeah, she's playing |The |Cage tonight. Coming along?"
+  },
+  {
+   "address": "9D:B84F",
+   "text": "Tickets? If you ain't already got 'em, you're out of luck. Twice babe!"
+  },
+  {
+   "address": "9D:B876",
+   "text": "You look troubled, young man. Is something wrong?"
+  },
+  {
+   "address": "9D:B890",
+   "text": "You'd best be prepared. I've had to |heal enough men who thought they were safe running the shadows."
+  },
+  {
+   "address": "9D:B8C4",
+   "text": "Slow down boy, you're talking too quick for me."
+  },
+  {
+   "address": "9D:B8DF",
+   "text": "Soldiers of fortune! They hire out their skills to whoever can afford it! The corporations use them to do their dirty work."
+  },
+  {
+   "address": "9D:B91F",
+   "text": "Forget all that talk of magic, you're better off leaving yourself in the hands of a skilled |street |doc."
+  },
+  {
+   "address": "9D:B955",
+   "text": "Pity I'm retired, but there are some good ones around. Most can handle tech like that datajack of yours."
+  },
+  {
+   "address": "9D:B98A",
+   "text": "You're asking for trouble if you jack into the Matrix direct. Use a cyberdeck, boy."
+  },
+  {
+   "address": "9D:B9BA",
+   "text": "If you're here to rubberneck over that scalper, you're too late."
+  },
+  {
+   "address": "9D:B9DB",
+   "text": "The |Lone |Star took out some guy unloading tickets to the Mercurial concert. He's got a date with the morticians."
+  },
+  {
+   "address": "9D:BA18",
+   "text": "Can't hang around dude!"
+  },
+  {
+   "address": "9D:BA25",
+   "text": "The corporate cops enforce the law, man. But the corps make their own law."
+  },
+  {
+   "address": "9D:BA4F",
+   "text": "I was here first. I always sit here. You can't make me move!"
+  },
+  {
+   "address": "9D:BA6C",
+   "text": "Uhhh... you looking for someone, bowb?"
+  },
+  {
+   "address": "9D:BA83",
+   "text": "I don't know nothing. I stay alive that way!"
+  },
+  {
+   "address": "9D:BA9A",
+   "text": "Hi! Wiz music, don't you think?"
+  },
+  {
+   "address": "9D:BAAE",
+   "text": "I look familiar? What kind of line is that! Creep!"
+  },
+  {
+   "address": "9D:BACA",
+   "text": "I can't hear you, the music is too loud!"
+  },
+  {
+   "address": "9D:BADF",
+   "text": "You stay away from my girl now, you hear!"
+  },
+  {
+   "address": "9D:BAF5",
+   "text": "Don't go messing with my girl!"
+  },
+  {
+   "address": "9D:BB06",
+   "text": "Beat it!"
+  },
+  {
+   "address": "9D:BB0B",
+   "text": "Jake, you're alive! I heard you were dead!"
+  },
+  {
+   "address": "9D:BB20",
+   "text": "I got myself a new boyfriend and everything. The last of your stuff was just thrown out. You're still getting |calls. Tell your buddies to stop calling us!"
+  },
+  {
+   "address": "9D:BB75",
+   "text": "Bye Jake!"
+  },
+  {
+   "address": "9D:BB7C",
+   "text": "Some |Glutman guy keeps calling. His number is 934-782."
+  },
+  {
+   "address": "9D:BBA1",
+   "text": "Go now, my men hide you. No charge. Glutman owe you favour, ya! I fix everything! We hide you real good, you betcha!"
+  },
+  {
+   "address": "9D:BBE1",
+   "text": "No time, no time. You is dead man, come quickly."
+  },
+  {
+   "address": "9D:BBFC",
+   "text": "No need to thank me, boy! Now let's hurry!"
+  },
+  {
+   "address": "9D:BC13",
+   "text": "You won't survive long without one."
+  },
+  {
+   "address": "9D:BC26",
+   "text": "You look like you need some help."
+  },
+  {
+   "address": "9D:BC38",
+   "text": "You've got to be prepared for anything. I'm upgrading to something that isn't slowed down by armour."
+  },
+  {
+   "address": "9D:BC6D",
+   "text": "You sure you don't need some help?"
+  },
+  {
+   "address": "9D:BC7F",
+   "text": "Maybe you should try something bigger than a pistol."
+  },
+  {
+   "address": "9D:BC9A",
+   "text": "Guns guns guns! Yar ho hee har har!"
+  },
+  {
+   "address": "9D:BCAE",
+   "text": "You want to buy this gun? Good buy! Only one owner. He's no longer around, if ya know what I mean! Yar ho tee hee har."
+  },
+  {
+   "address": "9D:BCEC",
+   "text": "Huh? Come on lad let's set our hair on fire!"
+  },
+  {
+   "address": "9D:BD05",
+   "text": "I haven't got all day. What do you want?"
+  },
+  {
+   "address": "9D:BD1A",
+   "text": "Nice shades! Do you always wear them indoors?"
+  },
+  {
+   "address": "9D:BD33",
+   "text": "Hurry up, will ya? I can feel my arteries hardening!"
+  },
+  {
+   "address": "9D:BD51",
+   "text": "The only way you're gonna get a ticket from me chummer, is if I attach it to your big toe!"
+  },
+  {
+   "address": "9D:BD80",
+   "text": "Somebody gave him an early retirement. We'll ship what's left of him tomorrow."
+  },
+  {
+   "address": "9D:BDAC",
+   "text": "No sightseers allowed! If ya ain't family or you're not a badge I'm afraid he stays with us!"
+  },
+  {
+   "address": "9D:BDDE",
+   "text": "Well that's one more file out of the way. You wouldn't believe the number of guys fragged today!"
+  },
+  {
+   "address": "9D:BE10",
+   "text": "Hey Larry, where's the little urn to ship number 8 in?"
+  },
+  {
+   "address": "9D:BE2F",
+   "text": "I can't talk to you and move my pen at the same time. Ask the other guy."
+  },
+  {
+   "address": "9D:BE54",
+   "text": "What now? I've got to explain to our boss how one of our stiffs just got up and left!"
+  },
+  {
+   "address": "9D:BE83",
+   "text": "The ghoul just walked out the door! Sam and I made it into the closet just in time!"
+  },
+  {
+   "address": "9D:BEAB",
+   "text": "You know, you look familiar."
+  },
+  {
+   "address": "9D:BEBB",
+   "text": "Hurry up pal, I can feel my arteries hardening!"
+  },
+  {
+   "address": "9D:BED6",
+   "text": "The only way you're gonna get a ticket from me pal, is if I attach it to your big toe!"
+  },
+  {
+   "address": "9D:BF01",
+   "text": "You Lone Star boys sure did him over good. His file and belongings are in the cabinet. Do you want me to pull his file for you?"
+  },
+  {
+   "address": "9D:BF42",
+   "text": "What do you want, punk? I'm in a hurry!"
+  },
+  {
+   "address": "9D:BF57",
+   "text": "I've got business to attend to. You looking for some kind of donation?"
+  },
+  {
+   "address": "9D:BF7B",
+   "text": "I gave at the office."
+  },
+  {
+   "address": "9D:BF87",
+   "text": "I ain't got nothing... besides a wife and two kids to feed. Honest!"
+  },
+  {
+   "address": "9D:BFAA",
+   "text": "Oh... I thought you were a mugger."
+  },
+  {
+   "address": "9D:BFBD",
+   "text": "The streets aren't safe with all those gangs roamin' around!"
+  },
+  {
+   "address": "9D:BFDC",
+   "text": "Why don't you get yourself a job. A real job!"
+  },
+  {
+   "address": "9D:BFF7",
+   "text": "The company has been good to me, chum. They look after everything."
+  },
+  {
+   "address": "9D:C01C",
+   "text": "I'd better be going. They don't like it when I'm late..."
+  },
+  {
+   "address": "9D:C039",
+   "text": "Would you like to buy a copy of the 'New Luddite'?"
+  },
+  {
+   "address": "9D:C057",
+   "text": "We are opposed to the introduction of new technology! The corps are building computers with immense power. We aim to stop them!"
+  },
+  {
+   "address": "9D:C09A",
+   "text": "We must hurry before they control the world!"
+  },
+  {
+   "address": "9D:C0B2",
+   "text": "I'm really flattered but I have to go!"
+  },
+  {
+   "address": "9D:C0C6",
+   "text": "If you're into guns or you need help with your magic, you should try the shops at the end of the street."
+  },
+  {
+   "address": "9D:C0F8",
+   "text": "I've really got to be going..."
+  },
+  {
+   "address": "9D:C108",
+   "text": "Sorry? I don't believe I know you."
+  },
+  {
+   "address": "9D:C11B",
+   "text": "If you keep hassling me, I'll be forced to call my boyfriend."
+  },
+  {
+   "address": "9D:C13E",
+   "text": "Leave me alone!"
+  },
+  {
+   "address": "9D:C147",
+   "text": "I'm afraid my boss is out."
+  },
+  {
+   "address": "9D:C156",
+   "text": "I'm sure I didn't have you scheduled in anyway!"
+  },
+  {
+   "address": "9D:C16F",
+   "text": "I honestly don't know."
+  },
+  {
+   "address": "9D:C17C",
+   "text": "It's a club at the edge of town. Mr Glutman spends a lot of time there."
+  },
+  {
+   "address": "9D:C1A2",
+   "text": "Mr Glutman is out at the moment. He was going to |The |Cage club. Maybe you can find him there..."
+  },
+  {
+   "address": "9D:C1D6",
+   "text": "Hey plughead! Yeah you! Get over 'ere... I wanna talk to you!"
+  },
+  {
+   "address": "9D:C1F7",
+   "text": "You know much about |ghoul busting?"
+  },
+  {
+   "address": "9D:C20B",
+   "text": "You wanna say that with a fist up ya nose, spugface!"
+  },
+  {
+   "address": "9D:C228",
+   "text": "Cemetery is crawlin' with 'em. You can hear 'em calling out to ya when you walk past at night! Flashy dude I once met reckoned he could handle them for the right price."
+  },
+  {
+   "address": "9D:C280",
+   "text": "I'm not 'ere for the entertainment, spug. Anyway, she ain't my type!"
+  },
+  {
+   "address": "9D:C2A4",
+   "text": "That ghoul buster wanted some pretty serious money to come ghoul busting. Way out of my league."
+  },
+  {
+   "address": "9D:C2D6",
+   "text": "*COUGH*COUGH* - Drok man, you saved my life! Chrome Coyote's the name. Shamanism's my game. You must have the gift too, eh? Only a |shaman coulda heard me callin' to the spirits."
+  },
+  {
+   "address": "9D:C33F",
+   "text": "A little keepsake for you man... take this |magic |fetish."
+  },
+  {
+   "address": "9D:C360",
+   "text": "The power calls. Go to him..."
+  },
+  {
+   "address": "9D:C370",
+   "text": "The undead be no problem for a shaman. Are you not at peace with nature?"
+  },
+  {
+   "address": "9D:C394",
+   "text": "Your totem calls to you. Appease his wishes and he will serve you well..."
+  },
+  {
+   "address": "9D:C3B9",
+   "text": "If you be a true Shaman, you are one with the Earth. She provides the power for your magic."
+  },
+  {
+   "address": "9D:C3E7",
+   "text": "I see a need for it in your future. He who seeks it is a bearer of untruth!"
+  },
+  {
+   "address": "9D:C40D",
+   "text": "I'm the King."
+  },
+  {
+   "address": "9D:C415",
+   "text": "If you want to get past, it'll cost ya. Let's just say the 2000 nuyen will buy us insurance. You got that kind of money, spugface?"
+  },
+  {
+   "address": "9D:C45C",
+   "text": "If ya don't got da money then beat it!"
+  },
+  {
+   "address": "9D:C470",
+   "text": "The caryards will be safe as long as the local screws don't realise nuthin'."
+  },
+  {
+   "address": "9D:C498",
+   "text": "You're learning... I'm the King, and don't you forget it, drekhead!"
+  },
+  {
+   "address": "9D:C4BC",
+   "text": "There's money around, but ya gotta fight for it! Ha ha!"
+  },
+  {
+   "address": "9D:C4D9",
+   "text": "There's shops on the outside, but ya gotta get out of here first."
+  },
+  {
+   "address": "9D:C4FB",
+   "text": "You must be new to the |caryards... news travels fast in here."
+  },
+  {
+   "address": "9D:C51C",
+   "text": "None of us are here by choice... things just turn out this way sometimes."
+  },
+  {
+   "address": "9D:C541",
+   "text": "I don't think the |King would like it if he saw me talking to you."
+  },
+  {
+   "address": "9D:C562",
+   "text": "The |King is your only way out of here!"
+  },
+  {
+   "address": "9D:C576",
+   "text": "I'm the King!"
+  },
+  {
+   "address": "9D:C57E",
+   "text": "The caryards will be safe as long as the local screws don't realise nothin'."
+  },
+  {
+   "address": "9D:C5A6",
+   "text": "Just what you came in with! If you leave with your life, then you're already one step ahead..."
+  },
+  {
+   "address": "9D:C5D6",
+   "text": "You lost or something? Not many people find themselves here by accident!"
+  },
+  {
+   "address": "9D:C5FC",
+   "text": "Everyone's hiding from someone or something. Just don't ask too many questions!"
+  },
+  {
+   "address": "9D:C627",
+   "text": "One day, someone's gonna teach you when to mind your own business..."
+  },
+  {
+   "address": "9D:C64B",
+   "text": "The King ain't gonna like someone as nosy as you!"
+  },
+  {
+   "address": "9D:C665",
+   "text": "Don't ya know you can't run Armitage? |Drake is gonna get ya, wherever you are!"
+  },
+  {
+   "address": "9D:C691",
+   "text": "Watch it Armitage, accidents happen... even in the |caryards."
+  },
+  {
+   "address": "9D:C6B4",
+   "text": "Can't ya take a hint!?"
+  },
+  {
+   "address": "9D:C6C0",
+   "text": "If ya short of cred, why don't ya try fighting in the arena. I could do with a good laugh!"
+  },
+  {
+   "address": "9D:C6F0",
+   "text": "Now that I've seen ya, I can't see what he's getting all worked up about. You don't look dangerous!"
+  },
+  {
+   "address": "9D:C724",
+   "text": "Hey chummer... you a |decker? I used to be a decker."
+  },
+  {
+   "address": "9D:C741",
+   "text": "I used to be the best there was in |the |Matrix."
+  },
+  {
+   "address": "9D:C75A",
+   "text": "I don't know... it's been a while."
+  },
+  {
+   "address": "9D:C76C",
+   "text": "No IC could stop me. My |datajack and my cyberdeck allowed me to do as I wanted in the Matrix. I could open any door or grab any data you needed. I was the best!"
+  },
+  {
+   "address": "9D:C7C1",
+   "text": "Don't judge me on what you see. I used to charge 1000 nuyen per run."
+  },
+  {
+   "address": "9D:C7E5",
+   "text": "There's a war going on to command the grid! Cyberspace is a dangerous place to be right now... but what I wouldn't give to be back in there!"
+  },
+  {
+   "address": "9D:C82D",
+   "text": "Word is that Glutman got you in..."
+  },
+  {
+   "address": "9D:C83F",
+   "text": "The |King don't allow just anybody in here. He don't want the heat coming down on this place!"
+  },
+  {
+   "address": "9D:C86F",
+   "text": "I don't know... I guess I've been here too long..."
+  },
+  {
+   "address": "9D:C889",
+   "text": "Most of us here are hiding from someone. The King makes sure no one can get at you... for a price!"
+  },
+  {
+   "address": "9D:C8BB",
+   "text": "Fighting the King is the only way you're going to get out of here... and that's a pretty tough fight! But if you've got the |nuyen, you won't have to get your hands dirty."
+  },
+  {
+   "address": "9D:C911",
+   "text": "You're in big trouble, I know! I may only be a kid, but I keep my ears open!"
+  },
+  {
+   "address": "9D:C93B",
+   "text": "Someone heavy must be after you for that big fixer dude to bring you here."
+  },
+  {
+   "address": "9D:C962",
+   "text": "Nah, I don't know anything about that..."
+  },
+  {
+   "address": "9D:C979",
+   "text": "People come here to hide. The King gets paid by the fixers sometimes. Otherwise, you have to pay him to leave. Most guys though don't make it. They usually die trying to get the money together by fighting in the arena."
+  },
+  {
+   "address": "9D:C9E8",
+   "text": "How much is the King asking to let you leave! He wants 1000 nuyen before he let's me go! I guess I'll be here for a while!"
+  },
+  {
+   "address": "9D:CA26",
+   "text": "If you didn't bring any money with you into the caryards, you'll have to earn it fighting in the arena. The King owns that, too!"
+  },
+  {
+   "address": "9D:CA66",
+   "text": "Hey, you want some patches? I know where I can get some. 100 nuyen each though."
+  },
+  {
+   "address": "9D:CA8F",
+   "text": "You gotta keep yourself occupied. Otherwise this place can really get ya down."
+  },
+  {
+   "address": "9D:CABC",
+   "text": "I bet your fixer's left ya for dead!"
+  },
+  {
+   "address": "9D:CAD1",
+   "text": "You'll just have to learn the hard way... like I did!"
+  },
+  {
+   "address": "9D:CAED",
+   "text": "You need a street doc? There used to be one in my alley! He's just around the corner, if ya ever make it out of here!"
+  },
+  {
+   "address": "9D:CB28",
+   "text": "I can't get you any more, mister. It's too dangerous. If the King finds out I got you those... I'm in big trouble!"
+  },
+  {
+   "address": "9D:CB62",
+   "text": "You talk too much. You should relax and attune to your surroundings."
+  },
+  {
+   "address": "9D:CB87",
+   "text": "Hush, your babbling disturbs the silence."
+  },
+  {
+   "address": "9D:CB9F",
+   "text": "There are things that are better left unsaid."
+  },
+  {
+   "address": "9D:CBB5",
+   "text": "The Dark Blade Brotherhood have opened the gates. They will know the spirit's name. It is to them you must look."
+  },
+  {
+   "address": "9D:CBEF",
+   "text": "My quarrel with Drake is personal. To fight a dragon requires powerful allies."
+  },
+  {
+   "address": "9D:CC1C",
+   "text": "It would be safer to know as little about me as possible."
+  },
+  {
+   "address": "9D:CC3A",
+   "text": "I ask you again why have you disturbed me. I resent the intrusions of idiots."
+  },
+  {
+   "address": "9D:CC61",
+   "text": "I am the mage Akimi Todumasa. Why have you disturbed me?"
+  },
+  {
+   "address": "9D:CC7F",
+   "text": "Truly, you do not understand the depth of the pain that you are inviting."
+  },
+  {
+   "address": "9D:CCA3",
+   "text": "If you seek to hire me you will transfer 10,000 nuyen to my account immediately or we have no deal."
+  },
+  {
+   "address": "9D:CCD6",
+   "text": "You are wasting my time. Do you have a purpose for calling me?"
+  },
+  {
+   "address": "9D:CCF6",
+   "text": "Don't worry about anything, I'm on the job."
+  },
+  {
+   "address": "9D:CD0F",
+   "text": "You hired me because you wanted the best. Now let me do what you've paid me for!"
+  },
+  {
+   "address": "9D:CD37",
+   "text": "Time is money. Let's get moving."
+  },
+  {
+   "address": "9D:CD49",
+   "text": "I only work with the best."
+  },
+  {
+   "address": "9D:CD57",
+   "text": "Good decker for an awakened one."
+  },
+  {
+   "address": "9D:CD69",
+   "text": "Not much on words, but she knows what she's doing."
+  },
+  {
+   "address": "9D:CD84",
+   "text": "Is there something wrong with you? Do you like broadcasting my name like that!"
+  },
+  {
+   "address": "9D:CDAC",
+   "text": "Cut the small talk and let's get down to business. The name's Anders. You need a hired gun, I'm ready for action!"
+  },
+  {
+   "address": "9D:CDE6",
+   "text": "Talk is cheap. Hiring me isn't. You get what you pay for!"
+  },
+  {
+   "address": "9D:CE05",
+   "text": "Time is money. Although I might just hurt you for free!"
+  },
+  {
+   "address": "9D:CE23",
+   "text": "I only work with the best. Runners like |Steelflight and |Akimi. They deliver the goods!"
+  },
+  {
+   "address": "9D:CE54",
+   "text": "Good decker, especially for an elf! He isn't cheap though. You'll find him at that Jagged Nails club. That place is strictly for shadowrunners though."
+  },
+  {
+   "address": "9D:CEA5",
+   "text": "Akimi? She might be way of out your league, chummer. Very expensive! If her price won't send you cold, her attitude will."
+  },
+  {
+   "address": "9D:CEE8",
+   "text": "I am the shaman Dances with Clams. The power of the old ones moves within me."
+  },
+  {
+   "address": "9D:CF0F",
+   "text": "Speak. Dances with Clams is listening."
+  },
+  {
+   "address": "9D:CF26",
+   "text": "Patience young one. Haste has seen much destruction!"
+  },
+  {
+   "address": "9D:CF42",
+   "text": "I command my magic from the land! If it is strong, I am strong!"
+  },
+  {
+   "address": "9D:CF63",
+   "text": "Patience young one. Haste has seen much destruction."
+  },
+  {
+   "address": "9D:CF7F",
+   "text": "You must seek them where the shadows fall from steel and glass."
+  },
+  {
+   "address": "9D:CFA0",
+   "text": "They are needed to give power to your magic. They are found all around you, in everyday things, but if have no time to search, some items can be bought."
+  },
+  {
+   "address": "9D:CFED",
+   "text": "It looks like the fetish of an evil being. You had best ask someone who knows of these things."
+  },
+  {
+   "address": "9D:D01E",
+   "text": "I only provide the muscle, bowb. Don't expect me to make the decisions too!"
+  },
+  {
+   "address": "9D:D047",
+   "text": "You said there was a job to do. You trying to back out of our arrangement?"
+  },
+  {
+   "address": "9D:D06E",
+   "text": "Maybe I haven't made myself clear!"
+  },
+  {
+   "address": "9D:D082",
+   "text": "I worked for him once. You want to take out Drake, you gonna need deckers and you gonna need magic."
+  },
+  {
+   "address": "9D:D0B5",
+   "text": "It's bad magic. They collect somewhere on the outskirts of town."
+  },
+  {
+   "address": "9D:D0D7",
+   "text": "They're holding some piece of turf over by the slums. Rumour is they're working for someone big now!"
+  },
+  {
+   "address": "9D:D110",
+   "text": "Go look down a hole."
+  },
+  {
+   "address": "9D:D11C",
+   "text": "Just because I'm an Orc don't mean I'm dumb!"
+  },
+  {
+   "address": "9D:D137",
+   "text": "When you've run the shadows as long as I have, you get smart or you die."
+  },
+  {
+   "address": "9D:D15C",
+   "text": "Just because I'm smart, don't mean I'm no public library."
+  },
+  {
+   "address": "9D:D17C",
+   "text": "It's bad magic. They collect somewhere on the outskirts of town!"
+  },
+  {
+   "address": "9D:D19E",
+   "text": "Rats? What do I look like, Seattle Pest Control! Find me something to fill my sights. Otherwise, go look down a hole!"
+  },
+  {
+   "address": "9D:D1DE",
+   "text": "Money holds great power! Especially when you give it to me! Just show me where you want the holes!"
+  },
+  {
+   "address": "9D:D210",
+   "text": "Hamfist watch your back. You betcha!"
+  },
+  {
+   "address": "9D:D224",
+   "text": "When do we see some action!"
+  },
+  {
+   "address": "9D:D232",
+   "text": "I have other jobs! We better get this one over quickly!"
+  },
+  {
+   "address": "9D:D251",
+   "text": "Ghouls? Never run into any, but I reckon I can handle them."
+  },
+  {
+   "address": "9D:D272",
+   "text": "Drake? I've run through his shadows and come out the other side. I can do it again!"
+  },
+  {
+   "address": "9D:D29D",
+   "text": "No problem! I expect you want the job done while there's still light."
+  },
+  {
+   "address": "9D:D2C4",
+   "text": "Looks after us shadowrunners. Knows the right people to get a good price on anything you want to offload."
+  },
+  {
+   "address": "9D:D2FE",
+   "text": "If you need magic, Jangadance cast good magic for you. Otherwise, you're going to have to look a little further than 'round here."
+  },
+  {
+   "address": "9D:D33F",
+   "text": "Hamfist don't like you already! You'd best have good nuyen if you want to hire a decker like me!"
+  },
+  {
+   "address": "9D:D370",
+   "text": "You're not saying anything that interests me, spug!"
+  },
+  {
+   "address": "9D:D38A",
+   "text": "You think I'm dumb! Done a hundred runs and I haven't lost one neuron yet!"
+  },
+  {
+   "address": "9D:D3B1",
+   "text": "You mean the scalper? He's selling those |Maria Mercurial |tickets. Too bad I can't afford one."
+  },
+  {
+   "address": "9D:D3E5",
+   "text": "You can get into trouble working for him... but he's also the only one that can help you out."
+  },
+  {
+   "address": "9D:D414",
+   "text": "If you need tech, I can burn any Ice there is. If you need magic, the Jamaican cast magic for you."
+  },
+  {
+   "address": "9D:D445",
+   "text": "Hamfist chop up cyberspace real good. Been in the grid more times than I care to remember."
+  },
+  {
+   "address": "9D:D476",
+   "text": "The spirits be restless. There is power brewing somewhere, man."
+  },
+  {
+   "address": "9D:D497",
+   "text": "Go with de flow man. The power she knows what's happening."
+  },
+  {
+   "address": "9D:D4B8",
+   "text": "What? Man, you make no sense!"
+  },
+  {
+   "address": "9D:D4C8",
+   "text": "You want de muscle, you gotta know where to hang. Check out the clubs downtown."
+  },
+  {
+   "address": "9D:D4F3",
+   "text": "The undead they be no trouble to Jangadance."
+  },
+  {
+   "address": "9D:D509",
+   "text": "Jester Spirit be bad Juju. You'll need more power than just Jangadance."
+  },
+  {
+   "address": "9D:D531",
+   "text": "You look like a man dat needs a hand. Jangadance he cast the magic for you man."
+  },
+  {
+   "address": "9D:D558",
+   "text": "So you wants to hire de power, man - you want de Loa? Then you pay, man. You pay the money and you get de magic on your side."
+  },
+  {
+   "address": "9D:D598",
+   "text": "What? Man, you make no sense. You want de power or not?"
+  },
+  {
+   "address": "9D:D5B5",
+   "text": "Why are we stopping? Is there trouble up ahead? Maybe you should go first!"
+  },
+  {
+   "address": "9D:D5DD",
+   "text": "I have a bad feeling about this."
+  },
+  {
+   "address": "9D:D5EE",
+   "text": "I don't know, I got other things on my mind at the moment!"
+  },
+  {
+   "address": "9D:D60A",
+   "text": "Matrix Systems were going places. It took plenty of muscle to close professor |Raitsov down."
+  },
+  {
+   "address": "9D:D641",
+   "text": "Nobody's heard from him since his offices were trashed! They reckon Drake took him out personally!"
+  },
+  {
+   "address": "9D:D675",
+   "text": "You don't know what you're messing with... but if that's where we are heading, I suppose I have to honour our contract..."
+  },
+  {
+   "address": "9D:D6B2",
+   "text": "Word is that Drake's their backing! Why are you so interested in a street gang anyway!"
+  },
+  {
+   "address": "9D:D6DE",
+   "text": "I've heard better bands. I once even heard Maria Mercurial play."
+  },
+  {
+   "address": "9D:D701",
+   "text": "I see you have a datajack...is that just for show, or do you put it to use?"
+  },
+  {
+   "address": "9D:D729",
+   "text": "...and if I knew something about that, why would I tell you?"
+  },
+  {
+   "address": "9D:D74A",
+   "text": "I've seen some of their code in the Matrix. Haven't heard much from them lately though! I met the professor who ran the place once. I think he said his name was |Raitsov."
+  },
+  {
+   "address": "9D:D7A1",
+   "text": "He's gone now, man. History! The Drake fragged him! If you're looking for him you'll need a medium."
+  },
+  {
+   "address": "9D:D7D6",
+   "text": "Bad news! Only touch 'em if you have a deathwish! They're working on something big and they'll geek anyone that gets in their way."
+  },
+  {
+   "address": "9D:D81D",
+   "text": "If you've got a job, I could be interested. There's always a need for a good decker! I'm the fastest runner in the Matrix. They don't call me Jetboy for nothing!"
+  },
+  {
+   "address": "9D:D872",
+   "text": "The other street gangs are feeling the squeeze. Stilettos have money behind them from somewhere. Big guns and no brains make a deadly combination."
+  },
+  {
+   "address": "9D:D8C0",
+   "text": "You're cute!"
+  },
+  {
+   "address": "9D:D8C7",
+   "text": "You don't remember me, do you? Your spirit guide sent me to heal you before the morgue guys took you away. I got there just in time!"
+  },
+  {
+   "address": "9D:D908",
+   "text": "If only I could help you with that..."
+  },
+  {
+   "address": "9D:D91C",
+   "text": "As much as I hate to do this, I'm going to have to ask for 3000 nuyen if you want me on a run."
+  },
+  {
+   "address": "9D:D94C",
+   "text": "I'm a shapeshifter, silly! What's the matter, never seen a fox before?"
+  },
+  {
+   "address": "9D:D973",
+   "text": "They say he's very powerful. From what I've heard, someone at the |Dark |Blade knows where he haunts."
+  },
+  {
+   "address": "9D:D9AA",
+   "text": "Looks interesting... but I've never seen anything like it before."
+  },
+  {
+   "address": "9D:D9CC",
+   "text": "They're very dangerous. I wouldn't trust them."
+  },
+  {
+   "address": "9D:D9E4",
+   "text": "Ever see how much those |vampires hate sunlight?"
+  },
+  {
+   "address": "9D:DA00",
+   "text": "I think I've got a knot in my tail!"
+  },
+  {
+   "address": "9D:DA11",
+   "text": "There's no need to stop! Are we there yet?"
+  },
+  {
+   "address": "9D:DA27",
+   "text": "Now you've confused me..."
+  },
+  {
+   "address": "9D:DA35",
+   "text": "We did it! We did it! We make a great team. Don't you think?"
+  },
+  {
+   "address": "9D:DA54",
+   "text": "I better stick with you now. Someone has to look after you (*SIGH*)."
+  },
+  {
+   "address": "9D:DA7D",
+   "text": "His shrine is close. I can feel it. I think he is calling for you. We should seek him out."
+  },
+  {
+   "address": "9D:DAAC",
+   "text": "You can hire whoever you want, but I'm not letting you out of my sight!"
+  },
+  {
+   "address": "9D:DACF",
+   "text": "They say he commands a lot of power. From what I've heard, someone at the |Dark |Blade knows where he haunts."
+  },
+  {
+   "address": "9D:DB0A",
+   "text": "We didn't need no decker there. Large holes in their computer sure did the job though!"
+  },
+  {
+   "address": "9D:DB38",
+   "text": "This reminds me of the time we stormed Westcott and took them off the grid. Ho har tee har!"
+  },
+  {
+   "address": "9D:DB67",
+   "text": "Is that your next job! Sounds interesting... at a price!"
+  },
+  {
+   "address": "9D:DB86",
+   "text": "The rest are a bunch of wimps. Now let's go!"
+  },
+  {
+   "address": "9D:DB9F",
+   "text": "Yar ho har tee hee har! 2000 upfront. I'm going to convert it to cash. I like to roll in crisp new bills. Tee hee har!"
+  },
+  {
+   "address": "9D:DBDE",
+   "text": "Sure I'm insane! But I'm for hire! You've got to be crazy to be in this game! The name's Norbert. You'll want to remember that!"
+  },
+  {
+   "address": "9D:DC20",
+   "text": "Nope, never heard of it! Ho har tee hee har..."
+  },
+  {
+   "address": "9D:DC37",
+   "text": "The rest are a bunch of wimps. Like that Jetboy. He'll tell you he's fast in the Matrix. You should see him run though when the heat's turned up. Stick with me... nobody is better at busting heads!"
+  },
+  {
+   "address": "9D:DC9E",
+   "text": "What are you looking at, drekhead?"
+  },
+  {
+   "address": "9D:DCB1",
+   "text": "Don't tell me you're having second thoughts."
+  },
+  {
+   "address": "9D:DCC8",
+   "text": "I'm just an orc. I don't know nothing."
+  },
+  {
+   "address": "9D:DCDC",
+   "text": "I like you're style. More guns! Vivyan's firearms can fit you out."
+  },
+  {
+   "address": "9D:DD00",
+   "text": "Stand a few feet away when you talk to me. Good thing I always ask for the money upfront."
+  },
+  {
+   "address": "9D:DD30",
+   "text": "What are you looking at, drekhead? You want Orifice to fix your face!"
+  },
+  {
+   "address": "9D:DD56",
+   "text": "I seen you jander in. Don't know what you're all cocky about!"
+  },
+  {
+   "address": "9D:DD76",
+   "text": "I let my guns do the talking, chummer! Get to the point or talk to them about it!"
+  },
+  {
+   "address": "9D:DD9F",
+   "text": "You wanna make big holes? Point your credstick towards Vivyan's round the corner! He'll give ya some good deals on some nice hand cannons like this one 'ere!"
+  },
+  {
+   "address": "9D:DDF3",
+   "text": "So ya lookin' for some muscle? I'll watch your back for ya, and I don't charge like these technomancer types. If you're after magic, Jangadance works cheap for a wizard. Usually hangs at the Grim Reaper Club."
+  },
+  {
+   "address": "9D:DE65",
+   "text": "Your troubles are over. Don't worry, I'm right behind you."
+  },
+  {
+   "address": "9D:DE83",
+   "text": "We've got the firepower, so lead the way."
+  },
+  {
+   "address": "9D:DE9A",
+   "text": "Quit stalling. Let's go!"
+  },
+  {
+   "address": "9D:DEAA",
+   "text": "You'd do well to get some experience on your side! Don't listen to those technomancers... you're always going to need some magic with you!"
+  },
+  {
+   "address": "9D:DEF1",
+   "text": "Don't insult me! We're talking more like 2000 nuyen if you want the magic on your side. Money buys power!"
+  },
+  {
+   "address": "9D:DF28",
+   "text": "Quit stalling. Are we going to deal?"
+  },
+  {
+   "address": "9D:DF3C",
+   "text": "Mercenaries think some heavy hardware can handle anything. Remember though, chummer - when the ammo runs out, the magic can still save your skin!"
+  },
+  {
+   "address": "9D:DF88",
+   "text": "Rest assured, my programs are the best. I can handle anything they can try in cyberspace!"
+  },
+  {
+   "address": "9D:DFB7",
+   "text": "What are you worried about. You're choice in me was a wise one. With my help you will live to appreciate that!"
+  },
+  {
+   "address": "9D:DFEF",
+   "text": "You're paying me to cut the Matrix, not to hold your hand."
+  },
+  {
+   "address": "9D:E00D",
+   "text": "The guy is a grunt but a good one. Reliable at least. Not like the idiot who sets his hair on fire!"
+  },
+  {
+   "address": "9D:E03F",
+   "text": "Huh! Why do you need magic when you have the Matrix on your side?"
+  },
+  {
+   "address": "9D:E062",
+   "text": "If you want a good street doc, then the best is Dr Maplethorpe."
+  },
+  {
+   "address": "9D:E083",
+   "text": "I have lived my life riding the Matrix. I know every inch of it intimately! Nothing surprises me! My programs can cool any Ice."
+  },
+  {
+   "address": "9D:E0C8",
+   "text": "My services are not cheap... but they are worth every nuyen."
+  },
+  {
+   "address": "9D:E0E7",
+   "text": "Steelflight is my name. If you require a decker, I am sure I can be of service. The Matrix is my home."
+  },
+  {
+   "address": "9D:E11F",
+   "text": "An Elf of my skill does not come cheap!"
+  },
+  {
+   "address": "9D:E136",
+   "text": "You obviously can't afford me, skinflint. Try looking downmarket. The Wastelands may be more your style."
+  },
+  {
+   "address": "9D:E170",
+   "text": "There are others, if you know where to look. Try a guy called |Anders if you want some firepower."
+  },
+  {
+   "address": "9D:E1A3",
+   "text": "What he lacks in style, he makes up for in power. He's reliable at least. Not like the idiot who sets his hair on fire!"
+  },
+  {
+   "address": "9D:E1DE",
+   "text": "If you seek magic for the job, no-one commands more power than she!"
+  },
+  {
+   "address": "9D:E202",
+   "text": "I rarely need their services. Although Dr Maplethorpe is known to have the best in cyberware."
+  },
+  {
+   "address": "9D:E233",
+   "text": "I have lived my life riding the Matrix. I know every inch intimately! My programs can cool any Ice. Security in the Matrix only protects against amateurs!"
+  },
+  {
+   "address": "9D:E289",
+   "text": "What! You can't be alive! I saw you getting geeked by those |hitmen!"
+  },
+  {
+   "address": "9D:E2AE",
+   "text": "You're crazy showing your face again. You'd better get smart like me and pack a |firearm, or you'll wind up dead!"
+  },
+  {
+   "address": "9D:E2EA",
+   "text": "I ain't got time to talk to a corpse. If those guys find out I was with you, I'll be creamed too!"
+  },
+  {
+   "address": "9D:E31B",
+   "text": "They want you DEAD! If I were you, I'd watch myself!"
+  },
+  {
+   "address": "9D:E339",
+   "text": "What are you staring at!?"
+  },
+  {
+   "address": "9D:E346",
+   "text": "Mind your own business!"
+  },
+  {
+   "address": "9D:E353",
+   "text": "Move on, spugface."
+  },
+  {
+   "address": "9D:E360",
+   "text": "Hey Bud, decided to slum it for a while, have we?"
+  },
+  {
+   "address": "9D:E37C",
+   "text": "You're a slick lookin' geezer for this part of town - what's your game?"
+  },
+  {
+   "address": "9D:E3A3",
+   "text": "I ain't telling you nothin'!"
+  },
+  {
+   "address": "9D:E3B1",
+   "text": "Welcome! My shop has many |talismans for your selection. Look around. I'm sure there is something you will like!"
+  },
+  {
+   "address": "9D:E3EC",
+   "text": "I have most anything you need to give power to your magic!"
+  },
+  {
+   "address": "9D:E40A",
+   "text": "I can't help you there, sorry..."
+  },
+  {
+   "address": "9D:E41B",
+   "text": "You |shaman? You need talisman to cast magic! My number is 416-822 if you ever need to contact me."
+  },
+  {
+   "address": "9D:E453",
+   "text": "A shaman can find most anything he needs to give power to his spells. If I do not have it, then you best seek it yourself!"
+  },
+  {
+   "address": "9D:E490",
+   "text": "You need special plant to cast such a spell. I'm afraid I've sold them all."
+  },
+  {
+   "address": "9D:E4B8",
+   "text": "It is very evil. I used to deal in such an item. They are very hard to come by. I sell them no more."
+  },
+  {
+   "address": "9D:E4EB",
+   "text": "They be very evil. They speak many untruths. You best beware. If you must contact them, I will help you. Their number is 826-661 ...but you have been warned!"
+  },
+  {
+   "address": "9D:E543",
+   "text": "Creatures of the night fear little... except for a stake of wood..."
+  },
+  {
+   "address": "9D:E568",
+   "text": "Hello. The Cage."
+  },
+  {
+   "address": "9D:E572",
+   "text": "Tonight we have |Maria Mercurial and her band playing."
+  },
+  {
+   "address": "9D:E591",
+   "text": "Sorry, try directory assistance."
+  },
+  {
+   "address": "9D:E5A4",
+   "text": "Yes. Maria Mercurial for one night only. You need a ticket and it's sold out. Good luck, Bub."
+  },
+  {
+   "address": "9D:E5D9",
+   "text": "Yes this is The Cage. The hippest club this side of Puget Sound."
+  },
+  {
+   "address": "9D:E5FE",
+   "text": "Hello. Dr Maplethorpe's office."
+  },
+  {
+   "address": "9D:E611",
+   "text": "The office is located just around the corner of the Aneki building."
+  },
+  {
+   "address": "9D:E634",
+   "text": "I'm sorry but I'm afraid that I can't help you on that. Perhaps the doctor might be able to help you in person?"
+  },
+  {
+   "address": "9D:E66E",
+   "text": "We have a extensive range of the latest additions and improvements to your body and mind."
+  },
+  {
+   "address": "9D:E69C",
+   "text": "The doctor doesn't take calls. He's a very busy man."
+  },
+  {
+   "address": "9D:E6B8",
+   "text": "What's going on there? Report! Report!"
+  },
+  {
+   "address": "9D:E6CF",
+   "text": "Armitage! You!"
+  },
+  {
+   "address": "9D:E6D8",
+   "text": "You're dead Armitage!"
+  },
+  {
+   "address": "9D:E6E4",
+   "text": "Har har har. Vivyan's Firearm Emporium. Vivyan here."
+  },
+  {
+   "address": "9D:E706",
+   "text": "Cheap firearms for the masses. Yo har hee ho!"
+  },
+  {
+   "address": "9D:E71E",
+   "text": "Dunno. Sounds like one for Talisman shop next door. The number? I'm no dialling directory!"
+  },
+  {
+   "address": "9D:E74F",
+   "text": "Lotsa, lotsa firearms. Huge guns. **BANG** See? You can take out anything!"
+  },
+  {
+   "address": "9D:E77E",
+   "text": "Hello. The Dark Blade Club. Johan speaking."
+  },
+  {
+   "address": "9D:E799",
+   "text": "What can I help you with?"
+  },
+  {
+   "address": "9D:E7A6",
+   "text": "I'm sorry sir. I think you may have the wrong number!"
+  },
+  {
+   "address": "9D:E7C3",
+   "text": "You say it is an amulet with a bat at its centre? My employer might be interested! Could you please drop by the Dark Blade. I'll make sure the gate is left open for you."
+  },
+  {
+   "address": "9D:E81A",
+   "text": "That's right. This is the Dark Blade club. What can I do for you?"
+  },
+  {
+   "address": "9D:E83D",
+   "text": "The Mystic Talisman Shop. Moonriver speaking."
+  },
+  {
+   "address": "9D:E858",
+   "text": "Shamanistic, talismatic, sorcery accoutrements and assorted fetishes. All guaranteed to be magic or your money back."
+  },
+  {
+   "address": "9D:E897",
+   "text": "Sorry, can't help you there. There's a crazy horse next door who may be just what you're after."
+  },
+  {
+   "address": "9D:E8C9",
+   "text": "I have many items to help you cast your magic."
+  },
+  {
+   "address": "9D:E8E0",
+   "text": "It sounds like an item I used to deal in. I sell them no more."
+  },
+  {
+   "address": "9D:E8FF",
+   "text": "Their leader, he be evil! Do not allow yourself to fall victim to his lies. You best beware. Best you do not contact them in person until you know their intentions. Their number is 826-661."
+  },
+  {
+   "address": "9D:E967",
+   "text": "Wastelands Club. What do you want?"
+  },
+  {
+   "address": "9D:E97B",
+   "text": "Listen buddy. I've got better things to do."
+  },
+  {
+   "address": "9D:E994",
+   "text": "Shadowrunners? Yeah, we're up to our armpits in them."
+  },
+  {
+   "address": "9D:E9B3",
+   "text": "I'm real busy. I've got customers to serve."
+  },
+  {
+   "address": "9D:E9CA",
+   "text": "What kin I get ya honey?"
+  },
+  {
+   "address": "9D:E9D8",
+   "text": "You want something or are you just gonna look all night?"
+  },
+  {
+   "address": "9D:E9F5",
+   "text": "You talk too much, baby..."
+  },
+  {
+   "address": "9D:EA05",
+   "text": "He's over near the band, on his own as usual."
+  },
+  {
+   "address": "9D:EA1D",
+   "text": "Heavy Dude"
+  },
+  {
+   "address": "9D:EA24",
+   "text": "A waitress"
+  },
+  {
+   "address": "9D:EA2B",
+   "text": "Club Manager"
+  },
+  {
+   "address": "9D:EA34",
+   "text": "Mortician"
+  },
+  {
+   "address": "9D:EA3C",
+   "text": "Loyal citizen"
+  },
+  {
+   "address": "9D:EA47",
+   "text": "Dwarf"
+  },
+  {
+   "address": "9D:EA4C",
+   "text": "Samurai Warrior"
+  },
+  {
+   "address": "9D:EA56",
+   "text": "Gang member"
+  },
+  {
+   "address": "9D:EA5E",
+   "text": "Doggie"
+  },
+  {
+   "address": "9D:EA64",
+   "text": "Heavy Bouncer"
+  },
+  {
+   "address": "9D:EA6C",
+   "text": "Massive Orc"
+  },
+  {
+   "address": "9D:EA74",
+   "text": "Me"
+  },
+  {
+   "address": "9D:EA77",
+   "text": "Jamaican"
+  },
+  {
+   "address": "9D:EA7C",
+   "text": "Orc"
+  },
+  {
+   "address": "9D:EA80",
+   "text": "Johnny-The drummer"
+  },
+  {
+   "address": "9D:EA8E",
+   "text": "Keyboardist"
+  },
+  {
+   "address": "9D:EA96",
+   "text": "Gavan-The guitarist"
+  },
+  {
+   "address": "9D:EAA2",
+   "text": "Slab"
+  },
+  {
+   "address": "9D:EAA6",
+   "text": "Scary Ghoul"
+  },
+  {
+   "address": "9D:EAAF",
+   "text": "Maria Mercurial"
+  },
+  {
+   "address": "9D:EABA",
+   "text": "A Busy Man"
+  },
+  {
+   "address": "9D:EAC2",
+   "text": "Club patron..."
+  },
+  {
+   "address": "9D:EACC",
+   "text": "Wooden Door"
+  },
+  {
+   "address": "9D:EAD4",
+   "text": "Automatic Door"
+  },
+  {
+   "address": "9D:EADE",
+   "text": "Crypt Door"
+  },
+  {
+   "address": "9D:EAE5",
+   "text": "Fridge Door"
+  },
+  {
+   "address": "9D:EAEE",
+   "text": "Coffin Lid"
+  },
+  {
+   "address": "9D:EAF6",
+   "text": "Water Fountain"
+  },
+  {
+   "address": "9D:EB00",
+   "text": "Indian Shaman"
+  },
+  {
+   "address": "9D:EB09",
+   "text": "Filing Cabinet"
+  },
+  {
+   "address": "9D:EB13",
+   "text": "Video Phone"
+  },
+  {
+   "address": "9D:EB1C",
+   "text": "JAKE"
+  },
+  {
+   "address": "9D:EB22",
+   "text": "Mono-Rail Car"
+  },
+  {
+   "address": "9D:EB2D",
+   "text": "Well dressed..."
+  },
+  {
+   "address": "9D:EB36",
+   "text": "Dancing Hippie!"
+  },
+  {
+   "address": "9D:EB42",
+   "text": "Busy Man"
+  },
+  {
+   "address": "9D:EB48",
+   "text": "Miserable Man"
+  },
+  {
+   "address": "9D:EB51",
+   "text": "Customer"
+  },
+  {
+   "address": "9D:EB57",
+   "text": "Slick Dude"
+  },
+  {
+   "address": "9D:EB5F",
+   "text": "Lonely Gal"
+  },
+  {
+   "address": "9D:EB66",
+   "text": "hmmm...."
+  },
+  {
+   "address": "9D:EB6D",
+   "text": "She's choosing..."
+  },
+  {
+   "address": "9D:EB78",
+   "text": "Happy Customer"
+  },
+  {
+   "address": "9D:EB83",
+   "text": "Bystander"
+  },
+  {
+   "address": "9D:EB8A",
+   "text": "Noble Citizen"
+  },
+  {
+   "address": "9D:EB94",
+   "text": "Stall Keeper"
+  },
+  {
+   "address": "9D:EB9D",
+   "text": "Shady character..."
+  },
+  {
+   "address": "9D:EBA8",
+   "text": "Street kid"
+  },
+  {
+   "address": "9D:EBAF",
+   "text": "Street dweller"
+  },
+  {
+   "address": "9D:EBB7",
+   "text": "Street scum"
+  },
+  {
+   "address": "9D:EBBF",
+   "text": "Street Scum"
+  },
+  {
+   "address": "9D:EBC7",
+   "text": "Slum dweller"
+  },
+  {
+   "address": "9D:EBD0",
+   "text": "Poor street dweller"
+  },
+  {
+   "address": "9D:EBDB",
+   "text": "Seems familiar..."
+  },
+  {
+   "address": "9D:EBE7",
+   "text": "Business Man"
+  },
+  {
+   "address": "9D:EBEF",
+   "text": "Person"
+  },
+  {
+   "address": "9D:EBF4",
+   "text": "Naga"
+  },
+  {
+   "address": "9D:EBF9",
+   "text": "Scalpel"
+  },
+  {
+   "address": "9D:EBFF",
+   "text": "Credstick"
+  },
+  {
+   "address": "9D:EC05",
+   "text": "Torn Paper"
+  },
+  {
+   "address": "9D:EC0D",
+   "text": "Slap Patch"
+  },
+  {
+   "address": "9D:EC15",
+   "text": "Memo"
+  },
+  {
+   "address": "9D:EC19",
+   "text": "Bubbles"
+  },
+  {
+   "address": "9D:EC1F",
+   "text": "Bulletin Board"
+  },
+  {
+   "address": "9D:EC29",
+   "text": "Troll Decker"
+  },
+  {
+   "address": "9D:EC32",
+   "text": "Magic user"
+  },
+  {
+   "address": "9D:EC3A",
+   "text": "Gang Leader"
+  },
+  {
+   "address": "9D:EC42",
+   "text": "Mercenary"
+  },
+  {
+   "address": "9D:EC49",
+   "text": "Gang Member"
+  },
+  {
+   "address": "9D:EC51",
+   "text": "Gorgax"
+  },
+  {
+   "address": "9D:EC57",
+   "text": "Heavy Orc"
+  },
+  {
+   "address": "9D:EC5E",
+   "text": "Ferocious Orc"
+  },
+  {
+   "address": "9D:EC69",
+   "text": "Glass doors"
+  },
+  {
+   "address": "9D:EC71",
+   "text": "Large orc"
+  },
+  {
+   "address": "9D:EC78",
+   "text": "Rat Shaman"
+  },
+  {
+   "address": "9D:EC7F",
+   "text": "Ghoul"
+  },
+  {
+   "address": "9D:EC84",
+   "text": "Sentry Gun"
+  },
+  {
+   "address": "9D:EC8B",
+   "text": "Cruel man"
+  },
+  {
+   "address": "9D:EC91",
+   "text": "Poison Ooze"
+  },
+  {
+   "address": "9D:EC9B",
+   "text": "Slimy toxic waste"
+  },
+  {
+   "address": "9D:ECA6",
+   "text": "Giant Rat"
+  },
+  {
+   "address": "9D:ECAD",
+   "text": "Vampire!"
+  },
+  {
+   "address": "9D:ECB4",
+   "text": "Scientist"
+  },
+  {
+   "address": "9D:ECBC",
+   "text": "Dog Food"
+  },
+  {
+   "address": "9D:ECC2",
+   "text": "Toxic Dissolver"
+  },
+  {
+   "address": "9D:ECCE",
+   "text": "Ship Pass"
+  },
+  {
+   "address": "9D:ECD5",
+   "text": "Wolf"
+  },
+  {
+   "address": "9D:ECDA",
+   "text": "Door"
+  },
+  {
+   "address": "9D:ECDD",
+   "text": "Switch"
+  },
+  {
+   "address": "9D:ECE3",
+   "text": "Iced Tea"
+  },
+  {
+   "address": "9D:ECE9",
+   "text": "Door Key"
+  },
+  {
+   "address": "9D:ECEF",
+   "text": "Broken Gate"
+  },
+  {
+   "address": "9D:ECF7",
+   "text": "Matchbox"
+  },
+  {
+   "address": "9D:ECFE",
+   "text": "Bronze Gate"
+  },
+  {
+   "address": "9D:ED07",
+   "text": "Shades"
+  },
+  {
+   "address": "9D:ED0C",
+   "text": "Arena owner"
+  },
+  {
+   "address": "9D:ED14",
+   "text": "Elevator Doors"
+  },
+  {
+   "address": "9D:ED1E",
+   "text": "Octopus"
+  },
+  {
+   "address": "9D:ED24",
+   "text": "Little boy"
+  },
+  {
+   "address": "9D:ED2B",
+   "text": "Secretary"
+  },
+  {
+   "address": "9D:ED31",
+   "text": "Dog spirit"
+  },
+  {
+   "address": "9D:ED38",
+   "text": "Elevator Door"
+  },
+  {
+   "address": "9D:ED42",
+   "text": "Dog Collar"
+  },
+  {
+   "address": "9D:ED4A",
+   "text": "body"
+  },
+  {
+   "address": "9D:ED4E",
+   "text": "Strobe"
+  },
+  {
+   "address": "9D:ED52",
+   "text": "Stake"
+  },
+  {
+   "address": "9D:ED57",
+   "text": "Shopkeeper"
+  },
+  {
+   "address": "9D:ED5F",
+   "text": "Mage"
+  },
+  {
+   "address": "9D:ED62",
+   "text": "CyberWare"
+  },
+  {
+   "address": "9D:ED6B",
+   "text": "Boat driver"
+  },
+  {
+   "address": "9D:ED73",
+   "text": "Talisman Case"
+  },
+  {
+   "address": "9D:ED7C",
+   "text": "Paperweight"
+  },
+  {
+   "address": "9D:ED84",
+   "text": "Potion Bottles"
+  },
+  {
+   "address": "9D:ED8E",
+   "text": "Black Bottle"
+  },
+  {
+   "address": "9D:ED98",
+   "text": "Gun Case"
+  },
+  {
+   "address": "9D:ED9F",
+   "text": "Beretta Pistol"
+  },
+  {
+   "address": "9D:EDA9",
+   "text": "Viper H. Pistol"
+  },
+  {
+   "address": "9D:EDB5",
+   "text": "HK 277 A. Rifle"
+  },
+  {
+   "address": "9D:EDC2",
+   "text": "T-250 Shotgun"
+  },
+  {
+   "address": "9D:EDCE",
+   "text": "Dermal Plating"
+  },
+  {
+   "address": "9D:EDD7",
+   "text": "Boosted Reflexes"
+  },
+  {
+   "address": "9D:EDE4",
+   "text": "Skill Software"
+  },
+  {
+   "address": "9D:EDEE",
+   "text": "Computer"
+  },
+  {
+   "address": "9D:EDF4",
+   "text": "Cyberdeck"
+  },
+  {
+   "address": "9D:EDFC",
+   "text": "Zip-Gun"
+  },
+  {
+   "address": "9D:EE04",
+   "text": "Leather Jacket"
+  },
+  {
+   "address": "9D:EE0E",
+   "text": "Grenade"
+  },
+  {
+   "address": "9D:EE13",
+   "text": "Glass Door"
+  },
+  {
+   "address": "9D:EE1B",
+   "text": "Sniper"
+  },
+  {
+   "address": "9D:EE22",
+   "text": "Pool of Ink"
+  },
+  {
+   "address": "9D:EE2B",
+   "text": "Hitman"
+  },
+  {
+   "address": "9D:EE30",
+   "text": "Protected"
+  },
+  {
+   "address": "9D:EE37",
+   "text": "Peephole"
+  },
+  {
+   "address": "9D:EE3D",
+   "text": "Bronze Key"
+  },
+  {
+   "address": "9D:EE45",
+   "text": "Iron Key"
+  },
+  {
+   "address": "9D:EE4B",
+   "text": "Fichetti L. Pistol"
+  },
+  {
+   "address": "9D:EE59",
+   "text": "Warhawk H. Pistol"
+  },
+  {
+   "address": "9D:EE65",
+   "text": "AS-7 A. Cannon"
+  },
+  {
+   "address": "9D:EE70",
+   "text": "Mesh Jacket"
+  },
+  {
+   "address": "9D:EE78",
+   "text": "Bulletproof Vest"
+  },
+  {
+   "address": "9D:EE84",
+   "text": "Concealed Jacket"
+  },
+  {
+   "address": "9D:EE8F",
+   "text": "Partial Bodysuit"
+  },
+  {
+   "address": "9D:EE9B",
+   "text": "Full Bodysuit"
+  },
+  {
+   "address": "9D:EEA5",
+   "text": "The King"
+  },
+  {
+   "address": "9D:EEAB",
+   "text": "Bed"
+  },
+  {
+   "address": "9D:EEAE",
+   "text": "LoneStar Badge"
+  },
+  {
+   "address": "9D:EEB9",
+   "text": "Safe"
+  },
+  {
+   "address": "9D:EEBE",
+   "text": "Ghoul Bone"
+  },
+  {
+   "address": "9D:EEC6",
+   "text": "Toxic Water"
+  },
+  {
+   "address": "9D:EECF",
+   "text": "Serpent Scales"
+  },
+  {
+   "address": "9D:EED8",
+   "text": "Safe Key"
+  },
+  {
+   "address": "9D:EEDF",
+   "text": "Password"
+  },
+  {
+   "address": "9D:EEE6",
+   "text": "Leaves"
+  },
+  {
+   "address": "9D:EEEB",
+   "text": "AI Computer"
+  },
+  {
+   "address": "9D:EEF3",
+   "text": "Uzi III SMG"
+  },
+  {
+   "address": "9D:EEFE",
+   "text": "DF_MT-AI"
+  },
+  {
+   "address": "9D:EF08",
+   "text": "DF_DB-Jester"
+  },
+  {
+   "address": "9D:EF14",
+   "text": "DF_DR 1-4"
+  },
+  {
+   "address": "9D:EF1E",
+   "text": "DF_DR 2-4"
+  },
+  {
+   "address": "9D:EF29",
+   "text": "DF_DR 3-4"
+  },
+  {
+   "address": "9D:EF34",
+   "text": "DF_DR 4-4"
+  },
+  {
+   "address": "9D:EF3F",
+   "text": "DF_DR-VOLCANO"
+  },
+  {
+   "address": "9D:EF4E",
+   "text": "DF_DS-PUSHKIN"
+  },
+  {
+   "address": "9D:EF5E",
+   "text": "DF_DS-FAILURE"
+  },
+  {
+   "address": "9D:EF6E",
+   "text": "DF_DS-AI END"
+  },
+  {
+   "address": "9D:EF7B",
+   "text": "DF_DS-TARGET"
+  },
+  {
+   "address": "9D:EF89",
+   "text": "DF_DS-AKIMI"
+  },
+  {
+   "address": "9D:EF96",
+   "text": "DF_AN-PAYMENT"
+  },
+  {
+   "address": "9D:EFA6",
+   "text": "DF_AN-ANTI-AI"
+  },
+  {
+   "address": "9D:EFB5",
+   "text": "DF_DR-MATRIX"
+  },
+  {
+   "address": "9D:EFC4",
+   "text": "Larry On Guitar"
+  },
+  {
+   "address": "9D:EFCF",
+   "text": "Ripped Note"
+  },
+  {
+   "address": "9D:EFD8",
+   "text": "Explosives"
+  },
+  {
+   "address": "9D:EFE0",
+   "text": "Green Bottle"
+  },
+  {
+   "address": "9D:EFEA",
+   "text": "Detonator"
+  },
+  {
+   "address": "9D:EFF0",
+   "text": "Broken Bottle"
+  },
+  {
+   "address": "9D:EFFA",
+   "text": "Time Bomb"
+  },
+  {
+   "address": "9D:F001",
+   "text": "Helicopter Pilot"
+  },
+  {
+   "address": "9D:F00C",
+   "text": "Mermaid Scales"
+  },
+  {
+   "address": "9D:F016",
+   "text": "Dog Tag"
+  },
+  {
+   "address": "9D:F01C",
+   "text": "Crowbar"
+  },
+  {
+   "address": "9D:F023",
+   "text": "Hotel Manager"
+  },
+  {
+   "address": "9D:F02C",
+   "text": "DF_BADNEWS"
+  },
+  {
+   "address": "9D:F038",
+   "text": "Vladimir"
+  },
+  {
+   "address": "9D:F03F",
+   "text": "Mobile TV phone"
+  },
+  {
+   "address": "9D:F04B",
+   "text": "Colt L36 Pistol"
+  },
+  {
+   "address": "9D:F058",
+   "text": "You cannot save the game with the Cortex bomb active!"
+  },
+  {
+   "address": "9D:F074",
+   "text": ""
+  },
+  {
+   "address": "9D:F077",
+   "text": "\u001e"
+  },
+  {
+   "address": "9D:F07A",
+   "text": "\u001f"
+  },
+  {
+   "address": "9D:F07D",
+   "text": " "
+  },
+  {
+   "address": "9D:F07F",
+   "text": "\b\b\b\b\b\b\b\b\b\b\b\b\b\b"
+  },
+  {
+   "address": "9D:F088",
+   "text": "Exit"
+  },
+  {
+   "address": "9D:F08C",
+   "text": "Talk"
+  },
+  {
+   "address": "9D:F090",
+   "text": "Ask about.."
+  },
+  {
+   "address": "9D:F098",
+   "text": "Body"
+  },
+  {
+   "address": "9D:F09D",
+   "text": "Magic"
+  },
+  {
+   "address": "9D:F0A1",
+   "text": "Strength"
+  },
+  {
+   "address": "9D:F0A6",
+   "text": "Charisma"
+  },
+  {
+   "address": "9D:F0AC",
+   "text": "Items"
+  },
+  {
+   "address": "9D:F0B1",
+   "text": "Weapon"
+  },
+  {
+   "address": "9D:F0B6",
+   "text": "Armour"
+  },
+  {
+   "address": "9D:F0BB",
+   "text": "Skills"
+  },
+  {
+   "address": "9D:F0C0",
+   "text": "Cyber"
+  },
+  {
+   "address": "9D:F0C5",
+   "text": "Pickup \u0007\u0010\u0011"
+  },
+  {
+   "address": "9D:F0D1",
+   "text": "Buy"
+  },
+  {
+   "address": "9D:F0D4",
+   "text": "Give"
+  },
+  {
+   "address": "9D:F0D9",
+   "text": "Examine \u000e\u000f"
+  },
+  {
+   "address": "9D:F0E3",
+   "text": "Use"
+  },
+  {
+   "address": "9D:F0E6",
+   "text": "Open \b\u0007\u0010\u0011"
+  },
+  {
+   "address": "9D:F0F1",
+   "text": "Close \b\u0004\u0010\u0011"
+  },
+  {
+   "address": "9D:F0FD",
+   "text": "Target"
+  },
+  {
+   "address": "9D:F103",
+   "text": "Move to"
+  },
+  {
+   "address": "9D:F109",
+   "text": "Cast spell"
+  },
+  {
+   "address": "9D:F110",
+   "text": "/"
+  },
+  {
+   "address": "9D:F113",
+   "text": "Money"
+  },
+  {
+   "address": "9D:F117",
+   "text": "Karma"
+  },
+  {
+   "address": "9D:F11B",
+   "text": "Not enough Karma"
+  },
+  {
+   "address": "9D:F125",
+   "text": "Weapon (A)"
+  },
+  {
+   "address": "9D:F12E",
+   "text": "none"
+  },
+  {
+   "address": "9D:F131",
+   "text": "Unarmed combat"
+  },
+  {
+   "address": "9D:F13C",
+   "text": "Armed combat"
+  },
+  {
+   "address": "9D:F145",
+   "text": "Leadership"
+  },
+  {
+   "address": "9D:F14D",
+   "text": "Yes"
+  },
+  {
+   "address": "9D:F150",
+   "text": "No"
+  },
+  {
+   "address": "9D:F152",
+   "text": "Powerball lv1\b\b\b\b\u0003(5)"
+  },
+  {
+   "address": "9D:F163",
+   "text": "Powerball lv2\b\b\b\b\u0003(6)"
+  },
+  {
+   "address": "9D:F174",
+   "text": "Powerball lv3\b\b\b\b\u0003(7)"
+  },
+  {
+   "address": "9D:F185",
+   "text": "Powerball lv4\b\b\b\b\u0003(8)"
+  },
+  {
+   "address": "9D:F196",
+   "text": "Powerball lv5\b\b\b\b\u0003(9)"
+  },
+  {
+   "address": "9D:F1A7",
+   "text": "Powerball lv6\b\b\b\u0005(10)"
+  },
+  {
+   "address": "9D:F1BA",
+   "text": "Heal lv1\b\b\b\b\b\b\b\u0005(5)"
+  },
+  {
+   "address": "9D:F1CB",
+   "text": "Heal lv2\b\b\b\b\b\b\b\u0005(6)"
+  },
+  {
+   "address": "9D:F1DC",
+   "text": "Heal lv3\b\b\b\b\b\b\b\u0005(7)"
+  },
+  {
+   "address": "9D:F1ED",
+   "text": "Heal lv4\b\b\b\b\b\b\b\u0005(8)"
+  },
+  {
+   "address": "9D:F1FE",
+   "text": "Heal lv5\b\b\b\b\b\b\b\u0005(9)"
+  },
+  {
+   "address": "9D:F20F",
+   "text": "Heal lv6\b\b\b\b\b\b\u0007(10)"
+  },
+  {
+   "address": "9D:F21F",
+   "text": "Invisibility lv1\b\b\b\u0004(5)"
+  },
+  {
+   "address": "9D:F234",
+   "text": "Invisibility lv2\b\b\b\u0004(6)"
+  },
+  {
+   "address": "9D:F249",
+   "text": "Invisibility lv3\b\b\b\u0004(7)"
+  },
+  {
+   "address": "9D:F25E",
+   "text": "Invisibility lv4\b\b\b\u0004(8)"
+  },
+  {
+   "address": "9D:F273",
+   "text": "Invisibility lv5\b\b\b\u0004(9)"
+  },
+  {
+   "address": "9D:F288",
+   "text": "Invisibility lv6\b\b\u0006(10)"
+  },
+  {
+   "address": "9D:F29D",
+   "text": "Armour lv1\b\b\b\b\b\b(5)"
+  },
+  {
+   "address": "9D:F2AC",
+   "text": "Armour lv2\b\b\b\b\b\b(6)"
+  },
+  {
+   "address": "9D:F2BB",
+   "text": "Armour lv3\b\b\b\b\b\b(7)"
+  },
+  {
+   "address": "9D:F2CA",
+   "text": "Armour lv4\b\b\b\b\b\b(8)"
+  },
+  {
+   "address": "9D:F2D9",
+   "text": "Armour lv5\b\b\b\b\b\b(9)"
+  },
+  {
+   "address": "9D:F2E9",
+   "text": "Armour lv6\b\b\b\b\b\u0002(10)"
+  },
+  {
+   "address": "9D:F2FC",
+   "text": "Summon spirit lv1 (10)"
+  },
+  {
+   "address": "9D:F30E",
+   "text": "Summon spirit lv2 (12)"
+  },
+  {
+   "address": "9D:F320",
+   "text": "Summon spirit lv3 (14)"
+  },
+  {
+   "address": "9D:F332",
+   "text": "Summon spirit lv4 (16)"
+  },
+  {
+   "address": "9D:F344",
+   "text": "Summon spirit lv5 (18)"
+  },
+  {
+   "address": "9D:F356",
+   "text": "Summon spirit lv6 (20)"
+  },
+  {
+   "address": "9D:F368",
+   "text": "Freeze lv1\b\b\b\b\b\u0007(5)"
+  },
+  {
+   "address": "9D:F37A",
+   "text": "Freeze lv2\b\b\b\b\b\u0007(6)"
+  },
+  {
+   "address": "9D:F38C",
+   "text": "Freeze lv3\b\b\b\b\b\u0007(7)"
+  },
+  {
+   "address": "9D:F39E",
+   "text": "Freeze lv4\b\b\b\b\b\u0007(8)"
+  },
+  {
+   "address": "9D:F3B0",
+   "text": "Freeze lv5\b\b\b\b\b\u0007(9)"
+  },
+  {
+   "address": "9D:F3C2",
+   "text": "Freeze lv6\b\b\b\b\b\u0001(10)"
+  },
+  {
+   "address": "9D:F3D6",
+   "text": "Powerball\b\b\b\b"
+  },
+  {
+   "address": "9D:F3DF",
+   "text": "Heal\b\b\b\b\b\b\b"
+  },
+  {
+   "address": "9D:F3E7",
+   "text": "Armour\b\b\b\b\b\b\b"
+  },
+  {
+   "address": "9D:F3F1",
+   "text": "Invisibility\b\b\b\b"
+  },
+  {
+   "address": "9D:F3FD",
+   "text": "Summon spirit"
+  },
+  {
+   "address": "9D:F406",
+   "text": "Freeze\b\b\b\b\b\b\b\b"
+  },
+  {
+   "address": "9D:F411",
+   "text": "Save game 1"
+  },
+  {
+   "address": "9D:F419",
+   "text": "Save game 2"
+  },
+  {
+   "address": "9D:F421",
+   "text": "Save game"
+  },
+  {
+   "address": "9D:F428",
+   "text": "Use karma"
+  },
+  {
+   "address": "9D:F42F",
+   "text": "hours before your Cortex bomb goes off."
+  },
+  {
+   "address": "9D:F446",
+   "text": "hour before your Cortex bomb goes off."
+  },
+  {
+   "address": "9D:F45D",
+   "text": "Firearm"
+  },
+  {
+   "address": "9D:F463",
+   "text": "Powerball"
+  },
+  {
+   "address": "9D:F469",
+   "text": "Invisibility"
+  },
+  {
+   "address": "9D:F473",
+   "text": "Freeze"
+  },
+  {
+   "address": "9D:F479",
+   "text": "No spell selected!"
+  },
+  {
+   "address": "9D:F484",
+   "text": "Spell\b\u0004 (X)"
+  },
+  {
+   "address": "9D:F490",
+   "text": "Attribute"
+  },
+  {
+   "address": "9D:F497",
+   "text": "Dermal armour"
+  },
+  {
+   "address": "9D:F49F",
+   "text": "Head computer"
+  },
+  {
+   "address": "9D:F4A7",
+   "text": "Skillsoft"
+  },
+  {
+   "address": "9D:F4AF",
+   "text": "Wired reflexes"
+  },
+  {
+   "address": "9D:F4BA",
+   "text": "Jake, do not attack those who mean you no harm."
+  },
+  {
+   "address": "9D:F4D2",
+   "text": "Jake, I must punish you for your lack of compassion. -1 Karma."
+  },
+  {
+   "address": "9D:F4F6",
+   "text": "Jake"
+  },
+  {
+   "address": "9D:F4F9",
+   "text": "PARTY STATUS\b\bSTAMINA\b\b\b\bSPELL PTS"
+  },
+  {
+   "address": "9D:F51B",
+   "text": "Dances"
+  },
+  {
+   "address": "9D:F520",
+   "text": "Too far away."
+  },
+  {
+   "address": "9D:F528",
+   "text": "Not enough spell points"
+  },
+  {
+   "address": "9D:F535",
+   "text": "Not enough money!"
+  },
+  {
+   "address": "9D:F53E",
+   "text": "You are not armed yet!"
+  },
+  {
+   "address": "9D:F54A",
+   "text": "Go To Work Area?"
+  },
+  {
+   "address": "9D:F555",
+   "text": "Target not visible."
+  },
+  {
+   "address": "9D:F561",
+   "text": "I'm not using it HERE!"
+  },
+  {
+   "address": "9D:F56E",
+   "text": "I'm not using it on HER!"
+  },
+  {
+   "address": "9D:F57C",
+   "text": "I'm not using it on HIM!"
+  },
+  {
+   "address": "9D:F58A",
+   "text": "I'm not using it on THAT!"
+  },
+  {
+   "address": "9D:F599",
+   "text": "I'm not giving it to THAT!"
+  },
+  {
+   "address": "9D:F5A9",
+   "text": "I'm not giving it to HER!"
+  },
+  {
+   "address": "9D:F5B8",
+   "text": "I'm not giving it to HIM!"
+  },
+  {
+   "address": "9D:F5C7",
+   "text": "Nothing special here."
+  },
+  {
+   "address": "9D:F5D2",
+   "text": "Use on:"
+  },
+  {
+   "address": "9D:F5D9",
+   "text": "Give to:"
+  },
+  {
+   "address": "9D:F5DF",
+   "text": "Cast on:"
+  },
+  {
+   "address": "9D:F5E5",
+   "text": "Throw at:"
+  },
+  {
+   "address": "9D:F5EC",
+   "text": "Target:"
+  },
+  {
+   "address": "9D:F5F3",
+   "text": "Not strong enough."
+  },
+  {
+   "address": "9D:F5FE",
+   "text": "Buy?"
+  },
+  {
+   "address": "9D:F602",
+   "text": "Thanks!"
+  },
+  {
+   "address": "9D:F607",
+   "text": "DGC portable phone."
+  },
+  {
+   "address": "9D:F614",
+   "text": "Welcome to ECOTEL phone service."
+  },
+  {
+   "address": "9D:F629",
+   "text": "Please insert CredStick in slot."
+  },
+  {
+   "address": "9D:F63B",
+   "text": "Video Phone not accessible!"
+  },
+  {
+   "address": "9D:F64E",
+   "text": " 4 Hours = $ 5000 , 20 Karma"
+  },
+  {
+   "address": "9D:F664",
+   "text": " 8 Hours = $10000 , 42 Karma"
+  },
+  {
+   "address": "9D:F67A",
+   "text": "16 Hours = $19000 , 70 Karma"
+  },
+  {
+   "address": "9D:F691",
+   "text": "22 Hours = $26000 ,100 Karma"
+  },
+  {
+   "address": "9D:F6A8",
+   "text": "28 Hours = $34000 ,125 Karma"
+  },
+  {
+   "address": "9D:F6C0",
+   "text": "32 Hours = $60000 ,145 Karma"
+  },
+  {
+   "address": "9D:F6D8",
+   "text": "INVINCIBILITY CHEAT FOR JAKE"
+  },
+  {
+   "address": "9D:F6F6",
+   "text": "ADIOS!"
+  },
+  {
+   "address": "9D:F6FC",
+   "text": "'Burlitzers Finest' Grenade - 100 nuyen."
+  },
+  {
+   "address": "9D:F717",
+   "text": "'Burlitzers Finest' Grenade - 80 nuyen."
+  },
+  {
+   "address": "9D:F733",
+   "text": "You can't carry any more grenades!"
+  },
+  {
+   "address": "9D:F745",
+   "text": "'Beretta 101T' pistol."
+  },
+  {
+   "address": "9D:F755",
+   "text": "Old zip-gun."
+  },
+  {
+   "address": "9D:F760",
+   "text": "'Colt America L36' pistol - 500 nuyen."
+  },
+  {
+   "address": "9D:F77A",
+   "text": "'Fichetti Security 500' light pistol - 2,000 nuyen."
+  },
+  {
+   "address": "9D:F79B",
+   "text": "'Ares Viper' long range pistol - 4,000 nuyen."
+  },
+  {
+   "address": "9D:F7B9",
+   "text": "'Ares Viper' long range pistol - 3,000 nuyen."
+  },
+  {
+   "address": "9D:F7D7",
+   "text": "'Ruger WarHawk' heavy pistol - 9,000 nuyen."
+  },
+  {
+   "address": "9D:F7F6",
+   "text": "'Defiance T-250' shotgun - 15,000 nuyen."
+  },
+  {
+   "address": "9D:F813",
+   "text": "'Defiance T-250' shotgun - 12,000 nuyen."
+  },
+  {
+   "address": "9D:F830",
+   "text": "'Heckler Koch 277' assault rifle - 28,000 nuyen."
+  },
+  {
+   "address": "9D:F853",
+   "text": "'Heckler Koch 277' assault rifle - 24,000 nuyen."
+  },
+  {
+   "address": "9D:F876",
+   "text": "'Uzi III' sub-machine gun - 30,000 nuyen."
+  },
+  {
+   "address": "9D:F893",
+   "text": "'Enfield AS-7' assault cannon - 40,000 nuyen."
+  },
+  {
+   "address": "9D:F8B3",
+   "text": "Black Leather Jacket - 1,000 nuyen."
+  },
+  {
+   "address": "9D:F8C9",
+   "text": "Bullet Proof Vest - 8,000 nuyen."
+  },
+  {
+   "address": "9D:F8DF",
+   "text": "Fully Concealable Jacket - 13,000 nuyen."
+  },
+  {
+   "address": "9D:F8F9",
+   "text": "Partial Body Suit - 20,000 nuyen."
+  },
+  {
+   "address": "9D:F911",
+   "text": "Full body suit - 30,000 nuyen."
+  },
+  {
+   "address": "9D:F926",
+   "text": "Mesh wire jacket - 5,000 nuyen."
+  },
+  {
+   "address": "9D:F93B",
+   "text": "AAAAAAAAAARGH!"
+  },
+  {
+   "address": "9D:F94A",
+   "text": "IT'S ALIVE!"
+  },
+  {
+   "address": "9D:F955",
+   "text": "Brain burnt. They say some gang geeked him."
+  },
+  {
+   "address": "9D:F96D",
+   "text": "Yeah? He don't look so dead."
+  },
+  {
+   "address": "9D:F97E",
+   "text": "Ahhh, he's flatlined out."
+  },
+  {
+   "address": "9D:F98E",
+   "text": "We'll take care of him... yeah, in the morning."
+  },
+  {
+   "address": "9D:F9A8",
+   "text": "Yeah, Sam."
+  },
+  {
+   "address": "9D:F9B0",
+   "text": "Oh, Ooooh my head."
+  },
+  {
+   "address": "9D:F9BD",
+   "text": "My brain feels burnt..."
+  },
+  {
+   "address": "9D:F9CB",
+   "text": "Where am I? Who am I?"
+  },
+  {
+   "address": "9D:F9D7",
+   "text": "There is nobody here, but us... mice!"
+  },
+  {
+   "address": "9D:F9EB",
+   "text": "The door is locked from the inside."
+  },
+  {
+   "address": "9D:F9FD",
+   "text": "Looks like you took a wrong turn drekhead. It'll be your last."
+  },
+  {
+   "address": "9D:FA1F",
+   "text": "Come on you wimp! Chicken!"
+  },
+  {
+   "address": "9D:FA2E",
+   "text": "You can run, but you can't hide!"
+  },
+  {
+   "address": "9D:FA3F",
+   "text": "Time to rock and roll!"
+  },
+  {
+   "address": "9D:FA4D",
+   "text": "Please dial number."
+  },
+  {
+   "address": "9D:FA59",
+   "text": "You don't have any numbers to call."
+  },
+  {
+   "address": "9D:FA6C",
+   "text": "There is no answer."
+  },
+  {
+   "address": "9D:FA77",
+   "text": "Connecting..."
+  },
+  {
+   "address": "9D:FA7F",
+   "text": "Thank you for using ECOTEL."
+  },
+  {
+   "address": "9D:FA90",
+   "text": "Worn Leather Jacket"
+  },
+  {
+   "address": "9D:FA9D",
+   "text": "Sassie 702-826"
+  },
+  {
+   "address": "9D:FAAA",
+   "text": "Glutman 934-782"
+  },
+  {
+   "address": "9D:FAB8",
+   "text": "Talis. 416-822"
+  },
+  {
+   "address": "9D:FAC5",
+   "text": "Wast. 652-771"
+  },
+  {
+   "address": "9D:FAD2",
+   "text": "DBlade 826-661"
+  },
+  {
+   "address": "9D:FAE1",
+   "text": "Akimi 748-374"
+  },
+  {
+   "address": "9D:FAEE",
+   "text": "Dr M. 261-688"
+  },
+  {
+   "address": "9D:FAFB",
+   "text": "Drake 233-435"
+  },
+  {
+   "address": "9D:FB08",
+   "text": "Oh no! The zombie!!"
+  },
+  {
+   "address": "9D:FB15",
+   "text": "Eeeeek!"
+  },
+  {
+   "address": "9D:FB1B",
+   "text": "Hey Sam, where is that Grinder file?"
+  },
+  {
+   "address": "9D:FB2F",
+   "text": "Try the \"TESTED\" cabinet."
+  },
+  {
+   "address": "9D:FB44",
+   "text": "Hey look buddy, I haven't got time at the moment, why not look for it yourself?"
+  },
+  {
+   "address": "9D:FB6D",
+   "text": "You Lone Star boys sure did him over good! There ain't much left of him though. Do you want me to pull his file for you?"
+  },
+  {
+   "address": "9D:FBAC",
+   "text": "No? Well, when you need it, just ask..."
+  },
+  {
+   "address": "9D:FBC1",
+   "text": "Hey! You!"
+  },
+  {
+   "address": "9D:FBC7",
+   "text": "The VDU displays - OUT OF ORDER"
+  },
+  {
+   "address": "9D:FBE1",
+   "text": "Elevator - out of order."
+  },
+  {
+   "address": "9D:FBF0",
+   "text": "He cannot speak..."
+  },
+  {
+   "address": "9D:FBFA",
+   "text": "He is badly injured..."
+  },
+  {
+   "address": "9D:FC08",
+   "text": "There's no response..."
+  },
+  {
+   "address": "9D:FC15",
+   "text": "Tenth Street Station."
+  },
+  {
+   "address": "9D:FC22",
+   "text": "Oldtown Station."
+  },
+  {
+   "address": "9D:FC2D",
+   "text": "Daley Station."
+  },
+  {
+   "address": "9D:FC36",
+   "text": "Grim Reaper Club."
+  },
+  {
+   "address": "9D:FC43",
+   "text": "The Cage."
+  },
+  {
+   "address": "9D:FC49",
+   "text": "Sputnik Club"
+  },
+  {
+   "address": "9D:FC54",
+   "text": "He is in great pain, he cannot speak..."
+  },
+  {
+   "address": "9D:FC68",
+   "text": "There's a key in his pocket."
+  },
+  {
+   "address": "9D:FC77",
+   "text": "The memo reads - Armitage to perform courier run to Matrix Systems. 70-30 split."
+  },
+  {
+   "address": "9D:FCA7",
+   "text": "Hey, this looks familiar!"
+  },
+  {
+   "address": "9D:FCB7",
+   "text": "There is a recorded message."
+  },
+  {
+   "address": "9D:FCC6",
+   "text": "Cancel your run, Jake!"
+  },
+  {
+   "address": "9D:FCD3",
+   "text": "Hand over the files. We mean business!"
+  },
+  {
+   "address": "9D:FCE7",
+   "text": "Drake."
+  },
+  {
+   "address": "9D:FCEB",
+   "text": "Twenty nuyen, I'm going to need this!"
+  },
+  {
+   "address": "9D:FCFF",
+   "text": "Ladies and gentlemen..."
+  },
+  {
+   "address": "9D:FD0D",
+   "text": "Maria Mercurial!"
+  },
+  {
+   "address": "9D:FD18",
+   "text": "Bring your love back to me baaaaaby!"
+  },
+  {
+   "address": "9D:FD2E",
+   "text": "I don't want to hear a 'maaaaaaaybe'"
+  },
+  {
+   "address": "9D:FD44",
+   "text": "Look. You must feel the same way too."
+  },
+  {
+   "address": "9D:FD58",
+   "text": "I really enjoy cruising fast with you..."
+  },
+  {
+   "address": "9D:FD6F",
+   "text": "So don't try to take me up on a run!!!"
+  },
+  {
+   "address": "9D:FD84",
+   "text": "Think of me! I'm just looking for fun..."
+  },
+  {
+   "address": "9D:FD9A",
+   "text": "Help!"
+  },
+  {
+   "address": "9D:FD9E",
+   "text": "Arwoooooooooo!"
+  },
+  {
+   "address": "9D:FDA8",
+   "text": "*WOOF*"
+  },
+  {
+   "address": "9D:FDB1",
+   "text": "I have a strange feeling about those eyes..."
+  },
+  {
+   "address": "9D:FDC8",
+   "text": "Here ya go, your favourite!"
+  },
+  {
+   "address": "9D:FDD6",
+   "text": "The iced tea is chilled."
+  },
+  {
+   "address": "9D:FDE3",
+   "text": "The matchbox has a \"WASTELANDS club\" logo on the back."
+  },
+  {
+   "address": "9D:FE0A",
+   "text": "It's a very sharp instrument."
+  },
+  {
+   "address": "9D:FE1A",
+   "text": "Engraved on the amulet is a bat."
+  },
+  {
+   "address": "9D:FE2A",
+   "text": "Shiny Dog Collar."
+  },
+  {
+   "address": "9D:FE36",
+   "text": "The label reads: Armitage J."
+  },
+  {
+   "address": "9D:FE47",
+   "text": "A bit of paper fell out."
+  },
+  {
+   "address": "9D:FE55",
+   "text": "The paper reads: Warehouse No. 5."
+  },
+  {
+   "address": "9D:FE69",
+   "text": "Sassie 702-826."
+  },
+  {
+   "address": "9D:FE76",
+   "text": "This cabinet is locked."
+  },
+  {
+   "address": "9D:FE83",
+   "text": "There are many files here."
+  },
+  {
+   "address": "9D:FE90",
+   "text": "Grinder's file is here, and so are the Maria Mercurial concert tickets!"
+  },
+  {
+   "address": "9D:FEB5",
+   "text": "A Universal Cash CredStick is here."
+  },
+  {
+   "address": "9D:FECC",
+   "text": "This is a healing patch."
+  },
+  {
+   "address": "9D:FED9",
+   "text": "Universal Cash CredStick."
+  },
+  {
+   "address": "9D:FEEB",
+   "text": "The tickets to the Maria Mercurial concert!"
+  },
+  {
+   "address": "9D:FF03",
+   "text": "There is a number on the key, it reads : 6."
+  },
+  {
+   "address": "9D:FF1C",
+   "text": "Apartment 1"
+  },
+  {
+   "address": "9D:FF24",
+   "text": "Apartment 2"
+  },
+  {
+   "address": "9D:FF2C",
+   "text": "Apartment 3"
+  },
+  {
+   "address": "9D:FF34",
+   "text": "Apartment 4"
+  },
+  {
+   "address": "9D:FF3C",
+   "text": "Apartment 5"
+  },
+  {
+   "address": "9D:FF44",
+   "text": "Apartment 6"
+  },
+  {
+   "address": "9D:FF4D",
+   "text": "Apartment 7"
+  },
+  {
+   "address": "9D:FF55",
+   "text": "Apartment 8"
+  },
+  {
+   "address": "9D:FF5D",
+   "text": "A bone of the living dead."
+  },
+  {
+   "address": "9D:FF6B",
+   "text": "The slippery scale of a reptile."
+  },
+  {
+   "address": "9D:FF7D",
+   "text": "This door is locked."
+  },
+  {
+   "address": "9D:FF88",
+   "text": "Something sharp could open the lock."
+  },
+  {
+   "address": "9D:FF9B",
+   "text": "Dark sun-glasses."
+  },
+  {
+   "address": "9D:FFA7",
+   "text": "I'll just put these on..."
+  },
+  {
+   "address": "9D:FFB5",
+   "text": "Lone Star Agent Number 8492BT"
+  },
+  {
+   "address": "9D:FFCB",
+   "text": "I'll tack it onto my pocket..."
+  },
+  {
+   "address": "9D:FFDB",
+   "text": "The phone is being used!"
+  },
+  {
+   "address": "9E:8000",
+   "text": "Back off dude, can't you see I'm using the phone?"
+  },
+  {
+   "address": "9E:801A",
+   "text": "Yeah alright then, LET'S GO!!!"
+  },
+  {
+   "address": "9E:8030",
+   "text": "Well if you think you can handle yourself, then go alone..."
+  },
+  {
+   "address": "9E:804D",
+   "text": "I don't have time to waste man, If you don't have the money, forget it!"
+  },
+  {
+   "address": "9E:8070",
+   "text": "Okay man, let's hit it!"
+  },
+  {
+   "address": "9E:807E",
+   "text": "The newsboard reads - 7th Generation Cyberdeck! Now in keyboard size!"
+  },
+  {
+   "address": "9E:80A8",
+   "text": "7 foot high and 4 foot wide."
+  },
+  {
+   "address": "9E:80B8",
+   "text": "Ok, buddy. Go on in..."
+  },
+  {
+   "address": "9E:80C7",
+   "text": "He looks very tired..."
+  },
+  {
+   "address": "9E:80D3",
+   "text": "How's it going there? Welcome to Ed's Patch'N'Fix!"
+  },
+  {
+   "address": "9E:80F3",
+   "text": "No? Oh come on, it doesn't cost that much..."
+  },
+  {
+   "address": "9E:810B",
+   "text": "Hey, look here, I don't work for free, if you ain't got the money, don't ask!"
+  },
+  {
+   "address": "9E:8133",
+   "text": "Let me find a needle now, and not too rusty! He He! Just kiddin'"
+  },
+  {
+   "address": "9E:8156",
+   "text": "Ooops!"
+  },
+  {
+   "address": "9E:815B",
+   "text": "What do you mean 'Ooops'!?"
+  },
+  {
+   "address": "9E:816C",
+   "text": "What's the loud ticking noise?"
+  },
+  {
+   "address": "9E:817C",
+   "text": "Ummm.. A |cortex |bomb I think..."
+  },
+  {
+   "address": "9E:8193",
+   "text": "STATION CLOSED FOR REPAIRS - ECORAIL CORP."
+  },
+  {
+   "address": "9E:81BE",
+   "text": "TENTH STREET STATION IS NOW FULLY REPAIRED - ECORAIL...WE TRY HARDER."
+  },
+  {
+   "address": "9E:8204",
+   "text": "Jake! You're still alive!!? You're crazy. Take this weapon. You'll need it. You got tech in your head people want, bad! Word on the street is that someone wants you DEAD!"
+  },
+  {
+   "address": "9E:825F",
+   "text": "Jake! You're still alive!!? You're crazy man. You got tech in your head people want, bad! Word on the street is that someone wants you DEAD!"
+  },
+  {
+   "address": "9E:82AA",
+   "text": "Impersonating a cop is risky man! Don't get caught!"
+  },
+  {
+   "address": "9E:82C7",
+   "text": "So you wanna play Rent-A-Cop! I might be able to accommodate you. For 150 nuyen I've got a Lone Star ID badge. You want it?"
+  },
+  {
+   "address": "9E:830D",
+   "text": "You're right, I'll save it for someone who needs it."
+  },
+  {
+   "address": "9E:8327",
+   "text": "You ain't got enough cash, chum!"
+  },
+  {
+   "address": "9E:8339",
+   "text": "Here ya go, mister! They're great in an emergency."
+  },
+  {
+   "address": "9E:8354",
+   "text": "I need the money first, mister. It's pretty risky getting 'em!"
+  },
+  {
+   "address": "9E:8375",
+   "text": "Well if ya ever need 'em..."
+  },
+  {
+   "address": "9E:8384",
+   "text": "You've already got enough! We need some here in the yards."
+  },
+  {
+   "address": "9E:83A1",
+   "text": "There you go, Jake. You can't always find a street doc when you're wounded."
+  },
+  {
+   "address": "9E:83C6",
+   "text": "If I gave you credit, Jake, what's to say you'll live long enough to pay me."
+  },
+  {
+   "address": "9E:83EE",
+   "text": "Well, you know where to find me."
+  },
+  {
+   "address": "9E:83FE",
+   "text": "I think you've already got enough of these, Jake. My other patients may need some."
+  },
+  {
+   "address": "9E:8428",
+   "text": "There ya go! Nice doing business..."
+  },
+  {
+   "address": "9E:843B",
+   "text": "All transactions are strictly cash. No credit!"
+  },
+  {
+   "address": "9E:8455",
+   "text": "Sure bud, your choice..."
+  },
+  {
+   "address": "9E:8463",
+   "text": "You've got six already, you're a walking arsenal!"
+  },
+  {
+   "address": "9E:847E",
+   "text": "Buddy, nobody left to fight here!!"
+  },
+  {
+   "address": "9E:8493",
+   "text": "Looks like ya gonna need more cash than that, bucko!"
+  },
+  {
+   "address": "9E:84AF",
+   "text": "Ha! And you think you'll make it out there in the REAL world..."
+  },
+  {
+   "address": "9E:84D1",
+   "text": "Okay! Here's how it goes.... Always act cool, never attract attention, and never tell them the bad part..."
+  },
+  {
+   "address": "9E:8508",
+   "text": "Hey, ya want the gift like me! People usually see things my way... I got you in Arena, didn't I!? Har Har! So 1,000 nuyen and you learn!"
+  },
+  {
+   "address": "9E:8553",
+   "text": "I can negotiate with the president, my boy!"
+  },
+  {
+   "address": "9E:856A",
+   "text": "Hey, where do you think you're going?"
+  },
+  {
+   "address": "9E:857E",
+   "text": "Well, get comfortable! You gonna need money or some muscle to walk through these doors... and you don't look like you got much of either!"
+  },
+  {
+   "address": "9E:85C6",
+   "text": "Look spug. Unless I can see some cash, that's just too bad."
+  },
+  {
+   "address": "9E:85E6",
+   "text": "The King is dead chummer, but life goes on..."
+  },
+  {
+   "address": "9E:85FE",
+   "text": "You gots big dreams! You not last long, but crowds like! Fight the King, yes?"
+  },
+  {
+   "address": "9E:862B",
+   "text": "You good fighter. We like good fight. Here's"
+  },
+  {
+   "address": "9E:8643",
+   "text": " nuyen. Money better if fight again."
+  },
+  {
+   "address": "9E:8658",
+   "text": "300"
+  },
+  {
+   "address": "9E:865B",
+   "text": "700"
+  },
+  {
+   "address": "9E:865E",
+   "text": "1,000"
+  },
+  {
+   "address": "9E:8664",
+   "text": "2,000"
+  },
+  {
+   "address": "9E:866A",
+   "text": "3,000"
+  },
+  {
+   "address": "9E:8670",
+   "text": "4,000"
+  },
+  {
+   "address": "9E:8676",
+   "text": "5,000"
+  },
+  {
+   "address": "9E:867C",
+   "text": "6,000"
+  },
+  {
+   "address": "9E:8682",
+   "text": "7,000"
+  },
+  {
+   "address": "9E:8688",
+   "text": "8,000"
+  },
+  {
+   "address": "9E:868E",
+   "text": "The King doesn't want to fight you..."
+  },
+  {
+   "address": "9E:86A1",
+   "text": "That fight easy! You get better nuyen if you fight again."
+  },
+  {
+   "address": "9E:86C0",
+   "text": "Maybe knives, maybe clubs. You fight for crowds, yes? You get nuyen real easy. What say?"
+  },
+  {
+   "address": "9E:86F3",
+   "text": "No more fighters left. You is one tough dude!"
+  },
+  {
+   "address": "9E:870C",
+   "text": "No? You not warrior type!?"
+  },
+  {
+   "address": "9E:871C",
+   "text": "Yep, you're right, King much too tough for you."
+  },
+  {
+   "address": "9E:8736",
+   "text": "I don't care who got you in here. You're on my property now! If you want out, it'll cost ya. Let's just say the..."
+  },
+  {
+   "address": "9E:8770",
+   "text": " nuyen will buy us insurance. You got the cash?"
+  },
+  {
+   "address": "9E:8788",
+   "text": "Okay budster, let's hit it!"
+  },
+  {
+   "address": "9E:8799",
+   "text": "I am now under your command..."
+  },
+  {
+   "address": "9E:87A9",
+   "text": "Where are you taking me? And why did you have to blindfold me?"
+  },
+  {
+   "address": "9E:87CA",
+   "text": "Don't worry, we'll keep you safe."
+  },
+  {
+   "address": "9E:87DE",
+   "text": "It isn't five star but you'll like it."
+  },
+  {
+   "address": "9E:87F2",
+   "text": "Watch your step, Jake."
+  },
+  {
+   "address": "9E:87FF",
+   "text": "Save your energy, you'll need it soon."
+  },
+  {
+   "address": "9E:8815",
+   "text": "Okay, we're here. You can take your blindfold off now."
+  },
+  {
+   "address": "9E:8832",
+   "text": "Jake is dead."
+  },
+  {
+   "address": "9E:883A",
+   "text": "Game Over"
+  },
+  {
+   "address": "9E:8841",
+   "text": "It's pretty quiet around here, Sam"
+  },
+  {
+   "address": "9E:8855",
+   "text": "Remember what happened last time you said that!"
+  },
+  {
+   "address": "9E:886F",
+   "text": "Don't hurt us! Keep away."
+  },
+  {
+   "address": "9E:887F",
+   "text": "We know nothing! We just work here!"
+  },
+  {
+   "address": "9E:8892",
+   "text": "This isn't the end, Armitage!"
+  },
+  {
+   "address": "9E:88A3",
+   "text": "We'll meet again in Shadowrun II!"
+  },
+  {
+   "address": "9E:88B7",
+   "text": "You have done well, young one. Your destiny is now in your hands."
+  },
+  {
+   "address": "9E:88D6",
+   "text": "Live long whelp, live long."
+  },
+  {
+   "address": "9E:88E6",
+   "text": "If only you'd come closer, Jake. I almost had you in my grasp!"
+  },
+  {
+   "address": "9E:8907",
+   "text": "We could not allow you to escape. We HAD to stop you!"
+  },
+  {
+   "address": "9E:8923",
+   "text": "Tell me Jake, did you guess or did you know?"
+  },
+  {
+   "address": "9E:893C",
+   "text": "It turned out wrong for me, that's all!"
+  },
+  {
+   "address": "9E:8951",
+   "text": "You were either very foolish or brave to enter the world of spirits while still a part of the real world."
+  },
+  {
+   "address": "9E:8986",
+   "text": "Why do you run? I will not hurt you, Jake. You know you can trust me!"
+  },
+  {
+   "address": "9E:89A9",
+   "text": "The case is empty."
+  },
+  {
+   "address": "9E:89B3",
+   "text": "Inside the case:"
+  },
+  {
+   "address": "9E:89BD",
+   "text": "Out of stock:"
+  },
+  {
+   "address": "9E:89C7",
+   "text": "A blue and purple bottle - 3,000 nuyen."
+  },
+  {
+   "address": "9E:89E0",
+   "text": "Black potion bottle - 6,000 nuyen."
+  },
+  {
+   "address": "9E:89F7",
+   "text": "Sharp wooden stake. Looks new - 2,500 nuyen."
+  },
+  {
+   "address": "9E:8A13",
+   "text": "The bottle is empty."
+  },
+  {
+   "address": "9E:8A1E",
+   "text": "The bottle contains incubus ink."
+  },
+  {
+   "address": "9E:8A2F",
+   "text": "The blue bottle is empty."
+  },
+  {
+   "address": "9E:8A3D",
+   "text": "The blue bottle contains water."
+  },
+  {
+   "address": "9E:8A4E",
+   "text": "The purple bottle is empty."
+  },
+  {
+   "address": "9E:8A5D",
+   "text": "The purple bottle contains toxic water."
+  },
+  {
+   "address": "9E:8A71",
+   "text": "Meteoric iron paperweight."
+  },
+  {
+   "address": "9E:8A81",
+   "text": "Sharp wooden stake."
+  },
+  {
+   "address": "9E:8A8D",
+   "text": "Thank YOU sir, a fine investment indeed."
+  },
+  {
+   "address": "9E:8AA4",
+   "text": "It doesn't look like you can afford this fine specimen."
+  },
+  {
+   "address": "9E:8AC2",
+   "text": "No? That's too bad. Have you seen the other items on sale?"
+  },
+  {
+   "address": "9E:8AE0",
+   "text": "Jester Spirit Insignia"
+  },
+  {
+   "address": "9E:8AEF",
+   "text": "No! No, don't say it! Aiiiieeeee..."
+  },
+  {
+   "address": "9E:8B04",
+   "text": "You are a fool to come here! You are no match for the Jester!"
+  },
+  {
+   "address": "9E:8B23",
+   "text": "Intruder! I'm calling the guards. Outsiders are not allowed to walk around within the complex!"
+  },
+  {
+   "address": "9E:8B56",
+   "text": "Don't hurt me! I've got nothing!"
+  },
+  {
+   "address": "9E:8B67",
+   "text": "The intruder! Hasn't security got you out yet? Don't move!"
+  },
+  {
+   "address": "9E:8B86",
+   "text": "Where are those lazy security guards? Stay right there!"
+  },
+  {
+   "address": "9E:8BA3",
+   "text": "Stop right there! The security boys will be here very soon!"
+  },
+  {
+   "address": "9E:8BC2",
+   "text": "Calling all guards: The intruder is in sub-level 1, sector C."
+  },
+  {
+   "address": "9E:8BE6",
+   "text": "This guy is jacked into the MATRIX. He'll be a while..."
+  },
+  {
+   "address": "9E:8C06",
+   "text": "The door is secured by IC program."
+  },
+  {
+   "address": "9E:8C1A",
+   "text": "This terminal is not accessible."
+  },
+  {
+   "address": "9E:8C2D",
+   "text": "The panel logo reads: D-G-C"
+  },
+  {
+   "address": "9E:8C40",
+   "text": "Sub-level door program modified."
+  },
+  {
+   "address": "9E:8C54",
+   "text": "Oh look man, you come any closer and I blow everyone to bits!"
+  },
+  {
+   "address": "9E:8C74",
+   "text": "Okay, but I hafta wait for a radio call, and the airwaves are still noisy... So I'll be hanging around for a little while, if you change your mind..."
+  },
+  {
+   "address": "9E:8CBF",
+   "text": "Next Stop:"
+  },
+  {
+   "address": "9E:8CC8",
+   "text": "Sub-level 1"
+  },
+  {
+   "address": "9E:8CD1",
+   "text": "Sub-level 2"
+  },
+  {
+   "address": "9E:8CDA",
+   "text": "Sub-level 3"
+  },
+  {
+   "address": "9E:8CE3",
+   "text": "Sub-level 4"
+  },
+  {
+   "address": "9E:8CEC",
+   "text": "Maximum Security"
+  },
+  {
+   "address": "9E:8CF8",
+   "text": "I've got a bad feeling about this, no DEAL!"
+  },
+  {
+   "address": "9E:8D11",
+   "text": ". Deal?"
+  },
+  {
+   "address": "9E:8D16",
+   "text": " for it! Still wanna sell?"
+  },
+  {
+   "address": "9E:8D25",
+   "text": "for the item. Okay?"
+  },
+  {
+   "address": "9E:8D30",
+   "text": "You'll never get a better deal anywhere!"
+  },
+  {
+   "address": "9E:8D46",
+   "text": "Sucker!! Just kiddin'. I never rip off my friends! HAR HAR!"
+  },
+  {
+   "address": "9E:8D6C",
+   "text": "Okay, thank you."
+  },
+  {
+   "address": "9E:8D76",
+   "text": "Too bad, I would have liked to have one of those!"
+  },
+  {
+   "address": "9E:8D90",
+   "text": "Awww, you're acting just like my mother-in-law! Wishy Washy!"
+  },
+  {
+   "address": "9E:8DB7",
+   "text": "Okay, no sale then."
+  },
+  {
+   "address": "9E:8DC2",
+   "text": "200"
+  },
+  {
+   "address": "9E:8DC5",
+   "text": "1000"
+  },
+  {
+   "address": "9E:8DCA",
+   "text": "1300"
+  },
+  {
+   "address": "9E:8DCE",
+   "text": "2000"
+  },
+  {
+   "address": "9E:8DD3",
+   "text": "2500"
+  },
+  {
+   "address": "9E:8DD7",
+   "text": "3000"
+  },
+  {
+   "address": "9E:8DDC",
+   "text": "4000"
+  },
+  {
+   "address": "9E:8DE1",
+   "text": "6000"
+  },
+  {
+   "address": "9E:8DE6",
+   "text": "7500"
+  },
+  {
+   "address": "9E:8DEA",
+   "text": "9000"
+  },
+  {
+   "address": "9E:8DEF",
+   "text": "11000"
+  },
+  {
+   "address": "9E:8DF5",
+   "text": "14000"
+  },
+  {
+   "address": "9E:8DFB",
+   "text": "15000"
+  },
+  {
+   "address": "9E:8E01",
+   "text": "20000"
+  },
+  {
+   "address": "9E:8E05",
+   "text": "Ok but bring it back when you're finished."
+  },
+  {
+   "address": "9E:8E1B",
+   "text": "Oh well, is there anything else I can help you with?"
+  },
+  {
+   "address": "9E:8E35",
+   "text": "If you have a few less runners, I may consider going on a run."
+  },
+  {
+   "address": "9E:8E56",
+   "text": "It's time for me to leave Jake. I think I have earned my money."
+  },
+  {
+   "address": "9E:8E75",
+   "text": "We will wait outside Jake."
+  },
+  {
+   "address": "9E:8E84",
+   "text": "Jake, I don't want to go in there. I will wait outside."
+  },
+  {
+   "address": "9E:8E9F",
+   "text": "The Shadowrunners were..."
+  },
+  {
+   "address": "9E:8EAD",
+   "text": "Dances with Clams"
+  },
+  {
+   "address": "9E:8EB8",
+   "text": "Frogtongue"
+  },
+  {
+   "address": "9E:8EC0",
+   "text": "Hamfist"
+  },
+  {
+   "address": "9E:8EC6",
+   "text": "Jangadance"
+  },
+  {
+   "address": "9E:8ECD",
+   "text": "Jetboy"
+  },
+  {
+   "address": "9E:8ED3",
+   "text": "Orifice"
+  },
+  {
+   "address": "9E:8ED9",
+   "text": "Spatter"
+  },
+  {
+   "address": "9E:8EDE",
+   "text": "You are foolish to try to deceive me! If you do not have the money, leave. My charity is lacking!"
+  },
+  {
+   "address": "9E:8F0E",
+   "text": "You have wasted my time. Be sure of your needs before disturbing me again!"
+  },
+  {
+   "address": "9E:8F36",
+   "text": "If your task is as dangerous as you say, I can meet you at Daley Station. But is your need great enough to part with 10,000 nuyen?"
+  },
+  {
+   "address": "9E:8F7A",
+   "text": "I'll grant you my help for 9,000 nuyen. I'll meet you at Daley Station."
+  },
+  {
+   "address": "9E:8FA1",
+   "text": "Enough! You need not try to convince me of your plight. I shall help you for 8,000 nuyen but no less! Do we meet at Daley Station?"
+  },
+  {
+   "address": "9E:8FE6",
+   "text": "Next best thing to my gun is my reputation. I never work for nothing!"
+  },
+  {
+   "address": "9E:900C",
+   "text": "Well, maybe we'll do business again soon! If you're still alive..."
+  },
+  {
+   "address": "9E:9030",
+   "text": "Your life could depend on this decision, chummer! 1,000 nuyen and I'm with you!"
+  },
+  {
+   "address": "9E:905A",
+   "text": "You're straining our partnership already! 900 nuyen or no deal!"
+  },
+  {
+   "address": "9E:907C",
+   "text": "We are both businessmen, I understand that! 800 nuyen is my final price. Anything less would be robbery!"
+  },
+  {
+   "address": "9E:90B4",
+   "text": "There may be others whom you could seek for the price you can afford!"
+  },
+  {
+   "address": "9E:90D6",
+   "text": "Go well young one. May you command the power of the living one day as strong as I do!"
+  },
+  {
+   "address": "9E:9101",
+   "text": "Dances with Clams does not work for money. He merely requires a donation of 2,000 nuyen to the Tribal Balldance Fund. I sense great need. Do you wish to make a donation?"
+  },
+  {
+   "address": "9E:915D",
+   "text": "To hire my magic, I seek a small donation to the Tribal Balldance Fund. You say my magic is vital to your success. 1,700 nuyen! A smaller donation than usual, but it will do!"
+  },
+  {
+   "address": "9E:91BB",
+   "text": "If 1,000 nuyen is all you can afford, then so be it! Do you trust in my power?"
+  },
+  {
+   "address": "9E:91E4",
+   "text": "If you can't afford me, bowb, why didn't ya say so in the first place!"
+  },
+  {
+   "address": "9E:920A",
+   "text": "Well why are ya still in my face, bowb!"
+  },
+  {
+   "address": "9E:9220",
+   "text": "You want for us to go running the shadows. Look at this hardware, bowb. I got overheads! You can't recycle a grenade you know! Let's start this partnership at 1,500 nuyen. Whadda you say?"
+  },
+  {
+   "address": "9E:9285",
+   "text": "You talk fast for someone with a lot on their mind! I suppose I could help you out for 1,200 nuyen."
+  },
+  {
+   "address": "9E:92BA",
+   "text": "You're driving a hard bargain there, chummer! I'll have to count every bullet! 1,000 nuyen or go find yourself another sucker!"
+  },
+  {
+   "address": "9E:92FD",
+   "text": "I knew there was a reason I didn't like you! You think I'm gonna run with you for free!?"
+  },
+  {
+   "address": "9E:9328",
+   "text": "Your guns are no match for mine. You'll regret it..."
+  },
+  {
+   "address": "9E:9342",
+   "text": "500 nuyen and Hamfist chop up cyberspace real good!"
+  },
+  {
+   "address": "9E:9360",
+   "text": "For 400 nuyen, I'll let you see things in The Matrix you'd never get to with that datajack!"
+  },
+  {
+   "address": "9E:9391",
+   "text": "If all you've got is 300 nuyen, then I guess I'll take it. Not much happening round here!"
+  },
+  {
+   "address": "9E:93BF",
+   "text": "You obviously don't need help as badly as I thought!"
+  },
+  {
+   "address": "9E:93DC",
+   "text": "Jangadance only trying to help ya, man!"
+  },
+  {
+   "address": "9E:93F2",
+   "text": "The power be with you for 1,500 nuyen!"
+  },
+  {
+   "address": "9E:9407",
+   "text": "Jangadance cast the magic for you if you have 1,200 nuyen."
+  },
+  {
+   "address": "9E:9426",
+   "text": "Jangadance give a hand for 800 nuyen. You look like you need it... badly!"
+  },
+  {
+   "address": "9E:944D",
+   "text": "I prefer to be paid upfront. I'll never walk into another job without getting paid."
+  },
+  {
+   "address": "9E:947B",
+   "text": "Good luck, chummer! Look me up if you hear of any other runs."
+  },
+  {
+   "address": "9E:949E",
+   "text": "I'm very discreet. No one will know we were ever there! 1,000 nuyen assures that!"
+  },
+  {
+   "address": "9E:94C7",
+   "text": "I can be of service for 900 nuyen. It will be nuyen well spent!"
+  },
+  {
+   "address": "9E:94EA",
+   "text": "Alright, I'll do it for 800 nuyen but it had better be an easy run!"
+  },
+  {
+   "address": "9E:950F",
+   "text": "Sounds tempting, but if I'm going to risk my life I still want to be paid!"
+  },
+  {
+   "address": "9E:9537",
+   "text": "Oh well, you know where to find me if something good comes up!"
+  },
+  {
+   "address": "9E:9557",
+   "text": "Well, as much as I hate to... I'll have to ask for 3,000 nuyen. After all... we've only just met!"
+  },
+  {
+   "address": "9E:958C",
+   "text": "You sure know how to convince a girl! OK, I'll come along for 2,700 nuyen."
+  },
+  {
+   "address": "9E:95B6",
+   "text": "Fast talking AND cute! I could get myself into debt here! 2,400 nuyen."
+  },
+  {
+   "address": "9E:95DF",
+   "text": "Your credstick seems a little lacking... unfortunately for you I don't take credit!"
+  },
+  {
+   "address": "9E:960A",
+   "text": "So you wanna go it alone! You're almost as crazy as me!"
+  },
+  {
+   "address": "9E:9628",
+   "text": "Let me just get my credstick out here. Fire away partner. 2,000 nuyen. Can your credstick handle that?"
+  },
+  {
+   "address": "9E:9661",
+   "text": "I can bend a little on the price. Let's say 1,800 nuyen."
+  },
+  {
+   "address": "9E:967F",
+   "text": "Now I know I'm crazy... but I'll honour you with my presence for 1,500 nuyen."
+  },
+  {
+   "address": "9E:96AB",
+   "text": "You trying to pull one over on me? Even the Lone Star get paid!"
+  },
+  {
+   "address": "9E:96CC",
+   "text": "So I guess I pound you into the ground for wasting my time!"
+  },
+  {
+   "address": "9E:96EA",
+   "text": "Depends if I like the work, but 500 nuyen will do for now. So we gotta deal, or do I pound you into the ground?"
+  },
+  {
+   "address": "9E:9724",
+   "text": "You trying to pull one over on me? I ain't running with you for less than 400 nuyen."
+  },
+  {
+   "address": "9E:974F",
+   "text": "I work cheap but I don't work for nothing! Show me 300 nuyen before I get fumed!"
+  },
+  {
+   "address": "9E:977C",
+   "text": "I'll sit this one out, chummer! You ain't got the creds!"
+  },
+  {
+   "address": "9E:9798",
+   "text": "You obviously don't know talent when you see it!"
+  },
+  {
+   "address": "9E:97B2",
+   "text": "Now we're talking! 2,000 nuyen. You got that sort of money?"
+  },
+  {
+   "address": "9E:97D4",
+   "text": "For 1,800 nuyen, I'll show you magic and do things you'll be talking about for months!"
+  },
+  {
+   "address": "9E:9802",
+   "text": "1,500 nuyen ain't much. For that sort of money I watch my own back first. YOU can take care of yourself!"
+  },
+  {
+   "address": "9E:983C",
+   "text": "You'd do well to have the necessary finance before wasting my time again!"
+  },
+  {
+   "address": "9E:9861",
+   "text": "I doubt the job would have been to my standards anyway!"
+  },
+  {
+   "address": "9E:987F",
+   "text": "An Elf of my skill does not come cheap! I shall have to ask for 5,000 nuyen."
+  },
+  {
+   "address": "9E:98AA",
+   "text": "For 4,500 nuyen I'll provide you with my years of experience."
+  },
+  {
+   "address": "9E:98CF",
+   "text": "You make it sound simpler than I'm sure it is! I'll do it for 4,000 nuyen."
+  },
+  {
+   "address": "9E:98F7",
+   "text": "Oh wow, this should be fun."
+  },
+  {
+   "address": "9E:9906",
+   "text": "A wise decision."
+  },
+  {
+   "address": "9E:9910",
+   "text": "Stop the small talk, let's start the run."
+  },
+  {
+   "address": "9E:9926",
+   "text": "This should pay off a few bills."
+  },
+  {
+   "address": "9E:993A",
+   "text": "Tee hee yo har."
+  },
+  {
+   "address": "9E:9943",
+   "text": "A wise choice human."
+  },
+  {
+   "address": "9E:9950",
+   "text": "He will guide you in your destiny. Here, take these enchanted leaves. They will help you if you're in trouble again."
+  },
+  {
+   "address": "9E:998A",
+   "text": "The shrine is close. I can feel it. I think he is calling you. We should seek him out."
+  },
+  {
+   "address": "9E:99B6",
+   "text": "I'll open the door for you."
+  },
+  {
+   "address": "9E:99C3",
+   "text": "Oh well, he is busy anyway."
+  },
+  {
+   "address": "9E:99D3",
+   "text": "Come on in Jake."
+  },
+  {
+   "address": "9E:99DC",
+   "text": "Hello Jake you're looking much better."
+  },
+  {
+   "address": "9E:99F1",
+   "text": "Once I'm finished here Jake, maybe you'd like to take a look at the |Cyberware I have for sale."
+  },
+  {
+   "address": "9E:9A23",
+   "text": "It seems like I'm out of stock. I don't think I'll be able to get quality merchandise like that anytime soon."
+  },
+  {
+   "address": "9E:9A5C",
+   "text": "It's over there on the bench. Have a look. The prices are very reasonable."
+  },
+  {
+   "address": "9E:9A82",
+   "text": "It's a simple question, Do you want a boat or not?"
+  },
+  {
+   "address": "9E:9A9D",
+   "text": "Thanks chummer, go right on down."
+  },
+  {
+   "address": "9E:9AB1",
+   "text": "If you want a boat you will have to pay for it."
+  },
+  {
+   "address": "9E:9AC8",
+   "text": "Are you going to pay for it?"
+  },
+  {
+   "address": "9E:9AD8",
+   "text": "Thanks I'll do it for you soon."
+  },
+  {
+   "address": "9E:9AE8",
+   "text": "No cash, no deal."
+  },
+  {
+   "address": "9E:9AF2",
+   "text": "Do you want the number?"
+  },
+  {
+   "address": "9E:9AFE",
+   "text": "Never mind, she is too good for you anyway."
+  },
+  {
+   "address": "9E:9B15",
+   "text": "Here's the number."
+  },
+  {
+   "address": "9E:9B20",
+   "text": "Alright go right in buddy."
+  },
+  {
+   "address": "9E:9B31",
+   "text": "Wait in the line then."
+  },
+  {
+   "address": "9E:9B3C",
+   "text": "I've had it with following you around Armitage. Prepare to meet your doom!"
+  },
+  {
+   "address": "9E:9B62",
+   "text": "That door knob is a bit tricky sometimes. You'll need a little muscle."
+  },
+  {
+   "address": "9E:9B88",
+   "text": "Can't blame you chummer. I don't get much sleep myself living here."
+  },
+  {
+   "address": "9E:9BAD",
+   "text": "It's open, go right in."
+  },
+  {
+   "address": "9E:9BBB",
+   "text": "Ok, come over to the table Jake and I'll insert it for you."
+  },
+  {
+   "address": "9E:9BDA",
+   "text": "On the tray is Dermal Plating."
+  },
+  {
+   "address": "9E:9BEB",
+   "text": "Get up on the table Jake and I'll put it on for you."
+  },
+  {
+   "address": "9E:9C06",
+   "text": "On the tray is Boosted Reflexes."
+  },
+  {
+   "address": "9E:9C1A",
+   "text": "On the tray is Skill Software."
+  },
+  {
+   "address": "9E:9C2B",
+   "text": "Hop up on the table and I'll load it directly into your memory."
+  },
+  {
+   "address": "9E:9C4C",
+   "text": "If you want an invasive protection system then try the Dermal Plating. Do you want to buy it for 6,000 nuyen?"
+  },
+  {
+   "address": "9E:9C85",
+   "text": "These neural boosters are popular at the moment, but they are not cheap. Do you want to buy them for 15,000 nuyen?"
+  },
+  {
+   "address": "9E:9CBF",
+   "text": "Ah, Skill Software. Not a bad choice. So you want to improve your leadership skills for a low 3,000 nuyen?"
+  },
+  {
+   "address": "9E:9CFC",
+   "text": "2nd Floor."
+  },
+  {
+   "address": "9E:9D04",
+   "text": "3rd Floor."
+  },
+  {
+   "address": "9E:9D0C",
+   "text": "4th Floor."
+  },
+  {
+   "address": "9E:9D13",
+   "text": "5th Floor."
+  },
+  {
+   "address": "9E:9D1A",
+   "text": "6th Floor."
+  },
+  {
+   "address": "9E:9D21",
+   "text": "It doesn't appear to operate."
+  },
+  {
+   "address": "9E:9D31",
+   "text": "The key won't fit."
+  },
+  {
+   "address": "9E:9D3B",
+   "text": "It's black ink."
+  },
+  {
+   "address": "9E:9D45",
+   "text": "It gives off a bright flash when used."
+  },
+  {
+   "address": "9E:9D5B",
+   "text": "You can't get close enough."
+  },
+  {
+   "address": "9E:9D6B",
+   "text": "It's a small key."
+  },
+  {
+   "address": "9E:9D75",
+   "text": "It's a strange looking key."
+  },
+  {
+   "address": "9E:9D84",
+   "text": "It can't be touched."
+  },
+  {
+   "address": "9E:9D90",
+   "text": "Excuse me, where are you going?"
+  },
+  {
+   "address": "9E:9DA1",
+   "text": "This won't hurt a bit."
+  },
+  {
+   "address": "9E:9DAD",
+   "text": "What?"
+  },
+  {
+   "address": "9E:9DB1",
+   "text": "You can't enter unless you're a shadowrunner."
+  },
+  {
+   "address": "9E:9DC8",
+   "text": "Go... and do not return until you have the three items from my followers-"
+  },
+  {
+   "address": "9E:9DEF",
+   "text": "One of the earth"
+  },
+  {
+   "address": "9E:9DF9",
+   "text": "One of a creature"
+  },
+  {
+   "address": "9E:9E04",
+   "text": "One of a man"
+  },
+  {
+   "address": "9E:9E0C",
+   "text": "You have not fulfilled your promise, do not return until the Rat shaman has been defeated!"
+  },
+  {
+   "address": "9E:9E3B",
+   "text": "You have done well, take this spell... it will heal your mortal wounds."
+  },
+  {
+   "address": "9E:9E5F",
+   "text": "Jake now has an ARMOUR SPELL."
+  },
+  {
+   "address": "9E:9E75",
+   "text": "Jake now has a POWERBALL SPELL."
+  },
+  {
+   "address": "9E:9E8E",
+   "text": "Jake now has a SUMMON SPIRIT SPELL."
+  },
+  {
+   "address": "9E:9EAA",
+   "text": "Jake now has an INVISIBILITY SPELL."
+  },
+  {
+   "address": "9E:9EC7",
+   "text": "Jake now has a FREEZE SPELL."
+  },
+  {
+   "address": "9E:9EDD",
+   "text": "To cast ARMOUR you will need the scales of a cold and of a warm blooded creature."
+  },
+  {
+   "address": "9E:9F0A",
+   "text": "To cast POWERBALL you will need two items which have not rested in the earth."
+  },
+  {
+   "address": "9E:9F37",
+   "text": "To summon my help you will need two items of my pack."
+  },
+  {
+   "address": "9E:9F55",
+   "text": "To cast INVISIBILITY you need water of a clean and unclean source."
+  },
+  {
+   "address": "9E:9F7E",
+   "text": "To cast FREEZE you will need the residue of two sea creatures."
+  },
+  {
+   "address": "9E:9FA2",
+   "text": "The sign on the gate reads - Dark Blade. Members only."
+  },
+  {
+   "address": "9E:9FC0",
+   "text": "Are we going to finish the run or not?"
+  },
+  {
+   "address": "9E:9FD3",
+   "text": "Get to the end of the line chummer."
+  },
+  {
+   "address": "9E:9FE5",
+   "text": "I've been waiting to get in for ages."
+  },
+  {
+   "address": "9E:9FF7",
+   "text": "Get out of my space."
+  },
+  {
+   "address": "9E:A003",
+   "text": "Wastelands........."
+  },
+  {
+   "address": "9E:A00F",
+   "text": "Jagged Nails......."
+  },
+  {
+   "address": "9E:A01C",
+   "text": "Aaaarrgghh, I can't see."
+  },
+  {
+   "address": "9E:A02C",
+   "text": "It's a PCD-100 Cyberdeck."
+  },
+  {
+   "address": "9E:A03F",
+   "text": "It's a Fuchi Cyber-6 Cyberdeck."
+  },
+  {
+   "address": "9E:A055",
+   "text": "It's an Allegiance Alpha Cyberdeck."
+  },
+  {
+   "address": "9E:A06C",
+   "text": "On the paper is a code- ANEKI001."
+  },
+  {
+   "address": "9E:A082",
+   "text": "On the paper is a code- DRAKE0065."
+  },
+  {
+   "address": "9E:A099",
+   "text": "Leave or I will be forced to call security."
+  },
+  {
+   "address": "9E:A0B1",
+   "text": "The pin has been pulled out."
+  },
+  {
+   "address": "9E:A0C0",
+   "text": "Get this scum out of here."
+  },
+  {
+   "address": "9E:A0CF",
+   "text": "Get 'em boys."
+  },
+  {
+   "address": "9E:A0D9",
+   "text": " 10 nuyen."
+  },
+  {
+   "address": "9E:A0E0",
+   "text": " 20 nuyen."
+  },
+  {
+   "address": "9E:A0E8",
+   "text": " 30 nuyen."
+  },
+  {
+   "address": "9E:A0F0",
+   "text": " 40 nuyen."
+  },
+  {
+   "address": "9E:A0F8",
+   "text": " 50 nuyen."
+  },
+  {
+   "address": "9E:A100",
+   "text": " 60 nuyen."
+  },
+  {
+   "address": "9E:A108",
+   "text": " 70 nuyen."
+  },
+  {
+   "address": "9E:A110",
+   "text": " 80 nuyen."
+  },
+  {
+   "address": "9E:A118",
+   "text": " 90 nuyen."
+  },
+  {
+   "address": "9E:A120",
+   "text": "100 nuyen."
+  },
+  {
+   "address": "9E:A127",
+   "text": "150 nuyen."
+  },
+  {
+   "address": "9E:A12F",
+   "text": "170 nuyen."
+  },
+  {
+   "address": "9E:A137",
+   "text": "180 nuyen."
+  },
+  {
+   "address": "9E:A13F",
+   "text": "200 nuyen."
+  },
+  {
+   "address": "9E:A146",
+   "text": "The decker finds 2,000 nuyen."
+  },
+  {
+   "address": "9E:A158",
+   "text": "3,000 nuyen."
+  },
+  {
+   "address": "9E:A161",
+   "text": "2,000 nuyen."
+  },
+  {
+   "address": "9E:A16A",
+   "text": "The vampire had 5,000 nuyen."
+  },
+  {
+   "address": "9E:A17B",
+   "text": "It looks similar to a light switch."
+  },
+  {
+   "address": "9E:A18F",
+   "text": "It's rusted shut."
+  },
+  {
+   "address": "9E:A199",
+   "text": "It's electronically sealed."
+  },
+  {
+   "address": "9E:A1A9",
+   "text": "He passed straight through the wall."
+  },
+  {
+   "address": "9E:A1BC",
+   "text": "They are bright green leaves."
+  },
+  {
+   "address": "9E:A1CC",
+   "text": "Smooth scales of a mermaid."
+  },
+  {
+   "address": "9E:A1DC",
+   "text": "An ID tag for a dog."
+  },
+  {
+   "address": "9E:A1E9",
+   "text": "Rusted steel crowbar."
+  },
+  {
+   "address": "9E:A1F7",
+   "text": "It won't budge."
+  },
+  {
+   "address": "9E:A201",
+   "text": "The bottle contains toxic dissolver."
+  },
+  {
+   "address": "9E:A215",
+   "text": "It needs a Detonator."
+  },
+  {
+   "address": "9E:A221",
+   "text": "It's ready to use."
+  },
+  {
+   "address": "9E:A22C",
+   "text": "It has a 5 second delay."
+  },
+  {
+   "address": "9E:A23B",
+   "text": "I can't use it without a Detonator."
+  },
+  {
+   "address": "9E:A24C",
+   "text": "The bottle is labelled 'Toxic Dissolver'."
+  },
+  {
+   "address": "9E:A266",
+   "text": "Airlock door opened."
+  },
+  {
+   "address": "9E:A272",
+   "text": "Airlock door closed."
+  },
+  {
+   "address": "9E:A27F",
+   "text": "Water hatch opened."
+  },
+  {
+   "address": "9E:A28A",
+   "text": "Water hatch closed."
+  },
+  {
+   "address": "9E:A295",
+   "text": "Water Chamber filled - Maximum Pressure."
+  },
+  {
+   "address": "9E:A2AF",
+   "text": "Water Chamber flushed."
+  },
+  {
+   "address": "9E:A2BE",
+   "text": "The switch will not work."
+  },
+  {
+   "address": "9E:A2CD",
+   "text": "The switch is reset."
+  },
+  {
+   "address": "9E:A2D9",
+   "text": "This gate is locked."
+  },
+  {
+   "address": "9E:A2E4",
+   "text": "This safe is locked."
+  },
+  {
+   "address": "9E:A2F0",
+   "text": "DATA FILE OBTAINED."
+  },
+  {
+   "address": "9E:A304",
+   "text": "REDUNDANT DATA DISCARDED."
+  },
+  {
+   "address": "9E:A31D",
+   "text": "TRASH DATA DISCARDED."
+  },
+  {
+   "address": "9E:A332",
+   "text": "TRANSFERRED ACCOUNT FILE IS EMPTY."
+  },
+  {
+   "address": "9E:A355",
+   "text": "ELEVATOR ACTIVATED."
+  },
+  {
+   "address": "9E:A369",
+   "text": "LEVEL 6 NODE DEACTIVATED."
+  },
+  {
+   "address": "9E:A384",
+   "text": "LEVEL 3 NODE DEACTIVATED."
+  },
+  {
+   "address": "9E:A39E",
+   "text": "Glutman Account 7732-1528-4475 1,000 nuyen"
+  },
+  {
+   "address": "9E:A3C0",
+   "text": "Matrix Account 6345-2276-6376 2,000 nuyen"
+  },
+  {
+   "address": "9E:A3E3",
+   "text": "Dark Blade Account 8967-3434-2745 10,000 nuyen"
+  },
+  {
+   "address": "9E:A409",
+   "text": "Drake Account 3458-5467-8547 8,000 nuyen"
+  },
+  {
+   "address": "9E:A42B",
+   "text": "Drake Account 2837-4372-8547 10,000 nuyen"
+  },
+  {
+   "address": "9E:A44D",
+   "text": "Drake Account 3873-3774-8548 12,500 nuyen"
+  },
+  {
+   "address": "9E:A46F",
+   "text": "Aneki Account 2843-3784-8552 25,000 nuyen"
+  },
+  {
+   "address": "9E:A492",
+   "text": "Aneki Account 8273-3794-8558 50,000 nuyen"
+  },
+  {
+   "address": "9E:A4B5",
+   "text": "Aneki Account 8273-3874-8654 20,000 nuyen"
+  },
+  {
+   "address": "9E:A4D8",
+   "text": "Aneki Account 8273-3974-8664 15,000 nuyen"
+  },
+  {
+   "address": "9E:A4FA",
+   "text": "Drake Account 3529-8372-4755 25,000 nuyen"
+  },
+  {
+   "address": "9E:A51D",
+   "text": "Drake Account 2245-4564-3453 12,000 nuyen"
+  },
+  {
+   "address": "9E:A53F",
+   "text": "Drake Account 5843-4543-3435 5,000 nuyen"
+  },
+  {
+   "address": "9E:A560",
+   "text": "Drake Account 2291-6758-9872 10,000 nuyen"
+  },
+  {
+   "address": "9E:A583",
+   "text": "ERROR - File fragment only."
+  },
+  {
+   "address": "9E:A597",
+   "text": "Anti-AI program finally complete. Courier is to deliver it to Pushkin. Cortex bomb will be implanted to protect the data. All other copies destroyed. Raitsov."
+  },
+  {
+   "address": "9E:A5F2",
+   "text": "After meeting with the Jester, he agreed to aid us in our plans. He is unaware that if he resists, I know his true name to not be Nirwanda and therefore can bind him to my will. Vladimir."
+  },
+  {
+   "address": "9E:A651",
+   "text": "Matrix Systems have created a program which could threaten our AI computer. There is also a courier who could still have the program intact in his head computer. Destroy them both! Aneki."
+  },
+  {
+   "address": "9E:A6B5",
+   "text": "If I am forced to leave the hideout in order to deal with your incompetence, you will all suffer greatly! Report directly to me! Volcano-233-435. Drake."
+  },
+  {
+   "address": "9E:A70B",
+   "text": "Withhold payment of 10,000,000 nuyen to Drake's Account until we can be assured of the AI's safety. They have served little protection when there is so much at stake! Aneki."
+  },
+  {
+   "address": "9E:A768",
+   "text": "The security on the sixth floor has been upgraded. The AI is now heavily guarded. Armitage will meet his end attempting such foolishness. The Matrix is ours to control! Aneki."
+  },
+  {
+   "address": "9E:A7C8",
+   "text": "Professor Pushkin was delivered alive this morning. He does not possess the ANTI-AI! He is to be detained until we are sure he knows nothing. Drake."
+  },
+  {
+   "address": "9E:A818",
+   "text": "The Rust Stilettos gang have failed to fulfill their instructions to destroy Jake Armitage. Other arrangements must be made. Drake Towers."
+  },
+  {
+   "address": "9E:A861",
+   "text": "AI computer is nearing completion. Soon we will command the Matrix. Your failure to remove Armitage suggests you are not worthy to command it with us! Aneki."
+  },
+  {
+   "address": "9E:A8B7",
+   "text": "The following target is moved to PRIORITY ONE termination : Jake Armitage. One attempt has already failed! Do not fail again! Drake."
+  },
+  {
+   "address": "9E:A907",
+   "text": "The mage Akimi could pose a threat to the security of the AI. Armitage must not contact her at any lengths. We know only of her net address 748-374. She must be dealt with! Drake."
+  },
+  {
+   "address": "9E:A968",
+   "text": "No sight of your courier. Word on the street is that he got to Matrix Systems just before they were permanently shut down. Drake then sent a hit squad after him. Glutman."
+  },
+  {
+   "address": "9E:A9C2",
+   "text": "WARNING: 20 Seconds until detonation."
+  },
+  {
+   "address": "9E:A9DD",
+   "text": "Armitage, I've been expecting you."
+  },
+  {
+   "address": "9E:A9F2",
+   "text": "You will pay for your sabotage!"
+  },
+  {
+   "address": "9E:AA03",
+   "text": "Finish him. We must escape before the computer blows."
+  },
+  {
+   "address": "9E:AA21",
+   "text": "This switch reset before activating."
+  },
+  {
+   "address": "9E:AA36",
+   "text": "Can't stop, the weasels are closing in!"
+  },
+  {
+   "address": "9E:AA4C",
+   "text": "Don't let him off this floor."
+  },
+  {
+   "address": "9E:AA5B",
+   "text": "These guys are no match for us!"
+  },
+  {
+   "address": "9E:AA6C",
+   "text": "Retreat! Run away! Run away!"
+  },
+  {
+   "address": "9E:AA7D",
+   "text": "Bah! I can take these guys easy!"
+  },
+  {
+   "address": "9E:AA90",
+   "text": "Don't let him get to the elevator!"
+  },
+  {
+   "address": "9E:AAA2",
+   "text": "Aargh! I'm hit! I'm hit!"
+  },
+  {
+   "address": "9E:AAB1",
+   "text": "Ugh! Get them....."
+  },
+  {
+   "address": "9E:AABD",
+   "text": "Get the one in the shades!"
+  },
+  {
+   "address": "9E:AACA",
+   "text": "Don't let him get away!"
+  },
+  {
+   "address": "9E:AAD7",
+   "text": "I'll get him. Watch this!"
+  },
+  {
+   "address": "9E:AAE5",
+   "text": "Prepare to die, fool!"
+  },
+  {
+   "address": "9E:AAF1",
+   "text": "Fools! I'll destroy you all!"
+  },
+  {
+   "address": "9E:AB02",
+   "text": "You can't hurt me! You can't!"
+  },
+  {
+   "address": "9E:AB12",
+   "text": "Foolish ones, now you will pay!"
+  },
+  {
+   "address": "9E:AB24",
+   "text": "Playtime for Otto!"
+  },
+  {
+   "address": "9E:AB30",
+   "text": "You make Otto mad! Otto dance on your bones! Otto break your skull!"
+  },
+  {
+   "address": "9E:AB57",
+   "text": "Aaaargghh, I'm hit!"
+  },
+  {
+   "address": "9E:AB65",
+   "text": "Hey mister! We just want to talk to you! We won't hurt you! Honest!"
+  },
+  {
+   "address": "9E:AB88",
+   "text": "We'll teach you to barge in here uninvited!"
+  },
+  {
+   "address": "9E:AB9F",
+   "text": "I will teach you the meaning of pain, fool!"
+  },
+  {
+   "address": "9E:ABB6",
+   "text": "Aaaaahhhhhhh!"
+  },
+  {
+   "address": "9E:ABC4",
+   "text": "I will avenge you brother!"
+  },
+  {
+   "address": "9E:ABD1",
+   "text": "Okay, wise guy! Prepare to lose your right to live!"
+  },
+  {
+   "address": "9E:ABED",
+   "text": "You! You..."
+  },
+  {
+   "address": "9E:ABF4",
+   "text": "Hey, spug! I'm a-comin'!"
+  },
+  {
+   "address": "9E:AC03",
+   "text": "Hey kiddo!"
+  },
+  {
+   "address": "9E:AC09",
+   "text": "Keep on running boy! You're outta your league!!"
+  },
+  {
+   "address": "9E:AC23",
+   "text": "Help..."
+  },
+  {
+   "address": "9E:AC28",
+   "text": "I can see you!"
+  },
+  {
+   "address": "9E:AC30",
+   "text": "Don't mess with me!"
+  },
+  {
+   "address": "9E:AC3A",
+   "text": "He won't much longer!"
+  },
+  {
+   "address": "9E:AC46",
+   "text": "Get him my clones!"
+  },
+  {
+   "address": "9E:AC51",
+   "text": "Foolish! You'll die!"
+  },
+  {
+   "address": "9E:AC5D",
+   "text": "Jake, I see you have arrived."
+  },
+  {
+   "address": "9E:AC6C",
+   "text": "PROGRAM DOWNLOADED"
+  },
+  {
+   "address": "9E:AC80",
+   "text": "JAKE! You have the data! I can't do it!"
+  },
+  {
+   "address": "9E:AC97",
+   "text": "You have reached the end."
+  },
+  {
+   "address": "9E:ACA4",
+   "text": "Thank you for playing Shadowrun."
+  },
+  {
+   "address": "9E:ACB6",
+   "text": "Developed by BEAM Software."
+  },
+  {
+   "address": "9E:ACC9",
+   "text": "Winter CES'93 Las Vegas - Warp!"
+  },
+  {
+   "address": "9E:ACE2",
+   "text": "Hmm.. Okay. How about if I give you"
+  },
+  {
+   "address": "9E:ACF8",
+   "text": "Oh boy! You got a beauty there! I'll give ya"
+  },
+  {
+   "address": "9E:AD12",
+   "text": "Quiet man, Okay. I'll give ya..."
+  }
+ ]
+}

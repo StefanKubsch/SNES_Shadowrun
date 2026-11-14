@@ -1,0 +1,2 @@
+import {emitTaskControlSource} from './task-control-source.mjs';import {spec,prove,describeLocalCall} from './render-task-call-local-source-proof.mjs';
+await emitTaskControlSource(spec,prove,[{d:0x3D6,bank:0x80,s:0x3F0,y:65535,targetWord:0x8001,pointerBefore:0x1200,pointerAfter:0x1200,localPointerBefore:0x3DB,localPointerAfterReturnStore:1},{d:0x3D6,bank:0x80,s:0,y:4,targetWord:65535,pointerBefore:0x1200,pointerAfter:6,localPointerBefore:0x3D6,localPointerAfterReturnStore:0x1000}].map(describeLocalCall));

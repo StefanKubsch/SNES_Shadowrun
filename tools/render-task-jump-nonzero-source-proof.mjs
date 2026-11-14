@@ -1,0 +1,7 @@
+import {proveTaskControl,taskWord} from './task-control-source.mjs';import {describeJumpZero} from './render-task-jump-zero-source-proof.mjs';
+export const spec={name:'jump-nonzero',opcode:0x46,entry:0x80F42E,window:{start:0x80F42E,hex:'68D005C8C84C89F3B100A84C89F3'},s_delta:2,
+  contract:'WORD PLA Low/High bank00:S+1/+2 then BNE on actualWORD Z. Nonzero path only reads fulltargetWORD via freshDP00/DBR/entryY and WORD TAY; zero twoINY withouttargetread/pointerBefore. BothfreshF389 pointer/fullopcode; takenfetchY=targetWORD, skipfetchY=entryY+2; frontierY=fetchY+1, S+2, no memory stores. C/V/I/decimal/D/DBR preserved; finalA/X=opcodeLow,N0/Z(opcodeLow==0). No targetboundary/capacity/init guards.',
+  host_boundary:'Host46 uses bounded decodedtargets/arraystack and PC stopsbeforefetch. Shared44 address equations are not a source/guard substitute; ownBNE bytes independently pinned.'};
+export const prove=map=>proveTaskControl(map,spec);
+export function describeJumpNonzero(context){if(!taskWord(context.conditionWord))throw Error('Explicit condition WORD');return {...describeJumpZero({...context,conditionWord:context.conditionWord!==0?0:1}),conditionWord:context.conditionWord,
+  qualification:'Pure address equations reused from44 only; own46 BNE source/fullWORD guard separately pinned. Taken iff actualWORD nonzero; skippedtarget has no readowner. No memory/CPU/permission/nativebridge/globalstack proof.'};}

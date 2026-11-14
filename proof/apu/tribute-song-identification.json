@@ -1,0 +1,809 @@
+{
+  "source": "https://snesmusic.org/v2/download.php?spcNow=shr",
+  "archive_sha256": "bf706e14c667574c6577ff67e38510cdaa426e04107ba29d663534d4f55b2328",
+  "method": "Read the active song and table using the dump driver layout, then compare 32-byte active pattern prefixes with the European catalogue at the same track index.",
+  "songs": [
+    {
+      "directory": "game",
+      "song": 1,
+      "item": 254,
+      "spc_file": "shr-04.spc",
+      "spc_title": "Tenth Street",
+      "spc_sha256": "75f3377ebd6047917c0ee55eaab53a27a77902ac78faebc92ed07cbe3f39406d",
+      "spc_song_variable": 136,
+      "spc_song_table_variable": 29,
+      "spc_table": 53091,
+      "spc_head": 53119,
+      "table": 53351,
+      "head": 53379,
+      "patterns": [
+        {
+          "track": 0,
+          "aram": 54301,
+          "spc_aram": 54041,
+          "bytes": "8f30002f8f30007f3f8f30007f0fff5f8f32017f3f8f32015fff5f8f32017f0f"
+        },
+        {
+          "track": 1,
+          "aram": 54316,
+          "spc_aram": 54056,
+          "bytes": "5f8f32017f3f8f32015fff5f8f32017f0f8c3201178d3201178f32012f8f3201"
+        },
+        {
+          "track": 2,
+          "aram": 54542,
+          "spc_aram": 54282,
+          "bytes": "8f38032f8f3803178e3803178f38032f8f3803178f3803178f3803178f380317"
+        },
+        {
+          "track": 3,
+          "aram": 54595,
+          "spc_aram": 54335,
+          "bytes": "8f40040ba4400b8c370411a437058e3a040ba43a0b8f40040ba4400b8f430411"
+        },
+        {
+          "track": 4,
+          "aram": 55041,
+          "spc_aram": 54781,
+          "bytes": "8f400571a5401d8d40050ba5400b8c40050ba5400b8a3a057f15a53a29ff8e40"
+        },
+        {
+          "track": 5,
+          "aram": 55393,
+          "spc_aram": 55133,
+          "bytes": "8d57067f3f8d550605a6577f39ff8c5706a6557f3f8d5a060ba6577f33ff8d57"
+        },
+        {
+          "track": 6,
+          "aram": 55587,
+          "spc_aram": 55327,
+          "bytes": "8d50077f3f8c4a07a7507f3fff8c5007a74a7f3f8c52070ba7507f33ff8e5007"
+        }
+      ]
+    },
+    {
+      "directory": "game",
+      "song": 2,
+      "item": 253,
+      "spc_file": "shr-10.spc",
+      "spc_title": "Sleazy Bar",
+      "spc_sha256": "7904cfa8528a7329e58d1bde4a40b14655deb9449bb602e167f9ad9347a50034",
+      "spc_song_variable": 136,
+      "spc_song_table_variable": 29,
+      "spc_table": 53091,
+      "spc_head": 53119,
+      "table": 53351,
+      "head": 53379,
+      "patterns": [
+        {
+          "track": 0,
+          "aram": 54008,
+          "spc_aram": 53748,
+          "bytes": "8f390023a0390b8f390035a0397f7f19ff8f39001da039118f39002fa0397f6f"
+        },
+        {
+          "track": 1,
+          "aram": 54182,
+          "spc_aram": 53922,
+          "bytes": "7f7f7fff8f390071a0391d8f370011a037058e34000ba0340b8f390023a0390b"
+        },
+        {
+          "track": 2,
+          "aram": 54902,
+          "spc_aram": 54642,
+          "bytes": "2f8e6901178e6401a1690ba1640b8e670123a1670b8e69011da169298c64010b"
+        },
+        {
+          "track": 3,
+          "aram": 55414,
+          "spc_aram": 55154,
+          "bytes": "8c590211a259058a540211a254058b5902178a5b02a25911a25b058c600217a2"
+        },
+        {
+          "track": 4,
+          "aram": 55634,
+          "spc_aram": 55374,
+          "bytes": "8b59037f3f8b57030ba3597f33ff8b59030ba3577f338b5403a3597f3fff8b59"
+        },
+        {
+          "track": 5,
+          "aram": 55751,
+          "spc_aram": 55491,
+          "bytes": "8d39041da439118c390417a4398a34040ba4340b8d370423a4370b8d390423a4"
+        },
+        {
+          "track": 6,
+          "aram": 56111,
+          "spc_aram": 55851,
+          "bytes": "8f30052f8f3005178d3005178f32062f8b3607178b3607178f30052f8b360717"
+        }
+      ]
+    },
+    {
+      "directory": "game",
+      "song": 3,
+      "item": 252,
+      "spc_file": "shr-12.spc",
+      "spc_title": "Ghouls",
+      "spc_sha256": "138d16a92071737f6eb50584e27bf8f2c5548d87c8ed726780b39bb0e6e474f1",
+      "spc_song_variable": 136,
+      "spc_song_table_variable": 29,
+      "spc_table": 53091,
+      "spc_head": 53119,
+      "table": 53351,
+      "head": 53379,
+      "patterns": [
+        {
+          "track": 0,
+          "aram": 54434,
+          "spc_aram": 54174,
+          "bytes": "8b55007f7f7fff7f3f8b580005a0557f33a05805ff8b57007f7f7fff8b530023"
+        },
+        {
+          "track": 1,
+          "aram": 54668,
+          "spc_aram": 54408,
+          "bytes": "8835017f7f7fff7f7f79a13505ff8b33017f7f73a1330bff8b30017f7f73a130"
+        },
+        {
+          "track": 2,
+          "aram": 54608,
+          "spc_aram": 54348,
+          "bytes": "7f7f7fff8b65007f7f7fff8b60007f7f7fff7f3f8b580005a0607f33a05805ff"
+        },
+        {
+          "track": 3,
+          "aram": 54608,
+          "spc_aram": 54348,
+          "bytes": "7f7f7fff8b65007f7f7fff8b60007f7f7fff7f3f8b580005a0607f33a05805ff"
+        },
+        {
+          "track": 4,
+          "aram": 54608,
+          "spc_aram": 54348,
+          "bytes": "7f7f7fff8b65007f7f7fff8b60007f7f7fff7f3f8b580005a0607f33a05805ff"
+        },
+        {
+          "track": 5,
+          "aram": 54608,
+          "spc_aram": 54348,
+          "bytes": "7f7f7fff8b65007f7f7fff8b60007f7f7fff7f3f8b580005a0607f33a05805ff"
+        }
+      ]
+    },
+    {
+      "directory": "game",
+      "song": 4,
+      "item": 251,
+      "spc_file": "shr-07.spc",
+      "spc_title": "Seems Familiar...",
+      "spc_sha256": "f1bb0031dab777b33c4a1ad1ebfff339d603bf861655b0e1d832782cbb59b815",
+      "spc_song_variable": 136,
+      "spc_song_table_variable": 29,
+      "spc_table": 53091,
+      "spc_head": 53119,
+      "table": 53351,
+      "head": 53379,
+      "patterns": [
+        {
+          "track": 0,
+          "aram": 53831,
+          "spc_aram": 53571,
+          "bytes": "8d37007f7f7fff7f7f7fff7f7f67a03717ff7f77a0377f07ff8e37007f7f7fff"
+        },
+        {
+          "track": 1,
+          "aram": 53863,
+          "spc_aram": 53603,
+          "bytes": "8a6a0123a16a0b886a010ca16a0a866a0109a16a0d8b6a011fa16a0f8a690123"
+        },
+        {
+          "track": 2,
+          "aram": 54221,
+          "spc_aram": 53961,
+          "bytes": "8c670122a1670c8967010da167098867010da167098c670121a1670d89660124"
+        },
+        {
+          "track": 3,
+          "aram": 54418,
+          "spc_aram": 54158,
+          "bytes": "8f570125a157098e570119a157158f57011ba157138f56012ca1567f42ff8f57"
+        },
+        {
+          "track": 4,
+          "aram": 53838,
+          "spc_aram": 53578,
+          "bytes": "7f7f7fff7f7f67a03717ff7f77a0377f07ff8e37007f7f7fff8a6a0123a16a0b"
+        },
+        {
+          "track": 5,
+          "aram": 55420,
+          "spc_aram": 55160,
+          "bytes": "89620123a1620b8962010ea162088862010fa162078a620121a1620d8a610124"
+        },
+        {
+          "track": 6,
+          "aram": 56273,
+          "spc_aram": 56013,
+          "bytes": "8d370322a3370c8d37030da337098c37030aa3370c8d37031aa337148d37030e"
+        },
+        {
+          "track": 7,
+          "aram": 53838,
+          "spc_aram": 53578,
+          "bytes": "7f7f7fff7f7f67a03717ff7f77a0377f07ff8e37007f7f7fff8a6a0123a16a0b"
+        }
+      ]
+    },
+    {
+      "directory": "game",
+      "song": 5,
+      "item": 250,
+      "spc_file": "shr-11.spc",
+      "spc_title": "The Cage",
+      "spc_sha256": "6c7b8da4de02ec85e9c193e2c87da961456b027f07bff4bee86556c01414e51c",
+      "spc_song_variable": 136,
+      "spc_song_table_variable": 29,
+      "spc_table": 53091,
+      "spc_head": 53119,
+      "table": 53351,
+      "head": 53379,
+      "patterns": [
+        {
+          "track": 0,
+          "aram": 53852,
+          "spc_aram": 53592,
+          "bytes": "8f38002f8938002f8f38002f8838002f8f38002f8b38002f8f38002f8f38002f"
+        },
+        {
+          "track": 1,
+          "aram": 54096,
+          "spc_aram": 53836,
+          "bytes": "8f30027f3f8f30027f3fff8f30027f0f8f30027f3f8d30022fff8f30027f0f8f"
+        },
+        {
+          "track": 2,
+          "aram": 54165,
+          "spc_aram": 53905,
+          "bytes": "5f8f73037f3f8f73035fff5f8f73037f0f8f73032f8f73032f8f73032fff5f8f"
+        },
+        {
+          "track": 3,
+          "aram": 54261,
+          "spc_aram": 54001,
+          "bytes": "2f8f34055fa5342f8f34057f21a5341dff2f8f34055fa5342f8f340529a53405"
+        },
+        {
+          "track": 4,
+          "aram": 54462,
+          "spc_aram": 54202,
+          "bytes": "8f340629a634058c340617a634178f34061da634118c340617a634178f340623"
+        },
+        {
+          "track": 5,
+          "aram": 55115,
+          "spc_aram": 54855,
+          "bytes": "8c64078c5b077f7f7fff7f7f61a75ba7641dff8e64078d69077f09a76905a764"
+        },
+        {
+          "track": 6,
+          "aram": 55356,
+          "spc_aram": 55096,
+          "bytes": "8f67082f8d640811a8671d8d6208a86423a8620b8f64087f6fff7f63a8640b8e"
+        }
+      ]
+    },
+    {
+      "directory": "game",
+      "song": 6,
+      "item": 249,
+      "spc_file": "shr-08.spc",
+      "spc_title": "Gunfight",
+      "spc_sha256": "4f632fb3f0b095a974c3cf8098a247696a5f2ff133d0ebfd4693b29b731e6c1f",
+      "spc_song_variable": 136,
+      "spc_song_table_variable": 29,
+      "spc_table": 53091,
+      "spc_head": 53119,
+      "table": 53351,
+      "head": 53379,
+      "patterns": [
+        {
+          "track": 0,
+          "aram": 54618,
+          "spc_aram": 54358,
+          "bytes": "8f30007f0f8f3000178f30002f8f3000178f30007f0fff8f3000478f30007f0f"
+        },
+        {
+          "track": 1,
+          "aram": 54693,
+          "spc_aram": 54433,
+          "bytes": "5e8f32017f3f8f320160ff5e8f3201478c3201778f320160ff5e8f32017f3f8f"
+        },
+        {
+          "track": 2,
+          "aram": 54839,
+          "spc_aram": 54579,
+          "bytes": "8d5902178c5902178b5902178c5902178e5a022f8c5902178c5902178c590217"
+        },
+        {
+          "track": 3,
+          "aram": 55372,
+          "spc_aram": 55112,
+          "bytes": "7f7f7fff8d5b0413a45b038f63040ba4630b8d640413a464038d63040ba4630b"
+        },
+        {
+          "track": 4,
+          "aram": 55372,
+          "spc_aram": 55112,
+          "bytes": "7f7f7fff8d5b0413a45b038f63040ba4630b8d640413a464038d63040ba4630b"
+        },
+        {
+          "track": 5,
+          "aram": 55372,
+          "spc_aram": 55112,
+          "bytes": "7f7f7fff8d5b0413a45b038f63040ba4630b8d640413a464038d63040ba4630b"
+        },
+        {
+          "track": 6,
+          "aram": 55372,
+          "spc_aram": 55112,
+          "bytes": "7f7f7fff8d5b0413a45b038f63040ba4630b8d640413a464038d63040ba4630b"
+        },
+        {
+          "track": 7,
+          "aram": 57394,
+          "spc_aram": 57134,
+          "bytes": "8d5908178e5b08178d6408178a5908178e5b08178e6208178c5908178f5b0817"
+        }
+      ]
+    },
+    {
+      "directory": "game",
+      "song": 7,
+      "item": 248,
+      "spc_file": "shr-03.spc",
+      "spc_title": "Morgue",
+      "spc_sha256": "942baec68a7693db6dbec47af2ad225da96fc5de828c06215bf04e46e42e4174",
+      "spc_song_variable": 139,
+      "spc_song_table_variable": 24,
+      "spc_table": 53351,
+      "spc_head": 53379,
+      "table": 53351,
+      "head": 53379,
+      "patterns": [
+        {
+          "track": 0,
+          "aram": 54108,
+          "spc_aram": 54108,
+          "bytes": "8d37007f0f8c320005a0377f098d3a0003a0325bff8c370000a03a7f7f7eff7f"
+        },
+        {
+          "track": 1,
+          "aram": 54316,
+          "spc_aram": 54316,
+          "bytes": "7f7f7fff7f0e8f5501148a570106a155128d550115a1577f2bff45a155198f57"
+        },
+        {
+          "track": 2,
+          "aram": 54667,
+          "spc_aram": 54667,
+          "bytes": "8f370206a237108d370209a2370d8d37020aa2370c8f37027f7f37ff0ba2377f"
+        },
+        {
+          "track": 3,
+          "aram": 54316,
+          "spc_aram": 54316,
+          "bytes": "7f7f7fff7f0e8f5501148a570106a155128d550115a1577f2bff45a155198f57"
+        },
+        {
+          "track": 4,
+          "aram": 54316,
+          "spc_aram": 54316,
+          "bytes": "7f7f7fff7f0e8f5501148a570106a155128d550115a1577f2bff45a155198f57"
+        },
+        {
+          "track": 5,
+          "aram": 55233,
+          "spc_aram": 55233,
+          "bytes": "8f6305178e6305178f6305178f63057f7f37ff2f8f6305178d6305178f66067f"
+        },
+        {
+          "track": 6,
+          "aram": 54316,
+          "spc_aram": 54316,
+          "bytes": "7f7f7fff7f0e8f5501148a570106a155128d550115a1577f2bff45a155198f57"
+        },
+        {
+          "track": 7,
+          "aram": 56380,
+          "spc_aram": 56380,
+          "bytes": "8f370c04ac37128c370c0aac370c8c370c0cac370a8f370c7f7f37ff7f7f71ac"
+        }
+      ]
+    },
+    {
+      "directory": "game",
+      "song": 8,
+      "item": 247,
+      "spc_file": "shr-14.spc",
+      "spc_title": "The Matrix",
+      "spc_sha256": "28be9f3e4ad646d38c6458bd6583549b544155261c45c3474f63555c0d41da82",
+      "spc_song_variable": 139,
+      "spc_song_table_variable": 24,
+      "spc_table": 53351,
+      "spc_head": 53379,
+      "table": 53351,
+      "head": 53379,
+      "patterns": [
+        {
+          "track": 0,
+          "aram": 53510,
+          "spc_aram": 53510,
+          "bytes": "8f34007f7f7fff7f7f7fff7f7f77a03407ff8f37007f7f7fff8e360010a0377f"
+        },
+        {
+          "track": 1,
+          "aram": 53517,
+          "spc_aram": 53517,
+          "bytes": "7f7f7fff7f7f77a03407ff8f37007f7f7fff8e360010a0377f7f6eff7f7f7da0"
+        },
+        {
+          "track": 2,
+          "aram": 53517,
+          "spc_aram": 53517,
+          "bytes": "7f7f7fff7f7f77a03407ff8f37007f7f7fff8e360010a0377f7f6eff7f7f7da0"
+        }
+      ]
+    },
+    {
+      "directory": "game",
+      "song": 9,
+      "item": 246,
+      "spc_file": "shr-06.spc",
+      "spc_title": "Funky Conversation",
+      "spc_sha256": "8bd75bf89e532306388567509c191e03e75c796f35c6713a6087749bd6f5ceb6",
+      "spc_song_variable": 136,
+      "spc_song_table_variable": 29,
+      "spc_table": 53091,
+      "spc_head": 53119,
+      "table": 53351,
+      "head": 53379,
+      "patterns": [
+        {
+          "track": 0,
+          "aram": 53663,
+          "spc_aram": 53403,
+          "bytes": "8f3800178d3600178f38002f8f38002f8e3600178f3800178f3800178c380017"
+        },
+        {
+          "track": 1,
+          "aram": 53766,
+          "spc_aram": 53506,
+          "bytes": "8f30027f7f678f300217ff7f7f7fff7f578f4203478f3b032f8f3b03178f3703"
+        },
+        {
+          "track": 2,
+          "aram": 53777,
+          "spc_aram": 53517,
+          "bytes": "7f7f7fff7f578f4203478f3b032f8f3b03178f370317ff7f3f8e4203178f4203"
+        },
+        {
+          "track": 3,
+          "aram": 53831,
+          "spc_aram": 53571,
+          "bytes": "8f400411a440058c3704178f3a0411a437058c4004a43a178d43040ba4400b8f"
+        },
+        {
+          "track": 4,
+          "aram": 53949,
+          "spc_aram": 53689,
+          "bytes": "8a53058a50057f1ba5530ba550894a058b52057f57ffa54a8b48058b45050ba5"
+        },
+        {
+          "track": 5,
+          "aram": 53777,
+          "spc_aram": 53517,
+          "bytes": "7f7f7fff7f578f4203478f3b032f8f3b03178f370317ff7f3f8e4203178f4203"
+        }
+      ]
+    },
+    {
+      "directory": "game",
+      "song": 10,
+      "item": 245,
+      "spc_file": "shr-05.spc",
+      "spc_title": "Shady Conversation",
+      "spc_sha256": "eefaed3d5b2ed0403b031c906efb73a44d36d6da501b607273b15049950dc7d8",
+      "spc_song_variable": 139,
+      "spc_song_table_variable": 24,
+      "spc_table": 53351,
+      "spc_head": 53379,
+      "table": 53351,
+      "head": 53379,
+      "patterns": [
+        {
+          "track": 0,
+          "aram": 53477,
+          "spc_aram": 53477,
+          "bytes": "2f8f3a00118f41008d4300a03a11a04105a043058f46002f8f3a00a046118f41"
+        },
+        {
+          "track": 1,
+          "aram": 53747,
+          "spc_aram": 53747,
+          "bytes": "2f8c3a01118c4101a13a0ba141894301118d46010ba14323a1468d3a01118b41"
+        },
+        {
+          "track": 2,
+          "aram": 54173,
+          "spc_aram": 54173,
+          "bytes": "8f33007f7f7fff7f7f7fff7f7f67a03317ff8f35007f7f7fff7f7f67a03517ff"
+        }
+      ]
+    },
+    {
+      "directory": "game",
+      "song": 11,
+      "item": 244,
+      "spc_file": "shr-09.spc",
+      "spc_title": "Dead",
+      "spc_sha256": "e3a39f553ee64f5dabb489a9bcb07e04204133a81dcf447b0bb1e1e2b19c702a",
+      "spc_song_variable": 136,
+      "spc_song_table_variable": 29,
+      "spc_table": 53091,
+      "spc_head": 53119,
+      "table": 53351,
+      "head": 53379,
+      "patterns": [
+        {
+          "track": 0,
+          "aram": 53477,
+          "spc_aram": 53217,
+          "bytes": "8c40007f3f8c3a0005a0407f39ff8f38000ba03a7f2da038058d37007f3fff8f"
+        },
+        {
+          "track": 1,
+          "aram": 53557,
+          "spc_aram": 53297,
+          "bytes": "8b47008e530059a053058b520053a04705a052058c47008d52005f8d500005a0"
+        },
+        {
+          "track": 2,
+          "aram": 53696,
+          "spc_aram": 53436,
+          "bytes": "8f60017f3f8f650105a1607f39ff8f60010ba1657f338f670105a1607f39ff8f"
+        }
+      ]
+    },
+    {
+      "directory": "game",
+      "song": 12,
+      "item": 243,
+      "spc_file": "shr-13.spc",
+      "spc_title": "Uptown",
+      "spc_sha256": "1654dfebd20f61747aeb38e58a286a2d7e5b702234532425ceebb69887954e02",
+      "spc_song_variable": 136,
+      "spc_song_table_variable": 29,
+      "spc_table": 53091,
+      "spc_head": 53119,
+      "table": 53351,
+      "head": 53379,
+      "patterns": [
+        {
+          "track": 0,
+          "aram": 54794,
+          "spc_aram": 54534,
+          "bytes": "8f3600478f3600478f36002f8f3600178f3600178f3600178f360077ff8f3800"
+        },
+        {
+          "track": 1,
+          "aram": 55019,
+          "spc_aram": 54759,
+          "bytes": "7f7f7fff8f30015f8f30015f8f30015f8f30015fff8f6402478f6402478f6402"
+        },
+        {
+          "track": 2,
+          "aram": 55040,
+          "spc_aram": 54780,
+          "bytes": "8f6402478f6402478f64022f8f6402178e6402178f6402178f640277ff7f7f4f"
+        },
+        {
+          "track": 3,
+          "aram": 55019,
+          "spc_aram": 54759,
+          "bytes": "7f7f7fff8f30015f8f30015f8f30015f8f30015fff8f6402478f6402478f6402"
+        },
+        {
+          "track": 4,
+          "aram": 56720,
+          "spc_aram": 56460,
+          "bytes": "8f34042fa434178f34042fa434178f34042f8f3404a43411a434058d34040ba4"
+        },
+        {
+          "track": 5,
+          "aram": 55019,
+          "spc_aram": 54759,
+          "bytes": "7f7f7fff8f30015f8f30015f8f30015f8f30015fff8f6402478f6402478f6402"
+        },
+        {
+          "track": 6,
+          "aram": 55019,
+          "spc_aram": 54759,
+          "bytes": "7f7f7fff8f30015f8f30015f8f30015f8f30015fff8f6402478f6402478f6402"
+        },
+        {
+          "track": 7,
+          "aram": 58944,
+          "spc_aram": 58684,
+          "bytes": "8f3207478f3207478f32072f8f3207178f3207178c3207178f3207178f320717"
+        }
+      ]
+    },
+    {
+      "directory": "title",
+      "song": 1,
+      "item": null,
+      "spc_file": "shr-01b.spc",
+      "spc_title": "Seattle 2050 (Japanese)",
+      "spc_sha256": "00db0879985518b11e0a3ba5f91960afe36d225f84e2a070eb66a5f1d2ba9777",
+      "spc_song_variable": 139,
+      "spc_song_table_variable": 24,
+      "spc_table": 30324,
+      "spc_head": 30332,
+      "table": 30324,
+      "head": 30332,
+      "patterns": [
+        {
+          "track": 0,
+          "aram": 30824,
+          "spc_aram": 31778,
+          "bytes": "7f7f7fff8f60000ba0600b8e60000ba0600b8d600005a060118e600005a06011"
+        },
+        {
+          "track": 2,
+          "aram": 30824,
+          "spc_aram": 31778,
+          "bytes": "7f7f7fff8f60000ba0600b8e60000ba0600b8d600005a060118e600005a06011"
+        },
+        {
+          "track": 3,
+          "aram": 30824,
+          "spc_aram": 31778,
+          "bytes": "7f7f7fff8f60000ba0600b8e60000ba0600b8d600005a060118e600005a06011"
+        },
+        {
+          "track": 4,
+          "aram": 30824,
+          "spc_aram": 31778,
+          "bytes": "7f7f7fff8f60000ba0600b8e60000ba0600b8d600005a060118e600005a06011"
+        },
+        {
+          "track": 5,
+          "aram": 30824,
+          "spc_aram": 31778,
+          "bytes": "7f7f7fff8f60000ba0600b8e60000ba0600b8d600005a060118e600005a06011"
+        },
+        {
+          "track": 6,
+          "aram": 30824,
+          "spc_aram": 31778,
+          "bytes": "7f7f7fff8f60000ba0600b8e60000ba0600b8d600005a060118e600005a06011"
+        },
+        {
+          "track": 7,
+          "aram": 30824,
+          "spc_aram": 31778,
+          "bytes": "7f7f7fff8f60000ba0600b8e60000ba0600b8d600005a060118e600005a06011"
+        }
+      ]
+    },
+    {
+      "directory": "title",
+      "song": 2,
+      "item": null,
+      "spc_file": "shr-02.spc",
+      "spc_title": "Main Theme",
+      "spc_sha256": "312c09e838d9e465689a92e2266e05ff3e6ed0b5b79e26add40ee418b89543ba",
+      "spc_song_variable": 136,
+      "spc_song_table_variable": 29,
+      "spc_table": 30064,
+      "spc_head": 32092,
+      "table": 30324,
+      "head": 32400,
+      "patterns": [
+        {
+          "track": 0,
+          "aram": 32581,
+          "spc_aram": 32273,
+          "bytes": "8f62000ba0620b8e62000ba0620b8d620005a062118e620005a062118f610011"
+        },
+        {
+          "track": 1,
+          "aram": 32659,
+          "spc_aram": 32351,
+          "bytes": "8b37007f7f5ba03723ff35a0347f7f49ff2f8f63015f8f63015f8d6301178b63"
+        },
+        {
+          "track": 2,
+          "aram": 32676,
+          "spc_aram": 32368,
+          "bytes": "2f8f63015f8f63015f8d6301178b6301478f63012fff8f72037f7f4f8f67022f"
+        },
+        {
+          "track": 3,
+          "aram": 32698,
+          "spc_aram": 32390,
+          "bytes": "8f72037f7f4f8f67022fff8f700371a3727f7f0dff7f69a3707f15ff8f75037f"
+        },
+        {
+          "track": 4,
+          "aram": 32761,
+          "spc_aram": 32453,
+          "bytes": "7f7f4f8f37042fff11a4377f7f6dff8f52000ba0520b8e52000ba0520b8d5200"
+        },
+        {
+          "track": 5,
+          "aram": 32776,
+          "spc_aram": 32468,
+          "bytes": "8f52000ba0520b8e52000ba0520b8d520005a052118e520005a052118f510011"
+        },
+        {
+          "track": 6,
+          "aram": 32854,
+          "spc_aram": 32546,
+          "bytes": "5f8f37057f3f8f3b052f8f37052fff8f3006778f3006178d3006178d3006178f"
+        }
+      ]
+    }
+  ],
+  "files": {
+    "01-main-theme.ogg": {
+      "bytes": 1808913,
+      "sha256": "9a9d2be1cb008509f34e0dc4365c36cd34c71ebf42f236d9c77e053e28918879"
+    },
+    "02-the-morgue.ogg": {
+      "bytes": 12035853,
+      "sha256": "9e76718a3f7d9db94596d9b084134fd7cb53857d0db612ed414a8e1a7fd9d2fa"
+    },
+    "03-tenth-street.ogg": {
+      "bytes": 4156251,
+      "sha256": "c10541ff38314d2b1fa671e8e46dcda09276a0ba480213e77671dae48a3cf185"
+    },
+    "04-shady-conversation.ogg": {
+      "bytes": 2932447,
+      "sha256": "5abe81863c1849c72ceb85bb181c62c476de0b9feddf450c140474659a4c3acf"
+    },
+    "05-funky-conversation.ogg": {
+      "bytes": 1757339,
+      "sha256": "c62661c26a0e94286eb5997557a1618639e750f5cf9ff8fa6342851e21687af9"
+    },
+    "06-seems-familiar.ogg": {
+      "bytes": 2691571,
+      "sha256": "adff18338bd363d442d15746658526a9aac6bc473a5fe841a92ac2758dae63de"
+    },
+    "07-gunfight.ogg": {
+      "bytes": 6283459,
+      "sha256": "7259676fcd1c2c3966c8d0798fb3702f7ae7c32b4db6c62f4d21d7c134d6c097"
+    },
+    "08-sleazy-bar.ogg": {
+      "bytes": 3626450,
+      "sha256": "5e9ccb9ee980b8235b389ba49d0b6776bfbe63eb157e5bacef4cef768de2232b"
+    },
+    "09-ghouls.ogg": {
+      "bytes": 7917840,
+      "sha256": "36673cdbf25769c011b6091ca87cae805a66a0e622029be7182cb6ea2764fe41"
+    },
+    "10-the-cage.ogg": {
+      "bytes": 4514424,
+      "sha256": "dd2db5d08e7c3e6830f9a38766be4f536e539ace6042bf66d6151a8b84c4fae2"
+    },
+    "11-uptown.ogg": {
+      "bytes": 5781801,
+      "sha256": "d0ef4461e976ede23ad505c2e2472ad2bd2c665067542d28e92e19b6e7fcf211"
+    },
+    "12-the-matrix.ogg": {
+      "bytes": 4646083,
+      "sha256": "6ea73af7316ab35f508111e3329fa44e14c2348b0710f74c59299053ba22442d"
+    }
+  }
+}
