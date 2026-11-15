@@ -433,6 +433,23 @@ registerLevelLoop})`); the observed rooms and boot replays keep the driver direc
   game from the resumed menu. The exit request is a test fixture; this does not
   establish a new game-over story route or resolve the reported menu-audio issues.
 
+## Phase 8, game start and main-loop composition (2026-11-15)
+
+- The live entry in [main-start.mjs](../src/system/main-start.mjs) invokes the
+  game-start body directly. [main-loop.mjs](../src/vm/main-loop.mjs) composes its
+  upkeep entries and waiting sequences directly, using the common continuation
+  instead of its former dispatch-specific continuation. The game and attract
+  loops no longer forward a routine table to the per-frame caller.
+- The former live callers remain in [proof/caller/](../proof/caller/) and the
+  retained frontend uses their independent dispatch. Shared helper tables and
+  register/NMI frames remain; saves and the lag-free frame model are unchanged.
+  Lower callee graphs still use their established helper tables.
+- The owner caller differential now also selects the old and new game starts
+  and main loops independently. It checks the completed start and both exit and
+  reload requests through the real return to the owner. The requests are fixtures;
+  this adds no game-over route evidence. Details in
+  [GAME-START-LIFT.md](GAME-START-LIFT.md) and [MAIN-LOOP-LIFT.md](MAIN-LOOP-LIFT.md).
+
 ## Open points
 
 - Opcode use (2026-11-14, the decoded corpus analysis/event-scripts.txt of

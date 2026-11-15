@@ -6,13 +6,9 @@ import {
   drainNativeSequence,
 } from '../../src/system/native-call-continuation.mjs';
 import { FRONTEND_MENU_ROUTINES } from './live-frontend-menu.mjs';
-import { MAIN_START_ROUTINES } from '../../src/system/main-start.mjs';
+import { MAIN_START_ROUTINES } from '../caller/main-start.mjs';
 import { roomStartSequence } from '../../src/game/game-start.mjs';
-import {
-  MAIN_LOOP_ROUTINES,
-  MAIN_LOOP_ROUND,
-  MainLoopContinuation,
-} from '../../src/vm/main-loop.mjs';
+import { MAIN_LOOP_ROUTINES, MAIN_LOOP_ROUND, MainLoopContinuation } from '../caller/main-loop.mjs';
 import { runTileBuffers } from '../../src/game/main-upkeep.mjs';
 import { dialogCallBody } from '../../src/system/native-call-continuation.mjs';
 import { frontendContinuations } from '../replay/main-frontend-text.mjs';

@@ -13,9 +13,11 @@ import { mainStartupSequence } from '../src/system/main-startup.mjs';
 import { gameOwnerSequence, GAME_OWNER_RESUME } from '../src/frontend/game-owner.mjs';
 import { gameOwnerSequence as dispatchedOwner } from '../proof/frontend-caller/game-owner.mjs';
 import { FRONTEND_ROUTINES as dispatchedRoutines } from '../proof/script/live-frontend.mjs';
-import { gameStartSequence } from '../src/game/game-start.mjs';
+import { mainStartContinuation } from '../src/system/main-start.mjs';
+import { mainStartContinuation as dispatchedStart } from '../proof/caller/main-start.mjs';
+import { MainLoopContinuation as DispatchedLoop } from '../proof/caller/main-loop.mjs';
 import { MainLoopContinuation, MAIN_LOOP_ROUND } from '../src/vm/main-loop.mjs';
-import { MAIN_LOOP_EXIT } from '../src/data/wram.mjs';
+import { MAIN_LOOP_EXIT, MAIN_LOOP_RELOAD } from '../src/data/wram.mjs';
 import { ROUND } from '../src/script/natives.mjs';
 
 // The same JS scheduler and devices on both sides isolate caller composition.
@@ -35,19 +37,26 @@ function snapshot(game) {
 }
 
 // Complete the first owner, enter the selected game, and exercise the real main
-// loop RTS back to A157. The exit request is a fixture, not a game-over route.
-function* session(game, owner, routines, boundary, resume) {
+// loop RTS back to A157. Exit and reload requests are fixtures, not game-over routes.
+function* session(game, owner, routines, boundary, resume, side, request) {
   const loop = game.loop,
     a = loop.accessor,
     h = dialogAccess(a),
-    events = loop.interval(0x80e382);
+    events = loop.interval(0x80e382),
+    Loop = side === 0 ? DispatchedLoop : MainLoopContinuation;
   yield () => runMainReset(a);
   yield* mainStartupSequence(h, events);
   yield* owner(h, events, routines);
   yield () => boundary('first owner');
-  yield* gameStartSequence(h, events, routines);
   yield {
-    continuation: new MainLoopContinuation(a, { events, routines, returnToOwner: true }),
+    continuation:
+      side === 0
+        ? dispatchedStart(a, events, routines)
+        : mainStartContinuation(a, events, routines),
+  };
+  yield () => boundary('game start');
+  yield {
+    continuation: new Loop(a, { events, routines, returnToOwner: true }),
   };
   yield () => {
     assert.equal(a.ctx.pc, MAIN_LOOP_ROUND);
@@ -56,12 +65,12 @@ function* session(game, owner, routines, boundary, resume) {
   yield { continuation: loop.round(ROUND) };
   yield () => {
     loop.closeInterval(events);
-    game.memory.wram[MAIN_LOOP_EXIT] = 1;
-    game.memory.wram[MAIN_LOOP_EXIT + 1] = 0;
+    game.memory.wram[request] = 1;
+    game.memory.wram[request + 1] = 0;
   };
   const returning = loop.interval(0x8096c3);
   yield {
-    continuation: new MainLoopContinuation(a, {
+    continuation: new Loop(a, {
       events: returning,
       routines,
       returnToOwner: true,
@@ -80,7 +89,7 @@ function* session(game, owner, routines, boundary, resume) {
 for (const budget of [1, 7])
   for (const [index, originalPlan] of TITLE_CYCLE_PLANS.entries())
     test(
-      `direct owner matches dispatch: session ${index}, budget ${budget}`,
+      `direct owner, game start and main loop match dispatch: session ${index}, budget ${budget}`,
       { timeout: 300000 },
       () => {
         // The no-input plan covers two attract games; then choose New Game.
@@ -120,6 +129,8 @@ for (const budget of [1, 7])
             side === 0 ? dispatchedRoutines : game.loop.routines,
             (key) => compare(side, key, game),
             () => (resumeAt = game.nmis),
+            side,
+            index % 2 ? MAIN_LOOP_RELOAD : MAIN_LOOP_EXIT,
           );
           game.loop.work = new NativeCallContinuation(game.loop.accessor, sequence);
           return game;
@@ -132,7 +143,7 @@ for (const budget of [1, 7])
             done[side] = game.loop.work.run(budget) === WAIT_RETURNED;
             assert.ok(game.nmis < 20000, 'session must finish');
           }
-        assert.equal(counts.boundaries, 3);
+        assert.equal(counts.boundaries, 4);
         assert.ok(counts.frames > 1000, `NMIs compared: ${counts.frames}`);
         assert.deepEqual([...pending[0].keys(), ...pending[1].keys()], []);
         assert.deepEqual(snapshot(games[0]), snapshot(games[1]), 'final return');

@@ -959,3 +959,15 @@ export function runObjectMotion(h, events, routines = MOTION_ROUTINES) {
 export function runSpriteList(h) {
   return buildSprites(h);
 }
+
+// Direct sequences for the live main-loop caller. The wrappers above still serve
+// register-level helper tables; these bodies need no continuation registry lookup.
+export const mainLoopNoticeSequence = noticeTimeoutCallSequence;
+export const mainLoopFrameWaitSequence = frameWaitCallSequence;
+export const mainLoopTimeLimitSequence = (h, events) =>
+  timeLimitSequence(h, events, UPKEEP_ROUTINES);
+export const mainLoopGloveActionSequence = (h, events) =>
+  gloveActionSequence(h, events, UPKEEP_ROUTINES);
+export const mainLoopGloveMoveSequence = (h, events) => gloveMoveSequence(h, events, MOVE_ROUTINES);
+export const mainLoopPlayerZonesSequence = (h, events) =>
+  playerZonesSequence(h, events, ZONE_ROUTINES);

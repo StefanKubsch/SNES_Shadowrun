@@ -150,7 +150,7 @@ export class GameLoop {
       yield { continuation: new NativeCallContinuation(a, gameStartSequence(h, events, routines)) };
       for (;;) {
         yield {
-          continuation: new MainLoopContinuation(a, { events, routines, returnToOwner: true }),
+          continuation: new MainLoopContinuation(a, { events, returnToOwner: true }),
         };
         this.closeInterval(events);
         if (ctx.pc !== MAIN_LOOP_ROUND) break;

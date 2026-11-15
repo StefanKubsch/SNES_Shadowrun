@@ -16,6 +16,32 @@ request 80:CC4B ([SCENE-REQUEST-LIFT.md](SCENE-REQUEST-LIFT.md)); method in
 callees still call through their frames stay in
 [proof/replay/main-loop-upkeep.mjs](../proof/replay/main-loop-upkeep.mjs) (`MAIN_UPKEEP_ROUTINES`).
 
+## Direct live caller (2026-11-15)
+
+The live main loop composes its sixteen callees directly. Synchronous entries
+run as single segments; the zone gate, scene request, notices, time limit,
+frame wait and glove routines delegate to their named sequences. Neither the
+caller nor its continuation selects a callee or factory through a ROM-address
+map. The common NativeCallContinuation handles work budgets and nested waits.
+The MAIN_LOOP_ROUTINES export remains a set of shared helper bindings, also used
+by reference tables; the live caller does not consult it.
+
+[proof/caller/main-loop.mjs](../proof/caller/main-loop.mjs) preserves the former
+live dispatch and its independent continuation. Recorded observation replays
+keep [proof/vm/main-loop.mjs](../proof/vm/main-loop.mjs). Calls retain their
+original frames and validate actual returns and register widths because shared
+callees and NMI code still use the accessor. The two carry short circuits, first
+pass, upkeep order and exit-before-reload priority are unchanged.
+
+[main-owner-caller.test.mjs](../tools/main-owner-caller.test.mjs) compares the old
+and direct live callers at every NMI and at the game-start and owner boundaries,
+including the full context and stack. Five title sessions run at budgets one
+and seven; alternating exit and reload fixtures exercise the actual RTS back
+to the owner, followed by another menu selection. These fixtures do not prove a
+game-over story route. [game-loop.test.mjs](../tools/game-loop.test.mjs) retains
+the independent register-level comparison for new-game movement, the saved-game
+badge route with room transitions and nested native waits, and the attract demo.
+
 ## Lifted so far
 
 | Routine                                     | Module                                                                                               | Content                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                          |

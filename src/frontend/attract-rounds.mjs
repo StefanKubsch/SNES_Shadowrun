@@ -15,7 +15,6 @@ export function* attractRoundsSequence(
   const loop = () => ({
     continuation: new MainLoopContinuation(h.a, {
       events: e,
-      routines: r,
       returnToOwner: true,
     }),
   });

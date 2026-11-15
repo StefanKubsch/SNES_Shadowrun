@@ -10,17 +10,20 @@ tests and recorded replays.
 
 ## Modules
 
-| Module                                                 | Content                                                                                                            |
-| ------------------------------------------------------ | ------------------------------------------------------------------------------------------------------------------ |
-| [game-start.mjs](../src/game/game-start.mjs)           | The main start 80:9688, the room start 80:9699, the new game 80:960D and its state 80:98E9, the save load 81:B198. |
-| [main-start.mjs](../proof/replay/main-start.mjs)       | The routine table and the main driver's entry (`runMainStart`, `mainStartContinuation`).                           |
-| [fixed-colour.mjs](../src/game/fixed-colour.mjs)       | The fixed colour reset 81:8861 with its tail 81:886A (fixed colour black, colour math off).                        |
-| [main-frontend.mjs](../proof/replay/main-frontend.mjs) | The attract game's rounds 80:9699: the lifted room start, then the main loop's rounds (driver glue).               |
+| Module                                                  | Content                                                                                                            |
+| ------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------ |
+| [game-start.mjs](../src/game/game-start.mjs)            | The main start 80:9688, the room start 80:9699, the new game 80:960D and its state 80:98E9, the save load 81:B198. |
+| [main-start.mjs](../src/system/main-start.mjs)          | Direct live entry (`runMainStart`, `mainStartContinuation`) and shared room helper bindings.                       |
+| [retained live caller](../proof/caller/main-start.mjs)  | Former address-dispatched live entry for independent comparisons.                                                  |
+| [replay main-start.mjs](../proof/replay/main-start.mjs) | Address-dispatched entry for recorded observations and register-level references.                                  |
+| [fixed-colour.mjs](../src/game/fixed-colour.mjs)        | The fixed colour reset 81:8861 with its tail 81:886A (fixed colour black, colour math off).                        |
+| [main-frontend.mjs](../proof/replay/main-frontend.mjs)  | The attract game's rounds 80:9699: the lifted room start, then the main loop's rounds (driver glue).               |
 
 ## Boundaries
 
-- The main start is the routine table's entry 80:9688, so the reference can
-  replace it. It reads the menu's choice from direct page word 0: FFFF (any
+- The live main start invokes `gameStartSequence` directly; it does not select
+  its entry or continuation factory from a table. Retained proof callers keep
+  the replaceable entry 80:9688 for reference comparisons. The start reads the menu's choice from direct page word 0: FFFF (any
   negative word) starts a new game in room 3, a slot number loads that slot and
   its saved room.
 - The room start calls the lifted game screen set-up 80:9629
@@ -64,3 +67,13 @@ math layers, the music reset of the game screen) fail it.
 
 [tools/main-start.test.mjs](../tools/main-start.test.mjs) keeps proving the
 reference against the ROM.
+
+## Direct caller comparison (2026-11-15)
+
+[main-owner-caller.test.mjs](../tools/main-owner-caller.test.mjs) compares the
+retained live start with the direct start on the same JS scheduler and devices.
+The five title sessions include New Game, a save load, credits, repeated attract
+games and the menu after them. Budgets of one and seven exercise pauses; every
+NMI and the completed start compare WRAM, SRAM, CPU context, video state and sound
+RAM. The same comparison covers the direct main-loop caller and its return to
+the owner through fixture exit and reload requests.
