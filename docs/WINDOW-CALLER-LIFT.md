@@ -61,3 +61,27 @@ with the same 40 states, two budgets and three request words. It covers releasin
 the last window, holes and no-target glove states, with zero-budget memory
 stability and comparisons of each upload payload and the final game state.
 The retained release imports the retained list, independently of the live path.
+
+## Phase 3: window opening (2026-11-15)
+
+[window-open.mjs](../src/game/window-open.mjs) requests tile clearing and map
+upload directly, always through the live waits. It no longer imports a tile
+routine table or selects recorded observations. The previous opening and
+standalone tile-clear entry remain in
+[proof/caller/window-open.mjs](../proof/caller/window-open.mjs), importing the
+retained list rather than the live upload implementation.
+
+Four additional isolated comparisons cover opening and standalone tile clearing
+at budgets one and seven, using 40 states and the three request counter words.
+Opening states include a full window table, map-edge clamps, zero/negative
+positions and tile allocation near its wrap. The product device supplies the
+known dimensions' product on both sides; this tests composition, not multiplier
+hardware. Each upload payload, device write and final game state is compared.
+The existing 800 opening samples against the register-level original and the
+dialog/menu integration comparisons retain their separate hardware coverage.
+
+The recorded random menu comparisons also retain their former caller in
+[proof/caller/menu-choice.mjs](../proof/caller/menu-choice.mjs), which imports the
+retained tile-clear entry. Its four recorded menu variants continue to compare
+against the register-level original. Live menu caller simplification follows in
+phase 4; recorded polls no longer pass through live tile clearing.

@@ -17,15 +17,9 @@
 // last index X the index, the carry set and A, Y and the overflow unchanged. The tile
 // request waits with the lag-free frame model at its branch 81:ACC0 below the frames of
 // its JSR and JSL, with A the request word and the original's X, Y, carry and overflow;
-// with recorded observations or interrupts it replays them as the original. The window
-// drawing's own pushes are not reproduced.
+// the live path always uses lag-free frames. Recorded observations use the former
+// caller retained in proof/caller/window-open.mjs. Drawing's pushes are not reproduced.
 import { sceneRuntime } from '../system/scene-runtime.mjs';
-import { lagFree } from '../system/main-wait-interrupt.mjs';
-import { nativeCallSequence } from '../system/native-call-continuation.mjs';
-import {
-  requestWindowUploadAdapter,
-  requestWindowUploadSequence,
-} from '../system/native-menu-compose.mjs';
 import { nmiAtBranch } from '../system/frame-wait.mjs';
 import { drawWindow, requestUploadCall } from './window-list.mjs';
 import {
@@ -87,7 +81,6 @@ const PRODUCT_COLUMNS_SITE = 0x80f9ec,
   PRODUCT_AGAIN_SITE = 0x80fa19,
   TILE_REQUEST_SITE = 0x80fa32,
   TILE_WAIT_SITE = 0x80fa84,
-  TILE_REQUEST = 0x80fa67,
   TILE_WAIT_BRANCH = 0x81acc0,
   MAP_UPLOAD_SITE = 0x80fa39,
   JSR_LAST_BYTE = 2,
@@ -98,7 +91,6 @@ const PRODUCT_COLUMNS_SITE = 0x80f9ec,
   // tile count (four ASL).
   TILE_ADDRESS_CARRY_BIT = 13,
   TILE_BYTES_CARRY_BIT = 12;
-const TILE_ROUTINES = new Map([[TILE_REQUEST, requestWindowUploadAdapter]]);
 
 const word = (wram, at) => wram[at] | (wram[at + 1] << BYTE_BITS);
 const setWord = (wram, at, value) => {
@@ -161,13 +153,8 @@ function pullFrame(h, long) {
 }
 
 // The tile request (80:FA67): clear the window's text tiles in video memory with the
-// NMI's next upload, and wait for it (81:ACBD). Without the lag-free frame model the
-// register-level request runs through its frame.
+// NMI's next upload, and wait for it (81:ACBD) below its JSR frame.
 function* requestTileClear(h, events, x) {
-  if (!lagFree(events)) {
-    yield* nativeCallSequence(h, events, TILE_ROUTINES, TILE_REQUEST_SITE, TILE_REQUEST);
-    return;
-  }
   yield () => pushFrame(h, TILE_REQUEST_SITE, false);
   yield* clearTiles(h, events, x);
   yield () => pullFrame(h, false);
@@ -176,10 +163,8 @@ function* requestTileClear(h, events, x) {
 // The tile request 80:FA67 on its own, as other routines call it with JSR (their
 // sequence pushes the frame): the window in the direct page word 00. It leaves A 0 with
 // zero set and sign clear, X the window, Y unchanged and the carry and overflow of its
-// shifts and address addition, as the original. Without the lag-free frame model the
-// register-level request runs.
+// shifts and address addition, as the original. The existing JSR frame is consumed.
 export function* requestTileClearSequence(h, events) {
-  if (!lagFree(events)) return yield* requestWindowUploadSequence(h.a, events, false);
   yield* clearTiles(h, events, word(h.a.mem.wram, DP_LEFT));
   let result;
   yield () => {

@@ -87,7 +87,7 @@ import {
   uploadPortraitTilesSequence,
 } from '../src/game/portrait-upload.mjs';
 import { reloadObjectTilesSequence } from '../src/game/object-tiles.mjs';
-import { chooseFromMenuSequence } from '../src/game/menu-choice.mjs';
+import { chooseFromMenuSequence } from '../proof/caller/menu-choice.mjs';
 import { menuComposeSequence } from '../src/system/native-menu-compose.mjs';
 import { portraitStreams } from '../src/data/portraits.mjs';
 import { uploadPortraitTiles } from '../src/system/native-dialog-portrait.mjs';
@@ -1993,7 +1993,8 @@ registerCases([MENU_LIST], {
 // repeat, hotkeys, then B, Y or a hotkey. The word wait, the pad word (from the script,
 // the newly pressed and held words) and the sound are stand-ins on both sides; the
 // reference draws with its register-level list helpers, the lifted side with the lifted
-// ones, both with the recorded polls of the text uploads and the page's tile requests.
+// ones retained in proof/caller/menu-choice.mjs, both with recorded text and tile polls.
+// Live menu composition is covered separately by the caller and integration tests.
 const MENU_ENTRIES = [0x80a6a5, 0x80a6ad, 0x80a6b8, 0x80a6c7];
 let menuPads = [];
 const menuEvents = () => ({ ...textEvents(), pads: menuPads, padIndex: 0 });

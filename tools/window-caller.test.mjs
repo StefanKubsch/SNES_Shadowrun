@@ -4,6 +4,8 @@ import * as live from '../src/game/window-list.mjs';
 import * as previous from '../proof/caller/window-list.mjs';
 import * as liveRelease from '../src/game/window-release.mjs';
 import * as previousRelease from '../proof/caller/window-release.mjs';
+import * as liveOpen from '../src/game/window-open.mjs';
+import * as previousOpen from '../proof/caller/window-open.mjs';
 import { NativeCallContinuation } from '../src/system/native-call-continuation.mjs';
 import { WAIT_PAUSED } from '../src/system/native-wait-continuation.mjs';
 import { LagFreeFrames } from '../src/vm/frame-events.mjs';
@@ -24,6 +26,19 @@ function run(module, name, seed, budget, initialRequest) {
     const last = mem.read16(0x204);
     mem.write16(0, seed % 3 === 1 && last < 0x8000 ? last : 0);
   }
+  if (name === 'openWindowSequence') {
+    mem.write16(0x204, [0xffff, 0, 0x1c, 0x1e][seed % 4]);
+    mem.write16(0, [0, 1, 0x1f, 0xffff][seed % 4]);
+    mem.write16(2, [0, 1, 0x1b, 0xffff][seed % 4]);
+    mem.write16(4, 3 + rnd(18));
+    mem.write16(6, 3 + rnd(8));
+    mem.write16(8, 0x2400);
+    mem.write16(0x212, [0x2027, 0x23ff, 0x2400][seed % 3]);
+    const read = a.devices.read;
+    a.devices.read = (address, width) =>
+      (address & 0xffff) === 0x2134 ? (mem.wram[4] - 2) * (mem.wram[6] - 2) : read(address, width);
+  }
+  mem.write16(0x1f6, initialRequest);
   mem.write16(0x1f8, initialRequest);
   mem.write16(0x1cc, 0);
   Object.assign(a.ctx, { programBank: 0x80, bank: 0x80, pc: 0xcdad });
@@ -33,9 +48,9 @@ function run(module, name, seed, budget, initialRequest) {
     frames = new LagFreeFrames({ nmitimen: 0x80 }),
     events = { interrupts: frames };
   frames.textWait = (_h, _events, _status, pc) => {
-    assert.equal(pc, 0x81acb2);
-    uploads.push(mem.wram.slice(0x1cc));
-    mem.write16(0x1f8, 0);
+    assert.ok(pc === 0x81acb2 || pc === 0x81acc0, 'map or tile blocking branch');
+    uploads.push({ pc, payload: mem.wram.slice(0x1cc) });
+    mem.write16(pc === 0x81acb2 ? 0x1f8 : 0x1f6, 0);
     return true;
   };
   const sequence =
@@ -58,7 +73,7 @@ function run(module, name, seed, budget, initialRequest) {
   // CPU stacks and saved interrupt registers are outside the game-state contract.
   mem.wram.fill(0, 0x100, 0x1ca);
   mem.wram.fill(0, 0x1c78, 0x1cbc);
-  return { wram: mem.wram, uploads, result: continuation.result };
+  return { wram: mem.wram, uploads, writes: side.writes, result: continuation.result };
 }
 
 for (const budget of [1, 7])
@@ -88,5 +103,16 @@ for (const budget of [1, 7])
           assert.deepEqual(
             run(liveRelease, name, seed, budget, request),
             run(previousRelease, name, seed, budget, request),
+          );
+    });
+
+for (const budget of [1, 7])
+  for (const name of ['openWindowSequence', 'requestTileClearSequence'])
+    test(`live opening matches former ${name}, budget ${budget}`, () => {
+      for (let seed = 1; seed <= 40; seed++)
+        for (const request of [0, 0xfffe, 0xffff])
+          assert.deepEqual(
+            run(liveOpen, name, seed, budget, request),
+            run(previousOpen, name, seed, budget, request),
           );
     });
