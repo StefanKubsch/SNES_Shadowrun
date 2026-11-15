@@ -1,7 +1,7 @@
 // The window releases of the room entry (lifted from 80:FA3E, 80:FF79, 80:BCB2 and
 // 80:BE5B; register-level versions in src/system/native-render-compose.mjs,
 // proof/replay/native-slot-release.mjs and src/system/native-dialog-portrait.mjs; the script
-// natives call 80:FA3E lifted with lag-free frames, recorded runs register-level).
+// natives call the live release; recorded callers remain in proof/caller/).
 //
 // A window is released by clearing its active word; releasing the last window moves
 // the last index down to the previous active one and the next free tile back to the
@@ -23,12 +23,7 @@ import {
   dialogCallBody,
   drainNativeSequence,
 } from '../system/native-call-continuation.mjs';
-import {
-  releaseWindowAdapter,
-  releaseWindowSequence as releaseWindowReference,
-} from '../system/native-render-compose.mjs';
 import { dialogAccess } from '../system/native-dialog-support.mjs';
-import { lagFree } from '../system/main-wait-interrupt.mjs';
 import {
   GLOVE_KIND,
   GLOVE_NAME_WINDOW,
@@ -45,14 +40,14 @@ import {
 import { BYTE_BITS, BYTE_MASK, WORD_BITS, WORD_MASK, WORD_SIGN } from '../constants/bits.mjs';
 import { FLAG_CARRY, FLAG_NEGATIVE, FLAG_ZERO } from '../constants/cpu-flags.mjs';
 
-const NONE = WORD_MASK,
+const NOTICE_LOOP_END = 0xfffe,
+  NONE = WORD_MASK,
   DP_WINDOW = 0x00,
   // A JSR pushes the address of its last byte.
   JSR_LAST_BYTE = 2;
 // Original call sites: the redraw in the release, the release in the notice windows
 // and in the name window release, the name window release in the glove.
-const RELEASE_WINDOW = 0x80fa3e,
-  REDRAW_SITE = 0x80fa62,
+const REDRAW_SITE = 0x80fa62,
   NOTICE_RELEASE_SITE = 0x80ff85,
   NAME_RELEASE_SITE = 0x80be60,
   GLOVE_NAME_SITE = 0x80bcba,
@@ -108,16 +103,12 @@ function* releaseWindowCallSequence(h, events) {
   };
   return result;
 }
-// 80:FA3E as a sequence for the register-level callers (with their accessor a): lifted
-// with the lag-free frame model; with recorded interrupt observations the register-level
-// release (src/system/native-render-compose.mjs) replays them.
+// The live release entered with a caller-provided JSR frame. Recorded callers
+// use the independently retained sequence in proof/caller/window-release.mjs.
 export const releaseWindowJsrSequence = (a, events) =>
-  lagFree(events)
-    ? releaseWindowCallSequence(dialogAccess(a), events)
-    : releaseWindowReference(a, events, false);
+  releaseWindowCallSequence(dialogAccess(a), events);
 // The routine for the callers' tables (target 80:FA3E), as releaseWindowJsrSequence.
 export function runReleaseWindowCall(h, events) {
-  if (!lagFree(events)) return releaseWindowAdapter(h, events);
   return drainNativeSequence(releaseWindowCallSequence(h, events));
 }
 // Other tables bind the register-level release to 80:FA3E, so this continuation is found
@@ -125,9 +116,7 @@ export function runReleaseWindowCall(h, events) {
 NATIVE_CALL_CONTINUATIONS.set(runReleaseWindowCall, {
   run: runReleaseWindowCall,
   create: (call) =>
-    lagFree(call.events)
-      ? new NativeCallContinuation(call.h.a, releaseWindowCallSequence(call.h, call.events))
-      : NATIVE_CALL_CONTINUATIONS.get(RELEASE_WINDOW).create(call),
+    new NativeCallContinuation(call.h.a, releaseWindowCallSequence(call.h, call.events)),
 });
 
 // Release every used notice window, from the last slot down, and reset the first window
@@ -236,7 +225,7 @@ export function* releaseNoticeWindowsCallSequence(h, events) {
   let result;
   yield () => {
     setWord(wram, WINDOW_FIRST_INDEX, 0);
-    ctx.x = -2 & WORD_MASK;
+    ctx.x = NOTICE_LOOP_END;
     ctx.status = (ctx.status | FLAG_NEGATIVE) & ~FLAG_ZERO;
     result = h.rts();
   };

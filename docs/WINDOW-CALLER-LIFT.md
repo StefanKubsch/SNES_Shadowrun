@@ -45,3 +45,19 @@ The existing random upkeep comparisons now service the live tile/map requests at
 their blocking branches through `liveWindowEvents`; the reference still consumes
 recorded polls. They continue to compare the real drawing, allocation and release
 against the register-level reference, including their previous register assertions.
+
+## Phase 2: window release (2026-11-15)
+
+[window-release.mjs](../src/game/window-release.mjs) always redraws through the
+live window list. Its JSR entry and continuation factory no longer select a
+recorded reference. The glove name and notice paths retain their direct calls,
+slot order, last-active-window search, tile allocation and upload waits.
+Shared register-level dialog text and portrait helpers explicitly call the
+register-level render release; they no longer enter a live wrapper to select
+their recorded implementation. Their eventual lifting is a separate boundary.
+
+The isolated comparison now includes seven release/name/glove/notice sequences,
+with the same 40 states, two budgets and three request words. It covers releasing
+the last window, holes and no-target glove states, with zero-budget memory
+stability and comparisons of each upload payload and the final game state.
+The retained release imports the retained list, independently of the live path.

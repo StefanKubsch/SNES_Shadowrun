@@ -1,6 +1,6 @@
 import { taskStop } from './task-stop.mjs';
 import { waitForRandomStateChange } from './native-frame-wait.mjs';
-import { runReleaseWindowCall } from '../game/window-release.mjs';
+import { releaseWindowAdapter } from './native-render-compose.mjs';
 import {
   NativeCallContinuation,
   NATIVE_CALL_CONTINUATIONS,
@@ -500,7 +500,7 @@ export function* releaseGloveNameWindowSequence(h, events, routines) {
 export const putGloveAwayAdapter = (h, e) => putGloveAway(h, e);
 const RELEASE_ROUTINES = new Map([
   [0x80be5b, releaseGloveNameWindow],
-  [0x80fa3e, runReleaseWindowCall],
+  [0x80fa3e, releaseWindowAdapter],
 ]);
 NATIVE_CALL_CONTINUATIONS.set(0x80bcb2, {
   run: putGloveAwayAdapter,

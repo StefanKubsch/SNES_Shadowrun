@@ -11,7 +11,7 @@ import { setTextCursor } from './native-list-prerequisites.mjs';
 import { printText, printTextSequence } from './native-text-compose.mjs';
 import { openWindow, f963Sequence } from '../script/native-window-open.mjs';
 import { releaseWindow } from './native-render-compose.mjs';
-import { releaseWindowJsrSequence } from '../game/window-release.mjs';
+import { releaseWindowSequence } from './native-render-compose.mjs';
 import {
   segmentSequence,
   dialogCallBody,
@@ -138,7 +138,7 @@ export const dialogTextSequences = (events) => ({
     };
     return p;
   },
-  release: (a) => releaseWindowJsrSequence(a, events),
+  release: (a) => releaseWindowSequence(a, events, false),
 });
 
 // The same topic action as a sequence: C34A one segment, C1CA a pausable round (NativeCalls nestedRound).

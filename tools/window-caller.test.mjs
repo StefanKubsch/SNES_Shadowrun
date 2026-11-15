@@ -2,6 +2,8 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import * as live from '../src/game/window-list.mjs';
 import * as previous from '../proof/caller/window-list.mjs';
+import * as liveRelease from '../src/game/window-release.mjs';
+import * as previousRelease from '../proof/caller/window-release.mjs';
 import { NativeCallContinuation } from '../src/system/native-call-continuation.mjs';
 import { WAIT_PAUSED } from '../src/system/native-wait-continuation.mjs';
 import { LagFreeFrames } from '../src/vm/frame-events.mjs';
@@ -18,6 +20,10 @@ function run(module, name, seed, budget, initialRequest) {
     rnd = (n) => Math.floor(random() * n);
   windowMapSource(mem.wram, mem);
   windowTables(mem.wram, rnd, (values) => values[rnd(values.length)]);
+  if (name.includes('release') || name.includes('Glove')) {
+    const last = mem.read16(0x204);
+    mem.write16(0, seed % 3 === 1 && last < 0x8000 ? last : 0);
+  }
   mem.write16(0x1f8, initialRequest);
   mem.write16(0x1cc, 0);
   Object.assign(a.ctx, { programBank: 0x80, bank: 0x80, pc: 0xcdad });
@@ -37,9 +43,11 @@ function run(module, name, seed, budget, initialRequest) {
         ? module[name](h, events, 0x80fa39)
         : name === 'drawWindowListSequence'
           ? module[name](h, events, 0x80cdad)
-          : (function* () {
-              yield () => module[name](h, events);
-            })(),
+          : name.endsWith('Sequence')
+            ? module[name](h, events)
+            : (function* () {
+                yield () => module[name](h, events);
+              })(),
     continuation = new NativeCallContinuation(a, sequence);
   const before = mem.wram.slice();
   assert.equal(continuation.run(0), WAIT_PAUSED);
@@ -61,5 +69,24 @@ for (const budget of [1, 7])
           assert.deepEqual(
             run(live, name, seed, budget, request),
             run(previous, name, seed, budget, request),
+          );
+    });
+
+for (const budget of [1, 7])
+  for (const name of [
+    'releaseWindowSequence',
+    'releaseNoticeWindowsSequence',
+    'putGloveAwaySequence',
+    'releaseGloveNameWindowSequence',
+    'releaseNameWindowCallSequence',
+    'putGloveAwayCallSequence',
+    'releaseNoticeWindowsCallSequence',
+  ])
+    test(`live release matches former ${name}, budget ${budget}`, () => {
+      for (let seed = 1; seed <= 40; seed++)
+        for (const request of [0, 0xfffe, 0xffff])
+          assert.deepEqual(
+            run(liveRelease, name, seed, budget, request),
+            run(previousRelease, name, seed, budget, request),
           );
     });
