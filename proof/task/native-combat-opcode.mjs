@@ -4,14 +4,14 @@ import { runTaskOpcodeTarget } from './opcode-target.mjs';
 import { runTaskNativeArguments } from './native-arguments.mjs';
 import { runTaskNativeBridge } from './native-bridge.mjs';
 import { runTaskNativeResume } from './native-resume.mjs';
-import { validateTaskActionsOptions } from '../../src/task/native-actions.mjs';
-import * as combat from '../../src/task/native-combat.mjs';
+import { validateTaskActionsOptions } from '../replay/native-actions.mjs';
+import * as combat from '../replay/native-combat.mjs';
 import {
   chooseObjectUnderGloveObserved,
   validateGloveTaskOptions,
-} from '../../src/task/native-glove-target.mjs';
-import { fec1Registers } from '../../src/task/native-notice.mjs';
-import { lineOfSightDevices } from '../../src/task/line-of-sight.mjs';
+} from '../replay/native-glove-target.mjs';
+import { fec1Registers } from '../replay/native-notice.mjs';
+import { lineOfSightDevices } from '../replay/line-of-sight.mjs';
 import { native8BC5Devices } from './native-8bc5-opcode.mjs';
 // Devices of the velocity body 8D95: the hardware divider and its three quotient reads.
 const velocityDevices = Object.freeze({

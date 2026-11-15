@@ -1,6 +1,6 @@
 import { proveExternalSource, emitExternalSource } from './task-native-external-source.mjs';
 import { EA6E_SUBMENUS } from './task-native-ea6e-source.mjs';
-// NativeD0/E014 (src/task/native-player-control.mjs): player control with DEC7, DF6B, the gloves BC67/BC80/BC99 over BC36,
+// NativeD0/E014 (proof/replay/native-player-control.mjs): player control with DEC7, DF6B, the gloves BC67/BC80/BC99 over BC36,
 // the group overview ED3C and the status screen entries EA89/EA8E (the whole status graph of EA6E from EA94 on,
 // with its submenus). Windows hold the reachable instructions only.
 export const nativeE014Spec = {
@@ -73,10 +73,10 @@ export const nativeE014Spec = {
     [
       0x81aeb0,
       'RTL',
-      'window list, resetAndDrawWindowList in src/task/native-glove-target.mjs (tools/task-native-9bc6-source.mjs)',
+      'window list, resetAndDrawWindowList in proof/replay/native-glove-target.mjs (tools/task-native-9bc6-source.mjs)',
     ],
-    [0x80f953, 'RTS', 'input wait, waitForConfirmKey in src/task/native-input-wait.mjs'],
-    [0x80ff79, 'RTS', 'clear, releaseNoticeWindows in src/task/native-slot-release.mjs'],
+    [0x80f953, 'RTS', 'input wait, waitForConfirmKey in proof/replay/native-input-wait.mjs'],
+    [0x80ff79, 'RTS', 'clear, releaseNoticeWindows in proof/replay/native-slot-release.mjs'],
     [
       0x809f6d,
       'RTS',
@@ -94,7 +94,7 @@ export const nativeE014Spec = {
     [0x80fe69, 'RTS', 'text, printText in src/task/native-text-compose.mjs'],
     [0x80fd80, 'RTS', 'number, printNumber in src/task/native-list-prerequisites.mjs'],
     [0x80fb39, 'RTS', 'text output, drawTextBuffer in src/task/native-text-compose.mjs'],
-    [0x8092c5, 'RTS', 'dialog close, closeDialog in src/task/native-dialog.mjs'],
+    [0x8092c5, 'RTS', 'dialog close, closeDialog in proof/replay/native-dialog.mjs'],
     [0x81886a, 'RTL', 'screen, clearFixedColour in src/task/native-dialog-portrait.mjs'],
     [0x80bcb2, 'RTS', 'glove off, putGloveAway in src/task/native-dialog-portrait.mjs'],
     [0x81f007, 'RTL', 'sound command, sendApuCommand in src/task/native-input-apu.mjs'],
@@ -115,7 +115,7 @@ export const nativeE014Spec = {
     ],
   ],
   scope:
-    'Original NativeD0 E014 own code with the player control helpers, the group overview and the status screen; external returns into the proved window, menu, task, scheduler, input, portrait, counter, cursor, text, number, sound, object creation, selection and action graphs; equations in src/task/native-player-control.mjs, differential check in tools/task-native-e014.test.mjs.',
+    'Original NativeD0 E014 own code with the player control helpers, the group overview and the status screen; external returns into the proved window, menu, task, scheduler, input, portrait, counter, cursor, text, number, sound, object creation, selection and action graphs; equations in proof/replay/native-player-control.mjs, differential check in tools/task-native-e014.test.mjs.',
   contract:
     'DP00 = 0CC2; Select ED3C, Start EA89, Y EA8E; without glove DEC7 (pad only) or the glove/crosshair/spell starts with A985 (notices without weapon or spell); with glove DF6B, aiming result in DP00 (direct RTS) or release with A985/BCB2; else STZ DP00. E0M0X0 D0 entry, return M0X0 with entry DBR.',
 };

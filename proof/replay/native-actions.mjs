@@ -13,33 +13,39 @@ import {
   DP_LIST_TOKENS,
   DP_LIST_TOKEN_BANK,
   DP_LIST_VALUES,
-} from './wram.mjs';
-import { TEXT_EXIT } from '../data/port-extension.mjs';
-import { fitListWindow, listTextIds } from '../data/menu-layout.mjs';
-import { M7A, M7B, MPYL, MPYM } from '../constants/hardware-registers.mjs';
+} from '../../src/task/wram.mjs';
+import { TEXT_EXIT } from '../../src/data/port-extension.mjs';
+import { fitListWindow, listTextIds } from '../../src/data/menu-layout.mjs';
+import { M7A, M7B, MPYL, MPYM } from '../../src/constants/hardware-registers.mjs';
 import { withInterruptEvents } from './observed-native-events.mjs';
-import { lagFree } from './main-wait-interrupt.mjs';
-import { taskStop } from './plan.mjs';
-import { dialogAccess } from './native-dialog-support.mjs';
-import { taskTextAccess } from './native-text-prerequisites.mjs';
-import { f963Sequence } from './native-window-open.mjs';
-import { menuComposeSequence, taskMenuDevices } from './native-menu-compose.mjs';
-import { releaseWindowJsrSequence } from '../game/window-release.mjs';
-import { af1fRegisters } from './native-bar-tiles.mjs';
+import { lagFree } from '../../src/task/main-wait-interrupt.mjs';
+import { taskStop } from '../../src/task/plan.mjs';
+import { dialogAccess } from '../../src/task/native-dialog-support.mjs';
+import { taskTextAccess } from '../../src/task/native-text-prerequisites.mjs';
+import { f963Sequence } from '../../src/task/native-window-open.mjs';
+import { menuComposeSequence, taskMenuDevices } from '../../src/task/native-menu-compose.mjs';
+import { releaseWindowJsrSequence } from '../../src/game/window-release.mjs';
+import { af1fRegisters } from '../../src/task/native-bar-tiles.mjs';
 import {
   observedContinuation,
   drainNativeSequence,
   NativeCallContinuation,
-  NATIVE_CALL_CONTINUATIONS,
-} from './native-call-continuation.mjs';
-import { BANK_WRAP, WORD_MASK, BANK_SIZE, WORD_BITS, LONG_MASK } from '../constants/bits.mjs';
+} from '../../src/task/native-call-continuation.mjs';
+import { NATIVE_CALL_CONTINUATIONS } from './continuations.mjs';
+import {
+  BANK_WRAP,
+  WORD_MASK,
+  BANK_SIZE,
+  WORD_BITS,
+  LONG_MASK,
+} from '../../src/constants/bits.mjs';
 import {
   FLAG_INDEX_8BIT,
   FLAG_MEMORY_8BIT,
   FLAG_ZERO,
   FLAG_CARRY,
-} from '../constants/cpu-flags.mjs';
-import { CODE_BANK, WRAM_BANK } from '../constants/memory-map.mjs';
+} from '../../src/constants/cpu-flags.mjs';
+import { CODE_BANK, WRAM_BANK } from '../../src/constants/memory-map.mjs';
 
 const JSR_BYTES = 3;
 // Masks and text pointers in the pinned 99EB source. Original text ids are

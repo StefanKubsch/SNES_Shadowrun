@@ -1,7 +1,7 @@
 import { taskStop } from '../../src/task/plan.mjs';
 import { leaf } from '../../src/task/native-leaf-support.mjs';
 import { randomBelow } from '../../src/task/native-random.mjs';
-import { testLineOfSight, SIGHT_ROUTINE } from '../../src/task/line-of-sight.mjs';
+import { testLineOfSight, SIGHT_ROUTINE } from '../replay/line-of-sight.mjs';
 
 import {
   GROUP_INDEX,

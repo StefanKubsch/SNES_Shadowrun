@@ -4,8 +4,8 @@ import { runTaskOpcodeTarget } from './opcode-target.mjs';
 import { runTaskNativeArguments } from './native-arguments.mjs';
 import { runTaskNativeBridge } from './native-bridge.mjs';
 import { runTaskNativeResume } from './native-resume.mjs';
-import { runTaskModalObserved, modalDevices } from '../../src/task/native-modal.mjs';
-import { validateTaskActionsOptions } from '../../src/task/native-actions.mjs';
+import { runTaskModalObserved, modalDevices } from '../replay/native-modal.mjs';
+import { validateTaskActionsOptions } from '../replay/native-actions.mjs';
 const contracts = new Map([
   [0x72, [0x80cd43, 0x0202, 0x0202]],
   [0xbf, [0x80cd20, 0x0101, 0x0002]],

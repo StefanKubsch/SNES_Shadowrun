@@ -1,5 +1,5 @@
 // The movement of the action and spell glove (lifted from 80:BE6D; register-level
-// version in src/task/native-glove.mjs, which the glove natives keep calling).
+// version in proof/replay/native-glove.mjs, which the glove natives keep calling).
 //
 // While a glove is out (7E:01D8 not zero), the held directions on the pad move it:
 // right and down accelerate its speed by 30 per frame up to 300 (a speed going the

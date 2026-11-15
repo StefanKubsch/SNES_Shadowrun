@@ -1,5 +1,5 @@
 // The pixel width of a text (lifted from 80:FADD with its glyph width step 80:FB2A;
-// register-level version in src/task/native-glove-target-support.mjs, which the glove
+// register-level version in proof/replay/native-glove-target-support.mjs, which the glove
 // natives still use).
 //
 // The text number in the direct page word 00 is decoded as by the text print

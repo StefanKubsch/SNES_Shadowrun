@@ -10,14 +10,18 @@ import {
   SPRITE_ORDER_TARGETS,
 } from './task-native-936c-windows.mjs';
 
-// Native95/936C (Dialog, src/task/native-dialog.mjs) und seine neu umgesetzten Unterroutinen: je Gruppe
+// Native95/936C (Dialog, proof/replay/native-dialog.mjs) und seine neu umgesetzten Unterroutinen: je Gruppe
 // gepinnte Originalbytes, statischer Stapel-/Modusbeweis mit echten Rahmen und externen Rücksprüngen in
 // Routinen mit eigenem Beweis. Die Gleichungen vergleicht tools/task-native-dialog.test.mjs mit den
 // Originalbefehlen; Mesen bestätigt den ganzen Dialog (docs/MESEN-ORACLE.md).
 const RTS = 'RTS',
   RTL = 'RTL';
 const ext = {
-  FF79: [0x80ff79, RTS, 'clear windows, releaseNoticeWindows (src/task/native-slot-release.mjs)'],
+  FF79: [
+    0x80ff79,
+    RTS,
+    'clear windows, releaseNoticeWindows (proof/replay/native-slot-release.mjs)',
+  ],
   EF47: [0x81ef47, RTL, 'music mode, setMusicMode (src/task/native-audio-compose.mjs)'],
   F963: [0x80f963, RTS, 'window allocation, openWindow (src/task/native-window-open.mjs)'],
   FA3E: [0x80fa3e, RTS, 'window release, releaseWindow (src/task/native-render-compose.mjs)'],
@@ -184,7 +188,7 @@ export async function emit936CSource() {
     rom_sha256: taskRomHash,
     progress_reference: 'docs/PORTIERUNGSSTAND.json',
     scope:
-      'Native95/936C dialog with its newly composed subroutines; pinned windows, static stack/mode proof per group with external returns into separately proved routines. Equations in src/task/native-dialog.mjs, native-dialog-*.mjs, native-scene-*.mjs; comparison with the original instructions in tools/task-native-dialog.test.mjs.',
+      'Native95/936C dialog with its newly composed subroutines; pinned windows, static stack/mode proof per group with external returns into separately proved routines. Equations in proof/replay/native-dialog.mjs, native-dialog-*.mjs, native-scene-*.mjs; comparison with the original instructions in tools/task-native-dialog.test.mjs.',
     groups,
     source_graph: {
       classification: 'native58-dialog-with-external-returns',

@@ -1,5 +1,5 @@
 // A hit (lifted from 80:8691 with the player hit 80:881C; register-level version in
-// src/task/native-object-hit.mjs, which recorded waits and inputs replay).
+// proof/replay/native-object-hit.mjs, which recorded waits and inputs replay).
 //
 // The hit takes the damage in A, the target's object slot in X and the shooter's in Y
 // (negative: none, as from the blast 80:8E36); the damage is kept in DP 00.

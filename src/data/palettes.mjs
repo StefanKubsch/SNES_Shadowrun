@@ -1,6 +1,6 @@
 // Palettes (docs/ROM-FREE.md, step 2), ranges in analysis/rom-palettes.json:
 // the tables from which $80:999A (8C:F624 + 32 n) and $81:A919 (8D:F1BA + 16 n)
-// send 30 bytes each by DMA to CGRAM ($2122) (src/task/main-game-nmi.mjs), from
+// send 30 bytes each by DMA to CGRAM ($2122) (proof/replay/main-game-nmi.mjs), from
 // the first block on. The first table ends before the first word with bit 15
 // (8C:FF62), the second at 8D:FB78, where the OBJ data sent to VRAM by 80:C06B
 // begins (analysis/rom-vram.json). Plus the other DMA sources from ROM seen in

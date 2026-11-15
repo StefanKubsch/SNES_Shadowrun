@@ -1,5 +1,5 @@
 // The player's control for one frame (lifted from the script native 80:E014;
-// register-level version in src/task/native-player-control.mjs, which recorded waits
+// register-level version in proof/replay/native-player-control.mjs, which recorded waits
 // and inputs replay).
 //
 // DP 00 is the leader 7E:0CC2 at the start and 0 or the aim's result at the end.

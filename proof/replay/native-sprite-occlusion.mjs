@@ -1,4 +1,4 @@
-import { clc } from './status-flags.mjs';
+import { clc } from '../../src/task/status-flags.mjs';
 import {
   CELL_SIZE,
   DP_CELL_X,
@@ -17,7 +17,7 @@ import {
   dpStore,
   field,
   highBits,
-} from './native-sprite-helpers.mjs';
+} from '../../src/task/native-sprite-helpers.mjs';
 import {
   CELL_FRONT_WALL,
   CELL_OPEN,
@@ -30,7 +30,7 @@ import {
   WALL_HEIGHTS,
   WALL_TILES,
   WRAM,
-} from './wram.mjs';
+} from '../../src/task/wram.mjs';
 import {
   OAM_ENTRY_BYTES,
   OAM_LOW_TABLE_BYTES,
@@ -38,9 +38,14 @@ import {
   OAM_NAME_HIGH,
   OAM_PRIORITY_2,
   OAM_PRIORITY_3,
-} from '../constants/ppu.mjs';
-import { HEX_RADIX, WORD_MASK } from '../constants/bits.mjs';
-import { FLAG_ZERO, FLAG_CARRY, FLAG_NEGATIVE, FLAG_MEMORY_8BIT } from '../constants/cpu-flags.mjs';
+} from '../../src/constants/ppu.mjs';
+import { HEX_RADIX, WORD_MASK } from '../../src/constants/bits.mjs';
+import {
+  FLAG_ZERO,
+  FLAG_CARRY,
+  FLAG_NEGATIVE,
+  FLAG_MEMORY_8BIT,
+} from '../../src/constants/cpu-flags.mjs';
 
 // Occlusion tiles of the scene sprites (native-scene-sprites.mjs): walls in front of an
 // object become 8x8 sprites from the map cells around it.

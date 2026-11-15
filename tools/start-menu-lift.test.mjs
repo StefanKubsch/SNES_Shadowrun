@@ -6,7 +6,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { compareLift } from './lift-compare.mjs';
 import { START_MENU_IGNORED_WRAM, START_MENU_PLANS } from './live-start-menu-plan.mjs';
-import { openStartMenu } from '../src/task/main-frontend-menu.mjs';
+import { openStartMenu } from '../proof/replay/main-frontend-menu.mjs';
 import { handleStartMenuNmi } from '../src/frontend/start-menu.mjs';
 import { START_MENU_REFERENCE_ENTRIES } from '../proof/frontend-reference/start-menu.mjs';
 

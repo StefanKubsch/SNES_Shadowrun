@@ -2,9 +2,9 @@
 // NMI callback 81:E6AE (the lifted version is src/frontend/start-menu.mjs).
 import { saveSlotCount } from '../../src/game/save-slots.mjs';
 import { taskStop } from '../../src/task/plan.mjs';
-import { MAIN_SCENE_ROUTINES } from '../../src/task/main-scene.mjs';
+import { MAIN_SCENE_ROUTINES } from '../replay/main-scene.mjs';
 import { AUDIO_REFERENCE_ENTRIES } from '../apu-reference/audio-routines.mjs';
-import { compareSaveChecksum } from '../../src/task/native-main-menu.mjs';
+import { compareSaveChecksum } from '../replay/native-main-menu.mjs';
 import { interruptStep, steppedInterrupts } from '../../src/task/main-wait-interrupt.mjs';
 import {
   NativeCallContinuation,

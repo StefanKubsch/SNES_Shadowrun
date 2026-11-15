@@ -1,7 +1,7 @@
 // Source-specific atomic plans for proof tools. The game executes the shared routines directly.
 import { prepareTaskPlan } from './plan.mjs';
-import { validateTaskActionsOptions } from '../../src/task/native-actions.mjs';
-import { runTaskSelectionObserved, selectionDevices } from '../../src/task/native-selection.mjs';
+import { validateTaskActionsOptions } from '../replay/native-actions.mjs';
+import { runTaskSelectionObserved, selectionDevices } from '../replay/native-selection.mjs';
 
 export function prepareTaskSelectionRoot(options) {
   const invalid = validateTaskActionsOptions(options);

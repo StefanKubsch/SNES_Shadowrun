@@ -10,7 +10,7 @@ import {
   nativeCallSequence,
 } from '../../src/task/native-call-continuation.mjs';
 import { routineCaller } from '../../src/task/routine-call.mjs';
-import { MAIN_SCENE_ROUTINES } from '../../src/task/main-scene.mjs';
+import { MAIN_SCENE_ROUTINES } from '../replay/main-scene.mjs';
 import { AUDIO_REFERENCE_ENTRIES } from '../apu-reference/audio-routines.mjs';
 import {
   INTRO_FAR_ANIMATION,

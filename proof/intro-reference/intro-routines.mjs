@@ -4,7 +4,7 @@
 // first near objects 81:DC43, the window 81:D642, the title's and the game's audio
 // 81:DDB1 and 81:EF63, the object clear 81:E8E5, the near object sound 81:E900, the
 // sprite grid 81:E83A and the far object start 81:E971.
-import { MAIN_SCENE_ROUTINES } from '../../src/task/main-scene.mjs';
+import { MAIN_SCENE_ROUTINES } from '../replay/main-scene.mjs';
 import { AUDIO_REFERENCE_ENTRIES } from '../apu-reference/audio-routines.mjs';
 import * as setup from './intro-setup.mjs';
 import { drawIntroSpriteGrid, startFarIntroObject } from './intro-sprites.mjs';

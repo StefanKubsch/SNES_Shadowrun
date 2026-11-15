@@ -8,7 +8,7 @@
 // the calls with their A and the return must be equal.
 import { prng } from './task-native-dialog-harness.mjs';
 import { createSide, registerCases } from './lift-function-harness.mjs';
-import { removeFromFightList } from '../src/task/native-fight-list-remove.mjs';
+import { removeFromFightList } from '../proof/replay/native-fight-list-remove.mjs';
 import { removeFromFightListSequence } from '../src/game/fight-list.mjs';
 import { drainNativeSequence } from '../src/task/native-call-continuation.mjs';
 

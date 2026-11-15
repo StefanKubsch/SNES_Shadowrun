@@ -5,7 +5,7 @@ import {
   taskActionsEntries as entries,
   runTaskActionsObserved,
   taskActionsDevices,
-} from '../../src/task/native-actions.mjs';
+} from '../replay/native-actions.mjs';
 
 export function prepareTaskNativeActions(options) {
   const invalid = validateTaskActionsOptions(options);

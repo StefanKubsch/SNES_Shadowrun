@@ -1,5 +1,5 @@
 // The fight list (lifted from 80:8521 and 80:855E; register-level references in
-// proof/game-reference/fight-list-append.mjs and src/task/native-fight-list-remove.mjs).
+// proof/game-reference/fight-list-append.mjs and proof/replay/native-fight-list-remove.mjs).
 //
 // The fight list holds the objects in a fight as words after its index word; the index
 // points at the last entry (FFFE: empty). The first entry starts a fight: an eighth of

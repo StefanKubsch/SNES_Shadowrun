@@ -1,5 +1,5 @@
 // The boot screens (lifted from 81:E7BC; register-level reference `showBootScreens` in
-// src/task/main-startup.mjs, which recorded runs keep).
+// proof/replay/main-startup.mjs, which recorded runs keep).
 //
 // After the reset the game shows two screens: the first from the scene list 8A:8000,
 // faded in, with the sound driver started (81:EF07) while it is shown, held for 150

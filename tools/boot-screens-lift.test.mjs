@@ -10,7 +10,7 @@ import assert from 'node:assert/strict';
 import { compareLift } from './lift-compare.mjs';
 import { loadSave } from './mesen-f390-oracle.mjs';
 import { CUTSCENE_IGNORED_WRAM } from './live-cutscene-plan.mjs';
-import { runBootScreensLifted, showBootScreens } from '../src/task/main-startup.mjs';
+import { runBootScreensLifted, showBootScreens } from '../proof/replay/main-startup.mjs';
 import { SETTINGS_CHECKSUM, SETTINGS_STEREO } from '../src/task/wram.mjs';
 import { BANK_SIZE } from '../src/constants/bits.mjs';
 

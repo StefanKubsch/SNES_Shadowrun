@@ -1,7 +1,7 @@
 // Menu texts of bank 81 (docs/ROM-FREE.md, step 2). $81:D531 writes the text
 // at DBR:Y to the tilemap 7E:86A9 + X until a 00: character c becomes the word
 // at 7E:46A8 + 2 (c - 20), ORed with 2400 and XORed with DP 18
-// (src/task/main-frontend-text.mjs). Its callers load Y with a fixed address
+// (proof/replay/main-frontend-text.mjs). Its callers load Y with a fixed address
 // (LDY #) in bank 81, DBR = 81 (PHK/PLB): 81:D571 (copyright line), E399/E3A3/
 // E3AD (main menu), E405/E414/E420 (saved games), E45E to E49C (options, two
 // texts per setting). The texts lie in four runs between code: 81:D582 to

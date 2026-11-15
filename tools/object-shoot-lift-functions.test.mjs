@@ -16,7 +16,7 @@ import {
   shootAtGloveTarget,
   shootAtObject,
   shootWithOwnWeapon,
-} from '../src/task/native-object-shoot.mjs';
+} from '../proof/replay/native-object-shoot.mjs';
 import {
   shootAtGloveTargetSequence,
   shootAtObjectSequence,

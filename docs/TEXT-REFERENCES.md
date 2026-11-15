@@ -112,7 +112,7 @@ Both consumers of the compressed text must agree:
 - `80:FE69` decodes and composes the displayed text in
   [native-text-compose.mjs](../src/task/native-text-compose.mjs).
 - `80:FADD` reads the stream independently to size name windows in
-  [native-glove-target-support.mjs](../src/task/native-glove-target-support.mjs).
+  [native-glove-target-support.mjs](../proof/replay/native-glove-target-support.mjs).
 - Both use the bit reader `81:AF04`, which fetches WORDs; any relocated
   compressed stream needs a proved read-ahead and bank-boundary contract.
 - Existing language-based menu/window fitting and glyph measurements in

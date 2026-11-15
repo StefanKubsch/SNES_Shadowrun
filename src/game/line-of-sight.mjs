@@ -1,6 +1,6 @@
 // The line of sight from a viewer object to a target object through the map boxes of
 // the current cell list (lifted from 81:A25F; the register-level version in
-// src/task/line-of-sight.mjs stays for the shooting natives 80:8AB5, 80:8A51 and
+// proof/replay/line-of-sight.mjs stays for the shooting natives 80:8AB5, 80:8A51 and
 // 80:8A8C). The sight natives 80:8BC5, 80:8C08, 80:8C8D and 80:8CCF use it
 // (src/game/combat-targets.mjs).
 //

@@ -1,6 +1,6 @@
 // The sprites of one object (lifted from 80:B20A with the occlusion grids 80:B45D to
 // 80:B754, the map cell test and the occlusion sprite 80:B130; register-level versions
-// in src/task/native-scene-sprites.mjs and src/task/native-sprite-occlusion.mjs).
+// in proof/replay/native-scene-sprites.mjs and proof/replay/native-sprite-occlusion.mjs).
 //
 // The sprite list calls it for every drawn object with a picture (picture pointer in A,
 // the object in Y). The picture (bank 9B, or 9C with bit 15 of the pointer) starts with

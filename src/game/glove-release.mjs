@@ -1,5 +1,5 @@
 // The glove put away from a script (lifted from the script native 80:CD9D;
-// register-level version in src/task/native-glove-release.mjs, which recorded waits
+// register-level version in proof/replay/native-glove-release.mjs, which recorded waits
 // replay): the dialog window cleared (7E:1D61), the glove put away with its target's
 // name window released (80:BCB2) and the window list redrawn (81:AD92).
 import { nativeCallSequence } from '../task/native-call-continuation.mjs';

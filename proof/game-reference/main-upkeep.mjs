@@ -1,4 +1,4 @@
-import { MAIN_UPKEEP_ROUTINES } from '../../src/task/main-loop-upkeep.mjs';
+import { MAIN_UPKEEP_ROUTINES } from '../replay/main-loop-upkeep.mjs';
 import {
   NativeCallContinuation,
   NATIVE_CALL_CONTINUATIONS,
@@ -6,7 +6,7 @@ import {
   nativeCallSequence,
 } from '../../src/task/native-call-continuation.mjs';
 // Register-level reference of the main loop's upkeep (moved from
-// src/task/main-loop-upkeep.mjs and src/task/main-loop-motion.mjs): the colour
+// proof/replay/main-loop-upkeep.mjs and proof/replay/main-loop-motion.mjs): the colour
 // effect 81:8877, the palette cycles 81:8076, the hit shake 80:DE94 and the notice
 // time limits 80:FF14. The lifted versions are src/game/fixed-colour.mjs,
 // src/game/palette-cycles.mjs, src/game/player-hit.mjs and src/game/notice-timeout.mjs.

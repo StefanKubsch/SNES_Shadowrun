@@ -1,14 +1,14 @@
 // Register-level reference of the outer game owner 80:A139/A157 and the no-countdown
 // marker 80:E24E (the lifted owner is src/frontend/game-owner.mjs; the lifted
 // attract demo stores the marker's word itself).
-import { frontendCallSequence } from '../../src/task/main-frontend-text.mjs';
+import { frontendCallSequence } from '../replay/main-frontend-text.mjs';
 import {
   NativeCallContinuation,
   NATIVE_CALL_CONTINUATIONS,
   drainNativeSequence,
 } from '../../src/task/native-call-continuation.mjs';
 import { taskStop } from '../../src/task/plan.mjs';
-import { MAIN_START } from '../../src/task/main-start.mjs';
+import { MAIN_START } from '../replay/main-start.mjs';
 import {
   GAME_OPTIONS,
   OPTION_MUSIC,

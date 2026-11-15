@@ -1,19 +1,19 @@
 import { withInterruptEvents } from './observed-native-events.mjs';
-import { lagFree } from './main-wait-interrupt.mjs';
-import { taskStop } from './plan.mjs';
-import { dialogAccess } from './native-dialog-support.mjs';
-import { putGloveAwayAdapter } from './native-dialog-portrait.mjs';
-import { runDrawWindowList } from '../game/window-list.mjs';
+import { lagFree } from '../../src/task/main-wait-interrupt.mjs';
+import { taskStop } from '../../src/task/plan.mjs';
+import { dialogAccess } from '../../src/task/native-dialog-support.mjs';
+import { putGloveAwayAdapter } from '../../src/task/native-dialog-portrait.mjs';
+import { runDrawWindowList } from '../../src/game/window-list.mjs';
 import {
   observedContinuation,
   drainNativeSequence,
   dialogCallSequence,
-} from './native-call-continuation.mjs';
+} from '../../src/task/native-call-continuation.mjs';
 import { validateGloveTaskOptions } from './native-glove-target.mjs';
-import { BANK_WRAP, WORD_MASK } from '../constants/bits.mjs';
-import { FLAG_INDEX_8BIT, FLAG_MEMORY_8BIT } from '../constants/cpu-flags.mjs';
-import { CODE_BANK, CODE_BANK_BASE } from '../constants/memory-map.mjs';
-import { DIALOG_WINDOW } from './wram.mjs';
+import { BANK_WRAP, WORD_MASK } from '../../src/constants/bits.mjs';
+import { FLAG_INDEX_8BIT, FLAG_MEMORY_8BIT } from '../../src/constants/cpu-flags.mjs';
+import { CODE_BANK, CODE_BANK_BASE } from '../../src/constants/memory-map.mjs';
+import { DIALOG_WINDOW } from '../../src/task/wram.mjs';
 // 80:CD9D: put the glove away and redraw the window list: STZ $1D61, JSR BCB2 (glove off, name window released over BE5B/FA3E), JSL 81:AD92 (window
 // list), RTS. Both routines have their own proofs; their waits are observations as in 9BC6.
 export function releaseGlove(a, events, outerReturn = true, routines = null) {

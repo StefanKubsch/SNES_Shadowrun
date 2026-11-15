@@ -1,6 +1,6 @@
 // Source and native layout boundaries for the packed text domains. This does
 // not enable edits; docs/PACKED-TEXT-EDITING.md defines the admission contract.
-import {withFrontendReference} from '../proof/frontend-reference/frontend.mjs';
+import { withFrontendReference } from '../proof/frontend-reference/frontend.mjs';
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
@@ -8,7 +8,7 @@ import { cartridge } from './cartridge-harness.mjs';
 import { rom, compareDialog, decodeWindows } from './task-native-dialog-harness.mjs';
 import { frontendSpecs } from './main-frontend-source.mjs';
 import { sceneAnimationSpecs } from './main-scene-animation-source.mjs';
-import { FRONTEND_MENU_ROUTINES as FRONTEND_MENU_ROUTINES_TASK } from '../src/task/main-frontend-menu.mjs';
+import { FRONTEND_MENU_ROUTINES as FRONTEND_MENU_ROUTINES_TASK } from '../proof/replay/main-frontend-menu.mjs';
 import { SCENE_ANIMATION_TARGETS } from '../proof/cutscene-reference/cutscene-animation.mjs';
 import { fillCutsceneTextMap } from '../proof/cutscene-reference/cutscene-scene.mjs';
 import { dialogAccess } from '../src/task/native-dialog-support.mjs';
@@ -17,7 +17,7 @@ import { readLzStreams } from '../src/data/lz-streams.mjs';
 import { romOffset } from '../src/data/rom-bytes.mjs';
 import { buildLanguage, installLanguage, redirectLanguageStream } from '../src/data/language.mjs';
 import { VmMemory } from '../src/vm/memory.mjs';
-const FRONTEND_MENU_ROUTINES=withFrontendReference(FRONTEND_MENU_ROUTINES_TASK);
+const FRONTEND_MENU_ROUTINES = withFrontendReference(FRONTEND_MENU_ROUTINES_TASK);
 
 const assets = JSON.parse(readFileSync('assets/vm-lz.json', 'utf8'));
 const germanAsset = JSON.parse(readFileSync('assets/vm-texts-de.json', 'utf8'));
@@ -234,7 +234,8 @@ test('credits centering exposes the 32-column stride and page overflow boundarie
         output = Buffer.from(h.a.mem.wram.slice(0x4ea8, 0x56a8));
         cursor = h.read(0x7e119e, 2);
       },
-      calls: (a) => new Map([[0x81d37d, () => ({ rawReturnWord: fillCutsceneTextMap(dialogAccess(a)) })]]),
+      calls: (a) =>
+        new Map([[0x81d37d, () => ({ rawReturnWord: fillCutsceneTextMap(dialogAccess(a)) })]]),
     });
     assert.deepEqual(result.differences, [], `${count} lines of ${length}`);
     assert.equal(cursor, data.length - 1, 'page consumes exactly its count and line terminators');
@@ -265,7 +266,8 @@ test('credits M8 indexing aliases high character bytes and preserves the map hig
       SCENE_ANIMATION_TARGETS.get(s.entry)(h, e, new Map([[0x81d37d, fillCutsceneTextMap]]));
       tile = h.read(0x7e5206, 2);
     },
-    calls: (a) => new Map([[0x81d37d, () => ({ rawReturnWord: fillCutsceneTextMap(dialogAccess(a)) })]]),
+    calls: (a) =>
+      new Map([[0x81d37d, () => ({ rawReturnWord: fillCutsceneTextMap(dialogAccess(a)) })]]),
   });
   assert.deepEqual(result.differences, []);
   assert.equal(tile, 0x2002, 'A1 aliases ASCII 21; only the low table byte replaces the tile');

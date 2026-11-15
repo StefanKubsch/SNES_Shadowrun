@@ -1,5 +1,5 @@
-import { taskStop } from './plan.mjs';
-import { sec, clc } from './status-flags.mjs';
+import { taskStop } from '../../src/task/plan.mjs';
+import { sec, clc } from '../../src/task/status-flags.mjs';
 import {
   CELL_SIZE,
   DP_CELL_X,
@@ -18,8 +18,8 @@ import {
   dpStore,
   field,
   highBits,
-} from './native-sprite-helpers.mjs';
-import { clearPaletteSlots } from './main-initialize.mjs';
+} from '../../src/task/native-sprite-helpers.mjs';
+import { clearPaletteSlots } from '../../src/task/main-initialize.mjs';
 import { occlusion, mapCell } from './native-sprite-occlusion.mjs';
 
 import {
@@ -60,10 +60,21 @@ import {
   WALL_MAP,
   WALL_WORD_CELLS,
   WRAM,
-} from './wram.mjs';
-import { BYTE_MASK, NIBBLE_BITS, NIBBLE_MASK, WORD_MASK, WORD_SIGN } from '../constants/bits.mjs';
-import { FLAG_CARRY, FLAG_ZERO, FLAG_NEGATIVE, FLAG_MEMORY_8BIT } from '../constants/cpu-flags.mjs';
-import { CODE_BANK_BASE, LOROM_OFFSET, WRAM_BANK_PAIR } from '../constants/memory-map.mjs';
+} from '../../src/task/wram.mjs';
+import {
+  BYTE_MASK,
+  NIBBLE_BITS,
+  NIBBLE_MASK,
+  WORD_MASK,
+  WORD_SIGN,
+} from '../../src/constants/bits.mjs';
+import {
+  FLAG_CARRY,
+  FLAG_ZERO,
+  FLAG_NEGATIVE,
+  FLAG_MEMORY_8BIT,
+} from '../../src/constants/cpu-flags.mjs';
+import { CODE_BANK_BASE, LOROM_OFFSET, WRAM_BANK_PAIR } from '../../src/constants/memory-map.mjs';
 import {
   OAM_ENTRY_BYTES,
   OAM_FLIP_MASK,
@@ -74,7 +85,7 @@ import {
   OAM_PRIORITY_3,
   OAM_Y_BYTE,
   OBJECT_COUNT,
-} from '../constants/ppu.mjs';
+} from '../../src/constants/ppu.mjs';
 // Sprite setup of the scene (80:B8DE): sort the draw list $14B2 by screen depth (AFFC), fill the OAM buffer
 // 7E3D08 (4 bytes per sprite, pointer DP84) and the high bits 7E3F08 from the objects (B20A), hide the rest of
 // the OAM. h from dialogAccess (native-dialog-support.mjs); DBR at entry is the caller's.

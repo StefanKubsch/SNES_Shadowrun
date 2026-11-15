@@ -1,3 +1,7 @@
+import { taskStop } from '../task/plan.mjs';
+import { randomByteNative, randomBelowNative } from '../task/native-script-leaves.mjs';
+import { raiseMemberMagicPoints } from '../task/native-magic-points-raise.mjs';
+import { raiseStateCountSequence } from './runner-state-call.mjs';
 // The main loop's entries of its lifted upkeep routines: each runs the lifted
 // function and returns to the main loop as the original (RTL from bank 81, RTS in
 // bank 80). The register-level versions are references in
@@ -34,7 +38,6 @@ import {
   setWindowTextWidthRoutine,
   talkSequence,
 } from './dialog-talk.mjs';
-import { TALK_ROUTINES } from '../task/native-dialog.mjs';
 import { chooseDialogActionSequence, chooseDialogTopicSequence } from './dialog-menus.mjs';
 import {
   printTopicTextSequence,
@@ -93,13 +96,11 @@ import { controlPlayerSequence } from './player-control.mjs';
 import { partyStatusSequence } from './party-status.mjs';
 import { equipmentRowsSequence } from './equipment-window.mjs';
 import { memberPortraitSequence } from './member-portrait.mjs';
-import { PLAYER_CONTROL_ROUTINES } from '../task/native-player-control.mjs';
 import { ITEMS_ENTRY, NATIVE_ENTRY, START_ENTRY, statusScreenSequence } from './status-screen.mjs';
 import { notesSequence, skillsSequence } from './status-submenus.mjs';
 import { itemMenuSequence, useItemSequence } from './item-menu.mjs';
 import { decimalNumberSequence } from './decimal-number.mjs';
-import { WEAPON_MENU_ROUTINES } from '../task/native-member-spell-menu.mjs';
-import { KARMA_LISTS, MAIN_MENU_ROUTINES } from '../task/native-main-menu.mjs';
+import { KARMA_LISTS } from '../task/native-main-menu.mjs';
 import {
   buyStepSequence,
   karmaLineSequence,
@@ -113,10 +114,7 @@ import { moveAndAnimate } from './object-motion.mjs';
 import { walkTowardsTarget } from './object-target.mjs';
 import { stepAnimation } from './object-animation.mjs';
 import { buildSprites } from './sprite-list.mjs';
-import { MAIN_MOTION_ROUTINES } from '../task/main-loop-motion.mjs';
-import { GATE_ROUTINES } from '../task/main-zone-gate.mjs';
-import { GLOVE_ROUTINES } from '../task/native-glove-target-support.mjs';
-import { MAIN_UPKEEP_ROUTINES } from '../task/main-loop-upkeep.mjs';
+import { enterRoom } from '../task/main-transition.mjs';
 import { BYTE_BITS } from '../constants/bits.mjs';
 import { lagFree } from '../task/main-wait-interrupt.mjs';
 import { waitForCounterWord } from '../system/frame-wait.mjs';
@@ -391,13 +389,12 @@ for (const [run, sequence] of [
       new NativeCallContinuation(h.a, sequence(h, events, DIALOG_ROUTINES)),
   });
 // 81:EF47, the dialog's music change and its restore, called with JSL. The lag-free frame
-// model delivers no NMI in its sound driver handshakes, so it runs lifted; with recorded
-// interrupt observations the register-level routine replays them.
-function runMusicMode(h, events) {
-  if (!lagFree(events)) return TALK_ROUTINES.get(0x81ef47)(h, events);
+// model delivers no NMI in its sound driver handshakes. Recorded replays use the
+// register-level routine and tables in proof/replay/.
+function runMusicMode(h) {
   return setMusicModeRoutine(h);
 }
-const DIALOG_ROUTINES = new Map(TALK_ROUTINES)
+const DIALOG_ROUTINES = new Map()
   .set(0x808f3a, runOpenPortraitWindow)
   .set(0x808f97, runClosePortraitWindow)
   .set(0x809f6d, unpackPortraitRoutine)
@@ -452,8 +449,21 @@ NATIVE_CALL_CONTINUATIONS.set(runTalk, {
 });
 // The callees of the lifted notice, number, text and action menu: the lifted window
 // opening 80:F963, text 80:FE69 and text buffer 80:FB39 (callers that do not pass their
-// table on get these), and the register-level menu 80:A6A5.
-const TEXT_ROUTINES = new Map(MAIN_UPKEEP_ROUTINES)
+// table on get these), and the lifted menu 80:A6A5.
+const TEXT_ROUTINES = new Map([
+  [0x81b0a1, runFrameWait],
+  [0x809e1a, runPadPresses],
+  [0x80bcb2, runPutGloveAway],
+  [0x80fa3e, runReleaseWindow],
+  [0x80fec1, runShowNotice],
+  [0x80faac, setTextCursorRoutine],
+  [0x80fd80, runPrintNumber],
+  [0x80c46e, playSoundEffectRoutine],
+  [0x80c560, (h) => randomByteNative(h.a, false)],
+  [0x80c51f, (h) => randomBelowNative(h.a, false)],
+  [0x8099eb, runChooseAction],
+  [0x80936c, runTalk],
+])
   .set(0x80f963, runOpenWindow)
   .set(0x80fe69, runPrintText)
   .set(0x80fb39, runDrawTextBuffer)
@@ -484,7 +494,56 @@ NATIVE_CALL_CONTINUATIONS.set(runEquipmentRows, {
 // The lifted member portrait 80:E4B3 with the lifted word wait and the dialog's lifted
 // portrait unpack 80:9F6D, row shift 80:8F20, first upload 80:9022 and DMA job 80:8FF5
 // (src/game/portrait-upload.mjs; the same register interface as the register-level ones).
-const PORTRAIT_ROUTINES = new Map(WEAPON_MENU_ROUTINES)
+// Shared lifted menu callees. No inherited register-level menu graph.
+const LIVE_MENU_ROUTINES = new Map([
+  [0x81b0a1, runFrameWait],
+  [0x809e1a, runPadPresses],
+  [0x80f963, runOpenWindow],
+  [0x80fa3e, runReleaseWindow],
+  [0x80ff79, runReleaseNoticeWindows],
+  [0x809f6d, unpackPortraitRoutine],
+  [0x808f20, shiftPortraitRowsRoutine],
+  [0x809022, runUploadFirstPortrait],
+  [0x80a6c7, runPlainMenu],
+  [0x80c34a, (h) => appendScriptTaskCall(h.a)],
+  [0x80c1ca, runHeadVisit],
+  [0x81aeb0, runResetWindowList],
+  [0x80f953, runConfirmKey],
+  [0x808ff5, runPortraitTiles],
+  [0x80faac, setTextCursorRoutine],
+  [0x80fe69, runPrintText],
+  [0x80fd80, runPrintNumber],
+  [0x8092c5, runCloseDialog],
+  [0x81886a, clearFixedColourRoutine],
+  [0x80bcb2, runPutGloveAway],
+  [0x81f007, sendApuCommandRoutine],
+  [0x80a6ad, runNumberedMenu],
+  [0x80fa67, runTileClear],
+  [0x80a835, runCreateObject],
+  [0x80fb39, runDrawTextBuffer],
+  [0x80a985, selectAnimationRoutine],
+  [0x80aaaf, turnObjectRoutine],
+  [0x80a6b8, runNumberedMenuAt],
+  [0x80c46e, playSoundEffectRoutine],
+  [0x80cecb, runRaiseStateCount],
+  [0x80cf2e, (h) => raiseMemberMagicPoints(h.a, false)],
+]);
+function runHeadVisit(h, events) {
+  if (!events.round) taskStop('task_f254_visit_open');
+  return events.round(0x80c1ca);
+}
+NATIVE_CALL_CONTINUATIONS.set(runHeadVisit, {
+  run: runHeadVisit,
+  create: ({ events }) => events.nestedRound?.(0x80c1ca) ?? null,
+});
+function runRaiseStateCount(h, events) {
+  return drainNativeSequence(raiseStateCountSequence(h, events));
+}
+NATIVE_CALL_CONTINUATIONS.set(runRaiseStateCount, {
+  run: runRaiseStateCount,
+  create: ({ h, events }) => new NativeCallContinuation(h.a, raiseStateCountSequence(h, events)),
+});
+const PORTRAIT_ROUTINES = new Map(LIVE_MENU_ROUTINES)
   .set(0x81b0a1, runFrameWait)
   .set(0x809f6d, unpackPortraitRoutine)
   .set(0x808f20, shiftPortraitRowsRoutine)
@@ -501,7 +560,7 @@ NATIVE_CALL_CONTINUATIONS.set(runMemberPortrait, {
 // The lifted spell menu 80:F254 with the lifted window, plain menu, releases, portrait,
 // equipment window, key wait, window list and script append; the visit 80:C1CA is the
 // script VM's nested round.
-const SPELL_MENU_ROUTINES = new Map(WEAPON_MENU_ROUTINES)
+const SPELL_MENU_ROUTINES = new Map(LIVE_MENU_ROUTINES)
   .set(0x80f963, runOpenWindow)
   .set(0x80a6c7, runPlainMenu)
   .set(0x80fa3e, runReleaseWindow)
@@ -512,7 +571,7 @@ export const liftedSpellMenuSequence = (h, events) =>
   openSpellMenuSequence(h, events, SPELL_MENU_ROUTINES);
 // The lifted party status 80:ED3C with the lifted glove and window releases, window,
 // text, cursor, number and key wait.
-const PARTY_STATUS_ROUTINES = new Map(PLAYER_CONTROL_ROUTINES)
+const PARTY_STATUS_ROUTINES = new Map(LIVE_MENU_ROUTINES)
   .set(0x80bcb2, runPutGloveAway)
   .set(0x80ff79, runReleaseNoticeWindows)
   .set(0x80f963, runOpenWindow)
@@ -530,7 +589,7 @@ NATIVE_CALL_CONTINUATIONS.set(runPartyStatus, {
 });
 // The lifted skills and notes submenus 80:E834 and 80:E8C8 with the lifted window,
 // cursor, text, number, release and key wait.
-const SUBMENU_ROUTINES = new Map(PLAYER_CONTROL_ROUTINES)
+const SUBMENU_ROUTINES = new Map(LIVE_MENU_ROUTINES)
   .set(0x80f963, runOpenWindow)
   .set(0x80faac, setTextCursorRoutine)
   .set(0x80fe69, runPrintText)
@@ -548,8 +607,8 @@ export const runSkills = sequenceRun((h, events) => skillsSequence(h, events, SU
   runNotes = sequenceRun((h, events) => notesSequence(h, events, SUBMENU_ROUTINES));
 // The lifted item submenus 80:E572, 80:E577 and 80:E57F with the lifted item use
 // 80:E4F3, window, releases, portrait, equipment rows, numbered menu, window redraw and
-// key wait; the object, visit and window list stay register-level.
-const ITEM_ROUTINES = new Map(PLAYER_CONTROL_ROUTINES)
+// key wait; object creation, the nested visit and the window list use lifted callees.
+const ITEM_ROUTINES = new Map(LIVE_MENU_ROUTINES)
   .set(0x80f963, runOpenWindow)
   .set(0x80fa3e, runReleaseWindow)
   .set(0x80ff79, runReleaseNoticeWindows)
@@ -565,7 +624,7 @@ const DECIMAL_ROUTINES = new Map([[0x80fb39, runDrawTextBuffer]]);
 // spell menu's entry 80:E68E too), notice and window releases, glove, window and
 // plain menu, cursor, text, numbers, equipment rows, portrait, sound command 81:F007,
 // colour reset 81:886A and the closing 80:92C5.
-const STATUS_SCREEN_LIFT_ROUTINES = new Map(PLAYER_CONTROL_ROUTINES)
+const STATUS_SCREEN_LIFT_ROUTINES = new Map(LIVE_MENU_ROUTINES)
   .set(0x81f007, sendApuCommandRoutine)
   .set(0x81886a, clearFixedColourRoutine)
   .set(0x8092c5, runCloseDialog)
@@ -608,7 +667,7 @@ export const liftedStatusScreenSequence = (h, events) =>
 // menu, window redraw, key wait and numbered menu; the state count and magic points
 // run their lifted bodies (src/game/runner-state.mjs), the save 81:B17D is saveGame of
 // src/game/save-slots.mjs.
-const MAIN_MENU_LIFT_ROUTINES = new Map(MAIN_MENU_ROUTINES)
+const MAIN_MENU_LIFT_ROUTINES = new Map(LIVE_MENU_ROUTINES)
   .set(0x80f963, runOpenWindow)
   .set(0x80fe69, runPrintText)
   .set(0x80faac, setTextCursorRoutine)
@@ -664,7 +723,7 @@ export const liftedMainMenuSequence = (h, events) =>
 // The lifted player control 80:E014 with the lifted party status, window, text,
 // release, glove release, turn, animation selection 80:A985, status screen and key
 // wait.
-const PLAYER_CONTROL_LIFT_ROUTINES = new Map(PLAYER_CONTROL_ROUTINES)
+const PLAYER_CONTROL_LIFT_ROUTINES = new Map(LIVE_MENU_ROUTINES)
   .set(0x80ed3c, runPartyStatus)
   .set(0x80ea89, runStatusScreen)
   .set(0x80ea8e, runItemList)
@@ -808,9 +867,8 @@ NATIVE_CALL_CONTINUATIONS.set(0x80bf3b, {
 // 81:B0A1 (called with JSL) and 80:9E1A (JSR) at the top of the main loop. With the
 // lag-free frame model the NMI arrives only at the word wait's blocking branch, so
 // both run lifted: the word wait (src/system/frame-wait.mjs) and the newly pressed
-// buttons (src/system/joypad.mjs). With recorded interrupt observations an NMI may
-// fall between any two instructions; then the register-level routines run (the main
-// loop continuation steps them instruction by instruction).
+// buttons (src/system/joypad.mjs). Recorded interrupt replays use the register-level
+// routines and instruction continuations in proof/vm/main-loop.mjs.
 function* frameWaitCallSequence(h, events) {
   yield* waitForCounterWord(h, events);
   let result;
@@ -820,18 +878,14 @@ function* frameWaitCallSequence(h, events) {
   return result;
 }
 export function runFrameWait(h, events) {
-  if (!lagFree(events)) return MAIN_UPKEEP_ROUTINES.get(0x81b0a1)(h, events);
+  if (!lagFree(events)) taskStop('game_lag_free_required');
   return drainNativeSequence(frameWaitCallSequence(h, events));
 }
-// Other tables bind the register-level wait to 81:B0A1, so this continuation is found
-// by its run function.
+// Bind by function identity so this live wait can coexist with replay tables.
 NATIVE_CALL_CONTINUATIONS.set(runFrameWait, {
   run: runFrameWait,
-  // Without lag-free frames the register-level wait's own continuation runs.
   create: (call) =>
-    lagFree(call.events)
-      ? new NativeCallContinuation(call.h.a, frameWaitCallSequence(call.h, call.events))
-      : NATIVE_CALL_CONTINUATIONS.get(0x81b0a1).create(call),
+    new NativeCallContinuation(call.h.a, frameWaitCallSequence(call.h, call.events)),
 });
 // The pad word: the original leaves A with its four low bits, sign clear, zero when
 // they are, and the carry of its comparison with the soft reset buttons 3030; the
@@ -839,7 +893,7 @@ NATIVE_CALL_CONTINUATIONS.set(runFrameWait, {
 const SOFT_RESET_BUTTONS = 0x3030,
   INVALID_PAD_BITS = 0x000f;
 export function runPadPresses(h, events) {
-  if (!lagFree(events)) return MAIN_UPKEEP_ROUTINES.get(0x809e1a)(h, events);
+  if (!lagFree(events)) taskStop('game_lag_free_required');
   const { ctx } = h,
     { wram } = h.a.mem,
     held = wram[PAD_HELD] | (wram[PAD_HELD + 1] << BYTE_BITS);
@@ -855,7 +909,17 @@ export function runPadPresses(h, events) {
 // version to the same target, so this continuation is found by its run function.
 // The object search opens the name window with the lifted 80:F963 and prints the name
 // with the lifted text 80:FE69 and text buffer 80:FB39.
-const MOVE_ROUTINES = new Map(GLOVE_ROUTINES)
+const MOVE_ROUTINES = new Map([
+  [0x81b0a1, runFrameWait],
+  [0x809e1a, runPadPresses],
+  [0x80fa3e, runReleaseWindow],
+  [0x8092c5, runCloseDialog],
+  [0x81a9b2, runUnpackWindowMap],
+  [0x81acb5, runRequestUpload],
+  [0x80bcb2, runPutGloveAway],
+  [0x80fec1, runShowNotice],
+  [0x81ad92, runDrawWindowList],
+])
   .set(0x80f963, runOpenWindow)
   .set(0x80fe69, runPrintText)
   .set(0x80fb39, runDrawTextBuffer);
@@ -871,7 +935,7 @@ NATIVE_CALL_CONTINUATIONS.set(runGloveMove, {
 // call continuation of the main loop. The register-level reference keeps the target's
 // registration, so this one is found by its run function.
 // The zones append their script tasks with the lifted task append 80:C34A.
-const ZONE_ROUTINES = { ...GATE_ROUTINES, c34a: appendScriptTaskCall };
+const ZONE_ROUTINES = { a4bf: enterRoom, c34a: appendScriptTaskCall };
 export function runPlayerZones(h, events, routines = ZONE_ROUTINES) {
   return drainNativeSequence(playerZonesSequence(h, events, routines));
 }
@@ -880,12 +944,13 @@ NATIVE_CALL_CONTINUATIONS.set(runPlayerZones, {
   create: ({ h, events, gateRoutines = ZONE_ROUTINES }) =>
     new NativeCallContinuation(h.a, playerZonesSequence(h, events, gateRoutines)),
 });
-// The motion pass's register-level callees with the lifted walk towards a target
+// The motion pass's lifted walk towards a target
 // (80:C9E0, src/game/object-target.mjs, with the lifted turn) and the lifted animation
 // (80:AC2F, src/game/object-animation.mjs).
-const MOTION_ROUTINES = new Map(MAIN_MOTION_ROUTINES)
-  .set(0x80c9e0, (h) => walkTowardsTarget(h))
-  .set(0x80ac2f, stepAnimation);
+const MOTION_ROUTINES = new Map([
+  [0x80c9e0, (h) => walkTowardsTarget(h)],
+  [0x80ac2f, stepAnimation],
+]);
 // 80:AFC4, called with JSR; nothing in it waits.
 export function runObjectMotion(h, events, routines = MOTION_ROUTINES) {
   return moveAndAnimate(h, events, routines);

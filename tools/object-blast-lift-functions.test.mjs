@@ -6,7 +6,7 @@
 // and the registers left must be equal.
 import { prng } from './task-native-dialog-harness.mjs';
 import { createSide, registerCases } from './lift-function-harness.mjs';
-import { hitObjectsInBlast } from '../src/task/native-object-hit.mjs';
+import { hitObjectsInBlast } from '../proof/replay/native-object-hit.mjs';
 import { hitObjectsInBlastSequence } from '../src/game/object-blast.mjs';
 import {
   OBJECT_FLAGS,

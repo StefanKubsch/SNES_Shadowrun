@@ -12,7 +12,7 @@
 // return and the registers left must be equal.
 import { DialogTestMemory, prng } from './task-native-dialog-harness.mjs';
 import { createSide, registerCases } from './lift-function-harness.mjs';
-import { openWeaponMenu, e693Sequence } from '../src/task/native-member-spell-menu.mjs';
+import { openWeaponMenu, e693Sequence } from '../proof/replay/native-member-spell-menu.mjs';
 import {
   openSpellMenuSequence,
   spellMenuSequence,

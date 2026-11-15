@@ -4,7 +4,7 @@
 // into the finished picture, so game state, saves and recordings stay
 // unchanged and the option can change at any time.
 //
-// Which objects: the glove check 80:BCBE (src/task/native-glove.mjs) offers an
+// Which objects: the glove check 80:BCBE (proof/replay/native-glove.mjs) offers an
 // object of the draw list 14B2 (Y = 14B0 downwards) with a picture (1090) and
 // a named kind (8C:EFB0 + 6 * kind, name word not FFFF). Of those, people and
 // creatures are left out: their kind flags (8C:EFB0 + 6 * kind + 4) have bit

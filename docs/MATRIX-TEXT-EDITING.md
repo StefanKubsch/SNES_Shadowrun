@@ -22,7 +22,7 @@ The pinned original instructions are in
 and [main-scene-source.mjs](../tools/main-scene-source.mjs).
 The native readers are [main-scene-matrix.mjs](../proof/matrix-reference/main-scene-matrix.mjs),
 [main-matrix-control.mjs](../proof/matrix-reference/main-matrix-control.mjs) and
-[main-scene.mjs](../src/task/main-scene.mjs).
+[main-scene.mjs](../proof/replay/main-scene.mjs).
 
 | Identity  | Original purpose         | Established reference                               |
 | --------- | ------------------------ | --------------------------------------------------- |

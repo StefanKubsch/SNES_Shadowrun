@@ -1,5 +1,5 @@
 // A blast (lifted from the script native 80:8E36; register-level version in
-// src/task/native-object-hit.mjs, which recorded waits and inputs replay).
+// proof/replay/native-object-hit.mjs, which recorded waits and inputs replay).
 //
 // The blast's centre is the object DP 00, its damage DP 02 (kept in DP A2 and A5). Every
 // object slot from the last down to 0 is hit (80:8691 with the damage, no shooter) when

@@ -7,7 +7,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { prng } from './task-native-dialog-harness.mjs';
 import { compareCase, createSide, differences, registerCases } from './lift-function-harness.mjs';
-import { GAME_NMI_ROUTINES } from '../src/task/main-game-nmi.mjs';
+import { GAME_NMI_ROUTINES } from '../proof/replay/main-game-nmi.mjs';
 import { GAME_NMI_LIFTED_ROUTINES } from '../src/game/game-nmi.mjs';
 import { writePortraitTileChannel } from '../src/game/portrait-upload.mjs';
 import {

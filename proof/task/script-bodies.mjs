@@ -7,19 +7,19 @@ import { runTaskNativeWaitOpcode, runTaskNativeWaitResume } from './native-wait.
 import { runTaskNativeC8Opcode } from './native-c8-opcode.mjs';
 import { runTaskNativeClearOpcode } from './native-clear-opcode.mjs';
 import { runTaskNativeInputWaitOpcode } from './native-input-wait-opcode.mjs';
-import { fec1Registers, validateNoticeOptions } from '../../src/task/native-notice.mjs';
+import { fec1Registers, validateNoticeOptions } from '../replay/native-notice.mjs';
 import { runTaskNative13Opcode } from './native13-opcode.mjs';
-import { taskActionsDevices, validateTaskActionsOptions } from '../../src/task/native-actions.mjs';
+import { taskActionsDevices, validateTaskActionsOptions } from '../replay/native-actions.mjs';
 import { runTaskNativeAudioOpcode } from './native-audio-opcode.mjs';
 import { taskAudioDevices } from '../../src/task/native-audio-compose.mjs';
 import { runTaskNativeRandomOpcode } from './native-random-opcode.mjs';
 import { taskRandomDevices } from '../../src/task/native-random.mjs';
 import { runTaskNative7COpcode } from './native-8e36-opcode.mjs';
-import { hitObjectsInBlastDevices } from '../../src/task/native-object-hit.mjs';
+import { hitObjectsInBlastDevices } from '../replay/native-object-hit.mjs';
 import { runTaskSelectionOpcode } from './native-selection-root-opcode.mjs';
-import { selectionDevices } from '../../src/task/native-selection.mjs';
+import { selectionDevices } from '../replay/native-selection.mjs';
 import { runTaskModalOpcode } from './native-modal-opcode.mjs';
-import { modalDevices } from '../../src/task/native-modal.mjs';
+import { modalDevices } from '../replay/native-modal.mjs';
 import { runTaskVisit } from './visit-c1ca.mjs';
 import { runTaskVisitEpilogue } from './visit-epilogue.mjs';
 const mixedDevices = Object.freeze({

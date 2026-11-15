@@ -1,5 +1,5 @@
 // A 32-bit number as decimal text (lifted from 80:FDCF; register-level version in
-// src/task/native-status-screen.mjs), used for Jake's money and karma lines of the
+// proof/replay/native-status-screen.mjs), used for Jake's money and karma lines of the
 // status screen.
 //
 // The number DP 04:02 is divided by the powers of ten from 10^9 down to 10 (80:FE45,

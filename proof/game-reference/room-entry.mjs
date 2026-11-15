@@ -1,8 +1,8 @@
 // Register-level reference of the room entry 80:A4BF (moved from
-// src/task/main-transition.mjs; lifted in src/game/room-entry.mjs). Its callees stay
-// register-level in src/task/main-transition.mjs and the routine tables, where other
+// proof/replay/main-transition.mjs; lifted in src/game/room-entry.mjs). Its callees stay
+// register-level in proof/replay/main-transition.mjs and the routine tables, where other
 // callers use them; the reference calls all of them through their original frames.
-import { TRANSITION_ROUTINES } from '../../src/task/main-transition.mjs';
+import { TRANSITION_ROUTINES } from '../replay/main-transition.mjs';
 import {
   NATIVE_CALL_CONTINUATIONS,
   NativeCallContinuation,

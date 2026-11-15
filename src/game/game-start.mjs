@@ -9,7 +9,7 @@
 // or a save slot. The start sets up the new game's state or loads the slot from
 // SRAM, then the room start 80:9699 builds the game screen and enters the room.
 // The start ends before the first call of the main loop (80:96AB). The attract game
-// enters the room start directly with room AB (src/task/main-frontend.mjs).
+// enters the room start directly with room AB (proof/replay/main-frontend.mjs).
 import { tasksOf } from '../script/task-api.mjs';
 import { drainNativeSequence } from '../task/native-call-continuation.mjs';
 import { taskStop } from '../task/plan.mjs';

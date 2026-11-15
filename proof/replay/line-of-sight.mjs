@@ -1,11 +1,11 @@
-import { taskStop } from './plan.mjs';
+import { taskStop } from '../../src/task/plan.mjs';
 import {
   FLAG_CARRY,
   FLAG_DECIMAL,
   FLAG_OVERFLOW,
   FLAG_MEMORY_8BIT,
   FLAG_ZERO,
-} from '../constants/cpu-flags.mjs';
+} from '../../src/constants/cpu-flags.mjs';
 import {
   BANK_WRAP,
   WORD_MASK,
@@ -15,7 +15,7 @@ import {
   LONG_WRAP,
   LONG_MASK,
   BYTE_SIGN,
-} from '../constants/bits.mjs';
+} from '../../src/constants/bits.mjs';
 import {
   WRMPYA,
   WRMPYB,
@@ -26,8 +26,14 @@ import {
   RDDIVH,
   RDMPYL,
   RDMPYH,
-} from '../constants/hardware-registers.mjs';
-import { WRAM, OBJECT_BOX_HEIGHT, OBJECT_HEIGHT, OBJECT_X, OBJECT_Y } from './wram.mjs';
+} from '../../src/constants/hardware-registers.mjs';
+import {
+  WRAM,
+  OBJECT_BOX_HEIGHT,
+  OBJECT_HEIGHT,
+  OBJECT_X,
+  OBJECT_Y,
+} from '../../src/task/wram.mjs';
 
 // 81:A25F line of sight between object X (target) and object Y (viewer) through the map boxes
 // of the current cell list [$FC] (count byte, then 12-byte records from +1: x0, y0, unused word,

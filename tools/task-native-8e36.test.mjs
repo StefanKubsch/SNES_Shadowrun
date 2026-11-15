@@ -11,7 +11,7 @@ import {
   freeze8E36,
 } from './task-native-8e36-fixtures.mjs';
 import { randomRecords } from './task-native-random-fixtures.mjs';
-import { hitObject, hitObjectsInBlastDevices } from '../src/task/native-object-hit.mjs';
+import { hitObject, hitObjectsInBlastDevices } from '../proof/replay/native-object-hit.mjs';
 import { prepareTaskNative8E36 as prepare } from '../proof/task/native-8e36.mjs';
 import { prepareTaskPlan } from '../proof/task/plan.mjs';
 import { taskAudioFixture } from './task-native-audio-fixtures.mjs';

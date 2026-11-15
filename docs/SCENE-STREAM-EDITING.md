@@ -48,7 +48,7 @@ room header and entry selecting that scene.
 
 Sources: [lz-streams.mjs](../src/data/lz-streams.mjs),
 [rooms.mjs](../src/data/rooms.mjs),
-[main-transition.mjs](../src/task/main-transition.mjs), and
+[main-transition.mjs](../proof/replay/main-transition.mjs), and
 [main-scene-load.mjs](../src/task/main-scene-load.mjs).
 
 ## Record structure and downstream ownership
@@ -76,7 +76,7 @@ The backdrop is copied to `7E:0D12`; the game NMI writes its two bytes as
 CGRAM colour zero at `80:99DC` and `80:99E2`. Three original backdrops are
 nonzero (`0025`, `0026`, `0022`); the other 162 are `0000`. This field has an
 independent colour output. It does not select a scene palette or create a
-new palette identity. See [main-game-nmi.mjs](../src/task/main-game-nmi.mjs).
+new palette identity. See [main-game-nmi.mjs](../proof/replay/main-game-nmi.mjs).
 
 The tileset byte selects one of six block/attribute pointer pairs at
 `8D:F1A0` and `8D:F1AC`. `81:8DE2` clears the shape grid at `7F:CA14`

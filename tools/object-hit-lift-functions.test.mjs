@@ -10,7 +10,7 @@
 // registers the hit leaves are not compared (its callers restore their own).
 import { prng } from './task-native-dialog-harness.mjs';
 import { calleeRecord, createSide, registerCases } from './lift-function-harness.mjs';
-import { hitObject } from '../src/task/native-object-hit.mjs';
+import { hitObject } from '../proof/replay/native-object-hit.mjs';
 import { hitObjectSequence } from '../src/game/object-hit.mjs';
 import {
   DRAW_LIST_INDEX,

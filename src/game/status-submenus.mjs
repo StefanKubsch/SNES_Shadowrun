@@ -1,5 +1,5 @@
 // The skills and notes submenus of the status screen (lifted from 80:E834 and 80:E8C8;
-// register-level versions in src/task/native-status-screen.mjs).
+// register-level versions in proof/replay/native-status-screen.mjs).
 //
 // Skills (80:E834): the runner's six skill bytes (record bytes 0 to 5 at the long
 // pointer DP F9) that are not zero, each with its name (80:E8BC) and value, in a window

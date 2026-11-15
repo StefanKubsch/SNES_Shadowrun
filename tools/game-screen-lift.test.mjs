@@ -12,7 +12,7 @@ import { compareLift } from './lift-compare.mjs';
 import { TITLE_CYCLE_PLANS, TITLE_CYCLE_IGNORED_WRAM } from './live-title-cycle-plan.mjs';
 import { MAIN_INITIALIZE_ROUTINES } from '../src/task/main-initialize.mjs';
 import { withGameStartReference } from '../proof/game-reference/game-start.mjs';
-import { runAttractRounds } from '../src/task/main-frontend.mjs';
+import { runAttractRounds } from '../proof/replay/main-frontend.mjs';
 import { runGameStart, runNewGame, runNewGameState, runSaveLoad } from '../src/game/game-start.mjs';
 
 const lifted = [

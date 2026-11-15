@@ -8,7 +8,7 @@ import {
   runTaskActionsObserved,
   validateTaskActionsOptions,
   taskActionsDevices,
-} from '../../src/task/native-actions.mjs';
+} from '../replay/native-actions.mjs';
 // One original Native58/13 invocation. Whole owned actions graph, genuine
 // F508/RTS/F509, result-PHA and next fetch; no arbitrary target or CPU runner.
 export function runTaskNative13Opcode(a, options, allowRemainingObservations = false) {

@@ -16,8 +16,8 @@
 import { DialogTestMemory, prng } from './task-native-dialog-harness.mjs';
 import { createSide, registerCases } from './lift-function-harness.mjs';
 import { uploadEvents, windowMapSource, windowTables } from './lift-window-samples.mjs';
-import { MAIN_START_ROUTINES } from '../src/task/main-start.mjs';
-import { TRANSITION_ROUTINES, enterRoom } from '../src/task/main-transition.mjs';
+import { MAIN_START_ROUTINES } from '../proof/replay/main-start.mjs';
+import { TRANSITION_ROUTINES, enterRoom } from '../proof/replay/main-transition.mjs';
 import { clampToCameraBox } from '../src/game/camera-box.mjs';
 import { createGroupSequence, placeRoomActorsSequence } from '../src/game/room-actors.mjs';
 import { buildCollisionGrid } from '../src/game/collision-grid.mjs';

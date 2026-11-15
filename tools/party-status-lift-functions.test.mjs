@@ -8,7 +8,7 @@
 // return and the registers left must be equal.
 import { DialogTestMemory, prng } from './task-native-dialog-harness.mjs';
 import { createSide, registerCases } from './lift-function-harness.mjs';
-import { ed3cSequence } from '../src/task/native-player-control.mjs';
+import { ed3cSequence } from '../proof/replay/native-player-control.mjs';
 import { partyStatusSequence } from '../src/game/party-status.mjs';
 import { GROUP_INDEX, GROUP_LEADER_ONLY, GROUP_NUMBERS, GROUP_SLOTS } from '../src/task/wram.mjs';
 import { drainNativeSequence } from '../src/task/native-call-continuation.mjs';

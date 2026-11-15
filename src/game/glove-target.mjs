@@ -1,5 +1,5 @@
 // Choosing with the action or spell glove (lifted from the script natives 80:8D0B and its
-// relatives; register-level version in src/task/native-glove-target.mjs, which
+// relatives; register-level version in proof/replay/native-glove-target.mjs, which
 // recorded waits and inputs replay).
 //
 // The glove appears over the player figure (80:BC36 with 80:BC67 or 80:BC99). Each frame

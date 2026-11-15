@@ -8,7 +8,7 @@ import {
   musicSilent,
   takeCreditsRequest,
 } from '../../src/game/credits.mjs';
-import { frontendCallSequence } from '../../src/task/main-frontend-text.mjs';
+import { frontendCallSequence } from '../replay/main-frontend-text.mjs';
 import {
   NativeCallContinuation,
   NATIVE_CALL_CONTINUATIONS,
@@ -19,7 +19,7 @@ import {
   FRONTEND_ROUTINES,
   attractRoundsSequence,
   runAttractRounds,
-} from '../../src/task/main-frontend.mjs';
+} from '../replay/main-frontend.mjs';
 import { INTRO_SETUP_REFERENCE_ENTRIES } from '../intro-reference/intro-routines.mjs';
 import { GAME_OWNER_REFERENCE_ENTRIES, runMenuGameMarker } from './game-owner.mjs';
 import { taskStop } from '../../src/task/plan.mjs';

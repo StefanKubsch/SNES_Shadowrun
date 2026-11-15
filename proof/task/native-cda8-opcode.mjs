@@ -8,7 +8,7 @@ import {
   redrawWindowListObserved,
   validateWindowListRedrawOptions,
   cda8Registers,
-} from '../../src/task/native-window-list-redraw.mjs';
+} from '../replay/native-window-list-redraw.mjs';
 // One individually proved Native58/C2 call through CDA8 and the AD92 composition.
 export function runTaskNativeCDA8Opcode(a, options, allowRemainingWaitObservations = false) {
   if (a.ctx.x !== 0x58) taskStop('task_native_c2_opcode_required');

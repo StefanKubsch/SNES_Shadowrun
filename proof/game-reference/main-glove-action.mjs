@@ -1,14 +1,14 @@
 // Register-level reference of the main loop's glove action 80:BF3B (moved from
-// src/task/main-loop-upkeep.mjs). The lifted version is src/game/glove-action.mjs.
-import { MAIN_UPKEEP_ROUTINES } from '../../src/task/main-loop-upkeep.mjs';
+// proof/replay/main-loop-upkeep.mjs). The lifted version is src/game/glove-action.mjs.
+import { MAIN_UPKEEP_ROUTINES } from '../replay/main-loop-upkeep.mjs';
 import {
   NativeCallContinuation,
   NATIVE_CALL_CONTINUATIONS,
   drainNativeSequence,
   nativeCallSequence,
 } from '../../src/task/native-call-continuation.mjs';
-import { DP_SCRATCH } from '../../src/task/native-member-spell-menu.mjs';
-import { GLOVE_REACH, OUT_OF_REACH_NOTICE } from '../../src/task/native-glove-target.mjs';
+import { DP_SCRATCH } from '../replay/native-member-spell-menu.mjs';
+import { GLOVE_REACH, OUT_OF_REACH_NOTICE } from '../replay/native-glove-target.mjs';
 import { sec, clc } from '../../src/task/status-flags.mjs';
 import {
   GLOVE_TARGET_OBJECT,

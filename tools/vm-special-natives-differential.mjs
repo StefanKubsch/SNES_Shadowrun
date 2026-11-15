@@ -1,19 +1,19 @@
-// Differenzvergleich der Spezialnatives (src/vm/special-natives.mjs) gegen ihre
-// bewiesenen Opcode-Kompositionen: ein $58 ab $F390 über Brücke, Native und
-// Wiederaufnahme bis zum nächsten $F390. Verglichen werden alle Register, Flags
-// und alle 131072 WRAM-Bytes, dazu die Geräteschreibzugriffe.
+// Differential comparison of special natives (src/vm/special-natives.mjs) against their
+// proved opcode compositions: one $58 from $F390 through bridge, native, and
+// resumption to the next $F390. Compare all registers, flags, all 131072 WRAM bytes,
+// and device writes.
 //
-// Beobachtungen (Gerätelesungen, Warte- und Eingabewörter) sind Testeingaben:
-// Fordert die VM eine an, wird ein Zufallswert angehängt und der Aufruf vom
-// gleichen Startzustand wiederholt. Das Orakel erhält denselben Satz und dazu
-// die Lesewerte der Recheneinheit, die es selbst nicht berechnet.
+// Observations (device reads, wait words, and input words) are test inputs:
+// when the VM requests one, append a random value and repeat the call from the
+// same initial state. The oracle gets the same set and the processor's read values,
+// which it does not calculate itself.
 import { VmMemory, VmFault } from '../src/vm/memory.mjs';
 import { LIFTED_SCRIPT_NATIVES, inLiftedScratch } from './lifted-script-natives.mjs';
 import { ScriptInterpreter } from '../proof/vm/interpreter.mjs';
 import { NativeCalls } from '../proof/vm/native-call.mjs';
 import { NATIVE_POINTERS } from '../src/vm/layout.mjs';
 import { ObservedDevices, observationSet } from '../proof/vm/observed-devices.mjs';
-import { SPECIAL_NATIVES } from '../src/vm/special-natives.mjs';
+import { SPECIAL_NATIVES } from '../proof/vm/special-natives.mjs';
 import { nativeOpcodeTargets } from '../src/task/native-opcode-targets.mjs';
 import { nativeTarget } from '../src/task/native-targets.mjs';
 import { prepareTaskNativeOpcodeFEC1 } from '../proof/task/native-c8-opcode.mjs';
@@ -50,7 +50,7 @@ import { oracle, context, PROOF_LIMITS } from './vm-scheduler-differential.mjs';
 
 const romBytes = new Uint8Array(rom.buffer, rom.byteOffset, rom.length);
 
-// Native-ID -> bewiesene Opcode-Komposition (jede prüft ihre ID und Metadaten).
+// Native ID -> proved opcode composition (each checks its ID and metadata).
 export const SPECIAL_ORACLES = new Map([
   [0xc8, prepareTaskNativeOpcodeFEC1],
   [0xa7, prepareTaskNativeOpcodeFF79],
@@ -79,28 +79,28 @@ export const SPECIAL_ORACLES = new Map([
   ...Object.keys(SMALL_SPECIAL_CALLEES).map((id) => [Number(id), prepareTaskNativeOpcodeSmall]),
 ]);
 const targetOf = (id) => 0x800000 | rom.readUInt16LE(0x157b8 + id * 2);
-// Alle Native-IDs, deren Ziel ein Spezialnative ist.
+// All native IDs whose target is a special native.
 export const specialNativeIds = Array.from({ length: 256 }, (_, id) => id).filter((id) =>
   SPECIAL_NATIVES.has(targetOf(id)),
 );
 
-// Zustand bei $F390 unmittelbar vor dem $58 (Argumente liegen auf dem Stapel).
+// State at $F390 immediately before $58 (arguments are on the stack).
 export function specialScenario(rnd, id, label) {
   const scenario = nativeScenario(rnd, id, label);
-  // Halb Nullen, damit Schleifen über Tabellen/Slots auch enden.
+  // Zero half the values so loops over tables and slots can terminate.
   for (let n = 0x2000; n < scenario.wram.length; n++) if (rnd() < 0.5) scenario.wram[n] = 0;
   const vm = new ScriptInterpreter(new VmMemory(romBytes, scenario.wram));
   vm.setContext(scenario.context);
   vm.run(rom[0x15a4c + id]);
-  if (vm.x !== 0x58) throw Error(`Szenario ${label}: kein $58 erreicht`);
+  if (vm.x !== 0x58) throw Error(`Scenario ${label}: did not reach $58`);
   return { label, id, wram: scenario.wram, context: vm.context() };
 }
 
-// Führt die VM ab einem Startzustand aus: drive(vm) = Zahl der Opcodes (Interpreter
-// ab $F390) oder eine Funktion, die die VM antreibt (z. B. TaskScheduler). Beobachtungen
-// entstehen bedarfsgesteuert: Fordert ein Spezialnative eine an, liefert feed den
-// Wert (oder undefined), er kommt in den Satz des laufenden Aufrufs, und der Lauf
-// wiederholt sich vom Startzustand. feed: {io(fault, memory), wait(details), input(details)}.
+// Run the VM from a starting state: drive(vm) is either an opcode count (interpreter
+// starting at $F390) or a function that drives the VM (for example TaskScheduler).
+// Observations are produced on demand: when a special native requests one, feed returns
+// a value (or undefined), which is added to the current call's set, and execution repeats
+// from the initial state. feed: {io(fault, memory), wait(details), input(details)}.
 export function runObserved(start, feed, drive, limit = 4000) {
   const sets = [];
   for (let n = 0; n < limit; n++) {
@@ -125,7 +125,7 @@ export function runObserved(start, feed, drive, limit = 4000) {
       fault = error;
     }
     if (fault === null && vm.pc === 0xf4f6) {
-      // Spezialnative ohne Satz: neuen leeren Satz für diesen Aufruf anlegen.
+      // Special native without an observation set: create an empty set for this call.
       const target = 0x800000 | memory.read16(NATIVE_POINTERS + vm.x);
       if (SPECIAL_NATIVES.has(target) && devices.index === sets.length) {
         sets.push({ target, io: [], wait: [], input: [] });
@@ -158,11 +158,11 @@ export function runObserved(start, feed, drive, limit = 4000) {
     }
     return { vm, memory, exit, fault, trace, sets };
   }
-  throw Error(`Beobachtungen ohne Ende (${sets.length} Sätze); ${start.label}`);
+  throw Error(`Observations did not terminate (${sets.length} sets); ${start.label}`);
 }
 
-// Zufallswerte: Warteschleifen enden bei 0, daher 0 mit Wahrscheinlichkeit 1/2.
-// APU-Port 0: Das Original wartet auf das Echo des Tokens in $1CE4; halb so oft liefert der Test es.
+// Random values: wait loops stop at 0, so return 0 with probability 1/2.
+// APU port 0: the original waits for the token echo in $1CE4; the test supplies it half the time.
 export const randomFeed = (rnd) => ({
   io: (fault, memory) =>
     (fault.address & 0xffff) === 0x2140 && rnd() < 0.5
@@ -213,7 +213,7 @@ export function compareSpecial(rnd, state) {
       /unmapped_read|unmapped_write/.test(fault.reason)
     )
       return { result: 'skipped:lifted-domain' };
-    if (plan.handled) throw Error(`VM-Fehler ${fault.reason}, Orakel nicht; ${state.label}`);
+    if (plan.handled) throw Error(`VM fault ${fault.reason}, but not the oracle; ${state.label}`);
     return { result: 'equal-fault', reason: plan.reason, fault: fault.reason };
   }
   if (!plan.handled) {
@@ -223,7 +223,7 @@ export function compareSpecial(rnd, state) {
     if (LIFTED_SCRIPT_NATIVES.has(targetOf(state.id)) && plan.reason === 'render_address_required')
       return { result: 'skipped:lifted-past-table' };
     throw Error(
-      `Orakel scheitert (${plan.reason} ${plan.address?.toString(16) ?? ''}), VM nicht; ${state.label}`,
+      `Oracle failed (${plan.reason} ${plan.address?.toString(16) ?? ''}), but not the VM; ${state.label}`,
     );
   }
   const expected = state.wram.slice();
@@ -255,7 +255,7 @@ export function compareSpecial(rnd, state) {
     .filter((r) => r.kind === 'write')
     .map(({ kind, ...o }) => ({ ...o, address: nativeBank(o.address) }));
   if (JSON.stringify(writes) !== JSON.stringify(oracleWrites))
-    throw Error(`Geräteschreibzugriffe weichen ab; ${state.label}`);
+    throw Error(`Device writes differ; ${state.label}`);
   return {
     result: 'equal',
     io: trace.length,
@@ -264,7 +264,7 @@ export function compareSpecial(rnd, state) {
   };
 }
 
-// Kommandozeile: node tools/vm-special-natives-differential.mjs [Szenarien je ID]
+// Command line: node tools/vm-special-natives-differential.mjs [scenarios per ID]
 if (import.meta.url === `file:///${process.argv[1]?.replace(/\\/g, '/').replace(/^\//, '')}`) {
   const { prng } = await import('./vm-differential.mjs');
   const per = Number(process.argv[2] ?? 20),

@@ -7,8 +7,8 @@ import { runTaskNativeResume } from './native-resume.mjs';
 import {
   hitObjectsInBlastObserved,
   hitObjectsInBlastDevices,
-} from '../../src/task/native-object-hit.mjs';
-import { validateTaskActionsOptions } from '../../src/task/native-actions.mjs';
+} from '../replay/native-object-hit.mjs';
+import { validateTaskActionsOptions } from '../replay/native-actions.mjs';
 export function runTaskNative7COpcode(a, options, allowRemaining = false) {
   if (a.ctx.x !== 0x58) taskStop('task_native_7c_opcode_required');
   const slot = runTaskOpcodeTarget(a);

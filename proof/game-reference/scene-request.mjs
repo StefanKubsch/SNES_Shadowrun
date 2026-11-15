@@ -1,5 +1,5 @@
 // Register-level reference of the scene request 80:CC4B of the main loop (moved
-// from src/task/main-loop-motion.mjs; lifted in src/game/scene-request.mjs). Its
+// from proof/replay/main-loop-motion.mjs; lifted in src/game/scene-request.mjs). Its
 // callees stay register-level in the main loop's motion table
 // (MAIN_MOTION_ROUTINES), which this reference calls through their original
 // frames: the forced blank 81:B0BD, the frame wait 81:B0A1, the cutscene 81:CDF8,
@@ -7,7 +7,7 @@
 //
 // $1CE9 = FFFF: no new scene; 7FFF: only a scene change; otherwise load first.
 // FFFE loads via C3CA and takes the byte $1D8B into the record, other values via CDF8.
-import { MAIN_MOTION_ROUTINES } from '../../src/task/main-loop-motion.mjs';
+import { MAIN_MOTION_ROUTINES } from '../replay/main-loop-motion.mjs';
 import {
   NativeCallContinuation,
   NATIVE_CALL_CONTINUATIONS,

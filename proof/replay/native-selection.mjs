@@ -1,13 +1,16 @@
 import { withInterruptEvents } from './observed-native-events.mjs';
-import { lagFree } from './main-wait-interrupt.mjs';
-import { dialogAccess } from './native-dialog-support.mjs';
-import { taskStop } from './plan.mjs';
-import { taskTextAccess } from './native-text-prerequisites.mjs';
-import { requestWindowUploadSequence } from './native-menu-compose.mjs';
-import { setTextCursor } from './native-list-prerequisites.mjs';
-import { printTextSequence } from './native-text-compose.mjs';
-import { observedContinuation, drainNativeSequence } from './native-call-continuation.mjs';
-import { setActionAndDirectionRegisters } from './native-object-turn.mjs';
+import { lagFree } from '../../src/task/main-wait-interrupt.mjs';
+import { dialogAccess } from '../../src/task/native-dialog-support.mjs';
+import { taskStop } from '../../src/task/plan.mjs';
+import { taskTextAccess } from '../../src/task/native-text-prerequisites.mjs';
+import { requestWindowUploadSequence } from '../../src/task/native-menu-compose.mjs';
+import { setTextCursor } from '../../src/task/native-list-prerequisites.mjs';
+import { printTextSequence } from '../../src/task/native-text-compose.mjs';
+import {
+  observedContinuation,
+  drainNativeSequence,
+} from '../../src/task/native-call-continuation.mjs';
+import { setActionAndDirectionRegisters } from '../../src/task/native-object-turn.mjs';
 import { TEXT_NUMBERS } from './native-notice.mjs';
 import { DP_PORTRAIT_FRAME } from './native-dialog.mjs';
 
@@ -20,15 +23,15 @@ import {
   ROOM,
   WRAM,
   DP_CURSOR_ROW,
-} from './wram.mjs';
-import { WORD_MASK, BYTE_MASK, BANK_WRAP, BANK_SIZE } from '../constants/bits.mjs';
+} from '../../src/task/wram.mjs';
+import { WORD_MASK, BYTE_MASK, BANK_WRAP, BANK_SIZE } from '../../src/constants/bits.mjs';
 import {
   FLAG_INDEX_8BIT,
   FLAG_MEMORY_8BIT,
   FLAG_CARRY,
   FLAG_ZERO,
   FLAG_NEGATIVE,
-} from '../constants/cpu-flags.mjs';
+} from '../../src/constants/cpu-flags.mjs';
 import {
   WRMPYA,
   WRMPYB,
@@ -38,8 +41,8 @@ import {
   RDDIVL,
   RDMPYL,
   RDMPYH,
-} from '../constants/hardware-registers.mjs';
-import { CODE_BANK } from '../constants/memory-map.mjs';
+} from '../../src/constants/hardware-registers.mjs';
+import { CODE_BANK } from '../../src/constants/memory-map.mjs';
 export const selectionDevices = Object.freeze({
   writes: Object.freeze([WRMPYA, WRMPYB, WRDIVL, WRDIVH, WRDIVB]),
   reads: Object.freeze([RDDIVL, RDMPYL, RDMPYH]),

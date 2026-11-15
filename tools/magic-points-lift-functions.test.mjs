@@ -5,7 +5,7 @@
 // words and returns); WRAM outside the stack, the call and the return must be equal.
 import { prng } from './task-native-dialog-harness.mjs';
 import { createSide, registerCases } from './lift-function-harness.mjs';
-import { spendMagicPoints, NATIVE_COMBAT_ROUTINES } from '../src/task/native-combat.mjs';
+import { spendMagicPoints, NATIVE_COMBAT_ROUTINES } from '../proof/replay/native-combat.mjs';
 import { spendMagicPointsSequence } from '../src/game/magic-points.mjs';
 import { drainNativeSequence } from '../src/task/native-call-continuation.mjs';
 

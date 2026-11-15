@@ -5,13 +5,17 @@ import { readFile, writeFile } from 'node:fs/promises';
 import { inspectRom, cpuToOffset } from './rom.mjs';
 import { readTables, readAnimations } from '../src/data/tables.mjs';
 import { scriptOpcodes } from '../src/script/opcodes.mjs';
-import { directionCalls, stateCalls, trackCalls } from '../proof/matrix-reference/main-matrix-movement.mjs';
+import {
+  directionCalls,
+  stateCalls,
+  trackCalls,
+} from '../proof/matrix-reference/main-matrix-movement.mjs';
 import { textCommands } from '../proof/matrix-reference/main-scene-matrix.mjs';
 import { SCENE_ANIMATION_TARGETS } from '../proof/cutscene-reference/cutscene-animation.mjs';
-import { KARMA_LISTS } from '../src/task/native-main-menu.mjs';
-import { SUBMENU_SEQUENCES } from '../src/task/native-status-screen.mjs';
+import { KARMA_LISTS } from '../proof/replay/native-main-menu.mjs';
+import { SUBMENU_SEQUENCES } from '../proof/replay/native-status-screen.mjs';
 import { SCENE_VIDEO_COMMANDS } from '../src/task/main-scene-video.mjs';
-import { COMPARE } from '../src/task/native-scene-sprites.mjs';
+import { COMPARE } from '../proof/replay/native-scene-sprites.mjs';
 
 const ROM_SHA256 = '91dbfecf9017264b01885e065cf015840223b8e8d2f95dfa62c4c0d654c2f690';
 const { bytes, metadata } = inspectRom(await readFile(process.argv[2] ?? 'Shadowrun (E).smc'));

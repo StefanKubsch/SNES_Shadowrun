@@ -7,12 +7,12 @@ import { TaskAccessor } from '../src/vm/task-accessor.mjs';
 import { dialogAccess } from '../src/task/native-dialog-support.mjs';
 import { NATIVE_CALL_CONTINUATIONS } from '../src/task/native-call-continuation.mjs';
 import { WAIT_PAUSED, WAIT_RETURNED } from '../src/task/native-wait-continuation.mjs';
-import { GAME_NMI_ROUTINES } from '../src/task/main-game-nmi.mjs';
+import { GAME_NMI_ROUTINES } from '../proof/replay/main-game-nmi.mjs';
 import { finishInterruptObservations } from '../src/task/main-wait-interrupt.mjs';
-import { MAIN_LOOP_ROUTINES } from '../src/vm/main-loop.mjs';
-import { MAIN_UPKEEP_ROUTINES } from '../src/task/main-loop-upkeep.mjs';
-import { GLOVE_ROUTINES } from '../src/task/native-glove-target-support.mjs';
-import { TALK_ROUTINES } from '../src/task/native-dialog.mjs';
+import { MAIN_LOOP_ROUTINES } from '../proof/vm/main-loop.mjs';
+import { MAIN_UPKEEP_ROUTINES } from '../proof/replay/main-loop-upkeep.mjs';
+import { GLOVE_ROUTINES } from '../proof/replay/native-glove-target-support.mjs';
+import { TALK_ROUTINES } from '../proof/replay/native-dialog.mjs';
 
 // The synchronous adapters were compared with the original instructions in
 // their own tests (F963, FB39/FE69, FA3E/AD92, WORD waits, game NMI). Here the
@@ -21,6 +21,10 @@ import { TALK_ROUTINES } from '../src/task/native-dialog.mjs';
 // the busy poll alternates so every taken NMI pauses inside 80:9E0B.
 const freeze = (rows) => Object.freeze(rows.map((o) => Object.freeze({ ...o })));
 const word = (mem, at, value) => mem.write16(at, value);
+const factoryFor = (target, run) => {
+  const byTarget = NATIVE_CALL_CONTINUATIONS.get(target);
+  return byTarget?.run === run ? byTarget : NATIVE_CALL_CONTINUATIONS.get(run);
+};
 function side(fixture, entry, setup) {
   const mem = new DialogTestMemory(new Uint8Array(0x20000), null, rom.slice());
   for (const [address, value] of fixture.data.snapshot().bytes)
@@ -115,7 +119,7 @@ function compare(fixture, entry, run, setup = null, phase = null) {
     n = side(fixture, entry, setup);
   n.a.io = o.io;
   const e = events(o.records, o.dma),
-    factory = NATIVE_CALL_CONTINUATIONS.get(entry);
+    factory = factoryFor(entry, run);
   assert.equal(factory.run, run);
   const c = factory.create({ h: n.h, events: e }),
     ctx = { ...n.a.ctx },
@@ -160,9 +164,12 @@ test('shared adapters own the text and notice continuations', () => {
     [0x80f963, TALK_ROUTINES],
     [0x80f963, GLOVE_ROUTINES],
   ])
-    assert.equal(NATIVE_CALL_CONTINUATIONS.get(target).run, table.get(target));
+    assert.equal(factoryFor(target, table.get(target)).run, table.get(target));
   for (const target of [0x80ff14, 0x80e270, 0x80bf3b])
-    assert.equal(NATIVE_CALL_CONTINUATIONS.get(target).run, MAIN_LOOP_ROUTINES.get(target));
+    assert.equal(
+      factoryFor(target, MAIN_LOOP_ROUTINES.get(target)).run,
+      MAIN_LOOP_ROUTINES.get(target),
+    );
 });
 test('FEC1 with F963, FE69/FB39 and FA3E keeps every frame and nested NMI/RTI across single work units', () => {
   for (const options of fixtures)

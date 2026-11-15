@@ -238,7 +238,7 @@ port), format description, decoder, encoder and way-back test:
 - **Palettes, part 2 (delivered 2026-10-30):** both palette tables in full.
   - 80:999A writes 30 bytes from 8C:F624 + 32·n (number from CFE), 81:A919
     30 bytes from 8D:F1BA + 16·n (number from 17D6); evidence in
-    src/task/main-game-nmi.mjs.
+    proof/replay/main-game-nmi.mjs.
   - The lower bound is number 0 (block with colour 0 from 8C:F622 or
     8D:F1B8). No upper bound is in the code; the first table ends before
     the first word with bit 15 (8C:FF62).
@@ -338,7 +338,7 @@ tools/live-*.test.mjs`, then `node tools/rom-vram.mjs` writes
     reader 81:A117 and its helpers (src/task/main-scene-load.mjs,
     main-scene-layers.mjs):
     - backdrop word: to 7E:0D12, which the NMI writes as colour 0 to CGRAM
-      (80:99DC/99E2, src/task/main-game-nmi.mjs); 162 scenes use 0000.
+      (80:99DC/99E2, proof/replay/main-game-nmi.mjs); 162 scenes use 0000.
     - tileset byte (0 to 5): index into 8D:F1A0 and 8D:F1AC (block and
       attribute pointers).
     - shapes (81:8DE2): count byte, then a position word (grid 7F:CA14) and
@@ -700,7 +700,7 @@ tools/live-*.test.mjs`, then `node tools/rom-vram.mjs` writes
     80:FF73, the AA9C stream pointers 80:FFAD, the fill bytes 81:A7FB and
     81:EE4E, the displacement bytes 81:D022/D0FD, sprite parts 81:D529 and
     the OAM bits 81:E8E1. 80:B933 is code (the unrolled STA $3D09 + 4 k that
-    the sprite code of src/task/native-scene-sprites.mjs jumps into) and
+    the sprite code of proof/replay/native-scene-sprites.mjs jumps into) and
     stays. 198 bytes; the raw part has 22.375 bytes,
     `unknown` 1.154.
     Class `lookup_table`, 2.969 bytes; the raw part has 29.288 bytes,

@@ -30,9 +30,9 @@ import { TaskScheduler, STOP_BUDGET, STOP_RETURNED, STOP_NATIVE } from '../proof
 import { isIoAddress, isArithmeticRegister } from '../src/vm/devices.mjs';
 import { ObservedDevices, observationSet } from '../proof/vm/observed-devices.mjs';
 import { SRAM_SIZE } from '../src/vm/memory.mjs';
-import { MAIN_STARTUP_ROUTINES as MAIN_STARTUP_ROUTINES_TASK } from '../src/task/main-startup.mjs';
-import { FRONTEND_ROUTINES } from '../src/task/main-frontend.mjs';
-import { MAIN_START_ROUTINES } from '../src/task/main-start.mjs';
+import { MAIN_STARTUP_ROUTINES as MAIN_STARTUP_ROUTINES_TASK } from '../proof/replay/main-startup.mjs';
+import { FRONTEND_ROUTINES } from '../proof/replay/main-frontend.mjs';
+import { MAIN_START_ROUTINES } from '../proof/replay/main-start.mjs';
 import { withGameStartReference } from '../proof/game-reference/game-start.mjs';
 import { dialogAccess } from '../src/task/native-dialog-support.mjs';
 import { finishInterruptObservations } from '../src/task/main-wait-interrupt.mjs';

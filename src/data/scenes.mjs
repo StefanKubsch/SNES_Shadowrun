@@ -3,7 +3,7 @@
 // reads through the pointer in DP 0E (src/task/main-scene-load.mjs,
 // main-scene-layers.mjs). Layout, in order:
 // - backdrop: word, copied to 7E:0D12 and written by the NMI as colour 0 to
-//   CGRAM (src/task/main-game-nmi.mjs); BGR555.
+//   CGRAM (proof/replay/main-game-nmi.mjs); BGR555.
 // - tileset: byte n; tables $8D:F1A0 + 2 n and $8D:F1AC + 2 n give the block
 //   and attribute pointers (DP 11, DP 14).
 // - shapes: count byte, then per shape ($81:8DE2) a word p and either

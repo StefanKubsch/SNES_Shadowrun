@@ -192,7 +192,7 @@ const screenBase = (vram) => (vram * VRAM_WORD_BYTES) >> BGSC_BASE_SHIFT,
 // The MDMAEN bit of a channel by its DMAPx register; a B-bus register as BBADx takes it.
 const channel = (dmap) => 1 << ((dmap - DMAP0) / DMA_CHANNEL_STRIDE),
   bBus = (register) => register & BYTE_MASK;
-// The game NMI handler (src/task/main-game-nmi.mjs) and the game's main screen layers.
+// The game NMI handler (proof/replay/main-game-nmi.mjs) and the game's main screen layers.
 const GAME_NMI = 0x80c152,
   GAME_LAYERS = LAYER_BG1 | LAYER_BG2 | LAYER_OBJ;
 // Original instructions of the CPU register writes, the sites of the device model.

@@ -38,40 +38,43 @@ import {
   createPrintTopicTextNative,
   askYesNoNative,
   createAskYesNoNative,
-} from '../src/vm/special-natives.mjs';
-import { runTaskModalObserved, createModalObserved } from '../src/task/native-modal.mjs';
+} from '../proof/vm/special-natives.mjs';
+import { runTaskModalObserved, createModalObserved } from '../proof/replay/native-modal.mjs';
 import {
   runTaskSelectionObserved,
   createSelectionObserved,
-} from '../src/task/native-selection.mjs';
-import { runTaskActionsObserved, createActionsObserved } from '../src/task/native-actions.mjs';
+} from '../proof/replay/native-selection.mjs';
+import { runTaskActionsObserved, createActionsObserved } from '../proof/replay/native-actions.mjs';
 import {
   redrawWindowListObserved,
   createRedrawWindowListObserved,
-} from '../src/task/native-window-list-redraw.mjs';
+} from '../proof/replay/native-window-list-redraw.mjs';
 import {
   talkWithObjectObserved,
   createTalkWithObjectObserved,
-} from '../src/task/native-dialog.mjs';
-import { showNoticeObserved, createShowNoticeObserved } from '../src/task/native-notice.mjs';
+} from '../proof/replay/native-dialog.mjs';
+import { showNoticeObserved, createShowNoticeObserved } from '../proof/replay/native-notice.mjs';
 import {
   releaseNoticeWindowsObserved,
   createReleaseNoticeWindowsObserved,
-} from '../src/task/native-slot-release.mjs';
+} from '../proof/replay/native-slot-release.mjs';
 import {
   shootAtGloveTargetObserved,
   shootAtObjectObserved,
   shootWithOwnWeaponObserved,
-} from '../src/task/native-object-shoot.mjs';
+} from '../proof/replay/native-object-shoot.mjs';
 import {
   controlPlayerObserved,
   createControlPlayerObserved,
-} from '../src/task/native-player-control.mjs';
-import { openMainMenuObserved, createOpenMainMenuObserved } from '../src/task/native-main-menu.mjs';
+} from '../proof/replay/native-player-control.mjs';
+import {
+  openMainMenuObserved,
+  createOpenMainMenuObserved,
+} from '../proof/replay/native-main-menu.mjs';
 import {
   showStatusScreenObserved,
   createShowStatusScreenObserved,
-} from '../src/task/native-status-screen.mjs';
+} from '../proof/replay/native-status-screen.mjs';
 import {
   liftedPlayerControlSequence,
   liftedStatusScreenSequence,

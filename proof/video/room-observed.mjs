@@ -23,7 +23,7 @@ import { MainLoopDriver, STOP_MAIN_WAIT, STOP_MAIN_OWNER_RETURN } from '../vm/ma
 import { STOP_RETURNED, STOP_BUDGET, STOP_NATIVE_WAIT } from '../vm/scheduler.mjs';
 import { nativeOpcodeTargets } from '../../src/task/native-opcode-targets.mjs';
 import { nativeTarget } from '../../src/task/native-targets.mjs';
-import { MAIN_STARTUP_ROUTINES as STARTUP_ROUTINES } from '../../src/task/main-startup.mjs';
+import { MAIN_STARTUP_ROUTINES as STARTUP_ROUTINES } from '../replay/main-startup.mjs';
 import { withFrontendReference } from '../frontend-reference/frontend.mjs';
 
 // Recorded chronologies hold every instruction of the title (prologue fill, polls in

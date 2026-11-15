@@ -1,5 +1,5 @@
 // The action menu of the glove (lifted from 80:99EB; register-level version in
-// src/task/native-actions.mjs, which the script's native 13 at 80:9BA0 still uses).
+// proof/replay/native-actions.mjs, which the script's native 13 at 80:9BA0 still uses).
 //
 // The accepted actions come in A (or the override 7E:1FA6, which the glove action sets
 // for offered ones). The menu lists Exit and then, in a fixed order, the accepted ones:

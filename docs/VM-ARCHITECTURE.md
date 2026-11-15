@@ -1,8 +1,8 @@
 # VM architecture
 
-Current module layout of the native event interpreter in [src/vm/](../src/vm/).
+Current module layout of the native event interpreter and its proof references.
 The delivery history and proofs are in [VM-INTERPRETER.md](VM-INTERPRETER.md)
-(German, historical).
+(historical).
 
 Since the script VM lift phase 5 ([SCRIPT-VM-LIFT.md](SCRIPT-VM-LIFT.md)) the game runs
 its scripts on the JS interpreter, scheduler and native bridge in
@@ -10,7 +10,10 @@ its scripts on the JS interpreter, scheduler and native bridge in
 ([game-loop.mjs](../src/script/game-loop.mjs)). The register-level modules below that
 the game no longer loads (cpu, interpreter, handlers, scheduler, native-call,
 main-driver) live in [proof/vm/](../proof/vm/) as references for the differentials and
-the replays with recorded observations.
+the replays with recorded observations. Phase 6 separates the recorded special
+natives and main interval into `proof/vm/`, with their register-level forms and
+reference call tables in [proof/replay/](../proof/replay/). The game binds lifted
+native sequences directly and uses only lag-free frames.
 
 ## Modules
 
@@ -24,17 +27,18 @@ the replays with recorded observations.
 | [scheduler.mjs](../proof/vm/scheduler.mjs)           | `TaskScheduler`: task lists, heap, rounds, script call `$F488`, native wait `$C401`, resumptions `$F495`/`$F509`.                                                 |
 | [native-call.mjs](../proof/vm/native-call.mjs)       | Bridge `$F4F6`, dispatch `$F52F`, resume `$F509`; `NativeCalls` binds admitted, oracle and special natives and runs nested scheduler rounds.                      |
 | [task-accessor.mjs](../src/vm/task-accessor.mjs)     | `TaskAccessor`: the accessor interface of the proven task modules directly on `VmMemory`; `vmToContext()`/`contextToVm()` move registers between VM and accessor. |
-| [special-natives.mjs](../src/vm/special-natives.mjs) | Natives with hardware values: target to proven module, synchronous and resumable.                                                                                 |
+| [special-natives.mjs](../src/vm/special-natives.mjs) | Lifted natives with live hardware values, synchronous and resumable; replay forms are in `proof/vm/special-natives.mjs`.                                          |
 | [devices.mjs](../src/vm/devices.mjs)                 | Address classes (`isIoAddress`, `isArithmeticRegister`) and interrupt cursors of observation sets (`interruptEventsOf`, `appendRoundInterrupts`).                 |
 | [frame-events.mjs](../src/vm/frame-events.mjs)       | `LagFreeFrames` and `LiveDevices`: the game's live device answers (NMI at blocking wait loops, pad, APU ports, PPU bus, counter bytes).                           |
-| [main-loop.mjs](../src/vm/main-loop.mjs)             | Main loop `$80:96AB-$96F2` between scheduler rounds, synchronous and as a continuation.                                                                           |
+| [main-loop.mjs](../src/vm/main-loop.mjs)             | Lag-free main interval between scheduler rounds; recorded intervals use `proof/vm/main-loop.mjs`.                                                                 |
 | [main-driver.mjs](../proof/vm/main-driver.mjs)       | `MainLoopDriver`: reset, startup, menu owner, game start, main loop and the round `$C1E3` on one VM.                                                              |
 
 Tests and Mesen oracles replay recorded observation sets with
 [proof/vm/observed-devices.mjs](../proof/vm/observed-devices.mjs)
 (`ObservedDevices`, `observationSet`); the game never loads it.
 
-The native routines themselves live in `src/task/` under descriptive names;
+The lifted native routines live in `src/game/`, `src/frontend/` and the other game
+subsystems. Their register-level special native forms live in `proof/replay/`;
 [NATIVE-MODULES.md](NATIVE-MODULES.md) maps each former address-based name
 to its module. Named WRAM addresses of the game state (object arrays, glove,
 group, progress) are in [src/task/wram.mjs](../src/task/wram.mjs); task
@@ -60,6 +64,6 @@ raw literals.
   sequence twice: synchronously and as `mainIntervalSequence()` for a finite
   budget. Folding both into one sequence needs a proof that the synchronous
   run* functions and their continuations consume observations identically.
-- The main loop and special native tables import task modules by ROM address
-  names (`processSceneRequest`, `hitObjectsInBlastObserved`); speaking names follow
-  with the src/task group.
+- Phase 7 dissolves the remaining `src/task/`: shared constants and execution
+  support move into the game's data and system directories. The game still uses
+  address-keyed callee tables in several caller adapters.

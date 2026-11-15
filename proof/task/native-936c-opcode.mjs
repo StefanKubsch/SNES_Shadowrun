@@ -4,11 +4,8 @@ import { runTaskOpcodeTarget } from './opcode-target.mjs';
 import { runTaskNativeArguments } from './native-arguments.mjs';
 import { runTaskNativeBridge } from './native-bridge.mjs';
 import { runTaskNativeResume } from './native-resume.mjs';
-import {
-  talkWithObjectObserved,
-  validateDialogTaskOptions,
-} from '../../src/task/native-dialog.mjs';
-import { fec1Registers } from '../../src/task/native-notice.mjs';
+import { talkWithObjectObserved, validateDialogTaskOptions } from '../replay/native-dialog.mjs';
+import { fec1Registers } from '../replay/native-notice.mjs';
 import { taskListDevices } from '../../src/task/native-list-prerequisites.mjs';
 import { taskAudioDevices } from '../../src/task/native-audio-compose.mjs';
 import { taskMenuDevices } from '../../src/task/native-menu-compose.mjs';

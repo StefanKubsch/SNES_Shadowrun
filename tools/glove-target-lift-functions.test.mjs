@@ -16,7 +16,7 @@ import {
   scriptChooseObjectNumberWithGlove,
   scriptChooseObjectWithGlove,
   targetWithSpellGlove,
-} from '../src/task/native-glove-target.mjs';
+} from '../proof/replay/native-glove-target.mjs';
 import {
   chooseObjectUnderGloveSequence,
   chooseObjectNumberSequence,

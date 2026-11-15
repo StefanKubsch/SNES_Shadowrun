@@ -66,7 +66,7 @@ choose the size of the pieces processed synchronously.
 [NativeCallContinuation](../src/task/native-call-continuation.mjs) assembles
 fixed JavaScript caller segments. The synchronous and resumable paths of
 [00:C112](../src/task/observed-nmi.mjs) and
-[80:C152](../src/task/main-game-nmi.mjs) use the same equations. The pinned
+[80:C152](../proof/replay/main-game-nmi.mjs) use the same equations. The pinned
 sources remain [matrixNmiSpecs, nmi](../tools/main-matrix-nmi-source.mjs) with
 the hardware/handler stack lemma and [gameNmiSpecs](../tools/main-game-nmi-source.mjs)
 with all eleven actual child calls and their closed stack proof. No
@@ -137,7 +137,7 @@ F29D and PLP/RTL across an interruption in 9E1A. Sources are
 
 The complete original C3CA caller keeps its JSL/JSR frames across these
 pauses, including both matrix control paths and their real queue, graphics and
-data helpers. [CC4B](../src/task/main-loop-motion.mjs) passes the original
+data helpers. [CC4B](../proof/replay/main-loop-motion.mjs) passes the original
 C3CA frame to CC71 and continues with the record copy, initialisation and scene
 takeover only after its RTL. Its separate child routine tables are kept; a
 child gets no foreign table from the CC4B caller. Source:
@@ -150,7 +150,7 @@ neither general time nor a dynamic frame.
 
 ## Boot, intro and scene changes
 
-[E7BC/A15C/A133](../src/task/main-startup.mjs) and
+[E7BC/A15C/A133](../proof/replay/main-startup.mjs) and
 [EED5](../src/task/main-scene-wait.mjs) use fixed caller segments. PHP, the
 actual BYTE/WORD widths, all JSL wait calls and the original return words are
 kept across pauses. `MainStartupContinuation` ends only at the original A139.
@@ -159,7 +159,7 @@ and [sceneAnimationSpecs](../tools/main-scene-animation-source.mjs). The SPC
 transfer stays a synchronous segment with its single original observations; a
 work budget replaces no APU reply.
 
-[CDF8](../src/task/main-scene.mjs) keeps both original wait phases, the input
+[CDF8](../proof/replay/main-scene.mjs) keeps both original wait phases, the input
 evaluation and its direct BYTE fade poll at CF4C/CF4F. `FadePollContinuation`
 lets the NMI return completely up to RTI before the same LDA or BNE
 instruction follows. The jump to DFE7 ([reference](../proof/intro-reference/intro-scene.mjs),
@@ -169,15 +169,15 @@ of the nested CDF8. The D479/DF0E callbacks actually installed and the
 existing source proof are kept: [mainSceneSpecs](../tools/main-scene-source.mjs),
 [sceneIntroSpecs](../tools/main-scene-intro-source.mjs).
 
-[A4BF and 8BD9](../src/task/main-transition.mjs) pass their B0A1 pauses on
-through both main loop callers: [8000/803B](../src/task/main-zone-gate.mjs)
+[A4BF and 8BD9](../proof/replay/main-transition.mjs) pass their B0A1 pauses on
+through both main loop callers: [8000/803B](../proof/replay/main-zone-gate.mjs)
 keeps the real JSR frame 802B, CC4B still its own scene frame. Sources:
 [transitionSpecs](../tools/main-transition-source.mjs),
 [mainGate8000Spec](../tools/main-gate-8000-source.mjs) and the existing CC4B
 proof. The B0A1 adapter is the same bound function for movement, scene changes
 and the rest of the main loop. Configured replacement routines stay decisive.
 
-[9688/9699](../src/task/main-start.mjs) also segments the scene transition with
+[9688/9699](../proof/replay/main-start.mjs) also segments the scene transition with
 the original frames 969C/96A0. The finite driver now keeps the whole prelude
 A133 up to the first main loop interval in the same observation set. A cold
 reset stays a synchronous segment of its own; its actual change from E1 to E0 is
@@ -207,7 +207,7 @@ handshakes stay synchronous.
 ## Window cleanup and render request
 
 [BCB2/BE5B](../src/task/native-dialog-portrait.mjs) and
-[FF79](../src/task/native-slot-release.mjs) keep their own JSR frames, and PHX
+[FF79](../proof/replay/native-slot-release.mjs) keep their own JSR frames, and PHX
 frames where present, across the whole chain
 [FA3E/AD92](../src/task/native-render-compose.mjs) down to ACB5/ACAF. The
 original INC/JSL request uses `RequestWaitContinuation`; an unchanged WORD poll
@@ -257,7 +257,7 @@ stores of a glyph row. The JSR FEBC keeps WORD FEBE until the RTS of FB39 uses
 it; then PLB and RTS of FE69 follow. Geometry, AEC8 and AF04 stay synchronous
 segments.
 
-[FEC1](../src/task/native-notice.mjs) embeds the sequences of F963, FE69 and FA3E
+[FEC1](../proof/replay/native-notice.mjs) embeds the sequences of F963, FE69 and FA3E
 through its real JSR frames FECE, FEDD and FF04. The PHA/PHX bytes of
 allocation, minimum and slot stay on the stack across pauses. The main loop
 owners FF14, E270 and BF3B (lifted in [src/game/main-upkeep.mjs](../src/game/main-upkeep.mjs),
@@ -296,12 +296,12 @@ back to `Infinity` afterwards. A scheduler round nested from a native stays
 synchronous, because its caller has no pause frame. CD9D, CECB and D079 use
 `dialogCallSequence` with the same unlabelled frames as before.
 
-Also resumable are the input wait [F953](../src/task/native-input-wait.mjs)
+Also resumable are the input wait [F953](../proof/replay/native-input-wait.mjs)
 with JSL B0A1 (WORD F956) and JSR 9E1A (WORD F959), whose wait instructions
 pause as `ObservedWaitContinuation` with an interrupt set, the
-[modal roots](../src/task/native-modal.mjs) 935B/CBF7/CD20/CD43, the
-[selection](../src/task/native-selection.mjs) 933A/BBA0 and the
-[combat end](../src/task/native-fight-list-remove.mjs) 855E. They embed F963, FE69, FA3E and
+[modal roots](../proof/replay/native-modal.mjs) 935B/CBF7/CD20/CD43, the
+[selection](../proof/replay/native-selection.mjs) 933A/BBA0 and the
+[combat end](../proof/replay/native-fight-list-remove.mjs) 855E. They embed F963, FE69, FA3E and
 FEC1 as sequences. FAAC, FD80, D15C and the APU helpers C46E/EF47 stay segments;
 routines replaced by tests stay decisive.
 
@@ -311,9 +311,9 @@ set both pause as `ObservedWaitContinuation`. Confirming, cancelling, the
 shortcut and paging keep their real PHY/PEI/PLA frames; the scroll request FA67
 pauses in the WORD poll ACBD. List helpers and the confirmation sound C46E stay
 segments. CD43 and 933A embed these sequences, as does the
-[spell choice E1CF](../src/task/native-spell-choice.mjs) through `dialogTextSequences`,
+[spell choice E1CF](../proof/replay/native-spell-choice.mjs) through `dialogTextSequences`,
 the parallel sequence object of `dialogTextRoutines`. The
-[dialog 936C](../src/task/native-dialog.mjs) is a sequence over its routine table.
+[dialog 936C](../proof/replay/native-dialog.mjs) is a sequence over its routine table.
 Table calls use `dialogCallSequence`; registered continuations for F963, FF79,
 BCB2, FA3E, B0A1, 9E1A and the dialog parts
 [9178/91E2/9215](../src/task/native-dialog-text.mjs) and the closing 92C5 apply
@@ -323,38 +323,38 @@ stay segments. The topic action with a nested scheduler round stays
 synchronous. 936C is resumable both as a special native and through BF3B in the
 main loop.
 
-The [glove choice](../src/task/native-glove-target.mjs) 9BC6, 9BD3, 9C33, 9BB9, 8D0B and
+The [glove choice](../proof/replay/native-glove-target.mjs) 9BC6, 9BD3, 9C33, 9BB9, 8D0B and
 C724 keeps in every frame the real frames of JSL B0A1, JSR 9E1A and JSR BE6D.
 BE6D calls BCBE when standing still (the object under the glove with a name
 window through FADD, F963 and FE69) and BE5B when moving; both are sequences.
 The window list AEB0/AEB8 embeds AD92 or A9B2/ACB5. FADD and BC36/BC67/BC99
 stay segments. BE6D is also registered as a direct main loop helper. The
-[player control E014](../src/task/native-player-control.mjs) decides per frame in one
+[player control E014](../proof/replay/native-player-control.mjs) decides per frame in one
 segment (DEC7, DF6B, glove on, A985/AAAF). Only the group overview ED3C, the
 notices without a weapon or spell (F963, FE69, F953, FA3E) and the glove release
 BCB2 keep their frames across pauses. The shared tables of F254, EA6E and E014
 use registered adapters for A6C7, A6AD, FA67, F953, AEB0 and FB39.
 
-The [status screen EA6E](../src/task/native-status-screen.mjs) with the entries
+The [status screen EA6E](../proof/replay/native-status-screen.mjs) with the entries
 EA89/EA8E from E014 is a sequence. Every table call keeps its real frame; the
 code between two calls runs in one piece as before. The item lists
 E572/E577/E57F with E4F3, the attributes E834, the notes E8C8, the number FDCF,
 the submenu dispatch JMP (ED2E,X) and the closing are sequences. The APU
 command F007 stays a segment; the nested round in E4F3 stays synchronous.
 
-The [weapon menu F254](../src/task/native-member-spell-menu.mjs) with E693, the portrait E4B3,
+The [weapon menu F254](../proof/replay/native-member-spell-menu.mjs) with E693, the portrait E4B3,
 the second channel E48D, the fade-in E433 (eleven JSL B0A1), the weapon window
-E9C5 and the item text E9A8, and the [main menu CE6D](../src/task/native-main-menu.mjs)
+E9C5 and the item text E9A8, and the [main menu CE6D](../proof/replay/native-main-menu.mjs)
 with saving CDD6, karma EE57/EF82, buying F006 and the three karma lists are
 generators in the same way. EA6E now embeds E4B3, E9C5 and E693 too. The SRAM
 save B17D, E41F, A954 and C46E stay segments.
 
-The [actions](../src/task/native-actions.mjs) 9BA0/99EB are a sequence: the
+The [actions](../proof/replay/native-actions.mjs) 9BA0/99EB are a sequence: the
 window allocation F963 (JSR 9B5B), the menu A6A5 (JSR 9B7D) and the release
 FA3E (JSR 9B94) keep their real frames with the previous access markers; 9BA0
 calls 99EB through JSR 9BA5. 99EB is registered as a table adapter, so that
 BF3B passes the pauses through to `STOP_MAIN_WAIT`.
-[8E36](../src/task/native-object-hit.mjs) with 8691 and 881C is a sequence too. The
+[8E36](../proof/replay/native-object-hit.mjs) with 8691 and 881C is a sequence too. The
 notices in 8691 embed F963, FE69, thirty JSL B0A1 (as
 `ObservedWaitContinuation` with an interrupt set), F953 and FA3E, 881C the
 render request AD92. The random C51F, A835 and the APU handshake C46E stay
@@ -739,12 +739,12 @@ after the closing.
 If Jake dies, the main loop returns with a real RTS to 80:A157
 (`STOP_MAIN_OWNER_RETURN`); `ObservedRoom.stepLive` allows that, and the next
 step continues the menu owner. `mainOwnerContinuation`
-([main-frontend.mjs](../src/task/main-frontend.mjs)) runs A139/A157 (the lifted
+([main-frontend.mjs](../proof/replay/main-frontend.mjs)) runs A139/A157 (the lifted
 owner [game-owner.mjs](../src/frontend/game-owner.mjs), or its proof reference
 from the routine table) up to the JSR 9688 frame with a budget; A18C, E14A with the fallthrough E1B4, E29F, E354, E50C,
 the title D694, DDDB and D87C are sequences of the same equations
-([main-frontend-menu.mjs](../src/task/main-frontend-menu.mjs),
-[main-frontend-text.mjs](../src/task/main-frontend-text.mjs); since 2026-11-11 lifted
+([main-frontend-menu.mjs](../proof/replay/main-frontend-menu.mjs),
+[main-frontend-text.mjs](../proof/replay/main-frontend-text.mjs); since 2026-11-11 lifted
 in src/frontend, see [TITLE-LIFT.md](TITLE-LIFT.md) and
 [START-MENU-LIFT.md](START-MENU-LIFT.md)); their synchronous
 form runs the sequence to the end. They pause in EEBB, F298, EEDD and EEF1 and

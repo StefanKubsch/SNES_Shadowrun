@@ -79,7 +79,7 @@
 // - bar_remainder_tiles 81:B026: the tile word AF1F writes to 7E:2446+X for
 //   the division remainder 0 to 30 (docs/reference/render-routines.md#af1f),
 // - save_slot_offsets 81:B124: the SRAM offset of each save slot, read by
-//   B11A for the save B17D and its checksum (src/task/native-main-menu.mjs),
+//   B11A for the save B17D and its checksum (proof/replay/native-main-menu.mjs),
 // - the intro sprites of src/intro/intro-objects.mjs and src/task/main-intro-nmi.mjs:
 //   - intro_sprite_tiles/columns/rows/x/y 81:E991/E9F3/EA55/EAB7/EB19: for
 //     each of the 49 picture numbers the first OBJ name, the grid size and
@@ -90,7 +90,7 @@
 //   - intro_events_e900 81:DB8B and intro_events_e971 81:DBE1: entries of
 //     three words (the time 7E:11A2, then X and Y twice their value) that
 //     D9D5 hands to E900 and E971 when the time comes, ending with FFFF,
-// - the intro scenes of CDF8 (src/task/main-scene.mjs, scene 7E:001E, six
+// - the intro scenes of CDF8 (proof/replay/main-scene.mjs, scene 7E:001E, six
 //   words each):
 //   - scene_audio_modes 81:D3BF (EF47 when not negative), scene_sounds D3CB
 //     (F007/F130 when not zero),
@@ -105,15 +105,15 @@
 // - obj_size_clear_masks 80:B18A and obj_x_high_bits 80:B85E: for each OBJ
 //   slot 0 to 127 the AND mask that clears its size bit and the bit that
 //   sets its X bit 8 in the OAM high table copy 7E:3F08
-//   (src/task/native-scene-sprites.mjs),
+//   (proof/replay/native-scene-sprites.mjs),
 // - sound_effects 80:C4B3: the sound word C46E takes at the byte offset of
 //   its argument (proof/render/audio-c46e.mjs): the low byte goes to F007
 //   command 5, bit 15 has F130 load its set first (cached in 7E:1CE0),
-// - the karma lists of CE6D (src/task/native-main-menu.mjs KARMA_LISTS): for the
+// - the karma lists of CE6D (proof/replay/native-main-menu.mjs KARMA_LISTS): for the
 //   attributes F0F3 (karma_attribute_* 80:EFB2), the skills F054
 //   (karma_skill_* EFCA) and the spells F1B5 (karma_spell_* EFE2) the WRAM
 //   byte of each value (stats), its name (names) and its maximum (limits),
-// - the spell menu of E693 (src/task/native-member-spell-menu.mjs): spell_level_names
+// - the spell menu of E693 (proof/replay/native-member-spell-menu.mjs): spell_level_names
 //   80:E7C8 (six rows by level 1 to 6, six spells each, read at E7BC +
 //   12 level + 2 slot with the record slots 6 to 11), then by spell the
 //   script numbers spell_scripts_a/b 80:E810/E81C (to 7E:1E2D/1E4D) and the
@@ -122,7 +122,7 @@
 //   moves by direction 0 to 8 (to 7E:0D20/0D78), and the direction DEC7
 //   takes for each pad nibble of 7E:01CB (10: none),
 // - motion_x/y_a 80:C7CC/C7DC and motion_x/y_b 80:C7EC/C7FC: the eight
-//   direction steps of src/task/main-motion-target.mjs (b when its test is
+//   direction steps of proof/replay/main-motion-target.mjs (b when its test is
 //   zero), also in assets/slot-motion-direction-data.json,
 // - intro_spawns 81:DC78: entries of three words (frame offset - 3C, X and Y
 //   twice their value) DC43 puts in the intro slots, ending with FFFF,
@@ -131,16 +131,16 @@
 //   DMA of src/frontend/title.mjs, ending with FFFF,
 // - shot_kinds 80:8A13 (by direction 7E:1198) and shot_spread_x/y
 //   80:8A23/8A33 (by a random 0 to 7): the object 8AB5 starts for a shot and
-//   its offset from 7E:0E28/0E80 / 4 (src/task/native-object-shoot.mjs),
+//   its offset from 7E:0E28/0E80 / 4 (proof/replay/native-object-shoot.mjs),
 // - hit_kinds 80:8840 and hit_offsets 80:8850 (by direction): the same for
-//   the hit 8691 (src/task/native-object-hit.mjs),
+//   the hit 8691 (proof/replay/native-object-hit.mjs),
 // - dialog_music 80:94EA: the music of a dialog, read as the word at 80:94E8
 //   + 2 n by 936C for the music number n (bits 0 to 6 of the record flag
 //   byte, src/data/dialogs.mjs; 0 keeps the music and reads nothing, the
-//   records use 1 and 2) and compared with 7E:1CDE (src/task/native-dialog.mjs),
+//   records use 1 and 2) and compared with 7E:1CDE (proof/replay/native-dialog.mjs),
 // - selection_steps_x/y 80:BBFA/BC0A: the steps 933A/BBA0 give the chosen
-//   object by direction (to 7E:0D20/0D78, src/task/native-selection.mjs),
-// - the status screen EA6E (src/task/native-status-screen.mjs): the window rows
+//   object by direction (to 7E:0D20/0D78, proof/replay/native-selection.mjs),
+// - the status screen EA6E (proof/replay/native-status-screen.mjs): the window rows
 //   status_attribute_rows 80:ED0E and names status_attribute_names ED16 of
 //   the four attributes, the menu A6C7 status_menu_items ED1E (Exit first,
 //   0 ends it) and status_submenu_calls ED2E (JMP ($ED2E,X) at ECEA by the
@@ -174,7 +174,7 @@
 //   80:CE65 and main_menu_items 80:CEC3 (CE6D), karma_menu_items 80:EF78,
 // - compare_calls_b0e3/b126 80:B0E3/B126: JMP ($B0E3,X) at B0AC and
 //   JMP ($B126,X) at B0EF, the depth compares (COMPARE of
-//   src/task/native-scene-sprites.mjs; index 0 is not taken),
+//   proof/replay/native-scene-sprites.mjs; index 0 is not taken),
 // - formation_slot_offsets 80:BB88: the slot offset of each member (BB2C),
 // - swarm_values_d260 80:D2DD and swarm_values_d63c 80:D704: the word D260
 //   and D63C hand the create call D2AF in DP08 by member,

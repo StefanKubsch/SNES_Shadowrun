@@ -9,8 +9,8 @@ import { TaskScheduler, STOP_NATIVE_WAIT, STOP_BUDGET } from '../proof/vm/schedu
 import { NativeCalls } from '../proof/vm/native-call.mjs';
 import { NATIVE_POINTERS } from '../src/vm/layout.mjs';
 import { ObservedDevices, observationSet } from '../proof/vm/observed-devices.mjs';
-import { SPECIAL_NATIVE_CONTINUATIONS } from '../src/vm/special-natives.mjs';
-import { GAME_NMI_ROUTINES } from '../src/task/main-game-nmi.mjs';
+import { SPECIAL_NATIVE_CONTINUATIONS } from '../proof/vm/special-natives.mjs';
+import { GAME_NMI_ROUTINES } from '../proof/replay/main-game-nmi.mjs';
 
 // The scheduler bridge F4F6/F52F, the special native and F509 run once with
 // an infinite and once with a single-unit work budget. Interrupt, device and

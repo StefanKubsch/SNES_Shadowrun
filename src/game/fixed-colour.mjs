@@ -1,6 +1,6 @@
 // The fixed colour of colour math (lifted from 81:8861 with its common tail 81:886A
 // and the colour effect 81:8877; register-level versions in
-// src/task/main-transition.mjs and src/task/native-dialog-portrait.mjs, which their
+// proof/replay/main-transition.mjs and src/task/native-dialog-portrait.mjs, which their
 // other callers still use, and in proof/game-reference/main-upkeep.mjs).
 //
 // The colour effects of the game blend a fixed colour through the request word

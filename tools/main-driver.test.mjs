@@ -8,19 +8,19 @@ import {
   STOP_MAIN_OWNER_RETURN,
   STOP_MAIN_WAIT,
 } from '../proof/vm/main-driver.mjs';
-import { FRONTEND_ROUTINES as FRONTEND_TASK_ROUTINES } from '../src/task/main-frontend.mjs';
+import { FRONTEND_ROUTINES as FRONTEND_TASK_ROUTINES } from '../proof/replay/main-frontend.mjs';
 import { GAME_OWNER_REFERENCE_ENTRIES } from '../proof/frontend-reference/game-owner.mjs';
 // The register-level owner (proof): these tests stub its audio set-up 81:EF63, which
 // the lifted owner (src/frontend/game-owner.mjs) calls directly.
 const FRONTEND_ROUTINES = new Map([...FRONTEND_TASK_ROUTINES, ...GAME_OWNER_REFERENCE_ENTRIES]);
-import { MAIN_STARTUP_ROUTINES } from '../src/task/main-startup.mjs';
+import { MAIN_STARTUP_ROUTINES } from '../proof/replay/main-startup.mjs';
 // The reset fixtures observe the register-level APU reads of 81:F007 at their data
 // bank address (80:2140), so the startup tables use the audio references.
 import { withAudioReference } from '../proof/apu-reference/audio-routines.mjs';
 import { SRAM_SIZE } from '../src/vm/memory.mjs';
-import { MAIN_START_ROUTINES } from '../src/task/main-start.mjs';
+import { MAIN_START_ROUTINES } from '../proof/replay/main-start.mjs';
 import { withGameStartReference } from '../proof/game-reference/game-start.mjs';
-import { MAIN_LOOP_ROUTINES } from '../src/vm/main-loop.mjs';
+import { MAIN_LOOP_ROUTINES } from '../proof/vm/main-loop.mjs';
 import { ScriptInterpreter } from '../proof/vm/interpreter.mjs';
 import { NativeCalls } from '../proof/vm/native-call.mjs';
 import { ObservedDevices, observationSet } from '../proof/vm/observed-devices.mjs';
@@ -35,9 +35,9 @@ import {
 } from '../proof/vm/scheduler.mjs';
 import { ff79Fixture } from './render-ff79-fixtures.mjs';
 import { textDma } from './main-dma-readback-fixtures.mjs';
-import { GAME_NMI_ROUTINES } from '../src/task/main-game-nmi.mjs';
-import { MAIN_SCENE_ROUTINES } from '../src/task/main-scene.mjs';
-import { FRONTEND_NMI_ROUTINES } from '../src/task/main-frontend-nmi.mjs';
+import { GAME_NMI_ROUTINES } from '../proof/replay/main-game-nmi.mjs';
+import { MAIN_SCENE_ROUTINES } from '../proof/replay/main-scene.mjs';
+import { FRONTEND_NMI_ROUTINES } from '../proof/replay/main-frontend-nmi.mjs';
 import { finishInterruptObservations } from '../src/task/main-wait-interrupt.mjs';
 import { dialogAccess } from '../src/task/native-dialog-support.mjs';
 import { mainLoopWindow } from './main-loop-motion-source.mjs';

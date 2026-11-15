@@ -1,5 +1,5 @@
 // The spell choice (lifted from the script native 80:E1CF; register-level version in
-// src/task/native-spell-choice.mjs, which recorded waits and inputs replay).
+// proof/replay/native-spell-choice.mjs, which recorded waits and inputs replay).
 //
 // With learned spells (the word list 7E:3C1C, 0 ends it) a window opens (80:F963 at
 // 0E, 05, 10 x 07; its number kept in DP 0E) with a menu (80:A6C7) of Exit and the

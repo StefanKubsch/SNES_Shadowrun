@@ -1,5 +1,5 @@
 // Show a notice window (lifted from 80:FEC1; register-level version in
-// src/task/native-notice.mjs, which the other callers still use).
+// proof/replay/native-notice.mjs, which the other callers still use).
 //
 // The caller sets the window in the direct page words 02 to 08 (left, top, columns,
 // rows, attributes), the text number in 0A and the frames the notice stays in 0C. The

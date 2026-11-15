@@ -1,5 +1,5 @@
 // The zones around the player figure (lifted from 80:8000 with its zone check
-// 80:803B; register-level reference in src/task/main-zone-gate.mjs).
+// 80:803B; register-level reference in proof/replay/main-zone-gate.mjs).
 //
 // Each pass, the player figure's position (x, y and height, each divided by 4) is
 // tested against the room's two zone lists, which the long pointer in the direct page

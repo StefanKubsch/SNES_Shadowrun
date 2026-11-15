@@ -4,15 +4,9 @@ import { NATIVE_CALL_CONTINUATIONS, drainNativeSequence } from './native-call-co
 import { FRONTEND_NMI_ROUTINES } from './main-frontend-nmi.mjs';
 import { MAIN_START_ROUTINES } from './main-start.mjs';
 import { roomStartSequence } from '../game/game-start.mjs';
-import {
-  MAIN_LOOP_ROUTINES,
-  MAIN_LOOP_ROUND,
-  MainLoopContinuation,
-  runMainLoop,
-} from '../vm/main-loop.mjs';
+import { MAIN_LOOP_ROUTINES, MAIN_LOOP_ROUND, MainLoopContinuation } from '../vm/main-loop.mjs';
 import { runTileBuffers } from '../game/main-upkeep.mjs';
 import { dialogCallBody } from './native-call-continuation.mjs';
-import { lagFree } from './main-wait-interrupt.mjs';
 import { frontendContinuations } from './main-frontend-text.mjs';
 import { playAttractDemo } from '../frontend/title-cycle.mjs';
 import {
@@ -38,27 +32,21 @@ export function* attractRoundsSequence(
   r,
   roomStart = () => roomStartSequence(h, e, r, h.ctx.a),
 ) {
-  const { ctx } = h,
-    live = !!lagFree(e);
-  // Live, the loop pauses at its waits; recorded and isolated runs keep the
-  // synchronous loop with their routine maps (MainLoopContinuation runs B0A1/9E1A itself).
-  const loop = () =>
-    live
-      ? {
-          continuation: new MainLoopContinuation(h.a, {
-            events: e,
-            routines: r,
-            returnToOwner: true,
-          }),
-        }
-      : () => runMainLoop(h.a, e, r, true);
+  const { ctx } = h;
+  const loop = () => ({
+    continuation: new MainLoopContinuation(h.a, {
+      events: e,
+      routines: r,
+      returnToOwner: true,
+    }),
+  });
   yield* roomStart();
   yield loop();
   while (ctx.pc === MAIN_LOOP_ROUND) {
     if (typeof e?.round !== 'function') taskStop('main_round_owner_required', { pc: 0x8096c0 });
     yield* dialogCallBody(h, 0x8096c0, 0x80c1e3, function* () {
       let more;
-      if (live && typeof e.nestedRound === 'function') {
+      if (typeof e.nestedRound === 'function') {
         const round = e.nestedRound(MAIN_ROUND);
         yield { continuation: round };
         more = round.result;
@@ -86,9 +74,8 @@ export const FRONTEND_ROUTINES = new Map([
   [0x8096f3, playAttractDemo],
   [0x809699, runAttractRounds],
   // The lifted tile buffers of the main loop, which the transition table above binds
-  // register-level for its camera jump. The word wait and the pad word stay the menus'
-  // register-level routines; the main loop runs its lifted entries in their place
-  // (src/vm/main-loop.mjs).
+  // register-level for its camera jump. The word wait and pad word are lifted in
+  // the live main interval and menu tables (src/vm/main-loop.mjs).
   [0x818a91, runTileBuffers],
 ]);
 

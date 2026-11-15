@@ -5,7 +5,7 @@ import { runTaskNativeArguments } from './native-arguments.mjs';
 import { runTaskNativeBridge } from './native-bridge.mjs';
 import { runTaskNativeResume } from './native-resume.mjs';
 import { randomBelow, randomByte, taskRandomDevices } from '../../src/task/native-random.mjs';
-import { taskRandomTableSources } from '../../src/task/native-random-tables.mjs';
+import { taskRandomTableSources } from '../replay/native-random-tables.mjs';
 export function runTaskNativeRandomOpcode(a, options, expectedId = 0x3e) {
   if (![0x3e, 0x63].includes(expectedId)) taskStop('task_random_native_id_required');
   const prefix = expectedId === 0x3e ? 'task_native3e' : 'task_native63',

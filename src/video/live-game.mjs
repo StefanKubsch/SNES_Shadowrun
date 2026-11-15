@@ -36,7 +36,7 @@ const STEP_BUDGET = 4096;
 const need = (ok, reason) => {
   if (!ok) throw new VmFault(reason);
 };
-// Target choice with the glove (src/task/native-glove-target.mjs, special-natives.mjs).
+// Target choice with the glove (proof/replay/native-glove-target.mjs, special-natives.mjs).
 const CHOOSING = new Set([0x809bc6, 0x809bb9, 0x809bd3, 0x809c33, 0x808d0b]);
 // The plain game loop over the JS scheduler.
 const gameLoop = (game) =>

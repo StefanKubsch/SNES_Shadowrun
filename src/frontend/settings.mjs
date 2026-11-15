@@ -1,5 +1,5 @@
 // The global settings in SRAM (lifted from 81:D5D0, 81:D5E4, 81:D5EC, 81:D5F4 and 81:EF36;
-// register-level versions in src/task/main-frontend-text.mjs): the output mode, the
+// register-level versions in proof/replay/main-frontend-text.mjs): the output mode, the
 // control type and the music setting, guarded by a checksum byte. The boot screens check
 // them (src/frontend/boot-screens.mjs), the start menu's options change them
 // (src/frontend/start-menu.mjs).

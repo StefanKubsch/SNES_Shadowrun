@@ -1,11 +1,11 @@
 // Register-level references of the runner state natives 80:CECB, 80:CF2E and 80:D079
-// with 80:D08A (moved from src/task/native-state-count-raise.mjs,
-// src/task/native-magic-points-raise.mjs and src/task/native-runners-restore.mjs; lifted in src/game/runner-state.mjs). The
+// with 80:D08A (moved from proof/replay/native-state-count-raise.mjs,
+// src/task/native-magic-points-raise.mjs and proof/replay/native-runners-restore.mjs; lifted in src/game/runner-state.mjs). The
 // references run the natives' sequences with these bodies, so the window list call and
 // its frame stay the same on both sides.
 import { drainNativeSequence } from '../../src/task/native-call-continuation.mjs';
-import { cecbSequence } from '../../src/task/native-state-count-raise.mjs';
-import { d079Sequence } from '../../src/task/native-runners-restore.mjs';
+import { cecbSequence } from '../replay/native-state-count-raise.mjs';
+import { d079Sequence } from '../replay/native-runners-restore.mjs';
 import { FIRST_ARGUMENT, SECOND_ARGUMENT } from '../../src/task/native-leaf-support.mjs';
 import { taskStop } from '../../src/task/plan.mjs';
 import { leaf } from '../../src/task/native-leaf-support.mjs';

@@ -1,5 +1,5 @@
 // The status screen of a group member (lifted from 80:EA6E, 80:EA89 and 80:EA8E;
-// register-level version statusSequence in src/task/native-status-screen.mjs, which
+// register-level version statusSequence in proof/replay/native-status-screen.mjs, which
 // recorded waits and inputs replay).
 //
 // The entries: the script native 80:EA6E shows the object DP 00; the player control's

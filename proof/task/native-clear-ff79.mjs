@@ -4,7 +4,7 @@ import { af1fRegisters } from '../../src/task/native-bar-tiles.mjs';
 import {
   validateNoticeReleaseOptions,
   releaseNoticeWindowsObserved,
-} from '../../src/task/native-slot-release.mjs';
+} from '../replay/native-slot-release.mjs';
 
 export function prepareTaskNativeClearFF79(options) {
   const invalid = validateNoticeReleaseOptions(options);

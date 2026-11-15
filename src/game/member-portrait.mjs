@@ -1,6 +1,6 @@
 // The shown member's portrait in the status and spell menus (lifted from 80:E4B3 with
 // 80:E48D, 80:E433 and 80:E41F; register-level version in
-// src/task/native-member-spell-menu.mjs).
+// proof/replay/native-member-spell-menu.mjs).
 //
 // The portrait record of the member's dialog (80:94F7 by 1F54, long pointers in bank
 // 8D) is unpacked to 7F:5250 (80:9F6D) with the object size 40 and no palette list

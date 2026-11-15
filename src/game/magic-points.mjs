@@ -1,5 +1,5 @@
 // Spending magic points (lifted from the script native 80:8B43; register-level version
-// in src/task/native-combat.mjs, which recorded waits replay).
+// in proof/replay/native-combat.mjs, which recorded waits replay).
 //
 // The member shown in the menus (7E:1F60, a word index) pays the amount of the first
 // argument's low byte from its magic points (one byte per runner from 7E:3C96). Enough

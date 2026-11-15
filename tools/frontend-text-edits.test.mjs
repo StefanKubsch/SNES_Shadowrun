@@ -9,7 +9,7 @@ import { buildLanguage, languageMenuText, languageMenuArrowShift } from '../src/
 import { LiveGame } from '../src/video/live-game.mjs';
 import { TaskAccessor } from '../src/vm/task-accessor.mjs';
 import { dialogAccess } from '../src/task/native-dialog-support.mjs';
-import { FRONTEND_TEXT_ROUTINES } from '../src/task/main-frontend-text.mjs';
+import { FRONTEND_TEXT_ROUTINES } from '../proof/replay/main-frontend-text.mjs';
 import { sceneRuntime } from '../src/system/scene-runtime.mjs';
 import { saveSlotCount } from '../src/game/save-slots.mjs';
 import {

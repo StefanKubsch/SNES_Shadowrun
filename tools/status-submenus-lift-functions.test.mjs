@@ -8,7 +8,7 @@
 // outside the stack, the calls, the return and the registers left must be equal.
 import { DialogTestMemory, prng } from './task-native-dialog-harness.mjs';
 import { createSide, registerCases } from './lift-function-harness.mjs';
-import { e834Sequence, e8c8Sequence } from '../src/task/native-status-screen.mjs';
+import { e834Sequence, e8c8Sequence } from '../proof/replay/native-status-screen.mjs';
 import { notesSequence, skillsSequence } from '../src/game/status-submenus.mjs';
 import {
   JAKE_DERMAL_ARMOUR,

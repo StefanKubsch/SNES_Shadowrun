@@ -1,13 +1,13 @@
 // The register-level audio routines in place of the lifted ones, for the references
 // and the ROM proof tests: the sound driver command 81:F007, the music change
-// 81:EF47, the song start 81:F229 (moved from src/task/main-scene.mjs), the mode
+// 81:EF47, the song start 81:F229 (moved from proof/replay/main-scene.mjs), the mode
 // sample list 81:F1FA, the sample loader 81:F130 with its length 81:F100, word
 // 81:F122 and byte pair 81:F03A, and the sound effect 80:C46E. The routines other
 // than F229 live in src/task/native-audio-compose.mjs and native-input-apu.mjs,
 // where the register-level task natives still call them directly. Lifted versions:
 // src/apu/music-mode.mjs, src/apu/apu-command.mjs, src/apu/audio-routines.mjs,
 // src/apu/sound-effect.mjs.
-import { MAIN_SCENE_ROUTINES } from '../../src/task/main-scene.mjs';
+import { MAIN_SCENE_ROUTINES } from '../replay/main-scene.mjs';
 import {
   setMusicMode,
   playSoundEffect,

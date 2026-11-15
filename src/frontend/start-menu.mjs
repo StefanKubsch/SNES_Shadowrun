@@ -119,7 +119,7 @@ const LONG_MASK = 0xffffff,
   WRAM_BANK = WRAM >>> WORD_BITS,
   FRONTEND_BANK = 0x81,
   // Register-level routines for recorded interrupt observations, and the save
-  // checksum compare of the save code (src/task/native-main-menu.mjs).
+  // checksum compare of the save code (proof/replay/native-main-menu.mjs).
   WAIT_FRAME = 0x81eebb,
   READ_INPUT = 0x80f298,
   CALL_SITE = 0x81e14a,

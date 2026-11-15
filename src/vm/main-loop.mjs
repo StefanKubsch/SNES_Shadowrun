@@ -24,12 +24,8 @@ import {
   runPadPresses,
 } from '../game/main-upkeep.mjs';
 import { processSceneRequest } from '../game/scene-request.mjs';
-import {
-  NativeWaitContinuation,
-  WAIT_PAUSED,
-  WAIT_RETURNED,
-} from '../task/native-wait-continuation.mjs';
-import { InterruptStepContinuation, lagFree } from '../task/main-wait-interrupt.mjs';
+import { WAIT_PAUSED, WAIT_RETURNED } from '../task/native-wait-continuation.mjs';
+import { lagFree } from '../task/main-wait-interrupt.mjs';
 import { NATIVE_CALL_CONTINUATIONS } from '../task/native-call-continuation.mjs';
 import { BYTE_BITS, WORD_BITS, WORD_MASK, WORD_SIGN } from '../constants/bits.mjs';
 import {
@@ -41,7 +37,6 @@ import {
   FLAG_ZERO,
 } from '../constants/cpu-flags.mjs';
 import { MAIN_LOOP_EXIT, MAIN_LOOP_RELOAD } from '../task/wram.mjs';
-import { MAIN_UPKEEP_ROUTINES } from '../task/main-loop-upkeep.mjs';
 import { CODE_BANK } from '../constants/memory-map.mjs';
 
 export const MAIN_LOOP_RESUME = 0x96c3; // return from the round
@@ -84,29 +79,13 @@ export const MAIN_LOOP_ROUTINES = new Map([
   [0x80b8de, runSpriteList],
   [0x80ff14, runNoticeTimeouts],
   [0x80e270, runTimeLimit],
-  [0x81b0a1, MAIN_UPKEEP_ROUTINES.get(0x81b0a1)],
+  [0x81b0a1, runFrameWait],
   [0x818877, runColourEffect],
   [0x818076, runPaletteCycles],
-  [0x809e1a, MAIN_UPKEEP_ROUTINES.get(0x809e1a)],
+  [0x809e1a, runPadPresses],
   [0x80be6d, runGloveMove],
   [0x80bf3b, runGloveAction],
 ]);
-
-// The word wait 81:B0A1 and the pad word 80:9E1A: tables shared with the menus bind
-// their register-level routines, which the menus keep; the main loop runs its lifted
-// entries in their place (src/game/main-upkeep.mjs; register-level again without
-// lag-free frames). Any other binding, such as a proof reference, runs as bound.
-// Exported so that a proof can bind the register-level routines here (tools/lift-compare.mjs).
-export const MAIN_LOOP_LIFTED_TOP = new Map([
-  [0x81b0a1, runFrameWait],
-  [0x809e1a, runPadPresses],
-]);
-function mainLoopRun(routines, target) {
-  const run = routines.get(target);
-  return MAIN_LOOP_LIFTED_TOP.has(target) && run === MAIN_UPKEEP_ROUTINES.get(target)
-    ? MAIN_LOOP_LIFTED_TOP.get(target)
-    : run;
-}
 
 // Runs from $96C3 or the first $96AB up to before JSR $96C0. Loaded TaskAccessor.
 export function runMainLoop(
@@ -123,8 +102,8 @@ export function runMainLoop(
   }
 }
 
-// The same caller equations serve both synchronous observation replay and
-// finite continuation. A yielded callee already owns its original stack frame.
+// A lifted callee owns its original call frame. Recorded replays use
+// proof/vm/main-loop.mjs.
 function* mainLoopSequence(a, events, routines, returnToOwner) {
   const { ctx } = a,
     { wram } = a.mem;
@@ -137,17 +116,9 @@ function* mainLoopSequence(a, events, routines, returnToOwner) {
   )
     taskStop('main_loop_entry_required', { pc: ctx.pc });
   const h = dialogAccess(a);
-  events ??= {
-    mode: 'record-observations',
-    values: Object.freeze([]),
-    waitIndex: 0,
-    calls: [],
-    waitEvents: [],
-    inputs: [],
-    inputIndex: 0,
-  };
+  if (!lagFree(events)) taskStop('game_lag_free_required');
   const call = function* (pc, target, long = false) {
-    const run = mainLoopRun(routines, target);
+    const run = routines.get(target);
     if (!run) taskStop('main_loop_frontier', { target });
     const bank = ctx.programBank,
       raw = pc + (long ? JSL_RETURN_OFFSET : JSR_RETURN_OFFSET);
@@ -245,41 +216,12 @@ export class MainLoopContinuation {
             break;
           }
           this.current = next.value;
-          // Recorded interrupt observations step the word wait and the pad word
-          // instruction by instruction, as do their register-level routines; with
-          // lag-free frames the lifted entries run as calls.
-          const { target, run, events } = this.current;
-          if (
-            [0x81b0a1, 0x809e1a].includes(target) &&
-            !([runFrameWait, runPadPresses].includes(run) && lagFree(events))
-          )
-            this.wait = new NativeWaitContinuation(this.a, this.current.target);
-          else {
-            // By target, or by the run function for a proof reference.
-            const factory = NATIVE_CALL_CONTINUATIONS.get(this.current.target);
-            if (factory?.run === this.current.run) this.callee = factory.create(this.current);
-            else
-              this.callee = NATIVE_CALL_CONTINUATIONS.get(this.current.run)?.create(this.current);
-          }
+          // Select the lifted callee by target and function identity.
+          const factory = NATIVE_CALL_CONTINUATIONS.get(this.current.target);
+          if (factory?.run === this.current.run) this.callee = factory.create(this.current);
+          else this.callee = NATIVE_CALL_CONTINUATIONS.get(this.current.run)?.create(this.current);
         }
-        if (this.wait) {
-          const events = this.current.events;
-          if (events?.interrupts !== undefined && !this.interruptDone) {
-            this.interrupt ??= new InterruptStepContinuation(this.current.h, events, this.wait.pc);
-            const before = this.interrupt.work,
-              status = this.interrupt.run(budget);
-            budget -= this.interrupt.work - before;
-            if (status === WAIT_PAUSED) break;
-            this.interrupt = null;
-            this.interruptDone = true;
-          }
-          if (budget === 0) break;
-          const status = this.wait.run(1);
-          budget--;
-          this.interruptDone = false;
-          if (status === WAIT_PAUSED) continue;
-          this.wait = null;
-        } else if (this.callee) {
+        if (this.callee) {
           const before = this.callee.work,
             status = this.callee.run(budget);
           budget -= this.callee.work - before;

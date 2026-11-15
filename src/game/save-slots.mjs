@@ -22,7 +22,7 @@ export const saveSlotCount = (a) => (fourSaveSlots(a) ? FOUR_SAVE_SLOTS : ORIGIN
 // and AD), each with the end-around carry of 81:B174 (a carry adds one, FF
 // becomes 00). The result word is the two closing sums EOR ABA5; B1AB
 // compares it with the word at the slot offset. Port of
-// src/task/native-main-menu.mjs runSaveChecksum, for the page only.
+// proof/replay/native-main-menu.mjs runSaveChecksum, for the page only.
 const SLOT_CHECKED_BYTES = 0x0f26,
   CHECKSUM_WORD_BYTES = 2,
   SECOND_SUM_START = 0xad,
@@ -57,7 +57,7 @@ export function occupiedSlots(sram) {
 }
 
 // Save the game (lifted from 81:B17D with 81:B11A and 81:B12C; register-level version
-// in src/task/native-main-menu.mjs): the game state 7E:2DE0-3D07 is copied to the
+// in proof/replay/native-main-menu.mjs): the game state 7E:2DE0-3D07 is copied to the
 // slot's SRAM offset, and the checksum of the bytes after its first word replaces that
 // word. The offset comes from the slot table 81:B124 (four offsets, of which the
 // original 8 KiB holds two); with the four-slot option slots 3 and 4 take their own

@@ -1,5 +1,5 @@
 // Talking with an object (lifted from 80:936C with the dialog close 80:92C5; the
-// register-level versions in src/task/native-dialog.mjs stay the reference and serve
+// register-level versions in proof/replay/native-dialog.mjs stay the reference and serve
 // the other callers).
 //
 // The glove action passes the object in the direct page word 00 and its dialog record

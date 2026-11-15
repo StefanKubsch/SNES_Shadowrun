@@ -27,7 +27,7 @@ import { INTRO_NEAR_Y_BIAS, INTRO_START_ANIMATION } from '../intro-reference/int
 import { INTRO_SETUP_REFERENCE_ENTRIES } from '../intro-reference/intro-routines.mjs';
 import { INTRO_NMI_ROUTINES } from '../../src/task/main-intro-nmi.mjs';
 
-import { FRONTEND_NMI_ROUTINES } from '../../src/task/main-frontend-nmi.mjs';
+import { FRONTEND_NMI_ROUTINES } from '../replay/main-frontend-nmi.mjs';
 import {
   DP_INTRO_SCROLL,
   DP_PROLOGUE_DELAY,

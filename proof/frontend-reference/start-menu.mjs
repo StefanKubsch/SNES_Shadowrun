@@ -20,7 +20,7 @@ import {
   NATIVE_CALL_CONTINUATIONS,
   drainNativeSequence,
 } from '../../src/task/native-call-continuation.mjs';
-import { FRONTEND_NMI_ROUTINES } from '../../src/task/main-frontend-nmi.mjs';
+import { FRONTEND_NMI_ROUTINES } from '../replay/main-frontend-nmi.mjs';
 
 import {
   DP_MENU_CHOICE,

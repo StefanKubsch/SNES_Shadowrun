@@ -1,6 +1,6 @@
 // An object's walk towards its motion target (lifted from 80:C9E0 with the two ways
 // 80:C84D and 80:C913 and the distance 80:C80C; register-level reference
-// moveObjectTowardsTarget in src/task/main-motion-target.mjs).
+// moveObjectTowardsTarget in proof/replay/main-motion-target.mjs).
 //
 // An object with a motion target counts its frames to the next step down
 // (7E:40E0). At 0 it measures the distance to the target: the point 7E:4190/41E8, or,

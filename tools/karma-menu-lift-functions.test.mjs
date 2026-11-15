@@ -19,7 +19,7 @@ import {
   ef82Sequence,
   f006Sequence,
   karmaListSequence as referenceList,
-} from '../src/task/native-main-menu.mjs';
+} from '../proof/replay/native-main-menu.mjs';
 import {
   buyStepSequence,
   karmaLineSequence,

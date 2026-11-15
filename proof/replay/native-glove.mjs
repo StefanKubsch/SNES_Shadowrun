@@ -1,23 +1,23 @@
-import { releaseGloveNameWindowSequence } from './native-dialog-portrait.mjs';
+import { releaseGloveNameWindowSequence } from '../../src/task/native-dialog-portrait.mjs';
 import {
   NativeCallContinuation,
-  NATIVE_CALL_CONTINUATIONS,
   drainNativeSequence,
   dialogCallBody,
   segmentSequence,
-} from './native-call-continuation.mjs';
+} from '../../src/task/native-call-continuation.mjs';
+import { NATIVE_CALL_CONTINUATIONS } from './continuations.mjs';
 import {
   GLOVE_LIMITS,
   GLOVE_OVER_PLAYER,
   GLOVE_KIND_SPELL,
-} from './native-glove-crosshair-limits.mjs';
+} from '../../src/task/native-glove-crosshair-limits.mjs';
 import {
   GLOVE_ROUTINES,
   routineCall,
   rts,
   measureTextWidth,
 } from './native-glove-target-support.mjs';
-import { sec, clc } from './status-flags.mjs';
+import { sec, clc } from '../../src/task/status-flags.mjs';
 
 import {
   CAMERA_X,
@@ -61,10 +61,10 @@ import {
   DP_WINDOW_COLUMNS,
   DP_WINDOW_ROWS,
   DP_WINDOW_ATTRIBUTES,
-} from './wram.mjs';
-import { RUNNER_LAST_INDEX } from '../data/runners.mjs';
-import { KIND_ITEM_CLASS_MASK, KIND_NO_NAME } from '../data/kinds.mjs';
-import { BYTE_MASK, BYTE_BITS, WORD_BITS, WORD_MASK } from '../constants/bits.mjs';
+} from '../../src/task/wram.mjs';
+import { RUNNER_LAST_INDEX } from '../../src/data/runners.mjs';
+import { KIND_ITEM_CLASS_MASK, KIND_NO_NAME } from '../../src/data/kinds.mjs';
+import { BYTE_MASK, BYTE_BITS, WORD_BITS, WORD_MASK } from '../../src/constants/bits.mjs';
 
 // BE6D: the D-pad bits of the high byte accelerate the glove by 30 per frame up to 300
 // (ADC 2F with the carry set); the position stays in 0300..EF00 and 0300..CE00.
@@ -97,7 +97,7 @@ const NAME_WINDOW = Object.freeze({
   rows: 3,
   attributes: 0x800,
 });
-import { FLAG_CARRY, FLAG_NEGATIVE, FLAG_ZERO } from '../constants/cpu-flags.mjs';
+import { FLAG_CARRY, FLAG_NEGATIVE, FLAG_ZERO } from '../../src/constants/cpu-flags.mjs';
 // The action glove of NativeD8/9BC6 and its relatives (src/task/native-glove-target.mjs).
 
 // 80:BC36: glove over the player figure $0CC2 ($01D4/$01D6 from position and camera $0CC4/$0CC6).

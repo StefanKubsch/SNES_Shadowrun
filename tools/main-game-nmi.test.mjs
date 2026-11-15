@@ -15,11 +15,14 @@ import {
   GAME_NMI_ROUTINES,
   handleGameNmi,
   runObservedGameNmi,
-} from '../src/task/main-game-nmi.mjs';
+} from '../proof/replay/main-game-nmi.mjs';
 import { SCENE_REFERENCE_ROUTINES as MAIN_SCENE_ROUTINES } from '../proof/scene-reference-routines.mjs';
 import { initializeGameScreen } from '../proof/game-reference/game-screen.mjs';
 import { loadScene } from '../src/task/main-scene-load.mjs';
-import { setBrightnessFadeSpeed, requestScenePaletteUpload } from '../src/task/main-transition.mjs';
+import {
+  setBrightnessFadeSpeed,
+  requestScenePaletteUpload,
+} from '../proof/replay/main-transition.mjs';
 import { TaskAccessor, NATIVE_ACCESS_LIMIT } from '../src/vm/task-accessor.mjs';
 import { dialogAccess } from '../src/task/native-dialog-support.mjs';
 const maps = gameNmiSpecs.map((s) => decodeWindows(s.windows)),

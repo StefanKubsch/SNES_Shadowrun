@@ -1,5 +1,5 @@
 // The glove's object search (lifted from 80:BCBE; register-level version in
-// src/task/native-glove.mjs, which the glove natives keep calling).
+// proof/replay/native-glove.mjs, which the glove natives keep calling).
 //
 // At rest, the glove looks for the object under it. The draw list is searched from its
 // last entry down; an object qualifies with a picture (its action directions not zero)

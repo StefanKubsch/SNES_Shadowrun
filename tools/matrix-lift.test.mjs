@@ -8,7 +8,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { compareLift } from './lift-compare.mjs';
 import { IGNORED_WRAM, PLAN } from './live-matrix-plan.mjs';
-import { playMatrixScene } from '../src/task/main-scene.mjs';
+import { playMatrixScene } from '../proof/replay/main-scene.mjs';
 import { handleMatrixNmi } from '../src/matrix/matrix-scene.mjs';
 import { MATRIX_REFERENCE_ROUTINES } from '../proof/matrix-reference/matrix-scene-loop.mjs';
 

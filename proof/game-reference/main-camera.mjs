@@ -1,5 +1,5 @@
 // Register-level reference of the main loop's camera and formation trail (moved
-// from src/task/main-loop-camera.mjs and src/task/main-motion-target.mjs): the camera
+// from src/task/main-loop-camera.mjs and proof/replay/main-motion-target.mjs): the camera
 // follow 81:8C2E and the formation step 80:BAD5. The lifted versions are
 // src/game/camera-follow.mjs and src/game/formation-trail.mjs; the tile buffers
 // 81:8A91 (lifted in src/game/camera-scroll.mjs) keep their register-level version

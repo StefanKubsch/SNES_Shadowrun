@@ -6,7 +6,7 @@
 // be equal.
 import { prng } from './task-native-dialog-harness.mjs';
 import { createSide, registerCases } from './lift-function-harness.mjs';
-import { releaseGlove } from '../src/task/native-glove-release.mjs';
+import { releaseGlove } from '../proof/replay/native-glove-release.mjs';
 import { releaseGloveSequence } from '../src/game/glove-release.mjs';
 import { drainNativeSequence } from '../src/task/native-call-continuation.mjs';
 

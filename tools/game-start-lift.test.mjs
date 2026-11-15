@@ -8,7 +8,7 @@ import assert from 'node:assert/strict';
 import { compareLift } from './lift-compare.mjs';
 import { TITLE_CYCLE_PLANS } from './live-title-cycle-plan.mjs';
 import { START_MENU_IGNORED_WRAM } from './live-start-menu-plan.mjs';
-import { runAttractRounds } from '../src/task/main-frontend.mjs';
+import { runAttractRounds } from '../proof/replay/main-frontend.mjs';
 import { runGameStart, runNewGame, runNewGameState, runSaveLoad } from '../src/game/game-start.mjs';
 import { GAME_START_REFERENCE_ENTRIES } from '../proof/game-reference/game-start.mjs';
 

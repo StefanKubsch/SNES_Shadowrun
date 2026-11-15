@@ -4,10 +4,10 @@ import { runTaskOpcodeTarget } from './opcode-target.mjs';
 import { runTaskNativeArguments } from './native-arguments.mjs';
 import { runTaskNativeBridge } from './native-bridge.mjs';
 import { runTaskNativeResume } from './native-resume.mjs';
-import { shootAtObjectObserved } from '../../src/task/native-object-shoot.mjs';
-import { hitObjectsInBlastDevices } from '../../src/task/native-object-hit.mjs';
-import { validateTaskActionsOptions } from '../../src/task/native-actions.mjs';
-import { lineOfSightDevices } from '../../src/task/line-of-sight.mjs';
+import { shootAtObjectObserved } from '../replay/native-object-shoot.mjs';
+import { hitObjectsInBlastDevices } from '../replay/native-object-hit.mjs';
+import { validateTaskActionsOptions } from '../replay/native-actions.mjs';
+import { lineOfSightDevices } from '../replay/line-of-sight.mjs';
 // Devices of 8AB5: those of the Native7C hit graph (actions, sound, random) and the arithmetic unit of 81:A25F.
 export const native8AB5Devices = Object.freeze(
   Object.fromEntries(

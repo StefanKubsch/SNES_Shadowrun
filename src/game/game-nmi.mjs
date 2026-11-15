@@ -1,5 +1,5 @@
 // The jobs of the game NMI handler 80:C152 (lifted; the register-level versions in
-// src/task/main-game-nmi.mjs are the references, GAME_NMI_ROUTINES).
+// proof/replay/main-game-nmi.mjs are the references, GAME_NMI_ROUTINES).
 //
 // The handler calls its jobs once per NMI with the direct page at 0 and the data bank
 // at 0, so the fields below 2000 lie in WRAM. Each job states its DMA transfers and
@@ -610,7 +610,7 @@ export const GAME_NMI_LIFTED_ROUTINES = new Map([
 ]);
 
 // The live table entries, bound after the register-level ones in MAIN_SCENE_ROUTINES
-// (src/task/main-scene.mjs): the lifted jobs with lag-free frames; a recorded run, whose
+// (proof/replay/main-scene.mjs): the lifted jobs with lag-free frames; a recorded run, whose
 // accessor replays observed memory and devices, keeps the register-level jobs.
 export const GAME_NMI_LIFTED_JOBS = new Map(
   [...GAME_NMI_LIFTED_ROUTINES].map(([target, run]) => {

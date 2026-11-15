@@ -74,7 +74,7 @@ entry aliases the upload flag at `0D0E`. The NMI uploader `80:999A` and tile
 palette bits also consume these slots. The scene's 74-entry palette lookup
 is a lookup by identity, not permission for 74 simultaneous BG palettes.
 Sources: [main-initialize.mjs](../src/task/main-initialize.mjs),
-[main-game-nmi.mjs](../src/task/main-game-nmi.mjs), and
+[main-game-nmi.mjs](../proof/replay/main-game-nmi.mjs), and
 [wram.mjs](../src/task/wram.mjs).
 
 ## Shared tile stacks and walls

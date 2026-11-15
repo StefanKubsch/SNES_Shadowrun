@@ -1,6 +1,6 @@
 // The window releases of the room entry (lifted from 80:FA3E, 80:FF79, 80:BCB2 and
 // 80:BE5B; register-level versions in src/task/native-render-compose.mjs,
-// src/task/native-slot-release.mjs and src/task/native-dialog-portrait.mjs; the script
+// proof/replay/native-slot-release.mjs and src/task/native-dialog-portrait.mjs; the script
 // natives call 80:FA3E lifted with lag-free frames, recorded runs register-level).
 //
 // A window is released by clearing its active word; releasing the last window moves

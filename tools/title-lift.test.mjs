@@ -6,7 +6,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { compareLift } from './lift-compare.mjs';
 import { TITLE_IGNORED_WRAM, TITLE_PLANS } from './live-title-plan.mjs';
-import { playTitle } from '../src/task/main-frontend-menu.mjs';
+import { playTitle } from '../proof/replay/main-frontend-menu.mjs';
 import {
   handlePanObjects,
   handlePrologueNmi,

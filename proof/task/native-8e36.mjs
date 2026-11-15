@@ -3,7 +3,7 @@ import { prepareTaskPlan } from './plan.mjs';
 import {
   hitObjectsInBlastObserved,
   hitObjectsInBlastDevices,
-} from '../../src/task/native-object-hit.mjs';
+} from '../replay/native-object-hit.mjs';
 
 export const prepareTaskNative8E36 = (options) =>
   prepareTaskPlan(

@@ -1,5 +1,5 @@
 import { proveExternalSource, emitExternalSource } from './task-native-external-source.mjs';
-// NativeB0/EA6E (src/task/native-status-screen.mjs): status screen with its own helpers (E4B3/E433/E41F/E48D/81:A954 and
+// NativeB0/EA6E (proof/replay/native-status-screen.mjs): status screen with its own helpers (E4B3/E433/E41F/E48D/81:A954 and
 // E9C5/E9A8 of F254, E4F3, FDCF) and the submenus of JMP (ED2E,X) at ECEA: E572/E577/E57F (items), E68E (weapon
 // menu E693 from E699), E834 and E8C8. Windows are the reachable instructions only (EA89, the entry of
 // Native1C, and the LDA/STA FFFF at E693 lie outside); the RTS after the PLP of E41F has its own window.
@@ -60,10 +60,10 @@ export const nativeEA6ESpec = {
     [
       0x81aeb0,
       'RTL',
-      'window list, resetAndDrawWindowList in src/task/native-glove-target.mjs (tools/task-native-9bc6-source.mjs)',
+      'window list, resetAndDrawWindowList in proof/replay/native-glove-target.mjs (tools/task-native-9bc6-source.mjs)',
     ],
-    [0x80f953, 'RTS', 'input wait, waitForConfirmKey in src/task/native-input-wait.mjs'],
-    [0x80ff79, 'RTS', 'clear, releaseNoticeWindows in src/task/native-slot-release.mjs'],
+    [0x80f953, 'RTS', 'input wait, waitForConfirmKey in proof/replay/native-input-wait.mjs'],
+    [0x80ff79, 'RTS', 'clear, releaseNoticeWindows in proof/replay/native-slot-release.mjs'],
     [
       0x809f6d,
       'RTS',
@@ -81,7 +81,7 @@ export const nativeEA6ESpec = {
     [0x80fe69, 'RTS', 'text, printText in src/task/native-text-compose.mjs'],
     [0x80fd80, 'RTS', 'number, printNumber in src/task/native-list-prerequisites.mjs'],
     [0x80fb39, 'RTS', 'text output, drawTextBuffer in src/task/native-text-compose.mjs'],
-    [0x8092c5, 'RTS', 'dialog close, closeDialog in src/task/native-dialog.mjs'],
+    [0x8092c5, 'RTS', 'dialog close, closeDialog in proof/replay/native-dialog.mjs'],
     [0x81886a, 'RTL', 'screen, clearFixedColour in src/task/native-dialog-portrait.mjs'],
     [0x80bcb2, 'RTS', 'glove off, putGloveAway in src/task/native-dialog-portrait.mjs'],
     [0x81f007, 'RTL', 'sound command, sendApuCommand in src/task/native-input-apu.mjs'],
@@ -92,7 +92,7 @@ export const nativeEA6ESpec = {
     ],
   ],
   scope:
-    'Original NativeB0 EA6E own code with its submenus and helpers; external returns into the proved window, menu, task, scheduler, input, portrait, counter, cursor, text, number, sound and object creation graphs; equations in src/task/native-status-screen.mjs, differential check in tools/task-native-ea6e.test.mjs.',
+    'Original NativeB0 EA6E own code with its submenus and helpers; external returns into the proved window, menu, task, scheduler, input, portrait, counter, cursor, text, number, sound and object creation graphs; equations in proof/replay/native-status-screen.mjs, differential check in tools/task-native-ea6e.test.mjs.',
   contract:
     'Sound 2/2F2F, 1F62 FFFF, FF79; group member (leader fallback, endless without), weapon 9700, portrait; window 02/02/1E/1A with attributes, ammunition, counter and Jake lines (FDCF), E9C5, E4B3; menu ED1E and JMP (ED2E,X) submenus until 1D63; 92C5, releases, 1F62 0, sound 2/7F7F. E0M0X0 D0 entry, return M0X0 with entry DBR. No result word.',
 };

@@ -8,7 +8,7 @@ import {
   showNoticeObserved,
   validateNoticeOptions,
   fec1Registers,
-} from '../../src/task/native-notice.mjs';
+} from '../replay/native-notice.mjs';
 // One individually proved Native58/C8 call. No arbitrary target admission,
 // instruction decoding, device calculations or inner publication.
 export function runTaskNativeC8Opcode(a, options, allowRemainingWaitObservations = false) {

@@ -4,7 +4,7 @@ import {
   validateNoticeOptions,
   showNoticeObserved,
   fec1Registers as devices,
-} from '../../src/task/native-notice.mjs';
+} from '../replay/native-notice.mjs';
 
 export function prepareTaskNativeFEC1(options) {
   const invalid = validateNoticeOptions(options);

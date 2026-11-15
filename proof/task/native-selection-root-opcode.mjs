@@ -4,8 +4,8 @@ import { runTaskOpcodeTarget } from './opcode-target.mjs';
 import { runTaskNativeArguments } from './native-arguments.mjs';
 import { runTaskNativeBridge } from './native-bridge.mjs';
 import { runTaskNativeResume } from './native-resume.mjs';
-import { runTaskSelectionObserved, selectionDevices } from '../../src/task/native-selection.mjs';
-import { validateTaskActionsOptions } from '../../src/task/native-actions.mjs';
+import { runTaskSelectionObserved, selectionDevices } from '../replay/native-selection.mjs';
+import { validateTaskActionsOptions } from '../replay/native-actions.mjs';
 export function runTaskSelectionOpcode(a, options, id, allowRemaining = false) {
   const entry = id === 0x9a ? 0x80933a : id === 0x1a ? 0x80bba0 : null;
   if (!entry || a.ctx.x !== 0x58) taskStop('task_selection_opcode_required');

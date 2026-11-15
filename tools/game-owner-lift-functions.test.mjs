@@ -9,7 +9,7 @@
 // writes, stack pointer, program counter and data bank.
 import { prng } from './task-native-dialog-harness.mjs';
 import { createSide, registerCases } from './lift-function-harness.mjs';
-import { FRONTEND_ROUTINES } from '../src/task/main-frontend.mjs';
+import { FRONTEND_ROUTINES } from '../proof/replay/main-frontend.mjs';
 import { GAME_OWNER_REFERENCE_ENTRIES } from '../proof/frontend-reference/game-owner.mjs';
 import { runGameOwner } from '../src/frontend/game-owner.mjs';
 

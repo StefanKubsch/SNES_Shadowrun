@@ -1,7 +1,7 @@
 // Source-specific atomic plans for proof tools. The game executes the shared routines directly.
 import { prepareTaskPlan } from './plan.mjs';
-import { validateTaskActionsOptions } from '../../src/task/native-actions.mjs';
-import { runTaskModalObserved, modalDevices } from '../../src/task/native-modal.mjs';
+import { validateTaskActionsOptions } from '../replay/native-actions.mjs';
+import { runTaskModalObserved, modalDevices } from '../replay/native-modal.mjs';
 
 export function prepareTaskModalRoot(options) {
   const invalid = validateTaskActionsOptions(options);

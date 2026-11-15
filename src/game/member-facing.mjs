@@ -1,5 +1,5 @@
 // A group member turned to the room's direction (lifted from the script native 80:BBA0
-// with 80:D15C; register-level version in src/task/native-selection.mjs).
+// with 80:D15C; register-level version in proof/replay/native-selection.mjs).
 //
 // Byte 2 of the room's 9-byte record (8D:929D) is a direction of eight. The member at
 // group index 2 (the second) takes the next direction, the one at index 4 the previous

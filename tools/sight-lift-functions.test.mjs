@@ -13,14 +13,14 @@ import {
   findNearestVisibleMember as nearestReference,
   chooseRandomFightTarget as fightReference,
   canObjectAttack as attackReference,
-} from '../src/task/native-combat.mjs';
+} from '../proof/replay/native-combat.mjs';
 import {
   chooseEnemyTargetNative,
   findNearestVisibleMemberNative,
   chooseRandomFightTargetNative,
   canAttackNative,
 } from '../src/task/native-script-leaves.mjs';
-import { testLineOfSight } from '../src/task/line-of-sight.mjs';
+import { testLineOfSight } from '../proof/replay/line-of-sight.mjs';
 import { leafAccess } from '../src/task/native-leaf-support.mjs';
 import { lineOfSight } from '../src/game/line-of-sight.mjs';
 import { accessorPort } from '../src/system/hardware-port.mjs';

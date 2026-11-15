@@ -24,7 +24,7 @@ import { prng } from './task-native-dialog-harness.mjs';
 import { createSide, registerCases } from './lift-function-harness.mjs';
 import { uploadEvents, windowMapSource, windowTables } from './lift-window-samples.mjs';
 import { DialogTestMemory } from './task-native-dialog-harness.mjs';
-import { MAIN_UPKEEP_ROUTINES } from '../src/task/main-loop-upkeep.mjs';
+import { MAIN_UPKEEP_ROUTINES } from '../proof/replay/main-loop-upkeep.mjs';
 import { MAIN_CAMERA_REFERENCE_ENTRIES } from '../proof/game-reference/main-camera.mjs';
 import { MAIN_UPKEEP_REFERENCE_ENTRIES } from '../proof/game-reference/main-upkeep.mjs';
 import { MAIN_TIMER_REFERENCE_ENTRIES } from '../proof/game-reference/main-timer.mjs';
@@ -52,18 +52,18 @@ import {
   runObjectMotion,
   runPortraitTiles,
 } from '../src/game/main-upkeep.mjs';
-import { MAIN_MOTION_ROUTINES, moveAndAnimateObjects } from '../src/task/main-loop-motion.mjs';
-import { bcbeSequence, moveGlove } from '../src/task/native-glove.mjs';
+import { MAIN_MOTION_ROUTINES, moveAndAnimateObjects } from '../proof/replay/main-loop-motion.mjs';
+import { bcbeSequence, moveGlove } from '../proof/replay/native-glove.mjs';
 import { objectSearchSequence } from '../src/game/object-search.mjs';
 import { stepAnimation } from '../src/game/object-animation.mjs';
 import { stepObjectAnimation } from '../src/task/native-scene-tiles.mjs';
 import { drainNativeSequence } from '../src/task/native-call-continuation.mjs';
-import { GLOVE_ROUTINES } from '../src/task/native-glove-target-support.mjs';
-import { showNotice } from '../src/task/native-notice.mjs';
+import { GLOVE_ROUTINES } from '../proof/replay/native-glove-target-support.mjs';
+import { showNotice } from '../proof/replay/native-notice.mjs';
 import { drawTextBuffer, printText } from '../src/task/native-text-compose.mjs';
 import { openWindowAdapter } from '../src/task/native-window-open.mjs';
-import { chooseAction } from '../src/task/native-actions.mjs';
-import { talkWithObject, TALK_ROUTINES } from '../src/task/native-dialog.mjs';
+import { chooseAction } from '../proof/replay/native-actions.mjs';
+import { talkWithObject, TALK_ROUTINES } from '../proof/replay/native-dialog.mjs';
 import {
   chooseDialogAction,
   chooseDialogTopic,

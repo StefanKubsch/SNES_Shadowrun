@@ -8,7 +8,7 @@
 // read (A, X, the status flags, the stack pointer and the program counter).
 import { prng, DialogTestMemory } from './task-native-dialog-harness.mjs';
 import { createSide, registerCases } from './lift-function-harness.mjs';
-import { MAIN_SCENE_ROUTINES } from '../src/task/main-scene.mjs';
+import { MAIN_SCENE_ROUTINES } from '../proof/replay/main-scene.mjs';
 import { withAudioReference } from '../proof/apu-reference/audio-routines.mjs';
 import { sendApuCommandRoutine, setMusicModeRoutine } from '../src/apu/audio-routines.mjs';
 import { playSoundEffectRoutine } from '../src/apu/sound-effect.mjs';

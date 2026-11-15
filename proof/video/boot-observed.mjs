@@ -4,11 +4,11 @@ import { INIDISP, NMITIMEN } from '../../src/constants/hardware-registers.mjs';
 import { VmMemory, VmFault, WRAM_SIZE, SRAM_SIZE } from '../../src/vm/memory.mjs';
 import { ScriptInterpreter } from '../vm/interpreter.mjs';
 import { TaskAccessor } from '../../src/vm/task-accessor.mjs';
-import { runMainReset } from '../../src/task/main-reset.mjs';
+import { runMainReset } from '../replay/main-reset.mjs';
 import {
   runMainStartup,
   MAIN_STARTUP_ROUTINES as STARTUP_ROUTINES,
-} from '../../src/task/main-startup.mjs';
+} from '../replay/main-startup.mjs';
 import { withFrontendReference } from '../frontend-reference/frontend.mjs';
 
 // Recorded chronologies hold every instruction of the title (prologue fill, polls in

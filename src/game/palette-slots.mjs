@@ -1,5 +1,5 @@
 // The object palette slots of the sprite list (lifted from 80:AB0A and 81:A840;
-// register-level references runPaletteSlot in src/task/native-scene-sprites.mjs and
+// register-level references runPaletteSlot in proof/replay/native-scene-sprites.mjs and
 // clearPaletteSlots in src/task/main-initialize.mjs).
 //
 // Each pass the sprite list empties the palette upload list 7E:17D4 and unsets every

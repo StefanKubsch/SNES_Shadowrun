@@ -12,10 +12,10 @@
 // stand-ins for the uploads and the word wait only.
 import { prng } from './task-native-dialog-harness.mjs';
 import { createSide, registerCases } from './lift-function-harness.mjs';
-import { e4b3Sequence } from '../src/task/native-member-spell-menu.mjs';
+import { e4b3Sequence } from '../proof/replay/native-member-spell-menu.mjs';
 import { memberPortraitSequence } from '../src/game/member-portrait.mjs';
 import { MEMBER_PORTRAIT } from '../src/task/wram.mjs';
-import { TALK_ROUTINES } from '../src/task/native-dialog.mjs';
+import { TALK_ROUTINES } from '../proof/replay/native-dialog.mjs';
 import { shiftPortraitRowsRoutine, unpackPortraitRoutine } from '../src/game/portrait-upload.mjs';
 import { drainNativeSequence } from '../src/task/native-call-continuation.mjs';
 

@@ -1,12 +1,12 @@
-import { taskStop } from './plan.mjs';
-import { appendScriptTask } from './task-append.mjs';
+import { taskStop } from '../../src/task/plan.mjs';
+import { appendScriptTask } from '../../src/task/task-append.mjs';
 import { enterRoom } from './main-transition.mjs';
 import {
   NativeCallContinuation,
-  NATIVE_CALL_CONTINUATIONS,
   drainNativeSequence,
   nativeCallSequence,
-} from './native-call-continuation.mjs';
+} from '../../src/task/native-call-continuation.mjs';
+import { NATIVE_CALL_CONTINUATIONS } from './continuations.mjs';
 
 import {
   PLAYER_OBJECT,
@@ -19,10 +19,10 @@ import {
   DP_ZONE_HEIGHT,
   DP_ZONE_LIST_INDEX,
   DP_ZONE_COUNT,
-} from './wram.mjs';
-import { BYTE_MASK } from '../constants/bits.mjs';
-import { FLAG_CARRY, FLAG_NEGATIVE, FLAG_ZERO } from '../constants/cpu-flags.mjs';
-import { CODE_BANK } from '../constants/memory-map.mjs';
+} from '../../src/task/wram.mjs';
+import { BYTE_MASK } from '../../src/constants/bits.mjs';
+import { FLAG_CARRY, FLAG_NEGATIVE, FLAG_ZERO } from '../../src/constants/cpu-flags.mjs';
+import { CODE_BANK } from '../../src/constants/memory-map.mjs';
 // Bytes still to consume after the failed bound comparison, including the data word.
 const ZONE_SKIP_BYTES = { xMin: 14, yMin: 12, zMin: 10, xMax: 8, yMax: 6, zMax: 4 };
 const APPEND_RETURN_WORD = 0x80a7;

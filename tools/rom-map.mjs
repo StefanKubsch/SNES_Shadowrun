@@ -169,10 +169,14 @@ import {
   GRAPHIC_TABLE,
   GRAPHICS,
 } from '../src/data/object-graphics.mjs';
-import { COMPARE } from '../src/task/native-scene-sprites.mjs';
-import { SUBMENU_SEQUENCES } from '../src/task/native-status-screen.mjs';
+import { COMPARE } from '../proof/replay/native-scene-sprites.mjs';
+import { SUBMENU_SEQUENCES } from '../proof/replay/native-status-screen.mjs';
 import { textCommands } from '../proof/matrix-reference/main-scene-matrix.mjs';
-import { stateCalls, directionCalls, trackCalls } from '../proof/matrix-reference/main-matrix-movement.mjs';
+import {
+  stateCalls,
+  directionCalls,
+  trackCalls,
+} from '../proof/matrix-reference/main-matrix-movement.mjs';
 import { SCENE_ANIMATION_TARGETS } from '../proof/cutscene-reference/cutscene-animation.mjs';
 import { SCENE_VIDEO_COMMANDS } from '../src/task/main-scene-video.mjs';
 import { CALLBACKS } from '../src/task/observed-nmi.mjs';

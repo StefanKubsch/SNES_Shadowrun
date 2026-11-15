@@ -12,14 +12,14 @@ import {
   MAIN_STARTUP_ROUTINES as MAIN_STARTUP_TASK,
   runMainStartup,
   MainStartupContinuation,
-} from '../src/task/main-startup.mjs';
+} from '../proof/replay/main-startup.mjs';
 // The ROM comparison observes the register-level APU reads of 81:F007 at their data
 // bank address (80:2140) and its stack byte, so the startup table uses the audio references.
 import { withAudioReference } from '../proof/apu-reference/audio-routines.mjs';
 const MAIN_STARTUP_ROUTINES = withAudioReference(MAIN_STARTUP_TASK);
 import { NATIVE_CALL_CONTINUATIONS } from '../src/task/native-call-continuation.mjs';
 import { WAIT_PAUSED } from '../src/task/native-wait-continuation.mjs';
-import { runMainReset, runMainSoftwareReset } from '../src/task/main-reset.mjs';
+import { runMainReset, runMainSoftwareReset } from '../proof/replay/main-reset.mjs';
 import { runObservedNmi } from '../src/task/observed-nmi.mjs';
 import { finishInterruptObservations } from '../src/task/main-wait-interrupt.mjs';
 import { SRAM_SIZE } from '../src/vm/memory.mjs';

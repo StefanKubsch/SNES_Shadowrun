@@ -17,11 +17,11 @@ import { registerLevelLoop } from '../proof/script/register-level-loop.mjs';
 // lifted functions.
 export async function routineTables(lifted) {
   const maps = [];
-  for (const folder of ['task', 'vm']) {
-    const dir = fileURLToPath(new URL(`../src/${folder}/`, import.meta.url));
+  for (const folder of ['src/task', 'src/vm', 'proof/replay', 'proof/vm']) {
+    const dir = fileURLToPath(new URL(`../${folder}/`, import.meta.url));
     for (const name of readdirSync(dir).filter((n) => n.endsWith('.mjs')))
       for (const value of Object.values(
-        await import(new URL(`../src/${folder}/${name}`, import.meta.url)),
+        await import(new URL(`../${folder}/${name}`, import.meta.url)),
       ))
         if (value instanceof Map && [...value.values()].some((run) => lifted.includes(run)))
           maps.push(value);

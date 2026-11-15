@@ -1,7 +1,7 @@
 // The runners' state counts and magic points (lifted from 80:CECB, 80:CF2E and 80:D079
 // with 80:D08A; register-level references in proof/game-reference/runner-state.mjs). The
 // script natives call them before they redraw the window list
-// (src/task/native-state-count-raise.mjs, src/task/native-runners-restore.mjs).
+// (proof/replay/native-state-count-raise.mjs, proof/replay/native-runners-restore.mjs).
 //
 // A runner's member record (src/data/runners.mjs) holds the magic attribute in byte 1
 // and the state count maximum in byte 5; the magic points of runner row n are the byte

@@ -6,7 +6,7 @@
 // 80:9F6D unpacks to 7F:5250 (64 OBJ characters, 4 bpp; 80:8F20 spreads the
 // rows of eight, 80:8FF5 sends them to VRAM), then 15 colours that the NMI
 // 80:8FBA sends by DMA from [F6] + 3 (0x1E bytes) to CGRAM from colour [$142]
-// (91 or A1; src/task/main-game-nmi.mjs).
+// (91 or A1; proof/replay/main-game-nmi.mjs).
 // The table has 139 words: it ends where code begins at 80:960D, no code
 // bound is known, and all 139 name distinct dialog records whose portrait
 // records are distinct too. The records lie back to back in reverse dialog

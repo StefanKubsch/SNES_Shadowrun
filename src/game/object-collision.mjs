@@ -1,6 +1,6 @@
 // The collision tests of an object's movement (lifted from 80:80B2, 80:8133, 80:81B4,
 // 80:8238 and 80:82BC with their cell search 81:86E5, the static list 81:85FE and the
-// moving list 81:8686; register-level reference in src/task/main-motion-collision.mjs).
+// moving list 81:8686; register-level reference in proof/replay/main-motion-collision.mjs).
 //
 // An object's collision box in quarter units is its position divided by 4 plus its box
 // offsets (lowest and highest x and y), from its height divided by 4 (bottom) up by its

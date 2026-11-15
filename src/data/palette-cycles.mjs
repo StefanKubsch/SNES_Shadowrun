@@ -7,7 +7,7 @@
 // bit 7 is reached), word 6 to 1CD2 (steps), record + 8 to 1CCE (colours).
 // $81:8076 (src/render/palette-update-8076.mjs) moves the index through 0 to
 // steps - 1 and sets 1CDA = colours + 2 index; $81:80C4 sends 1CCA bytes from
-// 8B:1CDA by DMA to CGRAM (src/task/main-game-nmi.mjs). A record so holds
+// 8B:1CDA by DMA to CGRAM (proof/replay/main-game-nmi.mjs). A record so holds
 // 2 (steps - 1) + length bytes of colours. The six records follow the table
 // back to back and end at 8B:FE15, where the part graphics begin.
 // Native form assets/vm-palette-cycles.json: per entry the palette number and

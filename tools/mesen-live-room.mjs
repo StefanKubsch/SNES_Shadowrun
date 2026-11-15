@@ -17,7 +17,7 @@ import assert from 'node:assert/strict';
 import { fileURLToPath } from 'node:url';
 import { prepareScript, runMesen } from './mesen.mjs';
 import { BOOT_PPU_OVERRIDES } from './mesen-boot-prefix.mjs';
-import { SPECIAL_NATIVES } from '../src/vm/special-natives.mjs';
+import { SPECIAL_NATIVES } from '../proof/vm/special-natives.mjs';
 
 const ROM_PATH = fileURLToPath(new URL('../Shadowrun (E).smc', import.meta.url));
 const luaValue = (value) =>

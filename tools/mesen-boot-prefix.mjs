@@ -17,12 +17,12 @@ import { ObservedDevices } from '../proof/vm/observed-devices.mjs';
 import { nativeOpcodeTargets } from '../src/task/native-opcode-targets.mjs';
 import { nativeTarget } from '../src/task/native-targets.mjs';
 import { STOP_RETURNED, STOP_BUDGET } from '../proof/vm/scheduler.mjs';
-import { SPECIAL_NATIVES } from '../src/vm/special-natives.mjs';
-import { runMainReset } from '../src/task/main-reset.mjs';
-import { runMainStartup, MAIN_STARTUP_ROUTINES } from '../src/task/main-startup.mjs';
+import { SPECIAL_NATIVES } from '../proof/vm/special-natives.mjs';
+import { runMainReset } from '../proof/replay/main-reset.mjs';
+import { runMainStartup, MAIN_STARTUP_ROUTINES } from '../proof/replay/main-startup.mjs';
 import { withFrontendReference } from '../proof/frontend-reference/frontend.mjs';
-import { runMainOwnerStart } from '../src/task/main-frontend.mjs';
-import { runMainStart } from '../src/task/main-start.mjs';
+import { runMainOwnerStart } from '../proof/replay/main-frontend.mjs';
+import { runMainStart } from '../proof/replay/main-start.mjs';
 import { finishInterruptObservations } from '../src/task/main-wait-interrupt.mjs';
 
 const ROM_PATH = fileURLToPath(new URL('../Shadowrun (E).smc', import.meta.url));

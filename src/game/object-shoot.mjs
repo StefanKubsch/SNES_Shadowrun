@@ -1,5 +1,5 @@
 // Shooting (lifted from the script natives 80:8AB5, 80:8A51 and 80:8A8C; register-level
-// version in src/task/native-object-shoot.mjs, which recorded waits and inputs replay).
+// version in proof/replay/native-object-shoot.mjs, which recorded waits and inputs replay).
 //
 // A shot runs in four steps, with the shooter's object slot and the target's:
 // 1. The weapon (80:8860, not for 80:8AB5, which takes the shot's values from the direct

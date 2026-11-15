@@ -10,7 +10,7 @@
 import { prng } from './task-native-dialog-harness.mjs';
 import { createSide, registerCases } from './lift-function-harness.mjs';
 import { START_MENU_IGNORED_WRAM } from './live-start-menu-plan.mjs';
-import { FRONTEND_ROUTINES } from '../src/task/main-frontend.mjs';
+import { FRONTEND_ROUTINES } from '../proof/replay/main-frontend.mjs';
 import { INTRO_SETUP_REFERENCE_ENTRIES } from '../proof/intro-reference/intro-routines.mjs';
 import { GAME_OWNER_REFERENCE_ENTRIES } from '../proof/frontend-reference/game-owner.mjs';
 import {

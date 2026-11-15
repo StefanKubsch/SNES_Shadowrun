@@ -4,10 +4,7 @@ import { runTaskOpcodeTarget } from './opcode-target.mjs';
 import { runTaskNativeArguments } from './native-arguments.mjs';
 import { runTaskNativeBridge } from './native-bridge.mjs';
 import { runTaskNativeResume } from './native-resume.mjs';
-import {
-  waitForConfirmKey,
-  validateTaskInputWaitOptions,
-} from '../../src/task/native-input-wait.mjs';
+import { waitForConfirmKey, validateTaskInputWaitOptions } from '../replay/native-input-wait.mjs';
 export function runTaskNativeInputWaitOpcode(a, options, allowRemaining = false) {
   if (a.ctx.x !== 0x58) taskStop('task_native_a3_opcode_required');
   const slot = runTaskOpcodeTarget(a);

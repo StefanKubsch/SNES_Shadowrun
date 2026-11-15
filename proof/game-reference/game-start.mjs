@@ -5,7 +5,7 @@
 import { taskStop } from '../../src/task/plan.mjs';
 import { unlockBulletproofVest } from '../../src/game/bugfixes.mjs';
 import { dialogAccess } from '../../src/task/native-dialog-support.mjs';
-import { getSaveSlotOffset } from '../../src/task/native-main-menu.mjs';
+import { getSaveSlotOffset } from '../replay/native-main-menu.mjs';
 import {
   NativeCallContinuation,
   NATIVE_CALL_CONTINUATIONS,
@@ -13,11 +13,11 @@ import {
   nativeCallSequence,
 } from '../../src/task/native-call-continuation.mjs';
 import { routineCaller } from '../../src/task/routine-call.mjs';
-import { TEXT_NONE } from '../../src/task/native-member-spell-menu.mjs';
-import { MAIN_START_ROUTINES } from '../../src/task/main-start.mjs';
+import { TEXT_NONE } from '../replay/native-member-spell-menu.mjs';
+import { MAIN_START_ROUTINES } from '../replay/main-start.mjs';
 import { GAME_SCREEN_REFERENCE_ENTRIES } from './game-screen.mjs';
 import { ROOM_ENTRY_REFERENCE_ENTRIES } from './room-entry.mjs';
-import { attractRoundsSequence } from '../../src/task/main-frontend.mjs';
+import { attractRoundsSequence } from '../replay/main-frontend.mjs';
 import {
   RECORD_ATTRIBUTE,
   RECORD_SKILL,
@@ -231,7 +231,7 @@ function* referenceRoomStartSequence(h, e, r) {
   return ctx.pc;
 }
 // Original routine $80:9699 for the attract game: the reference room start, then the
-// shared main loop rounds (src/task/main-frontend.mjs).
+// shared main loop rounds (proof/replay/main-frontend.mjs).
 export function runReferenceAttractRounds(h, e, r = referenceRoutines()) {
   return drainNativeSequence(referenceAttractRoundsSequence(h, e, r));
 }

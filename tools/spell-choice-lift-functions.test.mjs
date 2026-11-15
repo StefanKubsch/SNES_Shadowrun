@@ -7,7 +7,7 @@
 // stack, the calls, the return and the registers left must be equal.
 import { prng } from './task-native-dialog-harness.mjs';
 import { createSide, registerCases } from './lift-function-harness.mjs';
-import { chooseSpell } from '../src/task/native-spell-choice.mjs';
+import { chooseSpell } from '../proof/replay/native-spell-choice.mjs';
 import { chooseSpellSequence } from '../src/game/spell-choice.mjs';
 import { SPELL_LIST } from '../src/task/wram.mjs';
 import { drainNativeSequence } from '../src/task/native-call-continuation.mjs';

@@ -1,6 +1,6 @@
 // Register-level reference of the main loop's time limit 80:E270 (moved from
-// src/task/main-loop-upkeep.mjs). The lifted version is src/game/time-limit.mjs.
-import { MAIN_UPKEEP_ROUTINES } from '../../src/task/main-loop-upkeep.mjs';
+// proof/replay/main-loop-upkeep.mjs). The lifted version is src/game/time-limit.mjs.
+import { MAIN_UPKEEP_ROUTINES } from '../replay/main-loop-upkeep.mjs';
 import {
   NativeCallContinuation,
   NATIVE_CALL_CONTINUATIONS,

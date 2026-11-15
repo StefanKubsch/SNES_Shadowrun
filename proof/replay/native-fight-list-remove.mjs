@@ -1,14 +1,17 @@
-import { FIRST_ARGUMENT } from './native-leaf-support.mjs';
+import { FIRST_ARGUMENT } from '../../src/task/native-leaf-support.mjs';
 import { withInterruptEvents } from './observed-native-events.mjs';
-import { lagFree } from './main-wait-interrupt.mjs';
-import { dialogAccess } from './native-dialog-support.mjs';
-import { taskStop } from './plan.mjs';
-import { taskTextAccess } from './native-text-prerequisites.mjs';
+import { lagFree } from '../../src/task/main-wait-interrupt.mjs';
+import { dialogAccess } from '../../src/task/native-dialog-support.mjs';
+import { taskStop } from '../../src/task/plan.mjs';
+import { taskTextAccess } from '../../src/task/native-text-prerequisites.mjs';
 import { showNotice, showNoticeSequence, validateNoticeOptions } from './native-notice.mjs';
-import { setTextCursor, printNumber } from './native-list-prerequisites.mjs';
-import { printText, printTextSequence } from './native-text-compose.mjs';
-import { observedContinuation, drainNativeSequence } from './native-call-continuation.mjs';
-import { playSoundEffect, setMusicMode } from './native-audio-compose.mjs';
+import { setTextCursor, printNumber } from '../../src/task/native-list-prerequisites.mjs';
+import { printText, printTextSequence } from '../../src/task/native-text-compose.mjs';
+import {
+  observedContinuation,
+  drainNativeSequence,
+} from '../../src/task/native-call-continuation.mjs';
+import { playSoundEffect, setMusicMode } from '../../src/task/native-audio-compose.mjs';
 import {
   DP_CURSOR_ROW,
   DP_NOTICE_FRAMES,
@@ -33,14 +36,14 @@ import {
   KARMA,
   OPTION_MUSIC_RESTORE,
   WRAM,
-} from './wram.mjs';
+} from '../../src/task/wram.mjs';
 import {
   FLAG_INDEX_8BIT,
   FLAG_MEMORY_8BIT,
   FLAG_NEGATIVE,
   FLAG_ZERO,
   FLAG_CARRY,
-} from '../constants/cpu-flags.mjs';
+} from '../../src/constants/cpu-flags.mjs';
 import {
   WORD_MASK,
   WORD_BITS,
@@ -48,8 +51,8 @@ import {
   BANK_SIZE,
   BYTE_MASK,
   LONG_BYTES,
-} from '../constants/bits.mjs';
-import { CODE_BANK } from '../constants/memory-map.mjs';
+} from '../../src/constants/bits.mjs';
+import { CODE_BANK } from '../../src/constants/memory-map.mjs';
 // 80:855E: remove the object (first argument) from the fight list 1FB2 (searched downward from X = 1FB0, missing
 // returns). The first removal (1FCE = 0, DEC to FFFF) counts down the nonzero words 7E2DF8+X for
 // X = 7E2DE6 down to 0, unless 1D6B or 7E2DE6 is negative. A nonempty list returns after 1FB0 -= 2.

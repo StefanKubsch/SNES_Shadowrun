@@ -7,9 +7,9 @@ import { runTaskNativeResume } from './native-resume.mjs';
 import {
   shootAtGloveTargetObserved,
   shootWithOwnWeaponObserved,
-} from '../../src/task/native-object-shoot.mjs';
+} from '../replay/native-object-shoot.mjs';
 import { native8AB5Devices } from './native-8ab5-opcode.mjs';
-import { validateTaskActionsOptions } from '../../src/task/native-actions.mjs';
+import { validateTaskActionsOptions } from '../replay/native-actions.mjs';
 // One individually proved Native58 call through 8A51 (ID 58, no argument) or 8A8C (ID 5A, two argument
 // words), result pushed. Devices as in 8AB5 (hit graph of Native7C with sound and random, 81:A25F).
 const CALLEES = Object.freeze({

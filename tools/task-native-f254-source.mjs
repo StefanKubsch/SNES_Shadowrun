@@ -1,5 +1,5 @@
 import { proveExternalSource, emitExternalSource } from './task-native-external-source.mjs';
-// Native01/F254 (src/task/native-member-spell-menu.mjs): weapon menu E693 with its own helpers E4B3, E433, E41F, E48D,
+// Native01/F254 (proof/replay/native-member-spell-menu.mjs): weapon menu E693 with its own helpers E4B3, E433, E41F, E48D,
 // 81:A954, E9C5 and E9A8; every other call is an external return into its own proof.
 const RTS = 'RTS',
   RTL = 'RTL';
@@ -46,10 +46,10 @@ export const nativeF254Spec = {
     [
       0x81aeb0,
       RTL,
-      'window list, resetAndDrawWindowList in src/task/native-glove-target.mjs (tools/task-native-9bc6-source.mjs)',
+      'window list, resetAndDrawWindowList in proof/replay/native-glove-target.mjs (tools/task-native-9bc6-source.mjs)',
     ],
-    [0x80f953, RTS, 'input wait, waitForConfirmKey in src/task/native-input-wait.mjs'],
-    [0x80ff79, RTS, 'clear, releaseNoticeWindows in src/task/native-slot-release.mjs'],
+    [0x80f953, RTS, 'input wait, waitForConfirmKey in proof/replay/native-input-wait.mjs'],
+    [0x80ff79, RTS, 'clear, releaseNoticeWindows in proof/replay/native-slot-release.mjs'],
     [
       0x809f6d,
       RTS,
@@ -76,7 +76,7 @@ export const nativeF254Spec = {
     [0x80fd80, RTS, 'number, printNumber in src/task/native-list-prerequisites.mjs'],
   ],
   scope:
-    'Original Native01 F254 own code with the weapon menu E693 and its helpers; external returns into the proved window, menu, task, scheduler, input, portrait, counter, cursor, text and number graphs; equations in src/task/native-member-spell-menu.mjs, differential check in tools/task-native-f254.test.mjs.',
+    'Original Native01 F254 own code with the weapon menu E693 and its helpers; external returns into the proved window, menu, task, scheduler, input, portrait, counter, cursor, text and number graphs; equations in proof/replay/native-member-spell-menu.mjs, differential check in tools/task-native-f254.test.mjs.',
   contract:
     'F254: 1F62 FFFF, weapon index of 150A+DP00 in 9700, [F9] = 971A+6/9734, 1D63 0, JSR E693, 1F62 0, RTS. E0M0X0 D0 entry, return M0X0 with entry DBR. Result word DP00.',
 };

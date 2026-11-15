@@ -8,7 +8,7 @@ import {
   releaseNoticeWindowsObserved,
   validateNoticeReleaseOptions,
   clearFF79Registers,
-} from '../../src/task/native-slot-release.mjs';
+} from '../replay/native-slot-release.mjs';
 export function runTaskNativeClearOpcode(a, options, allowRemainingWaitObservations = false) {
   if (a.ctx.x !== 0x58) taskStop('task_native_a7_opcode_required');
   const slot = runTaskOpcodeTarget(a);

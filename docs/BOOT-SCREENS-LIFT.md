@@ -4,7 +4,7 @@ After the reset, the start-up 80:A133 calls 80:A15C, which calls the boot screen
 81:E7BC. They are lifted in
 [src/frontend/boot-screens.mjs](../src/frontend/boot-screens.mjs)
 (`bootScreensSequence`). The register-level version stays in
-[src/task/main-startup.mjs](../src/task/main-startup.mjs) (`showBootScreens`) as the
+[proof/replay/main-startup.mjs](../proof/replay/main-startup.mjs) (`showBootScreens`) as the
 reference, and recorded runs keep using it. The routine table entry
 `runBootScreensLifted` (MAIN_STARTUP_ROUTINES) runs the lifted screens with lag-free
 frames. Method: [MATRIX-LIFT.md](MATRIX-LIFT.md).

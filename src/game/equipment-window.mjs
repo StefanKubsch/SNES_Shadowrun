@@ -1,5 +1,5 @@
 // The equipment rows of the status window (lifted from 80:E9C5 with its item text
-// 80:E9A8; register-level version in src/task/native-member-spell-menu.mjs).
+// 80:E9A8; register-level version in proof/replay/native-member-spell-menu.mjs).
 //
 // In the status window (1F4C) the leader's selected spell name goes to row 14 (column
 // 0A). The shown runner's entry (7E:3C2E + 4 x its index 1F60) gives the weapon's name

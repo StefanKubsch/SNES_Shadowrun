@@ -60,8 +60,8 @@ task state.
 
 ## Phases
 
-Each phase is a delivery group with its own differential tests; release check after
-each group as before (four lift blocks per release check).
+Each phase is a delivery group with its own differential tests and one release check
+after the complete group, following AGENTS.md.
 
 1. **Task model and interpreter.** `src/script/tasks.mjs` and
    `src/script/interpreter.mjs` run one task's bytecode on its JS frame. Differential:
@@ -305,6 +305,46 @@ registerLevelLoop})`); the observed rooms and boot replays keep the driver direc
   (`MAIN_STARTUP_ROUTINES` and the tables it merges), through which the lifted sequences
   call their callees, and the power-on reset `runMainReset` and start-up
   `MainStartupContinuation` from src/task. They dissolve with src/task (phases 6 and 7).
+
+## Phase 6 result (2026-11-15)
+
+- Recorded replay code lives in [proof/replay/](../proof/replay/): the register-level
+  special native forms, their reference routine tables, boot sound transfer and
+  startup, software reset, and the reference-only sprite, sight and observation
+  helpers. Mixed modules retain only the constants and shared helpers the game
+  imports in `src/task/`. The recorded main interval is
+  [proof/vm/main-loop.mjs](../proof/vm/main-loop.mjs); the existing recorded drivers,
+  Mesen tools and cold boot comparisons import these proof modules.
+- The recorded main interval binds the zone, scene request, notice timeout, timer
+  and glove references directly, so direct oracle table calls also stay on the
+  replay path. `registerLevelLoop` is a separate live-frame differential: it uses
+  the game's lifted caller tables with the register-level interpreter and scheduler.
+- [src/vm/special-natives.mjs](../src/vm/special-natives.mjs) binds the lifted game
+  sequences directly, with one adapter for synchronous and pausing calls. Its
+  sequence adapter rejects recorded observations before accessing game state.
+  [proof/vm/special-natives.mjs](../proof/vm/special-natives.mjs) preserves the former
+  register-level forms and their observation validation for replay tests.
+- The live main interval and attract rounds no longer select register-level waits.
+  The live startup uses the lifted boot screens; the reference startup retains the
+  original instruction observations and sound handshakes. Live menu and dialog
+  tables bind lifted functions directly instead of inheriting replay routines.
+- The runner resource natives use [runner-state-call.mjs](../src/game/runner-state-call.mjs):
+  their existing lifted state bodies, the redraw's real JSL frame, and their RTS.
+  A differential checks both complete call sequences against the register-level
+  references across single-work-unit pauses and resource amount boundaries.
+- Live and reference tables can coexist in a test process. Their registration adapter
+  [continuations.mjs](../proof/replay/continuations.mjs) preserves both factories by
+  function identity when they share a ROM target. This avoids replacing a live
+  continuation with a different reference function and accidentally running a
+  title wait synchronously. The lift comparison discovers tables in both source
+  and proof directories.
+- Verification includes the game-loop benchmark, badge and attract routes, native
+  differential, replay target coverage, rejection of recorded waits in the live
+  adapter, continuation registration, and the production import boundary. The
+  release check also selects the affected Mesen and cold boot comparisons.
+- Phase 7 remains: dissolve `src/task/`. Shared wait/NMI execution support, constants,
+  reset and caller adapters still live there; this phase does not rename or redesign
+  those shared modules. Save data and the frame model are unchanged.
 
 ## Open points
 

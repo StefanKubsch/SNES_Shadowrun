@@ -1,5 +1,5 @@
 // An object's movement in the motion pass (lifted from 80:AB26; register-level
-// reference runObjectMove in src/task/main-loop-motion.mjs).
+// reference runObjectMove in proof/replay/main-loop-motion.mjs).
 //
 // An object with a motion target (7E:40E0) first turns its velocity towards it (80:C9E0,
 // still register-level, through its frame). Then its blocked flag (0008) is cleared and

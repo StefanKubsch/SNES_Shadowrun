@@ -11,8 +11,8 @@ import { setItemPropertyAndUnequip } from '../src/task/native-object-record-prop
 import { setActorItemPropertyAndUnequip } from '../src/task/native-record-property-equip.mjs';
 import { getActorStateFlags } from '../src/task/native-record-flags-get.mjs';
 import { setActorStateFlags } from '../src/task/native-record-flags-set.mjs';
-import { talkWithObject } from '../src/task/native-dialog.mjs';
-import { MAIN_START_ROUTINES } from '../src/task/main-start.mjs';
+import { talkWithObject } from '../proof/replay/native-dialog.mjs';
+import { MAIN_START_ROUTINES } from '../proof/replay/main-start.mjs';
 import { dialogAccess } from '../src/task/native-dialog-support.mjs';
 import {
   DEFAULT_GAMEPLAY,

@@ -1,30 +1,30 @@
 import { nativeOpcodeComposition } from './native-combat-opcode.mjs';
-import { releaseGloveObserved } from '../../src/task/native-glove-release.mjs';
-import { chooseSpellObserved } from '../../src/task/native-spell-choice.mjs';
+import { releaseGloveObserved } from '../replay/native-glove-release.mjs';
+import { chooseSpellObserved } from '../replay/native-spell-choice.mjs';
 import {
   targetWithSpellGloveObserved,
   scriptChooseObjectWithGloveObserved,
   scriptChooseObjectNumberWithGloveObserved,
   choosePlaceWithGloveObserved,
-} from '../../src/task/native-glove-target.mjs';
+} from '../replay/native-glove-target.mjs';
 import { native936CDevices } from './native-936c-opcode.mjs';
 import { panSongLevelToObjectReference as panSongLevelToObject } from '../apu-reference/sound-stereo.mjs';
-import { validateGloveTaskOptions } from '../../src/task/native-glove-target.mjs';
-import { fec1Registers } from '../../src/task/native-notice.mjs';
+import { validateGloveTaskOptions } from '../replay/native-glove-target.mjs';
+import { fec1Registers } from '../replay/native-notice.mjs';
 import { taskAudioDevices } from '../../src/task/native-audio-compose.mjs';
 import { taskMenuDevices } from '../../src/task/native-menu-compose.mjs';
 import { taskListDevices } from '../../src/task/native-list-prerequisites.mjs';
-import { raiseMemberStateCountObserved } from '../../src/task/native-state-count-raise.mjs';
-import { openWeaponMenuObserved } from '../../src/task/native-member-spell-menu.mjs';
-import { showStatusScreenObserved } from '../../src/task/native-status-screen.mjs';
-import { openMainMenuObserved } from '../../src/task/native-main-menu.mjs';
-import { controlPlayerObserved } from '../../src/task/native-player-control.mjs';
-import { restoreAllRunnersObserved } from '../../src/task/native-runners-restore.mjs';
+import { raiseMemberStateCountObserved } from '../replay/native-state-count-raise.mjs';
+import { openWeaponMenuObserved } from '../replay/native-member-spell-menu.mjs';
+import { showStatusScreenObserved } from '../replay/native-status-screen.mjs';
+import { openMainMenuObserved } from '../replay/native-main-menu.mjs';
+import { controlPlayerObserved } from '../replay/native-player-control.mjs';
+import { restoreAllRunnersObserved } from '../replay/native-runners-restore.mjs';
 import {
   raiseStateCountRegisters,
   restoreRunnersRegisters,
 } from '../game-reference/runner-state.mjs';
-import { validateDialogTaskOptions } from '../../src/task/native-dialog.mjs';
+import { validateDialogTaskOptions } from '../replay/native-dialog.mjs';
 // Devices of E1CF: windows (FEC1/F963 family), list and menu A6C7.
 const e1cfDevices = Object.freeze(
   Object.fromEntries(

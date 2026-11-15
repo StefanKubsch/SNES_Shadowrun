@@ -1,11 +1,11 @@
 import { withInterruptEvents } from './observed-native-events.mjs';
-import { lagFree } from './main-wait-interrupt.mjs';
-import { dialogAccess } from './native-dialog-support.mjs';
-import { drainNativeSequence } from './native-call-continuation.mjs';
-import { taskStop } from './plan.mjs';
-import { FIRST_ARGUMENT, SECOND_ARGUMENT, leaf } from './native-leaf-support.mjs';
-import { taskSelectionSupport } from './native-object-turn.mjs';
-import { randomBelow } from './native-random.mjs';
+import { lagFree } from '../../src/task/main-wait-interrupt.mjs';
+import { dialogAccess } from '../../src/task/native-dialog-support.mjs';
+import { drainNativeSequence } from '../../src/task/native-call-continuation.mjs';
+import { taskStop } from '../../src/task/plan.mjs';
+import { FIRST_ARGUMENT, SECOND_ARGUMENT, leaf } from '../../src/task/native-leaf-support.mjs';
+import { taskSelectionSupport } from '../../src/task/native-object-turn.mjs';
+import { randomBelow } from '../../src/task/native-random.mjs';
 import { testLineOfSight, SIGHT_ROUTINE } from './line-of-sight.mjs';
 import { showNotice } from './native-notice.mjs';
 import { validateTaskActionsOptions } from './native-actions.mjs';
@@ -35,11 +35,17 @@ import {
   OBJECT_X,
   OBJECT_Y,
   WRAM,
-} from './wram.mjs';
-import { WRDIVL, WRDIVB, RDDIVL } from '../constants/hardware-registers.mjs';
-import { FLAG_ZERO, FLAG_CARRY, FLAG_NEGATIVE } from '../constants/cpu-flags.mjs';
-import { BANK_WRAP, WORD_MASK, LONG_MASK, BYTE_MASK, WORD_BITS } from '../constants/bits.mjs';
-import { CODE_BANK } from '../constants/memory-map.mjs';
+} from '../../src/task/wram.mjs';
+import { WRDIVL, WRDIVB, RDDIVL } from '../../src/constants/hardware-registers.mjs';
+import { FLAG_ZERO, FLAG_CARRY, FLAG_NEGATIVE } from '../../src/constants/cpu-flags.mjs';
+import {
+  BANK_WRAP,
+  WORD_MASK,
+  LONG_MASK,
+  BYTE_MASK,
+  WORD_BITS,
+} from '../../src/constants/bits.mjs';
+import { CODE_BANK } from '../../src/constants/memory-map.mjs';
 // Return word of a JSR/JSL frame: the bank offset of the call's last byte.
 const callReturn = (address) => address & WORD_MASK;
 // 8B43: too few magic points open the notice 0B/14/13/03 with text 1 for 3C frames.

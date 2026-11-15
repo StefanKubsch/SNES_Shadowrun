@@ -1,6 +1,6 @@
 // Reference: the register-level matrix scene loop 81:C3CA as it ran before the
 // lift to src/matrix (docs/MATRIX-LIFT.md). Tests run it against the lifted scene.
-import { MAIN_SCENE_ROUTINES } from '../../src/task/main-scene.mjs';
+import { MAIN_SCENE_ROUTINES } from '../replay/main-scene.mjs';
 import { AUDIO_REFERENCE_ENTRIES } from '../apu-reference/audio-routines.mjs';
 import {
   NATIVE_CALL_CONTINUATIONS,

@@ -1,20 +1,20 @@
-import { taskStop } from './plan.mjs';
-import { taskTextAccess } from './native-text-prerequisites.mjs';
-import { waitForRandomStateChange } from './native-frame-wait.mjs';
-import { readInput } from './native-input-apu.mjs';
+import { taskStop } from '../../src/task/plan.mjs';
+import { taskTextAccess } from '../../src/task/native-text-prerequisites.mjs';
+import { waitForRandomStateChange } from '../../src/task/native-frame-wait.mjs';
+import { readInput } from '../../src/task/native-input-apu.mjs';
 import { validateTaskActionsOptions } from './native-actions.mjs';
-import { dialogAccess } from './native-dialog-support.mjs';
-import { ObservedWaitContinuation } from './main-wait-interrupt.mjs';
+import { dialogAccess } from '../../src/task/native-dialog-support.mjs';
+import { ObservedWaitContinuation } from '../../src/task/main-wait-interrupt.mjs';
 import {
   observedContinuation,
   drainNativeSequence,
   NativeCallContinuation,
-  NATIVE_CALL_CONTINUATIONS,
-} from './native-call-continuation.mjs';
-import { PAD_HELD, PAD_PRESSED } from './wram.mjs';
-import { FLAG_INDEX_8BIT, FLAG_MEMORY_8BIT, FLAG_ZERO } from '../constants/cpu-flags.mjs';
-import { WORD_MASK, WORD_BITS, LONG_WRAP, BANK_WRAP } from '../constants/bits.mjs';
-import { CODE_BANK, CODE_BANK_BASE } from '../constants/memory-map.mjs';
+} from '../../src/task/native-call-continuation.mjs';
+import { NATIVE_CALL_CONTINUATIONS } from './continuations.mjs';
+import { PAD_HELD, PAD_PRESSED } from '../../src/task/wram.mjs';
+import { FLAG_INDEX_8BIT, FLAG_MEMORY_8BIT, FLAG_ZERO } from '../../src/constants/cpu-flags.mjs';
+import { WORD_MASK, WORD_BITS, LONG_WRAP, BANK_WRAP } from '../../src/constants/bits.mjs';
+import { CODE_BANK, CODE_BANK_BASE } from '../../src/constants/memory-map.mjs';
 
 const JSR_RETURN_OFFSET = 2,
   JSL_RETURN_OFFSET = 3;

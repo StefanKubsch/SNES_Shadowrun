@@ -1,14 +1,17 @@
 import { withInterruptEvents } from './observed-native-events.mjs';
-import { lagFree } from './main-wait-interrupt.mjs';
-import { dialogAccess } from './native-dialog-support.mjs';
-import { taskStop } from './plan.mjs';
-import { fitListWindow } from '../data/menu-layout.mjs';
-import { taskTextAccess } from './native-text-prerequisites.mjs';
-import { f963Sequence } from './native-window-open.mjs';
-import { menuComposeSequence } from './native-menu-compose.mjs';
-import { releaseWindowJsrSequence } from '../game/window-release.mjs';
-import { printTextSequence } from './native-text-compose.mjs';
-import { observedContinuation, drainNativeSequence } from './native-call-continuation.mjs';
+import { lagFree } from '../../src/task/main-wait-interrupt.mjs';
+import { dialogAccess } from '../../src/task/native-dialog-support.mjs';
+import { taskStop } from '../../src/task/plan.mjs';
+import { fitListWindow } from '../../src/data/menu-layout.mjs';
+import { taskTextAccess } from '../../src/task/native-text-prerequisites.mjs';
+import { f963Sequence } from '../../src/task/native-window-open.mjs';
+import { menuComposeSequence } from '../../src/task/native-menu-compose.mjs';
+import { releaseWindowJsrSequence } from '../../src/game/window-release.mjs';
+import { printTextSequence } from '../../src/task/native-text-compose.mjs';
+import {
+  observedContinuation,
+  drainNativeSequence,
+} from '../../src/task/native-call-continuation.mjs';
 import { taskActionsDevices } from './native-actions.mjs';
 import { fec1Registers, TEXT_NUMBERS } from './native-notice.mjs';
 import { DP_PORTRAIT_FRAME } from './native-dialog.mjs';
@@ -23,16 +26,16 @@ import {
   DP_MENU_VISIBLE_ROWS,
   DP_LIST_TOKENS,
   DP_LIST_TOKEN_BANK,
-} from './wram.mjs';
-import { STATE_HOLDER } from '../data/actors.mjs';
-import { WORD_MASK, BANK_WRAP, BANK_SIZE, LONG_WRAP } from '../constants/bits.mjs';
+} from '../../src/task/wram.mjs';
+import { STATE_HOLDER } from '../../src/data/actors.mjs';
+import { WORD_MASK, BANK_WRAP, BANK_SIZE, LONG_WRAP } from '../../src/constants/bits.mjs';
 import {
   FLAG_INDEX_8BIT,
   FLAG_MEMORY_8BIT,
   FLAG_CARRY,
   FLAG_ZERO,
-} from '../constants/cpu-flags.mjs';
-import { CODE_BANK } from '../constants/memory-map.mjs';
+} from '../../src/constants/cpu-flags.mjs';
+import { CODE_BANK } from '../../src/constants/memory-map.mjs';
 export const modalDevices = Object.freeze(
   Object.fromEntries(
     ['writes', 'reads', 'observationPcs'].map((key) => [

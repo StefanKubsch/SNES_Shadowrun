@@ -34,11 +34,11 @@ import {
 } from '../src/game/main-upkeep.mjs';
 import { MAIN_CAMERA_REFERENCE_ENTRIES } from '../proof/game-reference/main-camera.mjs';
 import { MAIN_UPKEEP_REFERENCE_ENTRIES } from '../proof/game-reference/main-upkeep.mjs';
-import { MAIN_UPKEEP_ROUTINES } from '../src/task/main-loop-upkeep.mjs';
-import { moveGlove } from '../src/task/native-glove.mjs';
-import { checkPlayerZones } from '../src/task/main-zone-gate.mjs';
-import { moveAndAnimateObjects } from '../src/task/main-loop-motion.mjs';
-import { buildSpriteList } from '../src/task/native-scene-sprites.mjs';
+import { MAIN_UPKEEP_ROUTINES } from '../proof/replay/main-loop-upkeep.mjs';
+import { moveGlove } from '../proof/replay/native-glove.mjs';
+import { checkPlayerZones } from '../proof/replay/main-zone-gate.mjs';
+import { moveAndAnimateObjects } from '../proof/replay/main-loop-motion.mjs';
+import { buildSpriteList } from '../proof/replay/native-scene-sprites.mjs';
 import { MAIN_TIMER_REFERENCE_ENTRIES } from '../proof/game-reference/main-timer.mjs';
 import { MAIN_GLOVE_ACTION_REFERENCE_ENTRIES } from '../proof/game-reference/main-glove-action.mjs';
 

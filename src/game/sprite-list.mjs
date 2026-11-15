@@ -1,6 +1,6 @@
 // The sprite list of a pass (lifted from 80:B8DE with the OAM high table fill 81:A7FC
 // and the NMI job count 81:A954; register-level reference in
-// src/task/native-scene-sprites.mjs).
+// proof/replay/native-scene-sprites.mjs).
 //
 // Each pass the draw list is sorted by screen depth (80:AFFC), the palette slots are
 // reset (81:A840), every OAM high table bit pair is set to large sprites (AAAA), and

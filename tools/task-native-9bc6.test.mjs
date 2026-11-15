@@ -8,17 +8,17 @@ import {
   scriptChooseObjectWithGlove,
   scriptChooseObjectNumberWithGlove,
   choosePlaceWithGlove,
-} from '../src/task/native-glove-target.mjs';
-import { putOnActionGlove, moveGlove } from '../src/task/native-glove.mjs';
-import { GLOVE_ROUTINES, measureTextWidth } from '../src/task/native-glove-target-support.mjs';
+} from '../proof/replay/native-glove-target.mjs';
+import { putOnActionGlove, moveGlove } from '../proof/replay/native-glove.mjs';
+import { GLOVE_ROUTINES, measureTextWidth } from '../proof/replay/native-glove-target-support.mjs';
 import { putGloveAway } from '../src/task/native-dialog-portrait.mjs';
 import { waitForRandomStateChange } from '../src/task/native-frame-wait.mjs';
 import { readTextBit } from '../src/task/native-text-prerequisites.mjs';
 import { readInput } from '../src/task/native-input-apu.mjs';
 
-// NativeD8/9BC6 (Ziel mit dem Aktionshandschuh wählen) gegen die Originalbefehle. AF04, B0A1 und 9E1A laufen
-// auf beiden Seiten als bewiesene Module; F963, FE69, FA3E, FEC1 und AD92 haben eigene Beweise und laufen als
-// gleiche Stubs mit echtem Rahmen. Alle Befehle der geprüften Fenster müssen erreicht werden.
+// NativeD8/9BC6 (choose a target with the action glove) against the original instructions. AF04, B0A1 and 9E1A run
+// as proved modules on both sides; F963, FE69, FA3E, FEC1 and AD92 have separate proofs and run as
+// identical stubs with real frames. Every instruction in the checked windows must be reached.
 const romOffset = (address) => (((address >>> 16) & 0x1f) << 15) | (address & 0x7fff);
 const romWord = (address) => rom[romOffset(address)] | (rom[romOffset(address + 1)] << 8);
 export const SELECT_WINDOWS = {
@@ -32,7 +32,7 @@ export const SELECT_WINDOWS = {
   fadd: [window(0x80fadd, 0x80fb39, { initialM: 0 })],
   aeb0: [window(0x81aeb0, 0x81aeb8)],
 };
-// Namen der Objektarten (8C:EFB0, sechs Bytes je Art) und der Tabelle 80:9782 als echte Texte für FADD.
+// Object type names (8C:EFB0, six bytes per type) and the 80:9782 table provide real text to FADD.
 const typeNames = Array.from({ length: 0x60 }, (_, t) => romWord(0x8cefb0 + 6 * t));
 const tableIds = Array.from({ length: 13 }, (_, k) => romWord(0x809700 + 2 * k));
 const names = [
@@ -108,10 +108,10 @@ function stub(target, acc, lists) {
   ctx.status = (ctx.status & ~0x83) | (a & 0x8000 ? 0x80 : 0) | (a === 0 ? 2 : 0) | (dp[3] & 1);
   return { rawReturnWord: raw };
 }
-// 92C5 (Dialog schließen), A9B2 und ACB5 (Fensterliste) haben eigene Beweise wie die übrigen Stubs.
+// 92C5 (close dialog), A9B2 and ACB5 (window list) have separate proofs like the other stubs.
 const STUBBED = [0x80f963, 0x80fe69, 0x80fa3e, 0x80fec1, 0x81ad92, 0x8092c5, 0x81a9b2, 0x81acb5];
 const lists = (s) => ({ windows: [...(s.windows ?? [])] });
-// Native: bewiesene Module aus GLOVE_ROUTINES, die übrigen als Stubs. Referenz: dieselben Module.
+// Native: proved modules from GLOVE_ROUTINES, with the remaining routines as stubs. Reference: the same modules.
 const nativeRoutines = (s) => {
   const l = lists(s);
   const map = new Map(GLOVE_ROUTINES);
@@ -179,7 +179,7 @@ check(
   { native: (h, e, s) => measureTextWidth(h, e, nativeRoutines(s)), calls: referenceCalls },
 );
 
-// Szene für BCBE: Objekte mit Kästen um den Handschuh, Arten mit und ohne Namen, Art $0B, Art 3 in $1458.
+// BCBE scene: objects with boxes around the glove, named and unnamed types, type $0B, and type 3 in $1458.
 function scene({ s, int, pick, put }) {
   const slots = [0x10, 0x20, 0x30, 0x40, 0x56].slice(0, int(6));
   put(0x14b0, slots.length ? 2 * (slots.length - 1) : pick([0xfffe, 0x8000]));
@@ -195,7 +195,7 @@ function scene({ s, int, pick, put }) {
     put(0x7e3f28 + o, type);
     put(0x1458 + o, int(0x10000) | (int(2) ? 3 : 0));
     put(0x150a + o, pick(tableIds));
-    // Gewünschte Kastenlage (Werte 14/17) nahe am Handschuh, daraus die Positionen.
+    // Place the box at the requested values (14/17) near the glove, then derive the positions.
     const v17 = ((glove[1] >>> 8) + pick([-0x40, -8, 0, 4, 0x10, 0x30]) - int(0x10)) & 0xffff,
       v14 = ((glove[0] >>> 8) + pick([-0x40, -8, 0, 4, 0x10, 0x30]) - int(0x10)) & 0xffff;
     const height = int(0x200),
@@ -234,7 +234,7 @@ function scene({ s, int, pick, put }) {
   s.windows = [int(0x10000)];
   return s;
 }
-const motion = ({ s, int, pick, put }) => {
+const motion = ({ int, pick, put }) => {
   put(0x1d8, pick([0, 0xffff, 0xffff, 0xfffd, 1]));
   put(0x1ca, int(2) ? int(0x10000) & ~0x0f00 : int(0x10000));
   put(0x1d0, pick([0, 0x100, 0xff00, 0x2f0, 0xfd10, 0x300, 0xfd00, int(0x10000)]));
@@ -252,7 +252,7 @@ check(
   { native: (h, e, s) => moveGlove(h, e, nativeRoutines(s)), calls: referenceCalls },
 );
 
-// Ganzes 9BC6: Frames mit Steuerkreuz, dann A/B/X/Y; Spielfigur nah oder fern am markierten Objekt.
+// Full 9BC6: frames with the directional pad, then A/B/X/Y; player near or far from the marked object.
 const ALL = Object.values(SELECT_WINDOWS).flat();
 check(
   '9BC6/9C40/AEB0',
@@ -279,7 +279,7 @@ check(
     put(0x1f62, pick([0, 0, 1]));
     put(0x1cc, pick([0, 0x0100, 0x2000, 0x0010]));
     put(0x7e1c76, int(0x10000));
-    // Eingaben: Steuerkreuz (bis zu 4 Frames), dann ein neuer Tastendruck, danach ein letztes 9E1A.
+    // Inputs: directional pad (up to 4 frames), then a new button press, followed by a final 9E1A.
     const inputs = [];
     for (let n = int(5); n > 0; n--)
       inputs.push(pick([0, 0x0100, 0x0200, 0x0400, 0x0800, 0x0500, 0x0a00, 0x0010, 0x2000]));
@@ -302,7 +302,7 @@ check(
   [...SELECT_WINDOWS['9bc6'], ...SELECT_WINDOWS['9c40'], ...SELECT_WINDOWS.aeb0],
 );
 
-// NativeA6/8D0B: dieselbe Schleife ohne Abstandsprüfung und Fensterliste.
+// NativeA6/8D0B: the same loop without distance checks or a window list.
 const GLOVE = ['bc67', 'bcb2', 'bcbe', 'be5b', 'be6d', 'fadd'].flatMap((k) => SELECT_WINDOWS[k]),
   WINDOW_8D0B = [window(0x808d0b, 0x808d3f)];
 check(
@@ -350,7 +350,7 @@ const WINDOWS_9BD3 = [
   ],
   WINDOW_9C33 = [window(0x809c33, 0x809c40)];
 const selectInputs = ({ s, int, pick }) => {
-  // Steuerkreuz, ein Tastendruck; falls weitergewählt wird: bewegen (Objekt frei) und A mit Steuerkreuz, dann 9E1A.
+  // Directional pad, one button press; if selection continues, move (object free) and press A with the pad, then 9E1A.
   const inputs = [];
   for (let n = int(5); n > 0; n--)
     inputs.push(pick([0, 0x0100, 0x0200, 0x0400, 0x0800, 0x0500, 0x0a00, 0x0010, 0x2000]));
@@ -496,12 +496,12 @@ import {
   nativeC724Spec,
   proveC724Source,
 } from './task-native-9bc6-source.mjs';
-import { SPECIAL_NATIVES } from '../src/vm/special-natives.mjs';
+import { SPECIAL_NATIVES } from '../proof/vm/special-natives.mjs';
 test('9BC6 own code: pinned windows, stack/mode proof with external returns, bound as special native', () => {
   const proof = prove9BC6Source(decodeTaskWindows(romBytes, native9BC6Spec.windows).map);
   assert.equal(proof.reachable_instructions, 434);
   assert.equal(proof.maximum_local_stack_bytes, 12);
-  // Die Vergleichsfenster dieses Tests decken genau die gepinnten Befehle ab.
+  // This test's comparison windows cover exactly the pinned instructions.
   const pinned = decodeTaskWindows(romBytes, native9BC6Spec.windows).map,
     compared = decodeWindows(ALL);
   assert.deepEqual(

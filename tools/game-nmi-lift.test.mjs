@@ -10,7 +10,7 @@ import { compareLift } from './lift-compare.mjs';
 import { PLAN } from './live-alley-plan.mjs';
 import { CUTSCENE_IGNORED_WRAM } from './live-cutscene-plan.mjs';
 import { GAME_NMI_LIFTED_JOBS } from '../src/game/game-nmi.mjs';
-import { GAME_NMI_ROUTINES } from '../src/task/main-game-nmi.mjs';
+import { GAME_NMI_ROUTINES } from '../proof/replay/main-game-nmi.mjs';
 import { INIDISP_SHADOW } from '../src/task/wram.mjs';
 
 // The cutscene scratch and stacks, but not the screen shadows 7E:01BC-01C9 above the

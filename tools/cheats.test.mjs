@@ -6,7 +6,7 @@ import { VmMemory } from '../src/vm/memory.mjs';
 import { ScriptInterpreter } from '../proof/vm/interpreter.mjs';
 import { TaskAccessor } from '../src/vm/task-accessor.mjs';
 import { takeDamage } from '../src/matrix/matrix-world.mjs';
-import { hitObject } from '../src/task/native-object-hit.mjs';
+import { hitObject } from '../proof/replay/native-object-hit.mjs';
 import { setObjectRecordCount } from '../src/task/native-object-record-count-set.mjs';
 import { decrementObjectStateCount } from '../src/task/native-object-record-count-decrement.mjs';
 import { task8E36Fixture } from './task-native-8e36-fixtures.mjs';

@@ -1,5 +1,5 @@
 // The group and the room's actors (lifted from 80:A2FA and 80:A3B6; register-level
-// reference in src/task/main-transition.mjs, which proof/game-reference/room-entry.mjs
+// reference in proof/replay/main-transition.mjs, which proof/game-reference/room-entry.mjs
 // calls).
 //
 // The room entry creates an object for each group member at the start position, then

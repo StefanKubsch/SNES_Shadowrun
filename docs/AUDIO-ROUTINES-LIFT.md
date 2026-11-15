@@ -1,6 +1,6 @@
 # Audio routines lift
 
-The audio routines of the scene routine table (src/task/main-scene.mjs) now run
+The audio routines of the scene routine table (proof/replay/main-scene.mjs) now run
 as lifted code, after the game start
 ([GAME-START-LIFT.md](GAME-START-LIFT.md)); method in
 [MATRIX-LIFT.md](MATRIX-LIFT.md). The lifted sound driver command and music
@@ -72,7 +72,7 @@ reference table).
 - src/task/native-audio-compose.mjs and src/task/native-input-apu.mjs stay in
   src: the register-level task natives (dialog, fight list, menus, object hits,
   object shots, the special native 80:C46E, the stereo song level 80:C461) call
-  them directly, and the tables of src/task/main-transition.mjs,
+  them directly, and the tables of proof/replay/main-transition.mjs,
   main-intro-nmi.mjs, native-status-screen.mjs and native-dialog.mjs keep the
   register-level F007 and EF47. Those natives are proved against exact ROM
   traces with their own accessors (proof/task/plan.mjs, which has no memory

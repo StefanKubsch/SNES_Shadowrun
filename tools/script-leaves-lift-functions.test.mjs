@@ -19,9 +19,9 @@ import {
   moveObjectTowardsObject as moveReference,
   jumpObjectTowardsObject as jumpReference,
   jumpObjectTowardsPoint as jumpToPointReference,
-} from '../src/task/native-combat.mjs';
-import { runTaskModalObserved } from '../src/task/native-modal.mjs';
-import { runTaskSelectionObserved } from '../src/task/native-selection.mjs';
+} from '../proof/replay/native-combat.mjs';
+import { runTaskModalObserved } from '../proof/replay/native-modal.mjs';
+import { runTaskSelectionObserved } from '../proof/replay/native-selection.mjs';
 import {
   setObjectActionAndDirectionReference,
   setObjectAnimationReference,

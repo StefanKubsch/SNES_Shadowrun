@@ -6,6 +6,6 @@
 // do not run; the call ends as for an unbound native.
 //
 // Target -> {supports(memory), run(accessor, outerReturn)}. Currently empty: $8BC5 and $8AB5 have been
-// special natives since 2026-10-14, as has $E014 (src/task/native-player-control.mjs, whole graph proven statically); their equations
+// special natives since 2026-10-14, as has $E014 (proof/replay/native-player-control.mjs, whole graph proven statically); their equations
 // were checked against Mesen2 in the oracle phase. The mechanism remains for future partial paths.
 export const ORACLE_NATIVES = new Map();

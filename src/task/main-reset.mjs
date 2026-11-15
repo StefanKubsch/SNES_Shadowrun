@@ -1,8 +1,11 @@
 import { taskStop } from './plan.mjs';
+
 import { dialogAccess } from './native-dialog-support.mjs';
-import { routineCaller } from './routine-call.mjs';
-import { MAIN_STARTUP_ROUTINES, MAIN_STARTUP_ENTRY } from './main-startup.mjs';
+
+import { MAIN_STARTUP_ENTRY } from './main-startup.mjs';
+
 import { WRIO_ALL_HIGH, CGSWSEL_MATH_PREVENTED, MEMSEL_FAST_ROM } from './main-scene-video.mjs';
+
 import {
   INIDISP,
   OBJSEL,
@@ -33,13 +36,16 @@ import {
   HDMAEN,
   MEMSEL,
 } from '../constants/hardware-registers.mjs';
+
 import {
   INIDISP_FORCED_BLANK,
   COLDATA_RED,
   COLDATA_GREEN,
   COLDATA_BLUE,
 } from '../constants/ppu.mjs';
+
 import { BYTE_BITS, WORD_BITS, BYTE_MASK, WORD_MASK } from '../constants/bits.mjs';
+
 import {
   FLAG_INDEX_8BIT,
   FLAG_MEMORY_8BIT,
@@ -48,15 +54,15 @@ import {
   FLAG_DECIMAL,
   FLAG_NEGATIVE,
 } from '../constants/cpu-flags.mjs';
+
 import { CODE_BANK, CODE_BANK_PAIR } from '../constants/memory-map.mjs';
 
 // Reset entries: the power-on reset E382 runs in bank 00 or 80 (the 16-bit
 // offset is compared), the software reset 80:9E3D. The reset code sets the
 // stack to $013F; the emulation mode stack lives in page 1.
 const RESET_ENTRY = 0xe382,
-  SOFT_RESET_ENTRY = 0x9e3d,
-  RESET_STACK = 0x013f,
-  EMULATION_STACK_PAGE = 0x0100;
+  RESET_STACK = 0x013f;
+
 // Index widths the reset entry requires (SEP #$30 state of the E1 entry).
 const BOTH_8BIT = FLAG_INDEX_8BIT | FLAG_MEMORY_8BIT;
 
@@ -163,34 +169,4 @@ export function runMainReset(a) {
   ctx.programBank = CODE_BANK;
   ctx.pc = MAIN_STARTUP_ENTRY;
   return ctx.pc;
-}
-// Nonreturning software reset selected by the original BEQ at 9E2F. The
-// existing call frames are abandoned by E1 and then the actual TCS 013F.
-export function runMainSoftwareReset(a, e, r = MAIN_STARTUP_ROUTINES) {
-  const { ctx } = a;
-  if (
-    ctx.e !== 0 ||
-    ctx.d !== 0 ||
-    ctx.programBank !== CODE_BANK ||
-    ctx.pc !== SOFT_RESET_ENTRY ||
-    ctx.status & (FLAG_DECIMAL | BOTH_8BIT)
-  )
-    taskStop('main_software_reset_entry_required');
-  const h = dialogAccess(a);
-  h.push(CODE_BANK_PAIR, 2);
-  h.plb();
-  h.plb();
-  h.load(0);
-  routineCaller(h, e, r)(0x809e45, 0x81f007, true);
-  h.push(CODE_BANK_PAIR, 2);
-  h.plb();
-  h.plb();
-  h.sep(BOTH_8BIT);
-  h.portWrite(NMITIMEN, 0, 1, 0x809e50);
-  ctx.status |= FLAG_CARRY;
-  ctx.e = 1;
-  ctx.status &= ~FLAG_CARRY;
-  ctx.s = EMULATION_STACK_PAGE | (ctx.s & BYTE_MASK);
-  ctx.pc = RESET_ENTRY;
-  return runMainReset(a);
 }

@@ -1,5 +1,5 @@
 // A member's spell menu (lifted from the script native 80:F254 and its menu 80:E693;
-// register-level version in src/task/native-member-spell-menu.mjs, which recorded waits
+// register-level version in proof/replay/native-member-spell-menu.mjs, which recorded waits
 // and inputs replay).
 //
 // 80:F254 opens the menu for the object DP 00 while the member menu mark 7E:1F62 is

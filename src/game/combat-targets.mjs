@@ -1,6 +1,6 @@
 // Targets in a fight by line of sight (lifted from the script natives 80:8BC5, 80:8C08,
 // 80:8C8D and 80:8CCF; register-level references in
-// proof/game-reference/enemy-target-choice.mjs and src/task/native-combat.mjs). The natives'
+// proof/game-reference/enemy-target-choice.mjs and proof/replay/native-combat.mjs). The natives'
 // bridges are in src/task/native-script-leaves.mjs.
 //
 // Only an object on screen looks for a target. An object marked as no target is never

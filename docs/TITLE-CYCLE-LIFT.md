@@ -13,11 +13,11 @@ reference in
 
 ## Modules
 
-| Module                                             | Content                                                                                                                                        |
-| -------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------- |
-| [title-cycle.mjs](../src/frontend/title-cycle.mjs) | The cycle 80:A18C with the port's credits from the start menu, the attract game 80:A168 and the demo owner 80:96F3 (generators).               |
-| [game-owner.mjs](../src/frontend/game-owner.mjs)   | The outer game owner 80:A139/A157 (see "Outer game owner" below).                                                                              |
-| [main-frontend.mjs](../src/task/main-frontend.mjs) | The demo's rounds 80:9699 (its own continuation; room start lifted, [GAME-START-LIFT.md](GAME-START-LIFT.md)) and the driver's owner dispatch. |
+| Module                                                 | Content                                                                                                                                        |
+| ------------------------------------------------------ | ---------------------------------------------------------------------------------------------------------------------------------------------- |
+| [title-cycle.mjs](../src/frontend/title-cycle.mjs)     | The cycle 80:A18C with the port's credits from the start menu, the attract game 80:A168 and the demo owner 80:96F3 (generators).               |
+| [game-owner.mjs](../src/frontend/game-owner.mjs)       | The outer game owner 80:A139/A157 (see "Outer game owner" below).                                                                              |
+| [main-frontend.mjs](../proof/replay/main-frontend.mjs) | The demo's rounds 80:9699 (its own continuation; room start lifted, [GAME-START-LIFT.md](GAME-START-LIFT.md)) and the driver's owner dispatch. |
 
 The audio and screen routines the cycle called (81:F229, 81:F092, 81:DDB1,
 81:EF63, 81:EB97, 81:EF47) are the lifted functions of src/apu, src/intro and
@@ -77,7 +77,7 @@ and join `withFrontendReference`.
 
 - The owner is the routine table's entry 80:A139, so the reference can replace
   it; the main driver enters it through `runMainOwnerStart` and
-  `mainOwnerContinuation` (src/task/main-frontend.mjs), which pick the table's
+  `mainOwnerContinuation` (proof/replay/main-frontend.mjs), which pick the table's
   owner and its continuation.
 - It stores the cycle's music options, calls the title cycle 80:A18C through
   its JSR frame (A141), stores the choice in direct page word 0 for the main

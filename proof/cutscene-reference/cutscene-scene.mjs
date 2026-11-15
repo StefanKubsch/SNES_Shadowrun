@@ -114,7 +114,7 @@ import {
   endPackedTextEdit,
   CREDITS_EDIT,
 } from '../../src/data/packed-text-edits.mjs';
-import { MAIN_SCENE_ROUTINES } from '../../src/task/main-scene.mjs';
+import { MAIN_SCENE_ROUTINES } from '../replay/main-scene.mjs';
 import { AUDIO_REFERENCE_ENTRIES } from '../apu-reference/audio-routines.mjs';
 import { FadePollContinuation } from '../../src/task/main-wait-interrupt.mjs';
 import { sceneWaitByte, SCENE_WAIT_ROUTINES } from '../../src/task/main-scene-wait.mjs';

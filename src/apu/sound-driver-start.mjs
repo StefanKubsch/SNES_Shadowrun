@@ -1,6 +1,6 @@
 // The start of the sound driver (lifted from 81:EF07 with the driver load 81:F07F and
 // the IPL transfer 81:EFA5, 81:EFFA and 81:F001; register-level version in
-// src/task/main-startup.mjs). The IPL protocol is in Book I appendix D (PDF 237/238)
+// proof/replay/main-startup.mjs). The IPL protocol is in Book I appendix D (PDF 237/238)
 // and docs/SOUND-DRIVER.md: the IPL reports AA/BB on ports 0/1; CC on port 0 starts a
 // block at the ARAM address on ports 2/3 (port 1 not zero: data follows); each byte
 // goes on port 1 with its counter on port 0, which the IPL echoes. Port 1 zero with a

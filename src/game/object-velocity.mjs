@@ -1,5 +1,5 @@
 // An object's velocity towards a point (lifted from 80:8D95 with 80:8D84; register-level
-// reference in src/task/native-combat.mjs). The script natives 80:8D7F (move towards an
+// reference in proof/replay/native-combat.mjs). The script natives 80:8D7F (move towards an
 // object), 80:8D3F (jump towards an object) and 80:8D4E (jump towards a point of the
 // point list) use it (src/task/native-script-leaves.mjs).
 //

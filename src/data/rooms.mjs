@@ -1,4 +1,4 @@
-// Rooms (docs/ROM-FREE.md, step 2). 80:A4BF (src/task/main-transition.mjs)
+// Rooms (docs/ROM-FREE.md, step 2). 80:A4BF (proof/replay/main-transition.mjs)
 // takes entry n = 7E:2DE2 of the room table 8D:929D (498 entries of 9 bytes):
 // a header word, a byte to DP 11 (handed to 80:AAAF as the direction by
 // 80:A2FA) and the words x, y, z to DP 14, 17, 1A (start position for A2FA

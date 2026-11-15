@@ -1,6 +1,6 @@
 // The depth sort of the draw list (lifted from 80:AFFC with its depth rule comparisons
 // 80:B0A5 and 80:B0ED; register-level reference runDrawListSortPass in
-// src/task/native-scene-sprites.mjs).
+// proof/replay/native-scene-sprites.mjs).
 //
 // Each pass the draw list 7E:14B2 (last position in 7E:14B0) gets one bubble pass from
 // its end down to the first pair and, with more than two objects, one back up. A pair

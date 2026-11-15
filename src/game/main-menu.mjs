@@ -1,5 +1,5 @@
 // The main menu (lifted from 80:CE6D and the save menu 80:CDD6; register-level versions
-// in src/task/native-main-menu.mjs, which recorded waits and inputs replay).
+// in proof/replay/native-main-menu.mjs, which recorded waits and inputs replay).
 //
 // The main menu (80:CE6D) opens its window at 0A, 0A with 0C columns and five rows
 // (7E:1CED) with the menu 80:CEC3 (Exit, save, karma); the window is released before

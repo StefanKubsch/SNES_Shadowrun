@@ -5,7 +5,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { compareLift } from './lift-compare.mjs';
 import { INTRO_IGNORED_WRAM, INTRO_PLAN } from './live-intro-plan.mjs';
-import { playIntro } from '../src/task/main-scene.mjs';
+import { playIntro } from '../proof/replay/main-scene.mjs';
 import { handleIntroNmi } from '../src/intro/intro-scene.mjs';
 import { INTRO_REFERENCE_ROUTINES } from '../proof/intro-reference/intro-scene.mjs';
 import { INTRO_SETUP_REFERENCE_ENTRIES } from '../proof/intro-reference/intro-routines.mjs';

@@ -1,5 +1,5 @@
 // The party status (lifted from 80:ED3C, which the player control 80:E014 calls on
-// Select; register-level version in src/task/native-player-control.mjs).
+// Select; register-level version in proof/replay/native-player-control.mjs).
 //
 // The glove is put away (80:BCB2) and the notice windows released (80:FF79). A window
 // at 01, 01 with 1E columns opens (80:F963): five rows while only the leader takes part

@@ -12,7 +12,7 @@ import {
   MAIN_LOOP_RESUME,
   MAIN_LOOP_ROUND,
   MAIN_LOOP_ROUTINES,
-} from '../../src/vm/main-loop.mjs';
+} from './main-loop.mjs';
 import { WAIT_PAUSED } from '../../src/task/native-wait-continuation.mjs';
 import { finishInterruptObservations } from '../../src/task/main-wait-interrupt.mjs';
 import {
@@ -20,21 +20,21 @@ import {
   MAIN_START_ROUTINES,
   runMainStart,
   mainStartContinuation,
-} from '../../src/task/main-start.mjs';
+} from '../replay/main-start.mjs';
 import {
   FRONTEND_ROUTINES,
   runMainOwnerStart,
   mainOwnerContinuation,
   MAIN_OWNER_ENTRY,
   MAIN_OWNER_RESUME,
-} from '../../src/task/main-frontend.mjs';
+} from '../replay/main-frontend.mjs';
 import {
   MAIN_STARTUP_ENTRY,
   MAIN_STARTUP_ROUTINES,
   runMainStartup,
   MainStartupContinuation,
-} from '../../src/task/main-startup.mjs';
-import { runMainReset, runMainSoftwareReset } from '../../src/task/main-reset.mjs';
+} from '../replay/main-startup.mjs';
+import { runMainReset, runMainSoftwareReset } from '../replay/main-reset.mjs';
 import { NativeCallContinuation } from '../../src/task/native-call-continuation.mjs';
 import { BYTE_BITS, WORD_BITS, BANK_SIZE } from '../../src/constants/bits.mjs';
 import {

@@ -15,7 +15,7 @@
 // each round, but for sequence 5 the animation 81:D1F0 clears 01CA first
 // (STZ $01CA, ROM bytes 9C CA 01), so the ending's credits cannot be skipped
 // in the original. While the menu's credits run, CDF8 keeps the pad word of
-// its read at F298 for that check (src/task/main-scene.mjs).
+// its read at F298 for that check (proof/replay/main-scene.mjs).
 //
 // Music is a port addition as well. CDF8 starts no music for sequence 5 (its
 // entry in the music table 81:D3BF is FFFF, its sound set entry 81:D3CB is 0),

@@ -1,5 +1,5 @@
 // The karma menu of the main menu (lifted from 80:EE57, 80:EF82, 80:F006 and the lists
-// 80:F054, 80:F0F3 and 80:F1B5; register-level versions in src/task/native-main-menu.mjs,
+// 80:F054, 80:F0F3 and 80:F1B5; register-level versions in proof/replay/native-main-menu.mjs,
 // which recorded waits and inputs replay).
 //
 // The menu (80:EE57) releases the notice windows and puts the glove away, points DP F9

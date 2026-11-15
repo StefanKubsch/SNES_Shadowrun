@@ -1,6 +1,6 @@
 // The objects' motion pass of the main loop (lifted from 80:AFC4 with the collision
 // list 81:8799, its grid clear 81:80F7 and cell link 81:846E; register-level
-// reference in src/task/main-loop-motion.mjs).
+// reference in proof/replay/main-loop-motion.mjs).
 //
 // Each pass first rebuilds the moving part of the collision grid: every cell head of
 // the 16 x 16 grid starts empty, and each object on the draw list that takes part in

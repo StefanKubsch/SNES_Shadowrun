@@ -1,5 +1,5 @@
 // Waiting for a confirming key (lifted from the script native 80:F953; register-level
-// version in src/task/native-input-wait.mjs, which recorded waits and inputs replay):
+// version in proof/replay/native-input-wait.mjs, which recorded waits and inputs replay):
 // each frame the word wait 81:B0A1 and the newly pressed buttons 80:9E1A, until one of
 // B, Y, Select, A or X is pressed.
 import { nativeCallSequence } from '../task/native-call-continuation.mjs';

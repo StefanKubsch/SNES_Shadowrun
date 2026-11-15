@@ -8,7 +8,7 @@
 // calls, the return and the registers left must be equal.
 import { prng } from './task-native-dialog-harness.mjs';
 import { createSide, registerCases } from './lift-function-harness.mjs';
-import { e9c5Sequence } from '../src/task/native-member-spell-menu.mjs';
+import { e9c5Sequence } from '../proof/replay/native-member-spell-menu.mjs';
 import { equipmentRowsSequence } from '../src/game/equipment-window.mjs';
 import {
   JAKE_DERMAL_ARMOUR,

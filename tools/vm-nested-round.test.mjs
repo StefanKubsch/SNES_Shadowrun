@@ -1,7 +1,7 @@
-// Themenaktion des Dialogs ($9178 ab $91CA): Task anhängen ($C34A) und sofort besuchen ($C1CA) als
-// verschachtelte Schedulerrunde aus dem Native. Vergleich: dieselben Schritte direkt auf dem TaskScheduler
-// (JSR-Rahmen von $91D1/$91D4 gepusht). Geprüft wird die Verbindung zwischen Native und Scheduler
-// (Register hin und zurück, gesicherter Accessor, Natives in der Runde); C34A und C1CA haben eigene Beweise.
+// Dialog topic action ($9178 from $91CA): append a task ($C34A) and visit it immediately ($C1CA) as a
+// nested scheduler round from the native. Compare with the same steps directly on TaskScheduler
+// (JSR frames pushed from $91D1/$91D4). This checks the connection between native and scheduler
+// (registers in both directions, saved accessor, natives during the round); C34A and C1CA have separate proofs.
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { VmMemory, WRAM_SIZE } from '../src/vm/memory.mjs';
@@ -10,14 +10,14 @@ import { TaskScheduler, STOP_RETURNED } from '../proof/vm/scheduler.mjs';
 import { NativeCalls } from '../proof/vm/native-call.mjs';
 import { NATIVE_POINTERS } from '../src/vm/layout.mjs';
 import { ObservedDevices, observationSet } from '../proof/vm/observed-devices.mjs';
-import { SPECIAL_NATIVES } from '../src/vm/special-natives.mjs';
+import { SPECIAL_NATIVES } from '../proof/vm/special-natives.mjs';
 import { nativeOpcodeTargets } from '../src/task/native-opcode-targets.mjs';
 import { nativeTarget } from '../src/task/native-targets.mjs';
 import { dialogAccess } from '../src/task/native-dialog-support.mjs';
 import { dialogTextRoutines, dialogTopicSequence } from '../src/task/native-dialog-text.mjs';
 import { NativeCallContinuation } from '../src/task/native-call-continuation.mjs';
 import { WAIT_PAUSED } from '../src/task/native-wait-continuation.mjs';
-import { WEAPON_MENU_ROUTINES } from '../src/task/native-member-spell-menu.mjs';
+import { WEAPON_MENU_ROUTINES } from '../proof/replay/native-member-spell-menu.mjs';
 import { prng, rom } from './vm-differential.mjs';
 import { randomFeed } from './vm-special-natives-differential.mjs';
 
@@ -25,8 +25,8 @@ const romBytes = new Uint8Array(rom.buffer, rom.byteOffset, rom.length);
 const romByte = (address) => rom[(((address >>> 16) & 0x7f) << 15) | (address & 0x7fff)];
 const romWord = (address) => romByte(address) | (romByte(address + 1) << 8);
 
-// Aktionsscripts aller Dialogdatensätze (Tabelle 80:94F7, Bank 8D) wie $9178 sie liest: Schlüssel, Länge,
-// Flagbyte (Bit 7 Aktion, Low-Nibble Zahl der Themen-IDs), IDs, Aktionswort, Textwort; Ende F8.
+// Action scripts for dialog records (table 80:94F7, bank 8D) as read by $9178: key, length,
+// flag byte (bit 7 action, low nibble is the number of topic IDs), IDs, action word, text word; terminator F8.
 export function dialogActionScripts(dialogs = 0x89) {
   const scripts = new Set();
   for (let id = 0; id < dialogs; id++) {
@@ -89,7 +89,7 @@ const natives = (vm, sets) =>
     devices: new ObservedDevices(sets.map((set) => observationSet(set.target, set))),
   });
 
-// Native-Seite: Themenaktion über die Dialogroutinen mit der Runde von NativeCalls.
+// Native side: topic action through the dialog routines with the NativeCalls round.
 const topic = (h, events) => dialogTextRoutines(events).topic(h);
 function viaNative(state, sets, action = topic) {
   const vm = fresh(state);
@@ -117,7 +117,7 @@ function viaNative(state, sets, action = topic) {
   accessor.store();
   return { vm, fault: null };
 }
-// Vergleich: LDA [11],Y / TAX / LDA $26 / STA $00 / JSR $C34A / JSR $C1CA direkt auf dem Scheduler.
+// Comparison: LDA [11],Y / TAX / LDA $26 / STA $00 / JSR $C34A / JSR $C1CA directly on the scheduler.
 const topicSteps = (vm) => {
   vm.x = vm.mem.read16(RECORD + vm.y);
   vm.a = vm.mem.read16Bank0(0x26);
@@ -143,7 +143,7 @@ function viaScheduler(state, sets, steps = topicSteps) {
   }
 }
 
-// Beobachtungen nach Bedarf (wie runObserved): Spezialnative ohne Satz in der Runde, Gerätelesungen, Warten.
+// Observations as needed (like runObserved): special native without a set during the round, device reads, waits.
 function observe(state, rnd, action = topic) {
   const sets = [],
     feed = randomFeed(rnd);
@@ -189,10 +189,10 @@ function observe(state, rnd, action = topic) {
     }
     return { sets, run };
   }
-  throw Error('Beobachtungen ohne Ende');
+  throw Error('Observations did not terminate');
 }
 
-// Native gegen Scheduler für eine Liste von Scripts; returnPc ist die PC nach dem JSR $C1CA.
+// Native against scheduler for a list of scripts; returnPc is the PC after JSR $C1CA.
 function compareRounds(scripts, seeds, action, steps, returnPc) {
   const tally = {};
   for (const script of scripts)
@@ -208,7 +208,7 @@ function compareRounds(scripts, seeds, action, steps, returnPc) {
           : run.fault.reason === 'nested_round_stop'
             ? 'stop-' + run.fault.details.stop
             : 'fault';
-      // Fehler im Inneren der Runde (Natives auf Zufallsdaten): beide Seiten gleich.
+      // Errors inside the round (natives on random data): both sides match.
       if (outcome === 'fault')
         assert.equal(
           String(ref.error?.reason ?? ref.error?.message),
@@ -234,7 +234,7 @@ function compareRounds(scripts, seeds, action, steps, returnPc) {
   return tally;
 }
 
-test('Themenaktion: Runde aus dem Native gleicht C34A und C1CA direkt auf dem Scheduler', () => {
+test('Topic action: native round matches direct C34A and C1CA on the scheduler', () => {
   const scripts = dialogActionScripts();
   assert.ok(scripts.length >= 50, `${scripts.length} Aktionsscripts`);
   const tally = compareRounds(
@@ -250,9 +250,9 @@ test('Themenaktion: Runde aus dem Native gleicht C34A und C1CA direkt auf dem Sc
   );
 });
 
-// Dieselbe Themenaktion als Fortsetzung in Stücken von 40 Opcodes: C1CA als pausierbare Runde
-// (NativeCalls.nestedRound) pausiert zwischen den Stücken und endet wie der Schedulerlauf.
-test('Themenaktion: pausierbare Runde in kleinen Budgets gleicht C34A und C1CA direkt auf dem Scheduler', () => {
+// The same topic action as a continuation in chunks of 40 opcodes: C1CA as a pausable round
+// (NativeCalls.nestedRound) pauses between chunks and finishes like the scheduler run.
+test('Topic action: pausable round in small budgets matches direct C34A and C1CA on the scheduler', () => {
   let pauses = 0;
   const paused = () => (h, events) => {
     const continuation = new NativeCallContinuation(h.a, dialogTopicSequence(h, events));
@@ -262,11 +262,11 @@ test('Themenaktion: pausierbare Runde in kleinen Budgets gleicht C34A und C1CA d
   assert.ok(tally.returned >= 15 && pauses >= 100, JSON.stringify({ ...tally, pauses }));
 });
 
-// Waffenmenü $E693 (Native01/F254): Script $1E2D nach X, Argument $1E3D nach DP00, JSR $C34A an $E788,
-// STZ $1F58, JSR $C1CA an $E78E über die Routinen von WEAPON_MENU_ROUTINES. Scripts aus der Spalte $E804.
+// Weapon menu $E693 (Native01/F254): script $1E2D to X, argument $1E3D to DP00, JSR $C34A at $E788,
+// STZ $1F58, JSR $C1CA at $E78E through WEAPON_MENU_ROUTINES. Scripts from column $E804.
 const WEAPON_SCRIPTS = [6, 7, 8, 9, 10, 11].map((y) => romWord(0x80e804 + 2 * y));
 const weaponArgument = (script) => 1 + (script % 5);
-test('Waffenmenü: Runde aus F254 gleicht C34A und C1CA direkt auf dem Scheduler', () => {
+test('Weapon menu: F254 round matches direct C34A and C1CA on the scheduler', () => {
   assert.deepEqual(WEAPON_SCRIPTS, [0x2d9, 0x20c, 0x77, 0x1fc, 0x205, 0x37]);
   const action = (script) => (h, events) => {
     h.index('x', script);
@@ -282,14 +282,14 @@ test('Waffenmenü: Runde aus F254 gleicht C34A und C1CA direkt auf dem Scheduler
     return [0xe78a, { after: (vm2) => vm2.mem.write16(0x801f58, 0), pc: 0xe790 }];
   };
   const tally = compareRounds(WEAPON_SCRIPTS, 6, action, steps, 0xe791);
-  // Die meisten Scripts laufen auf den Zufallsdaten in einen gleichen Fehler innerhalb der Runde.
+  // Most scripts hit the same error inside the round on random data.
   assert.ok(
     tally.returned >= 3 && tally.nestedNatives >= 20 && tally.nestedSpecial >= 10,
     JSON.stringify(tally),
   );
 });
 
-test('Themenaktion ohne Runde bleibt eine benannte Grenze', () => {
+test('Topic action without a round remains an explicit boundary', () => {
   const state = scenario(prng(1), 0x396),
     vm = fresh(state);
   vm.natives = natives(vm, []);

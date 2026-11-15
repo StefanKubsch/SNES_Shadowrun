@@ -9,30 +9,30 @@ import {
   runTaskNativeInputWaitOpcode,
   prepareTaskNativeOpcodeF953,
 } from '../proof/task/native-input-wait-opcode.mjs';
-import { GAME_NMI_ROUTINES } from '../src/task/main-game-nmi.mjs';
+import { GAME_NMI_ROUTINES } from '../proof/replay/main-game-nmi.mjs';
 import {
   finishInterruptObservations,
   waitForRandomStateChangeWithInterrupts,
 } from '../src/task/main-wait-interrupt.mjs';
-import { withInterruptEvents } from '../src/task/observed-native-events.mjs';
-import { SPECIAL_NATIVES } from '../src/vm/special-natives.mjs';
+import { withInterruptEvents } from '../proof/replay/observed-native-events.mjs';
+import { SPECIAL_NATIVES } from '../proof/vm/special-natives.mjs';
 import { DialogTestMemory, rom } from './task-native-dialog-harness.mjs';
 import { taskFEC1Fixture } from './task-native-fec1-fixtures.mjs';
 import { textDma } from './main-dma-readback-fixtures.mjs';
-import { showNotice, showNoticeObserved } from '../src/task/native-notice.mjs';
+import { showNotice, showNoticeObserved } from '../proof/replay/native-notice.mjs';
 import {
   releaseNoticeWindows,
   releaseNoticeWindowsObserved,
-} from '../src/task/native-slot-release.mjs';
+} from '../proof/replay/native-slot-release.mjs';
 import {
   redrawWindowList,
   redrawWindowListObserved,
-} from '../src/task/native-window-list-redraw.mjs';
-import { releaseGlove, releaseGloveObserved } from '../src/task/native-glove-release.mjs';
+} from '../proof/replay/native-window-list-redraw.mjs';
+import { releaseGlove, releaseGloveObserved } from '../proof/replay/native-glove-release.mjs';
 import {
   restoreAllRunners,
   restoreAllRunnersObserved,
-} from '../src/task/native-runners-restore.mjs';
+} from '../proof/replay/native-runners-restore.mjs';
 
 const freeze = (rows) => Object.freeze(rows.map((o) => Object.freeze({ ...o })));
 const counter = (nmi = true) => [

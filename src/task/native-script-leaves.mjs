@@ -6,7 +6,7 @@
 // Register-level references: proof/game-reference/fight-list-append.mjs,
 // proof/apu-reference/sound-stereo.mjs, src/task/native-audio-compose.mjs (80:C46E) and
 // src/task/native-random.mjs (80:C51F, 80:C560), which register-level callers still use,
-// proof/game-reference/enemy-target-choice.mjs (80:8BC5) and src/task/native-combat.mjs (80:8C08,
+// proof/game-reference/enemy-target-choice.mjs (80:8BC5) and proof/replay/native-combat.mjs (80:8C08,
 // 80:8C8D, 80:8CCF, 80:8D7F, 80:8D3F, 80:8D4E).
 import { FIRST_ARGUMENT, SECOND_ARGUMENT, finishLeaf } from './native-leaf-support.mjs';
 import { taskStop } from './plan.mjs';

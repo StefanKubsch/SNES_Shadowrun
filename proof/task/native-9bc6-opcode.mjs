@@ -7,8 +7,8 @@ import { runTaskNativeResume } from './native-resume.mjs';
 import {
   chooseObjectNumberWithGloveObserved,
   validateGloveTaskOptions,
-} from '../../src/task/native-glove-target.mjs';
-import { fec1Registers } from '../../src/task/native-notice.mjs';
+} from '../replay/native-glove-target.mjs';
+import { fec1Registers } from '../replay/native-notice.mjs';
 // Devices of 9BC6: the window, text and list family of FEC1 (arithmetic unit and wait loops); no own I/O.
 export const native9BC6Devices = fec1Registers;
 // One individually proved Native58/D8 call through 9BC6 (no argument, result word DP00).

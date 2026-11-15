@@ -1,5 +1,5 @@
 // The nuyen payment and the actors' state holders (lifted from the script natives
-// 80:CD20 and 80:CBF7; register-level versions in src/task/native-modal.mjs, which the
+// 80:CD20 and 80:CBF7; register-level versions in proof/replay/native-modal.mjs, which the
 // proofs keep using). The natives' bridges are in src/task/native-script-leaves.mjs.
 //
 // The nuyen are a 32-bit count, its low word first. An actor's entry in the actor table

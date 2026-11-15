@@ -1,5 +1,5 @@
 // The Yes/No question (lifted from the script native 80:CD43; register-level version in
-// src/task/native-modal.mjs, which recorded waits replay).
+// proof/replay/native-modal.mjs, which recorded waits replay).
 //
 // A window of six columns and four rows opens at the caller's place (the direct page
 // words 02 and 04; the text language may widen it, src/data/menu-layout.mjs) and the

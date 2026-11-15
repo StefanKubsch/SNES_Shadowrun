@@ -1,6 +1,6 @@
 // The item submenu of the status screen (lifted from 80:E572, 80:E577 and 80:E57F with
 // 80:E585, and the item's use 80:E4F3; register-level versions in
-// src/task/native-status-screen.mjs).
+// proof/replay/native-status-screen.mjs).
 //
 // The entries choose the item class (1F66: 0, 1 or 2). The list after Exit holds every
 // actor of the actor table (80:8DB01F, seven bytes each, from the last down) that the

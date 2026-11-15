@@ -1,5 +1,5 @@
-import { taskStop } from './plan.mjs';
-import { stepObjectAnimation } from './native-scene-tiles.mjs';
+import { taskStop } from '../../src/task/plan.mjs';
+import { stepObjectAnimation } from '../../src/task/native-scene-tiles.mjs';
 import {
   testUpperXEdge,
   testLowerXEdge,
@@ -9,7 +9,7 @@ import {
 } from './main-motion-collision.mjs';
 import { moveObjectTowardsTarget } from './main-motion-target.mjs';
 import { playCutscene, playMatrixScene } from './main-scene.mjs';
-import { setUpGameScreenRoutine } from './main-initialize.mjs';
+import { setUpGameScreenRoutine } from '../../src/task/main-initialize.mjs';
 import { enterRoom, forceBlank } from './main-transition.mjs';
 import { MAIN_UPKEEP_ROUTINES } from './main-loop-upkeep.mjs';
 
@@ -51,10 +51,10 @@ import {
   OBJECT_Y,
   STATIC_NODE_END,
   WRAM,
-} from './wram.mjs';
-import { WORD_MASK } from '../constants/bits.mjs';
-import { WRAM_BANK_PAIR } from '../constants/memory-map.mjs';
-import { FLAG_ZERO, FLAG_CARRY, FLAG_NEGATIVE } from '../constants/cpu-flags.mjs';
+} from '../../src/task/wram.mjs';
+import { WORD_MASK } from '../../src/constants/bits.mjs';
+import { WRAM_BANK_PAIR } from '../../src/constants/memory-map.mjs';
+import { FLAG_ZERO, FLAG_CARRY, FLAG_NEGATIVE } from '../../src/constants/cpu-flags.mjs';
 // Routines between the scheduler rounds. h accesses the shared VM WRAM directly.
 // The scene sequences use their jointly bound helper graphs.
 // Unbound calls stop before their return frame; there is no assumed return value.

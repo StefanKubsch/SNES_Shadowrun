@@ -14,7 +14,7 @@
 import { prng } from './task-native-dialog-harness.mjs';
 import { createSide, registerCases } from './lift-function-harness.mjs';
 import { uploadEvents, windowMapSource, windowTables } from './lift-window-samples.mjs';
-import { MAIN_START_ROUTINES } from '../src/task/main-start.mjs';
+import { MAIN_START_ROUTINES } from '../proof/replay/main-start.mjs';
 import { GAME_START_REFERENCE_ENTRIES } from '../proof/game-reference/game-start.mjs';
 import { GAME_SCREEN_REFERENCE_ENTRIES } from '../proof/game-reference/game-screen.mjs';
 import { ROOM_ENTRY_REFERENCE_ENTRIES } from '../proof/game-reference/room-entry.mjs';

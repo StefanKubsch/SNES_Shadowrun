@@ -12,7 +12,7 @@
 // an object and leader outside the group stop both sides alike.
 import { DialogTestMemory, prng } from './task-native-dialog-harness.mjs';
 import { createSide, registerCases } from './lift-function-harness.mjs';
-import { statusRoutineSequence } from '../src/task/native-status-screen.mjs';
+import { statusRoutineSequence } from '../proof/replay/native-status-screen.mjs';
 import {
   ITEMS_ENTRY,
   NATIVE_ENTRY,
