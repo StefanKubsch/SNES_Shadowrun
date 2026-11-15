@@ -6,7 +6,11 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { compareLift } from './lift-compare.mjs';
 import { TITLE_CYCLE_IGNORED_WRAM, TITLE_CYCLE_PLANS } from './live-title-cycle-plan.mjs';
-import { playAttractDemo, runAttractGame, runTitleCycle } from '../src/frontend/title-cycle.mjs';
+import {
+  playAttractDemo,
+  runAttractGame,
+  runTitleCycle,
+} from '../proof/frontend-caller/title-cycle.mjs';
 import { TITLE_CYCLE_REFERENCE_ENTRIES } from '../proof/frontend-reference/title-cycle.mjs';
 
 const lifted = [runTitleCycle, runAttractGame, playAttractDemo],

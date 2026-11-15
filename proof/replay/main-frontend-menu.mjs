@@ -8,7 +8,7 @@ import {
   runAttractGame,
   runTitleCycle,
   titleCycleSequence,
-} from '../../src/frontend/title-cycle.mjs';
+} from '../frontend-caller/title-cycle.mjs';
 
 // 81:E14A: the start menu (src/frontend/start-menu.mjs).
 export function openStartMenu(h, e, r = FRONTEND_MENU_ROUTINES) {

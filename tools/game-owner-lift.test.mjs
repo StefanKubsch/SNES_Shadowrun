@@ -9,7 +9,7 @@ import assert from 'node:assert/strict';
 import { compareLift } from './lift-compare.mjs';
 import { TITLE_CYCLE_PLANS } from './live-title-cycle-plan.mjs';
 import { START_MENU_IGNORED_WRAM } from './live-start-menu-plan.mjs';
-import { runGameOwner } from '../src/frontend/game-owner.mjs';
+import { runGameOwner } from '../proof/frontend-caller/game-owner.mjs';
 import { GAME_OWNER_REFERENCE_ENTRIES } from '../proof/frontend-reference/game-owner.mjs';
 
 const lifted = [runGameOwner],

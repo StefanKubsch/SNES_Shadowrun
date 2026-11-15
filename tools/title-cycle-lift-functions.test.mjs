@@ -17,7 +17,11 @@ import {
   TITLE_CYCLE_REFERENCE_ENTRIES,
   playAttractGame as referenceAttractDemo,
 } from '../proof/frontend-reference/title-cycle.mjs';
-import { playAttractDemo, runAttractGame, runTitleCycle } from '../src/frontend/title-cycle.mjs';
+import {
+  playAttractDemo,
+  runAttractGame,
+  runTitleCycle,
+} from '../proof/frontend-caller/title-cycle.mjs';
 
 const WRAM_BYTES = 0x20000,
   MUSIC = 0x1cde,

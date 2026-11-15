@@ -15,13 +15,13 @@ import { runTileBuffers } from '../../src/game/main-upkeep.mjs';
 import { dialogCallBody } from '../../src/system/native-call-continuation.mjs';
 import { lagFree } from '../../src/system/main-wait-interrupt.mjs';
 import { frontendContinuations } from './main-frontend-text.mjs';
-import { playAttractDemo } from '../../src/frontend/title-cycle.mjs';
+import { playAttractDemo } from '../frontend-caller/title-cycle.mjs';
 import {
   GAME_OWNER_ENTRY,
   GAME_OWNER_RESUME,
   gameOwnerSequence,
   runGameOwner,
-} from '../../src/frontend/game-owner.mjs';
+} from '../frontend-caller/game-owner.mjs';
 import { WORD_MASK } from '../../src/constants/bits.mjs';
 import { CODE_BANK_BASE } from '../../src/constants/memory-map.mjs';
 // The attract game's rounds run through the main round 80:C1E3.

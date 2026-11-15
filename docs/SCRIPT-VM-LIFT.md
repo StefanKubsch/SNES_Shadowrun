@@ -397,8 +397,41 @@ registerLevelLoop})`); the observed rooms and boot replays keep the driver direc
   unchanged reference software reset on populated state. The existing game-loop
   comparisons retain the benchmark, badge and attract-demo routes.
 - The software reset itself remains reference code; this block checks its resulting
-  startup state and does not add a software-reset entry to the live game. The owner,
-  title cycle and main-loop caller tables remain to be simplified in later groups.
+  startup state and does not add a software-reset entry to the live game. At this
+  boundary, the owner, title cycle and main-loop caller tables remained for later groups.
+
+## Phase 8, owner and title-cycle composition (2026-11-15)
+
+- [game-owner.mjs](../src/frontend/game-owner.mjs) calls the title cycle directly.
+  [title-cycle.mjs](../src/frontend/title-cycle.mjs) directly composes the title,
+  start menu, attract game, demo owner and new-game setup. The demo enters the room
+  and runs its rounds through [attract-rounds.mjs](../src/frontend/attract-rounds.mjs),
+  extracted from the former frontend adapter. These calls no longer select a routine
+  or continuation factory by ROM address.
+- The original call frames and return checks remain for shared register and NMI
+  consumers. The credits cutscene and music-stop calls retain their shared adapters;
+  the main game start, main-loop routine table and lower scene/audio helpers remain
+  later groups. Save data, sound behavior and lag-free frames are unchanged.
+- The former callers live in [proof/frontend-caller/](../proof/frontend-caller/).
+  Recorded replays bind those retained callers, while the register-level live loop
+  uses [live-frontend.mjs](../proof/script/live-frontend.mjs) and
+  [live-frontend-menu.mjs](../proof/script/live-frontend-menu.mjs). Existing per-function
+  and register-level lift comparisons continue to test that independent path.
+  Title and start-menu table wrappers now belong only to proof; the live NMI table
+  inherits the shared text helpers directly. Its proof counterpart binds the same
+  wrapper identities as the existing title/menu lift comparisons, so their reference
+  swaps also reach the retained live table.
+- [main-owner-caller.test.mjs](../tools/main-owner-caller.test.mjs) compares the old
+  dispatched callers with the direct callers on the same JS scheduler and devices.
+  Five input sessions cover the whole title, interrupted title, menu timeouts,
+  repeated attract demos, menu credits, New Game and a saved game, at work budgets
+  of one and seven. Every NMI and each owner boundary compares full WRAM including
+  stack bytes, SRAM, CPU context, PPU memories/registers/scroll, PPU write count and
+  sound RAM, with no scratch masks.
+- Each session also enters the selected game, runs its first main-loop round and
+  requests an exit through the loop's actual RTS to A157 before selecting another
+  game from the resumed menu. The exit request is a test fixture; this does not
+  establish a new game-over story route or resolve the reported menu-audio issues.
 
 ## Open points
 

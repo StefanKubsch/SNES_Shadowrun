@@ -5,7 +5,8 @@
 // audio and enters the game's main start 80:9688 with the original JSR frame of
 // 80:A154. When the game ends, the main loop returns to 80:A157 and the owner starts
 // the cycle again without the title.
-import { nativeCallSequence, drainNativeSequence } from '../system/native-call-continuation.mjs';
+import { dialogCallBody } from '../system/native-call-continuation.mjs';
+import { titleCycleSequence } from './title-cycle.mjs';
 import { taskStop } from '../system/task-stop.mjs';
 import { sceneRuntime } from '../system/scene-runtime.mjs';
 import { setUpGameAudio } from '../intro/intro-scene.mjs';
@@ -57,7 +58,9 @@ export function* gameOwnerSequence(h, events, routines) {
     // The cycle keeps the music on and restores it after the attract game.
     setWord(wram, GAME_OPTIONS, OPTION_MUSIC | OPTION_MUSIC_RESTORE);
   };
-  yield* nativeCallSequence(h, events, routines, TITLE_CYCLE_SITE, TITLE_CYCLE);
+  yield* dialogCallBody(h, TITLE_CYCLE_SITE, TITLE_CYCLE, () =>
+    titleCycleSequence(h, events, routines),
+  );
   yield () => {
     setWord(wram, CHOICE, ctx.a);
     // The game plays music as the saved setting says.
@@ -71,8 +74,4 @@ export function* gameOwnerSequence(h, events, routines) {
     ctx.pc = MAIN_START;
   };
   return ctx.pc;
-}
-
-export function runGameOwner(h, e, r) {
-  return drainNativeSequence(gameOwnerSequence(h, e, r));
 }

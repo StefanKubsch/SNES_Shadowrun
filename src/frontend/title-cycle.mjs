@@ -6,7 +6,15 @@
 // that times out plays the attract game, a demo of the game in room AB, and shows
 // the menu again. The port's Credits row (src/game/credits.mjs) plays the credits
 // instead of the attract game.
-import { nativeCallSequence, drainNativeSequence } from '../system/native-call-continuation.mjs';
+import {
+  nativeCallSequence,
+  dialogCallBody,
+  segmentSequence,
+} from '../system/native-call-continuation.mjs';
+import { titleSequence } from './title.mjs';
+import { startMenuSequence } from './start-menu.mjs';
+import { attractRoundsSequence } from './attract-rounds.mjs';
+import { runNewGame } from '../game/game-start.mjs';
 import { sceneRuntime } from '../system/scene-runtime.mjs';
 import { startSceneScreen } from '../system/nmi.mjs';
 import { loadSoundDirectory, setMusicMode, startSong } from '../apu/music-mode.mjs';
@@ -65,13 +73,13 @@ export function* titleCycleSequence(h, events, routines) {
   const { ctx } = h,
     status = ctx.status,
     afterGame = (ctx.a & WORD_MASK) === 0,
-    call = (site, target, long = true) =>
-      nativeCallSequence(h, events, routines, site, target, long);
+    call = (site, target, sequence, long = true) =>
+      dialogCallBody(h, site, target, () => sequence(h, events, routines), long);
   let m;
   // The menu times out sooner right after the whole title (A nonzero).
   const menu = function* (site, shortTimeout) {
     ctx.a = shortTimeout ? 1 : 0;
-    yield* call(site, START_MENU);
+    yield* call(site, START_MENU, startMenuSequence);
     return ctx.a & WORD_MASK;
   };
   yield () => {
@@ -90,7 +98,7 @@ export function* titleCycleSequence(h, events, routines) {
     choice = yield* menu(MENU_AGAIN_SITE, false);
     titleNext = true;
   } else {
-    yield* call(TITLE_SITE, TITLE);
+    yield* call(TITLE_SITE, TITLE, titleSequence);
     // The title returns 0 after the whole title, 1 when a button ended it.
     const wholeTitle = (ctx.a & BYTE_MASK) === 0;
     choice = yield* menu(wholeTitle ? MENU_AFTER_TITLE_SITE : MENU_SITE, wholeTitle);
@@ -104,11 +112,11 @@ export function* titleCycleSequence(h, events, routines) {
       choice = yield* menu(MENU_AGAIN_SITE, false);
       titleNext = true;
     } else if (titleNext) {
-      yield* call(TITLE_AGAIN_SITE, TITLE);
+      yield* call(TITLE_AGAIN_SITE, TITLE, titleSequence);
       choice = yield* menu(MENU_SITE, false);
       titleNext = false;
     } else {
-      yield* call(ATTRACT_SITE, ATTRACT_GAME, false);
+      yield* call(ATTRACT_SITE, ATTRACT_GAME, attractGameSequence, false);
       choice = yield* menu(MENU_AGAIN_SITE, false);
       titleNext = true;
     }
@@ -164,7 +172,13 @@ export function* attractGameSequence(h, events, routines) {
     setUpGameAudio(m);
     ctx.bank = CODE_BANK;
   };
-  yield* nativeCallSequence(h, events, routines, ATTRACT_OWNER_SITE, ATTRACT_OWNER, true);
+  yield* dialogCallBody(
+    h,
+    ATTRACT_OWNER_SITE,
+    ATTRACT_OWNER,
+    () => attractDemoSequence(h, events, routines),
+    true,
+  );
   let result;
   yield () => {
     startSceneScreen(m.wram, m.video, m.port);
@@ -185,25 +199,16 @@ export function* attractDemoSequence(h, events, routines) {
     ctx.bank = CODE_BANK;
     setWord(h.a.mem.wram, TIMER, TIMER_STOPPED);
   };
-  yield* nativeCallSequence(h, events, routines, NEW_GAME_SITE, NEW_GAME);
+  yield* dialogCallBody(h, NEW_GAME_SITE, NEW_GAME, () => segmentSequence(() => runNewGame(h)));
   yield () => {
     ctx.a = ATTRACT_ROOM;
   };
-  yield* nativeCallSequence(h, events, routines, START_ROOM_SITE, START_ROOM);
+  yield* dialogCallBody(h, START_ROOM_SITE, START_ROOM, () =>
+    attractRoundsSequence(h, events, routines),
+  );
   let result;
   yield () => {
     result = h.rtl();
   };
   return result;
-}
-
-// Run wrappers for the routine tables.
-export function runTitleCycle(h, e, r) {
-  return drainNativeSequence(titleCycleSequence(h, e, r));
-}
-export function runAttractGame(h, e, r) {
-  return drainNativeSequence(attractGameSequence(h, e, r));
-}
-export function playAttractDemo(h, e, r) {
-  return drainNativeSequence(attractDemoSequence(h, e, r));
 }
