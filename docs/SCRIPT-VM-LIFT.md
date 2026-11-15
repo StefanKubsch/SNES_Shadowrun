@@ -450,6 +450,20 @@ registerLevelLoop})`); the observed rooms and boot replays keep the driver direc
   this adds no game-over route evidence. Details in
   [GAME-START-LIFT.md](GAME-START-LIFT.md) and [MAIN-LOOP-LIFT.md](MAIN-LOOP-LIFT.md).
 
+## Phase 9, room entry and scene transition composition (2026-11-15)
+
+- The live room entry uses direct composition without recorded-interrupt branches
+  or a caller routine table. The scene request directly composes the cutscene,
+  matrix and room entry, retaining the shared call frames for nested waits.
+- The previous room, scene-request and game-start composition remains in
+  proof/caller/. Recorded drivers and existing reference comparisons use it.
+  Lower helper tables, saves and the lag-free frame model remain unchanged.
+- [transition-caller.test.mjs](../tools/transition-caller.test.mjs) checks the old
+  and direct transitions on the JS scheduler, frame by frame at budgets one and
+  seven, for room changes, cutscenes and matrix entry/return. Contracts:
+  [ROOM-ENTRY-LIFT.md](ROOM-ENTRY-LIFT.md) and
+  [SCENE-REQUEST-LIFT.md](SCENE-REQUEST-LIFT.md).
+
 ## Open points
 
 - Opcode use (2026-11-14, the decoded corpus analysis/event-scripts.txt of

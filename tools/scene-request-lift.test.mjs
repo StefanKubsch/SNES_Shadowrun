@@ -16,7 +16,7 @@ import assert from 'node:assert/strict';
 import { compareLift } from './lift-compare.mjs';
 import { IGNORED_WRAM as MATRIX_IGNORED_WRAM, PLAN as MATRIX_PLAN } from './live-matrix-plan.mjs';
 import { CUTSCENE_IGNORED_WRAM, CUTSCENE_PLAN } from './live-cutscene-plan.mjs';
-import { processSceneRequest } from '../src/game/scene-request.mjs';
+import { processSceneRequest } from '../proof/caller/scene-request.mjs';
 import { enterRoom } from '../proof/replay/main-transition.mjs';
 import { MAIN_INITIALIZE_ROUTINES } from '../src/system/main-initialize.mjs';
 import { SCENE_REQUEST_REFERENCE_ENTRIES } from '../proof/game-reference/scene-request.mjs';

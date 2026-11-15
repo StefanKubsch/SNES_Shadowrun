@@ -20,11 +20,11 @@ import {
   NativeCallContinuation,
   NATIVE_CALL_CONTINUATIONS,
   drainNativeSequence,
-  nativeCallSequence,
+  dialogCallBody,
 } from '../system/native-call-continuation.mjs';
-import { TRANSITION_ROUTINES } from '../system/main-transition.mjs';
-import { playCutscene, playMatrixScene } from '../system/main-scene.mjs';
-import { MAIN_UPKEEP_ROUTINES } from '../system/main-loop-upkeep.mjs';
+import { MAIN_SCENE_ROUTINES } from '../system/main-scene.mjs';
+import { cutsceneSequence } from '../cutscene/cutscene-scene.mjs';
+import { matrixSceneSequence } from '../matrix/matrix-scene.mjs';
 import { sceneRuntime } from '../system/scene-runtime.mjs';
 import { setUpGameScreen } from './game-screen.mjs';
 import { enterRoomSequence, forceBlank, waitForFrameCall } from './room-entry.mjs';
@@ -52,30 +52,17 @@ const FRAME_WAIT_SITE = 0xcc5c,
 const PLAY_CUTSCENE = 0x81cdf8,
   PLAY_MATRIX = 0x81c3ca;
 
-// The routines the request calls through their frames: the scenes, and the
-// register-level frame wait for recorded interrupt observations.
-export const SCENE_REQUEST_ROUTINES = new Map([
-  [PLAY_CUTSCENE, playCutscene],
-  [PLAY_MATRIX, playMatrixScene],
-  [0x81b0a1, MAIN_UPKEEP_ROUTINES.get(0x81b0a1)],
-]);
-
 const word = (wram, at) => wram[at] | (wram[at + 1] << BYTE_BITS);
 const setWord = (wram, at, value) => {
   wram[at] = value & BYTE_MASK;
   wram[at + 1] = (value >>> BYTE_BITS) & BYTE_MASK;
 };
 
-// 80:CC4B, a sequence for a native call continuation: h is the accessor of the main
-// loop, events its frame events, routines the table that holds the scenes. Returns
-// with the carry set when a request was taken.
-export function* sceneRequestSequence(h, events, routines = SCENE_REQUEST_ROUTINES) {
+// 80:CC4B: compose the live scenes and room directly. Carry reports whether a
+// request was taken; the main caller restarts its pass after a transition.
+export function* sceneRequestSequence(h, events) {
   const { ctx } = h,
-    m = sceneRuntime(h),
-    { wram } = m,
-    // The callees use their own routine tables, as in the main loop.
-    call = (site, target, long = false) =>
-      nativeCallSequence(h, events, routines, site, target, long, false);
+    { wram } = sceneRuntime(h);
   const request = word(wram, SCENE_REQUEST);
   let result;
   if (request === SCENE_REQUEST_NONE) {
@@ -88,7 +75,7 @@ export function* sceneRequestSequence(h, events, routines = SCENE_REQUEST_ROUTIN
   }
   if (request !== SCENE_REQUEST_ROOM_ONLY) {
     yield () => forceBlank(wram);
-    yield* waitForFrameCall(h, events, call, FRAME_WAIT_SITE);
+    yield* waitForFrameCall(h, events, FRAME_WAIT_SITE);
     // The scene takes the request, read again after the wait, in A and its argument
     // in X.
     let scene;
@@ -97,9 +84,22 @@ export function* sceneRequestSequence(h, events, routines = SCENE_REQUEST_ROUTIN
       ctx.a = scene;
       ctx.x = word(wram, SCENE_REQUEST_ARGUMENT);
     };
-    if (scene !== SCENE_REQUEST_MATRIX) yield* call(CUTSCENE_SITE, PLAY_CUTSCENE, true);
+    if (scene !== SCENE_REQUEST_MATRIX)
+      yield* dialogCallBody(
+        h,
+        CUTSCENE_SITE,
+        PLAY_CUTSCENE,
+        () => cutsceneSequence(h, events, MAIN_SCENE_ROUTINES),
+        true,
+      );
     else {
-      yield* call(MATRIX_SITE, PLAY_MATRIX, true);
+      yield* dialogCallBody(
+        h,
+        MATRIX_SITE,
+        PLAY_MATRIX,
+        () => matrixSceneSequence(h, events, MAIN_SCENE_ROUTINES),
+        true,
+      );
       yield () => {
         const record = word(wram, DECKER_RECORD);
         // A long store indexed by X: a record near FFFF reaches into bank 7F.
@@ -115,7 +115,7 @@ export function* sceneRequestSequence(h, events, routines = SCENE_REQUEST_ROUTIN
     room = word(wram, ROOM);
     h.a.pushWord(ROOM_ENTRY_RETURN);
   };
-  yield* enterRoomSequence(h, events, TRANSITION_ROUTINES, room);
+  yield* enterRoomSequence(h, events, room);
   yield () => {
     h.a.pullWord();
     ctx.status |= FLAG_CARRY;
@@ -125,11 +125,10 @@ export function* sceneRequestSequence(h, events, routines = SCENE_REQUEST_ROUTIN
 }
 
 // The run wrapper for the main loop's routine table.
-export function processSceneRequest(h, events, routines = SCENE_REQUEST_ROUTINES) {
-  return drainNativeSequence(sceneRequestSequence(h, events, routines));
+export function processSceneRequest(h, events) {
+  return drainNativeSequence(sceneRequestSequence(h, events));
 }
 NATIVE_CALL_CONTINUATIONS.set(SCENE_REQUEST_ENTRY, {
   run: processSceneRequest,
-  create: ({ h, events, routines }) =>
-    new NativeCallContinuation(h.a, sceneRequestSequence(h, events, routines)),
+  create: ({ h, events }) => new NativeCallContinuation(h.a, sceneRequestSequence(h, events)),
 });

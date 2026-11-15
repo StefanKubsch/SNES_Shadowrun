@@ -22,6 +22,7 @@ export async function routineTables(lifted) {
     'src/script',
     'src/vm',
     'proof/replay',
+    'proof/caller',
     'proof/vm',
     'proof/script',
   ]) {

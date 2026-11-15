@@ -1,5 +1,5 @@
 import { routineCaller } from '../../src/system/routine-call.mjs';
-import { enterRoomSequence } from '../../src/game/room-entry.mjs';
+import { enterRoomSequence } from '../caller/room-entry.mjs';
 import { unpackStep } from '../../src/system/native-unpack-body.mjs';
 import { SCENE_GRAPHICS_ROUTINES } from '../../src/system/main-scene-graphics.mjs';
 import { TALK_ROUTINES } from './native-dialog.mjs';

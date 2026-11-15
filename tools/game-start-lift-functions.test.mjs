@@ -19,7 +19,12 @@ import { GAME_START_REFERENCE_ENTRIES } from '../proof/game-reference/game-start
 import { GAME_SCREEN_REFERENCE_ENTRIES } from '../proof/game-reference/game-screen.mjs';
 import { ROOM_ENTRY_REFERENCE_ENTRIES } from '../proof/game-reference/room-entry.mjs';
 import { DialogTestMemory } from './task-native-dialog-harness.mjs';
-import { runGameStart, runNewGame, runNewGameState, runSaveLoad } from '../src/game/game-start.mjs';
+import {
+  runGameStart,
+  runNewGame,
+  runNewGameState,
+  runSaveLoad,
+} from '../proof/caller/game-start.mjs';
 import { SRAM_SIZE } from '../src/vm/memory.mjs';
 import {
   HEAP_NEXT_WORD,

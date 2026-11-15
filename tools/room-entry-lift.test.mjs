@@ -14,7 +14,12 @@ import { compareLift } from './lift-compare.mjs';
 import { TITLE_CYCLE_PLANS, TITLE_CYCLE_IGNORED_WRAM } from './live-title-cycle-plan.mjs';
 import { enterRoom } from '../proof/replay/main-transition.mjs';
 import { runAttractRounds } from '../proof/replay/main-frontend.mjs';
-import { runGameStart, runNewGame, runNewGameState, runSaveLoad } from '../src/game/game-start.mjs';
+import {
+  runGameStart,
+  runNewGame,
+  runNewGameState,
+  runSaveLoad,
+} from '../proof/caller/game-start.mjs';
 import { GAME_START_REFERENCE_ENTRIES } from '../proof/game-reference/game-start.mjs';
 import { ROOM_ENTRY_REFERENCE_ENTRIES } from '../proof/game-reference/room-entry.mjs';
 

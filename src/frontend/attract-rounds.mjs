@@ -9,7 +9,7 @@ export function* attractRoundsSequence(
   h,
   e,
   r,
-  roomStart = () => roomStartSequence(h, e, r, h.ctx.a),
+  roomStart = () => roomStartSequence(h, e, h.ctx.a),
 ) {
   const { ctx } = h;
   const loop = () => ({

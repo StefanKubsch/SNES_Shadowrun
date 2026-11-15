@@ -7,7 +7,7 @@ import {
 } from '../../src/system/native-call-continuation.mjs';
 import { FRONTEND_MENU_ROUTINES } from './live-frontend-menu.mjs';
 import { MAIN_START_ROUTINES } from '../caller/main-start.mjs';
-import { roomStartSequence } from '../../src/game/game-start.mjs';
+import { roomStartSequence } from '../caller/game-start.mjs';
 import { MAIN_LOOP_ROUTINES, MAIN_LOOP_ROUND, MainLoopContinuation } from '../caller/main-loop.mjs';
 import { runTileBuffers } from '../../src/game/main-upkeep.mjs';
 import { dialogCallBody } from '../../src/system/native-call-continuation.mjs';

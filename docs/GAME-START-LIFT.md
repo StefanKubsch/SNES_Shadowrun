@@ -58,7 +58,8 @@ NMI must be equal. A planted difference (Jake's Computer skill) fails it.
 [tools/game-start-lift-functions.test.mjs](../tools/game-start-lift-functions.test.mjs)
 runs 98E9, 960D, B198 (both slots, random status and data bank) and 9688 (both
 choices) against the reference on random states on the game's stack (7E:1EF0),
-with recorded stubs for the routines the room entry calls through their frames;
+using the former game-start and room-entry composition in proof/caller/,
+with recorded stubs for its remaining framed calls;
 the reference's own callees, the register-level 9629, A4BF and 8861 included,
 are references too. WRAM outside
 the scratch, SRAM, device writes and the read registers must be equal; planted
@@ -77,3 +78,8 @@ games and the menu after them. Budgets of one and seven exercise pauses; every
 NMI and the completed start compare WRAM, SRAM, CPU context, video state and sound
 RAM. The same comparison covers the direct main-loop caller and its return to
 the owner through fixture exit and reload requests.
+
+The live game and room starts no longer forward a caller routine table to room
+entry. The previous composition remains in
+[proof/caller/game-start.mjs](../proof/caller/game-start.mjs) for recorded drivers
+and independent caller comparisons (see [ROOM-ENTRY-LIFT.md](ROOM-ENTRY-LIFT.md)).

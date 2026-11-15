@@ -32,12 +32,12 @@ export const MAIN_START_ROUTINES = new Map([
 ]);
 
 // Live callers enter the lifted start directly. The table above remains shared
-// helper bindings for room entry; address-dispatched callers live in proof/caller/.
-export function runMainStart(a, e = null, r = MAIN_START_ROUTINES) {
+// helper bindings for other callers; address-dispatched starts live in proof/caller/.
+export function runMainStart(a, e = null) {
   requireGameStartEntry(a.ctx);
-  return runGameStart(dialogAccess(a), e, r);
+  return runGameStart(dialogAccess(a), e);
 }
-export function mainStartContinuation(a, e = null, r = MAIN_START_ROUTINES) {
+export function mainStartContinuation(a, e = null) {
   requireGameStartEntry(a.ctx);
-  return new NativeCallContinuation(a, gameStartSequence(dialogAccess(a), e, r));
+  return new NativeCallContinuation(a, gameStartSequence(dialogAccess(a), e));
 }

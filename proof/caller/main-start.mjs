@@ -19,7 +19,7 @@ import {
   runNewGame,
   runNewGameState,
   runSaveLoad,
-} from '../../src/game/game-start.mjs';
+} from '../caller/game-start.mjs';
 import { CODE_BANK_BASE } from '../../src/constants/memory-map.mjs';
 
 export const MAIN_START = GAME_START;

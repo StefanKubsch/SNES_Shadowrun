@@ -23,7 +23,7 @@ import {
   runFrameWait,
   runPadPresses,
 } from '../../src/game/main-upkeep.mjs';
-import { processSceneRequest } from '../../src/game/scene-request.mjs';
+import { processSceneRequest } from '../caller/scene-request.mjs';
 import {
   NativeWaitContinuation,
   WAIT_PAUSED,

@@ -4,7 +4,7 @@ import { drainNativeSequence } from '../../src/system/native-call-continuation.m
 import { NATIVE_CALL_CONTINUATIONS } from './continuations.mjs';
 import { FRONTEND_NMI_ROUTINES } from './main-frontend-nmi.mjs';
 import { MAIN_START_ROUTINES } from './main-start.mjs';
-import { roomStartSequence } from '../../src/game/game-start.mjs';
+import { roomStartSequence } from '../caller/game-start.mjs';
 import {
   MAIN_LOOP_ROUTINES,
   MAIN_LOOP_ROUND,

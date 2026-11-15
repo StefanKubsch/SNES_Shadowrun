@@ -176,7 +176,7 @@ export function requireGameStartEntry(ctx) {
   )
     taskStop('main_start_entry_required', { pc: ctx.pc });
 }
-export function* gameStartSequence(h, events, routines) {
+export function* gameStartSequence(h, events) {
   requireGameStartEntry(h.ctx);
   let room;
   yield () => {
@@ -188,16 +188,15 @@ export function* gameStartSequence(h, events, routines) {
       room = word(wram, ROOM);
     }
   };
-  return yield* roomStartSequence(h, events, routines, room);
+  return yield* roomStartSequence(h, events, room);
 }
 
 // 80:9699: the game screen, the room and the fixed colour; the main loop's reload
 // and exit requests are cleared. Ends before the main loop at 80:96AB.
-export function* roomStartSequence(h, events, routines, room) {
+export function* roomStartSequence(h, events, room) {
   const { ctx } = h;
   yield () => setUpGameScreen(sceneRuntime(h), tasksOf(h.a));
-  // The routines the room entry still calls through their frames come from routines.
-  yield* enterRoomSequence(h, events, routines, room);
+  yield* enterRoomSequence(h, events, room);
   yield () => {
     const m = sceneRuntime(h);
     setWord(m.wram, MAIN_LOOP_RELOAD, 0);
@@ -210,8 +209,8 @@ export function* roomStartSequence(h, events, routines, room) {
 
 // Run wrappers for the routine tables: the main start (the driver's entry), and
 // the new game and the save load for their original callers.
-export function runGameStart(h, e, r) {
-  return drainNativeSequence(gameStartSequence(h, e, r));
+export function runGameStart(h, e) {
+  return drainNativeSequence(gameStartSequence(h, e));
 }
 export function runNewGame(h) {
   h.ctx.a = startNewGame(h.a);

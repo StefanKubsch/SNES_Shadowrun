@@ -24,7 +24,7 @@ import {
   runFrameWait,
   runPadPresses,
 } from '../../src/game/main-upkeep.mjs';
-import { processSceneRequest } from '../../src/game/scene-request.mjs';
+import { processSceneRequest } from '../caller/scene-request.mjs';
 import { WAIT_PAUSED, WAIT_RETURNED } from '../../src/system/native-wait-continuation.mjs';
 import { lagFree } from '../../src/system/main-wait-interrupt.mjs';
 import { NATIVE_CALL_CONTINUATIONS } from '../../src/system/native-call-continuation.mjs';

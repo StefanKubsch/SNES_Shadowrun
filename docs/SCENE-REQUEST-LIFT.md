@@ -34,8 +34,9 @@ a request, and the main loop then starts its next pass at its top (80:96AB).
   words CC6E and CC74 in bank 80) with their own routine tables, as the main loop
   does, because their frame waits take NMIs on that stack.
 - The frame wait 81:B0A1 runs lifted for the lag-free frame model below the
-  original's JSL frame (return word CC5F), as in the room entry; with recorded
-  interrupt observations the register-level wait runs through its frame.
+  original's JSL frame (return word CC5F), as in the room entry; recorded
+  interrupt observations use the former caller in proof/caller/scene-request.mjs
+  with its register-level wait.
 - The forced blank 81:B0BD and the game screen set-up 80:9629 wait for nothing;
   their frames (JSL and JSR return words) are not reproduced. The room entry runs
   below the return word of the original's JSR (CC92), as the waits inside it take
@@ -47,10 +48,9 @@ a request, and the main loop then starts its next pass at its top (80:96AB).
   original leaves besides the carry (A holds FFFF on the empty request, X the
   argument or the decker's record before the game screen set-up), and the 8-bit
   accumulator around the health store.
-- The main loop's continuation (`MainLoopContinuation`, src/vm/main-loop.mjs)
-  finds a callee's continuation by its target, or by its run function for a proof
-  reference, as `NativeCallContinuation` does, so the reference request also
-  resumes across frames.
+- The live main loop composes the request sequence directly. Its former
+  address-dispatched caller remains in proof/caller/main-loop.mjs, where proof
+  references still resume by function identity across frames.
 
 ## Tests
 
@@ -74,3 +74,24 @@ reaches the reference entry.
 [tools/main-initialize.test.mjs](../tools/main-initialize.test.mjs) and
 [tools/main-loop.test.mjs](../tools/main-loop.test.mjs) keep proving the reference
 against the ROM, alone and inside the main loop.
+
+## Direct caller composition (2026-11-15)
+
+The live room entry and scene request no longer accept caller routine tables or
+select recorded-observation branches. Game and attract starts invoke the room
+entry directly. The scene request composes cutscene and matrix sequences through
+the shared call-frame helper; their internal helper tables and register/NMI
+interfaces remain unchanged.
+
+The previous composition remains independently in
+[proof/caller/room-entry.mjs](../proof/caller/room-entry.mjs),
+[proof/caller/scene-request.mjs](../proof/caller/scene-request.mjs) and
+[proof/caller/game-start.mjs](../proof/caller/game-start.mjs). Recorded drivers
+and the existing function/reference comparisons use those versions.
+[transition-caller.test.mjs](../tools/transition-caller.test.mjs) compares the
+previous and direct callers on the same JS scheduler and devices, at budgets one
+and seven: three room changes, all cutscene sessions and the matrix sessions.
+Every NMI compares WRAM outside CPU stacks and saved interrupt registers, SRAM,
+PPU memories/registers/scroll, PPU write count and sound RAM. Direct-page bytes
+remain compared. These fixtures establish transition composition, not new story
+route coverage.

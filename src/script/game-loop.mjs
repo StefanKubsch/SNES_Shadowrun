@@ -147,7 +147,7 @@ export class GameLoop {
         continuation: new NativeCallContinuation(a, gameOwnerSequence(h, events, routines)),
       };
       this.ownsGame = true;
-      yield { continuation: new NativeCallContinuation(a, gameStartSequence(h, events, routines)) };
+      yield { continuation: new NativeCallContinuation(a, gameStartSequence(h, events)) };
       for (;;) {
         yield {
           continuation: new MainLoopContinuation(a, { events, returnToOwner: true }),

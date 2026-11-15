@@ -15,26 +15,9 @@
 //
 // The glove 80:BCB2 and the notice windows 80:FF79 are lifted in window-release.mjs.
 //
-// The frame wait 81:B0A1 is lifted in src/system/frame-wait.mjs for the lag-free
-// frame model; with recorded interrupts it runs register-level through its frame.
-//
-// The scene load 81:A117, the scene tiles 81:9AE6 and the collision grid 81:8756 are
-// lifted in scene-load.mjs, scene-tiles.mjs and collision-grid.mjs, with the
-// unpackers 80:9F69 and 80:9E7E of src/system/unpack.mjs, the camera jump 81:8BD9 here
-// with the tile buffers 81:8A91 and map edges 81:8954 of camera-scroll.mjs, the
-// window list 81:AD92 in window-list.mjs; the Mesen cold boot replay calls their
-// register-level versions. They read the direct page words the entry writes, as in
-// the original (the caller's direct page is 0).
-//
-// The music stop 81:EF94 and the music change 81:EF47 (src/apu/music-mode.mjs) are
-// lifted for the lag-free frame model, which delivers no NMI in their sound driver
-// handshakes. A recorded game run can deliver one there, which only the
-// register-level versions replay, so with recorded interrupt observations they run
-// through their frames (docs/AUDIO-ROUTINES-LIFT.md keeps EF47 in the table for this
-// caller).
+// Live composition uses lag-free frames. Recorded observations use the former
+// caller retained independently in proof/caller/room-entry.mjs.
 import { tasksOf } from '../script/task-api.mjs';
-import { nativeCallSequence } from '../system/native-call-continuation.mjs';
-import { lagFree } from '../system/main-wait-interrupt.mjs';
 import { waitForCounterWord } from '../system/frame-wait.mjs';
 import { sceneRuntime } from '../system/scene-runtime.mjs';
 import { setMusicMode } from '../apu/music-mode.mjs';
@@ -142,25 +125,13 @@ const GLOVE_SITE = 0x80a4e1,
   SCENE_LOAD_SITE = 0x80a518,
   FRAME_WAIT_SITE = 0x80a520,
   NOTICE_WINDOWS_SITE = 0x80a528,
-  SCENE_TILES_SITE = 0x80a554,
   CAMERA_JUMP_SITE = 0x80a55c,
   // A JSL pushes the address of its last byte.
   JSL_LAST_BYTE = 3,
-  COLLISION_GRID_SITE = 0x80a584,
   WINDOW_LIST_SITE = 0x80a5c9,
-  MUSIC_STOP_SITE = 0x80a506,
-  MUSIC_MODE_SITE = 0x80a580,
   // The return words of the JSRs to the group 80:A2FA and the actors 80:A3B6.
   GROUP_RETURN = 0xa54d,
   ACTORS_RETURN = 0xa550;
-const LOAD_SCENE = 0x81a117,
-  WAIT_FOR_FRAME = 0x81b0a1,
-  UPLOAD_SCENE_TILES = 0x819ae6,
-  JUMP_CAMERA = 0x818bd9,
-  BUILD_COLLISION_GRID = 0x818756,
-  STOP_MUSIC = 0x81ef94,
-  SET_MUSIC_MODE = 0x81ef47;
-
 const word = (wram, at) => wram[at] | (wram[at + 1] << BYTE_BITS);
 const setWord = (wram, at, value) => {
   wram[at] = value & BYTE_MASK;
@@ -268,16 +239,9 @@ function placeCameraAtStart(mem, wram) {
   }
 }
 
-// The frame wait 81:B0A1, called with a JSL from site. With the lag-free frame model
-// the lifted wait runs below the original's JSL frame in bank 81, so the NMI finds
-// the same stack and registers; recorded interrupt observations keep the
-// register-level wait.
+// The live word wait keeps its JSL frame for nested NMIs.
 const WAIT_BANK = 0x81;
-export function* waitForFrameCall(h, events, call, site) {
-  if (!lagFree(events)) {
-    yield* call(site, WAIT_FOR_FRAME, true);
-    return;
-  }
+export function* waitForFrameCall(h, events, site) {
   const { ctx, a } = h;
   let callerBank;
   yield () => {
@@ -305,7 +269,7 @@ const CAMERA_JUMP = 0x400,
   CAMERA_JUMP_STEPS = 0x20,
   JUMP_BANK = 0x81,
   JUMP_WAIT_SITE = 0x818bdd;
-function* jumpCameraSequence(h, events, call) {
+function* jumpCameraSequence(h, events) {
   const { ctx, a } = h,
     { wram, video } = sceneRuntime(h),
     callerBank = ctx.programBank;
@@ -316,7 +280,7 @@ function* jumpCameraSequence(h, events, call) {
     ctx.programBank = JUMP_BANK;
     forceBlank(wram);
   };
-  yield* waitForFrameCall(h, events, call, JUMP_WAIT_SITE);
+  yield* waitForFrameCall(h, events, JUMP_WAIT_SITE);
   yield () => {
     setWord(wram, MAP_UPLOAD_HELD, word(wram, MAP_UPLOAD_HELD) - 1);
     a.pushWord(word(wram, CAMERA_BOX_HIGH));
@@ -351,15 +315,11 @@ function stopMusic(m) {
   m.sound(APU_COMMAND_VOLUME_TARGET, 0);
 }
 
-// Enter room (80:A4BF), a sequence for a native call continuation: h is the accessor
-// of the caller, events its frame events, routines the table of the routines still
-// called through their frames.
-export function* enterRoomSequence(h, events, routines, room) {
+// Enter room (80:A4BF), composed directly for the live frame model.
+export function* enterRoomSequence(h, events, room) {
   const { ctx } = h,
     m = sceneRuntime(h),
-    { mem, wram, video } = m,
-    call = (site, target, long = false) =>
-      nativeCallSequence(h, events, routines, site, target, long);
+    { mem, wram, video } = m;
   let entry;
   yield () => {
     setWord(wram, ROOM, room);
@@ -375,25 +335,16 @@ export function* enterRoomSequence(h, events, routines, room) {
   };
   yield* putGloveAwayCall(h, events, GLOVE_SITE);
   yield () => tasksOf(h.a).reset();
-  // Without lag-free frames the music routines run register-level through their frames.
-  const liftedMusic = Boolean(lagFree(events));
-  if (!keepsMusic(mem, wram))
-    if (liftedMusic) yield () => stopMusic(m);
-    else yield* call(MUSIC_STOP_SITE, STOP_MUSIC, true);
-  // The Mesen cold boot replay records interrupts inside the scene load, the scene
-  // tiles, the camera jump and the collision grid, which only their register-level
-  // versions replay.
-  const replay = Boolean(events?.startupInterrupts);
+  if (!keepsMusic(mem, wram)) yield () => stopMusic(m);
   let scene;
   yield () => {
     setWord(wram, CAMERA_BOX, headerWord(mem, wram, ROOM_HEADER_CAMERA) - 1);
     scene = headerWord(mem, wram, 0) & BYTE_MASK;
     ctx.a = scene;
   };
-  if (replay) yield* call(SCENE_LOAD_SITE, LOAD_SCENE, true);
-  else yield* loadSceneSequence(h, scene, SCENE_LOAD_SITE);
+  yield* loadSceneSequence(h, scene, SCENE_LOAD_SITE);
   yield () => forceBlank(wram);
-  yield* waitForFrameCall(h, events, call, FRAME_WAIT_SITE);
+  yield* waitForFrameCall(h, events, FRAME_WAIT_SITE);
   yield () => resetFixedColour(m);
   yield* releaseNoticeWindowsCall(h, events, NOTICE_WINDOWS_SITE);
   yield () => {
@@ -415,26 +366,17 @@ export function* enterRoomSequence(h, events, routines, room) {
     yield () => h.a.pullWord();
   }
   yield () => placeCameraAtStart(mem, wram);
-  if (replay) yield* call(SCENE_TILES_SITE, UPLOAD_SCENE_TILES, true);
-  else yield* uploadSceneTilesSequence(h);
+  yield* uploadSceneTilesSequence(h);
   yield () => setWord(wram, SCENE_PALETTE_UPLOAD, word(wram, SCENE_PALETTE_UPLOAD) + 1);
-  if (replay) yield* call(CAMERA_JUMP_SITE, JUMP_CAMERA, true);
-  else yield* jumpCameraSequence(h, events, call);
+  yield* jumpCameraSequence(h, events);
   // Without the option the music mode 0 starts; with it the room's music, only when
   // none plays.
   const restore = word(wram, GAME_OPTIONS) & OPTION_MUSIC_RESTORE;
   if (!restore || word(wram, MUSIC) === NONE) {
     const mode = () => (restore ? roomMusic(mem, wram) : 0);
-    if (liftedMusic) yield () => setMusicMode(mem, m.port, mode());
-    else {
-      yield () => {
-        ctx.a = mode();
-      };
-      yield* call(MUSIC_MODE_SITE, SET_MUSIC_MODE, true);
-    }
+    yield () => setMusicMode(mem, m.port, mode());
   }
-  if (replay) yield* call(COLLISION_GRID_SITE, BUILD_COLLISION_GRID, true);
-  else yield () => buildCollisionGrid(mem, wram);
+  yield () => buildCollisionGrid(mem, wram);
   yield () => {
     resetFightList(wram);
     findRoomLists(mem, wram);

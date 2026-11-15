@@ -593,13 +593,13 @@ function runActorsPlace(h, e, r = TRANSITION_ROUTINES) {
 }
 // 80:A4BF for register-level callers: the lifted room entry with the room in A
 // (src/game/room-entry.mjs; register-level reference in
-// proof/game-reference/room-entry.mjs). The routines it still calls through their
-// frames come from r.
-export function enterRoom(h, e, r = TRANSITION_ROUTINES) {
-  return drainNativeSequence(enterRoomRoutineSequence(h, e, r));
+// proof/game-reference/room-entry.mjs). Recorded callers keep the previous
+// composition in proof/replay/main-transition.mjs.
+export function enterRoom(h, e) {
+  return drainNativeSequence(enterRoomRoutineSequence(h, e));
 }
-function* enterRoomRoutineSequence(h, e, r) {
-  yield* enterRoomSequence(h, e, r, h.ctx.a & WORD_MASK);
+function* enterRoomRoutineSequence(h, e) {
+  yield* enterRoomSequence(h, e, h.ctx.a & WORD_MASK);
   let result;
   yield () => {
     result = h.rts();
