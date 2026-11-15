@@ -19,7 +19,7 @@ import { installLanguage, ENGLISH } from '../data/language.mjs';
 import { GameLoop } from '../script/game-loop.mjs';
 import { nativeOpcodeTargets } from '../data/native-opcode-targets.mjs';
 import { nativeTarget } from '../script/native-targets.mjs';
-import { MAIN_STARTUP_ROUTINES } from '../system/main-startup.mjs';
+import { FRONTEND_ROUTINES } from '../system/main-frontend.mjs';
 import { PpuBus, PpuState } from './ppu-state.mjs';
 import { renderMode1Frame } from './ppu-frame.mjs';
 import { hdmaRows } from './hdma.mjs';
@@ -42,7 +42,7 @@ const CHOOSING = new Set([0x809bc6, 0x809bb9, 0x809bd3, 0x809c33, 0x808d0b]);
 const gameLoop = (game) =>
   new GameLoop(game.vm, {
     devices: game.devices,
-    routines: MAIN_STARTUP_ROUTINES,
+    routines: FRONTEND_ROUTINES,
     admitted: nativeOpcodeTargets,
     implementation: nativeTarget,
   });
@@ -115,7 +115,7 @@ export class LiveGame {
     // Instant text (docs/INSTANT-TEXT.md): text waits run the transfer at once.
     if (settings.instantText)
       frames.textWait = (h, events, status, pc) => serviceTextWait(frames, h, events, status, pc);
-    this.devices = new LiveDevices(frames, MAIN_STARTUP_ROUTINES, {
+    this.devices = new LiveDevices(frames, FRONTEND_ROUTINES, {
       bus: this.bus,
       apu: this.apu,
       ...(counter ? { counter } : {}),

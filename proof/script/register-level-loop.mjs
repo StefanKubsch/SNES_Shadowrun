@@ -17,7 +17,7 @@ import { nativeOpcodeTargets } from '../../src/data/native-opcode-targets.mjs';
 import { nativeTarget } from '../../src/script/native-targets.mjs';
 // This reference runs live frames on the game's lifted caller tables; recorded
 // replays use the driver's register-level defaults in proof/replay/.
-import { MAIN_STARTUP_ROUTINES } from '../../src/system/main-startup.mjs';
+import { MAIN_STARTUP_ROUTINES } from './live-startup.mjs';
 import { WramTasks } from '../../src/script/task-api.mjs';
 import { CODE_BANK_BASE } from '../../src/constants/memory-map.mjs';
 

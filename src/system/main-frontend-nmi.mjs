@@ -6,6 +6,8 @@ import { handlePrologueNmi, handleTitlePanNmi, handleTitleScrollNmi } from '../f
 
 export const FRONTEND_NMI_ROUTINES = new Map([
   ...FRONTEND_MENU_ROUTINES,
+  // The boot screens install a callback that immediately returns (81:E839).
+  [0x81e839, (h) => h.rtl()],
   [0x81dd54, handlePrologueNmi],
   [0x81d93e, handleTitlePanNmi],
   [0x81dcac, handleTitleScrollNmi],

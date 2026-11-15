@@ -84,6 +84,10 @@ after the complete group, following AGENTS.md.
 7. **Dissolve `src/task`.** Constants to `src/data`, `taskStop` and shared execution
    support to `src/system`, script native adapters to `src/script`, and reference-only
    code to `proof/`. Done when `src/task` is empty.
+8. **Simplify caller composition.** Replace address-keyed caller adapters with direct
+   calls in bounded groups, retaining the former paths in proof for game-state
+   comparisons. Start with the startup, then the owner and its title cycle. Shared
+   register interfaces are simplified only after their consumers are separated.
 
 ## Phase 1 result (2026-11-14)
 
@@ -366,6 +370,35 @@ registerLevelLoop})`); the observed rooms and boot replays keep the driver direc
   `src/vm/` as well as the proof tables. The production boundary also rejects a return
   of `src/task/`. Live/reference factory identity, save data and the frame model stay
   unchanged.
+
+## Phase 8, startup caller composition (2026-11-15)
+
+- [main-startup.mjs](../src/system/main-startup.mjs) composes the boot screens
+  directly: startup A133, its A15C wrapper and the E7BC screen sequence no longer
+  select callees through a ROM-address map or continuation registry. The game loop
+  delegates to this sequence directly. Entry validation and the lag-free requirement
+  remain explicit.
+- The original JSR/JSL frames, PHP/PLP and data-bank restoration remain because
+  shared boot and NMI helpers still use the register accessor. This block simplifies
+  caller composition; it does not remove those register interfaces or change frame
+  timing, save data or hardware behaviour.
+- The address-dispatched live path is retained independently in
+  [proof/script/live-startup.mjs](../proof/script/live-startup.mjs). The register-level
+  game-loop differential uses it; recorded boot replays keep their separate
+  [proof/replay/main-startup.mjs](../proof/replay/main-startup.mjs). The game uses
+  the frontend's routine table for its remaining callers and interrupt adapters;
+  the boot screen's immediate-return NMI callback (81:E839) now belongs to
+  main-frontend-nmi.mjs. Lift comparisons discover the retained live startup table
+  in proof/script as well.
+- [main-startup-lift.test.mjs](../tools/main-startup-lift.test.mjs) compares every
+  WRAM byte (including the stack), SRAM, PPU memories and registers, scroll, PPU write
+  count, sound RAM and CPU context at every NMI and on return. Cases cover valid and
+  invalid settings, work budgets of one and seven, cold boot and startup after the
+  unchanged reference software reset on populated state. The existing game-loop
+  comparisons retain the benchmark, badge and attract-demo routes.
+- The software reset itself remains reference code; this block checks its resulting
+  startup state and does not add a software-reset entry to the live game. The owner,
+  title cycle and main-loop caller tables remain to be simplified in later groups.
 
 ## Open points
 

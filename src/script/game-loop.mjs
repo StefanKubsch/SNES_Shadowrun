@@ -26,7 +26,7 @@ import { NativeCallContinuation } from '../system/native-call-continuation.mjs';
 import { finishInterruptObservations } from '../system/main-wait-interrupt.mjs';
 import { dialogAccess } from '../system/native-dialog-support.mjs';
 import { runMainReset } from '../system/main-reset.mjs';
-import { MainStartupContinuation, MAIN_STARTUP_ENTRY } from '../system/main-startup.mjs';
+import { mainStartupSequence, MAIN_STARTUP_ENTRY } from '../system/main-startup.mjs';
 import { gameOwnerSequence, GAME_OWNER_RESUME } from '../frontend/game-owner.mjs';
 import { gameStartSequence } from '../game/game-start.mjs';
 import { MainLoopContinuation, MAIN_LOOP_ROUND } from '../vm/main-loop.mjs';
@@ -51,7 +51,7 @@ const ROUND_RETURN_WORD = MAIN_LOOP_ROUND + 2;
 export class GameLoop {
   // host: the game's settings as the accessors see them (a.vm: mem, gameplay, cheats,
   // startMenuCredits); devices: LiveDevices; routines: the call graph of the lifted
-  // owner, start and main loop (src/system/main-startup.mjs MAIN_STARTUP_ROUTINES);
+  // owner, start and main loop (src/system/main-frontend.mjs FRONTEND_ROUTINES);
   // admitted and implementation: the lifted natives without devices.
   constructor(host, { devices, routines, admitted, implementation }) {
     const mem = host.mem;
@@ -139,7 +139,7 @@ export class GameLoop {
     let events = this.interval(CODE_BANK_BASE | RESET_CONTEXT.pc);
     yield () => runMainReset(a);
     if (ctx.pc !== MAIN_STARTUP_ENTRY) taskStop('game_loop_startup_required', { pc: ctx.pc });
-    yield { continuation: new MainStartupContinuation(a, events, routines) };
+    yield* mainStartupSequence(dialogAccess(a), events);
     for (;;) {
       const ownerReturn = ctx.s,
         h = dialogAccess(a);

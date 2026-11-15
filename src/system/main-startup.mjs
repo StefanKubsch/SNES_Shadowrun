@@ -1,62 +1,19 @@
-// Live start-up 80:A133 and the boot-screen call frames. Recorded boot replays
-// use proof/replay/main-startup.mjs with the register-level sound transfer.
+// Live startup 80:A133: direct composition of the boot screens and their caller.
+// The former address-dispatched path is retained in proof/script/live-startup.mjs.
 import { taskStop } from './task-stop.mjs';
-import { dialogAccess } from './native-dialog-support.mjs';
-import { FRONTEND_ROUTINES, MAIN_OWNER_ENTRY } from './main-frontend.mjs';
+import { dialogCallBody } from './native-call-continuation.mjs';
 import { lagFree } from './main-wait-interrupt.mjs';
 import { bootScreensSequence } from '../frontend/boot-screens.mjs';
-import {
-  NativeCallContinuation,
-  NATIVE_CALL_CONTINUATIONS,
-  drainNativeSequence,
-  nativeCallSequence,
-} from './native-call-continuation.mjs';
+import { GAME_OWNER_ENTRY } from '../frontend/game-owner.mjs';
 import { CODE_BANK, CODE_BANK_PAIR } from '../constants/memory-map.mjs';
 import { FLAG_DECIMAL, FLAG_INDEX_8BIT, FLAG_MEMORY_8BIT } from '../constants/cpu-flags.mjs';
+
 export const MAIN_STARTUP_ENTRY = 0xa133;
 
-function* runBootScreensSequence(h, events, routines) {
-  yield () => h.php();
-  yield* nativeCallSequence(h, events, routines, 0x80a15d, 0x81e7bc, true);
-  let result;
-  yield () => {
-    h.push(CODE_BANK_PAIR, 2);
-    h.plb();
-    h.plb();
-    h.plp();
-    result = h.rts();
-  };
-  return result;
-}
-function runBootScreens(h, events, routines = MAIN_STARTUP_ROUTINES) {
-  return drainNativeSequence(runBootScreensSequence(h, events, routines));
-}
-export function runBootScreensLifted(h, events) {
-  if (!lagFree(events)) taskStop('game_lag_free_required');
-  return drainNativeSequence(bootScreensSequence(h, events));
-}
-for (const [run, sequence] of [
-  [runBootScreens, runBootScreensSequence],
-  [runBootScreensLifted, bootScreensSequence],
-])
-  NATIVE_CALL_CONTINUATIONS.set(run, {
-    run,
-    create: ({ h, events, routines = MAIN_STARTUP_ROUTINES }) =>
-      new NativeCallContinuation(h.a, sequence(h, events, routines)),
-  });
-export const MAIN_STARTUP_ROUTINES = new Map([
-  ...FRONTEND_ROUTINES,
-  [0x81e839, (h) => h.rtl()],
-  [0x81e7bc, runBootScreensLifted],
-  [0x80a15c, runBootScreens],
-]);
-export class MainStartupContinuation extends NativeCallContinuation {
-  constructor(a, events, routines = MAIN_STARTUP_ROUTINES) {
-    super(a, mainStartupSequence(a, events, routines));
-  }
-}
-function* mainStartupSequence(a, events, routines) {
-  const { ctx } = a;
+// Preserve the original JSR/JSL frames while shared boot/NMI code still uses
+// the register accessor. Calls are direct; no routine table or factory lookup.
+export function* mainStartupSequence(h, events) {
+  const { ctx } = h;
   if (
     ctx.programBank !== CODE_BANK ||
     ctx.pc !== MAIN_STARTUP_ENTRY ||
@@ -65,10 +22,21 @@ function* mainStartupSequence(a, events, routines) {
     ctx.status & (FLAG_DECIMAL | FLAG_INDEX_8BIT | FLAG_MEMORY_8BIT)
   )
     taskStop('main_startup_entry_required', { pc: ctx.pc });
-  yield* nativeCallSequence(dialogAccess(a), events, routines, 0x80a133, 0x80a15c);
+  if (!lagFree(events)) taskStop('game_lag_free_required');
+  yield* dialogCallBody(h, 0x80a133, 0x80a15c, function* () {
+    yield () => h.php();
+    yield* dialogCallBody(h, 0x80a15d, 0x81e7bc, () => bootScreensSequence(h, events), true);
+    yield () => {
+      h.push(CODE_BANK_PAIR, 2);
+      h.plb();
+      h.plb();
+      h.plp();
+      h.rts();
+    };
+  });
   yield () => {
-    dialogAccess(a).load(1);
-    ctx.pc = MAIN_OWNER_ENTRY;
+    h.load(1);
+    ctx.pc = GAME_OWNER_ENTRY;
   };
   return ctx.pc;
 }
