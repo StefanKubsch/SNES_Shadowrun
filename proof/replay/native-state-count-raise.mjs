@@ -2,7 +2,7 @@ import { withInterruptEvents } from './observed-native-events.mjs';
 import { taskStop } from '../../src/system/task-stop.mjs';
 import { dialogAccess } from '../../src/system/native-dialog-support.mjs';
 import { FIRST_ARGUMENT, SECOND_ARGUMENT } from '../../src/system/native-leaf-support.mjs';
-import { runDrawWindowList } from '../../src/game/window-list.mjs';
+import { runDrawWindowList } from '../../proof/caller/window-list.mjs';
 import { raiseStateCount } from '../../src/game/runner-state.mjs';
 import {
   observedContinuation,

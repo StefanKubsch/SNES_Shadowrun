@@ -34,8 +34,8 @@ import {
   liftedStatusScreenSequence,
   liftedMainMenuSequence,
 } from '../../src/game/main-upkeep.mjs';
-import { redrawDialogWindowListSequence } from '../../src/game/window-list.mjs';
-import { releaseNoticeWindowsCallSequence } from '../../src/game/window-release.mjs';
+import { redrawDialogWindowListSequence } from '../../proof/caller/window-list.mjs';
+import { releaseNoticeWindowsCallSequence } from '../../proof/caller/window-release.mjs';
 import {
   releaseNoticeWindowsObserved,
   createReleaseNoticeWindowsObserved,

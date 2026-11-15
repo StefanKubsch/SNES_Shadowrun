@@ -4,7 +4,7 @@ import { taskTextAccess } from '../../src/system/native-text-prerequisites.mjs';
 import { randomBelow, taskRandomDevices } from '../../src/system/native-random.mjs';
 import { createObject } from '../../src/script/native-object-create.mjs';
 import { playSoundEffect, taskAudioDevices } from '../../src/system/native-audio-compose.mjs';
-import { releaseWindowJsrSequence } from '../../src/game/window-release.mjs';
+import { releaseWindowJsrSequence } from '../../proof/caller/window-release.mjs';
 import { f963Sequence } from '../../src/script/native-window-open.mjs';
 import { fitListWindow } from '../../src/data/menu-layout.mjs';
 import { printTextSequence } from '../../src/system/native-text-compose.mjs';
@@ -12,7 +12,7 @@ import { waitForRandomStateChange } from '../../src/system/native-frame-wait.mjs
 import { waitForConfirmKeySequence } from './native-input-wait.mjs';
 import { dialogAccess } from '../../src/system/native-dialog-support.mjs';
 import { ObservedWaitContinuation, lagFree } from '../../src/system/main-wait-interrupt.mjs';
-import { drawWindowListJslSequence } from '../../src/game/window-list.mjs';
+import { drawWindowListJslSequence } from '../../proof/caller/window-list.mjs';
 import {
   observedContinuation,
   drainNativeSequence,

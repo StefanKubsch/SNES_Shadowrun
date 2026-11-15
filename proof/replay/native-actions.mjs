@@ -24,7 +24,7 @@ import { dialogAccess } from '../../src/system/native-dialog-support.mjs';
 import { taskTextAccess } from '../../src/system/native-text-prerequisites.mjs';
 import { f963Sequence } from '../../src/script/native-window-open.mjs';
 import { menuComposeSequence, taskMenuDevices } from '../../src/system/native-menu-compose.mjs';
-import { releaseWindowJsrSequence } from '../../src/game/window-release.mjs';
+import { releaseWindowJsrSequence } from '../../proof/caller/window-release.mjs';
 import { af1fRegisters } from '../../src/script/native-bar-tiles.mjs';
 import {
   observedContinuation,

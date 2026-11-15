@@ -17,7 +17,7 @@ import { TRANSITION_ROUTINES } from '../proof/replay/main-transition.mjs';
 import { releaseGloveNameWindow } from '../src/system/native-dialog-portrait.mjs';
 import { finishInterruptObservations } from '../src/system/main-wait-interrupt.mjs';
 import { releaseWindowAdapter } from '../src/system/native-render-compose.mjs';
-import { runReleaseWindowCall } from '../src/game/window-release.mjs';
+import { runReleaseWindowCall } from '../proof/caller/window-release.mjs';
 
 const releaseWindows = [
   { start: 0x80bcb2, hex: '9CD801ADDA013003205BBE60' },

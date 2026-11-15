@@ -48,8 +48,8 @@ import { buildCollisionGrid } from '../../src/game/collision-grid.mjs';
 import { uploadSceneTilesSequence } from '../../src/game/scene-tiles.mjs';
 import { updateTileBuffers, uploadMapEdges } from '../../src/game/camera-scroll.mjs';
 import { loadSceneSequence } from '../../src/game/scene-load.mjs';
-import { drawWindowListSequence } from '../../src/game/window-list.mjs';
-import { putGloveAwayCall, releaseNoticeWindowsCall } from '../../src/game/window-release.mjs';
+import { drawWindowListSequence } from './window-list.mjs';
+import { putGloveAwayCall, releaseNoticeWindowsCall } from './window-release.mjs';
 import {
   BRIGHTNESS_FADE,
   BRIGHTNESS_FADE_FRAMES,

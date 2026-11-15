@@ -2,7 +2,7 @@ import { withInterruptEvents } from './observed-native-events.mjs';
 import { lagFree } from '../../src/system/main-wait-interrupt.mjs';
 import { taskStop } from '../../src/system/task-stop.mjs';
 import { FIRST_ARGUMENT, leafAccess, finishLeaf } from '../../src/system/native-leaf-support.mjs';
-import { runReleaseWindowCall } from '../../src/game/window-release.mjs';
+import { runReleaseWindowCall } from '../../proof/caller/window-release.mjs';
 import { af1fRegisters } from '../../src/script/native-bar-tiles.mjs';
 import { dialogAccess } from '../../src/system/native-dialog-support.mjs';
 import {

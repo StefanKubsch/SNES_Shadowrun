@@ -8,7 +8,7 @@ import { showNoticeAdapter } from './native-notice.mjs';
 import { printTextAdapter } from '../../src/system/native-text-compose.mjs';
 import { readTextBit } from '../../src/system/native-text-prerequisites.mjs';
 import { requestTextMapUpload } from '../../src/system/native-render-compose.mjs';
-import { runDrawWindowList } from '../../src/game/window-list.mjs';
+import { runDrawWindowList } from '../../proof/caller/window-list.mjs';
 import { unpackWindowMap } from '../../src/system/native-render-unpack.mjs';
 import { clc } from '../../src/system/status-flags.mjs';
 import { languageTextWidth } from '../../src/data/language.mjs';

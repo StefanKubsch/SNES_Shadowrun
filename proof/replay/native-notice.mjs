@@ -6,7 +6,7 @@ import { taskTextAccess } from '../../src/system/native-text-prerequisites.mjs';
 import { f963Sequence } from '../../src/script/native-window-open.mjs';
 import { printTextSequence } from '../../src/system/native-text-compose.mjs';
 import { fitNoticeWindow } from '../../src/data/language.mjs';
-import { releaseWindowJsrSequence } from '../../src/game/window-release.mjs';
+import { releaseWindowJsrSequence } from '../../proof/caller/window-release.mjs';
 import {
   observedContinuation,
   NativeCallContinuation,

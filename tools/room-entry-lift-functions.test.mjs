@@ -38,7 +38,10 @@ import {
   TASK_LIST_HEAD,
   TASK_NEXT,
 } from '../src/vm/layout.mjs';
-import { putGloveAwaySequence, releaseNoticeWindowsSequence } from '../src/game/window-release.mjs';
+import {
+  putGloveAwaySequence,
+  releaseNoticeWindowsSequence,
+} from '../proof/caller/window-release.mjs';
 import { SCENES } from '../src/data/lz-streams.mjs';
 import { TILE_STREAMS } from '../src/data/tiles.mjs';
 import { OBJECT_TYPES } from '../src/data/object-types.mjs';

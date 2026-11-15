@@ -495,3 +495,8 @@ registerLevelLoop})`); the observed rooms and boot replays keep the driver direc
 - Heap and slot exhaustion stay frontiers (`task_heap_required`, `task_slot_required`);
   the JS model keeps the original's 48 slots and the frame sizes so that the
   conversion layer reproduces the original heap.
+
+## Window caller phases (2026-11-15)
+
+The four bounded window and menu delivery groups and their comparison contracts
+are in [WINDOW-CALLER-LIFT.md](WINDOW-CALLER-LIFT.md).

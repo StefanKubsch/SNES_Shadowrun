@@ -15,10 +15,29 @@ import {
   WINDOW_MAP_SOURCE,
   WINDOW_MAP_SOURCE_BANK,
   TEXT_MAP_UPLOAD,
+  TEXT_TILE_UPLOAD,
   GLOVE_NAME_WINDOW,
   GLOVE_TARGET_TAG,
   NOTICE_WINDOWS,
 } from '../src/data/wram.mjs';
+import { NMITIMEN_NMI_ENABLE } from '../src/constants/hardware-registers.mjs';
+const HEX = 16;
+import { LagFreeFrames } from '../src/vm/frame-events.mjs';
+
+// Function comparisons isolate drawing/allocation from the NMI. Service only the
+// reached upload boundary; route comparisons retain real NMIs and device writes.
+export function liveWindowEvents(h) {
+  const events = uploadEvents(),
+    frames = new LagFreeFrames({ nmitimen: NMITIMEN_NMI_ENABLE });
+  frames.textWait = (_h, _events, _status, pc) => {
+    const request = pc === 0x81acb2 ? TEXT_MAP_UPLOAD : pc === 0x81acc0 ? TEXT_TILE_UPLOAD : null;
+    if (request === null) throw new Error(`Unexpected window wait ${pc.toString(HEX)}`);
+    h.a.mem.write16(request, 0);
+    return true;
+  };
+  events.interrupts = frames;
+  return events;
+}
 
 // The window list's inputs on both sides: the window map of window style 0 (80:FFAD:
 // its colours, then the map) and one recorded poll of the text map upload wait 81:ACAF

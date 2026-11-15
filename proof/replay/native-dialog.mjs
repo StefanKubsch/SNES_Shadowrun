@@ -42,7 +42,7 @@ import { buildSpriteList } from './native-scene-sprites.mjs';
 import { waitForRandomStateChange } from '../../src/system/native-frame-wait.mjs';
 import { releaseNoticeWindowsAdapter } from './native-slot-release.mjs';
 import { openWindowAdapter } from '../../src/script/native-window-open.mjs';
-import { runReleaseWindowCall } from '../../src/game/window-release.mjs';
+import { runReleaseWindowCall } from '../../proof/caller/window-release.mjs';
 import { setMusicMode } from '../../src/system/native-audio-compose.mjs';
 import { readInput } from '../../src/system/native-input-apu.mjs';
 import {

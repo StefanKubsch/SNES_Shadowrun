@@ -22,7 +22,12 @@
 // (tools/lift-function-harness.mjs).
 import { prng } from './task-native-dialog-harness.mjs';
 import { createSide, registerCases } from './lift-function-harness.mjs';
-import { uploadEvents, windowMapSource, windowTables } from './lift-window-samples.mjs';
+import {
+  uploadEvents,
+  liveWindowEvents,
+  windowMapSource,
+  windowTables,
+} from './lift-window-samples.mjs';
 import { DialogTestMemory } from './task-native-dialog-harness.mjs';
 import { MAIN_UPKEEP_ROUTINES } from '../proof/replay/main-loop-upkeep.mjs';
 import { MAIN_CAMERA_REFERENCE_ENTRIES } from '../proof/game-reference/main-camera.mjs';
@@ -232,7 +237,7 @@ const lifted = (run, long, events) => (h, input) => {
   h.ctx.programBank = long ? 0x81 : 0x80;
   if (long) h.pushByte(0x81);
   h.push(0x1234, 2);
-  run(h, events?.());
+  run(h, events?.(h));
   return registers(h);
 };
 const registers = (h) => [h.ctx.x, h.ctx.y].map((v) => v.toString(16)).join();
@@ -395,7 +400,7 @@ const NOTICE_TIMEOUT = {
   },
   events: uploadEvents,
   result: registers,
-  lifted: lifted(runNoticeTimeouts, false, uploadEvents),
+  lifted: lifted(runNoticeTimeouts, false, liveWindowEvents),
 };
 
 // The time limit's and the glove action's register-level callees are replaced on both
@@ -591,7 +596,7 @@ const GLOVE_MOVE = {
     Object.assign(h.ctx, input);
     h.ctx.programBank = 0x80;
     h.push(0x1234, 2);
-    runGloveMove(h, uploadEvents(), GLOVE_MOVE_CALLEES);
+    runGloveMove(h, liveWindowEvents(h), GLOVE_MOVE_CALLEES);
     return roundRegisters(h);
   },
 };
@@ -694,7 +699,7 @@ const OBJECT_SEARCH = {
     Object.assign(h.ctx, input);
     h.ctx.programBank = 0x80;
     h.push(0x1234, 2);
-    drainNativeSequence(objectSearchSequence(h, uploadEvents(), GLOVE_MOVE_CALLEES));
+    drainNativeSequence(objectSearchSequence(h, liveWindowEvents(h), GLOVE_MOVE_CALLEES));
     return roundRegisters(h);
   },
 };
@@ -961,7 +966,7 @@ const NOTICE_SHOW = {
     Object.assign(h.ctx, input);
     h.ctx.programBank = 0x80;
     h.push(0x1234, 2);
-    runShowNotice(h, uploadEvents(), NOTICE_CALLEES);
+    runShowNotice(h, liveWindowEvents(h), NOTICE_CALLEES);
     return roundRegisters(h);
   },
 };
@@ -988,7 +993,7 @@ const GLOVE_RELEASE = {
     Object.assign(h.ctx, input);
     h.ctx.programBank = 0x80;
     h.push(0x1234, 2);
-    runPutGloveAway(h, uploadEvents());
+    runPutGloveAway(h, liveWindowEvents(h));
     return roundRegisters(h);
   },
 };
@@ -1253,9 +1258,9 @@ registerCases([TEXT_DRAW], {
 
 // The window opening 80:F963: the last window index anywhere up to past the limit, window
 // positions at and past the map's edges, sizes from 3 x 3 up, attributes, and the next
-// tile near the wrap at 2400. Both sides wait with one recorded poll each for the tile
-// request (81:ACBD) and the map upload (81:ACAF); the lifted side runs the register-level
-// tile request and map upload through their frames.
+// tile near the wrap at 2400. The reference uses recorded upload polls; the live
+// side services the same tile and map requests at their lag-free blocking branches.
+// Real upload NMIs remain covered by the integration comparisons.
 const windowEvents = () => ({
   mode: 'record-observations',
   values: [
@@ -1287,7 +1292,7 @@ const WINDOW_OPEN = {
     Object.assign(h.ctx, input);
     h.ctx.programBank = 0x80;
     h.push(0x1234, 2);
-    runOpenWindow(h, windowEvents());
+    runOpenWindow(h, liveWindowEvents(h));
     return bankRegisters(h);
   },
 };
@@ -1332,7 +1337,7 @@ const ACTION_MENU = {
     Object.assign(h.ctx, input);
     h.ctx.programBank = 0x80;
     h.push(0x1234, 2);
-    runChooseAction(h, uploadEvents(), MENU_CALLEES);
+    runChooseAction(h, liveWindowEvents(h), MENU_CALLEES);
     return roundRegisters(h);
   },
 };
@@ -1448,7 +1453,7 @@ const plainLifted = (run, long, events) => (h, input) => {
   h.ctx.programBank = long ? 0x81 : 0x80;
   if (long) h.pushByte(0x81);
   h.push(0x1234, 2);
-  run(h, events?.());
+  run(h, events?.(h));
   return roundRegisters(h);
 };
 const DIALOG_SMALL = [
@@ -1486,7 +1491,7 @@ const DIALOG_SMALL = [
     reference: (h, events) => TALK_ROUTINES.get(0x80ff79)(h, events),
     events: uploadEvents,
     result: roundRegisters,
-    lifted: plainLifted(runReleaseNoticeWindows, false, uploadEvents),
+    lifted: plainLifted(runReleaseNoticeWindows, false, liveWindowEvents),
   },
 ];
 // The window release's map unpack frames below the caller's are not reproduced.

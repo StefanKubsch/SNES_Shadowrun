@@ -8,30 +8,20 @@
 // of the original) and the upload is requested afterwards (81:ACB5): the request word
 // counts up and the request waits until the NMI has taken the upload (81:ACAF).
 //
-// The upload wait is lifted for the lag-free frame model: it runs below the original's
-// JSL frames (ADB5 in the list, ACB8 in the request), so the NMI at the branch 81:ACB2
-// finds the same stack, with the request word in A and its flags in 16-bit mode, as
-// the original. With recorded interrupt observations (the Mesen replays, the function
-// tests) the register-level request runs through its frame; the Mesen cold boot
-// replay, which records interrupts inside the unpacker, also unpacks the window map
-// through its frame. The list runs in bank 81 below its JSL frame, as the original.
+// Live uploads always use lag-free frames below the caller's JSL frame. Recorded
+// observations use the independent former composition in proof/caller/window-list.mjs.
+// Shared register/NMI interfaces are retained until their consumers are separated.
 //
 // The direct page words of the window drawing (the map row C3, the columns C6, the
 // attributes C9, the cells left CC, the window CF and the next tile D2) are written as
 // in the original; the Mesen oracle compares them.
 import { sceneRuntime } from '../system/scene-runtime.mjs';
-import {
-  RENDER_ROUTINES,
-  drawWindowListSequence as drawWindowListReference,
-} from '../system/native-render-compose.mjs';
 import { dialogAccess } from '../system/native-dialog-support.mjs';
 import {
   NATIVE_CALL_CONTINUATIONS,
   NativeCallContinuation,
   drainNativeSequence,
-  nativeCallSequence,
 } from '../system/native-call-continuation.mjs';
-import { lagFree } from '../system/main-wait-interrupt.mjs';
 import { nmiAtBranch } from '../system/frame-wait.mjs';
 import { unpackWindowMap } from './game-screen.mjs';
 import {
@@ -78,11 +68,7 @@ const BORDER_TOP_LEFT = 0x2001,
 // The list runs in bank 81; the call sites of the window map unpack and the upload
 // request; a JSL pushes the address of its last byte.
 const LIST_BANK = 0x81,
-  WINDOW_LIST = 0x81ad92,
-  WINDOW_MAP_SITE = 0x81ad92,
-  UNPACK_WINDOW_MAP = 0x81a9b2,
   UPLOAD_SITE = 0x81adb5,
-  REQUEST_UPLOAD = 0x81acb5,
   JSL_LAST_BYTE = 3;
 // The request's JSL to the wait 81:ACAF and the wait's branch back to its load.
 const UPLOAD_WAIT_SITE = 0x81acb8,
@@ -173,15 +159,9 @@ function pullLongFrame(h) {
   h.ctx.s = (h.ctx.s + 1) & WORD_MASK;
 }
 
-// Request the text map upload and wait until the NMI has taken it (81:ACB5 with the wait
-// 81:ACAF), a sequence for the caller's JSL at site. call calls the register-level
-// request through its frame. With callerFrame the caller has pushed the JSL's frame (a
-// routine table's call); the request then returns with its RTL.
-function* requestUploadSequence(h, events, call, site = UPLOAD_SITE, callerFrame = false) {
-  if (!lagFree(events)) {
-    yield* call(site, REQUEST_UPLOAD);
-    return;
-  }
+// Request the text map upload and wait until the NMI takes it (81:ACB5/81:ACAF).
+// callerFrame means the register caller already supplied the outer JSL frame.
+function* requestUploadSequence(h, events, site = UPLOAD_SITE, callerFrame = false) {
   const { ctx } = h,
     { wram } = h.a.mem,
     callerBank = ctx.programBank;
@@ -214,29 +194,19 @@ function* requestUploadSequence(h, events, call, site = UPLOAD_SITE, callerFrame
   return result;
 }
 // The text map upload as a caller's JSL at site (80:F963 calls it from bank 80).
-export const requestUploadCall = (h, events, site) =>
-  requestUploadSequence(
-    h,
-    events,
-    (at, target) => nativeCallSequence(h, events, RENDER_ROUTINES, at, target, true),
-    site,
-  );
+export const requestUploadCall = (h, events, site) => requestUploadSequence(h, events, site);
 
-// 81:ACB5 for the callers' tables (called with JSL): lifted with the lag-free frame
-// model, otherwise the register-level request.
+// Shared register callers enter with an existing JSL frame.
 export function runRequestUpload(h, events) {
-  if (!lagFree(events)) return RENDER_ROUTINES.get(REQUEST_UPLOAD)(h, events);
-  return drainNativeSequence(requestUploadSequence(h, events, null, UPLOAD_SITE, true));
+  return drainNativeSequence(requestUploadSequence(h, events, UPLOAD_SITE, true));
 }
 NATIVE_CALL_CONTINUATIONS.set(runRequestUpload, {
   run: runRequestUpload,
   create: (call) =>
-    lagFree(call.events)
-      ? new NativeCallContinuation(
-          call.h.a,
-          requestUploadSequence(call.h, call.events, null, UPLOAD_SITE, true),
-        )
-      : NATIVE_CALL_CONTINUATIONS.get(REQUEST_UPLOAD).create(call),
+    new NativeCallContinuation(
+      call.h.a,
+      requestUploadSequence(call.h, call.events, UPLOAD_SITE, true),
+    ),
 });
 // 81:A9B2 for the callers' tables (called with JSL; nothing in it waits): the window
 // map unpacked, with the X, Y, carry and overflow it leaves.
@@ -295,33 +265,21 @@ function* drawWindowListCallSequence(h, events) {
   };
   return result;
 }
-// 81:AD92 as a sequence for the register-level callers (with their accessor a): lifted
-// with the lag-free frame model; with recorded interrupt observations the register-level
-// list (src/system/native-render-compose.mjs) replays them.
+// Register callers supply the existing JSL frame; the live body is always used.
 export const drawWindowListJslSequence = (a, events) =>
-  lagFree(events)
-    ? drawWindowListCallSequence(dialogAccess(a), events)
-    : drawWindowListReference(a, events, false);
-// The routine for the callers' tables (target 81:AD92), as drawWindowListJslSequence.
+  drawWindowListCallSequence(dialogAccess(a), events);
 export function runDrawWindowList(h, events) {
-  if (!lagFree(events)) return RENDER_ROUTINES.get(WINDOW_LIST)(h, events);
   return drainNativeSequence(drawWindowListCallSequence(h, events));
 }
-// Other tables bind the register-level list to 81:AD92, so this continuation is found by
-// its run function.
 NATIVE_CALL_CONTINUATIONS.set(runDrawWindowList, {
   run: runDrawWindowList,
   create: (call) =>
-    lagFree(call.events)
-      ? new NativeCallContinuation(call.h.a, drawWindowListCallSequence(call.h, call.events))
-      : NATIVE_CALL_CONTINUATIONS.get(WINDOW_LIST).create(call),
+    new NativeCallContinuation(call.h.a, drawWindowListCallSequence(call.h, call.events)),
 });
 
 // 81:AEB0 (called with JSL): the window list from the first window on, after the first
-// index is cleared; the list's JSL at 81:AEB3, then the RTL. Without the lag-free frame
-// model the register-level routine runs.
-const RESET_LIST = 0x81aeb0,
-  RESET_LIST_SITE = 0x81aeb3;
+// index is cleared; the list's JSL at 81:AEB3, then the RTL.
+const RESET_LIST_SITE = 0x81aeb3;
 function* resetWindowListSequence(h, events) {
   yield () => {
     setWord(h.a.mem.wram, WINDOW_FIRST_INDEX, 0);
@@ -335,32 +293,25 @@ function* resetWindowListSequence(h, events) {
   return result;
 }
 export function runResetWindowList(h, events) {
-  if (!lagFree(events)) return NATIVE_CALL_CONTINUATIONS.get(RESET_LIST).run(h, events);
   return drainNativeSequence(resetWindowListSequence(h, events));
 }
 NATIVE_CALL_CONTINUATIONS.set(runResetWindowList, {
   run: runResetWindowList,
   create: (call) =>
-    lagFree(call.events)
-      ? new NativeCallContinuation(call.h.a, resetWindowListSequence(call.h, call.events))
-      : NATIVE_CALL_CONTINUATIONS.get(RESET_LIST).create(call),
+    new NativeCallContinuation(call.h.a, resetWindowListSequence(call.h, call.events)),
 });
 
 // The list below its JSL frame, in bank 81.
 function* windowListBody(h, events) {
   const { ctx } = h,
     m = sceneRuntime(h),
-    { wram } = m,
-    call = (site, target) => nativeCallSequence(h, events, RENDER_ROUTINES, site, target, true);
-  if (events?.startupInterrupts) yield* call(WINDOW_MAP_SITE, UNPACK_WINDOW_MAP);
-  else
-    yield () => {
-      // Without windows the list leaves the X, Y, carry and overflow of the window map.
-      const left = unpackWindowMap(m);
-      ({ x: ctx.x, y: ctx.y } = left);
-      ctx.status = left.carry ? ctx.status | FLAG_CARRY : ctx.status & ~FLAG_CARRY;
-      ctx.status = left.overflow ? ctx.status | FLAG_OVERFLOW : ctx.status & ~FLAG_OVERFLOW;
-    };
+    { wram } = m;
+  yield () => {
+    const left = unpackWindowMap(m);
+    ({ x: ctx.x, y: ctx.y } = left);
+    ctx.status = left.carry ? ctx.status | FLAG_CARRY : ctx.status & ~FLAG_CARRY;
+    ctx.status = left.overflow ? ctx.status | FLAG_OVERFLOW : ctx.status & ~FLAG_OVERFLOW;
+  };
   yield () => {
     const last = word(wram, WINDOW_LAST_INDEX);
     if (last & WORD_SIGN) return;
@@ -376,5 +327,5 @@ function* windowListBody(h, events) {
     ctx.x = x;
     ctx.status |= FLAG_CARRY;
   };
-  yield* requestUploadSequence(h, events, call);
+  yield* requestUploadSequence(h, events);
 }

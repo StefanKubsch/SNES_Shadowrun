@@ -1,7 +1,7 @@
 import { withInterruptEvents } from './observed-native-events.mjs';
 import { taskStop } from '../../src/system/task-stop.mjs';
 import { dialogAccess } from '../../src/system/native-dialog-support.mjs';
-import { runDrawWindowList } from '../../src/game/window-list.mjs';
+import { runDrawWindowList } from '../../proof/caller/window-list.mjs';
 import { restoreRunners } from '../../src/game/runner-state.mjs';
 import {
   observedContinuation,
