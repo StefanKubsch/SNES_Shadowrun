@@ -3,7 +3,7 @@
 // reference (proof/frontend-reference/title-cycle.mjs), for the paths the live
 // sessions of tools/title-cycle-lift.test.mjs do not reach (docs/MATRIX-LIFT.md):
 // the cycle after a game (A = 0), every order of cancelled menus, credits requests
-// and choices, with and without music. The title, start menu, demo, credits
+// and choices, with arbitrary room music state. The title, start menu, demo, credits
 // cutscene, new game set-up and room start answer as stubs that record each call
 // (target, return address, A, X, data bank); both sides must make the same calls
 // and leave the same WRAM, device writes and registers.
@@ -36,7 +36,7 @@ function sample(seed) {
     pick = (list) => list[rnd(list.length)],
     wram = new Uint8Array(WRAM_BYTES);
   for (let i = 0; i < wram.length; i++) wram[i] = rnd(256);
-  // No music (FFFF) in half of the samples: the credits then set up their own.
+  // Include the stopped room music marker; credits setup must not depend on it.
   if (rnd(2)) wram[MUSIC] = wram[MUSIC + 1] = 0xff;
   // The menu's answers in turn ('c': the Credits row, a cancel with a request).
   const answers = [];

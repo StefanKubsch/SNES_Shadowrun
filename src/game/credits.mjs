@@ -23,13 +23,16 @@
 // room 5 (table entries 8 and 1C, scene 86). Its actor 578 has script 199,
 // which script F8 replaces with 19A; 19A chooses script 156, which calls
 // native 54 with sequence 5 (the credits) and room 3 afterwards. The start menu
-// plays no music (7E:1CDE = FFFF) and holds the title's sound directory 3, so
-// the menu's credits were silent. They now set up the game's sounds as the
+// holds the title's sound directory 3. The room music word 7E:1CDE does not
+// describe the title song: it can still be zero on the first menu visit.
+// The menu's credits always set up the game's sounds as the
 // attract game does (81:EF63, directory 0), start that room's music through
 // 81:EF47 as the room loader 80:A4BF does, and afterwards stop it (81:EF94,
 // 1CDE = FFFF) and load the title's directory again (F229 with 0, F092 with 3),
 // as the attract game does before the start menu returns. Starting the music
-// on the title's directory played nothing and later read the I/O page.
+// on the title's directory played nothing and later read the I/O page. Even
+// without a song, the credits' exit sound 2E requires the game's directory;
+// the title's table gives it invalid parameters and can block menu sounds.
 import { PAD_HELD, MUSIC } from '../data/wram.mjs';
 import { roomHeader, ROOM_HEADER_MUSIC } from '../data/rooms.mjs';
 import { BYTE_BITS, WORD_MASK } from '../constants/bits.mjs';

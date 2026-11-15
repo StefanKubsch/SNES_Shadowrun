@@ -24,7 +24,6 @@ import {
   CREDITS_SEQUENCE,
   endingMusic,
   markMenuCredits,
-  musicSilent,
   takeCreditsRequest,
 } from '../game/credits.mjs';
 import { TIMER, TIMER_STOPPED } from '../data/wram.mjs';
@@ -132,18 +131,18 @@ export function* titleCycleSequence(h, events, routines) {
 }
 
 // The credits from the start menu's Credits row (src/game/credits.mjs), called with
-// the frame of the attract game. Without music they set up the game's sounds,
+// the frame of the attract game. They set up the game's sounds,
 // play the ending room's music and afterwards stop it and load the title's sounds.
 function* playMenuCredits(h, events, routines, m) {
   const { ctx } = h,
-    call = (target) => nativeCallSequence(h, events, routines, ATTRACT_SITE, target, true),
-    silent = musicSilent(m.wram);
-  if (silent)
-    yield () => {
-      setUpGameAudio(m);
-      ctx.bank = CODE_BANK;
-      setMusicMode(m.mem, m.port, endingMusic(m.mem));
-    };
+    call = (target) => nativeCallSequence(h, events, routines, ATTRACT_SITE, target, true);
+  // The room music field does not describe the title audio. Always load the game
+  // directory: the credits also play game sound 2E, which is invalid in the title.
+  yield () => {
+    setUpGameAudio(m);
+    ctx.bank = CODE_BANK;
+    setMusicMode(m.mem, m.port, endingMusic(m.mem));
+  };
   yield () => {
     ctx.a = CREDITS_SEQUENCE;
     ctx.x = CREDITS_ARGUMENT;
@@ -151,7 +150,6 @@ function* playMenuCredits(h, events, routines, m) {
   };
   yield* call(CUTSCENE);
   yield () => markMenuCredits(h.a.vm, false);
-  if (!silent) return;
   yield () => {
     ctx.bank = CODE_BANK;
   };

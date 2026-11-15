@@ -5,7 +5,6 @@ import {
   CREDITS_SEQUENCE,
   endingMusic,
   markMenuCredits,
-  musicSilent,
   takeCreditsRequest,
 } from '../../src/game/credits.mjs';
 import { frontendCallSequence } from '../replay/main-frontend-text.mjs';
@@ -96,26 +95,22 @@ function* titleCycleSequence(h, e, r) {
   // The port's credits from the start menu (src/game/credits.mjs), with the frame
   // of the attract game's call at A1D0 (see src/frontend/title-cycle.mjs).
   const credits = function* () {
-    const silent = musicSilent(h.a.mem.wram);
-    if (silent) {
-      yield* call(0x80a1d0, 0x81ef63, true);
-      bank80(h);
-      h.load(endingMusic(h.a.mem));
-      yield* call(0x80a1d0, 0x81ef47, true);
-    }
+    // Port addition: the menu credits always need the game sound directory.
+    yield* call(0x80a1d0, 0x81ef63, true);
+    bank80(h);
+    h.load(endingMusic(h.a.mem));
+    yield* call(0x80a1d0, 0x81ef47, true);
     h.load(CREDITS_SEQUENCE);
     h.index('x', CREDITS_ARGUMENT);
     markMenuCredits(h.a.vm, true);
     yield* call(0x80a1d0, 0x81cdf8, true);
     markMenuCredits(h.a.vm, false);
-    if (silent) {
-      bank80(h);
-      yield* call(0x80a1d0, 0x81ef94, true);
-      h.load(0);
-      yield* call(0x80a1d0, 0x81f229, true);
-      h.load(TITLE_SOUND_DIRECTORY);
-      yield* call(0x80a1d0, 0x81f092, true);
-    }
+    bank80(h);
+    yield* call(0x80a1d0, 0x81ef94, true);
+    h.load(0);
+    yield* call(0x80a1d0, 0x81f229, true);
+    h.load(TITLE_SOUND_DIRECTORY);
+    yield* call(0x80a1d0, 0x81f092, true);
   };
   for (;;) {
     if (at === 0x80a1d6) {

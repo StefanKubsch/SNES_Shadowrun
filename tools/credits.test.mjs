@@ -3,6 +3,13 @@ import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import { cartridge } from './cartridge-harness.mjs';
 import { LiveGame } from '../src/video/live-game.mjs';
+import { Apu } from '../src/apu/apu.mjs';
+import { SoundDriver } from '../src/apu/sound-driver.mjs';
+import { counterBytes } from '../src/vm/frame-events.mjs';
+import { MouseControl } from '../src/browser/mouse-control.mjs';
+import { unpackInput } from '../src/browser/recording.mjs';
+import { SONG_TABLE, PARAM_LOW } from '../src/apu/sound-driver-memory.mjs';
+import { GAME_SONG_TABLE, TITLE_SONG_TABLE } from '../src/constants/sound-commands.mjs';
 import { buildLanguage, GERMAN, ENGLISH } from '../src/data/language.mjs';
 import {
   startMenuWaiting,
@@ -119,3 +126,70 @@ for (const language of [ENGLISH, GERMAN])
       assert.ok(musicSilent(game.memory.wram), 'the music stops after the credits');
     },
   );
+
+// Regression for Shadowrun-recording-2026-11-15T18-11-39-098Z: let the title
+// finish, wheel to Credits, leave them, then wheel through the menu again.
+// The old MUSIC=FFFF guard skipped setup on this first visit (MUSIC was zero).
+// Credits sound 2E then read the title table as a game sound and left voice 0
+// at rank 122 indefinitely, refusing every later menu move sound (rank 24).
+test('credits after the whole title play music and preserve subsequent wheel sounds', () => {
+  const acceptedMoves = [];
+  let game,
+    control,
+    wheel = 0,
+    commandSound = false;
+  class ObservedDriver extends SoundDriver {
+    sound0916() {
+      commandSound = true;
+      try {
+        return super.sound0916();
+      } finally {
+        commandSound = false;
+      }
+    }
+    play0776() {
+      const menuMove = commandSound && this.ram[PARAM_LOW] === 9;
+      const result = super.play0776();
+      if (menuMove) acceptedMoves.push([game.nmis, result.carry]);
+      return result;
+    }
+  }
+  const apu = new Apu({ driver: (ram, io) => new ObservedDriver(ram, io).run() });
+  const moves = new Set([5297, 5351, 5399, 6250, 6280, 6310]);
+  let creditsFrames = 0,
+    peak = 0,
+    sawGameMusic = false,
+    returned = false;
+  game = new LiveGame(cartridge, {
+    apu,
+    counter: counterBytes(603244941),
+    pad: (nmi) => {
+      if (moves.has(nmi)) wheel++;
+      const word = nmi === 5512 || nmi === 6100 ? B : 0;
+      return control.pad(nmi, unpackInput(word, 0, 0, 0, wheel));
+    },
+  });
+  control = new MouseControl(game);
+  apu.enableOutput(1);
+  while (game.nmis < 6400) {
+    game.step();
+    const samples = apu.takeOutput();
+    if (menuCreditsRunning(game.vm)) {
+      creditsFrames++;
+      sawGameMusic ||=
+        (apu.ram[SONG_TABLE] | (apu.ram[SONG_TABLE + 1] << 8)) === GAME_SONG_TABLE &&
+        apu.ram[SONG] === endingMusic(game.memory);
+      for (const sample of samples) peak = Math.max(peak, Math.abs(sample));
+    } else if (creditsFrames && startMenuWaiting(game)) returned = true;
+  }
+  assert.ok(creditsFrames > 100, 'the first menu visit plays the credits');
+  assert.ok(sawGameMusic, 'the ending song uses the game directory');
+  assert.ok(peak >= AUDIBLE, `credits PCM is audible: ${peak}`);
+  assert.ok(returned, 'the start menu returns');
+  assert.equal(apu.ram[SONG_TABLE] | (apu.ram[SONG_TABLE + 1] << 8), TITLE_SONG_TABLE);
+  assert.deepEqual(
+    acceptedMoves,
+    [...moves].map((nmi) => [nmi + 1, true]),
+    'all three wheel sounds before and after credits actually start',
+  );
+});

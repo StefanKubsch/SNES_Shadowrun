@@ -37,7 +37,9 @@ called through their original frames, so the reference can replace them.
   shorter timeout; after a button in the title it gets A = 0.
 - A cancelled menu shows the attract game and the title in turn, each followed
   by the menu again. The port's Credits row plays the credits (with the
-  attract game's call frame, as before) and shows the menu again.
+  attract game's call frame, as before) and shows the menu again. It always
+  loads the game's sound directory and starts the ending room's music, then
+  stops the music and restores the title directory afterwards.
 - The attract game A168 is a JSR, its demo owner 96F3 a JSL, and 96F3 calls
   9699 with JSR, as in the original; the demo's main loop returns through
   those frames. 9699 pauses at the main loop's waits as before
@@ -63,8 +65,40 @@ difference (no title audio set-up after the attract game) fails it.
 runs the three routines against the reference on random states with recorded
 stub callees, including the path after a game, which the live sessions do not
 reach: random orders of cancelled menus, credits requests and choices, with
-and without music. The calls (target, return address, data bank and
+and without a stopped room music marker. The calls (target, return address, data bank and
 arguments), WRAM, device writes and the live registers must be equal.
+
+## Menu credits audio correction (2026-11-15)
+
+The user recording `Shadowrun-recording-2026-11-15T18-11-39-098Z` replayed
+through NMI 6254 with every recorded WRAM check equal before the correction.
+It reaches the first menu after the complete title, wheels to Credits, exits
+them and moves through the menu again. The original recording remains a local
+user file; the regression test retains its seed and initial wheel timings.
+
+The former credits adapter treated room music word `7E:1CDE = FFFF` as the
+condition for setting up game audio. On the first menu visit it was zero,
+although the APU held the title directory and menu song. Setup was skipped,
+so the menu fade left the credits silent. On exit CDF8 sends sound `2E`
+(command call at 81:CF43, lifted in `cutsceneSequence`). That is a game-directory
+sound; interpreted through the title sound table it left voice 0 at rank 122
+indefinitely. Subsequent menu move sounds (rank 24, voice mask 1) were refused.
+
+The adapter now always sets up and restores the sound directories. This is
+a correction to the port's menu credits addition, independent of the optional
+original-game bug fixes. Both retained frontend references receive the same
+intentional adapter change; the sound driver and original ending stay unchanged.
+[tools/credits.test.mjs](../tools/credits.test.mjs) checks audible credits PCM,
+the ending song in the game directory, restoration of the title directory,
+and actual acceptance of all three wheel sounds before and after credits.
+The separate report about menu sounds after game over is not covered by this
+recording and remains open.
+
+With the correction, the supplied recording still reaches NMI 6254 without
+leaving its input path. The credits PCM peak is 9234; all nine menu move
+commands start (three before and six after credits). The first old WRAM hash
+differs at NMI 6000 because the audio state is deliberately corrected. The
+new regression passes and fails when the old conditional setup is restored.
 
 ## Outer game owner
 
