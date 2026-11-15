@@ -29,7 +29,7 @@ test(
             : k >= 3150 && k < 3154
               ? 0x0400
               : 0;
-        driver ??= livePlanDriver(plan, game.memory.wram, () => game.driver.roundsCompleted);
+        driver ??= livePlanDriver(plan, game.memory.wram, () => game.loop.rounds);
         return driver.pad(k);
       },
     });

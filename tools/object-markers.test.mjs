@@ -103,7 +103,7 @@ test(
             ['wait', 20],
           ],
           game.memory.wram,
-          () => game.driver.roundsCompleted,
+          () => game.loop.rounds,
         );
         return driver.pad(k);
       });

@@ -3,13 +3,13 @@
 // Bridge and resumption are reproduced natively (semantics from
 // proof/task/native-bridge.mjs and native-resume.mjs); the natives themselves are
 // the proven modules, connected through TaskAccessor.
-import { VmFault, boundaryFault } from './memory.mjs';
-import { TaskAccessor, vmToContext, contextToVm } from './task-accessor.mjs';
-import { interruptEventsOf, appendRoundInterrupts } from './devices.mjs';
+import { VmFault, boundaryFault } from '../../src/vm/memory.mjs';
+import { TaskAccessor, vmToContext, contextToVm } from '../../src/vm/task-accessor.mjs';
+import { interruptEventsOf, appendRoundInterrupts } from '../../src/vm/devices.mjs';
 import { nz, plb, bank80 } from './cpu.mjs';
-import { SPECIAL_NATIVES, SPECIAL_NATIVE_CONTINUATIONS } from './special-natives.mjs';
-import { WAIT_PAUSED, WAIT_RETURNED } from '../task/native-wait-continuation.mjs';
-import { finishInterruptObservations } from '../task/main-wait-interrupt.mjs';
+import { SPECIAL_NATIVES, SPECIAL_NATIVE_CONTINUATIONS } from '../../src/vm/special-natives.mjs';
+import { WAIT_PAUSED, WAIT_RETURNED } from '../../src/task/native-wait-continuation.mjs';
+import { finishInterruptObservations } from '../../src/task/main-wait-interrupt.mjs';
 import {
   NATIVE_DISPATCH,
   NATIVE_POINTERS,
@@ -22,12 +22,12 @@ import {
   FRAME_CALL_ID,
   FRAME_OPERAND_STACK,
   FRAME_PC,
-} from './layout.mjs';
+} from '../../src/vm/layout.mjs';
 // Cyclic import (scheduler.mjs uses the bridge); both sides use the bindings only at run time.
 import { TaskScheduler, STOP_RETURNED, STOP_BUDGET, STOP_NATIVE_WAIT } from './scheduler.mjs';
-import { FLAG_INDEX_8BIT, FLAG_MEMORY_8BIT } from '../constants/cpu-flags.mjs';
-import { WORD_BITS, WORD_MASK, BYTE_MASK } from '../constants/bits.mjs';
-import { CODE_BANK_BASE, CODE_BANK } from '../constants/memory-map.mjs';
+import { FLAG_INDEX_8BIT, FLAG_MEMORY_8BIT } from '../../src/constants/cpu-flags.mjs';
+import { WORD_BITS, WORD_MASK, BYTE_MASK } from '../../src/constants/bits.mjs';
+import { CODE_BANK_BASE, CODE_BANK } from '../../src/constants/memory-map.mjs';
 
 // $F4F6: switch to the outer stack, DBR=$80, pointer to DP $A2, JSR $F52F
 // (pushes the return address $F508).

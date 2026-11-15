@@ -83,7 +83,7 @@ test('with four slots the bed saves slot 4 and the title loads it', { timeout: 9
     sram: loaded,
     pad: (k) => {
       if (k < 5000) return title(0)(k);
-      driver ??= livePlanDriver(BED_SAVE_4, game.memory.wram, () => game.driver.roundsCompleted);
+      driver ??= livePlanDriver(BED_SAVE_4, game.memory.wram, () => game.loop.rounds);
       return driver.pad(k);
     },
   });

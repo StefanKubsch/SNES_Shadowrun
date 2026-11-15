@@ -49,7 +49,7 @@ test(
       pad: (k) => {
         if (k < 5000) return TITLE(k);
         const wram = game.memory.wram,
-          rounds = () => game.driver.roundsCompleted;
+          rounds = () => game.loop.rounds;
         if (!driver) driver = livePlanDriver(MENU, wram, rounds);
         if (driver.done() && phase === 'menu') {
           menuRefused = !debugRoomReachable(game);
@@ -113,7 +113,7 @@ test(
       pad: (k) => {
         if (k < 5000) return k >= 3000 && k < 3400 && k % 150 < 4 ? 0x1000 : 0;
         const w = game.memory.wram,
-          rounds = () => game.driver.roundsCompleted;
+          rounds = () => game.loop.rounds;
         driver ??= livePlanDriver([...MORGUE_DOOR_PLAN, ['wait', 500]], w, rounds);
         if (driver.done() && phase === 'door' && debugRoomReachable(game)) {
           assert.deepEqual(activeMorticians(), [], 'both morticians have actually fled');

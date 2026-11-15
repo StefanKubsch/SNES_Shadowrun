@@ -1,4 +1,4 @@
-// Differential comparison of task management and the scheduler (src/vm/scheduler.mjs)
+// Differential comparison of task management and the scheduler (proof/vm/scheduler.mjs)
 // against the proved compositions as an oracle:
 //   $C1CA/$C1F9/$C20B with opcodes, natives, script calls (child tasks) and
 //   postrun: prepareTaskVisitStatusOpcodes; without opcodes: prepareTaskVisit
@@ -7,10 +7,10 @@
 //   $C1F9 with saved continuation $F508: prepareTaskNativeWaitResume
 // Compare all registers, flags and all 131072 WRAM bytes.
 import { VmFault } from '../src/vm/memory.mjs';
-import { ScriptInterpreter } from '../src/vm/interpreter.mjs';
-import { NativeCalls, nativeBridge } from '../src/vm/native-call.mjs';
+import { ScriptInterpreter } from '../proof/vm/interpreter.mjs';
+import { NativeCalls, nativeBridge } from '../proof/vm/native-call.mjs';
 import { NATIVE_POINTERS } from '../src/vm/layout.mjs';
-import { TaskScheduler, nativeWait, STOP_BUDGET } from '../src/vm/scheduler.mjs';
+import { TaskScheduler, nativeWait, STOP_BUDGET } from '../proof/vm/scheduler.mjs';
 import { prepareTaskVisit } from '../proof/task/visit-c1ca.mjs';
 import { prepareTaskVisitStatusOpcodes } from '../proof/task/visit-opcodes.mjs';
 import { prepareTaskAppendC34A } from '../proof/task/append-c34a.mjs';

@@ -11,8 +11,8 @@ import {
   EXIT_END,
   EXIT_STATUS_RETURN,
   EXIT_NATIVE_CALL,
-} from '../src/vm/interpreter.mjs';
-import { NativeCalls } from '../src/vm/native-call.mjs';
+} from '../proof/vm/interpreter.mjs';
+import { NativeCalls } from '../proof/vm/native-call.mjs';
 import {
   prepareTaskOpcodeSequence,
   prepareTaskNativeOpcodeSequence,

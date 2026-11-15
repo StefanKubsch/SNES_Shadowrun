@@ -77,80 +77,136 @@ function scriptsByCode(mem) {
   return ids;
 }
 
-// `wram` is the original's 128 KiB; `mem` reads the ROM tables and is the JS tasks'
-// memory. `onCreate` and `native` are passed on to the scheduler.
-export function loadScheduler(mem, wram, { native = null, onCreate = null } = {}) {
-  const word = (at) => wram[at] | (wram[at + 1] << BYTE_BITS);
-  // The heap from 03D2: one header and HEAP_INITIAL_SIZE bytes after C1A6.
-  const heapRange = [HEAP_SIZE_WORD, HEAP_SIZE_WORD + HEAP_HEADER_BYTES + HEAP_INITIAL_SIZE],
-    heap = wram.slice(...heapRange);
-  const heapWord = (offset) => heap[offset] | (heap[offset + 1] << BYTE_BITS);
-  const setHeapWord = (offset, value) => {
+// The original heap allocator over a copy of the heap from 7E:03D2 (header bytes
+// first): 80:C242 (first fit; free successors are merged into a block that is too small),
+// 80:C2BD (release) and the heap of 80:C1A6 (one free block).
+function heapModel(heap) {
+  const word = (offset) => heap[offset] | (heap[offset + 1] << BYTE_BITS);
+  const setWord = (offset, value) => {
     heap[offset] = value & BYTE_MASK;
     heap[offset + 1] = value >>> BYTE_BITS;
   };
-  const frames = [];
-  // Table words the original never wrote (C1A6 leaves PREVIOUS and CONTINUATION of the
-  // unused slots stale) and that name no slot or continuation: not projected until the
-  // slot is allocated.
-  const unknown = new Set();
-
-  // 80:C242: first fit; free successors are merged into a block that is too small.
   function allocate(size) {
     let offset = 0;
     for (let guard = 0; ; guard++) {
       if (guard > WORD_MASK) taskStop('original_endless_loop', { heap: offset });
-      let free = heapWord(offset);
+      let free = word(offset);
       if (free & HEAP_USED) {
-        offset = heapWord(offset + 2);
+        offset = word(offset + 2);
         if (offset === 0) taskStop('task_heap_required', { size });
         continue;
       }
       let fits = true;
       while (free < size) {
-        const next = heapWord(offset + 2);
+        const next = word(offset + 2);
         if (next === 0) taskStop('task_heap_required', { size });
-        const nextSize = heapWord(next);
+        const nextSize = word(next);
         if (nextSize & HEAP_USED) {
           offset = next;
           fits = false;
           break;
         }
         free = (free + nextSize + HEAP_HEADER_BYTES) & WORD_MASK;
-        setHeapWord(offset, free);
-        setHeapWord(offset + 2, heapWord(next + 2));
+        setWord(offset, free);
+        setWord(offset + 2, word(next + 2));
       }
       if (!fits) continue;
       const remainder = free - size;
       if (remainder >= HEAP_MIN_SPLIT_BYTES) {
         const split = offset + size + HEAP_HEADER_BYTES;
-        setHeapWord(split, remainder - HEAP_HEADER_BYTES);
-        setHeapWord(split + 2, heapWord(offset + 2));
-        setHeapWord(offset + 2, split);
-        setHeapWord(offset, size | HEAP_USED);
-      } else setHeapWord(offset, free | HEAP_USED);
+        setWord(split, remainder - HEAP_HEADER_BYTES);
+        setWord(split + 2, word(offset + 2));
+        setWord(offset + 2, split);
+        setWord(offset, size | HEAP_USED);
+      } else setWord(offset, free | HEAP_USED);
       return offset + HEAP_DATA;
     }
   }
+  const release = (frame) => {
+    const offset = frame - HEAP_DATA;
+    setWord(offset, word(offset) & HEAP_SIZE_MASK);
+  };
+  const reset = () => {
+    setWord(0, HEAP_INITIAL_SIZE);
+    setWord(2, 0);
+  };
+  return { word, allocate, release, reset };
+}
+const HEAP_BYTES = HEAP_HEADER_BYTES + HEAP_INITIAL_SIZE;
+
+// Live bytes of the original layout as a map from WRAM offset to byte value.
+// includeLocal(task, index) can leave out locals (a test's unwritten fresh locals).
+function projectLayout(scheduler, frames, unknown, heapWord, { includeLocal = () => true } = {}) {
+  const bytes = new Map();
+  const put8 = (at, value) => bytes.set(at, value & BYTE_MASK);
+  const put16 = (at, value) => {
+    put8(at, value);
+    put8(at + 1, value >>> BYTE_BITS);
+  };
+  put16(TASK_LIST_HEAD, slotWord(scheduler.head));
+  put16(TASK_FREE_LIST, slotWord(scheduler.free));
+  put16(TASK_CURSOR, slotWord(scheduler.cursor));
+  scheduler.slots.forEach((entry, slot) => {
+    const x = 2 * slot;
+    put16(TASK_FRAME + x, frames[slot]);
+    put16(TASK_NEXT + x, slotWord(entry.next));
+    if (!unknown.has(`previous:${slot}`)) put16(TASK_PREVIOUS + x, slotWord(entry.previous));
+    if (!unknown.has(`continuation:${slot}`))
+      put16(TASK_CONTINUATION + x, CONTINUATION_WORDS.get(entry.continuation));
+    put16(TASK_WAIT + x, entry.wait);
+    put16(TASK_COUNTER + x, entry.counter);
+    put16(TASK_EVENTS + x, entry.events);
+  });
+  for (let offset = 0, n = 0; ; n++) {
+    if (n > WORD_MASK) throw Error('cyclic heap');
+    put16(HEAP_SIZE_WORD + offset, heapWord(offset));
+    put16(HEAP_NEXT_WORD + offset, heapWord(offset + 2));
+    offset = heapWord(offset + 2);
+    if (offset === 0) break;
+  }
+  scheduler.slots.forEach(({ task }, slot) => {
+    if (task === null) return;
+    const frame = frames[slot],
+      end = frame + task.frameBytes;
+    put16(frame, task.code);
+    put8(frame + FRAME_BANK, task.code >>> WORD_BITS);
+    put16(frame + FRAME_PC, task.pc);
+    put16(frame + FRAME_RETURN, frame + FRAME_RETURN_BASE - 2 * task.returns.length);
+    put16(frame + FRAME_OPERAND_STACK, end - 1 - 2 * task.stack.length);
+    if (task.call !== null) put16(frame + FRAME_CALL_ID, task.call.id);
+    task.returns.forEach((value, n) => put16(frame + FRAME_RETURN_BASE - 2 * n, value));
+    task.locals.forEach((value, n) => {
+      if (includeLocal(task, n)) put8(frame + FRAME_LOCALS + n, value);
+    });
+    task.stack.forEach((value, n) => put16(end - 2 - 2 * n, value));
+  });
+  return bytes;
+}
+
+// `wram` is the original's 128 KiB; `mem` reads the ROM tables and is the JS tasks'
+// memory. `onCreate` and `native` are passed on to the scheduler.
+export function loadScheduler(mem, wram, { native = null, onCreate = null } = {}) {
+  const word = (at) => wram[at] | (wram[at + 1] << BYTE_BITS);
+  // The heap from 03D2: one header and HEAP_INITIAL_SIZE bytes after C1A6.
+  const heapRange = [HEAP_SIZE_WORD, HEAP_SIZE_WORD + HEAP_BYTES],
+    heap = wram.slice(...heapRange),
+    model = heapModel(heap);
+  const frames = [];
+  // Table words the original never wrote (C1A6 leaves PREVIOUS and CONTINUATION of the
+  // unused slots stale) and that name no slot or continuation: not projected until the
+  // slot is allocated.
+  const unknown = new Set();
 
   const scheduler = new Scheduler(mem, {
     native,
     onCreate(slot, task) {
-      frames[slot] = allocate(task.frameBytes);
+      frames[slot] = model.allocate(task.frameBytes);
       unknown.delete(`previous:${slot}`);
       unknown.delete(`continuation:${slot}`);
       onCreate?.(slot, task);
     },
-    // 80:C2BD clears the used bit of the frame's block.
-    onRelease(slot) {
-      const offset = frames[slot] - HEAP_DATA;
-      setHeapWord(offset, heapWord(offset) & HEAP_SIZE_MASK);
-    },
-    // 80:C1A6: the heap is one free block again.
-    onReset() {
-      setHeapWord(0, HEAP_INITIAL_SIZE);
-      setHeapWord(2, 0);
-    },
+    onRelease: (slot) => model.release(frames[slot]),
+    onReset: model.reset,
   });
 
   const readSlot = (at, field) => {
@@ -233,55 +289,7 @@ export function loadScheduler(mem, wram, { native = null, onCreate = null } = {}
     };
   }
 
-  // Live bytes of the original layout as a map from WRAM offset to byte value.
-  // includeLocal(task, index) can leave out locals (a test's unwritten fresh locals).
-  function project({ includeLocal = () => true } = {}) {
-    const bytes = new Map();
-    const put8 = (at, value) => bytes.set(at, value & BYTE_MASK);
-    const put16 = (at, value) => {
-      put8(at, value);
-      put8(at + 1, value >>> BYTE_BITS);
-    };
-    put16(TASK_LIST_HEAD, slotWord(scheduler.head));
-    put16(TASK_FREE_LIST, slotWord(scheduler.free));
-    put16(TASK_CURSOR, slotWord(scheduler.cursor));
-    scheduler.slots.forEach((entry, slot) => {
-      const x = 2 * slot;
-      put16(TASK_FRAME + x, frames[slot]);
-      put16(TASK_NEXT + x, slotWord(entry.next));
-      if (!unknown.has(`previous:${slot}`)) put16(TASK_PREVIOUS + x, slotWord(entry.previous));
-      if (!unknown.has(`continuation:${slot}`))
-        put16(TASK_CONTINUATION + x, CONTINUATION_WORDS.get(entry.continuation));
-      put16(TASK_WAIT + x, entry.wait);
-      put16(TASK_COUNTER + x, entry.counter);
-      put16(TASK_EVENTS + x, entry.events);
-    });
-    for (let offset = 0, n = 0; ; n++) {
-      if (n > WORD_MASK) throw Error('cyclic heap');
-      put16(HEAP_SIZE_WORD + offset, heapWord(offset));
-      put16(HEAP_NEXT_WORD + offset, heapWord(offset + 2));
-      offset = heapWord(offset + 2);
-      if (offset === 0) break;
-    }
-    scheduler.slots.forEach(({ task }, slot) => {
-      if (task === null) return;
-      const frame = frames[slot],
-        end = frame + task.frameBytes;
-      put16(frame, task.code);
-      put8(frame + FRAME_BANK, task.code >>> WORD_BITS);
-      put16(frame + FRAME_PC, task.pc);
-      put16(frame + FRAME_RETURN, frame + FRAME_RETURN_BASE - 2 * task.returns.length);
-      put16(frame + FRAME_OPERAND_STACK, end - 1 - 2 * task.stack.length);
-      if (task.call !== null) put16(frame + FRAME_CALL_ID, task.call.id);
-      task.returns.forEach((value, n) => put16(frame + FRAME_RETURN_BASE - 2 * n, value));
-      task.locals.forEach((value, n) => {
-        if (includeLocal(task, n)) put8(frame + FRAME_LOCALS + n, value);
-      });
-      task.stack.forEach((value, n) => put16(end - 2 - 2 * n, value));
-    });
-    return bytes;
-  }
-
+  const project = (options) => projectLayout(scheduler, frames, unknown, model.word, options);
   // Writes the projection into the WRAM (live bytes only).
   function store(options) {
     const bytes = project(options);
@@ -290,4 +298,42 @@ export function loadScheduler(mem, wram, { native = null, onCreate = null } = {}
   }
 
   return { scheduler, frames, project, store, reload: read };
+}
+
+// Follows the JS scheduler of a live game from its start (src/script/game-loop.mjs): the
+// heap is replayed from the first reset C1A6 on, in the order in which the scheduler
+// creates and frees tasks. Before that reset the original's tables hold the boot's
+// zeros and nothing is projected. The words C1A6 leaves stale (PREVIOUS of slots 1-47)
+// are projected once the slot is allocated. onCreate(slot, task) observes new tasks.
+export function followScheduler(scheduler, { onCreate = null } = {}) {
+  const model = heapModel(new Uint8Array(HEAP_BYTES)),
+    frames = new Array(TASK_SLOTS).fill(0),
+    unknown = new Set(Array.from({ length: TASK_SLOTS - 1 }, (_, n) => `previous:${n + 1}`));
+  let started = false;
+  const chain = (observer, own) =>
+    observer
+      ? (...args) => {
+          own(...args);
+          observer(...args);
+        }
+      : own;
+  scheduler.onCreate = chain(scheduler.onCreate, (slot, task) => {
+    if (!started) taskStop('task_created_before_reset', { slot });
+    frames[slot] = model.allocate(task.frameBytes);
+    unknown.delete(`previous:${slot}`);
+    onCreate?.(slot, task);
+  });
+  scheduler.onRelease = chain(scheduler.onRelease, (slot) => model.release(frames[slot]));
+  scheduler.onReset = chain(scheduler.onReset, () => {
+    started = true;
+    model.reset();
+  });
+  return {
+    frames,
+    get started() {
+      return started;
+    },
+    project: (options) =>
+      started ? projectLayout(scheduler, frames, unknown, model.word, options) : new Map(),
+  };
 }

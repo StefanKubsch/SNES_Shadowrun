@@ -59,7 +59,7 @@ export function liveBenchmark(nmis = 9000) {
     pictureMsPerNmi: per(pictureMs),
     audioMsPerNmi: per(audioMs),
     restMsPerNmi: per(ms - pictureMs - audioMs),
-    ownsGame: game.driver.ownsGame,
+    ownsGame: game.loop.ownsGame,
     heapUsedBytes: process.memoryUsage().heapUsed,
     heapGrowthBytes: process.memoryUsage().heapUsed - heapBefore,
     gcMeasured: typeof globalThis.gc === 'function',

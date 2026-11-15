@@ -7,7 +7,7 @@ import {
   MAIN_ROUND_RETURN_WORD,
   STOP_MAIN_OWNER_RETURN,
   STOP_MAIN_WAIT,
-} from '../src/vm/main-driver.mjs';
+} from '../proof/vm/main-driver.mjs';
 import { FRONTEND_ROUTINES as FRONTEND_TASK_ROUTINES } from '../src/task/main-frontend.mjs';
 import { GAME_OWNER_REFERENCE_ENTRIES } from '../proof/frontend-reference/game-owner.mjs';
 // The register-level owner (proof): these tests stub its audio set-up 81:EF63, which
@@ -21,8 +21,8 @@ import { SRAM_SIZE } from '../src/vm/memory.mjs';
 import { MAIN_START_ROUTINES } from '../src/task/main-start.mjs';
 import { withGameStartReference } from '../proof/game-reference/game-start.mjs';
 import { MAIN_LOOP_ROUTINES } from '../src/vm/main-loop.mjs';
-import { ScriptInterpreter } from '../src/vm/interpreter.mjs';
-import { NativeCalls } from '../src/vm/native-call.mjs';
+import { ScriptInterpreter } from '../proof/vm/interpreter.mjs';
+import { NativeCalls } from '../proof/vm/native-call.mjs';
 import { ObservedDevices, observationSet } from '../proof/vm/observed-devices.mjs';
 import {
   TaskScheduler,
@@ -32,7 +32,7 @@ import {
   STOP_FRONTIER,
   STOP_BREAK,
   STOP_NATIVE_WAIT,
-} from '../src/vm/scheduler.mjs';
+} from '../proof/vm/scheduler.mjs';
 import { ff79Fixture } from './render-ff79-fixtures.mjs';
 import { textDma } from './main-dma-readback-fixtures.mjs';
 import { GAME_NMI_ROUTINES } from '../src/task/main-game-nmi.mjs';

@@ -59,7 +59,7 @@ counted twice there, at a point that depended on where the live steps ended,
 with the register-level menu as well: the attract game's nested scheduler
 rounds resumed after a pause with the main loop's registers in the shared VM
 and started a second round in the same frame. NestedRoundContinuation
-(src/vm/native-call.mjs) now keeps its own registers between work pieces;
+(proof/vm/native-call.mjs) now keeps its own registers between work pieces;
 [tools/live-step-budget.test.mjs](../tools/live-step-budget.test.mjs) checks that
 the attract game gives the same frames with small step budgets.
 

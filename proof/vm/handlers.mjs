@@ -3,7 +3,7 @@
 // flags (semantics from the proven modules in src/task/*). It receives the
 // VM, returns CONTINUE or an exit code and allocates nothing.
 // The interpreter loop takes care of the next opcode fetch.
-import { VmFault } from './memory.mjs';
+import { VmFault } from '../../src/vm/memory.mjs';
 import {
   ARITHMETIC_SCRATCH,
   NATIVE_ARGUMENT_COUNTS,
@@ -18,7 +18,7 @@ import {
   FRAME_PC,
   FRAME_LOCALS,
   FRAME_RETURN,
-} from './layout.mjs';
+} from '../../src/vm/layout.mjs';
 import {
   FLAG_DECIMAL,
   FLAG_CARRY,
@@ -26,7 +26,7 @@ import {
   FLAG_ZERO,
   FLAG_NEGATIVE,
   FLAG_MEMORY_8BIT,
-} from '../constants/cpu-flags.mjs';
+} from '../../src/constants/cpu-flags.mjs';
 import {
   WORD_MASK,
   WORD_BITS,
@@ -36,7 +36,7 @@ import {
   BYTE_VALUES,
   HIGH_BYTE_MASK,
   BYTE_BITS,
-} from '../constants/bits.mjs';
+} from '../../src/constants/bits.mjs';
 import {
   WRMPYA,
   WRMPYB,
@@ -47,9 +47,9 @@ import {
   RDDIVH,
   RDMPYL,
   RDMPYH,
-} from '../constants/hardware-registers.mjs';
-import { OPCODE } from '../script/opcodes.mjs';
-import { WRAM } from '../task/wram.mjs';
+} from '../../src/constants/hardware-registers.mjs';
+import { OPCODE } from '../../src/script/opcodes.mjs';
+import { WRAM } from '../../src/task/wram.mjs';
 
 // Stack-relative byte offsets: top word at S+1, the next word at S+3.
 const STACK_SECOND_WORD = 3;

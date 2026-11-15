@@ -1,5 +1,5 @@
 // Differential of the JS script interpreter (src/script/interpreter.mjs) against the
-// register-level interpreter (src/vm/interpreter.mjs), docs/SCRIPT-VM-LIFT.md phase 1.
+// register-level interpreter (proof/vm/interpreter.mjs), docs/SCRIPT-VM-LIFT.md phase 1.
 //
 // Corpus: each ROM script starts on both sides from the same random WRAM. The
 // register-level side gets a frame as 80:C2C8 builds it, with random residue in the
@@ -19,8 +19,8 @@ import {
   EXIT_END as VM_END,
   EXIT_NATIVE_CALL,
   EXIT_SCRIPT_CALL,
-} from '../src/vm/interpreter.mjs';
-import { nativeResume } from '../src/vm/native-call.mjs';
+} from '../proof/vm/interpreter.mjs';
+import { nativeResume } from '../proof/vm/native-call.mjs';
 import {
   ARITHMETIC_SCRATCH,
   FRAME_PC,

@@ -58,11 +58,7 @@ function clickAt(end, button) {
     sram: new Uint8Array(loadSave('apartment')),
     pad: (k) => {
       if (k < 5000) return TITLE(k);
-      driver ??= livePlanDriver(
-        plan.slice(3, end),
-        game.memory.wram,
-        () => game.driver.roundsCompleted,
-      );
+      driver ??= livePlanDriver(plan.slice(3, end), game.memory.wram, () => game.loop.rounds);
       if (!driver.done()) return driver.pad(k);
       const word = control.pad(k, input);
       out.push(word);

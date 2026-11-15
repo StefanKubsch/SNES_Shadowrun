@@ -3,16 +3,22 @@
 // DBR = script bank, S = operand stack in WRAM.
 // run() executes opcodes until an exit is reached (END, status return,
 // native or script call) or the budget is spent.
-import { VmFault } from './memory.mjs';
+import { VmFault } from '../../src/vm/memory.mjs';
 import { OPCODE_TABLE, CONTINUE, EXIT_NATIVE_CALL } from './handlers.mjs';
-import { OPCODE_LOOP, OPCODE_TARGETS } from './layout.mjs';
+import { OPCODE_LOOP, OPCODE_TARGETS } from '../../src/vm/layout.mjs';
 import {
   FLAG_ZERO,
   FLAG_NEGATIVE,
   FLAG_INDEX_8BIT,
   FLAG_MEMORY_8BIT,
-} from '../constants/cpu-flags.mjs';
-import { BYTE_BITS, WORD_MASK, BYTE_MASK, LONG_MASK, WORD_BITS } from '../constants/bits.mjs';
+} from '../../src/constants/cpu-flags.mjs';
+import {
+  BYTE_BITS,
+  WORD_MASK,
+  BYTE_MASK,
+  LONG_MASK,
+  WORD_BITS,
+} from '../../src/constants/bits.mjs';
 
 export {
   CONTINUE,

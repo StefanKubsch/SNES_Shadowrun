@@ -8,15 +8,15 @@ import { prepareScript, runMesen } from './mesen.mjs';
 import { rom } from './task-native-dialog-harness.mjs';
 import { decode } from './disassemble.mjs';
 import { VmMemory } from '../src/vm/memory.mjs';
-import { ScriptInterpreter } from '../src/vm/interpreter.mjs';
+import { ScriptInterpreter } from '../proof/vm/interpreter.mjs';
 import { TaskAccessor } from '../src/vm/task-accessor.mjs';
-import { MainLoopDriver, STOP_MAIN_WAIT } from '../src/vm/main-driver.mjs';
-import { NativeCalls } from '../src/vm/native-call.mjs';
+import { MainLoopDriver, STOP_MAIN_WAIT } from '../proof/vm/main-driver.mjs';
+import { NativeCalls } from '../proof/vm/native-call.mjs';
 import { isArithmeticRegister } from '../src/vm/devices.mjs';
 import { ObservedDevices } from '../proof/vm/observed-devices.mjs';
 import { nativeOpcodeTargets } from '../src/task/native-opcode-targets.mjs';
 import { nativeTarget } from '../src/task/native-targets.mjs';
-import { STOP_RETURNED, STOP_BUDGET } from '../src/vm/scheduler.mjs';
+import { STOP_RETURNED, STOP_BUDGET } from '../proof/vm/scheduler.mjs';
 import { SPECIAL_NATIVES } from '../src/vm/special-natives.mjs';
 import { runMainReset } from '../src/task/main-reset.mjs';
 import { runMainStartup, MAIN_STARTUP_ROUTINES } from '../src/task/main-startup.mjs';
@@ -756,7 +756,7 @@ export function compareBootPrefix(
     );
   else if (recorded.checkpoint === 0x80a139) assert.equal(startup(), 0xa139);
   else {
-    let stopped = false;
+    let stopped;
     try {
       startup();
       phase(0x80a139, () => runMainOwnerStart(a, events, routines));

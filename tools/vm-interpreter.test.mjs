@@ -9,8 +9,8 @@ import {
   EXIT_NATIVE_CALL,
   EXIT_SCRIPT_CALL,
   EXIT_BUDGET,
-} from '../src/vm/interpreter.mjs';
-import { OPCODE_TABLE } from '../src/vm/handlers.mjs';
+} from '../proof/vm/interpreter.mjs';
+import { OPCODE_TABLE } from '../proof/vm/handlers.mjs';
 import {
   compareScenario,
   syntheticScenario,
@@ -21,7 +21,7 @@ import {
   rom,
   scriptTable,
 } from './vm-differential.mjs';
-import { NativeCalls } from '../src/vm/native-call.mjs';
+import { NativeCalls } from '../proof/vm/native-call.mjs';
 import { nativeOpcodeTargets } from '../src/task/native-opcode-targets.mjs';
 import { nativeTarget } from '../src/task/native-targets.mjs';
 

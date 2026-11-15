@@ -202,11 +202,11 @@ test(
       return read8(address);
     };
     while (base.nmis < 5100) base.step();
-    assert.ok(base.driver.ownsGame);
+    assert.ok(base.loop.ownsGame);
     assert.ok(used.size > 0, 'the live room actually reads room tile sources');
     const changed = new LiveGame(await load([...used].map((index) => edit(index))), { pad });
     while (changed.nmis < 5100) changed.step();
-    assert.equal(changed.driver.ownsGame, true);
+    assert.equal(changed.loop.ownsGame, true);
     const grid = SHAPE_GRID - 0x7e0000;
     assert.deepEqual(
       changed.memory.wram.slice(grid, grid + SHAPE_GRID_BYTES),

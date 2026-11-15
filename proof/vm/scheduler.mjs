@@ -23,7 +23,7 @@
 // keeps no control state of its own except vm.pc. A run can therefore be
 // continued after its opcode budget is spent (resume), and every intermediate
 // state is a pure memory and register state.
-import { VmFault } from './memory.mjs';
+import { VmFault } from '../../src/vm/memory.mjs';
 import { EXIT_BUDGET, EXIT_NATIVE_WAIT } from './interpreter.mjs';
 import { nativeBridge, nativeResume } from './native-call.mjs';
 import { nz, plb, bank80 } from './cpu.mjs';
@@ -67,7 +67,7 @@ import {
   TASK_PREVIOUS,
   TASK_WAIT,
   TASK_LAST_SLOT,
-} from './layout.mjs';
+} from '../../src/vm/layout.mjs';
 import {
   WORD_MASK,
   WORD_SIGN,
@@ -76,15 +76,15 @@ import {
   BYTE_MASK,
   BYTE_SIGN,
   HIGH_BYTE_MASK,
-} from '../constants/bits.mjs';
+} from '../../src/constants/bits.mjs';
 import {
   FLAG_DECIMAL,
   FLAG_CARRY,
   FLAG_OVERFLOW,
   FLAG_ZERO,
   FLAG_NEGATIVE,
-} from '../constants/cpu-flags.mjs';
-import { CODE_BANK_BASE } from '../constants/memory-map.mjs';
+} from '../../src/constants/cpu-flags.mjs';
+import { CODE_BANK_BASE } from '../../src/constants/memory-map.mjs';
 
 export const STOP_RETURNED = 0; // the routine returned to its caller (vm.pc = return address+1)
 export const STOP_BUDGET = 1; // opcode budget spent, VM at $F390, resumable

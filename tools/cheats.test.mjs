@@ -3,7 +3,7 @@ import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import { cartridge } from './cartridge-harness.mjs';
 import { VmMemory } from '../src/vm/memory.mjs';
-import { ScriptInterpreter } from '../src/vm/interpreter.mjs';
+import { ScriptInterpreter } from '../proof/vm/interpreter.mjs';
 import { TaskAccessor } from '../src/vm/task-accessor.mjs';
 import { takeDamage } from '../src/matrix/matrix-world.mjs';
 import { hitObject } from '../src/task/native-object-hit.mjs';

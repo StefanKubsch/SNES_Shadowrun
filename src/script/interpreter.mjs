@@ -1,6 +1,6 @@
 // Bytecode interpreter of the script VM over a JS task (docs/SCRIPT-VM-LIFT.md,
 // phase 1), lifted from the European interpreter at 80:F389 with the jump table
-// 80:F2B4 (register-level form: src/vm/interpreter.mjs and src/vm/handlers.mjs).
+// 80:F2B4 (register-level form: proof/vm/interpreter.mjs and proof/vm/handlers.mjs).
 //
 // runTask executes opcodes of one task until the script ends, calls a native or a
 // script, or the optional opcode budget is spent. Values are 16-bit words; "true" is

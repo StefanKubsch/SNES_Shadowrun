@@ -18,15 +18,15 @@ task state.
 
 - Every script native runs lifted code (docs/MAIN-LOOP-LIFT.md, blocks up to 115), and
   every special native has a lifted sequence for lag-free frames.
-- Register-level are still: the interpreter ([src/vm/interpreter.mjs](../src/vm/interpreter.mjs),
-  [handlers.mjs](../src/vm/handlers.mjs): D = frame, S = operand stack, DBR = script
+- Register-level are still: the interpreter ([proof/vm/interpreter.mjs](../proof/vm/interpreter.mjs),
+  [handlers.mjs](../proof/vm/handlers.mjs): D = frame, S = operand stack, DBR = script
   bank, all in emulated memory), the scheduler
-  ([scheduler.mjs](../src/vm/scheduler.mjs): C1A6 init, C1CA head, C1E3 round, C1F9 visit,
+  ([scheduler.mjs](../proof/vm/scheduler.mjs): C1A6 init, C1CA head, C1E3 round, C1F9 visit,
   C20B tail, C242/C2C8 heap and frame, C34A append, C36A child, C396 release, C3C9
   ready, C401 native wait, F378 enter, F488/F495 script call), the native bridge
-  ([native-call.mjs](../src/vm/native-call.mjs), nested rounds from natives such as
+  ([native-call.mjs](../proof/vm/native-call.mjs), nested rounds from natives such as
   the dialog's JSR C1CA), and the drivers
-  ([main-driver.mjs](../src/vm/main-driver.mjs),
+  ([main-driver.mjs](../proof/vm/main-driver.mjs),
   [live-game.mjs](../src/video/live-game.mjs)), which run the boot, the owner and the
   main loop from ROM addresses with routine tables keyed by address and opcode
   budgets.
@@ -189,7 +189,7 @@ budget)` runs opcodes until END (`{kind: 'end', result}`), a native or script ca
   returns; C1E3 is four bytes), ending as the original with A = the restored cursor (C1CA)
   or the list head (C1E3), DBR = 80 and its RTS. With a finite work budget the special
   natives with a resumable sequence pause, and a nested visit inside one pauses with it.
-- [proof/script/js-rounds.mjs](../proof/script/js-rounds.mjs) attaches the JS rounds to a
+- proof/script/js-rounds.mjs (replaced in phase 5 by [live-tasks.mjs](../proof/script/live-tasks.mjs)) attaches the JS rounds to a
   live game: the driver's round C1E3 after the main interval and the owner's resumable
   round 96C0 (attract demo). Until phase 4 the rest of the game keeps the task tables and
   the heap in WRAM, so each round loads the JS scheduler through the conversion layer and
@@ -197,7 +197,7 @@ budget)` runs opcodes until END (`{kind: 'end', result}`), a native or script ca
   register-level code inside a native changed the tables or the heap, the conversion
   layer reads them back in place (`reload`, tasks with unchanged frames keep their
   objects), also before a nested visit.
-- [tools/script-natives.test.mjs](../tools/script-natives.test.mjs) runs two live games in
+- tools/script-natives.test.mjs (since phase 5 [tools/game-loop.test.mjs](../tools/game-loop.test.mjs)) runs two live games in
   lockstep from the reset, one with the register-level rounds and one with the JS rounds,
   and compares the WRAM (task bytes through the projection), VRAM, CGRAM and OAM at every
   NMI: the benchmark route for 6000 NMIs with synchronous natives, the closed badge route
@@ -245,14 +245,14 @@ budget)` runs opcodes until END (`{kind: 'end', result}`), a native or script ca
   the member spell menu and the zone gate) keep their direct table accesses; they run
   only with recorded observations and move to `proof/` in phase 6.
 - [src/script/natives.mjs](../src/script/natives.mjs) attaches the JS scheduler's API to
-  each native's accessor. [proof/script/js-rounds.mjs](../proof/script/js-rounds.mjs) no
+  each native's accessor. proof/script/js-rounds.mjs (replaced in phase 5 by [live-tasks.mjs](../proof/script/live-tasks.mjs)) no
   longer stores the projection before natives or reads the tables back after them: while
   a round is open (also while it is paused across steps) any read or write of
   7E:0246-0CC1 through the memory stops with `RegisterLevelTaskAccess`; `sync()` stores
   the projection of an open round for the comparison at an NMI. Rounds still load from
   and store to the WRAM, as the main loop between rounds stays on the WRAM tables until
   phase 5.
-- [tools/script-natives.test.mjs](../tools/script-natives.test.mjs): all three routes are
+- tools/script-natives.test.mjs (since phase 5 [tools/game-loop.test.mjs](../tools/game-loop.test.mjs)): all three routes are
   equal with the trap armed; on the badge route the projectiles of 80:8AB5 and the topic
   tasks are appended through the API inside natives.
   [tools/task-api.test.mjs](../tools/task-api.test.mjs): 200 random sequences of 120 API
@@ -261,6 +261,50 @@ budget)` runs opcodes until END (`{kind: 'end', result}`), a native or script ca
 - The lifted functions now stop at `task_slot_required` for a task word that names no
   slot, where the original read garbage table words; the halt test samples such words
   rarely (game state only).
+
+## Phase 5 result (2026-11-15)
+
+- [src/script/game-loop.mjs](../src/script/game-loop.mjs): `GameLoop` is the live game's
+  loop, one sequence of direct calls: the reset 00:E382, the start-up 80:A133, then for
+  ever the owner (`gameOwnerSequence`, A139 and A157), the game's main start
+  (`gameStartSequence`, 9688) and per frame the main loop (`MainLoopContinuation`)
+  followed by the round C1E3 at 96C0, until the main loop returns to the owner. No entry
+  dispatch by ROM address, no opcode budget: `step(budget)` runs work units (caller
+  segments and wait instructions), and a native that pauses pauses the loop. The owner's
+  rounds (attract demo) are pausable visits of the same scheduler.
+- One JS scheduler lives for the whole game; the game keeps no task tables and no heap
+  in WRAM. The loop's accessor and every native's accessor carry its task API
+  (`JsTasks`), so the main loop, the owner and the natives reach the tasks only through
+  it. `ScriptNatives` takes the game's settings host (`a.vm`: gameplay options,
+  cheats, the start menu's credits entry), which its accessors had lacked.
+- [LiveGame](../src/video/live-game.mjs) keeps its interface: `step({budget})`,
+  `frames`, `nmis`, the saves in `memory`, `tasks` (now the JS task API),
+  `controlNmi` and `choosing` (from the loop's `onNative` hook). `game.loop` replaces
+  `game.driver` (`rounds`, `ownsGame`); `game.vm` is the plain settings host. The
+  option `loop(game)` makes the loop.
+- The register-level modules the game no longer loads moved to `proof/vm/`: the
+  interpreter, its handlers and CPU helpers, the scheduler, the native bridge and the
+  main driver. [proof/script/register-level-loop.mjs](../proof/script/register-level-loop.mjs)
+  builds the former live loop on them (`new LiveGame(cartridge, {loop:
+registerLevelLoop})`); the observed rooms and boot replays keep the driver directly.
+  tools/production-boundary.test.mjs has no exemption left.
+- [proof/script/task-layout.mjs](../proof/script/task-layout.mjs) `followScheduler` follows
+  a live JS scheduler from the start and replays the original heap from the first C1A6
+  on (nothing is projected before it; PREVIOUS of slots 1-47 is projected once the slot
+  is allocated). [proof/script/live-tasks.mjs](../proof/script/live-tasks.mjs) replaces
+  js-rounds: the projection, the locals guard and the statistics, with the trap on
+  7E:0246-0CC1 armed for every read and write of the whole run.
+- [tools/game-loop.test.mjs](../tools/game-loop.test.mjs) (formerly script-natives) runs the
+  register-level loop and the plain loop in lockstep from the reset and compares WRAM,
+  VRAM, CGRAM, OAM and the projected task bytes at every NMI: the benchmark route (6000
+  NMIs), the closed badge route from the apartment save (pausing natives, nested topic
+  visits, projectiles appended inside natives) and 6000 NMIs of the attract demo (owner
+  rounds only). All are equal; no code touches the original's task bytes on the plain
+  loop.
+- Still keyed by address: the call graph inside the owner, the start and the main loop
+  (`MAIN_STARTUP_ROUTINES` and the tables it merges), through which the lifted sequences
+  call their callees, and the power-on reset `runMainReset` and start-up
+  `MainStartupContinuation` from src/task. They dissolve with src/task (phases 6 and 7).
 
 ## Open points
 
@@ -286,7 +330,7 @@ budget)` runs opcodes until END (`{kind: 'end', result}`), a native or script ca
   unwritten, ORs it with the distance test (native 0A, `< 100`) and leaves the loop when
   the result is not zero. In the original a nonzero heap residue there ends the loop
   after the first five frames, whatever the distance; zeroed JS frames keep waiting for
-  the event or the approach, which is what the code evidently intends. User decision 2026-11-14: zeroed frames, recorded as a port correction in [BUGFIXES.md](BUGFIXES.md#uninitialized-local-in-script-dd). Since phase 4 the game loads the interpreter, the scheduler and the task model through the task API; until the plain game loop drives the scheduler (phase 5), tools/production-boundary.test.mjs still exempts the native bridge src/script/natives.mjs (user decision 2026-11-14 for phases 1 and 2, extended to the native bridge of phase 3).
+  the event or the approach, which is what the code evidently intends. User decision 2026-11-14: zeroed frames, recorded as a port correction in [BUGFIXES.md](BUGFIXES.md#uninitialized-local-in-script-dd). Since phase 5 the game runs on the JS interpreter, scheduler and native bridge, and tools/production-boundary.test.mjs no longer exempts any module.
 - The JS scheduler writes no word 7E:0000 (the original leaves the END result and the
   ready check's word there). No native read it after a nested visit in the phase 3
   differential; a native on another path that does would diverge there.

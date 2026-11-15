@@ -12,16 +12,11 @@
 // completely, and different content changes Jake's posture from the morgue
 // onwards (assumption, reversible). SRAM is the saved game (8 KiB or empty).
 import { VmMemory, VmFault, SRAM_SIZE, SRAM_SIZE_FOUR_SLOTS, WRAM_SIZE } from '../vm/memory.mjs';
-import { CODE_BANK_BASE } from '../constants/memory-map.mjs';
 import { CGDATA, OAMDATA, VMDATAH, VMDATAL } from '../constants/hardware-registers.mjs';
 import { INIDISP_FORCED_BLANK } from '../constants/ppu.mjs';
 import { installPortExtension } from '../data/port-extension.mjs';
 import { installLanguage, ENGLISH } from '../data/language.mjs';
-import { ScriptInterpreter } from '../vm/interpreter.mjs';
-import { NativeCalls } from '../vm/native-call.mjs';
-import { NATIVE_POINTERS } from '../vm/layout.mjs';
-import { MainLoopDriver, STOP_MAIN_WAIT, STOP_MAIN_OWNER_RETURN } from '../vm/main-driver.mjs';
-import { STOP_RETURNED, STOP_BUDGET, STOP_NATIVE_WAIT } from '../vm/scheduler.mjs';
+import { GameLoop } from '../script/game-loop.mjs';
 import { nativeOpcodeTargets } from '../task/native-opcode-targets.mjs';
 import { nativeTarget } from '../task/native-targets.mjs';
 import { MAIN_STARTUP_ROUTINES } from '../task/main-startup.mjs';
@@ -32,36 +27,33 @@ import { LagFreeFrames, LiveDevices } from '../vm/frame-events.mjs';
 import { Apu } from '../apu/apu.mjs';
 import { gameplaySettings, ORIGINAL_GAMEPLAY } from '../game/bugfixes.mjs';
 import { serviceTextWait } from '../game/instant-text.mjs';
-import { WramTasks } from '../script/task-api.mjs';
 // Player control 80:E014 runs every frame while the player steers freely.
 const PLAYER_CONTROL = 0x80e014;
 // WRAM target of the channel 5 VRAM read (A9E1, src/video/ppu-state.mjs).
 const TEXT_MASK_BUFFER = 0x7e2ae0;
-// Default budgets of one step: main loop and script opcodes.
+// Default work budget of one step (src/script/game-loop.mjs).
 const STEP_BUDGET = 4096;
 const need = (ok, reason) => {
   if (!ok) throw new VmFault(reason);
 };
 // Target choice with the glove (src/task/native-glove-target.mjs, special-natives.mjs).
 const CHOOSING = new Set([0x809bc6, 0x809bb9, 0x809bd3, 0x809c33, 0x808d0b]);
-const RESET_CONTEXT = Object.freeze({
-  a: 0,
-  x: 0,
-  y: 0,
-  s: 0x1ff,
-  d: 0,
-  bank: 0,
-  status: 0x34,
-  programBank: 0,
-  pc: 0xe382,
-  e: 1,
-});
+// The plain game loop over the JS scheduler.
+const gameLoop = (game) =>
+  new GameLoop(game.vm, {
+    devices: game.devices,
+    routines: MAIN_STARTUP_ROUTINES,
+    admitted: nativeOpcodeTargets,
+    implementation: nativeTarget,
+  });
 export class LiveGame {
   // pad(k) returns the pad word for NMI k, onFrame({nmi,rasterWrites,pixels}) the
   // picture at NMI entry (only from the first write to 2100; before that the
   // picture is not defined). counter replaces the H/V counter bytes of the random routine.
   // cartridge: the ROM (tools, original comparisons) or the data package
   // {rom,present} without code (src/data/cartridge.mjs, docs/ROM-FREE.md).
+  // loop(game) makes the game loop (default: src/script/game-loop.mjs; a proof can pass
+  // the register-level driver with the same interface).
   constructor(
     cartridge,
     {
@@ -73,6 +65,7 @@ export class LiveGame {
       languages = {},
       language = ENGLISH,
       apu = new Apu(),
+      loop = gameLoop,
     } = {},
   ) {
     need(
@@ -95,13 +88,11 @@ export class LiveGame {
     // Text language (src/data/language.mjs): languages maps a code to buildLanguage's result.
     this.languages = languages;
     this.setLanguage(language);
-    const vm = (this.vm = new ScriptInterpreter(this.memory));
-    this.gameplay = vm.gameplay = settings;
-    // The browser port exposes credits as the fourth start-menu entry.
-    vm.startMenuCredits = true;
-    vm.setContext(RESET_CONTEXT);
-    vm.pc = RESET_CONTEXT.pc;
-    vm.e = RESET_CONTEXT.e;
+    // The game's settings as the lifted code sees them through its accessors (a.vm):
+    // gameplay options, the cheats mask and the start menu's credits entry, which the
+    // browser port exposes as the fourth entry.
+    this.vm = { mem: this.memory, gameplay: settings, startMenuCredits: true };
+    this.gameplay = settings;
     this.apu = apu;
     this.bus = new PpuBus(this.memory, new PpuState());
     let rasterWrites = 0;
@@ -124,17 +115,12 @@ export class LiveGame {
     // Instant text (docs/INSTANT-TEXT.md): text waits run the transfer at once.
     if (settings.instantText)
       frames.textWait = (h, events, status, pc) => serviceTextWait(frames, h, events, status, pc);
-    const devices = (this.devices = new LiveDevices(frames, MAIN_STARTUP_ROUTINES, {
+    this.devices = new LiveDevices(frames, MAIN_STARTUP_ROUTINES, {
       bus: this.bus,
       apu: this.apu,
       ...(counter ? { counter } : {}),
-    }));
-    vm.natives = new NativeCalls(vm, {
-      admitted: nativeOpcodeTargets,
-      implementation: nativeTarget,
-      devices,
     });
-    vm.natives.accessor.devices = devices;
+    this.loop = loop(this);
     // controlNmi: number of NMIs at the last call of the player control 80:E014
     // (runs every frame while the player steers freely; src/browser/mouse-control.mjs).
     // choosing: a target choice with the glove (9BC6 and relatives, special natives
@@ -142,15 +128,11 @@ export class LiveGame {
     // without player control is an action list (99EB) and thus a menu.
     this.controlNmi = -1;
     this.choosing = false;
-    const natives = vm.natives,
-      call = natives.call.bind(natives);
-    natives.call = () => {
-      const target = CODE_BANK_BASE | this.memory.read16(NATIVE_POINTERS + vm.x);
+    this.loop.onNative = (target) => {
       if (target === PLAYER_CONTROL) {
         this.controlNmi = frames.nmis;
         this.choosing = false;
       } else if (CHOOSING.has(target)) this.choosing = true;
-      return call();
     };
     // Without a frame position, every write outside the NMI with the display
     // on counts as a raster write (position unknown). In the
@@ -177,22 +159,13 @@ export class LiveGame {
     this.bus.reverseDma = (bytes) => {
       for (let n = 0; n < bytes.length; n++) this.memory.write8(TEXT_MASK_BUFFER + n, bytes[n]);
     };
-    this.driver = new MainLoopDriver(vm, {
-      devices,
-      routines: MAIN_STARTUP_ROUTINES,
-      startRoutines: MAIN_STARTUP_ROUTINES,
-      frontendRoutines: MAIN_STARTUP_ROUTINES,
-      startupRoutines: MAIN_STARTUP_ROUTINES,
-      resetProgramBank: 0,
-    });
   }
   get nmis() {
     return this.frames.nmis;
   }
-  // The task API of the game's script tasks (the task tables in WRAM until the plain
-  // game loop drives the JS scheduler).
+  // The task API of the game's script tasks (src/script/task-api.mjs).
   get tasks() {
-    return (this.taskApi ??= new WramTasks({ mem: this.memory }));
+    return this.loop.tasks;
   }
   // Switches the text language; it applies from the next decoded text.
   setLanguage(code) {
@@ -201,22 +174,9 @@ export class LiveGame {
     installLanguage(this.memory, language);
     this.language = code;
   }
-  step({ mainBudget = STEP_BUDGET, opcodeBudget = STEP_BUDGET } = {}) {
-    const driver = this.driver,
-      stop =
-        driver.pending || driver.mainPending
-          ? driver.resume(opcodeBudget, { mainBudget })
-          : driver.run(opcodeBudget, { mainBudget });
-    need(
-      [
-        STOP_RETURNED,
-        STOP_BUDGET,
-        STOP_MAIN_WAIT,
-        STOP_NATIVE_WAIT,
-        STOP_MAIN_OWNER_RETURN,
-      ].includes(stop),
-      'live_round_return_required',
-    );
+  // Runs the game for up to `budget` work units; returns the NMI count.
+  step({ budget = STEP_BUDGET } = {}) {
+    this.loop.step(budget);
     return this.frames.nmis;
   }
 }

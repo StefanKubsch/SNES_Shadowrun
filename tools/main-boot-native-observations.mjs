@@ -3,10 +3,10 @@
 import assert from 'node:assert/strict';
 import { DialogTestMemory, rom } from './task-native-dialog-harness.mjs';
 import { TaskAccessor } from '../src/vm/task-accessor.mjs';
-import { nativeBridge, NativeCalls } from '../src/vm/native-call.mjs';
-import { ScriptInterpreter } from '../src/vm/interpreter.mjs';
-import { MainLoopDriver } from '../src/vm/main-driver.mjs';
-import { TaskScheduler, STOP_BUDGET, STOP_NATIVE, STOP_RETURNED } from '../src/vm/scheduler.mjs';
+import { nativeBridge, NativeCalls } from '../proof/vm/native-call.mjs';
+import { ScriptInterpreter } from '../proof/vm/interpreter.mjs';
+import { MainLoopDriver } from '../proof/vm/main-driver.mjs';
+import { TaskScheduler, STOP_BUDGET, STOP_NATIVE, STOP_RETURNED } from '../proof/vm/scheduler.mjs';
 import { nativeOpcodeTargets } from '../src/task/native-opcode-targets.mjs';
 import { nativeTarget } from '../src/task/native-targets.mjs';
 import { BOOT_NATIVE_CONTRACTS } from './main-boot-native-contracts.mjs';

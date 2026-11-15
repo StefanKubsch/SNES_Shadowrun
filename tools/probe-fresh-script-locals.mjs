@@ -8,6 +8,7 @@
 import { cartridge } from './cartridge-harness.mjs';
 import { LiveGame } from '../src/video/live-game.mjs';
 import { counterBytes } from '../src/vm/frame-events.mjs';
+import { registerLevelLoop } from '../proof/script/register-level-loop.mjs';
 
 const DIRECTIONS = [0x0800, 0x0100, 0x0400, 0x0200];
 const route = (k) =>
@@ -23,7 +24,12 @@ const route = (k) =>
         ? DIRECTIONS[Math.floor(k / 90) % 4]
         : 0;
 const nmis = Number(process.argv[2] ?? 12000);
-const game = new LiveGame(cartridge, { pad: route, counter: counterBytes(12345) });
+// The register-level loop keeps the frames in the WRAM heap, where residue can be read.
+const game = new LiveGame(cartridge, {
+  pad: route,
+  counter: counterBytes(12345),
+  loop: registerLevelLoop,
+});
 const mem = game.memory,
   vm = game.vm;
 const fresh = new Uint8Array(0x2000);

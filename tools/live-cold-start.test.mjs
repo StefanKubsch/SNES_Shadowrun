@@ -68,7 +68,7 @@ test('Start on the title begins a new game in the main loop', { timeout: 900000 
     pad: (k) => (k >= 3000 && k < 3400 && k % 150 < 4 ? 0x1000 : 0),
   });
   while (game.nmis < 5000) game.step();
-  assert.ok(game.driver.ownsGame, 'main loop owns the game');
-  assert.ok(game.driver.roundsCompleted > 1000, 'main loop rounds: ' + game.driver.roundsCompleted);
+  assert.ok(game.loop.ownsGame, 'main loop owns the game');
+  assert.ok(game.loop.rounds > 1000, 'main loop rounds: ' + game.loop.rounds);
   assert.equal(game.dataOutsideBlank, 0);
 });

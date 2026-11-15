@@ -256,7 +256,7 @@ test(
     );
     for (const game of games) {
       while (game.nmis < 5000) game.step();
-      assert.ok(game.driver.ownsGame);
+      assert.ok(game.loop.ownsGame);
     }
     assert.equal(games[0].vm.mem.read16(0x7e0000 + ROOM), games[1].vm.mem.read16(0x7e0000 + ROOM));
     const p = games.map((g) => g.bus.ppu);

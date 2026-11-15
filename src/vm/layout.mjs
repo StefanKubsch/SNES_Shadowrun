@@ -2,7 +2,7 @@
 // WRAM offsets are relative to DBR $80 (bank 0 mirror); ROM tables are long
 // addresses read by the original routines named beside them.
 
-// Task tables, indexed by X = 2 * slot (48 slots), see src/vm/scheduler.mjs.
+// Task tables, indexed by X = 2 * slot (48 slots), see proof/vm/scheduler.mjs.
 export const TASK_FRAME = 0x0252; // D of the task (heap data address)
 export const TASK_CONTINUATION = 0x02b2; // RTS word to resume, 0 = enter at $F378
 export const TASK_NEXT = 0x0312; // next slot in the task or free list

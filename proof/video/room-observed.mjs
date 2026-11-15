@@ -16,15 +16,11 @@ import { WRAM, TEXT_MASK_BUFFER } from '../../src/task/wram.mjs';
 // replay, live() continues the same owner with lag-free frames and a live pad
 // (src/vm/frame-events.mjs); those frames are not compared with the original.
 import { VmMemory, VmFault, WRAM_SIZE, SRAM_SIZE } from '../../src/vm/memory.mjs';
-import { ScriptInterpreter } from '../../src/vm/interpreter.mjs';
-import { NativeCalls } from '../../src/vm/native-call.mjs';
+import { ScriptInterpreter } from '../vm/interpreter.mjs';
+import { NativeCalls } from '../vm/native-call.mjs';
 import { ObservedDevices } from '../vm/observed-devices.mjs';
-import {
-  MainLoopDriver,
-  STOP_MAIN_WAIT,
-  STOP_MAIN_OWNER_RETURN,
-} from '../../src/vm/main-driver.mjs';
-import { STOP_RETURNED, STOP_BUDGET, STOP_NATIVE_WAIT } from '../../src/vm/scheduler.mjs';
+import { MainLoopDriver, STOP_MAIN_WAIT, STOP_MAIN_OWNER_RETURN } from '../vm/main-driver.mjs';
+import { STOP_RETURNED, STOP_BUDGET, STOP_NATIVE_WAIT } from '../vm/scheduler.mjs';
 import { nativeOpcodeTargets } from '../../src/task/native-opcode-targets.mjs';
 import { nativeTarget } from '../../src/task/native-targets.mjs';
 import { MAIN_STARTUP_ROUTINES as STARTUP_ROUTINES } from '../../src/task/main-startup.mjs';

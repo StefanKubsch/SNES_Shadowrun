@@ -1,16 +1,16 @@
-// Script VM lift phases 3 and 4 (docs/SCRIPT-VM-LIFT.md): the natives on the JS scheduler,
-// game code inside them on the task API.
-// Two live games run in lockstep from the reset with the same pad: A with the
-// register-level scheduler and native bridge (src/vm/scheduler.mjs, native-call.mjs), B
-// with its rounds on the JS scheduler (src/script/scheduler.mjs) and the natives through
-// src/script/natives.mjs, attached by proof/script/js-rounds.mjs. At every NMI the WRAM,
-// VRAM, CGRAM and OAM of both games must be equal: the task state through the projection
-// of the conversion layer, the rest byte for byte outside the interpreter's work bytes.
+// Script VM lift phase 5 (docs/SCRIPT-VM-LIFT.md): the plain game loop.
+// Two live games run in lockstep from the reset with the same pad: A on the register-level
+// driver, interpreter, scheduler and native bridge with the task tables and heap in WRAM
+// (proof/script/register-level-loop.mjs), B on the plain game loop with its JS scheduler
+// (src/script/game-loop.mjs), followed by the conversion layer (proof/script/live-tasks.mjs).
+// At every NMI the WRAM, VRAM, CGRAM and OAM of both games must be equal: A's task bytes
+// against the projection of B's task state, the rest byte for byte outside the
+// interpreter's work bytes. B never reads or writes the original's task bytes.
 //
-// Routes: the benchmark route (title, menu, opening dialog, walking) with synchronous
-// natives; the closed badge route from the apartment save (alley, Grim Reaper Club with
-// topic dialogs, enemies that shoot) with natives that pause across steps, as in the
-// browser; the attract demo of the title screen, whose rounds the owner runs.
+// Routes: the benchmark route (title, menu, opening dialog, walking); the closed badge
+// route from the apartment save (alley, Grim Reaper Club with topic dialogs, enemies that
+// shoot) with natives that pause across steps; the attract demo of the title screen,
+// whose rounds the owner runs.
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { cartridge } from './cartridge-harness.mjs';
@@ -19,7 +19,8 @@ import { livePlanDriver } from './live-plan-driver.mjs';
 import { BADGE_BUY_LIVE_PLAN } from './live-plans.mjs';
 import { LiveGame } from '../src/video/live-game.mjs';
 import { counterBytes } from '../src/vm/frame-events.mjs';
-import { attachJsRounds, SCHEDULER_BYTES } from '../proof/script/js-rounds.mjs';
+import { followLiveTasks, SCHEDULER_BYTES } from '../proof/script/live-tasks.mjs';
+import { registerLevelLoop } from '../proof/script/register-level-loop.mjs';
 
 const COUNTER_SEED = 12345;
 // Interpreter and scheduler work bytes outside the projection (as in
@@ -70,42 +71,39 @@ const TITLE = (k) =>
 const hex = (n) => n.toString(16);
 const inside = (n, [start, end]) => n >= start && n < end;
 
-function snapshot(game) {
+function snapshot(game, tasks = null) {
   const { ppu } = game.bus;
   return {
     wram: game.memory.wram.slice(),
+    projection: tasks?.project() ?? null,
     ...Object.fromEntries(PPU_MEMORIES.map((key) => [key, ppu[key].slice()])),
   };
 }
-function compare(k, a, b, js) {
+function compare(k, a, b) {
   for (let n = 0; n < a.wram.length; n++)
     if (a.wram[n] !== b.wram[n] && !WORK_BYTES.some((range) => inside(n, range)))
       throw Error(`NMI ${k}: 7E:${hex(n)} register-level ${a.wram[n]}, JS ${b.wram[n]}`);
-  for (const at of js.projection.keys())
-    if (a.wram[at] !== b.wram[at])
-      throw Error(
-        `NMI ${k}: task byte 7E:${hex(at)} register-level ${a.wram[at]}, JS ${b.wram[at]}`,
-      );
+  for (const [at, value] of b.projection)
+    if (a.wram[at] !== value)
+      throw Error(`NMI ${k}: task byte 7E:${hex(at)} register-level ${a.wram[at]}, JS ${value}`);
   for (const key of PPU_MEMORIES)
     assert.equal(Buffer.compare(a[key], b[key]), 0, `NMI ${k}: ${key}`);
 }
 
 // Runs A and B until `nmis` or until done(); compares each NMI once both reached it.
-// options(side, games) gives the LiveGame options of a side.
-function lockstep({ options, nmis, synchronous = false, done = () => false }) {
+// options(games) gives the LiveGame options of both sides.
+function lockstep({ options, nmis, done = () => false }) {
   const games = {};
-  games.a = new LiveGame(cartridge, options(games));
+  games.a = new LiveGame(cartridge, { ...options(games), loop: registerLevelLoop });
   games.b = new LiveGame(cartridge, options(games));
-  const js = attachJsRounds(games.b, { synchronous }),
+  const js = followLiveTasks(games.b),
     pending = [new Map(), new Map()];
   let compared = 0;
   [games.a, games.b].forEach((game, side) => {
     const onNmi = game.frames.onNmi;
     game.frames.onNmi = (k) => {
       onNmi(k);
-      // The open round's task state as the original's tables and heap.
-      if (side === 1) js.sync();
-      const mine = snapshot(game),
+      const mine = snapshot(game, side === 1 ? js : null),
         other = pending[1 - side];
       if (!other.has(k)) {
         pending[side].set(k, mine);
@@ -113,8 +111,8 @@ function lockstep({ options, nmis, synchronous = false, done = () => false }) {
       }
       const theirs = other.get(k);
       other.delete(k);
-      if (side === 0) compare(k, mine, theirs, js);
-      else compare(k, theirs, mine, js);
+      if (side === 0) compare(k, mine, theirs);
+      else compare(k, theirs, mine);
       compared++;
     };
   });
@@ -128,23 +126,21 @@ function lockstep({ options, nmis, synchronous = false, done = () => false }) {
 const counter = () => counterBytes(COUNTER_SEED);
 
 test(
-  'synchronous natives on the JS scheduler match the register-level rounds on the benchmark route',
+  'the plain game loop matches the register-level loop on the benchmark route',
   { timeout: 600000 },
   () => {
     const { js, compared } = lockstep({
       options: () => ({ pad: BENCHMARK_ROUTE, counter: counter() }),
       nmis: 6000,
-      synchronous: true,
     });
     assert.equal(compared, 6000);
     assert.ok(js.paths.driver > 2000, `rounds ${js.paths.driver}`);
     assert.ok(js.calls > 5000, `native calls ${js.calls}`);
-    assert.equal(js.pauses, 0);
   },
 );
 
 test(
-  'pausing natives with nested visits match the register-level rounds on the badge route',
+  'pausing natives with nested visits match the register-level loop on the badge route',
   { timeout: 900000 },
   () => {
     let plan = null;
@@ -153,7 +149,7 @@ test(
       plan ??= livePlanDriver(
         BADGE_BUY_LIVE_PLAN.slice(PLAN_SKIP),
         games.a.memory.wram,
-        () => games.a.driver.roundsCompleted,
+        () => games.a.loop.rounds,
       );
       return plan.done() ? 0 : plan.pad(k);
     };
@@ -176,7 +172,7 @@ test(
 );
 
 test(
-  'the attract demo runs its owner rounds on the JS scheduler as on the register-level one',
+  'the attract demo runs its owner rounds on the plain game loop as on the register-level one',
   { timeout: 600000 },
   () => {
     const { js, compared } = lockstep({

@@ -4,23 +4,31 @@ Current module layout of the native event interpreter in [src/vm/](../src/vm/).
 The delivery history and proofs are in [VM-INTERPRETER.md](VM-INTERPRETER.md)
 (German, historical).
 
+Since the script VM lift phase 5 ([SCRIPT-VM-LIFT.md](SCRIPT-VM-LIFT.md)) the game runs
+its scripts on the JS interpreter, scheduler and native bridge in
+[src/script/](../src/script/), driven by the plain game loop
+([game-loop.mjs](../src/script/game-loop.mjs)). The register-level modules below that
+the game no longer loads (cpu, interpreter, handlers, scheduler, native-call,
+main-driver) live in [proof/vm/](../proof/vm/) as references for the differentials and
+the replays with recorded observations.
+
 ## Modules
 
 | Module                                               | Role                                                                                                                                                              |
 | ---------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | [memory.mjs](../src/vm/memory.mjs)                   | `VmMemory`: WRAM (128 KiB), LoROM (1 MiB), optional SRAM, arithmetic unit `$4202-$4217`. `VmFault`, and `boundaryFault()` for proof module boundaries.            |
 | [layout.mjs](../src/vm/layout.mjs)                   | Named original addresses: task tables, heap, interpreter work area, entry points (`OPCODE_LOOP` = `$F390`) and ROM tables in bank `$82`.                          |
-| [cpu.mjs](../src/vm/cpu.mjs)                         | 65816 building blocks shared by scheduler and native bridge: `nz`, `plb`, `bank80`.                                                                               |
-| [interpreter.mjs](../src/vm/interpreter.mjs)         | `ScriptInterpreter`: registers, operand stack, `fetch()` as `$F389-$F390`, `run(maxOpcodes)`.                                                                     |
-| [handlers.mjs](../src/vm/handlers.mjs)               | One handler per opcode family with its original address; `OPCODE_TABLE` lists all even opcodes `$00-$C2`.                                                         |
-| [scheduler.mjs](../src/vm/scheduler.mjs)             | `TaskScheduler`: task lists, heap, rounds, script call `$F488`, native wait `$C401`, resumptions `$F495`/`$F509`.                                                 |
-| [native-call.mjs](../src/vm/native-call.mjs)         | Bridge `$F4F6`, dispatch `$F52F`, resume `$F509`; `NativeCalls` binds admitted, oracle and special natives and runs nested scheduler rounds.                      |
+| [cpu.mjs](../proof/vm/cpu.mjs)                       | 65816 building blocks shared by scheduler and native bridge: `nz`, `plb`, `bank80`.                                                                               |
+| [interpreter.mjs](../proof/vm/interpreter.mjs)       | `ScriptInterpreter`: registers, operand stack, `fetch()` as `$F389-$F390`, `run(maxOpcodes)`.                                                                     |
+| [handlers.mjs](../proof/vm/handlers.mjs)             | One handler per opcode family with its original address; `OPCODE_TABLE` lists all even opcodes `$00-$C2`.                                                         |
+| [scheduler.mjs](../proof/vm/scheduler.mjs)           | `TaskScheduler`: task lists, heap, rounds, script call `$F488`, native wait `$C401`, resumptions `$F495`/`$F509`.                                                 |
+| [native-call.mjs](../proof/vm/native-call.mjs)       | Bridge `$F4F6`, dispatch `$F52F`, resume `$F509`; `NativeCalls` binds admitted, oracle and special natives and runs nested scheduler rounds.                      |
 | [task-accessor.mjs](../src/vm/task-accessor.mjs)     | `TaskAccessor`: the accessor interface of the proven task modules directly on `VmMemory`; `vmToContext()`/`contextToVm()` move registers between VM and accessor. |
 | [special-natives.mjs](../src/vm/special-natives.mjs) | Natives with hardware values: target to proven module, synchronous and resumable.                                                                                 |
 | [devices.mjs](../src/vm/devices.mjs)                 | Address classes (`isIoAddress`, `isArithmeticRegister`) and interrupt cursors of observation sets (`interruptEventsOf`, `appendRoundInterrupts`).                 |
 | [frame-events.mjs](../src/vm/frame-events.mjs)       | `LagFreeFrames` and `LiveDevices`: the game's live device answers (NMI at blocking wait loops, pad, APU ports, PPU bus, counter bytes).                           |
 | [main-loop.mjs](../src/vm/main-loop.mjs)             | Main loop `$80:96AB-$96F2` between scheduler rounds, synchronous and as a continuation.                                                                           |
-| [main-driver.mjs](../src/vm/main-driver.mjs)         | `MainLoopDriver`: reset, startup, menu owner, game start, main loop and the round `$C1E3` on one VM.                                                              |
+| [main-driver.mjs](../proof/vm/main-driver.mjs)       | `MainLoopDriver`: reset, startup, menu owner, game start, main loop and the round `$C1E3` on one VM.                                                              |
 
 Tests and Mesen oracles replay recorded observation sets with
 [proof/vm/observed-devices.mjs](../proof/vm/observed-devices.mjs)

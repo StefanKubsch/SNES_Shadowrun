@@ -25,7 +25,7 @@ function frames(budget) {
     sram: loadSave('apartment'),
     onGame: (game) => {
       const step = game.step.bind(game);
-      if (budget) game.step = () => step({ mainBudget: budget, opcodeBudget: budget });
+      if (budget) game.step = () => step({ budget });
       const onNmi = game.frames.onNmi;
       game.frames.onNmi = (k) => {
         if (k >= FIRST) out.push(fnv1a(game.memory.wram));

@@ -2,7 +2,7 @@ import { BYTE_MASK, BYTE_BITS, BANK_SIZE } from '../../src/constants/bits.mjs';
 import { BANK_WITHOUT_IO } from '../../src/constants/memory-map.mjs';
 import { INIDISP, NMITIMEN } from '../../src/constants/hardware-registers.mjs';
 import { VmMemory, VmFault, WRAM_SIZE, SRAM_SIZE } from '../../src/vm/memory.mjs';
-import { ScriptInterpreter } from '../../src/vm/interpreter.mjs';
+import { ScriptInterpreter } from '../vm/interpreter.mjs';
 import { TaskAccessor } from '../../src/vm/task-accessor.mjs';
 import { runMainReset } from '../../src/task/main-reset.mjs';
 import {

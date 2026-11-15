@@ -2,9 +2,9 @@
 // JSR 96C0, then through C1E3 back to 96C3. No clock, boot state or interrupt
 // timing is inferred. The owner supplies one observation set for the main
 // interval; NativeCalls consumes its own subsequent sets inside the round.
-import { VmFault, boundaryFault } from './memory.mjs';
-import { interruptEventsOf, appendRoundInterrupts } from './devices.mjs';
-import { TaskAccessor } from './task-accessor.mjs';
+import { VmFault, boundaryFault } from '../../src/vm/memory.mjs';
+import { interruptEventsOf, appendRoundInterrupts } from '../../src/vm/devices.mjs';
+import { TaskAccessor } from '../../src/vm/task-accessor.mjs';
 import { TaskScheduler, STOP_RETURNED } from './scheduler.mjs';
 import {
   runMainLoop,
@@ -12,39 +12,39 @@ import {
   MAIN_LOOP_RESUME,
   MAIN_LOOP_ROUND,
   MAIN_LOOP_ROUTINES,
-} from './main-loop.mjs';
-import { WAIT_PAUSED } from '../task/native-wait-continuation.mjs';
-import { finishInterruptObservations } from '../task/main-wait-interrupt.mjs';
+} from '../../src/vm/main-loop.mjs';
+import { WAIT_PAUSED } from '../../src/task/native-wait-continuation.mjs';
+import { finishInterruptObservations } from '../../src/task/main-wait-interrupt.mjs';
 import {
   MAIN_START,
   MAIN_START_ROUTINES,
   runMainStart,
   mainStartContinuation,
-} from '../task/main-start.mjs';
+} from '../../src/task/main-start.mjs';
 import {
   FRONTEND_ROUTINES,
   runMainOwnerStart,
   mainOwnerContinuation,
   MAIN_OWNER_ENTRY,
   MAIN_OWNER_RESUME,
-} from '../task/main-frontend.mjs';
+} from '../../src/task/main-frontend.mjs';
 import {
   MAIN_STARTUP_ENTRY,
   MAIN_STARTUP_ROUTINES,
   runMainStartup,
   MainStartupContinuation,
-} from '../task/main-startup.mjs';
-import { runMainReset, runMainSoftwareReset } from '../task/main-reset.mjs';
-import { NativeCallContinuation } from '../task/native-call-continuation.mjs';
-import { BYTE_BITS, WORD_BITS, BANK_SIZE } from '../constants/bits.mjs';
+} from '../../src/task/main-startup.mjs';
+import { runMainReset, runMainSoftwareReset } from '../../src/task/main-reset.mjs';
+import { NativeCallContinuation } from '../../src/task/native-call-continuation.mjs';
+import { BYTE_BITS, WORD_BITS, BANK_SIZE } from '../../src/constants/bits.mjs';
 import {
   FLAG_ZERO,
   FLAG_INDEX_8BIT,
   FLAG_MEMORY_8BIT,
   FLAG_DECIMAL,
-} from '../constants/cpu-flags.mjs';
-import { CODE_BANK, CODE_BANK_BASE } from '../constants/memory-map.mjs';
-import { BYTE_MASK } from '../constants/bits.mjs';
+} from '../../src/constants/cpu-flags.mjs';
+import { CODE_BANK, CODE_BANK_BASE } from '../../src/constants/memory-map.mjs';
+import { BYTE_MASK } from '../../src/constants/bits.mjs';
 
 // Reset entries: power-on reset 00:E382, and the software reset that the BEQ
 // at 80:9E2F selects (entry 9E3D) when the pad word in A is SOFT_RESET_BUTTONS
@@ -53,7 +53,7 @@ const RESET_ENTRY = 0xe382,
   SOFT_RESET_BRANCH = 0x9e2f,
   SOFT_RESET_ENTRY = 0x9e3d,
   SOFT_RESET_BUTTONS = 0x3030;
-// $C1E3: scheduler round over all tasks (src/vm/scheduler.mjs).
+// $C1E3: scheduler round over all tasks (proof/vm/scheduler.mjs).
 const SCHEDULER_ROUND = 0xc1e3;
 
 export const MAIN_OBSERVATION_TARGET = 0x800000 | MAIN_LOOP_RESUME;

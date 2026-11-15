@@ -2,13 +2,16 @@
 // (docs/MATRIX-LIFT.md): a plan of tools/explore-live.mjs runs once with the
 // lifted code and once with the reference swapped into every routine table, and
 // every NMI compares WRAM (outside the ignored scratch), VRAM, CGRAM, OAM, PPU
-// registers and scroll, the number of PPU writes and the sound RAM.
+// registers and scroll, the number of PPU writes and the sound RAM. Both runs use the
+// register-level game loop (proof/script/register-level-loop.mjs): reference routines
+// reach the task tables and heap in WRAM, which the plain game loop does not keep.
 import { readdirSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import { cartridge } from './cartridge-harness.mjs';
 import { loadSave } from './mesen-f390-oracle.mjs';
 import { exploreLive } from './explore-live.mjs';
 import { fnv1a } from '../src/data/fnv.mjs';
+import { registerLevelLoop } from '../proof/script/register-level-loop.mjs';
 
 // The routine tables of src/task and src/vm (the main loop's) that hold any of the
 // lifted functions.
@@ -93,7 +96,12 @@ export async function compareLift({
   // A run ends with the live step in which its last command ended; the NMIs of that
   // step after the command (their number depends on the work the code uses) are cut.
   const run = (record) => {
-    const { ends } = exploreLive(plan, { cartridge, sram, onGame: record.onGame });
+    const { ends } = exploreLive(plan, {
+      cartridge,
+      sram,
+      onGame: record.onGame,
+      loop: registerLevelLoop,
+    });
     record.frames.length = Math.min(record.frames.length, ends[plan.length - 1] + 1);
   };
   const liftedRun = fingerprints(ignored, snapshotAt);

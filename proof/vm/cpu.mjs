@@ -1,9 +1,9 @@
 // 65816 building blocks shared by the scheduler and the native bridge. They
 // change registers and flags exactly as the original instructions do.
 
-import { BYTE_SIGN, WORD_MASK, WORD_SIGN } from '../constants/bits.mjs';
-import { CODE_BANK_PAIR } from '../constants/memory-map.mjs';
-import { FLAG_ZERO, FLAG_NEGATIVE } from '../constants/cpu-flags.mjs';
+import { BYTE_SIGN, WORD_MASK, WORD_SIGN } from '../../src/constants/bits.mjs';
+import { CODE_BANK_PAIR } from '../../src/constants/memory-map.mjs';
+import { FLAG_ZERO, FLAG_NEGATIVE } from '../../src/constants/cpu-flags.mjs';
 
 // N/Z as after LDA, TAX or PLB with an 8-bit (width 1) or 16-bit result.
 export function nz(vm, value, width = 2) {

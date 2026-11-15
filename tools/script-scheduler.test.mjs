@@ -1,5 +1,5 @@
 // Differential of the JS scheduler (src/script/scheduler.mjs) against the register-level
-// scheduler (src/vm/scheduler.mjs), docs/SCRIPT-VM-LIFT.md phase 2.
+// scheduler (proof/vm/scheduler.mjs), docs/SCRIPT-VM-LIFT.md phase 2.
 //
 // Each scenario starts from random WRAM: the register-level side runs C1A6 and appends
 // one to four ROM scripts through C34A; the conversion layer (proof/script/task-layout.mjs)
@@ -18,9 +18,9 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import { VmMemory } from '../src/vm/memory.mjs';
-import { ScriptInterpreter } from '../src/vm/interpreter.mjs';
-import { nativeBridge } from '../src/vm/native-call.mjs';
-import { TaskScheduler, STOP_NATIVE, STOP_RETURNED } from '../src/vm/scheduler.mjs';
+import { ScriptInterpreter } from '../proof/vm/interpreter.mjs';
+import { nativeBridge } from '../proof/vm/native-call.mjs';
+import { TaskScheduler, STOP_NATIVE, STOP_RETURNED } from '../proof/vm/scheduler.mjs';
 import {
   NATIVE_ARGUMENT_COUNTS,
   TASK_CURSOR,

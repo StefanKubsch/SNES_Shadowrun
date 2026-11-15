@@ -1,5 +1,5 @@
 // Task scheduler of the script VM over JS tasks (docs/SCRIPT-VM-LIFT.md, phase 2), lifted
-// from bank 80 (register-level form: src/vm/scheduler.mjs):
+// from bank 80 (register-level form: proof/vm/scheduler.mjs):
 //
 //   C1A6 init     C1CA head visit   C1E3 round      C1F9 visit     C20B after a task
 //   C2C8 frame    C34A append       C36A child      C396 release   C3C9 ready check

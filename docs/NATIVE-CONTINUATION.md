@@ -48,7 +48,7 @@ NMI, boot and scene caller segments described below. Other helper graphs are
 still atomic synchronous calls with their previous source contracts. A budget
 therefore does not limit the running time of such a helper.
 
-[MainLoopDriver](../src/vm/main-driver.mjs) optionally accepts
+[MainLoopDriver](../proof/vm/main-driver.mjs) optionally accepts
 `run(opcodeBudget, {mainBudget})` and `resume(opcodeBudget, {mainBudget})`.
 `STOP_MAIN_WAIT` keeps the same accessor, PBR, context, device and interrupt
 cursor. The observation set is taken exactly once. Only after it is used up
@@ -276,7 +276,7 @@ stay decisive.
 
 ## Special natives in the scheduler round
 
-[NativeCalls](../src/vm/native-call.mjs) has a work budget. With `Infinity` the
+[NativeCalls](../proof/vm/native-call.mjs) has a work budget. With `Infinity` the
 synchronous path stays unchanged. With a finite budget, the bridge chooses for
 the targets in `SPECIAL_NATIVE_CONTINUATIONS`
 ([special-natives.mjs](../src/vm/special-natives.mjs)) the same observed
@@ -287,10 +287,10 @@ already pushed the WORD F508 and the VM stands at F52F. Only after the real
 native return do the previous use checks, the store, F509 and the next opcode
 follow.
 
-The [interpreter](../src/vm/interpreter.mjs) then reports `EXIT_NATIVE_WAIT`,
-the [TaskScheduler](../src/vm/scheduler.mjs) `STOP_NATIVE_WAIT`. Its `resume`
+The [interpreter](../proof/vm/interpreter.mjs) then reports `EXIT_NATIVE_WAIT`,
+the [TaskScheduler](../proof/vm/scheduler.mjs) `STOP_NATIVE_WAIT`. Its `resume`
 first continues the paused native; a foreign VM PC or foreign registers are
-refused before any effect. The [MainLoopDriver](../src/vm/main-driver.mjs) uses
+refused before any effect. The [MainLoopDriver](../proof/vm/main-driver.mjs) uses
 its main loop budget during the round also as the native work budget and sets it
 back to `Infinity` afterwards. A scheduler round nested from a native stays
 synchronous, because its caller has no pause frame. CD9D, CECB and D079 use
@@ -370,7 +370,7 @@ now lets this round itself pause. This concerns the weapon menu F254/E693 at
 9178 of the dialog 936C. Before, every free live control that reached this way
 ended at `task_f254_visit_open`; a synchronous round would not have returned
 texts and input in the visited script to the browser.
-`NativeCalls.nestedRound(entry)` ([native-call.mjs](../src/vm/native-call.mjs))
+`NativeCalls.nestedRound(entry)` ([native-call.mjs](../proof/vm/native-call.mjs))
 returns a continuation (`NestedRoundContinuation`). It runs on the same VM with
 its own `TaskScheduler` and gets the registers from the accessor like
 `NativeCalls.round`. For its duration it puts the pending slot of the outer
@@ -860,7 +860,9 @@ the browser no longer needs `boot-logo-observations.json` and
 `MainLoopDriver` with the reset entry (program bank 0), `LiveDevices` with APU
 and PPU bus, `LagFreeFrames` without an initial NMITIMEN (the boot writes it
 itself). Logo, SPC transfer, intro text, skyline, title, menu and "New Game" run
-without a limit into the main loop of the morgue.
+without a limit into the main loop of the morgue. Since 2026-11-15 the plain game loop
+(src/script/game-loop.mjs, [SCRIPT-VM-LIFT.md](SCRIPT-VM-LIFT.md) phase 5) takes the
+place of `MainLoopDriver` in the live game.
 
 Power-on state as in the original comparison (Mesen `AllZeros`): WRAM zero, A,
 X and Y zero, S 01FF, P 34, E 1. The boot does not clear the whole WRAM. With 00,

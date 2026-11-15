@@ -26,7 +26,7 @@ function live(language, plan, fourSlots = false) {
     sram: apartment.slice(),
     pad: (k) => {
       if (k < 5000) return TITLE(k);
-      driver ??= livePlanDriver(plan, game.memory.wram, () => game.driver.roundsCompleted);
+      driver ??= livePlanDriver(plan, game.memory.wram, () => game.loop.rounds);
       return driver.pad(k);
     },
   });

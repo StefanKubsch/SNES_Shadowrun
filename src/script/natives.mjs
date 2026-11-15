@@ -8,7 +8,7 @@
 //   F509  after its RTS the result is the word at 7E:0000 (the scheduler pushes it only
 //         when the table 82:D970 says the native has one)
 //
-// The natives are the lifted modules of the register-level bridge (src/vm/native-call.mjs):
+// The natives are the lifted modules of the register-level bridge (proof/vm/native-call.mjs):
 // the admitted natives and the special natives with live devices (src/vm/devices.mjs).
 // A native's JSR 80:C1CA (the dialog's topic action, the spell menu) visits the head task
 // of the JS scheduler as a nested visit. With a finite work budget the special natives
@@ -47,13 +47,15 @@ const ENTRY_STACK_BYTES = new Map([
 const VISIT_WORK = 1;
 
 const flagsOf = (value) => (value & WORD_SIGN ? FLAG_NEGATIVE : 0) | (value === 0 ? FLAG_ZERO : 0);
-const nativeTarget = (mem, id) => CODE_BANK_BASE | mem.read16(NATIVE_POINTERS + 2 * id);
+export const nativeTarget = (mem, id) => CODE_BANK_BASE | mem.read16(NATIVE_POINTERS + 2 * id);
 
 export class ScriptNatives {
   // admitted and implementation: the lifted natives without devices (target -> run);
-  // devices: the observation source of the special natives (LiveDevices).
-  constructor(mem, { admitted, implementation, devices = null }) {
+  // devices: the observation source of the special natives (LiveDevices); host: the
+  // game's settings as the natives' accessors see them (a.vm: gameplay, cheats).
+  constructor(mem, { admitted, implementation, devices = null, host = { mem } }) {
     this.mem = mem;
+    this.host = host;
     this.admitted = new Set(admitted);
     this.implementation = implementation;
     this.devices = devices;
@@ -114,7 +116,7 @@ export class ScriptNatives {
   accessor() {
     const depth = this.depth++;
     if (depth === this.accessors.length) {
-      const a = new TaskAccessor({ mem: this.mem });
+      const a = new TaskAccessor(this.host);
       a.devices = this.devices;
       this.accessors.push(a);
     }
