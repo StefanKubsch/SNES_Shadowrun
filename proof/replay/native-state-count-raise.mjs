@@ -1,20 +1,20 @@
 import { withInterruptEvents } from './observed-native-events.mjs';
-import { taskStop } from '../../src/task/plan.mjs';
-import { dialogAccess } from '../../src/task/native-dialog-support.mjs';
-import { FIRST_ARGUMENT, SECOND_ARGUMENT } from '../../src/task/native-leaf-support.mjs';
+import { taskStop } from '../../src/system/task-stop.mjs';
+import { dialogAccess } from '../../src/system/native-dialog-support.mjs';
+import { FIRST_ARGUMENT, SECOND_ARGUMENT } from '../../src/system/native-leaf-support.mjs';
 import { runDrawWindowList } from '../../src/game/window-list.mjs';
 import { raiseStateCount } from '../../src/game/runner-state.mjs';
 import {
   observedContinuation,
   drainNativeSequence,
   dialogCallSequence,
-} from '../../src/task/native-call-continuation.mjs';
+} from '../../src/system/native-call-continuation.mjs';
 import { validateGloveTaskOptions } from './native-glove-target.mjs';
 import {
   DP_RESOURCE_RECORD,
   DP_RESOURCE_RECORD_BANK,
   DP_RESOURCE_MAX,
-} from '../../src/task/wram.mjs';
+} from '../../src/data/wram.mjs';
 import {
   BYTE_BITS,
   BYTE_MASK,

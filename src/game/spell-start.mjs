@@ -13,7 +13,7 @@ import {
   SELECTED_SPELL_LEVEL_POINTER,
   SELECTED_SPELL_SCRIPT,
   WRAM,
-} from '../task/wram.mjs';
+} from '../data/wram.mjs';
 import { WRAM_BANK } from '../constants/memory-map.mjs';
 import { BYTE_BITS, BYTE_MASK, LONG_MASK } from '../constants/bits.mjs';
 

@@ -1,4 +1,4 @@
-import { taskStop } from '../../src/task/plan.mjs';
+import { taskStop } from '../../src/system/task-stop.mjs';
 import { prepareTaskPlan, isLatestCommittedTaskPlan } from './plan.mjs';
 import { renderAddress } from '../../src/render/data.mjs';
 import { runTaskOpcodeSequence } from './opcode-sequence.mjs';
@@ -11,9 +11,9 @@ import { fec1Registers, validateNoticeOptions } from '../replay/native-notice.mj
 import { runTaskNative13Opcode } from './native13-opcode.mjs';
 import { taskActionsDevices, validateTaskActionsOptions } from '../replay/native-actions.mjs';
 import { runTaskNativeAudioOpcode } from './native-audio-opcode.mjs';
-import { taskAudioDevices } from '../../src/task/native-audio-compose.mjs';
+import { taskAudioDevices } from '../../src/system/native-audio-compose.mjs';
 import { runTaskNativeRandomOpcode } from './native-random-opcode.mjs';
-import { taskRandomDevices } from '../../src/task/native-random.mjs';
+import { taskRandomDevices } from '../../src/system/native-random.mjs';
 import { runTaskNative7COpcode } from './native-8e36-opcode.mjs';
 import { hitObjectsInBlastDevices } from '../replay/native-object-hit.mjs';
 import { runTaskSelectionOpcode } from './native-selection-root-opcode.mjs';

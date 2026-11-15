@@ -24,7 +24,7 @@ import {
   COLLISION_NODE_BOX,
   COLLISION_NODE_NEXT,
   COLLISION_BOX_OBJECT,
-} from '../../src/task/wram.mjs';
+} from '../../src/data/wram.mjs';
 import { CELL_X_INDEX_SHIFT } from './slot-motion-search.mjs';
 import { isWord } from '../script/runtime.mjs';
 import { isSlotMotionData, motionPreludeWordBoundary } from './slot-motion-data.mjs';

@@ -9,7 +9,7 @@ import {
   GAME_OPTIONS,
   MUSIC_FIGHT,
   EMPTY_LIST,
-} from '../../src/task/wram.mjs';
+} from '../../src/data/wram.mjs';
 import { SCRIPT_NATIVE } from '../script/task.mjs';
 import { isWord } from '../script/runtime.mjs';
 

@@ -1,7 +1,7 @@
 // An object's velocity towards a point (lifted from 80:8D95 with 80:8D84; register-level
 // reference in proof/replay/native-combat.mjs). The script natives 80:8D7F (move towards an
 // object), 80:8D3F (jump towards an object) and 80:8D4E (jump towards a point of the
-// point list) use it (src/task/native-script-leaves.mjs).
+// point list) use it (src/script/native-script-leaves.mjs).
 //
 // Per axis the distance from the object to the point is split into its sign and
 // magnitude. The divisor is the sum of the three magnitudes over 16 (halved once more
@@ -16,7 +16,7 @@ import {
   OBJECT_VELOCITY_Z,
   OBJECT_X,
   OBJECT_Y,
-} from '../task/wram.mjs';
+} from '../data/wram.mjs';
 import { dataBankWord, setDataBankWord } from '../system/data-bank.mjs';
 import { RDDIVL, WRDIVB, WRDIVL } from '../constants/hardware-registers.mjs';
 import { BYTE_BITS, BYTE_MASK, WORD_BITS, WORD_MASK, WORD_SIGN } from '../constants/bits.mjs';

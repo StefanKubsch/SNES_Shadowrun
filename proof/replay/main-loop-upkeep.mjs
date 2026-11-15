@@ -6,10 +6,10 @@
 // proof/game-reference/main-timer.mjs and main-glove-action.mjs.
 import { TALK_ROUTINES, talkWithObjectAdapter } from './native-dialog.mjs';
 import { showNoticeAdapter } from './native-notice.mjs';
-import { setTextCursor, printNumber } from '../../src/task/native-list-prerequisites.mjs';
-import { printTextAdapter, drawTextBufferAdapter } from '../../src/task/native-text-compose.mjs';
+import { setTextCursor, printNumber } from '../../src/system/native-list-prerequisites.mjs';
+import { printTextAdapter, drawTextBufferAdapter } from '../../src/system/native-text-compose.mjs';
 import { playSoundEffectRoutine } from '../../src/apu/sound-effect.mjs';
-import { randomByte, randomBelow } from '../../src/task/native-random.mjs';
+import { randomByte, randomBelow } from '../../src/system/native-random.mjs';
 import { chooseActionAdapter } from './native-actions.mjs';
 
 // Already proven routines, with the shared observation set and real return frames.

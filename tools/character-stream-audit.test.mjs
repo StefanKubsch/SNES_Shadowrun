@@ -10,7 +10,7 @@ import { sheetsToCharacters } from '../src/data/vram-tiles.mjs';
 import { lzDecode, lzBits } from '../src/data/lz.mjs';
 import { VmMemory } from '../src/vm/memory.mjs';
 import { TaskAccessor } from '../src/vm/task-accessor.mjs';
-import { unpackStreamLong } from '../src/task/native-unpack.mjs';
+import { unpackStreamLong } from '../src/system/native-unpack.mjs';
 
 const readJson = (name) => JSON.parse(readFileSync(new URL(`../${name}`, import.meta.url)));
 const result = await auditCharacterStreams();

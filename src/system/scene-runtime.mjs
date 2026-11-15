@@ -5,7 +5,7 @@ import { VideoPort } from '../video/video-port.mjs';
 import { accessorPort } from './hardware-port.mjs';
 import { randomBelow } from './random.mjs';
 import { sendApuCommand } from '../apu/apu-command.mjs';
-import { taskStop } from '../task/plan.mjs';
+import { taskStop } from './task-stop.mjs';
 import { FLAG_INDEX_8BIT, FLAG_MEMORY_8BIT } from '../constants/cpu-flags.mjs';
 
 export function sceneRuntime(h) {

@@ -8,7 +8,7 @@
 // entries (the original would run on forever). Adding a topic inserts it with flag 0 before the first
 // greater one, shifting the rest (its FF included) up by one; the shifted flag is carried
 // in the direct page bytes 23 and 24, which keep their last values as in the original.
-import { taskStop } from '../task/plan.mjs';
+import { taskStop } from '../system/task-stop.mjs';
 import {
   DP_TOPIC_NEXT_FLAGS,
   DP_TOPIC_SHIFT_FLAGS,
@@ -17,7 +17,7 @@ import {
   TOPIC_LIST_END,
   TOPIC_MARKED,
   WRAM,
-} from '../task/wram.mjs';
+} from '../data/wram.mjs';
 import { BANK_SIZE, LONG_MASK, WORD_MASK } from '../constants/bits.mjs';
 
 const TRUE = WORD_MASK,

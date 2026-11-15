@@ -8,15 +8,15 @@ import { decodeWindows, DialogTestMemory, rom } from './task-native-dialog-harne
 import { assertPinnedTaskSource } from './pinned-task-source.mjs';
 import { runReference } from './w65c816-reference.mjs';
 import { TaskAccessor } from '../src/vm/task-accessor.mjs';
-import { dialogAccess } from '../src/task/native-dialog-support.mjs';
-import { NATIVE_CALL_CONTINUATIONS } from '../src/task/native-call-continuation.mjs';
-import { WAIT_PAUSED, WAIT_RETURNED } from '../src/task/native-wait-continuation.mjs';
+import { dialogAccess } from '../src/system/native-dialog-support.mjs';
+import { NATIVE_CALL_CONTINUATIONS } from '../src/system/native-call-continuation.mjs';
+import { WAIT_PAUSED, WAIT_RETURNED } from '../src/system/native-wait-continuation.mjs';
 import { GAME_NMI_ROUTINES } from '../proof/replay/main-game-nmi.mjs';
 import { TALK_ROUTINES } from '../proof/replay/native-dialog.mjs';
 import { TRANSITION_ROUTINES } from '../proof/replay/main-transition.mjs';
-import { releaseGloveNameWindow } from '../src/task/native-dialog-portrait.mjs';
-import { finishInterruptObservations } from '../src/task/main-wait-interrupt.mjs';
-import { releaseWindowAdapter } from '../src/task/native-render-compose.mjs';
+import { releaseGloveNameWindow } from '../src/system/native-dialog-portrait.mjs';
+import { finishInterruptObservations } from '../src/system/main-wait-interrupt.mjs';
+import { releaseWindowAdapter } from '../src/system/native-render-compose.mjs';
 import { runReleaseWindowCall } from '../src/game/window-release.mjs';
 
 const releaseWindows = [

@@ -1,6 +1,6 @@
 // The object palette slots of the sprite list (lifted from 80:AB0A and 81:A840;
 // register-level references runPaletteSlot in proof/replay/native-scene-sprites.mjs and
-// clearPaletteSlots in src/task/main-initialize.mjs).
+// clearPaletteSlots in src/system/main-initialize.mjs).
 //
 // Each pass the sprite list empties the palette upload list 7E:17D4 and unsets every
 // object palette's slot 7E:17E6 (81:A840). Every drawn object's palette then gets a slot
@@ -12,9 +12,9 @@
 // slot A = the slot and X the palette offset when it was set, else X the new list
 // length with its sign and zero. The new slot keeps the palette offset in the direct
 // page word 6B as the original.
-import { taskStop } from '../task/plan.mjs';
+import { taskStop } from '../system/task-stop.mjs';
 import { clearPaletteSlots } from './game-screen.mjs';
-import { PALETTE_SLOTS, PALETTE_UPLOAD_LIST, PALETTE_UPLOAD_LIST_BYTES } from '../task/wram.mjs';
+import { PALETTE_SLOTS, PALETTE_UPLOAD_LIST, PALETTE_UPLOAD_LIST_BYTES } from '../data/wram.mjs';
 import { BYTE_BITS, BYTE_MASK, WORD_MASK, WORD_SIGN } from '../constants/bits.mjs';
 import { FLAG_CARRY, FLAG_NEGATIVE, FLAG_ZERO } from '../constants/cpu-flags.mjs';
 

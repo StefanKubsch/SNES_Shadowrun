@@ -3,7 +3,7 @@ import { prepareRenderView } from '../../src/render/data.mjs';
 import { renderEntryBoundary } from './unpack-9f49.mjs';
 import { wordWaitAccess, renderWordWait } from './word-wait.mjs';
 import { WRAM_BASE } from '../../src/constants/memory-map.mjs';
-import { TEXT_MAP_UPLOAD } from '../../src/task/wram.mjs';
+import { TEXT_MAP_UPLOAD } from '../../src/data/wram.mjs';
 import { BANK_SIZE, WORD_MASK } from '../../src/constants/bits.mjs';
 
 const DEFAULT_MAX_WORK = 1000000;

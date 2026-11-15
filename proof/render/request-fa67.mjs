@@ -9,7 +9,7 @@ import {
   TEXT_TILE_UPLOAD_ADDRESS,
   WINDOW_TILE_COUNT,
   TEXT_TILE_UPLOAD_BYTES,
-} from '../../src/task/wram.mjs';
+} from '../../src/data/wram.mjs';
 import { BANK_SIZE, WORD_MASK, WORD_SIGN } from '../../src/constants/bits.mjs';
 import { FLAG_OVERFLOW, FLAG_CARRY } from '../../src/constants/cpu-flags.mjs';
 

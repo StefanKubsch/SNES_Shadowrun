@@ -3,7 +3,7 @@
 // last byte on the data bus. The registers are the B bus 2100-21FF, the joypad ports
 // 4016/4017, the CPU registers 4200-421F and the DMA channels 4300-437F. For a read
 // through a long pointer ([dp],Y) the last byte on the bus is the pointer's bank byte
-// (Mesen evidence in src/task/native-object-turn.mjs).
+// (Mesen evidence in src/script/native-object-turn.mjs).
 import { INIDISP, NMITIMEN, DMAP0 } from '../constants/hardware-registers.mjs';
 import { BANK_WITHOUT_IO, IO_AREA_END, IO_AREA_START } from '../constants/memory-map.mjs';
 import { BYTE_BITS, LONG_MASK, WORD_BITS, WORD_MASK } from '../constants/bits.mjs';

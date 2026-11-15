@@ -7,7 +7,7 @@
 // +2 and the property word at +3, in bank 7E (an address near FFFF reaches 7F). Without
 // a record the reads return the bytes at 7E:0001 to 0004 and the writes change nothing.
 import { ACTOR_RECORD, ACTOR_TABLE } from '../data/actors.mjs';
-import { OBJECT_NUMBER, RECORD_COUNT, RECORD_FLAGS, RECORD_PROPERTY, WRAM } from '../task/wram.mjs';
+import { OBJECT_NUMBER, RECORD_COUNT, RECORD_FLAGS, RECORD_PROPERTY, WRAM } from '../data/wram.mjs';
 import { dataBankWord } from '../system/data-bank.mjs';
 import { BYTE_BITS, BYTE_MASK, LONG_MASK, WORD_MASK } from '../constants/bits.mjs';
 

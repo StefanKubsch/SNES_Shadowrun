@@ -1,5 +1,5 @@
 import { BYTE_MASK, WORD_MASK, NIBBLE_BITS } from '../../src/constants/bits.mjs';
-import { OBJECT_LAST_SLOT } from '../../src/task/wram.mjs';
+import { OBJECT_LAST_SLOT } from '../../src/data/wram.mjs';
 import { SCRIPT_RESUME } from '../../src/vm/layout.mjs';
 import { DEFAULT_STEP_BUDGET, compileScriptFrame, isWord, validateStepBudget } from './runtime.mjs';
 import { isTaskFrameAllocator } from './task-frames.mjs';

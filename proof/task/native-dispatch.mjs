@@ -1,6 +1,6 @@
-import { taskStop } from '../../src/task/plan.mjs';
+import { taskStop } from '../../src/system/task-stop.mjs';
 import { prepareTaskPlan } from './plan.mjs';
-import { nativeTarget } from '../../src/task/native-targets.mjs';
+import { nativeTarget } from '../../src/script/native-targets.mjs';
 import { runTaskNativeBridge } from './native-bridge.mjs';
 import { runTaskNativeResume } from './native-resume.mjs';
 import { raiseMemberMagicPointsReference } from '../game-reference/runner-state.mjs';
@@ -245,7 +245,7 @@ import { testObjectCollisionReference } from '../game-reference/action-box-colli
 import { haltObjectReference, resumeObjectReference } from '../game-reference/object-halt.mjs';
 
 // Lifted natives whose proofs run their register-level references (the game runs the
-// lifted ones, src/task/native-targets.mjs).
+// lifted ones, src/script/native-targets.mjs).
 const REFERENCE_TARGETS = new Map([
   [0x80cf2e, raiseMemberMagicPointsReference],
   [0x80ca05, getObjectFlagsReference],

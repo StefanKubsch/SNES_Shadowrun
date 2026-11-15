@@ -12,9 +12,9 @@ import {
   bobObjectReference,
   bobSecondObjectReference,
 } from '../proof/game-reference/object-bob.mjs';
-import { bobObject, bobSecondObject } from '../src/task/native-object-bob.mjs';
-import { advanceOrbit, D796_ENTRIES } from '../src/task/native-orbit.mjs';
-import { BOB_PHASE, BOB_SECOND_PHASE, SWARM_MEMBERS } from '../src/task/wram.mjs';
+import { bobObject, bobSecondObject } from '../src/script/native-object-bob.mjs';
+import { advanceOrbit, D796_ENTRIES } from '../src/script/native-orbit.mjs';
+import { BOB_PHASE, BOB_SECOND_PHASE, SWARM_MEMBERS } from '../src/data/wram.mjs';
 
 const WRAM_BYTES = 0x20000,
   HEX = 16,

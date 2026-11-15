@@ -6,19 +6,19 @@ import { rom, decodeWindows } from './task-native-dialog-harness.mjs';
 import { runReference } from './w65c816-reference.mjs';
 import { VmMemory } from '../src/vm/memory.mjs';
 import { TaskAccessor } from '../src/vm/task-accessor.mjs';
-import { dialogAccess } from '../src/task/native-dialog-support.mjs';
+import { dialogAccess } from '../src/system/native-dialog-support.mjs';
 import {
   MAIN_LOOP_RESUME,
   MAIN_LOOP_ROUND,
   runMainLoop,
   MainLoopContinuation,
 } from '../proof/vm/main-loop.mjs';
-import { WAIT_PAUSED, WAIT_RETURNED } from '../src/task/native-wait-continuation.mjs';
+import { WAIT_PAUSED, WAIT_RETURNED } from '../src/system/native-wait-continuation.mjs';
 import {
   waitForRandomStateChangeWithInterrupts,
   readInputWithInterrupts,
   finishInterruptObservations,
-} from '../src/task/main-wait-interrupt.mjs';
+} from '../src/system/main-wait-interrupt.mjs';
 import { GAME_NMI_ROUTINES } from '../proof/replay/main-game-nmi.mjs';
 import { processSceneRequestReference } from '../proof/game-reference/scene-request.mjs';
 

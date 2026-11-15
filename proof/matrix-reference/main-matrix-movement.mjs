@@ -1,6 +1,6 @@
-import { routineCaller } from '../../src/task/routine-call.mjs';
-import { taskStop } from '../../src/task/plan.mjs';
-import { setCarry } from '../../src/task/status-flags.mjs';
+import { routineCaller } from '../../src/system/routine-call.mjs';
+import { taskStop } from '../../src/system/task-stop.mjs';
+import { setCarry } from '../../src/system/status-flags.mjs';
 
 import { GRID_MASK, MATRIX_MAP_STEPS } from './main-matrix-objects.mjs';
 import {
@@ -26,7 +26,7 @@ import {
   PAD_HELD,
   RANDOM_STATE,
   WRAM,
-} from '../../src/task/wram.mjs';
+} from '../../src/data/wram.mjs';
 import { FLAG_ZERO, FLAG_CARRY, FLAG_NEGATIVE } from '../../src/constants/cpu-flags.mjs';
 import { BANK_MASK, BYTE_BITS, WORD_MASK } from '../../src/constants/bits.mjs';
 // Matrix movement of main-matrix-control.mjs: direction (81:BA93), track (81:BC09)

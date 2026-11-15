@@ -1,6 +1,6 @@
 import { BYTE_MASK, WORD_MASK, WORD_SIGN } from '../../src/constants/bits.mjs';
 import { WRAM_BANK, BANK_WITHOUT_IO } from '../../src/constants/memory-map.mjs';
-import { WRAM, PLAYER_OBJECT, OBJECT_LAST_SLOT } from '../../src/task/wram.mjs';
+import { WRAM, PLAYER_OBJECT, OBJECT_LAST_SLOT } from '../../src/data/wram.mjs';
 import { isSlotMotionData } from './slot-motion-data.mjs';
 import { prepareMotionAFC4 } from './slot-motion-afc4.mjs';
 

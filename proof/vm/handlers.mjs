@@ -49,7 +49,7 @@ import {
   RDMPYH,
 } from '../../src/constants/hardware-registers.mjs';
 import { OPCODE } from '../../src/script/opcodes.mjs';
-import { WRAM } from '../../src/task/wram.mjs';
+import { WRAM } from '../../src/data/wram.mjs';
 
 // Stack-relative byte offsets: top word at S+1, the next word at S+3.
 const STACK_SECOND_WORD = 3;

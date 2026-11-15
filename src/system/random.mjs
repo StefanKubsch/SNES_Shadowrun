@@ -1,10 +1,10 @@
 // Random numbers (lifted from 80:C51F and 80:C560; long form 80:F2A8, register-level
-// version in src/task/native-random.mjs). A random byte mixes the last byte, the
+// version in src/system/native-random.mjs). A random byte mixes the last byte, the
 // frame counter word and the horizontal and vertical beam counters through the
 // permutation random_bytes; a number below a range takes two such bytes as a word,
 // masks it to the range's bit length (random_masks) and draws again until it fits.
 import { decodeOnce, tableEntries } from '../data/named-tables.mjs';
-import { DP_RANDOM_MASK, RANDOM_BYTE, RANDOM_STATE, RANDOM_STATE_HIGH } from '../task/wram.mjs';
+import { DP_RANDOM_MASK, RANDOM_BYTE, RANDOM_STATE, RANDOM_STATE_HIGH } from '../data/wram.mjs';
 import { OPHCT, OPVCT, SLHV } from '../constants/hardware-registers.mjs';
 import { BYTE_BITS, BYTE_MASK, WORD_SIGN } from '../constants/bits.mjs';
 

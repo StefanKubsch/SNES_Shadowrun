@@ -22,8 +22,8 @@ import {
   scriptTable,
 } from './vm-differential.mjs';
 import { NativeCalls } from '../proof/vm/native-call.mjs';
-import { nativeOpcodeTargets } from '../src/task/native-opcode-targets.mjs';
-import { nativeTarget } from '../src/task/native-targets.mjs';
+import { nativeOpcodeTargets } from '../src/data/native-opcode-targets.mjs';
+import { nativeTarget } from '../src/script/native-targets.mjs';
 
 const romBytes = () => new Uint8Array(rom);
 const exits = [0x52, 0x54, 0x56, 0x58, 0x90, 0x98, 0xa0, 0xa8];

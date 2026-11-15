@@ -7,7 +7,7 @@ import {
   NativeCallContinuation,
   drainNativeSequence,
   nativeCallSequence,
-} from '../../src/task/native-call-continuation.mjs';
+} from '../../src/system/native-call-continuation.mjs';
 import { MATRIX_SETUP_ROUTINES, MAP_BANK } from './main-scene-matrix.mjs';
 import { MATRIX_OBJECT_ROUTINES, MATRIX_MAP_VRAM } from './main-matrix-objects.mjs';
 import { MATRIX_CONTROL_ROUTINES } from './main-matrix-control.mjs';
@@ -35,7 +35,7 @@ import {
   MATRIX_SYSTEM,
   PAD_PRESSED,
   PAD_X,
-} from '../../src/task/wram.mjs';
+} from '../../src/data/wram.mjs';
 import { BYTE_MASK, WORD_BITS, WORD_MASK } from '../../src/constants/bits.mjs';
 import { FLAG_CARRY, FLAG_MEMORY_8BIT, FLAG_ZERO } from '../../src/constants/cpu-flags.mjs';
 

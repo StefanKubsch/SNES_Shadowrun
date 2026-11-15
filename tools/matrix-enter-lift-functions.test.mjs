@@ -1,5 +1,5 @@
 // Random per-function test of the lifted script native 80:E30F, entering the Matrix
-// (src/game/matrix-enter.mjs through src/task/native-matrix-enter.mjs), against its
+// (src/game/matrix-enter.mjs through src/script/native-matrix-enter.mjs), against its
 // register-level reference (proof/game-reference/matrix-enter.mjs). The native runs from
 // its script call (data bank 80, direct page 0, the RTS frame). The decker is a runner
 // of the table (or any number: both searches miss); the group holds the decker at or
@@ -9,8 +9,8 @@
 import { DialogTestMemory, prng } from './task-native-dialog-harness.mjs';
 import { createSide, registerCases } from './lift-function-harness.mjs';
 import { enterMatrixReference } from '../proof/game-reference/matrix-enter.mjs';
-import { enterMatrix } from '../src/task/native-matrix-enter.mjs';
-import { GROUP_NUMBERS, GROUP_SLOTS, OBJECT_RECORD } from '../src/task/wram.mjs';
+import { enterMatrix } from '../src/script/native-matrix-enter.mjs';
+import { GROUP_NUMBERS, GROUP_SLOTS, OBJECT_RECORD } from '../src/data/wram.mjs';
 import { RUNNERS, RUNNER_OBJECT_NUMBERS } from '../src/data/runners.mjs';
 
 const WRAM_BYTES = 0x20000,

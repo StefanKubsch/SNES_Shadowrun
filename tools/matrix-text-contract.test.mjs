@@ -11,14 +11,14 @@ import {
 import { matrixSetupSpecs } from './main-scene-matrix-source.mjs';
 import { matrixControlSpecs } from './main-matrix-control-source.mjs';
 import { mainSceneSpecs } from './main-scene-source.mjs';
-import {SCENE_REFERENCE_ROUTINES as MAIN_SCENE_ROUTINES} from '../proof/scene-reference-routines.mjs';
+import { SCENE_REFERENCE_ROUTINES as MAIN_SCENE_ROUTINES } from '../proof/scene-reference-routines.mjs';
 import {
   compareDialog,
   decodeWindows,
   rom,
   DialogTestMemory,
 } from './task-native-dialog-harness.mjs';
-import { dialogAccess } from '../src/task/native-dialog-support.mjs';
+import { dialogAccess } from '../src/system/native-dialog-support.mjs';
 import { cpuToOffset } from './rom.mjs';
 
 const asset = JSON.parse(readFileSync('assets/vm-matrix-texts.json'));

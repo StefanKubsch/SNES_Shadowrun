@@ -1,6 +1,6 @@
-import { taskStop } from '../task/plan.mjs';
-import { randomByteNative, randomBelowNative } from '../task/native-script-leaves.mjs';
-import { raiseMemberMagicPoints } from '../task/native-magic-points-raise.mjs';
+import { taskStop } from '../system/task-stop.mjs';
+import { randomByteNative, randomBelowNative } from '../script/native-script-leaves.mjs';
+import { raiseMemberMagicPoints } from '../script/native-magic-points-raise.mjs';
 import { raiseStateCountSequence } from './runner-state-call.mjs';
 // The main loop's entries of its lifted upkeep routines: each runs the lifted
 // function and returns to the main loop as the original (RTL from bank 81, RTS in
@@ -15,7 +15,7 @@ import {
   NativeCallContinuation,
   NATIVE_CALL_CONTINUATIONS,
   drainNativeSequence,
-} from '../task/native-call-continuation.mjs';
+} from '../system/native-call-continuation.mjs';
 import { sceneRuntime } from '../system/scene-runtime.mjs';
 import { noticeTimeoutSequence } from './notice-timeout.mjs';
 import { applyColourEffect } from './fixed-colour.mjs';
@@ -100,7 +100,7 @@ import { ITEMS_ENTRY, NATIVE_ENTRY, START_ENTRY, statusScreenSequence } from './
 import { notesSequence, skillsSequence } from './status-submenus.mjs';
 import { itemMenuSequence, useItemSequence } from './item-menu.mjs';
 import { decimalNumberSequence } from './decimal-number.mjs';
-import { KARMA_LISTS } from '../task/native-main-menu.mjs';
+import { KARMA_LISTS } from '../system/native-main-menu.mjs';
 import {
   buyStepSequence,
   karmaLineSequence,
@@ -114,12 +114,12 @@ import { moveAndAnimate } from './object-motion.mjs';
 import { walkTowardsTarget } from './object-target.mjs';
 import { stepAnimation } from './object-animation.mjs';
 import { buildSprites } from './sprite-list.mjs';
-import { enterRoom } from '../task/main-transition.mjs';
+import { enterRoom } from '../system/main-transition.mjs';
 import { BYTE_BITS } from '../constants/bits.mjs';
-import { lagFree } from '../task/main-wait-interrupt.mjs';
+import { lagFree } from '../system/main-wait-interrupt.mjs';
 import { waitForCounterWord } from '../system/frame-wait.mjs';
 import { takePadPresses } from '../system/joypad.mjs';
-import { PAD_HELD } from '../task/wram.mjs';
+import { PAD_HELD } from '../data/wram.mjs';
 import { FLAG_CARRY, FLAG_NEGATIVE, FLAG_ZERO } from '../constants/cpu-flags.mjs';
 
 // 81:8877, called with JSL.

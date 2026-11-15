@@ -20,7 +20,7 @@
 // the formation step 80:BAD5 that follows reads X and Y. The grid clear's and the
 // collision list's frames are reproduced on the stack, as the original leaves them
 // below its own.
-import { taskStop } from '../task/plan.mjs';
+import { taskStop } from '../system/task-stop.mjs';
 import { moveObject } from './object-move.mjs';
 import {
   CELL_COORDINATE_MASK,
@@ -51,7 +51,7 @@ import {
   OBJECT_X,
   OBJECT_Y,
   STATIC_NODE_END,
-} from '../task/wram.mjs';
+} from '../data/wram.mjs';
 import { BYTE_BITS, BYTE_MASK, WORD_MASK, WORD_SIGN } from '../constants/bits.mjs';
 import { WRAM_BANK_PAIR } from '../constants/memory-map.mjs';
 import { FLAG_CARRY, FLAG_NEGATIVE, FLAG_OVERFLOW, FLAG_ZERO } from '../constants/cpu-flags.mjs';

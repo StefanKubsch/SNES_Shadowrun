@@ -10,7 +10,7 @@ import {
   GLOVE_SCREEN_X,
   GLOVE_KIND,
   GLOVE_SCREEN_Y,
-} from '../../src/task/wram.mjs';
+} from '../../src/data/wram.mjs';
 import {
   A1T0L,
   A1B0,

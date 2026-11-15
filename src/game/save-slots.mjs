@@ -8,7 +8,7 @@
 import { fourSaveSlots } from './bugfixes.mjs';
 import { BYTE_BITS, WORD_BITS, WORD_MASK } from '../constants/bits.mjs';
 import { SRAM_FIRST_BANK } from '../constants/memory-map.mjs';
-import { SAVE_STATE_START } from '../task/wram.mjs';
+import { SAVE_STATE_START } from '../data/wram.mjs';
 import { SRAM_SIZE_FOUR_SLOTS } from '../vm/memory.mjs';
 
 export const SLOT_OFFSETS_FOUR = Object.freeze([0, 0x0ffe, 0x2000, 0x2ffe]);

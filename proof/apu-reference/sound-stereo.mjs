@@ -1,9 +1,9 @@
 // Register-level reference of the panned song level 80:C461 (moved from
-// src/task/native-sound-stereo.mjs; lifted in src/task/native-script-leaves.mjs with
+// src/task/native-sound-stereo.mjs; lifted in src/script/native-script-leaves.mjs with
 // soundLevels of src/apu/sound-effect.mjs).
-import { taskStop } from '../../src/task/plan.mjs';
-import { SECOND_ARGUMENT, leaf } from '../../src/task/native-leaf-support.mjs';
-import { computeSoundPan, sendApuCommand } from '../../src/task/native-input-apu.mjs';
+import { taskStop } from '../../src/system/task-stop.mjs';
+import { SECOND_ARGUMENT, leaf } from '../../src/system/native-leaf-support.mjs';
+import { computeSoundPan, sendApuCommand } from '../../src/system/native-input-apu.mjs';
 import { WORD_MASK } from '../../src/constants/bits.mjs';
 import { CODE_BANK } from '../../src/constants/memory-map.mjs';
 import { APU_COMMAND_SONG_LEVEL } from '../../src/constants/sound-commands.mjs';

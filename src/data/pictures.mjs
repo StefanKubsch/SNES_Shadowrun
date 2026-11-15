@@ -1,6 +1,6 @@
 // Object pictures in banks 9B and 9C (docs/ROM-FREE.md, step 2). A frame
 // word of an action record (src/data/actions.mjs) or a new picture pointer
-// in 1140 names picture P; 80:ACD0 (src/task/native-scene-tiles.mjs) reads:
+// in 1140 names picture P; 80:ACD0 (src/system/native-scene-tiles.mjs) reads:
 // - P +0 the tile count n; the slot chain of the object grows or shrinks
 //   to n (12A0);
 // - n pairs of words (queueTiles, tables AEB4/AEC4): each a 64-byte OBJ

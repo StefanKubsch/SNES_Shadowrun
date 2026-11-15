@@ -4,14 +4,14 @@
 // - lz_bit_lengths 80:A033: bit length of n (0 for 0, 8 for 128 to 255), the
 //   width of a back reference in the unpacker 9F49 (src/data/lz.mjs lzBits),
 // - random_masks 80:C540: 16 words FFFF >> k, the mask of C51F for a range
-//   below 2^(16-k) (src/task/native-random.mjs),
+//   below 2^(16-k) (src/system/native-random.mjs),
 // - random_bytes 80:C58D: 256 bytes C560 mixes with 7E:1C76/1C77,
 // - motion_offsets 80:AEB4: 136 words k * 20, read from the bases AEB4 and
-//   AEC4 by the tile queue of AC2F (src/task/native-scene-tiles.mjs),
+//   AEC4 by the tile queue of AC2F (src/system/native-scene-tiles.mjs),
 // - color_ramp 80:D3D1: 512 bytes of 8877 (proof/render/color-8877.mjs), D2E7
 //   and the main loop upkeep,
 // - bit_reverse 81:A017: each byte with its bits reversed, for mirrored
-//   graphics (src/task/main-scene-graphics.mjs) and the unpacker body,
+//   graphics (src/system/main-scene-graphics.mjs) and the unpacker body,
 // - glyph_widths 81:AC0C: the pixel width of each character code 00 to 80
 //   (FADD, text composition FB2A),
 // - text_masks 81:AC8D: 34 bytes; AEC8 reads from AC8D, the text
@@ -80,7 +80,7 @@
 //   the division remainder 0 to 30 (docs/reference/render-routines.md#af1f),
 // - save_slot_offsets 81:B124: the SRAM offset of each save slot, read by
 //   B11A for the save B17D and its checksum (proof/replay/native-main-menu.mjs),
-// - the intro sprites of src/intro/intro-objects.mjs and src/task/main-intro-nmi.mjs:
+// - the intro sprites of src/intro/intro-objects.mjs and src/system/main-intro-nmi.mjs:
 //   - intro_sprite_tiles/columns/rows/x/y 81:E991/E9F3/EA55/EAB7/EB19: for
 //     each of the 49 picture numbers the first OBJ name, the grid size and
 //     the signed offset of the grid that E83A builds,
@@ -95,7 +95,7 @@
 //   - scene_audio_modes 81:D3BF (EF47 when not negative), scene_sounds D3CB
 //     (F007/F130 when not zero),
 //   - scene_targets/steps D3D7/D3E3 and scene_end_steps D3EF: the value and
-//     step the wait EEBB moves toward (src/task/main-scene-wait.mjs), with
+//     step the wait EEBB moves toward (src/system/main-scene-wait.mjs), with
 //     the frame counts scene_frames D3FB and scene_end_frames D407,
 //   - scene_sprite_bases D413 (D4E8, CF79 displacements),
 //   - scene_animation_calls D41F: JMP ($D41F,X) at CF76,
@@ -163,7 +163,7 @@
 //   and colour mask of each fade step,
 // - frontend_oam 81:E5CB: four OBJ entries E57E copies to 7E:0F1E,
 // - scene_list_commands 81:EC2F: JSR ($EC2F,X) at EC28 by the scene list
-//   command (src/task/main-scene-video.mjs, src/data/scene-lists.mjs);
+//   command (src/system/main-scene-video.mjs, src/data/scene-lists.mjs);
 //   command 0 ends a list before the jump,
 // - window HDMA tables (line count and two bytes for 2126/2127, end 00):
 //   dialog_window_hdma 80:8F87 (8F3A copies the 16 bytes to 7E:0144),

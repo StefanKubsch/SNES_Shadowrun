@@ -1,6 +1,6 @@
 // Random per-function tests of the lifted skills and notes submenus
 // (src/game/status-submenus.mjs) against the register-level 80:E834 and 80:E8C8
-// (src/task/native-status-screen.mjs). Both sides call the same stand-ins for the
+// (src/system/native-status-screen.mjs). Both sides call the same stand-ins for the
 // window 80:F963 (a window number in DP 00), the cursor 80:FAAC, the text 80:FE69, the
 // number 80:FD80, the key wait 80:F953 (Select pressed or not) and the release 80:FA3E.
 // Each records its target, A, X, Y, the flags N, V, Z and C and the direct page words
@@ -17,8 +17,8 @@ import {
   MEMBER_DATAJACK,
   MEMBER_NUMBER,
   PAD_PRESSED,
-} from '../src/task/wram.mjs';
-import { drainNativeSequence } from '../src/task/native-call-continuation.mjs';
+} from '../src/data/wram.mjs';
+import { drainNativeSequence } from '../src/system/native-call-continuation.mjs';
 
 const WRAM_BYTES = 0x20000,
   HEX = 16,

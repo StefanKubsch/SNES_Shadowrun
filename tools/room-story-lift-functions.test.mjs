@@ -13,11 +13,11 @@ import {
   getStoryStageReference,
   raiseStoryStageReference,
 } from '../proof/game-reference/room-story.mjs';
-import { getRoomHeader } from '../src/task/native-room-entry.mjs';
-import { getCurrentRoomHeader } from '../src/task/native-room-entry-current.mjs';
-import { getStoryStage } from '../src/task/native-story-stage-get.mjs';
-import { raiseStoryStage } from '../src/task/native-story-stage-raise.mjs';
-import { ROOM, STORY_STAGE } from '../src/task/wram.mjs';
+import { getRoomHeader } from '../src/script/native-room-entry.mjs';
+import { getCurrentRoomHeader } from '../src/script/native-room-entry-current.mjs';
+import { getStoryStage } from '../src/script/native-story-stage-get.mjs';
+import { raiseStoryStage } from '../src/script/native-story-stage-raise.mjs';
+import { ROOM, STORY_STAGE } from '../src/data/wram.mjs';
 
 const WRAM_BYTES = 0x20000,
   HEX = 16,

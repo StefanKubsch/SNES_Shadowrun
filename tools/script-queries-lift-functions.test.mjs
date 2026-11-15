@@ -14,12 +14,12 @@ import {
   getPlayerObjectCopyReference,
   getPlayerObjectReference,
 } from '../proof/game-reference/script-queries.mjs';
-import { getPadHeld } from '../src/task/native-pad-held.mjs';
-import { getPadPressed } from '../src/task/native-pad-pressed.mjs';
-import { getPlayerObject } from '../src/task/native-player-object.mjs';
-import { getPlayerObjectCopy } from '../src/task/native-player-object-second.mjs';
-import { getGloveScreenX } from '../src/task/native-glove-screen-x.mjs';
-import { getGloveScreenY } from '../src/task/native-glove-screen-y.mjs';
+import { getPadHeld } from '../src/script/native-pad-held.mjs';
+import { getPadPressed } from '../src/script/native-pad-pressed.mjs';
+import { getPlayerObject } from '../src/script/native-player-object.mjs';
+import { getPlayerObjectCopy } from '../src/script/native-player-object-second.mjs';
+import { getGloveScreenX } from '../src/script/native-glove-screen-x.mjs';
+import { getGloveScreenY } from '../src/script/native-glove-screen-y.mjs';
 
 const WRAM_BYTES = 0x20000,
   HEX = 16,

@@ -13,11 +13,11 @@ import { exploreLive } from './explore-live.mjs';
 import { fnv1a } from '../src/data/fnv.mjs';
 import { registerLevelLoop } from '../proof/script/register-level-loop.mjs';
 
-// The routine tables of src/task and src/vm (the main loop's) that hold any of the
+// The game caller tables and reference tables that hold any of the
 // lifted functions.
 export async function routineTables(lifted) {
   const maps = [];
-  for (const folder of ['src/task', 'src/vm', 'proof/replay', 'proof/vm']) {
+  for (const folder of ['src/system', 'src/script', 'src/vm', 'proof/replay', 'proof/vm']) {
     const dir = fileURLToPath(new URL(`../${folder}/`, import.meta.url));
     for (const name of readdirSync(dir).filter((n) => n.endsWith('.mjs')))
       for (const value of Object.values(

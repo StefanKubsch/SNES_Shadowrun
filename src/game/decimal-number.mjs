@@ -7,9 +7,9 @@
 // after the first non-zero one goes to the text buffer 7E:21A0, with a comma after the
 // billions, millions and thousands. The remainder is the last digit; 0D and 0 end the
 // text, which the text buffer routine (80:FB39) prints with the data bank 7E.
-import { nativeCallSequence } from '../task/native-call-continuation.mjs';
+import { nativeCallSequence } from '../system/native-call-continuation.mjs';
 import { dataBankWord } from '../system/data-bank.mjs';
-import { TEXT_BUFFER } from '../task/wram.mjs';
+import { TEXT_BUFFER } from '../data/wram.mjs';
 import { BYTE_BITS, BYTE_MASK, BYTE_SIGN, HIGH_BYTE_MASK } from '../constants/bits.mjs';
 import { WRAM_BANK_PAIR } from '../constants/memory-map.mjs';
 import { FLAG_CARRY, FLAG_NEGATIVE, FLAG_OVERFLOW, FLAG_ZERO } from '../constants/cpu-flags.mjs';

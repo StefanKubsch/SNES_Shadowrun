@@ -8,14 +8,14 @@
 // for a negative number, otherwise the kind of 8D:B022 by item, six bytes a kind in
 // 8C:EFB0. The cursor (80:FAAC), text (80:FE69) and number (80:FD80) run through their
 // frames from the routine table.
-import { dialogCallBody, nativeCallSequence } from '../task/native-call-continuation.mjs';
+import { dialogCallBody, nativeCallSequence } from '../system/native-call-continuation.mjs';
 import { dataBankWord } from '../system/data-bank.mjs';
 import {
   DP_SCRATCH,
   STATUS_LAYOUT,
   TEXT_BLANK_FIELD,
   TEXT_NONE,
-} from '../task/native-member-spell-menu.mjs';
+} from '../data/native-member-spell-menu.mjs';
 import {
   DP_CURSOR_ROW,
   JAKE_DERMAL_ARMOUR,
@@ -27,7 +27,7 @@ import {
   RUNNER_WEAPON,
   SELECTED_SPELL_NAME,
   STATUS_WINDOW,
-} from '../task/wram.mjs';
+} from '../data/wram.mjs';
 import { BYTE_BITS, BYTE_MASK, LONG_MASK, WORD_MASK, WORD_SIGN } from '../constants/bits.mjs';
 import { FLAG_CARRY, FLAG_NEGATIVE, FLAG_OVERFLOW, FLAG_ZERO } from '../constants/cpu-flags.mjs';
 

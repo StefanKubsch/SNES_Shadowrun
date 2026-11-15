@@ -34,7 +34,7 @@ import {
   OBJECT_KIND,
   TILE_STACK_LAST,
   TILE_STACK_USES,
-} from '../src/task/wram.mjs';
+} from '../src/data/wram.mjs';
 
 const WRAM_BYTES = 0x20000,
   HEX = 16,

@@ -1,11 +1,11 @@
-import { taskStop } from '../../src/task/plan.mjs';
+import { taskStop } from '../../src/system/task-stop.mjs';
 import {
   NativeCallContinuation,
   NATIVE_CALL_CONTINUATIONS,
   drainNativeSequence,
   nativeCallSequence,
-} from '../../src/task/native-call-continuation.mjs';
-import { routineCaller } from '../../src/task/routine-call.mjs';
+} from '../../src/system/native-call-continuation.mjs';
+import { routineCaller } from '../../src/system/routine-call.mjs';
 import {
   captureMatrixText,
   beginMatrixText,
@@ -68,7 +68,7 @@ import {
   MATRIX_TEXT_QUEUE_END,
   MATRIX_TEXT_QUEUE_START,
   MATRIX_TEXT_SCROLL,
-} from '../../src/task/wram.mjs';
+} from '../../src/data/wram.mjs';
 import {
   BANK_MASK,
   BYTE_MASK,

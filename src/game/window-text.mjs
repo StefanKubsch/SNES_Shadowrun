@@ -1,5 +1,5 @@
 // The text cursor and the number print of a window (lifted from 80:FAAC and 80:FD80;
-// register-level versions in src/task/native-list-prerequisites.mjs, which the menus
+// register-level versions in src/system/native-list-prerequisites.mjs, which the menus
 // and lists still use).
 //
 // A window's text cursor is a tile number: the window's first text tile plus the
@@ -21,7 +21,7 @@
 // the sign and zero of the bank byte and the carry and overflow of the product's
 // addition; the number the registers of 80:FB39 and the sign and zero of the bank byte.
 import { sceneRuntime } from '../system/scene-runtime.mjs';
-import { nativeCallSequence } from '../task/native-call-continuation.mjs';
+import { nativeCallSequence } from '../system/native-call-continuation.mjs';
 import {
   DP_CURSOR_ROW,
   TEXT_BUFFER,
@@ -29,7 +29,7 @@ import {
   WINDOW_CURSOR_PIXEL,
   WINDOW_CURSOR_TILE,
   WINDOW_TILE_START,
-} from '../task/wram.mjs';
+} from '../data/wram.mjs';
 import {
   RDDIVL,
   RDMPYL,

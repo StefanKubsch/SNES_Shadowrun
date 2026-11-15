@@ -1,6 +1,6 @@
 // The static collision grid of a room (lifted from 81:8756 with 81:83FB, 81:840E,
 // 81:84CF, 81:84DE and 81:8701; register-level version in
-// src/task/main-scene-collision.mjs).
+// src/system/main-scene-collision.mjs).
 //
 // The grid has 16 x 16 cells; each cell heads a linked list of nodes, each node names a
 // box. The boxes come from the two object lists of the scene (direct page pointer 77,
@@ -33,7 +33,7 @@ import {
   STATIC_BOX_END,
   STATIC_CELL_HEADS,
   STATIC_NODE_END,
-} from '../task/wram.mjs';
+} from '../data/wram.mjs';
 import { OBJECT_TABLE } from '../data/object-types.mjs';
 import {
   BYTE_BITS,

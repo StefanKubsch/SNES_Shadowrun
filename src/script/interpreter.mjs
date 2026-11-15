@@ -8,7 +8,7 @@
 // uses (the status returns 54, 90, 98, A0 and A8, the unused table entries, division
 // and remainder 68 to 76) stop at the frontier `script_opcode_unused`: their originals
 // return through the operand stack (80:F927) or compute by scaled estimates.
-import { taskStop } from '../task/plan.mjs';
+import { taskStop } from '../system/task-stop.mjs';
 import { OPCODE } from './opcodes.mjs';
 import {
   CALL_NATIVE,
@@ -18,7 +18,7 @@ import {
   pullWord,
   pushWord,
 } from './tasks.mjs';
-import { WRAM } from '../task/wram.mjs';
+import { WRAM } from '../data/wram.mjs';
 import {
   BYTE_BITS,
   BYTE_MASK,

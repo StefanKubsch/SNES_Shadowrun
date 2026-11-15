@@ -1,5 +1,5 @@
 // The frame waits (lifted from 81:EEBB and 81:B0A1; register-level versions in
-// src/task/main-scene-wait.mjs and src/task/native-frame-wait.mjs). 81:EEBB: with
+// src/system/main-scene-wait.mjs and src/system/native-frame-wait.mjs). 81:EEBB: with
 // the NMI enabled in the NMITIMEN shadow, wait until the NMI has changed the frame
 // counter byte 7E:1C76; otherwise poll HVBJOY until the vertical blank ends. 81:B0A1
 // waits for a change of the counter word.
@@ -10,9 +10,9 @@
 // the counter compare, with the accumulator in 8-bit mode and the compare equal.
 // The NMI handler pushes and restores that state; afterwards the caller's
 // context is put back. Only the interrupt delivery sees this state.
-import { InterruptStepContinuation, lagFree } from '../task/main-wait-interrupt.mjs';
-import { WAIT_PAUSED, WAIT_RETURNED } from '../task/native-wait-continuation.mjs';
-import { NMITIMEN_SHADOW, RANDOM_STATE } from '../task/wram.mjs';
+import { InterruptStepContinuation, lagFree } from './main-wait-interrupt.mjs';
+import { WAIT_PAUSED, WAIT_RETURNED } from './native-wait-continuation.mjs';
+import { NMITIMEN_SHADOW, RANDOM_STATE } from '../data/wram.mjs';
 import { HVBJOY, HVBJOY_VBLANK, NMITIMEN_NMI_ENABLE } from '../constants/hardware-registers.mjs';
 import { FLAG_CARRY, FLAG_MEMORY_8BIT, FLAG_NEGATIVE, FLAG_ZERO } from '../constants/cpu-flags.mjs';
 import { BYTE_BITS } from '../constants/bits.mjs';

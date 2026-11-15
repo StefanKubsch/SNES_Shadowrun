@@ -14,7 +14,7 @@ import {
   indexObjectRecord,
   leaf,
   readRecordField,
-} from '../../src/task/native-leaf-support.mjs';
+} from '../../src/system/native-leaf-support.mjs';
 import {
   OBJECT_ARMOUR,
   OBJECT_DEPTH_MODE_CLEAR_MASK,
@@ -45,7 +45,7 @@ import {
   RECORD_FLAGS,
   RECORD_PROPERTY,
   WRAM,
-} from '../../src/task/wram.mjs';
+} from '../../src/data/wram.mjs';
 import { BANK_WRAP, BYTE_MASK, LONG_MASK, WORD_MASK } from '../../src/constants/bits.mjs';
 import { FLAG_CARRY, FLAG_NEGATIVE, FLAG_ZERO } from '../../src/constants/cpu-flags.mjs';
 import { FLAG_MEMORY_8BIT } from '../../src/constants/cpu-flags.mjs';

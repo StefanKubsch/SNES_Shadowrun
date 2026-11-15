@@ -31,6 +31,7 @@ function imports(file) {
 }
 
 test('every src module is loaded by the game and none imports proof code', () => {
+  assert.equal(existsSync('src/task'), false, 'the former task directory must stay dissolved');
   const reached = new Set(entries),
     pending = [...entries],
     proofImports = [],

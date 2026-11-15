@@ -14,7 +14,7 @@
 // none), else the music mode 0.
 import { setMusicMode } from '../apu/music-mode.mjs';
 import { dataBankWord, setDataBankWord } from '../system/data-bank.mjs';
-import { nativeCallSequence } from '../task/native-call-continuation.mjs';
+import { nativeCallSequence } from '../system/native-call-continuation.mjs';
 import {
   DP_CURSOR_ROW,
   DP_NOTICE_FRAMES,
@@ -44,7 +44,7 @@ import {
   OBJECT_FLAGS,
   OBJECT_NO_TARGET,
   OBJECT_ON_SCREEN,
-} from '../task/wram.mjs';
+} from '../data/wram.mjs';
 import { BYTE_BITS, BYTE_MASK, WORD_MASK, WORD_SIGN } from '../constants/bits.mjs';
 
 // The fight's karma is an eighth of the karma; FFFF keeps no music.

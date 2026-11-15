@@ -1,6 +1,6 @@
 import { BYTE_MASK, WORD_MASK, BANK_SIZE, LONG_MASK } from '../../src/constants/bits.mjs';
 import { WRAM_BASE, WRAM_BANK } from '../../src/constants/memory-map.mjs';
-import { TOPIC_LIST, TOPIC_FLAGS, DIALOG_END } from '../../src/task/wram.mjs';
+import { TOPIC_LIST, TOPIC_FLAGS, DIALOG_END } from '../../src/data/wram.mjs';
 import { FLAG_NEGATIVE } from '../../src/constants/cpu-flags.mjs';
 import { isWord } from '../script/runtime.mjs';
 import { prepareRenderView } from '../../src/render/data.mjs';

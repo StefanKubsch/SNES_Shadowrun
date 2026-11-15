@@ -6,10 +6,10 @@ import {
   NATIVE_CALL_CONTINUATIONS,
   drainNativeSequence,
   nativeCallSequence,
-} from '../../src/task/native-call-continuation.mjs';
+} from '../../src/system/native-call-continuation.mjs';
 import { DP_SCRATCH } from '../replay/native-member-spell-menu.mjs';
 import { GLOVE_REACH, OUT_OF_REACH_NOTICE } from '../replay/native-glove-target.mjs';
-import { sec, clc } from '../../src/task/status-flags.mjs';
+import { sec, clc } from '../../src/system/status-flags.mjs';
 import {
   GLOVE_TARGET_OBJECT,
   GLOVE_TARGET_TAG,
@@ -34,7 +34,7 @@ import {
   DP_WINDOW_ATTRIBUTES,
   DP_NOTICE_TEXT,
   DP_NOTICE_FRAMES,
-} from '../../src/task/wram.mjs';
+} from '../../src/data/wram.mjs';
 import { TASK_PREVIOUS, TASK_WAIT, TASK_EVENTS } from '../../src/vm/layout.mjs';
 import { WORD_MASK } from '../../src/constants/bits.mjs';
 import { FLAG_NEGATIVE, FLAG_ZERO, FLAG_CARRY } from '../../src/constants/cpu-flags.mjs';

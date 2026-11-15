@@ -11,7 +11,7 @@ import {
   PAD_HELD,
   PAD_PRESSED,
   PLAYER_OBJECT,
-} from '../task/wram.mjs';
+} from '../data/wram.mjs';
 import { BYTE_MASK, WORD_SIGN } from '../constants/bits.mjs';
 
 // 80:9E59: the buttons held.

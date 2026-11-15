@@ -1,23 +1,23 @@
-import { releaseGloveNameWindowSequence } from '../../src/task/native-dialog-portrait.mjs';
+import { releaseGloveNameWindowSequence } from '../../src/system/native-dialog-portrait.mjs';
 import {
   NativeCallContinuation,
   drainNativeSequence,
   dialogCallBody,
   segmentSequence,
-} from '../../src/task/native-call-continuation.mjs';
+} from '../../src/system/native-call-continuation.mjs';
 import { NATIVE_CALL_CONTINUATIONS } from './continuations.mjs';
 import {
   GLOVE_LIMITS,
   GLOVE_OVER_PLAYER,
   GLOVE_KIND_SPELL,
-} from '../../src/task/native-glove-crosshair-limits.mjs';
+} from '../../src/script/native-glove-crosshair-limits.mjs';
 import {
   GLOVE_ROUTINES,
   routineCall,
   rts,
   measureTextWidth,
 } from './native-glove-target-support.mjs';
-import { sec, clc } from '../../src/task/status-flags.mjs';
+import { sec, clc } from '../../src/system/status-flags.mjs';
 
 import {
   CAMERA_X,
@@ -61,7 +61,7 @@ import {
   DP_WINDOW_COLUMNS,
   DP_WINDOW_ROWS,
   DP_WINDOW_ATTRIBUTES,
-} from '../../src/task/wram.mjs';
+} from '../../src/data/wram.mjs';
 import { RUNNER_LAST_INDEX } from '../../src/data/runners.mjs';
 import { KIND_ITEM_CLASS_MASK, KIND_NO_NAME } from '../../src/data/kinds.mjs';
 import { BYTE_MASK, BYTE_BITS, WORD_BITS, WORD_MASK } from '../../src/constants/bits.mjs';
@@ -98,7 +98,7 @@ const NAME_WINDOW = Object.freeze({
   attributes: 0x800,
 });
 import { FLAG_CARRY, FLAG_NEGATIVE, FLAG_ZERO } from '../../src/constants/cpu-flags.mjs';
-// The action glove of NativeD8/9BC6 and its relatives (src/task/native-glove-target.mjs).
+// The action glove of NativeD8/9BC6 and its relatives (src/data/native-glove-target.mjs).
 
 // 80:BC36: glove over the player figure $0CC2 ($01D4/$01D6 from position and camera $0CC4/$0CC6).
 function runGloveOverPlayer(h) {
@@ -131,7 +131,7 @@ function runGloveOverPlayer(h) {
   return h.rts();
 }
 // 80:BC67: switch the glove on: position, limits $01E4/$01E6, kind $01E8 = $01D8 = FFFF.
-// 80:BC99: spell glove, the same form with kind FFFD (limits in src/task/native-glove-crosshair-limits.mjs).
+// 80:BC99: spell glove, the same form with kind FFFD (limits in src/script/native-glove-crosshair-limits.mjs).
 function gloveOn(h, entry, limits) {
   h.call(entry, 0x80bc36, () => runGloveOverPlayer(h));
   for (const [offset, value] of [

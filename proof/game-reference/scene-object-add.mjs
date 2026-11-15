@@ -1,13 +1,13 @@
 // Register-level reference of the script native 80:A1E6 (a group member's object added to
-// the scene), moved from src/task/native-scene-object-add.mjs; lifted in
+// the scene), moved from src/script/native-scene-object-add.mjs; lifted in
 // src/game/scene-object-add.mjs. It calls the register-level object creation and turn
 // (a register-level native never calls a lifted one). The proof plan, the Native58
 // dispatch of proof/task/native-dispatch.mjs and the instruction tests run it; the game
 // runs the lifted native.
-import { taskStop } from '../../src/task/plan.mjs';
-import { FIRST_ARGUMENT, SECOND_ARGUMENT, leaf } from '../../src/task/native-leaf-support.mjs';
-import { createObject } from '../../src/task/native-object-create.mjs';
-import { turnRegisters } from '../../src/task/native-object-turn.mjs';
+import { taskStop } from '../../src/system/task-stop.mjs';
+import { FIRST_ARGUMENT, SECOND_ARGUMENT, leaf } from '../../src/system/native-leaf-support.mjs';
+import { createObject } from '../../src/script/native-object-create.mjs';
+import { turnRegisters } from '../../src/script/native-object-turn.mjs';
 import {
   GROUP_INDEX,
   GROUP_SLOTS,
@@ -28,7 +28,7 @@ import {
   PLAYER_OBJECT,
   RUNNER_ARMOUR_RATING,
   WRAM,
-} from '../../src/task/wram.mjs';
+} from '../../src/data/wram.mjs';
 import { FLAG_CARRY, FLAG_ZERO } from '../../src/constants/cpu-flags.mjs';
 import {
   WORD_MASK,

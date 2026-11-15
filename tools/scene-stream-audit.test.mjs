@@ -11,9 +11,9 @@ import { requireRomAddress, romOffset } from '../src/data/rom-bytes.mjs';
 import { lzDecode, lzBits } from '../src/data/lz.mjs';
 import { VmMemory } from '../src/vm/memory.mjs';
 import { TaskAccessor } from '../src/vm/task-accessor.mjs';
-import { dialogAccess } from '../src/task/native-dialog-support.mjs';
-import { loadScene } from '../src/task/main-scene-load.mjs';
-import { SCENE_RECORD, SCENE_BACKDROP, DP_SCENE_RECORD } from '../src/task/wram.mjs';
+import { dialogAccess } from '../src/system/native-dialog-support.mjs';
+import { loadScene } from '../src/system/main-scene-load.mjs';
+import { SCENE_RECORD, SCENE_BACKDROP, DP_SCENE_RECORD } from '../src/data/wram.mjs';
 
 const json = (name) => JSON.parse(readFileSync(`assets/vm-${name}.json`));
 const result = await auditSceneStreams();

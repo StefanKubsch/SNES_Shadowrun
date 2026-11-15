@@ -19,7 +19,7 @@
 // The arithmetic stays in 16 bits as in the original, with its wraps. On another
 // platform the multiplier is an 8 by 8 bit product and the divider an unsigned 16 by
 // 8 bit division (a zero divisor gives FFFF).
-import { OBJECT_BOX_HEIGHT, OBJECT_HEIGHT, OBJECT_X, OBJECT_Y } from '../task/wram.mjs';
+import { OBJECT_BOX_HEIGHT, OBJECT_HEIGHT, OBJECT_X, OBJECT_Y } from '../data/wram.mjs';
 import { dataBankWord } from '../system/data-bank.mjs';
 import {
   RDDIVL,

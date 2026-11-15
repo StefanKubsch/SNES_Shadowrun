@@ -9,15 +9,15 @@ import {
   DialogTestMemory,
 } from './task-native-dialog-harness.mjs';
 import { sceneVideoSpecs } from './main-scene-video-source.mjs';
-import { MAIN_INITIALIZE_ROUTINES, loadWindowStyleTiles } from '../src/task/main-initialize.mjs';
+import { MAIN_INITIALIZE_ROUTINES, loadWindowStyleTiles } from '../src/system/main-initialize.mjs';
 import { initializeGameScreen } from '../proof/game-reference/game-screen.mjs';
 import { MAIN_SCENE_ROUTINES } from '../proof/replay/main-scene.mjs';
 import { GAME_NMI_LIFTED_JOBS } from '../src/game/game-nmi.mjs';
 import { MAIN_MOTION_ROUTINES } from '../proof/replay/main-loop-motion.mjs';
 import { processSceneRequestReference } from '../proof/game-reference/scene-request.mjs';
-import { dialogAccess } from '../src/task/native-dialog-support.mjs';
+import { dialogAccess } from '../src/system/native-dialog-support.mjs';
 import { TaskAccessor } from '../src/vm/task-accessor.mjs';
-import { runObservedIntroNmi } from '../src/task/main-intro-nmi.mjs';
+import { runObservedIntroNmi } from '../src/system/main-intro-nmi.mjs';
 import { proveWordStack } from './static-word-stack-proof.mjs';
 import { cpuToOffset } from './rom.mjs';
 import { runReference } from './w65c816-reference.mjs';

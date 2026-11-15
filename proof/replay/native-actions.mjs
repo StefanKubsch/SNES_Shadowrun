@@ -13,24 +13,24 @@ import {
   DP_LIST_TOKENS,
   DP_LIST_TOKEN_BANK,
   DP_LIST_VALUES,
-} from '../../src/task/wram.mjs';
+} from '../../src/data/wram.mjs';
 import { TEXT_EXIT } from '../../src/data/port-extension.mjs';
 import { fitListWindow, listTextIds } from '../../src/data/menu-layout.mjs';
 import { M7A, M7B, MPYL, MPYM } from '../../src/constants/hardware-registers.mjs';
 import { withInterruptEvents } from './observed-native-events.mjs';
-import { lagFree } from '../../src/task/main-wait-interrupt.mjs';
-import { taskStop } from '../../src/task/plan.mjs';
-import { dialogAccess } from '../../src/task/native-dialog-support.mjs';
-import { taskTextAccess } from '../../src/task/native-text-prerequisites.mjs';
-import { f963Sequence } from '../../src/task/native-window-open.mjs';
-import { menuComposeSequence, taskMenuDevices } from '../../src/task/native-menu-compose.mjs';
+import { lagFree } from '../../src/system/main-wait-interrupt.mjs';
+import { taskStop } from '../../src/system/task-stop.mjs';
+import { dialogAccess } from '../../src/system/native-dialog-support.mjs';
+import { taskTextAccess } from '../../src/system/native-text-prerequisites.mjs';
+import { f963Sequence } from '../../src/script/native-window-open.mjs';
+import { menuComposeSequence, taskMenuDevices } from '../../src/system/native-menu-compose.mjs';
 import { releaseWindowJsrSequence } from '../../src/game/window-release.mjs';
-import { af1fRegisters } from '../../src/task/native-bar-tiles.mjs';
+import { af1fRegisters } from '../../src/script/native-bar-tiles.mjs';
 import {
   observedContinuation,
   drainNativeSequence,
   NativeCallContinuation,
-} from '../../src/task/native-call-continuation.mjs';
+} from '../../src/system/native-call-continuation.mjs';
 import { NATIVE_CALL_CONTINUATIONS } from './continuations.mjs';
 import {
   BANK_WRAP,

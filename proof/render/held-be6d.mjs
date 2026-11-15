@@ -44,7 +44,7 @@ import {
   PAD_HELD,
   GLOVE_SPEED_X,
   GLOVE_SPEED_Y,
-} from '../../src/task/wram.mjs';
+} from '../../src/data/wram.mjs';
 import { FLAG_NEGATIVE } from '../../src/constants/cpu-flags.mjs';
 import { isWord } from '../script/runtime.mjs';
 import { prepareRenderView } from '../../src/render/data.mjs';

@@ -1,10 +1,10 @@
-import { taskStop } from '../../src/task/plan.mjs';
+import { taskStop } from '../../src/system/task-stop.mjs';
 import { prepareTaskPlan } from './plan.mjs';
 import { runTaskOpcodeTarget } from './opcode-target.mjs';
 import { runTaskNativeArguments } from './native-arguments.mjs';
 import { runTaskNativeBridge } from './native-bridge.mjs';
 import { runTaskNativeResume } from './native-resume.mjs';
-import { randomBelow, randomByte, taskRandomDevices } from '../../src/task/native-random.mjs';
+import { randomBelow, randomByte, taskRandomDevices } from '../../src/system/native-random.mjs';
 import { taskRandomTableSources } from '../replay/native-random-tables.mjs';
 export function runTaskNativeRandomOpcode(a, options, expectedId = 0x3e) {
   if (![0x3e, 0x63].includes(expectedId)) taskStop('task_random_native_id_required');

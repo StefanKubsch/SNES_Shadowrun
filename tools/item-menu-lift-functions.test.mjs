@@ -1,6 +1,6 @@
 // Random per-function tests of the lifted item submenu and item use
 // (src/game/item-menu.mjs) against the register-level 80:E585 entries and 80:E4F3
-// (src/task/native-status-screen.mjs). Both sides call the same stand-ins for their
+// (src/system/native-status-screen.mjs). Both sides call the same stand-ins for their
 // callees: the window 80:F963 (a window number), the numbered menu 80:A6AD (an item
 // row, Exit, a cancel or bit 15), the item use 80:E4F3 (ending the screen or not), the
 // redraw 80:FA67 and release 80:FA3E; for the item use the object 80:A835 (a slot), the
@@ -22,8 +22,8 @@ import {
   NOTICE_WINDOWS,
   STATUS_ITEMS_AT_ONCE,
   STORY_STAGE,
-} from '../src/task/wram.mjs';
-import { drainNativeSequence } from '../src/task/native-call-continuation.mjs';
+} from '../src/data/wram.mjs';
+import { drainNativeSequence } from '../src/system/native-call-continuation.mjs';
 
 const WRAM_BYTES = 0x20000,
   HEX = 16,

@@ -1,4 +1,4 @@
-import { DIALOG_END } from '../../src/task/wram.mjs';
+import { DIALOG_END } from '../../src/data/wram.mjs';
 import { BYTE_MASK, WORD_MASK, BANK_SIZE } from '../../src/constants/bits.mjs';
 import { WRAM_BASE } from '../../src/constants/memory-map.mjs';
 import { isWord } from '../script/runtime.mjs';

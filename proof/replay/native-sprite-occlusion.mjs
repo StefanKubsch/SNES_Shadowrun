@@ -1,4 +1,4 @@
-import { clc } from '../../src/task/status-flags.mjs';
+import { clc } from '../../src/system/status-flags.mjs';
 import {
   CELL_SIZE,
   DP_CELL_X,
@@ -17,7 +17,7 @@ import {
   dpStore,
   field,
   highBits,
-} from '../../src/task/native-sprite-helpers.mjs';
+} from '../../src/script/native-sprite-helpers.mjs';
 import {
   CELL_FRONT_WALL,
   CELL_OPEN,
@@ -30,7 +30,7 @@ import {
   WALL_HEIGHTS,
   WALL_TILES,
   WRAM,
-} from '../../src/task/wram.mjs';
+} from '../../src/data/wram.mjs';
 import {
   OAM_ENTRY_BYTES,
   OAM_LOW_TABLE_BYTES,

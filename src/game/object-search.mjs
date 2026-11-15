@@ -23,12 +23,12 @@
 // left as the original leaves them: the glove action and the scheduler round start
 // with them. The direct page words 0E, 11, 14, 17 and 1A (the glove on the screen and
 // relative to the object, the kind index) are written as the original writes them.
-import { dialogCallBody, segmentSequence } from '../task/native-call-continuation.mjs';
+import { dialogCallBody, segmentSequence } from '../system/native-call-continuation.mjs';
 import { releaseNameWindowCallSequence } from './window-release.mjs';
-import { routineCall } from '../task/native-glove-target-support.mjs';
+import { routineCall } from '../script/native-glove-target-support.mjs';
 import { measureTextWidthRoutine } from './text-width.mjs';
-import { GLOVE_KIND_SPELL } from '../task/native-glove-crosshair-limits.mjs';
-import { taskStop } from '../task/plan.mjs';
+import { GLOVE_KIND_SPELL } from '../script/native-glove-crosshair-limits.mjs';
+import { taskStop } from '../system/task-stop.mjs';
 import { CarryArithmetic } from './carry-arithmetic.mjs';
 import {
   AIMING_SPELL,
@@ -66,7 +66,7 @@ import {
   OBJECT_Y,
   SCRIPT_GLOVE_CHOICE,
   WRAM,
-} from '../task/wram.mjs';
+} from '../data/wram.mjs';
 import { KIND_ITEM_CLASS_MASK, KIND_NO_NAME, KIND_TABLE } from '../data/kinds.mjs';
 import { RUNNER_LAST_INDEX, RUNNER_NAMES, RUNNER_TABLE } from '../data/runners.mjs';
 import { BYTE_BITS, BYTE_MASK, LONG_MASK, WORD_MASK, WORD_SIGN } from '../constants/bits.mjs';

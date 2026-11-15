@@ -1,11 +1,11 @@
-import { taskStop } from '../../src/task/plan.mjs';
+import { taskStop } from '../../src/system/task-stop.mjs';
 import { prepareTaskPlan } from './plan.mjs';
 import { runTaskOpcodeTarget } from './opcode-target.mjs';
 import { runTaskNativeArguments } from './native-arguments.mjs';
 import { runTaskNativeBridge } from './native-bridge.mjs';
 import { runTaskNativeResume } from './native-resume.mjs';
 import { appendToFightListReference as appendToFightList } from '../game-reference/fight-list-append.mjs';
-import { taskAudioDevices } from '../../src/task/native-audio-compose.mjs';
+import { taskAudioDevices } from '../../src/system/native-audio-compose.mjs';
 // One individually proved Native58/AC call through 8521 (one argument word, no result).
 export function runTaskNative8521Opcode(a, options) {
   if (a.ctx.x !== 0x58) taskStop('task_native_ac_opcode_required');

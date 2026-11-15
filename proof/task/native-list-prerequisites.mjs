@@ -1,10 +1,10 @@
 // Source-specific atomic plans for proof tools. The game executes the shared routines directly.
-import { taskStop } from '../../src/task/plan.mjs';
+import { taskStop } from '../../src/system/task-stop.mjs';
 import { prepareTaskPlan } from './plan.mjs';
 import {
   runTaskListHelper,
   taskListDevices as devices,
-} from '../../src/task/native-list-prerequisites.mjs';
+} from '../../src/system/native-list-prerequisites.mjs';
 
 const entries = [0x80a617, 0x80a5db, 0x80a5f9, 0x80faac, 0x80fd80];
 

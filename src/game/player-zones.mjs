@@ -16,8 +16,8 @@
 // words 0E, 11 and 14 (the position), 17 (the list) and 1A (the zones left) are written
 // as the original writes them. A, X, Y and the flags are left as the original leaves
 // them: the next callees and the waits of the next pass start with them.
-import { taskStop } from '../task/plan.mjs';
-import { nativeCallSequence } from '../task/native-call-continuation.mjs';
+import { taskStop } from '../system/task-stop.mjs';
+import { nativeCallSequence } from '../system/native-call-continuation.mjs';
 import {
   DP_ZONE_COUNT,
   DP_ZONE_HEIGHT,
@@ -29,7 +29,7 @@ import {
   OBJECT_X,
   OBJECT_Y,
   PLAYER_OBJECT,
-} from '../task/wram.mjs';
+} from '../data/wram.mjs';
 import {
   BYTE_BITS,
   BYTE_MASK,

@@ -1,5 +1,5 @@
 // The object creation (lifted from 80:A835; register-level version in
-// src/task/native-object-create.mjs, which the other callers still use).
+// src/script/native-object-create.mjs, which the other callers still use).
 //
 // An object of the kind in the direct page word 00 is created in the last free object
 // slot at the position in the words 02, 04 and 06 (times four), and the slot is
@@ -57,7 +57,7 @@ import {
   OBJECT_VRAM_SLOT_HEAD,
   OBJECT_X,
   OBJECT_Y,
-} from '../task/wram.mjs';
+} from '../data/wram.mjs';
 import { KIND_FLAGS_OFFSET, KIND_TABLE } from '../data/kinds.mjs';
 import { BYTE_BITS, BYTE_MASK, WORD_BITS, WORD_MASK, WORD_SIGN } from '../constants/bits.mjs';
 

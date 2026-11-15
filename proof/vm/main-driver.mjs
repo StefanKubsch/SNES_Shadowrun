@@ -13,8 +13,8 @@ import {
   MAIN_LOOP_ROUND,
   MAIN_LOOP_ROUTINES,
 } from './main-loop.mjs';
-import { WAIT_PAUSED } from '../../src/task/native-wait-continuation.mjs';
-import { finishInterruptObservations } from '../../src/task/main-wait-interrupt.mjs';
+import { WAIT_PAUSED } from '../../src/system/native-wait-continuation.mjs';
+import { finishInterruptObservations } from '../../src/system/main-wait-interrupt.mjs';
 import {
   MAIN_START,
   MAIN_START_ROUTINES,
@@ -35,7 +35,7 @@ import {
   MainStartupContinuation,
 } from '../replay/main-startup.mjs';
 import { runMainReset, runMainSoftwareReset } from '../replay/main-reset.mjs';
-import { NativeCallContinuation } from '../../src/task/native-call-continuation.mjs';
+import { NativeCallContinuation } from '../../src/system/native-call-continuation.mjs';
 import { BYTE_BITS, WORD_BITS, BANK_SIZE } from '../../src/constants/bits.mjs';
 import {
   FLAG_ZERO,

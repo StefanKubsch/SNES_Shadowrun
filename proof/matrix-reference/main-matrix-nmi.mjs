@@ -1,13 +1,13 @@
-import { runObservedNmi } from '../../src/task/observed-nmi.mjs';
-import { sendOamBuffer } from '../../src/task/main-scene-video.mjs';
-import { readJoypadLong } from '../../src/task/main-scene-wait.mjs';
+import { runObservedNmi } from '../../src/system/nmi-call.mjs';
+import { sendOamBuffer } from '../../src/system/main-scene-video.mjs';
+import { readJoypadLong } from '../../src/system/main-scene-wait.mjs';
 import {
   NativeCallContinuation,
   NATIVE_CALL_CONTINUATIONS,
   drainNativeSequence,
   nativeCallSequence,
-} from '../../src/task/native-call-continuation.mjs';
-import { routineCaller } from '../../src/task/routine-call.mjs';
+} from '../../src/system/native-call-continuation.mjs';
+import { routineCaller } from '../../src/system/routine-call.mjs';
 
 import { BG3_MAP_VRAM, HDMA_ENTRY_BYTES, MAP_LAST, SCROLL_TABLE } from './main-scene-matrix.mjs';
 import {
@@ -25,7 +25,7 @@ import {
   MATRIX_TEXT_SCROLL,
   RANDOM_STATE,
   WRAM,
-} from '../../src/task/wram.mjs';
+} from '../../src/data/wram.mjs';
 import { BYTE_BITS, BYTE_MASK } from '../../src/constants/bits.mjs';
 import {
   DMAP0,

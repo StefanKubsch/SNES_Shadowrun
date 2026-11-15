@@ -16,7 +16,7 @@ import {
   RIGHT_WINDOW_RIGHT_EDGE,
   LEFT_WINDOW_LEFT_EDGE,
   RIGHT_WINDOW_LEFT_EDGE,
-} from '../../src/task/wram.mjs';
+} from '../../src/data/wram.mjs';
 
 const DEFAULT_MAX_WORK = 1000000;
 const DEFAULT_MAX_OUTPUT_BYTES = 65536;

@@ -7,7 +7,7 @@ import {
   proveMainMotionHelperSource,
 } from './main-motion-helpers-source.mjs';
 import { compareDialog, decodeWindows, prng } from './task-native-dialog-harness.mjs';
-import { dialogAccess } from '../src/task/native-dialog-support.mjs';
+import { dialogAccess } from '../src/system/native-dialog-support.mjs';
 import {
   testUpperXEdge,
   testLowerXEdge,

@@ -18,7 +18,7 @@ import {
   COLLISION_BOX_BYTES,
   PLAYER_OBJECT,
   PLAYER_HIT_FRAMES,
-} from '../../src/task/wram.mjs';
+} from '../../src/data/wram.mjs';
 import { isWord } from '../script/runtime.mjs';
 
 // Explicit source hydration windows; their holes are never initialized implicitly.

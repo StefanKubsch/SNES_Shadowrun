@@ -3,7 +3,7 @@
 // the English Huffman texts at display time. The game keeps running on the
 // English data, so saved games and every script stay the same in both
 // languages; only the characters that 80:FE69 decodes into the text buffer
-// 7E:21A0 change (src/task/native-text-compose.mjs). The text composition
+// 7E:21A0 change (src/system/native-text-compose.mjs). The text composition
 // FB39 then measures, wraps and draws them unchanged.
 //
 // The English font has no umlauts. The German ones use the character codes

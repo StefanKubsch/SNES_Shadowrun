@@ -222,7 +222,7 @@ which the render proof of 81:8076 keeps using.
   zero and these registers, which the scheduler round starts with. The frames of the
   window map unpack below the window list's are not reproduced.
 - Script natives without frame waits run lifted code
-  ([src/task/native-script-leaves.mjs](../src/task/native-script-leaves.mjs)): the fight
+  ([src/script/native-script-leaves.mjs](../src/script/native-script-leaves.mjs)): the fight
   list append 80:8521 (`appendToFightList` in
   [src/game/fight-list.mjs](../src/game/fight-list.mjs), with the lifted music mode
   81:EF47), the panned song level 80:C461 (`soundLevels` 80:C416 and the command 81:F007)
@@ -231,7 +231,7 @@ which the render proof of 81:8076 keeps using.
   and reads the result from the direct page word 00; no opcode reads the carry or
   overflow before it sets them, so these natives leave only their return. The
   references are in proof/game-reference/fight-list-append.mjs,
-  proof/apu-reference/sound-stereo.mjs, src/task/native-audio-compose.mjs (80:C46E) and src/task/native-random.mjs (80:C51F, 80:C560), the last two still used by register-level callers. The movements 80:8D7F (towards an
+  proof/apu-reference/sound-stereo.mjs, src/system/native-audio-compose.mjs (80:C46E) and src/system/native-random.mjs (80:C51F, 80:C560), the last two still used by register-level callers. The movements 80:8D7F (towards an
   object), 80:8D3F (jump towards an object) and 80:8D4E (jump towards a point of the list
   at the direct page F3) run `setVelocityTowards` 80:8D95 of
   [src/game/object-velocity.mjs](../src/game/object-velocity.mjs) with the hardware
@@ -256,7 +256,7 @@ which the render proof of 81:8076 keeps using.
   `keepObjectFlagBits` of [src/game/object-fields.mjs](../src/game/object-fields.mjs)
   in the game's native table (src/task/native-object-flags-*.mjs call them with the
   script arguments; `leafArgument` and `setLeafResult` of
-  src/task/native-leaf-support.mjs read the arguments and write the result word). Game
+  src/system/native-leaf-support.mjs read the arguments and write the result word). Game
   state only: they leave no registers (LIFTED_SCRIPT_NATIVES of
   tools/lifted-script-natives.mjs). The flag word lies at 7E:1458 plus the object
   through the data bank 80. The register-level versions moved to
@@ -473,7 +473,7 @@ which the render proof of 81:8076 keeps using.
   [tools/object-halt-lift-functions.test.mjs](../tools/object-halt-lift-functions.test.mjs)
   (500 samples each) compare them. Block 115; the register-level versions moved to
   proof/game-reference/action-box-collision.mjs and object-halt.mjs. With it every script
-  native of src/task/native-targets.mjs runs lifted code (80:CF2E runs the lifted body of
+  native of src/script/native-targets.mjs runs lifted code (80:CF2E runs the lifted body of
   src/game/runner-state.mjs).
 - Entering the Matrix 80:E30F (the scene request FFFE, the room to return to, the deck's
   memory 40, the system, extra nodes and message list bytes; the decker's Computer skill
@@ -568,7 +568,7 @@ which the render proof of 81:8076 keeps using.
   [src/game/object-turn.mjs](../src/game/object-turn.mjs) and `setActionAndDirection` of
   [src/game/member-facing.mjs](../src/game/member-facing.mjs) (block 105); the
   register-level versions moved to proof/game-reference/object-turn.mjs. The shared
-  register-level bodies stay in src/task/native-object-turn.mjs for the register-level
+  register-level bodies stay in src/script/native-object-turn.mjs for the register-level
   natives that still call them.
   [tools/script-leaves-lift-functions.test.mjs](../tools/script-leaves-lift-functions.test.mjs)
   compares the three natives (300 samples each).
@@ -1127,7 +1127,7 @@ which the render proof of 81:8076 keeps using.
   `releaseWindowJsrSequence`. The caller pushes the JSL or JSR frame as before; the
   lifted callee returns with its RTL or RTS as { rawReturnWord, returnTarget }, which
   the callers check. With recorded interrupt observations (the Mesen replays and the
-  native proofs) the register-level versions in src/task/native-render-compose.mjs
+  native proofs) the register-level versions in src/system/native-render-compose.mjs
   replay them. Live comparison (per-NMI WRAM outside the cutscene scratch and stacks,
   VRAM, CGRAM, OAM, PPU registers, scroll, PPU write count and sound RAM) with the
   register-level versions: the alley plan (9201 NMIs, 23 list and 4 release calls) and

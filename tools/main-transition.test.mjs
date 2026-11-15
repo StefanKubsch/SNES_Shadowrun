@@ -12,7 +12,7 @@ import { TRANSITION_ROUTINES, enterRoom } from '../proof/replay/main-transition.
 // The lifted room entry (src/game/room-entry.mjs) is compared in tools/room-entry-lift*.test.mjs;
 // these proofs keep its register-level reference against the original instructions.
 import { enterRoomReference, withRoomEntryReference } from '../proof/game-reference/room-entry.mjs';
-import { appendScriptTask } from '../src/task/task-append.mjs';
+import { appendScriptTask } from '../src/system/task-append.mjs';
 // The callers 8000 and CC4B with the register-level room entry.
 const referenceGate = { c34a: (a) => appendScriptTask(a, false), a4bf: enterRoomReference },
   referenceMotion = withRoomEntryReference(MAIN_MOTION_ROUTINES);
@@ -25,7 +25,7 @@ import {
   prng,
   DialogTestMemory,
 } from './task-native-dialog-harness.mjs';
-import { dialogAccess } from '../src/task/native-dialog-support.mjs';
+import { dialogAccess } from '../src/system/native-dialog-support.mjs';
 import { TaskAccessor } from '../src/vm/task-accessor.mjs';
 import { taskUnpackWindows } from './task-native-unpack-spec.mjs';
 import { encodedStream, lengthBits } from './task-native-unpack-fixtures.mjs';
@@ -38,10 +38,10 @@ import { processSceneRequestReference } from '../proof/game-reference/scene-requ
 import { mainGate8000Spec } from './main-gate-8000-source.mjs';
 import { mainLoopMotionSpecs } from './main-loop-motion-source.mjs';
 import { MAIN_SCENE_ROUTINES } from '../proof/replay/main-scene.mjs';
-import { NATIVE_CALL_CONTINUATIONS } from '../src/task/native-call-continuation.mjs';
-import { WAIT_PAUSED } from '../src/task/native-wait-continuation.mjs';
+import { NATIVE_CALL_CONTINUATIONS } from '../src/system/native-call-continuation.mjs';
+import { WAIT_PAUSED } from '../src/system/native-wait-continuation.mjs';
 import { MAIN_STARTUP_ROUTINES } from '../proof/replay/main-startup.mjs';
-import { finishInterruptObservations } from '../src/task/main-wait-interrupt.mjs';
+import { finishInterruptObservations } from '../src/system/main-wait-interrupt.mjs';
 const specs = [...sceneCollisionSpecs, ...sceneGraphicsSpecs, ...transitionSpecs],
   maps = specs.map((s) => decodeWindows(s.windows));
 const graph = new Map(

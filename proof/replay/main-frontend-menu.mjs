@@ -1,6 +1,6 @@
 import { frontendContinuations, FRONTEND_TEXT_ROUTINES } from './main-frontend-text.mjs';
 
-import { drainNativeSequence } from '../../src/task/native-call-continuation.mjs';
+import { drainNativeSequence } from '../../src/system/native-call-continuation.mjs';
 import { titleSequence } from '../../src/frontend/title.mjs';
 import { startMenuSequence } from '../../src/frontend/start-menu.mjs';
 import {

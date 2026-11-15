@@ -17,8 +17,8 @@ import {
   prepareTaskOpcodeSequence,
   prepareTaskNativeOpcodeSequence,
 } from '../proof/task/opcode-sequence.mjs';
-import { nativeOpcodeTargets } from '../src/task/native-opcode-targets.mjs';
-import { nativeTarget } from '../src/task/native-targets.mjs';
+import { nativeOpcodeTargets } from '../src/data/native-opcode-targets.mjs';
+import { nativeTarget } from '../src/script/native-targets.mjs';
 import { NATIVE_POINTERS } from '../src/vm/layout.mjs';
 import { LIFTED_SCRIPT_NATIVES, inLiftedScratch } from './lifted-script-natives.mjs';
 import { createRenderData, renderAddress } from '../src/render/data.mjs';

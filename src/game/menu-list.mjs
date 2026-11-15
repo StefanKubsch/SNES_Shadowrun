@@ -1,5 +1,5 @@
 // A menu's list in its window (lifted from 80:A617, 80:A5DB and 80:A5F9; register-level
-// versions in src/task/native-list-prerequisites.mjs stay the reference).
+// versions in src/system/native-list-prerequisites.mjs stay the reference).
 //
 // The menus 80:A6A5 to 80:A6C7 keep their state in WRAM: the selection (a word index
 // into the list, two per row), the first row of the page shown (MENU_PAGE_START), and
@@ -25,7 +25,7 @@
 // row and the rows left are written as the original; the registers are those of the
 // last call, or after a first page A 0 with zero set and X, Y, the carry and the
 // overflow of what ran last.
-import { dialogCallBody, segmentSequence } from '../task/native-call-continuation.mjs';
+import { dialogCallBody, segmentSequence } from '../system/native-call-continuation.mjs';
 import { printNumberSequence, setTextCursorRoutine } from './window-text.mjs';
 import { printTextSequence } from './text-print.mjs';
 import {
@@ -42,7 +42,7 @@ import {
   MENU_SHOW_NUMBERS,
   WINDOW_COLUMNS,
   WINDOW_ROWS,
-} from '../task/wram.mjs';
+} from '../data/wram.mjs';
 import {
   BYTE_BITS,
   BYTE_MASK,

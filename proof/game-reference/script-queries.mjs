@@ -3,14 +3,14 @@
 // native-player-object*.mjs and native-glove-screen-*.mjs; lifted in
 // src/game/script-queries.mjs). The proof plans and the Native58 dispatch of
 // proof/task/native-dispatch.mjs run these; the game runs the lifted natives.
-import { leaf } from '../../src/task/native-leaf-support.mjs';
+import { leaf } from '../../src/system/native-leaf-support.mjs';
 import {
   GLOVE_SCREEN_X,
   GLOVE_SCREEN_Y,
   PAD_HELD,
   PAD_PRESSED,
   PLAYER_OBJECT,
-} from '../../src/task/wram.mjs';
+} from '../../src/data/wram.mjs';
 import { BYTE_MASK } from '../../src/constants/bits.mjs';
 // 80:9E59: return the joypad buttons currently held.
 export const getPadHeldReference = (a, outerReturn = true) =>

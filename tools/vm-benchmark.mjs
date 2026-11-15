@@ -5,8 +5,8 @@ import { VmMemory } from '../src/vm/memory.mjs';
 import { ScriptInterpreter, EXIT_BUDGET } from '../proof/vm/interpreter.mjs';
 import { NativeCalls } from '../proof/vm/native-call.mjs';
 import { TaskScheduler, STOP_RETURNED } from '../proof/vm/scheduler.mjs';
-import { nativeOpcodeTargets } from '../src/task/native-opcode-targets.mjs';
-import { nativeTarget } from '../src/task/native-targets.mjs';
+import { nativeOpcodeTargets } from '../src/data/native-opcode-targets.mjs';
+import { nativeTarget } from '../src/script/native-targets.mjs';
 
 const loadRom = () =>
   new Uint8Array(readFileSync(new URL('../Shadowrun (E).smc', import.meta.url)));

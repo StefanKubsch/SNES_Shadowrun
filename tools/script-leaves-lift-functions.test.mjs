@@ -1,5 +1,5 @@
 // Random per-function tests of the lifted script natives without frame waits
-// (src/task/native-script-leaves.mjs) against their register-level references: the
+// (src/script/native-script-leaves.mjs) against their register-level references: the
 // fight list append 80:8521 with its fight music, the panned song level 80:C461, the
 // sound effect 80:C46E, the random numbers 80:C51F and 80:C560 and the movements towards
 // an object or a point 80:8D7F, 80:8D3F and 80:8D4E with the hardware divider, the nuyen
@@ -9,12 +9,12 @@
 // direct page 0, the RTS frame) and must leave the same WRAM outside the scratch, the
 // same device writes and the same return (program counter and stack pointer).
 import { prng, DialogTestMemory } from './task-native-dialog-harness.mjs';
-import { finishLeaf } from '../src/task/native-leaf-support.mjs';
+import { finishLeaf } from '../src/system/native-leaf-support.mjs';
 import { createSide, registerCases } from './lift-function-harness.mjs';
 import { appendToFightListReference } from '../proof/game-reference/fight-list-append.mjs';
 import { panSongLevelToObjectReference } from '../proof/apu-reference/sound-stereo.mjs';
-import { playSoundEffect as playSoundEffectReference } from '../src/task/native-audio-compose.mjs';
-import { randomBelow, randomByte } from '../src/task/native-random.mjs';
+import { playSoundEffect as playSoundEffectReference } from '../src/system/native-audio-compose.mjs';
+import { randomBelow, randomByte } from '../src/system/native-random.mjs';
 import {
   moveObjectTowardsObject as moveReference,
   jumpObjectTowardsObject as jumpReference,
@@ -27,10 +27,10 @@ import {
   setObjectAnimationReference,
   setObjectDirectionReference,
 } from '../proof/game-reference/object-turn.mjs';
-import { setObjectActionAndDirection } from '../src/task/native-object-turn.mjs';
-import { setObjectDirection } from '../src/task/native-object-action-set.mjs';
+import { setObjectActionAndDirection } from '../src/script/native-object-turn.mjs';
+import { setObjectDirection } from '../src/script/native-object-action-set.mjs';
 import { setActionAndDirection } from '../src/game/member-facing.mjs';
-import { setObjectAnimation } from '../src/task/native-object-action-apply.mjs';
+import { setObjectAnimation } from '../src/script/native-object-action-apply.mjs';
 import { selectAnimationRoutine } from '../src/game/object-turn.mjs';
 import {
   appendToFightListNative,
@@ -44,7 +44,7 @@ import {
   payNuyenNative,
   setActorStateHolderNative,
   faceRoomDirectionNative,
-} from '../src/task/native-script-leaves.mjs';
+} from '../src/script/native-script-leaves.mjs';
 
 const WRAM_BYTES = 0x20000,
   HEX = 16,

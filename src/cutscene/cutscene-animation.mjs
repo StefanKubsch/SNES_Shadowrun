@@ -7,7 +7,7 @@
 // The scene state lives in the direct page, where the NMI callback 81:D479 reads
 // it: BG1 scroll (14), BG2 speed (16), its step (18) and target (1A), the BG2
 // position (1C, scroll times 128) and the scene (1E, negative: mirrored).
-import { taskStop } from '../task/plan.mjs';
+import { taskStop } from '../system/task-stop.mjs';
 import { decodeOnce, tableEntries } from '../data/named-tables.mjs';
 import {
   DP_CUTSCENE_POSITION as DP_POSITION,
@@ -24,7 +24,7 @@ import {
   SCENE_COUNTER,
   SCENE_LAYER_HIGH,
   WRAM,
-} from '../task/wram.mjs';
+} from '../data/wram.mjs';
 import {
   A1B0,
   A1B5,

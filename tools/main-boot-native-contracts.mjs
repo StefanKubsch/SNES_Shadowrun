@@ -1,11 +1,11 @@
 // Only the independently proved native contracts actually reached by the
 // connected boot test. No leaf admission and no arbitrary SPECIAL_NATIVES dispatch.
 import { showNoticeObserved } from '../proof/replay/native-notice.mjs';
-import { playSoundEffect } from '../src/task/native-audio-compose.mjs';
+import { playSoundEffect } from '../src/system/native-audio-compose.mjs';
 import { redrawWindowListObserved } from '../proof/replay/native-window-list-redraw.mjs';
 import { controlPlayerObserved } from '../proof/replay/native-player-control.mjs';
 import { runTaskActionsObserved } from '../proof/replay/native-actions.mjs';
-import { randomBelow, randomByte } from '../src/task/native-random.mjs';
+import { randomBelow, randomByte } from '../src/system/native-random.mjs';
 import { talkWithObjectObserved } from '../proof/replay/native-dialog.mjs';
 import { appendToFightListReference as appendToFightList } from '../proof/game-reference/fight-list-append.mjs';
 import { chooseEnemyTarget } from '../proof/game-reference/enemy-target-choice.mjs';

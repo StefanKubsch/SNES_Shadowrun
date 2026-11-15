@@ -19,7 +19,7 @@ import {
   PALETTE_REQUEST_SLOT,
   PALETTE_BYTES,
   PALETTE_DIRECTION,
-} from '../../src/task/wram.mjs';
+} from '../../src/data/wram.mjs';
 import { isWord } from '../script/runtime.mjs';
 import { prepareRenderView } from '../../src/render/data.mjs';
 import { renderEntryBoundary } from './unpack-9f49.mjs';

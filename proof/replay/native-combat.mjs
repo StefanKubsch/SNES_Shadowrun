@@ -1,11 +1,11 @@
 import { withInterruptEvents } from './observed-native-events.mjs';
-import { lagFree } from '../../src/task/main-wait-interrupt.mjs';
-import { dialogAccess } from '../../src/task/native-dialog-support.mjs';
-import { drainNativeSequence } from '../../src/task/native-call-continuation.mjs';
-import { taskStop } from '../../src/task/plan.mjs';
-import { FIRST_ARGUMENT, SECOND_ARGUMENT, leaf } from '../../src/task/native-leaf-support.mjs';
-import { taskSelectionSupport } from '../../src/task/native-object-turn.mjs';
-import { randomBelow } from '../../src/task/native-random.mjs';
+import { lagFree } from '../../src/system/main-wait-interrupt.mjs';
+import { dialogAccess } from '../../src/system/native-dialog-support.mjs';
+import { drainNativeSequence } from '../../src/system/native-call-continuation.mjs';
+import { taskStop } from '../../src/system/task-stop.mjs';
+import { FIRST_ARGUMENT, SECOND_ARGUMENT, leaf } from '../../src/system/native-leaf-support.mjs';
+import { taskSelectionSupport } from '../../src/script/native-object-turn.mjs';
+import { randomBelow } from '../../src/system/native-random.mjs';
 import { testLineOfSight, SIGHT_ROUTINE } from './line-of-sight.mjs';
 import { showNotice } from './native-notice.mjs';
 import { validateTaskActionsOptions } from './native-actions.mjs';
@@ -35,7 +35,7 @@ import {
   OBJECT_X,
   OBJECT_Y,
   WRAM,
-} from '../../src/task/wram.mjs';
+} from '../../src/data/wram.mjs';
 import { WRDIVL, WRDIVB, RDDIVL } from '../../src/constants/hardware-registers.mjs';
 import { FLAG_ZERO, FLAG_CARRY, FLAG_NEGATIVE } from '../../src/constants/cpu-flags.mjs';
 import {

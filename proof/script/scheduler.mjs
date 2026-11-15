@@ -1,5 +1,5 @@
 import { WORD_MASK, WORD_SIGN } from '../../src/constants/bits.mjs';
-import { OBJECT_LAST_SLOT } from '../../src/task/wram.mjs';
+import { OBJECT_LAST_SLOT } from '../../src/data/wram.mjs';
 import {
   createScriptTask,
   DEFAULT_CALL_DEPTH,

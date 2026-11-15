@@ -1,17 +1,17 @@
 import { withInterruptEvents } from './observed-native-events.mjs';
-import { lagFree } from '../../src/task/main-wait-interrupt.mjs';
-import { taskStop } from '../../src/task/plan.mjs';
-import { dialogAccess } from '../../src/task/native-dialog-support.mjs';
-import { taskTextAccess } from '../../src/task/native-text-prerequisites.mjs';
-import { f963Sequence } from '../../src/task/native-window-open.mjs';
-import { printTextSequence } from '../../src/task/native-text-compose.mjs';
+import { lagFree } from '../../src/system/main-wait-interrupt.mjs';
+import { taskStop } from '../../src/system/task-stop.mjs';
+import { dialogAccess } from '../../src/system/native-dialog-support.mjs';
+import { taskTextAccess } from '../../src/system/native-text-prerequisites.mjs';
+import { f963Sequence } from '../../src/script/native-window-open.mjs';
+import { printTextSequence } from '../../src/system/native-text-compose.mjs';
 import { fitNoticeWindow } from '../../src/data/language.mjs';
 import { releaseWindowJsrSequence } from '../../src/game/window-release.mjs';
 import {
   observedContinuation,
   NativeCallContinuation,
   drainNativeSequence,
-} from '../../src/task/native-call-continuation.mjs';
+} from '../../src/system/native-call-continuation.mjs';
 import { NATIVE_CALL_CONTINUATIONS } from './continuations.mjs';
 import { WORD_MASK, BANK_WRAP, BANK_SIZE, LONG_MASK } from '../../src/constants/bits.mjs';
 import {
@@ -23,7 +23,7 @@ import {
   DP_WINDOW_ATTRIBUTES,
   DP_NOTICE_TEXT,
   DP_NOTICE_FRAMES,
-} from '../../src/task/wram.mjs';
+} from '../../src/data/wram.mjs';
 import {
   FLAG_CARRY,
   FLAG_ZERO,

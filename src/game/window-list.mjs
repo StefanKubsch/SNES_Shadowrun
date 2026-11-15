@@ -1,5 +1,5 @@
 // The window list (lifted from 81:AD92 with the window drawing 81:ACCF; register-level
-// versions in src/task/native-render-compose.mjs, which recorded runs replay).
+// versions in src/system/native-render-compose.mjs, which recorded runs replay).
 //
 // Every active window from the first window index to the last is drawn into the window
 // map buffer: its border and its text tile area, whose tiles count up from the
@@ -23,15 +23,15 @@ import { sceneRuntime } from '../system/scene-runtime.mjs';
 import {
   RENDER_ROUTINES,
   drawWindowListSequence as drawWindowListReference,
-} from '../task/native-render-compose.mjs';
-import { dialogAccess } from '../task/native-dialog-support.mjs';
+} from '../system/native-render-compose.mjs';
+import { dialogAccess } from '../system/native-dialog-support.mjs';
 import {
   NATIVE_CALL_CONTINUATIONS,
   NativeCallContinuation,
   drainNativeSequence,
   nativeCallSequence,
-} from '../task/native-call-continuation.mjs';
-import { lagFree } from '../task/main-wait-interrupt.mjs';
+} from '../system/native-call-continuation.mjs';
+import { lagFree } from '../system/main-wait-interrupt.mjs';
 import { nmiAtBranch } from '../system/frame-wait.mjs';
 import { unpackWindowMap } from './game-screen.mjs';
 import {
@@ -48,7 +48,7 @@ import {
   WINDOW_TILE_COUNT,
   WINDOW_TILE_INITIAL,
   WINDOW_TILE_START,
-} from '../task/wram.mjs';
+} from '../data/wram.mjs';
 import { BYTE_BITS, BYTE_MASK, WORD_BITS, WORD_MASK, WORD_SIGN } from '../constants/bits.mjs';
 import {
   FLAG_CARRY,
@@ -297,7 +297,7 @@ function* drawWindowListCallSequence(h, events) {
 }
 // 81:AD92 as a sequence for the register-level callers (with their accessor a): lifted
 // with the lag-free frame model; with recorded interrupt observations the register-level
-// list (src/task/native-render-compose.mjs) replays them.
+// list (src/system/native-render-compose.mjs) replays them.
 export const drawWindowListJslSequence = (a, events) =>
   lagFree(events)
     ? drawWindowListCallSequence(dialogAccess(a), events)

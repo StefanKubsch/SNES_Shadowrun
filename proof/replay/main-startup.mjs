@@ -1,14 +1,14 @@
-import { taskStop } from '../../src/task/plan.mjs';
-import { dialogAccess } from '../../src/task/native-dialog-support.mjs';
-import { routineCaller } from '../../src/task/routine-call.mjs';
+import { taskStop } from '../../src/system/task-stop.mjs';
+import { dialogAccess } from '../../src/system/native-dialog-support.mjs';
+import { routineCaller } from '../../src/system/routine-call.mjs';
 import { FRONTEND_ROUTINES, MAIN_OWNER_ENTRY } from './main-frontend.mjs';
-import { interruptStep, lagFree } from '../../src/task/main-wait-interrupt.mjs';
+import { interruptStep, lagFree } from '../../src/system/main-wait-interrupt.mjs';
 import { bootScreensSequence } from '../../src/frontend/boot-screens.mjs';
 import {
   NativeCallContinuation,
   drainNativeSequence,
   nativeCallSequence,
-} from '../../src/task/native-call-continuation.mjs';
+} from '../../src/system/native-call-continuation.mjs';
 import { NATIVE_CALL_CONTINUATIONS } from './continuations.mjs';
 
 import {
@@ -18,7 +18,7 @@ import {
   SETTINGS_CONTROL_TYPE_A,
   SETTINGS_STEREO,
   SETTINGS_STEREO_ON,
-} from '../../src/task/wram.mjs';
+} from '../../src/data/wram.mjs';
 import { BYTE_BITS, BYTE_MASK, WORD_BITS, WORD_MASK } from '../../src/constants/bits.mjs';
 import {
   FLAG_ZERO,

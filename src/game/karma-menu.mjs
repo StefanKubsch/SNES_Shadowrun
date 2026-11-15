@@ -30,8 +30,8 @@
 // 80:FE69, number 80:FD80, key wait 80:F953, release 80:FA3E, numbered menu 80:A6B8,
 // state count 80:CECB and the line and purchase above) run through their frames from
 // the routine table.
-import { nativeCallSequence } from '../task/native-call-continuation.mjs';
-import { KARMA_LISTS, KARMA_WINDOWS } from '../task/native-main-menu.mjs';
+import { nativeCallSequence } from '../system/native-call-continuation.mjs';
+import { KARMA_LISTS, KARMA_WINDOWS } from '../system/native-main-menu.mjs';
 import { TEXT_EXIT } from '../data/port-extension.mjs';
 import {
   DP_CURSOR_ROW,
@@ -69,7 +69,7 @@ import {
   DP_WEAPON_RECORD,
   DP_WEAPON_RECORD_BANK,
   WRAM,
-} from '../task/wram.mjs';
+} from '../data/wram.mjs';
 import { fitListWindow, listTextIds } from '../data/menu-layout.mjs';
 import { RUNNER_RECORD_BANKS, RUNNER_RECORD_POINTERS } from '../data/runners.mjs';
 import { dataBankWord, setDataBankWord } from '../system/data-bank.mjs';

@@ -2,7 +2,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { mainLoopMotionSpecs, proveMainLoopMotionSource } from './main-loop-motion-source.mjs';
 import { compareDialog, decodeWindows, prng } from './task-native-dialog-harness.mjs';
-import { dialogAccess } from '../src/task/native-dialog-support.mjs';
+import { dialogAccess } from '../src/system/native-dialog-support.mjs';
 import { MAIN_MOTION_ROUTINES, moveAndAnimateObjects } from '../proof/replay/main-loop-motion.mjs';
 import { shakeHitPlayer } from '../proof/game-reference/main-upkeep.mjs';
 import { runHitShake } from '../src/game/main-upkeep.mjs';
@@ -11,8 +11,8 @@ import { processSceneRequestReference } from '../proof/game-reference/scene-requ
 import { MAIN_LOOP_ROUTINES } from '../src/vm/main-loop.mjs';
 import { MAIN_LOOP_ROUTINES as REPLAY_LOOP_ROUTINES } from '../proof/vm/main-loop.mjs';
 import { runObjectMotion } from '../src/game/main-upkeep.mjs';
-import { NATIVE_CALL_CONTINUATIONS } from '../src/task/native-call-continuation.mjs';
-import { WAIT_PAUSED } from '../src/task/native-wait-continuation.mjs';
+import { NATIVE_CALL_CONTINUATIONS } from '../src/system/native-call-continuation.mjs';
+import { WAIT_PAUSED } from '../src/system/native-wait-continuation.mjs';
 
 // The scene request's and the hit shake's own instructions are the register-level
 // references'; the main loop binds the lifted ones (src/game).

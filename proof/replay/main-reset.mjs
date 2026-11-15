@@ -1,12 +1,12 @@
-import { taskStop } from '../../src/task/plan.mjs';
-import { dialogAccess } from '../../src/task/native-dialog-support.mjs';
-import { routineCaller } from '../../src/task/routine-call.mjs';
+import { taskStop } from '../../src/system/task-stop.mjs';
+import { dialogAccess } from '../../src/system/native-dialog-support.mjs';
+import { routineCaller } from '../../src/system/routine-call.mjs';
 import { MAIN_STARTUP_ROUTINES, MAIN_STARTUP_ENTRY } from './main-startup.mjs';
 import {
   WRIO_ALL_HIGH,
   CGSWSEL_MATH_PREVENTED,
   MEMSEL_FAST_ROM,
-} from '../../src/task/main-scene-video.mjs';
+} from '../../src/system/main-scene-video.mjs';
 import {
   INIDISP,
   OBJSEL,

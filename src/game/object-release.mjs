@@ -15,7 +15,7 @@
 // return word of A8F5's JSR to AA4C lies on the stack as in the original. A draw list
 // without the object, whose search the original never ends, stops at the frontier
 // `draw_list_object_required` after a full turn of the index.
-import { taskStop } from '../task/plan.mjs';
+import { taskStop } from '../system/task-stop.mjs';
 import {
   ANIMATION_CLOCK_START,
   DRAW_LIST,
@@ -39,7 +39,7 @@ import {
   VRAM_SLOT_FREE_LIST,
   VRAM_SLOT_NEXT,
   WRAM,
-} from '../task/wram.mjs';
+} from '../data/wram.mjs';
 import { LONG_MASK, WORD_BITS, WORD_MASK } from '../constants/bits.mjs';
 
 // The direct page: the object and the countdown of the VRAM slots still to free.

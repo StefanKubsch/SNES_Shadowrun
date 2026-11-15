@@ -22,7 +22,7 @@ import {
   VRAM_UPLOAD_BYTES,
   VRAM_UPLOAD_ADDRESSES,
   VRAM_UPLOAD_BANKS,
-} from '../../src/task/wram.mjs';
+} from '../../src/data/wram.mjs';
 import { FLAG_NEGATIVE, FLAG_ZERO } from '../../src/constants/cpu-flags.mjs';
 import {
   A1T1L,

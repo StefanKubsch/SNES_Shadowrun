@@ -1,15 +1,15 @@
-import { DIALOG_WINDOW } from '../../src/task/wram.mjs';
+import { DIALOG_WINDOW } from '../../src/data/wram.mjs';
 import { withInterruptEvents } from './observed-native-events.mjs';
-import { lagFree } from '../../src/task/main-wait-interrupt.mjs';
-import { dialogAccess } from '../../src/task/native-dialog-support.mjs';
-import { taskStop } from '../../src/task/plan.mjs';
-import { FIRST_ARGUMENT, leafAccess, finishLeaf } from '../../src/task/native-leaf-support.mjs';
+import { lagFree } from '../../src/system/main-wait-interrupt.mjs';
+import { dialogAccess } from '../../src/system/native-dialog-support.mjs';
+import { taskStop } from '../../src/system/task-stop.mjs';
+import { FIRST_ARGUMENT, leafAccess, finishLeaf } from '../../src/system/native-leaf-support.mjs';
 import { drawWindowListJslSequence } from '../../src/game/window-list.mjs';
 import {
   observedContinuation,
   drainNativeSequence,
-} from '../../src/task/native-call-continuation.mjs';
-import { af1fRegisters } from '../../src/task/native-bar-tiles.mjs';
+} from '../../src/system/native-call-continuation.mjs';
+import { af1fRegisters } from '../../src/script/native-bar-tiles.mjs';
 import { LONG_MASK, WORD_MASK, BANK_WRAP } from '../../src/constants/bits.mjs';
 
 const TEXT_CODE_BANK = 0x81;

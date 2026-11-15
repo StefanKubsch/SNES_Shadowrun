@@ -64,7 +64,7 @@ import {
   WAVE_TARGET_HEIGHT,
   WAVE_TARGET_X,
   WAVE_TARGET_Y,
-} from '../task/wram.mjs';
+} from '../data/wram.mjs';
 import { BYTE_BITS, BYTE_MASK, WORD_MASK, WORD_SIGN } from '../constants/bits.mjs';
 
 const MEMBER_BYTES = 2,

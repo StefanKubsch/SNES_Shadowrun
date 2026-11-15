@@ -1,6 +1,6 @@
 // The fixed colour of colour math (lifted from 81:8861 with its common tail 81:886A
 // and the colour effect 81:8877; register-level versions in
-// proof/replay/main-transition.mjs and src/task/native-dialog-portrait.mjs, which their
+// proof/replay/main-transition.mjs and src/system/native-dialog-portrait.mjs, which their
 // other callers still use, and in proof/game-reference/main-upkeep.mjs).
 //
 // The colour effects of the game blend a fixed colour through the request word
@@ -14,7 +14,7 @@
 // phase up to 180, where it ends; bit 2 ramps slowly in steps of 10 without end.
 // A ramp's level comes from the colour ramp 80:D3D1 at the 9-bit phase: the fast
 // ramp darkens all three planes, the slow one only red and clears green and blue.
-import { COLOUR_PHASE, COLOUR_REQUEST } from '../task/wram.mjs';
+import { COLOUR_PHASE, COLOUR_REQUEST } from '../data/wram.mjs';
 import { CGADSUB, COLDATA } from '../constants/hardware-registers.mjs';
 import { COLDATA_BLUE, COLDATA_GREEN, COLDATA_RED } from '../constants/ppu.mjs';
 import { BYTE_BITS, BYTE_MASK } from '../constants/bits.mjs';

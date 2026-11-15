@@ -4,8 +4,8 @@
 // and matrix-text.mjs. Routines shared with other scenes (frame wait, unpacking,
 // fades, sound, input) are still the register-level versions, reached through
 // nativeCallSequence with their register inputs.
-import { taskStop } from '../task/plan.mjs';
-import { nativeCallSequence } from '../task/native-call-continuation.mjs';
+import { taskStop } from '../system/task-stop.mjs';
+import { nativeCallSequence } from '../system/native-call-continuation.mjs';
 import { entryOf } from './matrix-tables.mjs';
 import { readJoypad, takePadPresses } from '../system/joypad.mjs';
 import {
@@ -91,7 +91,7 @@ import {
   PAD_X,
   RANDOM_STATE,
   WRAM,
-} from '../task/wram.mjs';
+} from '../data/wram.mjs';
 import { BG3SC, BG3VOFS } from '../constants/hardware-registers.mjs';
 import {
   CGADSUB_BACKDROP,
@@ -116,7 +116,7 @@ import { runSceneList } from '../system/scene-list.mjs';
 import { setMusicMode } from '../apu/music-mode.mjs';
 import { fadeIn, fadeOut } from '../video/fades.mjs';
 import { waitForFrame } from '../system/frame-wait.mjs';
-import { lagFree } from '../task/main-wait-interrupt.mjs';
+import { lagFree } from '../system/main-wait-interrupt.mjs';
 import { BYTE_BITS, BYTE_MASK, WORD_BITS, WORD_MASK } from '../constants/bits.mjs';
 
 // The register-level frame wait, for recorded interrupt observations.

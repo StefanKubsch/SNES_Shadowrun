@@ -17,7 +17,7 @@
 // long in bank 8D. The return words of the calls and the two pushed words lie on the
 // stack as in the original. A number no runner has, whose search the original never
 // ends, stops at the frontier `runner_number_required` after a full turn of the index.
-import { taskStop } from '../task/plan.mjs';
+import { taskStop } from '../system/task-stop.mjs';
 import { createObject } from './object-create.mjs';
 import { turnObject } from './object-turn.mjs';
 import {
@@ -40,7 +40,7 @@ import {
   RUNNER_ARMOUR_RATING,
   SCENE_OBJECT_ROW_FACTOR,
   WRAM,
-} from '../task/wram.mjs';
+} from '../data/wram.mjs';
 import { ACTOR_DEPTH_FLAGS, ACTOR_RECORD, ACTOR_SCRIPT, ACTOR_TABLE } from '../data/actors.mjs';
 import { RUNNER_LAST_INDEX, RUNNER_OBJECT_NUMBERS } from '../data/runners.mjs';
 import { BYTE_BITS, BYTE_MASK, LONG_MASK, WORD_BITS, WORD_MASK } from '../constants/bits.mjs';

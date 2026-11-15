@@ -9,7 +9,7 @@ import {
   WRAM_HIGH_BANK,
   BANK_WITHOUT_IO,
 } from '../../src/constants/memory-map.mjs';
-import { APU_PAIR_PENDING, APU_PAIR_FIRST_BYTE, APU_COMMAND_TOKEN } from '../../src/task/wram.mjs';
+import { APU_PAIR_PENDING, APU_PAIR_FIRST_BYTE, APU_COMMAND_TOKEN } from '../../src/data/wram.mjs';
 import { APUIO0, APUIO1, APUIO2 } from '../../src/constants/hardware-registers.mjs';
 
 const DEFAULT_MAX_WORK = 1000000;

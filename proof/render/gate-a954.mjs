@@ -5,7 +5,7 @@ import { textHelperAccess, textHelperResult, textNZ } from './text-helper-access
 import { renderOutputBytes } from './output-budget.mjs';
 import { WRAM_BASE } from '../../src/constants/memory-map.mjs';
 import { BANK_SIZE, WORD_MASK } from '../../src/constants/bits.mjs';
-import { NMI_JOB_LISTS } from '../../src/task/wram.mjs';
+import { NMI_JOB_LISTS } from '../../src/data/wram.mjs';
 
 const DEFAULT_MAX_WORK = 1000000;
 const DEFAULT_MAX_OUTPUT_BYTES = 65536;

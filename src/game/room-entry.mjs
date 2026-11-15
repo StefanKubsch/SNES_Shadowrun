@@ -33,8 +33,8 @@
 // through their frames (docs/AUDIO-ROUTINES-LIFT.md keeps EF47 in the table for this
 // caller).
 import { tasksOf } from '../script/task-api.mjs';
-import { nativeCallSequence } from '../task/native-call-continuation.mjs';
-import { lagFree } from '../task/main-wait-interrupt.mjs';
+import { nativeCallSequence } from '../system/native-call-continuation.mjs';
+import { lagFree } from '../system/main-wait-interrupt.mjs';
 import { waitForCounterWord } from '../system/frame-wait.mjs';
 import { sceneRuntime } from '../system/scene-runtime.mjs';
 import { setMusicMode } from '../apu/music-mode.mjs';
@@ -80,7 +80,7 @@ import {
   OPTION_MUSIC_RESTORE,
   ROOM,
   SCENE_PALETTE_UPLOAD,
-} from '../task/wram.mjs';
+} from '../data/wram.mjs';
 import {
   ROOM_BANK,
   ROOM_ENTRY_DIRECTION,

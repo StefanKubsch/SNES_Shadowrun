@@ -1,11 +1,11 @@
 // Register-level references of the object release natives 80:AA4C (an object's graphics
 // fields and VRAM slots) and 80:A8F5 (the object leaves the scene), moved from
-// src/task/native-object-release.mjs and native-object-release-direct.mjs; lifted in
+// src/script/native-object-release.mjs and native-object-release-direct.mjs; lifted in
 // src/game/object-release.mjs. The proof plans, the Native58 dispatch of
 // proof/task/native-dispatch.mjs and the instruction tests run these; the game runs the
 // lifted natives.
-import { taskStop } from '../../src/task/plan.mjs';
-import { leaf } from '../../src/task/native-leaf-support.mjs';
+import { taskStop } from '../../src/system/task-stop.mjs';
+import { leaf } from '../../src/system/native-leaf-support.mjs';
 import {
   ANIMATION_CLOCK_START,
   DRAW_LIST,
@@ -29,7 +29,7 @@ import {
   VRAM_SLOT_FREE_LIST,
   WRAM,
   OBJECT_ACTION_DIRECTIONS,
-} from '../../src/task/wram.mjs';
+} from '../../src/data/wram.mjs';
 import { FLAG_CARRY, FLAG_ZERO } from '../../src/constants/cpu-flags.mjs';
 import { BANK_WRAP, WORD_MASK } from '../../src/constants/bits.mjs';
 // Countdown of the VRAM slots still to free; return word of the JSR A8F5 (its last byte).

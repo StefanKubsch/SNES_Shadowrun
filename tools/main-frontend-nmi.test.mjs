@@ -4,7 +4,7 @@ import assert from 'node:assert/strict';
 import { frontendSpecs } from './main-frontend-source.mjs';
 import { decodeWindows, compareDialog, prng } from './task-native-dialog-harness.mjs';
 import { FRONTEND_NMI_ROUTINES as FRONTEND_NMI_ROUTINES_TASK } from '../proof/replay/main-frontend-nmi.mjs';
-import { dialogAccess } from '../src/task/native-dialog-support.mjs';
+import { dialogAccess } from '../src/system/native-dialog-support.mjs';
 const FRONTEND_NMI_ROUTINES = withFrontendReference(FRONTEND_NMI_ROUTINES_TASK);
 
 for (const entry of [0x81dd54, 0x81d93e, 0x81dcac])

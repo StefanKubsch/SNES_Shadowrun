@@ -1,7 +1,7 @@
 // Tilesets of the scene records (docs/ROM-FREE.md, step 2). $81:A117 takes the
 // tileset byte n of a scene record and sets DP 11 = $8D:F1A0 + 2 n (blocks)
 // and DP 14 = $8D:F1AC + 2 n (attributes), both in bank 8D
-// (src/task/main-scene-load.mjs). For each grid cell $81:8EDF reads block b:
+// (src/system/main-scene-load.mjs). For each grid cell $81:8EDF reads block b:
 // - the attribute byte at [14] + b, mapped by 8CE0 to the palette bits of
 //   the tilemap words (palette slot, 7F:C980),
 // - eight words at [11] + 16 b, written to the layer at 7E:76A8 + 76A8,

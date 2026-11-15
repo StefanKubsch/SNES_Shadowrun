@@ -14,12 +14,12 @@ import {
   frontendCallSequence,
   START_MENU_TEXT_ENTRIES,
 } from './start-menu-text.mjs';
-import { interruptStep, steppedInterrupts } from '../../src/task/main-wait-interrupt.mjs';
+import { interruptStep, steppedInterrupts } from '../../src/system/main-wait-interrupt.mjs';
 import {
   NativeCallContinuation,
   NATIVE_CALL_CONTINUATIONS,
   drainNativeSequence,
-} from '../../src/task/native-call-continuation.mjs';
+} from '../../src/system/native-call-continuation.mjs';
 import { FRONTEND_NMI_ROUTINES } from '../replay/main-frontend-nmi.mjs';
 
 import {
@@ -40,7 +40,7 @@ import {
   SETTINGS_STEREO,
   SETTINGS_STEREO_ON,
   TITLE_PALETTE,
-} from '../../src/task/wram.mjs';
+} from '../../src/data/wram.mjs';
 import { WORD_BITS, WORD_MASK } from '../../src/constants/bits.mjs';
 import {
   FLAG_ZERO,

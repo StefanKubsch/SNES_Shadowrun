@@ -130,7 +130,7 @@ X=0003, Y=0037, S=012D, DBR=7F, P=34; further interruptions lie at
 9E65/9E67/9E7B, 9FA6/9FB7, 9FFD and A001/A002/A00E/A01C. The APU wait sites
 E1B6/E1B9/E1BB and E510/E513/E515 also get observations before every reached
 instruction (their port values stay the shared original IO stream). The fixed
-equations in [native-unpack-body.mjs](../src/task/native-unpack-body.mjs) share
+equations in [native-unpack-body.mjs](../src/system/native-unpack-body.mjs) share
 the source body from STA DB to PLA between 9F83 and 9E9B (pinned distance E8;
 MVN target 7F or 7E), keeping PHP/PHB, real JSR/JSL frames, PHA/PLA, fresh
 scratch/pointer/stack reads and the RTS/RTL epilogues; no original
@@ -235,7 +235,7 @@ lies between and all eight DMA active flags must already be false (an exec hook
 at AA96 alone is insufficient because Mesen can report it before the pending
 transfer). This is the immediate DMA result, not a later checkpoint image; the
 16 bytes go in proven target order as hardware observation to the
-[NMI DMA contract](../src/task/main-dma-readback.mjs). The earlier CPU dummy
+[NMI DMA contract](../src/system/main-dma-readback.mjs). The earlier CPU dummy
 read at 213A stays a separate IO record. The global comparison still checks all
 forward DMA bytes against live native ROM/WRAM sources and all CPU device bytes
 and their order; the readback result is counted separately (no PPU model, no

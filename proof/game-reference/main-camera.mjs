@@ -1,11 +1,11 @@
 // Register-level reference of the main loop's camera and formation trail (moved
-// from src/task/main-loop-camera.mjs and proof/replay/main-motion-target.mjs): the camera
+// from src/system/main-loop-camera.mjs and proof/replay/main-motion-target.mjs): the camera
 // follow 81:8C2E and the formation step 80:BAD5. The lifted versions are
 // src/game/camera-follow.mjs and src/game/formation-trail.mjs; the tile buffers
 // 81:8A91 (lifted in src/game/camera-scroll.mjs) keep their register-level version
-// in src/task/main-loop-camera.mjs for the camera jump's replay.
-import { clampToCameraBox, updateCameraTileBuffers } from '../../src/task/main-loop-camera.mjs';
-import { sec, clc } from '../../src/task/status-flags.mjs';
+// in src/system/main-loop-camera.mjs for the camera jump's replay.
+import { clampToCameraBox, updateCameraTileBuffers } from '../../src/system/main-loop-camera.mjs';
+import { sec, clc } from '../../src/system/status-flags.mjs';
 import {
   CAMERA_SPEED_X,
   CAMERA_SPEED_Y,
@@ -26,7 +26,7 @@ import {
   PLAYER_HIT_FRAMES,
   PLAYER_OBJECT,
   WRAM,
-} from '../../src/task/wram.mjs';
+} from '../../src/data/wram.mjs';
 import { WORD_MASK } from '../../src/constants/bits.mjs';
 import { FLAG_CARRY, FLAG_NEGATIVE, FLAG_ZERO } from '../../src/constants/cpu-flags.mjs';
 

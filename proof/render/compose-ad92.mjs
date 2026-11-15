@@ -13,7 +13,7 @@ import {
   WORD_MASK,
 } from '../../src/constants/bits.mjs';
 import { FLAG_NEGATIVE, FLAG_ZERO } from '../../src/constants/cpu-flags.mjs';
-import { WINDOW_LAST_INDEX, WINDOW_FIRST_INDEX, WINDOW_ACTIVE } from '../../src/task/wram.mjs';
+import { WINDOW_LAST_INDEX, WINDOW_FIRST_INDEX, WINDOW_ACTIVE } from '../../src/data/wram.mjs';
 
 const DEFAULT_MAX_WORK = 1000000;
 const DEFAULT_MAX_OUTPUT_BYTES = 65536;

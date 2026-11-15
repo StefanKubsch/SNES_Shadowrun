@@ -12,7 +12,7 @@
 // bit n - 1. The original forms it by n rotations through the carry (a 17-bit rotation)
 // of 0 with the carry set; a stage of 0 rotates 65536 times. A stage below the current
 // word is not stored.
-import { ROOM, STORY_STAGE, WRAM } from '../task/wram.mjs';
+import { ROOM, STORY_STAGE, WRAM } from '../data/wram.mjs';
 import { ROOM_TABLE } from '../data/rooms.mjs';
 import { BYTE_MASK, LONG_MASK, WORD_BITS, WORD_MASK } from '../constants/bits.mjs';
 

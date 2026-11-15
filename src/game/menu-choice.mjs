@@ -1,5 +1,5 @@
 // A choice from a menu list (lifted from 80:A6A5 to 80:A845; register-level version in
-// src/task/native-menu-compose.mjs stays the reference).
+// src/system/native-menu-compose.mjs stays the reference).
 //
 // The caller passes the window in the direct page word 00, the list's column and row in
 // 02 and 04, its visible rows in 06, the long pointer to its texts (words ended by 0) in
@@ -27,7 +27,7 @@
 // use only Y), the routine leaves those of the last pad word with the result in 00. A
 // move's pushes of the direct page words 00 and 06 (around the move sound's arguments,
 // which the original sets up and restores without playing it) stay below the stack.
-import { dialogCallBody, dialogCallSequence } from '../task/native-call-continuation.mjs';
+import { dialogCallBody, dialogCallSequence } from '../system/native-call-continuation.mjs';
 import { drawListSequence, markRowSequence, MARK, UNMARK } from './menu-list.mjs';
 import { requestTileClearSequence } from './window-open.mjs';
 import {
@@ -49,7 +49,7 @@ import {
   MENU_SHOW_NUMBERS,
   PAD_HELD,
   PAD_PRESSED,
-} from '../task/wram.mjs';
+} from '../data/wram.mjs';
 import {
   BYTE_BITS,
   BYTE_MASK,

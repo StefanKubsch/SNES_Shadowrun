@@ -6,7 +6,7 @@ import {
   NATIVE_CALL_CONTINUATIONS,
   drainNativeSequence,
   nativeCallSequence,
-} from '../../src/task/native-call-continuation.mjs';
+} from '../../src/system/native-call-continuation.mjs';
 import {
   TIMER,
   TIMER_FRAMES,
@@ -21,7 +21,7 @@ import {
   DP_SOUND_LEVEL,
   DP_SOUND_VOICE,
   DP_CURSOR_ROW,
-} from '../../src/task/wram.mjs';
+} from '../../src/data/wram.mjs';
 import { BYTE_MASK, WORD_MASK } from '../../src/constants/bits.mjs';
 import { FLAG_NEGATIVE, FLAG_ZERO, FLAG_CARRY } from '../../src/constants/cpu-flags.mjs';
 

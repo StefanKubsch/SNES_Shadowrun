@@ -7,11 +7,11 @@ import {
   SECOND_ARGUMENT,
   leaf,
   readActorState,
-} from '../../src/task/native-leaf-support.mjs';
-import { RECORD_COUNT, RECORD_FLAGS, RECORD_PROPERTY, WRAM } from '../../src/task/wram.mjs';
+} from '../../src/system/native-leaf-support.mjs';
+import { RECORD_COUNT, RECORD_FLAGS, RECORD_PROPERTY, WRAM } from '../../src/data/wram.mjs';
 import { akimiArrivalFlags, fixesEnabled, keepVampireDefeated } from '../../src/game/bugfixes.mjs';
-import { taskStop } from '../../src/task/plan.mjs';
-import { OBJECT_NUMBER } from '../../src/task/wram.mjs';
+import { taskStop } from '../../src/system/task-stop.mjs';
+import { OBJECT_NUMBER } from '../../src/data/wram.mjs';
 import { protectedJakeHealth } from '../../src/game/cheats.mjs';
 import {
   BANK_WRAP,

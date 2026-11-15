@@ -7,7 +7,7 @@
 // difference of 8000 stays 8000. The positions lie at 7E:0E28 and 7E:0E80 plus the slot
 // through the data bank 80 (src/system/data-bank.mjs).
 import { dataBankWord } from '../system/data-bank.mjs';
-import { OBJECT_X, OBJECT_Y, PLAYER_OBJECT } from '../task/wram.mjs';
+import { OBJECT_X, OBJECT_Y, PLAYER_OBJECT } from '../data/wram.mjs';
 import { WORD_MASK, WORD_SIGN } from '../constants/bits.mjs';
 
 const QUARTER_SHIFT = 2;

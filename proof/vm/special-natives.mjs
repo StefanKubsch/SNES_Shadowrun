@@ -41,12 +41,12 @@ import {
   createReleaseNoticeWindowsObserved,
 } from '../replay/native-slot-release.mjs';
 import { waitForConfirmKey, createWaitForConfirmKey } from '../replay/native-input-wait.mjs';
-import { lagFree } from '../../src/task/main-wait-interrupt.mjs';
-import { dialogAccess } from '../../src/task/native-dialog-support.mjs';
+import { lagFree } from '../../src/system/main-wait-interrupt.mjs';
+import { dialogAccess } from '../../src/system/native-dialog-support.mjs';
 import {
   drainNativeSequence,
   observedContinuation,
-} from '../../src/task/native-call-continuation.mjs';
+} from '../../src/system/native-call-continuation.mjs';
 import { runTaskActionsObserved, createActionsObserved } from '../replay/native-actions.mjs';
 import {
   appendToFightListNative,
@@ -64,7 +64,7 @@ import {
   findNearestVisibleMemberNative,
   chooseRandomFightTargetNative,
   canAttackNative,
-} from '../../src/task/native-script-leaves.mjs';
+} from '../../src/script/native-script-leaves.mjs';
 import {
   hitObjectsInBlastObserved,
   createHitObjectsInBlastObserved,

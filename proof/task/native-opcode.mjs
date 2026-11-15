@@ -1,6 +1,6 @@
 import { runTaskNativeArguments } from './native-arguments.mjs';
 import { runTaskNativeCall } from './native-dispatch.mjs';
-import { nativeOpcodeTargets } from '../../src/task/native-opcode-targets.mjs';
+import { nativeOpcodeTargets } from '../../src/data/native-opcode-targets.mjs';
 
 // Source-specific composition over the caller's existing overlay and ledger.
 // Neither the argument ID nor the table read substitutes for fresh DP A2.

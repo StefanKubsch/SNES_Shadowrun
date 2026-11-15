@@ -17,7 +17,7 @@ import {
   PALETTE_REQUEST_SLOT,
   PALETTE_STEP,
   PALETTE_TABLE,
-} from '../task/wram.mjs';
+} from '../data/wram.mjs';
 import {
   BYTE_BITS,
   BYTE_MASK,

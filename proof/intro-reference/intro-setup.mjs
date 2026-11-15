@@ -1,4 +1,4 @@
-import { routineCaller } from '../../src/task/routine-call.mjs';
+import { routineCaller } from '../../src/system/routine-call.mjs';
 
 import {
   APU_PAIR_PENDING,
@@ -27,7 +27,7 @@ import {
   SOUND_LOADED_SET,
   SOUND_VOICE_MASK,
   VRAM_SLOT_COUNT,
-} from '../../src/task/wram.mjs';
+} from '../../src/data/wram.mjs';
 import { BYTE_MASK, WORD_MASK, WORD_BITS, WORD_SIGN } from '../../src/constants/bits.mjs';
 import {
   A1T7L,

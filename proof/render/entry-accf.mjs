@@ -19,7 +19,7 @@ import {
   WINDOW_ROWS,
   WINDOW_TILE_START,
   WINDOW_TILE_COUNT,
-} from '../../src/task/wram.mjs';
+} from '../../src/data/wram.mjs';
 import {
   FLAG_OVERFLOW,
   FLAG_NEGATIVE,

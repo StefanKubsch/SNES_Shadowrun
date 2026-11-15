@@ -8,8 +8,8 @@ import {
   NATIVE_CALL_CONTINUATIONS,
   drainNativeSequence,
   nativeCallSequence,
-} from '../../src/task/native-call-continuation.mjs';
-import { routineCaller } from '../../src/task/routine-call.mjs';
+} from '../../src/system/native-call-continuation.mjs';
+import { routineCaller } from '../../src/system/routine-call.mjs';
 import { MAIN_SCENE_ROUTINES } from '../replay/main-scene.mjs';
 import { AUDIO_REFERENCE_ENTRIES } from '../apu-reference/audio-routines.mjs';
 import {
@@ -29,7 +29,7 @@ import {
   INTRO_NEAR_X,
   INTRO_NEAR_Y,
   PAD_HELD,
-} from '../../src/task/wram.mjs';
+} from '../../src/data/wram.mjs';
 import { BYTE_BITS, WORD_BITS, WORD_MASK, WORD_SIGN } from '../../src/constants/bits.mjs';
 import { OAM_PRIORITY_2 } from '../../src/constants/ppu.mjs';
 import {

@@ -1,5 +1,5 @@
 // The object turn (lifted from 80:AAAF with the animation selection 80:A985;
-// register-level versions in src/task/native-object-turn.mjs, which the other callers
+// register-level versions in src/script/native-object-turn.mjs, which the other callers
 // still use).
 //
 // An object (slot in the direct page word 00) turns to the direction in word 02. Its
@@ -27,7 +27,7 @@
 import { sceneRuntime } from '../system/scene-runtime.mjs';
 import { dataBankWord, setDataBankWord } from '../system/data-bank.mjs';
 import { isOpenBus } from '../system/open-bus.mjs';
-import { taskStop } from '../task/plan.mjs';
+import { taskStop } from '../system/task-stop.mjs';
 import {
   ANIMATION_CLOCK_START,
   OBJECT_ACTION_DIRECTIONS,
@@ -46,7 +46,7 @@ import {
   OBJECT_PALETTE,
   OBJECT_PICTURE_CHANGE,
   OBJECT_SELECTION,
-} from '../task/wram.mjs';
+} from '../data/wram.mjs';
 import { ACTION_TABLE } from '../data/actions.mjs';
 import {
   FLAG_CARRY,

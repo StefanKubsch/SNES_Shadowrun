@@ -2,7 +2,7 @@
 // 80:C6F8, 80:C716, 80:C71D, 80:C79C, 80:C7A1, 80:C7C2, 80:C6BF, 80:C6C4 and 80:D105;
 // register-level references in proof/game-reference/motion-targets.mjs).
 //
-// An object's motion (src/task/native-motion-*.mjs runs it each frame) has a mode (0
+// An object's motion (src/script/native-motion-*.mjs runs it each frame) has a mode (0
 // straight, 1 axis by axis) at 7E:4138, a target at 7E:4190 and 7E:41E8 and a state at
 // 7E:40E0 (1: started, 0: none), each plus the object's slot as a long index (a slot near
 // FFFF reaches bank 7F). Towards an object the target holds X 0 and the target object in
@@ -30,7 +30,7 @@ import {
   MOTION_Y,
   PLAYER_OBJECT,
   WRAM,
-} from '../task/wram.mjs';
+} from '../data/wram.mjs';
 import { BYTE_BITS, LONG_MASK, WORD_BITS, WORD_MASK } from '../constants/bits.mjs';
 
 const NO_MOTION = 0,

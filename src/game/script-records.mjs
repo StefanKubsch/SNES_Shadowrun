@@ -1,11 +1,11 @@
 // The nuyen payment and the actors' state holders (lifted from the script natives
 // 80:CD20 and 80:CBF7; register-level versions in proof/replay/native-modal.mjs, which the
-// proofs keep using). The natives' bridges are in src/task/native-script-leaves.mjs.
+// proofs keep using). The natives' bridges are in src/script/native-script-leaves.mjs.
 //
 // The nuyen are a 32-bit count, its low word first. An actor's entry in the actor table
 // (src/data/actors.mjs) points at its state record in WRAM (or 0 for none), whose holder
 // word names the object that holds the actor's item.
-import { NUYEN } from '../task/wram.mjs';
+import { NUYEN } from '../data/wram.mjs';
 import { ACTOR_RECORD, ACTOR_TABLE, STATE_HOLDER } from '../data/actors.mjs';
 import { BYTE_BITS, BYTE_MASK, LONG_MASK } from '../constants/bits.mjs';
 

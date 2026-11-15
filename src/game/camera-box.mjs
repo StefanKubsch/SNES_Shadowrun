@@ -1,5 +1,5 @@
 // The camera box clamp (lifted from 81:8A05; register-level version in
-// src/task/main-loop-camera.mjs, which the main loop camera 81:8C2E still calls).
+// src/system/main-loop-camera.mjs, which the main loop camera 81:8C2E still calls).
 //
 // A room may give a camera box (src/data/rooms.mjs): the minimum and maximum of two
 // map axes of the projected camera position. The position is turned into the axes,
@@ -10,7 +10,7 @@
 // The direct page words 3E to 4A are left as the original leaves them: the box
 // pointer, both axes, the doubled y distance and the offset of the last limit that
 // clamped.
-import { CAMERA_BOX, CAMERA_BOX_HIGH } from '../task/wram.mjs';
+import { CAMERA_BOX, CAMERA_BOX_HIGH } from '../data/wram.mjs';
 import { BYTE_BITS, BYTE_MASK, WORD_BITS, WORD_MASK } from '../constants/bits.mjs';
 
 const LONG_MASK = 0xffffff,

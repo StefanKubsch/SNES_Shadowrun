@@ -5,7 +5,7 @@ import {
   runTaskTextGeometry,
   closeTextMask,
   runTaskTextWait,
-} from '../../src/task/native-text-prerequisites.mjs';
+} from '../../src/system/native-text-prerequisites.mjs';
 
 const registers = Object.freeze({
   writes: Object.freeze([0x4202, 0x4203, 0x4204, 0x4205, 0x4206]),

@@ -1,16 +1,16 @@
 import { withInterruptEvents } from './observed-native-events.mjs';
-import { lagFree } from '../../src/task/main-wait-interrupt.mjs';
-import { taskStop } from '../../src/task/plan.mjs';
-import { FIRST_ARGUMENT, leafAccess, finishLeaf } from '../../src/task/native-leaf-support.mjs';
+import { lagFree } from '../../src/system/main-wait-interrupt.mjs';
+import { taskStop } from '../../src/system/task-stop.mjs';
+import { FIRST_ARGUMENT, leafAccess, finishLeaf } from '../../src/system/native-leaf-support.mjs';
 import { runReleaseWindowCall } from '../../src/game/window-release.mjs';
-import { af1fRegisters } from '../../src/task/native-bar-tiles.mjs';
-import { dialogAccess } from '../../src/task/native-dialog-support.mjs';
+import { af1fRegisters } from '../../src/script/native-bar-tiles.mjs';
+import { dialogAccess } from '../../src/system/native-dialog-support.mjs';
 import {
   observedContinuation,
   NativeCallContinuation,
   drainNativeSequence,
   nativeCallSequence,
-} from '../../src/task/native-call-continuation.mjs';
+} from '../../src/system/native-call-continuation.mjs';
 import { NATIVE_CALL_CONTINUATIONS } from './continuations.mjs';
 import { BANK_WRAP, WORD_MASK, LONG_MASK } from '../../src/constants/bits.mjs';
 import { FLAG_NEGATIVE } from '../../src/constants/cpu-flags.mjs';
@@ -19,7 +19,7 @@ import {
   NOTICE_WINDOWS,
   NOTICE_WINDOW_LAST,
   WINDOW_FIRST_INDEX,
-} from '../../src/task/wram.mjs';
+} from '../../src/data/wram.mjs';
 export { af1fRegisters as clearFF79Registers };
 // 80:FF79: release every notice window. The notice window slots are visited from the last
 // down; each used slot (not negative) passes its window as the first argument to a real JSR

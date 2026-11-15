@@ -18,7 +18,7 @@ import {
   OBJECT_HEIGHT,
   OBJECT_X,
   SWARM_MEMBERS,
-} from '../task/wram.mjs';
+} from '../data/wram.mjs';
 import { BYTE_MASK } from '../constants/bits.mjs';
 
 // Wave table 80:D3D1 of the bobbing, swarm and orbit natives (also the colour ramp of 80:8877):

@@ -1,5 +1,5 @@
 // Random per-function tests of the lifted blast (src/game/object-blast.mjs) against the
-// register-level native 80:8E36 (src/task/native-object-hit.mjs). Both sides call the
+// register-level native 80:8E36 (src/data/native-object-hit.mjs). Both sides call the
 // same stand-in for the hit 80:8691: it records A, X, Y, the flags N, V, Z and C and the
 // direct page words 00 and 02, writes a result to DP B4 and leaves registers and flags
 // drawn from the sample's own sequence. WRAM outside the stack, the calls, the return
@@ -15,8 +15,8 @@ import {
   OBJECT_LAST_SLOT,
   OBJECT_X,
   OBJECT_Y,
-} from '../src/task/wram.mjs';
-import { drainNativeSequence } from '../src/task/native-call-continuation.mjs';
+} from '../src/data/wram.mjs';
+import { drainNativeSequence } from '../src/system/native-call-continuation.mjs';
 
 const WRAM_BYTES = 0x20000,
   HEX = 16,

@@ -19,7 +19,7 @@
 // becomes the slot's `native` until it finishes. The round, the nested visit and the
 // task run are generators that yield while a native pauses; round() and visitHead() run
 // them to the end, beginRound() and continueRound() hand each pause to the caller.
-import { taskStop } from '../task/plan.mjs';
+import { taskStop } from '../system/task-stop.mjs';
 import { createTask, finishCall } from './tasks.mjs';
 import { runTask, EXIT_END, EXIT_SCRIPT } from './interpreter.mjs';
 import { NATIVE_POINTERS } from '../vm/layout.mjs';

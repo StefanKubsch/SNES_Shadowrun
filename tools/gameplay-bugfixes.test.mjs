@@ -6,14 +6,14 @@ import { VmMemory } from '../src/vm/memory.mjs';
 import { ScriptInterpreter, EXIT_END, EXIT_BUDGET } from '../proof/vm/interpreter.mjs';
 import { TaskAccessor } from '../src/vm/task-accessor.mjs';
 import { NativeCalls } from '../proof/vm/native-call.mjs';
-import { nativeTarget, nativeTargetEntries } from '../src/task/native-targets.mjs';
-import { setItemPropertyAndUnequip } from '../src/task/native-object-record-property-equip.mjs';
-import { setActorItemPropertyAndUnequip } from '../src/task/native-record-property-equip.mjs';
-import { getActorStateFlags } from '../src/task/native-record-flags-get.mjs';
-import { setActorStateFlags } from '../src/task/native-record-flags-set.mjs';
+import { nativeTarget, nativeTargetEntries } from '../src/script/native-targets.mjs';
+import { setItemPropertyAndUnequip } from '../src/script/native-object-record-property-equip.mjs';
+import { setActorItemPropertyAndUnequip } from '../src/script/native-record-property-equip.mjs';
+import { getActorStateFlags } from '../src/script/native-record-flags-get.mjs';
+import { setActorStateFlags } from '../src/script/native-record-flags-set.mjs';
 import { talkWithObject } from '../proof/replay/native-dialog.mjs';
 import { MAIN_START_ROUTINES } from '../proof/replay/main-start.mjs';
-import { dialogAccess } from '../src/task/native-dialog-support.mjs';
+import { dialogAccess } from '../src/system/native-dialog-support.mjs';
 import {
   DEFAULT_GAMEPLAY,
   ORIGINAL_GAMEPLAY,

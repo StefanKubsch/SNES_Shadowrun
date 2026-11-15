@@ -1,13 +1,13 @@
 // Register-level references of the equipment natives 80:8B16 (armour), 80:8B9F (weapon),
 // 80:9D15 and 80:9CE4 (an item's property word, taking it off its runner), moved from
-// src/task/native-runner-armour-equip.mjs, native-runner-weapon-equip.mjs,
+// src/script/native-runner-armour-equip.mjs, native-runner-weapon-equip.mjs,
 // native-object-record-property-equip.mjs and native-record-property-equip.mjs; lifted in
 // src/game/runner-equipment.mjs. The proof plans, the Native58 dispatch of
 // proof/task/native-dispatch.mjs and the instruction tests run these; the game runs the
 // lifted natives.
-import { taskStop } from '../../src/task/plan.mjs';
-import { FIRST_ARGUMENT, SECOND_ARGUMENT, leaf } from '../../src/task/native-leaf-support.mjs';
-import { taskSelectionSupport } from '../../src/task/native-object-turn.mjs';
+import { taskStop } from '../../src/system/task-stop.mjs';
+import { FIRST_ARGUMENT, SECOND_ARGUMENT, leaf } from '../../src/system/native-leaf-support.mjs';
+import { taskSelectionSupport } from '../../src/script/native-object-turn.mjs';
 import {
   RUNNER_DEFAULT_ARMOUR,
   RUNNER_DEFAULT_ARMOUR_RATING,
@@ -37,7 +37,7 @@ import {
   DP_EQUIP_WEAPON_DAMAGE,
   DP_EQUIP_WEAPON_RANGE,
   WRAM,
-} from '../../src/task/wram.mjs';
+} from '../../src/data/wram.mjs';
 import {
   FLAG_CARRY,
   FLAG_MEMORY_8BIT,

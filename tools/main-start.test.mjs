@@ -12,7 +12,7 @@ import {
 } from './task-native-dialog-harness.mjs';
 import { runReference } from './w65c816-reference.mjs';
 import { TaskAccessor } from '../src/vm/task-accessor.mjs';
-import { dialogAccess } from '../src/task/native-dialog-support.mjs';
+import { dialogAccess } from '../src/system/native-dialog-support.mjs';
 import {
   MAIN_START_ROUTINES as MAIN_START_TASK_ROUTINES,
   runMainStart,
@@ -23,7 +23,7 @@ import { withGameStartReference } from '../proof/game-reference/game-start.mjs';
 const MAIN_START_ROUTINES = withGameStartReference(MAIN_START_TASK_ROUTINES);
 import { SRAM_SIZE } from '../src/vm/memory.mjs';
 import { GAME_NMI_ROUTINES } from '../proof/replay/main-game-nmi.mjs';
-import { finishInterruptObservations } from '../src/task/main-wait-interrupt.mjs';
+import { finishInterruptObservations } from '../src/system/main-wait-interrupt.mjs';
 import { saveGameSlot } from '../proof/replay/native-main-menu.mjs';
 
 const maps = mainStartSpecs.map((s) => decodeWindows(s.windows));

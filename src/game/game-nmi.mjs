@@ -12,12 +12,15 @@ import { sceneRuntime } from '../system/scene-runtime.mjs';
 import { uploadMapEdges } from './camera-scroll.mjs';
 import { readJoypad } from '../system/joypad.mjs';
 import { writePortraitTileChannel } from './portrait-upload.mjs';
-import { NATIVE_CALL_CONTINUATIONS } from '../task/native-call-continuation.mjs';
-import { taskStop } from '../task/plan.mjs';
-import { lagFree } from '../task/main-wait-interrupt.mjs';
-import { GAME_NMI_ROUTINES } from '../task/main-game-nmi.mjs';
-import { DP_PORTRAIT_BANK, DP_PORTRAIT_POINTER } from '../task/native-dialog-portrait.mjs';
-import { GLOVE_KIND_CROSSHAIR, GLOVE_KIND_SPELL } from '../task/native-glove-crosshair-limits.mjs';
+import { NATIVE_CALL_CONTINUATIONS } from '../system/native-call-continuation.mjs';
+import { taskStop } from '../system/task-stop.mjs';
+import { lagFree } from '../system/main-wait-interrupt.mjs';
+import { GAME_NMI_ROUTINES } from '../system/main-game-nmi.mjs';
+import { DP_PORTRAIT_BANK, DP_PORTRAIT_POINTER } from '../system/native-dialog-portrait.mjs';
+import {
+  GLOVE_KIND_CROSSHAIR,
+  GLOVE_KIND_SPELL,
+} from '../script/native-glove-crosshair-limits.mjs';
 import {
   BRIGHTNESS_FADE,
   BRIGHTNESS_FADE_FRAMES,
@@ -61,7 +64,7 @@ import {
   VRAM_UPLOAD_BANKS,
   VRAM_UPLOAD_BYTES,
   VRAM_UPLOAD_SOURCES,
-} from '../task/wram.mjs';
+} from '../data/wram.mjs';
 import {
   A1B0,
   A1B1,

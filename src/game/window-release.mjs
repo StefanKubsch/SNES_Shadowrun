@@ -1,6 +1,6 @@
 // The window releases of the room entry (lifted from 80:FA3E, 80:FF79, 80:BCB2 and
-// 80:BE5B; register-level versions in src/task/native-render-compose.mjs,
-// proof/replay/native-slot-release.mjs and src/task/native-dialog-portrait.mjs; the script
+// 80:BE5B; register-level versions in src/system/native-render-compose.mjs,
+// proof/replay/native-slot-release.mjs and src/system/native-dialog-portrait.mjs; the script
 // natives call 80:FA3E lifted with lag-free frames, recorded runs register-level).
 //
 // A window is released by clearing its active word; releasing the last window moves
@@ -22,13 +22,13 @@ import {
   NativeCallContinuation,
   dialogCallBody,
   drainNativeSequence,
-} from '../task/native-call-continuation.mjs';
+} from '../system/native-call-continuation.mjs';
 import {
   releaseWindowAdapter,
   releaseWindowSequence as releaseWindowReference,
-} from '../task/native-render-compose.mjs';
-import { dialogAccess } from '../task/native-dialog-support.mjs';
-import { lagFree } from '../task/main-wait-interrupt.mjs';
+} from '../system/native-render-compose.mjs';
+import { dialogAccess } from '../system/native-dialog-support.mjs';
+import { lagFree } from '../system/main-wait-interrupt.mjs';
 import {
   GLOVE_KIND,
   GLOVE_NAME_WINDOW,
@@ -41,7 +41,7 @@ import {
   WINDOW_LAST_INDEX,
   WINDOW_NEXT_TILE,
   WINDOW_TILE_START,
-} from '../task/wram.mjs';
+} from '../data/wram.mjs';
 import { BYTE_BITS, BYTE_MASK, WORD_BITS, WORD_MASK, WORD_SIGN } from '../constants/bits.mjs';
 import { FLAG_CARRY, FLAG_NEGATIVE, FLAG_ZERO } from '../constants/cpu-flags.mjs';
 
@@ -110,7 +110,7 @@ function* releaseWindowCallSequence(h, events) {
 }
 // 80:FA3E as a sequence for the register-level callers (with their accessor a): lifted
 // with the lag-free frame model; with recorded interrupt observations the register-level
-// release (src/task/native-render-compose.mjs) replays them.
+// release (src/system/native-render-compose.mjs) replays them.
 export const releaseWindowJsrSequence = (a, events) =>
   lagFree(events)
     ? releaseWindowCallSequence(dialogAccess(a), events)

@@ -5,13 +5,13 @@
 // down, each pass of the main loop moves the figure by 4 in x and -4 in y, or the
 // other way round, as the count before the pass is even or odd; on the last frame
 // the figure stops. Without a player figure (bit 15 of its slot) nothing happens.
-import { taskStop } from '../task/plan.mjs';
+import { taskStop } from '../system/task-stop.mjs';
 import {
   OBJECT_VELOCITY_X,
   OBJECT_VELOCITY_Y,
   PLAYER_HIT_FRAMES,
   PLAYER_OBJECT,
-} from '../task/wram.mjs';
+} from '../data/wram.mjs';
 import { BYTE_BITS, BYTE_MASK, WORD_MASK, WORD_SIGN } from '../constants/bits.mjs';
 
 const SPEED = 4,

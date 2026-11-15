@@ -2,7 +2,7 @@
 // Texts wait in a ring of eight entries and are typed one character per delay
 // into a BG3 row that the NMI copies to VRAM; edited language texts replace the
 // cartridge bytes of an entry (src/data/matrix-text-edits.mjs).
-import { taskStop } from '../task/plan.mjs';
+import { taskStop } from '../system/task-stop.mjs';
 import { VmFault } from '../vm/memory.mjs';
 import { MATRIX_COUNT_TEXT } from '../data/matrix-text-edits.mjs';
 import { longWord, queueVramCopy, setLongWord, setWord, word } from './matrix-runtime.mjs';
@@ -33,7 +33,7 @@ import {
   MATRIX_TEXT_QUEUE_END,
   MATRIX_TEXT_QUEUE_START,
   MATRIX_TEXT_SCROLL,
-} from '../task/wram.mjs';
+} from '../data/wram.mjs';
 import { BYTE_BITS, BYTE_MASK, WORD_BITS, WORD_MASK } from '../constants/bits.mjs';
 import {
   SCREEN_MAP_BYTES,

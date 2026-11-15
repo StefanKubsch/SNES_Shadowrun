@@ -5,7 +5,7 @@ import {
   WORD_SIGN,
   HEX_RADIX,
 } from '../../src/constants/bits.mjs';
-import { OBJECT_LAST_SLOT, OBJECT_HALTED } from '../../src/task/wram.mjs';
+import { OBJECT_LAST_SLOT, OBJECT_HALTED } from '../../src/data/wram.mjs';
 import { isWord } from '../script/runtime.mjs';
 import { isTaskFrameAllocator } from '../script/task-frames.mjs';
 import { createMotionTaskPlan } from '../script/motion-task-plan.mjs';

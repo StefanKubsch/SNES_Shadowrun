@@ -16,7 +16,7 @@
 // The direct page word 6B holds the old coordinate as in the original. A, X, Y and the
 // flags are left as the original leaves them: X the slot (as the callees leave it), Y
 // as the callees leave it, A the diagonal with the flags of its addition and shift.
-import { taskStop } from '../task/plan.mjs';
+import { taskStop } from '../system/task-stop.mjs';
 import {
   searchHeightCells,
   searchLowerXEdge,
@@ -37,7 +37,7 @@ import {
   OBJECT_VELOCITY_Z,
   OBJECT_X,
   OBJECT_Y,
-} from '../task/wram.mjs';
+} from '../data/wram.mjs';
 import { BYTE_BITS, BYTE_MASK, WORD_MASK, WORD_SIGN } from '../constants/bits.mjs';
 import { FLAG_CARRY, FLAG_NEGATIVE, FLAG_OVERFLOW, FLAG_ZERO } from '../constants/cpu-flags.mjs';
 

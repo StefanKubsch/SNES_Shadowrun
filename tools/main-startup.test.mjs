@@ -3,7 +3,7 @@ import assert from 'node:assert/strict';
 import { startupSpecs, startupDataWindows, proveStartup } from './main-startup-source.mjs';
 import { decodeWindows, compareDialog, prng, window } from './task-native-dialog-harness.mjs';
 import { MAIN_STARTUP_ROUTINES } from '../proof/replay/main-startup.mjs';
-import { dialogAccess } from '../src/task/native-dialog-support.mjs';
+import { dialogAccess } from '../src/system/native-dialog-support.mjs';
 import { SRAM_SIZE } from '../src/vm/memory.mjs';
 
 test('startup pins the original endless owner, logo/notice data, BYTE SPC transfer and actual returns', () => {

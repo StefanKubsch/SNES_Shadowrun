@@ -306,7 +306,7 @@ tools/live-*.test.mjs`, then `node tools/rom-vram.mjs` writes
   stream address, format, the original packing and the output; characters
   are in `assets/vm-lz-bg2.bmp`, `-bg4.bmp` and `-obj4.bmp`. Generator
   `extract:vm-lz`, code [src/data/lz-streams.mjs](../src/data/lz-streams.mjs).
-  - Entry (src/task/native-unpack.mjs, native-dialog-portrait.mjs): A source
+  - Entry (src/system/native-unpack.mjs, native-dialog-portrait.mjs): A source
     offset, Y source bank, X destination; the stream begins with the output
     length as a word, the packed data follow.
   - Probe: the same run as for the VRAM characters. The module hook
@@ -323,7 +323,7 @@ tools/live-*.test.mjs`, then `node tools/rom-vram.mjs` writes
     7E:62A8 and 81:F803 into 7E:56A8 or 7E:46A8; their meaning is still
     open.
   - Scene records (2026-10-31): the 14 byte streams into 7F:DA14 are scene
-    records. 81:A117 (src/task/main-scene-load.mjs) takes offset and bank of
+    records. 81:A117 (src/system/main-scene-load.mjs) takes offset and bank of
     scene n from the table 8B:F9E3 + 3 n and unpacks the record. The table
     has 165 entries: it ends where the stream 8B:FBD2 begins, entry 165 is
     no ROM pointer, all 165 records unpack and no two share an address. All
@@ -335,7 +335,7 @@ tools/live-*.test.mjs`, then `node tools/rom-vram.mjs` writes
     (code [src/data/scenes.mjs](../src/data/scenes.mjs)), one entry per
     scene in table order; the streams of format `scene` in
     `assets/vm-lz.json` keep only address and packing. Evidence from the
-    reader 81:A117 and its helpers (src/task/main-scene-load.mjs,
+    reader 81:A117 and its helpers (src/system/main-scene-load.mjs,
     main-scene-layers.mjs):
     - backdrop word: to 7E:0D12, which the NMI writes as colour 0 to CGRAM
       (80:99DC/99E2, proof/replay/main-game-nmi.mjs); 162 scenes use 0000.
@@ -775,7 +775,7 @@ tools/live-*.test.mjs`, then `node tools/rom-vram.mjs` writes
     81:B307 (matrix text commands), 81:BA93/BC09/BD52 (matrix control),
     81:CF76 (scene animation), 81:EC28 (scene command lists), and for the
     NMI's JML [$006E] at 80:C14F the ten proven callback roots of
-    src/task/observed-nmi.mjs. Each table target must be one of the
+    src/system/nmi-call.mjs. Each table target must be one of the
     table's first 64 words in the ROM. `unknown` falls from 13.712 to
     11.036 bytes, `code_static` grows from 18.260 to 20.936; the package
     is unchanged (static code stays in it). One new conflict: 81:D9D5 is
@@ -1293,7 +1293,7 @@ tour3 tour4 tour5`). The story state stays that of the morgue, so the
     80:9906 (97 A0, at 80:A98C) and 80:9A66 (1F A9, at 80:A9BD), code
     bytes read as data, and 8C:6A56 (80:A9AF) and 8D:35B3 (80:A9BF), where
     nothing is mapped. Mesen reads 8C at both: the open bus keeps the
-    bank byte of the pointer 8C:8C94, as src/task/native-object-turn.mjs returns.
+    bank byte of the pointer 8C:8C94, as src/script/native-object-turn.mjs returns.
     This closes the open issue D15C.
   - The four code bytes were missing in the package: the native run ended
     with `rom_byte_absent at $809906`. The path vanished from the live

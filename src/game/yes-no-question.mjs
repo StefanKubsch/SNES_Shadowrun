@@ -6,7 +6,7 @@
 // plain menu 80:A6C7 lists Yes and No (the list 80:CD91 with the texts 714D and 7150) in
 // two visible rows from column 1. The window is released afterwards; the result is FFFF
 // for Yes and 0 for No or a cancel.
-import { nativeCallSequence } from '../task/native-call-continuation.mjs';
+import { nativeCallSequence } from '../system/native-call-continuation.mjs';
 import { fitListWindow } from '../data/menu-layout.mjs';
 import {
   DP_LIST_TOKEN_BANK,
@@ -17,7 +17,7 @@ import {
   DP_WINDOW_ATTRIBUTES,
   DP_WINDOW_COLUMNS,
   DP_WINDOW_ROWS,
-} from '../task/wram.mjs';
+} from '../data/wram.mjs';
 import { BYTE_BITS, BYTE_MASK, WORD_MASK } from '../constants/bits.mjs';
 
 const WINDOW_COLUMNS = 6,

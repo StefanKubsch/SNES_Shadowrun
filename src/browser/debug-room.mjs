@@ -6,7 +6,7 @@
 // The shortcut performs the same writes, but only while the player controls Jake freely: the
 // player control 80:E014 ran in the last picture (no menu, dialogue or glove choice open,
 // which "Open" closes with native $80 first) and no scene change is pending (1CE9 = FFFF).
-import { ROOM, SCENE_REQUEST, SCRIPT_VARIABLES } from '../task/wram.mjs';
+import { ROOM, SCENE_REQUEST, SCRIPT_VARIABLES } from '../data/wram.mjs';
 import { BYTE_BITS, BYTE_MASK } from '../constants/bits.mjs';
 
 export const DEBUG_ROOM_EVENT = 'debug-room-warp',

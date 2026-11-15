@@ -6,7 +6,7 @@ import { renderF130 } from './samples-f130.mjs';
 import { textHelperAccess, textHelperResult, textNZ } from './text-helper-access.mjs';
 import { BYTE_MASK, WORD_MASK, WORD_SIGN, HIGH_BYTE_MASK } from '../../src/constants/bits.mjs';
 import { WRAM_BASE, CODE_BANK, CODE_BANK_BASE } from '../../src/constants/memory-map.mjs';
-import { SOUND_LOADED_SET, SOUND_VOICE_MASK } from '../../src/task/wram.mjs';
+import { SOUND_LOADED_SET, SOUND_VOICE_MASK } from '../../src/data/wram.mjs';
 import {
   APU_COMMAND_SOUND_LEVEL,
   APU_COMMAND_SOUND_VOICES,

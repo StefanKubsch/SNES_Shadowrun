@@ -1,5 +1,5 @@
-import { taskStop } from '../../src/task/plan.mjs';
-import { routineCaller } from '../../src/task/routine-call.mjs';
+import { taskStop } from '../../src/system/task-stop.mjs';
+import { routineCaller } from '../../src/system/routine-call.mjs';
 
 // H-DMA entries of a write-twice register: line count and two data bytes.
 const HDMA_ENTRY_BYTES = 3;
@@ -17,7 +17,7 @@ import {
   SCENE_COUNTER,
   SCENE_LAYER_HIGH,
   WRAM,
-} from '../../src/task/wram.mjs';
+} from '../../src/data/wram.mjs';
 import {
   DMAP6,
   BBAD6,

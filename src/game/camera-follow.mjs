@@ -9,7 +9,7 @@
 // as none, the rest moves a quarter of the way, at most 20 either way, in steps of
 // 4. The tile buffers 81:8A91 (camera-scroll.mjs) then move the camera. Without a
 // player figure (bit 15 of its slot) the camera stays.
-import { taskStop } from '../task/plan.mjs';
+import { taskStop } from '../system/task-stop.mjs';
 import { clampToCameraBox } from './camera-box.mjs';
 import {
   CAMERA_SPEED_X,
@@ -21,7 +21,7 @@ import {
   OBJECT_X,
   OBJECT_Y,
   PLAYER_OBJECT,
-} from '../task/wram.mjs';
+} from '../data/wram.mjs';
 import { BYTE_BITS, BYTE_MASK, WORD_BITS, WORD_MASK, WORD_SIGN } from '../constants/bits.mjs';
 
 const DP_CAMERA_X = 0x0e,

@@ -2,7 +2,7 @@ import { BYTE_MASK, BANK_SIZE, WORD_MASK } from '../../src/constants/bits.mjs';
 import { WRAM_BASE, WRAM_BANK, BANK_WITHOUT_IO } from '../../src/constants/memory-map.mjs';
 import { WRDIVL, WRDIVB, RDMPYL, RDDIVL } from '../../src/constants/hardware-registers.mjs';
 import { FLAG_MEMORY_8BIT } from '../../src/constants/cpu-flags.mjs';
-import { TEXT_BUFFER } from '../../src/task/wram.mjs';
+import { TEXT_BUFFER } from '../../src/data/wram.mjs';
 const DEFAULT_MAX_WORK = 1000000;
 const DEFAULT_MAX_OUTPUT_BYTES = 65536;
 const NUMBER_STACK_BYTES = 12;

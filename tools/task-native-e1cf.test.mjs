@@ -12,7 +12,7 @@ import {
 import { runReference } from './w65c816-reference.mjs';
 import { VmMemory } from '../src/vm/memory.mjs';
 import { TaskAccessor } from '../src/vm/task-accessor.mjs';
-import { dialogAccess } from '../src/task/native-dialog-support.mjs';
+import { dialogAccess } from '../src/system/native-dialog-support.mjs';
 import { SPECIAL_NATIVES } from '../proof/vm/special-natives.mjs';
 import { chooseSpell } from '../proof/replay/native-spell-choice.mjs';
 import { panSongLevelToObjectReference as panSongLevelToObject } from '../proof/apu-reference/sound-stereo.mjs';

@@ -25,7 +25,7 @@ import {
   UNPACK_LITERAL_WORDS,
   UNPACK_BITS_REMAINING,
   UNPACK_BIT_BUFFER,
-} from '../../src/task/wram.mjs';
+} from '../../src/data/wram.mjs';
 
 // Existing standalone safety limits; neither value models device timing.
 const DEFAULT_MAX_WORK = 1000000;

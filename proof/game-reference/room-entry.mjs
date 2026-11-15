@@ -8,7 +8,7 @@ import {
   NativeCallContinuation,
   drainNativeSequence,
   nativeCallSequence,
-} from '../../src/task/native-call-continuation.mjs';
+} from '../../src/system/native-call-continuation.mjs';
 import {
   CAMERA_BOX,
   DIALOG_WINDOW,
@@ -19,7 +19,7 @@ import {
   OPTION_MUSIC_RESTORE,
   ROOM,
   WRAM,
-} from '../../src/task/wram.mjs';
+} from '../../src/data/wram.mjs';
 import {
   ROOM_ENTRY_DIRECTION,
   ROOM_ENTRY_POSITION,

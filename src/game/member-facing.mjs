@@ -15,7 +15,7 @@ import {
   OBJECT_VELOCITY_X,
   OBJECT_VELOCITY_Y,
   ROOM,
-} from '../task/wram.mjs';
+} from '../data/wram.mjs';
 import { BYTE_BITS, BYTE_MASK, LONG_MASK, WORD_MASK, WORD_SIGN } from '../constants/bits.mjs';
 
 const ROOM_DIRECTIONS = 0x8d929f,

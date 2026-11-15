@@ -1,12 +1,12 @@
 import { withInterruptEvents } from './observed-native-events.mjs';
-import { taskStop } from '../../src/task/plan.mjs';
-import { dialogAccess } from '../../src/task/native-dialog-support.mjs';
+import { taskStop } from '../../src/system/task-stop.mjs';
+import { dialogAccess } from '../../src/system/native-dialog-support.mjs';
 import {
   observedContinuation,
   drainNativeSequence,
   dialogCallSequence,
   dialogCallBody,
-} from '../../src/task/native-call-continuation.mjs';
+} from '../../src/system/native-call-continuation.mjs';
 import { NATIVE_CALL_CONTINUATIONS } from './continuations.mjs';
 import { TALK_ROUTINES, validateDialogTaskOptions } from './native-dialog.mjs';
 import {
@@ -20,14 +20,14 @@ import {
   SECOND_PORTRAIT_PALETTE,
   SECOND_PORTRAIT_VRAM,
   SECOND_PORTRAIT_HDMA,
-} from '../../src/task/native-dialog-portrait.mjs';
+} from '../../src/system/native-dialog-portrait.mjs';
 import { resetAndDrawWindowList } from './native-glove-target.mjs';
-import { chooseFromMenuAdapter } from '../../src/task/native-menu-compose.mjs';
-import { appendScriptTask } from '../../src/task/task-append.mjs';
-import { lagFree } from '../../src/task/main-wait-interrupt.mjs';
+import { chooseFromMenuAdapter } from '../../src/system/native-menu-compose.mjs';
+import { appendScriptTask } from '../../src/system/task-append.mjs';
+import { lagFree } from '../../src/system/main-wait-interrupt.mjs';
 import { waitForConfirmKeyAdapter } from './native-input-wait.mjs';
-import { setTextCursor, printNumber } from '../../src/task/native-list-prerequisites.mjs';
-import { printTextAdapter } from '../../src/task/native-text-compose.mjs';
+import { setTextCursor, printNumber } from '../../src/system/native-list-prerequisites.mjs';
+import { printTextAdapter } from '../../src/system/native-text-compose.mjs';
 
 import {
   DIALOG_END,
@@ -79,7 +79,7 @@ import {
   JAKE_DERMAL_ARMOUR,
   NOTICE_WINDOWS,
   NOTICE_WINDOW_LAST,
-} from '../../src/task/wram.mjs';
+} from '../../src/data/wram.mjs';
 import {
   W12SEL,
   WBGLOG,

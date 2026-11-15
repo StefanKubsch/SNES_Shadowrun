@@ -13,8 +13,8 @@ import { DialogTestMemory, decodeWindows } from './task-native-dialog-harness.mj
 import { runReference } from './w65c816-reference.mjs';
 import { VmMemory } from '../src/vm/memory.mjs';
 import { TaskAccessor } from '../src/vm/task-accessor.mjs';
-import { dialogAccess } from '../src/task/native-dialog-support.mjs';
-import { loadScene } from '../src/task/main-scene-load.mjs';
+import { dialogAccess } from '../src/system/native-dialog-support.mjs';
+import { loadScene } from '../src/system/main-scene-load.mjs';
 import { fnv1a } from '../src/data/fnv.mjs';
 import {
   SCENE_RECORD,
@@ -22,7 +22,7 @@ import {
   SHAPE_GRID_BYTES,
   DP_SCENE_RECORD,
   DP_SCENE_COUNT,
-} from '../src/task/wram.mjs';
+} from '../src/data/wram.mjs';
 
 const json = (name) => JSON.parse(readFileSync(`assets/vm-${name}.json`));
 const scenes = json('scenes'),

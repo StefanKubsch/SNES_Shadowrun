@@ -1,6 +1,6 @@
 // Replays share the continuation runner with the game. Preserve both implementations
 // when a reference and a live table bind different functions to the same ROM target.
-import { NATIVE_CALL_CONTINUATIONS as shared } from '../../src/task/native-call-continuation.mjs';
+import { NATIVE_CALL_CONTINUATIONS as shared } from '../../src/system/native-call-continuation.mjs';
 export const NATIVE_CALL_CONTINUATIONS = {
   get: (key) => shared.get(key),
   set(key, factory) {

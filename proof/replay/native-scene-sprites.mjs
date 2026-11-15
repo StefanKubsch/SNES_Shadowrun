@@ -1,5 +1,5 @@
-import { taskStop } from '../../src/task/plan.mjs';
-import { sec, clc } from '../../src/task/status-flags.mjs';
+import { taskStop } from '../../src/system/task-stop.mjs';
+import { sec, clc } from '../../src/system/status-flags.mjs';
 import {
   CELL_SIZE,
   DP_CELL_X,
@@ -18,8 +18,8 @@ import {
   dpStore,
   field,
   highBits,
-} from '../../src/task/native-sprite-helpers.mjs';
-import { clearPaletteSlots } from '../../src/task/main-initialize.mjs';
+} from '../../src/script/native-sprite-helpers.mjs';
+import { clearPaletteSlots } from '../../src/system/main-initialize.mjs';
 import { occlusion, mapCell } from './native-sprite-occlusion.mjs';
 
 import {
@@ -60,7 +60,7 @@ import {
   WALL_MAP,
   WALL_WORD_CELLS,
   WRAM,
-} from '../../src/task/wram.mjs';
+} from '../../src/data/wram.mjs';
 import {
   BYTE_MASK,
   NIBBLE_BITS,

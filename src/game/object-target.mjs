@@ -26,7 +26,7 @@
 // direction 02; the direction is pushed around the turn as in the original. A, X, Y
 // and the flags are left as the original leaves them; the turn's X and overflow carry
 // on as in the original.
-import { taskStop } from '../task/plan.mjs';
+import { taskStop } from '../system/task-stop.mjs';
 import { turnObjectRoutine } from './object-turn.mjs';
 import {
   MOTION_ACTIVE,
@@ -41,7 +41,7 @@ import {
   OBJECT_VELOCITY_Y,
   OBJECT_X,
   OBJECT_Y,
-} from '../task/wram.mjs';
+} from '../data/wram.mjs';
 import { sendEvents, tasksOf } from '../script/task-api.mjs';
 import { BYTE_BITS, BYTE_MASK, WORD_MASK, WORD_SIGN } from '../constants/bits.mjs';
 import { FLAG_CARRY, FLAG_NEGATIVE, FLAG_OVERFLOW, FLAG_ZERO } from '../constants/cpu-flags.mjs';

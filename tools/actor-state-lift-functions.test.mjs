@@ -19,18 +19,18 @@ import {
   decrementObjectStateCountReference,
   addActorStateCountReference,
 } from '../proof/game-reference/actor-state.mjs';
-import { getActorStateFlags } from '../src/task/native-record-flags-get.mjs';
-import { getActorStateCount } from '../src/task/native-record-count-get.mjs';
-import { getActorStateProperty } from '../src/task/native-record-property-get.mjs';
-import { setActorStateFlags } from '../src/task/native-record-flags-set.mjs';
-import { setActorStateFlagBits } from '../src/task/native-record-flags-or.mjs';
-import { keepActorStateFlagBits } from '../src/task/native-record-flags-and.mjs';
-import { isActorStateProperty } from '../src/task/native-record-property-equals.mjs';
-import { decrementObjectStateCount } from '../src/task/native-object-record-count-decrement.mjs';
-import { addActorStateCount } from '../src/task/native-record-count-add.mjs';
+import { getActorStateFlags } from '../src/script/native-record-flags-get.mjs';
+import { getActorStateCount } from '../src/script/native-record-count-get.mjs';
+import { getActorStateProperty } from '../src/script/native-record-property-get.mjs';
+import { setActorStateFlags } from '../src/script/native-record-flags-set.mjs';
+import { setActorStateFlagBits } from '../src/script/native-record-flags-or.mjs';
+import { keepActorStateFlagBits } from '../src/script/native-record-flags-and.mjs';
+import { isActorStateProperty } from '../src/script/native-record-property-equals.mjs';
+import { decrementObjectStateCount } from '../src/script/native-object-record-count-decrement.mjs';
+import { addActorStateCount } from '../src/script/native-record-count-add.mjs';
 import { CHEAT } from '../src/game/cheat-settings.mjs';
 import { JAKE_STATE_RECORD } from '../src/game/cheats.mjs';
-import { OBJECT_NUMBER } from '../src/task/wram.mjs';
+import { OBJECT_NUMBER } from '../src/data/wram.mjs';
 import { ACTOR_BYTES, ACTOR_RECORD, ACTOR_TABLE, ACTORS } from '../src/data/actors.mjs';
 import { DialogTestMemory } from './task-native-dialog-harness.mjs';
 

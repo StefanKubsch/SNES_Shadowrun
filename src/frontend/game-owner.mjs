@@ -5,11 +5,11 @@
 // audio and enters the game's main start 80:9688 with the original JSR frame of
 // 80:A154. When the game ends, the main loop returns to 80:A157 and the owner starts
 // the cycle again without the title.
-import { nativeCallSequence, drainNativeSequence } from '../task/native-call-continuation.mjs';
-import { taskStop } from '../task/plan.mjs';
+import { nativeCallSequence, drainNativeSequence } from '../system/native-call-continuation.mjs';
+import { taskStop } from '../system/task-stop.mjs';
 import { sceneRuntime } from '../system/scene-runtime.mjs';
 import { setUpGameAudio } from '../intro/intro-scene.mjs';
-import { MAIN_START } from '../task/main-start.mjs';
+import { MAIN_START } from '../system/main-start.mjs';
 import {
   GAME_OPTIONS,
   OPTION_MUSIC,
@@ -17,7 +17,7 @@ import {
   SETTINGS_MUSIC,
   TIMER,
   TIMER_STOPPED,
-} from '../task/wram.mjs';
+} from '../data/wram.mjs';
 import { FLAG_DECIMAL, FLAG_INDEX_8BIT, FLAG_MEMORY_8BIT } from '../constants/cpu-flags.mjs';
 import { CODE_BANK } from '../constants/memory-map.mjs';
 import { BYTE_BITS, BYTE_MASK } from '../constants/bits.mjs';

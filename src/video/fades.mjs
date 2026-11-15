@@ -1,5 +1,5 @@
 // Screen fades (lifted from 81:EEDD and 81:EEF1; register-level versions in
-// src/task/main-scene-wait.mjs). One brightness step per frame; wait() is the
+// src/system/main-scene-wait.mjs). One brightness step per frame; wait() is the
 // frame wait of the caller's sequence (a generator that ends after the next NMI).
 import { INIDISP_FORCED_BLANK, MAX_BRIGHTNESS } from '../constants/ppu.mjs';
 

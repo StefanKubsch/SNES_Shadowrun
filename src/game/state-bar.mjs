@@ -1,5 +1,5 @@
 // Jake's state bar in the window map (lifted from 81:AF1F; register-level version in
-// src/task/native-bar-tiles.mjs, which its other callers still use).
+// src/script/native-bar-tiles.mjs, which its other callers still use).
 //
 // The bar sits in three rows of the window map buffer, drawn from the right end
 // leftwards. Its frame is one segment per 20 points of Jake's maximum (the low byte
@@ -16,7 +16,7 @@
 // counts as 65536 segments, and a value above the maximum gives a negative
 // difference that the middle loop counts down from up to 65535. Their writes run on
 // from bank 7E into 7F, as in the original.
-import { DIALOG_WINDOW, GROUP_INDEX, JAKE_COUNT_MAX, WINDOW_MAP_BUFFER } from '../task/wram.mjs';
+import { DIALOG_WINDOW, GROUP_INDEX, JAKE_COUNT_MAX, WINDOW_MAP_BUFFER } from '../data/wram.mjs';
 import { WRDIVL, WRDIVB, RDDIVL, RDMPYL } from '../constants/hardware-registers.mjs';
 import { BYTE_BITS, BYTE_MASK, WORD_MASK, WORD_SIGN } from '../constants/bits.mjs';
 

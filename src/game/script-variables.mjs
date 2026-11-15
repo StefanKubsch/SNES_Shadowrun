@@ -3,7 +3,7 @@
 //
 // The scripts keep their words at 7E:3BBB, two bytes each, addressed by a byte offset
 // (an offset near FFFF reaches bank 7F, as the original's long index does).
-import { SCRIPT_VARIABLES, WRAM } from '../task/wram.mjs';
+import { SCRIPT_VARIABLES, WRAM } from '../data/wram.mjs';
 import { BYTE_BITS, BYTE_MASK, LONG_MASK } from '../constants/bits.mjs';
 
 const address = (offset) => (WRAM + SCRIPT_VARIABLES + offset) & LONG_MASK;

@@ -1,15 +1,15 @@
 import { withInterruptEvents } from './observed-native-events.mjs';
-import { taskStop } from '../../src/task/plan.mjs';
-import { dialogAccess } from '../../src/task/native-dialog-support.mjs';
+import { taskStop } from '../../src/system/task-stop.mjs';
+import { dialogAccess } from '../../src/system/native-dialog-support.mjs';
 import {
   observedContinuation,
   drainNativeSequence,
   dialogCallSequence,
   dialogCallBody,
   nativeTailSequence,
-} from '../../src/task/native-call-continuation.mjs';
+} from '../../src/system/native-call-continuation.mjs';
 import { TALK_ROUTINES, validateDialogTaskOptions } from './native-dialog.mjs';
-import { lagFree } from '../../src/task/main-wait-interrupt.mjs';
+import { lagFree } from '../../src/system/main-wait-interrupt.mjs';
 import {
   WEAPON_MENU_ROUTINES,
   e693Sequence,
@@ -21,10 +21,10 @@ import {
 import {
   chooseFromNumberedMenuAdapter,
   requestWindowUploadAdapter,
-} from '../../src/task/native-menu-compose.mjs';
-import { sendApuCommand } from '../../src/task/native-input-apu.mjs';
-import { createObject } from '../../src/task/native-object-create.mjs';
-import { drawTextBufferAdapter } from '../../src/task/native-text-compose.mjs';
+} from '../../src/system/native-menu-compose.mjs';
+import { sendApuCommand } from '../../src/system/native-input-apu.mjs';
+import { createObject } from '../../src/script/native-object-create.mjs';
+import { drawTextBufferAdapter } from '../../src/system/native-text-compose.mjs';
 
 import {
   DIALOG_END,
@@ -88,7 +88,7 @@ import {
   JAKE_WIRED_REFLEXES,
   NOTICE_WINDOWS,
   NOTICE_WINDOW_LAST,
-} from '../../src/task/wram.mjs';
+} from '../../src/data/wram.mjs';
 import { BYTE_MASK, BANK_WRAP, WORD_MASK } from '../../src/constants/bits.mjs';
 import {
   FLAG_CARRY,

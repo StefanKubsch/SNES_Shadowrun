@@ -18,7 +18,7 @@ import {
   GLOVE_NAME_WINDOW,
   GLOVE_TARGET_TAG,
   NOTICE_WINDOWS,
-} from '../src/task/wram.mjs';
+} from '../src/data/wram.mjs';
 
 // The window list's inputs on both sides: the window map of window style 0 (80:FFAD:
 // its colours, then the map) and one recorded poll of the text map upload wait 81:ACAF

@@ -40,20 +40,20 @@ export const native9BC6Spec = {
     [
       0x81b0a1,
       'RTL',
-      'frame counter wait, waitForRandomStateChange in src/task/native-frame-wait.mjs',
+      'frame counter wait, waitForRandomStateChange in src/system/native-frame-wait.mjs',
     ],
-    [0x809e1a, 'RTS', 'joypad, readInput in src/task/native-input-apu.mjs (reset path taskStop)'],
+    [0x809e1a, 'RTS', 'joypad, readInput in src/system/native-input-apu.mjs (reset path taskStop)'],
     [
       0x80bcb2,
       'RTS',
-      'glove off, putGloveAway in src/task/native-dialog-portrait.mjs (tools/task-native-936c-source.mjs, group bcb2)',
+      'glove off, putGloveAway in src/system/native-dialog-portrait.mjs (tools/task-native-936c-source.mjs, group bcb2)',
     ],
     [0x80fec1, 'RTS', 'notice window, showNotice in proof/replay/native-notice.mjs'],
-    [0x80f963, 'RTS', 'window allocation, openWindow in src/task/native-window-open.mjs'],
-    [0x80fa3e, 'RTS', 'window release, releaseWindow in src/task/native-render-compose.mjs'],
-    [0x80fe69, 'RTS', 'text, printText in src/task/native-text-compose.mjs'],
-    [0x81af04, 'RTL', 'text bit stream, readTextBit in src/task/native-text-prerequisites.mjs'],
-    [0x81ad92, 'RTL', 'window list, drawWindowList in src/task/native-render-compose.mjs'],
+    [0x80f963, 'RTS', 'window allocation, openWindow in src/script/native-window-open.mjs'],
+    [0x80fa3e, 'RTS', 'window release, releaseWindow in src/system/native-render-compose.mjs'],
+    [0x80fe69, 'RTS', 'text, printText in src/system/native-text-compose.mjs'],
+    [0x81af04, 'RTL', 'text bit stream, readTextBit in src/system/native-text-prerequisites.mjs'],
+    [0x81ad92, 'RTL', 'window list, drawWindowList in src/system/native-render-compose.mjs'],
   ],
   scope:
     'Original NativeD8 9BC6 own code with external returns into the separately proved wait, input, window, text and list graphs; equations in proof/replay/native-glove-target.mjs, differential check in tools/task-native-9bc6.test.mjs.',
@@ -133,11 +133,11 @@ export const native9BD3Spec = {
       'RTS',
       'dialog close, 92C5 in proof/replay/native-dialog.mjs (tools/task-native-936c-source.mjs)',
     ],
-    [0x81a9b2, 'RTL', 'list conversion, unpackWindowMap in src/task/native-render-unpack.mjs'],
+    [0x81a9b2, 'RTL', 'list conversion, unpackWindowMap in src/system/native-render-unpack.mjs'],
     [
       0x81acb5,
       'RTL',
-      'list transfer with wait, requestTextMapUpload in src/task/native-render-compose.mjs',
+      'list transfer with wait, requestTextMapUpload in src/system/native-render-compose.mjs',
     ],
   ],
   scope:
@@ -213,11 +213,11 @@ export const nativeC724Spec = {
   ],
   externalReturns: [
     ...native9BC6Spec.externalReturns.filter(([target]) => target !== 0x80fec1),
-    [0x81a9b2, 'RTL', 'list conversion, unpackWindowMap in src/task/native-render-unpack.mjs'],
+    [0x81a9b2, 'RTL', 'list conversion, unpackWindowMap in src/system/native-render-unpack.mjs'],
     [
       0x81acb5,
       'RTL',
-      'list transfer with wait, requestTextMapUpload in src/task/native-render-compose.mjs',
+      'list transfer with wait, requestTextMapUpload in src/system/native-render-compose.mjs',
     ],
   ],
   scope:

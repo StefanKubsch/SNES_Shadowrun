@@ -11,8 +11,8 @@
 // The start ends before the first call of the main loop (80:96AB). The attract game
 // enters the room start directly with room AB (proof/replay/main-frontend.mjs).
 import { tasksOf } from '../script/task-api.mjs';
-import { drainNativeSequence } from '../task/native-call-continuation.mjs';
-import { taskStop } from '../task/plan.mjs';
+import { drainNativeSequence } from '../system/native-call-continuation.mjs';
+import { taskStop } from '../system/task-stop.mjs';
 import { unpackStream } from '../system/unpack.mjs';
 import { sceneRuntime } from '../system/scene-runtime.mjs';
 import { unlockBulletproofVest } from './bugfixes.mjs';
@@ -35,7 +35,7 @@ import {
   RUNNER_EQUIPMENT_ROWS,
   RUNNER_MAGIC_POINT_ROWS,
 } from '../data/runners.mjs';
-import { TEXT_NONE } from '../task/native-member-spell-menu.mjs';
+import { TEXT_NONE } from '../data/native-member-spell-menu.mjs';
 import {
   GROUP_INDEX,
   JAKE_ALTERNATE_PORTRAIT,
@@ -56,7 +56,7 @@ import {
   SPELL_LIST,
   STORY_STAGE,
   TOPIC_LIST,
-} from '../task/wram.mjs';
+} from '../data/wram.mjs';
 import { FLAG_DECIMAL, FLAG_INDEX_8BIT, FLAG_MEMORY_8BIT } from '../constants/cpu-flags.mjs';
 import { CODE_BANK, CODE_BANK_BASE, SRAM_FIRST_BANK } from '../constants/memory-map.mjs';
 import { BYTE_BITS, BYTE_MASK, WORD_MASK, WORD_SIGN } from '../constants/bits.mjs';

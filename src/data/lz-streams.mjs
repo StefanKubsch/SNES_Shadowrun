@@ -2,7 +2,7 @@
 // step 2; packing in src/data/lz.mjs). On entry A is the source offset, Y the
 // source bank and X the destination in bank 7E (9F6D: 7F); the stream starts
 // with the output length as a word, the packed data follow (d = source + 2;
-// src/task/native-unpack.mjs, native-dialog-portrait.mjs). The streams and the
+// src/system/native-unpack.mjs, native-dialog-portrait.mjs). The streams and the
 // format of their output come from the probe over all live tests
 // (analysis/rom-vram.json, tools/rom-vram-hook.mjs).
 // Native form assets/vm-lz.json, per stream: address, format, the original
@@ -19,7 +19,7 @@
 // - bytes: everything else in hex, 32 bytes per line.
 // Scene records: $81:A117 takes source offset and bank of scene n from the
 // table $8B:F9E3 + 3 n (word, bank byte) and unpacks the record to 7F:DA14
-// (src/task/main-scene-load.mjs). The table has 165 entries: it ends where
+// (src/system/main-scene-load.mjs). The table has 165 entries: it ends where
 // the stream 8B:FBD2 begins, entry 165 is no ROM pointer, and all 165
 // records unpack. All records are streams of format scene here; the table is
 // written from the addresses in assets/vm-scenes.json (scene n = entry n).

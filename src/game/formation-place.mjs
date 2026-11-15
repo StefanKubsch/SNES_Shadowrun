@@ -26,7 +26,7 @@ import {
   OBJECT_X,
   OBJECT_Y,
   WRAM,
-} from '../task/wram.mjs';
+} from '../data/wram.mjs';
 import { BYTE_BITS, BYTE_MASK, LONG_MASK, WORD_MASK, WORD_SIGN } from '../constants/bits.mjs';
 
 // The members' steps behind the newest trail entry (80:BB88, a word per member index).

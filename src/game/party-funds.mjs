@@ -10,9 +10,9 @@
 // counts. The learned spells are words at 7E:3C1C ended by 0; a new spell goes to the end
 // (the new end marker first) unless the list holds it. A list without an end in all
 // 32768 words would keep the original scanning forever; it stops the task instead.
-import { taskStop } from '../task/plan.mjs';
+import { taskStop } from '../system/task-stop.mjs';
 import { dataBankWord } from '../system/data-bank.mjs';
-import { KARMA, MAGIC_POINTS, MEMBER_INDEX, NUYEN, SPELL_LIST, WRAM } from '../task/wram.mjs';
+import { KARMA, MAGIC_POINTS, MEMBER_INDEX, NUYEN, SPELL_LIST, WRAM } from '../data/wram.mjs';
 import { BYTE_MASK, LONG_MASK, WORD_MASK } from '../constants/bits.mjs';
 
 const NUYEN_LOW = WRAM + NUYEN,

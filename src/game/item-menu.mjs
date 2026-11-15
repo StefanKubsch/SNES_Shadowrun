@@ -19,7 +19,7 @@
 // the portrait is redrawn if the script asks for it (81:AEB0, 80:E4B3), a key awaited
 // while a notice window is open (80:F953, 80:FF79) and the equipment rows redrawn
 // (80:E9C5). The callees run through their frames from the routine table.
-import { nativeCallSequence } from '../task/native-call-continuation.mjs';
+import { nativeCallSequence } from '../system/native-call-continuation.mjs';
 import { dataBankWord, setDataBankWord } from '../system/data-bank.mjs';
 import {
   DP_ITEM_FLAGS,
@@ -27,8 +27,8 @@ import {
   DP_ITEM_RECORD,
   ITEM_COUNT_COLUMNS,
   ITEM_WINDOW,
-} from '../task/native-status-screen.mjs';
-import { DP_SCRATCH } from '../task/native-member-spell-menu.mjs';
+} from '../system/native-status-screen.mjs';
+import { DP_SCRATCH } from '../data/native-member-spell-menu.mjs';
 import {
   DIALOG_END,
   DP_LIST_TOKEN_BANK,
@@ -65,7 +65,7 @@ import {
   STATUS_ITEMS_AT_ONCE,
   STATUS_SUBMENU_WINDOW,
   STORY_STAGE,
-} from '../task/wram.mjs';
+} from '../data/wram.mjs';
 import {
   ACTOR_BYTES,
   ACTOR_DEPTH_FLAGS,

@@ -19,14 +19,14 @@ export const native855ESpec = {
   ],
   externalReturns: [
     [0x80fec1, 'RTS', 'notice window, showNotice in proof/replay/native-notice.mjs'],
-    [0x80faac, 'RTS', 'cursor, setTextCursor in src/task/native-list-prerequisites.mjs'],
-    [0x80fd80, 'RTS', 'decimal number, printNumber in src/task/native-list-prerequisites.mjs'],
-    [0x80fe69, 'RTS', 'text, printText in src/task/native-text-compose.mjs'],
-    [0x80c46e, 'RTS', 'sound, playSoundEffect in src/task/native-audio-compose.mjs'],
+    [0x80faac, 'RTS', 'cursor, setTextCursor in src/system/native-list-prerequisites.mjs'],
+    [0x80fd80, 'RTS', 'decimal number, printNumber in src/system/native-list-prerequisites.mjs'],
+    [0x80fe69, 'RTS', 'text, printText in src/system/native-text-compose.mjs'],
+    [0x80c46e, 'RTS', 'sound, playSoundEffect in src/system/native-audio-compose.mjs'],
     [
       0x81ef47,
       'RTL',
-      'music mode change, setMusicMode in src/task/native-audio-compose.mjs (analysis/render-ef47.json)',
+      'music mode change, setMusicMode in src/system/native-audio-compose.mjs (analysis/render-ef47.json)',
     ],
   ],
   scope:

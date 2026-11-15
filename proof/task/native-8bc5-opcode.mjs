@@ -1,11 +1,11 @@
-import { taskStop } from '../../src/task/plan.mjs';
+import { taskStop } from '../../src/system/task-stop.mjs';
 import { prepareTaskPlan } from './plan.mjs';
 import { runTaskOpcodeTarget } from './opcode-target.mjs';
 import { runTaskNativeArguments } from './native-arguments.mjs';
 import { runTaskNativeBridge } from './native-bridge.mjs';
 import { runTaskNativeResume } from './native-resume.mjs';
 import { chooseEnemyTarget } from '../game-reference/enemy-target-choice.mjs';
-import { taskRandomDevices } from '../../src/task/native-random.mjs';
+import { taskRandomDevices } from '../../src/system/native-random.mjs';
 import { lineOfSightDevices } from '../replay/line-of-sight.mjs';
 // Devices of 8BC5: the PPU counters of C51F and the arithmetic unit of 81:A25F.
 export const native8BC5Devices = Object.freeze(

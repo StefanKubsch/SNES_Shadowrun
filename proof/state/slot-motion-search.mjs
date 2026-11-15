@@ -1,5 +1,5 @@
 import { WORD_SIGN } from '../../src/constants/bits.mjs';
-import { OBJECT_CLASS_MASK } from '../../src/task/wram.mjs';
+import { OBJECT_CLASS_MASK } from '../../src/data/wram.mjs';
 
 // Bits 6..9 of X become the low cell-index word bits after the source shift.
 export const CELL_X_INDEX_SHIFT = 5;

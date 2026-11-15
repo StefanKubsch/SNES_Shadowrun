@@ -58,7 +58,7 @@ the existing port extension keeps its two-byte read-ahead padding.
 ## Huffman characters, buffers and windows
 
 The decoded buffer begins at WRAM `7E:21A0`; the next window workspace
-begins at `7E:23A0` ([wram.mjs](../src/task/wram.mjs)). Each edit may contain
+begins at `7E:23A0` ([wram.mjs](../src/data/wram.mjs)). Each edit may contain
 at most **511 encoded characters**, leaving one byte for the terminating
 zero. This is a storage limit for Huffman edits, not a promise that a window can show 511
 characters at once.

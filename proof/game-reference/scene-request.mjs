@@ -13,7 +13,7 @@ import {
   NATIVE_CALL_CONTINUATIONS,
   drainNativeSequence,
   nativeCallSequence,
-} from '../../src/task/native-call-continuation.mjs';
+} from '../../src/system/native-call-continuation.mjs';
 import {
   DECKER_HEALTH,
   DECKER_RECORD,
@@ -22,7 +22,7 @@ import {
   SCENE_REQUEST,
   SCENE_REQUEST_ARGUMENT,
   WRAM,
-} from '../../src/task/wram.mjs';
+} from '../../src/data/wram.mjs';
 import { WORD_MASK } from '../../src/constants/bits.mjs';
 import { FLAG_CARRY, FLAG_MEMORY_8BIT, FLAG_ZERO } from '../../src/constants/cpu-flags.mjs';
 

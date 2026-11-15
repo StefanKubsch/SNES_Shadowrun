@@ -1,5 +1,5 @@
 // The dialog's texts (lifted from 80:9178 with the topic add 80:908C; register-level
-// versions in src/task/native-dialog-text.mjs stay the reference).
+// versions in src/system/native-dialog-text.mjs stay the reference).
 //
 // A text key comes in A: FFFF the greeting, FFFE the talk text, otherwise a topic
 // number. The dialog's text window (the direct page word 14) is cleared (80:FA67) and
@@ -24,7 +24,7 @@
 // swaps the bytes. It pushes the flag byte around the topic add, and its status and Y
 // around the text (PLP restores the status with the carry of the action bit, which the
 // routine leaves); the topic add's own frame is pushed and pulled as the original.
-import { dialogCallBody, segmentSequence } from '../task/native-call-continuation.mjs';
+import { dialogCallBody, segmentSequence } from '../system/native-call-continuation.mjs';
 import { requestTileClearSequence } from './window-open.mjs';
 import { setTextCursorRoutine } from './window-text.mjs';
 import { printTextSequence } from './text-print.mjs';
@@ -32,8 +32,8 @@ import {
   dialogTopicSequence,
   isStandardTextRoutines,
   textBodies,
-} from '../task/native-dialog-text.mjs';
-import { TOPIC_FLAGS, TOPIC_LIST } from '../task/wram.mjs';
+} from '../system/native-dialog-text.mjs';
+import { TOPIC_FLAGS, TOPIC_LIST } from '../data/wram.mjs';
 import {
   BYTE_BITS,
   BYTE_MASK,

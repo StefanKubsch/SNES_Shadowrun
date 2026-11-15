@@ -1,5 +1,5 @@
 import { WORD_MASK } from '../../src/constants/bits.mjs';
-import { OBJECT_LAST_SLOT, CELL_COORDINATE_MASK } from '../../src/task/wram.mjs';
+import { OBJECT_LAST_SLOT, CELL_COORDINATE_MASK } from '../../src/data/wram.mjs';
 import { isWord } from '../script/runtime.mjs';
 import { isSlotMotionData } from './slot-motion-data.mjs';
 import { prepareMotionRecordSearch, CELL_X_INDEX_SHIFT } from './slot-motion-search.mjs';

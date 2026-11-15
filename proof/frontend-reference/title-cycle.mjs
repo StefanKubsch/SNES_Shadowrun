@@ -14,7 +14,7 @@ import {
   NATIVE_CALL_CONTINUATIONS,
   dialogCallBody,
   drainNativeSequence,
-} from '../../src/task/native-call-continuation.mjs';
+} from '../../src/system/native-call-continuation.mjs';
 import {
   FRONTEND_ROUTINES,
   attractRoundsSequence,
@@ -22,7 +22,7 @@ import {
 } from '../replay/main-frontend.mjs';
 import { INTRO_SETUP_REFERENCE_ENTRIES } from '../intro-reference/intro-routines.mjs';
 import { GAME_OWNER_REFERENCE_ENTRIES, runMenuGameMarker } from './game-owner.mjs';
-import { taskStop } from '../../src/task/plan.mjs';
+import { taskStop } from '../../src/system/task-stop.mjs';
 import { FLAG_ZERO } from '../../src/constants/cpu-flags.mjs';
 import { CODE_BANK_PAIR } from '../../src/constants/memory-map.mjs';
 

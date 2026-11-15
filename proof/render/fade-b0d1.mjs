@@ -13,7 +13,7 @@ import {
   INT8_MAX,
 } from '../../src/constants/bits.mjs';
 import { FLAG_NEGATIVE, FLAG_ZERO, FLAG_CARRY } from '../../src/constants/cpu-flags.mjs';
-import { BRIGHTNESS_FADE, BRIGHTNESS_FADE_FRAMES, INIDISP_SHADOW } from '../../src/task/wram.mjs';
+import { BRIGHTNESS_FADE, BRIGHTNESS_FADE_FRAMES, INIDISP_SHADOW } from '../../src/data/wram.mjs';
 
 const DEFAULT_MAX_WORK = 1000000;
 const FADE_STACK_BYTES = 3;

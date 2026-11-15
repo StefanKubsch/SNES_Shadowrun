@@ -9,7 +9,7 @@ import {
   RDVRAMH,
 } from '../../src/constants/hardware-registers.mjs';
 import { INIDISP_FORCED_BLANK } from '../../src/constants/ppu.mjs';
-import { WRAM, TEXT_MASK_BUFFER } from '../../src/task/wram.mjs';
+import { WRAM, TEXT_MASK_BUFFER } from '../../src/data/wram.mjs';
 // Cold native execution with original *input* observations, through two
 // explicitly observed first-room frame boundaries. No CPU decoder or image
 // seed. This bounded replay does not provide a PAL clock. After the complete
@@ -21,8 +21,8 @@ import { NativeCalls } from '../vm/native-call.mjs';
 import { ObservedDevices } from '../vm/observed-devices.mjs';
 import { MainLoopDriver, STOP_MAIN_WAIT, STOP_MAIN_OWNER_RETURN } from '../vm/main-driver.mjs';
 import { STOP_RETURNED, STOP_BUDGET, STOP_NATIVE_WAIT } from '../vm/scheduler.mjs';
-import { nativeOpcodeTargets } from '../../src/task/native-opcode-targets.mjs';
-import { nativeTarget } from '../../src/task/native-targets.mjs';
+import { nativeOpcodeTargets } from '../../src/data/native-opcode-targets.mjs';
+import { nativeTarget } from '../../src/script/native-targets.mjs';
 import { MAIN_STARTUP_ROUTINES as STARTUP_ROUTINES } from '../replay/main-startup.mjs';
 import { withFrontendReference } from '../frontend-reference/frontend.mjs';
 

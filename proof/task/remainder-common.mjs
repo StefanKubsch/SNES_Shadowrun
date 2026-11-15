@@ -1,4 +1,4 @@
-import { taskStop } from '../../src/task/plan.mjs';
+import { taskStop } from '../../src/system/task-stop.mjs';
 
 // Original F6B2 modifies the saved Y WORD, not a mathematical modulo.
 // Access budgets bound a plan attempt; they do not alter the ROM's loop.

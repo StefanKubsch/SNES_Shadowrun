@@ -17,7 +17,7 @@ export const nativeD079Spec = {
     },
   ],
   externalReturns: [
-    [0x81ad92, 'RTL', 'window list, drawWindowList in src/task/native-render-compose.mjs'],
+    [0x81ad92, 'RTL', 'window list, drawWindowList in src/system/native-render-compose.mjs'],
   ],
   scope:
     'Original Native20 D079 own code with the helper D08A and an external return into 81:AD92; equations in proof/replay/native-runners-restore.mjs, differential check in tools/task-native-d079.test.mjs.',

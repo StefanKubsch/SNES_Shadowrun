@@ -1,8 +1,8 @@
 // Register-level reference of the script native 80:E30F (entering the Matrix), moved from
-// src/task/native-matrix-enter.mjs; lifted in src/game/matrix-enter.mjs. The proof plan,
+// src/script/native-matrix-enter.mjs; lifted in src/game/matrix-enter.mjs. The proof plan,
 // the Native58 dispatch of proof/task/native-dispatch.mjs and the instruction tests run
 // it; the game runs the lifted native.
-import { leaf } from '../../src/task/native-leaf-support.mjs';
+import { leaf } from '../../src/system/native-leaf-support.mjs';
 import {
   DECKER_COMPUTER_SKILL,
   DECKER_HEALTH,
@@ -19,7 +19,7 @@ import {
   SCENE_REQUEST,
   SCENE_REQUEST_MATRIX,
   WRAM,
-} from '../../src/task/wram.mjs';
+} from '../../src/data/wram.mjs';
 import {
   RECORD_COMPUTER,
   RUNNER_LAST_INDEX,

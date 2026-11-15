@@ -7,7 +7,7 @@
 // and the state count maximum in byte 5; the magic points of runner row n are the byte
 // 7E:3C96 + n, ten times the magic attribute when full. An object's state count is the
 // count byte of its object record.
-import { taskStop } from '../task/plan.mjs';
+import { taskStop } from '../system/task-stop.mjs';
 import { dataBankWord } from '../system/data-bank.mjs';
 import { pointerWord } from '../system/open-bus.mjs';
 import {
@@ -18,7 +18,7 @@ import {
   OBJECT_RECORD,
   PLAYER_OBJECT,
   RECORD_COUNT,
-} from '../task/wram.mjs';
+} from '../data/wram.mjs';
 import {
   RECORD_COUNT_MAX,
   RECORD_MAGIC,

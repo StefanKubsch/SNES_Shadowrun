@@ -11,10 +11,10 @@ import {
   hasFightTargetReference,
   isInFightListReference,
 } from '../proof/game-reference/fight-list-queries.mjs';
-import { isInFightList } from '../src/task/native-fight-list-contains.mjs';
-import { hasFightTarget } from '../src/task/native-fight-list-any-active.mjs';
-import { getPreviousFightObject } from '../src/task/native-fight-list-previous.mjs';
-import { FIGHT_LIST, FIGHT_LIST_INDEX } from '../src/task/wram.mjs';
+import { isInFightList } from '../src/script/native-fight-list-contains.mjs';
+import { hasFightTarget } from '../src/script/native-fight-list-any-active.mjs';
+import { getPreviousFightObject } from '../src/script/native-fight-list-previous.mjs';
+import { FIGHT_LIST, FIGHT_LIST_INDEX } from '../src/data/wram.mjs';
 
 const WRAM_BYTES = 0x20000,
   HEX = 16,

@@ -1,10 +1,10 @@
 // Register-level reference of the formation native 80:BB2C (moved from
-// src/task/native-formation-place.mjs; lifted in src/game/formation-place.mjs). The proof
+// src/script/native-formation-place.mjs; lifted in src/game/formation-place.mjs). The proof
 // plan, the Native58 dispatch of proof/task/native-dispatch.mjs and the instruction tests
 // run it; the game runs the lifted native.
-import { taskStop } from '../../src/task/plan.mjs';
-import { leaf } from '../../src/task/native-leaf-support.mjs';
-import { selectAnimationRegisters, turnRegisters } from '../../src/task/native-object-turn.mjs';
+import { taskStop } from '../../src/system/task-stop.mjs';
+import { leaf } from '../../src/system/native-leaf-support.mjs';
+import { selectAnimationRegisters, turnRegisters } from '../../src/script/native-object-turn.mjs';
 import {
   GROUP_INDEX,
   GROUP_NUMBERS,
@@ -20,7 +20,7 @@ import {
   OBJECT_X,
   OBJECT_Y,
   WRAM,
-} from '../../src/task/wram.mjs';
+} from '../../src/data/wram.mjs';
 import { FLAG_CARRY, FLAG_ZERO, FLAG_NEGATIVE } from '../../src/constants/cpu-flags.mjs';
 import { WORD_MASK, BANK_WRAP } from '../../src/constants/bits.mjs';
 const FORMATION_MEMBER_STEPS = 0xbb88;

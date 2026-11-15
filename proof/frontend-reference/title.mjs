@@ -14,18 +14,18 @@ import {
   DP_FADE_SHIFT,
   frontendCallSequence,
 } from './start-menu-text.mjs';
-import { interruptStep, lagFree } from '../../src/task/main-wait-interrupt.mjs';
+import { interruptStep, lagFree } from '../../src/system/main-wait-interrupt.mjs';
 import {
   NativeCallContinuation,
   NATIVE_CALL_CONTINUATIONS,
   drainNativeSequence,
   nativeCallSequence,
   nativeTailSequence,
-} from '../../src/task/native-call-continuation.mjs';
-import { routineCaller } from '../../src/task/routine-call.mjs';
+} from '../../src/system/native-call-continuation.mjs';
+import { routineCaller } from '../../src/system/routine-call.mjs';
 import { INTRO_NEAR_Y_BIAS, INTRO_START_ANIMATION } from '../intro-reference/intro-setup.mjs';
 import { INTRO_SETUP_REFERENCE_ENTRIES } from '../intro-reference/intro-routines.mjs';
-import { INTRO_NMI_ROUTINES } from '../../src/task/main-intro-nmi.mjs';
+import { INTRO_NMI_ROUTINES } from '../../src/system/main-intro-nmi.mjs';
 
 import { FRONTEND_NMI_ROUTINES } from '../replay/main-frontend-nmi.mjs';
 import {
@@ -58,7 +58,7 @@ import {
   PROLOGUE_TILEMAP_BYTES,
   TITLE_PALETTE,
   VRAM_SLOT_COUNT,
-} from '../../src/task/wram.mjs';
+} from '../../src/data/wram.mjs';
 import { BYTE_BITS, BYTE_MASK, WORD_BITS, WORD_MASK } from '../../src/constants/bits.mjs';
 import {
   FLAG_ZERO,

@@ -1,4 +1,4 @@
-import { taskStop } from '../../src/task/plan.mjs';
+import { taskStop } from '../../src/system/task-stop.mjs';
 import { prepareTaskPlan } from './plan.mjs';
 export function runTaskUpdates(a) {
   const duplicate = a.entry === 0x80f3f0,

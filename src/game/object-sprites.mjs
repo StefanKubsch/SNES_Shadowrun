@@ -29,7 +29,7 @@
 // Y (the caller pulls it) are not produced. The fields the original reads through its
 // data bank 80 lie below 2000 (`object_slot_required` past it), the walls in bank 7F, the
 // pictures in 9B and 9C.
-import { taskStop } from '../task/plan.mjs';
+import { taskStop } from '../system/task-stop.mjs';
 import { paletteSlot } from './palette-slots.mjs';
 import {
   CAMERA_X,
@@ -62,7 +62,7 @@ import {
   WALL_TILES,
   WALL_WORD_CELLS,
   WRAM,
-} from '../task/wram.mjs';
+} from '../data/wram.mjs';
 import {
   OAM_ENTRY_BYTES,
   OAM_FLIP_MASK,

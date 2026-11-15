@@ -1,15 +1,15 @@
 // Register-level references of the runner state natives 80:CECB, 80:CF2E and 80:D079
 // with 80:D08A (moved from proof/replay/native-state-count-raise.mjs,
-// src/task/native-magic-points-raise.mjs and proof/replay/native-runners-restore.mjs; lifted in src/game/runner-state.mjs). The
+// src/script/native-magic-points-raise.mjs and proof/replay/native-runners-restore.mjs; lifted in src/game/runner-state.mjs). The
 // references run the natives' sequences with these bodies, so the window list call and
 // its frame stay the same on both sides.
-import { drainNativeSequence } from '../../src/task/native-call-continuation.mjs';
+import { drainNativeSequence } from '../../src/system/native-call-continuation.mjs';
 import { cecbSequence } from '../replay/native-state-count-raise.mjs';
 import { d079Sequence } from '../replay/native-runners-restore.mjs';
-import { FIRST_ARGUMENT, SECOND_ARGUMENT } from '../../src/task/native-leaf-support.mjs';
-import { taskStop } from '../../src/task/plan.mjs';
-import { leaf } from '../../src/task/native-leaf-support.mjs';
-import { taskSelectionSupport } from '../../src/task/native-object-turn.mjs';
+import { FIRST_ARGUMENT, SECOND_ARGUMENT } from '../../src/system/native-leaf-support.mjs';
+import { taskStop } from '../../src/system/task-stop.mjs';
+import { leaf } from '../../src/system/native-leaf-support.mjs';
+import { taskSelectionSupport } from '../../src/script/native-object-turn.mjs';
 import {
   DP_REFILL_DOUBLE_MAGIC,
   DP_RESOURCE_DOUBLE_MAGIC,
@@ -24,7 +24,7 @@ import {
   PLAYER_OBJECT,
   RECORD_COUNT,
   WRAM,
-} from '../../src/task/wram.mjs';
+} from '../../src/data/wram.mjs';
 import { BANK_WRAP, BYTE_MASK, LONG_MASK, WORD_MASK } from '../../src/constants/bits.mjs';
 import {
   FLAG_CARRY,

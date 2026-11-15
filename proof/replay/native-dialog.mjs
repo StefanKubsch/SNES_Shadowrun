@@ -1,8 +1,8 @@
 import { withInterruptEvents } from './observed-native-events.mjs';
-import { lagFree } from '../../src/task/main-wait-interrupt.mjs';
+import { lagFree } from '../../src/system/main-wait-interrupt.mjs';
 import { fixesEnabled, preparePushkinTopics } from '../../src/game/bugfixes.mjs';
-import { taskStop } from '../../src/task/plan.mjs';
-import { dialogAccess } from '../../src/task/native-dialog-support.mjs';
+import { taskStop } from '../../src/system/task-stop.mjs';
+import { dialogAccess } from '../../src/system/native-dialog-support.mjs';
 import {
   clearFixedColour,
   setWindowTextWidth,
@@ -19,7 +19,7 @@ import {
   PORTRAIT_RECORD_BANK_BYTE,
   PORTRAIT_BUFFER,
   DP_PIXEL_WIDTH,
-} from '../../src/task/native-dialog-portrait.mjs';
+} from '../../src/system/native-dialog-portrait.mjs';
 import {
   dialogTextRoutines,
   showDialogText,
@@ -28,27 +28,27 @@ import {
   showDialogTextSequence,
   chooseDialogActionSequence,
   chooseDialogTopicSequence,
-} from '../../src/task/native-dialog-text.mjs';
+} from '../../src/system/native-dialog-text.mjs';
 import {
   NativeCallContinuation,
   observedContinuation,
   drainNativeSequence,
   dialogCallSequence,
   dialogCallBody,
-} from '../../src/task/native-call-continuation.mjs';
+} from '../../src/system/native-call-continuation.mjs';
 import { NATIVE_CALL_CONTINUATIONS } from './continuations.mjs';
-import { reloadObjectTiles } from '../../src/task/native-scene-tiles.mjs';
+import { reloadObjectTiles } from '../../src/system/native-scene-tiles.mjs';
 import { buildSpriteList } from './native-scene-sprites.mjs';
-import { waitForRandomStateChange } from '../../src/task/native-frame-wait.mjs';
+import { waitForRandomStateChange } from '../../src/system/native-frame-wait.mjs';
 import { releaseNoticeWindowsAdapter } from './native-slot-release.mjs';
-import { openWindowAdapter } from '../../src/task/native-window-open.mjs';
+import { openWindowAdapter } from '../../src/script/native-window-open.mjs';
 import { runReleaseWindowCall } from '../../src/game/window-release.mjs';
-import { setMusicMode } from '../../src/task/native-audio-compose.mjs';
-import { readInput } from '../../src/task/native-input-apu.mjs';
+import { setMusicMode } from '../../src/system/native-audio-compose.mjs';
+import { readInput } from '../../src/system/native-input-apu.mjs';
 import {
   waitForRandomStateChangeWithInterrupts,
   readInputWithInterrupts,
-} from '../../src/task/main-wait-interrupt.mjs';
+} from '../../src/system/main-wait-interrupt.mjs';
 
 import {
   DIALOG_END,
@@ -66,7 +66,7 @@ import {
   OPTION_MUSIC,
   PALETTE_UPLOAD_LIST_BYTES,
   JAKE_ALTERNATE_PORTRAIT,
-} from '../../src/task/wram.mjs';
+} from '../../src/data/wram.mjs';
 import {
   BYTE_MASK,
   BANK_WRAP,

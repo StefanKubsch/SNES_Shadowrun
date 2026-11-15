@@ -17,7 +17,7 @@ import {
   MENU_ROW,
   MENU_REPEAT_COUNTER,
   PAD_HELD,
-} from '../../src/task/wram.mjs';
+} from '../../src/data/wram.mjs';
 import { isWord } from '../script/runtime.mjs';
 import { prepareRenderView } from '../../src/render/data.mjs';
 import { renderEntryBoundary } from './unpack-9f49.mjs';

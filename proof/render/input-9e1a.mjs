@@ -9,7 +9,7 @@ import {
   PAD_SELECT,
   PAD_L,
   PAD_R,
-} from '../../src/task/wram.mjs';
+} from '../../src/data/wram.mjs';
 import { isWord } from '../script/runtime.mjs';
 import { prepareRenderView } from '../../src/render/data.mjs';
 import { renderEntryBoundary } from './unpack-9f49.mjs';

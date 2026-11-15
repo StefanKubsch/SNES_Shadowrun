@@ -20,19 +20,19 @@ import {
   moveObjectToWaypointReference,
   placeObjectOnWaypointReference,
 } from '../proof/game-reference/motion-targets.mjs';
-import { moveObjectStraightToObject } from '../src/task/native-motion-object-follow.mjs';
-import { moveObjectToObject } from '../src/task/native-motion-object-move.mjs';
-import { moveObjectStraightToPlayer } from '../src/task/native-motion-player-follow.mjs';
-import { moveObjectToPlayer } from '../src/task/native-motion-player-move.mjs';
-import { moveObjectStraightToPoint } from '../src/task/native-motion-point-follow.mjs';
-import { moveObjectToPoint } from '../src/task/native-motion-point-move.mjs';
-import { stopMotion } from '../src/task/native-motion-stop.mjs';
+import { moveObjectStraightToObject } from '../src/script/native-motion-object-follow.mjs';
+import { moveObjectToObject } from '../src/script/native-motion-object-move.mjs';
+import { moveObjectStraightToPlayer } from '../src/script/native-motion-player-follow.mjs';
+import { moveObjectToPlayer } from '../src/script/native-motion-player-move.mjs';
+import { moveObjectStraightToPoint } from '../src/script/native-motion-point-follow.mjs';
+import { moveObjectToPoint } from '../src/script/native-motion-point-move.mjs';
+import { stopMotion } from '../src/script/native-motion-stop.mjs';
 import {
   moveObjectStraightToWaypoint,
   moveObjectToWaypoint,
-} from '../src/task/native-motion-waypoint-move.mjs';
-import { placeObjectOnWaypoint } from '../src/task/native-object-to-waypoint.mjs';
-import { DP_POINT_LIST } from '../src/task/wram.mjs';
+} from '../src/script/native-motion-waypoint-move.mjs';
+import { placeObjectOnWaypoint } from '../src/script/native-object-to-waypoint.mjs';
+import { DP_POINT_LIST } from '../src/data/wram.mjs';
 
 const WRAM_BYTES = 0x20000,
   HEX = 16,

@@ -25,7 +25,7 @@
 // and rows 23 to 2C, cells 2F to 38, result 3B, slot 3E and box offset 68), and the
 // frames of the cell searches and their pushes are reproduced on the stack, as the
 // original leaves them below its own.
-import { taskStop } from '../task/plan.mjs';
+import { taskStop } from '../system/task-stop.mjs';
 import {
   CELL_COORDINATE_MASK,
   COLLISION_BOX_BOTTOM,
@@ -50,7 +50,7 @@ import {
   OBJECT_Y,
   PLAYER_OBJECT,
   STATIC_CELL_HEADS,
-} from '../task/wram.mjs';
+} from '../data/wram.mjs';
 import { BYTE_BITS, BYTE_MASK, WORD_MASK, WORD_SIGN } from '../constants/bits.mjs';
 import { WRAM_BANK_PAIR } from '../constants/memory-map.mjs';
 import { FLAG_CARRY, FLAG_NEGATIVE, FLAG_OVERFLOW, FLAG_ZERO } from '../constants/cpu-flags.mjs';

@@ -1,5 +1,5 @@
 // The dialog's portraits in video memory (lifted from 80:9F6D, 80:8F20, 80:9022, 80:905E
-// and 80:8FF5; register-level versions in src/task/native-dialog-portrait.mjs stay the
+// and 80:8FF5; register-level versions in src/system/native-dialog-portrait.mjs stay the
 // reference).
 //
 // A portrait's packed stream (the pointer in A, the bank word in Y) is unpacked into
@@ -35,11 +35,11 @@
 // recorded observations or interrupts are replayed as by the register-level job. It
 // leaves A the request word with its sign set and zero clear, X, Y, the carry and the
 // overflow unchanged, as the original.
-import { dialogCallSequence } from '../task/native-call-continuation.mjs';
+import { dialogCallSequence } from '../system/native-call-continuation.mjs';
 import { sceneRuntime } from '../system/scene-runtime.mjs';
 import { nmiAtBranch } from '../system/frame-wait.mjs';
-import { lagFree } from '../task/main-wait-interrupt.mjs';
-import { unpackPortrait, waitWord } from '../task/native-dialog-portrait.mjs';
+import { lagFree } from '../system/main-wait-interrupt.mjs';
+import { unpackPortrait, waitWord } from '../system/native-dialog-portrait.mjs';
 import { UNPACK_7F, unpackLongRegisters } from '../system/unpack.mjs';
 import {
   A1B0,
@@ -57,7 +57,7 @@ import {
   OAM_HIGH_TABLE,
   PORTRAIT_DMA_REQUEST,
   PORTRAIT_PALETTE_START,
-} from '../task/wram.mjs';
+} from '../data/wram.mjs';
 import {
   BYTE_BITS,
   BYTE_MASK,

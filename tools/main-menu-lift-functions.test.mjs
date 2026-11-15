@@ -1,6 +1,6 @@
 // Random per-function tests of the lifted main menu and save menu
 // (src/game/main-menu.mjs) against the register-level 80:CE6D and 80:CDD6
-// (src/task/native-main-menu.mjs). Both sides call the same stand-ins for the window
+// (src/system/native-main-menu.mjs). Both sides call the same stand-ins for the window
 // 80:F963, the text 80:FE69, the key wait 80:F953, the release 80:FA3E, the plain menu
 // 80:A6C7 (Exit, a cancel or a row), the sound effect 80:C46E and, for the main menu,
 // the save and karma menus. The save 81:B17D runs register-level on the reference side
@@ -13,8 +13,8 @@ import { prng } from './task-native-dialog-harness.mjs';
 import { calleeRecord, createSide, registerCases } from './lift-function-harness.mjs';
 import { cdd6Sequence, mainMenuRoutineSequence } from '../proof/replay/native-main-menu.mjs';
 import { mainMenuSequence, saveMenuSequence } from '../src/game/main-menu.mjs';
-import { TIMER } from '../src/task/wram.mjs';
-import { drainNativeSequence } from '../src/task/native-call-continuation.mjs';
+import { TIMER } from '../src/data/wram.mjs';
+import { drainNativeSequence } from '../src/system/native-call-continuation.mjs';
 
 const WRAM_BYTES = 0x20000,
   SRAM_BYTES = 0x2000,

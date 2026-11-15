@@ -24,7 +24,7 @@ export const native8BC5Spec = {
       'RTL',
       'line of sight, proof/replay/line-of-sight.mjs (tools/task-sight-a25f-source.mjs)',
     ],
-    [0x80c51f, 'RTS', 'random below DP00, src/task/native-random.mjs'],
+    [0x80c51f, 'RTS', 'random below DP00, src/system/native-random.mjs'],
   ],
   scope:
     'Original Native07 8BC5 own code with external returns into separately proved routines; equations in proof/game-reference/enemy-target-choice.mjs, differential check in tools/task-native-8bc5.test.mjs.',

@@ -9,9 +9,9 @@
 // byte 5) and the magic points and their maximum (ten times the record's magic byte).
 // After a key (80:F953) the window is released (80:FA3E). The callees run through their
 // frames from the routine table, each with its own callees.
-import { nativeCallSequence } from '../task/native-call-continuation.mjs';
+import { nativeCallSequence } from '../system/native-call-continuation.mjs';
 import { dataBankWord, setDataBankWord } from '../system/data-bank.mjs';
-import { TEXT_SLASH } from '../task/native-status-screen.mjs';
+import { TEXT_SLASH } from '../system/native-status-screen.mjs';
 import {
   DP_CURSOR_ROW,
   DP_MEMBER_RECORD,
@@ -30,7 +30,7 @@ import {
   MEMBER_STATE_COUNT,
   OBJECT_RECORD,
   STATUS_WINDOW,
-} from '../task/wram.mjs';
+} from '../data/wram.mjs';
 import {
   RECORD_COUNT_MAX,
   RECORD_MAGIC,

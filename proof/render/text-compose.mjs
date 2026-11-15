@@ -21,7 +21,7 @@ import {
   HUFFMAN_TEXT_END,
   TEXT_POINTER_BANK_SEED,
   HUFFMAN_CHARACTER_PAIR_MASK,
-} from '../../src/task/native-text-compose.mjs';
+} from '../../src/system/native-text-compose.mjs';
 import {
   TEXT_BUFFER,
   TEXT_SOURCE_BANK_WORD,
@@ -43,7 +43,7 @@ import {
   TEXT_GLYPH_BITS,
   TEXT_GLYPH_HIGH,
   WINDOW_STYLE,
-} from '../../src/task/wram.mjs';
+} from '../../src/data/wram.mjs';
 import {
   FLAG_MEMORY_8BIT,
   FLAG_OVERFLOW,

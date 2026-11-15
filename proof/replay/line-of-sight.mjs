@@ -1,4 +1,4 @@
-import { taskStop } from '../../src/task/plan.mjs';
+import { taskStop } from '../../src/system/task-stop.mjs';
 import {
   FLAG_CARRY,
   FLAG_DECIMAL,
@@ -33,7 +33,7 @@ import {
   OBJECT_HEIGHT,
   OBJECT_X,
   OBJECT_Y,
-} from '../../src/task/wram.mjs';
+} from '../../src/data/wram.mjs';
 
 // 81:A25F line of sight between object X (target) and object Y (viewer) through the map boxes
 // of the current cell list [$FC] (count byte, then 12-byte records from +1: x0, y0, unused word,

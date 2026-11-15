@@ -1,18 +1,18 @@
-import { runObservedNmi } from '../../src/task/observed-nmi.mjs';
-import { clearTextTiles } from '../../src/task/main-initialize.mjs';
+import { runObservedNmi } from '../../src/system/nmi-call.mjs';
+import { clearTextTiles } from '../../src/system/main-initialize.mjs';
 import { uploadMapEdgesAndScroll } from './main-transition.mjs';
-import { readJoypad } from '../../src/task/main-scene-wait.mjs';
-import { NativeWaitContinuation } from '../../src/task/native-wait-continuation.mjs';
-import { DP_PORTRAIT_BANK, DP_PORTRAIT_POINTER } from '../../src/task/native-dialog-portrait.mjs';
+import { readJoypad } from '../../src/system/main-scene-wait.mjs';
+import { NativeWaitContinuation } from '../../src/system/native-wait-continuation.mjs';
+import { DP_PORTRAIT_BANK, DP_PORTRAIT_POINTER } from '../../src/system/native-dialog-portrait.mjs';
 import {
   GLOVE_KIND_CROSSHAIR,
   GLOVE_KIND_SPELL,
-} from '../../src/task/native-glove-crosshair-limits.mjs';
+} from '../../src/script/native-glove-crosshair-limits.mjs';
 import {
   NativeCallContinuation,
   drainNativeSequence,
   nativeCallSequence,
-} from '../../src/task/native-call-continuation.mjs';
+} from '../../src/system/native-call-continuation.mjs';
 import { NATIVE_CALL_CONTINUATIONS } from './continuations.mjs';
 
 import {
@@ -47,7 +47,7 @@ import {
   VRAM_UPLOAD_BANKS,
   VRAM_UPLOAD_BYTES,
   VRAM_UPLOAD_SOURCES,
-} from '../../src/task/wram.mjs';
+} from '../../src/data/wram.mjs';
 import { CYCLE_TABLE } from '../../src/data/palette-cycles.mjs';
 import {
   INIDISP,

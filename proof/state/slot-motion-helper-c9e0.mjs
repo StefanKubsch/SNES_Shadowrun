@@ -1,6 +1,6 @@
 import { BYTE_MASK, BYTE_SIGN, WORD_MASK, WORD_SIGN } from '../../src/constants/bits.mjs';
 import { CODE_BANK } from '../../src/constants/memory-map.mjs';
-import { OBJECT_LAST_SLOT, OBJECT_BLOCKED } from '../../src/task/wram.mjs';
+import { OBJECT_LAST_SLOT, OBJECT_BLOCKED } from '../../src/data/wram.mjs';
 import { isWord } from '../script/runtime.mjs';
 import { isMotionTaskSource } from '../script/motion-task-plan.mjs';
 import { isSlotActionData } from './slot-action-data.mjs';

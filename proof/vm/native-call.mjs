@@ -8,8 +8,8 @@ import { TaskAccessor, vmToContext, contextToVm } from '../../src/vm/task-access
 import { interruptEventsOf, appendRoundInterrupts } from '../../src/vm/devices.mjs';
 import { nz, plb, bank80 } from './cpu.mjs';
 import { SPECIAL_NATIVES, SPECIAL_NATIVE_CONTINUATIONS } from './special-natives.mjs';
-import { WAIT_PAUSED, WAIT_RETURNED } from '../../src/task/native-wait-continuation.mjs';
-import { finishInterruptObservations } from '../../src/task/main-wait-interrupt.mjs';
+import { WAIT_PAUSED, WAIT_RETURNED } from '../../src/system/native-wait-continuation.mjs';
+import { finishInterruptObservations } from '../../src/system/main-wait-interrupt.mjs';
 import {
   NATIVE_DISPATCH,
   NATIVE_POINTERS,

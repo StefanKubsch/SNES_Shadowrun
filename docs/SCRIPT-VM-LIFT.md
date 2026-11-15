@@ -81,8 +81,9 @@ after the complete group, following AGENTS.md.
 6. **Replay mode to proof.** The drivers with recorded observations, the register-level
    special native forms and their tables move to `proof/`; the Mesen and cold boot
    replays run there.
-7. **Dissolve `src/task`.** Constants to `src/data`, `taskStop` and sequences to
-   `src/system`, the rest to `proof/`. Done when `src/task` is empty.
+7. **Dissolve `src/task`.** Constants to `src/data`, `taskStop` and shared execution
+   support to `src/system`, script native adapters to `src/script`, and reference-only
+   code to `proof/`. Done when `src/task` is empty.
 
 ## Phase 1 result (2026-11-14)
 
@@ -342,9 +343,29 @@ registerLevelLoop})`); the observed rooms and boot replays keep the driver direc
   differential, replay target coverage, rejection of recorded waits in the live
   adapter, continuation registration, and the production import boundary. The
   release check also selects the affected Mesen and cold boot comparisons.
-- Phase 7 remains: dissolve `src/task/`. Shared wait/NMI execution support, constants,
+- At the end of phase 6, phase 7 remained: dissolve `src/task/`. Shared wait/NMI execution support, constants,
   reset and caller adapters still live there; this phase does not rename or redesign
   those shared modules. Save data and the frame model are unchanged.
+
+## Phase 7 result (2026-11-15)
+
+- `src/task/` is removed. Its remaining 215 game modules are grouped by purpose:
+  constants in [src/data/](../src/data/), script native argument/result adapters and
+  their bindings in [src/script/](../src/script/), and shared caller, reset, wait, NMI,
+  text, unpacking and rendering support in [src/system/](../src/system/).
+  [task-stop.mjs](../src/system/task-stop.mjs) defines the common `taskStop` boundary;
+  [nmi-call.mjs](../src/system/nmi-call.mjs) retains the shared interrupt call frame.
+- The reference-only modules moved in phases 5 and 6 stay in `proof/`. Proof and game
+  consumers import the same shared constants and execution helpers directly, without
+  compatibility re-exports. Shared helpers retain the observation checks that their
+  register-level proof callers use; the live loop still supplies only lag-free frames.
+- Imports, source-contract paths, historical inventory bindings and documentation links
+  follow the new locations. The text-reference inventory names the actual reference
+  modules where the recorded text operands are implemented.
+- The lift comparison discovers caller tables in `src/system/`, `src/script/` and
+  `src/vm/` as well as the proof tables. The production boundary also rejects a return
+  of `src/task/`. Live/reference factory identity, save data and the frame model stay
+  unchanged.
 
 ## Open points
 

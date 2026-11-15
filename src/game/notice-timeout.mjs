@@ -27,7 +27,7 @@ import {
   NOTICE_FRAMES,
   NOTICE_WINDOW_LAST,
   NOTICE_WINDOWS,
-} from '../task/wram.mjs';
+} from '../data/wram.mjs';
 import { BYTE_BITS, BYTE_MASK, WORD_MASK, WORD_SIGN } from '../constants/bits.mjs';
 
 const NONE = WORD_MASK,

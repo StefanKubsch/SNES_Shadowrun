@@ -4,16 +4,16 @@
 // and the save checksum 81:B1AB of the save code. The start menu with its texts and
 // its NMI callback 81:E6AE is lifted (src/frontend/start-menu.mjs; register-level
 // reference in proof/frontend-reference/start-menu-text.mjs).
-import { taskStop } from '../../src/task/plan.mjs';
+import { taskStop } from '../../src/system/task-stop.mjs';
 import { MAIN_SCENE_ROUTINES } from './main-scene.mjs';
 import { compareSaveChecksum } from './native-main-menu.mjs';
 import {
   NativeCallContinuation,
   JSR_RETURN_OFFSET,
   JSL_RETURN_OFFSET,
-} from '../../src/task/native-call-continuation.mjs';
+} from '../../src/system/native-call-continuation.mjs';
 import { NATIVE_CALL_CONTINUATIONS } from './continuations.mjs';
-import { routineCaller } from '../../src/task/routine-call.mjs';
+import { routineCaller } from '../../src/system/routine-call.mjs';
 import { handleStartMenuNmi } from '../../src/frontend/start-menu.mjs';
 import {
   SETTINGS_CHECKSUM,
@@ -22,7 +22,7 @@ import {
   SETTINGS_MUSIC_FULL,
   SETTINGS_STEREO,
   SETTINGS_STEREO_ON,
-} from '../../src/task/wram.mjs';
+} from '../../src/data/wram.mjs';
 import {
   FLAG_CARRY,
   FLAG_INDEX_8BIT,

@@ -1,17 +1,17 @@
 // Register-level references of the fight list's script queries (moved from
-// src/task/native-fight-list-contains.mjs, native-fight-list-any-active.mjs and
+// src/script/native-fight-list-contains.mjs, native-fight-list-any-active.mjs and
 // native-fight-list-previous.mjs; lifted in src/game/fight-list.mjs). The proof plans,
 // the Native58 dispatch of proof/task/native-dispatch.mjs and the instruction tests of
 // 80:8656 and 80:8631 run these; the game runs the lifted natives.
-import { FIRST_ARGUMENT, leaf } from '../../src/task/native-leaf-support.mjs';
-import { taskSelectionSupport } from '../../src/task/native-object-turn.mjs';
+import { FIRST_ARGUMENT, leaf } from '../../src/system/native-leaf-support.mjs';
+import { taskSelectionSupport } from '../../src/script/native-object-turn.mjs';
 import {
   FIGHT_LIST,
   FIGHT_LIST_INDEX,
   OBJECT_FLAGS,
   OBJECT_NO_TARGET,
   OBJECT_ON_SCREEN,
-} from '../../src/task/wram.mjs';
+} from '../../src/data/wram.mjs';
 import { BANK_WRAP, WORD_MASK } from '../../src/constants/bits.mjs';
 import { FLAG_NEGATIVE, FLAG_ZERO } from '../../src/constants/cpu-flags.mjs';
 

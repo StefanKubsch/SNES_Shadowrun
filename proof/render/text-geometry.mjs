@@ -19,7 +19,7 @@ import {
   WINDOW_LEFT_PIXEL,
   WINDOW_ROWS,
   WINDOW_TILE_INITIAL,
-} from '../../src/task/wram.mjs';
+} from '../../src/data/wram.mjs';
 import { FLAG_NEGATIVE, FLAG_ZERO, FLAG_CARRY } from '../../src/constants/cpu-flags.mjs';
 
 const DEFAULT_MAX_WORK = 1000000;

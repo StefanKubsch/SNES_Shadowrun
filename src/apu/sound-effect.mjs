@@ -1,5 +1,5 @@
 // Sound effects (lifted from 80:C46E with its stereo levels 80:C416; register-level
-// versions in src/task/native-audio-compose.mjs and native-input-apu.mjs, references
+// versions in src/system/native-audio-compose.mjs and native-input-apu.mjs, references
 // in proof/apu-reference/audio-routines.mjs).
 //
 // A sound effect names a sound word in the table 80:C4B3 (src/data/tables.mjs,
@@ -10,7 +10,7 @@
 import { sendApuCommand } from './apu-command.mjs';
 import { loadSampleSet } from './music-mode.mjs';
 import { accessorPort } from '../system/hardware-port.mjs';
-import { taskStop } from '../task/plan.mjs';
+import { taskStop } from '../system/task-stop.mjs';
 import {
   APU_COMMAND_TOKEN,
   CAMERA_X,
@@ -18,7 +18,7 @@ import {
   OBJECT_Y,
   SOUND_LOADED_SET,
   SOUND_VOICE_MASK,
-} from '../task/wram.mjs';
+} from '../data/wram.mjs';
 import {
   APU_COMMAND_SOUND,
   APU_COMMAND_SOUND_LEVEL,

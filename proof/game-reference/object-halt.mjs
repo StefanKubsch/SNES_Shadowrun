@@ -1,11 +1,11 @@
 // Register-level references of the script natives 80:8E96 and 80:8EB8 (an object and its
-// task halted or resumed), moved from src/task/native-object-halt-set.mjs; lifted in
+// task halted or resumed), moved from src/script/native-object-halt-set.mjs; lifted in
 // src/game/object-halt.mjs. The proof plans, the Native58 dispatch of
 // proof/task/native-dispatch.mjs and the instruction tests run these; the game runs the
 // lifted natives.
-import { taskStop } from '../../src/task/plan.mjs';
-import { FIRST_ARGUMENT, leaf } from '../../src/task/native-leaf-support.mjs';
-import { OBJECT_FLAGS, OBJECT_HALTED, OBJECT_TASK } from '../../src/task/wram.mjs';
+import { taskStop } from '../../src/system/task-stop.mjs';
+import { FIRST_ARGUMENT, leaf } from '../../src/system/native-leaf-support.mjs';
+import { OBJECT_FLAGS, OBJECT_HALTED, OBJECT_TASK } from '../../src/data/wram.mjs';
 import { TASK_PREVIOUS, TASK_WAIT } from '../../src/vm/layout.mjs';
 import { BANK_SIZE, WORD_MASK } from '../../src/constants/bits.mjs';
 import { FLAG_NEGATIVE } from '../../src/constants/cpu-flags.mjs';

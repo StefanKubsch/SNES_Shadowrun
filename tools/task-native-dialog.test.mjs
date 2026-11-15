@@ -11,8 +11,8 @@ import {
   openPortraitWindow,
   closePortraitWindow,
   putGloveAway,
-} from '../src/task/native-dialog-portrait.mjs';
-import { waitForRandomStateChange } from '../src/task/native-frame-wait.mjs';
+} from '../src/system/native-dialog-portrait.mjs';
+import { waitForRandomStateChange } from '../src/system/native-frame-wait.mjs';
 
 // Window and portrait routines for dialog $936C against the original instructions. Each routine has its own
 // scenarios; every instruction in its windows must be reached.
@@ -242,7 +242,7 @@ import {
   chooseDialogAction,
   chooseDialogTopic,
   dialogTopic,
-} from '../src/task/native-dialog-text.mjs';
+} from '../src/system/native-dialog-text.mjs';
 const TEXT_TARGETS = {
   request: 0x80fa67,
   cursor: 0x80faac,
@@ -367,7 +367,7 @@ check(
 
 // Scene object tiles (ADF4/AE12/AC2F). Animation streams are in WRAM (bank 8C, offset < 2000),
 // Bildzeiger zeigen auf ROM-Stellen in 9B/9C mit kleiner Kachelzahl, damit alle Pfade erreichbar sind.
-import { reloadObjectTiles } from '../src/task/native-scene-tiles.mjs';
+import { reloadObjectTiles } from '../src/system/native-scene-tiles.mjs';
 import { DIALOG_WINDOWS } from './task-native-936c-windows.mjs';
 const smallFrames = (() => {
   const list = [];

@@ -1,12 +1,12 @@
 // The routine table of the start of a game and the main driver's entry into the
 // main start 80:9688 (lifted in src/game/game-start.mjs; the register-level
 // reference is proof/game-reference/game-start.mjs).
-import { taskStop } from '../../src/task/plan.mjs';
-import { dialogAccess } from '../../src/task/native-dialog-support.mjs';
-import { unpackStream } from '../../src/task/native-unpack.mjs';
-import { MAIN_INITIALIZE_ROUTINES } from '../../src/task/main-initialize.mjs';
+import { taskStop } from '../../src/system/task-stop.mjs';
+import { dialogAccess } from '../../src/system/native-dialog-support.mjs';
+import { unpackStream } from '../../src/system/native-unpack.mjs';
+import { MAIN_INITIALIZE_ROUTINES } from '../../src/system/main-initialize.mjs';
 import { TRANSITION_ROUTINES } from './main-transition.mjs';
-import { NativeCallContinuation } from '../../src/task/native-call-continuation.mjs';
+import { NativeCallContinuation } from '../../src/system/native-call-continuation.mjs';
 import { NATIVE_CALL_CONTINUATIONS } from './continuations.mjs';
 import {
   GAME_START,

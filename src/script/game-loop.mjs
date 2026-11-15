@@ -16,17 +16,17 @@
 // Lag-free frames (src/vm/frame-events.mjs) give the NMIs; the loop pauses where the
 // game waits for one. step(budget) runs up to `budget` work units (caller segments and
 // wait instructions); the state at each NMI does not depend on where steps end.
-import { taskStop } from '../task/plan.mjs';
+import { taskStop } from '../system/task-stop.mjs';
 import { TaskAccessor } from '../vm/task-accessor.mjs';
 import { Scheduler } from './scheduler.mjs';
 import { ScriptNatives, ROUND, nativeTarget } from './natives.mjs';
 import { JsTasks } from './task-api.mjs';
 import { interruptEventsOf } from '../vm/devices.mjs';
-import { NativeCallContinuation } from '../task/native-call-continuation.mjs';
-import { finishInterruptObservations } from '../task/main-wait-interrupt.mjs';
-import { dialogAccess } from '../task/native-dialog-support.mjs';
-import { runMainReset } from '../task/main-reset.mjs';
-import { MainStartupContinuation, MAIN_STARTUP_ENTRY } from '../task/main-startup.mjs';
+import { NativeCallContinuation } from '../system/native-call-continuation.mjs';
+import { finishInterruptObservations } from '../system/main-wait-interrupt.mjs';
+import { dialogAccess } from '../system/native-dialog-support.mjs';
+import { runMainReset } from '../system/main-reset.mjs';
+import { MainStartupContinuation, MAIN_STARTUP_ENTRY } from '../system/main-startup.mjs';
 import { gameOwnerSequence, GAME_OWNER_RESUME } from '../frontend/game-owner.mjs';
 import { gameStartSequence } from '../game/game-start.mjs';
 import { MainLoopContinuation, MAIN_LOOP_ROUND } from '../vm/main-loop.mjs';
@@ -51,7 +51,7 @@ const ROUND_RETURN_WORD = MAIN_LOOP_ROUND + 2;
 export class GameLoop {
   // host: the game's settings as the accessors see them (a.vm: mem, gameplay, cheats,
   // startMenuCredits); devices: LiveDevices; routines: the call graph of the lifted
-  // owner, start and main loop (src/task/main-startup.mjs MAIN_STARTUP_ROUTINES);
+  // owner, start and main loop (src/system/main-startup.mjs MAIN_STARTUP_ROUTINES);
   // admitted and implementation: the lifted natives without devices.
   constructor(host, { devices, routines, admitted, implementation }) {
     const mem = host.mem;

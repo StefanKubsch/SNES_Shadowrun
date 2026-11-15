@@ -2,8 +2,8 @@
 // and 80:CC26 (moved from src/task/native-script-variable-*.mjs; lifted in
 // src/game/script-variables.mjs). The proof plans and the Native58 dispatch of
 // proof/task/native-dispatch.mjs run these; the game runs the lifted natives.
-import { FIRST_ARGUMENT, SECOND_ARGUMENT, leaf } from '../../src/task/native-leaf-support.mjs';
-import { SCRIPT_VARIABLES, WRAM } from '../../src/task/wram.mjs';
+import { FIRST_ARGUMENT, SECOND_ARGUMENT, leaf } from '../../src/system/native-leaf-support.mjs';
+import { SCRIPT_VARIABLES, WRAM } from '../../src/data/wram.mjs';
 // 80:CC07: return the script variable at the byte offset in the first argument.
 export const getScriptVariableReference = (a, outerReturn = true) =>
   leaf(

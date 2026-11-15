@@ -1,14 +1,14 @@
 // Register-level references of the script natives 80:8EDA (the selected spell's task),
 // 80:D067 (a runner's Strength) and 80:D186 (the player object after a BRK), moved from
-// src/task/native-task-append-from-list.mjs, native-runner-record-byte.mjs and
+// src/script/native-task-append-from-list.mjs, native-runner-record-byte.mjs and
 // native-player-object-break.mjs; lifted in src/game/spell-start.mjs,
 // src/game/runner-state.mjs and src/game/script-queries.mjs. The proof plans, the
 // Native58 dispatch of proof/task/native-dispatch.mjs and the instruction tests run these;
 // the game runs the lifted natives.
-import { taskStop } from '../../src/task/plan.mjs';
-import { FIRST_ARGUMENT, SECOND_ARGUMENT, leaf } from '../../src/task/native-leaf-support.mjs';
-import { taskSelectionSupport } from '../../src/task/native-object-turn.mjs';
-import { appendScriptTask } from '../../src/task/task-append.mjs';
+import { taskStop } from '../../src/system/task-stop.mjs';
+import { FIRST_ARGUMENT, SECOND_ARGUMENT, leaf } from '../../src/system/native-leaf-support.mjs';
+import { taskSelectionSupport } from '../../src/script/native-object-turn.mjs';
+import { appendScriptTask } from '../../src/system/task-append.mjs';
 import {
   DP_SELECTION_POINTER,
   DP_SELECTION_POINTER_BANK,
@@ -17,7 +17,7 @@ import {
   SELECTED_SPELL_LEVEL_POINTER,
   SELECTED_SPELL_SCRIPT,
   WRAM,
-} from '../../src/task/wram.mjs';
+} from '../../src/data/wram.mjs';
 import {
   RUNNER_LAST_INDEX,
   RUNNER_OBJECT_NUMBERS,

@@ -7,7 +7,7 @@ import { sceneAnimationSpecs } from './main-scene-animation-source.mjs';
 import { decodeWindows, DialogTestMemory, rom } from './task-native-dialog-harness.mjs';
 import { runReference } from './w65c816-reference.mjs';
 import { TaskAccessor } from '../src/vm/task-accessor.mjs';
-import { dialogAccess } from '../src/task/native-dialog-support.mjs';
+import { dialogAccess } from '../src/system/native-dialog-support.mjs';
 import {
   MAIN_STARTUP_ROUTINES as MAIN_STARTUP_TASK,
   runMainStartup,
@@ -17,11 +17,11 @@ import {
 // bank address (80:2140) and its stack byte, so the startup table uses the audio references.
 import { withAudioReference } from '../proof/apu-reference/audio-routines.mjs';
 const MAIN_STARTUP_ROUTINES = withAudioReference(MAIN_STARTUP_TASK);
-import { NATIVE_CALL_CONTINUATIONS } from '../src/task/native-call-continuation.mjs';
-import { WAIT_PAUSED } from '../src/task/native-wait-continuation.mjs';
+import { NATIVE_CALL_CONTINUATIONS } from '../src/system/native-call-continuation.mjs';
+import { WAIT_PAUSED } from '../src/system/native-wait-continuation.mjs';
 import { runMainReset, runMainSoftwareReset } from '../proof/replay/main-reset.mjs';
-import { runObservedNmi } from '../src/task/observed-nmi.mjs';
-import { finishInterruptObservations } from '../src/task/main-wait-interrupt.mjs';
+import { runObservedNmi } from '../src/system/nmi-call.mjs';
+import { finishInterruptObservations } from '../src/system/main-wait-interrupt.mjs';
 import { SRAM_SIZE } from '../src/vm/memory.mjs';
 import { isIoAddress, isArithmeticRegister } from '../src/vm/devices.mjs';
 

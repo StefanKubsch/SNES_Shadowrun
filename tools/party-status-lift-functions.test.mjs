@@ -1,5 +1,5 @@
 // Random per-function tests of the lifted party status (src/game/party-status.mjs)
-// against the register-level 80:ED3C (src/task/native-player-control.mjs). Both sides
+// against the register-level 80:ED3C (src/data/native-player-control.mjs). Both sides
 // call the same stand-ins for the glove's release 80:BCB2, the notice windows' release
 // 80:FF79, the window 80:F963, the text 80:FE69, the cursor 80:FAAC, the number 80:FD80,
 // the key wait 80:F953 and the window's release 80:FA3E. Each records its target, A, X,
@@ -10,8 +10,8 @@ import { DialogTestMemory, prng } from './task-native-dialog-harness.mjs';
 import { createSide, registerCases } from './lift-function-harness.mjs';
 import { ed3cSequence } from '../proof/replay/native-player-control.mjs';
 import { partyStatusSequence } from '../src/game/party-status.mjs';
-import { GROUP_INDEX, GROUP_LEADER_ONLY, GROUP_NUMBERS, GROUP_SLOTS } from '../src/task/wram.mjs';
-import { drainNativeSequence } from '../src/task/native-call-continuation.mjs';
+import { GROUP_INDEX, GROUP_LEADER_ONLY, GROUP_NUMBERS, GROUP_SLOTS } from '../src/data/wram.mjs';
+import { drainNativeSequence } from '../src/system/native-call-continuation.mjs';
 
 const WRAM_BYTES = 0x20000,
   HEX = 16,

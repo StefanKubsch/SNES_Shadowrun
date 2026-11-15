@@ -3,7 +3,7 @@ import { prepareRenderView } from '../../src/render/data.mjs';
 import { renderEntryBoundary } from './unpack-9f49.mjs';
 import { wordWaitAccess } from './word-wait.mjs';
 import { WRAM_BASE } from '../../src/constants/memory-map.mjs';
-import { RANDOM_STATE } from '../../src/task/wram.mjs';
+import { RANDOM_STATE } from '../../src/data/wram.mjs';
 import { WORD_MASK, WORD_SIGN } from '../../src/constants/bits.mjs';
 import { FLAG_NEGATIVE, FLAG_ZERO, FLAG_CARRY } from '../../src/constants/cpu-flags.mjs';
 

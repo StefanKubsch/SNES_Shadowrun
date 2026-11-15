@@ -1,6 +1,6 @@
 // Generic widths and masks of the 65816 data model, shared by all modules.
 // Module-specific addresses stay with their modules: WRAM fields in
-// src/task/wram.mjs, scheduler tables in src/vm/layout.mjs.
+// src/data/wram.mjs, scheduler tables in src/vm/layout.mjs.
 
 /** Low eight bits of a value (an 8-bit register or memory byte). */
 export const BYTE_MASK = 0xff;

@@ -1,6 +1,6 @@
 import { WRAM_BASE } from '../../src/constants/memory-map.mjs';
 import { BANK_SIZE } from '../../src/constants/bits.mjs';
-import { PORTRAIT_PALETTE_START, OAM_HIGH_TABLE, OAM_BUFFER } from '../../src/task/wram.mjs';
+import { PORTRAIT_PALETTE_START, OAM_HIGH_TABLE, OAM_BUFFER } from '../../src/data/wram.mjs';
 import { isWord } from '../script/runtime.mjs';
 import { prepareRenderView } from '../../src/render/data.mjs';
 import { renderEntryBoundary } from './unpack-9f49.mjs';

@@ -18,7 +18,7 @@ Where to find what. Start with HANDOFF.md and
 | File                                             | Content                                                                                                                                          |
 | ------------------------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------ |
 | [VM-ARCHITECTURE.md](VM-ARCHITECTURE.md)         | Overview of the VM layers                                                                                                                        |
-| [VM-INTERPRETER.md](VM-INTERPRETER.md)           | Event interpreter, scheduler, natives, main loop, NMI and boot owner (`src/vm/`, `src/task/`)                                                    |
+| [VM-INTERPRETER.md](VM-INTERPRETER.md)           | Historical interpreter proofs; current layout: [VM-ARCHITECTURE.md](VM-ARCHITECTURE.md)                                                          |
 | [NATIVE-MODULES.md](NATIVE-MODULES.md)           | Native task modules                                                                                                                              |
 | [NATIVE-CONTINUATION.md](NATIVE-CONTINUATION.md) | Resumable wait and input points, live game start                                                                                                 |
 | [SCHEDULER.md](SCHEDULER.md)                     | Proof-era script runner: calls, waits, mask zero, time source                                                                                    |

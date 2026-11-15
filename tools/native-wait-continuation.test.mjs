@@ -4,10 +4,10 @@ import {
   NativeWaitContinuation,
   WAIT_PAUSED,
   WAIT_RETURNED,
-} from '../src/task/native-wait-continuation.mjs';
+} from '../src/system/native-wait-continuation.mjs';
 import { TaskAccessor } from '../src/vm/task-accessor.mjs';
-import { dialogAccess } from '../src/task/native-dialog-support.mjs';
-import { runObservedNmi } from '../src/task/observed-nmi.mjs';
+import { dialogAccess } from '../src/system/native-dialog-support.mjs';
+import { runObservedNmi } from '../src/system/nmi-call.mjs';
 import { GAME_NMI_ROUTINES } from '../proof/replay/main-game-nmi.mjs';
 import { counterWindows } from './render-task-native-counter-b0a1-source-proof.mjs';
 import { inputApuWindows } from './render-task-native-input-apu-source-proof.mjs';

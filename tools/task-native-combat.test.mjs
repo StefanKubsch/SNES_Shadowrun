@@ -11,7 +11,7 @@ import { TaskAccessor } from '../src/vm/task-accessor.mjs';
 import { isIoAddress, isArithmeticRegister } from '../src/vm/devices.mjs';
 import { SPECIAL_NATIVES } from '../proof/vm/special-natives.mjs';
 import * as combat from '../proof/replay/native-combat.mjs';
-import { randomBelow } from '../src/task/native-random.mjs';
+import { randomBelow } from '../src/system/native-random.mjs';
 
 // Combat natives (src/task/native-combat.mjs): pinned own code with stack proof, and the equations
 // against the original instructions (tools/w65c816-reference.mjs). 81:A25F runs on its pinned windows,

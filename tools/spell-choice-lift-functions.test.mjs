@@ -1,5 +1,5 @@
 // Random per-function tests of the lifted spell choice (src/game/spell-choice.mjs)
-// against the register-level native 80:E1CF (src/task/native-spell-choice.mjs). Both
+// against the register-level native 80:E1CF (src/data/native-spell-choice.mjs). Both
 // sides call the same stand-ins for the window 80:F963 (a window number in DP 00), the
 // menu 80:A6C7 (a row, Exit or a cancel in DP 00) and the release 80:FA3E. Each records
 // its target, A, X, Y, the flags N, V, Z and C and the direct page words 00 and 02, and
@@ -9,8 +9,8 @@ import { prng } from './task-native-dialog-harness.mjs';
 import { createSide, registerCases } from './lift-function-harness.mjs';
 import { chooseSpell } from '../proof/replay/native-spell-choice.mjs';
 import { chooseSpellSequence } from '../src/game/spell-choice.mjs';
-import { SPELL_LIST } from '../src/task/wram.mjs';
-import { drainNativeSequence } from '../src/task/native-call-continuation.mjs';
+import { SPELL_LIST } from '../src/data/wram.mjs';
+import { drainNativeSequence } from '../src/system/native-call-continuation.mjs';
 
 const WRAM_BYTES = 0x20000,
   HEX = 16,

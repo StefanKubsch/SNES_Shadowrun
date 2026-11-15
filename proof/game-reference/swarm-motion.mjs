@@ -1,11 +1,11 @@
 // Register-level references of the swarm motion natives 80:D85B (along a path) and
-// 80:D2E7 (as a wave), moved from src/task/native-swarm-follow-path.mjs and
+// 80:D2E7 (as a wave), moved from src/script/native-swarm-follow-path.mjs and
 // native-swarm-wave.mjs; lifted in src/game/swarm-motion.mjs. The proof plans, the Native58
 // dispatch of proof/task/native-dispatch.mjs and the instruction tests run these; the game
 // runs the lifted natives.
-import { FIRST_ARGUMENT, SECOND_ARGUMENT, leaf } from '../../src/task/native-leaf-support.mjs';
-import { taskSelectionSupport } from '../../src/task/native-object-turn.mjs';
-import { lsr, clc } from '../../src/task/native-object-bob.mjs';
+import { FIRST_ARGUMENT, SECOND_ARGUMENT, leaf } from '../../src/system/native-leaf-support.mjs';
+import { taskSelectionSupport } from '../../src/script/native-object-turn.mjs';
+import { lsr, clc } from '../../src/script/native-object-bob.mjs';
 import { WAVE_TABLE, PHASE_MASK, QUARTER_PHASE } from '../../src/game/object-bob.mjs';
 import {
   OBJECT_HEIGHT,
@@ -36,7 +36,7 @@ import {
   WAVE_TARGET_HEIGHT,
   WAVE_TARGET_X,
   WAVE_TARGET_Y,
-} from '../../src/task/wram.mjs';
+} from '../../src/data/wram.mjs';
 import { FLAG_CARRY, FLAG_ZERO } from '../../src/constants/cpu-flags.mjs';
 import { WORD_MASK, BYTE_MASK } from '../../src/constants/bits.mjs';
 // 80:D85B (no argument): move the swarm along its path. Five objects 1CEF+Y (Y = 0..8) follow a swinging path. Start 1D23 = 2*1D0B,

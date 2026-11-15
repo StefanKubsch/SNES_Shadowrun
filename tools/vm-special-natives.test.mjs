@@ -4,8 +4,8 @@ import { VmMemory, VmFault } from '../src/vm/memory.mjs';
 import { ScriptInterpreter, EXIT_NATIVE_CALL } from '../proof/vm/interpreter.mjs';
 import { NativeCalls } from '../proof/vm/native-call.mjs';
 import { ObservedDevices, observationSet } from '../proof/vm/observed-devices.mjs';
-import { nativeOpcodeTargets } from '../src/task/native-opcode-targets.mjs';
-import { nativeTarget } from '../src/task/native-targets.mjs';
+import { nativeOpcodeTargets } from '../src/data/native-opcode-targets.mjs';
+import { nativeTarget } from '../src/script/native-targets.mjs';
 import { prng, rom } from './vm-differential.mjs';
 import {
   specialNativeIds,

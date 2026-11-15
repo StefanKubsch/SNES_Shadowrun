@@ -1,9 +1,9 @@
 // Register-level references of the bobbing and orbit script natives 80:D714, 80:D73B and
-// 80:D769 to 80:D793 (moved from src/task/native-object-bob.mjs and native-orbit.mjs;
+// 80:D769 to 80:D793 (moved from src/script/native-object-bob.mjs and native-orbit.mjs;
 // lifted in src/game/object-bob.mjs). The proof plans, the Native58 dispatch of
 // proof/task/native-dispatch.mjs and the instruction tests of
 // tools/task-native-m1d.test.mjs run these; the game runs the lifted natives.
-import { FIRST_ARGUMENT, leaf } from '../../src/task/native-leaf-support.mjs';
+import { FIRST_ARGUMENT, leaf } from '../../src/system/native-leaf-support.mjs';
 import {
   HALF_PHASE,
   PHASE_MASK,
@@ -11,7 +11,7 @@ import {
   WAVE_TABLE,
   clc,
   lsr,
-} from '../../src/task/native-object-bob.mjs';
+} from '../../src/script/native-object-bob.mjs';
 import {
   BOB_OBJECT,
   BOB_PHASE,
@@ -20,7 +20,7 @@ import {
   OBJECT_HEIGHT,
   OBJECT_X,
   SWARM_MEMBERS,
-} from '../../src/task/wram.mjs';
+} from '../../src/data/wram.mjs';
 import { FLAG_CARRY } from '../../src/constants/cpu-flags.mjs';
 import { BYTE_MASK, WORD_MASK } from '../../src/constants/bits.mjs';
 

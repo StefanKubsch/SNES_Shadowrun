@@ -13,7 +13,7 @@ import {
 } from '../proof/game-reference/runner-state.mjs';
 import { raiseStateCountBody } from '../proof/replay/native-state-count-raise.mjs';
 import { restoreRunnersBody } from '../proof/replay/native-runners-restore.mjs';
-import { raiseMemberMagicPoints } from '../src/task/native-magic-points-raise.mjs';
+import { raiseMemberMagicPoints } from '../src/script/native-magic-points-raise.mjs';
 
 const WRAM_BYTES = 0x20000,
   CODE_BANK = 0x80,

@@ -11,10 +11,10 @@ import {
   isTopicKnownReference,
   markTopicReference,
 } from '../proof/game-reference/topic-list.mjs';
-import { isTopicKnown } from '../src/task/native-topic-known.mjs';
-import { markTopic } from '../src/task/native-topic-mark.mjs';
-import { addTopic } from '../src/task/native-topic-add.mjs';
-import { TOPIC_LIST } from '../src/task/wram.mjs';
+import { isTopicKnown } from '../src/script/native-topic-known.mjs';
+import { markTopic } from '../src/script/native-topic-mark.mjs';
+import { addTopic } from '../src/script/native-topic-add.mjs';
+import { TOPIC_LIST } from '../src/data/wram.mjs';
 
 const WRAM_BYTES = 0x20000,
   HEX = 16,

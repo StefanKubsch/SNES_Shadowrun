@@ -194,7 +194,7 @@ export const mainMovementGraphSpec = {
   dataPulls: [0x8186c3],
   indexPulls: [0x80c8a9, 0x80c993],
   externalReturns: [
-    [0x80ac2f, 'RTS', 'src/task/native-scene-tiles.mjs'],
+    [0x80ac2f, 'RTS', 'src/system/native-scene-tiles.mjs'],
     [0x80aaaf, 'RTS', 'proof/task/native-aaaf.mjs'],
   ],
   scope:

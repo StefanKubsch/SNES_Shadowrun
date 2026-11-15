@@ -2,7 +2,7 @@
 // map of a system, the objects on it (persona, gates, falling IC), the persona's
 // states and what A and B do on the node ahead. Positions are pixels; a map tile
 // is 16 pixels and the persona acts only on the tile grid.
-import { taskStop } from '../task/plan.mjs';
+import { taskStop } from '../system/task-stop.mjs';
 import { protectedJakeHealth } from '../game/cheats.mjs';
 import {
   longWord,
@@ -68,7 +68,7 @@ import {
   PAD_PRESSED,
   RANDOM_STATE,
   WRAM,
-} from '../task/wram.mjs';
+} from '../data/wram.mjs';
 import { BYTE_BITS, BYTE_MASK, WORD_BITS, WORD_MASK, WORD_SIGN } from '../constants/bits.mjs';
 import {
   APU_COMMAND_SOUND,

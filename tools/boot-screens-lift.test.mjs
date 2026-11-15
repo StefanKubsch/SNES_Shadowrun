@@ -1,5 +1,5 @@
 // Live comparison of the lifted boot screens 81:E7BC (src/frontend/boot-screens.mjs)
-// with the register-level screens (`showBootScreens` in src/task/main-startup.mjs;
+// with the register-level screens (`showBootScreens` in src/system/main-startup.mjs;
 // docs/BOOT-SCREENS-LIFT.md). From the reset through both screens, the sound driver start
 // and the settings check into the title: every NMI must give the same WRAM, VRAM,
 // CGRAM, OAM, PPU registers, scroll, PPU write count and sound RAM. The second run has
@@ -11,7 +11,7 @@ import { compareLift } from './lift-compare.mjs';
 import { loadSave } from './mesen-f390-oracle.mjs';
 import { CUTSCENE_IGNORED_WRAM } from './live-cutscene-plan.mjs';
 import { runBootScreensLifted, showBootScreens } from '../proof/replay/main-startup.mjs';
-import { SETTINGS_CHECKSUM, SETTINGS_STEREO } from '../src/task/wram.mjs';
+import { SETTINGS_CHECKSUM, SETTINGS_STEREO } from '../src/data/wram.mjs';
 import { BANK_SIZE } from '../src/constants/bits.mjs';
 
 // The first command of the alley plan waits through the boot into the title.

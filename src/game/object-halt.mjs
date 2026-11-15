@@ -8,7 +8,7 @@
 //
 // The object fields are reached through the data bank with 24-bit indexes, the task
 // through the task API (src/script/task-api.mjs).
-import { OBJECT_FLAGS, OBJECT_HALTED, OBJECT_TASK } from '../task/wram.mjs';
+import { OBJECT_FLAGS, OBJECT_HALTED, OBJECT_TASK } from '../data/wram.mjs';
 import { tasksOf, waitingTask } from '../script/task-api.mjs';
 import { WAIT_HALTED } from '../script/scheduler.mjs';
 import { LONG_MASK, WORD_BITS, WORD_MASK, WORD_SIGN } from '../constants/bits.mjs';

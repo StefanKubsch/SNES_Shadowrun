@@ -1,5 +1,5 @@
 // Random per-function tests of the lifted hit (src/game/object-hit.mjs) against the
-// register-level hit 80:8691 with the player hit 80:881C (src/task/native-object-hit.mjs).
+// register-level hit 80:8691 with the player hit 80:881C (src/data/native-object-hit.mjs).
 // Both sides run their real random number 80:C51F, object slots 80:A835 (with the task
 // append on free heap blocks) and sound 80:C46E; the notices' window 80:F963, text
 // 80:FE69, word wait 81:B0A1, confirm key 80:F953 and release 80:FA3E and the window list
@@ -27,7 +27,7 @@ import {
   OBJECT_X,
   OBJECT_Y,
   PLAYER_OBJECT,
-} from '../src/task/wram.mjs';
+} from '../src/data/wram.mjs';
 import {
   HEAP_NEXT_WORD,
   HEAP_SIZE_WORD,
@@ -37,7 +37,7 @@ import {
   TASK_PREVIOUS,
   TASK_WAIT,
 } from '../src/vm/layout.mjs';
-import { drainNativeSequence } from '../src/task/native-call-continuation.mjs';
+import { drainNativeSequence } from '../src/system/native-call-continuation.mjs';
 
 const WRAM_BYTES = 0x20000,
   HEX = 16,

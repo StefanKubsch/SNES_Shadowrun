@@ -19,7 +19,7 @@
 // The entry 80:E68E (from the status screen) leaves 1F68 clear: no script runs and the
 // equipment window is drawn at the end (80:E9C5). The callees run through their frames
 // from the routine table, each with its own callees.
-import { dialogCallBody, nativeCallSequence } from '../task/native-call-continuation.mjs';
+import { dialogCallBody, nativeCallSequence } from '../system/native-call-continuation.mjs';
 import { dataBankWord, setDataBankWord } from '../system/data-bank.mjs';
 import {
   SPELL_LEVEL_NAMES,
@@ -28,7 +28,7 @@ import {
   SPELL_SCRIPTS_B,
   SPELL_SLOT_FIRST,
   SPELL_WINDOW as MENU_WINDOW,
-} from '../task/native-member-spell-menu.mjs';
+} from '../data/native-member-spell-menu.mjs';
 import {
   DIALOG_END,
   DP_LIST_TOKEN_BANK,
@@ -63,7 +63,7 @@ import {
   SPELL_MENU_SCRIPTS,
   SPELL_MENU_SPELL_NAMES,
   STATUS_SUBMENU_WINDOW,
-} from '../task/wram.mjs';
+} from '../data/wram.mjs';
 import {
   RUNNER_LAST_INDEX,
   RUNNER_OBJECT_NUMBERS,

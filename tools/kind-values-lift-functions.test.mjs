@@ -13,13 +13,13 @@ import {
   getActorKindValueReference,
   getObjectKindValueReference,
 } from '../proof/game-reference/kind-values.mjs';
-import { getObjectKindValue } from '../src/task/native-object-kind-attribute.mjs';
-import { getActorKindValue } from '../src/task/native-record-kind-attribute.mjs';
-import { getActorKindFlags } from '../src/task/native-record-kind-second-attribute.mjs';
-import { getActorKind } from '../src/task/native-record-kind-get.mjs';
+import { getObjectKindValue } from '../src/script/native-object-kind-attribute.mjs';
+import { getActorKindValue } from '../src/script/native-record-kind-attribute.mjs';
+import { getActorKindFlags } from '../src/script/native-record-kind-second-attribute.mjs';
+import { getActorKind } from '../src/script/native-record-kind-get.mjs';
 import { ACTOR_BYTES, ACTORS } from '../src/data/actors.mjs';
 import { KINDS } from '../src/data/kinds.mjs';
-import { OBJECT_KIND } from '../src/task/wram.mjs';
+import { OBJECT_KIND } from '../src/data/wram.mjs';
 
 const WRAM_BYTES = 0x20000,
   HEX = 16,

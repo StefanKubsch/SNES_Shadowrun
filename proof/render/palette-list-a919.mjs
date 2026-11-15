@@ -15,7 +15,7 @@ import {
   NMI_JOB_LISTS,
   PALETTE_UPLOAD_LIST_BYTES,
   PALETTE_UPLOAD_LIST,
-} from '../../src/task/wram.mjs';
+} from '../../src/data/wram.mjs';
 import { A1T4L, DAS4L, CGADD, A1B4, MDMAEN } from '../../src/constants/hardware-registers.mjs';
 import { isWord } from '../script/runtime.mjs';
 import { prepareRenderView } from '../../src/render/data.mjs';

@@ -4,10 +4,10 @@
 // count (B or Start ends it), slows the BG2 scroll for its end frames and fades
 // out. Scene 14 is the intro (81:DFE7, src/intro/), passed on as the original
 // does. A negative scene is mirrored.
-import { taskStop } from '../task/plan.mjs';
-import { nativeCallSequence, nativeTailSequence } from '../task/native-call-continuation.mjs';
-import { FadePollContinuation, lagFree } from '../task/main-wait-interrupt.mjs';
-import { sceneWaitByte } from '../task/main-scene-wait.mjs';
+import { taskStop } from '../system/task-stop.mjs';
+import { nativeCallSequence, nativeTailSequence } from '../system/native-call-continuation.mjs';
+import { FadePollContinuation, lagFree } from '../system/main-wait-interrupt.mjs';
+import { sceneWaitByte } from '../system/main-scene-wait.mjs';
 import { heldPad, menuCreditsRunning, CREDITS_SEQUENCE } from '../game/credits.mjs';
 import {
   beginPackedTextEdit,
@@ -54,7 +54,7 @@ import {
   SOUND_VOICE_MASK,
   VRAM_SLOT_COUNT,
   WRAM,
-} from '../task/wram.mjs';
+} from '../data/wram.mjs';
 import {
   A1B7,
   A1T7L,

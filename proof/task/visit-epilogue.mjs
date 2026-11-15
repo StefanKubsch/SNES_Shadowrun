@@ -1,4 +1,4 @@
-import { taskStop } from '../../src/task/plan.mjs';
+import { taskStop } from '../../src/system/task-stop.mjs';
 // Original C1D9: PEA8080/PLB/PLB/PLA/STA0250/RTS, after real C20B->C1D9.
 export function runTaskVisitEpilogue(a) {
   const c = a.ctx,

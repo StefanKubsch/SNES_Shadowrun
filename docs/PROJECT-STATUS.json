@@ -1,7 +1,7 @@
 {
   "updated": "2026-11-15",
-  "focus": "Script VM lift phase 6: recorded replay drivers, register-level special natives and their reference tables live in proof/. The game calls lifted native sequences directly with lag-free frames. Shared constants and support remain in src/task for phase 7; saves are unchanged.",
-  "next_step": "Complete script VM lift phase 7 (docs/SCRIPT-VM-LIFT.md): dissolve src/task, move game constants to src/data and shared execution support to src/system, and keep register-level references in proof/. Preserve the game-loop and replay comparisons. Shape editing and S-MIX work remain deferred.",
+  "focus": "Script VM lift phase 7: src/task is removed. Game constants live in src/data, native adapters in src/script, and shared execution support in src/system. Register-level interpreters, schedulers and recorded replay drivers remain in proof/. Saves and lag-free frames are unchanged.",
+  "next_step": "The seven Script VM lift phases are complete (docs/SCRIPT-VM-LIFT.md). Next, simplify the remaining address-keyed caller adapters and shared register interfaces in src/system, using game-state differentials. Shape editing and S-MIX work remain deferred.",
   "porting_resume": "188 original-form bytes remain: 93 retained code bytes and 95 unidentified data bytes. Recorded CPU reads, hardware-only observations and true data margins are distinguished in docs/ROM-CODE-AUDIT.md. Unknown bytes and unused graphics remain preserved; unrecorded paths can still report rom_byte_absent.",
   "open_issues": [
     "Examination: unreproduced report to watch during the final user test run. Its European cleanup condition is tested; other story routes remain unproved. A change requires a reproducible counterexample. See docs/BUGFIXES.md.",

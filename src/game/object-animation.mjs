@@ -1,5 +1,5 @@
 // The animation step of an object (lifted from 80:AC2F; register-level version in
-// src/task/native-scene-tiles.mjs, which the tile reload 80:AE12 and the replays with
+// src/system/native-scene-tiles.mjs, which the tile reload 80:AE12 and the replays with
 // recorded interrupts keep using).
 //
 // Each pass the motion pass steps the animation of every object that is not halted.
@@ -31,8 +31,8 @@
 //
 // With recorded interrupt observations an NMI may fall inside the routine (the Mesen
 // cold boot replay records one at 80:AC8F), so the register-level routine runs there.
-import { stepObjectAnimation } from '../task/native-scene-tiles.mjs';
-import { taskStop } from '../task/plan.mjs';
+import { stepObjectAnimation } from '../system/native-scene-tiles.mjs';
+import { taskStop } from '../system/task-stop.mjs';
 import { CarryArithmetic } from './carry-arithmetic.mjs';
 import {
   DP_VRAM_UPLOAD_INDEX,
@@ -58,7 +58,7 @@ import {
   VRAM_UPLOAD_BANKS,
   VRAM_UPLOAD_SOURCES,
   WRAM,
-} from '../task/wram.mjs';
+} from '../data/wram.mjs';
 import { sendEvents, tasksOf } from '../script/task-api.mjs';
 import {
   BYTE_BITS,

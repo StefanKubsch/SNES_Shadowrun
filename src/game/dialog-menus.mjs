@@ -1,5 +1,5 @@
 // The dialog's main menu and topic choice (lifted from 80:91E2 and 80:9215; register-
-// level versions in src/task/native-dialog-text.mjs stay the reference).
+// level versions in src/system/native-dialog-text.mjs stay the reference).
 //
 // The main menu lists Exit, Talk and Ask about (tokens 80:920D) from row 4 of the text
 // window (the direct page word 17) with the menu 80:A6C7; a cancel (FFFF) sets the end
@@ -18,15 +18,15 @@
 // reference runs them. A, X and Y passed to the calls and left at the end are the
 // original's, as are the carry of the routines' own comparisons; the X the topic list
 // pushes around a text lookup is not reproduced (nothing waits there).
-import { dialogCallBody, segmentSequence } from '../task/native-call-continuation.mjs';
-import { menuComposeSequence } from '../task/native-menu-compose.mjs';
-import { isStandardTextRoutines } from '../task/native-dialog-text.mjs';
+import { dialogCallBody, segmentSequence } from '../system/native-call-continuation.mjs';
+import { menuComposeSequence } from '../system/native-menu-compose.mjs';
+import { isStandardTextRoutines } from '../system/native-dialog-text.mjs';
 import { chooseFromMenuSequence } from './menu-choice.mjs';
 import { fitListWindow, listTextIds } from '../data/menu-layout.mjs';
 import { TOPICS } from '../data/topics.mjs';
 import { openWindowSequence } from './window-open.mjs';
 import { releaseWindowSequence } from './window-release.mjs';
-import { DIALOG_END, TOPIC_FLAGS, TOPIC_LIST } from '../task/wram.mjs';
+import { DIALOG_END, TOPIC_FLAGS, TOPIC_LIST } from '../data/wram.mjs';
 import { BYTE_BITS, BYTE_MASK, WORD_BITS, WORD_MASK, WORD_SIGN } from '../constants/bits.mjs';
 import { FLAG_CARRY, FLAG_NEGATIVE, FLAG_ZERO } from '../constants/cpu-flags.mjs';
 

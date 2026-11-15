@@ -17,7 +17,7 @@
 // last: A, its sign and zero, X (the directions shifted right once), the overflow of
 // the position addition down and the carry of its comparison with CE01. The object
 // search reads that carry too.
-import { dialogCallBody } from '../task/native-call-continuation.mjs';
+import { dialogCallBody } from '../system/native-call-continuation.mjs';
 import { objectSearchSequence } from './object-search.mjs';
 import { releaseNameWindowCallSequence } from './window-release.mjs';
 import {
@@ -29,7 +29,7 @@ import {
   GLOVE_Y,
   PAD_DIRECTIONS,
   PAD_HELD,
-} from '../task/wram.mjs';
+} from '../data/wram.mjs';
 import { BYTE_BITS, BYTE_MASK, WORD_MASK, WORD_SIGN } from '../constants/bits.mjs';
 import { FLAG_CARRY, FLAG_NEGATIVE, FLAG_OVERFLOW, FLAG_ZERO } from '../constants/cpu-flags.mjs';
 

@@ -6,7 +6,7 @@ The next work block is in the [porting status](PORTIERUNGSSTAND.md), group
 
 ## Original sources and continuation
 
-[NativeWaitContinuation](../src/task/native-wait-continuation.mjs) holds fixed
+[NativeWaitContinuation](../src/system/native-wait-continuation.mjs) holds fixed
 JavaScript equations for four existing ROM routines. It decodes no CPU
 instructions. One step executes exactly one original instruction and keeps PC,
 registers, flags and the real return frame on the same owner.
@@ -63,9 +63,9 @@ choose the size of the pieces processed synchronously.
 
 ## Nested NMI callbacks and joypad completion
 
-[NativeCallContinuation](../src/task/native-call-continuation.mjs) assembles
+[NativeCallContinuation](../src/system/native-call-continuation.mjs) assembles
 fixed JavaScript caller segments. The synchronous and resumable paths of
-[00:C112](../src/task/observed-nmi.mjs) and
+[00:C112](../src/system/nmi-call.mjs) and
 [80:C152](../proof/replay/main-game-nmi.mjs) use the same equations. The pinned
 sources remain [matrixNmiSpecs, nmi](../tools/main-matrix-nmi-source.mjs) with
 the hardware/handler stack lemma and [gameNmiSpecs](../tools/main-game-nmi-source.mjs)
@@ -151,7 +151,7 @@ neither general time nor a dynamic frame.
 ## Boot, intro and scene changes
 
 [E7BC/A15C/A133](../proof/replay/main-startup.mjs) and
-[EED5](../src/task/main-scene-wait.mjs) use fixed caller segments. PHP, the
+[EED5](../src/system/main-scene-wait.mjs) use fixed caller segments. PHP, the
 actual BYTE/WORD widths, all JSL wait calls and the original return words are
 kept across pauses. `MainStartupContinuation` ends only at the original A139.
 Sources are the unchanged pinned [startupSpecs](../tools/main-startup-source.mjs)
@@ -189,7 +189,7 @@ existing reset and menu owner contracts; no new initial state is introduced.
 ## WORD wait requests
 
 `WordWaitContinuation` and `RequestWaitContinuation` in
-[main-wait-interrupt.mjs](../src/task/main-wait-interrupt.mjs) share the same
+[main-wait-interrupt.mjs](../src/system/main-wait-interrupt.mjs) share the same
 equations with the synchronous adapters. They cover ACAF, ACBD, ACC3, ACC9 as
 well as ACB5, AEF4 and AEFC: a fresh WORD LDA, BNE from its flags, the actual RTL
 and, for requests, the INC around it with the real nested JSL. Every
@@ -206,10 +206,10 @@ handshakes stay synchronous.
 
 ## Window cleanup and render request
 
-[BCB2/BE5B](../src/task/native-dialog-portrait.mjs) and
+[BCB2/BE5B](../src/system/native-dialog-portrait.mjs) and
 [FF79](../proof/replay/native-slot-release.mjs) keep their own JSR frames, and PHX
 frames where present, across the whole chain
-[FA3E/AD92](../src/task/native-render-compose.mjs) down to ACB5/ACAF. The
+[FA3E/AD92](../src/system/native-render-compose.mjs) down to ACB5/ACAF. The
 original INC/JSL request uses `RequestWaitContinuation`; an unchanged WORD poll
 stays unchanged without an outer writer. An observed NMI can in turn pause in
 9E0B and must return completely up to RTI. Only the real RTL of the request
@@ -243,14 +243,14 @@ pauses.
 
 ## Window allocation, text composition and notice
 
-[F963](../src/task/native-window-open.mjs) keeps the real frames JSR FA32 (WORD FA34)
+[F963](../src/script/native-window-open.mjs) keeps the real frames JSR FA32 (WORD FA34)
 for the request FA67, its JSL FA84 (WORD FA87, bank 80) for the WORD poll
 ACBD, JSL FA35 for ACCF and JSL FA39 for ACB5. With an interrupt set, ACBD and
 ACB5 use `WordWaitContinuation` and `RequestWaitContinuation`; the observation
 mode only replaces the wait poll by its previous explicit equation. ACCF stays
 a synchronous segment.
 
-[FE69/FB39](../src/task/native-text-compose.mjs) share their call equations
+[FE69/FB39](../src/system/native-text-compose.mjs) share their call equations
 between both paths. FB39 pauses at its three requests AEFC (FB5B) and AEF4
 (FBDF, FD7B) and, in start mode, at the instruction FD21 between the two mask
 stores of a glyph row. The JSR FEBC keeps WORD FEBE until the RTS of FB39 uses
@@ -305,7 +305,7 @@ pause as `ObservedWaitContinuation` with an interrupt set, the
 FEC1 as sequences. FAAC, FD80, D15C and the APU helpers C46E/EF47 stay segments;
 routines replaced by tests stay decisive.
 
-The [menu composition A6C7](../src/task/native-menu-compose.mjs) keeps in every
+The [menu composition A6C7](../src/system/native-menu-compose.mjs) keeps in every
 round the JSL B0A1 (WORD A6EC) and the JSR 9E1A (WORD A6EF); with an interrupt
 set both pause as `ObservedWaitContinuation`. Confirming, cancelling, the
 shortcut and paging keep their real PHY/PEI/PLA frames; the scroll request FA67
@@ -316,7 +316,7 @@ the parallel sequence object of `dialogTextRoutines`. The
 [dialog 936C](../proof/replay/native-dialog.mjs) is a sequence over its routine table.
 Table calls use `dialogCallSequence`; registered continuations for F963, FF79,
 BCB2, FA3E, B0A1, 9E1A and the dialog parts
-[9178/91E2/9215](../src/task/native-dialog-text.mjs) and the closing 92C5 apply
+[9178/91E2/9215](../src/system/native-dialog-text.mjs) and the closing 92C5 apply
 only with an identical table function. The dialog parts use
 `dialogTextSequences` only for the standard routines; replaced test routines
 stay segments. The topic action with a nested scheduler round stays
@@ -405,7 +405,7 @@ A985 to D15C. There the record pointer from the table 8C:ED8A points to
 8C:6AA1, where nothing lies below $8000 in LoROM bank 8C. Mesen shows: the
 original reads both bytes at 80:A9BF (`LDA [$00]`) as 8C, that is the open bus
 with the byte read last, the bank of the pointer. `taskSelectionSupport.indirect`
-([native-d15c.mjs](../src/task/native-object-turn.mjs)) returns this pointer bank per
+([native-d15c.mjs](../src/script/native-object-turn.mjs)) returns this pointer bank per
 byte for targets in $6000-$7FFF of the banks 00-3F/80-BF instead of stopping
 with `unmapped_read`. Other read paths keep the limit; there is no general bus
 model. Check: Mesen live comparison over 40 rounds with this input; registers,

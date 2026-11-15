@@ -12,7 +12,7 @@ import {
   BANK_WITHOUT_IO,
 } from '../../src/constants/memory-map.mjs';
 import { BANK_SIZE, WORD_MASK } from '../../src/constants/bits.mjs';
-import { DIALOG_HDMA_TABLE, HDMAEN_SHADOW, TMW_SHADOW } from '../../src/task/wram.mjs';
+import { DIALOG_HDMA_TABLE, HDMAEN_SHADOW, TMW_SHADOW } from '../../src/data/wram.mjs';
 import {
   W12SEL,
   WBGLOG,

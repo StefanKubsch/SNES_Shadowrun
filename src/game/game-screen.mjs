@@ -2,7 +2,7 @@
 // 81:891A, 81:8CB9, 81:8000, 81:A840, 81:A772, 81:AB2C, 81:AA9C, 81:A9B2, 81:A9E1,
 // 80:C1A6, 80:CC44, 80:E41B, 81:EF26 and 80:C109, and Jake's state bar 81:AF1F
 // from src/game/state-bar.mjs; register-level versions in
-// src/task/main-initialize.mjs, reference in proof/game-reference/game-screen.mjs).
+// src/system/main-initialize.mjs, reference in proof/game-reference/game-screen.mjs).
 //
 // Before a room is entered the game screen is built from scratch: mode 1 with its
 // map and character bases behind forced blank, the glove, camera, palettes, object
@@ -83,7 +83,7 @@ import {
   WINDOW_MAP_SOURCE_BANK,
   WINDOW_NEXT_TILE,
   WRAM,
-} from '../task/wram.mjs';
+} from '../data/wram.mjs';
 import {
   NMITIMEN,
   NMITIMEN_AUTO_JOYPAD,

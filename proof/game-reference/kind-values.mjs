@@ -1,5 +1,5 @@
 // Register-level references of the kind script natives (moved from
-// src/task/native-object-kind-attribute.mjs and native-record-kind-*.mjs; lifted in
+// src/script/native-object-kind-attribute.mjs and native-record-kind-*.mjs; lifted in
 // src/game/kind-values.mjs). The proof plans and the Native58 dispatch of
 // proof/task/native-dispatch.mjs run these; the game runs the lifted natives.
 import {
@@ -7,8 +7,8 @@ import {
   leaf,
   readActorKind,
   returnKindValue,
-} from '../../src/task/native-leaf-support.mjs';
-import { OBJECT_KIND, WRAM } from '../../src/task/wram.mjs';
+} from '../../src/system/native-leaf-support.mjs';
+import { OBJECT_KIND, WRAM } from '../../src/data/wram.mjs';
 import { KIND_FLAGS_OFFSET } from '../../src/data/kinds.mjs';
 
 // 80:C9F1: return the kind value of the object (first argument).

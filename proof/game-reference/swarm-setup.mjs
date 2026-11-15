@@ -3,8 +3,8 @@
 // native-swarm-orbit-start.mjs; lifted in
 // src/game/swarm-setup.mjs). The proof plans and the Native58 dispatch of
 // proof/task/native-dispatch.mjs run these; the game runs the lifted natives.
-import { FIRST_ARGUMENT, leaf } from '../../src/task/native-leaf-support.mjs';
-import { taskSelectionSupport } from '../../src/task/native-object-turn.mjs';
+import { FIRST_ARGUMENT, leaf } from '../../src/system/native-leaf-support.mjs';
+import { taskSelectionSupport } from '../../src/script/native-object-turn.mjs';
 import { FLAG_CARRY, FLAG_ZERO } from '../../src/constants/cpu-flags.mjs';
 import { LONG_WRAP, WORD_MASK } from '../../src/constants/bits.mjs';
 import {
@@ -22,7 +22,7 @@ import {
   PATH_START_HEIGHT_GOAL,
   PATH_START_XY_GOAL,
   SWARM_MEMBERS,
-} from '../../src/task/wram.mjs';
+} from '../../src/data/wram.mjs';
 import { HALF_PHASE, WAVE_WORD_INDEX_MASK } from '../../src/game/object-bob.mjs';
 import {
   FIRST_FOLLOWER_FRAMES,

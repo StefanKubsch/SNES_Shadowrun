@@ -15,8 +15,8 @@
 //
 // tasksOf(a) gives the tasks of an accessor: the JS scheduler's when one is attached to
 // it (`a.tasks`), else the WRAM tables.
-import { taskStop } from '../task/plan.mjs';
-import { WRAM } from '../task/wram.mjs';
+import { taskStop } from '../system/task-stop.mjs';
+import { WRAM } from '../data/wram.mjs';
 import {
   appendScriptTask,
   appendScriptTaskCall as appendTableTaskCall,

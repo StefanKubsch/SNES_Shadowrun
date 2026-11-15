@@ -1,4 +1,4 @@
-import { taskStop } from '../../src/task/plan.mjs';
+import { taskStop } from '../../src/system/task-stop.mjs';
 import { prepareTaskPlan } from './plan.mjs';
 export function runTaskLocalWrites(a) {
   const indexWord = a.streamWord('local-index-WORD'),

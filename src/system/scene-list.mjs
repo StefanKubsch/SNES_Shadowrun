@@ -1,5 +1,5 @@
 // Scene command lists (lifted from 81:EC16 and its commands 81:EC41-ECD0, with the
-// palette copy 81:ECF2; register-level version in src/task/main-scene-video.mjs).
+// palette copy 81:ECF2; register-level version in src/system/main-scene-video.mjs).
 // A list of command bytes with their arguments sets up a screen: the NMI
 // callback, packed graphics into VRAM, palettes and single registers. The
 // command table scene_list_commands (81:EC2F) names the handler of each byte;
@@ -8,7 +8,7 @@
 //
 // The lifted list runs with 16-bit registers (the matrix requires them): the
 // callback command then stores its bank as a word.
-import { taskStop } from '../task/plan.mjs';
+import { taskStop } from './task-stop.mjs';
 import { decodeOnce, tableEntries } from '../data/named-tables.mjs';
 import { unpackStream } from './unpack.mjs';
 import {
@@ -17,7 +17,7 @@ import {
   PALETTE_SHADOW,
   SCENE_LAYER_HIGH,
   WRAM,
-} from '../task/wram.mjs';
+} from '../data/wram.mjs';
 import {
   A1B0,
   A1T0L,

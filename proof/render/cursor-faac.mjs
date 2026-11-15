@@ -5,7 +5,7 @@ import {
   WINDOW_TILE_START,
   WINDOW_CURSOR_TILE,
   WINDOW_CURSOR_PIXEL,
-} from '../../src/task/wram.mjs';
+} from '../../src/data/wram.mjs';
 import { BYTE_MASK, WORD_MASK } from '../../src/constants/bits.mjs';
 const DEFAULT_MAX_WORK = 1000000;
 const DEFAULT_MAX_OUTPUT_BYTES = 65536;

@@ -1,23 +1,23 @@
-import { taskStop } from '../../src/task/plan.mjs';
+import { taskStop } from '../../src/system/task-stop.mjs';
 import {
   drainNativeSequence,
   dialogCallSequence,
-} from '../../src/task/native-call-continuation.mjs';
+} from '../../src/system/native-call-continuation.mjs';
 import { TALK_ROUTINES } from './native-dialog.mjs';
 import { showNoticeAdapter } from './native-notice.mjs';
-import { printTextAdapter } from '../../src/task/native-text-compose.mjs';
-import { readTextBit } from '../../src/task/native-text-prerequisites.mjs';
-import { requestTextMapUpload } from '../../src/task/native-render-compose.mjs';
+import { printTextAdapter } from '../../src/system/native-text-compose.mjs';
+import { readTextBit } from '../../src/system/native-text-prerequisites.mjs';
+import { requestTextMapUpload } from '../../src/system/native-render-compose.mjs';
 import { runDrawWindowList } from '../../src/game/window-list.mjs';
-import { unpackWindowMap } from '../../src/task/native-render-unpack.mjs';
-import { clc } from '../../src/task/status-flags.mjs';
+import { unpackWindowMap } from '../../src/system/native-render-unpack.mjs';
+import { clc } from '../../src/system/status-flags.mjs';
 import { languageTextWidth } from '../../src/data/language.mjs';
 import { portTextAddress } from '../../src/data/port-extension.mjs';
 import {
   TEXT_POINTER_BANK_SEED,
   HUFFMAN_CHARACTER_PAIR_MASK,
   HUFFMAN_TEXT_END,
-} from '../../src/task/native-text-compose.mjs';
+} from '../../src/system/native-text-compose.mjs';
 import {
   TEXT_WORK_WORD,
   TEXT_SOURCE_POINTER,
@@ -25,7 +25,7 @@ import {
   TEXT_SOURCE_BANK,
   TEXT_CHARACTER_INDEX,
   TEXT_BITS_REMAINING,
-} from '../../src/task/wram.mjs';
+} from '../../src/data/wram.mjs';
 import { WORD_MASK, HIGH_BYTE_MASK, WORD_SIGN, WORD_BITS } from '../../src/constants/bits.mjs';
 
 // DP BA: the text width FADD sums and returns.

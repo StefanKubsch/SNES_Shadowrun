@@ -38,7 +38,7 @@ import {
   RUNNER_WEAPON_RANGE,
   RECORD_PROPERTY,
   WRAM,
-} from '../task/wram.mjs';
+} from '../data/wram.mjs';
 import { CODE_BANK_BASE } from '../constants/memory-map.mjs';
 import { LONG_MASK, WORD_MASK, WORD_SIGN } from '../constants/bits.mjs';
 

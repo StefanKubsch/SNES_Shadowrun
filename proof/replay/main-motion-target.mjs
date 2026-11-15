@@ -1,5 +1,5 @@
 import { WORD_MASK } from '../../src/constants/bits.mjs';
-import { turnRegisters } from '../../src/task/native-object-turn.mjs';
+import { turnRegisters } from '../../src/script/native-object-turn.mjs';
 
 import {
   MOTION_ACTIVE,
@@ -15,7 +15,7 @@ import {
   OBJECT_X,
   OBJECT_Y,
   WRAM,
-} from '../../src/task/wram.mjs';
+} from '../../src/data/wram.mjs';
 import { TASK_EVENTS, TASK_PREVIOUS, TASK_WAIT } from '../../src/vm/layout.mjs';
 import { FLAG_ZERO, FLAG_NEGATIVE, FLAG_CARRY } from '../../src/constants/cpu-flags.mjs';
 // $80:C9E0 with C84D/C913 and C80C: running movement towards a target. The direction

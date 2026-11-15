@@ -34,7 +34,7 @@ import {
   WINDOW_CURSOR_PIXEL,
   WINDOW_LEFT_PIXEL,
   WINDOW_STYLE,
-} from '../../src/task/wram.mjs';
+} from '../../src/data/wram.mjs';
 import { FLAG_NEGATIVE, FLAG_ZERO, FLAG_CARRY } from '../../src/constants/cpu-flags.mjs';
 import { M7A, M7B, MPYL } from '../../src/constants/hardware-registers.mjs';
 

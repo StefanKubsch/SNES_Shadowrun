@@ -7,7 +7,7 @@ import { mainGate8000Spec, proveMainGate8000Source } from './main-gate-8000-sour
 import { runReference } from './w65c816-reference.mjs';
 import { VmMemory } from '../src/vm/memory.mjs';
 import { TaskAccessor } from '../src/vm/task-accessor.mjs';
-import { dialogAccess } from '../src/task/native-dialog-support.mjs';
+import { dialogAccess } from '../src/system/native-dialog-support.mjs';
 import { checkPlayerZones } from '../proof/replay/main-zone-gate.mjs';
 import { MAIN_LOOP_ROUTINES } from '../src/vm/main-loop.mjs';
 import { MAIN_LOOP_ROUTINES as REPLAY_LOOP_ROUTINES } from '../proof/vm/main-loop.mjs';

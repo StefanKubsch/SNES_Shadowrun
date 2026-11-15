@@ -1,6 +1,6 @@
-import { taskStop } from '../../src/task/plan.mjs';
-import { dialogAccess } from '../../src/task/native-dialog-support.mjs';
-import { drainNativeSequence } from '../../src/task/native-call-continuation.mjs';
+import { taskStop } from '../../src/system/task-stop.mjs';
+import { dialogAccess } from '../../src/system/native-dialog-support.mjs';
+import { drainNativeSequence } from '../../src/system/native-call-continuation.mjs';
 import { NATIVE_CALL_CONTINUATIONS } from './continuations.mjs';
 import { FRONTEND_NMI_ROUTINES } from './main-frontend-nmi.mjs';
 import { MAIN_START_ROUTINES } from './main-start.mjs';
@@ -12,8 +12,8 @@ import {
   runMainLoop,
 } from '../vm/main-loop.mjs';
 import { runTileBuffers } from '../../src/game/main-upkeep.mjs';
-import { dialogCallBody } from '../../src/task/native-call-continuation.mjs';
-import { lagFree } from '../../src/task/main-wait-interrupt.mjs';
+import { dialogCallBody } from '../../src/system/native-call-continuation.mjs';
+import { lagFree } from '../../src/system/main-wait-interrupt.mjs';
 import { frontendContinuations } from './main-frontend-text.mjs';
 import { playAttractDemo } from '../../src/frontend/title-cycle.mjs';
 import {

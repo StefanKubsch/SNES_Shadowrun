@@ -1,9 +1,9 @@
 // Register-level references of the time limit's script natives (moved from
-// src/task/native-timer-start.mjs, native-timer-stop.mjs and native-timer-running.mjs;
+// src/script/native-timer-start.mjs, native-timer-stop.mjs and native-timer-running.mjs;
 // lifted in src/game/time-limit.mjs). The proof plans and the Native58 dispatch of
 // proof/task/native-dispatch.mjs run these; the game runs the lifted natives.
-import { leaf } from '../../src/task/native-leaf-support.mjs';
-import { TIMER, TIMER_FRAMES, TIMER_STOPPED } from '../../src/task/wram.mjs';
+import { leaf } from '../../src/system/native-leaf-support.mjs';
+import { TIMER, TIMER_FRAMES, TIMER_STOPPED } from '../../src/data/wram.mjs';
 import { WORD_MASK } from '../../src/constants/bits.mjs';
 
 // Start values stored by the ROM: frame counter 3540, countdown 29.

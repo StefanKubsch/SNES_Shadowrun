@@ -8,7 +8,7 @@ import {
   TEXT_WORK_WORD,
   TEXT_MASK_BUFFER,
   TEXT_BUFFER_BYTES,
-} from '../../src/task/wram.mjs';
+} from '../../src/data/wram.mjs';
 import { WORD_MASK, BANK_SIZE, LONG_MASK } from '../../src/constants/bits.mjs';
 
 const DEFAULT_MAX_WORK = 1000000;

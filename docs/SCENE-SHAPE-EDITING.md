@@ -22,7 +22,7 @@ diagnostic comparisons, not authentication.
 Sources are the original loader `81:8DE2`, diagonals `81:8D09` and `81:8D23`,
 rectangle border `81:8D3D`, rectangle fill `81:8DC0`, and block placement
 `81:8EDF`. Their native equations are in
-[main-scene-load.mjs](../src/task/main-scene-load.mjs); the pinned source windows
+[main-scene-load.mjs](../src/system/main-scene-load.mjs); the pinned source windows
 and existing original-instruction comparisons are in
 [main-scene-load-source.mjs](../tools/main-scene-load-source.mjs) and
 [main-scene-load.test.mjs](../tools/main-scene-load.test.mjs).
@@ -73,9 +73,9 @@ with the first allocated entry at `0D00` and slot seven at `0D0C`. An eighth
 entry aliases the upload flag at `0D0E`. The NMI uploader `80:999A` and tile
 palette bits also consume these slots. The scene's 74-entry palette lookup
 is a lookup by identity, not permission for 74 simultaneous BG palettes.
-Sources: [main-initialize.mjs](../src/task/main-initialize.mjs),
+Sources: [main-initialize.mjs](../src/system/main-initialize.mjs),
 [main-game-nmi.mjs](../proof/replay/main-game-nmi.mjs), and
-[wram.mjs](../src/task/wram.mjs).
+[wram.mjs](../src/data/wram.mjs).
 
 ## Shared tile stacks and walls
 
@@ -90,7 +90,7 @@ both a per-pass peak and the combined peak including retained low entries.
 Free-stack exhaustion and allocation overlap must be rejected by a future
 preflight before any data publication.
 
-Object drawing in [main-scene-layers.mjs](../src/task/main-scene-layers.mjs)
+Object drawing in [main-scene-layers.mjs](../src/system/main-scene-layers.mjs)
 allocates wall records in groups of four cells of six bytes: 24 bytes per
 new wall-map word. The height array starts at `7F:0C00`, the tile array at
 `7F:69C0`, and the next owner, the tile-stack hash heads, at `7F:C780`.

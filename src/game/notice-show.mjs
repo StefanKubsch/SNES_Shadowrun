@@ -18,8 +18,8 @@
 // slot, and Y, the carry and the overflow as the original: those of the last frames
 // comparison, or of the callee that ran last. The text number must point within bank
 // 80 (notice_text_required past it).
-import { taskStop } from '../task/plan.mjs';
-import { nativeCallSequence } from '../task/native-call-continuation.mjs';
+import { taskStop } from '../system/task-stop.mjs';
+import { nativeCallSequence } from '../system/native-call-continuation.mjs';
 import { fitNoticeWindow } from '../data/language.mjs';
 import { releaseWindowSequence } from './window-release.mjs';
 import {
@@ -30,7 +30,7 @@ import {
   NOTICE_FRAMES,
   NOTICE_WINDOW_LAST,
   NOTICE_WINDOWS,
-} from '../task/wram.mjs';
+} from '../data/wram.mjs';
 import { BYTE_BITS, BYTE_MASK, WORD_MASK, WORD_SIGN } from '../constants/bits.mjs';
 import { FLAG_CARRY, FLAG_NEGATIVE, FLAG_ZERO } from '../constants/cpu-flags.mjs';
 

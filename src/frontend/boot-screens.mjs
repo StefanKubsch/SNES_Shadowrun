@@ -18,7 +18,7 @@ import { runSceneList } from '../system/scene-list.mjs';
 import { waitForFrame } from '../system/frame-wait.mjs';
 import { fadeIn, fadeOut } from '../video/fades.mjs';
 import { setSceneScreen } from '../video/scene-screen.mjs';
-import { taskStop } from '../task/plan.mjs';
+import { taskStop } from '../system/task-stop.mjs';
 import {
   restoreDefaultSettings,
   sendOutputMode,
@@ -30,7 +30,7 @@ import {
   SETTINGS_CONTROL_TYPE_A,
   SETTINGS_STEREO,
   SETTINGS_STEREO_ON,
-} from '../task/wram.mjs';
+} from '../data/wram.mjs';
 import { APU_COMMAND_OUTPUT_MODE } from '../constants/sound-commands.mjs';
 import { BYTE_BITS, BYTE_MASK, WORD_MASK } from '../constants/bits.mjs';
 import { FLAG_INDEX_8BIT, FLAG_IRQ_DISABLE, FLAG_MEMORY_8BIT } from '../constants/cpu-flags.mjs';

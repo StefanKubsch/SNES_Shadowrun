@@ -18,7 +18,7 @@ import { IGNORED_WRAM as MATRIX_IGNORED_WRAM, PLAN as MATRIX_PLAN } from './live
 import { CUTSCENE_IGNORED_WRAM, CUTSCENE_PLAN } from './live-cutscene-plan.mjs';
 import { processSceneRequest } from '../src/game/scene-request.mjs';
 import { enterRoom } from '../proof/replay/main-transition.mjs';
-import { MAIN_INITIALIZE_ROUTINES } from '../src/task/main-initialize.mjs';
+import { MAIN_INITIALIZE_ROUTINES } from '../src/system/main-initialize.mjs';
 import { SCENE_REQUEST_REFERENCE_ENTRIES } from '../proof/game-reference/scene-request.mjs';
 import { ROOM_ENTRY_REFERENCE_ENTRIES } from '../proof/game-reference/room-entry.mjs';
 import { GAME_SCREEN_REFERENCE_ENTRIES } from '../proof/game-reference/game-screen.mjs';

@@ -14,9 +14,9 @@ export const nativeCD9DSpec = {
     [
       0x80bcb2,
       'RTS',
-      'glove off, putGloveAway in src/task/native-dialog-portrait.mjs (tools/task-native-936c-source.mjs, group bcb2)',
+      'glove off, putGloveAway in src/system/native-dialog-portrait.mjs (tools/task-native-936c-source.mjs, group bcb2)',
     ],
-    [0x81ad92, 'RTL', 'window list, drawWindowList in src/task/native-render-compose.mjs'],
+    [0x81ad92, 'RTL', 'window list, drawWindowList in src/system/native-render-compose.mjs'],
   ],
   scope:
     'Original Native45 CD9D own code with external returns into BCB2 and 81:AD92; equations in proof/replay/native-glove-release.mjs, differential check in tools/task-native-cd9d.test.mjs.',

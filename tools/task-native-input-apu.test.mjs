@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { sendApuCommand } from '../src/task/native-input-apu.mjs';
+import { sendApuCommand } from '../src/system/native-input-apu.mjs';
 import { prepareTaskNativeInputApu as prepare } from '../proof/task/native-input-apu.mjs';
 import { prepareTaskPlan, commitTaskPlan } from '../proof/task/plan.mjs';
 import { taskInputApuFixture as fixture } from './task-native-input-apu-fixtures.mjs';

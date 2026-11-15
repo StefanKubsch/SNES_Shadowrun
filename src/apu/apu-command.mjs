@@ -1,9 +1,9 @@
 // A command to the sound driver (lifted from 81:F007, register-level version in
-// src/task/native-input-apu.mjs). The driver echoes the last token on port 0;
+// src/system/native-input-apu.mjs). The driver echoes the last token on port 0;
 // the CPU waits for that echo, then sends the parameter word on ports 2 and 3,
 // the command on port 1 and the next token on port 0. Commands are APU_COMMAND_*
 // in src/constants/sound-commands.mjs.
-import { APU_COMMAND_TOKEN } from '../task/wram.mjs';
+import { APU_COMMAND_TOKEN } from '../data/wram.mjs';
 import { APUIO0, APUIO1, APUIO2 } from '../constants/hardware-registers.mjs';
 import { BYTE_MASK } from '../constants/bits.mjs';
 

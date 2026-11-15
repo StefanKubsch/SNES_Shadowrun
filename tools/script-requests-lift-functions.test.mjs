@@ -16,12 +16,12 @@ import {
   requestMainLoopExitReference,
   requestRoomReloadReference,
 } from '../proof/game-reference/script-requests.mjs';
-import { changeRoom } from '../src/task/native-room-change.mjs';
-import { changeScene } from '../src/task/native-scene-change.mjs';
-import { requestRoomReload } from '../src/task/native-room-reload.mjs';
-import { requestMainLoopExit } from '../src/task/native-main-loop-exit.mjs';
-import { endDialog } from '../src/task/native-dialog-end.mjs';
-import { resetPlayerControl } from '../src/task/native-player-control-reset.mjs';
+import { changeRoom } from '../src/script/native-room-change.mjs';
+import { changeScene } from '../src/script/native-scene-change.mjs';
+import { requestRoomReload } from '../src/script/native-room-reload.mjs';
+import { requestMainLoopExit } from '../src/script/native-main-loop-exit.mjs';
+import { endDialog } from '../src/script/native-dialog-end.mjs';
+import { resetPlayerControl } from '../src/script/native-player-control-reset.mjs';
 
 const WRAM_BYTES = 0x20000,
   HEX = 16,

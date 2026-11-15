@@ -1,5 +1,5 @@
-// The script natives that run lifted code (src/task/native-script-leaves.mjs and the leaf
-// natives of src/task/native-targets.mjs that call src/game) and what
+// The script natives that run lifted code (src/script/native-script-leaves.mjs and the leaf
+// natives of src/script/native-targets.mjs that call src/game) and what
 // the oracle comparisons may expect of them (docs/MAIN-LOOP-LIFT.md). After the
 // native's RTS the script interpreter's $F509 replaces A, X, Y, the direct page and N/Z
 // and reads the result from the direct page word 00; no opcode reads the carry or

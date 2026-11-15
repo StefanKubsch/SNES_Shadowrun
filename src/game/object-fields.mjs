@@ -43,7 +43,7 @@ import {
   RECORD_FLAGS,
   RECORD_PROPERTY,
   WRAM,
-} from '../task/wram.mjs';
+} from '../data/wram.mjs';
 import { BYTE_BITS, BYTE_MASK, LONG_MASK, WORD_MASK, WORD_SIGN } from '../constants/bits.mjs';
 
 // 80:CA05: the object's flag word.

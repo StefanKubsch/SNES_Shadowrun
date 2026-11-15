@@ -1,6 +1,6 @@
 // Source-specific atomic plans for proof tools. The game executes the shared routines directly.
 import { prepareTaskPlan } from './plan.mjs';
-import { openWindow } from '../../src/task/native-window-open.mjs';
+import { openWindow } from '../../src/script/native-window-open.mjs';
 
 const devices = Object.freeze({
   writes: Object.freeze([0x211b, 0x211c]),

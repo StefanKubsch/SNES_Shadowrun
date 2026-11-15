@@ -18,7 +18,7 @@
 // action A 0 with zero set, Y the table index, the carry clear and X and the overflow
 // unchanged. The chosen flag is pushed around the release, as the original. The calls
 // get the registers the original passes them.
-import { dialogCallBody, nativeCallSequence } from '../task/native-call-continuation.mjs';
+import { dialogCallBody, nativeCallSequence } from '../system/native-call-continuation.mjs';
 import { fitListWindow, listTextIds } from '../data/menu-layout.mjs';
 import { TEXT_EXIT } from '../data/port-extension.mjs';
 import { releaseWindowSequence } from './window-release.mjs';
@@ -37,7 +37,7 @@ import {
   DP_WINDOW_ATTRIBUTES,
   DP_WINDOW_COLUMNS,
   DP_WINDOW_ROWS,
-} from '../task/wram.mjs';
+} from '../data/wram.mjs';
 import { BYTE_BITS, BYTE_MASK, WORD_MASK, WORD_SIGN } from '../constants/bits.mjs';
 import { FLAG_CARRY, FLAG_NEGATIVE, FLAG_OVERFLOW, FLAG_ZERO } from '../constants/cpu-flags.mjs';
 

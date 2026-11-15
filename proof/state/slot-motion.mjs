@@ -1,5 +1,5 @@
 import { WORD_MASK } from '../../src/constants/bits.mjs';
-import { OBJECT_COLLIDES, OBJECT_BLOCKED, OBJECT_FALLS } from '../../src/task/wram.mjs';
+import { OBJECT_COLLIDES, OBJECT_BLOCKED, OBJECT_FALLS } from '../../src/data/wram.mjs';
 import { isWord } from '../script/runtime.mjs';
 import { isSlotMotionData } from './slot-motion-data.mjs';
 import { prepareMotionHelper8133 } from './slot-motion-helper-8133.mjs';

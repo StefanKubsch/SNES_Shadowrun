@@ -12,11 +12,11 @@ import { isIoAddress, isArithmeticRegister } from '../src/vm/devices.mjs';
 import { SPECIAL_NATIVES } from '../proof/vm/special-natives.mjs';
 import { ORACLE_NATIVES } from '../proof/vm/oracle-natives.mjs';
 import { shootAtObject, NATIVE_8AB5_ROUTINES } from '../proof/replay/native-object-shoot.mjs';
-import { randomBelow } from '../src/task/native-random.mjs';
-import { createObject } from '../src/task/native-object-create.mjs';
-import { setObjectDirection } from '../src/task/native-object-action-set.mjs';
+import { randomBelow } from '../src/system/native-random.mjs';
+import { createObject } from '../src/script/native-object-create.mjs';
+import { setObjectDirection } from '../src/script/native-object-action-set.mjs';
 
-// Native10/8AB5: pinned own code with stack proof, and the equations of src/task/native-object-shoot.mjs
+// Native10/8AB5: pinned own code with stack proof, and the equations of src/data/native-object-shoot.mjs
 // against the original instructions (tools/w65c816-reference.mjs). 81:A25F runs on its pinned
 // windows; C51F, A835 and AAAF run their modules on both sides with the real call frames.
 const file = readFileSync(new URL('../Shadowrun (E).smc', import.meta.url));

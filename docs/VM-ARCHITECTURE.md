@@ -15,6 +15,12 @@ natives and main interval into `proof/vm/`, with their register-level forms and
 reference call tables in [proof/replay/](../proof/replay/). The game binds lifted
 native sequences directly and uses only lag-free frames.
 
+Phase 7 removes `src/task/`. Game constants live in `src/data/`, native argument
+and result adapters in `src/script/`, and shared caller, wait and NMI support in
+`src/system/`. The shared boundary is `src/system/task-stop.mjs`. These adapters
+still use the existing register access interface where lifted callees require it;
+they do not restore the register-level interpreter or scheduler to the game.
+
 ## Modules
 
 | Module                                               | Role                                                                                                                                                              |
@@ -41,7 +47,7 @@ The lifted native routines live in `src/game/`, `src/frontend/` and the other ga
 subsystems. Their register-level special native forms live in `proof/replay/`;
 [NATIVE-MODULES.md](NATIVE-MODULES.md) maps each former address-based name
 to its module. Named WRAM addresses of the game state (object arrays, glove,
-group, progress) are in [src/task/wram.mjs](../src/task/wram.mjs); task
+group, progress) are in [src/data/wram.mjs](../src/data/wram.mjs); task
 modules write `h.abs(OBJECT_FLAGS)` and `WRAM + OBJECT_ARMOUR` instead of
 raw literals.
 
@@ -64,6 +70,4 @@ raw literals.
   sequence twice: synchronously and as `mainIntervalSequence()` for a finite
   budget. Folding both into one sequence needs a proof that the synchronous
   run* functions and their continuations consume observations identically.
-- Phase 7 dissolves the remaining `src/task/`: shared constants and execution
-  support move into the game's data and system directories. The game still uses
-  address-keyed callee tables in several caller adapters.
+- The game still uses address-keyed callee tables in several caller adapters.

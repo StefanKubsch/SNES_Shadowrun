@@ -1,17 +1,17 @@
-import { FIRST_ARGUMENT } from '../../src/task/native-leaf-support.mjs';
+import { FIRST_ARGUMENT } from '../../src/system/native-leaf-support.mjs';
 import { withInterruptEvents } from './observed-native-events.mjs';
-import { lagFree } from '../../src/task/main-wait-interrupt.mjs';
-import { dialogAccess } from '../../src/task/native-dialog-support.mjs';
-import { taskStop } from '../../src/task/plan.mjs';
-import { taskTextAccess } from '../../src/task/native-text-prerequisites.mjs';
+import { lagFree } from '../../src/system/main-wait-interrupt.mjs';
+import { dialogAccess } from '../../src/system/native-dialog-support.mjs';
+import { taskStop } from '../../src/system/task-stop.mjs';
+import { taskTextAccess } from '../../src/system/native-text-prerequisites.mjs';
 import { showNotice, showNoticeSequence, validateNoticeOptions } from './native-notice.mjs';
-import { setTextCursor, printNumber } from '../../src/task/native-list-prerequisites.mjs';
-import { printText, printTextSequence } from '../../src/task/native-text-compose.mjs';
+import { setTextCursor, printNumber } from '../../src/system/native-list-prerequisites.mjs';
+import { printText, printTextSequence } from '../../src/system/native-text-compose.mjs';
 import {
   observedContinuation,
   drainNativeSequence,
-} from '../../src/task/native-call-continuation.mjs';
-import { playSoundEffect, setMusicMode } from '../../src/task/native-audio-compose.mjs';
+} from '../../src/system/native-call-continuation.mjs';
+import { playSoundEffect, setMusicMode } from '../../src/system/native-audio-compose.mjs';
 import {
   DP_CURSOR_ROW,
   DP_NOTICE_FRAMES,
@@ -36,7 +36,7 @@ import {
   KARMA,
   OPTION_MUSIC_RESTORE,
   WRAM,
-} from '../../src/task/wram.mjs';
+} from '../../src/data/wram.mjs';
 import {
   FLAG_INDEX_8BIT,
   FLAG_MEMORY_8BIT,

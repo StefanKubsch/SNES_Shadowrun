@@ -1,11 +1,11 @@
 // Register-level references of the party's karma, nuyen and magic point sums and its
-// learned spells (moved from src/task/native-karma-add.mjs, native-nuyen-add.mjs,
+// learned spells (moved from src/script/native-karma-add.mjs, native-nuyen-add.mjs,
 // native-magic-points-add.mjs and native-spell-add.mjs;
 // lifted in src/game/party-funds.mjs). The proof plans, the Native58 dispatch of
 // proof/task/native-dispatch.mjs and the instruction test of 80:8B8A run these; the game
 // runs the lifted natives.
-import { FIRST_ARGUMENT, leaf } from '../../src/task/native-leaf-support.mjs';
-import { taskSelectionSupport } from '../../src/task/native-object-turn.mjs';
+import { FIRST_ARGUMENT, leaf } from '../../src/system/native-leaf-support.mjs';
+import { taskSelectionSupport } from '../../src/script/native-object-turn.mjs';
 import {
   KARMA,
   MAGIC_POINTS,
@@ -13,7 +13,7 @@ import {
   NUYEN,
   SPELL_LIST,
   WRAM,
-} from '../../src/task/wram.mjs';
+} from '../../src/data/wram.mjs';
 import { BYTE_MASK, WORD_MASK } from '../../src/constants/bits.mjs';
 import { FLAG_CARRY, FLAG_ZERO } from '../../src/constants/cpu-flags.mjs';
 

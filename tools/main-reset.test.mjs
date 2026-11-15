@@ -18,7 +18,7 @@ import {
 } from './task-native-dialog-harness.mjs';
 import { runReference } from './w65c816-reference.mjs';
 import { TaskAccessor } from '../src/vm/task-accessor.mjs';
-import { dialogAccess } from '../src/task/native-dialog-support.mjs';
+import { dialogAccess } from '../src/system/native-dialog-support.mjs';
 import { runMainReset, runMainSoftwareReset } from '../proof/replay/main-reset.mjs';
 import { MAIN_STARTUP_ROUTINES as MAIN_STARTUP_TASK } from '../proof/replay/main-startup.mjs';
 // The ROM comparison observes the register-level APU reads of 81:F007 at their data

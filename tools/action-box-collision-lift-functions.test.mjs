@@ -1,6 +1,6 @@
 // Random per-function test of the lifted script native 80:8371, the collision test of an
 // object's action box (src/game/action-box-collision.mjs through
-// src/task/native-object-collision.mjs), against its register-level reference
+// src/script/native-object-collision.mjs), against its register-level reference
 // (proof/game-reference/action-box-collision.mjs). The native runs from its script call
 // (data bank 80, direct page 0, the RTS frame). The object is a game slot of any kind of
 // the action table (or any word) in a direction (or any word), at a position in the
@@ -12,7 +12,7 @@
 import { prng } from './task-native-dialog-harness.mjs';
 import { createSide, registerCases } from './lift-function-harness.mjs';
 import { testObjectCollisionReference } from '../proof/game-reference/action-box-collision.mjs';
-import { testObjectCollision } from '../src/task/native-object-collision.mjs';
+import { testObjectCollision } from '../src/script/native-object-collision.mjs';
 import {
   COLLISION_BOX_X0,
   COLLISION_CELL_HEADS,
@@ -24,7 +24,7 @@ import {
   OBJECT_X,
   OBJECT_Y,
   PLAYER_OBJECT,
-} from '../src/task/wram.mjs';
+} from '../src/data/wram.mjs';
 
 const WRAM_BYTES = 0x20000,
   HEX = 16,

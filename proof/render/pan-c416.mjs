@@ -16,7 +16,7 @@ import {
 } from '../../src/constants/memory-map.mjs';
 import { RDMPYH, WRMPYA, WRMPYB } from '../../src/constants/hardware-registers.mjs';
 import { FLAG_NEGATIVE, FLAG_MEMORY_8BIT } from '../../src/constants/cpu-flags.mjs';
-import { OBJECT_Y, OBJECT_X, CAMERA_X } from '../../src/task/wram.mjs';
+import { OBJECT_Y, OBJECT_X, CAMERA_X } from '../../src/data/wram.mjs';
 
 const DEFAULT_MAX_WORK = 1000000;
 const PAN_STACK_BYTES = 3;

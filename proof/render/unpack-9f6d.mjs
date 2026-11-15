@@ -13,7 +13,7 @@ import {
   UNPACK_OUTPUT_COUNT,
   UNPACK_LITERAL_WORDS,
   UNPACK_OUTPUT_COUNT_HIGH,
-} from '../../src/task/wram.mjs';
+} from '../../src/data/wram.mjs';
 import {
   WORD_BITS,
   LONG_MASK,

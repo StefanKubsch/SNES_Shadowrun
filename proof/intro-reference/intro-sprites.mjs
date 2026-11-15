@@ -1,5 +1,5 @@
 // Register-level reference of the intro sprite grid 81:E83A and the far object start
-// 81:E971 (lifted in src/intro/intro-objects.mjs), moved from src/task/main-intro-nmi.mjs.
+// 81:E971 (lifted in src/intro/intro-objects.mjs), moved from src/system/main-intro-nmi.mjs.
 import { INTRO_FAR_ANIMATION } from './intro-setup.mjs';
 
 import {
@@ -10,7 +10,7 @@ import {
   INTRO_OBJECT_LAST,
   OAM_SHADOW,
   OAM_SHADOW_HIGH,
-} from '../../src/task/wram.mjs';
+} from '../../src/data/wram.mjs';
 import { WORD_MASK } from '../../src/constants/bits.mjs';
 import {
   OAM_ENTRY_BYTES,

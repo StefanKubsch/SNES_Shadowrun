@@ -8,7 +8,7 @@ import {
   SECOND_ARGUMENT,
   THIRD_ARGUMENT,
   leaf,
-} from '../../src/task/native-leaf-support.mjs';
+} from '../../src/system/native-leaf-support.mjs';
 import {
   DP_POINT_LIST,
   DP_POINT_LIST_BANK,
@@ -24,7 +24,7 @@ import {
   MOTION_Y,
   PLAYER_OBJECT,
   WRAM,
-} from '../../src/task/wram.mjs';
+} from '../../src/data/wram.mjs';
 import {
   BANK_WRAP,
   LONG_MASK,

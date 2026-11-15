@@ -1,5 +1,5 @@
 // Random per-function tests of the lifted decimal number (src/game/decimal-number.mjs)
-// against the register-level 80:FDCF (src/task/native-status-screen.mjs). Both sides
+// against the register-level 80:FDCF (src/system/native-status-screen.mjs). Both sides
 // call the same stand-in for the text buffer 80:FB39. It records its target, the data
 // bank, A, X, Y, the flags N, V, Z and C and the direct page words 00 and 02, and leaves
 // registers and flags drawn from the sample's own sequence. WRAM outside the stack, the
@@ -9,7 +9,7 @@ import { createSide, registerCases } from './lift-function-harness.mjs';
 import { fdcfSequence } from '../proof/replay/native-status-screen.mjs';
 import { decimalNumberSequence } from '../src/game/decimal-number.mjs';
 
-import { drainNativeSequence } from '../src/task/native-call-continuation.mjs';
+import { drainNativeSequence } from '../src/system/native-call-continuation.mjs';
 
 const WRAM_BYTES = 0x20000,
   HEX = 16,

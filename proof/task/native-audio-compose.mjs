@@ -6,7 +6,7 @@ import {
   subtractSampleLength,
   runTaskAudioWord,
   taskAudioDevices,
-} from '../../src/task/native-audio-compose.mjs';
+} from '../../src/system/native-audio-compose.mjs';
 
 const entries = [0x80c46e, 0x81f130, 0x81f100, 0x81f122, 0x81f1e8];
 

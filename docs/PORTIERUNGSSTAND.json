@@ -388,7 +388,7 @@
       "id": "task-f378-script-arguments",
       "entries": ["80:F460"],
       "status": "composition-required",
-      "reason": "Manuelle native Bindung geliefert: src/task/script-arguments.mjs. Source-specific atomic prefix only, explicit frozen context/physical owners/protected outerstack/windows/budgets; complete argument prefix stops BEFORE 80:F488 TCS stack migration. Whole Task/C1CA/9178/initialization/scene/frame composition remains open.",
+      "reason": "Manuelle native Bindung geliefert: src/system/script-arguments.mjs. Source-specific atomic prefix only, explicit frozen context/physical owners/protected outerstack/windows/budgets; complete argument prefix stops BEFORE 80:F488 TCS stack migration. Whole Task/C1CA/9178/initialization/scene/frame composition remains open.",
       "manual_native": {
         "module": "proof/task/script-arguments.mjs",
         "report": "analysis/render-task-script-arguments-native.json"
@@ -398,7 +398,7 @@
       "id": "task-c36a-child-yield",
       "entries": ["80:C36A"],
       "status": "source-required",
-      "reason": "Complete source with manual equations in src/task/script-yield.mjs, bound only inside full yielding Script52. Standalone root/global lifecycle remains separate."
+      "reason": "Complete source with manual equations in src/system/script-yield.mjs, bound only inside full yielding Script52. Standalone root/global lifecycle remains separate."
     },
     {
       "id": "task-f378-script-bridge",
@@ -536,7 +536,7 @@
       "id": "task-f378-native-ca3a",
       "entries": ["80:CA3A"],
       "status": "composition-required",
-      "reason": "Manuelle native Bindung geliefert: src/task/native-object-record-flags.mjs. Source-specific atomic prefix only, explicit frozen context/physical owners/protected outerstack/windows/budgets; outer return target is reported, not executed. Whole Task/C1CA/9178/initialization/scene/frame composition remains open.",
+      "reason": "Manuelle native Bindung geliefert: src/script/native-object-record-flags.mjs. Source-specific atomic prefix only, explicit frozen context/physical owners/protected outerstack/windows/budgets; outer return target is reported, not executed. Whole Task/C1CA/9178/initialization/scene/frame composition remains open.",
       "source_contract": "analysis/render-task-native-ca3a.json",
       "manual_native": {
         "module": "proof/task/native-ca3a.mjs",
@@ -547,7 +547,7 @@
       "id": "task-f378-native-cc26",
       "entries": ["80:CC26"],
       "status": "composition-required",
-      "reason": "Manuelle native Bindung geliefert: src/task/native-script-variable-and.mjs. Source-specific atomic prefix only, explicit frozen context/physical owners/protected outerstack/windows/budgets; outer return target is reported, not executed. Whole Task/C1CA/9178/initialization/scene/frame composition remains open.",
+      "reason": "Manuelle native Bindung geliefert: src/script/native-script-variable-and.mjs. Source-specific atomic prefix only, explicit frozen context/physical owners/protected outerstack/windows/budgets; outer return target is reported, not executed. Whole Task/C1CA/9178/initialization/scene/frame composition remains open.",
       "source_contract": "analysis/render-task-native-cc26.json",
       "manual_native": {
         "module": "proof/task/native-cc26.mjs",
@@ -558,7 +558,7 @@
       "id": "task-f378-native-d97c",
       "entries": ["80:D97C"],
       "status": "composition-required",
-      "reason": "Manuelle native Bindung geliefert: src/task/native-swarm-height-phase-target.mjs. Source-specific atomic prefix only, explicit frozen context/physical owners/protected outerstack/windows/budgets; outer return target is reported, not executed. Whole Task/C1CA/9178/initialization/scene/frame composition remains open.",
+      "reason": "Manuelle native Bindung geliefert: src/script/native-swarm-height-phase-target.mjs. Source-specific atomic prefix only, explicit frozen context/physical owners/protected outerstack/windows/budgets; outer return target is reported, not executed. Whole Task/C1CA/9178/initialization/scene/frame composition remains open.",
       "source_contract": "analysis/render-task-native-d97c.json",
       "manual_native": {
         "module": "proof/task/native-d97c.mjs",
@@ -569,7 +569,7 @@
       "id": "task-f378-native-ca2b",
       "entries": ["80:CA2B"],
       "status": "composition-required",
-      "reason": "Manuelle native Bindung geliefert: src/task/native-object-record-byte0.mjs. Source-specific atomic prefix only, explicit frozen context/physical owners/protected outerstack/windows/budgets; outer return target is reported, not executed. Whole Task/C1CA/9178/initialization/scene/frame composition remains open.",
+      "reason": "Manuelle native Bindung geliefert: src/script/native-object-record-byte0.mjs. Source-specific atomic prefix only, explicit frozen context/physical owners/protected outerstack/windows/budgets; outer return target is reported, not executed. Whole Task/C1CA/9178/initialization/scene/frame composition remains open.",
       "source_contract": "analysis/render-task-native-ca2b.json",
       "manual_native": {
         "module": "proof/task/native-ca2b.mjs",
@@ -580,7 +580,7 @@
       "id": "task-f378-native-ca49",
       "entries": ["80:CA49"],
       "status": "composition-required",
-      "reason": "Manuelle native Bindung geliefert: src/task/native-object-record-count.mjs. Source-specific atomic prefix only, explicit frozen context/physical owners/protected outerstack/windows/budgets; outer return target is reported, not executed. Whole Task/C1CA/9178/initialization/scene/frame composition remains open.",
+      "reason": "Manuelle native Bindung geliefert: src/script/native-object-record-count.mjs. Source-specific atomic prefix only, explicit frozen context/physical owners/protected outerstack/windows/budgets; outer return target is reported, not executed. Whole Task/C1CA/9178/initialization/scene/frame composition remains open.",
       "source_contract": "analysis/render-task-native-ca49.json",
       "manual_native": {
         "module": "proof/task/native-ca49.mjs",
@@ -591,7 +591,7 @@
       "id": "task-f378-native-ca58",
       "entries": ["80:CA58"],
       "status": "composition-required",
-      "reason": "Manuelle native Bindung geliefert: src/task/native-object-record-property.mjs. Source-specific atomic prefix only, explicit frozen context/physical owners/protected outerstack/windows/budgets; outer return target is reported, not executed. Whole Task/C1CA/9178/initialization/scene/frame composition remains open.",
+      "reason": "Manuelle native Bindung geliefert: src/script/native-object-record-property.mjs. Source-specific atomic prefix only, explicit frozen context/physical owners/protected outerstack/windows/budgets; outer return target is reported, not executed. Whole Task/C1CA/9178/initialization/scene/frame composition remains open.",
       "source_contract": "analysis/render-task-native-ca58.json",
       "manual_native": {
         "module": "proof/task/native-ca58.mjs",
@@ -602,7 +602,7 @@
       "id": "task-f378-native-cbb3",
       "entries": ["80:CBB3"],
       "status": "composition-required",
-      "reason": "Manuelle native Bindung geliefert: src/task/native-record-flags-or.mjs. Source-specific atomic prefix only, explicit frozen context/physical owners/protected outerstack/windows/budgets; outer return target is reported, not executed. Whole Task/C1CA/9178/initialization/scene/frame composition remains open.",
+      "reason": "Manuelle native Bindung geliefert: src/script/native-record-flags-or.mjs. Source-specific atomic prefix only, explicit frozen context/physical owners/protected outerstack/windows/budgets; outer return target is reported, not executed. Whole Task/C1CA/9178/initialization/scene/frame composition remains open.",
       "source_contract": "analysis/render-task-native-cbb3.json",
       "manual_native": {
         "module": "proof/task/native-cbb3.mjs",
@@ -613,7 +613,7 @@
       "id": "task-f378-native-d9a0",
       "entries": ["80:D9A0"],
       "status": "composition-required",
-      "reason": "Manuelle native Bindung geliefert: src/task/native-main-loop-exit.mjs. Source-specific atomic prefix only, explicit frozen context/physical owners/protected outerstack/windows/budgets; outer return target is reported, not executed. Whole Task/C1CA/9178/initialization/scene/frame composition remains open.",
+      "reason": "Manuelle native Bindung geliefert: src/script/native-main-loop-exit.mjs. Source-specific atomic prefix only, explicit frozen context/physical owners/protected outerstack/windows/budgets; outer return target is reported, not executed. Whole Task/C1CA/9178/initialization/scene/frame composition remains open.",
       "source_contract": "analysis/render-task-native-d9a0.json",
       "manual_native": {
         "module": "proof/task/native-d9a0.mjs",
@@ -624,7 +624,7 @@
       "id": "task-f378-native-cc10",
       "entries": ["80:CC10"],
       "status": "composition-required",
-      "reason": "Manuelle native Bindung geliefert: src/task/native-script-variable-set.mjs. Source-specific atomic prefix only, explicit frozen context/physical owners/protected outerstack/windows/budgets; outer return target is reported, not executed. Whole Task/C1CA/9178/initialization/scene/frame composition remains open.",
+      "reason": "Manuelle native Bindung geliefert: src/script/native-script-variable-set.mjs. Source-specific atomic prefix only, explicit frozen context/physical owners/protected outerstack/windows/budgets; outer return target is reported, not executed. Whole Task/C1CA/9178/initialization/scene/frame composition remains open.",
       "source_contract": "analysis/render-task-native-cc10.json",
       "manual_native": {
         "module": "proof/task/native-cc10.mjs",
@@ -635,7 +635,7 @@
       "id": "task-f378-native-8afa",
       "entries": ["80:8AFA"],
       "status": "composition-required",
-      "reason": "Manuelle native Bindung geliefert: src/task/native-object-armour-add.mjs. Source-specific atomic prefix only, explicit frozen context/physical owners/protected outerstack/windows/budgets; outer return target is reported, not executed. Whole Task/C1CA/9178/initialization/scene/frame composition remains open.",
+      "reason": "Manuelle native Bindung geliefert: src/script/native-object-armour-add.mjs. Source-specific atomic prefix only, explicit frozen context/physical owners/protected outerstack/windows/budgets; outer return target is reported, not executed. Whole Task/C1CA/9178/initialization/scene/frame composition remains open.",
       "source_contract": "analysis/render-task-native-8afa.json",
       "manual_native": {
         "module": "proof/task/native-8afa.mjs",
@@ -646,7 +646,7 @@
       "id": "task-f378-native-d997",
       "entries": ["80:D997"],
       "status": "composition-required",
-      "reason": "Manuelle native Bindung geliefert: src/task/native-swarm-height-speed-target.mjs. Source-specific atomic prefix only, explicit frozen context/physical owners/protected outerstack/windows/budgets; outer return target is reported, not executed. Whole Task/C1CA/9178/initialization/scene/frame composition remains open.",
+      "reason": "Manuelle native Bindung geliefert: src/script/native-swarm-height-speed-target.mjs. Source-specific atomic prefix only, explicit frozen context/physical owners/protected outerstack/windows/budgets; outer return target is reported, not executed. Whole Task/C1CA/9178/initialization/scene/frame composition remains open.",
       "source_contract": "analysis/render-task-native-d997.json",
       "manual_native": {
         "module": "proof/task/native-d997.mjs",
@@ -657,7 +657,7 @@
       "id": "task-f378-native-cccc",
       "entries": ["80:CCCC"],
       "status": "composition-required",
-      "reason": "Manuelle native Bindung geliefert: src/task/native-room-entry.mjs. Source-specific atomic prefix only, explicit frozen context/physical owners/protected outerstack/windows/budgets; outer return target is reported, not executed. Whole Task/C1CA/9178/initialization/scene/frame composition remains open.",
+      "reason": "Manuelle native Bindung geliefert: src/script/native-room-entry.mjs. Source-specific atomic prefix only, explicit frozen context/physical owners/protected outerstack/windows/budgets; outer return target is reported, not executed. Whole Task/C1CA/9178/initialization/scene/frame composition remains open.",
       "source_contract": "analysis/render-task-native-cccc.json",
       "manual_native": {
         "module": "proof/task/native-cccc.mjs",
@@ -668,7 +668,7 @@
       "id": "task-f378-native-d622",
       "entries": ["80:D622"],
       "status": "composition-required",
-      "reason": "Manuelle native Bindung geliefert: src/task/native-swarm-phases-reset.mjs. Source-specific atomic prefix only, explicit frozen context/physical owners/protected outerstack/windows/budgets; outer return target is reported, not executed. Whole Task/C1CA/9178/initialization/scene/frame composition remains open.",
+      "reason": "Manuelle native Bindung geliefert: src/script/native-swarm-phases-reset.mjs. Source-specific atomic prefix only, explicit frozen context/physical owners/protected outerstack/windows/budgets; outer return target is reported, not executed. Whole Task/C1CA/9178/initialization/scene/frame composition remains open.",
       "source_contract": "analysis/render-task-native-d622.json",
       "manual_native": {
         "module": "proof/task/native-d622.mjs",
@@ -679,7 +679,7 @@
       "id": "task-f378-native-caf2",
       "entries": ["80:CAF2"],
       "status": "composition-required",
-      "reason": "Manuelle native Bindung geliefert: src/task/native-record-kind-attribute.mjs. Source-specific atomic prefix only, explicit frozen context/physical owners/protected outerstack/windows/budgets; outer return target is reported, not executed. Whole Task/C1CA/9178/initialization/scene/frame composition remains open.",
+      "reason": "Manuelle native Bindung geliefert: src/script/native-record-kind-attribute.mjs. Source-specific atomic prefix only, explicit frozen context/physical owners/protected outerstack/windows/budgets; outer return target is reported, not executed. Whole Task/C1CA/9178/initialization/scene/frame composition remains open.",
       "source_contract": "analysis/render-task-native-caf2.json",
       "manual_native": {
         "module": "proof/task/native-caf2.mjs",
@@ -690,7 +690,7 @@
       "id": "task-f378-native-c6c4",
       "entries": ["80:C6C4"],
       "status": "composition-required",
-      "reason": "Manuelle native Bindung geliefert: src/task/native-motion-waypoint-move.mjs. Source-specific atomic prefix only, explicit frozen context/physical owners/protected outerstack/windows/budgets; outer return target is reported, not executed. Whole Task/C1CA/9178/initialization/scene/frame composition remains open.",
+      "reason": "Manuelle native Bindung geliefert: src/script/native-motion-waypoint-move.mjs. Source-specific atomic prefix only, explicit frozen context/physical owners/protected outerstack/windows/budgets; outer return target is reported, not executed. Whole Task/C1CA/9178/initialization/scene/frame composition remains open.",
       "source_contract": "analysis/render-task-native-c6c4.json",
       "manual_native": {
         "module": "proof/task/native-c6c4.mjs",
@@ -701,7 +701,7 @@
       "id": "task-f378-native-d0fc",
       "entries": ["80:D0FC"],
       "status": "composition-required",
-      "reason": "Manuelle native Bindung geliefert: src/task/native-record-kind-get.mjs. Source-specific atomic prefix only, explicit frozen context/physical owners/protected outerstack/windows/budgets; outer return target is reported, not executed. Whole Task/C1CA/9178/initialization/scene/frame composition remains open.",
+      "reason": "Manuelle native Bindung geliefert: src/script/native-record-kind-get.mjs. Source-specific atomic prefix only, explicit frozen context/physical owners/protected outerstack/windows/budgets; outer return target is reported, not executed. Whole Task/C1CA/9178/initialization/scene/frame composition remains open.",
       "source_contract": "analysis/render-task-native-d0fc.json",
       "manual_native": {
         "module": "proof/task/native-d0fc.mjs",
@@ -712,7 +712,7 @@
       "id": "task-f378-native-c716",
       "entries": ["80:C716"],
       "status": "composition-required",
-      "reason": "Manuelle native Bindung geliefert: src/task/native-motion-player-follow.mjs. Source-specific atomic prefix only, explicit frozen context/physical owners/protected outerstack/windows/budgets; outer return target is reported, not executed. Whole Task/C1CA/9178/initialization/scene/frame composition remains open.",
+      "reason": "Manuelle native Bindung geliefert: src/script/native-motion-player-follow.mjs. Source-specific atomic prefix only, explicit frozen context/physical owners/protected outerstack/windows/budgets; outer return target is reported, not executed. Whole Task/C1CA/9178/initialization/scene/frame composition remains open.",
       "source_contract": "analysis/render-task-native-c716.json",
       "manual_native": {
         "module": "proof/task/native-c716.mjs",
@@ -959,7 +959,7 @@
         "report": "analysis/render-task-native-a963-native.json"
       },
       "status": "composition-required",
-      "reason": "Original-ID80 und feste lokale typedRTS-Quelle belegt: analysis/render-task-native-a963.json. Manuelle native Gleichungen in src/task/native-object-position-y.mjs, volle Reads/Indizes/DBR/Flags und frischeAliase. Enge Native58-Komposition geliefert; ganzeTaskinitialisierung/C1CA/9178/Scene/Frames separat."
+      "reason": "Original-ID80 und feste lokale typedRTS-Quelle belegt: analysis/render-task-native-a963.json. Manuelle native Gleichungen in src/script/native-object-position-y.mjs, volle Reads/Indizes/DBR/Flags und frischeAliase. Enge Native58-Komposition geliefert; ganzeTaskinitialisierung/C1CA/9178/Scene/Frames separat."
     },
     {
       "id": "task-f378-native-a96d",
@@ -970,7 +970,7 @@
         "report": "analysis/render-task-native-a96d-native.json"
       },
       "status": "composition-required",
-      "reason": "Original-ID81 und feste lokale typedRTS-Quelle belegt: analysis/render-task-native-a96d.json. Manuelle native Gleichungen in src/task/native-object-height.mjs, volle Reads/Indizes/DBR/Flags und frischeAliase. Enge Native58-Komposition geliefert; ganzeTaskinitialisierung/C1CA/9178/Scene/Frames separat."
+      "reason": "Original-ID81 und feste lokale typedRTS-Quelle belegt: analysis/render-task-native-a96d.json. Manuelle native Gleichungen in src/script/native-object-height.mjs, volle Reads/Indizes/DBR/Flags und frischeAliase. Enge Native58-Komposition geliefert; ganzeTaskinitialisierung/C1CA/9178/Scene/Frames separat."
     },
     {
       "id": "task-f378-native-a91d",
@@ -981,7 +981,7 @@
         "report": "analysis/render-task-native-a91d-native.json"
       },
       "status": "composition-required",
-      "reason": "Original-ID91 und feste lokale typedRTS-Quelle belegt: analysis/render-task-native-a91d.json. Manuelle native Gleichungen in src/task/native-object-task-clear.mjs, volle Reads/Indizes/DBR/Flags und frischeAliase. Enge Native58-Komposition geliefert; ganzeTaskinitialisierung/C1CA/9178/Scene/Frames separat."
+      "reason": "Original-ID91 und feste lokale typedRTS-Quelle belegt: analysis/render-task-native-a91d.json. Manuelle native Gleichungen in src/script/native-object-task-clear.mjs, volle Reads/Indizes/DBR/Flags und frischeAliase. Enge Native58-Komposition geliefert; ganzeTaskinitialisierung/C1CA/9178/Scene/Frames separat."
     },
     {
       "id": "task-f378-native-a926",
@@ -992,7 +992,7 @@
         "report": "analysis/render-task-native-a926-native.json"
       },
       "status": "composition-required",
-      "reason": "Original-ID118 und feste lokale typedRTS-Quelle belegt: analysis/render-task-native-a926.json. Manuelle native Gleichungen in src/task/native-object-task-bind.mjs, volle Reads/Indizes/DBR/Flags und frischeAliase. Enge Native58-Komposition geliefert; ganzeTaskinitialisierung/C1CA/9178/Scene/Frames separat."
+      "reason": "Original-ID118 und feste lokale typedRTS-Quelle belegt: analysis/render-task-native-a926.json. Manuelle native Gleichungen in src/script/native-object-task-bind.mjs, volle Reads/Indizes/DBR/Flags und frischeAliase. Enge Native58-Komposition geliefert; ganzeTaskinitialisierung/C1CA/9178/Scene/Frames separat."
     },
     {
       "id": "task-f378-native-a92f",
@@ -1003,7 +1003,7 @@
         "report": "analysis/render-task-native-a92f-native.json"
       },
       "status": "composition-required",
-      "reason": "Original-ID121 und feste lokale typedRTS-Quelle belegt: analysis/render-task-native-a92f.json. Manuelle native Gleichungen in src/task/native-object-velocity-set.mjs, volle Reads/Indizes/DBR/Flags und frischeAliase. Enge Native58-Komposition geliefert; ganzeTaskinitialisierung/C1CA/9178/Scene/Frames separat."
+      "reason": "Original-ID121 und feste lokale typedRTS-Quelle belegt: analysis/render-task-native-a92f.json. Manuelle native Gleichungen in src/script/native-object-velocity-set.mjs, volle Reads/Indizes/DBR/Flags und frischeAliase. Enge Native58-Komposition geliefert; ganzeTaskinitialisierung/C1CA/9178/Scene/Frames separat."
     },
     {
       "id": "task-f378-native-ca05",
@@ -1014,7 +1014,7 @@
         "report": "analysis/render-task-native-ca05-native.json"
       },
       "status": "composition-required",
-      "reason": "Original-ID147 und feste lokale typedRTS-Quelle belegt: analysis/render-task-native-ca05.json. Manuelle native Gleichungen in src/task/native-object-flags-get.mjs, volle Reads/Indizes/DBR/Flags und frischeAliase. Enge Native58-Komposition geliefert; ganzeTaskinitialisierung/C1CA/9178/Scene/Frames separat."
+      "reason": "Original-ID147 und feste lokale typedRTS-Quelle belegt: analysis/render-task-native-ca05.json. Manuelle native Gleichungen in src/script/native-object-flags-get.mjs, volle Reads/Indizes/DBR/Flags und frischeAliase. Enge Native58-Komposition geliefert; ganzeTaskinitialisierung/C1CA/9178/Scene/Frames separat."
     },
     {
       "id": "task-f378-native-ca15",
@@ -1025,7 +1025,7 @@
         "report": "analysis/render-task-native-ca15-native.json"
       },
       "status": "composition-required",
-      "reason": "Original-ID207 und feste lokale typedRTS-Quelle belegt: analysis/render-task-native-ca15.json. Manuelle native Gleichungen in src/task/native-object-flags-or.mjs, volle Reads/Indizes/DBR/Flags und frischeAliase. Enge Native58-Komposition geliefert; ganzeTaskinitialisierung/C1CA/9178/Scene/Frames separat."
+      "reason": "Original-ID207 und feste lokale typedRTS-Quelle belegt: analysis/render-task-native-ca15.json. Manuelle native Gleichungen in src/script/native-object-flags-or.mjs, volle Reads/Indizes/DBR/Flags und frischeAliase. Enge Native58-Komposition geliefert; ganzeTaskinitialisierung/C1CA/9178/Scene/Frames separat."
     },
     {
       "id": "task-f378-native-cc07",
@@ -1036,7 +1036,7 @@
         "report": "analysis/render-task-native-cc07-native.json"
       },
       "status": "composition-required",
-      "reason": "Original-ID87 und feste lokale typedRTS-Quelle belegt: analysis/render-task-native-cc07.json. Manuelle native Gleichungen in src/task/native-script-variable-get.mjs, volle Reads/Indizes/DBR/Flags und frischeAliase. Enge Native58-Komposition geliefert; ganzeTaskinitialisierung/C1CA/9178/Scene/Frames separat."
+      "reason": "Original-ID87 und feste lokale typedRTS-Quelle belegt: analysis/render-task-native-cc07.json. Manuelle native Gleichungen in src/script/native-script-variable-get.mjs, volle Reads/Indizes/DBR/Flags und frischeAliase. Enge Native58-Komposition geliefert; ganzeTaskinitialisierung/C1CA/9178/Scene/Frames separat."
     },
     {
       "id": "task-f378-native-cc19",
@@ -1047,7 +1047,7 @@
         "report": "analysis/render-task-native-cc19-native.json"
       },
       "status": "composition-required",
-      "reason": "Original-ID155 und feste lokale typedRTS-Quelle belegt: analysis/render-task-native-cc19.json. Manuelle native Gleichungen in src/task/native-script-variable-or.mjs, volle Reads/Indizes/DBR/Flags und frischeAliase. Enge Native58-Komposition geliefert; ganzeTaskinitialisierung/C1CA/9178/Scene/Frames separat."
+      "reason": "Original-ID155 und feste lokale typedRTS-Quelle belegt: analysis/render-task-native-cc19.json. Manuelle native Gleichungen in src/script/native-script-variable-or.mjs, volle Reads/Indizes/DBR/Flags und frischeAliase. Enge Native58-Komposition geliefert; ganzeTaskinitialisierung/C1CA/9178/Scene/Frames separat."
     },
     {
       "id": "task-f378-native-d255",
@@ -1058,7 +1058,7 @@
         "report": "analysis/render-task-native-d255-native.json"
       },
       "status": "composition-required",
-      "reason": "Original-ID93 und feste lokale typedRTS-Quelle belegt: analysis/render-task-native-d255.json. Manuelle native Gleichungen in src/task/native-object-direction.mjs, volle Reads/Indizes/DBR/Flags und frischeAliase. Enge Native58-Komposition geliefert; ganzeTaskinitialisierung/C1CA/9178/Scene/Frames separat."
+      "reason": "Original-ID93 und feste lokale typedRTS-Quelle belegt: analysis/render-task-native-d255.json. Manuelle native Gleichungen in src/script/native-object-direction.mjs, volle Reads/Indizes/DBR/Flags und frischeAliase. Enge Native58-Komposition geliefert; ganzeTaskinitialisierung/C1CA/9178/Scene/Frames separat."
     },
     {
       "id": "task-f378-native-d1ca",
@@ -1069,7 +1069,7 @@
         "report": "analysis/render-task-native-d1ca-native.json"
       },
       "status": "composition-required",
-      "reason": "Original-ID204 und feste lokale typedRTS-Quelle belegt: analysis/render-task-native-d1ca.json. Manuelle native Gleichungen in src/task/native-object-number.mjs, volle Reads/Indizes/DBR/Flags und frischeAliase. Enge Native58-Komposition geliefert; ganzeTaskinitialisierung/C1CA/9178/Scene/Frames separat."
+      "reason": "Original-ID204 und feste lokale typedRTS-Quelle belegt: analysis/render-task-native-d1ca.json. Manuelle native Gleichungen in src/script/native-object-number.mjs, volle Reads/Indizes/DBR/Flags und frischeAliase. Enge Native58-Komposition geliefert; ganzeTaskinitialisierung/C1CA/9178/Scene/Frames separat."
     },
     {
       "id": "task-f378-native-d17b",
@@ -1080,7 +1080,7 @@
         "report": "analysis/render-task-native-d17b-native.json"
       },
       "status": "composition-required",
-      "reason": "Original-ID164 und feste lokale typedRTS-Quelle belegt: analysis/render-task-native-d17b.json. Manuelle native Gleichungen in src/task/native-sprite-mode-get.mjs, volle Reads/Indizes/DBR/Flags und frischeAliase. Enge Native58-Komposition geliefert; ganzeTaskinitialisierung/C1CA/9178/Scene/Frames separat."
+      "reason": "Original-ID164 und feste lokale typedRTS-Quelle belegt: analysis/render-task-native-d17b.json. Manuelle native Gleichungen in src/script/native-sprite-mode-get.mjs, volle Reads/Indizes/DBR/Flags und frischeAliase. Enge Native58-Komposition geliefert; ganzeTaskinitialisierung/C1CA/9178/Scene/Frames separat."
     },
     {
       "id": "task-f378-native-d16d",
@@ -1091,7 +1091,7 @@
         "report": "analysis/render-task-native-d16d-native.json"
       },
       "status": "composition-required",
-      "reason": "Original-ID179 und feste lokale typedRTS-Quelle belegt: analysis/render-task-native-d16d.json. Manuelle native Gleichungen in src/task/native-sprite-mode-set.mjs, volle Reads/Indizes/DBR/Flags und frischeAliase. Enge Native58-Komposition geliefert; ganzeTaskinitialisierung/C1CA/9178/Scene/Frames separat."
+      "reason": "Original-ID179 und feste lokale typedRTS-Quelle belegt: analysis/render-task-native-d16d.json. Manuelle native Gleichungen in src/script/native-sprite-mode-set.mjs, volle Reads/Indizes/DBR/Flags und frischeAliase. Enge Native58-Komposition geliefert; ganzeTaskinitialisierung/C1CA/9178/Scene/Frames separat."
     },
     {
       "id": "task-f378-native-d985",
@@ -1102,7 +1102,7 @@
         "report": "analysis/render-task-native-d985-native.json"
       },
       "status": "composition-required",
-      "reason": "Original-ID162 und feste lokale typedRTS-Quelle belegt: analysis/render-task-native-d985.json. Manuelle native Gleichungen in src/task/native-swarm-path-phase-target.mjs, volle Reads/Indizes/DBR/Flags und frischeAliase. Enge Native58-Komposition geliefert; ganzeTaskinitialisierung/C1CA/9178/Scene/Frames separat."
+      "reason": "Original-ID162 und feste lokale typedRTS-Quelle belegt: analysis/render-task-native-d985.json. Manuelle native Gleichungen in src/script/native-swarm-path-phase-target.mjs, volle Reads/Indizes/DBR/Flags und frischeAliase. Enge Native58-Komposition geliefert; ganzeTaskinitialisierung/C1CA/9178/Scene/Frames separat."
     },
     {
       "id": "task-f378-native-d98e",
@@ -1113,7 +1113,7 @@
         "report": "analysis/render-task-native-d98e-native.json"
       },
       "status": "composition-required",
-      "reason": "Original-ID190 und feste lokale typedRTS-Quelle belegt: analysis/render-task-native-d98e.json. Manuelle native Gleichungen in src/task/native-swarm-path-speed-target.mjs, volle Reads/Indizes/DBR/Flags und frischeAliase. Enge Native58-Komposition geliefert; ganzeTaskinitialisierung/C1CA/9178/Scene/Frames separat."
+      "reason": "Original-ID190 und feste lokale typedRTS-Quelle belegt: analysis/render-task-native-d98e.json. Manuelle native Gleichungen in src/script/native-swarm-path-speed-target.mjs, volle Reads/Indizes/DBR/Flags und frischeAliase. Enge Native58-Komposition geliefert; ganzeTaskinitialisierung/C1CA/9178/Scene/Frames separat."
     },
     {
       "id": "task-f378-native-d9a7",
@@ -1124,7 +1124,7 @@
         "report": "analysis/render-task-native-d9a7-native.json"
       },
       "status": "composition-required",
-      "reason": "Original-ID180 und feste lokale typedRTS-Quelle belegt: analysis/render-task-native-d9a7.json. Manuelle native Gleichungen in src/task/native-shift-right-signed.mjs, volle Reads/Indizes/DBR/Flags und frischeAliase. Enge Native58-Komposition geliefert; ganzeTaskinitialisierung/C1CA/9178/Scene/Frames separat."
+      "reason": "Original-ID180 und feste lokale typedRTS-Quelle belegt: analysis/render-task-native-d9a7.json. Manuelle native Gleichungen in src/script/native-shift-right-signed.mjs, volle Reads/Indizes/DBR/Flags und frischeAliase. Enge Native58-Komposition geliefert; ganzeTaskinitialisierung/C1CA/9178/Scene/Frames separat."
     },
     {
       "id": "task-f378-native-94ee",
@@ -1135,7 +1135,7 @@
         "report": "analysis/render-task-native-94ee-native.json"
       },
       "status": "composition-required",
-      "reason": "Original-ID181 und feste lokale typedRTS-Quelle belegt: analysis/render-task-native-94ee.json. Manuelle native Gleichungen in src/task/native-object-dialog-set.mjs, volle Reads/Indizes/DBR/Flags und frischeAliase. Enge Native58-Komposition geliefert; ganzeTaskinitialisierung/C1CA/9178/Scene/Frames separat."
+      "reason": "Original-ID181 und feste lokale typedRTS-Quelle belegt: analysis/render-task-native-94ee.json. Manuelle native Gleichungen in src/script/native-object-dialog-set.mjs, volle Reads/Indizes/DBR/Flags und frischeAliase. Enge Native58-Komposition geliefert; ganzeTaskinitialisierung/C1CA/9178/Scene/Frames separat."
     },
     {
       "id": "task-f378-native-9e59",
@@ -1146,7 +1146,7 @@
         "report": "analysis/render-task-native-9e59-native.json"
       },
       "status": "composition-required",
-      "reason": "Original-ID211 und feste lokale typedRTS-Quelle belegt: analysis/render-task-native-9e59.json. Manuelle native Gleichungen in src/task/native-pad-held.mjs, volle Reads/Indizes/DBR/Flags und frischeAliase. Enge Native58-Komposition geliefert; ganzeTaskinitialisierung/C1CA/9178/Scene/Frames separat."
+      "reason": "Original-ID211 und feste lokale typedRTS-Quelle belegt: analysis/render-task-native-9e59.json. Manuelle native Gleichungen in src/script/native-pad-held.mjs, volle Reads/Indizes/DBR/Flags und frischeAliase. Enge Native58-Komposition geliefert; ganzeTaskinitialisierung/C1CA/9178/Scene/Frames separat."
     },
     {
       "id": "task-f378-native-9e5f",
@@ -1157,7 +1157,7 @@
         "report": "analysis/render-task-native-9e5f-native.json"
       },
       "status": "composition-required",
-      "reason": "Original-ID97 und feste lokale typedRTS-Quelle belegt: analysis/render-task-native-9e5f.json. Manuelle native Gleichungen in src/task/native-pad-pressed.mjs, volle Reads/Indizes/DBR/Flags und frischeAliase. Enge Native58-Komposition geliefert; ganzeTaskinitialisierung/C1CA/9178/Scene/Frames separat."
+      "reason": "Original-ID97 und feste lokale typedRTS-Quelle belegt: analysis/render-task-native-9e5f.json. Manuelle native Gleichungen in src/script/native-pad-pressed.mjs, volle Reads/Indizes/DBR/Flags und frischeAliase. Enge Native58-Komposition geliefert; ganzeTaskinitialisierung/C1CA/9178/Scene/Frames separat."
     },
     {
       "id": "task-f378-native-cd97",
@@ -1168,7 +1168,7 @@
         "report": "analysis/render-task-native-cd97-native.json"
       },
       "status": "composition-required",
-      "reason": "Original-ID133 und feste lokale typedRTS-Quelle belegt: analysis/render-task-native-cd97.json. Manuelle native Gleichungen in src/task/native-player-object.mjs, volle Reads/Indizes/DBR/Flags und frischeAliase. Enge Native58-Komposition geliefert; ganzeTaskinitialisierung/C1CA/9178/Scene/Frames separat."
+      "reason": "Original-ID133 und feste lokale typedRTS-Quelle belegt: analysis/render-task-native-cd97.json. Manuelle native Gleichungen in src/script/native-player-object.mjs, volle Reads/Indizes/DBR/Flags und frischeAliase. Enge Native58-Komposition geliefert; ganzeTaskinitialisierung/C1CA/9178/Scene/Frames separat."
     },
     {
       "id": "task-f378-native-c0f7",
@@ -1179,7 +1179,7 @@
         "report": "analysis/render-task-native-c0f7-native.json"
       },
       "status": "composition-required",
-      "reason": "Original-ID137 und feste lokale typedRTS-Quelle belegt: analysis/render-task-native-c0f7.json. Manuelle native Gleichungen in src/task/native-glove-screen-x.mjs, volle Reads/Indizes/DBR/Flags und frischeAliase. Enge Native58-Komposition geliefert; ganzeTaskinitialisierung/C1CA/9178/Scene/Frames separat."
+      "reason": "Original-ID137 und feste lokale typedRTS-Quelle belegt: analysis/render-task-native-c0f7.json. Manuelle native Gleichungen in src/script/native-glove-screen-x.mjs, volle Reads/Indizes/DBR/Flags und frischeAliase. Enge Native58-Komposition geliefert; ganzeTaskinitialisierung/C1CA/9178/Scene/Frames separat."
     },
     {
       "id": "task-f378-native-c100",
@@ -1190,7 +1190,7 @@
         "report": "analysis/render-task-native-c100-native.json"
       },
       "status": "composition-required",
-      "reason": "Original-ID139 und feste lokale typedRTS-Quelle belegt: analysis/render-task-native-c100.json. Manuelle native Gleichungen in src/task/native-glove-screen-y.mjs, volle Reads/Indizes/DBR/Flags und frischeAliase. Enge Native58-Komposition geliefert; ganzeTaskinitialisierung/C1CA/9178/Scene/Frames separat."
+      "reason": "Original-ID139 und feste lokale typedRTS-Quelle belegt: analysis/render-task-native-c100.json. Manuelle native Gleichungen in src/script/native-glove-screen-y.mjs, volle Reads/Indizes/DBR/Flags und frischeAliase. Enge Native58-Komposition geliefert; ganzeTaskinitialisierung/C1CA/9178/Scene/Frames separat."
     },
     {
       "id": "task-f378-native-e255",
@@ -1201,7 +1201,7 @@
         "report": "analysis/render-task-native-e255-native.json"
       },
       "status": "composition-required",
-      "reason": "Original-ID201 und feste lokale typedRTS-Quelle belegt: analysis/render-task-native-e255.json. Manuelle native Gleichungen in src/task/native-timer-start.mjs, volle Reads/Indizes/DBR/Flags und frischeAliase. Enge Native58-Komposition geliefert; ganzeTaskinitialisierung/C1CA/9178/Scene/Frames separat."
+      "reason": "Original-ID201 und feste lokale typedRTS-Quelle belegt: analysis/render-task-native-e255.json. Manuelle native Gleichungen in src/script/native-timer-start.mjs, volle Reads/Indizes/DBR/Flags und frischeAliase. Enge Native58-Komposition geliefert; ganzeTaskinitialisierung/C1CA/9178/Scene/Frames separat."
     },
     {
       "id": "task-f378-native-d016",
@@ -1212,7 +1212,7 @@
         "report": "analysis/render-task-native-d016-native.json"
       },
       "status": "composition-required",
-      "reason": "Original-ID218 und feste lokale typedRTS-Quelle belegt: analysis/render-task-native-d016.json. Manuelle native Gleichungen in src/task/native-room-reload.mjs, volle Reads/Indizes/DBR/Flags und frischeAliase. Enge Native58-Komposition geliefert; ganzeTaskinitialisierung/C1CA/9178/Scene/Frames separat."
+      "reason": "Original-ID218 und feste lokale typedRTS-Quelle belegt: analysis/render-task-native-d016.json. Manuelle native Gleichungen in src/script/native-room-reload.mjs, volle Reads/Indizes/DBR/Flags und frischeAliase. Enge Native58-Komposition geliefert; ganzeTaskinitialisierung/C1CA/9178/Scene/Frames separat."
     },
     {
       "id": "task-f378-opcode-dispatch",
@@ -18345,7 +18345,7 @@
       "helper_modules": [
         "proof/replay/main-motion-collision.mjs",
         "proof/replay/main-motion-target.mjs",
-        "src/task/main-loop-camera.mjs",
+        "src/system/main-loop-camera.mjs",
         "proof/replay/main-loop-upkeep.mjs",
         "proof/vm/main-driver.mjs"
       ],
@@ -18353,25 +18353,25 @@
       "camera_source_proof": "tools/main-loop-camera-source.mjs",
       "scene_modules": [
         "proof/replay/main-scene.mjs",
-        "src/task/main-scene-video.mjs",
+        "src/system/main-scene-video.mjs",
         "proof/cutscene-reference/cutscene-animation.mjs",
-        "src/task/main-scene-wait.mjs",
+        "src/system/main-scene-wait.mjs",
         "src/task/main-scene-intro.mjs",
         "proof/matrix-reference/main-scene-matrix.mjs",
         "proof/matrix-reference/main-matrix-objects.mjs",
         "proof/matrix-reference/main-matrix-control.mjs",
         "proof/matrix-reference/main-matrix-nmi.mjs",
-        "src/task/main-intro-nmi.mjs",
-        "src/task/observed-nmi.mjs",
-        "src/task/main-initialize.mjs",
-        "src/task/main-scene-load.mjs",
-        "src/task/main-scene-layers.mjs",
-        "src/task/main-scene-collision.mjs",
-        "src/task/main-scene-graphics.mjs",
+        "src/system/main-intro-nmi.mjs",
+        "src/system/nmi-call.mjs",
+        "src/system/main-initialize.mjs",
+        "src/system/main-scene-load.mjs",
+        "src/system/main-scene-layers.mjs",
+        "src/system/main-scene-collision.mjs",
+        "src/system/main-scene-graphics.mjs",
         "proof/replay/main-transition.mjs",
         "proof/replay/main-game-nmi.mjs",
-        "src/task/main-wait-interrupt.mjs",
-        "src/task/main-dma-readback.mjs",
+        "src/system/main-wait-interrupt.mjs",
+        "src/system/main-dma-readback.mjs",
         "proof/replay/observed-native-events.mjs",
         "proof/replay/main-start.mjs",
         "proof/replay/main-frontend-text.mjs",
@@ -18380,7 +18380,7 @@
         "proof/replay/main-frontend.mjs",
         "proof/replay/main-startup.mjs",
         "proof/replay/main-reset.mjs",
-        "src/task/native-unpack-body.mjs"
+        "src/system/native-unpack-body.mjs"
       ],
       "scene_source_proofs": [
         "tools/main-scene-source.mjs",
@@ -18448,16 +18448,16 @@
       "browser_room_source_contract": "docs/PPU-ROOM.md",
       "continuation_source_contract": "docs/NATIVE-CONTINUATION.md",
       "continuation_modules": [
-        "src/task/native-wait-continuation.mjs",
+        "src/system/native-wait-continuation.mjs",
         "src/vm/main-loop.mjs",
         "proof/vm/main-driver.mjs",
-        "src/task/native-call-continuation.mjs",
-        "src/task/observed-nmi.mjs",
+        "src/system/native-call-continuation.mjs",
+        "src/system/nmi-call.mjs",
         "proof/replay/main-game-nmi.mjs",
-        "src/task/main-wait-interrupt.mjs",
-        "src/task/main-scene-wait.mjs",
+        "src/system/main-wait-interrupt.mjs",
+        "src/system/main-scene-wait.mjs",
         "proof/matrix-reference/main-matrix-nmi.mjs",
-        "src/task/main-intro-nmi.mjs",
+        "src/system/main-intro-nmi.mjs",
         "proof/replay/main-frontend-nmi.mjs",
         "proof/replay/main-frontend-text.mjs",
         "proof/replay/main-scene.mjs",
@@ -18468,13 +18468,13 @@
         "proof/replay/main-start.mjs",
         "proof/replay/main-transition.mjs",
         "proof/replay/main-zone-gate.mjs",
-        "src/task/native-render-compose.mjs",
+        "src/system/native-render-compose.mjs",
         "proof/replay/native-slot-release.mjs",
-        "src/task/native-dialog-portrait.mjs",
+        "src/system/native-dialog-portrait.mjs",
         "proof/replay/native-dialog.mjs",
         "proof/replay/native-glove-target.mjs",
-        "src/task/native-window-open.mjs",
-        "src/task/native-text-compose.mjs",
+        "src/script/native-window-open.mjs",
+        "src/system/native-text-compose.mjs",
         "proof/replay/native-notice.mjs",
         "proof/replay/main-loop-upkeep.mjs",
         "proof/replay/native-member-spell-menu.mjs",
@@ -18490,8 +18490,8 @@
         "proof/replay/native-modal.mjs",
         "proof/replay/native-selection.mjs",
         "proof/replay/native-fight-list-remove.mjs",
-        "src/task/native-menu-compose.mjs",
-        "src/task/native-dialog-text.mjs",
+        "src/system/native-menu-compose.mjs",
+        "src/system/native-dialog-text.mjs",
         "proof/replay/native-spell-choice.mjs",
         "proof/replay/native-player-control.mjs",
         "proof/replay/native-status-screen.mjs",

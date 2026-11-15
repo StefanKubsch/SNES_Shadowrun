@@ -13,11 +13,11 @@ import { readBmp, sheetToStream, streamToSheet } from '../src/data/tiles.mjs';
 import { romOffset, requireRomAddress } from '../src/data/rom-bytes.mjs';
 import { VmMemory } from '../src/vm/memory.mjs';
 import { TaskAccessor } from '../src/vm/task-accessor.mjs';
-import { unpackFixedStream } from '../src/task/native-unpack.mjs';
+import { unpackFixedStream } from '../src/system/native-unpack.mjs';
 import { LiveGame } from '../src/video/live-game.mjs';
 import { renderMode1Frame } from '../src/video/ppu-frame.mjs';
 import { hdmaRows } from '../src/video/hdma.mjs';
-import { SHAPE_GRID, SHAPE_GRID_BYTES } from '../src/task/wram.mjs';
+import { SHAPE_GRID, SHAPE_GRID_BYTES } from '../src/data/wram.mjs';
 
 const baseline = JSON.parse(readFileSync('assets/vm-tiles.json', 'utf8'));
 const sheets = baseline.sheets.map((file) => readBmp(readFileSync(`assets/${file}`)).pixels);

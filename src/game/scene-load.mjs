@@ -3,7 +3,7 @@
 // 81:8FF0, the layer and wall map clears 81:9022 and 81:902D, the grid blocks
 // 81:8EDF with the palette slots 81:8CE0 and cycles 81:801A, and the wall tiles
 // 81:940A, and the layer stacks 81:903E; register-level versions in
-// src/task/main-scene-load.mjs and main-scene-layers.mjs). The scene palette reset
+// src/system/main-scene-load.mjs and main-scene-layers.mjs). The scene palette reset
 // 81:8CB9 comes from game-screen.mjs; here its DMA set-up writes WRAM, as the
 // original's with data bank 7E.
 //
@@ -70,7 +70,7 @@ import {
   WALL_MAP_BYTES,
   WALL_TILES,
   WALL_WORD_CELLS,
-} from '../task/wram.mjs';
+} from '../data/wram.mjs';
 import { CYCLE_TABLE, CYCLES } from '../data/palette-cycles.mjs';
 import { TILESET_ATTRIBUTES, TILESET_BLOCKS } from '../data/tilesets.mjs';
 import { OBJECT_TABLE } from '../data/object-types.mjs';

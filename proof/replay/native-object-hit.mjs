@@ -1,22 +1,22 @@
 import { withInterruptEvents } from './observed-native-events.mjs';
-import { taskStop } from '../../src/task/plan.mjs';
-import { taskTextAccess } from '../../src/task/native-text-prerequisites.mjs';
-import { randomBelow, taskRandomDevices } from '../../src/task/native-random.mjs';
-import { createObject } from '../../src/task/native-object-create.mjs';
-import { playSoundEffect, taskAudioDevices } from '../../src/task/native-audio-compose.mjs';
+import { taskStop } from '../../src/system/task-stop.mjs';
+import { taskTextAccess } from '../../src/system/native-text-prerequisites.mjs';
+import { randomBelow, taskRandomDevices } from '../../src/system/native-random.mjs';
+import { createObject } from '../../src/script/native-object-create.mjs';
+import { playSoundEffect, taskAudioDevices } from '../../src/system/native-audio-compose.mjs';
 import { releaseWindowJsrSequence } from '../../src/game/window-release.mjs';
-import { f963Sequence } from '../../src/task/native-window-open.mjs';
+import { f963Sequence } from '../../src/script/native-window-open.mjs';
 import { fitListWindow } from '../../src/data/menu-layout.mjs';
-import { printTextSequence } from '../../src/task/native-text-compose.mjs';
-import { waitForRandomStateChange } from '../../src/task/native-frame-wait.mjs';
+import { printTextSequence } from '../../src/system/native-text-compose.mjs';
+import { waitForRandomStateChange } from '../../src/system/native-frame-wait.mjs';
 import { waitForConfirmKeySequence } from './native-input-wait.mjs';
-import { dialogAccess } from '../../src/task/native-dialog-support.mjs';
-import { ObservedWaitContinuation, lagFree } from '../../src/task/main-wait-interrupt.mjs';
+import { dialogAccess } from '../../src/system/native-dialog-support.mjs';
+import { ObservedWaitContinuation, lagFree } from '../../src/system/main-wait-interrupt.mjs';
 import { drawWindowListJslSequence } from '../../src/game/window-list.mjs';
 import {
   observedContinuation,
   drainNativeSequence,
-} from '../../src/task/native-call-continuation.mjs';
+} from '../../src/system/native-call-continuation.mjs';
 import { taskActionsDevices, validateTaskActionsOptions } from './native-actions.mjs';
 import { taskRandomTableSources } from './native-random-tables.mjs';
 import { native8E36Table } from './native-object-hit-tables.mjs';
@@ -54,7 +54,7 @@ import {
   PLAYER_OBJECT,
   WRAM,
   OBJECT_BOX_HEIGHT,
-} from '../../src/task/wram.mjs';
+} from '../../src/data/wram.mjs';
 import {
   WORD_MASK,
   BANK_WRAP,

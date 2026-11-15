@@ -13,7 +13,7 @@ import {
   WORD_MASK,
   HIGH_BYTE_MASK,
 } from '../../src/constants/bits.mjs';
-import { COLOUR_REQUEST, COLOUR_PHASE } from '../../src/task/wram.mjs';
+import { COLOUR_REQUEST, COLOUR_PHASE } from '../../src/data/wram.mjs';
 import { COLDATA, CGADSUB } from '../../src/constants/hardware-registers.mjs';
 import { isWord } from '../script/runtime.mjs';
 import { prepareRenderView } from '../../src/render/data.mjs';

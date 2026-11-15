@@ -6,7 +6,7 @@
 // unchanged title menu ("Resume game n") and the .srm format stays the same. It
 // runs at a pad read, never in the middle of a routine, and changes nothing but
 // the SRAM slot.
-import { SCENE_REQUEST, TIMER } from '../task/wram.mjs';
+import { SCENE_REQUEST, TIMER } from '../data/wram.mjs';
 import { FOUR_SAVE_SLOTS, saveGame, saveSlotCount } from './save-slots.mjs';
 import { BYTE_BITS, WORD_MASK, WORD_SIGN } from '../constants/bits.mjs';
 

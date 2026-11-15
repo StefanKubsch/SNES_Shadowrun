@@ -14,13 +14,13 @@
 // of the JS scheduler as a nested visit. With a finite work budget the special natives
 // with a resumable sequence pause; the scheduler keeps the pending call as the task's
 // continuation, and a nested visit inside it pauses with it.
-import { taskStop } from '../task/plan.mjs';
+import { taskStop } from '../system/task-stop.mjs';
 import { TaskAccessor } from '../vm/task-accessor.mjs';
 import { JsTasks } from './task-api.mjs';
 import { interruptEventsOf } from '../vm/devices.mjs';
 import { SPECIAL_NATIVES, SPECIAL_NATIVE_CONTINUATIONS } from '../vm/special-natives.mjs';
-import { WAIT_PAUSED, WAIT_RETURNED } from '../task/native-wait-continuation.mjs';
-import { finishInterruptObservations } from '../task/main-wait-interrupt.mjs';
+import { WAIT_PAUSED, WAIT_RETURNED } from '../system/native-wait-continuation.mjs';
+import { finishInterruptObservations } from '../system/main-wait-interrupt.mjs';
 import { NATIVE_POINTERS, NATIVE_RESUME } from '../vm/layout.mjs';
 import { WORD_BITS, WORD_MASK, WORD_SIGN } from '../constants/bits.mjs';
 import { CODE_BANK, CODE_BANK_BASE, WRAM_BASE } from '../constants/memory-map.mjs';

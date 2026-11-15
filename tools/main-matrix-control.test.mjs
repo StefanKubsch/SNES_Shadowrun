@@ -19,10 +19,10 @@ import {
   randomBelowLong,
 } from '../proof/matrix-reference/main-matrix-control.mjs';
 import { stepMatrixState } from '../proof/matrix-reference/main-matrix-movement.mjs';
-import {playMatrixScene} from '../proof/matrix-reference/matrix-scene-loop.mjs';
-import {SCENE_REFERENCE_ROUTINES as MAIN_SCENE_ROUTINES} from '../proof/scene-reference-routines.mjs';
+import { playMatrixScene } from '../proof/matrix-reference/matrix-scene-loop.mjs';
+import { SCENE_REFERENCE_ROUTINES as MAIN_SCENE_ROUTINES } from '../proof/scene-reference-routines.mjs';
 import { mainSceneSpecs } from './main-scene-source.mjs';
-import { dialogAccess } from '../src/task/native-dialog-support.mjs';
+import { dialogAccess } from '../src/system/native-dialog-support.mjs';
 import { TaskAccessor } from '../src/vm/task-accessor.mjs';
 import { proveWordStack } from './static-word-stack-proof.mjs';
 import { NATIVE_ACCESS_LIMIT } from '../src/vm/task-accessor.mjs';

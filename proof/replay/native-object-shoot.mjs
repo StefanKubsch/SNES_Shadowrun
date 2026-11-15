@@ -1,16 +1,16 @@
 import { withInterruptEvents } from './observed-native-events.mjs';
-import { taskStop } from '../../src/task/plan.mjs';
-import { leaf } from '../../src/task/native-leaf-support.mjs';
+import { taskStop } from '../../src/system/task-stop.mjs';
+import { leaf } from '../../src/system/native-leaf-support.mjs';
 import { testLineOfSight, SIGHT_ROUTINE } from './line-of-sight.mjs';
-import { randomBelow } from '../../src/task/native-random.mjs';
-import { createObject } from '../../src/task/native-object-create.mjs';
-import { turnRegisters } from '../../src/task/native-object-turn.mjs';
+import { randomBelow } from '../../src/system/native-random.mjs';
+import { createObject } from '../../src/script/native-object-create.mjs';
+import { turnRegisters } from '../../src/script/native-object-turn.mjs';
 import { hitObject, DP_HIT_RESULT, DP_HIT_SHOOTER } from './native-object-hit.mjs';
-import { playSoundEffect } from '../../src/task/native-audio-compose.mjs';
+import { playSoundEffect } from '../../src/system/native-audio-compose.mjs';
 import { validateTaskActionsOptions } from './native-actions.mjs';
-import { lagFree } from '../../src/task/main-wait-interrupt.mjs';
-import { dialogAccess } from '../../src/task/native-dialog-support.mjs';
-import { drainNativeSequence } from '../../src/task/native-call-continuation.mjs';
+import { lagFree } from '../../src/system/main-wait-interrupt.mjs';
+import { dialogAccess } from '../../src/system/native-dialog-support.mjs';
+import { drainNativeSequence } from '../../src/system/native-call-continuation.mjs';
 
 import {
   DP_OBJECT_HEIGHT,
@@ -36,7 +36,7 @@ import {
   RUNNER_WEAPON_RANGE,
   WRAM,
   OBJECT_BOX_HEIGHT,
-} from '../../src/task/wram.mjs';
+} from '../../src/data/wram.mjs';
 import { FLAG_CARRY, FLAG_ZERO, FLAG_NEGATIVE } from '../../src/constants/cpu-flags.mjs';
 import {
   BANK_WRAP,
@@ -123,7 +123,7 @@ export const WEAPON_OWNERS = 0x9700,
 // damage, DP0A range penalty). Fixed equations of the own code 8AB5/8A43/8497/8904 (source:
 // tools/task-native-8ab5-source.mjs); calls into proved routines run their modules with real
 // JSR/JSL frames: sight 81:A25F, random C51F, slot A835, action AAAF and the hit 8691
-// (src/task/native-object-hit.mjs: damage, 8778 notices with waits and key input, 881C player hit with
+// (src/data/native-object-hit.mjs: damage, 8778 notices with waits and key input, 881C player hit with
 // C46E and 81:AD92). Result in DP00: DPB4 (0, FFFF after a kill flag, 1 after a notice), FFFF when
 // the sight is blocked. Waits and key input are observations ({waitMode, waitObservations,
 // inputMode, inputObservations} like the other special natives).

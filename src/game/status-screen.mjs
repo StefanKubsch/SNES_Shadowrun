@@ -20,10 +20,10 @@
 // 7E:1D63 or the menu ends; 1F64 set runs the first submenu once and keeps no menu
 // window. At the end 80:92C5, the windows are released, 1F62 is cleared and the sound
 // restored (7F7F). The callees run through their frames from the routine table.
-import { nativeCallSequence } from '../task/native-call-continuation.mjs';
-import { taskStop } from '../task/plan.mjs';
+import { nativeCallSequence } from '../system/native-call-continuation.mjs';
+import { taskStop } from '../system/task-stop.mjs';
 import { dataBankWord, setDataBankWord } from '../system/data-bank.mjs';
-import { DP_SCRATCH, STATUS_LAYOUT } from '../task/native-member-spell-menu.mjs';
+import { DP_SCRATCH, STATUS_LAYOUT } from '../data/native-member-spell-menu.mjs';
 import {
   ATTRIBUTE_ROWS,
   DP_MAGIC_MAXIMUM,
@@ -35,7 +35,7 @@ import {
   TEXT_MONEY,
   TEXT_SLASH,
   translatedMenuWindow,
-} from '../task/native-status-screen.mjs';
+} from '../system/native-status-screen.mjs';
 import {
   DIALOG_END,
   DP_CURSOR_ROW,
@@ -73,7 +73,7 @@ import {
   STATUS_MENU_WINDOW,
   STATUS_WINDOW,
   WRAM,
-} from '../task/wram.mjs';
+} from '../data/wram.mjs';
 import {
   JAKE_ALTERNATE_PORTRAIT_DIALOG,
   JAKE_OBJECT_NUMBER,

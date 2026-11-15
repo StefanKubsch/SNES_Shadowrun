@@ -10,9 +10,9 @@ import {
   getGroupMemberPositionReference,
   removeGroupMemberReference,
 } from '../proof/game-reference/group-members.mjs';
-import { getGroupMemberPosition } from '../src/task/native-group-member-position.mjs';
-import { removeGroupMember } from '../src/task/native-group-remove.mjs';
-import { GROUP_INDEX, GROUP_SLOTS } from '../src/task/wram.mjs';
+import { getGroupMemberPosition } from '../src/script/native-group-member-position.mjs';
+import { removeGroupMember } from '../src/script/native-group-remove.mjs';
+import { GROUP_INDEX, GROUP_SLOTS } from '../src/data/wram.mjs';
 
 const WRAM_BYTES = 0x20000,
   HEX = 16,

@@ -1,11 +1,11 @@
 // Source-specific atomic plans for proof tools. The game executes the shared routines directly.
-import { taskStop } from '../../src/task/plan.mjs';
+import { taskStop } from '../../src/system/task-stop.mjs';
 import { prepareTaskPlan } from './plan.mjs';
 import {
   taskMenuEntries as entries,
   runTaskMenuCompose,
   taskMenuDevices as devices,
-} from '../../src/task/native-menu-compose.mjs';
+} from '../../src/system/native-menu-compose.mjs';
 
 export function prepareTaskNativeMenuCompose(options) {
   const {

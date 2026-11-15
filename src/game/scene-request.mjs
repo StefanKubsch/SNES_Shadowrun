@@ -21,10 +21,10 @@ import {
   NATIVE_CALL_CONTINUATIONS,
   drainNativeSequence,
   nativeCallSequence,
-} from '../task/native-call-continuation.mjs';
-import { TRANSITION_ROUTINES } from '../task/main-transition.mjs';
-import { playCutscene, playMatrixScene } from '../task/main-scene.mjs';
-import { MAIN_UPKEEP_ROUTINES } from '../task/main-loop-upkeep.mjs';
+} from '../system/native-call-continuation.mjs';
+import { TRANSITION_ROUTINES } from '../system/main-transition.mjs';
+import { playCutscene, playMatrixScene } from '../system/main-scene.mjs';
+import { MAIN_UPKEEP_ROUTINES } from '../system/main-loop-upkeep.mjs';
 import { sceneRuntime } from '../system/scene-runtime.mjs';
 import { setUpGameScreen } from './game-screen.mjs';
 import { enterRoomSequence, forceBlank, waitForFrameCall } from './room-entry.mjs';
@@ -37,7 +37,7 @@ import {
   SCENE_REQUEST_ARGUMENT,
   SCENE_REQUEST_MATRIX,
   SCENE_REQUEST_ROOM_ONLY,
-} from '../task/wram.mjs';
+} from '../data/wram.mjs';
 import { BYTE_BITS, BYTE_MASK, WORD_MASK } from '../constants/bits.mjs';
 import { FLAG_CARRY } from '../constants/cpu-flags.mjs';
 

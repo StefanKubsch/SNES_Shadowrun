@@ -1,5 +1,5 @@
 import { BYTE_MASK, BYTE_BITS, BANK_SIZE } from '../../src/constants/bits.mjs';
-import { SCRIPT_VARIABLES } from '../../src/task/wram.mjs';
+import { SCRIPT_VARIABLES } from '../../src/data/wram.mjs';
 import { SCRIPT_NATIVE } from '../script/task.mjs';
 import { isWord } from '../script/runtime.mjs';
 

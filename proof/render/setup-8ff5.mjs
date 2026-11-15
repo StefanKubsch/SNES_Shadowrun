@@ -5,7 +5,7 @@ import {
   BANK_WITHOUT_IO,
 } from '../../src/constants/memory-map.mjs';
 import { BANK_SIZE, WORD_SIGN } from '../../src/constants/bits.mjs';
-import { PORTRAIT_DMA_REQUEST } from '../../src/task/wram.mjs';
+import { PORTRAIT_DMA_REQUEST } from '../../src/data/wram.mjs';
 import {
   DAS0L,
   A1T0L,

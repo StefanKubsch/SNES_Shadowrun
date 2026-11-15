@@ -14,12 +14,12 @@ import {
   setSwarmPathSpeedTargetReference,
   startSwarmOrbitReference,
 } from '../proof/game-reference/swarm-setup.mjs';
-import { setSwarmHeightPhaseTarget } from '../src/task/native-swarm-height-phase-target.mjs';
-import { setSwarmPathPhaseTarget } from '../src/task/native-swarm-path-phase-target.mjs';
-import { setSwarmPathSpeedTarget } from '../src/task/native-swarm-path-speed-target.mjs';
-import { setSwarmHeightSpeedTarget } from '../src/task/native-swarm-height-speed-target.mjs';
-import { resetSwarmPhases } from '../src/task/native-swarm-phases-reset.mjs';
-import { startSwarmOrbit } from '../src/task/native-swarm-orbit-start.mjs';
+import { setSwarmHeightPhaseTarget } from '../src/script/native-swarm-height-phase-target.mjs';
+import { setSwarmPathPhaseTarget } from '../src/script/native-swarm-path-phase-target.mjs';
+import { setSwarmPathSpeedTarget } from '../src/script/native-swarm-path-speed-target.mjs';
+import { setSwarmHeightSpeedTarget } from '../src/script/native-swarm-height-speed-target.mjs';
+import { resetSwarmPhases } from '../src/script/native-swarm-phases-reset.mjs';
+import { startSwarmOrbit } from '../src/script/native-swarm-orbit-start.mjs';
 
 const WRAM_BYTES = 0x20000,
   HEX = 16,

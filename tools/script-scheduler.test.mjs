@@ -43,7 +43,7 @@ import { loadScheduler } from '../proof/script/task-layout.mjs';
 
 const rom = new Uint8Array(readFileSync(new URL('../Shadowrun (E).smc', import.meta.url)));
 const SCRIPT_COUNT = 937;
-// Below the game stack top 7E:1CBB (src/task/wram.mjs); scripts write state words above.
+// Below the game stack top 7E:1CBB (src/data/wram.mjs); scripts write state words above.
 const OUTER_S = 0x1c80,
   OUTER_RETURN = 0x9998,
   NESTED_RETURN = 0x9990;

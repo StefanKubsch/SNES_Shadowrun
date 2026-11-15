@@ -18,13 +18,13 @@ import {
 } from '../proof/replay/main-game-nmi.mjs';
 import { SCENE_REFERENCE_ROUTINES as MAIN_SCENE_ROUTINES } from '../proof/scene-reference-routines.mjs';
 import { initializeGameScreen } from '../proof/game-reference/game-screen.mjs';
-import { loadScene } from '../src/task/main-scene-load.mjs';
+import { loadScene } from '../src/system/main-scene-load.mjs';
 import {
   setBrightnessFadeSpeed,
   requestScenePaletteUpload,
 } from '../proof/replay/main-transition.mjs';
 import { TaskAccessor, NATIVE_ACCESS_LIMIT } from '../src/vm/task-accessor.mjs';
-import { dialogAccess } from '../src/task/native-dialog-support.mjs';
+import { dialogAccess } from '../src/system/native-dialog-support.mjs';
 const maps = gameNmiSpecs.map((s) => decodeWindows(s.windows)),
   union = new Map(maps.flatMap((m) => [...m]));
 const expand = (t) =>

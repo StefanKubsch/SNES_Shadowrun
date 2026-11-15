@@ -10,8 +10,8 @@ import { NATIVE_CALL_CONTINUATIONS } from '../proof/replay/continuations.mjs';
 import {
   NATIVE_CALL_CONTINUATIONS as shared,
   NativeCallContinuation,
-} from '../src/task/native-call-continuation.mjs';
-import { WAIT_PAUSED } from '../src/task/native-wait-continuation.mjs';
+} from '../src/system/native-call-continuation.mjs';
+import { WAIT_PAUSED } from '../src/system/native-wait-continuation.mjs';
 import { raiseStateCountSequence, restoreRunnersSequence } from '../src/game/runner-state-call.mjs';
 import { runDrawWindowList } from '../src/game/window-list.mjs';
 import {

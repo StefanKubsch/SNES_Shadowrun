@@ -38,7 +38,7 @@
 // the object minus this offset (follows moving objects).
 import { PAD_BIT, DIRECTIONS } from './controls.mjs';
 import { BYTE_BITS, BYTE_MASK, WORD_MASK, WORD_SIGN } from '../constants/bits.mjs';
-import { OBJECT_TASK } from '../task/wram.mjs';
+import { OBJECT_TASK } from '../data/wram.mjs';
 import { waitingTask } from '../script/task-api.mjs';
 
 const HAND = 0xffff,

@@ -1,8 +1,8 @@
-import { taskStop } from '../../src/task/plan.mjs';
-import { randomBelow, randomBelowLong } from '../../src/task/native-random.mjs';
+import { taskStop } from '../../src/system/task-stop.mjs';
+import { randomBelow, randomBelowLong } from '../../src/system/native-random.mjs';
 export { randomBelowLong };
-import { routineCaller } from '../../src/task/routine-call.mjs';
-import { setCarry } from '../../src/task/status-flags.mjs';
+import { routineCaller } from '../../src/system/routine-call.mjs';
+import { setCarry } from '../../src/system/status-flags.mjs';
 import { stepMatrixState } from './main-matrix-movement.mjs';
 import { protectedJakeHealth } from '../../src/game/cheats.mjs';
 
@@ -56,7 +56,7 @@ import {
   PAD_A,
   PAD_B,
   PAD_PRESSED,
-} from '../../src/task/wram.mjs';
+} from '../../src/data/wram.mjs';
 import { BYTE_MASK, WORD_BITS, WORD_MASK } from '../../src/constants/bits.mjs';
 import { FLAG_CARRY, FLAG_ZERO, FLAG_NEGATIVE } from '../../src/constants/cpu-flags.mjs';
 import {

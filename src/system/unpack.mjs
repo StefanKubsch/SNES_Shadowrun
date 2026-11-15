@@ -1,5 +1,5 @@
 // The unpacker (lifted from 80:9E9B-A032; register-level versions in
-// src/task/native-unpack-body.mjs and native-unpack.mjs; format in
+// src/system/native-unpack-body.mjs and native-unpack.mjs; format in
 // src/data/lz.mjs). A stream starts with its output length and the offset of
 // its bit stream; literal bytes follow from byte 4. Gamma-coded lengths
 // alternate literal runs and references to earlier output (at least three

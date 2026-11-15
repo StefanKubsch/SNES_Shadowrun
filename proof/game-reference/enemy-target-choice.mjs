@@ -1,6 +1,6 @@
-import { taskStop } from '../../src/task/plan.mjs';
-import { leaf } from '../../src/task/native-leaf-support.mjs';
-import { randomBelow } from '../../src/task/native-random.mjs';
+import { taskStop } from '../../src/system/task-stop.mjs';
+import { leaf } from '../../src/system/native-leaf-support.mjs';
+import { randomBelow } from '../../src/system/native-random.mjs';
 import { testLineOfSight, SIGHT_ROUTINE } from '../replay/line-of-sight.mjs';
 
 import {
@@ -11,7 +11,7 @@ import {
   OBJECT_FLAGS,
   OBJECT_NO_TARGET,
   WRAM,
-} from '../../src/task/wram.mjs';
+} from '../../src/data/wram.mjs';
 import { WORD_MASK, BANK_WRAP, WORD_BITS } from '../../src/constants/bits.mjs';
 import { FLAG_ZERO, FLAG_CARRY } from '../../src/constants/cpu-flags.mjs';
 import { CODE_BANK } from '../../src/constants/memory-map.mjs';

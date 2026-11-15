@@ -1,20 +1,20 @@
-import { routineCaller } from '../../src/task/routine-call.mjs';
+import { routineCaller } from '../../src/system/routine-call.mjs';
 import { enterRoomSequence } from '../../src/game/room-entry.mjs';
-import { unpackStep } from '../../src/task/native-unpack-body.mjs';
-import { SCENE_GRAPHICS_ROUTINES } from '../../src/task/main-scene-graphics.mjs';
+import { unpackStep } from '../../src/system/native-unpack-body.mjs';
+import { SCENE_GRAPHICS_ROUTINES } from '../../src/system/main-scene-graphics.mjs';
 import { TALK_ROUTINES } from './native-dialog.mjs';
-import { createObject } from '../../src/task/native-object-create.mjs';
-import { turnRegisters } from '../../src/task/native-object-turn.mjs';
-import { drawWindowListAdapter } from '../../src/task/native-render-compose.mjs';
-import { sendApuCommand } from '../../src/task/native-input-apu.mjs';
-import { clampToCameraBox, updateCameraTileBuffers } from '../../src/task/main-loop-camera.mjs';
-import { clearFixedColour } from '../../src/task/native-dialog-portrait.mjs';
-import { ObservedWaitContinuation } from '../../src/task/main-wait-interrupt.mjs';
+import { createObject } from '../../src/script/native-object-create.mjs';
+import { turnRegisters } from '../../src/script/native-object-turn.mjs';
+import { drawWindowListAdapter } from '../../src/system/native-render-compose.mjs';
+import { sendApuCommand } from '../../src/system/native-input-apu.mjs';
+import { clampToCameraBox, updateCameraTileBuffers } from '../../src/system/main-loop-camera.mjs';
+import { clearFixedColour } from '../../src/system/native-dialog-portrait.mjs';
+import { ObservedWaitContinuation } from '../../src/system/main-wait-interrupt.mjs';
 import {
   NativeCallContinuation,
   drainNativeSequence,
   nativeCallSequence,
-} from '../../src/task/native-call-continuation.mjs';
+} from '../../src/system/native-call-continuation.mjs';
 import { NATIVE_CALL_CONTINUATIONS } from './continuations.mjs';
 import {
   BRIGHTNESS_FADE,
@@ -75,7 +75,7 @@ import {
   SCENE_PALETTE_UPLOAD,
   STORY_STAGE,
   WRAM,
-} from '../../src/task/wram.mjs';
+} from '../../src/data/wram.mjs';
 import { ROOM_BANK, ROOM_HEADER_ACTOR_COUNT } from '../../src/data/rooms.mjs';
 import { ACTOR_KIND, ACTOR_RECORD, ACTOR_SCRIPT, ACTOR_TABLE } from '../../src/data/actors.mjs';
 import { RUNNER_LAST_INDEX, RUNNER_OBJECT_NUMBERS } from '../../src/data/runners.mjs';

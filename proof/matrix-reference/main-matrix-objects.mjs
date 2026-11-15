@@ -1,7 +1,7 @@
-import { clearOamHighTable, hideRemainingSprites } from '../../src/task/main-scene-video.mjs';
+import { clearOamHighTable, hideRemainingSprites } from '../../src/system/main-scene-video.mjs';
 export { clearOamHighTable, hideRemainingSprites };
-import { routineCaller } from '../../src/task/routine-call.mjs';
-import { setCarry } from '../../src/task/status-flags.mjs';
+import { routineCaller } from '../../src/system/routine-call.mjs';
+import { setCarry } from '../../src/system/status-flags.mjs';
 
 import { MAP_BANK, NODE_TABLE_BYTES, TILE_NUMBER_MASK } from './main-scene-matrix.mjs';
 import {
@@ -36,7 +36,7 @@ import {
   MATRIX_SPEED_Y,
   OAM_SHADOW,
   OAM_SHADOW_HIGH,
-} from '../../src/task/wram.mjs';
+} from '../../src/data/wram.mjs';
 import { HIGH_BYTE_MASK, LONG_MASK, BYTE_MASK, WORD_MASK } from '../../src/constants/bits.mjs';
 import { FLAG_NEGATIVE, FLAG_ZERO, FLAG_CARRY } from '../../src/constants/cpu-flags.mjs';
 import {

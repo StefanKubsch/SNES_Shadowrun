@@ -15,12 +15,12 @@ import {
   learnSpellReference,
 } from '../proof/game-reference/party-funds.mjs';
 import { startBrightnessFadeReference } from '../proof/game-reference/brightness-fade.mjs';
-import { learnSpell } from '../src/task/native-spell-add.mjs';
-import { startBrightnessFade } from '../src/task/native-signed-offset-set.mjs';
-import { addKarma } from '../src/task/native-karma-add.mjs';
-import { addNuyen } from '../src/task/native-nuyen-add.mjs';
-import { addMagicPoints } from '../src/task/native-magic-points-add.mjs';
-import { MEMBER_INDEX, NUYEN, SPELL_LIST } from '../src/task/wram.mjs';
+import { learnSpell } from '../src/script/native-spell-add.mjs';
+import { startBrightnessFade } from '../src/script/native-signed-offset-set.mjs';
+import { addKarma } from '../src/script/native-karma-add.mjs';
+import { addNuyen } from '../src/script/native-nuyen-add.mjs';
+import { addMagicPoints } from '../src/script/native-magic-points-add.mjs';
+import { MEMBER_INDEX, NUYEN, SPELL_LIST } from '../src/data/wram.mjs';
 
 const WRAM_BYTES = 0x20000,
   HEX = 16,

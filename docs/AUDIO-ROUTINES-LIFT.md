@@ -69,7 +69,7 @@ reference table).
   or the NMI stack 7E:1C7C-1CBB, where register-level routines leave their
   pushes and lifted code does not. The live comparisons already ignore the stack
   pages.
-- src/task/native-audio-compose.mjs and src/task/native-input-apu.mjs stay in
+- src/system/native-audio-compose.mjs and src/system/native-input-apu.mjs stay in
   src: the register-level task natives (dialog, fight list, menus, object hits,
   object shots, the special native 80:C46E, the stereo song level 80:C461) call
   them directly, and the tables of proof/replay/main-transition.mjs,

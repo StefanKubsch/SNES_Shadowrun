@@ -41,7 +41,7 @@ import {
   OBJECT_Y,
   PLAYER_OBJECT,
   WRAM,
-} from '../task/wram.mjs';
+} from '../data/wram.mjs';
 import { ACTION_TABLE } from '../data/actions.mjs';
 import { CODE_BANK, WRAM_BANK } from '../constants/memory-map.mjs';
 import {

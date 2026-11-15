@@ -13,8 +13,8 @@ import { WORD_BITS, BYTE_BITS } from '../src/constants/bits.mjs';
 import { WRAM_BANK } from '../src/constants/memory-map.mjs';
 import { VmMemory, WRAM_SIZE } from '../src/vm/memory.mjs';
 import { TaskAccessor } from '../src/vm/task-accessor.mjs';
-import { dialogAccess } from '../src/task/native-dialog-support.mjs';
-import { SCENE_LOAD_ROUTINES, loadScene } from '../src/task/main-scene-load.mjs';
+import { dialogAccess } from '../src/system/native-dialog-support.mjs';
+import { SCENE_LOAD_ROUTINES, loadScene } from '../src/system/main-scene-load.mjs';
 import {
   SHAPE_GRID,
   SHAPE_GRID_BYTES,
@@ -36,7 +36,7 @@ import {
   TILE_STACK_FIRST,
   TILE_STACK_SECOND,
   TILE_STACK_THIRD,
-} from '../src/task/wram.mjs';
+} from '../src/data/wram.mjs';
 
 const WORD_BYTES = 2,
   WORD_MASK = 0xffff,

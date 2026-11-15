@@ -9,11 +9,11 @@ import { VmMemory } from '../src/vm/memory.mjs';
 import { TaskAccessor } from '../src/vm/task-accessor.mjs';
 import { SPECIAL_NATIVES } from '../proof/vm/special-natives.mjs';
 import { appendToFightListReference as appendToFightList } from '../proof/game-reference/fight-list-append.mjs';
-import { loadSampleData } from '../src/task/native-audio-compose.mjs';
-import { sendApuCommand } from '../src/task/native-input-apu.mjs';
+import { loadSampleData } from '../src/system/native-audio-compose.mjs';
+import { sendApuCommand } from '../src/system/native-input-apu.mjs';
 
 // NativeAC/8521: pinned own code with stack proof, and the equations of proof/game-reference/fight-list-append.mjs and
-// of EF47/F25A/F1FA (src/task/native-audio-compose.mjs) against the original instructions
+// of EF47/F25A/F1FA (src/system/native-audio-compose.mjs) against the original instructions
 // (tools/w65c816-reference.mjs). F007 and F130 run their modules on both sides with the real frames.
 const file = readFileSync(new URL('../Shadowrun (E).smc', import.meta.url));
 const { bytes } = inspectRom(file),

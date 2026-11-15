@@ -30,7 +30,7 @@ import {
   SCENE_REQUEST,
   SCENE_REQUEST_MATRIX,
   WRAM,
-} from '../task/wram.mjs';
+} from '../data/wram.mjs';
 import {
   RECORD_COMPUTER,
   RUNNER_LAST_INDEX,

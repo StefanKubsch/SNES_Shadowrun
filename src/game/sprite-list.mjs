@@ -16,11 +16,11 @@
 // their frames. The frames of the fill and the job count, and the data bank 7E
 // the original sets through the stack for the hidden sprites, are reproduced on the
 // stack. A, X, Y and the flags are left as the original leaves them.
-import { taskStop } from '../task/plan.mjs';
+import { taskStop } from '../system/task-stop.mjs';
 import { sortDrawList } from './depth-sort.mjs';
 import { paletteSlot, resetPaletteSlots } from './palette-slots.mjs';
 import { enterObjectSprites } from './object-sprites.mjs';
-import { DP_OAM_OFFSET } from '../task/native-sprite-helpers.mjs';
+import { DP_OAM_OFFSET } from '../script/native-sprite-helpers.mjs';
 import {
   DRAW_LIST,
   DRAW_LIST_INDEX,
@@ -32,7 +32,7 @@ import {
   OBJECT_PALETTE,
   OBJECT_PICTURE,
   PLAYER_OBJECT,
-} from '../task/wram.mjs';
+} from '../data/wram.mjs';
 import {
   OAM_ENTRY_BYTES,
   OAM_HIGH_ALL_LARGE,

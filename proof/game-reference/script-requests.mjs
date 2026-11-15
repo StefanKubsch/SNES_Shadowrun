@@ -1,5 +1,5 @@
 // Register-level references of the scripts' room, scene and main loop requests (moved
-// from src/task/native-room-change.mjs, native-scene-change.mjs, native-room-reload.mjs,
+// from src/script/native-room-change.mjs, native-scene-change.mjs, native-room-reload.mjs,
 // native-main-loop-exit.mjs, native-dialog-end.mjs and native-player-control-reset.mjs;
 // lifted in src/game/script-requests.mjs). The proof plans
 // and the Native58 dispatch of proof/task/native-dispatch.mjs run these; the game runs
@@ -9,7 +9,7 @@ import {
   SECOND_ARGUMENT,
   THIRD_ARGUMENT,
   leaf,
-} from '../../src/task/native-leaf-support.mjs';
+} from '../../src/system/native-leaf-support.mjs';
 import {
   AIMING_SPELL,
   AIMING_WEAPON,
@@ -26,7 +26,7 @@ import {
   SCENE_REQUEST_ARGUMENT,
   SCENE_REQUEST_ROOM_ONLY,
   WRAM,
-} from '../../src/task/wram.mjs';
+} from '../../src/data/wram.mjs';
 import { LONG_WRAP, WORD_MASK } from '../../src/constants/bits.mjs';
 
 // 80:CC97: switch to the room in the first argument without a scene sequence.

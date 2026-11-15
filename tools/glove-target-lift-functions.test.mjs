@@ -1,5 +1,5 @@
 // Random per-function tests of the lifted glove choices (src/game/glove-target.mjs)
-// against the register-level natives (src/task/native-glove-target.mjs). Both sides call
+// against the register-level natives (src/data/native-glove-target.mjs). Both sides call
 // the same stand-ins for their callees: the word wait 81:B0A1 (JSL), the pad word
 // 80:9E1A, the glove movement 80:BE6D, the glove release 80:BCB2 and the others of the
 // case. Each records its target, A, X, Y and the direct page words 00 and 02, and
@@ -31,8 +31,8 @@ import {
   OBJECT_HEIGHT,
   OBJECT_X,
   OBJECT_Y,
-} from '../src/task/wram.mjs';
-import { drainNativeSequence } from '../src/task/native-call-continuation.mjs';
+} from '../src/data/wram.mjs';
+import { drainNativeSequence } from '../src/system/native-call-continuation.mjs';
 
 const WRAM_BYTES = 0x20000,
   HEX = 16,

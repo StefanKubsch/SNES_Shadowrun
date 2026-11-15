@@ -6,7 +6,7 @@
 // goes on port 1 with its counter on port 0, which the IPL echoes. Port 1 zero with a
 // new counter ends the transfer and starts the program at the port 2/3 address. The
 // driver reports CA on port 1 when it is ready.
-import { APU_COMMAND_TOKEN, AUDIO_BLOCK_LIST_POINTER, MUSIC } from '../task/wram.mjs';
+import { APU_COMMAND_TOKEN, AUDIO_BLOCK_LIST_POINTER, MUSIC } from '../data/wram.mjs';
 import { APU_COMMAND_SONG_LEVEL, APU_COMMAND_VOLUME } from '../constants/sound-commands.mjs';
 import { APUIO0, APUIO1, APUIO2, APUIO3 } from '../constants/hardware-registers.mjs';
 import { BYTE_BITS, BYTE_MASK, WORD_BITS } from '../constants/bits.mjs';

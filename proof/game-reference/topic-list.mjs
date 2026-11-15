@@ -1,10 +1,10 @@
 // Register-level references of the topic list script natives (moved from
-// src/task/native-topic-known.mjs, native-topic-mark.mjs and native-topic-add.mjs; lifted
+// src/script/native-topic-known.mjs, native-topic-mark.mjs and native-topic-add.mjs; lifted
 // in src/game/topic-list.mjs). The proof plans, the Native58 dispatch of
 // proof/task/native-dispatch.mjs and the instruction test of 80:90EB run these; the game
 // runs the lifted natives.
-import { taskStop } from '../../src/task/plan.mjs';
-import { FIRST_ARGUMENT, leaf } from '../../src/task/native-leaf-support.mjs';
+import { taskStop } from '../../src/system/task-stop.mjs';
+import { FIRST_ARGUMENT, leaf } from '../../src/system/native-leaf-support.mjs';
 import {
   DP_TOPIC_NEXT_FLAGS,
   DP_TOPIC_SHIFT_FLAGS,
@@ -13,7 +13,7 @@ import {
   TOPIC_LIST_END,
   TOPIC_MARKED,
   WRAM,
-} from '../../src/task/wram.mjs';
+} from '../../src/data/wram.mjs';
 import {
   BANK_SIZE,
   BANK_WRAP,

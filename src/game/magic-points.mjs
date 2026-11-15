@@ -5,7 +5,7 @@
 // argument's low byte from its magic points (one byte per runner from 7E:3C96). Enough
 // points: they are paid and the result is FFFF. Too few: the notice "not enough magic"
 // (text 1, a window at 0B/14 of 19 columns and 3 rows, one second) and the result 0.
-import { nativeCallSequence } from '../task/native-call-continuation.mjs';
+import { nativeCallSequence } from '../system/native-call-continuation.mjs';
 import {
   DP_NOTICE_FRAMES,
   DP_NOTICE_TEXT,
@@ -16,7 +16,7 @@ import {
   DP_WINDOW_TOP,
   MAGIC_POINTS,
   MEMBER_INDEX,
-} from '../task/wram.mjs';
+} from '../data/wram.mjs';
 import { BYTE_BITS, BYTE_MASK, WORD_MASK } from '../constants/bits.mjs';
 
 const NOTICE = { left: 0x0b, top: 0x14, columns: 0x13, rows: 3, text: 1, frames: 0x3c },

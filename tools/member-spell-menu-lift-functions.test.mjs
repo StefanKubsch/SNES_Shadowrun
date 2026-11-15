@@ -1,5 +1,5 @@
 // Random per-function tests of the lifted spell menu (src/game/member-spell-menu.mjs)
-// against the register-level natives (src/task/native-member-spell-menu.mjs): the
+// against the register-level natives (src/data/native-member-spell-menu.mjs): the
 // script native 80:F254 with its menu 80:E693, and the menu's entries 80:E693 and
 // 80:E68E (from the status screen) alone. Both sides call the same stand-ins for the
 // window 80:F963 (a window number in DP 00), the menu 80:A6C7 (a row, Exit or a
@@ -25,8 +25,8 @@ import {
   OBJECT_NUMBER,
   PLAYER_OBJECT,
   MEMBER_OBJECT,
-} from '../src/task/wram.mjs';
-import { drainNativeSequence } from '../src/task/native-call-continuation.mjs';
+} from '../src/data/wram.mjs';
+import { drainNativeSequence } from '../src/system/native-call-continuation.mjs';
 
 const WRAM_BYTES = 0x20000,
   HEX = 16,

@@ -1,4 +1,4 @@
-import { taskStop } from '../../src/task/plan.mjs';
+import { taskStop } from '../../src/system/task-stop.mjs';
 import { prepareTaskPlan } from './plan.mjs';
 import { runTaskOpcodeTarget } from './opcode-target.mjs';
 import { runTaskNativeArguments } from './native-arguments.mjs';
@@ -6,9 +6,9 @@ import { runTaskNativeBridge } from './native-bridge.mjs';
 import { runTaskNativeResume } from './native-resume.mjs';
 import { talkWithObjectObserved, validateDialogTaskOptions } from '../replay/native-dialog.mjs';
 import { fec1Registers } from '../replay/native-notice.mjs';
-import { taskListDevices } from '../../src/task/native-list-prerequisites.mjs';
-import { taskAudioDevices } from '../../src/task/native-audio-compose.mjs';
-import { taskMenuDevices } from '../../src/task/native-menu-compose.mjs';
+import { taskListDevices } from '../../src/system/native-list-prerequisites.mjs';
+import { taskAudioDevices } from '../../src/system/native-audio-compose.mjs';
+import { taskMenuDevices } from '../../src/system/native-menu-compose.mjs';
 // Devices of 936C: windows and menus (FEC1/F963 family, A6C7), APU ports of EF47/C46E, and its own PPU/DMA writes
 // (CGWSEL/CGADSUB, window, brightness via 2101, VRAM DMA channel 0, HDMA tables).
 const own = Object.freeze({

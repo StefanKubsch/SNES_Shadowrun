@@ -1,6 +1,6 @@
 // Drawing the text buffer into a window (lifted from 80:FB39 with the cursor geometry
 // 81:ADBA, 81:AE14 and 81:AE4D, the mask close 81:AEC8 and the upload requests 81:AEF4
-// and 81:AEFC; register-level versions in src/task/native-text-compose.mjs and
+// and 81:AEFC; register-level versions in src/system/native-text-compose.mjs and
 // native-text-prerequisites.mjs, which the other callers still use).
 //
 // The text buffer 7E:21A0 (ending with 0) is drawn into the window in the direct page
@@ -29,12 +29,12 @@
 // of the calls that do not wait (geometry, mask) and the routine's own pushes are not
 // reproduced.
 import { sceneRuntime } from '../system/scene-runtime.mjs';
-import { lagFree } from '../task/main-wait-interrupt.mjs';
+import { lagFree } from '../system/main-wait-interrupt.mjs';
 import { nmiAtBranch } from '../system/frame-wait.mjs';
 import {
   drawTextBufferSequence as drawTextBufferReference,
   textRequestWaitSequence,
-} from '../task/native-text-compose.mjs';
+} from '../system/native-text-compose.mjs';
 import {
   TEXT_BUFFER,
   TEXT_BUFFER_BYTES,
@@ -61,7 +61,7 @@ import {
   WINDOW_STYLE,
   WINDOW_TILE_INITIAL,
   WINDOW_TILE_START,
-} from '../task/wram.mjs';
+} from '../data/wram.mjs';
 import {
   RDDIVL,
   RDMPYL,

@@ -25,7 +25,7 @@ import {
   PATH_START_HEIGHT_GOAL,
   PATH_START_XY_GOAL,
   SWARM_MEMBERS,
-} from '../task/wram.mjs';
+} from '../data/wram.mjs';
 import { HALF_PHASE, WAVE_WORD_INDEX_MASK } from './object-bob.mjs';
 
 // Frames to the first circle follower, the start phase of the sixteen member phases and

@@ -4,8 +4,8 @@
 // words; the called routines come from a table (target -> run(h, events), ends with rts/rtl).
 // Missing routines remain named limits. The RTS at $96EC/$96F2 are executed only for the explicitly
 // bound game or demo owner; without this owner they remain a limit.
-import { taskStop } from '../task/plan.mjs';
-import { dialogAccess } from '../task/native-dialog-support.mjs';
+import { taskStop } from '../system/task-stop.mjs';
+import { dialogAccess } from '../system/native-dialog-support.mjs';
 import {
   runCameraFollow,
   runColourEffect,
@@ -24,9 +24,9 @@ import {
   runPadPresses,
 } from '../game/main-upkeep.mjs';
 import { processSceneRequest } from '../game/scene-request.mjs';
-import { WAIT_PAUSED, WAIT_RETURNED } from '../task/native-wait-continuation.mjs';
-import { lagFree } from '../task/main-wait-interrupt.mjs';
-import { NATIVE_CALL_CONTINUATIONS } from '../task/native-call-continuation.mjs';
+import { WAIT_PAUSED, WAIT_RETURNED } from '../system/native-wait-continuation.mjs';
+import { lagFree } from '../system/main-wait-interrupt.mjs';
+import { NATIVE_CALL_CONTINUATIONS } from '../system/native-call-continuation.mjs';
 import { BYTE_BITS, WORD_BITS, WORD_MASK, WORD_SIGN } from '../constants/bits.mjs';
 import {
   FLAG_DECIMAL,
@@ -36,7 +36,7 @@ import {
   FLAG_NEGATIVE,
   FLAG_ZERO,
 } from '../constants/cpu-flags.mjs';
-import { MAIN_LOOP_EXIT, MAIN_LOOP_RELOAD } from '../task/wram.mjs';
+import { MAIN_LOOP_EXIT, MAIN_LOOP_RELOAD } from '../data/wram.mjs';
 import { CODE_BANK } from '../constants/memory-map.mjs';
 
 export const MAIN_LOOP_RESUME = 0x96c3; // return from the round

@@ -1,6 +1,6 @@
 import { proveExternalSource, emitExternalSource } from './task-native-external-source.mjs';
 // Hauptschleife $80:8000 mit Helfer $803B (proof/replay/main-zone-gate.mjs): Zonen um die Spielfigur. $C34A ist
-// anderswo bewiesen (src/task/task-append.mjs); $A4BF (Szenenwechsel) ist noch nicht gebunden und im Spiel eine
+// anderswo bewiesen (src/system/task-append.mjs); $A4BF (Szenenwechsel) ist noch nicht gebunden und im Spiel eine
 // Grenze (main_loop_frontier), im Vergleich ein Stub mit echtem Rahmen.
 export const mainGate8000Spec = {
   name: 'main-gate-8000',
@@ -17,7 +17,7 @@ export const mainGate8000Spec = {
     },
   ],
   externalReturns: [
-    [0x80c34a, 'RTS', 'task append, appendScriptTask in src/task/task-append.mjs'],
+    [0x80c34a, 'RTS', 'task append, appendScriptTask in src/system/task-append.mjs'],
     [
       0x80a4bf,
       'RTS',

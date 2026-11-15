@@ -8,8 +8,8 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { DialogTestMemory } from './task-native-dialog-harness.mjs';
 import { TaskAccessor } from '../src/vm/task-accessor.mjs';
-import { dialogAccess } from '../src/task/native-dialog-support.mjs';
-import { drainNativeSequence } from '../src/task/native-call-continuation.mjs';
+import { dialogAccess } from '../src/system/native-dialog-support.mjs';
+import { drainNativeSequence } from '../src/system/native-call-continuation.mjs';
 import { waitForConfirmKeySequence } from '../src/game/confirm-key.mjs';
 
 const PAD_PRESSED = 0x01ce,

@@ -8,7 +8,7 @@ import { FRONTEND_TEXT_LIMIT } from '../src/data/frontend-text-edits.mjs';
 import { buildLanguage, languageMenuText, languageMenuArrowShift } from '../src/data/language.mjs';
 import { LiveGame } from '../src/video/live-game.mjs';
 import { TaskAccessor } from '../src/vm/task-accessor.mjs';
-import { dialogAccess } from '../src/task/native-dialog-support.mjs';
+import { dialogAccess } from '../src/system/native-dialog-support.mjs';
 import { FRONTEND_TEXT_ROUTINES } from '../proof/replay/main-frontend-text.mjs';
 import { sceneRuntime } from '../src/system/scene-runtime.mjs';
 import { saveSlotCount } from '../src/game/save-slots.mjs';
@@ -35,7 +35,7 @@ import {
   DP_MENU_CURSOR,
   DP_MENU_TEXT_XOR,
   SETTINGS_CONTROL,
-} from '../src/task/wram.mjs';
+} from '../src/data/wram.mjs';
 import { ORIGINAL_GAMEPLAY } from '../src/game/bugfixes.mjs';
 import { SLOT_OFFSETS_FOUR } from '../src/game/save-slots.mjs';
 import { loadSave } from './mesen-f390-oracle.mjs';

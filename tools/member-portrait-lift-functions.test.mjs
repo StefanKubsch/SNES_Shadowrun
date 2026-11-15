@@ -1,6 +1,6 @@
 // Random per-function tests of the lifted member portrait (src/game/member-portrait.mjs)
 // against the register-level 80:E4B3 with 80:E48D, 80:E433 and 80:E41F
-// (src/task/native-member-spell-menu.mjs). Both sides call the same stand-ins for the
+// (src/data/native-member-spell-menu.mjs). Both sides call the same stand-ins for the
 // unpack 80:9F6D, the uploads 80:8F20, 80:9022 and 80:8FF5 and the word wait 81:B0A1
 // (JSL, which keeps X as the original); the port writes are compared too. Each records its target, A,
 // X, Y, the flags N, V, Z and C, the direct page words 00 and 02 and S (a wait takes
@@ -14,10 +14,10 @@ import { prng } from './task-native-dialog-harness.mjs';
 import { createSide, registerCases } from './lift-function-harness.mjs';
 import { e4b3Sequence } from '../proof/replay/native-member-spell-menu.mjs';
 import { memberPortraitSequence } from '../src/game/member-portrait.mjs';
-import { MEMBER_PORTRAIT } from '../src/task/wram.mjs';
+import { MEMBER_PORTRAIT } from '../src/data/wram.mjs';
 import { TALK_ROUTINES } from '../proof/replay/native-dialog.mjs';
 import { shiftPortraitRowsRoutine, unpackPortraitRoutine } from '../src/game/portrait-upload.mjs';
-import { drainNativeSequence } from '../src/task/native-call-continuation.mjs';
+import { drainNativeSequence } from '../src/system/native-call-continuation.mjs';
 
 const WRAM_BYTES = 0x20000,
   HEX = 16,

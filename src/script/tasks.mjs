@@ -16,7 +16,7 @@
 // above the frame, a fifth local call (its return word would overwrite the call ID at
 // +09) and a local index outside the declared locals. New frames start zeroed: no script
 // reads a local before writing it (tools/probe-fresh-script-locals.mjs).
-import { taskStop } from '../task/plan.mjs';
+import { taskStop } from '../system/task-stop.mjs';
 import {
   FRAME_CALL_ID,
   FRAME_FIXED_BYTES,

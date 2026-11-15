@@ -45,11 +45,11 @@ import {
   findNearestVisibleMemberNative,
   chooseRandomFightTargetNative,
   canAttackNative,
-} from '../task/native-script-leaves.mjs';
-import { dialogAccess } from '../task/native-dialog-support.mjs';
-import { drainNativeSequence, observedContinuation } from '../task/native-call-continuation.mjs';
-import { lagFree } from '../task/main-wait-interrupt.mjs';
-import { taskStop } from '../task/plan.mjs';
+} from '../script/native-script-leaves.mjs';
+import { dialogAccess } from '../system/native-dialog-support.mjs';
+import { drainNativeSequence, observedContinuation } from '../system/native-call-continuation.mjs';
+import { lagFree } from '../system/main-wait-interrupt.mjs';
+import { taskStop } from '../system/task-stop.mjs';
 import { raiseStateCountSequence, restoreRunnersSequence } from '../game/runner-state-call.mjs';
 
 // Keep synchronous and pausing calls on the same lifted sequence. Replays cannot

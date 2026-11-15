@@ -4,7 +4,7 @@ import { ScriptInterpreter, EXIT_BUDGET } from '../proof/vm/interpreter.mjs';
 import { NativeCalls } from '../proof/vm/native-call.mjs';
 import { ObservedDevices, observationSet } from '../proof/vm/observed-devices.mjs';
 import { TaskAccessor } from '../src/vm/task-accessor.mjs';
-import { dialogAccess } from '../src/task/native-dialog-support.mjs';
+import { dialogAccess } from '../src/system/native-dialog-support.mjs';
 import {
   runTaskNativeInputWaitOpcode,
   prepareTaskNativeOpcodeF953,
@@ -13,7 +13,7 @@ import { GAME_NMI_ROUTINES } from '../proof/replay/main-game-nmi.mjs';
 import {
   finishInterruptObservations,
   waitForRandomStateChangeWithInterrupts,
-} from '../src/task/main-wait-interrupt.mjs';
+} from '../src/system/main-wait-interrupt.mjs';
 import { withInterruptEvents } from '../proof/replay/observed-native-events.mjs';
 import { SPECIAL_NATIVES } from '../proof/vm/special-natives.mjs';
 import { DialogTestMemory, rom } from './task-native-dialog-harness.mjs';

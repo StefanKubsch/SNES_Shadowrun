@@ -14,7 +14,7 @@ import {
   NMI_CALLBACK_BANK,
   STORY_STAGE,
   WRAM,
-} from '../task/wram.mjs';
+} from '../data/wram.mjs';
 import { BYTE_BITS, BYTE_MASK, WORD_MASK } from '../constants/bits.mjs';
 
 // Actor 08B2, 8D:B01F + 08B2 + 1, points at Jake's state record.

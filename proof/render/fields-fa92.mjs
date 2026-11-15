@@ -2,7 +2,7 @@ import { isWord } from '../script/runtime.mjs';
 import { prepareRenderView } from '../../src/render/data.mjs';
 import { renderEntryBoundary } from './unpack-9f49.mjs';
 import { WRAM_BASE } from '../../src/constants/memory-map.mjs';
-import { WINDOW_LEFT_PIXEL, WINDOW_COLUMNS, WINDOW_WIDTH_PIXELS } from '../../src/task/wram.mjs';
+import { WINDOW_LEFT_PIXEL, WINDOW_COLUMNS, WINDOW_WIDTH_PIXELS } from '../../src/data/wram.mjs';
 import { WORD_SIGN, WORD_MASK } from '../../src/constants/bits.mjs';
 
 const DEFAULT_MAX_WORK = 1000000;

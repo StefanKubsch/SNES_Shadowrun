@@ -1,6 +1,6 @@
 // Source-specific atomic plans for proof tools. The game executes the shared routines directly.
 import { isRenderData, prepareRenderView, renderAddress } from '../../src/render/data.mjs';
-import { taskStop } from '../../src/task/plan.mjs';
+import { taskStop } from '../../src/system/task-stop.mjs';
 
 // Manual, source-specific byte plans over the existing versioned owner. This
 // module never decodes or executes instructions, dispatches a task or creates

@@ -7,7 +7,7 @@ import {
   MATRIX_IC_TEXT_BUFFER,
   MATRIX_IC_TEXT_COUNT,
   MATRIX_IC_TEXT_END,
-} from '../../src/task/wram.mjs';
+} from '../../src/data/wram.mjs';
 
 const QUEUE_ENTRY_BYTES = 4,
   QUEUE_ENTRIES = 8,

@@ -31,13 +31,13 @@
 // number, the object slots 80:A835 and the sound 80:C46E run lifted as plain calls; the
 // notices' callees and the window list run through their frames from the routine
 // table, since they wait for frames.
-import { nativeCallSequence } from '../task/native-call-continuation.mjs';
+import { nativeCallSequence } from '../system/native-call-continuation.mjs';
 import { dataBankWord, setDataBankWord } from '../system/data-bank.mjs';
 import { accessorPort } from '../system/hardware-port.mjs';
 import { drawBelowInDirectPage } from '../system/random.mjs';
 import { playSoundEffect } from '../apu/sound-effect.mjs';
 import { fitListWindow } from '../data/menu-layout.mjs';
-import { taskStop } from '../task/plan.mjs';
+import { taskStop } from '../system/task-stop.mjs';
 import { createObject } from './object-create.mjs';
 import { protectedJakeHealth } from './cheats.mjs';
 import {
@@ -60,7 +60,7 @@ import {
   PLAYER_HIT_SOUND_LEVEL,
   PLAYER_HIT_SOUND_VOICES,
   PLAYER_HIT_STUN,
-} from '../task/native-object-hit.mjs';
+} from '../data/native-object-hit.mjs';
 import {
   DP_OBJECT_HEIGHT,
   DP_OBJECT_KIND,
@@ -92,7 +92,7 @@ import {
   PLAYER_OBJECT,
   RECORD_COUNT,
   WRAM,
-} from '../task/wram.mjs';
+} from '../data/wram.mjs';
 import { sendEvents, tasksOf } from '../script/task-api.mjs';
 import {
   BYTE_BITS,

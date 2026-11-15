@@ -13,7 +13,7 @@
 //   80:9E13 LDA $4218 (WORD)  input pad word latched once per NMI
 // Book I PDF 140 (2-28-1) NMITIMEN, 145 (2-28-6) RDNMI, 146 (2-28-7) HVBJOY,
 // 148 (2-28-9) pad bits. All other reads remain observation limits.
-import { taskStop } from '../task/plan.mjs';
+import { taskStop } from '../system/task-stop.mjs';
 import { VmFault } from './memory.mjs';
 import { WORD_BITS, WORD_MASK, BYTE_MASK, BYTE_BITS } from '../constants/bits.mjs';
 import { FLAG_NEGATIVE, FLAG_ZERO } from '../constants/cpu-flags.mjs';

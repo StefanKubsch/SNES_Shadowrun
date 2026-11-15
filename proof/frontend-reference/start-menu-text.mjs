@@ -1,11 +1,11 @@
 // Register-level reference of the start menu texts, the title start 81:E50C and the
 // NMI callback 81:E6AE (the lifted version is src/frontend/start-menu.mjs).
 import { saveSlotCount } from '../../src/game/save-slots.mjs';
-import { taskStop } from '../../src/task/plan.mjs';
+import { taskStop } from '../../src/system/task-stop.mjs';
 import { MAIN_SCENE_ROUTINES } from '../replay/main-scene.mjs';
 import { AUDIO_REFERENCE_ENTRIES } from '../apu-reference/audio-routines.mjs';
 import { compareSaveChecksum } from '../replay/native-main-menu.mjs';
-import { interruptStep, steppedInterrupts } from '../../src/task/main-wait-interrupt.mjs';
+import { interruptStep, steppedInterrupts } from '../../src/system/main-wait-interrupt.mjs';
 import {
   NativeCallContinuation,
   NATIVE_CALL_CONTINUATIONS,
@@ -13,8 +13,8 @@ import {
   JSL_RETURN_OFFSET,
   drainNativeSequence,
   nativeCallSequence,
-} from '../../src/task/native-call-continuation.mjs';
-import { routineCaller } from '../../src/task/routine-call.mjs';
+} from '../../src/system/native-call-continuation.mjs';
+import { routineCaller } from '../../src/system/routine-call.mjs';
 
 import {
   DP_MENU_CURSOR,
@@ -46,7 +46,7 @@ import {
   TITLE_PALETTE,
   TITLE_PALETTE_BYTES,
   TITLE_STRIPE_SOURCES,
-} from '../../src/task/wram.mjs';
+} from '../../src/data/wram.mjs';
 import {
   VMAINC,
   DMAP0,

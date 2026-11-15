@@ -1,7 +1,7 @@
 // The scene tiles (lifted from 81:9AE6 with 81:A1BC, 81:A1E1, 81:A243 and 81:9490;
-// register-level version in src/task/main-scene-graphics.mjs).
+// register-level version in src/system/main-scene-graphics.mjs).
 //
-// The scene load leaves a tile stack per BG tile (src/task/wram.mjs, TILE_STACK_*): a
+// The scene load leaves a tile stack per BG tile (src/data/wram.mjs, TILE_STACK_*): a
 // use count (negative: empty) and up to three tile ids drawn over each other. Each
 // tile id names a 128-byte stream of four tiles (src/data/tiles.mjs) and may be flipped.
 // The upload composes every stack entry and writes it to VRAM from word address 1000.
@@ -14,7 +14,7 @@
 // offset 80 and the stack entry 26) and the quarter offset 0D16 are written as in the
 // original.
 import { sceneRuntime } from '../system/scene-runtime.mjs';
-import { taskStop } from '../task/plan.mjs';
+import { taskStop } from '../system/task-stop.mjs';
 import { UNPACK_FIXED_7E, unpackLong } from '../system/unpack.mjs';
 import {
   TILE_CACHE_DATA,
@@ -28,7 +28,7 @@ import {
   TILE_STACK_SECOND,
   TILE_STACK_THIRD,
   TILE_STACK_USES,
-} from '../task/wram.mjs';
+} from '../data/wram.mjs';
 import { TILE_BANK, TILE_TABLE } from '../data/tiles.mjs';
 import { VMADDL, VMAINC, VMDATAL } from '../constants/hardware-registers.mjs';
 import { PLANE_PAIR_BYTES, TILE_H_FLIP, VMAINC_INCREMENT_AFTER_HIGH } from '../constants/ppu.mjs';

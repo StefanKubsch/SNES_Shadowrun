@@ -8,15 +8,15 @@
 // until position 0401 with objects moving over it, scrolls the city down, narrows
 // the window and blends three views of the picture in and out, then fades out. A
 // held button ends either at once; the title then returns 1 instead of 0.
-import { nativeCallSequence } from '../task/native-call-continuation.mjs';
-import { lagFree } from '../task/main-wait-interrupt.mjs';
+import { nativeCallSequence } from '../system/native-call-continuation.mjs';
+import { lagFree } from '../system/main-wait-interrupt.mjs';
 import {
   beginPackedTextEdit,
   endPackedTextEdit,
   PROLOGUE_EDIT,
 } from '../data/packed-text-edits.mjs';
 import { decodeOnce, tableEntries } from '../data/named-tables.mjs';
-import { taskStop } from '../task/plan.mjs';
+import { taskStop } from '../system/task-stop.mjs';
 import { sceneRuntime } from '../system/scene-runtime.mjs';
 import { startSceneScreen, enableNmiAndJoypad, disableNmi } from '../system/nmi.mjs';
 import { runSceneList } from '../system/scene-list.mjs';
@@ -48,7 +48,7 @@ import {
   TITLE_PALETTE,
   VRAM_SLOT_COUNT,
   WRAM,
-} from '../task/wram.mjs';
+} from '../data/wram.mjs';
 import {
   A1B0,
   A1T0L,

@@ -1,18 +1,18 @@
 import { withInterruptEvents } from './observed-native-events.mjs';
-import { lagFree } from '../../src/task/main-wait-interrupt.mjs';
-import { taskStop } from '../../src/task/plan.mjs';
-import { dialogAccess } from '../../src/task/native-dialog-support.mjs';
+import { lagFree } from '../../src/system/main-wait-interrupt.mjs';
+import { taskStop } from '../../src/system/task-stop.mjs';
+import { dialogAccess } from '../../src/system/native-dialog-support.mjs';
 import {
   NativeCallContinuation,
   observedContinuation,
   drainNativeSequence,
   dialogCallBody,
   segmentSequence,
-} from '../../src/task/native-call-continuation.mjs';
+} from '../../src/system/native-call-continuation.mjs';
 import { NATIVE_CALL_CONTINUATIONS } from './continuations.mjs';
 import { TALK_WAIT_PCS } from './native-dialog.mjs';
 import { GLOVE_ROUTINES, routineCall, rts, absolute } from './native-glove-target-support.mjs';
-import { sec, clc } from '../../src/task/status-flags.mjs';
+import { sec, clc } from '../../src/system/status-flags.mjs';
 import { putOnActionGlove, putOnSpellGlove, be6dSequence } from './native-glove.mjs';
 
 import {
@@ -50,7 +50,7 @@ import {
   DP_WINDOW_ATTRIBUTES,
   DP_NOTICE_TEXT,
   DP_NOTICE_FRAMES,
-} from '../../src/task/wram.mjs';
+} from '../../src/data/wram.mjs';
 import { DP_SCRATCH } from './native-member-spell-menu.mjs';
 import {
   FLAG_ZERO,

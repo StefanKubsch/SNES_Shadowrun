@@ -10,8 +10,8 @@
 import { sendApuCommand } from './apu-command.mjs';
 import { setMusicMode } from './music-mode.mjs';
 import { accessorPort } from '../system/hardware-port.mjs';
-import { taskStop } from '../task/plan.mjs';
-import { APU_COMMAND_TOKEN } from '../task/wram.mjs';
+import { taskStop } from '../system/task-stop.mjs';
+import { APU_COMMAND_TOKEN } from '../data/wram.mjs';
 import { APU_COMMAND_VOLUME_TARGET } from '../constants/sound-commands.mjs';
 import { BYTE_BITS, BYTE_MASK } from '../constants/bits.mjs';
 import { FLAG_INDEX_8BIT, FLAG_NEGATIVE, FLAG_ZERO } from '../constants/cpu-flags.mjs';

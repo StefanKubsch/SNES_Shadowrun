@@ -12,7 +12,7 @@ import { proveTaskNativeRender } from './task-native-render-source.mjs';
 import { decodeWindows, DialogTestMemory, rom } from './task-native-dialog-harness.mjs';
 import { runReference } from './w65c816-reference.mjs';
 import { TaskAccessor } from '../src/vm/task-accessor.mjs';
-import { dialogAccess } from '../src/task/native-dialog-support.mjs';
+import { dialogAccess } from '../src/system/native-dialog-support.mjs';
 import { GAME_NMI_ROUTINES } from '../proof/replay/main-game-nmi.mjs';
 import {
   finishInterruptObservations,
@@ -20,12 +20,15 @@ import {
   runInterruptRequestWait,
   WordWaitContinuation,
   RequestWaitContinuation,
-} from '../src/task/main-wait-interrupt.mjs';
-import { WAIT_PAUSED, WAIT_RETURNED } from '../src/task/native-wait-continuation.mjs';
-import { waitForTextMapUpload, requestTextMapUpload } from '../src/task/native-render-compose.mjs';
-import { runTaskTextWait } from '../src/task/native-text-prerequisites.mjs';
+} from '../src/system/main-wait-interrupt.mjs';
+import { WAIT_PAUSED, WAIT_RETURNED } from '../src/system/native-wait-continuation.mjs';
+import {
+  waitForTextMapUpload,
+  requestTextMapUpload,
+} from '../src/system/native-render-compose.mjs';
+import { runTaskTextWait } from '../src/system/native-text-prerequisites.mjs';
 import { TALK_ROUTINES } from '../proof/replay/native-dialog.mjs';
-import { NATIVE_CALL_CONTINUATIONS } from '../src/task/native-call-continuation.mjs';
+import { NATIVE_CALL_CONTINUATIONS } from '../src/system/native-call-continuation.mjs';
 import { textDma, referenceTextDma } from './main-dma-readback-fixtures.mjs';
 
 const map = decodeWindows(wordInterruptWindows),

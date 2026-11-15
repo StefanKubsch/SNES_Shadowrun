@@ -1,11 +1,11 @@
-import { taskStop } from '../../src/task/plan.mjs';
-import { appendScriptTask } from '../../src/task/task-append.mjs';
+import { taskStop } from '../../src/system/task-stop.mjs';
+import { appendScriptTask } from '../../src/system/task-append.mjs';
 import { enterRoom } from './main-transition.mjs';
 import {
   NativeCallContinuation,
   drainNativeSequence,
   nativeCallSequence,
-} from '../../src/task/native-call-continuation.mjs';
+} from '../../src/system/native-call-continuation.mjs';
 import { NATIVE_CALL_CONTINUATIONS } from './continuations.mjs';
 
 import {
@@ -19,7 +19,7 @@ import {
   DP_ZONE_HEIGHT,
   DP_ZONE_LIST_INDEX,
   DP_ZONE_COUNT,
-} from '../../src/task/wram.mjs';
+} from '../../src/data/wram.mjs';
 import { BYTE_MASK } from '../../src/constants/bits.mjs';
 import { FLAG_CARRY, FLAG_NEGATIVE, FLAG_ZERO } from '../../src/constants/cpu-flags.mjs';
 import { CODE_BANK } from '../../src/constants/memory-map.mjs';

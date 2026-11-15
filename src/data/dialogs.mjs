@@ -1,6 +1,6 @@
 // Dialog records (docs/ROM-FREE.md, step 2). 80:936C (src/task/
 // native-dialog.mjs) takes the word at 80:94F7 + 2 n for dialog n, the record
-// address in bank 8D ([11]); 80:9178 (src/task/native-dialog-text.mjs)
+// address in bank 8D ([11]); 80:9178 (src/system/native-dialog-text.mjs)
 // looks up the text for a key. A record:
 // - +0 the long pointer of the portrait record (src/data/portraits.mjs);
 // - +3 a flag byte to $01BA: bits 0-6 the music (index into 80:94E8, 0

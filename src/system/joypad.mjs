@@ -1,9 +1,9 @@
 // The joypad (lifted from 80:9E0B and 80:9E1A; long forms 80:F290 and 80:F298,
-// register-level versions in src/task/main-scene-wait.mjs and
-// src/task/native-input-apu.mjs). The NMI stores the held buttons; the game
+// register-level versions in src/system/main-scene-wait.mjs and
+// src/system/native-input-apu.mjs). The NMI stores the held buttons; the game
 // loop derives the newly pressed ones.
-import { taskStop } from '../task/plan.mjs';
-import { PAD_HELD, PAD_PREVIOUS, PAD_PRESSED } from '../task/wram.mjs';
+import { taskStop } from './task-stop.mjs';
+import { PAD_HELD, PAD_PREVIOUS, PAD_PRESSED } from '../data/wram.mjs';
 import { HVBJOY, STDCNTRL1L } from '../constants/hardware-registers.mjs';
 import { BYTE_BITS, BYTE_MASK } from '../constants/bits.mjs';
 
@@ -22,7 +22,7 @@ const setWord = (wram, at, value) => {
   wram[at + 1] = (value >>> BYTE_BITS) & BYTE_MASK;
 };
 
-// The buttons held on controller 1 (PAD_* bits in src/task/wram.mjs): wait while
+// The buttons held on controller 1 (PAD_* bits in src/data/wram.mjs): wait while
 // HVBJOY bit 0 reports the automatic read, then take the word.
 export function readJoypad(port) {
   while (port.read(HVBJOY, 2, STATUS_SITE) & AUTO_READ_BUSY);

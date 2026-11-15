@@ -25,10 +25,10 @@
 // routine itself changes (the carry of its shifts and comparisons) are passed on as the
 // original's; it changes no overflow. It leaves the registers of its last callee (the
 // music change) or of the window release with A the pulled music word.
-import { dialogCallSequence, dialogCallBody } from '../task/native-call-continuation.mjs';
+import { dialogCallSequence, dialogCallBody } from '../system/native-call-continuation.mjs';
 import { sceneRuntime } from '../system/scene-runtime.mjs';
 import { fixesEnabled, preparePushkinTopics } from './bugfixes.mjs';
-import { dialogTextRoutines } from '../task/native-dialog-text.mjs';
+import { dialogTextRoutines } from '../system/native-dialog-text.mjs';
 import { DIALOG_TABLE, DIALOG_BANK_BASE } from '../data/portraits.mjs';
 import { JAKE_PORTRAIT_DIALOG, JAKE_ALTERNATE_PORTRAIT_DIALOG } from '../data/runners.mjs';
 import {
@@ -39,7 +39,7 @@ import {
   PORTRAIT_OBJSEL,
   PORTRAIT_RECORD_BANK_BYTE,
   FIXED_COLOUR_BLACK,
-} from '../task/native-dialog-portrait.mjs';
+} from '../system/native-dialog-portrait.mjs';
 import {
   DIALOG_END,
   DIALOG_RECORD_FLAGS,
@@ -57,7 +57,7 @@ import {
   WINDOW_COLUMNS,
   WINDOW_LEFT_PIXEL,
   WINDOW_WIDTH_PIXELS,
-} from '../task/wram.mjs';
+} from '../data/wram.mjs';
 import {
   A1B0,
   A1T0L,

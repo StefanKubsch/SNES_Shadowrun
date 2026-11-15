@@ -1,8 +1,8 @@
 // Object types of the scene records (docs/ROM-FREE.md, step 2). The type of a
 // scene object indexes the word table $8A:C36A; the word points to the type's
 // definition in bank 8A. Readers: $81:903E draws the parts
-// (src/task/main-scene-layers.mjs), $81:84DE builds the collision boxes
-// (src/task/main-scene-collision.mjs). A definition is
+// (src/system/main-scene-layers.mjs), $81:84DE builds the collision boxes
+// (src/system/main-scene-collision.mjs). A definition is
 // - a header of 8 bytes: byte 0 the number of parts; the words at 1 and 3,
 //   added by 903E to its screen field (DP 2C) for an unflipped or flipped
 //   object; the word at 5, added to DP 2F; byte 7 the number of boxes,

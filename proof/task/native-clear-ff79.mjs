@@ -1,6 +1,6 @@
 // Source-specific atomic plans for proof tools. The game executes the shared routines directly.
 import { prepareTaskPlan } from './plan.mjs';
-import { af1fRegisters } from '../../src/task/native-bar-tiles.mjs';
+import { af1fRegisters } from '../../src/script/native-bar-tiles.mjs';
 import {
   validateNoticeReleaseOptions,
   releaseNoticeWindowsObserved,

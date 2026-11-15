@@ -20,7 +20,7 @@ import {
   TEXT_SOURCE_BANK_WORD,
   TEXT_WORK_WORD,
   TEXT_CHARACTER_INDEX,
-} from '../../src/task/wram.mjs';
+} from '../../src/data/wram.mjs';
 import {
   FLAG_NEGATIVE,
   FLAG_MEMORY_8BIT,
@@ -32,7 +32,7 @@ import {
   TEXT_POINTER_BANK_SEED,
   HUFFMAN_TEXT_END,
   HUFFMAN_CHARACTER_PAIR_MASK,
-} from '../../src/task/native-text-compose.mjs';
+} from '../../src/system/native-text-compose.mjs';
 
 const DEFAULT_MAX_WORK = 1000000;
 const BIT_READER_STACK_BYTES = 5;

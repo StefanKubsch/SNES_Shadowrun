@@ -11,10 +11,10 @@ import {
   startTimerReference,
   stopTimerReference,
 } from '../proof/game-reference/script-timer.mjs';
-import { startTimer } from '../src/task/native-timer-start.mjs';
-import { stopTimer } from '../src/task/native-timer-stop.mjs';
-import { isTimerRunning } from '../src/task/native-timer-running.mjs';
-import { TIMER, TIMER_FRAMES } from '../src/task/wram.mjs';
+import { startTimer } from '../src/script/native-timer-start.mjs';
+import { stopTimer } from '../src/script/native-timer-stop.mjs';
+import { isTimerRunning } from '../src/script/native-timer-running.mjs';
+import { TIMER, TIMER_FRAMES } from '../src/data/wram.mjs';
 
 const WRAM_BYTES = 0x20000,
   HEX = 16,

@@ -1,5 +1,5 @@
 // Random per-function test of the lifted room entry 80:A4BF (src/game/room-entry.mjs,
-// table entry enterRoom in src/task/main-transition.mjs) against the register-level
+// table entry enterRoom in src/system/main-transition.mjs) against the register-level
 // reference (proof/game-reference/room-entry.mjs), docs/ROOM-ENTRY-LIFT.md. The
 // glove 80:BCB2 and the notice windows 80:FF79 release their windows for real on both
 // sides (each release redraws the window list). The routines both sides still call
@@ -27,7 +27,7 @@ import { sceneRuntime } from '../src/system/scene-runtime.mjs';
 import { loadSceneSequence } from '../src/game/scene-load.mjs';
 import { createObject } from '../src/game/object-create.mjs';
 import { appendScriptTaskCall } from '../src/game/task-append.mjs';
-import { appendScriptTask as appendScriptTaskReference } from '../src/task/task-append.mjs';
+import { appendScriptTask as appendScriptTaskReference } from '../src/system/task-append.mjs';
 import { turnObject, turnObjectRoutine } from '../src/game/object-turn.mjs';
 import { setObjectDirectionReference as setObjectDirection } from '../proof/game-reference/object-turn.mjs';
 import {
@@ -42,7 +42,7 @@ import { putGloveAwaySequence, releaseNoticeWindowsSequence } from '../src/game/
 import { SCENES } from '../src/data/lz-streams.mjs';
 import { TILE_STREAMS } from '../src/data/tiles.mjs';
 import { OBJECT_TYPES } from '../src/data/object-types.mjs';
-import { drainNativeSequence } from '../src/task/native-call-continuation.mjs';
+import { drainNativeSequence } from '../src/system/native-call-continuation.mjs';
 import { enterRoomReference } from '../proof/game-reference/room-entry.mjs';
 import {
   circleSwarmLeaderReference,
@@ -50,16 +50,16 @@ import {
   startPathSwarmReference,
   startWaveSwarmReference,
 } from '../proof/game-reference/swarm-start.mjs';
-import { createObjectNative } from '../src/task/native-object-create.mjs';
+import { createObjectNative } from '../src/script/native-object-create.mjs';
 import { addSceneObjectReference } from '../proof/game-reference/scene-object-add.mjs';
-import { addSceneObject } from '../src/task/native-scene-object-add.mjs';
+import { addSceneObject } from '../src/script/native-scene-object-add.mjs';
 import { appendSelectedSpellTaskReference } from '../proof/game-reference/script-starts.mjs';
-import { appendSelectedSpellTask } from '../src/task/native-task-append-from-list.mjs';
+import { appendSelectedSpellTask } from '../src/script/native-task-append-from-list.mjs';
 import {
   circleSwarmLeader,
   startPathSwarm,
   startWaveSwarm,
-} from '../src/task/native-swarm-start.mjs';
+} from '../src/script/native-swarm-start.mjs';
 import {
   OBJECT_ACTION_DIRECTIONS,
   OBJECT_DIRECTION,
@@ -91,7 +91,7 @@ import {
   MUSIC,
   OPTION_MUSIC_RESTORE,
   STORY_STAGE,
-} from '../src/task/wram.mjs';
+} from '../src/data/wram.mjs';
 import { RUNNERS, RUNNER_TABLE } from '../src/data/runners.mjs';
 import { ACTORS, ACTOR_BYTES, ACTOR_TABLE } from '../src/data/actors.mjs';
 
@@ -567,7 +567,7 @@ const OBJECT_CREATION = {
 // The script task append alone, called with JSR from bank 80 (return word 1234) with
 // the stack compared too: any script of the table in X, the arguments in the direct
 // page words, the heap and task slots of the object creation; A, X, Y, sign,
-// overflow, zero and carry as the original leaves them (src/task/task-append.mjs).
+// overflow, zero and carry as the original leaves them (src/system/task-append.mjs).
 // The script natives that create objects (80:A835 alone, the swarm starts 80:D7DD,
 // 80:D260 and the circling leader 80:D63C), called by the script VM (return word 1234)
 // with the stack compared too: an origin object (with or without its flag bit), the
@@ -740,7 +740,7 @@ const OBJECT_TURN = {
 };
 // The turn as the walk towards a target calls it (JSR, return word 1234), against the
 // register-level turn: the same states, with A, X, Y, sign, overflow, zero and carry
-// compared (src/task/native-object-turn.mjs).
+// compared (src/script/native-object-turn.mjs).
 const registerWords = (h) =>
   [h.ctx.a, h.ctx.x, h.ctx.y, h.ctx.status, h.ctx.pc].map((v) => v.toString(16)).join();
 const TURN_REGISTERS = {

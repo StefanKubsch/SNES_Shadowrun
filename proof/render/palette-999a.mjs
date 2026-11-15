@@ -17,7 +17,7 @@ import {
   SCENE_PALETTE_COUNT,
   SCENE_PALETTE_LIST,
   SCENE_BACKDROP,
-} from '../../src/task/wram.mjs';
+} from '../../src/data/wram.mjs';
 import {
   A1T4L,
   DAS4L,

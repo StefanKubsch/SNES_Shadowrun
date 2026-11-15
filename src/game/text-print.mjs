@@ -1,5 +1,5 @@
 // The text print of a window (lifted from 80:FE69 with its bit reader 81:AF04;
-// register-level versions in src/task/native-text-compose.mjs and
+// register-level versions in src/system/native-text-compose.mjs and
 // native-text-prerequisites.mjs, which the other callers still use).
 //
 // A text number (the direct page word 02) is a bit position in the Huffman coded text
@@ -19,7 +19,7 @@
 // X, Y, the carry and the overflow of 80:FB39 and the sign and zero of the restored bank
 // byte; it passes FB39 X and Y the text's length and A the last code tree node with its
 // bytes swapped, as the original. FB39 reads no flags, so they are not produced there.
-import { nativeCallSequence } from '../task/native-call-continuation.mjs';
+import { nativeCallSequence } from '../system/native-call-continuation.mjs';
 import { portTextAddress } from '../data/port-extension.mjs';
 import { languageText } from '../data/language.mjs';
 import {
@@ -29,7 +29,7 @@ import {
   TEXT_SOURCE_BANK,
   TEXT_SOURCE_BANK_WORD,
   TEXT_SOURCE_POINTER,
-} from '../task/wram.mjs';
+} from '../data/wram.mjs';
 import {
   BYTE_BITS,
   BYTE_MASK,

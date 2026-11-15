@@ -11,9 +11,9 @@ import {
   moveSwarmAlongPathReference,
   moveSwarmWaveReference,
 } from '../proof/game-reference/swarm-motion.mjs';
-import { moveSwarmAlongPath } from '../src/task/native-swarm-follow-path.mjs';
-import { moveSwarmWave } from '../src/task/native-swarm-wave.mjs';
-import { SWARM_MEMBERS } from '../src/task/wram.mjs';
+import { moveSwarmAlongPath } from '../src/script/native-swarm-follow-path.mjs';
+import { moveSwarmWave } from '../src/script/native-swarm-wave.mjs';
+import { SWARM_MEMBERS } from '../src/data/wram.mjs';
 
 const WRAM_BYTES = 0x20000,
   HEX = 16,

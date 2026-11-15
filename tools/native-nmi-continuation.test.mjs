@@ -1,11 +1,11 @@
 import { withFrontendReference } from '../proof/frontend-reference/frontend.mjs';
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { ObservedNmiContinuation } from '../src/task/observed-nmi.mjs';
+import { ObservedNmiContinuation } from '../src/system/nmi-call.mjs';
 import { GAME_NMI_ROUTINES, GAME_NMI_CONTINUATIONS } from '../proof/replay/main-game-nmi.mjs';
-import { WAIT_PAUSED, WAIT_RETURNED } from '../src/task/native-wait-continuation.mjs';
+import { WAIT_PAUSED, WAIT_RETURNED } from '../src/system/native-wait-continuation.mjs';
 import { TaskAccessor } from '../src/vm/task-accessor.mjs';
-import { dialogAccess } from '../src/task/native-dialog-support.mjs';
+import { dialogAccess } from '../src/system/native-dialog-support.mjs';
 import { gameNmiSpecs, proveGameNmi } from './main-game-nmi-source.mjs';
 import { matrixNmiSpecs, proveMatrixNmi } from './main-matrix-nmi-source.mjs';
 import { decodeWindows, DialogTestMemory, rom } from './task-native-dialog-harness.mjs';

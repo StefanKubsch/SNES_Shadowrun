@@ -1,10 +1,10 @@
 // Register-level reference of the script native 80:8371 (the collision test of an
-// object's action box), moved from src/task/native-object-collision.mjs; lifted in
+// object's action box), moved from src/script/native-object-collision.mjs; lifted in
 // src/game/action-box-collision.mjs. The proof plan, the Native58 dispatch of
 // proof/task/native-dispatch.mjs and the instruction tests run it; the game runs the
 // lifted native.
-import { taskStop } from '../../src/task/plan.mjs';
-import { FIRST_ARGUMENT, SECOND_ARGUMENT, leaf } from '../../src/task/native-leaf-support.mjs';
+import { taskStop } from '../../src/system/task-stop.mjs';
+import { FIRST_ARGUMENT, SECOND_ARGUMENT, leaf } from '../../src/system/native-leaf-support.mjs';
 
 import {
   CELL_COORDINATE_MASK,
@@ -25,7 +25,7 @@ import {
   OBJECT_Y,
   PLAYER_OBJECT,
   WRAM,
-} from '../../src/task/wram.mjs';
+} from '../../src/data/wram.mjs';
 import { ACTION_TABLE } from '../../src/data/actions.mjs';
 import { CODE_BANK, WRAM_BANK } from '../../src/constants/memory-map.mjs';
 import { FLAG_CARRY, FLAG_ZERO } from '../../src/constants/cpu-flags.mjs';

@@ -9,11 +9,11 @@
 // New game, Saved game and Options (and Credits in the port). B or Start chooses,
 // Up and Select or Down move; the menu times out as if cancelled. It returns the
 // save slot (FFFF: a new game) or FFFE (cancelled).
-import { nativeCallSequence } from '../task/native-call-continuation.mjs';
-import { routineCaller } from '../task/routine-call.mjs';
-import { lagFree } from '../task/main-wait-interrupt.mjs';
+import { nativeCallSequence } from '../system/native-call-continuation.mjs';
+import { routineCaller } from '../system/routine-call.mjs';
+import { lagFree } from '../system/main-wait-interrupt.mjs';
 import { decodeOnce, tableEntries } from '../data/named-tables.mjs';
-import { taskStop } from '../task/plan.mjs';
+import { taskStop } from '../system/task-stop.mjs';
 import { languageMenuText, languageMenuArrowShift, beginFrontendMenu } from '../data/language.mjs';
 import { saveSlotCount } from '../game/save-slots.mjs';
 import { sendOutputMode, storeSettingsChecksum } from './settings.mjs';
@@ -64,7 +64,7 @@ import {
   TITLE_STRIPE_SOURCES,
   PAD_HELD,
   WRAM,
-} from '../task/wram.mjs';
+} from '../data/wram.mjs';
 import {
   A1B0,
   A1T0L,

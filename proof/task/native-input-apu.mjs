@@ -1,6 +1,6 @@
 // Source-specific atomic plans for proof tools. The game executes the shared routines directly.
 import { prepareTaskPlan } from './plan.mjs';
-import { readInput, sendApuCommand, computeSoundPan } from '../../src/task/native-input-apu.mjs';
+import { readInput, sendApuCommand, computeSoundPan } from '../../src/system/native-input-apu.mjs';
 
 const devices = Object.freeze({
   writes: Object.freeze([0x2140, 0x2141, 0x2142, 0x2143, 0x4202, 0x4203]),

@@ -1,7 +1,7 @@
 import { withFrontendReference } from '../proof/frontend-reference/frontend.mjs';
 import { freeStack } from './mesen-f390-oracle.mjs';
 import { LIFTED_SCRIPT_NATIVES, inLiftedScratch } from './lifted-script-natives.mjs';
-// Lifted script natives (src/task/native-script-leaves.mjs) leave the free stack bytes
+// Lifted script natives (src/script/native-script-leaves.mjs) leave the free stack bytes
 // below S and their direct page scratch unwritten (tools/lifted-script-natives.mjs:
 // the sample loader's after any, the line of sight's after the sight natives).
 const liftedRan = new Set();
@@ -20,8 +20,8 @@ import { decodeWindows, DialogTestMemory, rom } from './task-native-dialog-harne
 import { originalBootTaskRound } from './main-boot-round-reference.mjs';
 import { constructBootNative, constructBootInterval } from './main-boot-native-observations.mjs';
 import { BOOT_NATIVE_CONTRACTS } from './main-boot-native-contracts.mjs';
-import { nativeOpcodeTargets } from '../src/task/native-opcode-targets.mjs';
-import { nativeTarget } from '../src/task/native-targets.mjs';
+import { nativeOpcodeTargets } from '../src/data/native-opcode-targets.mjs';
+import { nativeTarget } from '../src/script/native-targets.mjs';
 import { runReference } from './w65c816-reference.mjs';
 import { ScriptInterpreter, EXIT_END } from '../proof/vm/interpreter.mjs';
 import { NativeCalls } from '../proof/vm/native-call.mjs';
@@ -34,8 +34,8 @@ import { MAIN_STARTUP_ROUTINES as MAIN_STARTUP_ROUTINES_TASK } from '../proof/re
 import { FRONTEND_ROUTINES } from '../proof/replay/main-frontend.mjs';
 import { MAIN_START_ROUTINES } from '../proof/replay/main-start.mjs';
 import { withGameStartReference } from '../proof/game-reference/game-start.mjs';
-import { dialogAccess } from '../src/task/native-dialog-support.mjs';
-import { finishInterruptObservations } from '../src/task/main-wait-interrupt.mjs';
+import { dialogAccess } from '../src/system/native-dialog-support.mjs';
+import { finishInterruptObservations } from '../src/system/main-wait-interrupt.mjs';
 const MAIN_STARTUP_ROUTINES = withFrontendReference(MAIN_STARTUP_ROUTINES_TASK);
 
 const map = decodeWindows([

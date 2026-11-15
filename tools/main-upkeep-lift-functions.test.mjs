@@ -5,7 +5,7 @@
 // 81:8A91, the formation step 80:BAD5, the notice time limits 80:FF14 and the time
 // limit 80:E270 and the glove action 80:BF3B (proof/game-reference/main-timer.mjs and
 // main-glove-action.mjs), the notice 80:FEC1 and the glove release 80:BCB2
-// (src/task/native-notice.mjs and native-dialog-portrait.mjs), the text cursor 80:FAAC
+// (src/data/native-notice.mjs and native-dialog-portrait.mjs), the text cursor 80:FAAC
 // and the number 80:FD80 (native-list-prerequisites.mjs), the text 80:FE69
 // and the text buffer 80:FB39 (native-text-compose.mjs), the window opening 80:F963
 // (native-window-open.mjs), the action menu 80:99EB (native-actions.mjs) and the dialog
@@ -56,19 +56,19 @@ import { MAIN_MOTION_ROUTINES, moveAndAnimateObjects } from '../proof/replay/mai
 import { bcbeSequence, moveGlove } from '../proof/replay/native-glove.mjs';
 import { objectSearchSequence } from '../src/game/object-search.mjs';
 import { stepAnimation } from '../src/game/object-animation.mjs';
-import { stepObjectAnimation } from '../src/task/native-scene-tiles.mjs';
-import { drainNativeSequence } from '../src/task/native-call-continuation.mjs';
+import { stepObjectAnimation } from '../src/system/native-scene-tiles.mjs';
+import { drainNativeSequence } from '../src/system/native-call-continuation.mjs';
 import { GLOVE_ROUTINES } from '../proof/replay/native-glove-target-support.mjs';
 import { showNotice } from '../proof/replay/native-notice.mjs';
-import { drawTextBuffer, printText } from '../src/task/native-text-compose.mjs';
-import { openWindowAdapter } from '../src/task/native-window-open.mjs';
+import { drawTextBuffer, printText } from '../src/system/native-text-compose.mjs';
+import { openWindowAdapter } from '../src/script/native-window-open.mjs';
 import { chooseAction } from '../proof/replay/native-actions.mjs';
 import { talkWithObject, TALK_ROUTINES } from '../proof/replay/native-dialog.mjs';
 import {
   chooseDialogAction,
   chooseDialogTopic,
   showDialogText,
-} from '../src/task/native-dialog-text.mjs';
+} from '../src/system/native-dialog-text.mjs';
 import { showDialogTextSequence } from '../src/game/dialog-text.mjs';
 import {
   openPortraitWindowSequence,
@@ -83,14 +83,14 @@ import {
 } from '../src/game/portrait-upload.mjs';
 import { reloadObjectTilesSequence } from '../src/game/object-tiles.mjs';
 import { chooseFromMenuSequence } from '../src/game/menu-choice.mjs';
-import { menuComposeSequence } from '../src/task/native-menu-compose.mjs';
+import { menuComposeSequence } from '../src/system/native-menu-compose.mjs';
 import { portraitStreams } from '../src/data/portraits.mjs';
-import { uploadPortraitTiles } from '../src/task/native-dialog-portrait.mjs';
+import { uploadPortraitTiles } from '../src/system/native-dialog-portrait.mjs';
 import {
   chooseDialogActionSequence,
   chooseDialogTopicSequence,
 } from '../src/game/dialog-menus.mjs';
-import { dialogAccess } from '../src/task/native-dialog-support.mjs';
+import { dialogAccess } from '../src/system/native-dialog-support.mjs';
 import {
   talkSequence,
   clearFixedColourRoutine,
@@ -100,7 +100,7 @@ import {
   printNumber,
   runTaskListHelper,
   setTextCursor,
-} from '../src/task/native-list-prerequisites.mjs';
+} from '../src/system/native-list-prerequisites.mjs';
 import { MARK, UNMARK, drawListSequence, markRowSequence } from '../src/game/menu-list.mjs';
 import { setTextCursorRoutine } from '../src/game/window-text.mjs';
 import {
@@ -189,7 +189,7 @@ import {
   OBJECT_VELOCITY_Y,
   OBJECT_VELOCITY_Z,
   STATIC_NODE_END,
-} from '../src/task/wram.mjs';
+} from '../src/data/wram.mjs';
 
 const WRAM_BYTES = 0x20000,
   OBJECT_SLOTS = 0x2c,

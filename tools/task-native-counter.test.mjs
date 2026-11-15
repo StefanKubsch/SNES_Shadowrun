@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { waitForRandomStateChange as run } from '../src/task/native-frame-wait.mjs';
+import { waitForRandomStateChange as run } from '../src/system/native-frame-wait.mjs';
 import { prepareTaskNativeCounterB0A1 as prepare } from '../proof/task/native-counter-b0a1.mjs';
 import { prepareTaskPlan, commitTaskPlan } from '../proof/task/plan.mjs';
 import { taskCounterFixture } from './task-native-counter-fixtures.mjs';

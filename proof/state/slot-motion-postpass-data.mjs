@@ -6,7 +6,7 @@ import {
   LONG_MASK,
 } from '../../src/constants/bits.mjs';
 import { CODE_BANK, LOROM_OFFSET } from '../../src/constants/memory-map.mjs';
-import { VRAM_UPLOAD_BANKS } from '../../src/task/wram.mjs';
+import { VRAM_UPLOAD_BANKS } from '../../src/data/wram.mjs';
 import { isWord } from '../script/runtime.mjs';
 
 const POSTPASS_OUTPUT_LAST = 0x17d3;

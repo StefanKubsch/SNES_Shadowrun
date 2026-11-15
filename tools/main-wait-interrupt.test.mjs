@@ -16,7 +16,7 @@ import { decodeWindows, DialogTestMemory, rom, romBytes } from './task-native-di
 import { assertPinnedTaskSource } from './pinned-task-source.mjs';
 import { runReference } from './w65c816-reference.mjs';
 import { TaskAccessor } from '../src/vm/task-accessor.mjs';
-import { dialogAccess } from '../src/task/native-dialog-support.mjs';
+import { dialogAccess } from '../src/system/native-dialog-support.mjs';
 import { GAME_NMI_ROUTINES } from '../proof/replay/main-game-nmi.mjs';
 import { MAIN_LOOP_ROUTINES, runMainLoop } from '../proof/vm/main-loop.mjs';
 import { MAIN_MOTION_ROUTINES } from '../proof/replay/main-loop-motion.mjs';
@@ -25,20 +25,20 @@ import {
   finishInterruptObservations,
   waitForRandomStateChangeWithInterrupts,
   readInputWithInterrupts,
-} from '../src/task/main-wait-interrupt.mjs';
+} from '../src/system/main-wait-interrupt.mjs';
 import { inputWaitF953Window } from './task-native-input-wait-f953-source.mjs';
 import { DIALOG_WINDOWS } from './task-native-936c-windows.mjs';
 import { requestWindows } from './render-task-native-menu-compose-source-proof.mjs';
 import { waitForConfirmKey } from '../proof/replay/native-input-wait.mjs';
-import { waitForRandomStateChange } from '../src/task/native-frame-wait.mjs';
+import { waitForRandomStateChange } from '../src/system/native-frame-wait.mjs';
 import {
   uploadPortraitTiles,
   openPortraitWindow,
   closePortraitWindow,
   waitWord,
   nmiWords,
-} from '../src/task/native-dialog-portrait.mjs';
-import { waitForWindowUpload, requestWindowUpload } from '../src/task/native-menu-compose.mjs';
+} from '../src/system/native-dialog-portrait.mjs';
+import { waitForWindowUpload, requestWindowUpload } from '../src/system/native-menu-compose.mjs';
 import { cpuToOffset } from './rom.mjs';
 
 const inputWindow = { start: 0x809e1a, hex: inputApuWindows[0].hex.slice(0, 0x23 * 2) };

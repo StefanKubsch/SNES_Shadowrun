@@ -15,12 +15,12 @@ import {
   limitCrosshairReference,
   limitSpellGloveReference,
 } from '../proof/game-reference/script-measures.mjs';
-import { limitCrosshair } from '../src/task/native-glove-crosshair-limits.mjs';
-import { limitSpellGlove } from '../src/task/native-glove-spell-limits.mjs';
-import { getDistanceToPlayer } from '../src/task/native-object-distance.mjs';
-import { getDistanceBetweenObjects } from '../src/task/native-object-distance-direct.mjs';
-import { halveArgumentSigned } from '../src/task/native-shift-right-signed.mjs';
-import { OBJECT_X, PLAYER_OBJECT } from '../src/task/wram.mjs';
+import { limitCrosshair } from '../src/script/native-glove-crosshair-limits.mjs';
+import { limitSpellGlove } from '../src/script/native-glove-spell-limits.mjs';
+import { getDistanceToPlayer } from '../src/script/native-object-distance.mjs';
+import { getDistanceBetweenObjects } from '../src/script/native-object-distance-direct.mjs';
+import { halveArgumentSigned } from '../src/script/native-shift-right-signed.mjs';
+import { OBJECT_X, PLAYER_OBJECT } from '../src/data/wram.mjs';
 
 const WRAM_BYTES = 0x20000,
   HEX = 16,

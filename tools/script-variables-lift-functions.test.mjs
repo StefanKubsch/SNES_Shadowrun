@@ -13,10 +13,10 @@ import {
   setScriptVariableBitsReference,
   setScriptVariableReference,
 } from '../proof/game-reference/script-variables.mjs';
-import { getScriptVariable } from '../src/task/native-script-variable-get.mjs';
-import { setScriptVariable } from '../src/task/native-script-variable-set.mjs';
-import { setScriptVariableBits } from '../src/task/native-script-variable-or.mjs';
-import { keepScriptVariableBits } from '../src/task/native-script-variable-and.mjs';
+import { getScriptVariable } from '../src/script/native-script-variable-get.mjs';
+import { setScriptVariable } from '../src/script/native-script-variable-set.mjs';
+import { setScriptVariableBits } from '../src/script/native-script-variable-or.mjs';
+import { keepScriptVariableBits } from '../src/script/native-script-variable-and.mjs';
 
 const WRAM_BYTES = 0x20000,
   HEX = 16,

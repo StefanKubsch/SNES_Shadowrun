@@ -44,7 +44,7 @@ their buffer ordering; see
 [intro-scene.mjs](../src/intro/intro-scene.mjs) (lifted from 81:D83E; reference
 [intro-setup.mjs](../proof/intro-reference/intro-setup.mjs), `unpackIntroList`),
 [title.mjs](../src/frontend/title.mjs) and
-[main-intro-nmi.mjs](../src/task/main-intro-nmi.mjs).
+[main-intro-nmi.mjs](../src/system/main-intro-nmi.mjs).
 
 Ten scene commands across eight sources transfer beyond the decompressed
 output. The excess is 128 bytes for `81:FB0A`, `85:D8B1`, `87:E272`

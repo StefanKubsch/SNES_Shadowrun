@@ -1,15 +1,15 @@
 // Register-level references of the swarm start natives 80:D7DD, 80:D260 and 80:D63C
-// (moved from src/task/native-swarm-start.mjs; lifted in src/game/swarm-start.mjs) and of
-// the object creation native 80:A835 (src/task/native-object-create.mjs, which the
+// (moved from src/script/native-swarm-start.mjs; lifted in src/game/swarm-start.mjs) and of
+// the object creation native 80:A835 (src/script/native-object-create.mjs, which the
 // register-level natives still call; lifted in src/game/object-create.mjs). The proof
 // plans, the Native58 dispatch of proof/task/native-dispatch.mjs and the instruction tests
 // run these; the game runs the lifted natives.
-export { createObject as createObjectReference } from '../../src/task/native-object-create.mjs';
-import { taskStop } from '../../src/task/plan.mjs';
-import { FIRST_ARGUMENT, SECOND_ARGUMENT, leaf } from '../../src/task/native-leaf-support.mjs';
-import { createObject } from '../../src/task/native-object-create.mjs';
-import { turnRegisters } from '../../src/task/native-object-turn.mjs';
-import { lsr, clc } from '../../src/task/native-object-bob.mjs';
+export { createObject as createObjectReference } from '../../src/script/native-object-create.mjs';
+import { taskStop } from '../../src/system/task-stop.mjs';
+import { FIRST_ARGUMENT, SECOND_ARGUMENT, leaf } from '../../src/system/native-leaf-support.mjs';
+import { createObject } from '../../src/script/native-object-create.mjs';
+import { turnRegisters } from '../../src/script/native-object-turn.mjs';
+import { lsr, clc } from '../../src/script/native-object-bob.mjs';
 import { WAVE_TABLE, PHASE_MASK, QUARTER_PHASE } from '../../src/game/object-bob.mjs';
 import {
   CIRCLE_FOLLOWER_COUNTDOWN,
@@ -48,7 +48,7 @@ import {
   WAVE_TARGET_HEIGHT,
   WAVE_TARGET_X,
   WAVE_TARGET_Y,
-} from '../../src/task/wram.mjs';
+} from '../../src/data/wram.mjs';
 import { FLAG_CARRY, FLAG_ZERO, FLAG_NEGATIVE } from '../../src/constants/cpu-flags.mjs';
 import { WORD_MASK, BANK_WRAP, BYTE_MASK, BYTE_BITS } from '../../src/constants/bits.mjs';
 // Swarm natives around the proved object creation A835 (and the action AAAF), each with real JSR/RTS

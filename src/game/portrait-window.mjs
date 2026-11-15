@@ -1,5 +1,5 @@
 // The dialog's portrait window (lifted from 80:8F3A and 80:8F97 with the window edges
-// 80:8EFE; register-level versions in src/task/native-dialog-portrait.mjs stay the
+// 80:8EFE; register-level versions in src/system/native-dialog-portrait.mjs stay the
 // reference).
 //
 // The portraits sit inside the two PPU windows (W12SEL 22 on both halves, WBGLOG 0),
@@ -16,9 +16,9 @@
 // A with the last edge in its low byte (opening) or 01 (closing) and the high byte of
 // the wait's A, Y and the overflow of the wait; the edges' JSR frame and their pushed
 // status are not reproduced (nothing waits there).
-import { dialogCallSequence } from '../task/native-call-continuation.mjs';
+import { dialogCallSequence } from '../system/native-call-continuation.mjs';
 import { sceneRuntime } from '../system/scene-runtime.mjs';
-import { PORTRAIT_WINDOW } from '../task/native-dialog-portrait.mjs';
+import { PORTRAIT_WINDOW } from '../system/native-dialog-portrait.mjs';
 import {
   DIALOG_HDMA_TABLE,
   HDMAEN_SHADOW,
@@ -27,7 +27,7 @@ import {
   RIGHT_WINDOW_LEFT_EDGE,
   RIGHT_WINDOW_RIGHT_EDGE,
   TMW_SHADOW,
-} from '../task/wram.mjs';
+} from '../data/wram.mjs';
 import { A1B0, A1T0L, BBAD0, DMAP0, W12SEL, WBGLOG } from '../constants/hardware-registers.mjs';
 import { BYTE_BITS, BYTE_MASK, HIGH_BYTE_MASK, WORD_MASK, WORD_SIGN } from '../constants/bits.mjs';
 import { FLAG_CARRY, FLAG_NEGATIVE, FLAG_ZERO } from '../constants/cpu-flags.mjs';

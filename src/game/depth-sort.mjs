@@ -18,7 +18,7 @@
 // The direct page words of the original are written: the keys 11 and 14, the first
 // object 17 and the list position 1A. The frames of the rule comparisons are
 // reproduced on the stack. A, X, Y and the flags are left as the original leaves them.
-import { taskStop } from '../task/plan.mjs';
+import { taskStop } from '../system/task-stop.mjs';
 import {
   DRAW_LIST,
   DRAW_LIST_INDEX,
@@ -27,7 +27,7 @@ import {
   OBJECT_DIAGONAL,
   OBJECT_X,
   OBJECT_Y,
-} from '../task/wram.mjs';
+} from '../data/wram.mjs';
 import { BYTE_BITS, BYTE_MASK, WORD_MASK, WORD_SIGN } from '../constants/bits.mjs';
 import { FLAG_CARRY, FLAG_NEGATIVE, FLAG_OVERFLOW, FLAG_ZERO } from '../constants/cpu-flags.mjs';
 

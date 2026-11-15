@@ -8,7 +8,7 @@ import {
   HEX_RADIX,
 } from '../../src/constants/bits.mjs';
 import { CODE_BANK } from '../../src/constants/memory-map.mjs';
-import { OBJECT_LAST_SLOT, EMPTY_LIST } from '../../src/task/wram.mjs';
+import { OBJECT_LAST_SLOT, EMPTY_LIST } from '../../src/data/wram.mjs';
 import { SCRIPT_NATIVE, CREATE_SLOT_WORDS } from '../script/task.mjs';
 import { isWord } from '../script/runtime.mjs';
 import { isSlotDefinitions } from './slot-definitions.mjs';

@@ -10,7 +10,7 @@
 // 6 minus X, the diagonals between them.
 import { turnObject } from './object-turn.mjs';
 import { dataBankWord } from '../system/data-bank.mjs';
-import { OBJECT_X, OBJECT_Y, PLAYER_OBJECT } from '../task/wram.mjs';
+import { OBJECT_X, OBJECT_Y, PLAYER_OBJECT } from '../data/wram.mjs';
 import { BYTE_BITS, BYTE_MASK, WORD_MASK, WORD_SIGN } from '../constants/bits.mjs';
 
 // The direct page: the object and the target (or the direction), the magnitudes and the

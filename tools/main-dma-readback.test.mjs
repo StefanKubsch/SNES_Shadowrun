@@ -13,13 +13,13 @@ import { inputApuWindows } from './render-task-native-input-apu-source-proof.mjs
 import { decodeWindows, DialogTestMemory, rom, romBytes } from './task-native-dialog-harness.mjs';
 import { runReference } from './w65c816-reference.mjs';
 import { TaskAccessor } from '../src/vm/task-accessor.mjs';
-import { dialogAccess } from '../src/task/native-dialog-support.mjs';
-import { clearTextTiles } from '../src/task/main-initialize.mjs';
+import { dialogAccess } from '../src/system/native-dialog-support.mjs';
+import { clearTextTiles } from '../src/system/main-initialize.mjs';
 import { GAME_NMI_ROUTINES } from '../proof/replay/main-game-nmi.mjs';
-import { printText, drawTextBuffer } from '../src/task/native-text-compose.mjs';
-import { runTaskMenuCompose } from '../src/task/native-menu-compose.mjs';
-import { finishInterruptObservations } from '../src/task/main-wait-interrupt.mjs';
-import { finishTextDmaObservations } from '../src/task/main-dma-readback.mjs';
+import { printText, drawTextBuffer } from '../src/system/native-text-compose.mjs';
+import { runTaskMenuCompose } from '../src/system/native-menu-compose.mjs';
+import { finishInterruptObservations } from '../src/system/main-wait-interrupt.mjs';
+import { finishTextDmaObservations } from '../src/system/main-dma-readback.mjs';
 import { textDma, referenceTextDma } from './main-dma-readback-fixtures.mjs';
 
 const freeze = (rows) => Object.freeze(rows.map((o) => Object.freeze({ ...o })));

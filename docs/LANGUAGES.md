@@ -38,7 +38,7 @@ The port therefore replaces only the decoded text:
 - 80:FE69 decodes a text into the buffer 7E:21A0 as before. In German mode
   the buffer then gets the German characters, and the text composition FB39
   measures, wraps and draws them unchanged
-  ([native-text-compose.mjs](../src/task/native-text-compose.mjs)).
+  ([native-text-compose.mjs](../src/system/native-text-compose.mjs)).
 - The German FE69 (80:FDD4) uses the same buffer and has stored texts of up
   to 294 characters there; the longest English text has 218.
 - The English font has no umlauts. The German FE69 stores each character

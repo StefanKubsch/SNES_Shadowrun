@@ -11,7 +11,7 @@
 // widen with X = 2, 5, ... 20 (1F44 = X + 39, 1F43 = (X EOR FF) + 3B with that carry).
 // The callees run through their frames from the routine table; 80:E48D and 80:E433
 // run as the JSR bodies the original calls, so a wait takes its NMI at the same S.
-import { dialogCallBody, nativeCallSequence } from '../task/native-call-continuation.mjs';
+import { dialogCallBody, nativeCallSequence } from '../system/native-call-continuation.mjs';
 import { dataBankWord, setDataBankWord } from '../system/data-bank.mjs';
 import { accessorPort } from '../system/hardware-port.mjs';
 import {
@@ -24,7 +24,7 @@ import {
   SECOND_PORTRAIT_HDMA,
   SECOND_PORTRAIT_PALETTE,
   SECOND_PORTRAIT_VRAM,
-} from '../task/native-dialog-portrait.mjs';
+} from '../system/native-dialog-portrait.mjs';
 import {
   HDMAEN_SHADOW,
   MEMBER_PORTRAIT,
@@ -35,7 +35,7 @@ import {
   PORTRAIT_WINDOW_LEFT,
   PORTRAIT_WINDOW_RIGHT,
   TMW_SHADOW,
-} from '../task/wram.mjs';
+} from '../data/wram.mjs';
 import { DIALOG_BANK_BASE, DIALOG_TABLE } from '../data/portraits.mjs';
 import {
   A1B0,

@@ -10,7 +10,7 @@ import {
   SETTINGS_MUSIC_FULL,
   SETTINGS_STEREO,
   SETTINGS_STEREO_ON,
-} from '../task/wram.mjs';
+} from '../data/wram.mjs';
 import { APU_COMMAND_OUTPUT_MODE } from '../constants/sound-commands.mjs';
 import { BYTE_BITS, BYTE_MASK } from '../constants/bits.mjs';
 

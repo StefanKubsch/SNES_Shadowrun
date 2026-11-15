@@ -12,7 +12,7 @@ import {
   TOPIC_FLAGS,
   TOPIC_LIST,
   WRAM,
-} from '../task/wram.mjs';
+} from '../data/wram.mjs';
 
 import {
   RUNNER_DEFAULT_WEAPON,

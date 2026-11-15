@@ -8,8 +8,8 @@ import { MATRIX_EDIT_COLUMNS, MATRIX_EDIT_STREAM_LIMIT } from '../src/data/matri
 import { buildLanguage } from '../src/data/language.mjs';
 import { LiveGame } from '../src/video/live-game.mjs';
 import { TaskAccessor } from '../src/vm/task-accessor.mjs';
-import { dialogAccess } from '../src/task/native-dialog-support.mjs';
-import {SCENE_REFERENCE_ROUTINES as MAIN_SCENE_ROUTINES} from '../proof/scene-reference-routines.mjs';
+import { dialogAccess } from '../src/system/native-dialog-support.mjs';
+import { SCENE_REFERENCE_ROUTINES as MAIN_SCENE_ROUTINES } from '../proof/scene-reference-routines.mjs';
 import { CHARACTER_TILES, TEXT_ROW } from '../proof/matrix-reference/main-scene-matrix.mjs';
 import { loadSave } from './mesen-f390-oracle.mjs';
 

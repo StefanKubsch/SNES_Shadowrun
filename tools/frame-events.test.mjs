@@ -11,12 +11,12 @@ import {
   waitForRandomStateChangeWithInterrupts,
   runInterruptWordWait,
   ObservedWaitContinuation,
-} from '../src/task/main-wait-interrupt.mjs';
-import { waitWord } from '../src/task/native-dialog-portrait.mjs';
+} from '../src/system/main-wait-interrupt.mjs';
+import { waitWord } from '../src/system/native-dialog-portrait.mjs';
 import { GAME_NMI_ROUTINES } from '../proof/replay/main-game-nmi.mjs';
-import { WAIT_PAUSED, WAIT_RETURNED } from '../src/task/native-wait-continuation.mjs';
+import { WAIT_PAUSED, WAIT_RETURNED } from '../src/system/native-wait-continuation.mjs';
 import { TaskAccessor } from '../src/vm/task-accessor.mjs';
-import { dialogAccess } from '../src/task/native-dialog-support.mjs';
+import { dialogAccess } from '../src/system/native-dialog-support.mjs';
 import { DialogTestMemory, rom } from './task-native-dialog-harness.mjs';
 import { readFileSync } from 'node:fs';
 import { gunzipSync } from 'node:zlib';
@@ -376,7 +376,7 @@ test('the PPU multiplier is signed 16 x 8 bits and rejects an interleaved latch'
 });
 
 test('the live random substitute feeds only the two used counter bytes of C560', async () => {
-  const { randomBelow } = await import('../src/task/native-random.mjs');
+  const { randomBelow } = await import('../src/system/native-random.mjs');
   // ROM: C566 LDA 2137, C569 LDA C58D,Y (dead read); C572 EOR 213C; C57F EOR 213D.
   assert.deepEqual(
     [0xc566, 0xc569, 0xc572, 0xc57f].map((o) => romAt(0x800000 | o)),

@@ -15,7 +15,7 @@
 // later width step's JSR frame) stay below the stack, as the original leaves them.
 import { languageTextWidth } from '../data/language.mjs';
 import { readBit, startTextSource } from './text-print.mjs';
-import { TEXT_BITS_REMAINING, TEXT_CHARACTER_INDEX, TEXT_WORK_WORD } from '../task/wram.mjs';
+import { TEXT_BITS_REMAINING, TEXT_CHARACTER_INDEX, TEXT_WORK_WORD } from '../data/wram.mjs';
 import { BYTE_BITS, BYTE_MASK, HIGH_BYTE_MASK, WORD_MASK, WORD_SIGN } from '../constants/bits.mjs';
 import { FLAG_NEGATIVE, FLAG_ZERO } from '../constants/cpu-flags.mjs';
 

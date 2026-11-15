@@ -11,10 +11,10 @@ import {
 } from '../proof/replay/native-glove-target.mjs';
 import { putOnActionGlove, moveGlove } from '../proof/replay/native-glove.mjs';
 import { GLOVE_ROUTINES, measureTextWidth } from '../proof/replay/native-glove-target-support.mjs';
-import { putGloveAway } from '../src/task/native-dialog-portrait.mjs';
-import { waitForRandomStateChange } from '../src/task/native-frame-wait.mjs';
-import { readTextBit } from '../src/task/native-text-prerequisites.mjs';
-import { readInput } from '../src/task/native-input-apu.mjs';
+import { putGloveAway } from '../src/system/native-dialog-portrait.mjs';
+import { waitForRandomStateChange } from '../src/system/native-frame-wait.mjs';
+import { readTextBit } from '../src/system/native-text-prerequisites.mjs';
+import { readInput } from '../src/system/native-input-apu.mjs';
 
 // NativeD8/9BC6 (choose a target with the action glove) against the original instructions. AF04, B0A1 and 9E1A run
 // as proved modules on both sides; F963, FE69, FA3E, FEC1 and AD92 have separate proofs and run as

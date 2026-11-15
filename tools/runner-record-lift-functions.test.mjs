@@ -11,9 +11,9 @@ import {
   getPlayerObjectAfterBreakReference,
   getRunnerStrengthReference,
 } from '../proof/game-reference/script-starts.mjs';
-import { getRunnerStrength } from '../src/task/native-runner-record-byte.mjs';
-import { getPlayerObjectAfterBreak } from '../src/task/native-player-object-break.mjs';
-import { OBJECT_NUMBER } from '../src/task/wram.mjs';
+import { getRunnerStrength } from '../src/script/native-runner-record-byte.mjs';
+import { getPlayerObjectAfterBreak } from '../src/script/native-player-object-break.mjs';
+import { OBJECT_NUMBER } from '../src/data/wram.mjs';
 import { RUNNERS, RUNNER_OBJECT_NUMBERS } from '../src/data/runners.mjs';
 
 const WRAM_BYTES = 0x20000,

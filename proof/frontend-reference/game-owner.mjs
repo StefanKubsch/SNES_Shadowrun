@@ -6,8 +6,8 @@ import {
   NativeCallContinuation,
   NATIVE_CALL_CONTINUATIONS,
   drainNativeSequence,
-} from '../../src/task/native-call-continuation.mjs';
-import { taskStop } from '../../src/task/plan.mjs';
+} from '../../src/system/native-call-continuation.mjs';
+import { taskStop } from '../../src/system/task-stop.mjs';
 import { MAIN_START } from '../replay/main-start.mjs';
 import {
   GAME_OPTIONS,
@@ -15,7 +15,7 @@ import {
   OPTION_MUSIC_RESTORE,
   SETTINGS_MUSIC,
   TIMER,
-} from '../../src/task/wram.mjs';
+} from '../../src/data/wram.mjs';
 import {
   GAME_OWNER_ENTRY,
   GAME_OWNER_RESUME,

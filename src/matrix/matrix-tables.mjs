@@ -6,7 +6,7 @@
 // An index outside a table (an odd or too large heading, a cell without a side
 // of value 07) stops at a frontier: the original would read on into the bytes
 // behind the table, which the game never does.
-import { taskStop } from '../task/plan.mjs';
+import { taskStop } from '../system/task-stop.mjs';
 import { MATRIX_ANIMATIONS, MATRIX_ANIMATIONS_END } from '../data/tables.mjs';
 import { decodeOnce, tableEntries } from '../data/named-tables.mjs';
 import { BYTE_BITS, WORD_MASK } from '../constants/bits.mjs';

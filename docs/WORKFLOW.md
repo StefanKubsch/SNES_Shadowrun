@@ -174,7 +174,7 @@ in the repository root.
     justified exception with `// magic-number-ok: <reason>`. Shared
     constants live in [src/constants/](../src/constants/) (bits, CPU flags,
     hardware registers, memory map, PPU, CRT); WRAM fields stay in
-    [src/task/wram.mjs](../src/task/wram.mjs), scheduler tables in
+    [src/data/wram.mjs](../src/data/wram.mjs), scheduler tables in
     [src/vm/layout.mjs](../src/vm/layout.mjs). Name a value only where its
     meaning is established; operands of the 1:1 ported routines without a
     documented meaning stay literal for now.
@@ -215,8 +215,9 @@ both directions. The browser server serves only `src/`.
 
 Atomic task plan APIs (`prepareTask*`, `commitTaskPlan` and
 `isLatestCommittedTaskPlan`) also live in `proof/task/`, including wrappers
-around routines shared with the game. The matching `src/task/` modules keep
-the direct execution routines; `src/task/plan.mjs` keeps the shared `taskStop`
+around routines shared with the game. Native adapters in `src/script/` and
+execution support in `src/system/` keep the shared execution routines;
+`src/system/task-stop.mjs` keeps the shared `taskStop`
 boundary. Historical inventory bindings and generated native reports name the
 proof module and retain their existing export names and schema. The manual
 native catalog resolves plan modules in `proof/task/` without a game-module

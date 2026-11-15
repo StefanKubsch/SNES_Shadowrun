@@ -7,7 +7,7 @@
 import { prng } from './task-native-dialog-harness.mjs';
 import { createSide, registerCases } from './lift-function-harness.mjs';
 import { placeObjectInFormationReference } from '../proof/game-reference/formation-place.mjs';
-import { placeObjectInFormation } from '../src/task/native-formation-place.mjs';
+import { placeObjectInFormation } from '../src/script/native-formation-place.mjs';
 import {
   FORMATION_HEIGHT,
   FORMATION_INDEX,
@@ -19,7 +19,7 @@ import {
   OBJECT_KIND,
   OBJECT_NUMBER,
   OBJECT_SELECTION,
-} from '../src/task/wram.mjs';
+} from '../src/data/wram.mjs';
 
 const WRAM_BYTES = 0x20000,
   HEX = 16,

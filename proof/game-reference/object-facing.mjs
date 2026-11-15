@@ -1,12 +1,12 @@
 // Register-level references of the facing natives 80:CF93 (turn towards another object),
 // 80:D1D2 (turn towards the player object) and 80:D1DD (the direction towards the player
-// object) with their direction body 80:D1E3, moved from src/task/native-object-face-object.mjs,
+// object) with their direction body 80:D1E3, moved from src/script/native-object-face-object.mjs,
 // native-player-direction-slot.mjs and native-player-direction.mjs; lifted in
 // src/game/object-facing.mjs. The proof plans, the Native58 dispatch of
 // proof/task/native-dispatch.mjs and the instruction tests run these; the game runs the
 // lifted natives.
-import { taskStop } from '../../src/task/plan.mjs';
-import { FIRST_ARGUMENT, leaf } from '../../src/task/native-leaf-support.mjs';
+import { taskStop } from '../../src/system/task-stop.mjs';
+import { FIRST_ARGUMENT, leaf } from '../../src/system/native-leaf-support.mjs';
 import {
   runTaskAction,
   taskSelectionSupport,
@@ -15,9 +15,9 @@ import {
   DP_MINUS_X,
   DP_MINUS_Y,
   FACING,
-} from '../../src/task/native-object-turn.mjs';
+} from '../../src/script/native-object-turn.mjs';
 import { setObjectDirectionReference } from './object-turn.mjs';
-import { OBJECT_X, OBJECT_Y, PLAYER_OBJECT } from '../../src/task/wram.mjs';
+import { OBJECT_X, OBJECT_Y, PLAYER_OBJECT } from '../../src/data/wram.mjs';
 import { FLAG_CARRY, FLAG_NEGATIVE, FLAG_ZERO } from '../../src/constants/cpu-flags.mjs';
 import { BANK_WRAP, BYTE_MASK, WORD_MASK } from '../../src/constants/bits.mjs';
 

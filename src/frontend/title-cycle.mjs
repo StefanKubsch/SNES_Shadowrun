@@ -6,7 +6,7 @@
 // that times out plays the attract game, a demo of the game in room AB, and shows
 // the menu again. The port's Credits row (src/game/credits.mjs) plays the credits
 // instead of the attract game.
-import { nativeCallSequence, drainNativeSequence } from '../task/native-call-continuation.mjs';
+import { nativeCallSequence, drainNativeSequence } from '../system/native-call-continuation.mjs';
 import { sceneRuntime } from '../system/scene-runtime.mjs';
 import { startSceneScreen } from '../system/nmi.mjs';
 import { loadSoundDirectory, setMusicMode, startSong } from '../apu/music-mode.mjs';
@@ -19,7 +19,7 @@ import {
   musicSilent,
   takeCreditsRequest,
 } from '../game/credits.mjs';
-import { TIMER, TIMER_STOPPED } from '../task/wram.mjs';
+import { TIMER, TIMER_STOPPED } from '../data/wram.mjs';
 import { SOUND_DIRECTORY_TITLE } from '../constants/sound-commands.mjs';
 import { CODE_BANK } from '../constants/memory-map.mjs';
 import { BYTE_BITS, BYTE_MASK, WORD_MASK } from '../constants/bits.mjs';

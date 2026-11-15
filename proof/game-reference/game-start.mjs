@@ -2,17 +2,17 @@
 // room start 80:9699 (with the attract game's rounds), the new game 80:960D with its
 // state 80:98E9, and the save load 81:B198 (the lifted versions are
 // src/game/game-start.mjs).
-import { taskStop } from '../../src/task/plan.mjs';
+import { taskStop } from '../../src/system/task-stop.mjs';
 import { unlockBulletproofVest } from '../../src/game/bugfixes.mjs';
-import { dialogAccess } from '../../src/task/native-dialog-support.mjs';
+import { dialogAccess } from '../../src/system/native-dialog-support.mjs';
 import { getSaveSlotOffset } from '../replay/native-main-menu.mjs';
 import {
   NativeCallContinuation,
   NATIVE_CALL_CONTINUATIONS,
   drainNativeSequence,
   nativeCallSequence,
-} from '../../src/task/native-call-continuation.mjs';
-import { routineCaller } from '../../src/task/routine-call.mjs';
+} from '../../src/system/native-call-continuation.mjs';
+import { routineCaller } from '../../src/system/routine-call.mjs';
 import { TEXT_NONE } from '../replay/native-member-spell-menu.mjs';
 import { MAIN_START_ROUTINES } from '../replay/main-start.mjs';
 import { GAME_SCREEN_REFERENCE_ENTRIES } from './game-screen.mjs';
@@ -51,7 +51,7 @@ import {
   STORY_STAGE,
   TOPIC_LIST,
   WRAM,
-} from '../../src/task/wram.mjs';
+} from '../../src/data/wram.mjs';
 import {
   FLAG_NEGATIVE,
   FLAG_MEMORY_8BIT,

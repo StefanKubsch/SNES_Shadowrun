@@ -7,11 +7,11 @@ import { nativeBridge, NativeCalls } from '../proof/vm/native-call.mjs';
 import { ScriptInterpreter } from '../proof/vm/interpreter.mjs';
 import { MainLoopDriver } from '../proof/vm/main-driver.mjs';
 import { TaskScheduler, STOP_BUDGET, STOP_NATIVE, STOP_RETURNED } from '../proof/vm/scheduler.mjs';
-import { nativeOpcodeTargets } from '../src/task/native-opcode-targets.mjs';
-import { nativeTarget } from '../src/task/native-targets.mjs';
+import { nativeOpcodeTargets } from '../src/data/native-opcode-targets.mjs';
+import { nativeTarget } from '../src/script/native-targets.mjs';
 import { BOOT_NATIVE_CONTRACTS } from './main-boot-native-contracts.mjs';
 import { MAIN_STARTUP_ROUTINES } from '../proof/replay/main-startup.mjs';
-import { finishInterruptObservations } from '../src/task/main-wait-interrupt.mjs';
+import { finishInterruptObservations } from '../src/system/main-wait-interrupt.mjs';
 import { isIoAddress, isArithmeticRegister } from '../src/vm/devices.mjs';
 import { observationSet, ObservedDevices } from '../proof/vm/observed-devices.mjs';
 

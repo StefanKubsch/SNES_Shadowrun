@@ -12,9 +12,9 @@ import {
   turnObjectToObjectReference,
   turnObjectToPlayerReference,
 } from '../proof/game-reference/object-facing.mjs';
-import { turnObjectToObject } from '../src/task/native-object-face-object.mjs';
-import { turnObjectToPlayer } from '../src/task/native-player-direction-slot.mjs';
-import { getDirectionToPlayer } from '../src/task/native-player-direction.mjs';
+import { turnObjectToObject } from '../src/script/native-object-face-object.mjs';
+import { turnObjectToPlayer } from '../src/script/native-player-direction-slot.mjs';
+import { getDirectionToPlayer } from '../src/script/native-player-direction.mjs';
 import {
   OBJECT_DIRECTION,
   OBJECT_FRAME_COUNT,
@@ -23,7 +23,7 @@ import {
   OBJECT_X,
   OBJECT_Y,
   PLAYER_OBJECT,
-} from '../src/task/wram.mjs';
+} from '../src/data/wram.mjs';
 
 const WRAM_BYTES = 0x20000,
   HEX = 16,

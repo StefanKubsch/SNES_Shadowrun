@@ -3,7 +3,7 @@ import { VmFault } from '../vm/memory.mjs';
 import { encodeLanguageText, ENGLISH, GERMAN } from './language.mjs';
 import { PORT_TEXTS } from './port-extension.mjs';
 import { textPointerWord } from './rom-bytes.mjs';
-import { TEXT_BUFFER, WINDOW_MAP_BUFFER } from '../task/wram.mjs';
+import { TEXT_BUFFER, WINDOW_MAP_BUFFER } from './wram.mjs';
 import { HEX_RADIX } from '../constants/bits.mjs';
 import { buildFrontendTextEdits } from './frontend-text-edits.mjs';
 import { buildMatrixTextEdits } from './matrix-text-edits.mjs';

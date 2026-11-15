@@ -24,7 +24,7 @@ import {
   MAP_ROW_VRAM_BG2,
   CAMERA_X,
   CAMERA_Y,
-} from '../../src/task/wram.mjs';
+} from '../../src/data/wram.mjs';
 import { FLAG_NEGATIVE, FLAG_ZERO, FLAG_CARRY } from '../../src/constants/cpu-flags.mjs';
 import {
   A1T3L,

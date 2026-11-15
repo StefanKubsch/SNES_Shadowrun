@@ -1,5 +1,5 @@
 // Random per-function tests of the lifted shooting natives (src/game/object-shoot.mjs)
-// against the register-level natives (src/task/native-object-shoot.mjs). Both sides run
+// against the register-level natives (src/data/native-object-shoot.mjs). Both sides run
 // their real callees (the line of sight 81:A25F over a cell list with boxes on the
 // shot's line, the random number 80:C51F, the object slot 80:A835 with its task append
 // on a free heap block, the turn 80:AAAF and the sound 80:C46E) but the hit 80:8691, a
@@ -34,7 +34,7 @@ import {
   OBJECT_Y,
   RUNNER_WEAPON_KIND,
   RUNNER_WEAPON_RANGE,
-} from '../src/task/wram.mjs';
+} from '../src/data/wram.mjs';
 import {
   HEAP_NEXT_WORD,
   HEAP_SIZE_WORD,
@@ -42,7 +42,7 @@ import {
   TASK_LIST_HEAD,
   TASK_NEXT,
 } from '../src/vm/layout.mjs';
-import { drainNativeSequence } from '../src/task/native-call-continuation.mjs';
+import { drainNativeSequence } from '../src/system/native-call-continuation.mjs';
 
 const WRAM_BYTES = 0x20000,
   HEX = 16,

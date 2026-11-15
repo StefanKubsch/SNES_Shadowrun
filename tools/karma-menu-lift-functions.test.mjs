@@ -1,6 +1,6 @@
 // Random per-function tests of the lifted karma menu, line, step purchase and lists
 // (src/game/karma-menu.mjs) against the register-level 80:EE57, 80:EF82, 80:F006,
-// 80:F054, 80:F0F3 and 80:F1B5 (src/task/native-main-menu.mjs). The menu also calls
+// 80:F054, 80:F0F3 and 80:F1B5 (src/system/native-main-menu.mjs). The menu also calls
 // stand-ins for the notice release, the glove, the plain menu 80:A6C7 (Exit, a cancel,
 // a list row or another negative row), the lists and 80:CF2E. Both sides call the same
 // stand-ins for the window 80:F963, the redraw 80:FA67, the cursor 80:FAAC, the text
@@ -26,8 +26,8 @@ import {
   karmaListSequence,
   karmaMenuSequence,
 } from '../src/game/karma-menu.mjs';
-import { DP_CURSOR_ROW, DP_KARMA_SELECTION, KARMA } from '../src/task/wram.mjs';
-import { drainNativeSequence } from '../src/task/native-call-continuation.mjs';
+import { DP_CURSOR_ROW, DP_KARMA_SELECTION, KARMA } from '../src/data/wram.mjs';
+import { drainNativeSequence } from '../src/system/native-call-continuation.mjs';
 
 const WRAM_BYTES = 0x20000,
   HEX = 16,

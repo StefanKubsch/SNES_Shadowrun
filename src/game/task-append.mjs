@@ -1,6 +1,6 @@
 // The script task append (lifted from 80:C34A with the task frame allocation 80:C2C8
-// and the heap 80:C242; register-level versions in src/task/task-append.mjs and
-// src/task/script-yield.mjs, which the script VM and the other natives still use).
+// and the heap 80:C242; register-level versions in src/system/task-append.mjs and
+// src/system/script-yield.mjs, which the script VM and the other natives still use).
 //
 // A task for a script is started at the head of the task list: a frame for the script
 // is taken from the heap (the first free block that fits, merged with the free blocks
@@ -20,8 +20,8 @@
 // through a meaningless frame or slot, stops at the frontiers `task_heap_required` and
 // `task_slot_required`; a script with an odd number of argument bytes (none has one),
 // whose copy loop never ends, at `script_arguments_required`.
-import { taskStop } from '../task/plan.mjs';
-import { NO_TASK } from '../task/wram.mjs';
+import { taskStop } from '../system/task-stop.mjs';
+import { NO_TASK } from '../data/wram.mjs';
 import {
   FRAME_ARGUMENT_BYTES,
   FRAME_FIXED_BYTES,

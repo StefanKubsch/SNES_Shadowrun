@@ -15,7 +15,7 @@ import {
   GROUP_POSITIONS,
   GROUP_SLOTS,
   WRAM,
-} from '../task/wram.mjs';
+} from '../data/wram.mjs';
 import { LONG_MASK, WORD_MASK, WORD_SIGN } from '../constants/bits.mjs';
 
 const MEMBER_BYTES = 2;

@@ -18,7 +18,7 @@ import {
   WINDOW_NEXT_TILE,
   NOTICE_WINDOWS,
   WINDOW_FIRST_INDEX,
-} from '../../src/task/wram.mjs';
+} from '../../src/data/wram.mjs';
 import { FLAG_NEGATIVE } from '../../src/constants/cpu-flags.mjs';
 
 const DEFAULT_MAX_WORK = 1000000;

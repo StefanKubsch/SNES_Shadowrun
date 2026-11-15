@@ -9,7 +9,7 @@ import { lzBits, lzDecode } from '../src/data/lz.mjs';
 import { requireRomAddress, romOffset } from '../src/data/rom-bytes.mjs';
 import { VmMemory } from '../src/vm/memory.mjs';
 import { TaskAccessor } from '../src/vm/task-accessor.mjs';
-import { unpackStreamLong } from '../src/task/native-unpack.mjs';
+import { unpackStreamLong } from '../src/system/native-unpack.mjs';
 import { buildLanguage, installLanguage } from '../src/data/language.mjs';
 import { LiveGame } from '../src/video/live-game.mjs';
 import { startMenuWaiting } from '../src/game/credits.mjs';

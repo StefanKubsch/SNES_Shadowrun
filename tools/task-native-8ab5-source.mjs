@@ -32,9 +32,9 @@ export const native8AB5Spec = {
       'RTL',
       'line of sight, proof/replay/line-of-sight.mjs (tools/task-sight-a25f-source.mjs)',
     ],
-    [0x80c51f, 'RTS', 'random below DP00, src/task/native-random.mjs'],
-    [0x80a835, 'RTS', 'object slot creation, src/task/native-object-create.mjs'],
-    [0x80aaaf, 'RTS', 'object action, src/task/native-object-action-set.mjs'],
+    [0x80c51f, 'RTS', 'random below DP00, src/system/native-random.mjs'],
+    [0x80a835, 'RTS', 'object slot creation, src/script/native-object-create.mjs'],
+    [0x80aaaf, 'RTS', 'object action, src/script/native-object-action-set.mjs'],
     [
       0x808691,
       'RTS',
@@ -62,7 +62,7 @@ const peiWordPushes = [
   [0x8088eb, 0],
   [0x8088ed, 2],
 ];
-const sound = [0x80c46e, 'RTS', 'sound, playSoundEffect in src/task/native-audio-compose.mjs'];
+const sound = [0x80c46e, 'RTS', 'sound, playSoundEffect in src/system/native-audio-compose.mjs'];
 const [sight, random, slot, action, hit] = native8AB5Spec.externalReturns;
 export const native8A51Spec = {
   name: 'task-native-8a51',

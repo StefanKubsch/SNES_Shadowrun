@@ -1,6 +1,6 @@
 // Scene records (docs/ROM-FREE.md, step 2): the packed records of the table
 // $8B:F9E3 (src/data/lz-streams.mjs) that $81:A117 unpacks to 7F:DA14 and
-// reads through the pointer in DP 0E (src/task/main-scene-load.mjs,
+// reads through the pointer in DP 0E (src/system/main-scene-load.mjs,
 // main-scene-layers.mjs). Layout, in order:
 // - backdrop: word, copied to 7E:0D12 and written by the NMI as colour 0 to
 //   CGRAM (proof/replay/main-game-nmi.mjs); BGR555.

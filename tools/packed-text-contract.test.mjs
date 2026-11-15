@@ -11,7 +11,7 @@ import { sceneAnimationSpecs } from './main-scene-animation-source.mjs';
 import { FRONTEND_MENU_ROUTINES as FRONTEND_MENU_ROUTINES_TASK } from '../proof/replay/main-frontend-menu.mjs';
 import { SCENE_ANIMATION_TARGETS } from '../proof/cutscene-reference/cutscene-animation.mjs';
 import { fillCutsceneTextMap } from '../proof/cutscene-reference/cutscene-scene.mjs';
-import { dialogAccess } from '../src/task/native-dialog-support.mjs';
+import { dialogAccess } from '../src/system/native-dialog-support.mjs';
 import { lzBits, lzDecode, lzEncode } from '../src/data/lz.mjs';
 import { readLzStreams } from '../src/data/lz-streams.mjs';
 import { romOffset } from '../src/data/rom-bytes.mjs';

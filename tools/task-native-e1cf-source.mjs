@@ -18,9 +18,9 @@ export const nativeE1CFSpec = {
     },
   ],
   externalReturns: [
-    [0x80f963, 'RTS', 'window allocation, openWindow in src/task/native-window-open.mjs'],
-    [0x80a6c7, 'RTS', 'menu, runTaskMenuCompose in src/task/native-menu-compose.mjs'],
-    [0x80fa3e, 'RTS', 'window release, releaseWindow in src/task/native-render-compose.mjs'],
+    [0x80f963, 'RTS', 'window allocation, openWindow in src/script/native-window-open.mjs'],
+    [0x80a6c7, 'RTS', 'menu, runTaskMenuCompose in src/system/native-menu-compose.mjs'],
+    [0x80fa3e, 'RTS', 'window release, releaseWindow in src/system/native-render-compose.mjs'],
   ],
   scope:
     'Original Native8A E1CF own code with external returns into F963, A6C7 and FA3E; equations in proof/replay/native-spell-choice.mjs, differential check in tools/task-native-e1cf.test.mjs.',
@@ -37,8 +37,8 @@ export const nativeC461Spec = {
   returns: ['80:C46D'],
   windows: [{ start: 0x80c461, hex: 'A5022016C4A90D002207F08160' }],
   externalReturns: [
-    [0x80c416, 'RTS', 'stereo position, computeSoundPan in src/task/native-input-apu.mjs'],
-    [0x81f007, 'RTL', 'APU command, sendApuCommand in src/task/native-input-apu.mjs'],
+    [0x80c416, 'RTS', 'stereo position, computeSoundPan in src/system/native-input-apu.mjs'],
+    [0x81f007, 'RTL', 'APU command, sendApuCommand in src/system/native-input-apu.mjs'],
   ],
   scope:
     'Original Native52 C461 own code with external returns into C416 and 81:F007; equations in proof/apu-reference/sound-stereo.mjs, differential check in tools/task-native-e1cf.test.mjs.',

@@ -12,8 +12,8 @@ import {
   releaseObjectGraphicsReference,
   removeObjectReference,
 } from '../proof/game-reference/object-release.mjs';
-import { removeObject } from '../src/task/native-object-release.mjs';
-import { releaseObjectGraphics } from '../src/task/native-object-release-direct.mjs';
+import { removeObject } from '../src/script/native-object-release.mjs';
+import { releaseObjectGraphics } from '../src/script/native-object-release-direct.mjs';
 import {
   DRAW_LIST,
   DRAW_LIST_INDEX,
@@ -22,7 +22,7 @@ import {
   OBJECT_VRAM_SLOT_HEAD,
   VRAM_SLOT_FREE_LIST,
   VRAM_SLOT_NEXT,
-} from '../src/task/wram.mjs';
+} from '../src/data/wram.mjs';
 
 const WRAM_BYTES = 0x20000,
   HEX = 16,

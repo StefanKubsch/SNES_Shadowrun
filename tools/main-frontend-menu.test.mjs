@@ -5,7 +5,7 @@ import { frontendSpecs } from './main-frontend-source.mjs';
 import { decodeWindows, compareDialog, prng } from './task-native-dialog-harness.mjs';
 import { FRONTEND_MENU_ROUTINES as FRONTEND_MENU_ROUTINES_TASK } from '../proof/replay/main-frontend-menu.mjs';
 import { FRONTEND_ROUTINES as FRONTEND_ROUTINES_TASK } from '../proof/replay/main-frontend.mjs';
-import { dialogAccess } from '../src/task/native-dialog-support.mjs';
+import { dialogAccess } from '../src/system/native-dialog-support.mjs';
 import { SRAM_SIZE } from '../src/vm/memory.mjs';
 import { runMainOwnerStart } from '../proof/replay/main-frontend.mjs';
 import { playAttractGame } from '../proof/frontend-reference/title-cycle.mjs';

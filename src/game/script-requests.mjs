@@ -27,7 +27,7 @@ import {
   SCENE_REQUEST_ARGUMENT,
   SCENE_REQUEST_ROOM_ONLY,
   WRAM,
-} from '../task/wram.mjs';
+} from '../data/wram.mjs';
 import { WORD_MASK } from '../constants/bits.mjs';
 
 // 80:CC97: enter the room without a scene sequence.

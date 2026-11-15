@@ -1,5 +1,5 @@
 // The camera scroll of the room entry's camera jump (lifted from 81:8A91 and 81:8954;
-// register-level versions in src/task/main-loop-camera.mjs and
+// register-level versions in src/system/main-loop-camera.mjs and
 // proof/replay/main-transition.mjs, which the main loop and the game NMI still call).
 //
 // The scene's two layer maps lie in WRAM (SCENE_LAYER_HIGH for BG1, SCENE_LAYER_LOW
@@ -35,7 +35,7 @@ import {
   SCENE_LAYER_HIGH,
   SCENE_LAYER_LOW,
   SCENE_LAYER_ROW_BYTES,
-} from '../task/wram.mjs';
+} from '../data/wram.mjs';
 import {
   A1T3L,
   BG1HOFS,

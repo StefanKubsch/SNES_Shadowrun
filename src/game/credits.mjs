@@ -30,7 +30,7 @@
 // 1CDE = FFFF) and load the title's directory again (F229 with 0, F092 with 3),
 // as the attract game does before the start menu returns. Starting the music
 // on the title's directory played nothing and later read the I/O page.
-import { PAD_HELD, MUSIC } from '../task/wram.mjs';
+import { PAD_HELD, MUSIC } from '../data/wram.mjs';
 import { roomHeader, ROOM_HEADER_MUSIC } from '../data/rooms.mjs';
 import { BYTE_BITS, WORD_MASK } from '../constants/bits.mjs';
 

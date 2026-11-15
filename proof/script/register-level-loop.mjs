@@ -13,11 +13,11 @@ import { NativeCalls } from '../vm/native-call.mjs';
 import { NATIVE_POINTERS } from '../../src/vm/layout.mjs';
 import { MainLoopDriver, STOP_MAIN_WAIT, STOP_MAIN_OWNER_RETURN } from '../vm/main-driver.mjs';
 import { STOP_RETURNED, STOP_BUDGET, STOP_NATIVE_WAIT } from '../vm/scheduler.mjs';
-import { nativeOpcodeTargets } from '../../src/task/native-opcode-targets.mjs';
-import { nativeTarget } from '../../src/task/native-targets.mjs';
+import { nativeOpcodeTargets } from '../../src/data/native-opcode-targets.mjs';
+import { nativeTarget } from '../../src/script/native-targets.mjs';
 // This reference runs live frames on the game's lifted caller tables; recorded
 // replays use the driver's register-level defaults in proof/replay/.
-import { MAIN_STARTUP_ROUTINES } from '../../src/task/main-startup.mjs';
+import { MAIN_STARTUP_ROUTINES } from '../../src/system/main-startup.mjs';
 import { WramTasks } from '../../src/script/task-api.mjs';
 import { CODE_BANK_BASE } from '../../src/constants/memory-map.mjs';
 

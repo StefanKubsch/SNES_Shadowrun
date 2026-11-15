@@ -1,4 +1,4 @@
-import { taskStop } from '../../src/task/plan.mjs';
+import { taskStop } from '../../src/system/task-stop.mjs';
 
 // Fixed native equations for the source-verified F584 body. No instruction
 // decoder, opcode dispatcher or calculated hardware product is involved.

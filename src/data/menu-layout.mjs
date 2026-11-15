@@ -1,5 +1,5 @@
 import { languageTextWidth } from './language.mjs';
-import { DP_WINDOW_LEFT, DP_WINDOW_TOP, DP_WINDOW_COLUMNS, DP_WINDOW_ROWS } from '../task/wram.mjs';
+import { DP_WINDOW_LEFT, DP_WINDOW_TOP, DP_WINDOW_COLUMNS, DP_WINDOW_ROWS } from './wram.mjs';
 
 const TILE_PIXELS = 8,
   BORDER_COLUMNS = 2,

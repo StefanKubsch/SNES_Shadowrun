@@ -12,7 +12,7 @@
 // as locals (the member index 26; the actor flags 20, record 23 and the actors left
 // 29) are written as in the original: the Mesen oracle compares them.
 import { sceneRuntime } from '../system/scene-runtime.mjs';
-import { taskStop } from '../task/plan.mjs';
+import { taskStop } from '../system/task-stop.mjs';
 import { createObjectCall } from './object-create.mjs';
 import { turnObjectCall } from './object-turn.mjs';
 import {
@@ -36,7 +36,7 @@ import {
   PLAYER_OBJECT,
   RUNNER_ARMOUR_RATING,
   STORY_STAGE,
-} from '../task/wram.mjs';
+} from '../data/wram.mjs';
 import {
   ACTOR_DEPTH_FLAGS,
   ACTOR_KIND,

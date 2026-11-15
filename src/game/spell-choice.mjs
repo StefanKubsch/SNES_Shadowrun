@@ -8,11 +8,11 @@
 // the window DP 0E is released (80:FA3E; without spells the original releases the unset
 // DP 0E) and the result goes to DP 00. The callees run through their frames from the
 // routine table, each with its own callees.
-import { nativeCallSequence } from '../task/native-call-continuation.mjs';
+import { nativeCallSequence } from '../system/native-call-continuation.mjs';
 import { dataBankWord, setDataBankWord } from '../system/data-bank.mjs';
-import { taskStop } from '../task/plan.mjs';
-import { DP_SPELL_WINDOW, LIST_ENTRY_LIMIT, SPELL_WINDOW } from '../task/native-spell-choice.mjs';
-import { TEXT_NUMBERS } from '../task/native-notice.mjs';
+import { taskStop } from '../system/task-stop.mjs';
+import { DP_SPELL_WINDOW, LIST_ENTRY_LIMIT, SPELL_WINDOW } from '../data/native-spell-choice.mjs';
+import { TEXT_NUMBERS } from '../data/native-notice.mjs';
 import {
   DP_LIST_TOKEN_BANK,
   DP_LIST_TOKENS,
@@ -27,7 +27,7 @@ import {
   SPELL_CHOICE_HEADER,
   SPELL_CHOICE_NAMES,
   SPELL_LIST,
-} from '../task/wram.mjs';
+} from '../data/wram.mjs';
 import { TEXT_EXIT } from '../data/port-extension.mjs';
 import { fitListWindow, listTextIds } from '../data/menu-layout.mjs';
 import { BYTE_BITS, BYTE_MASK, WORD_BITS, WORD_MASK, WORD_SIGN } from '../constants/bits.mjs';

@@ -1,6 +1,6 @@
 // Random per-function tests of the lifted status screen (src/game/status-screen.mjs)
 // against the register-level 80:EA6E, 80:EA89 and 80:EA8E (statusSequence in
-// src/task/native-status-screen.mjs). Both sides call the same stand-ins for the sound
+// src/system/native-status-screen.mjs). Both sides call the same stand-ins for the sound
 // command 81:F007, the notice release 80:FF79, the glove 80:BCB2, 81:886A, the window
 // 80:F963 (a window number in DP 00), the cursor, text, number and decimal number, the
 // equipment rows, the portrait, the menu 80:A6C7 (Exit, a submenu row or a negative
@@ -28,9 +28,9 @@ import {
   JAKE_ALTERNATE_PORTRAIT,
   OBJECT_NUMBER,
   PLAYER_OBJECT,
-} from '../src/task/wram.mjs';
+} from '../src/data/wram.mjs';
 import { RUNNER_OBJECT_NUMBERS } from '../src/data/runners.mjs';
-import { drainNativeSequence } from '../src/task/native-call-continuation.mjs';
+import { drainNativeSequence } from '../src/system/native-call-continuation.mjs';
 
 const WRAM_BYTES = 0x20000,
   HEX = 16,

@@ -23,7 +23,7 @@ import {
   COLLISION_BOX_OBJECT,
   CELL_COORDINATE_MASK,
   STATIC_CELL_HEADS,
-} from '../../src/task/wram.mjs';
+} from '../../src/data/wram.mjs';
 import { WORD_MASK } from '../../src/constants/bits.mjs';
 import { WRAM_BANK_PAIR } from '../../src/constants/memory-map.mjs';
 import { FLAG_CARRY, FLAG_ZERO, FLAG_NEGATIVE } from '../../src/constants/cpu-flags.mjs';

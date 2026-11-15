@@ -13,10 +13,10 @@ import {
   setActorItemPropertyAndUnequipReference,
   setItemPropertyAndUnequipReference,
 } from '../proof/game-reference/runner-equipment.mjs';
-import { equipRunnerArmour } from '../src/task/native-runner-armour-equip.mjs';
-import { equipRunnerWeapon } from '../src/task/native-runner-weapon-equip.mjs';
-import { setItemPropertyAndUnequip } from '../src/task/native-object-record-property-equip.mjs';
-import { setActorItemPropertyAndUnequip } from '../src/task/native-record-property-equip.mjs';
+import { equipRunnerArmour } from '../src/script/native-runner-armour-equip.mjs';
+import { equipRunnerWeapon } from '../src/script/native-runner-weapon-equip.mjs';
+import { setItemPropertyAndUnequip } from '../src/script/native-object-record-property-equip.mjs';
+import { setActorItemPropertyAndUnequip } from '../src/script/native-record-property-equip.mjs';
 import {
   GLOVE_TARGET_TAG,
   GLOVE_TARGET_OBJECT,
@@ -25,7 +25,7 @@ import {
   OBJECT_NUMBER,
   OBJECT_RECORD,
   RUNNER_ARMOUR,
-} from '../src/task/wram.mjs';
+} from '../src/data/wram.mjs';
 
 const WRAM_BYTES = 0x20000,
   HEX = 16,

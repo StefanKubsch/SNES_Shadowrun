@@ -10,7 +10,7 @@
 // The title pan draws both lists from intro_frames, scrolled by a quarter (near) and
 // an eighth (far) of the title position, and adds objects when the frame counter
 // reaches the times of its event lists.
-import { taskStop } from '../task/plan.mjs';
+import { taskStop } from '../system/task-stop.mjs';
 import { decodeOnce, tableEntries } from '../data/named-tables.mjs';
 import { readJoypad } from '../system/joypad.mjs';
 import {
@@ -28,7 +28,7 @@ import {
   OAM_SHADOW_HIGH,
   PAD_HELD,
   WRAM,
-} from '../task/wram.mjs';
+} from '../data/wram.mjs';
 import {
   OAM_BYTES,
   OAM_ENTRY_BYTES,

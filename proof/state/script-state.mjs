@@ -3,7 +3,7 @@ import {
   OBJECT_KIND,
   KARMA,
   SCENE_REQUEST_ROOM_ONLY,
-} from '../../src/task/wram.mjs';
+} from '../../src/data/wram.mjs';
 import { SCRIPT_NATIVE } from '../script/task.mjs';
 import { isWord } from '../script/runtime.mjs';
 import { createScriptWordState, isScriptWordState, isScriptWordNative } from './script-words.mjs';
@@ -40,7 +40,7 @@ export const isScriptStateNative = (state, id) =>
 
 // Five base actions, plus covered slot actions and supplied AC data paths.
 // Native $56 stores ROOM and requests a room-only scene change, as documented
-// by src/task/native-room-change.mjs; the proof API retains its original field names.
+// by src/script/native-room-change.mjs; the proof API retains its original field names.
 // These are game-state fields, not an emulated memory bus.
 export function createScriptState({ byteLength, slotState = null, acState = null } = {}) {
   if (slotState !== null && !isSlotState(slotState)) throw new Error('Invalid slot state');

@@ -22,7 +22,7 @@
 // effect (src/apu/sound-effect.mjs) is lifted and waits for nothing; its frame is not
 // reproduced. The routine itself sets neither X nor Y; after a sound they are left as
 // the original sound effect leaves them (src/game/main-upkeep.mjs).
-import { nativeCallSequence } from '../task/native-call-continuation.mjs';
+import { nativeCallSequence } from '../system/native-call-continuation.mjs';
 import { accessorPort } from '../system/hardware-port.mjs';
 import { playSoundEffect } from '../apu/sound-effect.mjs';
 import {
@@ -40,7 +40,7 @@ import {
   TIMER,
   TIMER_FRAMES,
   TIMER_STOPPED,
-} from '../task/wram.mjs';
+} from '../data/wram.mjs';
 import { BYTE_BITS, BYTE_MASK, WORD_MASK, WORD_SIGN } from '../constants/bits.mjs';
 import { FLAG_CARRY } from '../constants/cpu-flags.mjs';
 import { dataBankWord, setDataBankWord } from '../system/data-bank.mjs';

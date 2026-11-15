@@ -20,12 +20,12 @@ import {
   shootWithOwnWeapon,
   NATIVE_8AB5_ROUTINES,
 } from '../proof/replay/native-object-shoot.mjs';
-import { randomBelow } from '../src/task/native-random.mjs';
-import { createObject } from '../src/task/native-object-create.mjs';
-import { setObjectDirection } from '../src/task/native-object-action-set.mjs';
+import { randomBelow } from '../src/system/native-random.mjs';
+import { createObject } from '../src/script/native-object-create.mjs';
+import { setObjectDirection } from '../src/script/native-object-action-set.mjs';
 
 // Native58/8A51 (player shoots at the object under the glove) and Native5A/8A8C (object shoots at object):
-// pinned own code with stack proof, and the equations of src/task/native-object-shoot.mjs against the original
+// pinned own code with stack proof, and the equations of src/data/native-object-shoot.mjs against the original
 // instructions (tools/w65c816-reference.mjs). 81:A25F runs on its pinned windows; C51F, A835 and AAAF run
 // their modules on both sides with the real call frames; the hit 8691 and the sound C46E are equal stubs.
 const file = readFileSync(new URL('../Shadowrun (E).smc', import.meta.url));

@@ -9,7 +9,7 @@
 // headers of the heap blocks in the chain and the live bytes of each task frame. Dead
 // bytes (free block data, operand stack residue below S, unused local return words, the
 // call ID of a task without a pending call) are not part of the projection.
-import { taskStop } from '../../src/task/plan.mjs';
+import { taskStop } from '../../src/system/task-stop.mjs';
 import { CALL_NATIVE, CALL_SCRIPT, scriptInfo, stackCapacity } from '../../src/script/tasks.mjs';
 import {
   Scheduler,

@@ -1,5 +1,5 @@
 // Random per-function tests of the lifted player control (src/game/player-control.mjs)
-// against the register-level native 80:E014 (src/task/native-player-control.mjs). Both
+// against the register-level native 80:E014 (src/data/native-player-control.mjs). Both
 // sides call the same stand-ins for the party status 80:ED3C, the status screen 80:EA89
 // and its item list 80:EA8E, the notice's window 80:F963, text 80:FE69, key wait 80:F953
 // and release 80:FA3E, the glove's release 80:BCB2, the action 80:A985 and the turn
@@ -24,8 +24,8 @@ import {
   RUNNER_WEAPON,
   RUNNER_WEAPON_KIND,
   SELECTED_SPELL_SCRIPT,
-} from '../src/task/wram.mjs';
-import { drainNativeSequence } from '../src/task/native-call-continuation.mjs';
+} from '../src/data/wram.mjs';
+import { drainNativeSequence } from '../src/system/native-call-continuation.mjs';
 
 const WRAM_BYTES = 0x20000,
   SRAM_BYTES = 0x2000,

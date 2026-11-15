@@ -49,7 +49,7 @@ room header and entry selecting that scene.
 Sources: [lz-streams.mjs](../src/data/lz-streams.mjs),
 [rooms.mjs](../src/data/rooms.mjs),
 [main-transition.mjs](../proof/replay/main-transition.mjs), and
-[main-scene-load.mjs](../src/task/main-scene-load.mjs).
+[main-scene-load.mjs](../src/system/main-scene-load.mjs).
 
 ## Record structure and downstream ownership
 
@@ -100,7 +100,7 @@ one dependency row per used type with its graphic indices and attributes.
 Matching graphics or type numbers do not make two placed objects identical.
 See [object-types.mjs](../src/data/object-types.mjs),
 [object-graphics.mjs](../src/data/object-graphics.mjs), and
-[main-scene-layers.mjs](../src/task/main-scene-layers.mjs).
+[main-scene-layers.mjs](../src/system/main-scene-layers.mjs).
 
 `81:A117` retains a pointer to the first object-list count in DP `77`/`79`.
 Later `80:A584` calls `81:8756`, which calls `81:84DE` twice to consume
@@ -112,7 +112,7 @@ in total. This is a dependency count, not a guarantee of free collision
 capacity, generated node count or route reachability. Room actors, script
 trigger boxes, exits, points and sight lists remain separate room data.
 Changing a scene object can change both appearance and collision. See
-[main-scene-collision.mjs](../src/task/main-scene-collision.mjs).
+[main-scene-collision.mjs](../src/system/main-scene-collision.mjs).
 
 All 165 identities are shared by English and German, with no packed language
 replacement. That does not grant ownership of fonts, text, room actors,

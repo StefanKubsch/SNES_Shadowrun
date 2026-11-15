@@ -1,5 +1,5 @@
 // Opening a window (lifted from 80:F963 with the tile upload request 80:FA67; register-
-// level version in src/task/native-window-open.mjs, which the other callers still use).
+// level version in src/script/native-window-open.mjs, which the other callers still use).
 //
 // The caller sets the window's left column and top row in the direct page words 00
 // and 02, its columns and rows (with the border) in 04 and 06 and its attributes in 08.
@@ -20,12 +20,12 @@
 // with recorded observations or interrupts it replays them as the original. The window
 // drawing's own pushes are not reproduced.
 import { sceneRuntime } from '../system/scene-runtime.mjs';
-import { lagFree } from '../task/main-wait-interrupt.mjs';
-import { nativeCallSequence } from '../task/native-call-continuation.mjs';
+import { lagFree } from '../system/main-wait-interrupt.mjs';
+import { nativeCallSequence } from '../system/native-call-continuation.mjs';
 import {
   requestWindowUploadAdapter,
   requestWindowUploadSequence,
-} from '../task/native-menu-compose.mjs';
+} from '../system/native-menu-compose.mjs';
 import { nmiAtBranch } from '../system/frame-wait.mjs';
 import { drawWindow, requestUploadCall } from './window-list.mjs';
 import {
@@ -50,7 +50,7 @@ import {
   WINDOW_TILE_INITIAL,
   WINDOW_TILE_START,
   WINDOW_WIDTH_PIXELS,
-} from '../task/wram.mjs';
+} from '../data/wram.mjs';
 import { M7A, M7B, MPYL } from '../constants/hardware-registers.mjs';
 import { BYTE_BITS, BYTE_MASK, WORD_MASK, WORD_SIGN } from '../constants/bits.mjs';
 import {

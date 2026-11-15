@@ -22,7 +22,7 @@ import {
   PALETTE_REQUEST_SLOT,
   PALETTE_STEP,
   PALETTE_TABLE,
-} from '../../src/task/wram.mjs';
+} from '../../src/data/wram.mjs';
 
 // 81:8076 adds the step until bit 7 is set, then retains the lower seven bits.
 const PROGRESS_READY = BYTE_SIGN,

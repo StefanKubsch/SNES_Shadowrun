@@ -56,8 +56,8 @@ These are game-state corrections; no new hardware or timing premise is needed.
 
 - Original entries: native 75 at `80:9D15`, native BC at `80:9CE4`, the latter
   calling `80:9D50`. Implementations:
-  [native-9d15.mjs](../src/task/native-object-record-property-equip.mjs) and
-  [native-9ce4.mjs](../src/task/native-record-property-equip.mjs).
+  [native-9d15.mjs](../src/script/native-object-record-property-equip.mjs) and
+  [native-9ce4.mjs](../src/script/native-record-property-equip.mjs).
 - The defaults have 13 rows of eight bytes at `80:97A9`, decoded in
   [vm-runners.json](../assets/vm-runners.json) and described in
   [runners.mjs](../src/data/runners.mjs). Bytes 3-4 are the weapon object,

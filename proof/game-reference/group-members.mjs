@@ -1,9 +1,9 @@
 // Register-level references of the group member script natives 80:A297 and 80:A2B5
-// (moved from src/task/native-group-member-position.mjs and native-group-remove.mjs;
+// (moved from src/script/native-group-member-position.mjs and native-group-remove.mjs;
 // lifted in src/game/group-members.mjs). The proof plans, the Native58 dispatch of
 // proof/task/native-dispatch.mjs and the instruction tests of 80:A297 and 80:A2B5 run
 // them; the game runs the lifted natives.
-import { FIRST_ARGUMENT, leaf } from '../../src/task/native-leaf-support.mjs';
+import { FIRST_ARGUMENT, leaf } from '../../src/system/native-leaf-support.mjs';
 import {
   GROUP_INDEX,
   GROUP_NUMBERS,
@@ -11,7 +11,7 @@ import {
   GROUP_POSITIONS,
   GROUP_SLOTS,
   WRAM,
-} from '../../src/task/wram.mjs';
+} from '../../src/data/wram.mjs';
 import { FLAG_CARRY, FLAG_NEGATIVE, FLAG_ZERO } from '../../src/constants/cpu-flags.mjs';
 import { WORD_MASK, BANK_WRAP } from '../../src/constants/bits.mjs';
 

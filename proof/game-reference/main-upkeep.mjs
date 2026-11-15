@@ -4,15 +4,15 @@ import {
   NATIVE_CALL_CONTINUATIONS,
   drainNativeSequence,
   nativeCallSequence,
-} from '../../src/task/native-call-continuation.mjs';
+} from '../../src/system/native-call-continuation.mjs';
 // Register-level reference of the main loop's upkeep (moved from
 // proof/replay/main-loop-upkeep.mjs and proof/replay/main-loop-motion.mjs): the colour
 // effect 81:8877, the palette cycles 81:8076, the hit shake 80:DE94 and the notice
 // time limits 80:FF14. The lifted versions are src/game/fixed-colour.mjs,
 // src/game/palette-cycles.mjs, src/game/player-hit.mjs and src/game/notice-timeout.mjs.
-import { clearFixedColour, FIXED_COLOUR_BLACK } from '../../src/task/native-dialog-portrait.mjs';
+import { clearFixedColour, FIXED_COLOUR_BLACK } from '../../src/system/native-dialog-portrait.mjs';
 import { advancePaletteCycles } from '../render/palette-cycles-equations.mjs';
-import { sec, clc } from '../../src/task/status-flags.mjs';
+import { sec, clc } from '../../src/system/status-flags.mjs';
 import {
   COLOUR_PHASE,
   COLOUR_REQUEST,
@@ -28,7 +28,7 @@ import {
   DP_SOUND_EFFECT,
   DP_SOUND_LEVEL,
   DP_SOUND_VOICE,
-} from '../../src/task/wram.mjs';
+} from '../../src/data/wram.mjs';
 import { COLDATA_RED } from '../../src/constants/ppu.mjs';
 import { BYTE_MASK, WORD_MASK } from '../../src/constants/bits.mjs';
 import { COLDATA, CGADSUB } from '../../src/constants/hardware-registers.mjs';

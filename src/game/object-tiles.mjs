@@ -1,5 +1,5 @@
 // The objects' tiles requested again (lifted from 80:ADF4 with 80:AE12; register-level
-// versions in src/task/native-scene-tiles.mjs stay the reference).
+// versions in src/system/native-scene-tiles.mjs stay the reference).
 //
 // After the dialog the portraits have overwritten the objects' tiles in video memory, so
 // each object of the draw list (7E:14B2, from its last index 7E:14B0 down) has its
@@ -28,13 +28,13 @@ import {
   dialogCallBody,
   dialogCallSequence,
   segmentSequence,
-} from '../task/native-call-continuation.mjs';
-import { nmiWords, waitWord } from '../task/native-dialog-portrait.mjs';
-import { lagFree } from '../task/main-wait-interrupt.mjs';
+} from '../system/native-call-continuation.mjs';
+import { nmiWords, waitWord } from '../system/native-dialog-portrait.mjs';
+import { lagFree } from '../system/main-wait-interrupt.mjs';
 import { nmiAtBranch } from '../system/frame-wait.mjs';
 import { stepAnimation } from './object-animation.mjs';
 import { CarryArithmetic } from './carry-arithmetic.mjs';
-import { taskStop } from '../task/plan.mjs';
+import { taskStop } from '../system/task-stop.mjs';
 import {
   DP_VRAM_UPLOAD_INDEX,
   DRAW_LIST,
@@ -49,7 +49,7 @@ import {
   VRAM_UPLOAD_ADDRESSES,
   VRAM_UPLOAD_BANKS,
   VRAM_UPLOAD_SOURCES,
-} from '../task/wram.mjs';
+} from '../data/wram.mjs';
 import {
   BYTE_BITS,
   BYTE_MASK,

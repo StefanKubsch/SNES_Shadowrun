@@ -19,9 +19,9 @@
 // The spell glove (80:9BD3) closes an open member menu's dialog and prepares the window
 // list first; it takes only objects with bit 15 of their flags set. The place choice
 // (80:C724) turns the glove's position into a place on the floor for an object's walk.
-import { dialogCallBody, nativeCallSequence } from '../task/native-call-continuation.mjs';
+import { dialogCallBody, nativeCallSequence } from '../system/native-call-continuation.mjs';
 import { dataBankWord } from '../system/data-bank.mjs';
-import { GLOVE_LIMITS, GLOVE_OVER_PLAYER } from '../task/native-glove-crosshair-limits.mjs';
+import { GLOVE_LIMITS, GLOVE_OVER_PLAYER } from '../script/native-glove-crosshair-limits.mjs';
 import {
   CAMERA_X,
   CAMERA_Y,
@@ -43,7 +43,7 @@ import {
   PAD_X,
   PAD_Y,
   PLAYER_OBJECT,
-} from '../task/wram.mjs';
+} from '../data/wram.mjs';
 import {
   DP_NOTICE_FRAMES,
   DP_NOTICE_TEXT,
@@ -63,9 +63,9 @@ import {
   SPELL_TARGET_OBJECT,
   WINDOW_FIRST_INDEX,
   WINDOW_LAST_INDEX,
-} from '../task/wram.mjs';
-import { DP_SCRATCH } from '../task/native-member-spell-menu.mjs';
-import { GLOVE_REACH, OUT_OF_REACH_NOTICE } from '../task/native-glove-target.mjs';
+} from '../data/wram.mjs';
+import { DP_SCRATCH } from '../data/native-member-spell-menu.mjs';
+import { GLOVE_REACH, OUT_OF_REACH_NOTICE } from '../data/native-glove-target.mjs';
 import { BYTE_BITS, BYTE_MASK, WORD_MASK, WORD_SIGN } from '../constants/bits.mjs';
 import { FLAG_CARRY, FLAG_NEGATIVE, FLAG_OVERFLOW, FLAG_ZERO } from '../constants/cpu-flags.mjs';
 

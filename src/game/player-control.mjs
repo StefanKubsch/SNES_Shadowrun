@@ -14,10 +14,10 @@
 // R ends the aim and takes the glove off (80:BCB2), as A or X do without an aim, and B,
 // L or R do without a tagged object. The callees run through their frames from the
 // routine table, each with its own callees.
-import { nativeCallSequence } from '../task/native-call-continuation.mjs';
+import { nativeCallSequence } from '../system/native-call-continuation.mjs';
 import { dataBankWord, setDataBankWord } from '../system/data-bank.mjs';
 import { placeGloveOverPlayer } from './glove-target.mjs';
-import { GLOVE_LIMITS } from '../task/native-glove-crosshair-limits.mjs';
+import { GLOVE_LIMITS } from '../script/native-glove-crosshair-limits.mjs';
 import {
   AIM_ACTION,
   AIM_BUTTONS,
@@ -45,7 +45,7 @@ import {
   WALK_STEP_X,
   WALK_STEP_Y,
   WEAPON_NOTICE,
-} from '../task/native-player-control.mjs';
+} from '../data/native-player-control.mjs';
 import {
   AIM_ACTION_NEXT,
   AIM_TARGET_OBJECT,
@@ -86,7 +86,7 @@ import {
   RUNNER_WEAPON,
   RUNNER_WEAPON_KIND,
   SELECTED_SPELL_SCRIPT,
-} from '../task/wram.mjs';
+} from '../data/wram.mjs';
 import { fitListWindow } from '../data/menu-layout.mjs';
 import { BYTE_BITS, BYTE_MASK, WORD_MASK, WORD_SIGN } from '../constants/bits.mjs';
 import { FLAG_CARRY, FLAG_NEGATIVE, FLAG_OVERFLOW, FLAG_ZERO } from '../constants/cpu-flags.mjs';

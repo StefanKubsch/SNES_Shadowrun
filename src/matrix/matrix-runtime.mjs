@@ -12,7 +12,7 @@ import {
   DMA_RECORD_VRAM,
   MATRIX_DMA_END,
   MATRIX_DMA_RECORDS,
-} from '../task/wram.mjs';
+} from '../data/wram.mjs';
 import { BYTE_BITS, BYTE_MASK, WORD_BITS, WORD_MASK } from '../constants/bits.mjs';
 import { VMAINC_INCREMENT_AFTER_HIGH } from '../constants/ppu.mjs';
 

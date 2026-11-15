@@ -1,15 +1,15 @@
 // Random per-function test of the lifted game screen set-up 80:9629
 // (src/game/game-screen.mjs, entry setUpGameScreenRoutine in
-// src/task/main-initialize.mjs) against the register-level reference
+// src/system/main-initialize.mjs) against the register-level reference
 // (proof/game-reference/game-screen.mjs) with its register-level callees, including
 // Jake's state bar 81:AF1F (src/game/state-bar.mjs; docs/GAME-SCREEN-LIFT.md). Both sides
 // must leave the same WRAM outside the scratch, the same device writes and the
 // registers the callers keep (S, PC, data bank, program bank, 16-bit modes).
 import { prng } from './task-native-dialog-harness.mjs';
 import { createSide, registerCases } from './lift-function-harness.mjs';
-import { MAIN_INITIALIZE_ROUTINES } from '../src/task/main-initialize.mjs';
+import { MAIN_INITIALIZE_ROUTINES } from '../src/system/main-initialize.mjs';
 import { initializeGameScreen } from '../proof/game-reference/game-screen.mjs';
-import { DIALOG_WINDOW, GROUP_INDEX, JAKE_COUNT_MAX } from '../src/task/wram.mjs';
+import { DIALOG_WINDOW, GROUP_INDEX, JAKE_COUNT_MAX } from '../src/data/wram.mjs';
 
 const WRAM_BYTES = 0x20000,
   HEX = 16,

@@ -13,7 +13,7 @@
 // the head computer title, "Datajack" and the cyberware from row 2. A key ends both.
 // The callees (window 80:F963, cursor 80:FAAC, text 80:FE69, number 80:FD80, key wait
 // 80:F953, release 80:FA3E) run through their frames from the routine table.
-import { nativeCallSequence } from '../task/native-call-continuation.mjs';
+import { nativeCallSequence } from '../system/native-call-continuation.mjs';
 import { dataBankWord, setDataBankWord } from '../system/data-bank.mjs';
 import {
   NOTES_WINDOW,
@@ -24,7 +24,7 @@ import {
   TEXT_SKILLSOFT,
   TEXT_WIRED_REFLEXES,
   translatedSkillWindow,
-} from '../task/native-status-screen.mjs';
+} from '../system/native-status-screen.mjs';
 import {
   DIALOG_END,
   DP_CURSOR_ROW,
@@ -43,7 +43,7 @@ import {
   PAD_PRESSED,
   PAD_SELECT,
   STATUS_SUBMENU_WINDOW,
-} from '../task/wram.mjs';
+} from '../data/wram.mjs';
 import { JAKE_OBJECT_NUMBER, SKILL_COUNT } from '../data/runners.mjs';
 import { fitListWindow } from '../data/menu-layout.mjs';
 import {

@@ -1,9 +1,9 @@
 // Register-level reference of the fight list append 80:8521 (moved from
 // src/task/native-fight-list-append.mjs; lifted in src/game/fight-list.mjs, bound as a
-// script native in src/task/native-script-leaves.mjs).
-import { taskStop } from '../../src/task/plan.mjs';
-import { FIRST_ARGUMENT, leaf } from '../../src/task/native-leaf-support.mjs';
-import { setMusicMode } from '../../src/task/native-audio-compose.mjs';
+// script native in src/script/native-script-leaves.mjs).
+import { taskStop } from '../../src/system/task-stop.mjs';
+import { FIRST_ARGUMENT, leaf } from '../../src/system/native-leaf-support.mjs';
+import { setMusicMode } from '../../src/system/native-audio-compose.mjs';
 import {
   FIGHT_KARMA,
   FIGHT_LIST,
@@ -15,7 +15,7 @@ import {
   MUSIC_FIGHT,
   OPTION_MUSIC,
   WRAM,
-} from '../../src/task/wram.mjs';
+} from '../../src/data/wram.mjs';
 import { WORD_MASK, WORD_BITS } from '../../src/constants/bits.mjs';
 import { FLAG_CARRY, FLAG_ZERO } from '../../src/constants/cpu-flags.mjs';
 import { CODE_BANK } from '../../src/constants/memory-map.mjs';

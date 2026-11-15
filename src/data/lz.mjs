@@ -1,5 +1,5 @@
 // Packed data of the unpacker $80:9F49/$80:9F4D/$80:9E7E (docs/ROM-FREE.md,
-// docs/reference/render-routines.md#entpacker, port: src/task/native-unpack.mjs). A stream
+// docs/reference/render-routines.md#entpacker, port: src/system/native-unpack.mjs). A stream
 // from the data start d (9E7E: pointer + 2; 9F49/9F4D: after the length word):
 // - Word at d: offset of the bit stream from d; literal bytes from d + 2.
 // - Bit stream: words, highest bit of the first byte first (like the texts).

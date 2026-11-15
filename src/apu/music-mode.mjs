@@ -1,6 +1,6 @@
 // Music modes and sample loading (lifted from 81:EF47, 81:F25A, 81:F1FA, 81:F130,
 // 81:F100, 81:F122/F1E8, 81:F03A and the directory load 81:F092; register-level
-// versions in src/task/native-audio-compose.mjs and proof/intro-reference/intro-setup.mjs;
+// versions in src/system/native-audio-compose.mjs and proof/intro-reference/intro-setup.mjs;
 // directory and block formats in
 // src/data/sound.mjs).
 //
@@ -20,7 +20,7 @@ import {
   AUDIO_DIRECTORY_POINTER,
   MUSIC,
   MUSIC_MODE_BYTE,
-} from '../task/wram.mjs';
+} from '../data/wram.mjs';
 import { APUIO0, APUIO1, APUIO2 } from '../constants/hardware-registers.mjs';
 import {
   APU_COMMAND_SONG,

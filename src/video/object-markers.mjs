@@ -14,7 +14,7 @@
 // Where: BCBE tests the glove pixel (01D4/01D6 high bytes) with four linear
 // conditions per object, so the hit area is a screen rectangle. The equations
 // below are BCBE's with the action glove limits 01E4 = 0600, 01E6 = 0C00
-// (80:BC67, src/task/native-glove-crosshair-limits.mjs).
+// (80:BC67, src/script/native-glove-crosshair-limits.mjs).
 import {
   CAMERA_X,
   CAMERA_Y,
@@ -32,7 +32,7 @@ import {
   OBJECT_KIND,
   OBJECT_X,
   OBJECT_Y,
-} from '../task/wram.mjs';
+} from '../data/wram.mjs';
 import { KIND_TABLE } from '../data/kinds.mjs';
 import { WORD_MASK, BYTE_BITS } from '../constants/bits.mjs';
 import { RGBA_BYTES, SCREEN_HEIGHT, SCREEN_WIDTH } from '../constants/ppu.mjs';
@@ -47,7 +47,7 @@ const KIND_ENTRY_BYTES = 6,
 const SIGN_BIT = 0x8000;
 // BCBE works in quarter pixels: the distances are shifted right twice.
 const QUARTER_SHIFT = 2;
-// Glove kind of the open action glove (src/task/wram.mjs GLOVE_KIND).
+// Glove kind of the open action glove (src/data/wram.mjs GLOVE_KIND).
 const ACTION_GLOVE = 0xffff;
 // Ring around the box centre (the point where the glove names the object):
 // the radius grows from RING_START to RING_END pixels during one pulse; the

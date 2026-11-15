@@ -1,5 +1,5 @@
 // Random per-function tests of the lifted sight natives (src/game/combat-targets.mjs
-// with src/game/line-of-sight.mjs, bridges in src/task/native-script-leaves.mjs)
+// with src/game/line-of-sight.mjs, bridges in src/script/native-script-leaves.mjs)
 // against their register-level references: the enemy's target 80:8BC5, the nearest
 // visible member 80:8C08, the random fight target 80:8C8D and the attack test 80:8CCF.
 // Both sides run the native from its script call (data bank 80, direct page 0, the RTS
@@ -19,9 +19,9 @@ import {
   findNearestVisibleMemberNative,
   chooseRandomFightTargetNative,
   canAttackNative,
-} from '../src/task/native-script-leaves.mjs';
+} from '../src/script/native-script-leaves.mjs';
 import { testLineOfSight } from '../proof/replay/line-of-sight.mjs';
-import { leafAccess } from '../src/task/native-leaf-support.mjs';
+import { leafAccess } from '../src/system/native-leaf-support.mjs';
 import { lineOfSight } from '../src/game/line-of-sight.mjs';
 import { accessorPort } from '../src/system/hardware-port.mjs';
 

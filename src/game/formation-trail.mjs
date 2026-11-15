@@ -12,7 +12,7 @@
 // The original reads the figure's tables through its data bank 80, with the slot as
 // a 16-bit index that wraps within the low WRAM mirror (the slot FFFF, no figure,
 // reads the word before each table); the ring is indexed long in bank 7E.
-import { taskStop } from '../task/plan.mjs';
+import { taskStop } from '../system/task-stop.mjs';
 import {
   FORMATION_DIRECTION,
   FORMATION_HEIGHT,
@@ -27,7 +27,7 @@ import {
   OBJECT_Y,
   PLAYER_HIT_FRAMES,
   PLAYER_OBJECT,
-} from '../task/wram.mjs';
+} from '../data/wram.mjs';
 import { BYTE_BITS, BYTE_MASK, WORD_MASK, WORD_SIGN } from '../constants/bits.mjs';
 
 const UNMOVED = WORD_MASK,

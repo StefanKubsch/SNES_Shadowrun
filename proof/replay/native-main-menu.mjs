@@ -1,19 +1,19 @@
 import { withInterruptEvents } from './observed-native-events.mjs';
-import { taskStop } from '../../src/task/plan.mjs';
-import { dialogAccess } from '../../src/task/native-dialog-support.mjs';
+import { taskStop } from '../../src/system/task-stop.mjs';
+import { dialogAccess } from '../../src/system/native-dialog-support.mjs';
 import {
   observedContinuation,
   drainNativeSequence,
   dialogCallSequence,
   dialogCallBody,
-} from '../../src/task/native-call-continuation.mjs';
+} from '../../src/system/native-call-continuation.mjs';
 import { validateDialogTaskOptions } from './native-dialog.mjs';
-import { lagFree } from '../../src/task/main-wait-interrupt.mjs';
+import { lagFree } from '../../src/system/main-wait-interrupt.mjs';
 import { STATUS_SCREEN_ROUTINES } from './native-status-screen.mjs';
-import { chooseFromNumberedMenuWithSelectionAdapter } from '../../src/task/native-menu-compose.mjs';
+import { chooseFromNumberedMenuWithSelectionAdapter } from '../../src/system/native-menu-compose.mjs';
 import { playSoundEffectRoutine } from '../../src/apu/sound-effect.mjs';
 import { raiseMemberStateCount } from './native-state-count-raise.mjs';
-import { raiseMemberMagicPoints } from '../../src/task/native-magic-points-raise.mjs';
+import { raiseMemberMagicPoints } from '../../src/script/native-magic-points-raise.mjs';
 
 import {
   KARMA,
@@ -61,7 +61,7 @@ import {
   DP_CHECKSUM_SECOND_SUM,
   DP_CHECKSUM_WORD,
   DP_CHECKSUM_HIGH,
-} from '../../src/task/wram.mjs';
+} from '../../src/data/wram.mjs';
 import {
   SLOT_OFFSETS_FOUR,
   saveSlotCount,

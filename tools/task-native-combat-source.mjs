@@ -10,7 +10,7 @@ const sight = [
   'RTL',
   'line of sight, proof/replay/line-of-sight.mjs (tools/task-sight-a25f-source.mjs)',
 ];
-const random = [0x80c51f, 'RTS', 'random below DP00, src/task/native-random.mjs'];
+const random = [0x80c51f, 'RTS', 'random below DP00, src/system/native-random.mjs'];
 const notice = [0x80fec1, 'RTS', 'notice window, showNotice in proof/replay/native-notice.mjs'];
 // Proof figures per native: reachable instructions, local stack bytes, RTS exits.
 const FIGURES = {

@@ -7,7 +7,7 @@
 // them. The original forms the entry offset 6 * kind as 2 * kind plus 4 * kind with an
 // ADC whose carry is the bit the second doubling shifted out (bit 14 of the kind), all
 // in 16 bits; for the game's kinds that carry is zero.
-import { OBJECT_KIND, WRAM } from '../task/wram.mjs';
+import { OBJECT_KIND, WRAM } from '../data/wram.mjs';
 import { ACTOR_KIND, ACTOR_TABLE } from '../data/actors.mjs';
 import { KIND_FLAGS_OFFSET, KIND_TABLE, KIND_VALUE_OFFSET } from '../data/kinds.mjs';
 import { LONG_MASK, WORD_BITS, WORD_MASK } from '../constants/bits.mjs';

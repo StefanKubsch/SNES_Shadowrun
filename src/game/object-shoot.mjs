@@ -27,12 +27,12 @@
 // 2026-11-13). Only the hit 80:8691, whose notices wait for frames, runs through its
 // JSR frame from the routine table, with the damage in A, the target in X and the
 // shooter in Y.
-import { nativeCallSequence } from '../task/native-call-continuation.mjs';
+import { nativeCallSequence } from '../system/native-call-continuation.mjs';
 import { dataBankWord, setDataBankWord } from '../system/data-bank.mjs';
 import { accessorPort } from '../system/hardware-port.mjs';
 import { drawBelowInDirectPage } from '../system/random.mjs';
 import { playSoundEffect } from '../apu/sound-effect.mjs';
-import { taskStop } from '../task/plan.mjs';
+import { taskStop } from '../system/task-stop.mjs';
 import { lineOfSight } from './line-of-sight.mjs';
 import { turnObject } from './object-turn.mjs';
 import { createObject } from './object-create.mjs';
@@ -81,8 +81,8 @@ import {
   WEAPON_RECORD_BANKS,
   WEAPON_RECORDS,
   WEAPON_SEARCH_LIMIT,
-} from '../task/native-object-shoot.mjs';
-import { DP_HIT_RESULT, DP_HIT_SHOOTER } from '../task/native-object-hit.mjs';
+} from '../data/native-object-shoot.mjs';
+import { DP_HIT_RESULT, DP_HIT_SHOOTER } from '../data/native-object-hit.mjs';
 import {
   DP_OBJECT_HEIGHT,
   DP_OBJECT_KIND,
@@ -104,7 +104,7 @@ import {
   PLAYER_OBJECT,
   RUNNER_WEAPON_KIND,
   RUNNER_WEAPON_RANGE,
-} from '../task/wram.mjs';
+} from '../data/wram.mjs';
 import {
   BYTE_BITS,
   BYTE_MASK,

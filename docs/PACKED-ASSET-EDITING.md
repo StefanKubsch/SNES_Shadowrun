@@ -49,7 +49,7 @@ does not grant permission to change or remove a byte.
 ## Source and reader contracts
 
 - [tiles.mjs](../src/data/tiles.mjs), `readTiles` and `placeTiles`, and
-  [main-scene-graphics.mjs](../src/task/main-scene-graphics.mjs), reader
+  [main-scene-graphics.mjs](../src/system/main-scene-graphics.mjs), reader
   `81:A1E1`: table `8D:A41F` supplies 1,536 pointers, with 256 streams per
   bank `82` to `87`. Each output is 128 bytes, four 8 by 8 tiles with indices
   0 to 15. Asset addresses point at the packing offset word. The native
@@ -67,7 +67,7 @@ does not grant permission to change or remove a byte.
   preserve original bytes when they still describe the output. Changed
   content can force greedy packing and therefore change the encoded length,
   even when dimensions and output length remain identical.
-- [native-unpack.mjs](../src/task/native-unpack.mjs), `80:9E65` bit helper:
+- [native-unpack.mjs](../src/system/native-unpack.mjs), `80:9E65` bit helper:
   bit refill reads a word, so an odd number of consumed bitstream bytes
   borrows one byte beyond the encoded source. The decoder reports consumed
   bytes, not this additional read. The final output token is copied in full;

@@ -8,7 +8,7 @@ import {
   prng,
   DialogTestMemory,
 } from './task-native-dialog-harness.mjs';
-import { dialogAccess } from '../src/task/native-dialog-support.mjs';
+import { dialogAccess } from '../src/system/native-dialog-support.mjs';
 import { TaskAccessor } from '../src/vm/task-accessor.mjs';
 import { proveWordStack } from './static-word-stack-proof.mjs';
 import {

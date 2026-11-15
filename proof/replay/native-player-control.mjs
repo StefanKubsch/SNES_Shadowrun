@@ -1,22 +1,22 @@
 import { withInterruptEvents } from './observed-native-events.mjs';
-import { taskStop } from '../../src/task/plan.mjs';
+import { taskStop } from '../../src/system/task-stop.mjs';
 import { fitListWindow } from '../../src/data/menu-layout.mjs';
-import { leafAccess, finishLeaf } from '../../src/task/native-leaf-support.mjs';
+import { leafAccess, finishLeaf } from '../../src/system/native-leaf-support.mjs';
 import {
   observedContinuation,
   drainNativeSequence,
   dialogCallSequence,
   dialogCallBody,
-} from '../../src/task/native-call-continuation.mjs';
-import { lagFree } from '../../src/task/main-wait-interrupt.mjs';
-import { dialogAccess } from '../../src/task/native-dialog-support.mjs';
-import { taskSelectionSupport } from '../../src/task/native-object-turn.mjs';
+} from '../../src/system/native-call-continuation.mjs';
+import { lagFree } from '../../src/system/main-wait-interrupt.mjs';
+import { dialogAccess } from '../../src/system/native-dialog-support.mjs';
+import { taskSelectionSupport } from '../../src/script/native-object-turn.mjs';
 import {
   applyGloveLimits,
   GLOVE_LIMITS,
   GLOVE_OVER_PLAYER,
-} from '../../src/task/native-glove-crosshair-limits.mjs';
-import { selectAnimationRegisters, turnRegisters } from '../../src/task/native-object-turn.mjs';
+} from '../../src/script/native-glove-crosshair-limits.mjs';
+import { selectAnimationRegisters, turnRegisters } from '../../src/script/native-object-turn.mjs';
 import {
   STATUS_SCREEN_ROUTINES,
   statusRoutineSequence,
@@ -77,7 +77,7 @@ import {
   DP_CURSOR_ROW,
   DP_MEMBER_RECORD,
   DP_MEMBER_RECORD_BANK,
-} from '../../src/task/wram.mjs';
+} from '../../src/data/wram.mjs';
 import {
   RUNNER_OBJECT_NUMBERS,
   RUNNER_RECORD_POINTERS,
@@ -278,7 +278,7 @@ function runGloveOverPlayer(h) {
   h.longWrite(h.abs(GLOVE_X), ctx.a);
 }
 
-// Switch the glove on: $BC36, then limits and kind (src/task/native-glove-crosshair-limits.mjs): $BC67 action glove,
+// Switch the glove on: $BC36, then limits and kind (src/script/native-glove-crosshair-limits.mjs): $BC67 action glove,
 // $BC80 crosshair, $BC99 spell glove.
 const GLOVE_ON = Object.freeze({ action: 0xbc67, crosshair: 0xbc80, spell: 0xbc99 });
 const GLOVES = {

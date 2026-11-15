@@ -1,16 +1,16 @@
 import { withInterruptEvents } from './observed-native-events.mjs';
-import { lagFree } from '../../src/task/main-wait-interrupt.mjs';
-import { dialogAccess } from '../../src/task/native-dialog-support.mjs';
-import { taskStop } from '../../src/task/plan.mjs';
-import { taskTextAccess } from '../../src/task/native-text-prerequisites.mjs';
-import { requestWindowUploadSequence } from '../../src/task/native-menu-compose.mjs';
-import { setTextCursor } from '../../src/task/native-list-prerequisites.mjs';
-import { printTextSequence } from '../../src/task/native-text-compose.mjs';
+import { lagFree } from '../../src/system/main-wait-interrupt.mjs';
+import { dialogAccess } from '../../src/system/native-dialog-support.mjs';
+import { taskStop } from '../../src/system/task-stop.mjs';
+import { taskTextAccess } from '../../src/system/native-text-prerequisites.mjs';
+import { requestWindowUploadSequence } from '../../src/system/native-menu-compose.mjs';
+import { setTextCursor } from '../../src/system/native-list-prerequisites.mjs';
+import { printTextSequence } from '../../src/system/native-text-compose.mjs';
 import {
   observedContinuation,
   drainNativeSequence,
-} from '../../src/task/native-call-continuation.mjs';
-import { setActionAndDirectionRegisters } from '../../src/task/native-object-turn.mjs';
+} from '../../src/system/native-call-continuation.mjs';
+import { setActionAndDirectionRegisters } from '../../src/script/native-object-turn.mjs';
 import { TEXT_NUMBERS } from './native-notice.mjs';
 import { DP_PORTRAIT_FRAME } from './native-dialog.mjs';
 
@@ -23,7 +23,7 @@ import {
   ROOM,
   WRAM,
   DP_CURSOR_ROW,
-} from '../../src/task/wram.mjs';
+} from '../../src/data/wram.mjs';
 import { WORD_MASK, BYTE_MASK, BANK_WRAP, BANK_SIZE } from '../../src/constants/bits.mjs';
 import {
   FLAG_INDEX_8BIT,

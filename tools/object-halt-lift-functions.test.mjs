@@ -1,6 +1,6 @@
 // Random per-function tests of the lifted script natives 80:8E96 and 80:8EB8, halting
 // and resuming an object and its task (src/game/object-halt.mjs through
-// src/task/native-object-halt-set.mjs), against their register-level references
+// src/script/native-object-halt-set.mjs), against their register-level references
 // (proof/game-reference/object-halt.mjs). Both run from their script call (data bank 80,
 // direct page 0, the RTS frame). The object is a game slot (rarely any word) with a task, none
 // or rarely any word; the task waits for a child up to three links deep, the links among
@@ -12,8 +12,8 @@ import {
   haltObjectReference,
   resumeObjectReference,
 } from '../proof/game-reference/object-halt.mjs';
-import { haltObject, resumeObject } from '../src/task/native-object-halt-set.mjs';
-import { OBJECT_TASK } from '../src/task/wram.mjs';
+import { haltObject, resumeObject } from '../src/script/native-object-halt-set.mjs';
+import { OBJECT_TASK } from '../src/data/wram.mjs';
 import { TASK_PREVIOUS, TASK_WAIT } from '../src/vm/layout.mjs';
 
 const WRAM_BYTES = 0x20000,

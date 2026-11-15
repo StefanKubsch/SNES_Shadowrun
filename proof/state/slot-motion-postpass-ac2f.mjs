@@ -13,7 +13,7 @@ import {
   VRAM_UPLOAD_SOURCES,
   VRAM_UPLOAD_BANKS,
   VRAM_UPLOAD_ADDRESSES,
-} from '../../src/task/wram.mjs';
+} from '../../src/data/wram.mjs';
 import { isWord } from '../script/runtime.mjs';
 import { isSlotActionData } from './slot-action-data.mjs';
 import {

@@ -1,6 +1,6 @@
 // Random per-function tests of the lifted equipment rows (src/game/equipment-window.mjs)
 // against the register-level 80:E9C5 with its item text 80:E9A8
-// (src/task/native-member-spell-menu.mjs). Both sides call the same stand-ins for the
+// (src/data/native-member-spell-menu.mjs). Both sides call the same stand-ins for the
 // cursor 80:FAAC, the text 80:FE69 and the number 80:FD80. Each records its target, A,
 // X, Y, the flags N, V, Z and C, the direct page words 00 and 02, S and the three words
 // above its return word (the pushed armour, rating and weapon), and leaves
@@ -18,8 +18,8 @@ import {
   RUNNER_ARMOUR,
   RUNNER_ARMOUR_RATING,
   RUNNER_WEAPON,
-} from '../src/task/wram.mjs';
-import { drainNativeSequence } from '../src/task/native-call-continuation.mjs';
+} from '../src/data/wram.mjs';
+import { drainNativeSequence } from '../src/system/native-call-continuation.mjs';
 
 const WRAM_BYTES = 0x20000,
   HEX = 16,
