@@ -252,6 +252,45 @@ values wait with it in order. The driver never reads these registers.
   Empty PCM blocks from startup frames are ignored by the queue so they
   cannot introduce an undefined sample into the persistent filter state.
 
+### Recording investigation: music after the train (2026-11-15)
+
+The user reported missing or delayed parts of the Original soundtrack after a train
+journey in `Shadowrun-recording-2026-11-15T17-20-23-909Z.json`, starting from save
+slot 1. On commit `845ff3e`, the recording replays through NMI 3937 with all four
+recorded WRAM checks equal and no input-path difference. Its embedded SRAM equals
+the supplied `Shadowrun.srm` byte for byte. The music changes to mode 7 (Morgue) at
+NMI 3253, after the train sequence.
+
+The apparent missing parts come from the original driver's voice priorities:
+
+- The walking sound is driver sound `$0D`, sent with command `$05` and voice mask
+  `$0C` (voices 2 and 3). Its sound entry has priority `$3A` (58).
+- Song track 1 uses voice 3 alone (mask `$08`); sound `$4D` has priority 1.
+  Song track 7 uses voice 2 alone (mask `$04`); sound `$3F` has priority 5.
+- The voice search `$043F` and admission `$0776` reject a new sound when the selected
+  voice has a higher priority, returning through `$076C`. The walking sound can
+  replace a music note, and a music note cannot replace a walking sound still active.
+  Refused notes are discarded; the sequencer continues to the next event.
+
+The native run rejects nine song notes after arrival: one on track 7 at NMI 3275,
+and eight on track 1. With no walking sounds during the pause after NMI 3535,
+the later notes on track 1 are admitted again. Thus a part can disappear while
+walking and return only at a later note, without any delayed sample upload.
+
+Two comparisons check this interpretation. Replaying the entire recording's APU
+traffic on the original SPC700 instructions
+([spc700-reference.mjs](../tools/spc700-reference.mjs)) gives identical ARAM outside
+the SPC stack and identical DSP registers at every NMI. Separately, a temporary
+synthetic CPU ROM sent the same port traffic through real CPU bus accesses to the
+original uploaded SPC program in Mesen 2.2.1. That run also rejects one track-7 note
+and eight track-1 notes at `$076C`; the missing music voices occur there as well.
+The synthetic CPU's port handshakes take real time, so individual note/frame
+alignments can differ from the infinitely fast model. This is an audio-driver
+comparison, not a frame-exact replay of the original game's complete train route.
+
+No game behavior is changed for this report. Host playback underruns are a separate
+limit and are not measured by the input recording.
+
 ### Limits
 
 - `sound_driver_command_unknown` (command ≥ $1A), `sound_driver_code_write`
