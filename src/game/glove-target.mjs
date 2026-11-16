@@ -1,3 +1,4 @@
+import { frameWaitCallSequence } from '../system/live-input-calls.mjs';
 // Choosing with the action or spell glove (lifted from the script natives 80:8D0B and its
 // relatives; register-level version in proof/replay/native-glove-target.mjs, which
 // recorded waits and inputs replay).
@@ -149,7 +150,9 @@ const FRAME_WAIT = 0x81b0a1,
   REQUEST_UPLOAD = 0x81acb5;
 // A callee at its call site with its own callee table.
 const callSequence = (h, events, routines, pc, target, long = false) =>
-  nativeCallSequence(h, events, routines, pc, target, long, false);
+  target === FRAME_WAIT
+    ? dialogCallBody(h, pc, target, () => frameWaitCallSequence(h, events), true)
+    : nativeCallSequence(h, events, routines, pc, target, long, false);
 
 const word = (wram, at) => wram[at] | (wram[at + 1] << BYTE_BITS);
 const setWord = (wram, at, value) => {

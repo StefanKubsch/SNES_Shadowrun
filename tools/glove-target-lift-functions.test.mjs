@@ -24,7 +24,7 @@ import {
   scriptChooseObjectNumberSequence,
   scriptChooseObjectSequence,
   spellGloveTargetSequence,
-} from '../src/game/glove-target.mjs';
+} from '../proof/caller/glove-target.mjs';
 import {
   MEMBER_MENU_ACTIVE,
   OBJECT_FLAGS,

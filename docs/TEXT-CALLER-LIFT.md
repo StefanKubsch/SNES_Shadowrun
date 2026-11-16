@@ -937,3 +937,11 @@ renderer. Real glove-to-dialog routes compare Exit, cancel and a terminating
 talk action, including actual portraits, scene close and task event bits. The
 action API receives only a renderer; main-upkeep drops the final action service
 table. Its timer entry also stops passing that obsolete table as a renderer.
+
+### Block 6: choice frame wait
+
+Glove choices compose the live word wait directly through their original long
+frames. Former choices retain independent random original comparisons. New
+real caller comparisons cover immediate and delayed choosing buttons, target
+and no target, both budgets, real pad state and real glove release. Movement
+remains a controlled boundary in these caller cases.
