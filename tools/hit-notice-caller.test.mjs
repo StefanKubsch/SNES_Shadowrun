@@ -5,7 +5,7 @@ import { hitObjectSequence } from '../src/game/object-hit.mjs';
 import { hitObjectSequence as formerHit } from '../proof/caller/object-hit.mjs';
 import * as W from '../src/data/wram.mjs';
 
-function runHit(sequence, hits, karma, request, budget) {
+function runHit(sequence, hits, karma, request, budget, pads = [0x8000]) {
   const notice = hits === 3 || (hits === 7 && karma >= 8);
   return compareRun(
     sequence,
@@ -18,7 +18,7 @@ function runHit(sequence, hits, karma, request, budget) {
       put(W.TEXT_MAP_UPLOAD, request);
     },
     budget,
-    notice ? [0x8000] : [],
+    notice ? pads : [],
     true,
     ({ h, mem, put, events, calls }) => {
       const service = events.interrupts.textWait;
@@ -53,3 +53,13 @@ for (const budget of [1, 7])
           );
           assert.equal(actual.uploads.length > 0, notice);
         });
+
+for (const budget of [1, 7])
+  for (const hits of [3, 7])
+    for (const key of [0x8000, 0x4000, 0x2000, 0x80, 0x40])
+      test(`hit confirmation: hits ${hits}, key ${key}, budget ${budget}`, () => {
+        const pads = [0, 0x100, 0, key];
+        const actual = runHit(hitObjectSequence, hits, 8, 0, budget, pads);
+        assert.deepEqual(actual, runHit(formerHit, hits, 8, 0, budget, pads));
+        assert.equal(actual.input, pads.length);
+      });

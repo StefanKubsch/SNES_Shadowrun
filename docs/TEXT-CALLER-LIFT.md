@@ -938,6 +938,21 @@ talk action, including actual portraits, scene close and task event bits. The
 action API receives only a renderer; main-upkeep drops the final action service
 table. Its timer entry also stops passing that obsolete table as a renderer.
 
+The user's recording `Shadowrun-recording-2026-11-16T17-17-45-948Z.json`
+confirms this timer defect. Restoring a table as the timer's third argument
+reproduces `TypeError: renderBuffer is not a function` after NMI 74429, in
+`printTextSequence` called by `showNoticeSequence` for the Cortex bomb hour
+notice. This is already corrected by commit `50fab85`.
+
+The current code replays through NMI 74429 with rendered frames, all 75 WRAM
+checks equal and no input-path difference. A second state replay, omitting
+pixel rendering only, continues through NMI 74439 without a fault; restoring
+the obsolete timer argument in that same diagnostic reproduces the exception.
+The recording embeds its exact starting SRAM. The current `Shadowrun.srm`
+differs in 25 bytes, all within save slot 1, so the embedded image is used.
+The existing `main timer actual renderer` caller cases retain regression
+coverage for one hour, multiple hours and a stopped timer at both budgets.
+
 ### Block 6: choice frame wait
 
 Glove choices compose the live word wait directly through their original long

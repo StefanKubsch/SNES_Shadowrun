@@ -32,6 +32,7 @@
 // notice window, text and word waits compose directly through their frames.
 // Confirmation, release and the player window list retain routine services.
 import { printTextSequence } from './text-print.mjs';
+import { waitForConfirmKeySequence } from './confirm-key.mjs';
 import { drawTextBufferSequence } from './text-draw.mjs';
 import { frameWaitCallSequence } from '../system/live-input-calls.mjs';
 import { openWindowSequence } from './window-open.mjs';
@@ -170,7 +171,7 @@ function* noticeSequence(h, events, routines, renderBuffer, notice, calls) {
     };
     yield* dialogCallBody(h, calls.wait, WORD_WAIT, () => frameWaitCallSequence(h, events), true);
   }
-  yield* call(calls.key, CONFIRM_KEY);
+  yield* dialogCallBody(h, calls.key, CONFIRM_KEY, () => waitForConfirmKeySequence(h, events));
   yield* call(calls.release, RELEASE_WINDOW);
 }
 
