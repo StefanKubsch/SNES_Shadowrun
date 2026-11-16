@@ -35,6 +35,8 @@ import { setTextCursorRoutine, printNumberSequence } from './window-text.mjs';
 import { printTextSequence } from './text-print.mjs';
 import { decimalNumberSequence } from './decimal-number.mjs';
 import { drawTextBufferSequence } from './text-draw.mjs';
+import { equipmentRowsSequence } from './equipment-window.mjs';
+import { memberPortraitSequence } from './member-portrait.mjs';
 import { taskStop } from '../system/task-stop.mjs';
 import { dataBankWord, setDataBankWord } from '../system/data-bank.mjs';
 import { DP_SCRATCH, STATUS_LAYOUT } from '../data/native-member-spell-menu.mjs';
@@ -435,8 +437,10 @@ export function* statusScreenSequence(
   yield* text(0x80ec6c, TEXT_WEAPON);
   yield* cursor(0x80ec79, STATUS_ROWS.labelColumn, STATUS_ROWS.armourLabelRow);
   yield* text(0x80ec81, TEXT_ARMOUR);
-  yield* call(0x80ec84, EQUIPMENT_ROWS);
-  yield* call(0x80ec87, PORTRAIT);
+  yield* dialogCallBody(h, 0x80ec84, EQUIPMENT_ROWS, () =>
+    equipmentRowsSequence(h, events, renderBuffer),
+  );
+  yield* dialogCallBody(h, 0x80ec87, PORTRAIT, () => memberPortraitSequence(h, events));
 
   let direct;
   yield () => {

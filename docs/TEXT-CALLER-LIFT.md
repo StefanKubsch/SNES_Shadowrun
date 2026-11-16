@@ -480,3 +480,14 @@ skipped byte, byte maxima, magic scaling and bank restoration remain unchanged.
 The independent caller suite adds default live glyph comparisons for Jake and
 another runner at both budgets. Existing status fixtures use maximum karma
 and money, capture every text payload and compare full game state and uploads.
+
+## Member and scene batch: status equipment and portraits (2026-11-16)
+
+The status caller composes equipment rows and member portraits directly.
+Caller comparisons now use the independently retained real portrait caller,
+including real unpacking, both uploads and eleven colour-window frames. The
+fixture relocates the CPU stack, captures full portrait payloads, palettes,
+HDMA bytes and final edges explicitly, and excludes only that relocated stack
+from game-state snapshots. Jake's alternate portrait adds two boundary cases.
+The fixture services NMI requests; existing real integrations retain device
+and NMI coverage. Sound, colour setup and scene cleanup remain services.
