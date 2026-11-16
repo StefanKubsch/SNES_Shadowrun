@@ -459,28 +459,22 @@ export const liftedReleaseGloveSequence = (h, events) => releaseGloveSequence(h,
 // The lifted confirm key wait 80:F953 with the lifted word wait and pad word, as the
 // script native runs it with lag-free frames.
 export const liftedConfirmKeySequence = (h, events) => waitForConfirmKeySequence(h, events);
-// The remaining services of glove choices: movement, window map preparation
-// and an open member menu's dialog close. Each receives its own callees.
-const GLOVE_CHOICE_ROUTINES = new Map([[0x80be6d, runGloveMove]]);
 // The lifted choice of the object under the glove 80:8D0B, as the script native runs it
 // with lag-free frames.
 export const liftedChooseUnderGloveSequence = (h, events) =>
-  chooseObjectUnderGloveSequence(h, events, GLOVE_CHOICE_ROUTINES);
+  chooseObjectUnderGloveSequence(h, events);
 // The lifted choices in reach 80:9BC6, 80:9BB9 and 80:9C33, as the script natives run
 // them with lag-free frames.
-export const liftedChooseNumberSequence = (h, events) =>
-  chooseObjectNumberSequence(h, events, GLOVE_CHOICE_ROUTINES);
+export const liftedChooseNumberSequence = (h, events) => chooseObjectNumberSequence(h, events);
 export const liftedScriptChooseNumberSequence = (h, events) =>
-  scriptChooseObjectNumberSequence(h, events, GLOVE_CHOICE_ROUTINES);
+  scriptChooseObjectNumberSequence(h, events);
 export const liftedScriptChooseObjectSequence = (h, events) =>
-  scriptChooseObjectSequence(h, events, GLOVE_CHOICE_ROUTINES);
+  scriptChooseObjectSequence(h, events);
 // The lifted spell glove target 80:9BD3, as the script native runs it with lag-free
 // frames.
-export const liftedSpellGloveTargetSequence = (h, events) =>
-  spellGloveTargetSequence(h, events, GLOVE_CHOICE_ROUTINES);
+export const liftedSpellGloveTargetSequence = (h, events) => spellGloveTargetSequence(h, events);
 // The lifted place choice 80:C724, as the script native runs it with lag-free frames.
-export const liftedChoosePlaceSequence = (h, events) =>
-  choosePlaceWithGloveSequence(h, events, GLOVE_CHOICE_ROUTINES);
+export const liftedChoosePlaceSequence = (h, events) => choosePlaceWithGloveSequence(h, events);
 // The lifted hit 80:8691 (src/game/object-hit.mjs), called with JSR by the shooting
 // natives and the blast: its notices' window, text, word wait, confirm key and release
 // and the player hit's window list run lifted through their frames.

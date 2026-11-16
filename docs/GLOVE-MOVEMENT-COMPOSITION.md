@@ -52,3 +52,13 @@ member menu is open. The caller comparison reaches portrait closing, actual
 tile reload and sprite rebuilding, both font DMA setups and input refresh
 before target selection. Closed-menu routes still bypass this close.
 Main-upkeep retains only movement in its choice table.
+
+## Block 7: complete choice movement
+
+All six choice entries compose real glove movement and object search, passing
+only their text renderer. Main-upkeep removes the last choice table.
+The prior controlled-movement comparison remains explicitly retained in
+proof/caller/glove-choice-services.mjs; it does not claim the new movement
+integration. New full callers acquire real objects and names, move and
+release them, and compare all six result paths with the former orchestration
+at both budgets. Frame policy, reach and projection equations are unchanged.

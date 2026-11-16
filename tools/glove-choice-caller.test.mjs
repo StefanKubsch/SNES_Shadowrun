@@ -1,7 +1,9 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { compareRun } from './member-menu-caller-harness.mjs';
-import * as direct from '../src/game/glove-target.mjs';
+// Retain the controlled movement boundary of the earlier service composition.
+// Actual movement callers are compared in glove-choice-movement-caller.test.mjs.
+import * as direct from '../proof/caller/glove-choice-services.mjs';
 import * as former from '../proof/caller/glove-target.mjs';
 import { showNoticeSequence } from '../proof/caller/notice-show.mjs';
 import { runDrawWindowList } from '../proof/caller/window-list.mjs';
