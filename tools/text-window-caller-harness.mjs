@@ -29,7 +29,8 @@ import {
   WINDOW_NEXT_TILE,
 } from '../src/data/wram.mjs';
 
-const FIXTURE_SEED = 17,
+const HEX_RADIX = 16,
+  FIXTURE_SEED = 17,
   WRAM_BASE = 0x7e0000,
   WRAM_BYTES = 0x20000,
   GAME_STATE_START = 0x1cc,
@@ -123,7 +124,10 @@ export function textWindowSide() {
     uploads = [],
     calls = [];
   frames.textWait = (_h, _events, _status, pc) => {
-    assert.ok(UPLOAD_REQUESTS.has(pc), 'only known text/window upload branches');
+    assert.ok(
+      UPLOAD_REQUESTS.has(pc),
+      `only known text/window upload branches: ${pc.toString(HEX_RADIX)}`,
+    );
     uploads.push([pc, mem.wram.slice(GAME_STATE_START)]);
     if (pc === 0x81accc) mem.wram.fill(0, TEXT_MASK_BUFFER, TEXT_MASK_BUFFER + MASK_BYTES);
     put(UPLOAD_REQUESTS.get(pc), 0);
@@ -174,5 +178,8 @@ export function finishTextWindow(side, sequence, budget) {
 export function rendererTable(side) {
   // Preserve pausing on the dispatched side without sharing its caller.
   const run = () => assert.fail('renderer requires continuation');
-  return { run, create: () => new NativeCallContinuation(side.a, side.render(side.h, side.events)) };
+  return {
+    run,
+    create: () => new NativeCallContinuation(side.a, side.render(side.h, side.events)),
+  };
 }

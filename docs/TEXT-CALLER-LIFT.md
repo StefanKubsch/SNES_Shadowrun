@@ -595,3 +595,26 @@ category tiles and releases its detail/category/balance windows. Exit and cancel
 cover no pending windows, notice, glove and both; all category detail windows
 open and close at both budgets. Default glyph cases include pending cleanup.
 Category selection, balance and lists retain services until the final phase.
+
+### Block 10: karma orchestration and live entry
+
+Karma directly composes balance, category selection and all three upgrade lists,
+forwarding the renderer through main and save callers. The main-upkeep table
+now holds only sound, state-count refill and magic refill. Direct comparison
+callers receive only those surviving services, preventing hidden fallback to
+menu tables. Full routes buy or reject a step in each category, return to the
+category menu and exit, checking cost, value, refill calls and consumed input.
+All categories and both main submenus also compare real default glyphs with
+the independently retained former composition at both budgets.
+
+All ten phases have focused-check commits. Shared release and delivery state
+belong in HANDOFF.md. Hardware, SRAM format, sound and frame policy are unchanged.
+The remaining scene services are separate work; shape editing and S-MIX stay
+deferred.
+
+The actual main-upkeep entry comparisons also use real runner refills, checking
+health and magic restoration. Importing the scene graph installs an observed
+wait factory for the same address as the fixture's live wait. The menu fixture
+now binds its live wait by its own function identity, so retained caller tests
+keep their explicit live-wait contract regardless of those scene imports.
+Unexpected upload waits report their original address for diagnosis.

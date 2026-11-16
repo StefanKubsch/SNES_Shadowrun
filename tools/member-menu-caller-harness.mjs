@@ -10,7 +10,7 @@ import { releaseWindowSequence } from '../proof/caller/window-release.mjs';
 import { chooseFromMenuSequence } from '../proof/caller/menu-choice.mjs';
 import { setTextCursorRoutine, printNumberSequence } from '../proof/caller/window-text.mjs';
 import { printTextSequence } from '../proof/caller/text-print.mjs';
-import { runFrameWait, runPadPresses } from '../src/system/live-input-calls.mjs';
+import { frameWaitCallSequence, runPadPresses } from '../src/system/live-input-calls.mjs';
 import { playSoundEffectRoutine } from '../src/apu/sound-effect.mjs';
 import {
   NativeCallContinuation,
@@ -45,7 +45,6 @@ export function compareRun(
     return true;
   };
   const routines = new Map([
-      [0x81b0a1, runFrameWait],
       [0x809e1a, runPadPresses],
       [0x80c46e, playSoundEffectRoutine],
     ]),
@@ -59,6 +58,9 @@ export function compareRun(
       create: () => new NativeCallContinuation(a, body()),
     });
   }
+  // Keep the fixture's live wait independent of register-level factories installed
+  // by scene imports for the same target.
+  bind(0x81b0a1, () => frameWaitCallSequence(h, events));
   bind(0x80f963, () => openWindowSequence(h, events));
   bind(0x80a6c7, () => chooseFromMenuSequence(h, events, routines, 0x80a6c7));
   bind(0x80fa3e, function* () {

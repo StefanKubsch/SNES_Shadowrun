@@ -94,14 +94,7 @@ import { equipmentRowsSequence } from './equipment-window.mjs';
 import { memberPortraitSequence } from './member-portrait.mjs';
 import { ITEMS_ENTRY, NATIVE_ENTRY, START_ENTRY, statusScreenSequence } from './status-screen.mjs';
 import { notesSequence, skillsSequence } from './status-submenus.mjs';
-import { KARMA_LISTS } from '../system/native-main-menu.mjs';
-import {
-  buyStepSequence,
-  karmaLineSequence,
-  karmaListSequence,
-  karmaMenuSequence,
-} from './karma-menu.mjs';
-import { mainMenuSequence, saveMenuSequence } from './main-menu.mjs';
+import { mainMenuSequence } from './main-menu.mjs';
 import { playerZonesSequence } from './player-zones.mjs';
 import { appendScriptTaskCall } from '../script/task-api.mjs';
 import { moveAndAnimate } from './object-motion.mjs';
@@ -571,55 +564,16 @@ const runStatusScreen = sequenceRun((h, events) =>
 // The lifted status screen as the script native 80:EA6E runs it with lag-free frames.
 export const liftedStatusScreenSequence = (h, events) =>
   statusScreenSequence(h, events, STATUS_SCREEN_LIFT_ROUTINES, NATIVE_ENTRY);
-// The lifted main menu 80:CE6D with the lifted save menu 80:CDD6, karma menu 80:EE57,
-// its lists, line and purchase, window, text, cursor, number, releases, glove and plain
-// menu, window redraw, key wait and numbered menu; the state count and magic points
-// run their lifted bodies (src/game/runner-state.mjs), the save 81:B17D is saveGame of
-// src/game/save-slots.mjs.
-const MAIN_MENU_LIFT_ROUTINES = new Map(LIVE_MENU_ROUTINES)
-  .set(0x80f963, runOpenWindow)
-  .set(0x80fe69, runPrintText)
-  .set(0x80faac, setTextCursorRoutine)
-  .set(0x80fd80, runPrintNumber)
-  .set(0x80fa3e, runReleaseWindow)
-  .set(0x80a6c7, runPlainMenu)
-  .set(0x80ff79, runReleaseNoticeWindows)
-  .set(0x80bcb2, runPutGloveAway);
-MAIN_MENU_LIFT_ROUTINES.set(
-  0x80ef82,
-  sequenceRun((h, events) => karmaLineSequence(h, events)),
-)
-  .set(
-    0x80f006,
-    sequenceRun((h, events) => buyStepSequence(h, events)),
-  )
-  .set(
-    0x80ee57,
-    sequenceRun((h, events) => karmaMenuSequence(h, events, MAIN_MENU_LIFT_ROUTINES)),
-  )
-  .set(
-    0x80cdd6,
-    sequenceRun((h, events) => saveMenuSequence(h, events, MAIN_MENU_LIFT_ROUTINES)),
-  );
-for (const entry of Object.keys(KARMA_LISTS).map(Number))
-  MAIN_MENU_LIFT_ROUTINES.set(
-    entry,
-    sequenceRun((h, events) => karmaListSequence(h, events, MAIN_MENU_LIFT_ROUTINES, entry)),
-  );
-// The menus' callees that are lifted on their own: the numbered menus, the tile clear,
-// the confirm key wait, the window list from the first window, the object creation and
-// the script task append 80:C34A (the spell menu's; it leaves A the new task, which
-// the visit 80:C1CA reads).
-MAIN_MENU_LIFT_ROUTINES.set(0x80a6ad, runNumberedMenu)
-  .set(0x80a6b8, runNumberedMenuAt)
-  .set(0x80fa67, runTileClear)
-  .set(0x80f953, runConfirmKey)
-  .set(0x81aeb0, runResetWindowList)
-  .set(0x80a835, runCreateObject)
-  .set(0x80c34a, (h) => appendScriptTaskCall(h.a));
+// Main/save/karma menus compose windows, text, selection and submenus directly.
+// Sound and runner resource refill remain explicit services.
+const MAIN_MENU_SERVICES = new Map([
+  [0x80c46e, playSoundEffectRoutine],
+  [0x80cecb, runRaiseStateCount],
+  [0x80cf2e, (h) => raiseMemberMagicPoints(h.a, false)],
+]);
 // The lifted main menu as the script native 80:CE6D runs it with lag-free frames.
 export const liftedMainMenuSequence = (h, events) =>
-  mainMenuSequence(h, events, MAIN_MENU_LIFT_ROUTINES);
+  mainMenuSequence(h, events, MAIN_MENU_SERVICES);
 // The lifted player control 80:E014 with the lifted party status, window, text,
 // release, glove release, turn, animation selection 80:A985, status screen and key
 // wait.

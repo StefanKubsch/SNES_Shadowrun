@@ -28,8 +28,8 @@
 // his count maximum 7E:3C00 by ten for a Body step and the leader's state count by ten
 // (80:CECB). The callees (window 80:F963, redraw 80:FA67, cursor 80:FAAC, text
 // 80:FE69, number 80:FD80, key wait 80:F953, release 80:FA3E, numbered menu 80:A6B8,
-// state count 80:CECB and the line and purchase above) run through their frames from
-// the routine table.
+// state count 80:CECB and the line and purchase above) compose through their original
+// frames. Only state count and magic refill retain an explicit service table.
 import {
   dialogCallBody,
   segmentSequence,
@@ -383,7 +383,7 @@ export function* karmaListSequence(
 }
 
 // 80:EE57: the karma menu (see above). A sequence that ends with its RTS.
-export function* karmaMenuSequence(h, events, routines) {
+export function* karmaMenuSequence(h, events, routines, renderBuffer = drawTextBufferSequence) {
   const { ctx } = h,
     { mem } = h.a,
     { wram } = mem,
@@ -447,7 +447,7 @@ export function* karmaMenuSequence(h, events, routines) {
       ? listTextIds(mem, CODE_BANK_BASE | KARMA_MENU_ITEMS, KARMA_WINDOWS.categoryVisibleRows)
       : [],
   );
-  yield* call(h, events, routines, 0x80eead, KARMA_LINE);
+  yield* dialogCallBody(h, 0x80eead, KARMA_LINE, () => karmaLineSequence(h, events, renderBuffer));
   // Translated category and upgrade labels cannot both fit across thirty tiles: the
   // detail windows go below the categories instead of beside them.
   const detailTop = language
@@ -477,7 +477,9 @@ export function* karmaMenuSequence(h, events, routines) {
       setWord(wram, DP_LIST_TOKEN_BANK, CODE_BANK);
       load(ctx, CODE_BANK);
     };
-    yield* call(h, events, routines, 0x80eece, PLAIN_MENU);
+    yield* dialogCallBody(h, 0x80eece, PLAIN_MENU, () =>
+      chooseFromMenuSequence(h, events, renderBuffer, PLAIN_MENU),
+    );
     let chosen;
     yield () => {
       chosen = word(wram, 0);
@@ -522,7 +524,9 @@ export function* karmaMenuSequence(h, events, routines) {
         if (row === FIRST_LIST_ROW) [pc, entry] = [0x80ef32, KARMA_LIST_FIRST];
       }
     };
-    yield* call(h, events, routines, pc, entry);
+    yield* dialogCallBody(h, pc, entry, () =>
+      karmaListSequence(h, events, routines, entry, renderBuffer),
+    );
     yield* release(0x80ef3f, KARMA_LIST_WINDOW);
     yield* release(0x80ef47, KARMA_HEADER_WINDOW);
   }

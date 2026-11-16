@@ -1,6 +1,9 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { compareRun } from './member-menu-caller-harness.mjs';
+import { liftedMainMenuSequence } from '../src/game/main-upkeep.mjs';
+import { raiseStateCountSequence } from '../src/game/runner-state-call.mjs';
+import { raiseMemberMagicPoints } from '../src/script/native-magic-points-raise.mjs';
 import * as directMain from '../src/game/main-menu.mjs';
 import * as formerMain from '../proof/caller/main-menu.mjs';
 import { installPortExtension } from '../src/data/port-extension.mjs';
@@ -13,19 +16,38 @@ import { KARMA_LISTS } from '../src/system/native-main-menu.mjs';
 
 import * as W from '../src/data/wram.mjs';
 
-function runMain(direct, budget, pads, realDrawing = false) {
+function runMain(direct, budget, pads, realDrawing = false, liveEntry = false) {
   let services;
   return compareRun(
     (h, events, renderer) =>
-      (direct ? directMain : formerMain).mainMenuSequence(
-        h,
-        events,
-        services,
-        direct ? renderer : undefined,
-      ),
+      liveEntry && direct
+        ? liftedMainMenuSequence(h, events)
+        : (direct ? directMain : formerMain).mainMenuSequence(
+            h,
+            events,
+            services,
+            direct ? renderer : undefined,
+          ),
     direct,
-    ({ put }) => {
+    ({ put, mem }) => {
       put(W.TIMER, 0xffff);
+      if (liveEntry) {
+        const number = mem.read16(0x809700),
+          record = mem.read16(0x80971a);
+        put(W.PLAYER_OBJECT, 2);
+        put(W.OBJECT_NUMBER + 2, number);
+        put(W.OBJECT_RECORD + 2, 0x6200);
+        mem.wram[record + 5] = 40;
+        mem.wram[record + 1] = 3;
+        mem.wram[0x6202] = 2;
+        mem.wram[W.MAGIC_POINTS] = 1;
+        put(W.GROUP_INDEX, 0);
+        put(W.GROUP_NUMBERS, number);
+        mem.wram[record + 1] = 3;
+        mem.wram[record + 5] = 40;
+        mem.wram[0x6202] = 1;
+        mem.wram[W.MAGIC_POINTS] = 1;
+      }
       put(W.GLOVE_KIND, 3);
       for (let n = 0; n <= W.NOTICE_WINDOW_LAST; n += 2) put(W.NOTICE_WINDOWS + n, 0xffff);
     },
@@ -43,6 +65,14 @@ function runMain(direct, budget, pads, realDrawing = false) {
           calls.push(['refill', target, callee.a.mem.read16(0), callee.a.mem.read16(2)]);
           return callee.rts();
         });
+      if (liveEntry) {
+        bind(0x80cecb, () => raiseStateCountSequence(h, events));
+        routines.set(0x80cf2e, (callee) => raiseMemberMagicPoints(callee.a, false));
+      }
+      if (direct)
+        services = new Map(
+          [...routines].filter(([target]) => [0x80c46e, 0x80cecb, 0x80cf2e].includes(target)),
+        );
     },
   );
 }
@@ -182,6 +212,10 @@ function runKarma(name, direct, budget, prepare, pads = [], realDrawing = false,
           calls.push(['refill', target, callee.a.mem.read16(0), callee.a.mem.read16(2)]);
           return callee.rts();
         });
+      if (direct)
+        services = new Map(
+          [...routines].filter(([target]) => [0x80cecb, 0x80cf2e].includes(target)),
+        );
     },
   );
 }
@@ -420,3 +454,88 @@ for (const budget of [1, 7])
     const actual = runKarma('karmaMenuSequence', true, budget, prepare, pads, true);
     assert.deepEqual(actual, runKarma('karmaMenuSequence', false, budget, prepare, pads, true));
   });
+
+for (const budget of [1, 7])
+  for (const row of [1, 2, 3])
+    for (const paid of [false, true])
+      test(`karma orchestration: row ${row}, paid ${paid}, budget ${budget}`, () => {
+        let pointer;
+        const prepare = (side) => {
+          karmaMenuFixture()(side);
+          const { put, mem } = side,
+            entry = row === 1 ? 0x80f0f3 : row === 2 ? 0x80f054 : 0x80f1b5;
+          for (const list of Object.values(KARMA_LISTS))
+            for (let n = 0; n < list.end; n += 2)
+              mem.wram[mem.read16(0x800000 + list.pointers + n)] = 0;
+          pointer = mem.read16(0x800000 + KARMA_LISTS[entry].pointers);
+          mem.wram[pointer] = 1;
+          put(W.KARMA, paid ? 8 : 7);
+        };
+        const pads = [
+          ...Array.from({ length: row }, () => [0x400, 0]).flat(),
+          0x8000,
+          0,
+          0x400,
+          0,
+          0x8000,
+          ...(paid ? [] : [0, 0x8000]),
+          0,
+          0x2000,
+          0,
+          0x8000,
+        ];
+        const actual = runKarma('karmaMenuSequence', true, budget, prepare, pads);
+        assert.deepEqual(actual, runKarma('karmaMenuSequence', false, budget, prepare, pads));
+        assert.equal(actual.wram[pointer], paid ? 2 : 1);
+        assert.equal(actual.wram[W.KARMA] | (actual.wram[W.KARMA + 1] << 8), paid ? 0 : 7);
+        assert.equal(actual.input, pads.length);
+        assert.equal(
+          actual.calls.filter((c) => c[0] === 'refill').length,
+          paid && row === 1 ? 3 : 2,
+        );
+      });
+for (const budget of [1, 7])
+  for (const row of [1, 2, 3])
+    test(`karma orchestration default glyphs: row ${row}, budget ${budget}`, () => {
+      const prepare = karmaMenuFixture(),
+        pads = [
+          ...Array.from({ length: row }, () => [0x400, 0]).flat(),
+          0x8000,
+          0,
+          0x8000,
+          0,
+          0x8000,
+        ];
+      const actual = runKarma('karmaMenuSequence', true, budget, prepare, pads, true);
+      assert.deepEqual(actual, runKarma('karmaMenuSequence', false, budget, prepare, pads, true));
+    });
+for (const budget of [1, 7])
+  for (const row of [1, 2])
+    test(`main orchestration default glyphs: row ${row}, budget ${budget}`, () => {
+      const pads = [
+        ...Array.from({ length: row }, () => [0x400, 0]).flat(),
+        0x8000,
+        0,
+        0x8000,
+        0,
+        0x8000,
+      ];
+      const actual = runMain(true, budget, pads, true);
+      assert.deepEqual(actual, runMain(false, budget, pads, true));
+    });
+
+for (const budget of [1, 7])
+  for (const row of [0, 1, 2])
+    test(`main live entry: row ${row}, budget ${budget}`, () => {
+      const pads = [
+        ...Array.from({ length: row }, () => [0x400, 0]).flat(),
+        0x8000,
+        ...(row ? [0, 0x8000, 0, 0x8000] : []),
+      ];
+      const actual = runMain(true, budget, pads, true, true);
+      assert.deepEqual(actual, runMain(false, budget, pads, true, true));
+      if (row === 2) {
+        assert.equal(actual.wram[0x6202], 40);
+        assert.equal(actual.wram[W.MAGIC_POINTS], 30);
+      }
+    });
