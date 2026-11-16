@@ -60,7 +60,7 @@ for (const budget of [1, 7])
         assert.equal(actual.wram[W.GLOVE_NAME_WINDOW] | (actual.wram[W.GLOVE_NAME_WINDOW + 1] << 8), name ? 0 : 0xffff);
       });
 
-function runFight(direct, budget, karma, base, variant, glyphs, options = 0, token = 0) {
+function runFight(direct, budget, karma, base, variant, glyphs, options = 0, token = 0, voices = 0) {
   let services;
   return compareRun((h, events, renderer) => direct
     ? directFight(h, events, services, renderer)
@@ -78,6 +78,7 @@ function runFight(direct, budget, karma, base, variant, glyphs, options = 0, tok
       put(W.FIGHT_KARMA, base);
       put(W.GAME_OPTIONS, options);
       put(W.FIGHT_MUSIC, 0);
+      put(W.SOUND_VOICE_MASK, voices);
       put(W.MUSIC, 0);
       mem.wram[W.APU_COMMAND_TOKEN] = token;
       mem.wram.set([0, 1, 2].map(n => mem.read8(0x98fffa + n)), W.AUDIO_DIRECTORY_POINTER);
@@ -85,7 +86,7 @@ function runFight(direct, budget, karma, base, variant, glyphs, options = 0, tok
   }, budget, [], glyphs, ({h, events, routines, bind}) => {
     bind(0x80fec1, () => showNoticeSequence(h, events, routines));
     routines.set(0x81ef47, setMusicModeRoutine);
-    services = new Map([...routines].filter(([target]) => [0x80c46e, 0x81ef47].includes(target)));
+    services = new Map([...routines].filter(([target]) => [0x81ef47].includes(target)));
   });
 }
 for (const budget of [1, 7])
@@ -101,3 +102,13 @@ for (const budget of [1, 7])
           assert.equal(index, variant === 'ended' ? 65534 : 0);
           assert.equal(actual.wram[W.GROUP_POSITIONS], variant === 'missing' ? 1 : 0);
         });
+
+for (const budget of [1, 7])
+  for (const token of [254, 255])
+    for (const voices of [0, 7])
+      test(`fight reward sound: token ${token}, voices ${voices}, budget ${budget}`, () => {
+        const actual = runFight(true, budget, 80, 0, 'ended', true, 0, token, voices);
+        assert.deepEqual(actual, runFight(false, budget, 80, 0, 'ended', true, 0, token, voices));
+        assert.equal(actual.wram[W.SOUND_VOICE_MASK], 7);
+        assert.ok(actual.writes.includes('8514,7,2') === (voices !== 7));
+      });

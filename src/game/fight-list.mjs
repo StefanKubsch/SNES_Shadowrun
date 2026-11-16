@@ -16,6 +16,7 @@ import { setTextCursorRoutine, printNumberSequence } from './window-text.mjs';
 import { printTextSequence } from './text-print.mjs';
 import { showNoticeSequence } from './notice-show.mjs';
 import { drawTextBufferSequence } from './text-draw.mjs';
+import { playSoundEffectRoutine } from '../apu/sound-effect.mjs';
 import { setMusicMode } from '../apu/music-mode.mjs';
 import { dataBankWord, setDataBankWord } from '../system/data-bank.mjs';
 import { dialogCallBody, segmentSequence, nativeCallSequence } from '../system/native-call-continuation.mjs';
@@ -183,7 +184,7 @@ export function* removeFromFightListSequence(h, events, routines, renderBuffer =
       setWord(wram, DP_SOUND_EFFECT, KARMA_SOUND);
       ctx.a = KARMA_SOUND;
     };
-    yield* call(SOUND_CALL);
+    yield* dialogCallBody(h, ...SOUND_CALL, () => segmentSequence(() => playSoundEffectRoutine(h)));
   }
   if (state === 'gain' || state === 'ended') {
     let site = null;

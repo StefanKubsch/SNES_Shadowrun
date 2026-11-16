@@ -883,3 +883,11 @@ directly through the original JSR frames. The existing boundary routes compare
 real text payloads and default glyph uploads with the independent former chain.
 Direct callers now receive only sound and music services, excluding hidden
 fallback to drawing services. Payment, formation and reward arithmetic stay intact.
+
+### Block 9: fight reward sound
+
+Fight reward sound composes the established effect routine directly through
+its JSR frame. Real caller comparisons cover driver-token wrap and initial
+voice masks zero/seven, asserting the resulting voice mask and omitted repeat
+voice command. The retained caller uses the same real sound callee; existing
+independent register-level audio comparisons retain the effect evidence.
