@@ -69,3 +69,11 @@ Topic rows compose their real menu directly through 80:9298. A twelve-topic
 case navigates beyond the nine visible rows and selects topic index ten,
 comparing paging uploads and input consumption with the independently retained
 menu chain at both budgets. Main-menu and topic-window calls remain direct.
+
+## Block 9: topic window release
+
+Topic choice directly releases its window through 80:92A1, retaining the
+choice word around the call. The final menu service selector and standard-object
+marker are removed from the live menu module. Confirmation and cancellation
+compare with upload request counters FFFE and FFFF at both budgets, including
+request wrap, final map state and the restored selection.

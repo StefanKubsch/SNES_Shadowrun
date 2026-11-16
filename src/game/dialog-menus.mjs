@@ -12,14 +12,11 @@
 // the window; a cancel sets the end word, else the result is the chosen topic's index in
 // the topic list. The result stays in the direct page word 00.
 //
-// The callees come from the dialog's text routines: with the standard ones the window
-// opening, release and menu run as direct live sequences through their call
-// frames; with a test's replacements those run, as the
-// reference runs them. A, X and Y passed to the calls and left at the end are the
+// Window opening, release and menus compose directly through their call frames.
+// A, X and Y passed to the calls and left at the end are the
 // original's, as are the carry of the routines' own comparisons; the X the topic list
 // pushes around a text lookup is not reproduced (nothing waits there).
-import { dialogCallBody, segmentSequence } from '../system/native-call-continuation.mjs';
-import { isStandardTextRoutines } from '../system/native-dialog-text.mjs';
+import { dialogCallBody } from '../system/native-call-continuation.mjs';
 import { drawTextBufferSequence } from './text-draw.mjs';
 import { chooseFromMenuSequence } from './menu-choice.mjs';
 import { fitListWindow, listTextIds } from '../data/menu-layout.mjs';
@@ -74,16 +71,10 @@ function* rts(h) {
   return result;
 }
 
-// A callee of the text routines through its JSR frame: the lifted window opening and
-// release and live menu for the standard routines, with the renderer sequence
-// (menu-choice.mjs); else the replacement.
-function callee(h, events, routines, renderBuffer, [site, target], name) {
+// Actual menu and window bodies retain their original JSR frames.
+function callee(h, events, renderBuffer, [site, target], name) {
   let body;
-  if (name === 'mainMenu' || name === 'menu')
-    body = () => chooseFromMenuSequence(h, events, renderBuffer, target);
-  else if (name === 'allocate') body = () => openWindowSequence(h, events);
-  else if (!isStandardTextRoutines(routines))
-    body = () => segmentSequence(() => routines[name](h.a));
+  if (name === 'allocate') body = () => openWindowSequence(h, events);
   else if (name === 'release')
     body = function* () {
       yield* releaseWindowSequence(h, events);
@@ -97,7 +88,7 @@ function callee(h, events, routines, renderBuffer, [site, target], name) {
 export function* chooseDialogActionSequence(
   h,
   events,
-  routines,
+  _routines,
   renderBuffer = drawTextBufferSequence,
 ) {
   const { ctx } = h,
@@ -107,7 +98,7 @@ export function* chooseDialogActionSequence(
     setWords(wram, 2, MAIN_MENU);
     ctx.a = CODE_BANK;
   };
-  yield* callee(h, events, routines, renderBuffer, MAIN_MENU_CALL, 'mainMenu');
+  yield* callee(h, events, renderBuffer, MAIN_MENU_CALL, 'mainMenu');
   yield () => {
     ctx.a = word(wram, DP_RESULT);
     // CMP #FFFF.
@@ -122,7 +113,7 @@ export function* chooseDialogActionSequence(
 export function* chooseDialogTopicSequence(
   h,
   events,
-  routines,
+  _routines,
   renderBuffer = drawTextBufferSequence,
 ) {
   const { ctx } = h,
@@ -161,19 +152,19 @@ export function* chooseDialogTopicSequence(
       fitListWindow(mem, h, listTextIds(mem, (WRAM_BANK << WORD_BITS) | TOPIC_MENU_BUFFER, TOPICS));
   };
   if (none) return yield* rts(h);
-  yield* callee(h, events, routines, renderBuffer, TOPIC_WINDOW_CALL, 'allocate');
+  yield* callee(h, events, renderBuffer, TOPIC_WINDOW_CALL, 'allocate');
   yield () => {
     setWord(wram, DP_TOPIC_WINDOW, word(wram, DP_RESULT));
     setWords(wram, 2, TOPIC_MENU);
     ctx.a = WRAM_BANK;
   };
-  yield* callee(h, events, routines, renderBuffer, TOPIC_MENU_CALL, 'menu');
+  yield* callee(h, events, renderBuffer, TOPIC_MENU_CALL, 'menu');
   yield () => {
     h.a.pushWord(word(wram, DP_RESULT));
     ctx.a = word(wram, DP_TOPIC_WINDOW);
     setWord(wram, DP_RESULT, ctx.a);
   };
-  yield* callee(h, events, routines, renderBuffer, TOPIC_RELEASE_CALL, 'release');
+  yield* callee(h, events, renderBuffer, TOPIC_RELEASE_CALL, 'release');
   yield () => {
     let row = h.a.pullWord();
     ctx.y = row;

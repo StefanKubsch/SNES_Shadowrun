@@ -16,9 +16,10 @@ import {
   SOUND_LOADED_SET,
   DIALOG_END,
   WINDOW_ACTIVE,
+  TEXT_MAP_UPLOAD,
 } from '../src/data/wram.mjs';
 
-function run(module, variant, budget, realDrawing = false) {
+function run(module, variant, budget, realDrawing = false, counter = 0) {
   const side = textWindowSide(),
     { h, mem, events, put } = side,
     topic = variant.startsWith('topic') || variant === 'empty' || variant === 'flagged',
@@ -30,6 +31,7 @@ function run(module, variant, budget, realDrawing = false) {
           ? [...Array.from({ length: 10 }, () => [0x400, 0]).flat(), 0x8000]
           : [0x400, 0, 0x8000];
   put(0x17, 0);
+  put(TEXT_MAP_UPLOAD, counter);
   put(WINDOW_ACTIVE, 0xffff);
   put(SOUND_LOADED_SET, mem.read16(0x80c4b3 + 0x4c));
   mem.wram.set(
@@ -136,3 +138,12 @@ for (const budget of [1, 7])
     test(`default live dialog renderer: ${variant}, budget ${budget}`, () => {
       assert.deepEqual(run(direct, variant, budget, true), run(previous, variant, budget, true));
     });
+
+for (const budget of [1, 7])
+  for (const counter of [0xfffe, 0xffff])
+    for (const variant of ['topic confirm', 'topic cancel'])
+      test(`dialog topic release upload wrap: ${variant}, counter ${counter}, budget ${budget}`, () => {
+        const actual = run(direct, variant, budget, false, counter);
+        assert.deepEqual(actual, run(previous, variant, budget, false, counter));
+        assert.equal(actual.wram[TEXT_MAP_UPLOAD] | (actual.wram[TEXT_MAP_UPLOAD + 1] << 8), 0);
+      });
