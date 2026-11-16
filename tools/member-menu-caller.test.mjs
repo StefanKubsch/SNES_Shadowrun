@@ -30,6 +30,7 @@ import * as directMember from '../src/game/member-spell-menu.mjs';
 import * as formerMember from '../proof/caller/member-spell-menu.mjs';
 import { equipmentRowsSequence } from '../proof/caller/equipment-window.mjs';
 import * as W from '../src/data/wram.mjs';
+import { runResetWindowList } from '../proof/caller/window-list.mjs';
 function runMember(
   module,
   direct,
@@ -71,7 +72,7 @@ function runMember(
       const { h, events, routines, bind, put, calls } = side;
       services = routines;
       if (script) {
-        for (const target of [0x80c34a, 0x80c1ca, 0x81aeb0])
+        for (const target of [0x80c34a, 0x80c1ca])
           routines.set(target, (callee) => {
             calls.push(['service', target, callee.ctx.a, callee.ctx.x]);
             if (target === 0x80c1ca) {
@@ -83,6 +84,7 @@ function runMember(
           });
       }
       bind(0x80e9c5, () => equipmentRowsSequence(h, events, routines));
+      routines.set(0x81aeb0, runResetWindowList);
       return configureMemberPortrait(side);
     },
   );
@@ -136,10 +138,7 @@ for (const budget of [1, 7])
       const actual = run(directMember, true);
       assert.deepEqual(actual, run(formerMember, false));
       assert.equal(actual.input, pads.length);
-      assert.equal(
-        actual.calls.filter((c) => c[0] === 'service').length,
-        2 + (!script.end && script.redraw ? 1 : 0),
-      );
+      assert.equal(actual.calls.filter((c) => c[0] === 'service').length, 2);
       assert.equal(
         actual.calls.filter((c) => c[0] === 'portrait upload').length,
         !script.end && script.redraw ? 2 : 0,

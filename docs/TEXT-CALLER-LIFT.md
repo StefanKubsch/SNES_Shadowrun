@@ -645,3 +645,12 @@ item caller suite uses the same retained real portrait comparison at both
 budgets, for three actor records and end/redraw/notice combinations. It asserts
 two uploads and eleven frames only when the portrait is requested and reached.
 Object creation, visit and list reset remain services at this phase.
+
+### Block 3: spell window-list redraw
+
+Spell cleanup directly composes the existing window-list reset sequence through
+its original JSL frame. The sequence is now exported for composition; the
+register adapter uses the same body. The comparison binds the independent
+former reset and its drawing/upload chain, so redraw requests compare actual
+window map uploads before the real portrait. End/notice ordering and nested
+script services are unchanged.

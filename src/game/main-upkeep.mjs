@@ -509,7 +509,6 @@ NATIVE_CALL_CONTINUATIONS.set(runMemberPortrait, {
 const SPELL_MENU_ROUTINES = new Map([
   [0x80c34a, (h) => appendScriptTaskCall(h.a)],
   [0x80c1ca, runHeadVisit],
-  [0x81aeb0, runResetWindowList],
 ]);
 export const liftedSpellMenuSequence = (h, events) =>
   openSpellMenuSequence(h, events, SPELL_MENU_ROUTINES);

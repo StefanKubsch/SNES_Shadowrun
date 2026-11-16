@@ -280,7 +280,7 @@ NATIVE_CALL_CONTINUATIONS.set(runDrawWindowList, {
 // 81:AEB0 (called with JSL): the window list from the first window on, after the first
 // index is cleared; the list's JSL at 81:AEB3, then the RTL.
 const RESET_LIST_SITE = 0x81aeb3;
-function* resetWindowListSequence(h, events) {
+export function* resetWindowListSequence(h, events) {
   yield () => {
     setWord(h.a.mem.wram, WINDOW_FIRST_INDEX, 0);
     h.ctx.programBank = LIST_BANK;

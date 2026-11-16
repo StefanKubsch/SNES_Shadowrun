@@ -26,6 +26,7 @@ import { releaseWindowJsrSequence, releaseNoticeWindowsCallSequence } from './wi
 import { waitForConfirmKeySequence } from './confirm-key.mjs';
 import { equipmentRowsSequence } from './equipment-window.mjs';
 import { memberPortraitSequence } from './member-portrait.mjs';
+import { resetWindowListSequence } from './window-list.mjs';
 import { drawTextBufferSequence } from './text-draw.mjs';
 import { dataBankWord, setDataBankWord } from '../system/data-bank.mjs';
 import {
@@ -221,7 +222,7 @@ function selectSpell(h, row) {
 
 // After a visited script: the window list and portrait redrawn when it asks for it, and
 // a key awaited while a notice window is open.
-function* afterScriptSequence(h, events, routines) {
+function* afterScriptSequence(h, events) {
   const { ctx } = h,
     { wram } = h.a.mem;
   let ended, redraw;
@@ -235,7 +236,7 @@ function* afterScriptSequence(h, events, routines) {
   };
   if (ended) return;
   if (redraw) {
-    yield* call(h, events, routines, REDRAW_LIST, true);
+    yield* dialogCallBody(h, ...REDRAW_LIST, () => resetWindowListSequence(h, events), true);
     yield* dialogCallBody(h, ...SHOW_PORTRAIT, () => memberPortraitSequence(h, events));
   }
   let pending = false;
