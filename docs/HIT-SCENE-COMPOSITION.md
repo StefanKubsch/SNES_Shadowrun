@@ -68,3 +68,12 @@ Actual callers compare both signs of the exclusive 60 reach on every axis,
 warning/penalty transitions during multiple hits, player damage and sound,
 effect allocation and the continuation to later slots after notices at both
 budgets. An effect placed in an already scanned free slot is not hit again.
+
+## Block 8: zone task creation
+
+The first zone list calls the established task API directly below its saved
+list offset and original 80:80A5 JSR frame. Main-upkeep drops the task service.
+The former zones remain independently compared with the original instructions.
+Actual callers append real script tasks on every inclusive coordinate boundary,
+with zero, one and two overlapping zones, no player and full task slots, at both
+budgets. Geometry and the explicit allocation failure retain their contracts.

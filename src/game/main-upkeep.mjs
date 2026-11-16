@@ -81,7 +81,6 @@ import { NATIVE_ENTRY, statusScreenSequence } from './status-screen.mjs';
 import { notesSequence, skillsSequence } from './status-submenus.mjs';
 import { mainMenuSequence } from './main-menu.mjs';
 import { playerZonesSequence } from './player-zones.mjs';
-import { appendScriptTaskCall } from '../script/task-api.mjs';
 import { moveAndAnimate } from './object-motion.mjs';
 import { walkTowardsTarget } from './object-target.mjs';
 import { stepAnimation } from './object-animation.mjs';
@@ -523,7 +522,7 @@ NATIVE_CALL_CONTINUATIONS.set(runGloveMove, {
 // call continuation of the main loop. The register-level reference keeps the target's
 // registration, so this one is found by its run function.
 // The zones append their script tasks with the lifted task append 80:C34A.
-const ZONE_ROUTINES = { a4bf: enterRoom, c34a: appendScriptTaskCall };
+const ZONE_ROUTINES = { a4bf: enterRoom };
 export function runPlayerZones(h, events, routines = ZONE_ROUTINES) {
   return drainNativeSequence(playerZonesSequence(h, events, routines));
 }

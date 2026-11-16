@@ -18,6 +18,7 @@
 // them: the next callees and the waits of the next pass start with them.
 import { taskStop } from '../system/task-stop.mjs';
 import { nativeCallSequence } from '../system/native-call-continuation.mjs';
+import { appendScriptTaskCall } from '../script/task-api.mjs';
 import {
   DP_ZONE_COUNT,
   DP_ZONE_HEIGHT,
@@ -78,7 +79,7 @@ function enterCall(ctx, loaded) {
 
 // Test the zones around the player figure (80:8000), a sequence for a native call
 // continuation: h the main loop's access (direct page 0, data bank 80), events its frame
-// events, routines { c34a, a4bf } the task append and the register-level scene change.
+// events, routines { a4bf } the remaining scene-change service.
 export function* playerZonesSequence(h, events, routines) {
   const { ctx, a } = h,
     { mem } = a,
@@ -169,7 +170,7 @@ export function* playerZonesSequence(h, events, routines) {
           enterCall(ctx, offset);
           a.pushWord(offset);
           a.pushWord(APPEND_RETURN);
-          const append = routines.c34a(a);
+          const append = appendScriptTaskCall(a);
           if (append.rawReturnWord !== APPEND_RETURN)
             taskStop('task_native_helper_return_required', {
               actual: append.rawReturnWord,

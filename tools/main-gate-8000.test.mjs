@@ -12,6 +12,8 @@ import { checkPlayerZones } from '../proof/replay/main-zone-gate.mjs';
 import { MAIN_LOOP_ROUTINES } from '../src/vm/main-loop.mjs';
 import { MAIN_LOOP_ROUTINES as REPLAY_LOOP_ROUTINES } from '../proof/vm/main-loop.mjs';
 import { runPlayerZones } from '../src/game/main-upkeep.mjs';
+import { playerZonesSequence as formerZones } from '../proof/caller/player-zones.mjs';
+import { drainNativeSequence } from '../src/system/native-call-continuation.mjs';
 
 // Main loop $8000/$803B: pinned local code with stack proof and equations against the original instructions.
 // $C34A and $A4BF run as the same stub on both sides with real frames.
@@ -114,7 +116,10 @@ function setup(seed) {
 // The register-level equations (the reference) and the lifted zones each against the original instructions.
 for (const [name, run] of [
   ['equations', checkPlayerZones],
-  ['lifted zones', runPlayerZones],
+  [
+    'former lifted zones',
+    (h, events, routines) => drainNativeSequence(formerZones(h, events, routines)),
+  ],
 ])
   test(`8000 ${name} match the original instructions`, () => {
     const covered = new Set(),
