@@ -505,14 +505,7 @@ export const liftedSpendMagicSequence = (h, events) =>
 // The lifted glove release 80:CD9D with the lifted glove and window list, as the
 // script native runs it with lag-free frames.
 export const liftedReleaseGloveSequence = (h, events) =>
-  releaseGloveSequence(
-    h,
-    events,
-    new Map([
-      [0x80bcb2, runPutGloveAway],
-      [0x81ad92, runDrawWindowList],
-    ]),
-  );
+  releaseGloveSequence(h, events);
 // The lifted confirm key wait 80:F953 with the lifted word wait and pad word, as the
 // script native runs it with lag-free frames.
 export const liftedConfirmKeySequence = (h, events) => waitForConfirmKeySequence(h, events);

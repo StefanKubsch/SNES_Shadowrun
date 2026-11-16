@@ -860,3 +860,10 @@ Script glove cleanup composes the real glove release through its JSR frame.
 Independent former callers cover an absent or active name window and map-upload
 counter wrap at both budgets, comparing real window release uploads and state.
 The former caller retains the unchanged random original comparison.
+
+### Block 6: script glove window redraw
+
+Script glove cleanup now composes its window-list redraw through the original
+JSL site and receives no service table. The independent former caller retains
+the former real list. Name-window, map reconstruction, upload wrap and final
+state comparisons run at both budgets. Main-upkeep drops its cleanup table.

@@ -34,7 +34,7 @@ for (const budget of [1, 7])
 
 function runGlove(direct, budget, name, request) {
   let services;
-  return compareRun((h, events) => direct ? directGlove(h, events, services) : formerGlove(h, events, services), true, ({put}) => {
+  return compareRun((h, events) => direct ? directGlove(h, events) : formerGlove(h, events, services), true, ({put}) => {
     put(W.DIALOG_WINDOW, 0xffff);
     put(W.GLOVE_KIND, 3);
     put(W.GLOVE_NAME_WINDOW, name ? 0 : 0xffff);
