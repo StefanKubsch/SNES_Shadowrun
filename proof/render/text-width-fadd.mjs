@@ -32,7 +32,7 @@ import {
   TEXT_POINTER_BANK_SEED,
   HUFFMAN_TEXT_END,
   HUFFMAN_CHARACTER_PAIR_MASK,
-} from '../../src/system/native-text-compose.mjs';
+} from '../replay/native-text-compose.mjs';
 
 const DEFAULT_MAX_WORK = 1000000;
 const BIT_READER_STACK_BYTES = 5;

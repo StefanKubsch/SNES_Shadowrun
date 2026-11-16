@@ -13,7 +13,7 @@ import { finishLeaf } from '../src/system/native-leaf-support.mjs';
 import { createSide, registerCases } from './lift-function-harness.mjs';
 import { appendToFightListReference } from '../proof/game-reference/fight-list-append.mjs';
 import { panSongLevelToObjectReference } from '../proof/apu-reference/sound-stereo.mjs';
-import { playSoundEffect as playSoundEffectReference } from '../src/system/native-audio-compose.mjs';
+import { playSoundEffect as playSoundEffectReference } from '../proof/replay/native-audio-compose.mjs';
 import { randomBelow, randomByte } from '../src/system/native-random.mjs';
 import {
   moveObjectTowardsObject as moveReference,

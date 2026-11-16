@@ -3,7 +3,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import * as direct from '../src/game/dialog-text.mjs';
 import * as previous from '../proof/caller/dialog-text.mjs';
-import { dialogTextRoutines, dialogTopic } from '../src/system/native-dialog-text.mjs';
+import { dialogTextRoutines, dialogTopic } from '../proof/replay/native-dialog-text.mjs';
 import { appendScriptTask } from '../src/system/task-append.mjs';
 import * as V from '../src/vm/layout.mjs';
 import { NATIVE_CALL_CONTINUATIONS } from '../src/system/native-call-continuation.mjs';
@@ -69,6 +69,10 @@ function run(module, name, variant, budget, realDrawing = false) {
   };
   if (name !== 'showDialogTextSequence') put(0, variant);
   if (realDrawing) side.render = formerDraw;
+  if (module === direct)
+    Object.defineProperty(events, 'text', {
+      get: () => assert.fail('live text must not read legacy services'),
+    });
   const binding = rendererTable(side),
     table = new Map([[0x80fb39, binding.run]]);
   NATIVE_CALL_CONTINUATIONS.set(binding.run, binding);
@@ -76,7 +80,9 @@ function run(module, name, variant, budget, realDrawing = false) {
     const renderer = module === direct ? (realDrawing ? undefined : side.render) : table,
       sequence =
         name === 'showDialogTextSequence'
-          ? module[name](h, events, events.text, renderer)
+          ? module === direct
+            ? module[name](h, events, renderer)
+            : module[name](h, events, events.text, renderer)
           : module[name](h, events, renderer);
     return finishTextWindow(side, sequence, budget);
   } finally {

@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { runTaskMenuCompose, taskMenuDevices } from '../src/system/native-menu-compose.mjs';
+import { runTaskMenuCompose, taskMenuDevices } from '../proof/replay/native-menu-compose.mjs';
 import { prepareTaskNativeMenuCompose as prepare } from '../proof/task/native-menu-compose.mjs';
 import { prepareTaskPlan, commitTaskPlan } from '../proof/task/plan.mjs';
 import {

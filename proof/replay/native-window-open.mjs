@@ -1,14 +1,17 @@
-import { WRAM_BANK_PAIR } from '../constants/memory-map.mjs';
-import { taskStop } from '../system/task-stop.mjs';
-import { leafAccess, finishLeaf } from '../system/native-leaf-support.mjs';
-import { dialogAccess } from '../system/native-dialog-support.mjs';
-import { WordWaitContinuation, RequestWaitContinuation } from '../system/main-wait-interrupt.mjs';
+import { WRAM_BANK_PAIR } from '../../src/constants/memory-map.mjs';
+import { taskStop } from '../../src/system/task-stop.mjs';
+import { leafAccess, finishLeaf } from '../../src/system/native-leaf-support.mjs';
+import { dialogAccess } from '../../src/system/native-dialog-support.mjs';
+import {
+  WordWaitContinuation,
+  RequestWaitContinuation,
+} from '../../src/system/main-wait-interrupt.mjs';
 import {
   NativeCallContinuation,
   NATIVE_CALL_CONTINUATIONS,
   drainNativeSequence,
-} from '../system/native-call-continuation.mjs';
-import { M7A, M7B, MPYL } from '../constants/hardware-registers.mjs';
+} from '../../src/system/native-call-continuation.mjs';
+import { M7A, M7B, MPYL } from '../../src/constants/hardware-registers.mjs';
 import {
   TEXT_TILE_UPLOAD,
   TEXT_MAP_UPLOAD,
@@ -34,7 +37,7 @@ import {
   DP_WINDOW_COLUMNS,
   DP_WINDOW_ROWS,
   DP_WINDOW_ATTRIBUTES,
-} from '../data/wram.mjs';
+} from '../../src/data/wram.mjs';
 import {
   WORD_SIGN,
   WORD_MASK,
@@ -42,8 +45,8 @@ import {
   WORD_BITS,
   LONG_WRAP,
   BYTE_MASK,
-} from '../constants/bits.mjs';
-import { FLAG_CARRY, FLAG_MEMORY_8BIT } from '../constants/cpu-flags.mjs';
+} from '../../src/constants/bits.mjs';
+import { FLAG_CARRY, FLAG_MEMORY_8BIT } from '../../src/constants/cpu-flags.mjs';
 
 const TEXT_TILE_PIXEL_SHIFT = 0x3;
 const TEXT_TILE_VRAM_BEFORE_START = 0x4fff;

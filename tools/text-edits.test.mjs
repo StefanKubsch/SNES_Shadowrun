@@ -19,7 +19,7 @@ import {
 import { LiveGame } from '../src/video/live-game.mjs';
 import { TaskAccessor } from '../src/vm/task-accessor.mjs';
 import { dialogAccess } from '../src/system/native-dialog-support.mjs';
-import { printTextSequence } from '../src/system/native-text-compose.mjs';
+import { printTextSequence } from '../proof/replay/native-text-compose.mjs';
 import { measureTextWidth } from '../proof/replay/native-glove-target-support.mjs';
 import { translatedListWindow, fitListWindow } from '../src/data/menu-layout.mjs';
 import { TEXT_BUFFER, WINDOW_MAP_BUFFER, WRAM, GLOVE_NAME_WINDOW } from '../src/data/wram.mjs';

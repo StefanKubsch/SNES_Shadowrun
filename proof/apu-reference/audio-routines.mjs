@@ -3,7 +3,7 @@
 // 81:EF47, the song start 81:F229 (moved from proof/replay/main-scene.mjs), the mode
 // sample list 81:F1FA, the sample loader 81:F130 with its length 81:F100, word
 // 81:F122 and byte pair 81:F03A, and the sound effect 80:C46E. The routines other
-// than F229 live in src/system/native-audio-compose.mjs and native-input-apu.mjs,
+// than F229 live in proof/replay/native-audio-compose.mjs and native-input-apu.mjs,
 // where the register-level task natives still call them directly. Lifted versions:
 // src/apu/music-mode.mjs, src/apu/apu-command.mjs, src/apu/audio-routines.mjs,
 // src/apu/sound-effect.mjs.
@@ -16,7 +16,7 @@ import {
   subtractSampleLength,
   runTaskAudioWord,
   sendApuBytePair,
-} from '../../src/system/native-audio-compose.mjs';
+} from '../replay/native-audio-compose.mjs';
 import { sendApuCommand } from '../../src/system/native-input-apu.mjs';
 import { routineCaller } from '../../src/system/routine-call.mjs';
 import { BYTE_MASK, WORD_MASK } from '../../src/constants/bits.mjs';

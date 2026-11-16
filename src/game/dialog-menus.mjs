@@ -1,5 +1,5 @@
 // The dialog's main menu and topic choice (lifted from 80:91E2 and 80:9215; register-
-// level versions in src/system/native-dialog-text.mjs stay the reference).
+// level versions in proof/replay/native-dialog-text.mjs stay the reference).
 //
 // The main menu lists Exit, Talk and Ask about (tokens 80:920D) from row 4 of the text
 // window (the direct page word 17) with the menu 80:A6C7; a cancel (FFFF) sets the end
@@ -85,12 +85,7 @@ function callee(h, events, renderBuffer, [site, target], name) {
 }
 
 // The dialog's main menu (80:91E2), a sequence for a native call continuation.
-export function* chooseDialogActionSequence(
-  h,
-  events,
-  _routines,
-  renderBuffer = drawTextBufferSequence,
-) {
+export function* chooseDialogActionSequence(h, events, renderBuffer = drawTextBufferSequence) {
   const { ctx } = h,
     { wram } = h.a.mem;
   yield () => {
@@ -110,12 +105,7 @@ export function* chooseDialogActionSequence(
 }
 
 // The dialog's topic choice (80:9215), a sequence for a native call continuation.
-export function* chooseDialogTopicSequence(
-  h,
-  events,
-  _routines,
-  renderBuffer = drawTextBufferSequence,
-) {
+export function* chooseDialogTopicSequence(h, events, renderBuffer = drawTextBufferSequence) {
   const { ctx } = h,
     { mem } = h.a,
     { wram } = mem;

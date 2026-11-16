@@ -21,10 +21,10 @@ import {
 import {
   chooseFromNumberedMenuAdapter,
   requestWindowUploadAdapter,
-} from '../../src/system/native-menu-compose.mjs';
+} from './native-menu-compose.mjs';
 import { sendApuCommand } from '../../src/system/native-input-apu.mjs';
 import { createObject } from '../../src/script/native-object-create.mjs';
-import { drawTextBufferAdapter } from '../../src/system/native-text-compose.mjs';
+import { drawTextBufferAdapter } from './native-text-compose.mjs';
 
 import {
   DIALOG_END,

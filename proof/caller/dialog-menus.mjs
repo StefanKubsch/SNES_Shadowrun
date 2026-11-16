@@ -1,6 +1,6 @@
 // Former dialog menu caller retained independently with table-dispatched menus.
 // The dialog's main menu and topic choice (lifted from 80:91E2 and 80:9215; register-
-// level versions in src/system/native-dialog-text.mjs stay the reference).
+// level versions in proof/replay/native-dialog-text.mjs stay the reference).
 //
 // The main menu lists Exit, Talk and Ask about (tokens 80:920D) from row 4 of the text
 // window (the direct page word 17) with the menu 80:A6C7; a cancel (FFFF) sets the end
@@ -20,8 +20,8 @@
 // original's, as are the carry of the routines' own comparisons; the X the topic list
 // pushes around a text lookup is not reproduced (nothing waits there).
 import { dialogCallBody, segmentSequence } from '../../src/system/native-call-continuation.mjs';
-import { menuComposeSequence } from '../../src/system/native-menu-compose.mjs';
-import { isStandardTextRoutines } from '../../src/system/native-dialog-text.mjs';
+import { menuComposeSequence } from '../replay/native-menu-compose.mjs';
+import { isStandardTextRoutines } from '../replay/native-dialog-text.mjs';
 import { chooseFromMenuSequence } from './menu-choice.mjs';
 import { fitListWindow, listTextIds } from '../../src/data/menu-layout.mjs';
 import { TOPICS } from '../../src/data/topics.mjs';

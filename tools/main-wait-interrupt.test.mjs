@@ -38,7 +38,7 @@ import {
   waitWord,
   nmiWords,
 } from '../src/system/native-dialog-portrait.mjs';
-import { waitForWindowUpload, requestWindowUpload } from '../src/system/native-menu-compose.mjs';
+import { waitForWindowUpload, requestWindowUpload } from '../proof/replay/native-menu-compose.mjs';
 import { cpuToOffset } from './rom.mjs';
 
 const inputWindow = { start: 0x809e1a, hex: inputApuWindows[0].hex.slice(0, 0x23 * 2) };

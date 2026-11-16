@@ -6,8 +6,8 @@
 // proof/game-reference/main-timer.mjs and main-glove-action.mjs.
 import { TALK_ROUTINES, talkWithObjectAdapter } from './native-dialog.mjs';
 import { showNoticeAdapter } from './native-notice.mjs';
-import { setTextCursor, printNumber } from '../../src/system/native-list-prerequisites.mjs';
-import { printTextAdapter, drawTextBufferAdapter } from '../../src/system/native-text-compose.mjs';
+import { setTextCursor, printNumber } from './native-list-prerequisites.mjs';
+import { printTextAdapter, drawTextBufferAdapter } from './native-text-compose.mjs';
 import { playSoundEffectRoutine } from '../../src/apu/sound-effect.mjs';
 import { randomByte, randomBelow } from '../../src/system/native-random.mjs';
 import { chooseActionAdapter } from './native-actions.mjs';

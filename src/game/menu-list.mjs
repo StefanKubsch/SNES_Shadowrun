@@ -1,5 +1,5 @@
 // A menu's list in its window (lifted from 80:A617, 80:A5DB and 80:A5F9; register-level
-// versions in src/system/native-list-prerequisites.mjs stay the reference).
+// versions in proof/replay/native-list-prerequisites.mjs stay the reference).
 //
 // The menus 80:A6A5 to 80:A6C7 keep their state in WRAM: the selection (a word index
 // into the list, two per row), the first row of the page shown (MENU_PAGE_START), and

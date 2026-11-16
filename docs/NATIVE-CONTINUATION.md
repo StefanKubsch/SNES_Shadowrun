@@ -243,14 +243,14 @@ pauses.
 
 ## Window allocation, text composition and notice
 
-[F963](../src/script/native-window-open.mjs) keeps the real frames JSR FA32 (WORD FA34)
+[F963](../proof/replay/native-window-open.mjs) keeps the real frames JSR FA32 (WORD FA34)
 for the request FA67, its JSL FA84 (WORD FA87, bank 80) for the WORD poll
 ACBD, JSL FA35 for ACCF and JSL FA39 for ACB5. With an interrupt set, ACBD and
 ACB5 use `WordWaitContinuation` and `RequestWaitContinuation`; the observation
 mode only replaces the wait poll by its previous explicit equation. ACCF stays
 a synchronous segment.
 
-[FE69/FB39](../src/system/native-text-compose.mjs) share their call equations
+[FE69/FB39](../proof/replay/native-text-compose.mjs) share their call equations
 between both paths. FB39 pauses at its three requests AEFC (FB5B) and AEF4
 (FBDF, FD7B) and, in start mode, at the instruction FD21 between the two mask
 stores of a glyph row. The JSR FEBC keeps WORD FEBE until the RTS of FB39 uses
@@ -305,7 +305,7 @@ pause as `ObservedWaitContinuation` with an interrupt set, the
 FEC1 as sequences. FAAC, FD80, D15C and the APU helpers C46E/EF47 stay segments;
 routines replaced by tests stay decisive.
 
-The [menu composition A6C7](../src/system/native-menu-compose.mjs) keeps in every
+The [menu composition A6C7](../proof/replay/native-menu-compose.mjs) keeps in every
 round the JSL B0A1 (WORD A6EC) and the JSR 9E1A (WORD A6EF); with an interrupt
 set both pause as `ObservedWaitContinuation`. Confirming, cancelling, the
 shortcut and paging keep their real PHY/PEI/PLA frames; the scroll request FA67
@@ -316,7 +316,7 @@ the parallel sequence object of `dialogTextRoutines`. The
 [dialog 936C](../proof/replay/native-dialog.mjs) is a sequence over its routine table.
 Table calls use `dialogCallSequence`; registered continuations for F963, FF79,
 BCB2, FA3E, B0A1, 9E1A and the dialog parts
-[9178/91E2/9215](../src/system/native-dialog-text.mjs) and the closing 92C5 apply
+[9178/91E2/9215](../proof/replay/native-dialog-text.mjs) and the closing 92C5 apply
 only with an identical table function. The dialog parts use
 `dialogTextSequences` only for the standard routines; replaced test routines
 stay segments. The topic action with a nested scheduler round stays

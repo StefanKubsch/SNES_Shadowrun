@@ -257,7 +257,7 @@ which the render proof of 81:8076 keeps using.
   and reads the result from the direct page word 00; no opcode reads the carry or
   overflow before it sets them, so these natives leave only their return. The
   references are in proof/game-reference/fight-list-append.mjs,
-  proof/apu-reference/sound-stereo.mjs, src/system/native-audio-compose.mjs (80:C46E) and src/system/native-random.mjs (80:C51F, 80:C560), the last two still used by register-level callers. The movements 80:8D7F (towards an
+  proof/apu-reference/sound-stereo.mjs, proof/replay/native-audio-compose.mjs (80:C46E) and src/system/native-random.mjs (80:C51F, 80:C560), the last two still used by register-level callers. The movements 80:8D7F (towards an
   object), 80:8D3F (jump towards an object) and 80:8D4E (jump towards a point of the list
   at the direct page F3) run `setVelocityTowards` 80:8D95 of
   [src/game/object-velocity.mjs](../src/game/object-velocity.mjs) with the hardware

@@ -1,5 +1,5 @@
 // Opening a window (lifted from 80:F963 with the tile upload request 80:FA67; register-
-// level version in src/script/native-window-open.mjs, which the other callers still use).
+// level version in proof/replay/native-window-open.mjs, which the other callers still use).
 //
 // The caller sets the window's left column and top row in the direct page words 00
 // and 02, its columns and rows (with the border) in 04 and 06 and its attributes in 08.

@@ -66,15 +66,15 @@ import { stepObjectAnimation } from '../src/system/native-scene-tiles.mjs';
 import { drainNativeSequence } from '../src/system/native-call-continuation.mjs';
 import { GLOVE_ROUTINES } from '../proof/replay/native-glove-target-support.mjs';
 import { showNotice } from '../proof/replay/native-notice.mjs';
-import { drawTextBuffer, printText } from '../src/system/native-text-compose.mjs';
-import { openWindowAdapter } from '../src/script/native-window-open.mjs';
+import { drawTextBuffer, printText } from '../proof/replay/native-text-compose.mjs';
+import { openWindowAdapter } from '../proof/replay/native-window-open.mjs';
 import { chooseAction } from '../proof/replay/native-actions.mjs';
 import { talkWithObject, TALK_ROUTINES } from '../proof/replay/native-dialog.mjs';
 import {
   chooseDialogAction,
   chooseDialogTopic,
   showDialogText,
-} from '../src/system/native-dialog-text.mjs';
+} from '../proof/replay/native-dialog-text.mjs';
 import { showDialogTextSequence } from '../proof/caller/dialog-text.mjs';
 import {
   openPortraitWindowSequence,
@@ -89,7 +89,7 @@ import {
 } from '../proof/caller/portrait-upload.mjs';
 import { reloadObjectTilesSequence } from '../proof/caller/object-tiles.mjs';
 import { chooseFromMenuSequence } from '../proof/caller/menu-choice.mjs';
-import { menuComposeSequence } from '../src/system/native-menu-compose.mjs';
+import { menuComposeSequence } from '../proof/replay/native-menu-compose.mjs';
 import { portraitStreams } from '../src/data/portraits.mjs';
 import { uploadPortraitTiles } from '../src/system/native-dialog-portrait.mjs';
 import {
@@ -102,7 +102,7 @@ import {
   printNumber,
   runTaskListHelper,
   setTextCursor,
-} from '../src/system/native-list-prerequisites.mjs';
+} from '../proof/replay/native-list-prerequisites.mjs';
 import { MARK, UNMARK, drawListSequence, markRowSequence } from '../src/game/menu-list.mjs';
 import { setTextCursorRoutine } from '../src/game/window-text.mjs';
 import {

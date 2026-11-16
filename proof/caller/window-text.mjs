@@ -1,6 +1,6 @@
 // Former window text caller retained for independent composition comparisons.
 // The text cursor and the number print of a window (lifted from 80:FAAC and 80:FD80;
-// register-level versions in src/system/native-list-prerequisites.mjs, which the menus
+// register-level versions in proof/replay/native-list-prerequisites.mjs, which the menus
 // and lists still use).
 //
 // A window's text cursor is a tile number: the window's first text tile plus the

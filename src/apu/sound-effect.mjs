@@ -1,5 +1,5 @@
 // Sound effects (lifted from 80:C46E with its stereo levels 80:C416; register-level
-// versions in src/system/native-audio-compose.mjs and native-input-apu.mjs, references
+// versions in proof/replay/native-audio-compose.mjs and native-input-apu.mjs, references
 // in proof/apu-reference/audio-routines.mjs).
 //
 // A sound effect names a sound word in the table 80:C4B3 (src/data/tables.mjs,

@@ -276,25 +276,16 @@ NATIVE_CALL_CONTINUATIONS.set(runConfirmKey, {
   run: runConfirmKey,
   create: ({ h, events }) => new NativeCallContinuation(h.a, liftedConfirmKeySequence(h, events)),
 });
-// 80:91E2 and 80:9215, the dialog's main menu and topic choice with the dialog's text
-// routines (events.text); with the standard ones their menu 80:A6C7 runs lifted.
+// 80:91E2 and 80:9215 compose their live menus with the text renderer.
 export function runDialogMenu(h, events) {
-  return drainNativeSequence(
-    chooseDialogActionSequence(h, events, events.text, drawTextBufferSequence),
-  );
+  return drainNativeSequence(chooseDialogActionSequence(h, events, drawTextBufferSequence));
 }
 export function runDialogTopics(h, events) {
-  return drainNativeSequence(
-    chooseDialogTopicSequence(h, events, events.text, drawTextBufferSequence),
-  );
+  return drainNativeSequence(chooseDialogTopicSequence(h, events, drawTextBufferSequence));
 }
-// 80:9178, the dialog's text; its window request and text wait for the NMI. With the
-// standard text routines its request, cursor and text run lifted, the text drawn by the
-// live renderer sequence.
+// 80:9178 composes live clearing, cursor, text and topic task actions.
 export function runDialogText(h, events) {
-  return drainNativeSequence(
-    showDialogTextSequence(h, events, events.text, drawTextBufferSequence),
-  );
+  return drainNativeSequence(showDialogTextSequence(h, events, drawTextBufferSequence));
 }
 for (const [run, sequence] of [
   [runDialogMenu, chooseDialogActionSequence],
@@ -304,7 +295,7 @@ for (const [run, sequence] of [
   NATIVE_CALL_CONTINUATIONS.set(run, {
     run,
     create: ({ h, events }) =>
-      new NativeCallContinuation(h.a, sequence(h, events, events.text, drawTextBufferSequence)),
+      new NativeCallContinuation(h.a, sequence(h, events, drawTextBufferSequence)),
   });
 // 80:8F3A and 80:8F97, the portrait window opened and closed over frames.
 export function runOpenPortraitWindow(h, events) {

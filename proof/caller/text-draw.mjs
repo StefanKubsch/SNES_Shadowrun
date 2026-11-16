@@ -1,7 +1,7 @@
 // Former renderer retained independently for recorded and startup observations.
 // Drawing the text buffer into a window (lifted from 80:FB39 with the cursor geometry
 // 81:ADBA, 81:AE14 and 81:AE4D, the mask close 81:AEC8 and the upload requests 81:AEF4
-// and 81:AEFC; register-level versions in src/system/native-text-compose.mjs and
+// and 81:AEFC; register-level versions in proof/replay/native-text-compose.mjs and
 // native-text-prerequisites.mjs, which the other callers still use).
 //
 // The text buffer 7E:21A0 (ending with 0) is drawn into the window in the direct page
@@ -35,7 +35,7 @@ import { nmiAtBranch } from '../../src/system/frame-wait.mjs';
 import {
   drawTextBufferSequence as drawTextBufferReference,
   textRequestWaitSequence,
-} from '../../src/system/native-text-compose.mjs';
+} from '../replay/native-text-compose.mjs';
 import {
   TEXT_BUFFER,
   TEXT_BUFFER_BYTES,

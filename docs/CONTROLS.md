@@ -101,7 +101,7 @@ Glove (read statically, confirmed live in the native run):
 
 Menus:
 
-- Lists 80:A6A5/A6AD/A6B8/A6C7 (src/system/native-menu-compose.mjs): a newly
+- Lists 80:A6A5/A6AD/A6B8/A6C7 (proof/replay/native-menu-compose.mjs): a newly
   pressed Select (2000) cancels, B, Y, Start, A or X (D0C0) confirm, up/down
   (0C00) move with repetition after 20 frames, L/R page. Cursor 7E:1D97
   (entry times two).

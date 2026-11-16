@@ -1,4 +1,4 @@
-import { WRAM_BANK_PAIR } from '../constants/memory-map.mjs';
+import { WRAM_BANK_PAIR } from '../../src/constants/memory-map.mjs';
 import {
   TEXT_MASK_BUFFER,
   TEXT_COMPOSE_STYLE,
@@ -22,24 +22,27 @@ import {
   WINDOW_CURSOR_PIXEL,
   WINDOW_STYLE,
   TEXT_BUFFER,
-} from '../data/wram.mjs';
-import { portTextAddress } from '../data/port-extension.mjs';
-import { languageText } from '../data/language.mjs';
-import { taskStop } from './task-stop.mjs';
+} from '../../src/data/wram.mjs';
+import { portTextAddress } from '../../src/data/port-extension.mjs';
+import { languageText } from '../../src/data/language.mjs';
+import { taskStop } from '../../src/system/task-stop.mjs';
 import {
   taskTextAccess,
   readTextBit,
   runTaskTextGeometry,
   closeTextMask,
   runTaskTextWait,
-} from './native-text-prerequisites.mjs';
-import { dialogAccess } from './native-dialog-support.mjs';
-import { InterruptStepContinuation, RequestWaitContinuation } from './main-wait-interrupt.mjs';
+} from '../../src/system/native-text-prerequisites.mjs';
+import { dialogAccess } from '../../src/system/native-dialog-support.mjs';
+import {
+  InterruptStepContinuation,
+  RequestWaitContinuation,
+} from '../../src/system/main-wait-interrupt.mjs';
 import {
   NativeCallContinuation,
   NATIVE_CALL_CONTINUATIONS,
   drainNativeSequence,
-} from './native-call-continuation.mjs';
+} from '../../src/system/native-call-continuation.mjs';
 import {
   BYTE_MASK,
   WORD_MASK,
@@ -49,14 +52,14 @@ import {
   WORD_BITS,
   BYTE_BITS,
   BANK_WRAP,
-} from '../constants/bits.mjs';
+} from '../../src/constants/bits.mjs';
 import {
   FLAG_INDEX_8BIT,
   FLAG_MEMORY_8BIT,
   FLAG_CARRY,
   FLAG_ZERO,
   FLAG_NEGATIVE,
-} from '../constants/cpu-flags.mjs';
+} from '../../src/constants/cpu-flags.mjs';
 
 const TEXT_MASK_BYTES = 0x10;
 const GLYPH_BOLD_STYLE = 0x8;

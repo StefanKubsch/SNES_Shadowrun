@@ -1,3 +1,7 @@
+import { playSoundEffectRoutine } from '../src/apu/sound-effect.mjs';
+import * as formerText from '../proof/caller/dialog-text.mjs';
+import * as formerMenus from '../proof/caller/dialog-menus.mjs';
+import { drawTextBufferSequence as formerDraw } from '../proof/caller/text-draw.mjs';
 import { gloveActionSequence as directGloveAction } from '../src/game/glove-action.mjs';
 import { gloveActionSequence as formerGloveAction } from '../proof/caller/glove-action.mjs';
 import { TASK_WAIT, TASK_EVENTS } from '../src/vm/layout.mjs';
@@ -115,7 +119,7 @@ for (const budget of [1, 7])
         });
 
 import * as live from '../src/game/main-upkeep.mjs';
-import { dialogTextRoutines, dialogTopic } from '../src/system/native-dialog-text.mjs';
+import { dialogTextRoutines, dialogTopic } from '../proof/replay/native-dialog-text.mjs';
 import { appendScriptTask } from '../src/system/task-append.mjs';
 import * as V from '../src/vm/layout.mjs';
 import { DIALOG_TABLE, DIALOG_BANK_BASE } from '../src/data/portraits.mjs';
@@ -302,16 +306,45 @@ function runTalk(
     [0x8091e2, live.runDialogMenu],
     [0x809215, live.runDialogTopics],
     [0x81ef47, setMusicModeRoutine],
+    [0x80c46e, playSoundEffectRoutine],
   ]);
-  const result = finishTextWindow(
-    side,
-    glove === null
-      ? module.talkSequence(h, events, ...(module === direct ? [] : [table]))
-      : glove
-        ? directGloveAction(h, events)
-        : formerGloveAction(h, events, table),
-    budget,
-  );
+  // Former orchestration must retain independent text and menu callers too.
+  const bindings = [];
+  for (const [target, body] of [
+    [0x809178, () => formerText.showDialogTextSequence(h, events, events.text, table)],
+    [0x8091e2, () => formerMenus.chooseDialogActionSequence(h, events, events.text, table)],
+    [0x809215, () => formerMenus.chooseDialogTopicSequence(h, events, events.text, table)],
+    [0x80fb39, () => formerDraw(h, events)],
+  ]) {
+    const run = () => assert.fail('former caller requires continuation');
+    table.set(target, run);
+    bindings.push(run);
+    NATIVE_CALL_CONTINUATIONS.set(run, {
+      run,
+      create: () => new NativeCallContinuation(h.a, body()),
+    });
+  }
+  if (module === direct && glove !== false)
+    Object.defineProperty(events, 'text', {
+      get: () => assert.fail('live dialog must not read legacy text services'),
+      set: () => {
+        assert.fail('live dialog must not allocate legacy text services');
+      },
+    });
+  let result;
+  try {
+    result = finishTextWindow(
+      side,
+      glove === null
+        ? module.talkSequence(h, events, ...(module === direct ? [] : [table]))
+        : glove
+          ? directGloveAction(h, events)
+          : formerGloveAction(h, events, table),
+      budget,
+    );
+  } finally {
+    for (const run of bindings) NATIVE_CALL_CONTINUATIONS.delete(run);
+  }
   // Exclude only the relocated CPU stack from final and upload snapshots.
   result.wram.fill(0, 0x1e80, 0x1ef0);
   for (const [, wram] of result.uploads) wram.fill(0, 0x1e80 - 0x1cc, 0x1ef0 - 0x1cc);

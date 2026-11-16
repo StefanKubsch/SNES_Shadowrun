@@ -11,7 +11,7 @@ import { fec1Registers, validateNoticeOptions } from '../replay/native-notice.mj
 import { runTaskNative13Opcode } from './native13-opcode.mjs';
 import { taskActionsDevices, validateTaskActionsOptions } from '../replay/native-actions.mjs';
 import { runTaskNativeAudioOpcode } from './native-audio-opcode.mjs';
-import { taskAudioDevices } from '../../src/system/native-audio-compose.mjs';
+import { taskAudioDevices } from '../replay/native-audio-compose.mjs';
 import { runTaskNativeRandomOpcode } from './native-random-opcode.mjs';
 import { taskRandomDevices } from '../../src/system/native-random.mjs';
 import { runTaskNative7COpcode } from './native-8e36-opcode.mjs';

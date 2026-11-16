@@ -4,7 +4,7 @@ import { runTaskOpcodeTarget } from './opcode-target.mjs';
 import { runTaskNativeArguments } from './native-arguments.mjs';
 import { runTaskNativeBridge } from './native-bridge.mjs';
 import { runTaskNativeResume } from './native-resume.mjs';
-import { playSoundEffect, taskAudioDevices } from '../../src/system/native-audio-compose.mjs';
+import { playSoundEffect, taskAudioDevices } from '../replay/native-audio-compose.mjs';
 
 // Exactly the original Native58/4C normal-return graph. All APU/product
 // samples remain fresh external observations; no device clock is inferred.

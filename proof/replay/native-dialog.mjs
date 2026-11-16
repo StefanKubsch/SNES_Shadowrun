@@ -28,7 +28,7 @@ import {
   showDialogTextSequence,
   chooseDialogActionSequence,
   chooseDialogTopicSequence,
-} from '../../src/system/native-dialog-text.mjs';
+} from './native-dialog-text.mjs';
 import {
   NativeCallContinuation,
   observedContinuation,
@@ -41,9 +41,9 @@ import { reloadObjectTiles } from '../../src/system/native-scene-tiles.mjs';
 import { buildSpriteList } from './native-scene-sprites.mjs';
 import { waitForRandomStateChange } from '../../src/system/native-frame-wait.mjs';
 import { releaseNoticeWindowsAdapter } from './native-slot-release.mjs';
-import { openWindowAdapter } from '../../src/script/native-window-open.mjs';
+import { openWindowAdapter } from './native-window-open.mjs';
 import { runReleaseWindowCall } from '../../proof/caller/window-release.mjs';
-import { setMusicMode } from '../../src/system/native-audio-compose.mjs';
+import { setMusicMode } from './native-audio-compose.mjs';
 import { readInput } from '../../src/system/native-input-apu.mjs';
 import {
   waitForRandomStateChangeWithInterrupts,

@@ -3,9 +3,9 @@ import { lagFree } from '../../src/system/main-wait-interrupt.mjs';
 import { dialogAccess } from '../../src/system/native-dialog-support.mjs';
 import { taskStop } from '../../src/system/task-stop.mjs';
 import { taskTextAccess } from '../../src/system/native-text-prerequisites.mjs';
-import { requestWindowUploadSequence } from '../../src/system/native-menu-compose.mjs';
-import { setTextCursor } from '../../src/system/native-list-prerequisites.mjs';
-import { printTextSequence } from '../../src/system/native-text-compose.mjs';
+import { requestWindowUploadSequence } from './native-menu-compose.mjs';
+import { setTextCursor } from './native-list-prerequisites.mjs';
+import { printTextSequence } from './native-text-compose.mjs';
 import {
   observedContinuation,
   drainNativeSequence,

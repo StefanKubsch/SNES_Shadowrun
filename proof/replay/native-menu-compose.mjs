@@ -1,20 +1,20 @@
-import { taskStop } from './task-stop.mjs';
-import { taskTextAccess } from './native-text-prerequisites.mjs';
+import { taskStop } from '../../src/system/task-stop.mjs';
+import { taskTextAccess } from '../../src/system/native-text-prerequisites.mjs';
 import { runTaskListHelper } from './native-list-prerequisites.mjs';
-import { waitForRandomStateChange } from './native-frame-wait.mjs';
-import { readInput } from './native-input-apu.mjs';
+import { waitForRandomStateChange } from '../../src/system/native-frame-wait.mjs';
+import { readInput } from '../../src/system/native-input-apu.mjs';
 import { playSoundEffect } from './native-audio-compose.mjs';
-import { dialogAccess } from './native-dialog-support.mjs';
+import { dialogAccess } from '../../src/system/native-dialog-support.mjs';
 import {
   WordWaitContinuation,
   ObservedWaitContinuation,
   runInterruptWordWait,
-} from './main-wait-interrupt.mjs';
+} from '../../src/system/main-wait-interrupt.mjs';
 import {
   drainNativeSequence,
   NativeCallContinuation,
   NATIVE_CALL_CONTINUATIONS,
-} from './native-call-continuation.mjs';
+} from '../../src/system/native-call-continuation.mjs';
 import {
   TEXT_TILE_UPLOAD_ADDRESS,
   TEXT_TILE_UPLOAD_BYTES,
@@ -39,7 +39,7 @@ import {
   DP_MENU_ROW,
   DP_SOUND_LEVEL,
   DP_SOUND_VOICE,
-} from '../data/wram.mjs';
+} from '../../src/data/wram.mjs';
 import {
   WORD_MASK,
   BANK_WRAP,
@@ -47,13 +47,13 @@ import {
   WORD_BITS,
   LONG_MASK,
   LONG_WRAP,
-} from '../constants/bits.mjs';
+} from '../../src/constants/bits.mjs';
 import {
   FLAG_CARRY,
   FLAG_ZERO,
   FLAG_INDEX_8BIT,
   FLAG_MEMORY_8BIT,
-} from '../constants/cpu-flags.mjs';
+} from '../../src/constants/cpu-flags.mjs';
 import {
   APUIO0,
   APUIO1,
@@ -68,8 +68,8 @@ import {
   RDDIVH,
   RDMPYL,
   RDMPYH,
-} from '../constants/hardware-registers.mjs';
-import { CODE_BANK } from '../constants/memory-map.mjs';
+} from '../../src/constants/hardware-registers.mjs';
+import { CODE_BANK } from '../../src/constants/memory-map.mjs';
 
 const TEXT_TILE_PIXEL_SHIFT = 0x3;
 const TEXT_TILE_VRAM_BEFORE_START = 0x4fff;

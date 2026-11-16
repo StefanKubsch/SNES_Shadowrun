@@ -1,7 +1,7 @@
 // Source-specific atomic plans for proof tools. The game executes the shared routines directly.
 import { taskStop } from '../../src/system/task-stop.mjs';
 import { prepareTaskPlan } from './plan.mjs';
-import { printText, drawTextBuffer } from '../../src/system/native-text-compose.mjs';
+import { printText, drawTextBuffer } from '../replay/native-text-compose.mjs';
 
 const registers = Object.freeze({
   writes: Object.freeze([0x4202, 0x4203, 0x4204, 0x4205, 0x4206]),

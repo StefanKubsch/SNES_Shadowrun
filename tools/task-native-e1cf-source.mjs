@@ -18,8 +18,8 @@ export const nativeE1CFSpec = {
     },
   ],
   externalReturns: [
-    [0x80f963, 'RTS', 'window allocation, openWindow in src/script/native-window-open.mjs'],
-    [0x80a6c7, 'RTS', 'menu, runTaskMenuCompose in src/system/native-menu-compose.mjs'],
+    [0x80f963, 'RTS', 'window allocation, openWindow in proof/replay/native-window-open.mjs'],
+    [0x80a6c7, 'RTS', 'menu, runTaskMenuCompose in proof/replay/native-menu-compose.mjs'],
     [0x80fa3e, 'RTS', 'window release, releaseWindow in src/system/native-render-compose.mjs'],
   ],
   scope:

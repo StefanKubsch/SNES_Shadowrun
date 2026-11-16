@@ -6,7 +6,7 @@ import { playIntro } from '../proof/intro-reference/intro-scene.mjs';
 const intro = { ...introTask, playIntro };
 import { playCutscene } from '../proof/cutscene-reference/cutscene-scene.mjs';
 import { SCENE_REFERENCE_ROUTINES as MAIN_SCENE_ROUTINES } from '../proof/scene-reference-routines.mjs';
-import { subtractSampleLength } from '../src/system/native-audio-compose.mjs';
+import { subtractSampleLength } from '../proof/replay/native-audio-compose.mjs';
 import { sceneIntroSpecs, proveSceneIntro, sceneIntroTables } from './main-scene-intro-source.mjs';
 import { mainSceneSpecs, proveMainScene } from './main-scene-source.mjs';
 import { compareDialog, decodeWindows, prng, rom, window } from './task-native-dialog-harness.mjs';

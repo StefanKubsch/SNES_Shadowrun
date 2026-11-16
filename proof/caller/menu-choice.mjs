@@ -1,6 +1,6 @@
 // Former live composition, retained independently for recorded observations.
 // A choice from a menu list (lifted from 80:A6A5 to 80:A845; register-level version in
-// src/system/native-menu-compose.mjs stays the reference).
+// proof/replay/native-menu-compose.mjs stays the reference).
 //
 // The caller passes the window in the direct page word 00, the list's column and row in
 // 02 and 04, its visible rows in 06, the long pointer to its texts (words ended by 0) in

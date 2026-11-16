@@ -5,13 +5,13 @@ import { dialogAccess } from '../../src/system/native-dialog-support.mjs';
 import { taskStop } from '../../src/system/task-stop.mjs';
 import { taskTextAccess } from '../../src/system/native-text-prerequisites.mjs';
 import { showNotice, showNoticeSequence, validateNoticeOptions } from './native-notice.mjs';
-import { setTextCursor, printNumber } from '../../src/system/native-list-prerequisites.mjs';
-import { printText, printTextSequence } from '../../src/system/native-text-compose.mjs';
+import { setTextCursor, printNumber } from './native-list-prerequisites.mjs';
+import { printText, printTextSequence } from './native-text-compose.mjs';
 import {
   observedContinuation,
   drainNativeSequence,
 } from '../../src/system/native-call-continuation.mjs';
-import { playSoundEffect, setMusicMode } from '../../src/system/native-audio-compose.mjs';
+import { playSoundEffect, setMusicMode } from './native-audio-compose.mjs';
 import {
   DP_CURSOR_ROW,
   DP_NOTICE_FRAMES,

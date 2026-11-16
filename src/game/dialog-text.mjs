@@ -1,5 +1,5 @@
 // The dialog's texts (lifted from 80:9178 with the topic add 80:908C; register-level
-// versions in src/system/native-dialog-text.mjs stay the reference).
+// versions in proof/replay/native-dialog-text.mjs stay the reference).
 //
 // A text key comes in A: FFFF the greeting, FFFE the talk text, otherwise a topic
 // number. The dialog's text window (the direct page word 14) is cleared (80:FA67) and
@@ -192,13 +192,8 @@ function liftedBodies(h, events, renderBuffer) {
 }
 
 // Show the dialog text for the key in A (80:9178), a sequence for a native call
-// continuation. The legacy service position is removed at the entry migration.
-export function* showDialogTextSequence(
-  h,
-  events,
-  _routines,
-  renderBuffer = drawTextBufferSequence,
-) {
+// continuation with an optional text renderer.
+export function* showDialogTextSequence(h, events, renderBuffer = drawTextBufferSequence) {
   const { ctx } = h,
     { mem } = h.a,
     { wram } = mem,

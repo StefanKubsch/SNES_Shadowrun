@@ -77,3 +77,21 @@ choice word around the call. The final menu service selector and standard-object
 marker are removed from the live menu module. Confirmation and cancellation
 compare with upload request counters FFFE and FFFF at both budgets, including
 request wrap, final map state and the restored selection.
+
+## Block 10: complete live entry
+
+Live text and menu APIs accept only their optional renderer. Dialog entry and
+main-upkeep neither allocate nor read a text service object. Actual text, menu
+and full-dialog comparisons install a failing property getter for legacy
+services, covering default glyphs, actions, portraits, music and scene closing.
+The former full-dialog fixture now binds independently retained text and menu
+callers and its former renderer, rather than routing these through live entries.
+Its action task append remains independently register-level. Recorded original
+comparisons stay on the former callers. All ten blocks require their focused
+checks; the shared release and delivery result belongs in HANDOFF.md.
+
+The final reachability check removes six newly unreachable register modules
+from the shipped source tree: dialog text, menu/text/list composition, audio
+composition and window opening now live in `proof/replay/`. Imports and source
+contract paths follow the moves, including historical path references without
+changing archive wording. Their equations remain the independent references.

@@ -5,7 +5,7 @@ import {
 } from '../../src/system/native-call-continuation.mjs';
 import { TALK_ROUTINES } from './native-dialog.mjs';
 import { showNoticeAdapter } from './native-notice.mjs';
-import { printTextAdapter } from '../../src/system/native-text-compose.mjs';
+import { printTextAdapter } from './native-text-compose.mjs';
 import { readTextBit } from '../../src/system/native-text-prerequisites.mjs';
 import { requestTextMapUpload } from '../../src/system/native-render-compose.mjs';
 import { runDrawWindowList } from '../../proof/caller/window-list.mjs';
@@ -17,7 +17,7 @@ import {
   TEXT_POINTER_BANK_SEED,
   HUFFMAN_CHARACTER_PAIR_MASK,
   HUFFMAN_TEXT_END,
-} from '../../src/system/native-text-compose.mjs';
+} from './native-text-compose.mjs';
 import {
   TEXT_WORK_WORD,
   TEXT_SOURCE_POINTER,

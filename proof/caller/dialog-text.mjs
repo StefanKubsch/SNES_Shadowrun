@@ -1,6 +1,6 @@
 // Former dialog text caller retained independently with the former text producers.
 // The dialog's texts (lifted from 80:9178 with the topic add 80:908C; register-level
-// versions in src/system/native-dialog-text.mjs stay the reference).
+// versions in proof/replay/native-dialog-text.mjs stay the reference).
 //
 // A text key comes in A: FFFF the greeting, FFFE the talk text, otherwise a topic
 // number. The dialog's text window (the direct page word 14) is cleared (80:FA67) and
@@ -33,7 +33,7 @@ import {
   dialogTopicSequence,
   isStandardTextRoutines,
   textBodies,
-} from '../../src/system/native-dialog-text.mjs';
+} from '../replay/native-dialog-text.mjs';
 import { TOPIC_FLAGS, TOPIC_LIST } from '../../src/data/wram.mjs';
 import {
   BYTE_BITS,

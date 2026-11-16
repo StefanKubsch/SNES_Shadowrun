@@ -14,7 +14,7 @@ import { SPECIAL_NATIVES } from '../proof/vm/special-natives.mjs';
 import { nativeOpcodeTargets } from '../src/data/native-opcode-targets.mjs';
 import { nativeTarget } from '../src/script/native-targets.mjs';
 import { dialogAccess } from '../src/system/native-dialog-support.mjs';
-import { dialogTextRoutines, dialogTopicSequence } from '../src/system/native-dialog-text.mjs';
+import { dialogTextRoutines, dialogTopicSequence } from '../proof/replay/native-dialog-text.mjs';
 import { NativeCallContinuation } from '../src/system/native-call-continuation.mjs';
 import { WAIT_PAUSED } from '../src/system/native-wait-continuation.mjs';
 import { WEAPON_MENU_ROUTINES } from '../proof/replay/native-member-spell-menu.mjs';
@@ -43,7 +43,7 @@ export function dialogActionScripts(dialogs = 0x89) {
 const STACK = 0x1fb0,
   CALLER_SCRIPT = 0x2c2,
   RECORD = 0x7f8000;
-// Scheduler mit einem laufenden Dialogtask (Cursor) und weiteren Tasks; Datensatz [11] mit dem Aktionswort.
+// Scheduler with a running dialog task (cursor) and other tasks; record [11] holds the action word.
 function scenario(rnd, script) {
   const wram = new Uint8Array(WRAM_SIZE);
   for (let n = 0x1000; n < 0x2000; n++) if (rnd() < 0.1) wram[n] = (rnd() * 256) | 0;
@@ -131,7 +131,7 @@ function viaScheduler(state, sets, steps = topicSteps) {
   const [append, visit] = steps(vm);
   vm.push16(append);
   assert.equal(scheduler.call(0xc34a), STOP_RETURNED);
-  // Zwischen den Aufrufen: optionale Schreibzugriffe des Natives (F254: STZ $1F58).
+  // Optional native writes between calls (F254: STZ $1F58).
   if (typeof visit === 'object') {
     visit.after(vm);
     vm.push16(visit.pc);
@@ -226,7 +226,7 @@ function compareRounds(scripts, seeds, action, steps, returnPc) {
         `${label}: WRAM`,
       );
       tally[outcome] = (tally[outcome] ?? 0) + 1;
-      // Natives, die auf diesen synthetischen Daten bis zur Zugriffsgrenze laufen (z. B. $913C), nur einmal.
+      // Run natives that reach the access limit on this synthetic data (such as $913C) only once.
       if (run.fault?.reason === 'native_access_limit') break;
       if (sets.length) tally.nestedSpecial = (tally.nestedSpecial ?? 0) + 1;
       if (run.vm.natives.calls) tally.nestedNatives = (tally.nestedNatives ?? 0) + 1;
@@ -236,7 +236,7 @@ function compareRounds(scripts, seeds, action, steps, returnPc) {
 
 test('Topic action: native round matches direct C34A and C1CA on the scheduler', () => {
   const scripts = dialogActionScripts();
-  assert.ok(scripts.length >= 50, `${scripts.length} Aktionsscripts`);
+  assert.ok(scripts.length >= 50, `${scripts.length} action scripts`);
   const tally = compareRounds(
     scripts,
     2,

@@ -28,7 +28,7 @@
 import { dialogCallSequence, dialogCallBody } from '../../src/system/native-call-continuation.mjs';
 import { sceneRuntime } from '../../src/system/scene-runtime.mjs';
 import { fixesEnabled, preparePushkinTopics } from '../../src/game/bugfixes.mjs';
-import { dialogTextRoutines } from '../../src/system/native-dialog-text.mjs';
+import { dialogTextRoutines } from '../replay/native-dialog-text.mjs';
 import { DIALOG_TABLE, DIALOG_BANK_BASE } from '../../src/data/portraits.mjs';
 import { JAKE_PORTRAIT_DIALOG, JAKE_ALTERNATE_PORTRAIT_DIALOG } from '../../src/data/runners.mjs';
 import {

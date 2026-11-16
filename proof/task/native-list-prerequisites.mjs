@@ -4,7 +4,7 @@ import { prepareTaskPlan } from './plan.mjs';
 import {
   runTaskListHelper,
   taskListDevices as devices,
-} from '../../src/system/native-list-prerequisites.mjs';
+} from '../replay/native-list-prerequisites.mjs';
 
 const entries = [0x80a617, 0x80a5db, 0x80a5f9, 0x80faac, 0x80fd80];
 

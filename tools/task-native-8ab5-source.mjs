@@ -62,7 +62,7 @@ const peiWordPushes = [
   [0x8088eb, 0],
   [0x8088ed, 2],
 ];
-const sound = [0x80c46e, 'RTS', 'sound, playSoundEffect in src/system/native-audio-compose.mjs'];
+const sound = [0x80c46e, 'RTS', 'sound, playSoundEffect in proof/replay/native-audio-compose.mjs'];
 const [sight, random, slot, action, hit] = native8AB5Spec.externalReturns;
 export const native8A51Spec = {
   name: 'task-native-8a51',

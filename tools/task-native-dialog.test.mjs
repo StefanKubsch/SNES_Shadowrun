@@ -235,14 +235,14 @@ check(
   },
 );
 
-// Text und Auswahl: FA67, FAAC, FE69, A6C7, F963, FA3E, C34A und C1CA haben eigene Beweise und laufen auf
+// Text and selection: FA67, FAAC, FE69, A6C7, F963, FA3E, C34A and C1CA have separate proofs.
 // Both sides use identical stubs with real frames; the menu and allocator provide the scenario result in DP00.
 import {
   showDialogText,
   chooseDialogAction,
   chooseDialogTopic,
   dialogTopic,
-} from '../src/system/native-dialog-text.mjs';
+} from '../proof/replay/native-dialog-text.mjs';
 const TEXT_TARGETS = {
   request: 0x80fa67,
   cursor: 0x80faac,
@@ -366,7 +366,7 @@ check(
 );
 
 // Scene object tiles (ADF4/AE12/AC2F). Animation streams are in WRAM (bank 8C, offset < 2000),
-// Bildzeiger zeigen auf ROM-Stellen in 9B/9C mit kleiner Kachelzahl, damit alle Pfade erreichbar sind.
+// Picture pointers address ROM locations in 9B/9C with few tiles so every path is reachable.
 import { reloadObjectTiles } from '../src/system/native-scene-tiles.mjs';
 import { DIALOG_WINDOWS } from './task-native-936c-windows.mjs';
 const smallFrames = (() => {
@@ -488,7 +488,7 @@ for (const [name, native] of [
       objects.forEach((o, k) => put(0x14b2 + 2 * k, o));
       const sorted = int(3) === 0;
       put(0xcc2, pick([0xffff, ...objects]));
-      // Kamera: erstes Objekt bestimmt sie, die anderen liegen daneben.
+      // The first object sets the camera; the others stand beside it.
       let cx = null,
         cy = null;
       for (const o of objects) {
@@ -579,7 +579,7 @@ check(
 
 // Native95/936C code with 92C5: every called routine uses an identical stub with a real frame
 // (RTS or RTL); menu (91E2), topics (9215), text (9178, sets $1D63) and window (F963) provide their
-// Ergebnisse aus Szenariolisten, danach Exit.
+// results from scenario lists, followed by Exit.
 import { talkWithObject } from '../proof/replay/native-dialog.mjs';
 const DIALOG_CALLEES = [
   0x81886a, 0x80bcb2, 0x80ff79, 0x81ef47, 0x80f963, 0x80fa92, 0x809f6d, 0x808f20, 0x809022,

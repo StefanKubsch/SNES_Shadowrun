@@ -114,7 +114,7 @@ not a universal runtime invariant for modified scripts or damaged state.
 The dialog catalog's topic IDs are below 64; this does not prove every
 possible script argument or saved-state value. Sources:
 [topics.mjs](../src/data/topics.mjs),
-[native-dialog-text.mjs](../src/system/native-dialog-text.mjs),
+[native-dialog-text.mjs](../proof/replay/native-dialog-text.mjs),
 [native-topic-add.mjs](../src/script/native-topic-add.mjs) and
 [the dialog catalog checks](../tools/vm-cartridge.test.mjs).
 

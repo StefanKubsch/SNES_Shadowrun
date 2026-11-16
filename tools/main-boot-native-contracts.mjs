@@ -1,7 +1,7 @@
 // Only the independently proved native contracts actually reached by the
 // connected boot test. No leaf admission and no arbitrary SPECIAL_NATIVES dispatch.
 import { showNoticeObserved } from '../proof/replay/native-notice.mjs';
-import { playSoundEffect } from '../src/system/native-audio-compose.mjs';
+import { playSoundEffect } from '../proof/replay/native-audio-compose.mjs';
 import { redrawWindowListObserved } from '../proof/replay/native-window-list-redraw.mjs';
 import { controlPlayerObserved } from '../proof/replay/native-player-control.mjs';
 import { runTaskActionsObserved } from '../proof/replay/native-actions.mjs';

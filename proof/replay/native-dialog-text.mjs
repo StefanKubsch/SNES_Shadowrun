@@ -1,6 +1,6 @@
-import { taskStop } from './task-stop.mjs';
-import { fitListWindow, listTextIds } from '../data/menu-layout.mjs';
-import { TOPICS } from '../data/topics.mjs';
+import { taskStop } from '../../src/system/task-stop.mjs';
+import { fitListWindow, listTextIds } from '../../src/data/menu-layout.mjs';
+import { TOPICS } from '../../src/data/topics.mjs';
 import {
   requestWindowUpload,
   runTaskMenuCompose,
@@ -9,21 +9,26 @@ import {
 } from './native-menu-compose.mjs';
 import { setTextCursor } from './native-list-prerequisites.mjs';
 import { printText, printTextSequence } from './native-text-compose.mjs';
-import { openWindow, f963Sequence } from '../script/native-window-open.mjs';
-import { releaseWindow } from './native-render-compose.mjs';
-import { releaseWindowSequence } from './native-render-compose.mjs';
+import { openWindow, f963Sequence } from './native-window-open.mjs';
+import { releaseWindow } from '../../src/system/native-render-compose.mjs';
+import { releaseWindowSequence } from '../../src/system/native-render-compose.mjs';
 import {
   segmentSequence,
   dialogCallBody,
   drainNativeSequence,
-} from './native-call-continuation.mjs';
-import { appendScriptTask } from './task-append.mjs';
-import { appendScriptTaskCall } from '../script/task-api.mjs';
+} from '../../src/system/native-call-continuation.mjs';
+import { appendScriptTask } from '../../src/system/task-append.mjs';
+import { appendScriptTaskCall } from '../../src/script/task-api.mjs';
 
-import { DIALOG_END, TOPIC_FLAGS, TOPIC_LIST, WRAM } from '../data/wram.mjs';
-import { NIBBLE_MASK, BYTE_MASK, WORD_MASK } from '../constants/bits.mjs';
-import { CODE_BANK, WRAM_BANK } from '../constants/memory-map.mjs';
-import { FLAG_ZERO, FLAG_CARRY, FLAG_MEMORY_8BIT, FLAG_NEGATIVE } from '../constants/cpu-flags.mjs';
+import { DIALOG_END, TOPIC_FLAGS, TOPIC_LIST, WRAM } from '../../src/data/wram.mjs';
+import { NIBBLE_MASK, BYTE_MASK, WORD_MASK } from '../../src/constants/bits.mjs';
+import { CODE_BANK, WRAM_BANK } from '../../src/constants/memory-map.mjs';
+import {
+  FLAG_ZERO,
+  FLAG_CARRY,
+  FLAG_MEMORY_8BIT,
+  FLAG_NEGATIVE,
+} from '../../src/constants/cpu-flags.mjs';
 
 const DP_DIALOG_RECORD = 0x11;
 const DP_TOPIC_TASK_ARGUMENT = 0x26;

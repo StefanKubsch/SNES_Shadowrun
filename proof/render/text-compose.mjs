@@ -21,7 +21,7 @@ import {
   HUFFMAN_TEXT_END,
   TEXT_POINTER_BANK_SEED,
   HUFFMAN_CHARACTER_PAIR_MASK,
-} from '../../src/system/native-text-compose.mjs';
+} from '../replay/native-text-compose.mjs';
 import {
   TEXT_BUFFER,
   TEXT_SOURCE_BANK_WORD,

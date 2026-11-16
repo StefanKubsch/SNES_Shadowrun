@@ -6,7 +6,7 @@ import { randomBelow } from '../../src/system/native-random.mjs';
 import { createObject } from '../../src/script/native-object-create.mjs';
 import { turnRegisters } from '../../src/script/native-object-turn.mjs';
 import { hitObject, DP_HIT_RESULT, DP_HIT_SHOOTER } from './native-object-hit.mjs';
-import { playSoundEffect } from '../../src/system/native-audio-compose.mjs';
+import { playSoundEffect } from './native-audio-compose.mjs';
 import { validateTaskActionsOptions } from './native-actions.mjs';
 import { lagFree } from '../../src/system/main-wait-interrupt.mjs';
 import { dialogAccess } from '../../src/system/native-dialog-support.mjs';

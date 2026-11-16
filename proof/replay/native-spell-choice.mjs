@@ -1,7 +1,7 @@
 import { withInterruptEvents } from './observed-native-events.mjs';
 import { taskStop } from '../../src/system/task-stop.mjs';
 import { dialogAccess } from '../../src/system/native-dialog-support.mjs';
-import { dialogTextSequences } from '../../src/system/native-dialog-text.mjs';
+import { dialogTextSequences } from './native-dialog-text.mjs';
 import {
   observedContinuation,
   drainNativeSequence,

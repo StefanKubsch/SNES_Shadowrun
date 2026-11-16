@@ -5,7 +5,7 @@ import {
   taskMenuEntries as entries,
   runTaskMenuCompose,
   taskMenuDevices as devices,
-} from '../../src/system/native-menu-compose.mjs';
+} from '../replay/native-menu-compose.mjs';
 
 export function prepareTaskNativeMenuCompose(options) {
   const {

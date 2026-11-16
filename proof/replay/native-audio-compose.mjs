@@ -1,7 +1,7 @@
-import { taskStop } from './task-stop.mjs';
-import { unpackStep } from './native-unpack-body.mjs';
-import { taskTextAccess } from './native-text-prerequisites.mjs';
-import { sendApuCommand, computeSoundPan } from './native-input-apu.mjs';
+import { taskStop } from '../../src/system/task-stop.mjs';
+import { unpackStep } from '../../src/system/native-unpack-body.mjs';
+import { taskTextAccess } from '../../src/system/native-text-prerequisites.mjs';
+import { sendApuCommand, computeSoundPan } from '../../src/system/native-input-apu.mjs';
 import {
   MUSIC,
   SOUND_LOADED_SET,
@@ -20,7 +20,7 @@ import {
   AUDIO_DESTINATION,
   AUDIO_DESTINATION_HIGH,
   AUDIO_WORK_WORD,
-} from '../data/wram.mjs';
+} from '../../src/data/wram.mjs';
 import {
   WORD_MASK,
   BYTE_MASK,
@@ -31,7 +31,7 @@ import {
   HIGH_BYTE_MASK,
   WORD_SIGN,
   BYTE_BITS,
-} from '../constants/bits.mjs';
+} from '../../src/constants/bits.mjs';
 import {
   APU_COMMAND_VOLUME_TARGET,
   APU_COMMAND_SONG,
@@ -40,14 +40,14 @@ import {
   APU_COMMAND_SONG_LEVEL,
   APU_COMMAND_SOUND_VOICES,
   APU_COMMAND_TRANSFER,
-} from '../constants/sound-commands.mjs';
+} from '../../src/constants/sound-commands.mjs';
 import {
   FLAG_INDEX_8BIT,
   FLAG_CARRY,
   FLAG_MEMORY_8BIT,
   FLAG_ZERO,
   FLAG_NEGATIVE,
-} from '../constants/cpu-flags.mjs';
+} from '../../src/constants/cpu-flags.mjs';
 import {
   APUIO0,
   APUIO1,
@@ -56,7 +56,7 @@ import {
   WRMPYA,
   WRMPYB,
   RDMPYH,
-} from '../constants/hardware-registers.mjs';
+} from '../../src/constants/hardware-registers.mjs';
 
 const JSR_BYTES = 3,
   JSL_BYTES = 4,

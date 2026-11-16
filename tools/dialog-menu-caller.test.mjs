@@ -3,7 +3,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import * as direct from '../src/game/dialog-menus.mjs';
 import * as previous from '../proof/caller/dialog-menus.mjs';
-import { dialogTextRoutines } from '../src/system/native-dialog-text.mjs';
+import { dialogTextRoutines } from '../proof/replay/native-dialog-text.mjs';
 import { runFrameWait, runPadPresses } from '../src/system/live-input-calls.mjs';
 import { playSoundEffectRoutine } from '../src/apu/sound-effect.mjs';
 import { NATIVE_CALL_CONTINUATIONS } from '../src/system/native-call-continuation.mjs';
@@ -61,6 +61,10 @@ function run(module, variant, budget, realDrawing = false, counter = 0) {
     return true;
   };
   if (realDrawing) side.render = formerDraw;
+  if (module === direct)
+    Object.defineProperty(events, 'text', {
+      get: () => assert.fail('live menu must not read legacy services'),
+    });
   const binding = rendererTable(side),
     table = new Map([
       [0x81b0a1, runFrameWait],
@@ -73,12 +77,9 @@ function run(module, variant, budget, realDrawing = false, counter = 0) {
     const name = topic ? 'chooseDialogTopicSequence' : 'chooseDialogActionSequence',
       result = finishTextWindow(
         side,
-        module[name](
-          h,
-          events,
-          events.text,
-          module === direct ? (realDrawing ? undefined : side.render) : table,
-        ),
+        module === direct
+          ? module[name](h, events, realDrawing ? undefined : side.render)
+          : module[name](h, events, events.text, table),
         budget,
       );
     return { ...result, input };

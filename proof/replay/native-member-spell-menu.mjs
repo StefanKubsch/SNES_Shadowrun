@@ -22,12 +22,12 @@ import {
   SECOND_PORTRAIT_HDMA,
 } from '../../src/system/native-dialog-portrait.mjs';
 import { resetAndDrawWindowList } from './native-glove-target.mjs';
-import { chooseFromMenuAdapter } from '../../src/system/native-menu-compose.mjs';
+import { chooseFromMenuAdapter } from './native-menu-compose.mjs';
 import { appendScriptTask } from '../../src/system/task-append.mjs';
 import { lagFree } from '../../src/system/main-wait-interrupt.mjs';
 import { waitForConfirmKeyAdapter } from './native-input-wait.mjs';
-import { setTextCursor, printNumber } from '../../src/system/native-list-prerequisites.mjs';
-import { printTextAdapter } from '../../src/system/native-text-compose.mjs';
+import { setTextCursor, printNumber } from './native-list-prerequisites.mjs';
+import { printTextAdapter } from './native-text-compose.mjs';
 
 import {
   DIALOG_END,

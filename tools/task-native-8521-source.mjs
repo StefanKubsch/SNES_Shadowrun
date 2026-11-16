@@ -20,7 +20,7 @@ export const native8521Spec = {
     [
       0x81ef47,
       'RTL',
-      'music mode change, setMusicMode in src/system/native-audio-compose.mjs (analysis/render-ef47.json)',
+      'music mode change, setMusicMode in proof/replay/native-audio-compose.mjs (analysis/render-ef47.json)',
     ],
   ],
   scope:

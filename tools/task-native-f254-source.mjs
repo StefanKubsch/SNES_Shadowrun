@@ -38,8 +38,8 @@ export const nativeF254Spec = {
     { start: 0x81a954, hex: 'EE62156B' },
   ],
   externalReturns: [
-    [0x80f963, RTS, 'window, openWindow in src/script/native-window-open.mjs'],
-    [0x80a6c7, RTS, 'menu, runTaskMenuCompose in src/system/native-menu-compose.mjs'],
+    [0x80f963, RTS, 'window, openWindow in proof/replay/native-window-open.mjs'],
+    [0x80a6c7, RTS, 'menu, runTaskMenuCompose in proof/replay/native-menu-compose.mjs'],
     [0x80fa3e, RTS, 'window release, releaseWindow in src/system/native-render-compose.mjs'],
     [0x80c34a, RTS, 'append task, appendScriptTask in src/system/task-append.mjs'],
     [0x80c1ca, RTS, 'visit, nested scheduler round NativeCalls.round (proof/vm/native-call.mjs)'],
@@ -71,9 +71,9 @@ export const nativeF254Spec = {
       'portrait DMA request, uploadPortraitTiles in src/system/native-dialog-portrait.mjs (tools/task-native-936c-source.mjs)',
     ],
     [0x81b0a1, RTL, 'frame counter, waitForRandomStateChange in src/system/native-frame-wait.mjs'],
-    [0x80faac, RTS, 'cursor, setTextCursor in src/system/native-list-prerequisites.mjs'],
-    [0x80fe69, RTS, 'text, printText in src/system/native-text-compose.mjs'],
-    [0x80fd80, RTS, 'number, printNumber in src/system/native-list-prerequisites.mjs'],
+    [0x80faac, RTS, 'cursor, setTextCursor in proof/replay/native-list-prerequisites.mjs'],
+    [0x80fe69, RTS, 'text, printText in proof/replay/native-text-compose.mjs'],
+    [0x80fd80, RTS, 'number, printNumber in proof/replay/native-list-prerequisites.mjs'],
   ],
   scope:
     'Original Native01 F254 own code with the weapon menu E693 and its helpers; external returns into the proved window, menu, task, scheduler, input, portrait, counter, cursor, text and number graphs; equations in proof/replay/native-member-spell-menu.mjs, differential check in tools/task-native-f254.test.mjs.',

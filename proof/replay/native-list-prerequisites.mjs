@@ -17,10 +17,10 @@ import {
   DP_LIST_TOKEN_BANK,
   DP_LIST_VALUES,
   DP_MENU_VISIBLE_ROWS as DP_VISIBLE_ROWS,
-} from '../data/wram.mjs';
-import { taskStop } from './task-stop.mjs';
-import { dialogAccess } from './native-dialog-support.mjs';
-import { taskTextAccess } from './native-text-prerequisites.mjs';
+} from '../../src/data/wram.mjs';
+import { taskStop } from '../../src/system/task-stop.mjs';
+import { dialogAccess } from '../../src/system/native-dialog-support.mjs';
+import { taskTextAccess } from '../../src/system/native-text-prerequisites.mjs';
 import { printText, drawTextBuffer } from './native-text-compose.mjs';
 import {
   BANK_WRAP,
@@ -29,8 +29,8 @@ import {
   BYTE_MASK,
   WORD_BITS,
   LONG_MASK,
-} from '../constants/bits.mjs';
-import { FLAG_INDEX_8BIT, FLAG_MEMORY_8BIT, FLAG_CARRY } from '../constants/cpu-flags.mjs';
+} from '../../src/constants/bits.mjs';
+import { FLAG_INDEX_8BIT, FLAG_MEMORY_8BIT, FLAG_CARRY } from '../../src/constants/cpu-flags.mjs';
 import {
   WRMPYA,
   WRMPYB,
@@ -41,8 +41,8 @@ import {
   RDDIVH,
   RDMPYL,
   RDMPYH,
-} from '../constants/hardware-registers.mjs';
-import { WRAM_BANK_PAIR, CODE_BANK } from '../constants/memory-map.mjs';
+} from '../../src/constants/hardware-registers.mjs';
+import { WRAM_BANK_PAIR, CODE_BANK } from '../../src/constants/memory-map.mjs';
 
 const JSR_BYTES = 0x3;
 const DECIMAL_WORD_DIGITS = 0x5;

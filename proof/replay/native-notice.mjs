@@ -3,8 +3,8 @@ import { lagFree } from '../../src/system/main-wait-interrupt.mjs';
 import { taskStop } from '../../src/system/task-stop.mjs';
 import { dialogAccess } from '../../src/system/native-dialog-support.mjs';
 import { taskTextAccess } from '../../src/system/native-text-prerequisites.mjs';
-import { f963Sequence } from '../../src/script/native-window-open.mjs';
-import { printTextSequence } from '../../src/system/native-text-compose.mjs';
+import { f963Sequence } from './native-window-open.mjs';
+import { printTextSequence } from './native-text-compose.mjs';
 import { fitNoticeWindow } from '../../src/data/language.mjs';
 import { releaseWindowJsrSequence } from '../../proof/caller/window-release.mjs';
 import {

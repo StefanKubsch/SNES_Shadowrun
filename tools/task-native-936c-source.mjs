@@ -10,10 +10,11 @@ import {
   SPRITE_ORDER_TARGETS,
 } from './task-native-936c-windows.mjs';
 
-// Native95/936C (Dialog, proof/replay/native-dialog.mjs) und seine neu umgesetzten Unterroutinen: je Gruppe
-// gepinnte Originalbytes, statischer Stapel-/Modusbeweis mit echten Rahmen und externen Rücksprüngen in
-// Routinen mit eigenem Beweis. Die Gleichungen vergleicht tools/task-native-dialog.test.mjs mit den
-// Originalbefehlen; Mesen bestätigt den ganzen Dialog (docs/MESEN-ORACLE.md).
+// Native95/936C (dialog, proof/replay/native-dialog.mjs) and its ported callees:
+// each group pins original bytes and proves stack/mode with real frames and
+// external returns into separately proved routines. tools/task-native-dialog.test.mjs
+// compares the equations with original instructions; Mesen checks the full dialog
+// (docs/MESEN-ORACLE.md).
 const RTS = 'RTS',
   RTL = 'RTL';
 const ext = {
@@ -22,8 +23,8 @@ const ext = {
     RTS,
     'clear windows, releaseNoticeWindows (proof/replay/native-slot-release.mjs)',
   ],
-  EF47: [0x81ef47, RTL, 'music mode, setMusicMode (src/system/native-audio-compose.mjs)'],
-  F963: [0x80f963, RTS, 'window allocation, openWindow (src/script/native-window-open.mjs)'],
+  EF47: [0x81ef47, RTL, 'music mode, setMusicMode (proof/replay/native-audio-compose.mjs)'],
+  F963: [0x80f963, RTS, 'window allocation, openWindow (proof/replay/native-window-open.mjs)'],
   FA3E: [0x80fa3e, RTS, 'window release, releaseWindow (src/system/native-render-compose.mjs)'],
   B0A1: [
     0x81b0a1,
@@ -31,10 +32,14 @@ const ext = {
     'frame counter wait, waitForRandomStateChange (src/system/native-frame-wait.mjs)',
   ],
   '9E1A': [0x809e1a, RTS, 'joypad, readInput (src/system/native-input-apu.mjs)'],
-  FA67: [0x80fa67, RTS, 'window request, requestWindowUpload (src/system/native-menu-compose.mjs)'],
-  FAAC: [0x80faac, RTS, 'cursor, setTextCursor (src/system/native-list-prerequisites.mjs)'],
-  FE69: [0x80fe69, RTS, 'text, printText (src/system/native-text-compose.mjs)'],
-  A6C7: [0x80a6c7, RTS, 'menu, runTaskMenuCompose (src/system/native-menu-compose.mjs)'],
+  FA67: [
+    0x80fa67,
+    RTS,
+    'window request, requestWindowUpload (proof/replay/native-menu-compose.mjs)',
+  ],
+  FAAC: [0x80faac, RTS, 'cursor, setTextCursor (proof/replay/native-list-prerequisites.mjs)'],
+  FE69: [0x80fe69, RTS, 'text, printText (proof/replay/native-text-compose.mjs)'],
+  A6C7: [0x80a6c7, RTS, 'menu, runTaskMenuCompose (proof/replay/native-menu-compose.mjs)'],
   C34A: [0x80c34a, RTS, 'append task, appendScriptTask (src/system/task-append.mjs; topic path)'],
   C1CA: [
     0x80c1ca,
@@ -70,7 +75,7 @@ export const native936CSpecs = [
       ext['9E1A'],
       own(0x80b8de, RTS, 'b8de'),
     ],
-    // $94E2 PLA nimmt die alte Musik: PHY bei Musikwechsel ($93BB) oder PEA FFFF ($93C2).
+    // $94E2 PLA takes the old music: PHY on a music change ($93BB) or PEA FFFF ($93C2).
     lemmas: { pullKinds: new Map([[0x8094e2, ['index', 'byte']]]) },
   },
   { name: '886a', entry: 0x81886a, root: RTL, externalReturns: [] },
@@ -82,7 +87,7 @@ export const native936CSpecs = [
   { name: '8f3a', entry: 0x808f3a, root: RTS, externalReturns: [ext.B0A1] },
   { name: '8f97', entry: 0x808f97, root: RTS, externalReturns: [ext.B0A1] },
   { name: 'bcb2', entry: 0x80bcb2, root: RTS, externalReturns: [ext.FA3E] },
-  // $91D8 REP #$20 wird aus dem BYTE-Teil ($9191) erreicht.
+  // $91D8 REP #$20 is reached from the BYTE section ($9191).
   {
     name: '9178',
     entry: 0x809178,
@@ -91,7 +96,7 @@ export const native936CSpecs = [
     lemmas: { widthJoins: new Set([0x8091d8]) },
   },
   { name: '91e2', entry: 0x8091e2, root: RTS, externalReturns: [ext.A6C7] },
-  // PEI ($00) sichert die Menüauswahl, PLY nimmt sie zurück.
+  // PEI ($00) saves the menu choice; PLY restores it.
   {
     name: '9215',
     entry: 0x809215,
@@ -100,7 +105,7 @@ export const native936CSpecs = [
     lemmas: { peiWordPushes: new Map([[0x80929b, 0]]), dataPulls: new Set([0x8092a4]) },
   },
   { name: 'adf4', entry: 0x80adf4, root: RTS, externalReturns: [ext.B0A1] },
-  // Sprungziele aus den ROM-Tabellen 80:B0E3/B126 (Einträge 1..4) und der ausgerollten Folge ab 80:B936.
+  // Branch targets from ROM tables 80:B0E3/B126 (entries 1..4) and the unrolled sequence at 80:B936.
   {
     name: 'b8de',
     entry: 0x80b8de,
@@ -110,15 +115,15 @@ export const native936CSpecs = [
       indirectTargets: new Map([
         [0x80b0ac, SPRITE_COMPARE_TARGETS],
         [0x80b0ef, SPRITE_ORDER_TARGETS],
-        // DP84 beginnt bei 4 und wächst nur: k = DP84/4 von 1 bis 128 (STA $3D09 für Sprite 0 bleibt unerreicht).
+        // DP84 starts at 4 and only grows: k = DP84/4 from 1 to 128 (STA $3D09 for sprite 0 stays unreachable).
         [0x80b930, Array.from({ length: 128 }, (_, k) => 0x80b936 + 3 * k)],
       ]),
-      // $B7EB REP #$20 vereinigt BYTE- und WORD-Pfade der OAM-Einträge; $B7DC SEP #$20 folgt linear auf BYTE-Code.
+      // $B7EB REP #$20 joins BYTE/WORD OAM paths; $B7DC SEP #$20 follows BYTE code linearly.
       widthJoins: new Set([0x80b7eb, 0x80b7dc]),
     },
   },
 ].map((s) => ({ ...s, windows: DIALOG_WINDOWS[s.name] }));
-// Festgeschriebene Beweiswerte je Gruppe: Befehle, lokale Stapelbytes, Rücksprungstellen.
+// Pinned proof values per group: instructions, local stack bytes and return sites.
 export const native936CExpected = {
   9022: { instructions: 43, stack: 2, returns: ['80:905D'] },
   9178: { instructions: 99, stack: 3, returns: ['80:91D7', '80:91E1'] },

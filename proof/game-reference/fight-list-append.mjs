@@ -3,7 +3,7 @@
 // script native in src/script/native-script-leaves.mjs).
 import { taskStop } from '../../src/system/task-stop.mjs';
 import { FIRST_ARGUMENT, leaf } from '../../src/system/native-leaf-support.mjs';
-import { setMusicMode } from '../../src/system/native-audio-compose.mjs';
+import { setMusicMode } from '../replay/native-audio-compose.mjs';
 import {
   FIGHT_KARMA,
   FIGHT_LIST,

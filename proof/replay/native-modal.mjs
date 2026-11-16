@@ -4,10 +4,10 @@ import { dialogAccess } from '../../src/system/native-dialog-support.mjs';
 import { taskStop } from '../../src/system/task-stop.mjs';
 import { fitListWindow } from '../../src/data/menu-layout.mjs';
 import { taskTextAccess } from '../../src/system/native-text-prerequisites.mjs';
-import { f963Sequence } from '../../src/script/native-window-open.mjs';
-import { menuComposeSequence } from '../../src/system/native-menu-compose.mjs';
+import { f963Sequence } from './native-window-open.mjs';
+import { menuComposeSequence } from './native-menu-compose.mjs';
 import { releaseWindowJsrSequence } from '../../proof/caller/window-release.mjs';
-import { printTextSequence } from '../../src/system/native-text-compose.mjs';
+import { printTextSequence } from './native-text-compose.mjs';
 import {
   observedContinuation,
   drainNativeSequence,

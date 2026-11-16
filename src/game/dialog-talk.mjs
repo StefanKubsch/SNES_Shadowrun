@@ -47,7 +47,6 @@ import {
 import { frameWaitCallSequence, runPadPresses } from '../system/live-input-calls.mjs';
 import { sceneRuntime } from '../system/scene-runtime.mjs';
 import { fixesEnabled, preparePushkinTopics } from './bugfixes.mjs';
-import { dialogTextRoutines } from '../system/native-dialog-text.mjs';
 import { DIALOG_TABLE, DIALOG_BANK_BASE } from '../data/portraits.mjs';
 import { JAKE_PORTRAIT_DIALOG, JAKE_ALTERNATE_PORTRAIT_DIALOG } from '../data/runners.mjs';
 import {
@@ -280,7 +279,6 @@ export function* talkSequence(h, events, renderBuffer = drawTextBufferSequence) 
     m = sceneRuntime(h),
     { mem, wram, port } = m;
   if (fixesEnabled(h.a)) preparePushkinTopics(h.a, word(wram, DP_RECORD_NUMBER));
-  events.text ??= dialogTextRoutines(events);
   // Load a portrait record (pointer in F6, bank in F8) for the unpacker: Y its bank, A its
   // address, X the buffer.
   function* portrait(unpack, shift) {
@@ -402,9 +400,7 @@ export function* talkSequence(h, events, renderBuffer = drawTextBufferSequence) 
     setWord(wram, DP_OBJECT, word(wram, DP_PORTRAIT_FRAME));
     ctx.a = GREETING_TEXT;
   };
-  yield* dialogCallBody(h, ...CALL.greeting, () =>
-    showDialogTextSequence(h, events, events.text, renderBuffer),
-  );
+  yield* dialogCallBody(h, ...CALL.greeting, () => showDialogTextSequence(h, events, renderBuffer));
   yield () => (ctx.x = GREETING_WAIT_FRAMES);
   do {
     yield* dialogCallBody(
@@ -419,7 +415,7 @@ export function* talkSequence(h, events, renderBuffer = drawTextBufferSequence) 
   // The menu until Exit or the end word.
   for (;;) {
     yield* dialogCallBody(h, ...CALL.menu, () =>
-      chooseDialogActionSequence(h, events, events.text, renderBuffer),
+      chooseDialogActionSequence(h, events, renderBuffer),
     );
     let next;
     yield () => {
@@ -436,7 +432,7 @@ export function* talkSequence(h, events, renderBuffer = drawTextBufferSequence) 
     if (next === 'end') break;
     if (next === 'topics') {
       yield* dialogCallBody(h, ...CALL.topics, () =>
-        chooseDialogTopicSequence(h, events, events.text, renderBuffer),
+        chooseDialogTopicSequence(h, events, renderBuffer),
       );
       yield () => {
         ctx.a = word(wram, DIALOG_END);
@@ -450,7 +446,7 @@ export function* talkSequence(h, events, renderBuffer = drawTextBufferSequence) 
       if (next === 'menu') continue;
     }
     yield* dialogCallBody(h, ...(next === 'talk' ? CALL.talkText : CALL.topicText), () =>
-      showDialogTextSequence(h, events, events.text, renderBuffer),
+      showDialogTextSequence(h, events, renderBuffer),
     );
     let stop;
     yield () => {

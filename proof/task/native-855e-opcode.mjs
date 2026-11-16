@@ -6,8 +6,8 @@ import { runTaskNativeBridge } from './native-bridge.mjs';
 import { runTaskNativeResume } from './native-resume.mjs';
 import { removeFromFightListObserved } from '../replay/native-fight-list-remove.mjs';
 import { fec1Registers, validateNoticeOptions } from '../replay/native-notice.mjs';
-import { taskListDevices } from '../../src/system/native-list-prerequisites.mjs';
-import { taskAudioDevices } from '../../src/system/native-audio-compose.mjs';
+import { taskListDevices } from '../replay/native-list-prerequisites.mjs';
+import { taskAudioDevices } from '../replay/native-audio-compose.mjs';
 // Devices of 855E: the notice FEC1, FAAC/FD80 with the arithmetic unit and the APU ports of C46E/EF47.
 export const native855EDevices = Object.freeze(
   Object.fromEntries(

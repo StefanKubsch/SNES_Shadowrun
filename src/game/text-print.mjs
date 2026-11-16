@@ -1,5 +1,5 @@
 // The text print of a window (lifted from 80:FE69 with its bit reader 81:AF04;
-// register-level versions in src/system/native-text-compose.mjs and
+// register-level versions in proof/replay/native-text-compose.mjs and
 // native-text-prerequisites.mjs, which the other callers still use).
 //
 // A text number (the direct page word 02) is a bit position in the Huffman coded text

@@ -189,7 +189,7 @@ the module that implements it.
 | `native-e30f`            | [native-matrix-enter.mjs](../src/script/native-matrix-enter.mjs)                                           |
 | `native-ea6e`            | [native-status-screen.mjs](../proof/replay/native-status-screen.mjs)                                       |
 | `native-f254`            | [native-member-spell-menu.mjs](../proof/replay/native-member-spell-menu.mjs)                               |
-| `native-f963`            | [native-window-open.mjs](../src/script/native-window-open.mjs)                                             |
+| `native-f963`            | [native-window-open.mjs](../proof/replay/native-window-open.mjs)                                             |
 | `native-fec1`            | [native-notice.mjs](../proof/replay/native-notice.mjs)                                                     |
 | `native-input-wait-f953` | [native-input-wait.mjs](../proof/replay/native-input-wait.mjs)                                             |
 | `sight-a25f`             | [line-of-sight.mjs](../proof/replay/line-of-sight.mjs)                                                     |
