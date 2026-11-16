@@ -17,10 +17,9 @@ function runPlayer(
   leaderOnly = false,
   control = null,
 ) {
-  let services;
   return compareRun(
     (h, events, renderer) =>
-      direct ? directControl(h, events, services, renderer) : formerControl(h, events, renderer),
+      direct ? directControl(h, events, renderer) : formerControl(h, events, renderer),
     direct,
     ({ put, mem }) => {
       put(W.PLAYER_OBJECT, 2);
@@ -55,7 +54,6 @@ function runPlayer(
       routines.set(0x80a985, (callee) => selectAnimationRegisters(callee.a));
       routines.set(0x80aaaf, (callee) => turnRegisters(callee.a));
       bind(0x80ed3c, () => partyStatusSequence(h, events, routines));
-      services = new Map([...routines].filter(([target]) => [0x80ea89, 0x80ea8e].includes(target)));
     },
   );
 }

@@ -81,7 +81,7 @@ import { controlPlayerSequence } from './player-control.mjs';
 import { partyStatusSequence } from './party-status.mjs';
 import { equipmentRowsSequence } from './equipment-window.mjs';
 import { memberPortraitSequence } from './member-portrait.mjs';
-import { ITEMS_ENTRY, NATIVE_ENTRY, START_ENTRY, statusScreenSequence } from './status-screen.mjs';
+import { NATIVE_ENTRY, statusScreenSequence } from './status-screen.mjs';
 import { notesSequence, skillsSequence } from './status-submenus.mjs';
 import { mainMenuSequence } from './main-menu.mjs';
 import { playerZonesSequence } from './player-zones.mjs';
@@ -469,8 +469,6 @@ export const runSkills = sequenceRun((h, events) => skillsSequence(h, events)),
 // spell menu's entry 80:E68E too), notice and window releases, glove, window and
 // plain menu, cursor, text, numbers, equipment rows, portrait, sound command 81:F007,
 // colour reset 81:886A and the closing 80:92C5.
-const runStatusScreen = sequenceRun((h, events) => statusScreenSequence(h, events, START_ENTRY)),
-  runItemList = sequenceRun((h, events) => statusScreenSequence(h, events, ITEMS_ENTRY));
 // The lifted status screen as the script native 80:EA6E runs it with lag-free frames.
 export const liftedStatusScreenSequence = (h, events) =>
   statusScreenSequence(h, events, NATIVE_ENTRY);
@@ -480,12 +478,8 @@ export const liftedMainMenuSequence = (h, events) => mainMenuSequence(h, events)
 // The lifted player control 80:E014 with the lifted party status, window, text,
 // release, glove release, turn, animation selection 80:A985, status screen and key
 // wait.
-const PLAYER_CONTROL_LIFT_ROUTINES = new Map([
-  [0x80ea89, runStatusScreen],
-  [0x80ea8e, runItemList],
-]);
 export const liftedPlayerControlSequence = (h, events) =>
-  controlPlayerSequence(h, events, PLAYER_CONTROL_LIFT_ROUTINES);
+  controlPlayerSequence(h, events);
 // The time limit's and the glove action's callees: the lifted notice, glove release,
 // text cursor 80:FAAC (nothing in it waits), number, action menu, dialog, pad word 80:9E1A (lifted
 // with lag-free frames, as at the top of the loop), window, text and text buffer, the

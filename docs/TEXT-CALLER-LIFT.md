@@ -829,3 +829,10 @@ Player Start composes the real status screen through its original frame and
 forwards the renderer. Independent former player/status callers cover Exit,
 cancellation and Select from skills, both budgets and default glyphs. They
 compare full state, portrait uploads, HDMA, scene close and sound commands.
+
+### Block 2: player immediate items
+
+Player Y composes immediate-item status directly. Player control receives only
+its renderer; main-upkeep drops the final player service table and adapters.
+Both real runner routes compare the actual item menu, portrait and scene close
+with independent former callers at both budgets and with default glyphs.

@@ -59,7 +59,7 @@ function runStatus(
   const result = compareRun(
     function* (h, e, r) {
       const returned = player
-        ? yield* (direct ? directPlayer(h, e, new Map(), r) : formerPlayer(h, e, r))
+        ? yield* (direct ? directPlayer(h, e, r) : formerPlayer(h, e, r))
         : yield* module.statusScreenSequence(h, e, ...(direct ? [entry, r] : [r, entry]));
       captureFinal();
       return returned;
@@ -319,4 +319,15 @@ for (const budget of [1, 7])
         assert.equal(actual.wram[0] | (actual.wram[1] << 8), 0);
         assert.ok(actual.input > 0);
         assert.ok(actual.writes.includes('8514,32639,2'));
+      });
+
+for (const budget of [1, 7])
+  for (const runner of [0, 1])
+    for (const glyphs of [false, true])
+      test(`player immediate items: runner ${runner}, budget ${budget}, glyphs ${glyphs}`, () => {
+        const actual = runStatus(directStatus, true, 0x80ea8e, runner, 'items', budget, glyphs, false, 0, true);
+        assert.deepEqual(actual, runStatus(formerStatus, false, 0x80ea8e, runner, 'items', budget, glyphs, false, 0, true));
+        assert.equal(actual.input, 1);
+        assert.equal(actual.wram[0] | (actual.wram[1] << 8), 0);
+        assert.ok(actual.calls.some(call => call[0] === 'scene close frame'));
       });

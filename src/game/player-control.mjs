@@ -13,17 +13,16 @@
 // buttons for Summon spirit and for a weapon of kind 1 over a hittable target), B, L or
 // R ends the aim and takes the glove off (80:BCB2), as A or X do without an aim, and B,
 // L or R do without a tagged object. Callees retain their original call frames.
-// Only the immediate-item entry retains a service.
+// All callees compose directly through their original frames.
 import { openWindowSequence } from './window-open.mjs';
 import { printTextSequence } from './text-print.mjs';
 import { waitForConfirmKeySequence } from './confirm-key.mjs';
 import { selectAnimationRoutine, turnObjectRoutine } from './object-turn.mjs';
 import { releaseWindowJsrSequence, putGloveAwayCallSequence } from './window-release.mjs';
-import { START_ENTRY, statusScreenSequence } from './status-screen.mjs';
+import { START_ENTRY, ITEMS_ENTRY, statusScreenSequence } from './status-screen.mjs';
 import { partyStatusSequence } from './party-status.mjs';
 import { drawTextBufferSequence } from './text-draw.mjs';
 import {
-  nativeCallSequence,
   dialogCallBody,
   segmentSequence,
 } from '../system/native-call-continuation.mjs';
@@ -157,8 +156,6 @@ function add(left, right, carry = false) {
   return { value, carry: sum > WORD_MASK, overflow: negative(~(left ^ right) & (left ^ value)) };
 }
 const magnitude = (value) => (negative(value) ? -value & WORD_MASK : value);
-const call = (h, events, routines, [pc, target]) =>
-  nativeCallSequence(h, events, routines, pc, target, false, false);
 
 // 80:DEC7: the leader Y walks by the pad's directions (80:DF4B, turned by the camera's
 // rotation word in SRAM and kept even) with the steps of 80:DF27 and 80:DF39 and
@@ -365,7 +362,7 @@ function aimResult(h) {
 
 // 80:E014: one frame of the player's control (see above). A sequence that ends with the
 // native's RTS.
-export function* controlPlayerSequence(h, events, routines, renderBuffer = drawTextBufferSequence) {
+export function* controlPlayerSequence(h, events, renderBuffer = drawTextBufferSequence) {
   const { ctx } = h,
     { mem } = h.a,
     { wram } = mem;
@@ -400,7 +397,7 @@ export function* controlPlayerSequence(h, events, routines, renderBuffer = drawT
     return yield* finish();
   }
   if (path === 'items') {
-    yield* call(h, events, routines, ITEM_LIST);
+    yield* dialogCallBody(h, ...ITEM_LIST, () => statusScreenSequence(h, events, ITEMS_ENTRY, renderBuffer));
     return yield* finish();
   }
   if (path === 'free') return yield* freeSequence(h, events, finish, renderBuffer);
