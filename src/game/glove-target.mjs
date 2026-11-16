@@ -1,4 +1,4 @@
-import { drawWindowListSequence } from './window-list.mjs';
+import { drawWindowListSequence, runUnpackWindowMap } from './window-list.mjs';
 import { showNoticeSequence } from './notice-show.mjs';
 import { putGloveAwayCallSequence } from './window-release.mjs';
 import { frameWaitCallSequence, runPadPresses } from '../system/live-input-calls.mjs';
@@ -518,7 +518,13 @@ function* prepareWindowListSequence(h, events, routines, pc) {
     pc,
     PREPARE_LIST,
     function* () {
-      yield* callSequence(h, events, routines, PREPARE_LIST, UNPACK_MAP, true);
+      yield* dialogCallBody(
+        h,
+        PREPARE_LIST,
+        UNPACK_MAP,
+        () => segmentSequence(() => runUnpackWindowMap(h)),
+        true,
+      );
       yield* callSequence(h, events, routines, PREPARE_UPLOAD, REQUEST_UPLOAD, true);
       let result;
       yield () => {

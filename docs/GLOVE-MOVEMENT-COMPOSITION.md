@@ -29,3 +29,10 @@ movement service table and its continuation no longer forwards a table.
 Actual movement callers cover all direction combinations, acceleration and
 position limits, object acquisition and marked-name release at both budgets.
 The retained former movement still supplies the independent original evidence.
+
+## Block 4: choice map unpack
+
+Spell and place preparation compose window-map unpack through the original
+81:AEB8 JSL frame. Existing real choice cases compare the unpacked map and
+upload chronology with the retained former caller, including request wrap.
+The unpack equations, direct-page writes and remaining services are unchanged.
