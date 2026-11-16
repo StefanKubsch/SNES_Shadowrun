@@ -1,4 +1,4 @@
-import { frameWaitCallSequence } from '../system/live-input-calls.mjs';
+import { frameWaitCallSequence, runPadPresses } from '../system/live-input-calls.mjs';
 // Choosing with the action or spell glove (lifted from the script natives 80:8D0B and its
 // relatives; register-level version in proof/replay/native-glove-target.mjs, which
 // recorded waits and inputs replay).
@@ -20,7 +20,11 @@ import { frameWaitCallSequence } from '../system/live-input-calls.mjs';
 // The spell glove (80:9BD3) closes an open member menu's dialog and prepares the window
 // list first; it takes only objects with bit 15 of their flags set. The place choice
 // (80:C724) turns the glove's position into a place on the floor for an object's walk.
-import { dialogCallBody, nativeCallSequence } from '../system/native-call-continuation.mjs';
+import {
+  dialogCallBody,
+  nativeCallSequence,
+  segmentSequence,
+} from '../system/native-call-continuation.mjs';
 import { dataBankWord } from '../system/data-bank.mjs';
 import { GLOVE_LIMITS, GLOVE_OVER_PLAYER } from '../script/native-glove-crosshair-limits.mjs';
 import {
@@ -152,7 +156,9 @@ const FRAME_WAIT = 0x81b0a1,
 const callSequence = (h, events, routines, pc, target, long = false) =>
   target === FRAME_WAIT
     ? dialogCallBody(h, pc, target, () => frameWaitCallSequence(h, events), true)
-    : nativeCallSequence(h, events, routines, pc, target, long, false);
+    : target === PAD_WORD
+      ? dialogCallBody(h, pc, target, () => segmentSequence(() => runPadPresses(h, events)))
+      : nativeCallSequence(h, events, routines, pc, target, long, false);
 
 const word = (wram, at) => wram[at] | (wram[at + 1] << BYTE_BITS);
 const setWord = (wram, at, value) => {

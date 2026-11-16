@@ -945,3 +945,10 @@ frames. Former choices retain independent random original comparisons. New
 real caller comparisons cover immediate and delayed choosing buttons, target
 and no target, both budgets, real pad state and real glove release. Movement
 remains a controlled boundary in these caller cases.
+
+### Block 7: choice input
+
+Glove choices directly compose pad refresh through each original JSR frame.
+All four choosing buttons, an invalid input followed by release/repress and the
+existing soft-reset frontier compare against the former callers at both budgets.
+The final refresh consumes the choice without an additional frame wait.

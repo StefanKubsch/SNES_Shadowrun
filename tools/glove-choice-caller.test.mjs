@@ -56,3 +56,20 @@ for (const budget of [1, 7])
         assert.equal(actual.input, pads.length);
         assert.equal(actual.wram[0] | (actual.wram[1] << 8), target ? 2 : 0xffff);
       });
+
+for (const budget of [1, 7])
+  for (const pads of [[0x8000], [0x4000], [0x80], [0x40], [0x800f, 0, 0x8000]])
+    test(`glove choice real input: pads ${pads}, budget ${budget}`, () => {
+      const name = 'chooseObjectUnderGloveSequence';
+      const actual = runChoice(direct, name, budget, true, pads);
+      assert.deepEqual(actual, runChoice(former, name, budget, true, pads));
+      assert.equal(actual.input, pads.length);
+      assert.equal(actual.wram[W.PAD_PRESSED] | (actual.wram[W.PAD_PRESSED + 1] << 8), 0);
+    });
+for (const module of [direct, former])
+  test(`glove choice preserves reset boundary: ${module === direct ? 'direct' : 'former'}`, () => {
+    assert.throws(
+      () => runChoice(module, 'chooseObjectUnderGloveSequence', 1, true, [0x3030]),
+      (error) => error.reason === 'task_reset_source_required',
+    );
+  });
