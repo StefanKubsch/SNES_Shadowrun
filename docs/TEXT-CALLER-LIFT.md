@@ -911,3 +911,9 @@ The former caller is retained for independent register-level random comparisons.
 Real callers cover horizontal and height reach boundaries, action offers, child
 task delivery, L/R and menu exits, both budgets and default glyph uploads.
 Existing task search, distance arithmetic and event masks remain unchanged.
+
+### Block 2: action glove release
+
+Both action exits compose glove release directly through their original JSRs.
+Real caller comparisons include active name windows, upload counter wrap, far
+notices and direct/child task actions, preserving window release uploads.

@@ -1,3 +1,4 @@
+import { putGloveAwayCall } from './window-release.mjs';
 // The action glove's buttons on an object (lifted from 80:BF3B; register-level
 // reference in proof/game-reference/main-glove-action.mjs).
 //
@@ -220,7 +221,7 @@ export function* gloveActionSequence(h, events, routines, renderBuffer = drawTex
   };
   if (path === 'notice') {
     yield* dialogCallBody(h, ...CALL.notice, () => showNoticeSequence(h, events, renderBuffer));
-    yield* call(CALL.noticeRelease);
+    yield* putGloveAwayCall(h, events, CALL.noticeRelease[0]);
     yield* call(CALL.noticeInput);
   }
   if (path === 'menu') {
@@ -267,7 +268,7 @@ export function* gloveActionSequence(h, events, routines, renderBuffer = drawTex
       ctx.a = sent.events;
     };
     if (path === 'pass') {
-      yield* call(CALL.release);
+      yield* putGloveAwayCall(h, events, CALL.release[0]);
       yield* call(CALL.input);
     }
   }

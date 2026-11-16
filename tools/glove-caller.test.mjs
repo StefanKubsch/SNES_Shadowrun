@@ -9,7 +9,7 @@ import { chooseActionSequence } from '../proof/caller/action-menu.mjs';
 import * as W from '../src/data/wram.mjs';
 import { TASK_WAIT, TASK_EVENTS, TASK_PREVIOUS } from '../src/vm/layout.mjs';
 
-function runAction(direct, budget, variant, glyphs) {
+function runAction(direct, budget, variant, glyphs, name = false, request = 0) {
   let services;
   const far = variant === 'far' || variant === 'offer';
   const menu = variant === 'menu' || variant === 'offer';
@@ -22,7 +22,8 @@ function runAction(direct, budget, variant, glyphs) {
       put(W.GLOVE_TARGET_OBJECT, 2);
       put(W.GLOVE_TARGET_TAG, 0);
       put(W.GLOVE_KIND, 0xffff);
-      put(W.GLOVE_NAME_WINDOW, 0xffff);
+      put(W.GLOVE_NAME_WINDOW, name ? 0 : 0xffff);
+      put(W.TEXT_MAP_UPLOAD, request);
       put(W.OBJECT_TASK + 2, 0);
       put(W.OBJECT_X + 2, far ? 0xa1 : 0xa0);
       put(W.OBJECT_HEIGHT + 2, variant === 'height' ? 0x81 : 0x80);
@@ -64,4 +65,17 @@ for (const budget of [1, 7])
                 ? 0x1610
                 : 0x1000,
         );
+      });
+
+for (const budget of [1, 7])
+  for (const variant of ['far', 'left', 'child'])
+    for (const request of [0, 0xfffe, 0xffff])
+      test(`glove action name release: ${variant}, request ${request}, budget ${budget}`, () => {
+        const actual = runAction(true, budget, variant, true, true, request);
+        assert.deepEqual(actual, runAction(false, budget, variant, true, true, request));
+        assert.equal(
+          actual.wram[W.GLOVE_TARGET_TAG] | (actual.wram[W.GLOVE_TARGET_TAG + 1] << 8),
+          0xffff,
+        );
+        assert.equal(actual.uploads.length > 0, request !== 0xffff || variant === 'far');
       });
