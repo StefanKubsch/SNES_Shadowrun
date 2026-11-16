@@ -90,7 +90,11 @@ import * as actual from '../src/game/object-shoot.mjs';
 import * as former from '../proof/caller/object-shoot.mjs';
 import * as W from '../src/data/wram.mjs';
 
-const entries = ['shootAtObjectSequence', 'shootAtGloveTargetSequence'];
+const entries = [
+  'shootAtObjectSequence',
+  'shootAtGloveTargetSequence',
+  'shootWithOwnWeaponSequence',
+];
 for (const name of entries)
   for (const budget of [1, 7])
     for (const kind of [0, 1, 2, 3, 4, 5, 6, 7])
@@ -106,18 +110,19 @@ for (const name of entries)
         { notice: false, outcome: 'none', distance: 8 },
       ])
         for (const request of [0, 0xffff])
-          test(`actual shot/hit: ${name}, kind ${kind}, ${JSON.stringify(scenario)}, request ${request}, budget ${budget}`, () => {
-            const options = { kind, budget, request, ...scenario };
-            const got = runShot(actual[name], true, options);
-            assert.deepEqual(got, runShot(former[name], false, options));
-            if (scenario.notice) {
-              assert.equal(got.input, 2);
-              assert.equal(got.calls.length, 30);
-            }
-            if (scenario.outcome === 'blocked')
-              assert.equal(
-                got.wram[0] | (got.wram[1] << 8),
-                name === 'shootAtGloveTargetSequence' ? 1 : 0xffff,
-              );
-            if (scenario.outcome === 'none') assert.equal(got.wram[W.HARMLESS_HITS], 3);
-          });
+          if (name !== 'shootWithOwnWeaponSequence' || scenario.outcome !== 'none')
+            test(`actual shot/hit: ${name}, kind ${kind}, ${JSON.stringify(scenario)}, request ${request}, budget ${budget}`, () => {
+              const options = { kind, budget, request, ...scenario };
+              const got = runShot(actual[name], true, options);
+              assert.deepEqual(got, runShot(former[name], false, options));
+              if (scenario.notice) {
+                assert.equal(got.input, 2);
+                assert.equal(got.calls.length, 30);
+              }
+              if (scenario.outcome === 'blocked')
+                assert.equal(
+                  got.wram[0] | (got.wram[1] << 8),
+                  name === 'shootAtGloveTargetSequence' ? 1 : 0xffff,
+                );
+              if (scenario.outcome === 'none') assert.equal(got.wram[W.HARMLESS_HITS], 3);
+            });

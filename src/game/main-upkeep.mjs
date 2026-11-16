@@ -488,7 +488,7 @@ export const liftedShootAtObjectSequence = (h, events) => shootAtObjectSequence(
 export const liftedShootAtGloveTargetSequence = (h, events) =>
   shootAtGloveTargetSequence(h, events);
 export const liftedShootWithOwnWeaponSequence = (h, events) =>
-  shootWithOwnWeaponSequence(h, events, SHOOT_ROUTINES);
+  shootWithOwnWeaponSequence(h, events);
 // The lifted blast 80:8E36 with the lifted hit, as the script native runs it with
 // lag-free frames.
 export const liftedBlastSequence = (h, events) =>

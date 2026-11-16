@@ -50,3 +50,11 @@ The 80:8A51 entry composes its hit directly and receives the text renderer.
 Caller comparisons now include both shot entries and every weapon kind zero
 through seven, with the real weapon lookup, sounds and attacked flag for the
 glove entry. Absent glove targets and its distinct blocked result are retained.
+
+## Block 6: own-weapon shot caller
+
+The 80:8A8C entry also composes its hit directly with only the optional text
+renderer. All three shot entries use direct composition. The own-weapon
+caller requires a target; the actual absent-target cases belong to the other
+two entries. Its weapon, sight, turn, random, damage and full hit chain are
+compared independently with the former caller at both budgets.

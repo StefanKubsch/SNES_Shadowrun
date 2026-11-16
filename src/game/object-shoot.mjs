@@ -25,9 +25,9 @@
 // object slot and the sound run lifted as plain calls; the line of sight's direct page
 // working bytes 7E:000E-006C are not produced (as for the sight natives, user decision
 // 2026-11-13). Only the hit 80:8691, whose notices wait for frames, runs through its
-// JSR frame from the routine table, with the damage in A, the target in X and the
+// JSR frame by direct composition, with the damage in A, the target in X and the
 // shooter in Y.
-import { dialogCallBody, nativeCallSequence } from '../system/native-call-continuation.mjs';
+import { dialogCallBody } from '../system/native-call-continuation.mjs';
 import { hitObjectSequence } from './object-hit.mjs';
 import { drawTextBufferSequence } from './text-draw.mjs';
 import { dataBankWord, setDataBankWord } from '../system/data-bank.mjs';
@@ -388,7 +388,7 @@ export function* shootAtGloveTargetSequence(h, events, renderBuffer = drawTextBu
 
 // 80:8A8C: the object DP 00 shoots with its weapon at the object DP 02. A sequence that
 // ends with the native's RTS.
-export function* shootWithOwnWeaponSequence(h, events, routines) {
+export function* shootWithOwnWeaponSequence(h, events, renderBuffer = drawTextBufferSequence) {
   const run = shotRuntime(h),
     { wram } = run,
     shooter = word(wram, 0);
@@ -399,7 +399,7 @@ export function* shootWithOwnWeaponSequence(h, events, routines) {
   faceTarget(run, shooter, target);
   yield* shotSequence(
     run,
-    () => nativeCallSequence(h, events, routines, HIT_CALL, HIT, false, false),
+    () => dialogCallBody(h, HIT_CALL, HIT, () => hitObjectSequence(h, events, renderBuffer)),
     shooter,
     target,
   );
