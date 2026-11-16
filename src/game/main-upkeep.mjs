@@ -547,7 +547,6 @@ const ITEM_ROUTINES = new Map([
 const STATUS_SCREEN_LIFT_ROUTINES = new Map([
   ...SPELL_MENU_ROUTINES,
   ...ITEM_ROUTINES,
-  [0x81f007, sendApuCommandRoutine],
   [0x8092c5, runCloseDialog],
 ]);
 const runStatusScreen = sequenceRun((h, events) =>

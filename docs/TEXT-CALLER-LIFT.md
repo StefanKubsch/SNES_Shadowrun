@@ -671,3 +671,12 @@ an independently dispatched callee. Existing full status routes compare the
 actual COLDATA and CGADSUB writes alongside window, text and portrait output;
 all native, Start and immediate-item entries retain their source ordering.
 No hardware interpretation or colour equations change.
+
+### Block 6: status sound commands
+
+Status entry and close directly send their volume target commands through the
+original long frames. The retained side binds the register-level command sender,
+including its echo handshake, rather than a recording stand-in. Full routes
+compare the actual dim/restore parameter writes and command tokens. Additional
+cases cover token wrap at FE and FF with both budgets. Sound driver, hardware
+handshake and volume parameters are unchanged; scene closing remains a service.

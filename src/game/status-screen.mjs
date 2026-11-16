@@ -39,6 +39,7 @@ import { drawTextBufferSequence } from './text-draw.mjs';
 import { equipmentRowsSequence } from './equipment-window.mjs';
 import { memberPortraitSequence } from './member-portrait.mjs';
 import { clearFixedColourRoutine } from './dialog-talk.mjs';
+import { sendApuCommandRoutine } from '../apu/audio-routines.mjs';
 import { chooseFromMenuSequence, MENU } from './menu-choice.mjs';
 import { itemMenuSequence, ITEM_ENTRIES } from './item-menu.mjs';
 import { spellMenuSequence, STATUS_ENTRY } from './member-spell-menu.mjs';
@@ -277,7 +278,13 @@ export function* statusScreenSequence(
     ctx.x = STATUS_VOLUME_TARGET;
     setSignZero(ctx, STATUS_VOLUME_TARGET);
   };
-  yield* call(native ? 0x80ea77 : 0x80ea9a, SOUND, true);
+  yield* dialogCallBody(
+    h,
+    native ? 0x80ea77 : 0x80ea9a,
+    SOUND,
+    () => segmentSequence(() => sendApuCommandRoutine(h)),
+    true,
+  );
   yield () => {
     setWord(wram, MEMBER_MENU_ACTIVE, MARK_SET);
     load(ctx, MARK_SET);
@@ -563,6 +570,12 @@ function* closeSequence(h, events, call) {
     ctx.x = FULL_VOLUME;
     setSignZero(ctx, FULL_VOLUME);
   };
-  yield* call(0x80ed09, SOUND, true);
+  yield* dialogCallBody(
+    h,
+    0x80ed09,
+    SOUND,
+    () => segmentSequence(() => sendApuCommandRoutine(h)),
+    true,
+  );
   return yield* returnSequence(h);
 }

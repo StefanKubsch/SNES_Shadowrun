@@ -7,6 +7,7 @@ import { decimalNumberSequence } from '../proof/caller/decimal-number.mjs';
 import { equipmentRowsSequence } from '../proof/caller/equipment-window.mjs';
 import { clearFixedColourRoutine } from '../src/game/dialog-talk.mjs';
 import * as W from '../src/data/wram.mjs';
+import { sendApuCommand } from '../src/system/native-input-apu.mjs';
 import { itemMenuSequence } from '../proof/caller/item-menu.mjs';
 import { spellMenuSequence, STATUS_ENTRY } from '../proof/caller/member-spell-menu.mjs';
 import { skillsSequence, notesSequence } from '../proof/caller/status-submenus.mjs';
@@ -26,6 +27,7 @@ function runStatus(
   budget,
   realDrawing = false,
   alternate = false,
+  initialToken = 0,
 ) {
   let services, captureFinal;
   const selectedRow =
@@ -66,6 +68,7 @@ function runStatus(
         record = mem.read16(0x80971a);
       put(0, variant === 'fallback' ? 6 : 2);
       put(W.PLAYER_OBJECT, 2);
+      mem.wram[W.APU_COMMAND_TOKEN] = initialToken;
       mem.wram[W.JAKE_ALTERNATE_PORTRAIT] = alternate ? 1 : 0;
       put(W.GLOVE_TARGET_TAG, 0xffff);
       put(W.OBJECT_NUMBER + 2, number);
@@ -133,10 +136,11 @@ function runStatus(
       bind(0x808ff5, () => uploadPortraitTilesSequence(h, events, routines));
       bind(0x80e4b3, () => memberPortraitSequence(h, events, routines));
       routines.set(0x81886a, clearFixedColourRoutine);
-      for (const target of [0x81f007, 0x8092c5])
+      routines.set(0x81f007, (callee) => sendApuCommand(callee.a, false));
+      for (const target of [0x8092c5])
         routines.set(target, (callee) => {
           calls.push(['service', target, callee.ctx.a, callee.ctx.x]);
-          return target === 0x81f007 ? callee.rtl() : callee.rts();
+          return callee.rts();
         });
       bind(0x80fdcf, () => decimalNumberSequence(h, events, routines));
       bind(0x80e9c5, () => equipmentRowsSequence(h, events, routines));
@@ -170,7 +174,13 @@ for (const budget of [1, 7])
           actual.wram[W.MEMBER_MENU_ACTIVE] | (actual.wram[W.MEMBER_MENU_ACTIVE + 1] << 8),
           0,
         );
-        assert.equal(actual.calls.filter((c) => c[0] === 'service' && c[1] === 0x81f007).length, 2);
+        assert.equal(actual.writes.filter((write) => write === '8513,2,1').length, 2);
+        assert.ok(actual.writes.includes('8514,12079,2'));
+        assert.ok(actual.writes.includes('8514,32639,2'));
+        assert.equal(
+          actual.wram[W.APU_COMMAND_TOKEN],
+          actual.writes.filter((write) => write.startsWith('8512,')).length & 0xff,
+        );
         assert.ok(actual.writes.includes('8498,224,1'), 'fixed colour reset');
         assert.ok(actual.writes.includes('8497,0,1'), 'colour math disabled');
       });
@@ -252,3 +262,25 @@ for (const budget of [1, 7]) {
       );
   });
 }
+
+for (const budget of [1, 7])
+  for (const token of [0xfe, 0xff])
+    test(`status sound token wrap: ${token}, budget ${budget}`, () => {
+      const actual = runStatus(
+        directStatus,
+        true,
+        0x80ea89,
+        0,
+        'cancel',
+        budget,
+        false,
+        false,
+        token,
+      );
+      assert.deepEqual(
+        actual,
+        runStatus(formerStatus, false, 0x80ea89, 0, 'cancel', budget, false, false, token),
+      );
+      assert.equal(actual.wram[W.APU_COMMAND_TOKEN], (token + 2) & 0xff);
+      assert.equal(actual.writes.filter((write) => write === '8513,2,1').length, 2);
+    });
