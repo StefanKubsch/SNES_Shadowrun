@@ -383,3 +383,23 @@ without a datajack and all eight combinations of Jake's cyberware flags, at
 both budgets. They compare each text, upload, input, return and game state,
 and assert the number of visible entries. Window sizing and row ordering
 remain as before; the existing original comparisons remain independent.
+
+## Status menus batch: party status (2026-11-16)
+
+[party-status.mjs](../src/game/party-status.mjs) composes glove and notice
+release, window opening, cursor/text/numbers, confirming input and final
+release directly with the renderer sequence. Main-upkeep removes the party
+status table. The [former caller](../proof/caller/party-status.mjs) retains
+injection for the original random comparisons. Twelve new caller cases cover
+one, two and four members, leader-only display, an odd last index and pending
+glove/notice cleanup, at both budgets. Byte maxima and real runner records
+exercise the count and magic columns. Text and number payloads, uploads,
+input, return and final state must match.
+
+Ten further comparisons omit the renderer on the product side for all five
+new compositions, and use the independently retained real glyph renderer on
+the former side. They require actual glyph upload requests. All 82 caller
+comparisons and the affected original, production and inventory checks passed.
+The fixture services uploads; existing real NMI integrations remain. No
+hardware, save or frame-policy contract changes. These five blocks have their
+own focused-check commits; shared release results belong in HANDOFF.md.

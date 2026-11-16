@@ -526,21 +526,12 @@ export const liftedSpellMenuSequence = (h, events) =>
   openSpellMenuSequence(h, events, SPELL_MENU_ROUTINES);
 // The lifted party status 80:ED3C with the lifted glove and window releases, window,
 // text, cursor, number and key wait.
-const PARTY_STATUS_ROUTINES = new Map(LIVE_MENU_ROUTINES)
-  .set(0x80bcb2, runPutGloveAway)
-  .set(0x80ff79, runReleaseNoticeWindows)
-  .set(0x80f963, runOpenWindow)
-  .set(0x80fe69, runPrintText)
-  .set(0x80faac, setTextCursorRoutine)
-  .set(0x80fd80, runPrintNumber)
-  .set(0x80fa3e, runReleaseWindow);
 export function runPartyStatus(h, events) {
-  return drainNativeSequence(partyStatusSequence(h, events, PARTY_STATUS_ROUTINES));
+  return drainNativeSequence(partyStatusSequence(h, events));
 }
 NATIVE_CALL_CONTINUATIONS.set(runPartyStatus, {
   run: runPartyStatus,
-  create: ({ h, events }) =>
-    new NativeCallContinuation(h.a, partyStatusSequence(h, events, PARTY_STATUS_ROUTINES)),
+  create: ({ h, events }) => new NativeCallContinuation(h.a, partyStatusSequence(h, events)),
 });
 // The lifted skills and notes submenus 80:E834 and 80:E8C8 with the lifted window,
 // cursor, text, number, release and key wait.
@@ -652,7 +643,6 @@ for (const entry of Object.keys(KARMA_LISTS).map(Number))
 // the visit 80:C1CA reads).
 for (const table of [
   SPELL_MENU_ROUTINES,
-  PARTY_STATUS_ROUTINES,
   ITEM_ROUTINES,
   STATUS_SCREEN_LIFT_ROUTINES,
   MAIN_MENU_LIFT_ROUTINES,

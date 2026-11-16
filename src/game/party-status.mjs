@@ -7,9 +7,19 @@
 // halving's carry. Under the title "PARTY STATUS" each member of the group gets a row
 // (from row 2, one per member): the name, the state count and its maximum (the record
 // byte 5) and the magic points and their maximum (ten times the record's magic byte).
-// After a key (80:F953) the window is released (80:FA3E). The callees run through their
-// frames from the routine table, each with its own callees.
-import { nativeCallSequence } from '../system/native-call-continuation.mjs';
+// After a key (80:F953) the window is released (80:FA3E). The callees compose through their
+// original frames, each with its own callees.
+import { dialogCallBody, segmentSequence } from '../system/native-call-continuation.mjs';
+import { openWindowSequence } from './window-open.mjs';
+import {
+  releaseWindowJsrSequence,
+  releaseNoticeWindowsCallSequence,
+  putGloveAwayCallSequence,
+} from './window-release.mjs';
+import { setTextCursorRoutine, printNumberSequence } from './window-text.mjs';
+import { printTextSequence } from './text-print.mjs';
+import { drawTextBufferSequence } from './text-draw.mjs';
+import { waitForConfirmKeySequence } from './confirm-key.mjs';
 import { dataBankWord, setDataBankWord } from '../system/data-bank.mjs';
 import { TEXT_SLASH } from '../system/native-status-screen.mjs';
 import {
@@ -88,8 +98,6 @@ const load = (ctx, value) => {
   ctx.a = value;
   setSignZero(ctx, value);
 };
-const call = (h, events, routines, [pc, target]) =>
-  nativeCallSequence(h, events, routines, pc, target, false, false);
 // A byte of the member's record (long pointer DP F9) at offset.
 const recordByte = (mem, offset) => {
   const { wram } = mem,
@@ -134,21 +142,21 @@ function prepareMember(h, member) {
 }
 
 // 80:ED3C: the party status (see above). A sequence that ends with its RTS.
-export function* partyStatusSequence(h, events, routines) {
+export function* partyStatusSequence(h, events, renderBuffer = drawTextBufferSequence) {
   const { ctx } = h,
     { mem } = h.a,
     { wram } = mem;
   // DP 02 gets value (loaded into A) before a callee at pc.
-  const argument = function* (value, pc, target) {
+  const argument = function* (value, pc, target, body) {
     yield () => {
       const v = typeof value === 'function' ? value() : value;
       load(ctx, v);
       setWord(wram, 2, v);
     };
-    yield* call(h, events, routines, [pc, target]);
+    yield* dialogCallBody(h, pc, target, body);
   };
-  yield* call(h, events, routines, PUT_GLOVE_AWAY);
-  yield* call(h, events, routines, RELEASE_NOTICES);
+  yield* dialogCallBody(h, ...PUT_GLOVE_AWAY, () => putGloveAwayCallSequence(h, events));
+  yield* dialogCallBody(h, ...RELEASE_NOTICES, () => releaseNoticeWindowsCallSequence(h, events));
   yield () => {
     setWord(wram, DP_WINDOW_LEFT, PARTY_WINDOW.left);
     setWord(wram, DP_WINDOW_TOP, PARTY_WINDOW.top);
@@ -166,19 +174,35 @@ export function* partyStatusSequence(h, events, routines) {
     setWord(wram, DP_WINDOW_ATTRIBUTES, 0);
     load(ctx, 0);
   };
-  yield* call(h, events, routines, OPEN_WINDOW);
+  yield* dialogCallBody(h, ...OPEN_WINDOW, () => openWindowSequence(h, events));
   yield () => setDataBankWord(mem, STATUS_WINDOW, 0, word(wram, 0));
-  yield* argument(TEXT_PARTY_STATUS, ...TITLE);
+  yield* argument(TEXT_PARTY_STATUS, ...TITLE, () => printTextSequence(h, events, renderBuffer));
   let member = 0,
     more;
   do {
     yield () => prepareMember(h, member);
-    yield* call(h, events, routines, [0x80edcf, CURSOR]);
-    yield* argument(() => word(wram, DP_PARTY_NAME), 0x80edd6, TEXT);
-    yield* argument(COLUMNS.count, 0x80edde, CURSOR);
-    yield* argument(() => dataBankWord(mem, MEMBER_STATE_COUNT), 0x80ede6, NUMBER);
-    yield* argument(COLUMNS.countSlash, 0x80edee, CURSOR);
-    yield* argument(TEXT_SLASH, 0x80edf6, TEXT);
+    yield* dialogCallBody(h, 0x80edcf, CURSOR, () =>
+      segmentSequence(() => setTextCursorRoutine(h)),
+    );
+    yield* argument(
+      () => word(wram, DP_PARTY_NAME),
+      0x80edd6,
+      TEXT,
+      () => printTextSequence(h, events, renderBuffer),
+    );
+    yield* argument(COLUMNS.count, 0x80edde, CURSOR, () =>
+      segmentSequence(() => setTextCursorRoutine(h)),
+    );
+    yield* argument(
+      () => dataBankWord(mem, MEMBER_STATE_COUNT),
+      0x80ede6,
+      NUMBER,
+      () => printNumberSequence(h, events, renderBuffer),
+    );
+    yield* argument(COLUMNS.countSlash, 0x80edee, CURSOR, () =>
+      segmentSequence(() => setTextCursorRoutine(h)),
+    );
+    yield* argument(TEXT_SLASH, 0x80edf6, TEXT, () => printTextSequence(h, events, renderBuffer));
     yield () => {
       // The count's maximum; the record pointer's low word steps on by one.
       ctx.y = RECORD_COUNT_MAX;
@@ -187,8 +211,10 @@ export function* partyStatusSequence(h, events, routines) {
       load(ctx, maximum);
       setWord(wram, 2, maximum);
     };
-    yield* call(h, events, routines, [0x80ee05, NUMBER]);
-    yield* argument(COLUMNS.magic, 0x80ee0d, CURSOR);
+    yield* dialogCallBody(h, 0x80ee05, NUMBER, () => printNumberSequence(h, events, renderBuffer));
+    yield* argument(COLUMNS.magic, 0x80ee0d, CURSOR, () =>
+      segmentSequence(() => setTextCursorRoutine(h)),
+    );
     yield* argument(
       () => {
         const runner = dataBankWord(mem, MEMBER_INDEX);
@@ -198,10 +224,18 @@ export function* partyStatusSequence(h, events, routines) {
       },
       0x80ee1e,
       NUMBER,
+      () => printNumberSequence(h, events, renderBuffer),
     );
-    yield* argument(COLUMNS.magicSlash, 0x80ee26, CURSOR);
-    yield* argument(TEXT_SLASH, 0x80ee2e, TEXT);
-    yield* argument(() => word(wram, DP_MAGIC_MAXIMUM), 0x80ee35, NUMBER);
+    yield* argument(COLUMNS.magicSlash, 0x80ee26, CURSOR, () =>
+      segmentSequence(() => setTextCursorRoutine(h)),
+    );
+    yield* argument(TEXT_SLASH, 0x80ee2e, TEXT, () => printTextSequence(h, events, renderBuffer));
+    yield* argument(
+      () => word(wram, DP_MAGIC_MAXIMUM),
+      0x80ee35,
+      NUMBER,
+      () => printNumberSequence(h, events, renderBuffer),
+    );
     yield () => {
       const next = (word(wram, DP_PARTY_MEMBER) + 1) & WORD_MASK,
         last = word(wram, GROUP_INDEX);
@@ -218,13 +252,13 @@ export function* partyStatusSequence(h, events, routines) {
       }
     };
   } while (more);
-  yield* call(h, events, routines, CONFIRM_KEY);
+  yield* dialogCallBody(h, ...CONFIRM_KEY, () => waitForConfirmKeySequence(h, events));
   yield () => {
     const window = dataBankWord(mem, STATUS_WINDOW);
     load(ctx, window);
     setWord(wram, 0, window);
   };
-  yield* call(h, events, routines, RELEASE_WINDOW);
+  yield* dialogCallBody(h, ...RELEASE_WINDOW, () => releaseWindowJsrSequence(h.a, events));
   let result;
   yield () => {
     result = h.rts();

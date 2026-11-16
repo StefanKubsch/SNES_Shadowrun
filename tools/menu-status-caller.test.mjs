@@ -1,3 +1,11 @@
+import { drawTextBufferSequence as formerDraw } from '../proof/caller/text-draw.mjs';
+import * as directParty from '../src/game/party-status.mjs';
+import * as formerParty from '../proof/caller/party-status.mjs';
+import {
+  putGloveAwayCallSequence,
+  releaseNoticeWindowsCallSequence,
+} from '../proof/caller/window-release.mjs';
+import { STATE_COUNT } from '../src/data/actors.mjs';
 import * as directSubmenus from '../src/game/status-submenus.mjs';
 import * as formerSubmenus from '../proof/caller/status-submenus.mjs';
 import { waitForConfirmKeySequence } from '../proof/caller/confirm-key.mjs';
@@ -22,7 +30,7 @@ import {
 import { textWindowSide, finishTextWindow } from './text-window-caller-harness.mjs';
 import * as W from '../src/data/wram.mjs';
 
-function compareRun(sequence, direct, prepare, budget, pads = []) {
+function compareRun(sequence, direct, prepare, budget, pads = [], realDrawing = false) {
   const side = textWindowSide(),
     { h, a, mem, events, put } = side;
   put(W.WINDOW_ACTIVE, 0xffff);
@@ -64,13 +72,16 @@ function compareRun(sequence, direct, prepare, budget, pads = []) {
   bind(0x80faac, () => segmentSequence(() => setTextCursorRoutine(h)));
   bind(0x80fe69, () => printTextSequence(h, events, routines));
   bind(0x80fd80, () => printNumberSequence(h, events, routines));
+  bind(0x80bcb2, () => putGloveAwayCallSequence(h, events));
+  bind(0x80ff79, () => releaseNoticeWindowsCallSequence(h, events));
   bind(0x80f953, () => waitForConfirmKeySequence(h, events, routines));
   bind(0x80fb39, () => side.render(h, events));
+  if (realDrawing) side.render = formerDraw;
   prepare(side);
   try {
     const result = finishTextWindow(
       side,
-      sequence(h, events, direct ? side.render : routines),
+      sequence(h, events, direct ? (realDrawing ? undefined : side.render) : routines),
       budget,
     );
     return { ...result, input };
@@ -194,4 +205,121 @@ for (const budget of [1, 7])
       );
       assert.equal(actual.input, pads.length);
       if (pads.length) assert.ok(actual.uploads.length >= 3);
+    });
+
+for (const budget of [1, 7])
+  for (const [name, count, last, leaderOnly, notices] of [
+    ['leader', 1, 0, false, false],
+    ['two members', 2, 2, false, false],
+    ['four members', 4, 6, false, false],
+    ['leader only', 4, 6, true, false],
+    ['odd last index', 3, 5, false, false],
+    ['release notices and target', 2, 2, false, true],
+  ])
+    test(`party status: ${name}, budget ${budget}`, () => {
+      const prepare = ({ put, mem }) => {
+        put(W.GROUP_INDEX, last);
+        put(W.GROUP_LEADER_ONLY, leaderOnly ? 0xffff : 0);
+        put(W.GLOVE_KIND, 3);
+        put(W.GLOVE_TARGET_TAG, notices ? 1 : 0xffff);
+        put(W.GLOVE_NAME_WINDOW, 0);
+        for (let n = 0; n <= W.NOTICE_WINDOW_LAST; n += 2)
+          put(W.NOTICE_WINDOWS + n, notices && n === 0 ? 0 : 0xffff);
+        for (let n = 0; n < count; n++) {
+          put(W.GROUP_NUMBERS + 2 * n, mem.read16(0x809700 + 2 * n));
+          put(W.GROUP_SLOTS + 2 * n, 2 * n);
+          put(W.OBJECT_RECORD + 2 * n, 0x6200 + 0x20 * n);
+          mem.wram[STATE_COUNT + 0x6200 + 0x20 * n] = 10 + n;
+          mem.wram[W.MAGIC_POINTS + n] = n === 0 ? 255 : 2 + n;
+        }
+        const record = mem.read16(0x80971a);
+        mem.wram[record + 1] = 25;
+        mem.wram[record + 5] = 255;
+      };
+      const actual = compareRun(directParty.partyStatusSequence, true, prepare, budget, [0x8000]);
+      assert.deepEqual(
+        actual,
+        compareRun(formerParty.partyStatusSequence, false, prepare, budget, [0x8000]),
+      );
+      assert.equal(actual.calls.length, 1 + (leaderOnly ? 1 : count) * 7);
+      assert.equal(actual.input, 1);
+      assert.equal(actual.wram[W.GLOVE_KIND], 0);
+      assert.ok(actual.uploads.length >= 3);
+    });
+
+for (const budget of [1, 7])
+  for (const [name, direct, former, prepare, pads] of [
+    [
+      'spell choice',
+      directSpell.chooseSpellSequence,
+      formerSpell.chooseSpellSequence,
+      ({ put }) => {
+        put(W.SPELL_LIST, 1);
+        put(W.SPELL_LIST + 2, 0);
+      },
+      [0x400, 0, 0x8000],
+    ],
+    [
+      'equipment',
+      directEquipment.equipmentRowsSequence,
+      formerEquipment.equipmentRowsSequence,
+      ({ put }) => {
+        put(W.STATUS_WINDOW, 0);
+        put(W.MEMBER_INDEX, 0);
+        put(W.RUNNER_WEAPON, 0xffff);
+        put(W.RUNNER_ARMOUR, 0xffff);
+        put(W.RUNNER_ARMOUR_RATING, 12);
+        put(W.SELECTED_SPELL_NAME, 0x714d);
+      },
+      [],
+    ],
+    [
+      'skills',
+      directSubmenus.skillsSequence,
+      formerSubmenus.skillsSequence,
+      ({ put, mem }) => {
+        put(W.DP_MEMBER_RECORD, 0x6000);
+        mem.wram[W.DP_MEMBER_RECORD_BANK] = 0x7e;
+        mem.wram.set([1, 0, 3, 0, 0, 0], 0x6000);
+      },
+      [0x8000],
+    ],
+    [
+      'notes',
+      directSubmenus.notesSequence,
+      formerSubmenus.notesSequence,
+      ({ put, mem }) => {
+        put(W.MEMBER_NUMBER, 0x08b2);
+        mem.wram[W.JAKE_DERMAL_ARMOUR] = 1;
+      },
+      [0x8000],
+    ],
+    [
+      'party',
+      directParty.partyStatusSequence,
+      formerParty.partyStatusSequence,
+      ({ put, mem }) => {
+        put(W.GLOVE_TARGET_TAG, 0xffff);
+        for (let n = 0; n <= W.NOTICE_WINDOW_LAST; n += 2) put(W.NOTICE_WINDOWS + n, 0xffff);
+        put(W.GROUP_INDEX, 0);
+        put(W.GROUP_LEADER_ONLY, 0);
+        put(W.GROUP_NUMBERS, mem.read16(0x809700));
+        put(W.GROUP_SLOTS, 0);
+        put(W.OBJECT_RECORD, 0x6200);
+        mem.wram[STATE_COUNT + 0x6200] = 12;
+        const record = mem.read16(0x80971a);
+        mem.wram[record + 1] = 4;
+        mem.wram[record + 5] = 20;
+        mem.wram[W.MAGIC_POINTS] = 17;
+      },
+      [0x8000],
+    ],
+  ])
+    test(`default live renderer: ${name}, budget ${budget}`, () => {
+      const actual = compareRun(direct, true, prepare, budget, pads, true);
+      assert.deepEqual(actual, compareRun(former, false, prepare, budget, pads, true));
+      assert.ok(
+        actual.uploads.some(([pc]) => pc === 0x81accc),
+        'real glyph upload',
+      );
     });

@@ -9,7 +9,7 @@
 import { DialogTestMemory, prng } from './task-native-dialog-harness.mjs';
 import { createSide, registerCases } from './lift-function-harness.mjs';
 import { ed3cSequence } from '../proof/replay/native-player-control.mjs';
-import { partyStatusSequence } from '../src/game/party-status.mjs';
+import { partyStatusSequence } from '../proof/caller/party-status.mjs';
 import { GROUP_INDEX, GROUP_LEADER_ONLY, GROUP_NUMBERS, GROUP_SLOTS } from '../src/data/wram.mjs';
 import { drainNativeSequence } from '../src/system/native-call-continuation.mjs';
 
