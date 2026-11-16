@@ -846,3 +846,10 @@ the same real music callee, including sample loading and driver echoes.
 Both budgets cover disabled music, two enabled modes, mirror and alternate
 portraits, comparing real audio writes and the restored mode. Existing audio
 register comparisons retain independent sound implementation evidence.
+
+### Block 4: magic-point notice
+
+Magic spending composes its real notice directly and receives only a renderer.
+The former caller is retained for random original comparisons. New real notice
+comparisons cover zero, exact payment, shortage, ignored cost high bytes, two
+members, default glyphs and both budgets, asserting payment and result words.

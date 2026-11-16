@@ -501,7 +501,7 @@ export const liftedFightListRemoveSequence = (h, events) =>
 // The lifted magic point spending 80:8B43 with the lifted notice, as the script native
 // runs it with lag-free frames.
 export const liftedSpendMagicSequence = (h, events) =>
-  spendMagicPointsSequence(h, events, UPKEEP_ROUTINES);
+  spendMagicPointsSequence(h, events);
 // The lifted glove release 80:CD9D with the lifted glove and window list, as the
 // script native runs it with lag-free frames.
 export const liftedReleaseGloveSequence = (h, events) =>

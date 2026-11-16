@@ -6,7 +6,7 @@
 import { prng } from './task-native-dialog-harness.mjs';
 import { createSide, registerCases } from './lift-function-harness.mjs';
 import { spendMagicPoints, NATIVE_COMBAT_ROUTINES } from '../proof/replay/native-combat.mjs';
-import { spendMagicPointsSequence } from '../src/game/magic-points.mjs';
+import { spendMagicPointsSequence } from '../proof/caller/magic-points.mjs';
 import { drainNativeSequence } from '../src/system/native-call-continuation.mjs';
 
 const WRAM_BYTES = 0x20000,

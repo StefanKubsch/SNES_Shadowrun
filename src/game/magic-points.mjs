@@ -5,7 +5,9 @@
 // argument's low byte from its magic points (one byte per runner from 7E:3C96). Enough
 // points: they are paid and the result is FFFF. Too few: the notice "not enough magic"
 // (text 1, a window at 0B/14 of 19 columns and 3 rows, one second) and the result 0.
-import { nativeCallSequence } from '../system/native-call-continuation.mjs';
+import { showNoticeSequence } from './notice-show.mjs';
+import { drawTextBufferSequence } from './text-draw.mjs';
+import { dialogCallBody } from '../system/native-call-continuation.mjs';
 import {
   DP_NOTICE_FRAMES,
   DP_NOTICE_TEXT,
@@ -30,8 +32,8 @@ const setWord = (wram, at, value) => {
   wram[at + 1] = (value >>> BYTE_BITS) & BYTE_MASK;
 };
 
-// 80:8B43, a sequence that ends with the native's RTS; routines holds the notice.
-export function* spendMagicPointsSequence(h, events, routines) {
+// 80:8B43, ending with the native's RTS and composing its notice directly.
+export function* spendMagicPointsSequence(h, events, renderBuffer = drawTextBufferSequence) {
   const { ctx } = h,
     { wram } = h.a.mem;
   let paid = false;
@@ -57,7 +59,7 @@ export function* spendMagicPointsSequence(h, events, routines) {
     ctx.a = NOTICE.frames;
   };
   if (!paid) {
-    yield* nativeCallSequence(h, events, routines, ...NOTICE_CALL);
+    yield* dialogCallBody(h, ...NOTICE_CALL, () => showNoticeSequence(h, events, renderBuffer));
     yield () => setWord(wram, 0, NOT_PAID);
   }
   let result;
