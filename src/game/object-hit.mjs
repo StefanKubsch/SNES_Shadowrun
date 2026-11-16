@@ -30,14 +30,15 @@
 // produced; only X during the word waits (the original's count) is kept. The random
 // number, the object slots 80:A835 and the sound 80:C46E run lifted as plain calls; the
 // notice window, text and word waits compose directly through their frames.
-// Confirmation, release and the player window list retain routine services.
+// Confirmation, release and the player window list also compose directly.
 import { printTextSequence } from './text-print.mjs';
 import { waitForConfirmKeySequence } from './confirm-key.mjs';
 import { releaseWindowJsrSequence } from './window-release.mjs';
 import { drawTextBufferSequence } from './text-draw.mjs';
 import { frameWaitCallSequence } from '../system/live-input-calls.mjs';
 import { openWindowSequence } from './window-open.mjs';
-import { dialogCallBody, nativeCallSequence } from '../system/native-call-continuation.mjs';
+import { dialogCallBody } from '../system/native-call-continuation.mjs';
+import { drawWindowListSequence } from './window-list.mjs';
 import { dataBankWord, setDataBankWord } from '../system/data-bank.mjs';
 import { accessorPort } from '../system/hardware-port.mjs';
 import { drawBelowInDirectPage } from '../system/random.mjs';
@@ -116,7 +117,6 @@ const OPEN_WINDOW = 0x80f963,
   WORD_WAIT = 0x81b0a1,
   CONFIRM_KEY = 0x80f953,
   RELEASE_WINDOW = 0x80fa3e,
-  DRAW_WINDOW_LIST = 0x81ad92,
   LIST_CALL = 0x80883b;
 // The call sites of the warning's and the penalty's callees.
 const WARNING_CALLS = Object.freeze({
@@ -270,7 +270,7 @@ function placeImpact(h, target, shooter) {
 }
 
 // 80:881C: the player figure hit.
-function* playerHitSequence(h, events, routines, target) {
+function* playerHitSequence(h, events, target) {
   const { mem } = h.a,
     { wram } = mem;
   if (target !== dataBankWord(mem, PLAYER_OBJECT)) return;
@@ -287,13 +287,12 @@ function* playerHitSequence(h, events, routines, target) {
     });
     setDataBankWord(mem, PLAYER_HIT_FRAMES, 0, PLAYER_HIT_STUN);
   };
-  yield* nativeCallSequence(h, events, routines, LIST_CALL, DRAW_WINDOW_LIST, true, false);
+  yield* drawWindowListSequence(h, events, LIST_CALL);
 }
 
 // 80:8691: the hit with the damage in A on the target X by the shooter Y. A sequence
-// for a native call continuation that ends with the hit's RTS; routines holds the
-// confirmation, release and player window-list services. renderBuffer draws text.
-export function* hitObjectSequence(h, events, routines, renderBuffer = drawTextBufferSequence) {
+// for a native call continuation that ends with the hit's RTS. renderBuffer draws text.
+export function* hitObjectSequence(h, events, renderBuffer = drawTextBufferSequence) {
   if (h.ctx.d !== 0) taskStop('task_direct_page_zero_required');
   const { ctx } = h,
     { mem } = h.a,
@@ -317,7 +316,7 @@ export function* hitObjectSequence(h, events, routines, renderBuffer = drawTextB
     yield () => {
       if (!(shooter & WORD_SIGN)) placeImpact(h, target, shooter);
     };
-    yield* playerHitSequence(h, events, routines, target);
+    yield* playerHitSequence(h, events, target);
   }
   let result;
   yield () => {

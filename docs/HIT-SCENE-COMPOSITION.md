@@ -23,3 +23,14 @@ Both notices compose the actual release and window-list redraw through their
 80:87B9 and 80:87FF JSRs. The hit service table drops confirmation and release.
 Actual caller comparisons retain window allocation, last-index/tile restoration,
 upload chronology and request wrap, with real glyphs at both budgets.
+
+## Block 3: player-hit window list and entry
+
+The player-hit path composes the real window list through 80:883B. The hit
+entry receives only its optional text renderer, and main-upkeep removes the
+remaining hit table. Actual callers compare player/nonplayer targets, damage
+rejection and lethal/nonlethal records, free/full object lists and upload wrap
+at both budgets. The sound command, eleven shake frames, hit effects, task
+events and final game state are compared with the former hit caller using
+the independently retained window-list dispatcher. The original random
+per-function comparisons remain separate and unchanged.

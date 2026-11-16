@@ -9,7 +9,7 @@ function runHit(sequence, hits, karma, request, budget, pads = [0x8000]) {
   const notice = hits === 3 || (hits === 7 && karma >= 8);
   return compareRun(
     sequence,
-    false,
+    sequence === hitObjectSequence,
     ({ h, put }) => {
       Object.assign(h.ctx, { a: 5, x: 2, y: 0xffff });
       put(W.OBJECT_FLAGS + 2, 0x8000);
