@@ -175,6 +175,8 @@ function runKarma(name, direct, budget, prepare, pads = [], realDrawing = false,
       bind(0x80a6b8, () => formerChoose(h, events, routines, 0x80a6b8));
       bind(0x80ef82, () => formerKarma.karmaLineSequence(h, events, routines));
       bind(0x80f006, () => formerKarma.buyStepSequence(h, events, routines));
+      for (const entry of Object.keys(KARMA_LISTS).map(Number))
+        bind(entry, () => formerKarma.karmaListSequence(h, events, routines, entry));
       for (const target of [0x80cecb, 0x80cf2e])
         routines.set(target, (callee) => {
           calls.push(['refill', target, callee.a.mem.read16(0), callee.a.mem.read16(2)]);
@@ -357,4 +359,64 @@ for (const budget of [1, 7])
       actual,
       runKarma('karmaListSequence', false, budget, prepare, pads, true, entry),
     );
+  });
+
+function karmaMenuFixture(variant = 'none') {
+  return ({ put }) => {
+    put(W.KARMA, 0xffff);
+    put(W.GLOVE_KIND, 3);
+    put(W.GLOVE_TARGET_TAG, 0xffff);
+    for (let n = 0; n <= W.NOTICE_WINDOW_LAST; n += 2) put(W.NOTICE_WINDOWS + n, 0xffff);
+    if (variant === 'notice' || variant === 'both') put(W.NOTICE_WINDOWS, 0);
+    if (variant === 'glove' || variant === 'both') {
+      const window = variant === 'both' ? 2 : 0;
+      put(W.GLOVE_TARGET_TAG, 0);
+      put(W.GLOVE_NAME_WINDOW, window);
+      if (window) {
+        put(W.WINDOW_ACTIVE + window, 0xffff);
+        put(W.WINDOW_LAST_INDEX, window);
+        for (const [field, value] of [
+          [W.WINDOW_COLUMNS, 14],
+          [W.WINDOW_ROWS, 8],
+          [W.WINDOW_TILE_START, 0x2070],
+          [W.WINDOW_CURSOR_TILE, 0x2070],
+        ])
+          put(field + window, value);
+      }
+    }
+  };
+}
+for (const budget of [1, 7])
+  for (const variant of ['none', 'notice', 'glove', 'both'])
+    for (const pads of [[0x8000], [0x2000]])
+      test(`karma windows: ${variant}, pad ${pads[0]}, budget ${budget}`, () => {
+        const prepare = karmaMenuFixture(variant);
+        const actual = runKarma('karmaMenuSequence', true, budget, prepare, pads);
+        assert.deepEqual(actual, runKarma('karmaMenuSequence', false, budget, prepare, pads));
+        assert.equal(actual.calls.filter((c) => c[0] === 'refill').length, 2);
+        assert.equal(actual.wram[W.GLOVE_KIND], 0);
+        assert.equal(actual.input, pads.length);
+      });
+for (const budget of [1, 7])
+  for (const row of [1, 2, 3])
+    test(`karma windows detail: row ${row}, budget ${budget}`, () => {
+      const pads = [
+        ...Array.from({ length: row }, () => [0x400, 0]).flat(),
+        0x8000,
+        0,
+        0x8000,
+        0,
+        0x8000,
+      ];
+      const prepare = karmaMenuFixture();
+      const actual = runKarma('karmaMenuSequence', true, budget, prepare, pads);
+      assert.deepEqual(actual, runKarma('karmaMenuSequence', false, budget, prepare, pads));
+      assert.equal(actual.input, pads.length);
+    });
+for (const budget of [1, 7])
+  test(`karma windows default glyphs, budget ${budget}`, () => {
+    const prepare = karmaMenuFixture('both'),
+      pads = [0x8000];
+    const actual = runKarma('karmaMenuSequence', true, budget, prepare, pads, true);
+    assert.deepEqual(actual, runKarma('karmaMenuSequence', false, budget, prepare, pads, true));
   });

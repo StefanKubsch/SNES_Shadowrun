@@ -587,3 +587,11 @@ Paid, insufficient and limit-reaching upgrades cover each list, cursor rebuildin
 failed-pointer clearing and Body's count refill. The Body case starts at count
 250 and checks its byte wrap to four. Both budgets and real glyphs compare
 against the retained purchase/line composition; resource refill stays a service.
+
+### Block 9: karma windows and cleanup
+
+Karma directly releases notices and the glove, opens all four windows, clears
+category tiles and releases its detail/category/balance windows. Exit and cancel
+cover no pending windows, notice, glove and both; all category detail windows
+open and close at both budgets. Default glyph cases include pending cleanup.
+Category selection, balance and lists retain services until the final phase.

@@ -39,7 +39,11 @@ import { chooseFromMenuSequence } from './menu-choice.mjs';
 import { openWindowSequence, requestTileClearSequence } from './window-open.mjs';
 import { setTextCursorRoutine, printNumberSequence } from './window-text.mjs';
 import { printTextSequence } from './text-print.mjs';
-import { releaseWindowJsrSequence } from './window-release.mjs';
+import {
+  releaseNoticeWindowsCallSequence,
+  putGloveAwayCallSequence,
+  releaseWindowJsrSequence,
+} from './window-release.mjs';
 import { waitForConfirmKeySequence } from './confirm-key.mjs';
 import { drawTextBufferSequence } from './text-draw.mjs';
 import { KARMA_LISTS, KARMA_WINDOWS } from '../system/native-main-menu.mjs';
@@ -395,7 +399,7 @@ export function* karmaMenuSequence(h, events, routines) {
       load(ctx, 0);
       fitListWindow(mem, h, ids, options);
     };
-    yield* call(h, events, routines, pc, OPEN_WINDOW);
+    yield* dialogCallBody(h, pc, OPEN_WINDOW, () => openWindowSequence(h, events));
     yield () => {
       const window = word(wram, 0);
       load(ctx, window);
@@ -408,10 +412,12 @@ export function* karmaMenuSequence(h, events, routines) {
       load(ctx, window);
       setWord(wram, 0, window);
     };
-    yield* call(h, events, routines, pc, RELEASE_WINDOW);
+    yield* dialogCallBody(h, pc, RELEASE_WINDOW, () => releaseWindowJsrSequence(h.a, events));
   };
-  yield* call(h, events, routines, 0x80ee57, RELEASE_NOTICES);
-  yield* call(h, events, routines, 0x80ee5a, PUT_GLOVE_AWAY);
+  yield* dialogCallBody(h, 0x80ee57, RELEASE_NOTICES, () =>
+    releaseNoticeWindowsCallSequence(h, events),
+  );
+  yield* dialogCallBody(h, 0x80ee5a, PUT_GLOVE_AWAY, () => putGloveAwayCallSequence(h, events));
   yield () => {
     // Jake's record (the first runner's) at DP F9. The A and flags of these loads are
     // dead: the window's stores replace them before the next call.
@@ -462,7 +468,7 @@ export function* karmaMenuSequence(h, events, routines) {
       load(ctx, window);
       setWord(wram, 0, window);
     };
-    yield* call(h, events, routines, 0x80eeb5, REDRAW_WINDOW);
+    yield* dialogCallBody(h, 0x80eeb5, REDRAW_WINDOW, () => requestTileClearSequence(h, events));
     yield () => {
       setWord(wram, 2, MENU_COLUMN);
       setWord(wram, DP_MENU_ROW, 0);
