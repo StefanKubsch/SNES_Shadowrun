@@ -1,3 +1,4 @@
+import { drawTextBufferSequence as formerDraw } from '../proof/caller/text-draw.mjs';
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import * as direct from '../src/game/dialog-text.mjs';
@@ -14,7 +15,7 @@ function entry(key, text, topics = [], action = null) {
   return [key, 4 + topics.length + (action === null ? 0 : 2), flags, ...topics, ...bytes];
 }
 
-function run(module, name, variant, budget) {
+function run(module, name, variant, budget, realDrawing = false) {
   const side = textWindowSide(),
     { h, mem, events, put } = side;
   put(0x11, 0x6000);
@@ -49,11 +50,12 @@ function run(module, name, variant, budget) {
     side.calls.push(['action', action]);
   };
   if (name !== 'showDialogTextSequence') put(0, variant);
+  if (realDrawing) side.render = formerDraw;
   const binding = rendererTable(side),
     table = new Map([[0x80fb39, binding.run]]);
   NATIVE_CALL_CONTINUATIONS.set(binding.run, binding);
   try {
-    const renderer = module === direct ? side.render : table,
+    const renderer = module === direct ? (realDrawing ? undefined : side.render) : table,
       sequence =
         name === 'showDialogTextSequence'
           ? module[name](h, events, events.text, renderer)
@@ -87,3 +89,12 @@ for (const budget of [1, 7]) {
         assert.equal(actual.uploads.length, name === 'printTopicTextSequence' ? 1 : 0);
       });
 }
+
+for (const budget of [1, 7])
+  for (const variant of ['greeting', 'talk', 'fallback', 'missing'])
+    test(`dialog text default glyphs: ${variant}, budget ${budget}`, () => {
+      assert.deepEqual(
+        run(direct, 'showDialogTextSequence', variant, budget, true),
+        run(previous, 'showDialogTextSequence', variant, budget, true),
+      );
+    });

@@ -22,3 +22,11 @@ including a failed search and its fallback. The retained former caller keeps
 its replaceable cursor and independent original comparison. The actual caller
 compares window cursor state, text payloads, restored record position and
 clearing uploads at both cooperative budgets.
+
+## Block 3: dialog text printing
+
+Dialog text always prints through 80:91C3 to 80:FE69 with its explicit
+renderer. The service-body selector no longer reads the text routine object.
+Additional actual caller cases omit the renderer and compare real glyph
+uploads for greeting, Talk, fallback and absent text at budgets one and seven.
+The former chain binds its independently retained glyph renderer explicitly.

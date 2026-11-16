@@ -29,11 +29,7 @@ import { requestTileClearSequence } from './window-open.mjs';
 import { setTextCursorRoutine } from './window-text.mjs';
 import { drawTextBufferSequence } from './text-draw.mjs';
 import { printTextSequence } from './text-print.mjs';
-import {
-  dialogTopicSequence,
-  isStandardTextRoutines,
-  textBodies,
-} from '../system/native-dialog-text.mjs';
+import { dialogTopicSequence, isStandardTextRoutines } from '../system/native-dialog-text.mjs';
 import { TOPIC_FLAGS, TOPIC_LIST } from '../data/wram.mjs';
 import {
   BYTE_BITS,
@@ -184,15 +180,12 @@ function searchEntry(h, acc) {
   }
 }
 
-// Tile clearing and cursor placement compose directly; text retains its service
-// compatibility until the next block.
-function liftedBodies(h, events, routines, renderBuffer) {
-  const fallback = textBodies(h, events, routines);
-  const live = renderBuffer && isStandardTextRoutines(routines);
+// Text clearing, cursor placement and printing compose their actual bodies.
+function liftedBodies(h, events, renderBuffer) {
   const lifted = {
     request: () => requestTileClearSequence(h, events),
     cursor: () => segmentSequence(() => setTextCursorRoutine(h)),
-    text: live ? () => printTextSequence(h, events, renderBuffer) : fallback('text'),
+    text: () => printTextSequence(h, events, renderBuffer),
   };
   return (name) => lifted[name];
 }
@@ -208,7 +201,7 @@ export function* showDialogTextSequence(
   const { ctx } = h,
     { mem } = h.a,
     { wram } = mem,
-    body = liftedBodies(h, events, routines, renderBuffer),
+    body = liftedBodies(h, events, renderBuffer),
     call = ([site, target], name) => dialogCallBody(h, site, target, body(name));
   for (;;) {
     yield () => {
