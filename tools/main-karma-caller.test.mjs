@@ -9,6 +9,7 @@ import * as directKarma from '../src/game/karma-menu.mjs';
 import * as formerKarma from '../proof/caller/karma-menu.mjs';
 import { requestTileClearSequence } from '../proof/caller/window-open.mjs';
 import { chooseFromMenuSequence as formerChoose } from '../proof/caller/menu-choice.mjs';
+import { KARMA_LISTS } from '../src/system/native-main-menu.mjs';
 import * as W from '../src/data/wram.mjs';
 
 function runMain(direct, budget, pads, realDrawing = false) {
@@ -247,3 +248,66 @@ for (const budget of [1, 7])
     assert.deepEqual(actual, runKarma('buyStepSequence', false, budget, prepare, [0x8000], true));
     assert.ok(actual.uploads.length > 2);
   });
+
+function listFixture(entry, variant, karma = 0xffff) {
+  return ({ put, mem }) => {
+    put(W.KARMA, karma);
+    put(W.KARMA_BALANCE_WINDOW, 0);
+    put(W.KARMA_LIST_WINDOW, 2);
+    put(0, 0);
+    put(W.WINDOW_COLUMNS + 2, 16);
+    put(W.WINDOW_ROWS + 2, 9);
+    put(W.WINDOW_TILE_START + 2, 0x2070);
+    put(W.WINDOW_CURSOR_TILE + 2, 0x2070);
+    put(W.WINDOW_TILE_COUNT + 2, 98);
+    put(W.WINDOW_LAST_INDEX, 2);
+    const list = KARMA_LISTS[entry];
+    for (let index = 0; index < list.end; index += 2) {
+      const pointer = mem.read16(0x800000 + list.pointers + index),
+        limit = mem.read16(0x800000 + list.limits + index);
+      mem.wram[pointer] =
+        variant === 'empty'
+          ? 0
+          : variant === 'limit'
+            ? limit
+            : variant === 'sparse' && index % 4
+              ? 0
+              : 1;
+    }
+  };
+}
+for (const budget of [1, 7])
+  for (const entry of Object.keys(KARMA_LISTS).map(Number))
+    for (const variant of ['empty', 'limit', 'sparse', 'all'])
+      test(`karma list rendering: ${entry}, ${variant}, budget ${budget}`, () => {
+        const prepare = listFixture(entry, variant),
+          pads = [0x8000];
+        const actual = runKarma('karmaListSequence', true, budget, prepare, pads, false, entry);
+        assert.deepEqual(
+          actual,
+          runKarma('karmaListSequence', false, budget, prepare, pads, false, entry),
+        );
+        const list = KARMA_LISTS[entry],
+          count = ['empty', 'limit'].includes(variant)
+            ? 0
+            : variant === 'all'
+              ? list.end / 2
+              : Math.ceil(list.end / 4);
+        assert.equal(
+          actual.wram[W.KARMA_ROW_NAMES + 2 * count] |
+            (actual.wram[W.KARMA_ROW_NAMES + 2 * count + 1] << 8),
+          0,
+        );
+        assert.equal(actual.input, 1);
+      });
+for (const budget of [1, 7])
+  for (const entry of Object.keys(KARMA_LISTS).map(Number))
+    test(`karma list rendering default glyphs: ${entry}, budget ${budget}`, () => {
+      const prepare = listFixture(entry, 'all');
+      const actual = runKarma('karmaListSequence', true, budget, prepare, [0x8000], true, entry);
+      assert.deepEqual(
+        actual,
+        runKarma('karmaListSequence', false, budget, prepare, [0x8000], true, entry),
+      );
+      assert.ok(actual.uploads.length > 2);
+    });

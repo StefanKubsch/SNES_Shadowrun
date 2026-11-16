@@ -571,3 +571,11 @@ input and release. Both WRAM banks, zero cost, byte wrap and exact/insufficient
 cost boundaries compare memory, payment and pointer clearing at both budgets.
 Default glyph cases cover the notice. The cost remains eight times the byte;
 the successful purchase path and its arithmetic retain their existing contract.
+
+### Block 7: karma list rendering
+
+All three lists directly print their header, clear their list tiles and select
+from the numbered rows with an explicit renderer. Empty lists, values at their
+limits, sparse and full lists compare against independent retained lists at
+both budgets; the terminator and input count are asserted. All three also run
+with default glyphs. Purchase, balance refresh and Body refill remain services.

@@ -35,6 +35,7 @@ import {
   segmentSequence,
   nativeCallSequence,
 } from '../system/native-call-continuation.mjs';
+import { chooseFromMenuSequence } from './menu-choice.mjs';
 import { openWindowSequence, requestTileClearSequence } from './window-open.mjs';
 import { setTextCursorRoutine, printNumberSequence } from './window-text.mjs';
 import { printTextSequence } from './text-print.mjs';
@@ -260,7 +261,13 @@ const compare = (ctx, left, right) => {
 
 // 80:F054, 80:F0F3 or 80:F1B5: a karma list (see above). A sequence that ends with its
 // RTS.
-export function* karmaListSequence(h, events, routines, entry) {
+export function* karmaListSequence(
+  h,
+  events,
+  routines,
+  entry,
+  renderBuffer = drawTextBufferSequence,
+) {
   const { ctx } = h,
     { mem } = h.a,
     { wram } = mem,
@@ -274,7 +281,7 @@ export function* karmaListSequence(h, events, routines, entry) {
     load(ctx, list.text);
     setWord(wram, 2, list.text);
   };
-  yield* call(h, events, routines, list.pcs.text, TEXT);
+  yield* dialogCallBody(h, list.pcs.text, TEXT, () => printTextSequence(h, events, renderBuffer));
   yield () => {
     setWord(wram, DP_KARMA_VALUE_BANK, WRAM_BANK);
     // The first list builds Exit again in every round.
@@ -310,7 +317,9 @@ export function* karmaListSequence(h, events, routines, entry) {
       load(ctx, window);
       setWord(wram, 0, window);
     };
-    yield* call(h, events, routines, list.pcs.request, REDRAW_WINDOW);
+    yield* dialogCallBody(h, list.pcs.request, REDRAW_WINDOW, () =>
+      requestTileClearSequence(h, events),
+    );
     yield () => {
       setWord(wram, 2, MENU_COLUMN);
       setWord(wram, DP_MENU_ROW, 0);
@@ -320,7 +329,9 @@ export function* karmaListSequence(h, events, routines, entry) {
       setWord(wram, DP_LIST_VALUES, KARMA_MENU_VALUES);
       load(ctx, word(wram, DP_KARMA_SELECTION));
     };
-    yield* call(h, events, routines, list.pcs.menu, NUMBERED_MENU);
+    yield* dialogCallBody(h, list.pcs.menu, NUMBERED_MENU, () =>
+      chooseFromMenuSequence(h, events, renderBuffer, NUMBERED_MENU),
+    );
     let chosen;
     yield () => {
       chosen = word(wram, 0);
