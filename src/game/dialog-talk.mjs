@@ -19,15 +19,12 @@
 // 0100 by DMA, the pad read and the sprites rebuilt), both windows are released and the
 // old music comes back.
 //
-// Window setup and release compose their live callees directly. The remaining
-// services run through their established frames with the original arguments. The flags the
+// All callees compose directly through their established frames with the
+// original arguments. The flags the
 // routine itself changes (the carry of its shifts and comparisons) are passed on as the
 // original's; it changes no overflow. It leaves the registers of its last callee (the
 // music change) or of the window release with A the pulled music word.
-import {
-  dialogCallBody,
-  segmentSequence,
-} from '../system/native-call-continuation.mjs';
+import { dialogCallBody, segmentSequence } from '../system/native-call-continuation.mjs';
 import { setMusicModeRoutine } from '../apu/audio-routines.mjs';
 import { showDialogTextSequence } from './dialog-text.mjs';
 import { chooseDialogActionSequence, chooseDialogTopicSequence } from './dialog-menus.mjs';
@@ -276,7 +273,7 @@ export function* closeDialogSequence(h, events) {
   return result;
 }
 
-// Talk with the object (80:936C), a sequence for a native call continuation: h the
+// Talk with the object (80:936C), a sequence for a native call continuation.
 // The glove action supplies direct page 0 and data bank 80; renderBuffer draws text.
 export function* talkSequence(h, events, renderBuffer = drawTextBufferSequence) {
   const { ctx } = h,
@@ -351,7 +348,14 @@ export function* talkSequence(h, events, renderBuffer = drawTextBufferSequence) 
       h.a.pushWord(ctx.y);
     } else h.a.pushWord(NO_MUSIC);
   };
-  if (change) yield* dialogCallBody(h, CALL.music[0], CALL.music[1], () => segmentSequence(() => setMusicModeRoutine(h)), true);
+  if (change)
+    yield* dialogCallBody(
+      h,
+      CALL.music[0],
+      CALL.music[1],
+      () => segmentSequence(() => setMusicModeRoutine(h)),
+      true,
+    );
   yield () => window(PORTRAIT_FRAME);
   yield* dialogCallBody(h, ...CALL.frame, () => openWindowSequence(h, events));
   yield () => {
@@ -479,7 +483,14 @@ export function* talkSequence(h, events, renderBuffer = drawTextBufferSequence) 
     flag(ctx, FLAG_ZERO, ctx.a === 0);
     restore = !(ctx.a & WORD_SIGN);
   };
-  if (restore) yield* dialogCallBody(h, CALL.restoreMusic[0], CALL.restoreMusic[1], () => segmentSequence(() => setMusicModeRoutine(h)), true);
+  if (restore)
+    yield* dialogCallBody(
+      h,
+      CALL.restoreMusic[0],
+      CALL.restoreMusic[1],
+      () => segmentSequence(() => setMusicModeRoutine(h)),
+      true,
+    );
   let result;
   yield () => {
     result = h.rts();

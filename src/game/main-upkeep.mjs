@@ -66,7 +66,6 @@ import { runDrawWindowList, runRequestUpload, runUnpackWindowMap } from './windo
 import { createObject } from './object-create.mjs';
 import { chooseFromMenuSequence } from './menu-choice.mjs';
 import { playSoundEffectRoutine } from '../apu/sound-effect.mjs';
-import { setMusicModeRoutine } from '../apu/audio-routines.mjs';
 import { gloveMoveSequence } from './glove-move.mjs';
 import {
   shootAtGloveTargetSequence,
@@ -356,12 +355,6 @@ for (const [run, sequence] of [
     run,
     create: ({ h, events }) => new NativeCallContinuation(h.a, sequence(h, events)),
   });
-// 81:EF47, the dialog's music change and its restore, called with JSL. The lag-free frame
-// model delivers no NMI in its sound driver handshakes. Recorded replays use the
-// register-level routine and tables in proof/replay/.
-function runMusicMode(h) {
-  return setMusicModeRoutine(h);
-}
 // Dialog composition owns its complete call graph.
 // The lifted action menu as the script native 80:9BA0 runs it with lag-free frames.
 export const liftedScriptActionSequence = (h, events) => chooseScriptActionSequence(h, events);
@@ -390,8 +383,7 @@ export function runTalk(h, events) {
 }
 NATIVE_CALL_CONTINUATIONS.set(runTalk, {
   run: runTalk,
-  create: ({ h, events }) =>
-    new NativeCallContinuation(h.a, talkSequence(h, events)),
+  create: ({ h, events }) => new NativeCallContinuation(h.a, talkSequence(h, events)),
 });
 // Shared register helpers for callers that still dispatch their dependencies.
 // Notices, menus and the timer compose their own live dependencies directly;
@@ -476,8 +468,7 @@ export const liftedMainMenuSequence = (h, events) => mainMenuSequence(h, events)
 // The lifted player control 80:E014 with the lifted party status, window, text,
 // release, glove release, turn, animation selection 80:A985, status screen and key
 // wait.
-export const liftedPlayerControlSequence = (h, events) =>
-  controlPlayerSequence(h, events);
+export const liftedPlayerControlSequence = (h, events) => controlPlayerSequence(h, events);
 // The time limit's and the glove action's callees: the lifted notice, glove release,
 // text cursor 80:FAAC (nothing in it waits), number, action menu, dialog, pad word 80:9E1A (lifted
 // with lag-free frames, as at the top of the loop), window, text and text buffer, the
@@ -492,20 +483,13 @@ const UPKEEP_ROUTINES = new Map(TEXT_ROUTINES)
   .set(0x80936c, runTalk);
 // The lifted fight list removal 80:855E as the script native runs it with lag-free
 // frames: the lifted notice, cursor, number, text, sound effect and music mode.
-export const liftedFightListRemoveSequence = (h, events) =>
-  removeFromFightListSequence(
-    h,
-    events,
-    new Map(UPKEEP_ROUTINES).set(0x80c46e, playSoundEffectRoutine).set(0x81ef47, runMusicMode),
-  );
+export const liftedFightListRemoveSequence = (h, events) => removeFromFightListSequence(h, events);
 // The lifted magic point spending 80:8B43 with the lifted notice, as the script native
 // runs it with lag-free frames.
-export const liftedSpendMagicSequence = (h, events) =>
-  spendMagicPointsSequence(h, events);
+export const liftedSpendMagicSequence = (h, events) => spendMagicPointsSequence(h, events);
 // The lifted glove release 80:CD9D with the lifted glove and window list, as the
 // script native runs it with lag-free frames.
-export const liftedReleaseGloveSequence = (h, events) =>
-  releaseGloveSequence(h, events);
+export const liftedReleaseGloveSequence = (h, events) => releaseGloveSequence(h, events);
 // The lifted confirm key wait 80:F953 with the lifted word wait and pad word, as the
 // script native runs it with lag-free frames.
 export const liftedConfirmKeySequence = (h, events) => waitForConfirmKeySequence(h, events);

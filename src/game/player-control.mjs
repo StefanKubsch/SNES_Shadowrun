@@ -22,10 +22,7 @@ import { releaseWindowJsrSequence, putGloveAwayCallSequence } from './window-rel
 import { START_ENTRY, ITEMS_ENTRY, statusScreenSequence } from './status-screen.mjs';
 import { partyStatusSequence } from './party-status.mjs';
 import { drawTextBufferSequence } from './text-draw.mjs';
-import {
-  dialogCallBody,
-  segmentSequence,
-} from '../system/native-call-continuation.mjs';
+import { dialogCallBody, segmentSequence } from '../system/native-call-continuation.mjs';
 import { dataBankWord, setDataBankWord } from '../system/data-bank.mjs';
 import { placeGloveOverPlayer } from './glove-target.mjs';
 import { GLOVE_LIMITS } from '../script/native-glove-crosshair-limits.mjs';
@@ -393,11 +390,15 @@ export function* controlPlayerSequence(h, events, renderBuffer = drawTextBufferS
     return yield* finish();
   }
   if (path === 'status') {
-    yield* dialogCallBody(h, ...STATUS_SCREEN, () => statusScreenSequence(h, events, START_ENTRY, renderBuffer));
+    yield* dialogCallBody(h, ...STATUS_SCREEN, () =>
+      statusScreenSequence(h, events, START_ENTRY, renderBuffer),
+    );
     return yield* finish();
   }
   if (path === 'items') {
-    yield* dialogCallBody(h, ...ITEM_LIST, () => statusScreenSequence(h, events, ITEMS_ENTRY, renderBuffer));
+    yield* dialogCallBody(h, ...ITEM_LIST, () =>
+      statusScreenSequence(h, events, ITEMS_ENTRY, renderBuffer),
+    );
     return yield* finish();
   }
   if (path === 'free') return yield* freeSequence(h, events, finish, renderBuffer);

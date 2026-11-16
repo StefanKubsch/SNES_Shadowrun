@@ -16,10 +16,11 @@ import { setTextCursorRoutine, printNumberSequence } from './window-text.mjs';
 import { printTextSequence } from './text-print.mjs';
 import { showNoticeSequence } from './notice-show.mjs';
 import { drawTextBufferSequence } from './text-draw.mjs';
+import { setMusicModeRoutine } from '../apu/audio-routines.mjs';
 import { playSoundEffectRoutine } from '../apu/sound-effect.mjs';
 import { setMusicMode } from '../apu/music-mode.mjs';
 import { dataBankWord, setDataBankWord } from '../system/data-bank.mjs';
-import { dialogCallBody, segmentSequence, nativeCallSequence } from '../system/native-call-continuation.mjs';
+import { dialogCallBody, segmentSequence } from '../system/native-call-continuation.mjs';
 import {
   DP_CURSOR_ROW,
   DP_NOTICE_FRAMES,
@@ -107,14 +108,11 @@ const NOTICE_CALL = [0x8085e4, 0x80fec1],
 const negative = (value) => (value & WORD_SIGN) !== 0;
 
 // Remove the object (the direct page word 00) from the fight list (80:855E), a sequence
-// that ends with the native's RTS; routines holds the notice, cursor, number, text,
-// sound and music mode routines.
-export function* removeFromFightListSequence(h, events, routines, renderBuffer = drawTextBufferSequence) {
+// that ends with the native's RTS and composes all reward and audio callees directly.
+export function* removeFromFightListSequence(h, events, renderBuffer = drawTextBufferSequence) {
   const { ctx } = h,
     { mem } = h.a,
-    { wram } = mem,
-    call = ([site, target], long = false) =>
-      nativeCallSequence(h, events, routines, site, target, long);
+    { wram } = mem;
   let state = 'missing';
   yield () => {
     const object = word(wram, 0);
@@ -199,7 +197,14 @@ export function* removeFromFightListSequence(h, events, routines, renderBuffer =
       ctx.a = music;
       site = MUSIC_RESTORE_SITE;
     };
-    if (site !== null) yield* call([site, MUSIC_MODE], true);
+    if (site !== null)
+      yield* dialogCallBody(
+        h,
+        site,
+        MUSIC_MODE,
+        () => segmentSequence(() => setMusicModeRoutine(h)),
+        true,
+      );
   }
   let result;
   yield () => {

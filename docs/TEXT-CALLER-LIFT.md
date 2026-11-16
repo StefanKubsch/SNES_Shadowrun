@@ -891,3 +891,13 @@ its JSR frame. Real caller comparisons cover driver-token wrap and initial
 voice masks zero/seven, asserting the resulting voice mask and omitted repeat
 voice command. The retained caller uses the same real sound callee; existing
 independent register-level audio comparisons retain the effect evidence.
+
+### Block 10: fight music restore and complete entry
+
+Fight exit composes music restore or music-off directly through the original
+JSL frame. Its API receives only a renderer; main-upkeep drops the final fight
+service map and obsolete music adapter. Independent former orchestration
+covers restore disabled/enabled, absent saved music, zero, one and maximum-byte
+modes, zero/nonzero reward, token wrap and both budgets. Real sample loads and
+commands compare along with final music and scene state. All ten phases have
+focused-check commits; shared release and delivery results belong in HANDOFF.md.

@@ -1,7 +1,7 @@
 {
   "updated": "2026-11-16",
-  "focus": "Ten scene/caller phases implemented: direct script append, object creation, nested visits, scene reload/sprites/status close and player party/notices/animation/turn/glove calls. Independent former/original comparisons retained. Shared release and delivery state: HANDOFF.md.",
-  "next_step": "Continue direct player Start and immediate-item status composition, dialog music and remaining scene/caller services around shared dependencies. Preserve independent original and real integration comparisons. Complete ten focused-check commits, then one shared release and push. Shape editing and S-MIX remain deferred.",
+  "focus": "Ten player/scene phases implemented: direct Start and immediate items, dialog music, magic shortage notice, script glove cleanup/redraw, fight karma notice/text/sound/music. Independent former/original comparisons retained. Shared release and delivery state: HANDOFF.md.",
+  "next_step": "Continue direct glove action and glove-choice composition, time-limit upkeep and remaining scene/caller services around shared dependencies. Preserve independent original and real integration comparisons. Complete ten focused-check commits, then one shared release and push. Shape editing and S-MIX remain deferred.",
   "porting_resume": "188 original-form bytes remain: 93 retained code bytes and 95 unidentified data bytes. Recorded CPU reads, hardware-only observations and true data margins are distinguished in docs/ROM-CODE-AUDIT.md. Unknown bytes and unused graphics remain preserved; unrecorded paths can still report rom_byte_absent.",
   "open_issues": [
     "Examination: unreproduced report to watch during the final user test run. Its European cleanup condition is tested; other story routes remain unproved. A change requires a reproducible counterexample. See docs/BUGFIXES.md.",
