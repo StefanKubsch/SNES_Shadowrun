@@ -138,3 +138,16 @@ The shared fixture writes tables through WRAM bank 7E and asserts initialized
 field contents. During block 3 this corrected an initially incorrect low-bank
 fixture write; all 82 affected notice/glyph/dialog comparisons were rerun and
 passed. The product arithmetic and window code did not require a correction.
+
+## Batch block 4: Cortex bomb timer composition (2026-11-16)
+
+[time-limit.mjs](../src/game/time-limit.mjs) composes its notice, cursor, number
+and suffix directly with the same renderer sequence. The main-loop entry no
+longer forwards an upkeep table to the timer. Warning sounds, countdown,
+hour reload and script timer APIs are unchanged. The [former timer caller](../proof/caller/time-limit.mjs)
+retains dispatch for the independent original/random comparisons.
+
+The notice caller suite adds disabled and expired timers, ordinary countdown,
+hour changes and both warning intervals, at both budgets. The former side uses
+retained notice, opening, cursor and text/number producers; expected hour and
+frame counts, decimal payload and number of rendered texts are also asserted.

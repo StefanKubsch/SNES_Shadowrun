@@ -16,13 +16,17 @@
 //
 // The notice 80:FEC1 (lifted in notice-show.mjs), the text cursor 80:FAAC and the
 // number 80:FD80 (lifted in window-text.mjs) and the text 80:FE69 (text-print.mjs) run
-// through their frames from the routine table; the notice and the
+// directly through their call frames; the notice and the
 // text wait for the NMI of their uploads. Before each call A holds the value the
 // original leaves in it (none of them reads it, but a wait's NMI saves it). The sound
 // effect (src/apu/sound-effect.mjs) is lifted and waits for nothing; its frame is not
 // reproduced. The routine itself sets neither X nor Y; after a sound they are left as
 // the original sound effect leaves them (src/game/main-upkeep.mjs).
-import { nativeCallSequence } from '../system/native-call-continuation.mjs';
+import { dialogCallBody, segmentSequence } from '../system/native-call-continuation.mjs';
+import { showNoticeSequence } from './notice-show.mjs';
+import { setTextCursorRoutine, printNumberSequence } from './window-text.mjs';
+import { printTextSequence } from './text-print.mjs';
+import { drawTextBufferSequence } from './text-draw.mjs';
 import { accessorPort } from '../system/hardware-port.mjs';
 import { playSoundEffect } from '../apu/sound-effect.mjs';
 import {
@@ -81,12 +85,12 @@ const setWord = (wram, at, value) => {
 
 // Count the time limit down (80:E270), a sequence for a native call continuation:
 // h the main loop's access (direct page 0, data bank 80), events its frame events,
-// routines the table of the register-level callees.
-export function* timeLimitSequence(h, events, routines) {
+// renderBuffer its text-buffer renderer sequence.
+export function* timeLimitSequence(h, events, renderBuffer = drawTextBufferSequence) {
   const { ctx } = h,
     { mem } = h.a,
     { wram } = mem,
-    call = (site, target) => nativeCallSequence(h, events, routines, site, target);
+    call = (site, target, body) => dialogCallBody(h, site, target, body);
   let path = 'return';
   yield () => {
     const hours = word(wram, TIMER),
@@ -128,25 +132,25 @@ export function* timeLimitSequence(h, events, routines) {
   };
   if (path === 'notice') {
     // The notice returns its window in A.
-    yield* call(CALL.notice, NOTICE_CALL);
+    yield* call(CALL.notice, NOTICE_CALL, () => showNoticeSequence(h, events, renderBuffer));
     yield () => {
       setWord(wram, DP_WINDOW, ctx.a);
       setWord(wram, DP_ARGUMENT, 0);
       setWord(wram, DP_CURSOR_ROW, 0);
     };
-    yield* call(CALL.cursor, CURSOR_CALL);
+    yield* call(CALL.cursor, CURSOR_CALL, () => segmentSequence(() => setTextCursorRoutine(h)));
     yield () => {
       const hours = word(wram, TIMER);
       setWord(wram, DP_ARGUMENT, hours);
       ctx.a = (hours - 1) & WORD_MASK;
       setWord(wram, TIMER, ctx.a);
     };
-    yield* call(CALL.number, NUMBER_CALL);
+    yield* call(CALL.number, NUMBER_CALL, () => printNumberSequence(h, events, renderBuffer));
     yield () => {
       ctx.a = word(wram, TIMER) ? TEXT_HOURS : TEXT_LAST_HOUR;
       setWord(wram, DP_ARGUMENT, ctx.a);
     };
-    yield* call(CALL.text, TEXT_CALL);
+    yield* call(CALL.text, TEXT_CALL, () => printTextSequence(h, events, renderBuffer));
   }
   let result;
   yield () => {

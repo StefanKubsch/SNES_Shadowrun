@@ -841,13 +841,13 @@ export const liftedBlastSequence = (h, events) =>
   hitObjectsInBlastSequence(h, events, SHOOT_ROUTINES);
 // 80:E270, called with JSR; its notice and text wait for the NMI of their uploads, so
 // it is a native call continuation of the main loop.
-export function runTimeLimit(h, events, routines = UPKEEP_ROUTINES) {
-  return drainNativeSequence(timeLimitSequence(h, events, routines));
+export function runTimeLimit(h, events) {
+  return drainNativeSequence(timeLimitSequence(h, events));
 }
 NATIVE_CALL_CONTINUATIONS.set(0x80e270, {
   run: runTimeLimit,
-  create: ({ h, events, routines = UPKEEP_ROUTINES }) =>
-    new NativeCallContinuation(h.a, timeLimitSequence(h, events, routines)),
+  create: ({ h, events }) =>
+    new NativeCallContinuation(h.a, timeLimitSequence(h, events)),
 });
 // 80:BF3B, called with JSR; its notice, menu, dialog and input wait for the NMI, so it
 // is a native call continuation of the main loop.

@@ -1,3 +1,4 @@
+import { timeLimitSequence as recordedTimeLimitSequence } from '../proof/caller/time-limit.mjs';
 import { showNoticeSequence as recordedNoticeSequence } from '../proof/caller/notice-show.mjs';
 import { drawTextBufferSequence as recordedTextBufferSequence } from '../proof/caller/text-draw.mjs';
 import { textBufferRenderer } from '../src/game/text-renderer.mjs';
@@ -46,7 +47,6 @@ import {
   runHitShake,
   runNoticeTimeouts,
   runPaletteCycles,
-  runTimeLimit,
   runGloveAction,
   runGloveMove,
   runPutGloveAway,
@@ -203,6 +203,9 @@ function runDrawTextBuffer(h, events) {
 }
 function runShowNotice(h, events, routines) {
   return drainNativeSequence(recordedNoticeSequence(h, events, routines));
+}
+function runTimeLimit(h, events, routines) {
+  return drainNativeSequence(recordedTimeLimitSequence(h, events, routines));
 }
 const WRAM_BYTES = 0x20000,
   OBJECT_SLOTS = 0x2c,
