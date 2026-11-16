@@ -12,12 +12,8 @@
 // plus one per cyberware (dermal armour 7E:3C18, skillsoft 3C05, wired reflexes 3C19):
 // the head computer title, "Datajack" and the cyberware from row 2. A key ends both.
 // The callees (window 80:F963, cursor 80:FAAC, text 80:FE69, number 80:FD80, key wait
-// 80:F953, release 80:FA3E) run through their frames from the routine table.
-import {
-  nativeCallSequence,
-  dialogCallBody,
-  segmentSequence,
-} from '../system/native-call-continuation.mjs';
+// 80:F953, release 80:FA3E) compose directly through their original frames.
+import { dialogCallBody, segmentSequence } from '../system/native-call-continuation.mjs';
 import { openWindowSequence } from './window-open.mjs';
 import { releaseWindowSequence } from './window-release.mjs';
 import { setTextCursorRoutine, printNumberSequence } from './window-text.mjs';
@@ -99,8 +95,6 @@ const load = (ctx, value) => {
   ctx.a = value;
   setSignZero(ctx, value);
 };
-const call = (h, events, routines, pc, target) =>
-  nativeCallSequence(h, events, routines, pc, target, false, false);
 function* returnSequence(h) {
   let result;
   yield () => {
@@ -217,7 +211,7 @@ export function* skillsSequence(h, events, renderBuffer = drawTextBufferSequence
 }
 
 // 80:E8C8: the notes (see above). A sequence that ends with its RTS.
-export function* notesSequence(h, events, routines) {
+export function* notesSequence(h, events, renderBuffer = drawTextBufferSequence) {
   const { ctx } = h,
     { mem } = h.a,
     { wram } = mem;
@@ -226,7 +220,7 @@ export function* notesSequence(h, events, routines) {
       load(ctx, value);
       setWord(wram, 2, value);
     };
-    yield* call(h, events, routines, pc, TEXT);
+    yield* dialogCallBody(h, pc, TEXT, () => printTextSequence(h, events, renderBuffer));
   };
   let jake, datajack;
   yield () => {
@@ -250,20 +244,25 @@ export function* notesSequence(h, events, routines) {
   };
   if (!jake) {
     if (!datajack) return yield* returnSequence(h);
-    yield* call(h, events, routines, 0x80e8ee, OPEN_WINDOW);
+    yield* dialogCallBody(h, 0x80e8ee, OPEN_WINDOW, () => openWindowSequence(h, events));
     yield* text(0x80e8f6, TEXT_DATAJACK);
-    yield* call(h, events, routines, 0x80e8f9, CONFIRM_KEY);
-    yield* call(h, events, routines, 0x80e8fc, RELEASE_WINDOW);
+    yield* dialogCallBody(h, 0x80e8f9, CONFIRM_KEY, () => waitForConfirmKeySequence(h, events));
+    yield* dialogCallBody(h, 0x80e8fc, RELEASE_WINDOW, () =>
+      (function* () {
+        yield* releaseWindowSequence(h, events);
+        return yield* returnSequence(h);
+      })(),
+    );
     return yield* returnSequence(h);
   }
-  yield* call(h, events, routines, 0x80e937, OPEN_WINDOW);
+  yield* dialogCallBody(h, 0x80e937, OPEN_WINDOW, () => openWindowSequence(h, events));
   yield* text(0x80e93f, TEXT_HEAD_COMPUTER);
   yield () => {
     setWord(wram, 2, 0);
     load(ctx, DATAJACK_ROW);
     setWord(wram, DP_CURSOR_ROW, DATAJACK_ROW);
   };
-  yield* call(h, events, routines, 0x80e949, CURSOR);
+  yield* dialogCallBody(h, 0x80e949, CURSOR, () => segmentSequence(() => setTextCursorRoutine(h)));
   yield* text(0x80e951, TEXT_DATAJACK);
   // The cyberware rows count from the datajack's (A is loaded again by the flags).
   yield () => setWord(wram, DP_CURSOR_ROW, DATAJACK_ROW);
@@ -279,10 +278,17 @@ export function* notesSequence(h, events, routines) {
       setWord(wram, DP_CURSOR_ROW, row);
     };
     if (!fitted) continue;
-    yield* call(h, events, routines, cursorPc, CURSOR);
+    yield* dialogCallBody(h, cursorPc, CURSOR, () =>
+      segmentSequence(() => setTextCursorRoutine(h)),
+    );
     yield* text(textPc, id);
   }
-  yield* call(h, events, routines, 0x80e9a1, CONFIRM_KEY);
-  yield* call(h, events, routines, 0x80e9a4, RELEASE_WINDOW);
+  yield* dialogCallBody(h, 0x80e9a1, CONFIRM_KEY, () => waitForConfirmKeySequence(h, events));
+  yield* dialogCallBody(h, 0x80e9a4, RELEASE_WINDOW, () =>
+    (function* () {
+      yield* releaseWindowSequence(h, events);
+      return yield* returnSequence(h);
+    })(),
+  );
   return yield* returnSequence(h);
 }

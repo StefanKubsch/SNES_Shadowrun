@@ -371,3 +371,15 @@ byte value 255, confirmation and Select ending the status screen, at both
 budgets. Text payloads, number digits, serviced uploads, consumed input and
 final state/return are compared. The zero-budget check remains. Notes still
 uses its table until its separate complete block.
+
+## Status menus batch: notes (2026-11-16)
+
+The notes sequence in [status-submenus.mjs](../src/game/status-submenus.mjs)
+now composes opening, cursor, text, confirmation and release directly too.
+Main-upkeep removes the submenu table, including its shared enrichment entry.
+The independent former notes implementation already retained in the preceding
+block supplies the reference. Twenty new comparisons cover a runner with and
+without a datajack and all eight combinations of Jake's cyberware flags, at
+both budgets. They compare each text, upload, input, return and game state,
+and assert the number of visible entries. Window sizing and row ordering
+remain as before; the existing original comparisons remain independent.

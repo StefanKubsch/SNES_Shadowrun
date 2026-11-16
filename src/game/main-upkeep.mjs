@@ -544,12 +544,6 @@ NATIVE_CALL_CONTINUATIONS.set(runPartyStatus, {
 });
 // The lifted skills and notes submenus 80:E834 and 80:E8C8 with the lifted window,
 // cursor, text, number, release and key wait.
-const SUBMENU_ROUTINES = new Map(LIVE_MENU_ROUTINES)
-  .set(0x80f963, runOpenWindow)
-  .set(0x80faac, setTextCursorRoutine)
-  .set(0x80fe69, runPrintText)
-  .set(0x80fd80, runPrintNumber)
-  .set(0x80fa3e, runReleaseWindow);
 const sequenceRun = (sequence) => {
   const run = (h, events) => drainNativeSequence(sequence(h, events));
   NATIVE_CALL_CONTINUATIONS.set(run, {
@@ -559,7 +553,7 @@ const sequenceRun = (sequence) => {
   return run;
 };
 export const runSkills = sequenceRun((h, events) => skillsSequence(h, events)),
-  runNotes = sequenceRun((h, events) => notesSequence(h, events, SUBMENU_ROUTINES));
+  runNotes = sequenceRun((h, events) => notesSequence(h, events));
 // The lifted item submenus 80:E572, 80:E577 and 80:E57F with the lifted item use
 // 80:E4F3, window, releases, portrait, equipment rows, numbered menu, window redraw and
 // key wait; object creation, the nested visit and the window list use lifted callees.
@@ -659,7 +653,6 @@ for (const entry of Object.keys(KARMA_LISTS).map(Number))
 for (const table of [
   SPELL_MENU_ROUTINES,
   PARTY_STATUS_ROUTINES,
-  SUBMENU_ROUTINES,
   ITEM_ROUTINES,
   STATUS_SCREEN_LIFT_ROUTINES,
   MAIN_MENU_LIFT_ROUTINES,

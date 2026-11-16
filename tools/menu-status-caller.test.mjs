@@ -167,3 +167,31 @@ for (const budget of [1, 7])
         );
         assert.equal(actual.input, pads.length);
       });
+
+for (const budget of [1, 7])
+  for (const [name, jake, datajack, flags] of [
+    ['runner without datajack', false, 0, 0],
+    ['runner with datajack', false, 0xffff, 0],
+    ...Array.from({ length: 8 }, (_, flags) => [`Jake cyberware ${flags}`, true, 0, flags]),
+  ])
+    test(`notes: ${name}, budget ${budget}`, () => {
+      const prepare = ({ put, mem }) => {
+        put(W.MEMBER_NUMBER, jake ? 0x08b2 : 0x1234);
+        put(W.MEMBER_DATAJACK, datajack);
+        [W.JAKE_DERMAL_ARMOUR, W.JAKE_SKILLSOFT, W.JAKE_WIRED_REFLEXES].forEach((at, n) => {
+          mem.wram[at] = (flags >>> n) & 1;
+        });
+      };
+      const pads = jake || datajack ? [0x8000] : [];
+      const actual = compareRun(directSubmenus.notesSequence, true, prepare, budget, pads);
+      assert.deepEqual(
+        actual,
+        compareRun(formerSubmenus.notesSequence, false, prepare, budget, pads),
+      );
+      assert.equal(
+        actual.calls.length,
+        jake ? 2 + [1, 2, 4].filter((bit) => flags & bit).length : datajack ? 1 : 0,
+      );
+      assert.equal(actual.input, pads.length);
+      if (pads.length) assert.ok(actual.uploads.length >= 3);
+    });
