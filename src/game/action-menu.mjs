@@ -8,7 +8,7 @@
 // (4000), with their texts and hotkeys in the tables 7E:1F6A, 7E:1F98 and 7E:1F82.
 // Without an accepted action the menu does not open and A is 0. Otherwise a window
 // (12, 3, 11 columns, two rows more than the actions) opens (80:F963, lifted in
-// window-open.mjs), the menu runs on it (80:A6A5 from the routine table, through its frame),
+// window-open.mjs), the menu runs on it (80:A6A5, composed directly through its frame),
 // the window is released (80:FA3E, lifted in window-release.mjs) and A is the chosen
 // action's flag (Exit and a cancel give 0); the override is cleared. A text language
 // may widen the window (src/data/menu-layout.mjs).
@@ -18,9 +18,12 @@
 // action A 0 with zero set, Y the table index, the carry clear and X and the overflow
 // unchanged. The chosen flag is pushed around the release, as the original. The calls
 // get the registers the original passes them.
-import { dialogCallBody, nativeCallSequence } from '../system/native-call-continuation.mjs';
+import { dialogCallBody } from '../system/native-call-continuation.mjs';
 import { fitListWindow, listTextIds } from '../data/menu-layout.mjs';
 import { TEXT_EXIT } from '../data/port-extension.mjs';
+import { openWindowSequence } from './window-open.mjs';
+import { chooseFromMenuSequence } from './menu-choice.mjs';
+import { drawTextBufferSequence } from './text-draw.mjs';
 import { releaseWindowSequence } from './window-release.mjs';
 import {
   ACTION_MENU_FLAGS,
@@ -38,7 +41,7 @@ import {
   DP_WINDOW_COLUMNS,
   DP_WINDOW_ROWS,
 } from '../data/wram.mjs';
-import { BYTE_BITS, BYTE_MASK, WORD_MASK, WORD_SIGN } from '../constants/bits.mjs';
+import { BYTE_BITS, BYTE_MASK, WORD_BITS, WORD_MASK, WORD_SIGN } from '../constants/bits.mjs';
 import { FLAG_CARRY, FLAG_NEGATIVE, FLAG_OVERFLOW, FLAG_ZERO } from '../constants/cpu-flags.mjs';
 
 // The actions in the menu's order: their flags, texts (offsets from 9D:8000, with their
@@ -112,9 +115,8 @@ function listActions(wram, accepted) {
 }
 
 // Choose an action from the menu (80:99EB), a sequence for a native call continuation:
-// h the caller's access (direct page 0, data bank 80), routines the table with the
-// window opening and the menu.
-export function* chooseActionSequence(h, events, routines) {
+// h is the caller's access (direct page 0, data bank 80); renderBuffer draws text.
+export function* chooseActionSequence(h, events, renderBuffer = drawTextBufferSequence) {
   const { ctx } = h,
     { mem } = h.a,
     { wram } = mem;
@@ -145,11 +147,11 @@ export function* chooseActionSequence(h, events, routines) {
     fitListWindow(
       mem,
       h,
-      mem.language ? listTextIds(mem, (WRAM_BANK << 16) | ACTION_MENU_NAMES, count) : [],
+      mem.language ? listTextIds(mem, (WRAM_BANK << WORD_BITS) | ACTION_MENU_NAMES, count) : [],
     );
   };
   if (!count) return yield* rts(h);
-  yield* nativeCallSequence(h, events, routines, ...WINDOW_CALL);
+  yield* dialogCallBody(h, ...WINDOW_CALL, () => openWindowSequence(h, events));
   yield () => {
     setWord(wram, DP_ACTION_MENU_WINDOW, word(wram, DP_LEFT));
     setWord(wram, DP_TOP, MENU_COLUMN);
@@ -160,7 +162,9 @@ export function* chooseActionSequence(h, events, routines) {
     setWord(wram, DP_LIST_VALUES, ACTION_MENU_HOTKEYS);
     ctx.a = ACTION_MENU_HOTKEYS;
   };
-  yield* nativeCallSequence(h, events, routines, ...MENU_CALL);
+  yield* dialogCallBody(h, ...MENU_CALL, () =>
+    chooseFromMenuSequence(h, events, renderBuffer, MENU_CALL[1]),
+  );
   yield () => {
     // The chosen row (a cancel counts as Exit) as a table index; the window to release.
     let row = word(wram, DP_LEFT);
@@ -181,13 +185,15 @@ export function* chooseActionSequence(h, events, routines) {
 // The action menu as the script native 80:9BA0, a sequence: no override, the mask from
 // the first argument, the menu (JSR at 80:9BA5) and the chosen flag as the result.
 const SCRIPT_MENU_CALL = [0x809ba5, 0x8099eb];
-export function* chooseScriptActionSequence(h, events, routines) {
+export function* chooseScriptActionSequence(h, events, renderBuffer = drawTextBufferSequence) {
   const { wram } = h.a.mem;
   yield () => {
     setWord(wram, ACTION_MENU_OVERRIDE, 0);
     h.ctx.a = word(wram, 0);
   };
-  yield* dialogCallBody(h, ...SCRIPT_MENU_CALL, () => chooseActionSequence(h, events, routines));
+  yield* dialogCallBody(h, ...SCRIPT_MENU_CALL, () =>
+    chooseActionSequence(h, events, renderBuffer),
+  );
   let result;
   yield () => {
     setWord(wram, 0, h.ctx.a);

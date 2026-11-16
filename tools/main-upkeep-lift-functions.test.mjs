@@ -1,3 +1,4 @@
+import { chooseActionSequence as recordedActionSequence } from '../proof/caller/action-menu.mjs';
 import { timeLimitSequence as recordedTimeLimitSequence } from '../proof/caller/time-limit.mjs';
 import { showNoticeSequence as recordedNoticeSequence } from '../proof/caller/notice-show.mjs';
 import { drawTextBufferSequence as recordedTextBufferSequence } from '../proof/caller/text-draw.mjs';
@@ -53,7 +54,6 @@ import {
   runPrintNumber,
   runPrintText,
   runOpenWindow,
-  runChooseAction,
   runReleaseNoticeWindows,
   runObjectMotion,
   runPortraitTiles,
@@ -1348,7 +1348,7 @@ const ACTION_MENU = {
     Object.assign(h.ctx, input);
     h.ctx.programBank = 0x80;
     h.push(0x1234, 2);
-    runChooseAction(h, liveWindowEvents(h), MENU_CALLEES);
+    drainNativeSequence(recordedActionSequence(h, liveWindowEvents(h), MENU_CALLEES));
     return roundRegisters(h);
   },
 };

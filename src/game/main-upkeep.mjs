@@ -228,13 +228,12 @@ NATIVE_CALL_CONTINUATIONS.set(runOpenWindow, {
   create: ({ h, events }) => new NativeCallContinuation(h.a, openWindowSequence(h, events)),
 });
 // 80:99EB, called with JSR; its window, menu and release wait for the NMI.
-export function runChooseAction(h, events, routines = TEXT_ROUTINES) {
-  return drainNativeSequence(chooseActionSequence(h, events, routines));
+export function runChooseAction(h, events) {
+  return drainNativeSequence(chooseActionSequence(h, events));
 }
 NATIVE_CALL_CONTINUATIONS.set(runChooseAction, {
   run: runChooseAction,
-  create: ({ h, events, routines = TEXT_ROUTINES }) =>
-    new NativeCallContinuation(h.a, chooseActionSequence(h, events, routines)),
+  create: ({ h, events }) => new NativeCallContinuation(h.a, chooseActionSequence(h, events)),
 });
 // 80:FA3E, called with JSR; its window list waits for the NMI of its upload.
 function* releaseWindowCallSequence(h, events) {
@@ -413,8 +412,7 @@ const DIALOG_ROUTINES = new Map()
   .set(0x81b0a1, runFrameWait)
   .set(0x81ef47, runMusicMode);
 // The lifted action menu as the script native 80:9BA0 runs it with lag-free frames.
-export const liftedScriptActionSequence = (h, events) =>
-  chooseScriptActionSequence(h, events, TEXT_ROUTINES);
+export const liftedScriptActionSequence = (h, events) => chooseScriptActionSequence(h, events);
 // The lifted text natives 80:935B and 80:933A as the script runs them with lag-free
 // frames.
 export const liftedWindowTextSequence = (h, events) =>

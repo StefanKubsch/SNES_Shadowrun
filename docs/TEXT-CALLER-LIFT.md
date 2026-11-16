@@ -168,7 +168,29 @@ including consumed input, window uploads, end marker and result. Four additional
 cases omit the renderer on the live side and compare real glyph composition
 against the former renderer. Both budgets include zero-budget stability.
 
-The five-block implementation batch is complete. Focused checks and commits
-precede its one shared release check and push under the new workflow. Actual
-verification results are recorded in HANDOFF.md. Shared register/NMI interfaces
+The first five-block batch passed its shared release and was pushed.
+Actual verification results are recorded in HANDOFF.md. Shared register/NMI interfaces
 and other caller tables remain; no save or frame policy changed.
+
+
+## Modal menus and portraits: action menu (2026-11-16)
+
+The next five blocks cover action menus, Yes/No questions, confirming input,
+portrait windows and portrait uploads. They simplify established caller
+composition without changing the original arithmetic, hardware setup or frame
+policy. The remaining dialog orchestration and other caller tables stay separate.
+
+[action-menu.mjs](../src/game/action-menu.mjs) opens its window and runs the
+hotkey menu directly, passing a renderer sequence. Both the glove entry and
+the script native use this composition; main-upkeep no longer forwards a
+helper table. The [former caller](../proof/caller/action-menu.mjs) retains
+independent window release and the injected opening/menu interface. Existing
+600 random original comparisons explicitly use that retained caller.
+
+[modal-menu-caller.test.mjs](../tools/modal-menu-caller.test.mjs) compares both
+compositions with real window opening, list decoding, input, sound and release.
+It covers no actions, Exit, hotkeys, override, cancellation, combined cast flags,
+separate open/close flags and the script override reset at budgets one and seven.
+The test checks selected flags, script result, uploads, consumed input and final
+game state, with zero-budget stability. Drawing and NMI upload service are
+stand-ins; existing script-native integrations retain actual devices and NMIs.
