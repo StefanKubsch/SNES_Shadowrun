@@ -27,7 +27,9 @@
 // 2026-11-13). Only the hit 80:8691, whose notices wait for frames, runs through its
 // JSR frame from the routine table, with the damage in A, the target in X and the
 // shooter in Y.
-import { nativeCallSequence } from '../system/native-call-continuation.mjs';
+import { dialogCallBody, nativeCallSequence } from '../system/native-call-continuation.mjs';
+import { hitObjectSequence } from './object-hit.mjs';
+import { drawTextBufferSequence } from './text-draw.mjs';
 import { dataBankWord, setDataBankWord } from '../system/data-bank.mjs';
 import { accessorPort } from '../system/hardware-port.mjs';
 import { drawBelowInDirectPage } from '../system/random.mjs';
@@ -255,14 +257,14 @@ function rollHits(run, offset, bonus) {
   return negative(left.value);
 }
 // 80:8691 with the damage in A for the target X by the shooter Y.
-function* hitSequence(run, events, routines, shooter, target) {
+function* hitSequence(run, hitCall, shooter, target) {
   const { h, wram } = run;
   yield () => {
     h.ctx.a = word(wram, DP_WEAPON_DAMAGE);
     h.ctx.x = target;
     h.ctx.y = shooter;
   };
-  yield* nativeCallSequence(h, events, routines, HIT_CALL, HIT, false, false);
+  yield* hitCall();
 }
 // 80:89B0: a miss marker (object E6, script 80) in a free slot near the target: its
 // height a draw below (box height + 0A) * 4 plus the target's height, over 4; one of
@@ -285,16 +287,16 @@ function placeMiss(run, shooter, target) {
   setWord(wram, OBJECT_ARMOUR + word(wram, 0), facing);
 }
 // A roll's outcome: the hit, or the miss marker.
-function* rolledSequence(run, events, routines, shooter, target, offset, bonus) {
-  if (rollHits(run, offset, bonus)) yield* hitSequence(run, events, routines, shooter, target);
+function* rolledSequence(run, hitCall, shooter, target, offset, bonus) {
+  if (rollHits(run, offset, bonus)) yield* hitSequence(run, hitCall, shooter, target);
   else placeMiss(run, shooter, target);
 }
 // 80:8904: the hit roll of the shooter at the target with the weapon in the direct page.
-function* shotSequence(run, events, routines, shooter, target) {
+function* shotSequence(run, hitCall, shooter, target) {
   const { mem, wram } = run,
     kind = word(wram, DP_WEAPON_KIND);
   if (kind < CLOSE_KIND_LIMIT || kind === CLOSE_KIND) {
-    yield* rolledSequence(run, events, routines, shooter, target, HIT_ROLL_OFFSET, DP_BONUS_CLOSE);
+    yield* rolledSequence(run, hitCall, shooter, target, HIT_ROLL_OFFSET, DP_BONUS_CLOSE);
     return;
   }
   const far = [OBJECT_X, OBJECT_Y, OBJECT_HEIGHT].some(
@@ -305,7 +307,7 @@ function* shotSequence(run, events, routines, shooter, target) {
   );
   if (far) placeMiss(run, shooter, target);
   else if (kind !== DAMAGE_BONUS_KIND)
-    yield* rolledSequence(run, events, routines, shooter, target, HIT_ROLL_OFFSET, DP_BONUS_RANGED);
+    yield* rolledSequence(run, hitCall, shooter, target, HIT_ROLL_OFFSET, DP_BONUS_RANGED);
   else if (!rollHits(run, DAMAGE_BONUS_ROLL_OFFSET, DP_BONUS_KIND_5))
     placeMiss(run, shooter, target);
   else {
@@ -314,7 +316,7 @@ function* shotSequence(run, events, routines, shooter, target) {
       DP_WEAPON_DAMAGE,
       (word(wram, DP_BONUS_KIND_5) >>> 1) + word(wram, DP_WEAPON_DAMAGE),
     );
-    yield* hitSequence(run, events, routines, shooter, target);
+    yield* hitSequence(run, hitCall, shooter, target);
   }
 }
 
@@ -332,7 +334,7 @@ function* finishSequence(run, value) {
 // 80:8AB5: the object DP 00 shoots at the object DP 02 (none when negative) with the hit
 // bonus DP 04, kind DP 06, damage DP 08 and range penalty DP 0A. A sequence that ends
 // with the native's RTS.
-export function* shootAtObjectSequence(h, events, routines) {
+export function* shootAtObjectSequence(h, events, renderBuffer = drawTextBufferSequence) {
   const run = shotRuntime(h),
     { wram } = run,
     shooter = word(wram, 0),
@@ -348,7 +350,12 @@ export function* shootAtObjectSequence(h, events, routines) {
   setWord(wram, DP_WEAPON_PENALTY, word(wram, DP_SHOT_PENALTY));
   if (sightBlocked(run, shooter, target)) return yield* finishSequence(run, WORD_MASK);
   faceTarget(run, shooter, target);
-  yield* shotSequence(run, events, routines, shooter, target);
+  yield* shotSequence(
+    run,
+    () => dialogCallBody(h, HIT_CALL, HIT, () => hitObjectSequence(h, events, renderBuffer)),
+    shooter,
+    target,
+  );
   return yield* finishSequence(run);
 }
 
@@ -370,7 +377,12 @@ export function* shootAtGloveTargetSequence(h, events, routines) {
     target,
     dataBankWord(mem, OBJECT_FLAGS, target) | OBJECT_ATTACKED,
   );
-  yield* shotSequence(run, events, routines, player, target);
+  yield* shotSequence(
+    run,
+    () => nativeCallSequence(h, events, routines, HIT_CALL, HIT, false, false),
+    player,
+    target,
+  );
   return yield* finishSequence(run);
 }
 
@@ -385,6 +397,11 @@ export function* shootWithOwnWeaponSequence(h, events, routines) {
   const target = word(wram, 2);
   if (sightBlocked(run, shooter, target)) return yield* finishSequence(run, WORD_MASK);
   faceTarget(run, shooter, target);
-  yield* shotSequence(run, events, routines, shooter, target);
+  yield* shotSequence(
+    run,
+    () => nativeCallSequence(h, events, routines, HIT_CALL, HIT, false, false),
+    shooter,
+    target,
+  );
   return yield* finishSequence(run);
 }

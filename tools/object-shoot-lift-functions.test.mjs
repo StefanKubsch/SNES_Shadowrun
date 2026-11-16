@@ -21,7 +21,7 @@ import {
   shootAtGloveTargetSequence,
   shootAtObjectSequence,
   shootWithOwnWeaponSequence,
-} from '../src/game/object-shoot.mjs';
+} from '../proof/caller/object-shoot.mjs';
 import {
   DRAW_LIST_INDEX,
   OBJECT_ACTION_DIRECTIONS,

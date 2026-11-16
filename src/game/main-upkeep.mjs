@@ -484,8 +484,7 @@ export const runHitObject = sequenceRun((h, events) => hitObjectSequence(h, even
 const SHOOT_ROUTINES = new Map([[0x808691, runHitObject]]);
 // The lifted shooting natives 80:8AB5, 80:8A51 and 80:8A8C, as the script natives run
 // them with lag-free frames.
-export const liftedShootAtObjectSequence = (h, events) =>
-  shootAtObjectSequence(h, events, SHOOT_ROUTINES);
+export const liftedShootAtObjectSequence = (h, events) => shootAtObjectSequence(h, events);
 export const liftedShootAtGloveTargetSequence = (h, events) =>
   shootAtGloveTargetSequence(h, events, SHOOT_ROUTINES);
 export const liftedShootWithOwnWeaponSequence = (h, events) =>

@@ -34,3 +34,12 @@ at both budgets. The sound command, eleven shake frames, hit effects, task
 events and final game state are compared with the former hit caller using
 the independently retained window-list dispatcher. The original random
 per-function comparisons remain separate and unchanged.
+
+## Block 4: explicit-weapon shot caller
+
+The 80:8AB5 entry composes the actual hit through 80:89AC and accepts its
+text renderer. Former shooting orchestration is retained in proof/caller,
+including the independent random original comparisons. New real callers use
+all shot kinds, warning/penalty notices, player hits, hit/miss, absent and
+blocked targets, the ranged reach boundary and request wrap at both budgets.
+The remaining two entries still dispatch their hits until their own blocks.
