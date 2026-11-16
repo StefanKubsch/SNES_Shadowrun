@@ -182,7 +182,7 @@ export function* saveMenuSequence(h, events, routines, renderBuffer = drawTextBu
         ...(four ? PORT_TEXTS.map(({ id }) => id) : []),
       ],
     );
-  yield* call(h, events, routines, 0x80cdf1, OPEN_WINDOW);
+  yield* dialogCallBody(h, 0x80cdf1, OPEN_WINDOW, () => openWindowSequence(h, events));
   yield () => {
     setDataBankWord(mem, MAIN_MENU_WINDOW, 0, word(wram, 0));
     if (four)
@@ -194,7 +194,9 @@ export function* saveMenuSequence(h, events, routines, renderBuffer = drawTextBu
       );
     else setMenu(h, MENU_WINDOW.visibleRows, SAVE_MENU_ITEMS, CODE_BANK);
   };
-  yield* call(h, events, routines, 0x80ce0f, PLAIN_MENU);
+  yield* dialogCallBody(h, 0x80ce0f, PLAIN_MENU, () =>
+    chooseFromMenuSequence(h, events, renderBuffer, PLAIN_MENU),
+  );
   let slot;
   yield () => {
     slot = word(wram, 0);

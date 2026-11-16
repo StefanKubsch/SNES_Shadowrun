@@ -540,3 +540,11 @@ The save caller directly opens the blocked-save notice, prints its text, waits
 for confirmation and releases the window. Countdown zero, one and the largest
 positive word retain the blocked branch; captured text and real glyph cases
 compare independently at both budgets. Save eligibility and SRAM are unchanged.
+
+### Block 3: save-slot selection
+
+The allowed-save branch opens and selects directly with the same renderer,
+then releases its window. Caller cases cover both slot counts, every slot, Exit
+and cancellation at both budgets. They compare the entire SRAM and assert the
+selected slot checksum and unchanged SRAM on Exit/cancel. Slot four also uses
+real glyphs. The existing save implementation and sound service are unchanged.

@@ -3,6 +3,8 @@ import assert from 'node:assert/strict';
 import { compareRun } from './member-menu-caller-harness.mjs';
 import * as directMain from '../src/game/main-menu.mjs';
 import * as formerMain from '../proof/caller/main-menu.mjs';
+import { installPortExtension } from '../src/data/port-extension.mjs';
+import { occupiedSlots } from '../src/game/save-slots.mjs';
 import * as W from '../src/data/wram.mjs';
 
 function runMain(direct, budget, pads, realDrawing = false) {
@@ -88,4 +90,48 @@ for (const budget of [1, 7])
     const actual = runBlocked(true, budget, 0, true);
     assert.deepEqual(actual, runBlocked(false, budget, 0, true));
     assert.ok(actual.uploads.length > 2);
+  });
+
+function runSave(direct, budget, slot, four = false, realDrawing = false) {
+  let services, sram;
+  const pads =
+    slot < 0 ? [0x2000] : [...Array.from({ length: slot }, () => [0x400, 0]).flat(), 0x8000];
+  const result = compareRun(
+    (h, e, r) =>
+      (direct ? directMain : formerMain).saveMenuSequence(h, e, services, direct ? r : undefined),
+    direct,
+    ({ put, mem, a }) => {
+      put(W.TIMER, 0x8000);
+      mem.sram = new Uint8Array(four ? 0x4000 : 0x2000).fill(0xa5);
+      sram = mem.sram;
+      a.vm.gameplay = { fourSaveSlots: four };
+      if (four) installPortExtension(mem);
+      for (let n = 0; n < 0xf28; n++) mem.wram[W.SAVE_STATE_START + n] = (n * 17 + 3) & 0xff;
+    },
+    budget,
+    pads,
+    realDrawing,
+    ({ routines }) => {
+      services = routines;
+    },
+  );
+  return { ...result, sram: sram.slice() };
+}
+for (const budget of [1, 7])
+  for (const four of [false, true])
+    for (const slot of [-1, 0, 1, 2, ...(four ? [3, 4] : [])])
+      test(`save slots: ${slot}, four ${four}, budget ${budget}`, () => {
+        const actual = runSave(true, budget, slot, four);
+        assert.deepEqual(actual, runSave(false, budget, slot, four));
+        assert.deepEqual(
+          occupiedSlots(actual.sram),
+          Array.from({ length: four ? 4 : 2 }, (_, n) => n === slot - 1),
+        );
+        if (slot <= 0) assert.ok(actual.sram.every((v) => v === 0xa5));
+      });
+for (const budget of [1, 7])
+  test(`save slots default glyphs, budget ${budget}`, () => {
+    const actual = runSave(true, budget, 4, true, true);
+    assert.deepEqual(actual, runSave(false, budget, 4, true, true));
+    assert.equal(occupiedSlots(actual.sram)[3], true);
   });
