@@ -467,8 +467,7 @@ const TEXT_ROUTINES = new Map([
 const MENU_WINDOW_ROUTINES = new Map(TEXT_ROUTINES)
   .set(0x80a6c7, runPlainMenu)
   .set(0x80fa3e, runReleaseWindow);
-export const liftedQuestionSequence = (h, events) =>
-  askYesNoSequence(h, events, MENU_WINDOW_ROUTINES);
+export const liftedQuestionSequence = (h, events) => askYesNoSequence(h, events);
 export const liftedSpellChoiceSequence = (h, events) =>
   chooseSpellSequence(h, events, MENU_WINDOW_ROUTINES);
 // The lifted equipment rows 80:E9C5 with the lifted cursor, text and number.

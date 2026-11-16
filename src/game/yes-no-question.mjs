@@ -6,7 +6,11 @@
 // plain menu 80:A6C7 lists Yes and No (the list 80:CD91 with the texts 714D and 7150) in
 // two visible rows from column 1. The window is released afterwards; the result is FFFF
 // for Yes and 0 for No or a cancel.
-import { nativeCallSequence } from '../system/native-call-continuation.mjs';
+import { dialogCallBody } from '../system/native-call-continuation.mjs';
+import { openWindowSequence } from './window-open.mjs';
+import { releaseWindowSequence } from './window-release.mjs';
+import { chooseFromMenuSequence } from './menu-choice.mjs';
+import { drawTextBufferSequence } from './text-draw.mjs';
 import { fitListWindow } from '../data/menu-layout.mjs';
 import {
   DP_LIST_TOKEN_BANK,
@@ -46,19 +50,17 @@ const setWord = (wram, at, value) => {
   wram[at + 1] = (value >>> BYTE_BITS) & BYTE_MASK;
 };
 
-// 80:CD43, a sequence that ends with the native's RTS; routines holds the window
-// opening, the plain menu and the release.
-export function* askYesNoSequence(h, events, routines) {
+// 80:CD43 composes opening, selection and release with an explicit renderer.
+export function* askYesNoSequence(h, events, renderBuffer = drawTextBufferSequence) {
   const { mem } = h.a,
-    { wram } = mem,
-    call = ([site, target]) => nativeCallSequence(h, events, routines, site, target);
+    { wram } = mem;
   yield () => {
     setWord(wram, DP_WINDOW_COLUMNS, WINDOW_COLUMNS);
     setWord(wram, DP_WINDOW_ROWS, WINDOW_ROWS);
     setWord(wram, DP_WINDOW_ATTRIBUTES, 0);
     fitListWindow(mem, h, YES_NO_TEXTS);
   };
-  yield* call(WINDOW_CALL);
+  yield* dialogCallBody(h, ...WINDOW_CALL, () => openWindowSequence(h, events));
   yield () => {
     setWord(wram, DP_QUESTION_WINDOW, word(wram, DP_WINDOW));
     setWord(wram, DP_MENU_COLUMN, MENU_COLUMN);
@@ -67,14 +69,23 @@ export function* askYesNoSequence(h, events, routines) {
     setWord(wram, DP_LIST_TOKENS, YES_NO_ITEMS & WORD_MASK);
     setWord(wram, DP_LIST_TOKEN_BANK, YES_NO_ITEMS >>> BANK_SHIFT);
   };
-  yield* call(MENU_CALL);
+  yield* dialogCallBody(h, ...MENU_CALL, () =>
+    chooseFromMenuSequence(h, events, renderBuffer, MENU_CALL[1]),
+  );
   yield () => {
     const choice = word(wram, DP_WINDOW);
     // The answer waits on the stack (PEA) while the window is released.
     h.a.pushWord(choice === CANCEL || choice === NO_ROW ? NO : YES);
     setWord(wram, DP_WINDOW, word(wram, DP_QUESTION_WINDOW));
   };
-  yield* call(RELEASE_CALL);
+  yield* dialogCallBody(h, ...RELEASE_CALL, function* () {
+    yield* releaseWindowSequence(h, events);
+    let result;
+    yield () => {
+      result = h.rts();
+    };
+    return result;
+  });
   let result;
   yield () => {
     setWord(wram, DP_WINDOW, h.a.pullWord());

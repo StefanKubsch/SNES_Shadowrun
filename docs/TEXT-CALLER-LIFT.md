@@ -194,3 +194,14 @@ separate open/close flags and the script override reset at budgets one and seven
 The test checks selected flags, script result, uploads, consumed input and final
 game state, with zero-budget stability. Drawing and NMI upload service are
 stand-ins; existing script-native integrations retain actual devices and NMIs.
+
+## Modal menus and portraits: Yes/No question (2026-11-16)
+
+[yes-no-question.mjs](../src/game/yes-no-question.mjs) composes window opening,
+plain menu selection and release directly with the renderer sequence. The
+[former question](../proof/caller/yes-no-question.mjs) retains dispatch; the
+comparison binds independently retained opening, menu and release callees.
+The modal caller suite adds Yes, No, cancellation and navigation back to Yes,
+using both budgets and comparing the answer, uploads, input and game state.
+The stack-held answer across release and language-dependent window sizing
+remain unchanged. Main-upkeep supplies no helper table to this native.
