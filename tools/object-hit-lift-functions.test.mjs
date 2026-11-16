@@ -11,7 +11,7 @@
 import { prng } from './task-native-dialog-harness.mjs';
 import { calleeRecord, createSide, registerCases } from './lift-function-harness.mjs';
 import { hitObject } from '../proof/replay/native-object-hit.mjs';
-import { hitObjectSequence } from '../src/game/object-hit.mjs';
+import { hitObjectSequence } from '../proof/caller/object-hit.mjs';
 import {
   DRAW_LIST_INDEX,
   HARMLESS_HITS,

@@ -31,6 +31,8 @@
 // number, the object slots 80:A835 and the sound 80:C46E run lifted as plain calls; the
 // notices' callees and the window list run through their frames from the routine
 // table, since they wait for frames.
+import { openWindowSequence } from './window-open.mjs';
+import { dialogCallBody } from '../system/native-call-continuation.mjs';
 import { nativeCallSequence } from '../system/native-call-continuation.mjs';
 import { dataBankWord, setDataBankWord } from '../system/data-bank.mjs';
 import { accessorPort } from '../system/hardware-port.mjs';
@@ -155,7 +157,7 @@ function* noticeSequence(h, events, routines, notice, calls) {
     setWord(wram, DP_WINDOW_ATTRIBUTES, 0);
     fitListWindow(mem, h, [notice.text], { column: 0 });
   };
-  yield* call(calls.window, OPEN_WINDOW);
+  yield* dialogCallBody(h, calls.window, OPEN_WINDOW, () => openWindowSequence(h, events));
   yield () => {
     setWord(wram, 2, notice.text);
   };

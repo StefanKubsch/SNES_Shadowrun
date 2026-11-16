@@ -62,3 +62,12 @@ proof/caller/glove-choice-services.mjs; it does not claim the new movement
 integration. New full callers acquire real objects and names, move and
 release them, and compare all six result paths with the former orchestration
 at both budgets. Frame policy, reach and projection equations are unchanged.
+
+## Block 8: harmless-hit notice window
+
+Both hit notices compose the established window opener through their original
+JSR frames (80:87A1 and 80:87E7). The former hit orchestration is retained
+for its unchanged independent random original comparison. New real callers
+cover fourth/eighth hits, karma below/at/above the penalty, no-notice paths,
+request wrap and actual glyph/window uploads at both budgets. Damage,
+object creation, task events and the player-hit body do not change.
