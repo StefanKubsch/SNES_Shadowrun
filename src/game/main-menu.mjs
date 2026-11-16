@@ -255,7 +255,7 @@ export function* mainMenuSequence(h, events, routines, renderBuffer = drawTextBu
       );
     else
       yield* dialogCallBody(h, 0x80cebd, KARMA_MENU, () =>
-        karmaMenuSequence(h, events, routines, renderBuffer),
+        karmaMenuSequence(h, events, renderBuffer),
       );
   }
   return yield* returnSequence(h);

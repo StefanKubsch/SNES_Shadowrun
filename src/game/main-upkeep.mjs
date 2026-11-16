@@ -560,10 +560,7 @@ export const liftedStatusScreenSequence = (h, events) =>
   statusScreenSequence(h, events, STATUS_SCREEN_LIFT_ROUTINES, NATIVE_ENTRY);
 // Main/save/karma menus compose windows, text, selection and submenus directly.
 // Sound and runner resource refill remain explicit services.
-const MAIN_MENU_SERVICES = new Map([
-  [0x80c46e, playSoundEffectRoutine],
-  [0x80cecb, runRaiseStateCount],
-]);
+const MAIN_MENU_SERVICES = new Map([[0x80c46e, playSoundEffectRoutine]]);
 // The lifted main menu as the script native 80:CE6D runs it with lag-free frames.
 export const liftedMainMenuSequence = (h, events) =>
   mainMenuSequence(h, events, MAIN_MENU_SERVICES);

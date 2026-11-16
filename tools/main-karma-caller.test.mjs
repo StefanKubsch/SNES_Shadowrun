@@ -2,7 +2,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { compareRun } from './member-menu-caller-harness.mjs';
 import { liftedMainMenuSequence } from '../src/game/main-upkeep.mjs';
-import { raiseStateCountSequence } from '../src/game/runner-state-call.mjs';
+import { raiseStateCountSequence } from '../proof/caller/runner-state-call.mjs';
 import { raiseMemberMagicPointsReference } from '../proof/game-reference/runner-state.mjs';
 import * as directMain from '../src/game/main-menu.mjs';
 import * as formerMain from '../proof/caller/main-menu.mjs';
@@ -69,25 +69,17 @@ function runMain(direct, budget, pads, realDrawing = false, liveEntry = false) {
     budget,
     pads,
     realDrawing,
-    ({ routines, calls, bind, h, events }) => {
+    ({ routines, bind, h, events }) => {
       services = routines;
       bind(0x80cdd6, () => formerMain.saveMenuSequence(h, events, routines));
       bind(0x80ee57, () => formerKarma.karmaMenuSequence(h, events, routines));
       bind(0x80fa67, () => requestTileClearSequence(h, events));
       bind(0x80ef82, () => formerKarma.karmaLineSequence(h, events, routines));
-      for (const target of [0x80cecb])
-        routines.set(target, (callee) => {
-          calls.push(['refill', target, callee.a.mem.read16(0), callee.a.mem.read16(2)]);
-          return callee.rts();
-        });
+      bind(0x80cecb, () => raiseStateCountSequence(h, events));
       routines.set(0x80cf2e, (callee) => raiseMemberMagicPointsReference(callee.a, false));
-      if (liveEntry) {
-        bind(0x80cecb, () => raiseStateCountSequence(h, events));
-      }
+
       if (direct)
-        services = new Map(
-          [...routines].filter(([target]) => [0x80c46e, 0x80cecb].includes(target)),
-        );
+        services = new Map([...routines].filter(([target]) => [0x80c46e].includes(target)));
     },
   );
 }
@@ -202,7 +194,7 @@ function runKarma(name, direct, budget, prepare, pads = [], realDrawing = false,
         ? m[name](
             h,
             e,
-            services,
+            ...(!direct ? [services] : []),
             ...(name === 'karmaListSequence'
               ? [entry, direct ? r : undefined]
               : [direct ? r : undefined]),
@@ -217,7 +209,7 @@ function runKarma(name, direct, budget, prepare, pads = [], realDrawing = false,
     budget,
     pads,
     realDrawing,
-    ({ routines, bind, h, events, calls }) => {
+    ({ routines, bind, h, events }) => {
       services = routines;
       bind(0x80fa67, () => requestTileClearSequence(h, events));
       bind(0x80a6b8, () => formerChoose(h, events, routines, 0x80a6b8));
@@ -225,14 +217,8 @@ function runKarma(name, direct, budget, prepare, pads = [], realDrawing = false,
       bind(0x80f006, () => formerKarma.buyStepSequence(h, events, routines));
       for (const entry of Object.keys(KARMA_LISTS).map(Number))
         bind(entry, () => formerKarma.karmaListSequence(h, events, routines, entry));
-      for (const target of [0x80cecb])
-        routines.set(target, (callee) => {
-          calls.push(['refill', target, callee.a.mem.read16(0), callee.a.mem.read16(2)]);
-          return callee.rts();
-        });
+      bind(0x80cecb, () => raiseStateCountSequence(h, events));
       routines.set(0x80cf2e, (callee) => raiseMemberMagicPointsReference(callee.a, false));
-      if (direct)
-        services = new Map([...routines].filter(([target]) => [0x80cecb].includes(target)));
     },
   );
 }
@@ -393,10 +379,7 @@ for (const budget of [1, 7])
           actual.wram[W.KARMA] | (actual.wram[W.KARMA + 1] << 8),
           paid ? 0 : oldValue * 8 - 1,
         );
-        assert.equal(
-          actual.calls.filter((c) => c[0] === 'refill').length,
-          paid && pointer === W.JAKE_BODY ? 1 : 0,
-        );
+        assert.equal(actual.wram[0x6202], paid && pointer === W.JAKE_BODY ? 4 : 2);
         assert.equal(actual.wram[W.JAKE_COUNT_MAX], paid && pointer === W.JAKE_BODY ? 4 : 250);
         assert.equal(actual.input, pads.length);
       });
@@ -444,7 +427,7 @@ for (const budget of [1, 7])
         const prepare = karmaMenuFixture(variant);
         const actual = runKarma('karmaMenuSequence', true, budget, prepare, pads);
         assert.deepEqual(actual, runKarma('karmaMenuSequence', false, budget, prepare, pads));
-        assert.equal(actual.calls.filter((c) => c[0] === 'refill').length, 1);
+        assert.equal(actual.wram[0x6202], 40);
         assert.equal(actual.wram[W.GLOVE_KIND], 0);
         assert.equal(actual.input, pads.length);
       });
@@ -506,10 +489,7 @@ for (const budget of [1, 7])
         assert.equal(actual.wram[pointer], paid ? 2 : 1);
         assert.equal(actual.wram[W.KARMA] | (actual.wram[W.KARMA + 1] << 8), paid ? 0 : 7);
         assert.equal(actual.input, pads.length);
-        assert.equal(
-          actual.calls.filter((c) => c[0] === 'refill').length,
-          paid && row === 1 ? 2 : 1,
-        );
+        assert.equal(actual.wram[0x6202], paid && row === 1 ? 50 : 40);
       });
 for (const budget of [1, 7])
   for (const row of [1, 2, 3])
@@ -571,3 +551,20 @@ for (const budget of [1, 7])
         assert.deepEqual(actual, runKarma('karmaMenuSequence', false, budget, prepare, [0x2000]));
         assert.equal(actual.wram[W.MAGIC_POINTS], Math.min(points + 255, magic * 10) & 0xff);
       });
+
+for (const budget of [1, 7])
+  for (const maximum of [0, 4, 40, 255])
+    for (const count of [0, 39, 40, 250, 255])
+      for (const hasRecord of [false, true])
+        test(`karma health refill: max ${maximum}, count ${count}, record ${hasRecord}, budget ${budget}`, () => {
+          const prepare = (side) => {
+            karmaMenuFixture()(side);
+            const record = side.mem.read16(0x80971a);
+            side.mem.wram[record + 5] = maximum;
+            side.mem.wram[0x6202] = count;
+            if (!hasRecord) side.put(W.OBJECT_RECORD + 2, 0);
+          };
+          const actual = runKarma('karmaMenuSequence', true, budget, prepare, [0x2000]);
+          assert.deepEqual(actual, runKarma('karmaMenuSequence', false, budget, prepare, [0x2000]));
+          assert.equal(actual.wram[0x6202], hasRecord ? maximum : count);
+        });

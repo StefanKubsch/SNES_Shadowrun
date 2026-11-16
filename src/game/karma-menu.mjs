@@ -29,12 +29,8 @@
 // (80:CECB). The callees (window 80:F963, redraw 80:FA67, cursor 80:FAAC, text
 // 80:FE69, number 80:FD80, key wait 80:F953, release 80:FA3E, numbered menu 80:A6B8,
 // state count 80:CECB and the line and purchase above) compose through their original
-// frames. Only state count and magic refill retain an explicit service table.
-import {
-  dialogCallBody,
-  segmentSequence,
-  nativeCallSequence,
-} from '../system/native-call-continuation.mjs';
+// frames. State count and magic refill also compose directly.
+import { dialogCallBody, segmentSequence } from '../system/native-call-continuation.mjs';
 import { chooseFromMenuSequence } from './menu-choice.mjs';
 import { openWindowSequence, requestTileClearSequence } from './window-open.mjs';
 import { setTextCursorRoutine, printNumberSequence } from './window-text.mjs';
@@ -46,6 +42,7 @@ import {
 } from './window-release.mjs';
 import { waitForConfirmKeySequence } from './confirm-key.mjs';
 import { drawTextBufferSequence } from './text-draw.mjs';
+import { raiseStateCountSequence } from './runner-state-call.mjs';
 import { raiseMemberMagicPoints } from '../script/native-magic-points-raise.mjs';
 import { KARMA_LISTS, KARMA_WINDOWS } from '../system/native-main-menu.mjs';
 import { TEXT_EXIT } from '../data/port-extension.mjs';
@@ -158,8 +155,6 @@ const load = (ctx, value) => {
   ctx.a = value;
   setSignZero(ctx, value);
 };
-const call = (h, events, routines, pc, target) =>
-  nativeCallSequence(h, events, routines, pc, target, false, false);
 function* returnSequence(h) {
   let result;
   yield () => {
@@ -266,13 +261,7 @@ const compare = (ctx, left, right) => {
 
 // 80:F054, 80:F0F3 or 80:F1B5: a karma list (see above). A sequence that ends with its
 // RTS.
-export function* karmaListSequence(
-  h,
-  events,
-  routines,
-  entry,
-  renderBuffer = drawTextBufferSequence,
-) {
+export function* karmaListSequence(h, events, entry, renderBuffer = drawTextBufferSequence) {
   const { ctx } = h,
     { mem } = h.a,
     { wram } = mem,
@@ -375,7 +364,10 @@ export function* karmaListSequence(
         load(ctx, BODY_COUNT_INCREMENT);
         setWord(wram, 2, BODY_COUNT_INCREMENT);
       };
-      if (body) yield* call(h, events, routines, list.pcs.refill, RAISE_STATE_COUNT);
+      if (body)
+        yield* dialogCallBody(h, list.pcs.refill, RAISE_STATE_COUNT, () =>
+          raiseStateCountSequence(h, events),
+        );
     }
     yield* dialogCallBody(h, list.pcs.karma, KARMA_LINE, () =>
       karmaLineSequence(h, events, renderBuffer),
@@ -384,7 +376,7 @@ export function* karmaListSequence(
 }
 
 // 80:EE57: the karma menu (see above). A sequence that ends with its RTS.
-export function* karmaMenuSequence(h, events, routines, renderBuffer = drawTextBufferSequence) {
+export function* karmaMenuSequence(h, events, renderBuffer = drawTextBufferSequence) {
   const { ctx } = h,
     { mem } = h.a,
     { wram } = mem,
@@ -525,9 +517,7 @@ export function* karmaMenuSequence(h, events, routines, renderBuffer = drawTextB
         if (row === FIRST_LIST_ROW) [pc, entry] = [0x80ef32, KARMA_LIST_FIRST];
       }
     };
-    yield* dialogCallBody(h, pc, entry, () =>
-      karmaListSequence(h, events, routines, entry, renderBuffer),
-    );
+    yield* dialogCallBody(h, pc, entry, () => karmaListSequence(h, events, entry, renderBuffer));
     yield* release(0x80ef3f, KARMA_LIST_WINDOW);
     yield* release(0x80ef47, KARMA_HEADER_WINDOW);
   }
@@ -547,7 +537,7 @@ export function* karmaMenuSequence(h, events, routines, renderBuffer = drawTextB
       yield* dialogCallBody(h, pc, target, () =>
         segmentSequence(() => raiseMemberMagicPoints(h.a, false)),
       );
-    else yield* call(h, events, routines, pc, target);
+    else yield* dialogCallBody(h, pc, target, () => raiseStateCountSequence(h, events));
   }
   return yield* returnSequence(h);
 }

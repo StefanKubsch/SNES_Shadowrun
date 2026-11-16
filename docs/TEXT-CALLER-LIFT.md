@@ -700,3 +700,13 @@ karma/main fixtures now initialize a valid real leader record. Additional
 cases cover zero Magic, the byte maximum, ten-times scaling beyond a byte,
 and initial points zero, 250 and 255 at both budgets. Final byte truncation
 remains the original behaviour. Health refill remains a service in this phase.
+
+### Block 9: karma state-count refill
+
+Body purchases and karma exit directly compose state-count raising, including
+the shared window-list redraw completed in block 7. Karma menus and lists now
+receive only their renderer, with no service table. Former comparisons use
+the retained resource caller and retained window list. Purchase cases assert
+the actual count refill after the maximum wraps from 250 to four; full routes
+assert health and payment together. Additional cases cover zero/max health,
+counts below and above the limit and absent object records at both budgets.
