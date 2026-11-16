@@ -126,18 +126,25 @@ function runTalk(module, variant, budget, { alternate = 0, music = 0, mirror = 0
   put(MUSIC, 0x1234);
   put(SOUND_LOADED_SET, mem.read16(0x80c4b3 + 0x4c));
   mem.wram[JAKE_ALTERNATE_PORTRAIT] = alternate;
-  mem.wram.set([2, 0xff], TOPIC_LIST);
+  mem.wram.set(variant === 'empty topics' ? [0xff] : [2, 0xff], TOPIC_LIST);
   // Preserve the real partner portrait pointer, supply bounded text records.
   const read = mem.read8.bind(mem),
     record = mem.read16(DIALOG_TABLE),
     header = Array.from({ length: 3 }, (_, n) => read(DIALOG_BANK_BASE + record + n)),
-    entry = (key, text) => [key, 4, 0, text & 255, text >>> 8],
+    entry = (key, text, action = false) => [
+      key,
+      action ? 6 : 4,
+      action ? 0x80 : 0,
+      ...(action ? [0x34, 0x12] : []),
+      text & 255,
+      text >>> 8,
+    ],
     bytes = [
       ...header,
       music | mirror,
       ...entry(0xff, 0x707d),
-      ...entry(0xfe, 0x7077),
-      ...entry(2, 0x7074),
+      ...entry(0xfe, 0x7077, variant === 'talk ends'),
+      ...entry(2, 0x7074, variant === 'topic ends'),
       0xf8,
     ];
   mem.read8 = (address) =>
@@ -149,15 +156,18 @@ function runTalk(module, variant, budget, { alternate = 0, music = 0, mirror = 0
           ? bytes[address - 0x8d6000]
           : read(address);
   events.text = dialogTextRoutines(events);
+  events.text.topic = (callee) => {
+    side.calls.push(['topic action', mem.read16(0x8d0000 + mem.read16(0x11) + callee.ctx.y)]);
+    put(DIALOG_END, 0xffff);
+  };
   const serviceUpload = events.interrupts.textWait;
-  const pads =
-    variant === 'talk'
-      ? [0x400, 0, 0x8000, 0, 0x8000]
-      : variant === 'topic'
-        ? [0x400, 0, 0x400, 0, 0x8000, 0, 0x8000, 0, 0x8000]
-        : variant === 'cancel'
-          ? [0x2000]
-          : [0x8000];
+  const pads = variant.startsWith('talk')
+    ? [0x400, 0, 0x8000, 0, 0x8000]
+    : variant.startsWith('topic') || variant === 'empty topics'
+      ? [0x400, 0, 0x400, 0, 0x8000, 0, variant === 'topic cancel' ? 0x2000 : 0x8000, 0, 0x8000]
+      : variant === 'cancel'
+        ? [0x2000]
+        : [0x8000];
   let frames = 0,
     input = 0,
     requests = 0;
@@ -254,3 +264,19 @@ for (const budget of [1, 7])
             music ? 2 : 0,
           );
         });
+
+for (const budget of [1, 7])
+  for (const variant of ['empty topics', 'topic cancel', 'talk ends', 'topic ends'])
+    test(`talk text/menu boundary: ${variant}, budget ${budget}`, () => {
+      const actual = runTalk(direct, variant, budget);
+      assert.deepEqual(actual, runTalk(former, variant, budget));
+      assert.equal(
+        actual.calls.filter((call) => call[0] === 'topic action').length,
+        variant.endsWith('ends') ? 1 : 0,
+      );
+      if (variant.endsWith('ends'))
+        assert.deepEqual(
+          actual.calls.find((call) => call[0] === 'topic action'),
+          ['topic action', 0x1234],
+        );
+    });

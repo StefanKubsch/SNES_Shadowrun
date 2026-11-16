@@ -300,3 +300,18 @@ and disabled music, and either partner mirror flag at both budgets. It checks
 both complete tile payloads and destinations, the mirror word, frame snapshots,
 restored music calls and final state against the former caller. These serviced
 NMI fixtures complement the existing real integration comparisons.
+
+## Dialog orchestration batch: text and menus (2026-11-16)
+
+Talk passes its renderer sequence directly to greeting, Talk and topic texts and
+both dialog menus, and uses the live greeting frame wait. Custom dialog text
+services retain their established interface, including topic actions. The
+main-upkeep dialog table now contains only tile reload, sprite rebuilding,
+music and the tile reload's shared frame wait. The register entries remain
+available for other established callers.
+
+The orchestration suite adds empty topic lists, topic cancellation and actions
+that end the dialog after Talk or a topic. Both budgets compare restored action
+position, end state, frames, texts, input and cleanup against the independently
+retained former caller. Eight new boundary comparisons bring the suite to 88.
+No save, task scheduling or lag-free frame policy changes.

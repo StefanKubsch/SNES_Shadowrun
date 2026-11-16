@@ -29,6 +29,9 @@ import {
   dialogCallBody,
   segmentSequence,
 } from '../system/native-call-continuation.mjs';
+import { showDialogTextSequence } from './dialog-text.mjs';
+import { chooseDialogActionSequence, chooseDialogTopicSequence } from './dialog-menus.mjs';
+import { drawTextBufferSequence } from './text-draw.mjs';
 import { openWindowSequence } from './window-open.mjs';
 import {
   putGloveAwayCallSequence,
@@ -273,8 +276,9 @@ export function* closeDialogSequence(h, events, routines) {
 }
 
 // Talk with the object (80:936C), a sequence for a native call continuation: h the
-// glove action's access (direct page 0, data bank 80), routines the callee table.
-export function* talkSequence(h, events, routines) {
+// glove action's access (direct page 0, data bank 80), routines the remaining
+// music, tile-reload and sprite services, renderBuffer the live text renderer.
+export function* talkSequence(h, events, routines, renderBuffer = drawTextBufferSequence) {
   const { ctx } = h,
     m = sceneRuntime(h),
     { mem, wram, port } = m,
@@ -395,15 +399,25 @@ export function* talkSequence(h, events, routines) {
     setWord(wram, DP_OBJECT, word(wram, DP_PORTRAIT_FRAME));
     ctx.a = GREETING_TEXT;
   };
-  yield* call(CALL.greeting);
+  yield* dialogCallBody(h, ...CALL.greeting, () =>
+    showDialogTextSequence(h, events, events.text, renderBuffer),
+  );
   yield () => (ctx.x = GREETING_WAIT_FRAMES);
   do {
-    yield* call(CALL.wait);
+    yield* dialogCallBody(
+      h,
+      CALL.wait[0],
+      CALL.wait[1],
+      () => frameWaitCallSequence(h, events),
+      true,
+    );
     yield () => (ctx.x = (ctx.x - 1) & WORD_MASK);
   } while (!(ctx.x & WORD_SIGN));
   // The menu until Exit or the end word.
   for (;;) {
-    yield* call(CALL.menu);
+    yield* dialogCallBody(h, ...CALL.menu, () =>
+      chooseDialogActionSequence(h, events, events.text, renderBuffer),
+    );
     let next;
     yield () => {
       flag(ctx, FLAG_CARRY, true);
@@ -418,7 +432,9 @@ export function* talkSequence(h, events, routines) {
     };
     if (next === 'end') break;
     if (next === 'topics') {
-      yield* call(CALL.topics);
+      yield* dialogCallBody(h, ...CALL.topics, () =>
+        chooseDialogTopicSequence(h, events, events.text, renderBuffer),
+      );
       yield () => {
         ctx.a = word(wram, DIALOG_END);
         if (ctx.a) return void (next = 'end');
@@ -430,7 +446,9 @@ export function* talkSequence(h, events, routines) {
       if (next === 'end') break;
       if (next === 'menu') continue;
     }
-    yield* call(next === 'talk' ? CALL.talkText : CALL.topicText);
+    yield* dialogCallBody(h, ...(next === 'talk' ? CALL.talkText : CALL.topicText), () =>
+      showDialogTextSequence(h, events, events.text, renderBuffer),
+    );
     let stop;
     yield () => {
       ctx.a = word(wram, DIALOG_END);

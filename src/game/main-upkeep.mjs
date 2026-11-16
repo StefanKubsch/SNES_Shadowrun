@@ -33,12 +33,7 @@ import {
   releaseNoticeWindowsCallSequence,
   releaseWindowSequence,
 } from './window-release.mjs';
-import {
-  clearFixedColourRoutine,
-  closeDialogSequence,
-  setWindowTextWidthRoutine,
-  talkSequence,
-} from './dialog-talk.mjs';
+import { clearFixedColourRoutine, closeDialogSequence, talkSequence } from './dialog-talk.mjs';
 import { chooseDialogActionSequence, chooseDialogTopicSequence } from './dialog-menus.mjs';
 import {
   printTopicTextSequence,
@@ -388,28 +383,14 @@ for (const [run, sequence] of [
 function runMusicMode(h) {
   return setMusicModeRoutine(h);
 }
-const DIALOG_ROUTINES = new Map()
-  .set(0x808f3a, runOpenPortraitWindow)
-  .set(0x808f97, runClosePortraitWindow)
-  .set(0x809f6d, unpackPortraitRoutine)
-  .set(0x808f20, shiftPortraitRowsRoutine)
-  .set(0x809022, runUploadFirstPortrait)
-  .set(0x80905e, runUploadSecondPortrait)
-  .set(0x808ff5, runPortraitTiles)
-  .set(0x80adf4, runReloadObjectTiles)
-  .set(0x809e1a, runPadPresses)
-  .set(0x8091e2, runDialogMenu)
-  .set(0x809215, runDialogTopics)
-  .set(0x809178, runDialogText)
-  .set(0x81886a, clearFixedColourRoutine)
-  .set(0x80ff79, runReleaseNoticeWindows)
-  .set(0x80fa92, setWindowTextWidthRoutine)
-  .set(0x80b8de, runSpriteList)
-  .set(0x80bcb2, runPutGloveAway)
-  .set(0x80f963, runOpenWindow)
-  .set(0x80fa3e, runReleaseWindow)
-  .set(0x81b0a1, runFrameWait)
-  .set(0x81ef47, runMusicMode);
+// Dialog composition owns its windows, text, menus, portraits and input.
+// Shared scene reload/sprites and music keep their established service boundary.
+const DIALOG_ROUTINES = new Map([
+  [0x80adf4, runReloadObjectTiles],
+  [0x80b8de, runSpriteList],
+  [0x81b0a1, runFrameWait],
+  [0x81ef47, runMusicMode],
+]);
 // The lifted action menu as the script native 80:9BA0 runs it with lag-free frames.
 export const liftedScriptActionSequence = (h, events) => chooseScriptActionSequence(h, events);
 // The lifted text natives 80:935B and 80:933A as the script runs them with lag-free
