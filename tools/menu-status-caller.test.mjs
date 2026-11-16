@@ -1,3 +1,6 @@
+import * as directSubmenus from '../src/game/status-submenus.mjs';
+import * as formerSubmenus from '../proof/caller/status-submenus.mjs';
+import { waitForConfirmKeySequence } from '../proof/caller/confirm-key.mjs';
 import * as directEquipment from '../src/game/equipment-window.mjs';
 import * as formerEquipment from '../proof/caller/equipment-window.mjs';
 import test from 'node:test';
@@ -61,6 +64,7 @@ function compareRun(sequence, direct, prepare, budget, pads = []) {
   bind(0x80faac, () => segmentSequence(() => setTextCursorRoutine(h)));
   bind(0x80fe69, () => printTextSequence(h, events, routines));
   bind(0x80fd80, () => printNumberSequence(h, events, routines));
+  bind(0x80f953, () => waitForConfirmKeySequence(h, events, routines));
   bind(0x80fb39, () => side.render(h, events));
   prepare(side);
   try {
@@ -134,4 +138,32 @@ for (const budget of [1, 7])
           String.fromCharCode(...number.subarray(0, number.indexOf(0))),
           String((rating + (leader && dermal ? 2 : 0)) & 255),
         );
+      });
+
+for (const budget of [1, 7])
+  for (const [name, skills] of [
+    ['none', [0, 0, 0, 0, 0, 0]],
+    ['one', [0, 0, 9, 0, 0, 0]],
+    ['sparse', [1, 0, 0, 2, 0, 255]],
+    ['all', [1, 2, 3, 4, 5, 6]],
+  ])
+    for (const button of [0x8000, 0x2000])
+      test(`skills: ${name}, button ${button}, budget ${budget}`, () => {
+        const prepare = ({ put, mem }) => {
+          put(W.DP_MEMBER_RECORD, 0x6000);
+          mem.wram[W.DP_MEMBER_RECORD_BANK] = 0x7e;
+          mem.wram.set(skills, 0x6000);
+        };
+        const pads = skills.some(Boolean) ? [button] : [];
+        const actual = compareRun(directSubmenus.skillsSequence, true, prepare, budget, pads);
+        assert.deepEqual(
+          actual,
+          compareRun(formerSubmenus.skillsSequence, false, prepare, budget, pads),
+        );
+        assert.equal(actual.calls.length, skills.filter(Boolean).length * 2);
+        assert.equal(
+          actual.wram[W.DIALOG_END] | (actual.wram[W.DIALOG_END + 1] << 8),
+          skills.some(Boolean) && button === 0x2000 ? 0xffff : 0,
+        );
+        assert.equal(actual.input, pads.length);
       });

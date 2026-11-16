@@ -359,3 +359,15 @@ twelve cases across leader and other members, absent/present items, dermal
 armour and byte-rating wrap, with both budgets. It compares full text payloads,
 number digits, writes, game state and return, including zero-budget stability.
 Original item lookup, stack-held equipment and bonus arithmetic stay unchanged.
+
+## Status menus batch: skills (2026-11-16)
+
+The skills sequence in [status-submenus.mjs](../src/game/status-submenus.mjs)
+composes opening, cursor, text, number, confirming input and release directly.
+Its renderer is passed through text and numbers. The [former submenus](../proof/caller/status-submenus.mjs)
+retain both routines independently for the existing random original comparisons.
+Sixteen new caller comparisons cover no, one, sparse and all skills, including
+byte value 255, confirmation and Select ending the status screen, at both
+budgets. Text payloads, number digits, serviced uploads, consumed input and
+final state/return are compared. The zero-budget check remains. Notes still
+uses its table until its separate complete block.

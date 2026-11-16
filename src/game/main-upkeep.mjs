@@ -558,7 +558,7 @@ const sequenceRun = (sequence) => {
   });
   return run;
 };
-export const runSkills = sequenceRun((h, events) => skillsSequence(h, events, SUBMENU_ROUTINES)),
+export const runSkills = sequenceRun((h, events) => skillsSequence(h, events)),
   runNotes = sequenceRun((h, events) => notesSequence(h, events, SUBMENU_ROUTINES));
 // The lifted item submenus 80:E572, 80:E577 and 80:E57F with the lifted item use
 // 80:E4F3, window, releases, portrait, equipment rows, numbered menu, window redraw and

@@ -11,7 +11,11 @@
 import { nativeCallSequence } from '../../src/system/native-call-continuation.mjs';
 import { dataBankWord, setDataBankWord } from '../../src/system/data-bank.mjs';
 import { taskStop } from '../../src/system/task-stop.mjs';
-import { DP_SPELL_WINDOW, LIST_ENTRY_LIMIT, SPELL_WINDOW } from '../../src/data/native-spell-choice.mjs';
+import {
+  DP_SPELL_WINDOW,
+  LIST_ENTRY_LIMIT,
+  SPELL_WINDOW,
+} from '../../src/data/native-spell-choice.mjs';
 import { TEXT_NUMBERS } from '../../src/data/native-notice.mjs';
 import {
   DP_LIST_TOKEN_BANK,
@@ -30,7 +34,13 @@ import {
 } from '../../src/data/wram.mjs';
 import { TEXT_EXIT } from '../../src/data/port-extension.mjs';
 import { fitListWindow, listTextIds } from '../../src/data/menu-layout.mjs';
-import { BYTE_BITS, BYTE_MASK, WORD_BITS, WORD_MASK, WORD_SIGN } from '../../src/constants/bits.mjs';
+import {
+  BYTE_BITS,
+  BYTE_MASK,
+  WORD_BITS,
+  WORD_MASK,
+  WORD_SIGN,
+} from '../../src/constants/bits.mjs';
 import { CODE_BANK_BASE, WRAM_BANK } from '../../src/constants/memory-map.mjs';
 import { FLAG_CARRY, FLAG_NEGATIVE, FLAG_ZERO } from '../../src/constants/cpu-flags.mjs';
 

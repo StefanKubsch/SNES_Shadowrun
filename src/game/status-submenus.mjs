@@ -13,7 +13,17 @@
 // the head computer title, "Datajack" and the cyberware from row 2. A key ends both.
 // The callees (window 80:F963, cursor 80:FAAC, text 80:FE69, number 80:FD80, key wait
 // 80:F953, release 80:FA3E) run through their frames from the routine table.
-import { nativeCallSequence } from '../system/native-call-continuation.mjs';
+import {
+  nativeCallSequence,
+  dialogCallBody,
+  segmentSequence,
+} from '../system/native-call-continuation.mjs';
+import { openWindowSequence } from './window-open.mjs';
+import { releaseWindowSequence } from './window-release.mjs';
+import { setTextCursorRoutine, printNumberSequence } from './window-text.mjs';
+import { printTextSequence } from './text-print.mjs';
+import { drawTextBufferSequence } from './text-draw.mjs';
+import { waitForConfirmKeySequence } from './confirm-key.mjs';
 import { dataBankWord, setDataBankWord } from '../system/data-bank.mjs';
 import {
   NOTES_WINDOW,
@@ -115,8 +125,8 @@ function setWindow(h, { left, top, columns }, rows) {
   load(h.ctx, 0);
 }
 
-// 80:E834: the skills (see above). A sequence that ends with its RTS.
-export function* skillsSequence(h, events, routines) {
+// 80:E834: skills compose live callees directly and end with their RTS.
+export function* skillsSequence(h, events, renderBuffer = drawTextBufferSequence) {
   const { ctx } = h,
     { mem } = h.a,
     { wram } = mem,
@@ -135,7 +145,7 @@ export function* skillsSequence(h, events, routines) {
     setWindow(h, window, ctx.x);
   };
   if (!known) return yield* returnSequence(h);
-  yield* call(h, events, routines, 0x80e863, OPEN_WINDOW);
+  yield* dialogCallBody(h, 0x80e863, OPEN_WINDOW, () => openWindowSequence(h, events));
   yield () => {
     setDataBankWord(mem, STATUS_SUBMENU_WINDOW, 0, word(wram, 0));
     setWord(wram, DP_CURSOR_ROW, 0);
@@ -156,23 +166,29 @@ export function* skillsSequence(h, events, routines) {
         setFlag(ctx, FLAG_CARRY, false);
         setWord(wram, 2, 0);
       };
-      yield* call(h, events, routines, 0x80e882, CURSOR);
+      yield* dialogCallBody(h, 0x80e882, CURSOR, () =>
+        segmentSequence(() => setTextCursorRoutine(h)),
+      );
       yield () => {
         load(ctx, name);
         setWord(wram, 2, name);
       };
-      yield* call(h, events, routines, 0x80e888, TEXT);
+      yield* dialogCallBody(h, 0x80e888, TEXT, () => printTextSequence(h, events, renderBuffer));
       yield () => {
         load(ctx, window.valueColumn);
         setWord(wram, 2, window.valueColumn);
       };
-      yield* call(h, events, routines, 0x80e890, CURSOR);
+      yield* dialogCallBody(h, 0x80e890, CURSOR, () =>
+        segmentSequence(() => setTextCursorRoutine(h)),
+      );
       yield () => {
         setWord(wram, DP_CURSOR_ROW, (word(wram, DP_CURSOR_ROW) + 1) & WORD_MASK);
         load(ctx, value);
         setWord(wram, 2, value);
       };
-      yield* call(h, events, routines, 0x80e898, NUMBER);
+      yield* dialogCallBody(h, 0x80e898, NUMBER, () =>
+        printNumberSequence(h, events, renderBuffer),
+      );
       yield () => {
         ctx.y = skill;
       };
@@ -184,14 +200,19 @@ export function* skillsSequence(h, events, routines) {
     setSignZero(ctx, 0);
     setFlag(ctx, FLAG_CARRY, true);
   };
-  yield* call(h, events, routines, 0x80e8a2, CONFIRM_KEY);
+  yield* dialogCallBody(h, 0x80e8a2, CONFIRM_KEY, () => waitForConfirmKeySequence(h, events));
   yield () => {
     if (word(wram, PAD_PRESSED) & PAD_SELECT) setWord(wram, DIALOG_END, ENDED);
     const window = dataBankWord(mem, STATUS_SUBMENU_WINDOW);
     load(ctx, window);
     setWord(wram, 0, window);
   };
-  yield* call(h, events, routines, 0x80e8b8, RELEASE_WINDOW);
+  yield* dialogCallBody(h, 0x80e8b8, RELEASE_WINDOW, () =>
+    (function* () {
+      yield* releaseWindowSequence(h, events);
+      return yield* returnSequence(h);
+    })(),
+  );
   return yield* returnSequence(h);
 }
 

@@ -153,7 +153,9 @@ export function* chooseSpellSequence(h, events, renderBuffer = drawTextBufferSeq
       load(ctx, WRAM_BANK);
       setFlag(ctx, FLAG_CARRY, carry);
     };
-    yield* dialogCallBody(h, ...MENU, () => chooseFromMenuSequence(h, events, renderBuffer, MENU[1]));
+    yield* dialogCallBody(h, ...MENU, () =>
+      chooseFromMenuSequence(h, events, renderBuffer, MENU[1]),
+    );
     yield () => {
       spell = chosenSpell(h, word(wram, 0));
     };
@@ -168,7 +170,9 @@ export function* chooseSpellSequence(h, events, renderBuffer = drawTextBufferSeq
   yield* dialogCallBody(h, ...RELEASE_WINDOW, function* () {
     yield* releaseWindowSequence(h, events);
     let result;
-    yield () => { result = h.rts(); };
+    yield () => {
+      result = h.rts();
+    };
     return result;
   });
   let result;
