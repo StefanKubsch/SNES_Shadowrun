@@ -12,9 +12,11 @@
 // entry (karma / 8 then and now) shows in a notice with its number and a sound, and with
 // the music option the music kept by the first entry plays again (none if there was
 // none), else the music mode 0.
+import { showNoticeSequence } from './notice-show.mjs';
+import { drawTextBufferSequence } from './text-draw.mjs';
 import { setMusicMode } from '../apu/music-mode.mjs';
 import { dataBankWord, setDataBankWord } from '../system/data-bank.mjs';
-import { nativeCallSequence } from '../system/native-call-continuation.mjs';
+import { dialogCallBody, nativeCallSequence } from '../system/native-call-continuation.mjs';
 import {
   DP_CURSOR_ROW,
   DP_NOTICE_FRAMES,
@@ -104,7 +106,7 @@ const negative = (value) => (value & WORD_SIGN) !== 0;
 // Remove the object (the direct page word 00) from the fight list (80:855E), a sequence
 // that ends with the native's RTS; routines holds the notice, cursor, number, text,
 // sound and music mode routines.
-export function* removeFromFightListSequence(h, events, routines) {
+export function* removeFromFightListSequence(h, events, routines, renderBuffer = drawTextBufferSequence) {
   const { ctx } = h,
     { mem } = h.a,
     { wram } = mem,
@@ -154,7 +156,7 @@ export function* removeFromFightListSequence(h, events, routines) {
     ctx.a = NOTICE_FRAMES;
   };
   if (state === 'gain') {
-    yield* call(NOTICE_CALL);
+    yield* dialogCallBody(h, ...NOTICE_CALL, () => showNoticeSequence(h, events, renderBuffer));
     yield () => {
       // The notice leaves its window in A.
       setWord(wram, DP_WINDOW, ctx.a);

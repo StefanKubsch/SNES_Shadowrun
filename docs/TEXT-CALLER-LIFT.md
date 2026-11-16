@@ -867,3 +867,11 @@ Script glove cleanup now composes its window-list redraw through the original
 JSL site and receives no service table. The independent former caller retains
 the former real list. Name-window, map reconstruction, upload wrap and final
 state comparisons run at both budgets. Main-upkeep drops its cleanup table.
+
+### Block 7: fight karma notice
+
+Fight removal composes the real karma notice directly and forwards its renderer.
+The retained former caller keeps the original random comparison. Real caller
+cases cover missing and remaining opponents, last removal, zero gain, the
+nine/ten-column threshold, maximum and wrapped gains, both budgets and glyphs.
+They compare formation countdown, actual notice uploads and the final list.

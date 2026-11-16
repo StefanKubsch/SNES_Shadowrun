@@ -7,6 +7,9 @@ import { showNoticeSequence } from '../proof/caller/notice-show.mjs';
 import { releaseGloveSequence as directGlove } from '../src/game/glove-release.mjs';
 import { releaseGloveSequence as formerGlove } from '../proof/caller/glove-release.mjs';
 import { runDrawWindowList } from '../proof/caller/window-list.mjs';
+import { removeFromFightListSequence as directFight } from '../src/game/fight-list.mjs';
+import { removeFromFightListSequence as formerFight } from '../proof/caller/fight-list.mjs';
+import { setMusicModeRoutine } from '../src/apu/audio-routines.mjs';
 import * as W from '../src/data/wram.mjs';
 
 function runMagic(direct, budget, member, points, cost, glyphs) {
@@ -56,3 +59,45 @@ for (const budget of [1, 7])
         assert.equal(actual.wram[W.GLOVE_TARGET_TAG] | (actual.wram[W.GLOVE_TARGET_TAG + 1] << 8), 0xffff);
         assert.equal(actual.wram[W.GLOVE_NAME_WINDOW] | (actual.wram[W.GLOVE_NAME_WINDOW + 1] << 8), name ? 0 : 0xffff);
       });
+
+function runFight(direct, budget, karma, base, variant, glyphs, options = 0, token = 0) {
+  let services;
+  return compareRun((h, events, renderer) => direct
+    ? directFight(h, events, services, renderer)
+    : formerFight(h, events, renderer), direct, ({put, mem}) => {
+      put(0, variant === 'missing' ? 8 : 2);
+      put(W.FIGHT_LIST_INDEX, variant === 'remaining' ? 2 : 0);
+      put(W.FIGHT_LIST, 2);
+      put(W.FIGHT_LIST + 2, 4);
+      put(W.FIGHT_FIRST_REMOVAL, 0);
+      put(W.GROUP_INDEX, 2);
+      put(W.GROUP_LEADER_ONLY, 0);
+      put(W.GROUP_POSITIONS, 1);
+      put(W.GROUP_POSITIONS + 2, 0);
+      put(W.KARMA, karma);
+      put(W.FIGHT_KARMA, base);
+      put(W.GAME_OPTIONS, options);
+      put(W.FIGHT_MUSIC, 0);
+      put(W.MUSIC, 0);
+      mem.wram[W.APU_COMMAND_TOKEN] = token;
+      mem.wram.set([0, 1, 2].map(n => mem.read8(0x98fffa + n)), W.AUDIO_DIRECTORY_POINTER);
+      for (let n = 0; n <= W.NOTICE_WINDOW_LAST; n += 2) put(W.NOTICE_WINDOWS + n, 0xffff);
+  }, budget, [], glyphs, ({h, events, routines, bind}) => {
+    bind(0x80fec1, () => showNoticeSequence(h, events, routines));
+    routines.set(0x81ef47, setMusicModeRoutine);
+    services = routines;
+  });
+}
+for (const budget of [1, 7])
+  for (const [karma, base] of [[0, 0], [8, 0], [72, 0], [80, 0], [65535, 0], [0, 1]])
+    for (const variant of ['missing', 'remaining', 'ended'])
+      for (const glyphs of [false, true])
+        test(`fight end real caller: karma ${karma}, base ${base}, ${variant}, glyphs ${glyphs}, budget ${budget}`, () => {
+          const actual = runFight(true, budget, karma, base, variant, glyphs);
+          assert.deepEqual(actual, runFight(false, budget, karma, base, variant, glyphs));
+          const gain = ((karma >>> 3) - base) & 65535;
+          assert.equal(actual.uploads.length > 0, variant === 'ended' && gain !== 0);
+          const index = actual.wram[W.FIGHT_LIST_INDEX] | (actual.wram[W.FIGHT_LIST_INDEX + 1] << 8);
+          assert.equal(index, variant === 'ended' ? 65534 : 0);
+          assert.equal(actual.wram[W.GROUP_POSITIONS], variant === 'missing' ? 1 : 0);
+        });
