@@ -171,6 +171,8 @@ for (const budget of [1, 7])
           0,
         );
         assert.equal(actual.calls.filter((c) => c[0] === 'service' && c[1] === 0x81f007).length, 2);
+        assert.ok(actual.writes.includes('8498,224,1'), 'fixed colour reset');
+        assert.ok(actual.writes.includes('8497,0,1'), 'colour math disabled');
       });
 
 for (const budget of [1, 7])

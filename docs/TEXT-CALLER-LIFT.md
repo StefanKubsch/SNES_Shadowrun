@@ -662,3 +662,12 @@ compare the actual former redraw and portrait chain, including combinations
 with notices and early end. The direct member/item scene tables now contain
 only script append, object creation and nested visits. Redraw allocation,
 map reconstruction and upload waits keep their established contracts.
+
+### Block 5: status colour setup
+
+The status screen composes its established fixed-colour reset directly through
+the original JSL frame. The retained caller still receives that same reset as
+an independently dispatched callee. Existing full status routes compare the
+actual COLDATA and CGADSUB writes alongside window, text and portrait output;
+all native, Start and immediate-item entries retain their source ordering.
+No hardware interpretation or colour equations change.

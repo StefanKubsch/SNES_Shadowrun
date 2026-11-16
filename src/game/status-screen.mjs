@@ -38,6 +38,7 @@ import { decimalNumberSequence } from './decimal-number.mjs';
 import { drawTextBufferSequence } from './text-draw.mjs';
 import { equipmentRowsSequence } from './equipment-window.mjs';
 import { memberPortraitSequence } from './member-portrait.mjs';
+import { clearFixedColourRoutine } from './dialog-talk.mjs';
 import { chooseFromMenuSequence, MENU } from './menu-choice.mjs';
 import { itemMenuSequence, ITEM_ENTRIES } from './item-menu.mjs';
 import { spellMenuSequence, STATUS_ENTRY } from './member-spell-menu.mjs';
@@ -318,7 +319,13 @@ export function* statusScreenSequence(
     setWord(wram, MEMBER_INDEX, runner);
   };
   yield* dialogCallBody(h, 0x80eaea, PUT_GLOVE_AWAY, () => putGloveAwayCallSequence(h, events));
-  yield* call(0x80eaed, STATUS_SETUP, true);
+  yield* dialogCallBody(
+    h,
+    0x80eaed,
+    STATUS_SETUP,
+    () => segmentSequence(() => clearFixedColourRoutine(h)),
+    true,
+  );
   yield () => {
     const runner = dataBankWord(mem, MEMBER_INDEX);
     ctx.x = runner;
