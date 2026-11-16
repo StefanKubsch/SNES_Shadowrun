@@ -139,3 +139,45 @@ for (const budget of [1, 7])
         2 + (!script.end && script.redraw ? 2 : 0),
       );
     });
+
+function runOpenMember(module, direct, levels, pads, budget, realDrawing) {
+  let services;
+  return compareRun(
+    (h, e, r) => module.openSpellMenuSequence(h, e, direct ? services : r, direct ? r : undefined),
+    direct,
+    ({ put, mem }) => {
+      put(0, 2);
+      put(W.PLAYER_OBJECT, 2);
+      put(W.OBJECT_NUMBER + 2, mem.read16(0x809700));
+      const record = mem.read16(0x80971a);
+      mem.wram.set(levels, record + 12);
+    },
+    budget,
+    pads,
+    realDrawing,
+    ({ routines }) => {
+      services = routines;
+    },
+  );
+}
+for (const budget of [1, 7])
+  for (const [name, levels, pads] of [
+    ['empty', [0, 0, 0, 0, 0, 0], []],
+    ['Exit', [1, 0, 0, 0, 0, 0], [0x8000]],
+    ['select', [1, 0, 0, 0, 0, 0], [0x400, 0, 0x8000]],
+    ['cancel', [1, 2, 3, 0, 0, 0], [0x2000]],
+  ])
+    for (const realDrawing of [false, true])
+      test(`member native entry: ${name}, budget ${budget}, real drawing ${realDrawing}`, () => {
+        const actual = runOpenMember(directMember, true, levels, pads, budget, realDrawing);
+        assert.deepEqual(
+          actual,
+          runOpenMember(formerMember, false, levels, pads, budget, realDrawing),
+        );
+        assert.equal(actual.input, pads.length);
+        assert.equal(
+          actual.wram[W.MEMBER_MENU_ACTIVE] | (actual.wram[W.MEMBER_MENU_ACTIVE + 1] << 8),
+          0,
+        );
+        assert.equal(actual.wram[W.MEMBER_INDEX] | (actual.wram[W.MEMBER_INDEX + 1] << 8), 0);
+      });

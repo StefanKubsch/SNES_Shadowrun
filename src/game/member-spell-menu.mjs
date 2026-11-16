@@ -359,7 +359,7 @@ export function* spellMenuSequence(
 
 // 80:F254: the spell menu of the object DP 00 (see above). A sequence that ends with the
 // native's RTS.
-export function* openSpellMenuSequence(h, events, routines) {
+export function* openSpellMenuSequence(h, events, routines, renderBuffer = drawTextBufferSequence) {
   const { ctx } = h,
     { mem } = h.a,
     { wram } = mem;
@@ -389,11 +389,9 @@ export function* openSpellMenuSequence(h, events, routines) {
     setFlag(ctx, FLAG_CARRY, skills.carry);
     setFlag(ctx, FLAG_OVERFLOW, skills.overflow);
   };
-  if (routines.has(SPELL_MENU[1])) yield* call(h, events, routines, SPELL_MENU);
-  else
-    yield* dialogCallBody(h, SPELL_MENU[0], SPELL_MENU[1], () =>
-      spellMenuSequence(h, events, routines),
-    );
+  yield* dialogCallBody(h, ...SPELL_MENU, () =>
+    spellMenuSequence(h, events, routines, MENU_ENTRY, renderBuffer),
+  );
   yield () => setWord(wram, MEMBER_MENU_ACTIVE, 0);
   return yield* returnSequence(h);
 }

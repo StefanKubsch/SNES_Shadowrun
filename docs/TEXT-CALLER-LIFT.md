@@ -430,3 +430,12 @@ nested visit, window-list reset and portrait display. Caller cases independently
 record those scene services and cover script end, redraw, notices and their
 combinations. Both budgets compare consumed input, payloads, uploads and state.
 The fixture's notice points at its open window; scene allocation is not inferred.
+
+## Member and scene batch: spell native entry (2026-11-16)
+
+The spell native composes its member menu directly and forwards the renderer
+through the original JSR frame. The injected menu override lives only in the
+former caller. New entry comparisons use Jake's actual runner record and cover
+empty spells, Exit, selection and cancellation with both budgets and renderers;
+member index and menu-mark cleanup are asserted. Original override comparisons
+remain unchanged on the independently retained caller.
