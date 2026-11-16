@@ -18,7 +18,12 @@ import {
   OBJECT_Y,
 } from '../../src/data/wram.mjs';
 import { BYTE_BITS, BYTE_MASK, WORD_MASK, WORD_SIGN } from '../../src/constants/bits.mjs';
-import { FLAG_CARRY, FLAG_NEGATIVE, FLAG_OVERFLOW, FLAG_ZERO } from '../../src/constants/cpu-flags.mjs';
+import {
+  FLAG_CARRY,
+  FLAG_NEGATIVE,
+  FLAG_OVERFLOW,
+  FLAG_ZERO,
+} from '../../src/constants/cpu-flags.mjs';
 
 // The centre and damage in the direct page, the reach on each axis, the hit and its
 // call site.

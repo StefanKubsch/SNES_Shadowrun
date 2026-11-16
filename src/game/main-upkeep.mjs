@@ -69,7 +69,6 @@ import {
   shootAtObjectSequence,
   shootWithOwnWeaponSequence,
 } from './object-shoot.mjs';
-import { hitObjectSequence } from './object-hit.mjs';
 import { hitObjectsInBlastSequence } from './object-blast.mjs';
 import { chooseSpellSequence } from './spell-choice.mjs';
 import { openSpellMenuSequence } from './member-spell-menu.mjs';
@@ -82,8 +81,6 @@ import { notesSequence, skillsSequence } from './status-submenus.mjs';
 import { mainMenuSequence } from './main-menu.mjs';
 import { playerZonesSequence } from './player-zones.mjs';
 import { moveAndAnimate } from './object-motion.mjs';
-import { walkTowardsTarget } from './object-target.mjs';
-import { stepAnimation } from './object-animation.mjs';
 import { buildSprites } from './sprite-list.mjs';
 import { frameWaitCallSequence } from '../system/live-input-calls.mjs';
 export { runFrameWait, runPadPresses } from '../system/live-input-calls.mjs';
@@ -472,10 +469,6 @@ export const liftedScriptChooseObjectSequence = (h, events) =>
 export const liftedSpellGloveTargetSequence = (h, events) => spellGloveTargetSequence(h, events);
 // The lifted place choice 80:C724, as the script native runs it with lag-free frames.
 export const liftedChoosePlaceSequence = (h, events) => choosePlaceWithGloveSequence(h, events);
-// The lifted hit 80:8691 (src/game/object-hit.mjs), called with JSR by the shooting
-// natives and the blast: its notices' window, text, word wait, confirm key and release
-// and the player hit's window list run lifted through their frames.
-export const runHitObject = sequenceRun((h, events) => hitObjectSequence(h, events));
 // The lifted shooting natives 80:8AB5, 80:8A51 and 80:8A8C, as the script natives run
 // them with lag-free frames.
 export const liftedShootAtObjectSequence = (h, events) => shootAtObjectSequence(h, events);
@@ -526,19 +519,11 @@ export function runPlayerZones(h, events) {
 }
 NATIVE_CALL_CONTINUATIONS.set(runPlayerZones, {
   run: runPlayerZones,
-  create: ({ h, events }) =>
-    new NativeCallContinuation(h.a, playerZonesSequence(h, events)),
+  create: ({ h, events }) => new NativeCallContinuation(h.a, playerZonesSequence(h, events)),
 });
-// The motion pass's lifted walk towards a target
-// (80:C9E0, src/game/object-target.mjs, with the lifted turn) and the lifted animation
-// (80:AC2F, src/game/object-animation.mjs).
-const MOTION_ROUTINES = new Map([
-  [0x80c9e0, (h) => walkTowardsTarget(h)],
-  [0x80ac2f, stepAnimation],
-]);
 // 80:AFC4, called with JSR; nothing in it waits.
-export function runObjectMotion(h, events, routines = MOTION_ROUTINES) {
-  return moveAndAnimate(h, events, routines);
+export function runObjectMotion(h, events) {
+  return moveAndAnimate(h, events);
 }
 // 80:B8DE, called with JSR; nothing in it waits.
 export function runSpriteList(h) {
@@ -552,5 +537,4 @@ export const mainLoopFrameWaitSequence = frameWaitCallSequence;
 export const mainLoopTimeLimitSequence = (h, events) => timeLimitSequence(h, events);
 export const mainLoopGloveActionSequence = (h, events) => gloveActionSequence(h, events);
 export const mainLoopGloveMoveSequence = (h, events) => gloveMoveSequence(h, events);
-export const mainLoopPlayerZonesSequence = (h, events) =>
-  playerZonesSequence(h, events);
+export const mainLoopPlayerZonesSequence = (h, events) => playerZonesSequence(h, events);

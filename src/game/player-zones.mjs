@@ -146,7 +146,9 @@ export function* playerZonesSequence(h, events) {
           ctx.y = offset;
           ctx.a = data;
           enterCall(ctx, data);
-          yield* dialogCallBody(h, SCENE_CHANGE_CALL, SCENE_CHANGE, () => enterRoomJsrSequence(h, events));
+          yield* dialogCallBody(h, SCENE_CHANGE_CALL, SCENE_CHANGE, () =>
+            enterRoomJsrSequence(h, events),
+          );
           yield () => {
             a.pullWord();
             flag(ctx, FLAG_CARRY, true);

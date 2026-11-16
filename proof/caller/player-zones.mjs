@@ -38,7 +38,12 @@ import {
   WORD_MASK,
   WORD_SIGN,
 } from '../../src/constants/bits.mjs';
-import { FLAG_CARRY, FLAG_NEGATIVE, FLAG_OVERFLOW, FLAG_ZERO } from '../../src/constants/cpu-flags.mjs';
+import {
+  FLAG_CARRY,
+  FLAG_NEGATIVE,
+  FLAG_OVERFLOW,
+  FLAG_ZERO,
+} from '../../src/constants/cpu-flags.mjs';
 
 const POSITION_SHIFT = 2,
   ZONE_BYTES = 14,

@@ -2,7 +2,7 @@
 // reference runObjectMove in proof/replay/main-loop-motion.mjs).
 //
 // An object with a motion target (7E:40E0) first turns its velocity towards it (80:C9E0,
-// still register-level, through its frame). Then its blocked flag (0008) is cleared and
+// composed directly through its frame). Then its blocked flag (0008) is cleared and
 // it moves along x and then along y by its velocity. An object that collides (flag 0040)
 // tests the edge it moves towards (src/game/object-collision.mjs): a negative velocity
 // (a large word) carries the addition, so the carry picks the lower edge. Where the edge offers a height, a height below 5 is climbed (the height rises by
@@ -17,6 +17,7 @@
 // flags are left as the original leaves them: X the slot (as the callees leave it), Y
 // as the callees leave it, A the diagonal with the flags of its addition and shift.
 import { taskStop } from '../system/task-stop.mjs';
+import { walkTowardsTarget } from './object-target.mjs';
 import {
   searchHeightCells,
   searchLowerXEdge,
@@ -81,9 +82,8 @@ const flag = (ctx, bit, set) => {
   ctx.status = set ? ctx.status | bit : ctx.status & ~bit;
 };
 
-// Move the object in X (80:AB26) on the access h of the motion pass; routines holds the
-// register-level turn towards the target.
-export function moveObject(h, events, routines) {
+// Move the object in X (80:AB26) with its actual walk towards the target.
+export function moveObject(h) {
   const { ctx } = h,
     { wram } = h.a.mem;
   const target = word(wram, MOTION_ACTIVE + ctx.x);
@@ -91,7 +91,7 @@ export function moveObject(h, events, routines) {
     ctx.a = target;
     flag(ctx, FLAG_NEGATIVE, target & WORD_SIGN);
     flag(ctx, FLAG_ZERO, false);
-    h.call(TARGET_CALL, TARGET_TARGET, () => routines.get(TARGET_TARGET)(h, events));
+    h.call(TARGET_CALL, TARGET_TARGET, () => walkTowardsTarget(h));
   }
   // The fields are read in the caller's data bank 80, which reaches WRAM below 2000.
   const slot = ctx.x,

@@ -20,7 +20,7 @@ import { recordFormationStep } from '../proof/game-reference/main-camera.mjs';
 import { runFormationStep } from '../src/game/main-upkeep.mjs';
 import { moveAndAnimateObjects, MAIN_MOTION_ROUTINES } from '../proof/replay/main-loop-motion.mjs';
 import { MAIN_LOOP_ROUTINES } from '../proof/vm/main-loop.mjs';
-import { runObjectMotion } from '../src/game/main-upkeep.mjs';
+import { moveAndAnimate as runObjectMotion } from '../proof/caller/object-motion.mjs';
 import {
   searchUpperXEdge,
   searchLowerXEdge,
@@ -236,10 +236,11 @@ test('BAD5 formation history matches every original instruction, including uncha
   );
 });
 
-// The register-level equations (the reference) and the lifted pass (src/game/object-motion.mjs).
+// The register-level equations and retained former pass (proof/caller/object-motion.mjs).
+// Actual direct movement and animation composition is compared in motion-caller.test.mjs.
 for (const [name, run] of [
   ['AFC4', moveAndAnimateObjects],
-  ['lifted AFC4', runObjectMotion],
+  ['former lifted AFC4', runObjectMotion],
 ])
   test(`${name} combines grid, all six bound motion helpers and animation with real nested frames`, () => {
     const spec = mainMovementGraphSpec,

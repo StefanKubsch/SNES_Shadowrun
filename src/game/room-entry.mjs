@@ -394,6 +394,8 @@ export function* enterRoomSequence(h, events, room) {
 export function* enterRoomJsrSequence(h, events) {
   yield* enterRoomSequence(h, events, h.ctx.a & WORD_MASK);
   let result;
-  yield () => { result = h.rts(); };
+  yield () => {
+    result = h.rts();
+  };
   return result;
 }

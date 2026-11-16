@@ -87,3 +87,16 @@ scene loading, object/task reset, camera, graphics writes and windows. The
 former zone dispatcher calls the same established entry through its retained
 dispatch path. Existing room-entry original comparisons and the alley main
 loop comparison retain independent source and scene evidence.
+
+## Block 10: motion target and animation composition
+
+The motion pass calls real movement, target walking and animation directly,
+retaining the established call frames. Main-upkeep removes its motion table.
+Former movement and motion orchestration remain in proof/caller; their original
+stand-in comparisons remain explicitly separate. Actual callers exercise empty
+and multiple-object lists, halted objects, collision/falling, target delay and
+arrival, both walking modes, animation completion and real picture/tile upload
+jobs with available/exhausted VRAM slots. Existing source helper comparisons and
+the actual alley main-loop comparison retain their independent evidence.
+The unused hit adapter and its continuation registration are removed after all
+shooting and blast callers have moved to the direct hit body.

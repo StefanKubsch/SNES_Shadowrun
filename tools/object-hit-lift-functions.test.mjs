@@ -1,4 +1,4 @@
-// Random per-function tests of the lifted hit (src/game/object-hit.mjs) against the
+// Random per-function tests of the retained former hit (proof/caller/object-hit.mjs) against the
 // register-level hit 80:8691 with the player hit 80:881C (src/data/native-object-hit.mjs).
 // Both sides run their real random number 80:C51F, object slots 80:A835 (with the task
 // append on free heap blocks) and sound 80:C46E; the notices' window 80:F963, text
@@ -8,6 +8,8 @@
 // leave a window in DP 00. Game state only (docs/STRATEGY.md, 2026-11-14): WRAM outside
 // the stacks, the device writes, the stand-in calls and the return must be equal; the
 // registers the hit leaves are not compared (its callers restore their own).
+// Actual direct composition is compared separately in hit-notice-caller.test.mjs
+// and player-hit-caller.test.mjs, using real windows, glyphs and list redraws.
 import { prng } from './task-native-dialog-harness.mjs';
 import { calleeRecord, createSide, registerCases } from './lift-function-harness.mjs';
 import { hitObject } from '../proof/replay/native-object-hit.mjs';

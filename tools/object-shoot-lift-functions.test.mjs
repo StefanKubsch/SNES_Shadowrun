@@ -1,4 +1,4 @@
-// Random per-function tests of the lifted shooting natives (src/game/object-shoot.mjs)
+// Random per-function tests of the retained former shooting natives (proof/caller/object-shoot.mjs)
 // against the register-level natives (src/data/native-object-shoot.mjs). Both sides run
 // their real callees (the line of sight 81:A25F over a cell list with boxes on the
 // shot's line, the random number 80:C51F, the object slot 80:A835 with its task append
@@ -9,6 +9,7 @@
 // sight's direct page working bytes (user decision 2026-11-13) and the sample loader's
 // scratch, the device writes, the hit calls and the return must be equal; the
 // registers the natives leave are not compared (the script interpreter replaces them).
+// Actual direct shooting and hit composition is compared in shoot-hit-caller.test.mjs.
 import { DialogTestMemory, prng } from './task-native-dialog-harness.mjs';
 import { calleeRecord, createSide, registerCases } from './lift-function-harness.mjs';
 import {

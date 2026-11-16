@@ -22,6 +22,7 @@
 // below its own.
 import { taskStop } from '../system/task-stop.mjs';
 import { moveObject } from './object-move.mjs';
+import { stepAnimation } from './object-animation.mjs';
 import {
   CELL_COORDINATE_MASK,
   COLLISION_BOX_BOTTOM,
@@ -235,10 +236,8 @@ function buildCollisionList(h, wram) {
 }
 
 // Move and animate the objects (80:AFC4) on the main loop's access h (data bank 80);
-// routines holds the callees run through their frames (the animation 80:AC2F and the
-// movement's walk towards its target 80:C9E0; MOTION_ROUTINES in main-upkeep.mjs binds
-// the lifted ones).
-export function moveAndAnimate(h, events, routines) {
+// movement, target walking and animation compose their actual bodies directly.
+export function moveAndAnimate(h, events) {
   const { ctx } = h,
     { wram } = h.a.mem;
   let listed;
@@ -279,13 +278,11 @@ export function moveAndAnimate(h, events, routines) {
   };
   pass(() => {
     h.a.pushWord(ctx.y);
-    h.call(MOVE_CALL, MOVE_TARGET, () => moveObject(h, events, routines));
+    h.call(MOVE_CALL, MOVE_TARGET, () => moveObject(h));
     ctx.y = h.a.pullWord();
   });
   setWord(wram, DP_FRAME_BANK, FRAME_BANK);
   ctx.a = FRAME_BANK;
-  pass(() =>
-    h.call(ANIMATION_CALL, ANIMATION_TARGET, () => routines.get(ANIMATION_TARGET)(h, events)),
-  );
+  pass(() => h.call(ANIMATION_CALL, ANIMATION_TARGET, () => stepAnimation(h, events)));
   return h.rts();
 }

@@ -1,3 +1,4 @@
+import { moveAndAnimate as runObjectMotion } from '../proof/caller/object-motion.mjs';
 import { gloveActionSequence as formerGloveActionSequence } from '../proof/caller/glove-action.mjs';
 import { talkSequence } from '../proof/caller/dialog-talk.mjs';
 import { chooseActionSequence as recordedActionSequence } from '../proof/caller/action-menu.mjs';
@@ -55,7 +56,6 @@ import {
   runPrintText,
   runOpenWindow,
   runReleaseNoticeWindows,
-  runObjectMotion,
 } from '../src/game/main-upkeep.mjs';
 import { MAIN_MOTION_ROUTINES, moveAndAnimateObjects } from '../proof/replay/main-loop-motion.mjs';
 import { bcbeSequence, moveGlove } from '../proof/replay/native-glove.mjs';
@@ -807,8 +807,9 @@ const OBJECT_ANIMATION = {
 // The motion pass: up to six objects on the draw list, in the grid or not, halted or
 // not, with or without a box height, boxes inside one cell or across two to four (the
 // box offsets and positions near the cell edges), still or moving without collision
-// tests, and the static nodes ending anywhere. The movement runs register-level on
-// both sides; the animation is the recording stand-in.
+// tests, and the static nodes ending anywhere. This retained former caller dispatches
+// movement and a recording animation stand-in; motion-caller.test.mjs covers the
+// actual direct composition.
 // The real animation keeps Y (PHY/PLY), so the stand-in leaves it too.
 const ANIMATION_STAND_IN = standIn(0);
 const MOTION_CALLEES = new Map([
