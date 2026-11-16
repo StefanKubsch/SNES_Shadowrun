@@ -478,11 +478,7 @@ export const liftedChoosePlaceSequence = (h, events) => choosePlaceWithGloveSequ
 // The lifted hit 80:8691 (src/game/object-hit.mjs), called with JSR by the shooting
 // natives and the blast: its notices' window, text, word wait, confirm key and release
 // and the player hit's window list run lifted through their frames.
-const HIT_ROUTINES = new Map([
-  [0x80f953, runConfirmKey],
-  [0x80fa3e, runReleaseWindow],
-  [0x81ad92, runDrawWindowList],
-]);
+const HIT_ROUTINES = new Map([[0x81ad92, runDrawWindowList]]);
 export const runHitObject = sequenceRun((h, events) => hitObjectSequence(h, events, HIT_ROUTINES));
 // The callee of the lifted shooting natives that runs through its frame: the hit, whose
 // notices wait for frames (the sight, random numbers, object slot, turn and sound run

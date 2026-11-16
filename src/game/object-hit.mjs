@@ -33,6 +33,7 @@
 // Confirmation, release and the player window list retain routine services.
 import { printTextSequence } from './text-print.mjs';
 import { waitForConfirmKeySequence } from './confirm-key.mjs';
+import { releaseWindowJsrSequence } from './window-release.mjs';
 import { drawTextBufferSequence } from './text-draw.mjs';
 import { frameWaitCallSequence } from '../system/live-input-calls.mjs';
 import { openWindowSequence } from './window-open.mjs';
@@ -146,12 +147,10 @@ const longAddress = (offset, index) => (WRAM + offset + index) & LONG_MASK;
 
 // A notice of the harmless hits: its window, text, thirty word waits, the confirm key
 // and the release.
-function* noticeSequence(h, events, routines, renderBuffer, notice, calls) {
+function* noticeSequence(h, events, renderBuffer, notice, calls) {
   const { ctx } = h,
     { mem } = h.a,
-    { wram } = mem,
-    call = (pc, target, long = false) =>
-      nativeCallSequence(h, events, routines, pc, target, long, false);
+    { wram } = mem;
   yield () => {
     setWord(wram, DP_WINDOW_LEFT, notice.margin);
     setWord(wram, DP_WINDOW_TOP, notice.margin);
@@ -172,18 +171,20 @@ function* noticeSequence(h, events, routines, renderBuffer, notice, calls) {
     yield* dialogCallBody(h, calls.wait, WORD_WAIT, () => frameWaitCallSequence(h, events), true);
   }
   yield* dialogCallBody(h, calls.key, CONFIRM_KEY, () => waitForConfirmKeySequence(h, events));
-  yield* call(calls.release, RELEASE_WINDOW);
+  yield* dialogCallBody(h, calls.release, RELEASE_WINDOW, () =>
+    releaseWindowJsrSequence(h.a, events),
+  );
 }
 
 // A hit on a target that cannot be damaged: counted when it means no harm.
-function* harmlessSequence(h, events, routines, renderBuffer, flags) {
+function* harmlessSequence(h, events, renderBuffer, flags) {
   const { mem } = h.a,
     { wram } = mem;
   if (!(flags & OBJECT_HITTABLE)) return;
   const hits = (dataBankWord(mem, HARMLESS_HITS) + 1) & WORD_MASK;
   setDataBankWord(mem, HARMLESS_HITS, 0, hits);
   if (hits === HARMLESS_WARNING.hits) {
-    yield* noticeSequence(h, events, routines, renderBuffer, HARMLESS_WARNING, WARNING_CALLS);
+    yield* noticeSequence(h, events, renderBuffer, HARMLESS_WARNING, WARNING_CALLS);
     yield () => {
       setWord(wram, DP_HIT_RESULT, NOTICE_RESULT);
     };
@@ -192,7 +193,7 @@ function* harmlessSequence(h, events, routines, renderBuffer, flags) {
   if (hits !== HARMLESS_PENALTY.hits) return;
   let karma = 0;
   if (mem.read16(WRAM + KARMA) >= KARMA_PENALTY) {
-    yield* noticeSequence(h, events, routines, renderBuffer, HARMLESS_PENALTY, PENALTY_CALLS);
+    yield* noticeSequence(h, events, renderBuffer, HARMLESS_PENALTY, PENALTY_CALLS);
     karma = mem.read16(WRAM + KARMA) - KARMA_PENALTY;
     if (karma < 0) karma = 0;
   }
@@ -301,8 +302,7 @@ export function* hitObjectSequence(h, events, routines, renderBuffer = drawTextB
     shooter = ctx.y;
   setWord(wram, 0, ctx.a);
   const flags = dataBankWord(mem, OBJECT_FLAGS, target);
-  if (!(flags & OBJECT_DAMAGEABLE))
-    yield* harmlessSequence(h, events, routines, renderBuffer, flags);
+  if (!(flags & OBJECT_DAMAGEABLE)) yield* harmlessSequence(h, events, renderBuffer, flags);
   else {
     yield () => {
       setWord(wram, DP_HIT_SHOOTER, shooter);

@@ -16,3 +16,10 @@ original 80:87B6 and 80:87FC JSR frames. Real caller cases retain the complete
 window and glyph uploads, thirty counter waits and karma boundaries. Delayed
 confirmation cases reject directional input and accept each of B, Y, Select,
 A and X. The retained former caller independently dispatches confirmation.
+
+## Block 2: hit notice release
+
+Both notices compose the actual release and window-list redraw through their
+80:87B9 and 80:87FF JSRs. The hit service table drops confirmation and release.
+Actual caller comparisons retain window allocation, last-index/tile restoration,
+upload chronology and request wrap, with real glyphs at both budgets.
