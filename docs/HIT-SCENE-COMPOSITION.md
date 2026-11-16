@@ -58,3 +58,13 @@ renderer. All three shot entries use direct composition. The own-weapon
 caller requires a target; the actual absent-target cases belong to the other
 two entries. Its weapon, sight, turn, random, damage and full hit chain are
 compared independently with the former caller at both budgets.
+
+## Block 7: blast hits
+
+The blast composes each reached hit through 80:8E8C, forwarding only its
+renderer. Main-upkeep removes the shooting/blast hit table. The former blast
+retains its independent original comparison with recorded hit arguments.
+Actual callers compare both signs of the exclusive 60 reach on every axis,
+warning/penalty transitions during multiple hits, player damage and sound,
+effect allocation and the continuation to later slots after notices at both
+budgets. An effect placed in an already scanned free slot is not hit again.

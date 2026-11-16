@@ -7,7 +7,7 @@
 import { prng } from './task-native-dialog-harness.mjs';
 import { createSide, registerCases } from './lift-function-harness.mjs';
 import { hitObjectsInBlast } from '../proof/replay/native-object-hit.mjs';
-import { hitObjectsInBlastSequence } from '../src/game/object-blast.mjs';
+import { hitObjectsInBlastSequence } from '../proof/caller/object-blast.mjs';
 import {
   OBJECT_FLAGS,
   OBJECT_HEIGHT,

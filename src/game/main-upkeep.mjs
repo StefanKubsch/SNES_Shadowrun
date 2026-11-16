@@ -478,10 +478,6 @@ export const liftedChoosePlaceSequence = (h, events) => choosePlaceWithGloveSequ
 // natives and the blast: its notices' window, text, word wait, confirm key and release
 // and the player hit's window list run lifted through their frames.
 export const runHitObject = sequenceRun((h, events) => hitObjectSequence(h, events));
-// The callee of the lifted shooting natives that runs through its frame: the hit, whose
-// notices wait for frames (the sight, random numbers, object slot, turn and sound run
-// lifted inside src/game/object-shoot.mjs).
-const SHOOT_ROUTINES = new Map([[0x808691, runHitObject]]);
 // The lifted shooting natives 80:8AB5, 80:8A51 and 80:8A8C, as the script natives run
 // them with lag-free frames.
 export const liftedShootAtObjectSequence = (h, events) => shootAtObjectSequence(h, events);
@@ -491,8 +487,7 @@ export const liftedShootWithOwnWeaponSequence = (h, events) =>
   shootWithOwnWeaponSequence(h, events);
 // The lifted blast 80:8E36 with the lifted hit, as the script native runs it with
 // lag-free frames.
-export const liftedBlastSequence = (h, events) =>
-  hitObjectsInBlastSequence(h, events, SHOOT_ROUTINES);
+export const liftedBlastSequence = (h, events) => hitObjectsInBlastSequence(h, events);
 // 80:E270, called with JSR; its notice and text wait for the NMI of their uploads, so
 // it is a native call continuation of the main loop.
 export function runTimeLimit(h, events) {

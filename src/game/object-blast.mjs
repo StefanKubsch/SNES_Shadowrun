@@ -4,9 +4,11 @@
 // The blast's centre is the object DP 00, its damage DP 02 (kept in DP A2 and A5). Every
 // object slot from the last down to 0 is hit (80:8691 with the damage, no shooter) when
 // it holds an object that can be hit (flag bit 15) and lies less than 60 from the centre
-// on each axis: X, Y and height. The hit runs through its frame from the routine table,
+// on each axis: X, Y and height. The hit composes directly through its frame,
 // with its own callees.
-import { nativeCallSequence } from '../system/native-call-continuation.mjs';
+import { dialogCallBody } from '../system/native-call-continuation.mjs';
+import { hitObjectSequence } from './object-hit.mjs';
+import { drawTextBufferSequence } from './text-draw.mjs';
 import { dataBankWord } from '../system/data-bank.mjs';
 import {
   OBJECT_FLAGS,
@@ -76,7 +78,7 @@ function blastReaches(h, centre, slot) {
 
 // 80:8E36: hit every object the blast around DP 00 reaches with the damage DP 02. A
 // sequence that ends with the native's RTS.
-export function* hitObjectsInBlastSequence(h, events, routines) {
+export function* hitObjectsInBlastSequence(h, events, renderBuffer = drawTextBufferSequence) {
   const { ctx } = h,
     { wram } = h.a.mem,
     centre = word(wram, 0);
@@ -97,7 +99,7 @@ export function* hitObjectsInBlastSequence(h, events, routines) {
         ctx.y = NO_SHOOTER;
         setSignZero(ctx, NO_SHOOTER);
       };
-      yield* nativeCallSequence(h, events, routines, HIT_CALL, HIT, false, false);
+      yield* dialogCallBody(h, HIT_CALL, HIT, () => hitObjectSequence(h, events, renderBuffer));
       yield () => {
         ctx.y = centre;
       };
