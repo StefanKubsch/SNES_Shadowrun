@@ -32,6 +32,7 @@ import {
 import { showDialogTextSequence } from './dialog-text.mjs';
 import { chooseDialogActionSequence, chooseDialogTopicSequence } from './dialog-menus.mjs';
 import { drawTextBufferSequence } from './text-draw.mjs';
+import { reloadObjectTilesSequence } from './object-tiles.mjs';
 import { openWindowSequence } from './window-open.mjs';
 import {
   putGloveAwayCallSequence,
@@ -241,7 +242,7 @@ export function* closeDialogSequence(h, events, routines) {
     ctx.a = 0;
     port.write(OBJSEL, 0, 2, CLOSE_OBJSEL_SITE);
   };
-  yield* call(CALL.tiles);
+  yield* dialogCallBody(h, ...CALL.tiles, () => reloadObjectTilesSequence(h, events, routines));
   yield* dialogCallBody(
     h,
     CALL.closeWait[0],

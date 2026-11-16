@@ -760,3 +760,11 @@ Item use and all three item menus now compose the nested scheduler visit directl
 They receive only a renderer. Actual actor creation and task append remain in the
 comparison, followed by controlled end/redraw/notice effects through both scheduler
 hooks. The status caller now retains only scene closing as a service.
+
+### Block 5: scene object tile reload
+
+Scene closing directly composes the existing object tile reload through its
+original JSR frame. Former close and full dialog callers bind the independent
+register-level reload. Their fixture now queues real tile jobs and captures
+the upload sources before servicing the job-list wait. Both budgets preserve
+portrait close, font DMA, pad and window release chronology.

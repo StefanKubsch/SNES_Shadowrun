@@ -2,6 +2,8 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import * as direct from '../src/game/dialog-talk.mjs';
 import * as former from '../proof/caller/dialog-talk.mjs';
+import { reloadObjectTiles } from '../src/system/native-scene-tiles.mjs';
+import * as W from '../src/data/wram.mjs';
 import { closePortraitWindowSequence } from '../proof/caller/portrait-window.mjs';
 import {
   runFrameWait,
@@ -27,11 +29,27 @@ function runClose(module, shadow, counter, held, budget) {
     { h, a, mem, put, events } = side;
   // Keep nested call frames away from the live HDMA fields at 01C4.
   h.ctx.s = 0x1eef;
+  put(W.DRAW_LIST_INDEX, 0);
+  put(W.DRAW_LIST, 0);
+  put(W.OBJECT_VRAM_SLOT_COUNT, 1);
+  put(W.OBJECT_FRAME_OFFSET, 2);
+  put(W.VRAM_SLOT_NEXT, 0);
   put(HDMAEN_SHADOW, shadow);
   put(TMW_SHADOW, 15);
   put(RANDOM_STATE, counter);
   put(PAD_HELD, held);
   events.interrupts.textWait = (_h, _events, _status, pc) => {
+    if (pc === 0x80ae0c) return true;
+    if (pc === 0x80ae0f) {
+      if (!mem.read16(W.NMI_JOB_LISTS)) return true;
+      side.calls.push([
+        'object tiles',
+        mem.wram.slice(W.VRAM_UPLOAD_SOURCES, W.VRAM_UPLOAD_SOURCES + 6),
+      ]);
+      put(W.NMI_JOB_LISTS, 0);
+      put(W.DP_VRAM_UPLOAD_INDEX, 0);
+      return true;
+    }
     assert.equal(pc, 0x81b0a9);
     side.calls.push([
       'frame',
@@ -45,10 +63,11 @@ function runClose(module, shadow, counter, held, budget) {
   const wait = () => assert.fail('wait must resume cooperatively');
   const portrait = () => assert.fail('portrait must resume cooperatively');
   const table = new Map([
+    [0x80adf4, reloadObjectTiles],
     [0x808f97, portrait],
     [0x81b0a1, wait],
     [0x809e1a, (callee, e) => runPadPresses(callee, e)],
-    ...[0x80adf4, 0x80b8de].map((target) => [
+    ...[0x80b8de].map((target) => [
       target,
       (callee) => {
         side.calls.push([target, callee.ctx.a]);
@@ -116,6 +135,11 @@ function runTalk(module, variant, budget, { alternate = 0, music = 0, mirror = 0
   const side = textWindowSide(),
     { h, mem, put, events } = side;
   h.ctx.s = 0x1eef;
+  put(W.DRAW_LIST_INDEX, 0);
+  put(W.DRAW_LIST, 0);
+  put(W.OBJECT_VRAM_SLOT_COUNT, 1);
+  put(W.OBJECT_FRAME_OFFSET, 2);
+  put(W.VRAM_SLOT_NEXT, 0);
   put(0, 0x40);
   put(2, 0);
   put(GLOVE_TARGET_TAG, 0xffff);
@@ -172,6 +196,17 @@ function runTalk(module, variant, budget, { alternate = 0, music = 0, mirror = 0
     input = 0,
     requests = 0;
   events.interrupts.textWait = (callee, frameEvents, status, pc) => {
+    if (pc === 0x80ae0c) return true;
+    if (pc === 0x80ae0f) {
+      if (!mem.read16(W.NMI_JOB_LISTS)) return true;
+      side.calls.push([
+        'object tiles',
+        mem.wram.slice(W.VRAM_UPLOAD_SOURCES, W.VRAM_UPLOAD_SOURCES + 6),
+      ]);
+      put(W.NMI_JOB_LISTS, 0);
+      put(W.DP_VRAM_UPLOAD_INDEX, 0);
+      return true;
+    }
     if ([0x81b0a1, 0x81b0a5, 0x81b0ab].includes(pc)) return true;
     if (pc === 0x80901f) {
       requests++;
@@ -201,6 +236,7 @@ function runTalk(module, variant, budget, { alternate = 0, music = 0, mirror = 0
     return true;
   };
   const table = new Map([
+    [0x80adf4, reloadObjectTiles],
     [0x81886a, clearFixedColourRoutine],
     [0x80fa92, setWindowTextWidthRoutine],
     [0x80bcb2, live.runPutGloveAway],
@@ -218,7 +254,7 @@ function runTalk(module, variant, budget, { alternate = 0, music = 0, mirror = 0
     [0x809178, live.runDialogText],
     [0x8091e2, live.runDialogMenu],
     [0x809215, live.runDialogTopics],
-    ...[0x80adf4, 0x80b8de, 0x81ef47].map((target) => [
+    ...[0x80b8de, 0x81ef47].map((target) => [
       target,
       (callee) => {
         side.calls.push(['service', target, callee.ctx.a]);
