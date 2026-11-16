@@ -1,7 +1,7 @@
 {
   "updated": "2026-11-16",
-  "focus": "Window caller simplification, phase 3 of 4: live drawing, release and opening use fixed lag-free upload waits. Independent former callers remain in proof/caller/. Shared register-level helpers retain their explicit reference routines.",
-  "next_step": "Phase 4 of 4: compose menu frame/input/sound calls directly and retain the former menu caller for independent comparisons. Preserve window, room-transition, dialog and script-native coverage. Shape editing and S-MIX remain deferred.",
+  "focus": "Four window/menu caller phases completed: drawing, release and opening use live upload waits; menu frame/input/sound calls are direct. Independent former callers and recorded comparisons remain in proof/caller/. Shared register/NMI interfaces, saves and frame policy remain.",
+  "next_step": "Continue caller simplification in text printing and window text (src/game/text-print.mjs and src/game/window-text.mjs): separate their text-buffer helper interfaces from live composition, retaining independent dialog/menu and recorded comparisons. Shape editing and S-MIX remain deferred.",
   "porting_resume": "188 original-form bytes remain: 93 retained code bytes and 95 unidentified data bytes. Recorded CPU reads, hardware-only observations and true data margins are distinguished in docs/ROM-CODE-AUDIT.md. Unknown bytes and unused graphics remain preserved; unrecorded paths can still report rom_byte_absent.",
   "open_issues": [
     "Examination: unreproduced report to watch during the final user test run. Its European cleanup condition is tested; other story routes remain unproved. A change requires a reproducible counterexample. See docs/BUGFIXES.md.",

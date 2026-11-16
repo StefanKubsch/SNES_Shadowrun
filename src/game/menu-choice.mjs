@@ -9,8 +9,8 @@
 // selection marked (80:A5F9, menu-list.mjs).
 //
 // Every frame (the word wait 81:B0A1, then the pad word 80:9E1A) the newly pressed
-// buttons are taken; up or down held for 14 frames repeats every frame after (the
-// counter set back to 13). Y cancels: the mark is removed (80:A5DB) and FFFF is the
+// buttons are taken; up or down held for 20 frames repeats every frame after (the
+// counter set back to 19). Y cancels: the mark is removed (80:A5DB) and FFFF is the
 // result. B, A, X or Start confirm: the mark is removed, the confirm sound 4C plays
 // (80:C46E) and the selected row is the result. Down moves to the next row while one
 // follows, up to the one before; without hotkeys R and L page forward and back by the
@@ -20,14 +20,17 @@
 // word (the list in 0C) has a newly pressed button. The result is left in the direct page
 // word 00 after the pad word is taken once more.
 //
-// The wait, the pad word and the sound come from the caller's routine table, the text
-// buffer 80:FB39 of the list's texts too; the list drawing, the marks and the tile
-// request run lifted. The registers are passed and left as the original: each callee
+// The frame wait, pad word and sound are composed directly. Only the text buffer
+// 80:FB39 retains the caller's helper table; drawing, marks and tile clearing are
+// direct sequences. The former dispatched menu remains in proof/caller/menu-choice.mjs.
+// The registers are passed and left as the original: each callee
 // gets the A, X, Y and flags the original's code leaves before its call (the helpers
 // use only Y), the routine leaves those of the last pad word with the result in 00. A
 // move's pushes of the direct page words 00 and 06 (around the move sound's arguments,
 // which the original sets up and restores without playing it) stay below the stack.
-import { dialogCallBody, dialogCallSequence } from '../system/native-call-continuation.mjs';
+import { dialogCallBody, segmentSequence } from '../system/native-call-continuation.mjs';
+import { frameWaitCallSequence, runPadPresses } from '../system/live-input-calls.mjs';
+import { playSoundEffectRoutine } from '../apu/sound-effect.mjs';
 import { drawListSequence, markRowSequence, MARK, UNMARK } from './menu-list.mjs';
 import { requestTileClearSequence } from './window-open.mjs';
 import {
@@ -122,8 +125,7 @@ const signAndZero = (ctx, value) => {
 };
 
 // Choose from the menu list (entry one of the four above), a sequence for a native call
-// continuation, called with JSR: routines the table with 81:B0A1, 80:9E1A, 80:C46E and
-// 80:FB39.
+// continuation, called with JSR: routines supplies only the text buffer 80:FB39.
 export function* chooseFromMenuSequence(h, events, routines, entry) {
   const { ctx } = h,
     { mem } = h.a,
@@ -167,7 +169,7 @@ export function* chooseFromMenuSequence(h, events, routines, entry) {
   const list = (site) => helper(site, LIST, () => drawListSequence(h, events, routines)),
     mark = (site) => helper(site, MARK_ROW, () => markRowSequence(h, events, routines, MARK)),
     unmark = (site) => helper(site, UNMARK_ROW, () => markRowSequence(h, events, routines, UNMARK)),
-    pad = (site) => dialogCallSequence(h, events, routines, site, PAD);
+    pad = (site) => helper(site, PAD, () => segmentSequence(() => runPadPresses(h, events)));
   let result;
   const rts = function* () {
     yield () => {
@@ -187,7 +189,7 @@ export function* chooseFromMenuSequence(h, events, routines, entry) {
       load(CONFIRM_SOUND);
       store(DP_SOUND_EFFECT, ctx.a);
     };
-    yield* dialogCallSequence(h, events, routines, SITES.sound, SOUND);
+    yield* helper(SITES.sound, SOUND, () => segmentSequence(() => playSoundEffectRoutine(h)));
     yield () => {
       const selection = field(MENU_SELECTION);
       flag(ctx, FLAG_CARRY, selection & 1);
@@ -336,7 +338,7 @@ export function* chooseFromMenuSequence(h, events, routines, entry) {
   yield () => loadY(field(MENU_SELECTION));
   yield* mark(SITES.mark);
   for (;;) {
-    yield* dialogCallSequence(h, events, routines, SITES.wait, WAIT, true);
+    yield* dialogCallBody(h, SITES.wait, WAIT, () => frameWaitCallSequence(h, events), true);
     yield* pad(SITES.pad);
     let branch;
     yield () => {

@@ -498,5 +498,7 @@ registerLevelLoop})`); the observed rooms and boot replays keep the driver direc
 
 ## Window caller phases (2026-11-15)
 
-The four bounded window and menu delivery groups and their comparison contracts
-are in [WINDOW-CALLER-LIFT.md](WINDOW-CALLER-LIFT.md).
+The four bounded window and menu delivery groups are completed: live drawing,
+release and opening have no recorded-observation branches, and menu frame/input/
+sound calls compose directly. Independent former callers and recorded comparisons
+remain in proof. Contracts: [WINDOW-CALLER-LIFT.md](WINDOW-CALLER-LIFT.md).

@@ -85,3 +85,30 @@ The recorded random menu comparisons also retain their former caller in
 retained tile-clear entry. Its four recorded menu variants continue to compare
 against the register-level original. Live menu caller simplification follows in
 phase 4; recorded polls no longer pass through live tile clearing.
+
+## Phase 4: menu controls (2026-11-16)
+
+[menu-choice.mjs](../src/game/menu-choice.mjs) composes its frame wait, input and
+confirmation sound directly. The caller now supplies only the text-buffer
+renderer through the existing table. The main loop and menus share the unchanged
+live frame/input entries in
+[live-input-calls.mjs](../src/system/live-input-calls.mjs); main-upkeep re-exports
+the register entry points for existing consumers. No input, sound, save or frame
+policy changes. Other caller tables and register/NMI interfaces remain.
+
+[menu-caller.test.mjs](../tools/menu-caller.test.mjs) compares all four live menu
+variants against the retained dispatched caller, at budgets one and seven:
+navigation and held-button repeat followed by confirmation or cancellation, and
+hotkey confirmation. The direct side receives a table containing only the text
+buffer helper. Page-crossing tile requests, decoded texts, sound/device writes,
+the input consumed, results and game state must match. The text-buffer renderer
+is a stand-in; waits are serviced at their blocking branches. The test asserts
+actual page crossing and immediate hotkey return. Zero budget changes no memory.
+The existing recorded random menu comparisons remain against the original, and
+the room/transition, dialog and script-native comparisons retain real NMIs and
+devices. The isolated tests exclude CPU stacks and saved interrupt registers;
+they continue to compare direct-page bytes.
+
+The four caller delivery groups are complete. Remaining work includes text
+rendering and its helper interfaces, further caller tables and eventually the
+shared register/NMI boundary. Shape editing and S-MIX remain deferred.

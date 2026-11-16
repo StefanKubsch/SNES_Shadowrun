@@ -115,12 +115,8 @@ import { walkTowardsTarget } from './object-target.mjs';
 import { stepAnimation } from './object-animation.mjs';
 import { buildSprites } from './sprite-list.mjs';
 import { enterRoom } from '../system/main-transition.mjs';
-import { BYTE_BITS } from '../constants/bits.mjs';
-import { lagFree } from '../system/main-wait-interrupt.mjs';
-import { waitForCounterWord } from '../system/frame-wait.mjs';
-import { takePadPresses } from '../system/joypad.mjs';
-import { PAD_HELD } from '../data/wram.mjs';
-import { FLAG_CARRY, FLAG_NEGATIVE, FLAG_ZERO } from '../constants/cpu-flags.mjs';
+import { frameWaitCallSequence, runFrameWait, runPadPresses } from '../system/live-input-calls.mjs';
+export { runFrameWait, runPadPresses } from '../system/live-input-calls.mjs';
 
 // 81:8877, called with JSL.
 export function runColourEffect(h) {
@@ -270,21 +266,16 @@ NATIVE_CALL_CONTINUATIONS.set(runReleaseNoticeWindows, {
   create: ({ h, events }) =>
     new NativeCallContinuation(h.a, releaseNoticeWindowsCallSequence(h, events)),
 });
-// The menu choice 80:A6A5 to 80:A6C7 with its callees: the lifted word wait, pad word,
-// sound effect and text buffer.
-const MENU_ROUTINES = new Map([
-  [0x81b0a1, runFrameWait],
-  [0x809e1a, runPadPresses],
-  [0x80c46e, playSoundEffectRoutine],
-  [0x80fb39, runDrawTextBuffer],
-]);
+// Menus compose their input, frame wait and sound directly. Text drawing still
+// supplies the register-level buffer helper through its existing interface.
+const MENU_TEXT_ROUTINES = new Map([[0x80fb39, runDrawTextBuffer]]);
 function menuChoice(entry) {
   const run = (h, events) =>
-    drainNativeSequence(chooseFromMenuSequence(h, events, MENU_ROUTINES, entry));
+    drainNativeSequence(chooseFromMenuSequence(h, events, MENU_TEXT_ROUTINES, entry));
   NATIVE_CALL_CONTINUATIONS.set(run, {
     run,
     create: ({ h, events }) =>
-      new NativeCallContinuation(h.a, chooseFromMenuSequence(h, events, MENU_ROUTINES, entry)),
+      new NativeCallContinuation(h.a, chooseFromMenuSequence(h, events, MENU_TEXT_ROUTINES, entry)),
   });
   return run;
 }
@@ -321,10 +312,12 @@ NATIVE_CALL_CONTINUATIONS.set(runConfirmKey, {
 // 80:91E2 and 80:9215, the dialog's main menu and topic choice with the dialog's text
 // routines (events.text); with the standard ones their menu 80:A6C7 runs lifted.
 export function runDialogMenu(h, events) {
-  return drainNativeSequence(chooseDialogActionSequence(h, events, events.text, MENU_ROUTINES));
+  return drainNativeSequence(
+    chooseDialogActionSequence(h, events, events.text, MENU_TEXT_ROUTINES),
+  );
 }
 export function runDialogTopics(h, events) {
-  return drainNativeSequence(chooseDialogTopicSequence(h, events, events.text, MENU_ROUTINES));
+  return drainNativeSequence(chooseDialogTopicSequence(h, events, events.text, MENU_TEXT_ROUTINES));
 }
 // 80:9178, the dialog's text; its window request and text wait for the NMI. With the
 // standard text routines its request, cursor and text run lifted, the text drawn by the
@@ -342,7 +335,12 @@ for (const [run, sequence] of [
     create: ({ h, events }) =>
       new NativeCallContinuation(
         h.a,
-        sequence(h, events, events.text, run === runDialogText ? TEXT_ROUTINES : MENU_ROUTINES),
+        sequence(
+          h,
+          events,
+          events.text,
+          run === runDialogText ? TEXT_ROUTINES : MENU_TEXT_ROUTINES,
+        ),
       ),
   });
 // 80:8F3A and 80:8F97, the portrait window opened and closed over frames.
@@ -864,46 +862,6 @@ NATIVE_CALL_CONTINUATIONS.set(0x80bf3b, {
     new NativeCallContinuation(h.a, gloveActionSequence(h, events, routines)),
 });
 
-// 81:B0A1 (called with JSL) and 80:9E1A (JSR) at the top of the main loop. With the
-// lag-free frame model the NMI arrives only at the word wait's blocking branch, so
-// both run lifted: the word wait (src/system/frame-wait.mjs) and the newly pressed
-// buttons (src/system/joypad.mjs). Recorded interrupt replays use the register-level
-// routines and instruction continuations in proof/vm/main-loop.mjs.
-function* frameWaitCallSequence(h, events) {
-  yield* waitForCounterWord(h, events);
-  let result;
-  yield () => {
-    result = h.rtl();
-  };
-  return result;
-}
-export function runFrameWait(h, events) {
-  if (!lagFree(events)) taskStop('game_lag_free_required');
-  return drainNativeSequence(frameWaitCallSequence(h, events));
-}
-// Bind by function identity so this live wait can coexist with replay tables.
-NATIVE_CALL_CONTINUATIONS.set(runFrameWait, {
-  run: runFrameWait,
-  create: (call) =>
-    new NativeCallContinuation(call.h.a, frameWaitCallSequence(call.h, call.events)),
-});
-// The pad word: the original leaves A with its four low bits, sign clear, zero when
-// they are, and the carry of its comparison with the soft reset buttons 3030; the
-// glove movement 80:BE6D follows.
-const SOFT_RESET_BUTTONS = 0x3030,
-  INVALID_PAD_BITS = 0x000f;
-export function runPadPresses(h, events) {
-  if (!lagFree(events)) taskStop('game_lag_free_required');
-  const { ctx } = h,
-    { wram } = h.a.mem,
-    held = wram[PAD_HELD] | (wram[PAD_HELD + 1] << BYTE_BITS);
-  takePadPresses(wram);
-  ctx.a = held & INVALID_PAD_BITS;
-  ctx.status &= ~(FLAG_NEGATIVE | FLAG_ZERO | FLAG_CARRY);
-  if (!ctx.a) ctx.status |= FLAG_ZERO;
-  if (held >= SOFT_RESET_BUTTONS) ctx.status |= FLAG_CARRY;
-  return h.rts();
-}
 // 80:BE6D, called with JSR; its object search and release wait for the NMI, so it is
 // a native call continuation of the main loop. The glove natives bind the register-level
 // version to the same target, so this continuation is found by its run function.
