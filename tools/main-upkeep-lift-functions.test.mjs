@@ -75,7 +75,7 @@ import {
   chooseDialogTopic,
   showDialogText,
 } from '../src/system/native-dialog-text.mjs';
-import { showDialogTextSequence } from '../src/game/dialog-text.mjs';
+import { showDialogTextSequence } from '../proof/caller/dialog-text.mjs';
 import {
   openPortraitWindowSequence,
   closePortraitWindowSequence,

@@ -187,11 +187,12 @@ function searchEntry(h, acc) {
 // The callee bodies: the lifted request, cursor and text for the standard routines
 // (with a table for 80:FB39), else those of the text routines.
 function liftedBodies(h, events, routines, renderBuffer) {
-  if (!renderBuffer || !isStandardTextRoutines(routines)) return textBodies(h, events, routines);
+  const fallback = textBodies(h, events, routines);
+  const live = renderBuffer && isStandardTextRoutines(routines);
   const lifted = {
     request: () => requestTileClearSequence(h, events),
-    cursor: () => segmentSequence(() => setTextCursorRoutine(h)),
-    text: () => printTextSequence(h, events, renderBuffer),
+    cursor: live ? () => segmentSequence(() => setTextCursorRoutine(h)) : fallback('cursor'),
+    text: live ? () => printTextSequence(h, events, renderBuffer) : fallback('text'),
   };
   return (name) => lifted[name];
 }

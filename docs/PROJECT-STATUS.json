@@ -1,7 +1,7 @@
 {
   "updated": "2026-11-16",
-  "focus": "Ten hit/scene composition blocks implemented: direct hit confirmation, releases and player list; all three shooting entries and blast hits; zone task creation and room entry; motion targets and animation. Independent original and actual caller comparisons retained. Shared release and delivery: HANDOFF.md.",
-  "next_step": "Continue remaining dialog text/menu and scene caller service boundaries around shared dependencies. Preserve independent original and actual integration comparisons. Complete ten focused-check commits, then one shared release and push. Shape editing and S-MIX remain deferred.",
+  "focus": "Dialog service composition batch: direct text clearing, cursor and text; topic task append and nested visit; main menu, topic window, topic menu and release; final renderer-only dialog entry. Each complete block receives focused checks and a commit.",
+  "next_step": "Finish the ten dialog service blocks, retain independent original and actual caller comparisons, then run one shared release check and push. Shape editing and S-MIX remain deferred.",
   "porting_resume": "188 original-form bytes remain: 93 retained code bytes and 95 unidentified data bytes. Recorded CPU reads, hardware-only observations and true data margins are distinguished in docs/ROM-CODE-AUDIT.md. Unknown bytes and unused graphics remain preserved; unrecorded paths can still report rom_byte_absent.",
   "open_issues": [
     "Examination: unreproduced report to watch during the final user test run. Its European cleanup condition is tested; other story routes remain unproved. A change requires a reproducible counterexample. See docs/BUGFIXES.md.",
