@@ -19,7 +19,12 @@
 // The entry 80:E68E (from the status screen) leaves 1F68 clear: no script runs and the
 // equipment window is drawn at the end (80:E9C5). Windows, selection and cleanup
 // compose through their original frames; script services keep their table.
-import { dialogCallBody, nativeCallSequence } from '../system/native-call-continuation.mjs';
+import {
+  dialogCallBody,
+  nativeCallSequence,
+  segmentSequence,
+} from '../system/native-call-continuation.mjs';
+import { appendScriptTaskCall } from '../script/task-api.mjs';
 import { openWindowSequence } from './window-open.mjs';
 import { chooseFromMenuSequence } from './menu-choice.mjs';
 import { releaseWindowJsrSequence, releaseNoticeWindowsCallSequence } from './window-release.mjs';
@@ -334,7 +339,9 @@ export function* spellMenuSequence(
       script = runs !== 0;
     };
     if (script) {
-      yield* call(h, events, routines, APPEND_SCRIPT);
+      yield* dialogCallBody(h, ...APPEND_SCRIPT, () =>
+        segmentSequence(() => appendScriptTaskCall(h.a)),
+      );
       yield () => setWord(wram, MEMBER_PORTRAIT_REDRAW, 0);
       yield* call(h, events, routines, VISIT_SCRIPT);
       yield* afterScriptSequence(h, events, routines);

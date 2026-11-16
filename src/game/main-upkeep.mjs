@@ -506,10 +506,7 @@ NATIVE_CALL_CONTINUATIONS.set(runMemberPortrait, {
 // The lifted spell menu 80:F254 with the lifted window, plain menu, releases, portrait,
 // equipment window, key wait, window list and script append; the visit 80:C1CA is the
 // script VM's nested round.
-const SPELL_MENU_ROUTINES = new Map([
-  [0x80c34a, (h) => appendScriptTaskCall(h.a)],
-  [0x80c1ca, runHeadVisit],
-]);
+const SPELL_MENU_ROUTINES = new Map([[0x80c1ca, runHeadVisit]]);
 export const liftedSpellMenuSequence = (h, events) =>
   openSpellMenuSequence(h, events, SPELL_MENU_ROUTINES);
 // The lifted party status 80:ED3C with the lifted glove and window releases, window,

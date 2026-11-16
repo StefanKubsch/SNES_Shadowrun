@@ -727,3 +727,12 @@ All ten phases have focused-check commits. Shared release and delivery results
 belong in HANDOFF.md. Member script append, object creation, nested visits and
 status scene closing remain explicit services. Shape editing and S-MIX remain
 deferred.
+
+## Scene service composition batch (2026-11-16)
+
+### Block 1: member script append
+
+The spell menu composes task append directly through its original JSR frame.
+The former caller retains dispatch and now binds the actual task append in
+caller comparisons. Script cleanup combinations compare real task frames and
+WRAM at budgets one and seven; nested visits remain controlled services.
