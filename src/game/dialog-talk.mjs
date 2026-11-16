@@ -25,10 +25,10 @@
 // original's; it changes no overflow. It leaves the registers of its last callee (the
 // music change) or of the window release with A the pulled music word.
 import {
-  dialogCallSequence,
   dialogCallBody,
   segmentSequence,
 } from '../system/native-call-continuation.mjs';
+import { setMusicModeRoutine } from '../apu/audio-routines.mjs';
 import { showDialogTextSequence } from './dialog-text.mjs';
 import { chooseDialogActionSequence, chooseDialogTopicSequence } from './dialog-menus.mjs';
 import { drawTextBufferSequence } from './text-draw.mjs';
@@ -277,13 +277,11 @@ export function* closeDialogSequence(h, events) {
 }
 
 // Talk with the object (80:936C), a sequence for a native call continuation: h the
-// glove action's access (direct page 0, data bank 80), routines the remaining
-// music, tile-reload and sprite services, renderBuffer the live text renderer.
-export function* talkSequence(h, events, routines, renderBuffer = drawTextBufferSequence) {
+// The glove action supplies direct page 0 and data bank 80; renderBuffer draws text.
+export function* talkSequence(h, events, renderBuffer = drawTextBufferSequence) {
   const { ctx } = h,
     m = sceneRuntime(h),
-    { mem, wram, port } = m,
-    call = ([site, target, long]) => dialogCallSequence(h, events, routines, site, target, long);
+    { mem, wram, port } = m;
   if (fixesEnabled(h.a)) preparePushkinTopics(h.a, word(wram, DP_RECORD_NUMBER));
   events.text ??= dialogTextRoutines(events);
   // Load a portrait record (pointer in F6, bank in F8) for the unpacker: Y its bank, A its
@@ -353,7 +351,7 @@ export function* talkSequence(h, events, routines, renderBuffer = drawTextBuffer
       h.a.pushWord(ctx.y);
     } else h.a.pushWord(NO_MUSIC);
   };
-  if (change) yield* call(CALL.music);
+  if (change) yield* dialogCallBody(h, CALL.music[0], CALL.music[1], () => segmentSequence(() => setMusicModeRoutine(h)), true);
   yield () => window(PORTRAIT_FRAME);
   yield* dialogCallBody(h, ...CALL.frame, () => openWindowSequence(h, events));
   yield () => {
@@ -463,7 +461,7 @@ export function* talkSequence(h, events, routines, renderBuffer = drawTextBuffer
     ctx.a = word(wram, DP_TEXT_WINDOW);
     h.a.pushWord(ctx.a);
   };
-  yield* dialogCallBody(h, ...CALL.close, () => closeDialogSequence(h, events, routines));
+  yield* dialogCallBody(h, ...CALL.close, () => closeDialogSequence(h, events));
   yield () => {
     ctx.a = h.a.pullWord();
     setWord(wram, DP_OBJECT, ctx.a);
@@ -481,7 +479,7 @@ export function* talkSequence(h, events, routines, renderBuffer = drawTextBuffer
     flag(ctx, FLAG_ZERO, ctx.a === 0);
     restore = !(ctx.a & WORD_SIGN);
   };
-  if (restore) yield* call(CALL.restoreMusic);
+  if (restore) yield* dialogCallBody(h, CALL.restoreMusic[0], CALL.restoreMusic[1], () => segmentSequence(() => setMusicModeRoutine(h)), true);
   let result;
   yield () => {
     result = h.rts();

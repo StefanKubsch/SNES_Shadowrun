@@ -1,5 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
+import { setMusicModeRoutine } from '../src/apu/audio-routines.mjs';
 import * as direct from '../src/game/dialog-talk.mjs';
 import * as former from '../proof/caller/dialog-talk.mjs';
 import { buildSpriteList } from '../proof/replay/native-scene-sprites.mjs';
@@ -127,8 +128,8 @@ import {
 } from '../src/data/wram.mjs';
 
 // The former orchestrator keeps its dispatched call graph. Real live callees
-// isolate composition from the NMI service; reload, sprites and music are recorded.
-function runTalk(module, variant, budget, { alternate = 0, music = 0, mirror = 0 } = {}) {
+// isolate composition from the NMI service; real music commands retain driver echo.
+function runTalk(module, variant, budget, { alternate = 0, music = 0, mirror = 0, token = 0 } = {}) {
   const side = textWindowSide(),
     { h, mem, put, events } = side;
   h.ctx.s = 0x1eef;
@@ -144,7 +145,9 @@ function runTalk(module, variant, budget, { alternate = 0, music = 0, mirror = 0
   put(WINDOW_ACTIVE, 0xffff);
   put(WINDOW_NEXT_TILE, 0x2000);
   put(GAME_OPTIONS, music ? 1 : 0);
-  put(MUSIC, 0x1234);
+  put(MUSIC, 0);
+  mem.wram[W.APU_COMMAND_TOKEN] = token;
+  mem.wram.set([0, 1, 2].map(n => mem.read8(0x98fffa + n)), W.AUDIO_DIRECTORY_POINTER);
   put(SOUND_LOADED_SET, mem.read16(0x80c4b3 + 0x4c));
   mem.wram[JAKE_ALTERNATE_PORTRAIT] = alternate;
   mem.wram.set(variant === 'empty topics' ? [0xff] : [2, 0xff], TOPIC_LIST);
@@ -252,15 +255,9 @@ function runTalk(module, variant, budget, { alternate = 0, music = 0, mirror = 0
     [0x809178, live.runDialogText],
     [0x8091e2, live.runDialogMenu],
     [0x809215, live.runDialogTopics],
-    ...[0x81ef47].map((target) => [
-      target,
-      (callee) => {
-        side.calls.push(['service', target, callee.ctx.a]);
-        return target === 0x81ef47 ? callee.rtl() : callee.rts();
-      },
-    ]),
+    [0x81ef47, setMusicModeRoutine],
   ]);
-  const result = finishTextWindow(side, module.talkSequence(h, events, table), budget);
+  const result = finishTextWindow(side, module.talkSequence(h, events, ...(module === direct ? [] : [table])), budget);
   // Exclude only the relocated CPU stack from final and upload snapshots.
   result.wram.fill(0, 0x1e80, 0x1ef0);
   for (const [, wram] of result.uploads) wram.fill(0, 0x1e80 - 0x1cc, 0x1ef0 - 0x1cc);
@@ -290,12 +287,13 @@ for (const budget of [1, 7])
             actual = runTalk(direct, 'exit', budget, options);
           assert.deepEqual(actual, runTalk(former, 'exit', budget, options));
           assert.equal(actual.requests, 2);
+          assert.equal(actual.writes.filter(write => write === '8514,8224,2').length, music ? 2 : 0);
           assert.equal(actual.wram[0x3d12] | (actual.wram[0x3d13] << 8), mirror ? 0x7480 : 0x3480);
           assert.equal(actual.calls.filter((call) => call[0] === 'portrait')[0][1], 0);
           assert.equal(actual.calls.filter((call) => call[0] === 'portrait')[1][1], 0x800);
           assert.equal(
-            actual.calls.filter((call) => call[0] === 'service' && call[1] === 0x81ef47).length,
-            music ? 2 : 0,
+            actual.wram[MUSIC] | (actual.wram[MUSIC + 1] << 8),
+            0,
           );
         });
 
@@ -313,4 +311,11 @@ for (const budget of [1, 7])
           actual.calls.find((call) => call[0] === 'topic action'),
           ['topic action', 0x1234],
         );
+    });
+
+for (const budget of [1, 7])
+  for (const token of [254, 255])
+    test(`talk real music token wrap: ${token}, budget ${budget}`, () => {
+      const options = { music: 1, token };
+      assert.deepEqual(runTalk(direct, 'exit', budget, options), runTalk(former, 'exit', budget, options));
     });

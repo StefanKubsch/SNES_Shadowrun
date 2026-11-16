@@ -836,3 +836,13 @@ Player Y composes immediate-item status directly. Player control receives only
 its renderer; main-upkeep drops the final player service table and adapters.
 Both real runner routes compare the actual item menu, portrait and scene close
 with independent former callers at both budgets and with default glyphs.
+
+### Block 3: dialog music
+
+Dialog entry and restore compose the established music routine through their
+original long frames. Dialog APIs receive only their renderer; the last dialog
+service table is removed. Independent former dialog orchestration now calls
+the same real music callee, including sample loading and driver echoes.
+Both budgets cover disabled music, two enabled modes, mirror and alternate
+portraits, comparing real audio writes and the restored mode. Existing audio
+register comparisons retain independent sound implementation evidence.

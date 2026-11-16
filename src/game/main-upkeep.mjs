@@ -362,9 +362,7 @@ for (const [run, sequence] of [
 function runMusicMode(h) {
   return setMusicModeRoutine(h);
 }
-// Dialog composition owns its windows, text, menus, portraits and input.
-// Dialog composition retains only music as a service.
-const DIALOG_ROUTINES = new Map([[0x81ef47, runMusicMode]]);
+// Dialog composition owns its complete call graph.
 // The lifted action menu as the script native 80:9BA0 runs it with lag-free frames.
 export const liftedScriptActionSequence = (h, events) => chooseScriptActionSequence(h, events);
 // The lifted text natives 80:935B and 80:933A as the script runs them with lag-free
@@ -375,7 +373,7 @@ export const liftedTopicTextSequence = (h, events) =>
   printTopicTextSequence(h, events, drawTextBufferSequence);
 // The lifted dialog as the script native 80:936C runs it with lag-free frames
 // (src/vm/special-natives.mjs).
-export const liftedTalkSequence = (h, events) => talkSequence(h, events, DIALOG_ROUTINES);
+export const liftedTalkSequence = (h, events) => talkSequence(h, events);
 // 80:92C5 (the dialog closed), called with JSR; its portrait window waits for the NMI.
 function* closeDialogCallSequence(h, events) {
   return yield* closeDialogSequence(h, events);
@@ -388,12 +386,12 @@ NATIVE_CALL_CONTINUATIONS.set(runCloseDialog, {
   create: ({ h, events }) => new NativeCallContinuation(h.a, closeDialogCallSequence(h, events)),
 });
 export function runTalk(h, events) {
-  return drainNativeSequence(talkSequence(h, events, DIALOG_ROUTINES));
+  return drainNativeSequence(talkSequence(h, events));
 }
 NATIVE_CALL_CONTINUATIONS.set(runTalk, {
   run: runTalk,
   create: ({ h, events }) =>
-    new NativeCallContinuation(h.a, talkSequence(h, events, DIALOG_ROUTINES)),
+    new NativeCallContinuation(h.a, talkSequence(h, events)),
 });
 // Shared register helpers for callers that still dispatch their dependencies.
 // Notices, menus and the timer compose their own live dependencies directly;
