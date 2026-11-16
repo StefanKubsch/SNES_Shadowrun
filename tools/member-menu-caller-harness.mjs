@@ -20,7 +20,24 @@ import {
 import { textWindowSide, finishTextWindow } from './text-window-caller-harness.mjs';
 import * as W from '../src/data/wram.mjs';
 import { WORD_MASK } from '../src/constants/bits.mjs';
-const MENU_SOUND_INDEX = 0x4c;
+import { memberPortraitSequence } from '../proof/caller/member-portrait.mjs';
+import {
+  uploadFirstPortraitSequence,
+  uploadPortraitTilesSequence,
+} from '../proof/caller/portrait-upload.mjs';
+import { unpackPortraitRoutine, shiftPortraitRowsRoutine } from '../src/game/portrait-upload.mjs';
+const MENU_SOUND_INDEX = 0x4c,
+  PORTRAIT_STACK_TOP = 0x1eef,
+  PORTRAIT_STACK_START = 0x1e80,
+  PORTRAIT_STACK_END = 0x1ef0,
+  GAME_STATE_START = 0x1cc,
+  HDMA_TABLE_BYTES = 13,
+  PORTRAIT_TILES_START = 0x15250,
+  PORTRAIT_TILES_END = 0x16250,
+  REQUEST_COMPLETE = 0x8000,
+  WRAM_BASE = 0x7e0000,
+  MENU_FRAME_RETURN = 0xa6ec,
+  CONFIRM_FRAME_RETURN = 0xf956;
 
 export function compareRun(
   sequence,
@@ -79,7 +96,7 @@ export function compareRun(
   bind(0x80f953, () => waitForConfirmKeySequence(h, events, routines));
   bind(0x80fb39, () => side.render(h, events));
   if (realDrawing) side.render = formerDraw;
-  configure({ ...side, routines, bind });
+  const finish = configure({ ...side, routines, bind }) ?? ((result) => result);
   prepare(side);
   try {
     const result = finishTextWindow(
@@ -87,8 +104,57 @@ export function compareRun(
       sequence(h, events, direct ? (realDrawing ? undefined : side.render) : routines),
       budget,
     );
-    return { ...result, input };
+    return finish({ ...result, input });
   } finally {
     for (const run of bindings) NATIVE_CALL_CONTINUATIONS.delete(run);
   }
+}
+
+// Keep full portrait payloads and HDMA fields visible while moving the CPU stack
+// away from the portrait buffers. Upload completion is serviced, not an NMI model.
+export function configureMemberPortrait({ h, mem, events, put, routines, bind, calls }) {
+  h.ctx.s = PORTRAIT_STACK_TOP;
+  const snapshot = () => [
+    mem.wram[W.HDMAEN_SHADOW],
+    mem.read16(W.TMW_SHADOW),
+    mem.wram.slice(W.PORTRAIT_HDMA_TABLE, W.PORTRAIT_HDMA_TABLE + HDMA_TABLE_BYTES),
+    mem.wram[W.PORTRAIT_WINDOW_LEFT],
+    mem.wram[W.PORTRAIT_WINDOW_RIGHT],
+  ];
+  const service = events.interrupts.textWait;
+  events.interrupts.textWait = (callee, frameEvents, status, pc) => {
+    if (pc === 0x80901f) {
+      calls.push([
+        'portrait upload',
+        mem.read16(W.PORTRAIT_DMA_REQUEST),
+        mem.read16(W.PORTRAIT_PALETTE_START),
+        mem.wram.slice(PORTRAIT_TILES_START, PORTRAIT_TILES_END),
+      ]);
+      put(W.PORTRAIT_DMA_REQUEST, mem.read16(W.PORTRAIT_DMA_REQUEST) | REQUEST_COMPLETE);
+      return true;
+    }
+    const caller = mem.read16(WRAM_BASE | (h.ctx.s + 1));
+    if (pc === 0x81b0a9 && caller !== MENU_FRAME_RETURN && caller !== CONFIRM_FRAME_RETURN) {
+      calls.push(['portrait frame', h.ctx.x, ...snapshot()]);
+      put(W.RANDOM_STATE, mem.read16(W.RANDOM_STATE) + 1);
+      return true;
+    }
+    return service(callee, frameEvents, status, pc);
+  };
+  routines.set(0x809f6d, unpackPortraitRoutine);
+  routines.set(0x808f20, shiftPortraitRowsRoutine);
+  bind(0x809022, () => uploadFirstPortraitSequence(h, events, routines));
+  bind(0x808ff5, () => uploadPortraitTilesSequence(h, events, routines));
+  bind(0x80e4b3, () => memberPortraitSequence(h, events, routines));
+  return (result) => {
+    calls.push(['final portrait', ...snapshot()]);
+    result.wram.fill(0, PORTRAIT_STACK_START, PORTRAIT_STACK_END);
+    for (const [, payload] of result.uploads)
+      payload.fill(
+        0,
+        PORTRAIT_STACK_START - GAME_STATE_START,
+        PORTRAIT_STACK_END - GAME_STATE_START,
+      );
+    return result;
+  };
 }

@@ -618,3 +618,21 @@ wait factory for the same address as the fixture's live wait. The menu fixture
 now binds its live wait by its own function identity, so retained caller tests
 keep their explicit live-wait contract regardless of those scene imports.
 Unexpected upload waits report their original address for diagnosis.
+
+## Remaining menu services batch (2026-11-16)
+
+The ten phases compose spell portraits, item portraits, spell list redraw,
+item list redraw, status colour setup, status sound, karma magic refill,
+karma state-count refill, save sound and status scene closing. Each phase
+keeps independent former callers and existing original comparisons. Nested
+script visits and object creation remain explicit services.
+
+### Block 1: spell portrait redraw
+
+The member spell caller directly composes the member portrait after a script
+requests redraw. Its original frame and redraw/end ordering are unchanged.
+The caller fixture now uses the independently retained real portrait on the
+former side, comparing both tile payloads, palettes, eleven frame snapshots,
+HDMA fields, writes and final state. Ended scripts skip redraw. The CPU stack
+is relocated and excluded explicitly; portrait fields remain captured.
+Uploads are serviced; existing integrations retain real NMI coverage.

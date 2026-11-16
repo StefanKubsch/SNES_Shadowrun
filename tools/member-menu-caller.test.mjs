@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { compareRun } from './member-menu-caller-harness.mjs';
+import { compareRun, configureMemberPortrait } from './member-menu-caller-harness.mjs';
 import { decimalNumberSequence as directDecimal } from '../src/game/decimal-number.mjs';
 import { decimalNumberSequence as formerDecimal } from '../proof/caller/decimal-number.mjs';
 for (const budget of [1, 7])
@@ -67,10 +67,11 @@ function runMember(
     budget,
     pads,
     realDrawing,
-    ({ h, events, routines, bind, put, calls }) => {
+    (side) => {
+      const { h, events, routines, bind, put, calls } = side;
       services = routines;
       if (script) {
-        for (const target of [0x80c34a, 0x80c1ca, 0x81aeb0, 0x80e4b3])
+        for (const target of [0x80c34a, 0x80c1ca, 0x81aeb0])
           routines.set(target, (callee) => {
             calls.push(['service', target, callee.ctx.a, callee.ctx.x]);
             if (target === 0x80c1ca) {
@@ -82,6 +83,7 @@ function runMember(
           });
       }
       bind(0x80e9c5, () => equipmentRowsSequence(h, events, routines));
+      return configureMemberPortrait(side);
     },
   );
 }
@@ -136,7 +138,15 @@ for (const budget of [1, 7])
       assert.equal(actual.input, pads.length);
       assert.equal(
         actual.calls.filter((c) => c[0] === 'service').length,
-        2 + (!script.end && script.redraw ? 2 : 0),
+        2 + (!script.end && script.redraw ? 1 : 0),
+      );
+      assert.equal(
+        actual.calls.filter((c) => c[0] === 'portrait upload').length,
+        !script.end && script.redraw ? 2 : 0,
+      );
+      assert.equal(
+        actual.calls.filter((c) => c[0] === 'portrait frame').length,
+        !script.end && script.redraw ? 11 : 0,
       );
     });
 

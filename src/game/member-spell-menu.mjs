@@ -25,6 +25,7 @@ import { chooseFromMenuSequence } from './menu-choice.mjs';
 import { releaseWindowJsrSequence, releaseNoticeWindowsCallSequence } from './window-release.mjs';
 import { waitForConfirmKeySequence } from './confirm-key.mjs';
 import { equipmentRowsSequence } from './equipment-window.mjs';
+import { memberPortraitSequence } from './member-portrait.mjs';
 import { drawTextBufferSequence } from './text-draw.mjs';
 import { dataBankWord, setDataBankWord } from '../system/data-bank.mjs';
 import {
@@ -235,7 +236,7 @@ function* afterScriptSequence(h, events, routines) {
   if (ended) return;
   if (redraw) {
     yield* call(h, events, routines, REDRAW_LIST, true);
-    yield* call(h, events, routines, SHOW_PORTRAIT);
+    yield* dialogCallBody(h, ...SHOW_PORTRAIT, () => memberPortraitSequence(h, events));
   }
   let pending = false;
   yield () => {
