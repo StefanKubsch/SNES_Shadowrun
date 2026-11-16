@@ -59,3 +59,16 @@ test('script visit retains its missing-scheduler frontier', () => {
     (error) => error.reason === 'task_f254_visit_open',
   );
 });
+
+test('script visit preserves the caller frontier and observes synchronous results', () => {
+  assert.throws(
+    () => drainNativeSequence(scriptVisitSequence({}, 'task_dialog_topic_visit_open')),
+    (error) => error.reason === 'task_dialog_topic_visit_open',
+  );
+  const observed = [];
+  const result = drainNativeSequence(
+    scriptVisitSequence({ round: () => 'result' }, undefined, (value) => observed.push(value)),
+  );
+  assert.equal(result, 'result');
+  assert.deepEqual(observed, ['result']);
+});

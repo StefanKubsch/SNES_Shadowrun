@@ -4,15 +4,16 @@ import { taskStop } from './task-stop.mjs';
 
 export const SCRIPT_VISIT = 0x80c1ca;
 
-export function* scriptVisitSequence(events) {
+export function* scriptVisitSequence(events, missingReason = 'task_f254_visit_open', onRound) {
   const round = events.nestedRound?.(SCRIPT_VISIT);
   if (round) {
     return yield { continuation: round };
   }
   let result;
   yield () => {
-    if (!events.round) taskStop('task_f254_visit_open');
+    if (!events.round) taskStop(missingReason);
     result = events.round(SCRIPT_VISIT);
+    onRound?.(result);
   };
   return result;
 }

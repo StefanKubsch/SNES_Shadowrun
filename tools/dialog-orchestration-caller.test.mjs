@@ -115,7 +115,9 @@ for (const budget of [1, 7])
         });
 
 import * as live from '../src/game/main-upkeep.mjs';
-import { dialogTextRoutines } from '../src/system/native-dialog-text.mjs';
+import { dialogTextRoutines, dialogTopic } from '../src/system/native-dialog-text.mjs';
+import { appendScriptTask } from '../src/system/task-append.mjs';
+import * as V from '../src/vm/layout.mjs';
 import { DIALOG_TABLE, DIALOG_BANK_BASE } from '../src/data/portraits.mjs';
 import { clearFixedColourRoutine, setWindowTextWidthRoutine } from '../src/game/dialog-talk.mjs';
 import {
@@ -172,7 +174,7 @@ function runTalk(
       key,
       action ? 6 : 4,
       action ? 0x80 : 0,
-      ...(action ? [0x34, 0x12] : []),
+      ...(action ? [0x80, 0] : []),
       text & 255,
       text >>> 8,
     ],
@@ -193,9 +195,27 @@ function runTalk(
           ? bytes[address - 0x8d6000]
           : read(address);
   events.text = dialogTextRoutines(events);
-  events.text.topic = (callee) => {
-    side.calls.push(['topic action', mem.read16(0x8d0000 + mem.read16(0x11) + callee.ctx.y)]);
+  if (variant.endsWith('ends')) {
+    put(V.TASK_FREE_LIST, 0);
+    put(V.TASK_NEXT, 2);
+    put(V.TASK_NEXT + 2, 0xffff);
+    put(V.TASK_LIST_HEAD, 0xffff);
+    put(V.HEAP_SIZE_WORD, 0x700);
+    put(V.HEAP_NEXT_WORD, 0);
+  }
+  events.round = (target) => {
+    assert.equal(target, 0x80c1ca);
+    assert.equal(mem.read16(V.TASK_LIST_HEAD), 0);
+    side.calls.push(['topic action', 0x80]);
     put(DIALOG_END, 0xffff);
+    return h.rts();
+  };
+  events.text.topic = (callee) => {
+    assert.equal(mem.read16(0x8d0000 + mem.read16(0x11) + callee.ctx.y), 0x80);
+    return dialogTopic(
+      (a) => appendScriptTask(a, false),
+      () => events.round(0x80c1ca),
+    )(callee);
   };
   const serviceUpload = events.interrupts.textWait;
   const pads = variant.startsWith('talk')
@@ -343,7 +363,7 @@ for (const budget of [1, 7])
       if (variant.endsWith('ends'))
         assert.deepEqual(
           actual.calls.find((call) => call[0] === 'topic action'),
-          ['topic action', 0x1234],
+          ['topic action', 0x80],
         );
     });
 

@@ -39,3 +39,12 @@ The independent former topic caller retains its register-level append. Actual
 comparisons use two real scripts, real task slots and heap frames at both
 budgets, and check the argument and visit frame after allocation. Existing
 nested scheduler comparisons retain the original instruction evidence.
+
+## Block 5: live topic visits
+
+The live text caller owns task append and nested visits directly. It prefers
+the pausable scheduler child and falls back to the synchronous hook, collecting
+its wait/input observations as before. The missing-scheduler frontier remains
+explicit. Actual text and full-dialog action cases now allocate real script
+80 tasks before a controlled visit; the former caller independently appends
+with the register-level routine. Service topic callbacks remain only in proof.

@@ -16,10 +16,8 @@
 // inserted before the first larger one with a clear flag (7E:3CD6), the rest moves up
 // one place with its flags; a topic already there stays.
 //
-// The callees come from the dialog's text routines with the original's A, X and Y: for
-// the standard ones the lifted request (window-open.mjs), cursor (window-text.mjs) and
-// text (text-print.mjs, with the renderer sequence the caller passes), else
-// a test's replacements. The routine works with an
+// Clearing, cursor, text and task actions compose directly with the original
+// arguments. The routine works with an
 // 8-bit accumulator in the search as the original: byte loads keep A's high byte, XBA
 // swaps the bytes. It pushes the flag byte around the topic add, and its status and Y
 // around the text (PLP restores the status with the carry of the action bit, which the
@@ -29,7 +27,9 @@ import { requestTileClearSequence } from './window-open.mjs';
 import { setTextCursorRoutine } from './window-text.mjs';
 import { drawTextBufferSequence } from './text-draw.mjs';
 import { printTextSequence } from './text-print.mjs';
-import { dialogTopicSequence, isStandardTextRoutines } from '../system/native-dialog-text.mjs';
+import { appendScriptTaskCall } from '../script/task-api.mjs';
+import { scriptVisitSequence } from '../system/script-visit.mjs';
+import { taskStop } from '../system/task-stop.mjs';
 import { TOPIC_FLAGS, TOPIC_LIST } from '../data/wram.mjs';
 import {
   BYTE_BITS,
@@ -53,6 +53,7 @@ const DP_WINDOW = 0x00,
   DP_TEXT = 0x02,
   DP_CURSOR_ROW = 0x04,
   DP_RECORD = 0x11,
+  DP_DIALOG_OBJECT = 0x26,
   DP_TEXT_WINDOW = 0x14,
   DP_TOPIC_KEY = 0x1d,
   DP_TOPICS_LEFT = 0x20,
@@ -191,11 +192,11 @@ function liftedBodies(h, events, renderBuffer) {
 }
 
 // Show the dialog text for the key in A (80:9178), a sequence for a native call
-// continuation: routines the dialog's text routines.
+// continuation. The legacy service position is removed at the entry migration.
 export function* showDialogTextSequence(
   h,
   events,
-  routines,
+  _routines,
   renderBuffer = drawTextBufferSequence,
 ) {
   const { ctx } = h,
@@ -268,9 +269,7 @@ export function* showDialogTextSequence(
         action = (ctx.status & FLAG_CARRY) !== 0;
       };
       if (action) {
-        if (events.nestedRound && isStandardTextRoutines(routines))
-          yield* dialogTopicSequence(h, events);
-        else yield () => routines.topic(h);
+        yield* dialogTopicSequence(h, events);
       }
       break;
     }
@@ -281,6 +280,33 @@ export function* showDialogTextSequence(
     result = h.rts();
   };
   return result;
+}
+
+// Topic actions keep their own append and visit frames and argument chronology.
+export function* dialogTopicSequence(h, events) {
+  yield () => {
+    if (!events.nestedRound && !events.round)
+      taskStop('task_dialog_topic_visit_open', {
+        pc: 0x8091ca,
+        append: 0x80c34a,
+        visit: 0x80c1ca,
+      });
+    h.load(h.read(h.indirect(DP_RECORD, h.ctx.y)));
+    h.index('x', h.ctx.a);
+    h.load(h.dp(DP_DIALOG_OBJECT));
+    h.dpWrite(DP_WINDOW, h.ctx.a);
+  };
+  yield* dialogCallBody(h, 0x8091d1, 0x80c34a, () =>
+    segmentSequence(() => appendScriptTaskCall(h.a)),
+  );
+  yield* dialogCallBody(h, 0x8091d4, 0x80c1ca, () =>
+    scriptVisitSequence(events, 'task_dialog_topic_visit_open', (more) => {
+      if (more?.wait?.length)
+        events.values = Object.freeze([...(events.values ?? []), ...more.wait]);
+      if (more?.input?.length)
+        events.inputs = Object.freeze([...(events.inputs ?? []), ...more.input]);
+    }),
+  );
 }
 
 // The script natives that print a text number (first argument) into the dialog's text
