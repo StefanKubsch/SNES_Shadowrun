@@ -8,7 +8,7 @@ At this point, the game is clearly targeted to be played on a computer: Browser,
 
 - a newly recorded soundtrack by [Julian Daniels](https://juliandaniels.com/)
 - customizable controls (mouse/keyboard/controller)
-- full German and English localization
+- full German (with fixed bugs) and English localization
 - optional highlighting of interactive objects in the game
 - optional bug fixes for the original game
 - optional cheats
