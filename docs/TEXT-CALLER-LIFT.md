@@ -461,3 +461,13 @@ Exit, cancel, use ending the screen and removal followed by list rebuilding.
 Both budgets compare uploads, text/count payloads and final state; two default
 renderer cases include real glyph uploads. The former item caller and its
 original random comparisons remain independent.
+
+## Member and scene batch: status windows (2026-11-16)
+
+The status screen composes glove and notice cleanup, both window openings and
+all window releases directly. Sound, colour setup, display and submenu services
+retain their existing calls. The former complete status caller remains the
+reference for original random tests. New caller cases cover native, Start and
+immediate-item entries for Jake and another runner, leader fallback, cancel
+and a submenu, comparing input, uploads, game state and sound restoration.
+Budgets one and seven retain the zero-budget stability check.

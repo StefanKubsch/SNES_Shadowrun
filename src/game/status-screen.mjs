@@ -20,7 +20,13 @@
 // 7E:1D63 or the menu ends; 1F64 set runs the first submenu once and keeps no menu
 // window. At the end 80:92C5, the windows are released, 1F62 is cleared and the sound
 // restored (7F7F). The callees run through their frames from the routine table.
-import { nativeCallSequence } from '../system/native-call-continuation.mjs';
+import { nativeCallSequence, dialogCallBody } from '../system/native-call-continuation.mjs';
+import { openWindowSequence } from './window-open.mjs';
+import {
+  releaseWindowJsrSequence,
+  releaseNoticeWindowsCallSequence,
+  putGloveAwayCallSequence,
+} from './window-release.mjs';
 import { taskStop } from '../system/task-stop.mjs';
 import { dataBankWord, setDataBankWord } from '../system/data-bank.mjs';
 import { DP_SCRATCH, STATUS_LAYOUT } from '../data/native-member-spell-menu.mjs';
@@ -254,7 +260,9 @@ export function* statusScreenSequence(h, events, routines, entry = NATIVE_ENTRY)
     // The native keeps its object DP 00 on the stack over the release (PEI, PLY).
     if (native) h.push(word(wram, 0), 2);
   };
-  yield* call(native ? 0x80ea83 : 0x80eaa4, RELEASE_NOTICES);
+  yield* dialogCallBody(h, native ? 0x80ea83 : 0x80eaa4, RELEASE_NOTICES, () =>
+    releaseNoticeWindowsCallSequence(h, events),
+  );
   yield () => {
     let object;
     if (native) object = h.pull(2);
@@ -286,7 +294,7 @@ export function* statusScreenSequence(h, events, routines, entry = NATIVE_ENTRY)
     setWord(wram, MEMBER_OBJECT, object);
     setWord(wram, MEMBER_INDEX, runner);
   };
-  yield* call(0x80eaea, PUT_GLOVE_AWAY);
+  yield* dialogCallBody(h, 0x80eaea, PUT_GLOVE_AWAY, () => putGloveAwayCallSequence(h, events));
   yield* call(0x80eaed, STATUS_SETUP, true);
   yield () => {
     const runner = dataBankWord(mem, MEMBER_INDEX);
@@ -312,7 +320,7 @@ export function* statusScreenSequence(h, events, routines, entry = NATIVE_ENTRY)
     setWord(wram, DP_WINDOW_ATTRIBUTES, 0);
     load(ctx, 0);
   };
-  yield* call(0x80eb3a, OPEN_WINDOW);
+  yield* dialogCallBody(h, 0x80eb3a, OPEN_WINDOW, () => openWindowSequence(h, events));
   yield () => {
     const window = word(wram, 0);
     setWord(wram, STATUS_WINDOW, window);
@@ -427,7 +435,7 @@ export function* statusScreenSequence(h, events, routines, entry = NATIVE_ENTRY)
     load(ctx, 0);
   };
   if (!direct) {
-    yield* call(0x80eca8, OPEN_WINDOW);
+    yield* dialogCallBody(h, 0x80eca8, OPEN_WINDOW, () => openWindowSequence(h, events));
     yield () => {
       const window = word(wram, 0);
       load(ctx, window);
@@ -454,7 +462,7 @@ export function* statusScreenSequence(h, events, routines, entry = NATIVE_ENTRY)
       setWord(wram, DP_LIST_TOKEN_BANK, CODE_BANK);
       load(ctx, CODE_BANK);
     };
-    if (close) return yield* closeSequence(h, call);
+    if (close) return yield* closeSequence(h, events, call);
     if (!direct) {
       yield* call(0x80ecd0, PLAIN_MENU);
       yield () => {
@@ -489,13 +497,13 @@ export function* statusScreenSequence(h, events, routines, entry = NATIVE_ENTRY)
     load(ctx, window);
     setWord(wram, 0, window);
   };
-  yield* call(0x80ecf2, RELEASE_WINDOW);
-  return yield* closeSequence(h, call);
+  yield* dialogCallBody(h, 0x80ecf2, RELEASE_WINDOW, () => releaseWindowJsrSequence(h.a, events));
+  return yield* closeSequence(h, events, call);
 }
 
 // ECF5: the cleanup, the status window released, the mark cleared and the sound
 // restored; then the RTS.
-function* closeSequence(h, call) {
+function* closeSequence(h, events, call) {
   const { ctx } = h,
     { mem } = h.a,
     { wram } = mem;
@@ -505,7 +513,7 @@ function* closeSequence(h, call) {
     load(ctx, window);
     setWord(wram, 0, window);
   };
-  yield* call(0x80ecfd, RELEASE_WINDOW);
+  yield* dialogCallBody(h, 0x80ecfd, RELEASE_WINDOW, () => releaseWindowJsrSequence(h.a, events));
   yield () => {
     setWord(wram, MEMBER_MENU_ACTIVE, 0);
     ctx.a = APU_COMMAND_VOLUME_TARGET;

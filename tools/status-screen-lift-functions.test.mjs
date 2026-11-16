@@ -18,7 +18,7 @@ import {
   NATIVE_ENTRY,
   START_ENTRY,
   statusScreenSequence,
-} from '../src/game/status-screen.mjs';
+} from '../proof/caller/status-screen.mjs';
 import {
   DIALOG_END,
   GLOVE_TARGET_OBJECT,
