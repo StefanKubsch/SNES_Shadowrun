@@ -923,3 +923,9 @@ notices and direct/child task actions, preserving window release uploads.
 Both action exits directly compose the real pad refresh through the original
 JSR frames. Comparisons include invalid low bits and the soft-reset comparison
 boundary, asserting the resulting pressed word without adding a frame wait.
+
+### Block 4: action menu
+
+The glove action composes its real action menu through the original JSR frame,
+forwarding the renderer. Real callers compare Examine, Exit and cancel input,
+actual menu text/uploads and delivered task bits with the retained former chain.

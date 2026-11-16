@@ -1,3 +1,4 @@
+import { chooseActionSequence } from './action-menu.mjs';
 import { runPadPresses } from '../system/live-input-calls.mjs';
 import { putGloveAwayCall } from './window-release.mjs';
 // The action glove's buttons on an object (lifted from 80:BF3B; register-level
@@ -233,7 +234,7 @@ export function* gloveActionSequence(h, events, routines, renderBuffer = drawTex
   }
   if (path === 'menu') {
     // The menu returns the chosen action in A.
-    yield* call(CALL.menu);
+    yield* dialogCallBody(h, ...CALL.menu, () => chooseActionSequence(h, events, renderBuffer));
     let dialog = 0;
     yield () => {
       ctx.y = h.a.pullWord();

@@ -9,7 +9,16 @@ import { chooseActionSequence } from '../proof/caller/action-menu.mjs';
 import * as W from '../src/data/wram.mjs';
 import { TASK_WAIT, TASK_EVENTS, TASK_PREVIOUS } from '../src/vm/layout.mjs';
 
-function runAction(direct, budget, variant, glyphs, name = false, request = 0, held = 0) {
+function runAction(
+  direct,
+  budget,
+  variant,
+  glyphs,
+  name = false,
+  request = 0,
+  held = 0,
+  pads = null,
+) {
   let services;
   const far = variant === 'far' || variant === 'offer';
   const menu = variant === 'menu' || variant === 'offer';
@@ -37,7 +46,7 @@ function runAction(direct, budget, variant, glyphs, name = false, request = 0, h
       for (let n = 0; n <= W.NOTICE_WINDOW_LAST; n += 2) put(W.NOTICE_WINDOWS + n, 0xffff);
     },
     budget,
-    menu ? [0, W.PAD_B] : [],
+    pads ?? (menu ? [0, W.PAD_B] : []),
     glyphs,
     ({ h, events, routines, bind }) => {
       services = routines;
@@ -98,4 +107,17 @@ for (const budget of [1, 7])
         actual.wram[W.PAD_PRESSED] | (actual.wram[W.PAD_PRESSED + 1] << 8),
         held & 15 ? 0 : held,
       );
+    });
+
+for (const budget of [1, 7])
+  for (const [name, pads, action] of [
+    ['examine', [0x400, 0, 0x8000], 0x80],
+    ['cancel', [0x2000], 0],
+    ['exit', [0x8000], 0],
+  ])
+    test(`glove action menu choice: ${name}, budget ${budget}`, () => {
+      const actual = runAction(true, budget, 'menu', true, false, 0, 0, pads);
+      assert.deepEqual(actual, runAction(false, budget, 'menu', true, false, 0, 0, pads));
+      assert.equal(actual.wram[TASK_EVENTS] | (actual.wram[TASK_EVENTS + 1] << 8), 0x1000 | action);
+      assert.ok(actual.uploads.length > 0);
     });
