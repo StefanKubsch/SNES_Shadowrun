@@ -533,3 +533,10 @@ original random comparisons. [Caller comparisons](../tools/main-karma-caller.tes
 cover Exit, cancellation, both submenu choices and real default glyphs with
 budgets one and seven. Uploads are serviced; existing real NMI integrations
 retain hardware coverage. Every case retains zero-budget stability.
+
+### Block 2: blocked-save notice
+
+The save caller directly opens the blocked-save notice, prints its text, waits
+for confirmation and releases the window. Countdown zero, one and the largest
+positive word retain the blocked branch; captured text and real glyph cases
+compare independently at both budgets. Save eligibility and SRAM are unchanged.

@@ -1,7 +1,7 @@
 {
   "updated": "2026-11-16",
-  "focus": "Ten member/status phases implemented: decimal rendering, member spell windows/cleanup/native entry, item use/lists, and status windows/text/displays/submenus compose live callees directly. Former callers and original comparisons remain independent. Release and delivery state: HANDOFF.md.",
-  "next_step": "Continue scene and member caller composition with main/save/karma menus and remaining scene services. Preserve independent recorded and real integration comparisons. Complete ten focused-check commits, then one shared release and push. Shape editing and S-MIX remain deferred.",
+  "focus": "Main/save/karma caller composition batch in progress. Main menu windows and blocked-save notices compose directly. Former callers and original comparisons remain independent. Delivery state: HANDOFF.md.",
+  "next_step": "Finish ten complete main/save/karma phases with focused checks and individual commits, then one shared release and push. Preserve independent original and real glyph comparisons. Shape editing and S-MIX remain deferred.",
   "porting_resume": "188 original-form bytes remain: 93 retained code bytes and 95 unidentified data bytes. Recorded CPU reads, hardware-only observations and true data margins are distinguished in docs/ROM-CODE-AUDIT.md. Unknown bytes and unused graphics remain preserved; unrecorded paths can still report rom_byte_absent.",
   "open_issues": [
     "Examination: unreproduced report to watch during the final user test run. Its European cleanup condition is tested; other story routes remain unproved. A change requires a reproducible counterexample. See docs/BUGFIXES.md.",

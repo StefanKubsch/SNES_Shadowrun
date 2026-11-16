@@ -54,3 +54,38 @@ for (const budget of [1, 7])
     assert.deepEqual(actual, runMain(false, budget, pads, true));
     assert.ok(actual.uploads.length > 2);
   });
+
+function runBlocked(direct, budget, timer, realDrawing = false) {
+  let services;
+  return compareRun(
+    (h, events, renderer) =>
+      (direct ? directMain : formerMain).saveMenuSequence(
+        h,
+        events,
+        services,
+        direct ? renderer : undefined,
+      ),
+    direct,
+    ({ put }) => put(W.TIMER, timer),
+    budget,
+    [0, 0x8000],
+    realDrawing,
+    ({ routines }) => {
+      services = routines;
+    },
+  );
+}
+for (const budget of [1, 7])
+  for (const timer of [0, 1, 0x7fff])
+    test(`blocked save: timer ${timer}, budget ${budget}`, () => {
+      const actual = runBlocked(true, budget, timer);
+      assert.deepEqual(actual, runBlocked(false, budget, timer));
+      assert.equal(actual.input, 2);
+      assert.equal(actual.calls.filter((c) => c[0] === 'text').length, 1);
+    });
+for (const budget of [1, 7])
+  test(`blocked save default glyphs, budget ${budget}`, () => {
+    const actual = runBlocked(true, budget, 0, true);
+    assert.deepEqual(actual, runBlocked(false, budget, 0, true));
+    assert.ok(actual.uploads.length > 2);
+  });

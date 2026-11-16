@@ -19,6 +19,8 @@ import { dialogCallBody, nativeCallSequence } from '../system/native-call-contin
 import { openWindowSequence } from './window-open.mjs';
 import { releaseWindowJsrSequence } from './window-release.mjs';
 import { chooseFromMenuSequence } from './menu-choice.mjs';
+import { printTextSequence } from './text-print.mjs';
+import { waitForConfirmKeySequence } from './confirm-key.mjs';
 import { drawTextBufferSequence } from './text-draw.mjs';
 import { FOUR_SAVE_SLOTS, ORIGINAL_SAVE_SLOTS, saveGame, saveSlotCount } from './save-slots.mjs';
 import {
@@ -134,7 +136,7 @@ function* releaseMenuWindow(h, events, pc) {
 }
 
 // 80:CDD6: the save menu (see above). A sequence that ends with its RTS.
-export function* saveMenuSequence(h, events, routines) {
+export function* saveMenuSequence(h, events, routines, renderBuffer = drawTextBufferSequence) {
   const { ctx } = h,
     { mem } = h.a,
     { wram } = mem;
@@ -155,14 +157,14 @@ export function* saveMenuSequence(h, events, routines) {
     );
   };
   if (!stopped) {
-    yield* call(h, events, routines, 0x80ce53, OPEN_WINDOW);
+    yield* dialogCallBody(h, 0x80ce53, OPEN_WINDOW, () => openWindowSequence(h, events));
     yield () => {
       load(ctx, TEXT_SAVE_BLOCKED);
       setWord(wram, 2, TEXT_SAVE_BLOCKED);
     };
-    yield* call(h, events, routines, 0x80ce5b, TEXT);
-    yield* call(h, events, routines, 0x80ce5e, CONFIRM_KEY);
-    yield* call(h, events, routines, 0x80ce61, RELEASE_WINDOW);
+    yield* dialogCallBody(h, 0x80ce5b, TEXT, () => printTextSequence(h, events, renderBuffer));
+    yield* dialogCallBody(h, 0x80ce5e, CONFIRM_KEY, () => waitForConfirmKeySequence(h, events));
+    yield* dialogCallBody(h, 0x80ce61, RELEASE_WINDOW, () => releaseWindowJsrSequence(h.a, events));
     return yield* returnSequence(h);
   }
   const four = saveSlotCount(h.a) === FOUR_SAVE_SLOTS;
