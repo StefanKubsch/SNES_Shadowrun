@@ -238,3 +238,28 @@ These snapshots also protect the HDMA bytes inside the fixture's excluded CPU
 stack range. The actual game state and device writes are compared as before.
 No new hardware interpretation is introduced; the existing portrait contracts
 and real dialog integrations retain hardware coverage.
+
+## Modal menus and portraits: portrait uploads (2026-11-16)
+
+[portrait-upload.mjs](../src/game/portrait-upload.mjs) composes first and
+second portrait DMA jobs directly, with live completion waits. Main-upkeep
+no longer forwards a dialog helper table. The [former upload](../proof/caller/portrait-upload.mjs)
+retains recorded polling and injected DMA callees; the random original
+comparisons bind this implementation independently. The shared NMI channel
+setup remains unchanged. The unpacker's separate startup-interrupt fallback
+is outside this upload composition change and remains in the product.
+
+[portrait-upload-caller.test.mjs](../tools/portrait-upload-caller.test.mjs)
+compares first/second uploads with both mirror states and job counts zero,
+7FFF and FFFF, at both budgets. Completion can span three waits. Standalone
+DMA cases cover zero, 0800, 7FFF and already-negative destinations; a negative
+request skips the wait after channel setup as before. Each serviced request,
+palette index, full tile payload, device write and final game state is compared.
+The request and palette are captured explicitly before the fixture excludes
+CPU stack bytes, since both fields share that address range. The existing
+NMI comparisons retain palette-cycle channel restoration coverage.
+
+All five modal menu and portrait blocks have focused checks and individual
+commits. Their shared release result and delivery state are recorded in
+HANDOFF.md. Dialog orchestration, member portrait caller tables and the
+remaining register/service boundaries are subsequent work.

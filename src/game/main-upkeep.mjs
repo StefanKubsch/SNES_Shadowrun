@@ -349,10 +349,10 @@ export function runClosePortraitWindow(h, events) {
 }
 // 80:9022 and 80:905E, the portraits' uploads; the DMA job 80:8FF5 waits for the NMI.
 export function runUploadFirstPortrait(h, events) {
-  return drainNativeSequence(uploadFirstPortraitSequence(h, events, DIALOG_ROUTINES));
+  return drainNativeSequence(uploadFirstPortraitSequence(h, events));
 }
 export function runUploadSecondPortrait(h, events) {
-  return drainNativeSequence(uploadSecondPortraitSequence(h, events, DIALOG_ROUTINES));
+  return drainNativeSequence(uploadSecondPortraitSequence(h, events));
 }
 // 80:ADF4, the objects' tiles requested again after the dialog; it waits for the NMI.
 export function runReloadObjectTiles(h, events) {
@@ -375,19 +375,12 @@ NATIVE_CALL_CONTINUATIONS.set(runPortraitTiles, {
 for (const [run, sequence] of [
   [runOpenPortraitWindow, openPortraitWindowSequence],
   [runClosePortraitWindow, closePortraitWindowSequence],
-])
-  NATIVE_CALL_CONTINUATIONS.set(run, {
-    run,
-    create: ({ h, events }) => new NativeCallContinuation(h.a, sequence(h, events)),
-  });
-for (const [run, sequence] of [
   [runUploadFirstPortrait, uploadFirstPortraitSequence],
   [runUploadSecondPortrait, uploadSecondPortraitSequence],
 ])
   NATIVE_CALL_CONTINUATIONS.set(run, {
     run,
-    create: ({ h, events }) =>
-      new NativeCallContinuation(h.a, sequence(h, events, DIALOG_ROUTINES)),
+    create: ({ h, events }) => new NativeCallContinuation(h.a, sequence(h, events)),
   });
 // 81:EF47, the dialog's music change and its restore, called with JSL. The lag-free frame
 // model delivers no NMI in its sound driver handshakes. Recorded replays use the

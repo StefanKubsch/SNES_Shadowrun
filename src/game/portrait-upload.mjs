@@ -14,8 +14,8 @@
 // An unpacked portrait (7F:5250) has its eight rows of 100 bytes moved apart (80:8F20:
 // rows 1 to 7 by MVP within bank 7F, from the last one up). The first portrait then goes
 // to VRAM word 0000 with the palette start 91 (80:9022), the second to 0800 with A1
-// (80:905E), each by the NMI's DMA job 80:8FF5 (from the routine table through its JSR
-// frame). The first one also fills every fourth byte of the
+// (80:905E), each by the NMI's DMA job 80:8FF5, composed directly through its JSR
+// frame. The first one also fills every fourth byte of the
 // portraits' HDMA table 7E:3D08 with F0 (the lines without the sprite layer), clears the
 // OAM high table copy 7E:3F08 and sets the table's first two entries; the second one sets
 // its entries (the dialog flags' mirror bit 7 as bit 14 of the second), the OAM high
@@ -31,15 +31,14 @@
 // VRAM data port (mode 1, VMDATAL and VMDATAH, the address incremented after the high
 // byte; Book I 2-17-1, 2-27-14), puts the VRAM word address in X into the request
 // 7E:0140 and waits until the NMI has run the transfer and set the request negative. With
-// the lag-free frame model the NMI arrives at the wait's branch 80:901F; otherwise the
-// recorded observations or interrupts are replayed as by the register-level job. It
+// the lag-free frame model the NMI arrives at the wait's branch 80:901F.
+// The independent former caller retains recorded polls. It
 // leaves A the request word with its sign set and zero clear, X, Y, the carry and the
 // overflow unchanged, as the original.
-import { dialogCallSequence } from '../system/native-call-continuation.mjs';
+import { dialogCallBody } from '../system/native-call-continuation.mjs';
 import { sceneRuntime } from '../system/scene-runtime.mjs';
 import { nmiAtBranch } from '../system/frame-wait.mjs';
-import { lagFree } from '../system/main-wait-interrupt.mjs';
-import { unpackPortrait, waitWord } from '../system/native-dialog-portrait.mjs';
+import { unpackPortrait } from '../system/native-dialog-portrait.mjs';
 import { UNPACK_7F, unpackLongRegisters } from '../system/unpack.mjs';
 import {
   A1B0,
@@ -114,7 +113,6 @@ const TILE_BYTES = 0x1000,
     increment: 0x80900f,
     mode: 0x809014,
   }),
-  REQUEST_LOAD = 0x80901c,
   REQUEST_BRANCH = 0x80901f;
 const FIRST_UPLOAD = [0x80902b, 0x808ff5],
   SECOND_UPLOAD = [0x809067, 0x808ff5];
@@ -172,8 +170,8 @@ export function shiftPortraitRowsRoutine(h) {
   return h.rts();
 }
 
-// Upload the first portrait (80:9022), a sequence: routines the table with 80:8FF5.
-export function* uploadFirstPortraitSequence(h, events, routines) {
+// Upload the first portrait (80:9022), a sequence with a direct live DMA job.
+export function* uploadFirstPortraitSequence(h, events) {
   const { ctx } = h,
     { wram } = h.a.mem;
   yield () => {
@@ -181,7 +179,7 @@ export function* uploadFirstPortraitSequence(h, events, routines) {
     setWord(wram, PORTRAIT_PALETTE_START, ctx.a);
     ctx.x = 0;
   };
-  yield* dialogCallSequence(h, events, routines, ...FIRST_UPLOAD);
+  yield* dialogCallBody(h, ...FIRST_UPLOAD, () => uploadPortraitTilesSequence(h, events));
   yield () => {
     for (let x = HDMA_FILL_LAST; !(x & WORD_SIGN); x = (x - HDMA_STRIDE) & WORD_MASK)
       wram[HDMA_TABLE + x] = HDMA_FILL;
@@ -195,8 +193,8 @@ export function* uploadFirstPortraitSequence(h, events, routines) {
   return yield* rts(h);
 }
 
-// Upload the second portrait (80:905E), a sequence: routines the table with 80:8FF5.
-export function* uploadSecondPortraitSequence(h, events, routines) {
+// Upload the second portrait (80:905E), a sequence with a direct live DMA job.
+export function* uploadSecondPortraitSequence(h, events) {
   const { ctx } = h,
     { wram } = h.a.mem;
   yield () => {
@@ -204,7 +202,7 @@ export function* uploadSecondPortraitSequence(h, events, routines) {
     setWord(wram, PORTRAIT_PALETTE_START, ctx.a);
     ctx.x = SECOND_VRAM;
   };
-  yield* dialogCallSequence(h, events, routines, ...SECOND_UPLOAD);
+  yield* dialogCallBody(h, ...SECOND_UPLOAD, () => uploadPortraitTilesSequence(h, events));
   yield () => {
     setWord(wram, SECOND_FIRST[0], SECOND_FIRST[1]);
     const mirror = (word(wram, DIALOG_RECORD_FLAGS) & BYTE_SIGN) << MIRROR_SHIFT;
@@ -243,15 +241,13 @@ export function* uploadPortraitTilesSequence(h, events) {
     setWord(wram, PORTRAIT_DMA_REQUEST, ctx.x);
   };
   const done = (value) => (value & WORD_SIGN) !== 0;
-  if (!lagFree(events)) yield () => waitWord(h, events, REQUEST_LOAD, PORTRAIT_DMA_REQUEST, done);
-  else
-    for (let value; !done((value = word(wram, PORTRAIT_DMA_REQUEST)));) {
-      ctx.a = value;
-      const status =
-        (ctx.status & ~(FLAG_MEMORY_8BIT | FLAG_NEGATIVE | FLAG_ZERO)) |
-        (value === 0 ? FLAG_ZERO : 0);
-      yield* nmiAtBranch(h, events, REQUEST_BRANCH, status);
-    }
+  for (let value; !done((value = word(wram, PORTRAIT_DMA_REQUEST)));) {
+    ctx.a = value;
+    const status =
+      (ctx.status & ~(FLAG_MEMORY_8BIT | FLAG_NEGATIVE | FLAG_ZERO)) |
+      (value === 0 ? FLAG_ZERO : 0);
+    yield* nmiAtBranch(h, events, REQUEST_BRANCH, status);
+  }
   let result;
   yield () => {
     ctx.a = word(wram, PORTRAIT_DMA_REQUEST);

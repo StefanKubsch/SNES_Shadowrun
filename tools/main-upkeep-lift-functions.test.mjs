@@ -56,7 +56,6 @@ import {
   runOpenWindow,
   runReleaseNoticeWindows,
   runObjectMotion,
-  runPortraitTiles,
 } from '../src/game/main-upkeep.mjs';
 import { MAIN_MOTION_ROUTINES, moveAndAnimateObjects } from '../proof/replay/main-loop-motion.mjs';
 import { bcbeSequence, moveGlove } from '../proof/replay/native-glove.mjs';
@@ -86,7 +85,7 @@ import {
   uploadFirstPortraitSequence,
   uploadSecondPortraitSequence,
   uploadPortraitTilesSequence,
-} from '../src/game/portrait-upload.mjs';
+} from '../proof/caller/portrait-upload.mjs';
 import { reloadObjectTilesSequence } from '../src/game/object-tiles.mjs';
 import { chooseFromMenuSequence } from '../proof/caller/menu-choice.mjs';
 import { menuComposeSequence } from '../src/system/native-menu-compose.mjs';
@@ -1705,7 +1704,9 @@ registerCases(PORTRAIT_WINDOWS, {
 // job 80:8FF5: the request's polls are found by running the reference, which calls the
 // register-level DMA job, the lifted side the lifted one; dialog flags with and without
 // the mirror bit, job counts at the ends, VRAM addresses and requests of any word.
-const DMA_TABLE = new Map([[0x808ff5, runPortraitTiles]]);
+const DMA_TABLE = new Map([
+  [0x808ff5, (h, events) => drainNativeSequence(uploadPortraitTilesSequence(h, events))],
+]);
 const PORTRAITS = [
   {
     name: 'portrait tiles 80:8FF5',

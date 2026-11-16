@@ -38,7 +38,13 @@ import {
   DP_WINDOW_COLUMNS,
   DP_WINDOW_ROWS,
 } from '../../src/data/wram.mjs';
-import { BYTE_BITS, BYTE_MASK, WORD_BITS, WORD_MASK, WORD_SIGN } from '../../src/constants/bits.mjs';
+import {
+  BYTE_BITS,
+  BYTE_MASK,
+  WORD_BITS,
+  WORD_MASK,
+  WORD_SIGN,
+} from '../../src/constants/bits.mjs';
 import {
   FLAG_CARRY,
   FLAG_NEGATIVE,
