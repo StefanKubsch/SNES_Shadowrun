@@ -421,3 +421,12 @@ passing its renderer. Script execution and scene services retain their table.
 The former caller remains independent for original random comparisons. New
 caller cases cover empty and full spell lists, Exit, leader selection, cancel
 and the status entry for another runner, at both budgets and with real glyphs.
+
+## Member and scene batch: spell cleanup (2026-11-16)
+
+The member spell caller composes confirming input, notice release and status
+equipment rows directly. Its reduced service table retains script append,
+nested visit, window-list reset and portrait display. Caller cases independently
+record those scene services and cover script end, redraw, notices and their
+combinations. Both budgets compare consumed input, payloads, uploads and state.
+The fixture's notice points at its open window; scene allocation is not inferred.

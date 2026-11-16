@@ -17,12 +17,14 @@
 // (81:AEB0, 80:E4B3) and waits for a key when a notice window is open (80:F953,
 // 80:FF79). A negative row ends the dialog (7E:1D7B). The window is released (80:FA3E).
 // The entry 80:E68E (from the status screen) leaves 1F68 clear: no script runs and the
-// equipment window is drawn at the end (80:E9C5). The callees run through their frames
-// from the routine table, each with its own callees.
+// equipment window is drawn at the end (80:E9C5). Windows, selection and cleanup
+// compose through their original frames; script and scene services keep their table.
 import { dialogCallBody, nativeCallSequence } from '../system/native-call-continuation.mjs';
 import { openWindowSequence } from './window-open.mjs';
 import { chooseFromMenuSequence } from './menu-choice.mjs';
-import { releaseWindowJsrSequence } from './window-release.mjs';
+import { releaseWindowJsrSequence, releaseNoticeWindowsCallSequence } from './window-release.mjs';
+import { waitForConfirmKeySequence } from './confirm-key.mjs';
+import { equipmentRowsSequence } from './equipment-window.mjs';
 import { drawTextBufferSequence } from './text-draw.mjs';
 import { dataBankWord, setDataBankWord } from '../system/data-bank.mjs';
 import {
@@ -252,8 +254,8 @@ function* afterScriptSequence(h, events, routines) {
     ctx.x = x;
   };
   if (pending) {
-    yield* call(h, events, routines, CONFIRM_KEY);
-    yield* call(h, events, routines, RELEASE_NOTICES);
+    yield* dialogCallBody(h, ...CONFIRM_KEY, () => waitForConfirmKeySequence(h, events));
+    yield* dialogCallBody(h, ...RELEASE_NOTICES, () => releaseNoticeWindowsCallSequence(h, events));
   }
 }
 
@@ -348,7 +350,10 @@ export function* spellMenuSequence(
     load(ctx, runs);
     equipment = runs === 0;
   };
-  if (equipment) yield* call(h, events, routines, SHOW_EQUIPMENT);
+  if (equipment)
+    yield* dialogCallBody(h, ...SHOW_EQUIPMENT, () =>
+      equipmentRowsSequence(h, events, renderBuffer),
+    );
   return yield* returnSequence(h);
 }
 

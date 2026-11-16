@@ -515,13 +515,12 @@ NATIVE_CALL_CONTINUATIONS.set(runMemberPortrait, {
 // The lifted spell menu 80:F254 with the lifted window, plain menu, releases, portrait,
 // equipment window, key wait, window list and script append; the visit 80:C1CA is the
 // script VM's nested round.
-const SPELL_MENU_ROUTINES = new Map(LIVE_MENU_ROUTINES)
-  .set(0x80f963, runOpenWindow)
-  .set(0x80a6c7, runPlainMenu)
-  .set(0x80fa3e, runReleaseWindow)
-  .set(0x80ff79, runReleaseNoticeWindows)
-  .set(0x80e4b3, runMemberPortrait)
-  .set(0x80e9c5, runEquipmentRows);
+const SPELL_MENU_ROUTINES = new Map([
+  [0x80c34a, (h) => appendScriptTaskCall(h.a)],
+  [0x80c1ca, runHeadVisit],
+  [0x81aeb0, runResetWindowList],
+  [0x80e4b3, runMemberPortrait],
+]);
 export const liftedSpellMenuSequence = (h, events) =>
   openSpellMenuSequence(h, events, SPELL_MENU_ROUTINES);
 // The lifted party status 80:ED3C with the lifted glove and window releases, window,
@@ -640,12 +639,7 @@ for (const entry of Object.keys(KARMA_LISTS).map(Number))
 // the confirm key wait, the window list from the first window, the object creation and
 // the script task append 80:C34A (the spell menu's; it leaves A the new task, which
 // the visit 80:C1CA reads).
-for (const table of [
-  SPELL_MENU_ROUTINES,
-  ITEM_ROUTINES,
-  STATUS_SCREEN_LIFT_ROUTINES,
-  MAIN_MENU_LIFT_ROUTINES,
-])
+for (const table of [ITEM_ROUTINES, STATUS_SCREEN_LIFT_ROUTINES, MAIN_MENU_LIFT_ROUTINES])
   table
     .set(0x80a6ad, runNumberedMenu)
     .set(0x80a6b8, runNumberedMenuAt)
