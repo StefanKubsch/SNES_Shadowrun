@@ -45,7 +45,12 @@ function runUse(module, direct, actor, effect, budget, realDrawing = false) {
         });
       bind(0x80e9c5, () => equipmentRowsSequence(h, events, routines));
       routines.set(0x81aeb0, runResetWindowList);
-      return configureMemberPortrait(side);
+      const finish = configureMemberPortrait(side);
+      if (direct)
+        services = new Map(
+          [...routines].filter(([target]) => [0x80a835, 0x80c1ca].includes(target)),
+        );
+      return finish;
     },
   );
 }
@@ -161,6 +166,10 @@ function runItemMenu(module, direct, entry, variant, budget, realDrawing = false
         else put(heldRecord + STATE_HOLDER, 0);
         return callee.rts();
       });
+      if (direct)
+        services = new Map(
+          [...routines].filter(([target]) => [0x80a835, 0x80c1ca].includes(target)),
+        );
     },
   );
 }
@@ -184,4 +193,13 @@ for (const budget of [1, 7])
     const actual = runItemMenu(directItem, true, 0x80e572, 'rebuild', budget, true);
     assert.deepEqual(actual, runItemMenu(formerItem, false, 0x80e572, 'rebuild', budget, true));
     assert.ok(actual.uploads.some(([pc]) => pc === 0x81accc));
+  });
+
+for (const budget of [1, 7])
+  test(`item redraw with live glyphs, budget ${budget}`, () => {
+    const effect = { redraw: true, notice: true };
+    const actual = runUse(directItem, true, 7, effect, budget, true);
+    assert.deepEqual(actual, runUse(formerItem, false, 7, effect, budget, true));
+    assert.ok(actual.uploads.some(([pc]) => pc === 0x81accc));
+    assert.equal(actual.calls.filter((c) => c[0] === 'portrait upload').length, 2);
   });

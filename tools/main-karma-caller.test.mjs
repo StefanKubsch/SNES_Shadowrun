@@ -39,7 +39,7 @@ function runMain(direct, budget, pads, realDrawing = false, liveEntry = false) {
         : (direct ? directMain : formerMain).mainMenuSequence(
             h,
             events,
-            services,
+            ...(!direct ? [services] : []),
             direct ? renderer : undefined,
           ),
     direct,
@@ -77,9 +77,6 @@ function runMain(direct, budget, pads, realDrawing = false, liveEntry = false) {
       bind(0x80ef82, () => formerKarma.karmaLineSequence(h, events, routines));
       bind(0x80cecb, () => raiseStateCountSequence(h, events));
       routines.set(0x80cf2e, (callee) => raiseMemberMagicPointsReference(callee.a, false));
-
-      if (direct)
-        services = new Map([...routines].filter(([target]) => [0x80c46e].includes(target)));
     },
   );
 }
@@ -113,7 +110,7 @@ function runBlocked(direct, budget, timer, realDrawing = false) {
       (direct ? directMain : formerMain).saveMenuSequence(
         h,
         events,
-        services,
+        ...(!direct ? [services] : []),
         direct ? renderer : undefined,
       ),
     direct,
@@ -141,16 +138,24 @@ for (const budget of [1, 7])
     assert.ok(actual.uploads.length > 2);
   });
 
-function runSave(direct, budget, slot, four = false, realDrawing = false) {
-  let services, sram;
+function runSave(direct, budget, slot, four = false, realDrawing = false, voices = 0, token = 0) {
+  let services, sram, saveSound;
   const pads =
     slot < 0 ? [0x2000] : [...Array.from({ length: slot }, () => [0x400, 0]).flat(), 0x8000];
   const result = compareRun(
     (h, e, r) =>
-      (direct ? directMain : formerMain).saveMenuSequence(h, e, services, direct ? r : undefined),
+      (direct ? directMain : formerMain).saveMenuSequence(
+        h,
+        e,
+        ...(!direct ? [services] : []),
+        direct ? r : undefined,
+      ),
     direct,
     ({ put, mem, a }) => {
       put(W.TIMER, 0x8000);
+      mem.wram[W.SOUND_VOICE_MASK] = voices;
+      mem.wram[W.APU_COMMAND_TOKEN] = token;
+      saveSound = mem.read16(0x80c4b3 + 0x36) & 0xff;
       mem.sram = new Uint8Array(four ? 0x4000 : 0x2000).fill(0xa5);
       sram = mem.sram;
       a.vm.gameplay = { fourSaveSlots: four };
@@ -164,7 +169,7 @@ function runSave(direct, budget, slot, four = false, realDrawing = false) {
       services = routines;
     },
   );
-  return { ...result, sram: sram.slice() };
+  return { ...result, sram: sram.slice(), saveSound };
 }
 for (const budget of [1, 7])
   for (const four of [false, true])
@@ -176,6 +181,7 @@ for (const budget of [1, 7])
           occupiedSlots(actual.sram),
           Array.from({ length: four ? 4 : 2 }, (_, n) => n === slot - 1),
         );
+        assert.equal(actual.writes.includes(`8514,${0xff00 | actual.saveSound},2`), slot > 0);
         if (slot <= 0) assert.ok(actual.sram.every((v) => v === 0xa5));
       });
 for (const budget of [1, 7])
@@ -568,3 +574,15 @@ for (const budget of [1, 7])
           assert.deepEqual(actual, runKarma('karmaMenuSequence', false, budget, prepare, [0x2000]));
           assert.equal(actual.wram[0x6202], hasRecord ? maximum : count);
         });
+
+for (const budget of [1, 7])
+  for (const voices of [0, 255])
+    for (const token of [0xfe, 0xff])
+      test(`save sound: voices ${voices}, token ${token}, budget ${budget}`, () => {
+        const actual = runSave(true, budget, 1, false, false, voices, token);
+        assert.deepEqual(actual, runSave(false, budget, 1, false, false, voices, token));
+        assert.ok(actual.writes.includes(`8514,${0xff00 | actual.saveSound},2`));
+        const commands = actual.writes.filter((write) => write.startsWith('8512,')).length;
+        assert.equal(actual.wram[W.APU_COMMAND_TOKEN], (token + commands) & 0xff);
+        assert.equal(actual.wram[W.SOUND_VOICE_MASK], 255);
+      });

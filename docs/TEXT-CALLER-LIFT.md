@@ -710,3 +710,20 @@ the retained resource caller and retained window list. Purchase cases assert
 the actual count refill after the maximum wraps from 250 to four; full routes
 assert health and payment together. Additional cases cover zero/max health,
 counts below and above the limit and absent object records at both budgets.
+
+### Block 10: save sound and final menu entry
+
+Save directly composes its established sound-effect routine through the original
+JSR frame. Main/save/karma entry points now receive only their renderer; main-upkeep
+no longer allocates a menu service table. The retained callers keep dispatch and
+real sound callees, with the existing register-level audio comparisons unchanged.
+All save slots assert the actual save-sound parameter only after a successful
+save; Exit/cancel preserve SRAM and omit that sound. Voice-mask reuse and command
+token wrap compare at both budgets. SRAM format, sound values and frame policy
+are unchanged. The final caller checks supply only surviving script/scene
+services to member and status callers, preventing hidden menu-table fallback.
+
+All ten phases have focused-check commits. Shared release and delivery results
+belong in HANDOFF.md. Member script append, object creation, nested visits and
+status scene closing remain explicit services. Shape editing and S-MIX remain
+deferred.

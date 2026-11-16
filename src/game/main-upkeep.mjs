@@ -558,12 +558,9 @@ const runStatusScreen = sequenceRun((h, events) =>
 // The lifted status screen as the script native 80:EA6E runs it with lag-free frames.
 export const liftedStatusScreenSequence = (h, events) =>
   statusScreenSequence(h, events, STATUS_SCREEN_LIFT_ROUTINES, NATIVE_ENTRY);
-// Main/save/karma menus compose windows, text, selection and submenus directly.
-// Sound and runner resource refill remain explicit services.
-const MAIN_MENU_SERVICES = new Map([[0x80c46e, playSoundEffectRoutine]]);
+// Main/save/karma menus compose windows, text, selection, sound and refills directly.
 // The lifted main menu as the script native 80:CE6D runs it with lag-free frames.
-export const liftedMainMenuSequence = (h, events) =>
-  mainMenuSequence(h, events, MAIN_MENU_SERVICES);
+export const liftedMainMenuSequence = (h, events) => mainMenuSequence(h, events);
 // The lifted player control 80:E014 with the lifted party status, window, text,
 // release, glove release, turn, animation selection 80:A985, status screen and key
 // wait.

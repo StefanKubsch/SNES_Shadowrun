@@ -150,6 +150,12 @@ function runStatus(
       bind(STATUS_ENTRY, () => spellMenuSequence(h, events, routines, STATUS_ENTRY));
       bind(0x80e834, () => skillsSequence(h, events, routines));
       bind(0x80e8c8, () => notesSequence(h, events, routines));
+      if (direct)
+        services = new Map(
+          [...routines].filter(([target]) =>
+            [0x80c34a, 0x80a835, 0x80c1ca, 0x8092c5].includes(target),
+          ),
+        );
     },
   );
   result.wram.fill(0, 0x1e80, 0x1ef0);

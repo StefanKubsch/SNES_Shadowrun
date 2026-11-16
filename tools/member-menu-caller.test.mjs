@@ -85,7 +85,12 @@ function runMember(
       }
       bind(0x80e9c5, () => equipmentRowsSequence(h, events, routines));
       routines.set(0x81aeb0, runResetWindowList);
-      return configureMemberPortrait(side);
+      const finish = configureMemberPortrait(side);
+      if (direct)
+        services = new Map(
+          [...routines].filter(([target]) => [0x80c34a, 0x80c1ca].includes(target)),
+        );
+      return finish;
     },
   );
 }
@@ -190,3 +195,36 @@ for (const budget of [1, 7])
         );
         assert.equal(actual.wram[W.MEMBER_INDEX] | (actual.wram[W.MEMBER_INDEX + 1] << 8), 0);
       });
+
+for (const budget of [1, 7])
+  test(`member spell redraw with live glyphs, budget ${budget}`, () => {
+    const pads = [0x400, 0, 0x8000, 0, 0x8000],
+      script = { redraw: true, notice: true };
+    const actual = runMember(
+      directMember,
+      true,
+      0x80e693,
+      [1, 0, 0, 0, 0, 0],
+      false,
+      pads,
+      budget,
+      true,
+      script,
+    );
+    assert.deepEqual(
+      actual,
+      runMember(
+        formerMember,
+        false,
+        0x80e693,
+        [1, 0, 0, 0, 0, 0],
+        false,
+        pads,
+        budget,
+        true,
+        script,
+      ),
+    );
+    assert.ok(actual.uploads.some(([pc]) => pc === 0x81accc));
+    assert.equal(actual.calls.filter((c) => c[0] === 'portrait upload').length, 2);
+  });

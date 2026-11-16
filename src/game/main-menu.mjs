@@ -14,11 +14,12 @@
 // main menu's window; a slot n saves slot n - 1 (81:B17D, saveGame of save-slots.mjs)
 // and plays sound 36 (80:C46E with FFFF, FF, FF). The window is released.
 // Main menu windows and selection compose directly through their original frames.
-// Main and save menus compose directly; sound remains an explicit service.
-import { dialogCallBody, nativeCallSequence } from '../system/native-call-continuation.mjs';
+// Main and save menus also compose their sound and resource refills directly.
+import { dialogCallBody, segmentSequence } from '../system/native-call-continuation.mjs';
 import { openWindowSequence } from './window-open.mjs';
 import { releaseWindowJsrSequence } from './window-release.mjs';
 import { chooseFromMenuSequence } from './menu-choice.mjs';
+import { playSoundEffectRoutine } from '../apu/sound-effect.mjs';
 import { karmaMenuSequence } from './karma-menu.mjs';
 import { printTextSequence } from './text-print.mjs';
 import { waitForConfirmKeySequence } from './confirm-key.mjs';
@@ -94,8 +95,6 @@ const load = (ctx, value) => {
   setFlag(ctx, FLAG_ZERO, value === 0);
 };
 const negative = (value) => (value & WORD_SIGN) !== 0;
-const call = (h, events, routines, pc, target) =>
-  nativeCallSequence(h, events, routines, pc, target, false, false);
 function* returnSequence(h) {
   let result;
   yield () => {
@@ -137,7 +136,7 @@ function* releaseMenuWindow(h, events, pc) {
 }
 
 // 80:CDD6: the save menu (see above). A sequence that ends with its RTS.
-export function* saveMenuSequence(h, events, routines, renderBuffer = drawTextBufferSequence) {
+export function* saveMenuSequence(h, events, renderBuffer = drawTextBufferSequence) {
   const { ctx } = h,
     { mem } = h.a,
     { wram } = mem;
@@ -211,13 +210,16 @@ export function* saveMenuSequence(h, events, routines, renderBuffer = drawTextBu
     load(ctx, SAVE_SOUND);
     setWord(wram, 2, SAVE_SOUND);
   };
-  if (slot && !negative(slot)) yield* call(h, events, routines, 0x80ce31, SOUND_EFFECT);
+  if (slot && !negative(slot))
+    yield* dialogCallBody(h, 0x80ce31, SOUND_EFFECT, () =>
+      segmentSequence(() => playSoundEffectRoutine(h)),
+    );
   yield* releaseMenuWindow(h, events, 0x80ce39);
   return yield* returnSequence(h);
 }
 
 // 80:CE6D: the main menu (see above). A sequence that ends with its RTS.
-export function* mainMenuSequence(h, events, routines, renderBuffer = drawTextBufferSequence) {
+export function* mainMenuSequence(h, events, renderBuffer = drawTextBufferSequence) {
   const { ctx } = h,
     { mem } = h.a,
     { wram } = mem,
@@ -251,7 +253,7 @@ export function* mainMenuSequence(h, events, routines, renderBuffer = drawTextBu
     if (!chosen || negative(chosen)) break;
     if (chosen === SAVE_ROW)
       yield* dialogCallBody(h, 0x80ceb8, SAVE_MENU, () =>
-        saveMenuSequence(h, events, routines, renderBuffer),
+        saveMenuSequence(h, events, renderBuffer),
       );
     else
       yield* dialogCallBody(h, 0x80cebd, KARMA_MENU, () =>

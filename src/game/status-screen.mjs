@@ -20,7 +20,7 @@
 // 7E:1D63 or the menu ends; 1F64 set runs the first submenu once and keeps no menu
 // window. At the end 80:92C5, the windows are released, 1F62 is cleared and the sound
 // restored (7F7F). Menus, text and displays compose through their original
-// frames; sound, colour setup and scene cleanup keep their service interface.
+// frames, including sound and colour setup; scene cleanup keeps its service interface.
 import {
   nativeCallSequence,
   dialogCallBody,
