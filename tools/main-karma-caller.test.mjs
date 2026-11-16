@@ -10,6 +10,7 @@ import * as formerKarma from '../proof/caller/karma-menu.mjs';
 import { requestTileClearSequence } from '../proof/caller/window-open.mjs';
 import { chooseFromMenuSequence as formerChoose } from '../proof/caller/menu-choice.mjs';
 import { KARMA_LISTS } from '../src/system/native-main-menu.mjs';
+
 import * as W from '../src/data/wram.mjs';
 
 function runMain(direct, budget, pads, realDrawing = false) {
@@ -311,3 +312,49 @@ for (const budget of [1, 7])
       );
       assert.ok(actual.uploads.length > 2);
     });
+
+for (const budget of [1, 7])
+  for (const entry of Object.keys(KARMA_LISTS).map(Number))
+    for (const variant of ['paid', 'insufficient', 'limit'])
+      test(`karma list purchase: ${entry}, ${variant}, budget ${budget}`, () => {
+        const list = KARMA_LISTS[entry];
+        let pointer, oldValue;
+        const paid = variant !== 'insufficient';
+        const prepare = (side) => {
+          listFixture(entry, 'empty')(side);
+          const { put, mem } = side;
+          pointer = mem.read16(0x800000 + list.pointers);
+          oldValue = variant === 'limit' ? mem.read16(0x800000 + list.limits) - 1 : 1;
+          mem.wram[pointer] = oldValue;
+          mem.wram[W.JAKE_COUNT_MAX] = 250;
+          put(W.KARMA, paid ? oldValue * 8 : oldValue * 8 - 1);
+        };
+        const pads = [0x400, 0, 0x8000, ...(paid ? [] : [0, 0x8000]), 0, 0x2000];
+        const actual = runKarma('karmaListSequence', true, budget, prepare, pads, false, entry);
+        assert.deepEqual(
+          actual,
+          runKarma('karmaListSequence', false, budget, prepare, pads, false, entry),
+        );
+        assert.equal(actual.wram[pointer], oldValue + (paid ? 1 : 0));
+        assert.equal(
+          actual.wram[W.KARMA] | (actual.wram[W.KARMA + 1] << 8),
+          paid ? 0 : oldValue * 8 - 1,
+        );
+        assert.equal(
+          actual.calls.filter((c) => c[0] === 'refill').length,
+          paid && pointer === W.JAKE_BODY ? 1 : 0,
+        );
+        assert.equal(actual.wram[W.JAKE_COUNT_MAX], paid && pointer === W.JAKE_BODY ? 4 : 250);
+        assert.equal(actual.input, pads.length);
+      });
+for (const budget of [1, 7])
+  test(`karma list purchase default glyphs, budget ${budget}`, () => {
+    const entry = 0x80f0f3,
+      prepare = listFixture(entry, 'all'),
+      pads = [0x400, 0, 0x8000, 0, 0x2000];
+    const actual = runKarma('karmaListSequence', true, budget, prepare, pads, true, entry);
+    assert.deepEqual(
+      actual,
+      runKarma('karmaListSequence', false, budget, prepare, pads, true, entry),
+    );
+  });

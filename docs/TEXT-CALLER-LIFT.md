@@ -579,3 +579,11 @@ from the numbered rows with an explicit renderer. Empty lists, values at their
 limits, sparse and full lists compare against independent retained lists at
 both budgets; the terminator and input count are asserted. All three also run
 with default glyphs. Purchase, balance refresh and Body refill remain services.
+
+### Block 8: karma list purchases
+
+Lists call purchase and balance refresh directly through their original frames.
+Paid, insufficient and limit-reaching upgrades cover each list, cursor rebuilding,
+failed-pointer clearing and Body's count refill. The Body case starts at count
+250 and checks its byte wrap to four. Both budgets and real glyphs compare
+against the retained purchase/line composition; resource refill stays a service.

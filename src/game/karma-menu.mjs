@@ -348,7 +348,9 @@ export function* karmaListSequence(
       load(ctx, pointer);
       setWord(wram, DP_KARMA_VALUE_POINTER, pointer);
     };
-    yield* call(h, events, routines, list.pcs.buy, BUY_STEP);
+    yield* dialogCallBody(h, list.pcs.buy, BUY_STEP, () =>
+      buyStepSequence(h, events, renderBuffer),
+    );
     if (list.body) {
       let body;
       yield () => {
@@ -370,7 +372,9 @@ export function* karmaListSequence(
       };
       if (body) yield* call(h, events, routines, list.pcs.refill, RAISE_STATE_COUNT);
     }
-    yield* call(h, events, routines, list.pcs.karma, KARMA_LINE);
+    yield* dialogCallBody(h, list.pcs.karma, KARMA_LINE, () =>
+      karmaLineSequence(h, events, renderBuffer),
+    );
   }
 }
 
