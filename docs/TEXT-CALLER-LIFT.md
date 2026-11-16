@@ -555,3 +555,11 @@ The main menu calls its save and karma sequences directly through the original
 frames. The caller comparisons now enter the actual save/karma menus, return
 and exit the main menu; the former side binds independent retained submenus.
 Karma balance drawing is real; resource refill remains a recorded service here.
+
+### Block 5: karma balance
+
+Karma balance directly composes tile clearing, cursor placement, text and number
+printing. The displayed value remains the original karma word divided by eight.
+Cases at the division and decimal boundaries, zero and the maximum word compare
+captured payloads and actual default glyphs at both budgets. The original random
+karma comparisons now explicitly use the independent former caller.

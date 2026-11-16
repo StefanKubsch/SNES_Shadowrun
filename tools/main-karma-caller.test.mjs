@@ -5,8 +5,10 @@ import * as directMain from '../src/game/main-menu.mjs';
 import * as formerMain from '../proof/caller/main-menu.mjs';
 import { installPortExtension } from '../src/data/port-extension.mjs';
 import { occupiedSlots } from '../src/game/save-slots.mjs';
+import * as directKarma from '../src/game/karma-menu.mjs';
 import * as formerKarma from '../proof/caller/karma-menu.mjs';
 import { requestTileClearSequence } from '../proof/caller/window-open.mjs';
+import { chooseFromMenuSequence as formerChoose } from '../proof/caller/menu-choice.mjs';
 import * as W from '../src/data/wram.mjs';
 
 function runMain(direct, budget, pads, realDrawing = false) {
@@ -142,4 +144,61 @@ for (const budget of [1, 7])
     const actual = runSave(true, budget, 4, true, true);
     assert.deepEqual(actual, runSave(false, budget, 4, true, true));
     assert.equal(occupiedSlots(actual.sram)[3], true);
+  });
+
+function runKarma(name, direct, budget, prepare, pads = [], realDrawing = false, entry) {
+  let services;
+  return compareRun(
+    (h, e, r) => {
+      const m = direct ? directKarma : formerKarma;
+      return name === 'karmaMenuSequence' || name === 'karmaListSequence'
+        ? m[name](
+            h,
+            e,
+            services,
+            ...(name === 'karmaListSequence'
+              ? [entry, direct ? r : undefined]
+              : [direct ? r : undefined]),
+          )
+        : m[name](h, e, direct ? r : services);
+    },
+    direct,
+    prepare,
+    budget,
+    pads,
+    realDrawing,
+    ({ routines, bind, h, events, calls }) => {
+      services = routines;
+      bind(0x80fa67, () => requestTileClearSequence(h, events));
+      bind(0x80a6b8, () => formerChoose(h, events, routines, 0x80a6b8));
+      bind(0x80ef82, () => formerKarma.karmaLineSequence(h, events, routines));
+      bind(0x80f006, () => formerKarma.buyStepSequence(h, events, routines));
+      for (const target of [0x80cecb, 0x80cf2e])
+        routines.set(target, (callee) => {
+          calls.push(['refill', target, callee.a.mem.read16(0), callee.a.mem.read16(2)]);
+          return callee.rts();
+        });
+    },
+  );
+}
+for (const budget of [1, 7])
+  for (const karma of [0, 7, 8, 79, 80, 799, 800, 0xffff])
+    test(`karma balance: ${karma}, budget ${budget}`, () => {
+      const prepare = ({ put }) => {
+        put(W.KARMA, karma);
+        put(W.KARMA_BALANCE_WINDOW, 0);
+      };
+      const actual = runKarma('karmaLineSequence', true, budget, prepare);
+      assert.deepEqual(actual, runKarma('karmaLineSequence', false, budget, prepare));
+      assert.equal(
+        actual.wram[W.DP_KARMA_DISPLAY] | (actual.wram[W.DP_KARMA_DISPLAY + 1] << 8),
+        karma >>> 3,
+      );
+    });
+for (const budget of [1, 7])
+  test(`karma balance default glyphs, budget ${budget}`, () => {
+    const prepare = ({ put }) => put(W.KARMA, 0xffff);
+    const actual = runKarma('karmaLineSequence', true, budget, prepare, [], true);
+    assert.deepEqual(actual, runKarma('karmaLineSequence', false, budget, prepare, [], true));
+    assert.ok(actual.uploads.length > 1);
   });

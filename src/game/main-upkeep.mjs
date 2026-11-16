@@ -587,7 +587,7 @@ const MAIN_MENU_LIFT_ROUTINES = new Map(LIVE_MENU_ROUTINES)
   .set(0x80bcb2, runPutGloveAway);
 MAIN_MENU_LIFT_ROUTINES.set(
   0x80ef82,
-  sequenceRun((h, events) => karmaLineSequence(h, events, MAIN_MENU_LIFT_ROUTINES)),
+  sequenceRun((h, events) => karmaLineSequence(h, events)),
 )
   .set(
     0x80f006,

@@ -25,7 +25,7 @@ import {
   karmaLineSequence,
   karmaListSequence,
   karmaMenuSequence,
-} from '../src/game/karma-menu.mjs';
+} from '../proof/caller/karma-menu.mjs';
 import { DP_CURSOR_ROW, DP_KARMA_SELECTION, KARMA } from '../src/data/wram.mjs';
 import { drainNativeSequence } from '../src/system/native-call-continuation.mjs';
 

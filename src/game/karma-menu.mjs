@@ -30,7 +30,15 @@
 // 80:FE69, number 80:FD80, key wait 80:F953, release 80:FA3E, numbered menu 80:A6B8,
 // state count 80:CECB and the line and purchase above) run through their frames from
 // the routine table.
-import { nativeCallSequence } from '../system/native-call-continuation.mjs';
+import {
+  dialogCallBody,
+  segmentSequence,
+  nativeCallSequence,
+} from '../system/native-call-continuation.mjs';
+import { requestTileClearSequence } from './window-open.mjs';
+import { setTextCursorRoutine, printNumberSequence } from './window-text.mjs';
+import { printTextSequence } from './text-print.mjs';
+import { drawTextBufferSequence } from './text-draw.mjs';
 import { KARMA_LISTS, KARMA_WINDOWS } from '../system/native-main-menu.mjs';
 import { TEXT_EXIT } from '../data/port-extension.mjs';
 import {
@@ -156,7 +164,7 @@ const valueAddress = (wram) =>
   (word(wram, DP_KARMA_VALUE_POINTER) | (wram[DP_KARMA_VALUE_BANK] << WORD_BITS)) & LONG_MASK;
 
 // 80:EF82: the karma line (see above). A sequence that ends with its RTS.
-export function* karmaLineSequence(h, events, routines) {
+export function* karmaLineSequence(h, events, renderBuffer = drawTextBufferSequence) {
   const { ctx } = h,
     { mem } = h.a,
     { wram } = mem;
@@ -165,23 +173,23 @@ export function* karmaLineSequence(h, events, routines) {
     load(ctx, window);
     setWord(wram, 0, window);
   };
-  yield* call(h, events, routines, 0x80ef87, REDRAW_WINDOW);
+  yield* dialogCallBody(h, 0x80ef87, REDRAW_WINDOW, () => requestTileClearSequence(h, events));
   yield () => {
     setWord(wram, 2, 0);
     setWord(wram, DP_CURSOR_ROW, 0);
   };
-  yield* call(h, events, routines, 0x80ef8e, CURSOR);
+  yield* dialogCallBody(h, 0x80ef8e, CURSOR, () => segmentSequence(() => setTextCursorRoutine(h)));
   yield () => {
     load(ctx, TEXT_KARMA);
     setWord(wram, 2, TEXT_KARMA);
   };
-  yield* call(h, events, routines, 0x80ef96, TEXT);
+  yield* dialogCallBody(h, 0x80ef96, TEXT, () => printTextSequence(h, events, renderBuffer));
   yield () => {
     load(ctx, KARMA_NUMBER_COLUMN);
     setWord(wram, 2, KARMA_NUMBER_COLUMN);
     setWord(wram, DP_CURSOR_ROW, 0);
   };
-  yield* call(h, events, routines, 0x80efa0, CURSOR);
+  yield* dialogCallBody(h, 0x80efa0, CURSOR, () => segmentSequence(() => setTextCursorRoutine(h)));
   yield () => {
     const karma = mem.read16(WRAM + KARMA),
       shown = karma >>> KARMA_SHIFT;
@@ -190,7 +198,7 @@ export function* karmaLineSequence(h, events, routines) {
     setWord(wram, DP_KARMA_DISPLAY, shown);
     setWord(wram, 2, shown);
   };
-  yield* call(h, events, routines, 0x80efae, NUMBER);
+  yield* dialogCallBody(h, 0x80efae, NUMBER, () => printNumberSequence(h, events, renderBuffer));
   return yield* returnSequence(h);
 }
 
