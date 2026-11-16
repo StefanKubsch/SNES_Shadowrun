@@ -26,6 +26,7 @@
 import { dialogCallBody, segmentSequence } from '../system/native-call-continuation.mjs';
 import { releaseNameWindowCallSequence } from './window-release.mjs';
 import { routineCall } from '../script/native-glove-target-support.mjs';
+import { openWindowSequence } from './window-open.mjs';
 import { measureTextWidthRoutine } from './text-width.mjs';
 import { GLOVE_KIND_SPELL } from '../script/native-glove-crosshair-limits.mjs';
 import { taskStop } from '../system/task-stop.mjs';
@@ -349,7 +350,7 @@ export function* objectSearchSequence(h, events, routines) {
     ctx.a = WINDOW_ATTRIBUTES;
     math.apply(ctx, WINDOW_ATTRIBUTES);
   };
-  yield* routineCall(routines, events, h, WINDOW_CALL, WINDOW_TARGET);
+  yield* dialogCallBody(h, WINDOW_CALL, WINDOW_TARGET, () => openWindowSequence(h, events));
   yield () => {
     setWord(wram, GLOVE_NAME_WINDOW, word(wram, DP_TEXT));
     const text = a.pullWord();

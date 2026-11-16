@@ -50,7 +50,6 @@ import {
   runHitShake,
   runNoticeTimeouts,
   runPaletteCycles,
-  runGloveMove,
   runPutGloveAway,
   runPrintNumber,
   runPrintText,
@@ -60,7 +59,8 @@ import {
 } from '../src/game/main-upkeep.mjs';
 import { MAIN_MOTION_ROUTINES, moveAndAnimateObjects } from '../proof/replay/main-loop-motion.mjs';
 import { bcbeSequence, moveGlove } from '../proof/replay/native-glove.mjs';
-import { objectSearchSequence } from '../src/game/object-search.mjs';
+import { objectSearchSequence } from '../proof/caller/object-search.mjs';
+import { gloveMoveSequence } from '../proof/caller/glove-move.mjs';
 import { stepAnimation } from '../src/game/object-animation.mjs';
 import { stepObjectAnimation } from '../src/system/native-scene-tiles.mjs';
 import { drainNativeSequence } from '../src/system/native-call-continuation.mjs';
@@ -603,7 +603,7 @@ const GLOVE_MOVE = {
     Object.assign(h.ctx, input);
     h.ctx.programBank = 0x80;
     h.push(0x1234, 2);
-    runGloveMove(h, liveWindowEvents(h), GLOVE_MOVE_CALLEES);
+    drainNativeSequence(gloveMoveSequence(h, liveWindowEvents(h), GLOVE_MOVE_CALLEES));
     return roundRegisters(h);
   },
 };
