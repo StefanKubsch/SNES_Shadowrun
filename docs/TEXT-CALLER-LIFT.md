@@ -513,3 +513,23 @@ The final orchestration checks also confirm Select ending the screen from
 skills, while Select only confirms notes and returns to the outer menu. An
 unknown submenu target reports the same frontier as the former caller before
 constructing its frame. Both budgets are covered.
+
+## Main, save and karma composition batch (2026-11-16)
+
+The ten phases cover main menu windows and selection, the blocked-save notice,
+save-slot selection, direct main/submenu orchestration, karma balance rendering,
+purchase notices, list rendering, list purchase orchestration, karma windows
+and category/list orchestration. Each phase keeps independent former callers
+and original comparisons. SRAM layout, sound commands, hardware and lag-free
+frame policy retain their established contracts.
+
+### Block 1: main menu windows
+
+[main-menu.mjs](../src/game/main-menu.mjs) composes opening, plain menu selection
+and release directly, forwarding a renderer sequence. The choice remains on its
+original frame across release. Save and karma remain services until block 4.
+The [former caller](../proof/caller/main-menu.mjs) retains dispatch for the
+original random comparisons. [Caller comparisons](../tools/main-karma-caller.test.mjs)
+cover Exit, cancellation, both submenu choices and real default glyphs with
+budgets one and seven. Uploads are serviced; existing real NMI integrations
+retain hardware coverage. Every case retains zero-budget stability.

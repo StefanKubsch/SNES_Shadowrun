@@ -12,7 +12,7 @@
 import { prng } from './task-native-dialog-harness.mjs';
 import { calleeRecord, createSide, registerCases } from './lift-function-harness.mjs';
 import { cdd6Sequence, mainMenuRoutineSequence } from '../proof/replay/native-main-menu.mjs';
-import { mainMenuSequence, saveMenuSequence } from '../src/game/main-menu.mjs';
+import { mainMenuSequence, saveMenuSequence } from '../proof/caller/main-menu.mjs';
 import { TIMER } from '../src/data/wram.mjs';
 import { drainNativeSequence } from '../src/system/native-call-continuation.mjs';
 

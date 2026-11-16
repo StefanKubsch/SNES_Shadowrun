@@ -13,8 +13,13 @@
 // port's list with "Save game 3/4" for the four-slot option, two rows more) in the
 // main menu's window; a slot n saves slot n - 1 (81:B17D, saveGame of save-slots.mjs)
 // and plays sound 36 (80:C46E with FFFF, FF, FF). The window is released.
-// The callees run through their frames from the routine table.
-import { nativeCallSequence } from '../system/native-call-continuation.mjs';
+// Main menu windows and selection compose directly through their original frames.
+// Save, karma and sound services retain their established interface.
+import { dialogCallBody, nativeCallSequence } from '../system/native-call-continuation.mjs';
+import { openWindowSequence } from './window-open.mjs';
+import { releaseWindowJsrSequence } from './window-release.mjs';
+import { chooseFromMenuSequence } from './menu-choice.mjs';
+import { drawTextBufferSequence } from './text-draw.mjs';
 import { FOUR_SAVE_SLOTS, ORIGINAL_SAVE_SLOTS, saveGame, saveSlotCount } from './save-slots.mjs';
 import {
   DP_LIST_TOKEN_BANK,
@@ -118,14 +123,14 @@ function setMenu(h, visibleRows, items, bank) {
   load(h.ctx, bank);
 }
 // The main menu's window released: its number from 1CED.
-function* releaseMenuWindow(h, events, routines, pc) {
+function* releaseMenuWindow(h, events, pc) {
   const { mem } = h.a;
   yield () => {
     const window = dataBankWord(mem, MAIN_MENU_WINDOW);
     load(h.ctx, window);
     setWord(mem.wram, 0, window);
   };
-  yield* call(h, events, routines, pc, RELEASE_WINDOW);
+  yield* dialogCallBody(h, pc, RELEASE_WINDOW, () => releaseWindowJsrSequence(h.a, events));
 }
 
 // 80:CDD6: the save menu (see above). A sequence that ends with its RTS.
@@ -202,12 +207,12 @@ export function* saveMenuSequence(h, events, routines) {
     setWord(wram, 2, SAVE_SOUND);
   };
   if (slot && !negative(slot)) yield* call(h, events, routines, 0x80ce31, SOUND_EFFECT);
-  yield* releaseMenuWindow(h, events, routines, 0x80ce39);
+  yield* releaseMenuWindow(h, events, 0x80ce39);
   return yield* returnSequence(h);
 }
 
 // 80:CE6D: the main menu (see above). A sequence that ends with its RTS.
-export function* mainMenuSequence(h, events, routines) {
+export function* mainMenuSequence(h, events, routines, renderBuffer = drawTextBufferSequence) {
   const { ctx } = h,
     { mem } = h.a,
     { wram } = mem,
@@ -217,15 +222,17 @@ export function* mainMenuSequence(h, events, routines) {
   for (;;) {
     yield () =>
       setWindow(h, MENU_WINDOW.left, MENU_WINDOW.top, MENU_WINDOW.columns, MENU_WINDOW.rows, ids);
-    yield* call(h, events, routines, 0x80ce83, OPEN_WINDOW);
+    yield* dialogCallBody(h, 0x80ce83, OPEN_WINDOW, () => openWindowSequence(h, events));
     yield () => {
       setDataBankWord(mem, MAIN_MENU_WINDOW, 0, word(wram, 0));
       setMenu(h, MENU_WINDOW.visibleRows, MAIN_MENU_ITEMS, CODE_BANK);
     };
-    yield* call(h, events, routines, 0x80cea1, PLAIN_MENU);
+    yield* dialogCallBody(h, 0x80cea1, PLAIN_MENU, () =>
+      chooseFromMenuSequence(h, events, renderBuffer, PLAIN_MENU),
+    );
     // The choice stays on the stack over the window's release (PEI, PLA).
     yield () => h.push(word(wram, 0), 2);
-    yield* releaseMenuWindow(h, events, routines, 0x80ceab);
+    yield* releaseMenuWindow(h, events, 0x80ceab);
     let chosen;
     yield () => {
       chosen = h.pull(2);
