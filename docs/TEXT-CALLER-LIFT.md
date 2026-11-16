@@ -952,3 +952,10 @@ Glove choices directly compose pad refresh through each original JSR frame.
 All four choosing buttons, an invalid input followed by release/repress and the
 existing soft-reset frontier compare against the former callers at both budgets.
 The final refresh consumes the choice without an additional frame wait.
+
+### Block 8: choice glove release
+
+All six choice entries compose real glove release directly through their
+original JSRs. Caller comparisons cover target/no target, active name windows,
+upload wrap, script choice markers, object numbers, spell results and place
+activation. Actual list preparation and redraw remain bound on the former side.
