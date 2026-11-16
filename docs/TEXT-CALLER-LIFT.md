@@ -804,3 +804,19 @@ comparisons assert input, window/glyph uploads, neutral-action arguments and
 the final zero result at both budgets. The player service map now lists only
 its remaining status, turn, animation and glove-release services explicitly;
 the obsolete shared menu table and its unused task/resource adapters are removed.
+
+### Block 10: player animation, facing and glove release
+
+Player idle/walking, aiming and release paths compose animation selection,
+turning and glove release through their original frames. Former callers bind
+independent register-level animation and turn routines and the retained glove
+release. Comparisons cover all eight walking directions, three camera rotations,
+idle transitions, weapon/spell/action gloves, heavy weapons, coordinate word
+boundaries, release with and without a name window, and Summon spirit's two-button
+result. Both budgets compare actual object animation fields, window uploads and
+final game state. The player table retains only Start and immediate-item status
+entries. Hardware, sound, save layout and lag-free frame policy are unchanged.
+
+All ten complete phases have focused checks and individual commits. Shared
+release and delivery results belong in HANDOFF.md. Shape editing and S-MIX
+remain deferred.

@@ -73,7 +73,6 @@ import {
   shootAtObjectSequence,
   shootWithOwnWeaponSequence,
 } from './object-shoot.mjs';
-import { selectAnimationRoutine, turnObjectRoutine } from './object-turn.mjs';
 import { hitObjectSequence } from './object-hit.mjs';
 import { hitObjectsInBlastSequence } from './object-blast.mjs';
 import { chooseSpellSequence } from './spell-choice.mjs';
@@ -484,9 +483,6 @@ export const liftedMainMenuSequence = (h, events) => mainMenuSequence(h, events)
 const PLAYER_CONTROL_LIFT_ROUTINES = new Map([
   [0x80ea89, runStatusScreen],
   [0x80ea8e, runItemList],
-  [0x80bcb2, runPutGloveAway],
-  [0x80aaaf, turnObjectRoutine],
-  [0x80a985, selectAnimationRoutine],
 ]);
 export const liftedPlayerControlSequence = (h, events) =>
   controlPlayerSequence(h, events, PLAYER_CONTROL_LIFT_ROUTINES);

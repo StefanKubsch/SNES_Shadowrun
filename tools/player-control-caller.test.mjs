@@ -4,9 +4,19 @@ import { compareRun } from './member-menu-caller-harness.mjs';
 import { controlPlayerSequence as directControl } from '../src/game/player-control.mjs';
 import { controlPlayerSequence as formerControl } from '../proof/caller/player-control.mjs';
 import { partyStatusSequence } from '../proof/caller/party-status.mjs';
+import { selectAnimationRegisters, turnRegisters } from '../src/script/native-object-turn.mjs';
+import { CAMERA_ROTATION_SRAM } from '../src/data/native-player-control.mjs';
 import * as W from '../src/data/wram.mjs';
 
-function runPlayer(direct, variant, budget, realDrawing = false, members = 1, leaderOnly = false) {
+function runPlayer(
+  direct,
+  variant,
+  budget,
+  realDrawing = false,
+  members = 1,
+  leaderOnly = false,
+  control = null,
+) {
   let services;
   return compareRun(
     (h, events, renderer) =>
@@ -30,22 +40,22 @@ function runPlayer(direct, variant, budget, realDrawing = false, members = 1, le
         mem.wram[record + 2] = member ? 0 : 255;
         mem.wram[W.MAGIC_POINTS + member] = member ? 255 : 0;
       }
+      if (control) {
+        mem.sram = new Uint8Array(0x2000);
+        for (const [field, value] of control)
+          if (field >= 0x10000) mem.write16(field, value);
+          else put(field, value);
+      }
       for (let n = 0; n <= W.NOTICE_WINDOW_LAST; n += 2) put(W.NOTICE_WINDOWS + n, 0xffff);
     },
     budget,
-    [0x8000],
+    variant === 'party' || variant.endsWith('notice') ? [0x8000] : [],
     realDrawing,
-    ({ h, mem, events, routines, bind, calls }) => {
-      routines.set(0x80a985, (callee) => {
-        calls.push(['action', mem.read16(0), mem.read16(2)]);
-        return callee.rts();
-      });
+    ({ h, events, routines, bind }) => {
+      routines.set(0x80a985, (callee) => selectAnimationRegisters(callee.a));
+      routines.set(0x80aaaf, (callee) => turnRegisters(callee.a));
       bind(0x80ed3c, () => partyStatusSequence(h, events, routines));
-      services = new Map(
-        [...routines].filter(([target]) =>
-          [0x80a985, 0x80aaaf, 0x80bcb2, 0x80ea89, 0x80ea8e].includes(target),
-        ),
-      );
+      services = new Map([...routines].filter(([target]) => [0x80ea89, 0x80ea8e].includes(target)));
     },
   );
 }
@@ -72,10 +82,126 @@ for (const budget of [1, 7])
         const actual = runPlayer(true, variant, budget, realDrawing);
         assert.deepEqual(actual, runPlayer(false, variant, budget, realDrawing));
         assert.equal(actual.input, 1);
-        assert.deepEqual(
-          actual.calls.filter((c) => c[0] === 'action'),
-          [['action', 2, 0]],
+        assert.equal(
+          actual.wram[W.OBJECT_SELECTION + 2] | (actual.wram[W.OBJECT_SELECTION + 3] << 8),
+          0,
         );
         assert.equal(actual.wram[0] | (actual.wram[1] << 8), 0);
         if (realDrawing) assert.ok(actual.uploads.some(([pc]) => pc === 0x81accc));
+      });
+
+const controlState = (changes = []) => [
+  [W.PAD_PRESSED, 0],
+  [W.OBJECT_KIND + 2, 0],
+  [W.OBJECT_SELECTION + 2, 0xffff],
+  [W.OBJECT_DIRECTION + 2, 3],
+  [W.GLOVE_NAME_WINDOW, 0xffff],
+  ...changes,
+];
+
+for (const budget of [1, 7])
+  for (const held of [0, 0x800, 0x900, 0x100, 0x500, 0x400, 0x600, 0x200, 0xa00])
+    for (const rotation of [0, 1, 3])
+      for (const idle of [0, 0xffff])
+        test(`player walk and idle: held ${held}, rotation ${rotation}, idle ${idle}, budget ${budget}`, () => {
+          const control = controlState([
+            [W.PAD_HELD, held],
+            [W.PLAYER_IDLE, idle],
+            [CAMERA_ROTATION_SRAM, rotation],
+          ]);
+          const actual = runPlayer(true, 'control', budget, false, 1, false, control);
+          assert.deepEqual(actual, runPlayer(false, 'control', budget, false, 1, false, control));
+          assert.equal(actual.input, 0);
+          assert.equal(actual.wram[0] | (actual.wram[1] << 8), 0);
+        });
+
+for (const budget of [1, 7])
+  for (const edge of [0, 0xffff])
+    for (const [name, changes, result = 0] of [
+      ['action glove', [[W.PAD_PRESSED, 0x8000]]],
+      [
+        'weapon aim',
+        [
+          [W.PAD_PRESSED, 0x80],
+          [W.RUNNER_WEAPON, 0],
+        ],
+      ],
+      [
+        'heavy weapon aim',
+        [
+          [W.PAD_PRESSED, 0x80],
+          [W.RUNNER_WEAPON, 0],
+          [W.RUNNER_WEAPON_KIND, 0xff00],
+        ],
+      ],
+      [
+        'spell aim',
+        [
+          [W.PAD_PRESSED, 0x40],
+          [W.SELECTED_SPELL_SCRIPT, 1],
+        ],
+      ],
+      [
+        'glove turn',
+        [
+          [W.GLOVE_KIND, 1],
+          [W.GLOVE_TARGET_TAG, 0xffff],
+        ],
+      ],
+      [
+        'glove away',
+        [
+          [W.GLOVE_KIND, 1],
+          [W.PAD_PRESSED, 0x80],
+        ],
+      ],
+      [
+        'glove away with name',
+        [
+          [W.GLOVE_KIND, 1],
+          [W.PAD_PRESSED, 0x80],
+          [W.GLOVE_NAME_WINDOW, 0],
+        ],
+      ],
+      [
+        'weapon release',
+        [
+          [W.GLOVE_KIND, 1],
+          [W.AIMING_WEAPON, 0xffff],
+          [W.PAD_PRESSED, 0x8000],
+        ],
+      ],
+      [
+        'spell release',
+        [
+          [W.GLOVE_KIND, 1],
+          [W.AIMING_SPELL, 0xffff],
+          [W.PAD_PRESSED, 0x20],
+        ],
+      ],
+      [
+        'summon aim',
+        [
+          [W.GLOVE_KIND, 1],
+          [W.AIMING_SPELL, 0xffff],
+          [W.PAD_HELD, 0x80],
+          [W.PAD_PRESSED, 0x40],
+          [W.SELECTED_SPELL_SCRIPT, 0x1ec],
+        ],
+        0xc0,
+      ],
+    ])
+      test(`player ${name}: coordinate ${edge}, budget ${budget}`, () => {
+        const control = controlState([
+          [W.OBJECT_X + 2, edge],
+          [W.OBJECT_Y + 2, edge],
+          [W.OBJECT_HEIGHT + 2, edge],
+          [W.GLOVE_X, edge],
+          [W.GLOVE_Y, edge],
+          ...changes,
+        ]);
+        const actual = runPlayer(true, 'control', budget, false, 1, false, control);
+        assert.deepEqual(actual, runPlayer(false, 'control', budget, false, 1, false, control));
+        assert.equal(actual.input, 0);
+        assert.equal(actual.wram[0] | (actual.wram[1] << 8), result);
       });

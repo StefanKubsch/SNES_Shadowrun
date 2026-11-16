@@ -12,15 +12,20 @@
 // while aiming, a held A or X gives the newly pressed aim buttons in DP 00 (both
 // buttons for Summon spirit and for a weapon of kind 1 over a hittable target), B, L or
 // R ends the aim and takes the glove off (80:BCB2), as A or X do without an aim, and B,
-// L or R do without a tagged object. The callees run through their frames from the
-// routine table, each with its own callees.
+// L or R do without a tagged object. Callees retain their original call frames.
+// Only the status and immediate-item entries retain services.
 import { openWindowSequence } from './window-open.mjs';
 import { printTextSequence } from './text-print.mjs';
 import { waitForConfirmKeySequence } from './confirm-key.mjs';
-import { releaseWindowJsrSequence } from './window-release.mjs';
+import { selectAnimationRoutine, turnObjectRoutine } from './object-turn.mjs';
+import { releaseWindowJsrSequence, putGloveAwayCallSequence } from './window-release.mjs';
 import { partyStatusSequence } from './party-status.mjs';
 import { drawTextBufferSequence } from './text-draw.mjs';
-import { nativeCallSequence, dialogCallBody } from '../system/native-call-continuation.mjs';
+import {
+  nativeCallSequence,
+  dialogCallBody,
+  segmentSequence,
+} from '../system/native-call-continuation.mjs';
 import { dataBankWord, setDataBankWord } from '../system/data-bank.mjs';
 import { placeGloveOverPlayer } from './glove-target.mjs';
 import { GLOVE_LIMITS } from '../script/native-glove-crosshair-limits.mjs';
@@ -157,7 +162,7 @@ const call = (h, events, routines, [pc, target]) =>
 // 80:DEC7: the leader Y walks by the pad's directions (80:DF4B, turned by the camera's
 // rotation word in SRAM and kept even) with the steps of 80:DF27 and 80:DF39 and
 // turns that way (80:AAAF); without a direction the idle action is set once.
-function* walkByPadSequence(h, events, routines) {
+function* walkByPadSequence(h) {
   const { ctx } = h,
     { mem } = h.a,
     { wram } = mem,
@@ -183,7 +188,9 @@ function* walkByPadSequence(h, events, routines) {
   if (direction === NO_DIRECTION) {
     if (idle) return;
     yield () => setWord(wram, 2, IDLE);
-    yield* call(h, events, routines, IDLE_ACTION);
+    yield* dialogCallBody(h, ...IDLE_ACTION, () =>
+      segmentSequence(() => selectAnimationRoutine(h)),
+    );
     yield () => {
       load(ctx, MARK_SET);
       setWord(wram, PLAYER_IDLE, MARK_SET);
@@ -195,7 +202,9 @@ function* walkByPadSequence(h, events, routines) {
       load(ctx, WALK_ACTION);
       setWord(wram, 2, WALK_ACTION);
     };
-    yield* call(h, events, routines, WALK_ACTION_CALL);
+    yield* dialogCallBody(h, ...WALK_ACTION_CALL, () =>
+      segmentSequence(() => selectAnimationRoutine(h)),
+    );
     yield () => setWord(wram, PLAYER_IDLE, 0);
   }
   yield () => {
@@ -207,7 +216,7 @@ function* walkByPadSequence(h, events, routines) {
     setSignZero(ctx, ctx.y);
     setWord(wram, 0, ctx.y);
   };
-  yield* call(h, events, routines, WALK_TURN);
+  yield* dialogCallBody(h, ...WALK_TURN, () => segmentSequence(() => turnObjectRoutine(h)));
 }
 
 // 80:BC67, 80:BC80 or 80:BC99: the glove over the leader (80:BC36) with its limits and
@@ -225,7 +234,7 @@ function putGloveOn(h, [baseX, baseY, kind]) {
 // 80:DF6B: the leader faces the glove (80:AAAF with the leader in DP 00 and the
 // direction in DP 02): the leader's screen position as 80:BC36 projects it against the
 // glove's pixel (its position over 4), compared on the dominant axis or on both.
-function* faceGloveSequence(h, events, routines) {
+function* faceGloveSequence(h) {
   const { ctx } = h,
     { mem } = h.a,
     { wram } = mem;
@@ -276,19 +285,12 @@ function* faceGloveSequence(h, events, routines) {
     setWord(wram, 0, player);
     setWord(wram, 2, ctx.y);
   };
-  yield* call(h, events, routines, GLOVE_TURN);
+  yield* dialogCallBody(h, ...GLOVE_TURN, () => segmentSequence(() => turnObjectRoutine(h)));
 }
 
 // A notice with its window, text and key wait at the call sites calls, then the leader
 // in DP 00 and the neutral action.
-function* noticeSequence(
-  h,
-  events,
-  routines,
-  [windowPc, textPc, waitPc, releasePc],
-  notice,
-  renderBuffer,
-) {
+function* noticeSequence(h, events, [windowPc, textPc, waitPc, releasePc], notice, renderBuffer) {
   const { ctx } = h,
     { mem } = h.a,
     { wram } = mem;
@@ -315,12 +317,12 @@ function* noticeSequence(
     load(ctx, player);
     setWord(wram, 0, player);
   };
-  yield* neutralSequence(h, events, routines);
+  yield* neutralSequence(h);
 }
 // The neutral action (80:A985 with DP 02 = 0).
-function* neutralSequence(h, events, routines) {
+function* neutralSequence(h) {
   yield () => setWord(h.a.mem.wram, 2, IDLE);
-  yield* call(h, events, routines, GLOVE_ACTION);
+  yield* dialogCallBody(h, ...GLOVE_ACTION, () => segmentSequence(() => selectAnimationRoutine(h)));
 }
 
 // The aim's result with A or X held (80:E13E); returns it.
@@ -396,12 +398,12 @@ export function* controlPlayerSequence(h, events, routines, renderBuffer = drawT
     yield* call(h, events, routines, path === 'status' ? STATUS_SCREEN : ITEM_LIST);
     return yield* finish();
   }
-  if (path === 'free') return yield* freeSequence(h, events, routines, finish, renderBuffer);
-  return yield* gloveSequence(h, events, routines, finish);
+  if (path === 'free') return yield* freeSequence(h, events, finish, renderBuffer);
+  return yield* gloveSequence(h, events, finish);
 }
 
 // Without a glove (80:E04B).
-function* freeSequence(h, events, routines, finish, renderBuffer) {
+function* freeSequence(h, events, finish, renderBuffer) {
   const { ctx } = h,
     { mem } = h.a,
     { wram } = mem,
@@ -412,7 +414,7 @@ function* freeSequence(h, events, routines, finish, renderBuffer) {
     return (pressed & mask) !== 0;
   };
   if (!test(GLOVE_BUTTONS)) {
-    yield* walkByPadSequence(h, events, routines);
+    yield* walkByPadSequence(h);
     return yield* finish();
   }
   yield () => {
@@ -440,10 +442,12 @@ function* freeSequence(h, events, routines, finish, renderBuffer) {
       load(ctx, MARK_SET);
     };
     if (!armed) {
-      yield* noticeSequence(h, events, routines, WEAPON_NOTICE_CALLS, WEAPON_NOTICE, renderBuffer);
+      yield* noticeSequence(h, events, WEAPON_NOTICE_CALLS, WEAPON_NOTICE, renderBuffer);
       return yield* finish();
     }
-    yield* call(h, events, routines, GLOVE_ACTION);
+    yield* dialogCallBody(h, ...GLOVE_ACTION, () =>
+      segmentSequence(() => selectAnimationRoutine(h)),
+    );
     return yield* finish();
   }
   if (test(PAD_X)) {
@@ -459,22 +463,24 @@ function* freeSequence(h, events, routines, finish, renderBuffer) {
       setWord(wram, 2, SPELL_ACTION);
     };
     if (!selected) {
-      yield* noticeSequence(h, events, routines, SPELL_NOTICE_CALLS, SPELL_NOTICE, renderBuffer);
+      yield* noticeSequence(h, events, SPELL_NOTICE_CALLS, SPELL_NOTICE, renderBuffer);
       return yield* finish();
     }
-    yield* call(h, events, routines, SPELL_ACTION_CALL);
+    yield* dialogCallBody(h, ...SPELL_ACTION_CALL, () =>
+      segmentSequence(() => selectAnimationRoutine(h)),
+    );
     return yield* finish();
   }
   yield () => putGloveOn(h, GLOVE_LIMITS.action);
-  yield* neutralSequence(h, events, routines);
+  yield* neutralSequence(h);
   return yield* finish();
 }
 
 // With a glove (80:E12B).
-function* gloveSequence(h, events, routines, finish) {
+function* gloveSequence(h, events, finish) {
   const { ctx } = h,
     { wram } = h.a.mem;
-  yield* faceGloveSequence(h, events, routines);
+  yield* faceGloveSequence(h);
   let step;
   yield () => {
     const pressed = word(wram, PAD_PRESSED),
@@ -512,8 +518,11 @@ function* gloveSequence(h, events, routines, finish) {
       setWord(wram, AIMING_SPELL, 0);
       setWord(wram, 2, IDLE);
     };
-    yield* call(h, events, routines, RELEASE_ACTION);
+    yield* dialogCallBody(h, ...RELEASE_ACTION, () =>
+      segmentSequence(() => selectAnimationRoutine(h)),
+    );
   }
-  if (step === 'end' || step === 'away') yield* call(h, events, routines, PUT_GLOVE_AWAY);
+  if (step === 'end' || step === 'away')
+    yield* dialogCallBody(h, ...PUT_GLOVE_AWAY, () => putGloveAwayCallSequence(h, events));
   return yield* finish();
 }
