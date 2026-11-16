@@ -3,6 +3,7 @@ import {
   requestUploadJslSequence,
   runUnpackWindowMap,
 } from './window-list.mjs';
+import { closeDialogSequence } from './dialog-talk.mjs';
 import { showNoticeSequence } from './notice-show.mjs';
 import { putGloveAwayCallSequence } from './window-release.mjs';
 import { frameWaitCallSequence, runPadPresses } from '../system/live-input-calls.mjs';
@@ -565,7 +566,8 @@ export function* spellGloveTargetSequence(h, events, routines) {
     load(ctx, menu);
     open = menu !== 0;
   };
-  if (open) yield* callSequence(h, events, routines, sites.closeDialog, CLOSE_DIALOG);
+  if (open)
+    yield* dialogCallBody(h, sites.closeDialog, CLOSE_DIALOG, () => closeDialogSequence(h, events));
   yield* prepareWindowListSequence(h, events, sites.prepareList);
   yield* putGloveOnSequence(h, sites.putOn, PUT_ON_SPELL, GLOVE_LIMITS.spell);
   let target;

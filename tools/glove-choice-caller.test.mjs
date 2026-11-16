@@ -10,8 +10,13 @@ import { closeDialogSequence } from '../src/game/dialog-talk.mjs';
 import * as W from '../src/data/wram.mjs';
 
 function runChoice(module, name, budget, target, pads, options = {}) {
+  let finalShadow;
   return compareRun(
-    module[name],
+    function* (h, events, routines) {
+      const result = yield* module[name](h, events, routines);
+      finalShadow = h.a.mem.wram[W.HDMAEN_SHADOW];
+      return result;
+    },
     false,
     ({ put }) => {
       put(W.PLAYER_OBJECT, 0);
@@ -45,6 +50,31 @@ function runChoice(module, name, budget, target, pads, options = {}) {
       routines.set(0x81acb5, runRequestUpload);
       bind(0x8092c5, () => closeDialogSequence(h, events));
       bind(0x80fec1, () => showNoticeSequence(h, events, routines));
+      if (options.close) {
+        h.ctx.s = 0x1eef;
+        put(W.DRAW_LIST_INDEX, 0);
+        put(W.DRAW_LIST, 0);
+        put(W.OBJECT_VRAM_SLOT_COUNT, 1);
+        put(W.OBJECT_FRAME_OFFSET, 2);
+        put(W.VRAM_SLOT_NEXT, 0);
+        put(W.HDMAEN_SHADOW, options.shadow);
+        const service = events.interrupts.textWait;
+        events.interrupts.textWait = (callee, frameEvents, status, pc) => {
+          if (pc === 0x80ae0c) return true;
+          if (pc === 0x80ae0f) {
+            put(W.NMI_JOB_LISTS, 0);
+            put(W.DP_VRAM_UPLOAD_INDEX, 0);
+            return true;
+          }
+          const caller = h.a.mem.read16(0x7e0000 | (h.ctx.s + 1));
+          if (pc === 0x81b0a9 && caller !== 0x9be5) {
+            put(W.RANDOM_STATE, h.a.mem.read16(W.RANDOM_STATE) + 1);
+            return true;
+          }
+          return service(callee, frameEvents, status, pc);
+        };
+        return (result) => ({ ...result, finalShadow });
+      }
     },
   );
 }
@@ -69,6 +99,19 @@ for (const budget of [1, 7])
       assert.equal(actual.input, pads.length);
       assert.equal(actual.wram[W.PAD_PRESSED] | (actual.wram[W.PAD_PRESSED + 1] << 8), 0);
     });
+
+for (const budget of [1, 7])
+  for (const target of [false, true])
+    for (const shadow of [0, 1, 0xfe, 0xff])
+      test(`spell choice closes member dialog: target ${target}, shadow ${shadow}, budget ${budget}`, () => {
+        const name = 'spellGloveTargetSequence';
+        const options = { menu: true, close: true, shadow };
+        const actual = runChoice(direct, name, budget, target, [0x8000], options);
+        assert.deepEqual(actual, runChoice(former, name, budget, target, [0x8000], options));
+        assert.equal(actual.finalShadow, shadow & ~1);
+        assert.equal(actual.writes.length, 17);
+        assert.equal(actual.input, 1);
+      });
 for (const module of [direct, former])
   test(`glove choice preserves reset boundary: ${module === direct ? 'direct' : 'former'}`, () => {
     assert.throws(

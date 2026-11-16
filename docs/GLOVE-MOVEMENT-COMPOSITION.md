@@ -44,3 +44,11 @@ JSL sequence shares the established upload body with its register adapter.
 Main-upkeep drops both map services. Spell/place callers compare request
 wrap, map payloads and list-first updates at both budgets; movement and
 member dialog close remain services. No wait or NMI policy changes.
+
+## Block 6: member dialog close
+
+Spell targeting composes the real dialog close through 80:9BD8 when the
+member menu is open. The caller comparison reaches portrait closing, actual
+tile reload and sprite rebuilding, both font DMA setups and input refresh
+before target selection. Closed-menu routes still bypass this close.
+Main-upkeep retains only movement in its choice table.

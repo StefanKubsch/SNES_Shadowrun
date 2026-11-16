@@ -461,10 +461,7 @@ export const liftedReleaseGloveSequence = (h, events) => releaseGloveSequence(h,
 export const liftedConfirmKeySequence = (h, events) => waitForConfirmKeySequence(h, events);
 // The remaining services of glove choices: movement, window map preparation
 // and an open member menu's dialog close. Each receives its own callees.
-const GLOVE_CHOICE_ROUTINES = new Map([
-  [0x80be6d, runGloveMove],
-  [0x8092c5, runCloseDialog],
-]);
+const GLOVE_CHOICE_ROUTINES = new Map([[0x80be6d, runGloveMove]]);
 // The lifted choice of the object under the glove 80:8D0B, as the script native runs it
 // with lag-free frames.
 export const liftedChooseUnderGloveSequence = (h, events) =>
