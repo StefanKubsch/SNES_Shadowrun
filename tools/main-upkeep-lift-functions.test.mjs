@@ -79,7 +79,7 @@ import { showDialogTextSequence } from '../src/game/dialog-text.mjs';
 import {
   openPortraitWindowSequence,
   closePortraitWindowSequence,
-} from '../src/game/portrait-window.mjs';
+} from '../proof/caller/portrait-window.mjs';
 import {
   shiftPortraitRowsRoutine,
   unpackPortraitRoutine,

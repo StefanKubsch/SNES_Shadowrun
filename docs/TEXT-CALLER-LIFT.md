@@ -220,3 +220,21 @@ released; Start, directions, shoulder buttons and invalid controller words
 do not confirm. After an invalid word the fixture releases the pad before
 pressing again, preserving the existing previous-held bookkeeping. It compares
 each wait, final pressed mask, input count, result and game state.
+
+## Modal menus and portraits: portrait window (2026-11-16)
+
+[portrait-window.mjs](../src/game/portrait-window.mjs) opens and closes with
+the live frame wait directly. Its HDMA setup, edge arithmetic and eleven-frame
+sequences are unchanged. The [former window](../proof/caller/portrait-window.mjs)
+keeps the recorded/injected wait interface; the existing random comparisons
+against the original import it explicitly. Main-upkeep supplies no table to
+the live window entry points or their continuation factories.
+
+[portrait-caller.test.mjs](../tools/portrait-caller.test.mjs) compares opening
+and closing at both budgets with four initial channel masks and three counter
+values, including counter wrap. Every frame captures the edge step, full HDMA
+table, channel mask and layer mask, followed by an explicit final snapshot.
+These snapshots also protect the HDMA bytes inside the fixture's excluded CPU
+stack range. The actual game state and device writes are compared as before.
+No new hardware interpretation is introduced; the existing portrait contracts
+and real dialog integrations retain hardware coverage.

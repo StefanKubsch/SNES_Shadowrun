@@ -11,12 +11,13 @@
 // bytes 7E:0148/0149 and 7E:014E/014F around the screen's centre (Book I 2-27, the
 // window registers 2126 to 2129).
 //
-// Each frame waits with 81:B0A1 from the routine table through its JSL frame. The
+// Each frame waits directly with live 81:B0A1 through its JSL frame. The
 // registers are left as the original: X past the last step (23 opening, FFFE closing),
 // A with the last edge in its low byte (opening) or 01 (closing) and the high byte of
 // the wait's A, Y and the overflow of the wait; the edges' JSR frame and their pushed
 // status are not reproduced (nothing waits there).
-import { dialogCallSequence } from '../system/native-call-continuation.mjs';
+import { dialogCallBody } from '../system/native-call-continuation.mjs';
+import { frameWaitCallSequence } from '../system/live-input-calls.mjs';
 import { sceneRuntime } from '../system/scene-runtime.mjs';
 import { PORTRAIT_WINDOW } from '../system/native-dialog-portrait.mjs';
 import {
@@ -44,8 +45,8 @@ const SITES = Object.freeze({
   target: 0x808f5f,
   bank: 0x808f64,
 });
-const OPEN_WAIT = [0x808f77, 0x81b0a1, true],
-  CLOSE_WAIT = [0x808f9a, 0x81b0a1, true];
+const OPEN_WAIT = [0x808f77, 0x81b0a1],
+  CLOSE_WAIT = [0x808f9a, 0x81b0a1];
 
 const setWord = (wram, at, value) => {
   wram[at] = value & BYTE_MASK;
@@ -79,8 +80,8 @@ function setWindowEdges(wram, x) {
   return rightLeft;
 }
 
-// Open the portrait window (80:8F3A), a sequence: routines the table with 81:B0A1.
-export function* openPortraitWindowSequence(h, events, routines) {
+// Open the portrait window (80:8F3A) with live frame waits.
+export function* openPortraitWindowSequence(h, events) {
   const { ctx } = h,
     { mem, wram, port } = sceneRuntime(h);
   yield () => {
@@ -98,7 +99,7 @@ export function* openPortraitWindowSequence(h, events, routines) {
     ctx.x = PORTRAIT_WINDOW.edgeFirst;
   };
   do {
-    yield* dialogCallSequence(h, events, routines, ...OPEN_WAIT);
+    yield* dialogCallBody(h, ...OPEN_WAIT, () => frameWaitCallSequence(h, events), true);
     yield () => {
       ctx.a = (ctx.a & HIGH_BYTE_MASK) | setWindowEdges(wram, ctx.x);
       ctx.x = (ctx.x + PORTRAIT_WINDOW.edgeStep) & WORD_MASK;
@@ -111,13 +112,13 @@ export function* openPortraitWindowSequence(h, events, routines) {
   return yield* rts(h);
 }
 
-// Close the portrait window (80:8F97), a sequence: routines the table with 81:B0A1.
-export function* closePortraitWindowSequence(h, events, routines) {
+// Close the portrait window (80:8F97) with live frame waits.
+export function* closePortraitWindowSequence(h, events) {
   const { ctx } = h,
     { wram } = sceneRuntime(h);
   yield () => (ctx.x = PORTRAIT_WINDOW.edgeLast);
   do {
-    yield* dialogCallSequence(h, events, routines, ...CLOSE_WAIT);
+    yield* dialogCallBody(h, ...CLOSE_WAIT, () => frameWaitCallSequence(h, events), true);
     yield () => {
       ctx.a = (ctx.a & HIGH_BYTE_MASK) | setWindowEdges(wram, ctx.x);
       ctx.x = (ctx.x - PORTRAIT_WINDOW.edgeStep) & WORD_MASK;

@@ -342,10 +342,10 @@ for (const [run, sequence] of [
   });
 // 80:8F3A and 80:8F97, the portrait window opened and closed over frames.
 export function runOpenPortraitWindow(h, events) {
-  return drainNativeSequence(openPortraitWindowSequence(h, events, DIALOG_ROUTINES));
+  return drainNativeSequence(openPortraitWindowSequence(h, events));
 }
 export function runClosePortraitWindow(h, events) {
-  return drainNativeSequence(closePortraitWindowSequence(h, events, DIALOG_ROUTINES));
+  return drainNativeSequence(closePortraitWindowSequence(h, events));
 }
 // 80:9022 and 80:905E, the portraits' uploads; the DMA job 80:8FF5 waits for the NMI.
 export function runUploadFirstPortrait(h, events) {
@@ -375,6 +375,12 @@ NATIVE_CALL_CONTINUATIONS.set(runPortraitTiles, {
 for (const [run, sequence] of [
   [runOpenPortraitWindow, openPortraitWindowSequence],
   [runClosePortraitWindow, closePortraitWindowSequence],
+])
+  NATIVE_CALL_CONTINUATIONS.set(run, {
+    run,
+    create: ({ h, events }) => new NativeCallContinuation(h.a, sequence(h, events)),
+  });
+for (const [run, sequence] of [
   [runUploadFirstPortrait, uploadFirstPortraitSequence],
   [runUploadSecondPortrait, uploadSecondPortraitSequence],
 ])
