@@ -20,13 +20,21 @@
 // 7E:1D63 or the menu ends; 1F64 set runs the first submenu once and keeps no menu
 // window. At the end 80:92C5, the windows are released, 1F62 is cleared and the sound
 // restored (7F7F). The callees run through their frames from the routine table.
-import { nativeCallSequence, dialogCallBody } from '../system/native-call-continuation.mjs';
+import {
+  nativeCallSequence,
+  dialogCallBody,
+  segmentSequence,
+} from '../system/native-call-continuation.mjs';
 import { openWindowSequence } from './window-open.mjs';
 import {
   releaseWindowJsrSequence,
   releaseNoticeWindowsCallSequence,
   putGloveAwayCallSequence,
 } from './window-release.mjs';
+import { setTextCursorRoutine, printNumberSequence } from './window-text.mjs';
+import { printTextSequence } from './text-print.mjs';
+import { decimalNumberSequence } from './decimal-number.mjs';
+import { drawTextBufferSequence } from './text-draw.mjs';
 import { taskStop } from '../system/task-stop.mjs';
 import { dataBankWord, setDataBankWord } from '../system/data-bank.mjs';
 import { DP_SCRATCH, STATUS_LAYOUT } from '../data/native-member-spell-menu.mjs';
@@ -179,7 +187,13 @@ function* returnSequence(h) {
 
 // 80:EA6E, 80:EA89 or 80:EA8E: the status screen (see above). A sequence that ends
 // with its RTS.
-export function* statusScreenSequence(h, events, routines, entry = NATIVE_ENTRY) {
+export function* statusScreenSequence(
+  h,
+  events,
+  routines,
+  entry = NATIVE_ENTRY,
+  renderBuffer = drawTextBufferSequence,
+) {
   const { ctx } = h,
     { mem } = h.a,
     { wram } = mem,
@@ -202,14 +216,14 @@ export function* statusScreenSequence(h, events, routines, entry = NATIVE_ENTRY)
       setWord(wram, DP_CURSOR_ROW, row);
       load(ctx, row);
     };
-    yield* call(pc, CURSOR);
+    yield* dialogCallBody(h, pc, CURSOR, () => segmentSequence(() => setTextCursorRoutine(h)));
   };
   const text = function* (pc, id) {
     yield () => {
       load(ctx, id);
       setWord(wram, 2, id);
     };
-    yield* call(pc, TEXT);
+    yield* dialogCallBody(h, pc, TEXT, () => printTextSequence(h, events, renderBuffer));
   };
   const number = function* (pc, value) {
     yield () => {
@@ -217,7 +231,7 @@ export function* statusScreenSequence(h, events, routines, entry = NATIVE_ENTRY)
       load(ctx, shown);
       setWord(wram, 2, shown);
     };
-    yield* call(pc, NUMBER);
+    yield* dialogCallBody(h, pc, NUMBER, () => printNumberSequence(h, events, renderBuffer));
   };
   // The object's state count from its record (LDX record, LDA state AND FF).
   const keepStateCount = (object) => {
@@ -344,7 +358,9 @@ export function* statusScreenSequence(h, events, routines, entry = NATIVE_ENTRY)
       setWord(wram, DP_SCRATCH, at);
       ctx.x = at;
     };
-    yield* call(0x80eb62, CURSOR);
+    yield* dialogCallBody(h, 0x80eb62, CURSOR, () =>
+      segmentSequence(() => setTextCursorRoutine(h)),
+    );
     yield () => {
       const kept = word(wram, DP_SCRATCH),
         label = dataBankWord(mem, ATTRIBUTE_LABELS, kept);
@@ -352,7 +368,7 @@ export function* statusScreenSequence(h, events, routines, entry = NATIVE_ENTRY)
       load(ctx, label);
       setWord(wram, 2, label);
     };
-    yield* call(0x80eb6c, TEXT);
+    yield* dialogCallBody(h, 0x80eb6c, TEXT, () => printTextSequence(h, events, renderBuffer));
     yield* cursor(0x80eb74, STATUS_LAYOUT.valueColumn);
     yield () => {
       const value = nextRecordByte(),
@@ -363,7 +379,7 @@ export function* statusScreenSequence(h, events, routines, entry = NATIVE_ENTRY)
       load(ctx, value);
       setWord(wram, 2, value);
     };
-    yield* call(0x80eb89, NUMBER);
+    yield* dialogCallBody(h, 0x80eb89, NUMBER, () => printNumberSequence(h, events, renderBuffer));
     yield () => {
       at = (word(wram, DP_SCRATCH) - 2) & WORD_MASK;
       ctx.x = at;
@@ -409,7 +425,9 @@ export function* statusScreenSequence(h, events, routines, entry = NATIVE_ENTRY)
       setWord(wram, DP_NUMBER_HIGH, high);
       load(ctx, high);
     };
-    yield* call(0x80ec42, DECIMAL_NUMBER);
+    yield* dialogCallBody(h, 0x80ec42, DECIMAL_NUMBER, () =>
+      decimalNumberSequence(h, events, renderBuffer),
+    );
     yield* cursor(0x80ec4f, STATUS_ROWS.labelColumn, STATUS_ROWS.spellLabelRow);
     yield* text(0x80ec57, TEXT_SPELL);
   }

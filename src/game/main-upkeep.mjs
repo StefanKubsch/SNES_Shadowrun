@@ -95,7 +95,6 @@ import { memberPortraitSequence } from './member-portrait.mjs';
 import { ITEMS_ENTRY, NATIVE_ENTRY, START_ENTRY, statusScreenSequence } from './status-screen.mjs';
 import { notesSequence, skillsSequence } from './status-submenus.mjs';
 import { itemMenuSequence } from './item-menu.mjs';
-import { decimalNumberSequence } from './decimal-number.mjs';
 import { KARMA_LISTS } from '../system/native-main-menu.mjs';
 import {
   buyStepSequence,
@@ -565,9 +564,7 @@ const STATUS_SCREEN_LIFT_ROUTINES = new Map(LIVE_MENU_ROUTINES)
   .set(0x80ff79, runReleaseNoticeWindows)
   .set(0x80bcb2, runPutGloveAway)
   .set(0x80f963, runOpenWindow)
-  .set(0x80faac, setTextCursorRoutine)
-  .set(0x80fe69, runPrintText)
-  .set(0x80fd80, runPrintNumber)
+
   .set(0x80e9c5, runEquipmentRows)
   .set(0x80e4b3, runMemberPortrait)
   .set(0x80a6c7, runPlainMenu)
@@ -577,11 +574,7 @@ const STATUS_SCREEN_LIFT_ROUTINES = new Map(LIVE_MENU_ROUTINES)
     sequenceRun((h, events) => spellMenuSequence(h, events, SPELL_MENU_ROUTINES, STATUS_ENTRY)),
   )
   .set(0x80e834, runSkills)
-  .set(0x80e8c8, runNotes)
-  .set(
-    0x80fdcf,
-    sequenceRun((h, events) => decimalNumberSequence(h, events)),
-  );
+  .set(0x80e8c8, runNotes);
 for (const entry of [0x80e572, 0x80e577, 0x80e57f])
   STATUS_SCREEN_LIFT_ROUTINES.set(
     entry,

@@ -90,3 +90,14 @@ for (const budget of [1, 7])
         );
         assert.equal(actual.calls.filter((c) => c[0] === 'service' && c[1] === 0x81f007).length, 2);
       });
+
+for (const budget of [1, 7])
+  for (const runner of [0, 1])
+    test(`status default glyphs: runner ${runner}, budget ${budget}`, () => {
+      const actual = runStatus(directStatus, true, 0x80ea89, runner, 'Exit', budget, true);
+      assert.deepEqual(
+        actual,
+        runStatus(formerStatus, false, 0x80ea89, runner, 'Exit', budget, true),
+      );
+      assert.ok(actual.uploads.some(([pc]) => pc === 0x81accc));
+    });

@@ -471,3 +471,12 @@ reference for original random tests. New caller cases cover native, Start and
 immediate-item entries for Jake and another runner, leader fallback, cancel
 and a submenu, comparing input, uploads, game state and sound restoration.
 Budgets one and seven retain the zero-budget stability check.
+
+## Member and scene batch: status text and numbers (2026-11-16)
+
+Status attribute labels, cursor positions, numbers and decimal money now
+compose directly with the explicit renderer. The record-pointer chronology,
+skipped byte, byte maxima, magic scaling and bank restoration remain unchanged.
+The independent caller suite adds default live glyph comparisons for Jake and
+another runner at both budgets. Existing status fixtures use maximum karma
+and money, capture every text payload and compare full game state and uploads.
