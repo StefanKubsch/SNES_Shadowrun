@@ -112,7 +112,7 @@ import {
 
 // The former orchestrator keeps its dispatched call graph. Real live callees
 // isolate composition from the NMI service; reload, sprites and music are recorded.
-function runTalk(module, variant, budget, { alternate = 0, music = 0 } = {}) {
+function runTalk(module, variant, budget, { alternate = 0, music = 0, mirror = 0 } = {}) {
   const side = textWindowSide(),
     { h, mem, put, events } = side;
   h.ctx.s = 0x1eef;
@@ -134,7 +134,7 @@ function runTalk(module, variant, budget, { alternate = 0, music = 0 } = {}) {
     entry = (key, text) => [key, 4, 0, text & 255, text >>> 8],
     bytes = [
       ...header,
-      music,
+      music | mirror,
       ...entry(0xff, 0x707d),
       ...entry(0xfe, 0x7077),
       ...entry(2, 0x7074),
@@ -236,3 +236,21 @@ for (const budget of [1, 7])
       assert.ok(actual.input > 0);
       assert.ok(actual.uploads.length > 4, 'both windows open, draw and release');
     });
+
+for (const budget of [1, 7])
+  for (const alternate of [0, 1])
+    for (const music of [0, 1, 2])
+      for (const mirror of [0, 0x80])
+        test(`talk portraits: alternate ${alternate}, music ${music}, mirror ${mirror}, budget ${budget}`, () => {
+          const options = { alternate, music, mirror },
+            actual = runTalk(direct, 'exit', budget, options);
+          assert.deepEqual(actual, runTalk(former, 'exit', budget, options));
+          assert.equal(actual.requests, 2);
+          assert.equal(actual.wram[0x3d12] | (actual.wram[0x3d13] << 8), mirror ? 0x7480 : 0x3480);
+          assert.equal(actual.calls.filter((call) => call[0] === 'portrait')[0][1], 0);
+          assert.equal(actual.calls.filter((call) => call[0] === 'portrait')[1][1], 0x800);
+          assert.equal(
+            actual.calls.filter((call) => call[0] === 'service' && call[1] === 0x81ef47).length,
+            music ? 2 : 0,
+          );
+        });

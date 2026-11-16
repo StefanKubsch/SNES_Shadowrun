@@ -35,7 +35,13 @@ import {
   releaseNoticeWindowsCallSequence,
   releaseWindowJsrSequence,
 } from './window-release.mjs';
-import { closePortraitWindowSequence } from './portrait-window.mjs';
+import { closePortraitWindowSequence, openPortraitWindowSequence } from './portrait-window.mjs';
+import {
+  unpackPortraitRoutine,
+  shiftPortraitRowsRoutine,
+  uploadFirstPortraitSequence,
+  uploadSecondPortraitSequence,
+} from './portrait-upload.mjs';
 import { frameWaitCallSequence, runPadPresses } from '../system/live-input-calls.mjs';
 import { sceneRuntime } from '../system/scene-runtime.mjs';
 import { fixesEnabled, preparePushkinTopics } from './bugfixes.mjs';
@@ -284,8 +290,10 @@ export function* talkSequence(h, events, routines) {
       ctx.a = longWord(mem, at);
       ctx.x = PORTRAIT_BUFFER;
     };
-    yield* call(unpack);
-    yield* call(shift);
+    yield* dialogCallBody(h, ...unpack, () =>
+      segmentSequence(() => unpackPortraitRoutine(h, events)),
+    );
+    yield* dialogCallBody(h, ...shift, () => segmentSequence(() => shiftPortraitRowsRoutine(h)));
   }
   // Set the window of the direct page words 00 to 08 (A ends 0).
   const window = ([left, top, columns, rows]) => {
@@ -373,7 +381,7 @@ export function* talkSequence(h, events, routines) {
     setWord(wram, DP_PORTRAIT_POINTER, ctx.a);
   };
   yield* portrait(CALL.jakeUnpack, CALL.jakeShift);
-  yield* call(CALL.jakeUpload);
+  yield* dialogCallBody(h, ...CALL.jakeUpload, () => uploadFirstPortraitSequence(h, events));
   yield () => {
     ctx.y = PORTRAIT_RECORD_BANK_BYTE;
     wram[DP_PORTRAIT_BANK] = mem.read8(pointer(wram, DP_RECORD, ctx.y));
@@ -381,8 +389,8 @@ export function* talkSequence(h, events, routines) {
     setWord(wram, DP_PORTRAIT_POINTER, ctx.a);
   };
   yield* portrait(CALL.partnerUnpack, CALL.partnerShift);
-  yield* call(CALL.partnerUpload);
-  yield* call(CALL.portraitWindow);
+  yield* dialogCallBody(h, ...CALL.partnerUpload, () => uploadSecondPortraitSequence(h, events));
+  yield* dialogCallBody(h, ...CALL.portraitWindow, () => openPortraitWindowSequence(h, events));
   yield () => {
     setWord(wram, DP_OBJECT, word(wram, DP_PORTRAIT_FRAME));
     ctx.a = GREETING_TEXT;

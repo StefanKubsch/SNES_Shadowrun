@@ -290,3 +290,13 @@ real portrait source. Tile reload, sprites and music are recorded services.
 The fixture services each upload and blocking frame; it is not a hardware NMI
 comparison. It relocates its CPU stack away from the HDMA fields and captures
 those fields explicitly. Former injected call coverage remains independent.
+
+## Dialog orchestration batch: portraits (2026-11-16)
+
+Talk unpacks, separates rows, uploads both portraits and opens their colour
+window directly. Original arguments and cooperative call/return ownership stay
+intact. The orchestration suite adds both Jake portraits, two music selections
+and disabled music, and either partner mirror flag at both budgets. It checks
+both complete tile payloads and destinations, the mirror word, frame snapshots,
+restored music calls and final state against the former caller. These serviced
+NMI fixtures complement the existing real integration comparisons.
