@@ -94,7 +94,7 @@ import { equipmentRowsSequence } from './equipment-window.mjs';
 import { memberPortraitSequence } from './member-portrait.mjs';
 import { ITEMS_ENTRY, NATIVE_ENTRY, START_ENTRY, statusScreenSequence } from './status-screen.mjs';
 import { notesSequence, skillsSequence } from './status-submenus.mjs';
-import { itemMenuSequence, useItemSequence } from './item-menu.mjs';
+import { itemMenuSequence } from './item-menu.mjs';
 import { decimalNumberSequence } from './decimal-number.mjs';
 import { KARMA_LISTS } from '../system/native-main-menu.mjs';
 import {
@@ -547,16 +547,12 @@ export const runSkills = sequenceRun((h, events) => skillsSequence(h, events)),
 // The lifted item submenus 80:E572, 80:E577 and 80:E57F with the lifted item use
 // 80:E4F3, window, releases, portrait, equipment rows, numbered menu, window redraw and
 // key wait; object creation, the nested visit and the window list use lifted callees.
-const ITEM_ROUTINES = new Map(LIVE_MENU_ROUTINES)
-  .set(0x80f963, runOpenWindow)
-  .set(0x80fa3e, runReleaseWindow)
-  .set(0x80ff79, runReleaseNoticeWindows)
-  .set(0x80e4b3, runMemberPortrait)
-  .set(0x80e9c5, runEquipmentRows);
-ITEM_ROUTINES.set(
-  0x80e4f3,
-  sequenceRun((h, events) => useItemSequence(h, events, ITEM_ROUTINES)),
-);
+const ITEM_ROUTINES = new Map([
+  [0x80a835, runCreateObject],
+  [0x80c1ca, runHeadVisit],
+  [0x81aeb0, runResetWindowList],
+  [0x80e4b3, runMemberPortrait],
+]);
 // The lifted decimal number 80:FDCF with the lifted text buffer.
 // The lifted status screen 80:EA6E, 80:EA89 and 80:EA8E with the lifted submenus (the
 // spell menu's entry 80:E68E too), notice and window releases, glove, window and

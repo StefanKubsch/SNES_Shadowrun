@@ -21,7 +21,9 @@
 // (80:E9C5). Confirmation, notice cleanup and equipment compose directly;
 // object creation, nested visits and redraw services retain their table.
 import { nativeCallSequence, dialogCallBody } from '../system/native-call-continuation.mjs';
-import { releaseNoticeWindowsCallSequence } from './window-release.mjs';
+import { releaseNoticeWindowsCallSequence, releaseWindowJsrSequence } from './window-release.mjs';
+import { openWindowSequence, requestTileClearSequence } from './window-open.mjs';
+import { chooseFromMenuSequence, MENU_WITH_NUMBERS } from './menu-choice.mjs';
 import { waitForConfirmKeySequence } from './confirm-key.mjs';
 import { equipmentRowsSequence } from './equipment-window.mjs';
 import { drawTextBufferSequence } from './text-draw.mjs';
@@ -183,7 +185,13 @@ function listItems(mem) {
 
 // 80:E572, 80:E577 or 80:E57F: the item submenu (see above). A sequence that ends with
 // its RTS.
-export function* itemMenuSequence(h, events, routines, entry) {
+export function* itemMenuSequence(
+  h,
+  events,
+  routines,
+  entry,
+  renderBuffer = drawTextBufferSequence,
+) {
   const { ctx } = h,
     { mem } = h.a,
     { wram } = mem;
@@ -226,7 +234,7 @@ export function* itemMenuSequence(h, events, routines, entry) {
     };
     if (empty) return yield* returnSequence(h);
     if (open) {
-      yield* call(h, events, routines, OPEN_WINDOW);
+      yield* dialogCallBody(h, ...OPEN_WINDOW, () => openWindowSequence(h, events));
       yield () => setDataBankWord(mem, STATUS_SUBMENU_WINDOW, 0, word(wram, 0));
     }
     yield () => {
@@ -238,7 +246,9 @@ export function* itemMenuSequence(h, events, routines, entry) {
       setWord(wram, DP_LIST_VALUES, ITEM_MENU_COUNTS);
       load(ctx, ITEM_MENU_COUNTS);
     };
-    yield* call(h, events, routines, MENU);
+    yield* dialogCallBody(h, ...MENU, () =>
+      chooseFromMenuSequence(h, events, renderBuffer, MENU_WITH_NUMBERS),
+    );
     let used = false;
     yield () => {
       const row = word(wram, 0);
@@ -258,7 +268,7 @@ export function* itemMenuSequence(h, events, routines, entry) {
       used = true;
     };
     if (!used) break;
-    yield* call(h, events, routines, USE_ITEM);
+    yield* dialogCallBody(h, ...USE_ITEM, () => useItemSequence(h, events, routines, renderBuffer));
     let ended;
     yield () => {
       const end = dataBankWord(mem, DIALOG_END);
@@ -270,14 +280,14 @@ export function* itemMenuSequence(h, events, routines, entry) {
       setWord(wram, 0, window);
     };
     if (ended) break;
-    yield* call(h, events, routines, REDRAW_WINDOW);
+    yield* dialogCallBody(h, ...REDRAW_WINDOW, () => requestTileClearSequence(h, events));
   }
   yield () => {
     const window = dataBankWord(mem, STATUS_SUBMENU_WINDOW);
     load(ctx, window);
     setWord(wram, 0, window);
   };
-  yield* call(h, events, routines, RELEASE_WINDOW);
+  yield* dialogCallBody(h, ...RELEASE_WINDOW, () => releaseWindowJsrSequence(h.a, events));
   return yield* returnSequence(h);
 }
 

@@ -74,3 +74,105 @@ for (const budget of [1, 7])
     assert.deepEqual(actual, runUse(formerItem, false, 0, {}, budget, true));
     assert.ok(actual.uploads.some(([pc]) => pc === 0x81accc));
   });
+
+import {
+  ACTOR_TABLE,
+  ACTOR_BYTES,
+  LAST_ACTOR,
+  STATE_HOLDER,
+  STATE_COUNT,
+} from '../src/data/actors.mjs';
+import { chooseFromMenuSequence } from '../proof/caller/menu-choice.mjs';
+import { requestTileClearSequence } from '../proof/caller/window-open.mjs';
+function runItemMenu(module, direct, entry, variant, budget, realDrawing = false) {
+  let services;
+  const selected = variant === 'use' || variant === 'rebuild';
+  const pads =
+    variant === 'empty'
+      ? []
+      : variant === 'cancel'
+        ? [0x2000]
+        : selected
+          ? [0x400, 0, 0x8000, ...(variant === 'rebuild' ? [0, 0x8000] : [])]
+          : [0x8000];
+  let heldRecord;
+  return compareRun(
+    (h, e, r) =>
+      module.itemMenuSequence(h, e, direct ? services : r, entry, direct ? r : undefined),
+    direct,
+    ({ put, mem }) => {
+      put(W.MEMBER_NUMBER, 0x1234);
+      put(W.MEMBER_OBJECT, 2);
+      put(W.PLAYER_OBJECT, 2);
+      put(W.STATUS_WINDOW, 0);
+      put(W.RUNNER_WEAPON, 0xffff);
+      put(W.RUNNER_ARMOUR, 0xffff);
+      put(W.SELECTED_SPELL_NAME, 0x714d);
+      put(W.STORY_STAGE, 0xffff);
+      put(W.STATUS_ITEMS_AT_ONCE, variant === 'empty' ? 0 : 0xffff);
+      for (let n = 0; n <= W.NOTICE_WINDOW_LAST; n += 2) put(W.NOTICE_WINDOWS + n, 0xffff);
+      if (selected) {
+        const itemClass = directItem.ITEM_ENTRIES[entry];
+        for (let actor = LAST_ACTOR; actor >= 0; actor -= ACTOR_BYTES) {
+          const at = ACTOR_TABLE + actor,
+            record = mem.read16(at + 1),
+            kind = mem.read16(at + 3);
+          if (
+            record &&
+            mem.read16(0x8cefb0 + 6 * kind) !== 0xffff &&
+            mem.read8(at) & 0x7f &&
+            (mem.read16(0x8cefb4 + 6 * kind) & 3) === itemClass
+          ) {
+            heldRecord = record;
+            put(record + STATE_HOLDER, 0x1234);
+            mem.wram[record + STATE_COUNT] = 255;
+            break;
+          }
+        }
+        assert.ok(heldRecord, 'a real item record for this class');
+      }
+    },
+    budget,
+    pads,
+    realDrawing,
+    ({ h, events, put, routines, bind, calls }) => {
+      services = routines;
+      bind(0x80a6ad, () => chooseFromMenuSequence(h, events, routines, 0x80a6ad));
+      bind(0x80fa67, () => requestTileClearSequence(h, events));
+      bind(0x80e9c5, () => equipmentRowsSequence(h, events, routines));
+      bind(0x80e4f3, () => formerItem.useItemSequence(h, events, routines));
+      routines.set(0x80a835, (callee) => {
+        calls.push(['create', callee.ctx.a]);
+        put(0, 4);
+        return callee.rts();
+      });
+      routines.set(0x80c1ca, (callee) => {
+        calls.push(['visit', callee.ctx.a]);
+        if (variant === 'use') put(W.DIALOG_END, 0xffff);
+        else put(heldRecord + STATE_HOLDER, 0);
+        return callee.rts();
+      });
+    },
+  );
+}
+for (const budget of [1, 7])
+  for (const entry of [0x80e572, 0x80e577, 0x80e57f])
+    for (const variant of ['empty', 'Exit', 'cancel', 'use', 'rebuild'])
+      test(`item menu: entry ${entry}, ${variant}, budget ${budget}`, () => {
+        const actual = runItemMenu(directItem, true, entry, variant, budget);
+        assert.deepEqual(actual, runItemMenu(formerItem, false, entry, variant, budget));
+        assert.equal(
+          actual.input,
+          variant === 'empty' ? 0 : variant === 'rebuild' ? 5 : variant === 'use' ? 3 : 1,
+        );
+        assert.equal(
+          actual.calls.filter((c) => c[0] === 'visit').length,
+          variant === 'use' || variant === 'rebuild' ? 1 : 0,
+        );
+      });
+for (const budget of [1, 7])
+  test(`item menu default glyphs, budget ${budget}`, () => {
+    const actual = runItemMenu(directItem, true, 0x80e572, 'rebuild', budget, true);
+    assert.deepEqual(actual, runItemMenu(formerItem, false, 0x80e572, 'rebuild', budget, true));
+    assert.ok(actual.uploads.some(([pc]) => pc === 0x81accc));
+  });

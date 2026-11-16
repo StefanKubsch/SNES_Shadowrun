@@ -450,3 +450,14 @@ actor records, coordinate word maxima and end/redraw/notice combinations at
 both budgets. Two further cases require actual default glyph uploads.
 The controlled creation/visit services record arguments and return normally;
 the existing route comparison retains real object and scheduler integration.
+
+## Member and scene batch: item menus (2026-11-16)
+
+All three item classes compose opening, numbered selection, item use, tile
+clearing and release directly with the renderer. Main-upkeep reduces their
+services to object creation, nested visit, list reset and portrait display.
+Caller tests use real actor/kind records for each class, covering empty lists,
+Exit, cancel, use ending the screen and removal followed by list rebuilding.
+Both budgets compare uploads, text/count payloads and final state; two default
+renderer cases include real glyph uploads. The former item caller and its
+original random comparisons remain independent.
