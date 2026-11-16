@@ -1,3 +1,4 @@
+import { textBufferRenderer } from './text-renderer.mjs';
 // A menu's list in its window (lifted from 80:A617, 80:A5DB and 80:A5F9; register-level
 // versions in src/system/native-list-prerequisites.mjs stay the reference).
 //
@@ -108,7 +109,9 @@ export function* markRowSequence(h, events, routines, form) {
     ctx.a = form.text;
     setWord(wram, DP_TEXT, ctx.a);
   };
-  yield* dialogCallBody(h, ...form.print, () => printTextSequence(h, events, routines));
+  yield* dialogCallBody(h, ...form.print, () =>
+    printTextSequence(h, events, textBufferRenderer(routines)),
+  );
   let result;
   yield () => {
     result = h.rts();
@@ -144,7 +147,8 @@ export function* drawListSequence(h, events, routines) {
         signAndZero(ctx, ctx.y);
       };
   }
-  const text = (site, keepY) => print(site, () => printTextSequence(h, events, routines), keepY);
+  const text = (site, keepY) =>
+    print(site, () => printTextSequence(h, events, textBufferRenderer(routines)), keepY);
   // A mark three columns before the window's right edge, in the row given.
   const corner = function* (row, cursorSite, textSite, mark) {
     yield () => {

@@ -1,3 +1,4 @@
+import { textBufferRenderer } from './text-renderer.mjs';
 import { taskStop } from '../system/task-stop.mjs';
 import { randomByteNative, randomBelowNative } from '../script/native-script-leaves.mjs';
 import { raiseMemberMagicPoints } from '../script/native-magic-points-raise.mjs';
@@ -203,13 +204,13 @@ NATIVE_CALL_CONTINUATIONS.set(runPrintNumber, {
     new NativeCallContinuation(h.a, printNumberSequence(h, events, routines)),
 });
 // 80:FE69, called with JSR; its text buffer 80:FB39 waits for the NMI.
-export function runPrintText(h, events, routines = TEXT_ROUTINES) {
-  return drainNativeSequence(printTextSequence(h, events, routines));
+export function runPrintText(h, events, routines) {
+  return drainNativeSequence(printTextSequence(h, events, textBufferRenderer(routines)));
 }
 NATIVE_CALL_CONTINUATIONS.set(runPrintText, {
   run: runPrintText,
-  create: ({ h, events, routines = TEXT_ROUTINES }) =>
-    new NativeCallContinuation(h.a, printTextSequence(h, events, routines)),
+  create: ({ h, events, routines }) =>
+    new NativeCallContinuation(h.a, printTextSequence(h, events, textBufferRenderer(routines))),
 });
 // 80:FB39, called with JSR; its upload requests wait for the NMI.
 export function runDrawTextBuffer(h, events) {

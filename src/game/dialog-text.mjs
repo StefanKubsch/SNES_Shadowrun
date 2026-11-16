@@ -1,3 +1,4 @@
+import { textBufferRenderer } from './text-renderer.mjs';
 // The dialog's texts (lifted from 80:9178 with the topic add 80:908C; register-level
 // versions in src/system/native-dialog-text.mjs stay the reference).
 //
@@ -190,7 +191,7 @@ function liftedBodies(h, events, routines, drawRoutines) {
   const lifted = {
     request: () => requestTileClearSequence(h, events),
     cursor: () => segmentSequence(() => setTextCursorRoutine(h)),
-    text: () => printTextSequence(h, events, drawRoutines),
+    text: () => printTextSequence(h, events, textBufferRenderer(drawRoutines)),
   };
   return (name) => lifted[name];
 }
@@ -299,7 +300,9 @@ function* printTextNumber(h, events, drawRoutines, number, [site, target]) {
     setWord(wram, DP_TEXT, mem.read8(at) | (mem.read8((at + 1) & LONG_MASK) << BYTE_BITS));
     setWord(wram, DP_WINDOW, word(wram, DP_TEXT_WINDOW));
   };
-  yield* dialogCallBody(h, site, target, () => printTextSequence(h, events, drawRoutines));
+  yield* dialogCallBody(h, site, target, () =>
+    printTextSequence(h, events, textBufferRenderer(drawRoutines)),
+  );
   let result;
   yield () => {
     result = h.rts();

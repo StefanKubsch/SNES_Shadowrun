@@ -10,7 +10,7 @@
 // second branch); a node with its top bit set holds up to two characters, 0A ends the
 // text. The characters go into the text buffer 7E:21A0 with a 0 at the end; a text of
 // the language (src/data/language.mjs) replaces them. The buffer is then drawn into the
-// window by 80:FB39, still register-level, through its frame from the routine table
+// window by 80:FB39, still register-level, through its call frame
 // with the data bank 7E.
 //
 // The original reads each bit with a JSL to 81:AF04, which pushes A while it refills
@@ -19,7 +19,8 @@
 // X, Y, the carry and the overflow of 80:FB39 and the sign and zero of the restored bank
 // byte; it passes FB39 X and Y the text's length and A the last code tree node with its
 // bytes swapped, as the original. FB39 reads no flags, so they are not produced there.
-import { nativeCallSequence } from '../system/native-call-continuation.mjs';
+import { dialogCallBody } from '../system/native-call-continuation.mjs';
+import { drawTextBufferSequence } from './text-draw.mjs';
 import { portTextAddress } from '../data/port-extension.mjs';
 import { languageText } from '../data/language.mjs';
 import {
@@ -128,8 +129,8 @@ function decodeText(mem, wram) {
 }
 
 // Print the text in the direct page word 02 into the window in 00 (80:FE69), a sequence
-// for a native call continuation: routines the table with 80:FB39.
-export function* printTextSequence(h, events, routines) {
+// for a native call continuation. renderBuffer is a sequence, defaulting to the live renderer.
+export function* printTextSequence(h, events, renderBuffer = drawTextBufferSequence) {
   const { ctx } = h,
     { mem } = h.a,
     { wram } = mem;
@@ -160,7 +161,7 @@ export function* printTextSequence(h, events, routines) {
     ctx.x = y;
     ctx.y = y;
   };
-  yield* nativeCallSequence(h, events, routines, ...DRAW_CALL);
+  yield* dialogCallBody(h, ...DRAW_CALL, () => renderBuffer(h, events));
   let result;
   yield () => {
     ctx.s = (ctx.s + 1) & WORD_MASK;
