@@ -17,7 +17,9 @@ and script-native comparisons described in [WINDOW-CALLER-LIFT.md](WINDOW-CALLER
 4. Dialog texts: pass the renderer explicitly through dialog and script text
    composition; resolve legacy tables at the register entry boundary.
 
-Each phase has its own release check, handoff, commit and push. Register/NMI
+Phases 1 to 3 each had a release check, handoff, commit and push. After phase 3,
+the user changed the cadence: five blocks, each checked and committed, then one
+shared release check and push. Phase 4 starts that batch. Register/NMI
 interfaces, saves, frame policy, shape editing and S-MIX remain outside this work.
 
 ## Phase 1: text printing (2026-11-16)
@@ -69,3 +71,33 @@ on the retained side. They keep navigation, repeat, paging, confirmation,
 cancellation and hotkey coverage at both budgets. The random list/mark tests
 against the register-level original retain their renderer stand-in via the
 explicit compatibility adapter.
+
+## Phase 4 / batch block 1: dialog texts (2026-11-16)
+
+[dialog-text.mjs](../src/game/dialog-text.mjs) passes an explicit renderer through
+matching and fallback dialog texts and the two script text natives. Main-upkeep
+supplies live drawing directly. Custom dialog service objects and topic actions
+retain their existing interface; this block does not change task scheduling.
+The former [dialog text caller](../proof/caller/dialog-text.mjs) imports the
+retained text and cursor producers.
+
+[dialog-text-caller.test.mjs](../tools/dialog-text-caller.test.mjs) compares
+matching greeting/talk, sorted topic insertion with duplicates, restored action
+position, fallback and missing text, plus clearing and non-clearing script text.
+Both budgets retain zero-budget stability and cooperative renderer pauses.
+The shared [fixture](../tools/text-window-caller-harness.mjs) supplies deterministic
+arithmetic and services upload branches; real NMI/device coverage remains in
+the existing integrations. Eighteen new comparisons passed; the combined focused
+text/menu/dialog suite passed 80 tests.
+
+## Five-block batch after the cadence change
+
+1. Dialog and script text renderer interfaces (phase 4 above).
+2. Separate live glyph drawing and upload waits from recorded rendering.
+3. Compose notice window opening and text directly.
+4. Compose the Cortex bomb timer's notice, cursor, number and text directly.
+5. Use live menu composition for standard dialog menus, retaining the former
+   caller and recorded replacements independently.
+
+Each block gets focused checks and a commit. The shared release follows block
+five; its result and the count since the preceding release belong in HANDOFF.md.

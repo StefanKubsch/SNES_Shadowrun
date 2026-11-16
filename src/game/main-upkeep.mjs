@@ -328,7 +328,9 @@ export function runDialogTopics(h, events) {
 // standard text routines its request, cursor and text run lifted, the text drawn by the
 // lifted 80:FB39 of TEXT_ROUTINES.
 export function runDialogText(h, events) {
-  return drainNativeSequence(showDialogTextSequence(h, events, events.text, TEXT_ROUTINES));
+  return drainNativeSequence(
+    showDialogTextSequence(h, events, events.text, drawTextBufferSequence),
+  );
 }
 for (const [run, sequence] of [
   [runDialogMenu, chooseDialogActionSequence],
@@ -338,15 +340,7 @@ for (const [run, sequence] of [
   NATIVE_CALL_CONTINUATIONS.set(run, {
     run,
     create: ({ h, events }) =>
-      new NativeCallContinuation(
-        h.a,
-        sequence(
-          h,
-          events,
-          events.text,
-          run === runDialogText ? TEXT_ROUTINES : drawTextBufferSequence,
-        ),
-      ),
+      new NativeCallContinuation(h.a, sequence(h, events, events.text, drawTextBufferSequence)),
   });
 // 80:8F3A and 80:8F97, the portrait window opened and closed over frames.
 export function runOpenPortraitWindow(h, events) {
@@ -425,9 +419,9 @@ export const liftedScriptActionSequence = (h, events) =>
 // The lifted text natives 80:935B and 80:933A as the script runs them with lag-free
 // frames.
 export const liftedWindowTextSequence = (h, events) =>
-  printWindowTextSequence(h, events, TEXT_ROUTINES);
+  printWindowTextSequence(h, events, drawTextBufferSequence);
 export const liftedTopicTextSequence = (h, events) =>
-  printTopicTextSequence(h, events, TEXT_ROUTINES);
+  printTopicTextSequence(h, events, drawTextBufferSequence);
 // The lifted dialog as the script native 80:936C runs it with lag-free frames
 // (src/vm/special-natives.mjs).
 export const liftedTalkSequence = (h, events) => talkSequence(h, events, DIALOG_ROUTINES);

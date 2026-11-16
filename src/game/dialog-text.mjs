@@ -1,4 +1,3 @@
-import { textBufferRenderer } from './text-renderer.mjs';
 // The dialog's texts (lifted from 80:9178 with the topic add 80:908C; register-level
 // versions in src/system/native-dialog-text.mjs stay the reference).
 //
@@ -19,7 +18,7 @@ import { textBufferRenderer } from './text-renderer.mjs';
 //
 // The callees come from the dialog's text routines with the original's A, X and Y: for
 // the standard ones the lifted request (window-open.mjs), cursor (window-text.mjs) and
-// text (text-print.mjs, its text buffer 80:FB39 from the table the caller passes), else
+// text (text-print.mjs, with the renderer sequence the caller passes), else
 // a test's replacements. The routine works with an
 // 8-bit accumulator in the search as the original: byte loads keep A's high byte, XBA
 // swaps the bytes. It pushes the flag byte around the topic add, and its status and Y
@@ -28,6 +27,7 @@ import { textBufferRenderer } from './text-renderer.mjs';
 import { dialogCallBody, segmentSequence } from '../system/native-call-continuation.mjs';
 import { requestTileClearSequence } from './window-open.mjs';
 import { setTextCursorRoutine } from './window-text.mjs';
+import { drawTextBufferSequence } from './text-draw.mjs';
 import { printTextSequence } from './text-print.mjs';
 import {
   dialogTopicSequence,
@@ -186,23 +186,28 @@ function searchEntry(h, acc) {
 
 // The callee bodies: the lifted request, cursor and text for the standard routines
 // (with a table for 80:FB39), else those of the text routines.
-function liftedBodies(h, events, routines, drawRoutines) {
-  if (!drawRoutines || !isStandardTextRoutines(routines)) return textBodies(h, events, routines);
+function liftedBodies(h, events, routines, renderBuffer) {
+  if (!renderBuffer || !isStandardTextRoutines(routines)) return textBodies(h, events, routines);
   const lifted = {
     request: () => requestTileClearSequence(h, events),
     cursor: () => segmentSequence(() => setTextCursorRoutine(h)),
-    text: () => printTextSequence(h, events, textBufferRenderer(drawRoutines)),
+    text: () => printTextSequence(h, events, renderBuffer),
   };
   return (name) => lifted[name];
 }
 
 // Show the dialog text for the key in A (80:9178), a sequence for a native call
 // continuation: routines the dialog's text routines.
-export function* showDialogTextSequence(h, events, routines, drawRoutines) {
+export function* showDialogTextSequence(
+  h,
+  events,
+  routines,
+  renderBuffer = drawTextBufferSequence,
+) {
   const { ctx } = h,
     { mem } = h.a,
     { wram } = mem,
-    body = liftedBodies(h, events, routines, drawRoutines),
+    body = liftedBodies(h, events, routines, renderBuffer),
     call = ([site, target], name) => dialogCallBody(h, site, target, body(name));
   for (;;) {
     yield () => {
@@ -287,12 +292,12 @@ export function* showDialogTextSequence(h, events, routines, drawRoutines) {
 // The script natives that print a text number (first argument) into the dialog's text
 // window, sequences that end with the native's RTS: 80:935B prints it, 80:933A first
 // clears the window's text tiles (80:FA67) and sets its cursor to the top left (80:FAAC),
-// with the number pushed around them. drawRoutines is the table for 80:FB39.
+// with the number pushed around them. renderBuffer is the text-buffer renderer sequence.
 const TEXT_NUMBERS = 0x80d9b8,
   TOPIC_TEXT = { request: [0x809341, 0x80fa67], cursor: [0x809348, 0x80faac] },
   TOPIC_TEXT_CALL = [0x809357, 0x80fe69],
   MODAL_TEXT_CALL = [0x809368, 0x80fe69];
-function* printTextNumber(h, events, drawRoutines, number, [site, target]) {
+function* printTextNumber(h, events, renderBuffer, number, [site, target]) {
   const { mem } = h.a,
     { wram } = mem;
   yield () => {
@@ -300,9 +305,7 @@ function* printTextNumber(h, events, drawRoutines, number, [site, target]) {
     setWord(wram, DP_TEXT, mem.read8(at) | (mem.read8((at + 1) & LONG_MASK) << BYTE_BITS));
     setWord(wram, DP_WINDOW, word(wram, DP_TEXT_WINDOW));
   };
-  yield* dialogCallBody(h, site, target, () =>
-    printTextSequence(h, events, textBufferRenderer(drawRoutines)),
-  );
+  yield* dialogCallBody(h, site, target, () => printTextSequence(h, events, renderBuffer));
   let result;
   yield () => {
     result = h.rts();
@@ -310,11 +313,11 @@ function* printTextNumber(h, events, drawRoutines, number, [site, target]) {
   return result;
 }
 // 80:935B: the text number printed at the window's cursor.
-export function printWindowTextSequence(h, events, drawRoutines) {
-  return printTextNumber(h, events, drawRoutines, word(h.a.mem.wram, 0), MODAL_TEXT_CALL);
+export function printWindowTextSequence(h, events, renderBuffer = drawTextBufferSequence) {
+  return printTextNumber(h, events, renderBuffer, word(h.a.mem.wram, 0), MODAL_TEXT_CALL);
 }
 // 80:933A: the window cleared, the cursor at its top left, the text number printed.
-export function* printTopicTextSequence(h, events, drawRoutines) {
+export function* printTopicTextSequence(h, events, renderBuffer = drawTextBufferSequence) {
   const { wram } = h.a.mem,
     number = word(wram, 0);
   yield () => {
@@ -330,5 +333,5 @@ export function* printTopicTextSequence(h, events, drawRoutines) {
     segmentSequence(() => setTextCursorRoutine(h)),
   );
   yield () => h.a.pullWord();
-  return yield* printTextNumber(h, events, drawRoutines, number, TOPIC_TEXT_CALL);
+  return yield* printTextNumber(h, events, renderBuffer, number, TOPIC_TEXT_CALL);
 }

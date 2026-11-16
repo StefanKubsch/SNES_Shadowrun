@@ -50,6 +50,13 @@ the central record, local contract and handoff, followed by commit and push.
 
 ## Efficient work blocks and test responsibility
 
+User decision of 2026-11-16: complete five blocks/phases in sequence, each with
+focused checks and its own commit. Then run one shared release check and push
+the batch. Repeat this cadence. This replaces older per-phase release rules
+and the former exception limited to magic-number naming. A completed block is
+not yet a release-verified batch. The handoff records the count since the last
+release and the local commits awaiting it. Do not commit unfinished blocks.
+
 Before implementation, define a complete delivery group around shared
 dependencies. Finish source evidence, native implementation, individual
 body evidence and documentation together. A genuine new source boundary
@@ -110,7 +117,7 @@ Write-Output "Exit code: $testExit; Log: $testLog"
 ```
 
 After a failure, fix its cause first and verify it with a targeted check.
-Run `verify:release` once after the entire delivery group is finished.
+Run `verify:release` once after all five blocks of the delivery batch are finished.
 The incremental release check replaces the former combined affected suite:
 it selects affected test files from their recorded inputs.
 After it passes, do not add another `npm test` or repeat passing checks.
@@ -250,7 +257,7 @@ separate steps. The [dialog inventory](../analysis/dialog-936c-inventory.json)
 lists original calls and stops at unknown mode changes; it does not replace
 a source contract.
 
-Before every porting delivery:
+After every fifth completed block, before pushing the porting batch:
 
 ```powershell
 npm run verify:release
@@ -360,8 +367,10 @@ delete their Edge profile after each run and keep only log and downloads;
 Mesen scripts and test fixtures live in temporary directories that are
 removed after the run ([temp-dir.mjs](../tools/temp-dir.mjs)).
 
-After success, update the handoff, stage only files in the delivery group,
-run `git diff --cached --check`, and perform the authorized commit and push.
+After each block passes its focused checks, stage only its files, run
+`git diff --cached --check`, and create its authorized commit. After the fifth
+block, run the shared release check. After success, record the result in the
+handoff and perform the authorized push of the batch.
 Then compare HEAD, origin/main and the actual remote main.
 Earlier handoff results remain historical evidence.
 Current work is maintained only in `PROJECT-STATUS.json`; source and proof

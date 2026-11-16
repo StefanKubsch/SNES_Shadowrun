@@ -214,7 +214,10 @@ are listed with their open points in [CRT-FILTER.md](CRT-FILTER.md).
   Since the user decision of 2026-10-31 the generated `analysis/` reports are
   no longer versioned (`npm run rebuild:artifacts` in a fresh checkout);
   `assets/` stays versioned.
-- `verify:release` remains mandatory before every delivery.
+- `verify:release` remains mandatory before pushing each delivery batch. Since
+  the user decision of 2026-11-16, a batch has five completed blocks, each with
+  focused checks and its own commit, followed by one shared release check and
+  push. This supersedes the earlier per-phase release cadence.
 
 ## Decision of 2026-11-10: lifted code
 
