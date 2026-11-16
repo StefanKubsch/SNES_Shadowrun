@@ -1,3 +1,4 @@
+import { runPadPresses } from '../system/live-input-calls.mjs';
 import { putGloveAwayCall } from './window-release.mjs';
 // The action glove's buttons on an object (lifted from 80:BF3B; register-level
 // reference in proof/game-reference/main-glove-action.mjs).
@@ -38,7 +39,11 @@ import { putGloveAwayCall } from './window-release.mjs';
 import { taskStop } from '../system/task-stop.mjs';
 import { showNoticeSequence } from './notice-show.mjs';
 import { drawTextBufferSequence } from './text-draw.mjs';
-import { dialogCallBody, nativeCallSequence } from '../system/native-call-continuation.mjs';
+import {
+  dialogCallBody,
+  nativeCallSequence,
+  segmentSequence,
+} from '../system/native-call-continuation.mjs';
 import {
   ACTION_MENU_OVERRIDE,
   AIMING_SPELL,
@@ -222,7 +227,9 @@ export function* gloveActionSequence(h, events, routines, renderBuffer = drawTex
   if (path === 'notice') {
     yield* dialogCallBody(h, ...CALL.notice, () => showNoticeSequence(h, events, renderBuffer));
     yield* putGloveAwayCall(h, events, CALL.noticeRelease[0]);
-    yield* call(CALL.noticeInput);
+    yield* dialogCallBody(h, ...CALL.noticeInput, () =>
+      segmentSequence(() => runPadPresses(h, events)),
+    );
   }
   if (path === 'menu') {
     // The menu returns the chosen action in A.
@@ -269,7 +276,9 @@ export function* gloveActionSequence(h, events, routines, renderBuffer = drawTex
     };
     if (path === 'pass') {
       yield* putGloveAwayCall(h, events, CALL.release[0]);
-      yield* call(CALL.input);
+      yield* dialogCallBody(h, ...CALL.input, () =>
+        segmentSequence(() => runPadPresses(h, events)),
+      );
     }
   }
   let result;

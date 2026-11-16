@@ -9,7 +9,7 @@ import { chooseActionSequence } from '../proof/caller/action-menu.mjs';
 import * as W from '../src/data/wram.mjs';
 import { TASK_WAIT, TASK_EVENTS, TASK_PREVIOUS } from '../src/vm/layout.mjs';
 
-function runAction(direct, budget, variant, glyphs, name = false, request = 0) {
+function runAction(direct, budget, variant, glyphs, name = false, request = 0, held = 0) {
   let services;
   const far = variant === 'far' || variant === 'offer';
   const menu = variant === 'menu' || variant === 'offer';
@@ -19,6 +19,7 @@ function runAction(direct, budget, variant, glyphs, name = false, request = 0) {
     true,
     ({ put }) => {
       put(W.PLAYER_OBJECT, 0);
+      put(W.PAD_HELD, held);
       put(W.GLOVE_TARGET_OBJECT, 2);
       put(W.GLOVE_TARGET_TAG, 0);
       put(W.GLOVE_KIND, 0xffff);
@@ -79,3 +80,22 @@ for (const budget of [1, 7])
         );
         assert.equal(actual.uploads.length > 0, request !== 0xffff || variant === 'far');
       });
+
+for (const budget of [1, 7])
+  for (const held of [0, 0x000f, 0x302f, 0x3030, 0xffff])
+    test(`glove action final input: held ${held}, budget ${budget}`, () => {
+      if (held === 0x3030) {
+        for (const direct of [true, false])
+          assert.throws(
+            () => runAction(direct, budget, 'left', false, false, 0, held),
+            (error) => error.reason === 'task_reset_source_required',
+          );
+        return;
+      }
+      const actual = runAction(true, budget, 'left', false, false, 0, held);
+      assert.deepEqual(actual, runAction(false, budget, 'left', false, false, 0, held));
+      assert.equal(
+        actual.wram[W.PAD_PRESSED] | (actual.wram[W.PAD_PRESSED + 1] << 8),
+        held & 15 ? 0 : held,
+      );
+    });

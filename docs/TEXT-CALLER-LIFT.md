@@ -917,3 +917,9 @@ Existing task search, distance arithmetic and event masks remain unchanged.
 Both action exits compose glove release directly through their original JSRs.
 Real caller comparisons include active name windows, upload counter wrap, far
 notices and direct/child task actions, preserving window release uploads.
+
+### Block 3: action input refresh
+
+Both action exits directly compose the real pad refresh through the original
+JSR frames. Comparisons include invalid low bits and the soft-reset comparison
+boundary, asserting the resulting pressed word without adding a frame wait.
