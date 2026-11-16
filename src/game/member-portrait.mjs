@@ -9,9 +9,16 @@
 // job (81:A954). Then the colour window opens on channel 0 from the 13-byte HDMA table
 // 80:E480 (copied to 1F3F): over eleven frames (81:B0A1) the left window's edges
 // widen with X = 2, 5, ... 20 (1F44 = X + 39, 1F43 = (X EOR FF) + 3B with that carry).
-// The callees run through their frames from the routine table; 80:E48D and 80:E433
+// The live callees compose directly through their frames; 80:E48D and 80:E433
 // run as the JSR bodies the original calls, so a wait takes its NMI at the same S.
-import { dialogCallBody, nativeCallSequence } from '../system/native-call-continuation.mjs';
+import { dialogCallBody, segmentSequence } from '../system/native-call-continuation.mjs';
+import {
+  unpackPortraitRoutine,
+  shiftPortraitRowsRoutine,
+  uploadFirstPortraitSequence,
+  uploadPortraitTilesSequence,
+} from './portrait-upload.mjs';
+import { frameWaitCallSequence } from '../system/live-input-calls.mjs';
 import { dataBankWord, setDataBankWord } from '../system/data-bank.mjs';
 import { accessorPort } from '../system/hardware-port.mjs';
 import {
@@ -93,8 +100,6 @@ const setSignZero = (ctx, value) => {
   setFlag(ctx, FLAG_NEGATIVE, value & WORD_SIGN);
   setFlag(ctx, FLAG_ZERO, value === 0);
 };
-const call = (h, events, routines, [pc, target], long = false) =>
-  nativeCallSequence(h, events, routines, pc, target, long, false);
 
 // 80:E41F: the left window's edges for X; the flags stay (PHP/PLP), A's low byte is the
 // left edge.
@@ -112,7 +117,7 @@ function setWindowEdges(h) {
 
 // 80:E4B3: the member's portrait with its opening window (see above). A sequence that
 // ends with its RTS.
-export function* memberPortraitSequence(h, events, routines) {
+export function* memberPortraitSequence(h, events) {
   const { ctx } = h,
     { mem } = h.a,
     { wram } = mem,
@@ -131,11 +136,15 @@ export function* memberPortraitSequence(h, events, routines) {
     ctx.x = PORTRAIT_BUFFER;
     setSignZero(ctx, PORTRAIT_BUFFER);
   };
-  yield* call(h, events, routines, UNPACK);
-  yield* call(h, events, routines, UPLOAD_TILES);
-  yield* call(h, events, routines, UPLOAD_PALETTE);
-  yield* dialogCallBody(h, ...SECOND_CHANNEL, () => secondChannelSequence(h, events, routines));
-  yield* dialogCallBody(h, ...COLOUR_WINDOW, () => colourWindowSequence(h, events, routines));
+  yield* dialogCallBody(h, ...UNPACK, () =>
+    segmentSequence(() => unpackPortraitRoutine(h, events)),
+  );
+  yield* dialogCallBody(h, ...UPLOAD_TILES, () =>
+    segmentSequence(() => shiftPortraitRowsRoutine(h)),
+  );
+  yield* dialogCallBody(h, ...UPLOAD_PALETTE, () => uploadFirstPortraitSequence(h, events));
+  yield* dialogCallBody(h, ...SECOND_CHANNEL, () => secondChannelSequence(h, events));
+  yield* dialogCallBody(h, ...COLOUR_WINDOW, () => colourWindowSequence(h, events));
   return yield* returnSequence(h);
 }
 
@@ -149,7 +158,7 @@ function* returnSequence(h) {
 }
 
 // 80:E48D: the second portrait channel and one more NMI job (81:A954).
-function* secondChannelSequence(h, events, routines) {
+function* secondChannelSequence(h, events) {
   const { ctx } = h,
     { mem } = h.a;
   yield () => {
@@ -158,7 +167,7 @@ function* secondChannelSequence(h, events, routines) {
     ctx.x = SECOND_PORTRAIT_VRAM;
     setSignZero(ctx, SECOND_PORTRAIT_VRAM);
   };
-  yield* call(h, events, routines, SECOND_TILES);
+  yield* dialogCallBody(h, ...SECOND_TILES, () => uploadPortraitTilesSequence(h, events));
   yield () => {
     const hdma = SECOND_PORTRAIT_HDMA;
     for (const [address, value] of [
@@ -175,7 +184,7 @@ function* secondChannelSequence(h, events, routines) {
 }
 
 // 80:E433: the colour window on HDMA channel 0, its edges widened over eleven frames.
-function* colourWindowSequence(h, events, routines) {
+function* colourWindowSequence(h, events) {
   const { ctx } = h,
     { mem } = h.a,
     { wram } = mem,
@@ -201,7 +210,7 @@ function* colourWindowSequence(h, events, routines) {
   // X counts the edges (the word wait keeps it).
   let more;
   do {
-    yield* call(h, events, routines, FRAME_WAIT, true);
+    yield* dialogCallBody(h, ...FRAME_WAIT, () => frameWaitCallSequence(h, events), true);
     yield () => {
       setWindowEdges(h);
       const edge = (ctx.x + PORTRAIT_WINDOW.edgeStep) & WORD_MASK;

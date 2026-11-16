@@ -516,19 +516,12 @@ NATIVE_CALL_CONTINUATIONS.set(runRaiseStateCount, {
   run: runRaiseStateCount,
   create: ({ h, events }) => new NativeCallContinuation(h.a, raiseStateCountSequence(h, events)),
 });
-const PORTRAIT_ROUTINES = new Map(LIVE_MENU_ROUTINES)
-  .set(0x81b0a1, runFrameWait)
-  .set(0x809f6d, unpackPortraitRoutine)
-  .set(0x808f20, shiftPortraitRowsRoutine)
-  .set(0x809022, runUploadFirstPortrait)
-  .set(0x808ff5, runPortraitTiles);
 export function runMemberPortrait(h, events) {
-  return drainNativeSequence(memberPortraitSequence(h, events, PORTRAIT_ROUTINES));
+  return drainNativeSequence(memberPortraitSequence(h, events));
 }
 NATIVE_CALL_CONTINUATIONS.set(runMemberPortrait, {
   run: runMemberPortrait,
-  create: ({ h, events }) =>
-    new NativeCallContinuation(h.a, memberPortraitSequence(h, events, PORTRAIT_ROUTINES)),
+  create: ({ h, events }) => new NativeCallContinuation(h.a, memberPortraitSequence(h, events)),
 });
 // The lifted spell menu 80:F254 with the lifted window, plain menu, releases, portrait,
 // equipment window, key wait, window list and script append; the visit 80:C1CA is the

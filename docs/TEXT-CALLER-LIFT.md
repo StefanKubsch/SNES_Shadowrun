@@ -315,3 +315,20 @@ that end the dialog after Talk or a topic. Both budgets compare restored action
 position, end state, frames, texts, input and cleanup against the independently
 retained former caller. Eight new boundary comparisons bring the suite to 88.
 No save, task scheduling or lag-free frame policy changes.
+
+## Dialog orchestration batch: member portrait (2026-11-16)
+
+[member-portrait.mjs](../src/game/member-portrait.mjs) composes unpacking, row
+separation, the first upload, the second DMA job and eleven live colour-window
+frames directly. Main-upkeep no longer constructs a portrait helper table.
+The [former member caller](../proof/caller/member-portrait.mjs) retains all
+injected callees, and the existing random original comparisons bind it explicitly.
+
+[member-portrait-caller.test.mjs](../tools/member-portrait-caller.test.mjs) adds
+48 comparisons across four real portrait records, job-count zero, 7FFF and FFFF,
+either initial channel state and budgets one and seven. They check both upload
+payloads, palettes and destinations, all edge/frame snapshots, channel state,
+job-count wrap, complete device writes, game state and actual return.
+The NMI fixture services requests; existing integrations retain actual NMI and
+hardware comparisons. Shared scene/service tables and the unpacker's separate
+startup fallback remain outside this batch.

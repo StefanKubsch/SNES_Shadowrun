@@ -1,4 +1,4 @@
-// Random per-function tests of the lifted member portrait (src/game/member-portrait.mjs)
+// Random per-function tests of the retained member portrait (proof/caller/member-portrait.mjs)
 // against the register-level 80:E4B3 with 80:E48D, 80:E433 and 80:E41F
 // (src/data/native-member-spell-menu.mjs). Both sides call the same stand-ins for the
 // unpack 80:9F6D, the uploads 80:8F20, 80:9022 and 80:8FF5 and the word wait 81:B0A1
@@ -13,7 +13,7 @@
 import { prng } from './task-native-dialog-harness.mjs';
 import { createSide, registerCases } from './lift-function-harness.mjs';
 import { e4b3Sequence } from '../proof/replay/native-member-spell-menu.mjs';
-import { memberPortraitSequence } from '../src/game/member-portrait.mjs';
+import { memberPortraitSequence } from '../proof/caller/member-portrait.mjs';
 import { MEMBER_PORTRAIT } from '../src/data/wram.mjs';
 import { TALK_ROUTINES } from '../proof/replay/native-dialog.mjs';
 import { shiftPortraitRowsRoutine, unpackPortraitRoutine } from '../src/game/portrait-upload.mjs';
