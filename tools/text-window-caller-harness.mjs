@@ -174,5 +174,5 @@ export function finishTextWindow(side, sequence, budget) {
 export function rendererTable(side) {
   // Preserve pausing on the dispatched side without sharing its caller.
   const run = () => assert.fail('renderer requires continuation');
-  return { run, create: () => new NativeCallContinuation(side.a, side.render(side.h)) };
+  return { run, create: () => new NativeCallContinuation(side.a, side.render(side.h, side.events)) };
 }

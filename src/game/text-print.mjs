@@ -10,7 +10,7 @@
 // second branch); a node with its top bit set holds up to two characters, 0A ends the
 // text. The characters go into the text buffer 7E:21A0 with a 0 at the end; a text of
 // the language (src/data/language.mjs) replaces them. The buffer is then drawn into the
-// window by 80:FB39, still register-level, through its call frame
+// window by the live text-buffer renderer through its call frame
 // with the data bank 7E.
 //
 // The original reads each bit with a JSL to 81:AF04, which pushes A while it refills

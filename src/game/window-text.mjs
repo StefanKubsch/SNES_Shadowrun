@@ -1,6 +1,5 @@
 // The text cursor and the number print of a window (lifted from 80:FAAC and 80:FD80;
-// register-level versions in src/system/native-list-prerequisites.mjs, which the menus
-// and lists still use).
+// register-level references remain in src/system/native-list-prerequisites.mjs).
 //
 // A window's text cursor is a tile number: the window's first text tile plus the
 // column in the direct page word 02 plus the row in the low byte of 04 times the

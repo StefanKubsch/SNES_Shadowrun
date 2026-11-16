@@ -13,14 +13,14 @@
 // the topic list. The result stays in the direct page word 00.
 //
 // The callees come from the dialog's text routines: with the standard ones the window
-// opening and release run lifted (window-open.mjs, window-release.mjs) and the menu
-// register-level, through their frames; with a test's replacements those run, as the
+// opening, release and menu run as direct live sequences through their call
+// frames; with a test's replacements those run, as the
 // reference runs them. A, X and Y passed to the calls and left at the end are the
 // original's, as are the carry of the routines' own comparisons; the X the topic list
 // pushes around a text lookup is not reproduced (nothing waits there).
 import { dialogCallBody, segmentSequence } from '../system/native-call-continuation.mjs';
-import { menuComposeSequence } from '../system/native-menu-compose.mjs';
 import { isStandardTextRoutines } from '../system/native-dialog-text.mjs';
+import { drawTextBufferSequence } from './text-draw.mjs';
 import { chooseFromMenuSequence } from './menu-choice.mjs';
 import { fitListWindow, listTextIds } from '../data/menu-layout.mjs';
 import { TOPICS } from '../data/topics.mjs';
@@ -75,8 +75,8 @@ function* rts(h) {
 }
 
 // A callee of the text routines through its JSR frame: the lifted window opening and
-// release for the standard routines, and their menu lifted with the renderer sequence
-// (menu-choice.mjs) or register-level without one; else the replacement.
+// release and live menu for the standard routines, with the renderer sequence
+// (menu-choice.mjs); else the replacement.
 function callee(h, events, routines, renderBuffer, [site, target], name) {
   let body;
   if (!isStandardTextRoutines(routines)) body = () => segmentSequence(() => routines[name](h.a));
@@ -86,13 +86,17 @@ function callee(h, events, routines, renderBuffer, [site, target], name) {
       yield* releaseWindowSequence(h, events);
       return yield* rts(h);
     };
-  else if (renderBuffer) body = () => chooseFromMenuSequence(h, events, renderBuffer, target);
-  else body = () => menuComposeSequence(h.a, events, target, false);
+  else body = () => chooseFromMenuSequence(h, events, renderBuffer, target);
   return dialogCallBody(h, site, target, body);
 }
 
 // The dialog's main menu (80:91E2), a sequence for a native call continuation.
-export function* chooseDialogActionSequence(h, events, routines, renderBuffer = null) {
+export function* chooseDialogActionSequence(
+  h,
+  events,
+  routines,
+  renderBuffer = drawTextBufferSequence,
+) {
   const { ctx } = h,
     { wram } = h.a.mem;
   yield () => {
@@ -112,7 +116,12 @@ export function* chooseDialogActionSequence(h, events, routines, renderBuffer = 
 }
 
 // The dialog's topic choice (80:9215), a sequence for a native call continuation.
-export function* chooseDialogTopicSequence(h, events, routines, renderBuffer = null) {
+export function* chooseDialogTopicSequence(
+  h,
+  events,
+  routines,
+  renderBuffer = drawTextBufferSequence,
+) {
   const { ctx } = h,
     { mem } = h.a,
     { wram } = mem;

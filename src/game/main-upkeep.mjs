@@ -325,7 +325,7 @@ export function runDialogTopics(h, events) {
 }
 // 80:9178, the dialog's text; its window request and text wait for the NMI. With the
 // standard text routines its request, cursor and text run lifted, the text drawn by the
-// lifted 80:FB39 of TEXT_ROUTINES.
+// live renderer sequence.
 export function runDialogText(h, events) {
   return drainNativeSequence(
     showDialogTextSequence(h, events, events.text, drawTextBufferSequence),
@@ -443,9 +443,9 @@ NATIVE_CALL_CONTINUATIONS.set(runTalk, {
   create: ({ h, events }) =>
     new NativeCallContinuation(h.a, talkSequence(h, events, DIALOG_ROUTINES)),
 });
-// The callees of the lifted notice, number, text and action menu: the lifted window
-// opening 80:F963, text 80:FE69 and text buffer 80:FB39 (callers that do not pass their
-// table on get these), and the lifted menu 80:A6A5.
+// Shared register helpers for callers that still dispatch their dependencies.
+// Notices, menus and the timer compose their own live dependencies directly;
+// these entries remain available at the existing register interfaces.
 const TEXT_ROUTINES = new Map([
   [0x81b0a1, runFrameWait],
   [0x809e1a, runPadPresses],
@@ -846,8 +846,7 @@ export function runTimeLimit(h, events) {
 }
 NATIVE_CALL_CONTINUATIONS.set(0x80e270, {
   run: runTimeLimit,
-  create: ({ h, events }) =>
-    new NativeCallContinuation(h.a, timeLimitSequence(h, events)),
+  create: ({ h, events }) => new NativeCallContinuation(h.a, timeLimitSequence(h, events)),
 });
 // 80:BF3B, called with JSR; its notice, menu, dialog and input wait for the NMI, so it
 // is a native call continuation of the main loop.

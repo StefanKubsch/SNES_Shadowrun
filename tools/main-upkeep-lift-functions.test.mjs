@@ -95,7 +95,7 @@ import { uploadPortraitTiles } from '../src/system/native-dialog-portrait.mjs';
 import {
   chooseDialogActionSequence,
   chooseDialogTopicSequence,
-} from '../src/game/dialog-menus.mjs';
+} from '../proof/caller/dialog-menus.mjs';
 import { dialogAccess } from '../src/system/native-dialog-support.mjs';
 import {
   talkSequence,

@@ -122,7 +122,7 @@ The incremental release check replaces the former combined affected suite:
 it selects affected test files from their recorded inputs.
 After it passes, do not add another `npm test` or repeat passing checks.
 Later changes to code, tests, generators or contracts require renewed
-affected checks and a release check. Adding the actual result to the handoff
+focused checks; the shared release check covers the final five-block state. Adding the actual result to the handoff
 requires only a diff check. A failed release remains incomplete until it
 passes after the correction.
 

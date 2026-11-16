@@ -151,3 +151,24 @@ The notice caller suite adds disabled and expired timers, ordinary countdown,
 hour changes and both warning intervals, at both budgets. The former side uses
 retained notice, opening, cursor and text/number producers; expected hour and
 frame counts, decimal payload and number of rendered texts are also asserted.
+
+## Batch block 5: live dialog menus (2026-11-16)
+
+[dialog-menus.mjs](../src/game/dialog-menus.mjs) always composes live menus for
+standard dialog services. Its default renderer is live glyph drawing; it no
+longer selects register-level menu composition when no renderer was passed.
+Custom service objects keep their existing interface. The [former caller](../proof/caller/dialog-menus.mjs)
+retains the previous table interface and recorded register-level path, importing
+independent retained menus, opening and release. Existing recorded random
+comparisons import it explicitly.
+
+[dialog-menu-caller.test.mjs](../tools/dialog-menu-caller.test.mjs) compares main
+and topic choices, confirmation/cancellation and empty/all-flagged topic lists,
+including consumed input, window uploads, end marker and result. Four additional
+cases omit the renderer on the live side and compare real glyph composition
+against the former renderer. Both budgets include zero-budget stability.
+
+The five-block implementation batch is complete. Focused checks and commits
+precede its one shared release check and push under the new workflow. Actual
+verification results are recorded in HANDOFF.md. Shared register/NMI interfaces
+and other caller tables remain; no save or frame policy changed.
