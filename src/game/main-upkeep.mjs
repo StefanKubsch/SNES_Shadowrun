@@ -88,7 +88,7 @@ import { walkTowardsTarget } from './object-target.mjs';
 import { stepAnimation } from './object-animation.mjs';
 import { buildSprites } from './sprite-list.mjs';
 import { enterRoom } from '../system/main-transition.mjs';
-import { frameWaitCallSequence, runFrameWait, runPadPresses } from '../system/live-input-calls.mjs';
+import { frameWaitCallSequence, runFrameWait } from '../system/live-input-calls.mjs';
 export { runFrameWait, runPadPresses } from '../system/live-input-calls.mjs';
 
 // 81:8877, called with JSL.
@@ -538,27 +538,12 @@ NATIVE_CALL_CONTINUATIONS.set(0x80bf3b, {
 // version to the same target, so this continuation is found by its run function.
 // The object search opens the name window with the lifted 80:F963 and prints the name
 // with the lifted text 80:FE69 and text buffer 80:FB39.
-const MOVE_ROUTINES = new Map([
-  [0x81b0a1, runFrameWait],
-  [0x809e1a, runPadPresses],
-  [0x80fa3e, runReleaseWindow],
-  [0x8092c5, runCloseDialog],
-  [0x81a9b2, runUnpackWindowMap],
-  [0x81acb5, runRequestUpload],
-  [0x80bcb2, runPutGloveAway],
-  [0x80fec1, runShowNotice],
-  [0x81ad92, runDrawWindowList],
-])
-  .set(0x80f963, runOpenWindow)
-  .set(0x80fe69, runPrintText)
-  .set(0x80fb39, runDrawTextBuffer);
-export function runGloveMove(h, events, routines = MOVE_ROUTINES) {
-  return drainNativeSequence(gloveMoveSequence(h, events, routines));
+export function runGloveMove(h, events) {
+  return drainNativeSequence(gloveMoveSequence(h, events));
 }
 NATIVE_CALL_CONTINUATIONS.set(runGloveMove, {
   run: runGloveMove,
-  create: ({ h, events, routines = MOVE_ROUTINES }) =>
-    new NativeCallContinuation(h.a, gloveMoveSequence(h, events, routines)),
+  create: ({ h, events }) => new NativeCallContinuation(h.a, gloveMoveSequence(h, events)),
 });
 // 80:8000, called with JSR; its scene change waits for the NMI, so it is a native
 // call continuation of the main loop. The register-level reference keeps the target's
@@ -595,6 +580,6 @@ export const mainLoopNoticeSequence = noticeTimeoutCallSequence;
 export const mainLoopFrameWaitSequence = frameWaitCallSequence;
 export const mainLoopTimeLimitSequence = (h, events) => timeLimitSequence(h, events);
 export const mainLoopGloveActionSequence = (h, events) => gloveActionSequence(h, events);
-export const mainLoopGloveMoveSequence = (h, events) => gloveMoveSequence(h, events, MOVE_ROUTINES);
+export const mainLoopGloveMoveSequence = (h, events) => gloveMoveSequence(h, events);
 export const mainLoopPlayerZonesSequence = (h, events) =>
   playerZonesSequence(h, events, ZONE_ROUTINES);

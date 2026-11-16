@@ -21,3 +21,11 @@ Object search composes actual name text through its original 80:BE34 frame
 and accepts a text-buffer renderer. The real kind/replacement/wrap cases
 compare glyph payloads with the retained former chain. Movement temporarily
 adapts its legacy renderer table; its entry cleanup follows in block 3.
+
+## Block 3: movement entry
+
+Movement receives only its name renderer. Main-upkeep removes the obsolete
+movement service table and its continuation no longer forwards a table.
+Actual movement callers cover all direction combinations, acceleration and
+position limits, object acquisition and marked-name release at both budgets.
+The retained former movement still supplies the independent original evidence.

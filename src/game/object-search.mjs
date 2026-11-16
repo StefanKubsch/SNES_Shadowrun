@@ -17,7 +17,8 @@
 // further away it lets go. Without an object under the glove a marked one lets go.
 //
 // The name window release 80:BE5B (lifted in window-release.mjs), the text width
-// 80:FADD (text-width.mjs), the window 80:F963 and the text 80:FE69 run through their frames with the A, X, Y
+// 80:FADD (text-width.mjs), the window 80:F963 and the text 80:FE69 run through
+// their frames with the A, X, Y
 // and flags the original passes them. Where no callee runs last, A, X, Y and the flags are
 // left as the original leaves them: the glove action and the scheduler round start
 // with them. The direct page words 0E, 11, 14, 17 and 1A (the glove on the screen and
@@ -125,7 +126,7 @@ const flag = (ctx, bit, set) => {
 };
 
 // Search the glove's object (80:BCBE), a sequence for a native call continuation: h the
-// main loop's access (direct page 0, data bank 80), events its frame events, routines
+// main loop's access (direct page 0, data bank 80), events its frame events, renderBuffer
 // the text-buffer renderer.
 export function* objectSearchSequence(h, events, renderBuffer = drawTextBufferSequence) {
   const { ctx, a } = h,

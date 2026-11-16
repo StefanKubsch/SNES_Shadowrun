@@ -18,7 +18,7 @@
 // the position addition down and the carry of its comparison with CE01. The object
 // search reads that carry too.
 import { dialogCallBody } from '../system/native-call-continuation.mjs';
-import { textBufferRenderer } from './text-renderer.mjs';
+import { drawTextBufferSequence } from './text-draw.mjs';
 import { objectSearchSequence } from './object-search.mjs';
 import { releaseNameWindowCallSequence } from './window-release.mjs';
 import {
@@ -90,9 +90,9 @@ function axisPosition(position, speed, limit) {
 }
 
 // Move the glove (80:BE6D), a sequence for a native call continuation: h the main
-// loop's access (data bank 80), events its frame events, routines the table of the
-// register-level callees of the object search and the release.
-export function* gloveMoveSequence(h, events, routines) {
+// loop's access (data bank 80), events its frame events, renderBuffer the
+// text-buffer renderer used for an object name.
+export function* gloveMoveSequence(h, events, renderBuffer = drawTextBufferSequence) {
   const { ctx } = h,
     { wram } = h.a.mem;
   let next = 'return';
@@ -128,7 +128,7 @@ export function* gloveMoveSequence(h, events, routines) {
   };
   if (next === 'search')
     yield* dialogCallBody(h, SEARCH_CALL, SEARCH_TARGET, () =>
-      objectSearchSequence(h, events, textBufferRenderer(routines)),
+      objectSearchSequence(h, events, renderBuffer),
     );
   else if (next === 'release')
     yield* dialogCallBody(h, RELEASE_CALL, RELEASE_TARGET, () =>
