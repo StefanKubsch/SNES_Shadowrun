@@ -1,6 +1,6 @@
 {
   "updated": "2026-11-16",
-  "focus": "Ten remaining menu service phases implemented. Spell/item portrait and window-list redraw, status colour/sound, runner resource redraw, karma refills and save sound compose directly. Main/save/karma need no service table. Independent former/original comparisons remain. Release and delivery state: HANDOFF.md.",
+  "focus": "Scene service composition batch in progress: direct member script append and item object creation, with independent former callers and real task/object data. Focused checks and commits precede one shared release after ten blocks. Delivery count and pending commits: HANDOFF.md.",
   "next_step": "Continue scene services and caller composition: status scene closing, member script append and object creation, nested visits, then player control callers and shared dependencies. Preserve independent original and real integrations. Complete ten focused-check commits, then one shared release and push. Shape editing and S-MIX remain deferred.",
   "porting_resume": "188 original-form bytes remain: 93 retained code bytes and 95 unidentified data bytes. Recorded CPU reads, hardware-only observations and true data margins are distinguished in docs/ROM-CODE-AUDIT.md. Unknown bytes and unused graphics remain preserved; unrecorded paths can still report rom_byte_absent.",
   "open_issues": [

@@ -20,7 +20,11 @@
 // while a notice window is open (80:F953, 80:FF79) and the equipment rows redrawn
 // (80:E9C5). Confirmation, notice cleanup and equipment compose directly;
 // object creation and nested visits retain their table.
-import { nativeCallSequence, dialogCallBody } from '../system/native-call-continuation.mjs';
+import {
+  nativeCallSequence,
+  dialogCallBody,
+  segmentSequence,
+} from '../system/native-call-continuation.mjs';
 import { releaseNoticeWindowsCallSequence, releaseWindowJsrSequence } from './window-release.mjs';
 import { openWindowSequence, requestTileClearSequence } from './window-open.mjs';
 import { chooseFromMenuSequence, MENU_WITH_NUMBERS } from './menu-choice.mjs';
@@ -30,6 +34,7 @@ import { memberPortraitSequence } from './member-portrait.mjs';
 import { resetWindowListSequence } from './window-list.mjs';
 import { drawTextBufferSequence } from './text-draw.mjs';
 import { dataBankWord, setDataBankWord } from '../system/data-bank.mjs';
+import { createObject } from './object-create.mjs';
 import {
   DP_ITEM_FLAGS,
   DP_ITEM_LIST_OFFSET,
@@ -321,7 +326,12 @@ export function* useItemSequence(h, events, routines, renderBuffer = drawTextBuf
     load(ctx, script);
     setFlag(ctx, FLAG_CARRY, carry);
   };
-  yield* call(h, events, routines, CREATE);
+  yield* dialogCallBody(h, ...CREATE, () =>
+    segmentSequence(() => {
+      createObject(mem, wram, h.a);
+      return h.rts();
+    }),
+  );
   yield () => {
     const slot = word(wram, 0);
     ctx.x = slot;

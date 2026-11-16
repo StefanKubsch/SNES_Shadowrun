@@ -533,10 +533,7 @@ export const runSkills = sequenceRun((h, events) => skillsSequence(h, events)),
 // The lifted item submenus 80:E572, 80:E577 and 80:E57F with the lifted item use
 // 80:E4F3, window, releases, portrait, equipment rows, numbered menu, window redraw and
 // key wait; object creation, the nested visit and the window list use lifted callees.
-const ITEM_ROUTINES = new Map([
-  [0x80a835, runCreateObject],
-  [0x80c1ca, runHeadVisit],
-]);
+const ITEM_ROUTINES = new Map([[0x80c1ca, runHeadVisit]]);
 // The lifted status screen 80:EA6E, 80:EA89 and 80:EA8E with the lifted submenus (the
 // spell menu's entry 80:E68E too), notice and window releases, glove, window and
 // plain menu, cursor, text, numbers, equipment rows, portrait, sound command 81:F007,

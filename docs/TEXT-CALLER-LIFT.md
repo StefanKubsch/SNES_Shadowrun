@@ -736,3 +736,12 @@ The spell menu composes task append directly through its original JSR frame.
 The former caller retains dispatch and now binds the actual task append in
 caller comparisons. Script cleanup combinations compare real task frames and
 WRAM at budgets one and seven; nested visits remain controlled services.
+
+### Block 2: item object creation
+
+Item use composes object creation directly through its original frame. The
+former caller binds the independent register-level creator, using actual kinds,
+actor scripts, task tables and one free object slot. Item classes, cleanup
+combinations and coordinate word maxima compare at both budgets.
+The nested visit reads task state, so its comparison omits the creator's
+unused leftover Y register. Object and task writes remain fully compared.
