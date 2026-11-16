@@ -29,13 +29,13 @@
 // B4 and restore their own registers, so the registers the original leaves are not
 // produced; only X during the word waits (the original's count) is kept. The random
 // number, the object slots 80:A835 and the sound 80:C46E run lifted as plain calls; the
-// notices' callees and the window list run through their frames from the routine
-// table, since they wait for frames.
+// notice window, text and word waits compose directly through their frames.
+// Confirmation, release and the player window list retain routine services.
 import { printTextSequence } from './text-print.mjs';
 import { drawTextBufferSequence } from './text-draw.mjs';
+import { frameWaitCallSequence } from '../system/live-input-calls.mjs';
 import { openWindowSequence } from './window-open.mjs';
-import { dialogCallBody } from '../system/native-call-continuation.mjs';
-import { nativeCallSequence } from '../system/native-call-continuation.mjs';
+import { dialogCallBody, nativeCallSequence } from '../system/native-call-continuation.mjs';
 import { dataBankWord, setDataBankWord } from '../system/data-bank.mjs';
 import { accessorPort } from '../system/hardware-port.mjs';
 import { drawBelowInDirectPage } from '../system/random.mjs';
@@ -168,7 +168,7 @@ function* noticeSequence(h, events, routines, renderBuffer, notice, calls) {
     yield () => {
       ctx.x = left;
     };
-    yield* call(calls.wait, WORD_WAIT, true);
+    yield* dialogCallBody(h, calls.wait, WORD_WAIT, () => frameWaitCallSequence(h, events), true);
   }
   yield* call(calls.key, CONFIRM_KEY);
   yield* call(calls.release, RELEASE_WINDOW);
@@ -290,7 +290,7 @@ function* playerHitSequence(h, events, routines, target) {
 
 // 80:8691: the hit with the damage in A on the target X by the shooter Y. A sequence
 // for a native call continuation that ends with the hit's RTS; routines holds the
-// notices' callees and the window list.
+// confirmation, release and player window-list services. renderBuffer draws text.
 export function* hitObjectSequence(h, events, routines, renderBuffer = drawTextBufferSequence) {
   if (h.ctx.d !== 0) taskStop('task_direct_page_zero_required');
   const { ctx } = h,

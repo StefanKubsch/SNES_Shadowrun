@@ -38,12 +38,22 @@ function runChoice(module, name, budget, target, pads, request = 0, far = false)
     budget,
     pads,
     true,
-    ({ h, events, routines, bind }) => {
+    ({ h, events, routines, bind, mem, calls }) => {
       bind(0x80be6d, () => gloveMoveSequence(h, events, routines));
       routines.set(0x81ad92, runDrawWindowList);
       routines.set(0x81a9b2, runUnpackWindowMap);
       routines.set(0x81acb5, runRequestUpload);
       bind(0x80fec1, () => showNoticeSequence(h, events, routines));
+      const service = events.interrupts.textWait;
+      events.interrupts.textWait = (callee, frameEvents, status, pc) => {
+        if (pc === 0x81acb2 && mem.read16(0x7e0000 | (h.ctx.s + 4)) === 0xaebf)
+          calls.push([
+            'prepare frame',
+            mem.read16(0x7e0000 | (h.ctx.s + 7)),
+            mem.read8(0x7e0000 | (h.ctx.s + 9)),
+          ]);
+        return service(callee, frameEvents, status, pc);
+      };
     },
   );
 }
@@ -66,6 +76,19 @@ for (const budget of [1, 7])
             assert.deepEqual(actual, runChoice(former, name, budget, target, pads, request));
             assert.equal(actual.input, pads.length);
             assert.equal(actual.wram[W.GLOVE_KIND], 0);
+            if (name === 'spellGloveTargetSequence' || name === 'choosePlaceWithGloveSequence')
+              assert.deepEqual(
+                actual.calls.filter((call) => call[0] === 'prepare frame'),
+                request === 0xffff
+                  ? []
+                  : [
+                      [
+                        'prepare frame',
+                        name === 'spellGloveTargetSequence' ? 0x9bde : 0xc736,
+                        0x80,
+                      ],
+                    ],
+              );
             if (name === 'choosePlaceWithGloveSequence')
               assert.equal(actual.wram[W.MOTION_ACTIVE + 4], 1);
             else

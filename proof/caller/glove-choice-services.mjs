@@ -669,7 +669,7 @@ export function* choosePlaceWithGloveSequence(h, events, routines) {
     h.phx();
     setWord(wram, MOTION_MODE + ctx.x, 0);
   };
-  yield* prepareWindowListSequence(h, events, routines, sites.prepareList);
+  yield* prepareWindowListSequence(h, events, sites.prepareList);
   yield* putGloveOnSequence(h, sites.putOn, PUT_ON_ACTION, GLOVE_LIMITS.action);
   yield* gloveFramesSequence(h, events, routines, sites.frames);
   yield* redrawListSequence(h, events, sites.redraw);

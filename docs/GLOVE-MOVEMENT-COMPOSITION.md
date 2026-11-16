@@ -62,6 +62,8 @@ proof/caller/glove-choice-services.mjs; it does not claim the new movement
 integration. New full callers acquire real objects and names, move and
 release them, and compare all six result paths with the former orchestration
 at both budgets. Frame policy, reach and projection equations are unchanged.
+Spell and place upload waits also assert the actual outer preparation return
+word and bank, before the caller harness normalizes its stack capture.
 
 ## Block 8: harmless-hit notice window
 
@@ -79,3 +81,18 @@ Both notices compose actual text printing through their original JSRs
 Real notice cases compare complete default glyph uploads and karma/result
 writes with the independent former hit orchestration. Remaining confirmation,
 release and player-window-list services are explicit.
+
+## Block 10: harmless-hit notice word waits
+
+Both thirty-counter loops compose the live word wait through the original
+long frames (80:87AF and 80:87F5). Real caller cases assert every descending
+X value, exact input consumption, window/glyph uploads, karma and result
+writes with the former caller. Main-upkeep drops the obsolete notice window,
+text and word-wait bindings from the hit table. Confirmation, window release
+and player-hit list redraw remain explicit services for a later batch.
+The obsolete glove dispatch helper is removed from the shipped source tree;
+the former object-search caller uses the identical existing proof helper.
+
+All ten phases have focused checks and individual commits. Shared release
+results and the current batch state belong in HANDOFF.md. No hardware,
+audio, save-layout or lag-free frame contract changes.

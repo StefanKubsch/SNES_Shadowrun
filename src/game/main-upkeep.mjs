@@ -88,7 +88,7 @@ import { walkTowardsTarget } from './object-target.mjs';
 import { stepAnimation } from './object-animation.mjs';
 import { buildSprites } from './sprite-list.mjs';
 import { enterRoom } from '../system/main-transition.mjs';
-import { frameWaitCallSequence, runFrameWait } from '../system/live-input-calls.mjs';
+import { frameWaitCallSequence } from '../system/live-input-calls.mjs';
 export { runFrameWait, runPadPresses } from '../system/live-input-calls.mjs';
 
 // 81:8877, called with JSL.
@@ -479,9 +479,6 @@ export const liftedChoosePlaceSequence = (h, events) => choosePlaceWithGloveSequ
 // natives and the blast: its notices' window, text, word wait, confirm key and release
 // and the player hit's window list run lifted through their frames.
 const HIT_ROUTINES = new Map([
-  [0x80f963, runOpenWindow],
-  [0x80fe69, runPrintText],
-  [0x81b0a1, runFrameWait],
   [0x80f953, runConfirmKey],
   [0x80fa3e, runReleaseWindow],
   [0x81ad92, runDrawWindowList],

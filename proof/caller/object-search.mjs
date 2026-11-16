@@ -25,7 +25,7 @@
 // relative to the object, the kind index) are written as the original writes them.
 import { dialogCallBody, segmentSequence } from '../../src/system/native-call-continuation.mjs';
 import { releaseNameWindowCallSequence } from '../../src/game/window-release.mjs';
-import { routineCall } from '../../src/script/native-glove-target-support.mjs';
+import { routineCall } from '../replay/native-glove-target-support.mjs';
 import { measureTextWidthRoutine } from '../../src/game/text-width.mjs';
 import { GLOVE_KIND_SPELL } from '../../src/script/native-glove-crosshair-limits.mjs';
 import { taskStop } from '../../src/system/task-stop.mjs';
