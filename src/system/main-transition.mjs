@@ -1,5 +1,5 @@
 import { routineCaller } from './routine-call.mjs';
-import { enterRoomSequence } from '../game/room-entry.mjs';
+import { enterRoomJsrSequence as enterRoomRoutineSequence } from '../game/room-entry.mjs';
 import { unpackStep } from './native-unpack-body.mjs';
 import { SCENE_GRAPHICS_ROUTINES } from './main-scene-graphics.mjs';
 import { TALK_ROUTINES } from '../script/native-dialog.mjs';
@@ -597,14 +597,6 @@ function runActorsPlace(h, e, r = TRANSITION_ROUTINES) {
 // composition in proof/replay/main-transition.mjs.
 export function enterRoom(h, e) {
   return drainNativeSequence(enterRoomRoutineSequence(h, e));
-}
-function* enterRoomRoutineSequence(h, e) {
-  yield* enterRoomSequence(h, e, h.ctx.a & WORD_MASK);
-  let result;
-  yield () => {
-    result = h.rts();
-  };
-  return result;
 }
 
 for (const [target, run, sequence] of [

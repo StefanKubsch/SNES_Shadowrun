@@ -85,7 +85,6 @@ import { moveAndAnimate } from './object-motion.mjs';
 import { walkTowardsTarget } from './object-target.mjs';
 import { stepAnimation } from './object-animation.mjs';
 import { buildSprites } from './sprite-list.mjs';
-import { enterRoom } from '../system/main-transition.mjs';
 import { frameWaitCallSequence } from '../system/live-input-calls.mjs';
 export { runFrameWait, runPadPresses } from '../system/live-input-calls.mjs';
 
@@ -522,14 +521,13 @@ NATIVE_CALL_CONTINUATIONS.set(runGloveMove, {
 // call continuation of the main loop. The register-level reference keeps the target's
 // registration, so this one is found by its run function.
 // The zones append their script tasks with the lifted task append 80:C34A.
-const ZONE_ROUTINES = { a4bf: enterRoom };
-export function runPlayerZones(h, events, routines = ZONE_ROUTINES) {
-  return drainNativeSequence(playerZonesSequence(h, events, routines));
+export function runPlayerZones(h, events) {
+  return drainNativeSequence(playerZonesSequence(h, events));
 }
 NATIVE_CALL_CONTINUATIONS.set(runPlayerZones, {
   run: runPlayerZones,
-  create: ({ h, events, gateRoutines = ZONE_ROUTINES }) =>
-    new NativeCallContinuation(h.a, playerZonesSequence(h, events, gateRoutines)),
+  create: ({ h, events }) =>
+    new NativeCallContinuation(h.a, playerZonesSequence(h, events)),
 });
 // The motion pass's lifted walk towards a target
 // (80:C9E0, src/game/object-target.mjs, with the lifted turn) and the lifted animation
@@ -555,4 +553,4 @@ export const mainLoopTimeLimitSequence = (h, events) => timeLimitSequence(h, eve
 export const mainLoopGloveActionSequence = (h, events) => gloveActionSequence(h, events);
 export const mainLoopGloveMoveSequence = (h, events) => gloveMoveSequence(h, events);
 export const mainLoopPlayerZonesSequence = (h, events) =>
-  playerZonesSequence(h, events, ZONE_ROUTINES);
+  playerZonesSequence(h, events);

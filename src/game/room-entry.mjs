@@ -389,3 +389,11 @@ export function* enterRoomSequence(h, events, room) {
     startBrightnessFade(wram, FADE_IN);
   };
 }
+
+// The room in A, entered below the caller's existing 80:A4BF JSR frame.
+export function* enterRoomJsrSequence(h, events) {
+  yield* enterRoomSequence(h, events, h.ctx.a & WORD_MASK);
+  let result;
+  yield () => { result = h.rts(); };
+  return result;
+}

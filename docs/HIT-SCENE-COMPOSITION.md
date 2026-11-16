@@ -77,3 +77,13 @@ The former zones remain independently compared with the original instructions.
 Actual callers append real script tasks on every inclusive coordinate boundary,
 with zero, one and two overlapping zones, no player and full task slots, at both
 budgets. Geometry and the explicit allocation failure retain their contracts.
+
+## Block 9: zone room entry
+
+The second zone list composes the live room entry through 80:80AD. The shared
+room-entry JSR adapter lives with its body and main-upkeep removes the zone
+table. Actual zone callers enter five real rooms at both budgets, with real
+scene loading, object/task reset, camera, graphics writes and windows. The
+former zone dispatcher calls the same established entry through its retained
+dispatch path. Existing room-entry original comparisons and the alley main
+loop comparison retain independent source and scene evidence.

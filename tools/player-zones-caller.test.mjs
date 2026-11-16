@@ -4,16 +4,19 @@ import { compareRun } from './member-menu-caller-harness.mjs';
 import { playerZonesSequence } from '../src/game/player-zones.mjs';
 import { playerZonesSequence as formerZones } from '../proof/caller/player-zones.mjs';
 import { appendScriptTaskCall } from '../src/script/task-api.mjs';
+import { enterRoom } from '../src/system/main-transition.mjs';
 import * as W from '../src/data/wram.mjs';
 import * as V from '../src/vm/layout.mjs';
 
 function runZones(sequence, axis, coordinate, count, absent, budget, full = false) {
   return compareRun(
     (h, events) =>
-      sequence(h, events, {
-        c34a: appendScriptTaskCall,
-        a4bf: () => assert.fail('script-only zone fixture cannot change rooms'),
-      }),
+      sequence === playerZonesSequence
+        ? sequence(h, events)
+        : sequence(h, events, {
+            c34a: appendScriptTaskCall,
+            a4bf: () => assert.fail('script-only zone fixture cannot change rooms'),
+          }),
     false,
     ({ put, mem }) => {
       put(W.PLAYER_OBJECT, absent ? 0xffff : 0);
@@ -66,3 +69,60 @@ for (const budget of [1, 7])
         (error) => error.reason === 'task_slot_required',
       );
   });
+
+function runRoomZone(sequence, room, budget) {
+  return compareRun(
+    (h, events) =>
+      sequence === playerZonesSequence
+        ? sequence(h, events)
+        : sequence(h, events, { c34a: appendScriptTaskCall, a4bf: enterRoom }),
+    false,
+    ({ put, mem }) => {
+      put(W.PLAYER_OBJECT, 0);
+      put(W.GLOVE_TARGET_TAG, 0xffff);
+      put(W.GROUP_INDEX, 0xffff);
+      put(W.FIGHT_LIST_INDEX, 0xfffe);
+      put(W.DP_ZONE_LIST, 0x4000);
+      mem.wram[W.DP_ZONE_LIST + 2] = 0x7f;
+      mem.wram[0x14000] = 0;
+      mem.wram[0x14001] = 1;
+      for (let n = 0; n < 6; n++) put(0x14002 + n * 2, 0);
+      put(0x1400e, room);
+      for (let n = 0; n <= W.NOTICE_WINDOW_LAST; n += 2) put(W.NOTICE_WINDOWS + n, 0xffff);
+      mem.wram.set(
+        [0, 1, 2].map((n) => mem.read8(0x98fffa + n)),
+        W.AUDIO_DIRECTORY_POINTER,
+      );
+    },
+    budget,
+    [],
+    false,
+    ({ h, mem, put, events, calls }) => {
+      h.ctx.s = 0x1eef;
+      const service = events.interrupts.textWait;
+      events.interrupts.textWait = (callee, frameEvents, status, pc) => {
+        if (pc === 0x81b0a9) {
+          calls.push(['room frame', mem.read16(0x7e0000 | (h.ctx.s + 1)), h.ctx.programBank]);
+          put(W.RANDOM_STATE, mem.read16(W.RANDOM_STATE) + 1);
+          return true;
+        }
+        return service(callee, frameEvents, status, pc);
+      };
+      return (result) => {
+        result.wram.fill(0, 0x1e80, 0x1ef0);
+        for (const [, payload] of result.uploads) payload.fill(0, 0x1e80 - 0x1cc, 0x1ef0 - 0x1cc);
+        return result;
+      };
+    },
+  );
+}
+
+for (const budget of [1, 7])
+  for (const room of [0, 3, 0xab, 0xd2, 0x159])
+    test(`zone enters actual room ${room} at budget ${budget}`, () => {
+      const actual = runRoomZone(playerZonesSequence, room, budget);
+      assert.deepEqual(actual, runRoomZone(formerZones, room, budget));
+      assert.equal(actual.wram[W.ROOM] | (actual.wram[W.ROOM + 1] << 8), room);
+      assert.ok(actual.calls.some((call) => call[0] === 'room frame'));
+      assert.ok(actual.writes.length > 0);
+    });

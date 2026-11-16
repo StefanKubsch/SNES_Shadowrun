@@ -10,14 +10,15 @@
 // changes the scene (80:A4BF, with the data word) and the main loop starts its next
 // pass at once (the carry set). Without a player figure nothing is tested.
 //
-// The scene change is still register-level and runs through its frame below the zone
+// The scene change composes the live room entry through its frame below the zone
 // check's frame (its NMI writes below them); the task append (lifted in
 // src/game/task-append.mjs) runs below the pushed list offset and its return word. The direct page
 // words 0E, 11 and 14 (the position), 17 (the list) and 1A (the zones left) are written
 // as the original writes them. A, X, Y and the flags are left as the original leaves
 // them: the next callees and the waits of the next pass start with them.
 import { taskStop } from '../system/task-stop.mjs';
-import { nativeCallSequence } from '../system/native-call-continuation.mjs';
+import { dialogCallBody } from '../system/native-call-continuation.mjs';
+import { enterRoomJsrSequence } from './room-entry.mjs';
 import { appendScriptTaskCall } from '../script/task-api.mjs';
 import {
   DP_ZONE_COUNT,
@@ -79,8 +80,8 @@ function enterCall(ctx, loaded) {
 
 // Test the zones around the player figure (80:8000), a sequence for a native call
 // continuation: h the main loop's access (direct page 0, data bank 80), events its frame
-// events, routines { a4bf } the remaining scene-change service.
-export function* playerZonesSequence(h, events, routines) {
+// events its live frame events. Both task creation and room entry compose directly.
+export function* playerZonesSequence(h, events) {
   const { ctx, a } = h,
     { mem } = a,
     { wram } = mem;
@@ -145,15 +146,7 @@ export function* playerZonesSequence(h, events, routines) {
           ctx.y = offset;
           ctx.a = data;
           enterCall(ctx, data);
-          yield* nativeCallSequence(
-            h,
-            events,
-            new Map([[SCENE_CHANGE, routines.a4bf]]),
-            SCENE_CHANGE_CALL,
-            SCENE_CHANGE,
-            false,
-            false,
-          );
+          yield* dialogCallBody(h, SCENE_CHANGE_CALL, SCENE_CHANGE, () => enterRoomJsrSequence(h, events));
           yield () => {
             a.pullWord();
             flag(ctx, FLAG_CARRY, true);
