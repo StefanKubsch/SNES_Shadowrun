@@ -19,9 +19,8 @@
 // 0100 by DMA, the pad read and the sprites rebuilt), both windows are released and the
 // old music comes back.
 //
-// The callees come from the routine table and run through their frames with the A, X
-// and Y the original passes them (the main loop binds the lifted glove release, window
-// opening, window release and frame wait; the others are register-level). The flags the
+// Window setup and release compose their live callees directly. The remaining
+// services run through their established frames with the original arguments. The flags the
 // routine itself changes (the carry of its shifts and comparisons) are passed on as the
 // original's; it changes no overflow. It leaves the registers of its last callee (the
 // music change) or of the window release with A the pulled music word.
@@ -30,6 +29,12 @@ import {
   dialogCallBody,
   segmentSequence,
 } from '../system/native-call-continuation.mjs';
+import { openWindowSequence } from './window-open.mjs';
+import {
+  putGloveAwayCallSequence,
+  releaseNoticeWindowsCallSequence,
+  releaseWindowJsrSequence,
+} from './window-release.mjs';
 import { closePortraitWindowSequence } from './portrait-window.mjs';
 import { frameWaitCallSequence, runPadPresses } from '../system/live-input-calls.mjs';
 import { sceneRuntime } from '../system/scene-runtime.mjs';
@@ -291,13 +296,19 @@ export function* talkSequence(h, events, routines) {
     setWord(wram, DP_WINDOW_ATTRIBUTES, 0);
     ctx.a = 0;
   };
-  yield* call(CALL.colour);
+  yield* dialogCallBody(
+    h,
+    CALL.colour[0],
+    CALL.colour[1],
+    () => segmentSequence(() => clearFixedColourRoutine(h)),
+    true,
+  );
   yield () => {
     setWord(wram, DIALOG_END, 0);
     ctx.a = word(wram, DP_OBJECT);
     setWord(wram, DP_DIALOG_OBJECT, ctx.a);
   };
-  yield* call(CALL.glove);
+  yield* dialogCallBody(h, ...CALL.glove, () => putGloveAwayCallSequence(h, events));
   yield () => {
     wram[DP_RECORD_BANK] = RECORD_BANK;
     const number = word(wram, DP_RECORD_NUMBER);
@@ -307,7 +318,7 @@ export function* talkSequence(h, events, routines) {
     setWord(wram, DP_RECORD, ctx.a);
     ctx.y = word(wram, DP_DIALOG_OBJECT);
   };
-  yield* call(CALL.notices);
+  yield* dialogCallBody(h, ...CALL.notices, () => releaseNoticeWindowsCallSequence(h, events));
   // The dialog's music: its old music (or FFFF) stays on the stack.
   let change = false;
   yield () => {
@@ -331,16 +342,22 @@ export function* talkSequence(h, events, routines) {
   };
   if (change) yield* call(CALL.music);
   yield () => window(PORTRAIT_FRAME);
-  yield* call(CALL.frame);
+  yield* dialogCallBody(h, ...CALL.frame, () => openWindowSequence(h, events));
   yield () => {
     setWord(wram, DP_PORTRAIT_FRAME, word(wram, DP_OBJECT));
     setWord(wram, DP_RECORD_NUMBER, FRAME_LEFT_PIXEL);
     ctx.a = FRAME_WIDTH_CHANGE;
     setWord(wram, DP_PIXEL_WIDTH, ctx.a);
   };
-  yield* call(CALL.narrow);
+  yield* dialogCallBody(
+    h,
+    CALL.narrow[0],
+    CALL.narrow[1],
+    () => segmentSequence(() => setWindowTextWidthRoutine(h)),
+    false,
+  );
   yield () => window(TEXT_WINDOW);
-  yield* call(CALL.text);
+  yield* dialogCallBody(h, ...CALL.text, () => openWindowSequence(h, events));
   // Jake's portrait record, then the partner's from the dialog record.
   yield () => {
     setWord(wram, DP_TEXT_WINDOW, word(wram, DP_OBJECT));
@@ -424,12 +441,12 @@ export function* talkSequence(h, events, routines) {
     ctx.a = h.a.pullWord();
     setWord(wram, DP_OBJECT, ctx.a);
   };
-  yield* call(CALL.releaseText);
+  yield* dialogCallBody(h, ...CALL.releaseText, () => releaseWindowJsrSequence(h.a, events));
   yield () => {
     ctx.a = h.a.pullWord();
     setWord(wram, DP_OBJECT, ctx.a);
   };
-  yield* call(CALL.releaseFrame);
+  yield* dialogCallBody(h, ...CALL.releaseFrame, () => releaseWindowJsrSequence(h.a, events));
   let restore;
   yield () => {
     ctx.a = h.a.pullWord();

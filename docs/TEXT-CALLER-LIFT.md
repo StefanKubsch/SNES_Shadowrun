@@ -277,3 +277,16 @@ counter wrap, and idle, confirming and invalid pad words. It checks all twelve
 frames, the font DMA writes, game state and return, with zero-budget stability.
 Tile reload and sprite rebuilding are recording stand-ins; their real integration
 comparisons remain in the existing dialog suites. No hardware contract changes.
+
+## Dialog orchestration batch: windows (2026-11-16)
+
+Talk composes colour clearing, glove and notice release, window opening,
+text-width setup and both final releases directly. The established call frames,
+arguments, music preservation and allocation order remain unchanged.
+The orchestration suite adds complete Exit, cancellation, Talk and topic routes
+at both budgets, with real text, menus, portrait unpacking/uploads and window
+composition. A synthetic bounded dialog record supplies texts while retaining a
+real portrait source. Tile reload, sprites and music are recorded services.
+The fixture services each upload and blocking frame; it is not a hardware NMI
+comparison. It relocates its CPU stack away from the HDMA fields and captures
+those fields explicitly. Former injected call coverage remains independent.

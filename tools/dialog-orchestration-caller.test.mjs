@@ -3,7 +3,11 @@ import assert from 'node:assert/strict';
 import * as direct from '../src/game/dialog-talk.mjs';
 import * as former from '../proof/caller/dialog-talk.mjs';
 import { closePortraitWindowSequence } from '../proof/caller/portrait-window.mjs';
-import { runFrameWait, runPadPresses } from '../src/system/live-input-calls.mjs';
+import {
+  runFrameWait,
+  runPadPresses,
+  frameWaitCallSequence,
+} from '../src/system/live-input-calls.mjs';
 import {
   NativeCallContinuation,
   NATIVE_CALL_CONTINUATIONS,
@@ -38,11 +42,12 @@ function runClose(module, shadow, counter, held, budget) {
     put(RANDOM_STATE, mem.read16(RANDOM_STATE) + 1);
     return true;
   };
+  const wait = () => assert.fail('wait must resume cooperatively');
   const portrait = () => assert.fail('portrait must resume cooperatively');
   const table = new Map([
     [0x808f97, portrait],
-    [0x81b0a1, runFrameWait],
-    [0x809e1a, runPadPresses],
+    [0x81b0a1, wait],
+    [0x809e1a, (callee, e) => runPadPresses(callee, e)],
     ...[0x80adf4, 0x80b8de].map((target) => [
       target,
       (callee) => {
@@ -51,6 +56,10 @@ function runClose(module, shadow, counter, held, budget) {
       },
     ]),
   ]);
+  NATIVE_CALL_CONTINUATIONS.set(wait, {
+    run: wait,
+    create: () => new NativeCallContinuation(a, frameWaitCallSequence(h, events)),
+  });
   NATIVE_CALL_CONTINUATIONS.set(portrait, {
     run: portrait,
     create: () => new NativeCallContinuation(a, closePortraitWindowSequence(h, events, table)),
@@ -68,6 +77,7 @@ function runClose(module, shadow, counter, held, budget) {
     return { ...result, pressed, finalShadow };
   } finally {
     NATIVE_CALL_CONTINUATIONS.delete(portrait);
+    NATIVE_CALL_CONTINUATIONS.delete(wait);
   }
 }
 for (const budget of [1, 7])
@@ -81,3 +91,148 @@ for (const budget of [1, 7])
           assert.equal(actual.finalShadow, shadow & ~1);
           assert.equal(actual.writes.length, 17, 'OBJSEL and both complete font DMA setups');
         });
+
+import * as live from '../src/game/main-upkeep.mjs';
+import { dialogTextRoutines } from '../src/system/native-dialog-text.mjs';
+import { DIALOG_TABLE, DIALOG_BANK_BASE } from '../src/data/portraits.mjs';
+import { clearFixedColourRoutine, setWindowTextWidthRoutine } from '../src/game/dialog-talk.mjs';
+import {
+  GAME_OPTIONS,
+  MUSIC,
+  GLOVE_TARGET_TAG,
+  NOTICE_WINDOWS,
+  WINDOW_ACTIVE,
+  WINDOW_NEXT_TILE,
+  PORTRAIT_DMA_REQUEST,
+  DIALOG_END,
+  TOPIC_LIST,
+  JAKE_ALTERNATE_PORTRAIT,
+  SOUND_LOADED_SET,
+} from '../src/data/wram.mjs';
+
+// The former orchestrator keeps its dispatched call graph. Real live callees
+// isolate composition from the NMI service; reload, sprites and music are recorded.
+function runTalk(module, variant, budget, { alternate = 0, music = 0 } = {}) {
+  const side = textWindowSide(),
+    { h, mem, put, events } = side;
+  h.ctx.s = 0x1eef;
+  put(0, 0x40);
+  put(2, 0);
+  put(GLOVE_TARGET_TAG, 0xffff);
+  for (let slot = 0; slot < 6; slot += 2) put(NOTICE_WINDOWS + slot, 0xffff);
+  put(WINDOW_ACTIVE, 0xffff);
+  put(WINDOW_NEXT_TILE, 0x2000);
+  put(GAME_OPTIONS, music ? 1 : 0);
+  put(MUSIC, 0x1234);
+  put(SOUND_LOADED_SET, mem.read16(0x80c4b3 + 0x4c));
+  mem.wram[JAKE_ALTERNATE_PORTRAIT] = alternate;
+  mem.wram.set([2, 0xff], TOPIC_LIST);
+  // Preserve the real partner portrait pointer, supply bounded text records.
+  const read = mem.read8.bind(mem),
+    record = mem.read16(DIALOG_TABLE),
+    header = Array.from({ length: 3 }, (_, n) => read(DIALOG_BANK_BASE + record + n)),
+    entry = (key, text) => [key, 4, 0, text & 255, text >>> 8],
+    bytes = [
+      ...header,
+      music,
+      ...entry(0xff, 0x707d),
+      ...entry(0xfe, 0x7077),
+      ...entry(2, 0x7074),
+      0xf8,
+    ];
+  mem.read8 = (address) =>
+    address === DIALOG_TABLE
+      ? 0
+      : address === DIALOG_TABLE + 1
+        ? 0x60
+        : address >= 0x8d6000 && address < 0x8d6000 + bytes.length
+          ? bytes[address - 0x8d6000]
+          : read(address);
+  events.text = dialogTextRoutines(events);
+  const serviceUpload = events.interrupts.textWait;
+  const pads =
+    variant === 'talk'
+      ? [0x400, 0, 0x8000, 0, 0x8000]
+      : variant === 'topic'
+        ? [0x400, 0, 0x400, 0, 0x8000, 0, 0x8000, 0, 0x8000]
+        : variant === 'cancel'
+          ? [0x2000]
+          : [0x8000];
+  let frames = 0,
+    input = 0,
+    requests = 0;
+  events.interrupts.textWait = (callee, frameEvents, status, pc) => {
+    if ([0x81b0a1, 0x81b0a5, 0x81b0ab].includes(pc)) return true;
+    if (pc === 0x80901f) {
+      requests++;
+      side.calls.push([
+        'portrait',
+        mem.read16(PORTRAIT_DMA_REQUEST),
+        mem.wram.slice(0x15250, 0x16250),
+      ]);
+      put(PORTRAIT_DMA_REQUEST, mem.read16(PORTRAIT_DMA_REQUEST) | 0x8000);
+      return true;
+    }
+    if (pc !== 0x81b0a9) return serviceUpload(callee, frameEvents, status, pc);
+    if (!(status & 2)) return true;
+    frames++;
+    // Opening is eleven frames, the greeting waits another sixty-one.
+    if (mem.read16(0x7e0000 | (h.ctx.s + 1)) === 0xa6ec && input < pads.length)
+      put(PAD_HELD, pads[input++]);
+    else put(PAD_HELD, 0);
+    assert.ok(frames < 140, 'bounded talk input');
+    side.calls.push([
+      'frame',
+      frames,
+      mem.read16(DIALOG_END),
+      mem.wram.slice(DIALOG_HDMA_TABLE, DIALOG_HDMA_TABLE + 16),
+    ]);
+    put(RANDOM_STATE, mem.read16(RANDOM_STATE) + 1);
+    return true;
+  };
+  const table = new Map([
+    [0x81886a, clearFixedColourRoutine],
+    [0x80fa92, setWindowTextWidthRoutine],
+    [0x80bcb2, live.runPutGloveAway],
+    [0x80ff79, live.runReleaseNoticeWindows],
+    [0x80f963, live.runOpenWindow],
+    [0x80fa3e, live.runReleaseWindow],
+    [0x809f6d, liveUnpack],
+    [0x808f20, liveShift],
+    [0x809022, live.runUploadFirstPortrait],
+    [0x80905e, live.runUploadSecondPortrait],
+    [0x808f3a, live.runOpenPortraitWindow],
+    [0x808f97, live.runClosePortraitWindow],
+    [0x81b0a1, runFrameWait],
+    [0x809e1a, runPadPresses],
+    [0x809178, live.runDialogText],
+    [0x8091e2, live.runDialogMenu],
+    [0x809215, live.runDialogTopics],
+    ...[0x80adf4, 0x80b8de, 0x81ef47].map((target) => [
+      target,
+      (callee) => {
+        side.calls.push(['service', target, callee.ctx.a]);
+        return target === 0x81ef47 ? callee.rtl() : callee.rts();
+      },
+    ]),
+  ]);
+  const result = finishTextWindow(side, module.talkSequence(h, events, table), budget);
+  // Exclude only the relocated CPU stack from final and upload snapshots.
+  result.wram.fill(0, 0x1e80, 0x1ef0);
+  for (const [, wram] of result.uploads) wram.fill(0, 0x1e80 - 0x1cc, 0x1ef0 - 0x1cc);
+  return { ...result, frames, input, requests };
+}
+import {
+  unpackPortraitRoutine as liveUnpack,
+  shiftPortraitRowsRoutine as liveShift,
+} from '../src/game/portrait-upload.mjs';
+for (const budget of [1, 7])
+  for (const variant of ['exit', 'cancel', 'talk', 'topic'])
+    test(`talk window composition: ${variant}, budget ${budget}`, () => {
+      const actual = runTalk(direct, variant, budget);
+      assert.deepEqual(actual, runTalk(former, variant, budget));
+      assert.equal(actual.requests, 2);
+      assert.ok(actual.frames >= 85, 'opening, greeting, menu and close all wait');
+      assert.ok(actual.input > 0);
+      assert.ok(actual.uploads.length > 4, 'both windows open, draw and release');
+    });
