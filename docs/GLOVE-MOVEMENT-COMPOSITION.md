@@ -71,3 +71,11 @@ for its unchanged independent random original comparison. New real callers
 cover fourth/eighth hits, karma below/at/above the penalty, no-notice paths,
 request wrap and actual glyph/window uploads at both budgets. Damage,
 object creation, task events and the player-hit body do not change.
+
+## Block 9: harmless-hit notice text
+
+Both notices compose actual text printing through their original JSRs
+(80:87A9 and 80:87EF), forwarding the hit caller's optional renderer.
+Real notice cases compare complete default glyph uploads and karma/result
+writes with the independent former hit orchestration. Remaining confirmation,
+release and player-window-list services are explicit.
