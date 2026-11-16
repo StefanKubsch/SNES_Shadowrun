@@ -35,9 +35,17 @@ function runPlayer(direct, variant, budget, realDrawing = false, members = 1, le
     budget,
     [0x8000],
     realDrawing,
-    ({ h, events, routines, bind }) => {
+    ({ h, mem, events, routines, bind, calls }) => {
+      routines.set(0x80a985, (callee) => {
+        calls.push(['action', mem.read16(0), mem.read16(2)]);
+        return callee.rts();
+      });
       bind(0x80ed3c, () => partyStatusSequence(h, events, routines));
-      services = new Map([...routines].filter(([target]) => target !== 0x80ed3c));
+      services = new Map(
+        [...routines].filter(([target]) =>
+          [0x80a985, 0x80aaaf, 0x80bcb2, 0x80ea89, 0x80ea8e].includes(target),
+        ),
+      );
     },
   );
 }
@@ -56,3 +64,18 @@ for (const budget of [1, 7])
           assert.equal(actual.wram[0] | (actual.wram[1] << 8), 0);
           if (realDrawing) assert.ok(actual.uploads.some(([pc]) => pc === 0x81accc));
         });
+
+for (const budget of [1, 7])
+  for (const variant of ['weapon notice', 'spell notice'])
+    for (const realDrawing of [false, true])
+      test(`player ${variant}, budget ${budget}, glyphs ${realDrawing}`, () => {
+        const actual = runPlayer(true, variant, budget, realDrawing);
+        assert.deepEqual(actual, runPlayer(false, variant, budget, realDrawing));
+        assert.equal(actual.input, 1);
+        assert.deepEqual(
+          actual.calls.filter((c) => c[0] === 'action'),
+          [['action', 2, 0]],
+        );
+        assert.equal(actual.wram[0] | (actual.wram[1] << 8), 0);
+        if (realDrawing) assert.ok(actual.uploads.some(([pc]) => pc === 0x81accc));
+      });

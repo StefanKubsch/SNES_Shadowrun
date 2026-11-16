@@ -1,8 +1,5 @@
 import { textBufferRenderer } from './text-renderer.mjs';
-import { taskStop } from '../system/task-stop.mjs';
 import { randomByteNative, randomBelowNative } from '../script/native-script-leaves.mjs';
-import { raiseMemberMagicPoints } from '../script/native-magic-points-raise.mjs';
-import { raiseStateCountSequence } from './runner-state-call.mjs';
 // The main loop's entries of its lifted upkeep routines: each runs the lifted
 // function and returns to the main loop as the original (RTL from bank 81, RTS in
 // bank 80). The register-level versions are references in
@@ -33,7 +30,7 @@ import {
   releaseNoticeWindowsCallSequence,
   releaseWindowSequence,
 } from './window-release.mjs';
-import { clearFixedColourRoutine, closeDialogSequence, talkSequence } from './dialog-talk.mjs';
+import { closeDialogSequence, talkSequence } from './dialog-talk.mjs';
 import { chooseDialogActionSequence, chooseDialogTopicSequence } from './dialog-menus.mjs';
 import {
   printTopicTextSequence,
@@ -42,8 +39,6 @@ import {
 } from './dialog-text.mjs';
 import { closePortraitWindowSequence, openPortraitWindowSequence } from './portrait-window.mjs';
 import {
-  shiftPortraitRowsRoutine,
-  unpackPortraitRoutine,
   uploadFirstPortraitSequence,
   uploadSecondPortraitSequence,
   uploadPortraitTilesSequence,
@@ -67,16 +62,11 @@ import {
   scriptChooseObjectSequence,
   spellGloveTargetSequence,
 } from './glove-target.mjs';
-import {
-  runDrawWindowList,
-  runRequestUpload,
-  runResetWindowList,
-  runUnpackWindowMap,
-} from './window-list.mjs';
+import { runDrawWindowList, runRequestUpload, runUnpackWindowMap } from './window-list.mjs';
 import { createObject } from './object-create.mjs';
 import { chooseFromMenuSequence } from './menu-choice.mjs';
 import { playSoundEffectRoutine } from '../apu/sound-effect.mjs';
-import { sendApuCommandRoutine, setMusicModeRoutine } from '../apu/audio-routines.mjs';
+import { setMusicModeRoutine } from '../apu/audio-routines.mjs';
 import { gloveMoveSequence } from './glove-move.mjs';
 import {
   shootAtGloveTargetSequence,
@@ -441,55 +431,6 @@ NATIVE_CALL_CONTINUATIONS.set(runEquipmentRows, {
 // The lifted member portrait 80:E4B3 with the lifted word wait and the dialog's lifted
 // portrait unpack 80:9F6D, row shift 80:8F20, first upload 80:9022 and DMA job 80:8FF5
 // (src/game/portrait-upload.mjs; the same register interface as the register-level ones).
-// Shared lifted menu callees. No inherited register-level menu graph.
-const LIVE_MENU_ROUTINES = new Map([
-  [0x81b0a1, runFrameWait],
-  [0x809e1a, runPadPresses],
-  [0x80f963, runOpenWindow],
-  [0x80fa3e, runReleaseWindow],
-  [0x80ff79, runReleaseNoticeWindows],
-  [0x809f6d, unpackPortraitRoutine],
-  [0x808f20, shiftPortraitRowsRoutine],
-  [0x809022, runUploadFirstPortrait],
-  [0x80a6c7, runPlainMenu],
-  [0x80c34a, (h) => appendScriptTaskCall(h.a)],
-  [0x80c1ca, runHeadVisit],
-  [0x81aeb0, runResetWindowList],
-  [0x80f953, runConfirmKey],
-  [0x808ff5, runPortraitTiles],
-  [0x80faac, setTextCursorRoutine],
-  [0x80fe69, runPrintText],
-  [0x80fd80, runPrintNumber],
-  [0x8092c5, runCloseDialog],
-  [0x81886a, clearFixedColourRoutine],
-  [0x80bcb2, runPutGloveAway],
-  [0x81f007, sendApuCommandRoutine],
-  [0x80a6ad, runNumberedMenu],
-  [0x80fa67, runTileClear],
-  [0x80a835, runCreateObject],
-  [0x80fb39, runDrawTextBuffer],
-  [0x80a985, selectAnimationRoutine],
-  [0x80aaaf, turnObjectRoutine],
-  [0x80a6b8, runNumberedMenuAt],
-  [0x80c46e, playSoundEffectRoutine],
-  [0x80cecb, runRaiseStateCount],
-  [0x80cf2e, (h) => raiseMemberMagicPoints(h.a, false)],
-]);
-function runHeadVisit(h, events) {
-  if (!events.round) taskStop('task_f254_visit_open');
-  return events.round(0x80c1ca);
-}
-NATIVE_CALL_CONTINUATIONS.set(runHeadVisit, {
-  run: runHeadVisit,
-  create: ({ events }) => events.nestedRound?.(0x80c1ca) ?? null,
-});
-function runRaiseStateCount(h, events) {
-  return drainNativeSequence(raiseStateCountSequence(h, events));
-}
-NATIVE_CALL_CONTINUATIONS.set(runRaiseStateCount, {
-  run: runRaiseStateCount,
-  create: ({ h, events }) => new NativeCallContinuation(h.a, raiseStateCountSequence(h, events)),
-});
 export function runMemberPortrait(h, events) {
   return drainNativeSequence(memberPortraitSequence(h, events));
 }
@@ -540,16 +481,13 @@ export const liftedMainMenuSequence = (h, events) => mainMenuSequence(h, events)
 // The lifted player control 80:E014 with the lifted party status, window, text,
 // release, glove release, turn, animation selection 80:A985, status screen and key
 // wait.
-const PLAYER_CONTROL_LIFT_ROUTINES = new Map(LIVE_MENU_ROUTINES)
-  .set(0x80ea89, runStatusScreen)
-  .set(0x80ea8e, runItemList)
-  .set(0x80f963, runOpenWindow)
-  .set(0x80fe69, runPrintText)
-  .set(0x80fa3e, runReleaseWindow)
-  .set(0x80bcb2, runPutGloveAway)
-  .set(0x80aaaf, turnObjectRoutine)
-  .set(0x80a985, selectAnimationRoutine)
-  .set(0x80f953, runConfirmKey);
+const PLAYER_CONTROL_LIFT_ROUTINES = new Map([
+  [0x80ea89, runStatusScreen],
+  [0x80ea8e, runItemList],
+  [0x80bcb2, runPutGloveAway],
+  [0x80aaaf, turnObjectRoutine],
+  [0x80a985, selectAnimationRoutine],
+]);
 export const liftedPlayerControlSequence = (h, events) =>
   controlPlayerSequence(h, events, PLAYER_CONTROL_LIFT_ROUTINES);
 // The time limit's and the glove action's callees: the lifted notice, glove release,

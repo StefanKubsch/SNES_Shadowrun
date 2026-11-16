@@ -14,6 +14,10 @@
 // R ends the aim and takes the glove off (80:BCB2), as A or X do without an aim, and B,
 // L or R do without a tagged object. The callees run through their frames from the
 // routine table, each with its own callees.
+import { openWindowSequence } from './window-open.mjs';
+import { printTextSequence } from './text-print.mjs';
+import { waitForConfirmKeySequence } from './confirm-key.mjs';
+import { releaseWindowJsrSequence } from './window-release.mjs';
 import { partyStatusSequence } from './party-status.mjs';
 import { drawTextBufferSequence } from './text-draw.mjs';
 import { nativeCallSequence, dialogCallBody } from '../system/native-call-continuation.mjs';
@@ -277,7 +281,14 @@ function* faceGloveSequence(h, events, routines) {
 
 // A notice with its window, text and key wait at the call sites calls, then the leader
 // in DP 00 and the neutral action.
-function* noticeSequence(h, events, routines, [windowPc, textPc, waitPc, releasePc], notice) {
+function* noticeSequence(
+  h,
+  events,
+  routines,
+  [windowPc, textPc, waitPc, releasePc],
+  notice,
+  renderBuffer,
+) {
   const { ctx } = h,
     { mem } = h.a,
     { wram } = mem;
@@ -291,14 +302,14 @@ function* noticeSequence(h, events, routines, [windowPc, textPc, waitPc, release
     // Another language fits the window to the text.
     fitListWindow(mem, h, [notice.text], { column: 0 });
   };
-  yield* call(h, events, routines, [windowPc, OPEN_WINDOW]);
+  yield* dialogCallBody(h, windowPc, OPEN_WINDOW, () => openWindowSequence(h, events));
   yield () => {
     load(ctx, notice.text);
     setWord(wram, 2, notice.text);
   };
-  yield* call(h, events, routines, [textPc, PRINT_TEXT]);
-  yield* call(h, events, routines, [waitPc, CONFIRM_KEY]);
-  yield* call(h, events, routines, [releasePc, RELEASE_WINDOW]);
+  yield* dialogCallBody(h, textPc, PRINT_TEXT, () => printTextSequence(h, events, renderBuffer));
+  yield* dialogCallBody(h, waitPc, CONFIRM_KEY, () => waitForConfirmKeySequence(h, events));
+  yield* dialogCallBody(h, releasePc, RELEASE_WINDOW, () => releaseWindowJsrSequence(h.a, events));
   yield () => {
     const player = word(wram, PLAYER_OBJECT);
     load(ctx, player);
@@ -385,12 +396,12 @@ export function* controlPlayerSequence(h, events, routines, renderBuffer = drawT
     yield* call(h, events, routines, path === 'status' ? STATUS_SCREEN : ITEM_LIST);
     return yield* finish();
   }
-  if (path === 'free') return yield* freeSequence(h, events, routines, finish);
+  if (path === 'free') return yield* freeSequence(h, events, routines, finish, renderBuffer);
   return yield* gloveSequence(h, events, routines, finish);
 }
 
 // Without a glove (80:E04B).
-function* freeSequence(h, events, routines, finish) {
+function* freeSequence(h, events, routines, finish, renderBuffer) {
   const { ctx } = h,
     { mem } = h.a,
     { wram } = mem,
@@ -429,7 +440,7 @@ function* freeSequence(h, events, routines, finish) {
       load(ctx, MARK_SET);
     };
     if (!armed) {
-      yield* noticeSequence(h, events, routines, WEAPON_NOTICE_CALLS, WEAPON_NOTICE);
+      yield* noticeSequence(h, events, routines, WEAPON_NOTICE_CALLS, WEAPON_NOTICE, renderBuffer);
       return yield* finish();
     }
     yield* call(h, events, routines, GLOVE_ACTION);
@@ -448,7 +459,7 @@ function* freeSequence(h, events, routines, finish) {
       setWord(wram, 2, SPELL_ACTION);
     };
     if (!selected) {
-      yield* noticeSequence(h, events, routines, SPELL_NOTICE_CALLS, SPELL_NOTICE);
+      yield* noticeSequence(h, events, routines, SPELL_NOTICE_CALLS, SPELL_NOTICE, renderBuffer);
       return yield* finish();
     }
     yield* call(h, events, routines, SPELL_ACTION_CALL);

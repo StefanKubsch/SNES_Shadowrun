@@ -795,3 +795,12 @@ forwarding its renderer. The independent former control is retained for original
 random comparisons. New real party routes cover one and three members, leader-only
 display, resource byte boundaries, both budgets and actual default glyph uploads.
 They compare input, window uploads and final game state, including the zero result.
+
+### Block 9: player notices
+
+The missing-weapon and missing-spell notices directly compose window opening,
+text, confirmation and release, forwarding the renderer. Their real caller
+comparisons assert input, window/glyph uploads, neutral-action arguments and
+the final zero result at both budgets. The player service map now lists only
+its remaining status, turn, animation and glove-release services explicitly;
+the obsolete shared menu table and its unused task/resource adapters are removed.
