@@ -787,3 +787,11 @@ former status fixtures bind the complete retained close and register-level tile
 and sprite routines. Both budgets compare closing frames, tile jobs, OAM, HDMA,
 font writes and restored sound along with menus. Original recorded integrations
 retain their independent references and established frame policy.
+
+### Block 8: player party status
+
+The player control composes party status directly through the Select call frame,
+forwarding its renderer. The independent former control is retained for original
+random comparisons. New real party routes cover one and three members, leader-only
+display, resource byte boundaries, both budgets and actual default glyph uploads.
+They compare input, window uploads and final game state, including the zero result.

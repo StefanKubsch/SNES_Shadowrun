@@ -541,7 +541,6 @@ export const liftedMainMenuSequence = (h, events) => mainMenuSequence(h, events)
 // release, glove release, turn, animation selection 80:A985, status screen and key
 // wait.
 const PLAYER_CONTROL_LIFT_ROUTINES = new Map(LIVE_MENU_ROUTINES)
-  .set(0x80ed3c, runPartyStatus)
   .set(0x80ea89, runStatusScreen)
   .set(0x80ea8e, runItemList)
   .set(0x80f963, runOpenWindow)

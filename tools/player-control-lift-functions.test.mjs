@@ -9,7 +9,7 @@
 import { prng } from './task-native-dialog-harness.mjs';
 import { createSide, registerCases } from './lift-function-harness.mjs';
 import { controlPlayer } from '../proof/replay/native-player-control.mjs';
-import { controlPlayerSequence } from '../src/game/player-control.mjs';
+import { controlPlayerSequence } from '../proof/caller/player-control.mjs';
 import {
   AIMING_SPELL,
   AIMING_WEAPON,

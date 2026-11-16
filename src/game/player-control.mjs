@@ -14,7 +14,9 @@
 // R ends the aim and takes the glove off (80:BCB2), as A or X do without an aim, and B,
 // L or R do without a tagged object. The callees run through their frames from the
 // routine table, each with its own callees.
-import { nativeCallSequence } from '../system/native-call-continuation.mjs';
+import { partyStatusSequence } from './party-status.mjs';
+import { drawTextBufferSequence } from './text-draw.mjs';
+import { nativeCallSequence, dialogCallBody } from '../system/native-call-continuation.mjs';
 import { dataBankWord, setDataBankWord } from '../system/data-bank.mjs';
 import { placeGloveOverPlayer } from './glove-target.mjs';
 import { GLOVE_LIMITS } from '../script/native-glove-crosshair-limits.mjs';
@@ -349,7 +351,7 @@ function aimResult(h) {
 
 // 80:E014: one frame of the player's control (see above). A sequence that ends with the
 // native's RTS.
-export function* controlPlayerSequence(h, events, routines) {
+export function* controlPlayerSequence(h, events, routines, renderBuffer = drawTextBufferSequence) {
   const { ctx } = h,
     { mem } = h.a,
     { wram } = mem;
@@ -376,7 +378,7 @@ export function* controlPlayerSequence(h, events, routines) {
     else path = word(wram, GLOVE_KIND) ? 'glove' : 'free';
   };
   if (path === 'party') {
-    yield* call(h, events, routines, PARTY_STATUS);
+    yield* dialogCallBody(h, ...PARTY_STATUS, () => partyStatusSequence(h, events, renderBuffer));
     return yield* finish();
   }
   if (path === 'status' || path === 'items') {
