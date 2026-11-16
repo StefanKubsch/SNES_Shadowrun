@@ -1,3 +1,4 @@
+import { talkSequence } from './dialog-talk.mjs';
 import { chooseActionSequence } from './action-menu.mjs';
 import { runPadPresses } from '../system/live-input-calls.mjs';
 import { putGloveAwayCall } from './window-release.mjs';
@@ -25,9 +26,8 @@ import { putGloveAwayCall } from './window-release.mjs';
 // action is ORed into the task's event bits (it ends the wait), then the glove is
 // released (80:BCB2) and the input waits for a change (80:9E1A).
 //
-// The callees run through their frames from the routine table: the notice, the glove
-// release, the action menu, the dialog and the pad word lifted (src/game/main-upkeep.mjs
-// binds them); the notice, the menu, the dialog and the
+// The notice, glove release, action menu, dialog and pad word compose directly
+// through their original frames; the notice, the menu, the dialog and the
 // input wait for the NMI. Each gets the A, X and Y the
 // original passes (the menu reads the actions from A), and the menu and the dialog run
 // above the object slot the original pushes. The push of the passed action around its
@@ -40,11 +40,7 @@ import { putGloveAwayCall } from './window-release.mjs';
 import { taskStop } from '../system/task-stop.mjs';
 import { showNoticeSequence } from './notice-show.mjs';
 import { drawTextBufferSequence } from './text-draw.mjs';
-import {
-  dialogCallBody,
-  nativeCallSequence,
-  segmentSequence,
-} from '../system/native-call-continuation.mjs';
+import { dialogCallBody, segmentSequence } from '../system/native-call-continuation.mjs';
 import {
   ACTION_MENU_OVERRIDE,
   AIMING_SPELL,
@@ -147,12 +143,11 @@ function reach(wram, player, object) {
 
 // Pass a glove action on to the object's task (80:BF3B), a sequence for a native call
 // continuation: h the main loop's access (direct page 0, data bank 80), events its
-// frame events, routines the table of the register-level callees.
-export function* gloveActionSequence(h, events, routines, renderBuffer = drawTextBufferSequence) {
+// frame events and renderBuffer the text renderer.
+export function* gloveActionSequence(h, events, renderBuffer = drawTextBufferSequence) {
   const { ctx } = h,
     { wram } = h.a.mem,
-    tasks = tasksOf(h.a),
-    call = ([site, target]) => nativeCallSequence(h, events, routines, site, target);
+    tasks = tasksOf(h.a);
   let path = 'return';
   yield () => {
     // Each return leaves A and its sign and zero as the original.
@@ -253,7 +248,7 @@ export function* gloveActionSequence(h, events, routines, renderBuffer = drawTex
       ctx.a = dialog;
     };
     if (dialog) {
-      yield* call(CALL.dialog);
+      yield* dialogCallBody(h, ...CALL.dialog, () => talkSequence(h, events, renderBuffer));
       yield () => {
         ctx.y = h.a.pullWord();
         ctx.a = 0;

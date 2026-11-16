@@ -1,5 +1,4 @@
 import { textBufferRenderer } from './text-renderer.mjs';
-import { randomByteNative, randomBelowNative } from '../script/native-script-leaves.mjs';
 // The main loop's entries of its lifted upkeep routines: each runs the lifted
 // function and returns to the main loop as the original (RTL from bank 81, RTS in
 // bank 80). The register-level versions are references in
@@ -44,7 +43,7 @@ import {
   uploadPortraitTilesSequence,
 } from './portrait-upload.mjs';
 import { reloadObjectTilesSequence } from './object-tiles.mjs';
-import { printNumberSequence, setTextCursorRoutine } from './window-text.mjs';
+import { printNumberSequence } from './window-text.mjs';
 import { printTextSequence } from './text-print.mjs';
 import { drawTextBufferSequence } from './text-draw.mjs';
 import { openWindowSequence, requestTileClearSequence } from './window-open.mjs';
@@ -65,7 +64,6 @@ import {
 import { runDrawWindowList, runRequestUpload, runUnpackWindowMap } from './window-list.mjs';
 import { createObject } from './object-create.mjs';
 import { chooseFromMenuSequence } from './menu-choice.mjs';
-import { playSoundEffectRoutine } from '../apu/sound-effect.mjs';
 import { gloveMoveSequence } from './glove-move.mjs';
 import {
   shootAtGloveTargetSequence,
@@ -386,26 +384,6 @@ NATIVE_CALL_CONTINUATIONS.set(runTalk, {
   create: ({ h, events }) => new NativeCallContinuation(h.a, talkSequence(h, events)),
 });
 // Shared register helpers for callers that still dispatch their dependencies.
-// Notices, menus and the timer compose their own live dependencies directly;
-// these entries remain available at the existing register interfaces.
-const TEXT_ROUTINES = new Map([
-  [0x81b0a1, runFrameWait],
-  [0x809e1a, runPadPresses],
-  [0x80bcb2, runPutGloveAway],
-  [0x80fa3e, runReleaseWindow],
-  [0x80fec1, runShowNotice],
-  [0x80faac, setTextCursorRoutine],
-  [0x80fd80, runPrintNumber],
-  [0x80c46e, playSoundEffectRoutine],
-  [0x80c560, (h) => randomByteNative(h.a, false)],
-  [0x80c51f, (h) => randomBelowNative(h.a, false)],
-  [0x8099eb, runChooseAction],
-  [0x80936c, runTalk],
-])
-  .set(0x80f963, runOpenWindow)
-  .set(0x80fe69, runPrintText)
-  .set(0x80fb39, runDrawTextBuffer)
-  .set(0x80a6a5, runMenuWithHotkeys);
 // The live Yes/No question and spell choice compose their menu and window directly.
 export const liftedQuestionSequence = (h, events) => askYesNoSequence(h, events);
 export const liftedSpellChoiceSequence = (h, events) => chooseSpellSequence(h, events);
@@ -469,18 +447,6 @@ export const liftedMainMenuSequence = (h, events) => mainMenuSequence(h, events)
 // release, glove release, turn, animation selection 80:A985, status screen and key
 // wait.
 export const liftedPlayerControlSequence = (h, events) => controlPlayerSequence(h, events);
-// The time limit's and the glove action's callees: the lifted notice, glove release,
-// text cursor 80:FAAC (nothing in it waits), number, action menu, dialog, pad word 80:9E1A (lifted
-// with lag-free frames, as at the top of the loop), window, text and text buffer, the
-// others register-level. The notice gets this table too.
-const UPKEEP_ROUTINES = new Map(TEXT_ROUTINES)
-  .set(0x80fec1, runShowNotice)
-  .set(0x80bcb2, runPutGloveAway)
-  .set(0x80faac, setTextCursorRoutine)
-  .set(0x80fd80, runPrintNumber)
-  .set(0x8099eb, runChooseAction)
-  .set(0x809e1a, runPadPresses)
-  .set(0x80936c, runTalk);
 // The lifted fight list removal 80:855E as the script native runs it with lag-free
 // frames: the lifted notice, cursor, number, text, sound effect and music mode.
 export const liftedFightListRemoveSequence = (h, events) => removeFromFightListSequence(h, events);
@@ -565,13 +531,12 @@ NATIVE_CALL_CONTINUATIONS.set(0x80e270, {
 });
 // 80:BF3B, called with JSR; its notice, menu, dialog and input wait for the NMI, so it
 // is a native call continuation of the main loop.
-export function runGloveAction(h, events, routines = UPKEEP_ROUTINES) {
-  return drainNativeSequence(gloveActionSequence(h, events, routines));
+export function runGloveAction(h, events) {
+  return drainNativeSequence(gloveActionSequence(h, events));
 }
 NATIVE_CALL_CONTINUATIONS.set(0x80bf3b, {
   run: runGloveAction,
-  create: ({ h, events, routines = UPKEEP_ROUTINES }) =>
-    new NativeCallContinuation(h.a, gloveActionSequence(h, events, routines)),
+  create: ({ h, events }) => new NativeCallContinuation(h.a, gloveActionSequence(h, events)),
 });
 
 // 80:BE6D, called with JSR; its object search and release wait for the NMI, so it is
@@ -634,10 +599,8 @@ export function runSpriteList(h) {
 // register-level helper tables; these bodies need no continuation registry lookup.
 export const mainLoopNoticeSequence = noticeTimeoutCallSequence;
 export const mainLoopFrameWaitSequence = frameWaitCallSequence;
-export const mainLoopTimeLimitSequence = (h, events) =>
-  timeLimitSequence(h, events, UPKEEP_ROUTINES);
-export const mainLoopGloveActionSequence = (h, events) =>
-  gloveActionSequence(h, events, UPKEEP_ROUTINES);
+export const mainLoopTimeLimitSequence = (h, events) => timeLimitSequence(h, events);
+export const mainLoopGloveActionSequence = (h, events) => gloveActionSequence(h, events);
 export const mainLoopGloveMoveSequence = (h, events) => gloveMoveSequence(h, events, MOVE_ROUTINES);
 export const mainLoopPlayerZonesSequence = (h, events) =>
   playerZonesSequence(h, events, ZONE_ROUTINES);

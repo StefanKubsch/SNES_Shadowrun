@@ -1,3 +1,6 @@
+import { gloveActionSequence as directGloveAction } from '../src/game/glove-action.mjs';
+import { gloveActionSequence as formerGloveAction } from '../proof/caller/glove-action.mjs';
+import { TASK_WAIT, TASK_EVENTS } from '../src/vm/layout.mjs';
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { setMusicModeRoutine } from '../src/apu/audio-routines.mjs';
@@ -65,6 +68,8 @@ function runClose(module, shadow, counter, held, budget) {
   const wait = () => assert.fail('wait must resume cooperatively');
   const portrait = () => assert.fail('portrait must resume cooperatively');
   const table = new Map([
+    [0x8099eb, live.runChooseAction],
+    [0x80936c, live.runTalk],
     [0x80adf4, reloadObjectTiles],
     [0x80b8de, buildSpriteList],
     [0x808f97, portrait],
@@ -133,7 +138,7 @@ function runTalk(
   module,
   variant,
   budget,
-  { alternate = 0, music = 0, mirror = 0, token = 0 } = {},
+  { alternate = 0, music = 0, mirror = 0, token = 0, glove = null } = {},
 ) {
   const side = textWindowSide(),
     { h, mem, put, events } = side;
@@ -180,9 +185,9 @@ function runTalk(
       0xf8,
     ];
   mem.read8 = (address) =>
-    address === DIALOG_TABLE
+    address === DIALOG_TABLE + (glove === null ? 0 : 2)
       ? 0
-      : address === DIALOG_TABLE + 1
+      : address === DIALOG_TABLE + (glove === null ? 0 : 2) + 1
         ? 0x60
         : address >= 0x8d6000 && address < 0x8d6000 + bytes.length
           ? bytes[address - 0x8d6000]
@@ -200,6 +205,17 @@ function runTalk(
       : variant === 'cancel'
         ? [0x2000]
         : [0x8000];
+  if (glove !== null) {
+    pads.unshift(0x400, 0, 0x8000, 0);
+    put(W.GLOVE_TARGET_TAG, 0);
+    put(W.GLOVE_TARGET_OBJECT, 0x40);
+    put(W.GLOVE_NAME_WINDOW, 0xffff);
+    put(W.OBJECT_DIALOG + 0x40, 1);
+    put(W.OBJECT_TASK + 0x40, 0);
+    put(TASK_WAIT, 2);
+    put(TASK_EVENTS, 0x1000);
+    put(PAD_PRESSED, W.PAD_B);
+  }
   let frames = 0,
     input = 0,
     requests = 0;
@@ -244,6 +260,8 @@ function runTalk(
     return true;
   };
   const table = new Map([
+    [0x8099eb, live.runChooseAction],
+    [0x80936c, live.runTalk],
     [0x80adf4, reloadObjectTiles],
     [0x80b8de, buildSpriteList],
     [0x81886a, clearFixedColourRoutine],
@@ -267,7 +285,11 @@ function runTalk(
   ]);
   const result = finishTextWindow(
     side,
-    module.talkSequence(h, events, ...(module === direct ? [] : [table])),
+    glove === null
+      ? module.talkSequence(h, events, ...(module === direct ? [] : [table]))
+      : glove
+        ? directGloveAction(h, events)
+        : formerGloveAction(h, events, table),
     budget,
   );
   // Exclude only the relocated CPU stack from final and upload snapshots.
@@ -333,4 +355,14 @@ for (const budget of [1, 7])
         runTalk(direct, 'exit', budget, options),
         runTalk(former, 'exit', budget, options),
       );
+    });
+
+for (const budget of [1, 7])
+  for (const variant of ['exit', 'cancel', 'talk ends'])
+    test(`glove action real dialog: ${variant}, budget ${budget}`, () => {
+      const actual = runTalk(direct, variant, budget, { glove: true });
+      assert.deepEqual(actual, runTalk(direct, variant, budget, { glove: false }));
+      assert.equal(actual.requests, 2);
+      assert.ok(actual.input > 2);
+      assert.equal(actual.wram[TASK_EVENTS] | (actual.wram[TASK_EVENTS + 1] << 8), 0x1000);
     });

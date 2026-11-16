@@ -1,3 +1,5 @@
+import { mainLoopTimeLimitSequence } from '../src/game/main-upkeep.mjs';
+import { timeLimitSequence as formerTimer } from '../proof/caller/time-limit.mjs';
 import { chooseFromMenuSequence } from '../proof/caller/menu-choice.mjs';
 import test from 'node:test';
 import assert from 'node:assert/strict';
@@ -24,7 +26,7 @@ function runAction(
   const menu = variant === 'menu' || variant === 'offer';
   return compareRun(
     (h, events, render) =>
-      direct ? directAction(h, events, services, render) : formerAction(h, events, services),
+      direct ? directAction(h, events, render) : formerAction(h, events, services),
     true,
     ({ put }) => {
       put(W.PLAYER_OBJECT, 0);
@@ -120,4 +122,28 @@ for (const budget of [1, 7])
       assert.deepEqual(actual, runAction(false, budget, 'menu', true, false, 0, 0, pads));
       assert.equal(actual.wram[TASK_EVENTS] | (actual.wram[TASK_EVENTS + 1] << 8), 0x1000 | action);
       assert.ok(actual.uploads.length > 0);
+    });
+
+for (const budget of [1, 7])
+  for (const hours of [1, 2, 0xffff])
+    test(`main timer actual renderer: hours ${hours}, budget ${budget}`, () => {
+      const run = (direct) =>
+        compareRun(
+          direct ? mainLoopTimeLimitSequence : formerTimer,
+          direct,
+          ({ put }) => {
+            put(W.TIMER, hours);
+            put(W.TIMER_FRAMES, 0);
+            for (let n = 0; n <= W.NOTICE_WINDOW_LAST; n += 2) put(W.NOTICE_WINDOWS + n, 0xffff);
+          },
+          budget,
+          [],
+          true,
+          ({ h, events, routines, bind }) => {
+            bind(0x80fec1, () => showNoticeSequence(h, events, routines));
+          },
+        );
+      const actual = run(true);
+      assert.deepEqual(actual, run(false));
+      assert.equal(actual.uploads.length > 0, hours !== 0xffff);
     });

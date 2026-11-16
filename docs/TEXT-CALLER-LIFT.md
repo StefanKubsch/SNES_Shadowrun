@@ -929,3 +929,11 @@ boundary, asserting the resulting pressed word without adding a frame wait.
 The glove action composes its real action menu through the original JSR frame,
 forwarding the renderer. Real callers compare Examine, Exit and cancel input,
 actual menu text/uploads and delivered task bits with the retained former chain.
+
+### Block 5: action dialog and complete action entry
+
+Talk composes the real dialog through its original JSR frame and forwards the
+renderer. Real glove-to-dialog routes compare Exit, cancel and a terminating
+talk action, including actual portraits, scene close and task event bits. The
+action API receives only a renderer; main-upkeep drops the final action service
+table. Its timer entry also stops passing that obsolete table as a renderer.
