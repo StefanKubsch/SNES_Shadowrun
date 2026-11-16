@@ -19,7 +19,7 @@
 // the portrait is redrawn if the script asks for it (81:AEB0, 80:E4B3), a key awaited
 // while a notice window is open (80:F953, 80:FF79) and the equipment rows redrawn
 // (80:E9C5). Confirmation, notice cleanup and equipment compose directly;
-// object creation, nested visits and redraw services retain their table.
+// object creation and nested visits retain their table.
 import { nativeCallSequence, dialogCallBody } from '../system/native-call-continuation.mjs';
 import { releaseNoticeWindowsCallSequence, releaseWindowJsrSequence } from './window-release.mjs';
 import { openWindowSequence, requestTileClearSequence } from './window-open.mjs';
@@ -27,6 +27,7 @@ import { chooseFromMenuSequence, MENU_WITH_NUMBERS } from './menu-choice.mjs';
 import { waitForConfirmKeySequence } from './confirm-key.mjs';
 import { equipmentRowsSequence } from './equipment-window.mjs';
 import { memberPortraitSequence } from './member-portrait.mjs';
+import { resetWindowListSequence } from './window-list.mjs';
 import { drawTextBufferSequence } from './text-draw.mjs';
 import { dataBankWord, setDataBankWord } from '../system/data-bank.mjs';
 import {
@@ -352,7 +353,7 @@ export function* useItemSequence(h, events, routines, renderBuffer = drawTextBuf
   };
   if (ended) return yield* returnSequence(h);
   if (redraw) {
-    yield* call(h, events, routines, REDRAW_LIST, true);
+    yield* dialogCallBody(h, ...REDRAW_LIST, () => resetWindowListSequence(h, events), true);
     yield* dialogCallBody(h, ...PORTRAIT, () => memberPortraitSequence(h, events));
   }
   let pending = false;

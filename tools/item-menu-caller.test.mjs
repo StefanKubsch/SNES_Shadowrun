@@ -5,6 +5,7 @@ import * as directItem from '../src/game/item-menu.mjs';
 import * as formerItem from '../proof/caller/item-menu.mjs';
 import { equipmentRowsSequence } from '../proof/caller/equipment-window.mjs';
 import * as W from '../src/data/wram.mjs';
+import { runResetWindowList } from '../proof/caller/window-list.mjs';
 function runUse(module, direct, actor, effect, budget, realDrawing = false) {
   let services;
   const pads = !effect.end && effect.notice ? [0x8000] : [];
@@ -32,7 +33,7 @@ function runUse(module, direct, actor, effect, budget, realDrawing = false) {
     (side) => {
       const { h, events, put, routines, bind, calls } = side;
       services = routines;
-      for (const target of [0x80a835, 0x80c1ca, 0x81aeb0])
+      for (const target of [0x80a835, 0x80c1ca])
         routines.set(target, (callee) => {
           calls.push(['service', target, callee.ctx.a, callee.ctx.x, callee.ctx.y]);
           if (target === 0x80a835) put(0, 4);
@@ -43,6 +44,7 @@ function runUse(module, direct, actor, effect, budget, realDrawing = false) {
           return target === 0x81aeb0 ? callee.rtl() : callee.rts();
         });
       bind(0x80e9c5, () => equipmentRowsSequence(h, events, routines));
+      routines.set(0x81aeb0, runResetWindowList);
       return configureMemberPortrait(side);
     },
   );
@@ -61,10 +63,7 @@ for (const budget of [1, 7])
         const actual = runUse(directItem, true, actor, effect, budget);
         assert.deepEqual(actual, runUse(formerItem, false, actor, effect, budget));
         assert.equal(actual.input, !effect.end && effect.notice ? 1 : 0);
-        assert.equal(
-          actual.calls.filter((c) => c[0] === 'service').length,
-          2 + (!effect.end && effect.redraw ? 1 : 0),
-        );
+        assert.equal(actual.calls.filter((c) => c[0] === 'service').length, 2);
         assert.equal(
           actual.calls.filter((c) => c[0] === 'portrait upload').length,
           !effect.end && effect.redraw ? 2 : 0,

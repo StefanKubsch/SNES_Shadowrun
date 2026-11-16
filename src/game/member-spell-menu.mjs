@@ -18,7 +18,7 @@
 // 80:FF79). A negative row ends the dialog (7E:1D7B). The window is released (80:FA3E).
 // The entry 80:E68E (from the status screen) leaves 1F68 clear: no script runs and the
 // equipment window is drawn at the end (80:E9C5). Windows, selection and cleanup
-// compose through their original frames; script and scene services keep their table.
+// compose through their original frames; script services keep their table.
 import { dialogCallBody, nativeCallSequence } from '../system/native-call-continuation.mjs';
 import { openWindowSequence } from './window-open.mjs';
 import { chooseFromMenuSequence } from './menu-choice.mjs';

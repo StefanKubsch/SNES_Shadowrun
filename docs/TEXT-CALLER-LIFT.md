@@ -654,3 +654,11 @@ register adapter uses the same body. The comparison binds the independent
 former reset and its drawing/upload chain, so redraw requests compare actual
 window map uploads before the real portrait. End/notice ordering and nested
 script services are unchanged.
+
+### Block 4: item window-list redraw
+
+Item cleanup also composes window-list reset directly. All three actor cases
+compare the actual former redraw and portrait chain, including combinations
+with notices and early end. The direct member/item scene tables now contain
+only script append, object creation and nested visits. Redraw allocation,
+map reconstruction and upload waits keep their established contracts.
