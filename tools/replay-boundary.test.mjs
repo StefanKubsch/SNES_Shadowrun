@@ -12,8 +12,11 @@ import {
   NativeCallContinuation,
 } from '../src/system/native-call-continuation.mjs';
 import { WAIT_PAUSED } from '../src/system/native-wait-continuation.mjs';
-import { raiseStateCountSequence, restoreRunnersSequence } from '../src/game/runner-state-call.mjs';
-import { runDrawWindowList } from '../src/game/window-list.mjs';
+import {
+  raiseStateCountSequence,
+  restoreRunnersSequence,
+} from '../proof/caller/runner-state-call.mjs';
+import { runDrawWindowList } from '../proof/caller/window-list.mjs';
 import {
   raiseMemberStateCountReference,
   restoreAllRunnersReference,
@@ -68,7 +71,7 @@ test('replay registrations retain the live and reference factories for one targe
   }
 });
 
-test('runner resource natives preserve their redraw frame and game state across pauses', () => {
+test('retained runner resource natives preserve their redraw frame and game state across pauses', () => {
   const saved = shared.get(runDrawWindowList);
   const cases = [
     [raiseStateCountSequence, raiseMemberStateCountReference],

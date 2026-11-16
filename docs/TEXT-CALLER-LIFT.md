@@ -622,8 +622,8 @@ Unexpected upload waits report their original address for diagnosis.
 ## Remaining menu services batch (2026-11-16)
 
 The ten phases compose spell portraits, item portraits, spell list redraw,
-item list redraw, status colour setup, status sound, karma magic refill,
-karma state-count refill, save sound and status scene closing. Each phase
+item list redraw, status colour setup, status sound, runner resource redraw,
+karma magic refill, karma state-count refill and save sound. Each phase
 keeps independent former callers and existing original comparisons. Nested
 script visits and object creation remain explicit services.
 
@@ -680,3 +680,14 @@ including its echo handshake, rather than a recording stand-in. Full routes
 compare the actual dim/restore parameter writes and command tokens. Additional
 cases cover token wrap at FE and FF with both budgets. Sound driver, hardware
 handshake and volume parameters are unchanged; scene closing remains a service.
+
+### Block 7: runner resource redraw
+
+State-count raising and full runner restoration now directly compose window-list
+drawing through their original JSL sites. This shared dependency is completed
+before the karma refill callers. The independent former resource caller retains
+its table and the retained window list. The existing injected original-frame
+comparison explicitly exercises that former caller. New caller comparisons
+exercise both actual drawing chains at both budgets, with zero/max amounts,
+missing object records, two members and upload counter wrap. The resource
+arithmetic and original random body comparisons remain unchanged.
