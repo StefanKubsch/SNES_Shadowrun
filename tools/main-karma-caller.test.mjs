@@ -202,3 +202,48 @@ for (const budget of [1, 7])
     assert.deepEqual(actual, runKarma('karmaLineSequence', false, budget, prepare, [], true));
     assert.ok(actual.uploads.length > 1);
   });
+
+for (const budget of [1, 7])
+  for (const bank of [0x7e, 0x7f])
+    for (const [value, karma] of [
+      [0, 0],
+      [1, 7],
+      [1, 8],
+      [1, 9],
+      [255, 2039],
+      [255, 2040],
+      [255, 0xffff],
+    ])
+      test(`karma purchase: value ${value}, karma ${karma}, bank ${bank}, budget ${budget}`, () => {
+        const address = bank * 0x10000 + 0x6000,
+          paid = karma >= value * 8;
+        const prepare = ({ put, mem }) => {
+          put(W.KARMA, karma);
+          put(W.DP_KARMA_VALUE_POINTER, 0x6000);
+          put(W.DP_KARMA_VALUE_BANK, bank);
+          mem.write8(address, value);
+        };
+        const pads = paid ? [] : [0, 0x8000];
+        const actual = runKarma('buyStepSequence', true, budget, prepare, pads);
+        assert.deepEqual(actual, runKarma('buyStepSequence', false, budget, prepare, pads));
+        assert.equal(actual.wram[address - 0x7e0000], paid ? (value + 1) & 255 : value);
+        assert.equal(
+          actual.wram[W.KARMA] | (actual.wram[W.KARMA + 1] << 8),
+          paid ? karma - value * 8 : karma,
+        );
+        assert.equal(
+          actual.wram[W.DP_KARMA_VALUE_POINTER] | (actual.wram[W.DP_KARMA_VALUE_POINTER + 1] << 8),
+          paid ? 0x6000 : 0,
+        );
+      });
+for (const budget of [1, 7])
+  test(`karma purchase default glyphs, budget ${budget}`, () => {
+    const prepare = ({ put, mem }) => {
+      put(W.DP_KARMA_VALUE_POINTER, 0x6000);
+      put(W.DP_KARMA_VALUE_BANK, 0x7e);
+      mem.wram[0x6000] = 1;
+    };
+    const actual = runKarma('buyStepSequence', true, budget, prepare, [0x8000], true);
+    assert.deepEqual(actual, runKarma('buyStepSequence', false, budget, prepare, [0x8000], true));
+    assert.ok(actual.uploads.length > 2);
+  });

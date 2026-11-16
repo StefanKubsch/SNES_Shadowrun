@@ -591,7 +591,7 @@ MAIN_MENU_LIFT_ROUTINES.set(
 )
   .set(
     0x80f006,
-    sequenceRun((h, events) => buyStepSequence(h, events, MAIN_MENU_LIFT_ROUTINES)),
+    sequenceRun((h, events) => buyStepSequence(h, events)),
   )
   .set(
     0x80ee57,

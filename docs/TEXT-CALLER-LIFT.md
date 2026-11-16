@@ -563,3 +563,11 @@ printing. The displayed value remains the original karma word divided by eight.
 Cases at the division and decimal boundaries, zero and the maximum word compare
 captured payloads and actual default glyphs at both budgets. The original random
 karma comparisons now explicitly use the independent former caller.
+
+### Block 6: purchase notice
+
+Step purchase directly composes the insufficient-karma window, text, confirming
+input and release. Both WRAM banks, zero cost, byte wrap and exact/insufficient
+cost boundaries compare memory, payment and pointer clearing at both budgets.
+Default glyph cases cover the notice. The cost remains eight times the byte;
+the successful purchase path and its arithmetic retain their existing contract.

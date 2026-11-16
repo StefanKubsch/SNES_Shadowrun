@@ -35,9 +35,11 @@ import {
   segmentSequence,
   nativeCallSequence,
 } from '../system/native-call-continuation.mjs';
-import { requestTileClearSequence } from './window-open.mjs';
+import { openWindowSequence, requestTileClearSequence } from './window-open.mjs';
 import { setTextCursorRoutine, printNumberSequence } from './window-text.mjs';
 import { printTextSequence } from './text-print.mjs';
+import { releaseWindowJsrSequence } from './window-release.mjs';
+import { waitForConfirmKeySequence } from './confirm-key.mjs';
 import { drawTextBufferSequence } from './text-draw.mjs';
 import { KARMA_LISTS, KARMA_WINDOWS } from '../system/native-main-menu.mjs';
 import { TEXT_EXIT } from '../data/port-extension.mjs';
@@ -203,7 +205,7 @@ export function* karmaLineSequence(h, events, renderBuffer = drawTextBufferSeque
 }
 
 // 80:F006: one step bought (see above). A sequence that ends with its RTS.
-export function* buyStepSequence(h, events, routines) {
+export function* buyStepSequence(h, events, renderBuffer = drawTextBufferSequence) {
   const { ctx } = h,
     { mem } = h.a,
     { wram } = mem;
@@ -237,14 +239,14 @@ export function* buyStepSequence(h, events, routines) {
     setSignZero(ctx, raised, BYTE_SIGN);
   };
   if (paid) return yield* returnSequence(h);
-  yield* call(h, events, routines, 0x80f032, OPEN_WINDOW);
+  yield* dialogCallBody(h, 0x80f032, OPEN_WINDOW, () => openWindowSequence(h, events));
   yield () => {
     load(ctx, TEXT_KARMA_INSUFFICIENT);
     setWord(wram, 2, TEXT_KARMA_INSUFFICIENT);
   };
-  yield* call(h, events, routines, 0x80f03a, TEXT);
-  yield* call(h, events, routines, 0x80f03d, CONFIRM_KEY);
-  yield* call(h, events, routines, 0x80f040, RELEASE_WINDOW);
+  yield* dialogCallBody(h, 0x80f03a, TEXT, () => printTextSequence(h, events, renderBuffer));
+  yield* dialogCallBody(h, 0x80f03d, CONFIRM_KEY, () => waitForConfirmKeySequence(h, events));
+  yield* dialogCallBody(h, 0x80f040, RELEASE_WINDOW, () => releaseWindowJsrSequence(h.a, events));
   yield () => setWord(wram, DP_KARMA_VALUE_POINTER, 0);
   return yield* returnSequence(h);
 }
