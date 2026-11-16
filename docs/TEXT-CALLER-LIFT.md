@@ -691,3 +691,12 @@ comparison explicitly exercises that former caller. New caller comparisons
 exercise both actual drawing chains at both budgets, with zero/max amounts,
 missing object records, two members and upload counter wrap. The resource
 arithmetic and original random body comparisons remain unchanged.
+
+### Block 8: karma magic refill
+
+Karma exit directly composes the established magic-point native through its
+original frame. Former callers bind the register-level magic refill, and all
+karma/main fixtures now initialize a valid real leader record. Additional
+cases cover zero Magic, the byte maximum, ten-times scaling beyond a byte,
+and initial points zero, 250 and 255 at both budgets. Final byte truncation
+remains the original behaviour. Health refill remains a service in this phase.

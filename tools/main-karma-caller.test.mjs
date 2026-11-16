@@ -3,7 +3,7 @@ import assert from 'node:assert/strict';
 import { compareRun } from './member-menu-caller-harness.mjs';
 import { liftedMainMenuSequence } from '../src/game/main-upkeep.mjs';
 import { raiseStateCountSequence } from '../src/game/runner-state-call.mjs';
-import { raiseMemberMagicPoints } from '../src/script/native-magic-points-raise.mjs';
+import { raiseMemberMagicPointsReference } from '../proof/game-reference/runner-state.mjs';
 import * as directMain from '../src/game/main-menu.mjs';
 import * as formerMain from '../proof/caller/main-menu.mjs';
 import { installPortExtension } from '../src/data/port-extension.mjs';
@@ -15,6 +15,20 @@ import { chooseFromMenuSequence as formerChoose } from '../proof/caller/menu-cho
 import { KARMA_LISTS } from '../src/system/native-main-menu.mjs';
 
 import * as W from '../src/data/wram.mjs';
+
+function prepareLeader({ put, mem }) {
+  const number = mem.read16(0x809700),
+    record = mem.read16(0x80971a);
+  put(W.PLAYER_OBJECT, 2);
+  put(W.OBJECT_NUMBER + 2, number);
+  put(W.OBJECT_RECORD + 2, 0x6200);
+  put(W.GROUP_INDEX, 0);
+  put(W.GROUP_NUMBERS, number);
+  mem.wram[record + 1] = 3;
+  mem.wram[record + 5] = 40;
+  mem.wram[0x6202] = 2;
+  mem.wram[W.MAGIC_POINTS] = 1;
+}
 
 function runMain(direct, budget, pads, realDrawing = false, liveEntry = false) {
   let services;
@@ -30,6 +44,7 @@ function runMain(direct, budget, pads, realDrawing = false, liveEntry = false) {
           ),
     direct,
     ({ put, mem }) => {
+      prepareLeader({ put, mem });
       put(W.TIMER, 0xffff);
       if (liveEntry) {
         const number = mem.read16(0x809700),
@@ -60,18 +75,18 @@ function runMain(direct, budget, pads, realDrawing = false, liveEntry = false) {
       bind(0x80ee57, () => formerKarma.karmaMenuSequence(h, events, routines));
       bind(0x80fa67, () => requestTileClearSequence(h, events));
       bind(0x80ef82, () => formerKarma.karmaLineSequence(h, events, routines));
-      for (const target of [0x80cecb, 0x80cf2e])
+      for (const target of [0x80cecb])
         routines.set(target, (callee) => {
           calls.push(['refill', target, callee.a.mem.read16(0), callee.a.mem.read16(2)]);
           return callee.rts();
         });
+      routines.set(0x80cf2e, (callee) => raiseMemberMagicPointsReference(callee.a, false));
       if (liveEntry) {
         bind(0x80cecb, () => raiseStateCountSequence(h, events));
-        routines.set(0x80cf2e, (callee) => raiseMemberMagicPoints(callee.a, false));
       }
       if (direct)
         services = new Map(
-          [...routines].filter(([target]) => [0x80c46e, 0x80cecb, 0x80cf2e].includes(target)),
+          [...routines].filter(([target]) => [0x80c46e, 0x80cecb].includes(target)),
         );
     },
   );
@@ -195,7 +210,10 @@ function runKarma(name, direct, budget, prepare, pads = [], realDrawing = false,
         : m[name](h, e, direct ? r : services);
     },
     direct,
-    prepare,
+    (side) => {
+      prepareLeader(side);
+      prepare(side);
+    },
     budget,
     pads,
     realDrawing,
@@ -207,15 +225,14 @@ function runKarma(name, direct, budget, prepare, pads = [], realDrawing = false,
       bind(0x80f006, () => formerKarma.buyStepSequence(h, events, routines));
       for (const entry of Object.keys(KARMA_LISTS).map(Number))
         bind(entry, () => formerKarma.karmaListSequence(h, events, routines, entry));
-      for (const target of [0x80cecb, 0x80cf2e])
+      for (const target of [0x80cecb])
         routines.set(target, (callee) => {
           calls.push(['refill', target, callee.a.mem.read16(0), callee.a.mem.read16(2)]);
           return callee.rts();
         });
+      routines.set(0x80cf2e, (callee) => raiseMemberMagicPointsReference(callee.a, false));
       if (direct)
-        services = new Map(
-          [...routines].filter(([target]) => [0x80cecb, 0x80cf2e].includes(target)),
-        );
+        services = new Map([...routines].filter(([target]) => [0x80cecb].includes(target)));
     },
   );
 }
@@ -427,7 +444,7 @@ for (const budget of [1, 7])
         const prepare = karmaMenuFixture(variant);
         const actual = runKarma('karmaMenuSequence', true, budget, prepare, pads);
         assert.deepEqual(actual, runKarma('karmaMenuSequence', false, budget, prepare, pads));
-        assert.equal(actual.calls.filter((c) => c[0] === 'refill').length, 2);
+        assert.equal(actual.calls.filter((c) => c[0] === 'refill').length, 1);
         assert.equal(actual.wram[W.GLOVE_KIND], 0);
         assert.equal(actual.input, pads.length);
       });
@@ -491,7 +508,7 @@ for (const budget of [1, 7])
         assert.equal(actual.input, pads.length);
         assert.equal(
           actual.calls.filter((c) => c[0] === 'refill').length,
-          paid && row === 1 ? 3 : 2,
+          paid && row === 1 ? 2 : 1,
         );
       });
 for (const budget of [1, 7])
@@ -539,3 +556,18 @@ for (const budget of [1, 7])
         assert.equal(actual.wram[W.MAGIC_POINTS], 30);
       }
     });
+
+for (const budget of [1, 7])
+  for (const magic of [0, 1, 25, 26, 255])
+    for (const points of [0, 250, 255])
+      test(`karma magic refill: magic ${magic}, points ${points}, budget ${budget}`, () => {
+        const prepare = (side) => {
+          karmaMenuFixture()(side);
+          const record = side.mem.read16(0x80971a);
+          side.mem.wram[record + 1] = magic;
+          side.mem.wram[W.MAGIC_POINTS] = points;
+        };
+        const actual = runKarma('karmaMenuSequence', true, budget, prepare, [0x2000]);
+        assert.deepEqual(actual, runKarma('karmaMenuSequence', false, budget, prepare, [0x2000]));
+        assert.equal(actual.wram[W.MAGIC_POINTS], Math.min(points + 255, magic * 10) & 0xff);
+      });

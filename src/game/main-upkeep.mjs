@@ -563,7 +563,6 @@ export const liftedStatusScreenSequence = (h, events) =>
 const MAIN_MENU_SERVICES = new Map([
   [0x80c46e, playSoundEffectRoutine],
   [0x80cecb, runRaiseStateCount],
-  [0x80cf2e, (h) => raiseMemberMagicPoints(h.a, false)],
 ]);
 // The lifted main menu as the script native 80:CE6D runs it with lag-free frames.
 export const liftedMainMenuSequence = (h, events) =>

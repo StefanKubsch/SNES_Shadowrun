@@ -46,6 +46,7 @@ import {
 } from './window-release.mjs';
 import { waitForConfirmKeySequence } from './confirm-key.mjs';
 import { drawTextBufferSequence } from './text-draw.mjs';
+import { raiseMemberMagicPoints } from '../script/native-magic-points-raise.mjs';
 import { KARMA_LISTS, KARMA_WINDOWS } from '../system/native-main-menu.mjs';
 import { TEXT_EXIT } from '../data/port-extension.mjs';
 import {
@@ -542,7 +543,11 @@ export function* karmaMenuSequence(h, events, routines, renderBuffer = drawTextB
       load(ctx, BYTE_MASK);
       setWord(wram, 2, BYTE_MASK);
     };
-    yield* call(h, events, routines, pc, target);
+    if (target === RAISE_MAGIC_POINTS)
+      yield* dialogCallBody(h, pc, target, () =>
+        segmentSequence(() => raiseMemberMagicPoints(h.a, false)),
+      );
+    else yield* call(h, events, routines, pc, target);
   }
   return yield* returnSequence(h);
 }
