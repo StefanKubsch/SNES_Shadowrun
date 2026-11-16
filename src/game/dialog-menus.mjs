@@ -79,7 +79,8 @@ function* rts(h) {
 // (menu-choice.mjs); else the replacement.
 function callee(h, events, routines, renderBuffer, [site, target], name) {
   let body;
-  if (name === 'mainMenu') body = () => chooseFromMenuSequence(h, events, renderBuffer, target);
+  if (name === 'mainMenu' || name === 'menu')
+    body = () => chooseFromMenuSequence(h, events, renderBuffer, target);
   else if (name === 'allocate') body = () => openWindowSequence(h, events);
   else if (!isStandardTextRoutines(routines))
     body = () => segmentSequence(() => routines[name](h.a));

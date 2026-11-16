@@ -62,3 +62,10 @@ Topic choice opens its actual window through 80:9278 to 80:F963. Additional
 real caller cases cover a single available topic and a list with an excluded
 leading topic, checking the mapped result index, input count and actual
 window uploads against the retained former allocation path at both budgets.
+
+## Block 8: topic menu
+
+Topic rows compose their real menu directly through 80:9298. A twelve-topic
+case navigates beyond the nine visible rows and selects topic index ten,
+comparing paging uploads and input consumption with the independently retained
+menu chain at both budgets. Main-menu and topic-window calls remain direct.

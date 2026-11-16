@@ -26,18 +26,22 @@ function run(module, variant, budget, realDrawing = false) {
       ? [0x2000]
       : variant === 'topic single confirm'
         ? [0x8000]
-        : [0x400, 0, 0x8000];
+        : variant === 'topic page confirm'
+          ? [...Array.from({ length: 10 }, () => [0x400, 0]).flat(), 0x8000]
+          : [0x400, 0, 0x8000];
   put(0x17, 0);
   put(WINDOW_ACTIVE, 0xffff);
   put(SOUND_LOADED_SET, mem.read16(0x80c4b3 + 0x4c));
   mem.wram.set(
     variant === 'empty'
       ? [0xff]
-      : variant === 'topic single confirm'
-        ? [8, 0xff]
-        : variant === 'topic sparse confirm'
-          ? [2, 5, 8, 0xff]
-          : [2, 8, 0xff],
+      : variant === 'topic page confirm'
+        ? [...Array.from({ length: 12 }, (_, n) => n + 2), 0xff]
+        : variant === 'topic single confirm'
+          ? [8, 0xff]
+          : variant === 'topic sparse confirm'
+            ? [2, 5, 8, 0xff]
+            : [2, 8, 0xff],
     TOPIC_LIST,
   );
   mem.wram.set(
@@ -89,6 +93,7 @@ for (const budget of [1, 7])
     'topic cancel',
     'topic single confirm',
     'topic sparse confirm',
+    'topic page confirm',
     'empty',
     'flagged',
   ])
@@ -102,16 +107,24 @@ for (const budget of [1, 7])
         word(0),
         absent || cancelled
           ? 0xffff
-          : variant === 'topic single confirm'
-            ? 0
-            : variant === 'topic sparse confirm'
-              ? 2
-              : 1,
+          : variant === 'topic page confirm'
+            ? 10
+            : variant === 'topic single confirm'
+              ? 0
+              : variant === 'topic sparse confirm'
+                ? 2
+                : 1,
       );
       assert.equal(word(DIALOG_END), cancelled ? 0xffff : 0);
       assert.equal(
         actual.input,
-        absent ? 0 : cancelled || variant === 'topic single confirm' ? 1 : 3,
+        absent
+          ? 0
+          : cancelled || variant === 'topic single confirm'
+            ? 1
+            : variant === 'topic page confirm'
+              ? 21
+              : 3,
       );
       if (absent) assert.equal(actual.uploads.length, 0);
       if (variant.startsWith('topic'))
