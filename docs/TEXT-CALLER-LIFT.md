@@ -901,3 +901,13 @@ covers restore disabled/enabled, absent saved music, zero, one and maximum-byte
 modes, zero/nonzero reward, token wrap and both budgets. Real sample loads and
 commands compare along with final music and scene state. All ten phases have
 focused-check commits; shared release and delivery results belong in HANDOFF.md.
+
+## Glove action and choice composition batch (2026-11-16)
+
+### Block 1: action out-of-reach notice
+
+The action glove composes its real notice through the original JSR frame.
+The former caller is retained for independent register-level random comparisons.
+Real callers cover horizontal and height reach boundaries, action offers, child
+task delivery, L/R and menu exits, both budgets and default glyph uploads.
+Existing task search, distance arithmetic and event masks remain unchanged.

@@ -35,7 +35,9 @@
 // object_slot_required or task_slot_required, and a task chain that never ends (the
 // original would hang) at task_chain_required.
 import { taskStop } from '../system/task-stop.mjs';
-import { nativeCallSequence } from '../system/native-call-continuation.mjs';
+import { showNoticeSequence } from './notice-show.mjs';
+import { drawTextBufferSequence } from './text-draw.mjs';
+import { dialogCallBody, nativeCallSequence } from '../system/native-call-continuation.mjs';
 import {
   ACTION_MENU_OVERRIDE,
   AIMING_SPELL,
@@ -139,7 +141,7 @@ function reach(wram, player, object) {
 // Pass a glove action on to the object's task (80:BF3B), a sequence for a native call
 // continuation: h the main loop's access (direct page 0, data bank 80), events its
 // frame events, routines the table of the register-level callees.
-export function* gloveActionSequence(h, events, routines) {
+export function* gloveActionSequence(h, events, routines, renderBuffer = drawTextBufferSequence) {
   const { ctx } = h,
     { wram } = h.a.mem,
     tasks = tasksOf(h.a),
@@ -217,7 +219,7 @@ export function* gloveActionSequence(h, events, routines) {
     }
   };
   if (path === 'notice') {
-    yield* call(CALL.notice);
+    yield* dialogCallBody(h, ...CALL.notice, () => showNoticeSequence(h, events, renderBuffer));
     yield* call(CALL.noticeRelease);
     yield* call(CALL.noticeInput);
   }

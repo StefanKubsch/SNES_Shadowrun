@@ -1,3 +1,4 @@
+import { gloveActionSequence as formerGloveActionSequence } from '../proof/caller/glove-action.mjs';
 import { talkSequence } from '../proof/caller/dialog-talk.mjs';
 import { chooseActionSequence as recordedActionSequence } from '../proof/caller/action-menu.mjs';
 import { timeLimitSequence as recordedTimeLimitSequence } from '../proof/caller/time-limit.mjs';
@@ -49,7 +50,6 @@ import {
   runHitShake,
   runNoticeTimeouts,
   runPaletteCycles,
-  runGloveAction,
   runGloveMove,
   runPutGloveAway,
   runPrintNumber,
@@ -554,7 +554,7 @@ const GLOVE_ACTION = {
     Object.assign(h.ctx, input);
     h.ctx.programBank = 0x80;
     h.push(0x1234, 2);
-    runGloveAction(h, null, GLOVE_ACTION_CALLEES);
+    drainNativeSequence(formerGloveActionSequence(h, null, GLOVE_ACTION_CALLEES));
     return roundRegisters(h);
   },
 };
