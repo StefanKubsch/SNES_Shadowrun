@@ -2,21 +2,21 @@
 // register-level version in proof/replay/native-glove-release.mjs, which recorded waits
 // replay): the dialog window cleared (7E:1D61), the glove put away with its target's
 // name window released (80:BCB2) and the window list redrawn (81:AD92).
-import { nativeCallSequence } from '../system/native-call-continuation.mjs';
+import { putGloveAwayCallSequence } from './window-release.mjs';
+import { dialogCallBody, nativeCallSequence } from '../system/native-call-continuation.mjs';
 import { DIALOG_WINDOW } from '../data/wram.mjs';
 
 const GLOVE_CALL = [0x80cda0, 0x80bcb2],
   LIST_CALL = [0x80cda3, 0x81ad92];
 
-// 80:CD9D, a sequence that ends with the native's RTS; routines holds the glove's
-// release (JSR) and the window list (JSL).
+// 80:CD9D, ending with the native's RTS; only the window list remains a service.
 export function* releaseGloveSequence(h, events, routines) {
   const { wram } = h.a.mem;
   yield () => {
     wram[DIALOG_WINDOW] = 0;
     wram[DIALOG_WINDOW + 1] = 0;
   };
-  yield* nativeCallSequence(h, events, routines, ...GLOVE_CALL);
+  yield* dialogCallBody(h, ...GLOVE_CALL, () => putGloveAwayCallSequence(h, events));
   yield* nativeCallSequence(h, events, routines, ...LIST_CALL, true);
   let result;
   yield () => {

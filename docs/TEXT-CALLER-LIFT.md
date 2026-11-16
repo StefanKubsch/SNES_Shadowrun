@@ -853,3 +853,10 @@ Magic spending composes its real notice directly and receives only a renderer.
 The former caller is retained for random original comparisons. New real notice
 comparisons cover zero, exact payment, shortage, ignored cost high bytes, two
 members, default glyphs and both budgets, asserting payment and result words.
+
+### Block 5: script glove release
+
+Script glove cleanup composes the real glove release through its JSR frame.
+Independent former callers cover an absent or active name window and map-upload
+counter wrap at both budgets, comparing real window release uploads and state.
+The former caller retains the unchanged random original comparison.
