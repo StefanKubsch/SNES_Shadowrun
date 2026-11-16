@@ -439,3 +439,14 @@ former caller. New entry comparisons use Jake's actual runner record and cover
 empty spells, Exit, selection and cancellation with both budgets and renderers;
 member index and menu-mark cleanup are asserted. Original override comparisons
 remain unchanged on the independently retained caller.
+
+## Member and scene batch: item use cleanup (2026-11-16)
+
+Item use composes confirming input, notice release and equipment rows directly,
+passing the renderer through. Object creation, the nested script visit and
+portrait/list services keep their interface. The former caller retains all
+injected calls for the original random tests. Caller comparisons cover three
+actor records, coordinate word maxima and end/redraw/notice combinations at
+both budgets. Two further cases require actual default glyph uploads.
+The controlled creation/visit services record arguments and return normally;
+the existing route comparison retains real object and scheduler integration.

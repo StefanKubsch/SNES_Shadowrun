@@ -18,8 +18,13 @@
 // visits its new task at once (80:C1CA, a nested round). Unless that ends the screen,
 // the portrait is redrawn if the script asks for it (81:AEB0, 80:E4B3), a key awaited
 // while a notice window is open (80:F953, 80:FF79) and the equipment rows redrawn
-// (80:E9C5). The callees run through their frames from the routine table.
-import { nativeCallSequence } from '../system/native-call-continuation.mjs';
+// (80:E9C5). Confirmation, notice cleanup and equipment compose directly;
+// object creation, nested visits and redraw services retain their table.
+import { nativeCallSequence, dialogCallBody } from '../system/native-call-continuation.mjs';
+import { releaseNoticeWindowsCallSequence } from './window-release.mjs';
+import { waitForConfirmKeySequence } from './confirm-key.mjs';
+import { equipmentRowsSequence } from './equipment-window.mjs';
+import { drawTextBufferSequence } from './text-draw.mjs';
 import { dataBankWord, setDataBankWord } from '../system/data-bank.mjs';
 import {
   DP_ITEM_FLAGS,
@@ -277,7 +282,7 @@ export function* itemMenuSequence(h, events, routines, entry) {
 }
 
 // 80:E4F3: use the item of the actor X (see above). A sequence that ends with its RTS.
-export function* useItemSequence(h, events, routines) {
+export function* useItemSequence(h, events, routines, renderBuffer = drawTextBufferSequence) {
   const { ctx } = h,
     { mem } = h.a,
     { wram } = mem,
@@ -356,9 +361,9 @@ export function* useItemSequence(h, events, routines) {
     ctx.x = x;
   };
   if (pending) {
-    yield* call(h, events, routines, CONFIRM_KEY);
-    yield* call(h, events, routines, RELEASE_NOTICES);
+    yield* dialogCallBody(h, ...CONFIRM_KEY, () => waitForConfirmKeySequence(h, events));
+    yield* dialogCallBody(h, ...RELEASE_NOTICES, () => releaseNoticeWindowsCallSequence(h, events));
   }
-  yield* call(h, events, routines, EQUIPMENT);
+  yield* dialogCallBody(h, ...EQUIPMENT, () => equipmentRowsSequence(h, events, renderBuffer));
   return yield* returnSequence(h);
 }

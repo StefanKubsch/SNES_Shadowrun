@@ -13,7 +13,7 @@
 import { DialogTestMemory, prng } from './task-native-dialog-harness.mjs';
 import { createSide, registerCases } from './lift-function-harness.mjs';
 import { e4f3Sequence, e585Sequence } from '../proof/replay/native-status-screen.mjs';
-import { itemMenuSequence, useItemSequence } from '../src/game/item-menu.mjs';
+import { itemMenuSequence, useItemSequence } from '../proof/caller/item-menu.mjs';
 import {
   DIALOG_END,
   MEMBER_NUMBER,
