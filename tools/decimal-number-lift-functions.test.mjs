@@ -7,7 +7,7 @@
 import { prng } from './task-native-dialog-harness.mjs';
 import { createSide, registerCases } from './lift-function-harness.mjs';
 import { fdcfSequence } from '../proof/replay/native-status-screen.mjs';
-import { decimalNumberSequence } from '../src/game/decimal-number.mjs';
+import { decimalNumberSequence } from '../proof/caller/decimal-number.mjs';
 
 import { drainNativeSequence } from '../src/system/native-call-continuation.mjs';
 

@@ -403,3 +403,13 @@ comparisons and the affected original, production and inventory checks passed.
 The fixture services uploads; existing real NMI integrations remain. No
 hardware, save or frame-policy contract changes. These five blocks have their
 own focused-check commits; shared release results belong in HANDOFF.md.
+
+## Member and scene batch: decimal numbers (2026-11-16)
+
+The decimal formatter composes its renderer directly, preserving the original
+call frame and data bank save/restore. The independent former formatter keeps
+the injected renderer for the existing original random comparisons. The new
+member caller suite compares zero, digit and comma boundaries, billions and
+the maximum unsigned word pair at budgets one and seven, with both captured
+text and actual glyph uploads. Uploads are serviced by the fixture; established
+NMI integrations retain the hardware coverage.

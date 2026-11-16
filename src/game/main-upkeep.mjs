@@ -559,7 +559,6 @@ ITEM_ROUTINES.set(
   sequenceRun((h, events) => useItemSequence(h, events, ITEM_ROUTINES)),
 );
 // The lifted decimal number 80:FDCF with the lifted text buffer.
-const DECIMAL_ROUTINES = new Map([[0x80fb39, runDrawTextBuffer]]);
 // The lifted status screen 80:EA6E, 80:EA89 and 80:EA8E with the lifted submenus (the
 // spell menu's entry 80:E68E too), notice and window releases, glove, window and
 // plain menu, cursor, text, numbers, equipment rows, portrait, sound command 81:F007,
@@ -586,7 +585,7 @@ const STATUS_SCREEN_LIFT_ROUTINES = new Map(LIVE_MENU_ROUTINES)
   .set(0x80e8c8, runNotes)
   .set(
     0x80fdcf,
-    sequenceRun((h, events) => decimalNumberSequence(h, events, DECIMAL_ROUTINES)),
+    sequenceRun((h, events) => decimalNumberSequence(h, events)),
   );
 for (const entry of [0x80e572, 0x80e577, 0x80e57f])
   STATUS_SCREEN_LIFT_ROUTINES.set(

@@ -7,7 +7,8 @@
 // after the first non-zero one goes to the text buffer 7E:21A0, with a comma after the
 // billions, millions and thousands. The remainder is the last digit; 0D and 0 end the
 // text, which the text buffer routine (80:FB39) prints with the data bank 7E.
-import { nativeCallSequence } from '../system/native-call-continuation.mjs';
+import { dialogCallBody } from '../system/native-call-continuation.mjs';
+import { drawTextBufferSequence } from './text-draw.mjs';
 import { dataBankWord } from '../system/data-bank.mjs';
 import { TEXT_BUFFER } from '../data/wram.mjs';
 import { BYTE_BITS, BYTE_MASK, BYTE_SIGN, HIGH_BYTE_MASK } from '../constants/bits.mjs';
@@ -72,7 +73,7 @@ function writeDigits(mem) {
 
 // 80:FDCF: the number DP 04:02 as decimal text (see above). A sequence that ends with
 // its RTS.
-export function* decimalNumberSequence(h, events, routines) {
+export function* decimalNumberSequence(h, events, renderBuffer = drawTextBufferSequence) {
   const { ctx } = h,
     { mem } = h.a,
     { wram } = mem;
@@ -99,7 +100,7 @@ export function* decimalNumberSequence(h, events, routines) {
     setFlag(ctx, FLAG_NEGATIVE, false);
     setFlag(ctx, FLAG_ZERO, false);
   };
-  yield* nativeCallSequence(h, events, routines, ...DRAW_TEXT, false, false);
+  yield* dialogCallBody(h, ...DRAW_TEXT, () => renderBuffer(h, events));
   let result;
   yield () => {
     h.plb();
