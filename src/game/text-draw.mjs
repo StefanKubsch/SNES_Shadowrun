@@ -29,12 +29,7 @@
 // of the calls that do not wait (geometry, mask) and the routine's own pushes are not
 // reproduced.
 import { sceneRuntime } from '../system/scene-runtime.mjs';
-import { lagFree } from '../system/main-wait-interrupt.mjs';
 import { nmiAtBranch } from '../system/frame-wait.mjs';
-import {
-  drawTextBufferSequence as drawTextBufferReference,
-  textRequestWaitSequence,
-} from '../system/native-text-compose.mjs';
 import {
   TEXT_BUFFER,
   TEXT_BUFFER_BYTES,
@@ -498,35 +493,24 @@ function* requestUpload(h, events, s, request) {
   const { ctx } = h,
     { wram, r } = s;
   yield () => r.store(ctx);
-  if (!lagFree(events)) {
-    yield* textRequestWaitSequence(
-      h.a,
-      events,
-      request.name,
-      request.site,
-      request.site + JSL_LAST_BYTE + 1,
-      request.target,
-    );
-  } else {
-    yield () => {
-      pushLongFrame(h, request.site);
-      ctx.programBank = REQUEST_BANK;
-      setWord(wram, request.request, word(wram, request.request) + 1);
-      pushLongFrame(h, request.waitSite);
-    };
-    for (let value; (value = word(wram, request.request)) !== 0;) {
-      ctx.a = value;
-      const status =
-        (ctx.status & ~(FLAG_MEMORY_8BIT | FLAG_ZERO | FLAG_NEGATIVE)) |
-        (value & WORD_SIGN ? FLAG_NEGATIVE : 0);
-      yield* nmiAtBranch(h, events, request.branch, status);
-    }
-    yield () => {
-      pullLongFrame(h);
-      pullLongFrame(h);
-      ctx.programBank = request.site >>> WORD_BITS;
-    };
+  yield () => {
+    pushLongFrame(h, request.site);
+    ctx.programBank = REQUEST_BANK;
+    setWord(wram, request.request, word(wram, request.request) + 1);
+    pushLongFrame(h, request.waitSite);
+  };
+  for (let value; (value = word(wram, request.request)) !== 0;) {
+    ctx.a = value;
+    const status =
+      (ctx.status & ~(FLAG_MEMORY_8BIT | FLAG_ZERO | FLAG_NEGATIVE)) |
+      (value & WORD_SIGN ? FLAG_NEGATIVE : 0);
+    yield* nmiAtBranch(h, events, request.branch, status);
   }
+  yield () => {
+    pullLongFrame(h);
+    pullLongFrame(h);
+    ctx.programBank = request.site >>> WORD_BITS;
+  };
   yield () => {
     r.a = 0;
     ctx.status = (ctx.status | FLAG_ZERO) & ~FLAG_NEGATIVE;
@@ -537,7 +521,6 @@ function* requestUpload(h, events, s, request) {
 // continuation: h the caller's access (direct page 0, data bank 7E), events its frame
 // events.
 export function* drawTextBufferSequence(h, events) {
-  if (events?.startupInterrupts) return yield* drawTextBufferReference(h.a, events, false);
   const s = textState(h),
     { mem, wram, r } = s;
   yield () => {

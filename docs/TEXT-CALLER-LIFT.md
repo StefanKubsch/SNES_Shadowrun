@@ -101,3 +101,20 @@ text/menu/dialog suite passed 80 tests.
 
 Each block gets focused checks and a commit. The shared release follows block
 five; its result and the count since the preceding release belong in HANDOFF.md.
+
+## Batch block 2: live glyph drawing (2026-11-16)
+
+[text-draw.mjs](../src/game/text-draw.mjs) always uses live upload waits and no
+longer selects startup observations or dispatches recorded polling routines.
+The independent [former renderer](../proof/caller/text-draw.mjs) retains both
+recorded modes. The existing random glyph, list and menu comparisons now use
+that former renderer explicitly for recorded polls; real live integrations
+continue through the product renderer.
+
+[text-draw-caller.test.mjs](../tools/text-draw-caller.test.mjs) compares both
+renderers on live requests, with empty/plain/wrapping texts, eight styles,
+budgets one and seven, and request counters zero, FFFE and FFFF. Each serviced
+request payload, arithmetic device write and final game state is compared.
+A read-back request wrapping from FFFF to zero does not wait; later requests
+still wait normally. Glyph equations, hardware contracts and frame policy are
+unchanged. The fixture services uploads rather than emulating NMI hardware.

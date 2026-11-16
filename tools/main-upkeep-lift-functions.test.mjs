@@ -1,3 +1,4 @@
+import { drawTextBufferSequence as recordedTextBufferSequence } from '../proof/caller/text-draw.mjs';
 import { textBufferRenderer } from '../src/game/text-renderer.mjs';
 // Random per-function tests of the main loop's lifted upkeep (src/game/main-upkeep.mjs)
 // against the register-level references (proof/game-reference/main-upkeep.mjs and
@@ -51,7 +52,6 @@ import {
   runShowNotice,
   runPrintNumber,
   runPrintText,
-  runDrawTextBuffer,
   runOpenWindow,
   runChooseAction,
   runReleaseNoticeWindows,
@@ -197,6 +197,10 @@ import {
   STATIC_NODE_END,
 } from '../src/data/wram.mjs';
 
+// Recorded poll comparisons retain the former renderer; live caller tests service NMIs.
+function runDrawTextBuffer(h, events) {
+  return drainNativeSequence(recordedTextBufferSequence(h, events));
+}
 const WRAM_BYTES = 0x20000,
   OBJECT_SLOTS = 0x2c,
   // The game's main stack; the window list's upload wait frames lie below 1EE2.
