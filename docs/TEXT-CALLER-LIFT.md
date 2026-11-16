@@ -820,3 +820,12 @@ entries. Hardware, sound, save layout and lag-free frame policy are unchanged.
 All ten complete phases have focused checks and individual commits. Shared
 release and delivery results belong in HANDOFF.md. Shape editing and S-MIX
 remain deferred.
+
+## Player and final scene services batch (2026-11-16)
+
+### Block 1: player Start
+
+Player Start composes the real status screen through its original frame and
+forwards the renderer. Independent former player/status callers cover Exit,
+cancellation and Select from skills, both budgets and default glyphs. They
+compare full state, portrait uploads, HDMA, scene close and sound commands.

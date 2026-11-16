@@ -13,12 +13,13 @@
 // buttons for Summon spirit and for a weapon of kind 1 over a hittable target), B, L or
 // R ends the aim and takes the glove off (80:BCB2), as A or X do without an aim, and B,
 // L or R do without a tagged object. Callees retain their original call frames.
-// Only the status and immediate-item entries retain services.
+// Only the immediate-item entry retains a service.
 import { openWindowSequence } from './window-open.mjs';
 import { printTextSequence } from './text-print.mjs';
 import { waitForConfirmKeySequence } from './confirm-key.mjs';
 import { selectAnimationRoutine, turnObjectRoutine } from './object-turn.mjs';
 import { releaseWindowJsrSequence, putGloveAwayCallSequence } from './window-release.mjs';
+import { START_ENTRY, statusScreenSequence } from './status-screen.mjs';
 import { partyStatusSequence } from './party-status.mjs';
 import { drawTextBufferSequence } from './text-draw.mjs';
 import {
@@ -394,8 +395,12 @@ export function* controlPlayerSequence(h, events, routines, renderBuffer = drawT
     yield* dialogCallBody(h, ...PARTY_STATUS, () => partyStatusSequence(h, events, renderBuffer));
     return yield* finish();
   }
-  if (path === 'status' || path === 'items') {
-    yield* call(h, events, routines, path === 'status' ? STATUS_SCREEN : ITEM_LIST);
+  if (path === 'status') {
+    yield* dialogCallBody(h, ...STATUS_SCREEN, () => statusScreenSequence(h, events, START_ENTRY, renderBuffer));
+    return yield* finish();
+  }
+  if (path === 'items') {
+    yield* call(h, events, routines, ITEM_LIST);
     return yield* finish();
   }
   if (path === 'free') return yield* freeSequence(h, events, finish, renderBuffer);

@@ -1,6 +1,8 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { compareRun } from './member-menu-caller-harness.mjs';
+import { controlPlayerSequence as directPlayer } from '../src/game/player-control.mjs';
+import { controlPlayerSequence as formerPlayer } from '../proof/caller/player-control.mjs';
 import * as directStatus from '../src/game/status-screen.mjs';
 import * as formerStatus from '../proof/caller/status-screen.mjs';
 import { decimalNumberSequence } from '../proof/caller/decimal-number.mjs';
@@ -32,6 +34,7 @@ function runStatus(
   realDrawing = false,
   alternate = false,
   initialToken = 0,
+  player = false,
 ) {
   let captureFinal;
   const selectedRow =
@@ -55,11 +58,9 @@ function runStatus(
         : [variant === 'cancel' ? 0x2000 : 0x8000];
   const result = compareRun(
     function* (h, e, r) {
-      const returned = yield* module.statusScreenSequence(
-        h,
-        e,
-        ...(direct ? [entry, r] : [r, entry]),
-      );
+      const returned = player
+        ? yield* (direct ? directPlayer(h, e, new Map(), r) : formerPlayer(h, e, r))
+        : yield* module.statusScreenSequence(h, e, ...(direct ? [entry, r] : [r, entry]));
       captureFinal();
       return returned;
     },
@@ -70,6 +71,7 @@ function runStatus(
         record = mem.read16(0x80971a);
       put(0, variant === 'fallback' ? 6 : 2);
       put(W.PLAYER_OBJECT, 2);
+      if (player) put(W.PAD_PRESSED, entry === 0x80ea89 ? 0x1000 : 0x4000);
       put(W.DRAW_LIST_INDEX, 0);
       put(W.DRAW_LIST, 0);
       put(W.OBJECT_FRAME_OFFSET, 2);
@@ -169,6 +171,8 @@ function runStatus(
       bind(STATUS_ENTRY, () => spellMenuSequence(h, events, routines, STATUS_ENTRY));
       bind(0x80e834, () => skillsSequence(h, events, routines));
       bind(0x80e8c8, () => notesSequence(h, events, routines));
+      for (const target of [0x80ea89, 0x80ea8e])
+        bind(target, () => formerStatus.statusScreenSequence(h, events, routines, target));
     },
   );
   result.wram.fill(0, 0x1e80, 0x1ef0);
@@ -305,3 +309,14 @@ for (const budget of [1, 7])
       assert.equal(actual.wram[W.APU_COMMAND_TOKEN], (token + 2) & 0xff);
       assert.equal(actual.writes.filter((write) => write === '8513,2,1').length, 2);
     });
+
+for (const budget of [1, 7])
+  for (const variant of ['Exit', 'cancel', 'submenu-5-end'])
+    for (const glyphs of [false, true])
+      test(`player Start actual status: ${variant}, budget ${budget}, glyphs ${glyphs}`, () => {
+        const actual = runStatus(directStatus, true, 0x80ea89, 0, variant, budget, glyphs, false, 0, true);
+        assert.deepEqual(actual, runStatus(formerStatus, false, 0x80ea89, 0, variant, budget, glyphs, false, 0, true));
+        assert.equal(actual.wram[0] | (actual.wram[1] << 8), 0);
+        assert.ok(actual.input > 0);
+        assert.ok(actual.writes.includes('8514,32639,2'));
+      });
