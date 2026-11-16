@@ -9,7 +9,7 @@
 import { prng } from './task-native-dialog-harness.mjs';
 import { createSide, registerCases } from './lift-function-harness.mjs';
 import { e9c5Sequence } from '../proof/replay/native-member-spell-menu.mjs';
-import { equipmentRowsSequence } from '../src/game/equipment-window.mjs';
+import { equipmentRowsSequence } from '../proof/caller/equipment-window.mjs';
 import {
   JAKE_DERMAL_ARMOUR,
   MEMBER_INDEX,

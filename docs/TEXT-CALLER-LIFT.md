@@ -348,3 +348,14 @@ fixture; existing integrations retain actual NMI/device coverage.
 
 The five blocks in this batch are spell choice, equipment rows, skills, notes
 and party status. Each retains independent original and caller comparisons.
+
+## Status menus batch: equipment rows (2026-11-16)
+
+[equipment-window.mjs](../src/game/equipment-window.mjs) composes cursor,
+text and number printing directly with the renderer sequence. Main-upkeep
+removes its equipment table. The [former caller](../proof/caller/equipment-window.mjs)
+retains injected callees for original random comparisons. The caller suite adds
+twelve cases across leader and other members, absent/present items, dermal
+armour and byte-rating wrap, with both budgets. It compares full text payloads,
+number digits, writes, game state and return, including zero-budget stability.
+Original item lookup, stack-held equipment and bonus arithmetic stay unchanged.

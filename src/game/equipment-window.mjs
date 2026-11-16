@@ -7,8 +7,11 @@
 // 7E:3C18) and the armour's name; each row is first blanked. An item's name is "none"
 // for a negative number, otherwise the kind of 8D:B022 by item, six bytes a kind in
 // 8C:EFB0. The cursor (80:FAAC), text (80:FE69) and number (80:FD80) run through their
-// frames from the routine table.
-import { dialogCallBody, nativeCallSequence } from '../system/native-call-continuation.mjs';
+// original frames with direct composition.
+import { dialogCallBody, segmentSequence } from '../system/native-call-continuation.mjs';
+import { setTextCursorRoutine, printNumberSequence } from './window-text.mjs';
+import { printTextSequence } from './text-print.mjs';
+import { drawTextBufferSequence } from './text-draw.mjs';
 import { dataBankWord } from '../system/data-bank.mjs';
 import {
   DP_SCRATCH,
@@ -62,11 +65,9 @@ const load = (ctx, value) => {
   ctx.a = value;
   setSignZero(ctx, value);
 };
-const call = (h, events, routines, pc, target) =>
-  nativeCallSequence(h, events, routines, pc, target, false, false);
 
 // 80:E9A8: the item's name as text (A the item); a sequence that ends with its RTS.
-function* itemTextSequence(h, events, routines, item) {
+function* itemTextSequence(h, events, renderBuffer, item) {
   const { ctx } = h,
     { mem } = h.a,
     { wram } = mem;
@@ -88,7 +89,7 @@ function* itemTextSequence(h, events, routines, item) {
     load(ctx, text);
     setWord(wram, 2, text);
   };
-  yield* call(h, events, routines, ITEM_TEXT_CALL, TEXT);
+  yield* dialogCallBody(h, ITEM_TEXT_CALL, TEXT, () => printTextSequence(h, events, renderBuffer));
   let result;
   yield () => {
     result = h.rts();
@@ -97,7 +98,7 @@ function* itemTextSequence(h, events, routines, item) {
 }
 
 // 80:E9C5: the equipment rows (see above). A sequence that ends with its RTS.
-export function* equipmentRowsSequence(h, events, routines) {
+export function* equipmentRowsSequence(h, events, renderBuffer = drawTextBufferSequence) {
   const { ctx } = h,
     { mem } = h.a,
     { wram } = mem;
@@ -115,7 +116,7 @@ export function* equipmentRowsSequence(h, events, routines) {
       setWord(wram, DP_CURSOR_ROW, row);
       load(ctx, row);
     };
-    yield* call(h, events, routines, pc, CURSOR);
+    yield* dialogCallBody(h, pc, CURSOR, () => segmentSequence(() => setTextCursorRoutine(h)));
   };
   const text = function* (pc, value) {
     yield () => {
@@ -123,10 +124,10 @@ export function* equipmentRowsSequence(h, events, routines) {
       load(ctx, v);
       setWord(wram, 2, v);
     };
-    yield* call(h, events, routines, pc, TEXT);
+    yield* dialogCallBody(h, pc, TEXT, () => printTextSequence(h, events, renderBuffer));
   };
   const itemText = (pc, item) =>
-    dialogCallBody(h, pc, ITEM_TEXT, () => itemTextSequence(h, events, routines, item));
+    dialogCallBody(h, pc, ITEM_TEXT, () => itemTextSequence(h, events, renderBuffer, item));
   let isLeader;
   yield () => {
     setWord(wram, 0, dataBankWord(mem, STATUS_WINDOW));
@@ -169,7 +170,7 @@ export function* equipmentRowsSequence(h, events, routines) {
     load(ctx, rating);
     setWord(wram, 2, rating);
   };
-  yield* call(h, events, routines, 0x80ea66, NUMBER);
+  yield* dialogCallBody(h, 0x80ea66, NUMBER, () => printNumberSequence(h, events, renderBuffer));
   yield () => {
     item = h.pull(2);
     load(ctx, item);

@@ -446,18 +446,12 @@ const TEXT_ROUTINES = new Map([
 export const liftedQuestionSequence = (h, events) => askYesNoSequence(h, events);
 export const liftedSpellChoiceSequence = (h, events) => chooseSpellSequence(h, events);
 // The lifted equipment rows 80:E9C5 with the lifted cursor, text and number.
-const EQUIPMENT_ROUTINES = new Map([
-  [0x80faac, setTextCursorRoutine],
-  [0x80fe69, runPrintText],
-  [0x80fd80, runPrintNumber],
-]);
 export function runEquipmentRows(h, events) {
-  return drainNativeSequence(equipmentRowsSequence(h, events, EQUIPMENT_ROUTINES));
+  return drainNativeSequence(equipmentRowsSequence(h, events));
 }
 NATIVE_CALL_CONTINUATIONS.set(runEquipmentRows, {
   run: runEquipmentRows,
-  create: ({ h, events }) =>
-    new NativeCallContinuation(h.a, equipmentRowsSequence(h, events, EQUIPMENT_ROUTINES)),
+  create: ({ h, events }) => new NativeCallContinuation(h.a, equipmentRowsSequence(h, events)),
 });
 // The lifted member portrait 80:E4B3 with the lifted word wait and the dialog's lifted
 // portrait unpack 80:9F6D, row shift 80:8F20, first upload 80:9022 and DMA job 80:8FF5
