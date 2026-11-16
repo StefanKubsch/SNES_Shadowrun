@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { compareRun } from './member-menu-caller-harness.mjs';
+import { compareRun, configureMemberPortrait } from './member-menu-caller-harness.mjs';
 import * as directItem from '../src/game/item-menu.mjs';
 import * as formerItem from '../proof/caller/item-menu.mjs';
 import { equipmentRowsSequence } from '../proof/caller/equipment-window.mjs';
@@ -29,9 +29,10 @@ function runUse(module, direct, actor, effect, budget, realDrawing = false) {
     budget,
     pads,
     realDrawing,
-    ({ h, events, put, routines, bind, calls }) => {
+    (side) => {
+      const { h, events, put, routines, bind, calls } = side;
       services = routines;
-      for (const target of [0x80a835, 0x80c1ca, 0x81aeb0, 0x80e4b3])
+      for (const target of [0x80a835, 0x80c1ca, 0x81aeb0])
         routines.set(target, (callee) => {
           calls.push(['service', target, callee.ctx.a, callee.ctx.x, callee.ctx.y]);
           if (target === 0x80a835) put(0, 4);
@@ -42,6 +43,7 @@ function runUse(module, direct, actor, effect, budget, realDrawing = false) {
           return target === 0x81aeb0 ? callee.rtl() : callee.rts();
         });
       bind(0x80e9c5, () => equipmentRowsSequence(h, events, routines));
+      return configureMemberPortrait(side);
     },
   );
 }
@@ -61,7 +63,15 @@ for (const budget of [1, 7])
         assert.equal(actual.input, !effect.end && effect.notice ? 1 : 0);
         assert.equal(
           actual.calls.filter((c) => c[0] === 'service').length,
-          2 + (!effect.end && effect.redraw ? 2 : 0),
+          2 + (!effect.end && effect.redraw ? 1 : 0),
+        );
+        assert.equal(
+          actual.calls.filter((c) => c[0] === 'portrait upload').length,
+          !effect.end && effect.redraw ? 2 : 0,
+        );
+        assert.equal(
+          actual.calls.filter((c) => c[0] === 'portrait frame').length,
+          !effect.end && effect.redraw ? 11 : 0,
         );
         assert.equal(
           actual.wram[W.OBJECT_NUMBER + 4] | (actual.wram[W.OBJECT_NUMBER + 5] << 8),

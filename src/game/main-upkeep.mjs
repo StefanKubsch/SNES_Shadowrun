@@ -541,7 +541,6 @@ const ITEM_ROUTINES = new Map([
   [0x80a835, runCreateObject],
   [0x80c1ca, runHeadVisit],
   [0x81aeb0, runResetWindowList],
-  [0x80e4b3, runMemberPortrait],
 ]);
 // The lifted status screen 80:EA6E, 80:EA89 and 80:EA8E with the lifted submenus (the
 // spell menu's entry 80:E68E too), notice and window releases, glove, window and

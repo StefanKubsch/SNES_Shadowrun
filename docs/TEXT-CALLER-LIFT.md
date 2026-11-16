@@ -636,3 +636,12 @@ former side, comparing both tile payloads, palettes, eleven frame snapshots,
 HDMA fields, writes and final state. Ended scripts skip redraw. The CPU stack
 is relocated and excluded explicitly; portrait fields remain captured.
 Uploads are serviced; existing integrations retain real NMI coverage.
+
+### Block 2: item portrait redraw
+
+Item use now composes member portraits directly after the nested visit requests
+redraw. Ended visits still return before any redraw or notice processing. The
+item caller suite uses the same retained real portrait comparison at both
+budgets, for three actor records and end/redraw/notice combinations. It asserts
+two uploads and eleven frames only when the portrait is requested and reached.
+Object creation, visit and list reset remain services at this phase.

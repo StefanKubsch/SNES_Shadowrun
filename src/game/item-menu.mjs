@@ -26,6 +26,7 @@ import { openWindowSequence, requestTileClearSequence } from './window-open.mjs'
 import { chooseFromMenuSequence, MENU_WITH_NUMBERS } from './menu-choice.mjs';
 import { waitForConfirmKeySequence } from './confirm-key.mjs';
 import { equipmentRowsSequence } from './equipment-window.mjs';
+import { memberPortraitSequence } from './member-portrait.mjs';
 import { drawTextBufferSequence } from './text-draw.mjs';
 import { dataBankWord, setDataBankWord } from '../system/data-bank.mjs';
 import {
@@ -352,7 +353,7 @@ export function* useItemSequence(h, events, routines, renderBuffer = drawTextBuf
   if (ended) return yield* returnSequence(h);
   if (redraw) {
     yield* call(h, events, routines, REDRAW_LIST, true);
-    yield* call(h, events, routines, PORTRAIT);
+    yield* dialogCallBody(h, ...PORTRAIT, () => memberPortraitSequence(h, events));
   }
   let pending = false;
   yield () => {
