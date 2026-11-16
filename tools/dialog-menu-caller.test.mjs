@@ -89,7 +89,7 @@ for (const budget of [1, 7])
     });
 
 for (const budget of [1, 7])
-  for (const variant of ['main confirm', 'topic confirm'])
+  for (const variant of ['main confirm', 'main cancel', 'topic confirm'])
     test(`default live dialog renderer: ${variant}, budget ${budget}`, () => {
       assert.deepEqual(run(direct, variant, budget, true), run(previous, variant, budget, true));
     });

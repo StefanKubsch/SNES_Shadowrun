@@ -48,3 +48,10 @@ its wait/input observations as before. The missing-scheduler frontier remains
 explicit. Actual text and full-dialog action cases now allocate real script
 80 tasks before a controlled visit; the former caller independently appends
 with the register-level routine. Service topic callbacks remain only in proof.
+
+## Block 6: main dialog menu
+
+The main choice always composes its actual menu through 80:91FF, including
+confirmation and cancellation. The former menu caller retains service dispatch.
+Default-glyph comparisons now also exercise main-menu cancellation, including
+real input consumption, window uploads and the end marker at both budgets.

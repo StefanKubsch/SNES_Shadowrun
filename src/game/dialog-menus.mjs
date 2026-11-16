@@ -79,7 +79,9 @@ function* rts(h) {
 // (menu-choice.mjs); else the replacement.
 function callee(h, events, routines, renderBuffer, [site, target], name) {
   let body;
-  if (!isStandardTextRoutines(routines)) body = () => segmentSequence(() => routines[name](h.a));
+  if (name === 'mainMenu') body = () => chooseFromMenuSequence(h, events, renderBuffer, target);
+  else if (!isStandardTextRoutines(routines))
+    body = () => segmentSequence(() => routines[name](h.a));
   else if (name === 'allocate') body = () => openWindowSequence(h, events);
   else if (name === 'release')
     body = function* () {
@@ -104,7 +106,7 @@ export function* chooseDialogActionSequence(
     setWords(wram, 2, MAIN_MENU);
     ctx.a = CODE_BANK;
   };
-  yield* callee(h, events, routines, renderBuffer, MAIN_MENU_CALL, 'menu');
+  yield* callee(h, events, routines, renderBuffer, MAIN_MENU_CALL, 'mainMenu');
   yield () => {
     ctx.a = word(wram, DP_RESULT);
     // CMP #FFFF.
