@@ -20,11 +20,7 @@
 // while a notice window is open (80:F953, 80:FF79) and the equipment rows redrawn
 // (80:E9C5). Confirmation, notice cleanup and equipment compose directly;
 // object creation and nested visits retain their table.
-import {
-  nativeCallSequence,
-  dialogCallBody,
-  segmentSequence,
-} from '../system/native-call-continuation.mjs';
+import { dialogCallBody, segmentSequence } from '../system/native-call-continuation.mjs';
 import { releaseNoticeWindowsCallSequence, releaseWindowJsrSequence } from './window-release.mjs';
 import { openWindowSequence, requestTileClearSequence } from './window-open.mjs';
 import { chooseFromMenuSequence, MENU_WITH_NUMBERS } from './menu-choice.mjs';
@@ -34,6 +30,7 @@ import { memberPortraitSequence } from './member-portrait.mjs';
 import { resetWindowListSequence } from './window-list.mjs';
 import { drawTextBufferSequence } from './text-draw.mjs';
 import { dataBankWord, setDataBankWord } from '../system/data-bank.mjs';
+import { scriptVisitSequence } from '../system/script-visit.mjs';
 import { createObject } from './object-create.mjs';
 import {
   DP_ITEM_FLAGS,
@@ -143,8 +140,6 @@ const load = (ctx, value) => {
   setSignZero(ctx, value);
 };
 const negative = (value) => (value & WORD_SIGN) !== 0;
-const call = (h, events, routines, [pc, target], long = false) =>
-  nativeCallSequence(h, events, routines, pc, target, long, false);
 function* returnSequence(h) {
   let result;
   yield () => {
@@ -192,13 +187,7 @@ function listItems(mem) {
 
 // 80:E572, 80:E577 or 80:E57F: the item submenu (see above). A sequence that ends with
 // its RTS.
-export function* itemMenuSequence(
-  h,
-  events,
-  routines,
-  entry,
-  renderBuffer = drawTextBufferSequence,
-) {
+export function* itemMenuSequence(h, events, entry, renderBuffer = drawTextBufferSequence) {
   const { ctx } = h,
     { mem } = h.a,
     { wram } = mem;
@@ -275,7 +264,7 @@ export function* itemMenuSequence(
       used = true;
     };
     if (!used) break;
-    yield* dialogCallBody(h, ...USE_ITEM, () => useItemSequence(h, events, routines, renderBuffer));
+    yield* dialogCallBody(h, ...USE_ITEM, () => useItemSequence(h, events, renderBuffer));
     let ended;
     yield () => {
       const end = dataBankWord(mem, DIALOG_END);
@@ -299,7 +288,7 @@ export function* itemMenuSequence(
 }
 
 // 80:E4F3: use the item of the actor X (see above). A sequence that ends with its RTS.
-export function* useItemSequence(h, events, routines, renderBuffer = drawTextBufferSequence) {
+export function* useItemSequence(h, events, renderBuffer = drawTextBufferSequence) {
   const { ctx } = h,
     { mem } = h.a,
     { wram } = mem,
@@ -351,7 +340,7 @@ export function* useItemSequence(h, events, routines, renderBuffer = drawTextBuf
     setDataBankWord(mem, MEMBER_PORTRAIT_REDRAW, 0, 0);
     load(ctx, record);
   };
-  yield* call(h, events, routines, VISIT);
+  yield* dialogCallBody(h, ...VISIT, () => scriptVisitSequence(events));
   let ended, redraw;
   yield () => {
     const end = dataBankWord(mem, DIALOG_END);

@@ -753,3 +753,10 @@ JSR frame, preferring a resumable child and retaining the synchronous round hook
 Missing round hooks retain the established frontier. Spell entry points no longer
 receive a service table. Existing cleanup combinations exercise both hook paths
 and compare independent former callers; scheduler integrations remain unchanged.
+
+### Block 4: item nested visits
+
+Item use and all three item menus now compose the nested scheduler visit directly.
+They receive only a renderer. Actual actor creation and task append remain in the
+comparison, followed by controlled end/redraw/notice effects through both scheduler
+hooks. The status caller now retains only scene closing as a service.

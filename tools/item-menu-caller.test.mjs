@@ -1,6 +1,10 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { compareRun, configureMemberPortrait } from './member-menu-caller-harness.mjs';
+import {
+  compareRun,
+  configureMemberPortrait,
+  configureScriptVisit,
+} from './member-menu-caller-harness.mjs';
 import * as directItem from '../src/game/item-menu.mjs';
 import * as formerItem from '../proof/caller/item-menu.mjs';
 import { equipmentRowsSequence } from '../proof/caller/equipment-window.mjs';
@@ -9,10 +13,9 @@ import { runResetWindowList } from '../proof/caller/window-list.mjs';
 import { createObject } from '../src/script/native-object-create.mjs';
 import { tasksOf } from '../src/script/task-api.mjs';
 function runUse(module, direct, actor, effect, budget, realDrawing = false) {
-  let services;
   const pads = !effect.end && effect.notice ? [0x8000] : [];
   return compareRun(
-    (h, e, r) => module.useItemSequence(h, e, direct ? services : r, direct ? r : undefined),
+    (h, e, r) => module.useItemSequence(h, e, r),
     direct,
     ({ h, mem, put }) => {
       h.ctx.x = actor;
@@ -34,7 +37,6 @@ function runUse(module, direct, actor, effect, budget, realDrawing = false) {
     realDrawing,
     (side) => {
       const { h, events, put, routines, bind, calls } = side;
-      services = routines;
       tasksOf(h.a).reset();
       put(W.OBJECT_KIND + 4, 0xffff);
       routines.set(0x80a835, (callee) => createObject(callee.a));
@@ -51,9 +53,8 @@ function runUse(module, direct, actor, effect, budget, realDrawing = false) {
         });
       bind(0x80e9c5, () => equipmentRowsSequence(h, events, routines));
       routines.set(0x81aeb0, runResetWindowList);
+      configureScriptVisit(side, budget === 1);
       const finish = configureMemberPortrait(side);
-      if (direct)
-        services = new Map([...routines].filter(([target]) => [0x80c1ca].includes(target)));
       return finish;
     },
   );
@@ -103,7 +104,6 @@ import {
 import { chooseFromMenuSequence } from '../proof/caller/menu-choice.mjs';
 import { requestTileClearSequence } from '../proof/caller/window-open.mjs';
 function runItemMenu(module, direct, entry, variant, budget, realDrawing = false) {
-  let services;
   const selected = variant === 'use' || variant === 'rebuild';
   const pads =
     variant === 'empty'
@@ -115,8 +115,7 @@ function runItemMenu(module, direct, entry, variant, budget, realDrawing = false
           : [0x8000];
   let heldRecord;
   return compareRun(
-    (h, e, r) =>
-      module.itemMenuSequence(h, e, direct ? services : r, entry, direct ? r : undefined),
+    (h, e, r) => module.itemMenuSequence(h, e, ...(direct ? [entry, r] : [r, entry])),
     direct,
     ({ put, mem }) => {
       put(W.MEMBER_NUMBER, 0x1234);
@@ -153,8 +152,8 @@ function runItemMenu(module, direct, entry, variant, budget, realDrawing = false
     budget,
     pads,
     realDrawing,
-    ({ h, events, put, routines, bind, calls }) => {
-      services = routines;
+    (side) => {
+      const { h, events, put, routines, bind, calls } = side;
       tasksOf(h.a).reset();
       put(W.OBJECT_KIND + 4, 0xffff);
       bind(0x80a6ad, () => chooseFromMenuSequence(h, events, routines, 0x80a6ad));
@@ -168,8 +167,7 @@ function runItemMenu(module, direct, entry, variant, budget, realDrawing = false
         else put(heldRecord + STATE_HOLDER, 0);
         return callee.rts();
       });
-      if (direct)
-        services = new Map([...routines].filter(([target]) => [0x80c1ca].includes(target)));
+      configureScriptVisit(side, budget === 1);
     },
   );
 }

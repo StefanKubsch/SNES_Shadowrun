@@ -525,7 +525,7 @@ export function* statusScreenSequence(
       ctx.x = offset;
       submenu = CODE_BANK_BASE | dataBankWord(mem, SUBMENUS, offset);
       if (Object.hasOwn(ITEM_ENTRIES, submenu))
-        submenuSequence = itemMenuSequence(h, events, routines, submenu, renderBuffer);
+        submenuSequence = itemMenuSequence(h, events, submenu, renderBuffer);
       else if (submenu === STATUS_ENTRY)
         submenuSequence = spellMenuSequence(h, events, STATUS_ENTRY, renderBuffer);
       else if (submenu === SKILLS_MENU) submenuSequence = skillsSequence(h, events, renderBuffer);
