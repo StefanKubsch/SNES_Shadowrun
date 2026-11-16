@@ -33,6 +33,7 @@ import { showDialogTextSequence } from './dialog-text.mjs';
 import { chooseDialogActionSequence, chooseDialogTopicSequence } from './dialog-menus.mjs';
 import { drawTextBufferSequence } from './text-draw.mjs';
 import { reloadObjectTilesSequence } from './object-tiles.mjs';
+import { buildSprites } from './sprite-list.mjs';
 import { openWindowSequence } from './window-open.mjs';
 import {
   putGloveAwayCallSequence,
@@ -235,8 +236,7 @@ export function setWindowTextWidthRoutine(h) {
 // Object tile reload and sprite composition retain their shared service table.
 export function* closeDialogSequence(h, events, routines) {
   const { ctx } = h,
-    { port } = sceneRuntime(h),
-    call = ([site, target, long]) => dialogCallSequence(h, events, routines, site, target, long);
+    { port } = sceneRuntime(h);
   yield* dialogCallBody(h, ...CALL.closePortrait, () => closePortraitWindowSequence(h, events));
   yield () => {
     ctx.a = 0;
@@ -268,7 +268,7 @@ export function* closeDialogSequence(h, events, routines) {
     }
   };
   yield* dialogCallBody(h, ...CALL.pad, () => segmentSequence(() => runPadPresses(h, events)));
-  yield* call(CALL.sprites);
+  yield* dialogCallBody(h, ...CALL.sprites, () => segmentSequence(() => buildSprites(h)));
   let result;
   yield () => {
     result = h.rts();

@@ -2,6 +2,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import * as direct from '../src/game/dialog-talk.mjs';
 import * as former from '../proof/caller/dialog-talk.mjs';
+import { buildSpriteList } from '../proof/replay/native-scene-sprites.mjs';
 import { reloadObjectTiles } from '../src/system/native-scene-tiles.mjs';
 import * as W from '../src/data/wram.mjs';
 import { closePortraitWindowSequence } from '../proof/caller/portrait-window.mjs';
@@ -64,16 +65,10 @@ function runClose(module, shadow, counter, held, budget) {
   const portrait = () => assert.fail('portrait must resume cooperatively');
   const table = new Map([
     [0x80adf4, reloadObjectTiles],
+    [0x80b8de, buildSpriteList],
     [0x808f97, portrait],
     [0x81b0a1, wait],
     [0x809e1a, (callee, e) => runPadPresses(callee, e)],
-    ...[0x80b8de].map((target) => [
-      target,
-      (callee) => {
-        side.calls.push([target, callee.ctx.a]);
-        return callee.rts();
-      },
-    ]),
   ]);
   NATIVE_CALL_CONTINUATIONS.set(wait, {
     run: wait,
@@ -108,6 +103,8 @@ for (const budget of [1, 7])
           assert.deepEqual(actual, runClose(former, shadow, counter, held, budget));
           assert.equal(actual.calls.filter((call) => call[0] === 'frame').length, 12);
           assert.equal(actual.finalShadow, shadow & ~1);
+          assert.equal(actual.wram[W.OAM_BUFFER + 5], 0xf0, 'unused sprite hidden');
+          assert.equal(actual.wram[W.NMI_JOB_LISTS], 1, 'sprite upload counted');
           assert.equal(actual.writes.length, 17, 'OBJSEL and both complete font DMA setups');
         });
 
@@ -237,6 +234,7 @@ function runTalk(module, variant, budget, { alternate = 0, music = 0, mirror = 0
   };
   const table = new Map([
     [0x80adf4, reloadObjectTiles],
+    [0x80b8de, buildSpriteList],
     [0x81886a, clearFixedColourRoutine],
     [0x80fa92, setWindowTextWidthRoutine],
     [0x80bcb2, live.runPutGloveAway],
@@ -254,7 +252,7 @@ function runTalk(module, variant, budget, { alternate = 0, music = 0, mirror = 0
     [0x809178, live.runDialogText],
     [0x8091e2, live.runDialogMenu],
     [0x809215, live.runDialogTopics],
-    ...[0x80b8de, 0x81ef47].map((target) => [
+    ...[0x81ef47].map((target) => [
       target,
       (callee) => {
         side.calls.push(['service', target, callee.ctx.a]);

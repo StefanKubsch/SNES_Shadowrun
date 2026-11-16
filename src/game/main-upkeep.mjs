@@ -375,9 +375,8 @@ function runMusicMode(h) {
   return setMusicModeRoutine(h);
 }
 // Dialog composition owns its windows, text, menus, portraits and input.
-// Shared scene reload/sprites and music keep their established service boundary.
+// Only the reload's frame wait and music retain their service interfaces.
 const DIALOG_ROUTINES = new Map([
-  [0x80b8de, runSpriteList],
   [0x81b0a1, runFrameWait],
   [0x81ef47, runMusicMode],
 ]);

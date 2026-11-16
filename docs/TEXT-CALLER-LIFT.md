@@ -768,3 +768,11 @@ original JSR frame. Former close and full dialog callers bind the independent
 register-level reload. Their fixture now queues real tile jobs and captures
 the upload sources before servicing the job-list wait. Both budgets preserve
 portrait close, font DMA, pad and window release chronology.
+
+### Block 6: scene sprite rebuild
+
+Scene closing composes the actual sprite builder through its original JSR frame.
+The former callers bind the independent register-level builder. Close and dialog
+routes compare OAM, palette slots and the upload job count in addition to tile
+jobs, font DMA, input and windows at both budgets. Hidden OAM entries and the
+new job count are asserted explicitly; existing sprite body comparisons remain.
