@@ -175,17 +175,16 @@ export function runTileBuffers(h) {
 // 80:FEC1, called with JSR; its window, text and release wait for the NMI, so it is a
 // native call continuation. The register-level notice keeps the target's registration,
 // so this one is found by its run function.
-export function runShowNotice(h, events, routines = TEXT_ROUTINES) {
-  return drainNativeSequence(showNoticeSequence(h, events, routines));
+export function runShowNotice(h, events) {
+  return drainNativeSequence(showNoticeSequence(h, events));
 }
 NATIVE_CALL_CONTINUATIONS.set(runShowNotice, {
   run: runShowNotice,
-  create: ({ h, events, routines = TEXT_ROUTINES }) =>
-    new NativeCallContinuation(h.a, showNoticeSequence(h, events, routines)),
+  create: ({ h, events }) => new NativeCallContinuation(h.a, showNoticeSequence(h, events)),
 });
 // The lifted notice as the script native 80:FEC1 runs it with lag-free frames
 // (src/vm/special-natives.mjs), with this module's window, text and release.
-export const liftedNoticeSequence = (h, events) => showNoticeSequence(h, events, TEXT_ROUTINES);
+export const liftedNoticeSequence = (h, events) => showNoticeSequence(h, events);
 // 80:BCB2, called with JSR; its name window release waits for the NMI.
 export function runPutGloveAway(h, events) {
   return drainNativeSequence(putGloveAwayCallSequence(h, events));

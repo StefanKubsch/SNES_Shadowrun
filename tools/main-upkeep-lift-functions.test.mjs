@@ -1,3 +1,4 @@
+import { showNoticeSequence as recordedNoticeSequence } from '../proof/caller/notice-show.mjs';
 import { drawTextBufferSequence as recordedTextBufferSequence } from '../proof/caller/text-draw.mjs';
 import { textBufferRenderer } from '../src/game/text-renderer.mjs';
 // Random per-function tests of the main loop's lifted upkeep (src/game/main-upkeep.mjs)
@@ -49,7 +50,6 @@ import {
   runGloveAction,
   runGloveMove,
   runPutGloveAway,
-  runShowNotice,
   runPrintNumber,
   runPrintText,
   runOpenWindow,
@@ -200,6 +200,9 @@ import {
 // Recorded poll comparisons retain the former renderer; live caller tests service NMIs.
 function runDrawTextBuffer(h, events) {
   return drainNativeSequence(recordedTextBufferSequence(h, events));
+}
+function runShowNotice(h, events, routines) {
+  return drainNativeSequence(recordedNoticeSequence(h, events, routines));
 }
 const WRAM_BYTES = 0x20000,
   OBJECT_SLOTS = 0x2c,

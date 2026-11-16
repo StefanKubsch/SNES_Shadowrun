@@ -118,3 +118,23 @@ request payload, arithmetic device write and final game state is compared.
 A read-back request wrapping from FFFF to zero does not wait; later requests
 still wait normally. Glyph equations, hardware contracts and frame policy are
 unchanged. The fixture services uploads rather than emulating NMI hardware.
+
+## Batch block 3: notice composition (2026-11-16)
+
+[notice-show.mjs](../src/game/notice-show.mjs) opens its window and prints its
+text directly, passing a renderer sequence. The native entry and script notice
+no longer supply an opening/text routine table. Slot allocation, equal-time
+replacement order, effect duration, minimum tracking and release are unchanged.
+The [former notice caller](../proof/caller/notice-show.mjs) retains dispatch and
+imports the retained release. Existing random stand-in comparisons use it.
+
+[notice-caller.test.mjs](../tools/notice-caller.test.mjs) compares the direct
+notice against the former caller with retained opening and text producers.
+Free, mixed and full slots cover ties and replacement of the last notice,
+with and without the effect, at budgets one and seven. Actual window uploads,
+renderer input, effect duration, selected slot and final game state must match.
+
+The shared fixture writes tables through WRAM bank 7E and asserts initialized
+field contents. During block 3 this corrected an initially incorrect low-bank
+fixture write; all 82 affected notice/glyph/dialog comparisons were rerun and
+passed. The product arithmetic and window code did not require a correction.

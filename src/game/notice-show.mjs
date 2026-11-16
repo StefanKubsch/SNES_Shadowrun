@@ -11,15 +11,18 @@
 // frames left (the last of equal ones), whose window is released (80:FA3E, lifted in
 // window-release.mjs).
 //
-// The window opening and the text are still register-level and run through their
-// frames from the routine table, as does the release with the frame and the slot the
+// The window opening and text are composed directly through their call frames,
+// as is the release with the frame and slot the
 // original pushes; the minimum the original pushes, and its allocation, lie on the
 // stack around them. The notice leaves A the window with its sign and zero, X the
 // slot, and Y, the carry and the overflow as the original: those of the last frames
 // comparison, or of the callee that ran last. The text number must point within bank
 // 80 (notice_text_required past it).
 import { taskStop } from '../system/task-stop.mjs';
-import { nativeCallSequence } from '../system/native-call-continuation.mjs';
+import { dialogCallBody } from '../system/native-call-continuation.mjs';
+import { openWindowSequence } from './window-open.mjs';
+import { printTextSequence } from './text-print.mjs';
+import { drawTextBufferSequence } from './text-draw.mjs';
 import { fitNoticeWindow } from '../data/language.mjs';
 import { releaseWindowSequence } from './window-release.mjs';
 import {
@@ -66,13 +69,13 @@ const compare = (ctx, left, right) => {
 };
 
 // Show the notice (80:FEC1), a sequence for a native call continuation: h the caller's
-// access (direct page 0, data bank 80), events its frame events, routines the table
-// with the window opening and the text.
-export function* showNoticeSequence(h, events, routines) {
+// access (direct page 0, data bank 80), events its frame events, and renderBuffer
+// the text-buffer renderer sequence.
+export function* showNoticeSequence(h, events, renderBuffer = drawTextBufferSequence) {
   const { ctx } = h,
     { mem } = h.a,
     { wram } = mem,
-    call = ([site, target]) => nativeCallSequence(h, events, routines, site, target);
+    call = (site, body) => dialogCallBody(h, ...site, body);
   yield () => {
     fitNoticeWindow(
       mem,
@@ -85,7 +88,7 @@ export function* showNoticeSequence(h, events, routines) {
     ctx.a = EFFECT_FRAMES;
     setWord(wram, NOTICE_EFFECT_FRAMES, EFFECT_FRAMES);
   };
-  yield* call(WINDOW_CALL);
+  yield* call(WINDOW_CALL, () => openWindowSequence(h, events));
   yield () => {
     h.a.pushWord(word(wram, DP_WINDOW));
     const text = word(wram, DP_NOTICE_TEXT),
@@ -96,7 +99,7 @@ export function* showNoticeSequence(h, events, routines) {
     ctx.a = mem.read8(at) | (mem.read8(at + 1) << BYTE_BITS);
     setWord(wram, DP_TEXT, ctx.a);
   };
-  yield* call(TEXT_CALL);
+  yield* call(TEXT_CALL, () => printTextSequence(h, events, renderBuffer));
   let replace = false;
   yield () => {
     // The last free slot from the top; on the way the fewest frames (the last of equal

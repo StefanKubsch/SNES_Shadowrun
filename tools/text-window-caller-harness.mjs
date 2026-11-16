@@ -30,6 +30,7 @@ import {
 } from '../src/data/wram.mjs';
 
 const FIXTURE_SEED = 17,
+  WRAM_BASE = 0x7e0000,
   WRAM_BYTES = 0x20000,
   GAME_STATE_START = 0x1cc,
   SAVED_REGISTERS_START = 0x1c78,
@@ -63,11 +64,18 @@ const UPLOAD_REQUESTS = new Map([
 export function textWindowSide() {
   const side = createSide({ seed: FIXTURE_SEED, wram: new Uint8Array(WRAM_BYTES) }, new Map()),
     { a, mem } = side,
-    put = (at, value) => mem.write16(at, value),
+    put = (at, value) => mem.write16(WRAM_BASE | at, value),
     read = a.devices.read,
     write = a.devices.write;
   windowMapSource(mem.wram, mem);
-  for (const [at, value] of DEFAULT_WINDOW_FIELDS) put(at, value);
+  for (const [at, value] of DEFAULT_WINDOW_FIELDS) {
+    put(at, value);
+    assert.equal(
+      mem.wram[at] | (mem.wram[at + 1] << BYTE_BITS),
+      value,
+      'fixture initializes WRAM window fields',
+    );
+  }
   let multiplier = 0,
     product = 0,
     dividend = 0,
