@@ -37,3 +37,18 @@ Cases include both source banks, terminal texts and language replacements;
 zero budget has no effects. Renderer inputs, buffer bytes, final memory,
 registers, bank restoration and actual return are compared. Existing random
 decoder, menu and dialog comparisons continue through the compatibility adapter.
+
+## Phase 2: number printing (2026-11-16)
+
+[window-text.mjs](../src/game/window-text.mjs) now gives number printing the
+same renderer sequence interface, defaulting to live text-buffer drawing.
+Decimal conversion, divider traffic, digit relocation and the bank/return
+contract are unchanged. The former caller and cursor remain in
+[proof/caller/window-text.mjs](../proof/caller/window-text.mjs).
+
+The cooperative comparisons add zero, digit-count boundaries and the maximum
+unsigned word, at both budgets. They assert the actual decimal buffer as well
+as matching device traffic, renderer arguments, final memory and returns. The
+existing 600 random number comparisons against the register-level original
+remain. Menu lists and register entries adapt their tables at the producer
+boundary until their own migration.

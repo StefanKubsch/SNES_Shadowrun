@@ -10,7 +10,7 @@
 // A number (the direct page word 02) is printed by its decimal digits: they are written
 // from the right into the text buffer 7E:21A0 (ending at 21A5, which is cleared), moved
 // to its start, and the buffer is drawn into the window at the cursor by 80:FB39, which
-// is still register-level and runs through its frame from the routine table with the
+// runs through its call frame with the
 // data bank 7E, as the original sets it.
 //
 // The products and quotients run on the hardware multiplier and divider through the
@@ -20,8 +20,9 @@
 // leave X, Y and the flags as the original: the cursor A 0, X the window, Y unchanged,
 // the sign and zero of the bank byte and the carry and overflow of the product's
 // addition; the number the registers of 80:FB39 and the sign and zero of the bank byte.
+import { drawTextBufferSequence } from './text-draw.mjs';
 import { sceneRuntime } from '../system/scene-runtime.mjs';
-import { nativeCallSequence } from '../system/native-call-continuation.mjs';
+import { dialogCallBody } from '../system/native-call-continuation.mjs';
 import {
   DP_CURSOR_ROW,
   TEXT_BUFFER,
@@ -110,8 +111,8 @@ export function setTextCursorRoutine(h) {
 }
 
 // Print the number in the direct page word 02 into the window at its cursor (80:FD80),
-// a sequence for a native call continuation: routines the table with 80:FB39.
-export function* printNumberSequence(h, events, routines) {
+// a sequence for a native call continuation with an explicit renderer sequence.
+export function* printNumberSequence(h, events, renderBuffer = drawTextBufferSequence) {
   const { ctx } = h,
     { wram, port } = sceneRuntime(h);
   yield () => {
@@ -144,7 +145,7 @@ export function* printNumberSequence(h, events, routines) {
     ctx.a = 0;
     ctx.x = x;
   };
-  yield* nativeCallSequence(h, events, routines, ...DRAW_CALL);
+  yield* dialogCallBody(h, ...DRAW_CALL, () => renderBuffer(h, events));
   let result;
   yield () => {
     restoreBank(h);

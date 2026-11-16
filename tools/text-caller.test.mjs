@@ -2,6 +2,8 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { printTextSequence } from '../src/game/text-print.mjs';
 import { printTextSequence as formerText } from '../proof/caller/text-print.mjs';
+import { printNumberSequence } from '../src/game/window-text.mjs';
+import { printNumberSequence as formerNumber } from '../proof/caller/window-text.mjs';
 import { NativeCallContinuation } from '../src/system/native-call-continuation.mjs';
 import { WAIT_PAUSED } from '../src/system/native-wait-continuation.mjs';
 import { createSide } from './lift-function-harness.mjs';
@@ -14,6 +16,27 @@ function run(sequence, id, budget, translated) {
     { h, a, mem } = side,
     calls = [];
   mem.write16(2, id);
+  // The original decimal routine uses the divider. Preserve its device traffic
+  // while isolating caller composition from the hardware implementation.
+  let dividend = 0,
+    quotient = 0,
+    remainder = 0;
+  const writes = [];
+  a.devices = {
+    write(pc, address, value, width) {
+      writes.push([pc, address, value, width]);
+      if ((address & 0xffff) === 0x4204) dividend = value;
+      if ((address & 0xffff) === 0x4206) {
+        quotient = Math.floor(dividend / value);
+        remainder = dividend % value;
+      }
+    },
+    read(address) {
+      if ((address & 0xffff) === 0x4214) return quotient;
+      assert.equal(address & 0xffff, 0x4216);
+      return remainder;
+    },
+  };
   if (translated) mem.language = new Map([[id, Uint8Array.from([65, 66, 67])]]);
   Object.assign(a.ctx, { programBank: 0x80, bank: 0x95, pc: 0xfe69, y: 71 });
   h.push(0x1234, 2);
@@ -43,7 +66,7 @@ function run(sequence, id, budget, translated) {
     ]),
     continuation = new NativeCallContinuation(
       a,
-      sequence(h, {}, sequence === formerText ? routines : renderer),
+      sequence(h, {}, sequence === formerText || sequence === formerNumber ? routines : renderer),
       factories,
     );
   const before = mem.wram.slice();
@@ -51,7 +74,7 @@ function run(sequence, id, budget, translated) {
   assert.deepEqual(mem.wram, before);
   let steps = 0;
   while (continuation.run(budget) === WAIT_PAUSED) assert.ok(++steps < 100);
-  return { calls, wram: mem.wram, ctx: a.ctx, result: continuation.result };
+  return { calls, writes, wram: mem.wram, ctx: a.ctx, result: continuation.result };
 }
 
 for (const budget of [1, 7])
@@ -66,3 +89,17 @@ for (const budget of [1, 7])
         assert.equal(actual.ctx.pc, 0x1235);
         assert.equal(actual.ctx.y, 44);
       });
+
+for (const budget of [1, 7])
+  for (const value of [0, 1, 9, 10, 99, 100, 9999, 10000, 65535])
+    test(`number renderer interface: ${value}, budget ${budget}`, () => {
+      const actual = run(printNumberSequence, value, budget, false),
+        previous = run(formerNumber, value, budget, false);
+      assert.deepEqual(actual, previous);
+      const bytes = actual.calls[0][2],
+        end = bytes.indexOf(0);
+      assert.equal(String.fromCharCode(...bytes.subarray(0, end)), String(value));
+      assert.equal(actual.ctx.bank, 0x95);
+      assert.equal(actual.ctx.pc, 0x1235);
+      assert.equal(actual.calls.length, 2);
+    });

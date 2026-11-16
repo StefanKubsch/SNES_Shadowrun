@@ -204,7 +204,11 @@ export function* drawListSequence(h, events, routines) {
         load(number());
         setWord(wram, DP_TEXT, ctx.a);
       };
-      yield* print(NUMBER, () => printNumberSequence(h, events, routines), true);
+      yield* print(
+        NUMBER,
+        () => printNumberSequence(h, events, textBufferRenderer(routines)),
+        true,
+      );
     }
     let more = false;
     yield () => {

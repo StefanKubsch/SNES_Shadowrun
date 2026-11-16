@@ -1,7 +1,7 @@
 {
   "updated": "2026-11-16",
-  "focus": "Text caller phase 1: text printing receives a renderer sequence and defaults to live drawing. The former table-dispatched caller remains independent in proof/caller; existing table callers use a compatibility boundary. Window/menu delivery remains complete.",
-  "next_step": "Finish authorized text caller phases 2 to 4: number printing, menu lists and dialog texts. Preserve independent comparisons and resolve remaining helper tables at entry boundaries. Shape editing and S-MIX remain deferred.",
+  "focus": "Text caller phases 1 and 2: text and number printing receive explicit renderer sequences and default to live drawing. Independent former callers remain in proof/caller. Decimal arithmetic, decoding and register/NMI interfaces are unchanged.",
+  "next_step": "Finish authorized text caller phases 3 and 4: pass the renderer explicitly through menu lists and dialog texts, resolving legacy tables at entry boundaries. Preserve independent comparisons. Shape editing and S-MIX remain deferred.",
   "porting_resume": "188 original-form bytes remain: 93 retained code bytes and 95 unidentified data bytes. Recorded CPU reads, hardware-only observations and true data margins are distinguished in docs/ROM-CODE-AUDIT.md. Unknown bytes and unused graphics remain preserved; unrecorded paths can still report rom_byte_absent.",
   "open_issues": [
     "Examination: unreproduced report to watch during the final user test run. Its European cleanup condition is tested; other story routes remain unproved. A change requires a reproducible counterexample. See docs/BUGFIXES.md.",
