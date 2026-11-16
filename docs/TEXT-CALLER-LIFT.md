@@ -491,3 +491,25 @@ HDMA bytes and final edges explicitly, and excludes only that relocated stack
 from game-state snapshots. Jake's alternate portrait adds two boundary cases.
 The fixture services NMI requests; existing real integrations retain device
 and NMI coverage. Sound, colour setup and scene cleanup remain services.
+
+## Member and scene batch: status menu orchestration (2026-11-16)
+
+The status caller composes plain selection and all six submenus directly with
+the renderer: three item classes, member spells, skills and notes. It still
+reads the original submenu jump table and rejects unknown targets before
+constructing their frame. Main-upkeep retains only script/scene and sound
+services for this path. The former status caller dispatches independently
+to retained real submenus. New comparisons visit all six rows, including
+confirming waits and return to the outer menu, with both budgets and real
+glyphs. Immediate-item entry now also runs its actual numbered menu.
+
+All ten complete phases have individual focused checks and commits. Shared
+release and delivery results belong in HANDOFF.md. Object creation, nested
+script visits, window-list reset, portrait redraw services, sound commands,
+colour setup and scene cleanup retain their established interfaces. Hardware,
+save and lag-free frame policy are unchanged.
+
+The final orchestration checks also confirm Select ending the screen from
+skills, while Select only confirms notes and returns to the outer menu. An
+unknown submenu target reports the same frontier as the former caller before
+constructing its frame. Both budgets are covered.

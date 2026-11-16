@@ -19,7 +19,8 @@
 // runs a submenu of the table 80:ED2E (JMP (ED2E,X) inside JSR ECEA) until one sets
 // 7E:1D63 or the menu ends; 1F64 set runs the first submenu once and keeps no menu
 // window. At the end 80:92C5, the windows are released, 1F62 is cleared and the sound
-// restored (7F7F). The callees run through their frames from the routine table.
+// restored (7F7F). Menus, text and displays compose through their original
+// frames; sound, colour setup and scene cleanup keep their service interface.
 import {
   nativeCallSequence,
   dialogCallBody,
@@ -37,6 +38,10 @@ import { decimalNumberSequence } from './decimal-number.mjs';
 import { drawTextBufferSequence } from './text-draw.mjs';
 import { equipmentRowsSequence } from './equipment-window.mjs';
 import { memberPortraitSequence } from './member-portrait.mjs';
+import { chooseFromMenuSequence, MENU } from './menu-choice.mjs';
+import { itemMenuSequence, ITEM_ENTRIES } from './item-menu.mjs';
+import { spellMenuSequence, STATUS_ENTRY } from './member-spell-menu.mjs';
+import { skillsSequence, notesSequence } from './status-submenus.mjs';
 import { taskStop } from '../system/task-stop.mjs';
 import { dataBankWord, setDataBankWord } from '../system/data-bank.mjs';
 import { DP_SCRATCH, STATUS_LAYOUT } from '../data/native-member-spell-menu.mjs';
@@ -129,7 +134,9 @@ const SOUND = 0x81f007,
   DECIMAL_NUMBER = 0x80fdcf,
   EQUIPMENT_ROWS = 0x80e9c5,
   PORTRAIT = 0x80e4b3,
-  PLAIN_MENU = 0x80a6c7,
+  PLAIN_MENU = MENU,
+  SKILLS_MENU = 0x80e834,
+  NOTES_MENU = 0x80e8c8,
   RELEASE_WINDOW = 0x80fa3e,
   STATUS_CLEANUP = 0x8092c5;
 // The attribute labels follow the rows; the attributes from index 6 down, the record's
@@ -486,7 +493,9 @@ export function* statusScreenSequence(
     };
     if (close) return yield* closeSequence(h, events, call);
     if (!direct) {
-      yield* call(0x80ecd0, PLAIN_MENU);
+      yield* dialogCallBody(h, 0x80ecd0, PLAIN_MENU, () =>
+        chooseFromMenuSequence(h, events, renderBuffer, MENU),
+      );
       yield () => {
         chosen = word(wram, 0);
         load(ctx, chosen);
@@ -494,18 +503,23 @@ export function* statusScreenSequence(
       if (chosen === 0 || negative(chosen)) break;
     }
     direct = false;
-    let submenu;
+    let submenu, submenuSequence;
     yield () => {
       const offset = (chosen << 1) & WORD_MASK;
       setFlag(ctx, FLAG_CARRY, negative(chosen));
       load(ctx, offset);
       ctx.x = offset;
       submenu = CODE_BANK_BASE | dataBankWord(mem, SUBMENUS, offset);
-      if (!routines.has(submenu))
-        taskStop('task_ea6e_submenu_open', { pc: 0x80ecea, x: offset, target: submenu });
+      if (Object.hasOwn(ITEM_ENTRIES, submenu))
+        submenuSequence = itemMenuSequence(h, events, routines, submenu, renderBuffer);
+      else if (submenu === STATUS_ENTRY)
+        submenuSequence = spellMenuSequence(h, events, routines, STATUS_ENTRY, renderBuffer);
+      else if (submenu === SKILLS_MENU) submenuSequence = skillsSequence(h, events, renderBuffer);
+      else if (submenu === NOTES_MENU) submenuSequence = notesSequence(h, events, renderBuffer);
+      else taskStop('task_ea6e_submenu_open', { pc: 0x80ecea, x: offset, target: submenu });
     };
     // JSR ECEA, whose JMP (ED2E,X) gives the submenu the JSR's frame.
-    yield* call(0x80ece0, submenu);
+    yield* dialogCallBody(h, 0x80ece0, submenu, () => submenuSequence);
     let ended;
     yield () => {
       const end = word(wram, DIALOG_END);

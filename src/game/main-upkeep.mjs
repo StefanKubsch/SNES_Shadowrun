@@ -87,14 +87,13 @@ import { selectAnimationRoutine, turnObjectRoutine } from './object-turn.mjs';
 import { hitObjectSequence } from './object-hit.mjs';
 import { hitObjectsInBlastSequence } from './object-blast.mjs';
 import { chooseSpellSequence } from './spell-choice.mjs';
-import { openSpellMenuSequence, spellMenuSequence, STATUS_ENTRY } from './member-spell-menu.mjs';
+import { openSpellMenuSequence } from './member-spell-menu.mjs';
 import { controlPlayerSequence } from './player-control.mjs';
 import { partyStatusSequence } from './party-status.mjs';
 import { equipmentRowsSequence } from './equipment-window.mjs';
 import { memberPortraitSequence } from './member-portrait.mjs';
 import { ITEMS_ENTRY, NATIVE_ENTRY, START_ENTRY, statusScreenSequence } from './status-screen.mjs';
 import { notesSequence, skillsSequence } from './status-submenus.mjs';
-import { itemMenuSequence } from './item-menu.mjs';
 import { KARMA_LISTS } from '../system/native-main-menu.mjs';
 import {
   buyStepSequence,
@@ -552,34 +551,17 @@ const ITEM_ROUTINES = new Map([
   [0x81aeb0, runResetWindowList],
   [0x80e4b3, runMemberPortrait],
 ]);
-// The lifted decimal number 80:FDCF with the lifted text buffer.
 // The lifted status screen 80:EA6E, 80:EA89 and 80:EA8E with the lifted submenus (the
 // spell menu's entry 80:E68E too), notice and window releases, glove, window and
 // plain menu, cursor, text, numbers, equipment rows, portrait, sound command 81:F007,
 // colour reset 81:886A and the closing 80:92C5.
-const STATUS_SCREEN_LIFT_ROUTINES = new Map(LIVE_MENU_ROUTINES)
-  .set(0x81f007, sendApuCommandRoutine)
-  .set(0x81886a, clearFixedColourRoutine)
-  .set(0x8092c5, runCloseDialog)
-  .set(0x80ff79, runReleaseNoticeWindows)
-  .set(0x80bcb2, runPutGloveAway)
-  .set(0x80f963, runOpenWindow)
-
-  .set(0x80e9c5, runEquipmentRows)
-  .set(0x80e4b3, runMemberPortrait)
-  .set(0x80a6c7, runPlainMenu)
-  .set(0x80fa3e, runReleaseWindow)
-  .set(
-    STATUS_ENTRY,
-    sequenceRun((h, events) => spellMenuSequence(h, events, SPELL_MENU_ROUTINES, STATUS_ENTRY)),
-  )
-  .set(0x80e834, runSkills)
-  .set(0x80e8c8, runNotes);
-for (const entry of [0x80e572, 0x80e577, 0x80e57f])
-  STATUS_SCREEN_LIFT_ROUTINES.set(
-    entry,
-    sequenceRun((h, events) => itemMenuSequence(h, events, ITEM_ROUTINES, entry)),
-  );
+const STATUS_SCREEN_LIFT_ROUTINES = new Map([
+  ...SPELL_MENU_ROUTINES,
+  ...ITEM_ROUTINES,
+  [0x81f007, sendApuCommandRoutine],
+  [0x81886a, clearFixedColourRoutine],
+  [0x8092c5, runCloseDialog],
+]);
 const runStatusScreen = sequenceRun((h, events) =>
     statusScreenSequence(h, events, STATUS_SCREEN_LIFT_ROUTINES, START_ENTRY),
   ),
@@ -628,15 +610,13 @@ for (const entry of Object.keys(KARMA_LISTS).map(Number))
 // the confirm key wait, the window list from the first window, the object creation and
 // the script task append 80:C34A (the spell menu's; it leaves A the new task, which
 // the visit 80:C1CA reads).
-for (const table of [ITEM_ROUTINES, STATUS_SCREEN_LIFT_ROUTINES, MAIN_MENU_LIFT_ROUTINES])
-  table
-    .set(0x80a6ad, runNumberedMenu)
-    .set(0x80a6b8, runNumberedMenuAt)
-    .set(0x80fa67, runTileClear)
-    .set(0x80f953, runConfirmKey)
-    .set(0x81aeb0, runResetWindowList)
-    .set(0x80a835, runCreateObject)
-    .set(0x80c34a, (h) => appendScriptTaskCall(h.a));
+MAIN_MENU_LIFT_ROUTINES.set(0x80a6ad, runNumberedMenu)
+  .set(0x80a6b8, runNumberedMenuAt)
+  .set(0x80fa67, runTileClear)
+  .set(0x80f953, runConfirmKey)
+  .set(0x81aeb0, runResetWindowList)
+  .set(0x80a835, runCreateObject)
+  .set(0x80c34a, (h) => appendScriptTaskCall(h.a));
 // The lifted main menu as the script native 80:CE6D runs it with lag-free frames.
 export const liftedMainMenuSequence = (h, events) =>
   mainMenuSequence(h, events, MAIN_MENU_LIFT_ROUTINES);

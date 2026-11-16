@@ -7,6 +7,10 @@ import { decimalNumberSequence } from '../proof/caller/decimal-number.mjs';
 import { equipmentRowsSequence } from '../proof/caller/equipment-window.mjs';
 import { clearFixedColourRoutine } from '../src/game/dialog-talk.mjs';
 import * as W from '../src/data/wram.mjs';
+import { itemMenuSequence } from '../proof/caller/item-menu.mjs';
+import { spellMenuSequence, STATUS_ENTRY } from '../proof/caller/member-spell-menu.mjs';
+import { skillsSequence, notesSequence } from '../proof/caller/status-submenus.mjs';
+import { chooseFromMenuSequence } from '../proof/caller/menu-choice.mjs';
 import { memberPortraitSequence } from '../proof/caller/member-portrait.mjs';
 import {
   uploadFirstPortraitSequence,
@@ -24,11 +28,24 @@ function runStatus(
   alternate = false,
 ) {
   let services, captureFinal;
+  const selectedRow =
+    variant === 'submenu' || variant === 'unknown'
+      ? 1
+      : variant.startsWith('submenu-')
+        ? Number(variant.split('-')[1])
+        : 0;
   const pads =
     entry === 0x80ea8e
-      ? []
-      : variant === 'submenu'
-        ? [0x400, 0, 0x8000]
+      ? [0x8000]
+      : selectedRow
+        ? [
+            ...Array.from({ length: selectedRow }, () => [0x400, 0]).flat(),
+            0x8000,
+            ...([5, 6].includes(selectedRow)
+              ? [0, variant.endsWith('-end') ? 0x2000 : 0x8000]
+              : []),
+            ...(variant.endsWith('-end') && selectedRow === 5 ? [] : [0, 0x8000]),
+          ]
         : [variant === 'cancel' ? 0x2000 : 0x8000];
   const result = compareRun(
     function* (h, e, r) {
@@ -76,6 +93,11 @@ function runStatus(
     realDrawing,
     ({ h, mem, events, put, routines, bind, calls }) => {
       services = routines;
+      if (variant === 'unknown') {
+        const read = mem.read8.bind(mem);
+        mem.read8 = (address) =>
+          address === 0x80ed30 ? 0x34 : address === 0x80ed31 ? 0x12 : read(address);
+      }
       h.ctx.s = 0x1eef;
       const snapshot = () => [
         mem.wram[W.HDMAEN_SHADOW],
@@ -118,14 +140,12 @@ function runStatus(
         });
       bind(0x80fdcf, () => decimalNumberSequence(h, events, routines));
       bind(0x80e9c5, () => equipmentRowsSequence(h, events, routines));
-      for (let row = 1; row <= 6; row++) {
-        const target = 0x800000 | mem.read16(0x80ed2e + 2 * row);
-        routines.set(target, (callee) => {
-          calls.push(['submenu', target]);
-          if (entry !== 0x80ea8e) put(W.DIALOG_END, 0xffff);
-          return callee.rts();
-        });
-      }
+      bind(0x80a6ad, () => chooseFromMenuSequence(h, events, routines, 0x80a6ad));
+      for (const target of [0x80e572, 0x80e577, 0x80e57f])
+        bind(target, () => itemMenuSequence(h, events, routines, target));
+      bind(STATUS_ENTRY, () => spellMenuSequence(h, events, routines, STATUS_ENTRY));
+      bind(0x80e834, () => skillsSequence(h, events, routines));
+      bind(0x80e8c8, () => notesSequence(h, events, routines));
     },
   );
   result.wram.fill(0, 0x1e80, 0x1ef0);
@@ -145,7 +165,7 @@ for (const budget of [1, 7])
       test(`status caller: entry ${entry}, runner ${runner}, ${variant}, budget ${budget}`, () => {
         const actual = runStatus(directStatus, true, entry, runner, variant, budget);
         assert.deepEqual(actual, runStatus(formerStatus, false, entry, runner, variant, budget));
-        assert.equal(actual.input, entry === 0x80ea8e ? 0 : variant === 'submenu' ? 3 : 1);
+        assert.equal(actual.input, entry === 0x80ea8e ? 1 : variant === 'submenu' ? 5 : 1);
         assert.equal(
           actual.wram[W.MEMBER_MENU_ACTIVE] | (actual.wram[W.MEMBER_MENU_ACTIVE + 1] << 8),
           0,
@@ -174,3 +194,59 @@ for (const budget of [1, 7])
     assert.equal(actual.calls.filter((c) => c[0] === 'portrait frame').length, 11);
     assert.equal(actual.calls.filter((c) => c[0] === 'portrait upload').length, 2);
   });
+
+for (const budget of [1, 7])
+  for (const row of [1, 2, 3, 4, 5, 6])
+    for (const realDrawing of [false, true])
+      test(`status real submenu: row ${row}, budget ${budget}, glyphs ${realDrawing}`, () => {
+        const actual = runStatus(
+          directStatus,
+          true,
+          0x80ea89,
+          0,
+          'submenu-' + row,
+          budget,
+          realDrawing,
+        );
+        assert.deepEqual(
+          actual,
+          runStatus(formerStatus, false, 0x80ea89, 0, 'submenu-' + row, budget, realDrawing),
+        );
+        assert.equal(actual.input, 2 * row + 3 + ([5, 6].includes(row) ? 2 : 0));
+        if (realDrawing) assert.ok(actual.uploads.some(([pc]) => pc === 0x81accc));
+      });
+
+for (const budget of [1, 7]) {
+  for (const row of [5, 6])
+    test(`status Select in submenu: row ${row}, budget ${budget}`, () => {
+      const actual = runStatus(directStatus, true, 0x80ea89, 0, 'submenu-' + row + '-end', budget);
+      assert.deepEqual(
+        actual,
+        runStatus(formerStatus, false, 0x80ea89, 0, 'submenu-' + row + '-end', budget),
+      );
+      assert.equal(actual.input, 2 * row + 3 + (row === 6 ? 2 : 0));
+      assert.equal(
+        actual.wram[W.DIALOG_END] | (actual.wram[W.DIALOG_END + 1] << 8),
+        row === 5 ? 0xffff : 0,
+      );
+    });
+  test(`status rejects an unknown submenu before its frame, budget ${budget}`, () => {
+    for (const [module, direct] of [
+      [directStatus, true],
+      [formerStatus, false],
+    ])
+      assert.throws(
+        () => runStatus(module, direct, 0x80ea89, 0, 'unknown', budget),
+        (error) => {
+          assert.deepEqual(error, {
+            taskBoundary: true,
+            reason: 'task_ea6e_submenu_open',
+            pc: 0x80ecea,
+            x: 2,
+            target: 0x801234,
+          });
+          return true;
+        },
+      );
+  });
+}
