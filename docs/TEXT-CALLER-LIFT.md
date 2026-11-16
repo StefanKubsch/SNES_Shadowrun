@@ -172,7 +172,6 @@ The first five-block batch passed its shared release and was pushed.
 Actual verification results are recorded in HANDOFF.md. Shared register/NMI interfaces
 and other caller tables remain; no save or frame policy changed.
 
-
 ## Modal menus and portraits: action menu (2026-11-16)
 
 The next five blocks cover action menus, Yes/No questions, confirming input,
@@ -263,3 +262,18 @@ All five modal menu and portrait blocks have focused checks and individual
 commits. Their shared release result and delivery state are recorded in
 HANDOFF.md. Dialog orchestration, member portrait caller tables and the
 remaining register/service boundaries are subsequent work.
+
+## Dialog orchestration batch: close (2026-11-16)
+
+[dialog-talk.mjs](../src/game/dialog-talk.mjs) closes the portrait window, waits
+for a live frame and reads the pad directly. Object tile reload and sprite
+composition retain their existing service table. The independent [former caller](../proof/caller/dialog-talk.mjs)
+retains the previous talk and close sequences, including injected callees.
+The original random dialog comparison now explicitly exercises that reference.
+
+[dialog-orchestration-caller.test.mjs](../tools/dialog-orchestration-caller.test.mjs)
+compares close at budgets one and seven, channel masks with either enable bit,
+counter wrap, and idle, confirming and invalid pad words. It checks all twelve
+frames, the font DMA writes, game state and return, with zero-budget stability.
+Tile reload and sprite rebuilding are recording stand-ins; their real integration
+comparisons remain in the existing dialog suites. No hardware contract changes.

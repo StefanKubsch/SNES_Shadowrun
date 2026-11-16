@@ -25,7 +25,13 @@
 // routine itself changes (the carry of its shifts and comparisons) are passed on as the
 // original's; it changes no overflow. It leaves the registers of its last callee (the
 // music change) or of the window release with A the pulled music word.
-import { dialogCallSequence, dialogCallBody } from '../system/native-call-continuation.mjs';
+import {
+  dialogCallSequence,
+  dialogCallBody,
+  segmentSequence,
+} from '../system/native-call-continuation.mjs';
+import { closePortraitWindowSequence } from './portrait-window.mjs';
+import { frameWaitCallSequence, runPadPresses } from '../system/live-input-calls.mjs';
 import { sceneRuntime } from '../system/scene-runtime.mjs';
 import { fixesEnabled, preparePushkinTopics } from './bugfixes.mjs';
 import { dialogTextRoutines } from '../system/native-dialog-text.mjs';
@@ -210,18 +216,25 @@ export function setWindowTextWidthRoutine(h) {
   return h.rts();
 }
 
-// Close the dialog (80:92C5), a sequence: the callee table routines.
+// Close the dialog (80:92C5) with live portrait, frame and input calls.
+// Object tile reload and sprite composition retain their shared service table.
 export function* closeDialogSequence(h, events, routines) {
   const { ctx } = h,
     { port } = sceneRuntime(h),
     call = ([site, target, long]) => dialogCallSequence(h, events, routines, site, target, long);
-  yield* call(CALL.closePortrait);
+  yield* dialogCallBody(h, ...CALL.closePortrait, () => closePortraitWindowSequence(h, events));
   yield () => {
     ctx.a = 0;
     port.write(OBJSEL, 0, 2, CLOSE_OBJSEL_SITE);
   };
   yield* call(CALL.tiles);
-  yield* call(CALL.closeWait);
+  yield* dialogCallBody(
+    h,
+    CALL.closeWait[0],
+    CALL.closeWait[1],
+    () => frameWaitCallSequence(h, events),
+    true,
+  );
   yield () => {
     for (const [vram, source, sites] of FONT_BLOCKS) {
       const writes = [
@@ -239,7 +252,7 @@ export function* closeDialogSequence(h, events, routines) {
       ctx.a = (source & HIGH_BYTE_MASK) | FONT_DMA_CHANNEL;
     }
   };
-  yield* call(CALL.pad);
+  yield* dialogCallBody(h, ...CALL.pad, () => segmentSequence(() => runPadPresses(h, events)));
   yield* call(CALL.sprites);
   let result;
   yield () => {

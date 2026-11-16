@@ -1,3 +1,4 @@
+import { talkSequence } from '../proof/caller/dialog-talk.mjs';
 import { chooseActionSequence as recordedActionSequence } from '../proof/caller/action-menu.mjs';
 import { timeLimitSequence as recordedTimeLimitSequence } from '../proof/caller/time-limit.mjs';
 import { showNoticeSequence as recordedNoticeSequence } from '../proof/caller/notice-show.mjs';
@@ -96,11 +97,7 @@ import {
   chooseDialogTopicSequence,
 } from '../proof/caller/dialog-menus.mjs';
 import { dialogAccess } from '../src/system/native-dialog-support.mjs';
-import {
-  talkSequence,
-  clearFixedColourRoutine,
-  setWindowTextWidthRoutine,
-} from '../src/game/dialog-talk.mjs';
+import { clearFixedColourRoutine, setWindowTextWidthRoutine } from '../src/game/dialog-talk.mjs';
 import {
   printNumber,
   runTaskListHelper,
