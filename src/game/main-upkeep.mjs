@@ -459,16 +459,10 @@ export const liftedReleaseGloveSequence = (h, events) => releaseGloveSequence(h,
 // The lifted confirm key wait 80:F953 with the lifted word wait and pad word, as the
 // script native runs it with lag-free frames.
 export const liftedConfirmKeySequence = (h, events) => waitForConfirmKeySequence(h, events);
-// The callees of the lifted glove choices, each with its own table: the lifted word
-// wait, pad word, glove movement, glove release, notice, window list, window map, its
-// upload and the dialog's close.
+// The remaining services of glove choices: movement, window map preparation
+// and an open member menu's dialog close. Each receives its own callees.
 const GLOVE_CHOICE_ROUTINES = new Map([
-  [0x81b0a1, runFrameWait],
-  [0x809e1a, runPadPresses],
   [0x80be6d, runGloveMove],
-  [0x80bcb2, runPutGloveAway],
-  [0x80fec1, runShowNotice],
-  [0x81ad92, runDrawWindowList],
   [0x81a9b2, runUnpackWindowMap],
   [0x81acb5, runRequestUpload],
   [0x8092c5, runCloseDialog],

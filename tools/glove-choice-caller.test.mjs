@@ -22,6 +22,9 @@ function runChoice(module, name, budget, target, pads, options = {}) {
       put(W.OBJECT_HEIGHT + 2, options.height ?? 0);
       put(W.MEMBER_MENU_ACTIVE, options.menu ? 1 : 0);
       put(W.TEXT_MAP_UPLOAD, options.request ?? 0);
+      put(W.CAMERA_X, options.camera ?? 0);
+      put(W.CAMERA_Y, options.camera ?? 0);
+      put(W.OBJECT_HEIGHT + 4, options.camera ?? 0);
       for (let n = 0; n <= W.NOTICE_WINDOW_LAST; n += 2) put(W.NOTICE_WINDOWS + n, 0xffff);
     },
     budget,
@@ -127,3 +130,29 @@ for (const budget of [1, 7])
           );
           if (!near) assert.ok(actual.uploads.length > 0, 'actual notice glyph and window uploads');
         });
+
+for (const budget of [1, 7])
+  for (const request of [0, 0xfffe, 0xffff])
+    test(`spell choice rejects unusable object then redraws: request ${request}, budget ${budget}`, () => {
+      const name = 'spellGloveTargetSequence',
+        pads = [0x8000, 0, 0x8000],
+        options = { reject: 1, name: true, request };
+      const actual = runChoice(direct, name, budget, true, pads, options);
+      assert.deepEqual(actual, runChoice(former, name, budget, true, pads, options));
+      assert.equal(actual.input, 3);
+      assert.equal(
+        actual.wram[W.SPELL_TARGET_OBJECT] | (actual.wram[W.SPELL_TARGET_OBJECT + 1] << 8),
+        2,
+      );
+      assert.ok(actual.uploads.length > 0);
+    });
+for (const budget of [1, 7])
+  for (const camera of [0, 0x7fff, 0x8000, 0xffff])
+    test(`place choice redraw with wrapped camera and height: ${camera}, budget ${budget}`, () => {
+      const name = 'choosePlaceWithGloveSequence',
+        options = { camera, name: true };
+      const actual = runChoice(direct, name, budget, true, [0x8000], options);
+      assert.deepEqual(actual, runChoice(former, name, budget, true, [0x8000], options));
+      assert.equal(actual.wram[W.MOTION_ACTIVE + 4], 1);
+      assert.ok(actual.uploads.length > 0);
+    });

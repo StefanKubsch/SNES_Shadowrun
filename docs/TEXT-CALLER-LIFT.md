@@ -966,3 +966,13 @@ Reach-checked choices compose their notice directly through the original JSR.
 Real caller comparisons cover coordinate and height thresholds, negative
 coordinate wrap, the signed-word distance edge, all three reach entries,
 member-menu redraw suppression, actual glyph uploads and both budgets.
+
+### Block 10: choice window redraw
+
+Glove choices compose actual window-list redraw directly through their original
+long frames. Main-upkeep retains only movement, map preparation and member
+dialog close as choice services. All six entries compare real redraw uploads;
+additional spell rejection/retry and place projection cases cover upload wrap,
+signed camera/height edges and both budgets. Controlled movement does not claim
+a new object-search or whole-scene proof. Hardware, audio, saves and the lag-free
+frame policy retain their contracts. Shared release results belong in HANDOFF.md.

@@ -1,3 +1,4 @@
+import { drawWindowListSequence } from './window-list.mjs';
 import { showNoticeSequence } from './notice-show.mjs';
 import { putGloveAwayCallSequence } from './window-release.mjs';
 import { frameWaitCallSequence, runPadPresses } from '../system/live-input-calls.mjs';
@@ -9,8 +10,8 @@ import { frameWaitCallSequence, runPadPresses } from '../system/live-input-calls
 // the word wait 81:B0A1, the newly pressed buttons 80:9E1A and the glove movement
 // 80:BE6D run, until A, B, X or Y is newly pressed. The object under the glove
 // (7E:01DE, while 7E:01DA is not negative) is the choice; the glove is put away
-// (80:BCB2) and the pad word taken once more. The callees run through their frames from
-// the routine table, each with its own callees (the table is not passed on).
+// (80:BCB2) and the pad word taken once more. Wait, pad, release, notice and
+// redraw compose directly; movement, map preparation and close keep their services.
 //
 // The choice with a reach check (80:9C40) takes an object only when the summed X and Y
 // distances from the player figure and the height distance are each below 81; a farther
@@ -150,21 +151,12 @@ const FRAME_WAIT = 0x81b0a1,
   MOVE_GLOVE = 0x80be6d,
   PUT_AWAY = 0x80bcb2,
   SHOW_NOTICE = 0x80fec1,
-  DRAW_LIST = 0x81ad92,
   CLOSE_DIALOG = 0x8092c5,
   UNPACK_MAP = 0x81a9b2,
   REQUEST_UPLOAD = 0x81acb5;
-// A callee at its call site with its own callee table.
+// Remaining service calls retain their own callee bindings.
 const callSequence = (h, events, routines, pc, target, long = false) =>
-  target === FRAME_WAIT
-    ? dialogCallBody(h, pc, target, () => frameWaitCallSequence(h, events), true)
-    : target === PAD_WORD
-      ? dialogCallBody(h, pc, target, () => segmentSequence(() => runPadPresses(h, events)))
-      : target === PUT_AWAY
-        ? dialogCallBody(h, pc, target, () => putGloveAwayCallSequence(h, events))
-        : target === SHOW_NOTICE
-          ? dialogCallBody(h, pc, target, () => showNoticeSequence(h, events))
-          : nativeCallSequence(h, events, routines, pc, target, long, false);
+  nativeCallSequence(h, events, routines, pc, target, long, false);
 
 const word = (wram, at) => wram[at] | (wram[at + 1] << BYTE_BITS);
 const setWord = (wram, at, value) => {
@@ -260,8 +252,8 @@ export function* gloveFramesSequence(h, events, routines, [wait, pad, move]) {
     { wram } = h.a.mem;
   let pressed;
   do {
-    yield* callSequence(h, events, routines, wait, FRAME_WAIT, true);
-    yield* callSequence(h, events, routines, pad, PAD_WORD);
+    yield* dialogCallBody(h, wait, FRAME_WAIT, () => frameWaitCallSequence(h, events), true);
+    yield* dialogCallBody(h, pad, PAD_WORD, () => segmentSequence(() => runPadPresses(h, events)));
     yield* callSequence(h, events, routines, move, MOVE_GLOVE);
     yield () => {
       pressed = word(wram, PAD_PRESSED) & CHOICE_BUTTONS;
@@ -302,19 +294,23 @@ export function* chooseObjectUnderGloveSequence(h, events, routines) {
     } else load(ctx, word(wram, GLOVE_TARGET_TAG));
   };
   if (target !== null) {
-    yield* callSequence(h, events, routines, sites.awayChosen, PUT_AWAY);
+    yield* dialogCallBody(h, sites.awayChosen, PUT_AWAY, () => putGloveAwayCallSequence(h, events));
     yield () => {
       h.pla();
       setResult(h, ctx.a);
     };
-    yield* callSequence(h, events, routines, sites.padChosen, PAD_WORD);
+    yield* dialogCallBody(h, sites.padChosen, PAD_WORD, () =>
+      segmentSequence(() => runPadPresses(h, events)),
+    );
   } else {
-    yield* callSequence(h, events, routines, sites.awayNone, PUT_AWAY);
+    yield* dialogCallBody(h, sites.awayNone, PUT_AWAY, () => putGloveAwayCallSequence(h, events));
     yield () => {
       load(ctx, NO_CHOICE);
       setResult(h, NO_CHOICE);
     };
-    yield* callSequence(h, events, routines, sites.padNone, PAD_WORD);
+    yield* dialogCallBody(h, sites.padNone, PAD_WORD, () =>
+      segmentSequence(() => runPadPresses(h, events)),
+    );
   }
   let result;
   yield () => {
@@ -379,14 +375,14 @@ function prepareOutOfReachNotice(h) {
   load(ctx, notice.frames);
 }
 // 81:AEB0 at its call site: the window list redrawn from its first window (81:AD92).
-function* redrawListSequence(h, events, routines, pc) {
+function* redrawListSequence(h, events, pc) {
   yield* dialogCallBody(
     h,
     pc,
     REDRAW_LIST,
     function* () {
       yield () => setWord(h.a.mem.wram, WINDOW_FIRST_INDEX, 0);
-      yield* callSequence(h, events, routines, REDRAW_LIST_CALL, DRAW_LIST, true);
+      yield* drawWindowListSequence(h, events, REDRAW_LIST_CALL);
       let result;
       yield () => {
         result = h.rtl();
@@ -397,14 +393,14 @@ function* redrawListSequence(h, events, routines, pc) {
   );
 }
 // The window list is redrawn unless a member menu is open.
-function* redrawUnlessMenuSequence(h, events, routines, pc) {
+function* redrawUnlessMenuSequence(h, events, pc) {
   let open;
   yield () => {
     const menu = word(h.a.mem.wram, MEMBER_MENU_ACTIVE);
     load(h.ctx, menu);
     open = menu !== 0;
   };
-  if (!open) yield* redrawListSequence(h, events, routines, pc);
+  if (!open) yield* redrawListSequence(h, events, pc);
 }
 function* returnSequence(h) {
   let result;
@@ -433,28 +429,35 @@ function* chooseInReachSequence(h, events, routines, pc) {
       far = outOfReach(h, target);
       if (far) prepareOutOfReachNotice(h);
     };
-    if (target !== null && far) yield* callSequence(h, events, routines, sites.notice, SHOW_NOTICE);
+    if (target !== null && far)
+      yield* dialogCallBody(h, sites.notice, SHOW_NOTICE, () => showNoticeSequence(h, events));
     if (target !== null && !far) {
-      yield* redrawUnlessMenuSequence(h, events, routines, sites.redrawChosen);
+      yield* redrawUnlessMenuSequence(h, events, sites.redrawChosen);
       yield () => {
         // The slot waits on the stack while the glove is put away.
         load(ctx, word(wram, GLOVE_TARGET_OBJECT));
         h.pha();
       };
-      yield* callSequence(h, events, routines, sites.awayChosen, PUT_AWAY);
+      yield* dialogCallBody(h, sites.awayChosen, PUT_AWAY, () =>
+        putGloveAwayCallSequence(h, events),
+      );
       yield () => {
         h.pla();
         setResult(h, ctx.a);
       };
-      yield* callSequence(h, events, routines, sites.padChosen, PAD_WORD);
+      yield* dialogCallBody(h, sites.padChosen, PAD_WORD, () =>
+        segmentSequence(() => runPadPresses(h, events)),
+      );
     } else {
-      yield* callSequence(h, events, routines, sites.awayNone, PUT_AWAY);
-      yield* redrawUnlessMenuSequence(h, events, routines, sites.redrawNone);
+      yield* dialogCallBody(h, sites.awayNone, PUT_AWAY, () => putGloveAwayCallSequence(h, events));
+      yield* redrawUnlessMenuSequence(h, events, sites.redrawNone);
       yield () => {
         load(ctx, NO_CHOICE);
         setResult(h, NO_CHOICE);
       };
-      yield* callSequence(h, events, routines, sites.padNone, PAD_WORD);
+      yield* dialogCallBody(h, sites.padNone, PAD_WORD, () =>
+        segmentSequence(() => runPadPresses(h, events)),
+      );
     }
     return yield* returnSequence(h);
   });
@@ -567,28 +570,32 @@ export function* spellGloveTargetSequence(h, events, routines) {
     if (target === null || usable) break;
   }
   if (target !== null) {
-    yield* redrawUnlessMenuSequence(h, events, routines, sites.redrawChosen);
+    yield* redrawUnlessMenuSequence(h, events, sites.redrawChosen);
     yield () => {
       // The slot waits on the stack while the glove is put away.
       load(ctx, target);
       setWord(wram, SPELL_TARGET_OBJECT, target);
       h.pha();
     };
-    yield* callSequence(h, events, routines, sites.awayChosen, PUT_AWAY);
+    yield* dialogCallBody(h, sites.awayChosen, PUT_AWAY, () => putGloveAwayCallSequence(h, events));
     yield () => {
       h.pla();
       setResult(h, ctx.a);
     };
-    yield* callSequence(h, events, routines, sites.padChosen, PAD_WORD);
+    yield* dialogCallBody(h, sites.padChosen, PAD_WORD, () =>
+      segmentSequence(() => runPadPresses(h, events)),
+    );
   } else {
-    yield* callSequence(h, events, routines, sites.awayNone, PUT_AWAY);
-    yield* redrawUnlessMenuSequence(h, events, routines, sites.redrawNone);
+    yield* dialogCallBody(h, sites.awayNone, PUT_AWAY, () => putGloveAwayCallSequence(h, events));
+    yield* redrawUnlessMenuSequence(h, events, sites.redrawNone);
     yield () => {
       load(ctx, NO_CHOICE);
       setWord(wram, SPELL_TARGET_OBJECT, NO_CHOICE);
       setResult(h, NO_CHOICE);
     };
-    yield* callSequence(h, events, routines, sites.padNone, PAD_WORD);
+    yield* dialogCallBody(h, sites.padNone, PAD_WORD, () =>
+      segmentSequence(() => runPadPresses(h, events)),
+    );
   }
   return yield* returnSequence(h);
 }
@@ -639,7 +646,7 @@ export function* choosePlaceWithGloveSequence(h, events, routines) {
   yield* prepareWindowListSequence(h, events, routines, sites.prepareList);
   yield* putGloveOnSequence(h, sites.putOn, PUT_ON_ACTION, GLOVE_LIMITS.action);
   yield* gloveFramesSequence(h, events, routines, sites.frames);
-  yield* redrawListSequence(h, events, routines, sites.redraw);
+  yield* redrawListSequence(h, events, sites.redraw);
   yield () => {
     h.plx();
     const object = ctx.x,
@@ -651,7 +658,7 @@ export function* choosePlaceWithGloveSequence(h, events, routines) {
     setFlag(ctx, FLAG_CARRY, carry);
     setFlag(ctx, FLAG_OVERFLOW, overflow);
   };
-  yield* callSequence(h, events, routines, sites.putAway, PUT_AWAY);
+  yield* dialogCallBody(h, sites.putAway, PUT_AWAY, () => putGloveAwayCallSequence(h, events));
   return yield* returnSequence(h);
 }
 
