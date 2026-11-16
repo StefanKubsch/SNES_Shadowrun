@@ -362,7 +362,7 @@ export function* shootAtObjectSequence(h, events, renderBuffer = drawTextBufferS
 // 80:8A51: the player figure shoots with its weapon at the object under the glove (none
 // when 7E:01DA or the slot 7E:01DE is negative), which is marked as attacked. A
 // sequence that ends with the native's RTS.
-export function* shootAtGloveTargetSequence(h, events, routines) {
+export function* shootAtGloveTargetSequence(h, events, renderBuffer = drawTextBufferSequence) {
   const run = shotRuntime(h),
     { mem, wram } = run,
     player = word(wram, PLAYER_OBJECT);
@@ -379,7 +379,7 @@ export function* shootAtGloveTargetSequence(h, events, routines) {
   );
   yield* shotSequence(
     run,
-    () => nativeCallSequence(h, events, routines, HIT_CALL, HIT, false, false),
+    () => dialogCallBody(h, HIT_CALL, HIT, () => hitObjectSequence(h, events, renderBuffer)),
     player,
     target,
   );

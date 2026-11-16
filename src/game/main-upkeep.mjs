@@ -486,7 +486,7 @@ const SHOOT_ROUTINES = new Map([[0x808691, runHitObject]]);
 // them with lag-free frames.
 export const liftedShootAtObjectSequence = (h, events) => shootAtObjectSequence(h, events);
 export const liftedShootAtGloveTargetSequence = (h, events) =>
-  shootAtGloveTargetSequence(h, events, SHOOT_ROUTINES);
+  shootAtGloveTargetSequence(h, events);
 export const liftedShootWithOwnWeaponSequence = (h, events) =>
   shootWithOwnWeaponSequence(h, events, SHOOT_ROUTINES);
 // The lifted blast 80:8E36 with the lifted hit, as the script native runs it with

@@ -56,7 +56,9 @@ function runShot(sequence, direct, options) {
           put(0x14001 + at, value);
       }
       const owner = S.WEAPON_OWNERS_END - 2;
-      put(W.OBJECT_NUMBER, mem.read16(0x800000 | (S.WEAPON_OWNERS + owner)));
+      const shooter =
+        outcome === 'player' && sequence.name === 'shootAtGloveTargetSequence' ? 2 : 0;
+      put(W.OBJECT_NUMBER + shooter, mem.read16(0x800000 | (S.WEAPON_OWNERS + owner)));
       mem.wram[W.RUNNER_WEAPON_KIND + owner * 4] = kind;
       mem.wram[S.WEAPON_DAMAGE + owner * 4] = 1;
       mem.wram[W.RUNNER_WEAPON_RANGE + owner * 4] = outcome === 'miss' ? 0x80 : 0x7f;
@@ -88,10 +90,10 @@ import * as actual from '../src/game/object-shoot.mjs';
 import * as former from '../proof/caller/object-shoot.mjs';
 import * as W from '../src/data/wram.mjs';
 
-const entries = ['shootAtObjectSequence'];
+const entries = ['shootAtObjectSequence', 'shootAtGloveTargetSequence'];
 for (const name of entries)
   for (const budget of [1, 7])
-    for (const kind of [0, 1, 4, 5, 6])
+    for (const kind of [0, 1, 2, 3, 4, 5, 6, 7])
       for (const scenario of [
         { notice: 'warning', outcome: 'hit', distance: 8 },
         { notice: 'penalty', outcome: 'hit', distance: 8 },

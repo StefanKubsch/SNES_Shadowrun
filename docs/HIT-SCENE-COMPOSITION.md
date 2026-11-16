@@ -43,3 +43,10 @@ including the independent random original comparisons. New real callers use
 all shot kinds, warning/penalty notices, player hits, hit/miss, absent and
 blocked targets, the ranged reach boundary and request wrap at both budgets.
 The remaining two entries still dispatch their hits until their own blocks.
+
+## Block 5: glove-target shot caller
+
+The 80:8A51 entry composes its hit directly and receives the text renderer.
+Caller comparisons now include both shot entries and every weapon kind zero
+through seven, with the real weapon lookup, sounds and attacked flag for the
+glove entry. Absent glove targets and its distinct blocked result are retained.
