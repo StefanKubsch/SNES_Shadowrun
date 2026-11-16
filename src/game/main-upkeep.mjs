@@ -342,12 +342,11 @@ export function runUploadSecondPortrait(h, events) {
 }
 // 80:ADF4, the objects' tiles requested again after the dialog; it waits for the NMI.
 export function runReloadObjectTiles(h, events) {
-  return drainNativeSequence(reloadObjectTilesSequence(h, events, DIALOG_ROUTINES));
+  return drainNativeSequence(reloadObjectTilesSequence(h, events));
 }
 NATIVE_CALL_CONTINUATIONS.set(runReloadObjectTiles, {
   run: runReloadObjectTiles,
-  create: ({ h, events }) =>
-    new NativeCallContinuation(h.a, reloadObjectTilesSequence(h, events, DIALOG_ROUTINES)),
+  create: ({ h, events }) => new NativeCallContinuation(h.a, reloadObjectTilesSequence(h, events)),
 });
 // 80:8FF5, the portraits' DMA job; it waits for the NMI's transfer.
 export function runPortraitTiles(h, events) {
@@ -375,11 +374,8 @@ function runMusicMode(h) {
   return setMusicModeRoutine(h);
 }
 // Dialog composition owns its windows, text, menus, portraits and input.
-// Only the reload's frame wait and music retain their service interfaces.
-const DIALOG_ROUTINES = new Map([
-  [0x81b0a1, runFrameWait],
-  [0x81ef47, runMusicMode],
-]);
+// Dialog composition retains only music as a service.
+const DIALOG_ROUTINES = new Map([[0x81ef47, runMusicMode]]);
 // The lifted action menu as the script native 80:9BA0 runs it with lag-free frames.
 export const liftedScriptActionSequence = (h, events) => chooseScriptActionSequence(h, events);
 // The lifted text natives 80:935B and 80:933A as the script runs them with lag-free
@@ -393,7 +389,7 @@ export const liftedTopicTextSequence = (h, events) =>
 export const liftedTalkSequence = (h, events) => talkSequence(h, events, DIALOG_ROUTINES);
 // 80:92C5 (the dialog closed), called with JSR; its portrait window waits for the NMI.
 function* closeDialogCallSequence(h, events) {
-  return yield* closeDialogSequence(h, events, DIALOG_ROUTINES);
+  return yield* closeDialogSequence(h, events);
 }
 export function runCloseDialog(h, events) {
   return drainNativeSequence(closeDialogCallSequence(h, events));
@@ -533,16 +529,11 @@ export const runSkills = sequenceRun((h, events) => skillsSequence(h, events)),
 // spell menu's entry 80:E68E too), notice and window releases, glove, window and
 // plain menu, cursor, text, numbers, equipment rows, portrait, sound command 81:F007,
 // colour reset 81:886A and the closing 80:92C5.
-const STATUS_SCREEN_LIFT_ROUTINES = new Map([[0x8092c5, runCloseDialog]]);
-const runStatusScreen = sequenceRun((h, events) =>
-    statusScreenSequence(h, events, STATUS_SCREEN_LIFT_ROUTINES, START_ENTRY),
-  ),
-  runItemList = sequenceRun((h, events) =>
-    statusScreenSequence(h, events, STATUS_SCREEN_LIFT_ROUTINES, ITEMS_ENTRY),
-  );
+const runStatusScreen = sequenceRun((h, events) => statusScreenSequence(h, events, START_ENTRY)),
+  runItemList = sequenceRun((h, events) => statusScreenSequence(h, events, ITEMS_ENTRY));
 // The lifted status screen as the script native 80:EA6E runs it with lag-free frames.
 export const liftedStatusScreenSequence = (h, events) =>
-  statusScreenSequence(h, events, STATUS_SCREEN_LIFT_ROUTINES, NATIVE_ENTRY);
+  statusScreenSequence(h, events, NATIVE_ENTRY);
 // Main/save/karma menus compose windows, text, selection, sound and refills directly.
 // The lifted main menu as the script native 80:CE6D runs it with lag-free frames.
 export const liftedMainMenuSequence = (h, events) => mainMenuSequence(h, events);

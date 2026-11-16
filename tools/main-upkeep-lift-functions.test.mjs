@@ -87,7 +87,7 @@ import {
   uploadSecondPortraitSequence,
   uploadPortraitTilesSequence,
 } from '../proof/caller/portrait-upload.mjs';
-import { reloadObjectTilesSequence } from '../src/game/object-tiles.mjs';
+import { reloadObjectTilesSequence } from '../proof/caller/object-tiles.mjs';
 import { chooseFromMenuSequence } from '../proof/caller/menu-choice.mjs';
 import { menuComposeSequence } from '../src/system/native-menu-compose.mjs';
 import { portraitStreams } from '../src/data/portraits.mjs';

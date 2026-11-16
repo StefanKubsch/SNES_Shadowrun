@@ -234,7 +234,7 @@ export function setWindowTextWidthRoutine(h) {
 
 // Close the dialog (80:92C5) with live portrait, frame and input calls.
 // Object tile reload and sprite composition retain their shared service table.
-export function* closeDialogSequence(h, events, routines) {
+export function* closeDialogSequence(h, events) {
   const { ctx } = h,
     { port } = sceneRuntime(h);
   yield* dialogCallBody(h, ...CALL.closePortrait, () => closePortraitWindowSequence(h, events));
@@ -242,7 +242,7 @@ export function* closeDialogSequence(h, events, routines) {
     ctx.a = 0;
     port.write(OBJSEL, 0, 2, CLOSE_OBJSEL_SITE);
   };
-  yield* dialogCallBody(h, ...CALL.tiles, () => reloadObjectTilesSequence(h, events, routines));
+  yield* dialogCallBody(h, ...CALL.tiles, () => reloadObjectTilesSequence(h, events));
   yield* dialogCallBody(
     h,
     CALL.closeWait[0],

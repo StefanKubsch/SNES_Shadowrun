@@ -23,15 +23,12 @@
 // pushed as the original's JSR and JSL. With the lag-free frame model the NMI arrives
 // at the waits' branches 80:AE61 and 80:AE0F; otherwise the recorded observations or
 // interrupts are replayed as by the register-level routine. The word wait comes from
-// the caller's routine table.
-import {
-  dialogCallBody,
-  dialogCallSequence,
-  segmentSequence,
-} from '../system/native-call-continuation.mjs';
+// the live frame sequence.
+import { dialogCallBody, segmentSequence } from '../system/native-call-continuation.mjs';
 import { nmiWords, waitWord } from '../system/native-dialog-portrait.mjs';
 import { lagFree } from '../system/main-wait-interrupt.mjs';
 import { nmiAtBranch } from '../system/frame-wait.mjs';
+import { frameWaitCallSequence } from '../system/live-input-calls.mjs';
 import { stepAnimation } from './object-animation.mjs';
 import { CarryArithmetic } from './carry-arithmetic.mjs';
 import { taskStop } from '../system/task-stop.mjs';
@@ -149,8 +146,8 @@ function* waitForJobLists(h, events, site) {
 }
 
 // Request the tiles of the draw list's objects again (80:ADF4), a sequence for a native
-// call continuation, called with JSR: routines the caller's table with 81:B0A1.
-export function* reloadObjectTilesSequence(h, events, routines) {
+// call continuation, called with JSR and composing the live frame wait.
+export function* reloadObjectTilesSequence(h, events) {
   const { ctx } = h,
     { mem } = h.a,
     { wram } = mem;
@@ -164,7 +161,7 @@ export function* reloadObjectTilesSequence(h, events, routines) {
       ctx.x = longWord(mem, (ctx.bank << WORD_BITS) + DRAW_LIST + ctx.y);
       h.a.pushWord(ctx.y);
     };
-    yield* dialogCallBody(h, ...RELOAD_CALL, () => reloadSequence(h, events, routines));
+    yield* dialogCallBody(h, ...RELOAD_CALL, () => reloadSequence(h, events));
     yield () => {
       ctx.y = (h.a.pullWord() - FRAME_STEP) & WORD_MASK;
       signAndZero(ctx, ctx.y);
@@ -180,7 +177,7 @@ export function* reloadObjectTilesSequence(h, events, routines) {
 }
 
 // Request the tiles of the object in X again (80:AE12, called with JSR).
-function* reloadSequence(h, events, routines) {
+function* reloadSequence(h, events) {
   const { ctx } = h,
     { mem } = h.a,
     { wram } = mem,
@@ -213,7 +210,13 @@ function* reloadSequence(h, events, routines) {
         if (waiting) countJobList(h, CHANGE_COUNT_SITE);
       };
       if (!waiting) return yield* rts(h);
-      yield* dialogCallSequence(h, events, routines, ...WAIT_CALL);
+      yield* dialogCallBody(
+        h,
+        WAIT_CALL[0],
+        WAIT_CALL[1],
+        () => frameWaitCallSequence(h, events),
+        true,
+      );
       if (!lagFree(events))
         yield () => nmiWords(h, events, WAIT_CALL[0], [DP_VRAM_UPLOAD_INDEX, NMI_JOB_LISTS]);
     }

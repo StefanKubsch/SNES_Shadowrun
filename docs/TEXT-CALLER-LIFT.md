@@ -776,3 +776,14 @@ The former callers bind the independent register-level builder. Close and dialog
 routes compare OAM, palette slots and the upload job count in addition to tile
 jobs, font DMA, input and windows at both budgets. Hidden OAM entries and the
 new job count are asserted explicitly; existing sprite body comparisons remain.
+
+### Block 7: complete status scene close
+
+Status directly composes scene closing, including the real portrait close, tile
+reload, font DMA, pad refresh and sprite rebuild. Reload now composes its frame
+wait directly; its former observed-wait caller is retained for the unchanged
+original random comparisons. Status APIs receive only their renderer. Independent
+former status fixtures bind the complete retained close and register-level tile
+and sprite routines. Both budgets compare closing frames, tile jobs, OAM, HDMA,
+font writes and restored sound along with menus. Original recorded integrations
+retain their independent references and established frame policy.

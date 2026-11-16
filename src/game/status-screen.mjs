@@ -20,12 +20,8 @@
 // 7E:1D63 or the menu ends; 1F64 set runs the first submenu once and keeps no menu
 // window. At the end 80:92C5, the windows are released, 1F62 is cleared and the sound
 // restored (7F7F). Menus, text and displays compose through their original
-// frames, including sound and colour setup; scene cleanup keeps its service interface.
-import {
-  nativeCallSequence,
-  dialogCallBody,
-  segmentSequence,
-} from '../system/native-call-continuation.mjs';
+// frames, including sound and colour setup; scene cleanup also composes directly.
+import { dialogCallBody, segmentSequence } from '../system/native-call-continuation.mjs';
 import { openWindowSequence } from './window-open.mjs';
 import {
   releaseWindowJsrSequence,
@@ -38,7 +34,7 @@ import { decimalNumberSequence } from './decimal-number.mjs';
 import { drawTextBufferSequence } from './text-draw.mjs';
 import { equipmentRowsSequence } from './equipment-window.mjs';
 import { memberPortraitSequence } from './member-portrait.mjs';
-import { clearFixedColourRoutine } from './dialog-talk.mjs';
+import { closeDialogSequence, clearFixedColourRoutine } from './dialog-talk.mjs';
 import { sendApuCommandRoutine } from '../apu/audio-routines.mjs';
 import { chooseFromMenuSequence, MENU } from './menu-choice.mjs';
 import { itemMenuSequence, ITEM_ENTRIES } from './item-menu.mjs';
@@ -201,7 +197,6 @@ function* returnSequence(h) {
 export function* statusScreenSequence(
   h,
   events,
-  routines,
   entry = NATIVE_ENTRY,
   renderBuffer = drawTextBufferSequence,
 ) {
@@ -209,8 +204,6 @@ export function* statusScreenSequence(
     { mem } = h.a,
     { wram } = mem,
     native = entry === NATIVE_ENTRY;
-  const call = (pc, target, long = false) =>
-    nativeCallSequence(h, events, routines, pc, target, long, false);
   // The record pointer DP F9 and its word, which the attribute rows step through.
   const record = () => word(wram, DP_MEMBER_RECORD) | (wram[DP_MEMBER_RECORD_BANK] << WORD_BITS);
   const nextRecordByte = () => {
@@ -505,7 +498,7 @@ export function* statusScreenSequence(
       setWord(wram, DP_LIST_TOKEN_BANK, CODE_BANK);
       load(ctx, CODE_BANK);
     };
-    if (close) return yield* closeSequence(h, events, call);
+    if (close) return yield* closeSequence(h, events);
     if (!direct) {
       yield* dialogCallBody(h, 0x80ecd0, PLAIN_MENU, () =>
         chooseFromMenuSequence(h, events, renderBuffer, MENU),
@@ -548,16 +541,16 @@ export function* statusScreenSequence(
     setWord(wram, 0, window);
   };
   yield* dialogCallBody(h, 0x80ecf2, RELEASE_WINDOW, () => releaseWindowJsrSequence(h.a, events));
-  return yield* closeSequence(h, events, call);
+  return yield* closeSequence(h, events);
 }
 
 // ECF5: the cleanup, the status window released, the mark cleared and the sound
 // restored; then the RTS.
-function* closeSequence(h, events, call) {
+function* closeSequence(h, events) {
   const { ctx } = h,
     { mem } = h.a,
     { wram } = mem;
-  yield* call(0x80ecf5, STATUS_CLEANUP);
+  yield* dialogCallBody(h, 0x80ecf5, STATUS_CLEANUP, () => closeDialogSequence(h, events));
   yield () => {
     const window = dataBankWord(mem, STATUS_WINDOW);
     load(ctx, window);

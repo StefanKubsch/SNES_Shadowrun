@@ -5,6 +5,10 @@ import * as directStatus from '../src/game/status-screen.mjs';
 import * as formerStatus from '../proof/caller/status-screen.mjs';
 import { decimalNumberSequence } from '../proof/caller/decimal-number.mjs';
 import { equipmentRowsSequence } from '../proof/caller/equipment-window.mjs';
+import { closeDialogSequence as formerClose } from '../proof/caller/dialog-talk.mjs';
+import { closePortraitWindowSequence } from '../proof/caller/portrait-window.mjs';
+import { reloadObjectTiles } from '../src/system/native-scene-tiles.mjs';
+import { buildSpriteList } from '../proof/replay/native-scene-sprites.mjs';
 import { clearFixedColourRoutine } from '../src/game/dialog-talk.mjs';
 import * as W from '../src/data/wram.mjs';
 import { sendApuCommand } from '../src/system/native-input-apu.mjs';
@@ -29,7 +33,7 @@ function runStatus(
   alternate = false,
   initialToken = 0,
 ) {
-  let services, captureFinal;
+  let captureFinal;
   const selectedRow =
     variant === 'submenu' || variant === 'unknown'
       ? 1
@@ -54,9 +58,7 @@ function runStatus(
       const returned = yield* module.statusScreenSequence(
         h,
         e,
-        direct ? services : r,
-        entry,
-        direct ? r : undefined,
+        ...(direct ? [entry, r] : [r, entry]),
       );
       captureFinal();
       return returned;
@@ -68,6 +70,10 @@ function runStatus(
         record = mem.read16(0x80971a);
       put(0, variant === 'fallback' ? 6 : 2);
       put(W.PLAYER_OBJECT, 2);
+      put(W.DRAW_LIST_INDEX, 0);
+      put(W.DRAW_LIST, 0);
+      put(W.OBJECT_FRAME_OFFSET, 2);
+      put(W.OBJECT_VRAM_SLOT_COUNT, 1);
       mem.wram[W.APU_COMMAND_TOKEN] = initialToken;
       mem.wram[W.JAKE_ALTERNATE_PORTRAIT] = alternate ? 1 : 0;
       put(W.GLOVE_TARGET_TAG, 0xffff);
@@ -95,7 +101,6 @@ function runStatus(
     pads,
     realDrawing,
     ({ h, mem, events, put, routines, bind, calls }) => {
-      services = routines;
       if (variant === 'unknown') {
         const read = mem.read8.bind(mem);
         mem.read8 = (address) =>
@@ -112,6 +117,17 @@ function runStatus(
       captureFinal = () => calls.push(['final portrait', ...snapshot()]);
       const service = events.interrupts.textWait;
       events.interrupts.textWait = (callee, frameEvents, status, pc) => {
+        if (pc === 0x80ae0c) return true;
+        if (pc === 0x80ae0f) {
+          if (!mem.read16(W.NMI_JOB_LISTS)) return true;
+          calls.push([
+            'scene tile jobs',
+            mem.wram.slice(W.VRAM_UPLOAD_SOURCES, W.VRAM_UPLOAD_SOURCES + 6),
+          ]);
+          put(W.NMI_JOB_LISTS, 0);
+          put(W.DP_VRAM_UPLOAD_INDEX, 0);
+          return true;
+        }
         if (pc === 0x80901f) {
           calls.push([
             'portrait upload',
@@ -124,7 +140,11 @@ function runStatus(
         }
         const caller = mem.read16(0x7e0000 | (h.ctx.s + 1));
         if (pc === 0x81b0a9 && caller !== 0xa6ec && caller !== 0xf956) {
-          calls.push(['portrait frame', h.ctx.x, ...snapshot()]);
+          calls.push([
+            [0x8f9d, 0x92d4].includes(caller) ? 'scene close frame' : 'portrait frame',
+            h.ctx.x,
+            ...snapshot(),
+          ]);
           put(W.RANDOM_STATE, mem.read16(W.RANDOM_STATE) + 1);
           return true;
         }
@@ -137,11 +157,10 @@ function runStatus(
       bind(0x80e4b3, () => memberPortraitSequence(h, events, routines));
       routines.set(0x81886a, clearFixedColourRoutine);
       routines.set(0x81f007, (callee) => sendApuCommand(callee.a, false));
-      for (const target of [0x8092c5])
-        routines.set(target, (callee) => {
-          calls.push(['service', target, callee.ctx.a, callee.ctx.x]);
-          return callee.rts();
-        });
+      routines.set(0x80adf4, reloadObjectTiles);
+      routines.set(0x80b8de, buildSpriteList);
+      bind(0x808f97, () => closePortraitWindowSequence(h, events, routines));
+      bind(0x8092c5, () => formerClose(h, events, routines));
       bind(0x80fdcf, () => decimalNumberSequence(h, events, routines));
       bind(0x80e9c5, () => equipmentRowsSequence(h, events, routines));
       bind(0x80a6ad, () => chooseFromMenuSequence(h, events, routines, 0x80a6ad));
@@ -150,12 +169,6 @@ function runStatus(
       bind(STATUS_ENTRY, () => spellMenuSequence(h, events, routines, STATUS_ENTRY));
       bind(0x80e834, () => skillsSequence(h, events, routines));
       bind(0x80e8c8, () => notesSequence(h, events, routines));
-      if (direct)
-        services = new Map(
-          [...routines].filter(([target]) =>
-            [0x80c34a, 0x80a835, 0x80c1ca, 0x8092c5].includes(target),
-          ),
-        );
     },
   );
   result.wram.fill(0, 0x1e80, 0x1ef0);
@@ -210,6 +223,8 @@ for (const budget of [1, 7])
       runStatus(formerStatus, false, 0x80ea89, 0, 'Exit', budget, false, true),
     );
     assert.equal(actual.calls.filter((c) => c[0] === 'portrait frame').length, 11);
+    assert.equal(actual.calls.filter((c) => c[0] === 'scene close frame').length, 12);
+    assert.equal(actual.wram[W.HDMAEN_SHADOW] & 1, 0);
     assert.equal(actual.calls.filter((c) => c[0] === 'portrait upload').length, 2);
   });
 
