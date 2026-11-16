@@ -21,7 +21,7 @@
 // word 00 after the pad word is taken once more.
 //
 // The frame wait, pad word and sound are composed directly. Only the text buffer
-// 80:FB39 retains the caller's helper table; drawing, marks and tile clearing are
+// renderer is passed as a sequence; drawing, marks and tile clearing are
 // direct sequences. The former dispatched menu remains in proof/caller/menu-choice.mjs.
 // The registers are passed and left as the original: each callee
 // gets the A, X, Y and flags the original's code leaves before its call (the helpers
@@ -31,6 +31,7 @@
 import { dialogCallBody, segmentSequence } from '../system/native-call-continuation.mjs';
 import { frameWaitCallSequence, runPadPresses } from '../system/live-input-calls.mjs';
 import { playSoundEffectRoutine } from '../apu/sound-effect.mjs';
+import { drawTextBufferSequence } from './text-draw.mjs';
 import { drawListSequence, markRowSequence, MARK, UNMARK } from './menu-list.mjs';
 import { requestTileClearSequence } from './window-open.mjs';
 import {
@@ -125,8 +126,8 @@ const signAndZero = (ctx, value) => {
 };
 
 // Choose from the menu list (entry one of the four above), a sequence for a native call
-// continuation, called with JSR: routines supplies only the text buffer 80:FB39.
-export function* chooseFromMenuSequence(h, events, routines, entry) {
+// continuation, called with JSR, with an explicit text-buffer renderer sequence.
+export function* chooseFromMenuSequence(h, events, renderBuffer = drawTextBufferSequence, entry) {
   const { ctx } = h,
     { mem } = h.a,
     { wram } = mem;
@@ -166,9 +167,10 @@ export function* chooseFromMenuSequence(h, events, routines, entry) {
       load(value);
     };
   const helper = (site, target, body) => dialogCallBody(h, site, target, body);
-  const list = (site) => helper(site, LIST, () => drawListSequence(h, events, routines)),
-    mark = (site) => helper(site, MARK_ROW, () => markRowSequence(h, events, routines, MARK)),
-    unmark = (site) => helper(site, UNMARK_ROW, () => markRowSequence(h, events, routines, UNMARK)),
+  const list = (site) => helper(site, LIST, () => drawListSequence(h, events, renderBuffer)),
+    mark = (site) => helper(site, MARK_ROW, () => markRowSequence(h, events, renderBuffer, MARK)),
+    unmark = (site) =>
+      helper(site, UNMARK_ROW, () => markRowSequence(h, events, renderBuffer, UNMARK)),
     pad = (site) => helper(site, PAD, () => segmentSequence(() => runPadPresses(h, events)));
   let result;
   const rts = function* () {

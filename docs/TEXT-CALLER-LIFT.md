@@ -50,5 +50,22 @@ The cooperative comparisons add zero, digit-count boundaries and the maximum
 unsigned word, at both budgets. They assert the actual decimal buffer as well
 as matching device traffic, renderer arguments, final memory and returns. The
 existing 600 random number comparisons against the register-level original
-remain. Menu lists and register entries adapt their tables at the producer
-boundary until their own migration.
+remain. At this phase, menu lists and register entries adapted their tables at
+the producer boundary, before the menu migration below.
+
+## Phase 3: menu lists (2026-11-16)
+
+[menu-list.mjs](../src/game/menu-list.mjs) passes a renderer sequence through
+row text, optional numbers, selection marks and page indicators. It no longer
+reads or adapts a routine table. Menus and dialog menus receive the same
+sequence, and main-upkeep supplies the live renderer directly; the former
+one-entry menu text table is removed.
+
+The former [menu list](../proof/caller/menu-list.mjs) imports the retained text
+and number producers. The retained menu choice imports this list, so recorded
+comparisons cannot silently adopt the new list or producers. The existing 24
+menu caller comparisons now supply a sequence on the direct side and a table
+on the retained side. They keep navigation, repeat, paging, confirmation,
+cancellation and hotkey coverage at both budgets. The random list/mark tests
+against the register-level original retain their renderer stand-in via the
+explicit compatibility adapter.

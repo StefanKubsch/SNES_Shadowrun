@@ -1,4 +1,3 @@
-import { textBufferRenderer } from './text-renderer.mjs';
 // A menu's list in its window (lifted from 80:A617, 80:A5DB and 80:A5F9; register-level
 // versions in src/system/native-list-prerequisites.mjs stay the reference).
 //
@@ -11,8 +10,8 @@ import { textBufferRenderer } from './text-renderer.mjs';
 // in Y: the index less the page start, halved, below the list's top row. The cursor is
 // set there one column left of the list (80:FAAC, window-text.mjs) and the mark text
 // 7074 or the blank 707D is printed (80:FE69, text-print.mjs, its text buffer 80:FB39
-// from the table the caller passes). Both leave the direct page words 02 and 04 and the
-// registers of the text print, as the original.
+// from the renderer sequence the caller passes). Both leave the direct page words
+// 02 and 04 and the registers of the text print, as the original.
 //
 // The list drawing (80:A617) prints the page's rows from the page start on: the list's
 // texts are words at the long pointer of the direct page words 08 to 0A, ended by 0;
@@ -28,6 +27,7 @@ import { textBufferRenderer } from './text-renderer.mjs';
 // overflow of what ran last.
 import { dialogCallBody, segmentSequence } from '../system/native-call-continuation.mjs';
 import { printNumberSequence, setTextCursorRoutine } from './window-text.mjs';
+import { drawTextBufferSequence } from './text-draw.mjs';
 import { printTextSequence } from './text-print.mjs';
 import {
   DP_CURSOR_ROW,
@@ -93,9 +93,9 @@ const setWord = (wram, at, value) => {
 };
 
 // Mark the row of the word index in Y, or remove its mark (80:A5F9 with MARK, 80:A5DB
-// with UNMARK), a sequence for a native call continuation, called with JSR: routines
-// the table with 80:FB39.
-export function* markRowSequence(h, events, routines, form) {
+// with UNMARK), a sequence for a native call continuation, called with JSR.
+// renderBuffer is the text-buffer renderer sequence.
+export function* markRowSequence(h, events, renderBuffer = drawTextBufferSequence, form) {
   const { ctx } = h,
     { wram } = h.a.mem;
   yield () => {
@@ -109,9 +109,7 @@ export function* markRowSequence(h, events, routines, form) {
     ctx.a = form.text;
     setWord(wram, DP_TEXT, ctx.a);
   };
-  yield* dialogCallBody(h, ...form.print, () =>
-    printTextSequence(h, events, textBufferRenderer(routines)),
-  );
+  yield* dialogCallBody(h, ...form.print, () => printTextSequence(h, events, renderBuffer));
   let result;
   yield () => {
     result = h.rts();
@@ -120,8 +118,8 @@ export function* markRowSequence(h, events, routines, form) {
 }
 
 // Draw the menu's list (80:A617), a sequence for a native call continuation, called
-// with JSR: routines the table with 80:FB39.
-export function* drawListSequence(h, events, routines) {
+// with JSR, receiving the renderer sequence.
+export function* drawListSequence(h, events, renderBuffer = drawTextBufferSequence) {
   const { ctx } = h,
     { mem } = h.a,
     { wram } = mem;
@@ -148,7 +146,7 @@ export function* drawListSequence(h, events, routines) {
       };
   }
   const text = (site, keepY) =>
-    print(site, () => printTextSequence(h, events, textBufferRenderer(routines)), keepY);
+    print(site, () => printTextSequence(h, events, renderBuffer), keepY);
   // A mark three columns before the window's right edge, in the row given.
   const corner = function* (row, cursorSite, textSite, mark) {
     yield () => {
@@ -204,11 +202,7 @@ export function* drawListSequence(h, events, routines) {
         load(number());
         setWord(wram, DP_TEXT, ctx.a);
       };
-      yield* print(
-        NUMBER,
-        () => printNumberSequence(h, events, textBufferRenderer(routines)),
-        true,
-      );
+      yield* print(NUMBER, () => printNumberSequence(h, events, renderBuffer), true);
     }
     let more = false;
     yield () => {

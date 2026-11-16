@@ -1,3 +1,4 @@
+import { textBufferRenderer } from '../src/game/text-renderer.mjs';
 // Random per-function tests of the main loop's lifted upkeep (src/game/main-upkeep.mjs)
 // against the register-level references (proof/game-reference/main-upkeep.mjs and
 // main-camera.mjs), docs/MAIN-LOOP-LIFT.md: the colour effect 81:8877, the palette
@@ -1926,7 +1927,7 @@ const MENU_MARKS = [
     Object.assign(h.ctx, input);
     h.ctx.programBank = 0x80;
     h.push(0x1234, 2);
-    drainNativeSequence(markRowSequence(h, textEvents(), DRAW_TABLE, form));
+    drainNativeSequence(markRowSequence(h, textEvents(), textBufferRenderer(DRAW_TABLE), form));
     return bankRegisters(h);
   },
 }));
@@ -1976,7 +1977,7 @@ const MENU_LIST = {
     Object.assign(h.ctx, input);
     h.ctx.programBank = 0x80;
     h.push(0x1234, 2);
-    drainNativeSequence(drawListSequence(h, textEvents(), DRAW_TABLE));
+    drainNativeSequence(drawListSequence(h, textEvents(), textBufferRenderer(DRAW_TABLE)));
     return bankRegisters(h);
   },
 };

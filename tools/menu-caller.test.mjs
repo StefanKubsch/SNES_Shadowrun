@@ -67,23 +67,27 @@ function run(sequence, entry, pads, budget) {
     }
     return true;
   };
+  const drawStandIn = (callee) => {
+    texts.push(mem.wram.slice(TEXT_BUFFER, TEXT_BUFFER + 128));
+    return callee.rts();
+  };
   const routines = new Map([
     [0x81b0a1, runFrameWait],
     [0x809e1a, runPadPresses],
     [0x80c46e, playSoundEffectRoutine],
-    [
-      0x80fb39,
-      (callee) => {
-        texts.push(mem.wram.slice(TEXT_BUFFER, TEXT_BUFFER + 128));
-        return callee.rts();
-      },
-    ],
+    [0x80fb39, drawStandIn],
   ]);
-  // Direct menus must need none of the former frame/input/sound table entries.
-  const textOnly = new Map([[0x80fb39, routines.get(0x80fb39)]]),
+  // Direct menus receive a renderer sequence and have no helper table.
+  const renderer = function* (callee) {
+      let result;
+      yield () => {
+        result = drawStandIn(callee);
+      };
+      return result;
+    },
     continuation = new NativeCallContinuation(
       a,
-      sequence(h, events, sequence === direct ? textOnly : routines, entry),
+      sequence(h, events, sequence === direct ? renderer : routines, entry),
     );
   const before = mem.wram.slice();
   assert.equal(continuation.run(0), WAIT_PAUSED);

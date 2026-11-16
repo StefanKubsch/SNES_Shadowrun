@@ -267,16 +267,18 @@ NATIVE_CALL_CONTINUATIONS.set(runReleaseNoticeWindows, {
   create: ({ h, events }) =>
     new NativeCallContinuation(h.a, releaseNoticeWindowsCallSequence(h, events)),
 });
-// Menus compose their input, frame wait and sound directly. Text drawing still
-// supplies the register-level buffer helper through its existing interface.
-const MENU_TEXT_ROUTINES = new Map([[0x80fb39, runDrawTextBuffer]]);
+// Menus compose input, frame wait and sound directly and receive the live
+// text-buffer renderer sequence.
 function menuChoice(entry) {
   const run = (h, events) =>
-    drainNativeSequence(chooseFromMenuSequence(h, events, MENU_TEXT_ROUTINES, entry));
+    drainNativeSequence(chooseFromMenuSequence(h, events, drawTextBufferSequence, entry));
   NATIVE_CALL_CONTINUATIONS.set(run, {
     run,
     create: ({ h, events }) =>
-      new NativeCallContinuation(h.a, chooseFromMenuSequence(h, events, MENU_TEXT_ROUTINES, entry)),
+      new NativeCallContinuation(
+        h.a,
+        chooseFromMenuSequence(h, events, drawTextBufferSequence, entry),
+      ),
   });
   return run;
 }
@@ -314,11 +316,13 @@ NATIVE_CALL_CONTINUATIONS.set(runConfirmKey, {
 // routines (events.text); with the standard ones their menu 80:A6C7 runs lifted.
 export function runDialogMenu(h, events) {
   return drainNativeSequence(
-    chooseDialogActionSequence(h, events, events.text, MENU_TEXT_ROUTINES),
+    chooseDialogActionSequence(h, events, events.text, drawTextBufferSequence),
   );
 }
 export function runDialogTopics(h, events) {
-  return drainNativeSequence(chooseDialogTopicSequence(h, events, events.text, MENU_TEXT_ROUTINES));
+  return drainNativeSequence(
+    chooseDialogTopicSequence(h, events, events.text, drawTextBufferSequence),
+  );
 }
 // 80:9178, the dialog's text; its window request and text wait for the NMI. With the
 // standard text routines its request, cursor and text run lifted, the text drawn by the
@@ -340,7 +344,7 @@ for (const [run, sequence] of [
           h,
           events,
           events.text,
-          run === runDialogText ? TEXT_ROUTINES : MENU_TEXT_ROUTINES,
+          run === runDialogText ? TEXT_ROUTINES : drawTextBufferSequence,
         ),
       ),
   });
