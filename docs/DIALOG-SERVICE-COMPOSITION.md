@@ -14,3 +14,11 @@ including fallback and missing records. The random stand-in comparison now
 explicitly imports the retained former text caller, so it cannot accidentally
 substitute live clearing for its independent recorded service. Actual caller
 comparisons retain clearing uploads and cooperative budgets one and seven.
+
+## Block 2: text cursor
+
+Dialog text sets the real cursor through 80:9185 to 80:FAAC after clearing,
+including a failed search and its fallback. The retained former caller keeps
+its replaceable cursor and independent original comparison. The actual caller
+compares window cursor state, text payloads, restored record position and
+clearing uploads at both cooperative budgets.

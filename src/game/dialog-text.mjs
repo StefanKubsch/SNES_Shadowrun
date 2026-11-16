@@ -184,14 +184,14 @@ function searchEntry(h, acc) {
   }
 }
 
-// The callee bodies: the lifted request, cursor and text for the standard routines
-// (with a table for 80:FB39), else those of the text routines.
+// Tile clearing and cursor placement compose directly; text retains its service
+// compatibility until the next block.
 function liftedBodies(h, events, routines, renderBuffer) {
   const fallback = textBodies(h, events, routines);
   const live = renderBuffer && isStandardTextRoutines(routines);
   const lifted = {
     request: () => requestTileClearSequence(h, events),
-    cursor: live ? () => segmentSequence(() => setTextCursorRoutine(h)) : fallback('cursor'),
+    cursor: () => segmentSequence(() => setTextCursorRoutine(h)),
     text: live ? () => printTextSequence(h, events, renderBuffer) : fallback('text'),
   };
   return (name) => lifted[name];
