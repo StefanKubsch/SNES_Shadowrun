@@ -30,3 +30,12 @@ renderer. The service-body selector no longer reads the text routine object.
 Additional actual caller cases omit the renderer and compare real glyph
 uploads for greeting, Talk, fallback and absent text at budgets one and seven.
 The former chain binds its independently retained glyph renderer explicitly.
+
+## Block 4: topic task append
+
+The resumable topic action appends through the established task API below its
+80:91D1 JSR frame, including WRAM-table callers without a JS task owner.
+The independent former topic caller retains its register-level append. Actual
+comparisons use two real scripts, real task slots and heap frames at both
+budgets, and check the argument and visit frame after allocation. Existing
+nested scheduler comparisons retain the original instruction evidence.

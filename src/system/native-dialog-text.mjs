@@ -151,8 +151,9 @@ export function* dialogTopicSequence(h, events) {
     h.dpWrite(0, ctx.a);
   };
   // On the JS scheduler the task API appends the task.
-  const append = (a) => (a.tasks ? appendScriptTaskCall(a) : appendScriptTask(a, false));
-  yield* dialogCallBody(h, 0x8091d1, 0x80c34a, () => segmentSequence(() => append(h.a)));
+  yield* dialogCallBody(h, 0x8091d1, 0x80c34a, () =>
+    segmentSequence(() => appendScriptTaskCall(h.a)),
+  );
   yield* dialogCallBody(h, 0x8091d4, 0x80c1ca, function* () {
     yield { continuation: events.nestedRound(0x80c1ca) };
   });
