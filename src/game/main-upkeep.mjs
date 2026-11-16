@@ -442,14 +442,9 @@ const TEXT_ROUTINES = new Map([
   .set(0x80fe69, runPrintText)
   .set(0x80fb39, runDrawTextBuffer)
   .set(0x80a6a5, runMenuWithHotkeys);
-// The lifted Yes/No question 80:CD43 and spell choice 80:E1CF with the lifted window,
-// plain menu and release.
-const MENU_WINDOW_ROUTINES = new Map(TEXT_ROUTINES)
-  .set(0x80a6c7, runPlainMenu)
-  .set(0x80fa3e, runReleaseWindow);
+// The live Yes/No question and spell choice compose their menu and window directly.
 export const liftedQuestionSequence = (h, events) => askYesNoSequence(h, events);
-export const liftedSpellChoiceSequence = (h, events) =>
-  chooseSpellSequence(h, events, MENU_WINDOW_ROUTINES);
+export const liftedSpellChoiceSequence = (h, events) => chooseSpellSequence(h, events);
 // The lifted equipment rows 80:E9C5 with the lifted cursor, text and number.
 const EQUIPMENT_ROUTINES = new Map([
   [0x80faac, setTextCursorRoutine],

@@ -332,3 +332,19 @@ job-count wrap, complete device writes, game state and actual return.
 The NMI fixture services requests; existing integrations retain actual NMI and
 hardware comparisons. Shared scene/service tables and the unpacker's separate
 startup fallback remain outside this batch.
+
+## Status menus batch: spell choice (2026-11-16)
+
+[spell-choice.mjs](../src/game/spell-choice.mjs) composes live window opening,
+plain menu selection and release directly with an explicit renderer. Main-upkeep
+no longer constructs its helper table. The [former caller](../proof/caller/spell-choice.mjs)
+retains injection, and the existing 400 random original comparisons use it.
+[menu-status-caller.test.mjs](../tools/menu-status-caller.test.mjs) adds twelve
+comparisons at budgets one and seven: empty list, Exit, first/last spell,
+cancellation and a paged choice. Actual menu input, uploads, text payloads,
+result and final state match independently retained window/menu/text callees.
+Zero budget leaves memory unchanged. Uploads are serviced by the established
+fixture; existing integrations retain actual NMI/device coverage.
+
+The five blocks in this batch are spell choice, equipment rows, skills, notes
+and party status. Each retains independent original and caller comparisons.

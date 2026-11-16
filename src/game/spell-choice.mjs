@@ -6,9 +6,13 @@
 // spells' names (text numbers 80:D9B8 by spell, listed at 1D75 after the header 1D73),
 // five rows visible. A chosen row past Exit gives its spell, otherwise 0. In every case
 // the window DP 0E is released (80:FA3E; without spells the original releases the unset
-// DP 0E) and the result goes to DP 00. The callees run through their frames from the
-// routine table, each with its own callees.
-import { nativeCallSequence } from '../system/native-call-continuation.mjs';
+// DP 0E) and the result goes to DP 00. The callees compose directly through their original
+// frames, each with its own callees.
+import { dialogCallBody } from '../system/native-call-continuation.mjs';
+import { openWindowSequence } from './window-open.mjs';
+import { releaseWindowSequence } from './window-release.mjs';
+import { chooseFromMenuSequence } from './menu-choice.mjs';
+import { drawTextBufferSequence } from './text-draw.mjs';
 import { dataBankWord, setDataBankWord } from '../system/data-bank.mjs';
 import { taskStop } from '../system/task-stop.mjs';
 import { DP_SPELL_WINDOW, LIST_ENTRY_LIMIT, SPELL_WINDOW } from '../data/native-spell-choice.mjs';
@@ -59,8 +63,6 @@ const load = (ctx, value) => {
   ctx.a = value;
   setSignZero(ctx, value);
 };
-const call = (h, events, routines, [pc, target]) =>
-  nativeCallSequence(h, events, routines, pc, target, false, false);
 
 // The menu list: each learned spell's name text (in the order of the list) after Exit.
 // Leaves X past the last name and Y the last spell doubled; returns the carry of that
@@ -110,7 +112,7 @@ function chosenSpell(h, row) {
 
 // 80:E1CF: choose one of the learned spells; DP 00 gets it or 0. A sequence that ends
 // with the native's RTS.
-export function* chooseSpellSequence(h, events, routines) {
+export function* chooseSpellSequence(h, events, renderBuffer = drawTextBufferSequence) {
   const { ctx } = h,
     { mem } = h.a,
     { wram } = mem;
@@ -139,7 +141,7 @@ export function* chooseSpellSequence(h, events, routines) {
     }
   };
   if (spells) {
-    yield* call(h, events, routines, OPEN_WINDOW);
+    yield* dialogCallBody(h, ...OPEN_WINDOW, () => openWindowSequence(h, events));
     yield () => {
       setWord(wram, DP_SPELL_WINDOW, word(wram, 0));
       const carry = listSpellNames(h);
@@ -151,7 +153,7 @@ export function* chooseSpellSequence(h, events, routines) {
       load(ctx, WRAM_BANK);
       setFlag(ctx, FLAG_CARRY, carry);
     };
-    yield* call(h, events, routines, MENU);
+    yield* dialogCallBody(h, ...MENU, () => chooseFromMenuSequence(h, events, renderBuffer, MENU[1]));
     yield () => {
       spell = chosenSpell(h, word(wram, 0));
     };
@@ -163,7 +165,12 @@ export function* chooseSpellSequence(h, events, routines) {
     load(ctx, window);
     setWord(wram, 0, window);
   };
-  yield* call(h, events, routines, RELEASE_WINDOW);
+  yield* dialogCallBody(h, ...RELEASE_WINDOW, function* () {
+    yield* releaseWindowSequence(h, events);
+    let result;
+    yield () => { result = h.rts(); };
+    return result;
+  });
   let result;
   yield () => {
     const chosen = h.a.pullWord();
