@@ -1,4 +1,4 @@
-// The lifted confirm key wait 80:F953 (src/game/confirm-key.mjs) against the original's
+// The retained confirm key wait 80:F953 (proof/caller/confirm-key.mjs) against the original's
 // loop (src/task/native-input-wait.mjs: JSL 81:B0A1 at 80:F953, JSR 80:9E1A at 80:F957,
 // then the newly pressed word 7E:01CE masked with E0C0 until nonzero, RTS). The callees
 // are stand-ins: the word wait records its call, the pad word sets the next pressed
@@ -10,7 +10,7 @@ import { DialogTestMemory } from './task-native-dialog-harness.mjs';
 import { TaskAccessor } from '../src/vm/task-accessor.mjs';
 import { dialogAccess } from '../src/system/native-dialog-support.mjs';
 import { drainNativeSequence } from '../src/system/native-call-continuation.mjs';
-import { waitForConfirmKeySequence } from '../src/game/confirm-key.mjs';
+import { waitForConfirmKeySequence } from '../proof/caller/confirm-key.mjs';
 
 const PAD_PRESSED = 0x01ce,
   STACK = 0x1c9,

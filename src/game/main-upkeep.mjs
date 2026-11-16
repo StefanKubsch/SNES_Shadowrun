@@ -766,15 +766,7 @@ export const liftedReleaseGloveSequence = (h, events) =>
   );
 // The lifted confirm key wait 80:F953 with the lifted word wait and pad word, as the
 // script native runs it with lag-free frames.
-export const liftedConfirmKeySequence = (h, events) =>
-  waitForConfirmKeySequence(
-    h,
-    events,
-    new Map([
-      [0x81b0a1, runFrameWait],
-      [0x809e1a, runPadPresses],
-    ]),
-  );
+export const liftedConfirmKeySequence = (h, events) => waitForConfirmKeySequence(h, events);
 // The callees of the lifted glove choices, each with its own table: the lifted word
 // wait, pad word, glove movement, glove release, notice, window list, window map, its
 // upload and the dialog's close.

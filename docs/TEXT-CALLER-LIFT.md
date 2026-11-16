@@ -205,3 +205,18 @@ The modal caller suite adds Yes, No, cancellation and navigation back to Yes,
 using both budgets and comparing the answer, uploads, input and game state.
 The stack-held answer across release and language-dependent window sizing
 remain unchanged. Main-upkeep supplies no helper table to this native.
+
+## Modal menus and portraits: confirming input (2026-11-16)
+
+[confirm-key.mjs](../src/game/confirm-key.mjs) calls the live word wait and
+pad reader directly. Main-upkeep no longer allocates a two-entry helper table
+for each confirming wait. The [former loop](../proof/caller/confirm-key.mjs)
+retains the injected callees and its existing source-contract test.
+
+[confirm-key-caller.test.mjs](../tools/confirm-key-caller.test.mjs) compares
+the actual live wait and pad reader through both callers, at both budgets,
+for each accepted button and their combined mask. Held buttons must first be
+released; Start, directions, shoulder buttons and invalid controller words
+do not confirm. After an invalid word the fixture releases the pad before
+pressing again, preserving the existing previous-held bookkeeping. It compares
+each wait, final pressed mask, input count, result and game state.
