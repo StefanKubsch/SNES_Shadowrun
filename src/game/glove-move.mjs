@@ -18,6 +18,7 @@
 // the position addition down and the carry of its comparison with CE01. The object
 // search reads that carry too.
 import { dialogCallBody } from '../system/native-call-continuation.mjs';
+import { textBufferRenderer } from './text-renderer.mjs';
 import { objectSearchSequence } from './object-search.mjs';
 import { releaseNameWindowCallSequence } from './window-release.mjs';
 import {
@@ -127,7 +128,7 @@ export function* gloveMoveSequence(h, events, routines) {
   };
   if (next === 'search')
     yield* dialogCallBody(h, SEARCH_CALL, SEARCH_TARGET, () =>
-      objectSearchSequence(h, events, routines),
+      objectSearchSequence(h, events, textBufferRenderer(routines)),
     );
   else if (next === 'release')
     yield* dialogCallBody(h, RELEASE_CALL, RELEASE_TARGET, () =>

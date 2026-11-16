@@ -14,3 +14,10 @@ Object search composes window opening through its original 80:BE29 JSR frame.
 Real callers compare kinds, replacement of a marked object and upload-counter
 wrap. The former search and movement retain their original random comparisons.
 No search geometry or hardware equations change.
+
+## Block 2: object name text
+
+Object search composes actual name text through its original 80:BE34 frame
+and accepts a text-buffer renderer. The real kind/replacement/wrap cases
+compare glyph payloads with the retained former chain. Movement temporarily
+adapts its legacy renderer table; its entry cleanup follows in block 3.

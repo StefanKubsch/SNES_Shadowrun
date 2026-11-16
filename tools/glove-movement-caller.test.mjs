@@ -7,7 +7,7 @@ import * as W from '../src/data/wram.mjs';
 
 function runSearch(sequence, budget, options = {}) {
   return compareRun(
-    sequence,
+    sequence === objectSearchSequence ? (h, events) => sequence(h, events) : sequence,
     false,
     ({ put }) => {
       put(W.GLOVE_KIND, 0xffff);
