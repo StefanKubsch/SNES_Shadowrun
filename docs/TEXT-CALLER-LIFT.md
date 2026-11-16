@@ -959,3 +959,10 @@ All six choice entries compose real glove release directly through their
 original JSRs. Caller comparisons cover target/no target, active name windows,
 upload wrap, script choice markers, object numbers, spell results and place
 activation. Actual list preparation and redraw remain bound on the former side.
+
+### Block 9: choice reach notice
+
+Reach-checked choices compose their notice directly through the original JSR.
+Real caller comparisons cover coordinate and height thresholds, negative
+coordinate wrap, the signed-word distance edge, all three reach entries,
+member-menu redraw suppression, actual glyph uploads and both budgets.

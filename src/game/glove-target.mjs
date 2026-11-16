@@ -1,3 +1,4 @@
+import { showNoticeSequence } from './notice-show.mjs';
 import { putGloveAwayCallSequence } from './window-release.mjs';
 import { frameWaitCallSequence, runPadPresses } from '../system/live-input-calls.mjs';
 // Choosing with the action or spell glove (lifted from the script natives 80:8D0B and its
@@ -161,7 +162,9 @@ const callSequence = (h, events, routines, pc, target, long = false) =>
       ? dialogCallBody(h, pc, target, () => segmentSequence(() => runPadPresses(h, events)))
       : target === PUT_AWAY
         ? dialogCallBody(h, pc, target, () => putGloveAwayCallSequence(h, events))
-        : nativeCallSequence(h, events, routines, pc, target, long, false);
+        : target === SHOW_NOTICE
+          ? dialogCallBody(h, pc, target, () => showNoticeSequence(h, events))
+          : nativeCallSequence(h, events, routines, pc, target, long, false);
 
 const word = (wram, at) => wram[at] | (wram[at + 1] << BYTE_BITS);
 const setWord = (wram, at, value) => {

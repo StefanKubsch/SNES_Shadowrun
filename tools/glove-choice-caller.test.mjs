@@ -102,3 +102,28 @@ for (const budget of [1, 7])
             assert.equal(result, !target ? 0xffff : name.includes('Number') ? 0x1234 : 2);
           }
         });
+
+for (const budget of [1, 7])
+  for (const name of [
+    'chooseObjectNumberSequence',
+    'scriptChooseObjectNumberSequence',
+    'scriptChooseObjectSequence',
+  ])
+    for (const [distance, height, near] of [
+      [0x80, 0x80, true],
+      [0x81, 0, false],
+      [0, 0x81, false],
+      [0xffff, 0, true],
+      [0x8000, 0, false],
+    ])
+      for (const menu of [false, true])
+        test(`glove choice reach notice: ${name}, distance ${distance}, height ${height}, menu ${menu}, budget ${budget}`, () => {
+          const options = { distance, height, menu };
+          const actual = runChoice(direct, name, budget, true, [0x8000], options);
+          assert.deepEqual(actual, runChoice(former, name, budget, true, [0x8000], options));
+          assert.equal(
+            actual.wram[0] | (actual.wram[1] << 8),
+            near ? (name.includes('Number') ? 0x1234 : 2) : 0xffff,
+          );
+          if (!near) assert.ok(actual.uploads.length > 0, 'actual notice glyph and window uploads');
+        });
