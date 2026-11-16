@@ -85,7 +85,7 @@ function runFight(direct, budget, karma, base, variant, glyphs, options = 0, tok
   }, budget, [], glyphs, ({h, events, routines, bind}) => {
     bind(0x80fec1, () => showNoticeSequence(h, events, routines));
     routines.set(0x81ef47, setMusicModeRoutine);
-    services = routines;
+    services = new Map([...routines].filter(([target]) => [0x80c46e, 0x81ef47].includes(target)));
   });
 }
 for (const budget of [1, 7])

@@ -875,3 +875,11 @@ The retained former caller keeps the original random comparison. Real caller
 cases cover missing and remaining opponents, last removal, zero gain, the
 nine/ten-column threshold, maximum and wrapped gains, both budgets and glyphs.
 They compare formation countdown, actual notice uploads and the final list.
+
+### Block 8: fight reward text
+
+Fight reward drawing composes cursor placement, decimal gain and trailing text
+directly through the original JSR frames. The existing boundary routes compare
+real text payloads and default glyph uploads with the independent former chain.
+Direct callers now receive only sound and music services, excluding hidden
+fallback to drawing services. Payment, formation and reward arithmetic stay intact.

@@ -12,11 +12,13 @@
 // entry (karma / 8 then and now) shows in a notice with its number and a sound, and with
 // the music option the music kept by the first entry plays again (none if there was
 // none), else the music mode 0.
+import { setTextCursorRoutine, printNumberSequence } from './window-text.mjs';
+import { printTextSequence } from './text-print.mjs';
 import { showNoticeSequence } from './notice-show.mjs';
 import { drawTextBufferSequence } from './text-draw.mjs';
 import { setMusicMode } from '../apu/music-mode.mjs';
 import { dataBankWord, setDataBankWord } from '../system/data-bank.mjs';
-import { dialogCallBody, nativeCallSequence } from '../system/native-call-continuation.mjs';
+import { dialogCallBody, segmentSequence, nativeCallSequence } from '../system/native-call-continuation.mjs';
 import {
   DP_CURSOR_ROW,
   DP_NOTICE_FRAMES,
@@ -163,17 +165,17 @@ export function* removeFromFightListSequence(h, events, routines, renderBuffer =
       setWord(wram, DP_TEXT, 0);
       setWord(wram, DP_CURSOR_ROW, 0);
     };
-    yield* call(CURSOR_CALL);
+    yield* dialogCallBody(h, ...CURSOR_CALL, () => segmentSequence(() => setTextCursorRoutine(h)));
     yield () => {
       ctx.a = word(wram, FIGHT_KARMA);
       setWord(wram, DP_TEXT, ctx.a);
     };
-    yield* call(NUMBER_CALL);
+    yield* dialogCallBody(h, ...NUMBER_CALL, () => printNumberSequence(h, events, renderBuffer));
     yield () => {
       ctx.a = TEXT_KARMA_GAIN;
       setWord(wram, DP_TEXT, ctx.a);
     };
-    yield* call(TEXT_CALL);
+    yield* dialogCallBody(h, ...TEXT_CALL, () => printTextSequence(h, events, renderBuffer));
     yield () => {
       setWord(wram, 0, NO_OBJECT);
       setWord(wram, DP_SOUND_LEVEL, KARMA_SOUND_LEVEL);
