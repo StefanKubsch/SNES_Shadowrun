@@ -548,3 +548,10 @@ then releases its window. Caller cases cover both slot counts, every slot, Exit
 and cancellation at both budgets. They compare the entire SRAM and assert the
 selected slot checksum and unchanged SRAM on Exit/cancel. Slot four also uses
 real glyphs. The existing save implementation and sound service are unchanged.
+
+### Block 4: main submenu orchestration
+
+The main menu calls its save and karma sequences directly through the original
+frames. The caller comparisons now enter the actual save/karma menus, return
+and exit the main menu; the former side binds independent retained submenus.
+Karma balance drawing is real; resource refill remains a recorded service here.

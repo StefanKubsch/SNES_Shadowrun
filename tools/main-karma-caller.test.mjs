@@ -5,6 +5,8 @@ import * as directMain from '../src/game/main-menu.mjs';
 import * as formerMain from '../proof/caller/main-menu.mjs';
 import { installPortExtension } from '../src/data/port-extension.mjs';
 import { occupiedSlots } from '../src/game/save-slots.mjs';
+import * as formerKarma from '../proof/caller/karma-menu.mjs';
+import { requestTileClearSequence } from '../proof/caller/window-open.mjs';
 import * as W from '../src/data/wram.mjs';
 
 function runMain(direct, budget, pads, realDrawing = false) {
@@ -20,16 +22,22 @@ function runMain(direct, budget, pads, realDrawing = false) {
     direct,
     ({ put }) => {
       put(W.TIMER, 0xffff);
+      put(W.GLOVE_KIND, 3);
+      for (let n = 0; n <= W.NOTICE_WINDOW_LAST; n += 2) put(W.NOTICE_WINDOWS + n, 0xffff);
     },
     budget,
     pads,
     realDrawing,
-    ({ routines, calls }) => {
+    ({ routines, calls, bind, h, events }) => {
       services = routines;
-      for (const target of [0x80cdd6, 0x80ee57])
-        routines.set(target, (h) => {
-          calls.push(['submenu', target]);
-          return h.rts();
+      bind(0x80cdd6, () => formerMain.saveMenuSequence(h, events, routines));
+      bind(0x80ee57, () => formerKarma.karmaMenuSequence(h, events, routines));
+      bind(0x80fa67, () => requestTileClearSequence(h, events));
+      bind(0x80ef82, () => formerKarma.karmaLineSequence(h, events, routines));
+      for (const target of [0x80cecb, 0x80cf2e])
+        routines.set(target, (callee) => {
+          calls.push(['refill', target, callee.a.mem.read16(0), callee.a.mem.read16(2)]);
+          return callee.rts();
         });
     },
   );
@@ -39,8 +47,8 @@ for (const budget of [1, 7])
   for (const [name, pads, submenus] of [
     ['Exit', [0x8000], 0],
     ['cancel', [0x2000], 0],
-    ['save', [0x400, 0, 0x8000, 0, 0x8000], 1],
-    ['karma', [0x400, 0, 0x400, 0, 0x8000, 0, 0x8000], 1],
+    ['save', [0x400, 0, 0x8000, 0, 0x8000, 0, 0x8000], 0],
+    ['karma', [0x400, 0, 0x400, 0, 0x8000, 0, 0x8000, 0, 0x8000], 0],
   ])
     test(`main windows: ${name}, budget ${budget}`, () => {
       const actual = runMain(true, budget, pads);

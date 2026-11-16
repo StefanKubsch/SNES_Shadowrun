@@ -14,11 +14,12 @@
 // main menu's window; a slot n saves slot n - 1 (81:B17D, saveGame of save-slots.mjs)
 // and plays sound 36 (80:C46E with FFFF, FF, FF). The window is released.
 // Main menu windows and selection compose directly through their original frames.
-// Save, karma and sound services retain their established interface.
+// Main and save menus compose directly; sound remains an explicit service.
 import { dialogCallBody, nativeCallSequence } from '../system/native-call-continuation.mjs';
 import { openWindowSequence } from './window-open.mjs';
 import { releaseWindowJsrSequence } from './window-release.mjs';
 import { chooseFromMenuSequence } from './menu-choice.mjs';
+import { karmaMenuSequence } from './karma-menu.mjs';
 import { printTextSequence } from './text-print.mjs';
 import { waitForConfirmKeySequence } from './confirm-key.mjs';
 import { drawTextBufferSequence } from './text-draw.mjs';
@@ -248,8 +249,12 @@ export function* mainMenuSequence(h, events, routines, renderBuffer = drawTextBu
       setFlag(ctx, FLAG_ZERO, chosen === SAVE_ROW);
     };
     if (!chosen || negative(chosen)) break;
-    if (chosen === SAVE_ROW) yield* call(h, events, routines, 0x80ceb8, SAVE_MENU);
-    else yield* call(h, events, routines, 0x80cebd, KARMA_MENU);
+    if (chosen === SAVE_ROW)
+      yield* dialogCallBody(h, 0x80ceb8, SAVE_MENU, () =>
+        saveMenuSequence(h, events, routines, renderBuffer),
+      );
+    else
+      yield* dialogCallBody(h, 0x80cebd, KARMA_MENU, () => karmaMenuSequence(h, events, routines));
   }
   return yield* returnSequence(h);
 }
