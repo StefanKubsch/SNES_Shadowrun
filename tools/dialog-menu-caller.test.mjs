@@ -22,12 +22,28 @@ function run(module, variant, budget, realDrawing = false) {
   const side = textWindowSide(),
     { h, mem, events, put } = side,
     topic = variant.startsWith('topic') || variant === 'empty' || variant === 'flagged',
-    pads = variant.endsWith('cancel') ? [0x2000] : [0x400, 0, 0x8000];
+    pads = variant.endsWith('cancel')
+      ? [0x2000]
+      : variant === 'topic single confirm'
+        ? [0x8000]
+        : [0x400, 0, 0x8000];
   put(0x17, 0);
   put(WINDOW_ACTIVE, 0xffff);
   put(SOUND_LOADED_SET, mem.read16(0x80c4b3 + 0x4c));
-  mem.wram.set(variant === 'empty' ? [0xff] : [2, 8, 0xff], TOPIC_LIST);
-  mem.wram.set(variant === 'flagged' ? [1, 1] : [0, 0], TOPIC_FLAGS);
+  mem.wram.set(
+    variant === 'empty'
+      ? [0xff]
+      : variant === 'topic single confirm'
+        ? [8, 0xff]
+        : variant === 'topic sparse confirm'
+          ? [2, 5, 8, 0xff]
+          : [2, 8, 0xff],
+    TOPIC_LIST,
+  );
+  mem.wram.set(
+    variant === 'flagged' ? [1, 1] : variant === 'topic sparse confirm' ? [1, 0, 0] : [0, 0],
+    TOPIC_FLAGS,
+  );
   events.text = dialogTextRoutines(events);
   const serviceUpload = events.interrupts.textWait;
   let input = 0;
@@ -71,6 +87,8 @@ for (const budget of [1, 7])
     'main cancel',
     'topic confirm',
     'topic cancel',
+    'topic single confirm',
+    'topic sparse confirm',
     'empty',
     'flagged',
   ])
@@ -80,9 +98,21 @@ for (const budget of [1, 7])
       const word = (at) => actual.wram[at] | (actual.wram[at + 1] << 8),
         absent = variant === 'empty' || variant === 'flagged',
         cancelled = variant.endsWith('cancel');
-      assert.equal(word(0), absent || cancelled ? 0xffff : 1);
+      assert.equal(
+        word(0),
+        absent || cancelled
+          ? 0xffff
+          : variant === 'topic single confirm'
+            ? 0
+            : variant === 'topic sparse confirm'
+              ? 2
+              : 1,
+      );
       assert.equal(word(DIALOG_END), cancelled ? 0xffff : 0);
-      assert.equal(actual.input, absent ? 0 : cancelled ? 1 : 3);
+      assert.equal(
+        actual.input,
+        absent ? 0 : cancelled || variant === 'topic single confirm' ? 1 : 3,
+      );
       if (absent) assert.equal(actual.uploads.length, 0);
       if (variant.startsWith('topic'))
         assert.ok(actual.uploads.length >= 3, 'topic window opens and releases');

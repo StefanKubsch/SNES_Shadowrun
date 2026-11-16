@@ -55,3 +55,10 @@ The main choice always composes its actual menu through 80:91FF, including
 confirmation and cancellation. The former menu caller retains service dispatch.
 Default-glyph comparisons now also exercise main-menu cancellation, including
 real input consumption, window uploads and the end marker at both budgets.
+
+## Block 7: topic window opening
+
+Topic choice opens its actual window through 80:9278 to 80:F963. Additional
+real caller cases cover a single available topic and a list with an excluded
+leading topic, checking the mapped result index, input count and actual
+window uploads against the retained former allocation path at both budgets.

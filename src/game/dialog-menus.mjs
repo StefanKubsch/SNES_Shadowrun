@@ -80,9 +80,9 @@ function* rts(h) {
 function callee(h, events, routines, renderBuffer, [site, target], name) {
   let body;
   if (name === 'mainMenu') body = () => chooseFromMenuSequence(h, events, renderBuffer, target);
+  else if (name === 'allocate') body = () => openWindowSequence(h, events);
   else if (!isStandardTextRoutines(routines))
     body = () => segmentSequence(() => routines[name](h.a));
-  else if (name === 'allocate') body = () => openWindowSequence(h, events);
   else if (name === 'release')
     body = function* () {
       yield* releaseWindowSequence(h, events);
