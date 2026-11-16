@@ -158,3 +158,15 @@ export function configureMemberPortrait({ h, mem, events, put, routines, bind, c
     return result;
   };
 }
+
+// Bind the former dispatched visit and the direct scheduler hooks to the same
+// controlled task effect. Budget-one callers exercise a child continuation;
+// budget-seven callers exercise the synchronous scheduler hook.
+export function configureScriptVisit({ h, events, routines, bind }, cooperative) {
+  const run = routines.get(0x80c1ca);
+  events.round = () => run(h, events);
+  if (!cooperative) return;
+  const body = () => segmentSequence(() => run(h, events));
+  events.nestedRound = () => new NativeCallContinuation(h.a, body());
+  bind(0x80c1ca, body);
+}

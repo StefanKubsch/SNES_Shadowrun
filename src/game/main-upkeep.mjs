@@ -506,9 +506,7 @@ NATIVE_CALL_CONTINUATIONS.set(runMemberPortrait, {
 // The lifted spell menu 80:F254 with the lifted window, plain menu, releases, portrait,
 // equipment window, key wait, window list and script append; the visit 80:C1CA is the
 // script VM's nested round.
-const SPELL_MENU_ROUTINES = new Map([[0x80c1ca, runHeadVisit]]);
-export const liftedSpellMenuSequence = (h, events) =>
-  openSpellMenuSequence(h, events, SPELL_MENU_ROUTINES);
+export const liftedSpellMenuSequence = (h, events) => openSpellMenuSequence(h, events);
 // The lifted party status 80:ED3C with the lifted glove and window releases, window,
 // text, cursor, number and key wait.
 export function runPartyStatus(h, events) {
@@ -538,11 +536,7 @@ const ITEM_ROUTINES = new Map([[0x80c1ca, runHeadVisit]]);
 // spell menu's entry 80:E68E too), notice and window releases, glove, window and
 // plain menu, cursor, text, numbers, equipment rows, portrait, sound command 81:F007,
 // colour reset 81:886A and the closing 80:92C5.
-const STATUS_SCREEN_LIFT_ROUTINES = new Map([
-  ...SPELL_MENU_ROUTINES,
-  ...ITEM_ROUTINES,
-  [0x8092c5, runCloseDialog],
-]);
+const STATUS_SCREEN_LIFT_ROUTINES = new Map([...ITEM_ROUTINES, [0x8092c5, runCloseDialog]]);
 const runStatusScreen = sequenceRun((h, events) =>
     statusScreenSequence(h, events, STATUS_SCREEN_LIFT_ROUTINES, START_ENTRY),
   ),

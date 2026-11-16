@@ -745,3 +745,11 @@ actor scripts, task tables and one free object slot. Item classes, cleanup
 combinations and coordinate word maxima compare at both budgets.
 The nested visit reads task state, so its comparison omits the creator's
 unused leftover Y register. Object and task writes remain fully compared.
+
+### Block 3: member nested visits
+
+Member spells compose the scheduler's nested visit directly through the original
+JSR frame, preferring a resumable child and retaining the synchronous round hook.
+Missing round hooks retain the established frontier. Spell entry points no longer
+receive a service table. Existing cleanup combinations exercise both hook paths
+and compare independent former callers; scheduler integrations remain unchanged.

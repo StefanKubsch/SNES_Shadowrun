@@ -18,12 +18,9 @@
 // 80:FF79). A negative row ends the dialog (7E:1D7B). The window is released (80:FA3E).
 // The entry 80:E68E (from the status screen) leaves 1F68 clear: no script runs and the
 // equipment window is drawn at the end (80:E9C5). Windows, selection and cleanup
-// compose through their original frames; script services keep their table.
-import {
-  dialogCallBody,
-  nativeCallSequence,
-  segmentSequence,
-} from '../system/native-call-continuation.mjs';
+// compose through their original frames; script append and nested visits compose directly.
+import { dialogCallBody, segmentSequence } from '../system/native-call-continuation.mjs';
+import { scriptVisitSequence } from '../system/script-visit.mjs';
 import { appendScriptTaskCall } from '../script/task-api.mjs';
 import { openWindowSequence } from './window-open.mjs';
 import { chooseFromMenuSequence } from './menu-choice.mjs';
@@ -149,8 +146,6 @@ function add(left, right, carry = false) {
     value = sum & WORD_MASK;
   return { value, carry: sum > WORD_MASK, overflow: negative(~(left ^ right) & (left ^ value)) };
 }
-const call = (h, events, routines, [pc, target], long = false) =>
-  nativeCallSequence(h, events, routines, pc, target, long, false);
 function* returnSequence(h) {
   let result;
   yield () => {
@@ -271,7 +266,6 @@ function* afterScriptSequence(h, events) {
 export function* spellMenuSequence(
   h,
   events,
-  routines,
   entry = MENU_ENTRY,
   renderBuffer = drawTextBufferSequence,
 ) {
@@ -343,8 +337,8 @@ export function* spellMenuSequence(
         segmentSequence(() => appendScriptTaskCall(h.a)),
       );
       yield () => setWord(wram, MEMBER_PORTRAIT_REDRAW, 0);
-      yield* call(h, events, routines, VISIT_SCRIPT);
-      yield* afterScriptSequence(h, events, routines);
+      yield* dialogCallBody(h, ...VISIT_SCRIPT, () => scriptVisitSequence(events));
+      yield* afterScriptSequence(h, events);
     }
     yield () => {
       const window = dataBankWord(mem, STATUS_SUBMENU_WINDOW);
@@ -368,7 +362,7 @@ export function* spellMenuSequence(
 
 // 80:F254: the spell menu of the object DP 00 (see above). A sequence that ends with the
 // native's RTS.
-export function* openSpellMenuSequence(h, events, routines, renderBuffer = drawTextBufferSequence) {
+export function* openSpellMenuSequence(h, events, renderBuffer = drawTextBufferSequence) {
   const { ctx } = h,
     { mem } = h.a,
     { wram } = mem;
@@ -399,7 +393,7 @@ export function* openSpellMenuSequence(h, events, routines, renderBuffer = drawT
     setFlag(ctx, FLAG_OVERFLOW, skills.overflow);
   };
   yield* dialogCallBody(h, ...SPELL_MENU, () =>
-    spellMenuSequence(h, events, routines, MENU_ENTRY, renderBuffer),
+    spellMenuSequence(h, events, MENU_ENTRY, renderBuffer),
   );
   yield () => setWord(wram, MEMBER_MENU_ACTIVE, 0);
   return yield* returnSequence(h);

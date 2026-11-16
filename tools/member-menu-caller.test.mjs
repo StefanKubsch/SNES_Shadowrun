@@ -1,6 +1,10 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { compareRun, configureMemberPortrait } from './member-menu-caller-harness.mjs';
+import {
+  compareRun,
+  configureMemberPortrait,
+  configureScriptVisit,
+} from './member-menu-caller-harness.mjs';
 import { decimalNumberSequence as directDecimal } from '../src/game/decimal-number.mjs';
 import { decimalNumberSequence as formerDecimal } from '../proof/caller/decimal-number.mjs';
 for (const budget of [1, 7])
@@ -43,16 +47,9 @@ function runMember(
   realDrawing = false,
   script = null,
 ) {
-  let services;
   return compareRun(
     (h, events, renderer) =>
-      module.spellMenuSequence(
-        h,
-        events,
-        direct ? services : renderer,
-        entry,
-        direct ? renderer : undefined,
-      ),
+      module.spellMenuSequence(h, events, ...(direct ? [entry, renderer] : [renderer, entry])),
     direct,
     ({ put, mem }) => {
       put(W.DP_MEMBER_RECORD, 0x6000);
@@ -71,7 +68,6 @@ function runMember(
     realDrawing,
     (side) => {
       const { h, events, routines, bind, put, calls } = side;
-      services = routines;
       if (script) {
         tasksOf(h.a).reset();
         routines.set(0x80c34a, (callee) => appendScriptTaskCall(callee.a));
@@ -86,11 +82,10 @@ function runMember(
             return target === 0x81aeb0 ? callee.rtl() : callee.rts();
           });
       }
+      if (script) configureScriptVisit(side, budget === 1);
       bind(0x80e9c5, () => equipmentRowsSequence(h, events, routines));
       routines.set(0x81aeb0, runResetWindowList);
       const finish = configureMemberPortrait(side);
-      if (direct)
-        services = new Map([...routines].filter(([target]) => [0x80c1ca].includes(target)));
       return finish;
     },
   );
@@ -156,9 +151,8 @@ for (const budget of [1, 7])
     });
 
 function runOpenMember(module, direct, levels, pads, budget, realDrawing) {
-  let services;
   return compareRun(
-    (h, e, r) => module.openSpellMenuSequence(h, e, direct ? services : r, direct ? r : undefined),
+    (h, e, r) => module.openSpellMenuSequence(h, e, r),
     direct,
     ({ put, mem }) => {
       put(0, 2);
@@ -170,9 +164,6 @@ function runOpenMember(module, direct, levels, pads, budget, realDrawing) {
     budget,
     pads,
     realDrawing,
-    ({ routines }) => {
-      services = routines;
-    },
   );
 }
 for (const budget of [1, 7])

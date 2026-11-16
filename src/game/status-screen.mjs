@@ -527,7 +527,7 @@ export function* statusScreenSequence(
       if (Object.hasOwn(ITEM_ENTRIES, submenu))
         submenuSequence = itemMenuSequence(h, events, routines, submenu, renderBuffer);
       else if (submenu === STATUS_ENTRY)
-        submenuSequence = spellMenuSequence(h, events, routines, STATUS_ENTRY, renderBuffer);
+        submenuSequence = spellMenuSequence(h, events, STATUS_ENTRY, renderBuffer);
       else if (submenu === SKILLS_MENU) submenuSequence = skillsSequence(h, events, renderBuffer);
       else if (submenu === NOTES_MENU) submenuSequence = notesSequence(h, events, renderBuffer);
       else taskStop('task_ea6e_submenu_open', { pc: 0x80ecea, x: offset, target: submenu });
