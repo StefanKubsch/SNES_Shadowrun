@@ -1,4 +1,8 @@
-import { drawWindowListSequence, runUnpackWindowMap } from './window-list.mjs';
+import {
+  drawWindowListSequence,
+  requestUploadJslSequence,
+  runUnpackWindowMap,
+} from './window-list.mjs';
 import { showNoticeSequence } from './notice-show.mjs';
 import { putGloveAwayCallSequence } from './window-release.mjs';
 import { frameWaitCallSequence, runPadPresses } from '../system/live-input-calls.mjs';
@@ -512,7 +516,7 @@ export function* scriptChooseObjectSequence(h, events, routines) {
 
 // 81:AEB8 at its call site: the window list prepared (the window map unpacked 81:A9B2,
 // its upload requested 81:ACB5) and its first window set after the last one.
-function* prepareWindowListSequence(h, events, routines, pc) {
+function* prepareWindowListSequence(h, events, pc) {
   yield* dialogCallBody(
     h,
     pc,
@@ -525,7 +529,13 @@ function* prepareWindowListSequence(h, events, routines, pc) {
         () => segmentSequence(() => runUnpackWindowMap(h)),
         true,
       );
-      yield* callSequence(h, events, routines, PREPARE_UPLOAD, REQUEST_UPLOAD, true);
+      yield* dialogCallBody(
+        h,
+        PREPARE_UPLOAD,
+        REQUEST_UPLOAD,
+        () => requestUploadJslSequence(h, events),
+        true,
+      );
       let result;
       yield () => {
         const { wram } = h.a.mem,
@@ -556,7 +566,7 @@ export function* spellGloveTargetSequence(h, events, routines) {
     open = menu !== 0;
   };
   if (open) yield* callSequence(h, events, routines, sites.closeDialog, CLOSE_DIALOG);
-  yield* prepareWindowListSequence(h, events, routines, sites.prepareList);
+  yield* prepareWindowListSequence(h, events, sites.prepareList);
   yield* putGloveOnSequence(h, sites.putOn, PUT_ON_SPELL, GLOVE_LIMITS.spell);
   let target;
   for (;;) {

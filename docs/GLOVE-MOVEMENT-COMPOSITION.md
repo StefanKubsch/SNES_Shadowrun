@@ -36,3 +36,11 @@ Spell and place preparation compose window-map unpack through the original
 81:AEB8 JSL frame. Existing real choice cases compare the unpacked map and
 upload chronology with the retained former caller, including request wrap.
 The unpack equations, direct-page writes and remaining services are unchanged.
+
+## Block 5: choice map upload
+
+Preparation composes the real upload request through 81:AEBC. The exported
+JSL sequence shares the established upload body with its register adapter.
+Main-upkeep drops both map services. Spell/place callers compare request
+wrap, map payloads and list-first updates at both budgets; movement and
+member dialog close remain services. No wait or NMI policy changes.

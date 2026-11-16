@@ -197,16 +197,15 @@ function* requestUploadSequence(h, events, site = UPLOAD_SITE, callerFrame = fal
 export const requestUploadCall = (h, events, site) => requestUploadSequence(h, events, site);
 
 // Shared register callers enter with an existing JSL frame.
+export const requestUploadJslSequence = (h, events) =>
+  requestUploadSequence(h, events, UPLOAD_SITE, true);
 export function runRequestUpload(h, events) {
-  return drainNativeSequence(requestUploadSequence(h, events, UPLOAD_SITE, true));
+  return drainNativeSequence(requestUploadJslSequence(h, events));
 }
 NATIVE_CALL_CONTINUATIONS.set(runRequestUpload, {
   run: runRequestUpload,
   create: (call) =>
-    new NativeCallContinuation(
-      call.h.a,
-      requestUploadSequence(call.h, call.events, UPLOAD_SITE, true),
-    ),
+    new NativeCallContinuation(call.h.a, requestUploadJslSequence(call.h, call.events)),
 });
 // 81:A9B2 for the callers' tables (called with JSL; nothing in it waits): the window
 // map unpacked, with the X, Y, carry and overflow it leaves.

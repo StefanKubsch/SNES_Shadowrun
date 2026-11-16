@@ -61,7 +61,7 @@ import {
   scriptChooseObjectSequence,
   spellGloveTargetSequence,
 } from './glove-target.mjs';
-import { runDrawWindowList, runRequestUpload, runUnpackWindowMap } from './window-list.mjs';
+import { runDrawWindowList } from './window-list.mjs';
 import { createObject } from './object-create.mjs';
 import { chooseFromMenuSequence } from './menu-choice.mjs';
 import { gloveMoveSequence } from './glove-move.mjs';
@@ -463,8 +463,6 @@ export const liftedConfirmKeySequence = (h, events) => waitForConfirmKeySequence
 // and an open member menu's dialog close. Each receives its own callees.
 const GLOVE_CHOICE_ROUTINES = new Map([
   [0x80be6d, runGloveMove],
-  [0x81a9b2, runUnpackWindowMap],
-  [0x81acb5, runRequestUpload],
   [0x8092c5, runCloseDialog],
 ]);
 // The lifted choice of the object under the glove 80:8D0B, as the script native runs it
