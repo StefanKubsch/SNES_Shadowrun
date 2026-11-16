@@ -20,6 +20,10 @@
 // equipment window is drawn at the end (80:E9C5). The callees run through their frames
 // from the routine table, each with its own callees.
 import { dialogCallBody, nativeCallSequence } from '../system/native-call-continuation.mjs';
+import { openWindowSequence } from './window-open.mjs';
+import { chooseFromMenuSequence } from './menu-choice.mjs';
+import { releaseWindowJsrSequence } from './window-release.mjs';
+import { drawTextBufferSequence } from './text-draw.mjs';
 import { dataBankWord, setDataBankWord } from '../system/data-bank.mjs';
 import {
   SPELL_LEVEL_NAMES,
@@ -255,7 +259,13 @@ function* afterScriptSequence(h, events, routines) {
 
 // 80:E693 (or the entry 80:E68E): the spell menu of the member in 1F5C with its record
 // at DP F9. A sequence that ends with its RTS.
-export function* spellMenuSequence(h, events, routines, entry = MENU_ENTRY) {
+export function* spellMenuSequence(
+  h,
+  events,
+  routines,
+  entry = MENU_ENTRY,
+  renderBuffer = drawTextBufferSequence,
+) {
   const { ctx } = h,
     { mem } = h.a,
     { wram } = mem;
@@ -282,7 +292,7 @@ export function* spellMenuSequence(h, events, routines, entry = MENU_ENTRY) {
     load(ctx, 0);
   };
   if (known) {
-    yield* call(h, events, routines, OPEN_WINDOW);
+    yield* dialogCallBody(h, ...OPEN_WINDOW, () => openWindowSequence(h, events));
     yield () => {
       setDataBankWord(mem, STATUS_SUBMENU_WINDOW, 0, word(wram, 0));
       listSpells(h);
@@ -295,7 +305,9 @@ export function* spellMenuSequence(h, events, routines, entry = MENU_ENTRY) {
       ctx.y = SPELL_SLOT_END;
       setFlag(ctx, FLAG_CARRY, true);
     };
-    yield* call(h, events, routines, MENU);
+    yield* dialogCallBody(h, ...MENU, () =>
+      chooseFromMenuSequence(h, events, renderBuffer, 0x80a6c7),
+    );
     let script = false;
     yield () => {
       const chosen = word(wram, 0);
@@ -328,7 +340,7 @@ export function* spellMenuSequence(h, events, routines, entry = MENU_ENTRY) {
       load(ctx, window);
       setWord(wram, 0, window);
     };
-    yield* call(h, events, routines, RELEASE_WINDOW);
+    yield* dialogCallBody(h, ...RELEASE_WINDOW, () => releaseWindowJsrSequence(h.a, events));
   }
   let equipment;
   yield () => {

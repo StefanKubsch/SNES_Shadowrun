@@ -413,3 +413,11 @@ member caller suite compares zero, digit and comma boundaries, billions and
 the maximum unsigned word pair at budgets one and seven, with both captured
 text and actual glyph uploads. Uploads are serviced by the fixture; established
 NMI integrations retain the hardware coverage.
+
+## Member and scene batch: spell menu windows (2026-11-16)
+
+The member spell menu composes opening, plain selection and release directly,
+passing its renderer. Script execution and scene services retain their table.
+The former caller remains independent for original random comparisons. New
+caller cases cover empty and full spell lists, Exit, leader selection, cancel
+and the status entry for another runner, at both budgets and with real glyphs.
