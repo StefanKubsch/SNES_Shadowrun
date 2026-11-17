@@ -8,15 +8,12 @@
 // unless a button is held. It fades out, plays cutscene 5 mirrored and sets up the
 // game's sounds again.
 import { dialogCallBody } from '../system/native-call-continuation.mjs';
-import { sceneFrameCallSequence, sceneInputCallSequence } from '../system/scene-observed-calls.mjs';
+import { sceneFrames } from '../system/scene-frames.mjs';
 import { cutsceneSequence } from '../cutscene/cutscene-scene.mjs';
-import { lagFree } from '../system/main-wait-interrupt.mjs';
 import { sceneRuntime } from '../system/scene-runtime.mjs';
 import { startSceneScreen, enableNmiAndJoypad, disableNmi } from '../system/nmi.mjs';
 import { runSceneList } from '../system/scene-list.mjs';
 import { unpackStream } from '../system/unpack.mjs';
-import { takePadPresses } from '../system/joypad.mjs';
-import { waitForFrame } from '../system/frame-wait.mjs';
 import { loadSampleSet, loadSoundDirectory, startSong } from '../apu/music-mode.mjs';
 import { setSceneScreen } from '../video/scene-screen.mjs';
 import { fadeIn, fadeOut } from '../video/fades.mjs';
@@ -86,11 +83,8 @@ import {
 import { BYTE_BITS, BYTE_MASK, WORD_BITS, WORD_MASK, WORD_SIGN } from '../constants/bits.mjs';
 import { FLAG_INDEX_8BIT, FLAG_MEMORY_8BIT } from '../constants/cpu-flags.mjs';
 
-// Register-level routines for recorded interrupt observations and the nested
-// cutscene, called from their original sites.
-const WAIT_SITE = 0x81e07e,
-  INPUT_SITE = 0x81e082,
-  CUTSCENE = 0x81cdf8,
+// The nested cutscene, called from its original site.
+const CUTSCENE = 0x81cdf8,
   CUTSCENE_SITE = 0x81e120;
 // The scene lists 81:F6EF (screen) and 81:F79F (NMI callback and more).
 const SCREEN_LIST = 0x81f6ef,
@@ -203,15 +197,12 @@ export function* introSequence(h, events) {
   const { ctx } = h,
     // The original saves the status and runs with 16-bit registers in data bank 81.
     status = ctx.status,
-    lifted = lagFree(events);
+    clock = sceneFrames(h, events, 'intro');
   ctx.status &= ~(FLAG_MEMORY_8BIT | FLAG_INDEX_8BIT);
   ctx.bank = INTRO_DATA_BANK;
   let m;
-  const wait = () =>
-      lifted ? waitForFrame(h, events, m.port) : sceneFrameCallSequence(h, events, WAIT_SITE),
-    input = lifted
-      ? () => [() => takePadPresses(m.wram)]
-      : () => sceneInputCallSequence(h, events, INPUT_SITE);
+  const wait = () => clock.wait(m),
+    input = () => clock.input(m);
   yield () => {
     m = sceneRuntime(h);
     const { mem, wram, port } = m;

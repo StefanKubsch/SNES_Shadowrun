@@ -2,6 +2,7 @@
 // and comparisons reach: the game's audio 81:EF63 (live body in
 // src/intro/intro-scene.mjs) and the title pan objects 81:D9D5 entered on their own
 // (live body in src/intro/intro-objects.mjs). The game calls the bodies directly.
+import '../system/recorded-scene-frames.mjs';
 import { setUpGameAudio, RETURN_DATA_BANK } from '../../src/intro/intro-scene.mjs';
 import { word } from '../../src/matrix/matrix-runtime.mjs';
 import { DP_TITLE_POSITION } from '../../src/data/wram.mjs';

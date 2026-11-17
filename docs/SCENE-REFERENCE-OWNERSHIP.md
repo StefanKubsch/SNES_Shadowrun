@@ -290,3 +290,8 @@ Runs with recorded observations of the original get the register-level driver of
 and routines, so the scenes carry no recorded-run addresses. The scene references
 import the driver, which installs itself. The cutscene was converted first: its
 frame wait, input read and closing fade poll come from the driver.
+
+The intro takes its frame wait and input read from the scene frame interface; its
+recorded call sites 81:E07E and 81:E082 moved into the proof driver. The nested
+cutscene call keeps its original frame for now. The intro's other proof callers
+import the driver as well.

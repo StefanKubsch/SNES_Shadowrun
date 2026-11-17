@@ -6,6 +6,7 @@
 // audio and enters the game's main start 80:9688 with the original JSR frame of
 // 80:A154. When the game ends, the main loop returns to 80:A157 and the owner starts
 // the cycle again without the title.
+import '../system/recorded-scene-frames.mjs';
 import {
   nativeCallSequence,
   drainNativeSequence,
