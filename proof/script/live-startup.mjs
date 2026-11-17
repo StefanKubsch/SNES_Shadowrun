@@ -5,11 +5,11 @@ import { dialogAccess } from '../../src/system/native-dialog-support.mjs';
 import { FRONTEND_ROUTINES, MAIN_OWNER_ENTRY } from './live-frontend.mjs';
 import { lagFree } from '../../src/system/main-wait-interrupt.mjs';
 import { bootScreensSequence } from '../../src/frontend/boot-screens.mjs';
+import { nativeCallSequence } from '../system/native-call-sequences.mjs';
 import {
   NativeCallContinuation,
   NATIVE_CALL_CONTINUATIONS,
   drainNativeSequence,
-  nativeCallSequence,
 } from '../../src/system/native-call-continuation.mjs';
 import { CODE_BANK, CODE_BANK_PAIR } from '../../src/constants/memory-map.mjs';
 import { FLAG_DECIMAL, FLAG_INDEX_8BIT, FLAG_MEMORY_8BIT } from '../../src/constants/cpu-flags.mjs';

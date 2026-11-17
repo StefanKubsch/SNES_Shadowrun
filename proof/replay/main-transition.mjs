@@ -10,10 +10,10 @@ import { sendApuCommand } from '../system/native-input-apu.mjs';
 import { clampToCameraBox, updateCameraTileBuffers } from '../system/main-loop-camera.mjs';
 import { clearFixedColour } from '../system/native-dialog-portrait.mjs';
 import { ObservedWaitContinuation } from '../system/main-wait-interrupt.mjs';
+import { nativeCallSequence } from '../system/native-call-sequences.mjs';
 import {
   NativeCallContinuation,
   drainNativeSequence,
-  nativeCallSequence,
 } from '../../src/system/native-call-continuation.mjs';
 import { NATIVE_CALL_CONTINUATIONS } from './continuations.mjs';
 import {

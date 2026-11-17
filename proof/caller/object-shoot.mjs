@@ -27,7 +27,7 @@
 // 2026-11-13). Only the hit 80:8691, whose notices wait for frames, runs through its
 // JSR frame from the routine table, with the damage in A, the target in X and the
 // shooter in Y.
-import { nativeCallSequence } from '../../src/system/native-call-continuation.mjs';
+import { nativeCallSequence } from '../system/native-call-sequences.mjs';
 import { dataBankWord, setDataBankWord } from '../../src/system/data-bank.mjs';
 import { accessorPort } from '../../src/system/hardware-port.mjs';
 import { drawBelowInDirectPage } from '../../src/system/random.mjs';

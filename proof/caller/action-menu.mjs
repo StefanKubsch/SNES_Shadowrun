@@ -18,7 +18,8 @@
 // action A 0 with zero set, Y the table index, the carry clear and X and the overflow
 // unchanged. The chosen flag is pushed around the release, as the original. The calls
 // get the registers the original passes them.
-import { dialogCallBody, nativeCallSequence } from '../../src/system/native-call-continuation.mjs';
+import { nativeCallSequence } from '../system/native-call-sequences.mjs';
+import { dialogCallBody } from '../../src/system/native-call-continuation.mjs';
 import { fitListWindow, listTextIds } from '../../src/data/menu-layout.mjs';
 import { TEXT_EXIT } from '../../src/data/port-extension.mjs';
 import { releaseWindowSequence } from './window-release.mjs';

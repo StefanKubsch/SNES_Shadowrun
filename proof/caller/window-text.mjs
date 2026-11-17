@@ -22,7 +22,7 @@
 // the sign and zero of the bank byte and the carry and overflow of the product's
 // addition; the number the registers of 80:FB39 and the sign and zero of the bank byte.
 import { sceneRuntime } from '../../src/system/scene-runtime.mjs';
-import { nativeCallSequence } from '../../src/system/native-call-continuation.mjs';
+import { nativeCallSequence } from '../system/native-call-sequences.mjs';
 import {
   DP_CURSOR_ROW,
   TEXT_BUFFER,

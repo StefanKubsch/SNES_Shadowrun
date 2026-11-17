@@ -1,11 +1,11 @@
 import { runObservedNmi } from '../../src/system/nmi-call.mjs';
 import { sendOamBuffer } from '../system/main-scene-video.mjs';
 import { readJoypadLong } from '../system/main-scene-wait.mjs';
+import { nativeCallSequence } from '../system/native-call-sequences.mjs';
 import {
   NativeCallContinuation,
   NATIVE_CALL_CONTINUATIONS,
   drainNativeSequence,
-  nativeCallSequence,
 } from '../../src/system/native-call-continuation.mjs';
 import { routineCaller } from '../../src/system/routine-call.mjs';
 

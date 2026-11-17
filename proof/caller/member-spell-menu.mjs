@@ -19,7 +19,8 @@
 // The entry 80:E68E (from the status screen) leaves 1F68 clear: no script runs and the
 // equipment window is drawn at the end (80:E9C5). The callees run through their frames
 // from the routine table, each with its own callees.
-import { dialogCallBody, nativeCallSequence } from '../../src/system/native-call-continuation.mjs';
+import { nativeCallSequence } from '../system/native-call-sequences.mjs';
+import { dialogCallBody } from '../../src/system/native-call-continuation.mjs';
 import { dataBankWord, setDataBankWord } from '../../src/system/data-bank.mjs';
 import {
   SPELL_LEVEL_NAMES,

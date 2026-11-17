@@ -335,3 +335,8 @@ the lag-free check and the end-of-run observation check.
 The instruction-level wait graphs `NativeWaitContinuation` (81:B0A1, 81:EEBB,
 80:9E0B, 80:9E1A) moved to `proof/system/native-wait-continuation.mjs`; the live
 module keeps only the paused and returned status constants of native continuations.
+
+The labelled routine-table call frame `nativeCallSequence` lost its last live caller
+with the title and start menu waits and moved to `proof/system/native-call-sequences.mjs`
+beside the unlabelled frame and the tail jump. The live module keeps the
+continuation class, the drain helper, the unlabelled call body and the return offsets.

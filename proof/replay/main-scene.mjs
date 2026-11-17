@@ -31,10 +31,10 @@ import { GAME_NMI_ROUTINES } from './main-game-nmi.mjs';
 import { GAME_NMI_LIFTED_JOBS } from './game-nmi-jobs.mjs';
 import { ObservedWaitContinuation } from '../system/main-wait-interrupt.mjs';
 import { TRANSITION_ROUTINES } from './main-transition.mjs';
+import { nativeCallSequence } from '../system/native-call-sequences.mjs';
 import {
   NativeCallContinuation,
   drainNativeSequence,
-  nativeCallSequence,
 } from '../../src/system/native-call-continuation.mjs';
 import { NATIVE_CALL_CONTINUATIONS } from './continuations.mjs';
 

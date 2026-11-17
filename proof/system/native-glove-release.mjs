@@ -2,11 +2,11 @@
 // the dialog and glove references call; the game releases the glove through
 // src/game/window-release.mjs.
 import { releaseWindowAdapter } from './native-render-compose.mjs';
+import { nativeCallSequence } from './native-call-sequences.mjs';
 import {
   NativeCallContinuation,
   NATIVE_CALL_CONTINUATIONS,
   drainNativeSequence,
-  nativeCallSequence,
 } from '../../src/system/native-call-continuation.mjs';
 import {
   GLOVE_KIND,

@@ -11,7 +11,8 @@
 // widen with X = 2, 5, ... 20 (1F44 = X + 39, 1F43 = (X EOR FF) + 3B with that carry).
 // The callees run through their frames from the routine table; 80:E48D and 80:E433
 // run as the JSR bodies the original calls, so a wait takes its NMI at the same S.
-import { dialogCallBody, nativeCallSequence } from '../../src/system/native-call-continuation.mjs';
+import { nativeCallSequence } from '../system/native-call-sequences.mjs';
+import { dialogCallBody } from '../../src/system/native-call-continuation.mjs';
 import { dataBankWord, setDataBankWord } from '../../src/system/data-bank.mjs';
 import { accessorPort } from '../../src/system/hardware-port.mjs';
 import {

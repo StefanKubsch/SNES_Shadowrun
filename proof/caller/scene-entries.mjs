@@ -29,11 +29,11 @@ import { GAME_NMI_ROUTINES } from '../system/main-game-nmi.mjs';
 import { GAME_NMI_LIFTED_JOBS } from '../replay/game-nmi-jobs.mjs';
 import { ObservedWaitContinuation } from '../system/main-wait-interrupt.mjs';
 import { TRANSITION_ROUTINES } from '../system/main-transition.mjs';
+import { nativeCallSequence } from '../system/native-call-sequences.mjs';
 import {
   NativeCallContinuation,
   NATIVE_CALL_CONTINUATIONS,
   drainNativeSequence,
-  nativeCallSequence,
 } from '../../src/system/native-call-continuation.mjs';
 
 import { FLAG_INDEX_8BIT, FLAG_MEMORY_8BIT } from '../../src/constants/cpu-flags.mjs';

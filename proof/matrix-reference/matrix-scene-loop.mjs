@@ -2,11 +2,11 @@
 // lift to src/matrix (docs/MATRIX-LIFT.md). Tests run it against the lifted scene.
 import { MAIN_SCENE_ROUTINES } from '../replay/main-scene.mjs';
 import { AUDIO_REFERENCE_ENTRIES } from '../apu-reference/audio-routines.mjs';
+import { nativeCallSequence } from '../system/native-call-sequences.mjs';
 import {
   NATIVE_CALL_CONTINUATIONS,
   NativeCallContinuation,
   drainNativeSequence,
-  nativeCallSequence,
 } from '../../src/system/native-call-continuation.mjs';
 import { MATRIX_SETUP_ROUTINES, MAP_BANK } from './main-scene-matrix.mjs';
 import { MATRIX_OBJECT_ROUTINES, MATRIX_MAP_VRAM } from './main-matrix-objects.mjs';

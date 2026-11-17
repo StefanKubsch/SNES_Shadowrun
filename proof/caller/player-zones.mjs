@@ -17,7 +17,7 @@
 // as the original writes them. A, X, Y and the flags are left as the original leaves
 // them: the next callees and the waits of the next pass start with them.
 import { taskStop } from '../../src/system/task-stop.mjs';
-import { nativeCallSequence } from '../../src/system/native-call-continuation.mjs';
+import { nativeCallSequence } from '../system/native-call-sequences.mjs';
 import {
   DP_ZONE_COUNT,
   DP_ZONE_HEIGHT,

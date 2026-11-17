@@ -1,6 +1,6 @@
 // Routine-table call sequences used only by register-level references: the
-// unlabelled call frame (dialogCallSequence) and the original tail jump
-// (nativeTailSequence). The game composes its callees directly.
+// labelled call frame (nativeCallSequence), the unlabelled call frame
+// (dialogCallSequence) and the original tail jump (nativeTailSequence). The game composes its callees directly.
 import {
   JSL_RETURN_OFFSET,
   JSR_RETURN_OFFSET,
@@ -43,4 +43,41 @@ export function* nativeTailSequence(h, events, routines, target) {
     h.ctx.pc = target & WORD_MASK;
   };
   return yield { target, run, h, events, routines };
+}
+
+// The frame is built only when the original call is reached. Validation reads
+// the actual callee result after all pauses; no saved return word is substituted.
+export function* nativeCallSequence(
+  h,
+  events,
+  routines,
+  pc,
+  target,
+  long = false,
+  forwardRoutines = true,
+) {
+  const run = routines.get(target);
+  if (!run) taskStop('main_loop_frontier', { target });
+  const bank = h.ctx.programBank,
+    raw = (pc + (long ? JSL_RETURN_OFFSET : JSR_RETURN_OFFSET)) & WORD_MASK;
+  yield () => {
+    if (long) {
+      h.a.write(h.ctx.s, bank, 'native-call-JSL-bank');
+      h.ctx.s = (h.ctx.s - 1) & WORD_MASK;
+    }
+    h.a.pushWord(raw, long ? 'native-call-JSL-WORD' : 'native-call-JSR-WORD');
+    h.ctx.programBank = target >>> WORD_BITS;
+    h.ctx.pc = target & WORD_MASK;
+  };
+  const result = yield { target, run, h, events, routines: forwardRoutines ? routines : undefined };
+  yield () => {
+    if (h.ctx.programBank !== bank || h.ctx.pc !== ((raw + 1) & WORD_MASK))
+      taskStop('task_native_helper_return_required', {
+        pc,
+        target,
+        bank: h.ctx.programBank,
+        returnPc: h.ctx.pc,
+      });
+  };
+  return result;
 }

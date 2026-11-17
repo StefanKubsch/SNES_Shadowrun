@@ -7,7 +7,7 @@
 // after the first non-zero one goes to the text buffer 7E:21A0, with a comma after the
 // billions, millions and thousands. The remainder is the last digit; 0D and 0 end the
 // text, which the text buffer routine (80:FB39) prints with the data bank 7E.
-import { nativeCallSequence } from '../../src/system/native-call-continuation.mjs';
+import { nativeCallSequence } from '../system/native-call-sequences.mjs';
 import { dataBankWord } from '../../src/system/data-bank.mjs';
 import { TEXT_BUFFER } from '../../src/data/wram.mjs';
 import { BYTE_BITS, BYTE_MASK, BYTE_SIGN, HIGH_BYTE_MASK } from '../../src/constants/bits.mjs';

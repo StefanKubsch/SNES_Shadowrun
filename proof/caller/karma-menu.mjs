@@ -30,7 +30,7 @@
 // 80:FE69, number 80:FD80, key wait 80:F953, release 80:FA3E, numbered menu 80:A6B8,
 // state count 80:CECB and the line and purchase above) run through their frames from
 // the routine table.
-import { nativeCallSequence } from '../../src/system/native-call-continuation.mjs';
+import { nativeCallSequence } from '../system/native-call-sequences.mjs';
 import { KARMA_LISTS, KARMA_WINDOWS } from '../../src/system/native-main-menu.mjs';
 import { TEXT_EXIT } from '../../src/data/port-extension.mjs';
 import {

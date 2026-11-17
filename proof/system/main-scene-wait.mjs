@@ -3,11 +3,11 @@
 // joypad reads 80:9E0B/F290 and the observed byte wait of polling loops. The game
 // waits, fades and reads the joypad through its lifted code.
 import { NativeWaitContinuation } from './native-wait-continuation.mjs';
+import { nativeCallSequence } from './native-call-sequences.mjs';
 import {
   NativeCallContinuation,
   NATIVE_CALL_CONTINUATIONS,
   drainNativeSequence,
-  nativeCallSequence,
 } from '../../src/system/native-call-continuation.mjs';
 import { waitForFrameWithInterrupts, ObservedWaitContinuation } from './main-wait-interrupt.mjs';
 import { taskStop } from '../../src/system/task-stop.mjs';

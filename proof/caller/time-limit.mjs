@@ -23,7 +23,7 @@
 // effect (src/apu/sound-effect.mjs) is lifted and waits for nothing; its frame is not
 // reproduced. The routine itself sets neither X nor Y; after a sound they are left as
 // the original sound effect leaves them (src/game/main-upkeep.mjs).
-import { nativeCallSequence } from '../../src/system/native-call-continuation.mjs';
+import { nativeCallSequence } from '../system/native-call-sequences.mjs';
 import { accessorPort } from '../../src/system/hardware-port.mjs';
 import { playSoundEffect } from '../../src/apu/sound-effect.mjs';
 import {

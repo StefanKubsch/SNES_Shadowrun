@@ -26,11 +26,11 @@ import {
   drawWindowListSequence as drawWindowListReference,
 } from '../system/native-render-compose.mjs';
 import { dialogAccess } from '../../src/system/native-dialog-support.mjs';
+import { nativeCallSequence } from '../system/native-call-sequences.mjs';
 import {
   NATIVE_CALL_CONTINUATIONS,
   NativeCallContinuation,
   drainNativeSequence,
-  nativeCallSequence,
 } from '../../src/system/native-call-continuation.mjs';
 import { lagFree } from '../../src/system/main-wait-interrupt.mjs';
 import { nmiAtBranch } from '../../src/system/frame-wait.mjs';

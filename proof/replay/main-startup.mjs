@@ -4,10 +4,10 @@ import { routineCaller } from '../../src/system/routine-call.mjs';
 import { FRONTEND_ROUTINES, MAIN_OWNER_ENTRY } from './main-frontend.mjs';
 import { interruptStep, lagFree } from '../../src/system/main-wait-interrupt.mjs';
 import { bootScreensSequence } from '../../src/frontend/boot-screens.mjs';
+import { nativeCallSequence } from '../system/native-call-sequences.mjs';
 import {
   NativeCallContinuation,
   drainNativeSequence,
-  nativeCallSequence,
 } from '../../src/system/native-call-continuation.mjs';
 import { NATIVE_CALL_CONTINUATIONS } from './continuations.mjs';
 

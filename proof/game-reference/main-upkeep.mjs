@@ -1,9 +1,9 @@
 import { MAIN_UPKEEP_ROUTINES } from '../replay/main-loop-upkeep.mjs';
+import { nativeCallSequence } from '../system/native-call-sequences.mjs';
 import {
   NativeCallContinuation,
   NATIVE_CALL_CONTINUATIONS,
   drainNativeSequence,
-  nativeCallSequence,
 } from '../../src/system/native-call-continuation.mjs';
 // Register-level reference of the main loop's upkeep (moved from
 // proof/replay/main-loop-upkeep.mjs and proof/replay/main-loop-motion.mjs): the colour

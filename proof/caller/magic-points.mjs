@@ -5,7 +5,7 @@
 // argument's low byte from its magic points (one byte per runner from 7E:3C96). Enough
 // points: they are paid and the result is FFFF. Too few: the notice "not enough magic"
 // (text 1, a window at 0B/14 of 19 columns and 3 rows, one second) and the result 0.
-import { nativeCallSequence } from '../../src/system/native-call-continuation.mjs';
+import { nativeCallSequence } from '../system/native-call-sequences.mjs';
 import {
   DP_NOTICE_FRAMES,
   DP_NOTICE_TEXT,

@@ -8,7 +8,8 @@
 // for a negative number, otherwise the kind of 8D:B022 by item, six bytes a kind in
 // 8C:EFB0. The cursor (80:FAAC), text (80:FE69) and number (80:FD80) run through their
 // frames from the routine table.
-import { dialogCallBody, nativeCallSequence } from '../../src/system/native-call-continuation.mjs';
+import { nativeCallSequence } from '../system/native-call-sequences.mjs';
+import { dialogCallBody } from '../../src/system/native-call-continuation.mjs';
 import { dataBankWord } from '../../src/system/data-bank.mjs';
 import {
   DP_SCRATCH,

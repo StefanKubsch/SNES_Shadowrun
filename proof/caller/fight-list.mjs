@@ -14,7 +14,7 @@
 // none), else the music mode 0.
 import { setMusicMode } from '../../src/apu/music-mode.mjs';
 import { dataBankWord, setDataBankWord } from '../../src/system/data-bank.mjs';
-import { nativeCallSequence } from '../../src/system/native-call-continuation.mjs';
+import { nativeCallSequence } from '../system/native-call-sequences.mjs';
 import {
   DP_CURSOR_ROW,
   DP_NOTICE_FRAMES,

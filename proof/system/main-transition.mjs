@@ -10,11 +10,11 @@ import { clampToCameraBox, updateCameraTileBuffers } from './main-loop-camera.mj
 import { clearFixedColour } from './native-dialog-portrait.mjs';
 import { ObservedWaitContinuation } from './main-wait-interrupt.mjs';
 import { uploadMapEdgesAndScroll } from './main-game-nmi.mjs';
+import { nativeCallSequence } from './native-call-sequences.mjs';
 import {
   NativeCallContinuation,
   NATIVE_CALL_CONTINUATIONS,
   drainNativeSequence,
-  nativeCallSequence,
 } from '../../src/system/native-call-continuation.mjs';
 import {
   BRIGHTNESS_FADE,

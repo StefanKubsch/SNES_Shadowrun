@@ -7,10 +7,8 @@
 // 80:A154. When the game ends, the main loop returns to 80:A157 and the owner starts
 // the cycle again without the title.
 import '../system/recorded-scene-frames.mjs';
-import {
-  nativeCallSequence,
-  drainNativeSequence,
-} from '../../src/system/native-call-continuation.mjs';
+import { nativeCallSequence } from '../system/native-call-sequences.mjs';
+import { drainNativeSequence } from '../../src/system/native-call-continuation.mjs';
 import { taskStop } from '../../src/system/task-stop.mjs';
 import { sceneRuntime } from '../../src/system/scene-runtime.mjs';
 import { setUpGameAudio } from '../../src/intro/intro-scene.mjs';

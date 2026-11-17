@@ -14,7 +14,7 @@
 // R ends the aim and takes the glove off (80:BCB2), as A or X do without an aim, and B,
 // L or R do without a tagged object. The callees run through their frames from the
 // routine table, each with its own callees.
-import { nativeCallSequence } from '../../src/system/native-call-continuation.mjs';
+import { nativeCallSequence } from '../system/native-call-sequences.mjs';
 import { dataBankWord, setDataBankWord } from '../../src/system/data-bank.mjs';
 import { placeGloveOverPlayer } from '../../src/game/glove-target.mjs';
 import { GLOVE_LIMITS } from '../../src/script/native-glove-crosshair-limits.mjs';

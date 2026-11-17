@@ -20,7 +20,7 @@
 // X, Y, the carry and the overflow of 80:FB39 and the sign and zero of the restored bank
 // byte; it passes FB39 X and Y the text's length and A the last code tree node with its
 // bytes swapped, as the original. FB39 reads no flags, so they are not produced there.
-import { nativeCallSequence } from '../../src/system/native-call-continuation.mjs';
+import { nativeCallSequence } from '../system/native-call-sequences.mjs';
 import { portTextAddress } from '../../src/data/port-extension.mjs';
 import { languageText } from '../../src/data/language.mjs';
 import {

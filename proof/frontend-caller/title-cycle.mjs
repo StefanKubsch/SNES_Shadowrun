@@ -8,10 +8,8 @@
 // the menu again. The port's Credits row (src/game/credits.mjs) plays the credits
 // instead of the attract game.
 import '../system/recorded-scene-frames.mjs';
-import {
-  nativeCallSequence,
-  drainNativeSequence,
-} from '../../src/system/native-call-continuation.mjs';
+import { nativeCallSequence } from '../system/native-call-sequences.mjs';
+import { drainNativeSequence } from '../../src/system/native-call-continuation.mjs';
 import { sceneRuntime } from '../../src/system/scene-runtime.mjs';
 import { startSceneScreen } from '../../src/system/nmi.mjs';
 import { loadSoundDirectory, setMusicMode, startSong } from '../../src/apu/music-mode.mjs';

@@ -28,11 +28,8 @@ import { frameWaitCallSequence, runPadPresses } from '../../src/system/live-inpu
 // The spell glove (80:9BD3) closes an open member menu's dialog and prepares the window
 // list first; it takes only objects with bit 15 of their flags set. The place choice
 // (80:C724) turns the glove's position into a place on the floor for an object's walk.
-import {
-  dialogCallBody,
-  nativeCallSequence,
-  segmentSequence,
-} from '../../src/system/native-call-continuation.mjs';
+import { nativeCallSequence } from '../system/native-call-sequences.mjs';
+import { dialogCallBody, segmentSequence } from '../../src/system/native-call-continuation.mjs';
 import { dataBankWord } from '../../src/system/data-bank.mjs';
 import {
   GLOVE_LIMITS,

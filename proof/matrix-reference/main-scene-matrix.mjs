@@ -1,9 +1,9 @@
 import { taskStop } from '../../src/system/task-stop.mjs';
+import { nativeCallSequence } from '../system/native-call-sequences.mjs';
 import {
   NativeCallContinuation,
   NATIVE_CALL_CONTINUATIONS,
   drainNativeSequence,
-  nativeCallSequence,
 } from '../../src/system/native-call-continuation.mjs';
 import { routineCaller } from '../../src/system/routine-call.mjs';
 import {

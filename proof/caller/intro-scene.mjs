@@ -8,7 +8,7 @@
 // five packed streams, plays its song and a sound, fades in and runs 300 frames
 // unless a button is held. It fades out, plays cutscene 5 mirrored and sets up the
 // game's sounds again.
-import { nativeCallSequence } from '../../src/system/native-call-continuation.mjs';
+import { nativeCallSequence } from '../system/native-call-sequences.mjs';
 import { lagFree } from '../../src/system/main-wait-interrupt.mjs';
 import { sceneRuntime } from '../../src/system/scene-runtime.mjs';
 import { startSceneScreen, enableNmiAndJoypad, disableNmi } from '../../src/system/nmi.mjs';

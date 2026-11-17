@@ -6,11 +6,11 @@ import { taskStop } from '../../src/system/task-stop.mjs';
 import { unlockBulletproofVest } from '../../src/game/bugfixes.mjs';
 import { dialogAccess } from '../../src/system/native-dialog-support.mjs';
 import { getSaveSlotOffset } from '../replay/native-main-menu.mjs';
+import { nativeCallSequence } from '../system/native-call-sequences.mjs';
 import {
   NativeCallContinuation,
   NATIVE_CALL_CONTINUATIONS,
   drainNativeSequence,
-  nativeCallSequence,
 } from '../../src/system/native-call-continuation.mjs';
 import { routineCaller } from '../../src/system/routine-call.mjs';
 import { TEXT_NONE } from '../replay/native-member-spell-menu.mjs';

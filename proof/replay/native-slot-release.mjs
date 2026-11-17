@@ -5,11 +5,11 @@ import { FIRST_ARGUMENT, leafAccess, finishLeaf } from '../../src/system/native-
 import { runReleaseWindowCall } from '../../proof/caller/window-release.mjs';
 import { af1fRegisters } from '../script/native-bar-tiles.mjs';
 import { dialogAccess } from '../../src/system/native-dialog-support.mjs';
+import { nativeCallSequence } from '../system/native-call-sequences.mjs';
 import {
   observedContinuation,
   NativeCallContinuation,
   drainNativeSequence,
-  nativeCallSequence,
 } from '../../src/system/native-call-continuation.mjs';
 import { NATIVE_CALL_CONTINUATIONS } from './continuations.mjs';
 import { BANK_WRAP, WORD_MASK, LONG_MASK } from '../../src/constants/bits.mjs';

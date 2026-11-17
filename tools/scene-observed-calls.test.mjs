@@ -4,10 +4,8 @@ import {
   sceneFrameCallSequence,
   sceneInputCallSequence,
 } from '../proof/system/scene-observed-calls.mjs';
-import {
-  NativeCallContinuation,
-  nativeCallSequence,
-} from '../src/system/native-call-continuation.mjs';
+import { nativeCallSequence } from '../proof/system/native-call-sequences.mjs';
+import { NativeCallContinuation } from '../src/system/native-call-continuation.mjs';
 import { NativeWaitContinuation } from '../proof/system/native-wait-continuation.mjs';
 import { WAIT_PAUSED } from '../src/system/native-wait-continuation.mjs';
 import { MAIN_SCENE_ROUTINES } from '../proof/replay/main-scene.mjs';

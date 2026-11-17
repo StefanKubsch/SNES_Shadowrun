@@ -13,7 +13,7 @@
 // the head computer title, "Datajack" and the cyberware from row 2. A key ends both.
 // The callees (window 80:F963, cursor 80:FAAC, text 80:FE69, number 80:FD80, key wait
 // 80:F953, release 80:FA3E) run through their frames from the routine table.
-import { nativeCallSequence } from '../../src/system/native-call-continuation.mjs';
+import { nativeCallSequence } from '../system/native-call-sequences.mjs';
 import { dataBankWord, setDataBankWord } from '../../src/system/data-bank.mjs';
 import {
   NOTES_WINDOW,

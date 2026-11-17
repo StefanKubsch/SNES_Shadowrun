@@ -3,11 +3,11 @@
 // register-level in proof/replay/main-transition.mjs and the routine tables, where other
 // callers use them; the reference calls all of them through their original frames.
 import { TRANSITION_ROUTINES } from '../replay/main-transition.mjs';
+import { nativeCallSequence } from '../system/native-call-sequences.mjs';
 import {
   NATIVE_CALL_CONTINUATIONS,
   NativeCallContinuation,
   drainNativeSequence,
-  nativeCallSequence,
 } from '../../src/system/native-call-continuation.mjs';
 import {
   CAMERA_BOX,

@@ -26,11 +26,11 @@ import {
   runInterruptRequestWait,
   RequestWaitContinuation,
 } from './main-word-wait.mjs';
+import { nativeCallSequence } from './native-call-sequences.mjs';
 import {
   NativeCallContinuation,
   NATIVE_CALL_CONTINUATIONS,
   drainNativeSequence,
-  nativeCallSequence,
 } from '../../src/system/native-call-continuation.mjs';
 import { WORD_MASK, WORD_BITS, BANK_WRAP, BANK_SIZE } from '../../src/constants/bits.mjs';
 import {

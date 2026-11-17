@@ -6,7 +6,7 @@
 // fades, sound, input) are still the register-level versions, reached through
 // nativeCallSequence with their register inputs.
 import { taskStop } from '../../src/system/task-stop.mjs';
-import { nativeCallSequence } from '../../src/system/native-call-continuation.mjs';
+import { nativeCallSequence } from '../system/native-call-sequences.mjs';
 import { entryOf } from '../../src/matrix/matrix-tables.mjs';
 import { readJoypad, takePadPresses } from '../../src/system/joypad.mjs';
 import {

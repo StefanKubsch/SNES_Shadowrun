@@ -8,11 +8,11 @@
 // $1CE9 = FFFF: no new scene; 7FFF: only a scene change; otherwise load first.
 // FFFE loads via C3CA and takes the byte $1D8B into the record, other values via CDF8.
 import { MAIN_MOTION_ROUTINES } from '../replay/main-loop-motion.mjs';
+import { nativeCallSequence } from '../system/native-call-sequences.mjs';
 import {
   NativeCallContinuation,
   NATIVE_CALL_CONTINUATIONS,
   drainNativeSequence,
-  nativeCallSequence,
 } from '../../src/system/native-call-continuation.mjs';
 import {
   DECKER_HEALTH,

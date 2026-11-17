@@ -31,7 +31,7 @@
 // number, the object slots 80:A835 and the sound 80:C46E run lifted as plain calls; the
 // notices' callees and the window list run through their frames from the routine
 // table, since they wait for frames.
-import { nativeCallSequence } from '../../src/system/native-call-continuation.mjs';
+import { nativeCallSequence } from '../system/native-call-sequences.mjs';
 import { dataBankWord, setDataBankWord } from '../../src/system/data-bank.mjs';
 import { accessorPort } from '../../src/system/hardware-port.mjs';
 import { drawBelowInDirectPage } from '../../src/system/random.mjs';

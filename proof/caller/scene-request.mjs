@@ -17,11 +17,11 @@
 // waits take NMIs on that stack. The room entry runs below the return word of the
 // original's JSR, as its frame waits do too.
 import { tasksOf } from '../../src/script/task-api.mjs';
+import { nativeCallSequence } from '../system/native-call-sequences.mjs';
 import {
   NativeCallContinuation,
   NATIVE_CALL_CONTINUATIONS,
   drainNativeSequence,
-  nativeCallSequence,
 } from '../../src/system/native-call-continuation.mjs';
 import { TRANSITION_ROUTINES } from '../system/main-transition.mjs';
 import { playCutscene, playMatrixScene } from '../replay/main-scene.mjs';

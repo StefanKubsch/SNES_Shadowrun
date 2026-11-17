@@ -43,6 +43,7 @@ import {
   SCENE_TEXT_MAP,
   SCENE_TM_HDMA,
   SCENE_TM_LINES,
+  animateCutscene,
 } from './cutscene-animation.mjs';
 import {
   A1B5,
@@ -101,13 +102,12 @@ import {
   FLAG_ZERO,
 } from '../../src/constants/cpu-flags.mjs';
 import { CODE_BANK_PAIR } from '../../src/constants/memory-map.mjs';
+import { nativeCallSequence, nativeTailSequence } from '../system/native-call-sequences.mjs';
 import {
   NATIVE_CALL_CONTINUATIONS,
   NativeCallContinuation,
   drainNativeSequence,
-  nativeCallSequence,
 } from '../../src/system/native-call-continuation.mjs';
-import { nativeTailSequence } from '../system/native-call-sequences.mjs';
 import { CREDITS_SEQUENCE, heldPad, menuCreditsRunning } from '../../src/game/credits.mjs';
 import {
   beginPackedTextEdit,
@@ -119,7 +119,6 @@ import { AUDIO_REFERENCE_ENTRIES } from '../apu-reference/audio-routines.mjs';
 import { FadePollContinuation } from '../system/main-wait-interrupt.mjs';
 import { SCENE_WAIT_ROUTINES, sceneWaitByte } from '../system/main-scene-wait.mjs';
 import { sendOamBuffer } from '../system/main-scene-video.mjs';
-import { animateCutscene } from './cutscene-animation.mjs';
 
 // The call boundary of the register-level cutscene: status and data bank 81.
 const begin = (h) => {

@@ -1,10 +1,10 @@
 import { taskStop } from '../../src/system/task-stop.mjs';
 import { appendScriptTask } from '../system/task-append.mjs';
 import { enterRoom } from './main-transition.mjs';
+import { nativeCallSequence } from '../system/native-call-sequences.mjs';
 import {
   NativeCallContinuation,
   drainNativeSequence,
-  nativeCallSequence,
 } from '../../src/system/native-call-continuation.mjs';
 import { NATIVE_CALL_CONTINUATIONS } from './continuations.mjs';
 

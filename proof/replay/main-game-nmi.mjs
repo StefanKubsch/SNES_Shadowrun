@@ -8,10 +8,10 @@ import {
   GLOVE_KIND_CROSSHAIR,
   GLOVE_KIND_SPELL,
 } from '../../src/script/native-glove-crosshair-limits.mjs';
+import { nativeCallSequence } from '../system/native-call-sequences.mjs';
 import {
   NativeCallContinuation,
   drainNativeSequence,
-  nativeCallSequence,
 } from '../../src/system/native-call-continuation.mjs';
 import { NATIVE_CALL_CONTINUATIONS } from './continuations.mjs';
 

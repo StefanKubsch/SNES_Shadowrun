@@ -14,7 +14,7 @@
 // main menu's window; a slot n saves slot n - 1 (81:B17D, saveGame of save-slots.mjs)
 // and plays sound 36 (80:C46E with FFFF, FF, FF). The window is released.
 // The callees run through their frames from the routine table.
-import { nativeCallSequence } from '../../src/system/native-call-continuation.mjs';
+import { nativeCallSequence } from '../system/native-call-sequences.mjs';
 import {
   FOUR_SAVE_SLOTS,
   ORIGINAL_SAVE_SLOTS,

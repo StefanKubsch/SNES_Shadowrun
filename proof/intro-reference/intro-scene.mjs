@@ -3,11 +3,11 @@
 // instructions; tools/intro-lift.test.mjs compares it with the lifted intro. The
 // register-level set-up routines are in intro-setup.mjs and intro-sprites.mjs
 // (table entries in intro-routines.mjs).
+import { nativeCallSequence } from '../system/native-call-sequences.mjs';
 import {
   NativeCallContinuation,
   NATIVE_CALL_CONTINUATIONS,
   drainNativeSequence,
-  nativeCallSequence,
 } from '../../src/system/native-call-continuation.mjs';
 import { routineCaller } from '../../src/system/routine-call.mjs';
 import { MAIN_SCENE_ROUTINES } from '../replay/main-scene.mjs';

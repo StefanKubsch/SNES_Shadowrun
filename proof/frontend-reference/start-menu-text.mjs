@@ -7,13 +7,13 @@ import { AUDIO_REFERENCE_ENTRIES } from '../apu-reference/audio-routines.mjs';
 import { compareSaveChecksum } from '../replay/native-main-menu.mjs';
 import { steppedInterrupts } from '../system/main-wait-interrupt.mjs';
 import { interruptStep } from '../../src/system/main-wait-interrupt.mjs';
+import { nativeCallSequence } from '../system/native-call-sequences.mjs';
 import {
   NativeCallContinuation,
   NATIVE_CALL_CONTINUATIONS,
   JSR_RETURN_OFFSET,
   JSL_RETURN_OFFSET,
   drainNativeSequence,
-  nativeCallSequence,
 } from '../../src/system/native-call-continuation.mjs';
 import { routineCaller } from '../../src/system/routine-call.mjs';
 

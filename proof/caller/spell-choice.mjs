@@ -8,7 +8,7 @@
 // the window DP 0E is released (80:FA3E; without spells the original releases the unset
 // DP 0E) and the result goes to DP 00. The callees run through their frames from the
 // routine table, each with its own callees.
-import { nativeCallSequence } from '../../src/system/native-call-continuation.mjs';
+import { nativeCallSequence } from '../system/native-call-sequences.mjs';
 import { dataBankWord, setDataBankWord } from '../../src/system/data-bank.mjs';
 import { taskStop } from '../../src/system/task-stop.mjs';
 import {

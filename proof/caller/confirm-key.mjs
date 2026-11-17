@@ -2,7 +2,7 @@
 // version in proof/replay/native-input-wait.mjs, which recorded waits and inputs replay):
 // each frame the word wait 81:B0A1 and the newly pressed buttons 80:9E1A, until one of
 // B, Y, Select, A or X is pressed.
-import { nativeCallSequence } from '../../src/system/native-call-continuation.mjs';
+import { nativeCallSequence } from '../system/native-call-sequences.mjs';
 import { PAD_PRESSED } from '../../src/data/wram.mjs';
 import { BYTE_BITS } from '../../src/constants/bits.mjs';
 
