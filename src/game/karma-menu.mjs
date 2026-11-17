@@ -30,6 +30,12 @@
 // 80:FE69, number 80:FD80, key wait 80:F953, release 80:FA3E, numbered menu 80:A6B8,
 // state count 80:CECB and the line and purchase above) compose through their original
 // frames. State count and magic refill also compose directly.
+//
+// Registers (user decision 2026-11-17): the menu works on game state only and leaves
+// no register values; comparisons check WRAM, video and outputs. The one register
+// input left is the preselected row in A for the numbered menu 80:A6B8, until
+// menu-choice.mjs takes it as a parameter. The category row the original keeps on
+// the stack over the detail windows (PHA, PLA) is a local value.
 import { dialogCallBody, segmentSequence } from '../system/native-call-continuation.mjs';
 import { chooseFromMenuSequence } from './menu-choice.mjs';
 import { openWindowSequence, requestTileClearSequence } from './window-open.mjs';
@@ -90,14 +96,11 @@ import { CODE_BANK, CODE_BANK_BASE, WRAM_BANK } from '../constants/memory-map.mj
 import {
   BYTE_BITS,
   BYTE_MASK,
-  BYTE_SIGN,
-  HIGH_BYTE_MASK,
   LONG_MASK,
   WORD_BITS,
   WORD_MASK,
   WORD_SIGN,
 } from '../constants/bits.mjs';
-import { FLAG_CARRY, FLAG_NEGATIVE, FLAG_OVERFLOW, FLAG_ZERO } from '../constants/cpu-flags.mjs';
 
 const OPEN_WINDOW = 0x80f963,
   REDRAW_WINDOW = 0x80fa67,
@@ -128,12 +131,11 @@ const KARMA_MENU_ITEMS = 0xef78,
 // state count by ten.
 const MENU_COLUMN = 1,
   BODY_COUNT_INCREMENT = 10;
-// "Karma" and its number's column; the karma is shown divided by eight (three
-// shifts, the last one's carry is bit 2), a step costs eight times its value.
+// "Karma" and its number's column; the karma is shown divided by eight, a step
+// costs eight times its value.
 const TEXT_KARMA = 0x7117,
   KARMA_NUMBER_COLUMN = 6,
   KARMA_SHIFT = 3,
-  KARMA_CARRY_BIT = 1 << (KARMA_SHIFT - 1),
   COST_SHIFT = 3;
 // The notice for too little karma and its window.
 const TEXT_KARMA_INSUFFICIENT = 0x711b,
@@ -143,17 +145,6 @@ const word = (wram, at) => wram[at] | (wram[at + 1] << BYTE_BITS);
 const setWord = (wram, at, value) => {
   wram[at] = value & BYTE_MASK;
   wram[at + 1] = (value >>> BYTE_BITS) & BYTE_MASK;
-};
-const setFlag = (ctx, bit, set) => {
-  ctx.status = set ? ctx.status | bit : ctx.status & ~bit;
-};
-const setSignZero = (ctx, value, sign = WORD_SIGN) => {
-  setFlag(ctx, FLAG_NEGATIVE, value & sign);
-  setFlag(ctx, FLAG_ZERO, value === 0);
-};
-const load = (ctx, value) => {
-  ctx.a = value;
-  setSignZero(ctx, value);
 };
 function* returnSequence(h) {
   let result;
@@ -168,36 +159,24 @@ const valueAddress = (wram) =>
 
 // 80:EF82: the karma line (see above). A sequence that ends with its RTS.
 export function* karmaLineSequence(h, events, renderBuffer = drawTextBufferSequence) {
-  const { ctx } = h,
-    { mem } = h.a,
+  const { mem } = h.a,
     { wram } = mem;
-  yield () => {
-    const window = dataBankWord(mem, KARMA_BALANCE_WINDOW);
-    load(ctx, window);
-    setWord(wram, 0, window);
-  };
+  yield () => setWord(wram, 0, dataBankWord(mem, KARMA_BALANCE_WINDOW));
   yield* dialogCallBody(h, 0x80ef87, REDRAW_WINDOW, () => requestTileClearSequence(h, events));
   yield () => {
     setWord(wram, 2, 0);
     setWord(wram, DP_CURSOR_ROW, 0);
   };
   yield* dialogCallBody(h, 0x80ef8e, CURSOR, () => segmentSequence(() => setTextCursorRoutine(h)));
-  yield () => {
-    load(ctx, TEXT_KARMA);
-    setWord(wram, 2, TEXT_KARMA);
-  };
+  yield () => setWord(wram, 2, TEXT_KARMA);
   yield* dialogCallBody(h, 0x80ef96, TEXT, () => printTextSequence(h, events, renderBuffer));
   yield () => {
-    load(ctx, KARMA_NUMBER_COLUMN);
     setWord(wram, 2, KARMA_NUMBER_COLUMN);
     setWord(wram, DP_CURSOR_ROW, 0);
   };
   yield* dialogCallBody(h, 0x80efa0, CURSOR, () => segmentSequence(() => setTextCursorRoutine(h)));
   yield () => {
-    const karma = mem.read16(WRAM + KARMA),
-      shown = karma >>> KARMA_SHIFT;
-    setFlag(ctx, FLAG_CARRY, karma & KARMA_CARRY_BIT);
-    load(ctx, shown);
+    const shown = mem.read16(WRAM + KARMA) >>> KARMA_SHIFT;
     setWord(wram, DP_KARMA_DISPLAY, shown);
     setWord(wram, 2, shown);
   };
@@ -207,44 +186,31 @@ export function* karmaLineSequence(h, events, renderBuffer = drawTextBufferSeque
 
 // 80:F006: one step bought (see above). A sequence that ends with its RTS.
 export function* buyStepSequence(h, events, renderBuffer = drawTextBufferSequence) {
-  const { ctx } = h,
-    { mem } = h.a,
+  const { mem } = h.a,
     { wram } = mem;
   let paid;
   yield () => {
     const cost = (mem.read16(valueAddress(wram)) & BYTE_MASK) << COST_SHIFT;
     setWord(wram, DP_KARMA_UPGRADE_COST, cost);
-    // SEC, SBC: the karma less the cost with the borrow and the signed overflow.
-    const karma = mem.read16(WRAM + KARMA),
-      rest = (karma - cost) & WORD_MASK;
+    const karma = mem.read16(WRAM + KARMA);
     paid = karma >= cost;
-    setFlag(ctx, FLAG_CARRY, paid);
-    setFlag(ctx, FLAG_OVERFLOW, (karma ^ cost) & (karma ^ rest) & WORD_SIGN);
-    load(ctx, rest);
     if (!paid) {
       setWord(wram, DP_WINDOW_LEFT, NOTICE_WINDOW.left);
       setWord(wram, DP_WINDOW_TOP, NOTICE_WINDOW.top);
       setWord(wram, DP_WINDOW_COLUMNS, NOTICE_WINDOW.columns);
       setWord(wram, DP_WINDOW_ROWS, NOTICE_WINDOW.rows);
       setWord(wram, DP_WINDOW_ATTRIBUTES, 0);
-      load(ctx, 0);
       fitListWindow(mem, h, [TEXT_KARMA_INSUFFICIENT], { column: 0 });
       return;
     }
-    mem.write16(WRAM + KARMA, rest);
-    // The byte is raised with an 8-bit A: the rest's high byte stays.
-    const address = valueAddress(wram),
-      raised = (mem.read8(address) + 1) & BYTE_MASK;
-    mem.write8(address, raised);
-    ctx.a = (rest & HIGH_BYTE_MASK) | raised;
-    setSignZero(ctx, raised, BYTE_SIGN);
+    mem.write16(WRAM + KARMA, karma - cost);
+    // The value is a byte.
+    const address = valueAddress(wram);
+    mem.write8(address, (mem.read8(address) + 1) & BYTE_MASK);
   };
   if (paid) return yield* returnSequence(h);
   yield* dialogCallBody(h, 0x80f032, OPEN_WINDOW, () => openWindowSequence(h, events));
-  yield () => {
-    load(ctx, TEXT_KARMA_INSUFFICIENT);
-    setWord(wram, 2, TEXT_KARMA_INSUFFICIENT);
-  };
+  yield () => setWord(wram, 2, TEXT_KARMA_INSUFFICIENT);
   yield* dialogCallBody(h, 0x80f03a, TEXT, () => printTextSequence(h, events, renderBuffer));
   yield* dialogCallBody(h, 0x80f03d, CONFIRM_KEY, () => waitForConfirmKeySequence(h, events));
   yield* dialogCallBody(h, 0x80f040, RELEASE_WINDOW, () => releaseWindowJsrSequence(h.a, events));
@@ -253,11 +219,6 @@ export function* buyStepSequence(h, events, renderBuffer = drawTextBufferSequenc
 }
 
 const negative = (value) => (value & WORD_SIGN) !== 0;
-// CMP/CPX on words: the carry for left >= right, the sign and zero of the difference.
-const compare = (ctx, left, right) => {
-  setFlag(ctx, FLAG_CARRY, left >= right);
-  setSignZero(ctx, (left - right) & WORD_MASK);
-};
 
 // 80:F054, 80:F0F3 or 80:F1B5: a karma list (see above). A sequence that ends with its
 // RTS.
@@ -267,20 +228,15 @@ export function* karmaListSequence(h, events, entry, renderBuffer = drawTextBuff
     { wram } = mem,
     list = KARMA_LISTS[entry];
   const menuHeader = () => {
-    load(ctx, TEXT_EXIT);
     setDataBankWord(mem, KARMA_MENU_NAMES, 0, TEXT_EXIT);
     setDataBankWord(mem, KARMA_MENU_VALUES, 0, 0);
   };
-  yield () => {
-    load(ctx, list.text);
-    setWord(wram, 2, list.text);
-  };
+  yield () => setWord(wram, 2, list.text);
   yield* dialogCallBody(h, list.pcs.text, TEXT, () => printTextSequence(h, events, renderBuffer));
   yield () => {
     setWord(wram, DP_KARMA_VALUE_BANK, WRAM_BANK);
     // The first list builds Exit again in every round.
     if (!list.header) menuHeader();
-    load(ctx, WORD_MASK);
     setWord(wram, DP_KARMA_PREVIOUS_ROW_BYTES, WORD_MASK);
   };
   for (;;) {
@@ -295,21 +251,16 @@ export function* karmaListSequence(h, events, entry, renderBuffer = drawTextBuff
         setDataBankWord(mem, KARMA_ROW_NAMES, row, dataBankWord(mem, list.names, index));
         setDataBankWord(mem, KARMA_ROW_VALUES, row, value);
         setDataBankWord(mem, KARMA_ROW_INDICES, row, index);
-        ctx.y = (row + 2) & WORD_MASK;
-        setWord(wram, DP_KARMA_ROW_BYTES, ctx.y);
+        setWord(wram, DP_KARMA_ROW_BYTES, row + 2);
       }
       const rows = word(wram, DP_KARMA_ROW_BYTES),
         previous = word(wram, DP_KARMA_PREVIOUS_ROW_BYTES);
-      ctx.x = rows;
       setDataBankWord(mem, KARMA_ROW_NAMES, rows, 0);
-      compare(ctx, rows, previous);
       if (rows !== previous) {
         setWord(wram, DP_KARMA_PREVIOUS_ROW_BYTES, rows);
         setWord(wram, DP_KARMA_SELECTION, 0);
       }
-      const window = dataBankWord(mem, KARMA_LIST_WINDOW);
-      load(ctx, window);
-      setWord(wram, 0, window);
+      setWord(wram, 0, dataBankWord(mem, KARMA_LIST_WINDOW));
     };
     yield* dialogCallBody(h, list.pcs.request, REDRAW_WINDOW, () =>
       requestTileClearSequence(h, events),
@@ -321,7 +272,8 @@ export function* karmaListSequence(h, events, entry, renderBuffer = drawTextBuff
       setWord(wram, DP_LIST_TOKENS, KARMA_MENU_NAMES);
       setWord(wram, DP_LIST_TOKEN_BANK, WRAM_BANK);
       setWord(wram, DP_LIST_VALUES, KARMA_MENU_VALUES);
-      load(ctx, word(wram, DP_KARMA_SELECTION));
+      // 80:A6B8 takes the preselected row in A (see the header).
+      ctx.a = word(wram, DP_KARMA_SELECTION);
     };
     yield* dialogCallBody(h, list.pcs.menu, NUMBERED_MENU, () =>
       chooseFromMenuSequence(h, events, renderBuffer, NUMBERED_MENU),
@@ -329,17 +281,12 @@ export function* karmaListSequence(h, events, entry, renderBuffer = drawTextBuff
     let chosen;
     yield () => {
       chosen = word(wram, 0);
-      load(ctx, chosen);
     };
     if (!chosen || negative(chosen)) return yield* returnSequence(h);
     yield () => {
       setWord(wram, DP_KARMA_SELECTION, chosen);
-      // The doubled row's carry is clear: the row is positive.
-      setFlag(ctx, FLAG_CARRY, false);
       const index = dataBankWord(mem, KARMA_MENU_INDICES, chosen << 1),
         pointer = dataBankWord(mem, list.pointers, index);
-      ctx.x = index;
-      load(ctx, pointer);
       setWord(wram, DP_KARMA_VALUE_POINTER, pointer);
     };
     yield* dialogCallBody(h, list.pcs.buy, BUY_STEP, () =>
@@ -348,20 +295,11 @@ export function* karmaListSequence(h, events, entry, renderBuffer = drawTextBuff
     if (list.body) {
       let body;
       yield () => {
-        const pointer = word(wram, DP_KARMA_VALUE_POINTER);
-        ctx.a = pointer;
-        compare(ctx, pointer, JAKE_BODY);
-        body = pointer === JAKE_BODY;
+        body = word(wram, DP_KARMA_VALUE_POINTER) === JAKE_BODY;
         if (!body) return;
-        // The count maximum is raised with an 8-bit A: its carry and overflow stay.
-        const count = wram[JAKE_COUNT_MAX],
-          sum = count + BODY_COUNT_INCREMENT,
-          raised = sum & BYTE_MASK;
-        wram[JAKE_COUNT_MAX] = raised;
-        setFlag(ctx, FLAG_CARRY, sum > BYTE_MASK);
-        setFlag(ctx, FLAG_OVERFLOW, ~(count ^ BODY_COUNT_INCREMENT) & (count ^ raised) & BYTE_SIGN);
+        // The count maximum is a byte.
+        wram[JAKE_COUNT_MAX] = (wram[JAKE_COUNT_MAX] + BODY_COUNT_INCREMENT) & BYTE_MASK;
         setWord(wram, 0, dataBankWord(mem, PLAYER_OBJECT));
-        load(ctx, BODY_COUNT_INCREMENT);
         setWord(wram, 2, BODY_COUNT_INCREMENT);
       };
       if (body)
@@ -377,8 +315,7 @@ export function* karmaListSequence(h, events, entry, renderBuffer = drawTextBuff
 
 // 80:EE57: the karma menu (see above). A sequence that ends with its RTS.
 export function* karmaMenuSequence(h, events, renderBuffer = drawTextBufferSequence) {
-  const { ctx } = h,
-    { mem } = h.a,
+  const { mem } = h.a,
     { wram } = mem,
     { language } = mem;
   // A window opened and its number kept; a kept window released.
@@ -389,22 +326,13 @@ export function* karmaMenuSequence(h, events, renderBuffer = drawTextBufferSeque
       setWord(wram, DP_WINDOW_COLUMNS, columns);
       setWord(wram, DP_WINDOW_ROWS, rows);
       setWord(wram, DP_WINDOW_ATTRIBUTES, 0);
-      load(ctx, 0);
       fitListWindow(mem, h, ids, options);
     };
     yield* dialogCallBody(h, pc, OPEN_WINDOW, () => openWindowSequence(h, events));
-    yield () => {
-      const window = word(wram, 0);
-      load(ctx, window);
-      setDataBankWord(mem, keep, 0, window);
-    };
+    yield () => setDataBankWord(mem, keep, 0, word(wram, 0));
   };
   const release = function* (pc, keep) {
-    yield () => {
-      const window = dataBankWord(mem, keep);
-      load(ctx, window);
-      setWord(wram, 0, window);
-    };
+    yield () => setWord(wram, 0, dataBankWord(mem, keep));
     yield* dialogCallBody(h, pc, RELEASE_WINDOW, () => releaseWindowJsrSequence(h.a, events));
   };
   yield* dialogCallBody(h, 0x80ee57, RELEASE_NOTICES, () =>
@@ -412,8 +340,7 @@ export function* karmaMenuSequence(h, events, renderBuffer = drawTextBufferSeque
   );
   yield* dialogCallBody(h, 0x80ee5a, PUT_GLOVE_AWAY, () => putGloveAwayCallSequence(h, events));
   yield () => {
-    // Jake's record (the first runner's) at DP F9. The A and flags of these loads are
-    // dead: the window's stores replace them before the next call.
+    // Jake's record (the first runner's) at DP F9.
     setWord(wram, DP_WEAPON_RECORD, dataBankWord(mem, RUNNER_RECORD_POINTERS));
     wram[DP_WEAPON_RECORD_BANK] = mem.read8(CODE_BANK_BASE + RUNNER_RECORD_BANKS);
   };
@@ -456,11 +383,7 @@ export function* karmaMenuSequence(h, events, renderBuffer = drawTextBufferSeque
         ]
       : [];
   for (;;) {
-    yield () => {
-      const window = dataBankWord(mem, KARMA_CATEGORY_WINDOW);
-      load(ctx, window);
-      setWord(wram, 0, window);
-    };
+    yield () => setWord(wram, 0, dataBankWord(mem, KARMA_CATEGORY_WINDOW));
     yield* dialogCallBody(h, 0x80eeb5, REDRAW_WINDOW, () => requestTileClearSequence(h, events));
     yield () => {
       setWord(wram, 2, MENU_COLUMN);
@@ -468,7 +391,6 @@ export function* karmaMenuSequence(h, events, renderBuffer = drawTextBufferSeque
       setWord(wram, DP_MENU_VISIBLE_ROWS, KARMA_WINDOWS.categoryVisibleRows);
       setWord(wram, DP_LIST_TOKENS, KARMA_MENU_ITEMS);
       setWord(wram, DP_LIST_TOKEN_BANK, CODE_BANK);
-      load(ctx, CODE_BANK);
     };
     yield* dialogCallBody(h, 0x80eece, PLAIN_MENU, () =>
       chooseFromMenuSequence(h, events, renderBuffer, PLAIN_MENU),
@@ -476,11 +398,6 @@ export function* karmaMenuSequence(h, events, renderBuffer = drawTextBufferSeque
     let chosen;
     yield () => {
       chosen = word(wram, 0);
-      load(ctx, chosen);
-      if (!chosen) return;
-      compare(ctx, chosen, WORD_MASK);
-      // The row stays on the stack over the detail windows (PHA, PLA).
-      if (chosen !== WORD_MASK) h.push(chosen, 2);
     };
     if (!chosen || chosen === WORD_MASK) break;
     const options = { valueColumns: KARMA_VALUE_COLUMNS };
@@ -503,20 +420,14 @@ export function* karmaMenuSequence(h, events, renderBuffer = drawTextBufferSeque
       detailIds,
       options,
     );
-    let pc, entry;
-    yield () => {
-      setWord(wram, 0, dataBankWord(mem, KARMA_HEADER_WINDOW));
-      const row = h.pull(2);
-      ctx.a = row;
-      // Row 1 is the Body list, row 2 the first list, any other the third.
-      [pc, entry] = [0x80ef37, KARMA_LIST_THIRD];
-      compare(ctx, row, BODY_ROW);
-      if (row === BODY_ROW) [pc, entry] = [0x80ef28, KARMA_LIST_BODY];
-      else {
-        compare(ctx, row, FIRST_LIST_ROW);
-        if (row === FIRST_LIST_ROW) [pc, entry] = [0x80ef32, KARMA_LIST_FIRST];
-      }
-    };
+    // Row 1 is the Body list, row 2 the first list, any other the third.
+    const [pc, entry] =
+      chosen === BODY_ROW
+        ? [0x80ef28, KARMA_LIST_BODY]
+        : chosen === FIRST_LIST_ROW
+          ? [0x80ef32, KARMA_LIST_FIRST]
+          : [0x80ef37, KARMA_LIST_THIRD];
+    yield () => setWord(wram, 0, dataBankWord(mem, KARMA_HEADER_WINDOW));
     yield* dialogCallBody(h, pc, entry, () => karmaListSequence(h, events, entry, renderBuffer));
     yield* release(0x80ef3f, KARMA_LIST_WINDOW);
     yield* release(0x80ef47, KARMA_HEADER_WINDOW);
@@ -530,7 +441,6 @@ export function* karmaMenuSequence(h, events, renderBuffer = drawTextBufferSeque
   ]) {
     yield () => {
       setWord(wram, 0, dataBankWord(mem, PLAYER_OBJECT));
-      load(ctx, BYTE_MASK);
       setWord(wram, 2, BYTE_MASK);
     };
     if (target === RAISE_MAGIC_POINTS)
