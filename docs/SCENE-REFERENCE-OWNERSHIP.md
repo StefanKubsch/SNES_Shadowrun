@@ -221,3 +221,8 @@ The interrupt-stepped random-state wait 81:B0A1, the input read 80:9E1A and the
 stepped-interrupt predicate of the start menu references moved to
 `proof/system/main-wait-interrupt.mjs`; the live module exports its shared wait
 drain for them. The game keeps the frame wait 81:EEBB and the fade poll there.
+
+The interrupt-stepped unpacker entry 80:9F49/9F4D/9E7E moved from
+`src/system/native-unpack-body.mjs` into its only caller,
+`proof/system/native-unpack.mjs`. The live module keeps the shared unpack body and
+its instruction step for the lifted portrait unpacker.

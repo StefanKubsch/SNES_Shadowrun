@@ -11,10 +11,8 @@ import {
   UNPACK_LITERAL_WORDS,
   UNPACK_OUTPUT_COUNT_HIGH,
   UNPACK_OUTPUT_START,
-  UNPACK_SOURCE_BANK,
 } from '../data/wram.mjs';
 import { interruptStep } from './main-wait-interrupt.mjs';
-import { redirectLanguageStream } from '../data/language.mjs';
 import { WORD_MASK, WORD_BITS, BYTE_BITS, BYTE_MASK } from '../constants/bits.mjs';
 import {
   FLAG_NEGATIVE,
@@ -23,28 +21,10 @@ import {
   FLAG_MEMORY_8BIT,
   FLAG_INDEX_8BIT,
 } from '../constants/cpu-flags.mjs';
-import {
-  WRAM_HIGH_BANK,
-  WRAM_BANK,
-  WRAM_BANK_PAIR,
-  CODE_BANK_BASE,
-} from '../constants/memory-map.mjs';
+import { WRAM_HIGH_BANK, WRAM_BANK, CODE_BANK_BASE } from '../constants/memory-map.mjs';
 
 const UNPACK_BODY_PC_DELTA = 0xe8;
 const UNPACK_HEADER_BYTES = 0x4;
-const ENTRY_SOURCE_BANK_STORE = 0x4;
-const ENTRY_OUTPUT_START_STORE = 0x6;
-const ENTRY_OUTPUT_CURSOR_STORE = 0x8;
-const ENTRY_RUN_RESET = 0xa;
-const ENTRY_BANK_PUSH = 0xc;
-const ENTRY_FIRST_BANK_PULL = 0xf;
-const ENTRY_SECOND_BANK_PULL = 0x10;
-const ENTRY_SOURCE_INDEX_RESET = 0x11;
-const ENTRY_LENGTH_LOAD = 0x14;
-const FIXED_UNPACK_BYTES = 0x80;
-const JSR_BYTES = 0x3;
-const RETURN_STATUS_PULL_OFFSET = 0x4;
-const RETURN_INSTRUCTION_OFFSET = 0x5;
 
 // Fixed 9F6D/9E9B equations. Their bodies from STA DB through PLA differ
 // only by the pinned address displacement E8 and MVN destination (7F/7E).
@@ -296,57 +276,4 @@ export function runUnpackBody(h, e, portrait) {
     step(0x80a02c & WORD_MASK);
     return false;
   }
-}
-
-// Entry frames remain owned by the original caller; the 9E9B JSR is real.
-export function runInterruptUnpack(h, e, entry) {
-  const { ctx } = h,
-    step = (pc) => unpackStep(h, e, pc);
-  if (entry === 0x809f49) {
-    step(entry);
-    h.call(entry, 0x809f4d, () => runInterruptUnpack(h, e, 0x809f4d));
-    step(0x809f4c);
-    return h.rtl();
-  }
-  const fixed = entry === 0x809e7e,
-    base = fixed ? 0x809e7e : 0x809f4d;
-  step(base);
-  h.php();
-  step(base + 1);
-  h.phb();
-  step(base + 2);
-  h.dpWrite(UNPACK_SOURCE_POINTER, ctx.a);
-  step(base + ENTRY_SOURCE_BANK_STORE);
-  h.dpWrite(UNPACK_SOURCE_BANK, ctx.y, 2);
-  // Text language (src/data/language.mjs): a translated stream is read instead.
-  redirectLanguageStream(h.a?.mem, h);
-  step(base + ENTRY_OUTPUT_START_STORE);
-  h.dpWrite(UNPACK_OUTPUT_START, ctx.x, 2);
-  step(base + ENTRY_OUTPUT_CURSOR_STORE);
-  h.dpWrite(UNPACK_OUTPUT_CURSOR, ctx.x, 2);
-  step(base + ENTRY_RUN_RESET);
-  h.dpWrite(UNPACK_RUN_LENGTH, 0);
-  step(base + ENTRY_BANK_PUSH);
-  h.push(WRAM_BANK_PAIR, 2);
-  step(base + ENTRY_FIRST_BANK_PULL);
-  h.plb();
-  step(base + ENTRY_SECOND_BANK_PULL);
-  h.plb();
-  step(base + ENTRY_SOURCE_INDEX_RESET);
-  h.index('y', 0);
-  step(base + ENTRY_LENGTH_LOAD);
-  h.load(fixed ? FIXED_UNPACK_BYTES : h.read(h.indirect(UNPACK_SOURCE_POINTER, ctx.y)));
-  const call = fixed ? 0x809e95 : 0x809f63;
-  step(call);
-  h.call(call, 0x809e9b, () => {
-    runUnpackBody(h, e, false);
-    step(0x809f48);
-    return h.rts();
-  });
-  step(call + JSR_BYTES);
-  h.plb();
-  step(call + RETURN_STATUS_PULL_OFFSET);
-  h.plp();
-  step(call + RETURN_INSTRUCTION_OFFSET);
-  return fixed ? h.rtl() : h.rts();
 }

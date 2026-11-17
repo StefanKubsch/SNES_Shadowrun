@@ -1,5 +1,5 @@
 import { dialogAccess } from '../../src/system/native-dialog-support.mjs';
-import { runInterruptUnpack } from '../../src/system/native-unpack-body.mjs';
+import { runUnpackBody, unpackStep } from '../../src/system/native-unpack-body.mjs';
 import { taskStop } from '../../src/system/task-stop.mjs';
 import { taskTextAccess } from '../../src/system/native-text-prerequisites.mjs';
 import {
@@ -38,6 +38,19 @@ import { WRAM_BANK_PAIR, WRAM_BANK, CODE_BANK } from '../../src/constants/memory
 
 const UNPACK_HEADER_BYTES = 0x4;
 const FIXED_UNPACK_BYTES = 0x80;
+// Instruction offsets within the 9F4D/9E7E entry and after the 9E9B call.
+const ENTRY_SOURCE_BANK_STORE = 0x4;
+const ENTRY_OUTPUT_START_STORE = 0x6;
+const ENTRY_OUTPUT_CURSOR_STORE = 0x8;
+const ENTRY_RUN_RESET = 0xa;
+const ENTRY_BANK_PUSH = 0xc;
+const ENTRY_FIRST_BANK_PULL = 0xf;
+const ENTRY_SECOND_BANK_PULL = 0x10;
+const ENTRY_SOURCE_INDEX_RESET = 0x11;
+const ENTRY_LENGTH_LOAD = 0x14;
+const JSR_BYTES = 0x3;
+const RETURN_STATUS_PULL_OFFSET = 0x4;
+const RETURN_INSTRUCTION_OFFSET = 0x5;
 
 // 80:9F49: unpack an LZ stream (source in A/Y, destination X in bank 7E) for a long
 // caller: JSR 9F4D and RTL. The entry argument also selects 9F4D (unpackStream, RTS)
@@ -315,3 +328,56 @@ export const unpackStream = (a, outerReturn = true, events = null) =>
 // 80:9E7E supplies 128 bytes instead of reading the stream's first WORD.
 export const unpackFixedStream = (a, outerReturn = true, events = null) =>
   unpackStreamLong(a, outerReturn, 0x809e7e, events);
+
+// Entry frames remain owned by the original caller; the 9E9B JSR is real.
+function runInterruptUnpack(h, e, entry) {
+  const { ctx } = h,
+    step = (pc) => unpackStep(h, e, pc);
+  if (entry === 0x809f49) {
+    step(entry);
+    h.call(entry, 0x809f4d, () => runInterruptUnpack(h, e, 0x809f4d));
+    step(0x809f4c);
+    return h.rtl();
+  }
+  const fixed = entry === 0x809e7e,
+    base = fixed ? 0x809e7e : 0x809f4d;
+  step(base);
+  h.php();
+  step(base + 1);
+  h.phb();
+  step(base + 2);
+  h.dpWrite(UNPACK_SOURCE_POINTER, ctx.a);
+  step(base + ENTRY_SOURCE_BANK_STORE);
+  h.dpWrite(UNPACK_SOURCE_BANK, ctx.y, 2);
+  // Text language (src/data/language.mjs): a translated stream is read instead.
+  redirectLanguageStream(h.a?.mem, h);
+  step(base + ENTRY_OUTPUT_START_STORE);
+  h.dpWrite(UNPACK_OUTPUT_START, ctx.x, 2);
+  step(base + ENTRY_OUTPUT_CURSOR_STORE);
+  h.dpWrite(UNPACK_OUTPUT_CURSOR, ctx.x, 2);
+  step(base + ENTRY_RUN_RESET);
+  h.dpWrite(UNPACK_RUN_LENGTH, 0);
+  step(base + ENTRY_BANK_PUSH);
+  h.push(WRAM_BANK_PAIR, 2);
+  step(base + ENTRY_FIRST_BANK_PULL);
+  h.plb();
+  step(base + ENTRY_SECOND_BANK_PULL);
+  h.plb();
+  step(base + ENTRY_SOURCE_INDEX_RESET);
+  h.index('y', 0);
+  step(base + ENTRY_LENGTH_LOAD);
+  h.load(fixed ? FIXED_UNPACK_BYTES : h.read(h.indirect(UNPACK_SOURCE_POINTER, ctx.y)));
+  const call = fixed ? 0x809e95 : 0x809f63;
+  step(call);
+  h.call(call, 0x809e9b, () => {
+    runUnpackBody(h, e, false);
+    step(0x809f48);
+    return h.rts();
+  });
+  step(call + JSR_BYTES);
+  h.plb();
+  step(call + RETURN_STATUS_PULL_OFFSET);
+  h.plp();
+  step(call + RETURN_INSTRUCTION_OFFSET);
+  return fixed ? h.rtl() : h.rts();
+}
