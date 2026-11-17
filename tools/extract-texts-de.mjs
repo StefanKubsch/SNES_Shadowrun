@@ -758,14 +758,15 @@ for (const t of enTexts) {
   // Menu arrows are font symbols, not translatable words. The German ROM
   // omits the previous/next strings; the English renderer still uses them.
   const symbol = t.text.length > 0 && [...t.text].every((c) => MENU_FONT_SYMBOLS.has(c));
-  // User-requested correction of the German cartridge's workshop spelling.
+  // User-requested keyword correction: the greeting must name the same topic
+  // as subsequent conversations, rather than the cartridge's workshop label.
   const translated = toUnicode(d.text, d.cpu);
   texts.push({
     address: t.address,
     text: symbol
       ? t.text
       : t.address === '9D:C4FB'
-        ? translated.replace('Werstattgelände', 'Werkstattgelände')
+        ? translated.replace('Werstattgelände', 'Autofriedhof')
         : translated,
     source: symbol ? 'font symbols' : p.source,
   });

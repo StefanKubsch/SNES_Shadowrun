@@ -150,6 +150,24 @@ These are game-state corrections; no new hardware or timing premise is needed.
 
 ## Investigated without a gameplay change
 
+**Keyword-list overflow (2026-11-17):** the European implementation has 51
+bytes between `TOPIC_LIST` (`7E:3CA3`) and `TOPIC_FLAGS` (`7E:3CD6`). The
+terminating `FF` leaves space for 50 topics. Neither the script insertion
+`80:90EB` ([topic-list.mjs](../src/game/topic-list.mjs)) nor dialog insertion
+`80:908C` ([dialog-text.mjs](../src/game/dialog-text.mjs)) checks that bound.
+A synthetic list with topics 0 through 49 followed by insertion of topic 50
+moves the terminator into the first flag, hiding topic 0. The test
+[topic-list-lift-functions.test.mjs](../tools/topic-list-lift-functions.test.mjs)
+reproduces that write in the lifted and retained register-level script paths.
+This demonstrates memory overlap, not an oldest-first eviction policy.
+
+Marking a topic through `80:913C` sets its parallel flag to `FF`; it does not
+delete the stored topic or free space. The topic menu filters marked flags.
+The test also checks this distinction. No regular story route reaching 51
+distinct retained topics, and no US or German executable comparison, has been
+established here. This report therefore remains an investigated storage
+boundary; there is no new gameplay correction or save-layout change.
+
 **Examination:** the reports are inconsistent, including the
 [original player report](https://gamefaqs.gamespot.com/boards/588651-shadowrun/41338311)
 and the [Walkthrough](https://gamefaqs.gamespot.com/snes/588651-shadowrun/faqs/19826).

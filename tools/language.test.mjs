@@ -50,8 +50,8 @@ test('every English text has one German text or is listed as untranslated', () =
   // Umlauts come only through their codes; no "^" escapes are left.
   assert.ok(!asset.texts.some((t) => t.text.includes('^')));
   assert.ok(asset.texts.some((t) => t.text.includes('ü')));
-  assert.match(asset.texts.find((t) => t.address === '9D:C4FB').text, /\|Werkstattgelände/);
-  assert.ok(!asset.texts.some((t) => t.text.includes('Werstattgelände')));
+  assert.match(asset.texts.find((t) => t.address === '9D:C4FB').text, /\|Autofriedhof/);
+  assert.ok(!asset.texts.some((t) => /Werstattgelände|Werkstattgelände/.test(t.text)));
 });
 
 test('the umlaut codes are free in the English font and texts', () => {

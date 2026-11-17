@@ -5,6 +5,8 @@
 // RTS frame). Game state only (docs/STRATEGY.md, 2026-11-14): WRAM outside the stacks,
 // the device writes and the return must be equal.
 import { prng } from './task-native-dialog-harness.mjs';
+import test from 'node:test';
+import assert from 'node:assert/strict';
 import { createSide, registerCases } from './lift-function-harness.mjs';
 import {
   addTopicReference,
@@ -14,7 +16,8 @@ import {
 import { isTopicKnown } from '../src/script/native-topic-known.mjs';
 import { markTopic } from '../src/script/native-topic-mark.mjs';
 import { addTopic } from '../src/script/native-topic-add.mjs';
-import { TOPIC_LIST } from '../src/data/wram.mjs';
+import { TOPIC_LIST, TOPIC_FLAGS, TOPIC_MARKED } from '../src/data/wram.mjs';
+import { addTopic as addKnownTopic, markTopic as markKnownTopic } from '../src/game/topic-list.mjs';
 
 const WRAM_BYTES = 0x20000,
   HEX = 16,
@@ -65,3 +68,29 @@ registerCases(
   ],
   { sample, side: (s) => createSide(s, new Map()), runtime: (h) => h, ignored: [] },
 );
+
+test('marking a topic hides it without freeing list storage', () => {
+  const { mem } = createSide({ seed: 1, wram: new Uint8Array(WRAM_BYTES) }, new Map());
+  mem.wram.set([1, 3, 0xff], TOPIC_LIST);
+  markKnownTopic(mem, 1);
+  assert.deepEqual([...mem.wram.subarray(TOPIC_LIST, TOPIC_LIST + 3)], [1, 3, 0xff]);
+  assert.equal(mem.wram[TOPIC_FLAGS], TOPIC_MARKED);
+});
+
+test('a synthetic 51st topic overwrites the oldest flag column in both source and lifted paths', () => {
+  const state = new Uint8Array(WRAM_BYTES);
+  for (let i = 0; i < 50; i++) state[TOPIC_LIST + i] = i;
+  state[TOPIC_LIST + 50] = 0xff;
+  state[0] = 50;
+  const actual = createSide({ seed: 1, wram: state.slice() }, new Map());
+  const reference = createSide({ seed: 1, wram: state.slice() }, new Map());
+  Object.assign(reference.h.ctx, { bank: CODE_BANK, status: 0 });
+  reference.h.push(CALLER_RETURN, 2);
+  addTopicReference(reference.a, false);
+  addKnownTopic(actual.mem);
+  for (const side of [actual, reference]) {
+    assert.equal(side.mem.wram[TOPIC_LIST + 50], 50, 'new topic occupies the former terminator');
+    assert.equal(side.mem.wram[TOPIC_FLAGS], 0xff, 'terminator spills into the first topic flag');
+    assert.equal(side.mem.wram[TOPIC_LIST], 0, 'the old topic is retained but now hidden');
+  }
+});

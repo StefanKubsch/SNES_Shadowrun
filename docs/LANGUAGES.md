@@ -58,7 +58,14 @@ The port therefore replaces only the decoded text:
   first thoughts in single-line windows wider than the English ones. In
   German mode FEC1 therefore takes the German size of a known call; any other
   notice whose German text does not fit grows wider up to 30 tiles, then
-  higher. F963 keeps the window on screen.
+  higher. Since 2026-11-17 the copied German sizes are also checked against
+  the complete text. Of the 47 copied sizes, text numbers 131 (the amulet
+  description, `9D:FE1A`) and 517 need additional room. The German cartridge
+  requests only one text row for the amulet sentence, which needs two even
+  at the maximum notice width. F963 keeps the window on screen. The regression
+  [language-notice-regression.test.mjs](../tools/language-notice-regression.test.mjs)
+  checks all 47 sizes and the actual amulet notice allocation and decoded text
+  in both languages. This is a layout audit, not a complete story playthrough.
 - The name window under the glove (80:BE6D) takes its width from 80:FADD,
   which sums the glyph widths of the English name. In German mode FADD
   returns the width of the German name instead; otherwise "Kühlfach" in the <!-- language-ok -->
@@ -271,7 +278,8 @@ original; the user set this aside on 2026-11-06.
   "mächtig" as code 84, which its character map leaves blank, so the <!-- language-ok -->
   original shows "m chtig". The generator writes "$" there (the map's "ä") <!-- language-ok -->
   and packs the stream again.
-- Fix (user request 2026-11-08): the extractor corrects the missing letter
-  in the workshop greeting at English address `9D:C4FB`. This is an explicit
-  spelling correction to the German cartridge text; the pairing and English
-  text stay unchanged.
+- Fix (user requests 2026-11-08 and 2026-11-17): the greeting at English
+  address `9D:C4FB` now uses `|Autofriedhof` rather than the cartridge's
+  misspelled workshop label. This makes the highlighted word agree with the
+  topic used later in conversations. It supersedes the earlier spelling-only
+  correction. The pairing, topic identity and English text stay unchanged.

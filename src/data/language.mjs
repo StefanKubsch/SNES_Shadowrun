@@ -199,11 +199,12 @@ export function wrappedLines(codes, pixels, glyphWidth) {
 // args: the seven argument words as the script pushed them (text number second).
 export function noticeSize(language, args, codes, glyphWidth) {
   const known = language.notices.get(args.join(','));
-  if (known) return known;
-  const [height, width] = [args[3], args[4]]; // magic-number-ok: argument positions of height and width
+  const [height, width] = known ?? [args[3], args[4]]; // magic-number-ok: argument positions of height and width
   const fits = (h, w) =>
     wrappedLines(codes, (w - WINDOW_BORDER) * TILE_PIXELS, glyphWidth) <= h - WINDOW_BORDER;
-  if (fits(height, width)) return null;
+  // Cartridge dimensions can truncate their own translation, too. Validate
+  // the entire text before accepting them, including single-row notices.
+  if (fits(height, width)) return known ?? null;
   for (let w = width + 1; w <= MAX_NOTICE_WIDTH; w++) if (fits(height, w)) return [height, w];
   const w = Math.max(width, MAX_NOTICE_WIDTH),
     lines = wrappedLines(codes, (w - WINDOW_BORDER) * TILE_PIXELS, glyphWidth);
