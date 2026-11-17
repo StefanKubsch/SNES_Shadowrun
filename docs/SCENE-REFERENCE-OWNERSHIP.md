@@ -249,3 +249,9 @@ into `proof/system/script-yield.mjs`, which now holds C242, C2C8, C36A and F488
 together. The game allocates task frames through `src/game/task-append.mjs`. The
 script opcode source label follows the path, so its source and native reports were
 regenerated.
+
+The register-level task append 80:C34A lost its last live importer with the object
+creation and moved unchanged to `proof/system/task-append.mjs`; the game appends
+script tasks through `src/game/task-append.mjs`. Source generator labels follow the
+path; a full artifact rebuild refreshed the reports whose labels changed in this
+batch.

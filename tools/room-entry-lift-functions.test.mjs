@@ -27,7 +27,7 @@ import { sceneRuntime } from '../src/system/scene-runtime.mjs';
 import { loadSceneSequence } from '../src/game/scene-load.mjs';
 import { createObject } from '../src/game/object-create.mjs';
 import { appendScriptTaskCall } from '../src/game/task-append.mjs';
-import { appendScriptTask as appendScriptTaskReference } from '../src/system/task-append.mjs';
+import { appendScriptTask as appendScriptTaskReference } from '../proof/system/task-append.mjs';
 import { turnObject, turnObjectRoutine } from '../src/game/object-turn.mjs';
 import { setObjectDirectionReference as setObjectDirection } from '../proof/game-reference/object-turn.mjs';
 import {
@@ -570,7 +570,7 @@ const OBJECT_CREATION = {
 // The script task append alone, called with JSR from bank 80 (return word 1234) with
 // the stack compared too: any script of the table in X, the arguments in the direct
 // page words, the heap and task slots of the object creation; A, X, Y, sign,
-// overflow, zero and carry as the original leaves them (src/system/task-append.mjs).
+// overflow, zero and carry as the original leaves them (proof/system/task-append.mjs).
 // The script natives that create objects (80:A835 alone, the swarm starts 80:D7DD,
 // 80:D260 and the circling leader 80:D63C), called by the script VM (return word 1234)
 // with the stack compared too: an origin object (with or without its flag bit), the

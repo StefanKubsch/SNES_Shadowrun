@@ -12,7 +12,7 @@ import { TRANSITION_ROUTINES, enterRoom } from '../proof/replay/main-transition.
 // The lifted room entry (src/game/room-entry.mjs) is compared in tools/room-entry-lift*.test.mjs;
 // these proofs keep its register-level reference against the original instructions.
 import { enterRoomReference, withRoomEntryReference } from '../proof/game-reference/room-entry.mjs';
-import { appendScriptTask } from '../src/system/task-append.mjs';
+import { appendScriptTask } from '../proof/system/task-append.mjs';
 // The callers 8000 and CC4B with the register-level room entry.
 const referenceGate = { c34a: (a) => appendScriptTask(a, false), a4bf: enterRoomReference },
   referenceMotion = withRoomEntryReference(MAIN_MOTION_ROUTINES);

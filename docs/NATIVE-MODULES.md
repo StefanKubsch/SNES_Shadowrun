@@ -16,7 +16,7 @@ the module that implements it.
 
 | Former name              | Module                                                                                                     |
 | ------------------------ | ---------------------------------------------------------------------------------------------------------- |
-| `append-c34a`            | [task-append.mjs](../src/system/task-append.mjs)                                                           |
+| `append-c34a`            | [task-append.mjs](../proof/system/task-append.mjs)                                                         |
 | `main-gate-8000`         | [main-zone-gate.mjs](../proof/replay/main-zone-gate.mjs)                                                   |
 | `native-8371`            | [native-object-collision.mjs](../src/script/native-object-collision.mjs)                                   |
 | `native-8521`            | [native-fight-list-append.mjs](../proof/game-reference/fight-list-append.mjs)                              |

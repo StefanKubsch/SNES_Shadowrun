@@ -3,7 +3,7 @@
 // src/game/object-create.mjs.
 import { taskStop } from '../../src/system/task-stop.mjs';
 import { FIRST_ARGUMENT, leaf } from '../../src/system/native-leaf-support.mjs';
-import { appendScriptTask } from '../../src/system/task-append.mjs';
+import { appendScriptTask } from '../system/task-append.mjs';
 
 import {
   ANIMATION_CLOCK_START,

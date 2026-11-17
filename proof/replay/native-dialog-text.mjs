@@ -17,7 +17,7 @@ import {
   dialogCallBody,
   drainNativeSequence,
 } from '../../src/system/native-call-continuation.mjs';
-import { appendScriptTask } from '../../src/system/task-append.mjs';
+import { appendScriptTask } from '../system/task-append.mjs';
 import { appendScriptTaskCall } from '../../src/script/task-api.mjs';
 
 import { DIALOG_END, TOPIC_FLAGS, TOPIC_LIST, WRAM } from '../../src/data/wram.mjs';

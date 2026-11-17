@@ -23,7 +23,7 @@ import {
 } from '../../src/system/native-dialog-portrait.mjs';
 import { resetAndDrawWindowList } from './native-glove-target.mjs';
 import { chooseFromMenuAdapter } from './native-menu-compose.mjs';
-import { appendScriptTask } from '../../src/system/task-append.mjs';
+import { appendScriptTask } from '../system/task-append.mjs';
 import { lagFree } from '../../src/system/main-wait-interrupt.mjs';
 import { waitForConfirmKeyAdapter } from './native-input-wait.mjs';
 import { setTextCursor, printNumber } from './native-list-prerequisites.mjs';

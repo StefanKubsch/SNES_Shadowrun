@@ -1,5 +1,5 @@
 import { taskStop } from '../../src/system/task-stop.mjs';
-import { appendScriptTask } from '../../src/system/task-append.mjs';
+import { appendScriptTask } from '../system/task-append.mjs';
 import { enterRoom } from './main-transition.mjs';
 import {
   NativeCallContinuation,

@@ -4,7 +4,7 @@ import assert from 'node:assert/strict';
 import * as direct from '../src/game/dialog-text.mjs';
 import * as previous from '../proof/caller/dialog-text.mjs';
 import { dialogTextRoutines, dialogTopic } from '../proof/replay/native-dialog-text.mjs';
-import { appendScriptTask } from '../src/system/task-append.mjs';
+import { appendScriptTask } from '../proof/system/task-append.mjs';
 import * as V from '../src/vm/layout.mjs';
 import { NATIVE_CALL_CONTINUATIONS } from '../src/system/native-call-continuation.mjs';
 import { TOPIC_LIST, TOPIC_FLAGS } from '../src/data/wram.mjs';

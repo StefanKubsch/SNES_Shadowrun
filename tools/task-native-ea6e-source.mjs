@@ -63,7 +63,7 @@ export const nativeEA6ESpec = {
       'RTS',
       'window request, requestWindowUpload in proof/replay/native-menu-compose.mjs',
     ],
-    [0x80c34a, 'RTS', 'append task, appendScriptTask in src/system/task-append.mjs'],
+    [0x80c34a, 'RTS', 'append task, appendScriptTask in proof/system/task-append.mjs'],
     [0x80c1ca, 'RTS', 'visit, nested scheduler round NativeCalls.round (proof/vm/native-call.mjs)'],
     [
       0x81aeb0,

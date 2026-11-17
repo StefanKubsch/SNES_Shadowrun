@@ -120,7 +120,7 @@ for (const budget of [1, 7])
 
 import * as live from '../src/game/main-upkeep.mjs';
 import { dialogTextRoutines, dialogTopic } from '../proof/replay/native-dialog-text.mjs';
-import { appendScriptTask } from '../src/system/task-append.mjs';
+import { appendScriptTask } from '../proof/system/task-append.mjs';
 import * as V from '../src/vm/layout.mjs';
 import { DIALOG_TABLE, DIALOG_BANK_BASE } from '../src/data/portraits.mjs';
 import { clearFixedColourRoutine, setWindowTextWidthRoutine } from '../src/game/dialog-talk.mjs';

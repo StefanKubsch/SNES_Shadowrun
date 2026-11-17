@@ -40,7 +40,7 @@ const ext = {
   FAAC: [0x80faac, RTS, 'cursor, setTextCursor (proof/replay/native-list-prerequisites.mjs)'],
   FE69: [0x80fe69, RTS, 'text, printText (proof/replay/native-text-compose.mjs)'],
   A6C7: [0x80a6c7, RTS, 'menu, runTaskMenuCompose (proof/replay/native-menu-compose.mjs)'],
-  C34A: [0x80c34a, RTS, 'append task, appendScriptTask (src/system/task-append.mjs; topic path)'],
+  C34A: [0x80c34a, RTS, 'append task, appendScriptTask (proof/system/task-append.mjs; topic path)'],
   C1CA: [
     0x80c1ca,
     RTS,

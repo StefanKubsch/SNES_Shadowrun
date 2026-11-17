@@ -8,7 +8,7 @@
 import { taskStop } from '../../src/system/task-stop.mjs';
 import { FIRST_ARGUMENT, SECOND_ARGUMENT, leaf } from '../../src/system/native-leaf-support.mjs';
 import { taskSelectionSupport } from '../script/native-object-turn.mjs';
-import { appendScriptTask } from '../../src/system/task-append.mjs';
+import { appendScriptTask } from '../system/task-append.mjs';
 import {
   DP_SELECTION_POINTER,
   DP_SELECTION_POINTER_BANK,
