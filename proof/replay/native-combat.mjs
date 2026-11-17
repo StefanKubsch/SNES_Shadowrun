@@ -5,7 +5,7 @@ import { drainNativeSequence } from '../../src/system/native-call-continuation.m
 import { taskStop } from '../../src/system/task-stop.mjs';
 import { FIRST_ARGUMENT, SECOND_ARGUMENT, leaf } from '../../src/system/native-leaf-support.mjs';
 import { taskSelectionSupport } from '../../src/script/native-object-turn.mjs';
-import { randomBelow } from '../../src/system/native-random.mjs';
+import { randomBelow } from './native-random.mjs';
 import { testLineOfSight, SIGHT_ROUTINE } from './line-of-sight.mjs';
 import { showNotice } from './native-notice.mjs';
 import { validateTaskActionsOptions } from './native-actions.mjs';

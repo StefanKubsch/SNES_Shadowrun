@@ -376,7 +376,7 @@ test('the PPU multiplier is signed 16 x 8 bits and rejects an interleaved latch'
 });
 
 test('the live random substitute feeds only the two used counter bytes of C560', async () => {
-  const { randomBelow } = await import('../src/system/native-random.mjs');
+  const { randomBelow } = await import('../proof/replay/native-random.mjs');
   // ROM: C566 LDA 2137, C569 LDA C58D,Y (dead read); C572 EOR 213C; C57F EOR 213D.
   assert.deepEqual(
     [0xc566, 0xc569, 0xc572, 0xc57f].map((o) => romAt(0x800000 | o)),

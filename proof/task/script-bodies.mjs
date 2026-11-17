@@ -13,7 +13,7 @@ import { taskActionsDevices, validateTaskActionsOptions } from '../replay/native
 import { runTaskNativeAudioOpcode } from './native-audio-opcode.mjs';
 import { taskAudioDevices } from '../replay/native-audio-compose.mjs';
 import { runTaskNativeRandomOpcode } from './native-random-opcode.mjs';
-import { taskRandomDevices } from '../../src/system/native-random.mjs';
+import { taskRandomDevices } from '../replay/native-random.mjs';
 import { runTaskNative7COpcode } from './native-8e36-opcode.mjs';
 import { hitObjectsInBlastDevices } from '../replay/native-object-hit.mjs';
 import { runTaskSelectionOpcode } from './native-selection-root-opcode.mjs';

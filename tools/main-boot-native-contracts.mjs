@@ -5,7 +5,7 @@ import { playSoundEffect } from '../proof/replay/native-audio-compose.mjs';
 import { redrawWindowListObserved } from '../proof/replay/native-window-list-redraw.mjs';
 import { controlPlayerObserved } from '../proof/replay/native-player-control.mjs';
 import { runTaskActionsObserved } from '../proof/replay/native-actions.mjs';
-import { randomBelow, randomByte } from '../src/system/native-random.mjs';
+import { randomBelow, randomByte } from '../proof/replay/native-random.mjs';
 import { talkWithObjectObserved } from '../proof/replay/native-dialog.mjs';
 import { appendToFightListReference as appendToFightList } from '../proof/game-reference/fight-list-append.mjs';
 import { chooseEnemyTarget } from '../proof/game-reference/enemy-target-choice.mjs';

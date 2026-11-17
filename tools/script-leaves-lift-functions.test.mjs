@@ -14,7 +14,7 @@ import { createSide, registerCases } from './lift-function-harness.mjs';
 import { appendToFightListReference } from '../proof/game-reference/fight-list-append.mjs';
 import { panSongLevelToObjectReference } from '../proof/apu-reference/sound-stereo.mjs';
 import { playSoundEffect as playSoundEffectReference } from '../proof/replay/native-audio-compose.mjs';
-import { randomBelow, randomByte } from '../src/system/native-random.mjs';
+import { randomBelow, randomByte } from '../proof/replay/native-random.mjs';
 import {
   moveObjectTowardsObject as moveReference,
   jumpObjectTowardsObject as jumpReference,

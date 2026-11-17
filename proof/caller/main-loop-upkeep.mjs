@@ -11,10 +11,10 @@ import {
   runOpenWindow,
   runFrameWait,
   runPadPresses,
-} from '../game/main-upkeep.mjs';
-import { setTextCursorRoutine } from '../game/window-text.mjs';
-import { playSoundEffectRoutine } from '../apu/sound-effect.mjs';
-import { randomByteNative, randomBelowNative } from '../script/native-script-leaves.mjs';
+} from '../../src/game/main-upkeep.mjs';
+import { setTextCursorRoutine } from '../../src/game/window-text.mjs';
+import { playSoundEffectRoutine } from '../../src/apu/sound-effect.mjs';
+import { randomByteNative, randomBelowNative } from '../../src/script/native-script-leaves.mjs';
 export const MAIN_UPKEEP_ROUTINES = new Map([
   [0x81b0a1, runFrameWait],
   [0x809e1a, runPadPresses],

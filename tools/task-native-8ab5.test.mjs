@@ -12,7 +12,7 @@ import { isIoAddress, isArithmeticRegister } from '../src/vm/devices.mjs';
 import { SPECIAL_NATIVES } from '../proof/vm/special-natives.mjs';
 import { ORACLE_NATIVES } from '../proof/vm/oracle-natives.mjs';
 import { shootAtObject, NATIVE_8AB5_ROUTINES } from '../proof/replay/native-object-shoot.mjs';
-import { randomBelow } from '../src/system/native-random.mjs';
+import { randomBelow } from '../proof/replay/native-random.mjs';
 import { createObject } from '../src/script/native-object-create.mjs';
 import { setObjectDirection } from '../src/script/native-object-action-set.mjs';
 

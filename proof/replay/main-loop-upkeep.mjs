@@ -9,7 +9,7 @@ import { showNoticeAdapter } from './native-notice.mjs';
 import { setTextCursor, printNumber } from './native-list-prerequisites.mjs';
 import { printTextAdapter, drawTextBufferAdapter } from './native-text-compose.mjs';
 import { playSoundEffectRoutine } from '../../src/apu/sound-effect.mjs';
-import { randomByte, randomBelow } from '../../src/system/native-random.mjs';
+import { randomByte, randomBelow } from './native-random.mjs';
 import { chooseActionAdapter } from './native-actions.mjs';
 
 // Already proven routines, with the shared observation set and real return frames.

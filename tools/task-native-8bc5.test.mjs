@@ -12,7 +12,7 @@ import { isIoAddress, isArithmeticRegister } from '../src/vm/devices.mjs';
 import { SPECIAL_NATIVES } from '../proof/vm/special-natives.mjs';
 import { ORACLE_NATIVES } from '../proof/vm/oracle-natives.mjs';
 import { chooseEnemyTarget } from '../proof/game-reference/enemy-target-choice.mjs';
-import { randomBelow } from '../src/system/native-random.mjs';
+import { randomBelow } from '../proof/replay/native-random.mjs';
 
 // Native07/8BC5: pinned own code with stack proof, and the equations of proof/game-reference/enemy-target-choice.mjs
 // against the original instructions (tools/w65c816-reference.mjs). 81:A25F runs on its pinned

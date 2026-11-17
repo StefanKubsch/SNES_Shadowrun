@@ -7,7 +7,7 @@ import {
   enableNmiAndJoypad,
   setNmiEnable,
   sendOamBuffer,
-} from './main-scene-video.mjs';
+} from '../../src/system/main-scene-video.mjs';
 import {
   waitForFrame,
   waitFrames,
@@ -15,26 +15,26 @@ import {
   fadeOutScreen,
   readJoypadLong,
   readJoypad,
-} from './main-scene-wait.mjs';
-import { sendApuCommandRoutine, setMusicModeRoutine } from '../apu/audio-routines.mjs';
-import { randomBelow, randomBelowLong } from './native-random.mjs';
-import { handleMatrixNmi, matrixSceneSequence } from '../matrix/matrix-scene.mjs';
-import { cutsceneSequence, handleCutsceneNmi } from '../cutscene/cutscene-scene.mjs';
-import { introSequence, setUpGameAudioRoutine } from '../intro/intro-scene.mjs';
+} from '../../src/system/main-scene-wait.mjs';
+import { sendApuCommandRoutine, setMusicModeRoutine } from '../../src/apu/audio-routines.mjs';
+import { randomBelow, randomBelowLong } from '../replay/native-random.mjs';
+import { handleMatrixNmi, matrixSceneSequence } from '../../src/matrix/matrix-scene.mjs';
+import { cutsceneSequence, handleCutsceneNmi } from '../../src/cutscene/cutscene-scene.mjs';
+import { introSequence, setUpGameAudioRoutine } from '../../src/intro/intro-scene.mjs';
 import { MAIN_UPKEEP_ROUTINES } from './main-loop-upkeep.mjs';
-import { INTRO_NMI_ROUTINES } from './main-intro-nmi.mjs';
-import { GAME_NMI_ROUTINES } from './main-game-nmi.mjs';
-import { GAME_NMI_LIFTED_JOBS } from '../game/game-nmi.mjs';
-import { ObservedWaitContinuation } from './main-wait-interrupt.mjs';
-import { TRANSITION_ROUTINES } from './main-transition.mjs';
+import { INTRO_NMI_ROUTINES } from '../../src/system/main-intro-nmi.mjs';
+import { GAME_NMI_ROUTINES } from '../../src/system/main-game-nmi.mjs';
+import { GAME_NMI_LIFTED_JOBS } from '../../src/game/game-nmi.mjs';
+import { ObservedWaitContinuation } from '../../src/system/main-wait-interrupt.mjs';
+import { TRANSITION_ROUTINES } from '../../src/system/main-transition.mjs';
 import {
   NativeCallContinuation,
   NATIVE_CALL_CONTINUATIONS,
   drainNativeSequence,
   nativeCallSequence,
-} from './native-call-continuation.mjs';
+} from '../../src/system/native-call-continuation.mjs';
 
-import { FLAG_INDEX_8BIT, FLAG_MEMORY_8BIT } from '../constants/cpu-flags.mjs';
+import { FLAG_INDEX_8BIT, FLAG_MEMORY_8BIT } from '../../src/constants/cpu-flags.mjs';
 // CDF8 and Matrix setup, control and object display with observed waits.
 // No NMI/DMA/frame execution is inferred.
 

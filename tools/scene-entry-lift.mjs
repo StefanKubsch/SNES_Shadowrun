@@ -1,7 +1,7 @@
 // Exercise the actual game entries in the existing independent original scene
 // comparisons, including tables that retain former caller functions for replay.
 import { compareLift, routineTables, useReference } from './lift-compare.mjs';
-import * as live from '../src/system/main-scene.mjs';
+import * as live from '../proof/caller/scene-entries.mjs';
 import * as former from '../proof/replay/main-scene.mjs';
 
 const ENTRIES = [

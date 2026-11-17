@@ -2,7 +2,7 @@ import { withInterruptEvents } from './observed-native-events.mjs';
 import { taskStop } from '../../src/system/task-stop.mjs';
 import { leaf } from '../../src/system/native-leaf-support.mjs';
 import { testLineOfSight, SIGHT_ROUTINE } from './line-of-sight.mjs';
-import { randomBelow } from '../../src/system/native-random.mjs';
+import { randomBelow } from './native-random.mjs';
 import { createObject } from '../../src/script/native-object-create.mjs';
 import { turnRegisters } from '../../src/script/native-object-turn.mjs';
 import { hitObject, DP_HIT_RESULT, DP_HIT_SHOOTER } from './native-object-hit.mjs';

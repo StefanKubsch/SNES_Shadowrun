@@ -1,6 +1,6 @@
 // Source-specific atomic plans for proof tools. The game executes the shared routines directly.
 import { prepareTaskPlan } from './plan.mjs';
-import { randomBelow, randomByte, taskRandomDevices } from '../../src/system/native-random.mjs';
+import { randomBelow, randomByte, taskRandomDevices } from '../replay/native-random.mjs';
 
 export const prepareTaskNativeRandom = (options) =>
   prepareTaskPlan(

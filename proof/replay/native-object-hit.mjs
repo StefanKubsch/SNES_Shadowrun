@@ -1,7 +1,7 @@
 import { withInterruptEvents } from './observed-native-events.mjs';
 import { taskStop } from '../../src/system/task-stop.mjs';
 import { taskTextAccess } from '../../src/system/native-text-prerequisites.mjs';
-import { randomBelow, taskRandomDevices } from '../../src/system/native-random.mjs';
+import { randomBelow, taskRandomDevices } from './native-random.mjs';
 import { createObject } from '../../src/script/native-object-create.mjs';
 import { playSoundEffect, taskAudioDevices } from './native-audio-compose.mjs';
 import { releaseWindowJsrSequence } from '../../proof/caller/window-release.mjs';

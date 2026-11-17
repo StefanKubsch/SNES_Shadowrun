@@ -6,7 +6,7 @@ At this point, the game is clearly targeted to be played on a computer: Browser,
 
 ## In addition to the complete game, it includes the following enhancements:
 
-- a newly recorded soundtrack by [Julian Daniels](https://juliandaniels.com/)
+- a newly recorded soundtrack by [Julian Daniels](https://juliandaniels.com/) (optional, but enabled by default)
 - customizable controls (mouse/keyboard/controller)
 - full German (with fixed bugs) and English localization
 - optional highlighting of interactive objects in the game
@@ -16,8 +16,8 @@ At this point, the game is clearly targeted to be played on a computer: Browser,
 - direct access to the secret “debug room”
 - credits can be accessed from the in-game startmenu
 - a searchable handbook
-- a CRT filter that models the signal path from the Super Nintendo to a Sony PVM-20M2E CRT monitor based on technical specifications (optional, but activated by default)
-- modeling of the Super Nintendo’s audio output including analog filters (optional, but activated by default)
+- a CRT filter that models the signal path from the Super Nintendo to a Sony PVM-20M2E CRT monitor based on technical specifications (optional, but enabled by default)
+- modeling of the Super Nintendo’s audio output including analog filters (optional, but enabled by default)
 - some performance fixes killing annoying delays and slowdowns
 
 ## Why this game?

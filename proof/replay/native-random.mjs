@@ -1,22 +1,22 @@
-import { taskStop } from './task-stop.mjs';
-import { routineCaller } from './routine-call.mjs';
-import { taskTextAccess } from './native-text-prerequisites.mjs';
+import { taskStop } from '../../src/system/task-stop.mjs';
+import { routineCaller } from '../../src/system/routine-call.mjs';
+import { taskTextAccess } from '../../src/system/native-text-prerequisites.mjs';
 import {
   RANDOM_STATE,
   RANDOM_STATE_HIGH,
   RANDOM_BYTE,
   DP_RANDOM_MASK,
   WRAM,
-} from '../data/wram.mjs';
+} from '../../src/data/wram.mjs';
 import {
   FLAG_INDEX_8BIT,
   FLAG_MEMORY_8BIT,
   FLAG_ZERO,
   FLAG_CARRY,
-} from '../constants/cpu-flags.mjs';
-import { BANK_WRAP, WORD_MASK, BANK_SIZE, BYTE_MASK } from '../constants/bits.mjs';
-import { SLHV, OPHCT, OPVCT } from '../constants/hardware-registers.mjs';
-import { CODE_BANK } from '../constants/memory-map.mjs';
+} from '../../src/constants/cpu-flags.mjs';
+import { BANK_WRAP, WORD_MASK, BANK_SIZE, BYTE_MASK } from '../../src/constants/bits.mjs';
+import { SLHV, OPHCT, OPVCT } from '../../src/constants/hardware-registers.mjs';
+import { CODE_BANK } from '../../src/constants/memory-map.mjs';
 // C560 reads its byte permutation through DBR; C51F selects a WORD mask by
 // incrementing the initial index twice before each shift of its nonzero limit.
 const RANDOM_BYTE_TABLE = 0xc58d;

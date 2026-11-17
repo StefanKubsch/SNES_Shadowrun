@@ -4,7 +4,7 @@
 // - lz_bit_lengths 80:A033: bit length of n (0 for 0, 8 for 128 to 255), the
 //   width of a back reference in the unpacker 9F49 (src/data/lz.mjs lzBits),
 // - random_masks 80:C540: 16 words FFFF >> k, the mask of C51F for a range
-//   below 2^(16-k) (src/system/native-random.mjs),
+//   below 2^(16-k) (proof/replay/native-random.mjs),
 // - random_bytes 80:C58D: 256 bytes C560 mixes with 7E:1C76/1C77,
 // - motion_offsets 80:AEB4: 136 words k * 20, read from the bases AEB4 and
 //   AEC4 by the tile queue of AC2F (src/system/native-scene-tiles.mjs),

@@ -6,11 +6,7 @@
 // that times out plays the attract game, a demo of the game in room AB, and shows
 // the menu again. The port's Credits row (src/game/credits.mjs) plays the credits
 // instead of the attract game.
-import {
-  nativeCallSequence,
-  dialogCallBody,
-  segmentSequence,
-} from '../system/native-call-continuation.mjs';
+import { dialogCallBody, segmentSequence } from '../system/native-call-continuation.mjs';
 import { titleSequence } from './title.mjs';
 import { startMenuSequence } from './start-menu.mjs';
 import { attractRoundsSequence } from './attract-rounds.mjs';
@@ -19,6 +15,8 @@ import { sceneRuntime } from '../system/scene-runtime.mjs';
 import { startSceneScreen } from '../system/nmi.mjs';
 import { loadSoundDirectory, setMusicMode, startSong } from '../apu/music-mode.mjs';
 import { setUpGameAudio, setUpTitleAudio } from '../intro/intro-scene.mjs';
+import { cutsceneSequence } from '../cutscene/cutscene-scene.mjs';
+import { sendApuCommandRoutine } from '../apu/audio-routines.mjs';
 import {
   CREDITS_ARGUMENT,
   CREDITS_SEQUENCE,
@@ -26,8 +24,8 @@ import {
   markMenuCredits,
   takeCreditsRequest,
 } from '../game/credits.mjs';
-import { TIMER, TIMER_STOPPED } from '../data/wram.mjs';
-import { SOUND_DIRECTORY_TITLE } from '../constants/sound-commands.mjs';
+import { MUSIC, TIMER, TIMER_STOPPED } from '../data/wram.mjs';
+import { APU_COMMAND_VOLUME_TARGET, SOUND_DIRECTORY_TITLE } from '../constants/sound-commands.mjs';
 import { CODE_BANK } from '../constants/memory-map.mjs';
 import { BYTE_BITS, BYTE_MASK, WORD_MASK } from '../constants/bits.mjs';
 
@@ -107,7 +105,7 @@ export function* titleCycleSequence(h, events, routines) {
   // by the menu; the Credits row plays the credits and shows the menu again.
   while (choice === MENU_CANCELLED) {
     if (takeCreditsRequest(h.a.vm)) {
-      yield* playMenuCredits(h, events, routines, m);
+      yield* playMenuCredits(h, events, m);
       choice = yield* menu(MENU_AGAIN_SITE, false);
       titleNext = true;
     } else if (titleNext) {
@@ -133,9 +131,8 @@ export function* titleCycleSequence(h, events, routines) {
 // The credits from the start menu's Credits row (src/game/credits.mjs), called with
 // the frame of the attract game. They set up the game's sounds,
 // play the ending room's music and afterwards stop it and load the title's sounds.
-function* playMenuCredits(h, events, routines, m) {
-  const { ctx } = h,
-    call = (target) => nativeCallSequence(h, events, routines, ATTRACT_SITE, target, true);
+function* playMenuCredits(h, events, m) {
+  const { ctx } = h;
   // The room music field does not describe the title audio. Always load the game
   // directory: the credits also play game sound 2E, which is invalid in the title.
   yield () => {
@@ -148,12 +145,27 @@ function* playMenuCredits(h, events, routines, m) {
     ctx.x = CREDITS_ARGUMENT;
     markMenuCredits(h.a.vm, true);
   };
-  yield* call(CUTSCENE);
+  yield* dialogCallBody(h, ATTRACT_SITE, CUTSCENE, () => cutsceneSequence(h, events), true);
   yield () => markMenuCredits(h.a.vm, false);
   yield () => {
     ctx.bank = CODE_BANK;
   };
-  yield* call(MUSIC_STOP);
+  yield* dialogCallBody(
+    h,
+    ATTRACT_SITE,
+    MUSIC_STOP,
+    function* () {
+      yield () => {
+        h.load(WORD_MASK);
+        h.write(h.abs(MUSIC), ctx.a);
+        h.load(APU_COMMAND_VOLUME_TARGET);
+        h.index('x', 0);
+        h.call(0x81efa0, 0x81f007, () => sendApuCommandRoutine(h), true);
+        return h.rtl();
+      };
+    },
+    true,
+  );
   yield () => {
     startSong(m.mem, m.port, SONG_NONE);
     loadSoundDirectory(m.mem, m.port, SOUND_DIRECTORY_TITLE);

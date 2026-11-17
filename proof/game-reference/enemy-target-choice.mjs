@@ -1,6 +1,6 @@
 import { taskStop } from '../../src/system/task-stop.mjs';
 import { leaf } from '../../src/system/native-leaf-support.mjs';
-import { randomBelow } from '../../src/system/native-random.mjs';
+import { randomBelow } from '../replay/native-random.mjs';
 import { testLineOfSight, SIGHT_ROUTINE } from '../replay/line-of-sight.mjs';
 
 import {

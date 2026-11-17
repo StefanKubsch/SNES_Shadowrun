@@ -39,3 +39,30 @@ title pan, title scroll and boot-screen return. A callback may still require
 its own internal helper table for recorded observations. Such dependencies
 must stay explicit; the broader start, room and scene entry tables are not
 part of the callback interface.
+
+The live frontend now composes its interrupt bindings from the intro and game
+NMI helpers plus the actual matrix, cutscene, menu and title callbacks. It does
+not spread the scene entry table. The former live frontend uses its independent
+replay NMI table, preserving helper dependencies for dispatched caller tests.
+
+The register entry adapters and their broad helper table now live in
+[scene-entries.mjs](../proof/caller/scene-entries.mjs). The game invokes the actual
+cutscene, intro and matrix sequences directly. Existing entry fixture and original
+frame comparisons still use those same adapters to call the actual game sequences;
+their physical frames and observation handling have not changed.
+
+The menu credits were a remaining live consumer of the scene table: their fixed
+cutscene and music-stop calls now compose directly through the same long frames.
+The stop still marks the music absent, sends volume target zero and preserves
+the nested sound-command frame. The former title cycle remains independent in
+`proof/frontend-caller/title-cycle.mjs` for the owner comparisons.
+
+The upkeep helper table and the register-level random routines became unreachable
+from the game after removing the scene spread. They now live in `proof/caller/`
+and `proof/replay/`; the game keeps its existing lifted random equations.
+
+The register-level game NMI still imports its map-edge uploader from the transition
+module. This is a remaining live dependency, so the transition, graphics,
+collision and loading reference chain stays in place until that consumer is
+separated. The text upload service similarly still retains the initialization
+module. These boundaries are not claimed as removed by the table cleanup.

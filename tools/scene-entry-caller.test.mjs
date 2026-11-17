@@ -6,7 +6,7 @@ import { introSequence } from '../src/intro/intro-scene.mjs';
 import { introSequence as formerIntro } from '../proof/caller/intro-scene.mjs';
 import { matrixSceneSequence } from '../src/matrix/matrix-scene.mjs';
 import { matrixSceneSequence as formerMatrix } from '../proof/caller/matrix-scene.mjs';
-import { playCutscene, playIntro, playMatrixScene } from '../src/system/main-scene.mjs';
+import { playCutscene, playIntro, playMatrixScene } from '../proof/caller/scene-entries.mjs';
 import { createSide } from './lift-function-harness.mjs';
 import { LagFreeFrames } from '../src/vm/frame-events.mjs';
 import {
