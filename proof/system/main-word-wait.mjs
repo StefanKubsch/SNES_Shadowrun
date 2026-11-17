@@ -13,10 +13,10 @@ import {
   NativeCallContinuation,
   drainNativeSequence,
 } from '../../src/system/native-call-continuation.mjs';
+import { waitEntry } from './main-wait-interrupt.mjs';
 import {
   InterruptStepContinuation,
   WAIT_CODE_BANK,
-  waitEntry,
 } from '../../src/system/main-wait-interrupt.mjs';
 import { FLAG_ZERO } from '../../src/constants/cpu-flags.mjs';
 import { WORD_MASK, BANK_SIZE } from '../../src/constants/bits.mjs';

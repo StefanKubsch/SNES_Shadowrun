@@ -1,11 +1,11 @@
 import { SCENE_BRIGHTNESS } from '../data/wram.mjs';
 import { taskStop } from './task-stop.mjs';
 import { runObservedNmi, ObservedNmiContinuation } from './nmi-call.mjs';
-import { NativeCallContinuation, drainNativeSequence } from './native-call-continuation.mjs';
+import { NativeCallContinuation } from './native-call-continuation.mjs';
 import { finishTextDmaObservations } from './main-dma-readback.mjs';
 import { NativeWaitContinuation } from './native-wait-continuation.mjs';
 import { LagFreeFrames } from '../vm/frame-events.mjs';
-import { FLAG_INDEX_8BIT, FLAG_MEMORY_8BIT, FLAG_ZERO } from '../constants/cpu-flags.mjs';
+import { FLAG_MEMORY_8BIT, FLAG_ZERO } from '../constants/cpu-flags.mjs';
 import { WORD_BITS, WORD_MASK } from '../constants/bits.mjs';
 
 export const WAIT_CODE_BANK = 0x81;
@@ -135,18 +135,6 @@ export function finishInterruptObservations(events) {
     taskStop('wait_interrupt_observation_unused', { observationIndex: events.interruptIndex });
   finishTextDmaObservations(events);
 }
-// Native-mode WORD entry at direct page 0 in the given code bank.
-export const waitEntry = (h, bank) => {
-  const { ctx } = h;
-  if (
-    ctx.e !== 0 ||
-    ctx.d !== 0 ||
-    ctx.programBank !== bank ||
-    ctx.status & (FLAG_INDEX_8BIT | FLAG_MEMORY_8BIT)
-  )
-    taskStop('wait_interrupt_entry_required');
-};
-
 // Runs the original wait graph from root with a step hook before each instruction.
 export function drainWait(h, root, beforeInstruction) {
   h.ctx.pc = root & WORD_MASK;
@@ -167,9 +155,6 @@ export function waitForFrameWithInterrupts(h, events) {
 // Inline $81:CF4C/CF4F in CDF8. An interrupt after LDA restores its BYTE
 // flags, so BNE still uses that LDA even if D479 changed 11A3 in the meantime.
 // Fall through to CF51 with the original caller frame and high A intact.
-export function runInterruptFadePoll(h, events) {
-  return drainNativeSequence(interruptFadeSequence(h, events));
-}
 export class FadePollContinuation extends NativeCallContinuation {
   constructor(h, events) {
     super(h.a, interruptFadeSequence(h, events));

@@ -11,10 +11,8 @@ import { runReference } from './w65c816-reference.mjs';
 import { TaskAccessor } from '../src/vm/task-accessor.mjs';
 import { dialogAccess } from '../src/system/native-dialog-support.mjs';
 import { runObservedNmi } from '../src/system/nmi-call.mjs';
-import {
-  runInterruptFadePoll,
-  finishInterruptObservations,
-} from '../src/system/main-wait-interrupt.mjs';
+import { runInterruptFadePoll } from '../proof/system/main-wait-interrupt.mjs';
+import { finishInterruptObservations } from '../src/system/main-wait-interrupt.mjs';
 import { playCutscene } from '../proof/cutscene-reference/cutscene-scene.mjs';
 import { SCENE_REFERENCE_ROUTINES as MAIN_SCENE_ROUTINES } from '../proof/scene-reference-routines.mjs';
 
