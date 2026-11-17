@@ -10,7 +10,8 @@ import {
 // effect 81:8877, the palette cycles 81:8076, the hit shake 80:DE94 and the notice
 // time limits 80:FF14. The lifted versions are src/game/fixed-colour.mjs,
 // src/game/palette-cycles.mjs, src/game/player-hit.mjs and src/game/notice-timeout.mjs.
-import { clearFixedColour, FIXED_COLOUR_BLACK } from '../../src/system/native-dialog-portrait.mjs';
+import { FIXED_COLOUR_BLACK } from '../../src/system/native-dialog-portrait.mjs';
+import { clearFixedColour } from '../system/native-dialog-portrait.mjs';
 import { advancePaletteCycles } from '../render/palette-cycles-equations.mjs';
 import { sec, clc } from '../system/status-flags.mjs';
 import {

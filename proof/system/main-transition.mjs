@@ -7,7 +7,7 @@ import { turnRegisters } from '../../src/script/native-object-turn.mjs';
 import { drawWindowListAdapter } from '../../src/system/native-render-compose.mjs';
 import { sendApuCommand } from '../../src/system/native-input-apu.mjs';
 import { clampToCameraBox, updateCameraTileBuffers } from './main-loop-camera.mjs';
-import { clearFixedColour } from '../../src/system/native-dialog-portrait.mjs';
+import { clearFixedColour } from './native-dialog-portrait.mjs';
 import { ObservedWaitContinuation } from '../../src/system/main-wait-interrupt.mjs';
 import { uploadMapEdgesAndScroll } from './main-game-nmi.mjs';
 import {

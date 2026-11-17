@@ -101,3 +101,10 @@ constants. Those constants now live in `src/system/main-reset.mjs`, their live
 user, and the routines moved to `proof/system/main-scene-video.mjs`; the lifted
 versions remain in `src/system/nmi.mjs`, `src/system/scene-list.mjs` and
 `src/video/scene-screen.mjs`.
+
+The register-level dialog portrait routines (fixed colour clear 81:886A, text
+width 80:FA92, row shift 80:8F20, portrait uploads 80:9022 and 80:905E, window
+edges, open and close 80:8EFE to 80:8F97) and their private tables moved to
+`proof/system/native-dialog-portrait.mjs`. The game runs their lifted versions;
+the live module keeps only the waits, unpacking, tile upload, glove release
+and the constants that lifted code shares.
