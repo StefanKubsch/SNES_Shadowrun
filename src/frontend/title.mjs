@@ -8,8 +8,7 @@
 // until position 0401 with objects moving over it, scrolls the city down, narrows
 // the window and blends three views of the picture in and out, then fades out. A
 // held button ends either at once; the title then returns 1 instead of 0.
-import { nativeCallSequence } from '../system/native-call-continuation.mjs';
-import { lagFree } from '../system/main-wait-interrupt.mjs';
+import { sceneFrames } from '../system/scene-frames.mjs';
 import {
   beginPackedTextEdit,
   endPackedTextEdit,
@@ -21,8 +20,7 @@ import { sceneRuntime } from '../system/scene-runtime.mjs';
 import { startSceneScreen, enableNmiAndJoypad, disableNmi } from '../system/nmi.mjs';
 import { runSceneList } from '../system/scene-list.mjs';
 import { unpackStream } from '../system/unpack.mjs';
-import { readJoypad, takePadPresses } from '../system/joypad.mjs';
-import { nmiAtBranch, waitForFrame } from '../system/frame-wait.mjs';
+import { readJoypad } from '../system/joypad.mjs';
 import { startSong } from '../apu/music-mode.mjs';
 import { setSceneScreen } from '../video/scene-screen.mjs';
 import { fadeIn, fadeOut } from '../video/fades.mjs';
@@ -109,11 +107,7 @@ import {
 } from '../constants/cpu-flags.mjs';
 
 const LONG_MASK = 0xffffff,
-  WRAM_BANK = WRAM >>> WORD_BITS,
-  // Register-level routines for recorded interrupt observations.
-  WAIT_FRAME = 0x81eebb,
-  READ_INPUT = 0x80f298,
-  CALL_SITE = 0x81d694;
+  WRAM_BANK = WRAM >>> WORD_BITS;
 // The prologue: font and text (packed in bank 81) into bank 7E, its scene list, 980
 // frames; after 120 frames the title song starts at volume 0 and fades in. The text
 // scrolls one line every three frames; every eight lines a new text line is centred
@@ -401,25 +395,22 @@ export function handleTitleScrollNmi(h) {
 export function* titleSequence(h, events, routines) {
   const { ctx } = h,
     status = ctx.status,
-    call = (target) => nativeCallSequence(h, events, routines, CALL_SITE, target, true),
-    lifted = lagFree(events);
+    clock = sceneFrames(h, events, 'title', routines);
   ctx.status &= ~(FLAG_MEMORY_8BIT | FLAG_INDEX_8BIT);
   let m;
-  const wait = () => (lifted ? waitForFrame(h, events, m.port) : call(WAIT_FRAME)),
-    input = lifted ? () => [() => takePadPresses(m.wram)] : () => call(READ_INPUT),
+  const wait = () => clock.wait(m),
+    input = () => clock.input(m),
     held = () => word(m.wram, PAD_HELD) !== 0;
   // The music beat: LDA 2142 until the sound driver's port 2 reads 0 (at the BNE
-  // the lag-free frames deliver an NMI, or audio time with the NMI disabled).
+  // the lag-free frames deliver an NMI, or audio time with the NMI disabled; a
+  // recorded run reads its observed port values).
   const beat = function* (site) {
     for (;;) {
       let value;
       yield () => (value = m.port.read(APUIO2, 1, site));
       if (value === 0) return;
-      if (!lifted) continue;
       const after = (ctx.status | FLAG_MEMORY_8BIT) & ~(FLAG_NEGATIVE | FLAG_ZERO);
-      yield* nmiAtBranch(
-        h,
-        events,
+      yield* clock.atBranch(
         site + BEAT_BRANCH_OFFSET,
         value & BYTE_SIGN ? after | FLAG_NEGATIVE : after,
       );

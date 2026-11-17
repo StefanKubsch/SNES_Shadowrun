@@ -1,3 +1,4 @@
+import '../system/recorded-scene-frames.mjs';
 import { frontendContinuations, FRONTEND_TEXT_ROUTINES } from './main-frontend-text.mjs';
 
 import { drainNativeSequence } from '../../src/system/native-call-continuation.mjs';

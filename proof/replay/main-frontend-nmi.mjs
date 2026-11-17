@@ -1,6 +1,7 @@
 // The NMI callbacks of the frontend: the lifted prologue, pan and vertical scroll
 // callbacks 81:DD54, 81:D93E and 81:DCAC (src/frontend/title.mjs; register-level
 // reference in proof/frontend-reference/title.mjs).
+import '../system/recorded-scene-frames.mjs';
 import { FRONTEND_MENU_ROUTINES } from './main-frontend-menu.mjs';
 import {
   handlePrologueNmi,
