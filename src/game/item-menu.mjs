@@ -36,7 +36,7 @@ import {
   DP_ITEM_FLAGS,
   DP_ITEM_LIST_OFFSET,
   DP_ITEM_RECORD,
-  ITEM_COUNT_COLUMNS,
+  itemCountColumns,
   ITEM_WINDOW,
 } from '../system/native-status-screen.mjs';
 import { DP_SCRATCH } from '../data/native-member-spell-menu.mjs';
@@ -217,9 +217,15 @@ export function* itemMenuSequence(h, events, entry, renderBuffer = drawTextBuffe
       if (!open) return;
       let window = ITEM_WINDOW;
       if (mem.language) {
-        const ids = [];
-        for (let at = 0; at < offset; at += 2) ids.push(dataBankWord(mem, MEMBER_MENU_NAMES, at));
-        window = translatedListWindow(mem, ITEM_WINDOW, ids, { valueColumns: ITEM_COUNT_COLUMNS });
+        const ids = [],
+          counts = [];
+        for (let at = 0; at < offset; at += 2) {
+          ids.push(dataBankWord(mem, MEMBER_MENU_NAMES, at));
+          counts.push(dataBankWord(mem, ITEM_MENU_COUNTS, at));
+        }
+        window = translatedListWindow(mem, ITEM_WINDOW, ids, {
+          valueColumns: itemCountColumns(counts),
+        });
       }
       setWord(wram, DP_WINDOW_LEFT, window.left);
       setWord(wram, DP_WINDOW_TOP, window.top);

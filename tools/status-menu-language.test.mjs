@@ -66,8 +66,12 @@ for (const language of ['en', 'de'])
           steps(200);
           const submenu = memory.read16(0x1f50);
           if (language === 'de' && memory.read16(0x204) === 4 && [1, 2, 3, 4].includes(choice)) {
+            // Item lists reserve count columns only when a row shows a count.
+            let counted = false;
+            for (let offset = 2; offset < 16 && memory.read16(0x1da9 + offset); offset += 2)
+              counted ||= memory.read16(0x1eaf + offset) !== 0;
             const width = memory.read16(0x7e2020 + submenu),
-              extra = choice === 2 ? 0 : 3;
+              extra = choice !== 2 && counted ? 3 : 0;
             for (let offset = 0; offset < 16; offset += 2) {
               const id = memory.read16(0x1da9 + offset);
               if (!id) break;
@@ -92,3 +96,74 @@ for (const language of ['en', 'de'])
       }
     },
   );
+
+// User report 2026-11-17: examining DF_ÄRGER in the German status screen drew its // language-ok
+// description (text number 561) over the status window. The status window (672
+// tiles), the translated menu and item list leave fewer text tiles than the notice
+// needs, and F963 wraps past 2400 to the status window's first tiles. The notice now
+// stays below 2400 and shows its text in pages, each after a confirming key.
+test(
+  'de: a long item description in the status screen pages instead of wrapping its tiles',
+  {
+    timeout: 120000,
+  },
+  () => {
+    let game,
+      word = 0,
+      wordUntil = 0;
+    game = new LiveGame(cartridge, {
+      languages,
+      language: 'de',
+      counter: counterBytes(0x1234567),
+      pad: (k) => {
+        if (k < 5000) return [3000, 3300, 3600].some((at) => k >= at && k < at + 4) ? 0x1000 : 0;
+        return k < wordUntil ? word : 0;
+      },
+    });
+    const steps = (frames) => {
+      const end = game.nmis + frames;
+      while (game.nmis < end) game.step();
+    };
+    const press = (bits) => {
+      word = bits;
+      wordUntil = game.nmis + 2;
+      steps(12);
+      word = 0;
+      steps(8);
+    };
+    while (game.nmis < 5100) game.step();
+    const memory = game.memory,
+      notice = 6,
+      tileEnd = () => memory.read16(0x7e2060 + notice) + memory.read16(0x7e20a0 + notice);
+    // Jake (object 08B2) holds DF_ÄRGER (actor 5544, state record 39F9). // language-ok
+    memory.write16(0x7e0000 + 0x39f9 + 3, 0x08b2);
+    press(0x1000);
+    steps(200);
+    press(0x0400);
+    press(0x1000);
+    steps(200);
+    assert.equal(memory.read16(0x1e2d + 2), 5544, 'DF_ÄRGER heads the item list'); // language-ok
+    press(0x0400);
+    press(0x1000);
+    steps(300);
+    press(0x0400);
+    press(0x0080);
+    steps(100);
+    const status = memory.read16(0x7e2060);
+    assert.equal(memory.read16(0x204), notice, 'the description notice is the last window');
+    assert.ok(memory.read16(0x7e2060 + notice) > status, 'the notice keeps its own tiles');
+    assert.ok(tileEnd() < 0x2400, 'the notice ends below tile 2400');
+    const pages = [];
+    for (let page = 0; page < 2; page++) {
+      pages.push(Buffer.from(memory.wram.subarray(0x21a0, memory.wram.indexOf(0, 0x21a0))));
+      press(0x0080);
+      steps(100);
+    }
+    assert.equal(memory.read16(0x204), 4, 'the second key releases the notice');
+    assert.equal(
+      pages.map((page) => page.toString('latin1')).join(' '),
+      Buffer.from(languages.de.texts.get(0xa968)).toString('latin1'),
+      'both pages together show the complete description',
+    );
+  },
+);

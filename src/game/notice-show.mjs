@@ -20,7 +20,8 @@
 // 80 (notice_text_required past it).
 import { taskStop } from '../system/task-stop.mjs';
 import { dialogCallBody } from '../system/native-call-continuation.mjs';
-import { openWindowSequence } from './window-open.mjs';
+import { openWindowSequence, requestTileClearSequence } from './window-open.mjs';
+import { waitForConfirmKeySequence } from './confirm-key.mjs';
 import { printTextSequence } from './text-print.mjs';
 import { drawTextBufferSequence } from './text-draw.mjs';
 import { fitNoticeWindow } from '../data/language.mjs';
@@ -33,6 +34,11 @@ import {
   NOTICE_FRAMES,
   NOTICE_WINDOW_LAST,
   NOTICE_WINDOWS,
+  WINDOW_CURSOR_PIXEL,
+  WINDOW_CURSOR_TILE,
+  WINDOW_LEFT_PIXEL,
+  WINDOW_TILE_INITIAL,
+  WINDOW_TILE_START,
 } from '../data/wram.mjs';
 import { BYTE_BITS, BYTE_MASK, WORD_MASK, WORD_SIGN } from '../constants/bits.mjs';
 import { FLAG_CARRY, FLAG_NEGATIVE, FLAG_ZERO } from '../constants/cpu-flags.mjs';
@@ -48,7 +54,10 @@ const EFFECT_ATTRIBUTES = 0x400,
 // Original call sites and callees.
 const WINDOW_CALL = [0x80fece, 0x80f963],
   TEXT_CALL = [0x80fedd, 0x80fe69],
-  RELEASE_SITE = 0x80ff04;
+  RELEASE_SITE = 0x80ff04,
+  // The routines a paged notice adds between its pages.
+  CONFIRM_KEY = 0x80f953,
+  TILE_CLEAR = 0x80fa67;
 
 const word = (wram, at) => wram[at] | (wram[at + 1] << BYTE_BITS);
 const setWord = (wram, at, value) => {
@@ -68,6 +77,42 @@ const compare = (ctx, left, right) => {
   signAndZero(ctx, (left - right) & WORD_MASK);
 };
 
+// A translated notice too long for the text tiles left (fitNoticeWindow): its pages
+// one after another in the same window, each after a confirming key (80:F953) and
+// with the window's tiles cleared (80:FA67) and its text cursor back at the start.
+// The last page stays, as a whole notice would. A port extension; the waits run
+// through call frames at the text call site.
+function* pagesSequence(h, events, renderBuffer, { id, pages }) {
+  const { mem } = h.a,
+    { wram } = mem,
+    window = word(wram, DP_WINDOW),
+    text = word(wram, DP_TEXT);
+  for (let page = 0; page < pages.length; page++) {
+    if (page) {
+      yield* dialogCallBody(h, TEXT_CALL[0], CONFIRM_KEY, () =>
+        waitForConfirmKeySequence(h, events),
+      );
+      yield () => setWord(wram, DP_WINDOW, window);
+      yield* dialogCallBody(h, TEXT_CALL[0], TILE_CLEAR, () => requestTileClearSequence(h, events));
+      yield () => {
+        setWord(wram, WINDOW_CURSOR_TILE + window, word(wram, WINDOW_TILE_START + window));
+        setWord(wram, WINDOW_TILE_INITIAL + window, word(wram, WINDOW_TILE_START + window));
+        setWord(wram, WINDOW_CURSOR_PIXEL + window, 0);
+        setWord(wram, WINDOW_LEFT_PIXEL + window, 0);
+        setWord(wram, DP_WINDOW, window);
+        setWord(wram, DP_TEXT, text);
+      };
+    }
+    yield () => {
+      mem.noticePage = { id, codes: pages[page] };
+    };
+    yield* dialogCallBody(h, ...TEXT_CALL, () => printTextSequence(h, events, renderBuffer));
+    yield () => {
+      mem.noticePage = null;
+    };
+  }
+}
+
 // Show the notice (80:FEC1), a sequence for a native call continuation: h the caller's
 // access (direct page 0, data bank 80), events its frame events, and renderBuffer
 // the text-buffer renderer sequence.
@@ -76,8 +121,9 @@ export function* showNoticeSequence(h, events, renderBuffer = drawTextBufferSequ
     { mem } = h.a,
     { wram } = mem,
     call = (site, body) => dialogCallBody(h, ...site, body);
+  let paged = null;
   yield () => {
-    fitNoticeWindow(
+    paged = fitNoticeWindow(
       mem,
       (offset) => word(wram, offset),
       (offset, value) => setWord(wram, offset, value),
@@ -99,7 +145,8 @@ export function* showNoticeSequence(h, events, renderBuffer = drawTextBufferSequ
     ctx.a = mem.read8(at) | (mem.read8(at + 1) << BYTE_BITS);
     setWord(wram, DP_TEXT, ctx.a);
   };
-  yield* call(TEXT_CALL, () => printTextSequence(h, events, renderBuffer));
+  if (paged) yield* pagesSequence(h, events, renderBuffer, paged);
+  else yield* call(TEXT_CALL, () => printTextSequence(h, events, renderBuffer));
   let replace = false;
   yield () => {
     // The last free slot from the top; on the way the fewest frames (the last of equal

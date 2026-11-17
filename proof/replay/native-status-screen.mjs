@@ -127,6 +127,7 @@ import { KIND_ITEM_CLASS_MASK } from '../../src/data/kinds.mjs';
 import { TEXT_EXIT } from '../../src/data/port-extension.mjs';
 import { languageTextWidth } from '../../src/data/language.mjs';
 import { translatedListWindow, fitListWindow } from '../../src/data/menu-layout.mjs';
+import { itemCountColumns } from '../../src/system/native-status-screen.mjs';
 
 // EA6E dims both sound channels with command 2 and ECF5 restores the full level.
 export const STATUS_VOLUME_TARGET = 0x2f2f,
@@ -158,8 +159,6 @@ export const ITEM_WINDOW = Object.freeze({
   rows: 8,
   visibleRows: 6,
 });
-// A count byte can need three digits plus the space inserted by A617.
-export const ITEM_COUNT_COLUMNS = 3;
 // E834: skill names 80:E8BC in window 0D/0C/0F (two rows more than skills), values
 // at column 0B.
 export const SKILL_NAMES = 0xe8bc,
@@ -521,11 +520,14 @@ export function* e585Sequence(h, events, routines = STATUS_SCREEN_ROUTINES, entr
     if (ctx.status & FLAG_NEGATIVE) {
       let itemWindow = ITEM_WINDOW;
       if (h.a.mem?.language) {
-        const ids = [];
-        for (let offset = 0; offset < h.dp(DP_ITEM_LIST_OFFSET); offset += 2)
+        const ids = [],
+          counts = [];
+        for (let offset = 0; offset < h.dp(DP_ITEM_LIST_OFFSET); offset += 2) {
           ids.push(h.read(h.abs(MEMBER_MENU_NAMES) + offset));
+          counts.push(h.read(h.abs(ITEM_MENU_COUNTS) + offset));
+        }
         itemWindow = translatedListWindow(h.a.mem, ITEM_WINDOW, ids, {
-          valueColumns: ITEM_COUNT_COLUMNS,
+          valueColumns: itemCountColumns(counts),
         });
       }
       store(h, [

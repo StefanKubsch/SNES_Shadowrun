@@ -27,6 +27,14 @@ export const ITEM_WINDOW = Object.freeze({
 // A count byte can need three digits plus the space inserted by A617.
 export const ITEM_COUNT_COLUMNS = 3;
 
+// The value columns a translated item list reserves: A617 prints no count of 0 (a
+// single item), so a list without counts reserves none. The text tiles of the status
+// screen, its menu, this list and an item's notice share 985 tiles (80:F963 wraps to
+// the status window's first tiles past them); a German description such as text
+// number 561 otherwise overflows them. counts: the list's count words after Exit.
+export const itemCountColumns = (counts) =>
+  counts.some((count) => count !== 0) ? ITEM_COUNT_COLUMNS : 0;
+
 // E834: skill names 80:E8BC in window 0D/0C/0F (two rows more than skills), values
 // at column 0B.
 export const SKILL_NAMES = 0xe8bc,

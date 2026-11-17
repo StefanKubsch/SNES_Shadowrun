@@ -1,7 +1,13 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
-import { buildLanguage, installLanguage, noticeSize, wrappedLines } from '../src/data/language.mjs';
+import {
+  buildLanguage,
+  installLanguage,
+  noticeSize,
+  pagedNotice,
+  wrappedLines,
+} from '../src/data/language.mjs';
 import { showNoticeSequence } from '../src/game/notice-show.mjs';
 import { NOTICE_WINDOWS, WINDOW_COLUMNS, WINDOW_ROWS } from '../src/data/wram.mjs';
 import { textWindowSide, finishTextWindow } from './text-window-caller-harness.mjs';
@@ -60,3 +66,21 @@ for (const translated of [false, true])
       assert.ok(rows > 3, 'the entire sentence needs another text row');
     } else assert.deepEqual([rows, columns], [3, 25], 'original English geometry');
   });
+
+test('a notice past the free text tiles splits its complete text into equal pages', () => {
+  const { mem } = textWindowSide();
+  installLanguage(mem, german);
+  const width = (c) => mem.read8(GLYPH_WIDTHS + c),
+    codes = german.texts.get(0xa968);
+  // Text number 561 needs six lines of 26 tiles; the status screen left 152 tiles.
+  assert.equal(pagedNotice(codes, 28, width, 26 * 6).pages.length, 1);
+  const { size, pages } = pagedNotice(codes, 28, width, 152);
+  assert.deepEqual(size, [5, 28]);
+  assert.equal(pages.length, 2);
+  for (const page of pages) assert.ok(wrappedLines(page, 26 * 8, width) <= 3);
+  assert.deepEqual(
+    pages.flatMap((page, i) => (i ? [0x20, ...page] : page)),
+    [...codes],
+  );
+  assert.equal(pagedNotice(codes, 28, width, 25), null, 'not even one line fits');
+});

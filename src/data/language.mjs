@@ -168,47 +168,106 @@ const WINDOW_BORDER = 2,
 // width with DP A8, carry on >=); "|" makes the rest of the word
 // bold, one pixel wider per character. glyphWidth reads 81:AC0C.
 export function wrappedLines(codes, pixels, glyphWidth) {
-  let lines = 1,
-    x = 0,
-    word = 0,
-    bold = false;
+  const { lines, tooWide } = wrapTextLines(codes, pixels, glyphWidth);
+  // FB39 cannot split a word to fit a notice. Counting only its rows would
+  // falsely accept e.g. a one-row window narrower than the purchase prompt.
+  return tooWide ? Infinity : lines.length;
+}
+
+// The lines of wrappedLines with their character codes (a space between the words
+// of a line), and whether a word is wider than a line.
+export function wrapTextLines(codes, pixels, glyphWidth) {
+  const lines = [[]];
+  let x = 0,
+    word = [],
+    wordWidth = 0,
+    bold = false,
+    tooWide = false;
   const place = () => {
-    // FB39 cannot split a word to fit a notice. Counting only its rows would
-    // falsely accept e.g. a one-row window narrower than the purchase prompt.
-    if (word >= pixels) lines = Infinity;
+    if (wordWidth >= pixels) tooWide = true;
     const space = x ? glyphWidth(SPACE) : 0;
-    if (x && x + space + word >= pixels) {
-      lines++;
-      x = word;
-    } else x += space + word;
-    word = 0;
+    if (x && x + space + wordWidth >= pixels) {
+      lines.push(word);
+      x = wordWidth;
+    } else {
+      const line = lines[lines.length - 1];
+      if (x) line.push(SPACE);
+      line.push(...word);
+      x += space + wordWidth;
+    }
+    word = [];
+    wordWidth = 0;
     bold = false;
   };
   for (const c of codes) {
-    if (c === SPACE) place();
-    else if (c === BOLD) {
+    if (c === SPACE) {
+      place();
+      continue;
+    }
+    word.push(c);
+    if (c === BOLD) {
       bold = true;
-      word += glyphWidth(BOLD_PLACEHOLDER) + 1;
-    } else word += glyphWidth(c) + (bold ? 1 : 0);
+      wordWidth += glyphWidth(BOLD_PLACEHOLDER) + 1;
+    } else wordWidth += glyphWidth(c) + (bold ? 1 : 0);
   }
   place();
-  return lines;
+  return { lines, tooWide };
+}
+
+// Pages of a notice whose complete text exceeds the text tiles left (see
+// fitNoticeWindow): the window keeps its width and shows the same number of lines
+// on each page; returns { size, pages } or null when not even one line fits.
+export function pagedNotice(codes, width, glyphWidth, tiles) {
+  const columns = width - WINDOW_BORDER,
+    { lines } = wrapTextLines(codes, columns * TILE_PIXELS, glyphWidth),
+    maximum = Math.min(Math.floor(tiles / columns), MAX_NOTICE_HEIGHT - WINDOW_BORDER);
+  if (maximum < 1) return null;
+  const rows = Math.ceil(lines.length / Math.ceil(lines.length / maximum)),
+    pages = [];
+  for (let at = 0; at < lines.length; at += rows)
+    pages.push(lines.slice(at, at + rows).flatMap((line, i) => (i ? [SPACE, ...line] : line)));
+  return { size: [rows + WINDOW_BORDER, width], pages };
 }
 
 // The German [height, width] of a notice, or null to keep the English one.
 // args: the seven argument words as the script pushed them (text number second).
-export function noticeSize(language, args, codes, glyphWidth) {
+// tiles: the text tiles F963 can still allocate without wrapping onto the first
+// window's tiles; a size past them takes the smallest text area that fits both.
+export function noticeSize(language, args, codes, glyphWidth, tiles = Infinity) {
   const known = language.notices.get(args.join(','));
   const [height, width] = known ?? [args[3], args[4]]; // magic-number-ok: argument positions of height and width
-  const fits = (h, w) =>
-    wrappedLines(codes, (w - WINDOW_BORDER) * TILE_PIXELS, glyphWidth) <= h - WINDOW_BORDER;
+  const size = preferredNoticeSize(height, width, codes, glyphWidth);
+  const chosen = size ?? [height, width];
+  if (textTiles(chosen) <= tiles) return size ?? known ?? null;
+  return smallestNotice(width, codes, glyphWidth, tiles) ?? size ?? known ?? null;
+}
+
+const textTiles = ([h, w]) => (h - WINDOW_BORDER) * (w - WINDOW_BORDER);
+const noticeLines = (codes, w, glyphWidth) =>
+  wrappedLines(codes, (w - WINDOW_BORDER) * TILE_PIXELS, glyphWidth);
+
+// The size for the complete text, or null when the given one already fits.
+function preferredNoticeSize(height, width, codes, glyphWidth) {
+  const fits = (h, w) => noticeLines(codes, w, glyphWidth) <= h - WINDOW_BORDER;
   // Cartridge dimensions can truncate their own translation, too. Validate
   // the entire text before accepting them, including single-row notices.
-  if (fits(height, width)) return known ?? null;
+  if (fits(height, width)) return null;
   for (let w = width + 1; w <= MAX_NOTICE_WIDTH; w++) if (fits(height, w)) return [height, w];
   const w = Math.max(width, MAX_NOTICE_WIDTH),
-    lines = wrappedLines(codes, (w - WINDOW_BORDER) * TILE_PIXELS, glyphWidth);
+    lines = noticeLines(codes, w, glyphWidth);
   return [Math.min(MAX_NOTICE_HEIGHT, lines + WINDOW_BORDER), w];
+}
+
+// The complete text's size with the fewest text tiles within the budget, from the
+// requested width up (the narrowest of equal areas), or null.
+function smallestNotice(width, codes, glyphWidth, tiles) {
+  let best = null;
+  for (let w = width; w <= MAX_NOTICE_WIDTH; w++) {
+    const h = noticeLines(codes, w, glyphWidth) + WINDOW_BORDER;
+    if (h > MAX_NOTICE_HEIGHT || textTiles([h, w]) > tiles) continue;
+    if (!best || textTiles([h, w]) < textTiles(best)) best = [h, w];
+  }
+  return best;
 }
 
 // Switches the text language of a game's memory (null: English). The first
@@ -257,28 +316,54 @@ export const languageStream = (memory, cpu) => memory?.languageData?.streams.get
 export const languageMenuText = (memory, cpu) =>
   memory?.frontendTextEdits?.texts.get(cpu) ?? memory?.languageData?.menus.get(cpu) ?? null;
 
-// The character codes that replace the text of FE69's text word, or null.
-export const languageText = (memory, id) => memory?.language?.get(id) ?? null;
+// The character codes that replace the text of FE69's text word, or null. A paged
+// notice (80:FEC1) shows one page of its text at a time (memory.noticePage).
+export const languageText = (memory, id) =>
+  (memory?.noticePage?.id === id ? memory.noticePage.codes : null) ??
+  memory?.language?.get(id) ??
+  null;
 
 // Text number table 80:D9B8 (src/data/tables.mjs text_numbers) and glyph
 // widths, read from the game memory.
-const TEXT_NUMBERS = 0x80d9b8;
+const TEXT_NUMBERS = 0x80d9b8,
+  // The next window's first text tile (7E:0212) and the last tile F963 leaves
+  // unwrapped (a window ends below 2400).
+  WRAM_NEXT_TILE = 0x7e0212,
+  LAST_TEXT_TILE = 0x23ff;
 // FEC1's seven argument words lie in DP 0C down to 00 (the text number in
 // DP 0A, height 06, width 04). In German mode this sets the German window
 // size before F963 allocates the window.
+//
+// F963 gives a window the text tiles after the last window's, up to 2400, and
+// wraps one past them to 2027, the first window's tiles: in the status screen
+// (window 1E x 1A, 672 tiles) with its translated menu and item list, a long
+// German item description such as text number 561 drew over the status window.
+// A notice whose complete text exceeds the tiles left therefore takes the
+// smallest size that holds it within them, or else shows it in pages of equal
+// height: returns { id, pages } for the caller to print page by page, or null.
 export function fitNoticeWindow(memory, dp, dpWrite) {
   const language = memory?.languageData;
-  if (!memory?.language) return;
+  if (!memory?.language) return null;
   const args = [0xc, 0xa, 8, 6, 4, 2, 0].map((offset) => dp(offset)); // magic-number-ok: DP offsets of the seven argument words
   const id = memory.read16(TEXT_NUMBERS + 2 * args[1]);
   const codes = languageText(memory, id);
-  if (!codes) return;
+  if (!codes) return null;
   // Cartridge-specific German dimensions apply only to the unchanged text.
   const sizing = language?.texts.get(id) === codes ? language : { notices: new Map() };
-  const size = noticeSize(sizing, args, codes, (c) => memory.read8(GLYPH_WIDTHS + c));
-  if (!size) return;
-  dpWrite(6, size[0]); // magic-number-ok: DP of the window height
-  dpWrite(4, size[1]); // magic-number-ok: DP of the window width
+  const glyphWidth = (c) => memory.read8(GLYPH_WIDTHS + c),
+    tiles = LAST_TEXT_TILE - memory.read16(WRAM_NEXT_TILE);
+  let size = noticeSize(sizing, args, codes, glyphWidth, tiles),
+    paged = null;
+  const [height, width] = size ?? [args[3], args[4]]; // magic-number-ok: argument positions of height and width
+  if (textTiles([height, width]) > tiles) {
+    paged = pagedNotice(codes, width, glyphWidth, tiles);
+    if (paged) size = paged.size;
+  }
+  if (size) {
+    dpWrite(6, size[0]); // magic-number-ok: DP of the window height
+    dpWrite(4, size[1]); // magic-number-ok: DP of the window width
+  }
+  return paged && paged.pages.length > 1 ? { id, pages: paged.pages } : null;
 }
 
 // Width of effective display content, or null to keep FADD's original sum.
