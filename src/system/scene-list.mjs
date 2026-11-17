@@ -9,7 +9,13 @@
 // The lifted list runs with 16-bit registers (the matrix requires them): the
 // callback command then stores its bank as a word.
 import { taskStop } from './task-stop.mjs';
-import { decodeOnce, tableEntries } from '../data/named-tables.mjs';
+import {
+  sceneListCommands,
+  SCENE_COMMAND_CALLBACK,
+  SCENE_COMMAND_PALETTE,
+  SCENE_COMMAND_PACKED_VRAM,
+  SCENE_COMMAND_REGISTER,
+} from '../data/scene-commands.mjs';
 import { unpackStream } from './unpack.mjs';
 import {
   NMI_CALLBACK,
@@ -35,21 +41,11 @@ import { DMAP_TWO_PORTS, VMAINC_INCREMENT_AFTER_HIGH } from '../constants/ppu.mj
 import { BYTE_BITS, BYTE_MASK, WORD_BITS, WORD_MASK } from '../constants/bits.mjs';
 
 const LONG_MASK = 0xffffff,
-  COMMAND_BANK = 0x810000,
   // Single register writes address banks 80 (data bank of 81:ECB7).
   REGISTER_BANK = 0x800000,
   REGISTER_SITE = 0x81ecc7,
   DMA_CHANNEL_0 = 1,
   WRAM_BANK = WRAM >>> WORD_BITS;
-// Handlers of the command table.
-const NOTHING = [0xec41, 0xecce, 0xeccf, 0xecd0],
-  SET_CALLBACK = 0xec42,
-  PALETTE = 0xec4f,
-  PACKED_TO_VRAM = 0xec68,
-  REGISTER = 0xecb7;
-
-const commands = (mem) =>
-  decodeOnce(mem, 'scene_list_commands', (image) => tableEntries(image, 'scene_list_commands'));
 const setWord = (wram, at, value) => {
   wram[at] = value & BYTE_MASK;
   wram[at + 1] = (value >>> BYTE_BITS) & BYTE_MASK;
@@ -74,7 +70,7 @@ export function copyPalette(mem, video, source, first, count) {
 // Run the scene command list at list (long address).
 export function runSceneList(mem, video, port, list) {
   const { wram } = mem,
-    table = commands(mem);
+    table = sceneListCommands(mem);
   let at = 0;
   const byte = () => mem.read8((list + at++) & LONG_MASK),
     word = () => byte() | (byte() << BYTE_BITS);
@@ -83,18 +79,15 @@ export function runSceneList(mem, video, port, list) {
     if (command === 0) return;
     at++;
     const handler = table[command];
-    if (
-      handler === undefined ||
-      ![...NOTHING, SET_CALLBACK, PALETTE, PACKED_TO_VRAM, REGISTER].includes(handler)
-    )
+    if (!handler?.operation)
       taskStop('main_scene_command_frontier', {
-        target: handler === undefined ? null : COMMAND_BANK | handler,
+        target: handler?.target ?? null,
         commandIndex: command * 2,
       });
-    if (handler === SET_CALLBACK) {
+    if (handler.operation === SCENE_COMMAND_CALLBACK) {
       setWord(wram, NMI_CALLBACK, word());
       setWord(wram, NMI_CALLBACK_BANK, word());
-    } else if (handler === PALETTE) {
+    } else if (handler.operation === SCENE_COMMAND_PALETTE) {
       const colours = word(),
         bank = word(),
         address = word();
@@ -105,7 +98,7 @@ export function runSceneList(mem, video, port, list) {
         colours >>> BYTE_BITS,
         colours & BYTE_MASK,
       );
-    } else if (handler === PACKED_TO_VRAM) {
+    } else if (handler.operation === SCENE_COMMAND_PACKED_VRAM) {
       // Unpack into the scene buffer at 7E:46A8, then send it to VRAM by DMA.
       video.write(VMAINC, VMAINC_INCREMENT_AFTER_HIGH, 1);
       video.write(DMAP0, DMAP_TWO_PORTS, 1);
@@ -118,7 +111,7 @@ export function runSceneList(mem, video, port, list) {
       video.write(A1T0L, SCENE_LAYER_HIGH, 2);
       video.write(A1B0, WRAM_BANK, 1);
       video.write(MDMAEN, DMA_CHANNEL_0, 1);
-    } else if (handler === REGISTER) {
+    } else if (handler.operation === SCENE_COMMAND_REGISTER) {
       const register = word();
       port.write(REGISTER_BANK | register, byte(), 1, REGISTER_SITE);
     }
