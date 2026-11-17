@@ -24,11 +24,8 @@ import {
   runPadPresses,
 } from '../../src/game/main-upkeep.mjs';
 import { processSceneRequest } from '../caller/scene-request.mjs';
-import {
-  NativeWaitContinuation,
-  WAIT_PAUSED,
-  WAIT_RETURNED,
-} from '../../src/system/native-wait-continuation.mjs';
+import { NativeWaitContinuation } from '../system/native-wait-continuation.mjs';
+import { WAIT_PAUSED, WAIT_RETURNED } from '../../src/system/native-wait-continuation.mjs';
 import { InterruptStepContinuation, lagFree } from '../../src/system/main-wait-interrupt.mjs';
 import { NATIVE_CALL_CONTINUATIONS } from '../../src/system/native-call-continuation.mjs';
 import { BYTE_BITS, WORD_BITS, WORD_MASK, WORD_SIGN } from '../../src/constants/bits.mjs';

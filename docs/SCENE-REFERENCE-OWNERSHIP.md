@@ -331,3 +331,7 @@ interrupt-stepped frame wait 81:EEBB and the cutscene fade poll lost their live
 callers with the scene frame interface and moved to
 `proof/system/main-wait-interrupt.mjs`. The live module keeps the interrupt steps,
 the lag-free check and the end-of-run observation check.
+
+The instruction-level wait graphs `NativeWaitContinuation` (81:B0A1, 81:EEBB,
+80:9E0B, 80:9E1A) moved to `proof/system/native-wait-continuation.mjs`; the live
+module keeps only the paused and returned status constants of native continuations.

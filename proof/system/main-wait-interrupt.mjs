@@ -13,7 +13,7 @@ import {
   NativeCallContinuation,
   drainNativeSequence,
 } from '../../src/system/native-call-continuation.mjs';
-import { NativeWaitContinuation } from '../../src/system/native-wait-continuation.mjs';
+import { NativeWaitContinuation } from './native-wait-continuation.mjs';
 import { taskStop } from '../../src/system/task-stop.mjs';
 import { SCENE_BRIGHTNESS } from '../../src/data/wram.mjs';
 import { WORD_MASK } from '../../src/constants/bits.mjs';

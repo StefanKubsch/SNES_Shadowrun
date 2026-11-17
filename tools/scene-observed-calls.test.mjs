@@ -8,7 +8,8 @@ import {
   NativeCallContinuation,
   nativeCallSequence,
 } from '../src/system/native-call-continuation.mjs';
-import { NativeWaitContinuation, WAIT_PAUSED } from '../src/system/native-wait-continuation.mjs';
+import { NativeWaitContinuation } from '../proof/system/native-wait-continuation.mjs';
+import { WAIT_PAUSED } from '../src/system/native-wait-continuation.mjs';
 import { MAIN_SCENE_ROUTINES } from '../proof/replay/main-scene.mjs';
 import { NATIVE_CALL_CONTINUATIONS } from '../proof/replay/continuations.mjs';
 import { createSide } from './lift-function-harness.mjs';

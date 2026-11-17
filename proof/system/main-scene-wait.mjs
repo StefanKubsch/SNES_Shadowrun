@@ -2,7 +2,7 @@
 // references call: the frame wait 81:EEBB, frame count 81:EED5, fades 81:EEDD/EEF1,
 // joypad reads 80:9E0B/F290 and the observed byte wait of polling loops. The game
 // waits, fades and reads the joypad through its lifted code.
-import { NativeWaitContinuation } from '../../src/system/native-wait-continuation.mjs';
+import { NativeWaitContinuation } from './native-wait-continuation.mjs';
 import {
   NativeCallContinuation,
   NATIVE_CALL_CONTINUATIONS,

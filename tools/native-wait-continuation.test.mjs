@@ -1,10 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import {
-  NativeWaitContinuation,
-  WAIT_PAUSED,
-  WAIT_RETURNED,
-} from '../src/system/native-wait-continuation.mjs';
+import { NativeWaitContinuation } from '../proof/system/native-wait-continuation.mjs';
+import { WAIT_PAUSED, WAIT_RETURNED } from '../src/system/native-wait-continuation.mjs';
 import { TaskAccessor } from '../src/vm/task-accessor.mjs';
 import { dialogAccess } from '../src/system/native-dialog-support.mjs';
 import { runObservedNmi } from '../src/system/nmi-call.mjs';

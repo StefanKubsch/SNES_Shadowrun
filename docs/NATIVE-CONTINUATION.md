@@ -6,7 +6,7 @@ The next work block is in the [porting status](PORTIERUNGSSTAND.md), group
 
 ## Original sources and continuation
 
-[NativeWaitContinuation](../src/system/native-wait-continuation.mjs) holds fixed
+[NativeWaitContinuation](../proof/system/native-wait-continuation.mjs) holds fixed
 JavaScript equations for four existing ROM routines. It decodes no CPU
 instructions. One step executes exactly one original instruction and keeps PC,
 registers, flags and the real return frame on the same owner.
