@@ -310,3 +310,8 @@ compare 81:B1AB still runs through the caller's routine table, also in the game.
 With all five scenes on the frame interface, the observed scene calls (frame wait
 81:EEBB and input read 80:F298 from a scene's call site) had no live importer left
 and moved to `proof/system/scene-observed-calls.mjs`.
+
+The register-level frame wait 81:EEBB and the observed byte wait of polling loops
+lost their last live callers with the scene frame interface; `src/system/main-scene-wait.mjs`
+merged into `proof/system/main-scene-wait.mjs`. The game waits through
+`src/system/frame-wait.mjs`.

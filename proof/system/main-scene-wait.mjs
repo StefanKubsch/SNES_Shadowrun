@@ -1,7 +1,7 @@
 // Register-level scene waits that only the scene, cutscene, matrix and intro
-// references call: frame count 81:EED5, fades 81:EEDD/EEF1 and joypad reads
-// 80:9E0B/F290. The game waits, fades and reads the joypad through its lifted code.
-import { waitForFrame } from '../../src/system/main-scene-wait.mjs';
+// references call: the frame wait 81:EEBB, frame count 81:EED5, fades 81:EEDD/EEF1,
+// joypad reads 80:9E0B/F290 and the observed byte wait of polling loops. The game
+// waits, fades and reads the joypad through its lifted code.
 import { NativeWaitContinuation } from '../../src/system/native-wait-continuation.mjs';
 import {
   NativeCallContinuation,
@@ -9,7 +9,12 @@ import {
   drainNativeSequence,
   nativeCallSequence,
 } from '../../src/system/native-call-continuation.mjs';
-import { PAD_HELD } from '../../src/data/wram.mjs';
+import {
+  waitForFrameWithInterrupts,
+  ObservedWaitContinuation,
+} from '../../src/system/main-wait-interrupt.mjs';
+import { taskStop } from '../../src/system/task-stop.mjs';
+import { PAD_HELD, RANDOM_STATE, WRAM, NMITIMEN_SHADOW } from '../../src/data/wram.mjs';
 import { INIDISP_FORCED_BLANK, MAX_BRIGHTNESS } from '../../src/constants/ppu.mjs';
 import { BYTE_MASK } from '../../src/constants/bits.mjs';
 import { HVBJOY, INIDISP, STDCNTRL1L } from '../../src/constants/hardware-registers.mjs';
@@ -136,4 +141,54 @@ for (const [target, run, sequence] of [
 NATIVE_CALL_CONTINUATIONS.set(0x809e0b, {
   run: readJoypad,
   create: ({ h }) => new NativeWaitContinuation(h.a, 0x809e0b),
+});
+
+// One explicitly observed BYTE at the original polling instruction. No inferred NMI or frame.
+export function sceneWaitByte(h, events, pc, address) {
+  const index = events?.waitIndex ?? 0,
+    o = events?.values?.[index];
+  if (
+    events?.mode !== 'record-observations' ||
+    !Array.isArray(events.values) ||
+    !Object.isFrozen(events.values) ||
+    !o ||
+    !Object.isFrozen(o) ||
+    o.pc !== pc ||
+    o.address !== address ||
+    o.width !== 1 ||
+    !Number.isInteger(o.value) ||
+    o.value < 0 ||
+    o.value > BYTE_MASK
+  )
+    taskStop('task_wait_observation_required', { pc, address, width: 1, observationIndex: index });
+  events.waitIndex++;
+  events.waitEvents.push(o);
+  h.write(address, o.value, 1);
+  return h.read(address, 1);
+}
+// 81:EEBB: wait for the next frame: poll VBlank (NMI disabled) or wait until the NMI changes the random state byte.
+export function waitForFrame(h, events) {
+  if (events?.interrupts !== undefined) return waitForFrameWithInterrupts(h, events);
+  const { ctx } = h;
+  h.php();
+  h.sep(FLAG_MEMORY_8BIT);
+  h.load(h.dp(NMITIMEN_SHADOW));
+  if (!(ctx.status & FLAG_NEGATIVE)) {
+    do {
+      h.load(h.port(HVBJOY, 1, 0x81eec2));
+    } while (ctx.status & FLAG_NEGATIVE);
+  } else {
+    h.load(h.read(WRAM + RANDOM_STATE));
+    do {
+      const value = sceneWaitByte(h, events, 0x81eecd, WRAM + RANDOM_STATE);
+      h.cmp(value);
+    } while (ctx.status & FLAG_ZERO);
+  }
+  h.plp();
+  return h.rtl();
+}
+NATIVE_CALL_CONTINUATIONS.set(0x81eebb, {
+  run: waitForFrame,
+  create: ({ h, events }) =>
+    events?.interrupts === undefined ? null : new ObservedWaitContinuation(h, events, 0x81eebb),
 });

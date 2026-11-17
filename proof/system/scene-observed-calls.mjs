@@ -3,7 +3,7 @@
 import { taskStop } from '../../src/system/task-stop.mjs';
 import { dialogCallBody } from '../../src/system/native-call-continuation.mjs';
 import { ObservedWaitContinuation } from '../../src/system/main-wait-interrupt.mjs';
-import { waitForFrame } from '../../src/system/main-scene-wait.mjs';
+import { waitForFrame } from './main-scene-wait.mjs';
 import { readInput } from '../../src/system/native-input-apu.mjs';
 import { PAD_HELD } from '../../src/data/wram.mjs';
 import { FLAG_INDEX_8BIT, FLAG_MEMORY_8BIT } from '../../src/constants/cpu-flags.mjs';

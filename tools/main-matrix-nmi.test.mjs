@@ -19,7 +19,7 @@ import {
 import { SCENE_REFERENCE_ROUTINES as MAIN_SCENE_ROUTINES } from '../proof/scene-reference-routines.mjs';
 import { dialogAccess } from '../src/system/native-dialog-support.mjs';
 import { TaskAccessor, NATIVE_ACCESS_LIMIT } from '../src/vm/task-accessor.mjs';
-import { waitForFrame } from '../src/system/main-scene-wait.mjs';
+import { waitForFrame } from '../proof/system/main-scene-wait.mjs';
 import {
   resetMatrixTextWindow,
   queueMatrixText,

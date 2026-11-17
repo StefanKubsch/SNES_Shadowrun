@@ -151,7 +151,7 @@ neither general time nor a dynamic frame.
 ## Boot, intro and scene changes
 
 [E7BC/A15C/A133](../proof/replay/main-startup.mjs) and
-[EED5](../src/system/main-scene-wait.mjs) use fixed caller segments. PHP, the
+[EED5](../proof/system/main-scene-wait.mjs) use fixed caller segments. PHP, the
 actual BYTE/WORD widths, all JSL wait calls and the original return words are
 kept across pauses. `MainStartupContinuation` ends only at the original A139.
 Sources are the unchanged pinned [startupSpecs](../tools/main-startup-source.mjs)

@@ -95,7 +95,7 @@
 //   - scene_audio_modes 81:D3BF (EF47 when not negative), scene_sounds D3CB
 //     (F007/F130 when not zero),
 //   - scene_targets/steps D3D7/D3E3 and scene_end_steps D3EF: the value and
-//     step the wait EEBB moves toward (src/system/main-scene-wait.mjs), with
+//     step the wait EEBB moves toward (proof/system/main-scene-wait.mjs), with
 //     the frame counts scene_frames D3FB and scene_end_frames D407,
 //   - scene_sprite_bases D413 (D4E8, CF79 displacements),
 //   - scene_animation_calls D41F: JMP ($D41F,X) at CF76,

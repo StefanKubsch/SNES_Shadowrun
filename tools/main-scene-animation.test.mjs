@@ -29,8 +29,12 @@ import {
 } from '../proof/cutscene-reference/cutscene-scene.mjs';
 import { SCENE_REFERENCE_ROUTINES as MAIN_SCENE_ROUTINES } from '../proof/scene-reference-routines.mjs';
 import { mainSceneSpecs } from './main-scene-source.mjs';
-import { waitFrames, fadeInScreen, fadeOutScreen } from '../proof/system/main-scene-wait.mjs';
-import { waitForFrame } from '../src/system/main-scene-wait.mjs';
+import {
+  waitFrames,
+  fadeInScreen,
+  fadeOutScreen,
+  waitForFrame,
+} from '../proof/system/main-scene-wait.mjs';
 const maps = sceneAnimationSpecs.map((s) => decodeWindows(s.windows));
 test('animation and wait graphs pin actual table, mode join, protected stack and external calls', () => {
   sceneAnimationSpecs.forEach((s, i) => proveSceneAnimation(maps[i], s));

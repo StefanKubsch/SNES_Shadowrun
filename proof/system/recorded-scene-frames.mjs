@@ -7,7 +7,7 @@ import { installRecordedSceneFrames } from '../../src/system/scene-frames.mjs';
 import { sceneFrameCallSequence, sceneInputCallSequence } from './scene-observed-calls.mjs';
 import { nativeCallSequence } from '../../src/system/native-call-continuation.mjs';
 import { FadePollContinuation } from '../../src/system/main-wait-interrupt.mjs';
-import { sceneWaitByte } from '../../src/system/main-scene-wait.mjs';
+import { sceneWaitByte } from './main-scene-wait.mjs';
 import { taskStop } from '../../src/system/task-stop.mjs';
 import { SCENE_BRIGHTNESS, WRAM } from '../../src/data/wram.mjs';
 
