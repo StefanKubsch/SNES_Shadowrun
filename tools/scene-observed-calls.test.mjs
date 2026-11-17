@@ -58,7 +58,7 @@ function side(input, irq, root) {
   return { ...state, events };
 }
 
-function run(direct, target, input, irq, budget, missing = false) {
+function run(direct, target, input, irq, budget, missing = false, site = 0x81cdf8) {
   const root = target === 0x80f298 ? 0x809e1a : target,
     state = side(input, irq, root),
     { h, mem, events } = state;
@@ -68,8 +68,8 @@ function run(direct, target, input, irq, budget, missing = false) {
     if (irq) events.interrupts = Object.freeze([]);
   }
   const sequence = direct
-    ? (target === 0x80f298 ? sceneInputCallSequence : sceneFrameCallSequence)(h, events, 0x81cdf8)
-    : nativeCallSequence(h, events, MAIN_SCENE_ROUTINES, 0x81cdf8, target, true);
+    ? (target === 0x80f298 ? sceneInputCallSequence : sceneFrameCallSequence)(h, events, site)
+    : nativeCallSequence(h, events, MAIN_SCENE_ROUTINES, site, target, true);
   const continuation = new NativeCallContinuation(h.a, sequence, NATIVE_CALL_CONTINUATIONS),
     before = mem.wram.slice();
   assert.equal(continuation.run(0), WAIT_PAUSED);
@@ -124,3 +124,16 @@ for (const budget of [1, 7])
     assert.deepEqual(actual, run(false, 0x80f298, 0x3030, false, budget));
     assert.equal(actual.stop.reason, 'task_reset_source_required');
   });
+
+for (const budget of [1, 7])
+  for (const irq of [false, true])
+    for (const [target, site] of [
+      [0x81eebb, 0x81e07e],
+      [0x80f298, 0x81e082],
+    ])
+      test(`intro fixed call preserves its original frame ${site.toString(16)}, interrupts ${irq}, budget ${budget}`, () => {
+        assert.deepEqual(
+          run(true, target, 0x1000, irq, budget, false, site),
+          run(false, target, 0x1000, irq, budget, false, site),
+        );
+      });

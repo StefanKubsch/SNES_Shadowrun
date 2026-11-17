@@ -31,3 +31,11 @@ the established observed continuations. Non-interrupt recordings retain explicit
 counter/input records, missing-record frontiers, input filtering and soft reset.
 The live lag-free path keeps its existing frame and pad equations. Shared fixed
 call bodies live in `src/system/scene-observed-calls.mjs`.
+
+## Intro observed waits and input
+
+The intro uses those fixed bodies at its own 81:E07E and 81:E082 long call sites,
+including waits during both fades. Tests compare physical frame bytes and return
+PCs for both sites with recorded interrupts and explicit observations at both
+budgets. Actual intro/credits fixture comparisons continue through the complete
+live body. No dependency is selected from a caller table in either scene.

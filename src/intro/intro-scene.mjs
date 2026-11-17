@@ -7,7 +7,8 @@
 // five packed streams, plays its song and a sound, fades in and runs 300 frames
 // unless a button is held. It fades out, plays cutscene 5 mirrored and sets up the
 // game's sounds again.
-import { nativeCallSequence, dialogCallBody } from '../system/native-call-continuation.mjs';
+import { dialogCallBody } from '../system/native-call-continuation.mjs';
+import { sceneFrameCallSequence, sceneInputCallSequence } from '../system/scene-observed-calls.mjs';
 import { cutsceneSequence } from '../cutscene/cutscene-scene.mjs';
 import { lagFree } from '../system/main-wait-interrupt.mjs';
 import { sceneRuntime } from '../system/scene-runtime.mjs';
@@ -87,9 +88,7 @@ import { FLAG_INDEX_8BIT, FLAG_MEMORY_8BIT } from '../constants/cpu-flags.mjs';
 
 // Register-level routines for recorded interrupt observations and the nested
 // cutscene, called from their original sites.
-const WAIT_FRAME = 0x81eebb,
-  WAIT_SITE = 0x81e07e,
-  READ_INPUT = 0x80f298,
+const WAIT_SITE = 0x81e07e,
   INPUT_SITE = 0x81e082,
   CUTSCENE = 0x81cdf8,
   CUTSCENE_SITE = 0x81e120;
@@ -212,13 +211,15 @@ export function* introSequence(h, events, routines) {
   const { ctx } = h,
     // The original saves the status and runs with 16-bit registers in data bank 81.
     status = ctx.status,
-    call = (site, target) => nativeCallSequence(h, events, routines, site, target, true),
     lifted = lagFree(events);
   ctx.status &= ~(FLAG_MEMORY_8BIT | FLAG_INDEX_8BIT);
   ctx.bank = INTRO_DATA_BANK;
   let m;
-  const wait = () => (lifted ? waitForFrame(h, events, m.port) : call(WAIT_SITE, WAIT_FRAME)),
-    input = lifted ? () => [() => takePadPresses(m.wram)] : () => call(INPUT_SITE, READ_INPUT);
+  const wait = () =>
+      lifted ? waitForFrame(h, events, m.port) : sceneFrameCallSequence(h, events, WAIT_SITE),
+    input = lifted
+      ? () => [() => takePadPresses(m.wram)]
+      : () => sceneInputCallSequence(h, events, INPUT_SITE);
   yield () => {
     m = sceneRuntime(h);
     const { mem, wram, port } = m;
