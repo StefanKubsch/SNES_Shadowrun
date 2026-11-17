@@ -30,7 +30,7 @@ import { inputWaitF953Window } from './task-native-input-wait-f953-source.mjs';
 import { DIALOG_WINDOWS } from './task-native-936c-windows.mjs';
 import { requestWindows } from './render-task-native-menu-compose-source-proof.mjs';
 import { waitForConfirmKey } from '../proof/replay/native-input-wait.mjs';
-import { waitForRandomStateChange } from '../src/system/native-frame-wait.mjs';
+import { waitForRandomStateChange } from '../proof/system/native-frame-wait.mjs';
 import { waitWord, nmiWords } from '../src/system/native-dialog-portrait.mjs';
 import {
   uploadPortraitTiles,

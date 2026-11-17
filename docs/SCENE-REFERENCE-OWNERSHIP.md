@@ -188,3 +188,7 @@ list 81:AD92, window drawing 81:ACCF, upload request 81:ACB5 and window release
 continuations; the game draws and releases windows through `src/game/window-list.mjs`
 and `src/game/window-release.mjs`. Source generator labels and documentation links
 follow the new path.
+
+The register-level random-state wait 81:B0A1 lost its last live importer with the
+window module above and moved unchanged to `proof/system/native-frame-wait.mjs`; the
+game waits for frames through `src/system/frame-wait.mjs`.

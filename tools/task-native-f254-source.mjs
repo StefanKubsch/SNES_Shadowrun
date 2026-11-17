@@ -70,7 +70,11 @@ export const nativeF254Spec = {
       RTS,
       'portrait DMA request, uploadPortraitTiles in src/system/native-dialog-portrait.mjs (tools/task-native-936c-source.mjs)',
     ],
-    [0x81b0a1, RTL, 'frame counter, waitForRandomStateChange in src/system/native-frame-wait.mjs'],
+    [
+      0x81b0a1,
+      RTL,
+      'frame counter, waitForRandomStateChange in proof/system/native-frame-wait.mjs',
+    ],
     [0x80faac, RTS, 'cursor, setTextCursor in proof/replay/native-list-prerequisites.mjs'],
     [0x80fe69, RTS, 'text, printText in proof/replay/native-text-compose.mjs'],
     [0x80fd80, RTS, 'number, printNumber in proof/replay/native-list-prerequisites.mjs'],

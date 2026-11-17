@@ -11,7 +11,7 @@ import {
   PORTRAIT_WINDOW,
   waitWord,
 } from '../../src/system/native-dialog-portrait.mjs';
-import { waitForRandomStateChange } from '../../src/system/native-frame-wait.mjs';
+import { waitForRandomStateChange } from './native-frame-wait.mjs';
 import { VMAINC_INCREMENT_AFTER_HIGH } from '../../src/constants/ppu.mjs';
 import { BYTE_SIGN, BYTE_MASK, WORD_SIGN } from '../../src/constants/bits.mjs';
 import { WRAM_HIGH_BANK, WRAM_BANK } from '../../src/constants/memory-map.mjs';

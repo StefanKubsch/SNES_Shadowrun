@@ -1,5 +1,5 @@
 // The frame waits (lifted from 81:EEBB and 81:B0A1; register-level versions in
-// src/system/main-scene-wait.mjs and src/system/native-frame-wait.mjs). 81:EEBB: with
+// src/system/main-scene-wait.mjs and proof/system/native-frame-wait.mjs). 81:EEBB: with
 // the NMI enabled in the NMITIMEN shadow, wait until the NMI has changed the frame
 // counter byte 7E:1C76; otherwise poll HVBJOY until the vertical blank ends. 81:B0A1
 // waits for a change of the counter word.

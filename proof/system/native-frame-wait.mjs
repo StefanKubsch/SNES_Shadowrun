@@ -1,9 +1,9 @@
-import { taskStop } from './task-stop.mjs';
-import { dialogAccess } from './native-dialog-support.mjs';
-import { waitForRandomStateChangeWithInterrupts } from './main-wait-interrupt.mjs';
+import { taskStop } from '../../src/system/task-stop.mjs';
+import { dialogAccess } from '../../src/system/native-dialog-support.mjs';
+import { waitForRandomStateChangeWithInterrupts } from '../../src/system/main-wait-interrupt.mjs';
 
-import { RANDOM_STATE, WRAM } from '../data/wram.mjs';
-import { FLAG_ZERO, FLAG_NEGATIVE, FLAG_CARRY } from '../constants/cpu-flags.mjs';
+import { RANDOM_STATE, WRAM } from '../../src/data/wram.mjs';
+import { FLAG_ZERO, FLAG_NEGATIVE, FLAG_CARRY } from '../../src/constants/cpu-flags.mjs';
 import {
   LONG_WRAP,
   WORD_MASK,
@@ -11,7 +11,7 @@ import {
   BANK_SIZE,
   WORD_SIGN,
   LONG_BYTES,
-} from '../constants/bits.mjs';
+} from '../../src/constants/bits.mjs';
 // 81:B0A1: wait until the word RANDOM_STATE (7E:1C76) changes: LDA long, CMP long,
 // BEQ back, RTL (AF761C7E/CF761C7E/F0FA/6B). CMP refetches a full long word against the
 // saved A; neither DBR nor a counter change supplies input or time, so the new values

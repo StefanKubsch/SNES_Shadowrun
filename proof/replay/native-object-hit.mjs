@@ -8,7 +8,7 @@ import { releaseWindowJsrSequence } from '../../proof/caller/window-release.mjs'
 import { f963Sequence } from './native-window-open.mjs';
 import { fitListWindow } from '../../src/data/menu-layout.mjs';
 import { printTextSequence } from './native-text-compose.mjs';
-import { waitForRandomStateChange } from '../../src/system/native-frame-wait.mjs';
+import { waitForRandomStateChange } from '../system/native-frame-wait.mjs';
 import { waitForConfirmKeySequence } from './native-input-wait.mjs';
 import { dialogAccess } from '../../src/system/native-dialog-support.mjs';
 import { ObservedWaitContinuation, lagFree } from '../../src/system/main-wait-interrupt.mjs';

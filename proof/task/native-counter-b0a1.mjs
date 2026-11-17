@@ -1,7 +1,7 @@
 // Source-specific atomic plans for proof tools. The game executes the shared routines directly.
 import { taskStop } from '../../src/system/task-stop.mjs';
 import { prepareTaskPlan } from './plan.mjs';
-import { waitForRandomStateChange } from '../../src/system/native-frame-wait.mjs';
+import { waitForRandomStateChange } from '../system/native-frame-wait.mjs';
 
 function validateTaskCounterOptions(options) {
   if (options.waitMode !== 'record-observations') taskStop('task_wait_mode_required');

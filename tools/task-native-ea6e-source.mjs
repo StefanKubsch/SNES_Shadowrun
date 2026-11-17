@@ -91,7 +91,7 @@ export const nativeEA6ESpec = {
     [
       0x81b0a1,
       'RTL',
-      'frame counter, waitForRandomStateChange in src/system/native-frame-wait.mjs',
+      'frame counter, waitForRandomStateChange in proof/system/native-frame-wait.mjs',
     ],
     [0x80faac, 'RTS', 'cursor, setTextCursor in proof/replay/native-list-prerequisites.mjs'],
     [0x80fe69, 'RTS', 'text, printText in proof/replay/native-text-compose.mjs'],

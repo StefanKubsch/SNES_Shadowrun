@@ -12,7 +12,7 @@ import {
   openPortraitWindow,
   closePortraitWindow,
 } from '../proof/system/native-dialog-portrait.mjs';
-import { waitForRandomStateChange } from '../src/system/native-frame-wait.mjs';
+import { waitForRandomStateChange } from '../proof/system/native-frame-wait.mjs';
 
 // Window and portrait routines for dialog $936C against the original instructions. Each routine has its own
 // scenarios; every instruction in its windows must be reached.

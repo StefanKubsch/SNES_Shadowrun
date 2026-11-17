@@ -40,7 +40,7 @@ export const native9BC6Spec = {
     [
       0x81b0a1,
       'RTL',
-      'frame counter wait, waitForRandomStateChange in src/system/native-frame-wait.mjs',
+      'frame counter wait, waitForRandomStateChange in proof/system/native-frame-wait.mjs',
     ],
     [0x809e1a, 'RTS', 'joypad, readInput in src/system/native-input-apu.mjs (reset path taskStop)'],
     [

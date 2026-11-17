@@ -41,7 +41,7 @@ import { dialogCallSequence } from '../system/native-call-sequences.mjs';
 import { NATIVE_CALL_CONTINUATIONS } from './continuations.mjs';
 import { reloadObjectTiles } from '../system/native-scene-tiles.mjs';
 import { buildSpriteList } from './native-scene-sprites.mjs';
-import { waitForRandomStateChange } from '../../src/system/native-frame-wait.mjs';
+import { waitForRandomStateChange } from '../system/native-frame-wait.mjs';
 import { releaseNoticeWindowsAdapter } from './native-slot-release.mjs';
 import { openWindowAdapter } from './native-window-open.mjs';
 import { runReleaseWindowCall } from '../../proof/caller/window-release.mjs';

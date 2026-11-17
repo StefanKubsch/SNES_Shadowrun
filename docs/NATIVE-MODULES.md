@@ -135,7 +135,7 @@ the module that implements it.
 | `native-cf2e`            | [native-magic-points-raise.mjs](../src/script/native-magic-points-raise.mjs)                               |
 | `native-cf93`            | [native-object-face-object.mjs](../src/script/native-object-face-object.mjs)                               |
 | `native-clear-ff79`      | [native-slot-release.mjs](../proof/replay/native-slot-release.mjs)                                         |
-| `native-counter-b0a1`    | [native-frame-wait.mjs](../src/system/native-frame-wait.mjs)                                               |
+| `native-counter-b0a1`    | [native-frame-wait.mjs](../proof/system/native-frame-wait.mjs)                                             |
 | `native-d016`            | [native-room-reload.mjs](../src/script/native-room-reload.mjs)                                             |
 | `native-d067`            | [native-runner-record-byte.mjs](../src/script/native-runner-record-byte.mjs)                               |
 | `native-d079`            | [native-runners-restore.mjs](../proof/replay/native-runners-restore.mjs)                                   |
@@ -145,7 +145,7 @@ the module that implements it.
 | `native-d134`            | [native-story-stage-get.mjs](../src/script/native-story-stage-get.mjs)                                     |
 | `native-d13e`            | [native-object-velocity-clear.mjs](../src/script/native-object-velocity-clear.mjs)                         |
 | `native-d14a`            | [native-object-position-set.mjs](../src/script/native-object-position-set.mjs)                             |
-| `native-d15c`            | [native-object-turn.mjs](../proof/script/native-object-turn.mjs)                                             |
+| `native-d15c`            | [native-object-turn.mjs](../proof/script/native-object-turn.mjs)                                           |
 | `native-d16d`            | [native-sprite-mode-set.mjs](../src/script/native-sprite-mode-set.mjs)                                     |
 | `native-d17b`            | [native-sprite-mode-get.mjs](../src/script/native-sprite-mode-get.mjs)                                     |
 | `native-d186`            | [native-player-object-break.mjs](../src/script/native-player-object-break.mjs)                             |
@@ -189,7 +189,7 @@ the module that implements it.
 | `native-e30f`            | [native-matrix-enter.mjs](../src/script/native-matrix-enter.mjs)                                           |
 | `native-ea6e`            | [native-status-screen.mjs](../proof/replay/native-status-screen.mjs)                                       |
 | `native-f254`            | [native-member-spell-menu.mjs](../proof/replay/native-member-spell-menu.mjs)                               |
-| `native-f963`            | [native-window-open.mjs](../proof/replay/native-window-open.mjs)                                             |
+| `native-f963`            | [native-window-open.mjs](../proof/replay/native-window-open.mjs)                                           |
 | `native-fec1`            | [native-notice.mjs](../proof/replay/native-notice.mjs)                                                     |
 | `native-input-wait-f953` | [native-input-wait.mjs](../proof/replay/native-input-wait.mjs)                                             |
 | `sight-a25f`             | [line-of-sight.mjs](../proof/replay/line-of-sight.mjs)                                                     |
