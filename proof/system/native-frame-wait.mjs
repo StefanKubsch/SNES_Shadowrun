@@ -1,6 +1,6 @@
 import { taskStop } from '../../src/system/task-stop.mjs';
 import { dialogAccess } from '../../src/system/native-dialog-support.mjs';
-import { waitForRandomStateChangeWithInterrupts } from '../../src/system/main-wait-interrupt.mjs';
+import { waitForRandomStateChangeWithInterrupts } from './main-wait-interrupt.mjs';
 
 import { RANDOM_STATE, WRAM } from '../../src/data/wram.mjs';
 import { FLAG_ZERO, FLAG_NEGATIVE, FLAG_CARRY } from '../../src/constants/cpu-flags.mjs';

@@ -50,7 +50,7 @@ import { readInput } from '../../src/system/native-input-apu.mjs';
 import {
   waitForRandomStateChangeWithInterrupts,
   readInputWithInterrupts,
-} from '../../src/system/main-wait-interrupt.mjs';
+} from '../system/main-wait-interrupt.mjs';
 
 import {
   DIALOG_END,

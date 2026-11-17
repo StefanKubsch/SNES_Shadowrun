@@ -216,3 +216,8 @@ entries 81:ACB5, AEF4 and AEFC moved from `src/system/main-wait-interrupt.mjs` t
 `proof/system/main-word-wait.mjs`; only the register-level window, text and menu
 references call them. The live module exports its entry check and wait bank for
 them and keeps the interrupt steps, observed waits, frame wait and fade poll.
+
+The interrupt-stepped random-state wait 81:B0A1, the input read 80:9E1A and the
+stepped-interrupt predicate of the start menu references moved to
+`proof/system/main-wait-interrupt.mjs`; the live module exports its shared wait
+drain for them. The game keeps the frame wait 81:EEBB and the fade poll there.

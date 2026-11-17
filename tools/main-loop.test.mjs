@@ -17,8 +17,8 @@ import { WAIT_PAUSED, WAIT_RETURNED } from '../src/system/native-wait-continuati
 import {
   waitForRandomStateChangeWithInterrupts,
   readInputWithInterrupts,
-  finishInterruptObservations,
-} from '../src/system/main-wait-interrupt.mjs';
+} from '../proof/system/main-wait-interrupt.mjs';
+import { finishInterruptObservations } from '../src/system/main-wait-interrupt.mjs';
 import { GAME_NMI_ROUTINES } from '../proof/replay/main-game-nmi.mjs';
 import { processSceneRequestReference } from '../proof/game-reference/scene-request.mjs';
 

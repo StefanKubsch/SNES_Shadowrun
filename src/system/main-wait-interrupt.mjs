@@ -1,5 +1,4 @@
 import { SCENE_BRIGHTNESS } from '../data/wram.mjs';
-import { CODE_BANK } from '../constants/memory-map.mjs';
 import { taskStop } from './task-stop.mjs';
 import { runObservedNmi, ObservedNmiContinuation } from './nmi-call.mjs';
 import { NativeCallContinuation, drainNativeSequence } from './native-call-continuation.mjs';
@@ -30,9 +29,6 @@ const NMI = Object.freeze({ nmi: true }),
   NO_NMI = Object.freeze({ nmi: false });
 export const lagFree = (events) =>
   events?.interrupts instanceof LagFreeFrames ? events.interrupts : null;
-// Instruction steps are taken where every reached instruction is recorded
-// (startupInterrupts) or where lag-free frames may deliver an NMI.
-export const steppedInterrupts = (events) => !!events?.startupInterrupts || !!lagFree(events);
 function takeInterruptStep(h, events, pc) {
   const frames = lagFree(events);
   if (frames) {
@@ -151,24 +147,12 @@ export const waitEntry = (h, bank) => {
     taskStop('wait_interrupt_entry_required');
 };
 
-// $81:B0A1: saved long WORD baseline, fresh CMP, BEQ, actual RTL.
-export function waitForRandomStateChangeWithInterrupts(h, events) {
-  waitEntry(h, WAIT_CODE_BANK);
-  return drainWait(h, 0x81b0a1, (pc) => interruptStep(h, events, pc));
-}
-
-function drainWait(h, root, beforeInstruction) {
+// Runs the original wait graph from root with a step hook before each instruction.
+export function drainWait(h, root, beforeInstruction) {
   h.ctx.pc = root & WORD_MASK;
   const wait = new NativeWaitContinuation(h.a, root);
   wait.run(Infinity, { beforeInstruction });
   return wait.result;
-}
-
-// $80:9E1A: every read is fresh, including the two reads of 01CA used to
-// compute the edge and the later copy. An NMI may occur between any two.
-export function readInputWithInterrupts(h, events) {
-  waitEntry(h, CODE_BANK);
-  return drainWait(h, 0x809e1a, (pc) => interruptStep(h, events, pc));
 }
 
 // $81:EEBB: PHP/SEP20, then either a BYTE hardware poll or a saved BYTE
