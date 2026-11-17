@@ -398,7 +398,7 @@
       "id": "task-c36a-child-yield",
       "entries": ["80:C36A"],
       "status": "source-required",
-      "reason": "Complete source with manual equations in src/system/script-yield.mjs, bound only inside full yielding Script52. Standalone root/global lifecycle remains separate."
+      "reason": "Complete source with manual equations in proof/system/script-yield.mjs, bound only inside full yielding Script52. Standalone root/global lifecycle remains separate."
     },
     {
       "id": "task-f378-script-bridge",

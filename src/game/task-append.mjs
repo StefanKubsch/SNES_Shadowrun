@@ -1,6 +1,6 @@
 // The script task append (lifted from 80:C34A with the task frame allocation 80:C2C8
 // and the heap 80:C242; register-level versions in src/system/task-append.mjs and
-// src/system/script-yield.mjs, which the script VM and the other natives still use).
+// proof/system/script-yield.mjs, which the register-level references use).
 //
 // A task for a script is started at the head of the task list: a frame for the script
 // is taken from the heap (the first free block that fits, merged with the free blocks

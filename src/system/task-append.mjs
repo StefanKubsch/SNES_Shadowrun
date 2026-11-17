@@ -2,7 +2,10 @@ import { TASK_LIST_HEAD, TASK_NEXT, TASK_PREVIOUS } from '../vm/layout.mjs';
 import { WORD_SIGN } from '../constants/bits.mjs';
 import { NO_TASK } from '../data/wram.mjs';
 import { taskStop } from './task-stop.mjs';
-import { scriptAllocationEquations, runTaskFrameAllocation } from './script-yield.mjs';
+import {
+  scriptAllocationEquations,
+  runTaskFrameAllocation,
+} from '../../proof/system/script-yield.mjs';
 import { FLAG_DECIMAL } from '../constants/cpu-flags.mjs';
 import { CODE_BANK_BASE } from '../constants/memory-map.mjs';
 

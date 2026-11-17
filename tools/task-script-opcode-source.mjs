@@ -53,7 +53,7 @@ export async function proveScriptContinuation(bytes) {
     native_equation_dependency:
       p.entry === '80:F495'
         ? 'proof/task/native-resume.mjs; exact shared equation with original82E623 metadata'
-        : 'src/system/script-yield.mjs; complete manual C242/C2C8/C36A equations',
+        : 'proof/system/script-yield.mjs; complete manual C242/C2C8/C36A equations',
     native_obligations:
       'Actual inner JSR stack bytes and every RTS re-read on the same overlay; changed inner return targets reject atomically. Outer return is protected and target only observed. Readiness/continuation occurrence is never inferred.',
   }));

@@ -242,3 +242,10 @@ The register-level object creation 80:A835 with its real A8EB JSL and C366 JSR m
 to `proof/script/native-object-create.mjs`; the register-level natives and references
 call it there. The live module keeps only the script native, which runs the lifted
 creation in `src/game/object-create.mjs`.
+
+With the register-level object creation gone, the frame and heap allocation
+80:C242/C2C8 of `src/system/script-yield.mjs` had no live caller; the module merged
+into `proof/system/script-yield.mjs`, which now holds C242, C2C8, C36A and F488
+together. The game allocates task frames through `src/game/task-append.mjs`. The
+script opcode source label follows the path, so its source and native reports were
+regenerated.
