@@ -9,9 +9,8 @@
 // New game, Saved game and Options (and Credits in the port). B or Start chooses,
 // Up and Select or Down move; the menu times out as if cancelled. It returns the
 // save slot (FFFF: a new game) or FFFE (cancelled).
-import { nativeCallSequence } from '../system/native-call-continuation.mjs';
+import { sceneFrames } from '../system/scene-frames.mjs';
 import { routineCaller } from '../system/routine-call.mjs';
-import { lagFree } from '../system/main-wait-interrupt.mjs';
 import { decodeOnce, tableEntries } from '../data/named-tables.mjs';
 import { taskStop } from '../system/task-stop.mjs';
 import { languageMenuText, languageMenuArrowShift, beginFrontendMenu } from '../data/language.mjs';
@@ -22,8 +21,7 @@ import { sceneRuntime } from '../system/scene-runtime.mjs';
 import { startSceneScreen, enableNmiAndJoypad, disableNmi } from '../system/nmi.mjs';
 import { runSceneList } from '../system/scene-list.mjs';
 import { unpack } from '../system/unpack.mjs';
-import { readJoypad, takePadPresses } from '../system/joypad.mjs';
-import { nmiAtBranch, waitForFrame } from '../system/frame-wait.mjs';
+import { readJoypad } from '../system/joypad.mjs';
 import { startSong } from '../apu/music-mode.mjs';
 import { setSceneScreen } from '../video/scene-screen.mjs';
 import { fadeIn, fadeOut } from '../video/fades.mjs';
@@ -118,11 +116,7 @@ import {
 const LONG_MASK = 0xffffff,
   WRAM_BANK = WRAM >>> WORD_BITS,
   FRONTEND_BANK = 0x81,
-  // Register-level routines for recorded interrupt observations, and the save
-  // checksum compare of the save code (proof/replay/native-main-menu.mjs).
-  WAIT_FRAME = 0x81eebb,
-  READ_INPUT = 0x80f298,
-  CALL_SITE = 0x81e14a,
+  // The save checksum compare of the save code (proof/replay/native-main-menu.mjs).
   SAVE_CHECKSUM_COMPARE = 0x81b1ab,
   SAVE_CHECKSUM_SITE = 0x81e3e5;
 // Menu texts of bank 81 (src/data/menu-texts.mjs).
@@ -581,12 +575,11 @@ export function* startMenuSequence(h, events, routines) {
   const { ctx } = h,
     status = ctx.status,
     afterTitle = ctx.a !== 0,
-    call = (site, target) => nativeCallSequence(h, events, routines, site, target, true),
-    lifted = lagFree(events);
+    clock = sceneFrames(h, events, 'start-menu', routines);
   ctx.status &= ~(FLAG_MEMORY_8BIT | FLAG_INDEX_8BIT);
   let m;
-  const wait = () => (lifted ? waitForFrame(h, events, m.port) : call(CALL_SITE, WAIT_FRAME)),
-    input = lifted ? () => [() => takePadPresses(m.wram)] : () => call(CALL_SITE, READ_INPUT),
+  const wait = () => clock.wait(m),
+    input = () => clock.input(m),
     cursor = () => word(m.wram, DP_MENU_CURSOR),
     pressed = () => word(m.wram, PAD_PRESSED);
   // The music cue: LDA 2142 / CMP #cue / BNE until the sound driver's port 2 shows it.
@@ -595,13 +588,12 @@ export function* startMenuSequence(h, events, routines) {
       let port;
       yield () => (port = m.port.read(APUIO2, 1, site));
       if (port === value) return;
-      if (!lifted) continue;
       const difference = (port - value) & BYTE_MASK,
         after =
           ((ctx.status | FLAG_MEMORY_8BIT) & ~(FLAG_NEGATIVE | FLAG_ZERO | FLAG_CARRY)) |
           (port >= value ? FLAG_CARRY : 0) |
           (difference & BYTE_SIGN ? FLAG_NEGATIVE : 0);
-      yield* nmiAtBranch(h, events, site + CUE_BRANCH_OFFSET, after);
+      yield* clock.atBranch(site + CUE_BRANCH_OFFSET, after);
     }
   };
   // The menu draws in data bank 81 (81:E38D), which the arrow text uses.

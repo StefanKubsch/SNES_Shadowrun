@@ -302,3 +302,7 @@ site 81:C3CA moved into the proof driver.
 The title takes its frame wait, input read and music-beat branch from the scene
 frame interface; its recorded calls of 81:EEBB and 80:F298 through the caller's
 routine table moved into the proof driver, where a recorded beat poll places no NMI.
+
+The start menu takes its frame wait, input read and music-cue branch from the scene
+frame interface; its recorded calls moved into the proof driver. The save checksum
+compare 81:B1AB still runs through the caller's routine table, also in the game.

@@ -4,6 +4,7 @@
 // and the save checksum 81:B1AB of the save code. The start menu with its texts and
 // its NMI callback 81:E6AE is lifted (src/frontend/start-menu.mjs; register-level
 // reference in proof/frontend-reference/start-menu-text.mjs).
+import '../system/recorded-scene-frames.mjs';
 import { taskStop } from '../../src/system/task-stop.mjs';
 import { MAIN_SCENE_ROUTINES } from './main-scene.mjs';
 import { compareSaveChecksum } from './native-main-menu.mjs';
