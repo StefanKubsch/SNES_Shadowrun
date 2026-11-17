@@ -32,7 +32,10 @@ import { requestWindows } from './render-task-native-menu-compose-source-proof.m
 import { waitForConfirmKey } from '../proof/replay/native-input-wait.mjs';
 import { waitForRandomStateChange } from '../src/system/native-frame-wait.mjs';
 import { uploadPortraitTiles, waitWord, nmiWords } from '../src/system/native-dialog-portrait.mjs';
-import { openPortraitWindow, closePortraitWindow } from '../proof/system/native-dialog-portrait.mjs';
+import {
+  openPortraitWindow,
+  closePortraitWindow,
+} from '../proof/system/native-dialog-portrait.mjs';
 import { waitForWindowUpload, requestWindowUpload } from '../proof/replay/native-menu-compose.mjs';
 import { cpuToOffset } from './rom.mjs';
 

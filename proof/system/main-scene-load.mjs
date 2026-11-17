@@ -61,7 +61,12 @@ import {
   WORD_MASK,
   WORD_SIGN,
 } from '../../src/constants/bits.mjs';
-import { FLAG_MEMORY_8BIT, FLAG_ZERO, FLAG_CARRY, FLAG_NEGATIVE } from '../../src/constants/cpu-flags.mjs';
+import {
+  FLAG_MEMORY_8BIT,
+  FLAG_ZERO,
+  FLAG_CARRY,
+  FLAG_NEGATIVE,
+} from '../../src/constants/cpu-flags.mjs';
 const down = (h, name = 'x', n = 2) => {
   for (let i = 0; i < n; i++) h.index(name, h.ctx[name] - 1);
 };

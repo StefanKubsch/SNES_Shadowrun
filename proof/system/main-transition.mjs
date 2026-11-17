@@ -5,7 +5,7 @@ import { TALK_ROUTINES } from '../script/native-dialog.mjs';
 import { createObject } from '../../src/script/native-object-create.mjs';
 import { turnRegisters } from '../script/native-object-turn.mjs';
 import { drawWindowListAdapter } from '../../src/system/native-render-compose.mjs';
-import { sendApuCommand } from '../../src/system/native-input-apu.mjs';
+import { sendApuCommand } from './native-input-apu.mjs';
 import { clampToCameraBox, updateCameraTileBuffers } from './main-loop-camera.mjs';
 import { clearFixedColour } from './native-dialog-portrait.mjs';
 import { ObservedWaitContinuation } from '../../src/system/main-wait-interrupt.mjs';
@@ -70,7 +70,12 @@ import { ACTOR_KIND, ACTOR_RECORD, ACTOR_SCRIPT, ACTOR_TABLE } from '../../src/d
 import { RUNNER_LAST_INDEX, RUNNER_OBJECT_NUMBERS } from '../../src/data/runners.mjs';
 import { INIDISP_FORCED_BLANK } from '../../src/constants/ppu.mjs';
 import { WORD_MASK, BYTE_MASK } from '../../src/constants/bits.mjs';
-import { FLAG_MEMORY_8BIT, FLAG_NEGATIVE, FLAG_CARRY, FLAG_ZERO } from '../../src/constants/cpu-flags.mjs';
+import {
+  FLAG_MEMORY_8BIT,
+  FLAG_NEGATIVE,
+  FLAG_CARRY,
+  FLAG_ZERO,
+} from '../../src/constants/cpu-flags.mjs';
 
 // Value written to mark a slot or the music as unset (negative).
 const NONE = WORD_MASK;

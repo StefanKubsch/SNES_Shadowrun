@@ -2,7 +2,15 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { rom, window, decodeWindows, compareDialog, prng } from './task-native-dialog-harness.mjs';
 import { unpackPortrait, putGloveAway } from '../src/system/native-dialog-portrait.mjs';
-import { clearFixedColour, setWindowTextWidth, shiftPortraitRows, uploadFirstPortrait, uploadSecondPortrait, openPortraitWindow, closePortraitWindow } from '../proof/system/native-dialog-portrait.mjs';
+import {
+  clearFixedColour,
+  setWindowTextWidth,
+  shiftPortraitRows,
+  uploadFirstPortrait,
+  uploadSecondPortrait,
+  openPortraitWindow,
+  closePortraitWindow,
+} from '../proof/system/native-dialog-portrait.mjs';
 import { waitForRandomStateChange } from '../src/system/native-frame-wait.mjs';
 
 // Window and portrait routines for dialog $936C against the original instructions. Each routine has its own

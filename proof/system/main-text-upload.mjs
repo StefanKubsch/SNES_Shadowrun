@@ -3,7 +3,7 @@
 // The register-level game NMI and scene initialization references list it in
 // their routine tables.
 import { BYTE_MASK, WORD_MASK } from '../../src/constants/bits.mjs';
-import { applyObservedTextDma } from '../../src/system/main-dma-readback.mjs';
+import { applyObservedTextDma } from './main-dma-readback.mjs';
 import { LagFreeFrames } from '../../src/vm/frame-events.mjs';
 import { isIoAddress } from '../../src/vm/devices.mjs';
 import { VRAM_WORD_BYTES, VMAINC_INCREMENT_AFTER_HIGH } from '../../src/constants/ppu.mjs';

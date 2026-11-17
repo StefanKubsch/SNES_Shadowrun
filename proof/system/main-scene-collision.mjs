@@ -2,7 +2,12 @@ import { unpackStep } from '../../src/system/native-unpack-body.mjs';
 import { SCENE_LOAD_ROUTINES } from './main-scene-load.mjs';
 import { routineCaller } from '../../src/system/routine-call.mjs';
 import { BYTE_MASK, BYTE_SIGN, HIGH_BYTE_MASK, WORD_MASK } from '../../src/constants/bits.mjs';
-import { FLAG_NEGATIVE, FLAG_ZERO, FLAG_CARRY, FLAG_MEMORY_8BIT } from '../../src/constants/cpu-flags.mjs';
+import {
+  FLAG_NEGATIVE,
+  FLAG_ZERO,
+  FLAG_CARRY,
+  FLAG_MEMORY_8BIT,
+} from '../../src/constants/cpu-flags.mjs';
 import { WRAM_BANK_PAIR } from '../../src/constants/memory-map.mjs';
 import {
   CELL_COORDINATE_MASK,

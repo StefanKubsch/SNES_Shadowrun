@@ -22,7 +22,7 @@ import {
   chooseFromNumberedMenuAdapter,
   requestWindowUploadAdapter,
 } from './native-menu-compose.mjs';
-import { sendApuCommand } from '../../src/system/native-input-apu.mjs';
+import { sendApuCommand } from '../system/native-input-apu.mjs';
 import { createObject } from '../../src/script/native-object-create.mjs';
 import { drawTextBufferAdapter } from './native-text-compose.mjs';
 

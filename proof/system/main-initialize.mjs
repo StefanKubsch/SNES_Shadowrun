@@ -156,7 +156,12 @@ import {
   VRAM_WORD_BYTES,
 } from '../../src/constants/ppu.mjs';
 import { WRAM_BANK } from '../../src/constants/memory-map.mjs';
-import { FLAG_MEMORY_8BIT, FLAG_NEGATIVE, FLAG_CARRY, FLAG_ZERO } from '../../src/constants/cpu-flags.mjs';
+import {
+  FLAG_MEMORY_8BIT,
+  FLAG_NEGATIVE,
+  FLAG_CARRY,
+  FLAG_ZERO,
+} from '../../src/constants/cpu-flags.mjs';
 import { BYTE_MASK, NIBBLE_BITS, WORD_BITS, WORD_MASK } from '../../src/constants/bits.mjs';
 const callFor = (h, e, r) => routineCaller(h, e, r, true);
 

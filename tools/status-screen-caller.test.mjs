@@ -13,7 +13,7 @@ import { reloadObjectTiles } from '../src/system/native-scene-tiles.mjs';
 import { buildSpriteList } from '../proof/replay/native-scene-sprites.mjs';
 import { clearFixedColourRoutine } from '../src/game/dialog-talk.mjs';
 import * as W from '../src/data/wram.mjs';
-import { sendApuCommand } from '../src/system/native-input-apu.mjs';
+import { sendApuCommand } from '../proof/system/native-input-apu.mjs';
 import { itemMenuSequence } from '../proof/caller/item-menu.mjs';
 import { spellMenuSequence, STATUS_ENTRY } from '../proof/caller/member-spell-menu.mjs';
 import { skillsSequence, notesSequence } from '../proof/caller/status-submenus.mjs';

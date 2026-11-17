@@ -3,8 +3,25 @@ import { lagFree } from '../../src/system/main-wait-interrupt.mjs';
 import { fixesEnabled, preparePushkinTopics } from '../../src/game/bugfixes.mjs';
 import { taskStop } from '../../src/system/task-stop.mjs';
 import { dialogAccess } from '../../src/system/native-dialog-support.mjs';
-import { unpackPortrait, putGloveAwayAdapter, PORTRAIT_OBJSEL, DP_PORTRAIT_POINTER, DP_PORTRAIT_BANK, PORTRAIT_RECORD_BANK_BYTE, PORTRAIT_BUFFER, DP_PIXEL_WIDTH } from '../../src/system/native-dialog-portrait.mjs';
-import { clearFixedColour, setWindowTextWidth, shiftPortraitRows, uploadFirstPortrait, uploadSecondPortrait, openPortraitWindow, closePortraitWindow } from '../system/native-dialog-portrait.mjs';
+import {
+  unpackPortrait,
+  putGloveAwayAdapter,
+  PORTRAIT_OBJSEL,
+  DP_PORTRAIT_POINTER,
+  DP_PORTRAIT_BANK,
+  PORTRAIT_RECORD_BANK_BYTE,
+  PORTRAIT_BUFFER,
+  DP_PIXEL_WIDTH,
+} from '../../src/system/native-dialog-portrait.mjs';
+import {
+  clearFixedColour,
+  setWindowTextWidth,
+  shiftPortraitRows,
+  uploadFirstPortrait,
+  uploadSecondPortrait,
+  openPortraitWindow,
+  closePortraitWindow,
+} from '../system/native-dialog-portrait.mjs';
 import {
   dialogTextRoutines,
   showDialogText,

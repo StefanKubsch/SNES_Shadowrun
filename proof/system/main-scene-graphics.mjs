@@ -5,7 +5,11 @@ import { unpackFixedStream } from '../../src/system/native-unpack.mjs';
 import { BYTE_MASK } from '../../src/constants/bits.mjs';
 import { WRAM_BANK_PAIR } from '../../src/constants/memory-map.mjs';
 import { VMAINC, VMADDL, VMDATAL } from '../../src/constants/hardware-registers.mjs';
-import { PLANE_PAIR_BYTES, TILE_H_FLIP, VMAINC_INCREMENT_AFTER_HIGH } from '../../src/constants/ppu.mjs';
+import {
+  PLANE_PAIR_BYTES,
+  TILE_H_FLIP,
+  VMAINC_INCREMENT_AFTER_HIGH,
+} from '../../src/constants/ppu.mjs';
 import {
   TILE_CACHE_DATA,
   TILE_CACHE_KEYS,

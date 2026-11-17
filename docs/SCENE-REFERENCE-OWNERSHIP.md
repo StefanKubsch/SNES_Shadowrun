@@ -138,3 +138,10 @@ callers already use the independent versions in `proof/caller/`.
 The run wrappers of the main start, new game state and save load for register-level
 routine tables moved to `proof/caller/game-start-runs.mjs`. The live title cycle
 keeps its new-game wrapper in `src/game/game-start.mjs`.
+
+The register-level APU command 81:F007 and sound pan natives moved to
+`proof/system/native-input-apu.mjs`; the live module keeps the pad read and the
+shared native return helper. The observed channel-5 text readback moved to
+`proof/system/main-dma-readback.mjs`; live devices perform that transfer from the
+PPU, and the live module keeps only the end-of-run observation check. Files whose
+import paths grew during this batch were reformatted with Prettier.

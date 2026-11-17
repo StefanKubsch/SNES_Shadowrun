@@ -111,8 +111,19 @@ import {
   VMAINC_INCREMENT_AFTER_HIGH,
   VMAINC_STEP_32,
 } from '../../src/constants/ppu.mjs';
-import { FLAG_MEMORY_8BIT, FLAG_ZERO, FLAG_NEGATIVE, FLAG_CARRY } from '../../src/constants/cpu-flags.mjs';
-import { BYTE_BITS, BYTE_MASK, NIBBLE_BITS, WORD_BITS, WORD_MASK } from '../../src/constants/bits.mjs';
+import {
+  FLAG_MEMORY_8BIT,
+  FLAG_ZERO,
+  FLAG_NEGATIVE,
+  FLAG_CARRY,
+} from '../../src/constants/cpu-flags.mjs';
+import {
+  BYTE_BITS,
+  BYTE_MASK,
+  NIBBLE_BITS,
+  WORD_BITS,
+  WORD_MASK,
+} from '../../src/constants/bits.mjs';
 // C152 and its original callback graph on the shared VM memory. Port stores
 // are requests; reads require chronological observations. Channel-5 readback
 // can consume explicit transfer bytes in A9E1; no automatic DMA or clock.

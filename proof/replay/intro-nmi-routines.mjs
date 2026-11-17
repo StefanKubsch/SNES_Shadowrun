@@ -11,7 +11,7 @@ import {
 } from '../system/main-scene-video.mjs';
 import { readJoypadLong } from '../../src/system/main-scene-wait.mjs';
 import { runObservedNmi } from '../../src/system/nmi-call.mjs';
-import { sendApuCommand } from '../../src/system/native-input-apu.mjs';
+import { sendApuCommand } from '../system/native-input-apu.mjs';
 import { handlePanObjects } from '../../src/frontend/title.mjs';
 
 export const INTRO_NMI_ROUTINES = new Map([

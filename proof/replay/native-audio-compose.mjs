@@ -1,7 +1,7 @@
 import { taskStop } from '../../src/system/task-stop.mjs';
 import { unpackStep } from '../../src/system/native-unpack-body.mjs';
 import { taskTextAccess } from '../../src/system/native-text-prerequisites.mjs';
-import { sendApuCommand, computeSoundPan } from '../../src/system/native-input-apu.mjs';
+import { sendApuCommand, computeSoundPan } from '../system/native-input-apu.mjs';
 import {
   MUSIC,
   SOUND_LOADED_SET,

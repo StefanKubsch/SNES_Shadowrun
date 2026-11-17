@@ -10,7 +10,7 @@ import { TaskAccessor } from '../src/vm/task-accessor.mjs';
 import { SPECIAL_NATIVES } from '../proof/vm/special-natives.mjs';
 import { appendToFightListReference as appendToFightList } from '../proof/game-reference/fight-list-append.mjs';
 import { loadSampleData } from '../proof/replay/native-audio-compose.mjs';
-import { sendApuCommand } from '../src/system/native-input-apu.mjs';
+import { sendApuCommand } from '../proof/system/native-input-apu.mjs';
 
 // NativeAC/8521: pinned own code with stack proof, and the equations of proof/game-reference/fight-list-append.mjs and
 // of EF47/F25A/F1FA (proof/replay/native-audio-compose.mjs) against the original instructions
