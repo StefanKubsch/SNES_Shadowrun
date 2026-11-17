@@ -18353,7 +18353,7 @@
       "camera_source_proof": "tools/main-loop-camera-source.mjs",
       "scene_modules": [
         "proof/replay/main-scene.mjs",
-        "src/system/main-scene-video.mjs",
+        "proof/system/main-scene-video.mjs",
         "proof/cutscene-reference/cutscene-animation.mjs",
         "src/system/main-scene-wait.mjs",
         "src/task/main-scene-intro.mjs",

@@ -18,7 +18,7 @@ import { handleCutsceneNmi } from '../src/cutscene/cutscene-scene.mjs';
 import { startSong } from '../src/apu/music-mode.mjs';
 import { setSceneScreen } from '../src/video/scene-screen.mjs';
 import { startSong as startSongReference } from '../proof/apu-reference/audio-routines.mjs';
-import { setSceneScreenRegisters } from '../src/system/main-scene-video.mjs';
+import { setSceneScreenRegisters } from '../proof/system/main-scene-video.mjs';
 import { CUTSCENE_REFERENCE_ROUTINES } from '../proof/cutscene-reference/cutscene-scene.mjs';
 
 const WRAM_BYTES = 0x20000,

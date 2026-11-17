@@ -33,7 +33,7 @@ observations. The static groups overlap:
   sets a DMA length from the list, unpacks through `80:F2A0` into `7E:46A8`,
   then transfers from that buffer to the command's VRAM word address.
   [scene-lists.mjs](../src/data/scene-lists.mjs) records the list/register
-  contracts; [main-scene-video.mjs](../src/system/main-scene-video.mjs),
+  contracts; [main-scene-video.mjs](../proof/system/main-scene-video.mjs),
   `81:EC68` through `81:ECB2`, implements the reader. Continuations retain
   the existing list ordering, including `81:F529` continuing into `81:F53E`.
 - Thirty-seven OBJ sources serve 139 portrait records. Each unpacks 64

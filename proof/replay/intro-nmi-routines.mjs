@@ -8,7 +8,7 @@ import {
   sendOamBuffer,
   clearOamHighTable,
   hideRemainingSprites,
-} from '../../src/system/main-scene-video.mjs';
+} from '../system/main-scene-video.mjs';
 import { readJoypadLong } from '../../src/system/main-scene-wait.mjs';
 import { runObservedNmi } from '../../src/system/nmi-call.mjs';
 import { sendApuCommand } from '../../src/system/native-input-apu.mjs';

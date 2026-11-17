@@ -15,7 +15,7 @@ import {
 import { proveWordStack } from './static-word-stack-proof.mjs';
 import { dialogAccess } from '../src/system/native-dialog-support.mjs';
 import { TaskAccessor } from '../src/vm/task-accessor.mjs';
-import { sendOamBuffer } from '../src/system/main-scene-video.mjs';
+import { sendOamBuffer } from '../proof/system/main-scene-video.mjs';
 import {
   animateCutscene,
   SCENE_ANIMATION_TARGETS,

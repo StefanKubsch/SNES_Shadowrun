@@ -118,7 +118,7 @@ import { MAIN_SCENE_ROUTINES } from '../replay/main-scene.mjs';
 import { AUDIO_REFERENCE_ENTRIES } from '../apu-reference/audio-routines.mjs';
 import { FadePollContinuation } from '../../src/system/main-wait-interrupt.mjs';
 import { sceneWaitByte, SCENE_WAIT_ROUTINES } from '../../src/system/main-scene-wait.mjs';
-import { sendOamBuffer } from '../../src/system/main-scene-video.mjs';
+import { sendOamBuffer } from '../system/main-scene-video.mjs';
 import { animateCutscene } from './cutscene-animation.mjs';
 
 // The call boundary of the register-level cutscene: status and data bank 81.

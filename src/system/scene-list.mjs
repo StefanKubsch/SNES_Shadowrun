@@ -1,5 +1,5 @@
 // Scene command lists (lifted from 81:EC16 and its commands 81:EC41-ECD0, with the
-// palette copy 81:ECF2; register-level version in src/system/main-scene-video.mjs).
+// palette copy 81:ECF2; register-level version in proof/system/main-scene-video.mjs).
 // A list of command bytes with their arguments sets up a screen: the NMI
 // callback, packed graphics into VRAM, palettes and single registers. The
 // command table scene_list_commands (81:EC2F) names the handler of each byte;

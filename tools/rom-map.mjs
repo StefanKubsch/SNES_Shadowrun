@@ -178,7 +178,7 @@ import {
   trackCalls,
 } from '../proof/matrix-reference/main-matrix-movement.mjs';
 import { SCENE_ANIMATION_TARGETS } from '../proof/cutscene-reference/cutscene-animation.mjs';
-import { SCENE_VIDEO_COMMANDS } from '../src/system/main-scene-video.mjs';
+import { SCENE_VIDEO_COMMANDS } from '../proof/system/main-scene-video.mjs';
 import { CALLBACKS } from '../src/system/nmi-call.mjs';
 
 // Jump tables behind indirect jumps (JMP/JSR (abs,X) read the table and the

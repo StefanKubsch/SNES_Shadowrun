@@ -1,7 +1,12 @@
-import { unpackStep } from './native-unpack-body.mjs';
-import { taskStop } from './task-stop.mjs';
-import { unpackStream } from './native-unpack.mjs';
-import { unpackPortrait } from './native-dialog-portrait.mjs';
+import { unpackStep } from '../../src/system/native-unpack-body.mjs';
+import { taskStop } from '../../src/system/task-stop.mjs';
+import {
+  WRIO_ALL_HIGH,
+  CGSWSEL_MATH_PREVENTED,
+  MEMSEL_FAST_ROM,
+} from '../../src/system/main-reset.mjs';
+import { unpackStream } from '../../src/system/native-unpack.mjs';
+import { unpackPortrait } from '../../src/system/native-dialog-portrait.mjs';
 
 import {
   CLEAR_COLOUR,
@@ -14,9 +19,9 @@ import {
   PALETTE_SHADOW,
   SCENE_LAYER_HIGH,
   WRAM,
-} from '../data/wram.mjs';
-import { BYTE_MASK, WORD_MASK } from '../constants/bits.mjs';
-import { CODE_BANK_PAIR, WRAM_BANK } from '../constants/memory-map.mjs';
+} from '../../src/data/wram.mjs';
+import { BYTE_MASK, WORD_MASK } from '../../src/constants/bits.mjs';
+import { CODE_BANK_PAIR, WRAM_BANK } from '../../src/constants/memory-map.mjs';
 import {
   NMITIMEN,
   NMITIMEN_AUTO_JOYPAD,
@@ -58,7 +63,7 @@ import {
   SETINI,
   WRIO,
   MEMSEL,
-} from '../constants/hardware-registers.mjs';
+} from '../../src/constants/hardware-registers.mjs';
 import {
   BGMODE_BG3_PRIORITY,
   BGMODE_MODE_1,
@@ -78,7 +83,7 @@ import {
   OAM_HIGH_TABLE_BYTES,
   OAM_LOW_TABLE_BYTES,
   VMAINC_INCREMENT_AFTER_HIGH,
-} from '../constants/ppu.mjs';
+} from '../../src/constants/ppu.mjs';
 import {
   FLAG_CARRY,
   FLAG_INDEX_8BIT,
@@ -86,7 +91,7 @@ import {
   FLAG_ZERO,
   FLAG_NEGATIVE,
   FLAG_IRQ_DISABLE,
-} from '../constants/cpu-flags.mjs';
+} from '../../src/constants/cpu-flags.mjs';
 // Shared display initialization for 81:CDF8/C3CA. Hardware stores are requests with original PCs;
 // no DMA, NMI callback or elapsed frame is executed. h operates on the one VM memory/stack.
 
@@ -107,11 +112,6 @@ const OAM_OFF_SCREEN = 0xf0ff;
 // Fixed DMA source byte 81:EE4E that 81:EE22 sends across all of VRAM (scene_dma_fill).
 const DMA_FILL = 0xee4e,
   DMA_FILL_BANK = 0x81;
-// Register reset 81:EE4F: all WRIO outputs high, COLDATA 0 on all three components, colour
-// math prevented everywhere (CGWSEL bits 4-5 = 3, src/video/ppu-frame.mjs) and FastROM.
-export const WRIO_ALL_HIGH = 0xff,
-  CGSWSEL_MATH_PREVENTED = 0x30,
-  MEMSEL_FAST_ROM = 1;
 // 81:EB97 installs the NMI callback 81:EC15 and fills CGRAM from colour 16 (wrapping) with
 // the word CLEAR_COLOUR.
 const SCREEN_INIT_CALLBACK = 0xec15,

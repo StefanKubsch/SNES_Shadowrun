@@ -7,7 +7,7 @@ import {
   enableNmiAndJoypad,
   setNmiEnable,
   sendOamBuffer,
-} from '../../src/system/main-scene-video.mjs';
+} from '../system/main-scene-video.mjs';
 import {
   waitForFrame,
   waitFrames,

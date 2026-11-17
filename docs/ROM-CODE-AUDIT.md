@@ -72,7 +72,7 @@ original room tours. Sources: [native-object-turn.mjs](../src/script/native-obje
 read records in `analysis/rom-code-observed.json`.
 
 The remaining readers are implemented in
-[main-scene-video.mjs](../src/system/main-scene-video.mjs),
+[main-scene-video.mjs](../proof/system/main-scene-video.mjs),
 [cutscene-animation.mjs](../proof/cutscene-reference/cutscene-animation.mjs),
 [start-menu-text.mjs](../proof/frontend-reference/start-menu-text.mjs) (with its lifted form
 [start-menu.mjs](../src/frontend/start-menu.mjs)) and

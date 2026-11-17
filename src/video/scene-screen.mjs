@@ -1,5 +1,5 @@
 // The screen registers of a scene (lifted from 81:EBE9; register-level version in
-// src/system/main-scene-video.mjs): BG1 map at VRAM word 0000, BG2 at 0400, BG3 at
+// proof/system/main-scene-video.mjs): BG1 map at VRAM word 0000, BG2 at 0400, BG3 at
 // 0800, the character bases and sprite sizes of the scenes, mode 1 with BG3
 // priority, and BG1-3 with sprites on the main screen.
 import {

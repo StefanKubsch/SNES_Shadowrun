@@ -4,8 +4,6 @@ import { dialogAccess } from './native-dialog-support.mjs';
 
 import { MAIN_STARTUP_ENTRY } from './main-startup.mjs';
 
-import { WRIO_ALL_HIGH, CGSWSEL_MATH_PREVENTED, MEMSEL_FAST_ROM } from './main-scene-video.mjs';
-
 import {
   INIDISP,
   OBJSEL,
@@ -60,6 +58,12 @@ import { CODE_BANK, CODE_BANK_PAIR } from '../constants/memory-map.mjs';
 // Reset entries: the power-on reset E382 runs in bank 00 or 80 (the 16-bit
 // offset is compared), the software reset 80:9E3D. The reset code sets the
 // stack to $013F; the emulation mode stack lives in page 1.
+// Register resets 80:E3FA and 81:EE4F: all WRIO outputs high, COLDATA 0 on all three
+// components, colour math prevented everywhere (CGWSEL bits 4-5 = 3,
+// src/video/ppu-frame.mjs) and FastROM.
+export const WRIO_ALL_HIGH = 0xff,
+  CGSWSEL_MATH_PREVENTED = 0x30,
+  MEMSEL_FAST_ROM = 1;
 const RESET_ENTRY = 0xe382,
   RESET_STACK = 0x013f;
 

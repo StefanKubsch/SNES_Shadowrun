@@ -1,5 +1,5 @@
 // NMI control and the scene screen start (lifted from 81:EB7B, 81:EB89, 80:C109
-// and 81:EB97; register-level versions in src/system/main-scene-video.mjs).
+// and 81:EB97; register-level versions in proof/system/main-scene-video.mjs).
 // NMITIMEN has a shadow in WRAM that the frame wait reads; the NMI handler
 // calls the long callback in 7E:006E-0070.
 import {

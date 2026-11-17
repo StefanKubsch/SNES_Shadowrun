@@ -14,7 +14,7 @@ import { textCommands } from '../proof/matrix-reference/main-scene-matrix.mjs';
 import { SCENE_ANIMATION_TARGETS } from '../proof/cutscene-reference/cutscene-animation.mjs';
 import { KARMA_LISTS } from '../proof/replay/native-main-menu.mjs';
 import { SUBMENU_SEQUENCES } from '../proof/replay/native-status-screen.mjs';
-import { SCENE_VIDEO_COMMANDS } from '../src/system/main-scene-video.mjs';
+import { SCENE_VIDEO_COMMANDS } from '../proof/system/main-scene-video.mjs';
 import { COMPARE } from '../proof/replay/native-scene-sprites.mjs';
 
 const ROM_SHA256 = '91dbfecf9017264b01885e065cf015840223b8e8d2f95dfa62c4c0d654c2f690';

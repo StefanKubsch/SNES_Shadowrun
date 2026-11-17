@@ -1,4 +1,4 @@
-import { clearOamHighTable, hideRemainingSprites } from '../../src/system/main-scene-video.mjs';
+import { clearOamHighTable, hideRemainingSprites } from '../system/main-scene-video.mjs';
 export { clearOamHighTable, hideRemainingSprites };
 import { routineCaller } from '../../src/system/routine-call.mjs';
 import { setCarry } from '../system/status-flags.mjs';

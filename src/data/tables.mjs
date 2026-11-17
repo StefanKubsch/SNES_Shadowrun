@@ -163,7 +163,7 @@
 //   and colour mask of each fade step,
 // - frontend_oam 81:E5CB: four OBJ entries E57E copies to 7E:0F1E,
 // - scene_list_commands 81:EC2F: JSR ($EC2F,X) at EC28 by the scene list
-//   command (src/system/main-scene-video.mjs, src/data/scene-lists.mjs);
+//   command (proof/system/main-scene-video.mjs, src/data/scene-lists.mjs);
 //   command 0 ends a list before the jump,
 // - window HDMA tables (line count and two bytes for 2126/2127, end 00):
 //   dialog_window_hdma 80:8F87 (8F3A copies the 16 bytes to 7E:0144),

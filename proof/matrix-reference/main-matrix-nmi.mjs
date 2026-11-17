@@ -1,5 +1,5 @@
 import { runObservedNmi } from '../../src/system/nmi-call.mjs';
-import { sendOamBuffer } from '../../src/system/main-scene-video.mjs';
+import { sendOamBuffer } from '../system/main-scene-video.mjs';
 import { readJoypadLong } from '../../src/system/main-scene-wait.mjs';
 import {
   NativeCallContinuation,

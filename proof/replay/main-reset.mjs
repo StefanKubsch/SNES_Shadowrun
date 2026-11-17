@@ -6,7 +6,7 @@ import {
   WRIO_ALL_HIGH,
   CGSWSEL_MATH_PREVENTED,
   MEMSEL_FAST_ROM,
-} from '../../src/system/main-scene-video.mjs';
+} from '../../src/system/main-reset.mjs';
 import {
   INIDISP,
   OBJSEL,

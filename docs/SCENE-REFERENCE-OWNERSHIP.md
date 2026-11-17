@@ -93,3 +93,11 @@ the register-level reference loop reach through the interrupt table (81:D9D5,
 loop (`proof/script/register-level-loop.mjs`) builds its own interrupt devices
 on the same lag-free frames with those helpers added, so the shared live
 interrupt table is not mutated.
+
+The register-level scene video routines (81:EB7B to 81:F2A4: NMI enables, screen
+registers, OAM, VRAM clear, register reset, palette copy, scene list interpreter
+and bank-81 unpack entries) were reached by the game only for three reset
+constants. Those constants now live in `src/system/main-reset.mjs`, their live
+user, and the routines moved to `proof/system/main-scene-video.mjs`; the lifted
+versions remain in `src/system/nmi.mjs`, `src/system/scene-list.mjs` and
+`src/video/scene-screen.mjs`.

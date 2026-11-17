@@ -1,4 +1,4 @@
-// Command lists of the scene loader $81:EC16 (src/system/main-scene-video.mjs):
+// Command lists of the scene loader $81:EC16 (proof/system/main-scene-video.mjs):
 // X/Y give the list address, each command is a byte that indexes the word
 // table 81:EC2F, its arguments follow. 00 ends the list; 01 and 06 to 08 do
 // nothing; 02 (EC42) two words to DP 6E/70; 03 (EC68) VRAM word address,

@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import * as video from '../src/system/main-scene-video.mjs';
+import * as video from '../proof/system/main-scene-video.mjs';
 import { sceneVideoSpecs, proveSceneVideo } from './main-scene-video-source.mjs';
 import { compareDialog, decodeWindows, prng, rom } from './task-native-dialog-harness.mjs';
 import { dialogAccess } from '../src/system/native-dialog-support.mjs';
@@ -12,22 +12,7 @@ import { readFileSync } from 'node:fs';
 const originalStreams = JSON.parse(
   readFileSync(new URL('../assets/render-unpack-data.json', import.meta.url)),
 ).sources;
-const names = [
-  'EB7B',
-  'EB89',
-  'EBE9',
-  'ED8B',
-  'EDB6',
-  'EE22',
-  'EE4F',
-  'ECF2',
-  'C109',
-  'EB97',
-  'EC16',
-  'F2A0',
-  'F2A4',
-];
-// Export names of the routines above, in the same order.
+// Export names of the register-level scene video routines 81:EB7B to 81:F2A4.
 const functions = [
   'enableNmiAndJoypad',
   'setNmiEnable',

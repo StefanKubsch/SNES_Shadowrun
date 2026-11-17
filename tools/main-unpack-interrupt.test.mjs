@@ -11,7 +11,7 @@ import { TaskAccessor } from '../src/vm/task-accessor.mjs';
 import { dialogAccess } from '../src/system/native-dialog-support.mjs';
 import { unpackPortrait } from '../src/system/native-dialog-portrait.mjs';
 import { unpackStreamLong } from '../src/system/native-unpack.mjs';
-import { enableNmiAndJoypad } from '../src/system/main-scene-video.mjs';
+import { enableNmiAndJoypad } from '../proof/system/main-scene-video.mjs';
 import { finishInterruptObservations } from '../src/system/main-wait-interrupt.mjs';
 
 const portrait = JSON.parse(readFileSync(new URL('../analysis/render-9f6d.json', import.meta.url)))
