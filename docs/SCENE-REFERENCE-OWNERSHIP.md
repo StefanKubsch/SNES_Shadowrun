@@ -232,3 +232,8 @@ reads 80:9E0B and 80:F290 and their routine table moved with their continuations
 `proof/system/main-scene-wait.mjs`. The live module keeps the observed byte wait and
 the frame wait 81:EEBB with its interrupt continuation, which the cutscene and the
 observed scene calls use.
+
+The register-level script call bridge 80:F488 with its child link 80:C36A moved
+from `src/system/script-yield.mjs` to `proof/system/script-yield.mjs`; only the task
+opcode proofs call them. The live module keeps the frame and heap allocation
+80:C242/C2C8 that `task-append.mjs` uses.

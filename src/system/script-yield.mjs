@@ -12,9 +12,6 @@ import {
   TASK_WAIT,
   TASK_NEXT,
   TASK_FRAME,
-  TASK_CURSOR,
-  TASK_PREVIOUS,
-  TASK_LIST_HEAD,
   SCRIPT_BANKS,
   SCRIPT_ARGUMENT_BYTES,
   SCRIPT_POINTERS,
@@ -24,14 +21,12 @@ import {
   FRAME_OPERAND_STACK,
 } from '../vm/layout.mjs';
 import { taskStop } from './task-stop.mjs';
-import { renderAddress } from '../render/data.mjs';
 import {
   FLAG_ZERO,
   FLAG_NEGATIVE,
   FLAG_CARRY,
   FLAG_OVERFLOW,
   FLAG_MEMORY_8BIT,
-  FLAG_DECIMAL,
 } from '../constants/cpu-flags.mjs';
 import {
   BYTE_MASK,
@@ -45,7 +40,7 @@ import {
   BYTE_SIGN,
   WORD_SIGN,
 } from '../constants/bits.mjs';
-import { CODE_BANK_BASE, CODE_BANK_PAIR } from '../constants/memory-map.mjs';
+import { CODE_BANK_BASE } from '../constants/memory-map.mjs';
 
 // C2C8 scratch pointers and C30F argument source retain the original address carry.
 const SCRIPT_HEADER_POINTER = 0x71,
@@ -56,12 +51,8 @@ const ARGUMENT_COPY_BASE = 0xfffe;
 const HEAP_MIN_SPLIT_BYTES = HEAP_HEADER_BYTES + 1;
 const FRAME_HEAP_RETURN_WORD = 0xc2f7,
   FRAME_HEAP_RESUME = 0xc2f8;
-const CHILD_FRAME_RETURN_WORD = 0xc36c,
-  CHILD_FRAME_RESUME = 0xc36d;
-const SCRIPT_CHILD_RETURN_WORD = 0xf494;
-const WAIT_FOR_CHILD = WORD_MASK;
 
-// Manually transcribed fixed C242/C2C8/C36A equations. No instruction dispatch.
+// Manually transcribed fixed C242/C2C8 equations (C36A: proof/system/script-yield.mjs). No instruction dispatch.
 export function scriptAllocationEquations(a) {
   const c = a.ctx;
   const nz = (v, w = 2) => {
@@ -280,58 +271,3 @@ export function runTaskFrameAllocation(a, h = scriptAllocationEquations(a)) {
     ww(TASK_FRAME + c.x, c.a);
   }
 }
-function child(a, h) {
-  const { c, load, ix, rw, ww, rts } = h;
-  a.pushWord(CHILD_FRAME_RETURN_WORD, 'child-JSR-frame');
-  runTaskFrameAllocation(a, h);
-  rts(CHILD_FRAME_RESUME);
-  load(rw(TASK_CURSOR));
-  ww(TASK_NEXT + c.x, c.a);
-  ix('y', c.a);
-  load(rw(TASK_PREVIOUS + c.y));
-  ww(TASK_PREVIOUS + c.x, c.a);
-  load(c.x);
-  ww(TASK_PREVIOUS + c.y, c.a);
-  load(WAIT_FOR_CHILD);
-  ww(TASK_WAIT + c.y, c.a);
-  load(a.pullWord('child-PLA-caller-return'));
-  ww(TASK_CONTINUATION + c.y, c.a);
-  ix('y', rw(TASK_PREVIOUS + c.x));
-  if (c.y & WORD_SIGN) ww(TASK_LIST_HEAD, c.x);
-  else {
-    load(c.x);
-    ww(TASK_NEXT + c.y, c.a);
-  }
-  const outerReturnWord = rts(null, true);
-  return {
-    outerReturnWord,
-    returnTarget: CODE_BANK_BASE | c.pc,
-    frontier: 'actual-outer-yield-target',
-    returnTargetExecuted: false,
-    scope: 'manual-script52-arguments-frame-heap-child-outer-yield',
-    stackMigrationExecuted: true,
-    fullTaskBinding: false,
-  };
-}
-function runTaskScriptYield(a, options) {
-  if (a.ctx.status & FLAG_DECIMAL) taskStop('task_binary_arithmetic_required');
-  if (
-    ![1, 2].every((n) =>
-      options.protectedStackBytes.includes(renderAddress((a.ctx.a + n) & WORD_MASK)),
-    )
-  )
-    taskStop('task_outer_return_required');
-  const h = scriptAllocationEquations(a);
-  a.ctx.s = a.ctx.a;
-  h.load(0);
-  a.ctx.d = h.nz(0);
-  a.pushWord(CODE_BANK_PAIR, 'script-bridge-PEA');
-  for (let n = 0; n < 2; n++) {
-    a.ctx.bank = h.nz(a.read((a.ctx.s + 1) & WORD_MASK, 'script-bridge-PLB'), 1);
-    a.ctx.s = (a.ctx.s + 1) & WORD_MASK;
-  }
-  a.pushWord(SCRIPT_CHILD_RETURN_WORD, 'script-JSR-child');
-  return child(a, h);
-}
-
-export { runTaskScriptYield };
