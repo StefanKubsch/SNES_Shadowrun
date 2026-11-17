@@ -295,3 +295,6 @@ The intro takes its frame wait and input read from the scene frame interface; it
 recorded call sites 81:E07E and 81:E082 moved into the proof driver. The nested
 cutscene call keeps its original frame for now. The intro's other proof callers
 import the driver as well.
+
+The matrix takes its frame wait from the scene frame interface; its recorded bridge
+site 81:C3CA moved into the proof driver.

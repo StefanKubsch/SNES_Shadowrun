@@ -2,9 +2,9 @@
 // 81:BEC3). The scene is a generator: it pauses at every frame wait so the live game
 // can show the frame; the other matrix code is plain functions in matrix-world.mjs
 // and matrix-text.mjs. Shared frame waits, unpacking, fades, sound and input
-// compose directly; recorded waits retain explicit instruction observations.
+// compose directly; frame waits come from the scene frame interface.
 import { taskStop } from '../system/task-stop.mjs';
-import { sceneFrameCallSequence } from '../system/scene-observed-calls.mjs';
+import { sceneFrames } from '../system/scene-frames.mjs';
 import { entryOf } from './matrix-tables.mjs';
 import { readJoypad, takePadPresses } from '../system/joypad.mjs';
 import {
@@ -114,13 +114,8 @@ import { unpack } from '../system/unpack.mjs';
 import { runSceneList } from '../system/scene-list.mjs';
 import { setMusicMode } from '../apu/music-mode.mjs';
 import { fadeIn, fadeOut } from '../video/fades.mjs';
-import { waitForFrame } from '../system/frame-wait.mjs';
-import { lagFree } from '../system/main-wait-interrupt.mjs';
 import { BYTE_BITS, BYTE_MASK, WORD_BITS, WORD_MASK } from '../constants/bits.mjs';
 
-// The register-level frame wait, for recorded interrupt observations.
-// Return address of these calls: the matrix entry. Nothing reads it.
-const BRIDGE_SITE = 0x81c3ca;
 // Audio mode 8, the register list 81:CDB2 (it also installs the NMI callback), and the
 // packed streams (src/data/lz-streams.mjs) into bank 7F: the text characters to
 // 7F:0000, the back map to 7F:0216 (VRAM 2400), the 16 system maps (800 bytes each)
@@ -260,12 +255,8 @@ function* setUpScreen(m, wait) {
 // the accessor of the native call from the main loop (80:CC4B).
 export function* matrixSceneSequence(h, events) {
   const { ctx } = h,
-    // The lifted frame wait takes its NMI from the lag-free frame model; recorded
-    // interrupt observations keep the register-level wait.
-    wait = () =>
-      lagFree(events)
-        ? waitForFrame(h, events, m.port)
-        : sceneFrameCallSequence(h, events, BRIDGE_SITE);
+    clock = sceneFrames(h, events, 'matrix'),
+    wait = () => clock.wait(m);
   let m, more;
   // Entered by JSL from the scene request of the main loop (80:CC4B) with 16-bit registers;
   // the scene changes neither the status nor the data bank it returns with.
