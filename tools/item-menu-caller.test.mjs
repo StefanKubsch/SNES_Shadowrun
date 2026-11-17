@@ -10,7 +10,7 @@ import * as formerItem from '../proof/caller/item-menu.mjs';
 import { equipmentRowsSequence } from '../proof/caller/equipment-window.mjs';
 import * as W from '../src/data/wram.mjs';
 import { runResetWindowList } from '../proof/caller/window-list.mjs';
-import { createObject } from '../src/script/native-object-create.mjs';
+import { createObject } from '../proof/script/native-object-create.mjs';
 import { tasksOf } from '../src/script/task-api.mjs';
 function runUse(module, direct, actor, effect, budget, realDrawing = false) {
   const pads = !effect.end && effect.notice ? [0x8000] : [];

@@ -59,7 +59,7 @@ the module that implements it.
 | `native-a1e6`            | [native-scene-object-add.mjs](../src/script/native-scene-object-add.mjs)                                   |
 | `native-a297`            | [native-group-member-position.mjs](../src/script/native-group-member-position.mjs)                         |
 | `native-a2b5`            | [native-group-remove.mjs](../src/script/native-group-remove.mjs)                                           |
-| `native-a835`            | [native-object-create.mjs](../src/script/native-object-create.mjs)                                         |
+| `native-a835`            | [native-object-create.mjs](../proof/script/native-object-create.mjs)                                       |
 | `native-a8f5`            | [native-object-release.mjs](../src/script/native-object-release.mjs)                                       |
 | `native-a91d`            | [native-object-task-clear.mjs](../src/script/native-object-task-clear.mjs)                                 |
 | `native-a926`            | [native-object-task-bind.mjs](../src/script/native-object-task-bind.mjs)                                   |

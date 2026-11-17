@@ -2,7 +2,7 @@ import { routineCaller } from '../../src/system/routine-call.mjs';
 import { enterRoomJsrSequence as enterRoomRoutineSequence } from '../../src/game/room-entry.mjs';
 import { SCENE_GRAPHICS_ROUTINES } from './main-scene-graphics.mjs';
 import { TALK_ROUTINES } from '../script/native-dialog.mjs';
-import { createObject } from '../../src/script/native-object-create.mjs';
+import { createObject } from '../script/native-object-create.mjs';
 import { turnRegisters } from '../script/native-object-turn.mjs';
 import { drawWindowListAdapter } from './native-render-compose.mjs';
 import { sendApuCommand } from './native-input-apu.mjs';

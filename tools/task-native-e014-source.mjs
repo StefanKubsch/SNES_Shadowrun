@@ -117,7 +117,7 @@ export const nativeE014Spec = {
     [
       0x80a835,
       'RTS',
-      'object creation, createObject in src/script/native-object-create.mjs (tools/task-native-create-spec.mjs)',
+      'object creation, createObject in proof/script/native-object-create.mjs (tools/task-native-create-spec.mjs)',
     ],
     [
       0x80a985,

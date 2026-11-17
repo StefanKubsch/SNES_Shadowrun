@@ -21,7 +21,7 @@ import {
   NATIVE_8AB5_ROUTINES,
 } from '../proof/replay/native-object-shoot.mjs';
 import { randomBelow } from '../proof/replay/native-random.mjs';
-import { createObject } from '../src/script/native-object-create.mjs';
+import { createObject } from '../proof/script/native-object-create.mjs';
 import { setObjectDirection } from '../src/script/native-object-action-set.mjs';
 
 // Native58/8A51 (player shoots at the object under the glove) and Native5A/8A8C (object shoots at object):

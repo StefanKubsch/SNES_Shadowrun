@@ -6,7 +6,7 @@
 // runs the lifted native.
 import { taskStop } from '../../src/system/task-stop.mjs';
 import { FIRST_ARGUMENT, SECOND_ARGUMENT, leaf } from '../../src/system/native-leaf-support.mjs';
-import { createObject } from '../../src/script/native-object-create.mjs';
+import { createObject } from '../script/native-object-create.mjs';
 import { turnRegisters } from '../script/native-object-turn.mjs';
 import {
   GROUP_INDEX,

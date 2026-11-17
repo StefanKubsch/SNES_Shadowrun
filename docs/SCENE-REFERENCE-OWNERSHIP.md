@@ -237,3 +237,8 @@ The register-level script call bridge 80:F488 with its child link 80:C36A moved
 from `src/system/script-yield.mjs` to `proof/system/script-yield.mjs`; only the task
 opcode proofs call them. The live module keeps the frame and heap allocation
 80:C242/C2C8 that `task-append.mjs` uses.
+
+The register-level object creation 80:A835 with its real A8EB JSL and C366 JSR moved
+to `proof/script/native-object-create.mjs`; the register-level natives and references
+call it there. The live module keeps only the script native, which runs the lifted
+creation in `src/game/object-create.mjs`.

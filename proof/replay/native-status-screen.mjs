@@ -22,7 +22,7 @@ import {
   requestWindowUploadAdapter,
 } from './native-menu-compose.mjs';
 import { sendApuCommand } from '../system/native-input-apu.mjs';
-import { createObject } from '../../src/script/native-object-create.mjs';
+import { createObject } from '../script/native-object-create.mjs';
 import { drawTextBufferAdapter } from './native-text-compose.mjs';
 
 import {

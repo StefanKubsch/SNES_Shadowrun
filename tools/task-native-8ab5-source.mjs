@@ -33,7 +33,7 @@ export const native8AB5Spec = {
       'line of sight, proof/replay/line-of-sight.mjs (tools/task-sight-a25f-source.mjs)',
     ],
     [0x80c51f, 'RTS', 'random below DP00, proof/replay/native-random.mjs'],
-    [0x80a835, 'RTS', 'object slot creation, src/script/native-object-create.mjs'],
+    [0x80a835, 'RTS', 'object slot creation, proof/script/native-object-create.mjs'],
     [0x80aaaf, 'RTS', 'object action, src/script/native-object-action-set.mjs'],
     [
       0x808691,

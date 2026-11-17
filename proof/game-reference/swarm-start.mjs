@@ -1,13 +1,13 @@
 // Register-level references of the swarm start natives 80:D7DD, 80:D260 and 80:D63C
 // (moved from src/script/native-swarm-start.mjs; lifted in src/game/swarm-start.mjs) and of
-// the object creation native 80:A835 (src/script/native-object-create.mjs, which the
+// the object creation native 80:A835 (proof/script/native-object-create.mjs, which the
 // register-level natives still call; lifted in src/game/object-create.mjs). The proof
 // plans, the Native58 dispatch of proof/task/native-dispatch.mjs and the instruction tests
 // run these; the game runs the lifted natives.
-export { createObject as createObjectReference } from '../../src/script/native-object-create.mjs';
+export { createObject as createObjectReference } from '../script/native-object-create.mjs';
 import { taskStop } from '../../src/system/task-stop.mjs';
 import { FIRST_ARGUMENT, SECOND_ARGUMENT, leaf } from '../../src/system/native-leaf-support.mjs';
-import { createObject } from '../../src/script/native-object-create.mjs';
+import { createObject } from '../script/native-object-create.mjs';
 import { turnRegisters } from '../script/native-object-turn.mjs';
 import { lsr, clc } from './register-helpers.mjs';
 import { WAVE_TABLE, PHASE_MASK, QUARTER_PHASE } from '../../src/game/object-bob.mjs';

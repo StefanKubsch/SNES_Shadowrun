@@ -3,7 +3,7 @@ import { enterRoomSequence } from '../caller/room-entry.mjs';
 import { unpackStep } from '../../src/system/native-unpack-body.mjs';
 import { SCENE_GRAPHICS_ROUTINES } from '../system/main-scene-graphics.mjs';
 import { TALK_ROUTINES } from './native-dialog.mjs';
-import { createObject } from '../../src/script/native-object-create.mjs';
+import { createObject } from '../script/native-object-create.mjs';
 import { turnRegisters } from '../script/native-object-turn.mjs';
 import { drawWindowListAdapter } from '../system/native-render-compose.mjs';
 import { sendApuCommand } from '../system/native-input-apu.mjs';
