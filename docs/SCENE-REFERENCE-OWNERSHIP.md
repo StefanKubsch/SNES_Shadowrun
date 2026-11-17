@@ -351,3 +351,14 @@ The inline NMI waits `waitWord` and `nmiWords` (80:901C portrait DMA, AE0C/AE5E 
 lists) lost their last live caller with the object tile reload and moved to
 `proof/system/native-dialog-portrait.mjs`. The live portrait module keeps the
 portrait unpacker and the shared portrait constants.
+
+## Recorded startup routines
+
+Instruction-level startup recordings (`startupInterrupts`) cannot run lifted
+routines, which have no instruction boundaries. Instead of branching to the
+register-level version inside the lifted code, a lifted routine asks
+`recordedRoutine(events, name)` in `src/system/recorded-routines.mjs`; for such a
+recording it gets the register-level version that
+`proof/system/recorded-routines.mjs` installs (the producers of recordings import
+it), and the game, which never records, always runs the lifted routine. The object
+animation step 80:AC2F was converted first.

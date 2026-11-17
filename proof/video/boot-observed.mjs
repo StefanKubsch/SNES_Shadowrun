@@ -1,3 +1,4 @@
+import '../system/recorded-routines.mjs';
 import { BYTE_MASK, BYTE_BITS, BANK_SIZE } from '../../src/constants/bits.mjs';
 import { BANK_WITHOUT_IO } from '../../src/constants/memory-map.mjs';
 import { INIDISP, NMITIMEN } from '../../src/constants/hardware-registers.mjs';

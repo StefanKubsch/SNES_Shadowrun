@@ -14,6 +14,7 @@
 //   wait   [{pc, address, width: 1|2, value}] WRAM byte or word at each poll of a wait loop
 //   input  [{pc, address, width: 2, value}] joypad word at $809E1A
 
+import '../system/recorded-routines.mjs';
 const EMPTY = Object.freeze([]);
 
 // Plays back given observation sets one after another. Without a matching set

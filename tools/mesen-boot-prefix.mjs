@@ -1,5 +1,6 @@
 // Cold M3/M5 checkpoints, using actual reset state and original IO.
 // The product executes only its existing fixed native JS equations.
+import '../proof/system/recorded-routines.mjs';
 import assert from 'node:assert/strict';
 import { nativeReturnContext } from './lifted-script-natives.mjs';
 import { fileURLToPath } from 'node:url';

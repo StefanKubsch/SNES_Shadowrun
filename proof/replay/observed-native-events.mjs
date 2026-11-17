@@ -2,6 +2,7 @@
 // wait/input lists and their local counters retain their separate contracts.
 // Forward the live cursors as well as the arrays: copying an index would replay
 // interrupts or DMA transfers after returning from a nested Native adapter.
+import '../system/recorded-routines.mjs';
 const channels = [
   'interrupts',
   'interruptIndex',

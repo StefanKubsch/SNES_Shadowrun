@@ -1,3 +1,4 @@
+import '../system/recorded-routines.mjs';
 import { BYTE_MASK, BYTE_BITS, WORD_MASK, LONG_MASK } from '../../src/constants/bits.mjs';
 import { BANK_WITHOUT_IO } from '../../src/constants/memory-map.mjs';
 import {

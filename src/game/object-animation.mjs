@@ -31,7 +31,7 @@
 //
 // With recorded interrupt observations an NMI may fall inside the routine (the Mesen
 // cold boot replay records one at 80:AC8F), so the register-level routine runs there.
-import { stepObjectAnimation } from '../system/native-scene-tiles.mjs';
+import { recordedRoutine } from '../system/recorded-routines.mjs';
 import { taskStop } from '../system/task-stop.mjs';
 import { CarryArithmetic } from './carry-arithmetic.mjs';
 import {
@@ -125,7 +125,8 @@ const longWord = (mem, at) =>
 
 // Step the animation of the object in X (80:AC2F, called with JSR).
 export function stepAnimation(h, events) {
-  if (events?.startupInterrupts) return stepObjectAnimation(h, events);
+  const recorded = recordedRoutine(events, 'object-animation');
+  if (recorded) return recorded(h, events);
   const { ctx, a } = h,
     { mem } = a,
     { wram } = mem,
