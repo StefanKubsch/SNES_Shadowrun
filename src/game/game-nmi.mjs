@@ -1,5 +1,6 @@
 // The jobs of the game NMI handler 80:C152 (lifted; the register-level versions in
-// proof/replay/main-game-nmi.mjs are the references, GAME_NMI_ROUTINES).
+// proof/replay/main-game-nmi.mjs are the references, GAME_NMI_ROUTINES; recorded runs
+// compose both in proof/replay/game-nmi-jobs.mjs).
 //
 // The handler calls its jobs once per NMI with the direct page at 0 and the data bank
 // at 0, so the fields below 2000 lie in WRAM. Each job states its DMA transfers and
@@ -12,10 +13,7 @@ import { sceneRuntime } from '../system/scene-runtime.mjs';
 import { uploadMapEdges } from './camera-scroll.mjs';
 import { readJoypad } from '../system/joypad.mjs';
 import { writePortraitTileChannel } from './portrait-upload.mjs';
-import { NATIVE_CALL_CONTINUATIONS } from '../system/native-call-continuation.mjs';
 import { taskStop } from '../system/task-stop.mjs';
-import { lagFree } from '../system/main-wait-interrupt.mjs';
-import { GAME_NMI_ROUTINES } from '../system/main-game-nmi.mjs';
 import { DP_PORTRAIT_BANK, DP_PORTRAIT_POINTER } from '../system/native-dialog-portrait.mjs';
 import {
   GLOVE_KIND_CROSSHAIR,
@@ -611,27 +609,6 @@ export const GAME_NMI_LIFTED_ROUTINES = new Map([
   [0x81a9e1, clearTextTilesRoutine],
   [0x80c152, handleGameNmi],
 ]);
-
-// The live table entries, bound after the register-level ones in MAIN_SCENE_ROUTINES
-// (proof/replay/main-scene.mjs): the lifted jobs with lag-free frames; a recorded run, whose
-// accessor replays observed memory and devices, keeps the register-level jobs.
-export const GAME_NMI_LIFTED_JOBS = new Map(
-  [...GAME_NMI_LIFTED_ROUTINES].map(([target, run]) => {
-    const reference = GAME_NMI_ROUTINES.get(target);
-    return [
-      target,
-      (h, events, routines) => (lagFree(events) ? run(h) : reference(h, events, routines)),
-    ];
-  }),
-);
-// The handler's register-level reference pauses at its joypad wait in recorded runs, so
-// that continuation is kept for them; with lag-free frames the lifted handler runs whole.
-const HANDLER = 0x80c152;
-NATIVE_CALL_CONTINUATIONS.set(GAME_NMI_LIFTED_JOBS.get(HANDLER), {
-  run: GAME_NMI_LIFTED_JOBS.get(HANDLER),
-  create: (call) =>
-    lagFree(call.events) ? null : NATIVE_CALL_CONTINUATIONS.get(HANDLER).create(call),
-});
 
 // 80:D9AD with 81:B0AC (the script native's JSL): start a brightness fade by n steps (n
 // positive darkens): the fade word is -n, its frames |n| + 8, both wrapping in 16 bits.

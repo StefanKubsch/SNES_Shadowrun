@@ -1,6 +1,6 @@
 {
   "updated": "2026-11-17",
-  "focus": "Game NMI owns 81:8954; text upload 81:A9E1 is its own module; transition, scene and initialization references live in proof/system. Independent adapters: proof/caller/scene-entries.mjs. Batch state: HANDOFF.md.",
+  "focus": "Live frontend binds lifted game NMI jobs; recorded-run fallbacks, the register-level game NMI, transition, scene and initialization references live in proof/. Batch state: HANDOFF.md.",
   "next_step": "Next: reduce remaining register-level live tables (recorded game NMI, frontend NMI) where lifted code already serves them. Twenty-block batches, one commit each, then one release and push; shape editing and S-MIX stay deferred.",
   "porting_resume": "188 original-form bytes remain: 93 code and 95 unidentified data. Read/hardware/data boundaries: docs/ROM-CODE-AUDIT.md. Unknown bytes and unused graphics stay preserved; unrecorded paths can report rom_byte_absent.",
   "open_issues": [

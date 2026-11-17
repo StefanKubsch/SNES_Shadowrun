@@ -1,19 +1,19 @@
-import { runObservedNmi } from './nmi-call.mjs';
-import { clearTextTiles } from './main-text-upload.mjs';
-import { unpackStep } from './native-unpack-body.mjs';
-import { readJoypad } from './main-scene-wait.mjs';
-import { NativeWaitContinuation } from './native-wait-continuation.mjs';
-import { DP_PORTRAIT_BANK, DP_PORTRAIT_POINTER } from './native-dialog-portrait.mjs';
+import { runObservedNmi } from '../../src/system/nmi-call.mjs';
+import { clearTextTiles } from '../../src/system/main-text-upload.mjs';
+import { unpackStep } from '../../src/system/native-unpack-body.mjs';
+import { readJoypad } from '../../src/system/main-scene-wait.mjs';
+import { NativeWaitContinuation } from '../../src/system/native-wait-continuation.mjs';
+import { DP_PORTRAIT_BANK, DP_PORTRAIT_POINTER } from '../../src/system/native-dialog-portrait.mjs';
 import {
   GLOVE_KIND_CROSSHAIR,
   GLOVE_KIND_SPELL,
-} from '../script/native-glove-crosshair-limits.mjs';
+} from '../../src/script/native-glove-crosshair-limits.mjs';
 import {
   NativeCallContinuation,
   NATIVE_CALL_CONTINUATIONS,
   drainNativeSequence,
   nativeCallSequence,
-} from './native-call-continuation.mjs';
+} from '../../src/system/native-call-continuation.mjs';
 
 import {
   BRIGHTNESS_FADE,
@@ -60,8 +60,8 @@ import {
   MAP_LINE_BYTES,
   CAMERA_X,
   CAMERA_Y,
-} from '../data/wram.mjs';
-import { CYCLE_TABLE } from '../data/palette-cycles.mjs';
+} from '../../src/data/wram.mjs';
+import { CYCLE_TABLE } from '../../src/data/palette-cycles.mjs';
 import {
   INIDISP,
   TM,
@@ -98,7 +98,7 @@ import {
   DAS3L,
   BG1HOFS,
   BG1VOFS,
-} from '../constants/hardware-registers.mjs';
+} from '../../src/constants/hardware-registers.mjs';
 import {
   DMAP_ONE_PORT,
   DMAP_TWO_PORTS,
@@ -110,9 +110,9 @@ import {
   OAMADDH_PRIORITY_ROTATION,
   VMAINC_INCREMENT_AFTER_HIGH,
   VMAINC_STEP_32,
-} from '../constants/ppu.mjs';
-import { FLAG_MEMORY_8BIT, FLAG_ZERO, FLAG_NEGATIVE, FLAG_CARRY } from '../constants/cpu-flags.mjs';
-import { BYTE_BITS, BYTE_MASK, NIBBLE_BITS, WORD_BITS, WORD_MASK } from '../constants/bits.mjs';
+} from '../../src/constants/ppu.mjs';
+import { FLAG_MEMORY_8BIT, FLAG_ZERO, FLAG_NEGATIVE, FLAG_CARRY } from '../../src/constants/cpu-flags.mjs';
+import { BYTE_BITS, BYTE_MASK, NIBBLE_BITS, WORD_BITS, WORD_MASK } from '../../src/constants/bits.mjs';
 // C152 and its original callback graph on the shared VM memory. Port stores
 // are requests; reads require chronological observations. Channel-5 readback
 // can consume explicit transfer bytes in A9E1; no automatic DMA or clock.

@@ -75,3 +75,11 @@ reference. Its port-write PCs, chunking and observed channel-5 readback are
 unchanged. The scene initialization routines (font, window styles, object and
 palette resets) were then no longer loaded by the game and moved to
 `proof/system/main-initialize.mjs`.
+
+The live game always runs lag-free frames, so its frontend interrupt table now
+binds the lifted game NMI jobs of `src/game/game-nmi.mjs` directly. The
+composition that falls back to the register-level jobs in recorded runs moved
+to [game-nmi-jobs.mjs](../proof/replay/game-nmi-jobs.mjs), together with the
+handler's recorded joypad-wait continuation. The register-level game NMI was
+then no longer loaded by the game and moved to
+`proof/system/main-game-nmi.mjs`; its comparisons are unchanged.

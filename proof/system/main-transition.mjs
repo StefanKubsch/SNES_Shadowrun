@@ -9,7 +9,7 @@ import { sendApuCommand } from '../../src/system/native-input-apu.mjs';
 import { clampToCameraBox, updateCameraTileBuffers } from './main-loop-camera.mjs';
 import { clearFixedColour } from '../../src/system/native-dialog-portrait.mjs';
 import { ObservedWaitContinuation } from '../../src/system/main-wait-interrupt.mjs';
-import { uploadMapEdgesAndScroll } from '../../src/system/main-game-nmi.mjs';
+import { uploadMapEdgesAndScroll } from './main-game-nmi.mjs';
 import {
   NativeCallContinuation,
   NATIVE_CALL_CONTINUATIONS,

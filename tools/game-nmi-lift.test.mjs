@@ -1,6 +1,6 @@
 // Live comparison of the lifted jobs of the game NMI handler 80:C152
 // (src/game/game-nmi.mjs) with the register-level jobs (GAME_NMI_ROUTINES in
-// src/system/main-game-nmi.mjs; docs/MAIN-LOOP-LIFT.md). The session is the alley plan
+// proof/system/main-game-nmi.mjs; docs/MAIN-LOOP-LIFT.md). The session is the alley plan
 // of tools/live-alley-plan.mjs (from the title and the apartment save into the alley,
 // with fades, the orc's shots, notices and the Beretta); every NMI must give the same
 // WRAM, VRAM, CGRAM, OAM, PPU registers, scroll, PPU write count and sound RAM.
@@ -9,7 +9,7 @@ import assert from 'node:assert/strict';
 import { compareLift } from './lift-compare.mjs';
 import { PLAN } from './live-alley-plan.mjs';
 import { CUTSCENE_IGNORED_WRAM } from './live-cutscene-plan.mjs';
-import { GAME_NMI_LIFTED_JOBS } from '../src/game/game-nmi.mjs';
+import { GAME_NMI_LIFTED_JOBS } from '../proof/replay/game-nmi-jobs.mjs';
 import { GAME_NMI_ROUTINES } from '../proof/replay/main-game-nmi.mjs';
 import { INIDISP_SHADOW } from '../src/data/wram.mjs';
 

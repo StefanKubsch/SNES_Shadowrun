@@ -793,7 +793,7 @@ export const DP_OBJECT_Y = 4;
 export const DP_OBJECT_HEIGHT = 6;
 export const DP_OBJECT_SCRIPT = 8;
 
-// Game NMI shadows copied to INIDISP, TM, TS, TMW and HDMAEN by 80:C188 (main-game-nmi.mjs).
+// Game NMI shadows copied to INIDISP, TM, TS, TMW and HDMAEN by 80:C188 (src/game/game-nmi.mjs).
 // The script interpreter uses the TM and TS words as STATUS_FLAGS_FIRST and
 // STATUS_FLAGS_SECOND (src/vm/layout.mjs). A nonzero BRIGHTNESS_FADE steps the INIDISP
 // brightness up (positive) or down (negative) every few frames (81:B0D1).

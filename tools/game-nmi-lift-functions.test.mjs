@@ -1,6 +1,6 @@
 // Random per-function tests of the lifted jobs of the game NMI handler 80:C152
 // (src/game/game-nmi.mjs) against the register-level jobs (GAME_NMI_ROUTINES in
-// src/system/main-game-nmi.mjs; docs/MAIN-LOOP-LIFT.md). Both sides must leave the same
+// proof/system/main-game-nmi.mjs; docs/MAIN-LOOP-LIFT.md). Both sides must leave the same
 // WRAM, the same device writes and the registers the handler keeps (S, PC, program
 // bank, 16-bit modes); the handler restores the others.
 import test from 'node:test';
