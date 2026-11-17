@@ -5,7 +5,8 @@
 // out. Scene 14 is the intro (81:DFE7, src/intro/), passed on as the original
 // does. A negative scene is mirrored.
 import { taskStop } from '../system/task-stop.mjs';
-import { nativeCallSequence, nativeTailSequence } from '../system/native-call-continuation.mjs';
+import { nativeCallSequence } from '../system/native-call-continuation.mjs';
+import { introSequence } from '../intro/intro-scene.mjs';
 import { FadePollContinuation, lagFree } from '../system/main-wait-interrupt.mjs';
 import { sceneWaitByte } from '../system/main-scene-wait.mjs';
 import { heldPad, menuCreditsRunning, CREDITS_SEQUENCE } from '../game/credits.mjs';
@@ -85,7 +86,14 @@ import {
   APU_COMMAND_SOUND_VOICES,
   APU_COMMAND_SOUND_VOLUME,
 } from '../constants/sound-commands.mjs';
-import { BYTE_BITS, BYTE_MASK, BYTE_SIGN, WORD_MASK, WORD_SIGN } from '../constants/bits.mjs';
+import {
+  BYTE_BITS,
+  BYTE_MASK,
+  BYTE_SIGN,
+  WORD_BITS,
+  WORD_MASK,
+  WORD_SIGN,
+} from '../constants/bits.mjs';
 import { FLAG_MEMORY_8BIT, FLAG_NEGATIVE, FLAG_ZERO } from '../constants/cpu-flags.mjs';
 
 const INTRO_SCENE = 0x14,
@@ -133,7 +141,13 @@ function requireWideAccumulator(ctx) {
 // native call from the main loop (80:CC4B) or the frontend (credits).
 export function* cutsceneSequence(h, events, routines) {
   const { ctx } = h;
-  if (ctx.a === INTRO_SCENE) return yield* nativeTailSequence(h, events, routines, INTRO);
+  if (ctx.a === INTRO_SCENE) {
+    yield () => {
+      ctx.programBank = INTRO >>> WORD_BITS;
+      ctx.pc = INTRO & WORD_MASK;
+    };
+    return yield* introSequence(h, events, routines);
+  }
   const call = (target) => nativeCallSequence(h, events, routines, CALL_SITE, target, true),
     lifted = lagFree(events);
   let m, t, n;
