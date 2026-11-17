@@ -11,10 +11,9 @@ import {
   SECOND_ARGUMENT,
   THIRD_ARGUMENT,
   FOURTH_ARGUMENT,
-  indexObjectRecord,
   leaf,
-  readRecordField,
 } from '../../src/system/native-leaf-support.mjs';
+import { indexObjectRecord, readRecordField } from '../system/native-leaf-support.mjs';
 import {
   OBJECT_ARMOUR,
   OBJECT_DEPTH_MODE_CLEAR_MASK,

@@ -2,12 +2,8 @@
 // 80:CB9F, 80:CBB3, 80:CBCB, 80:9DAE, 80:9DC8 and 80:9DEC (moved from src/task/native-record-*.mjs; lifted in
 // src/game/actor-state.mjs). The proof plans and the Native58 dispatch of
 // proof/task/native-dispatch.mjs run these; the game runs the lifted natives.
-import {
-  FIRST_ARGUMENT,
-  SECOND_ARGUMENT,
-  leaf,
-  readActorState,
-} from '../../src/system/native-leaf-support.mjs';
+import { FIRST_ARGUMENT, SECOND_ARGUMENT, leaf } from '../../src/system/native-leaf-support.mjs';
+import { readActorState } from '../system/native-leaf-support.mjs';
 import { RECORD_COUNT, RECORD_FLAGS, RECORD_PROPERTY, WRAM } from '../../src/data/wram.mjs';
 import { akimiArrivalFlags, fixesEnabled, keepVampireDefeated } from '../../src/game/bugfixes.mjs';
 import { taskStop } from '../../src/system/task-stop.mjs';

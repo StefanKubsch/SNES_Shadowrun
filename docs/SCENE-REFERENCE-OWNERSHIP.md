@@ -113,3 +113,7 @@ The register-level text prerequisites (bit read, geometry, mask close and text
 waits) and their private constants moved to
 `proof/system/native-text-prerequisites.mjs`. The live module keeps only the
 task text accessor that the lifted unpack, render and APU helpers share.
+
+The register-level leaf helpers for object record fields, actor state and kind,
+and kind values moved to `proof/system/native-leaf-support.mjs`; the live module
+keeps the shared leaf frame, argument and result helpers.
