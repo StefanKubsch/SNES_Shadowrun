@@ -1,10 +1,7 @@
 // Register-level object tile reload 80:ADF4 that only the dialog references and
 // comparisons call; the game reloads object tiles through src/game/object-tiles.mjs.
-import {
-  waitWord,
-  observeRandomStateWait,
-  nmiWords,
-} from '../../src/system/native-dialog-portrait.mjs';
+import { waitWord, nmiWords } from '../../src/system/native-dialog-portrait.mjs';
+import { observeRandomStateWait } from './native-dialog-portrait.mjs';
 import { FLAG_NEGATIVE, FLAG_ZERO, FLAG_CARRY } from '../../src/constants/cpu-flags.mjs';
 import {
   DRAW_LIST_INDEX,

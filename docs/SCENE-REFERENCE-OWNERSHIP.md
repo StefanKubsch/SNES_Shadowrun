@@ -171,3 +171,8 @@ The register-level form of the default weapon correction moved to
 `src/game/runner-equipment.mjs`), and the nested-round interrupt extension of the
 register-level drivers moved to `proof/vm/round-interrupts.mjs`. An unused empty
 constant was removed from `src/vm/devices.mjs`.
+
+The register-level portrait tile upload 80:8FF5 and the random-state frame wait
+81:B0A1 of the dialog references moved to `proof/system/native-dialog-portrait.mjs`;
+the game uploads portraits through `src/game/portrait-upload.mjs`. The live module
+keeps the inline NMI waits, the portrait unpacker and the shared portrait constants.

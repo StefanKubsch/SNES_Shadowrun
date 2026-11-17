@@ -1,5 +1,4 @@
 import { taskStop } from './task-stop.mjs';
-import { waitForRandomStateChange } from './native-frame-wait.mjs';
 import { releaseWindowAdapter } from './native-render-compose.mjs';
 import {
   NativeCallContinuation,
@@ -25,25 +24,15 @@ import {
   PORTRAIT_DMA_REQUEST,
   OAM_HIGH_TABLE,
 } from '../data/wram.mjs';
-import {
-  DAS0L,
-  A1T0L,
-  WH0,
-  DMAP0,
-  BBAD0,
-  A1B0,
-  VMAINC,
-  VMDATAL,
-} from '../constants/hardware-registers.mjs';
-import { VMAINC_INCREMENT_AFTER_HIGH } from '../constants/ppu.mjs';
-import { BANK_WRAP, BYTE_MASK, WORD_MASK, WORD_SIGN } from '../constants/bits.mjs';
+import { WH0 } from '../constants/hardware-registers.mjs';
+import { BANK_WRAP, BYTE_MASK, WORD_MASK } from '../constants/bits.mjs';
 import {
   FLAG_INDEX_8BIT,
   FLAG_MEMORY_8BIT,
   FLAG_NEGATIVE,
   FLAG_ZERO,
 } from '../constants/cpu-flags.mjs';
-import { WRAM_HIGH_BANK, WRAM_HIGH_BANK_PAIR } from '../constants/memory-map.mjs';
+import { WRAM_HIGH_BANK_PAIR } from '../constants/memory-map.mjs';
 // Window and portrait setup of the dialog $936C. Each function starts at the original entry (frame from the
 // caller via h.call) and ends with the original RTS/RTL. h comes from dialogAccess
 // (native-dialog-support.mjs); events is the shared observation set of the native.
@@ -75,9 +64,6 @@ export const PORTRAIT_OBJSEL = 0x40,
   DP_PORTRAIT_BANK = 0xf8,
   PORTRAIT_RECORD_BANK_BYTE = 2,
   PORTRAIT_BUFFER = 0x5250;
-const PORTRAIT_UPLOAD_BYTES = 0x1000,
-  PORTRAIT_UPLOAD_MODE = 1,
-  PORTRAIT_UPLOAD_TARGET = VMDATAL & BYTE_MASK;
 // CGRAM start of the second portrait palette and its VRAM word address.
 export const SECOND_PORTRAIT_PALETTE = 0xa1,
   SECOND_PORTRAIT_VRAM = 0x800;
@@ -155,28 +141,6 @@ export function nmiWords(h, events, pc, offsets) {
     h.a.writeWord(offset, o.value, BANK_WRAP);
   }
 }
-// JSL $81B0A1 (wait for the next frame) with the counter observations from events.waitIndex.
-export function observeRandomStateWait(h, events, pc) {
-  h.call(
-    pc,
-    0x81b0a1,
-    () => {
-      const p = waitForRandomStateChange(
-        h.a,
-        {
-          interruptEvents: events,
-          waitObservations: Object.freeze((events.values ?? []).slice(events.waitIndex)),
-        },
-        false,
-        true,
-      );
-      events.waitIndex += p.waitObservationsUsed;
-      events.waitEvents.push(...p.waitEvents);
-      return p;
-    },
-    true,
-  );
-}
 
 // 80:9F6D: original portrait unpacker, with its real PHP/PHB and RTS.
 export function unpackPortrait(h, e) {
@@ -212,29 +176,6 @@ export function unpackPortrait(h, e) {
   step(0x80a031);
   h.plp();
   step(0x80a032);
-  return h.rts();
-}
-// 80:8FF5: DMA job 7F:5250, 0x1000 bytes to VRAM X (channel 0), via $0140 to the NMI; wait until
-// the NMI sets $0140 negative.
-export function uploadPortraitTiles(h, events) {
-  const { ctx } = h;
-  h.load(PORTRAIT_UPLOAD_BYTES);
-  h.portWrite(DAS0L, ctx.a, 2, 0x808ff8);
-  h.load(PORTRAIT_BUFFER);
-  h.portWrite(A1T0L, ctx.a, 2, 0x808ffe);
-  h.sep(FLAG_MEMORY_8BIT);
-  for (const [pc, port, v] of [
-    [0x809005, A1B0, WRAM_HIGH_BANK],
-    [0x80900a, BBAD0, PORTRAIT_UPLOAD_TARGET],
-    [0x80900f, VMAINC, VMAINC_INCREMENT_AFTER_HIGH],
-    [0x809014, DMAP0, PORTRAIT_UPLOAD_MODE],
-  ]) {
-    h.load(v);
-    h.portWrite(port, v, 1, pc);
-  }
-  h.rep(FLAG_MEMORY_8BIT);
-  h.write(h.abs(PORTRAIT_DMA_REQUEST), ctx.x, 2);
-  waitWord(h, events, 0x80901c, PORTRAIT_DMA_REQUEST, (v) => (v & WORD_SIGN) !== 0);
   return h.rts();
 }
 // 80:BCB2: glove off ($01D8 = 0); a non-negative $01DA frees the buffer $01DC via BE5B (FA3E).

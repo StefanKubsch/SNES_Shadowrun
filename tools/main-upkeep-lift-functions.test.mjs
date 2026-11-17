@@ -91,7 +91,7 @@ import { reloadObjectTilesSequence } from '../proof/caller/object-tiles.mjs';
 import { chooseFromMenuSequence } from '../proof/caller/menu-choice.mjs';
 import { menuComposeSequence } from '../proof/replay/native-menu-compose.mjs';
 import { portraitStreams } from '../src/data/portraits.mjs';
-import { uploadPortraitTiles } from '../src/system/native-dialog-portrait.mjs';
+import { uploadPortraitTiles } from '../proof/system/native-dialog-portrait.mjs';
 import {
   chooseDialogActionSequence,
   chooseDialogTopicSequence,

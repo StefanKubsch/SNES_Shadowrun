@@ -9,8 +9,8 @@ import {
 import { dialogCallSequence } from '../system/native-call-sequences.mjs';
 import { NATIVE_CALL_CONTINUATIONS } from './continuations.mjs';
 import { TALK_ROUTINES, validateDialogTaskOptions } from './native-dialog.mjs';
+import { uploadPortraitTiles } from '../system/native-dialog-portrait.mjs';
 import {
-  uploadPortraitTiles,
   PORTRAIT_WINDOW,
   PORTRAIT_OBJSEL,
   DP_PORTRAIT_POINTER,

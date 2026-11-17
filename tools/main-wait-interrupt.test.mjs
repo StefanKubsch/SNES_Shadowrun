@@ -31,8 +31,9 @@ import { DIALOG_WINDOWS } from './task-native-936c-windows.mjs';
 import { requestWindows } from './render-task-native-menu-compose-source-proof.mjs';
 import { waitForConfirmKey } from '../proof/replay/native-input-wait.mjs';
 import { waitForRandomStateChange } from '../src/system/native-frame-wait.mjs';
-import { uploadPortraitTiles, waitWord, nmiWords } from '../src/system/native-dialog-portrait.mjs';
+import { waitWord, nmiWords } from '../src/system/native-dialog-portrait.mjs';
 import {
+  uploadPortraitTiles,
   openPortraitWindow,
   closePortraitWindow,
 } from '../proof/system/native-dialog-portrait.mjs';

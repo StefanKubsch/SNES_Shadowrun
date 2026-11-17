@@ -4,14 +4,16 @@
 import {
   FIXED_COLOUR_BLACK,
   DP_PIXEL_WIDTH,
-  uploadPortraitTiles,
+  PORTRAIT_BUFFER,
   SECOND_PORTRAIT_PALETTE,
   SECOND_PORTRAIT_VRAM,
   SECOND_PORTRAIT_HDMA,
   PORTRAIT_WINDOW,
-  observeRandomStateWait,
+  waitWord,
 } from '../../src/system/native-dialog-portrait.mjs';
-import { BYTE_SIGN, BYTE_MASK } from '../../src/constants/bits.mjs';
+import { waitForRandomStateChange } from '../../src/system/native-frame-wait.mjs';
+import { VMAINC_INCREMENT_AFTER_HIGH } from '../../src/constants/ppu.mjs';
+import { BYTE_SIGN, BYTE_MASK, WORD_SIGN } from '../../src/constants/bits.mjs';
 import { WRAM_HIGH_BANK, WRAM_BANK } from '../../src/constants/memory-map.mjs';
 import {
   WRAM,
@@ -29,6 +31,7 @@ import {
   DIALOG_HDMA_TABLE,
   HDMAEN_SHADOW,
   TMW_SHADOW,
+  PORTRAIT_DMA_REQUEST,
 } from '../../src/data/wram.mjs';
 import {
   COLDATA,
@@ -39,6 +42,9 @@ import {
   DMAP0,
   BBAD0,
   A1B0,
+  DAS0L,
+  VMAINC,
+  VMDATAL,
 } from '../../src/constants/hardware-registers.mjs';
 import {
   FLAG_MEMORY_8BIT,
@@ -72,6 +78,55 @@ const PORTRAIT_ROW_SHIFT = Object.freeze({
   sourceStop: 0x534f,
   rowBytes: 0x100,
 });
+// 8FF5 uploads 1000 bytes in DMA mode 1 to VMDATAL/VMDATAH.
+const PORTRAIT_UPLOAD_BYTES = 0x1000,
+  PORTRAIT_UPLOAD_MODE = 1,
+  PORTRAIT_UPLOAD_TARGET = VMDATAL & BYTE_MASK;
+// JSL $81B0A1 (wait for the next frame) with the counter observations from events.waitIndex.
+export function observeRandomStateWait(h, events, pc) {
+  h.call(
+    pc,
+    0x81b0a1,
+    () => {
+      const p = waitForRandomStateChange(
+        h.a,
+        {
+          interruptEvents: events,
+          waitObservations: Object.freeze((events.values ?? []).slice(events.waitIndex)),
+        },
+        false,
+        true,
+      );
+      events.waitIndex += p.waitObservationsUsed;
+      events.waitEvents.push(...p.waitEvents);
+      return p;
+    },
+    true,
+  );
+}
+// 80:8FF5: DMA job 7F:5250, 0x1000 bytes to VRAM X (channel 0), via $0140 to the NMI; wait until
+// the NMI sets $0140 negative.
+export function uploadPortraitTiles(h, events) {
+  const { ctx } = h;
+  h.load(PORTRAIT_UPLOAD_BYTES);
+  h.portWrite(DAS0L, ctx.a, 2, 0x808ff8);
+  h.load(PORTRAIT_BUFFER);
+  h.portWrite(A1T0L, ctx.a, 2, 0x808ffe);
+  h.sep(FLAG_MEMORY_8BIT);
+  for (const [pc, port, v] of [
+    [0x809005, A1B0, WRAM_HIGH_BANK],
+    [0x80900a, BBAD0, PORTRAIT_UPLOAD_TARGET],
+    [0x80900f, VMAINC, VMAINC_INCREMENT_AFTER_HIGH],
+    [0x809014, DMAP0, PORTRAIT_UPLOAD_MODE],
+  ]) {
+    h.load(v);
+    h.portWrite(port, v, 1, pc);
+  }
+  h.rep(FLAG_MEMORY_8BIT);
+  h.write(h.abs(PORTRAIT_DMA_REQUEST), ctx.x, 2);
+  waitWord(h, events, 0x80901c, PORTRAIT_DMA_REQUEST, (v) => (v & WORD_SIGN) !== 0);
+  return h.rts();
+}
 // 81:886A: CGWSEL/colour (SEP 20, $2132 = E0, $2131 = 0), RTL.
 export function clearFixedColour(h) {
   h.sep(FLAG_MEMORY_8BIT);
