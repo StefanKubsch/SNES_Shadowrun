@@ -279,3 +279,14 @@ screens each define locally.
 
 The music-silence check of the menu credits test moved from `src/game/credits.mjs`
 into `tools/credits.test.mjs`; the game never read it.
+
+## Recorded scene frames
+
+The lifted scenes no longer branch on recorded interrupt observations. They take
+their frame waits, input reads and polling-loop passes from `sceneFrames` in
+`src/system/scene-frames.mjs`, which the game serves from the lag-free frame model.
+Runs with recorded observations of the original get the register-level driver of
+`proof/system/recorded-scene-frames.mjs` instead; it owns the original call sites
+and routines, so the scenes carry no recorded-run addresses. The scene references
+import the driver, which installs itself. The cutscene was converted first: its
+frame wait, input read and closing fade poll come from the driver.

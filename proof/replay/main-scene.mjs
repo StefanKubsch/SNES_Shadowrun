@@ -1,3 +1,4 @@
+import '../system/recorded-scene-frames.mjs';
 import {
   installSceneNmiAndClearPalette,
   setSceneScreenRegisters,

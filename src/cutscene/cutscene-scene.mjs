@@ -5,10 +5,8 @@
 // out. Scene 14 is the intro (81:DFE7, src/intro/), passed on as the original
 // does. A negative scene is mirrored.
 import { taskStop } from '../system/task-stop.mjs';
-import { sceneFrameCallSequence, sceneInputCallSequence } from '../system/scene-observed-calls.mjs';
+import { sceneFrames } from '../system/scene-frames.mjs';
 import { introSequence } from '../intro/intro-scene.mjs';
-import { FadePollContinuation, lagFree } from '../system/main-wait-interrupt.mjs';
-import { sceneWaitByte } from '../system/main-scene-wait.mjs';
 import { heldPad, menuCreditsRunning, CREDITS_SEQUENCE } from '../game/credits.mjs';
 import {
   beginPackedTextEdit,
@@ -19,8 +17,7 @@ import { sceneRuntime } from '../system/scene-runtime.mjs';
 import { startSceneScreen, enableNmiAndJoypad, disableNmi } from '../system/nmi.mjs';
 import { runSceneList } from '../system/scene-list.mjs';
 import { unpackStream } from '../system/unpack.mjs';
-import { readJoypad, takePadPresses } from '../system/joypad.mjs';
-import { nmiAtBranch, waitForFrame } from '../system/frame-wait.mjs';
+import { readJoypad } from '../system/joypad.mjs';
 import { loadSampleSet, setMusicMode, startSong } from '../apu/music-mode.mjs';
 import { setSceneScreen } from '../video/scene-screen.mjs';
 import {
@@ -98,9 +95,6 @@ import { FLAG_MEMORY_8BIT, FLAG_NEGATIVE, FLAG_ZERO } from '../constants/cpu-fla
 
 const INTRO_SCENE = 0x14,
   INTRO = 0x81dfe7,
-  // Register-level routines for recorded interrupt observations, called from the
-  // cutscene entry (nothing reads that return address).
-  CALL_SITE = 0x81cdf8,
   // The scene lists 81:F48D: one word per scene, lists in bank 81.
   SCENE_LISTS = 0x81f48d,
   LIST_BANK = SCENE_LISTS & ~WORD_MASK,
@@ -119,8 +113,7 @@ const INTRO_SCENE = 0x14,
   SKIP_BUTTONS = PAD_B | PAD_START,
   SCENE_END_SOUND = 0x2e,
   NO_MUSIC = WORD_MASK,
-  // The fade poll 81:CF4C: LDA 11A3 / BNE CF4C, where the NMI arrives.
-  FADE_POLL = 0x81cf4c,
+  // The branch of the fade poll 81:CF4C (LDA 11A3 / BNE CF4C), where the NMI arrives.
   FADE_BRANCH = 0x81cf4f,
   // The BG2 position is the scroll times 128; a mirrored scene scrolls the other way.
   POSITION_SCROLL_SHIFT = 7,
@@ -146,13 +139,10 @@ export function* cutsceneSequence(h, events) {
     };
     return yield* introSequence(h, events);
   }
-  const lifted = lagFree(events);
+  const clock = sceneFrames(h, events, 'cutscene');
   let m, t, n;
-  const wait = () =>
-      lifted ? waitForFrame(h, events, m.port) : sceneFrameCallSequence(h, events, CALL_SITE),
-    input = lifted
-      ? () => [() => takePadPresses(m.wram)]
-      : () => sceneInputCallSequence(h, events, CALL_SITE);
+  const wait = () => clock.wait(m),
+    input = () => clock.input(m);
   // The credits read the edited credit pages while their streams unpack.
   const snapshot =
     (ctx.a & (WORD_SIGN - 1)) === CREDITS_SEQUENCE
@@ -243,24 +233,16 @@ export function* cutsceneSequence(h, events) {
     m.sound(APU_COMMAND_SOUND_VOLUME, SCENE_END_SOUND);
     m.wram[SCENE_BRIGHTNESS_TARGET] = 0;
   };
-  // Wait until the NMI callback has faded the brightness to 0.
-  if (lifted)
+  // Wait until the NMI callback has faded the brightness to 0 (a recorded run polls
+  // its observations instead).
+  if (clock.brightnessZero) yield* clock.brightnessZero(m);
+  else
     while (m.wram[SCENE_BRIGHTNESS] !== 0) {
       const brightness = m.wram[SCENE_BRIGHTNESS],
         // After LDA of a nonzero byte in 8-bit mode: Z clear, N its bit 7.
         status = (ctx.status | FLAG_MEMORY_8BIT) & ~(FLAG_NEGATIVE | FLAG_ZERO);
-      yield* nmiAtBranch(
-        h,
-        events,
-        FADE_BRANCH,
-        brightness & BYTE_SIGN ? status | FLAG_NEGATIVE : status,
-      );
+      yield* clock.atBranch(FADE_BRANCH, brightness & BYTE_SIGN ? status | FLAG_NEGATIVE : status);
     }
-  else if (events?.interrupts !== undefined)
-    yield { continuation: new FadePollContinuation(h, events) };
-  else
-    for (let value = 1; value !== 0;)
-      yield () => (value = sceneWaitByte(h, events, FADE_POLL, WRAM + SCENE_BRIGHTNESS));
   yield* wait();
   let result;
   yield () => {
