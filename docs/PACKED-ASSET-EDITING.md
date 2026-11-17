@@ -67,7 +67,7 @@ does not grant permission to change or remove a byte.
   preserve original bytes when they still describe the output. Changed
   content can force greedy packing and therefore change the encoded length,
   even when dimensions and output length remain identical.
-- [native-unpack.mjs](../src/system/native-unpack.mjs), `80:9E65` bit helper:
+- [native-unpack.mjs](../proof/system/native-unpack.mjs), `80:9E65` bit helper:
   bit refill reads a word, so an odd number of consumed bitstream bytes
   borrows one byte beyond the encoded source. The decoder reports consumed
   bytes, not this additional read. The final output token is copied in full;

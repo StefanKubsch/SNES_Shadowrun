@@ -8,7 +8,7 @@ import { requireRomAddress, romOffset } from '../src/data/rom-bytes.mjs';
 import { lzBits, lzDecode } from '../src/data/lz.mjs';
 import { VmMemory } from '../src/vm/memory.mjs';
 import { TaskAccessor } from '../src/vm/task-accessor.mjs';
-import { unpackStreamLong } from '../src/system/native-unpack.mjs';
+import { unpackStreamLong } from '../proof/system/native-unpack.mjs';
 
 const json = (name) => JSON.parse(readFileSync(`assets/${name}.json`));
 const result = await auditMapStreams();

@@ -2,10 +2,10 @@
 // unpacker entries unpackStreamLong (9F49/9F4D, also through the startup
 // interrupt path) and unpackPortrait (portraits into bank 7F) so the probe sees each
 // call with its registers on entry (A source offset, Y source bank, X
-// destination offset; src/system/native-unpack.mjs). 9E7E (room tiles, fixed
+// destination offset; proof/system/native-unpack.mjs). 9E7E (room tiles, fixed
 // 128 bytes) is left out. The product never loads this file.
 const WRAPS = {
-  '/src/system/native-unpack.mjs': [
+  '/proof/system/native-unpack.mjs': [
     'export function unpackStreamLong(',
     'function probeOriginal9F49(',
     `export function unpackStreamLong(a,outerReturn=true,entry=0x809F49,events=null){

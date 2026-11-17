@@ -1,7 +1,7 @@
-import { dialogAccess } from './native-dialog-support.mjs';
-import { runInterruptUnpack } from './native-unpack-body.mjs';
-import { taskStop } from './task-stop.mjs';
-import { taskTextAccess } from './native-text-prerequisites.mjs';
+import { dialogAccess } from '../../src/system/native-dialog-support.mjs';
+import { runInterruptUnpack } from '../../src/system/native-unpack-body.mjs';
+import { taskStop } from '../../src/system/task-stop.mjs';
+import { taskTextAccess } from '../../src/system/native-text-prerequisites.mjs';
 import {
   UNPACK_SOURCE_POINTER,
   UNPACK_SOURCE_BANK,
@@ -17,14 +17,14 @@ import {
   UNPACK_OUTPUT_COUNT_HIGH,
   UNPACK_OUTPUT_START,
   WRAM,
-} from '../data/wram.mjs';
-import { redirectLanguageStream } from '../data/language.mjs';
+} from '../../src/data/wram.mjs';
+import { redirectLanguageStream } from '../../src/data/language.mjs';
 import {
   FLAG_INDEX_8BIT,
   FLAG_MEMORY_8BIT,
   FLAG_CARRY,
   FLAG_NEGATIVE,
-} from '../constants/cpu-flags.mjs';
+} from '../../src/constants/cpu-flags.mjs';
 import {
   WORD_BITS,
   WORD_MASK,
@@ -33,8 +33,8 @@ import {
   LONG_MASK,
   BYTE_MASK,
   BANK_WRAP,
-} from '../constants/bits.mjs';
-import { WRAM_BANK_PAIR, WRAM_BANK, CODE_BANK } from '../constants/memory-map.mjs';
+} from '../../src/constants/bits.mjs';
+import { WRAM_BANK_PAIR, WRAM_BANK, CODE_BANK } from '../../src/constants/memory-map.mjs';
 
 const UNPACK_HEADER_BYTES = 0x4;
 const FIXED_UNPACK_BYTES = 0x80;

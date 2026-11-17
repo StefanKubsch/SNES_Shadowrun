@@ -7,7 +7,7 @@ import {
 import { taskStop } from '../../src/system/task-stop.mjs';
 import { taskTextAccess } from '../../src/system/native-text-prerequisites.mjs';
 import { unpackStep } from '../../src/system/native-unpack-body.mjs';
-import { unpackStreamLong } from '../../src/system/native-unpack.mjs';
+import { unpackStreamLong } from './native-unpack.mjs';
 import { drawJakeStateBar } from '../script/native-bar-tiles.mjs';
 import { FLAG_CARRY, FLAG_NEGATIVE } from '../../src/constants/cpu-flags.mjs';
 import { WORD_MASK, WORD_BITS } from '../../src/constants/bits.mjs';

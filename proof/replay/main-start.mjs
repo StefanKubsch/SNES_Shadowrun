@@ -3,7 +3,7 @@
 // reference is proof/game-reference/game-start.mjs).
 import { taskStop } from '../../src/system/task-stop.mjs';
 import { dialogAccess } from '../../src/system/native-dialog-support.mjs';
-import { unpackStream } from '../../src/system/native-unpack.mjs';
+import { unpackStream } from '../system/native-unpack.mjs';
 import { MAIN_INITIALIZE_ROUTINES } from '../system/main-initialize.mjs';
 import { TRANSITION_ROUTINES } from './main-transition.mjs';
 import { NativeCallContinuation } from '../../src/system/native-call-continuation.mjs';

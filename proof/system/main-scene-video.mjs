@@ -5,7 +5,7 @@ import {
   CGSWSEL_MATH_PREVENTED,
   MEMSEL_FAST_ROM,
 } from '../../src/system/main-reset.mjs';
-import { unpackStream } from '../../src/system/native-unpack.mjs';
+import { unpackStream } from './native-unpack.mjs';
 import { unpackPortrait } from '../../src/system/native-dialog-portrait.mjs';
 
 import {

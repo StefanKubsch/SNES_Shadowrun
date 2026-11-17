@@ -1,7 +1,7 @@
 import { unpackStep } from '../../src/system/native-unpack-body.mjs';
 import { routineCaller } from '../../src/system/routine-call.mjs';
 import { SCENE_COLLISION_ROUTINES } from './main-scene-collision.mjs';
-import { unpackFixedStream } from '../../src/system/native-unpack.mjs';
+import { unpackFixedStream } from './native-unpack.mjs';
 import { BYTE_MASK } from '../../src/constants/bits.mjs';
 import { WRAM_BANK_PAIR } from '../../src/constants/memory-map.mjs';
 import { VMAINC, VMADDL, VMDATAL } from '../../src/constants/hardware-registers.mjs';

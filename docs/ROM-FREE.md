@@ -306,7 +306,7 @@ tools/live-*.test.mjs`, then `node tools/rom-vram.mjs` writes
   stream address, format, the original packing and the output; characters
   are in `assets/vm-lz-bg2.bmp`, `-bg4.bmp` and `-obj4.bmp`. Generator
   `extract:vm-lz`, code [src/data/lz-streams.mjs](../src/data/lz-streams.mjs).
-  - Entry (src/system/native-unpack.mjs, native-dialog-portrait.mjs): A source
+  - Entry (proof/system/native-unpack.mjs, native-dialog-portrait.mjs): A source
     offset, Y source bank, X destination; the stream begins with the output
     length as a word, the packed data follow.
   - Probe: the same run as for the VRAM characters. The module hook

@@ -14,7 +14,7 @@ import { lzBits, lzDecode } from '../src/data/lz.mjs';
 import { requireRomAddress, romOffset } from '../src/data/rom-bytes.mjs';
 import { VmMemory } from '../src/vm/memory.mjs';
 import { TaskAccessor } from '../src/vm/task-accessor.mjs';
-import { unpackStreamLong } from '../src/system/native-unpack.mjs';
+import { unpackStreamLong } from '../proof/system/native-unpack.mjs';
 import { unpackPortrait } from '../src/system/native-dialog-portrait.mjs';
 import { dialogAccess } from '../src/system/native-dialog-support.mjs';
 import { buildLanguage, installLanguage } from '../src/data/language.mjs';

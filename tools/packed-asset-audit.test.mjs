@@ -8,7 +8,7 @@ import { requireRomAddress, romOffset } from '../src/data/rom-bytes.mjs';
 import { lzDecode, lzBits } from '../src/data/lz.mjs';
 import { VmMemory } from '../src/vm/memory.mjs';
 import { TaskAccessor } from '../src/vm/task-accessor.mjs';
-import { unpackStreamLong } from '../src/system/native-unpack.mjs';
+import { unpackStreamLong } from '../proof/system/native-unpack.mjs';
 
 const audit = await auditPackedAssets();
 const bitsFor = lzBits((n) => cartridge.rom[romOffset(0x80a033 + n)]);

@@ -13,7 +13,7 @@ import { readBmp, sheetToStream, streamToSheet } from '../src/data/tiles.mjs';
 import { romOffset, requireRomAddress } from '../src/data/rom-bytes.mjs';
 import { VmMemory } from '../src/vm/memory.mjs';
 import { TaskAccessor } from '../src/vm/task-accessor.mjs';
-import { unpackFixedStream } from '../src/system/native-unpack.mjs';
+import { unpackFixedStream } from '../proof/system/native-unpack.mjs';
 import { LiveGame } from '../src/video/live-game.mjs';
 import { renderMode1Frame } from '../src/video/ppu-frame.mjs';
 import { hdmaRows } from '../src/video/hdma.mjs';
