@@ -1,7 +1,7 @@
 // Compatibility boundary for callers that still supply a register routine table.
 // Text producers receive a renderer sequence instead of knowing its dispatch table.
-import { drawTextBufferSequence } from './text-draw.mjs';
-import { taskStop } from '../system/task-stop.mjs';
+import { drawTextBufferSequence } from '../../src/game/text-draw.mjs';
+import { taskStop } from '../../src/system/task-stop.mjs';
 
 const TEXT_BUFFER_ENTRY = 0x80fb39;
 

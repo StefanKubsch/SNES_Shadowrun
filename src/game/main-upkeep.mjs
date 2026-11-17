@@ -1,4 +1,3 @@
-import { textBufferRenderer } from './text-renderer.mjs';
 // The main loop's entries of its lifted upkeep routines: each runs the lifted
 // function and returns to the main loop as the original (RTL from bank 81, RTS in
 // bank 80). The register-level versions are references in
@@ -168,13 +167,12 @@ NATIVE_CALL_CONTINUATIONS.set(runPrintNumber, {
   create: ({ h, events }) => new NativeCallContinuation(h.a, printNumberSequence(h, events)),
 });
 // 80:FE69, called with JSR; its text buffer 80:FB39 waits for the NMI.
-export function runPrintText(h, events, routines) {
-  return drainNativeSequence(printTextSequence(h, events, textBufferRenderer(routines)));
+export function runPrintText(h, events) {
+  return drainNativeSequence(printTextSequence(h, events));
 }
 NATIVE_CALL_CONTINUATIONS.set(runPrintText, {
   run: runPrintText,
-  create: ({ h, events, routines }) =>
-    new NativeCallContinuation(h.a, printTextSequence(h, events, textBufferRenderer(routines))),
+  create: ({ h, events }) => new NativeCallContinuation(h.a, printTextSequence(h, events)),
 });
 // 80:FB39, called with JSR; its upload requests wait for the NMI.
 export function runDrawTextBuffer(h, events) {

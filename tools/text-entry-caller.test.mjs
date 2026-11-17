@@ -1,7 +1,8 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { runPrintNumber } from '../src/game/main-upkeep.mjs';
+import { runPrintNumber, runPrintText } from '../src/game/main-upkeep.mjs';
 import { printNumberSequence as formerNumber } from '../proof/caller/window-text.mjs';
+import { printTextSequence as formerText } from '../proof/caller/text-print.mjs';
 import { drawTextBufferSequence as formerDraw } from '../proof/caller/text-draw.mjs';
 import {
   NativeCallContinuation,
@@ -10,13 +11,14 @@ import {
 import { textWindowSide, finishTextWindow } from './text-window-caller-harness.mjs';
 import { TEXT_BUFFER_READBACK, TEXT_BUFFER_UPLOAD, WINDOW_STYLE } from '../src/data/wram.mjs';
 
-function run(entry, former, value, budget, style, request, synchronous) {
+function run(entry, former, value, budget, style, request, synchronous, translated) {
   const side = textWindowSide(),
     { h, put, events } = side;
   put(2, value);
   put(WINDOW_STYLE, style);
   put(TEXT_BUFFER_READBACK, request);
   put(TEXT_BUFFER_UPLOAD, request);
+  if (translated) side.mem.language = new Map([[value, Uint8Array.from(translated)]]);
   const routines = { get: () => assert.fail('live entry must own its renderer') };
   let sequence;
   if (former) {
@@ -57,3 +59,20 @@ for (const budget of [1, 7])
           );
         }
       });
+
+for (const budget of [1, 7])
+  for (const id of [0x7074, 0x707d, 0x7446, 0x8000, 0x7077])
+    for (const translated of [undefined, [], [65, 32, 124, 66, 111, 108, 100, 124]])
+      for (const synchronous of [false, true])
+        test(`text register entry: ${id}, budget ${budget}, translation ${translated}, synchronous ${synchronous}`, () => {
+          for (const [style, request] of [
+            [0, 0],
+            [0x60, 0xfffe],
+            [0xb8, 0xffff],
+          ]) {
+            assert.deepEqual(
+              run(runPrintText, null, id, budget, style, request, synchronous, translated),
+              run(null, formerText, id, budget, style, request, undefined, translated),
+            );
+          }
+        });

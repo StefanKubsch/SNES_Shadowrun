@@ -28,7 +28,7 @@ interfaces, saves, frame policy, shape editing and S-MIX remain outside this wor
 than a dispatch table. Without an injected renderer it composes
 [text-draw.mjs](../src/game/text-draw.mjs) directly. The original call frame and
 bank restoration remain around the renderer, including cooperative pauses.
-[text-renderer.mjs](../src/game/text-renderer.mjs) adapts callers that still
+[text-renderer.mjs](../proof/caller/text-renderer.mjs) adapts callers that still
 supply tables, preserving function-identity continuation lookup and the missing
 helper frontier. Table lookup happens when the renderer is reached.
 
