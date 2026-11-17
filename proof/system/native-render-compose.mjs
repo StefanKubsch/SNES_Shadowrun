@@ -25,7 +25,7 @@ import {
   runInterruptWordWait,
   runInterruptRequestWait,
   RequestWaitContinuation,
-} from '../../src/system/main-wait-interrupt.mjs';
+} from './main-word-wait.mjs';
 import {
   NativeCallContinuation,
   NATIVE_CALL_CONTINUATIONS,

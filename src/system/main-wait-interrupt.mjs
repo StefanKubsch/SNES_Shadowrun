@@ -1,10 +1,4 @@
-import {
-  SCENE_BRIGHTNESS,
-  TEXT_MAP_UPLOAD,
-  TEXT_TILE_UPLOAD,
-  TEXT_BUFFER_UPLOAD,
-  TEXT_BUFFER_READBACK,
-} from '../data/wram.mjs';
+import { SCENE_BRIGHTNESS } from '../data/wram.mjs';
 import { CODE_BANK } from '../constants/memory-map.mjs';
 import { taskStop } from './task-stop.mjs';
 import { runObservedNmi, ObservedNmiContinuation } from './nmi-call.mjs';
@@ -13,14 +7,9 @@ import { finishTextDmaObservations } from './main-dma-readback.mjs';
 import { NativeWaitContinuation } from './native-wait-continuation.mjs';
 import { LagFreeFrames } from '../vm/frame-events.mjs';
 import { FLAG_INDEX_8BIT, FLAG_MEMORY_8BIT, FLAG_ZERO } from '../constants/cpu-flags.mjs';
-import { WORD_BITS, WORD_MASK, BANK_SIZE } from '../constants/bits.mjs';
+import { WORD_BITS, WORD_MASK } from '../constants/bits.mjs';
 
-const WAIT_CODE_BANK = 0x81;
-// LDA abs / BNE / RTL, or INC abs / JSL wait / RTL.
-const ABSOLUTE_INSTRUCTION_BYTES = 3,
-  WORD_WAIT_RETURN_OFFSET = 5;
-const REQUEST_WAIT_RETURN_WORD_OFFSET = 6,
-  REQUEST_WAIT_RESUME_OFFSET = 7;
+export const WAIT_CODE_BANK = 0x81;
 
 // An explicit record for every reached instruction in these wait/input routines.
 // nmi:false is an observed absence, not elapsed time. Device reads use the
@@ -150,7 +139,8 @@ export function finishInterruptObservations(events) {
     taskStop('wait_interrupt_observation_unused', { observationIndex: events.interruptIndex });
   finishTextDmaObservations(events);
 }
-const entry = (h, bank) => {
+// Native-mode WORD entry at direct page 0 in the given code bank.
+export const waitEntry = (h, bank) => {
   const { ctx } = h;
   if (
     ctx.e !== 0 ||
@@ -163,7 +153,7 @@ const entry = (h, bank) => {
 
 // $81:B0A1: saved long WORD baseline, fresh CMP, BEQ, actual RTL.
 export function waitForRandomStateChangeWithInterrupts(h, events) {
-  entry(h, WAIT_CODE_BANK);
+  waitEntry(h, WAIT_CODE_BANK);
   return drainWait(h, 0x81b0a1, (pc) => interruptStep(h, events, pc));
 }
 
@@ -177,7 +167,7 @@ function drainWait(h, root, beforeInstruction) {
 // $80:9E1A: every read is fresh, including the two reads of 01CA used to
 // compute the edge and the later copy. An NMI may occur between any two.
 export function readInputWithInterrupts(h, events) {
-  entry(h, CODE_BANK);
+  waitEntry(h, CODE_BANK);
   return drainWait(h, 0x809e1a, (pc) => interruptStep(h, events, pc));
 }
 
@@ -219,110 +209,4 @@ function* interruptFadeSequence(h, events) {
       again = !(ctx.status & FLAG_ZERO);
     };
   } while (again);
-}
-
-const wordWaits = new Map([
-  [0x81acaf, TEXT_MAP_UPLOAD],
-  [0x81acbd, TEXT_TILE_UPLOAD],
-  [0x81acc3, TEXT_BUFFER_UPLOAD],
-  [0x81acc9, TEXT_BUFFER_READBACK],
-]);
-const wordRequests = new Map([
-  [0x81acb5, 0x81acaf],
-  [0x81aef4, 0x81acc3],
-  [0x81aefc, 0x81acc9],
-]);
-// The original LDA/BNE/RTL graph. No external writer is injected. A zero
-// already in memory can return without an NMI; unchanged polls require records.
-export function runInterruptWordWait(h, events, pc) {
-  return drainNativeSequence(wordWaitSequence(h, events, pc));
-}
-export class WordWaitContinuation extends NativeCallContinuation {
-  constructor(h, events, pc) {
-    super(h.a, wordWaitSequence(h, events, pc));
-  }
-}
-function* wordWaitSequence(h, events, pc) {
-  entry(h, WAIT_CODE_BANK);
-  const offset = wordWaits.get(pc);
-  if (offset === undefined) taskStop('wait_interrupt_word_entry_required', { pc });
-  let polls = 0,
-    again;
-  do {
-    yield { continuation: new InterruptStepContinuation(h, events, pc) };
-    yield () => {
-      h.load(h.read(h.abs(offset)));
-      polls++;
-    };
-    yield {
-      continuation: new InterruptStepContinuation(h, events, pc + ABSOLUTE_INSTRUCTION_BYTES),
-    };
-    yield () => {
-      again = !(h.ctx.status & FLAG_ZERO);
-    };
-  } while (again);
-  yield { continuation: new InterruptStepContinuation(h, events, pc + WORD_WAIT_RETURN_OFFSET) };
-  let rawReturnWord;
-  yield () => {
-    rawReturnWord = h.rtl();
-  };
-  return {
-    rawReturnWord,
-    returnBank: h.ctx.programBank,
-    returnTarget: h.ctx.programBank * BANK_SIZE + h.ctx.pc,
-    outcome: 'wait_complete',
-    polls,
-    waitObservationsUsed: 0,
-    nmiWords: 0,
-  };
-}
-export function runInterruptRequestWait(h, events, pc) {
-  return drainNativeSequence(requestWaitSequence(h, events, pc));
-}
-export class RequestWaitContinuation extends NativeCallContinuation {
-  constructor(h, events, pc) {
-    super(h.a, requestWaitSequence(h, events, pc));
-  }
-}
-function* requestWaitSequence(h, events, pc) {
-  entry(h, WAIT_CODE_BANK);
-  const target = wordRequests.get(pc);
-  if (target === undefined) taskStop('wait_interrupt_word_entry_required', { pc });
-  let requestCounter, rawReturnWord;
-  yield { continuation: new InterruptStepContinuation(h, events, pc) };
-  yield () => {
-    requestCounter = h.modify(h.abs(wordWaits.get(target)), 'inc');
-  };
-  yield { continuation: new InterruptStepContinuation(h, events, pc + ABSOLUTE_INSTRUCTION_BYTES) };
-  yield () => {
-    h.pushByte(h.ctx.programBank);
-    h.a.pushWord((pc + REQUEST_WAIT_RETURN_WORD_OFFSET) & WORD_MASK);
-    h.ctx.pc = target & WORD_MASK;
-  };
-  const result = yield { continuation: new WordWaitContinuation(h, events, target) };
-  yield () => {
-    if (
-      result.rawReturnWord !== ((pc + REQUEST_WAIT_RETURN_WORD_OFFSET) & WORD_MASK) ||
-      h.ctx.programBank !== WAIT_CODE_BANK ||
-      h.ctx.pc !== ((pc + REQUEST_WAIT_RESUME_OFFSET) & WORD_MASK)
-    )
-      taskStop('task_native_helper_return_required', {
-        pc: pc + ABSOLUTE_INSTRUCTION_BYTES,
-        target,
-        bank: h.ctx.programBank,
-        returnPc: h.ctx.pc,
-      });
-  };
-  yield { continuation: new InterruptStepContinuation(h, events, pc + REQUEST_WAIT_RESUME_OFFSET) };
-  yield () => {
-    rawReturnWord = h.rtl();
-  };
-  return {
-    ...result,
-    rawReturnWord,
-    returnBank: h.ctx.programBank,
-    returnTarget: h.ctx.programBank * BANK_SIZE + h.ctx.pc,
-    outcome: 'request_wait_prepared',
-    requestCounter,
-  };
 }

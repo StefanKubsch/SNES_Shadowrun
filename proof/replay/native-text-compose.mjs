@@ -34,10 +34,8 @@ import {
   runTaskTextWait,
 } from '../system/native-text-prerequisites.mjs';
 import { dialogAccess } from '../../src/system/native-dialog-support.mjs';
-import {
-  InterruptStepContinuation,
-  RequestWaitContinuation,
-} from '../../src/system/main-wait-interrupt.mjs';
+import { RequestWaitContinuation } from '../system/main-word-wait.mjs';
+import { InterruptStepContinuation } from '../../src/system/main-wait-interrupt.mjs';
 import {
   NativeCallContinuation,
   NATIVE_CALL_CONTINUATIONS,

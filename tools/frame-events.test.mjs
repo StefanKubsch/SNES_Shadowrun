@@ -7,9 +7,9 @@ import {
   PAD_BUTTONS,
   counterBytes,
 } from '../src/vm/frame-events.mjs';
+import { runInterruptWordWait } from '../proof/system/main-word-wait.mjs';
 import {
   waitForRandomStateChangeWithInterrupts,
-  runInterruptWordWait,
   ObservedWaitContinuation,
 } from '../src/system/main-wait-interrupt.mjs';
 import { waitWord } from '../src/system/native-dialog-portrait.mjs';

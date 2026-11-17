@@ -3,10 +3,7 @@
 // the lifted text code and keeps the shared task text accessor in
 // src/system/native-text-prerequisites.mjs.
 import { taskTextAccess as access } from '../../src/system/native-text-prerequisites.mjs';
-import {
-  runInterruptRequestWait,
-  runInterruptWordWait,
-} from '../../src/system/main-wait-interrupt.mjs';
+import { runInterruptRequestWait, runInterruptWordWait } from './main-word-wait.mjs';
 import { dialogAccess } from '../../src/system/native-dialog-support.mjs';
 import {
   WRDIVL,

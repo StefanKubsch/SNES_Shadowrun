@@ -15,12 +15,12 @@ import { TaskAccessor } from '../src/vm/task-accessor.mjs';
 import { dialogAccess } from '../src/system/native-dialog-support.mjs';
 import { GAME_NMI_ROUTINES } from '../proof/replay/main-game-nmi.mjs';
 import {
-  finishInterruptObservations,
   runInterruptWordWait,
   runInterruptRequestWait,
   WordWaitContinuation,
   RequestWaitContinuation,
-} from '../src/system/main-wait-interrupt.mjs';
+} from '../proof/system/main-word-wait.mjs';
+import { finishInterruptObservations } from '../src/system/main-wait-interrupt.mjs';
 import { WAIT_PAUSED, WAIT_RETURNED } from '../src/system/native-wait-continuation.mjs';
 import {
   waitForTextMapUpload,

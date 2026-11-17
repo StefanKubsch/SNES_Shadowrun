@@ -189,7 +189,7 @@ existing reset and menu owner contracts; no new initial state is introduced.
 ## WORD wait requests
 
 `WordWaitContinuation` and `RequestWaitContinuation` in
-[main-wait-interrupt.mjs](../src/system/main-wait-interrupt.mjs) share the same
+[main-word-wait.mjs](../proof/system/main-word-wait.mjs) share the same
 equations with the synchronous adapters. They cover ACAF, ACBD, ACC3, ACC9 as
 well as ACB5, AEF4 and AEFC: a fresh WORD LDA, BNE from its flags, the actual RTL
 and, for requests, the INC around it with the real nested JSL. Every

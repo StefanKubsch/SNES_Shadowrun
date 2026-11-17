@@ -210,3 +210,9 @@ game unpacks through `src/system/unpack.mjs` and `native-unpack-body.mjs`. The V
 probe hook in `tools/rom-unpack-loader.mjs` follows the new path; it wraps only this
 register-level unpacker, so a new probe run over the live tests would not see the
 lifted unpacks (the recorded `analysis/rom-vram.json` is unchanged).
+
+The register-level WORD upload waits 81:ACAF, ACBD, ACC3 and ACC9 and their request
+entries 81:ACB5, AEF4 and AEFC moved from `src/system/main-wait-interrupt.mjs` to
+`proof/system/main-word-wait.mjs`; only the register-level window, text and menu
+references call them. The live module exports its entry check and wait bank for
+them and keeps the interrupt steps, observed waits, frame wait and fade poll.

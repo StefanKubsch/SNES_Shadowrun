@@ -2,10 +2,7 @@ import { WRAM_BANK_PAIR } from '../../src/constants/memory-map.mjs';
 import { taskStop } from '../../src/system/task-stop.mjs';
 import { leafAccess, finishLeaf } from '../../src/system/native-leaf-support.mjs';
 import { dialogAccess } from '../../src/system/native-dialog-support.mjs';
-import {
-  WordWaitContinuation,
-  RequestWaitContinuation,
-} from '../../src/system/main-wait-interrupt.mjs';
+import { WordWaitContinuation, RequestWaitContinuation } from '../system/main-word-wait.mjs';
 import {
   NativeCallContinuation,
   NATIVE_CALL_CONTINUATIONS,

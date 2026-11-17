@@ -5,11 +5,8 @@ import { waitForRandomStateChange } from '../system/native-frame-wait.mjs';
 import { readInput } from '../../src/system/native-input-apu.mjs';
 import { playSoundEffect } from './native-audio-compose.mjs';
 import { dialogAccess } from '../../src/system/native-dialog-support.mjs';
-import {
-  WordWaitContinuation,
-  ObservedWaitContinuation,
-  runInterruptWordWait,
-} from '../../src/system/main-wait-interrupt.mjs';
+import { WordWaitContinuation, runInterruptWordWait } from '../system/main-word-wait.mjs';
+import { ObservedWaitContinuation } from '../../src/system/main-wait-interrupt.mjs';
 import {
   drainNativeSequence,
   NativeCallContinuation,
