@@ -266,3 +266,7 @@ The register-level wait entry check and the synchronous fade poll moved to
 `proof/system/main-wait-interrupt.mjs`; the fade poll now drains the same
 `FadePollContinuation` sequence that the cutscene runs, so the live module no longer
 carries a test-only drain wrapper.
+
+The task-stop conversion `boundaryFault` of the register-level main and native
+drivers moved from `src/vm/memory.mjs` to `proof/vm/boundary-fault.mjs`; the live
+memory module keeps `VmFault`.

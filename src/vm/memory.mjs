@@ -60,14 +60,6 @@ export class VmFault extends Error {
   }
 }
 
-// A proven module stops at a source boundary by throwing {taskBoundary, reason, ...}.
-// The VM reports it as VmFault('<kind>:<reason>') at the native or main target.
-export function boundaryFault(error, kind, target) {
-  if (!error?.taskBoundary) return error;
-  const { taskBoundary, reason, ...details } = error;
-  return new VmFault(kind + ':' + reason, target, details);
-}
-
 export const WRAM_SIZE = 0x20000;
 export const ROM_SIZE = 0x100000;
 export const SRAM_SIZE = 0x2000;

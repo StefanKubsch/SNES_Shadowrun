@@ -2,7 +2,8 @@
 // JSR 96C0, then through C1E3 back to 96C3. No clock, boot state or interrupt
 // timing is inferred. The owner supplies one observation set for the main
 // interval; NativeCalls consumes its own subsequent sets inside the round.
-import { VmFault, boundaryFault } from '../../src/vm/memory.mjs';
+import { boundaryFault } from './boundary-fault.mjs';
+import { VmFault } from '../../src/vm/memory.mjs';
 import { interruptEventsOf } from '../../src/vm/devices.mjs';
 import { appendRoundInterrupts } from './round-interrupts.mjs';
 import { TaskAccessor } from '../../src/vm/task-accessor.mjs';

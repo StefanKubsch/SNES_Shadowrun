@@ -3,7 +3,8 @@
 // Bridge and resumption are reproduced natively (semantics from
 // proof/task/native-bridge.mjs and native-resume.mjs); the natives themselves are
 // the proven modules, connected through TaskAccessor.
-import { VmFault, boundaryFault } from '../../src/vm/memory.mjs';
+import { boundaryFault } from './boundary-fault.mjs';
+import { VmFault } from '../../src/vm/memory.mjs';
 import { TaskAccessor, vmToContext, contextToVm } from '../../src/vm/task-accessor.mjs';
 import { interruptEventsOf } from '../../src/vm/devices.mjs';
 import { appendRoundInterrupts } from './round-interrupts.mjs';
