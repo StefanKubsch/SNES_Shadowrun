@@ -7,8 +7,8 @@ import { raiseStateCount } from '../../src/game/runner-state.mjs';
 import {
   observedContinuation,
   drainNativeSequence,
-  dialogCallSequence,
 } from '../../src/system/native-call-continuation.mjs';
+import { dialogCallSequence } from '../system/native-call-sequences.mjs';
 import { validateGloveTaskOptions } from './native-glove-target.mjs';
 import {
   DP_RESOURCE_RECORD,

@@ -35,9 +35,9 @@ import {
   NativeCallContinuation,
   observedContinuation,
   drainNativeSequence,
-  dialogCallSequence,
   dialogCallBody,
 } from '../../src/system/native-call-continuation.mjs';
+import { dialogCallSequence } from '../system/native-call-sequences.mjs';
 import { NATIVE_CALL_CONTINUATIONS } from './continuations.mjs';
 import { reloadObjectTiles } from '../../src/system/native-scene-tiles.mjs';
 import { buildSpriteList } from './native-scene-sprites.mjs';

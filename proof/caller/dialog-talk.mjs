@@ -25,7 +25,8 @@
 // routine itself changes (the carry of its shifts and comparisons) are passed on as the
 // original's; it changes no overflow. It leaves the registers of its last callee (the
 // music change) or of the window release with A the pulled music word.
-import { dialogCallSequence, dialogCallBody } from '../../src/system/native-call-continuation.mjs';
+import { dialogCallBody } from '../../src/system/native-call-continuation.mjs';
+import { dialogCallSequence } from '../system/native-call-sequences.mjs';
 import { sceneRuntime } from '../../src/system/scene-runtime.mjs';
 import { fixesEnabled, preparePushkinTopics } from '../../src/game/bugfixes.mjs';
 import { dialogTextRoutines } from '../replay/native-dialog-text.mjs';

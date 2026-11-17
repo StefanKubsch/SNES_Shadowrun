@@ -24,11 +24,8 @@
 // at the waits' branches 80:AE61 and 80:AE0F; otherwise the recorded observations or
 // interrupts are replayed as by the register-level routine. The word wait comes from
 // the caller's routine table.
-import {
-  dialogCallBody,
-  dialogCallSequence,
-  segmentSequence,
-} from '../../src/system/native-call-continuation.mjs';
+import { dialogCallBody, segmentSequence } from '../../src/system/native-call-continuation.mjs';
+import { dialogCallSequence } from '../system/native-call-sequences.mjs';
 import { nmiWords, waitWord } from '../../src/system/native-dialog-portrait.mjs';
 import { lagFree } from '../../src/system/main-wait-interrupt.mjs';
 import { nmiAtBranch } from '../../src/system/frame-wait.mjs';

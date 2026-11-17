@@ -1,8 +1,6 @@
 import { taskStop } from '../../src/system/task-stop.mjs';
-import {
-  drainNativeSequence,
-  dialogCallSequence,
-} from '../../src/system/native-call-continuation.mjs';
+import { drainNativeSequence } from '../../src/system/native-call-continuation.mjs';
+import { dialogCallSequence } from '../system/native-call-sequences.mjs';
 import { TALK_ROUTINES } from './native-dialog.mjs';
 import { showNoticeAdapter } from './native-notice.mjs';
 import { printTextAdapter } from './native-text-compose.mjs';

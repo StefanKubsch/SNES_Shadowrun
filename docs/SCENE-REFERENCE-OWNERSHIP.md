@@ -145,3 +145,8 @@ shared native return helper. The observed channel-5 text readback moved to
 `proof/system/main-dma-readback.mjs`; live devices perform that transfer from the
 PPU, and the live module keeps only the end-of-run observation check. Files whose
 import paths grew during this batch were reformatted with Prettier.
+
+The routine-table call sequences used only by register-level references (the
+unlabelled call frame and the original tail jump) moved to
+`proof/system/native-call-sequences.mjs`. The live continuation module keeps the
+continuation class, the labelled call frame and the shared return offsets.

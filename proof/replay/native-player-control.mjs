@@ -5,9 +5,9 @@ import { leafAccess, finishLeaf } from '../../src/system/native-leaf-support.mjs
 import {
   observedContinuation,
   drainNativeSequence,
-  dialogCallSequence,
   dialogCallBody,
 } from '../../src/system/native-call-continuation.mjs';
+import { dialogCallSequence } from '../system/native-call-sequences.mjs';
 import { lagFree } from '../../src/system/main-wait-interrupt.mjs';
 import { dialogAccess } from '../../src/system/native-dialog-support.mjs';
 import { taskSelectionSupport } from '../script/native-object-turn.mjs';

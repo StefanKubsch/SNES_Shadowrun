@@ -149,32 +149,6 @@ export function* nativeCallSequence(
   return result;
 }
 
-// The same frame as dialogAccess().call, without access labels, so callers
-// that already record its unlabelled pushes keep their observed accesses.
-export function* dialogCallSequence(h, events, routines, pc, target, long = false) {
-  const run = routines.get(target);
-  if (!run) taskStop('main_loop_frontier', { target });
-  const bank = h.ctx.programBank,
-    raw = (pc + (long ? JSL_RETURN_OFFSET : JSR_RETURN_OFFSET)) & WORD_MASK;
-  yield () => {
-    if (long) h.pushByte(bank);
-    h.a.pushWord(raw);
-    h.ctx.programBank = target >>> WORD_BITS;
-    h.ctx.pc = target & WORD_MASK;
-  };
-  const result = yield { target, run, h, events };
-  yield () => {
-    if (h.ctx.programBank !== bank || h.ctx.pc !== ((raw + 1) & WORD_MASK))
-      taskStop('task_native_helper_return_required', {
-        pc,
-        target,
-        bank: h.ctx.programBank,
-        returnPc: h.ctx.pc,
-      });
-  };
-  return result;
-}
-
 // The same unlabelled frame around a callee given as its own sequence.
 export function* dialogCallBody(h, pc, target, body, long = false) {
   const bank = h.ctx.programBank,
@@ -204,16 +178,4 @@ export function* segmentSequence(run) {
     result = run();
   };
   return result;
-}
-
-// An original tail jump transfers the existing frame. The callee's actual
-// return value is passed back through the generator, without pushing a frame.
-export function* nativeTailSequence(h, events, routines, target) {
-  const run = routines.get(target);
-  if (!run) taskStop('main_loop_frontier', { target });
-  yield () => {
-    h.ctx.programBank = target >>> WORD_BITS;
-    h.ctx.pc = target & WORD_MASK;
-  };
-  return yield { target, run, h, events, routines };
 }

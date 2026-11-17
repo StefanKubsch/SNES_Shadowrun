@@ -6,10 +6,8 @@
 // out. Scene 14 is the intro (81:DFE7, src/intro/), passed on as the original
 // does. A negative scene is mirrored.
 import { taskStop } from '../../src/system/task-stop.mjs';
-import {
-  nativeCallSequence,
-  nativeTailSequence,
-} from '../../src/system/native-call-continuation.mjs';
+import { nativeCallSequence } from '../../src/system/native-call-continuation.mjs';
+import { nativeTailSequence } from '../system/native-call-sequences.mjs';
 import { FadePollContinuation, lagFree } from '../../src/system/main-wait-interrupt.mjs';
 import { sceneWaitByte } from '../../src/system/main-scene-wait.mjs';
 import { heldPad, menuCreditsRunning, CREDITS_SEQUENCE } from '../../src/game/credits.mjs';

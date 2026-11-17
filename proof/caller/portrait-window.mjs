@@ -16,7 +16,7 @@
 // A with the last edge in its low byte (opening) or 01 (closing) and the high byte of
 // the wait's A, Y and the overflow of the wait; the edges' JSR frame and their pushed
 // status are not reproduced (nothing waits there).
-import { dialogCallSequence } from '../../src/system/native-call-continuation.mjs';
+import { dialogCallSequence } from '../system/native-call-sequences.mjs';
 import { sceneRuntime } from '../../src/system/scene-runtime.mjs';
 import { PORTRAIT_WINDOW } from '../../src/system/native-dialog-portrait.mjs';
 import {

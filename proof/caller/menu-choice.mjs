@@ -28,7 +28,8 @@
 // use only Y), the routine leaves those of the last pad word with the result in 00. A
 // move's pushes of the direct page words 00 and 06 (around the move sound's arguments,
 // which the original sets up and restores without playing it) stay below the stack.
-import { dialogCallBody, dialogCallSequence } from '../../src/system/native-call-continuation.mjs';
+import { dialogCallBody } from '../../src/system/native-call-continuation.mjs';
+import { dialogCallSequence } from '../system/native-call-sequences.mjs';
 import { drawListSequence, markRowSequence, MARK, UNMARK } from './menu-list.mjs';
 import { requestTileClearSequence } from './window-open.mjs';
 import {

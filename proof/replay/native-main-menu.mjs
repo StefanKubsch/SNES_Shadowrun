@@ -4,9 +4,9 @@ import { dialogAccess } from '../../src/system/native-dialog-support.mjs';
 import {
   observedContinuation,
   drainNativeSequence,
-  dialogCallSequence,
   dialogCallBody,
 } from '../../src/system/native-call-continuation.mjs';
+import { dialogCallSequence } from '../system/native-call-sequences.mjs';
 import { validateDialogTaskOptions } from './native-dialog.mjs';
 import { lagFree } from '../../src/system/main-wait-interrupt.mjs';
 import { STATUS_SCREEN_ROUTINES } from './native-status-screen.mjs';

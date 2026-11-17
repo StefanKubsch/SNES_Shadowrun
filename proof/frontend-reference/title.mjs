@@ -20,8 +20,8 @@ import {
   NATIVE_CALL_CONTINUATIONS,
   drainNativeSequence,
   nativeCallSequence,
-  nativeTailSequence,
 } from '../../src/system/native-call-continuation.mjs';
+import { nativeTailSequence } from '../system/native-call-sequences.mjs';
 import { routineCaller } from '../../src/system/routine-call.mjs';
 import { INTRO_NEAR_Y_BIAS, INTRO_START_ANIMATION } from '../intro-reference/intro-setup.mjs';
 import { INTRO_SETUP_REFERENCE_ENTRIES } from '../intro-reference/intro-routines.mjs';

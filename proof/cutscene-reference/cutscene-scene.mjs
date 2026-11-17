@@ -106,8 +106,8 @@ import {
   NativeCallContinuation,
   drainNativeSequence,
   nativeCallSequence,
-  nativeTailSequence,
 } from '../../src/system/native-call-continuation.mjs';
+import { nativeTailSequence } from '../system/native-call-sequences.mjs';
 import { CREDITS_SEQUENCE, heldPad, menuCreditsRunning } from '../../src/game/credits.mjs';
 import {
   beginPackedTextEdit,

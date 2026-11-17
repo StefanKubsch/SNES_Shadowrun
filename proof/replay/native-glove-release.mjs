@@ -7,8 +7,8 @@ import { runDrawWindowList } from '../../proof/caller/window-list.mjs';
 import {
   observedContinuation,
   drainNativeSequence,
-  dialogCallSequence,
 } from '../../src/system/native-call-continuation.mjs';
+import { dialogCallSequence } from '../system/native-call-sequences.mjs';
 import { validateGloveTaskOptions } from './native-glove-target.mjs';
 import { BANK_WRAP, WORD_MASK } from '../../src/constants/bits.mjs';
 import { FLAG_INDEX_8BIT, FLAG_MEMORY_8BIT } from '../../src/constants/cpu-flags.mjs';

@@ -4,9 +4,9 @@ import { dialogAccess } from '../../src/system/native-dialog-support.mjs';
 import {
   observedContinuation,
   drainNativeSequence,
-  dialogCallSequence,
   dialogCallBody,
 } from '../../src/system/native-call-continuation.mjs';
+import { dialogCallSequence } from '../system/native-call-sequences.mjs';
 import { NATIVE_CALL_CONTINUATIONS } from './continuations.mjs';
 import { TALK_ROUTINES, validateDialogTaskOptions } from './native-dialog.mjs';
 import {
