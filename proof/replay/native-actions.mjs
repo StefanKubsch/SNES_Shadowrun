@@ -25,7 +25,7 @@ import { taskTextAccess } from '../../src/system/native-text-prerequisites.mjs';
 import { f963Sequence } from './native-window-open.mjs';
 import { menuComposeSequence, taskMenuDevices } from './native-menu-compose.mjs';
 import { releaseWindowJsrSequence } from '../../proof/caller/window-release.mjs';
-import { af1fRegisters } from '../../src/script/native-bar-tiles.mjs';
+import { af1fRegisters } from '../script/native-bar-tiles.mjs';
 import {
   observedContinuation,
   drainNativeSequence,

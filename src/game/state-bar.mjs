@@ -1,5 +1,5 @@
 // Jake's state bar in the window map (lifted from 81:AF1F; register-level version in
-// src/script/native-bar-tiles.mjs, which its other callers still use).
+// proof/script/native-bar-tiles.mjs, which the register-level references use).
 //
 // The bar sits in three rows of the window map buffer, drawn from the right end
 // leftwards. Its frame is one segment per 20 points of Jake's maximum (the low byte

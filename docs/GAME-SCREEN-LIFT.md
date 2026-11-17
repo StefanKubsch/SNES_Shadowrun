@@ -16,7 +16,7 @@ reference table).
 | ---------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | [game-screen.mjs](../src/game/game-screen.mjs)             | `setUpGameScreen` (80:9629) with the video mode 81:B064, the portrait request 80:8FB3, the glove 80:BC1A, the camera 81:891A, the palettes 81:8CB9/81:8000/81:A840, the object slots 81:A772, the font 81:AB2C, the window style 81:AA9C, the window map 81:A9B2 and the text uploads 81:A9E1. |
 | [state-bar.mjs](../src/game/state-bar.mjs)                 | `drawJakeStateBar` (81:AF1F): Jake's state bar in the window map, with the three divisions on the hardware divider through the port and the original loop counts (quotient 0 draws 65536 frame segments; a value above the maximum counts the middle loop down from up to 65535).              |
-| [main-initialize.mjs](../proof/system/main-initialize.mjs)     | The table entry `setUpGameScreenRoutine` (80:9629) and the register-level callees, which other callers still use.                                                                                                                                                                              |
+| [main-initialize.mjs](../proof/system/main-initialize.mjs) | The table entry `setUpGameScreenRoutine` (80:9629) and the register-level callees, which other callers still use.                                                                                                                                                                              |
 | [game-screen.mjs](../proof/game-reference/game-screen.mjs) | The register-level 80:9629 (`initializeGameScreen`), moved from main-initialize.mjs.                                                                                                                                                                                                           |
 
 ## Boundaries
@@ -31,7 +31,7 @@ reference table).
   sound effect (src/apu/sound-effect.mjs). The direct page words A2, A5 and A8
   are written as in the original (the caller's direct page is 0); the JSL frame
   of 81:A9DB, the pushed X and the registers are not produced. The register-level
-  version (src/script/native-bar-tiles.mjs) stays for its other callers.
+  version (proof/script/native-bar-tiles.mjs) stays for its other callers.
 - The window style's packed tiles give the DMA length as the stream's output
   length, read from the stream the language selects (src/data/language.mjs).
 - The window map words get the tile bias 2017 with the carry of the previous

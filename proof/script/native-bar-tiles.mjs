@@ -1,4 +1,4 @@
-import { taskTextAccess } from '../system/native-text-prerequisites.mjs';
+import { taskTextAccess } from '../../src/system/native-text-prerequisites.mjs';
 
 import {
   DIALOG_WINDOW,
@@ -6,9 +6,9 @@ import {
   JAKE_COUNT_MAX,
   GROUP_INDEX,
   WINDOW_MAP_BUFFER,
-} from '../data/wram.mjs';
-import { WORD_SIGN, WORD_MASK, BYTE_MASK } from '../constants/bits.mjs';
-import { FLAG_CARRY, FLAG_MEMORY_8BIT } from '../constants/cpu-flags.mjs';
+} from '../../src/data/wram.mjs';
+import { WORD_SIGN, WORD_MASK, BYTE_MASK } from '../../src/constants/bits.mjs';
+import { FLAG_CARRY, FLAG_MEMORY_8BIT } from '../../src/constants/cpu-flags.mjs';
 import {
   WRDIVL,
   WRDIVH,
@@ -17,7 +17,7 @@ import {
   RDDIVH,
   RDMPYL,
   RDMPYH,
-} from '../constants/hardware-registers.mjs';
+} from '../../src/constants/hardware-registers.mjs';
 
 // Fixed AF1F positions within the A9B2 window map buffer (81:AF3E..AF9D).
 const BAR_TOP_CAP_ADDRESS = WRAM + WINDOW_MAP_BUFFER + 0x7c;

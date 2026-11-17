@@ -1,7 +1,7 @@
 // Source-specific atomic plans for proof tools. The game executes the shared routines directly.
 import { taskStop } from '../../src/system/task-stop.mjs';
 import { prepareTaskPlan } from './plan.mjs';
-import { af1fRegisters } from '../../src/script/native-bar-tiles.mjs';
+import { af1fRegisters } from '../script/native-bar-tiles.mjs';
 import {
   waitForTextMapUpload,
   requestTextMapUpload,

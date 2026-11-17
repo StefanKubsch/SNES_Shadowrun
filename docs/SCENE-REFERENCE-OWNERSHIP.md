@@ -197,3 +197,8 @@ The register-level window map unpack 81:A9B2 served only the window module above
 the initialization reference and the A9B2 proof; it moved unchanged to
 `proof/system/native-render-unpack.mjs`. The game unpacks the window map in
 `src/game/game-screen.mjs`.
+
+The register-level state bar 81:AF1F with its register helper moved unchanged to
+`proof/script/native-bar-tiles.mjs`; only the window map reference and the action,
+slot release and list redraw references call it. The game draws the bar through
+`src/game/state-bar.mjs`.

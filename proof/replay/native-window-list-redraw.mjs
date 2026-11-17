@@ -9,7 +9,7 @@ import {
   observedContinuation,
   drainNativeSequence,
 } from '../../src/system/native-call-continuation.mjs';
-import { af1fRegisters } from '../../src/script/native-bar-tiles.mjs';
+import { af1fRegisters } from '../script/native-bar-tiles.mjs';
 import { LONG_MASK, WORD_MASK, BANK_WRAP } from '../../src/constants/bits.mjs';
 
 const TEXT_CODE_BANK = 0x81;
