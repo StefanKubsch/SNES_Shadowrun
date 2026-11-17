@@ -30,8 +30,6 @@ export function isArithmeticRegister(address, write) {
   return write ? offset >= WRMPYA && offset <= WRDIVB : offset >= RDDIVL && offset <= RDMPYH;
 }
 
-const EMPTY = Object.freeze([]);
-
 // Interrupt cursor of an observation set for the proven wait modules, or null
 // without interrupt observations. DMA and startup observations need interrupts.
 export function interruptEventsOf(set, target) {
@@ -47,18 +45,4 @@ export function interruptEventsOf(set, target) {
         dmaIndex: 0,
         startupInterrupts: set.startupInterrupts,
       };
-}
-
-// A nested scheduler round may report further interrupts and DMA transfers;
-// they extend the cursor of the calling native or main interval.
-export function appendRoundInterrupts(events, more, target) {
-  if (events.interrupts === undefined) {
-    if (more.interrupts?.length || more.dmaTransfers?.length)
-      throw new VmFault('interrupt_observations_required', target);
-    return;
-  }
-  if (more.interrupts?.length)
-    events.interrupts = Object.freeze([...events.interrupts, ...more.interrupts]);
-  if (more.dmaTransfers?.length)
-    events.dmaTransfers = Object.freeze([...(events.dmaTransfers ?? []), ...more.dmaTransfers]);
 }

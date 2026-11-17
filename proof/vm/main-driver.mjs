@@ -3,7 +3,8 @@
 // timing is inferred. The owner supplies one observation set for the main
 // interval; NativeCalls consumes its own subsequent sets inside the round.
 import { VmFault, boundaryFault } from '../../src/vm/memory.mjs';
-import { interruptEventsOf, appendRoundInterrupts } from '../../src/vm/devices.mjs';
+import { interruptEventsOf } from '../../src/vm/devices.mjs';
+import { appendRoundInterrupts } from './round-interrupts.mjs';
 import { TaskAccessor } from '../../src/vm/task-accessor.mjs';
 import { TaskScheduler, STOP_RETURNED } from './scheduler.mjs';
 import {

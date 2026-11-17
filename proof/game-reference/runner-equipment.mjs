@@ -17,7 +17,8 @@ import {
   RUNNER_EQUIPMENT_SCAN_START,
   RUNNER_EQUIPMENT_BYTES,
 } from '../../src/data/runners.mjs';
-import { fixesEnabled, restoreDefaultWeapon } from '../../src/game/bugfixes.mjs';
+import { fixesEnabled } from '../../src/game/bugfixes.mjs';
+import { restoreDefaultWeapon } from './bugfixes.mjs';
 import {
   GLOVE_TARGET_TAG,
   GLOVE_TARGET_OBJECT,

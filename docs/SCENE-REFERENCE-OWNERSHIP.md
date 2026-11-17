@@ -165,3 +165,9 @@ to `proof/system/script-yield.mjs` and `proof/system/script-arguments.mjs`.
 The register-level LSR and CLC helpers of the swarm references and the glove
 limit stores of 80:BC36 moved to `proof/game-reference/register-helpers.mjs`; the
 game sets glove limits and bobs objects through its lifted code.
+
+The register-level form of the default weapon correction moved to
+`proof/game-reference/bugfixes.mjs` (the game applies the correction in
+`src/game/runner-equipment.mjs`), and the nested-round interrupt extension of the
+register-level drivers moved to `proof/vm/round-interrupts.mjs`. An unused empty
+constant was removed from `src/vm/devices.mjs`.

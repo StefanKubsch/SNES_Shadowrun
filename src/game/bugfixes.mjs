@@ -3,22 +3,8 @@
 import { VmFault } from '../vm/memory.mjs';
 import { BYTE_MASK, WORD_MASK } from '../constants/bits.mjs';
 import { tasksOf } from '../script/task-api.mjs';
-import {
-  GROUP_INDEX,
-  JAKE_CHARISMA,
-  RUNNER_WEAPON,
-  RUNNER_WEAPON_KIND,
-  RUNNER_WEAPON_RANGE,
-  TOPIC_FLAGS,
-  TOPIC_LIST,
-  WRAM,
-} from '../data/wram.mjs';
+import { GROUP_INDEX, JAKE_CHARISMA, TOPIC_FLAGS, TOPIC_LIST, WRAM } from '../data/wram.mjs';
 
-import {
-  RUNNER_DEFAULT_WEAPON,
-  RUNNER_DEFAULT_WEAPON_KIND_DAMAGE,
-  RUNNER_DEFAULT_WEAPON_RANGE,
-} from '../data/runners.mjs';
 // Script 162: Charisma limits and the last word index including Jake.
 const CHARISMA_ONE_FOLLOWER_MAX = 3,
   CHARISMA_TWO_FOLLOWERS_MAX = 5,
@@ -110,18 +96,6 @@ export function storedGameplay(text) {
 
 export const fixesEnabled = (a) => a.vm?.gameplay?.bugfixes === true;
 export const fourSaveSlots = (a) => a.vm?.gameplay?.fourSaveSlots === true;
-
-// Correct the two erroneous stores in 80:9D50 to reads of the defaults.
-// Both 9CE4 and 9D15 reach this helper. X is eight times the runner index.
-export function restoreDefaultWeapon(h) {
-  const { a, ctx } = h;
-  h.load(h.longRead(h.abs(RUNNER_DEFAULT_WEAPON) + ctx.x));
-  h.longWrite(WRAM + RUNNER_WEAPON + ctx.x, ctx.a);
-  h.load(h.longRead(h.abs(RUNNER_DEFAULT_WEAPON_KIND_DAMAGE) + ctx.x));
-  h.longWrite(WRAM + RUNNER_WEAPON_KIND + ctx.x, ctx.a);
-  h.load(a.read(h.abs(RUNNER_DEFAULT_WEAPON_RANGE) + ctx.x), 1);
-  h.longWrite(WRAM + RUNNER_WEAPON_RANGE + ctx.x, ctx.a, 1);
-}
 
 // 2DE6 is the last WORD index, including Jake. Four WORDs fit in each
 // roster column. Script 162 uses the same Charisma thresholds at hire time.
