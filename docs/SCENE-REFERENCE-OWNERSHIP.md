@@ -340,3 +340,9 @@ The labelled routine-table call frame `nativeCallSequence` lost its last live ca
 with the title and start menu waits and moved to `proof/system/native-call-sequences.mjs`
 beside the unlabelled frame and the tail jump. The live module keeps the
 continuation class, the drain helper, the unlabelled call body and the return offsets.
+
+The object tile reload `src/game/object-tiles.mjs` dropped its recorded-observation
+branches (inline job-list wait and NMI word observations): a probe that stopped in
+them was reached by none of the 50 nearest test files, since recorded runs use the
+register-level reload in `proof/system/native-scene-tiles.mjs`. The lifted reload now
+requires the lag-free frame model like the other live calls.

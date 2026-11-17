@@ -25,7 +25,6 @@
 // interrupts are replayed as by the register-level routine. The word wait comes from
 // the live frame sequence.
 import { dialogCallBody, segmentSequence } from '../system/native-call-continuation.mjs';
-import { nmiWords, waitWord } from '../system/native-dialog-portrait.mjs';
 import { lagFree } from '../system/main-wait-interrupt.mjs';
 import { nmiAtBranch } from '../system/frame-wait.mjs';
 import { frameWaitCallSequence } from '../system/live-input-calls.mjs';
@@ -128,10 +127,7 @@ function countJobList(h, site) {
 function* waitForJobLists(h, events, site) {
   const { ctx } = h,
     { wram } = h.a.mem;
-  if (!lagFree(events)) {
-    yield () => waitWord(h, events, site, NMI_JOB_LISTS, (v) => v === 0, [DP_VRAM_UPLOAD_INDEX]);
-    return;
-  }
+  if (!lagFree(events)) taskStop('game_lag_free_required');
   for (let value; (value = word(wram, NMI_JOB_LISTS)) !== 0;) {
     ctx.a = value;
     const status =
@@ -217,8 +213,6 @@ function* reloadSequence(h, events) {
         () => frameWaitCallSequence(h, events),
         true,
       );
-      if (!lagFree(events))
-        yield () => nmiWords(h, events, WAIT_CALL[0], [DP_VRAM_UPLOAD_INDEX, NMI_JOB_LISTS]);
     }
   }
 
