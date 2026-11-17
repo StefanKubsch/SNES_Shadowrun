@@ -3,7 +3,7 @@ import assert from 'node:assert/strict';
 import {
   sceneFrameCallSequence,
   sceneInputCallSequence,
-} from '../src/system/scene-observed-calls.mjs';
+} from '../proof/system/scene-observed-calls.mjs';
 import {
   NativeCallContinuation,
   nativeCallSequence,

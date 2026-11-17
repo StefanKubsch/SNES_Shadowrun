@@ -1,12 +1,12 @@
-// Fixed scene calls for recorded waits/input. Live scenes retain their lifted
-// lag-free operations; these entries consume the original explicit observations.
-import { taskStop } from './task-stop.mjs';
-import { dialogCallBody } from './native-call-continuation.mjs';
-import { ObservedWaitContinuation } from './main-wait-interrupt.mjs';
-import { waitForFrame } from './main-scene-wait.mjs';
-import { readInput } from './native-input-apu.mjs';
-import { PAD_HELD } from '../data/wram.mjs';
-import { FLAG_INDEX_8BIT, FLAG_MEMORY_8BIT } from '../constants/cpu-flags.mjs';
+// Fixed scene calls for recorded waits/input (the proof driver of
+// recorded-scene-frames.mjs); they consume the original explicit observations.
+import { taskStop } from '../../src/system/task-stop.mjs';
+import { dialogCallBody } from '../../src/system/native-call-continuation.mjs';
+import { ObservedWaitContinuation } from '../../src/system/main-wait-interrupt.mjs';
+import { waitForFrame } from '../../src/system/main-scene-wait.mjs';
+import { readInput } from '../../src/system/native-input-apu.mjs';
+import { PAD_HELD } from '../../src/data/wram.mjs';
+import { FLAG_INDEX_8BIT, FLAG_MEMORY_8BIT } from '../../src/constants/cpu-flags.mjs';
 
 const FRAME_WAIT = 0x81eebb,
   INPUT_LONG = 0x80f298,

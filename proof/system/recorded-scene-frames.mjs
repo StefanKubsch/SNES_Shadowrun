@@ -4,10 +4,7 @@
 // register-level routines from the original call sites, so every wait and read
 // consumes its recorded observations. Importing this module installs the driver.
 import { installRecordedSceneFrames } from '../../src/system/scene-frames.mjs';
-import {
-  sceneFrameCallSequence,
-  sceneInputCallSequence,
-} from '../../src/system/scene-observed-calls.mjs';
+import { sceneFrameCallSequence, sceneInputCallSequence } from './scene-observed-calls.mjs';
 import { nativeCallSequence } from '../../src/system/native-call-continuation.mjs';
 import { FadePollContinuation } from '../../src/system/main-wait-interrupt.mjs';
 import { sceneWaitByte } from '../../src/system/main-scene-wait.mjs';

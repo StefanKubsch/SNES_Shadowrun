@@ -30,7 +30,7 @@ callees directly through the original frames. Interrupt records are consumed by
 the established observed continuations. Non-interrupt recordings retain explicit
 counter/input records, missing-record frontiers, input filtering and soft reset.
 The live lag-free path keeps its existing frame and pad equations. Shared fixed
-call bodies live in `src/system/scene-observed-calls.mjs`.
+call bodies live in `proof/system/scene-observed-calls.mjs`.
 
 ## Intro observed waits and input
 

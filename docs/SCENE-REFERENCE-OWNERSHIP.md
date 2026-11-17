@@ -306,3 +306,7 @@ routine table moved into the proof driver, where a recorded beat poll places no 
 The start menu takes its frame wait, input read and music-cue branch from the scene
 frame interface; its recorded calls moved into the proof driver. The save checksum
 compare 81:B1AB still runs through the caller's routine table, also in the game.
+
+With all five scenes on the frame interface, the observed scene calls (frame wait
+81:EEBB and input read 80:F298 from a scene's call site) had no live importer left
+and moved to `proof/system/scene-observed-calls.mjs`.
