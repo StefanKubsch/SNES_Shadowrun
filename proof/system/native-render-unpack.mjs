@@ -5,7 +5,7 @@ import {
   WINDOW_MAP_BUFFER,
 } from '../../src/data/wram.mjs';
 import { taskStop } from '../../src/system/task-stop.mjs';
-import { taskTextAccess } from '../../src/system/native-text-prerequisites.mjs';
+import { taskTextAccess } from './native-text-prerequisites.mjs';
 import { unpackStep } from '../../src/system/native-unpack-body.mjs';
 import { unpackStreamLong } from './native-unpack.mjs';
 import { drawJakeStateBar } from '../script/native-bar-tiles.mjs';

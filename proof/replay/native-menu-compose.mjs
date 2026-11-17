@@ -1,5 +1,5 @@
 import { taskStop } from '../../src/system/task-stop.mjs';
-import { taskTextAccess } from '../../src/system/native-text-prerequisites.mjs';
+import { taskTextAccess } from '../system/native-text-prerequisites.mjs';
 import { runTaskListHelper } from './native-list-prerequisites.mjs';
 import { waitForRandomStateChange } from '../system/native-frame-wait.mjs';
 import { readInput } from '../system/native-input-apu.mjs';

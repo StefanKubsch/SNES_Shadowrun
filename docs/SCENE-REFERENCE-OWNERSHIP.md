@@ -320,3 +320,8 @@ The register-level pad read 80:9E1A lost its last live caller with the observed
 scene calls; `src/system/native-input-apu.mjs` merged into
 `proof/system/native-input-apu.mjs`. Source generator labels follow the path, and a
 full artifact rebuild refreshed their reports.
+
+The register-level task text accessor and bit reader 81:AF04 lost their last live
+caller with the pad read; `src/system/native-text-prerequisites.mjs` merged into
+`proof/system/native-text-prerequisites.mjs`, and the reports whose labels name it
+were rebuilt.

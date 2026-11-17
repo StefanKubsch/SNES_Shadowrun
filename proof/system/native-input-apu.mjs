@@ -2,7 +2,7 @@
 // only references and comparisons call; the game sends its APU commands through
 // src/apu/ and reads the pad through src/system/joypad.mjs.
 import { CODE_BANK } from '../../src/constants/memory-map.mjs';
-import { taskTextAccess } from '../../src/system/native-text-prerequisites.mjs';
+import { taskTextAccess } from './native-text-prerequisites.mjs';
 import {
   APUIO0,
   APUIO2,

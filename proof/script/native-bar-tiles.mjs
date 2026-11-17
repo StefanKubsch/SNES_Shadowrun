@@ -1,4 +1,4 @@
-import { taskTextAccess } from '../../src/system/native-text-prerequisites.mjs';
+import { taskTextAccess } from '../system/native-text-prerequisites.mjs';
 
 import {
   DIALOG_WINDOW,

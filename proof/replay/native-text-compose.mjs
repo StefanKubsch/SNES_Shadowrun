@@ -26,8 +26,8 @@ import {
 import { portTextAddress } from '../../src/data/port-extension.mjs';
 import { languageText } from '../../src/data/language.mjs';
 import { taskStop } from '../../src/system/task-stop.mjs';
-import { taskTextAccess } from '../../src/system/native-text-prerequisites.mjs';
 import {
+  taskTextAccess,
   readTextBit,
   runTaskTextGeometry,
   closeTextMask,

@@ -1,6 +1,6 @@
 import { taskStop } from '../../src/system/task-stop.mjs';
 import { routineCaller } from '../../src/system/routine-call.mjs';
-import { taskTextAccess } from '../../src/system/native-text-prerequisites.mjs';
+import { taskTextAccess } from '../system/native-text-prerequisites.mjs';
 import {
   RANDOM_STATE,
   RANDOM_STATE_HIGH,

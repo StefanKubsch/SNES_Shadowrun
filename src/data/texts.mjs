@@ -1,6 +1,6 @@
 // Texts (docs/ROM-FREE.md, step 2): dialog and term texts lie in the
 // ROM as a Huffman bit stream, decoded by $80:FE69 (proof/replay/native-text-compose.mjs)
-// with the bit reader $81:AF04 (src/system/native-text-prerequisites.mjs):
+// with the bit reader $81:AF04 (proof/system/native-text-prerequisites.mjs):
 // - Tree from $9D:8000: node i at offset 4*i, two words for bit 0 and bit 1.
 //   A word without bit 15 is the offset of the child node, with bit 15 a leaf:
 //   first character in bits 8-14, second in bits 0-6 (0 = none), bit 7 = second

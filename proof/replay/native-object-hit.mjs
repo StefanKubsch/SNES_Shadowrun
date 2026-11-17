@@ -1,6 +1,6 @@
 import { withInterruptEvents } from './observed-native-events.mjs';
 import { taskStop } from '../../src/system/task-stop.mjs';
-import { taskTextAccess } from '../../src/system/native-text-prerequisites.mjs';
+import { taskTextAccess } from '../system/native-text-prerequisites.mjs';
 import { randomBelow, taskRandomDevices } from './native-random.mjs';
 import { createObject } from '../script/native-object-create.mjs';
 import { playSoundEffect, taskAudioDevices } from './native-audio-compose.mjs';

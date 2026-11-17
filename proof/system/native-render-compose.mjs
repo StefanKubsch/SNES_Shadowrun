@@ -17,7 +17,7 @@ import {
   TEXT_MAP_UPLOAD,
 } from '../../src/data/wram.mjs';
 import { taskStop } from '../../src/system/task-stop.mjs';
-import { taskTextAccess } from '../../src/system/native-text-prerequisites.mjs';
+import { taskTextAccess } from './native-text-prerequisites.mjs';
 import { unpackWindowMap } from './native-render-unpack.mjs';
 
 import { dialogAccess } from '../../src/system/native-dialog-support.mjs';

@@ -3,7 +3,7 @@ import { withInterruptEvents } from './observed-native-events.mjs';
 import { lagFree } from '../../src/system/main-wait-interrupt.mjs';
 import { dialogAccess } from '../../src/system/native-dialog-support.mjs';
 import { taskStop } from '../../src/system/task-stop.mjs';
-import { taskTextAccess } from '../../src/system/native-text-prerequisites.mjs';
+import { taskTextAccess } from '../system/native-text-prerequisites.mjs';
 import { showNotice, showNoticeSequence, validateNoticeOptions } from './native-notice.mjs';
 import { setTextCursor, printNumber } from './native-list-prerequisites.mjs';
 import { printText, printTextSequence } from './native-text-compose.mjs';

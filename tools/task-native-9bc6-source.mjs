@@ -56,7 +56,7 @@ export const native9BC6Spec = {
     [0x80f963, 'RTS', 'window allocation, openWindow in proof/replay/native-window-open.mjs'],
     [0x80fa3e, 'RTS', 'window release, releaseWindow in proof/system/native-render-compose.mjs'],
     [0x80fe69, 'RTS', 'text, printText in proof/replay/native-text-compose.mjs'],
-    [0x81af04, 'RTL', 'text bit stream, readTextBit in src/system/native-text-prerequisites.mjs'],
+    [0x81af04, 'RTL', 'text bit stream, readTextBit in proof/system/native-text-prerequisites.mjs'],
     [0x81ad92, 'RTL', 'window list, drawWindowList in proof/system/native-render-compose.mjs'],
   ],
   scope:

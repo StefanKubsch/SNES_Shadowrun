@@ -1,7 +1,7 @@
 import { dialogAccess } from '../../src/system/native-dialog-support.mjs';
 import { runUnpackBody, unpackStep } from '../../src/system/native-unpack-body.mjs';
 import { taskStop } from '../../src/system/task-stop.mjs';
-import { taskTextAccess } from '../../src/system/native-text-prerequisites.mjs';
+import { taskTextAccess } from './native-text-prerequisites.mjs';
 import {
   UNPACK_SOURCE_POINTER,
   UNPACK_SOURCE_BANK,

@@ -20,7 +20,7 @@ import {
 } from '../../src/data/wram.mjs';
 import { taskStop } from '../../src/system/task-stop.mjs';
 import { dialogAccess } from '../../src/system/native-dialog-support.mjs';
-import { taskTextAccess } from '../../src/system/native-text-prerequisites.mjs';
+import { taskTextAccess } from '../system/native-text-prerequisites.mjs';
 import { printText, drawTextBuffer } from './native-text-compose.mjs';
 import {
   BANK_WRAP,
