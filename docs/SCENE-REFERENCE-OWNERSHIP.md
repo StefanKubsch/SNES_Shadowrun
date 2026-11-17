@@ -270,3 +270,9 @@ carries a test-only drain wrapper.
 The task-stop conversion `boundaryFault` of the register-level main and native
 drivers moved from `src/vm/memory.mjs` to `proof/vm/boundary-fault.mjs`; the live
 memory module keeps `VmFault`.
+
+Dead exports were removed: the register-level entry check `requireWideRegisters` of
+`src/system/scene-runtime.mjs` (the matrix scene and its proof caller define their
+own), the unused `LONG_HEX_DIGITS`, and eight status screen constants of
+`src/system/native-status-screen.mjs` that the lifted and register-level status
+screens each define locally.

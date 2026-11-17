@@ -7,8 +7,7 @@ import { languageTextWidth } from '../data/language.mjs';
 import { translatedListWindow } from '../data/menu-layout.mjs';
 
 // EA6E dims both sound channels with command 2 and ECF5 restores the full level.
-export const STATUS_VOLUME_TARGET = 0x2f2f,
-  FULL_VOLUME_TARGET = 0x7f7f;
+export const STATUS_VOLUME_TARGET = 0x2f2f;
 
 // E4F3 keeps the actor flags and state record across A835.
 export const DP_ITEM_FLAGS = 0x2c,
@@ -55,10 +54,7 @@ export const TEXT_HEAD_COMPUTER = 0x749f,
 // submenu table ED2E.
 export const STATUS_WINDOW_SHAPE = Object.freeze({ left: 2, top: 2, columns: 0x1e, rows: 0x1a });
 
-export const ATTRIBUTE_ROWS = 0xed0e,
-  ATTRIBUTE_LABELS = 0xed16,
-  LAST_ATTRIBUTE_INDEX = 6,
-  ATTRIBUTE_SKIPPED_BYTE_INDEX = 2;
+export const ATTRIBUTE_ROWS = 0xed0e;
 
 export const MENU_WINDOW = Object.freeze({
   left: 0x15,
@@ -131,8 +127,4 @@ export const STATUS_ROWS = Object.freeze({
 
 export const TEXT_SLASH = 0x7110;
 
-export const TEXT_MONEY = 0x7113,
-  TEXT_KARMA = 0x7117,
-  TEXT_SPELL = 0x7484,
-  TEXT_WEAPON = 0x7125,
-  TEXT_ARMOUR = 0x70b6;
+export const TEXT_MONEY = 0x7113;

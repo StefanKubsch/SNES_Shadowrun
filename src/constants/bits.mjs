@@ -44,7 +44,6 @@ export const LONG_WRAP = 24;
 // Hexadecimal notation of addresses and data in JSON assets and labels.
 /** Radix of parseInt/toString for hexadecimal text. */
 export const HEX_RADIX = 16;
-/** Hex digits of a byte, a 16-bit word and a 24-bit long address. */
+/** Hex digits of a byte and a 16-bit word. */
 export const BYTE_HEX_DIGITS = 2;
 export const WORD_HEX_DIGITS = 4;
-export const LONG_HEX_DIGITS = 6;

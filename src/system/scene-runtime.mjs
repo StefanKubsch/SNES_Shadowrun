@@ -5,8 +5,6 @@ import { VideoPort } from '../video/video-port.mjs';
 import { accessorPort } from './hardware-port.mjs';
 import { randomBelow } from './random.mjs';
 import { sendApuCommand } from '../apu/apu-command.mjs';
-import { taskStop } from './task-stop.mjs';
-import { FLAG_INDEX_8BIT, FLAG_MEMORY_8BIT } from '../constants/cpu-flags.mjs';
 
 export function sceneRuntime(h) {
   const a = h.a,
@@ -23,8 +21,4 @@ export function sceneRuntime(h) {
     // A random number from 0 to range - 1.
     random: (range) => randomBelow(mem, port, range),
   };
-}
-// The entry of a lifted scene from register-level code: 16-bit registers.
-export function requireWideRegisters(ctx, reason) {
-  if (ctx.status & (FLAG_MEMORY_8BIT | FLAG_INDEX_8BIT)) taskStop(reason);
 }
