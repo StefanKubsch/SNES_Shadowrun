@@ -6,6 +6,7 @@ import { timeLimitSequence as recordedTimeLimitSequence } from '../proof/caller/
 import { showNoticeSequence as recordedNoticeSequence } from '../proof/caller/notice-show.mjs';
 import { drawTextBufferSequence as recordedTextBufferSequence } from '../proof/caller/text-draw.mjs';
 import { textBufferRenderer } from '../src/game/text-renderer.mjs';
+import { printNumberSequence as formerNumberSequence } from '../proof/caller/window-text.mjs';
 // Random per-function tests of the main loop's lifted upkeep (src/game/main-upkeep.mjs)
 // against the register-level references (proof/game-reference/main-upkeep.mjs and
 // main-camera.mjs), docs/MAIN-LOOP-LIFT.md: the colour effect 81:8877, the palette
@@ -52,7 +53,6 @@ import {
   runNoticeTimeouts,
   runPaletteCycles,
   runPutGloveAway,
-  runPrintNumber,
   runPrintText,
   runOpenWindow,
   runReleaseNoticeWindows,
@@ -196,6 +196,9 @@ import {
 // Recorded poll comparisons retain the former renderer; live caller tests service NMIs.
 function runDrawTextBuffer(h, events) {
   return drainNativeSequence(recordedTextBufferSequence(h, events));
+}
+function runPrintNumber(h, events, routines) {
+  return drainNativeSequence(formerNumberSequence(h, events, routines));
 }
 function runShowNotice(h, events, routines) {
   return drainNativeSequence(recordedNoticeSequence(h, events, routines));

@@ -160,13 +160,12 @@ NATIVE_CALL_CONTINUATIONS.set(runPutGloveAway, {
   create: ({ h, events }) => new NativeCallContinuation(h.a, putGloveAwayCallSequence(h, events)),
 });
 // 80:FD80, called with JSR; its text buffer 80:FB39 waits for the NMI.
-export function runPrintNumber(h, events, routines) {
-  return drainNativeSequence(printNumberSequence(h, events, textBufferRenderer(routines)));
+export function runPrintNumber(h, events) {
+  return drainNativeSequence(printNumberSequence(h, events));
 }
 NATIVE_CALL_CONTINUATIONS.set(runPrintNumber, {
   run: runPrintNumber,
-  create: ({ h, events, routines }) =>
-    new NativeCallContinuation(h.a, printNumberSequence(h, events, textBufferRenderer(routines))),
+  create: ({ h, events }) => new NativeCallContinuation(h.a, printNumberSequence(h, events)),
 });
 // 80:FE69, called with JSR; its text buffer 80:FB39 waits for the NMI.
 export function runPrintText(h, events, routines) {
