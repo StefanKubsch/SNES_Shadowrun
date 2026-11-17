@@ -22,3 +22,12 @@ return and the game sound directory is reinstalled. The former intro remains in
 `proof/caller/intro-scene.mjs`; replay binds it independently with the former
 cutscene. The caller cases now compare both complete entry directions with that
 retained chain, including actual packed data, graphics and sound commands.
+
+## Cutscene observed waits and input
+
+The cutscene's recorded frame wait and long input refresh compose their fixed
+callees directly through the original frames. Interrupt records are consumed by
+the established observed continuations. Non-interrupt recordings retain explicit
+counter/input records, missing-record frontiers, input filtering and soft reset.
+The live lag-free path keeps its existing frame and pad equations. Shared fixed
+call bodies live in `src/system/scene-observed-calls.mjs`.

@@ -5,7 +5,7 @@
 // out. Scene 14 is the intro (81:DFE7, src/intro/), passed on as the original
 // does. A negative scene is mirrored.
 import { taskStop } from '../system/task-stop.mjs';
-import { nativeCallSequence } from '../system/native-call-continuation.mjs';
+import { sceneFrameCallSequence, sceneInputCallSequence } from '../system/scene-observed-calls.mjs';
 import { introSequence } from '../intro/intro-scene.mjs';
 import { FadePollContinuation, lagFree } from '../system/main-wait-interrupt.mjs';
 import { sceneWaitByte } from '../system/main-scene-wait.mjs';
@@ -101,8 +101,6 @@ const INTRO_SCENE = 0x14,
   // Register-level routines for recorded interrupt observations, called from the
   // cutscene entry (nothing reads that return address).
   CALL_SITE = 0x81cdf8,
-  WAIT_FRAME = 0x81eebb,
-  READ_INPUT = 0x80f298,
   // The scene lists 81:F48D: one word per scene, lists in bank 81.
   SCENE_LISTS = 0x81f48d,
   LIST_BANK = SCENE_LISTS & ~WORD_MASK,
@@ -148,11 +146,13 @@ export function* cutsceneSequence(h, events, routines) {
     };
     return yield* introSequence(h, events, routines);
   }
-  const call = (target) => nativeCallSequence(h, events, routines, CALL_SITE, target, true),
-    lifted = lagFree(events);
+  const lifted = lagFree(events);
   let m, t, n;
-  const wait = () => (lifted ? waitForFrame(h, events, m.port) : call(WAIT_FRAME)),
-    input = lifted ? () => [() => takePadPresses(m.wram)] : () => call(READ_INPUT);
+  const wait = () =>
+      lifted ? waitForFrame(h, events, m.port) : sceneFrameCallSequence(h, events, CALL_SITE),
+    input = lifted
+      ? () => [() => takePadPresses(m.wram)]
+      : () => sceneInputCallSequence(h, events, CALL_SITE);
   // The credits read the edited credit pages while their streams unpack.
   const snapshot =
     (ctx.a & (WORD_SIGN - 1)) === CREDITS_SEQUENCE
