@@ -60,8 +60,6 @@ import {
   scriptChooseObjectSequence,
   spellGloveTargetSequence,
 } from './glove-target.mjs';
-import { createObject } from './object-create.mjs';
-import { chooseFromMenuSequence } from './menu-choice.mjs';
 import { gloveMoveSequence } from './glove-move.mjs';
 import {
   shootAtGloveTargetSequence,
@@ -76,7 +74,6 @@ import { partyStatusSequence } from './party-status.mjs';
 import { equipmentRowsSequence } from './equipment-window.mjs';
 import { memberPortraitSequence } from './member-portrait.mjs';
 import { NATIVE_ENTRY, statusScreenSequence } from './status-screen.mjs';
-import { notesSequence, skillsSequence } from './status-submenus.mjs';
 import { mainMenuSequence } from './main-menu.mjs';
 import { playerZonesSequence } from './player-zones.mjs';
 import { moveAndAnimate } from './object-motion.mjs';
@@ -228,28 +225,6 @@ NATIVE_CALL_CONTINUATIONS.set(runReleaseNoticeWindows, {
   create: ({ h, events }) =>
     new NativeCallContinuation(h.a, releaseNoticeWindowsCallSequence(h, events)),
 });
-// Menus compose input, frame wait and sound directly and receive the live
-// text-buffer renderer sequence.
-function menuChoice(entry) {
-  const run = (h, events) =>
-    drainNativeSequence(chooseFromMenuSequence(h, events, drawTextBufferSequence, entry));
-  NATIVE_CALL_CONTINUATIONS.set(run, {
-    run,
-    create: ({ h, events }) =>
-      new NativeCallContinuation(
-        h.a,
-        chooseFromMenuSequence(h, events, drawTextBufferSequence, entry),
-      ),
-  });
-  return run;
-}
-// 80:A6A5, the menu with hotkeys of the action menu 80:99EB.
-export const runMenuWithHotkeys = menuChoice(0x80a6a5);
-// 80:A6C7, the plain menu of the Yes/No question 80:CD43.
-export const runPlainMenu = menuChoice(0x80a6c7);
-// 80:A6AD and 80:A6B8, the numbered menus of the item list and the karma lists.
-export const runNumberedMenu = menuChoice(0x80a6ad),
-  runNumberedMenuAt = menuChoice(0x80a6b8);
 // 80:FA67, a window's tile clear as its callers run it with JSR (the item list's and
 // the karma line's redraw).
 export function runTileClear(h, events) {
@@ -259,12 +234,6 @@ NATIVE_CALL_CONTINUATIONS.set(runTileClear, {
   run: runTileClear,
   create: ({ h, events }) => new NativeCallContinuation(h.a, requestTileClearSequence(h, events)),
 });
-// 80:A835, the object creation as the item use runs it with JSR (nothing in it waits).
-export function runCreateObject(h) {
-  const { mem, wram } = sceneRuntime(h);
-  createObject(mem, wram, h.a);
-  return h.rts();
-}
 // 80:F953, the confirm key wait as the menus run it with JSR.
 export function runConfirmKey(h, events) {
   return drainNativeSequence(liftedConfirmKeySequence(h, events));
@@ -400,18 +369,6 @@ NATIVE_CALL_CONTINUATIONS.set(runPartyStatus, {
   run: runPartyStatus,
   create: ({ h, events }) => new NativeCallContinuation(h.a, partyStatusSequence(h, events)),
 });
-// The lifted skills and notes submenus 80:E834 and 80:E8C8 with the lifted window,
-// cursor, text, number, release and key wait.
-const sequenceRun = (sequence) => {
-  const run = (h, events) => drainNativeSequence(sequence(h, events));
-  NATIVE_CALL_CONTINUATIONS.set(run, {
-    run,
-    create: ({ h, events }) => new NativeCallContinuation(h.a, sequence(h, events)),
-  });
-  return run;
-};
-export const runSkills = sequenceRun((h, events) => skillsSequence(h, events)),
-  runNotes = sequenceRun((h, events) => notesSequence(h, events));
 // The lifted item submenus 80:E572, 80:E577 and 80:E57F with the lifted item use
 // 80:E4F3, window, releases, portrait, equipment rows, numbered menu, window redraw and
 // key wait; object creation, the nested visit and the window list use lifted callees.
