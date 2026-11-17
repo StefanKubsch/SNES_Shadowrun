@@ -26,7 +26,7 @@ import { INTRO_NMI_ROUTINES } from '../../src/system/main-intro-nmi.mjs';
 import { GAME_NMI_ROUTINES } from '../../src/system/main-game-nmi.mjs';
 import { GAME_NMI_LIFTED_JOBS } from '../../src/game/game-nmi.mjs';
 import { ObservedWaitContinuation } from '../../src/system/main-wait-interrupt.mjs';
-import { TRANSITION_ROUTINES } from '../../src/system/main-transition.mjs';
+import { TRANSITION_ROUTINES } from '../system/main-transition.mjs';
 import {
   NativeCallContinuation,
   NATIVE_CALL_CONTINUATIONS,

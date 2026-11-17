@@ -12,7 +12,7 @@ import {
 // src/game/palette-cycles.mjs, src/game/player-hit.mjs and src/game/notice-timeout.mjs.
 import { clearFixedColour, FIXED_COLOUR_BLACK } from '../../src/system/native-dialog-portrait.mjs';
 import { advancePaletteCycles } from '../render/palette-cycles-equations.mjs';
-import { sec, clc } from '../../src/system/status-flags.mjs';
+import { sec, clc } from '../system/status-flags.mjs';
 import {
   COLOUR_PHASE,
   COLOUR_REQUEST,

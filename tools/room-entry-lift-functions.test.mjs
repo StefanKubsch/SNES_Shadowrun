@@ -1,5 +1,5 @@
 // Random per-function test of the lifted room entry 80:A4BF (src/game/room-entry.mjs,
-// table entry enterRoom in src/system/main-transition.mjs) against the register-level
+// table entry enterRoom in proof/system/main-transition.mjs) against the register-level
 // reference (proof/game-reference/room-entry.mjs), docs/ROOM-ENTRY-LIFT.md. The
 // glove 80:BCB2 and the notice windows 80:FF79 release their windows for real on both
 // sides (each release redraws the window list). The routines both sides still call

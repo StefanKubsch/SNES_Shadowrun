@@ -1,4 +1,4 @@
-// Dialog records (docs/ROM-FREE.md, step 2). 80:936C (src/task/
+// Dialog records (docs/ROM-FREE.md, step 2). 80:936C (proof/replay/
 // native-dialog.mjs) takes the word at 80:94F7 + 2 n for dialog n, the record
 // address in bank 8D ([11]); 80:9178 (proof/replay/native-dialog-text.mjs)
 // looks up the text for a key. A record:

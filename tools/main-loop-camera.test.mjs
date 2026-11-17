@@ -3,7 +3,7 @@ import assert from 'node:assert/strict';
 import { mainCameraSpecs, proveMainCameraSource } from './main-loop-camera-source.mjs';
 import { compareDialog, decodeWindows, prng } from './task-native-dialog-harness.mjs';
 import { dialogAccess } from '../src/system/native-dialog-support.mjs';
-import { clampToCameraBox, updateCameraTileBuffers } from '../src/system/main-loop-camera.mjs';
+import { clampToCameraBox, updateCameraTileBuffers } from '../proof/system/main-loop-camera.mjs';
 import { projectPlayerAndMoveCamera } from '../proof/game-reference/main-camera.mjs';
 import { passGloveActionToTask } from '../proof/game-reference/main-glove-action.mjs';
 import { updateTimeLimit } from '../proof/game-reference/main-timer.mjs';

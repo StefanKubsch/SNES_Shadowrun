@@ -18,7 +18,7 @@ import {
 } from '../proof/replay/main-game-nmi.mjs';
 import { SCENE_REFERENCE_ROUTINES as MAIN_SCENE_ROUTINES } from '../proof/scene-reference-routines.mjs';
 import { initializeGameScreen } from '../proof/game-reference/game-screen.mjs';
-import { loadScene } from '../src/system/main-scene-load.mjs';
+import { loadScene } from '../proof/system/main-scene-load.mjs';
 import {
   setBrightnessFadeSpeed,
   requestScenePaletteUpload,

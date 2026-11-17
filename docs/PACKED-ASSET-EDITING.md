@@ -49,7 +49,7 @@ does not grant permission to change or remove a byte.
 ## Source and reader contracts
 
 - [tiles.mjs](../src/data/tiles.mjs), `readTiles` and `placeTiles`, and
-  [main-scene-graphics.mjs](../src/system/main-scene-graphics.mjs), reader
+  [main-scene-graphics.mjs](../proof/system/main-scene-graphics.mjs), reader
   `81:A1E1`: table `8D:A41F` supplies 1,536 pointers, with 256 streams per
   bank `82` to `87`. Each output is 128 bytes, four 8 by 8 tiles with indices
   0 to 15. Asset addresses point at the packing offset word. The native

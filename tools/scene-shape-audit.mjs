@@ -14,7 +14,7 @@ import { WRAM_BANK } from '../src/constants/memory-map.mjs';
 import { VmMemory, WRAM_SIZE } from '../src/vm/memory.mjs';
 import { TaskAccessor } from '../src/vm/task-accessor.mjs';
 import { dialogAccess } from '../src/system/native-dialog-support.mjs';
-import { SCENE_LOAD_ROUTINES, loadScene } from '../src/system/main-scene-load.mjs';
+import { SCENE_LOAD_ROUTINES, loadScene } from '../proof/system/main-scene-load.mjs';
 import {
   SHAPE_GRID,
   SHAPE_GRID_BYTES,

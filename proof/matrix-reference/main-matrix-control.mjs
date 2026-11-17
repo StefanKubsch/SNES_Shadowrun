@@ -2,7 +2,7 @@ import { taskStop } from '../../src/system/task-stop.mjs';
 import { randomBelow, randomBelowLong } from '../replay/native-random.mjs';
 export { randomBelowLong };
 import { routineCaller } from '../../src/system/routine-call.mjs';
-import { setCarry } from '../../src/system/status-flags.mjs';
+import { setCarry } from '../system/status-flags.mjs';
 import { stepMatrixState } from './main-matrix-movement.mjs';
 import { protectedJakeHealth } from '../../src/game/cheats.mjs';
 

@@ -1,6 +1,6 @@
 // Part graphics of the object types (docs/ROM-FREE.md, step 2). A part of an
 // object type (src/data/object-types.mjs) selects graphic g; $81:903E reads
-// the long pointer at $96:C3FA + 3 g into DP 14/16 (src/system/main-scene-layers.mjs)
+// the long pointer at $96:C3FA + 3 g into DP 14/16 (proof/system/main-scene-layers.mjs)
 // and walks the graphic at [14]:
 // - byte 0: low nibble rows - 1 (DP 41, outer loop, each row moves the high
 //   byte of DP 38 by one), high nibble cells per row - 1 (DP 44/47, inner

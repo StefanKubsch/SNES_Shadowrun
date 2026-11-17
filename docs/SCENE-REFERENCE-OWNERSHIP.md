@@ -61,8 +61,12 @@ The upkeep helper table and the register-level random routines became unreachabl
 from the game after removing the scene spread. They now live in `proof/caller/`
 and `proof/replay/`; the game keeps its existing lifted random equations.
 
-The register-level game NMI still imports its map-edge uploader from the transition
-module. This is a remaining live dependency, so the transition, graphics,
-collision and loading reference chain stays in place until that consumer is
-separated. The text upload service similarly still retains the initialization
-module. These boundaries are not claimed as removed by the table cleanup.
+The register-level game NMI owns its map-edge uploader (81:8954) itself; the
+transition module imports it from there for its own routine table. The routine
+body, its port-write PCs and its unpack step are unchanged. With that last live
+import gone, the transition, scene graphics, collision, loading, layer and loop
+camera references, the dialog routine table and the status flags were no longer
+loaded by the game. They now live in `proof/system/` and `proof/script/`;
+their callers and original comparisons import them from there unchanged.
+The text upload service still retains the initialization module; that
+boundary is not claimed as removed.

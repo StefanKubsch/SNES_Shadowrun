@@ -17,7 +17,7 @@ import {
   rts,
   measureTextWidth,
 } from './native-glove-target-support.mjs';
-import { sec, clc } from '../../src/system/status-flags.mjs';
+import { sec, clc } from '../system/status-flags.mjs';
 
 import {
   CAMERA_X,

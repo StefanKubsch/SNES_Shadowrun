@@ -1,4 +1,4 @@
-// Dialog portraits (docs/ROM-FREE.md, step 2). 80:936C (src/task/
+// Dialog portraits (docs/ROM-FREE.md, step 2). 80:936C (proof/replay/
 // native-dialog.mjs) takes the word at 80:94F7 + 2 n for dialog n, a dialog
 // record in bank 8D; the long pointer at its start names the portrait record
 // ([F6]; also 80:F254 through 1F54 and Jake's dialogs 4E/4F through 7E:3C17).

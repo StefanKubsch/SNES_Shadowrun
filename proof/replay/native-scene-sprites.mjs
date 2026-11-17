@@ -1,5 +1,5 @@
 import { taskStop } from '../../src/system/task-stop.mjs';
-import { sec, clc } from '../../src/system/status-flags.mjs';
+import { sec, clc } from '../system/status-flags.mjs';
 import {
   CELL_SIZE,
   DP_CELL_X,

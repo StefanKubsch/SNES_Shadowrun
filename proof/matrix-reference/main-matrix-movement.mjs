@@ -1,6 +1,6 @@
 import { routineCaller } from '../../src/system/routine-call.mjs';
 import { taskStop } from '../../src/system/task-stop.mjs';
-import { setCarry } from '../../src/system/status-flags.mjs';
+import { setCarry } from '../system/status-flags.mjs';
 
 import { GRID_MASK, MATRIX_MAP_STEPS } from './main-matrix-objects.mjs';
 import {

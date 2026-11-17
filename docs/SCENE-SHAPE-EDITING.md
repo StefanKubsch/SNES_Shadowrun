@@ -22,7 +22,7 @@ diagnostic comparisons, not authentication.
 Sources are the original loader `81:8DE2`, diagonals `81:8D09` and `81:8D23`,
 rectangle border `81:8D3D`, rectangle fill `81:8DC0`, and block placement
 `81:8EDF`. Their native equations are in
-[main-scene-load.mjs](../src/system/main-scene-load.mjs); the pinned source windows
+[main-scene-load.mjs](../proof/system/main-scene-load.mjs); the pinned source windows
 and existing original-instruction comparisons are in
 [main-scene-load-source.mjs](../tools/main-scene-load-source.mjs) and
 [main-scene-load.test.mjs](../tools/main-scene-load.test.mjs).
@@ -90,7 +90,7 @@ both a per-pass peak and the combined peak including retained low entries.
 Free-stack exhaustion and allocation overlap must be rejected by a future
 preflight before any data publication.
 
-Object drawing in [main-scene-layers.mjs](../src/system/main-scene-layers.mjs)
+Object drawing in [main-scene-layers.mjs](../proof/system/main-scene-layers.mjs)
 allocates wall records in groups of four cells of six bytes: 24 bytes per
 new wall-map word. The height array starts at `7F:0C00`, the tile array at
 `7F:69C0`, and the next owner, the tile-stack hash heads, at `7F:C780`.

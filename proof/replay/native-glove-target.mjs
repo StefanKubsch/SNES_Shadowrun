@@ -12,7 +12,7 @@ import {
 import { NATIVE_CALL_CONTINUATIONS } from './continuations.mjs';
 import { TALK_WAIT_PCS } from './native-dialog.mjs';
 import { GLOVE_ROUTINES, routineCall, rts, absolute } from './native-glove-target-support.mjs';
-import { sec, clc } from '../../src/system/status-flags.mjs';
+import { sec, clc } from '../system/status-flags.mjs';
 import { putOnActionGlove, putOnSpellGlove, be6dSequence } from './native-glove.mjs';
 
 import {

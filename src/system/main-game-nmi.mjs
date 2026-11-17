@@ -1,6 +1,6 @@
 import { runObservedNmi } from './nmi-call.mjs';
 import { clearTextTiles } from './main-initialize.mjs';
-import { uploadMapEdgesAndScroll } from './main-transition.mjs';
+import { unpackStep } from './native-unpack-body.mjs';
 import { readJoypad } from './main-scene-wait.mjs';
 import { NativeWaitContinuation } from './native-wait-continuation.mjs';
 import { DP_PORTRAIT_BANK, DP_PORTRAIT_POINTER } from './native-dialog-portrait.mjs';
@@ -47,6 +47,19 @@ import {
   VRAM_UPLOAD_BANKS,
   VRAM_UPLOAD_BYTES,
   VRAM_UPLOAD_SOURCES,
+  MAP_COLUMN_UPLOAD,
+  MAP_COLUMN_BG1,
+  MAP_COLUMN_BG2,
+  MAP_COLUMN_VRAM_BG1,
+  MAP_COLUMN_VRAM_BG2,
+  MAP_ROW_UPLOAD,
+  MAP_ROW_BG1,
+  MAP_ROW_BG2,
+  MAP_ROW_VRAM_BG1,
+  MAP_ROW_VRAM_BG2,
+  MAP_LINE_BYTES,
+  CAMERA_X,
+  CAMERA_Y,
 } from '../data/wram.mjs';
 import { CYCLE_TABLE } from '../data/palette-cycles.mjs';
 import {
@@ -80,6 +93,11 @@ import {
   VMDATAL,
   OAMADDL,
   OAMDATA,
+  DMAP3,
+  A1T3L,
+  DAS3L,
+  BG1HOFS,
+  BG1VOFS,
 } from '../constants/hardware-registers.mjs';
 import {
   DMAP_ONE_PORT,
@@ -91,6 +109,7 @@ import {
   OAM_PRIORITY_3,
   OAMADDH_PRIORITY_ROTATION,
   VMAINC_INCREMENT_AFTER_HIGH,
+  VMAINC_STEP_32,
 } from '../constants/ppu.mjs';
 import { FLAG_MEMORY_8BIT, FLAG_ZERO, FLAG_NEGATIVE, FLAG_CARRY } from '../constants/cpu-flags.mjs';
 import { BYTE_BITS, BYTE_MASK, NIBBLE_BITS, WORD_BITS, WORD_MASK } from '../constants/bits.mjs';
@@ -123,6 +142,8 @@ const SCENE_PALETTES = 0x8cf624,
   PALETTE_COLOURS_BYTES = 0x1e,
   OBJ_FIRST_COLOUR = 0x81,
   CYCLE_BANK = CYCLE_TABLE >>> WORD_BITS;
+// 81:8954 uses DMA channel 3 for the map columns and rows.
+const MAP_CHANNEL = channel(DMAP3);
 // The colours of a portrait follow 3 bytes after its pointer (80:8FBA).
 const PORTRAIT_COLOURS_OFFSET = 3;
 // Glove graphics (bank 8D): one picture per glove kind, sent as two 0x40-byte halves to the
@@ -177,6 +198,86 @@ function* gameNmiSequence(h, e, r) {
     result = h.rtl();
   };
   return result;
+}
+// 81:8954: send a pending map column (VRAM step 32) and row (step 1) of BG1 and BG2,
+// then the scroll registers of both layers.
+export function uploadMapEdgesAndScroll(h, e) {
+  const { ctx } = h;
+  for (const [pending, source1, source2, vram1, vram2, increment, pcs] of [
+    [
+      MAP_COLUMN_UPLOAD,
+      MAP_COLUMN_BG1,
+      MAP_COLUMN_BG2,
+      MAP_COLUMN_VRAM_BG1,
+      MAP_COLUMN_VRAM_BG2,
+      VMAINC_INCREMENT_AFTER_HIGH | VMAINC_STEP_32,
+      [0x81895c, 0x818962, 0x818968, 0x81896f, 0x818974, 0x81897c, 0x818982, 0x818988, 0x81898f],
+    ],
+    [
+      MAP_ROW_UPLOAD,
+      MAP_ROW_BG1,
+      MAP_ROW_BG2,
+      MAP_ROW_VRAM_BG1,
+      MAP_ROW_VRAM_BG2,
+      VMAINC_INCREMENT_AFTER_HIGH,
+      [0x81899f, 0x8189a5, 0x8189ab, 0x8189b2, 0x8189b7, 0x8189bf, 0x8189c5, 0x8189cb, 0x8189d2],
+    ],
+  ]) {
+    const [
+      pcSource1,
+      pcLength1,
+      pcVram1,
+      pcIncrement,
+      pcStart1,
+      pcSource2,
+      pcLength2,
+      pcVram2,
+      pcStart2,
+    ] = pcs;
+    h.load(h.read(h.abs(pending)));
+    if (ctx.status & FLAG_ZERO) continue;
+    h.load(source1);
+    h.portWrite(A1T3L, ctx.a, 2, pcSource1);
+    h.load(MAP_LINE_BYTES);
+    h.portWrite(DAS3L, ctx.a, 2, pcLength1);
+    h.load(h.read(h.abs(vram1)));
+    h.portWrite(VMADDL, ctx.a, 2, pcVram1);
+    h.sep(FLAG_MEMORY_8BIT);
+    h.load(increment);
+    h.portWrite(VMAINC, ctx.a & BYTE_MASK, 1, pcIncrement);
+    h.load(MAP_CHANNEL);
+    h.portWrite(MDMAEN, ctx.a & BYTE_MASK, 1, pcStart1);
+    h.rep(FLAG_MEMORY_8BIT);
+    h.load(source2);
+    h.portWrite(A1T3L, ctx.a, 2, pcSource2);
+    h.load(MAP_LINE_BYTES);
+    h.portWrite(DAS3L, ctx.a, 2, pcLength2);
+    h.load(h.read(h.abs(vram2)));
+    h.portWrite(VMADDL, ctx.a, 2, pcVram2);
+    h.sep(FLAG_MEMORY_8BIT);
+    h.load(MAP_CHANNEL);
+    h.portWrite(MDMAEN, ctx.a & BYTE_MASK, 1, pcStart2);
+    h.rep(FLAG_MEMORY_8BIT);
+    h.write(h.abs(pending), 0);
+  }
+  // BG1 and BG2 (port + 2) scroll by camera / 4, high byte 0.
+  for (const [source, port, pcs] of [
+    [CAMERA_X, BG1HOFS, [0x8189e1, 0x8189e4, 0x8189e7, 0x8189ea]],
+    [CAMERA_Y, BG1VOFS, [0x8189f6, 0x8189f9, 0x8189fc, 0x8189ff]],
+  ]) {
+    const [pcLow, pcLowHigh, pcSecond, pcSecondHigh] = pcs;
+    h.load(h.read(h.abs(source)));
+    h.lsr();
+    h.lsr();
+    h.sep(FLAG_MEMORY_8BIT);
+    h.portWrite(port, ctx.a & BYTE_MASK, 1, pcLow);
+    h.portWrite(port, 0, 1, pcLowHigh);
+    h.portWrite(port + 2, ctx.a & BYTE_MASK, 1, pcSecond);
+    h.portWrite(port + 2, 0, 1, pcSecondHigh);
+    if (source === CAMERA_X) unpackStep(h, e, 0x8189ed);
+    h.rep(FLAG_MEMORY_8BIT);
+  }
+  return h.rtl();
 }
 // Original routine $81:8949.
 function uploadReadyMapEdges(h) {

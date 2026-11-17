@@ -19,7 +19,7 @@
 // - bytes: everything else in hex, 32 bytes per line.
 // Scene records: $81:A117 takes source offset and bank of scene n from the
 // table $8B:F9E3 + 3 n (word, bank byte) and unpacks the record to 7F:DA14
-// (src/system/main-scene-load.mjs). The table has 165 entries: it ends where
+// (proof/system/main-scene-load.mjs). The table has 165 entries: it ends where
 // the stream 8B:FBD2 begins, entry 165 is no ROM pointer, and all 165
 // records unpack. All records are streams of format scene here; the table is
 // written from the addresses in assets/vm-scenes.json (scene n = entry n).

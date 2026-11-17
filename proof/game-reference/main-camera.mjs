@@ -1,11 +1,11 @@
 // Register-level reference of the main loop's camera and formation trail (moved
-// from src/system/main-loop-camera.mjs and proof/replay/main-motion-target.mjs): the camera
+// from proof/system/main-loop-camera.mjs and proof/replay/main-motion-target.mjs): the camera
 // follow 81:8C2E and the formation step 80:BAD5. The lifted versions are
 // src/game/camera-follow.mjs and src/game/formation-trail.mjs; the tile buffers
 // 81:8A91 (lifted in src/game/camera-scroll.mjs) keep their register-level version
-// in src/system/main-loop-camera.mjs for the camera jump's replay.
-import { clampToCameraBox, updateCameraTileBuffers } from '../../src/system/main-loop-camera.mjs';
-import { sec, clc } from '../../src/system/status-flags.mjs';
+// in proof/system/main-loop-camera.mjs for the camera jump's replay.
+import { clampToCameraBox, updateCameraTileBuffers } from '../system/main-loop-camera.mjs';
+import { sec, clc } from '../system/status-flags.mjs';
 import {
   CAMERA_SPEED_X,
   CAMERA_SPEED_Y,

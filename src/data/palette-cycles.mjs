@@ -1,7 +1,7 @@
 // Palette cycles (docs/ROM-FREE.md, step 2). When 81:8CE0 gives palette n a
 // slot s, $81:801A looks n up in the table 8B:FD75 (six entries of a byte n
 // and a word pointer in bank 8B; X stops at 12) and copies the record into
-// the cycle slots (src/system/main-scene-load.mjs): word 0 | s << 4 to 1CC6
+// the cycle slots (proof/system/main-scene-load.mjs): word 0 | s << 4 to 1CC6
 // (first colour; bit 15 runs the cycle backwards), word 2 to 1CCA (DMA
 // length in bytes), word 4 to 1CBE (added to 1CC2 each frame, a step when
 // bit 7 is reached), word 6 to 1CD2 (steps), record + 8 to 1CCE (colours).

@@ -23,7 +23,7 @@ import {
   drainNativeSequence,
   nativeCallSequence,
 } from '../../src/system/native-call-continuation.mjs';
-import { TRANSITION_ROUTINES } from '../../src/system/main-transition.mjs';
+import { TRANSITION_ROUTINES } from '../system/main-transition.mjs';
 import { playCutscene, playMatrixScene } from '../replay/main-scene.mjs';
 import { MAIN_UPKEEP_ROUTINES } from './main-loop-upkeep.mjs';
 import { sceneRuntime } from '../../src/system/scene-runtime.mjs';

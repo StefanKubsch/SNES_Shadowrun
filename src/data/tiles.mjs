@@ -1,4 +1,4 @@
-// Room tiles (docs/ROM-FREE.md, step 2): $81:A1E1 (src/system/main-scene-graphics.mjs)
+// Room tiles (docs/ROM-FREE.md, step 2): $81:A1E1 (proof/system/main-scene-graphics.mjs)
 // fetches for tile id the word id/4*2 from the table $8D:A41F, the bank
 // $82 + bits 10-13 of id*4, and unpacks 128 bytes from pointer + 2 with $80:9E7E
 // (src/data/lz.mjs). The table has 1536 entries, 256 per bank $82-$87; the

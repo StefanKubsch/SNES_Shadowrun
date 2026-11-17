@@ -1,8 +1,8 @@
-import { unpackStep } from './native-unpack-body.mjs';
-import { MAIN_INITIALIZE_ROUTINES } from './main-initialize.mjs';
-import { unpackPortrait } from './native-dialog-portrait.mjs';
+import { unpackStep } from '../../src/system/native-unpack-body.mjs';
+import { MAIN_INITIALIZE_ROUTINES } from '../../src/system/main-initialize.mjs';
+import { unpackPortrait } from '../../src/system/native-dialog-portrait.mjs';
 import { buildLayerTileStacks } from './main-scene-layers.mjs';
-import { routineCaller } from './routine-call.mjs';
+import { routineCaller } from '../../src/system/routine-call.mjs';
 import {
   DP_SCENE_COUNT,
   DP_SCENE_LAYER,
@@ -48,11 +48,11 @@ import {
   WALL_MAP_BYTES,
   WALL_TILES,
   WALL_WORD_CELLS,
-} from '../data/wram.mjs';
-import { CYCLE_TABLE, CYCLES } from '../data/palette-cycles.mjs';
-import { TILESET_ATTRIBUTES, TILESET_BLOCKS } from '../data/tilesets.mjs';
-import { TILE_FLIP_BITS, TILE_NAME_MASK, TILE_PRIORITY } from '../constants/ppu.mjs';
-import { WRAM_BANK_PAIR, WRAM_HIGH_BANK } from '../constants/memory-map.mjs';
+} from '../../src/data/wram.mjs';
+import { CYCLE_TABLE, CYCLES } from '../../src/data/palette-cycles.mjs';
+import { TILESET_ATTRIBUTES, TILESET_BLOCKS } from '../../src/data/tilesets.mjs';
+import { TILE_FLIP_BITS, TILE_NAME_MASK, TILE_PRIORITY } from '../../src/constants/ppu.mjs';
+import { WRAM_BANK_PAIR, WRAM_HIGH_BANK } from '../../src/constants/memory-map.mjs';
 import {
   BYTE_MASK,
   HIGH_BYTE_MASK,
@@ -60,8 +60,8 @@ import {
   WORD_BITS,
   WORD_MASK,
   WORD_SIGN,
-} from '../constants/bits.mjs';
-import { FLAG_MEMORY_8BIT, FLAG_ZERO, FLAG_CARRY, FLAG_NEGATIVE } from '../constants/cpu-flags.mjs';
+} from '../../src/constants/bits.mjs';
+import { FLAG_MEMORY_8BIT, FLAG_ZERO, FLAG_CARRY, FLAG_NEGATIVE } from '../../src/constants/cpu-flags.mjs';
 const down = (h, name = 'x', n = 2) => {
   for (let i = 0; i < n; i++) h.index(name, h.ctx[name] - 1);
 };

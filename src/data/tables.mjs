@@ -11,7 +11,7 @@
 // - color_ramp 80:D3D1: 512 bytes of 8877 (proof/render/color-8877.mjs), D2E7
 //   and the main loop upkeep,
 // - bit_reverse 81:A017: each byte with its bits reversed, for mirrored
-//   graphics (src/system/main-scene-graphics.mjs) and the unpacker body,
+//   graphics (proof/system/main-scene-graphics.mjs) and the unpacker body,
 // - glyph_widths 81:AC0C: the pixel width of each character code 00 to 80
 //   (FADD, text composition FB2A),
 // - text_masks 81:AC8D: 34 bytes; AEC8 reads from AC8D, the text

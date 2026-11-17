@@ -2,7 +2,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { sceneLoadSpecs, proveSceneLoad } from './main-scene-load-source.mjs';
 import { compareDialog, decodeWindows, prng } from './task-native-dialog-harness.mjs';
-import { SCENE_LOAD_ROUTINES, loadScene } from '../src/system/main-scene-load.mjs';
+import { SCENE_LOAD_ROUTINES, loadScene } from '../proof/system/main-scene-load.mjs';
 import { dialogAccess } from '../src/system/native-dialog-support.mjs';
 import { proveWordStack } from './static-word-stack-proof.mjs';
 import { rom } from './task-native-dialog-harness.mjs';

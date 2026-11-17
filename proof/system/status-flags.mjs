@@ -1,4 +1,4 @@
-import { FLAG_CARRY } from '../constants/cpu-flags.mjs';
+import { FLAG_CARRY } from '../../src/constants/cpu-flags.mjs';
 
 // SEC/CLC on the processor status of a routine helper h.
 export const sec = (h) => {

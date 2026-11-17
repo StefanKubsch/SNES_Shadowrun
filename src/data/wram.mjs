@@ -193,7 +193,7 @@ export const WALL_TILES = 0x7f69c0;
 export const WALL_CELL_BYTES = 6;
 export const WALL_WORD_CELLS = 4;
 // Direct page of the scene build shared by 81:A117 and its routines
-// (main-scene-load.mjs, main-scene-layers.mjs): the long pointer into the scene record
+// (proof/system/main-scene-load.mjs and main-scene-layers.mjs): the long pointer into the scene record
 // (bank DP10), a count, the next free wall cell record (81:902D clears it, 81:903E
 // takes four cells at a time), the target layer and the bits added to its tile words,
 // the three tile words for 81:8E57 and the free stack pointer of the tile stacks.

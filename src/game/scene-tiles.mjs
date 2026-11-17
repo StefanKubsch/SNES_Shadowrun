@@ -1,5 +1,5 @@
 // The scene tiles (lifted from 81:9AE6 with 81:A1BC, 81:A1E1, 81:A243 and 81:9490;
-// register-level version in src/system/main-scene-graphics.mjs).
+// register-level version in proof/system/main-scene-graphics.mjs).
 //
 // The scene load leaves a tile stack per BG tile (src/data/wram.mjs, TILE_STACK_*): a
 // use count (negative: empty) and up to three tile ids drawn over each other. Each

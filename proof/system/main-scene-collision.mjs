@@ -1,9 +1,9 @@
-import { unpackStep } from './native-unpack-body.mjs';
+import { unpackStep } from '../../src/system/native-unpack-body.mjs';
 import { SCENE_LOAD_ROUTINES } from './main-scene-load.mjs';
-import { routineCaller } from './routine-call.mjs';
-import { BYTE_MASK, BYTE_SIGN, HIGH_BYTE_MASK, WORD_MASK } from '../constants/bits.mjs';
-import { FLAG_NEGATIVE, FLAG_ZERO, FLAG_CARRY, FLAG_MEMORY_8BIT } from '../constants/cpu-flags.mjs';
-import { WRAM_BANK_PAIR } from '../constants/memory-map.mjs';
+import { routineCaller } from '../../src/system/routine-call.mjs';
+import { BYTE_MASK, BYTE_SIGN, HIGH_BYTE_MASK, WORD_MASK } from '../../src/constants/bits.mjs';
+import { FLAG_NEGATIVE, FLAG_ZERO, FLAG_CARRY, FLAG_MEMORY_8BIT } from '../../src/constants/cpu-flags.mjs';
+import { WRAM_BANK_PAIR } from '../../src/constants/memory-map.mjs';
 import {
   CELL_COORDINATE_MASK,
   COLLISION_BOX_BOTTOM,
@@ -20,7 +20,7 @@ import {
   STATIC_BOX_END,
   STATIC_CELL_HEADS,
   STATIC_NODE_END,
-} from '../data/wram.mjs';
+} from '../../src/data/wram.mjs';
 // Scene geometry from the original two layer streams and three zone lists.
 // Coordinates, list links and counters stay in the shared WRAM. No host map.
 

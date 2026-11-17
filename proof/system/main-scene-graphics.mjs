@@ -1,11 +1,11 @@
-import { unpackStep } from './native-unpack-body.mjs';
-import { routineCaller } from './routine-call.mjs';
+import { unpackStep } from '../../src/system/native-unpack-body.mjs';
+import { routineCaller } from '../../src/system/routine-call.mjs';
 import { SCENE_COLLISION_ROUTINES } from './main-scene-collision.mjs';
-import { unpackFixedStream } from './native-unpack.mjs';
-import { BYTE_MASK } from '../constants/bits.mjs';
-import { WRAM_BANK_PAIR } from '../constants/memory-map.mjs';
-import { VMAINC, VMADDL, VMDATAL } from '../constants/hardware-registers.mjs';
-import { PLANE_PAIR_BYTES, TILE_H_FLIP, VMAINC_INCREMENT_AFTER_HIGH } from '../constants/ppu.mjs';
+import { unpackFixedStream } from '../../src/system/native-unpack.mjs';
+import { BYTE_MASK } from '../../src/constants/bits.mjs';
+import { WRAM_BANK_PAIR } from '../../src/constants/memory-map.mjs';
+import { VMAINC, VMADDL, VMDATAL } from '../../src/constants/hardware-registers.mjs';
+import { PLANE_PAIR_BYTES, TILE_H_FLIP, VMAINC_INCREMENT_AFTER_HIGH } from '../../src/constants/ppu.mjs';
 import {
   TILE_CACHE_DATA,
   TILE_CACHE_KEYS,
@@ -19,14 +19,14 @@ import {
   TILE_STACK_THIRD,
   TILE_STACK_USES,
   WRAM,
-} from '../data/wram.mjs';
+} from '../../src/data/wram.mjs';
 import {
   FLAG_INDEX_8BIT,
   FLAG_MEMORY_8BIT,
   FLAG_NEGATIVE,
   FLAG_ZERO,
   FLAG_CARRY,
-} from '../constants/cpu-flags.mjs';
+} from '../../src/constants/cpu-flags.mjs';
 // Cache of original 128-byte tile streams, reflected/composited into DP0CDE.
 // PPU writes are requests at the original PCs; no VRAM/DMA effect is inferred.
 

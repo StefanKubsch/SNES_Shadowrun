@@ -86,7 +86,7 @@ a hit the load at `81:8038` reads its pointer at FD76 + X. These bounded
 table accesses cannot run backward into FD61 to FD74. The selected cycle
 records begin at FD87 and fill the region to FE15, exclusively. Sources:
 [palette-cycles.mjs](../src/data/palette-cycles.mjs) and
-[main-scene-load.mjs](../src/system/main-scene-load.mjs).
+[main-scene-load.mjs](../proof/system/main-scene-load.mjs).
 
 No known decoded memory operand or immediate pointer names the unidentified
 block. The native read recording does not touch it. An independent indirect

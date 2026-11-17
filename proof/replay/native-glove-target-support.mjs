@@ -10,7 +10,7 @@ import { readTextBit } from '../../src/system/native-text-prerequisites.mjs';
 import { requestTextMapUpload } from '../../src/system/native-render-compose.mjs';
 import { runDrawWindowList } from '../../proof/caller/window-list.mjs';
 import { unpackWindowMap } from '../../src/system/native-render-unpack.mjs';
-import { clc } from '../../src/system/status-flags.mjs';
+import { clc } from '../system/status-flags.mjs';
 import { languageTextWidth } from '../../src/data/language.mjs';
 import { portTextAddress } from '../../src/data/port-extension.mjs';
 import {

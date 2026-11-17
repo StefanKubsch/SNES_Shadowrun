@@ -1,4 +1,4 @@
-import { clc } from '../../src/system/status-flags.mjs';
+import { clc } from '../system/status-flags.mjs';
 import {
   CELL_SIZE,
   DP_CELL_X,

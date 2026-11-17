@@ -1,5 +1,5 @@
 // The camera box clamp (lifted from 81:8A05; register-level version in
-// src/system/main-loop-camera.mjs, which the main loop camera 81:8C2E still calls).
+// proof/system/main-loop-camera.mjs, which the main loop camera 81:8C2E still calls).
 //
 // A room may give a camera box (src/data/rooms.mjs): the minimum and maximum of two
 // map axes of the projected camera position. The position is turned into the axes,

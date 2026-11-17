@@ -1,21 +1,21 @@
-import { routineCaller } from './routine-call.mjs';
-import { enterRoomJsrSequence as enterRoomRoutineSequence } from '../game/room-entry.mjs';
-import { unpackStep } from './native-unpack-body.mjs';
+import { routineCaller } from '../../src/system/routine-call.mjs';
+import { enterRoomJsrSequence as enterRoomRoutineSequence } from '../../src/game/room-entry.mjs';
 import { SCENE_GRAPHICS_ROUTINES } from './main-scene-graphics.mjs';
 import { TALK_ROUTINES } from '../script/native-dialog.mjs';
-import { createObject } from '../script/native-object-create.mjs';
-import { turnRegisters } from '../script/native-object-turn.mjs';
-import { drawWindowListAdapter } from './native-render-compose.mjs';
-import { sendApuCommand } from './native-input-apu.mjs';
+import { createObject } from '../../src/script/native-object-create.mjs';
+import { turnRegisters } from '../../src/script/native-object-turn.mjs';
+import { drawWindowListAdapter } from '../../src/system/native-render-compose.mjs';
+import { sendApuCommand } from '../../src/system/native-input-apu.mjs';
 import { clampToCameraBox, updateCameraTileBuffers } from './main-loop-camera.mjs';
-import { clearFixedColour } from './native-dialog-portrait.mjs';
-import { ObservedWaitContinuation } from './main-wait-interrupt.mjs';
+import { clearFixedColour } from '../../src/system/native-dialog-portrait.mjs';
+import { ObservedWaitContinuation } from '../../src/system/main-wait-interrupt.mjs';
+import { uploadMapEdgesAndScroll } from '../../src/system/main-game-nmi.mjs';
 import {
   NativeCallContinuation,
   NATIVE_CALL_CONTINUATIONS,
   drainNativeSequence,
   nativeCallSequence,
-} from './native-call-continuation.mjs';
+} from '../../src/system/native-call-continuation.mjs';
 import {
   BRIGHTNESS_FADE,
   BRIGHTNESS_FADE_FRAMES,
@@ -51,17 +51,6 @@ import {
   HARMLESS_HITS,
   INIDISP_SHADOW,
   JAKE_DERMAL_ARMOUR,
-  MAP_COLUMN_BG1,
-  MAP_COLUMN_BG2,
-  MAP_COLUMN_UPLOAD,
-  MAP_COLUMN_VRAM_BG1,
-  MAP_COLUMN_VRAM_BG2,
-  MAP_LINE_BYTES,
-  MAP_ROW_BG1,
-  MAP_ROW_BG2,
-  MAP_ROW_UPLOAD,
-  MAP_ROW_VRAM_BG1,
-  MAP_ROW_VRAM_BG2,
   MAP_UPLOAD_HELD,
   MUSIC,
   OBJECT_ARMOUR,
@@ -75,29 +64,13 @@ import {
   SCENE_PALETTE_UPLOAD,
   STORY_STAGE,
   WRAM,
-} from '../data/wram.mjs';
-import { ROOM_BANK, ROOM_HEADER_ACTOR_COUNT } from '../data/rooms.mjs';
-import { ACTOR_KIND, ACTOR_RECORD, ACTOR_SCRIPT, ACTOR_TABLE } from '../data/actors.mjs';
-import { RUNNER_LAST_INDEX, RUNNER_OBJECT_NUMBERS } from '../data/runners.mjs';
-import {
-  A1T3L,
-  DAS3L,
-  VMADDL,
-  VMAINC,
-  MDMAEN,
-  BG1HOFS,
-  BG1VOFS,
-  DMAP0,
-  DMAP3,
-  DMA_CHANNEL_STRIDE,
-} from '../constants/hardware-registers.mjs';
-import {
-  INIDISP_FORCED_BLANK,
-  VMAINC_INCREMENT_AFTER_HIGH,
-  VMAINC_STEP_32,
-} from '../constants/ppu.mjs';
-import { WORD_MASK, BYTE_MASK } from '../constants/bits.mjs';
-import { FLAG_MEMORY_8BIT, FLAG_NEGATIVE, FLAG_CARRY, FLAG_ZERO } from '../constants/cpu-flags.mjs';
+} from '../../src/data/wram.mjs';
+import { ROOM_BANK, ROOM_HEADER_ACTOR_COUNT } from '../../src/data/rooms.mjs';
+import { ACTOR_KIND, ACTOR_RECORD, ACTOR_SCRIPT, ACTOR_TABLE } from '../../src/data/actors.mjs';
+import { RUNNER_LAST_INDEX, RUNNER_OBJECT_NUMBERS } from '../../src/data/runners.mjs';
+import { INIDISP_FORCED_BLANK } from '../../src/constants/ppu.mjs';
+import { WORD_MASK, BYTE_MASK } from '../../src/constants/bits.mjs';
+import { FLAG_MEMORY_8BIT, FLAG_NEGATIVE, FLAG_CARRY, FLAG_ZERO } from '../../src/constants/cpu-flags.mjs';
 
 // Value written to mark a slot or the music as unset (negative).
 const NONE = WORD_MASK;
@@ -149,8 +122,6 @@ const CAMERA_ROW_BASE = 0x488,
 const CAMERA_JUMP = 0x400,
   CAMERA_JUMP_STEP = 0x20,
   CAMERA_JUMP_STEPS = 0x20;
-// 81:8954 uses DMA channel 3 for the map columns and rows.
-const MAP_CHANNEL = 1 << ((DMAP3 - DMAP0) / DMA_CHANNEL_STRIDE);
 
 // 80:A4BF and its original scene/actor/camera transition. Waits and device
 // responses keep the existing explicit observation contracts.
@@ -235,86 +206,6 @@ function resetFormationTrail(h) {
     h.index('x', ctx.x - 1);
   } while (!(ctx.status & FLAG_NEGATIVE));
   return h.rts();
-}
-// 81:8954: send a pending map column (VRAM step 32) and row (step 1) of BG1 and BG2,
-// then the scroll registers of both layers.
-export function uploadMapEdgesAndScroll(h, e) {
-  const { ctx } = h;
-  for (const [pending, source1, source2, vram1, vram2, increment, pcs] of [
-    [
-      MAP_COLUMN_UPLOAD,
-      MAP_COLUMN_BG1,
-      MAP_COLUMN_BG2,
-      MAP_COLUMN_VRAM_BG1,
-      MAP_COLUMN_VRAM_BG2,
-      VMAINC_INCREMENT_AFTER_HIGH | VMAINC_STEP_32,
-      [0x81895c, 0x818962, 0x818968, 0x81896f, 0x818974, 0x81897c, 0x818982, 0x818988, 0x81898f],
-    ],
-    [
-      MAP_ROW_UPLOAD,
-      MAP_ROW_BG1,
-      MAP_ROW_BG2,
-      MAP_ROW_VRAM_BG1,
-      MAP_ROW_VRAM_BG2,
-      VMAINC_INCREMENT_AFTER_HIGH,
-      [0x81899f, 0x8189a5, 0x8189ab, 0x8189b2, 0x8189b7, 0x8189bf, 0x8189c5, 0x8189cb, 0x8189d2],
-    ],
-  ]) {
-    const [
-      pcSource1,
-      pcLength1,
-      pcVram1,
-      pcIncrement,
-      pcStart1,
-      pcSource2,
-      pcLength2,
-      pcVram2,
-      pcStart2,
-    ] = pcs;
-    h.load(h.read(h.abs(pending)));
-    if (ctx.status & FLAG_ZERO) continue;
-    h.load(source1);
-    h.portWrite(A1T3L, ctx.a, 2, pcSource1);
-    h.load(MAP_LINE_BYTES);
-    h.portWrite(DAS3L, ctx.a, 2, pcLength1);
-    h.load(h.read(h.abs(vram1)));
-    h.portWrite(VMADDL, ctx.a, 2, pcVram1);
-    h.sep(FLAG_MEMORY_8BIT);
-    h.load(increment);
-    h.portWrite(VMAINC, ctx.a & BYTE_MASK, 1, pcIncrement);
-    h.load(MAP_CHANNEL);
-    h.portWrite(MDMAEN, ctx.a & BYTE_MASK, 1, pcStart1);
-    h.rep(FLAG_MEMORY_8BIT);
-    h.load(source2);
-    h.portWrite(A1T3L, ctx.a, 2, pcSource2);
-    h.load(MAP_LINE_BYTES);
-    h.portWrite(DAS3L, ctx.a, 2, pcLength2);
-    h.load(h.read(h.abs(vram2)));
-    h.portWrite(VMADDL, ctx.a, 2, pcVram2);
-    h.sep(FLAG_MEMORY_8BIT);
-    h.load(MAP_CHANNEL);
-    h.portWrite(MDMAEN, ctx.a & BYTE_MASK, 1, pcStart2);
-    h.rep(FLAG_MEMORY_8BIT);
-    h.write(h.abs(pending), 0);
-  }
-  // BG1 and BG2 (port + 2) scroll by camera / 4, high byte 0.
-  for (const [source, port, pcs] of [
-    [CAMERA_X, BG1HOFS, [0x8189e1, 0x8189e4, 0x8189e7, 0x8189ea]],
-    [CAMERA_Y, BG1VOFS, [0x8189f6, 0x8189f9, 0x8189fc, 0x8189ff]],
-  ]) {
-    const [pcLow, pcLowHigh, pcSecond, pcSecondHigh] = pcs;
-    h.load(h.read(h.abs(source)));
-    h.lsr();
-    h.lsr();
-    h.sep(FLAG_MEMORY_8BIT);
-    h.portWrite(port, ctx.a & BYTE_MASK, 1, pcLow);
-    h.portWrite(port, 0, 1, pcLowHigh);
-    h.portWrite(port + 2, ctx.a & BYTE_MASK, 1, pcSecond);
-    h.portWrite(port + 2, 0, 1, pcSecondHigh);
-    if (source === CAMERA_X) unpackStep(h, e, 0x8189ed);
-    h.rep(FLAG_MEMORY_8BIT);
-  }
-  return h.rtl();
 }
 // Original routine $81:8BD9 (lifted in src/game/room-entry.mjs; this version serves
 // the reference entry and the Mesen cold boot replay).

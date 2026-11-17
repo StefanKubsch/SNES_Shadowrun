@@ -15,13 +15,13 @@ import {
   runOpenWindow,
   runFrameWait,
   runPadPresses,
-} from '../game/main-upkeep.mjs';
+} from '../../src/game/main-upkeep.mjs';
 
-import { clearFixedColourRoutine, setWindowTextWidthRoutine } from '../game/dialog-talk.mjs';
+import { clearFixedColourRoutine, setWindowTextWidthRoutine } from '../../src/game/dialog-talk.mjs';
 
-import { unpackPortraitRoutine, shiftPortraitRowsRoutine } from '../game/portrait-upload.mjs';
+import { unpackPortraitRoutine, shiftPortraitRowsRoutine } from '../../src/game/portrait-upload.mjs';
 
-import { setMusicModeRoutine } from '../apu/audio-routines.mjs';
+import { setMusicModeRoutine } from '../../src/apu/audio-routines.mjs';
 
 export const TALK_ROUTINES = new Map([
   [0x8092c5, runCloseDialog],

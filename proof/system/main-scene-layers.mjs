@@ -1,6 +1,6 @@
-import { unpackStep } from './native-unpack-body.mjs';
+import { unpackStep } from '../../src/system/native-unpack-body.mjs';
 import { SCENE_LOAD_ROUTINES } from './main-scene-load.mjs';
-import { routineCaller } from './routine-call.mjs';
+import { routineCaller } from '../../src/system/routine-call.mjs';
 import {
   DP_SCENE_COUNT,
   DP_SCENE_LAYER,
@@ -25,15 +25,15 @@ import {
   WALL_MAP,
   WALL_WORD_CELLS,
   WRAM,
-} from '../data/wram.mjs';
-import { OBJECT_TABLE } from '../data/object-types.mjs';
-import { GRAPHIC_TABLE } from '../data/object-graphics.mjs';
+} from '../../src/data/wram.mjs';
+import { OBJECT_TABLE } from '../../src/data/object-types.mjs';
+import { GRAPHIC_TABLE } from '../../src/data/object-graphics.mjs';
 import {
   TILE_FLIP_BITS,
   TILE_H_FLIP,
   TILE_NAME_MASK,
   TILE_PALETTE_BITS,
-} from '../constants/ppu.mjs';
+} from '../../src/constants/ppu.mjs';
 import {
   BYTE_MASK,
   BYTE_SIGN,
@@ -45,14 +45,14 @@ import {
   WORD_MASK,
   WORD_SIGN,
   BYTE_BITS,
-} from '../constants/bits.mjs';
+} from '../../src/constants/bits.mjs';
 import {
   FLAG_MEMORY_8BIT,
   FLAG_CARRY,
   FLAG_ZERO,
   FLAG_OVERFLOW,
   FLAG_NEGATIVE,
-} from '../constants/cpu-flags.mjs';
+} from '../../src/constants/cpu-flags.mjs';
 
 // Value written to mark a wall height as empty (negative).
 const NONE = WORD_MASK;

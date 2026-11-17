@@ -18345,7 +18345,7 @@
       "helper_modules": [
         "proof/replay/main-motion-collision.mjs",
         "proof/replay/main-motion-target.mjs",
-        "src/system/main-loop-camera.mjs",
+        "proof/system/main-loop-camera.mjs",
         "proof/replay/main-loop-upkeep.mjs",
         "proof/vm/main-driver.mjs"
       ],
@@ -18364,10 +18364,10 @@
         "src/system/main-intro-nmi.mjs",
         "src/system/nmi-call.mjs",
         "src/system/main-initialize.mjs",
-        "src/system/main-scene-load.mjs",
-        "src/system/main-scene-layers.mjs",
-        "src/system/main-scene-collision.mjs",
-        "src/system/main-scene-graphics.mjs",
+        "proof/system/main-scene-load.mjs",
+        "proof/system/main-scene-layers.mjs",
+        "proof/system/main-scene-collision.mjs",
+        "proof/system/main-scene-graphics.mjs",
         "proof/replay/main-transition.mjs",
         "proof/replay/main-game-nmi.mjs",
         "src/system/main-wait-interrupt.mjs",

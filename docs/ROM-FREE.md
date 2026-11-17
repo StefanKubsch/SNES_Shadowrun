@@ -323,7 +323,7 @@ tools/live-*.test.mjs`, then `node tools/rom-vram.mjs` writes
     7E:62A8 and 81:F803 into 7E:56A8 or 7E:46A8; their meaning is still
     open.
   - Scene records (2026-10-31): the 14 byte streams into 7F:DA14 are scene
-    records. 81:A117 (src/system/main-scene-load.mjs) takes offset and bank of
+    records. 81:A117 (proof/system/main-scene-load.mjs) takes offset and bank of
     scene n from the table 8B:F9E3 + 3 n and unpacks the record. The table
     has 165 entries: it ends where the stream 8B:FBD2 begins, entry 165 is
     no ROM pointer, all 165 records unpack and no two share an address. All
@@ -335,7 +335,7 @@ tools/live-*.test.mjs`, then `node tools/rom-vram.mjs` writes
     (code [src/data/scenes.mjs](../src/data/scenes.mjs)), one entry per
     scene in table order; the streams of format `scene` in
     `assets/vm-lz.json` keep only address and packing. Evidence from the
-    reader 81:A117 and its helpers (src/system/main-scene-load.mjs,
+    reader 81:A117 and its helpers (proof/system/main-scene-load.mjs,
     main-scene-layers.mjs):
     - backdrop word: to 7E:0D12, which the NMI writes as colour 0 to CGRAM
       (80:99DC/99E2, proof/replay/main-game-nmi.mjs); 162 scenes use 0000.

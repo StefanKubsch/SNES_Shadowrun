@@ -9,7 +9,7 @@ import {
 } from '../../src/system/native-call-continuation.mjs';
 import { DP_SCRATCH } from '../replay/native-member-spell-menu.mjs';
 import { GLOVE_REACH, OUT_OF_REACH_NOTICE } from '../replay/native-glove-target.mjs';
-import { sec, clc } from '../../src/system/status-flags.mjs';
+import { sec, clc } from '../system/status-flags.mjs';
 import {
   GLOVE_TARGET_OBJECT,
   GLOVE_TARGET_TAG,
