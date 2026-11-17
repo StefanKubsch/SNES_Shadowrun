@@ -1,7 +1,7 @@
 {
   "updated": "2026-11-17",
-  "focus": "Text and scene entries compose services directly; independent original comparisons exercise actual game entries. Results and batch state: HANDOFF.md.",
-  "next_step": "Inventory consumers of scene graphics/load and transition tables; continue scene/data ownership with independent comparisons. Ten autonomous blocks, shared release and push. Shape editing and S-MIX stay deferred.",
+  "focus": "Remove reference-only scene/load/transition ownership from live caller tables while retaining independent original comparisons. Contract: docs/SCENE-REFERENCE-OWNERSHIP.md. Batch state: HANDOFF.md.",
+  "next_step": "Finish ten complete scene reference ownership blocks, each with focused checks and commit, then one shared release and push. Preserve independent caller tables and actual game comparisons. Shape editing and S-MIX stay deferred.",
   "porting_resume": "188 original-form bytes remain: 93 code and 95 unidentified data. Read/hardware/data boundaries: docs/ROM-CODE-AUDIT.md. Unknown bytes and unused graphics stay preserved; unrecorded paths can report rom_byte_absent.",
   "open_issues": [
     "Keyword overflow: synthetic insertion of a 51st retained topic corrupts flags in European source and lifted code. Marking does not free storage. A reachable regular story route and a compatible gameplay correction remain unproved; see docs/BUGFIXES.md.",
