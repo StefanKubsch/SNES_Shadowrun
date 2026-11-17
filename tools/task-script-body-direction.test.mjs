@@ -7,7 +7,7 @@ import {
   prepareTaskScriptBodyResume as resume,
 } from '../proof/task/script-bodies.mjs';
 import { commitTaskPlan } from '../proof/task/plan.mjs';
-import { createRenderData } from '../src/render/data.mjs';
+import { createRenderData } from '../proof/render/data.mjs';
 import {
   scriptBodyFixture,
   bodyCases,

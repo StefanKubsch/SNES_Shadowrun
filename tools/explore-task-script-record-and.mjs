@@ -1,5 +1,5 @@
 import {readFile,writeFile} from 'node:fs/promises';import {execFileSync} from 'node:child_process';
-import {inspectRom,cpuToOffset} from './rom.mjs';import {renderAddress} from '../src/render/data.mjs';
+import {inspectRom,cpuToOffset} from './rom.mjs';import {renderAddress} from '../proof/render/data.mjs';
 import {recordAndBodySpecs as specs,recordAndNativeSources} from '../proof/task/script-body-record-and-specs.mjs';
 import {recordAndCases} from './task-script-body-record-and-fixtures.mjs';import {runWaitBodyFixture} from './task-script-body-wait-fixtures.mjs';
 const save=()=>writeFile('proof/task/script-body-record-and-specs.mjs','// Own whole1A5 original source: freshBB flags/74/0D/4B BYTE mask, audio/actual count60 readiness/5B/END.\nexport const recordAndBodySpecs='+JSON.stringify(specs,null,2)+';\nexport const recordAndNativeSources='+JSON.stringify(recordAndNativeSources,null,2)+';\n');

@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { readFile } from 'node:fs/promises';
-import { createRenderData, prepareRenderView, renderAddress } from '../src/render/data.mjs';
+import { createRenderData, prepareRenderView, renderAddress } from '../proof/render/data.mjs';
 import { prepareRenderA617, prepareRenderA5DB, prepareRenderA5F9,
   renderA617, renderA5DB, renderA5F9 } from '../proof/render/list-a617.mjs';
 import { listEntry as entry, listFixture as fixture, listWindows as windows } from './render-list-fixtures.mjs';

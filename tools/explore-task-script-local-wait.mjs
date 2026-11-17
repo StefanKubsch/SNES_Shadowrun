@@ -1,6 +1,6 @@
 import { readFile, writeFile } from 'node:fs/promises';
 import { inspectRom, cpuToOffset } from './rom.mjs';
-import { renderAddress } from '../src/render/data.mjs';
+import { renderAddress } from '../proof/render/data.mjs';
 import { localWaitBodySpecs as modalBodySpecs } from '../proof/task/script-body-local-wait-specs.mjs';
 import { modalBodySpecs as sharedModalBodySpecs } from '../proof/task/script-body-modal-specs.mjs';
 import { localWaitSeedBytes as modalBodySeedBytes } from './task-script-body-local-wait-seeds.mjs';

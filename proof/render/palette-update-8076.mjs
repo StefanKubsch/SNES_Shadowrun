@@ -1,6 +1,6 @@
 import { WRAM_BASE } from '../../src/constants/memory-map.mjs';
 import { isWord } from '../script/runtime.mjs';
-import { prepareRenderView } from '../../src/render/data.mjs';
+import { prepareRenderView } from './data.mjs';
 import { advancePaletteCycles } from './palette-cycles-equations.mjs';
 import { renderEntryBoundary } from './unpack-9f49.mjs';
 

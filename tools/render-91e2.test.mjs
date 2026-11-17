@@ -2,7 +2,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { readFile } from 'node:fs/promises';
 import { createHash } from 'node:crypto';
-import { createRenderData, prepareRenderView, renderAddress } from '../src/render/data.mjs';
+import { createRenderData, prepareRenderView, renderAddress } from '../proof/render/data.mjs';
 import { prepareRender91E2, render91E2 } from '../proof/render/selection-91e2.mjs';
 import { renderA6C7 } from '../proof/render/menu-a6a5.mjs';
 import { choice91E2Entry as entry, choice91E2Fixture as fixture,

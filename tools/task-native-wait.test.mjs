@@ -12,7 +12,7 @@ import {
 } from '../proof/task/native-wait.mjs';
 import { prepareTaskVisit } from '../proof/task/visit-c1ca.mjs';
 import { commitTaskPlan } from '../proof/task/plan.mjs';
-import { createRenderData, renderAddress } from '../src/render/data.mjs';
+import { createRenderData, renderAddress } from '../proof/render/data.mjs';
 import { prepared, commit, unchangedFailure } from './task-native-test-support.mjs';
 const put = (f, a, v) => f.data.seed(a, [v & 255, v >>> 8]);
 const word = (f, a) => f.data.readByte(a).value | (f.data.readByte(a + 1).value << 8);

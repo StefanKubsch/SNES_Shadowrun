@@ -13,7 +13,7 @@ import {
   menuAudioReads as audio,
 } from './task-native-menu-fixtures.mjs';
 import { prepared, unchangedFailure } from './task-native-test-support.mjs';
-import { createRenderData, renderAddress } from '../src/render/data.mjs';
+import { createRenderData, renderAddress } from '../proof/render/data.mjs';
 const row = () => [cursor(), ...text()];
 const input = (values) =>
   menuRecords(values.map((value) => ({ pc: 0x809e1a, address: 0x8001ca, width: 2, value })));

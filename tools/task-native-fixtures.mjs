@@ -1,4 +1,4 @@
-import {createRenderData} from '../src/render/data.mjs';
+import {createRenderData} from '../proof/render/data.mjs';
 export function taskFixture(entry,{top=0x1234,left=0x5678,opcodeWord=0xA514,y=4,s=0x3F0,d=0x200,bank=0x80,status=0x45,
   pointer=0x1200,writeWindows=[[0x7E0000,0x7E1FFF]],seedOpcode=true,outerWord=0xC20A,savedOuterS=0x1EF}={}){
   const data=createRenderData({writeWindows});

@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { readFile } from 'node:fs/promises';
-import { createRenderData, prepareRenderView, renderAddress } from '../src/render/data.mjs';
+import { createRenderData, prepareRenderView, renderAddress } from '../proof/render/data.mjs';
 import { prepareRenderF1FA, renderF1FA } from '../proof/render/mode-f1fa.mjs';
 import { modeEntry, modeFixture } from './render-f1fa-fixtures.mjs';
 import { sampleWord, samplePointer } from './render-f130-fixtures.mjs';

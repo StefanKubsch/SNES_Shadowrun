@@ -25,7 +25,7 @@ import {
 } from '../../src/constants/hardware-registers.mjs';
 import { isWord } from '../script/runtime.mjs';
 import { FLAG_NEGATIVE } from '../../src/constants/cpu-flags.mjs';
-import { prepareRenderView } from '../../src/render/data.mjs';
+import { prepareRenderView } from './data.mjs';
 import { renderEntryBoundary } from './unpack-9f49.mjs';
 
 const DEFAULT_MAX_WORK = 1000000;

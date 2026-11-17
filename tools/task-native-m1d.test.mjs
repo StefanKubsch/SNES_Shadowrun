@@ -7,7 +7,7 @@ import { taskNativeOpcodeFixture } from './task-native-opcode-fixtures.mjs';
 import { nativeOpcodeSpecs } from './task-native-opcode-specs.mjs';
 import * as bindings from '../proof/task/native-opcode-bindings.mjs';
 import { prepared, commit, unchangedFailure } from './task-native-test-support.mjs';
-import { createRenderData, renderAddress } from '../src/render/data.mjs';
+import { createRenderData, renderAddress } from '../proof/render/data.mjs';
 import { readFileSync } from 'node:fs';
 import { inspectRom } from './rom.mjs';
 import { decodeTaskWindows } from './task-partial-source.mjs';

@@ -1,5 +1,5 @@
 import { writeFile } from 'node:fs/promises';
-import { createRenderData } from '../src/render/data.mjs';
+import { createRenderData } from '../proof/render/data.mjs';
 import { prepareRenderA9E1 } from '../proof/render/a9e1.mjs';
 
 // Explicit synthetic parameters, not original WRAM/NMI observations.

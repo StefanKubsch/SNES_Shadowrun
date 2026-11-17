@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {readFile} from 'node:fs/promises';
-import {createRenderData,prepareRenderView,renderAddress} from '../src/render/data.mjs';
+import {createRenderData,prepareRenderView,renderAddress} from '../proof/render/data.mjs';
 import {prepareRenderF130,renderF130,renderF100} from '../proof/render/samples-f130.mjs';
 import {sampleEntry,sampleFixture,sampleWord,samplePointer} from './render-f130-fixtures.mjs';
 const prepare=(data,options={})=>prepareRenderF130({...sampleEntry,data,...options});

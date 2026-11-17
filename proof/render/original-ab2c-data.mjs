@@ -1,5 +1,5 @@
 import { HEX_RADIX } from '../../src/constants/bits.mjs';
-import { isRenderData } from '../../src/render/data.mjs';
+import { isRenderData } from './data.mjs';
 
 const SOURCE_F160_BYTES = 368;
 const SOURCE_F140_BYTES = 48;

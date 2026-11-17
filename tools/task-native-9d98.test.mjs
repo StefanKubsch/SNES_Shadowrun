@@ -6,7 +6,7 @@ import { taskLeafFixture } from './task-native-leaf-fixtures.mjs';
 import { taskNativeOpcodeFixture } from './task-native-opcode-fixtures.mjs';
 import { native9D98Spec } from './task-native-9d98-spec.mjs';
 import { prepared, unchangedFailure } from './task-native-test-support.mjs';
-import { createRenderData, renderAddress } from '../src/render/data.mjs';
+import { createRenderData, renderAddress } from '../proof/render/data.mjs';
 const word = (f, a, v) => f.data.seed(a, [v & 255, v >>> 8]);
 const omit = (f, address) => {
   const data = createRenderData({ writeWindows: f.data.snapshot().writeWindows });

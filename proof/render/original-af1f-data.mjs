@@ -1,5 +1,5 @@
 import { BYTE_MASK } from '../../src/constants/bits.mjs';
-import { isRenderData } from '../../src/render/data.mjs';
+import { isRenderData } from './data.mjs';
 
 const AF1F_TABLE_BYTES = 62;
 const AF1F_POINTER_BYTES = [0xdc, 0x33];

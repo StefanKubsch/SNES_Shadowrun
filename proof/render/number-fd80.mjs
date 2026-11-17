@@ -14,7 +14,7 @@ const BYTE_SIGN_BIT = 128;
 const STATUS_CV = 0x41;
 
 import { isWord } from '../script/runtime.mjs';
-import { prepareRenderView } from '../../src/render/data.mjs';
+import { prepareRenderView } from './data.mjs';
 import { renderEntryBoundary } from './unpack-9f49.mjs';
 import { renderFB39 } from './text-compose.mjs';
 import { renderOutputBytes } from './output-budget.mjs';

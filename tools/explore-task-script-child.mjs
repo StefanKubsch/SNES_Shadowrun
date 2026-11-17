@@ -1,5 +1,5 @@
 import {readFile,writeFile} from 'node:fs/promises';import {execFileSync} from 'node:child_process';
-import {inspectRom,cpuToOffset} from './rom.mjs';import {renderAddress} from '../src/render/data.mjs';
+import {inspectRom,cpuToOffset} from './rom.mjs';import {renderAddress} from '../proof/render/data.mjs';
 import {childBodySpecs,childBodyNativeSources} from '../proof/task/script-body-child-specs.mjs';
 import {modalBodySpecs} from '../proof/task/script-body-modal-specs.mjs';import {selectionBodySpecs} from '../proof/task/script-body-selection-specs.mjs';
 import {childBodySeedBytes} from './task-script-body-child-seeds.mjs';import {childTextIO,childTextWait} from './task-script-body-child-observations.mjs';

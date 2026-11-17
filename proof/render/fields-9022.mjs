@@ -2,7 +2,7 @@ import { WRAM_BASE } from '../../src/constants/memory-map.mjs';
 import { BANK_SIZE, WORD_MASK, WORD_SIGN } from '../../src/constants/bits.mjs';
 import { PORTRAIT_PALETTE_START, OAM_BUFFER, OAM_HIGH_TABLE } from '../../src/data/wram.mjs';
 import { isWord } from '../script/runtime.mjs';
-import { prepareRenderView } from '../../src/render/data.mjs';
+import { prepareRenderView } from './data.mjs';
 import { renderEntryBoundary } from './unpack-9f49.mjs';
 import { render8FF5 } from './setup-8ff5.mjs';
 import { textHelperAccess, textHelperResult, textNZ } from './text-helper-access.mjs';

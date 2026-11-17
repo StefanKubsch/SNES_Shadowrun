@@ -1,4 +1,4 @@
-import { createRenderData } from '../src/render/data.mjs';
+import { createRenderData } from '../proof/render/data.mjs';
 export const fields905EEntry = { bank: 0x80, status: 0xC5, y: 0xBEEF,
   emulation: 0, directPage: 0, stackWindow: [0x1FFB, 0x1FFF],
   ioMode: 'record-requests', waitMode: 'record-observations', waitRead0140: [0x8001] };

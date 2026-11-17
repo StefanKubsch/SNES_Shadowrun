@@ -1,5 +1,5 @@
 import { readFile, writeFile } from 'node:fs/promises';
-import { createRenderData } from '../src/render/data.mjs';
+import { createRenderData } from '../proof/render/data.mjs';
 import { prepareRender8FBA } from '../proof/render/transfer-palette-8fba.mjs';
 
 const source = JSON.parse(await readFile('analysis/render-8fba.json', 'utf8'));

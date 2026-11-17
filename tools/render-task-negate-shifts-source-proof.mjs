@@ -1,5 +1,5 @@
 import {cpuLabel} from './rom.mjs';
-import {renderAddress} from '../src/render/data.mjs';
+import {renderAddress} from '../proof/render/data.mjs';
 // Source signatures, symbolic WORD-count induction and address/value equations.
 // No instruction/CPU/memory runner, bus trace or elapsed-time model.
 const specs=new Map([

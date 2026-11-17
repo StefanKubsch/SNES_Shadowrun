@@ -4,7 +4,7 @@ import {taskFEC1Fixture} from './task-native-fec1-fixtures.mjs';
 import {taskRandomFixture,randomRecords} from './task-native-random-fixtures.mjs';
 import {sampleWord} from './render-f130-fixtures.mjs';import {menuRecords} from './task-native-menu-fixtures.mjs';
 import {parentWaitTextIO,parentWaitTextWait} from './task-script-body-child-parent-wait-observations.mjs';
-import {renderAddress} from '../src/render/data.mjs';
+import {renderAddress} from '../proof/render/data.mjs';
 // OriginalC58D[0]=1A, actual DP00Low = 1A XOR observed counter BYTE.
 export const parentWaitChoice=v=>(26^v.counterLow)&3;
 export const parentWaitText=(s,v)=>s.id===0x15C?485+Number(parentWaitChoice(v)>1):487+parentWaitChoice(v);

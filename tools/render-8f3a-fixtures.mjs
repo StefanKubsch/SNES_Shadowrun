@@ -1,4 +1,4 @@
-import { createRenderData } from '../src/render/data.mjs';
+import { createRenderData } from '../proof/render/data.mjs';
 import { readFile } from 'node:fs/promises';
 import { cpuToOffset } from './rom.mjs';
 const rom=await readFile(new URL('../Shadowrun (E).smc',import.meta.url));

@@ -1,5 +1,5 @@
 import {cpuLabel} from './rom.mjs';
-import {renderAddress} from '../src/render/data.mjs';
+import {renderAddress} from '../proof/render/data.mjs';
 // Fixed source lemmas and closed data/address equations. No CPU/memory runner.
 const specs=new Map([
   [0x80F8BF,{kind:'boolean',body:[[0x80F8BF,'A301'],[0x80F8C1,'F005'],[0x80F8C3,'A9FFFF'],[0x80F8C6,'8301'],[0x80F8C8,'4C89F3']]}],

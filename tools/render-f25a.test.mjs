@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { readFile } from 'node:fs/promises';
-import { createRenderData, prepareRenderView, renderAddress } from '../src/render/data.mjs';
+import { createRenderData, prepareRenderView, renderAddress } from '../proof/render/data.mjs';
 import { prepareRenderF25A, renderF25A } from '../proof/render/mode-f25a.mjs';
 import { selectionEntry, selectionFixture, selectionZeroFixture } from './render-f25a-fixtures.mjs';
 import { sampleWord } from './render-f130-fixtures.mjs';

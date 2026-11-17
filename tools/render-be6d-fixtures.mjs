@@ -1,5 +1,5 @@
 import { readFile } from 'node:fs/promises';
-import { createRenderData, renderAddress } from '../src/render/data.mjs';
+import { createRenderData, renderAddress } from '../proof/render/data.mjs';
 import { textFixture } from './render-text-compose-fixtures.mjs';
 
 const original = JSON.parse(await readFile(new URL('../assets/render-unpack-data.json', import.meta.url), 'utf8'));

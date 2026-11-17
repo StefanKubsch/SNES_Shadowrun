@@ -3,7 +3,7 @@ import assert from 'node:assert/strict';
 import { readFile } from 'node:fs/promises';
 import { createHash } from 'node:crypto';
 import { cpuToOffset } from './rom.mjs';
-import { createRenderData, prepareRenderView } from '../src/render/data.mjs';
+import { createRenderData, prepareRenderView } from '../proof/render/data.mjs';
 import { advancePaletteCycles } from '../proof/render/palette-cycles-equations.mjs';
 import { prepareRender8076 } from '../proof/render/palette-update-8076.mjs';
 import { render80C4 } from '../proof/render/palette-80c4.mjs';

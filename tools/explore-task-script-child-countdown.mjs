@@ -1,5 +1,5 @@
 import {readFile,writeFile} from 'node:fs/promises';import {execFileSync} from 'node:child_process';
-import {inspectRom,cpuToOffset} from './rom.mjs';import {renderAddress} from '../src/render/data.mjs';
+import {inspectRom,cpuToOffset} from './rom.mjs';import {renderAddress} from '../proof/render/data.mjs';
 import {childCountdownBodySpecs as specs} from '../proof/task/script-body-child-countdown-specs.mjs';
 import {runChildFixture,childBodyCases} from './task-script-body-child-fixtures.mjs';
 import {countdownParentIO,countdownParentWait} from './task-script-body-child-countdown-observations.mjs';

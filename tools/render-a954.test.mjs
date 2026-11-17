@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { readFile } from 'node:fs/promises';
-import { createRenderData, prepareRenderView } from '../src/render/data.mjs';
+import { createRenderData, prepareRenderView } from '../proof/render/data.mjs';
 import { prepareRenderA954, renderA954 } from '../proof/render/gate-a954.mjs';
 import { a954Entry, a954Fixture } from './render-a954-fixtures.mjs';
 const prepare = (data, options = {}) => prepareRenderA954({ ...a954Entry, data, ...options });

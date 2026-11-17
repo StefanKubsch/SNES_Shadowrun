@@ -1,5 +1,5 @@
 import {readFile} from 'node:fs/promises';import {createOriginalRenderData} from '../proof/render/original-data.mjs';
-import {createRenderData} from '../src/render/data.mjs';import {seedOriginalAF1FData} from '../proof/render/original-af1f-data.mjs';
+import {createRenderData} from '../proof/render/data.mjs';import {seedOriginalAF1FData} from '../proof/render/original-af1f-data.mjs';
 const asset=JSON.parse(await readFile(new URL('../assets/render-unpack-data.json',import.meta.url)));
 const afAsset=JSON.parse(await readFile(new URL('../assets/render-af1f-data.json',import.meta.url)));
 export const lengthBits=n=>[...n.toString(2).slice(1)].flatMap(c=>[0,Number(c)]).concat(1);

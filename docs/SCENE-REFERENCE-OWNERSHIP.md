@@ -255,3 +255,9 @@ creation and moved unchanged to `proof/system/task-append.mjs`; the game appends
 script tasks through `src/game/task-append.mjs`. Source generator labels follow the
 path; a full artifact rebuild refreshed the reports whose labels changed in this
 batch.
+
+The manual render plan data owner (`renderAddress`, `createRenderData`,
+`prepareRenderView`) had no live importer after the script allocation moved; it moved
+unchanged from `src/render/data.mjs` to `proof/render/data.mjs`, and `src/render/`
+is gone. The 266 importers changed only their import path; 140 of them were not
+Prettier-clean before and were left unformatted to keep the move reviewable.

@@ -13,7 +13,7 @@ import { seedTaskSmallFamilyFixture } from './task-native-small-fixtures.mjs';
 import { seedTaskDistanceFixture } from './task-native-c68d-fixtures.mjs';
 import { seedTaskDirectionFixture } from './task-native-d1d2-fixtures.mjs';
 import { seedTaskM1dFixture } from './task-native-m1d-fixtures.mjs';
-import { createRenderData, renderAddress } from '../src/render/data.mjs';
+import { createRenderData, renderAddress } from '../proof/render/data.mjs';
 import { commitTaskPlan } from '../proof/task/plan.mjs';
 import { prepared, commit, unchangedFailure } from './task-native-test-support.mjs';
 const word = (f, a, v) => f.data.seed(a, [v & 255, v >>> 8]);

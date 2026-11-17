@@ -3,7 +3,7 @@ import { WRAM_BASE, WRAM_BANK } from '../../src/constants/memory-map.mjs';
 import { TOPIC_LIST, TOPIC_FLAGS, DIALOG_END } from '../../src/data/wram.mjs';
 import { FLAG_NEGATIVE } from '../../src/constants/cpu-flags.mjs';
 import { isWord } from '../script/runtime.mjs';
-import { prepareRenderView } from '../../src/render/data.mjs';
+import { prepareRenderView } from './data.mjs';
 import { renderEntryBoundary } from './unpack-9f49.mjs';
 import { renderF963 } from './allocate-f963.mjs';
 import { renderA6C7 } from './menu-a6a5.mjs';

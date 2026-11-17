@@ -1,6 +1,6 @@
 import { taskStop } from '../../src/system/task-stop.mjs';
 import { prepareTaskPlan } from './plan.mjs';
-import { renderAddress } from '../../src/render/data.mjs';
+import { renderAddress } from '../render/data.mjs';
 import { runTaskVisit } from './visit-c1ca.mjs';
 import { runTaskVisitTail } from './visit-tail.mjs';
 import { runTaskOpcodeSequence } from './opcode-sequence.mjs';

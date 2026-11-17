@@ -1,4 +1,4 @@
-import { createRenderData } from '../src/render/data.mjs';
+import { createRenderData } from '../proof/render/data.mjs';
 export const panEntry = { bank: 0x80, status: 0xC5, a: 0x40, y: 0xBEEF, emulation: 0,
   directPage: 0, stackWindow: [0x1F00, 0x1FFF], ioMode: 'record-requests', ioRead4217: [17, 34] };
 export const panWord = (data, address, value) => data.seed(address, [value & 255, value >>> 8]);

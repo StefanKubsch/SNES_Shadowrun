@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { readFile } from 'node:fs/promises';
-import { createRenderData, prepareRenderView, renderAddress } from '../src/render/data.mjs';
+import { createRenderData, prepareRenderView, renderAddress } from '../proof/render/data.mjs';
 import { prepareRenderAD92, renderAD92 } from '../proof/render/compose-ad92.mjs';
 import { ad92Entry, ad92Windows, ad92Fixture, seedWord, getWord } from './render-ad92-fixtures.mjs';
 

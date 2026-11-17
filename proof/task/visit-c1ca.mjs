@@ -1,7 +1,7 @@
 import { taskStop } from '../../src/system/task-stop.mjs';
 import { prepareTaskPlan } from './plan.mjs';
 import { runTaskNativeResume } from './native-resume.mjs';
-import { renderAddress } from '../../src/render/data.mjs';
+import { renderAddress } from '../render/data.mjs';
 
 // Fixed original visit/readiness/release equations; explicit provider bytes.
 // Stops before F390 dispatch. No scheduling, elapsed time or inferred return.

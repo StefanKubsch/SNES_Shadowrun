@@ -1,5 +1,5 @@
 import { readFile, writeFile } from 'node:fs/promises';
-import { createRenderData } from '../src/render/data.mjs';
+import { createRenderData } from '../proof/render/data.mjs';
 import { prepareRenderF290, prepareRenderF298 } from '../proof/render/input-wrappers.mjs';
 const source = JSON.parse(await readFile('analysis/render-input-flow.json', 'utf8'));
 const declaredInputs = { bank: 0x80, status: 0xC5, x: 0x34, y: 0x56,

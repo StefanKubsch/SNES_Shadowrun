@@ -4,7 +4,7 @@ import { prepareTaskVisit as prepare } from '../proof/task/visit-c1ca.mjs';
 import { commitTaskPlan } from '../proof/task/plan.mjs';
 import { taskVisitFixture as fixture, visitWord as word } from './task-visit-fixtures.mjs';
 import { prepared, unchangedFailure } from './task-native-test-support.mjs';
-import { createRenderData, renderAddress } from '../src/render/data.mjs';
+import { createRenderData, renderAddress } from '../proof/render/data.mjs';
 const value = (f, a) => f.data.readByte(a).value | (f.data.readByte(a + 1).value << 8);
 const context = (f, patch) => ({ ...f, context: Object.freeze({ ...f.context, ...patch }) });
 const drop = (f, address) => {

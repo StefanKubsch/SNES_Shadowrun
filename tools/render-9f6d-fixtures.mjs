@@ -1,4 +1,4 @@
-import { createRenderData } from '../src/render/data.mjs';
+import { createRenderData } from '../proof/render/data.mjs';
 
 export const unpack9F6DEntry = { a: 0x9000, x: 0x5250, y: 0x3A80, bank: 0x80, status: 0xC5,
   emulation: 0, directPage: 0, stackWindow: [0x1F00, 0x1FFF] };

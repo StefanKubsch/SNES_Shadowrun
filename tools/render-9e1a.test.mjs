@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { readFile } from 'node:fs/promises';
-import { createRenderData, prepareRenderView } from '../src/render/data.mjs';
+import { createRenderData, prepareRenderView } from '../proof/render/data.mjs';
 import { prepareRender9E1A, render9E1A } from '../proof/render/input-9e1a.mjs';
 import { render9E0B } from '../proof/render/input-9e0b.mjs';
 const entry = { bank: 0x80, status: 0xC5, x: 0xABCD, y: 0xBEEF, emulation: 0, directPage: 0, stackWindow: [0x1F00,0x1FFF] };

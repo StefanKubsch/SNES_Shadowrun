@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { createRenderData, prepareRenderView } from '../src/render/data.mjs';
+import { createRenderData, prepareRenderView } from '../proof/render/data.mjs';
 import { prepareRenderF007, renderF007 } from '../proof/render/apu-f007.mjs';
 const entry={bank:0x80,status:0xC5,a:0xAB34,x:0xBEEF,y:0x1234,emulation:0,directPage:0,stackWindow:[0x1F00,0x1FFF],ioMode:'record-requests',ioRead2140:[0x12]};
 function fixture(token=0x12,bank=0x80,windows=null){

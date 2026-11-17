@@ -1,5 +1,5 @@
 import {cpuLabel} from './rom.mjs';
-import {renderAddress} from '../src/render/data.mjs';
+import {renderAddress} from '../proof/render/data.mjs';
 // Fixed source signatures and closed WORD/address equations, no CPU runner.
 const specs=new Map([
   [0x80F735,{kind:'8A',decrement:true,body:[[0x80F735,'A2FFFF'],[0x80F738,'68'],[0x80F739,'3A'],[0x80F73A,'C301'],[0x80F73C,'B001'],[0x80F73E,'E8'],[0x80F73F,'8A'],[0x80F740,'8301'],[0x80F742,'4C89F3']]}],

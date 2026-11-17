@@ -1,4 +1,4 @@
-import { createRenderData } from '../src/render/data.mjs';
+import { createRenderData } from '../proof/render/data.mjs';
 
 // Explicit synthetic sources and write ownership, never original WRAM/frame
 // initialization. Used by callback composition tests and reproducible probes.

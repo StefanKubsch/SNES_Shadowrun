@@ -1,6 +1,6 @@
 import test from 'node:test';import assert from 'node:assert/strict';
 import {loadTaskNativeBlock} from './task-native-catalog.mjs';import {taskLeafSpecs} from './task-native-leaf-specs.mjs';
-import {taskLeafFixture} from './task-native-leaf-fixtures.mjs';import {createRenderData} from '../src/render/data.mjs';
+import {taskLeafFixture} from './task-native-leaf-fixtures.mjs';import {createRenderData} from '../proof/render/data.mjs';
 import {prepared,commit,unchangedFailure} from './task-native-test-support.mjs';
 const blocks=await Promise.all(taskLeafSpecs.map(s=>loadTaskNativeBlock(s.name))),byName=new Map(blocks.map(b=>[b.name,b]));
 const run=(name,patch={})=>{const b=byName.get('native-'+name),f=taskLeafFixture(b.entries[0],patch);return {b,f};};

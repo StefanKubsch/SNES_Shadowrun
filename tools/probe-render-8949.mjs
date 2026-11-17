@@ -1,5 +1,5 @@
 import { readFile, writeFile } from 'node:fs/promises';
-import { createRenderData } from '../src/render/data.mjs';
+import { createRenderData } from '../proof/render/data.mjs';
 import { prepareRender8949 } from '../proof/render/pretransfer-8949.mjs';
 const source = JSON.parse(await readFile('analysis/render-a9e1.json', 'utf8'));
 const writeWindows = [[0x7E0CD0, 0x7E0CD1], [0x7E0CD6, 0x7E0CD7]];

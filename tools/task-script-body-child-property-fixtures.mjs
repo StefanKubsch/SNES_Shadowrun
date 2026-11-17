@@ -3,7 +3,7 @@ import {scriptBodyFixture,bodyWord} from './task-script-body-fixtures.mjs';
 import {taskFEC1Fixture} from './task-native-fec1-fixtures.mjs';
 import {sampleWord} from './render-f130-fixtures.mjs';
 import {menuRecords} from './task-native-menu-fixtures.mjs';
-import {renderAddress} from '../src/render/data.mjs';
+import {renderAddress} from '../proof/render/data.mjs';
 import {propertyParentIO,propertyParentWait} from './task-script-body-child-property-observations.mjs';
 export const propertyParentCalled=v=>v.index===14||v.property!==2226;
 export const propertyParentSelector=v=>propertyParentCalled(v)?528:529;

@@ -1,6 +1,6 @@
 import {taskAudioFixture} from './task-native-audio-fixtures.mjs';
 import {sampleWord} from './render-f130-fixtures.mjs';
-import {createRenderData,renderAddress} from '../src/render/data.mjs';
+import {createRenderData,renderAddress} from '../proof/render/data.mjs';
 
 // All Task/workspace/stack/cache/directory/APU/product values are synthetic.
 // Native pointer/argument/return/dispatch anchors are the original ROM bytes.

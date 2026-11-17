@@ -4,7 +4,7 @@ import { prepareTaskNativeListPrerequisites as prepare } from '../proof/task/nat
 import { taskListFixture, taskListCase } from './task-native-list-fixtures.mjs';
 import { prepared, unchangedFailure } from './task-native-test-support.mjs';
 import { commitTaskPlan } from '../proof/task/plan.mjs';
-import { createRenderData, renderAddress } from '../src/render/data.mjs';
+import { createRenderData, renderAddress } from '../proof/render/data.mjs';
 const word = (f, a, v) => f.data.seed(a, [v & 255, v >>> 8]);
 const freeze = (v) => Object.freeze(v.map((o) => Object.freeze(o)));
 const omit = (f, ...addresses) => {

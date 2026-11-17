@@ -13,7 +13,7 @@ import {
   WINDOW_MAP_SOURCE_BANK,
   WINDOW_MAP_BUFFER,
 } from '../../src/data/wram.mjs';
-import { prepareRenderView } from '../../src/render/data.mjs';
+import { prepareRenderView } from './data.mjs';
 import { renderEntryBoundary, unpackRender9F49 } from './unpack-9f49.mjs';
 import { renderAF1F } from './af1f.mjs';
 import { renderOutputBytes } from './output-budget.mjs';

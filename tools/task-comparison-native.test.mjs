@@ -6,7 +6,7 @@ import {prepareTaskCarrySignGates as signs} from '../proof/task/carry-sign-gates
 import {prepareTaskComplementSignGates as complement} from '../proof/task/complement-sign-gates.mjs';
 import {taskFixture} from './task-native-fixtures.mjs';
 import {prepared,unchangedFailure,reads} from './task-native-test-support.mjs';
-import {createRenderData} from '../src/render/data.mjs';
+import {createRenderData} from '../proof/render/data.mjs';
 import {compareGateWordConsequence} from './render-task-compare-gates-source-proof.mjs';
 import {carryCompareWordConsequence} from './render-task-carry-compare-source-proof.mjs';
 import {carrySignGateWordConsequence} from './render-task-carry-sign-gates-source-proof.mjs';

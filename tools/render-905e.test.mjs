@@ -2,7 +2,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { readFile } from 'node:fs/promises';
 import { createHash } from 'node:crypto';
-import { createRenderData, prepareRenderView } from '../src/render/data.mjs';
+import { createRenderData, prepareRenderView } from '../proof/render/data.mjs';
 import { prepareRender905E, render905E } from '../proof/render/fields-905e.mjs';
 import { render9022 } from '../proof/render/fields-9022.mjs';
 import { fields9022Windows } from './render-9022-fixtures.mjs';

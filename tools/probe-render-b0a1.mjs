@@ -1,5 +1,5 @@
 import { readFile, writeFile } from 'node:fs/promises';
-import { createRenderData } from '../src/render/data.mjs';
+import { createRenderData } from '../proof/render/data.mjs';
 import { prepareRenderB0A1 } from '../proof/render/counter-b0a1.mjs';
 import { decode } from './disassemble.mjs';
 import { proveWordStack } from './static-word-stack-proof.mjs';

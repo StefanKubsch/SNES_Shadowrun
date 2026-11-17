@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { readFile } from 'node:fs/promises';
-import { createRenderData, prepareRenderView, renderAddress } from '../src/render/data.mjs';
+import { createRenderData, prepareRenderView, renderAddress } from '../proof/render/data.mjs';
 import { prepareRenderEF47, renderEF47 } from '../proof/render/mode-ef47.mjs';
 import { ef47Entry, ef47Fixture } from './render-ef47-fixtures.mjs';
 const prepare = (data, options = {}) => prepareRenderEF47({ ...ef47Entry, data, ...options });

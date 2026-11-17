@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { readFile } from 'node:fs/promises';
-import { createRenderData, prepareRenderView } from '../src/render/data.mjs';
+import { createRenderData, prepareRenderView } from '../proof/render/data.mjs';
 import { prepareRenderC416, renderC416 } from '../proof/render/pan-c416.mjs';
 import { panEntry as entry, panFixture as fixture, panWord as word } from './render-c416-fixtures.mjs';
 

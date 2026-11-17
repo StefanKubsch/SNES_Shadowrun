@@ -2,7 +2,7 @@
 // visit; share only immutable ROM. No VM execution, device model, cached task
 // data or partial publication. Only DEC7's independently pinned camera WORD
 // at 70:1FFD is admitted as read-only SRAM; other SRAM stays a boundary.
-import { renderAddress } from '../src/render/data.mjs';
+import { renderAddress } from '../proof/render/data.mjs';
 import { taskStop } from '../src/system/task-stop.mjs';
 import { rom } from './task-native-dialog-harness.mjs';
 const nestedCameras = new WeakMap();

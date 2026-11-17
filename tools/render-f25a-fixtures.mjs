@@ -1,4 +1,4 @@
-import { createRenderData } from '../src/render/data.mjs';
+import { createRenderData } from '../proof/render/data.mjs';
 import { modeEntry, modeFixture } from './render-f1fa-fixtures.mjs';
 import { sampleFixture } from './render-f130-fixtures.mjs';
 export const selectionEntry = { ...modeEntry, status: 0xC5, y: 0x1234 };

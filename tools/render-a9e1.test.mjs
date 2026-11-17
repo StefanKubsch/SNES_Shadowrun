@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { readFile } from 'node:fs/promises';
-import { createRenderData, prepareRenderView } from '../src/render/data.mjs';
+import { createRenderData, prepareRenderView } from '../proof/render/data.mjs';
 import { prepareRenderA9E1, renderA9E1 } from '../proof/render/a9e1.mjs';
 
 const flags = [0x1F6, 0x1F8, 0x1FA, 0x1FC];

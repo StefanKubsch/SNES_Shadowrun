@@ -1,5 +1,5 @@
 // Source-specific atomic plans for proof tools. The game executes the shared routines directly.
-import { isRenderData, prepareRenderView, renderAddress } from '../../src/render/data.mjs';
+import { isRenderData, prepareRenderView, renderAddress } from '../render/data.mjs';
 import { taskStop } from '../../src/system/task-stop.mjs';
 
 // Manual, source-specific byte plans over the existing versioned owner. This

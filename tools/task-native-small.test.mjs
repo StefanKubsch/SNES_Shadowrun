@@ -4,7 +4,7 @@ import {smallFamilySpecs} from './task-native-small-specs.mjs';
 import {loadTaskNativeBlock} from './task-native-catalog.mjs';
 import {taskLeafFixture} from './task-native-leaf-fixtures.mjs';
 import {prepared,commit,unchangedFailure} from './task-native-test-support.mjs';
-import {createRenderData,renderAddress} from '../src/render/data.mjs';
+import {createRenderData,renderAddress} from '../proof/render/data.mjs';
 const blocks=new Map(await Promise.all(smallFamilySpecs.map(async s=>[s.id,await loadTaskNativeBlock(s.name)])));
 const fixture=id=>{const b=blocks.get(id);return {b,f:taskLeafFixture(b.entries[0])};};
 const put=(f,a,v)=>f.data.seed(a,[v&255,v>>>8]);

@@ -1,5 +1,5 @@
 import { BYTE_MASK, BYTE_VALUES } from '../../src/constants/bits.mjs';
-import { createRenderData } from '../../src/render/data.mjs';
+import { createRenderData } from './data.mjs';
 
 const BIT_LENGTH_TABLE_BYTES = BYTE_VALUES;
 const SOURCE_80FF98_BYTES = 21;

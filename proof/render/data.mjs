@@ -1,4 +1,10 @@
-import { BANK_SIZE, BYTE_MASK, LONG_MASK, WORD_BITS, WORD_MASK } from '../constants/bits.mjs';
+import {
+  BANK_SIZE,
+  BYTE_MASK,
+  LONG_MASK,
+  WORD_BITS,
+  WORD_MASK,
+} from '../../src/constants/bits.mjs';
 import {
   BANK_WITHOUT_IO,
   CODE_BANK_BASE,
@@ -9,7 +15,7 @@ import {
   WRAM_BANK,
   WRAM_BASE,
   WRAM_HIGH_BANK,
-} from '../constants/memory-map.mjs';
+} from '../../src/constants/memory-map.mjs';
 
 const WRAM_LAST_ADDRESS = WRAM_BASE + 2 * BANK_SIZE - 1;
 // Explicit scratch write permissions of this manual owner, not a claim about

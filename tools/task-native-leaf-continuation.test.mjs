@@ -1,7 +1,7 @@
 import test from 'node:test';import assert from 'node:assert/strict';
 import {taskLeafFixture} from './task-native-leaf-fixtures.mjs';
 import {loadTaskNativeBlock} from './task-native-catalog.mjs';
-import {createRenderData,renderAddress} from '../src/render/data.mjs';
+import {createRenderData,renderAddress} from '../proof/render/data.mjs';
 import {prepared,unchangedFailure} from './task-native-test-support.mjs';
 const cases=[['8ef5',0x7FFE,0x45],['8af1',3,0x45],['c6f3',1,0x45],['d18a',0x3456,0x45],['e24e',65535,0xC5],['ca20',0,0x47],['c79c',1,0x44],['8b08',0x7FFB,5],['c7c2',0,0x47],['ca0d',3,0x45],['c9f1',0x5678,4],['9dae',0x9A78,0xC5],['a941',0xABCD,0xC5],['a949',0xABCD,0xC5],['a951',0xABCD,0xC5],['d0d3',0x800,0x45],['d13e',0xABCD,0x45],['a959',0x2AF3,0x44]];
 const blocks=new Map(await Promise.all(cases.map(async([name])=>[name,await loadTaskNativeBlock('native-'+name)])));

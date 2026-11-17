@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { readFile } from 'node:fs/promises';
-import { createRenderData, prepareRenderView } from '../src/render/data.mjs';
+import { createRenderData, prepareRenderView } from '../proof/render/data.mjs';
 import { prepareRenderF963, renderF963 } from '../proof/render/allocate-f963.mjs';
 
 const entry = { bank: 0x80, status: 0xC5, a: 0xBEEF, y: 0x1234, emulation: 0,

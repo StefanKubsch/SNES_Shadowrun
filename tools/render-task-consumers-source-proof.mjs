@@ -1,5 +1,5 @@
 import {cpuLabel} from './rom.mjs';
-import {renderAddress} from '../src/render/data.mjs';
+import {renderAddress} from '../proof/render/data.mjs';
 
 // Fixed source lemmas and address/data equations only; no CPU or memory runner.
 const specs=new Map([

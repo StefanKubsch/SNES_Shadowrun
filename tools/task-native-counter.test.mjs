@@ -4,7 +4,7 @@ import { waitForRandomStateChange as run } from '../proof/system/native-frame-wa
 import { prepareTaskNativeCounterB0A1 as prepare } from '../proof/task/native-counter-b0a1.mjs';
 import { prepareTaskPlan, commitTaskPlan } from '../proof/task/plan.mjs';
 import { taskCounterFixture } from './task-native-counter-fixtures.mjs';
-import { createRenderData, renderAddress } from '../src/render/data.mjs';
+import { createRenderData, renderAddress } from '../proof/render/data.mjs';
 import { prepared, unchangedFailure } from './task-native-test-support.mjs';
 const records = (values) =>
   Object.freeze(

@@ -9,7 +9,7 @@ import { FLAG_NEGATIVE, FLAG_ZERO } from '../../src/constants/cpu-flags.mjs';
 import { HVBJOY, STDCNTRL1L } from '../../src/constants/hardware-registers.mjs';
 import { PAD_HELD } from '../../src/data/wram.mjs';
 import { isWord } from '../script/runtime.mjs';
-import { prepareRenderView } from '../../src/render/data.mjs';
+import { prepareRenderView } from './data.mjs';
 import { renderEntryBoundary } from './unpack-9f49.mjs';
 
 const DEFAULT_MAX_WORK = 1000000;

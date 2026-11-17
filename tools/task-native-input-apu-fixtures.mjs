@@ -1,4 +1,4 @@
-import {createRenderData} from '../src/render/data.mjs';
+import {createRenderData} from '../proof/render/data.mjs';
 export function taskInputApuFixture(entry=0x809E1A,{bank=0x80,s=0x6FF,status=0xC5,a=0xAB34,x=0xBEEF,y=0x1234,
  current=0x8000,previous=0x4000,token=0x12,index=65535,position=0,other=0,scroll=0,
  writeWindows=[[0x7E0000,0x7FFFFF]]}={}){

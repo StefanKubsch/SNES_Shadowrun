@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { readFile } from 'node:fs/promises';
-import { createRenderData, prepareRenderView } from '../src/render/data.mjs';
+import { createRenderData, prepareRenderView } from '../proof/render/data.mjs';
 import { prepareRenderFD80, renderFD80 } from '../proof/render/number-fd80.mjs';
 import { numberEntry as entry, numberFixture as fixture } from './render-fd80-fixtures.mjs';
 import { textWord as word, textWindows as windows } from './render-text-compose-fixtures.mjs';

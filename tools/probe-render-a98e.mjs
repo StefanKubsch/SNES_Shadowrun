@@ -1,5 +1,5 @@
 import { readFile, writeFile } from 'node:fs/promises';
-import { createRenderData } from '../src/render/data.mjs';
+import { createRenderData } from '../proof/render/data.mjs';
 import { prepareRenderA98E } from '../proof/render/object-buffer-a98e.mjs';
 
 const source = JSON.parse(await readFile('analysis/render-a98e.json', 'utf8'));

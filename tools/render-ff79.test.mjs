@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { readFile } from 'node:fs/promises';
-import { createRenderData, prepareRenderView, renderAddress } from '../src/render/data.mjs';
+import { createRenderData, prepareRenderView, renderAddress } from '../proof/render/data.mjs';
 import { prepareRenderFF79, renderFF79, renderFA3E } from '../proof/render/clear-ff79.mjs';
 import { ff79Fixture, ff79Entry, ff79Windows } from './render-ff79-fixtures.mjs';
 import { seedWord, getWord } from './render-ad92-fixtures.mjs';

@@ -1,6 +1,6 @@
 import { taskStop } from '../../src/system/task-stop.mjs';
 import { prepareTaskPlan } from './plan.mjs';
-import { renderAddress } from '../../src/render/data.mjs';
+import { renderAddress } from '../render/data.mjs';
 export function prepareTaskNativeBridge(options) {
   return prepareTaskPlan(options, [0x80f4f6], (a) =>
     runTaskNativeBridge(a, options.protectedStackBytes),

@@ -47,7 +47,7 @@ import {
 } from '../../src/data/wram.mjs';
 import { FLAG_NEGATIVE } from '../../src/constants/cpu-flags.mjs';
 import { isWord } from '../script/runtime.mjs';
-import { prepareRenderView } from '../../src/render/data.mjs';
+import { prepareRenderView } from './data.mjs';
 import { renderEntryBoundary } from './unpack-9f49.mjs';
 import { renderFADD } from './text-width-fadd.mjs';
 import { renderF963 } from './allocate-f963.mjs';

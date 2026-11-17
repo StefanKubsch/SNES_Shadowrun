@@ -1,4 +1,4 @@
-import { createRenderData } from '../src/render/data.mjs';
+import { createRenderData } from '../proof/render/data.mjs';
 export const pairEntry = { bank: 0x80, status: 0xE5, a: 0xAB34, x: 0xBEEF, y: 0x1234,
   emulation: 0, directPage: 0, stackWindow: [0x1F00, 0x1FFF],
   ioMode: 'record-requests', ioRead2140: [0x12] };

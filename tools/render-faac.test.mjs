@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { readFile } from 'node:fs/promises';
-import { createRenderData, prepareRenderView } from '../src/render/data.mjs';
+import { createRenderData, prepareRenderView } from '../proof/render/data.mjs';
 import { prepareRenderFAAC, renderFAAC } from '../proof/render/cursor-faac.mjs';
 import { cursorEntry as entry, cursorFixture as fixture, cursorWord as word } from './render-faac-fixtures.mjs';
 

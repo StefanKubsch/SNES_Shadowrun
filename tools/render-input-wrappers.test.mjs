@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { readFile } from 'node:fs/promises';
-import { createRenderData, prepareRenderView } from '../src/render/data.mjs';
+import { createRenderData, prepareRenderView } from '../proof/render/data.mjs';
 import { prepareRenderF290, prepareRenderF298, renderF290, renderF298 } from '../proof/render/input-wrappers.mjs';
 const entry={bank:0x80,status:0xC5,x:0x34,y:0x56,emulation:0,directPage:0,stackWindow:[0x1F00,0x1FFF],ioMode:'record-requests',ioRead4212:[0],ioRead4218:0x8000};
 const word=(d,a)=>d.readByte(a).value|d.readByte(a+1).value<<8;

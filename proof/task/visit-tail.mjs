@@ -1,6 +1,6 @@
 import { taskStop } from '../../src/system/task-stop.mjs';
 import { prepareTaskPlan } from './plan.mjs';
-import { renderAddress } from '../../src/render/data.mjs';
+import { renderAddress } from '../render/data.mjs';
 
 // Original C1D9..C1E2, entered only with an observed compatible context.
 export function runTaskVisitTail(a, { preserveD = false } = {}) {

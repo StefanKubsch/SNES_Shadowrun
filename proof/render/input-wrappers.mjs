@@ -2,7 +2,7 @@ import { BYTE_MASK } from '../../src/constants/bits.mjs';
 import { WRAM_BASE } from '../../src/constants/memory-map.mjs';
 import { FLAG_MEMORY_8BIT, FLAG_INDEX_8BIT } from '../../src/constants/cpu-flags.mjs';
 import { isWord } from '../script/runtime.mjs';
-import { prepareRenderView } from '../../src/render/data.mjs';
+import { prepareRenderView } from './data.mjs';
 import { renderEntryBoundary } from './unpack-9f49.mjs';
 import { render9E0B } from './input-9e0b.mjs';
 import { render9E1A } from './input-9e1a.mjs';

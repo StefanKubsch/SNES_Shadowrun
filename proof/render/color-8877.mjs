@@ -16,7 +16,7 @@ import {
 import { COLOUR_REQUEST, COLOUR_PHASE } from '../../src/data/wram.mjs';
 import { COLDATA, CGADSUB } from '../../src/constants/hardware-registers.mjs';
 import { isWord } from '../script/runtime.mjs';
-import { prepareRenderView } from '../../src/render/data.mjs';
+import { prepareRenderView } from './data.mjs';
 import { renderEntryBoundary } from './unpack-9f49.mjs';
 
 const DEFAULT_MAX_WORK = 1000000;

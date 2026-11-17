@@ -1,6 +1,6 @@
 // Memory of the native interpreter: a WRAM buffer (128 KiB), the LoROM as a
 // Uint8Array and the arithmetic unit of the SNES ($4202-$4217).
-// Mapping as in renderAddress (src/render/data.mjs): $7E/$7F = WRAM,
+// Mapping as in renderAddress (proof/render/data.mjs): $7E/$7F = WRAM,
 // banks without bit 6 with offset < $2000 = WRAM mirror, LoROM upper halves of the
 // first 32 banks = ROM, optionally SRAM (8 KiB, banks $70-$7D and $F0-$FD below
 // $8000, mirrored; 16 KiB with the four-slot option) and the port's own read-only

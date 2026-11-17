@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { readFile } from 'node:fs/promises';
-import { createRenderData, prepareRenderView } from '../src/render/data.mjs';
+import { createRenderData, prepareRenderView } from '../proof/render/data.mjs';
 import { prepareRenderC152, renderC152 } from '../proof/render/callback-c152.mjs';
 import { callbackEntry as entry, callbackFixture as fixture } from './render-c152-fixtures.mjs';
 

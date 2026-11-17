@@ -1,7 +1,7 @@
 import {readFile,writeFile} from 'node:fs/promises';import {createHash} from 'node:crypto';
 import {taskInterpreterSource} from './task-interpreter-source.mjs';
 import {inspectRom,cpuLabel,cpuToOffset} from './rom.mjs';import {decode,formatBlock} from './disassemble.mjs';
-import {assertPinnedTaskSource,taskFetchWindow,finiteTaskPaths} from './pinned-task-source.mjs';import {renderAddress} from '../src/render/data.mjs';
+import {assertPinnedTaskSource,taskFetchWindow,finiteTaskPaths} from './pinned-task-source.mjs';import {renderAddress} from '../proof/render/data.mjs';
 export const taskWord=v=>Number.isInteger(v)&&v>=0&&v<=65535;
 export function taskOwner(a){return {address:cpuLabel(a),physical_address:renderAddress(a)===null?null:cpuLabel(renderAddress(a))};}
 export function taskStream(d,bank,pointer,y){if(![d,pointer,y].every(taskWord)||!Number.isInteger(bank)||bank<0||bank>255)throw Error('Explicit taskstream context');const a=(bank*65536+pointer+y)&0xFFFFFF;return {pointer_reads:[taskOwner(d),taskOwner((d+1)&65535)],word_reads:[taskOwner(a),taskOwner((a+1)&0xFFFFFF)]};}

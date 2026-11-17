@@ -1,5 +1,5 @@
 import {cpuLabel} from './rom.mjs';
-import {renderAddress} from '../src/render/data.mjs';
+import {renderAddress} from '../proof/render/data.mjs';
 // Fixed ROM signatures and pure address/WORD equations; no CPU or memory runner.
 const specs=new Map([
   [0x80F3A1,{kind:'02',indexed:true,byte:true,local:0x80F3A8,push:0x80F3AD,body:[[0x80F3A1,'B100'],[0x80F3A3,'C8'],[0x80F3A4,'29FF00'],[0x80F3A7,'AA'],[0x80F3A8,'B513'],[0x80F3AA,'29FF00'],[0x80F3AD,'48'],[0x80F3AE,'4C89F3']]}],

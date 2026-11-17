@@ -1,4 +1,4 @@
-import { createRenderData } from '../src/render/data.mjs';
+import { createRenderData } from '../proof/render/data.mjs';
 
 // Explicit synthetic data only. These generous test windows are not runtime
 // ownership declarations or inferred original scene initialization.

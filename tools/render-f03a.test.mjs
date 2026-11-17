@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { readFile } from 'node:fs/promises';
-import { createRenderData, prepareRenderView } from '../src/render/data.mjs';
+import { createRenderData, prepareRenderView } from '../proof/render/data.mjs';
 import { prepareRenderF03A, renderF03A } from '../proof/render/pair-f03a.mjs';
 import { prepareRenderF007 } from '../proof/render/apu-f007.mjs';
 import { pairEntry, pairFixture } from './render-f03a-fixtures.mjs';

@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { readFile } from 'node:fs/promises';
-import { createRenderData, prepareRenderView } from '../src/render/data.mjs';
+import { createRenderData, prepareRenderView } from '../proof/render/data.mjs';
 import { prepareRenderC06B, renderC06B } from '../proof/render/object-c06b.mjs';
 import { render9E0B } from '../proof/render/input-9e0b.mjs';
 

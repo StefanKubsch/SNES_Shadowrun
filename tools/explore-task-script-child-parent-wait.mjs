@@ -1,5 +1,5 @@
 import {readFile,writeFile} from 'node:fs/promises';import {execFileSync} from 'node:child_process';
-import {inspectRom,cpuToOffset} from './rom.mjs';import {renderAddress} from '../src/render/data.mjs';
+import {inspectRom,cpuToOffset} from './rom.mjs';import {renderAddress} from '../proof/render/data.mjs';
 import {childParentWaitBodySpecs as specs} from '../proof/task/script-body-child-parent-wait-specs.mjs';
 import {runChildFixture,childBodyCases} from './task-script-body-child-fixtures.mjs';
 import {parentWaitText} from './task-script-body-child-parent-wait-fixtures.mjs';

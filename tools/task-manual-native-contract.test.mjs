@@ -4,7 +4,7 @@ import { readFile } from 'node:fs/promises';
 import { loadTaskNativeBlock, taskModulePath, taskNativeNames } from './task-native-catalog.mjs';
 import { commitTaskPlan } from '../proof/task/plan.mjs';
 import { prepared, unchangedFailure } from './task-native-test-support.mjs';
-import { createRenderData, renderAddress } from '../src/render/data.mjs';
+import { createRenderData, renderAddress } from '../proof/render/data.mjs';
 
 const progress = JSON.parse(await readFile('docs/PORTIERUNGSSTAND.json'));
 for (const name of taskNativeNames) {

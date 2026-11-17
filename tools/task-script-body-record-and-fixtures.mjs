@@ -1,6 +1,6 @@
 import {expandAudioWaitBodyFixture} from './task-script-body-audio-wait-fixtures.mjs';
 import {sampleWord} from './render-f130-fixtures.mjs';import {menuRecords} from './task-native-menu-fixtures.mjs';
-import {bodyWord} from './task-script-body-fixtures.mjs';import {renderAddress} from '../src/render/data.mjs';
+import {bodyWord} from './task-script-body-fixtures.mjs';import {renderAddress} from '../proof/render/data.mjs';
 export const recordAndActive=v=>(v.flag&1)!==0&&(v.flag&128)===0;
 export const recordAndCases=()=>[0,1,3,127,128,129,255].flatMap((flag,n)=>[0xAB10,0xFF11,0x80FE].map((input,k)=>({
  name:'flag-'+flag+'-full-arg-'+input.toString(16),flag,flagHigh:[0xA5,0x80,255][k],input,args:[input],token:(n+k)&255})));

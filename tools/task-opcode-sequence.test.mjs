@@ -8,7 +8,7 @@ import { prepareTaskOpcodeTarget as target } from '../proof/task/opcode-target.m
 import { prepared, unchangedFailure } from './task-native-test-support.mjs';
 import { taskModulePath } from './task-native-catalog.mjs';
 import { commitTaskPlan } from '../proof/task/plan.mjs';
-import { createRenderData, renderAddress } from '../src/render/data.mjs';
+import { createRenderData, renderAddress } from '../proof/render/data.mjs';
 const sequence = native.prepareTaskOpcodeSequence;
 const drop = (f, ...addresses) => {
   const data = createRenderData({ writeWindows: f.data.snapshot().writeWindows });

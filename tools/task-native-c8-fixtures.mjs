@@ -1,5 +1,5 @@
 import {taskFEC1Fixture} from './task-native-fec1-fixtures.mjs';import {heldWord} from './render-be6d-fixtures.mjs';
-import {createRenderData,renderAddress} from '../src/render/data.mjs';
+import {createRenderData,renderAddress} from '../proof/render/data.mjs';
 export function taskNativeC8Fixture({frame=0x1000,operandS=0x3F0,args=[2,2,10,8,0,0,60],omit=null,...notice}={}){
  const f=taskFEC1Fixture(notice),{data}=f;
  for(const [address,value] of [[frame,0x1200],[frame+1,0x8012],[0x800250,0x10],[0x800262,frame],

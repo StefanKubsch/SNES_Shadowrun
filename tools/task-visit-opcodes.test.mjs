@@ -6,7 +6,7 @@ import { prepareTaskVisitTail as tail } from '../proof/task/visit-tail.mjs';
 import { prepareTaskVisit } from '../proof/task/visit-c1ca.mjs';
 import { prepareTaskOpcodeSequence } from '../proof/task/opcode-sequence.mjs';
 import { commitTaskPlan } from '../proof/task/plan.mjs';
-import { createRenderData, renderAddress } from '../src/render/data.mjs';
+import { createRenderData, renderAddress } from '../proof/render/data.mjs';
 import {
   taskVisitOpcodesFixture as fixture,
   taskVisitTailFixture,

@@ -1,6 +1,6 @@
 import { readFile, writeFile } from 'node:fs/promises';
 import { inspectRom, cpuToOffset } from './rom.mjs';
-import { renderAddress } from '../src/render/data.mjs';
+import { renderAddress } from '../proof/render/data.mjs';
 import {
   selectionBodySpecs,
   selectionNativeSources,

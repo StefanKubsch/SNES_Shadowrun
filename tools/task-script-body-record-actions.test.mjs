@@ -20,7 +20,7 @@ import {
 } from './task-script-body-wait-fixtures.mjs';
 import { prepared, unchangedFailure } from './task-native-test-support.mjs';
 import { commitTaskPlan } from '../proof/task/plan.mjs';
-import { renderAddress } from '../src/render/data.mjs';
+import { renderAddress } from '../proof/render/data.mjs';
 import { sampleWord } from './render-f130-fixtures.mjs';
 const s = scriptBodySpecs.find((s) => s.id === 0x2b9),
   freeze = (xs) => Object.freeze(xs.map(Object.freeze));

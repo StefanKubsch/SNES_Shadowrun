@@ -1,5 +1,5 @@
 import {readFile} from 'node:fs/promises';import {textMaskWords} from './render-text-compose-fixtures.mjs';import {noticeFixture} from './render-fec1-fixtures.mjs';import {heldWord} from './render-be6d-fixtures.mjs';
-import {createRenderData} from '../src/render/data.mjs';import {seedOriginalAF1FData} from '../proof/render/original-af1f-data.mjs';
+import {createRenderData} from '../proof/render/data.mjs';import {seedOriginalAF1FData} from '../proof/render/original-af1f-data.mjs';
 const afAsset=JSON.parse(await readFile(new URL('../assets/render-af1f-data.json',import.meta.url)));
 export function taskFEC1Fixture({bank=0x80,s=0x6FF,status=0x45,cursor=30,occupied=[],lifetimes=[60,60,60,60],
  activeAF1F=false,afValues=[3,1,3,1,0,14],waitF6=[0],waitF8=[0],waitFC=[0],waitFA=[0],waitReplacement=[0],

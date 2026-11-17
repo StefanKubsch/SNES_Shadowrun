@@ -9,7 +9,7 @@ import {
 import { prepareTaskScriptBody as prepare } from '../proof/task/script-bodies.mjs';
 import { prepareTaskNativeOpcodeSequence as sequence } from '../proof/task/opcode-sequence.mjs';
 import { commitTaskPlan } from '../proof/task/plan.mjs';
-import { createRenderData, renderAddress } from '../src/render/data.mjs';
+import { createRenderData, renderAddress } from '../proof/render/data.mjs';
 import { prepared, unchangedFailure } from './task-native-test-support.mjs';
 import {
   scriptBodyFixture as fixture,

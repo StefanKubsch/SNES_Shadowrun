@@ -2,7 +2,7 @@ import test from 'node:test';import assert from 'node:assert/strict';
 import {taskContinuationFixture} from './task-native-continuation-fixtures.mjs';
 import {prepareTaskNativeBridge as bridge} from '../proof/task/native-bridge.mjs';
 import {prepareTaskNativeResume as resume} from '../proof/task/native-resume.mjs';
-import {createRenderData,renderAddress} from '../src/render/data.mjs';
+import {createRenderData,renderAddress} from '../proof/render/data.mjs';
 import {prepared,commit,unchangedFailure} from './task-native-test-support.mjs';
 const word=(f,address,value)=>f.data.seed(address,[value&255,value>>>8]);
 const drop=(f,address)=>{const data=createRenderData({writeWindows:f.data.snapshot().writeWindows});for(const [a,v] of f.data.snapshot().bytes)if(a!==renderAddress(address))data.seed(a,[v]);return {...f,data};};

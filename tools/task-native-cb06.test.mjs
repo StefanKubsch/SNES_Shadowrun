@@ -5,7 +5,7 @@ import { prepareTaskNativeOpcodeCB06 as call } from '../proof/task/native-opcode
 import { taskLeafFixture } from './task-native-leaf-fixtures.mjs';
 import { taskNativeOpcodeFixture } from './task-native-opcode-fixtures.mjs';
 import { nativeCB06Spec } from './task-native-cb06-spec.mjs';
-import { createRenderData, renderAddress } from '../src/render/data.mjs';
+import { createRenderData, renderAddress } from '../proof/render/data.mjs';
 import { prepared, unchangedFailure } from './task-native-test-support.mjs';
 const word = (f, a, v) => f.data.seed(a, [v & 255, v >>> 8]);
 const omit = (f, address) => {

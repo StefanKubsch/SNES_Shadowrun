@@ -1,5 +1,5 @@
 import { isWord } from '../script/runtime.mjs';
-import { isRenderData, prepareRenderView } from '../../src/render/data.mjs';
+import { isRenderData, prepareRenderView } from './data.mjs';
 import { renderOutputBytes } from './output-budget.mjs';
 import {
   BYTE_MASK,

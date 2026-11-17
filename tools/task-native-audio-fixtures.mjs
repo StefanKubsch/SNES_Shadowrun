@@ -1,4 +1,4 @@
-import {createRenderData} from '../src/render/data.mjs';
+import {createRenderData} from '../proof/render/data.mjs';
 import {sampleFixture,sampleWord} from './render-f130-fixtures.mjs';
 import {wordFixture} from './render-f122-fixtures.mjs';
 const freeze=v=>Object.freeze(v.map(r=>Object.freeze(r)));

@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { readFile } from 'node:fs/promises';
-import { createRenderData, prepareRenderView } from '../src/render/data.mjs';
+import { createRenderData, prepareRenderView } from '../proof/render/data.mjs';
 import { prepareRender8F20, render8F20 } from '../proof/render/rows-8f20.mjs';
 import { rows8F20Entry, rows8F20Fixture, rows8F20Windows, rows8F20Bytes } from './render-8f20-fixtures.mjs';
 const prepare = (data, options = {}) => prepareRender8F20({ ...rows8F20Entry, data, ...options });

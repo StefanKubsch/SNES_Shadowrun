@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { readFile } from 'node:fs/promises';
-import { createRenderData, prepareRenderView } from '../src/render/data.mjs';
+import { createRenderData, prepareRenderView } from '../proof/render/data.mjs';
 import { prepareRenderAF04, prepareRenderFADD, renderAF04, renderFADD } from '../proof/render/text-width-fadd.mjs';
 
 const entry = { bank: 0x80, status: 0x45, emulation: 0, directPage: 0,

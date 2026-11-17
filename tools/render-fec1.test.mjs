@@ -2,7 +2,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { readFile } from 'node:fs/promises';
 import { prepareRenderFEC1 } from '../proof/render/notice-fec1.mjs';
-import { createRenderData, renderAddress } from '../src/render/data.mjs';
+import { createRenderData, renderAddress } from '../proof/render/data.mjs';
 import { noticeEntry, noticeFixture } from './render-fec1-fixtures.mjs';
 import { heldWord as word, heldGet as get, heldWindows } from './render-be6d-fixtures.mjs';
 import { seedOriginalAF1FData } from '../proof/render/original-af1f-data.mjs';

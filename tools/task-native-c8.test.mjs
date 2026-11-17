@@ -4,7 +4,7 @@ import { prepareTaskNativeOpcodeFEC1 } from '../proof/task/native-c8-opcode.mjs'
 import { prepareTaskNativeFEC1 } from '../proof/task/native-fec1.mjs';
 import { commitTaskPlan } from '../proof/task/plan.mjs';
 import { taskNativeC8Fixture } from './task-native-c8-fixtures.mjs';
-import { renderAddress } from '../src/render/data.mjs';
+import { renderAddress } from '../proof/render/data.mjs';
 import { taskFEC1Fixture } from './task-native-fec1-fixtures.mjs';
 import { heldWord } from './render-be6d-fixtures.mjs';
 const freeze = (values) => Object.freeze(values.map((o) => Object.freeze(o)));

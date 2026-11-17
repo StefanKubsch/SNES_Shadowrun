@@ -3,7 +3,7 @@ import assert from 'node:assert/strict';
 import { prepareTaskNativeAF1F } from '../proof/task/native-af1f.mjs';
 import { commitTaskPlan } from '../proof/task/plan.mjs';
 import { renderAF1F } from '../proof/render/af1f.mjs';
-import { prepareRenderView } from '../src/render/data.mjs';
+import { prepareRenderView } from '../proof/render/data.mjs';
 import { taskAF1FFixture } from './task-native-af1f-fixtures.mjs';
 const prepare = (f, patch = {}) => {
   const before = f.data.snapshot(),

@@ -1,4 +1,4 @@
-import {createRenderData} from '../src/render/data.mjs';import {ad92Fixture,seedWord} from './render-ad92-fixtures.mjs';
+import {createRenderData} from '../proof/render/data.mjs';import {ad92Fixture,seedWord} from './render-ad92-fixtures.mjs';
 export function taskRenderComposeFixture(helper='AD92',{bank=0x80,s=0x6FF,status=0x45,active=false,index=0,
  first=0,last=0,flags=[1],counter=0,positions=[],wait=helper==='ACCF'?[]:[0],values=active?[3,0,3,0,0]:[],omit=null,
  writeWindows=[[0x7E0000,0x7FFFFF]]}={}){

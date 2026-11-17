@@ -12,7 +12,7 @@ import {
   menuAudioReads as audio,
 } from './task-native-menu-fixtures.mjs';
 import { seedWord } from './render-ad92-fixtures.mjs';
-import { createRenderData, renderAddress } from '../src/render/data.mjs';
+import { createRenderData, renderAddress } from '../proof/render/data.mjs';
 import { commitTaskPlan } from '../proof/task/plan.mjs';
 const word = (p, address) => {
   const last = (a) => p.byteWrites.findLast((r) => r[0] === renderAddress(a))?.[1];

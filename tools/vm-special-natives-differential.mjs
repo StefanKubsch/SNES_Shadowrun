@@ -44,7 +44,7 @@ import {
   prepareTaskNativeOpcodeSmall,
   SMALL_SPECIAL_CALLEES,
 } from '../proof/task/native-small-opcode.mjs';
-import { renderAddress } from '../src/render/data.mjs';
+import { renderAddress } from '../proof/render/data.mjs';
 import { rom, nativeScenario } from './vm-differential.mjs';
 import { oracle, context, PROOF_LIMITS } from './vm-scheduler-differential.mjs';
 

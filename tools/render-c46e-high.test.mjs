@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import {createRenderData,prepareRenderView} from '../src/render/data.mjs';
+import {createRenderData,prepareRenderView} from '../proof/render/data.mjs';
 import {prepareRenderC46E,renderC46E} from '../proof/render/audio-c46e.mjs';
 import {audioFixture,highAudioFixture,highAudioEntry} from './render-c46e-fixtures.mjs';
 import {panWord as word} from './render-c416-fixtures.mjs';

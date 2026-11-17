@@ -1,6 +1,6 @@
 import { readFile, writeFile } from 'node:fs/promises';
 import { inspectRom, cpuToOffset } from './rom.mjs';
-import { renderAddress } from '../src/render/data.mjs';
+import { renderAddress } from '../proof/render/data.mjs';
 import { modalBodySpecs, modalNativeSources } from '../proof/task/script-body-modal-specs.mjs';
 import { modalBodySeedBytes } from './task-script-body-modal-seeds.mjs';
 import { scriptBodyFixture, bodyCases } from './task-script-body-fixtures.mjs';

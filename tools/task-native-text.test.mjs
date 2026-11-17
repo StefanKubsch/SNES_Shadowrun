@@ -3,7 +3,7 @@ import assert from 'node:assert/strict';
 import * as native from '../proof/task/native-text-prerequisites.mjs';
 import { commitTaskPlan } from '../proof/task/plan.mjs';
 import { taskTextFixture } from './task-native-text-fixtures.mjs';
-import { createRenderData } from '../src/render/data.mjs';
+import { createRenderData } from '../proof/render/data.mjs';
 import { prepareRenderAF04 } from '../proof/render/text-width-fadd.mjs';
 import {
   prepareRenderADBA,

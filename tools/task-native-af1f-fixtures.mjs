@@ -1,4 +1,4 @@
-import {readFile} from 'node:fs/promises';import {createRenderData} from '../src/render/data.mjs';
+import {readFile} from 'node:fs/promises';import {createRenderData} from '../proof/render/data.mjs';
 import {seedOriginalAF1FData} from '../proof/render/original-af1f-data.mjs';
 const asset=JSON.parse(await readFile(new URL('../assets/render-af1f-data.json',import.meta.url)));
 export function taskAF1FFixture({bank=0x80,s=0x6FF,status=0x45,row=61,parameter=5,firstGate=1,secondGate=0,

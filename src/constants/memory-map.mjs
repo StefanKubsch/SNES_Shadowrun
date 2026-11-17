@@ -1,5 +1,5 @@
 // SNES memory map of the Shadowrun LoROM cartridge, as mapped by VmMemory
-// (src/vm/memory.mjs) and renderAddress (src/render/data.mjs). Source: Nintendo
+// (src/vm/memory.mjs) and renderAddress (proof/render/data.mjs). Source: Nintendo
 // Development Manual Book I (Ressources/book1_text.pdf), chapter 21.2 "CPU
 // Memory Map", PDF 93 (printed 2-21-1) and figures 2-21-1/2-21-2 (Mode 20);
 // cartridge layout as established in docs/ROM-FREE.md.

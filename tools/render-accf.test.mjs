@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { readFile } from 'node:fs/promises';
-import { createRenderData, prepareRenderView } from '../src/render/data.mjs';
+import { createRenderData, prepareRenderView } from '../proof/render/data.mjs';
 import { prepareRenderACCF, renderACCF } from '../proof/render/entry-accf.mjs';
 
 const entry = { bank: 0x80, status: 0xC5, x: 2, y: 0xBEEF, emulation: 0,

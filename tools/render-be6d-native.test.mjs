@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { readFile } from 'node:fs/promises';
-import { createRenderData, prepareRenderView, renderAddress } from '../src/render/data.mjs';
+import { createRenderData, prepareRenderView, renderAddress } from '../proof/render/data.mjs';
 import { prepareRenderBE6D, prepareRenderBCBE, renderBE6D } from '../proof/render/held-be6d.mjs';
 import { heldEntry, heldWindows, heldFixture, heldWord as word, heldGet as get } from './render-be6d-fixtures.mjs';
 import { seedOriginalAF1FData } from '../proof/render/original-af1f-data.mjs';

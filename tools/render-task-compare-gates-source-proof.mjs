@@ -1,5 +1,5 @@
 import {cpuLabel} from './rom.mjs';
-import {renderAddress} from '../src/render/data.mjs';
+import {renderAddress} from '../proof/render/data.mjs';
 // Fixed source signatures, finite branch paths and pure byte/value equations.
 // No CPU/memory runner; distinct fresh read values are explicit observations.
 const specs=new Map([

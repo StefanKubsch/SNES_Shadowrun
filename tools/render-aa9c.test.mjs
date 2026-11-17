@@ -2,7 +2,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { readFile } from 'node:fs/promises';
 import { createHash } from 'node:crypto';
-import { createRenderData } from '../src/render/data.mjs';
+import { createRenderData } from '../proof/render/data.mjs';
 import { createOriginalRenderData } from '../proof/render/original-data.mjs';
 import { seedOriginalAA9CData } from '../proof/render/original-aa9c-data.mjs';
 import { seedOriginalAF1FData } from '../proof/render/original-af1f-data.mjs';

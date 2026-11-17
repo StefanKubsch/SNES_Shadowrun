@@ -4,7 +4,7 @@ import {scriptBodyFixture,bodyCases,bodyWord as word,omitBodyBytes as omit} from
 import {localBodyPCs} from './task-script-body-local-fixtures.mjs';import {bodyProbe} from './task-script-body-artifacts.mjs';
 import {prepareTaskScriptBody as start} from '../proof/task/script-bodies.mjs';import {prepared,commit,unchangedFailure} from './task-native-test-support.mjs';
 import {menuRecords} from './task-native-menu-fixtures.mjs';
-import {createRenderData} from '../src/render/data.mjs';
+import {createRenderData} from '../proof/render/data.mjs';
 import {validateLocalBodyEvidence} from './progress.mjs';
 const s=scriptBodySpecs.find(s=>s.id===0x29A),prices=[300,700,1000,2000,3000,4000,5000,6000,7000,8000];
 test('Whole29A executes all ten real localcalls/50 reads plus high-WORD nonmatches, helper effects and actual END',async()=>{

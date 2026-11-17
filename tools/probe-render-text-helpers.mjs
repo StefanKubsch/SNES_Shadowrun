@@ -1,5 +1,5 @@
 import { readFile, writeFile } from 'node:fs/promises';
-import { createRenderData } from '../src/render/data.mjs';
+import { createRenderData } from '../proof/render/data.mjs';
 import { prepareRenderADBA, prepareRenderAE14, prepareRenderAE4D } from '../proof/render/text-geometry.mjs';
 import { prepareRenderAEC8 } from '../proof/render/text-mask-aec8.mjs';
 import { prepareRenderAEF4, prepareRenderAEFC } from '../proof/render/request-aef4.mjs';

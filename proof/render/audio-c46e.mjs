@@ -1,4 +1,4 @@
-import { prepareRenderView } from '../../src/render/data.mjs';
+import { prepareRenderView } from './data.mjs';
 import { renderEntryBoundary } from './unpack-9f49.mjs';
 import { renderC416 } from './pan-c416.mjs';
 import { renderF007 } from './apu-f007.mjs';

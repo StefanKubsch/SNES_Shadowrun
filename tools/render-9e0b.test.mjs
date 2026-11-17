@@ -2,7 +2,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { readFile } from 'node:fs/promises';
 import { createHash } from 'node:crypto';
-import { createRenderData, prepareRenderView } from '../src/render/data.mjs';
+import { createRenderData, prepareRenderView } from '../proof/render/data.mjs';
 import { prepareRender9E0B, render9E0B } from '../proof/render/input-9e0b.mjs';
 import { render8FBA } from '../proof/render/transfer-palette-8fba.mjs';
 import { cpuToOffset } from './rom.mjs';

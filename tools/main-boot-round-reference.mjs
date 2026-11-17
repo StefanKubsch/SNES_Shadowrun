@@ -18,7 +18,7 @@ import { BOOT_NATIVE_CONTRACTS } from './main-boot-native-contracts.mjs';
 import { finishInterruptObservations } from '../src/system/main-wait-interrupt.mjs';
 import { isIoAddress } from '../src/vm/devices.mjs';
 import { nativeOpcodeTargets } from '../src/data/native-opcode-targets.mjs';
-import { renderAddress } from '../src/render/data.mjs';
+import { renderAddress } from '../proof/render/data.mjs';
 
 const windows = [
     { start: 0x80c1ca, hex: 'AD500248AE4C028E5002300820F9C1F48080ABAB688D500260' },

@@ -1,5 +1,5 @@
 import {cpuLabel} from './rom.mjs';
-import {renderAddress} from '../src/render/data.mjs';
+import {renderAddress} from '../proof/render/data.mjs';
 const entries=new Map([[0x80F393,{kind:'push-zero',width:0,push:0x80F393,end:0x80F398}],
   [0x80F398,{kind:'push-u8',width:1,push:0x80F39E,end:0x80F3A1}],[0x80F3B1,{kind:'push-u16',width:2,push:0x80F3B5,end:0x80F3B9}]]);
 const signatures=[

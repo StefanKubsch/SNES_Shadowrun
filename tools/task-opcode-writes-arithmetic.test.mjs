@@ -6,7 +6,7 @@ import { arithmeticObservations } from './task-arithmetic-native-fixtures.mjs';
 import { prepareTaskOpcodeSequence as sequence } from '../proof/task/opcode-sequence.mjs';
 import { commitTaskPlan } from '../proof/task/plan.mjs';
 import { prepared, unchangedFailure } from './task-native-test-support.mjs';
-import { createRenderData, renderAddress } from '../src/render/data.mjs';
+import { createRenderData, renderAddress } from '../proof/render/data.mjs';
 const fixture = (opcode, patch = {}) =>
   taskOpcodeFixture(
     taskOpcodeSpecs.find((s) => s.opcode === opcode),

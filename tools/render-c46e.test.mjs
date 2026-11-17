@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { readFile } from 'node:fs/promises';
-import { createRenderData, prepareRenderView } from '../src/render/data.mjs';
+import { createRenderData, prepareRenderView } from '../proof/render/data.mjs';
 import { prepareRenderC46E, renderC46E } from '../proof/render/audio-c46e.mjs';
 import { audioEntry as entry, audioFixture as fixture } from './render-c46e-fixtures.mjs';
 import { panWord as word } from './render-c416-fixtures.mjs';

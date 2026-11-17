@@ -1,6 +1,6 @@
 import { taskStop } from '../../src/system/task-stop.mjs';
 import { prepareTaskPlan, isLatestCommittedTaskPlan } from './plan.mjs';
-import { renderAddress } from '../../src/render/data.mjs';
+import { renderAddress } from '../render/data.mjs';
 import { runTaskOpcodeSequence } from './opcode-sequence.mjs';
 import { scriptBodySpecs, scriptBodyNativeSources } from './script-body-specs.mjs';
 import { runTaskNativeWaitOpcode, runTaskNativeWaitResume } from './native-wait.mjs';

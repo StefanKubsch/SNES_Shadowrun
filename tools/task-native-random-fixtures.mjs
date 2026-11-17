@@ -1,4 +1,4 @@
-import {createRenderData} from '../src/render/data.mjs';
+import {createRenderData} from '../proof/render/data.mjs';
 import {randomTables,randomAnchors,random63Anchors} from './render-task-native-random-source-proof.mjs';
 import {sampleWord} from './render-f130-fixtures.mjs';
 export const randomRecords=values=>Object.freeze(values.flatMap(([latch,horizontal,vertical])=>[

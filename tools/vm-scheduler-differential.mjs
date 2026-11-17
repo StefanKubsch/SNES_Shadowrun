@@ -20,7 +20,7 @@ import {
 } from '../proof/task/native-wait.mjs';
 import { nativeOpcodeTargets } from '../src/data/native-opcode-targets.mjs';
 import { nativeTarget } from '../src/script/native-targets.mjs';
-import { createRenderData, renderAddress } from '../src/render/data.mjs';
+import { createRenderData, renderAddress } from '../proof/render/data.mjs';
 import { rom, IO_PCS, TracingMemory } from './vm-differential.mjs';
 import { LIFTED_SCRIPT_NATIVES, inLiftedScratch } from './lifted-script-natives.mjs';
 

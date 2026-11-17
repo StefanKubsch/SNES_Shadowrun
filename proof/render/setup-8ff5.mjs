@@ -15,7 +15,7 @@ import {
   DMAP0,
 } from '../../src/constants/hardware-registers.mjs';
 import { isWord } from '../script/runtime.mjs';
-import { prepareRenderView } from '../../src/render/data.mjs';
+import { prepareRenderView } from './data.mjs';
 import { renderEntryBoundary } from './unpack-9f49.mjs';
 import { textHelperAccess, textHelperResult, textNZ } from './text-helper-access.mjs';
 import { wordWaitAccess } from './word-wait.mjs';

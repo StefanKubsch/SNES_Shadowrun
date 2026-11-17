@@ -1,5 +1,5 @@
 import { textEntry, textFixture, textWord, textWindows } from './render-text-compose-fixtures.mjs';
-import { renderAddress } from '../src/render/data.mjs';
+import { renderAddress } from '../proof/render/data.mjs';
 
 export const listWindows = [...textWindows, [0x7E1D95, 0x7E1DA6]];
 export const listEntry = { ...textEntry, bank: 0x80, y: 2, ioRead4216: Array(100).fill(0),

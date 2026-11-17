@@ -4,7 +4,7 @@ import { sendApuCommand } from '../proof/system/native-input-apu.mjs';
 import { prepareTaskNativeInputApu as prepare } from '../proof/task/native-input-apu.mjs';
 import { prepareTaskPlan, commitTaskPlan } from '../proof/task/plan.mjs';
 import { taskInputApuFixture as fixture } from './task-native-input-apu-fixtures.mjs';
-import { createRenderData, renderAddress } from '../src/render/data.mjs';
+import { createRenderData, renderAddress } from '../proof/render/data.mjs';
 import { prepared, unchangedFailure } from './task-native-test-support.mjs';
 const records = (values) => Object.freeze(values.map((r) => Object.freeze(r)));
 const omit = (f, ...addresses) => {

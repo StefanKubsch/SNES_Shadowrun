@@ -29,7 +29,7 @@ import {
   FRAME_RETURN,
   FRAME_OPERAND_STACK,
 } from '../../src/vm/layout.mjs';
-import { renderAddress } from '../../src/render/data.mjs';
+import { renderAddress } from '../render/data.mjs';
 import {
   FLAG_ZERO,
   FLAG_NEGATIVE,

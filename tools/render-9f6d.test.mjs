@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { readFile } from 'node:fs/promises';
-import { createRenderData, prepareRenderView } from '../src/render/data.mjs';
+import { createRenderData, prepareRenderView } from '../proof/render/data.mjs';
 import { prepareRender9F6D, render9F6D } from '../proof/render/unpack-9f6d.mjs';
 import { unpack9F6DEntry, unpack9F6DFixture, stream9F6D, lengthBits9F6D, fixedBits9F6D } from './render-9f6d-fixtures.mjs';
 

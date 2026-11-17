@@ -1,5 +1,5 @@
 import {taskActionsFixture} from './task-native-actions-fixtures.mjs';import {seedWord} from './render-ad92-fixtures.mjs';
-import {createRenderData,renderAddress} from '../src/render/data.mjs';
+import {createRenderData,renderAddress} from '../proof/render/data.mjs';
 export function taskNative13Fixture({frame=0x1000,operandS=0x3F0,scriptBank=0x80,mask=2,omit=null,...menu}={}){
  const f=taskActionsFixture(0x809BA0,{mask,...menu}),{data}=f;
  for(const [address,value] of [[frame,0x1200],[frame+1,scriptBank*256+0x12],[0x800250,0x10],[0x800262,frame],

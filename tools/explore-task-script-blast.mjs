@@ -1,6 +1,6 @@
 import { readFile, writeFile } from 'node:fs/promises';
 import { inspectRom, cpuToOffset } from './rom.mjs';
-import { renderAddress } from '../src/render/data.mjs';
+import { renderAddress } from '../proof/render/data.mjs';
 import { blastBodySpecs, blastNativeSources } from '../proof/task/script-body-blast-specs.mjs';
 import { scriptBodyFixture, bodyCases } from './task-script-body-fixtures.mjs';
 import { resumeBodyFixture } from './task-script-body-wait-fixtures.mjs';

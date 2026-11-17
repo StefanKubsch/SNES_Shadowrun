@@ -1,5 +1,5 @@
 import { isWord } from '../script/runtime.mjs';
-import { prepareRenderView } from '../../src/render/data.mjs';
+import { prepareRenderView } from './data.mjs';
 import { renderEntryBoundary } from './unpack-9f49.mjs';
 import { renderF007 } from './apu-f007.mjs';
 import { renderF1FA } from './mode-f1fa.mjs';

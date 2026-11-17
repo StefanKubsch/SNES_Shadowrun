@@ -15,7 +15,7 @@ import {
   HDMAEN_SHADOW,
 } from '../../src/data/wram.mjs';
 import { isWord } from '../script/runtime.mjs';
-import { prepareRenderView } from '../../src/render/data.mjs';
+import { prepareRenderView } from './data.mjs';
 import { renderEntryBoundary } from './unpack-9f49.mjs';
 import { render8949 } from './pretransfer-8949.mjs';
 import { renderA9E1 } from './a9e1.mjs';

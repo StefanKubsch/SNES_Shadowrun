@@ -1,4 +1,4 @@
-import {createRenderData} from '../src/render/data.mjs';
+import {createRenderData} from '../proof/render/data.mjs';
 
 // Explicit synthetic Task/render field and event ownership; no scene initialization.
 export function taskRenderFixture({cursor=0,position=0x2027,width=4,height=3,left=1,top=1,

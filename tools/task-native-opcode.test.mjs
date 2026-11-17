@@ -14,7 +14,7 @@ import * as bindings from '../proof/task/native-opcode-bindings.mjs';
 import { prepareTaskNativeArguments as prefix } from '../proof/task/native-arguments.mjs';
 import { prepareTaskNativeCall as call } from '../proof/task/native-dispatch.mjs';
 import { commitTaskPlan } from '../proof/task/plan.mjs';
-import { createRenderData, renderAddress } from '../src/render/data.mjs';
+import { createRenderData, renderAddress } from '../proof/render/data.mjs';
 import { prepared, unchangedFailure } from './task-native-test-support.mjs';
 const word = (f, a, v) => f.data.seed(a, [v & 255, v >>> 8]);
 const context = (f, patch) => ({ ...f, context: Object.freeze({ ...f.context, ...patch }) });

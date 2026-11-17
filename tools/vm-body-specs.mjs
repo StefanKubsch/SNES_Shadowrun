@@ -14,7 +14,7 @@ import {
 import { WRAM_SIZE } from '../src/vm/memory.mjs';
 import { scriptBodySpecs } from '../proof/task/script-body-specs.mjs';
 import { prepareTaskScriptBody } from '../proof/task/script-bodies.mjs';
-import { renderAddress } from '../src/render/data.mjs';
+import { renderAddress } from '../proof/render/data.mjs';
 import { scriptBodyFixture, bodyCases } from './task-script-body-fixtures.mjs';
 import { rom } from './vm-differential.mjs';
 import { runObserved } from './vm-special-natives-differential.mjs';

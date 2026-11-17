@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { readFile } from 'node:fs/promises';
-import { createRenderData, prepareRenderView } from '../src/render/data.mjs';
+import { createRenderData, prepareRenderView } from '../proof/render/data.mjs';
 import { prepareRenderF122, prepareRenderF1E8, renderF122, renderF1E8 } from '../proof/render/word-f122.mjs';
 import { wordEntry, wordFixture } from './render-f122-fixtures.mjs';
 const prepare = (data, options = {}, increment = false) =>

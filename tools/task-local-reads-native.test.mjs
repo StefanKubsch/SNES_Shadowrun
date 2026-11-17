@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { createRenderData } from '../src/render/data.mjs';
+import { createRenderData } from '../proof/render/data.mjs';
 import { prepareTaskLocalReads as prepare } from '../proof/task/local-reads.mjs';
 import { commitTaskPlan } from '../proof/task/plan.mjs';
 import { taskFixture } from './task-native-fixtures.mjs';

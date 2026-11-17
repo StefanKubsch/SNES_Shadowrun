@@ -19,7 +19,7 @@ import {
   PAD_HELD,
 } from '../../src/data/wram.mjs';
 import { isWord } from '../script/runtime.mjs';
-import { prepareRenderView } from '../../src/render/data.mjs';
+import { prepareRenderView } from './data.mjs';
 import { renderEntryBoundary } from './unpack-9f49.mjs';
 import { renderA617, renderA5DB, renderA5F9 } from './list-a617.mjs';
 import { renderFA67 } from './request-fa67.mjs';

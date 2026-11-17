@@ -1,5 +1,5 @@
 import {textMaskWords} from './render-text-compose-fixtures.mjs';
-import {createRenderData} from '../src/render/data.mjs';
+import {createRenderData} from '../proof/render/data.mjs';
 export function taskTextFixture(name,{bank=0x7E,s=0x6FF,x=2,y=0xABCD,status=0x45,a=0xBEEF,remaining=0,
  buffer=0xAAAA,pointer=0x9D9000,raw=0x4080,width=10,height=8,cursor=0x30,base=0x20,offset=0,limit=0x100,minimum=0,
  results=[0],quotients=[0,1],maskIndex=1,mask=0x1234,maskCursor=0,waitValues=[1,0],counter=0,

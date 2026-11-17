@@ -17,7 +17,7 @@ import {
   WINDOW_ROWS,
 } from '../../src/data/wram.mjs';
 import { isWord } from '../script/runtime.mjs';
-import { prepareRenderView } from '../../src/render/data.mjs';
+import { prepareRenderView } from './data.mjs';
 import { renderEntryBoundary } from './unpack-9f49.mjs';
 import { renderFAAC } from './cursor-faac.mjs';
 import { renderFE69 } from './text-compose.mjs';

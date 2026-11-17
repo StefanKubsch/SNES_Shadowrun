@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { readFile } from 'node:fs/promises';
-import { createRenderData, prepareRenderView } from '../src/render/data.mjs';
+import { createRenderData, prepareRenderView } from '../proof/render/data.mjs';
 import { prepareRenderFA92, renderFA92 } from '../proof/render/fields-fa92.mjs';
 import { fa92Entry, fa92Fixture } from './render-fa92-fixtures.mjs';
 const prepare = (data, options = {}) => prepareRenderFA92({ ...fa92Entry, data, ...options });

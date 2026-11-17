@@ -1,4 +1,4 @@
-import { isRenderData } from '../../src/render/data.mjs';
+import { isRenderData } from './data.mjs';
 
 // Pinned original record and palette bytes, without assigning further meanings.
 const AA9C_RECORD_BYTES = [0x98, 0xff, 0x80, 0x3a, 0xff, 0x81, 0xc0];

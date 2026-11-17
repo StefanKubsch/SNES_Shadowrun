@@ -4,7 +4,7 @@ import { prepareTaskNativeAudioCompose as prepare } from '../proof/task/native-a
 import { taskAudioFixture as fixture, declaredAudioReads } from './task-native-audio-fixtures.mjs';
 import { prepared, unchangedFailure } from './task-native-test-support.mjs';
 import { commitTaskPlan } from '../proof/task/plan.mjs';
-import { createRenderData, renderAddress } from '../src/render/data.mjs';
+import { createRenderData, renderAddress } from '../proof/render/data.mjs';
 import { sampleWord, samplePointer } from './render-f130-fixtures.mjs';
 const pairValues = (p) =>
   p.ioRequests

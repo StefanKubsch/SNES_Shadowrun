@@ -7,7 +7,7 @@ import {
 } from '../proof/task/visit-opcodes.mjs';
 import { prepareTaskOpcodeSequence } from '../proof/task/opcode-sequence.mjs';
 import { commitTaskPlan } from '../proof/task/plan.mjs';
-import { createRenderData, renderAddress } from '../src/render/data.mjs';
+import { createRenderData, renderAddress } from '../proof/render/data.mjs';
 import {
   taskVisitStatusFixture as fixture,
   statusOpcodeSpecs,

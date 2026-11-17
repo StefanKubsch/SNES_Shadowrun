@@ -2,7 +2,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { readFile } from 'node:fs/promises';
 import { createHash } from 'node:crypto';
-import { createRenderData, prepareRenderView, renderAddress } from '../src/render/data.mjs';
+import { createRenderData, prepareRenderView, renderAddress } from '../proof/render/data.mjs';
 import { prepareRender9215, render9215 } from '../proof/render/selection-9215.mjs';
 import { choice9215Entry as entry, choice9215Fixture as fixture,
   choice9215Windows as windows, choice9215Tokens as tokens } from './render-9215-fixtures.mjs';

@@ -9,7 +9,7 @@ import {recordLifecycleCases,expandRecordLifecycleFixture} from './task-script-b
 import {recordActionsCases,expandRecordActionsFixture} from './task-script-body-record-actions-fixtures.mjs';
 import {directionBodyCases,expandDirectionBodyFixture} from './task-script-body-direction-fixtures.mjs';
 import {recordMaskBodyCases,expandRecordMaskBodyFixture} from './task-script-body-record-mask-fixtures.mjs';
-import {createRenderData,renderAddress} from '../src/render/data.mjs';
+import {createRenderData,renderAddress} from '../proof/render/data.mjs';
 import {scriptBodySpecs,scriptBodyNativeSources} from '../proof/task/script-body-specs.mjs';
 import {taskOpcodeSpecs} from './task-opcode-specs.mjs';
 import {nativeOpcodeSpecs} from './task-native-opcode-specs.mjs';

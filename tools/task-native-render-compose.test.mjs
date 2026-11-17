@@ -5,7 +5,7 @@ import { commitTaskPlan } from '../proof/task/plan.mjs';
 import { prepareRenderAD92 } from '../proof/render/compose-ad92.mjs';
 import { prepareRenderACCF } from '../proof/render/entry-accf.mjs';
 import { prepareRenderACAF, prepareRenderACB5 } from '../proof/render/request-acb5.mjs';
-import { createRenderData } from '../src/render/data.mjs';
+import { createRenderData } from '../proof/render/data.mjs';
 import { seedWord, getWord } from './render-ad92-fixtures.mjs';
 import { taskRenderComposeFixture } from './task-native-render-compose-fixtures.mjs';
 const freeze = (values) => Object.freeze(values.map((o) => Object.freeze(o)));
