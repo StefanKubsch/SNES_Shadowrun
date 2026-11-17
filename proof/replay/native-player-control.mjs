@@ -12,10 +12,10 @@ import { lagFree } from '../../src/system/main-wait-interrupt.mjs';
 import { dialogAccess } from '../../src/system/native-dialog-support.mjs';
 import { taskSelectionSupport } from '../script/native-object-turn.mjs';
 import {
-  applyGloveLimits,
   GLOVE_LIMITS,
   GLOVE_OVER_PLAYER,
 } from '../../src/script/native-glove-crosshair-limits.mjs';
+import { applyGloveLimits } from '../game-reference/register-helpers.mjs';
 import { selectAnimationRegisters, turnRegisters } from '../script/native-object-turn.mjs';
 import {
   STATUS_SCREEN_ROUTINES,

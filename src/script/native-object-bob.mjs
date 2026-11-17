@@ -1,16 +1,7 @@
 import { FIRST_ARGUMENT, finishLeaf, leafArgument } from '../system/native-leaf-support.mjs';
 import { bobObject as bob } from '../game/object-bob.mjs';
-import { FLAG_CARRY } from '../constants/cpu-flags.mjs';
 // 80:D714 and 80:D73B (lifted in src/game/object-bob.mjs; register-level references in
 // proof/game-reference/object-bob.mjs) bob an object up and down, one step per call.
-// The register helpers below serve the register-level natives of other modules.
-export const lsr = (h) => {
-  h.ctx.status = (h.ctx.status & ~FLAG_CARRY) | (h.ctx.a & 1);
-  h.load(h.ctx.a >>> 1);
-};
-export const clc = (h) => {
-  h.ctx.status &= ~FLAG_CARRY;
-};
 // The wave table constants, defined with the lifted natives.
 export {
   WAVE_TABLE,

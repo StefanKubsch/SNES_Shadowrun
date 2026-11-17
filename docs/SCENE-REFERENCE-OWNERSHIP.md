@@ -161,3 +161,7 @@ list increment moved to `proof/system/native-scene-tiles.mjs`; the live module
 exports the frame bank, stream, picture banks, slot addresses and tile queue it
 shares. The script opcode with its argument prefix and the argument reader moved
 to `proof/system/script-yield.mjs` and `proof/system/script-arguments.mjs`.
+
+The register-level LSR and CLC helpers of the swarm references and the glove
+limit stores of 80:BC36 moved to `proof/game-reference/register-helpers.mjs`; the
+game sets glove limits and bobs objects through its lifted code.

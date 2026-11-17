@@ -1,5 +1,4 @@
 import { finishLeaf } from '../system/native-leaf-support.mjs';
-import { GLOVE_KIND, GLOVE_BASE_X, GLOVE_BASE_Y, GLOVE_LIMIT_KIND } from '../data/wram.mjs';
 import { setGloveLimits } from '../game/glove-target.mjs';
 // Glove kinds of $01D8: FFFF action glove, FFFE crosshair, FFFD spell glove.
 export const GLOVE_KIND_ACTION = 0xffff,
@@ -20,19 +19,6 @@ export const GLOVE_OVER_PLAYER = Object.freeze({
   xBase: 0x600,
   xOffset: 0x10,
 });
-
-// Register-level: store the projection bases and the kind of one GLOVE_LIMITS entry,
-// then the kind again as the active glove kind (each value by LDA #, STA at DBR); used by
-// the register-level glove natives of native-player-control.mjs and the references.
-export function applyGloveLimits(h, [left, top, kind]) {
-  for (const [field, value] of [
-    [GLOVE_BASE_X, left],
-    [GLOVE_BASE_Y, top],
-    [GLOVE_LIMIT_KIND, kind],
-  ])
-    h.longWrite(h.abs(field), h.load(value));
-  h.longWrite(h.abs(GLOVE_KIND), h.ctx.a);
-}
 
 // 80:BC83 (lifted in src/game/glove-target.mjs; register-level reference in
 // proof/game-reference/script-measures.mjs): switch to the crosshair limits (the tail of

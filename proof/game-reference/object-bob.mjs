@@ -9,9 +9,8 @@ import {
   PHASE_MASK,
   QUARTER_PHASE,
   WAVE_TABLE,
-  clc,
-  lsr,
 } from '../../src/script/native-object-bob.mjs';
+import { clc, lsr } from './register-helpers.mjs';
 import {
   BOB_OBJECT,
   BOB_PHASE,

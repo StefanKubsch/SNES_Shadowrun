@@ -7,7 +7,8 @@
 // tools/task-native-m1d.test.mjs run these; the game runs the lifted natives.
 import { taskStop } from '../../src/system/task-stop.mjs';
 import { FIRST_ARGUMENT, SECOND_ARGUMENT, leaf } from '../../src/system/native-leaf-support.mjs';
-import { GLOVE_LIMITS, applyGloveLimits } from '../../src/script/native-glove-crosshair-limits.mjs';
+import { GLOVE_LIMITS } from '../../src/script/native-glove-crosshair-limits.mjs';
+import { applyGloveLimits } from './register-helpers.mjs';
 import { OBJECT_X, OBJECT_Y, PLAYER_OBJECT } from '../../src/data/wram.mjs';
 import { BANK_WRAP, WORD_BITS, WORD_MASK, WORD_SIGN } from '../../src/constants/bits.mjs';
 import { FLAG_CARRY } from '../../src/constants/cpu-flags.mjs';
