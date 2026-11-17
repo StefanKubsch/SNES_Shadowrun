@@ -371,3 +371,8 @@ The portrait unpack 80:9F6D also asks the recorded-routine hook; its register-le
 version `unpackPortrait` lost its last live caller and moved to
 `proof/system/native-dialog-portrait.mjs`. The live portrait module keeps only the
 shared portrait constants. The VRAM probe hook wraps it at its new path.
+
+With the portrait unpacker in proof, the instruction-stepped unpack body
+80:9E9B/9F83 of `src/system/native-unpack-body.mjs` had no live importer and merged
+into `proof/system/native-unpack.mjs`. The game unpacks through
+`src/system/unpack.mjs`.

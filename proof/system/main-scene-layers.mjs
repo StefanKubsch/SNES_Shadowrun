@@ -1,4 +1,4 @@
-import { unpackStep } from '../../src/system/native-unpack-body.mjs';
+import { unpackStep } from './native-unpack.mjs';
 import { SCENE_LOAD_ROUTINES } from './main-scene-load.mjs';
 import { routineCaller } from '../../src/system/routine-call.mjs';
 import {

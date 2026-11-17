@@ -1,6 +1,6 @@
 import { runObservedNmi } from '../../src/system/nmi-call.mjs';
 import { clearTextTiles } from './main-text-upload.mjs';
-import { unpackStep } from '../../src/system/native-unpack-body.mjs';
+import { unpackStep } from './native-unpack.mjs';
 import { readJoypad } from './main-scene-wait.mjs';
 import { NativeWaitContinuation } from './native-wait-continuation.mjs';
 import { DP_PORTRAIT_BANK, DP_PORTRAIT_POINTER } from '../../src/system/native-dialog-portrait.mjs';

@@ -111,7 +111,7 @@ The port therefore replaces only the decoded text:
   and the start menu list (81:F7B5, German 80:FF46) loads the German font
   and map as well. The asset keeps the seven German streams as packed bytes; in
   German mode they lie in bank A1:8000 (src/vm/memory.mjs) and the unpacker
-  80:9F49, both forms (native-unpack.mjs, native-unpack-body.mjs), reads a
+  80:9F49, both forms (src/system/unpack.mjs and proof/system/native-unpack.mjs), reads a
   translated stream there instead of the English one. The shared credits font
   and character map require the active credits snapshot, as described below.
   The bit length table

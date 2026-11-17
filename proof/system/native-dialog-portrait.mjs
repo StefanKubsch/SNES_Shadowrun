@@ -62,7 +62,7 @@ import {
 import { interruptStep } from '../../src/system/main-wait-interrupt.mjs';
 import { taskStop } from '../../src/system/task-stop.mjs';
 
-import { runUnpackBody, unpackStep } from '../../src/system/native-unpack-body.mjs';
+import { runUnpackBody, unpackStep } from './native-unpack.mjs';
 
 // Offset of the last byte of the dialog HDMA table.
 const DIALOG_HDMA_LAST_BYTE = 0x0f;

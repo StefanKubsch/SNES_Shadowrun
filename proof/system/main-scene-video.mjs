@@ -1,11 +1,10 @@
-import { unpackStep } from '../../src/system/native-unpack-body.mjs';
+import { unpackStep, unpackStream } from './native-unpack.mjs';
 import { taskStop } from '../../src/system/task-stop.mjs';
 import {
   WRIO_ALL_HIGH,
   CGSWSEL_MATH_PREVENTED,
   MEMSEL_FAST_ROM,
 } from '../../src/system/main-reset.mjs';
-import { unpackStream } from './native-unpack.mjs';
 import { unpackPortrait } from './native-dialog-portrait.mjs';
 
 import {

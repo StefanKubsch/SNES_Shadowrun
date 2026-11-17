@@ -1,4 +1,4 @@
-import { unpackStep } from '../../src/system/native-unpack-body.mjs';
+import { unpackStep } from './native-unpack.mjs';
 import { MAIN_INITIALIZE_ROUTINES } from './main-initialize.mjs';
 import { unpackPortrait } from './native-dialog-portrait.mjs';
 import { buildLayerTileStacks } from './main-scene-layers.mjs';

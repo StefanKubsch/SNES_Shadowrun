@@ -3,7 +3,7 @@
 // register-level in proof/system/main-initialize.mjs, where other callers use them.
 import { MAIN_INITIALIZE_ROUTINES } from '../system/main-initialize.mjs';
 import { routineCaller } from '../../src/system/routine-call.mjs';
-import { unpackStep } from '../../src/system/native-unpack-body.mjs';
+import { unpackStep } from '../system/native-unpack.mjs';
 import { TM_SHADOW } from '../../src/data/wram.mjs';
 import {
   BG3HOFS,

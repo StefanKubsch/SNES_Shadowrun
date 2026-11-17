@@ -1,5 +1,5 @@
 import { taskStop } from '../../src/system/task-stop.mjs';
-import { unpackStep } from '../../src/system/native-unpack-body.mjs';
+import { unpackStep } from '../system/native-unpack.mjs';
 import { taskTextAccess } from '../system/native-text-prerequisites.mjs';
 import { sendApuCommand, computeSoundPan } from '../system/native-input-apu.mjs';
 import {

@@ -130,7 +130,7 @@ X=0003, Y=0037, S=012D, DBR=7F, P=34; further interruptions lie at
 9E65/9E67/9E7B, 9FA6/9FB7, 9FFD and A001/A002/A00E/A01C. The APU wait sites
 E1B6/E1B9/E1BB and E510/E513/E515 also get observations before every reached
 instruction (their port values stay the shared original IO stream). The fixed
-equations in [native-unpack-body.mjs](../src/system/native-unpack-body.mjs) share
+equations in [native-unpack.mjs](../proof/system/native-unpack.mjs) share
 the source body from STA DB to PLA between 9F83 and 9E9B (pinned distance E8;
 MVN target 7F or 7E), keeping PHP/PHB, real JSR/JSL frames, PHA/PLA, fresh
 scratch/pointer/stack reads and the RTS/RTL epilogues; no original
