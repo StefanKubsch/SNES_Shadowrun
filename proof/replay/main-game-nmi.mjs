@@ -1,7 +1,7 @@
 import { runObservedNmi } from '../../src/system/nmi-call.mjs';
 import { clearTextTiles } from '../system/main-text-upload.mjs';
 import { uploadMapEdgesAndScroll } from './main-transition.mjs';
-import { readJoypad } from '../../src/system/main-scene-wait.mjs';
+import { readJoypad } from '../system/main-scene-wait.mjs';
 import { NativeWaitContinuation } from '../../src/system/native-wait-continuation.mjs';
 import { DP_PORTRAIT_BANK, DP_PORTRAIT_POINTER } from '../../src/system/native-dialog-portrait.mjs';
 import {

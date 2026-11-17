@@ -9,13 +9,13 @@ import {
   sendOamBuffer,
 } from '../system/main-scene-video.mjs';
 import {
-  waitForFrame,
   waitFrames,
   fadeInScreen,
   fadeOutScreen,
   readJoypadLong,
   readJoypad,
-} from '../../src/system/main-scene-wait.mjs';
+} from '../system/main-scene-wait.mjs';
+import { waitForFrame } from '../../src/system/main-scene-wait.mjs';
 import { sendApuCommandRoutine, setMusicModeRoutine } from '../../src/apu/audio-routines.mjs';
 import { randomBelow, randomBelowLong } from '../replay/native-random.mjs';
 import { handleMatrixNmi, matrixSceneSequence } from '../../src/matrix/matrix-scene.mjs';

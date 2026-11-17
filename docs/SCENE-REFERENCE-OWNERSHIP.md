@@ -226,3 +226,9 @@ The interrupt-stepped unpacker entry 80:9F49/9F4D/9E7E moved from
 `src/system/native-unpack-body.mjs` into its only caller,
 `proof/system/native-unpack.mjs`. The live module keeps the shared unpack body and
 its instruction step for the lifted portrait unpacker.
+
+The register-level scene waits 81:EED5, the fades 81:EEDD and 81:EEF1, the joypad
+reads 80:9E0B and 80:F290 and their routine table moved with their continuations to
+`proof/system/main-scene-wait.mjs`. The live module keeps the observed byte wait and
+the frame wait 81:EEBB with its interrupt continuation, which the cutscene and the
+observed scene calls use.
