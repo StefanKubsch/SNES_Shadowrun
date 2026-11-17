@@ -14,13 +14,13 @@ import { startFarObject } from '../src/intro/intro-objects.mjs';
 import {
   drawPrologueLine,
   fadeTitleBlend,
-  handlePanObjects,
   handlePrologueNmi,
   handleTitleObjectsNmi,
   handleTitlePanNmi,
   handleTitleScrollNmi,
   moveTitleWindow,
 } from '../src/frontend/title.mjs';
+import { handlePanObjects } from '../proof/caller/scene-routine-adapters.mjs';
 import { TITLE_REFERENCE_ROUTINES } from '../proof/frontend-reference/title.mjs';
 
 const WRAM_BYTES = 0x20000,

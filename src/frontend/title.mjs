@@ -327,12 +327,6 @@ export function handleTitleObjectsNmi(h) {
   drawPanObjects(m, word(m.wram, DP_TITLE_POSITION));
   return h.rtl();
 }
-// 81:D9D5 entered on its own: the objects of the title pan.
-export function handlePanObjects(h) {
-  const m = sceneRuntime(h);
-  drawPanObjects(m, word(m.wram, DP_TITLE_POSITION));
-  return h.rtl();
-}
 // 81:D93E: the NMI callback of the pan: the OAM buffer; until position 0401 the
 // speed, position and horizontal scrolls and a map upload at the positions of the
 // table; then the objects (81:D9D5).

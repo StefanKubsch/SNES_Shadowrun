@@ -12,11 +12,11 @@ import {
 import { readJoypadLong } from '../../src/system/main-scene-wait.mjs';
 import { runObservedNmi } from '../../src/system/nmi-call.mjs';
 import { sendApuCommand } from '../system/native-input-apu.mjs';
-import { handlePanObjects } from '../../src/frontend/title.mjs';
+import { handlePanObjects } from '../caller/scene-routine-adapters.mjs';
 
 export const INTRO_NMI_ROUTINES = new Map([
   ...INTRO_NMI_CALLBACKS,
-  // 81:D9D5 entered on its own (src/frontend/title.mjs).
+  // 81:D9D5 entered on its own (proof/caller/scene-routine-adapters.mjs).
   [0x81d9d5, handlePanObjects],
   [0x81ed8b, sendOamBuffer],
   [0x81edd7, clearOamHighTable],

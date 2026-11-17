@@ -8,12 +8,12 @@ import { compareLift } from './lift-compare.mjs';
 import { TITLE_IGNORED_WRAM, TITLE_PLANS } from './live-title-plan.mjs';
 import { playTitle } from '../proof/replay/main-frontend-menu.mjs';
 import {
-  handlePanObjects,
   handlePrologueNmi,
   handleTitleObjectsNmi,
   handleTitlePanNmi,
   handleTitleScrollNmi,
 } from '../src/frontend/title.mjs';
+import { handlePanObjects } from '../proof/caller/scene-routine-adapters.mjs';
 import { TITLE_REFERENCE_ENTRIES } from '../proof/frontend-reference/title.mjs';
 
 const lifted = [

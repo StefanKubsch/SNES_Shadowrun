@@ -20,7 +20,8 @@ import { sendApuCommandRoutine, setMusicModeRoutine } from '../../src/apu/audio-
 import { randomBelow, randomBelowLong } from '../replay/native-random.mjs';
 import { handleMatrixNmi, matrixSceneSequence } from '../../src/matrix/matrix-scene.mjs';
 import { cutsceneSequence, handleCutsceneNmi } from '../../src/cutscene/cutscene-scene.mjs';
-import { introSequence, setUpGameAudioRoutine } from '../../src/intro/intro-scene.mjs';
+import { introSequence } from '../../src/intro/intro-scene.mjs';
+import { setUpGameAudioRoutine } from './scene-routine-adapters.mjs';
 import { MAIN_UPKEEP_ROUTINES } from './main-loop-upkeep.mjs';
 import { INTRO_NMI_ROUTINES } from '../replay/intro-nmi-routines.mjs';
 import { GAME_NMI_ROUTINES } from '../system/main-game-nmi.mjs';

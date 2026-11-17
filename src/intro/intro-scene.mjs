@@ -127,7 +127,7 @@ const FREE = WORD_MASK,
   FAR_FRACTION = 2;
 // The loop: 300 frames; then cutscene 5 mirrored, with the X the fade out leaves
 // (8-bit X counted down to FF) as its argument.
-const INTRO_FRAMES = 300,
+export const INTRO_FRAMES = 300,
   END_SCENE = WORD_SIGN | 5,
   END_SCENE_ARGUMENT = 0xff,
   INTRO_DATA_BANK = 0x81,
@@ -195,14 +195,6 @@ export function setUpGameAudio(m) {
   setWord(wram, SOUND_VOICE_MASK, VOICES_0_1);
   m.sound(APU_COMMAND_SOUND_VOICES, VOICES_0_1);
   m.sound(APU_COMMAND_FADE_STEP, GAME_FADE_STEP);
-}
-
-// 81:EF63 for register-level callers (the outer owner 80:A141): the game's audio,
-// data bank 80, RTL.
-export function setUpGameAudioRoutine(h) {
-  setUpGameAudio(sceneRuntime(h));
-  h.ctx.bank = RETURN_DATA_BANK;
-  return h.rtl();
 }
 
 // 81:DFE7: play the intro. h is the accessor of the native call that 81:CDF8

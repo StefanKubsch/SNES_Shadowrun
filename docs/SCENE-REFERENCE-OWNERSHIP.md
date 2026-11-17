@@ -150,3 +150,8 @@ The routine-table call sequences used only by register-level references (the
 unlabelled call frame and the original tail jump) moved to
 `proof/system/native-call-sequences.mjs`. The live continuation module keeps the
 continuation class, the labelled call frame and the shared return offsets.
+
+The register-level entries of the game's audio set-up 81:EF63 and the title pan
+objects 81:D9D5 entered on their own moved to
+`proof/caller/scene-routine-adapters.mjs`. They still call the live bodies, so
+the routine tables of the scene references keep exercising the shipped code.
