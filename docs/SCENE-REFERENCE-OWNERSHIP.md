@@ -134,3 +134,7 @@ The register-level start entry (`runMainStart`, `mainStartContinuation`) moved
 to `proof/system/main-start.mjs` for the owner caller tests. The unused src
 copies of `runMainLoop` and `drawWindowListJslSequence` were removed; their
 callers already use the independent versions in `proof/caller/`.
+
+The run wrappers of the main start, new game state and save load for register-level
+routine tables moved to `proof/caller/game-start-runs.mjs`. The live title cycle
+keeps its new-game wrapper in `src/game/game-start.mjs`.

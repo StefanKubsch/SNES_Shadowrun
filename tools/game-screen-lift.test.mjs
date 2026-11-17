@@ -13,7 +13,8 @@ import { TITLE_CYCLE_PLANS, TITLE_CYCLE_IGNORED_WRAM } from './live-title-cycle-
 import { MAIN_INITIALIZE_ROUTINES } from '../proof/system/main-initialize.mjs';
 import { withGameStartReference } from '../proof/game-reference/game-start.mjs';
 import { runAttractRounds } from '../proof/replay/main-frontend.mjs';
-import { runGameStart, runNewGame, runNewGameState, runSaveLoad } from '../src/game/game-start.mjs';
+import { runNewGame } from '../src/game/game-start.mjs';
+import { runGameStart, runNewGameState, runSaveLoad } from '../proof/caller/game-start-runs.mjs';
 
 const lifted = [
     MAIN_INITIALIZE_ROUTINES.get(0x809629),

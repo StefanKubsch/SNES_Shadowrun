@@ -6,8 +6,8 @@ import {
   GAME_START,
   requireGameStartEntry,
   gameStartSequence,
-  runGameStart,
 } from '../../src/game/game-start.mjs';
+import { runGameStart } from '../caller/game-start-runs.mjs';
 
 export const MAIN_START = GAME_START;
 

@@ -11,7 +11,6 @@
 // The start ends before the first call of the main loop (80:96AB). The attract game
 // enters the room start directly with room AB (proof/replay/main-frontend.mjs).
 import { tasksOf } from '../script/task-api.mjs';
-import { drainNativeSequence } from '../system/native-call-continuation.mjs';
 import { taskStop } from '../system/task-stop.mjs';
 import { unpackStream } from '../system/unpack.mjs';
 import { sceneRuntime } from '../system/scene-runtime.mjs';
@@ -207,20 +206,8 @@ export function* roomStartSequence(h, events, room) {
   return ctx.pc;
 }
 
-// Run wrappers for the routine tables: the main start (the driver's entry), and
-// the new game and the save load for their original callers.
-export function runGameStart(h, e) {
-  return drainNativeSequence(gameStartSequence(h, e));
-}
+// 80:960D as the title cycle runs it with JSR: start a new game; its first room returns in A.
 export function runNewGame(h) {
   h.ctx.a = startNewGame(h.a);
   return h.rts();
-}
-export function runNewGameState(h) {
-  setUpNewGameState(h.a);
-  return h.rts();
-}
-export function runSaveLoad(h) {
-  loadSavedGame(h.a, h.ctx.a & WORD_MASK);
-  return h.rtl();
 }
