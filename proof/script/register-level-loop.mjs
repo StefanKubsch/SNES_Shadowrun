@@ -20,6 +20,8 @@ import { nativeTarget } from '../../src/script/native-targets.mjs';
 import { MAIN_STARTUP_ROUTINES } from './live-startup.mjs';
 import { WramTasks } from '../../src/script/task-api.mjs';
 import { CODE_BANK_BASE } from '../../src/constants/memory-map.mjs';
+import { LiveDevices } from '../../src/vm/frame-events.mjs';
+import { INTRO_NMI_ROUTINES } from '../replay/intro-nmi-routines.mjs';
 
 const RESET_CONTEXT = Object.freeze({
   a: 0,
@@ -48,7 +50,18 @@ export function registerLevelLoop(game) {
   vm.setContext(RESET_CONTEXT);
   vm.pc = RESET_CONTEXT.pc;
   vm.e = RESET_CONTEXT.e;
-  const devices = game.devices;
+  // The register-level intro and title reach their NMI helpers (81:ED8B, 80:F290 and
+  // the others) through the interrupt table; the live table binds only the lifted
+  // callbacks, so the reference adds the helpers it lacks.
+  const live = game.devices,
+    routines = new Map(live.set.interruptRoutines);
+  for (const [target, run] of INTRO_NMI_ROUTINES)
+    if (!routines.has(target)) routines.set(target, run);
+  const devices = (game.devices = new LiveDevices(live.frames, routines, {
+    bus: live.bus,
+    apu: live.apu,
+    counter: live.counter,
+  }));
   vm.natives = new NativeCalls(vm, {
     admitted: nativeOpcodeTargets,
     implementation: nativeTarget,

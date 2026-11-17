@@ -13,11 +13,8 @@ import {
 import { runReference } from './w65c816-reference.mjs';
 import { cpuToOffset } from './rom.mjs';
 import { proveWordStack } from './static-word-stack-proof.mjs';
-import { INTRO_NMI_ROUTINES as INTRO_TASK_ROUTINES } from '../src/system/main-intro-nmi.mjs';
-import {
-  drawIntroSpriteGrid,
-  startFarIntroObject,
-} from '../proof/intro-reference/intro-sprites.mjs';
+import { INTRO_NMI_ROUTINES as INTRO_TASK_ROUTINES } from '../proof/replay/intro-nmi-routines.mjs';
+import { drawIntroSpriteGrid } from '../proof/intro-reference/intro-sprites.mjs';
 import { runObservedNmi } from '../src/system/nmi-call.mjs';
 import { SCENE_REFERENCE_ROUTINES as MAIN_SCENE_ROUTINES } from '../proof/scene-reference-routines.mjs';
 // The callbacks 81:DF0E, 81:DAD6 and 81:D9D5 and the routines 81:E83A, 81:E971 and

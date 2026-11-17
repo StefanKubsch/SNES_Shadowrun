@@ -25,7 +25,7 @@ import {
 import { routineCaller } from '../../src/system/routine-call.mjs';
 import { INTRO_NEAR_Y_BIAS, INTRO_START_ANIMATION } from '../intro-reference/intro-setup.mjs';
 import { INTRO_SETUP_REFERENCE_ENTRIES } from '../intro-reference/intro-routines.mjs';
-import { INTRO_NMI_ROUTINES } from '../../src/system/main-intro-nmi.mjs';
+import { INTRO_NMI_ROUTINES } from '../replay/intro-nmi-routines.mjs';
 
 import { FRONTEND_NMI_ROUTINES } from '../replay/main-frontend-nmi.mjs';
 import {

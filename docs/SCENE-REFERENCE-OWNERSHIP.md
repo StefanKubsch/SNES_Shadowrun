@@ -84,3 +84,12 @@ to [game-nmi-jobs.mjs](../proof/replay/game-nmi-jobs.mjs), together with the
 handler's recorded joypad-wait continuation. The register-level game NMI was
 then no longer loaded by the game and moved to
 `proof/system/main-game-nmi.mjs`; its comparisons are unchanged.
+
+The live intro NMI table likewise binds only the lifted title-object and intro
+callbacks (81:DAD6, 81:DF0E). The register-level helpers that recorded runs and
+the register-level reference loop reach through the interrupt table (81:D9D5,
+81:ED8B, 81:EDD7, 81:EE0C, 80:F290, 81:F007) are composed in
+[intro-nmi-routines.mjs](../proof/replay/intro-nmi-routines.mjs). The reference
+loop (`proof/script/register-level-loop.mjs`) builds its own interrupt devices
+on the same lag-free frames with those helpers added, so the shared live
+interrupt table is not mutated.

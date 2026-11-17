@@ -25,7 +25,7 @@ import { handleCutsceneNmi } from '../../src/cutscene/cutscene-scene.mjs';
 import { introSequence } from '../caller/intro-scene.mjs';
 import { setUpGameAudioRoutine } from '../../src/intro/intro-scene.mjs';
 import { MAIN_UPKEEP_ROUTINES } from './main-loop-upkeep.mjs';
-import { INTRO_NMI_ROUTINES } from '../../src/system/main-intro-nmi.mjs';
+import { INTRO_NMI_ROUTINES } from './intro-nmi-routines.mjs';
 import { GAME_NMI_ROUTINES } from './main-game-nmi.mjs';
 import { GAME_NMI_LIFTED_JOBS } from './game-nmi-jobs.mjs';
 import { ObservedWaitContinuation } from '../../src/system/main-wait-interrupt.mjs';
