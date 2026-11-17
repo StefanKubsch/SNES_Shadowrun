@@ -8,8 +8,7 @@
 // length, X and Y as the original's copy leaves them, and the status and the data bank
 // restored (PLP, PLB); the bytes of its pushes (status, data bank, the bank pair and the
 // length) stay below the stack, those of its bit reads' JSR frames are not reproduced.
-// With recorded interrupts inside the routine (startupInterrupts) the register-level
-// one runs.
+// A startup recording runs the register-level one (src/system/recorded-routines.mjs).
 //
 // An unpacked portrait (7F:5250) has its eight rows of 100 bytes moved apart (80:8F20:
 // rows 1 to 7 by MVP within bank 7F, from the last one up). The first portrait then goes
@@ -38,7 +37,7 @@
 import { dialogCallBody } from '../system/native-call-continuation.mjs';
 import { sceneRuntime } from '../system/scene-runtime.mjs';
 import { nmiAtBranch } from '../system/frame-wait.mjs';
-import { unpackPortrait } from '../system/native-dialog-portrait.mjs';
+import { recordedRoutine } from '../system/recorded-routines.mjs';
 import { UNPACK_7F, unpackLongRegisters } from '../system/unpack.mjs';
 import {
   A1B0,
@@ -128,7 +127,8 @@ const flag = (ctx, bit, set) => {
 
 // Unpack a portrait into bank 7F (80:9F6D), called with JSR.
 export function unpackPortraitRoutine(h, events) {
-  if (events?.startupInterrupts) return unpackPortrait(h, events);
+  const recorded = recordedRoutine(events, 'portrait-unpack');
+  if (recorded) return recorded(h, events);
   const { ctx } = h;
   // PHP, PHB, PEA 7F7F, PLB, PLB.
   h.pushByte(ctx.status);

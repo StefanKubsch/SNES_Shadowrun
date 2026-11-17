@@ -15,7 +15,7 @@ import { requireRomAddress, romOffset } from '../src/data/rom-bytes.mjs';
 import { VmMemory } from '../src/vm/memory.mjs';
 import { TaskAccessor } from '../src/vm/task-accessor.mjs';
 import { unpackStreamLong } from '../proof/system/native-unpack.mjs';
-import { unpackPortrait } from '../src/system/native-dialog-portrait.mjs';
+import { unpackPortrait } from '../proof/system/native-dialog-portrait.mjs';
 import { dialogAccess } from '../src/system/native-dialog-support.mjs';
 import { buildLanguage, installLanguage } from '../src/data/language.mjs';
 import { LiveGame } from '../src/video/live-game.mjs';

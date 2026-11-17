@@ -14,7 +14,7 @@ import {
 import { waitForRandomStateChange } from './native-frame-wait.mjs';
 import { VMAINC_INCREMENT_AFTER_HIGH } from '../../src/constants/ppu.mjs';
 import { BYTE_SIGN, BYTE_MASK, WORD_SIGN, BANK_WRAP } from '../../src/constants/bits.mjs';
-import { WRAM_HIGH_BANK, WRAM_BANK } from '../../src/constants/memory-map.mjs';
+import { WRAM_HIGH_BANK, WRAM_BANK, WRAM_HIGH_BANK_PAIR } from '../../src/constants/memory-map.mjs';
 import {
   WRAM,
   WINDOW_LEFT_PIXEL,
@@ -32,6 +32,11 @@ import {
   HDMAEN_SHADOW,
   TMW_SHADOW,
   PORTRAIT_DMA_REQUEST,
+  UNPACK_OUTPUT_START,
+  UNPACK_OUTPUT_CURSOR,
+  UNPACK_SOURCE_POINTER,
+  UNPACK_SOURCE_BANK,
+  UNPACK_RUN_LENGTH,
 } from '../../src/data/wram.mjs';
 import {
   COLDATA,
@@ -56,6 +61,8 @@ import {
 
 import { interruptStep } from '../../src/system/main-wait-interrupt.mjs';
 import { taskStop } from '../../src/system/task-stop.mjs';
+
+import { runUnpackBody, unpackStep } from '../../src/system/native-unpack-body.mjs';
 
 // Offset of the last byte of the dialog HDMA table.
 const DIALOG_HDMA_LAST_BYTE = 0x0f;
@@ -369,4 +376,41 @@ export function nmiWords(h, events, pc, offsets) {
     events.waitEvents.push(o);
     h.a.writeWord(offset, o.value, BANK_WRAP);
   }
+}
+
+// 80:9F6D: original portrait unpacker, with its real PHP/PHB and RTS.
+export function unpackPortrait(h, e) {
+  const { ctx } = h,
+    step = (pc) => unpackStep(h, e, pc);
+  step(0x809f6d);
+  h.php();
+  step(0x809f6e);
+  h.phb();
+  step(0x809f6f);
+  h.dpWrite(UNPACK_SOURCE_POINTER, ctx.a);
+  step(0x809f71);
+  h.dpWrite(UNPACK_SOURCE_BANK, ctx.y, 2);
+  step(0x809f73);
+  h.dpWrite(UNPACK_OUTPUT_START, ctx.x, 2);
+  step(0x809f75);
+  h.dpWrite(UNPACK_OUTPUT_CURSOR, ctx.x, 2);
+  step(0x809f77);
+  h.dpWrite(UNPACK_RUN_LENGTH, 0);
+  step(0x809f79);
+  h.push(WRAM_HIGH_BANK_PAIR, 2);
+  step(0x809f7c);
+  h.plb();
+  step(0x809f7d);
+  h.plb();
+  step(0x809f7e);
+  h.index('y', 0);
+  step(0x809f81);
+  h.load(h.read(h.indirect(UNPACK_SOURCE_POINTER, ctx.y)));
+  runUnpackBody(h, e, true);
+  step(0x80a030);
+  h.plb();
+  step(0x80a031);
+  h.plp();
+  step(0x80a032);
+  return h.rts();
 }

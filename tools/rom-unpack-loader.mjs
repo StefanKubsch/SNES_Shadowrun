@@ -13,7 +13,7 @@ const WRAPS = {
  const c=a.ctx;globalThis.__unpackBegin?.(entry,(c.y&255)<<16|c.a,0x7E0000|c.x);
  try{return probeOriginal9F49(a,outerReturn,entry,events);}finally{globalThis.__unpackEnd?.();}}`,
   ],
-  '/src/system/native-dialog-portrait.mjs': [
+  '/proof/system/native-dialog-portrait.mjs': [
     'export function unpackPortrait(',
     'function probeOriginal9F6D(',
     `export function unpackPortrait(h,e){const c=h.ctx;globalThis.__unpackBegin?.(0x809F6D,(c.y&255)<<16|c.a,0x7F0000|c.x);

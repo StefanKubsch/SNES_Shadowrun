@@ -1,9 +1,15 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { rom, window, decodeWindows, compareDialog, prng } from './task-native-dialog-harness.mjs';
-import { unpackPortrait } from '../src/system/native-dialog-portrait.mjs';
-import { putGloveAway } from '../proof/system/native-glove-release.mjs';
 import {
+  rom,
+  window,
+  decodeWindows,
+  compareDialog,
+  prng,
+  romBytes,
+} from './task-native-dialog-harness.mjs';
+import {
+  unpackPortrait,
   clearFixedColour,
   setWindowTextWidth,
   shiftPortraitRows,
@@ -12,6 +18,7 @@ import {
   openPortraitWindow,
   closePortraitWindow,
 } from '../proof/system/native-dialog-portrait.mjs';
+import { putGloveAway } from '../proof/system/native-glove-release.mjs';
 import { waitForRandomStateChange } from '../proof/system/native-frame-wait.mjs';
 
 // Window and portrait routines for dialog $936C against the original instructions. Each routine has its own
@@ -660,7 +667,6 @@ check(
 );
 
 import { decodeTaskWindows } from './task-partial-source.mjs';
-import { romBytes } from './task-native-dialog-harness.mjs';
 import {
   native936CSpecs,
   prove936CSource,

@@ -1,16 +1,6 @@
-import { runUnpackBody, unpackStep } from './native-unpack-body.mjs';
-import {
-  WRAM,
-  UNPACK_OUTPUT_START,
-  UNPACK_OUTPUT_CURSOR,
-  UNPACK_SOURCE_POINTER,
-  UNPACK_SOURCE_BANK,
-  UNPACK_RUN_LENGTH,
-  OAM_HIGH_TABLE,
-} from '../data/wram.mjs';
+import { WRAM, OAM_HIGH_TABLE } from '../data/wram.mjs';
 import { WH0 } from '../constants/hardware-registers.mjs';
 import { BYTE_MASK } from '../constants/bits.mjs';
-import { WRAM_HIGH_BANK_PAIR } from '../constants/memory-map.mjs';
 // Window and portrait setup of the dialog $936C. Each function starts at the original entry (frame from the
 // caller via h.call) and ends with the original RTS/RTL. h comes from dialogAccess
 // (native-dialog-support.mjs); events is the shared observation set of the native.
@@ -58,39 +48,3 @@ export const SECOND_PORTRAIT_HDMA = Object.freeze({
 export const FIXED_COLOUR_BLACK = 0xe0;
 // FA92: DP04 is the width in pixels; zero or negative is added to the column count minus 2.
 export const DP_PIXEL_WIDTH = 4;
-// 80:9F6D: original portrait unpacker, with its real PHP/PHB and RTS.
-export function unpackPortrait(h, e) {
-  const { ctx } = h,
-    step = (pc) => unpackStep(h, e, pc);
-  step(0x809f6d);
-  h.php();
-  step(0x809f6e);
-  h.phb();
-  step(0x809f6f);
-  h.dpWrite(UNPACK_SOURCE_POINTER, ctx.a);
-  step(0x809f71);
-  h.dpWrite(UNPACK_SOURCE_BANK, ctx.y, 2);
-  step(0x809f73);
-  h.dpWrite(UNPACK_OUTPUT_START, ctx.x, 2);
-  step(0x809f75);
-  h.dpWrite(UNPACK_OUTPUT_CURSOR, ctx.x, 2);
-  step(0x809f77);
-  h.dpWrite(UNPACK_RUN_LENGTH, 0);
-  step(0x809f79);
-  h.push(WRAM_HIGH_BANK_PAIR, 2);
-  step(0x809f7c);
-  h.plb();
-  step(0x809f7d);
-  h.plb();
-  step(0x809f7e);
-  h.index('y', 0);
-  step(0x809f81);
-  h.load(h.read(h.indirect(UNPACK_SOURCE_POINTER, ctx.y)));
-  runUnpackBody(h, e, true);
-  step(0x80a030);
-  h.plb();
-  step(0x80a031);
-  h.plp();
-  step(0x80a032);
-  return h.rts();
-}

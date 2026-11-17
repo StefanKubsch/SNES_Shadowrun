@@ -6,14 +6,6 @@ import { dialogAccess } from '../../src/system/native-dialog-support.mjs';
 import { putGloveAwayAdapter } from '../system/native-glove-release.mjs';
 import {
   unpackPortrait,
-  PORTRAIT_OBJSEL,
-  DP_PORTRAIT_POINTER,
-  DP_PORTRAIT_BANK,
-  PORTRAIT_RECORD_BANK_BYTE,
-  PORTRAIT_BUFFER,
-  DP_PIXEL_WIDTH,
-} from '../../src/system/native-dialog-portrait.mjs';
-import {
   clearFixedColour,
   setWindowTextWidth,
   shiftPortraitRows,
@@ -22,6 +14,14 @@ import {
   openPortraitWindow,
   closePortraitWindow,
 } from '../system/native-dialog-portrait.mjs';
+import {
+  PORTRAIT_OBJSEL,
+  DP_PORTRAIT_POINTER,
+  DP_PORTRAIT_BANK,
+  PORTRAIT_RECORD_BANK_BYTE,
+  PORTRAIT_BUFFER,
+  DP_PIXEL_WIDTH,
+} from '../../src/system/native-dialog-portrait.mjs';
 import {
   dialogTextRoutines,
   showDialogText,

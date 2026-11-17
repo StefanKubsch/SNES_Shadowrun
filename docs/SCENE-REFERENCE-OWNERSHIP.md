@@ -366,3 +366,8 @@ animation step 80:AC2F was converted first.
 With the animation step behind the hook, `src/system/native-scene-tiles.mjs` had no
 live importer and merged into `proof/system/native-scene-tiles.mjs`, which now holds
 the register-level animation step 80:AC2F and the tile reload 80:ADF4 together.
+
+The portrait unpack 80:9F6D also asks the recorded-routine hook; its register-level
+version `unpackPortrait` lost its last live caller and moved to
+`proof/system/native-dialog-portrait.mjs`. The live portrait module keeps only the
+shared portrait constants. The VRAM probe hook wraps it at its new path.

@@ -5,7 +5,7 @@ import { sceneVideoSpecs, proveSceneVideo } from './main-scene-video-source.mjs'
 import { compareDialog, decodeWindows, prng, rom } from './task-native-dialog-harness.mjs';
 import { dialogAccess } from '../src/system/native-dialog-support.mjs';
 import { encodedStream, lengthBits, fixedBits } from './task-native-unpack-fixtures.mjs';
-import { unpackPortrait } from '../src/system/native-dialog-portrait.mjs';
+import { unpackPortrait } from '../proof/system/native-dialog-portrait.mjs';
 import { TaskAccessor } from '../src/vm/task-accessor.mjs';
 import { VmMemory } from '../src/vm/memory.mjs';
 import { readFileSync } from 'node:fs';

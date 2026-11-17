@@ -10,7 +10,7 @@ import { runReference } from './w65c816-reference.mjs';
 import { encodedStream, lengthBits, fixedBits } from './task-native-unpack-fixtures.mjs';
 import { TaskAccessor } from '../src/vm/task-accessor.mjs';
 import { dialogAccess } from '../src/system/native-dialog-support.mjs';
-import { unpackPortrait } from '../src/system/native-dialog-portrait.mjs';
+import { unpackPortrait } from '../proof/system/native-dialog-portrait.mjs';
 import { unpackStreamLong } from '../proof/system/native-unpack.mjs';
 import { enableNmiAndJoypad } from '../proof/system/main-scene-video.mjs';
 import { finishInterruptObservations } from '../src/system/main-wait-interrupt.mjs';

@@ -6,7 +6,7 @@ import {
   MEMSEL_FAST_ROM,
 } from '../../src/system/main-reset.mjs';
 import { unpackStream } from './native-unpack.mjs';
-import { unpackPortrait } from '../../src/system/native-dialog-portrait.mjs';
+import { unpackPortrait } from './native-dialog-portrait.mjs';
 
 import {
   CLEAR_COLOUR,
