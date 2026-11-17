@@ -8,8 +8,10 @@ import {
   counterBytes,
 } from '../src/vm/frame-events.mjs';
 import { runInterruptWordWait } from '../proof/system/main-word-wait.mjs';
-import { waitForRandomStateChangeWithInterrupts } from '../proof/system/main-wait-interrupt.mjs';
-import { ObservedWaitContinuation } from '../src/system/main-wait-interrupt.mjs';
+import {
+  waitForRandomStateChangeWithInterrupts,
+  ObservedWaitContinuation,
+} from '../proof/system/main-wait-interrupt.mjs';
 import { waitWord } from '../src/system/native-dialog-portrait.mjs';
 import { GAME_NMI_ROUTINES } from '../proof/replay/main-game-nmi.mjs';
 import { WAIT_PAUSED, WAIT_RETURNED } from '../src/system/native-wait-continuation.mjs';

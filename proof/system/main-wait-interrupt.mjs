@@ -1,18 +1,86 @@
 // Register-level waits with explicit interrupt steps that only the dialog, start
 // menu, main loop and word wait references call: the entry check, the random-state
-// wait 81:B0A1, the input read 80:9E1A and the synchronous fade poll. The game
-// waits and reads input through its lifted code.
+// wait 81:B0A1, the input read 80:9E1A, the frame wait 81:EEBB, observed wait
+// graphs and the cutscene fade poll. The game waits and reads input through its
+// lifted code.
 import { CODE_BANK } from '../../src/constants/memory-map.mjs';
 import {
-  WAIT_CODE_BANK,
-  FadePollContinuation,
-  drainWait,
+  InterruptStepContinuation,
   interruptStep,
   lagFree,
 } from '../../src/system/main-wait-interrupt.mjs';
-import { drainNativeSequence } from '../../src/system/native-call-continuation.mjs';
+import {
+  NativeCallContinuation,
+  drainNativeSequence,
+} from '../../src/system/native-call-continuation.mjs';
+import { NativeWaitContinuation } from '../../src/system/native-wait-continuation.mjs';
 import { taskStop } from '../../src/system/task-stop.mjs';
-import { FLAG_INDEX_8BIT, FLAG_MEMORY_8BIT } from '../../src/constants/cpu-flags.mjs';
+import { SCENE_BRIGHTNESS } from '../../src/data/wram.mjs';
+import { WORD_MASK } from '../../src/constants/bits.mjs';
+import { FLAG_INDEX_8BIT, FLAG_MEMORY_8BIT, FLAG_ZERO } from '../../src/constants/cpu-flags.mjs';
+
+// Original wait bank of these routines.
+export const WAIT_CODE_BANK = 0x81;
+
+// A wait owns its register snapshot while its interrupt owns the live context.
+// The original instruction executes only after the complete NMI/RTI returns.
+export class ObservedWaitContinuation extends NativeCallContinuation {
+  constructor(h, events, root) {
+    super(h.a, observedWaitSequence(h, events, root));
+  }
+}
+function* observedWaitSequence(h, events, root) {
+  const wait = new NativeWaitContinuation(h.a, root);
+  while (!wait.done) {
+    yield { continuation: new InterruptStepContinuation(h, events, wait.pc) };
+    yield () => wait.run(1);
+  }
+  return wait.result;
+}
+// Runs the original wait graph from root with a step hook before each instruction.
+export function drainWait(h, root, beforeInstruction) {
+  h.ctx.pc = root & WORD_MASK;
+  const wait = new NativeWaitContinuation(h.a, root);
+  wait.run(Infinity, { beforeInstruction });
+  return wait.result;
+}
+
+// $81:EEBB: PHP/SEP20, then either a BYTE hardware poll or a saved BYTE
+// counter comparison. Preserve the high accumulator byte and the caller's P.
+export function waitForFrameWithInterrupts(h, events) {
+  const { ctx } = h;
+  if (ctx.e !== 0 || ctx.d !== 0 || ctx.programBank !== WAIT_CODE_BANK)
+    taskStop('wait_interrupt_entry_required');
+  return drainWait(h, 0x81eebb, (pc) => interruptStep(h, events, pc)).rawReturnWord;
+}
+
+// Inline $81:CF4C/CF4F in CDF8. An interrupt after LDA restores its BYTE
+// flags, so BNE still uses that LDA even if D479 changed 11A3 in the meantime.
+// Fall through to CF51 with the original caller frame and high A intact.
+export class FadePollContinuation extends NativeCallContinuation {
+  constructor(h, events) {
+    super(h.a, interruptFadeSequence(h, events));
+  }
+}
+function* interruptFadeSequence(h, events) {
+  const { ctx } = h;
+  if (
+    ctx.e !== 0 ||
+    ctx.d !== 0 ||
+    ctx.programBank !== WAIT_CODE_BANK ||
+    !(ctx.status & FLAG_MEMORY_8BIT)
+  )
+    taskStop('wait_interrupt_entry_required');
+  let again;
+  do {
+    yield { continuation: new InterruptStepContinuation(h, events, 0x81cf4c) };
+    yield () => h.load(h.read(h.abs(SCENE_BRIGHTNESS), 1));
+    yield { continuation: new InterruptStepContinuation(h, events, 0x81cf4f) };
+    yield () => {
+      again = !(ctx.status & FLAG_ZERO);
+    };
+  } while (again);
+}
 
 // Native-mode WORD entry at direct page 0 in the given code bank.
 export const waitEntry = (h, bank) => {

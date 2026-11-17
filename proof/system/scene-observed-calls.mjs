@@ -2,7 +2,7 @@
 // recorded-scene-frames.mjs); they consume the original explicit observations.
 import { taskStop } from '../../src/system/task-stop.mjs';
 import { dialogCallBody } from '../../src/system/native-call-continuation.mjs';
-import { ObservedWaitContinuation } from '../../src/system/main-wait-interrupt.mjs';
+import { ObservedWaitContinuation } from './main-wait-interrupt.mjs';
 import { waitForFrame } from './main-scene-wait.mjs';
 import { readInput } from './native-input-apu.mjs';
 import { PAD_HELD } from '../../src/data/wram.mjs';

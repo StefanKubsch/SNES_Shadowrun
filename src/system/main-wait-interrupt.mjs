@@ -1,14 +1,9 @@
-import { SCENE_BRIGHTNESS } from '../data/wram.mjs';
 import { taskStop } from './task-stop.mjs';
 import { runObservedNmi, ObservedNmiContinuation } from './nmi-call.mjs';
 import { NativeCallContinuation } from './native-call-continuation.mjs';
 import { finishTextDmaObservations } from './main-dma-readback.mjs';
-import { NativeWaitContinuation } from './native-wait-continuation.mjs';
 import { LagFreeFrames } from '../vm/frame-events.mjs';
-import { FLAG_MEMORY_8BIT, FLAG_ZERO } from '../constants/cpu-flags.mjs';
 import { WORD_BITS, WORD_MASK } from '../constants/bits.mjs';
-
-export const WAIT_CODE_BANK = 0x81;
 
 // An explicit record for every reached instruction in these wait/input routines.
 // nmi:false is an observed absence, not elapsed time. Device reads use the
@@ -115,67 +110,8 @@ function* interruptSequence(h, events, pc) {
   }
 }
 
-// A wait owns its register snapshot while its interrupt owns the live context.
-// The original instruction executes only after the complete NMI/RTI returns.
-export class ObservedWaitContinuation extends NativeCallContinuation {
-  constructor(h, events, root) {
-    super(h.a, observedWaitSequence(h, events, root));
-  }
-}
-function* observedWaitSequence(h, events, root) {
-  const wait = new NativeWaitContinuation(h.a, root);
-  while (!wait.done) {
-    yield { continuation: new InterruptStepContinuation(h, events, wait.pc) };
-    yield () => wait.run(1);
-  }
-  return wait.result;
-}
 export function finishInterruptObservations(events) {
   if (!lagFree(events) && events.interruptIndex !== events.interrupts.length)
     taskStop('wait_interrupt_observation_unused', { observationIndex: events.interruptIndex });
   finishTextDmaObservations(events);
-}
-// Runs the original wait graph from root with a step hook before each instruction.
-export function drainWait(h, root, beforeInstruction) {
-  h.ctx.pc = root & WORD_MASK;
-  const wait = new NativeWaitContinuation(h.a, root);
-  wait.run(Infinity, { beforeInstruction });
-  return wait.result;
-}
-
-// $81:EEBB: PHP/SEP20, then either a BYTE hardware poll or a saved BYTE
-// counter comparison. Preserve the high accumulator byte and the caller's P.
-export function waitForFrameWithInterrupts(h, events) {
-  const { ctx } = h;
-  if (ctx.e !== 0 || ctx.d !== 0 || ctx.programBank !== WAIT_CODE_BANK)
-    taskStop('wait_interrupt_entry_required');
-  return drainWait(h, 0x81eebb, (pc) => interruptStep(h, events, pc)).rawReturnWord;
-}
-
-// Inline $81:CF4C/CF4F in CDF8. An interrupt after LDA restores its BYTE
-// flags, so BNE still uses that LDA even if D479 changed 11A3 in the meantime.
-// Fall through to CF51 with the original caller frame and high A intact.
-export class FadePollContinuation extends NativeCallContinuation {
-  constructor(h, events) {
-    super(h.a, interruptFadeSequence(h, events));
-  }
-}
-function* interruptFadeSequence(h, events) {
-  const { ctx } = h;
-  if (
-    ctx.e !== 0 ||
-    ctx.d !== 0 ||
-    ctx.programBank !== WAIT_CODE_BANK ||
-    !(ctx.status & FLAG_MEMORY_8BIT)
-  )
-    taskStop('wait_interrupt_entry_required');
-  let again;
-  do {
-    yield { continuation: new InterruptStepContinuation(h, events, 0x81cf4c) };
-    yield () => h.load(h.read(h.abs(SCENE_BRIGHTNESS), 1));
-    yield { continuation: new InterruptStepContinuation(h, events, 0x81cf4f) };
-    yield () => {
-      again = !(ctx.status & FLAG_ZERO);
-    };
-  } while (again);
 }

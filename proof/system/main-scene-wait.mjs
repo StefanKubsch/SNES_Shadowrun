@@ -9,10 +9,7 @@ import {
   drainNativeSequence,
   nativeCallSequence,
 } from '../../src/system/native-call-continuation.mjs';
-import {
-  waitForFrameWithInterrupts,
-  ObservedWaitContinuation,
-} from '../../src/system/main-wait-interrupt.mjs';
+import { waitForFrameWithInterrupts, ObservedWaitContinuation } from './main-wait-interrupt.mjs';
 import { taskStop } from '../../src/system/task-stop.mjs';
 import { PAD_HELD, RANDOM_STATE, WRAM, NMITIMEN_SHADOW } from '../../src/data/wram.mjs';
 import { INIDISP_FORCED_BLANK, MAX_BRIGHTNESS } from '../../src/constants/ppu.mjs';

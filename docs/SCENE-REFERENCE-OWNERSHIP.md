@@ -325,3 +325,9 @@ The register-level task text accessor and bit reader 81:AF04 lost their last liv
 caller with the pad read; `src/system/native-text-prerequisites.mjs` merged into
 `proof/system/native-text-prerequisites.mjs`, and the reports whose labels name it
 were rebuilt.
+
+The observed wait graphs (`ObservedWaitContinuation`, `drainWait`), the
+interrupt-stepped frame wait 81:EEBB and the cutscene fade poll lost their live
+callers with the scene frame interface and moved to
+`proof/system/main-wait-interrupt.mjs`. The live module keeps the interrupt steps,
+the lag-free check and the end-of-run observation check.

@@ -8,7 +8,7 @@ import { drawWindowListAdapter } from './native-render-compose.mjs';
 import { sendApuCommand } from './native-input-apu.mjs';
 import { clampToCameraBox, updateCameraTileBuffers } from './main-loop-camera.mjs';
 import { clearFixedColour } from './native-dialog-portrait.mjs';
-import { ObservedWaitContinuation } from '../../src/system/main-wait-interrupt.mjs';
+import { ObservedWaitContinuation } from './main-wait-interrupt.mjs';
 import { uploadMapEdgesAndScroll } from './main-game-nmi.mjs';
 import {
   NativeCallContinuation,

@@ -6,7 +6,7 @@ import { readInput } from '../system/native-input-apu.mjs';
 import { playSoundEffect } from './native-audio-compose.mjs';
 import { dialogAccess } from '../../src/system/native-dialog-support.mjs';
 import { WordWaitContinuation, runInterruptWordWait } from '../system/main-word-wait.mjs';
-import { ObservedWaitContinuation } from '../../src/system/main-wait-interrupt.mjs';
+import { ObservedWaitContinuation } from '../system/main-wait-interrupt.mjs';
 import {
   drainNativeSequence,
   NativeCallContinuation,

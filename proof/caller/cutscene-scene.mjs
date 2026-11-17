@@ -8,7 +8,8 @@
 import { taskStop } from '../../src/system/task-stop.mjs';
 import { nativeCallSequence } from '../../src/system/native-call-continuation.mjs';
 import { nativeTailSequence } from '../system/native-call-sequences.mjs';
-import { FadePollContinuation, lagFree } from '../../src/system/main-wait-interrupt.mjs';
+import { FadePollContinuation } from '../system/main-wait-interrupt.mjs';
+import { lagFree } from '../../src/system/main-wait-interrupt.mjs';
 import { sceneWaitByte } from '../system/main-scene-wait.mjs';
 import { heldPad, menuCreditsRunning, CREDITS_SEQUENCE } from '../../src/game/credits.mjs';
 import {

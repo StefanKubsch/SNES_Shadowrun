@@ -116,7 +116,7 @@ import {
 } from '../../src/data/packed-text-edits.mjs';
 import { MAIN_SCENE_ROUTINES } from '../replay/main-scene.mjs';
 import { AUDIO_REFERENCE_ENTRIES } from '../apu-reference/audio-routines.mjs';
-import { FadePollContinuation } from '../../src/system/main-wait-interrupt.mjs';
+import { FadePollContinuation } from '../system/main-wait-interrupt.mjs';
 import { SCENE_WAIT_ROUTINES, sceneWaitByte } from '../system/main-scene-wait.mjs';
 import { sendOamBuffer } from '../system/main-scene-video.mjs';
 import { animateCutscene } from './cutscene-animation.mjs';

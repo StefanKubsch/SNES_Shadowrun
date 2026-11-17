@@ -4,7 +4,7 @@ import { waitForRandomStateChange } from '../system/native-frame-wait.mjs';
 import { readInput } from '../system/native-input-apu.mjs';
 import { validateTaskActionsOptions } from './native-actions.mjs';
 import { dialogAccess } from '../../src/system/native-dialog-support.mjs';
-import { ObservedWaitContinuation } from '../../src/system/main-wait-interrupt.mjs';
+import { ObservedWaitContinuation } from '../system/main-wait-interrupt.mjs';
 import {
   observedContinuation,
   drainNativeSequence,

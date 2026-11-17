@@ -27,7 +27,7 @@ import { MAIN_UPKEEP_ROUTINES } from './main-loop-upkeep.mjs';
 import { INTRO_NMI_ROUTINES } from '../replay/intro-nmi-routines.mjs';
 import { GAME_NMI_ROUTINES } from '../system/main-game-nmi.mjs';
 import { GAME_NMI_LIFTED_JOBS } from '../replay/game-nmi-jobs.mjs';
-import { ObservedWaitContinuation } from '../../src/system/main-wait-interrupt.mjs';
+import { ObservedWaitContinuation } from '../system/main-wait-interrupt.mjs';
 import { TRANSITION_ROUTINES } from '../system/main-transition.mjs';
 import {
   NativeCallContinuation,
