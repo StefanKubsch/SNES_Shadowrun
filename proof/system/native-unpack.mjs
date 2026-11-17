@@ -41,7 +41,7 @@ import {
   WRAM_HIGH_BANK,
   CODE_BANK_BASE,
 } from '../../src/constants/memory-map.mjs';
-import { interruptStep } from '../../src/system/main-wait-interrupt.mjs';
+import { interruptStep } from './main-wait-interrupt.mjs';
 
 const UNPACK_HEADER_BYTES = 0x4;
 const FIXED_UNPACK_BYTES = 0x80;

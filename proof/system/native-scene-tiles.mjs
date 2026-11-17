@@ -33,7 +33,7 @@ import {
   WRAM,
 } from '../../src/data/wram.mjs';
 import { BYTE_MASK, WORD_MASK, HIGH_BYTE_MASK, BYTE_SIGN } from '../../src/constants/bits.mjs';
-import { interruptStep } from '../../src/system/main-wait-interrupt.mjs';
+import { interruptStep } from './main-wait-interrupt.mjs';
 import { TASK_EVENTS, TASK_PREVIOUS, TASK_WAIT } from '../../src/vm/layout.mjs';
 
 // Direct page bank byte of the picture stream.

@@ -6,8 +6,9 @@
 import { CODE_BANK } from '../../src/constants/memory-map.mjs';
 import {
   InterruptStepContinuation,
-  interruptStep,
   lagFree,
+  takeInterruptStep,
+  checkInterruptReturn,
 } from '../../src/system/main-wait-interrupt.mjs';
 import {
   NativeCallContinuation,
@@ -80,6 +81,25 @@ function* interruptFadeSequence(h, events) {
       again = !(ctx.status & FLAG_ZERO);
     };
   } while (again);
+}
+
+import { runObservedNmi } from '../../src/system/nmi-call.mjs';
+
+// The synchronous interrupt step of the register-level waits: an explicit record for
+// every reached instruction in these wait/input routines.
+// nmi:false is an observed absence, not elapsed time. Device reads use the
+// accessor's existing chronological IO stream. No counter/input values are injected.
+// A LagFreeFrames source instead delivers an NMI only at a blocking loop branch.
+export function interruptStep(h, events, pc) {
+  const o = takeInterruptStep(h, events, pc);
+  if (o.nmi) {
+    const before = { ...h.ctx },
+      frames = lagFree(events);
+    frames?.enterNmi();
+    runObservedNmi(h.a, events, events.interruptRoutines);
+    frames?.leaveNmi();
+    checkInterruptReturn(h.ctx, before, pc);
+  }
 }
 
 // Native-mode WORD entry at direct page 0 in the given code bank.

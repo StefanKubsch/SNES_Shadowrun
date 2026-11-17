@@ -59,7 +59,7 @@ import {
   FLAG_CARRY,
 } from '../../src/constants/cpu-flags.mjs';
 
-import { interruptStep } from '../../src/system/main-wait-interrupt.mjs';
+import { interruptStep } from './main-wait-interrupt.mjs';
 import { taskStop } from '../../src/system/task-stop.mjs';
 
 import { runUnpackBody, unpackStep } from './native-unpack.mjs';

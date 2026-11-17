@@ -5,26 +5,14 @@ import { finishTextDmaObservations } from './main-dma-readback.mjs';
 import { LagFreeFrames } from '../vm/frame-events.mjs';
 import { WORD_BITS, WORD_MASK } from '../constants/bits.mjs';
 
-// An explicit record for every reached instruction in these wait/input routines.
-// nmi:false is an observed absence, not elapsed time. Device reads use the
-// accessor's existing chronological IO stream. No counter/input values are injected.
-// A LagFreeFrames source instead delivers an NMI only at a blocking loop branch.
-export function interruptStep(h, events, pc) {
-  const o = takeInterruptStep(h, events, pc);
-  if (o.nmi) {
-    const before = { ...h.ctx },
-      frames = lagFree(events);
-    frames?.enterNmi();
-    runObservedNmi(h.a, events, events.interruptRoutines);
-    frames?.leaveNmi();
-    checkInterruptReturn(h.ctx, before, pc);
-  }
-}
 const NMI = Object.freeze({ nmi: true }),
   NO_NMI = Object.freeze({ nmi: false });
 export const lagFree = (events) =>
   events?.interrupts instanceof LagFreeFrames ? events.interrupts : null;
-function takeInterruptStep(h, events, pc) {
+// One interrupt step at pc: an explicit record for every reached instruction (nmi:false
+// is an observed absence, not elapsed time), or a LagFreeFrames source that delivers
+// an NMI only at a blocking loop branch.
+export function takeInterruptStep(h, events, pc) {
   const frames = lagFree(events);
   if (frames) {
     const { ctx } = h;
@@ -60,7 +48,7 @@ function takeInterruptStep(h, events, pc) {
   events.interruptIndex = index + 1;
   return o;
 }
-function checkInterruptReturn(ctx, before, pc) {
+export function checkInterruptReturn(ctx, before, pc) {
   // Stack aliases can change the real RTI result. Keep those effects but never
   // continue these fixed equations from a different instruction/register state.
   for (const key of Object.keys(before))

@@ -14,8 +14,7 @@ import {
   frontendCallSequence,
   START_MENU_TEXT_ENTRIES,
 } from './start-menu-text.mjs';
-import { steppedInterrupts } from '../system/main-wait-interrupt.mjs';
-import { interruptStep } from '../../src/system/main-wait-interrupt.mjs';
+import { steppedInterrupts, interruptStep } from '../system/main-wait-interrupt.mjs';
 import {
   NativeCallContinuation,
   NATIVE_CALL_CONTINUATIONS,

@@ -5,8 +5,7 @@ import { taskStop } from '../../src/system/task-stop.mjs';
 import { MAIN_SCENE_ROUTINES } from '../replay/main-scene.mjs';
 import { AUDIO_REFERENCE_ENTRIES } from '../apu-reference/audio-routines.mjs';
 import { compareSaveChecksum } from '../replay/native-main-menu.mjs';
-import { steppedInterrupts } from '../system/main-wait-interrupt.mjs';
-import { interruptStep } from '../../src/system/main-wait-interrupt.mjs';
+import { steppedInterrupts, interruptStep } from '../system/main-wait-interrupt.mjs';
 import { nativeCallSequence } from '../system/native-call-sequences.mjs';
 import {
   NativeCallContinuation,

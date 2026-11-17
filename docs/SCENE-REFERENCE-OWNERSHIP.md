@@ -376,3 +376,8 @@ With the portrait unpacker in proof, the instruction-stepped unpack body
 80:9E9B/9F83 of `src/system/native-unpack-body.mjs` had no live importer and merged
 into `proof/system/native-unpack.mjs`. The game unpacks through
 `src/system/unpack.mjs`.
+
+The synchronous interrupt step `interruptStep` of the register-level waits lost its
+last live caller with the unpack body and moved to
+`proof/system/main-wait-interrupt.mjs`; the live module exports the step record and
+return check it shares with its `InterruptStepContinuation`.

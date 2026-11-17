@@ -14,7 +14,8 @@ import {
   DP_FADE_SHIFT,
   frontendCallSequence,
 } from './start-menu-text.mjs';
-import { interruptStep, lagFree } from '../../src/system/main-wait-interrupt.mjs';
+import { interruptStep } from '../system/main-wait-interrupt.mjs';
+import { lagFree } from '../../src/system/main-wait-interrupt.mjs';
 import { nativeCallSequence, nativeTailSequence } from '../system/native-call-sequences.mjs';
 import {
   NativeCallContinuation,
