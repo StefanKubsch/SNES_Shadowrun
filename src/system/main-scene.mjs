@@ -107,30 +107,27 @@ NATIVE_CALL_CONTINUATIONS.set(0x809e1a, {
     events?.interrupts === undefined ? null : new ObservedWaitContinuation(h, events, 0x809e1a),
 });
 // 81:CDF8: play the cutscene in A with the argument in X (src/cutscene/cutscene-scene.mjs).
-export function playCutscene(h, events, routines = MAIN_SCENE_ROUTINES) {
-  return drainNativeSequence(cutsceneSequence(h, events, routines));
+export function playCutscene(h, events) {
+  return drainNativeSequence(cutsceneSequence(h, events));
 }
 NATIVE_CALL_CONTINUATIONS.set(0x81cdf8, {
   run: playCutscene,
-  create: ({ h, events, routines = MAIN_SCENE_ROUTINES }) =>
-    new NativeCallContinuation(h.a, cutsceneSequence(h, events, routines)),
+  create: ({ h, events }) => new NativeCallContinuation(h.a, cutsceneSequence(h, events)),
 });
 // 81:DFE7: play the intro (src/intro/intro-scene.mjs).
-export function playIntro(h, events, routines = MAIN_SCENE_ROUTINES) {
-  return drainNativeSequence(introSequence(h, events, routines));
+export function playIntro(h, events) {
+  return drainNativeSequence(introSequence(h, events));
 }
 NATIVE_CALL_CONTINUATIONS.set(0x81dfe7, {
   run: playIntro,
-  create: ({ h, events, routines = MAIN_SCENE_ROUTINES }) =>
-    new NativeCallContinuation(h.a, introSequence(h, events, routines)),
+  create: ({ h, events }) => new NativeCallContinuation(h.a, introSequence(h, events)),
 });
 
 // 81:C3CA: play the matrix until the decker jacks out (src/matrix/matrix-scene.mjs).
-export function playMatrixScene(h, events, routines = MAIN_SCENE_ROUTINES) {
-  return drainNativeSequence(matrixSceneSequence(h, events, routines));
+export function playMatrixScene(h, events) {
+  return drainNativeSequence(matrixSceneSequence(h, events));
 }
 NATIVE_CALL_CONTINUATIONS.set(0x81c3ca, {
   run: playMatrixScene,
-  create: ({ h, events, routines = MAIN_SCENE_ROUTINES }) =>
-    new NativeCallContinuation(h.a, matrixSceneSequence(h, events, routines)),
+  create: ({ h, events }) => new NativeCallContinuation(h.a, matrixSceneSequence(h, events)),
 });

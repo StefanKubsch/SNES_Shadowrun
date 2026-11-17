@@ -6,6 +6,7 @@ import { introSequence } from '../src/intro/intro-scene.mjs';
 import { introSequence as formerIntro } from '../proof/caller/intro-scene.mjs';
 import { matrixSceneSequence } from '../src/matrix/matrix-scene.mjs';
 import { matrixSceneSequence as formerMatrix } from '../proof/caller/matrix-scene.mjs';
+import { playCutscene, playIntro, playMatrixScene } from '../src/system/main-scene.mjs';
 import { createSide } from './lift-function-harness.mjs';
 import { LagFreeFrames } from '../src/vm/frame-events.mjs';
 import {
@@ -47,7 +48,11 @@ function run(sequence, scene, budget, status = 0) {
     run: runCutscene,
     create: () => new NativeCallContinuation(a, former(h, events, routines)),
   });
-  const continuation = new NativeCallContinuation(a, sequence(h, events, routines));
+  const legacy =
+    sequence === former || sequence === formerIntro || sequence === formerMatrix
+      ? routines
+      : { get: () => assert.fail('live scene must not select a routine table') };
+  const continuation = new NativeCallContinuation(a, sequence(h, events, legacy));
   try {
     const before = mem.wram.slice();
     assert.equal(continuation.run(0), WAIT_PAUSED);
@@ -84,6 +89,38 @@ for (const budget of [1, 7])
       assert.equal(actual.ctx.programBank, 0x80);
       assert.equal(actual.ctx.pc, 0x1235);
     });
+
+for (const budget of [1, 7])
+  for (const scene of [0, 1, 2, 3, 4, 0x8000, 0x8001, 0x8002, 0x8003, 0x8004])
+    test(`actual cutscene body and mirror ${scene}, budget ${budget}`, () => {
+      assert.deepEqual(run(direct, scene, budget), run(former, scene, budget));
+    });
+
+for (const budget of [1, 7])
+  for (const synchronous of [false, true])
+    for (const [entry, previous, target, scene] of [
+      [playCutscene, former, 0x81cdf8, 0x14],
+      [playIntro, formerIntro, 0x81dfe7, 0x14],
+      [playMatrixScene, formerMatrix, 0x81c3ca, 0],
+    ])
+      test(`live scene entry ${target.toString(16)}, synchronous ${synchronous}, budget ${budget}`, () => {
+        function* sequence(h, events, legacy) {
+          if (synchronous) return yield () => entry(h, events, legacy);
+          const factory =
+            NATIVE_CALL_CONTINUATIONS.get(entry) ?? NATIVE_CALL_CONTINUATIONS.get(target);
+          assert.strictEqual(factory.run, entry);
+          return yield {
+            continuation: factory.create({
+              h,
+              events,
+              get routines() {
+                return assert.fail('live scene factory must not read the legacy table');
+              },
+            }),
+          };
+        }
+        assert.deepEqual(run(sequence, scene, budget), run(previous, scene, budget));
+      });
 
 for (const budget of [1, 7])
   for (const status of [0, 0x30])

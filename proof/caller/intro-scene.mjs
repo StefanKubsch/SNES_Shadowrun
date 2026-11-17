@@ -82,7 +82,13 @@ import {
   SOUND_DIRECTORY_GAME,
   SOUND_DIRECTORY_TITLE,
 } from '../../src/constants/sound-commands.mjs';
-import { BYTE_BITS, BYTE_MASK, WORD_BITS, WORD_MASK, WORD_SIGN } from '../../src/constants/bits.mjs';
+import {
+  BYTE_BITS,
+  BYTE_MASK,
+  WORD_BITS,
+  WORD_MASK,
+  WORD_SIGN,
+} from '../../src/constants/bits.mjs';
 import { FLAG_INDEX_8BIT, FLAG_MEMORY_8BIT } from '../../src/constants/cpu-flags.mjs';
 
 // Register-level routines for recorded interrupt observations and the nested

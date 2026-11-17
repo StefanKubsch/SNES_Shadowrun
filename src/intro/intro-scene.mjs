@@ -207,7 +207,7 @@ export function setUpGameAudioRoutine(h) {
 
 // 81:DFE7: play the intro. h is the accessor of the native call that 81:CDF8
 // passes on.
-export function* introSequence(h, events, routines) {
+export function* introSequence(h, events) {
   const { ctx } = h,
     // The original saves the status and runs with 16-bit registers in data bank 81.
     status = ctx.status,
@@ -265,13 +265,7 @@ export function* introSequence(h, events, routines) {
     ctx.a = END_SCENE;
     ctx.x = END_SCENE_ARGUMENT;
   };
-  yield* dialogCallBody(
-    h,
-    CUTSCENE_SITE,
-    CUTSCENE,
-    () => cutsceneSequence(h, events, routines),
-    true,
-  );
+  yield* dialogCallBody(h, CUTSCENE_SITE, CUTSCENE, () => cutsceneSequence(h, events), true);
   let result;
   yield () => {
     setUpGameAudio(m);

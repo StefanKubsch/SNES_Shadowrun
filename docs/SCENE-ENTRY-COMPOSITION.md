@@ -48,3 +48,19 @@ table. The former matrix orchestration remains independently in
 `proof/caller/matrix-scene.mjs` for replay. Full fixture cases compare actual
 matrix setup, packed maps, login text and return; the shared observed-call
 comparisons also pin its original bridge frame at 81:C3CA.
+
+## Complete live entries
+
+All three game entries and their continuation factories receive only the game
+accessor and events. The scene request directly invokes their bodies without
+importing a shared scene routine table. Former scene requests bind former scene
+entries explicitly. Hostile legacy-table fixtures check synchronous and pausing
+entries, every ordinary scene and its mirror, and nested intro/credits returns.
+
+The established cutscene, intro and matrix frame comparisons now install the
+actual game entries in all replay caller tables before running their existing
+plans against the independently retained register-level originals. Their NMI
+fingerprints still compare game WRAM, PPU state, write counts and sound RAM;
+the original scratch masks and route limits stay unchanged. Replacement tables
+are restored after each comparison, including failures. Shared release results
+belong in HANDOFF.md.

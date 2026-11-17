@@ -137,14 +137,14 @@ function requireWideAccumulator(ctx) {
 
 // 81:CDF8: play the cutscene in A with the argument in X. h is the accessor of the
 // native call from the main loop (80:CC4B) or the frontend (credits).
-export function* cutsceneSequence(h, events, routines) {
+export function* cutsceneSequence(h, events) {
   const { ctx } = h;
   if (ctx.a === INTRO_SCENE) {
     yield () => {
       ctx.programBank = INTRO >>> WORD_BITS;
       ctx.pc = INTRO & WORD_MASK;
     };
-    return yield* introSequence(h, events, routines);
+    return yield* introSequence(h, events);
   }
   const lifted = lagFree(events);
   let m, t, n;

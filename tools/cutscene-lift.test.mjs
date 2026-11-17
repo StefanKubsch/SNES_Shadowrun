@@ -3,7 +3,7 @@
 // every NMI must be equal (tools/lift-compare.mjs, docs/MATRIX-LIFT.md).
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { compareLift } from './lift-compare.mjs';
+import { compareSceneEntry as compareLift } from './scene-entry-lift.mjs';
 import { CUTSCENE_IGNORED_WRAM, CUTSCENE_PLAN } from './live-cutscene-plan.mjs';
 import { playCutscene } from '../proof/replay/main-scene.mjs';
 import { handleCutsceneNmi } from '../src/cutscene/cutscene-scene.mjs';

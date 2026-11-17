@@ -3,7 +3,7 @@
 // NMI must be equal (tools/lift-compare.mjs, docs/MATRIX-LIFT.md).
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { compareLift } from './lift-compare.mjs';
+import { compareSceneEntry as compareLift } from './scene-entry-lift.mjs';
 import { INTRO_IGNORED_WRAM, INTRO_PLAN } from './live-intro-plan.mjs';
 import { playIntro } from '../proof/replay/main-scene.mjs';
 import { handleIntroNmi } from '../src/intro/intro-scene.mjs';

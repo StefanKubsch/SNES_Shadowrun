@@ -22,7 +22,6 @@ import {
   drainNativeSequence,
   dialogCallBody,
 } from '../system/native-call-continuation.mjs';
-import { MAIN_SCENE_ROUTINES } from '../system/main-scene.mjs';
 import { cutsceneSequence } from '../cutscene/cutscene-scene.mjs';
 import { matrixSceneSequence } from '../matrix/matrix-scene.mjs';
 import { sceneRuntime } from '../system/scene-runtime.mjs';
@@ -89,7 +88,7 @@ export function* sceneRequestSequence(h, events) {
         h,
         CUTSCENE_SITE,
         PLAY_CUTSCENE,
-        () => cutsceneSequence(h, events, MAIN_SCENE_ROUTINES),
+        () => cutsceneSequence(h, events),
         true,
       );
     else {
@@ -97,7 +96,7 @@ export function* sceneRequestSequence(h, events) {
         h,
         MATRIX_SITE,
         PLAY_MATRIX,
-        () => matrixSceneSequence(h, events, MAIN_SCENE_ROUTINES),
+        () => matrixSceneSequence(h, events),
         true,
       );
       yield () => {

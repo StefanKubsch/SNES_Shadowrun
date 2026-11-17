@@ -24,7 +24,7 @@ import {
   nativeCallSequence,
 } from '../../src/system/native-call-continuation.mjs';
 import { TRANSITION_ROUTINES } from '../../src/system/main-transition.mjs';
-import { playCutscene, playMatrixScene } from '../../src/system/main-scene.mjs';
+import { playCutscene, playMatrixScene } from '../replay/main-scene.mjs';
 import { MAIN_UPKEEP_ROUTINES } from '../../src/system/main-loop-upkeep.mjs';
 import { sceneRuntime } from '../../src/system/scene-runtime.mjs';
 import { setUpGameScreen } from '../../src/game/game-screen.mjs';
