@@ -1,7 +1,6 @@
 // The register-level text upload's observed channel-5 readback (81:AA93): applies
 // an explicitly observed VRAM-to-WRAM transfer in recorded runs. Live devices
 // perform the transfer themselves from the PPU.
-import { taskStop } from '../../src/system/task-stop.mjs';
 import { TEXT_MASK_BUFFER, WRAM } from '../../src/data/wram.mjs';
 import { WRAM_BANK } from '../../src/constants/memory-map.mjs';
 import {
@@ -11,6 +10,7 @@ import {
 } from '../../src/constants/ppu.mjs';
 import { WORD_BITS, WORD_MASK, BYTE_MASK } from '../../src/constants/bits.mjs';
 import { MDMAEN, RDVRAML } from '../../src/constants/hardware-registers.mjs';
+import { taskStop } from '../../src/system/task-stop.mjs';
 
 // The channel-5 start site, its MDMAEN bit, the 16 bytes and the B-bus address RDVRAML.
 const TEXT_DMA_PC = 0x81aa93;
@@ -61,4 +61,12 @@ export function applyObservedTextDma(h, events, vmadd) {
   // No CPU flags, registers, or stack bytes change as part of the DMA effect.
   for (let i = 0; i < TEXT_DMA_BYTES; i++) h.a.write(WRAM + TEXT_MASK_BUFFER + i, o.bytes[i]);
   events.dmaIndex = index + 1;
+}
+
+export function finishTextDmaObservations(events) {
+  if (events.dmaTransfers === undefined) return;
+  if (!Array.isArray(events.dmaTransfers) || !Object.isFrozen(events.dmaTransfers))
+    taskStop('text_dma_observation_required', { observationIndex: events.dmaIndex ?? 0 });
+  if ((events.dmaIndex ?? 0) !== events.dmaTransfers.length)
+    taskStop('text_dma_observation_unused', { observationIndex: events.dmaIndex ?? 0 });
 }

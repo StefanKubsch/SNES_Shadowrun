@@ -15,7 +15,7 @@ import { runTaskNativeDispatch } from '../proof/task/native-dispatch.mjs';
 import { runTaskNativeResume } from '../proof/task/native-resume.mjs';
 import { runTaskNativeWait, runTaskNativeWaitResume } from '../proof/task/native-wait.mjs';
 import { BOOT_NATIVE_CONTRACTS } from './main-boot-native-contracts.mjs';
-import { finishInterruptObservations } from '../src/system/main-wait-interrupt.mjs';
+import { finishInterruptObservations } from '../proof/system/main-wait-interrupt.mjs';
 import { isIoAddress } from '../src/vm/devices.mjs';
 import { nativeOpcodeTargets } from '../src/data/native-opcode-targets.mjs';
 import { renderAddress } from '../proof/render/data.mjs';

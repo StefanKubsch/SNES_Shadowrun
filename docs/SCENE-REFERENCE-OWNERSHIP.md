@@ -381,3 +381,10 @@ The synchronous interrupt step `interruptStep` of the register-level waits lost 
 last live caller with the unpack body and moved to
 `proof/system/main-wait-interrupt.mjs`; the live module exports the step record and
 return check it shares with its `InterruptStepContinuation`.
+
+The end-of-run observation checks `finishInterruptObservations` and
+`finishTextDmaObservations` moved to `proof/system/main-wait-interrupt.mjs` and
+`proof/system/main-dma-readback.mjs`. A probe that stopped whenever the live game loop
+or the live script natives saw recorded interrupts or text DMA observations was
+reached by none of their 37 nearest test files: the game only runs the lag-free
+model, where both checks did nothing. The live loop keeps its device-read check.

@@ -20,7 +20,6 @@ import { JsTasks } from './task-api.mjs';
 import { interruptEventsOf } from '../vm/devices.mjs';
 import { SPECIAL_NATIVES, SPECIAL_NATIVE_CONTINUATIONS } from '../vm/special-natives.mjs';
 import { WAIT_PAUSED, WAIT_RETURNED } from '../system/native-wait-continuation.mjs';
-import { finishInterruptObservations } from '../system/main-wait-interrupt.mjs';
 import { NATIVE_POINTERS, NATIVE_RESUME } from '../vm/layout.mjs';
 import { WORD_BITS, WORD_MASK, WORD_SIGN } from '../constants/bits.mjs';
 import { CODE_BANK, CODE_BANK_BASE, WRAM_BASE } from '../constants/memory-map.mjs';
@@ -208,8 +207,7 @@ export class ScriptNatives {
     return set;
   }
   // The end-of-native checks of the observation set.
-  closeObservations(a, target, interruptEvents) {
-    if (interruptEvents) finishInterruptObservations(interruptEvents);
+  closeObservations(a, target) {
     if (a.ioIndex !== a.io.length)
       taskStop('device_observation_unused', { target, observationIndex: a.ioIndex });
     a.io = null;
@@ -219,7 +217,7 @@ export class ScriptNatives {
     const set = this.observations(a, target),
       interruptEvents = interruptEventsOf(set, target);
     SPECIAL_NATIVES.get(target)(a, this.options(a, target, scheduler, set, interruptEvents));
-    this.closeObservations(a, target, interruptEvents);
+    this.closeObservations(a, target);
   }
 
   // A special native with a resumable sequence: the first resume() starts it.
@@ -248,7 +246,7 @@ export class ScriptNatives {
           return false;
         }
         made.finish();
-        natives.closeObservations(a, target, interruptEvents);
+        natives.closeObservations(a, target);
         this.result = natives.finish(a, target, stack);
         return true;
       },

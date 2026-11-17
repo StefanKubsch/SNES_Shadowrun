@@ -10,8 +10,10 @@ import {
   prepareTaskNativeOpcodeF953,
 } from '../proof/task/native-input-wait-opcode.mjs';
 import { GAME_NMI_ROUTINES } from '../proof/replay/main-game-nmi.mjs';
-import { waitForRandomStateChangeWithInterrupts } from '../proof/system/main-wait-interrupt.mjs';
-import { finishInterruptObservations } from '../src/system/main-wait-interrupt.mjs';
+import {
+  waitForRandomStateChangeWithInterrupts,
+  finishInterruptObservations,
+} from '../proof/system/main-wait-interrupt.mjs';
 import { withInterruptEvents } from '../proof/replay/observed-native-events.mjs';
 import { SPECIAL_NATIVES } from '../proof/vm/special-natives.mjs';
 import { DialogTestMemory, rom } from './task-native-dialog-harness.mjs';

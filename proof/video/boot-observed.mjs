@@ -15,7 +15,7 @@ import { withFrontendReference } from '../frontend-reference/frontend.mjs';
 // Recorded chronologies hold every instruction of the title (prologue fill, polls in
 // bank 81): they replay with the register-level title (proof/frontend-reference).
 const MAIN_STARTUP_ROUTINES = withFrontendReference(STARTUP_ROUTINES);
-import { finishInterruptObservations } from '../../src/system/main-wait-interrupt.mjs';
+import { finishInterruptObservations } from '../system/main-wait-interrupt.mjs';
 import { PpuBus } from '../../src/video/ppu-state.mjs';
 
 // Replay read windows retain the exact original transcript filtering ranges.

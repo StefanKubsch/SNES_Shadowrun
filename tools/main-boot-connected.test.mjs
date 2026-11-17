@@ -35,7 +35,7 @@ import { FRONTEND_ROUTINES } from '../proof/replay/main-frontend.mjs';
 import { MAIN_START_ROUTINES } from '../proof/replay/main-start.mjs';
 import { withGameStartReference } from '../proof/game-reference/game-start.mjs';
 import { dialogAccess } from '../src/system/native-dialog-support.mjs';
-import { finishInterruptObservations } from '../src/system/main-wait-interrupt.mjs';
+import { finishInterruptObservations } from '../proof/system/main-wait-interrupt.mjs';
 const MAIN_STARTUP_ROUTINES = withFrontendReference(MAIN_STARTUP_ROUTINES_TASK);
 
 const map = decodeWindows([

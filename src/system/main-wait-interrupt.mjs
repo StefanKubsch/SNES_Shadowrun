@@ -1,7 +1,6 @@
 import { taskStop } from './task-stop.mjs';
 import { runObservedNmi, ObservedNmiContinuation } from './nmi-call.mjs';
 import { NativeCallContinuation } from './native-call-continuation.mjs';
-import { finishTextDmaObservations } from './main-dma-readback.mjs';
 import { LagFreeFrames } from '../vm/frame-events.mjs';
 import { WORD_BITS, WORD_MASK } from '../constants/bits.mjs';
 
@@ -96,10 +95,4 @@ function* interruptSequence(h, events, pc) {
       checkInterruptReturn(h.ctx, before, pc);
     };
   }
-}
-
-export function finishInterruptObservations(events) {
-  if (!lagFree(events) && events.interruptIndex !== events.interrupts.length)
-    taskStop('wait_interrupt_observation_unused', { observationIndex: events.interruptIndex });
-  finishTextDmaObservations(events);
 }

@@ -16,7 +16,7 @@ import { dialogAccess } from '../src/system/native-dialog-support.mjs';
 import { playCutscene } from '../proof/cutscene-reference/cutscene-scene.mjs';
 import { playMatrixScene } from '../proof/matrix-reference/matrix-scene-loop.mjs';
 import { SCENE_REFERENCE_ROUTINES as MAIN_SCENE_ROUTINES } from '../proof/scene-reference-routines.mjs';
-import { finishInterruptObservations } from '../src/system/main-wait-interrupt.mjs';
+import { finishInterruptObservations } from '../proof/system/main-wait-interrupt.mjs';
 import { NATIVE_CALL_CONTINUATIONS } from '../src/system/native-call-continuation.mjs';
 import { WAIT_PAUSED } from '../src/system/native-wait-continuation.mjs';
 

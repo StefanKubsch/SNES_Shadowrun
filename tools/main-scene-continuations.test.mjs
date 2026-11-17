@@ -12,7 +12,7 @@ import { TaskAccessor } from '../src/vm/task-accessor.mjs';
 import { dialogAccess } from '../src/system/native-dialog-support.mjs';
 import { SCENE_GRAPHICS_ROUTINES } from '../proof/system/main-scene-graphics.mjs';
 import { loadScene } from '../proof/system/main-scene-load.mjs';
-import { finishInterruptObservations } from '../src/system/main-wait-interrupt.mjs';
+import { finishInterruptObservations } from '../proof/system/main-wait-interrupt.mjs';
 
 const portrait = JSON.parse(readFileSync(new URL('../analysis/render-9f6d.json', import.meta.url)))
   .windows.filter((w) => ['unpack9F6D', 'bit9E65'].includes(w.name))

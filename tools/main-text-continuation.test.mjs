@@ -8,7 +8,7 @@ import { dialogAccess } from '../src/system/native-dialog-support.mjs';
 import { NATIVE_CALL_CONTINUATIONS } from '../src/system/native-call-continuation.mjs';
 import { WAIT_PAUSED, WAIT_RETURNED } from '../src/system/native-wait-continuation.mjs';
 import { GAME_NMI_ROUTINES } from '../proof/replay/main-game-nmi.mjs';
-import { finishInterruptObservations } from '../src/system/main-wait-interrupt.mjs';
+import { finishInterruptObservations } from '../proof/system/main-wait-interrupt.mjs';
 import { MAIN_LOOP_ROUTINES } from '../proof/vm/main-loop.mjs';
 import { MAIN_UPKEEP_ROUTINES } from '../proof/replay/main-loop-upkeep.mjs';
 import { GLOVE_ROUTINES } from '../proof/replay/native-glove-target-support.mjs';

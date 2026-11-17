@@ -11,7 +11,7 @@ import { nativeOpcodeTargets } from '../src/data/native-opcode-targets.mjs';
 import { nativeTarget } from '../src/script/native-targets.mjs';
 import { BOOT_NATIVE_CONTRACTS } from './main-boot-native-contracts.mjs';
 import { MAIN_STARTUP_ROUTINES } from '../proof/replay/main-startup.mjs';
-import { finishInterruptObservations } from '../src/system/main-wait-interrupt.mjs';
+import { finishInterruptObservations } from '../proof/system/main-wait-interrupt.mjs';
 import { isIoAddress, isArithmeticRegister } from '../src/vm/devices.mjs';
 import { observationSet, ObservedDevices } from '../proof/vm/observed-devices.mjs';
 

@@ -18,8 +18,8 @@ import { clearTextTiles } from '../proof/system/main-text-upload.mjs';
 import { GAME_NMI_ROUTINES } from '../proof/replay/main-game-nmi.mjs';
 import { printText, drawTextBuffer } from '../proof/replay/native-text-compose.mjs';
 import { runTaskMenuCompose } from '../proof/replay/native-menu-compose.mjs';
-import { finishInterruptObservations } from '../src/system/main-wait-interrupt.mjs';
-import { finishTextDmaObservations } from '../src/system/main-dma-readback.mjs';
+import { finishInterruptObservations } from '../proof/system/main-wait-interrupt.mjs';
+import { finishTextDmaObservations } from '../proof/system/main-dma-readback.mjs';
 import { textDma, referenceTextDma } from './main-dma-readback-fixtures.mjs';
 
 const freeze = (rows) => Object.freeze(rows.map((o) => Object.freeze({ ...o })));

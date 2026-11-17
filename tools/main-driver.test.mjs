@@ -39,7 +39,7 @@ import { textDma } from './main-dma-readback-fixtures.mjs';
 import { GAME_NMI_ROUTINES } from '../proof/replay/main-game-nmi.mjs';
 import { MAIN_SCENE_ROUTINES } from '../proof/replay/main-scene.mjs';
 import { FRONTEND_NMI_ROUTINES } from '../proof/replay/main-frontend-nmi.mjs';
-import { finishInterruptObservations } from '../src/system/main-wait-interrupt.mjs';
+import { finishInterruptObservations } from '../proof/system/main-wait-interrupt.mjs';
 import { dialogAccess } from '../src/system/native-dialog-support.mjs';
 import { mainLoopWindow } from './main-loop-motion-source.mjs';
 import { assertPinnedTaskSource } from './pinned-task-source.mjs';

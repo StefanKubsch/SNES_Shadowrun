@@ -11,7 +11,7 @@ import { TaskAccessor } from '../src/vm/task-accessor.mjs';
 import { dialogAccess } from '../src/system/native-dialog-support.mjs';
 import { FRONTEND_ROUTINES as FRONTEND_ROUTINES_TASK } from '../proof/replay/main-frontend.mjs';
 import { runObservedNmi } from '../src/system/nmi-call.mjs';
-import { finishInterruptObservations } from '../src/system/main-wait-interrupt.mjs';
+import { finishInterruptObservations } from '../proof/system/main-wait-interrupt.mjs';
 import { isIoAddress, isArithmeticRegister } from '../src/vm/devices.mjs';
 import { SRAM_SIZE } from '../src/vm/memory.mjs';
 import { saveGameSlot } from '../proof/replay/native-main-menu.mjs';

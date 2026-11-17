@@ -21,7 +21,7 @@ import { NATIVE_CALL_CONTINUATIONS } from '../src/system/native-call-continuatio
 import { WAIT_PAUSED } from '../src/system/native-wait-continuation.mjs';
 import { runMainReset, runMainSoftwareReset } from '../proof/replay/main-reset.mjs';
 import { runObservedNmi } from '../src/system/nmi-call.mjs';
-import { finishInterruptObservations } from '../src/system/main-wait-interrupt.mjs';
+import { finishInterruptObservations } from '../proof/system/main-wait-interrupt.mjs';
 import { SRAM_SIZE } from '../src/vm/memory.mjs';
 import { isIoAddress, isArithmeticRegister } from '../src/vm/devices.mjs';
 

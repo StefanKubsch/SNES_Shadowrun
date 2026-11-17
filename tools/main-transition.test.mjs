@@ -41,7 +41,7 @@ import { MAIN_SCENE_ROUTINES } from '../proof/replay/main-scene.mjs';
 import { NATIVE_CALL_CONTINUATIONS } from '../src/system/native-call-continuation.mjs';
 import { WAIT_PAUSED } from '../src/system/native-wait-continuation.mjs';
 import { MAIN_STARTUP_ROUTINES } from '../proof/replay/main-startup.mjs';
-import { finishInterruptObservations } from '../src/system/main-wait-interrupt.mjs';
+import { finishInterruptObservations } from '../proof/system/main-wait-interrupt.mjs';
 const specs = [...sceneCollisionSpecs, ...sceneGraphicsSpecs, ...transitionSpecs],
   maps = specs.map((s) => decodeWindows(s.windows));
 const graph = new Map(

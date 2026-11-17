@@ -102,6 +102,8 @@ export function interruptStep(h, events, pc) {
   }
 }
 
+import { finishTextDmaObservations } from './main-dma-readback.mjs';
+
 // Native-mode WORD entry at direct page 0 in the given code bank.
 export const waitEntry = (h, bank) => {
   const { ctx } = h;
@@ -135,4 +137,11 @@ export function readInputWithInterrupts(h, events) {
 // interrupt comparisons; the cutscene runs it as a FadePollContinuation.
 export function runInterruptFadePoll(h, events) {
   return drainNativeSequence(new FadePollContinuation(h, events).sequence);
+}
+
+// The end of a recorded run: every interrupt and text DMA observation is used.
+export function finishInterruptObservations(events) {
+  if (!lagFree(events) && events.interruptIndex !== events.interrupts.length)
+    taskStop('wait_interrupt_observation_unused', { observationIndex: events.interruptIndex });
+  finishTextDmaObservations(events);
 }

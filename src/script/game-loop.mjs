@@ -23,7 +23,6 @@ import { ScriptNatives, ROUND, nativeTarget } from './natives.mjs';
 import { JsTasks } from './task-api.mjs';
 import { interruptEventsOf } from '../vm/devices.mjs';
 import { NativeCallContinuation } from '../system/native-call-continuation.mjs';
-import { finishInterruptObservations } from '../system/main-wait-interrupt.mjs';
 import { dialogAccess } from '../system/native-dialog-support.mjs';
 import { runMainReset } from '../system/main-reset.mjs';
 import { mainStartupSequence, MAIN_STARTUP_ENTRY } from '../system/main-startup.mjs';
@@ -152,7 +151,7 @@ export class GameLoop {
         yield {
           continuation: new MainLoopContinuation(a, { events, returnToOwner: true }),
         };
-        this.closeInterval(events);
+        this.closeInterval();
         if (ctx.pc !== MAIN_LOOP_ROUND) break;
         a.pushWord(ROUND_RETURN_WORD);
         yield { continuation: this.round(ROUND) };
@@ -167,9 +166,8 @@ export class GameLoop {
     }
   }
 
-  // The end of a main interval: every observation of its lag-free set is used.
-  closeInterval(events) {
-    if (events.interrupts !== undefined) finishInterruptObservations(events);
+  // The end of a main interval: every device read of its lag-free set is used.
+  closeInterval() {
     const a = this.accessor;
     if (a.ioIndex !== a.io.length) taskStop('main_loop_io_observation_unused');
     a.io = null;

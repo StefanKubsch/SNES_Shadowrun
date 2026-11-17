@@ -25,8 +25,8 @@ import { SCENE_REFERENCE_ROUTINES as MAIN_SCENE_ROUTINES } from '../proof/scene-
 import {
   waitForRandomStateChangeWithInterrupts,
   readInputWithInterrupts,
+  finishInterruptObservations,
 } from '../proof/system/main-wait-interrupt.mjs';
-import { finishInterruptObservations } from '../src/system/main-wait-interrupt.mjs';
 import { inputWaitF953Window } from './task-native-input-wait-f953-source.mjs';
 import { DIALOG_WINDOWS } from './task-native-936c-windows.mjs';
 import { requestWindows } from './render-task-native-menu-compose-source-proof.mjs';

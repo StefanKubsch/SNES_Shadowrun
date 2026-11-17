@@ -16,7 +16,7 @@ import {
   MAIN_LOOP_ROUTINES,
 } from './main-loop.mjs';
 import { WAIT_PAUSED } from '../../src/system/native-wait-continuation.mjs';
-import { finishInterruptObservations } from '../../src/system/main-wait-interrupt.mjs';
+import { finishInterruptObservations } from '../system/main-wait-interrupt.mjs';
 import {
   MAIN_START,
   MAIN_START_ROUTINES,
@@ -38,7 +38,7 @@ import {
 } from '../replay/main-startup.mjs';
 import { runMainReset, runMainSoftwareReset } from '../replay/main-reset.mjs';
 import { NativeCallContinuation } from '../../src/system/native-call-continuation.mjs';
-import { BYTE_BITS, WORD_BITS, BANK_SIZE } from '../../src/constants/bits.mjs';
+import { BYTE_BITS, WORD_BITS, BANK_SIZE, BYTE_MASK } from '../../src/constants/bits.mjs';
 import {
   FLAG_ZERO,
   FLAG_INDEX_8BIT,
@@ -46,7 +46,6 @@ import {
   FLAG_DECIMAL,
 } from '../../src/constants/cpu-flags.mjs';
 import { CODE_BANK, CODE_BANK_BASE } from '../../src/constants/memory-map.mjs';
-import { BYTE_MASK } from '../../src/constants/bits.mjs';
 
 // Reset entries: power-on reset 00:E382, and the software reset that the BEQ
 // at 80:9E2F selects (entry 9E3D) when the pad word in A is SOFT_RESET_BUTTONS

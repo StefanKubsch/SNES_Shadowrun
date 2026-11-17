@@ -20,7 +20,7 @@ import {
   WordWaitContinuation,
   RequestWaitContinuation,
 } from '../proof/system/main-word-wait.mjs';
-import { finishInterruptObservations } from '../src/system/main-wait-interrupt.mjs';
+import { finishInterruptObservations } from '../proof/system/main-wait-interrupt.mjs';
 import { WAIT_PAUSED, WAIT_RETURNED } from '../src/system/native-wait-continuation.mjs';
 import {
   waitForTextMapUpload,

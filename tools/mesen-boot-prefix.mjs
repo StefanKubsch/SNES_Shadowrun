@@ -24,7 +24,7 @@ import { runMainStartup, MAIN_STARTUP_ROUTINES } from '../proof/replay/main-star
 import { withFrontendReference } from '../proof/frontend-reference/frontend.mjs';
 import { runMainOwnerStart } from '../proof/replay/main-frontend.mjs';
 import { runMainStart } from '../proof/replay/main-start.mjs';
-import { finishInterruptObservations } from '../src/system/main-wait-interrupt.mjs';
+import { finishInterruptObservations } from '../proof/system/main-wait-interrupt.mjs';
 
 const ROM_PATH = fileURLToPath(new URL('../Shadowrun (E).smc', import.meta.url));
 export const BOOT_PPU_OVERRIDES = [
