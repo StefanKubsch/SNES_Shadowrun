@@ -13,3 +13,12 @@ seven, including narrow incoming registers restored by the intro. They compare
 complete memory, device writes, serviced waits, registers and final long return.
 The fixture services frame counters, brightness and held input explicitly; it
 adds no original route, elapsed-time or hardware evidence.
+
+## Intro credits call
+
+The intro calls the mirrored credits body directly inside its original long call
+frame at 81:E120. It restores its saved status and data bank after the credits
+return and the game sound directory is reinstalled. The former intro remains in
+`proof/caller/intro-scene.mjs`; replay binds it independently with the former
+cutscene. The caller cases now compare both complete entry directions with that
+retained chain, including actual packed data, graphics and sound commands.

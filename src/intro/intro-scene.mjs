@@ -7,7 +7,8 @@
 // five packed streams, plays its song and a sound, fades in and runs 300 frames
 // unless a button is held. It fades out, plays cutscene 5 mirrored and sets up the
 // game's sounds again.
-import { nativeCallSequence } from '../system/native-call-continuation.mjs';
+import { nativeCallSequence, dialogCallBody } from '../system/native-call-continuation.mjs';
+import { cutsceneSequence } from '../cutscene/cutscene-scene.mjs';
 import { lagFree } from '../system/main-wait-interrupt.mjs';
 import { sceneRuntime } from '../system/scene-runtime.mjs';
 import { startSceneScreen, enableNmiAndJoypad, disableNmi } from '../system/nmi.mjs';
@@ -263,7 +264,13 @@ export function* introSequence(h, events, routines) {
     ctx.a = END_SCENE;
     ctx.x = END_SCENE_ARGUMENT;
   };
-  yield* call(CUTSCENE_SITE, CUTSCENE);
+  yield* dialogCallBody(
+    h,
+    CUTSCENE_SITE,
+    CUTSCENE,
+    () => cutsceneSequence(h, events, routines),
+    true,
+  );
   let result;
   yield () => {
     setUpGameAudio(m);

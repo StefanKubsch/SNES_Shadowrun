@@ -3,6 +3,7 @@ import assert from 'node:assert/strict';
 import { cutsceneSequence as direct } from '../src/cutscene/cutscene-scene.mjs';
 import { cutsceneSequence as former } from '../proof/caller/cutscene-scene.mjs';
 import { introSequence } from '../src/intro/intro-scene.mjs';
+import { introSequence as formerIntro } from '../proof/caller/intro-scene.mjs';
 import { createSide } from './lift-function-harness.mjs';
 import { LagFreeFrames } from '../src/vm/frame-events.mjs';
 import {
@@ -32,13 +33,13 @@ function run(sequence, scene, budget, status = 0) {
   h.pushByte(0x80);
   h.a.pushWord(0x1234);
   const routines = new Map();
-  const runIntro = (callee, e, r) => drainNativeSequence(introSequence(callee, e, r)),
+  const runIntro = (callee, e, r) => drainNativeSequence(formerIntro(callee, e, r)),
     runCutscene = (callee, e, r) => drainNativeSequence(former(callee, e, r));
   routines.set(0x81dfe7, runIntro);
   routines.set(0x81cdf8, runCutscene);
   NATIVE_CALL_CONTINUATIONS.set(runIntro, {
     run: runIntro,
-    create: () => new NativeCallContinuation(a, introSequence(h, events, routines)),
+    create: () => new NativeCallContinuation(a, formerIntro(h, events, routines)),
   });
   NATIVE_CALL_CONTINUATIONS.set(runCutscene, {
     run: runCutscene,
@@ -71,5 +72,15 @@ for (const budget of [1, 7])
       assert.deepEqual(actual, run(former, 0x14, budget, status));
       assert.equal(actual.ctx.s, 0x1c9);
       assert.equal(actual.ctx.programBank, 0x80);
+      assert.equal(actual.ctx.pc, 0x1235);
+    });
+
+for (const budget of [1, 7])
+  for (const status of [0, 0x30])
+    test(`intro owns the nested mirrored credits call, budget ${budget}, status ${status}`, () => {
+      const actual = run(introSequence, 0x14, budget, status);
+      assert.deepEqual(actual, run(formerIntro, 0x14, budget, status));
+      assert.ok(actual.waits.length > 16);
+      assert.equal(actual.ctx.bank, 0x80);
       assert.equal(actual.ctx.pc, 0x1235);
     });

@@ -21,7 +21,8 @@ import { randomBelow, randomBelowLong } from '../../src/system/native-random.mjs
 import { handleMatrixNmi, matrixSceneSequence } from '../../src/matrix/matrix-scene.mjs';
 import { cutsceneSequence } from '../caller/cutscene-scene.mjs';
 import { handleCutsceneNmi } from '../../src/cutscene/cutscene-scene.mjs';
-import { introSequence, setUpGameAudioRoutine } from '../../src/intro/intro-scene.mjs';
+import { introSequence } from '../caller/intro-scene.mjs';
+import { setUpGameAudioRoutine } from '../../src/intro/intro-scene.mjs';
 import { MAIN_UPKEEP_ROUTINES } from './main-loop-upkeep.mjs';
 import { INTRO_NMI_ROUTINES } from '../../src/system/main-intro-nmi.mjs';
 import { GAME_NMI_ROUTINES } from './main-game-nmi.mjs';
