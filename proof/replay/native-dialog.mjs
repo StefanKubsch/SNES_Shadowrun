@@ -46,7 +46,7 @@ import { releaseNoticeWindowsAdapter } from './native-slot-release.mjs';
 import { openWindowAdapter } from './native-window-open.mjs';
 import { runReleaseWindowCall } from '../../proof/caller/window-release.mjs';
 import { setMusicMode } from './native-audio-compose.mjs';
-import { readInput } from '../../src/system/native-input-apu.mjs';
+import { readInput } from '../system/native-input-apu.mjs';
 import {
   waitForRandomStateChangeWithInterrupts,
   readInputWithInterrupts,

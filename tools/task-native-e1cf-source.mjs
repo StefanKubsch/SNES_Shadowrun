@@ -37,8 +37,8 @@ export const nativeC461Spec = {
   returns: ['80:C46D'],
   windows: [{ start: 0x80c461, hex: 'A5022016C4A90D002207F08160' }],
   externalReturns: [
-    [0x80c416, 'RTS', 'stereo position, computeSoundPan in src/system/native-input-apu.mjs'],
-    [0x81f007, 'RTL', 'APU command, sendApuCommand in src/system/native-input-apu.mjs'],
+    [0x80c416, 'RTS', 'stereo position, computeSoundPan in proof/system/native-input-apu.mjs'],
+    [0x81f007, 'RTL', 'APU command, sendApuCommand in proof/system/native-input-apu.mjs'],
   ],
   scope:
     'Original Native52 C461 own code with external returns into C416 and 81:F007; equations in proof/apu-reference/sound-stereo.mjs, differential check in tools/task-native-e1cf.test.mjs.',

@@ -113,7 +113,7 @@ export const nativeE014Spec = {
     [0x8092c5, 'RTS', 'dialog close, closeDialog in proof/replay/native-dialog.mjs'],
     [0x81886a, 'RTL', 'screen, clearFixedColour in src/system/native-dialog-portrait.mjs'],
     [0x80bcb2, 'RTS', 'glove off, putGloveAway in src/system/native-dialog-portrait.mjs'],
-    [0x81f007, 'RTL', 'sound command, sendApuCommand in src/system/native-input-apu.mjs'],
+    [0x81f007, 'RTL', 'sound command, sendApuCommand in proof/system/native-input-apu.mjs'],
     [
       0x80a835,
       'RTS',

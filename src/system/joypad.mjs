@@ -1,6 +1,6 @@
 // The joypad (lifted from 80:9E0B and 80:9E1A; long forms 80:F290 and 80:F298,
 // register-level versions in proof/system/main-scene-wait.mjs and
-// src/system/native-input-apu.mjs). The NMI stores the held buttons; the game
+// proof/system/native-input-apu.mjs). The NMI stores the held buttons; the game
 // loop derives the newly pressed ones.
 import { taskStop } from './task-stop.mjs';
 import { PAD_HELD, PAD_PREVIOUS, PAD_PRESSED } from '../data/wram.mjs';

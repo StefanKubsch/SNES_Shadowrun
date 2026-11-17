@@ -31,7 +31,7 @@ const ext = {
     RTL,
     'frame counter wait, waitForRandomStateChange (proof/system/native-frame-wait.mjs)',
   ],
-  '9E1A': [0x809e1a, RTS, 'joypad, readInput (src/system/native-input-apu.mjs)'],
+  '9E1A': [0x809e1a, RTS, 'joypad, readInput (proof/system/native-input-apu.mjs)'],
   FA67: [
     0x80fa67,
     RTS,

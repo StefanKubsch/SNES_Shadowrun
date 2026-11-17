@@ -47,7 +47,7 @@ import { MATRIX_REFERENCE_ROUTINES } from '../proof/matrix-reference/matrix-scen
 import { sendMatrixDmaRecords } from '../proof/matrix-reference/main-matrix-nmi.mjs';
 import { MATRIX_COUNT_TEXT } from '../src/data/matrix-text-edits.mjs';
 import { FLAG_CARRY } from '../src/constants/cpu-flags.mjs';
-import { readInput } from '../src/system/native-input-apu.mjs';
+import { readInput } from '../proof/system/native-input-apu.mjs';
 
 const SAMPLES = 300,
   WRAM_BYTES = 0x20000,

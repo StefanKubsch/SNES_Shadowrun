@@ -315,3 +315,8 @@ The register-level frame wait 81:EEBB and the observed byte wait of polling loop
 lost their last live callers with the scene frame interface; `src/system/main-scene-wait.mjs`
 merged into `proof/system/main-scene-wait.mjs`. The game waits through
 `src/system/frame-wait.mjs`.
+
+The register-level pad read 80:9E1A lost its last live caller with the observed
+scene calls; `src/system/native-input-apu.mjs` merged into
+`proof/system/native-input-apu.mjs`. Source generator labels follow the path, and a
+full artifact rebuild refreshed their reports.

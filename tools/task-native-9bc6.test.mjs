@@ -14,7 +14,7 @@ import { GLOVE_ROUTINES, measureTextWidth } from '../proof/replay/native-glove-t
 import { putGloveAway } from '../proof/system/native-glove-release.mjs';
 import { waitForRandomStateChange } from '../proof/system/native-frame-wait.mjs';
 import { readTextBit } from '../proof/system/native-text-prerequisites.mjs';
-import { readInput } from '../src/system/native-input-apu.mjs';
+import { readInput } from '../proof/system/native-input-apu.mjs';
 
 // NativeD8/9BC6 (choose a target with the action glove) against the original instructions. AF04, B0A1 and 9E1A run
 // as proved modules on both sides; F963, FE69, FA3E, FEC1 and AD92 have separate proofs and run as

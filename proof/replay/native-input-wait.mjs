@@ -1,7 +1,7 @@
 import { taskStop } from '../../src/system/task-stop.mjs';
 import { taskTextAccess } from '../../src/system/native-text-prerequisites.mjs';
 import { waitForRandomStateChange } from '../system/native-frame-wait.mjs';
-import { readInput } from '../../src/system/native-input-apu.mjs';
+import { readInput } from '../system/native-input-apu.mjs';
 import { validateTaskActionsOptions } from './native-actions.mjs';
 import { dialogAccess } from '../../src/system/native-dialog-support.mjs';
 import { ObservedWaitContinuation } from '../../src/system/main-wait-interrupt.mjs';
