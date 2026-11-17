@@ -23,3 +23,19 @@ recorded observations, scratch masks and hardware assumptions do not change.
 owner returns, reloads and main-loop entry with the retained dispatched callers.
 Existing source and scene comparisons continue to own their original evidence.
 Moving a reference creates no new hardware, route or timing evidence.
+
+The frontend NMI table binds the start-menu callback directly. It no longer
+includes settings helper entries. Their byte-for-byte
+equations and frontend call helpers already remain in
+[the replay frontend helpers](../proof/replay/main-frontend-text.mjs), so the
+unused duplicate game module is removed rather than copied again.
+The live start menu still calls the save-slot checksum through a fixed helper;
+the frontend table therefore binds that helper explicitly.
+
+The actual interrupt consumer is `LiveDevices.interruptRoutines`, handed to
+the NMI dispatcher in `nmi-call.mjs`. Its admitted callback set consists of
+the matrix, title objects, intro, cutscene, game, start menu, title prologue,
+title pan, title scroll and boot-screen return. A callback may still require
+its own internal helper table for recorded observations. Such dependencies
+must stay explicit; the broader start, room and scene entry tables are not
+part of the callback interface.

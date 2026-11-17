@@ -11,6 +11,7 @@ import { MainLoopContinuation } from '../proof/caller/main-loop.mjs';
 import { MAIN_LOOP_ROUND } from '../src/vm/main-loop.mjs';
 import { ROUND } from '../src/script/natives.mjs';
 import { FRONTEND_ROUTINES } from '../src/system/main-frontend.mjs';
+import { FRONTEND_ROUTINES as formerRoutines } from '../proof/script/live-frontend.mjs';
 import { nativeOpcodeTargets } from '../src/data/native-opcode-targets.mjs';
 import { nativeTarget } from '../src/script/native-targets.mjs';
 import { fnv1a } from '../src/data/fnv.mjs';
@@ -76,7 +77,7 @@ function run(plan, budget, previous) {
       return new Type(game.vm, {
         devices: game.devices,
         routines: previous
-          ? new Map([...FRONTEND_ROUTINES, [0x80cc4b, processSceneRequest]])
+          ? new Map([...formerRoutines, ...FRONTEND_ROUTINES, [0x80cc4b, processSceneRequest]])
           : FRONTEND_ROUTINES,
         admitted: nativeOpcodeTargets,
         implementation: nativeTarget,
