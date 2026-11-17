@@ -13,7 +13,7 @@ import { putOnActionGlove, moveGlove } from '../proof/replay/native-glove.mjs';
 import { GLOVE_ROUTINES, measureTextWidth } from '../proof/replay/native-glove-target-support.mjs';
 import { putGloveAway } from '../src/system/native-dialog-portrait.mjs';
 import { waitForRandomStateChange } from '../src/system/native-frame-wait.mjs';
-import { readTextBit } from '../src/system/native-text-prerequisites.mjs';
+import { readTextBit } from '../proof/system/native-text-prerequisites.mjs';
 import { readInput } from '../src/system/native-input-apu.mjs';
 
 // NativeD8/9BC6 (choose a target with the action glove) against the original instructions. AF04, B0A1 and 9E1A run

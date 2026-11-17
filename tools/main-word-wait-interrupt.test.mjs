@@ -26,7 +26,7 @@ import {
   waitForTextMapUpload,
   requestTextMapUpload,
 } from '../src/system/native-render-compose.mjs';
-import { runTaskTextWait } from '../src/system/native-text-prerequisites.mjs';
+import { runTaskTextWait } from '../proof/system/native-text-prerequisites.mjs';
 import { TALK_ROUTINES } from '../proof/replay/native-dialog.mjs';
 import { NATIVE_CALL_CONTINUATIONS } from '../src/system/native-call-continuation.mjs';
 import { textDma, referenceTextDma } from './main-dma-readback-fixtures.mjs';

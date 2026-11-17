@@ -108,3 +108,8 @@ edges, open and close 80:8EFE to 80:8F97) and their private tables moved to
 `proof/system/native-dialog-portrait.mjs`. The game runs their lifted versions;
 the live module keeps only the waits, unpacking, tile upload, glove release
 and the constants that lifted code shares.
+
+The register-level text prerequisites (bit read, geometry, mask close and text
+waits) and their private constants moved to
+`proof/system/native-text-prerequisites.mjs`. The live module keeps only the
+task text accessor that the lifted unpack, render and APU helpers share.
