@@ -131,6 +131,30 @@ These are game-state corrections; no new hardware or timing premise is needed.
 - The SRAM bytes and their validity checks are untouched. The correction
   applies to the loaded WRAM state and is retained on the next ordinary save.
 
+### Ending an aim in the frame of a turn
+
+- User report 2026-11-17: `rom_byte_absent at $80990C` after B (with Down)
+  ended a weapon aim; the session recording reproduced it on the next frame.
+- With a glove, `80:E12B` first turns the leader to it (`80:DF6B`, `80:AAAF`
+  with the leader in DP `00`). A changed direction with a finished animation
+  reselects the leader's action through `80:A985`, whose action entry pointer
+  overwrites DP `00` (here `88D4`). B, L or R then end the aim at `80:E1A2`;
+  `80:E1AA` calls `80:A985` with the idle action without reloading DP `00`.
+- The European original therefore indexes the object tables with that
+  pointer: it reads bank 80 ROM (`80:1038 + 88D4 = 80:990C`) and its writes
+  land in ROM. The leader keeps the aim action until the next one. The
+  ROM-free port does not hold those bytes and stopped.
+- The correction reloads the leader into DP `00` first, so ending the aim
+  returns the leader to the idle action as intended
+  ([player-control.mjs](../src/game/player-control.mjs)). Without the
+  correction the selection is left out when DP `00` is not the leader, which
+  matches the original's result without reading ROM.
+- [player-control-caller.test.mjs](../tools/player-control-caller.test.mjs)
+  covers both settings; replaying the reported recording passes the fault.
+- The gameplay configuration keeps `version: 1`: before this change every
+  session that reached this case stopped, so no existing recording continues
+  past it under different behaviour.
+
 ### Vampire farming (separate option, default off)
 
 - Actor `0188`, record `7E:36C5`, runs script `386`. After defeat that script

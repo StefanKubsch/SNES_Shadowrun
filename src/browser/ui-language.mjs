@@ -23,7 +23,7 @@ export const MENU_COPY = {
     volume: 'Tribute volume:',
     bugfixes: 'Original bug fixes',
     bugfixesHelp:
-      'Corrects returned companion weapons, Akimi’s arrival, Pushkin’s required conversation topic and Bulletproof Vest availability.',
+      'Corrects returned companion weapons, Akimi’s arrival, Pushkin’s required conversation topic, Bulletproof Vest availability and the stance after ending an aim.',
     preventExploits: 'Prevent vampire farming',
     preventExploitsHelp:
       'Keeps the defeated vampire from respawning after talking to Jester, preventing repeated payouts from the same fight.',
@@ -120,7 +120,7 @@ export const MENU_COPY = {
     volume: 'Tribute-Lautstärke:',
     bugfixes: 'Originalfehler beheben',
     bugfixesHelp:
-      'Korrigiert zurückgegebene Begleiterwaffen, Akimis Ankunft, Pushkins nötiges Gesprächsthema und die Verfügbarkeit der Bulletproof Vest.',
+      'Korrigiert zurückgegebene Begleiterwaffen, Akimis Ankunft, Pushkins nötiges Gesprächsthema, die Verfügbarkeit der Bulletproof Vest und die Haltung nach dem Beenden des Zielens.',
     preventExploits: 'Vampir-Farming verhindern',
     preventExploitsHelp:
       'Verhindert, dass der besiegte Vampir nach einem Gespräch mit Jester erneut erscheint und derselbe Kampf wiederholt Geld einbringt.',

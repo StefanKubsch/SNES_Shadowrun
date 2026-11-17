@@ -203,3 +203,53 @@ for (const budget of [1, 7])
         assert.equal(actual.input, 0);
         assert.equal(actual.wram[0] | (actual.wram[1] << 8), result);
       });
+
+// User report 2026-11-17 (rom_byte_absent at $80990C): B ended an aim in the frame
+// the leader turned to the glove. The turn (80:AAAF) reselected the leader's action
+// through 80:A985, which left its action entry pointer in DP 00, and 80:E1AA then
+// selected the idle action for that "slot", reading and writing bank 80 ROM. The
+// correction reloads the leader; the original keeps its aim action.
+for (const bugfixes of [false, true])
+  test(`player weapon release in the frame of a turn, fixes ${bugfixes}`, () => {
+    const aim = 5,
+      control = controlState([
+        [W.GLOVE_KIND, 1],
+        [W.AIMING_WEAPON, 0xffff],
+        [W.PAD_PRESSED, 0x8000],
+        [W.OBJECT_SELECTION + 2, aim],
+        [W.OBJECT_FRAME_COUNT + 2, 0],
+        [W.OBJECT_DIRECTION + 2, 0],
+        [W.GLOVE_X, 0x400],
+        [W.GLOVE_Y, 0x400],
+      ]);
+    const actual = compareRun(
+      (h, events, renderer) => {
+        h.a.vm = { ...h.a.vm, gameplay: { bugfixes } };
+        return directControl(h, events, renderer);
+      },
+      true,
+      ({ put, mem }) => {
+        put(W.PLAYER_OBJECT, 2);
+        put(W.PAD_HELD, 0);
+        put(W.RUNNER_WEAPON, 0xffff);
+        put(W.SELECTED_SPELL_SCRIPT, 0);
+        put(W.GROUP_SLOTS, 2);
+        put(W.GROUP_NUMBERS, mem.read16(0x809700));
+        put(W.OBJECT_RECORD + 2, 0x6200);
+        for (const [field, value] of control) put(field, value);
+        for (let n = 0; n <= W.NOTICE_WINDOW_LAST; n += 2) put(W.NOTICE_WINDOWS + n, 0xffff);
+      },
+      7,
+      [],
+      false,
+    );
+    assert.notEqual(
+      actual.wram[W.OBJECT_DIRECTION + 2] | (actual.wram[W.OBJECT_DIRECTION + 3] << 8),
+      0,
+      'the leader turned to the glove in this frame',
+    );
+    const selection =
+      actual.wram[W.OBJECT_SELECTION + 2] | (actual.wram[W.OBJECT_SELECTION + 3] << 8);
+    assert.equal(selection, bugfixes ? 0 : aim, bugfixes ? 'the leader is idle' : 'the aim stays');
+    assert.equal(actual.wram[W.AIMING_WEAPON], 0, 'the aim has ended');
+  });
