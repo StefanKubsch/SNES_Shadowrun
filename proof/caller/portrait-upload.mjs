@@ -39,7 +39,8 @@ import { dialogCallSequence } from '../system/native-call-sequences.mjs';
 import { sceneRuntime } from '../../src/system/scene-runtime.mjs';
 import { nmiAtBranch } from '../../src/system/frame-wait.mjs';
 import { lagFree } from '../../src/system/main-wait-interrupt.mjs';
-import { unpackPortrait, waitWord } from '../../src/system/native-dialog-portrait.mjs';
+import { waitWord } from '../system/native-dialog-portrait.mjs';
+import { unpackPortrait } from '../../src/system/native-dialog-portrait.mjs';
 import { UNPACK_7F, unpackLongRegisters } from '../../src/system/unpack.mjs';
 import {
   A1B0,

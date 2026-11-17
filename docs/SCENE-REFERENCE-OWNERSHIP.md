@@ -346,3 +346,8 @@ branches (inline job-list wait and NMI word observations): a probe that stopped 
 them was reached by none of the 50 nearest test files, since recorded runs use the
 register-level reload in `proof/system/native-scene-tiles.mjs`. The lifted reload now
 requires the lag-free frame model like the other live calls.
+
+The inline NMI waits `waitWord` and `nmiWords` (80:901C portrait DMA, AE0C/AE5E job
+lists) lost their last live caller with the object tile reload and moved to
+`proof/system/native-dialog-portrait.mjs`. The live portrait module keeps the
+portrait unpacker and the shared portrait constants.

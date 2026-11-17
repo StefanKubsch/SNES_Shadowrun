@@ -1,6 +1,7 @@
 // Register-level dialog portrait routines no longer run by the game (lifted in
 // src/game/portrait-window.mjs, portrait-upload.mjs, dialog-talk.mjs and
-// fixed-colour.mjs); the dialog references and comparisons call them.
+// fixed-colour.mjs); the dialog references and comparisons call them. The inline NMI
+// waits consume recorded observations.
 import {
   FIXED_COLOUR_BLACK,
   DP_PIXEL_WIDTH,
@@ -9,11 +10,10 @@ import {
   SECOND_PORTRAIT_VRAM,
   SECOND_PORTRAIT_HDMA,
   PORTRAIT_WINDOW,
-  waitWord,
 } from '../../src/system/native-dialog-portrait.mjs';
 import { waitForRandomStateChange } from './native-frame-wait.mjs';
 import { VMAINC_INCREMENT_AFTER_HIGH } from '../../src/constants/ppu.mjs';
-import { BYTE_SIGN, BYTE_MASK, WORD_SIGN } from '../../src/constants/bits.mjs';
+import { BYTE_SIGN, BYTE_MASK, WORD_SIGN, BANK_WRAP } from '../../src/constants/bits.mjs';
 import { WRAM_HIGH_BANK, WRAM_BANK } from '../../src/constants/memory-map.mjs';
 import {
   WRAM,
@@ -48,10 +48,14 @@ import {
 } from '../../src/constants/hardware-registers.mjs';
 import {
   FLAG_MEMORY_8BIT,
+  FLAG_INDEX_8BIT,
   FLAG_ZERO,
   FLAG_NEGATIVE,
   FLAG_CARRY,
 } from '../../src/constants/cpu-flags.mjs';
+
+import { interruptStep } from '../../src/system/main-wait-interrupt.mjs';
+import { taskStop } from '../../src/system/task-stop.mjs';
 
 // Offset of the last byte of the dialog HDMA table.
 const DIALOG_HDMA_LAST_BYTE = 0x0f;
@@ -303,4 +307,66 @@ export function closePortraitWindow(h, events) {
   h.testBits(h.abs(HDMAEN_SHADOW), false);
   h.rep(FLAG_MEMORY_8BIT);
   return h.rts();
+}
+
+// Inline NMI waits with their polled word; the branch follows the 3-byte LDA abs.
+const INLINE_WAITS = Object.freeze([
+  [0x80901c, PORTRAIT_DMA_REQUEST],
+  [0x80ae5e, NMI_JOB_LISTS],
+  [0x80ae0c, NMI_JOB_LISTS],
+]);
+const LDA_ABSOLUTE_BYTES = 3;
+
+// Wait loop LDA abs / Bxx onto itself: per pass one observation of the word that the NMI
+// writes; the value is stored at the original address and read afresh. extras: WRAM words that the
+// NMI also writes meanwhile and the code reads afterwards (one observation each with the same PC).
+export function waitWord(h, events, pc, offset, done, extras = []) {
+  if (events?.interrupts !== undefined) {
+    if (h.ctx.e !== 0 || h.ctx.d !== 0 || h.ctx.status & (FLAG_INDEX_8BIT | FLAG_MEMORY_8BIT))
+      taskStop('wait_interrupt_entry_required');
+    if (!INLINE_WAITS.some(([at, field]) => at === pc && field === offset))
+      taskStop('wait_interrupt_inline_entry_required', { pc, offset });
+    let again;
+    do {
+      interruptStep(h, events, pc);
+      h.load(h.read(h.abs(offset), 2));
+      interruptStep(h, events, pc + LDA_ABSOLUTE_BYTES);
+      again = pc === 0x80901c ? !(h.ctx.status & FLAG_NEGATIVE) : !(h.ctx.status & FLAG_ZERO);
+    } while (again);
+    return;
+  }
+  for (;;) {
+    const address = h.abs(offset),
+      o = events.values?.[events.waitIndex];
+    if (!o || o.pc !== pc || o.address !== address || o.width !== 2)
+      taskStop('task_wait_observation_required', {
+        pc,
+        address,
+        width: 2,
+        observationIndex: events.waitIndex,
+      });
+    events.waitIndex++;
+    events.waitEvents.push(o);
+    h.write(address, o.value, 2);
+    h.load(h.read(address, 2));
+    if (done(h.ctx.a)) break;
+  }
+  nmiWords(h, events, pc, extras);
+}
+// Words written by the NMI during a wait (bank 0), in observation order.
+export function nmiWords(h, events, pc, offsets) {
+  if (events?.interrupts !== undefined) return;
+  for (const offset of offsets) {
+    const o = events.values?.[events.waitIndex];
+    if (!o || o.pc !== pc || o.address !== offset || o.width !== 2)
+      taskStop('task_wait_observation_required', {
+        pc,
+        address: offset,
+        width: 2,
+        observationIndex: events.waitIndex,
+      });
+    events.waitIndex++;
+    events.waitEvents.push(o);
+    h.a.writeWord(offset, o.value, BANK_WRAP);
+  }
 }

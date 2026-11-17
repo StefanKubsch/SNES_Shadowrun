@@ -26,7 +26,7 @@
 // the caller's routine table.
 import { dialogCallBody, segmentSequence } from '../../src/system/native-call-continuation.mjs';
 import { dialogCallSequence } from '../system/native-call-sequences.mjs';
-import { nmiWords, waitWord } from '../../src/system/native-dialog-portrait.mjs';
+import { nmiWords, waitWord } from '../system/native-dialog-portrait.mjs';
 import { lagFree } from '../../src/system/main-wait-interrupt.mjs';
 import { nmiAtBranch } from '../../src/system/frame-wait.mjs';
 import { stepAnimation } from '../../src/game/object-animation.mjs';

@@ -12,7 +12,7 @@ import {
   waitForRandomStateChangeWithInterrupts,
   ObservedWaitContinuation,
 } from '../proof/system/main-wait-interrupt.mjs';
-import { waitWord } from '../src/system/native-dialog-portrait.mjs';
+import { waitWord } from '../proof/system/native-dialog-portrait.mjs';
 import { GAME_NMI_ROUTINES } from '../proof/replay/main-game-nmi.mjs';
 import { WAIT_PAUSED, WAIT_RETURNED } from '../src/system/native-wait-continuation.mjs';
 import { TaskAccessor } from '../src/vm/task-accessor.mjs';
