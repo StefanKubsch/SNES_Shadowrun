@@ -17,7 +17,6 @@ import {
   drawMatrixObjects,
   addMatrixObject,
   openNodeGates,
-  removeFinishedMatrixObjects,
 } from '../proof/matrix-reference/main-matrix-objects.mjs';
 import { playMatrixScene } from '../proof/matrix-reference/matrix-scene-loop.mjs';
 import { SCENE_REFERENCE_ROUTINES as MAIN_SCENE_ROUTINES } from '../proof/scene-reference-routines.mjs';
@@ -116,7 +115,7 @@ function sample(entry, seed) {
   if (entry === 0x81ee0c) word(0x2c, seed % 3 ? 0x1fc : 0);
   return s;
 }
-function routines(h) {
+function routines() {
   const r = new Map(MAIN_SCENE_ROUTINES);
   r.set(0x81f007, (h) => {
     h.a.trace.push({ kind: 'matrix-apu-call', pc: 0x81f007, address: h.ctx.x, value: h.ctx.a });
@@ -204,7 +203,7 @@ test('the audio wrapper rereads saved WORD values and restores X/Y from the real
   s.x = 0x3456;
   s.y = 0x789a;
   const transcripts = [];
-  const bind = (h) => {
+  const bind = () => {
     const seen = [];
     transcripts.push(seen);
     return new Map([

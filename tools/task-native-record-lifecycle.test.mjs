@@ -13,7 +13,7 @@ import { taskLeafFixture } from './task-native-leaf-fixtures.mjs';
 import { taskNativeOpcodeFixture } from './task-native-opcode-fixtures.mjs';
 import { prepared, unchangedFailure } from './task-native-test-support.mjs';
 import { sampleWord } from './render-f130-fixtures.mjs';
-import { bodyWord, omitBodyBytes } from './task-script-body-fixtures.mjs';
+import { omitBodyBytes } from './task-script-body-fixtures.mjs';
 import { commitTaskPlan } from '../proof/task/plan.mjs';
 import { inspectRom, cpuToOffset } from './rom.mjs';
 import { proveNativeOpcode } from './task-native-opcode-source.mjs';

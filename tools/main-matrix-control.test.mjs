@@ -284,7 +284,7 @@ test('C25C rereads the saved WORD index and has the original inclusive capacity 
     s.x = 0xcdef;
     s.word(0x1750, used);
     s.word(0x174c, capacity);
-    const bind = (h) =>
+    const bind = () =>
       new Map([
         [
           0x81b282,

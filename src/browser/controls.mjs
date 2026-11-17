@@ -110,10 +110,13 @@ export function gamepadBits(pad) {
 }
 // Stored bindings: unknown or reserved inputs are dropped, missing buttons get the default.
 export function parseBindings(text) {
-  let data = null;
+  let data;
   try {
     data = JSON.parse(text);
-  } catch {}
+  } catch {
+    // Unreadable stored bindings fall back to the defaults below.
+    data = null;
+  }
   const result = {};
   for (const name of BINDABLE) {
     const list = Array.isArray(data?.[name])

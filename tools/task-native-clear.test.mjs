@@ -7,7 +7,6 @@ import { prepareRenderFF79 } from '../proof/render/clear-ff79.mjs';
 import { taskClearFixture, taskNativeClearOpcodeFixture } from './task-native-clear-fixtures.mjs';
 import { prepared, unchangedFailure } from './task-native-test-support.mjs';
 import { bodyWord, omitBodyBytes } from './task-script-body-fixtures.mjs';
-import { sampleWord } from './render-f130-fixtures.mjs';
 import { commitTaskPlan } from '../proof/task/plan.mjs';
 import { inspectRom, cpuToOffset } from './rom.mjs';
 import { proveTaskNativeA7, nativeA7Anchors } from './task-native-clear-opcode-source.mjs';

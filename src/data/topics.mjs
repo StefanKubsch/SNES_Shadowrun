@@ -9,7 +9,7 @@
 // Native form assets/vm-topics.json: the text address per topic.
 import { VmFault } from '../vm/memory.mjs';
 import { romWriter, textPointerLabel, textPointerWord } from './rom-bytes.mjs';
-import { BYTE_MASK, BYTE_BITS, HEX_RADIX } from '../constants/bits.mjs';
+import { BYTE_MASK, BYTE_BITS } from '../constants/bits.mjs';
 
 export const TOPIC_TABLE = 0x8d8000,
   TOPICS = 64,

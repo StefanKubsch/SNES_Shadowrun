@@ -20,8 +20,6 @@ import {
 import { recordLifecyclePCs } from './task-script-body-record-lifecycle-fixtures.mjs';
 import { prepared, unchangedFailure } from './task-native-test-support.mjs';
 import { commitTaskPlan } from '../proof/task/plan.mjs';
-import { bodyProbe } from './task-script-body-artifacts.mjs';
-import { sampleWord } from './render-f130-fixtures.mjs';
 const specs = scriptBodySpecs.filter((s) => s.recordLifecycleBody),
   freeze = (xs) => Object.freeze(xs.map(Object.freeze));
 for (const s of specs) {

@@ -11,6 +11,7 @@ export default [
       'Ressources/',
       'docs/handoff-archiv/',
       '.cache/',
+      'dist/',
       'node_modules/',
     ],
   },

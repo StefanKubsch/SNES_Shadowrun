@@ -2,7 +2,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { prepareTaskNativeA8F5 as prepare } from '../proof/task/native-a8f5.mjs';
 import { taskLeafFixture } from './task-native-leaf-fixtures.mjs';
-import { prepared, commit, unchangedFailure } from './task-native-test-support.mjs';
+import { commit, unchangedFailure } from './task-native-test-support.mjs';
 const put = (f, a, v) => f.data.seed(a, [v & 255, v >>> 8]);
 const word = (f, a) => f.data.readByte(a).value | (f.data.readByte(a + 1).value << 8);
 test('B9 original list shift leaves the actual tail, uses two fresh DEC stores and frees the full slot', () => {

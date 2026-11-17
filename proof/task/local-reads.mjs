@@ -1,4 +1,3 @@
-import { taskStop } from '../../src/system/task-stop.mjs';
 import { prepareTaskPlan } from './plan.mjs';
 export function runTaskLocalReads(a) {
   const indexed = a.entry !== 0x80f8cb,

@@ -4,9 +4,7 @@ import { renderAddress } from '../proof/render/data.mjs';
 import { localWaitBodySpecs as modalBodySpecs } from '../proof/task/script-body-local-wait-specs.mjs';
 import { modalBodySpecs as sharedModalBodySpecs } from '../proof/task/script-body-modal-specs.mjs';
 import { localWaitSeedBytes as modalBodySeedBytes } from './task-script-body-local-wait-seeds.mjs';
-import { scriptBodyFixture, bodyCases } from './task-script-body-fixtures.mjs';
-import { prepareTaskScriptBody } from '../proof/task/script-bodies.mjs';
-import { commitTaskPlan } from '../proof/task/plan.mjs';
+import { bodyCases } from './task-script-body-fixtures.mjs';
 import { execFileSync } from 'node:child_process';
 import { runWaitBodyFixture } from './task-script-body-wait-fixtures.mjs';
 import {

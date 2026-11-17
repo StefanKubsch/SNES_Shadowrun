@@ -10,7 +10,6 @@ import {
   decodeWindows,
   prng,
   window,
-  rom,
   DialogTestMemory,
 } from './task-native-dialog-harness.mjs';
 import {
@@ -125,7 +124,7 @@ function sample(entry, seed) {
   }
   return s;
 }
-function routines(h, e, spec) {
+function routines() {
   const map = new Map(MAIN_SCENE_ROUTINES);
   // The independently pinned helpers run with their real call frames. Only the
   // BYTE wait is replaced in these own-code cases; no interrupt effect is inferred.

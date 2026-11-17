@@ -22,7 +22,6 @@ const drop = (f, ...addresses) => {
   for (const [a, v] of f.data.snapshot().bytes) if (!omit.has(a)) data.seed(a, [v]);
   return { ...f, data };
 };
-const context = (f, patch) => ({ ...f, context: Object.freeze({ ...f.context, ...patch }) });
 
 for (const opcode of [0x2c, 0x34])
   test(`synthetic local ${opcode.toString(16)} latches full index/PLA, wraps D+13, preserves exact store width`, () => {

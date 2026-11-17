@@ -4,7 +4,7 @@ import { createRenderData } from '../proof/render/data.mjs';
 import { prepareTaskNegateShifts as prepare } from '../proof/task/negate-shifts.mjs';
 import { commitTaskPlan } from '../proof/task/plan.mjs';
 import { taskFixture } from './task-native-fixtures.mjs';
-import { unchangedFailure, prepared, commit, writes, reads } from './task-native-test-support.mjs';
+import { unchangedFailure, prepared, writes, reads } from './task-native-test-support.mjs';
 const roots = [8451828, 8451837, 8451849];
 test('native negate preserves full8000 and FFFF wrap without binary-only requirement', () => {
   for (const [v, r] of [

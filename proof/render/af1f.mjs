@@ -81,15 +81,12 @@ export function renderAF1F(view, { x, y, carry, overflow }, budget, divisionMode
   a = readWord(0x7e0002 + x) & 255;
   writeWord(0xa8, a, false);
   a += 19;
-  carry = 0;
-  overflow = 0;
   y = resultRead('quotient');
   writeWord(0xa2, y, false);
   y = resultRead('remainder');
   writeWord(0xa5, y, false);
   if (y !== 0) {
     a -= 10;
-    carry = 1;
   }
   divide(a);
   x = 20;

@@ -5,10 +5,7 @@ import { prepareTaskRemainderUnsigned as unsigned } from '../proof/task/remainde
 import { prepareTaskRemainderSigned as signed } from '../proof/task/remainder-signed.mjs';
 import { prepareTaskScriptArguments as args } from '../proof/task/script-arguments.mjs';
 import { taskPrefixFixture as fixture } from './task-prefix-native-fixtures.mjs';
-import {
-  taskArithmeticFixture,
-  arithmeticObservations,
-} from './task-arithmetic-native-fixtures.mjs';
+import { taskArithmeticFixture } from './task-arithmetic-native-fixtures.mjs';
 import { prepared, unchangedFailure } from './task-native-test-support.mjs';
 
 test('signed/signed division counts both actual fresh signs and corrects only odd count', () => {

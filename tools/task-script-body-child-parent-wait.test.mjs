@@ -9,11 +9,7 @@ import {
   parentWaitText,
   parentWaitReward,
 } from './task-script-body-child-parent-wait-fixtures.mjs';
-import {
-  scriptBodyFixture,
-  bodyWord as word,
-  omitBodyBytes as omit,
-} from './task-script-body-fixtures.mjs';
+import { scriptBodyFixture, bodyWord as word } from './task-script-body-fixtures.mjs';
 import {
   childBodyProbe,
   runChildFixture,
@@ -23,9 +19,7 @@ import {
   prepareTaskScriptBody as start,
   prepareTaskScriptBodyParentPostrun as parentPost,
   prepareTaskScriptBodyResume as resume,
-  prepareTaskScriptBodyChildEnter as enter,
   prepareTaskScriptBodyChildPostrun as childPost,
-  prepareTaskScriptBodyParentResume as finish,
 } from '../proof/task/script-bodies.mjs';
 import { commit, prepared, unchangedFailure } from './task-native-test-support.mjs';
 import { commitTaskPlan } from '../proof/task/plan.mjs';

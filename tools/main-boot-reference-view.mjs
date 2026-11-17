@@ -48,7 +48,7 @@ export function bootReferenceView(
     if (offset >= rom.length) taskStop('render_source_required', { address: physical });
     return rom[offset];
   };
-  const write = (address, value, label) => {
+  const write = (address, value) => {
     tick();
     const physical = owner(address);
     if (physical >= 0x800000 && address >>> 16 !== 0) return; // original ineffective LoROM write

@@ -123,7 +123,7 @@ test('H-DMA rows follow the table format and drive the window edges per line', (
   );
 });
 test('H-DMA boundaries: channel conflict, unsupported tables and targets, disabled edges unknown', () => {
-  let { p, bus } = hdmaBus([1, 10, 20, 0]);
+  let { bus } = hdmaBus([1, 10, 20, 0]);
   bus.writeByte(0x420c, 1);
   // PDF 143: a channel enabled in 420C must not be used for general DMA.
   assert.throws(() => bus.writeByte(0x420b, 1), /ppu_hdma_channel_conflict/);
@@ -136,9 +136,10 @@ test('H-DMA boundaries: channel conflict, unsupported tables and targets, disabl
   bus.writeByte(0x4300, 1);
   bus.writeByte(0x4301, 0x21);
   assert.throws(() => hdmaRows(bus), /ppu_hdma_target_source_required/);
-  ({ p, bus } = hdmaBus([0x80, 10, 20, 0]));
+  ({ bus } = hdmaBus([0x80, 10, 20, 0]));
   bus.writeByte(0x420c, 1);
   assert.throws(() => hdmaRows(bus), /ppu_hdma_line_count_source_required/);
+  let p;
   ({ p, bus } = hdmaBus([1, 10, 20, 0]));
   p.writeByte(0x2126, 1);
   p.writeByte(0x2127, 2);

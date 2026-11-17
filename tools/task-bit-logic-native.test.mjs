@@ -1,10 +1,9 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { createRenderData } from '../proof/render/data.mjs';
 import { prepareTaskBitLogic as prepare } from '../proof/task/bit-logic.mjs';
 import { commitTaskPlan } from '../proof/task/plan.mjs';
 import { taskFixture } from './task-native-fixtures.mjs';
-import { unchangedFailure, prepared, commit, writes, reads } from './task-native-test-support.mjs';
+import { unchangedFailure, prepared, commit, writes } from './task-native-test-support.mjs';
 const roots = [8451861, 8451869, 8451877, 8451885];
 test('native bit logic independent patterns and unary complement use original store ordering', () => {
   for (const [entry, left, right, value] of [

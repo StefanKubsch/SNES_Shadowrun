@@ -116,7 +116,7 @@ test('Whole0D1 actualWORD getter/strict property branch owns complete allocated4
           .filter((a) => a.kind === 'write' && a.label === 'native-argument-workspace-low');
       assert.deepEqual(
         argumentsWritten.map(
-          (a, n) => a.value | (child.accesses[child.accesses.indexOf(a) + 1].value << 8),
+          (a) => a.value | (child.accesses[child.accesses.indexOf(a) + 1].value << 8),
         ),
         [65535, 56, 255, 3],
       );

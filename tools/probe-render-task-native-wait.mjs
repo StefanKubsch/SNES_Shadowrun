@@ -20,7 +20,7 @@ const definitions = [
   [0x80f390, prepareTaskNativeWaitOpcode],
   [0x80c1f9, prepareTaskNativeWaitResume],
 ];
-const bindings = definitions.map(([entry, prepare], n) => ({
+const bindings = definitions.map(([, prepare], n) => ({
     entry: source.proofs[n].entry,
     module: 'proof/task/native-wait.mjs',
     export: prepare.name,

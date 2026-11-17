@@ -358,7 +358,7 @@ test('Invalid provider seeds and malformed contexts cannot partially hydrate or 
   for (const values of [
     [1, 300],
     [1, undefined],
-    [1, , 2],
+    Object.assign([1], { 2: 2 }), // a hole between two values
   ])
     assert.throws(() => data.seed(0x7e5000, values));
   assert.throws(() => data.seed(0x809fff, [1, -1]));
