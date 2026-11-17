@@ -366,7 +366,7 @@ check(
 
 // Scene object tiles (ADF4/AE12/AC2F). Animation streams are in WRAM (bank 8C, offset < 2000),
 // Picture pointers address ROM locations in 9B/9C with few tiles so every path is reachable.
-import { reloadObjectTiles } from '../src/system/native-scene-tiles.mjs';
+import { reloadObjectTiles } from '../proof/system/native-scene-tiles.mjs';
 import { DIALOG_WINDOWS } from './task-native-936c-windows.mjs';
 const smallFrames = (() => {
   const list = [];

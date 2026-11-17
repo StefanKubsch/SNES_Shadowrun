@@ -25,7 +25,6 @@ import {
 } from '../vm/layout.mjs';
 import { taskStop } from './task-stop.mjs';
 import { renderAddress } from '../render/data.mjs';
-import { runTaskScriptArguments } from './script-arguments.mjs';
 import {
   FLAG_ZERO,
   FLAG_NEGATIVE,
@@ -333,12 +332,6 @@ function runTaskScriptYield(a, options) {
   }
   a.pushWord(SCRIPT_CHILD_RETURN_WORD, 'script-JSR-child');
   return child(a, h);
-}
-export function runTaskScriptOpcode(a, options) {
-  const prefix = runTaskScriptArguments(a);
-  if (options.expectedScriptId !== undefined && prefix.id !== options.expectedScriptId)
-    taskStop('task_script_ID_required');
-  return { ...prefix, ...runTaskScriptYield(a, options), argumentPrefixExecuted: true };
 }
 
 export { runTaskScriptYield };

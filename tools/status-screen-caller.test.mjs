@@ -9,7 +9,7 @@ import { decimalNumberSequence } from '../proof/caller/decimal-number.mjs';
 import { equipmentRowsSequence } from '../proof/caller/equipment-window.mjs';
 import { closeDialogSequence as formerClose } from '../proof/caller/dialog-talk.mjs';
 import { closePortraitWindowSequence } from '../proof/caller/portrait-window.mjs';
-import { reloadObjectTiles } from '../src/system/native-scene-tiles.mjs';
+import { reloadObjectTiles } from '../proof/system/native-scene-tiles.mjs';
 import { buildSpriteList } from '../proof/replay/native-scene-sprites.mjs';
 import { clearFixedColourRoutine } from '../src/game/dialog-talk.mjs';
 import * as W from '../src/data/wram.mjs';

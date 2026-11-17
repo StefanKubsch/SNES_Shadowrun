@@ -388,7 +388,7 @@
       "id": "task-f378-script-arguments",
       "entries": ["80:F460"],
       "status": "composition-required",
-      "reason": "Manuelle native Bindung geliefert: src/system/script-arguments.mjs. Source-specific atomic prefix only, explicit frozen context/physical owners/protected outerstack/windows/budgets; complete argument prefix stops BEFORE 80:F488 TCS stack migration. Whole Task/C1CA/9178/initialization/scene/frame composition remains open.",
+      "reason": "Manuelle native Bindung geliefert: proof/system/script-arguments.mjs. Source-specific atomic prefix only, explicit frozen context/physical owners/protected outerstack/windows/budgets; complete argument prefix stops BEFORE 80:F488 TCS stack migration. Whole Task/C1CA/9178/initialization/scene/frame composition remains open.",
       "manual_native": {
         "module": "proof/task/script-arguments.mjs",
         "report": "analysis/render-task-script-arguments-native.json"

@@ -155,3 +155,9 @@ The register-level entries of the game's audio set-up 81:EF63 and the title pan
 objects 81:D9D5 entered on their own moved to
 `proof/caller/scene-routine-adapters.mjs`. They still call the live bodies, so
 the routine tables of the scene references keep exercising the shipped code.
+
+The register-level object tile reload 80:ADF4 with its direct page words and job
+list increment moved to `proof/system/native-scene-tiles.mjs`; the live module
+exports the frame bank, stream, picture banks, slot addresses and tile queue it
+shares. The script opcode with its argument prefix and the argument reader moved
+to `proof/system/script-yield.mjs` and `proof/system/script-arguments.mjs`.

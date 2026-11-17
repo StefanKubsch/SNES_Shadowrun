@@ -11,7 +11,7 @@ import { setMusicModeRoutine } from '../src/apu/audio-routines.mjs';
 import * as direct from '../src/game/dialog-talk.mjs';
 import * as former from '../proof/caller/dialog-talk.mjs';
 import { buildSpriteList } from '../proof/replay/native-scene-sprites.mjs';
-import { reloadObjectTiles } from '../src/system/native-scene-tiles.mjs';
+import { reloadObjectTiles } from '../proof/system/native-scene-tiles.mjs';
 import * as W from '../src/data/wram.mjs';
 import { closePortraitWindowSequence } from '../proof/caller/portrait-window.mjs';
 import {

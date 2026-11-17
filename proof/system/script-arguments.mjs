@@ -5,8 +5,8 @@ import {
   FRAME_PC,
   FRAME_CALL_ID,
   FRAME_OPERAND_STACK,
-} from '../vm/layout.mjs';
-import { FLAG_CARRY, FLAG_ZERO, FLAG_NEGATIVE } from '../constants/cpu-flags.mjs';
+} from '../../src/vm/layout.mjs';
+import { FLAG_CARRY, FLAG_ZERO, FLAG_NEGATIVE } from '../../src/constants/cpu-flags.mjs';
 import {
   WORD_MASK,
   BANK_WRAP,
@@ -14,7 +14,7 @@ import {
   BYTE_MASK,
   BANK_SIZE,
   WORD_SIGN,
-} from '../constants/bits.mjs';
+} from '../../src/constants/bits.mjs';
 
 export function runTaskScriptArguments(a) {
   const id = a.streamWord('script-ID-WORD');
