@@ -1,12 +1,16 @@
-import { WRAM_BANK, CODE_BANK } from '../constants/memory-map.mjs';
-import { WINDOW_MAP_SOURCE, WINDOW_MAP_SOURCE_BANK, WINDOW_MAP_BUFFER } from '../data/wram.mjs';
-import { taskStop } from './task-stop.mjs';
-import { taskTextAccess } from './native-text-prerequisites.mjs';
-import { unpackStep } from './native-unpack-body.mjs';
-import { unpackStreamLong } from './native-unpack.mjs';
-import { drawJakeStateBar } from '../script/native-bar-tiles.mjs';
-import { FLAG_CARRY, FLAG_NEGATIVE } from '../constants/cpu-flags.mjs';
-import { WORD_MASK, WORD_BITS } from '../constants/bits.mjs';
+import { WRAM_BANK, CODE_BANK } from '../../src/constants/memory-map.mjs';
+import {
+  WINDOW_MAP_SOURCE,
+  WINDOW_MAP_SOURCE_BANK,
+  WINDOW_MAP_BUFFER,
+} from '../../src/data/wram.mjs';
+import { taskStop } from '../../src/system/task-stop.mjs';
+import { taskTextAccess } from '../../src/system/native-text-prerequisites.mjs';
+import { unpackStep } from '../../src/system/native-unpack-body.mjs';
+import { unpackStreamLong } from '../../src/system/native-unpack.mjs';
+import { drawJakeStateBar } from '../../src/script/native-bar-tiles.mjs';
+import { FLAG_CARRY, FLAG_NEGATIVE } from '../../src/constants/cpu-flags.mjs';
+import { WORD_MASK, WORD_BITS } from '../../src/constants/bits.mjs';
 
 const REPEATED_BANK_BYTE_FACTOR = 0x101;
 const WINDOW_MAP_LAST_WORD_OFFSET = 0x73e;

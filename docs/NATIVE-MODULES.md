@@ -72,7 +72,7 @@ the module that implements it.
 | `native-a96d`            | [native-object-height.mjs](../src/script/native-object-height.mjs)                                         |
 | `native-a977`            | [native-object-height-add.mjs](../src/script/native-object-height-add.mjs)                                 |
 | `native-a985`            | [native-object-action-apply.mjs](../src/script/native-object-action-apply.mjs)                             |
-| `native-a9b2`            | [native-render-unpack.mjs](../src/system/native-render-unpack.mjs)                                         |
+| `native-a9b2`            | [native-render-unpack.mjs](../proof/system/native-render-unpack.mjs)                                       |
 | `native-aa4c`            | [native-object-release-direct.mjs](../src/script/native-object-release-direct.mjs)                         |
 | `native-aaaf`            | [native-object-action-set.mjs](../src/script/native-object-action-set.mjs)                                 |
 | `native-af1f`            | [native-bar-tiles.mjs](../src/script/native-bar-tiles.mjs)                                                 |

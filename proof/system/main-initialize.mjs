@@ -1,7 +1,7 @@
 import { tasksOf } from '../../src/script/task-api.mjs';
 import { setNmiCallback } from './main-scene-video.mjs';
 import { unpackStreamLong } from '../../src/system/native-unpack.mjs';
-import { unpackWindowMap } from '../../src/system/native-render-unpack.mjs';
+import { unpackWindowMap } from './native-render-unpack.mjs';
 import { routineCaller } from '../../src/system/routine-call.mjs';
 import { BG3_MAP_VRAM, TEXT_CLEAR_SOURCE, clearTextTiles } from './main-text-upload.mjs';
 import { setUpGameScreen } from '../../src/game/game-screen.mjs';

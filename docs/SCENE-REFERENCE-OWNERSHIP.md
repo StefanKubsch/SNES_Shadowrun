@@ -192,3 +192,8 @@ follow the new path.
 The register-level random-state wait 81:B0A1 lost its last live importer with the
 window module above and moved unchanged to `proof/system/native-frame-wait.mjs`; the
 game waits for frames through `src/system/frame-wait.mjs`.
+
+The register-level window map unpack 81:A9B2 served only the window module above,
+the initialization reference and the A9B2 proof; it moved unchanged to
+`proof/system/native-render-unpack.mjs`. The game unpacks the window map in
+`src/game/game-screen.mjs`.

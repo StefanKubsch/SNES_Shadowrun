@@ -133,7 +133,7 @@ export const native9BD3Spec = {
       'RTS',
       'dialog close, 92C5 in proof/replay/native-dialog.mjs (tools/task-native-936c-source.mjs)',
     ],
-    [0x81a9b2, 'RTL', 'list conversion, unpackWindowMap in src/system/native-render-unpack.mjs'],
+    [0x81a9b2, 'RTL', 'list conversion, unpackWindowMap in proof/system/native-render-unpack.mjs'],
     [
       0x81acb5,
       'RTL',
@@ -213,7 +213,7 @@ export const nativeC724Spec = {
   ],
   externalReturns: [
     ...native9BC6Spec.externalReturns.filter(([target]) => target !== 0x80fec1),
-    [0x81a9b2, 'RTL', 'list conversion, unpackWindowMap in src/system/native-render-unpack.mjs'],
+    [0x81a9b2, 'RTL', 'list conversion, unpackWindowMap in proof/system/native-render-unpack.mjs'],
     [
       0x81acb5,
       'RTL',
