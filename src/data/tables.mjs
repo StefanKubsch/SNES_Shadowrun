@@ -7,7 +7,7 @@
 //   below 2^(16-k) (proof/replay/native-random.mjs),
 // - random_bytes 80:C58D: 256 bytes C560 mixes with 7E:1C76/1C77,
 // - motion_offsets 80:AEB4: 136 words k * 20, read from the bases AEB4 and
-//   AEC4 by the tile queue of AC2F (src/system/native-scene-tiles.mjs),
+//   AEC4 by the tile queue of AC2F (proof/system/native-scene-tiles.mjs),
 // - color_ramp 80:D3D1: 512 bytes of 8877 (proof/render/color-8877.mjs), D2E7
 //   and the main loop upkeep,
 // - bit_reverse 81:A017: each byte with its bits reversed, for mirrored

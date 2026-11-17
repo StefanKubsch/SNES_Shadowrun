@@ -1,5 +1,5 @@
 import { taskStop } from '../../src/system/task-stop.mjs';
-import { stepObjectAnimation } from '../../src/system/native-scene-tiles.mjs';
+import { stepObjectAnimation } from '../system/native-scene-tiles.mjs';
 import {
   testUpperXEdge,
   testLowerXEdge,

@@ -1,5 +1,5 @@
 // The objects' tiles requested again (lifted from 80:ADF4 with 80:AE12; register-level
-// versions in src/system/native-scene-tiles.mjs stay the reference).
+// versions in proof/system/native-scene-tiles.mjs stay the reference).
 //
 // After the dialog the portraits have overwritten the objects' tiles in video memory, so
 // each object of the draw list (7E:14B2, from its last index 7E:14B0 down) has its

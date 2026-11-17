@@ -30,7 +30,7 @@ import { printTextSequence as formerTextSequence } from '../proof/caller/text-pr
 // run from the same caller frame with the main loop's data bank 80 and must leave the
 // same WRAM, the same PPU writes and the same X and Y, which a later wait's NMI saves
 // (tools/lift-function-harness.mjs).
-import { prng } from './task-native-dialog-harness.mjs';
+import { prng, DialogTestMemory } from './task-native-dialog-harness.mjs';
 import { createSide, registerCases } from './lift-function-harness.mjs';
 import {
   uploadEvents,
@@ -38,7 +38,6 @@ import {
   windowMapSource,
   windowTables,
 } from './lift-window-samples.mjs';
-import { DialogTestMemory } from './task-native-dialog-harness.mjs';
 import { MAIN_UPKEEP_ROUTINES } from '../proof/replay/main-loop-upkeep.mjs';
 import { MAIN_CAMERA_REFERENCE_ENTRIES } from '../proof/game-reference/main-camera.mjs';
 import { MAIN_UPKEEP_REFERENCE_ENTRIES } from '../proof/game-reference/main-upkeep.mjs';
@@ -62,7 +61,7 @@ import { bcbeSequence, moveGlove } from '../proof/replay/native-glove.mjs';
 import { objectSearchSequence } from '../proof/caller/object-search.mjs';
 import { gloveMoveSequence } from '../proof/caller/glove-move.mjs';
 import { stepAnimation } from '../src/game/object-animation.mjs';
-import { stepObjectAnimation } from '../src/system/native-scene-tiles.mjs';
+import { stepObjectAnimation } from '../proof/system/native-scene-tiles.mjs';
 import { drainNativeSequence } from '../src/system/native-call-continuation.mjs';
 import { GLOVE_ROUTINES } from '../proof/replay/native-glove-target-support.mjs';
 import { showNotice } from '../proof/replay/native-notice.mjs';

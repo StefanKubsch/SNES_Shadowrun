@@ -233,7 +233,7 @@ sprites rebuilt (`B8DE`), both windows freed (`FA3E`), old music back.
 - Task compositions: [native-dialog-portrait.mjs](../src/system/native-dialog-portrait.mjs)
   (windows and portraits), [native-dialog-text.mjs](../proof/replay/native-dialog-text.mjs)
   (text and selection; `908C` sorts topics in),
-  [native-scene-tiles.mjs](../src/system/native-scene-tiles.mjs) (object tile
+  [native-scene-tiles.mjs](../proof/system/native-scene-tiles.mjs) (object tile
   management), [native-scene-sprites.mjs](../proof/replay/native-scene-sprites.mjs)
   (depth sort, map occlusion, OAM build); shared equations in
   [native-dialog-support.mjs](../src/system/native-dialog-support.mjs).

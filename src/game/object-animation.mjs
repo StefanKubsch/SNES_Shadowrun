@@ -1,5 +1,5 @@
 // The animation step of an object (lifted from 80:AC2F; register-level version in
-// src/system/native-scene-tiles.mjs, which the tile reload 80:AE12 and the replays with
+// proof/system/native-scene-tiles.mjs, which the tile reload 80:AE12 and the replays with
 // recorded interrupts keep using).
 //
 // Each pass the motion pass steps the animation of every object that is not halted.

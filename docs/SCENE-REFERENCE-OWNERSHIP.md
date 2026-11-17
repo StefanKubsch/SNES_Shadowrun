@@ -362,3 +362,7 @@ recording it gets the register-level version that
 `proof/system/recorded-routines.mjs` installs (the producers of recordings import
 it), and the game, which never records, always runs the lifted routine. The object
 animation step 80:AC2F was converted first.
+
+With the animation step behind the hook, `src/system/native-scene-tiles.mjs` had no
+live importer and merged into `proof/system/native-scene-tiles.mjs`, which now holds
+the register-level animation step 80:AC2F and the tile reload 80:ADF4 together.
