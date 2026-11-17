@@ -1,19 +1,8 @@
 import { taskStop } from './task-stop.mjs';
-import { releaseWindowAdapter } from './native-render-compose.mjs';
-import {
-  NativeCallContinuation,
-  NATIVE_CALL_CONTINUATIONS,
-  drainNativeSequence,
-  nativeCallSequence,
-} from './native-call-continuation.mjs';
 import { interruptStep } from './main-wait-interrupt.mjs';
 import { runUnpackBody, unpackStep } from './native-unpack-body.mjs';
 
 import {
-  GLOVE_KIND,
-  GLOVE_TARGET_OBJECT,
-  GLOVE_TARGET_TAG,
-  GLOVE_NAME_WINDOW,
   NMI_JOB_LISTS,
   WRAM,
   UNPACK_OUTPUT_START,
@@ -25,7 +14,7 @@ import {
   OAM_HIGH_TABLE,
 } from '../data/wram.mjs';
 import { WH0 } from '../constants/hardware-registers.mjs';
-import { BANK_WRAP, BYTE_MASK, WORD_MASK } from '../constants/bits.mjs';
+import { BANK_WRAP, BYTE_MASK } from '../constants/bits.mjs';
 import {
   FLAG_INDEX_8BIT,
   FLAG_MEMORY_8BIT,
@@ -178,62 +167,3 @@ export function unpackPortrait(h, e) {
   step(0x80a032);
   return h.rts();
 }
-// 80:BCB2: glove off ($01D8 = 0); a non-negative $01DA frees the buffer $01DC via BE5B (FA3E).
-export function putGloveAway(h, events, routines = null) {
-  const r =
-    routines === null
-      ? RELEASE_ROUTINES
-      : new Map([
-          [0x80be5b, releaseGloveNameWindow],
-          [0x80fa3e, () => routines.fa3e(h.a)],
-        ]);
-  return drainNativeSequence(gloveReleaseSequence(h, events, r));
-}
-// Original routine $80:BCB2.
-function* gloveReleaseSequence(h, events, routines) {
-  let result;
-  yield () => {
-    h.write(h.abs(GLOVE_KIND), 0);
-    h.load(h.read(h.abs(GLOVE_TARGET_TAG)));
-  };
-  if (!(h.ctx.status & FLAG_NEGATIVE))
-    yield* nativeCallSequence(h, events, routines, 0x80bcba, 0x80be5b);
-  yield () => {
-    result = h.rts();
-  };
-  return result;
-}
-// 80:BE5B: release the glove's name window through FA3E and clear the glove target.
-export function releaseGloveNameWindow(h, events, routines = RELEASE_ROUTINES) {
-  return drainNativeSequence(releaseGloveNameWindowSequence(h, events, routines));
-}
-export function* releaseGloveNameWindowSequence(h, events, routines) {
-  let result;
-  yield () => {
-    h.load(h.read(h.abs(GLOVE_NAME_WINDOW)));
-    h.dpWrite(0, h.ctx.a);
-  };
-  yield* nativeCallSequence(h, events, routines, 0x80be60, 0x80fa3e);
-  yield () => {
-    h.load(WORD_MASK);
-    h.write(h.abs(GLOVE_TARGET_TAG), h.ctx.a);
-    h.write(h.abs(GLOVE_TARGET_OBJECT), h.ctx.a);
-    result = h.rts();
-  };
-  return result;
-}
-export const putGloveAwayAdapter = (h, e) => putGloveAway(h, e);
-const RELEASE_ROUTINES = new Map([
-  [0x80be5b, releaseGloveNameWindow],
-  [0x80fa3e, releaseWindowAdapter],
-]);
-NATIVE_CALL_CONTINUATIONS.set(0x80bcb2, {
-  run: putGloveAwayAdapter,
-  create: ({ h, events }) =>
-    new NativeCallContinuation(h.a, gloveReleaseSequence(h, events, RELEASE_ROUTINES)),
-});
-NATIVE_CALL_CONTINUATIONS.set(0x80be5b, {
-  run: releaseGloveNameWindow,
-  create: ({ h, events, routines = RELEASE_ROUTINES }) =>
-    new NativeCallContinuation(h.a, releaseGloveNameWindowSequence(h, events, routines)),
-});

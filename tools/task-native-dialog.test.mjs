@@ -1,7 +1,8 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { rom, window, decodeWindows, compareDialog, prng } from './task-native-dialog-harness.mjs';
-import { unpackPortrait, putGloveAway } from '../src/system/native-dialog-portrait.mjs';
+import { unpackPortrait } from '../src/system/native-dialog-portrait.mjs';
+import { putGloveAway } from '../proof/system/native-glove-release.mjs';
 import {
   clearFixedColour,
   setWindowTextWidth,

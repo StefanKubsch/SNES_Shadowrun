@@ -14,7 +14,7 @@ import { WAIT_PAUSED, WAIT_RETURNED } from '../src/system/native-wait-continuati
 import { GAME_NMI_ROUTINES } from '../proof/replay/main-game-nmi.mjs';
 import { TALK_ROUTINES } from '../proof/replay/native-dialog.mjs';
 import { TRANSITION_ROUTINES } from '../proof/replay/main-transition.mjs';
-import { releaseGloveNameWindow } from '../src/system/native-dialog-portrait.mjs';
+import { releaseGloveNameWindow } from '../proof/system/native-glove-release.mjs';
 import { finishInterruptObservations } from '../src/system/main-wait-interrupt.mjs';
 import { releaseWindowAdapter } from '../src/system/native-render-compose.mjs';
 import { runReleaseWindowCall } from '../proof/caller/window-release.mjs';

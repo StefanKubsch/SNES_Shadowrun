@@ -2,7 +2,7 @@ import { withInterruptEvents } from './observed-native-events.mjs';
 import { lagFree } from '../../src/system/main-wait-interrupt.mjs';
 import { taskStop } from '../../src/system/task-stop.mjs';
 import { dialogAccess } from '../../src/system/native-dialog-support.mjs';
-import { putGloveAwayAdapter } from '../../src/system/native-dialog-portrait.mjs';
+import { putGloveAwayAdapter } from '../system/native-glove-release.mjs';
 import { runDrawWindowList } from '../../proof/caller/window-list.mjs';
 import {
   observedContinuation,

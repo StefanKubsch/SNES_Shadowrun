@@ -1,4 +1,4 @@
-import { releaseGloveNameWindowSequence } from '../../src/system/native-dialog-portrait.mjs';
+import { releaseGloveNameWindowSequence } from '../system/native-glove-release.mjs';
 import {
   NativeCallContinuation,
   drainNativeSequence,

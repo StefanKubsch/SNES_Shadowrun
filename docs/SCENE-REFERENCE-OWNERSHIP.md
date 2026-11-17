@@ -176,3 +176,7 @@ The register-level portrait tile upload 80:8FF5 and the random-state frame wait
 81:B0A1 of the dialog references moved to `proof/system/native-dialog-portrait.mjs`;
 the game uploads portraits through `src/game/portrait-upload.mjs`. The live module
 keeps the inline NMI waits, the portrait unpacker and the shared portrait constants.
+
+The register-level glove release 80:BCB2 and name window release 80:BE5B with
+their address-keyed continuations moved to `proof/system/native-glove-release.mjs`;
+the game releases the glove and its name window through `src/game/window-release.mjs`.

@@ -3,9 +3,9 @@ import { lagFree } from '../../src/system/main-wait-interrupt.mjs';
 import { fixesEnabled, preparePushkinTopics } from '../../src/game/bugfixes.mjs';
 import { taskStop } from '../../src/system/task-stop.mjs';
 import { dialogAccess } from '../../src/system/native-dialog-support.mjs';
+import { putGloveAwayAdapter } from '../system/native-glove-release.mjs';
 import {
   unpackPortrait,
-  putGloveAwayAdapter,
   PORTRAIT_OBJSEL,
   DP_PORTRAIT_POINTER,
   DP_PORTRAIT_BANK,

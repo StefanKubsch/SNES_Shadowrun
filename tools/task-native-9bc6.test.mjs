@@ -11,7 +11,7 @@ import {
 } from '../proof/replay/native-glove-target.mjs';
 import { putOnActionGlove, moveGlove } from '../proof/replay/native-glove.mjs';
 import { GLOVE_ROUTINES, measureTextWidth } from '../proof/replay/native-glove-target-support.mjs';
-import { putGloveAway } from '../src/system/native-dialog-portrait.mjs';
+import { putGloveAway } from '../proof/system/native-glove-release.mjs';
 import { waitForRandomStateChange } from '../src/system/native-frame-wait.mjs';
 import { readTextBit } from '../proof/system/native-text-prerequisites.mjs';
 import { readInput } from '../src/system/native-input-apu.mjs';
