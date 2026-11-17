@@ -68,11 +68,12 @@ import gone, the transition, scene graphics, collision, loading, layer and loop
 camera references, the dialog routine table and the status flags were no longer
 loaded by the game. They now live in `proof/system/` and `proof/script/`;
 their callers and original comparisons import them from there unchanged.
-The register-level text upload 81:A9E1 now lives in
-[main-text-upload.mjs](../src/system/main-text-upload.mjs), shared by the
-recorded game NMI table, the instant text option and the initialization
-reference. Its port-write PCs, chunking and observed channel-5 readback are
-unchanged. The scene initialization routines (font, window styles, object and
+The register-level text upload 81:A9E1 lives in
+[main-text-upload.mjs](../proof/system/main-text-upload.mjs), shared by the
+register-level game NMI and initialization references. The instant text option
+runs the lifted job of `src/game/game-nmi.mjs` instead, which the existing
+lift comparisons check against the reference. The reference's port-write PCs,
+chunking and observed channel-5 readback are unchanged. The scene initialization routines (font, window styles, object and
 palette resets) were then no longer loaded by the game and moved to
 `proof/system/main-initialize.mjs`.
 

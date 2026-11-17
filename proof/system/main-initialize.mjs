@@ -3,7 +3,7 @@ import { setNmiCallback } from '../../src/system/main-scene-video.mjs';
 import { unpackStreamLong } from '../../src/system/native-unpack.mjs';
 import { unpackWindowMap } from '../../src/system/native-render-unpack.mjs';
 import { routineCaller } from '../../src/system/routine-call.mjs';
-import { BG3_MAP_VRAM, TEXT_CLEAR_SOURCE, clearTextTiles } from '../../src/system/main-text-upload.mjs';
+import { BG3_MAP_VRAM, TEXT_CLEAR_SOURCE, clearTextTiles } from './main-text-upload.mjs';
 import { setUpGameScreen } from '../../src/game/game-screen.mjs';
 import { sceneRuntime } from '../../src/system/scene-runtime.mjs';
 import {

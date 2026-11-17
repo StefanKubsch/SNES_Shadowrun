@@ -42,7 +42,7 @@ export const NMI_SAVED_A = 0x1c78;
 export const NMI_SAVED_STACK = 0x1c7a;
 export const NMI_STACK_TOP = 0x1cbb;
 
-// Text DMA requests consumed and cleared by 81:A9E1 (main-text-upload.mjs).
+// Text DMA requests consumed and cleared by 81:A9E1 (src/game/game-nmi.mjs).
 export const TEXT_TILE_UPLOAD = 0x01f6;
 export const TEXT_MAP_UPLOAD = 0x01f8;
 export const TEXT_BUFFER_UPLOAD = 0x01fa;

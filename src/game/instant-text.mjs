@@ -7,7 +7,8 @@
 // itself. With the option on, a blocking text wait runs A9E1 at once and
 // continues without a frame. Picture, audio, pad and the frame counter
 // (RANDOM_STATE) do not advance; every other NMI service stays where it was.
-import { clearTextTiles } from '../system/main-text-upload.mjs';
+// The service runs the lifted A9E1 job of src/game/game-nmi.mjs.
+import { clearTextTilesRoutine } from './game-nmi.mjs';
 import { BLOCKING_BRANCHES } from '../vm/frame-events.mjs';
 import { NMI_CALLBACK, NMI_CALLBACK_BANK, NMI_STACK_TOP } from '../data/wram.mjs';
 import { NMITIMEN_NMI_ENABLE } from '../constants/hardware-registers.mjs';
@@ -52,7 +53,7 @@ export function serviceTextWait(frames, h, events, status, pc) {
   // VBlank or forced blank); no picture is presented in between.
   frames.inNmi = true;
   try {
-    clearTextTiles(h, events);
+    clearTextTilesRoutine(h);
   } finally {
     frames.inNmi = false;
     Object.assign(ctx, saved);

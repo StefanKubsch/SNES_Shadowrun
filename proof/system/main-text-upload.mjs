@@ -1,13 +1,13 @@
 // The register-level text upload 81:A9E1 of the game NMI (lifted in
-// src/game/game-nmi.mjs). The live game NMI table and the instant text option
-// call it; the scene initialization reference (proof/system/main-initialize.mjs)
-// lists it in its routine table.
-import { BYTE_MASK, WORD_MASK } from '../constants/bits.mjs';
-import { applyObservedTextDma } from './main-dma-readback.mjs';
-import { LagFreeFrames } from '../vm/frame-events.mjs';
-import { isIoAddress } from '../vm/devices.mjs';
-import { VRAM_WORD_BYTES, VMAINC_INCREMENT_AFTER_HIGH } from '../constants/ppu.mjs';
-import { FLAG_ZERO, FLAG_CARRY, FLAG_MEMORY_8BIT } from '../constants/cpu-flags.mjs';
+// src/game/game-nmi.mjs, which the live game and its instant text option run).
+// The register-level game NMI and scene initialization references list it in
+// their routine tables.
+import { BYTE_MASK, WORD_MASK } from '../../src/constants/bits.mjs';
+import { applyObservedTextDma } from '../../src/system/main-dma-readback.mjs';
+import { LagFreeFrames } from '../../src/vm/frame-events.mjs';
+import { isIoAddress } from '../../src/vm/devices.mjs';
+import { VRAM_WORD_BYTES, VMAINC_INCREMENT_AFTER_HIGH } from '../../src/constants/ppu.mjs';
+import { FLAG_ZERO, FLAG_CARRY, FLAG_MEMORY_8BIT } from '../../src/constants/cpu-flags.mjs';
 import {
   TEXT_TILE_UPLOAD,
   TEXT_TILE_UPLOAD_BYTES,
@@ -19,7 +19,7 @@ import {
   TEXT_BUFFER_BYTES,
   TEXT_BUFFER_VRAM_ADDRESS,
   TEXT_BUFFER_READBACK,
-} from '../data/wram.mjs';
+} from '../../src/data/wram.mjs';
 import {
   DMAP0,
   DMA_CHANNEL_STRIDE,
@@ -36,7 +36,7 @@ import {
   A1T5L,
   RDVRAMH,
   DMAP5,
-} from '../constants/hardware-registers.mjs';
+} from '../../src/constants/hardware-registers.mjs';
 
 // Original text-upload routine. Port stores are requests; channel-5 readback
 // can additionally consume an explicitly observed transfer.
