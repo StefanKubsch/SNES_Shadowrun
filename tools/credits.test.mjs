@@ -11,12 +11,12 @@ import { unpackInput } from '../src/browser/recording.mjs';
 import { SONG_TABLE, PARAM_LOW } from '../src/apu/sound-driver-memory.mjs';
 import { GAME_SONG_TABLE, TITLE_SONG_TABLE } from '../src/constants/sound-commands.mjs';
 import { buildLanguage, GERMAN, ENGLISH } from '../src/data/language.mjs';
-import {
-  startMenuWaiting,
-  endingMusic,
-  musicSilent,
-  menuCreditsRunning,
-} from '../src/game/credits.mjs';
+import { startMenuWaiting, endingMusic, menuCreditsRunning } from '../src/game/credits.mjs';
+import { MUSIC } from '../src/data/wram.mjs';
+import { BYTE_BITS, WORD_MASK } from '../src/constants/bits.mjs';
+
+// True while no music plays (7E:1CDE = FFFF, 81:EF94).
+const musicSilent = (wram) => (wram[MUSIC] | (wram[MUSIC + 1] << BYTE_BITS)) === WORD_MASK;
 
 // The fourth in-game menu row (src/game/credits.mjs), live in both languages from power-on: Start opens
 // the start menu 81:E14A; the request leaves its wait loop 81:E29F like the timeout, and the

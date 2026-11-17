@@ -33,9 +33,9 @@
 // on the title's directory played nothing and later read the I/O page. Even
 // without a song, the credits' exit sound 2E requires the game's directory;
 // the title's table gives it invalid parameters and can block menu sounds.
-import { PAD_HELD, MUSIC } from '../data/wram.mjs';
+import { PAD_HELD } from '../data/wram.mjs';
 import { roomHeader, ROOM_HEADER_MUSIC } from '../data/rooms.mjs';
-import { BYTE_BITS, WORD_MASK } from '../constants/bits.mjs';
+import { BYTE_BITS } from '../constants/bits.mjs';
 
 // The state lives on the script interpreter, so a recording replays it from
 // its event (src/browser/recording.mjs).
@@ -61,15 +61,12 @@ export const heldPad = (wram) => wram[PAD_HELD] | (wram[PAD_HELD + 1] << BYTE_BI
 
 // The ending room: table entry 8 names room 5's header.
 const ENDING_ROOM_ENTRY = 8;
-const NO_MUSIC = WORD_MASK;
 // The music byte of the ending room's header, read from the ROM view of the
 // VM memory without a recorded access.
 export const endingMusic = (memory) => {
   const read8 = (address) => memory.read8(address);
   return read8(roomHeader(read8, ENDING_ROOM_ENTRY) + ROOM_HEADER_MUSIC);
 };
-// True while no music plays (7E:1CDE = FFFF, 81:EF94).
-export const musicSilent = (wram) => (wram[MUSIC] | (wram[MUSIC + 1] << BYTE_BITS)) === NO_MUSIC;
 export function takeCreditsRequest(vm) {
   const requested = creditsRequested(vm);
   if (requested) vm.creditsRequested = false;

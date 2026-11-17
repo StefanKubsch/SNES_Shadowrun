@@ -276,3 +276,6 @@ Dead exports were removed: the register-level entry check `requireWideRegisters`
 own), the unused `LONG_HEX_DIGITS`, and eight status screen constants of
 `src/system/native-status-screen.mjs` that the lifted and register-level status
 screens each define locally.
+
+The music-silence check of the menu credits test moved from `src/game/credits.mjs`
+into `tools/credits.test.mjs`; the game never read it.
