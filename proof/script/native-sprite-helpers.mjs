@@ -1,5 +1,7 @@
-import { OAM_HIGH_TABLE, WRAM } from '../data/wram.mjs';
-import { FLAG_MEMORY_8BIT } from '../constants/cpu-flags.mjs';
+import { OAM_HIGH_TABLE, WRAM } from '../../src/data/wram.mjs';
+import { FLAG_MEMORY_8BIT } from '../../src/constants/cpu-flags.mjs';
+import { DP_OAM_OFFSET } from '../../src/game/sprite-list.mjs';
+export { DP_OAM_OFFSET };
 
 // Direct page and indexed field access shared by the scene sprite modules.
 export const dpLoad = (h, o) => h.load(h.dp(o)),
@@ -9,7 +11,8 @@ export const field = (h, offset, index) => h.read(h.abs(offset) + h.ctx[index]);
 // Direct page of the OAM entry 80:B20A shared with its occlusion grids (80:B130 to B755):
 // the picture rows and the rows and columns left, the screen position of the 8x8 cell
 // being checked, the object depth, the screen Y of the first cell of a column (saved by a
-// grid) and of the top cell, a scratch word and the OAM buffer offset.
+// grid) and of the top cell and a scratch word; the OAM buffer offset is shared with the
+// lifted sprite list (src/game/sprite-list.mjs).
 export const DP_ROWS = 0x23,
   DP_ROWS_LEFT = 0x26,
   DP_CELL_X = 0x2f,
@@ -18,8 +21,7 @@ export const DP_ROWS = 0x23,
   DP_COLUMNS_LEFT = 0x56,
   DP_FIRST_CELL_Y = 0x5f,
   DP_TOP_CELL_Y = 0x62,
-  DP_SCRATCH = 0x6b,
-  DP_OAM_OFFSET = 0x84;
+  DP_SCRATCH = 0x6b;
 // Visible area of a sprite position: rows below 00D8, columns below 00F8; 8x8 cells
 // within 16x16 picture parts.
 export const VISIBLE_HEIGHT = 0xd8,

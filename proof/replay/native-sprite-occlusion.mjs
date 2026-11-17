@@ -17,7 +17,7 @@ import {
   dpStore,
   field,
   highBits,
-} from '../../src/script/native-sprite-helpers.mjs';
+} from '../script/native-sprite-helpers.mjs';
 import {
   CELL_FRONT_WALL,
   CELL_OPEN,

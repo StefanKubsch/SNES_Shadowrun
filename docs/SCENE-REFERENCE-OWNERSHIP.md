@@ -122,3 +122,9 @@ The register-level object turn natives (80:A985, 80:AAAF, 80:D15C and their
 selection support) moved to `proof/script/native-object-turn.mjs`. The game
 binds only the lifted 80:D15C adapter, now in
 `src/script/native-object-action-direction.mjs`.
+
+The register-level scene sprite helpers (direct page and field access, occlusion
+grid direct page, visible area and high bit table) moved to
+`proof/script/native-sprite-helpers.mjs`. The OAM buffer offset word they share
+with the lifted sprite list is now defined in `src/game/sprite-list.mjs` and
+re-exported by the reference.

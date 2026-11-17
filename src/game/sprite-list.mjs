@@ -20,7 +20,6 @@ import { taskStop } from '../system/task-stop.mjs';
 import { sortDrawList } from './depth-sort.mjs';
 import { paletteSlot, resetPaletteSlots } from './palette-slots.mjs';
 import { enterObjectSprites } from './object-sprites.mjs';
-import { DP_OAM_OFFSET } from '../script/native-sprite-helpers.mjs';
 import {
   DRAW_LIST,
   DRAW_LIST_INDEX,
@@ -50,6 +49,9 @@ import {
 } from '../constants/cpu-flags.mjs';
 import { WRAM_BANK_PAIR } from '../constants/memory-map.mjs';
 
+// Direct page word of the OAM buffer offset of the OAM entry 80:B20A, shared with its
+// occlusion grids (register-level reference in proof/script/native-sprite-helpers.mjs).
+export const DP_OAM_OFFSET = 0x84;
 // The unrolled stores at 80:B933, three bytes each (STA abs); the jump target is
 // B933 + 3 * (OAM offset / 4), computed as offset / 2 + offset / 4 with ADC.
 const HIDE_SEQUENCE = 0xb933,

@@ -18,7 +18,7 @@ import {
   dpStore,
   field,
   highBits,
-} from '../../src/script/native-sprite-helpers.mjs';
+} from '../script/native-sprite-helpers.mjs';
 import { clearPaletteSlots } from '../system/main-initialize.mjs';
 import { occlusion, mapCell } from './native-sprite-occlusion.mjs';
 
