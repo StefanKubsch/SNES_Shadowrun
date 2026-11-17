@@ -33,19 +33,11 @@
   },
   {
    "address": "80:98FE",
-   "hex": "7ECA"
-  },
-  {
-   "address": "80:9906",
-   "hex": "97A0"
+   "hex": "7ECACA10F88BA2A997A02E3CA96700547E80"
   },
   {
    "address": "80:9A5E",
-   "hex": "996A"
-  },
-  {
-   "address": "80:9A66",
-   "hex": "1FA9"
+   "hex": "996A1FA9200099981FA9000099821FC8C8A5"
   },
   {
    "address": "80:A133",

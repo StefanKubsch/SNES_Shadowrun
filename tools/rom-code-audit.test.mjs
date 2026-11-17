@@ -56,14 +56,14 @@ test('read provenance overrides margins while a stale code_kept label alone expl
 
 test('only genuine data margins and observed readers remain after removing 200 code transitions', async () => {
   const audit = await auditRetainedCode();
-  assert.equal(audit.retained_code_bytes, 93);
-  assert.equal(audit.raw_code_runs, 89);
-  assert.equal(audit.raw_bytes, 188);
+  assert.equal(audit.retained_code_bytes, 121);
+  assert.equal(audit.raw_code_runs, 87);
+  assert.equal(audit.raw_bytes, 216);
   assert.equal(audit.decoded_bytes, 996041);
-  assert.equal(audit.absent_code_bytes, 52347);
+  assert.equal(audit.absent_code_bytes, 52319);
   assert.deepEqual(audit.counts, {
     unobserved_data_margin: 76,
-    recorded_cpu_read: 15,
+    recorded_cpu_read: 43,
     hardware_only_and_margin: 2,
   });
   assert.equal(audit.omitted_code_class_transitions, 200);

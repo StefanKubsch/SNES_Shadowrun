@@ -96,7 +96,7 @@ import {
   SELECTED_SPELL_SCRIPT,
 } from '../data/wram.mjs';
 import { fitListWindow } from '../data/menu-layout.mjs';
-import { fixesEnabled } from './bugfixes.mjs';
+import { aimReleaseFixed } from './bugfixes.mjs';
 import { BYTE_BITS, BYTE_MASK, WORD_MASK, WORD_SIGN } from '../constants/bits.mjs';
 import { FLAG_CARRY, FLAG_NEGATIVE, FLAG_OVERFLOW, FLAG_ZERO } from '../constants/cpu-flags.mjs';
 
@@ -517,25 +517,20 @@ function* gloveSequence(h, events, finish) {
     return yield* finish(result);
   }
   if (step === 'end') {
-    let leader;
     yield () => {
       setWord(wram, AIMING_WEAPON, 0);
       setWord(wram, AIMING_SPELL, 0);
       setWord(wram, 2, IDLE);
       // 80:E1AA selects the idle action for the object in DP 00 without reloading it.
-      // A turn in this frame (80:AAAF through 80:A985) left the action entry pointer
-      // there instead of the leader; the original then reads and writes bank 80 ROM
-      // at that "slot" and the leader keeps the aim (docs/BUGFIXES.md). The correction
-      // reloads the leader; without it the selection is left out, as its writes do
-      // nothing in the original.
-      const player = word(wram, PLAYER_OBJECT);
-      if (fixesEnabled(h.a)) setWord(wram, 0, player);
-      leader = word(wram, 0) === player;
+      // A turn in this frame (80:AAAF through 80:A985) left the leader's action entry
+      // pointer there; the original then indexes the object tables with it, reading
+      // bank 80 code bytes kept in the data package, and the leader keeps the aim
+      // (docs/BUGFIXES.md). The correction reloads the leader first.
+      if (aimReleaseFixed(h.a)) setWord(wram, 0, word(wram, PLAYER_OBJECT));
     };
-    if (leader)
-      yield* dialogCallBody(h, ...RELEASE_ACTION, () =>
-        segmentSequence(() => selectAnimationRoutine(h)),
-      );
+    yield* dialogCallBody(h, ...RELEASE_ACTION, () =>
+      segmentSequence(() => selectAnimationRoutine(h)),
+    );
   }
   if (step === 'end' || step === 'away')
     yield* dialogCallBody(h, ...PUT_GLOVE_AWAY, () => putGloveAwayCallSequence(h, events));

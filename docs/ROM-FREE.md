@@ -25,7 +25,8 @@ LFS pointers or previously uploaded LFS objects; history was not rewritten.
 
 Current follow-up (2026-11-09): the product runs from decoded assets with
 188 original-form bytes retained (93 code/read-margin bytes and 95
-unidentified data bytes). The [retained-code audit](ROM-CODE-AUDIT.md)
+unidentified data bytes); since 2026-11-17, 216 with 121 code bytes after
+the A985 action-pointer reads (docs/ROM-CODE-AUDIT.md). The [retained-code audit](ROM-CODE-AUDIT.md)
 removed 200 unnecessary margins at transitions between two code classes;
 all decoded data, recorded readers and genuine data margins remain intact.
 The [unidentified-data audit](ROM-UNREAD-AUDIT.md)

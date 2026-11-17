@@ -10,14 +10,16 @@ all decoded graphics, including unused content, remain unchanged.
 
 The previous package kept 293 code bytes in 288 runs. Of these, 200 were
 unneeded margins between two code classes, caused by an older classification
-rule. The corrected package keeps **93 code bytes in 89 runs**:
+rule. The corrected package kept **93 code bytes in 89 runs**; on 2026-11-17
+the A985 words of all nine Jake action pointers were added (see below), so
+it now keeps **121 code bytes in 87 runs**:
 
 | Evidence category                                                  | Bytes |
 | ------------------------------------------------------------------ | ----: |
-| CPU data reads recorded natively or in the original                |    15 |
+| CPU data reads recorded natively or in the original                |    43 |
 | Original hardware-only HDMA reads, also at genuine data boundaries |     2 |
 | Genuine data-boundary margins not seen in the read recordings      |    76 |
-| Total retained code bytes                                          |    93 |
+| Total retained code bytes                                          |   121 |
 
 These categories are exclusive. The recordings overlap: eight bytes have a
 native read, eleven have an original CPU read and four occur in both. The
@@ -26,8 +28,8 @@ word at the options terminator has a known high-byte read without a hit in
 the recordings. They remain retained.
 
 The package now contains 996,041 bytes reconstructed from decoded sources,
-188 raw bytes (93 retained code bytes plus 95 unidentified data bytes) and
-52,347 absent code bytes. No decoded asset byte is removed or changed.
+216 raw bytes (121 retained code bytes plus 95 unidentified data bytes) and
+52,319 absent code bytes. No decoded asset byte is removed or changed.
 
 ## Why 200 bytes could be removed
 
@@ -57,8 +59,8 @@ Read evidence still takes precedence; it is not removed by this correction.
 
 | Retained code bytes                      | Actual original reader  | Why the bytes are read                                                                                      |
 | ---------------------------------------- | ----------------------- | ----------------------------------------------------------------------------------------------------------- |
-| `80:98FE` to `98FF`, `80:9906` to `9907` | `80:A989 CMP $1038,Y`   | A985 compares the selection word with an index reaching bank-80 ROM instead of the WRAM mirror.             |
-| `80:9A5E` to `9A5F`, `80:9A66` to `9A67` | `80:A9BA LDY $1198,X`   | The same object index later reads the direction-table pointer from the ROM region.                          |
+| `80:98FE` to `990F`                       | `80:A989 CMP $1038,Y`   | A985 compares the selection word with an index reaching bank-80 ROM instead of the WRAM mirror.             |
+| `80:9A5E` to `9A6F`                       | `80:A9BA LDY $1198,X`   | The same object index later reads the direction-table pointer from the ROM region.                          |
 | `81:CDF8`                                | `81:EC1E LDA [$28],Y`   | WORD read of the scene-command terminator at CDF7, then AND with 00FF.                                      |
 | `81:D02A`                                | `81:D008 LDA $D022,Y`   | WORD read of the last of eight BYTE displacement entries, then AND with 0003.                               |
 | `81:D10D`                                | `81:D0D4 LDA $D0FD,Y`   | WORD read of the last of sixteen BYTE displacement entries, then AND with 0007.                             |
@@ -70,6 +72,17 @@ occur in the native alley-bus regression, while 98FE/9A5E occur in the
 original room tours. Sources: [native-object-turn.mjs](../proof/script/native-object-turn.mjs),
 [live-alley-bus.test.mjs](../tools/live-alley-bus.test.mjs) and the original
 read records in `analysis/rom-code-observed.json`.
+
+User report 2026-11-17 (`rom_byte_absent at $80990C`): the index is the
+leader's action entry pointer that a turn left in DP 00 before `80:E1AA`
+([BUGFIXES.md](BUGFIXES.md)). Jake's action list `8C:88C6` has nine
+actions, so the pointer is `88C6` plus twice the action and the reads cover
+`80:98FE` to `990F` and `80:9A5E` to `9A6F`. All 28 missing bytes were
+recorded natively with tools/rom-reads-hook.mjs and are guarded by
+[player-control-caller.test.mjs](../tools/player-control-caller.test.mjs).
+The kind word that A985 then reads from WRAM at the same index depends on
+the game state; its further action-table reads stay in decoded data or the
+open bus.
 
 The remaining readers are implemented in
 [main-scene-video.mjs](../proof/system/main-scene-video.mjs),

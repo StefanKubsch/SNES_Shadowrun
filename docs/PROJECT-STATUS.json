@@ -2,7 +2,7 @@
   "updated": "2026-11-17",
   "focus": "Register-level code the live game no longer loads moved from src/ to proof/ in a twenty-block batch (contract: docs/SCENE-REFERENCE-OWNERSHIP.md). Batch state: HANDOFF.md.",
   "next_step": "Continue moving proof-only register-level exports out of src/ where a lifted live path exists; shape editing and S-MIX stay deferred. Twenty-block batches, one commit each, then one release and push.",
-  "porting_resume": "188 original-form bytes remain: 93 code and 95 unidentified data. Read/hardware/data boundaries: docs/ROM-CODE-AUDIT.md. Unknown bytes and unused graphics stay preserved; unrecorded paths can report rom_byte_absent.",
+  "porting_resume": "216 original-form bytes remain: 121 code and 95 unidentified data. Read/hardware/data boundaries: docs/ROM-CODE-AUDIT.md. Unknown bytes and unused graphics stay preserved; unrecorded paths can report rom_byte_absent.",
   "open_issues": [
     "Keyword overflow: synthetic insertion of a 51st retained topic corrupts flags in European source and lifted code. Marking does not free storage. A reachable regular story route and a compatible gameplay correction remain unproved; see docs/BUGFIXES.md.",
     "Examination: unreproduced report to watch during the final user test run. Its European cleanup condition is tested; other story routes remain unproved. A change requires a reproducible counterexample. See docs/BUGFIXES.md.",

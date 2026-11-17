@@ -141,19 +141,25 @@ These are game-state corrections; no new hardware or timing premise is needed.
   overwrites DP `00` (here `88D4`). B, L or R then end the aim at `80:E1A2`;
   `80:E1AA` calls `80:A985` with the idle action without reloading DP `00`.
 - The European original therefore indexes the object tables with that
-  pointer: it reads bank 80 ROM (`80:1038 + 88D4 = 80:990C`) and its writes
-  land in ROM. The leader keeps the aim action until the next one. The
-  ROM-free port does not hold those bytes and stopped.
+  pointer: `80:A989` and `80:A9BA` read code bytes in bank 80
+  (`80:1038 + 88D4 = 80:990C`), some writes reach WRAM through long tables,
+  and the leader keeps the aim action until the next one. A Mesen comparison
+  ([mesen-live-room.test.mjs](../tools/mesen-live-room.test.mjs)) pins this
+  original result.
+- The ROM-free package held only the code words of the pointers `88C6` and
+  `88CE`. It now keeps those of all nine actions of Jake's list (`80:98FE` to
+  `990F`, `80:9A5E` to `9A6F`; [ROM-CODE-AUDIT.md](ROM-CODE-AUDIT.md)), so the
+  original handling no longer stops.
 - The correction reloads the leader into DP `00` first, so ending the aim
   returns the leader to the idle action as intended
-  ([player-control.mjs](../src/game/player-control.mjs)). Without the
-  correction the selection is left out when DP `00` is not the leader, which
-  matches the original's result without reading ROM.
+  ([player-control.mjs](../src/game/player-control.mjs)).
+- Compatibility: the correction needs the gameplay key `aimReleaseFix` besides
+  `bugfixes`. Like `instantText` and `fluidControls`, new browser settings get
+  it, while recordings without it keep the earlier handling. Earlier sessions
+  with corrections could pass this case at the pointers `88C6` and `88CE`
+  with the original result, so their replays stay unchanged.
 - [player-control-caller.test.mjs](../tools/player-control-caller.test.mjs)
-  covers both settings; replaying the reported recording passes the fault.
-- The gameplay configuration keeps `version: 1`: before this change every
-  session that reached this case stopped, so no existing recording continues
-  past it under different behaviour.
+  covers both results and reads every pointer from the package.
 
 ### Vampire farming (separate option, default off)
 

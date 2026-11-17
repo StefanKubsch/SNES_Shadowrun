@@ -1,6 +1,9 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { compareRun } from './member-menu-caller-harness.mjs';
+import { cartridge } from './cartridge-harness.mjs';
+import { LiveGame } from '../src/video/live-game.mjs';
+import { selectObjectAnimation } from '../src/game/object-turn.mjs';
 import { controlPlayerSequence as directControl } from '../src/game/player-control.mjs';
 import { controlPlayerSequence as formerControl } from '../proof/caller/player-control.mjs';
 import { partyStatusSequence } from '../proof/caller/party-status.mjs';
@@ -224,7 +227,7 @@ for (const bugfixes of [false, true])
       ]);
     const actual = compareRun(
       (h, events, renderer) => {
-        h.a.vm = { ...h.a.vm, gameplay: { bugfixes } };
+        h.a.vm = { ...h.a.vm, gameplay: { bugfixes, aimReleaseFix: bugfixes } };
         return directControl(h, events, renderer);
       },
       true,
@@ -253,3 +256,22 @@ for (const bugfixes of [false, true])
     assert.equal(selection, bugfixes ? 0 : aim, bugfixes ? 'the leader is idle' : 'the aim stays');
     assert.equal(actual.wram[W.AIMING_WEAPON], 0, 'the aim has ended');
   });
+
+// Without the correction 80:E1AA indexes the object tables with the action entry
+// pointer that the turn left in DP 00: Jake's list 8C:88C6 has nine actions, so the
+// pointer is 88C6 + 2 action and A985 reads the code words 80:1038 + pointer
+// (80:98FE to 990F) and 80:1198 + pointer (80:9A5E to 9A6F). The ROM-free package
+// keeps those bytes (docs/ROM-CODE-AUDIT.md); 80:990C was missing in the report.
+test('the release selection reads every Jake action pointer from the data package', () => {
+  const memory = new LiveGame(cartridge, { pad: () => 0 }).memory,
+    jakeList = memory.read16(0x8ced8a + 2 * 0x0b);
+  assert.equal(jakeList, 0x88c6);
+  for (let action = 0; action < 9; action++) {
+    const pointer = jakeList + 2 * action;
+    memory.write16(0x7e0000, pointer);
+    memory.write16(0x7e0002, 0);
+    assert.doesNotThrow(() => selectObjectAnimation(memory, memory.wram), `action ${action}`);
+    for (const table of [0x1038, 0x1198])
+      assert.doesNotThrow(() => memory.read16(0x800000 + table + pointer), `table ${table}`);
+  }
+});

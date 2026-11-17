@@ -7,7 +7,8 @@ This completes the bounded investigation of the three `unread` ranges in
 is absent. All 95 bytes remain unchanged and retain their unknown class.
 At this audit's initial snapshot the product retained 293 additional code
 bytes. The subsequent [retained-code audit](ROM-CODE-AUDIT.md) removes 200
-unnecessary margins between code classes, leaving 93 code/read-margin bytes.
+unnecessary margins between code classes, leaving 93 code/read-margin bytes
+(121 since the A985 action-pointer reads of 2026-11-17).
 That correction leaves all findings about these 95 unknown bytes unchanged.
 
 ## Reproduce the evidence

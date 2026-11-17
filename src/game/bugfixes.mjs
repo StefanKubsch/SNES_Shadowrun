@@ -43,6 +43,10 @@ const VAMPIRE_OBJECT = 0x0188,
 // the spell pointer while the original's player control pauses (after a shot).
 // Recordings without the key keep the original handling; stored browser settings
 // without it get the default.
+// aimReleaseFix (part of the bug fixes, docs/BUGFIXES.md, 2026-11-17): ending an aim
+// in the frame of a turn returns the leader to the idle action. It has no switch of
+// its own and applies only with bugfixes; recordings without the key keep the
+// earlier handling, stored browser settings without it get the default.
 export const DEFAULT_GAMEPLAY = Object.freeze({
   version: 1,
   bugfixes: true,
@@ -50,6 +54,7 @@ export const DEFAULT_GAMEPLAY = Object.freeze({
   fourSaveSlots: false,
   instantText: true,
   fluidControls: true,
+  aimReleaseFix: true,
 });
 export const ORIGINAL_GAMEPLAY = Object.freeze({
   version: 1,
@@ -58,6 +63,7 @@ export const ORIGINAL_GAMEPLAY = Object.freeze({
   fourSaveSlots: false,
   instantText: false,
   fluidControls: false,
+  aimReleaseFix: false,
 });
 
 export function gameplaySettings(value = DEFAULT_GAMEPLAY) {
@@ -68,7 +74,8 @@ export function gameplaySettings(value = DEFAULT_GAMEPLAY) {
     typeof value.preventExploits !== 'boolean' ||
     !['boolean', 'undefined'].includes(typeof value.fourSaveSlots) ||
     !['boolean', 'undefined'].includes(typeof value.instantText) ||
-    !['boolean', 'undefined'].includes(typeof value.fluidControls)
+    !['boolean', 'undefined'].includes(typeof value.fluidControls) ||
+    !['boolean', 'undefined'].includes(typeof value.aimReleaseFix)
   )
     throw new VmFault('gameplay_settings_required');
   return Object.freeze({
@@ -78,6 +85,7 @@ export function gameplaySettings(value = DEFAULT_GAMEPLAY) {
     fourSaveSlots: value.fourSaveSlots === true,
     instantText: value.instantText === true,
     fluidControls: value.fluidControls === true,
+    aimReleaseFix: value.aimReleaseFix === true,
   });
 }
 
@@ -88,6 +96,7 @@ export function storedGameplay(text) {
       ...value,
       instantText: value?.instantText ?? DEFAULT_GAMEPLAY.instantText,
       fluidControls: value?.fluidControls ?? DEFAULT_GAMEPLAY.fluidControls,
+      aimReleaseFix: value?.aimReleaseFix ?? DEFAULT_GAMEPLAY.aimReleaseFix,
     });
   } catch {
     return DEFAULT_GAMEPLAY;
@@ -96,6 +105,7 @@ export function storedGameplay(text) {
 
 export const fixesEnabled = (a) => a.vm?.gameplay?.bugfixes === true;
 export const fourSaveSlots = (a) => a.vm?.gameplay?.fourSaveSlots === true;
+export const aimReleaseFixed = (a) => fixesEnabled(a) && a.vm?.gameplay?.aimReleaseFix === true;
 
 // 2DE6 is the last WORD index, including Jake. Four WORDs fit in each
 // roster column. Script 162 uses the same Charisma thresholds at hire time.

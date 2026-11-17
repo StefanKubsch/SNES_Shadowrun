@@ -94,8 +94,9 @@ test('the package holds every data byte unchanged and of the code only the bytes
     if (CODE_CLASSES.has(classOf[o]) && !CODE_CLASSES.has(classOf[o - 1]))
       assert.equal(present[o], 1, `margin ${o.toString(16)}`);
   // The 2026-11-09 audit removes 200 margins between two code classes.
-  // All actual reads, including the four A985/D15C words, remain retained.
-  assert.equal(kept, 93);
+  // All actual reads remain retained, including the A985/D15C words of all nine
+  // Jake action pointers (80:98FE to 990F and 80:9A5E to 9A6F, 2026-11-17).
+  assert.equal(kept, 121);
   assert.deepEqual(
     rawFile.unread.map((r) => [r.address, r.hex.length / 2]),
     [
@@ -104,7 +105,7 @@ test('the package holds every data byte unchanged and of the code only the bytes
       ['8D:8080', 64],
     ],
   );
-  assert.equal(manifest.raw_bytes, 188);
+  assert.equal(manifest.raw_bytes, 216);
   assert.ok(!('data_file' in manifest) && !('segments' in manifest), 'no binary part');
 });
 

@@ -81,6 +81,12 @@ test('product defaults enable fixes; original and damaged preferences are explic
   assert.equal(DEFAULT_GAMEPLAY.instantText, true);
   assert.equal(storedGameplay(JSON.stringify(withoutInstantText)).instantText, true);
   assert.equal(gameplaySettings(withoutInstantText).instantText, false);
+  // aimReleaseFix: recordings without the key keep the earlier aim release.
+  const { aimReleaseFix, ...withoutAimRelease } = DEFAULT_GAMEPLAY;
+  assert.equal(aimReleaseFix, true);
+  assert.equal(ORIGINAL_GAMEPLAY.aimReleaseFix, false);
+  assert.equal(storedGameplay(JSON.stringify(withoutAimRelease)).aimReleaseFix, true);
+  assert.equal(gameplaySettings(withoutAimRelease).aimReleaseFix, false);
   assert.throws(
     () => gameplaySettings({ ...DEFAULT_GAMEPLAY, instantText: 1 }),
     /gameplay_settings_required/,

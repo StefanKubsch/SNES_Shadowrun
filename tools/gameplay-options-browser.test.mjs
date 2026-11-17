@@ -82,6 +82,7 @@ test(
           fourSaveSlots: false,
           instantText: true,
           fluidControls: true,
+          aimReleaseFix: true,
         });
         // A fault stops the session, but the worker's recording up to it stays exportable.
         const fault = await evalJs(`new Promise((resolve,reject)=>{globalThis.recordedGameplay=null;
