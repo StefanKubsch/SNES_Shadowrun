@@ -1,6 +1,6 @@
 // Former live composition, retained independently for recorded observations.
 // The window list (lifted from 81:AD92 with the window drawing 81:ACCF; register-level
-// versions in src/system/native-render-compose.mjs, which recorded runs replay).
+// versions in proof/system/native-render-compose.mjs, which recorded runs replay).
 //
 // Every active window from the first window index to the last is drawn into the window
 // map buffer: its border and its text tile area, whose tiles count up from the
@@ -24,7 +24,7 @@ import { sceneRuntime } from '../../src/system/scene-runtime.mjs';
 import {
   RENDER_ROUTINES,
   drawWindowListSequence as drawWindowListReference,
-} from '../../src/system/native-render-compose.mjs';
+} from '../system/native-render-compose.mjs';
 import { dialogAccess } from '../../src/system/native-dialog-support.mjs';
 import {
   NATIVE_CALL_CONTINUATIONS,
@@ -304,7 +304,7 @@ function* drawWindowListCallSequence(h, events) {
 }
 // 81:AD92 as a sequence for the register-level callers (with their accessor a): lifted
 // with the lag-free frame model; with recorded interrupt observations the register-level
-// list (src/system/native-render-compose.mjs) replays them.
+// list (proof/system/native-render-compose.mjs) replays them.
 export const drawWindowListJslSequence = (a, events) =>
   lagFree(events)
     ? drawWindowListCallSequence(dialogAccess(a), events)

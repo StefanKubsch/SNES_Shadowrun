@@ -16,7 +16,7 @@ export const nativeCECBSpec = {
     },
   ],
   externalReturns: [
-    [0x81ad92, 'RTL', 'window list, drawWindowList in src/system/native-render-compose.mjs'],
+    [0x81ad92, 'RTL', 'window list, drawWindowList in proof/system/native-render-compose.mjs'],
   ],
   scope:
     'Original Native27 CECB own code with an external return into 81:AD92; equations in proof/replay/native-state-count-raise.mjs, differential check in tools/task-native-cecb.test.mjs.',

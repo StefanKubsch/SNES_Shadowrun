@@ -209,7 +209,7 @@ handshakes stay synchronous.
 [BCB2/BE5B](../src/system/native-dialog-portrait.mjs) and
 [FF79](../proof/replay/native-slot-release.mjs) keep their own JSR frames, and PHX
 frames where present, across the whole chain
-[FA3E/AD92](../src/system/native-render-compose.mjs) down to ACB5/ACAF. The
+[FA3E/AD92](../proof/system/native-render-compose.mjs) down to ACB5/ACAF. The
 original INC/JSL request uses `RequestWaitContinuation`; an unchanged WORD poll
 stays unchanged without an outer writer. An observed NMI can in turn pause in
 9E0B and must return completely up to RTI. Only the real RTL of the request

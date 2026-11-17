@@ -20,7 +20,7 @@ export const nativeE1CFSpec = {
   externalReturns: [
     [0x80f963, 'RTS', 'window allocation, openWindow in proof/replay/native-window-open.mjs'],
     [0x80a6c7, 'RTS', 'menu, runTaskMenuCompose in proof/replay/native-menu-compose.mjs'],
-    [0x80fa3e, 'RTS', 'window release, releaseWindow in src/system/native-render-compose.mjs'],
+    [0x80fa3e, 'RTS', 'window release, releaseWindow in proof/system/native-render-compose.mjs'],
   ],
   scope:
     'Original Native8A E1CF own code with external returns into F963, A6C7 and FA3E; equations in proof/replay/native-spell-choice.mjs, differential check in tools/task-native-e1cf.test.mjs.',

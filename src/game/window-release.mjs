@@ -1,5 +1,5 @@
 // The window releases of the room entry (lifted from 80:FA3E, 80:FF79, 80:BCB2 and
-// 80:BE5B; register-level versions in src/system/native-render-compose.mjs,
+// 80:BE5B; register-level versions in proof/system/native-render-compose.mjs,
 // proof/replay/native-slot-release.mjs and src/system/native-dialog-portrait.mjs; the script
 // natives call the live release; recorded callers remain in proof/caller/).
 //

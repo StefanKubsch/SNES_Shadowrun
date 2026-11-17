@@ -25,7 +25,7 @@ const ext = {
   ],
   EF47: [0x81ef47, RTL, 'music mode, setMusicMode (proof/replay/native-audio-compose.mjs)'],
   F963: [0x80f963, RTS, 'window allocation, openWindow (proof/replay/native-window-open.mjs)'],
-  FA3E: [0x80fa3e, RTS, 'window release, releaseWindow (src/system/native-render-compose.mjs)'],
+  FA3E: [0x80fa3e, RTS, 'window release, releaseWindow (proof/system/native-render-compose.mjs)'],
   B0A1: [
     0x81b0a1,
     RTL,

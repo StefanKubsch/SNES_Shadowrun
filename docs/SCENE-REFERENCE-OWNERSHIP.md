@@ -180,3 +180,11 @@ keeps the inline NMI waits, the portrait unpacker and the shared portrait consta
 The register-level glove release 80:BCB2 and name window release 80:BE5B with
 their address-keyed continuations moved to `proof/system/native-glove-release.mjs`;
 the game releases the glove and its name window through `src/game/window-release.mjs`.
+
+With the glove release gone from the live portrait module, the register-level window
+list 81:AD92, window drawing 81:ACCF, upload request 81:ACB5 and window release
+80:FA3E had no live importer left. The module moved unchanged to
+`proof/system/native-render-compose.mjs`, together with its address-keyed
+continuations; the game draws and releases windows through `src/game/window-list.mjs`
+and `src/game/window-release.mjs`. Source generator labels and documentation links
+follow the new path.

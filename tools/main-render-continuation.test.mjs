@@ -16,7 +16,7 @@ import { TALK_ROUTINES } from '../proof/replay/native-dialog.mjs';
 import { TRANSITION_ROUTINES } from '../proof/replay/main-transition.mjs';
 import { releaseGloveNameWindow } from '../proof/system/native-glove-release.mjs';
 import { finishInterruptObservations } from '../src/system/main-wait-interrupt.mjs';
-import { releaseWindowAdapter } from '../src/system/native-render-compose.mjs';
+import { releaseWindowAdapter } from '../proof/system/native-render-compose.mjs';
 import { runReleaseWindowCall } from '../proof/caller/window-release.mjs';
 
 const releaseWindows = [

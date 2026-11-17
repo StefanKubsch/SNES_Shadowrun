@@ -1153,7 +1153,7 @@ which the render proof of 81:8076 keeps using.
   `releaseWindowJsrSequence`. The caller pushes the JSL or JSR frame as before; the
   lifted callee returns with its RTL or RTS as { rawReturnWord, returnTarget }, which
   the callers check. With recorded interrupt observations (the Mesen replays and the
-  native proofs) the register-level versions in src/system/native-render-compose.mjs
+  native proofs) the register-level versions in proof/system/native-render-compose.mjs
   replay them. Live comparison (per-NMI WRAM outside the cutscene scratch and stacks,
   VRAM, CGRAM, OAM, PPU registers, scroll, PPU write count and sound RAM) with the
   register-level versions: the alley plan (9201 NMIs, 23 list and 4 release calls) and

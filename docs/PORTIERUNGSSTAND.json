@@ -18468,7 +18468,7 @@
         "proof/replay/main-start.mjs",
         "proof/replay/main-transition.mjs",
         "proof/replay/main-zone-gate.mjs",
-        "src/system/native-render-compose.mjs",
+        "proof/system/native-render-compose.mjs",
         "proof/replay/native-slot-release.mjs",
         "src/system/native-dialog-portrait.mjs",
         "proof/replay/native-dialog.mjs",

@@ -1,5 +1,5 @@
-import { FIRST_ARGUMENT } from './native-leaf-support.mjs';
-import { WRAM_BANK_PAIR } from '../constants/memory-map.mjs';
+import { FIRST_ARGUMENT } from '../../src/system/native-leaf-support.mjs';
+import { WRAM_BANK_PAIR } from '../../src/constants/memory-map.mjs';
 import {
   WINDOW_FIRST_INDEX,
   WINDOW_LAST_INDEX,
@@ -15,31 +15,31 @@ import {
   WINDOW_ATTRIBUTES,
   WINDOW_MAP_BUFFER,
   TEXT_MAP_UPLOAD,
-} from '../data/wram.mjs';
-import { taskStop } from './task-stop.mjs';
-import { taskTextAccess } from './native-text-prerequisites.mjs';
-import { unpackWindowMap } from './native-render-unpack.mjs';
+} from '../../src/data/wram.mjs';
+import { taskStop } from '../../src/system/task-stop.mjs';
+import { taskTextAccess } from '../../src/system/native-text-prerequisites.mjs';
+import { unpackWindowMap } from '../../src/system/native-render-unpack.mjs';
 
-import { dialogAccess } from './native-dialog-support.mjs';
+import { dialogAccess } from '../../src/system/native-dialog-support.mjs';
 import {
   runInterruptWordWait,
   runInterruptRequestWait,
   RequestWaitContinuation,
-} from './main-wait-interrupt.mjs';
+} from '../../src/system/main-wait-interrupt.mjs';
 import {
   NativeCallContinuation,
   NATIVE_CALL_CONTINUATIONS,
   drainNativeSequence,
   nativeCallSequence,
-} from './native-call-continuation.mjs';
-import { WORD_MASK, WORD_BITS, BANK_WRAP, BANK_SIZE } from '../constants/bits.mjs';
+} from '../../src/system/native-call-continuation.mjs';
+import { WORD_MASK, WORD_BITS, BANK_WRAP, BANK_SIZE } from '../../src/constants/bits.mjs';
 import {
   FLAG_CARRY,
   FLAG_NEGATIVE,
   FLAG_ZERO,
   FLAG_INDEX_8BIT,
   FLAG_MEMORY_8BIT,
-} from '../constants/cpu-flags.mjs';
+} from '../../src/constants/cpu-flags.mjs';
 
 const DP_DRAW_ATTRIBUTES = 0xc9;
 const DP_DRAW_MAP_ROW = 0xc3;

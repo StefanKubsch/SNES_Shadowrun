@@ -50,10 +50,10 @@ export const native9BC6Spec = {
     ],
     [0x80fec1, 'RTS', 'notice window, showNotice in proof/replay/native-notice.mjs'],
     [0x80f963, 'RTS', 'window allocation, openWindow in proof/replay/native-window-open.mjs'],
-    [0x80fa3e, 'RTS', 'window release, releaseWindow in src/system/native-render-compose.mjs'],
+    [0x80fa3e, 'RTS', 'window release, releaseWindow in proof/system/native-render-compose.mjs'],
     [0x80fe69, 'RTS', 'text, printText in proof/replay/native-text-compose.mjs'],
     [0x81af04, 'RTL', 'text bit stream, readTextBit in src/system/native-text-prerequisites.mjs'],
-    [0x81ad92, 'RTL', 'window list, drawWindowList in src/system/native-render-compose.mjs'],
+    [0x81ad92, 'RTL', 'window list, drawWindowList in proof/system/native-render-compose.mjs'],
   ],
   scope:
     'Original NativeD8 9BC6 own code with external returns into the separately proved wait, input, window, text and list graphs; equations in proof/replay/native-glove-target.mjs, differential check in tools/task-native-9bc6.test.mjs.',
@@ -137,7 +137,7 @@ export const native9BD3Spec = {
     [
       0x81acb5,
       'RTL',
-      'list transfer with wait, requestTextMapUpload in src/system/native-render-compose.mjs',
+      'list transfer with wait, requestTextMapUpload in proof/system/native-render-compose.mjs',
     ],
   ],
   scope:
@@ -217,7 +217,7 @@ export const nativeC724Spec = {
     [
       0x81acb5,
       'RTL',
-      'list transfer with wait, requestTextMapUpload in src/system/native-render-compose.mjs',
+      'list transfer with wait, requestTextMapUpload in proof/system/native-render-compose.mjs',
     ],
   ],
   scope:

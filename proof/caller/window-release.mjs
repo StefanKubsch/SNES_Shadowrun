@@ -1,6 +1,6 @@
 // Former live composition, retained independently for recorded observations.
 // The window releases of the room entry (lifted from 80:FA3E, 80:FF79, 80:BCB2 and
-// 80:BE5B; register-level versions in src/system/native-render-compose.mjs,
+// 80:BE5B; register-level versions in proof/system/native-render-compose.mjs,
 // proof/replay/native-slot-release.mjs and src/system/native-dialog-portrait.mjs; the script
 // natives call 80:FA3E lifted with lag-free frames, recorded runs register-level).
 //
@@ -27,7 +27,7 @@ import {
 import {
   releaseWindowAdapter,
   releaseWindowSequence as releaseWindowReference,
-} from '../../src/system/native-render-compose.mjs';
+} from '../system/native-render-compose.mjs';
 import { dialogAccess } from '../../src/system/native-dialog-support.mjs';
 import { lagFree } from '../../src/system/main-wait-interrupt.mjs';
 import {
@@ -118,7 +118,7 @@ function* releaseWindowCallSequence(h, events) {
 }
 // 80:FA3E as a sequence for the register-level callers (with their accessor a): lifted
 // with the lag-free frame model; with recorded interrupt observations the register-level
-// release (src/system/native-render-compose.mjs) replays them.
+// release (proof/system/native-render-compose.mjs) replays them.
 export const releaseWindowJsrSequence = (a, events) =>
   lagFree(events)
     ? releaseWindowCallSequence(dialogAccess(a), events)

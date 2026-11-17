@@ -65,9 +65,17 @@ export const nativeE014Spec = {
   externalReturns: [
     [0x80f963, 'RTS', 'window, openWindow in proof/replay/native-window-open.mjs'],
     [0x80a6c7, 'RTS', 'menu, runTaskMenuCompose in proof/replay/native-menu-compose.mjs'],
-    [0x80a6ad, 'RTS', 'menu with values, runTaskMenuCompose in proof/replay/native-menu-compose.mjs'],
-    [0x80fa3e, 'RTS', 'window release, releaseWindow in src/system/native-render-compose.mjs'],
-    [0x80fa67, 'RTS', 'window request, requestWindowUpload in proof/replay/native-menu-compose.mjs'],
+    [
+      0x80a6ad,
+      'RTS',
+      'menu with values, runTaskMenuCompose in proof/replay/native-menu-compose.mjs',
+    ],
+    [0x80fa3e, 'RTS', 'window release, releaseWindow in proof/system/native-render-compose.mjs'],
+    [
+      0x80fa67,
+      'RTS',
+      'window request, requestWindowUpload in proof/replay/native-menu-compose.mjs',
+    ],
     [0x80c34a, 'RTS', 'append task, appendScriptTask in src/system/task-append.mjs'],
     [0x80c1ca, 'RTS', 'visit, nested scheduler round NativeCalls.round (proof/vm/native-call.mjs)'],
     [

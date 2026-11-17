@@ -5,7 +5,7 @@ import { SCENE_GRAPHICS_ROUTINES } from '../system/main-scene-graphics.mjs';
 import { TALK_ROUTINES } from './native-dialog.mjs';
 import { createObject } from '../../src/script/native-object-create.mjs';
 import { turnRegisters } from '../script/native-object-turn.mjs';
-import { drawWindowListAdapter } from '../../src/system/native-render-compose.mjs';
+import { drawWindowListAdapter } from '../system/native-render-compose.mjs';
 import { sendApuCommand } from '../system/native-input-apu.mjs';
 import { clampToCameraBox, updateCameraTileBuffers } from '../system/main-loop-camera.mjs';
 import { clearFixedColour } from '../system/native-dialog-portrait.mjs';

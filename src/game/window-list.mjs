@@ -1,5 +1,5 @@
 // The window list (lifted from 81:AD92 with the window drawing 81:ACCF; register-level
-// versions in src/system/native-render-compose.mjs, which recorded runs replay).
+// versions in proof/system/native-render-compose.mjs, which recorded runs replay).
 //
 // Every active window from the first window index to the last is drawn into the window
 // map buffer: its border and its text tile area, whose tiles count up from the

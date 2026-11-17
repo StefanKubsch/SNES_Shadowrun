@@ -1,7 +1,7 @@
 // Register-level glove release 80:BCB2 and name window release 80:BE5B that only
 // the dialog and glove references call; the game releases the glove through
 // src/game/window-release.mjs.
-import { releaseWindowAdapter } from '../../src/system/native-render-compose.mjs';
+import { releaseWindowAdapter } from './native-render-compose.mjs';
 import {
   NativeCallContinuation,
   NATIVE_CALL_CONTINUATIONS,

@@ -10,8 +10,8 @@ import {
 import { setTextCursor } from './native-list-prerequisites.mjs';
 import { printText, printTextSequence } from './native-text-compose.mjs';
 import { openWindow, f963Sequence } from './native-window-open.mjs';
-import { releaseWindow } from '../../src/system/native-render-compose.mjs';
-import { releaseWindowSequence } from '../../src/system/native-render-compose.mjs';
+import { releaseWindow } from '../system/native-render-compose.mjs';
+import { releaseWindowSequence } from '../system/native-render-compose.mjs';
 import {
   segmentSequence,
   dialogCallBody,

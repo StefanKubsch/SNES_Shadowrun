@@ -8,7 +8,7 @@ import {
   drawWindow,
   drawWindowList,
   releaseWindow,
-} from '../../src/system/native-render-compose.mjs';
+} from '../system/native-render-compose.mjs';
 
 function prepare(options, entry, run) {
   const { waitMode = null, waitObservations = null } = options ?? {};

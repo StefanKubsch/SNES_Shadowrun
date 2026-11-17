@@ -25,7 +25,7 @@ import { WAIT_PAUSED, WAIT_RETURNED } from '../src/system/native-wait-continuati
 import {
   waitForTextMapUpload,
   requestTextMapUpload,
-} from '../src/system/native-render-compose.mjs';
+} from '../proof/system/native-render-compose.mjs';
 import { runTaskTextWait } from '../proof/system/native-text-prerequisites.mjs';
 import { TALK_ROUTINES } from '../proof/replay/native-dialog.mjs';
 import { NATIVE_CALL_CONTINUATIONS } from '../src/system/native-call-continuation.mjs';
