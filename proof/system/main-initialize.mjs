@@ -1,13 +1,11 @@
-import { tasksOf } from '../script/task-api.mjs';
-import { setNmiCallback } from './main-scene-video.mjs';
-import { unpackStreamLong } from './native-unpack.mjs';
-import { unpackWindowMap } from './native-render-unpack.mjs';
-import { applyObservedTextDma } from './main-dma-readback.mjs';
-import { isIoAddress } from '../vm/devices.mjs';
-import { LagFreeFrames } from '../vm/frame-events.mjs';
-import { routineCaller } from './routine-call.mjs';
-import { setUpGameScreen } from '../game/game-screen.mjs';
-import { sceneRuntime } from './scene-runtime.mjs';
+import { tasksOf } from '../../src/script/task-api.mjs';
+import { setNmiCallback } from '../../src/system/main-scene-video.mjs';
+import { unpackStreamLong } from '../../src/system/native-unpack.mjs';
+import { unpackWindowMap } from '../../src/system/native-render-unpack.mjs';
+import { routineCaller } from '../../src/system/routine-call.mjs';
+import { BG3_MAP_VRAM, TEXT_CLEAR_SOURCE, clearTextTiles } from '../../src/system/main-text-upload.mjs';
+import { setUpGameScreen } from '../../src/game/game-screen.mjs';
+import { sceneRuntime } from '../../src/system/scene-runtime.mjs';
 import {
   BRIGHTNESS_FADE,
   CAMERA_SPEED_X,
@@ -55,15 +53,10 @@ import {
   SCENE_REQUEST,
   SOUND_LOADED_SET,
   SOUND_VOICE_MASK,
-  TEXT_BUFFER_BYTES,
   TEXT_BUFFER_READBACK,
   TEXT_BUFFER_UPLOAD,
-  TEXT_BUFFER_VRAM_ADDRESS,
   TEXT_MAP_UPLOAD,
-  TEXT_MASK_BUFFER,
   TEXT_TILE_UPLOAD,
-  TEXT_TILE_UPLOAD_ADDRESS,
-  TEXT_TILE_UPLOAD_BYTES,
   TM_SHADOW,
   TMW_SHADOW,
   TS_SHADOW,
@@ -78,7 +71,7 @@ import {
   WINDOW_MAP_SOURCE_BANK,
   WINDOW_NEXT_TILE,
   WRAM,
-} from '../data/wram.mjs';
+} from '../../src/data/wram.mjs';
 import {
   HEAP_INITIAL_SIZE,
   HEAP_NEXT_WORD,
@@ -89,7 +82,7 @@ import {
   TASK_LIST_HEAD,
   TASK_NEXT,
   TASK_PREVIOUS,
-} from '../vm/layout.mjs';
+} from '../../src/vm/layout.mjs';
 import {
   OAMADDL,
   OAMADDH,
@@ -105,7 +98,6 @@ import {
   VMADDL,
   VMDATAL,
   RDVRAML,
-  RDVRAMH,
   CGADD,
   CGDATA,
   CGSWSEL,
@@ -131,20 +123,16 @@ import {
   BBAD4,
   DMAP5,
   BBAD5,
-  A1T5L,
   A1B5,
-  DAS5L,
   DMAP6,
   BBAD6,
-  A1T6L,
   A1B6,
-  DAS6L,
   DMAP7,
   BBAD7,
   A1T7L,
   A1B7,
   DAS7L,
-} from '../constants/hardware-registers.mjs';
+} from '../../src/constants/hardware-registers.mjs';
 import {
   BGMODE_BG3_PRIORITY,
   BGMODE_MODE_1,
@@ -166,10 +154,10 @@ import {
   TILE_PRIORITY,
   VMAINC_INCREMENT_AFTER_HIGH,
   VRAM_WORD_BYTES,
-} from '../constants/ppu.mjs';
-import { WRAM_BANK } from '../constants/memory-map.mjs';
-import { FLAG_MEMORY_8BIT, FLAG_NEGATIVE, FLAG_CARRY, FLAG_ZERO } from '../constants/cpu-flags.mjs';
-import { BYTE_MASK, NIBBLE_BITS, WORD_BITS, WORD_MASK } from '../constants/bits.mjs';
+} from '../../src/constants/ppu.mjs';
+import { WRAM_BANK } from '../../src/constants/memory-map.mjs';
+import { FLAG_MEMORY_8BIT, FLAG_NEGATIVE, FLAG_CARRY, FLAG_ZERO } from '../../src/constants/cpu-flags.mjs';
+import { BYTE_MASK, NIBBLE_BITS, WORD_BITS, WORD_MASK } from '../../src/constants/bits.mjs';
 const callFor = (h, e, r) => routineCaller(h, e, r, true);
 
 // Value written to mark a pointer, slot or request as unset (negative).
@@ -179,7 +167,6 @@ const NONE = WORD_MASK;
 // nibble per layer in 4 K word segments (Book I PDF 119, 2-27-5).
 export const BG1_MAP_VRAM = 0x7000,
   BG2_MAP_VRAM = 0x7400,
-  BG3_MAP_VRAM = 0x7800,
   BG12_CHARACTER_VRAM = 0x1000,
   BG3_CHARACTER_VRAM = 0x5000;
 const screenBase = (vram) => (vram * VRAM_WORD_BYTES) >> BGSC_BASE_SHIFT,
@@ -201,13 +188,12 @@ const OAM_FILL_SOURCE = 0x81a7fb,
   VRAM_SLOT_LOWER_ROW = 0x10,
   VRAM_SLOT_FIRST = 2,
   DP_NEXT_SLOT = 0x0e;
-// 81:AB2C: font (2 bits per pixel) and its colours from bank 95, the fixed zero source of
-// the text tile clear, the first window tile (above the backgrounds) and the windows.
+// 81:AB2C: font (2 bits per pixel) and its colours from bank 95, the bank of the text tile
+// clear source (main-text-upload.mjs), the first window tile (above the backgrounds) and the windows.
 const FONT_SOURCE = 0x95f160,
   FONT_BYTES = 0x170,
   FONT_COLOURS_SOURCE = 0x95f140,
   FONT_COLOURS_BYTES = 0x30,
-  TEXT_CLEAR_SOURCE = 0x81ac8c,
   WINDOW_FIRST_TILE = TILE_PRIORITY | 0x27,
   WINDOW_LAST_SLOT = 0x1e;
 // 81:AA9C: the window style tiles follow the font in VRAM; three colours from CGRAM entry 13.
@@ -216,11 +202,6 @@ const WINDOW_TILES_VRAM = BG3_CHARACTER_VRAM + FONT_BYTES / VRAM_WORD_BYTES,
   // Each colour byte is read by an LDA absolute,X just before its STA CGDATA.
   LDA_ABSOLUTE_X_BYTES = 3,
   DP_STYLE = 0xd8;
-// 81:A9E1: text tiles are cleared in chunks of at most 1400 bytes per frame; the window
-// map fills 0740 bytes of the BG3 map; the readback takes 16 bytes of text mask.
-const TEXT_TILE_CHUNK = 0x1400,
-  WINDOW_MAP_BYTES = 0x740,
-  TEXT_READBACK_BYTES = 0x10;
 
 // Original scene initialization. All stores use the actual DBR, including
 // register addresses mapped to WRAM. DMA stores are requests; channel-5
@@ -501,87 +482,6 @@ export function loadWindowStyleTiles(h, e, r = MAIN_INITIALIZE_ROUTINES) {
   h.write(h.abs(WINDOW_MAP_SOURCE), ctx.x, 2);
   call(0x81ab26, 0x81a9b2);
   h.plb();
-  return h.rtl();
-}
-// 81:A9E1: clear the text tiles and the window map.
-export function clearTextTiles(h, e) {
-  const { ctx } = h;
-  h.load(h.read(h.abs(TEXT_TILE_UPLOAD)));
-  if (!(ctx.status & FLAG_ZERO)) {
-    ports(h, [[0x81a9e9, A1T6L, sourceOffset(TEXT_CLEAR_SOURCE)]]);
-    h.load(h.read(h.abs(TEXT_TILE_UPLOAD_BYTES)));
-    h.cmp(TEXT_TILE_CHUNK + 1);
-    if (ctx.status & FLAG_CARRY) {
-      h.sbc(TEXT_TILE_CHUNK);
-      h.write(h.abs(TEXT_TILE_UPLOAD_BYTES), ctx.a);
-      h.load(TEXT_TILE_CHUNK);
-    } else h.write(h.abs(TEXT_TILE_UPLOAD), 0);
-    h.portWrite(DAS6L, ctx.a, 2, 0x81aa02);
-    h.load(h.read(h.abs(TEXT_TILE_UPLOAD_ADDRESS)));
-    h.portWrite(VMADDL, ctx.a, 2, 0x81aa08);
-    ctx.status &= ~FLAG_CARRY;
-    h.adc(TEXT_TILE_CHUNK / VRAM_WORD_BYTES);
-    h.write(h.abs(TEXT_TILE_UPLOAD_ADDRESS), ctx.a);
-    h.sep(FLAG_MEMORY_8BIT);
-    ports(h, [
-      [0x81aa16, VMAINC, VMAINC_INCREMENT_AFTER_HIGH],
-      [0x81aa1b, MDMAEN, channel(DMAP6)],
-    ]);
-    h.rep(FLAG_MEMORY_8BIT);
-  }
-  h.load(h.read(h.abs(TEXT_MAP_UPLOAD)));
-  if (!(ctx.status & FLAG_ZERO)) {
-    ports(h, [
-      [0x81aa28, A1T7L, WINDOW_MAP_BUFFER],
-      [0x81aa2e, DAS7L, WINDOW_MAP_BYTES],
-      [0x81aa34, VMADDL, BG3_MAP_VRAM],
-    ]);
-    h.sep(FLAG_MEMORY_8BIT);
-    ports(h, [
-      [0x81aa3b, VMAINC, VMAINC_INCREMENT_AFTER_HIGH],
-      [0x81aa40, MDMAEN, channel(DMAP7)],
-    ]);
-    h.rep(FLAG_MEMORY_8BIT);
-    h.write(h.abs(TEXT_MAP_UPLOAD), 0);
-  }
-  h.load(h.read(h.abs(TEXT_BUFFER_UPLOAD)));
-  if (!(ctx.status & FLAG_ZERO)) {
-    ports(h, [[0x81aa50, A1T7L, TEXT_MASK_BUFFER]]);
-    h.load(h.read(h.abs(TEXT_BUFFER_BYTES)));
-    h.portWrite(DAS7L, ctx.a, 2, 0x81aa56);
-    h.load(h.read(h.abs(TEXT_BUFFER_VRAM_ADDRESS)));
-    h.portWrite(VMADDL, ctx.a, 2, 0x81aa5c);
-    h.sep(FLAG_MEMORY_8BIT);
-    ports(h, [
-      [0x81aa63, VMAINC, VMAINC_INCREMENT_AFTER_HIGH],
-      [0x81aa68, MDMAEN, channel(DMAP7)],
-    ]);
-    h.rep(FLAG_MEMORY_8BIT);
-    h.write(h.abs(TEXT_BUFFER_UPLOAD), 0);
-  }
-  h.load(h.read(h.abs(TEXT_BUFFER_READBACK)));
-  if (!(ctx.status & FLAG_ZERO)) {
-    h.load(h.read(h.abs(TEXT_BUFFER_VRAM_ADDRESS)));
-    const vmadd = ctx.a;
-    h.portWrite(VMADDL, ctx.a, 2, 0x81aa78);
-    ports(h, [
-      [0x81aa7e, DAS5L, TEXT_READBACK_BYTES],
-      [0x81aa84, A1T5L, TEXT_MASK_BUFFER],
-    ]);
-    h.sep(FLAG_MEMORY_8BIT);
-    ports(h, [[0x81aa8b, VMAINC, VMAINC_INCREMENT_AFTER_HIGH]]);
-    h.load(h.port(RDVRAMH, 1, 0x81aa8e));
-    ports(h, [[0x81aa93, MDMAEN, channel(DMAP5)]]);
-    // Live devices perform this transfer themselves from the PPU (frame-events.mjs).
-    if (
-      isIoAddress(h.abs(MDMAEN)) &&
-      !(e?.interrupts instanceof LagFreeFrames) &&
-      (e?.interrupts !== undefined || e?.dmaTransfers !== undefined)
-    )
-      applyObservedTextDma(h, e, vmadd);
-    h.rep(FLAG_MEMORY_8BIT);
-    h.write(h.abs(TEXT_BUFFER_READBACK), 0);
-  }
   return h.rtl();
 }
 // 81:AB2C: upload the font tiles to the BG3 characters and their colours to CGRAM by DMA,

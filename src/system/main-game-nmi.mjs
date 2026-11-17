@@ -1,5 +1,5 @@
 import { runObservedNmi } from './nmi-call.mjs';
-import { clearTextTiles } from './main-initialize.mjs';
+import { clearTextTiles } from './main-text-upload.mjs';
 import { unpackStep } from './native-unpack-body.mjs';
 import { readJoypad } from './main-scene-wait.mjs';
 import { NativeWaitContinuation } from './native-wait-continuation.mjs';

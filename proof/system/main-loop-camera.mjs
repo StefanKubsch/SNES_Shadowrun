@@ -1,5 +1,5 @@
 import { sec, clc } from './status-flags.mjs';
-import { BG1_MAP_VRAM, BG2_MAP_VRAM } from '../../src/system/main-initialize.mjs';
+import { BG1_MAP_VRAM, BG2_MAP_VRAM } from './main-initialize.mjs';
 import {
   CAMERA_BOX,
   CAMERA_BOX_HIGH,

@@ -9,7 +9,7 @@ import {
 } from './main-motion-collision.mjs';
 import { moveObjectTowardsTarget } from './main-motion-target.mjs';
 import { playCutscene, playMatrixScene } from './main-scene.mjs';
-import { setUpGameScreenRoutine } from '../../src/system/main-initialize.mjs';
+import { setUpGameScreenRoutine } from '../system/main-initialize.mjs';
 import { enterRoom, forceBlank } from './main-transition.mjs';
 import { MAIN_UPKEEP_ROUTINES } from './main-loop-upkeep.mjs';
 

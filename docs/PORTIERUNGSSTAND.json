@@ -18363,7 +18363,7 @@
         "proof/matrix-reference/main-matrix-nmi.mjs",
         "src/system/main-intro-nmi.mjs",
         "src/system/nmi-call.mjs",
-        "src/system/main-initialize.mjs",
+        "proof/system/main-initialize.mjs",
         "proof/system/main-scene-load.mjs",
         "proof/system/main-scene-layers.mjs",
         "proof/system/main-scene-collision.mjs",

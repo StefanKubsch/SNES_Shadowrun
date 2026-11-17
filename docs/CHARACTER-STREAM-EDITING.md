@@ -45,7 +45,7 @@ observations. The static groups overlap:
 - `80:FF98` supplies the window style characters. `81:AA9C` reads the
   pointer table `80:FFAD`, unpacks through `80:9F49` into `7E:23A0` and
   uses the unpacked length for DMA; see
-  [main-initialize.mjs](../src/system/main-initialize.mjs).
+  [main-initialize.mjs](../proof/system/main-initialize.mjs).
 - `87:D71A` and `84:F9E8` supply large and small frontend frames. Calls
   `81:E1A3` and `81:E1B0` unpack them through `80:F2A4` into `7F:0018`
   and `7F:8018`. `84:DAF2` also has a direct frontend font consumer in

@@ -4,7 +4,7 @@
 import { taskStop } from '../../src/system/task-stop.mjs';
 import { dialogAccess } from '../../src/system/native-dialog-support.mjs';
 import { unpackStream } from '../../src/system/native-unpack.mjs';
-import { MAIN_INITIALIZE_ROUTINES } from '../../src/system/main-initialize.mjs';
+import { MAIN_INITIALIZE_ROUTINES } from '../system/main-initialize.mjs';
 import { TRANSITION_ROUTINES } from './main-transition.mjs';
 import { NativeCallContinuation } from '../../src/system/native-call-continuation.mjs';
 import { NATIVE_CALL_CONTINUATIONS } from './continuations.mjs';

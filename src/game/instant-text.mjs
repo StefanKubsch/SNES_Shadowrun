@@ -7,7 +7,7 @@
 // itself. With the option on, a blocking text wait runs A9E1 at once and
 // continues without a frame. Picture, audio, pad and the frame counter
 // (RANDOM_STATE) do not advance; every other NMI service stays where it was.
-import { clearTextTiles } from '../system/main-initialize.mjs';
+import { clearTextTiles } from '../system/main-text-upload.mjs';
 import { BLOCKING_BRANCHES } from '../vm/frame-events.mjs';
 import { NMI_CALLBACK, NMI_CALLBACK_BANK, NMI_STACK_TOP } from '../data/wram.mjs';
 import { NMITIMEN_NMI_ENABLE } from '../constants/hardware-registers.mjs';

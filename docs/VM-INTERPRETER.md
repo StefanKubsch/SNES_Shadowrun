@@ -598,7 +598,7 @@ both fade-in lists.
 
 ## Scene initialisation 9629
 
-[main-initialize.mjs](../src/system/main-initialize.mjs) binds the complete
+[main-initialize.mjs](../proof/system/main-initialize.mjs) binds the complete
 original init call `$80:9629`. Entry E0/M0/X0, D0, binary arithmetic and the
 real DBR with valid memory/device addresses. It first writes BYTE `$420D=1`,
 `$4200=0`, `$420C=0`; then display defaults `$B064`, portrait reset `$8FB3`,

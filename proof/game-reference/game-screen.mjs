@@ -1,7 +1,7 @@
 // Register-level reference of the game screen set-up 80:9629 (moved from
-// src/system/main-initialize.mjs; lifted in src/game/game-screen.mjs). Its callees stay
-// register-level in src/system/main-initialize.mjs, where other callers use them.
-import { MAIN_INITIALIZE_ROUTINES } from '../../src/system/main-initialize.mjs';
+// proof/system/main-initialize.mjs; lifted in src/game/game-screen.mjs). Its callees stay
+// register-level in proof/system/main-initialize.mjs, where other callers use them.
+import { MAIN_INITIALIZE_ROUTINES } from '../system/main-initialize.mjs';
 import { routineCaller } from '../../src/system/routine-call.mjs';
 import { unpackStep } from '../../src/system/native-unpack-body.mjs';
 import { TM_SHADOW } from '../../src/data/wram.mjs';

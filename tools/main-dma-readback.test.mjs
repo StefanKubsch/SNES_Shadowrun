@@ -14,7 +14,7 @@ import { decodeWindows, DialogTestMemory, rom, romBytes } from './task-native-di
 import { runReference } from './w65c816-reference.mjs';
 import { TaskAccessor } from '../src/vm/task-accessor.mjs';
 import { dialogAccess } from '../src/system/native-dialog-support.mjs';
-import { clearTextTiles } from '../src/system/main-initialize.mjs';
+import { clearTextTiles } from '../src/system/main-text-upload.mjs';
 import { GAME_NMI_ROUTINES } from '../proof/replay/main-game-nmi.mjs';
 import { printText, drawTextBuffer } from '../proof/replay/native-text-compose.mjs';
 import { runTaskMenuCompose } from '../proof/replay/native-menu-compose.mjs';

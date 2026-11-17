@@ -1,5 +1,5 @@
 import { unpackStep } from '../../src/system/native-unpack-body.mjs';
-import { MAIN_INITIALIZE_ROUTINES } from '../../src/system/main-initialize.mjs';
+import { MAIN_INITIALIZE_ROUTINES } from './main-initialize.mjs';
 import { unpackPortrait } from '../../src/system/native-dialog-portrait.mjs';
 import { buildLayerTileStacks } from './main-scene-layers.mjs';
 import { routineCaller } from '../../src/system/routine-call.mjs';

@@ -9,7 +9,7 @@ import {
   DialogTestMemory,
 } from './task-native-dialog-harness.mjs';
 import { sceneVideoSpecs } from './main-scene-video-source.mjs';
-import { MAIN_INITIALIZE_ROUTINES, loadWindowStyleTiles } from '../src/system/main-initialize.mjs';
+import { MAIN_INITIALIZE_ROUTINES, loadWindowStyleTiles } from '../proof/system/main-initialize.mjs';
 import { initializeGameScreen } from '../proof/game-reference/game-screen.mjs';
 import { MAIN_SCENE_ROUTINES } from '../proof/replay/main-scene.mjs';
 import { GAME_NMI_LIFTED_JOBS } from '../src/game/game-nmi.mjs';
