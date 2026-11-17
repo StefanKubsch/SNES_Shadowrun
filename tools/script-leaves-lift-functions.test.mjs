@@ -27,7 +27,7 @@ import {
   setObjectAnimationReference,
   setObjectDirectionReference,
 } from '../proof/game-reference/object-turn.mjs';
-import { setObjectActionAndDirection } from '../src/script/native-object-turn.mjs';
+import { setObjectActionAndDirection } from '../src/script/native-object-action-direction.mjs';
 import { setObjectDirection } from '../src/script/native-object-action-set.mjs';
 import { setActionAndDirection } from '../src/game/member-facing.mjs';
 import { setObjectAnimation } from '../src/script/native-object-action-apply.mjs';

@@ -3,7 +3,7 @@ import { enterRoomJsrSequence as enterRoomRoutineSequence } from '../../src/game
 import { SCENE_GRAPHICS_ROUTINES } from './main-scene-graphics.mjs';
 import { TALK_ROUTINES } from '../script/native-dialog.mjs';
 import { createObject } from '../../src/script/native-object-create.mjs';
-import { turnRegisters } from '../../src/script/native-object-turn.mjs';
+import { turnRegisters } from '../script/native-object-turn.mjs';
 import { drawWindowListAdapter } from '../../src/system/native-render-compose.mjs';
 import { sendApuCommand } from '../../src/system/native-input-apu.mjs';
 import { clampToCameraBox, updateCameraTileBuffers } from './main-loop-camera.mjs';

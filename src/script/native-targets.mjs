@@ -33,7 +33,7 @@ import { getObjectDirection } from './native-object-direction.mjs';
 import { getObjectNumber } from './native-object-number.mjs';
 import { getSpriteMode } from './native-sprite-mode-get.mjs';
 import { setSpriteMode } from './native-sprite-mode-set.mjs';
-import { setObjectActionAndDirection } from './native-object-turn.mjs';
+import { setObjectActionAndDirection } from './native-object-action-direction.mjs';
 import { changeScene } from './native-scene-change.mjs';
 import { changeRoom } from './native-room-change.mjs';
 import { removeObject } from './native-object-release.mjs';

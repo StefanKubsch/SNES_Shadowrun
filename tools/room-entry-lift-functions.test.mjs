@@ -743,7 +743,7 @@ const OBJECT_TURN = {
 };
 // The turn as the walk towards a target calls it (JSR, return word 1234), against the
 // register-level turn: the same states, with A, X, Y, sign, overflow, zero and carry
-// compared (src/script/native-object-turn.mjs).
+// compared (proof/script/native-object-turn.mjs).
 const registerWords = (h) =>
   [h.ctx.a, h.ctx.x, h.ctx.y, h.ctx.status, h.ctx.pc].map((v) => v.toString(16)).join();
 const TURN_REGISTERS = {

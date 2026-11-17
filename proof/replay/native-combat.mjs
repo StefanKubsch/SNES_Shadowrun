@@ -4,7 +4,7 @@ import { dialogAccess } from '../../src/system/native-dialog-support.mjs';
 import { drainNativeSequence } from '../../src/system/native-call-continuation.mjs';
 import { taskStop } from '../../src/system/task-stop.mjs';
 import { FIRST_ARGUMENT, SECOND_ARGUMENT, leaf } from '../../src/system/native-leaf-support.mjs';
-import { taskSelectionSupport } from '../../src/script/native-object-turn.mjs';
+import { taskSelectionSupport } from '../script/native-object-turn.mjs';
 import { randomBelow } from './native-random.mjs';
 import { testLineOfSight, SIGHT_ROUTINE } from './line-of-sight.mjs';
 import { showNotice } from './native-notice.mjs';

@@ -4,7 +4,7 @@
 // dispatch of proof/task/native-dispatch.mjs and the instruction tests run these; the game
 // runs the lifted natives.
 import { FIRST_ARGUMENT, SECOND_ARGUMENT, leaf } from '../../src/system/native-leaf-support.mjs';
-import { taskSelectionSupport } from '../../src/script/native-object-turn.mjs';
+import { taskSelectionSupport } from '../script/native-object-turn.mjs';
 import { lsr, clc } from '../../src/script/native-object-bob.mjs';
 import { WAVE_TABLE, PHASE_MASK, QUARTER_PHASE } from '../../src/game/object-bob.mjs';
 import {

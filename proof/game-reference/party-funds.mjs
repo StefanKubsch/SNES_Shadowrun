@@ -5,7 +5,7 @@
 // proof/task/native-dispatch.mjs and the instruction test of 80:8B8A run these; the game
 // runs the lifted natives.
 import { FIRST_ARGUMENT, leaf } from '../../src/system/native-leaf-support.mjs';
-import { taskSelectionSupport } from '../../src/script/native-object-turn.mjs';
+import { taskSelectionSupport } from '../script/native-object-turn.mjs';
 import {
   KARMA,
   MAGIC_POINTS,

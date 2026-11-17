@@ -4,7 +4,7 @@
 // src/game/swarm-setup.mjs). The proof plans and the Native58 dispatch of
 // proof/task/native-dispatch.mjs run these; the game runs the lifted natives.
 import { FIRST_ARGUMENT, leaf } from '../../src/system/native-leaf-support.mjs';
-import { taskSelectionSupport } from '../../src/script/native-object-turn.mjs';
+import { taskSelectionSupport } from '../script/native-object-turn.mjs';
 import { FLAG_CARRY, FLAG_ZERO } from '../../src/constants/cpu-flags.mjs';
 import { LONG_WRAP, WORD_MASK } from '../../src/constants/bits.mjs';
 import {

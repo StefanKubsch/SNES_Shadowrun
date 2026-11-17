@@ -7,7 +7,7 @@
 // lifted natives.
 import { taskStop } from '../../src/system/task-stop.mjs';
 import { FIRST_ARGUMENT, SECOND_ARGUMENT, leaf } from '../../src/system/native-leaf-support.mjs';
-import { taskSelectionSupport } from '../../src/script/native-object-turn.mjs';
+import { taskSelectionSupport } from '../script/native-object-turn.mjs';
 import {
   RUNNER_DEFAULT_ARMOUR,
   RUNNER_DEFAULT_ARMOUR_RATING,

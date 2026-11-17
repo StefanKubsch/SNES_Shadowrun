@@ -1,5 +1,5 @@
 import { WORD_MASK } from '../../src/constants/bits.mjs';
-import { turnRegisters } from '../../src/script/native-object-turn.mjs';
+import { turnRegisters } from '../script/native-object-turn.mjs';
 
 import {
   MOTION_ACTIVE,

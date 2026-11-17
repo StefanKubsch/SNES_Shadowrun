@@ -20,7 +20,7 @@ import { exploreLive } from './explore-live.mjs';
 //   mapped (Book I PDF 93: $2000-$5FFF is the register area, these are no
 //   registers; $6000-$7FFF is empty). The original reads 8C there: the open bus
 //   holds the last byte read, the bank byte of the pointer 8C:8C94, which is what
-//   src/script/native-object-turn.mjs returns.
+//   proof/script/native-object-turn.mjs returns.
 // The four code bytes were missing in the data package (rom_byte_absent at
 // 80:9906): the mouse layer of ff40402d no longer reached this path, so the read
 // record (analysis/rom-reads.json) never saw them.
@@ -62,8 +62,7 @@ test(
   'the original makes the same reads and gets the pointer bank 8C from the open bus',
   { skip: exe ? false : reason, timeout: 1200000 },
   async () => {
-    const r = run(),
-      reads = [],
+    const reads = [],
       lines = [];
     await explore(exe, PLAN, {
       start: 10,

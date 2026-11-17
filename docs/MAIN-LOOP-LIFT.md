@@ -594,7 +594,7 @@ which the render proof of 81:8076 keeps using.
   [src/game/object-turn.mjs](../src/game/object-turn.mjs) and `setActionAndDirection` of
   [src/game/member-facing.mjs](../src/game/member-facing.mjs) (block 105); the
   register-level versions moved to proof/game-reference/object-turn.mjs. The shared
-  register-level bodies stay in src/script/native-object-turn.mjs for the register-level
+  register-level bodies stay in proof/script/native-object-turn.mjs for the register-level
   natives that still call them.
   [tools/script-leaves-lift-functions.test.mjs](../tools/script-leaves-lift-functions.test.mjs)
   compares the three natives (300 samples each).

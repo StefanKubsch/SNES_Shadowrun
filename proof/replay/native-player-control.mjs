@@ -10,13 +10,13 @@ import {
 } from '../../src/system/native-call-continuation.mjs';
 import { lagFree } from '../../src/system/main-wait-interrupt.mjs';
 import { dialogAccess } from '../../src/system/native-dialog-support.mjs';
-import { taskSelectionSupport } from '../../src/script/native-object-turn.mjs';
+import { taskSelectionSupport } from '../script/native-object-turn.mjs';
 import {
   applyGloveLimits,
   GLOVE_LIMITS,
   GLOVE_OVER_PLAYER,
 } from '../../src/script/native-glove-crosshair-limits.mjs';
-import { selectAnimationRegisters, turnRegisters } from '../../src/script/native-object-turn.mjs';
+import { selectAnimationRegisters, turnRegisters } from '../script/native-object-turn.mjs';
 import {
   STATUS_SCREEN_ROUTINES,
   statusRoutineSequence,

@@ -145,7 +145,7 @@ the module that implements it.
 | `native-d134`            | [native-story-stage-get.mjs](../src/script/native-story-stage-get.mjs)                                     |
 | `native-d13e`            | [native-object-velocity-clear.mjs](../src/script/native-object-velocity-clear.mjs)                         |
 | `native-d14a`            | [native-object-position-set.mjs](../src/script/native-object-position-set.mjs)                             |
-| `native-d15c`            | [native-object-turn.mjs](../src/script/native-object-turn.mjs)                                             |
+| `native-d15c`            | [native-object-turn.mjs](../proof/script/native-object-turn.mjs)                                             |
 | `native-d16d`            | [native-sprite-mode-set.mjs](../src/script/native-sprite-mode-set.mjs)                                     |
 | `native-d17b`            | [native-sprite-mode-get.mjs](../src/script/native-sprite-mode-get.mjs)                                     |
 | `native-d186`            | [native-player-object-break.mjs](../src/script/native-player-object-break.mjs)                             |

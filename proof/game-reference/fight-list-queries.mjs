@@ -4,7 +4,7 @@
 // the Native58 dispatch of proof/task/native-dispatch.mjs and the instruction tests of
 // 80:8656 and 80:8631 run these; the game runs the lifted natives.
 import { FIRST_ARGUMENT, leaf } from '../../src/system/native-leaf-support.mjs';
-import { taskSelectionSupport } from '../../src/script/native-object-turn.mjs';
+import { taskSelectionSupport } from '../script/native-object-turn.mjs';
 import {
   FIGHT_LIST,
   FIGHT_LIST_INDEX,

@@ -7,7 +7,7 @@
 // the game runs the lifted natives.
 import { taskStop } from '../../src/system/task-stop.mjs';
 import { FIRST_ARGUMENT, SECOND_ARGUMENT, leaf } from '../../src/system/native-leaf-support.mjs';
-import { taskSelectionSupport } from '../../src/script/native-object-turn.mjs';
+import { taskSelectionSupport } from '../script/native-object-turn.mjs';
 import { appendScriptTask } from '../../src/system/task-append.mjs';
 import {
   DP_SELECTION_POINTER,

@@ -10,7 +10,7 @@ import {
   observedContinuation,
   drainNativeSequence,
 } from '../../src/system/native-call-continuation.mjs';
-import { setActionAndDirectionRegisters } from '../../src/script/native-object-turn.mjs';
+import { setActionAndDirectionRegisters } from '../script/native-object-turn.mjs';
 import { TEXT_NUMBERS } from './native-notice.mjs';
 import { DP_PORTRAIT_FRAME } from './native-dialog.mjs';
 

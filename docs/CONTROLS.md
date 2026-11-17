@@ -172,7 +172,7 @@ Found on the way (2026-10-30): with the mouse layer of that day, the B after
 the shot made D15C (through E014, A985) read the record pointer from the open
 bus (8C:6A56), and Y carried the counter read to 8D:35B3, into the register
 area (Book I PDF 93) outside the registers; there too the native port now reads
-the open bus (src/script/native-object-turn.mjs). Since the mouse layer change ff40402d
+the open bus (proof/script/native-object-turn.mjs). Since the mouse layer change ff40402d
 the live-aim run takes another path. Checked against the original
 (2026-11-01, [live-alley-bus.test.mjs](../tools/live-alley-bus.test.mjs)):
 with that input replayed and the same random draws, Mesen reads 8C at 8C:6A56

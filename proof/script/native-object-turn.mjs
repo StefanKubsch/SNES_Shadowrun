@@ -1,11 +1,5 @@
-import { taskStop } from '../system/task-stop.mjs';
-import {
-  FIRST_ARGUMENT,
-  SECOND_ARGUMENT,
-  finishLeaf,
-  leaf,
-} from '../system/native-leaf-support.mjs';
-import { setActionAndDirection } from '../game/member-facing.mjs';
+import { taskStop } from '../../src/system/task-stop.mjs';
+import { FIRST_ARGUMENT, SECOND_ARGUMENT, leaf } from '../../src/system/native-leaf-support.mjs';
 
 import {
   ANIMATION_CLOCK_START,
@@ -26,14 +20,14 @@ import {
   WRAM,
   OBJECT_ACTION_DIRECTIONS,
   OBJECT_BOX_HEIGHT,
-} from '../data/wram.mjs';
+} from '../../src/data/wram.mjs';
 import {
   FLAG_CARRY,
   FLAG_DECIMAL,
   FLAG_OVERFLOW,
   FLAG_ZERO,
   FLAG_MEMORY_8BIT,
-} from '../constants/cpu-flags.mjs';
+} from '../../src/constants/cpu-flags.mjs';
 import {
   WORD_MASK,
   BANK_WRAP,
@@ -45,10 +39,10 @@ import {
   HIGH_BYTE_MASK,
   BYTE_SIGN,
   WORD_SIGN,
-} from '../constants/bits.mjs';
-import { INIDISP, NMITIMEN, DMAP0 } from '../constants/hardware-registers.mjs';
-import { BANK_WITHOUT_IO, IO_AREA_START, IO_AREA_END } from '../constants/memory-map.mjs';
-import { ACTION_TABLE } from '../data/actions.mjs';
+} from '../../src/constants/bits.mjs';
+import { INIDISP, NMITIMEN, DMAP0 } from '../../src/constants/hardware-registers.mjs';
+import { BANK_WITHOUT_IO, IO_AREA_START, IO_AREA_END } from '../../src/constants/memory-map.mjs';
+import { ACTION_TABLE } from '../../src/data/actions.mjs';
 // Registers answering inside 2000-7FFF (Book I PDF 93): the B bus 2100-21FF, the joypad ports
 // 4016/4017, the CPU registers 4200-421F and the DMA channels 4300-437F.
 const B_BUS_END = 0x2200,
@@ -287,10 +281,3 @@ export const setActionAndDirectionRegisters = (a, outerReturn = true) =>
     },
     outerReturn,
   );
-// 80:D15C (lifted in src/game/member-facing.mjs; register-level reference above): set the
-// object's action selection (A985), then its direction (AAAF).
-export const setObjectActionAndDirection = (a, outerReturn = true) => {
-  if (a.ctx.d !== 0) taskStop('task_direct_page_zero_required');
-  setActionAndDirection(a.mem, a);
-  return finishLeaf(a, outerReturn);
-};

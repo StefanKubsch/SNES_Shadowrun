@@ -117,3 +117,8 @@ task text accessor that the lifted unpack, render and APU helpers share.
 The register-level leaf helpers for object record fields, actor state and kind,
 and kind values moved to `proof/system/native-leaf-support.mjs`; the live module
 keeps the shared leaf frame, argument and result helpers.
+
+The register-level object turn natives (80:A985, 80:AAAF, 80:D15C and their
+selection support) moved to `proof/script/native-object-turn.mjs`. The game
+binds only the lifted 80:D15C adapter, now in
+`src/script/native-object-action-direction.mjs`.

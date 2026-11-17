@@ -1,5 +1,5 @@
 // The object turn (lifted from 80:AAAF with the animation selection 80:A985;
-// register-level versions in src/script/native-object-turn.mjs, which the other callers
+// register-level versions in proof/script/native-object-turn.mjs, which the other callers
 // still use).
 //
 // An object (slot in the direct page word 00) turns to the direction in word 02. Its

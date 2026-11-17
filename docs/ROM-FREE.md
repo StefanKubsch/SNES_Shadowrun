@@ -1293,7 +1293,7 @@ tour3 tour4 tour5`). The story state stays that of the morgue, so the
     80:9906 (97 A0, at 80:A98C) and 80:9A66 (1F A9, at 80:A9BD), code
     bytes read as data, and 8C:6A56 (80:A9AF) and 8D:35B3 (80:A9BF), where
     nothing is mapped. Mesen reads 8C at both: the open bus keeps the
-    bank byte of the pointer 8C:8C94, as src/script/native-object-turn.mjs returns.
+    bank byte of the pointer 8C:8C94, as proof/script/native-object-turn.mjs returns.
     This closes the open issue D15C.
   - The four code bytes were missing in the package: the native run ended
     with `rom_byte_absent at $809906`. The path vanished from the live

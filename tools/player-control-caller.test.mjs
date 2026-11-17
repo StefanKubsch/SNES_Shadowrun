@@ -4,7 +4,7 @@ import { compareRun } from './member-menu-caller-harness.mjs';
 import { controlPlayerSequence as directControl } from '../src/game/player-control.mjs';
 import { controlPlayerSequence as formerControl } from '../proof/caller/player-control.mjs';
 import { partyStatusSequence } from '../proof/caller/party-status.mjs';
-import { selectAnimationRegisters, turnRegisters } from '../src/script/native-object-turn.mjs';
+import { selectAnimationRegisters, turnRegisters } from '../proof/script/native-object-turn.mjs';
 import { CAMERA_ROTATION_SRAM } from '../src/data/native-player-control.mjs';
 import * as W from '../src/data/wram.mjs';
 

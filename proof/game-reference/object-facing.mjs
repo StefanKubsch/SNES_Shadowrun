@@ -15,7 +15,7 @@ import {
   DP_MINUS_X,
   DP_MINUS_Y,
   FACING,
-} from '../../src/script/native-object-turn.mjs';
+} from '../script/native-object-turn.mjs';
 import { setObjectDirectionReference } from './object-turn.mjs';
 import { OBJECT_X, OBJECT_Y, PLAYER_OBJECT } from '../../src/data/wram.mjs';
 import { FLAG_CARRY, FLAG_NEGATIVE, FLAG_ZERO } from '../../src/constants/cpu-flags.mjs';

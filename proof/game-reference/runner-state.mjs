@@ -9,7 +9,7 @@ import { d079Sequence } from '../replay/native-runners-restore.mjs';
 import { FIRST_ARGUMENT, SECOND_ARGUMENT } from '../../src/system/native-leaf-support.mjs';
 import { taskStop } from '../../src/system/task-stop.mjs';
 import { leaf } from '../../src/system/native-leaf-support.mjs';
-import { taskSelectionSupport } from '../../src/script/native-object-turn.mjs';
+import { taskSelectionSupport } from '../script/native-object-turn.mjs';
 import {
   DP_REFILL_DOUBLE_MAGIC,
   DP_RESOURCE_DOUBLE_MAGIC,

@@ -1,5 +1,5 @@
 // Action lists of the kinds (docs/ROM-FREE.md, step 2). 80:D15C and 80:8371
-// (src/script/native-object-turn.mjs, native-object-collision.mjs) take for slot kind k (3F28)
+// (proof/script/native-object-turn.mjs, native-object-collision.mjs) take for slot kind k (3F28)
 // the word at 8C:ED8A + 2 k, a list in bank 8C, and add 2 n for action n
 // (DP 02); the word there points to the action record R:
 // - R +0 speed to 4088: 80:AC2F adds it to 4030 and steps when bit 7

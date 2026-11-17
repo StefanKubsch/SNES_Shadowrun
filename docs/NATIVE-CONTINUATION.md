@@ -405,7 +405,7 @@ A985 to D15C. There the record pointer from the table 8C:ED8A points to
 8C:6AA1, where nothing lies below $8000 in LoROM bank 8C. Mesen shows: the
 original reads both bytes at 80:A9BF (`LDA [$00]`) as 8C, that is the open bus
 with the byte read last, the bank of the pointer. `taskSelectionSupport.indirect`
-([native-d15c.mjs](../src/script/native-object-turn.mjs)) returns this pointer bank per
+([native-d15c.mjs](../proof/script/native-object-turn.mjs)) returns this pointer bank per
 byte for targets in $6000-$7FFF of the banks 00-3F/80-BF instead of stopping
 with `unmapped_read`. Other read paths keep the limit; there is no general bus
 model. Check: Mesen live comparison over 40 rounds with this input; registers,

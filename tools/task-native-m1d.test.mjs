@@ -966,7 +966,7 @@ for (const [entry, run] of [
       const n = run2(false),
         r = run2(true);
       // D15C (under BB2C/A985) reads [dp],Y from unmapped system-bank addresses as open bus
-      // (src/script/native-object-turn.mjs); the reference has no bus model and faults there instead.
+      // (proof/script/native-object-turn.mjs); the reference has no bus model and faults there instead.
       const openBus = /^unmapped_read (\d+)$/.exec(r.fault ?? '')?.[1],
         low = openBus & 0xffff;
       if (

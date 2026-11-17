@@ -4,7 +4,7 @@
 // run it; the game runs the lifted native.
 import { taskStop } from '../../src/system/task-stop.mjs';
 import { leaf } from '../../src/system/native-leaf-support.mjs';
-import { selectAnimationRegisters, turnRegisters } from '../../src/script/native-object-turn.mjs';
+import { selectAnimationRegisters, turnRegisters } from '../script/native-object-turn.mjs';
 import {
   GROUP_INDEX,
   GROUP_NUMBERS,
