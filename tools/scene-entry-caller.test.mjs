@@ -4,6 +4,8 @@ import { cutsceneSequence as direct } from '../src/cutscene/cutscene-scene.mjs';
 import { cutsceneSequence as former } from '../proof/caller/cutscene-scene.mjs';
 import { introSequence } from '../src/intro/intro-scene.mjs';
 import { introSequence as formerIntro } from '../proof/caller/intro-scene.mjs';
+import { matrixSceneSequence } from '../src/matrix/matrix-scene.mjs';
+import { matrixSceneSequence as formerMatrix } from '../proof/caller/matrix-scene.mjs';
 import { createSide } from './lift-function-harness.mjs';
 import { LagFreeFrames } from '../src/vm/frame-events.mjs';
 import {
@@ -64,6 +66,14 @@ function run(sequence, scene, budget, status = 0) {
     NATIVE_CALL_CONTINUATIONS.delete(runCutscene);
   }
 }
+
+for (const budget of [1, 7])
+  test(`matrix setup, login and return own their waits, budget ${budget}`, () => {
+    const actual = run(matrixSceneSequence, 0, budget);
+    assert.deepEqual(actual, run(formerMatrix, 0, budget));
+    assert.ok(actual.waits.length > 16);
+    assert.equal(actual.ctx.pc, 0x1235);
+  });
 
 for (const budget of [1, 7])
   for (const status of [0, 0x30])

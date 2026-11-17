@@ -130,8 +130,9 @@ for (const budget of [1, 7])
     for (const [target, site] of [
       [0x81eebb, 0x81e07e],
       [0x80f298, 0x81e082],
+      [0x81eebb, 0x81c3ca],
     ])
-      test(`intro fixed call preserves its original frame ${site.toString(16)}, interrupts ${irq}, budget ${budget}`, () => {
+      test(`scene fixed call preserves its original frame ${site.toString(16)}, interrupts ${irq}, budget ${budget}`, () => {
         assert.deepEqual(
           run(true, target, 0x1000, irq, budget, false, site),
           run(false, target, 0x1000, irq, budget, false, site),

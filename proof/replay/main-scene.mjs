@@ -18,7 +18,8 @@ import {
 } from '../../src/system/main-scene-wait.mjs';
 import { sendApuCommandRoutine, setMusicModeRoutine } from '../../src/apu/audio-routines.mjs';
 import { randomBelow, randomBelowLong } from '../../src/system/native-random.mjs';
-import { handleMatrixNmi, matrixSceneSequence } from '../../src/matrix/matrix-scene.mjs';
+import { matrixSceneSequence } from '../caller/matrix-scene.mjs';
+import { handleMatrixNmi } from '../../src/matrix/matrix-scene.mjs';
 import { cutsceneSequence } from '../caller/cutscene-scene.mjs';
 import { handleCutsceneNmi } from '../../src/cutscene/cutscene-scene.mjs';
 import { introSequence } from '../caller/intro-scene.mjs';

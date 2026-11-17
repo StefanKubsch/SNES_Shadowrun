@@ -39,3 +39,12 @@ including waits during both fades. Tests compare physical frame bytes and return
 PCs for both sites with recorded interrupts and explicit observations at both
 budgets. Actual intro/credits fixture comparisons continue through the complete
 live body. No dependency is selected from a caller table in either scene.
+
+## Matrix observed frame waits
+
+The matrix entry composes its fixed recorded frame wait directly, including
+setup, fades, login, grid and exit phases. Its API no longer receives a routine
+table. The former matrix orchestration remains independently in
+`proof/caller/matrix-scene.mjs` for replay. Full fixture cases compare actual
+matrix setup, packed maps, login text and return; the shared observed-call
+comparisons also pin its original bridge frame at 81:C3CA.

@@ -1,11 +1,10 @@
 // The matrix scene (lifted from 81:C3CA, 81:C029, 81:BFD8-C028 and the NMI callback
 // 81:BEC3). The scene is a generator: it pauses at every frame wait so the live game
 // can show the frame; the other matrix code is plain functions in matrix-world.mjs
-// and matrix-text.mjs. Routines shared with other scenes (frame wait, unpacking,
-// fades, sound, input) are still the register-level versions, reached through
-// nativeCallSequence with their register inputs.
+// and matrix-text.mjs. Shared frame waits, unpacking, fades, sound and input
+// compose directly; recorded waits retain explicit instruction observations.
 import { taskStop } from '../system/task-stop.mjs';
-import { nativeCallSequence } from '../system/native-call-continuation.mjs';
+import { sceneFrameCallSequence } from '../system/scene-observed-calls.mjs';
 import { entryOf } from './matrix-tables.mjs';
 import { readJoypad, takePadPresses } from '../system/joypad.mjs';
 import {
@@ -120,9 +119,8 @@ import { lagFree } from '../system/main-wait-interrupt.mjs';
 import { BYTE_BITS, BYTE_MASK, WORD_BITS, WORD_MASK } from '../constants/bits.mjs';
 
 // The register-level frame wait, for recorded interrupt observations.
-const WAIT_FRAME = 0x81eebb,
-  // Return address of these calls: the matrix entry. Nothing reads it.
-  BRIDGE_SITE = 0x81c3ca;
+// Return address of these calls: the matrix entry. Nothing reads it.
+const BRIDGE_SITE = 0x81c3ca;
 // Audio mode 8, the register list 81:CDB2 (it also installs the NMI callback), and the
 // packed streams (src/data/lz-streams.mjs) into bank 7F: the text characters to
 // 7F:0000, the back map to 7F:0216 (VRAM 2400), the 16 system maps (800 bytes each)
@@ -193,8 +191,6 @@ const GREEN_HALF = 0x01e0,
 function requireWideRegisters(ctx) {
   if (ctx.status & (FLAG_MEMORY_8BIT | FLAG_INDEX_8BIT)) taskStop('matrix_wide_registers_required');
 }
-const shared = (h, events, routines, target, long = true) =>
-  nativeCallSequence(h, events, routines, BRIDGE_SITE, target, long);
 
 // Fade to white by colour addition, one level per frame (81:BFD8).
 function* fadeToWhite(m, wait) {
@@ -262,12 +258,14 @@ function* setUpScreen(m, wait) {
 
 // 81:C3CA: play the matrix until the decker jacks out or the health runs out. h is
 // the accessor of the native call from the main loop (80:CC4B).
-export function* matrixSceneSequence(h, events, routines) {
+export function* matrixSceneSequence(h, events) {
   const { ctx } = h,
-    call = (target, long) => shared(h, events, routines, target, long),
     // The lifted frame wait takes its NMI from the lag-free frame model; recorded
     // interrupt observations keep the register-level wait.
-    wait = () => (lagFree(events) ? waitForFrame(h, events, m.port) : call(WAIT_FRAME));
+    wait = () =>
+      lagFree(events)
+        ? waitForFrame(h, events, m.port)
+        : sceneFrameCallSequence(h, events, BRIDGE_SITE);
   let m, more;
   // Entered by JSL from the scene request of the main loop (80:CC4B) with 16-bit registers;
   // the scene changes neither the status nor the data bank it returns with.
