@@ -10,7 +10,7 @@ import { titleCycleSequence } from './title-cycle.mjs';
 import { taskStop } from '../system/task-stop.mjs';
 import { sceneRuntime } from '../system/scene-runtime.mjs';
 import { setUpGameAudio } from '../intro/intro-scene.mjs';
-import { MAIN_START } from '../system/main-start.mjs';
+import { GAME_START as MAIN_START } from '../game/game-start.mjs';
 import {
   GAME_OPTIONS,
   OPTION_MUSIC,

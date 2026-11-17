@@ -32,7 +32,6 @@ import {
   NativeCallContinuation,
   dialogCallBody,
   segmentSequence,
-  drainNativeSequence,
 } from '../system/native-call-continuation.mjs';
 import { BYTE_BITS, WORD_SIGN } from '../constants/bits.mjs';
 import {
@@ -91,10 +90,7 @@ export const MAIN_LOOP_ROUTINES = new Map([
   [0x80bf3b, runGloveAction],
 ]);
 
-// Runs from 96C3 or the first 96AB up to the next scheduler round.
-export function runMainLoop(a, events = null, returnToOwner = false) {
-  return drainNativeSequence(mainLoopSequence(a, events, returnToOwner));
-}
+// The main loop from 96C3 or the first 96AB up to the next scheduler round.
 export function* mainLoopSequence(a, events, returnToOwner = false) {
   const { ctx } = a,
     { wram } = a.mem;

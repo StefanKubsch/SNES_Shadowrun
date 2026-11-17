@@ -13,7 +13,7 @@ import {
 import { taskStop } from '../../src/system/task-stop.mjs';
 import { sceneRuntime } from '../../src/system/scene-runtime.mjs';
 import { setUpGameAudio } from '../../src/intro/intro-scene.mjs';
-import { MAIN_START } from '../../src/system/main-start.mjs';
+import { MAIN_START } from '../system/main-start.mjs';
 import {
   GAME_OPTIONS,
   OPTION_MUSIC,

@@ -1,13 +1,13 @@
 // Direct game start 80:9688. Address-dispatched helper bindings belong to
 // proof/caller/main-start.mjs and proof/replay/main-start.mjs.
-import { dialogAccess } from './native-dialog-support.mjs';
-import { NativeCallContinuation } from './native-call-continuation.mjs';
+import { dialogAccess } from '../../src/system/native-dialog-support.mjs';
+import { NativeCallContinuation } from '../../src/system/native-call-continuation.mjs';
 import {
   GAME_START,
   requireGameStartEntry,
   gameStartSequence,
   runGameStart,
-} from '../game/game-start.mjs';
+} from '../../src/game/game-start.mjs';
 
 export const MAIN_START = GAME_START;
 

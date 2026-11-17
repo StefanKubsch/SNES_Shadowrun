@@ -13,7 +13,7 @@ import { mainStartupSequence } from '../src/system/main-startup.mjs';
 import { gameOwnerSequence, GAME_OWNER_RESUME } from '../src/frontend/game-owner.mjs';
 import { gameOwnerSequence as dispatchedOwner } from '../proof/frontend-caller/game-owner.mjs';
 import { FRONTEND_ROUTINES as dispatchedRoutines } from '../proof/script/live-frontend.mjs';
-import { mainStartContinuation } from '../src/system/main-start.mjs';
+import { mainStartContinuation } from '../proof/system/main-start.mjs';
 import { mainStartContinuation as dispatchedStart } from '../proof/caller/main-start.mjs';
 import { MainLoopContinuation as DispatchedLoop } from '../proof/caller/main-loop.mjs';
 import { MainLoopContinuation, MAIN_LOOP_ROUND } from '../src/vm/main-loop.mjs';

@@ -435,8 +435,9 @@ registerLevelLoop})`); the observed rooms and boot replays keep the driver direc
 
 ## Phase 8, game start and main-loop composition (2026-11-15)
 
-- The live entry in [main-start.mjs](../src/system/main-start.mjs) invokes the
-  game-start body directly. [main-loop.mjs](../src/vm/main-loop.mjs) composes its
+- The register-level entry in [main-start.mjs](../proof/system/main-start.mjs)
+  invokes the game-start body directly; the live owner enters the lifted start
+  itself (moved to proof on 2026-11-17). [main-loop.mjs](../src/vm/main-loop.mjs) composes its
   upkeep entries and waiting sequences directly, using the common continuation
   instead of its former dispatch-specific continuation. The game and attract
   loops no longer forward a routine table to the per-frame caller.

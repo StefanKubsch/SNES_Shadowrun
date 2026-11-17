@@ -16,7 +16,6 @@
 // attributes C9, the cells left CC, the window CF and the next tile D2) are written as
 // in the original; the Mesen oracle compares them.
 import { sceneRuntime } from '../system/scene-runtime.mjs';
-import { dialogAccess } from '../system/native-dialog-support.mjs';
 import {
   NATIVE_CALL_CONTINUATIONS,
   NativeCallContinuation,
@@ -264,9 +263,6 @@ function* drawWindowListCallSequence(h, events) {
   };
   return result;
 }
-// Register callers supply the existing JSL frame; the live body is always used.
-export const drawWindowListJslSequence = (a, events) =>
-  drawWindowListCallSequence(dialogAccess(a), events);
 export function runDrawWindowList(h, events) {
   return drainNativeSequence(drawWindowListCallSequence(h, events));
 }

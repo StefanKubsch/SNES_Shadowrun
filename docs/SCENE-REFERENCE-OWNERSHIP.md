@@ -128,3 +128,9 @@ grid direct page, visible area and high bit table) moved to
 `proof/script/native-sprite-helpers.mjs`. The OAM buffer offset word they share
 with the lifted sprite list is now defined in `src/game/sprite-list.mjs` and
 re-exported by the reference.
+
+The live owner takes the start address from `src/game/game-start.mjs` directly.
+The register-level start entry (`runMainStart`, `mainStartContinuation`) moved
+to `proof/system/main-start.mjs` for the owner caller tests. The unused src
+copies of `runMainLoop` and `drawWindowListJslSequence` were removed; their
+callers already use the independent versions in `proof/caller/`.
