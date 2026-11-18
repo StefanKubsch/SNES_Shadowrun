@@ -89,11 +89,9 @@ function standIns(s) {
     const { a } = h,
       { ctx } = a,
       w = a.mem.wram;
-    calls.push(
-      [target, ctx.a, ctx.x, ctx.y, ctx.status & LEFT_FLAGS, word(w, 0), word(w, 2)]
-        .map((v) => v.toString(HEX))
-        .join(':'),
-    );
+    // Game state only (user decision 2026-11-17): the callees read their arguments from
+    // the direct page words 00 and 02, no registers.
+    calls.push([target, word(w, 0), word(w, 2)].map((v) => v.toString(HEX)).join(':'));
     ctx.a = rnd(WORD);
     ctx.x = rnd(WORD);
     ctx.y = rnd(WORD);
@@ -104,12 +102,9 @@ function standIns(s) {
   };
   return { routines: new Map(TARGETS.map((t) => [t, stub(t)])), calls };
 }
+// The script interpreter replaces A, X, Y and the flags after the native's RTS.
 const returned = (h, calls) =>
-  [h.ctx.pc, h.ctx.s, h.ctx.a, h.ctx.x, h.ctx.y, h.ctx.status & LEFT_FLAGS]
-    .map((v) => v.toString(HEX))
-    .join() +
-  ' ' +
-  calls.join(' ');
+  [h.ctx.pc, h.ctx.s].map((v) => v.toString(HEX)).join() + ' ' + calls.join(' ');
 let referenceCalls, current;
 registerCases(
   [
