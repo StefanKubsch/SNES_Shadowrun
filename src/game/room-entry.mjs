@@ -315,10 +315,11 @@ function stopMusic(m) {
   m.sound(APU_COMMAND_VOLUME_TARGET, 0);
 }
 
-// Enter room (80:A4BF), composed directly for the live frame model.
+// Enter room (80:A4BF), composed directly for the live frame model. Game state only
+// (user decision 2026-11-17): no callee reads a register on entry, so the scene in A
+// and the table offset the original keeps in X and on the stack (PHX, PLX) are locals.
 export function* enterRoomSequence(h, events, room) {
-  const { ctx } = h,
-    m = sceneRuntime(h),
+  const m = sceneRuntime(h),
     { mem, wram, video } = m;
   let entry;
   yield () => {
@@ -328,10 +329,6 @@ export function* enterRoomSequence(h, events, room) {
     setRoomBanks(wram, header);
     setWord(wram, DP_ROOM_HEADER, header | LOROM_OFFSET);
     startBrightnessFade(wram, FADE_OUT);
-    // The original keeps the table offset in X and on the stack (PHX) up to the
-    // object slots; the callees in between run below it.
-    ctx.x = entry;
-    h.a.pushWord(entry);
   };
   yield* putGloveAwayCall(h, events, GLOVE_SITE);
   yield () => tasksOf(h.a).reset();
@@ -340,7 +337,6 @@ export function* enterRoomSequence(h, events, room) {
   yield () => {
     setWord(wram, CAMERA_BOX, headerWord(mem, wram, ROOM_HEADER_CAMERA) - 1);
     scene = headerWord(mem, wram, 0) & BYTE_MASK;
-    ctx.a = scene;
   };
   yield* loadSceneSequence(h, scene, SCENE_LOAD_SITE);
   yield () => forceBlank(wram);
@@ -349,7 +345,6 @@ export function* enterRoomSequence(h, events, room) {
   yield* releaseNoticeWindowsCall(h, events, NOTICE_WINDOWS_SITE);
   yield () => {
     resetObjectSlots(wram, video);
-    ctx.x = h.a.pullWord();
     setWord(wram, DP_START_DIRECTION, mem.read8(ROOM_TABLE + ROOM_ENTRY_DIRECTION + entry));
     [DP_START_X, DP_START_Y, DP_START_Z].forEach((at, n) =>
       setWord(wram, at, readWord(mem, ROOM_TABLE + ROOM_ENTRY_POSITION + 2 * n + entry)),
