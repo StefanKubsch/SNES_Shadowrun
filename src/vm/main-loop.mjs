@@ -1,6 +1,8 @@
 // Live main-loop caller 80:96AB-96F2: direct composition of its upkeep bodies.
-// Former address dispatch is retained in proof/caller/main-loop.mjs. Shared
-// register frames remain until the callees and NMI no longer need them.
+// Former address dispatch is retained in proof/caller/main-loop.mjs. The zones and the
+// scene request report a new pass as values; the loop leaves no A, X, Y or flags (user
+// decision 2026-11-17). Shared call frames remain until the callees and NMI no longer
+// need them.
 import { taskStop } from '../system/task-stop.mjs';
 import { dialogAccess } from '../system/native-dialog-support.mjs';
 import {
@@ -33,15 +35,8 @@ import {
   dialogCallBody,
   segmentSequence,
 } from '../system/native-call-continuation.mjs';
-import { BYTE_BITS, WORD_SIGN } from '../constants/bits.mjs';
-import {
-  FLAG_DECIMAL,
-  FLAG_INDEX_8BIT,
-  FLAG_MEMORY_8BIT,
-  FLAG_CARRY,
-  FLAG_NEGATIVE,
-  FLAG_ZERO,
-} from '../constants/cpu-flags.mjs';
+import { BYTE_BITS } from '../constants/bits.mjs';
+import { FLAG_DECIMAL, FLAG_INDEX_8BIT, FLAG_MEMORY_8BIT } from '../constants/cpu-flags.mjs';
 import { MAIN_LOOP_EXIT, MAIN_LOOP_RELOAD } from '../data/wram.mjs';
 import { CODE_BANK, CODE_BANK_BASE } from '../constants/memory-map.mjs';
 
@@ -110,14 +105,14 @@ export function* mainLoopSequence(a, events, returnToOwner = false) {
       taskStop('main_loop_return_width_required', { target });
   };
   const once = (run) => () => segmentSequence(() => run(h, events));
-  const carry = () => (ctx.status & FLAG_CARRY) !== 0;
   if (ctx.pc === MAIN_LOOP_START) return yield* top();
   // $96C3–$96E4; a scene change by a zone starts the next pass at once.
   const zones = {};
   yield* call(CALL_PC.GATE_8000, 0x808000, () => mainLoopPlayerZonesSequence(h, events, zones));
   if (zones.changed) return yield* top();
-  yield* call(CALL_PC.CC4B, 0x80cc4b, () => sceneRequestSequence(h, events));
-  if (carry()) return yield* top();
+  const request = {};
+  yield* call(CALL_PC.CC4B, 0x80cc4b, () => sceneRequestSequence(h, events, request));
+  if (request.taken) return yield* top();
   yield* call(CALL_PC.DE94, 0x80de94, once(runHitShake));
   yield* call(CALL_PC.AFC4, 0x80afc4, once(runObjectMotion));
   yield* call(CALL_PC.BAD5, 0x80bad5, once(runFormationStep));
@@ -126,18 +121,12 @@ export function* mainLoopSequence(a, events, returnToOwner = false) {
   yield* call(CALL_PC.SPRITES_B8DE, 0x80b8de, once(runSpriteList));
   yield* call(CALL_PC.FF14, 0x80ff14, () => mainLoopNoticeSequence(h, events));
   yield* call(CALL_PC.TIMER_E270, 0x80e270, () => mainLoopTimeLimitSequence(h, events));
-  // The game leaves the loop to its owner when it ends (7E:1FDA) or reloads (7E:1FD8);
-  // the original loads each word, so A and its sign and zero are left as the original.
-  for (const [request, pc] of [
+  // The game leaves the loop to its owner when it ends (7E:1FDA) or reloads (7E:1FD8).
+  for (const [word, pc] of [
     [MAIN_LOOP_EXIT, MAIN_LOOP_EXIT_PC],
     [MAIN_LOOP_RELOAD, MAIN_LOOP_RELOAD_PC],
   ]) {
-    const value = wram[request] | (wram[request + 1] << BYTE_BITS);
-    ctx.a = value;
-    ctx.status &= ~(FLAG_ZERO | FLAG_NEGATIVE);
-    if (!value) ctx.status |= FLAG_ZERO;
-    if (value & WORD_SIGN) ctx.status |= FLAG_NEGATIVE;
-    if (!value) continue;
+    if (!(wram[word] | (wram[word + 1] << BYTE_BITS))) continue;
     if (returnToOwner) return h.rts();
     taskStop('main_loop_exit', { pc });
   }

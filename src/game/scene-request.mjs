@@ -7,7 +7,8 @@
 // the screen, waits for the frame and plays; after the matrix the decker's health
 // goes back into the decker's record. Then the game screen is set up again and,
 // as for a room only, the request is cleared and the room entered. The main loop
-// starts its next pass at its top when the request was taken (carry set).
+// starts its next pass at its top when the request was taken (the carry set in the
+// original, a returned flag here).
 //
 // The forced blank 81:B0BD, the frame wait 81:B0A1 and the room entry 80:A4BF are
 // the lifted ones of src/game/room-entry.mjs, the game screen set-up 80:9629 the one
@@ -15,6 +16,11 @@
 // lifted scenes (src/cutscene, src/matrix) and keep the original's JSL frames: their
 // waits take NMIs on that stack. The room entry runs below the return word of the
 // original's JSR, as its frame waits do too.
+//
+// Registers (user decision 2026-11-17): game state only; the cutscene takes the scene
+// and its argument as parameters and the routine leaves no A, X, Y or flags.
+// sceneRequestRoutineSequence is the register form for the routine table: the carry
+// set when the request was taken.
 import { tasksOf } from '../script/task-api.mjs';
 import {
   NativeCallContinuation,
@@ -57,38 +63,33 @@ const setWord = (wram, at, value) => {
   wram[at + 1] = (value >>> BYTE_BITS) & BYTE_MASK;
 };
 
-// 80:CC4B: compose the live scenes and room directly. Carry reports whether a
+// 80:CC4B: compose the live scenes and room directly. request.taken reports whether a
 // request was taken; the main caller restarts its pass after a transition.
-export function* sceneRequestSequence(h, events) {
-  const { ctx } = h,
-    { wram } = sceneRuntime(h);
-  const request = word(wram, SCENE_REQUEST);
+export function* sceneRequestSequence(h, events, request = {}) {
+  const { wram } = sceneRuntime(h);
+  request.taken = word(wram, SCENE_REQUEST) !== SCENE_REQUEST_NONE;
   let result;
-  if (request === SCENE_REQUEST_NONE) {
+  if (!request.taken) {
     yield () => {
-      ctx.a = request;
-      ctx.status &= ~FLAG_CARRY;
       result = h.rts();
     };
     return result;
   }
-  if (request !== SCENE_REQUEST_ROOM_ONLY) {
+  if (word(wram, SCENE_REQUEST) !== SCENE_REQUEST_ROOM_ONLY) {
     yield () => forceBlank(wram);
     yield* waitForFrameCall(h, events, FRAME_WAIT_SITE);
-    // The scene takes the request, read again after the wait, in A and its argument
-    // in X.
-    let scene;
+    // The scene takes the request, read again after the wait, and its argument.
+    let scene, argument;
     yield () => {
       scene = word(wram, SCENE_REQUEST);
-      ctx.a = scene;
-      ctx.x = word(wram, SCENE_REQUEST_ARGUMENT);
+      argument = word(wram, SCENE_REQUEST_ARGUMENT);
     };
     if (scene !== SCENE_REQUEST_MATRIX)
       yield* dialogCallBody(
         h,
         CUTSCENE_SITE,
         PLAY_CUTSCENE,
-        () => cutsceneSequence(h, events),
+        () => cutsceneSequence(h, events, scene, argument),
         true,
       );
     else {
@@ -103,7 +104,6 @@ export function* sceneRequestSequence(h, events) {
         const record = word(wram, DECKER_RECORD);
         // A long store indexed by X: a record near FFFF reaches into bank 7F.
         wram[RECORD_COUNT + record] = wram[DECKER_HEALTH];
-        ctx.x = record;
       };
     }
     yield () => setUpGameScreen(sceneRuntime(h), tasksOf(h.a));
@@ -117,17 +117,24 @@ export function* sceneRequestSequence(h, events) {
   yield* enterRoomSequence(h, events, room);
   yield () => {
     h.a.pullWord();
-    ctx.status |= FLAG_CARRY;
     result = h.rts();
   };
+  return result;
+}
+// The register form: the carry set when the request was taken.
+export function* sceneRequestRoutineSequence(h, events) {
+  const request = {},
+    result = yield* sceneRequestSequence(h, events, request);
+  h.ctx.status = request.taken ? h.ctx.status | FLAG_CARRY : h.ctx.status & ~FLAG_CARRY;
   return result;
 }
 
 // The run wrapper for the main loop's routine table.
 export function processSceneRequest(h, events) {
-  return drainNativeSequence(sceneRequestSequence(h, events));
+  return drainNativeSequence(sceneRequestRoutineSequence(h, events));
 }
 NATIVE_CALL_CONTINUATIONS.set(SCENE_REQUEST_ENTRY, {
   run: processSceneRequest,
-  create: ({ h, events }) => new NativeCallContinuation(h.a, sceneRequestSequence(h, events)),
+  create: ({ h, events }) =>
+    new NativeCallContinuation(h.a, sceneRequestRoutineSequence(h, events)),
 });
