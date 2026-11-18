@@ -13,9 +13,9 @@
 //
 // The sort (src/game/depth-sort.mjs) and the palette slots (src/game/palette-slots.mjs)
 // are lifted, and so are the OAM entries (src/game/object-sprites.mjs), which run through
-// their frames. The frames of the fill and the job count, and the data bank 7E
-// the original sets through the stack for the hidden sprites, are reproduced on the
-// stack. Registers (user decision 2026-11-17): game state only; no A, X, Y or flags are
+// their frames. The frames of the fill and the job count are reproduced on the stack;
+// the job count's frame covers the bytes of the data bank 7E the original sets through
+// the stack for the hidden sprites. Registers (user decision 2026-11-17): game state only; no A, X, Y or flags are
 // left (the main loop and the talk end read none of them), and the object and picture
 // pass to the OAM entry as parameters.
 import { taskStop } from '../system/task-stop.mjs';
@@ -42,7 +42,6 @@ import {
   OBJECT_COUNT,
 } from '../constants/ppu.mjs';
 import { BYTE_BITS, BYTE_MASK, WORD_MASK, WORD_SIGN } from '../constants/bits.mjs';
-import { WRAM_BANK_PAIR } from '../constants/memory-map.mjs';
 
 // Direct page word of the OAM buffer offset of the OAM entry 80:B20A, shared with its
 // occlusion grids (register-level reference in proof/script/native-sprite-helpers.mjs).
@@ -129,14 +128,11 @@ export function buildSprites(h) {
   const firstHidden = (target - HIDE_SEQUENCE) / STORE_BYTES;
   if (!Number.isInteger(firstHidden) || firstHidden < 0 || firstHidden > OBJECT_COUNT)
     taskStop('task_sprite_clear_target_open', { target });
-  // The original sets the data bank 7E through the stack; its stack bytes are kept.
-  h.phb();
-  h.a.pushWord(WRAM_BANK_PAIR);
-  h.plb();
-  h.plb();
+  // The original sets the data bank 7E through the stack (PHB, PEA, PLB, PLB) and pulls
+  // the old one again; the job count's JSL frame below overwrites those three bytes, so
+  // the lifted stores leave the data bank and the stack alone.
   for (let n = firstHidden; n < OBJECT_COUNT; n++)
     wram[OAM_BUFFER + OAM_Y_BYTE + OAM_ENTRY_BYTES * n] = HIDDEN_Y;
-  h.plb();
   h.call(
     JOBS_CALL,
     JOBS_TARGET,
