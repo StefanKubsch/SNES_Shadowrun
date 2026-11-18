@@ -191,8 +191,9 @@ budget)` runs opcodes until END (`{kind: 'end', result}`), a native or script ca
   natives and the special natives with live devices, unchanged. A native's JSR 80:C1CA
   (topic action, spell menu) is a nested head visit of the JS scheduler on the native's
   stack less six bytes (C1CA saves the cursor, the visit and the task push their
-  returns; C1E3 is four bytes), ending as the original with A = the restored cursor (C1CA)
-  or the list head (C1E3), DBR = 80 and its RTS. With a finite work budget the special
+  returns; C1E3 is four bytes), ending as the original with DBR = 80 and its RTS. The
+  A the original leaves (the restored cursor of C1CA, the list head of C1E3) is read by
+  no caller and left out (user decision 2026-11-17). With a finite work budget the special
   natives with a resumable sequence pause, and a nested visit inside one pauses with it.
 - proof/script/js-rounds.mjs (replaced in phase 5 by [live-tasks.mjs](../proof/script/live-tasks.mjs)) attaches the JS rounds to a
   live game: the driver's round C1E3 after the main interval and the owner's resumable

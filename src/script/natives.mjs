@@ -103,11 +103,9 @@ export class ScriptNatives {
     } finally {
       this.stacks.pop();
     }
-    // C1E3 ends with LDA of the list head, C1CA with PLA of the saved cursor; both set
+    // C1E3 ends with LDA of the list head, C1CA with PLA of the saved cursor; no caller
+    // reads that A (user decision 2026-11-17), so the round leaves none. Both set
     // DBR = 80 (PEA 8080, PLB, PLB) and return by RTS.
-    const word = (value) => (value < 0 ? WORD_MASK : 2 * value);
-    ctx.a = word(at === ROUND ? scheduler.head : scheduler.cursor);
-    ctx.status = (ctx.status & ~(FLAG_NEGATIVE | FLAG_ZERO)) | flagsOf(ctx.a);
     ctx.bank = CODE_BANK;
     ctx.pc = (a.pullWord() + 1) & WORD_MASK;
   }
