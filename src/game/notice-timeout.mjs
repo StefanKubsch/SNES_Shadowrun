@@ -13,8 +13,11 @@
 // its JSR (80:FF2D), as the NMI of the upload wait writes below them. The random
 // numbers (src/system/random.mjs) and the sound effect (src/apu/sound-effect.mjs)
 // are lifted; the direct page words 00 to 07 are left as the original leaves them:
-// the random word without a sound, the sound's arguments with one. X and Y are left
-// as the original leaves them, as a later wait takes its NMI with them (main-upkeep.mjs).
+// the random word without a sound, the sound's arguments with one.
+//
+// Registers (user decision 2026-11-17): game state only. The X and Y the original
+// leaves reach only the stack bytes of a later NMI; the next main loop step (the time
+// limit 80:E270) sets its own, so they are not kept.
 import { sceneRuntime } from '../system/scene-runtime.mjs';
 import { randomBelow, randomWord } from '../system/random.mjs';
 import { playSoundEffect } from '../apu/sound-effect.mjs';
@@ -31,8 +34,6 @@ import {
 import { BYTE_BITS, BYTE_MASK, WORD_MASK, WORD_SIGN } from '../constants/bits.mjs';
 
 const NONE = WORD_MASK,
-  LOOP_END = 0xfffe,
-  SOUND_HIGH_BYTE = 0xff00,
   DP_WINDOW = 0x00,
   RELEASE_RETURN = 0xff2f;
 // The effect sounds: a chance below 3333 of the random word, then one of three
@@ -75,34 +76,25 @@ export function* noticeTimeoutSequence(h, events) {
     };
   }
   yield () => {
-    const { ctx } = h;
-    // The loop counts X down past slot 0.
-    ctx.x = LOOP_END;
     const frames = word(wram, NOTICE_EFFECT_FRAMES);
     if (!frames) return;
     setWord(wram, NOTICE_EFFECT_FRAMES, frames - 1);
-    // The random byte runs with 8-bit index registers: X keeps its low byte, Y the
-    // table index the draw leaves.
-    const chance = randomWord(mem, port, ctx);
-    ctx.x &= BYTE_MASK;
+    const chance = randomWord(mem, port);
     setWord(wram, 0, chance);
     if (chance >= EFFECT_CHANCE) return;
     setWord(wram, DP_RANDOM_RANGE, EFFECT_CHOICES);
-    const offset = randomBelow(mem, port, EFFECT_CHOICES, ctx) * 2,
+    const offset = randomBelow(mem, port, EFFECT_CHOICES) * 2,
       effect =
         mem.read8(EFFECT_SOUNDS + offset) | (mem.read8(EFFECT_SOUNDS + offset + 1) << BYTE_BITS);
     setWord(wram, 0, NONE);
     setWord(wram, DP_SOUND_EFFECT, effect);
     setWord(wram, DP_SOUND_LEVEL, EFFECT_LEVEL);
     setWord(wram, DP_SOUND_VOICE, EFFECT_VOICES);
-    const sound = playSoundEffect(mem, port, {
+    playSoundEffect(mem, port, {
       object: NONE,
       effect,
       level: EFFECT_LEVEL,
       voices: EFFECT_VOICES,
     });
-    // The sound effect leaves the sound word with FF in its high byte and the offset.
-    ctx.x = sound | SOUND_HIGH_BYTE;
-    ctx.y = effect;
   };
 }

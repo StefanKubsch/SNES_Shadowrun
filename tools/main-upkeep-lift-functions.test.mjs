@@ -411,8 +411,9 @@ const NOTICE_TIMEOUT = {
     return { bank: 0x80, s: GAME_STACK };
   },
   events: uploadEvents,
-  result: registers,
-  lifted: lifted(runNoticeTimeouts, false, liveWindowEvents),
+  // Game state only (user decision 2026-11-17): the lifted side leaves no X and Y.
+  result: () => '',
+  lifted: (h, input) => (lifted(runNoticeTimeouts, false, liveWindowEvents)(h, input), ''),
 };
 
 // The time limit's and the glove action's register-level callees are replaced on both
