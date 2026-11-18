@@ -52,10 +52,12 @@ import {
   runHitShake,
   runNoticeTimeouts,
   runPaletteCycles,
+} from '../src/game/main-upkeep.mjs';
+import {
   runPutGloveAway,
   runOpenWindow,
   runReleaseNoticeWindows,
-} from '../src/game/main-upkeep.mjs';
+} from '../proof/caller/upkeep-routines.mjs';
 import { MAIN_MOTION_ROUTINES, moveAndAnimateObjects } from '../proof/replay/main-loop-motion.mjs';
 import { bcbeSequence, moveGlove } from '../proof/replay/native-glove.mjs';
 import { objectSearchSequence } from '../proof/caller/object-search.mjs';

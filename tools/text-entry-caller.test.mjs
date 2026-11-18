@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { runPrintNumber, runPrintText } from '../src/game/main-upkeep.mjs';
+import { runPrintNumber, runPrintText } from '../proof/caller/upkeep-routines.mjs';
 import { printNumberSequence as formerNumber } from '../proof/caller/window-text.mjs';
 import { printTextSequence as formerText } from '../proof/caller/text-print.mjs';
 import { drawTextBufferSequence as formerDraw } from '../proof/caller/text-draw.mjs';

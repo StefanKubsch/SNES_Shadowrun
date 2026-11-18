@@ -119,7 +119,7 @@ for (const budget of [1, 7])
           assert.equal(actual.writes.length, 17, 'OBJSEL and both complete font DMA setups');
         });
 
-import * as live from '../src/game/main-upkeep.mjs';
+import * as live from '../proof/caller/upkeep-routines.mjs';
 import { dialogTextRoutines, dialogTopic } from '../proof/replay/native-dialog-text.mjs';
 import { appendScriptTask } from '../proof/system/task-append.mjs';
 import * as V from '../src/vm/layout.mjs';

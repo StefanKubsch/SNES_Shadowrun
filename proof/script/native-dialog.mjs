@@ -1,3 +1,4 @@
+import { runSpriteList, runFrameWait, runPadPresses } from '../../src/game/main-upkeep.mjs';
 import {
   runCloseDialog,
   runPutGloveAway,
@@ -9,13 +10,10 @@ import {
   runDialogTopics,
   runClosePortraitWindow,
   runReloadObjectTiles,
-  runSpriteList,
   runReleaseNoticeWindows,
   runReleaseWindow,
   runOpenWindow,
-  runFrameWait,
-  runPadPresses,
-} from '../../src/game/main-upkeep.mjs';
+} from '../caller/upkeep-routines.mjs';
 
 import { clearFixedColourRoutine, setWindowTextWidthRoutine } from '../../src/game/dialog-talk.mjs';
 

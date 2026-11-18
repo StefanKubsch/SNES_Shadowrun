@@ -22,31 +22,11 @@ import { updateTileBuffers } from './camera-scroll.mjs';
 import { recordFormationStep } from './formation-trail.mjs';
 import { timeLimitSequence } from './time-limit.mjs';
 import { gloveActionSequence } from './glove-action.mjs';
-import { noticeRoutineSequence, showNoticeSequence } from './notice-show.mjs';
-import {
-  putGloveAwayRoutineSequence,
-  releaseNoticeWindowsRoutineSequence,
-  releaseWindowSequence,
-} from './window-release.mjs';
-import { closeDialogSequence, talkSequence } from './dialog-talk.mjs';
-import { chooseDialogTopicSequence, dialogActionRoutineSequence } from './dialog-menus.mjs';
-import {
-  printTopicTextSequence,
-  printWindowTextSequence,
-  showDialogTextSequence,
-} from './dialog-text.mjs';
-import { closePortraitWindowSequence, openPortraitWindowSequence } from './portrait-window.mjs';
-import {
-  uploadFirstPortraitSequence,
-  uploadSecondPortraitSequence,
-  uploadPortraitTilesSequence,
-} from './portrait-upload.mjs';
-import { reloadObjectTilesSequence } from './object-tiles.mjs';
-import { printNumberSequence } from './window-text.mjs';
-import { printTextSequence } from './text-print.mjs';
+import { showNoticeSequence } from './notice-show.mjs';
+import { talkSequence } from './dialog-talk.mjs';
+import { printTopicTextSequence, printWindowTextSequence } from './dialog-text.mjs';
 import { drawTextBufferSequence } from './text-draw.mjs';
-import { openWindowSequence, requestTileClearSequence } from './window-open.mjs';
-import { chooseActionRoutineSequence, chooseScriptActionSequence } from './action-menu.mjs';
+import { chooseScriptActionSequence } from './action-menu.mjs';
 import { askYesNoSequence } from './yes-no-question.mjs';
 import { removeFromFightListSequence } from './fight-list.mjs';
 import { spendMagicPointsSequence } from './magic-points.mjs';
@@ -70,9 +50,6 @@ import { hitObjectsInBlastSequence } from './object-blast.mjs';
 import { chooseSpellSequence } from './spell-choice.mjs';
 import { openSpellMenuSequence } from './member-spell-menu.mjs';
 import { controlPlayerSequence } from './player-control.mjs';
-import { partyStatusSequence } from './party-status.mjs';
-import { equipmentRowsSequence } from './equipment-window.mjs';
-import { memberPortraitSequence } from './member-portrait.mjs';
 import { NATIVE_ENTRY, statusScreenSequence } from './status-screen.mjs';
 import { mainMenuSequence } from './main-menu.mjs';
 import { playerZonesRoutineSequence, playerZonesSequence } from './player-zones.mjs';
@@ -133,182 +110,9 @@ export function runTileBuffers(h) {
   updateTileBuffers(h.a.mem.wram);
   return h.rtl();
 }
-// 80:FEC1, called with JSR; its window, text and release wait for the NMI, so it is a
-// native call continuation. The register-level notice keeps the target's registration,
-// so this one is found by its run function.
-export function runShowNotice(h, events) {
-  return drainNativeSequence(noticeRoutineSequence(h, events));
-}
-NATIVE_CALL_CONTINUATIONS.set(runShowNotice, {
-  run: runShowNotice,
-  create: ({ h, events }) => new NativeCallContinuation(h.a, noticeRoutineSequence(h, events)),
-});
 // The lifted notice as the script native 80:FEC1 runs it with lag-free frames
 // (src/vm/special-natives.mjs), with this module's window, text and release.
 export const liftedNoticeSequence = (h, events) => showNoticeSequence(h, events);
-// 80:BCB2, called with JSR; its name window release waits for the NMI.
-export function runPutGloveAway(h, events) {
-  return drainNativeSequence(putGloveAwayRoutineSequence(h, events));
-}
-NATIVE_CALL_CONTINUATIONS.set(runPutGloveAway, {
-  run: runPutGloveAway,
-  create: ({ h, events }) =>
-    new NativeCallContinuation(h.a, putGloveAwayRoutineSequence(h, events)),
-});
-// 80:FD80, called with JSR; its text buffer 80:FB39 waits for the NMI.
-export function runPrintNumber(h, events) {
-  return drainNativeSequence(printNumberSequence(h, events));
-}
-NATIVE_CALL_CONTINUATIONS.set(runPrintNumber, {
-  run: runPrintNumber,
-  create: ({ h, events }) => new NativeCallContinuation(h.a, printNumberSequence(h, events)),
-});
-// 80:FE69, called with JSR; its text buffer 80:FB39 waits for the NMI.
-export function runPrintText(h, events) {
-  return drainNativeSequence(printTextSequence(h, events));
-}
-NATIVE_CALL_CONTINUATIONS.set(runPrintText, {
-  run: runPrintText,
-  create: ({ h, events }) => new NativeCallContinuation(h.a, printTextSequence(h, events)),
-});
-// 80:FB39, called with JSR; its upload requests wait for the NMI.
-export function runDrawTextBuffer(h, events) {
-  return drainNativeSequence(drawTextBufferSequence(h, events));
-}
-NATIVE_CALL_CONTINUATIONS.set(runDrawTextBuffer, {
-  run: runDrawTextBuffer,
-  create: ({ h, events }) => new NativeCallContinuation(h.a, drawTextBufferSequence(h, events)),
-});
-// 80:F963, called with JSR; its tile request and map upload wait for the NMI.
-export function runOpenWindow(h, events) {
-  return drainNativeSequence(openWindowSequence(h, events));
-}
-NATIVE_CALL_CONTINUATIONS.set(runOpenWindow, {
-  run: runOpenWindow,
-  create: ({ h, events }) => new NativeCallContinuation(h.a, openWindowSequence(h, events)),
-});
-// 80:99EB, called with JSR; its window, menu and release wait for the NMI. The register
-// form: the accepted actions in A, the chosen flag left in A.
-export function runChooseAction(h, events) {
-  return drainNativeSequence(chooseActionRoutineSequence(h, events));
-}
-NATIVE_CALL_CONTINUATIONS.set(runChooseAction, {
-  run: runChooseAction,
-  create: ({ h, events }) =>
-    new NativeCallContinuation(h.a, chooseActionRoutineSequence(h, events)),
-});
-// 80:FA3E, called with JSR; its window list waits for the NMI of its upload.
-function* releaseWindowCallSequence(h, events) {
-  yield* releaseWindowSequence(h, events);
-  let result;
-  yield () => {
-    result = h.rts();
-  };
-  return result;
-}
-export function runReleaseWindow(h, events) {
-  return drainNativeSequence(releaseWindowCallSequence(h, events));
-}
-NATIVE_CALL_CONTINUATIONS.set(runReleaseWindow, {
-  run: runReleaseWindow,
-  create: ({ h, events }) => new NativeCallContinuation(h.a, releaseWindowCallSequence(h, events)),
-});
-// 80:936C, called with JSR; the dialog waits for the pad and the NMI over many frames.
-// Its callees: the register-level dialog parts (and the portraits' DMA job 80:8FF5) with
-// the lifted portrait rows, uploads and window, text, main
-// menu, topic choice,
-// colour clear, glove release, notice windows, window opening, text width, window
-// release, word wait and sprite list (the glove action's table is not passed on).
-export function runReleaseNoticeWindows(h, events) {
-  return drainNativeSequence(releaseNoticeWindowsRoutineSequence(h, events));
-}
-NATIVE_CALL_CONTINUATIONS.set(runReleaseNoticeWindows, {
-  run: runReleaseNoticeWindows,
-  create: ({ h, events }) =>
-    new NativeCallContinuation(h.a, releaseNoticeWindowsRoutineSequence(h, events)),
-});
-// 80:FA67, a window's tile clear as its callers run it with JSR (the item list's and
-// the karma line's redraw).
-export function runTileClear(h, events) {
-  return drainNativeSequence(requestTileClearSequence(h, events));
-}
-NATIVE_CALL_CONTINUATIONS.set(runTileClear, {
-  run: runTileClear,
-  create: ({ h, events }) => new NativeCallContinuation(h.a, requestTileClearSequence(h, events)),
-});
-// 80:F953, the confirm key wait as the menus run it with JSR.
-export function runConfirmKey(h, events) {
-  return drainNativeSequence(liftedConfirmKeySequence(h, events));
-}
-NATIVE_CALL_CONTINUATIONS.set(runConfirmKey, {
-  run: runConfirmKey,
-  create: ({ h, events }) => new NativeCallContinuation(h.a, liftedConfirmKeySequence(h, events)),
-});
-// 80:91E2 and 80:9215 compose their live menus with the text renderer.
-export function runDialogMenu(h, events) {
-  return drainNativeSequence(dialogActionRoutineSequence(h, events, drawTextBufferSequence));
-}
-export function runDialogTopics(h, events) {
-  return drainNativeSequence(chooseDialogTopicSequence(h, events, drawTextBufferSequence));
-}
-// 80:9178 composes live clearing, cursor, text and topic task actions; the register
-// form takes the text key in A.
-const dialogTextRoutineSequence = (h, events, renderBuffer) =>
-  showDialogTextSequence(h, events, renderBuffer, h.ctx.a);
-export function runDialogText(h, events) {
-  return drainNativeSequence(dialogTextRoutineSequence(h, events, drawTextBufferSequence));
-}
-for (const [run, sequence] of [
-  [runDialogMenu, dialogActionRoutineSequence],
-  [runDialogTopics, chooseDialogTopicSequence],
-  [runDialogText, dialogTextRoutineSequence],
-])
-  NATIVE_CALL_CONTINUATIONS.set(run, {
-    run,
-    create: ({ h, events }) =>
-      new NativeCallContinuation(h.a, sequence(h, events, drawTextBufferSequence)),
-  });
-// 80:8F3A and 80:8F97, the portrait window opened and closed over frames.
-export function runOpenPortraitWindow(h, events) {
-  return drainNativeSequence(openPortraitWindowSequence(h, events));
-}
-export function runClosePortraitWindow(h, events) {
-  return drainNativeSequence(closePortraitWindowSequence(h, events));
-}
-// 80:9022 and 80:905E, the portraits' uploads; the DMA job 80:8FF5 waits for the NMI.
-export function runUploadFirstPortrait(h, events) {
-  return drainNativeSequence(uploadFirstPortraitSequence(h, events));
-}
-export function runUploadSecondPortrait(h, events) {
-  return drainNativeSequence(uploadSecondPortraitSequence(h, events));
-}
-// 80:ADF4, the objects' tiles requested again after the dialog; it waits for the NMI.
-export function runReloadObjectTiles(h, events) {
-  return drainNativeSequence(reloadObjectTilesSequence(h, events));
-}
-NATIVE_CALL_CONTINUATIONS.set(runReloadObjectTiles, {
-  run: runReloadObjectTiles,
-  create: ({ h, events }) => new NativeCallContinuation(h.a, reloadObjectTilesSequence(h, events)),
-});
-// 80:8FF5, the portraits' DMA job; it waits for the NMI's transfer.
-export function runPortraitTiles(h, events) {
-  return drainNativeSequence(uploadPortraitTilesSequence(h, events));
-}
-NATIVE_CALL_CONTINUATIONS.set(runPortraitTiles, {
-  run: runPortraitTiles,
-  create: ({ h, events }) =>
-    new NativeCallContinuation(h.a, uploadPortraitTilesSequence(h, events)),
-});
-for (const [run, sequence] of [
-  [runOpenPortraitWindow, openPortraitWindowSequence],
-  [runClosePortraitWindow, closePortraitWindowSequence],
-  [runUploadFirstPortrait, uploadFirstPortraitSequence],
-  [runUploadSecondPortrait, uploadSecondPortraitSequence],
-])
-  NATIVE_CALL_CONTINUATIONS.set(run, {
-    run,
-    create: ({ h, events }) => new NativeCallContinuation(h.a, sequence(h, events)),
-  });
 // Dialog composition owns its complete call graph.
 // The lifted action menu as the script native 80:9BA0 runs it with lag-free frames.
 export const liftedScriptActionSequence = (h, events) => chooseScriptActionSequence(h, events);
@@ -321,59 +125,14 @@ export const liftedTopicTextSequence = (h, events) =>
 // The lifted dialog as the script native 80:936C runs it with lag-free frames
 // (src/vm/special-natives.mjs).
 export const liftedTalkSequence = (h, events) => talkSequence(h, events);
-// 80:92C5 (the dialog closed), called with JSR; its portrait window waits for the NMI.
-function* closeDialogCallSequence(h, events) {
-  return yield* closeDialogSequence(h, events);
-}
-export function runCloseDialog(h, events) {
-  return drainNativeSequence(closeDialogCallSequence(h, events));
-}
-NATIVE_CALL_CONTINUATIONS.set(runCloseDialog, {
-  run: runCloseDialog,
-  create: ({ h, events }) => new NativeCallContinuation(h.a, closeDialogCallSequence(h, events)),
-});
-export function runTalk(h, events) {
-  return drainNativeSequence(talkSequence(h, events));
-}
-NATIVE_CALL_CONTINUATIONS.set(runTalk, {
-  run: runTalk,
-  create: ({ h, events }) => new NativeCallContinuation(h.a, talkSequence(h, events)),
-});
 // Shared register helpers for callers that still dispatch their dependencies.
 // The live Yes/No question and spell choice compose their menu and window directly.
 export const liftedQuestionSequence = (h, events) => askYesNoSequence(h, events);
 export const liftedSpellChoiceSequence = (h, events) => chooseSpellSequence(h, events);
-// The lifted equipment rows 80:E9C5 with the lifted cursor, text and number.
-export function runEquipmentRows(h, events) {
-  return drainNativeSequence(equipmentRowsSequence(h, events));
-}
-NATIVE_CALL_CONTINUATIONS.set(runEquipmentRows, {
-  run: runEquipmentRows,
-  create: ({ h, events }) => new NativeCallContinuation(h.a, equipmentRowsSequence(h, events)),
-});
-// The lifted member portrait 80:E4B3 with the lifted word wait and the dialog's lifted
-// portrait unpack 80:9F6D, row shift 80:8F20, first upload 80:9022 and DMA job 80:8FF5
-// (src/game/portrait-upload.mjs; the same register interface as the register-level ones).
-export function runMemberPortrait(h, events) {
-  return drainNativeSequence(memberPortraitSequence(h, events));
-}
-NATIVE_CALL_CONTINUATIONS.set(runMemberPortrait, {
-  run: runMemberPortrait,
-  create: ({ h, events }) => new NativeCallContinuation(h.a, memberPortraitSequence(h, events)),
-});
 // The lifted spell menu 80:F254 with the lifted window, plain menu, releases, portrait,
 // equipment window, key wait, window list and script append; the visit 80:C1CA is the
 // script VM's nested round.
 export const liftedSpellMenuSequence = (h, events) => openSpellMenuSequence(h, events);
-// The lifted party status 80:ED3C with the lifted glove and window releases, window,
-// text, cursor, number and key wait.
-export function runPartyStatus(h, events) {
-  return drainNativeSequence(partyStatusSequence(h, events));
-}
-NATIVE_CALL_CONTINUATIONS.set(runPartyStatus, {
-  run: runPartyStatus,
-  create: ({ h, events }) => new NativeCallContinuation(h.a, partyStatusSequence(h, events)),
-});
 // The lifted item submenus 80:E572, 80:E577 and 80:E57F with the lifted item use
 // 80:E4F3, window, releases, portrait, equipment rows, numbered menu, window redraw and
 // key wait; object creation, the nested visit and the window list use lifted callees.

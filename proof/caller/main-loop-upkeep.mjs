@@ -1,4 +1,5 @@
 // Shared lifted callees of the main loop and its remaining call tables.
+import { runFrameWait, runPadPresses } from '../../src/game/main-upkeep.mjs';
 import {
   runShowNotice,
   runPrintNumber,
@@ -9,9 +10,7 @@ import {
   runPutGloveAway,
   runReleaseWindow,
   runOpenWindow,
-  runFrameWait,
-  runPadPresses,
-} from '../../src/game/main-upkeep.mjs';
+} from './upkeep-routines.mjs';
 import { setTextCursorRoutine } from '../../src/game/window-text.mjs';
 import { playSoundEffectRoutine } from '../../src/apu/sound-effect.mjs';
 import { randomByteNative, randomBelowNative } from '../../src/script/native-script-leaves.mjs';

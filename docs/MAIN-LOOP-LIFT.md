@@ -886,8 +886,8 @@ which the render proof of 81:8076 keeps using.
   weapon's name, the armour rating with the leader's dermal armour bonus and the
   armour's name, each row blanked first; the item names through 80:E9A8) run
   `equipmentRowsSequence` of
-  [src/game/equipment-window.mjs](../src/game/equipment-window.mjs) as `runEquipmentRows`
-  of the spell menu's table, with the lifted cursor, text and number.
+  [src/game/equipment-window.mjs](../src/game/equipment-window.mjs), composed directly
+  by the spell menu, with the lifted cursor, text and number.
   [tools/equipment-window-lift-functions.test.mjs](../tools/equipment-window-lift-functions.test.mjs)
   compares it with the register-level routine and shared stand-ins (400 samples; the
   leader or not, dermal armour or not, items none, listed or any word, ratings past a
@@ -898,8 +898,8 @@ which the render proof of 81:8076 keeps using.
   second portrait channel 80:E48D with its HDMA words and one more NMI job, then the
   colour window 80:E433 on HDMA channel 0 opening over eleven frames with the edges of
   80:E41F) runs `memberPortraitSequence` of
-  [src/game/member-portrait.mjs](../src/game/member-portrait.mjs) as `runMemberPortrait`
-  of the spell menu's table, with the lifted word wait and (since block 79) the dialog's
+  [src/game/member-portrait.mjs](../src/game/member-portrait.mjs), composed directly by
+  the spell menu, with the lifted word wait and (since block 79) the dialog's
   lifted unpack 80:9F6D, row shift 80:8F20, first upload 80:9022 and DMA job 80:8FF5 of
   [src/game/portrait-upload.mjs](../src/game/portrait-upload.mjs), which keep the
   register interface of the register-level ones.
@@ -1067,7 +1067,7 @@ which the render proof of 81:8076 keeps using.
   that halving's carry, then per member the name, state count with its maximum and
   magic points with ten times the magic byte as maximum, a key and the release) runs
   `partyStatusSequence` of [src/game/party-status.mjs](../src/game/party-status.mjs)
-  as `runPartyStatus` of the player control's table, with the lifted releases, window,
+  composed directly by the player control, with the lifted releases, window,
   text, cursor and number.
   [tools/party-status-lift-functions.test.mjs](../tools/party-status-lift-functions.test.mjs)
   compares it with the register-level routine and shared stand-ins (400 samples; one to
