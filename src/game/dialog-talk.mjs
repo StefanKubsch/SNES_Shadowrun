@@ -39,7 +39,7 @@ import {
 } from './window-release.mjs';
 import { closePortraitWindowSequence, openPortraitWindowSequence } from './portrait-window.mjs';
 import {
-  unpackPortraitRoutine,
+  unpackPortrait,
   shiftPortraitRowsRoutine,
   uploadFirstPortraitSequence,
   uploadSecondPortraitSequence,
@@ -279,17 +279,16 @@ export function* talkSequence(h, events, renderBuffer = drawTextBufferSequence) 
     m = sceneRuntime(h),
     { mem, wram, port } = m;
   if (fixesEnabled(h.a)) preparePushkinTopics(h.a, word(wram, DP_RECORD_NUMBER));
-  // Load a portrait record (pointer in F6, bank in F8) for the unpacker: Y its bank, A its
-  // address, X the buffer.
+  // Load a portrait record (pointer in F6, bank in F8) for the unpacker: its address and
+  // bank (A and Y in the original) and the buffer (X).
   function* portrait(unpack, shift) {
+    let stream;
     yield () => {
       const at = word(wram, DP_PORTRAIT_POINTER) | (wram[DP_PORTRAIT_BANK] << WORD_BITS);
-      ctx.y = longWord(mem, at + PORTRAIT_RECORD_BANK_BYTE) & BYTE_MASK;
-      ctx.a = longWord(mem, at);
-      ctx.x = PORTRAIT_BUFFER;
+      stream = [longWord(mem, at), longWord(mem, at + PORTRAIT_RECORD_BANK_BYTE) & BYTE_MASK];
     };
     yield* dialogCallBody(h, ...unpack, () =>
-      segmentSequence(() => unpackPortraitRoutine(h, events)),
+      segmentSequence(() => unpackPortrait(h, events, ...stream, PORTRAIT_BUFFER)),
     );
     yield* dialogCallBody(h, ...shift, () => segmentSequence(() => shiftPortraitRowsRoutine(h)));
   }

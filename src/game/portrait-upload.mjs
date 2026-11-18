@@ -9,6 +9,10 @@
 // restored (PLP, PLB); the bytes of its pushes (status, data bank, the bank pair and the
 // length) stay below the stack, those of its bit reads' JSR frames are not reproduced.
 // A startup recording runs the register-level one (src/system/recorded-routines.mjs).
+// Lifted callers use unpackPortrait and uploadPortraitTiles, which take the stream, its
+// bank word, the offset and the VRAM address as parameters and leave no registers (user
+// decision 2026-11-17); the routine forms keep the register interface for
+// register-level callers.
 //
 // An unpacked portrait (7F:5250) has its eight rows of 100 bytes moved apart (80:8F20:
 // rows 1 to 7 by MVP within bank 7F, from the last one up). The first portrait then goes
@@ -56,14 +60,7 @@ import {
   PORTRAIT_DMA_REQUEST,
   PORTRAIT_PALETTE_START,
 } from '../data/wram.mjs';
-import {
-  BYTE_BITS,
-  BYTE_MASK,
-  BYTE_SIGN,
-  HIGH_BYTE_MASK,
-  WORD_MASK,
-  WORD_SIGN,
-} from '../constants/bits.mjs';
+import { BYTE_BITS, BYTE_MASK, BYTE_SIGN, WORD_MASK, WORD_SIGN } from '../constants/bits.mjs';
 import {
   FLAG_CARRY,
   FLAG_MEMORY_8BIT,
@@ -125,23 +122,39 @@ const flag = (ctx, bit, set) => {
   ctx.status = set ? ctx.status | bit : ctx.status & ~bit;
 };
 
-// Unpack a portrait into bank 7F (80:9F6D), called with JSR.
-export function unpackPortraitRoutine(h, events) {
-  const recorded = recordedRoutine(events, 'portrait-unpack');
-  if (recorded) return recorded(h, events);
+// Unpack the portrait stream (pointer, bank word) into bank 7F from the offset
+// (80:9F6D, called with JSR); returns the registers the original leaves.
+function unpack(h, source, bank, offset) {
   const { ctx } = h;
-  // PHP, PHB, PEA 7F7F, PLB, PLB.
+  // PHP, PHB, PEA 7F7F, PLB, PLB: their bytes stay below the stack.
   h.pushByte(ctx.status);
   h.pushByte(ctx.bank);
   h.a.pushWord(HIGH_BANK_PAIR);
   ctx.s = (ctx.s + 2) & WORD_MASK;
-  const registers = unpackLongRegisters(h.a.mem, ctx.a, ctx.y, ctx.x, UNPACK_7F);
+  const registers = unpackLongRegisters(h.a.mem, source, bank, offset, UNPACK_7F);
   // The length the routine pushes and pulls again (PHA, PLA).
   h.a.pushWord(registers.a);
   ctx.s = (ctx.s + 2) & WORD_MASK;
-  Object.assign(ctx, registers);
   // PLB, PLP: the data bank and the status as on entry.
   ctx.s = (ctx.s + 2) & WORD_MASK;
+  return registers;
+}
+export function unpackPortrait(h, events, source, bank, offset) {
+  const recorded = recordedRoutine(events, 'portrait-unpack');
+  if (recorded) {
+    Object.assign(h.ctx, { a: source, y: bank, x: offset });
+    return recorded(h, events);
+  }
+  unpack(h, source, bank, offset);
+  return h.rts();
+}
+// The register form: the stream in A and Y, the offset in X; A, X and Y as the
+// original's copy leaves them.
+export function unpackPortraitRoutine(h, events) {
+  const recorded = recordedRoutine(events, 'portrait-unpack');
+  if (recorded) return recorded(h, events);
+  const { ctx } = h;
+  Object.assign(ctx, unpack(h, ctx.a, ctx.y, ctx.x));
   return h.rts();
 }
 
@@ -175,11 +188,9 @@ export function* uploadFirstPortraitSequence(h, events) {
   const { ctx } = h,
     { wram } = h.a.mem;
   yield () => {
-    ctx.a = FIRST_PALETTE;
-    setWord(wram, PORTRAIT_PALETTE_START, ctx.a);
-    ctx.x = 0;
+    setWord(wram, PORTRAIT_PALETTE_START, FIRST_PALETTE);
   };
-  yield* dialogCallBody(h, ...FIRST_UPLOAD, () => uploadPortraitTilesSequence(h, events));
+  yield* dialogCallBody(h, ...FIRST_UPLOAD, () => uploadPortraitTiles(h, events, 0));
   yield () => {
     for (let x = HDMA_FILL_LAST; !(x & WORD_SIGN); x = (x - HDMA_STRIDE) & WORD_MASK)
       wram[HDMA_TABLE + x] = HDMA_FILL;
@@ -198,11 +209,9 @@ export function* uploadSecondPortraitSequence(h, events) {
   const { ctx } = h,
     { wram } = h.a.mem;
   yield () => {
-    ctx.a = SECOND_PALETTE;
-    setWord(wram, PORTRAIT_PALETTE_START, ctx.a);
-    ctx.x = SECOND_VRAM;
+    setWord(wram, PORTRAIT_PALETTE_START, SECOND_PALETTE);
   };
-  yield* dialogCallBody(h, ...SECOND_UPLOAD, () => uploadPortraitTilesSequence(h, events));
+  yield* dialogCallBody(h, ...SECOND_UPLOAD, () => uploadPortraitTiles(h, events, SECOND_VRAM));
   yield () => {
     setWord(wram, SECOND_FIRST[0], SECOND_FIRST[1]);
     const mirror = (word(wram, DIALOG_RECORD_FLAGS) & BYTE_SIGN) << MIRROR_SHIFT;
@@ -229,32 +238,32 @@ export function writePortraitTileChannel(port) {
   port.write(DMAP0, TILE_MODE, 1, DMA_SITES.mode);
 }
 
-// Upload the unpacked portrait to the VRAM word address in X (80:8FF5), a sequence for a
-// native call continuation, called with JSR.
-export function* uploadPortraitTilesSequence(h, events) {
+// Upload the unpacked portrait to the VRAM word address (80:8FF5), a sequence for a
+// native call continuation, called with JSR. Leaves no registers.
+export function* uploadPortraitTiles(h, events, vram) {
   const { ctx } = h,
     { wram, port } = sceneRuntime(h);
   yield () => {
     writePortraitTileChannel(port);
-    // The 8-bit loads keep the source's high byte.
-    ctx.a = (TILE_SOURCE & HIGH_BYTE_MASK) | TILE_MODE;
-    setWord(wram, PORTRAIT_DMA_REQUEST, ctx.x);
+    setWord(wram, PORTRAIT_DMA_REQUEST, vram);
   };
+  // The wait's branch sees the request word's zero in 16-bit mode.
   const done = (value) => (value & WORD_SIGN) !== 0;
   for (let value; !done((value = word(wram, PORTRAIT_DMA_REQUEST)));) {
-    ctx.a = value;
     const status =
       (ctx.status & ~(FLAG_MEMORY_8BIT | FLAG_NEGATIVE | FLAG_ZERO)) |
       (value === 0 ? FLAG_ZERO : 0);
     yield* nmiAtBranch(h, events, REQUEST_BRANCH, status);
   }
-  let result;
-  yield () => {
-    ctx.a = word(wram, PORTRAIT_DMA_REQUEST);
-    flag(ctx, FLAG_NEGATIVE, true);
-    flag(ctx, FLAG_ZERO, false);
-    result = h.rts();
-  };
+  return yield* rts(h);
+}
+// The register form: the VRAM address in X; A the finished request word, its sign set.
+export function* uploadPortraitTilesSequence(h, events) {
+  const { ctx } = h,
+    result = yield* uploadPortraitTiles(h, events, ctx.x);
+  ctx.a = word(sceneRuntime(h).wram, PORTRAIT_DMA_REQUEST);
+  flag(ctx, FLAG_NEGATIVE, true);
+  flag(ctx, FLAG_ZERO, false);
   return result;
 }
 

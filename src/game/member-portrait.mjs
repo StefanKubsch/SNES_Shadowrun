@@ -12,16 +12,16 @@
 // The live callees compose directly through their frames; 80:E48D and 80:E433
 // run as the JSR bodies the original calls, so a wait takes its NMI at the same S.
 //
-// Registers (user decision 2026-11-17): game state only, apart from the register inputs
-// of the portrait unpack 80:9F6D (record in A, bank in Y, buffer in X) and the tile
-// upload 80:8FF5 (VRAM address in X), which are still register-level. The window step
-// (X in the original) is a local, and no registers or flags are left.
+// Registers (user decision 2026-11-17): game state only. The portrait unpack 80:9F6D
+// and the tile upload 80:8FF5 take their stream, offset and VRAM address as parameters
+// (A, Y and X in the original); the window step (X) is a local, and no registers or
+// flags are left.
 import { dialogCallBody, segmentSequence } from '../system/native-call-continuation.mjs';
 import {
-  unpackPortraitRoutine,
+  unpackPortrait,
   shiftPortraitRowsRoutine,
   uploadFirstPortraitSequence,
-  uploadPortraitTilesSequence,
+  uploadPortraitTiles,
 } from './portrait-upload.mjs';
 import { frameWaitCallSequence } from '../system/live-input-calls.mjs';
 import { dataBankWord, setDataBankWord } from '../system/data-bank.mjs';
@@ -102,10 +102,10 @@ function setWindowEdges(wram, step) {
 // 80:E4B3: the member's portrait with its opening window (see above). A sequence that
 // ends with its RTS.
 export function* memberPortraitSequence(h, events) {
-  const { ctx } = h,
-    { mem } = h.a,
+  const { mem } = h.a,
     { wram } = mem,
     port = accessorPort(h.a);
+  let stream;
   yield () => {
     const portrait = (dataBankWord(mem, MEMBER_PORTRAIT) << 1) & WORD_MASK,
       record = dataBankWord(mem, DIALOG_TABLE & WORD_MASK, portrait);
@@ -114,13 +114,10 @@ export function* memberPortraitSequence(h, events) {
     wram[DP_PORTRAIT_BANK] = mem.read8((DIALOG_BANK_BASE + 2 + record) & LONG_MASK);
     setWord(wram, DP_PORTRAIT_POINTER, longWord(mem, DIALOG_BANK_BASE + record));
     const pointer = word(wram, DP_PORTRAIT_POINTER) | (wram[DP_PORTRAIT_BANK] << WORD_BITS);
-    // The unpack's register inputs.
-    ctx.y = mem.read8((pointer + PORTRAIT_RECORD_BANK_BYTE) & LONG_MASK);
-    ctx.a = longWord(mem, pointer);
-    ctx.x = PORTRAIT_BUFFER;
+    stream = [longWord(mem, pointer), mem.read8((pointer + PORTRAIT_RECORD_BANK_BYTE) & LONG_MASK)];
   };
   yield* dialogCallBody(h, ...UNPACK, () =>
-    segmentSequence(() => unpackPortraitRoutine(h, events)),
+    segmentSequence(() => unpackPortrait(h, events, ...stream, PORTRAIT_BUFFER)),
   );
   yield* dialogCallBody(h, ...UPLOAD_TILES, () =>
     segmentSequence(() => shiftPortraitRowsRoutine(h)),
@@ -142,14 +139,13 @@ function* returnSequence(h) {
 
 // 80:E48D: the second portrait channel and one more NMI job (81:A954).
 function* secondChannelSequence(h, events) {
-  const { ctx } = h,
-    { mem } = h.a;
+  const { mem } = h.a;
   yield () => {
     setDataBankWord(mem, PORTRAIT_PALETTE_START, 0, SECOND_PORTRAIT_PALETTE);
-    // The tile upload's register input.
-    ctx.x = SECOND_PORTRAIT_VRAM;
   };
-  yield* dialogCallBody(h, ...SECOND_TILES, () => uploadPortraitTilesSequence(h, events));
+  yield* dialogCallBody(h, ...SECOND_TILES, () =>
+    uploadPortraitTiles(h, events, SECOND_PORTRAIT_VRAM),
+  );
   yield () => {
     const hdma = SECOND_PORTRAIT_HDMA;
     for (const [address, value] of [
