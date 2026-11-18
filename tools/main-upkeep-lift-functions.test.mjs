@@ -1074,6 +1074,9 @@ function mathSide(s, routines) {
   return state;
 }
 const bankRegisters = (h) => [roundRegisters(h), h.ctx.bank.toString(16)].join();
+// Game state only (user decision 2026-11-17): the lifted text cursor and the routines
+// that end with it or the number leave no A, X, Y and flags; the data bank stays.
+const dataBank = (h) => h.ctx.bank.toString(16);
 const wordInput = (s) => ({
   bank: 0x80,
   s: GAME_STACK,
@@ -1095,13 +1098,13 @@ const TEXT_CURSOR = {
     return wordInput(s);
   },
   reference: (h) => setTextCursor(h.a, { calls: [] }, false),
-  result: bankRegisters,
+  result: dataBank,
   lifted: (h, input) => {
     Object.assign(h.ctx, input);
     h.ctx.programBank = 0x80;
     h.push(0x1234, 2);
     setTextCursorRoutine(h);
-    return bankRegisters(h);
+    return dataBank(h);
   },
 };
 // The number: one to five digits, zero and the ends. The text buffer 80:FB39 is a
@@ -1988,13 +1991,13 @@ const MENU_LIST = {
   },
   reference: (h, events) => runTaskListHelper(h.a, events, 0x80a617, false),
   events: textEvents,
-  result: bankRegisters,
+  result: dataBank,
   lifted: (h, input) => {
     Object.assign(h.ctx, input);
     h.ctx.programBank = 0x80;
     h.push(0x1234, 2);
     drainNativeSequence(drawListSequence(h, textEvents(), textBufferRenderer(DRAW_TABLE)));
-    return bankRegisters(h);
+    return dataBank(h);
   },
 };
 registerCases([MENU_LIST], {

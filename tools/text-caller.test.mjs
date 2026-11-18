@@ -93,9 +93,12 @@ for (const budget of [1, 7])
 for (const budget of [1, 7])
   for (const value of [0, 1, 9, 10, 99, 100, 9999, 10000, 65535])
     test(`number renderer interface: ${value}, budget ${budget}`, () => {
-      const actual = run(printNumberSequence, value, budget, false),
+      // Game state only (user decision 2026-11-17): the lifted number leaves no A, X, Y
+      // and flags.
+      const strip = ({ ctx: { a, x, y, status, ...ctx }, ...rest }) => ({ ...rest, ctx }),
+        actual = run(printNumberSequence, value, budget, false),
         previous = run(formerNumber, value, budget, false);
-      assert.deepEqual(actual, previous);
+      assert.deepEqual(strip(actual), strip(previous));
       const bytes = actual.calls[0][2],
         end = bytes.indexOf(0);
       assert.equal(String.fromCharCode(...bytes.subarray(0, end)), String(value));

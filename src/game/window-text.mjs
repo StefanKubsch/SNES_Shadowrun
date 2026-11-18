@@ -15,10 +15,10 @@
 // The products and quotients run on the hardware multiplier and divider through the
 // port, as in the original (Book I 2-15-1; on another platform: row * (columns - 2),
 // value / 10 and value % 10). Both routines push the data bank and the bank pair they
-// select (PHB, PEA, PLB, PLB) and leave the bytes below the stack as the original. They
-// leave X, Y and the flags as the original: the cursor A 0, X the window, Y unchanged,
-// the sign and zero of the bank byte and the carry and overflow of the product's
-// addition; the number the registers of 80:FB39 and the sign and zero of the bank byte.
+// select (PHB, PEA, PLB, PLB) and restore the data bank.
+//
+// Registers (user decision 2026-11-17): game state only. A, X, Y and the flags the
+// original leaves are not kept; every caller sets its own before reading them.
 import { drawTextBufferSequence } from './text-draw.mjs';
 import { sceneRuntime } from '../system/scene-runtime.mjs';
 import { dialogCallBody } from '../system/native-call-continuation.mjs';
@@ -38,8 +38,7 @@ import {
   WRMPYA,
   WRMPYB,
 } from '../constants/hardware-registers.mjs';
-import { BYTE_BITS, BYTE_MASK, BYTE_SIGN, WORD_MASK, WORD_SIGN } from '../constants/bits.mjs';
-import { FLAG_CARRY, FLAG_NEGATIVE, FLAG_OVERFLOW, FLAG_ZERO } from '../constants/cpu-flags.mjs';
+import { BYTE_BITS, BYTE_MASK, WORD_MASK } from '../constants/bits.mjs';
 
 const DP_WINDOW = 0x00,
   DP_VALUE = 0x02,
@@ -68,9 +67,6 @@ const setWord = (wram, at, value) => {
   wram[at] = value & BYTE_MASK;
   wram[at + 1] = (value >>> BYTE_BITS) & BYTE_MASK;
 };
-const flag = (ctx, bit, set) => {
-  ctx.status = set ? ctx.status | bit : ctx.status & ~bit;
-};
 // PHB, PEA pair, PLB, PLB: the old data bank and the pair stay below the stack; the
 // bank's own pull (PLB at the end) is restoreBank.
 function selectBank(h, pair) {
@@ -82,14 +78,11 @@ function restoreBank(h) {
   const { ctx } = h;
   ctx.s = (ctx.s + 1) & WORD_MASK;
   ctx.bank = h.a.read(ctx.s);
-  flag(ctx, FLAG_NEGATIVE, ctx.bank & BYTE_SIGN);
-  flag(ctx, FLAG_ZERO, ctx.bank === 0);
 }
 
 // Set the text cursor of the window in the direct page word 00 (80:FAAC), called with JSR.
 export function setTextCursorRoutine(h) {
-  const { ctx } = h,
-    { wram, port } = sceneRuntime(h);
+  const { wram, port } = sceneRuntime(h);
   selectBank(h, PROGRAM_BANK_PAIR);
   const x = word(wram, DP_WINDOW);
   port.write(WRMPYA, wram[DP_CURSOR_ROW], 1, ROW_SITE);
@@ -97,14 +90,9 @@ export function setTextCursorRoutine(h) {
   const start = word(wram, WINDOW_TILE_START + x) + word(wram, DP_VALUE),
     left = start & WORD_MASK,
     product = port.read(RDMPYL, 2, PRODUCT_SITE),
-    sum = left + product + (start > WORD_MASK ? 1 : 0),
-    tile = sum & WORD_MASK;
-  flag(ctx, FLAG_CARRY, sum > WORD_MASK);
-  flag(ctx, FLAG_OVERFLOW, ~(left ^ product) & (left ^ tile) & WORD_SIGN);
+    tile = (left + product + (start > WORD_MASK ? 1 : 0)) & WORD_MASK;
   setWord(wram, WINDOW_CURSOR_TILE + x, tile);
   setWord(wram, WINDOW_CURSOR_PIXEL + x, 0);
-  ctx.a = 0;
-  ctx.x = x;
   restoreBank(h);
   return h.rts();
 }
@@ -137,12 +125,7 @@ export function* printNumberSequence(h, events, renderBuffer = drawTextBufferSeq
         x = (x + 1) & WORD_MASK;
         y = (y + 1) & WORD_MASK;
       }
-      ctx.y = y;
     }
-    // A is the last quotient 0 (with the 0 byte in its low half). 80:FB39 reads no
-    // flags, so they are not produced.
-    ctx.a = 0;
-    ctx.x = x;
   };
   yield* dialogCallBody(h, ...DRAW_CALL, () => renderBuffer(h, events));
   let result;
