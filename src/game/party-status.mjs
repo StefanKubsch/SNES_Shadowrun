@@ -9,6 +9,9 @@
 // byte 5) and the magic points and their maximum (ten times the record's magic byte).
 // After a key (80:F953) the window is released (80:FA3E). The callees compose through their
 // original frames, each with its own callees.
+//
+// Registers (user decision 2026-11-17): game state only; no callee takes a register
+// input and no register values are left.
 import { dialogCallBody, segmentSequence } from '../system/native-call-continuation.mjs';
 import { openWindowSequence } from './window-open.mjs';
 import {
@@ -59,7 +62,6 @@ import {
   WORD_MASK,
   WORD_SIGN,
 } from '../constants/bits.mjs';
-import { FLAG_CARRY, FLAG_NEGATIVE, FLAG_OVERFLOW, FLAG_ZERO } from '../constants/cpu-flags.mjs';
 
 // The window, its title and the members' columns; the member's word index and name
 // and the magic maximum in the direct page.
@@ -87,17 +89,6 @@ const setWord = (wram, at, value) => {
   wram[at] = value & BYTE_MASK;
   wram[at + 1] = (value >>> BYTE_BITS) & BYTE_MASK;
 };
-const setFlag = (ctx, bit, set) => {
-  ctx.status = set ? ctx.status | bit : ctx.status & ~bit;
-};
-const setSignZero = (ctx, value) => {
-  setFlag(ctx, FLAG_NEGATIVE, value & WORD_SIGN);
-  setFlag(ctx, FLAG_ZERO, value === 0);
-};
-const load = (ctx, value) => {
-  ctx.a = value;
-  setSignZero(ctx, value);
-};
 // A byte of the member's record (long pointer DP F9) at offset.
 const recordByte = (mem, offset) => {
   const { wram } = mem,
@@ -106,12 +97,9 @@ const recordByte = (mem, offset) => {
 };
 
 // The member at the group's word index: its runner (from the last; none leaves FFFE)
-// with name and record, its state count and its magic maximum. Leaves X the object's
-// record index, Y the magic offset, A the cursor row and the overflow of the maximum.
-function prepareMember(h, member) {
-  const { ctx } = h,
-    { mem } = h.a,
-    { wram } = mem;
+// with name and record, its state count and its magic maximum, and its cursor row.
+function prepareMember(mem, member) {
+  const { wram } = mem;
   setWord(wram, DP_PARTY_MEMBER, member);
   const slot = dataBankWord(mem, GROUP_SLOTS, member),
     number = word(wram, GROUP_NUMBERS + member);
@@ -126,33 +114,19 @@ function prepareMember(h, member) {
   wram[DP_MEMBER_RECORD_BANK] = dataBankWord(mem, RUNNER_RECORD_BANKS, runner) & BYTE_MASK;
   const record = dataBankWord(mem, OBJECT_RECORD, slot);
   setDataBankWord(mem, MEMBER_STATE_COUNT, 0, wram[STATE_COUNT + record]);
-  // Ten times the magic byte: twice, then four times that added (no carry in).
-  const twice = recordByte(mem, RECORD_MAGIC) << 1,
-    eightTimes = twice << 2,
-    maximum = (twice * (MAGIC_FACTOR / 2)) & WORD_MASK;
-  setWord(wram, DP_MAGIC_MAXIMUM, maximum);
-  setFlag(ctx, FLAG_OVERFLOW, (~(eightTimes ^ twice) & (eightTimes ^ maximum) & WORD_SIGN) !== 0);
+  // Ten times the magic byte.
+  setWord(wram, DP_MAGIC_MAXIMUM, (recordByte(mem, RECORD_MAGIC) * MAGIC_FACTOR) & WORD_MASK);
   setWord(wram, 2, 0);
-  const row = (member >>> 1) + FIRST_ROW;
-  setWord(wram, DP_CURSOR_ROW, row);
-  ctx.x = record;
-  ctx.y = RECORD_MAGIC;
-  load(ctx, row);
-  setFlag(ctx, FLAG_CARRY, member & 1);
+  setWord(wram, DP_CURSOR_ROW, (member >>> 1) + FIRST_ROW);
 }
 
 // 80:ED3C: the party status (see above). A sequence that ends with its RTS.
 export function* partyStatusSequence(h, events, renderBuffer = drawTextBufferSequence) {
-  const { ctx } = h,
-    { mem } = h.a,
+  const { mem } = h.a,
     { wram } = mem;
-  // DP 02 gets value (loaded into A) before a callee at pc.
+  // DP 02 gets value before a callee at pc.
   const argument = function* (value, pc, target, body) {
-    yield () => {
-      const v = typeof value === 'function' ? value() : value;
-      load(ctx, v);
-      setWord(wram, 2, v);
-    };
+    yield () => setWord(wram, 2, typeof value === 'function' ? value() : value);
     yield* dialogCallBody(h, pc, target, body);
   };
   yield* dialogCallBody(h, ...PUT_GLOVE_AWAY, () => putGloveAwayCallSequence(h, events));
@@ -163,16 +137,11 @@ export function* partyStatusSequence(h, events, renderBuffer = drawTextBufferSeq
     setWord(wram, DP_WINDOW_COLUMNS, PARTY_WINDOW.columns);
     let rows = PARTY_WINDOW.baseRows;
     if (!dataBankWord(mem, GROUP_LEADER_ONLY)) {
-      const last = word(wram, GROUP_INDEX),
-        half = last >>> 1,
-        sum = half + PARTY_WINDOW.baseRows + (last & 1);
-      rows = sum & WORD_MASK;
-      setFlag(ctx, FLAG_CARRY, sum > WORD_MASK);
-      setFlag(ctx, FLAG_OVERFLOW, (~half & rows & WORD_SIGN) !== 0);
+      const last = word(wram, GROUP_INDEX);
+      rows = ((last >>> 1) + PARTY_WINDOW.baseRows + (last & 1)) & WORD_MASK;
     }
     setWord(wram, DP_WINDOW_ROWS, rows);
     setWord(wram, DP_WINDOW_ATTRIBUTES, 0);
-    load(ctx, 0);
   };
   yield* dialogCallBody(h, ...OPEN_WINDOW, () => openWindowSequence(h, events));
   yield () => setDataBankWord(mem, STATUS_WINDOW, 0, word(wram, 0));
@@ -180,7 +149,7 @@ export function* partyStatusSequence(h, events, renderBuffer = drawTextBufferSeq
   let member = 0,
     more;
   do {
-    yield () => prepareMember(h, member);
+    yield () => prepareMember(mem, member);
     yield* dialogCallBody(h, 0x80edcf, CURSOR, () =>
       segmentSequence(() => setTextCursorRoutine(h)),
     );
@@ -205,10 +174,8 @@ export function* partyStatusSequence(h, events, renderBuffer = drawTextBufferSeq
     yield* argument(TEXT_SLASH, 0x80edf6, TEXT, () => printTextSequence(h, events, renderBuffer));
     yield () => {
       // The count's maximum; the record pointer's low word steps on by one.
-      ctx.y = RECORD_COUNT_MAX;
       const maximum = recordByte(mem, RECORD_COUNT_MAX);
       setWord(wram, DP_MEMBER_RECORD, (word(wram, DP_MEMBER_RECORD) + 1) & WORD_MASK);
-      load(ctx, maximum);
       setWord(wram, 2, maximum);
     };
     yield* dialogCallBody(h, 0x80ee05, NUMBER, () => printNumberSequence(h, events, renderBuffer));
@@ -216,12 +183,7 @@ export function* partyStatusSequence(h, events, renderBuffer = drawTextBufferSeq
       segmentSequence(() => setTextCursorRoutine(h)),
     );
     yield* argument(
-      () => {
-        const runner = dataBankWord(mem, MEMBER_INDEX);
-        ctx.x = runner >>> 1;
-        setFlag(ctx, FLAG_CARRY, runner & 1);
-        return wram[MAGIC_POINTS + ctx.x];
-      },
+      () => wram[MAGIC_POINTS + (dataBankWord(mem, MEMBER_INDEX) >>> 1)],
       0x80ee1e,
       NUMBER,
       () => printNumberSequence(h, events, renderBuffer),
@@ -237,27 +199,13 @@ export function* partyStatusSequence(h, events, renderBuffer = drawTextBufferSeq
       () => printNumberSequence(h, events, renderBuffer),
     );
     yield () => {
-      const next = (word(wram, DP_PARTY_MEMBER) + 1) & WORD_MASK,
-        last = word(wram, GROUP_INDEX);
+      const next = (word(wram, DP_PARTY_MEMBER) + 1) & WORD_MASK;
       member = (next + 1) & WORD_MASK;
-      ctx.x = member;
-      load(ctx, next);
-      setSignZero(ctx, (next - last) & WORD_MASK);
-      setFlag(ctx, FLAG_CARRY, next >= last);
-      more = next < last;
-      if (more) {
-        const leaderOnly = dataBankWord(mem, GROUP_LEADER_ONLY);
-        load(ctx, leaderOnly);
-        more = leaderOnly === 0;
-      }
+      more = next < word(wram, GROUP_INDEX) && dataBankWord(mem, GROUP_LEADER_ONLY) === 0;
     };
   } while (more);
   yield* dialogCallBody(h, ...CONFIRM_KEY, () => waitForConfirmKeySequence(h, events));
-  yield () => {
-    const window = dataBankWord(mem, STATUS_WINDOW);
-    load(ctx, window);
-    setWord(wram, 0, window);
-  };
+  yield () => setWord(wram, 0, dataBankWord(mem, STATUS_WINDOW));
   yield* dialogCallBody(h, ...RELEASE_WINDOW, () => releaseWindowJsrSequence(h.a, events));
   let result;
   yield () => {
