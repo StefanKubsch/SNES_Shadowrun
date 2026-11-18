@@ -63,13 +63,14 @@ const setWord = (wram, at, value) => {
   wram[at + 1] = (value >>> BYTE_BITS) & BYTE_MASK;
 };
 
-// 80:A18C: the title cycle. A is zero when the cycle starts after a game (no
-// title). Returns the start menu's choice in A: the save slot, or FFFF for a new
-// game. X and Y are left as the menu leaves them, the status as at the entry.
-export function* titleCycleSequence(h, events, routines) {
+// 80:A18C: the title cycle. title is false when the cycle starts after a game (A zero
+// in the original). The start menu's choice (A in the original: the save slot, or FFFF
+// for a new game) goes to shown.choice; the status is as at the entry. Registers (user
+// decision 2026-11-17): the cycle leaves none of its own.
+export function* titleCycleSequence(h, events, routines, title, shown = {}) {
   const { ctx } = h,
     status = ctx.status,
-    afterGame = (ctx.a & WORD_MASK) === 0,
+    afterGame = !title,
     call = (site, target, sequence, long = true) =>
       dialogCallBody(h, site, target, () => sequence(h, events, routines), long);
   let m;
@@ -121,8 +122,8 @@ export function* titleCycleSequence(h, events, routines) {
   let result;
   yield () => {
     ctx.bank = CODE_BANK;
-    ctx.a = choice;
     ctx.status = status;
+    shown.choice = choice;
     result = h.rts();
   };
   return result;

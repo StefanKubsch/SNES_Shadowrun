@@ -21,7 +21,7 @@ import {
 } from '../data/wram.mjs';
 import { FLAG_DECIMAL, FLAG_INDEX_8BIT, FLAG_MEMORY_8BIT } from '../constants/cpu-flags.mjs';
 import { CODE_BANK } from '../constants/memory-map.mjs';
-import { BYTE_BITS, BYTE_MASK } from '../constants/bits.mjs';
+import { BYTE_BITS, BYTE_MASK, WORD_MASK } from '../constants/bits.mjs';
 
 // The owner's entry after the start-up, its resume point after a game, and the
 // return word of its JSR 9688 at A154 (the main loop's final RTS lands on A157).
@@ -41,7 +41,8 @@ const setWord = (wram, at, value) => {
 
 // 80:A139 / 80:A157: A is the cycle's argument at the entry (nonzero: show the
 // title first); the resume point after a game passes zero. Ends at the main start
-// 80:9688 with the return word A156 on the stack; returns that program counter.
+// 80:9688 with the return word A156 on the stack; returns that program counter. The
+// cycle's choice passes as a value (A in the original) and no registers are left.
 export function* gameOwnerSequence(h, events, routines) {
   const { ctx } = h;
   if (
@@ -52,24 +53,24 @@ export function* gameOwnerSequence(h, events, routines) {
     ctx.status & (FLAG_DECIMAL | FLAG_INDEX_8BIT | FLAG_MEMORY_8BIT)
   )
     taskStop('main_owner_entry_required', { pc: ctx.pc });
-  const { wram } = h.a.mem;
+  const { wram } = h.a.mem,
+    title = ctx.pc !== GAME_OWNER_RESUME && (ctx.a & WORD_MASK) !== 0,
+    shown = {};
   yield () => {
-    if (ctx.pc === GAME_OWNER_RESUME) ctx.a = 0;
     // The cycle keeps the music on and restores it after the attract game.
     setWord(wram, GAME_OPTIONS, OPTION_MUSIC | OPTION_MUSIC_RESTORE);
   };
   yield* dialogCallBody(h, TITLE_CYCLE_SITE, TITLE_CYCLE, () =>
-    titleCycleSequence(h, events, routines),
+    titleCycleSequence(h, events, routines, title, shown),
   );
   yield () => {
-    setWord(wram, CHOICE, ctx.a);
+    setWord(wram, CHOICE, shown.choice);
     // The game plays music as the saved setting says.
     setWord(wram, GAME_OPTIONS, h.a.mem.read16(SETTINGS_MUSIC));
     setUpGameAudio(sceneRuntime(h));
     // The game starts without a countdown.
     setWord(wram, TIMER, TIMER_STOPPED);
     ctx.bank = CODE_BANK;
-    ctx.a = TIMER_STOPPED;
     h.a.pushWord(GAME_OWNER_RETURN_WORD);
     ctx.pc = MAIN_START;
   };
