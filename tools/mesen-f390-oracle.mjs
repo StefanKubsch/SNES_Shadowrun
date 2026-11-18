@@ -714,6 +714,9 @@ const STACKS = [
 // tools/lifted-script-natives.mjs.
 const OUTER_STACK_WORD = 0x01f2,
   LIFTED_NATIVE_FLAGS = 0x41;
+// The registers compared at a recorded point, and at the main loop's round.
+const REGISTERS = ['a', 'x', 'y', 's', 'd', 'bank'],
+  MAIN_LOOP_REGISTERS = ['s', 'd', 'bank'];
 // The NMI stack holds only the handler's saved registers and return frames, which no
 // game code reads: it is free as a whole (game state only, docs/STRATEGY.md 2026-11-14).
 const [, NMI_STACK] = STACKS;
@@ -1126,12 +1129,12 @@ export function compareTrace({ initial, sram, steps, tail, final }, { maxMismatc
   // After a lifted script native (tools/lifted-script-natives.mjs) the carry and
   // overflow, the free main stack below the scheduler's S and the sample loader's
   // scratch are not produced.
-  // lifted is the lifted native's target or null.
-  const differencesTo = (got, to, ignore = [], lifted = null) => {
+  // lifted is the lifted native's target or null; registers the compared registers.
+  const differencesTo = (got, to, ignore = [], lifted = null, registers = REGISTERS) => {
     const differences = [],
       flags = (status) => (lifted ? status & ~LIFTED_NATIVE_FLAGS : status);
     if (got.pc !== to.pc) differences.push(`pc VM ${hex(got.pc)} Mesen ${hex(to.pc)}`);
-    for (const key of ['a', 'x', 'y', 's', 'd', 'bank'])
+    for (const key of registers)
       if (got[key] !== to[key])
         differences.push(`${key} VM ${hex(got[key])} Mesen ${hex(to[key])}`);
     if (flags(got.status) !== flags(to.status))
@@ -1279,7 +1282,10 @@ export function compareTrace({ initial, sram, steps, tail, final }, { maxMismatc
     }
     if (stop === null) {
       accessor.store();
-      const differences = differencesTo(vm.context(), to);
+      // Game state only (user decision 2026-11-17): the lifted main loop pass leaves no
+      // A, X and Y (the sound effect's Y, for one, is not kept); its stack pointer,
+      // direct page, data bank, flags and memory are compared.
+      const differences = differencesTo(vm.context(), to, [], null, MAIN_LOOP_REGISTERS);
       if (differences.length)
         mismatch(
           {
