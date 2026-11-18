@@ -20,7 +20,7 @@
 // (src/data/language.mjs) leaves out glyphs that no longer fit their line.
 //
 // Registers (user decision 2026-11-17): the routine works in the direct page words A2
-// to D2 and keeps the original's A, X, Y, carry and overflow as locals (each set before
+// to D2 and keeps the original's A, X, Y and carry as locals (each set before
 // it is read); it leaves no registers. The upload requests run below the frames of
 // their two JSLs, and their waits see the request word's sign, as the original; with the
 // lag-free frame model they are lifted, otherwise (recorded observations, the function
@@ -145,14 +145,14 @@ const romWord = (mem, at) => mem.read8(at) | (mem.read8(at + 1) << BYTE_BITS);
 const swap = (value) => ((value & BYTE_MASK) << BYTE_BITS) | (value >>> BYTE_BITS);
 
 // The original's working registers as locals: a (16 bits; byte operations keep the high
-// byte), x, y, the carry c and the overflow v. Every value is set before it is read.
+// byte), x, y and the carry c. Every value is set before it is read; the overflow is
+// never read and not kept.
 class Registers {
   constructor() {
     this.a = 0;
     this.x = 0;
     this.y = 0;
     this.c = false;
-    this.v = false;
   }
   byte(value) {
     this.a = (this.a & ~BYTE_MASK) | (value & BYTE_MASK);
@@ -163,7 +163,6 @@ class Registers {
     const sum = left + right + (carry ? 1 : 0),
       result = sum & WORD_MASK;
     this.c = sum > WORD_MASK;
-    this.v = (~(left ^ right) & (left ^ result) & WORD_SIGN) !== 0;
     this.a = result;
     return result;
   }
@@ -171,7 +170,6 @@ class Registers {
     const difference = left - right - (carry ? 0 : 1),
       result = difference & WORD_MASK;
     this.c = difference >= 0;
-    this.v = ((left ^ right) & (left ^ result) & WORD_SIGN) !== 0;
     this.a = result;
     return result;
   }
@@ -327,7 +325,6 @@ function measureWord({ mem, wram, r }) {
       sum = glyph + wram[TEXT_WORK_WORD],
       width = sum & BYTE_MASK;
     r.c = sum > BYTE_MASK;
-    r.v = (~(glyph ^ wram[TEXT_WORK_WORD]) & (glyph ^ width) & BYTE_SIGN) !== 0;
     r.byte(width);
     wram[TEXT_WORK_WORD] = width;
   }
