@@ -81,7 +81,7 @@ function run(module, name, variant, budget, realDrawing = false) {
       sequence =
         name === 'showDialogTextSequence'
           ? module === direct
-            ? module[name](h, events, renderer)
+            ? module[name](h, events, renderer, h.ctx.a)
             : module[name](h, events, events.text, renderer)
           : module[name](h, events, renderer);
     return finishTextWindow(side, sequence, budget);

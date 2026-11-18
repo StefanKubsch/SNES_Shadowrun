@@ -54,7 +54,7 @@ function run(sequence, script, budget, hook = 'nested') {
       return { wait: [11, 12], input: [13] };
     };
   }
-  const result = finishTextWindow(side, sequence(h, events), budget);
+  const result = finishTextWindow(side, sequence(h, events, h.ctx.y), budget);
   return { ...result, values: events.values, inputs: events.inputs };
 }
 for (const budget of [1, 7])

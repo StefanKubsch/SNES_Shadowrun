@@ -1,7 +1,7 @@
 // The dialog's texts (lifted from 80:9178 with the topic add 80:908C; register-level
 // versions in proof/replay/native-dialog-text.mjs stay the reference).
 //
-// A text key comes in A: FFFF the greeting, FFFE the talk text, otherwise a topic
+// A text key comes as a parameter (A in the original): FFFF the greeting, FFFE the talk text, otherwise a topic
 // number. The dialog's text window (the direct page word 14) is cleared (80:FA67) and
 // its cursor set to its top left (80:FAAC). The dialog record (the long pointer in the
 // direct page 11 to 13) holds entries from byte 4 on, ended by F8: a key byte, a flag
@@ -17,17 +17,21 @@
 // one place with its flags; a topic already there stays.
 //
 // Clearing, cursor, text and task actions compose directly with the original
-// arguments. The routine works with an
-// 8-bit accumulator in the search as the original: byte loads keep A's high byte, XBA
-// swaps the bytes. It pushes the flag byte around the topic add, and its status and Y
-// around the text (PLP restores the status with the carry of the action bit, which the
-// routine leaves); the topic add's own frame is pushed and pulled as the original.
+// arguments; the task append takes the action's script as a parameter. The search and
+// the topic add keep the original's 8-bit accumulator as a local: byte loads keep its
+// high byte, XBA swaps the bytes, so the high byte carries the topics moved up. The
+// routine pushes the flag byte around the topic add, and the status and the text
+// position around the text, as the original; the topic add's own frame is pushed and
+// pulled as the original.
+//
+// Registers (user decision 2026-11-17): game state only; the routine leaves no A, X, Y
+// or flags.
 import { dialogCallBody, segmentSequence } from '../system/native-call-continuation.mjs';
 import { requestTileClearSequence } from './window-open.mjs';
 import { setTextCursorRoutine } from './window-text.mjs';
 import { drawTextBufferSequence } from './text-draw.mjs';
 import { printTextSequence } from './text-print.mjs';
-import { appendScriptTaskCall } from '../script/task-api.mjs';
+import { appendScriptCall } from '../script/task-api.mjs';
 import { scriptVisitSequence } from '../system/script-visit.mjs';
 import { taskStop } from '../system/task-stop.mjs';
 import { TOPIC_FLAGS, TOPIC_LIST } from '../data/wram.mjs';
@@ -38,14 +42,12 @@ import {
   LONG_MASK,
   WORD_BITS,
   WORD_MASK,
-  WORD_SIGN,
 } from '../constants/bits.mjs';
 import {
   FLAG_CARRY,
   FLAG_INDEX_8BIT,
   FLAG_MEMORY_8BIT,
   FLAG_NEGATIVE,
-  FLAG_OVERFLOW,
   FLAG_ZERO,
 } from '../constants/cpu-flags.mjs';
 
@@ -77,9 +79,6 @@ const setWord = (wram, at, value) => {
   wram[at] = value & BYTE_MASK;
   wram[at + 1] = (value >>> BYTE_BITS) & BYTE_MASK;
 };
-const flag = (ctx, bit, set) => {
-  ctx.status = set ? ctx.status | bit : ctx.status & ~bit;
-};
 // The record's byte or word at y (the long pointer in the direct page 11 to 13).
 const recordAt = (wram, y) =>
   ((word(wram, DP_RECORD) | (wram[DP_RECORD + 2] << WORD_BITS)) + y) & LONG_MASK;
@@ -107,12 +106,12 @@ class Accumulator {
 }
 
 // The topic add (80:908C) with an 8-bit accumulator: the flag byte's low nibble of topic
-// numbers from the record at y on. Returns the X and Y it leaves (its flags are replaced
-// by the caller's PLA and ASL).
-function addTopics(mem, wram, acc, x, y) {
+// numbers from the record at y on. Returns the record index past them.
+function addTopics(mem, wram, acc, y) {
   acc.byte(acc.low & TOPIC_COUNT_MASK);
   y = (y + 1) & WORD_MASK;
-  if (acc.low === 0) return { x, y };
+  if (acc.low === 0) return y;
+  let x;
   wram[DP_TOPICS_LEFT] = acc.low;
   do {
     const key = acc.byte(recordByte(mem, wram, y));
@@ -147,37 +146,23 @@ function addTopics(mem, wram, acc, x, y) {
       wram[DP_ENTRY_BYTES] = acc.byte(wram[DP_MOVED_FLAGS]);
     }
   } while ((wram[DP_TOPICS_LEFT] = (wram[DP_TOPICS_LEFT] - 1) & BYTE_MASK) !== 0);
-  return { x, y };
+  return y;
 }
 
-// The entry for the key in the direct page word 1D: the search over the record with the
-// registers the original leaves. Returns found (with the action bit), or missing.
-function searchEntry(h, acc) {
-  const { ctx } = h,
-    { mem } = h.a,
-    { wram } = mem;
+// The entry for the key in the direct page word 1D: the search over the record. Returns
+// found with the index past the key, or not found.
+function searchEntry(mem, wram, acc) {
   let y = FIRST_ENTRY;
   for (;;) {
     const key = acc.byte(recordByte(mem, wram, y));
-    if (key === RECORD_END) {
-      ctx.y = y;
-      return { found: false };
-    }
+    if (key === RECORD_END) return { found: false };
     y = (y + 1) & WORD_MASK;
-    if (key === wram[DP_TOPIC_KEY]) {
-      y = (y + 1) & WORD_MASK;
-      return { found: true, y };
-    }
-    // Skip the entry: its length byte added to the index (16-bit ADC with the carry of
-    // the key comparison cleared).
+    if (key === wram[DP_TOPIC_KEY]) return { found: true, y: (y + 1) & WORD_MASK };
+    // Skip the entry: its length byte added to the index (16-bit, the carry cleared).
     const length = recordWord(mem, wram, y) & BYTE_MASK;
     setWord(wram, DP_ENTRY_BYTES, length);
-    const sum = y + length,
-      result = sum & WORD_MASK;
-    flag(ctx, FLAG_CARRY, sum > WORD_MASK);
-    flag(ctx, FLAG_OVERFLOW, ~(y ^ length) & (y ^ result) & WORD_SIGN);
-    acc.value = result;
-    y = result;
+    y = (y + length) & WORD_MASK;
+    acc.value = y;
   }
 }
 
@@ -191,9 +176,9 @@ function liftedBodies(h, events, renderBuffer) {
   return (name) => lifted[name];
 }
 
-// Show the dialog text for the key in A (80:9178), a sequence for a native call
-// continuation with an optional text renderer.
-export function* showDialogTextSequence(h, events, renderBuffer = drawTextBufferSequence) {
+// Show the dialog text for the key (80:9178, A in the original), a sequence for a native
+// call continuation with an optional text renderer.
+export function* showDialogTextSequence(h, events, renderBuffer = drawTextBufferSequence, key) {
   const { ctx } = h,
     { mem } = h.a,
     { wram } = mem,
@@ -201,9 +186,8 @@ export function* showDialogTextSequence(h, events, renderBuffer = drawTextBuffer
     call = ([site, target], name) => dialogCallBody(h, site, target, body(name));
   for (;;) {
     yield () => {
-      setWord(wram, DP_TOPIC_KEY, ctx.a);
-      ctx.a = word(wram, DP_TEXT_WINDOW);
-      setWord(wram, DP_WINDOW, ctx.a);
+      setWord(wram, DP_TOPIC_KEY, key);
+      setWord(wram, DP_WINDOW, word(wram, DP_TEXT_WINDOW));
     };
     yield* call(REQUEST_CALL, 'request');
     yield () => {
@@ -211,19 +195,15 @@ export function* showDialogTextSequence(h, events, renderBuffer = drawTextBuffer
       setWord(wram, DP_CURSOR_ROW, 0);
     };
     yield* call(CURSOR_CALL, 'cursor');
-    let entry;
+    let entry,
+      action = false;
     yield () => {
-      const acc = new Accumulator(ctx.a);
-      entry = searchEntry(h, acc);
+      // The 8-bit accumulator's high byte carries the topics moved up in the topic add.
+      const acc = new Accumulator(key);
+      entry = searchEntry(mem, wram, acc);
       if (!entry.found) {
-        // CMP #FFFD with the key.
-        ctx.a = FALLBACK_KEY;
-        const key = word(wram, DP_TOPIC_KEY),
-          difference = (FALLBACK_KEY - key) & WORD_MASK;
-        flag(ctx, FLAG_CARRY, FALLBACK_KEY >= key);
-        flag(ctx, FLAG_NEGATIVE, difference & WORD_SIGN);
-        flag(ctx, FLAG_ZERO, difference === 0);
-        entry.missing = key === FALLBACK_KEY;
+        entry.missing = word(wram, DP_TOPIC_KEY) === FALLBACK_KEY;
+        key = FALLBACK_KEY;
         return;
       }
       // The flag byte, pushed around the topic add (JSR with its frame).
@@ -231,41 +211,34 @@ export function* showDialogTextSequence(h, events, renderBuffer = drawTextBuffer
       const flags = acc.byte(recordByte(mem, wram, y));
       h.pushByte(flags);
       h.a.pushWord((TOPICS_SITE + JSR_LAST_BYTE) & WORD_MASK);
-      const added = addTopics(mem, wram, acc, ctx.x, y);
+      y = addTopics(mem, wram, acc, y);
       h.a.pullWord();
-      ctx.x = added.x;
-      y = added.y;
-      h.ctx.s = (h.ctx.s + 1) & WORD_MASK;
-      // PLA, ASL: the action bit in the carry; REP, PHP, PHY.
+      ctx.s = (ctx.s + 1) & WORD_MASK;
+      // PLA, ASL: the action bit; REP, PHP, PHY push the status (as the original's) and
+      // the text position around the text.
       acc.byte(flags << 1);
-      const action = (flags & BYTE_SIGN) !== 0,
-        status =
-          (ctx.status &
-            ~(FLAG_CARRY | FLAG_NEGATIVE | FLAG_ZERO | FLAG_MEMORY_8BIT | FLAG_INDEX_8BIT)) |
+      action = (flags & BYTE_SIGN) !== 0;
+      h.pushByte(
+        (ctx.status &
+          ~(FLAG_CARRY | FLAG_NEGATIVE | FLAG_ZERO | FLAG_MEMORY_8BIT | FLAG_INDEX_8BIT)) |
           (action ? FLAG_CARRY : 0) |
           (acc.low & BYTE_SIGN ? FLAG_NEGATIVE : 0) |
-          (acc.low === 0 ? FLAG_ZERO : 0);
-      ctx.status = status;
-      h.pushByte(status);
+          (acc.low === 0 ? FLAG_ZERO : 0),
+      );
       h.a.pushWord(y);
       if (action) y = (y + ACTION_WORD_BYTES) & WORD_MASK;
-      ctx.y = y;
       setWord(wram, DP_TEXT, recordWord(mem, wram, y));
-      ctx.a = word(wram, DP_TEXT_WINDOW);
-      setWord(wram, DP_WINDOW, ctx.a);
+      setWord(wram, DP_WINDOW, word(wram, DP_TEXT_WINDOW));
     };
     if (entry.found) {
       yield* call(TEXT_CALL, 'text');
-      let action = false;
+      let at;
       yield () => {
-        ctx.y = h.a.pullWord();
+        // PLY, PLP: the action word's position and the pushed status.
+        at = h.a.pullWord();
         ctx.s = (ctx.s + 1) & WORD_MASK;
-        ctx.status = h.a.read(ctx.s);
-        action = (ctx.status & FLAG_CARRY) !== 0;
       };
-      if (action) {
-        yield* dialogTopicSequence(h, events);
-      }
+      if (action) yield* dialogTopicSequence(h, events, at);
       break;
     }
     if (entry.missing) break;
@@ -277,8 +250,13 @@ export function* showDialogTextSequence(h, events, renderBuffer = drawTextBuffer
   return result;
 }
 
-// Topic actions keep their own append and visit frames and argument chronology.
-export function* dialogTopicSequence(h, events) {
+// Topic actions keep their own append and visit frames and argument chronology: the
+// script is the record's word at the position given, the object goes to the direct
+// page word 00 as the script's argument.
+export function* dialogTopicSequence(h, events, at) {
+  const { mem } = h.a,
+    { wram } = mem;
+  let script;
   yield () => {
     if (!events.nestedRound && !events.round)
       taskStop('task_dialog_topic_visit_open', {
@@ -286,13 +264,11 @@ export function* dialogTopicSequence(h, events) {
         append: 0x80c34a,
         visit: 0x80c1ca,
       });
-    h.load(h.read(h.indirect(DP_RECORD, h.ctx.y)));
-    h.index('x', h.ctx.a);
-    h.load(h.dp(DP_DIALOG_OBJECT));
-    h.dpWrite(DP_WINDOW, h.ctx.a);
+    script = recordWord(mem, wram, at);
+    setWord(wram, DP_WINDOW, word(wram, DP_DIALOG_OBJECT));
   };
   yield* dialogCallBody(h, 0x8091d1, 0x80c34a, () =>
-    segmentSequence(() => appendScriptTaskCall(h.a)),
+    segmentSequence(() => appendScriptCall(h.a, script)),
   );
   yield* dialogCallBody(h, 0x8091d4, 0x80c1ca, () =>
     scriptVisitSequence(events, 'task_dialog_topic_visit_open', (more) => {

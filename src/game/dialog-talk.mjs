@@ -399,7 +399,9 @@ export function* talkSequence(h, events, renderBuffer = drawTextBufferSequence) 
     setWord(wram, DP_OBJECT, word(wram, DP_PORTRAIT_FRAME));
     ctx.a = GREETING_TEXT;
   };
-  yield* dialogCallBody(h, ...CALL.greeting, () => showDialogTextSequence(h, events, renderBuffer));
+  yield* dialogCallBody(h, ...CALL.greeting, () =>
+    showDialogTextSequence(h, events, renderBuffer, GREETING_TEXT),
+  );
   yield () => (ctx.x = GREETING_WAIT_FRAMES);
   do {
     yield* dialogCallBody(
@@ -447,7 +449,7 @@ export function* talkSequence(h, events, renderBuffer = drawTextBufferSequence) 
       if (next === 'menu') continue;
     }
     yield* dialogCallBody(h, ...(next === 'talk' ? CALL.talkText : CALL.topicText), () =>
-      showDialogTextSequence(h, events, renderBuffer),
+      showDialogTextSequence(h, events, renderBuffer, ctx.a),
     );
     let stop;
     yield () => {

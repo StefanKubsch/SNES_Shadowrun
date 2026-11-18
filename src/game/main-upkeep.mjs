@@ -250,14 +250,17 @@ export function runDialogMenu(h, events) {
 export function runDialogTopics(h, events) {
   return drainNativeSequence(chooseDialogTopicSequence(h, events, drawTextBufferSequence));
 }
-// 80:9178 composes live clearing, cursor, text and topic task actions.
+// 80:9178 composes live clearing, cursor, text and topic task actions; the register
+// form takes the text key in A.
+const dialogTextRoutineSequence = (h, events, renderBuffer) =>
+  showDialogTextSequence(h, events, renderBuffer, h.ctx.a);
 export function runDialogText(h, events) {
-  return drainNativeSequence(showDialogTextSequence(h, events, drawTextBufferSequence));
+  return drainNativeSequence(dialogTextRoutineSequence(h, events, drawTextBufferSequence));
 }
 for (const [run, sequence] of [
   [runDialogMenu, dialogActionRoutineSequence],
   [runDialogTopics, chooseDialogTopicSequence],
-  [runDialogText, showDialogTextSequence],
+  [runDialogText, dialogTextRoutineSequence],
 ])
   NATIVE_CALL_CONTINUATIONS.set(run, {
     run,
