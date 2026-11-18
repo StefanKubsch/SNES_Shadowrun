@@ -87,7 +87,7 @@ function run(sequence, entry, pads, budget) {
     },
     continuation = new NativeCallContinuation(
       a,
-      sequence(h, events, sequence === direct ? renderer : routines, entry),
+      sequence(h, events, sequence === direct ? renderer : routines, entry, a.ctx.a),
     );
   const before = mem.wram.slice();
   assert.equal(continuation.run(0), WAIT_PAUSED);

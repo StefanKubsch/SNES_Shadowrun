@@ -32,9 +32,8 @@
 // frames. State count and magic refill also compose directly.
 //
 // Registers (user decision 2026-11-17): the menu works on game state only and leaves
-// no register values; comparisons check WRAM, video and outputs. The one register
-// input left is the preselected row in A for the numbered menu 80:A6B8, until
-// menu-choice.mjs takes it as a parameter. The category row the original keeps on
+// no register values; comparisons check WRAM, video and outputs. The numbered menu
+// 80:A6B8 takes its preselected row as a parameter. The category row the original keeps on
 // the stack over the detail windows (PHA, PLA) is a local value.
 import { dialogCallBody, segmentSequence } from '../system/native-call-continuation.mjs';
 import { chooseFromMenuSequence } from './menu-choice.mjs';
@@ -223,8 +222,7 @@ const negative = (value) => (value & WORD_SIGN) !== 0;
 // 80:F054, 80:F0F3 or 80:F1B5: a karma list (see above). A sequence that ends with its
 // RTS.
 export function* karmaListSequence(h, events, entry, renderBuffer = drawTextBufferSequence) {
-  const { ctx } = h,
-    { mem } = h.a,
+  const { mem } = h.a,
     { wram } = mem,
     list = KARMA_LISTS[entry];
   const menuHeader = () => {
@@ -272,11 +270,15 @@ export function* karmaListSequence(h, events, entry, renderBuffer = drawTextBuff
       setWord(wram, DP_LIST_TOKENS, KARMA_MENU_NAMES);
       setWord(wram, DP_LIST_TOKEN_BANK, WRAM_BANK);
       setWord(wram, DP_LIST_VALUES, KARMA_MENU_VALUES);
-      // 80:A6B8 takes the preselected row in A (see the header).
-      ctx.a = word(wram, DP_KARMA_SELECTION);
     };
     yield* dialogCallBody(h, list.pcs.menu, NUMBERED_MENU, () =>
-      chooseFromMenuSequence(h, events, renderBuffer, NUMBERED_MENU),
+      chooseFromMenuSequence(
+        h,
+        events,
+        renderBuffer,
+        NUMBERED_MENU,
+        word(wram, DP_KARMA_SELECTION),
+      ),
     );
     let chosen;
     yield () => {

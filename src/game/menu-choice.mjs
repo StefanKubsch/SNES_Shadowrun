@@ -23,11 +23,12 @@
 // The frame wait, pad word and sound are composed directly. Only the text buffer
 // renderer is passed as a sequence; drawing, marks and tile clearing are
 // direct sequences. The former dispatched menu remains in proof/caller/menu-choice.mjs.
-// The registers are passed and left as the original: each callee
-// gets the A, X, Y and flags the original's code leaves before its call (the helpers
-// use only Y), the routine leaves those of the last pad word with the result in 00. A
-// move's pushes of the direct page words 00 and 06 (around the move sound's arguments,
-// which the original sets up and restores without playing it) stay below the stack.
+// Registers (user decision 2026-11-17): game state only; the preselected row of 80:A6B8
+// is a parameter, the marks take the row's word index as a parameter, and the routine
+// leaves no A, X, Y or flags (the result is in the direct page word 00). The list
+// position's push around a hotkey and a move's pushes of the direct page words 00 and 06
+// (around the move sound's arguments, which the original sets up and restores without
+// playing it) stay on the stack.
 import { dialogCallBody, segmentSequence } from '../system/native-call-continuation.mjs';
 import { frameWaitCallSequence, runPadPresses } from '../system/live-input-calls.mjs';
 import { playSoundEffectRoutine } from '../apu/sound-effect.mjs';
@@ -54,15 +55,7 @@ import {
   PAD_HELD,
   PAD_PRESSED,
 } from '../data/wram.mjs';
-import {
-  BYTE_BITS,
-  BYTE_MASK,
-  LONG_MASK,
-  WORD_BITS,
-  WORD_MASK,
-  WORD_SIGN,
-} from '../constants/bits.mjs';
-import { FLAG_CARRY, FLAG_NEGATIVE, FLAG_OVERFLOW, FLAG_ZERO } from '../constants/cpu-flags.mjs';
+import { BYTE_BITS, BYTE_MASK, LONG_MASK, WORD_BITS, WORD_MASK } from '../constants/bits.mjs';
 
 export const MENU_WITH_HOTKEYS = 0x80a6a5,
   MENU_WITH_NUMBERS = 0x80a6ad,
@@ -117,60 +110,46 @@ const setWord = (wram, at, value) => {
   wram[at] = value & BYTE_MASK;
   wram[at + 1] = (value >>> BYTE_BITS) & BYTE_MASK;
 };
-const flag = (ctx, bit, set) => {
-  ctx.status = set ? ctx.status | bit : ctx.status & ~bit;
+// Two additions of the visible rows with the carry chained (CLC, ADC, ADC).
+const addRowsTwice = (start, rows) => {
+  const first = start + rows;
+  return ((first & WORD_MASK) + rows + (first > WORD_MASK ? 1 : 0)) & WORD_MASK;
 };
-const signAndZero = (ctx, value) => {
-  flag(ctx, FLAG_NEGATIVE, value & WORD_SIGN);
-  flag(ctx, FLAG_ZERO, value === 0);
+// Two subtractions with the borrow chained (SEC, SBC, SBC), and the final carry.
+const subtractRowsTwice = (start, rows) => {
+  const first = start - rows,
+    second = (first & WORD_MASK) - rows - (first < 0 ? 1 : 0);
+  return { value: second & WORD_MASK, carry: second >= 0 };
 };
 
 // Choose from the menu list (entry one of the four above), a sequence for a native call
-// continuation, called with JSR, with an explicit text-buffer renderer sequence.
-export function* chooseFromMenuSequence(h, events, renderBuffer = drawTextBufferSequence, entry) {
+// continuation, called with JSR, with an explicit text-buffer renderer sequence. row is
+// the preselected row of 80:A6B8 (A in the original).
+export function* chooseFromMenuSequence(
+  h,
+  events,
+  renderBuffer = drawTextBufferSequence,
+  entry,
+  row = 0,
+) {
   const { ctx } = h,
     { mem } = h.a,
     { wram } = mem;
+  // The row's word index (Y in the original).
+  let index = 0;
   const field = (at) => word(wram, at),
     store = (at, value) => setWord(wram, at, value),
     longWord = (at) => mem.read8(at & LONG_MASK) | (mem.read8((at + 1) & LONG_MASK) << BYTE_BITS),
     // The list's texts at the long pointer, the hotkey words through the data bank.
     token = () =>
-      longWord((field(DP_LIST_TOKENS) | (wram[DP_LIST_TOKEN_BANK] << WORD_BITS)) + ctx.y),
-    hotkey = () => longWord(((ctx.bank << WORD_BITS) | field(DP_LIST_VALUES)) + ctx.y);
-  const load = (value) => {
-      ctx.a = value & WORD_MASK;
-      signAndZero(ctx, ctx.a);
-    },
-    loadY = (value) => {
-      ctx.y = value & WORD_MASK;
-      signAndZero(ctx, ctx.y);
-    },
-    // BIT #imm: only the zero flag.
-    test = (mask) => {
-      flag(ctx, FLAG_ZERO, !(ctx.a & mask));
-      return (ctx.a & mask) !== 0;
-    },
-    // SBC and ADC with the carry chained as the original's.
-    subtract = (left, right) => {
-      const borrow = ctx.status & FLAG_CARRY ? 0 : 1,
-        value = (left - right - borrow) & WORD_MASK;
-      flag(ctx, FLAG_CARRY, left - right - borrow >= 0);
-      flag(ctx, FLAG_OVERFLOW, (left ^ right) & (left ^ value) & WORD_SIGN);
-      load(value);
-    },
-    add = (left, right) => {
-      const sum = left + right + (ctx.status & FLAG_CARRY ? 1 : 0),
-        value = sum & WORD_MASK;
-      flag(ctx, FLAG_CARRY, sum > WORD_MASK);
-      flag(ctx, FLAG_OVERFLOW, ~(left ^ right) & (left ^ value) & WORD_SIGN);
-      load(value);
-    };
+      longWord((field(DP_LIST_TOKENS) | (wram[DP_LIST_TOKEN_BANK] << WORD_BITS)) + index),
+    hotkey = () => longWord(((ctx.bank << WORD_BITS) | field(DP_LIST_VALUES)) + index);
   const helper = (site, target, body) => dialogCallBody(h, site, target, body);
   const list = (site) => helper(site, LIST, () => drawListSequence(h, events, renderBuffer)),
-    mark = (site) => helper(site, MARK_ROW, () => markRowSequence(h, events, renderBuffer, MARK)),
+    mark = (site) =>
+      helper(site, MARK_ROW, () => markRowSequence(h, events, renderBuffer, MARK, index)),
     unmark = (site) =>
-      helper(site, UNMARK_ROW, () => markRowSequence(h, events, renderBuffer, UNMARK)),
+      helper(site, UNMARK_ROW, () => markRowSequence(h, events, renderBuffer, UNMARK, index)),
     pad = (site) => helper(site, PAD, () => segmentSequence(() => runPadPresses(h, events)));
   let result;
   const rts = function* () {
@@ -179,199 +158,140 @@ export function* chooseFromMenuSequence(h, events, renderBuffer = drawTextBuffer
     };
     return result;
   };
+  // The sound effect's arguments in the direct page (the result word 00 set to FFFF).
+  const soundArguments = (effect) => {
+    store(DP_RESULT, NONE);
+    store(DP_SOUND_LEVEL, SOUND_LEVEL);
+    store(DP_SOUND_VOICE, SOUND_VOICES);
+    store(DP_SOUND_EFFECT, effect);
+  };
   // Confirm the selection: the sound, the row in 00, the pad word once more.
   const confirm = function* () {
-    yield () => {
-      load(NONE);
-      store(DP_RESULT, ctx.a);
-      load(SOUND_LEVEL);
-      store(DP_SOUND_LEVEL, ctx.a);
-      load(SOUND_VOICES);
-      store(DP_SOUND_VOICE, ctx.a);
-      load(CONFIRM_SOUND);
-      store(DP_SOUND_EFFECT, ctx.a);
-    };
+    yield () => soundArguments(CONFIRM_SOUND);
     yield* helper(SITES.sound, SOUND, () => segmentSequence(() => playSoundEffectRoutine(h)));
-    yield () => {
-      const selection = field(MENU_SELECTION);
-      flag(ctx, FLAG_CARRY, selection & 1);
-      load(selection >>> 1);
-      store(DP_RESULT, ctx.a);
-    };
+    yield () => store(DP_RESULT, field(MENU_SELECTION) >>> 1);
     yield* pad(SITES.confirmPad);
     return yield* rts();
   };
-  // Move to the row of the word index in Y, with a new page past the page shown.
+  // Move to the row of the word index, with a new page past the page shown.
   const move = function* () {
     let page = false;
     yield () => {
-      h.a.pushWord(ctx.y);
-      const start = field(MENU_PAGE_START);
-      // CPY: the row before the page.
-      flag(ctx, FLAG_CARRY, ctx.y >= start);
-      signAndZero(ctx, (ctx.y - start) & WORD_MASK);
-      let back = !(ctx.status & FLAG_CARRY),
-        forward = false;
-      if (!back) {
-        load(ctx.y);
-        flag(ctx, FLAG_CARRY, true);
-        subtract(ctx.a, start);
-        flag(ctx, FLAG_CARRY, ctx.a & 1);
-        load(ctx.a >>> 1);
-        const rows = field(DP_MENU_VISIBLE_ROWS);
-        flag(ctx, FLAG_CARRY, ctx.a >= rows);
-        signAndZero(ctx, (ctx.a - rows) & WORD_MASK);
-        forward = (ctx.status & FLAG_CARRY) !== 0;
-      }
+      h.a.pushWord(index);
+      const start = field(MENU_PAGE_START),
+        rows = field(DP_MENU_VISIBLE_ROWS),
+        back = index < start,
+        forward = !back && ((index - start) & WORD_MASK) >>> 1 >= rows;
       page = back || forward;
-      if (!page) return loadY(field(MENU_SELECTION));
-      load(start);
-      const rows = field(DP_MENU_VISIBLE_ROWS);
-      if (forward) {
-        flag(ctx, FLAG_CARRY, false);
-        add(ctx.a, rows);
-        add(ctx.a, rows);
-      } else {
-        flag(ctx, FLAG_CARRY, true);
-        subtract(ctx.a, rows);
-        subtract(ctx.a, rows);
-        if (!(ctx.status & FLAG_CARRY)) load(0);
+      if (!page) {
+        index = field(MENU_SELECTION);
+        return;
       }
-      store(MENU_PAGE_START, ctx.a);
+      if (forward) store(MENU_PAGE_START, addRowsTwice(start, rows));
+      else {
+        const { value, carry } = subtractRowsTwice(start, rows);
+        store(MENU_PAGE_START, carry ? value : 0);
+      }
     };
     if (page) {
       yield* helper(SITES.pageRequest, REQUEST, () => requestTileClearSequence(h, events));
       yield* list(SITES.pageList);
     } else yield* unmark(SITES.moveUnmark);
     yield () => {
-      loadY(h.a.pullWord());
-      store(MENU_SELECTION, ctx.y);
+      index = h.a.pullWord();
+      store(MENU_SELECTION, index);
     };
     yield* mark(SITES.moveMark);
     yield () => {
-      // PEI 00, PEI 06, the move sound's arguments, PLA, PLA.
+      // PEI 00, PEI 06, the move sound's arguments, PLA, PLA: the sound is not played.
       const first = field(DP_RESULT),
         rows = field(DP_MENU_VISIBLE_ROWS);
       h.a.pushWord(first);
       h.a.pushWord(rows);
-      load(NONE);
-      store(DP_RESULT, ctx.a);
-      load(SOUND_LEVEL);
-      store(DP_SOUND_LEVEL, ctx.a);
-      load(SOUND_VOICES);
-      store(DP_SOUND_VOICE, ctx.a);
-      load(MOVE_SOUND);
-      store(DP_SOUND_EFFECT, ctx.a);
-      load(h.a.pullWord());
-      store(DP_MENU_VISIBLE_ROWS, ctx.a);
-      load(h.a.pullWord());
-      store(DP_RESULT, ctx.a);
+      soundArguments(MOVE_SOUND);
+      store(DP_MENU_VISIBLE_ROWS, h.a.pullWord());
+      store(DP_RESULT, h.a.pullWord());
     };
   };
-  // The move a newly pressed button asks for, if any (Y the row's word index).
+  // The move a newly pressed button asks for, if any (the row's word index in index).
   const navigate = () => {
-    load(field(MENU_NAVIGATION_INPUT));
-    if (test(DOWN)) {
-      loadY(field(MENU_SELECTION) + 2);
-      load(token());
-      return ctx.a !== 0;
+    const input = field(MENU_NAVIGATION_INPUT);
+    if (input & DOWN) {
+      index = (field(MENU_SELECTION) + 2) & WORD_MASK;
+      return token() !== 0;
     }
-    if (test(UP)) {
-      loadY(field(MENU_SELECTION));
-      if (!ctx.y) return false;
-      loadY(ctx.y - 2);
+    if (input & UP) {
+      index = field(MENU_SELECTION);
+      if (!index) return false;
+      index = (index - 2) & WORD_MASK;
       return true;
     }
-    load(field(MENU_HOTKEYS));
-    if (ctx.a) return false;
-    load(field(PAD_PRESSED));
-    if (test(PAGE_BACK)) {
-      load(field(MENU_PAGE_START));
-      if (!ctx.a) return false;
-      flag(ctx, FLAG_CARRY, true);
-      subtract(ctx.a, field(DP_MENU_VISIBLE_ROWS));
-      subtract(ctx.a, field(DP_MENU_VISIBLE_ROWS));
-      loadY(ctx.a);
+    if (field(MENU_HOTKEYS)) return false;
+    const pressed = field(PAD_PRESSED);
+    if (pressed & PAGE_BACK) {
+      const start = field(MENU_PAGE_START);
+      if (!start) return false;
+      index = subtractRowsTwice(start, field(DP_MENU_VISIBLE_ROWS)).value;
       return true;
     }
-    if (!test(PAGE_FORWARD)) return false;
-    ctx.x = field(DP_MENU_VISIBLE_ROWS);
-    signAndZero(ctx, ctx.x);
-    loadY(field(MENU_PAGE_START));
+    if (!(pressed & PAGE_FORWARD)) return false;
+    let left = field(DP_MENU_VISIBLE_ROWS);
+    index = field(MENU_PAGE_START);
     do {
-      loadY(ctx.y + 2);
-      load(token());
-      if (!ctx.a) return false;
-      ctx.x = (ctx.x - 1) & WORD_MASK;
-      signAndZero(ctx, ctx.x);
-    } while (ctx.x);
+      index = (index + 2) & WORD_MASK;
+      if (!token()) return false;
+      left = (left - 1) & WORD_MASK;
+    } while (left);
     return true;
   };
 
   yield () => {
     if (entry === MENU_WITH_NUMBERS_AT) {
-      flag(ctx, FLAG_CARRY, ctx.a & WORD_SIGN);
-      load(ctx.a << 1);
-      store(MENU_SELECTION, ctx.a);
-      load(NONE);
-      store(MENU_SHOW_NUMBERS, ctx.a);
+      store(MENU_SELECTION, row << 1);
+      store(MENU_SHOW_NUMBERS, NONE);
       store(MENU_HOTKEYS, 0);
     } else if (entry === MENU_WITH_NUMBERS) {
-      load(NONE);
-      store(MENU_SHOW_NUMBERS, ctx.a);
+      store(MENU_SHOW_NUMBERS, NONE);
       store(MENU_HOTKEYS, 0);
       store(MENU_SELECTION, 0);
     } else {
-      if (entry === MENU_WITH_HOTKEYS) {
-        load(NONE);
-        store(MENU_HOTKEYS, ctx.a);
-      } else store(MENU_HOTKEYS, 0);
+      store(MENU_HOTKEYS, entry === MENU_WITH_HOTKEYS ? NONE : 0);
       store(MENU_SHOW_NUMBERS, 0);
       store(MENU_SELECTION, 0);
     }
-    load(field(DP_MENU_COLUMN));
-    store(MENU_COLUMN, ctx.a);
-    load(field(DP_MENU_ROW));
-    store(MENU_ROW, ctx.a);
+    store(MENU_COLUMN, field(DP_MENU_COLUMN));
+    store(MENU_ROW, field(DP_MENU_ROW));
     store(MENU_PAGE_START, 0);
     store(MENU_REPEAT_COUNTER, 0);
   };
   yield* list(SITES.list);
-  yield () => loadY(field(MENU_SELECTION));
+  yield () => {
+    index = field(MENU_SELECTION);
+  };
   yield* mark(SITES.mark);
   for (;;) {
     yield* dialogCallBody(h, SITES.wait, WAIT, () => frameWaitCallSequence(h, events), true);
     yield* pad(SITES.pad);
     let branch;
     yield () => {
-      load(field(PAD_PRESSED));
-      store(MENU_NAVIGATION_INPUT, ctx.a);
-      load(field(PAD_HELD) & VERTICAL);
-      if (ctx.a) {
+      store(MENU_NAVIGATION_INPUT, field(PAD_PRESSED));
+      if (field(PAD_HELD) & VERTICAL) {
         const count = (field(MENU_REPEAT_COUNTER) + 1) & WORD_MASK;
         store(MENU_REPEAT_COUNTER, count);
-        load(count);
-        flag(ctx, FLAG_CARRY, count >= REPEAT_DELAY);
-        signAndZero(ctx, (count - REPEAT_DELAY) & WORD_MASK);
         if (count === REPEAT_DELAY) {
-          load(REPEAT_AGAIN);
-          store(MENU_REPEAT_COUNTER, ctx.a);
-          load(field(PAD_HELD));
-          store(MENU_NAVIGATION_INPUT, ctx.a);
+          store(MENU_REPEAT_COUNTER, REPEAT_AGAIN);
+          store(MENU_NAVIGATION_INPUT, field(PAD_HELD));
         }
       } else store(MENU_REPEAT_COUNTER, 0);
-      load(field(PAD_PRESSED));
-      if (test(CANCEL)) branch = 'cancel';
-      else if (test(CONFIRM)) branch = 'confirm';
+      const pressed = field(PAD_PRESSED);
+      if (pressed & CANCEL) branch = 'cancel';
+      else if (pressed & CONFIRM) branch = 'confirm';
       else return void (branch = 'navigate');
-      loadY(field(MENU_SELECTION));
+      index = field(MENU_SELECTION);
     };
     if (branch === 'cancel') {
       yield* unmark(SITES.cancelUnmark);
-      yield () => {
-        load(NONE);
-        store(DP_RESULT, ctx.a);
-      };
+      yield () => store(DP_RESULT, NONE);
       yield* pad(SITES.cancelPad);
       return yield* rts();
     }
@@ -386,32 +306,26 @@ export function* chooseFromMenuSequence(h, events, renderBuffer = drawTextBuffer
     if (moving) yield* move();
     let hotkeys = false;
     yield () => {
-      load(field(MENU_HOTKEYS));
-      hotkeys = ctx.a !== 0;
-      if (hotkeys) loadY(0);
+      hotkeys = field(MENU_HOTKEYS) !== 0;
+      if (hotkeys) index = 0;
     };
     if (!hotkeys) continue;
     for (;;) {
       let end = false,
         hit = false;
       yield () => {
-        load(token());
-        end = ctx.a === 0;
+        end = token() === 0;
         if (end) return;
-        load(hotkey() & field(PAD_PRESSED));
-        hit = ctx.a !== 0;
+        hit = (hotkey() & field(PAD_PRESSED)) !== 0;
         if (hit) {
-          h.a.pushWord(ctx.y);
-          loadY(field(MENU_SELECTION));
-        } else loadY(ctx.y + 2);
+          h.a.pushWord(index);
+          index = field(MENU_SELECTION);
+        } else index = (index + 2) & WORD_MASK;
       };
       if (end) break;
       if (hit) {
         yield* unmark(SITES.hotkeyUnmark);
-        yield () => {
-          load(h.a.pullWord());
-          store(MENU_SELECTION, ctx.a);
-        };
+        yield () => store(MENU_SELECTION, h.a.pullWord());
         return yield* confirm();
       }
     }

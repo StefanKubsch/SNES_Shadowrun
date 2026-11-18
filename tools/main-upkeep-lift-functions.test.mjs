@@ -1951,7 +1951,9 @@ const MENU_MARKS = [
     Object.assign(h.ctx, input);
     h.ctx.programBank = 0x80;
     h.push(0x1234, 2);
-    drainNativeSequence(markRowSequence(h, textEvents(), textBufferRenderer(DRAW_TABLE), form));
+    drainNativeSequence(
+      markRowSequence(h, textEvents(), textBufferRenderer(DRAW_TABLE), form, input.y),
+    );
     return dataBank(h);
   },
 }));
