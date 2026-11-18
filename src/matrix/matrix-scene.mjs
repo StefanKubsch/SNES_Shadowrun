@@ -3,7 +3,6 @@
 // can show the frame; the other matrix code is plain functions in matrix-world.mjs
 // and matrix-text.mjs. Shared frame waits, unpacking, fades, sound and input
 // compose directly; frame waits come from the scene frame interface.
-import { taskStop } from '../system/task-stop.mjs';
 import { sceneFrames } from '../system/scene-frames.mjs';
 import { entryOf } from './matrix-tables.mjs';
 import { readJoypad, takePadPresses } from '../system/joypad.mjs';
@@ -108,7 +107,6 @@ import {
   LAYER_OBJ,
   OAM_BYTES,
 } from '../constants/ppu.mjs';
-import { FLAG_INDEX_8BIT, FLAG_MEMORY_8BIT } from '../constants/cpu-flags.mjs';
 import { enableNmiAndJoypad, startSceneScreen } from '../system/nmi.mjs';
 import { unpack } from '../system/unpack.mjs';
 import { runSceneList } from '../system/scene-list.mjs';
@@ -183,10 +181,6 @@ const GREEN_HALF = 0x01e0,
   NEAR_LAYER = 1,
   FAR_LAYER = 2;
 
-function requireWideRegisters(ctx) {
-  if (ctx.status & (FLAG_MEMORY_8BIT | FLAG_INDEX_8BIT)) taskStop('matrix_wide_registers_required');
-}
-
 // Fade to white by colour addition, one level per frame (81:BFD8).
 function* fadeToWhite(m, wait) {
   m.video.setColourSelect(0);
@@ -254,14 +248,14 @@ function* setUpScreen(m, wait) {
 // 81:C3CA: play the matrix until the decker jacks out or the health runs out. h is
 // the accessor of the native call from the main loop (80:CC4B).
 export function* matrixSceneSequence(h, events) {
-  const { ctx } = h,
-    clock = sceneFrames(h, events, 'matrix'),
+  const clock = sceneFrames(h, events, 'matrix'),
     wait = () => clock.wait(m);
   let m, more;
-  // Entered by JSL from the scene request of the main loop (80:CC4B) with 16-bit registers;
-  // the scene changes neither the status nor the data bank it returns with.
+  // Entered by JSL from the scene request of the main loop (80:CC4B); the scene changes
+  // neither the status nor the data bank it returns with and reads no register width
+  // (user decision 2026-11-17; the register-level caller in proof/caller/matrix-scene.mjs
+  // keeps the original's 16-bit check).
   yield () => {
-    requireWideRegisters(ctx);
     m = matrixRuntime(h);
   };
   yield () => startSceneScreen(m.wram, m.video, m.port);
@@ -385,7 +379,6 @@ function scrollToPersona(m) {
 // 81:BEC3: the matrix NMI callback: sprites, colours, blink, scroll, the message row,
 // the queued VRAM copies and the text cursor, then the joypad.
 export function handleMatrixNmi(h) {
-  requireWideRegisters(h.ctx);
   const m = matrixRuntime(h),
     { mem, wram, video } = m;
   video.copyToOam(WRAM + OAM_SHADOW, OAM_BYTES);
