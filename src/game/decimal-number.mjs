@@ -7,13 +7,16 @@
 // after the first non-zero one goes to the text buffer 7E:21A0, with a comma after the
 // billions, millions and thousands. The remainder is the last digit; 0D and 0 end the
 // text, which the text buffer routine (80:FB39) prints with the data bank 7E.
+//
+// Registers (user decision 2026-11-17): game state only; A, X, Y and the flags the
+// original leaves are not kept (80:FB39 sets its own before reading them). The data
+// bank 7E stays, since the text routine addresses the buffer through it.
 import { dialogCallBody } from '../system/native-call-continuation.mjs';
 import { drawTextBufferSequence } from './text-draw.mjs';
 import { dataBankWord } from '../system/data-bank.mjs';
 import { TEXT_BUFFER } from '../data/wram.mjs';
-import { BYTE_BITS, BYTE_MASK, BYTE_SIGN, HIGH_BYTE_MASK } from '../constants/bits.mjs';
+import { BYTE_BITS, BYTE_MASK } from '../constants/bits.mjs';
 import { WRAM_BANK_PAIR } from '../constants/memory-map.mjs';
-import { FLAG_CARRY, FLAG_NEGATIVE, FLAG_OVERFLOW, FLAG_ZERO } from '../constants/cpu-flags.mjs';
 
 // The powers' table, its stride and end; the power offsets followed by a comma; the
 // characters of the digit 0, the comma and the line end.
@@ -37,20 +40,14 @@ const setWord = (wram, at, value) => {
   wram[at] = value & BYTE_MASK;
   wram[at + 1] = (value >>> BYTE_BITS) & BYTE_MASK;
 };
-const setFlag = (ctx, bit, set) => {
-  ctx.status = set ? ctx.status | bit : ctx.status & ~bit;
-};
 
-// The digits into the text buffer; returns the offset after them and the last
-// quotient (which leaves A's high byte) and the power offset past the last.
+// The digits into the text buffer; returns the offset after them.
 function writeDigits(mem) {
   const { wram } = mem;
   setWord(wram, DP_DIGIT_OFFSET, 0);
-  let offset = 0,
-    quotient = 0,
-    power = 0;
-  while (power < POWERS_END) {
-    quotient = 0;
+  let offset = 0;
+  for (let power = 0; power < POWERS_END;) {
+    let quotient = 0;
     for (;;) {
       const low = word(wram, DP_NUMBER_LOW) - dataBankWord(mem, POWERS_LOW, power),
         high =
@@ -68,37 +65,24 @@ function writeDigits(mem) {
     if (COMMA_OFFSETS.includes(power)) wram[TEXT_BUFFER + offset++] = CHARACTER_COMMA;
     setWord(wram, DP_DIGIT_OFFSET, offset);
   }
-  return { offset, quotient, power };
+  return offset;
 }
 
 // 80:FDCF: the number DP 04:02 as decimal text (see above). A sequence that ends with
 // its RTS.
 export function* decimalNumberSequence(h, events, renderBuffer = drawTextBufferSequence) {
-  const { ctx } = h,
-    { mem } = h.a,
+  const { mem } = h.a,
     { wram } = mem;
   yield () => {
-    const { offset, quotient, power } = writeDigits(mem),
-      last = wram[DP_NUMBER_LOW],
-      digit = last + CHARACTER_ZERO;
-    wram[TEXT_BUFFER + offset] = digit & BYTE_MASK;
+    const offset = writeDigits(mem);
+    wram[TEXT_BUFFER + offset] = (wram[DP_NUMBER_LOW] + CHARACTER_ZERO) & BYTE_MASK;
     wram[TEXT_BUFFER + offset + 1] = LINE_END;
     wram[TEXT_BUFFER + offset + 2] = 0;
-    ctx.x = offset;
-    ctx.y = power;
     // The data bank 7E for the text routine; the old bank waits on the stack.
     h.phb();
     h.push(WRAM_BANK_PAIR, 2);
     h.plb();
     h.plb();
-    // The last digit's 8-bit addition leaves the carry and overflow; the line end's
-    // load the sign and zero.
-    // A's high byte is the last quotient's (always 0, a digit).
-    ctx.a = (quotient & HIGH_BYTE_MASK) | LINE_END;
-    setFlag(ctx, FLAG_CARRY, digit > BYTE_MASK);
-    setFlag(ctx, FLAG_OVERFLOW, (~(last ^ CHARACTER_ZERO) & (last ^ digit) & BYTE_SIGN) !== 0);
-    setFlag(ctx, FLAG_NEGATIVE, false);
-    setFlag(ctx, FLAG_ZERO, false);
   };
   yield* dialogCallBody(h, ...DRAW_TEXT, () => renderBuffer(h, events));
   let result;
