@@ -15,7 +15,8 @@ import { tasksOf } from '../src/script/task-api.mjs';
 function runUse(module, direct, actor, effect, budget, realDrawing = false) {
   const pads = !effect.end && effect.notice ? [0x8000] : [];
   return compareRun(
-    (h, e, r) => module.useItemSequence(h, e, r),
+    // The lifted item use takes the actor as a parameter (X in the original).
+    (h, e, r) => module.useItemSequence(h, e, r, actor),
     direct,
     ({ h, mem, put }) => {
       h.ctx.x = actor;
@@ -42,8 +43,8 @@ function runUse(module, direct, actor, effect, budget, realDrawing = false) {
       routines.set(0x80a835, (callee) => createObject(callee.a));
       for (const target of [0x80c1ca])
         routines.set(target, (callee) => {
-          // The visit reads task state, not the creator's leftover Y register.
-          calls.push(['service', target, callee.ctx.a, callee.ctx.x]);
+          // The visit reads task state, not registers (user decision 2026-11-17).
+          calls.push(['service', target]);
           if (target === 0x80a835) put(0, 4);
           if (target === 0x80c1ca) {
             put(W.DIALOG_END, effect.end ? 0xffff : 0);
@@ -162,7 +163,8 @@ function runItemMenu(module, direct, entry, variant, budget, realDrawing = false
       bind(0x80e4f3, () => formerItem.useItemSequence(h, events, routines));
       routines.set(0x80a835, (callee) => createObject(callee.a));
       routines.set(0x80c1ca, (callee) => {
-        calls.push(['visit', callee.ctx.a]);
+        // The visit reads no registers (user decision 2026-11-17).
+        calls.push(['visit']);
         if (variant === 'use') put(W.DIALOG_END, 0xffff);
         else put(heldRecord + STATE_HOLDER, 0);
         return callee.rts();

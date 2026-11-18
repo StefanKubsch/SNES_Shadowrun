@@ -20,6 +20,9 @@
 // while a notice window is open (80:F953, 80:FF79) and the equipment rows redrawn
 // (80:E9C5). Confirmation, notice cleanup and equipment compose directly;
 // object creation and nested visits retain their table.
+//
+// Registers (user decision 2026-11-17): game state only; no callee takes a register
+// input, and the item use takes the actor (X in the original) as a parameter.
 import { dialogCallBody, segmentSequence } from '../system/native-call-continuation.mjs';
 import { releaseNoticeWindowsCallSequence, releaseWindowJsrSequence } from './window-release.mjs';
 import { openWindowSequence, requestTileClearSequence } from './window-open.mjs';
@@ -94,7 +97,6 @@ import { TEXT_EXIT } from '../data/port-extension.mjs';
 import { translatedListWindow } from '../data/menu-layout.mjs';
 import { BYTE_BITS, BYTE_MASK, LONG_MASK, WORD_MASK, WORD_SIGN } from '../constants/bits.mjs';
 import { WRAM_BANK } from '../constants/memory-map.mjs';
-import { FLAG_CARRY, FLAG_NEGATIVE, FLAG_OVERFLOW, FLAG_ZERO } from '../constants/cpu-flags.mjs';
 
 // The kinds' names (six bytes a kind) and their class word two bytes on.
 const KIND_NAMES = 0x8cefb0,
@@ -128,17 +130,6 @@ const setWord = (wram, at, value) => {
 };
 const longWord = (mem, at) =>
   mem.read8(at & LONG_MASK) | (mem.read8((at + 1) & LONG_MASK) << BYTE_BITS);
-const setFlag = (ctx, bit, set) => {
-  ctx.status = set ? ctx.status | bit : ctx.status & ~bit;
-};
-const setSignZero = (ctx, value) => {
-  setFlag(ctx, FLAG_NEGATIVE, value & WORD_SIGN);
-  setFlag(ctx, FLAG_ZERO, value === 0);
-};
-const load = (ctx, value) => {
-  ctx.a = value;
-  setSignZero(ctx, value);
-};
 const negative = (value) => (value & WORD_SIGN) !== 0;
 function* returnSequence(h) {
   let result;
@@ -188,8 +179,7 @@ function listItems(mem) {
 // 80:E572, 80:E577 or 80:E57F: the item submenu (see above). A sequence that ends with
 // its RTS.
 export function* itemMenuSequence(h, events, entry, renderBuffer = drawTextBufferSequence) {
-  const { ctx } = h,
-    { mem } = h.a,
+  const { mem } = h.a,
     { wram } = mem;
   yield () => {
     setDataBankWord(mem, ITEM_MENU_CLASS, 0, ITEM_ENTRIES[entry]);
@@ -199,16 +189,7 @@ export function* itemMenuSequence(h, events, entry, renderBuffer = drawTextBuffe
     let empty, open;
     yield () => {
       const offset = listItems(mem);
-      // The actor loop ends at actor 0 with the borrow of its last subtraction.
-      ctx.y = LAST_ACTOR % ACTOR_BYTES;
-      ctx.x = offset;
-      setFlag(ctx, FLAG_CARRY, false);
-      setFlag(ctx, FLAG_OVERFLOW, false);
-      const atOnce = dataBankWord(mem, STATUS_ITEMS_AT_ONCE);
-      load(ctx, atOnce);
-      if (!atOnce) {
-        setFlag(ctx, FLAG_CARRY, offset >= FIRST_ITEM);
-        setSignZero(ctx, (offset - FIRST_ITEM) & WORD_MASK);
+      if (!dataBankWord(mem, STATUS_ITEMS_AT_ONCE)) {
         empty = offset === FIRST_ITEM;
         if (empty) return;
       }
@@ -232,7 +213,6 @@ export function* itemMenuSequence(h, events, entry, renderBuffer = drawTextBuffe
       setWord(wram, DP_WINDOW_COLUMNS, window.columns);
       setWord(wram, DP_WINDOW_ROWS, window.rows);
       setWord(wram, DP_WINDOW_ATTRIBUTES, 0);
-      load(ctx, 0);
     };
     if (empty) return yield* returnSequence(h);
     if (open) {
@@ -246,80 +226,54 @@ export function* itemMenuSequence(h, events, entry, renderBuffer = drawTextBuffe
       setWord(wram, DP_LIST_TOKENS, MEMBER_MENU_NAMES);
       setWord(wram, DP_LIST_TOKEN_BANK, WRAM_BANK);
       setWord(wram, DP_LIST_VALUES, ITEM_MENU_COUNTS);
-      load(ctx, ITEM_MENU_COUNTS);
     };
     yield* dialogCallBody(h, ...MENU, () =>
       chooseFromMenuSequence(h, events, renderBuffer, MENU_WITH_NUMBERS),
     );
-    let used = false;
+    let actor = null;
     yield () => {
       const row = word(wram, 0);
-      ctx.a = row;
       if (row === CANCELLED) {
-        setFlag(ctx, FLAG_CARRY, true);
         setDataBankWord(mem, DIALOG_END, 0, row);
         return;
       }
       const index = (row << 1) & WORD_MASK;
-      setFlag(ctx, FLAG_CARRY, negative(row));
-      load(ctx, index);
-      if (!index) return;
-      const actor = dataBankWord(mem, ITEM_MENU_ACTORS, index);
-      ctx.x = actor;
-      load(ctx, actor);
-      used = true;
+      if (index) actor = dataBankWord(mem, ITEM_MENU_ACTORS, index);
     };
-    if (!used) break;
-    yield* dialogCallBody(h, ...USE_ITEM, () => useItemSequence(h, events, renderBuffer));
+    if (actor === null) break;
+    yield* dialogCallBody(h, ...USE_ITEM, () => useItemSequence(h, events, renderBuffer, actor));
     let ended;
     yield () => {
-      const end = dataBankWord(mem, DIALOG_END);
-      load(ctx, end);
-      ended = end !== 0;
-      if (ended) return;
-      const window = dataBankWord(mem, STATUS_SUBMENU_WINDOW);
-      load(ctx, window);
-      setWord(wram, 0, window);
+      ended = dataBankWord(mem, DIALOG_END) !== 0;
+      if (!ended) setWord(wram, 0, dataBankWord(mem, STATUS_SUBMENU_WINDOW));
     };
     if (ended) break;
     yield* dialogCallBody(h, ...REDRAW_WINDOW, () => requestTileClearSequence(h, events));
   }
-  yield () => {
-    const window = dataBankWord(mem, STATUS_SUBMENU_WINDOW);
-    load(ctx, window);
-    setWord(wram, 0, window);
-  };
+  yield () => setWord(wram, 0, dataBankWord(mem, STATUS_SUBMENU_WINDOW));
   yield* dialogCallBody(h, ...RELEASE_WINDOW, () => releaseWindowJsrSequence(h.a, events));
   return yield* returnSequence(h);
 }
 
-// 80:E4F3: use the item of the actor X (see above). A sequence that ends with its RTS.
-export function* useItemSequence(h, events, renderBuffer = drawTextBufferSequence) {
-  const { ctx } = h,
-    { mem } = h.a,
-    { wram } = mem,
-    actor = ctx.x;
+// 80:E4F3: use the item of the actor (X in the original; see above). A sequence that
+// ends with its RTS.
+export function* useItemSequence(h, events, renderBuffer, actor) {
+  const { mem } = h.a,
+    { wram } = mem;
   yield () => {
     const member = dataBankWord(mem, MEMBER_OBJECT);
-    ctx.y = member;
-    let carry = 0;
     for (const [field, offset] of [
       [OBJECT_X, DP_OBJECT_X],
       [OBJECT_Y, DP_OBJECT_Y],
       [OBJECT_HEIGHT, DP_OBJECT_HEIGHT],
     ]) {
-      const value = dataBankWord(mem, field, member);
-      carry = (value >>> 1) & 1;
-      setWord(wram, offset, value >>> POSITION_SHIFT);
+      setWord(wram, offset, dataBankWord(mem, field, member) >>> POSITION_SHIFT);
     }
     const entry = ACTOR_TABLE + actor;
     setWord(wram, DP_ITEM_FLAGS, mem.read8(entry & LONG_MASK));
     setWord(wram, DP_ITEM_RECORD, longWord(mem, entry + ACTOR_RECORD));
     setWord(wram, DP_OBJECT_KIND, longWord(mem, entry + ACTOR_KIND));
-    const script = longWord(mem, entry + ACTOR_SCRIPT);
-    setWord(wram, DP_OBJECT_SCRIPT, script);
-    load(ctx, script);
-    setFlag(ctx, FLAG_CARRY, carry);
+    setWord(wram, DP_OBJECT_SCRIPT, longWord(mem, entry + ACTOR_SCRIPT));
   };
   yield* dialogCallBody(h, ...CREATE, () =>
     segmentSequence(() => {
@@ -329,32 +283,21 @@ export function* useItemSequence(h, events, renderBuffer = drawTextBufferSequenc
   );
   yield () => {
     const slot = word(wram, 0);
-    ctx.x = slot;
     setDataBankWord(mem, OBJECT_NUMBER, slot, actor);
     // The depth flags (bits 6 and 7) to bits 15 and 0 of the depth order.
     const flags = word(wram, DP_ITEM_FLAGS) & ACTOR_DEPTH_FLAGS,
       swapped = ((flags << BYTE_BITS) | (flags >>> BYTE_BITS)) & WORD_MASK,
       shifted = swapped << 1,
-      shiftCarry = shifted > WORD_MASK ? 1 : 0,
-      doubled = shifted & WORD_MASK,
-      depth = (doubled + shiftCarry) & WORD_MASK;
+      depth = ((shifted & WORD_MASK) + (shifted > WORD_MASK ? 1 : 0)) & WORD_MASK;
     setDataBankWord(mem, OBJECT_DEPTH_ORDER, slot, depth);
-    setFlag(ctx, FLAG_CARRY, doubled + shiftCarry > WORD_MASK);
-    setFlag(ctx, FLAG_OVERFLOW, !negative(doubled) && negative(depth));
-    const record = word(wram, DP_ITEM_RECORD);
-    setDataBankWord(mem, OBJECT_RECORD, slot, record);
+    setDataBankWord(mem, OBJECT_RECORD, slot, word(wram, DP_ITEM_RECORD));
     setDataBankWord(mem, MEMBER_PORTRAIT_REDRAW, 0, 0);
-    load(ctx, record);
   };
   yield* dialogCallBody(h, ...VISIT, () => scriptVisitSequence(events));
   let ended, redraw;
   yield () => {
-    const end = dataBankWord(mem, DIALOG_END);
-    load(ctx, end);
-    ended = end !== 0;
-    if (ended) return;
-    redraw = dataBankWord(mem, MEMBER_PORTRAIT_REDRAW);
-    load(ctx, redraw);
+    ended = dataBankWord(mem, DIALOG_END) !== 0;
+    if (!ended) redraw = dataBankWord(mem, MEMBER_PORTRAIT_REDRAW);
   };
   if (ended) return yield* returnSequence(h);
   if (redraw) {
@@ -365,17 +308,13 @@ export function* useItemSequence(h, events, renderBuffer = drawTextBufferSequenc
   yield () => {
     let x = NOTICE_WINDOW_LAST;
     for (;;) {
-      const window = word(wram, NOTICE_WINDOWS + x);
-      load(ctx, window);
-      if (!negative(window)) {
+      if (!negative(word(wram, NOTICE_WINDOWS + x))) {
         pending = true;
         break;
       }
       x = (x - 2) & WORD_MASK;
       if (negative(x)) break;
     }
-    // Without a notice window X's sign and zero equal those of the last (negative) load.
-    ctx.x = x;
   };
   if (pending) {
     yield* dialogCallBody(h, ...CONFIRM_KEY, () => waitForConfirmKeySequence(h, events));
