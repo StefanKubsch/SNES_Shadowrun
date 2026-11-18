@@ -134,8 +134,8 @@ function allocateHeapBlock(a, size) {
 }
 
 // Allocate the frame of a task for script (80:C2C8) and take a free task slot for it;
-// returns the slot with the carry and overflow of the frame's end (the frame plus its
-// size and the carry of the return base), the original's last addition.
+// returns the slot. Game state only (user decision 2026-11-17): the carry and overflow
+// of the original's last addition (the frame's end) are not produced.
 function allocateTaskFrame(a, script) {
   const { mem } = a,
     frameField = (offset) => directWord(a, DP_FRAME) + offset,
@@ -165,11 +165,8 @@ function allocateTaskFrame(a, script) {
   // operand stack starts below them. The carry of the return base goes into the end.
   const start = directWord(a, DP_FRAME),
     frameSize = bankWord(a, FRAME_SIZE),
-    end = start + frameSize + (returnBase > WORD_MASK ? 1 : 0),
-    endValue = end & WORD_MASK,
-    carry = end > WORD_MASK,
-    overflow = (~(start ^ frameSize) & (start ^ endValue) & WORD_SIGN) !== 0;
-  let x = (endValue - 1) & WORD_MASK;
+    end = (start + frameSize + (returnBase > WORD_MASK ? 1 : 0)) & WORD_MASK;
+  let x = (end - 1) & WORD_MASK;
   const argumentBytes = bankWord(a, FRAME_ARGUMENT_BYTES);
   if (argumentBytes & 1) taskStop('script_arguments_required', { script });
   for (let y = argumentBytes; y; y -= 2) {
@@ -188,21 +185,21 @@ function allocateTaskFrame(a, script) {
   setBankWord(a, TASK_WAIT + slot, 0);
   setBankWord(a, TASK_FREE_LIST, bankWord(a, TASK_NEXT + slot));
   setBankWord(a, TASK_FRAME + slot, directWord(a, DP_FRAME));
-  return { slot, carry, overflow };
+  return slot;
 }
 
-// Start a task for script at the head of the task list (80:C34A); returns its slot,
-// the list's old head and the carry and overflow the frame allocation leaves.
+// Start a task for script at the head of the task list (80:C34A); returns its slot and
+// the list's old head.
 export function appendTask(a, script) {
   a.pushWord(FRAME_JSR_RETURN);
-  const { slot, carry, overflow } = allocateTaskFrame(a, script);
+  const slot = allocateTaskFrame(a, script);
   a.pullWord();
   setBankWord(a, TASK_NEXT + slot, bankWord(a, TASK_LIST_HEAD));
   setBankWord(a, TASK_PREVIOUS + slot, NO_TASK);
   const head = bankWord(a, TASK_LIST_HEAD);
   if (!(head & WORD_SIGN)) setBankWord(a, TASK_PREVIOUS + head, slot);
   setBankWord(a, TASK_LIST_HEAD, slot);
-  return { slot, head, carry, overflow };
+  return { slot, head };
 }
 
 // Start a task for script (80:C34A) below the caller's frame on the stack of a, with

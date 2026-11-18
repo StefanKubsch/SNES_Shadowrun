@@ -677,6 +677,13 @@ const SCRIPT_NATIVES = [
       ]),
   ),
 ];
+// The register form's A, X, Y, sign, zero and return; the carry and overflow of the
+// original's frame end are not produced (game state only, user decision 2026-11-17).
+const APPEND_FLAGS_NOT_PRODUCED = 0x41;
+const appendRegisters = (h) =>
+  [h.ctx.a, h.ctx.x, h.ctx.y, h.ctx.status & ~APPEND_FLAGS_NOT_PRODUCED, h.ctx.pc]
+    .map((v) => v.toString(16))
+    .join();
 const TASK_APPEND = {
   name: 'task append 80:C34A',
   entry: 0x80c34a,
@@ -690,14 +697,13 @@ const TASK_APPEND = {
     status: s.rnd(0x100) & 0xc3,
   }),
   reference: (h) => appendScriptTaskReference(h.a, false),
-  result: (h) =>
-    [h.ctx.a, h.ctx.x, h.ctx.y, h.ctx.status, h.ctx.pc].map((v) => v.toString(16)).join(),
+  result: (h) => appendRegisters(h),
   lifted: (h, input) => {
     Object.assign(h.ctx, input);
     h.ctx.programBank = 0x80;
     h.push(0x1234, 2);
     appendTableTaskCall(h.a);
-    return [h.ctx.a, h.ctx.x, h.ctx.y, h.ctx.status, h.ctx.pc].map((v) => v.toString(16)).join();
+    return appendRegisters(h);
   },
 };
 // The turn alone, called from bank 80 (return word 1234) with the stack compared too:
