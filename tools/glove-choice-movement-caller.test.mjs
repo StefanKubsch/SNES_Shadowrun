@@ -5,8 +5,11 @@ import * as direct from '../src/game/glove-target.mjs';
 import * as former from '../proof/caller/glove-target.mjs';
 import { gloveMoveSequence } from '../proof/caller/glove-move.mjs';
 import { showNoticeSequence } from '../proof/caller/notice-show.mjs';
-import { runDrawWindowList } from '../proof/caller/window-list.mjs';
-import { runUnpackWindowMap, runRequestUpload } from '../src/game/window-list.mjs';
+import {
+  runDrawWindowList,
+  runRequestUpload,
+  runUnpackWindowMap,
+} from '../proof/caller/window-list.mjs';
 import * as W from '../src/data/wram.mjs';
 
 function runChoice(module, name, budget, target, pads, request = 0, far = false) {

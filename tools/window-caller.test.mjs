@@ -54,15 +54,21 @@ function run(module, name, seed, budget, initialRequest) {
     return true;
   };
   const sequence =
-      name === 'requestUploadCall'
-        ? module[name](h, events, 0x80fa39)
-        : name === 'drawWindowListSequence'
-          ? module[name](h, events, 0x80cdad)
-          : name.endsWith('Sequence')
-            ? module[name](h, events)
-            : (function* () {
-                yield () => module[name](h, events);
-              })(),
+      // The live reset is a sequence only; the former one keeps its table entry, whose
+      // drained result the comparison does not see.
+      module === live && name === 'runResetWindowList'
+        ? (function* () {
+            yield* live.resetWindowListSequence(h, events);
+          })()
+        : name === 'requestUploadCall'
+          ? module[name](h, events, 0x80fa39)
+          : name === 'drawWindowListSequence'
+            ? module[name](h, events, 0x80cdad)
+            : name.endsWith('Sequence')
+              ? module[name](h, events)
+              : (function* () {
+                  yield () => module[name](h, events);
+                })(),
     continuation = new NativeCallContinuation(a, sequence);
   const before = mem.wram.slice();
   assert.equal(continuation.run(0), WAIT_PAUSED);

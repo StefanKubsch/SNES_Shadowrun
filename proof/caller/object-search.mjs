@@ -24,7 +24,7 @@
 // with them. The direct page words 0E, 11, 14, 17 and 1A (the glove on the screen and
 // relative to the object, the kind index) are written as the original writes them.
 import { dialogCallBody, segmentSequence } from '../../src/system/native-call-continuation.mjs';
-import { releaseNameWindowRoutineSequence } from './window-release-routines.mjs';
+import { releaseNameWindowCallSequence as releaseNameWindowRoutineSequence } from './window-release.mjs';
 import { routineCall } from '../replay/native-glove-target-support.mjs';
 import { measureTextWidthRoutine } from '../../src/game/text-width.mjs';
 import { GLOVE_KIND_SPELL } from '../../src/script/native-glove-crosshair-limits.mjs';

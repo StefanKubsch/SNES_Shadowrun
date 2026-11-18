@@ -741,9 +741,10 @@ which the render proof of 81:8076 keeps using.
   frames until an object with bit 15 of its flags or none is chosen; the slot or FFFF
   in DP 00 and 7E:1FD2) runs `spellGloveTargetSequence` of
   [src/game/glove-target.mjs](../src/game/glove-target.mjs). The window list module
-  now offers the map unpack and the upload request for routine tables
-  (`runUnpackWindowMap`, `runRequestUpload`, the latter lifted with lag-free frames and
-  returning with its RTL). The same test compares it (300 samples, the object's flags
+  offers the map unpack and the upload request to lifted callers
+  (`unpackWindowMapCall`, `requestUploadJslSequence`, the latter returning with its
+  RTL and holding no request word in A); the routine table entries
+  (`runUnpackWindowMap`, `runRequestUpload`) are in proof/caller/window-list.mjs. The same test compares it (300 samples, the object's flags
   drawn each frame); planted differences in the flag test, the stored FFFF, the
   list's first window, the dialog test, the X left and the glove kind fail it. No
   live session reaches the spell glove; the upload request's table form is checked by
@@ -947,9 +948,10 @@ which the render proof of 81:8076 keeps using.
   left, the depth order and its overflow, the position's carry, the redraw clear and
   the dialog end fail them.
 - The window list from the first window 81:AEB0 (the first index 0200 cleared, the list
-  81:AD92 by its JSL at 81:AEB3, RTL) runs `runResetWindowList` of
-  [src/game/window-list.mjs](../src/game/window-list.mjs) with the lag-free frame model
-  (else the register-level routine), and the object creation 80:A835 runs
+  81:AD92 by its JSL at 81:AEB3, RTL) runs `resetWindowListSequence` of
+  [src/game/window-list.mjs](../src/game/window-list.mjs), which leaves no registers
+  (the table entry `runResetWindowList` with the original's registers is in
+  proof/caller/window-list.mjs), and the object creation 80:A835 runs
   `createObject` of [src/game/object-create.mjs](../src/game/object-create.mjs) as a JSR
   callee (`runCreateObject`), in the item use, the spell menu and the shooting natives.
   The menus' tables also take the lifted numbered menus 80:A6AD and 80:A6B8, the tile

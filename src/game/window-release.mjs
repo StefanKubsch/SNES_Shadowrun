@@ -17,9 +17,8 @@
 // (below 0100), so the tables are read in bank 7E.
 //
 // Registers (user decision 2026-11-17): the call forms leave no A, X or flags of their
-// own. Register-level callers pass registers = true for the window list's registers;
-// the routine forms that also leave the original's A, X and flags live in
-// proof/caller/window-release-routines.mjs.
+// own. The register forms for register-level callers live in
+// proof/caller/window-release.mjs.
 import { sceneRuntime } from '../system/scene-runtime.mjs';
 import { drawWindowListSequence } from './window-list.mjs';
 import { dialogCallBody } from '../system/native-call-continuation.mjs';
@@ -64,9 +63,8 @@ function* belowJsr(h, site, sequence) {
   yield () => h.a.pullWord();
 }
 
-// Release the window in the direct page word 00 (80:FA3E) and redraw the window list;
-// with registers the list leaves the original's X, Y, carry and overflow.
-export function* releaseWindowSequence(h, events, registers = false) {
+// Release the window in the direct page word 00 (80:FA3E) and redraw the window list.
+export function* releaseWindowSequence(h, events) {
   const { wram } = sceneRuntime(h);
   yield () => {
     let x = word(wram, DP_WINDOW);
@@ -79,7 +77,7 @@ export function* releaseWindowSequence(h, events, registers = false) {
     setWord(wram, WINDOW_NEXT_TILE, word(wram, WINDOW_TILE_START + next));
     setWord(wram, WINDOW_LAST_INDEX, x);
   };
-  yield* drawWindowListSequence(h, events, REDRAW_SITE, registers);
+  yield* drawWindowListSequence(h, events, REDRAW_SITE);
 }
 
 // The release as called with JSR (80:FA3E), whose caller has pushed the frame; returns
@@ -101,7 +99,7 @@ export const releaseWindowJsrSequence = (a, events) =>
   releaseWindowCallSequence(dialogAccess(a), events);
 // Release every used notice window, from the last slot down, and reset the first window
 // index (80:FF79).
-export function* releaseNoticeWindowsSequence(h, events, registers = false) {
+export function* releaseNoticeWindowsSequence(h, events) {
   const { wram } = sceneRuntime(h);
   for (let x = NOTICE_WINDOW_LAST; x >= 0; x -= 2) {
     const window = word(wram, NOTICE_WINDOWS + x);
@@ -110,7 +108,7 @@ export function* releaseNoticeWindowsSequence(h, events, registers = false) {
       setWord(wram, DP_WINDOW, window);
       h.a.pushWord(x);
     };
-    yield* belowJsr(h, NOTICE_RELEASE_SITE, releaseWindowSequence(h, events, registers));
+    yield* belowJsr(h, NOTICE_RELEASE_SITE, releaseWindowSequence(h, events));
     yield () => {
       h.a.pullWord();
       setWord(wram, NOTICE_WINDOWS + x, NONE);
@@ -129,10 +127,10 @@ export function* putGloveAwaySequence(h, events) {
 }
 // Release the name window of the glove's target and forget the target (80:BE5B); the
 // glove movement (src/game/glove-move.mjs) runs it in its JSR frame.
-export function* releaseGloveNameWindowSequence(h, events, registers = false) {
+export function* releaseGloveNameWindowSequence(h, events) {
   const { wram } = sceneRuntime(h);
   yield () => setWord(wram, DP_WINDOW, word(wram, GLOVE_NAME_WINDOW));
-  yield* belowJsr(h, NAME_RELEASE_SITE, releaseWindowSequence(h, events, registers));
+  yield* belowJsr(h, NAME_RELEASE_SITE, releaseWindowSequence(h, events));
   yield () => {
     setWord(wram, GLOVE_TARGET_TAG, NONE);
     setWord(wram, GLOVE_TARGET_OBJECT, NONE);
@@ -141,8 +139,8 @@ export function* releaseGloveNameWindowSequence(h, events, registers = false) {
 
 // The name window release as called with JSR (80:BE5B), a sequence for the glove's
 // movement and object search; returns with its RTS.
-export function* releaseNameWindowCallSequence(h, events, registers = false) {
-  yield* releaseGloveNameWindowSequence(h, events, registers);
+export function* releaseNameWindowCallSequence(h, events) {
+  yield* releaseGloveNameWindowSequence(h, events);
   return yield* rts(h);
 }
 
@@ -162,8 +160,8 @@ export function* putGloveAwayCallSequence(h, events, release = releaseNameWindow
 
 // The notice windows' release as called with JSR (80:FF79), a sequence for the dialog.
 // Returns with its RTS.
-export function* releaseNoticeWindowsCallSequence(h, events, registers = false) {
-  yield* releaseNoticeWindowsSequence(h, events, registers);
+export function* releaseNoticeWindowsCallSequence(h, events) {
+  yield* releaseNoticeWindowsSequence(h, events);
   return yield* rts(h);
 }
 function* rts(h) {

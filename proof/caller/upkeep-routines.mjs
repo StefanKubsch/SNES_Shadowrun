@@ -11,9 +11,9 @@ import {
 import { showNoticeSequence } from '../../src/game/notice-show.mjs';
 import { releaseWindowSequence } from '../../src/game/window-release.mjs';
 import {
-  putGloveAwayRoutineSequence,
-  releaseNoticeWindowsRoutineSequence,
-} from './window-release-routines.mjs';
+  putGloveAwayCallSequence as putGloveAwayRoutineSequence,
+  releaseNoticeWindowsCallSequence as releaseNoticeWindowsRoutineSequence,
+} from './window-release.mjs';
 import { closeDialogSequence, talkSequence } from '../../src/game/dialog-talk.mjs';
 import {
   chooseDialogActionSequence,

@@ -6,8 +6,11 @@ import { compareRun } from './member-menu-caller-harness.mjs';
 import * as direct from '../proof/caller/glove-choice-services.mjs';
 import * as former from '../proof/caller/glove-target.mjs';
 import { showNoticeSequence } from '../proof/caller/notice-show.mjs';
-import { runDrawWindowList } from '../proof/caller/window-list.mjs';
-import { runUnpackWindowMap, runRequestUpload } from '../src/game/window-list.mjs';
+import {
+  runDrawWindowList,
+  runRequestUpload,
+  runUnpackWindowMap,
+} from '../proof/caller/window-list.mjs';
 import { closeDialogSequence } from '../src/game/dialog-talk.mjs';
 import * as W from '../src/data/wram.mjs';
 
