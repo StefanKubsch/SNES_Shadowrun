@@ -19,7 +19,7 @@
 // search reads that carry too.
 import { dialogCallBody } from '../../src/system/native-call-continuation.mjs';
 import { objectSearchSequence } from './object-search.mjs';
-import { releaseNameWindowRoutineSequence } from '../../src/game/window-release.mjs';
+import { releaseNameWindowRoutineSequence } from './window-release-routines.mjs';
 import {
   GLOVE_KIND,
   GLOVE_SPEED_X,

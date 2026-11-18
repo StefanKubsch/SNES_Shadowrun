@@ -17,16 +17,12 @@
 // (below 0100), so the tables are read in bank 7E.
 //
 // Registers (user decision 2026-11-17): the call forms leave no A, X or flags of their
-// own; the routine forms (releaseNameWindowRoutineSequence and the others) keep the
-// original's registers for register-level callers.
+// own. Register-level callers pass registers = true for the window list's registers;
+// the routine forms that also leave the original's A, X and flags live in
+// proof/caller/window-release-routines.mjs.
 import { sceneRuntime } from '../system/scene-runtime.mjs';
 import { drawWindowListSequence } from './window-list.mjs';
-import {
-  NATIVE_CALL_CONTINUATIONS,
-  NativeCallContinuation,
-  dialogCallBody,
-  drainNativeSequence,
-} from '../system/native-call-continuation.mjs';
+import { dialogCallBody } from '../system/native-call-continuation.mjs';
 import { dialogAccess } from '../system/native-dialog-support.mjs';
 import {
   GLOVE_KIND,
@@ -42,10 +38,8 @@ import {
   WINDOW_TILE_START,
 } from '../data/wram.mjs';
 import { BYTE_BITS, BYTE_MASK, WORD_BITS, WORD_MASK, WORD_SIGN } from '../constants/bits.mjs';
-import { FLAG_NEGATIVE, FLAG_ZERO } from '../constants/cpu-flags.mjs';
 
-const NOTICE_LOOP_END = 0xfffe,
-  NONE = WORD_MASK,
+const NONE = WORD_MASK,
   DP_WINDOW = 0x00,
   // A JSR pushes the address of its last byte.
   JSR_LAST_BYTE = 2;
@@ -90,8 +84,8 @@ export function* releaseWindowSequence(h, events, registers = false) {
 
 // The release as called with JSR (80:FA3E), whose caller has pushed the frame; returns
 // with its RTS as { rawReturnWord, returnTarget }.
-function* releaseWindowCallSequence(h, events, registers = false) {
-  yield* releaseWindowSequence(h, events, registers);
+function* releaseWindowCallSequence(h, events) {
+  yield* releaseWindowSequence(h, events);
   let result;
   yield () => {
     const { ctx, a } = h,
@@ -105,18 +99,6 @@ function* releaseWindowCallSequence(h, events, registers = false) {
 // use the independently retained sequence in proof/caller/window-release.mjs.
 export const releaseWindowJsrSequence = (a, events) =>
   releaseWindowCallSequence(dialogAccess(a), events);
-// The routine for the callers' tables (target 80:FA3E), as releaseWindowJsrSequence.
-export function runReleaseWindowCall(h, events) {
-  return drainNativeSequence(releaseWindowCallSequence(h, events, true));
-}
-// Other tables bind the register-level release to 80:FA3E, so this continuation is found
-// by its run function.
-NATIVE_CALL_CONTINUATIONS.set(runReleaseWindowCall, {
-  run: runReleaseWindowCall,
-  create: (call) =>
-    new NativeCallContinuation(call.h.a, releaseWindowCallSequence(call.h, call.events, true)),
-});
-
 // Release every used notice window, from the last slot down, and reset the first window
 // index (80:FF79).
 export function* releaseNoticeWindowsSequence(h, events, registers = false) {
@@ -189,43 +171,6 @@ function* rts(h) {
   yield () => {
     result = h.rts();
   };
-  return result;
-}
-
-// Register forms for register-level callers. The name window release leaves A FFFF
-// with its sign and zero, and X, Y, the carry and the overflow of the window list's
-// redraw, as the original.
-const setSignZero = (ctx, value) => {
-  ctx.status = value & WORD_SIGN ? ctx.status | FLAG_NEGATIVE : ctx.status & ~FLAG_NEGATIVE;
-  ctx.status = value === 0 ? ctx.status | FLAG_ZERO : ctx.status & ~FLAG_ZERO;
-};
-export function* releaseNameWindowRoutineSequence(h, events) {
-  const result = yield* releaseNameWindowCallSequence(h, events, true);
-  h.ctx.a = NONE;
-  setSignZero(h.ctx, NONE);
-  return result;
-}
-// Putting the glove away leaves A the target tag with its sign and zero and X, Y, the
-// carry and the overflow unchanged without a target; with one, the registers of the
-// name window release.
-export function* putGloveAwayRoutineSequence(h, events) {
-  const tag = word(sceneRuntime(h).wram, GLOVE_TARGET_TAG),
-    result = yield* putGloveAwayCallSequence(h, events, releaseNameWindowRoutineSequence);
-  if (tag & WORD_SIGN) {
-    h.ctx.a = tag;
-    setSignZero(h.ctx, tag);
-  }
-  return result;
-}
-// The notice windows' release leaves A the last slot's window (FFFF when it was
-// released), X FFFE with the sign set and Y, the carry and the overflow of the last
-// release (or as they came).
-export function* releaseNoticeWindowsRoutineSequence(h, events) {
-  const result = yield* releaseNoticeWindowsCallSequence(h, events, true),
-    { ctx } = h;
-  ctx.a = word(sceneRuntime(h).wram, NOTICE_WINDOWS);
-  ctx.x = NOTICE_LOOP_END;
-  setSignZero(ctx, NOTICE_LOOP_END);
   return result;
 }
 

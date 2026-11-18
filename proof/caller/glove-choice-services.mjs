@@ -5,7 +5,7 @@ import {
 } from '../../src/game/window-list.mjs';
 import { closeDialogSequence } from '../../src/game/dialog-talk.mjs';
 import { showNoticeSequence } from '../../src/game/notice-show.mjs';
-import { putGloveAwayRoutineSequence } from '../../src/game/window-release.mjs';
+import { putGloveAwayRoutineSequence } from './window-release-routines.mjs';
 import { frameWaitCallSequence, runPadPresses } from '../../src/system/live-input-calls.mjs';
 // Choosing with the action or spell glove (lifted from the script natives 80:8D0B and its
 // relatives; register-level version in proof/replay/native-glove-target.mjs, which

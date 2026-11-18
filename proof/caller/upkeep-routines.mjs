@@ -9,11 +9,11 @@ import {
   drainNativeSequence,
 } from '../../src/system/native-call-continuation.mjs';
 import { showNoticeSequence } from '../../src/game/notice-show.mjs';
+import { releaseWindowSequence } from '../../src/game/window-release.mjs';
 import {
   putGloveAwayRoutineSequence,
   releaseNoticeWindowsRoutineSequence,
-  releaseWindowSequence,
-} from '../../src/game/window-release.mjs';
+} from './window-release-routines.mjs';
 import { closeDialogSequence, talkSequence } from '../../src/game/dialog-talk.mjs';
 import {
   chooseDialogActionSequence,
