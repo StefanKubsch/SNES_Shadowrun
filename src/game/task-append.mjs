@@ -47,7 +47,6 @@ import {
   TASK_WAIT,
 } from '../vm/layout.mjs';
 import { BYTE_MASK, LONG_MASK, WORD_BITS, WORD_MASK, WORD_SIGN } from '../constants/bits.mjs';
-import { FLAG_DECIMAL } from '../constants/cpu-flags.mjs';
 // The direct page words of the frame allocation: the script header pointer, its bank
 // word, and the new frame.
 const DP_SCRIPT_HEADER = 0x71,
@@ -210,11 +209,11 @@ export function appendScriptTask(a, script) {
 
 // The task append for lifted callers, called with JSR: the script is a parameter (X in
 // the original) and no registers are left (user decision 2026-11-17; the script visit
-// that follows reads task state only). Returns the raw return word its RTS takes.
+// that follows reads task state only); its arithmetic is binary, whatever the decimal
+// flag. Returns the raw return word its RTS takes.
 export function appendScriptReturn(a, script) {
   const { ctx } = a;
   if (ctx.d !== 0) taskStop('task_direct_page_zero_required');
-  if (ctx.status & FLAG_DECIMAL) taskStop('task_binary_arithmetic_required');
   appendTask(a, script);
   const rawReturnWord = a.pullWord();
   ctx.pc = (rawReturnWord + 1) & WORD_MASK;
