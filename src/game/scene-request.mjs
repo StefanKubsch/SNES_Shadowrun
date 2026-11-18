@@ -40,7 +40,6 @@ import {
 } from '../data/wram.mjs';
 import { BYTE_BITS, BYTE_MASK, WORD_MASK } from '../constants/bits.mjs';
 
-export const SCENE_REQUEST_ENTRY = 0x80cc4b;
 const SCENE_REQUEST_NONE = WORD_MASK;
 // Original call sites: the frame wait (JSL), the cutscene and the matrix (JSL), and
 // the return word of the JSR to the room entry at 80:CC90.

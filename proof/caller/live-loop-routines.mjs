@@ -13,7 +13,8 @@ import {
   mainLoopNoticeSequence,
 } from '../../src/game/main-upkeep.mjs';
 import { runFrameWait, runPadPresses } from './input-routines.mjs';
-import { SCENE_REQUEST_ENTRY, sceneRequestSequence } from '../../src/game/scene-request.mjs';
+import { sceneRequestSequence } from '../../src/game/scene-request.mjs';
+import { SCENE_REQUEST_ENTRY } from './scene-request.mjs';
 import { playerZonesSequence } from '../../src/game/player-zones.mjs';
 import { timeLimitSequence } from '../../src/game/time-limit.mjs';
 import { gloveActionSequence } from '../../src/game/glove-action.mjs';
