@@ -14,10 +14,12 @@
 // The window opening and text are composed directly through their call frames,
 // as is the release with the frame and slot the
 // original pushes; the minimum the original pushes, and its allocation, lie on the
-// stack around them. The notice leaves A the window with its sign and zero, X the
-// slot, and Y, the carry and the overflow as the original: those of the last frames
-// comparison, or of the callee that ran last. The text number must point within bank
-// 80 (notice_text_required past it).
+// stack around them. The text number must point within bank 80
+// (notice_text_required past it).
+//
+// Registers (user decision 2026-11-17): game state only. The notice returns its window
+// in shown.window (A in the original) and leaves no registers; the register form for
+// register-level callers is noticeRoutineSequence.
 import { taskStop } from '../system/task-stop.mjs';
 import { dialogCallBody } from '../system/native-call-continuation.mjs';
 import { openWindowSequence, requestTileClearSequence } from './window-open.mjs';
@@ -41,7 +43,7 @@ import {
   WINDOW_TILE_START,
 } from '../data/wram.mjs';
 import { BYTE_BITS, BYTE_MASK, WORD_MASK, WORD_SIGN } from '../constants/bits.mjs';
-import { FLAG_CARRY, FLAG_NEGATIVE, FLAG_ZERO } from '../constants/cpu-flags.mjs';
+import { FLAG_NEGATIVE, FLAG_ZERO } from '../constants/cpu-flags.mjs';
 
 const EFFECT_ATTRIBUTES = 0x400,
   EFFECT_FRAMES = 30,
@@ -63,18 +65,6 @@ const word = (wram, at) => wram[at] | (wram[at + 1] << BYTE_BITS);
 const setWord = (wram, at, value) => {
   wram[at] = value & BYTE_MASK;
   wram[at + 1] = (value >>> BYTE_BITS) & BYTE_MASK;
-};
-const flag = (ctx, bit, set) => {
-  ctx.status = set ? ctx.status | bit : ctx.status & ~bit;
-};
-const signAndZero = (ctx, value) => {
-  flag(ctx, FLAG_NEGATIVE, value & WORD_SIGN);
-  flag(ctx, FLAG_ZERO, value === 0);
-};
-// The sign, zero and carry of the original's CMP.
-const compare = (ctx, left, right) => {
-  flag(ctx, FLAG_CARRY, left >= right);
-  signAndZero(ctx, (left - right) & WORD_MASK);
 };
 
 // A translated notice too long for the text tiles left (fitNoticeWindow): its pages
@@ -115,10 +105,9 @@ function* pagesSequence(h, events, renderBuffer, { id, pages }) {
 
 // Show the notice (80:FEC1), a sequence for a native call continuation: h the caller's
 // access (direct page 0, data bank 80), events its frame events, and renderBuffer
-// the text-buffer renderer sequence.
-export function* showNoticeSequence(h, events, renderBuffer = drawTextBufferSequence) {
-  const { ctx } = h,
-    { mem } = h.a,
+// the text-buffer renderer sequence; shown receives the window and the slot.
+export function* showNoticeSequence(h, events, renderBuffer = drawTextBufferSequence, shown = {}) {
+  const { mem } = h.a,
     { wram } = mem,
     call = (site, body) => dialogCallBody(h, ...site, body);
   let paged = null;
@@ -128,11 +117,8 @@ export function* showNoticeSequence(h, events, renderBuffer = drawTextBufferSequ
       (offset) => word(wram, offset),
       (offset, value) => setWord(wram, offset, value),
     );
-    // The callees read no flags, so only A is passed on as the original leaves it.
-    ctx.a = word(wram, DP_WINDOW_ATTRIBUTES);
-    if (ctx.a !== EFFECT_ATTRIBUTES) return;
-    ctx.a = EFFECT_FRAMES;
-    setWord(wram, NOTICE_EFFECT_FRAMES, EFFECT_FRAMES);
+    if (word(wram, DP_WINDOW_ATTRIBUTES) === EFFECT_ATTRIBUTES)
+      setWord(wram, NOTICE_EFFECT_FRAMES, EFFECT_FRAMES);
   };
   yield* call(WINDOW_CALL, () => openWindowSequence(h, events));
   yield () => {
@@ -141,36 +127,35 @@ export function* showNoticeSequence(h, events, renderBuffer = drawTextBufferSequ
       x = (text << 1) & WORD_MASK,
       at = TEXT_NUMBERS + x;
     if (at + 1 > BANK_END) taskStop('notice_text_required', { text });
-    ctx.x = x;
-    ctx.a = mem.read8(at) | (mem.read8(at + 1) << BYTE_BITS);
-    setWord(wram, DP_TEXT, ctx.a);
+    setWord(wram, DP_TEXT, mem.read8(at) | (mem.read8(at + 1) << BYTE_BITS));
   };
   if (paged) yield* pagesSequence(h, events, renderBuffer, paged);
   else yield* call(TEXT_CALL, () => printTextSequence(h, events, renderBuffer));
-  let replace = false;
+  let replace = false,
+    slot;
   yield () => {
     // The last free slot from the top; on the way the fewest frames (the last of equal
-    // ones) and their slot in Y. A free slot ends the search with its window loaded.
-    let minimum = WORD_MASK;
+    // ones) and their slot. The minimum lies on the stack as the original pushes it.
+    let minimum = WORD_MASK,
+      fewest;
     for (let x = NOTICE_WINDOW_LAST; x >= 0; x -= 2) {
-      const window = word(wram, NOTICE_WINDOWS + x);
-      if (window & WORD_SIGN) {
+      if (word(wram, NOTICE_WINDOWS + x) & WORD_SIGN) {
         h.a.pushWord(minimum);
-        ctx.x = x;
+        slot = x;
         return;
       }
       const frames = word(wram, NOTICE_FRAMES + x);
-      compare(ctx, minimum, frames);
       if (minimum >= frames) {
         minimum = frames;
-        ctx.y = x;
+        fewest = x;
       }
     }
-    // All used: release the window with the fewest frames left.
+    // All used: release the window with the fewest frames left (the slot and the
+    // release's return word on the stack, as the original).
     h.a.pushWord(minimum);
-    ctx.x = ctx.y;
-    setWord(wram, DP_WINDOW, word(wram, NOTICE_WINDOWS + ctx.x));
-    h.a.pushWord(ctx.x);
+    slot = fewest;
+    setWord(wram, DP_WINDOW, word(wram, NOTICE_WINDOWS + slot));
+    h.a.pushWord(slot);
     h.a.pushWord((RELEASE_SITE + JSR_LAST_BYTE) & WORD_MASK);
     replace = true;
   };
@@ -178,17 +163,32 @@ export function* showNoticeSequence(h, events, renderBuffer = drawTextBufferSequ
     yield* releaseWindowSequence(h, events);
     yield () => {
       h.a.pullWord();
-      ctx.x = h.a.pullWord();
+      h.a.pullWord();
     };
   }
   let result;
   yield () => {
-    setWord(wram, NOTICE_FRAMES + ctx.x, word(wram, DP_NOTICE_FRAMES));
+    setWord(wram, NOTICE_FRAMES + slot, word(wram, DP_NOTICE_FRAMES));
     h.a.pullWord();
-    ctx.a = h.a.pullWord();
-    signAndZero(ctx, ctx.a);
-    setWord(wram, NOTICE_WINDOWS + ctx.x, ctx.a);
+    const window = h.a.pullWord();
+    setWord(wram, NOTICE_WINDOWS + slot, window);
+    shown.window = window;
+    shown.slot = slot;
     result = h.rts();
   };
+  return result;
+}
+
+// The notice for register-level callers: A the window with its sign and zero and X the
+// slot, as the original leaves them.
+export function* noticeRoutineSequence(h, events, renderBuffer = drawTextBufferSequence) {
+  const shown = {},
+    result = yield* showNoticeSequence(h, events, renderBuffer, shown),
+    { ctx } = h;
+  ctx.a = shown.window;
+  ctx.x = shown.slot;
+  ctx.status &= ~(FLAG_NEGATIVE | FLAG_ZERO);
+  if (shown.window & WORD_SIGN) ctx.status |= FLAG_NEGATIVE;
+  if (shown.window === 0) ctx.status |= FLAG_ZERO;
   return result;
 }

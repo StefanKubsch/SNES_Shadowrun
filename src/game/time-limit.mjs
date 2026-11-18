@@ -20,8 +20,8 @@
 // text wait for the NMI of their uploads. The sound effect (src/apu/sound-effect.mjs)
 // is lifted and waits for nothing; its frame is not reproduced.
 //
-// Registers (user decision 2026-11-17): game state only, apart from the notice 80:FEC1,
-// which still returns its window in A. The carry the original leaves in the last hour
+// Registers (user decision 2026-11-17): game state only; the notice 80:FEC1 returns its
+// window as a value (A in the original). The carry the original leaves in the last hour
 // reaches only the P a later NMI saves (the next main loop steps do not read it), so it
 // is not kept, nor are A, X and Y.
 import { dialogCallBody, segmentSequence } from '../system/native-call-continuation.mjs';
@@ -87,8 +87,7 @@ const setWord = (wram, at, value) => {
 // h the main loop's access (direct page 0, data bank 80), events its frame events,
 // renderBuffer its text-buffer renderer sequence.
 export function* timeLimitSequence(h, events, renderBuffer = drawTextBufferSequence) {
-  const { ctx } = h,
-    { mem } = h.a,
+  const { mem } = h.a,
     { wram } = mem,
     call = (site, target, body) => dialogCallBody(h, site, target, body);
   let path = 'return';
@@ -124,10 +123,10 @@ export function* timeLimitSequence(h, events, renderBuffer = drawTextBufferSeque
     });
   };
   if (path === 'notice') {
-    // The notice returns its window in A (see the header).
-    yield* call(CALL.notice, NOTICE_CALL, () => showNoticeSequence(h, events, renderBuffer));
+    const shown = {};
+    yield* call(CALL.notice, NOTICE_CALL, () => showNoticeSequence(h, events, renderBuffer, shown));
     yield () => {
-      setWord(wram, DP_WINDOW, ctx.a);
+      setWord(wram, DP_WINDOW, shown.window);
       setWord(wram, DP_ARGUMENT, 0);
       setWord(wram, DP_CURSOR_ROW, 0);
     };

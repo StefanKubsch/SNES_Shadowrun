@@ -13,10 +13,9 @@
 // the music option the music kept by the first entry plays again (none if there was
 // none), else the music mode 0.
 //
-// Registers (user decision 2026-11-17): game state only, apart from two register
-// interface of a callee that is still register-level: the notice 80:FEC1 returns its
-// window in A. The music mode 81:EF47 takes the mode as a parameter (A in the
-// original). Every other register value the original leaves is dropped.
+// Registers (user decision 2026-11-17): game state only. The notice 80:FEC1 returns its
+// window as a value and the music mode 81:EF47 takes the mode as a parameter (A in
+// the original). Every other register value the original leaves is dropped.
 import { setTextCursorRoutine, printNumberSequence } from './window-text.mjs';
 import { printTextSequence } from './text-print.mjs';
 import { showNoticeSequence } from './notice-show.mjs';
@@ -115,8 +114,7 @@ const negative = (value) => (value & WORD_SIGN) !== 0;
 // Remove the object (the direct page word 00) from the fight list (80:855E), a sequence
 // that ends with the native's RTS and composes all reward and audio callees directly.
 export function* removeFromFightListSequence(h, events, renderBuffer = drawTextBufferSequence) {
-  const { ctx } = h,
-    { mem } = h.a,
+  const { mem } = h.a,
     { wram } = mem;
   let state = 'missing';
   yield () => {
@@ -160,10 +158,12 @@ export function* removeFromFightListSequence(h, events, renderBuffer = drawTextB
       setWord(wram, at, value);
   };
   if (state === 'gain') {
-    yield* dialogCallBody(h, ...NOTICE_CALL, () => showNoticeSequence(h, events, renderBuffer));
+    const shown = {};
+    yield* dialogCallBody(h, ...NOTICE_CALL, () =>
+      showNoticeSequence(h, events, renderBuffer, shown),
+    );
     yield () => {
-      // The notice returns its window in A (see the header).
-      setWord(wram, DP_WINDOW, ctx.a);
+      setWord(wram, DP_WINDOW, shown.window);
       setWord(wram, DP_TEXT, 0);
       setWord(wram, DP_CURSOR_ROW, 0);
     };

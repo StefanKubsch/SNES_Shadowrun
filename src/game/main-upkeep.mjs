@@ -22,7 +22,7 @@ import { updateTileBuffers } from './camera-scroll.mjs';
 import { recordFormationStep } from './formation-trail.mjs';
 import { timeLimitSequence } from './time-limit.mjs';
 import { gloveActionSequence } from './glove-action.mjs';
-import { showNoticeSequence } from './notice-show.mjs';
+import { noticeRoutineSequence, showNoticeSequence } from './notice-show.mjs';
 import {
   putGloveAwayCallSequence,
   releaseNoticeWindowsCallSequence,
@@ -138,11 +138,11 @@ export function runTileBuffers(h) {
 // native call continuation. The register-level notice keeps the target's registration,
 // so this one is found by its run function.
 export function runShowNotice(h, events) {
-  return drainNativeSequence(showNoticeSequence(h, events));
+  return drainNativeSequence(noticeRoutineSequence(h, events));
 }
 NATIVE_CALL_CONTINUATIONS.set(runShowNotice, {
   run: runShowNotice,
-  create: ({ h, events }) => new NativeCallContinuation(h.a, showNoticeSequence(h, events)),
+  create: ({ h, events }) => new NativeCallContinuation(h.a, noticeRoutineSequence(h, events)),
 });
 // The lifted notice as the script native 80:FEC1 runs it with lag-free frames
 // (src/vm/special-natives.mjs), with this module's window, text and release.
