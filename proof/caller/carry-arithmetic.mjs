@@ -1,7 +1,12 @@
-// The carry and overflow of 16-bit arithmetic as the original leaves them, for the lifted
-// routines that hand A, X, Y and the flags on to their callers or callees.
-import { WORD_MASK, WORD_SIGN } from '../constants/bits.mjs';
-import { FLAG_CARRY, FLAG_NEGATIVE, FLAG_OVERFLOW, FLAG_ZERO } from '../constants/cpu-flags.mjs';
+// The carry and overflow of 16-bit arithmetic as the original leaves them, for the retained
+// former callers that hand A, X, Y and the flags on to their callers or callees.
+import { WORD_MASK, WORD_SIGN } from '../../src/constants/bits.mjs';
+import {
+  FLAG_CARRY,
+  FLAG_NEGATIVE,
+  FLAG_OVERFLOW,
+  FLAG_ZERO,
+} from '../../src/constants/cpu-flags.mjs';
 
 const flag = (ctx, bit, set) => {
   ctx.status = set ? ctx.status | bit : ctx.status & ~bit;

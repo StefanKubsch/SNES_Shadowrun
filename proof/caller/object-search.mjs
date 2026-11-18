@@ -29,7 +29,7 @@ import { routineCall } from '../replay/native-glove-target-support.mjs';
 import { measureTextWidthRoutine } from '../../src/game/text-width.mjs';
 import { GLOVE_KIND_SPELL } from '../../src/script/native-glove-crosshair-limits.mjs';
 import { taskStop } from '../../src/system/task-stop.mjs';
-import { CarryArithmetic } from '../../src/game/carry-arithmetic.mjs';
+import { CarryArithmetic } from './carry-arithmetic.mjs';
 import {
   AIMING_SPELL,
   CAMERA_X,

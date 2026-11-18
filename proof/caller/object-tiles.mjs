@@ -31,7 +31,7 @@ import { nmiWords, waitWord } from '../system/native-dialog-portrait.mjs';
 import { lagFree } from '../../src/system/main-wait-interrupt.mjs';
 import { nmiAtBranch } from '../../src/system/frame-wait.mjs';
 import { stepObjectAnimation } from '../system/native-scene-tiles.mjs';
-import { CarryArithmetic } from '../../src/game/carry-arithmetic.mjs';
+import { CarryArithmetic } from './carry-arithmetic.mjs';
 import { taskStop } from '../../src/system/task-stop.mjs';
 import {
   DP_VRAM_UPLOAD_INDEX,
