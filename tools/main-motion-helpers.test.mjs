@@ -209,12 +209,17 @@ for (const [kind, list] of [
         const covered = new Set();
         for (let seed = 1; seed <= 1800; seed++) {
           const s = i === 5 ? targetScenario(seed) : motionScenario(spec.entry, seed);
-          // The lifted walk is compared on game state (user decision 2026-11-17).
+          // The lifted walk is compared on game state (user decision 2026-11-17); the
+          // lifted collision tests' register forms on game state with the height in A and
+          // the slot in X (their carry follows the result word; the overflow is not
+          // produced).
           const turn = kind && i === 5 ? stateAction : action;
           const result = compareDialog(maps[i], s, {
             native: (h) => (i === 5 ? list[i](h, turn) : list[i](h)),
             calls: (acc) => new Map([[0x80aaaf, () => turn(dialogAccess(acc))]]),
-            ...(kind && i === 5 ? { registers: GAME_STATE_REGISTERS } : {}),
+            ...(kind
+              ? { registers: i === 5 ? GAME_STATE_REGISTERS : ['a', 'x', ...GAME_STATE_REGISTERS] }
+              : {}),
             // Lifted tests push no caller Y: only the free stack differs.
             freeStack: Boolean(kind),
           });

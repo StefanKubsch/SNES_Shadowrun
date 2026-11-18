@@ -9,12 +9,7 @@ import {
   upperYEdge,
 } from '../../src/game/object-collision.mjs';
 import { WORD_SIGN } from '../../src/constants/bits.mjs';
-import {
-  FLAG_CARRY,
-  FLAG_NEGATIVE,
-  FLAG_OVERFLOW,
-  FLAG_ZERO,
-} from '../../src/constants/cpu-flags.mjs';
+import { FLAG_CARRY, FLAG_NEGATIVE, FLAG_ZERO } from '../../src/constants/cpu-flags.mjs';
 
 const flag = (ctx, bit, set) => {
   ctx.status = set ? ctx.status | bit : ctx.status & ~bit;
@@ -23,8 +18,9 @@ const signAndZero = (ctx, value) => {
   flag(ctx, FLAG_NEGATIVE, value & WORD_SIGN);
   flag(ctx, FLAG_ZERO, value === 0);
 };
-// The register form of a test: the slot in X; A, X, the sign, zero, carry and overflow
-// as the original leaves them.
+// The register form of a test: the slot in X; A, X, the sign, zero and carry as the
+// original leaves them. The overflow of the original's last box addition is not
+// produced (the lifted tests leave game state only, user decision 2026-11-17).
 const registerForm = (run, edge) => (h) => {
   const { ctx } = h,
     slot = ctx.x,
@@ -33,7 +29,6 @@ const registerForm = (run, edge) => (h) => {
   ctx.a = found.height;
   signAndZero(ctx, edge ? found.height : slot);
   flag(ctx, FLAG_CARRY, found.free);
-  flag(ctx, FLAG_OVERFLOW, found.overflow);
   return found.returned;
 };
 

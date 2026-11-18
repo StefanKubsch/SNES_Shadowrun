@@ -22,10 +22,9 @@
 // others (proof/caller/object-collision.mjs), for register-level callers, take the slot
 // in X and leave the height in A with
 // the carry set when it is 0 (the height test: the carry of its last cell search or
-// cell comparison), X the slot, Y and the data bank as on entry, the sign and zero of
-// the height (of the slot after the height test) and the overflow of its last addition
-// or subtraction. The direct page words the
-// original uses as locals are written as in the original (box 11 to 20, cell columns
+// cell comparison), X the slot, Y and the data bank as on entry, and the sign and zero
+// of the height (of the slot after the height test); the overflow of the original's
+// last addition or subtraction is not produced. The direct page words the original uses as locals are written as in the original (box 11 to 20, cell columns
 // and rows 23 to 2C, cells 2F to 38, result 3B, slot 3E and box offset 68), and the
 // frames of the cell searches and their pushes are reproduced on the stack, as the
 // original leaves them below its own.
@@ -107,9 +106,6 @@ const setWord = (wram, at, value) => {
   wram[at % WRAM_SIZE] = value & BYTE_MASK;
   wram[(at + 1) % WRAM_SIZE] = (value >>> BYTE_BITS) & BYTE_MASK;
 };
-// The overflow of a 16-bit addition a + b = sum and of a subtraction a - b = difference.
-const addOverflow = (a, b, sum) => (~(a ^ b) & (a ^ sum) & WORD_SIGN) !== 0;
-const subtractOverflow = (a, b, difference) => ((a ^ b) & (a ^ difference) & WORD_SIGN) !== 0;
 // The object word of a box (a long read in bank 7F, which must stay in WRAM).
 const boxObject = (wram, box) => {
   const at = COLLISION_BOX_OBJECT - WRAM_BANK + (box >>> BOX_OBJECT_SHIFT);
@@ -117,8 +113,8 @@ const boxObject = (wram, box) => {
   return word(wram, at);
 };
 
-// One cell search through its frame (81:86E5), on the state of a test (wram, the
-// searching slot, the overflow of the last addition or subtraction): the static list,
+// One cell search through its frame (81:86E5), on the state of a test (wram and the
+// searching slot): the static list,
 // with the cell pushed around it, then the moving list. True when no height was found
 // (the carry it leaves).
 function searchCell(h, test, pc, cell) {
@@ -155,7 +151,6 @@ function offeredHeight(test, box) {
   const top = field(COLLISION_BOX_TOP),
     bottom = dp(DP_BOTTOM),
     height = (top - bottom) & WORD_MASK;
-  test.overflow = subtractOverflow(top, bottom, height);
   if (top < bottom || height < dp(DP_RESULT)) return null;
   return height;
 }
@@ -220,11 +215,7 @@ function objectBox(wram, slot) {
     bottom = word(wram, OBJECT_HEIGHT + slot) >>> POSITION_SHIFT,
     boxHeight = word(wram, OBJECT_BOX_HEIGHT + slot),
     offset = (base) => word(wram, base + slot),
-    // An addition and its overflow.
-    add = (a, b) => {
-      const sum = (a + b) & WORD_MASK;
-      return { value: sum, overflow: addOverflow(a, b, sum) };
-    },
+    add = (a, b) => (a + b) & WORD_MASK,
     column = (v) => (v & CELL_COORDINATE_MASK) >>> COLUMN_SHIFT,
     row = (v) => (v & CELL_COORDINATE_MASK) >>> ROW_SHIFT;
   const box = {
@@ -235,10 +226,10 @@ function objectBox(wram, slot) {
     y1: add(y, offset(OBJECT_BOX_Y2)),
     bottom,
   };
-  box.columnX0 = column(box.x0.value);
-  box.columnX1 = column(box.x1.value);
-  box.rowY0 = row(box.y0.value);
-  box.rowY1 = row(box.y1.value);
+  box.columnX0 = column(box.x0);
+  box.columnX1 = column(box.x1);
+  box.rowY0 = row(box.y0);
+  box.rowY1 = row(box.y1);
   return box;
 }
 
@@ -256,22 +247,19 @@ function beginTest(h, slot) {
   h.plb();
   setWord(wram, DP_RESULT, 0);
   setWord(wram, DP_BOTTOM, box.bottom);
-  setWord(wram, DP_TOP, box.top.value);
-  return { wram, slot, box, overflow: box.top.overflow };
+  setWord(wram, DP_TOP, box.top);
+  return { wram, slot, box };
 }
-// Write the box words in the order of a test (the last addition gives the overflow).
+// Write the box words in the order of a test.
 function writeBox(test, words) {
-  for (const [at, part] of words) {
-    setWord(test.wram, at, part.value ?? part);
-    if (part.overflow !== undefined) test.overflow = part.overflow;
-  }
+  for (const [at, value] of words) setWord(test.wram, at, value);
 }
-// The end of a test: the data bank back; returns the height, whether it is free, the
-// overflow and the RTS result.
+// The end of a test: the data bank back; returns the height, whether it is free and the
+// RTS result.
 function finishTest(h, test, free) {
   h.plb();
   const height = word(test.wram, DP_RESULT);
-  return { height, free, overflow: test.overflow, returned: h.rts() };
+  return { height, free, returned: h.rts() };
 }
 
 // An edge test: write the box words, search the cell first and then second unless equal.
