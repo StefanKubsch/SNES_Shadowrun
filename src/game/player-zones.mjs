@@ -8,18 +8,22 @@
 // word. A zone of the first list that holds the figure appends a script task (80:C34A,
 // with the data word as its script) and the search goes on; a zone of the second list
 // changes the scene (80:A4BF, with the data word) and the main loop starts its next
-// pass at once (the carry set). Without a player figure nothing is tested.
+// pass at once (the carry set in the original, a returned flag here). Without a player figure nothing is tested.
 //
 // The scene change composes the live room entry through its frame below the zone
 // check's frame (its NMI writes below them); the task append (lifted in
 // src/game/task-append.mjs) runs below the pushed list offset and its return word. The direct page
 // words 0E, 11 and 14 (the position), 17 (the list) and 1A (the zones left) are written
-// as the original writes them. A, X, Y and the flags are left as the original leaves
-// them: the next callees and the waits of the next pass start with them.
+// as the original writes them.
+//
+// Registers (user decision 2026-11-17): game state only; the scene change and the task
+// append take the data word as a parameter, and the routine leaves no A, X, Y or flags.
+// playerZonesRoutineSequence is the register form for register-level callers: the
+// carry set after a scene change.
 import { taskStop } from '../system/task-stop.mjs';
 import { dialogCallBody } from '../system/native-call-continuation.mjs';
-import { enterRoomJsrSequence } from './room-entry.mjs';
-import { appendScriptTaskCall } from '../script/task-api.mjs';
+import { enterRoomCallSequence } from './room-entry.mjs';
+import { appendScriptCall } from '../script/task-api.mjs';
 import {
   DP_ZONE_COUNT,
   DP_ZONE_HEIGHT,
@@ -40,7 +44,7 @@ import {
   WORD_MASK,
   WORD_SIGN,
 } from '../constants/bits.mjs';
-import { FLAG_CARRY, FLAG_NEGATIVE, FLAG_OVERFLOW, FLAG_ZERO } from '../constants/cpu-flags.mjs';
+import { FLAG_CARRY } from '../constants/cpu-flags.mjs';
 
 const POSITION_SHIFT = 2,
   ZONE_BYTES = 14,
@@ -66,42 +70,23 @@ const setWord = (wram, at, value) => {
   wram[at] = value & BYTE_MASK;
   wram[at + 1] = (value >>> BYTE_BITS) & BYTE_MASK;
 };
-const flag = (ctx, bit, set) => {
-  ctx.status = set ? ctx.status | bit : ctx.status & ~bit;
-};
-
-// The flags a callee starts with: the carry of the last limit comparison that held,
-// sign and zero of the word loaded last (the data word, or the list offset after INY).
-function enterCall(ctx, loaded) {
-  flag(ctx, FLAG_CARRY, true);
-  flag(ctx, FLAG_NEGATIVE, loaded & WORD_SIGN);
-  flag(ctx, FLAG_ZERO, loaded === 0);
-}
 
 // Test the zones around the player figure (80:8000), a sequence for a native call
-// continuation: h the main loop's access (direct page 0, data bank 80), events its frame
-// events its live frame events. Both task creation and room entry compose directly.
-export function* playerZonesSequence(h, events) {
-  const { ctx, a } = h,
+// continuation: h the main loop's access (direct page 0, data bank 80), events its live
+// frame events. Both task creation and room entry compose directly. zones.changed
+// tells whether a zone changed the scene (the carry in the original).
+export function* playerZonesSequence(h, events, zones = {}) {
+  const { a } = h,
     { mem } = a,
     { wram } = mem;
+  zones.changed = false;
   // The zone lists through the long pointer, read as the original's [9D],Y.
   const list = (offset) => {
     const at = (word(wram, DP_ZONE_LIST) | (wram[DP_ZONE_LIST + 2] << WORD_BITS)) + offset;
     return mem.read8(at & LONG_MASK) | (mem.read8((at + 1) & LONG_MASK) << BYTE_BITS);
   };
-  let result;
   const slot = word(wram, PLAYER_OBJECT);
-  if (slot & WORD_SIGN) {
-    yield () => {
-      ctx.y = slot;
-      flag(ctx, FLAG_NEGATIVE, true);
-      flag(ctx, FLAG_ZERO, false);
-      flag(ctx, FLAG_CARRY, false);
-      result = h.rts();
-    };
-    return result;
-  }
+  if (slot & WORD_SIGN) return yield* rts(h);
   let position;
   yield () => {
     if (OBJECT_HEIGHT + slot + 1 >= LOW_WRAM_END) taskStop('object_slot_required', { slot });
@@ -116,76 +101,67 @@ export function* playerZonesSequence(h, events) {
     setWord(wram, DP_ZONE_LIST_INDEX, index);
     const count = list(offset) & BYTE_MASK;
     offset = (offset + 1) & WORD_MASK;
-    ctx.a = count;
-    if (count) {
-      setWord(wram, DP_ZONE_COUNT, count);
-      yield () => a.pushWord(CHECK_RETURN);
-      for (;;) {
-        const left = (word(wram, DP_ZONE_COUNT) - 1) & WORD_MASK;
-        setWord(wram, DP_ZONE_COUNT, left);
-        if (left & WORD_SIGN) break;
-        // The first failing limit skips the rest of the zone (the original adds the
-        // remaining bytes with a clear carry, which sets the overflow).
-        const failed = LIMITS.find((n) => {
-          const limit = list((offset + 2 * n) & WORD_MASK),
-            value = position[n % AXES];
-          return n < AXES ? value < limit : limit < value;
-        });
-        if (failed !== undefined) {
-          const at = (offset + 2 * failed) & WORD_MASK,
-            rest = ZONE_BYTES - 2 * failed,
-            next = (at + rest) & WORD_MASK;
-          flag(ctx, FLAG_OVERFLOW, (~(at ^ rest) & (at ^ next) & WORD_SIGN) !== 0);
-          offset = next;
-          continue;
-        }
-        const data = list((offset + ZONE_DATA) & WORD_MASK);
-        offset = (offset + ZONE_DATA) & WORD_MASK;
-        if (index) {
-          // A zone of the second list: the scene change, then the next pass.
-          ctx.y = offset;
-          ctx.a = data;
-          enterCall(ctx, data);
-          yield* dialogCallBody(h, SCENE_CHANGE_CALL, SCENE_CHANGE, () =>
-            enterRoomJsrSequence(h, events),
-          );
-          yield () => {
-            a.pullWord();
-            flag(ctx, FLAG_CARRY, true);
-            result = h.rts();
-          };
-          return result;
-        }
-        // A zone of the first list: append its script task, then go on.
-        offset = (offset + 2) & WORD_MASK;
-        yield () => {
-          ctx.a = data;
-          ctx.x = data;
-          ctx.y = offset;
-          enterCall(ctx, offset);
-          a.pushWord(offset);
-          a.pushWord(APPEND_RETURN);
-          const append = appendScriptTaskCall(a);
-          if (append.rawReturnWord !== APPEND_RETURN)
-            taskStop('task_native_helper_return_required', {
-              actual: append.rawReturnWord,
-              expected: APPEND_RETURN,
-            });
-          ctx.y = a.pullWord();
-        };
+    if (!count) continue;
+    setWord(wram, DP_ZONE_COUNT, count);
+    yield () => a.pushWord(CHECK_RETURN);
+    for (;;) {
+      const left = (word(wram, DP_ZONE_COUNT) - 1) & WORD_MASK;
+      setWord(wram, DP_ZONE_COUNT, left);
+      if (left & WORD_SIGN) break;
+      // The first failing limit skips the rest of the zone.
+      const failed = LIMITS.find((n) => {
+        const limit = list((offset + 2 * n) & WORD_MASK),
+          value = position[n % AXES];
+        return n < AXES ? value < limit : limit < value;
+      });
+      if (failed !== undefined) {
+        offset = (offset + ZONE_BYTES) & WORD_MASK;
+        continue;
       }
-      yield () => a.pullWord();
+      const data = list((offset + ZONE_DATA) & WORD_MASK);
+      offset = (offset + ZONE_DATA) & WORD_MASK;
+      if (index) {
+        // A zone of the second list: the scene change, then the next pass.
+        yield* dialogCallBody(h, SCENE_CHANGE_CALL, SCENE_CHANGE, () =>
+          enterRoomCallSequence(h, events, data),
+        );
+        yield () => {
+          a.pullWord();
+          zones.changed = true;
+        };
+        return yield* rts(h);
+      }
+      // A zone of the first list: append its script task, then go on.
+      offset = (offset + 2) & WORD_MASK;
+      yield () => {
+        a.pushWord(offset);
+        a.pushWord(APPEND_RETURN);
+        const append = appendScriptCall(a, data);
+        if (append.rawReturnWord !== APPEND_RETURN)
+          taskStop('task_native_helper_return_required', {
+            actual: append.rawReturnWord,
+            expected: APPEND_RETURN,
+          });
+        offset = a.pullWord();
+      };
     }
+    yield () => a.pullWord();
   }
-  // Both lists tested: the list counter (2) was compared with 1, the carry cleared.
+  // Both lists tested.
+  yield () => setWord(wram, DP_ZONE_LIST_INDEX, LISTS);
+  return yield* rts(h);
+}
+function* rts(h) {
+  let result;
   yield () => {
-    setWord(wram, DP_ZONE_LIST_INDEX, LISTS);
-    ctx.a = LISTS;
-    ctx.y = offset;
-    flag(ctx, FLAG_NEGATIVE, false);
-    flag(ctx, FLAG_ZERO, false);
-    flag(ctx, FLAG_CARRY, false);
     result = h.rts();
   };
+  return result;
+}
+// The register form for register-level callers: the carry set after a scene change.
+export function* playerZonesRoutineSequence(h, events) {
+  const zones = {},
+    result = yield* playerZonesSequence(h, events, zones);
+  h.ctx.status = zones.changed ? h.ctx.status | FLAG_CARRY : h.ctx.status & ~FLAG_CARRY;
   return result;
 }

@@ -112,9 +112,10 @@ export function* mainLoopSequence(a, events, returnToOwner = false) {
   const once = (run) => () => segmentSequence(() => run(h, events));
   const carry = () => (ctx.status & FLAG_CARRY) !== 0;
   if (ctx.pc === MAIN_LOOP_START) return yield* top();
-  // $96C3–$96E4
-  yield* call(CALL_PC.GATE_8000, 0x808000, () => mainLoopPlayerZonesSequence(h, events));
-  if (carry()) return yield* top();
+  // $96C3–$96E4; a scene change by a zone starts the next pass at once.
+  const zones = {};
+  yield* call(CALL_PC.GATE_8000, 0x808000, () => mainLoopPlayerZonesSequence(h, events, zones));
+  if (zones.changed) return yield* top();
   yield* call(CALL_PC.CC4B, 0x80cc4b, () => sceneRequestSequence(h, events));
   if (carry()) return yield* top();
   yield* call(CALL_PC.DE94, 0x80de94, once(runHitShake));

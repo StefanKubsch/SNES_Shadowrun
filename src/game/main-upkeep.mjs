@@ -75,7 +75,7 @@ import { equipmentRowsSequence } from './equipment-window.mjs';
 import { memberPortraitSequence } from './member-portrait.mjs';
 import { NATIVE_ENTRY, statusScreenSequence } from './status-screen.mjs';
 import { mainMenuSequence } from './main-menu.mjs';
-import { playerZonesSequence } from './player-zones.mjs';
+import { playerZonesRoutineSequence, playerZonesSequence } from './player-zones.mjs';
 import { moveAndAnimate } from './object-motion.mjs';
 import { buildSprites } from './sprite-list.mjs';
 import { frameWaitCallSequence } from '../system/live-input-calls.mjs';
@@ -462,13 +462,14 @@ NATIVE_CALL_CONTINUATIONS.set(runGloveMove, {
 // 80:8000, called with JSR; its scene change waits for the NMI, so it is a native
 // call continuation of the main loop. The register-level reference keeps the target's
 // registration, so this one is found by its run function.
-// The zones append their script tasks with the lifted task append 80:C34A.
+// The zones append their script tasks with the lifted task append 80:C34A. The register
+// form leaves the carry set after a scene change.
 export function runPlayerZones(h, events) {
-  return drainNativeSequence(playerZonesSequence(h, events));
+  return drainNativeSequence(playerZonesRoutineSequence(h, events));
 }
 NATIVE_CALL_CONTINUATIONS.set(runPlayerZones, {
   run: runPlayerZones,
-  create: ({ h, events }) => new NativeCallContinuation(h.a, playerZonesSequence(h, events)),
+  create: ({ h, events }) => new NativeCallContinuation(h.a, playerZonesRoutineSequence(h, events)),
 });
 // 80:AFC4, called with JSR; nothing in it waits.
 export function runObjectMotion(h, events) {
@@ -486,4 +487,5 @@ export const mainLoopFrameWaitSequence = frameWaitCallSequence;
 export const mainLoopTimeLimitSequence = (h, events) => timeLimitSequence(h, events);
 export const mainLoopGloveActionSequence = (h, events) => gloveActionSequence(h, events);
 export const mainLoopGloveMoveSequence = (h, events) => gloveMoveSequence(h, events);
-export const mainLoopPlayerZonesSequence = (h, events) => playerZonesSequence(h, events);
+export const mainLoopPlayerZonesSequence = (h, events, zones) =>
+  playerZonesSequence(h, events, zones);

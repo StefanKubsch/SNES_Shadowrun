@@ -385,7 +385,16 @@ export function* enterRoomSequence(h, events, room) {
   };
 }
 
-// The room in A, entered below the caller's existing 80:A4BF JSR frame.
+// The room given, entered below the caller's existing 80:A4BF JSR frame.
+export function* enterRoomCallSequence(h, events, room) {
+  yield* enterRoomSequence(h, events, room);
+  let result;
+  yield () => {
+    result = h.rts();
+  };
+  return result;
+}
+// The register form for register-level callers: the room in A.
 export function* enterRoomJsrSequence(h, events) {
   yield* enterRoomSequence(h, events, h.ctx.a & WORD_MASK);
   let result;
