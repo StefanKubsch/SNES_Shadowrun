@@ -394,12 +394,3 @@ export function* enterRoomCallSequence(h, events, room) {
   };
   return result;
 }
-// The register form for register-level callers: the room in A.
-export function* enterRoomJsrSequence(h, events) {
-  yield* enterRoomSequence(h, events, h.ctx.a & WORD_MASK);
-  let result;
-  yield () => {
-    result = h.rts();
-  };
-  return result;
-}
