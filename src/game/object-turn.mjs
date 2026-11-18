@@ -48,13 +48,6 @@ import {
   OBJECT_SELECTION,
 } from '../data/wram.mjs';
 import { ACTION_TABLE } from '../data/actions.mjs';
-import {
-  FLAG_CARRY,
-  FLAG_DECIMAL,
-  FLAG_NEGATIVE,
-  FLAG_OVERFLOW,
-  FLAG_ZERO,
-} from '../constants/cpu-flags.mjs';
 import { CODE_BANK_BASE } from '../constants/memory-map.mjs';
 import {
   BYTE_BITS,
@@ -93,9 +86,6 @@ const ACTION_BANK = ACTION_TABLE >>> WORD_BITS,
 const JSR_LAST_BYTE = 2,
   SELECTION_RETURN = 0xaadc;
 
-const flag = (ctx, bit, set) => {
-  ctx.status = set ? ctx.status | bit : ctx.status & ~bit;
-};
 const word = (wram, at) => wram[at] | (wram[at + 1] << BYTE_BITS);
 const setWord = (wram, at, value) => {
   wram[at] = value & BYTE_MASK;
@@ -222,25 +212,6 @@ export function turnObject(mem, wram, a) {
     carry: sum > BYTE_MASK,
     overflow: (~(back ^ forward) & (back ^ offset) & BYTE_SIGN) !== 0,
   };
-}
-
-// The turn as called with JSR (80:AAAF), its return word on the stack: direct page 0
-// and binary arithmetic. Leaves A, X, Y and the flags as the original and returns
-// with its RTS.
-export function turnObjectRoutine(h) {
-  const { ctx, a } = h;
-  if (ctx.d !== 0) taskStop('task_direct_page_zero_required');
-  if (ctx.status & FLAG_DECIMAL) taskStop('task_binary_arithmetic_required');
-  const { mem } = a,
-    left = turnObject(mem, mem.wram, a);
-  if (left.a !== undefined) ctx.a = left.a;
-  ctx.x = left.x;
-  ctx.y = left.y;
-  flag(ctx, FLAG_NEGATIVE, left.sign & WORD_SIGN);
-  flag(ctx, FLAG_ZERO, left.sign === 0);
-  flag(ctx, FLAG_CARRY, left.carry);
-  if (left.overflow !== undefined) flag(ctx, FLAG_OVERFLOW, left.overflow);
-  return h.rts();
 }
 
 // The turn as called with JSR for lifted callers: it leaves no registers and returns

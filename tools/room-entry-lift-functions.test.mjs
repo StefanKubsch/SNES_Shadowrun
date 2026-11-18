@@ -28,7 +28,8 @@ import { loadSceneSequence } from '../src/game/scene-load.mjs';
 import { createObject } from '../src/game/object-create.mjs';
 import { appendTableTaskCall } from '../proof/caller/task-append-call.mjs';
 import { appendScriptTask as appendScriptTaskReference } from '../proof/system/task-append.mjs';
-import { turnObject, turnObjectRoutine } from '../src/game/object-turn.mjs';
+import { turnObject } from '../src/game/object-turn.mjs';
+import { turnObjectRoutine } from '../proof/caller/object-turn.mjs';
 import { setObjectDirectionReference as setObjectDirection } from '../proof/game-reference/object-turn.mjs';
 import {
   HEAP_NEXT_WORD,
