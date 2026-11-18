@@ -243,6 +243,14 @@ export function turnObjectRoutine(h) {
   return h.rts();
 }
 
+// The turn as called with JSR for lifted callers: it leaves no registers and returns
+// with its RTS.
+export function turnObjectJsr(h) {
+  const { mem } = h.a;
+  turnObject(mem, mem.wram, h.a);
+  return h.rts();
+}
+
 // The turn called with a JSR from site (its return word on the stack).
 export function turnObjectCall(h, site) {
   const { mem, wram } = sceneRuntime(h);

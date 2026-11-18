@@ -12,12 +12,15 @@
 // while aiming, a held A or X gives the newly pressed aim buttons in DP 00 (both
 // buttons for Summon spirit and for a weapon of kind 1 over a hittable target), B, L or
 // R ends the aim and takes the glove off (80:BCB2), as A or X do without an aim, and B,
-// L or R do without a tagged object. Callees retain their original call frames.
-// All callees compose directly through their original frames.
+// L or R do without a tagged object. All callees compose directly through their
+// original frames.
+//
+// Registers (user decision 2026-11-17): game state only; the routine and its turns
+// (the JSR form of 80:AAAF) leave no A, X, Y or flags, and the result is in DP 00.
 import { openWindowSequence } from './window-open.mjs';
 import { printTextSequence } from './text-print.mjs';
 import { waitForConfirmKeySequence } from './confirm-key.mjs';
-import { selectAnimationRoutine, turnObjectRoutine } from './object-turn.mjs';
+import { selectAnimationRoutine, turnObjectJsr } from './object-turn.mjs';
 import { releaseWindowJsrSequence, putGloveAwayCallSequence } from './window-release.mjs';
 import { START_ENTRY, ITEMS_ENTRY, statusScreenSequence } from './status-screen.mjs';
 import { partyStatusSequence } from './party-status.mjs';
@@ -98,7 +101,6 @@ import {
 import { fitListWindow } from '../data/menu-layout.mjs';
 import { aimReleaseFixed } from './bugfixes.mjs';
 import { BYTE_BITS, BYTE_MASK, WORD_MASK, WORD_SIGN } from '../constants/bits.mjs';
-import { FLAG_CARRY, FLAG_NEGATIVE, FLAG_OVERFLOW, FLAG_ZERO } from '../constants/cpu-flags.mjs';
 
 // The callees and their call sites.
 const PARTY_STATUS = [0x80e021, 0x80ed3c],
@@ -129,17 +131,6 @@ const setWord = (wram, at, value) => {
   wram[at] = value & BYTE_MASK;
   wram[at + 1] = (value >>> BYTE_BITS) & BYTE_MASK;
 };
-const setFlag = (ctx, bit, set) => {
-  ctx.status = set ? ctx.status | bit : ctx.status & ~bit;
-};
-const setSignZero = (ctx, value) => {
-  setFlag(ctx, FLAG_NEGATIVE, value & WORD_SIGN);
-  setFlag(ctx, FLAG_ZERO, value === 0);
-};
-const load = (ctx, value) => {
-  ctx.a = value;
-  setSignZero(ctx, value);
-};
 const negative = (value) => (value & WORD_SIGN) !== 0;
 // left - right - borrow and left + right + carry on words, with the carry and the
 // signed overflow.
@@ -158,11 +149,9 @@ const magnitude = (value) => (negative(value) ? -value & WORD_MASK : value);
 // 80:DEC7: the leader Y walks by the pad's directions (80:DF4B, turned by the camera's
 // rotation word in SRAM and kept even) with the steps of 80:DF27 and 80:DF39 and
 // turns that way (80:AAAF); without a direction the idle action is set once.
-function* walkByPadSequence(h) {
-  const { ctx } = h,
-    { mem } = h.a,
-    { wram } = mem,
-    player = ctx.y;
+function* walkByPadSequence(h, player) {
+  const { mem } = h.a,
+    { wram } = mem;
   let direction, idle;
   yield () => {
     const pressed = word(wram, PAD_HELD) & PAD_DIRECTIONS,
@@ -171,15 +160,11 @@ function* walkByPadSequence(h) {
     if (entry < NO_DIRECTION) {
       const rotation = mem.read16(CAMERA_ROTATION_SRAM),
         turned = subtract(subtract(entry, rotation).value, rotation);
-      setFlag(ctx, FLAG_OVERFLOW, turned.overflow);
       direction = turned.value & DIRECTION_MASK;
     }
-    ctx.x = direction;
     setDataBankWord(mem, OBJECT_VELOCITY_X, player, dataBankWord(mem, WALK_STEP_X, direction));
     setDataBankWord(mem, OBJECT_VELOCITY_Y, player, dataBankWord(mem, WALK_STEP_Y, direction));
-    setFlag(ctx, FLAG_CARRY, direction >= NO_DIRECTION);
     idle = word(wram, PLAYER_IDLE);
-    load(ctx, idle);
   };
   if (direction === NO_DIRECTION) {
     if (idle) return;
@@ -187,36 +172,25 @@ function* walkByPadSequence(h) {
     yield* dialogCallBody(h, ...IDLE_ACTION, () =>
       segmentSequence(() => selectAnimationRoutine(h)),
     );
-    yield () => {
-      load(ctx, MARK_SET);
-      setWord(wram, PLAYER_IDLE, MARK_SET);
-    };
+    yield () => setWord(wram, PLAYER_IDLE, MARK_SET);
     return;
   }
   if (idle) {
-    yield () => {
-      load(ctx, WALK_ACTION);
-      setWord(wram, 2, WALK_ACTION);
-    };
+    yield () => setWord(wram, 2, WALK_ACTION);
     yield* dialogCallBody(h, ...WALK_ACTION_CALL, () =>
       segmentSequence(() => selectAnimationRoutine(h)),
     );
     yield () => setWord(wram, PLAYER_IDLE, 0);
   }
   yield () => {
-    const facing = direction >>> 1;
-    setWord(wram, 2, facing);
-    ctx.a = facing;
-    setFlag(ctx, FLAG_CARRY, direction & 1);
-    ctx.y = word(wram, PLAYER_OBJECT);
-    setSignZero(ctx, ctx.y);
-    setWord(wram, 0, ctx.y);
+    setWord(wram, 2, direction >>> 1);
+    setWord(wram, 0, word(wram, PLAYER_OBJECT));
   };
-  yield* dialogCallBody(h, ...WALK_TURN, () => segmentSequence(() => turnObjectRoutine(h)));
+  yield* dialogCallBody(h, ...WALK_TURN, () => segmentSequence(() => turnObjectJsr(h)));
 }
 
 // 80:BC67, 80:BC80 or 80:BC99: the glove over the leader (80:BC36) with its limits and
-// kind; leaves A the kind.
+// kind.
 function putGloveOn(h, [baseX, baseY, kind]) {
   const { wram } = h.a.mem;
   placeGloveOverPlayer(h);
@@ -224,15 +198,13 @@ function putGloveOn(h, [baseX, baseY, kind]) {
   setWord(wram, GLOVE_BASE_Y, baseY);
   setWord(wram, GLOVE_LIMIT_KIND, kind);
   setWord(wram, GLOVE_KIND, kind);
-  load(h.ctx, kind);
 }
 
 // 80:DF6B: the leader faces the glove (80:AAAF with the leader in DP 00 and the
 // direction in DP 02): the leader's screen position as 80:BC36 projects it against the
 // glove's pixel (its position over 4), compared on the dominant axis or on both.
 function* faceGloveSequence(h) {
-  const { ctx } = h,
-    { mem } = h.a,
+  const { mem } = h.a,
     { wram } = mem;
   yield () => {
     const gloveX = word(wram, GLOVE_X) >>> PIXEL_SHIFT,
@@ -259,8 +231,7 @@ function* faceGloveSequence(h) {
     setWord(wram, DP_FACING_SIZE_Y, sizeY);
     setWord(wram, DP_FACING_SIZE_X, sizeX);
     let directions,
-      sign = signY,
-      carry = true;
+      sign = signY;
     if (sizeY >>> 1 >= sizeX) directions = FACING_DIRECTIONS.vertical;
     else if (sizeX >>> 1 >= sizeY) {
       directions = FACING_DIRECTIONS.horizontal;
@@ -269,26 +240,18 @@ function* faceGloveSequence(h) {
       directions = signX
         ? FACING_DIRECTIONS.diagonalNegativeX
         : FACING_DIRECTIONS.diagonalPositiveX;
-      carry = false;
     }
     const [ifSet, ifZero] = directions;
-    ctx.a = sign;
-    ctx.x = player;
-    ctx.y = sign ? ifSet : ifZero;
-    setSignZero(ctx, ctx.y);
-    setFlag(ctx, FLAG_CARRY, carry);
-    setFlag(ctx, FLAG_OVERFLOW, across.overflow);
     setWord(wram, 0, player);
-    setWord(wram, 2, ctx.y);
+    setWord(wram, 2, sign ? ifSet : ifZero);
   };
-  yield* dialogCallBody(h, ...GLOVE_TURN, () => segmentSequence(() => turnObjectRoutine(h)));
+  yield* dialogCallBody(h, ...GLOVE_TURN, () => segmentSequence(() => turnObjectJsr(h)));
 }
 
 // A notice with its window, text and key wait at the call sites calls, then the leader
 // in DP 00 and the neutral action.
 function* noticeSequence(h, events, [windowPc, textPc, waitPc, releasePc], notice, renderBuffer) {
-  const { ctx } = h,
-    { mem } = h.a,
+  const { mem } = h.a,
     { wram } = mem;
   yield () => {
     setWord(wram, DP_WINDOW_LEFT, NOTICE_WINDOW.left);
@@ -296,23 +259,15 @@ function* noticeSequence(h, events, [windowPc, textPc, waitPc, releasePc], notic
     setWord(wram, DP_WINDOW_COLUMNS, notice.columns);
     setWord(wram, DP_WINDOW_ROWS, NOTICE_WINDOW.rows);
     setWord(wram, DP_WINDOW_ATTRIBUTES, 0);
-    load(ctx, 0);
     // Another language fits the window to the text.
     fitListWindow(mem, h, [notice.text], { column: 0 });
   };
   yield* dialogCallBody(h, windowPc, OPEN_WINDOW, () => openWindowSequence(h, events));
-  yield () => {
-    load(ctx, notice.text);
-    setWord(wram, 2, notice.text);
-  };
+  yield () => setWord(wram, 2, notice.text);
   yield* dialogCallBody(h, textPc, PRINT_TEXT, () => printTextSequence(h, events, renderBuffer));
   yield* dialogCallBody(h, waitPc, CONFIRM_KEY, () => waitForConfirmKeySequence(h, events));
   yield* dialogCallBody(h, releasePc, RELEASE_WINDOW, () => releaseWindowJsrSequence(h.a, events));
-  yield () => {
-    const player = word(wram, PLAYER_OBJECT);
-    load(ctx, player);
-    setWord(wram, 0, player);
-  };
+  yield () => setWord(wram, 0, word(wram, PLAYER_OBJECT));
   yield* neutralSequence(h);
 }
 // The neutral action (80:A985 with DP 02 = 0).
@@ -323,46 +278,28 @@ function* neutralSequence(h) {
 
 // The aim's result with A or X held (80:E13E); returns it.
 function aimResult(h) {
-  const { ctx } = h,
-    { mem } = h.a,
+  const { mem } = h.a,
     { wram } = mem,
     pressed = (mask) => word(wram, PAD_PRESSED) & mask;
-  // Both buttons: the held A or the newly pressed X; A is left the held A.
-  const both = () => {
-    const held = word(wram, PAD_HELD) & PAD_A,
-      result = pressed(PAD_X) | held;
-    load(ctx, held);
-    return result;
-  };
-  if (word(wram, AIMING_SPELL)) {
-    const script = word(wram, SELECTED_SPELL_SCRIPT);
-    setFlag(ctx, FLAG_CARRY, script >= SUMMON_SPIRIT_SCRIPT);
-    if (script === SUMMON_SPIRIT_SCRIPT) return both();
-  }
+  // Both buttons: the held A or the newly pressed X.
+  const both = () => pressed(PAD_X) | (word(wram, PAD_HELD) & PAD_A);
+  if (word(wram, AIMING_SPELL) && word(wram, SELECTED_SPELL_SCRIPT) === SUMMON_SPIRIT_SCRIPT)
+    return both();
   if (!negative(word(wram, GLOVE_TARGET_TAG))) {
     const target = word(wram, GLOVE_TARGET_OBJECT);
-    ctx.x = target;
-    const flags = dataBankWord(mem, OBJECT_FLAGS, target);
-    if (negative(flags)) {
+    if (negative(dataBankWord(mem, OBJECT_FLAGS, target))) {
       setWord(wram, AIM_TARGET_OBJECT, target);
-      const kind = wram[RUNNER_WEAPON_KIND];
-      setFlag(ctx, FLAG_CARRY, kind >= TWO_BUTTON_WEAPON);
-      if (kind === TWO_BUTTON_WEAPON) return both();
-      const result = pressed(AIM_BUTTONS);
-      load(ctx, result);
-      return result;
+      if (wram[RUNNER_WEAPON_KIND] === TWO_BUTTON_WEAPON) return both();
+      return pressed(AIM_BUTTONS);
     }
   }
-  const result = pressed(PAD_A);
-  load(ctx, result);
-  return result;
+  return pressed(PAD_A);
 }
 
 // 80:E014: one frame of the player's control (see above). A sequence that ends with the
 // native's RTS.
 export function* controlPlayerSequence(h, events, renderBuffer = drawTextBufferSequence) {
-  const { ctx } = h,
-    { mem } = h.a,
+  const { mem } = h.a,
     { wram } = mem;
   const finish = function* (result = 0) {
     yield () => setWord(wram, 0, result);
@@ -372,14 +309,11 @@ export function* controlPlayerSequence(h, events, renderBuffer = drawTextBufferS
     };
     return returned;
   };
-  let path;
+  let path, player;
   yield () => {
-    const player = word(wram, PLAYER_OBJECT),
-      pressed = word(wram, PAD_PRESSED);
-    ctx.y = player;
+    const pressed = word(wram, PAD_PRESSED);
+    player = word(wram, PLAYER_OBJECT);
     setWord(wram, 0, player);
-    // A BIT that finds a button leaves the load's zero clear.
-    load(ctx, pressed);
     const test = (mask) => (pressed & mask) !== 0;
     if (test(PAD_SELECT)) path = 'party';
     else if (test(PAD_START)) path = 'status';
@@ -402,48 +336,37 @@ export function* controlPlayerSequence(h, events, renderBuffer = drawTextBufferS
     );
     return yield* finish();
   }
-  if (path === 'free') return yield* freeSequence(h, events, finish, renderBuffer);
+  if (path === 'free') return yield* freeSequence(h, events, finish, renderBuffer, player);
   return yield* gloveSequence(h, events, finish);
 }
 
 // Without a glove (80:E04B).
-function* freeSequence(h, events, finish, renderBuffer) {
-  const { ctx } = h,
-    { mem } = h.a,
+function* freeSequence(h, events, finish, renderBuffer, player) {
+  const { mem } = h.a,
     { wram } = mem,
     pressed = word(wram, PAD_PRESSED);
-  // The pad word is loaded for each BIT; one that finds a button leaves zero clear.
-  const test = (mask) => {
-    load(ctx, pressed);
-    return (pressed & mask) !== 0;
-  };
+  const test = (mask) => (pressed & mask) !== 0;
   if (!test(GLOVE_BUTTONS)) {
-    yield* walkByPadSequence(h);
+    yield* walkByPadSequence(h, player);
     return yield* finish();
   }
   yield () => {
-    const idle = word(wram, PLAYER_IDLE);
-    load(ctx, idle);
-    if (idle) return;
+    if (word(wram, PLAYER_IDLE)) return;
     setWord(wram, PLAYER_IDLE, MARK_SET);
-    setDataBankWord(mem, OBJECT_VELOCITY_X, ctx.y, 0);
-    setDataBankWord(mem, OBJECT_VELOCITY_Y, ctx.y, 0);
+    setDataBankWord(mem, OBJECT_VELOCITY_X, player, 0);
+    setDataBankWord(mem, OBJECT_VELOCITY_Y, player, 0);
   };
   if (test(PAD_A)) {
     let armed;
     yield () => {
-      const weapon = word(wram, RUNNER_WEAPON);
-      load(ctx, weapon);
-      armed = !negative(weapon);
+      armed = !negative(word(wram, RUNNER_WEAPON));
       if (!armed) return;
       putGloveOn(h, GLOVE_LIMITS.crosshair);
       const heavy = wram[RUNNER_WEAPON_KIND + 1] >= HEAVY_WEAPON_DAMAGE,
         action = heavy ? HEAVY_AIM_ACTION : AIM_ACTION;
-      setFlag(ctx, FLAG_CARRY, heavy);
       setWord(wram, 2, action);
       setWord(wram, AIM_ACTION_NEXT, action + 1);
       setWord(wram, AIMING_WEAPON, MARK_SET);
-      load(ctx, MARK_SET);
     };
     if (!armed) {
       yield* noticeSequence(h, events, WEAPON_NOTICE_CALLS, WEAPON_NOTICE, renderBuffer);
@@ -457,13 +380,10 @@ function* freeSequence(h, events, finish, renderBuffer) {
   if (test(PAD_X)) {
     let selected;
     yield () => {
-      const script = word(wram, SELECTED_SPELL_SCRIPT);
-      load(ctx, script);
-      selected = script !== 0;
+      selected = word(wram, SELECTED_SPELL_SCRIPT) !== 0;
       if (!selected) return;
       putGloveOn(h, GLOVE_LIMITS.spell);
       setWord(wram, AIMING_SPELL, MARK_SET);
-      load(ctx, SPELL_ACTION);
       setWord(wram, 2, SPELL_ACTION);
     };
     if (!selected) {
@@ -482,27 +402,17 @@ function* freeSequence(h, events, finish, renderBuffer) {
 
 // With a glove (80:E12B).
 function* gloveSequence(h, events, finish) {
-  const { ctx } = h,
-    { wram } = h.a.mem;
+  const { wram } = h.a.mem;
   yield* faceGloveSequence(h);
   let step;
   yield () => {
     const pressed = word(wram, PAD_PRESSED),
       aiming = word(wram, AIMING_WEAPON) | word(wram, AIMING_SPELL);
-    load(ctx, aiming);
     // B, L or R end the aim and take the glove off; without one nothing happens.
-    const release = () => {
-      // Without one the BIT's zero stays to the end.
-      load(ctx, pressed);
-      setFlag(ctx, FLAG_ZERO, !(pressed & RELEASE_BUTTONS));
-      return pressed & RELEASE_BUTTONS ? 'end' : 'done';
-    };
+    const release = () => (pressed & RELEASE_BUTTONS ? 'end' : 'done');
     if (!aiming) {
-      load(ctx, pressed);
       if (pressed & AIM_BUTTONS) return (step = 'away');
-      const tag = word(wram, GLOVE_TARGET_TAG);
-      load(ctx, tag);
-      step = negative(tag) ? release() : 'done';
+      step = negative(word(wram, GLOVE_TARGET_TAG)) ? release() : 'done';
       return;
     }
     const held = word(wram, PAD_HELD) & AIM_BUTTONS;
