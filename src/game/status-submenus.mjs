@@ -13,6 +13,9 @@
 // the head computer title, "Datajack" and the cyberware from row 2. A key ends both.
 // The callees (window 80:F963, cursor 80:FAAC, text 80:FE69, number 80:FD80, key wait
 // 80:F953, release 80:FA3E) compose directly through their original frames.
+//
+// Registers (user decision 2026-11-17): game state only; no callee takes a register
+// input and no register values are left.
 import { dialogCallBody, segmentSequence } from '../system/native-call-continuation.mjs';
 import { openWindowSequence } from './window-open.mjs';
 import { releaseWindowSequence } from './window-release.mjs';
@@ -52,15 +55,7 @@ import {
 } from '../data/wram.mjs';
 import { JAKE_OBJECT_NUMBER, SKILL_COUNT } from '../data/runners.mjs';
 import { fitListWindow } from '../data/menu-layout.mjs';
-import {
-  BYTE_BITS,
-  BYTE_MASK,
-  LONG_MASK,
-  WORD_BITS,
-  WORD_MASK,
-  WORD_SIGN,
-} from '../constants/bits.mjs';
-import { FLAG_CARRY, FLAG_NEGATIVE, FLAG_ZERO } from '../constants/cpu-flags.mjs';
+import { BYTE_BITS, BYTE_MASK, LONG_MASK, WORD_BITS, WORD_MASK } from '../constants/bits.mjs';
 
 const OPEN_WINDOW = 0x80f963,
   CURSOR = 0x80faac,
@@ -84,17 +79,6 @@ const setWord = (wram, at, value) => {
   wram[at] = value & BYTE_MASK;
   wram[at + 1] = (value >>> BYTE_BITS) & BYTE_MASK;
 };
-const setFlag = (ctx, bit, set) => {
-  ctx.status = set ? ctx.status | bit : ctx.status & ~bit;
-};
-const setSignZero = (ctx, value) => {
-  setFlag(ctx, FLAG_NEGATIVE, value & WORD_SIGN);
-  setFlag(ctx, FLAG_ZERO, value === 0);
-};
-const load = (ctx, value) => {
-  ctx.a = value;
-  setSignZero(ctx, value);
-};
 function* returnSequence(h) {
   let result;
   yield () => {
@@ -108,7 +92,7 @@ function recordByte(mem, offset) {
     record = word(wram, DP_MEMBER_RECORD) | (wram[DP_MEMBER_RECORD_BANK] << WORD_BITS);
   return mem.read8((record + offset) & LONG_MASK);
 }
-// The window's place, size and plain attributes in the direct page; leaves A 0.
+// The window's place, size and plain attributes in the direct page.
 function setWindow(h, { left, top, columns }, rows) {
   const { wram } = h.a.mem;
   if (rows !== undefined) setWord(wram, DP_WINDOW_ROWS, rows);
@@ -116,27 +100,17 @@ function setWindow(h, { left, top, columns }, rows) {
   setWord(wram, DP_WINDOW_TOP, top);
   setWord(wram, DP_WINDOW_COLUMNS, columns);
   setWord(wram, DP_WINDOW_ATTRIBUTES, 0);
-  load(h.ctx, 0);
 }
 
 // 80:E834: skills compose live callees directly and end with their RTS.
 export function* skillsSequence(h, events, renderBuffer = drawTextBufferSequence) {
-  const { ctx } = h,
-    { mem } = h.a,
+  const { mem } = h.a,
     { wram } = mem,
     window = translatedSkillWindow(h);
   let known = 0;
   yield () => {
     for (let skill = 0; skill < SKILL_COUNT; skill++) if (recordByte(mem, skill)) known++;
-    // The count compares leave Y past the skills, zero for none and the carry.
-    ctx.x = known;
-    ctx.y = SKILL_COUNT;
-    if (!known) ctx.a = 0;
-    setSignZero(ctx, known);
-    setFlag(ctx, FLAG_CARRY, true);
-    if (!known) return;
-    ctx.x = known + SKILL_EXTRA_ROWS;
-    setWindow(h, window, ctx.x);
+    if (known) setWindow(h, window, known + SKILL_EXTRA_ROWS);
   };
   if (!known) return yield* returnSequence(h);
   yield* dialogCallBody(h, 0x80e863, OPEN_WINDOW, () => openWindowSequence(h, events));
@@ -148,58 +122,35 @@ export function* skillsSequence(h, events, renderBuffer = drawTextBufferSequence
     let value;
     yield () => {
       value = recordByte(mem, skill);
-      ctx.y = skill;
-      load(ctx, value);
     };
     if (value) {
       let name;
       yield () => {
-        ctx.x = skill << 1;
-        name = dataBankWord(mem, SKILL_NAMES, ctx.x);
-        load(ctx, name);
-        setFlag(ctx, FLAG_CARRY, false);
+        name = dataBankWord(mem, SKILL_NAMES, skill << 1);
         setWord(wram, 2, 0);
       };
       yield* dialogCallBody(h, 0x80e882, CURSOR, () =>
         segmentSequence(() => setTextCursorRoutine(h)),
       );
-      yield () => {
-        load(ctx, name);
-        setWord(wram, 2, name);
-      };
+      yield () => setWord(wram, 2, name);
       yield* dialogCallBody(h, 0x80e888, TEXT, () => printTextSequence(h, events, renderBuffer));
-      yield () => {
-        load(ctx, window.valueColumn);
-        setWord(wram, 2, window.valueColumn);
-      };
+      yield () => setWord(wram, 2, window.valueColumn);
       yield* dialogCallBody(h, 0x80e890, CURSOR, () =>
         segmentSequence(() => setTextCursorRoutine(h)),
       );
       yield () => {
         setWord(wram, DP_CURSOR_ROW, (word(wram, DP_CURSOR_ROW) + 1) & WORD_MASK);
-        load(ctx, value);
         setWord(wram, 2, value);
       };
       yield* dialogCallBody(h, 0x80e898, NUMBER, () =>
         printNumberSequence(h, events, renderBuffer),
       );
-      yield () => {
-        ctx.y = skill;
-      };
     }
   }
-  yield () => {
-    // The last compare: Y past the skills.
-    ctx.y = SKILL_COUNT;
-    setSignZero(ctx, 0);
-    setFlag(ctx, FLAG_CARRY, true);
-  };
   yield* dialogCallBody(h, 0x80e8a2, CONFIRM_KEY, () => waitForConfirmKeySequence(h, events));
   yield () => {
     if (word(wram, PAD_PRESSED) & PAD_SELECT) setWord(wram, DIALOG_END, ENDED);
-    const window = dataBankWord(mem, STATUS_SUBMENU_WINDOW);
-    load(ctx, window);
-    setWord(wram, 0, window);
+    setWord(wram, 0, dataBankWord(mem, STATUS_SUBMENU_WINDOW));
   };
   yield* dialogCallBody(h, 0x80e8b8, RELEASE_WINDOW, () =>
     (function* () {
@@ -212,32 +163,25 @@ export function* skillsSequence(h, events, renderBuffer = drawTextBufferSequence
 
 // 80:E8C8: the notes (see above). A sequence that ends with its RTS.
 export function* notesSequence(h, events, renderBuffer = drawTextBufferSequence) {
-  const { ctx } = h,
-    { mem } = h.a,
+  const { mem } = h.a,
     { wram } = mem;
   const text = function* (pc, value) {
-    yield () => {
-      load(ctx, value);
-      setWord(wram, 2, value);
-    };
+    yield () => setWord(wram, 2, value);
     yield* dialogCallBody(h, pc, TEXT, () => printTextSequence(h, events, renderBuffer));
   };
   let jake, datajack;
   yield () => {
-    const number = dataBankWord(mem, MEMBER_NUMBER);
-    setFlag(ctx, FLAG_CARRY, number >= JAKE_OBJECT_NUMBER);
-    jake = number === JAKE_OBJECT_NUMBER;
+    jake = dataBankWord(mem, MEMBER_NUMBER) === JAKE_OBJECT_NUMBER;
     if (jake) {
-      ctx.x = NOTES_WINDOW.jakeRows;
-      for (const [flag] of CYBERWARE) if (wram[flag]) ctx.x++;
-      setWindow(h, NOTES_WINDOW, ctx.x);
+      let rows = NOTES_WINDOW.jakeRows;
+      for (const [flag] of CYBERWARE) if (wram[flag]) rows++;
+      setWindow(h, NOTES_WINDOW, rows);
       fitListWindow(mem, h, [TEXT_HEAD_COMPUTER, TEXT_DATAJACK, ...CYBERWARE.map(([, id]) => id)], {
         column: 0,
       });
       return;
     }
     datajack = dataBankWord(mem, MEMBER_DATAJACK);
-    load(ctx, datajack);
     if (!datajack) return;
     setWindow(h, NOTES_WINDOW, NOTES_WINDOW.runnerRows);
     fitListWindow(mem, h, [TEXT_DATAJACK], { column: 0 });
@@ -259,23 +203,19 @@ export function* notesSequence(h, events, renderBuffer = drawTextBufferSequence)
   yield* text(0x80e93f, TEXT_HEAD_COMPUTER);
   yield () => {
     setWord(wram, 2, 0);
-    load(ctx, DATAJACK_ROW);
     setWord(wram, DP_CURSOR_ROW, DATAJACK_ROW);
   };
   yield* dialogCallBody(h, 0x80e949, CURSOR, () => segmentSequence(() => setTextCursorRoutine(h)));
   yield* text(0x80e951, TEXT_DATAJACK);
-  // The cyberware rows count from the datajack's (A is loaded again by the flags).
+  // The cyberware rows count from the datajack's.
   yield () => setWord(wram, DP_CURSOR_ROW, DATAJACK_ROW);
   for (const [flag, id, [cursorPc, textPc]] of CYBERWARE) {
     let fitted;
     yield () => {
       fitted = wram[flag];
-      load(ctx, fitted);
       if (!fitted) return;
       setWord(wram, 2, 0);
-      const row = (word(wram, DP_CURSOR_ROW) + 1) & WORD_MASK;
-      // The row's increment leaves it positive and not zero, as the flag's load did.
-      setWord(wram, DP_CURSOR_ROW, row);
+      setWord(wram, DP_CURSOR_ROW, (word(wram, DP_CURSOR_ROW) + 1) & WORD_MASK);
     };
     if (!fitted) continue;
     yield* dialogCallBody(h, cursorPc, CURSOR, () =>
