@@ -132,18 +132,9 @@ const setWord = (wram, at, value) => {
   wram[at + 1] = (value >>> BYTE_BITS) & BYTE_MASK;
 };
 const negative = (value) => (value & WORD_SIGN) !== 0;
-// left - right - borrow and left + right + carry on words, with the carry and the
-// signed overflow.
-function subtract(left, right, carry = true) {
-  const difference = left - right - (carry ? 0 : 1),
-    value = difference & WORD_MASK;
-  return { value, carry: difference >= 0, overflow: negative((left ^ right) & (left ^ value)) };
-}
-function add(left, right, carry = false) {
-  const sum = left + right + (carry ? 1 : 0),
-    value = sum & WORD_MASK;
-  return { value, carry: sum > WORD_MASK, overflow: negative(~(left ^ right) & (left ^ value)) };
-}
+// left - right - borrow and left + right + carry on words.
+const subtract = (left, right, carry = true) => (left - right - (carry ? 0 : 1)) & WORD_MASK;
+const add = (left, right, carry = false) => (left + right + (carry ? 1 : 0)) & WORD_MASK;
 const magnitude = (value) => (negative(value) ? -value & WORD_MASK : value);
 
 // 80:DEC7: the leader Y walks by the pad's directions (80:DF4B, turned by the camera's
@@ -159,8 +150,8 @@ function* walkByPadSequence(h, player) {
     direction = entry;
     if (entry < NO_DIRECTION) {
       const rotation = mem.read16(CAMERA_ROTATION_SRAM),
-        turned = subtract(subtract(entry, rotation).value, rotation);
-      direction = turned.value & DIRECTION_MASK;
+        turned = subtract(subtract(entry, rotation), rotation);
+      direction = turned & DIRECTION_MASK;
     }
     setDataBankWord(mem, OBJECT_VELOCITY_X, player, dataBankWord(mem, WALK_STEP_X, direction));
     setDataBankWord(mem, OBJECT_VELOCITY_Y, player, dataBankWord(mem, WALK_STEP_Y, direction));
@@ -214,18 +205,18 @@ function* faceGloveSequence(h) {
     setWord(wram, DP_FACING_GLOVE_X, gloveX);
     setWord(wram, DP_FACING_GLOVE_Y, gloveY);
     let down = subtract(GLOVE_FACING.yBase, field(OBJECT_DIAGONAL));
-    down = subtract(down.value, field(OBJECT_HEIGHT));
-    down = subtract(down.value, word(wram, CAMERA_Y));
-    down = subtract(down.value, GLOVE_FACING.yOffset, false);
-    down = subtract((down.value << GLOVE_FACING.shift) & WORD_MASK, gloveY);
+    down = subtract(down, field(OBJECT_HEIGHT));
+    down = subtract(down, word(wram, CAMERA_Y));
+    down = subtract(down, GLOVE_FACING.yOffset, false);
+    down = subtract((down << GLOVE_FACING.shift) & WORD_MASK, gloveY);
     let across = add(GLOVE_FACING.xBase, field(OBJECT_Y));
-    across = subtract(across.value, field(OBJECT_X));
-    across = subtract(across.value, word(wram, CAMERA_X));
-    across = subtract((across.value << GLOVE_FACING.shift) & WORD_MASK, gloveX);
-    const signY = negative(down.value) ? down.value : 0,
-      signX = negative(across.value) ? across.value : 0,
-      sizeY = magnitude(down.value),
-      sizeX = magnitude(across.value);
+    across = subtract(across, field(OBJECT_X));
+    across = subtract(across, word(wram, CAMERA_X));
+    across = subtract((across << GLOVE_FACING.shift) & WORD_MASK, gloveX);
+    const signY = negative(down) ? down : 0,
+      signX = negative(across) ? across : 0,
+      sizeY = magnitude(down),
+      sizeX = magnitude(across);
     setWord(wram, DP_FACING_SIGN_X, signX);
     setWord(wram, DP_FACING_SIGN_Y, signY);
     setWord(wram, DP_FACING_SIZE_Y, sizeY);
