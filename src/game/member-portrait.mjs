@@ -11,6 +11,11 @@
 // widen with X = 2, 5, ... 20 (1F44 = X + 39, 1F43 = (X EOR FF) + 3B with that carry).
 // The live callees compose directly through their frames; 80:E48D and 80:E433
 // run as the JSR bodies the original calls, so a wait takes its NMI at the same S.
+//
+// Registers (user decision 2026-11-17): game state only, apart from the register inputs
+// of the portrait unpack 80:9F6D (record in A, bank in Y, buffer in X) and the tile
+// upload 80:8FF5 (VRAM address in X), which are still register-level. The window step
+// (X in the original) is a local, and no registers or flags are left.
 import { dialogCallBody, segmentSequence } from '../system/native-call-continuation.mjs';
 import {
   unpackPortraitRoutine,
@@ -53,17 +58,8 @@ import {
   W12SEL,
   WBGLOG,
 } from '../constants/hardware-registers.mjs';
-import {
-  BYTE_BITS,
-  BYTE_MASK,
-  HIGH_BYTE_MASK,
-  LONG_MASK,
-  WORD_BITS,
-  WORD_MASK,
-  WORD_SIGN,
-} from '../constants/bits.mjs';
+import { BYTE_BITS, BYTE_MASK, LONG_MASK, WORD_BITS, WORD_MASK } from '../constants/bits.mjs';
 import { WRAM_BANK } from '../constants/memory-map.mjs';
-import { FLAG_CARRY, FLAG_NEGATIVE, FLAG_ZERO } from '../constants/cpu-flags.mjs';
 
 // The colour window's HDMA table in the ROM and its last byte.
 const HDMA_TABLE_SOURCE = 0x80e480,
@@ -93,26 +89,14 @@ const setWord = (wram, at, value) => {
 };
 const longWord = (mem, at) =>
   mem.read8(at & LONG_MASK) | (mem.read8((at + 1) & LONG_MASK) << BYTE_BITS);
-const setFlag = (ctx, bit, set) => {
-  ctx.status = set ? ctx.status | bit : ctx.status & ~bit;
-};
-const setSignZero = (ctx, value) => {
-  setFlag(ctx, FLAG_NEGATIVE, value & WORD_SIGN);
-  setFlag(ctx, FLAG_ZERO, value === 0);
-};
-
-// 80:E41F: the left window's edges for X; the flags stay (PHP/PLP), A's low byte is the
-// left edge.
-function setWindowEdges(h) {
-  const { ctx } = h,
-    { wram } = h.a.mem,
-    edge = ctx.x & BYTE_MASK,
+// 80:E41F: the left window's edges for the step (X in the original).
+function setWindowEdges(wram, step) {
+  const edge = step & BYTE_MASK,
     right = edge + PORTRAIT_WINDOW.leftWindowRightBias,
     left =
       ((edge ^ BYTE_MASK) + PORTRAIT_WINDOW.leftWindowLeftBias + (right >>> BYTE_BITS)) & BYTE_MASK;
   wram[PORTRAIT_WINDOW_RIGHT] = right & BYTE_MASK;
   wram[PORTRAIT_WINDOW_LEFT] = left;
-  ctx.a = (ctx.a & HIGH_BYTE_MASK) | left;
 }
 
 // 80:E4B3: the member's portrait with its opening window (see above). A sequence that
@@ -125,16 +109,15 @@ export function* memberPortraitSequence(h, events) {
   yield () => {
     const portrait = (dataBankWord(mem, MEMBER_PORTRAIT) << 1) & WORD_MASK,
       record = dataBankWord(mem, DIALOG_TABLE & WORD_MASK, portrait);
-    setFlag(ctx, FLAG_CARRY, dataBankWord(mem, MEMBER_PORTRAIT) & WORD_SIGN);
     port.write(OBJSEL, PORTRAIT_OBJSEL, 2, SITES.objsel);
     setDataBankWord(mem, PALETTE_UPLOAD_LIST_BYTES, 0, 0);
     wram[DP_PORTRAIT_BANK] = mem.read8((DIALOG_BANK_BASE + 2 + record) & LONG_MASK);
     setWord(wram, DP_PORTRAIT_POINTER, longWord(mem, DIALOG_BANK_BASE + record));
     const pointer = word(wram, DP_PORTRAIT_POINTER) | (wram[DP_PORTRAIT_BANK] << WORD_BITS);
+    // The unpack's register inputs.
     ctx.y = mem.read8((pointer + PORTRAIT_RECORD_BANK_BYTE) & LONG_MASK);
     ctx.a = longWord(mem, pointer);
     ctx.x = PORTRAIT_BUFFER;
-    setSignZero(ctx, PORTRAIT_BUFFER);
   };
   yield* dialogCallBody(h, ...UNPACK, () =>
     segmentSequence(() => unpackPortraitRoutine(h, events)),
@@ -162,10 +145,9 @@ function* secondChannelSequence(h, events) {
   const { ctx } = h,
     { mem } = h.a;
   yield () => {
-    ctx.a = SECOND_PORTRAIT_PALETTE;
     setDataBankWord(mem, PORTRAIT_PALETTE_START, 0, SECOND_PORTRAIT_PALETTE);
+    // The tile upload's register input.
     ctx.x = SECOND_PORTRAIT_VRAM;
-    setSignZero(ctx, SECOND_PORTRAIT_VRAM);
   };
   yield* dialogCallBody(h, ...SECOND_TILES, () => uploadPortraitTilesSequence(h, events));
   yield () => {
@@ -185,8 +167,7 @@ function* secondChannelSequence(h, events) {
 
 // 80:E433: the colour window on HDMA channel 0, its edges widened over eleven frames.
 function* colourWindowSequence(h, events) {
-  const { ctx } = h,
-    { mem } = h.a,
+  const { mem } = h.a,
     { wram } = mem,
     port = accessorPort(h.a);
   yield () => {
@@ -202,23 +183,15 @@ function* colourWindowSequence(h, events) {
     port.write(A1B0, WRAM_BANK, 1, SITES.bank);
     const shown = wram[HDMAEN_SHADOW];
     wram[HDMAEN_SHADOW] = shown | PORTRAIT_WINDOW.hdmaChannel;
-    ctx.a = PORTRAIT_WINDOW.layers;
     setDataBankWord(mem, TMW_SHADOW, 0, PORTRAIT_WINDOW.layers);
-    ctx.x = PORTRAIT_WINDOW.edgeFirst;
-    setSignZero(ctx, ctx.x);
   };
-  // X counts the edges (the word wait keeps it).
-  let more;
+  let step = PORTRAIT_WINDOW.edgeFirst;
   do {
     yield* dialogCallBody(h, ...FRAME_WAIT, () => frameWaitCallSequence(h, events), true);
     yield () => {
-      setWindowEdges(h);
-      const edge = (ctx.x + PORTRAIT_WINDOW.edgeStep) & WORD_MASK;
-      ctx.x = edge;
-      setSignZero(ctx, (edge - PORTRAIT_WINDOW.edgeEnd) & WORD_MASK);
-      more = edge < PORTRAIT_WINDOW.edgeEnd;
-      setFlag(ctx, FLAG_CARRY, !more);
+      setWindowEdges(wram, step);
+      step = (step + PORTRAIT_WINDOW.edgeStep) & WORD_MASK;
     };
-  } while (more);
+  } while (step < PORTRAIT_WINDOW.edgeEnd);
   return yield* returnSequence(h);
 }

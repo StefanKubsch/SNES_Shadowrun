@@ -53,7 +53,9 @@ function run(module, member, jobs, shadow, budget) {
     } else {
       assert.equal(pc, 0x81b0a9);
       assert.ok(++frames <= 11);
-      side.calls.push(['frame', h.ctx.x, ...snapshot()]);
+      // Game state only (user decision 2026-11-17): the window step (X in the original)
+      // shows in the window edges, not in a register.
+      side.calls.push(['frame', ...snapshot()]);
       put(RANDOM_STATE, mem.read16(RANDOM_STATE) + 1);
     }
     return true;
@@ -112,8 +114,12 @@ for (const budget of [1, 7])
               [0x800, 0xa1],
             ],
           );
+          // The right edge (step + 39) of the step before each later frame.
           assert.deepEqual(
-            actual.calls.filter((c) => c[0] === 'frame').map((c) => c[1]),
-            Array.from({ length: 11 }, (_, n) => 2 + 3 * n),
+            actual.calls
+              .filter((c) => c[0] === 'frame')
+              .slice(1)
+              .map((c) => c[5]),
+            Array.from({ length: 10 }, (_, n) => 0x39 + 2 + 3 * n),
           );
         });

@@ -135,7 +135,9 @@ export function configureMemberPortrait({ h, mem, events, put, routines, bind, c
     }
     const caller = mem.read16(WRAM_BASE | (h.ctx.s + 1));
     if (pc === 0x81b0a9 && caller !== MENU_FRAME_RETURN && caller !== CONFIRM_FRAME_RETURN) {
-      calls.push(['portrait frame', h.ctx.x, ...snapshot()]);
+      // Game state only (user decision 2026-11-17): the window step (X in the original)
+      // shows in the window edges of the snapshot, not in a register.
+      calls.push(['portrait frame', ...snapshot()]);
       put(W.RANDOM_STATE, mem.read16(W.RANDOM_STATE) + 1);
       return true;
     }
