@@ -2,7 +2,7 @@
 // proof/system/main-initialize.mjs; lifted in src/game/game-screen.mjs). Its callees stay
 // register-level in proof/system/main-initialize.mjs, where other callers use them.
 import { MAIN_INITIALIZE_ROUTINES } from '../system/main-initialize.mjs';
-import { routineCaller } from '../../src/system/routine-call.mjs';
+import { routineCaller } from '../system/routine-call.mjs';
 import { unpackStep } from '../system/native-unpack.mjs';
 import { TM_SHADOW } from '../../src/data/wram.mjs';
 import {

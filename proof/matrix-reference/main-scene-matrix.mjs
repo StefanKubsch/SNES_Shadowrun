@@ -5,7 +5,7 @@ import {
   NATIVE_CALL_CONTINUATIONS,
   drainNativeSequence,
 } from '../../src/system/native-call-continuation.mjs';
-import { routineCaller } from '../../src/system/routine-call.mjs';
+import { routineCaller } from '../system/routine-call.mjs';
 import {
   captureMatrixText,
   beginMatrixText,

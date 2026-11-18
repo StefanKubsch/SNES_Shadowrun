@@ -1,4 +1,4 @@
-import { routineCaller } from '../../src/system/routine-call.mjs';
+import { routineCaller } from '../system/routine-call.mjs';
 
 import {
   APU_PAIR_PENDING,

@@ -1,4 +1,4 @@
-import { taskStop } from './task-stop.mjs';
+import { taskStop } from '../../src/system/task-stop.mjs';
 
 // A JSR or JSL into a routine table: the routine bound to the target runs
 // inside the original call frame. An unbound target stops before the frame

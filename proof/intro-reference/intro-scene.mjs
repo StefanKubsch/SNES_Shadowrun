@@ -9,7 +9,7 @@ import {
   NATIVE_CALL_CONTINUATIONS,
   drainNativeSequence,
 } from '../../src/system/native-call-continuation.mjs';
-import { routineCaller } from '../../src/system/routine-call.mjs';
+import { routineCaller } from '../system/routine-call.mjs';
 import { MAIN_SCENE_ROUTINES } from '../replay/main-scene.mjs';
 import { AUDIO_REFERENCE_ENTRIES } from '../apu-reference/audio-routines.mjs';
 import {

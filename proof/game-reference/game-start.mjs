@@ -12,7 +12,7 @@ import {
   NATIVE_CALL_CONTINUATIONS,
   drainNativeSequence,
 } from '../../src/system/native-call-continuation.mjs';
-import { routineCaller } from '../../src/system/routine-call.mjs';
+import { routineCaller } from '../system/routine-call.mjs';
 import { TEXT_NONE } from '../replay/native-member-spell-menu.mjs';
 import { MAIN_START_ROUTINES } from '../replay/main-start.mjs';
 import { GAME_SCREEN_REFERENCE_ENTRIES } from './game-screen.mjs';

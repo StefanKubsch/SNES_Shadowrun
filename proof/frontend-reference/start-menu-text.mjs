@@ -14,7 +14,7 @@ import {
   JSL_RETURN_OFFSET,
   drainNativeSequence,
 } from '../../src/system/native-call-continuation.mjs';
-import { routineCaller } from '../../src/system/routine-call.mjs';
+import { routineCaller } from '../system/routine-call.mjs';
 
 import {
   DP_MENU_CURSOR,

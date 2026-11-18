@@ -1,6 +1,6 @@
 import { taskStop } from '../../src/system/task-stop.mjs';
 import { dialogAccess } from '../../src/system/native-dialog-support.mjs';
-import { routineCaller } from '../../src/system/routine-call.mjs';
+import { routineCaller } from '../system/routine-call.mjs';
 import { FRONTEND_ROUTINES, MAIN_OWNER_ENTRY } from './main-frontend.mjs';
 import { interruptStep } from '../system/main-wait-interrupt.mjs';
 import { lagFree } from '../../src/system/main-wait-interrupt.mjs';

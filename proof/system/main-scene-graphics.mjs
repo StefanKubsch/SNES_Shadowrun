@@ -1,5 +1,5 @@
 import { unpackStep, unpackFixedStream } from './native-unpack.mjs';
-import { routineCaller } from '../../src/system/routine-call.mjs';
+import { routineCaller } from './routine-call.mjs';
 import { SCENE_COLLISION_ROUTINES } from './main-scene-collision.mjs';
 import { BYTE_MASK } from '../../src/constants/bits.mjs';
 import { WRAM_BANK_PAIR } from '../../src/constants/memory-map.mjs';

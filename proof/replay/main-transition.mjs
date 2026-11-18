@@ -1,4 +1,4 @@
-import { routineCaller } from '../../src/system/routine-call.mjs';
+import { routineCaller } from '../system/routine-call.mjs';
 import { enterRoomSequence } from '../caller/room-entry.mjs';
 import { unpackStep } from '../system/native-unpack.mjs';
 import { SCENE_GRAPHICS_ROUTINES } from '../system/main-scene-graphics.mjs';

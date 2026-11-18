@@ -1,4 +1,4 @@
-import { routineCaller } from '../../src/system/routine-call.mjs';
+import { routineCaller } from './routine-call.mjs';
 import { enterRoomJsrSequence as enterRoomRoutineSequence } from '../../src/game/room-entry.mjs';
 import { SCENE_GRAPHICS_ROUTINES } from './main-scene-graphics.mjs';
 import { TALK_ROUTINES } from '../script/native-dialog.mjs';

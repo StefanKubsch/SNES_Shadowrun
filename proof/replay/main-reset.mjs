@@ -1,6 +1,6 @@
 import { taskStop } from '../../src/system/task-stop.mjs';
 import { dialogAccess } from '../../src/system/native-dialog-support.mjs';
-import { routineCaller } from '../../src/system/routine-call.mjs';
+import { routineCaller } from '../system/routine-call.mjs';
 import { MAIN_STARTUP_ROUTINES, MAIN_STARTUP_ENTRY } from './main-startup.mjs';
 import {
   WRIO_ALL_HIGH,

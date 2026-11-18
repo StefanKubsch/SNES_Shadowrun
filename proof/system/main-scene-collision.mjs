@@ -1,6 +1,6 @@
 import { unpackStep } from './native-unpack.mjs';
 import { SCENE_LOAD_ROUTINES } from './main-scene-load.mjs';
-import { routineCaller } from '../../src/system/routine-call.mjs';
+import { routineCaller } from './routine-call.mjs';
 import { BYTE_MASK, BYTE_SIGN, HIGH_BYTE_MASK, WORD_MASK } from '../../src/constants/bits.mjs';
 import {
   FLAG_NEGATIVE,

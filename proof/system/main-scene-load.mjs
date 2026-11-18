@@ -2,7 +2,7 @@ import { unpackStep } from './native-unpack.mjs';
 import { MAIN_INITIALIZE_ROUTINES } from './main-initialize.mjs';
 import { unpackPortrait } from './native-dialog-portrait.mjs';
 import { buildLayerTileStacks } from './main-scene-layers.mjs';
-import { routineCaller } from '../../src/system/routine-call.mjs';
+import { routineCaller } from './routine-call.mjs';
 import {
   DP_SCENE_COUNT,
   DP_SCENE_LAYER,

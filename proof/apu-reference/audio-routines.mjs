@@ -18,7 +18,7 @@ import {
   sendApuBytePair,
 } from '../replay/native-audio-compose.mjs';
 import { sendApuCommand } from '../system/native-input-apu.mjs';
-import { routineCaller } from '../../src/system/routine-call.mjs';
+import { routineCaller } from '../system/routine-call.mjs';
 import { BYTE_MASK, WORD_MASK } from '../../src/constants/bits.mjs';
 import { APU_COMMAND_SONG } from '../../src/constants/sound-commands.mjs';
 import {

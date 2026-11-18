@@ -7,7 +7,7 @@ import {
   NATIVE_CALL_CONTINUATIONS,
   drainNativeSequence,
 } from '../../src/system/native-call-continuation.mjs';
-import { routineCaller } from '../../src/system/routine-call.mjs';
+import { routineCaller } from '../system/routine-call.mjs';
 
 import { BG3_MAP_VRAM, HDMA_ENTRY_BYTES, MAP_LAST, SCROLL_TABLE } from './main-scene-matrix.mjs';
 import {

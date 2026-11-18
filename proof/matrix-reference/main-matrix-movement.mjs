@@ -1,4 +1,4 @@
-import { routineCaller } from '../../src/system/routine-call.mjs';
+import { routineCaller } from '../system/routine-call.mjs';
 import { taskStop } from '../../src/system/task-stop.mjs';
 import { setCarry } from '../system/status-flags.mjs';
 

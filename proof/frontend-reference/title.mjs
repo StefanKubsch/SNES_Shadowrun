@@ -22,7 +22,7 @@ import {
   NATIVE_CALL_CONTINUATIONS,
   drainNativeSequence,
 } from '../../src/system/native-call-continuation.mjs';
-import { routineCaller } from '../../src/system/routine-call.mjs';
+import { routineCaller } from '../system/routine-call.mjs';
 import { INTRO_NEAR_Y_BIAS, INTRO_START_ANIMATION } from '../intro-reference/intro-setup.mjs';
 import { INTRO_SETUP_REFERENCE_ENTRIES } from '../intro-reference/intro-routines.mjs';
 import { INTRO_NMI_ROUTINES } from '../replay/intro-nmi-routines.mjs';

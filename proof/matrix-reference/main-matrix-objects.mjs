@@ -1,6 +1,6 @@
 import { clearOamHighTable, hideRemainingSprites } from '../system/main-scene-video.mjs';
 export { clearOamHighTable, hideRemainingSprites };
-import { routineCaller } from '../../src/system/routine-call.mjs';
+import { routineCaller } from '../system/routine-call.mjs';
 import { setCarry } from '../system/status-flags.mjs';
 
 import { MAP_BANK, NODE_TABLE_BYTES, TILE_NUMBER_MASK } from './main-scene-matrix.mjs';

@@ -14,7 +14,7 @@ import {
   JSL_RETURN_OFFSET,
 } from '../../src/system/native-call-continuation.mjs';
 import { NATIVE_CALL_CONTINUATIONS } from './continuations.mjs';
-import { routineCaller } from '../../src/system/routine-call.mjs';
+import { routineCaller } from '../system/routine-call.mjs';
 import { handleStartMenuNmi } from '../../src/frontend/start-menu.mjs';
 import {
   SETTINGS_CHECKSUM,

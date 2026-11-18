@@ -1,5 +1,5 @@
 import { taskStop } from '../../src/system/task-stop.mjs';
-import { routineCaller } from '../../src/system/routine-call.mjs';
+import { routineCaller } from '../system/routine-call.mjs';
 
 // H-DMA entries of a write-twice register: line count and two data bytes.
 const HDMA_ENTRY_BYTES = 3;

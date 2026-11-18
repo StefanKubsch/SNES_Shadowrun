@@ -1,5 +1,5 @@
 import { taskStop } from '../../src/system/task-stop.mjs';
-import { routineCaller } from '../../src/system/routine-call.mjs';
+import { routineCaller } from '../system/routine-call.mjs';
 import { taskTextAccess } from '../system/native-text-prerequisites.mjs';
 import {
   RANDOM_STATE,
