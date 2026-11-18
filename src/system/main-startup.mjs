@@ -34,8 +34,9 @@ export function* mainStartupSequence(h, events) {
       h.rts();
     };
   });
+  // The original passes the owner A = 1 (LDA #1; show the title first); the lifted
+  // owner takes that from its entry point (user decision 2026-11-17: no registers).
   yield () => {
-    h.load(1);
     ctx.pc = GAME_OWNER_ENTRY;
   };
   return ctx.pc;

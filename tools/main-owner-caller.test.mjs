@@ -46,6 +46,12 @@ function snapshot(game) {
   };
 }
 
+// The register-level owner reads the original's A = 1 of the startup at A139.
+function* registerOwner(h, events, routines) {
+  if (h.ctx.pc === 0xa139) h.ctx.a = 1;
+  return yield* dispatchedOwner(h, events, routines);
+}
+
 // Complete the first owner, enter the selected game, and exercise the real main
 // loop RTS back to A157. Exit and reload requests are fixtures, not game-over routes.
 function* session(game, owner, routines, boundary, resume, side, request) {
@@ -135,7 +141,7 @@ for (const budget of [1, 7])
           };
           const sequence = session(
             game,
-            side === 0 ? dispatchedOwner : gameOwnerSequence,
+            side === 0 ? registerOwner : gameOwnerSequence,
             side === 0 ? dispatchedRoutines : game.loop.routines,
             (key) => compare(side, key, game),
             () => (resumeAt = game.nmis),
