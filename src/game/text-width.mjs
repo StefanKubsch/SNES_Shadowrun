@@ -9,10 +9,14 @@
 //
 // As in the original, the second character of a node is looked up with the high byte of
 // the running sum in its table index (the step loads the character into A's low byte
-// only): for sums of 256 and more it reads a later table entry. The original's
-// registers are left: A the width with its sign and zero, X the last tree index or table
-// index and Y unchanged; the object search replaces the carry and the overflow. The bytes of the last calls (the bit reader's JSL frame and refill push, a
-// later width step's JSR frame) stay below the stack, as the original leaves them.
+// only): for sums of 256 and more it reads a later table entry. The bytes of the last
+// calls (the bit reader's JSL frame and refill push, a later width step's JSR frame)
+// stay below the stack, as the original leaves them.
+//
+// Registers (user decision 2026-11-17): measureTextWidth leaves no registers; its
+// callers read the width from the direct page word BA. The register form
+// measureTextWidthRoutine, for register-level callers, leaves A the width with its sign
+// and zero, X the last tree index or table index and Y unchanged.
 import { languageTextWidth } from '../data/language.mjs';
 import { readBit, startTextSource } from './text-print.mjs';
 import { TEXT_BITS_REMAINING, TEXT_CHARACTER_INDEX, TEXT_WORK_WORD } from '../data/wram.mjs';
@@ -43,9 +47,23 @@ const flag = (ctx, bit, set) => {
   ctx.status = set ? ctx.status | bit : ctx.status & ~bit;
 };
 
-// Measure the text in the direct page word 00 (80:FADD), called with JSR: h the caller's
-// access (direct page 0).
+// Measure the text in the direct page word 00 into the direct page word BA (80:FADD),
+// called with JSR: h the caller's access (direct page 0). Returns with its RTS.
+export function measureTextWidth(h) {
+  measure(h, 0);
+  return h.rts();
+}
+// The register form: A the width with its sign and zero, X the last index.
 export function measureTextWidthRoutine(h) {
+  const { ctx } = h;
+  ctx.x = measure(h, ctx.x);
+  ctx.a = word(h.a.mem.wram, DP_WIDTH);
+  flag(ctx, FLAG_NEGATIVE, ctx.a & WORD_SIGN);
+  flag(ctx, FLAG_ZERO, ctx.a === 0);
+  return h.rts();
+}
+// The measurement; returns the last tree or table index (X in the original), from x.
+function measure(h, x) {
   const { ctx } = h,
     { mem } = h.a,
     { wram } = mem,
@@ -54,7 +72,6 @@ export function measureTextWidthRoutine(h) {
   setWord(wram, DP_WIDTH, 0);
   setWord(wram, TEXT_BITS_REMAINING, 0);
   let a = 0,
-    x = ctx.x,
     pushed = null;
   // The return word of a width step after the last bit reader's call, or null.
   const last = { step: null };
@@ -100,9 +117,5 @@ export function measureTextWidthRoutine(h) {
   }
   const translated = languageTextWidth(mem, id);
   if (translated !== null) setWord(wram, DP_WIDTH, translated);
-  ctx.a = word(wram, DP_WIDTH);
-  ctx.x = x;
-  flag(ctx, FLAG_NEGATIVE, ctx.a & WORD_SIGN);
-  flag(ctx, FLAG_ZERO, ctx.a === 0);
-  return h.rts();
+  return x;
 }
