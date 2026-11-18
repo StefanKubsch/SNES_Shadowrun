@@ -37,7 +37,7 @@ function runMotion(direct, count, flags, target, mode, animation, slots, budget)
               h,
               events,
               new Map([
-                [0x80c9e0, (h) => walkTowardsTarget(h)],
+                [0x80c9e0, (h) => walkTowardsTarget(h, h.ctx.x)],
                 [0x80ac2f, stepAnimation],
               ]),
             ),

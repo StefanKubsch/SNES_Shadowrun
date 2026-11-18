@@ -15,8 +15,7 @@
 //
 // The direct page word 6B holds the old coordinate as in the original. Registers (user
 // decision 2026-11-17): game state only; the slot is a parameter, the collision tests
-// return their heights, and the routine leaves no A, X, Y or flags. The walk towards
-// the target still takes the slot in X.
+// return their heights, and the routine leaves no A, X, Y or flags.
 import { taskStop } from '../system/task-stop.mjs';
 import { walkTowardsTarget } from './object-target.mjs';
 import {
@@ -83,7 +82,7 @@ const setWord = (wram, at, value) => {
 export function moveObject(h, slot) {
   const { wram } = h.a.mem;
   if (word(wram, MOTION_ACTIVE + slot))
-    h.call(TARGET_CALL, TARGET_TARGET, () => walkTowardsTarget(h));
+    h.call(TARGET_CALL, TARGET_TARGET, () => walkTowardsTarget(h, slot));
   // The fields are read in the caller's data bank 80, which reaches WRAM below 2000.
   const at = (base) => {
       if (base + slot + 1 >= LOW_WRAM_END) taskStop('object_slot_required', { base, slot });

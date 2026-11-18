@@ -23,11 +23,12 @@
 //
 // The direct page words of the original are written: the distances A2 and A5, the
 // negative differences A8 and AB (0 when not negative), and the turn's object 00 and
-// direction 02; the direction is pushed around the turn as in the original. A, X, Y
-// and the flags are left as the original leaves them; the turn's X and overflow carry
-// on as in the original.
+// direction 02; the direction is pushed around the turn as in the original.
+// Registers (user decision 2026-11-17): game state only; the slot is a parameter, the
+// turn is the JSR form that leaves no registers, and the routine leaves no A, X, Y or
+// flags.
 import { taskStop } from '../system/task-stop.mjs';
-import { turnObjectRoutine } from './object-turn.mjs';
+import { turnObjectJsr } from './object-turn.mjs';
 import {
   MOTION_ACTIVE,
   MOTION_MODE,
@@ -44,7 +45,6 @@ import {
 } from '../data/wram.mjs';
 import { sendEvents, tasksOf } from '../script/task-api.mjs';
 import { BYTE_BITS, BYTE_MASK, WORD_MASK, WORD_SIGN } from '../constants/bits.mjs';
-import { FLAG_CARRY, FLAG_NEGATIVE, FLAG_OVERFLOW, FLAG_ZERO } from '../constants/cpu-flags.mjs';
 
 const LOW_WRAM_END = 0x2000,
   WRAM_SIZE = 0x20000;
@@ -98,39 +98,28 @@ const setWord = (wram, at, value) => {
   wram[at % WRAM_SIZE] = value & BYTE_MASK;
   wram[(at + 1) % WRAM_SIZE] = (value >>> BYTE_BITS) & BYTE_MASK;
 };
-const flag = (ctx, bit, set) => {
-  ctx.status = set ? ctx.status | bit : ctx.status & ~bit;
-};
-const signAndZero = (ctx, value) => {
-  flag(ctx, FLAG_NEGATIVE, value & WORD_SIGN);
-  flag(ctx, FLAG_ZERO, value === 0);
-};
 
-// Walk the object in X towards its target (80:C9E0, called with JSR); action is the
+// Walk the object in slot towards its target (80:C9E0, called with JSR); action is the
 // turn 80:AAAF, which ends with its own RTS.
-export function walkTowardsTarget(h, action = turnObjectRoutine) {
-  const { ctx } = h,
-    { wram } = h.a.mem;
+export function walkTowardsTarget(h, slot, action = turnObjectJsr) {
+  const { wram } = h.a.mem;
   // Fields in the caller's data bank 80 (WRAM below 2000); the motion fields are long.
   const low = (base, index) => {
     if (base + index + 1 >= LOW_WRAM_END) taskStop('object_slot_required', { base, index });
     return base + index;
   };
-  const get = (base, index = ctx.x) => word(wram, low(base, index)),
-    put = (base, value) => setWord(wram, low(base, ctx.x), value),
-    far = (base) => word(wram, base + ctx.x),
-    setFar = (base, value) => setWord(wram, base + ctx.x, value);
+  const get = (base, index = slot) => word(wram, low(base, index)),
+    put = (base, value) => setWord(wram, low(base, slot), value),
+    far = (base) => word(wram, base + slot),
+    setFar = (base, value) => setWord(wram, base + slot, value);
 
   // The frames to the next step; true when it is due.
   const due = () => {
     const left = (far(MOTION_ACTIVE) - 1) & WORD_MASK;
     setFar(MOTION_ACTIVE, left);
-    ctx.a = left;
-    signAndZero(ctx, left);
     return left === 0;
   };
-  // The distances to the target (80:C80C); returns their sum with the sign, zero and
-  // overflow of the ADC (its carry is replaced by the comparison with 10).
+  // The distances to the target (80:C80C); returns their sum.
   const distance = (call) => {
     let sum;
     h.call(call, DISTANCE_TARGET, () => {
@@ -158,33 +147,22 @@ export function walkTowardsTarget(h, action = turnObjectRoutine) {
       setWord(wram, DP_DISTANCE_X, dx);
       setWord(wram, DP_DISTANCE_Y, dy);
       sum = (dy + dx) & WORD_MASK;
-      ctx.a = sum;
-      signAndZero(ctx, sum);
-      flag(ctx, FLAG_OVERFLOW, (~(dy ^ dx) & (dy ^ sum) & WORD_SIGN) !== 0);
       return h.rts();
     });
     return sum;
   };
   // Arrived: stop and send the event to the waiting task of the object's task chain.
   const arrive = () => {
-    flag(ctx, FLAG_CARRY, false);
     put(OBJECT_VELOCITY_X, 0);
     put(OBJECT_VELOCITY_Y, 0);
-    let task = get(OBJECT_TASK);
-    ctx.y = task;
-    signAndZero(ctx, task);
-    if (task & WORD_SIGN) return h.rts();
-    let events;
-    ({ task, events } = sendEvents(tasksOf(h.a), task, MOTION_END_EVENT));
-    ctx.y = task;
-    ctx.a = events;
-    signAndZero(ctx, events);
+    const task = get(OBJECT_TASK);
+    if (!(task & WORD_SIGN)) sendEvents(tasksOf(h.a), task, MOTION_END_EVENT);
     return h.rts();
   };
   // Note the turn's object and direction, push the direction and run the turn unless
   // skipped; then pull the direction and take its steps as the velocity.
   const turnAndStep = (direction, turnCall, turn = true) => {
-    setWord(wram, DP_OBJECT, ctx.x);
+    setWord(wram, DP_OBJECT, slot);
     setWord(wram, DP_DIRECTION, direction);
     h.a.pushWord(direction);
     return (noted) => {
@@ -194,14 +172,9 @@ export function walkTowardsTarget(h, action = turnObjectRoutine) {
         offset = (pulled << 1) & WORD_MASK,
         selection = get(OBJECT_SELECTION),
         tables = selection === SELECTION_STEPS_B ? [STEPS_X_B, STEPS_Y_B] : [STEPS_X_A, STEPS_Y_A],
-        // CMP #2: the carry when the selection is 2 or more.
         steps = tables.map((table) => h.read(h.abs(table) + offset, 2));
       put(OBJECT_VELOCITY_X, steps[0]);
       put(OBJECT_VELOCITY_Y, steps[1]);
-      ctx.y = offset;
-      ctx.a = steps[1];
-      signAndZero(ctx, steps[1]);
-      flag(ctx, FLAG_CARRY, selection >= SELECTION_STEPS_B);
     };
   };
 
@@ -248,8 +221,6 @@ export function walkTowardsTarget(h, action = turnObjectRoutine) {
       setFar(MOTION_MODE, ((direction << MODE_DIRECTION_SHIFT) | MODE_NOTED) & WORD_MASK);
     rest();
     setFar(MOTION_ACTIVE, STEP_DELAY);
-    ctx.a = STEP_DELAY;
-    signAndZero(ctx, STEP_DELAY);
     return h.rts();
   };
 

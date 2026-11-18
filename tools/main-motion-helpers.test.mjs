@@ -6,7 +6,12 @@ import {
   mainMovementGraphSpec,
   proveMainMotionHelperSource,
 } from './main-motion-helpers-source.mjs';
-import { compareDialog, decodeWindows, prng } from './task-native-dialog-harness.mjs';
+import {
+  compareDialog,
+  decodeWindows,
+  GAME_STATE_REGISTERS,
+  prng,
+} from './task-native-dialog-harness.mjs';
 import { dialogAccess } from '../src/system/native-dialog-support.mjs';
 import {
   testUpperXEdge,
@@ -45,7 +50,7 @@ const lifted = [
   searchUpperYEdge,
   searchLowerYEdge,
   searchHeightCells,
-  walkTowardsTarget,
+  (h, turn) => walkTowardsTarget(h, h.ctx.x, turn),
 ];
 const maps = mainMotionHelperSpecs.map((s) => decodeWindows(s.windows));
 test('six main-loop motion helper graphs pin original bytes, stack, widths and DBR', () => {
@@ -137,13 +142,20 @@ function motionScenario(entry, seed) {
 
 // AAAF has its own source/differential proof. This stub preserves its calling convention but
 // deliberately changes shared state and flags, so the caller cannot rely on cached register values.
-const action = (h) => {
-  h.a.trace.push({ kind: 'action', x: h.ctx.x, y: h.ctx.y, direction: h.dp(2), s: h.ctx.s });
+const turnStub = (registers) => (h) => {
+  h.a.trace.push(
+    registers
+      ? { kind: 'action', x: h.ctx.x, y: h.ctx.y, direction: h.dp(2), s: h.ctx.s }
+      : { kind: 'action', object: h.dp(0), direction: h.dp(2), s: h.ctx.s },
+  );
   h.load(h.dp(2) * 17);
-  h.write(h.abs(0x1038) + h.ctx.x, h.dp(2) & 2 ? 2 : 0);
+  h.write(h.abs(0x1038) + h.dp(0), h.dp(2) & 2 ? 2 : 0);
   h.ctx.status ^= 0x41;
   return { rawReturnWord: h.rts() };
 };
+const action = turnStub(true),
+  // The lifted walk passes the turn's object and direction in DP 00 and 02 only.
+  stateAction = turnStub(false);
 
 function targetScenario(seed) {
   const s = motionScenario(0x80c9e0, seed),
@@ -192,9 +204,12 @@ for (const [kind, list] of [
         const covered = new Set();
         for (let seed = 1; seed <= 1800; seed++) {
           const s = i === 5 ? targetScenario(seed) : motionScenario(spec.entry, seed);
+          // The lifted walk is compared on game state (user decision 2026-11-17).
+          const turn = kind && i === 5 ? stateAction : action;
           const result = compareDialog(maps[i], s, {
-            native: (h) => (i === 5 ? list[i](h, action) : list[i](h)),
-            calls: (acc) => new Map([[0x80aaaf, () => action(dialogAccess(acc))]]),
+            native: (h) => (i === 5 ? list[i](h, turn) : list[i](h)),
+            calls: (acc) => new Map([[0x80aaaf, () => turn(dialogAccess(acc))]]),
+            ...(kind && i === 5 ? { registers: GAME_STATE_REGISTERS } : {}),
           });
           assert.deepEqual(result.differences, [], `seed ${seed}`);
           for (const pc of result.visited) covered.add(pc);
@@ -253,9 +268,10 @@ for (const [name, run] of [
       h.load(0xabcd);
       return { rawReturnWord: h.rts() };
     };
-    const walk = name === 'AFC4' ? moveObjectTowardsTarget : walkTowardsTarget;
+    // Both passes walk with the register-level reference, as the former pass reads
+    // the registers its callees leave.
     const routines = new Map(MAIN_MOTION_ROUTINES);
-    routines.set(0x80c9e0, (h) => walk(h, action));
+    routines.set(0x80c9e0, (h) => moveObjectTowardsTarget(h, action));
     routines.set(0x80ac2f, animation);
     const covered = new Set(),
       events = new Set();
