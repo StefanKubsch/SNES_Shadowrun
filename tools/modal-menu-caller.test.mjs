@@ -8,7 +8,7 @@ import * as formerQuestion from '../proof/caller/yes-no-question.mjs';
 import { openWindowSequence } from '../proof/caller/window-open.mjs';
 import { releaseWindowSequence } from '../proof/caller/window-release.mjs';
 import { chooseFromMenuSequence } from '../proof/caller/menu-choice.mjs';
-import { runFrameWait, runPadPresses } from '../src/system/live-input-calls.mjs';
+import { runFrameWait, runPadPresses } from '../proof/caller/input-routines.mjs';
 import { playSoundEffectRoutine } from '../src/apu/sound-effect.mjs';
 import {
   NativeCallContinuation,

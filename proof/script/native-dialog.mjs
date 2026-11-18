@@ -1,4 +1,5 @@
-import { runSpriteList, runFrameWait, runPadPresses } from '../../src/game/main-upkeep.mjs';
+import { runSpriteList } from '../../src/game/main-upkeep.mjs';
+import { runFrameWait, runPadPresses } from '../caller/input-routines.mjs';
 import {
   runCloseDialog,
   runPutGloveAway,

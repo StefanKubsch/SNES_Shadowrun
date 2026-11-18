@@ -15,9 +15,8 @@ import {
   runPaletteCycles,
   runObjectMotion,
   runSpriteList,
-  runFrameWait,
-  runPadPresses,
 } from '../../src/game/main-upkeep.mjs';
+import { runFrameWait, runPadPresses } from '../caller/input-routines.mjs';
 import {
   runNoticeTimeouts,
   runTimeLimit,

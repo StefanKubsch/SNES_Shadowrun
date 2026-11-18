@@ -2,7 +2,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { waitForConfirmKeySequence as direct } from '../src/game/confirm-key.mjs';
 import { waitForConfirmKeySequence as former } from '../proof/caller/confirm-key.mjs';
-import { runFrameWait, runPadPresses } from '../src/system/live-input-calls.mjs';
+import { runFrameWait, runPadPresses } from '../proof/caller/input-routines.mjs';
 import { textWindowSide, finishTextWindow } from './text-window-caller-harness.mjs';
 import { PAD_HELD, PAD_PREVIOUS, PAD_PRESSED, RANDOM_STATE } from '../src/data/wram.mjs';
 

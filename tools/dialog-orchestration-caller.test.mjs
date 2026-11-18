@@ -14,11 +14,8 @@ import { buildSpriteList } from '../proof/replay/native-scene-sprites.mjs';
 import { reloadObjectTiles } from '../proof/system/native-scene-tiles.mjs';
 import * as W from '../src/data/wram.mjs';
 import { closePortraitWindowSequence } from '../proof/caller/portrait-window.mjs';
-import {
-  runFrameWait,
-  runPadPresses,
-  frameWaitCallSequence,
-} from '../src/system/live-input-calls.mjs';
+import { frameWaitCallSequence } from '../src/system/live-input-calls.mjs';
+import { runFrameWait, runPadPresses } from '../proof/caller/input-routines.mjs';
 import {
   NativeCallContinuation,
   NATIVE_CALL_CONTINUATIONS,

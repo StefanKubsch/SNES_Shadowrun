@@ -2,7 +2,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { chooseFromMenuSequence as direct } from '../src/game/menu-choice.mjs';
 import { chooseFromMenuSequence as dispatched } from '../proof/caller/menu-choice.mjs';
-import { runFrameWait, runPadPresses } from '../src/system/live-input-calls.mjs';
+import { runFrameWait, runPadPresses } from '../proof/caller/input-routines.mjs';
 import { playSoundEffectRoutine } from '../src/apu/sound-effect.mjs';
 import { NativeCallContinuation } from '../src/system/native-call-continuation.mjs';
 import { WAIT_PAUSED } from '../src/system/native-wait-continuation.mjs';

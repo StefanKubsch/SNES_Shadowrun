@@ -10,7 +10,8 @@ import { releaseWindowSequence } from '../proof/caller/window-release.mjs';
 import { chooseFromMenuSequence } from '../proof/caller/menu-choice.mjs';
 import { setTextCursorRoutine, printNumberSequence } from '../proof/caller/window-text.mjs';
 import { printTextSequence } from '../proof/caller/text-print.mjs';
-import { frameWaitCallSequence, runPadPresses } from '../src/system/live-input-calls.mjs';
+import { frameWaitCallSequence } from '../src/system/live-input-calls.mjs';
+import { runPadPresses } from '../proof/caller/input-routines.mjs';
 import { playSoundEffectRoutine } from '../src/apu/sound-effect.mjs';
 import {
   NativeCallContinuation,

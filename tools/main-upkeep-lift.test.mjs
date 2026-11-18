@@ -22,11 +22,10 @@ import {
   runTileBuffers,
   runHitShake,
   runPaletteCycles,
-  runFrameWait,
-  runPadPresses,
   runObjectMotion,
   runSpriteList,
 } from '../src/game/main-upkeep.mjs';
+import { runFrameWait, runPadPresses } from '../proof/caller/input-routines.mjs';
 import {
   runNoticeTimeouts,
   runTimeLimit,

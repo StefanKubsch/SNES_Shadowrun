@@ -5,15 +5,14 @@ import {
   runCameraFollow,
   runColourEffect,
   runFormationStep,
-  runFrameWait,
   runHitShake,
   runObjectMotion,
-  runPadPresses,
   runPaletteCycles,
   runSpriteList,
   runTileBuffers,
   mainLoopNoticeSequence,
 } from '../../src/game/main-upkeep.mjs';
+import { runFrameWait, runPadPresses } from './input-routines.mjs';
 import { SCENE_REQUEST_ENTRY, sceneRequestSequence } from '../../src/game/scene-request.mjs';
 import { playerZonesSequence } from '../../src/game/player-zones.mjs';
 import { timeLimitSequence } from '../../src/game/time-limit.mjs';

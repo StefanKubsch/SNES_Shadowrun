@@ -2,7 +2,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import * as direct from '../src/game/portrait-window.mjs';
 import * as former from '../proof/caller/portrait-window.mjs';
-import { runFrameWait } from '../src/system/live-input-calls.mjs';
+import { runFrameWait } from '../proof/caller/input-routines.mjs';
 import { textWindowSide, finishTextWindow } from './text-window-caller-harness.mjs';
 import { DIALOG_HDMA_TABLE, HDMAEN_SHADOW, TMW_SHADOW, RANDOM_STATE } from '../src/data/wram.mjs';
 

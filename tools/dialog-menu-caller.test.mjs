@@ -4,7 +4,7 @@ import assert from 'node:assert/strict';
 import * as direct from '../src/game/dialog-menus.mjs';
 import * as previous from '../proof/caller/dialog-menus.mjs';
 import { dialogTextRoutines } from '../proof/replay/native-dialog-text.mjs';
-import { runFrameWait, runPadPresses } from '../src/system/live-input-calls.mjs';
+import { runFrameWait, runPadPresses } from '../proof/caller/input-routines.mjs';
 import { playSoundEffectRoutine } from '../src/apu/sound-effect.mjs';
 import { NATIVE_CALL_CONTINUATIONS } from '../src/system/native-call-continuation.mjs';
 import { textWindowSide, finishTextWindow, rendererTable } from './text-window-caller-harness.mjs';

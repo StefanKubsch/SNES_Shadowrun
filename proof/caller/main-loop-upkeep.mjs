@@ -1,5 +1,5 @@
 // Shared lifted callees of the main loop and its remaining call tables.
-import { runFrameWait, runPadPresses } from '../../src/game/main-upkeep.mjs';
+import { runFrameWait, runPadPresses } from './input-routines.mjs';
 import {
   runShowNotice,
   runPrintNumber,
