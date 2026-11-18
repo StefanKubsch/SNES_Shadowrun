@@ -3,7 +3,8 @@ import assert from 'node:assert/strict';
 import * as direct from '../src/game/member-portrait.mjs';
 import * as former from '../proof/caller/member-portrait.mjs';
 import * as upload from '../proof/caller/portrait-upload.mjs';
-import { unpackPortraitRoutine, shiftPortraitRowsRoutine } from '../src/game/portrait-upload.mjs';
+import { shiftPortraitRowsRoutine } from '../src/game/portrait-upload.mjs';
+import { unpackPortraitRoutine } from '../proof/caller/portrait-routines.mjs';
 import { frameWaitCallSequence } from '../src/system/live-input-calls.mjs';
 import {
   NativeCallContinuation,

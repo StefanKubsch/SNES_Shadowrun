@@ -23,7 +23,8 @@ import {
   uploadFirstPortraitSequence,
   uploadPortraitTilesSequence,
 } from '../proof/caller/portrait-upload.mjs';
-import { unpackPortraitRoutine, shiftPortraitRowsRoutine } from '../src/game/portrait-upload.mjs';
+import { shiftPortraitRowsRoutine } from '../src/game/portrait-upload.mjs';
+import { unpackPortraitRoutine } from '../proof/caller/portrait-routines.mjs';
 function runStatus(
   module,
   direct,

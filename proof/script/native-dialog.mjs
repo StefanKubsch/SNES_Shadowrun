@@ -17,10 +17,8 @@ import {
 
 import { clearFixedColourRoutine, setWindowTextWidthRoutine } from '../../src/game/dialog-talk.mjs';
 
-import {
-  unpackPortraitRoutine,
-  shiftPortraitRowsRoutine,
-} from '../../src/game/portrait-upload.mjs';
+import { shiftPortraitRowsRoutine } from '../../src/game/portrait-upload.mjs';
+import { unpackPortraitRoutine } from '../caller/portrait-routines.mjs';
 
 import { setMusicModeRoutine } from '../caller/audio-routines.mjs';
 

@@ -108,13 +108,11 @@ const setWord = (wram, at, value) => {
   wram[at] = value & BYTE_MASK;
   wram[at + 1] = (value >>> BYTE_BITS) & BYTE_MASK;
 };
-const flag = (ctx, bit, set) => {
-  ctx.status = set ? ctx.status | bit : ctx.status & ~bit;
-};
 
 // Unpack the portrait stream (pointer, bank word) into bank 7F from the offset
-// (80:9F6D, called with JSR); returns the registers the original leaves.
-function unpack(h, source, bank, offset) {
+// (80:9F6D, called with JSR); returns the registers the original leaves, which only the
+// register form (proof/caller/portrait-routines.mjs) uses.
+export function unpackPortraitStream(h, source, bank, offset) {
   const { ctx } = h;
   // PHP, PHB, PEA 7F7F, PLB, PLB: their bytes stay below the stack.
   h.pushByte(ctx.status);
@@ -135,19 +133,9 @@ export function unpackPortrait(h, events, source, bank, offset) {
     Object.assign(h.ctx, { a: source, y: bank, x: offset });
     return recorded(h, events);
   }
-  unpack(h, source, bank, offset);
+  unpackPortraitStream(h, source, bank, offset);
   return h.rts();
 }
-// The register form: the stream in A and Y, the offset in X; A, X and Y as the
-// original's copy leaves them.
-export function unpackPortraitRoutine(h, events) {
-  const recorded = recordedRoutine(events, 'portrait-unpack');
-  if (recorded) return recorded(h, events);
-  const { ctx } = h;
-  Object.assign(ctx, unpack(h, ctx.a, ctx.y, ctx.x));
-  return h.rts();
-}
-
 // Move the portrait rows apart (80:8F20), called with JSR.
 export function shiftPortraitRowsRoutine(h) {
   const { wram } = h.a.mem;
@@ -227,16 +215,6 @@ export function* uploadPortraitTiles(h, events, vram) {
   }
   return yield* rts(h);
 }
-// The register form: the VRAM address in X; A the finished request word, its sign set.
-export function* uploadPortraitTilesSequence(h, events) {
-  const { ctx } = h,
-    result = yield* uploadPortraitTiles(h, events, ctx.x);
-  ctx.a = word(sceneRuntime(h).wram, PORTRAIT_DMA_REQUEST);
-  flag(ctx, FLAG_NEGATIVE, true);
-  flag(ctx, FLAG_ZERO, false);
-  return result;
-}
-
 function* rts(h) {
   let result;
   yield () => {

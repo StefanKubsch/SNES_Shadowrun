@@ -1,7 +1,11 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import * as direct from '../src/game/portrait-upload.mjs';
+import * as lifted from '../src/game/portrait-upload.mjs';
 import * as former from '../proof/caller/portrait-upload.mjs';
+import { uploadPortraitTilesSequence } from '../proof/caller/portrait-routines.mjs';
+
+// The lifted uploads; the DMA job's register form takes the VRAM address in X.
+const direct = { ...lifted, uploadPortraitTilesSequence };
 import {
   NativeCallContinuation,
   NATIVE_CALL_CONTINUATIONS,

@@ -25,7 +25,8 @@ import {
   uploadFirstPortraitSequence,
   uploadPortraitTilesSequence,
 } from '../proof/caller/portrait-upload.mjs';
-import { unpackPortraitRoutine, shiftPortraitRowsRoutine } from '../src/game/portrait-upload.mjs';
+import { shiftPortraitRowsRoutine } from '../src/game/portrait-upload.mjs';
+import { unpackPortraitRoutine } from '../proof/caller/portrait-routines.mjs';
 const MENU_SOUND_INDEX = 0x4c,
   PORTRAIT_STACK_TOP = 0x1eef,
   PORTRAIT_STACK_START = 0x1e80,
