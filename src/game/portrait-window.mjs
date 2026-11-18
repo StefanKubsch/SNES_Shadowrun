@@ -11,11 +11,10 @@
 // bytes 7E:0148/0149 and 7E:014E/014F around the screen's centre (Book I 2-27, the
 // window registers 2126 to 2129).
 //
-// Each frame waits directly with live 81:B0A1 through its JSL frame. The
-// registers are left as the original: X past the last step (23 opening, FFFE closing),
-// A with the last edge in its low byte (opening) or 01 (closing) and the high byte of
-// the wait's A, Y and the overflow of the wait; the edges' JSR frame and their pushed
-// status are not reproduced (nothing waits there).
+// Each frame waits directly with live 81:B0A1 through its JSL frame. Registers (user
+// decision 2026-11-17): game state only; the step (X in the original) is a local and no
+// registers are left. The edges' JSR frame and their pushed status are not reproduced
+// (nothing waits there).
 import { dialogCallBody } from '../system/native-call-continuation.mjs';
 import { frameWaitCallSequence } from '../system/live-input-calls.mjs';
 import { sceneRuntime } from '../system/scene-runtime.mjs';
@@ -30,8 +29,7 @@ import {
   TMW_SHADOW,
 } from '../data/wram.mjs';
 import { A1B0, A1T0L, BBAD0, DMAP0, W12SEL, WBGLOG } from '../constants/hardware-registers.mjs';
-import { BYTE_BITS, BYTE_MASK, HIGH_BYTE_MASK, WORD_MASK, WORD_SIGN } from '../constants/bits.mjs';
-import { FLAG_CARRY, FLAG_NEGATIVE, FLAG_ZERO } from '../constants/cpu-flags.mjs';
+import { BYTE_BITS, BYTE_MASK, WORD_MASK, WORD_SIGN } from '../constants/bits.mjs';
 
 const HDMA_SOURCE = 0x808f87,
   HDMA_LAST_BYTE = 0x0f,
@@ -52,13 +50,10 @@ const setWord = (wram, at, value) => {
   wram[at] = value & BYTE_MASK;
   wram[at + 1] = (value >>> BYTE_BITS) & BYTE_MASK;
 };
-const flag = (ctx, bit, set) => {
-  ctx.status = set ? ctx.status | bit : ctx.status & ~bit;
-};
 
 // The window edges for the step in X (80:8EFE): the left window from 39 and 3B, the
 // right one from C5 and C7 around X and its complement, 8-bit additions with the carry
-// carried along as the original. Returns the last edge (A's low byte).
+// carried along as the original.
 function setWindowEdges(wram, x) {
   const add = (left, right, carry) => {
     const sum = left + right + (carry ? 1 : 0);
@@ -75,15 +70,13 @@ function setWindowEdges(wram, x) {
     PORTRAIT_WINDOW.leftWindowLeftBias,
     rightRight.carry,
   ).value;
-  const rightLeft = add(inverse, PORTRAIT_WINDOW.rightWindowLeftBias, false).value;
-  wram[RIGHT_WINDOW_LEFT_EDGE] = rightLeft;
-  return rightLeft;
+  wram[RIGHT_WINDOW_LEFT_EDGE] = add(inverse, PORTRAIT_WINDOW.rightWindowLeftBias, false).value;
 }
 
 // Open the portrait window (80:8F3A) with live frame waits.
 export function* openPortraitWindowSequence(h, events) {
-  const { ctx } = h,
-    { mem, wram, port } = sceneRuntime(h);
+  const { mem, wram, port } = sceneRuntime(h);
+  let step = PORTRAIT_WINDOW.edgeFirst;
   yield () => {
     port.write(W12SEL, PORTRAIT_WINDOW.select, 2, SITES.select);
     port.write(WBGLOG, 0, 2, SITES.logic);
@@ -95,41 +88,30 @@ export function* openPortraitWindowSequence(h, events) {
     port.write(A1B0, WRAM_BANK, 1, SITES.bank);
     wram[HDMAEN_SHADOW] |= PORTRAIT_WINDOW.hdmaChannel;
     setWord(wram, TMW_SHADOW, PORTRAIT_WINDOW.layers);
-    ctx.a = PORTRAIT_WINDOW.layers;
-    ctx.x = PORTRAIT_WINDOW.edgeFirst;
   };
   do {
     yield* dialogCallBody(h, ...OPEN_WAIT, () => frameWaitCallSequence(h, events), true);
     yield () => {
-      ctx.a = (ctx.a & HIGH_BYTE_MASK) | setWindowEdges(wram, ctx.x);
-      ctx.x = (ctx.x + PORTRAIT_WINDOW.edgeStep) & WORD_MASK;
-      const difference = (ctx.x - PORTRAIT_WINDOW.edgeEnd) & WORD_MASK;
-      flag(ctx, FLAG_CARRY, ctx.x >= PORTRAIT_WINDOW.edgeEnd);
-      flag(ctx, FLAG_NEGATIVE, difference & WORD_SIGN);
-      flag(ctx, FLAG_ZERO, difference === 0);
+      setWindowEdges(wram, step);
+      step = (step + PORTRAIT_WINDOW.edgeStep) & WORD_MASK;
     };
-  } while (!(ctx.status & FLAG_CARRY));
+  } while (step < PORTRAIT_WINDOW.edgeEnd);
   return yield* rts(h);
 }
 
 // Close the portrait window (80:8F97) with live frame waits.
 export function* closePortraitWindowSequence(h, events) {
-  const { ctx } = h,
-    { wram } = sceneRuntime(h);
-  yield () => (ctx.x = PORTRAIT_WINDOW.edgeLast);
+  const { wram } = sceneRuntime(h);
+  let step = PORTRAIT_WINDOW.edgeLast;
   do {
     yield* dialogCallBody(h, ...CLOSE_WAIT, () => frameWaitCallSequence(h, events), true);
     yield () => {
-      ctx.a = (ctx.a & HIGH_BYTE_MASK) | setWindowEdges(wram, ctx.x);
-      ctx.x = (ctx.x - PORTRAIT_WINDOW.edgeStep) & WORD_MASK;
+      setWindowEdges(wram, step);
+      step = (step - PORTRAIT_WINDOW.edgeStep) & WORD_MASK;
     };
-  } while (!(ctx.x & WORD_SIGN));
+  } while (!(step & WORD_SIGN));
   yield () => {
     setWord(wram, TMW_SHADOW, 0);
-    ctx.a = (ctx.a & HIGH_BYTE_MASK) | PORTRAIT_WINDOW.hdmaChannel;
-    // LDA #1 clears the sign; TRB: zero when the channel was off.
-    flag(ctx, FLAG_ZERO, !(wram[HDMAEN_SHADOW] & PORTRAIT_WINDOW.hdmaChannel));
-    flag(ctx, FLAG_NEGATIVE, false);
     wram[HDMAEN_SHADOW] &= ~PORTRAIT_WINDOW.hdmaChannel;
   };
   return yield* rts(h);

@@ -9,8 +9,9 @@ import { DIALOG_HDMA_TABLE, HDMAEN_SHADOW, TMW_SHADOW, RANDOM_STATE } from '../s
 function run(module, name, shadow, counter, budget) {
   const side = textWindowSide(),
     { h, mem, put, events } = side,
+    // Game state only (user decision 2026-11-17): the step (X in the original) shows in
+    // the window edges of the HDMA table, not in a register.
     snapshot = () => [
-      h.ctx.x,
       mem.wram[HDMAEN_SHADOW],
       mem.read16(TMW_SHADOW),
       mem.wram.slice(DIALOG_HDMA_TABLE, DIALOG_HDMA_TABLE + 16),
@@ -43,11 +44,15 @@ for (const budget of [1, 7])
           assert.deepEqual(actual, run(former, name, shadow, counter, budget));
           assert.equal(actual.calls.length, 11, 'eleven frame waits');
           const opening = name.startsWith('open');
-          assert.equal(actual.final[1], opening ? shadow | 1 : shadow & ~1);
-          assert.equal(actual.final[2], opening ? 0x0f : 0);
+          assert.equal(actual.final[0], opening ? shadow | 1 : shadow & ~1);
+          assert.equal(actual.final[1], opening ? 0x0f : 0);
+          // The left window's right edge (table byte 5) of the step before each frame.
           assert.deepEqual(
-            actual.calls.map(([x]) => x),
-            Array.from({ length: 11 }, (_, n) => (opening ? 2 + 3 * n : 31 - 3 * n)),
+            actual.calls.slice(1).map(([, , table]) => table[5]),
+            Array.from(
+              { length: 10 },
+              (_, n) => (0x39 + (opening ? 2 + 3 * n : 31 - 3 * n)) & 0xff,
+            ),
             'each frame sees the original edge step',
           );
         });

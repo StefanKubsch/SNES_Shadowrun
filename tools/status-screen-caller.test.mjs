@@ -144,7 +144,7 @@ function runStatus(
         if (pc === 0x81b0a9 && caller !== 0xa6ec && caller !== 0xf956) {
           calls.push([
             [0x8f9d, 0x92d4].includes(caller) ? 'scene close frame' : 'portrait frame',
-            h.ctx.x,
+            // Game state only (user decision 2026-11-17): no X (the portrait window step).
             ...snapshot(),
           ]);
           put(W.RANDOM_STATE, mem.read16(W.RANDOM_STATE) + 1);

@@ -60,9 +60,10 @@ function runClose(module, shadow, counter, held, budget) {
       return true;
     }
     assert.equal(pc, 0x81b0a9);
+    // Game state only (user decision 2026-11-17): the portrait window's step (X in the
+    // original) shows in the HDMA table, not in a register.
     side.calls.push([
       'frame',
-      h.ctx.x,
       mem.wram[HDMAEN_SHADOW],
       mem.wram.slice(DIALOG_HDMA_TABLE, DIALOG_HDMA_TABLE + 16),
     ]);
