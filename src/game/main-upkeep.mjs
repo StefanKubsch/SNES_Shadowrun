@@ -29,7 +29,7 @@ import {
   releaseWindowSequence,
 } from './window-release.mjs';
 import { closeDialogSequence, talkSequence } from './dialog-talk.mjs';
-import { chooseDialogActionSequence, chooseDialogTopicSequence } from './dialog-menus.mjs';
+import { chooseDialogTopicSequence, dialogActionRoutineSequence } from './dialog-menus.mjs';
 import {
   printTopicTextSequence,
   printWindowTextSequence,
@@ -244,7 +244,7 @@ NATIVE_CALL_CONTINUATIONS.set(runConfirmKey, {
 });
 // 80:91E2 and 80:9215 compose their live menus with the text renderer.
 export function runDialogMenu(h, events) {
-  return drainNativeSequence(chooseDialogActionSequence(h, events, drawTextBufferSequence));
+  return drainNativeSequence(dialogActionRoutineSequence(h, events, drawTextBufferSequence));
 }
 export function runDialogTopics(h, events) {
   return drainNativeSequence(chooseDialogTopicSequence(h, events, drawTextBufferSequence));
@@ -254,7 +254,7 @@ export function runDialogText(h, events) {
   return drainNativeSequence(showDialogTextSequence(h, events, drawTextBufferSequence));
 }
 for (const [run, sequence] of [
-  [runDialogMenu, chooseDialogActionSequence],
+  [runDialogMenu, dialogActionRoutineSequence],
   [runDialogTopics, chooseDialogTopicSequence],
   [runDialogText, showDialogTextSequence],
 ])

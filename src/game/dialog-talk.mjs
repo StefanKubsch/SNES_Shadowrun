@@ -418,6 +418,8 @@ export function* talkSequence(h, events, renderBuffer = drawTextBufferSequence) 
     );
     let next;
     yield () => {
+      // The menu leaves its row in the direct page word 00 (A in the original).
+      ctx.a = word(wram, DP_OBJECT);
       flag(ctx, FLAG_CARRY, true);
       if (ctx.a === MENU_EXIT) return void (next = 'end');
       ctx.x = word(wram, DIALOG_END);

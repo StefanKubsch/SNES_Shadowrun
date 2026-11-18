@@ -13,9 +13,10 @@
 // the topic list. The result stays in the direct page word 00.
 //
 // Window opening, release and menus compose directly through their call frames.
-// A, X and Y passed to the calls and left at the end are the
-// original's, as are the carry of the routines' own comparisons; the X the topic list
-// pushes around a text lookup is not reproduced (nothing waits there).
+// Registers (user decision 2026-11-17): game state only; the menus take no register
+// input and the routines leave no registers (the result is in the direct page word 00).
+// The register form of the main menu for register-level callers leaves A the result
+// with the flags of its CMP #FFFF.
 import { dialogCallBody } from '../system/native-call-continuation.mjs';
 import { drawTextBufferSequence } from './text-draw.mjs';
 import { chooseFromMenuSequence } from './menu-choice.mjs';
@@ -86,35 +87,35 @@ function callee(h, events, renderBuffer, [site, target], name) {
 
 // The dialog's main menu (80:91E2), a sequence for a native call continuation.
 export function* chooseDialogActionSequence(h, events, renderBuffer = drawTextBufferSequence) {
-  const { ctx } = h,
-    { wram } = h.a.mem;
+  const { wram } = h.a.mem;
   yield () => {
     setWord(wram, DP_RESULT, word(wram, DP_TEXT_WINDOW));
     setWords(wram, 2, MAIN_MENU);
-    ctx.a = CODE_BANK;
   };
   yield* callee(h, events, renderBuffer, MAIN_MENU_CALL, 'mainMenu');
   yield () => {
-    ctx.a = word(wram, DP_RESULT);
-    // CMP #FFFF.
-    flag(ctx, FLAG_CARRY, ctx.a === NONE);
-    signAndZero(ctx, (ctx.a + 1) & WORD_MASK);
-    if (ctx.a === NONE) setWord(wram, DIALOG_END, ctx.a);
+    if (word(wram, DP_RESULT) === NONE) setWord(wram, DIALOG_END, NONE);
   };
   return yield* rts(h);
+}
+// The register form: A the result, with the carry, sign and zero of CMP #FFFF.
+export function* dialogActionRoutineSequence(h, events, renderBuffer = drawTextBufferSequence) {
+  const result = yield* chooseDialogActionSequence(h, events, renderBuffer),
+    { ctx } = h,
+    chosen = word(h.a.mem.wram, DP_RESULT);
+  ctx.a = chosen;
+  flag(ctx, FLAG_CARRY, chosen === NONE);
+  signAndZero(ctx, (chosen + 1) & WORD_MASK);
+  return result;
 }
 
 // The dialog's topic choice (80:9215), a sequence for a native call continuation.
 export function* chooseDialogTopicSequence(h, events, renderBuffer = drawTextBufferSequence) {
-  const { ctx } = h,
-    { mem } = h.a,
+  const { mem } = h.a,
     { wram } = mem;
   let none = false;
-  // No topic: FFFF in 00, with the carry of the end comparison.
+  // No topic: FFFF in 00.
   const empty = () => {
-    ctx.a = NONE;
-    signAndZero(ctx, NONE);
-    flag(ctx, FLAG_CARRY, true);
     setWord(wram, DP_RESULT, NONE);
     none = true;
   };
@@ -130,14 +131,9 @@ export function* chooseDialogTopicSequence(h, events, renderBuffer = drawTextBuf
       setWord(wram, TOPIC_MENU_BUFFER + y, mem.read8(at) | (mem.read8(at + 1) << BYTE_BITS));
       y = (y + 2) & WORD_MASK;
     }
-    ctx.x = x;
-    ctx.y = y;
     if (y === 0) return empty();
     setWord(wram, TOPIC_MENU_BUFFER + y, 0);
     setWords(wram, DP_RESULT, TOPIC_WINDOW);
-    ctx.a = 0;
-    // CPY #0 with Y not 0.
-    flag(ctx, FLAG_CARRY, true);
     if (mem.language)
       fitListWindow(mem, h, listTextIds(mem, (WRAM_BANK << WORD_BITS) | TOPIC_MENU_BUFFER, TOPICS));
   };
@@ -146,21 +142,17 @@ export function* chooseDialogTopicSequence(h, events, renderBuffer = drawTextBuf
   yield () => {
     setWord(wram, DP_TOPIC_WINDOW, word(wram, DP_RESULT));
     setWords(wram, 2, TOPIC_MENU);
-    ctx.a = WRAM_BANK;
   };
   yield* callee(h, events, renderBuffer, TOPIC_MENU_CALL, 'menu');
   yield () => {
+    // The chosen row waits on the stack over the release, as the original.
     h.a.pushWord(word(wram, DP_RESULT));
-    ctx.a = word(wram, DP_TOPIC_WINDOW);
-    setWord(wram, DP_RESULT, ctx.a);
+    setWord(wram, DP_RESULT, word(wram, DP_TOPIC_WINDOW));
   };
   yield* callee(h, events, renderBuffer, TOPIC_RELEASE_CALL, 'release');
   yield () => {
     let row = h.a.pullWord();
-    ctx.y = row;
-    flag(ctx, FLAG_CARRY, row === NONE);
     if (row === NONE) {
-      signAndZero(ctx, 0);
       setWord(wram, DIALOG_END, row);
       setWord(wram, DP_RESULT, row);
       return;
@@ -172,10 +164,6 @@ export function* chooseDialogTopicSequence(h, events, renderBuffer = drawTextBuf
       row = (row - 1) & WORD_MASK;
       if (row & WORD_SIGN) break;
     }
-    ctx.a = 0;
-    ctx.x = x;
-    ctx.y = row;
-    signAndZero(ctx, row);
     setWord(wram, DP_RESULT, x);
   };
   return yield* rts(h);
