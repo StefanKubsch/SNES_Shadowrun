@@ -21,6 +21,10 @@
 // window. At the end 80:92C5, the windows are released, 1F62 is cleared and the sound
 // restored (7F7F). Menus, text and displays compose through their original
 // frames, including sound and colour setup; scene cleanup also composes directly.
+//
+// Registers (user decision 2026-11-17): game state only, apart from the APU command
+// 81:F007, which still takes the command in A and its value in X. The object the
+// native keeps on the stack over the notice release (PEI, PLY) is a local.
 import { dialogCallBody, segmentSequence } from '../system/native-call-continuation.mjs';
 import { openWindowSequence } from './window-open.mjs';
 import {
@@ -115,7 +119,6 @@ import {
   WORD_MASK,
   WORD_SIGN,
 } from '../constants/bits.mjs';
-import { FLAG_CARRY, FLAG_NEGATIVE, FLAG_OVERFLOW, FLAG_ZERO } from '../constants/cpu-flags.mjs';
 
 // The entries: the script native, Start and Y in the player control.
 export const NATIVE_ENTRY = 0x80ea6e,
@@ -151,7 +154,6 @@ const ATTRIBUTE_LABELS = 0xed16,
   // Ten times Magic: Magic doubled, then times four plus the double.
   MAGIC_SCALE_SHIFT = 2,
   KARMA_SHIFT = 3,
-  KARMA_CARRY_BIT = 1 << (KARMA_SHIFT - 1),
   // The money's 32-bit number for 80:FDCF.
   DP_NUMBER_LOW = 2,
   DP_NUMBER_HIGH = 4;
@@ -165,23 +167,7 @@ const setWord = (wram, at, value) => {
   wram[at] = value & BYTE_MASK;
   wram[at + 1] = (value >>> BYTE_BITS) & BYTE_MASK;
 };
-const setFlag = (ctx, bit, set) => {
-  ctx.status = set ? ctx.status | bit : ctx.status & ~bit;
-};
-const setSignZero = (ctx, value) => {
-  setFlag(ctx, FLAG_NEGATIVE, value & WORD_SIGN);
-  setFlag(ctx, FLAG_ZERO, value === 0);
-};
-const load = (ctx, value) => {
-  ctx.a = value;
-  setSignZero(ctx, value);
-};
 const negative = (value) => (value & WORD_SIGN) !== 0;
-// CMP/CPX on words: the carry for left >= right, the sign and zero of the difference.
-const compare = (ctx, left, right) => {
-  setFlag(ctx, FLAG_CARRY, left >= right);
-  setSignZero(ctx, (left - right) & WORD_MASK);
-};
 // A long word read: WRAM fields indexed past their bank reach the next one.
 const longWord = (mem, address) => mem.read16(address & LONG_MASK);
 function* returnSequence(h) {
@@ -215,61 +201,36 @@ export function* statusScreenSequence(
   const cursor = function* (pc, column, row) {
     yield () => {
       setWord(wram, 2, column);
-      load(ctx, column);
-      if (row === undefined) return;
-      setWord(wram, DP_CURSOR_ROW, row);
-      load(ctx, row);
+      if (row !== undefined) setWord(wram, DP_CURSOR_ROW, row);
     };
     yield* dialogCallBody(h, pc, CURSOR, () => segmentSequence(() => setTextCursorRoutine(h)));
   };
   const text = function* (pc, id) {
-    yield () => {
-      load(ctx, id);
-      setWord(wram, 2, id);
-    };
+    yield () => setWord(wram, 2, id);
     yield* dialogCallBody(h, pc, TEXT, () => printTextSequence(h, events, renderBuffer));
   };
   const number = function* (pc, value) {
-    yield () => {
-      const shown = value();
-      load(ctx, shown);
-      setWord(wram, 2, shown);
-    };
+    yield () => setWord(wram, 2, value());
     yield* dialogCallBody(h, pc, NUMBER, () => printNumberSequence(h, events, renderBuffer));
   };
-  // The object's state count from its record (LDX record, LDA state AND FF).
+  // The object's state count from its record.
   const keepStateCount = (object) => {
-    const at = dataBankWord(mem, OBJECT_RECORD, object),
-      count = longWord(mem, WRAM + STATE_COUNT + at) & BYTE_MASK;
-    ctx.x = at;
-    load(ctx, count);
-    setDataBankWord(mem, MEMBER_STATE_COUNT, 0, count);
+    const at = dataBankWord(mem, OBJECT_RECORD, object);
+    setDataBankWord(mem, MEMBER_STATE_COUNT, 0, longWord(mem, WRAM + STATE_COUNT + at) & BYTE_MASK);
   };
   // Whether the object's number is in the group (searched from the group's index down).
   const inGroup = (object) => {
     const objectNumber = dataBankWord(mem, OBJECT_NUMBER, object);
-    let at = word(wram, GROUP_INDEX);
-    ctx.a = objectNumber;
-    for (;;) {
-      const member = longWord(mem, WRAM + GROUP_NUMBERS + at);
-      compare(ctx, objectNumber, member);
-      if (objectNumber === member) break;
-      at = (at - 2) & WORD_MASK;
-      setSignZero(ctx, at);
-      if (negative(at)) break;
-    }
-    ctx.x = at;
-    return (ctx.status & FLAG_ZERO) !== 0;
+    for (let at = word(wram, GROUP_INDEX); !negative(at); at = (at - 2) & WORD_MASK)
+      if (longWord(mem, WRAM + GROUP_NUMBERS + at) === objectNumber) return true;
+    return false;
   };
 
   yield () => {
-    if (entry === ITEMS_ENTRY) {
-      setWord(wram, STATUS_ITEMS_AT_ONCE, MARK_SET);
-      load(ctx, MARK_SET);
-    } else setWord(wram, STATUS_ITEMS_AT_ONCE, 0);
+    setWord(wram, STATUS_ITEMS_AT_ONCE, entry === ITEMS_ENTRY ? MARK_SET : 0);
+    // The APU command takes the command in A and its value in X (see the header).
     ctx.a = APU_COMMAND_VOLUME_TARGET;
     ctx.x = STATUS_VOLUME_TARGET;
-    setSignZero(ctx, STATUS_VOLUME_TARGET);
   };
   yield* dialogCallBody(
     h,
@@ -278,43 +239,34 @@ export function* statusScreenSequence(
     () => segmentSequence(() => sendApuCommandRoutine(h)),
     true,
   );
+  // The native keeps its object DP 00 over the release (PEI, PLY in the original).
+  let object;
   yield () => {
     setWord(wram, MEMBER_MENU_ACTIVE, MARK_SET);
-    load(ctx, MARK_SET);
-    // The native keeps its object DP 00 on the stack over the release (PEI, PLY).
-    if (native) h.push(word(wram, 0), 2);
+    if (native) object = word(wram, 0);
   };
   yield* dialogCallBody(h, native ? 0x80ea83 : 0x80eaa4, RELEASE_NOTICES, () =>
     releaseNoticeWindowsCallSequence(h, events),
   );
   yield () => {
-    let object;
-    if (native) object = h.pull(2);
-    else {
+    if (!native) {
       const tag = dataBankWord(mem, GLOVE_TARGET_TAG);
-      ctx.a = tag;
       object = dataBankWord(mem, negative(tag) ? PLAYER_OBJECT : GLOVE_TARGET_OBJECT);
     }
-    ctx.y = object;
     keepStateCount(object);
     if (!inGroup(object)) {
       object = dataBankWord(mem, PLAYER_OBJECT);
-      ctx.y = object;
       keepStateCount(object);
       if (!inGroup(object)) taskStop('task_ea6e_endless_search');
     }
-    // The runner of the number (from the last; none leaves FFFE).
+    // The runner of the object's number (from the last; none leaves FFFE).
+    const number = dataBankWord(mem, OBJECT_NUMBER, object);
     let runner = RUNNER_LAST_INDEX;
-    for (;;) {
-      const runnerNumber = dataBankWord(mem, RUNNER_OBJECT_NUMBERS, runner);
-      compare(ctx, ctx.a, runnerNumber);
-      if (ctx.a === runnerNumber) break;
+    while (number !== dataBankWord(mem, RUNNER_OBJECT_NUMBERS, runner)) {
       runner = (runner - 2) & WORD_MASK;
-      setSignZero(ctx, runner);
       if (negative(runner)) break;
     }
-    ctx.x = runner;
-    setWord(wram, MEMBER_NUMBER, ctx.a);
+    setWord(wram, MEMBER_NUMBER, number);
     setWord(wram, MEMBER_OBJECT, object);
     setWord(wram, MEMBER_INDEX, runner);
   };
@@ -328,10 +280,7 @@ export function* statusScreenSequence(
   );
   yield () => {
     const runner = dataBankWord(mem, MEMBER_INDEX);
-    ctx.x = runner;
     setWord(wram, DP_MEMBER_RECORD, dataBankWord(mem, RUNNER_RECORD_POINTERS, runner));
-    // CPX #0 leaves the carry set.
-    setFlag(ctx, FLAG_CARRY, true);
     const alternate = runner === 0 && wram[JAKE_ALTERNATE_PORTRAIT] !== 0;
     setWord(
       wram,
@@ -348,58 +297,36 @@ export function* statusScreenSequence(
     setWord(wram, DP_WINDOW_COLUMNS, STATUS_WINDOW_SHAPE.columns);
     setWord(wram, DP_WINDOW_ROWS, STATUS_WINDOW_SHAPE.rows);
     setWord(wram, DP_WINDOW_ATTRIBUTES, 0);
-    load(ctx, 0);
   };
   yield* dialogCallBody(h, 0x80eb3a, OPEN_WINDOW, () => openWindowSequence(h, events));
   yield () => {
-    const window = word(wram, 0);
-    setWord(wram, STATUS_WINDOW, window);
-    ctx.y = RECORD_MAGIC;
-    const doubled = (longWord(mem, record() + RECORD_MAGIC) & BYTE_MASK) << 1,
-      maximum = (doubled << MAGIC_SCALE_SHIFT) + doubled;
-    setWord(wram, DP_MAGIC_MAXIMUM, maximum);
-    // The shifts and the sum of at most 2550 carry and overflow nothing.
-    load(ctx, maximum);
-    setFlag(ctx, FLAG_CARRY, false);
-    setFlag(ctx, FLAG_OVERFLOW, false);
+    setWord(wram, STATUS_WINDOW, word(wram, 0));
+    const doubled = (longWord(mem, record() + RECORD_MAGIC) & BYTE_MASK) << 1;
+    setWord(wram, DP_MAGIC_MAXIMUM, (doubled << MAGIC_SCALE_SHIFT) + doubled);
   };
   // The attribute rows from the last; a callee may change the index kept in DP 6B.
   let at = LAST_ATTRIBUTE;
   do {
     yield () => {
       setWord(wram, 2, STATUS_ROWS.labelColumn);
-      const row = dataBankWord(mem, ATTRIBUTE_ROWS, at);
-      load(ctx, row);
-      setWord(wram, DP_CURSOR_ROW, row);
+      setWord(wram, DP_CURSOR_ROW, dataBankWord(mem, ATTRIBUTE_ROWS, at));
       setWord(wram, DP_SCRATCH, at);
-      ctx.x = at;
     };
     yield* dialogCallBody(h, 0x80eb62, CURSOR, () =>
       segmentSequence(() => setTextCursorRoutine(h)),
     );
-    yield () => {
-      const kept = word(wram, DP_SCRATCH),
-        label = dataBankWord(mem, ATTRIBUTE_LABELS, kept);
-      ctx.x = kept;
-      load(ctx, label);
-      setWord(wram, 2, label);
-    };
+    yield () => setWord(wram, 2, dataBankWord(mem, ATTRIBUTE_LABELS, word(wram, DP_SCRATCH)));
     yield* dialogCallBody(h, 0x80eb6c, TEXT, () => printTextSequence(h, events, renderBuffer));
     yield* cursor(0x80eb74, STATUS_LAYOUT.valueColumn);
     yield () => {
-      const value = nextRecordByte(),
-        kept = word(wram, DP_SCRATCH);
-      ctx.x = kept;
-      compare(ctx, kept, SKIPPED_AFTER);
-      if (kept === SKIPPED_AFTER) setWord(wram, DP_MEMBER_RECORD, word(wram, DP_MEMBER_RECORD) + 1);
-      load(ctx, value);
+      const value = nextRecordByte();
+      if (word(wram, DP_SCRATCH) === SKIPPED_AFTER)
+        setWord(wram, DP_MEMBER_RECORD, word(wram, DP_MEMBER_RECORD) + 1);
       setWord(wram, 2, value);
     };
     yield* dialogCallBody(h, 0x80eb89, NUMBER, () => printNumberSequence(h, events, renderBuffer));
     yield () => {
       at = (word(wram, DP_SCRATCH) - 2) & WORD_MASK;
-      ctx.x = at;
-      setSignZero(ctx, at);
     };
   } while (!negative(at));
   yield* cursor(0x80eb9c, STATUS_ROWS.countColumn, STATUS_ROWS.stateCountRow);
@@ -407,39 +334,27 @@ export function* statusScreenSequence(
   yield* text(0x80ebac, TEXT_SLASH);
   yield* number(0x80ebb8, nextRecordByte);
   yield* cursor(0x80ebc5, STATUS_ROWS.countColumn, STATUS_ROWS.magicRow);
-  yield* number(0x80ebd6, () => {
-    const runner = dataBankWord(mem, MEMBER_INDEX),
-      member = runner >>> 1;
-    setFlag(ctx, FLAG_CARRY, runner & 1);
-    ctx.x = member;
-    return longWord(mem, WRAM + MAGIC_POINTS + member) & BYTE_MASK;
-  });
+  yield* number(
+    0x80ebd6,
+    () => longWord(mem, WRAM + MAGIC_POINTS + (dataBankWord(mem, MEMBER_INDEX) >>> 1)) & BYTE_MASK,
+  );
   yield* text(0x80ebde, TEXT_SLASH);
   yield* number(0x80ebe5, () => word(wram, DP_MAGIC_MAXIMUM));
   let jake;
   yield () => {
-    const memberNumber = dataBankWord(mem, MEMBER_NUMBER);
-    ctx.a = memberNumber;
-    compare(ctx, memberNumber, JAKE_OBJECT_NUMBER);
-    jake = memberNumber === JAKE_OBJECT_NUMBER;
+    jake = dataBankWord(mem, MEMBER_NUMBER) === JAKE_OBJECT_NUMBER;
   };
   if (jake) {
     yield* cursor(0x80ebfa, STATUS_ROWS.labelColumn, STATUS_ROWS.karmaRow);
     yield* text(0x80ec02, TEXT_KARMA);
     yield* cursor(0x80ec0a, STATUS_LAYOUT.valueColumn);
-    yield* number(0x80ec16, () => {
-      const karma = longWord(mem, WRAM + KARMA);
-      setFlag(ctx, FLAG_CARRY, karma & KARMA_CARRY_BIT);
-      return karma >>> KARMA_SHIFT;
-    });
+    yield* number(0x80ec16, () => longWord(mem, WRAM + KARMA) >>> KARMA_SHIFT);
     yield* cursor(0x80ec23, STATUS_ROWS.labelColumn, STATUS_ROWS.moneyRow);
     yield* text(0x80ec2b, TEXT_MONEY);
     yield* cursor(0x80ec33, STATUS_LAYOUT.valueColumn);
     yield () => {
-      const high = longWord(mem, WRAM + NUYEN + 2);
       setWord(wram, DP_NUMBER_LOW, longWord(mem, WRAM + NUYEN));
-      setWord(wram, DP_NUMBER_HIGH, high);
-      load(ctx, high);
+      setWord(wram, DP_NUMBER_HIGH, longWord(mem, WRAM + NUYEN + 2));
     };
     yield* dialogCallBody(h, 0x80ec42, DECIMAL_NUMBER, () =>
       decimalNumberSequence(h, events, renderBuffer),
@@ -458,9 +373,7 @@ export function* statusScreenSequence(
 
   let direct;
   yield () => {
-    const atOnce = dataBankWord(mem, STATUS_ITEMS_AT_ONCE);
-    load(ctx, atOnce);
-    direct = atOnce !== 0;
+    direct = dataBankWord(mem, STATUS_ITEMS_AT_ONCE) !== 0;
     if (direct) return;
     const window = translatedMenuWindow(h);
     setWord(wram, DP_WINDOW_LEFT, window.left);
@@ -468,27 +381,19 @@ export function* statusScreenSequence(
     setWord(wram, DP_WINDOW_COLUMNS, window.columns);
     setWord(wram, DP_WINDOW_ROWS, window.rows);
     setWord(wram, DP_WINDOW_ATTRIBUTES, 0);
-    load(ctx, 0);
   };
   if (!direct) {
     yield* dialogCallBody(h, 0x80eca8, OPEN_WINDOW, () => openWindowSequence(h, events));
-    yield () => {
-      const window = word(wram, 0);
-      load(ctx, window);
-      setWord(wram, STATUS_MENU_WINDOW, window);
-    };
+    yield () => setWord(wram, STATUS_MENU_WINDOW, word(wram, 0));
   }
   for (;;) {
     let chosen, close;
     yield () => {
       if (direct) {
         chosen = FIRST_SUBMENU;
-        load(ctx, chosen);
         return;
       }
-      const atOnce = dataBankWord(mem, STATUS_ITEMS_AT_ONCE);
-      load(ctx, atOnce);
-      close = atOnce !== 0;
+      close = dataBankWord(mem, STATUS_ITEMS_AT_ONCE) !== 0;
       if (close) return;
       setWord(wram, 0, dataBankWord(mem, STATUS_MENU_WINDOW));
       setWord(wram, DP_MENU_COLUMN, MENU_COLUMN);
@@ -496,7 +401,6 @@ export function* statusScreenSequence(
       setWord(wram, DP_MENU_VISIBLE_ROWS, MENU_WINDOW.visibleRows);
       setWord(wram, DP_LIST_TOKENS, STATUS_MENU_ITEMS);
       setWord(wram, DP_LIST_TOKEN_BANK, CODE_BANK);
-      load(ctx, CODE_BANK);
     };
     if (close) return yield* closeSequence(h, events);
     if (!direct) {
@@ -505,7 +409,6 @@ export function* statusScreenSequence(
       );
       yield () => {
         chosen = word(wram, 0);
-        load(ctx, chosen);
       };
       if (chosen === 0 || negative(chosen)) break;
     }
@@ -513,9 +416,6 @@ export function* statusScreenSequence(
     let submenu, submenuSequence;
     yield () => {
       const offset = (chosen << 1) & WORD_MASK;
-      setFlag(ctx, FLAG_CARRY, negative(chosen));
-      load(ctx, offset);
-      ctx.x = offset;
       submenu = CODE_BANK_BASE | dataBankWord(mem, SUBMENUS, offset);
       if (Object.hasOwn(ITEM_ENTRIES, submenu))
         submenuSequence = itemMenuSequence(h, events, submenu, renderBuffer);
@@ -529,17 +429,11 @@ export function* statusScreenSequence(
     yield* dialogCallBody(h, 0x80ece0, submenu, () => submenuSequence);
     let ended;
     yield () => {
-      const end = word(wram, DIALOG_END);
-      load(ctx, end);
-      ended = end !== 0;
+      ended = word(wram, DIALOG_END) !== 0;
     };
     if (ended) break;
   }
-  yield () => {
-    const window = dataBankWord(mem, STATUS_MENU_WINDOW);
-    load(ctx, window);
-    setWord(wram, 0, window);
-  };
+  yield () => setWord(wram, 0, dataBankWord(mem, STATUS_MENU_WINDOW));
   yield* dialogCallBody(h, 0x80ecf2, RELEASE_WINDOW, () => releaseWindowJsrSequence(h.a, events));
   return yield* closeSequence(h, events);
 }
@@ -551,17 +445,13 @@ function* closeSequence(h, events) {
     { mem } = h.a,
     { wram } = mem;
   yield* dialogCallBody(h, 0x80ecf5, STATUS_CLEANUP, () => closeDialogSequence(h, events));
-  yield () => {
-    const window = dataBankWord(mem, STATUS_WINDOW);
-    load(ctx, window);
-    setWord(wram, 0, window);
-  };
+  yield () => setWord(wram, 0, dataBankWord(mem, STATUS_WINDOW));
   yield* dialogCallBody(h, 0x80ecfd, RELEASE_WINDOW, () => releaseWindowJsrSequence(h.a, events));
   yield () => {
     setWord(wram, MEMBER_MENU_ACTIVE, 0);
+    // The APU command takes the command in A and its value in X (see the header).
     ctx.a = APU_COMMAND_VOLUME_TARGET;
     ctx.x = FULL_VOLUME;
-    setSignZero(ctx, FULL_VOLUME);
   };
   yield* dialogCallBody(
     h,
