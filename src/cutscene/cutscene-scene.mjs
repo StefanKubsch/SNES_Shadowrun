@@ -128,11 +128,13 @@ function requireWideAccumulator(ctx) {
   if (ctx.status & FLAG_MEMORY_8BIT) taskStop('cutscene_wide_accumulator_required');
 }
 
-// 81:CDF8: play the cutscene in A with the argument in X. h is the accessor of the
-// native call from the main loop (80:CC4B) or the frontend (credits).
-export function* cutsceneSequence(h, events) {
+// 81:CDF8: play the cutscene scene with its argument (A and X in the original; user
+// decision 2026-11-17: lifted callers pass them, register-level ones leave the defaults).
+// h is the accessor of the native call from the main loop (80:CC4B) or the frontend
+// (intro end, credits).
+export function* cutsceneSequence(h, events, scene = h.ctx.a, argument = h.ctx.x) {
   const { ctx } = h;
-  if (ctx.a === INTRO_SCENE) {
+  if (scene === INTRO_SCENE) {
     yield () => {
       ctx.programBank = INTRO >>> WORD_BITS;
       ctx.pc = INTRO & WORD_MASK;
@@ -145,7 +147,7 @@ export function* cutsceneSequence(h, events) {
     input = () => clock.input(m);
   // The credits read the edited credit pages while their streams unpack.
   const snapshot =
-    (ctx.a & (WORD_SIGN - 1)) === CREDITS_SEQUENCE
+    (scene & (WORD_SIGN - 1)) === CREDITS_SEQUENCE
       ? beginPackedTextEdit(h.a.mem, CREDITS_EDIT)
       : null;
   try {
@@ -154,8 +156,8 @@ export function* cutsceneSequence(h, events) {
       m = sceneRuntime(h);
       t = cutsceneTables(m.mem);
       const { wram } = m;
-      setWord(wram, DP_SCENE, ctx.a);
-      setWord(wram, SCENE_ARGUMENT, ctx.x);
+      setWord(wram, DP_SCENE, scene);
+      setWord(wram, SCENE_ARGUMENT, argument);
       setWord(wram, VRAM_SLOT_COUNT, 0);
       n = sceneIndex(wram);
       startSceneScreen(wram, m.video, m.port);

@@ -245,10 +245,14 @@ export function* introSequence(h, events) {
   yield* fadeOut(m.video, wait);
   yield () => {
     disableNmi(m.wram, m.port);
-    ctx.a = END_SCENE;
-    ctx.x = END_SCENE_ARGUMENT;
   };
-  yield* dialogCallBody(h, CUTSCENE_SITE, CUTSCENE, () => cutsceneSequence(h, events), true);
+  yield* dialogCallBody(
+    h,
+    CUTSCENE_SITE,
+    CUTSCENE,
+    () => cutsceneSequence(h, events, END_SCENE, END_SCENE_ARGUMENT),
+    true,
+  );
   let result;
   yield () => {
     setUpGameAudio(m);

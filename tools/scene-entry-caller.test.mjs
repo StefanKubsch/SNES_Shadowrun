@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { cutsceneSequence as direct } from '../src/cutscene/cutscene-scene.mjs';
+import { cutsceneSequence } from '../src/cutscene/cutscene-scene.mjs';
 import { cutsceneSequence as former } from '../proof/caller/cutscene-scene.mjs';
 import { introSequence } from '../src/intro/intro-scene.mjs';
 import { introSequence as formerIntro } from '../proof/caller/intro-scene.mjs';
@@ -16,6 +16,9 @@ import {
 } from '../src/system/native-call-continuation.mjs';
 import { WAIT_PAUSED } from '../src/system/native-wait-continuation.mjs';
 import * as W from '../src/data/wram.mjs';
+
+// The lifted cutscene with the scene and argument from A and X, as the scenario sets them.
+const direct = (h, events) => cutsceneSequence(h, events);
 
 function run(sequence, scene, budget, status = 0) {
   const side = createSide({ seed: 17, wram: new Uint8Array(0x20000) }, new Map()),
@@ -59,12 +62,17 @@ function run(sequence, scene, budget, status = 0) {
     assert.deepEqual(mem.wram, before);
     let calls = 0;
     while (continuation.run(budget) === WAIT_PAUSED) assert.ok(++calls < 100000);
+    // Game state only (user decision 2026-11-17): no A, X, Y and flags, nor the
+    // interrupted A and S the NMI saves (7E:1C78-1C7B).
+    const { a: _a, x: _x, y: _y, status: _status, ...ctx } = a.ctx,
+      wram = mem.wram.slice();
+    wram.fill(0, W.NMI_SAVED_A, W.NMI_SAVED_STACK + 2);
     return {
-      wram: mem.wram,
+      wram,
       writes: side.writes,
       waits,
       result: continuation.result,
-      ctx: { ...a.ctx },
+      ctx,
     };
   } finally {
     NATIVE_CALL_CONTINUATIONS.delete(runIntro);

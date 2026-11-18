@@ -17,17 +17,17 @@ import { mainStartContinuation } from '../proof/system/main-start.mjs';
 import { mainStartContinuation as dispatchedStart } from '../proof/caller/main-start.mjs';
 import { MainLoopContinuation as DispatchedLoop } from '../proof/caller/main-loop.mjs';
 import { MainLoopContinuation, MAIN_LOOP_ROUND } from '../src/vm/main-loop.mjs';
-import { MAIN_LOOP_EXIT, MAIN_LOOP_RELOAD, NMI_SAVED_STACK } from '../src/data/wram.mjs';
+import { MAIN_LOOP_EXIT, MAIN_LOOP_RELOAD, NMI_SAVED_A } from '../src/data/wram.mjs';
 import { ROUND } from '../src/script/natives.mjs';
 
 // The same JS scheduler and devices on both sides isolate caller composition.
 // Game state only (user decision 2026-11-17): the lifted side keeps no register values
 // and no stack-kept values, so A, X, Y, P, S, the CPU stacks (main 7E:0100-01C9, NMI
-// 7E:1C7C-1CBB) and the interrupted S the NMI saves (7E:1C7A) are left out; every
+// 7E:1C7C-1CBB) and the interrupted A and S the NMI saves (7E:1C78, 1C7A) are left out; every
 // other byte is compared without scratch masks.
 const CPU_STACKS = [
   [0x0100, 0x01ca],
-  [NMI_SAVED_STACK, 0x1cbc],
+  [NMI_SAVED_A, 0x1cbc],
 ];
 function snapshot(game) {
   const { ppu } = game.bus,

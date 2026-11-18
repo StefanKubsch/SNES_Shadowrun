@@ -140,12 +140,14 @@ function* playMenuCredits(h, events, m) {
     ctx.bank = CODE_BANK;
     setMusicMode(m.mem, m.port, endingMusic(m.mem));
   };
-  yield () => {
-    ctx.a = CREDITS_SEQUENCE;
-    ctx.x = CREDITS_ARGUMENT;
-    markMenuCredits(h.a.vm, true);
-  };
-  yield* dialogCallBody(h, ATTRACT_SITE, CUTSCENE, () => cutsceneSequence(h, events), true);
+  yield () => markMenuCredits(h.a.vm, true);
+  yield* dialogCallBody(
+    h,
+    ATTRACT_SITE,
+    CUTSCENE,
+    () => cutsceneSequence(h, events, CREDITS_SEQUENCE, CREDITS_ARGUMENT),
+    true,
+  );
   yield () => markMenuCredits(h.a.vm, false);
   yield () => {
     ctx.bank = CODE_BANK;
