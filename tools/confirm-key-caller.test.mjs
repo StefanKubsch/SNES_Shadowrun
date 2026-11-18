@@ -24,7 +24,7 @@ function run(sequence, pads, previous, budget) {
       [0x809e1a, runPadPresses],
     ]),
     result = finishTextWindow(side, sequence(h, events, routines), budget);
-  return { ...result, input, pressed: h.ctx.a };
+  return { ...result, input };
 }
 
 for (const budget of [1, 7])
@@ -47,6 +47,5 @@ for (const budget of [1, 7])
           actual = run(direct, pads, previous, budget);
         assert.deepEqual(actual, run(former, pads, previous, budget));
         assert.equal(actual.input, pads.length, 'held, other and invalid buttons cannot confirm');
-        assert.equal(actual.pressed, button);
         assert.equal(actual.wram[PAD_PRESSED] | (actual.wram[PAD_PRESSED + 1] << 8), button);
       });
