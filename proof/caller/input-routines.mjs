@@ -10,20 +10,28 @@ import {
   NATIVE_CALL_CONTINUATIONS,
   drainNativeSequence,
 } from '../../src/system/native-call-continuation.mjs';
-import { PAD_HELD } from '../../src/data/wram.mjs';
+import { PAD_HELD, RANDOM_STATE } from '../../src/data/wram.mjs';
 import { BYTE_BITS } from '../../src/constants/bits.mjs';
 import { FLAG_CARRY, FLAG_NEGATIVE, FLAG_ZERO } from '../../src/constants/cpu-flags.mjs';
 
-// The word wait with the counter word in A, as the original.
+// The word wait with the counter word in A, as the original's LDA 7E:1C76 leaves it
+// before the first compare (moved from the register option of src/system/frame-wait.mjs).
+function* registerFrameWaitSequence(h, events) {
+  const { wram } = h.a.mem;
+  yield () => {
+    h.ctx.a = wram[RANDOM_STATE] | (wram[RANDOM_STATE + 1] << BYTE_BITS);
+  };
+  return yield* frameWaitCallSequence(h, events);
+}
 export function runFrameWait(h, events) {
   if (!lagFree(events)) taskStop('game_lag_free_required');
-  return drainNativeSequence(frameWaitCallSequence(h, events, true));
+  return drainNativeSequence(registerFrameWaitSequence(h, events));
 }
 // Bind by function identity so this live wait can coexist with replay tables.
 NATIVE_CALL_CONTINUATIONS.set(runFrameWait, {
   run: runFrameWait,
   create: (call) =>
-    new NativeCallContinuation(call.h.a, frameWaitCallSequence(call.h, call.events, true)),
+    new NativeCallContinuation(call.h.a, registerFrameWaitSequence(call.h, call.events)),
 });
 
 // The register form for the routine tables: the original leaves A with its four low

@@ -10,8 +10,8 @@ import { taskStop } from './task-stop.mjs';
 // buttons (joypad.mjs). Recorded interrupt replays use the register-level
 // routines and instruction continuations in proof/vm/main-loop.mjs; the table entries
 // with the original's registers are in proof/caller/input-routines.mjs.
-export function* frameWaitCallSequence(h, events, register = false) {
-  yield* waitForCounterWord(h, events, register);
+export function* frameWaitCallSequence(h, events) {
+  yield* waitForCounterWord(h, events);
   let result;
   yield () => {
     result = h.rtl();
