@@ -18,7 +18,7 @@ import {
   drainNativeSequence,
 } from '../../src/system/native-call-continuation.mjs';
 import { appendScriptTask } from '../system/task-append.mjs';
-import { appendScriptTaskCall } from '../../src/script/task-api.mjs';
+import { appendScriptTaskCall } from '../caller/task-append-call.mjs';
 
 import { DIALOG_END, TOPIC_FLAGS, TOPIC_LIST, WRAM } from '../../src/data/wram.mjs';
 import { NIBBLE_MASK, BYTE_MASK, WORD_MASK } from '../../src/constants/bits.mjs';

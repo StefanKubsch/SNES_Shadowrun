@@ -17,11 +17,7 @@
 // it (`a.tasks`), else the WRAM tables.
 import { taskStop } from '../system/task-stop.mjs';
 import { WRAM } from '../data/wram.mjs';
-import {
-  appendScriptTask,
-  appendScriptTaskCall as appendTableTaskCall,
-  appendScriptReturn as appendTableScript,
-} from '../game/task-append.mjs';
+import { appendScriptTask, appendScriptReturn as appendTableScript } from '../game/task-append.mjs';
 import { NONE, TASK_SLOTS, WAIT_FOR_CHILD } from './scheduler.mjs';
 import { scriptArgumentWords } from './tasks.mjs';
 import {
@@ -38,15 +34,12 @@ import {
   TASK_WAIT,
 } from '../vm/layout.mjs';
 import { LONG_MASK, WORD_BITS, WORD_MASK, WORD_SIGN } from '../constants/bits.mjs';
-import { FLAG_NEGATIVE, FLAG_ZERO } from '../constants/cpu-flags.mjs';
 
 export const NO_TASK = WORD_MASK;
 // A parent waiting for its child task: wait mask bit 15 (80:C36A writes FFFFh).
 const WAITS_FOR_CHILD = WAIT_FOR_CHILD & WORD_SIGN;
 // The frame byte of the script's bank (frame bytes 0-2: the bytecode address).
 const FRAME_CODE_BANK = 2;
-// 80:C34A leaves Y at the frame's PC word.
-const FRAME_PC = 3;
 
 const isTask = (task) =>
   Number.isInteger(task) && !(task & 1) && task >= 0 && task < 2 * TASK_SLOTS;
@@ -192,26 +185,5 @@ export function appendScriptCall(a, script) {
   a.tasks.append(script, argumentWords(a.mem, script));
   const rawReturnWord = a.pullWord();
   a.ctx.pc = (rawReturnWord + 1) & WORD_MASK;
-  return { rawReturnWord };
-}
-
-// 80:C34A as called with JSR, with the script in X and its arguments in the words 00..:
-// leaves A the new task and X the list's old head with its sign and zero, Y at the
-// frame's PC word, and returns by RTS; returns the raw return word. On the WRAM tables
-// the lifted append also leaves the carry and overflow of the frame's end.
-export function appendScriptTaskCall(a) {
-  if (!a.tasks) return appendTableTaskCall(a);
-  const { ctx } = a,
-    tasks = a.tasks,
-    head = taskWord(tasks.scheduler.head);
-  ctx.a = tasks.append(ctx.x, argumentWords(a.mem, ctx.x));
-  ctx.x = head;
-  ctx.y = FRAME_PC;
-  ctx.status =
-    (ctx.status & ~(FLAG_NEGATIVE | FLAG_ZERO)) |
-    (head & WORD_SIGN ? FLAG_NEGATIVE : 0) |
-    (head === 0 ? FLAG_ZERO : 0);
-  const rawReturnWord = a.pullWord();
-  ctx.pc = (rawReturnWord + 1) & WORD_MASK;
   return { rawReturnWord };
 }

@@ -1,7 +1,7 @@
 // Former topic action retains independent register-level task append.
 import { dialogCallBody, segmentSequence } from '../../src/system/native-call-continuation.mjs';
 import { appendScriptTask } from '../system/task-append.mjs';
-import { appendScriptTaskCall } from '../../src/script/task-api.mjs';
+import { appendScriptTaskCall } from './task-append-call.mjs';
 const DP_DIALOG_RECORD = 0x11,
   DP_TOPIC_TASK_ARGUMENT = 0x26;
 export function* dialogTopicSequence(h, events) {

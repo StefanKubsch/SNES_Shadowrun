@@ -35,7 +35,8 @@ import * as formerMember from '../proof/caller/member-spell-menu.mjs';
 import { equipmentRowsSequence } from '../proof/caller/equipment-window.mjs';
 import * as W from '../src/data/wram.mjs';
 import { runResetWindowList } from '../proof/caller/window-list.mjs';
-import { appendScriptTaskCall, tasksOf } from '../src/script/task-api.mjs';
+import { tasksOf } from '../src/script/task-api.mjs';
+import { appendScriptTaskCall } from '../proof/caller/task-append-call.mjs';
 function runMember(
   module,
   direct,

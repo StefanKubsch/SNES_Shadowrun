@@ -47,13 +47,7 @@ import {
   TASK_WAIT,
 } from '../vm/layout.mjs';
 import { BYTE_MASK, LONG_MASK, WORD_BITS, WORD_MASK, WORD_SIGN } from '../constants/bits.mjs';
-import {
-  FLAG_CARRY,
-  FLAG_DECIMAL,
-  FLAG_NEGATIVE,
-  FLAG_OVERFLOW,
-  FLAG_ZERO,
-} from '../constants/cpu-flags.mjs';
+import { FLAG_DECIMAL } from '../constants/cpu-flags.mjs';
 // The direct page words of the frame allocation: the script header pointer, its bank
 // word, and the new frame.
 const DP_SCRIPT_HEADER = 0x71,
@@ -73,8 +67,6 @@ const HEAP_MIN_SPLIT_BYTES = HEAP_HEADER_BYTES + 1;
 // The return words of the JSRs to C2C8 (from C34A) and C242 (from C2F5).
 const FRAME_JSR_RETURN = 0xc34c,
   HEAP_JSR_RETURN = 0xc2f7;
-// The append leaves Y at the frame's PC word.
-const FRAME_PC_OFFSET = FRAME_PC;
 
 // A word through the data bank at offset (absolute indexed: a 24-bit address).
 const bankAddress = (a, offset) => ((a.ctx.bank << WORD_BITS) + offset) & LONG_MASK;
@@ -84,9 +76,6 @@ const setBankWord = (a, offset, value) => a.mem.write16(bankAddress(a, offset), 
 const directWord = (a, offset) => a.mem.read16Bank0((a.ctx.d + offset) & WORD_MASK);
 const setDirectWord = (a, offset, value) =>
   a.mem.write16Bank0((a.ctx.d + offset) & WORD_MASK, value & WORD_MASK);
-const flag = (ctx, bit, set) => {
-  ctx.status = set ? ctx.status | bit : ctx.status & ~bit;
-};
 
 // Take a heap block of size bytes (80:C242): the first free block that fits, merged
 // with the free blocks after it; split when enough is left over. Returns the block's
@@ -204,7 +193,7 @@ function allocateTaskFrame(a, script) {
 
 // Start a task for script at the head of the task list (80:C34A); returns its slot,
 // the list's old head and the carry and overflow the frame allocation leaves.
-function appendTask(a, script) {
+export function appendTask(a, script) {
   a.pushWord(FRAME_JSR_RETURN);
   const { slot, carry, overflow } = allocateTaskFrame(a, script);
   a.pullWord();
@@ -230,27 +219,6 @@ export function appendScriptReturn(a, script) {
   if (ctx.d !== 0) taskStop('task_direct_page_zero_required');
   if (ctx.status & FLAG_DECIMAL) taskStop('task_binary_arithmetic_required');
   appendTask(a, script);
-  const rawReturnWord = a.pullWord();
-  ctx.pc = (rawReturnWord + 1) & WORD_MASK;
-  return { rawReturnWord };
-}
-
-// The task append as called with JSR, with the script in X: the return word lies on the
-// stack, direct page 0 and binary arithmetic. Leaves A the new task slot, X the list's
-// old head with its sign and zero, Y at the frame's PC word and the carry and overflow
-// of the frame's end, as the original; returns the raw return word its RTS takes.
-export function appendScriptTaskCall(a) {
-  const { ctx } = a;
-  if (ctx.d !== 0) taskStop('task_direct_page_zero_required');
-  if (ctx.status & FLAG_DECIMAL) taskStop('task_binary_arithmetic_required');
-  const { slot, head, carry, overflow } = appendTask(a, ctx.x);
-  ctx.a = slot;
-  ctx.x = head;
-  ctx.y = FRAME_PC_OFFSET;
-  flag(ctx, FLAG_NEGATIVE, head & WORD_SIGN);
-  flag(ctx, FLAG_ZERO, head === 0);
-  flag(ctx, FLAG_CARRY, carry);
-  flag(ctx, FLAG_OVERFLOW, overflow);
   const rawReturnWord = a.pullWord();
   ctx.pc = (rawReturnWord + 1) & WORD_MASK;
   return { rawReturnWord };

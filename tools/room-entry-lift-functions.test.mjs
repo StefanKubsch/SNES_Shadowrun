@@ -26,7 +26,7 @@ import { updateTileBuffers, uploadMapEdges } from '../src/game/camera-scroll.mjs
 import { sceneRuntime } from '../src/system/scene-runtime.mjs';
 import { loadSceneSequence } from '../src/game/scene-load.mjs';
 import { createObject } from '../src/game/object-create.mjs';
-import { appendScriptTaskCall } from '../src/game/task-append.mjs';
+import { appendTableTaskCall } from '../proof/caller/task-append-call.mjs';
 import { appendScriptTask as appendScriptTaskReference } from '../proof/system/task-append.mjs';
 import { turnObject, turnObjectRoutine } from '../src/game/object-turn.mjs';
 import { setObjectDirectionReference as setObjectDirection } from '../proof/game-reference/object-turn.mjs';
@@ -697,7 +697,7 @@ const TASK_APPEND = {
     Object.assign(h.ctx, input);
     h.ctx.programBank = 0x80;
     h.push(0x1234, 2);
-    appendScriptTaskCall(h.a);
+    appendTableTaskCall(h.a);
     return [h.ctx.a, h.ctx.x, h.ctx.y, h.ctx.status, h.ctx.pc].map((v) => v.toString(16)).join();
   },
 };

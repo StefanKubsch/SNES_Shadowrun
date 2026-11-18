@@ -3,7 +3,7 @@ import assert from 'node:assert/strict';
 import { compareRun } from './member-menu-caller-harness.mjs';
 import { playerZonesSequence } from '../src/game/player-zones.mjs';
 import { playerZonesSequence as formerZones } from '../proof/caller/player-zones.mjs';
-import { appendScriptTaskCall } from '../src/script/task-api.mjs';
+import { appendScriptTaskCall } from '../proof/caller/task-append-call.mjs';
 import { enterRoom } from '../proof/system/main-transition.mjs';
 import * as W from '../src/data/wram.mjs';
 import * as V from '../src/vm/layout.mjs';
