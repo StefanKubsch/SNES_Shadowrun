@@ -28,12 +28,12 @@ import { putGloveAwayCall } from './window-release.mjs';
 //
 // The notice, glove release, action menu, dialog and pad word compose directly
 // through their original frames; the notice, the menu, the dialog and the
-// input wait for the NMI. Each gets the A, X and Y the
-// original passes (the menu reads the actions from A), and the menu and the dialog run
-// above the object slot the original pushes. The push of the passed action around its
-// task search is not reproduced: nothing waits there, and the glove release's frame
-// overwrites it. X and Y are left as the original leaves them where no callee runs
-// last (src/game/main-upkeep.mjs). The object, player and task fields are read in bank
+// input wait for the NMI. The menu takes the accepted actions as a parameter and
+// returns the chosen one, and the menu and the dialog run above the object slot the
+// original pushes. The push of the passed action around its task search is not
+// reproduced: nothing waits there, and the glove release's frame overwrites it.
+// Registers (user decision 2026-11-17): game state only; the routine leaves no A, X, Y
+// or flags (the main loop's scheduler round 80:C1E3 reads none). The object, player and task fields are read in bank
 // 80 below 2000, as the original reads them; a slot or task index past it stops at
 // object_slot_required or task_slot_required, and a task chain that never ends (the
 // original would hang) at task_chain_required.
@@ -67,7 +67,6 @@ import {
 } from '../data/wram.mjs';
 import { sendEvents, tasksOf, waitingTask } from '../script/task-api.mjs';
 import { BYTE_BITS, BYTE_MASK, WORD_MASK, WORD_SIGN } from '../constants/bits.mjs';
-import { FLAG_CARRY, FLAG_NEGATIVE, FLAG_OVERFLOW, FLAG_ZERO } from '../constants/cpu-flags.mjs';
 
 const GLOVE_BUTTONS = PAD_B | PAD_L | PAD_R,
   OFFER_WAIT_BITS = 0x6002,
@@ -108,84 +107,49 @@ const lowField = (wram, base, index, reason) => {
   if (base + index + 1 >= LOW_WRAM_END) taskStop(reason, { base, index });
   return word(wram, base + index);
 };
-// The status flags: the main loop's scheduler round 80:C1E3 follows this routine and
-// starts with the A and the flags it leaves, so where no callee runs last they are
-// left as the original leaves them. flag(ctx, bit, set) sets one; sign and zero follow
-// a loaded word.
-const flag = (ctx, bit, set) => {
-  ctx.status = set ? ctx.status | bit : ctx.status & ~bit;
-};
-const signAndZero = (ctx, value) => {
-  flag(ctx, FLAG_NEGATIVE, value & WORD_SIGN);
-  flag(ctx, FLAG_ZERO, value === 0);
-};
-// The distance of two objects in one field, taken without sign (a word), and the
-// overflow of the subtraction.
+// The distance of two objects in one field, taken without sign (a word).
 const distance = (wram, field, from, to) => {
   const a = lowField(wram, field, from, 'object_slot_required'),
     b = lowField(wram, field, to, 'object_slot_required'),
     d = (a - b) & WORD_MASK;
-  return {
-    value: d & WORD_SIGN ? -d & WORD_MASK : d,
-    overflow: ((a ^ b) & (a ^ d) & WORD_SIGN) !== 0,
-  };
+  return d & WORD_SIGN ? -d & WORD_MASK : d;
 };
 // Near: the x and y distances below A1 together and the height distance below 81.
-// Returns the x distance and, when near, the height distance and the overflow of its
-// subtraction, which the original leaves with a clear carry.
+// Returns the x distance and whether the object is near.
 function reach(wram, player, object) {
   const dx = distance(wram, OBJECT_X, player, object),
     dy = distance(wram, OBJECT_Y, player, object);
-  if (((dx.value + dy.value) & WORD_MASK) >= ACTION_REACH) return { dx, near: false };
-  const height = distance(wram, OBJECT_HEIGHT, player, object);
-  return { dx, near: height.value < HEIGHT_REACH, height: height.value, overflow: height.overflow };
+  if (((dx + dy) & WORD_MASK) >= ACTION_REACH) return { dx, near: false };
+  return { dx, near: distance(wram, OBJECT_HEIGHT, player, object) < HEIGHT_REACH };
 }
 
 // Pass a glove action on to the object's task (80:BF3B), a sequence for a native call
 // continuation: h the main loop's access (direct page 0, data bank 80), events its
 // frame events and renderBuffer the text renderer.
 export function* gloveActionSequence(h, events, renderBuffer = drawTextBufferSequence) {
-  const { ctx } = h,
-    { wram } = h.a.mem,
+  const { wram } = h.a.mem,
     tasks = tasksOf(h.a);
-  let path = 'return';
+  let path = 'return',
+    object = 0,
+    accepted = 0,
+    action = 0;
   yield () => {
-    // Each return leaves A and its sign and zero as the original.
-    const exit = (a, loaded = a) => {
-      ctx.a = a;
-      signAndZero(ctx, loaded);
-    };
-    const aiming = word(wram, AIMING_WEAPON) | word(wram, AIMING_SPELL);
-    if (aiming) return exit(aiming);
-    const tag = word(wram, GLOVE_TARGET_TAG);
-    if (tag & WORD_SIGN) return exit(tag);
+    if (word(wram, AIMING_WEAPON) | word(wram, AIMING_SPELL)) return;
+    if (word(wram, GLOVE_TARGET_TAG) & WORD_SIGN) return;
     const buttons = word(wram, PAD_PRESSED) & GLOVE_BUTTONS;
-    if (!buttons) return exit(0);
+    if (!buttons) return;
     setWord(wram, ACTION_MENU_OVERRIDE, 0);
-    const object = word(wram, GLOVE_TARGET_OBJECT);
-    ctx.y = object;
+    object = word(wram, GLOVE_TARGET_OBJECT);
     const task = lowField(wram, OBJECT_TASK, object, 'object_slot_required');
-    ctx.x = task;
-    if (task & WORD_SIGN) return exit(buttons, task);
+    if (task & WORD_SIGN) return;
     setWord(wram, DP_SCRATCH, buttons);
     const offer = tasks.wait(waitingTask(tasks, task));
     if (buttons === PAD_B && offer & OFFER_WAIT_BITS)
       setWord(wram, ACTION_MENU_OVERRIDE, offer & OFFERED_ACTIONS);
-    const player = word(wram, PLAYER_OBJECT);
-    ctx.x = player;
-    const { dx, near, overflow, height } = reach(wram, player, object);
-    setWord(wram, DP_SCRATCH, dx.value);
-    // Only a near object can return without a callee (no accepted actions) with the
-    // carry and overflow of its distances; out of reach the object has offered actions,
-    // which are accepted ones, so a callee runs last.
-    if (near) {
-      flag(ctx, FLAG_CARRY, false);
-      flag(ctx, FLAG_OVERFLOW, overflow);
-    }
-    // A holds the height distance when near, else the offered actions.
-    let a = height;
+    const { dx, near } = reach(wram, word(wram, PLAYER_OBJECT), object);
+    setWord(wram, DP_SCRATCH, dx);
     if (near) setWord(wram, ACTION_MENU_OVERRIDE, 0);
-    else if ((a = word(wram, ACTION_MENU_OVERRIDE)) === 0) {
+    else if (word(wram, ACTION_MENU_OVERRIDE) === 0) {
       setWord(wram, DP_WINDOW_LEFT, NOTICE.left);
       setWord(wram, DP_WINDOW_TOP, NOTICE.top);
       setWord(wram, DP_WINDOW_COLUMNS, NOTICE.columns);
@@ -193,31 +157,26 @@ export function* gloveActionSequence(h, events, renderBuffer = drawTextBufferSeq
       setWord(wram, DP_WINDOW_ATTRIBUTES, 0);
       setWord(wram, DP_NOTICE_TEXT, NOTICE.text);
       setWord(wram, DP_NOTICE_FRAMES, NOTICE.frames);
-      ctx.a = NOTICE.frames;
       path = 'notice';
       return;
     }
     // The task is looked up again, as the original does.
     const again = lowField(wram, OBJECT_TASK, object, 'object_slot_required');
-    ctx.x = again;
-    if (again & WORD_SIGN) return exit(a, again);
-    const waiting = waitingTask(tasks, again);
-    ctx.x = waiting;
-    const accepted = tasks.wait(waiting) & ACCEPTED_ACTIONS;
-    if (!accepted) return exit(0);
-    ctx.x = accepted;
+    if (again & WORD_SIGN) return;
+    accepted = tasks.wait(waitingTask(tasks, again)) & ACCEPTED_ACTIONS;
+    if (!accepted) return;
     const pressed = word(wram, PAD_PRESSED);
     if (pressed & PAD_B) {
-      ctx.a = accepted;
-      h.a.pushWord(ctx.y);
+      // The object slot waits on the stack over the menu.
+      h.a.pushWord(object);
       path = 'menu';
       return;
     }
     path = 'pass';
-    if (pressed & PAD_L) ctx.a = accepted & L_ACTIONS;
+    if (pressed & PAD_L) action = accepted & L_ACTIONS;
     else {
       const bits = accepted & R_ACTIONS;
-      ctx.a = bits === R_NO_ACTION ? 0 : bits;
+      action = bits === R_NO_ACTION ? 0 : bits;
     }
   };
   if (path === 'notice') {
@@ -228,47 +187,42 @@ export function* gloveActionSequence(h, events, renderBuffer = drawTextBufferSeq
     );
   }
   if (path === 'menu') {
-    // The menu returns the chosen action in A.
-    yield* dialogCallBody(h, ...CALL.menu, () => chooseActionSequence(h, events, renderBuffer));
+    const choice = {};
+    yield* dialogCallBody(h, ...CALL.menu, () =>
+      chooseActionSequence(h, events, renderBuffer, accepted, choice),
+    );
     let dialog = 0;
     yield () => {
-      ctx.y = h.a.pullWord();
-      if (!(ctx.a & TALK_ACTION)) return;
+      object = h.a.pullWord();
+      action = choice.action;
+      if (!(action & TALK_ACTION)) return;
       // The dialog record is read in bank 7E (a long read).
-      dialog = word(wram, OBJECT_DIALOG + ctx.y);
-      // The original compares the record with 0, which sets the carry.
-      flag(ctx, FLAG_CARRY, true);
+      dialog = word(wram, OBJECT_DIALOG + object);
       if (!dialog) {
-        ctx.a = ACTION_WITHOUT_DIALOG;
+        action = ACTION_WITHOUT_DIALOG;
         return;
       }
-      h.a.pushWord(ctx.y);
-      setWord(wram, DP_DIALOG_OBJECT, ctx.y);
+      h.a.pushWord(object);
+      setWord(wram, DP_DIALOG_OBJECT, object);
       setWord(wram, DP_DIALOG_RECORD, dialog);
-      ctx.a = dialog;
     };
     if (dialog) {
       yield* dialogCallBody(h, ...CALL.dialog, () => talkSequence(h, events, renderBuffer));
       yield () => {
-        ctx.y = h.a.pullWord();
-        ctx.a = 0;
+        object = h.a.pullWord();
+        action = 0;
       };
     }
     path = 'pass';
   }
   if (path === 'pass') {
     yield () => {
-      const action = ctx.a,
-        task = lowField(wram, OBJECT_TASK, ctx.y, 'object_slot_required');
-      ctx.x = task;
+      const task = lowField(wram, OBJECT_TASK, object, 'object_slot_required');
       if (task & WORD_SIGN) {
-        signAndZero(ctx, task);
         path = 'return';
         return;
       }
-      const sent = sendEvents(tasks, task, action);
-      ctx.x = sent.task;
-      ctx.a = sent.events;
+      sendEvents(tasks, task, action);
     };
     if (path === 'pass') {
       yield* putGloveAwayCall(h, events, CALL.release[0]);

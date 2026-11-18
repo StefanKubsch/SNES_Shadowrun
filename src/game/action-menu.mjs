@@ -13,11 +13,11 @@
 // action's flag (Exit and a cancel give 0); the override is cleared. A text language
 // may widen the window (src/data/menu-layout.mjs).
 //
-// Registers: the menu leaves A the chosen flag with its sign and zero and X, Y, the
-// carry and the overflow of the window release, as the original; without an accepted
-// action A 0 with zero set, Y the table index, the carry clear and X and the overflow
-// unchanged. The chosen flag is pushed around the release, as the original. The calls
-// get the registers the original passes them.
+// Registers (user decision 2026-11-17): game state only. The accepted actions (A in the
+// original) are a parameter and the chosen flag is returned in choice.action; the menu
+// leaves no registers. The flag the original keeps on the stack over the window release
+// is a local. chooseActionRoutineSequence is the register form for register-level
+// callers: the actions in A, the chosen flag left in A.
 import { dialogCallBody } from '../system/native-call-continuation.mjs';
 import { fitListWindow, listTextIds } from '../data/menu-layout.mjs';
 import { TEXT_EXIT } from '../data/port-extension.mjs';
@@ -107,26 +107,26 @@ function listActions(wram, accepted) {
 }
 
 // Choose an action from the menu (80:99EB), a sequence for a native call continuation:
-// h is the caller's access (direct page 0, data bank 80); renderBuffer draws text.
-// Registers (user decision 2026-11-17): register-level callers still pass the offered
-// actions in A and read the chosen action's flag from A; these two stay. No other
-// register values are left, and the flag the original keeps on the stack over the
-// window release is a local.
-export function* chooseActionSequence(h, events, renderBuffer = drawTextBufferSequence) {
-  const { ctx } = h,
-    { mem } = h.a,
+// h is the caller's access (direct page 0, data bank 80); renderBuffer draws text,
+// accepted are the accepted actions and choice receives the chosen flag (0 for none).
+export function* chooseActionSequence(
+  h,
+  events,
+  renderBuffer = drawTextBufferSequence,
+  accepted,
+  choice = {},
+) {
+  const { mem } = h.a,
     { wram } = mem;
   let count = 0;
+  choice.action = 0;
   yield () => {
-    setWord(wram, DP_ACTION_MENU_MASK, ctx.a);
+    setWord(wram, DP_ACTION_MENU_MASK, accepted);
     const override = word(wram, ACTION_MENU_OVERRIDE);
     if (override) setWord(wram, DP_ACTION_MENU_MASK, override);
     const y = listActions(wram, word(wram, DP_ACTION_MENU_MASK));
-    if (y < FIRST_ACTION_END) {
-      // No action: the result 0.
-      ctx.a = 0;
-      return;
-    }
+    // No action: the result 0.
+    if (y < FIRST_ACTION_END) return;
     count = y >>> 1;
     setWord(wram, ACTION_MENU_NAMES + y, 0);
     setWord(wram, DP_WINDOW_ROWS, count + EXTRA_ROWS);
@@ -164,26 +164,31 @@ export function* chooseActionSequence(h, events, renderBuffer = drawTextBufferSe
   };
   yield* dialogCallBody(h, RELEASE_SITE, RELEASE_TARGET, () => releaseThenReturn(h, events));
   yield () => {
-    ctx.a = chosen;
+    choice.action = chosen;
     setWord(wram, ACTION_MENU_OVERRIDE, 0);
   };
   return yield* rts(h);
+}
+// The register form of 80:99EB: the accepted actions in A, the chosen flag left in A.
+export function* chooseActionRoutineSequence(h, events, renderBuffer = drawTextBufferSequence) {
+  const choice = {},
+    result = yield* chooseActionSequence(h, events, renderBuffer, h.ctx.a, choice);
+  h.ctx.a = choice.action;
+  return result;
 }
 // The action menu as the script native 80:9BA0, a sequence: no override, the mask from
 // the first argument, the menu (JSR at 80:9BA5) and the chosen flag as the result.
 const SCRIPT_MENU_CALL = [0x809ba5, 0x8099eb];
 export function* chooseScriptActionSequence(h, events, renderBuffer = drawTextBufferSequence) {
-  const { wram } = h.a.mem;
-  yield () => {
-    setWord(wram, ACTION_MENU_OVERRIDE, 0);
-    h.ctx.a = word(wram, 0);
-  };
+  const { wram } = h.a.mem,
+    choice = {};
+  yield () => setWord(wram, ACTION_MENU_OVERRIDE, 0);
   yield* dialogCallBody(h, ...SCRIPT_MENU_CALL, () =>
-    chooseActionSequence(h, events, renderBuffer),
+    chooseActionSequence(h, events, renderBuffer, word(wram, 0), choice),
   );
   let result;
   yield () => {
-    setWord(wram, 0, h.ctx.a);
+    setWord(wram, 0, choice.action);
     result = h.rts();
   };
   return result;

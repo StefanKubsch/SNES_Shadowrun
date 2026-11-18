@@ -46,7 +46,7 @@ import { printNumberSequence } from './window-text.mjs';
 import { printTextSequence } from './text-print.mjs';
 import { drawTextBufferSequence } from './text-draw.mjs';
 import { openWindowSequence, requestTileClearSequence } from './window-open.mjs';
-import { chooseActionSequence, chooseScriptActionSequence } from './action-menu.mjs';
+import { chooseActionRoutineSequence, chooseScriptActionSequence } from './action-menu.mjs';
 import { askYesNoSequence } from './yes-no-question.mjs';
 import { removeFromFightListSequence } from './fight-list.mjs';
 import { spendMagicPointsSequence } from './magic-points.mjs';
@@ -186,13 +186,15 @@ NATIVE_CALL_CONTINUATIONS.set(runOpenWindow, {
   run: runOpenWindow,
   create: ({ h, events }) => new NativeCallContinuation(h.a, openWindowSequence(h, events)),
 });
-// 80:99EB, called with JSR; its window, menu and release wait for the NMI.
+// 80:99EB, called with JSR; its window, menu and release wait for the NMI. The register
+// form: the accepted actions in A, the chosen flag left in A.
 export function runChooseAction(h, events) {
-  return drainNativeSequence(chooseActionSequence(h, events));
+  return drainNativeSequence(chooseActionRoutineSequence(h, events));
 }
 NATIVE_CALL_CONTINUATIONS.set(runChooseAction, {
   run: runChooseAction,
-  create: ({ h, events }) => new NativeCallContinuation(h.a, chooseActionSequence(h, events)),
+  create: ({ h, events }) =>
+    new NativeCallContinuation(h.a, chooseActionRoutineSequence(h, events)),
 });
 // 80:FA3E, called with JSR; its window list waits for the NMI of its upload.
 function* releaseWindowCallSequence(h, events) {
