@@ -73,7 +73,8 @@ function runMember(
         routines.set(0x80c34a, (callee) => appendScriptTaskCall(callee.a));
         for (const target of [0x80c1ca])
           routines.set(target, (callee) => {
-            calls.push(['service', target, callee.ctx.a, callee.ctx.x]);
+            // The visit reads task state, not registers (user decision 2026-11-17).
+            calls.push(['service', target]);
             if (target === 0x80c1ca) {
               put(W.DIALOG_END, script.end ? 0xffff : 0);
               put(W.MEMBER_PORTRAIT_REDRAW, script.redraw ? 1 : 0);

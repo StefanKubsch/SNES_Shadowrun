@@ -20,11 +20,11 @@
 // equipment window is drawn at the end (80:E9C5). Windows, selection and cleanup
 // compose through their original frames; script append and nested visits compose directly.
 //
-// Registers (user decision 2026-11-17): game state only, apart from the script task
-// append 80:C34A, which still takes the script in X. No other register values are left.
+// Registers (user decision 2026-11-17): game state only; the script task append 80:C34A
+// takes the script as a parameter (X in the original). No register values are left.
 import { dialogCallBody, segmentSequence } from '../system/native-call-continuation.mjs';
 import { scriptVisitSequence } from '../system/script-visit.mjs';
-import { appendScriptTaskCall } from '../script/task-api.mjs';
+import { appendScriptCall } from '../script/task-api.mjs';
 import { openWindowSequence } from './window-open.mjs';
 import { chooseFromMenuSequence } from './menu-choice.mjs';
 import { releaseWindowJsrSequence, releaseNoticeWindowsCallSequence } from './window-release.mjs';
@@ -240,8 +240,7 @@ export function* spellMenuSequence(
   entry = MENU_ENTRY,
   renderBuffer = drawTextBufferSequence,
 ) {
-  const { ctx } = h,
-    { mem } = h.a,
+  const { mem } = h.a,
     { wram } = mem;
   let known = 0;
   yield () => {
@@ -272,7 +271,8 @@ export function* spellMenuSequence(
     yield* dialogCallBody(h, ...MENU, () =>
       chooseFromMenuSequence(h, events, renderBuffer, 0x80a6c7),
     );
-    let script = false;
+    let script = false,
+      spellScript;
     yield () => {
       const chosen = word(wram, 0);
       if (chosen === 0) return;
@@ -281,8 +281,7 @@ export function* spellMenuSequence(
         return;
       }
       const row = (chosen << 1) & WORD_MASK;
-      // The script task append 80:C34A takes the script in X (see the header).
-      ctx.x = dataBankWord(mem, SPELL_MENU_SCRIPTS, row);
+      spellScript = dataBankWord(mem, SPELL_MENU_SCRIPTS, row);
       setWord(wram, 0, dataBankWord(mem, SPELL_MENU_LEVELS, row));
       if (dataBankWord(mem, MEMBER_OBJECT) === dataBankWord(mem, PLAYER_OBJECT))
         return selectSpell(mem, row);
@@ -290,7 +289,7 @@ export function* spellMenuSequence(
     };
     if (script) {
       yield* dialogCallBody(h, ...APPEND_SCRIPT, () =>
-        segmentSequence(() => appendScriptTaskCall(h.a)),
+        segmentSequence(() => appendScriptCall(h.a, spellScript)),
       );
       yield () => setWord(wram, MEMBER_PORTRAIT_REDRAW, 0);
       yield* dialogCallBody(h, ...VISIT_SCRIPT, () => scriptVisitSequence(events));

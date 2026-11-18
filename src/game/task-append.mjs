@@ -222,6 +222,19 @@ export function appendScriptTask(a, script) {
   return appendTask(a, script).slot;
 }
 
+// The task append for lifted callers, called with JSR: the script is a parameter (X in
+// the original) and no registers are left (user decision 2026-11-17; the script visit
+// that follows reads task state only). Returns the raw return word its RTS takes.
+export function appendScriptReturn(a, script) {
+  const { ctx } = a;
+  if (ctx.d !== 0) taskStop('task_direct_page_zero_required');
+  if (ctx.status & FLAG_DECIMAL) taskStop('task_binary_arithmetic_required');
+  appendTask(a, script);
+  const rawReturnWord = a.pullWord();
+  ctx.pc = (rawReturnWord + 1) & WORD_MASK;
+  return { rawReturnWord };
+}
+
 // The task append as called with JSR, with the script in X: the return word lies on the
 // stack, direct page 0 and binary arithmetic. Leaves A the new task slot, X the list's
 // old head with its sign and zero, Y at the frame's PC word and the carry and overflow

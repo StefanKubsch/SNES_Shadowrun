@@ -20,6 +20,7 @@ import { WRAM } from '../data/wram.mjs';
 import {
   appendScriptTask,
   appendScriptTaskCall as appendTableTaskCall,
+  appendScriptReturn as appendTableScript,
 } from '../game/task-append.mjs';
 import { NONE, TASK_SLOTS, WAIT_FOR_CHILD } from './scheduler.mjs';
 import { scriptArgumentWords } from './tasks.mjs';
@@ -182,6 +183,16 @@ export function tasksOf(a) {
   let tasks = WRAM_TASKS.get(a);
   if (!tasks) WRAM_TASKS.set(a, (tasks = new WramTasks(a)));
   return tasks;
+}
+
+// 80:C34A for lifted callers, called with JSR: the script as a parameter and its
+// arguments in the words 00..; leaves no registers and returns the raw return word.
+export function appendScriptCall(a, script) {
+  if (!a.tasks) return appendTableScript(a, script);
+  a.tasks.append(script, argumentWords(a.mem, script));
+  const rawReturnWord = a.pullWord();
+  a.ctx.pc = (rawReturnWord + 1) & WORD_MASK;
+  return { rawReturnWord };
 }
 
 // 80:C34A as called with JSR, with the script in X and its arguments in the words 00..:
