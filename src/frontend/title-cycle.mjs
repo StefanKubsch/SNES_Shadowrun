@@ -16,7 +16,7 @@ import { startSceneScreen } from '../system/nmi.mjs';
 import { loadSoundDirectory, setMusicMode, startSong } from '../apu/music-mode.mjs';
 import { setUpGameAudio, setUpTitleAudio } from '../intro/intro-scene.mjs';
 import { cutsceneSequence } from '../cutscene/cutscene-scene.mjs';
-import { sendApuCommandRoutine } from '../apu/audio-routines.mjs';
+import { sendApuCommandCall } from '../apu/audio-routines.mjs';
 import {
   CREDITS_ARGUMENT,
   CREDITS_SEQUENCE,
@@ -66,7 +66,9 @@ const setWord = (wram, at, value) => {
 // 80:A18C: the title cycle. title is false when the cycle starts after a game (A zero
 // in the original). The start menu's choice (A in the original: the save slot, or FFFF
 // for a new game) goes to shown.choice; the status is as at the entry. Registers (user
-// decision 2026-11-17): the cycle leaves none of its own.
+// decision 2026-11-17): the title and the start menu return their results as values,
+// the music stop sends its command through the call form, and the cycle leaves no
+// registers of its own.
 export function* titleCycleSequence(h, events, routines, title, shown = {}) {
   const { ctx } = h,
     status = ctx.status,
@@ -74,11 +76,17 @@ export function* titleCycleSequence(h, events, routines, title, shown = {}) {
     call = (site, target, sequence, long = true) =>
       dialogCallBody(h, site, target, () => sequence(h, events, routines), long);
   let m;
-  // The menu times out sooner right after the whole title (A nonzero).
+  // The menu times out sooner right after the whole title.
   const menu = function* (site, shortTimeout) {
-    ctx.a = shortTimeout ? 1 : 0;
-    yield* call(site, START_MENU, startMenuSequence);
-    return ctx.a & WORD_MASK;
+    const chosen = {};
+    yield* dialogCallBody(
+      h,
+      site,
+      START_MENU,
+      () => startMenuSequence(h, events, routines, shortTimeout, chosen),
+      true,
+    );
+    return chosen.choice;
   };
   yield () => {
     m = sceneRuntime(h);
@@ -96,9 +104,16 @@ export function* titleCycleSequence(h, events, routines, title, shown = {}) {
     choice = yield* menu(MENU_AGAIN_SITE, false);
     titleNext = true;
   } else {
-    yield* call(TITLE_SITE, TITLE, titleSequence);
-    // The title returns 0 after the whole title, 1 when a button ended it.
-    const wholeTitle = (ctx.a & BYTE_MASK) === 0;
+    const shown = {};
+    yield* dialogCallBody(
+      h,
+      TITLE_SITE,
+      TITLE,
+      () => titleSequence(h, events, routines, shown),
+      true,
+    );
+    // A held button ends the title early.
+    const wholeTitle = !shown.key;
     choice = yield* menu(wholeTitle ? MENU_AFTER_TITLE_SITE : MENU_SITE, wholeTitle);
     titleNext = false;
   }
@@ -159,11 +174,8 @@ function* playMenuCredits(h, events, m) {
     MUSIC_STOP,
     function* () {
       yield () => {
-        h.load(WORD_MASK);
-        h.write(h.abs(MUSIC), ctx.a);
-        h.load(APU_COMMAND_VOLUME_TARGET);
-        h.index('x', 0);
-        h.call(0x81efa0, 0x81f007, () => sendApuCommandRoutine(h), true);
+        setWord(h.a.mem.wram, MUSIC, WORD_MASK);
+        h.call(0x81efa0, 0x81f007, () => sendApuCommandCall(h, APU_COMMAND_VOLUME_TARGET, 0), true);
         return h.rtl();
       };
     },

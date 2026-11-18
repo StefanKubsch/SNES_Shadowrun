@@ -145,8 +145,7 @@ const FONT_FIRST_CODE = 0x20,
   MENU_BLANK_CHAR = FONT_FIRST_CODE,
   MENU_ARROW_CHAR = 0x23,
   MENU_BLINKS = 8,
-  BLINK_HALF_FRAMES = 2,
-  FADE_OUT_X = 0xff;
+  BLINK_HALF_FRAMES = 2;
 // Layout as tilemap byte offsets (40 per tile row): rows every second tile row from
 // tile row 16, the arrow in column 8, the texts in column 10, the copyright in tile
 // row 26, column 2; the tilemap goes to VRAM word 0800.
@@ -570,11 +569,13 @@ function showTitleObjects(m) {
 }
 
 // 81:E14A: the start menu. h is the accessor of the native call from the title
-// cycle 80:A18C, A nonzero right after the title (the shorter timeout).
-export function* startMenuSequence(h, events, routines) {
+// cycle 80:A18C, afterTitle true right after the title (the shorter timeout; A nonzero
+// in the original). menu.choice receives the choice (A in the original): the save
+// slot, FFFF for a new game or FFFE after a cancel or timeout. No A, X, Y or flags are
+// left (user decision 2026-11-17), only the status the original restores.
+export function* startMenuSequence(h, events, routines, afterTitle, menu = {}) {
   const { ctx } = h,
     status = ctx.status,
-    afterTitle = ctx.a !== 0,
     clock = sceneFrames(h, events, 'start-menu', routines);
   ctx.status &= ~(FLAG_MEMORY_8BIT | FLAG_INDEX_8BIT);
   let m;
@@ -660,11 +661,7 @@ export function* startMenuSequence(h, events, routines) {
     let out;
     yield () => {
       disableNmi(m.wram, m.port);
-      ctx.a = result;
-      // The 8-bit fade out of the original leaves X at FF and clears the high byte
-      // of Y; the attract game behind a cancelled menu reads them.
-      ctx.x = FADE_OUT_X;
-      ctx.y &= BYTE_MASK;
+      menu.choice = result;
       ctx.status = status;
       out = h.rtl();
     };

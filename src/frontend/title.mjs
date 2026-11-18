@@ -390,9 +390,10 @@ export function handleTitleScrollNmi(h) {
 }
 
 // 81:D694: play the prologue and the title. h is the accessor of the native call
-// from the title cycle 80:A18C. Returns with A = 0 after the whole title, 1 after a
-// held button, and the zero flag of that load.
-export function* titleSequence(h, events, routines) {
+// from the title cycle 80:A18C. shown.key tells whether a held button ended the title
+// (A = 1 in the original, 0 after the whole title); no A, X, Y or flags are left
+// (user decision 2026-11-17), only the status width the original restores.
+export function* titleSequence(h, events, routines, shown = {}) {
   const { ctx } = h,
     status = ctx.status,
     clock = sceneFrames(h, events, 'title', routines);
@@ -469,8 +470,7 @@ export function* titleSequence(h, events, routines) {
     let result;
     yield () => {
       ctx.status = key ? status : status & ~FLAG_MEMORY_8BIT;
-      ctx.a = ctx.status & FLAG_MEMORY_8BIT ? (ctx.a & ~BYTE_MASK) | (key ? 1 : 0) : key ? 1 : 0;
-      ctx.status = (ctx.status & ~(FLAG_NEGATIVE | FLAG_ZERO)) | (key ? 0 : FLAG_ZERO);
+      shown.key = key;
       result = h.rtl();
     };
     return result;
