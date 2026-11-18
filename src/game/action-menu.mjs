@@ -41,8 +41,7 @@ import {
   DP_WINDOW_COLUMNS,
   DP_WINDOW_ROWS,
 } from '../data/wram.mjs';
-import { BYTE_BITS, BYTE_MASK, WORD_BITS, WORD_MASK, WORD_SIGN } from '../constants/bits.mjs';
-import { FLAG_CARRY, FLAG_NEGATIVE, FLAG_OVERFLOW, FLAG_ZERO } from '../constants/cpu-flags.mjs';
+import { BYTE_BITS, BYTE_MASK, WORD_BITS, WORD_MASK } from '../constants/bits.mjs';
 
 // The actions in the menu's order: their flags, texts (offsets from 9D:8000, with their
 // hotkey glyphs, assets/vm-texts.json) and hotkeys.
@@ -85,13 +84,6 @@ const setWord = (wram, at, value) => {
   wram[at] = value & BYTE_MASK;
   wram[at + 1] = (value >>> BYTE_BITS) & BYTE_MASK;
 };
-const flag = (ctx, bit, set) => {
-  ctx.status = set ? ctx.status | bit : ctx.status & ~bit;
-};
-const signAndZero = (ctx, value) => {
-  flag(ctx, FLAG_NEGATIVE, value & WORD_SIGN);
-  flag(ctx, FLAG_ZERO, value === 0);
-};
 
 // Fill the menu's tables from the accepted actions; returns the table index past the
 // last action.
@@ -116,6 +108,10 @@ function listActions(wram, accepted) {
 
 // Choose an action from the menu (80:99EB), a sequence for a native call continuation:
 // h is the caller's access (direct page 0, data bank 80); renderBuffer draws text.
+// Registers (user decision 2026-11-17): register-level callers still pass the offered
+// actions in A and read the chosen action's flag from A; these two stay. No other
+// register values are left, and the flag the original keeps on the stack over the
+// window release is a local.
 export function* chooseActionSequence(h, events, renderBuffer = drawTextBufferSequence) {
   const { ctx } = h,
     { mem } = h.a,
@@ -126,24 +122,18 @@ export function* chooseActionSequence(h, events, renderBuffer = drawTextBufferSe
     const override = word(wram, ACTION_MENU_OVERRIDE);
     if (override) setWord(wram, DP_ACTION_MENU_MASK, override);
     const y = listActions(wram, word(wram, DP_ACTION_MENU_MASK));
-    ctx.y = y;
     if (y < FIRST_ACTION_END) {
+      // No action: the result 0.
       ctx.a = 0;
-      signAndZero(ctx, 0);
-      flag(ctx, FLAG_CARRY, false);
       return;
     }
     count = y >>> 1;
     setWord(wram, ACTION_MENU_NAMES + y, 0);
-    // LSR, ADC 2: the carry and overflow stay clear for these small counts.
     setWord(wram, DP_WINDOW_ROWS, count + EXTRA_ROWS);
-    flag(ctx, FLAG_CARRY, false);
-    flag(ctx, FLAG_OVERFLOW, false);
     setWord(wram, DP_LEFT, WINDOW.left);
     setWord(wram, DP_TOP, WINDOW.top);
     setWord(wram, DP_WINDOW_COLUMNS, WINDOW.columns);
     setWord(wram, DP_WINDOW_ATTRIBUTES, WINDOW.attributes);
-    ctx.a = WINDOW.attributes;
     fitListWindow(
       mem,
       h,
@@ -160,24 +150,21 @@ export function* chooseActionSequence(h, events, renderBuffer = drawTextBufferSe
     setWord(wram, DP_LIST_TOKENS, ACTION_MENU_NAMES);
     setWord(wram, DP_LIST_TOKEN_BANK, WRAM_BANK);
     setWord(wram, DP_LIST_VALUES, ACTION_MENU_HOTKEYS);
-    ctx.a = ACTION_MENU_HOTKEYS;
   };
   yield* dialogCallBody(h, ...MENU_CALL, () =>
     chooseFromMenuSequence(h, events, renderBuffer, MENU_CALL[1]),
   );
+  let chosen;
   yield () => {
     // The chosen row (a cancel counts as Exit) as a table index; the window to release.
     let row = word(wram, DP_LEFT);
     if (row === NONE) row = 0;
-    ctx.y = (row << 1) & WORD_MASK;
-    h.a.pushWord(word(wram, ACTION_MENU_FLAGS + ctx.y));
-    ctx.a = word(wram, DP_ACTION_MENU_WINDOW);
-    setWord(wram, DP_LEFT, ctx.a);
+    chosen = word(wram, ACTION_MENU_FLAGS + ((row << 1) & WORD_MASK));
+    setWord(wram, DP_LEFT, word(wram, DP_ACTION_MENU_WINDOW));
   };
   yield* dialogCallBody(h, RELEASE_SITE, RELEASE_TARGET, () => releaseThenReturn(h, events));
   yield () => {
-    ctx.a = h.a.pullWord();
-    signAndZero(ctx, ctx.a);
+    ctx.a = chosen;
     setWord(wram, ACTION_MENU_OVERRIDE, 0);
   };
   return yield* rts(h);
