@@ -14,14 +14,12 @@
 // stay below the stack, as the original leaves them.
 //
 // Registers (user decision 2026-11-17): measureTextWidth leaves no registers; its
-// callers read the width from the direct page word BA. The register form
-// measureTextWidthRoutine, for register-level callers, leaves A the width with its sign
-// and zero, X the last tree index or table index and Y unchanged.
+// callers read the width from the direct page word BA. The register form for
+// register-level callers is in proof/caller/text-width.mjs.
 import { languageTextWidth } from '../data/language.mjs';
 import { readBit, startTextSource } from './text-print.mjs';
 import { TEXT_BITS_REMAINING, TEXT_CHARACTER_INDEX, TEXT_WORK_WORD } from '../data/wram.mjs';
 import { BYTE_BITS, BYTE_MASK, HIGH_BYTE_MASK, WORD_MASK, WORD_SIGN } from '../constants/bits.mjs';
-import { FLAG_NEGATIVE, FLAG_ZERO } from '../constants/cpu-flags.mjs';
 
 const DP_TEXT = 0x00,
   DP_WIDTH = TEXT_WORK_WORD,
@@ -43,9 +41,6 @@ const setWord = (wram, at, value) => {
   wram[at] = value & BYTE_MASK;
   wram[at + 1] = (value >>> BYTE_BITS) & BYTE_MASK;
 };
-const flag = (ctx, bit, set) => {
-  ctx.status = set ? ctx.status | bit : ctx.status & ~bit;
-};
 
 // Measure the text in the direct page word 00 into the direct page word BA (80:FADD),
 // called with JSR: h the caller's access (direct page 0). Returns with its RTS.
@@ -53,17 +48,8 @@ export function measureTextWidth(h) {
   measure(h, 0);
   return h.rts();
 }
-// The register form: A the width with its sign and zero, X the last index.
-export function measureTextWidthRoutine(h) {
-  const { ctx } = h;
-  ctx.x = measure(h, ctx.x);
-  ctx.a = word(h.a.mem.wram, DP_WIDTH);
-  flag(ctx, FLAG_NEGATIVE, ctx.a & WORD_SIGN);
-  flag(ctx, FLAG_ZERO, ctx.a === 0);
-  return h.rts();
-}
 // The measurement; returns the last tree or table index (X in the original), from x.
-function measure(h, x) {
+export function measure(h, x) {
   const { ctx } = h,
     { mem } = h.a,
     { wram } = mem,
