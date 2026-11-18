@@ -1940,13 +1940,14 @@ const MENU_MARKS = [
   },
   reference: (h, events) => runTaskListHelper(h.a, events, entry, false),
   events: textEvents,
-  result: bankRegisters,
+  // The marks end with the lifted text print, which leaves no A, X, Y and flags.
+  result: dataBank,
   lifted: (h, input) => {
     Object.assign(h.ctx, input);
     h.ctx.programBank = 0x80;
     h.push(0x1234, 2);
     drainNativeSequence(markRowSequence(h, textEvents(), textBufferRenderer(DRAW_TABLE), form));
-    return bankRegisters(h);
+    return dataBank(h);
   },
 }));
 // The frames of the inner calls lie below the caller's frame.

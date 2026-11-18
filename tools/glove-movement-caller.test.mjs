@@ -40,7 +40,8 @@ function runSearch(sequence, budget, options = {}) {
     ({ h }) =>
       (result) => ({
         ...result,
-        registers: [h.ctx.a, h.ctx.x, h.ctx.y, h.ctx.status, h.ctx.s, h.ctx.pc, h.ctx.programBank],
+        // Game state only (user decision 2026-11-17): no A, X, Y or flags.
+        registers: [h.ctx.s, h.ctx.pc, h.ctx.programBank, h.ctx.bank],
       }),
   );
 }

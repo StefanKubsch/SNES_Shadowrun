@@ -15,10 +15,10 @@
 //
 // The original reads each bit with a JSL to 81:AF04, which pushes A while it refills
 // the buffer; the bytes of the last frame and push stay below the stack, as the data
-// bank and the bank pair the routine pushes (PHB, PEA, PLB, PLB). The routine leaves A,
-// X, Y, the carry and the overflow of 80:FB39 and the sign and zero of the restored bank
-// byte; it passes FB39 X and Y the text's length and A the last code tree node with its
-// bytes swapped, as the original. FB39 reads no flags, so they are not produced there.
+// bank and the bank pair the routine pushes (PHB, PEA, PLB, PLB).
+//
+// Registers (user decision 2026-11-17): game state only. FB39 sets its own registers
+// before reading them, and no A, X, Y or flags are left; the data bank is restored.
 import { dialogCallBody } from '../system/native-call-continuation.mjs';
 import { drawTextBufferSequence } from './text-draw.mjs';
 import { portTextAddress } from '../data/port-extension.mjs';
@@ -34,13 +34,11 @@ import {
 import {
   BYTE_BITS,
   BYTE_MASK,
-  BYTE_SIGN,
   LONG_MASK,
   WORD_BITS,
   WORD_MASK,
   WORD_SIGN,
 } from '../constants/bits.mjs';
-import { FLAG_NEGATIVE, FLAG_ZERO } from '../constants/cpu-flags.mjs';
 
 const DP_TEXT = 0x02,
   // Bank 9D in the bank byte with FF below it; a negative number adds one (bank 9E).
@@ -65,9 +63,6 @@ const word = (wram, at) => wram[at] | (wram[at + 1] << BYTE_BITS);
 const setWord = (wram, at, value) => {
   wram[at] = value & BYTE_MASK;
   wram[at + 1] = (value >>> BYTE_BITS) & BYTE_MASK;
-};
-const flag = (ctx, bit, set) => {
-  ctx.status = set ? ctx.status | bit : ctx.status & ~bit;
 };
 
 // The bit reader (81:AF04) as a function: the next bit of the text source, refilling
@@ -100,8 +95,8 @@ export function startTextSource(mem, wram, id) {
   }
 }
 
-// Decode the text into the text buffer; returns its length and the last node with its
-// bytes swapped, and the A of the last refill (or null).
+// Decode the text into the text buffer; returns its length and the A the last refill
+// pushes (or null).
 function decodeText(mem, wram) {
   let y = 0,
     pushed = null;
@@ -117,12 +112,11 @@ function decodeText(mem, wram) {
     const pair = node & CHARACTER_PAIR,
       first = pair >>> BYTE_BITS,
       second = pair & BYTE_MASK;
-    const swapped = ((pair & BYTE_MASK) << BYTE_BITS) | first;
-    if (first === TEXT_END) return { y, a: swapped, pushed };
+    if (first === TEXT_END) return { y, pushed };
     wram[TEXT_BUFFER + y] = first;
     y = (y + 1) & WORD_MASK;
     if (second === 0) continue;
-    if (second === TEXT_END) return { y, a: pair, pushed };
+    if (second === TEXT_END) return { y, pushed };
     wram[TEXT_BUFFER + y] = second;
     y = (y + 1) & WORD_MASK;
   }
@@ -142,7 +136,7 @@ export function* printTextSequence(h, events, renderBuffer = drawTextBufferSeque
     ctx.s = (ctx.s + BANK_PAIR_BYTES) & WORD_MASK;
     ctx.bank = WRAM_BANK;
     setWord(wram, TEXT_BITS_REMAINING, 0);
-    let { y, a, pushed } = decodeText(mem, wram);
+    let { y, pushed } = decodeText(mem, wram);
     const translated = languageText(mem, id);
     if (translated) {
       translated.forEach((code, i) => (wram[TEXT_BUFFER + i] = code));
@@ -157,17 +151,12 @@ export function* printTextSequence(h, events, renderBuffer = drawTextBufferSeque
       ctx.s = (ctx.s + PUSH_BYTES) & WORD_MASK;
     }
     ctx.s = (ctx.s + JSL_FRAME_BYTES) & WORD_MASK;
-    ctx.a = a;
-    ctx.x = y;
-    ctx.y = y;
   };
   yield* dialogCallBody(h, ...DRAW_CALL, () => renderBuffer(h, events));
   let result;
   yield () => {
     ctx.s = (ctx.s + 1) & WORD_MASK;
     ctx.bank = h.a.read(ctx.s);
-    flag(ctx, FLAG_NEGATIVE, ctx.bank & BYTE_SIGN);
-    flag(ctx, FLAG_ZERO, ctx.bank === 0);
     result = h.rts();
   };
   return result;
