@@ -30,6 +30,7 @@ import {
 } from '../video/object-markers.mjs';
 import { buildLanguage, LANGUAGES, ENGLISH } from '../data/language.mjs';
 import { languageEvent } from './recording.mjs';
+import { faultText } from './fault-text.mjs';
 
 // Lead growth after a step that produced several pictures (in MIN_LEAD units).
 const LEAD_GROWTH = 4;
@@ -85,7 +86,7 @@ function pump() {
   } catch (error) {
     failed = true;
     // The message names the address of a VmFault (such as rom_byte_absent) for the user's report.
-    self.postMessage({ error: error.message });
+    self.postMessage({ error: faultText(error) });
     return;
   }
   if (shared || produced - consumed < lead) timer = setTimeout(pump, 0);
@@ -255,6 +256,6 @@ self.onmessage = ({ data }) => {
     // The page ends the session on any error, so the game stops too; otherwise it would
     // block waiting for frames and never answer the recording request.
     failed = true;
-    self.postMessage({ error: error.message });
+    self.postMessage({ error: faultText(error) });
   }
 };

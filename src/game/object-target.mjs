@@ -4,7 +4,8 @@
 //
 // An object with a motion target counts its frames to the next step down
 // (7E:40E0). At 0 it measures the distance to the target: the point 7E:4190/41E8, or,
-// when the target x is 0, the object whose slot 7E:41E8 holds. Below a distance sum of
+// when the target x is 0, the object whose slot 7E:41E8 holds (a "none" slot FFFF reads
+// the words below the position fields, as in the original). Below a distance sum of
 // 10 the object has arrived: it stops, and the task it belongs to (or the parent its
 // waiting child hands on to) gets the event 4. Otherwise it picks one of eight
 // directions, turns to it (80:AAAF, lifted in object-turn.mjs, through its frame) and
@@ -28,6 +29,7 @@
 // turn is the JSR form that leaves no registers, and the routine leaves no A, X, Y or
 // flags.
 import { taskStop } from '../system/task-stop.mjs';
+import { dataBankWord } from '../system/data-bank.mjs';
 import { turnObjectJsr } from './object-turn.mjs';
 import {
   MOTION_ACTIVE,
@@ -132,9 +134,13 @@ export function walkTowardsTarget(h, slot, action = turnObjectJsr) {
         targetY = far(MOTION_Y);
       } else {
         // The original indexes the object with Y, which is set again before it leaves.
+        // Scripts may pass "none" (FFFF) as the target object: script 18A calls 80:C6F3
+        // with the result of native 07 before it tests that result for FF. The index then
+        // carries into bank 81 and the original reads the WRAM words just below the
+        // fields (src/system/data-bank.mjs); it does not stop.
         const object = far(MOTION_Y);
-        targetX = get(OBJECT_X, object);
-        targetY = get(OBJECT_Y, object);
+        targetX = dataBankWord(h.a.mem, OBJECT_X, object);
+        targetY = dataBankWord(h.a.mem, OBJECT_Y, object);
       }
       const measure = (target, own, negative) => {
         const difference = (target - own) & WORD_MASK;

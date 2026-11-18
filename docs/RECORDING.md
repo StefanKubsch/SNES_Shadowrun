@@ -40,6 +40,10 @@ After a fault (for example `rom_byte_absent` with its address) the session
 stops, the worker's game stops with it, and the page asks for the export
 before a new start; the stopped worker still answers the request with the
 recording up to the fault (tools/gameplay-options-browser.test.mjs).
+A task stop of the lifted code (such as `object_slot_required`) has no message
+of its own; the worker names its reason and hexadecimal details instead
+([fault-text.mjs](../src/browser/fault-text.mjs), tools/fault-text.test.mjs).
+Before 2026-11-18 such a stop froze picture and controls without a notice.
 
 ## Replay
 

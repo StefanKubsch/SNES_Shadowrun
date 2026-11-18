@@ -179,6 +179,11 @@ function targetScenario(seed) {
   if (seed % 3) {
     word(0x4190 + x, currentX + dx || 1);
     word(0x41e8 + x, currentY + dy);
+  } else if (seed % 9 === 0) {
+    // A script's "none" (FFFF) as the target object (script 18A, recording of
+    // 2026-11-18): the original's LDA $0E28,Y carries into bank 81 and reads WRAM 0E27.
+    word(0x4190 + x, 0);
+    word(0x41e8 + x, 0xffff);
   } else {
     word(0x4190 + x, 0);
     word(0x41e8 + x, x === 0x56 ? 0x54 : 0x56);
