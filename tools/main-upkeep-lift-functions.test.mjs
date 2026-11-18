@@ -1468,14 +1468,16 @@ registerCases([DIALOG], {
 // positive, zero and negative, windows of the tables) and the notice windows' release
 // 80:FF79 with registers (slots used or free, the real window release with the recorded
 // upload polls).
-const plainLifted = (run, long, events) => (h, input) => {
-  Object.assign(h.ctx, input);
-  h.ctx.programBank = long ? 0x81 : 0x80;
-  if (long) h.pushByte(0x81);
-  h.push(0x1234, 2);
-  run(h, events?.(h));
-  return roundRegisters(h);
-};
+const plainLifted =
+  (run, long, events, result = roundRegisters) =>
+  (h, input) => {
+    Object.assign(h.ctx, input);
+    h.ctx.programBank = long ? 0x81 : 0x80;
+    if (long) h.pushByte(0x81);
+    h.push(0x1234, 2);
+    run(h, events?.(h));
+    return result(h);
+  };
 const DIALOG_SMALL = [
   {
     name: 'colour clear 81:886A',
@@ -1484,8 +1486,9 @@ const DIALOG_SMALL = [
     samples: 100,
     prepare: wordInput,
     reference: (h) => TALK_ROUTINES.get(0x81886a)(h),
-    result: roundRegisters,
-    lifted: plainLifted(clearFixedColourRoutine, true),
+    // The lifted colour clear leaves no registers.
+    result: dataBank,
+    lifted: plainLifted(clearFixedColourRoutine, true, undefined, dataBank),
   },
   {
     name: 'text width 80:FA92',
@@ -1497,8 +1500,9 @@ const DIALOG_SMALL = [
       return wordInput(s);
     },
     reference: (h) => TALK_ROUTINES.get(0x80fa92)(h),
-    result: roundRegisters,
-    lifted: plainLifted(setWindowTextWidthRoutine, false),
+    // The lifted text width leaves no registers.
+    result: dataBank,
+    lifted: plainLifted(setWindowTextWidthRoutine, false, undefined, dataBank),
   },
   {
     name: 'notice windows 80:FF79',

@@ -20,12 +20,12 @@
 // old music comes back.
 //
 // All callees compose directly through their established frames with the
-// original arguments. The flags the
-// routine itself changes (the carry of its shifts and comparisons) are passed on as the
-// original's; it changes no overflow. It leaves the registers of its last callee (the
-// music change) or of the window release with A the pulled music word.
+// original arguments; the music changes and the dialog texts take theirs as parameters.
+// Registers (user decision 2026-11-17): game state only; the routine, the dialog close,
+// the colour clear and the text width leave no A, X, Y or flags. The old music and the
+// two windows wait on the stack as in the original.
 import { dialogCallBody, segmentSequence } from '../system/native-call-continuation.mjs';
-import { setMusicModeRoutine } from '../apu/audio-routines.mjs';
+import { setMusicModeCall } from '../apu/audio-routines.mjs';
 import { showDialogTextSequence } from './dialog-text.mjs';
 import { chooseDialogActionSequence, chooseDialogTopicSequence } from './dialog-menus.mjs';
 import { drawTextBufferSequence } from './text-draw.mjs';
@@ -94,13 +94,11 @@ import { VMAINC_INCREMENT_AFTER_HIGH } from '../constants/ppu.mjs';
 import {
   BYTE_BITS,
   BYTE_MASK,
-  HIGH_BYTE_MASK,
   LONG_MASK,
   WORD_BITS,
   WORD_MASK,
   WORD_SIGN,
 } from '../constants/bits.mjs';
-import { FLAG_CARRY, FLAG_NEGATIVE, FLAG_OVERFLOW, FLAG_ZERO } from '../constants/cpu-flags.mjs';
 
 // The direct page words of the dialog: the object, the record pointer (bank in 13), the
 // portrait frame and the text window.
@@ -183,47 +181,29 @@ const setWord = (wram, at, value) => {
   wram[at] = value & BYTE_MASK;
   wram[at + 1] = (value >>> BYTE_BITS) & BYTE_MASK;
 };
-const flag = (ctx, bit, set) => {
-  ctx.status = set ? ctx.status | bit : ctx.status & ~bit;
-};
 const longWord = (mem, at) =>
   mem.read8(at & LONG_MASK) | (mem.read8((at + 1) & LONG_MASK) << BYTE_BITS);
 // The long pointer in the direct page at dp, plus y.
 const pointer = (wram, dp, y) => ((word(wram, dp) | (wram[dp + 2] << WORD_BITS)) + y) & LONG_MASK;
 
 // Clear the fixed colour (81:886A), called with JSL: COLDATA black on all planes, no
-// colour math (CGADSUB 0). A keeps its high byte with E0 below it, sign set.
+// colour math (CGADSUB 0).
 export function clearFixedColourRoutine(h) {
-  const { ctx } = h,
-    { port } = sceneRuntime(h);
-  ctx.a = (ctx.a & HIGH_BYTE_MASK) | FIXED_COLOUR_BLACK;
+  const { port } = sceneRuntime(h);
   port.write(COLDATA, FIXED_COLOUR_BLACK, 1, COLDATA_SITE);
   port.write(CGADSUB, 0, 1, CGADSUB_SITE);
-  flag(ctx, FLAG_NEGATIVE, true);
-  flag(ctx, FLAG_ZERO, false);
   return h.rtl();
 }
 // Set the text area of the window in the direct page word 00 (80:FA92), called with JSR:
 // its left text pixel from 02, its width in pixels from 04, or, for 0 or less, the
-// window's columns plus 04 less two (as the original adds them). X is left the window.
+// window's columns plus 04 less two (as the original adds them).
 export function setWindowTextWidthRoutine(h) {
-  const { ctx } = h,
-    { wram } = sceneRuntime(h),
+  const { wram } = sceneRuntime(h),
     x = word(wram, DP_OBJECT);
-  ctx.x = x;
   setWord(wram, WINDOW_LEFT_PIXEL + x, word(wram, DP_RECORD_NUMBER));
   let width = word(wram, DP_PIXEL_WIDTH);
-  if (width === 0 || width & WORD_SIGN) {
-    const columns = word(wram, WINDOW_COLUMNS + x),
-      sum = width + columns,
-      result = sum & WORD_MASK;
-    flag(ctx, FLAG_CARRY, sum > WORD_MASK);
-    flag(ctx, FLAG_OVERFLOW, ~(width ^ columns) & (width ^ result) & WORD_SIGN);
-    width = (result - BORDER_COLUMNS) & WORD_MASK;
-  }
-  ctx.a = width;
-  flag(ctx, FLAG_NEGATIVE, width & WORD_SIGN);
-  flag(ctx, FLAG_ZERO, width === 0);
+  if (width === 0 || width & WORD_SIGN)
+    width = (width + word(wram, WINDOW_COLUMNS + x) - BORDER_COLUMNS) & WORD_MASK;
   setWord(wram, WINDOW_WIDTH_PIXELS + x, width);
   return h.rts();
 }
@@ -231,13 +211,9 @@ export function setWindowTextWidthRoutine(h) {
 // Close the dialog (80:92C5) with live portrait, frame and input calls.
 // Object tile reload and sprite composition retain their shared service table.
 export function* closeDialogSequence(h, events) {
-  const { ctx } = h,
-    { port } = sceneRuntime(h);
+  const { port } = sceneRuntime(h);
   yield* dialogCallBody(h, ...CALL.closePortrait, () => closePortraitWindowSequence(h, events));
-  yield () => {
-    ctx.a = 0;
-    port.write(OBJSEL, 0, 2, CLOSE_OBJSEL_SITE);
-  };
+  yield () => port.write(OBJSEL, 0, 2, CLOSE_OBJSEL_SITE);
   yield* dialogCallBody(h, ...CALL.tiles, () => reloadObjectTilesSequence(h, events));
   yield* dialogCallBody(
     h,
@@ -259,8 +235,6 @@ export function* closeDialogSequence(h, events) {
         [MDMAEN, FONT_DMA_CHANNEL, 1],
       ];
       writes.forEach(([register, value, width], n) => port.write(register, value, width, sites[n]));
-      // The byte loads keep the source's high byte in A.
-      ctx.a = (source & HIGH_BYTE_MASK) | FONT_DMA_CHANNEL;
     }
   };
   yield* dialogCallBody(h, ...CALL.pad, () => segmentSequence(() => runPadPresses(h, events)));
@@ -275,12 +249,11 @@ export function* closeDialogSequence(h, events) {
 // Talk with the object (80:936C), a sequence for a native call continuation.
 // The glove action supplies direct page 0 and data bank 80; renderBuffer draws text.
 export function* talkSequence(h, events, renderBuffer = drawTextBufferSequence) {
-  const { ctx } = h,
-    m = sceneRuntime(h),
+  const m = sceneRuntime(h),
     { mem, wram, port } = m;
   if (fixesEnabled(h.a)) preparePushkinTopics(h.a, word(wram, DP_RECORD_NUMBER));
   // Load a portrait record (pointer in F6, bank in F8) for the unpacker: its address and
-  // bank (A and Y in the original) and the buffer (X).
+  // bank and the buffer.
   function* portrait(unpack, shift) {
     let stream;
     yield () => {
@@ -292,14 +265,24 @@ export function* talkSequence(h, events, renderBuffer = drawTextBufferSequence) 
     );
     yield* dialogCallBody(h, ...shift, () => segmentSequence(() => shiftPortraitRowsRoutine(h)));
   }
-  // Set the window of the direct page words 00 to 08 (A ends 0).
+  // Set the window of the direct page words 00 to 08.
   const window = ([left, top, columns, rows]) => {
     setWord(wram, DP_WINDOW_LEFT, left);
     setWord(wram, DP_WINDOW_TOP, top);
     setWord(wram, DP_WINDOW_COLUMNS, columns);
     setWord(wram, DP_WINDOW_ROWS, rows);
     setWord(wram, DP_WINDOW_ATTRIBUTES, 0);
-    ctx.a = 0;
+  };
+  // The music to change to, then the music to restore.
+  const music = (mode) => {
+    const [site, target, long] = mode.restore ? CALL.restoreMusic : CALL.music;
+    return dialogCallBody(
+      h,
+      site,
+      target,
+      () => segmentSequence(() => setMusicModeCall(h, mode.value)),
+      long,
+    );
   };
   yield* dialogCallBody(
     h,
@@ -310,56 +293,34 @@ export function* talkSequence(h, events, renderBuffer = drawTextBufferSequence) 
   );
   yield () => {
     setWord(wram, DIALOG_END, 0);
-    ctx.a = word(wram, DP_OBJECT);
-    setWord(wram, DP_DIALOG_OBJECT, ctx.a);
+    setWord(wram, DP_DIALOG_OBJECT, word(wram, DP_OBJECT));
   };
   yield* dialogCallBody(h, ...CALL.glove, () => putGloveAwayCallSequence(h, events));
   yield () => {
     wram[DP_RECORD_BANK] = RECORD_BANK;
     const number = word(wram, DP_RECORD_NUMBER);
-    flag(ctx, FLAG_CARRY, number & WORD_SIGN);
-    ctx.y = (number << 1) & WORD_MASK;
-    ctx.a = longWord(mem, DIALOG_TABLE + ctx.y);
-    setWord(wram, DP_RECORD, ctx.a);
-    ctx.y = word(wram, DP_DIALOG_OBJECT);
+    setWord(wram, DP_RECORD, longWord(mem, DIALOG_TABLE + ((number << 1) & WORD_MASK)));
   };
   yield* dialogCallBody(h, ...CALL.notices, () => releaseNoticeWindowsCallSequence(h, events));
   // The dialog's music: its old music (or FFFF) stays on the stack.
-  let change = false;
+  let change = null;
   yield () => {
-    ctx.y = RECORD_FLAG_BYTE;
-    ctx.a = longWord(mem, pointer(wram, DP_RECORD, ctx.y)) & BYTE_MASK;
-    setWord(wram, DIALOG_RECORD_FLAGS, ctx.a);
-    ctx.a &= MUSIC_BITS;
-    if (ctx.a) ctx.a = word(wram, GAME_OPTIONS) & OPTION_MUSIC;
-    if (ctx.a) {
-      ctx.y = (word(wram, DIALOG_RECORD_FLAGS) & MUSIC_BITS) << 1;
-      flag(ctx, FLAG_CARRY, false);
-      ctx.a = longWord(mem, MUSIC_TABLE + ctx.y);
-      const music = word(wram, MUSIC);
-      flag(ctx, FLAG_CARRY, ctx.a >= music);
-      change = ctx.a !== music;
+    const flags = longWord(mem, pointer(wram, DP_RECORD, RECORD_FLAG_BYTE)) & BYTE_MASK;
+    setWord(wram, DIALOG_RECORD_FLAGS, flags);
+    if (flags & MUSIC_BITS && word(wram, GAME_OPTIONS) & OPTION_MUSIC) {
+      const value = longWord(mem, MUSIC_TABLE + ((flags & MUSIC_BITS) << 1)),
+        current = word(wram, MUSIC);
+      if (value !== current) change = { value };
     }
-    if (change) {
-      ctx.y = word(wram, MUSIC);
-      h.a.pushWord(ctx.y);
-    } else h.a.pushWord(NO_MUSIC);
+    h.a.pushWord(change ? word(wram, MUSIC) : NO_MUSIC);
   };
-  if (change)
-    yield* dialogCallBody(
-      h,
-      CALL.music[0],
-      CALL.music[1],
-      () => segmentSequence(() => setMusicModeRoutine(h)),
-      true,
-    );
+  if (change) yield* music(change);
   yield () => window(PORTRAIT_FRAME);
   yield* dialogCallBody(h, ...CALL.frame, () => openWindowSequence(h, events));
   yield () => {
     setWord(wram, DP_PORTRAIT_FRAME, word(wram, DP_OBJECT));
     setWord(wram, DP_RECORD_NUMBER, FRAME_LEFT_PIXEL);
-    ctx.a = FRAME_WIDTH_CHANGE;
-    setWord(wram, DP_PIXEL_WIDTH, ctx.a);
+    setWord(wram, DP_PIXEL_WIDTH, FRAME_WIDTH_CHANGE);
   };
   yield* dialogCallBody(
     h,
@@ -376,34 +337,27 @@ export function* talkSequence(h, events, renderBuffer = drawTextBufferSequence) 
     port.write(OBJSEL, PORTRAIT_OBJSEL, 2, OBJSEL_SITE);
     setWord(wram, PALETTE_UPLOAD_LIST_BYTES, 0);
     const jake = wram[JAKE_ALTERNATE_PORTRAIT]
-      ? JAKE_ALTERNATE_PORTRAIT_DIALOG
-      : JAKE_PORTRAIT_DIALOG;
-    flag(ctx, FLAG_CARRY, false);
-    ctx.x = longWord(mem, DIALOG_TABLE + (jake << 1));
-    wram[DP_PORTRAIT_BANK] = mem.read8(DIALOG_BANK_BASE + PORTRAIT_RECORD_BANK_BYTE + ctx.x);
-    ctx.a = longWord(mem, DIALOG_BANK_BASE + ctx.x);
-    setWord(wram, DP_PORTRAIT_POINTER, ctx.a);
+        ? JAKE_ALTERNATE_PORTRAIT_DIALOG
+        : JAKE_PORTRAIT_DIALOG,
+      record = longWord(mem, DIALOG_TABLE + (jake << 1));
+    wram[DP_PORTRAIT_BANK] = mem.read8(DIALOG_BANK_BASE + PORTRAIT_RECORD_BANK_BYTE + record);
+    setWord(wram, DP_PORTRAIT_POINTER, longWord(mem, DIALOG_BANK_BASE + record));
   };
   yield* portrait(CALL.jakeUnpack, CALL.jakeShift);
   yield* dialogCallBody(h, ...CALL.jakeUpload, () => uploadFirstPortraitSequence(h, events));
   yield () => {
-    ctx.y = PORTRAIT_RECORD_BANK_BYTE;
-    wram[DP_PORTRAIT_BANK] = mem.read8(pointer(wram, DP_RECORD, ctx.y));
-    ctx.a = longWord(mem, pointer(wram, DP_RECORD, 0));
-    setWord(wram, DP_PORTRAIT_POINTER, ctx.a);
+    wram[DP_PORTRAIT_BANK] = mem.read8(pointer(wram, DP_RECORD, PORTRAIT_RECORD_BANK_BYTE));
+    setWord(wram, DP_PORTRAIT_POINTER, longWord(mem, pointer(wram, DP_RECORD, 0)));
   };
   yield* portrait(CALL.partnerUnpack, CALL.partnerShift);
   yield* dialogCallBody(h, ...CALL.partnerUpload, () => uploadSecondPortraitSequence(h, events));
   yield* dialogCallBody(h, ...CALL.portraitWindow, () => openPortraitWindowSequence(h, events));
-  yield () => {
-    setWord(wram, DP_OBJECT, word(wram, DP_PORTRAIT_FRAME));
-    ctx.a = GREETING_TEXT;
-  };
+  yield () => setWord(wram, DP_OBJECT, word(wram, DP_PORTRAIT_FRAME));
   yield* dialogCallBody(h, ...CALL.greeting, () =>
     showDialogTextSequence(h, events, renderBuffer, GREETING_TEXT),
   );
-  yield () => (ctx.x = GREETING_WAIT_FRAMES);
-  do {
+  // The greeting waits until the frame count passes below 0.
+  for (let frames = GREETING_WAIT_FRAMES; !(frames & WORD_SIGN); frames = (frames - 1) & WORD_MASK)
     yield* dialogCallBody(
       h,
       CALL.wait[0],
@@ -411,23 +365,18 @@ export function* talkSequence(h, events, renderBuffer = drawTextBufferSequence) 
       () => frameWaitCallSequence(h, events),
       true,
     );
-    yield () => (ctx.x = (ctx.x - 1) & WORD_MASK);
-  } while (!(ctx.x & WORD_SIGN));
   // The menu until Exit or the end word.
   for (;;) {
     yield* dialogCallBody(h, ...CALL.menu, () =>
       chooseDialogActionSequence(h, events, renderBuffer),
     );
-    let next;
+    let next, key;
     yield () => {
-      // The menu leaves its row in the direct page word 00 (A in the original).
-      ctx.a = word(wram, DP_OBJECT);
-      flag(ctx, FLAG_CARRY, true);
-      if (ctx.a === MENU_EXIT) return void (next = 'end');
-      ctx.x = word(wram, DIALOG_END);
-      if (ctx.x) return void (next = 'end');
-      if (ctx.a === MENU_TALK) {
-        ctx.a = TALK_TEXT;
+      // The menu leaves its row in the direct page word 00.
+      const row = word(wram, DP_OBJECT);
+      if (row === MENU_EXIT || word(wram, DIALOG_END)) return void (next = 'end');
+      if (row === MENU_TALK) {
+        key = TALK_TEXT;
         return void (next = 'talk');
       }
       next = 'topics';
@@ -438,58 +387,39 @@ export function* talkSequence(h, events, renderBuffer = drawTextBufferSequence) 
         chooseDialogTopicSequence(h, events, renderBuffer),
       );
       yield () => {
-        ctx.a = word(wram, DIALOG_END);
-        if (ctx.a) return void (next = 'end');
-        ctx.x = word(wram, DP_OBJECT);
-        flag(ctx, FLAG_CARRY, ctx.x >= NO_TOPIC);
-        if (ctx.x === NO_TOPIC) return void (next = 'menu');
-        ctx.a = word(wram, TOPIC_LIST + ctx.x) & BYTE_MASK;
+        if (word(wram, DIALOG_END)) return void (next = 'end');
+        const topic = word(wram, DP_OBJECT);
+        if (topic === NO_TOPIC) return void (next = 'menu');
+        key = word(wram, TOPIC_LIST + topic) & BYTE_MASK;
       };
       if (next === 'end') break;
       if (next === 'menu') continue;
     }
     yield* dialogCallBody(h, ...(next === 'talk' ? CALL.talkText : CALL.topicText), () =>
-      showDialogTextSequence(h, events, renderBuffer, ctx.a),
+      showDialogTextSequence(h, events, renderBuffer, key),
     );
     let stop;
     yield () => {
-      ctx.a = word(wram, DIALOG_END);
-      stop = ctx.a !== 0;
+      stop = word(wram, DIALOG_END) !== 0;
     };
     if (stop) break;
   }
   // Close, release both windows and restore the old music.
   yield () => {
     h.a.pushWord(word(wram, DP_PORTRAIT_FRAME));
-    ctx.a = word(wram, DP_TEXT_WINDOW);
-    h.a.pushWord(ctx.a);
+    h.a.pushWord(word(wram, DP_TEXT_WINDOW));
   };
   yield* dialogCallBody(h, ...CALL.close, () => closeDialogSequence(h, events));
-  yield () => {
-    ctx.a = h.a.pullWord();
-    setWord(wram, DP_OBJECT, ctx.a);
-  };
+  yield () => setWord(wram, DP_OBJECT, h.a.pullWord());
   yield* dialogCallBody(h, ...CALL.releaseText, () => releaseWindowJsrSequence(h.a, events));
-  yield () => {
-    ctx.a = h.a.pullWord();
-    setWord(wram, DP_OBJECT, ctx.a);
-  };
+  yield () => setWord(wram, DP_OBJECT, h.a.pullWord());
   yield* dialogCallBody(h, ...CALL.releaseFrame, () => releaseWindowJsrSequence(h.a, events));
-  let restore;
+  let restore = null;
   yield () => {
-    ctx.a = h.a.pullWord();
-    flag(ctx, FLAG_NEGATIVE, ctx.a & WORD_SIGN);
-    flag(ctx, FLAG_ZERO, ctx.a === 0);
-    restore = !(ctx.a & WORD_SIGN);
+    const value = h.a.pullWord();
+    if (!(value & WORD_SIGN)) restore = { value, restore: true };
   };
-  if (restore)
-    yield* dialogCallBody(
-      h,
-      CALL.restoreMusic[0],
-      CALL.restoreMusic[1],
-      () => segmentSequence(() => setMusicModeRoutine(h)),
-      true,
-    );
+  if (restore) yield* music(restore);
   let result;
   yield () => {
     result = h.rts();
