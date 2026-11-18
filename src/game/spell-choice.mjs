@@ -8,6 +8,10 @@
 // the window DP 0E is released (80:FA3E; without spells the original releases the unset
 // DP 0E) and the result goes to DP 00. The callees compose directly through their original
 // frames, each with its own callees.
+//
+// Registers (user decision 2026-11-17): game state only. No callee takes a register
+// input (the plain menu 80:A6C7 has none) and no register values are left; the result
+// the original keeps on the stack over the window release is a local.
 import { dialogCallBody } from '../system/native-call-continuation.mjs';
 import { openWindowSequence } from './window-open.mjs';
 import { releaseWindowSequence } from './window-release.mjs';
@@ -34,9 +38,8 @@ import {
 } from '../data/wram.mjs';
 import { TEXT_EXIT } from '../data/port-extension.mjs';
 import { fitListWindow, listTextIds } from '../data/menu-layout.mjs';
-import { BYTE_BITS, BYTE_MASK, WORD_BITS, WORD_MASK, WORD_SIGN } from '../constants/bits.mjs';
+import { BYTE_BITS, BYTE_MASK, WORD_BITS, WORD_MASK } from '../constants/bits.mjs';
 import { CODE_BANK_BASE, WRAM_BANK } from '../constants/memory-map.mjs';
-import { FLAG_CARRY, FLAG_NEGATIVE, FLAG_ZERO } from '../constants/cpu-flags.mjs';
 
 // The callees and their call sites.
 const OPEN_WINDOW = [0x80e1ee, 0x80f963],
@@ -52,76 +55,42 @@ const setWord = (wram, at, value) => {
   wram[at] = value & BYTE_MASK;
   wram[at + 1] = (value >>> BYTE_BITS) & BYTE_MASK;
 };
-const setFlag = (ctx, bit, set) => {
-  ctx.status = set ? ctx.status | bit : ctx.status & ~bit;
-};
-const setSignZero = (ctx, value) => {
-  setFlag(ctx, FLAG_NEGATIVE, value & WORD_SIGN);
-  setFlag(ctx, FLAG_ZERO, value === 0);
-};
-const load = (ctx, value) => {
-  ctx.a = value;
-  setSignZero(ctx, value);
-};
 
 // The menu list: each learned spell's name text (in the order of the list) after Exit.
-// Leaves X past the last name and Y the last spell doubled; returns the carry of that
-// doubling. The original has no bound; the port stops after 8000 spells.
-function listSpellNames(h) {
-  const { ctx } = h,
-    { mem } = h.a,
-    { wram } = mem;
-  let x = 0,
-    carry = false;
+// The original has no bound; the port stops after 8000 spells.
+function listSpellNames(mem) {
+  let x = 0;
   for (let n = 0; ; n++) {
     if (n === LIST_ENTRY_LIMIT) taskStop('task_native_e1cf_list_unbounded');
-    const spell = word(wram, SPELL_LIST + x);
+    const spell = word(mem.wram, SPELL_LIST + x);
     if (spell === 0) break;
-    carry = (spell & WORD_SIGN) !== 0;
-    ctx.y = (spell << 1) & WORD_MASK;
-    setDataBankWord(mem, SPELL_CHOICE_NAMES, x, dataBankWord(mem, TEXT_NUMBERS, ctx.y));
+    const name = dataBankWord(mem, TEXT_NUMBERS, (spell << 1) & WORD_MASK);
+    setDataBankWord(mem, SPELL_CHOICE_NAMES, x, name);
     x = (x + 2) & WORD_MASK;
   }
   setDataBankWord(mem, SPELL_CHOICE_NAMES, x, 0);
   setDataBankWord(mem, SPELL_CHOICE_HEADER, 0, TEXT_EXIT);
-  ctx.x = x;
-  return carry;
 }
 
 // The spell of the chosen menu row (the row's list word before it), or null for Exit
-// or a cancel; leaves A, X and the flags as the original's tests.
-function chosenSpell(h, row) {
-  const { ctx } = h,
-    { wram } = h.a.mem;
-  ctx.a = row;
-  if (row === CANCELLED) {
-    // The compare's carry; its sign and zero are overwritten before any call.
-    setFlag(ctx, FLAG_CARRY, true);
-    return null;
-  }
+// or a cancel.
+function chosenSpell(wram, row) {
+  if (row === CANCELLED) return null;
   const doubled = (row << 1) & WORD_MASK;
-  setFlag(ctx, FLAG_CARRY, row & WORD_SIGN);
-  load(ctx, doubled);
   // Exit (row 0) doubles to 0, and so does 8000.
   if (doubled === 0) return null;
-  ctx.x = (doubled - 2) & WORD_MASK;
-  const spell = word(wram, SPELL_LIST + ctx.x);
-  load(ctx, spell);
-  return spell;
+  return word(wram, SPELL_LIST + ((doubled - 2) & WORD_MASK));
 }
 
 // 80:E1CF: choose one of the learned spells; DP 00 gets it or 0. A sequence that ends
 // with the native's RTS.
 export function* chooseSpellSequence(h, events, renderBuffer = drawTextBufferSequence) {
-  const { ctx } = h,
-    { mem } = h.a,
+  const { mem } = h.a,
     { wram } = mem;
   let spells,
     spell = null;
   yield () => {
-    const first = word(wram, SPELL_LIST);
-    load(ctx, first);
-    spells = first !== 0;
+    spells = word(wram, SPELL_LIST) !== 0;
     if (!spells) return;
     for (const [offset, value] of [
       [DP_WINDOW_LEFT, SPELL_WINDOW.left],
@@ -131,7 +100,6 @@ export function* chooseSpellSequence(h, events, renderBuffer = drawTextBufferSeq
       [DP_WINDOW_ATTRIBUTES, 0],
     ])
       setWord(wram, offset, value);
-    load(ctx, 0);
     // Another language fits the window to the names before it opens.
     if (mem.language) {
       const ids = listTextIds(mem, (WRAM_BANK << WORD_BITS) + SPELL_LIST, LIST_ENTRY_LIMIT).map(
@@ -144,29 +112,22 @@ export function* chooseSpellSequence(h, events, renderBuffer = drawTextBufferSeq
     yield* dialogCallBody(h, ...OPEN_WINDOW, () => openWindowSequence(h, events));
     yield () => {
       setWord(wram, DP_SPELL_WINDOW, word(wram, 0));
-      const carry = listSpellNames(h);
+      listSpellNames(mem);
       setWord(wram, DP_MENU_COLUMN, MENU_COLUMN);
       setWord(wram, DP_MENU_ROW, 0);
       setWord(wram, DP_MENU_VISIBLE_ROWS, SPELL_WINDOW.visibleRows);
       setWord(wram, DP_LIST_TOKENS, SPELL_CHOICE_HEADER);
       setWord(wram, DP_LIST_TOKEN_BANK, WRAM_BANK);
-      load(ctx, WRAM_BANK);
-      setFlag(ctx, FLAG_CARRY, carry);
     };
     yield* dialogCallBody(h, ...MENU, () =>
       chooseFromMenuSequence(h, events, renderBuffer, MENU[1]),
     );
     yield () => {
-      spell = chosenSpell(h, word(wram, 0));
+      spell = chosenSpell(wram, word(wram, 0));
     };
   }
-  yield () => {
-    // The result waits on the stack while the window is released.
-    h.a.pushWord(spell ?? NO_SPELL);
-    const window = word(wram, DP_SPELL_WINDOW);
-    load(ctx, window);
-    setWord(wram, 0, window);
-  };
+  // The result is kept over the window's release (on the stack in the original).
+  yield () => setWord(wram, 0, word(wram, DP_SPELL_WINDOW));
   yield* dialogCallBody(h, ...RELEASE_WINDOW, function* () {
     yield* releaseWindowSequence(h, events);
     let result;
@@ -177,9 +138,7 @@ export function* chooseSpellSequence(h, events, renderBuffer = drawTextBufferSeq
   });
   let result;
   yield () => {
-    const chosen = h.a.pullWord();
-    load(ctx, chosen);
-    setWord(wram, 0, chosen);
+    setWord(wram, 0, spell ?? NO_SPELL);
     result = h.rts();
   };
   return result;
