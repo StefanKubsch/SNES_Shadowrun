@@ -1,10 +1,5 @@
-// Shared helper and interrupt bindings for the live game. The outer owner, title
-// cycle and attract demo compose their callees directly in src/frontend/.
+// The routine table of the live game: the NMI callbacks, the only entries the live code
+// looks up (src/system/nmi-call.mjs). The outer owner, title cycle, attract demo and main
+// loop compose their callees directly; the former tables are in proof/.
 import { FRONTEND_NMI_ROUTINES } from './main-frontend-nmi.mjs';
-import { MAIN_LOOP_ROUTINES } from '../vm/main-loop.mjs';
-import { runTileBuffers } from '../game/main-upkeep.mjs';
-export const FRONTEND_ROUTINES = new Map([
-  ...MAIN_LOOP_ROUTINES,
-  ...FRONTEND_NMI_ROUTINES,
-  [0x818a91, runTileBuffers],
-]);
+export const FRONTEND_ROUTINES = new Map(FRONTEND_NMI_ROUTINES);

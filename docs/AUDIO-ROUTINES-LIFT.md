@@ -17,13 +17,13 @@ reference table).
 
 ## Modules
 
-| Module                                                                  | Content                                                                                                                                                                                |
-| ----------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| [audio-routines.mjs](../src/apu/audio-routines.mjs)                     | The call forms and the table entry 81:F007 (`sendApuCommandRoutine`) on top of the lifted code; the table entry 81:EF47 (`setMusicModeRoutine`) is in proof/caller/audio-routines.mjs. |
-| [apu-command.mjs](../src/apu/apu-command.mjs)                           | The sound driver command 81:F007 (unchanged).                                                                                                                                          |
-| [music-mode.mjs](../src/apu/music-mode.mjs)                             | Music change, song start and sample loader (unchanged).                                                                                                                                |
-| [sound-effect.mjs](../src/apu/sound-effect.mjs)                         | The sound effect 80:C46E (`playSoundEffect`, entry `playSoundEffectRoutine`) and its stereo levels 80:C416 (`soundLevels`).                                                            |
-| [audio-routines.mjs](../proof/apu-reference/audio-routines.mjs) (proof) | The register-level entries 81:EF47, 81:F007, 81:F229, 81:F1FA, 81:F130, 81:F100, 81:F122, 81:F03A and 80:C46E; the song start 81:F229 moved here from main-scene.mjs.                  |
+| Module                                                                  | Content                                                                                                                                                                   |
+| ----------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| [audio-routines.mjs](../src/apu/audio-routines.mjs)                     | The call forms on top of the lifted code; the table entries 81:F007 (`sendApuCommandRoutine`) and 81:EF47 (`setMusicModeRoutine`) are in proof/caller/audio-routines.mjs. |
+| [apu-command.mjs](../src/apu/apu-command.mjs)                           | The sound driver command 81:F007 (unchanged).                                                                                                                             |
+| [music-mode.mjs](../src/apu/music-mode.mjs)                             | Music change, song start and sample loader (unchanged).                                                                                                                   |
+| [sound-effect.mjs](../src/apu/sound-effect.mjs)                         | The sound effect 80:C46E (`playSoundEffect`, entry `playSoundEffectRoutine`) and its stereo levels 80:C416 (`soundLevels`).                                               |
+| [audio-routines.mjs](../proof/apu-reference/audio-routines.mjs) (proof) | The register-level entries 81:EF47, 81:F007, 81:F229, 81:F1FA, 81:F130, 81:F100, 81:F122, 81:F03A and 80:C46E; the song start 81:F229 moved here from main-scene.mjs.     |
 
 ## Boundaries
 

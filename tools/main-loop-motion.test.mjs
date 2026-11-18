@@ -8,7 +8,7 @@ import { shakeHitPlayer } from '../proof/game-reference/main-upkeep.mjs';
 import { runHitShake } from '../src/game/main-upkeep.mjs';
 import { processSceneRequest } from '../src/game/scene-request.mjs';
 import { processSceneRequestReference } from '../proof/game-reference/scene-request.mjs';
-import { MAIN_LOOP_ROUTINES } from '../src/vm/main-loop.mjs';
+import { MAIN_LOOP_ROUTINES } from '../proof/caller/live-loop-routines.mjs';
 import { MAIN_LOOP_ROUTINES as REPLAY_LOOP_ROUTINES } from '../proof/vm/main-loop.mjs';
 import { runObjectMotion } from '../src/game/main-upkeep.mjs';
 import { NATIVE_CALL_CONTINUATIONS } from '../src/system/native-call-continuation.mjs';

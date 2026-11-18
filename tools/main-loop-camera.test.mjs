@@ -23,7 +23,7 @@ import {
   runFrameWait,
   runPadPresses,
 } from '../src/game/main-upkeep.mjs';
-import { MAIN_LOOP_ROUTINES } from '../src/vm/main-loop.mjs';
+import { MAIN_LOOP_ROUTINES } from '../proof/caller/live-loop-routines.mjs';
 import {
   MAIN_LOOP_ROUTINES as REPLAY_LOOP_ROUTINES,
   MAIN_LOOP_LIFTED_TOP,

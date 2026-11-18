@@ -23,8 +23,12 @@ run as single segments; the zone gate, scene request, notices, time limit,
 frame wait and glove routines delegate to their named sequences. Neither the
 caller nor its continuation selects a callee or factory through a ROM-address
 map. The common NativeCallContinuation handles work budgets and nested waits.
-The MAIN_LOOP_ROUTINES export remains a set of shared helper bindings, also used
-by reference tables; the live caller does not consult it.
+The former MAIN_LOOP_ROUTINES table of the lifted callees lives in
+[proof/caller/live-loop-routines.mjs](../proof/caller/live-loop-routines.mjs) for
+reference tables and binding tests; the live caller does not consult it. The live
+routine table (FRONTEND_ROUTINES in src/system/main-frontend.mjs) holds the NMI
+callbacks only, the one lookup the live code makes (src/system/nmi-call.mjs); a probe
+of the live tests on 2026-11-18 found no other lookup.
 
 [proof/caller/main-loop.mjs](../proof/caller/main-loop.mjs) preserves the former
 live dispatch and its independent continuation. Recorded observation replays

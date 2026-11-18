@@ -9,7 +9,7 @@ import { VmMemory } from '../src/vm/memory.mjs';
 import { TaskAccessor } from '../src/vm/task-accessor.mjs';
 import { dialogAccess } from '../src/system/native-dialog-support.mjs';
 import { checkPlayerZones } from '../proof/replay/main-zone-gate.mjs';
-import { MAIN_LOOP_ROUTINES } from '../src/vm/main-loop.mjs';
+import { MAIN_LOOP_ROUTINES } from '../proof/caller/live-loop-routines.mjs';
 import { MAIN_LOOP_ROUTINES as REPLAY_LOOP_ROUTINES } from '../proof/vm/main-loop.mjs';
 import { runPlayerZones } from '../src/game/main-upkeep.mjs';
 import { playerZonesSequence as formerZones } from '../proof/caller/player-zones.mjs';

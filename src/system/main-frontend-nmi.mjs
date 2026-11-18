@@ -5,7 +5,6 @@ import { INTRO_NMI_ROUTINES } from './main-intro-nmi.mjs';
 import { GAME_NMI_LIFTED_ROUTINES } from '../game/game-nmi.mjs';
 import { handleMatrixNmi } from '../matrix/matrix-scene.mjs';
 import { handleCutsceneNmi } from '../cutscene/cutscene-scene.mjs';
-import { sendApuCommandRoutine } from '../apu/audio-routines.mjs';
 import { handlePrologueNmi, handleTitlePanNmi, handleTitleScrollNmi } from '../frontend/title.mjs';
 import { handleStartMenuNmi } from '../frontend/start-menu.mjs';
 
@@ -16,7 +15,6 @@ export const FRONTEND_NMI_ROUTINES = new Map([
   ...GAME_NMI_LIFTED_ROUTINES,
   [0x81bec3, handleMatrixNmi],
   [0x81d479, handleCutsceneNmi],
-  [0x81f007, sendApuCommandRoutine],
   [0x81e6ae, handleStartMenuNmi],
   // The boot screens install a callback that immediately returns (81:E839).
   [0x81e839, (h) => h.rtl()],

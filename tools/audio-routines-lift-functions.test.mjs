@@ -10,7 +10,7 @@ import { prng, DialogTestMemory } from './task-native-dialog-harness.mjs';
 import { createSide, registerCases } from './lift-function-harness.mjs';
 import { MAIN_SCENE_ROUTINES } from '../proof/replay/main-scene.mjs';
 import { withAudioReference } from '../proof/apu-reference/audio-routines.mjs';
-import { sendApuCommandRoutine } from '../src/apu/audio-routines.mjs';
+import { sendApuCommandRoutine } from '../proof/caller/audio-routines.mjs';
 import { setMusicModeRoutine } from '../proof/caller/audio-routines.mjs';
 import { playSoundEffectRoutine } from '../src/apu/sound-effect.mjs';
 

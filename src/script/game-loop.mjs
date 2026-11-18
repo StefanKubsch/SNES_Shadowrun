@@ -49,8 +49,8 @@ const ROUND_RETURN_WORD = MAIN_LOOP_ROUND + 2;
 
 export class GameLoop {
   // host: the game's settings as the accessors see them (a.vm: mem, gameplay, cheats,
-  // startMenuCredits); devices: LiveDevices; routines: the call graph of the lifted
-  // owner, start and main loop (src/system/main-frontend.mjs FRONTEND_ROUTINES);
+  // startMenuCredits); devices: LiveDevices; routines: the NMI callbacks
+  // (src/system/main-frontend.mjs FRONTEND_ROUTINES);
   // admitted and implementation: the lifted natives without devices.
   constructor(host, { devices, routines, admitted, implementation }) {
     const mem = host.mem;

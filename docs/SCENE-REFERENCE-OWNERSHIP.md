@@ -6,7 +6,8 @@ address table. The former tables remain independently in
 [the replay](../proof/replay/main-start.mjs).
 
 The consumer inventory starts at `FRONTEND_ROUTINES`, passed to `LiveDevices`
-as interrupt bindings. The former start spread reaches the transition table;
+as interrupt bindings. Since 2026-11-18 it holds only the NMI callbacks; the main
+loop's table moved to proof/caller/live-loop-routines.mjs. The former start spread reaches the transition table;
 the frontend text spread reaches the same table through the scene table.
 Transitions then include scene graphics, collision and scene loading, whose
 layer helpers form a cycle with the loader. These imports alone do not mean
