@@ -407,6 +407,16 @@ export async function recordBootPrefix(
     recording: { ...result, lines: received, script, log },
   };
 }
+// The main stack and the NMI stack (start, end exclusive), and WRAM without their free
+// bytes: the NMI stack as a whole and the main stack up to S.
+const MAIN_STACK = [0x0100, 0x01ca],
+  NMI_STACK = [0x1c7c, 0x1cbc];
+export function bootGameState(wram, s) {
+  const state = wram.slice();
+  state.fill(0, NMI_STACK[0], NMI_STACK[1]);
+  if (s >= MAIN_STACK[0] && s < MAIN_STACK[1]) state.fill(0, MAIN_STACK[0], s + 1);
+  return state;
+}
 export function compareBootPrefix(
   recorded,
   { driverRounds = false, opcodeBudget = Infinity, mainBudget = Infinity } = {},
@@ -783,7 +793,14 @@ export function compareBootPrefix(
   assert.equal(nmiIndex, recorded.nmis, 'unused original boot NMI');
   assert.equal(cursor, recorded.io.length, 'unused original boot IO');
   assert.deepEqual(a.ctx, final.context, 'original boot registers');
-  assert.deepEqual(mem.wram, final.wram, 'original boot WRAM');
+  // Game state only (user decision 2026-11-17): the free main stack below S and the NMI
+  // stack hold only return frames and saved registers, which no game code reads (as in
+  // tools/mesen-f390-oracle.mjs).
+  assert.deepEqual(
+    bootGameState(mem.wram, final.context.s),
+    bootGameState(final.wram, final.context.s),
+    'original boot WRAM',
+  );
   assert.deepEqual(mem.sram, final.sram, 'original boot SRAM');
   return {
     checkpoint: recorded.checkpoint.toString(16),
