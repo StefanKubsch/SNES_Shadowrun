@@ -7,7 +7,7 @@ import { gloveActionSequence as formerGloveAction } from '../proof/caller/glove-
 import { TASK_WAIT, TASK_EVENTS } from '../src/vm/layout.mjs';
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { setMusicModeRoutine } from '../src/apu/audio-routines.mjs';
+import { setMusicModeRoutine } from '../proof/caller/audio-routines.mjs';
 import * as direct from '../src/game/dialog-talk.mjs';
 import * as former from '../proof/caller/dialog-talk.mjs';
 import { buildSpriteList } from '../proof/replay/native-scene-sprites.mjs';

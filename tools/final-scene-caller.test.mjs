@@ -9,7 +9,7 @@ import { releaseGloveSequence as formerGlove } from '../proof/caller/glove-relea
 import { runDrawWindowList } from '../proof/caller/window-list.mjs';
 import { removeFromFightListSequence as directFight } from '../src/game/fight-list.mjs';
 import { removeFromFightListSequence as formerFight } from '../proof/caller/fight-list.mjs';
-import { setMusicModeRoutine } from '../src/apu/audio-routines.mjs';
+import { setMusicModeRoutine } from '../proof/caller/audio-routines.mjs';
 import * as W from '../src/data/wram.mjs';
 
 function runMagic(direct, budget, member, points, cost, glyphs) {

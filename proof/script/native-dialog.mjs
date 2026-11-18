@@ -22,7 +22,7 @@ import {
   shiftPortraitRowsRoutine,
 } from '../../src/game/portrait-upload.mjs';
 
-import { setMusicModeRoutine } from '../../src/apu/audio-routines.mjs';
+import { setMusicModeRoutine } from '../caller/audio-routines.mjs';
 
 export const TALK_ROUTINES = new Map([
   [0x8092c5, runCloseDialog],

@@ -17,7 +17,8 @@ import {
   readJoypad,
   waitForFrame,
 } from '../system/main-scene-wait.mjs';
-import { sendApuCommandRoutine, setMusicModeRoutine } from '../../src/apu/audio-routines.mjs';
+import { sendApuCommandRoutine } from '../../src/apu/audio-routines.mjs';
+import { setMusicModeRoutine } from './audio-routines.mjs';
 import { randomBelow, randomBelowLong } from '../replay/native-random.mjs';
 import { handleMatrixNmi, matrixSceneSequence } from '../../src/matrix/matrix-scene.mjs';
 import { cutsceneSequence, handleCutsceneNmi } from '../../src/cutscene/cutscene-scene.mjs';

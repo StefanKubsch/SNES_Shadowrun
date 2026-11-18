@@ -10,7 +10,8 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { compareLift } from './lift-compare.mjs';
 import { TITLE_CYCLE_PLANS, TITLE_CYCLE_IGNORED_WRAM } from './live-title-cycle-plan.mjs';
-import { sendApuCommandRoutine, setMusicModeRoutine } from '../src/apu/audio-routines.mjs';
+import { sendApuCommandRoutine } from '../src/apu/audio-routines.mjs';
+import { setMusicModeRoutine } from '../proof/caller/audio-routines.mjs';
 import { playSoundEffectRoutine } from '../src/apu/sound-effect.mjs';
 import { AUDIO_REFERENCE_ENTRIES } from '../proof/apu-reference/audio-routines.mjs';
 
