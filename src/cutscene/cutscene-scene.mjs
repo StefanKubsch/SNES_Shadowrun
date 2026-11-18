@@ -3,8 +3,9 @@
 // scene list, plays its music and sound, animates every frame for its frame
 // count (B or Start ends it), slows the BG2 scroll for its end frames and fades
 // out. Scene 14 is the intro (81:DFE7, src/intro/), passed on as the original
-// does. A negative scene is mirrored.
-import { taskStop } from '../system/task-stop.mjs';
+// does. A negative scene is mirrored. The lifted scene and NMI callback read no
+// register width (user decision 2026-11-17); the register-level caller in
+// proof/caller/cutscene-scene.mjs keeps the original's 16-bit accumulator check.
 import { sceneFrames } from '../system/scene-frames.mjs';
 import { introSequence } from '../intro/intro-scene.mjs';
 import { heldPad, menuCreditsRunning, CREDITS_SEQUENCE } from '../game/credits.mjs';
@@ -124,9 +125,6 @@ const setWord = (wram, at, value) => {
   wram[at] = value & BYTE_MASK;
   wram[at + 1] = (value >>> BYTE_BITS) & BYTE_MASK;
 };
-function requireWideAccumulator(ctx) {
-  if (ctx.status & FLAG_MEMORY_8BIT) taskStop('cutscene_wide_accumulator_required');
-}
 
 // 81:CDF8: play the cutscene scene with its argument (A and X in the original; user
 // decision 2026-11-17: callers pass them as values, register-level ones from their A
@@ -153,7 +151,6 @@ export function* cutsceneSequence(h, events, scene, argument) {
       : null;
   try {
     yield () => {
-      requireWideAccumulator(ctx);
       m = sceneRuntime(h);
       t = cutsceneTables(m.mem);
       const { wram } = m;
@@ -264,7 +261,6 @@ export function* cutsceneSequence(h, events, scene, argument) {
 // position, the BG1 scroll, the BG2 speed towards its target, the brightness
 // towards its target, then the joypad.
 export function handleCutsceneNmi(h) {
-  requireWideAccumulator(h.ctx);
   const m = sceneRuntime(h),
     { wram, video } = m;
   video.copyToOam(WRAM + OAM_SHADOW, OAM_BYTES);
