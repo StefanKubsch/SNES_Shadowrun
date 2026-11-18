@@ -11,6 +11,9 @@
 //
 // The screens use the lag-free frame model: each frame wait ends after the NMI, whose
 // callback is the plain return the scene screen start installs.
+//
+// Registers (user decision 2026-11-17): game state only; the checksum and the output
+// mode leave no A or X. The status is restored on return, as the original's PLP.
 import { sceneRuntime } from '../system/scene-runtime.mjs';
 import { startSoundDriver } from '../apu/sound-driver-start.mjs';
 import { disableNmi, enableNmiAndJoypad, startSceneScreen } from '../system/nmi.mjs';
@@ -19,20 +22,9 @@ import { waitForFrame } from '../system/frame-wait.mjs';
 import { fadeIn, fadeOut } from '../video/fades.mjs';
 import { setSceneScreen } from '../video/scene-screen.mjs';
 import { taskStop } from '../system/task-stop.mjs';
-import {
-  restoreDefaultSettings,
-  sendOutputMode,
-  settingsChecksum,
-  settingsValid,
-} from './settings.mjs';
-import {
-  APU_COMMAND_TOKEN,
-  SETTINGS_CONTROL_TYPE_A,
-  SETTINGS_STEREO,
-  SETTINGS_STEREO_ON,
-} from '../data/wram.mjs';
-import { APU_COMMAND_OUTPUT_MODE } from '../constants/sound-commands.mjs';
-import { BYTE_BITS, BYTE_MASK, WORD_MASK } from '../constants/bits.mjs';
+import { restoreDefaultSettings, sendOutputMode, settingsValid } from './settings.mjs';
+import { SETTINGS_CONTROL_TYPE_A, SETTINGS_STEREO, SETTINGS_STEREO_ON } from '../data/wram.mjs';
+import { BYTE_BITS, BYTE_MASK } from '../constants/bits.mjs';
 import { FLAG_INDEX_8BIT, FLAG_IRQ_DISABLE, FLAG_MEMORY_8BIT } from '../constants/cpu-flags.mjs';
 
 // The two screens: their scene lists and the frames they are held.
@@ -45,7 +37,6 @@ const SETTINGS_WORD_BITS = SETTINGS_STEREO_ON | (SETTINGS_CONTROL_TYPE_A << BYTE
 // Direct page word 10, cleared at boot (no reader is known).
 const CLEARED_WORD = 0x10;
 // The settings checksum leaves X past its first byte.
-const CHECKSUM_LOOP_END = WORD_MASK;
 
 // 81:E7BC, a sequence for a native call continuation: h is the accessor of the boot
 // (direct page 0), events its frame events. Returns with the status it came with,
@@ -83,8 +74,7 @@ export function* bootScreensSequence(h, events) {
   yield () => {
     disableNmi(m.wram, m.port);
     // The settings word keeps its known bits; an invalid checksum restores the
-    // defaults. The checksum leaves A with the kept control type in its high byte and
-    // the checksum of the final settings in its low byte, and X past its loop.
+    // defaults.
     const { mem } = m,
       kept =
         (mem.read8(SETTINGS_STEREO) | (mem.read8(SETTINGS_STEREO + 1) << BYTE_BITS)) &
@@ -92,8 +82,6 @@ export function* bootScreensSequence(h, events) {
     mem.write8(SETTINGS_STEREO, kept & BYTE_MASK);
     mem.write8(SETTINGS_STEREO + 1, kept >>> BYTE_BITS);
     if (!settingsValid(mem)) restoreDefaultSettings(mem);
-    ctx.a = (kept & ~BYTE_MASK) | settingsChecksum(mem);
-    ctx.x = CHECKSUM_LOOP_END;
   };
   yield* showScreen(SECOND_SCREEN_LIST);
   yield* hold(SECOND_SCREEN_FRAMES);
@@ -101,9 +89,7 @@ export function* bootScreensSequence(h, events) {
   yield () => disableNmi(m.wram, m.port);
   let result;
   yield () => {
-    // The output mode leaves X the settings word and A the command with its token.
-    ctx.x = sendOutputMode(m);
-    ctx.a = (APU_COMMAND_OUTPUT_MODE << BYTE_BITS) | m.wram[APU_COMMAND_TOKEN];
+    sendOutputMode(m);
     ctx.status = status;
     result = h.rtl();
   };
