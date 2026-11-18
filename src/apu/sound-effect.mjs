@@ -11,13 +11,7 @@ import { sendApuCommand } from './apu-command.mjs';
 import { loadSampleSet } from './music-mode.mjs';
 import { accessorPort } from '../system/hardware-port.mjs';
 import { taskStop } from '../system/task-stop.mjs';
-import {
-  CAMERA_X,
-  OBJECT_X,
-  OBJECT_Y,
-  SOUND_LOADED_SET,
-  SOUND_VOICE_MASK,
-} from '../data/wram.mjs';
+import { CAMERA_X, OBJECT_X, OBJECT_Y, SOUND_LOADED_SET, SOUND_VOICE_MASK } from '../data/wram.mjs';
 import {
   APU_COMMAND_SOUND,
   APU_COMMAND_SOUND_LEVEL,
