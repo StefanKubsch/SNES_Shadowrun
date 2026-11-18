@@ -1,4 +1,5 @@
-// The live attract demo enters room AB and runs its main-loop rounds until return.
+// The live attract demo enters its room (AB; A in the original, a parameter here, user
+// decision 2026-11-17) and runs its main-loop rounds until return.
 import { taskStop } from '../system/task-stop.mjs';
 import { dialogCallBody } from '../system/native-call-continuation.mjs';
 import { roomStartSequence } from '../game/game-start.mjs';
@@ -9,7 +10,8 @@ export function* attractRoundsSequence(
   h,
   e,
   r,
-  roomStart = () => roomStartSequence(h, e, h.ctx.a),
+  room,
+  roomStart = () => roomStartSequence(h, e, room),
 ) {
   const { ctx } = h;
   const loop = () => ({

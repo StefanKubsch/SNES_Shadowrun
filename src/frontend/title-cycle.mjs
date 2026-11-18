@@ -210,11 +210,8 @@ export function* attractDemoSequence(h, events, routines) {
     setWord(h.a.mem.wram, TIMER, TIMER_STOPPED);
   };
   yield* dialogCallBody(h, NEW_GAME_SITE, NEW_GAME, () => segmentSequence(() => runNewGame(h)));
-  yield () => {
-    ctx.a = ATTRACT_ROOM;
-  };
   yield* dialogCallBody(h, START_ROOM_SITE, START_ROOM, () =>
-    attractRoundsSequence(h, events, routines),
+    attractRoundsSequence(h, events, routines, ATTRACT_ROOM),
   );
   let result;
   yield () => {
