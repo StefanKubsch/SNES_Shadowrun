@@ -32,8 +32,10 @@ a table stops at `menu_table_index_frontier`.
   the save slot, FFFF for a new game or FFFE for a cancel; the status comes back
   from the entry. The original's 8-bit fade out leaves X at FF and clears the
   high byte of Y; the lifted menu returns them so as well.
-- The saved games menu checks each slot with the save code's checksum 81:B1AB,
-  called register-level from its original site 81:E3E5 (`validSaveSlot`).
+- The saved games menu checks each slot with the save code's checksum 81:B1AB
+  as a value (`saveSlotValid` of src/game/save-slots.mjs), with the direct page
+  bytes the original leaves (slot in 0E, sums in 11, 14 and 15); the
+  register-level form stays in proof/replay/native-main-menu.mjs.
 - The menu's state stays in the direct page where the original keeps it
   (cursor 0E, text 10, choice 16, text XOR 18, timeout 1C, title colours 0E and
   1E).

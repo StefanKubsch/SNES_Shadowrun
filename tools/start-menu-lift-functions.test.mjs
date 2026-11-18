@@ -9,6 +9,7 @@ import { createSide, registerCases } from './lift-function-harness.mjs';
 import { START_MENU_IGNORED_WRAM } from './live-start-menu-plan.mjs';
 import { sceneRuntime } from '../src/system/scene-runtime.mjs';
 import { SRAM_SIZE } from '../src/vm/memory.mjs';
+import { saveSlotValid, slotChecksum } from '../src/game/save-slots.mjs';
 import {
   clearMenuTilemap,
   drawMenuText,
@@ -130,6 +131,24 @@ const CASES = [
     entry: 0x81e5db,
     prepare: (s) => ({ x: s.rnd(12) }),
     lifted: (m, r) => fadeTitleColours(m.mem, r.x),
+  },
+  {
+    // Slots 0-3 at their table offsets; half the samples carry a valid checksum.
+    name: 'saveSlotValid 81:B1AB',
+    entry: 0x81b1ab,
+    long: true,
+    prepare: (s) => {
+      const slot = s.pick([0, 1, 2, 3]),
+        offset = [0, 0x0ffe, 0x1ffc, 0x2ffa][slot] & (SRAM_SIZE - 1);
+      if (s.rnd(2) && offset + 0x0f28 <= SRAM_SIZE) {
+        const sum = slotChecksum(s.sram, offset);
+        s.sram[offset] = sum & 0xff;
+        s.sram[offset + 1] = sum >>> 8;
+      }
+      return { a: slot };
+    },
+    result: (h) => (h.ctx.status & FLAG_ZERO) !== 0,
+    lifted: (m, r) => saveSlotValid(m.mem, r.a, false),
   },
   {
     name: 'handleStartMenuNmi 81:E6AE',

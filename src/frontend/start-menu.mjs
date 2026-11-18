@@ -10,11 +10,10 @@
 // Up and Select or Down move; the menu times out as if cancelled. It returns the
 // save slot (FFFF: a new game) or FFFE (cancelled).
 import { sceneFrames } from '../system/scene-frames.mjs';
-import { routineCaller } from '../system/routine-call.mjs';
 import { decodeOnce, tableEntries } from '../data/named-tables.mjs';
 import { taskStop } from '../system/task-stop.mjs';
 import { languageMenuText, languageMenuArrowShift, beginFrontendMenu } from '../data/language.mjs';
-import { saveSlotCount } from '../game/save-slots.mjs';
+import { FOUR_SAVE_SLOTS, saveSlotCount, saveSlotValid } from '../game/save-slots.mjs';
 import { sendOutputMode, storeSettingsChecksum } from './settings.mjs';
 import { creditsRequested, markStartMenu, requestCredits } from '../game/credits.mjs';
 import { sceneRuntime } from '../system/scene-runtime.mjs';
@@ -116,10 +115,7 @@ import {
 
 const LONG_MASK = 0xffffff,
   WRAM_BANK = WRAM >>> WORD_BITS,
-  FRONTEND_BANK = 0x81,
-  // The save checksum compare of the save code (proof/replay/native-main-menu.mjs).
-  SAVE_CHECKSUM_COMPARE = 0x81b1ab,
-  SAVE_CHECKSUM_SITE = 0x81e3e5;
+  FRONTEND_BANK = 0x81;
 // Menu texts of bank 81 (src/data/menu-texts.mjs).
 const TEXT_COPYRIGHT = 0x81d582,
   TEXT_START_NEW_GAME = 0x81e3b2,
@@ -394,13 +390,10 @@ export function drawResumeMenu(m, slots, valid) {
   setWord(wram, DP_MENU_TEXT_XOR, 0);
   drawMenuText(mem, menuRow(slots), TEXT_EXIT);
 }
-// Whether the save slot passes its checksum: the save code's 81:B1AB, called as the
-// original does from 81:E3E5 (zero flag set: valid).
-export const validSaveSlot = (h, events, routines) => (slot) => {
-  h.ctx.a = slot;
-  routineCaller(h, events, routines)(SAVE_CHECKSUM_SITE, SAVE_CHECKSUM_COMPARE, true);
-  return (h.ctx.status & FLAG_ZERO) !== 0;
-};
+// Whether the save slot passes its checksum: the save code's 81:B1AB, called from
+// 81:E3E5 (saveSlotValid of src/game/save-slots.mjs, with its direct page writes).
+export const validSaveSlot = (h) => (slot) =>
+  saveSlotValid(h.a.mem, slot, saveSlotCount(h.a) === FOUR_SAVE_SLOTS);
 // The options (81:E446): control type, output mode, music, Exit.
 export function drawOptionsMenu(m) {
   const { mem } = m;
@@ -713,7 +706,7 @@ export function* startMenuSequence(h, events, routines, afterTitle, menu = {}) {
     if (row === MENU_SAVED_GAME) {
       const slots = saveSlotCount(h.a);
       yield () => {
-        drawResumeMenu(m, slots, validSaveSlot(h, events, routines));
+        drawResumeMenu(m, slots, validSaveSlot(h));
         setWord(m.wram, DP_MENU_CURSOR, 0);
       };
       yield* choose(slots + 1);

@@ -6,9 +6,15 @@
 // and 4 lie behind the original 8 KiB, so the first 8 KiB stay an original
 // .srm file. Slots 1 and 2 keep the table values.
 import { fourSaveSlots } from './bugfixes.mjs';
-import { BYTE_BITS, WORD_BITS, WORD_MASK } from '../constants/bits.mjs';
+import { BYTE_BITS, BYTE_MASK, WORD_BITS, WORD_MASK } from '../constants/bits.mjs';
 import { SRAM_FIRST_BANK } from '../constants/memory-map.mjs';
-import { SAVE_STATE_START } from '../data/wram.mjs';
+import {
+  DP_CHECKSUM_FIRST_SUM,
+  DP_CHECKSUM_HIGH,
+  DP_CHECKSUM_WORD,
+  DP_SAVE_SLOT,
+  SAVE_STATE_START,
+} from '../data/wram.mjs';
 import { SRAM_SIZE_FOUR_SLOTS } from '../vm/memory.mjs';
 
 export const SLOT_OFFSETS_FOUR = Object.freeze([0, 0x0ffe, 0x2000, 0x2ffe]);
@@ -22,7 +28,7 @@ export const saveSlotCount = (a) => (fourSaveSlots(a) ? FOUR_SAVE_SLOTS : ORIGIN
 // and AD), each with the end-around carry of 81:B174 (a carry adds one, FF
 // becomes 00). The result word is the two closing sums EOR ABA5; B1AB
 // compares it with the word at the slot offset. Port of
-// proof/replay/native-main-menu.mjs runSaveChecksum, for the page only.
+// proof/replay/native-main-menu.mjs runSaveChecksum, for the page and saveSlotValid.
 const SLOT_CHECKED_BYTES = 0x0f26,
   CHECKSUM_WORD_BYTES = 2,
   SECOND_SUM_START = 0xad,
@@ -34,17 +40,21 @@ const endAroundAdd = (a, b) => {
   if (sum > SUM_LIMIT) sum = (sum + 1) & SUM_LIMIT;
   return sum === SUM_LIMIT ? 0 : sum;
 };
-export function slotChecksum(sram, offset) {
+// The sums of 81:B12C over the checked bytes from start (read(i) gives byte i): the
+// closing first sum, the two closing bytes and the checksum word.
+function checksumSums(read, start) {
   let first = 0,
     second = SECOND_SUM_START;
-  const start = offset + CHECKSUM_WORD_BYTES;
   for (let i = start; i < start + SLOT_CHECKED_BYTES; i++) {
-    first = endAroundAdd(sram[i], first);
+    first = endAroundAdd(read(i), first);
     second = endAroundAdd(first, second);
   }
   const low = endAroundAdd(first, second) ^ SUM_LIMIT,
     high = endAroundAdd(low, first) ^ SUM_LIMIT;
-  return (low | (high << BYTE_BITS)) ^ CHECKSUM_KEY;
+  return { first, low, high, word: (low | (high << BYTE_BITS)) ^ CHECKSUM_KEY };
+}
+export function slotChecksum(sram, offset) {
+  return checksumSums((i) => sram[i], offset + CHECKSUM_WORD_BYTES).word;
 }
 // Occupied slots of an SRAM image: two for 8 KiB, four for 16 KiB (slots 3/4
 // lie behind the original 8 KiB and do not exist in a smaller image).
@@ -65,15 +75,37 @@ export function occupiedSlots(sram) {
 const SLOT_TABLE = 0x81b124,
   SAVED_BYTES = CHECKSUM_WORD_BYTES + SLOT_CHECKED_BYTES,
   SRAM_BASE = SRAM_FIRST_BANK << WORD_BITS;
+// The SRAM offset of a slot (81:B11A).
+const slotOffset = (mem, slot, four) =>
+  four && slot >= ORIGINAL_SAVE_SLOTS && slot < FOUR_SAVE_SLOTS
+    ? SLOT_OFFSETS_FOUR[slot]
+    : mem.read16(SLOT_TABLE + ((slot << 1) & WORD_MASK));
 export function saveGame(mem, slot, four) {
-  const offset =
-      four && slot >= ORIGINAL_SAVE_SLOTS && slot < FOUR_SAVE_SLOTS
-        ? SLOT_OFFSETS_FOUR[slot]
-        : mem.read16(SLOT_TABLE + ((slot << 1) & WORD_MASK)),
+  const offset = slotOffset(mem, slot, four),
     { wram } = mem;
   for (let i = 0; i < SAVED_BYTES; i++)
     mem.write8(SRAM_BASE + ((offset + i) & WORD_MASK), wram[SAVE_STATE_START + i]);
   // The saved bytes are the state's: their checksum is that of the state after its
   // first word.
   mem.write16(SRAM_BASE + offset, slotChecksum(wram, SAVE_STATE_START));
+}
+
+// Whether a save slot passes its checksum (lifted from 81:B1AB with 81:B11A and
+// 81:B12C; register-level version in proof/replay/native-main-menu.mjs): the checksum
+// of the bytes after the slot's first word equals that word. As the original, it
+// leaves the slot in DP 0E, the closing first sum in DP 11 and the checksum's two
+// closing bytes in DP 14 and 15 (direct page 0). four: the four-slot option is on.
+export function saveSlotValid(mem, slot, four) {
+  const { wram } = mem,
+    offset = slotOffset(mem, slot, four),
+    sums = checksumSums(
+      (i) => mem.read8(SRAM_BASE + (i & WORD_MASK)),
+      offset + CHECKSUM_WORD_BYTES,
+    );
+  wram[DP_SAVE_SLOT] = slot & BYTE_MASK;
+  wram[DP_SAVE_SLOT + 1] = (slot >>> BYTE_BITS) & BYTE_MASK;
+  wram[DP_CHECKSUM_FIRST_SUM] = sums.first;
+  wram[DP_CHECKSUM_WORD] = sums.low;
+  wram[DP_CHECKSUM_HIGH] = sums.high;
+  return sums.word === mem.read16(SRAM_BASE + offset);
 }

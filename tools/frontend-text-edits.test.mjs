@@ -9,7 +9,6 @@ import { buildLanguage, languageMenuText, languageMenuArrowShift } from '../src/
 import { LiveGame } from '../src/video/live-game.mjs';
 import { TaskAccessor } from '../src/vm/task-accessor.mjs';
 import { dialogAccess } from '../src/system/native-dialog-support.mjs';
-import { FRONTEND_TEXT_ROUTINES } from '../proof/replay/main-frontend-text.mjs';
 import { sceneRuntime } from '../src/system/scene-runtime.mjs';
 import { saveSlotCount } from '../src/game/save-slots.mjs';
 import {
@@ -80,12 +79,7 @@ function invoke(game, target, { a = 0, x = 0, y = 0 } = {}) {
   const run = {
     0x81d531: () => drawMenuText(m.mem, x, 0x810000 | y),
     0x81e38d: () => drawStartMenu(m),
-    0x81e3da: () =>
-      drawResumeMenu(
-        m,
-        saveSlotCount(accessor),
-        validSaveSlot(h, { calls: [] }, FRONTEND_TEXT_ROUTINES),
-      ),
+    0x81e3da: () => drawResumeMenu(m, saveSlotCount(accessor), validSaveSlot(h)),
     0x81e446: () => drawOptionsMenu(m),
     0x81e343: () => moveArrow(m, a, 0x81),
     0x81e371: () => toggleMenuHighlight(m.mem),
