@@ -15,12 +15,11 @@
 // counted and the routine waits until the NMI has run them all.
 //
 // The direct page words of the original are written as it writes them (3E to 40 the
-// frame stream, 41 to 43 the picture, 44 the tile count, 82 the upload index). The
-// routine leaves A 0 with zero set and sign clear, X the last object's last slot (or
-// what its animation step leaves), Y the draw list index below 0, and the carry and
-// overflow of the last object's last addition, as the original. Each object's slot
-// index is pushed around its reload (PHY, PLY), and the frames of the inner calls are
-// pushed as the original's JSR and JSL. With the lag-free frame model the NMI arrives
+// frame stream, 41 to 43 the picture, 44 the tile count, 82 the upload index).
+// Registers (user decision 2026-11-17): game state only; the slot passes to the reload
+// and the animation step as a parameter and the routine leaves no A, X, Y or flags.
+// Each object's draw list index is pushed around its reload (PHY, PLY), and the frames
+// of the inner calls are pushed as the original's JSR and JSL. With the lag-free frame model the NMI arrives
 // at the waits' branches 80:AE61 and 80:AE0F; otherwise the recorded observations or
 // interrupts are replayed as by the register-level routine. The word wait comes from
 // the live frame sequence.
@@ -29,7 +28,6 @@ import { lagFree } from '../system/main-wait-interrupt.mjs';
 import { nmiAtBranch } from '../system/frame-wait.mjs';
 import { frameWaitCallSequence } from '../system/live-input-calls.mjs';
 import { stepAnimation } from './object-animation.mjs';
-import { CarryArithmetic } from './carry-arithmetic.mjs';
 import { taskStop } from '../system/task-stop.mjs';
 import {
   DP_VRAM_UPLOAD_INDEX,
@@ -54,13 +52,7 @@ import {
   WORD_MASK,
   WORD_SIGN,
 } from '../constants/bits.mjs';
-import {
-  FLAG_CARRY,
-  FLAG_MEMORY_8BIT,
-  FLAG_NEGATIVE,
-  FLAG_OVERFLOW,
-  FLAG_ZERO,
-} from '../constants/cpu-flags.mjs';
+import { FLAG_MEMORY_8BIT, FLAG_NEGATIVE, FLAG_ZERO } from '../constants/cpu-flags.mjs';
 
 // The direct page words: the frame stream with its bank, the picture with its bank and
 // the tiles left to queue.
@@ -103,13 +95,6 @@ const setWord = (wram, at, value) => {
 };
 const longWord = (mem, at) =>
   mem.read8(at & LONG_MASK) | (mem.read8((at + 1) & LONG_MASK) << BYTE_BITS);
-const flag = (ctx, bit, set) => {
-  ctx.status = set ? ctx.status | bit : ctx.status & ~bit;
-};
-const signAndZero = (ctx, value) => {
-  flag(ctx, FLAG_NEGATIVE, value & WORD_SIGN);
-  flag(ctx, FLAG_ZERO, value === 0);
-};
 
 // One more job list for the NMI (JSL 81:A954 at site): its frame stays below the stack.
 function countJobList(h, site) {
@@ -118,9 +103,7 @@ function countJobList(h, site) {
   h.pushByte(ctx.programBank);
   h.a.pushWord((site + JSL_LAST_BYTE) & WORD_MASK);
   ctx.s = (ctx.s + JSL_LAST_BYTE) & WORD_MASK;
-  const jobs = (word(wram, NMI_JOB_LISTS) + 1) & WORD_MASK;
-  setWord(wram, NMI_JOB_LISTS, jobs);
-  signAndZero(ctx, jobs);
+  setWord(wram, NMI_JOB_LISTS, word(wram, NMI_JOB_LISTS) + 1);
 }
 
 // Wait at the load site until the NMI has run all job lists (LDA 7E:1562, BNE back).
@@ -128,17 +111,13 @@ function* waitForJobLists(h, events, site) {
   const { ctx } = h,
     { wram } = h.a.mem;
   if (!lagFree(events)) taskStop('game_lag_free_required');
+  // The wait's branch sees the job count's sign in 16-bit mode.
   for (let value; (value = word(wram, NMI_JOB_LISTS)) !== 0;) {
-    ctx.a = value;
     const status =
       (ctx.status & ~(FLAG_MEMORY_8BIT | FLAG_NEGATIVE | FLAG_ZERO)) |
       (value & WORD_SIGN ? FLAG_NEGATIVE : 0);
     yield* nmiAtBranch(h, events, site + LOAD_BYTES, status);
   }
-  yield () => {
-    ctx.a = 0;
-    signAndZero(ctx, 0);
-  };
 }
 
 // Request the tiles of the draw list's objects again (80:ADF4), a sequence for a native
@@ -147,22 +126,22 @@ export function* reloadObjectTilesSequence(h, events) {
   const { ctx } = h,
     { mem } = h.a,
     { wram } = mem;
+  let index, slot;
   yield () => {
     setWord(wram, DP_STREAM_BANK, FRAME_BANK);
-    ctx.y = word(wram, DRAW_LIST_INDEX);
+    index = word(wram, DRAW_LIST_INDEX);
   };
   do {
     yield () => {
       // The draw list through the data bank, as the original's LDX abs,Y.
-      ctx.x = longWord(mem, (ctx.bank << WORD_BITS) + DRAW_LIST + ctx.y);
-      h.a.pushWord(ctx.y);
+      slot = longWord(mem, (ctx.bank << WORD_BITS) + DRAW_LIST + index);
+      h.a.pushWord(index);
     };
-    yield* dialogCallBody(h, ...RELOAD_CALL, () => reloadSequence(h, events));
+    yield* dialogCallBody(h, ...RELOAD_CALL, () => reloadSequence(h, events, slot));
     yield () => {
-      ctx.y = (h.a.pullWord() - FRAME_STEP) & WORD_MASK;
-      signAndZero(ctx, ctx.y);
+      index = (h.a.pullWord() - FRAME_STEP) & WORD_MASK;
     };
-  } while (!(ctx.y & WORD_SIGN));
+  } while (!(index & WORD_SIGN));
   yield () => countJobList(h, END_COUNT_SITE);
   yield* waitForJobLists(h, events, END_WAIT);
   let result;
@@ -172,12 +151,10 @@ export function* reloadObjectTilesSequence(h, events) {
   return result;
 }
 
-// Request the tiles of the object in X again (80:AE12, called with JSR).
-function* reloadSequence(h, events) {
-  const { ctx } = h,
-    { mem } = h.a,
-    { wram } = mem,
-    slot = ctx.x;
+// Request the tiles of the object in slot again (80:AE12, called with JSR).
+function* reloadSequence(h, events, slot) {
+  const { mem } = h.a,
+    { wram } = mem;
   // A field read in the data bank 80 below 2000.
   const near = (field, index = slot) => {
     if (field + index + 1 >= LOW_WRAM_END) taskStop('object_slot_required', { field, index });
@@ -190,19 +167,16 @@ function* reloadSequence(h, events) {
   // A picture change still waiting: the animation step takes it, a frame apart.
   let change = 0;
   yield () => {
-    change = ctx.a = get(OBJECT_PICTURE_CHANGE);
-    signAndZero(ctx, change);
+    change = get(OBJECT_PICTURE_CHANGE);
   };
   if (change) {
     for (;;) {
       yield* dialogCallBody(h, ...ANIMATION_CALL, () =>
-        segmentSequence(() => stepAnimation(h, events)),
+        segmentSequence(() => stepAnimation(h, events, slot)),
       );
       let waiting = false;
       yield () => {
-        ctx.a = get(OBJECT_PICTURE_CHANGE, ctx.x);
-        signAndZero(ctx, ctx.a);
-        waiting = ctx.a !== 0;
+        waiting = get(OBJECT_PICTURE_CHANGE) !== 0;
         if (waiting) countJobList(h, CHANGE_COUNT_SITE);
       };
       if (!waiting) return yield* rts(h);
@@ -218,30 +192,20 @@ function* reloadSequence(h, events) {
 
   // The current picture: the stream's word before the frame offset.
   let tiles = 0,
-    full = false,
-    math;
+    full = false;
   yield () => {
-    math = new CarryArithmetic(ctx);
     const directions = get(OBJECT_ACTION_DIRECTIONS);
     setWord(wram, DP_STREAM, directions);
-    ctx.y = (get(OBJECT_FRAME_OFFSET) - FRAME_STEP) & WORD_MASK;
-    const picture = (longWord(mem, pointer(DP_STREAM) + ctx.y) + 1) & WORD_MASK;
+    const frame = (get(OBJECT_FRAME_OFFSET) - FRAME_STEP) & WORD_MASK,
+      picture = (longWord(mem, pointer(DP_STREAM) + frame) + 1) & WORD_MASK;
     setWord(wram, DP_PICTURE, picture | HIGH_PICTURE);
     setWord(wram, DP_PICTURE_BANK, PICTURE_BANK + (picture & HIGH_PICTURE ? 1 : 0));
     tiles = get(OBJECT_VRAM_SLOT_COUNT);
-    ctx.a = tiles;
-    signAndZero(ctx, tiles);
     if (!tiles) return;
     setWord(wram, DP_TILES, tiles);
-    const jobs = math.add((tiles << TILE_JOB_SHIFT) & WORD_MASK, word(wram, DP_VRAM_UPLOAD_INDEX));
+    const jobs = ((tiles << TILE_JOB_SHIFT) & WORD_MASK) + word(wram, DP_VRAM_UPLOAD_INDEX);
     // Past FFFF the original does not compare and does not wait.
-    if (!math.carry) {
-      math.compare(jobs, UPLOAD_LIMIT);
-      full = math.carry;
-    }
-    ctx.a = jobs;
-    flag(ctx, FLAG_CARRY, math.carry);
-    flag(ctx, FLAG_OVERFLOW, math.overflow);
+    full = jobs <= WORD_MASK && jobs >= UPLOAD_LIMIT;
     if (full) countJobList(h, FULL_COUNT_SITE);
   };
   if (!tiles) return yield* rts(h);
@@ -256,21 +220,14 @@ function* reloadSequence(h, events) {
         job = (job + 2) & WORD_MASK;
         const tile = longWord(mem, pointer(DP_PICTURE));
         put(VRAM_UPLOAD_SOURCES, tile & SOURCE_OFFSET, job);
-        put(VRAM_UPLOAD_BANKS, math.add(tile & SOURCE_BANK, FIRST_SOURCE_BANK), job);
-        ctx.a = longWord(mem, half + tileSlot);
-        put(VRAM_UPLOAD_ADDRESSES, ctx.a, job);
-        if (half === SLOT_HALVES[1]) {
-          tileSlot = get(VRAM_SLOT_NEXT, tileSlot);
-          ctx.a = tileSlot;
-        }
+        put(VRAM_UPLOAD_BANKS, (tile & SOURCE_BANK) + FIRST_SOURCE_BANK, job);
+        put(VRAM_UPLOAD_ADDRESSES, longWord(mem, half + tileSlot), job);
+        if (half === SLOT_HALVES[1]) tileSlot = get(VRAM_SLOT_NEXT, tileSlot);
         setWord(wram, DP_PICTURE, word(wram, DP_PICTURE) + 2);
       }
     }
     setWord(wram, DP_TILES, 0);
     setWord(wram, DP_VRAM_UPLOAD_INDEX, job);
-    ctx.x = tileSlot;
-    ctx.y = job;
-    math.apply(ctx, 0);
   };
   return yield* rts(h);
 }

@@ -5,8 +5,9 @@
 // each object of the draw list (7E:14B2, from its last index 7E:14B0 down) has its
 // tiles queued for the NMI's upload again (80:AE12). An object whose picture change
 // (OBJECT_PICTURE_CHANGE) is still waiting runs the animation step 80:AC2F
-// (object-animation.mjs) until the change is taken, one frame apart (the job count
-// 7E:1562 raised by 81:A954 and the word wait 81:B0A1). Otherwise its current picture is
+// (the register-level reference in proof/system/native-scene-tiles.mjs) until the
+// change is taken, one frame apart (the job count 7E:1562 raised by 81:A954 and the
+// word wait 81:B0A1). Otherwise its current picture is
 // the frame stream's word before the frame offset (bank 8C at the action directions);
 // the picture (bank 9B, 9C with bit 15) has its tiles queued in the object's VRAM slots:
 // two jobs per tile, the source in bank 8E and up, the slot's two VRAM halves from the
@@ -29,7 +30,7 @@ import { dialogCallSequence } from '../system/native-call-sequences.mjs';
 import { nmiWords, waitWord } from '../system/native-dialog-portrait.mjs';
 import { lagFree } from '../../src/system/main-wait-interrupt.mjs';
 import { nmiAtBranch } from '../../src/system/frame-wait.mjs';
-import { stepAnimation } from '../../src/game/object-animation.mjs';
+import { stepObjectAnimation } from '../system/native-scene-tiles.mjs';
 import { CarryArithmetic } from '../../src/game/carry-arithmetic.mjs';
 import { taskStop } from '../../src/system/task-stop.mjs';
 import {
@@ -200,7 +201,7 @@ function* reloadSequence(h, events, routines) {
   if (change) {
     for (;;) {
       yield* dialogCallBody(h, ...ANIMATION_CALL, () =>
-        segmentSequence(() => stepAnimation(h, events)),
+        segmentSequence(() => stepObjectAnimation(h, events)),
       );
       let waiting = false;
       yield () => {

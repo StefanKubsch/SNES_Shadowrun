@@ -283,6 +283,6 @@ export function moveAndAnimate(h, events) {
   });
   setWord(wram, DP_FRAME_BANK, FRAME_BANK);
   ctx.a = FRAME_BANK;
-  pass(() => h.call(ANIMATION_CALL, ANIMATION_TARGET, () => stepAnimation(h, events)));
+  pass(() => h.call(ANIMATION_CALL, ANIMATION_TARGET, () => stepAnimation(h, events, ctx.x)));
   return h.rts();
 }

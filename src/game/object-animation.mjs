@@ -24,8 +24,9 @@
 //
 // The direct page words of the original are written as it writes them (11 to 15, 17,
 // 20, 35 to 38, 3B, 3E and the upload index 82). Y is kept on the stack as the
-// original's PHY and PLY, the slot around the tile queue; A, X, Y and the flags are
-// left as the original leaves them. The fields the original reads through its data
+// original's PHY and PLY, the slot around the tile queue. Registers (user decision
+// 2026-11-17): game state only; the slot is a parameter and the routine leaves no A, X,
+// Y or flags. The fields the original reads through its data
 // bank 80 lie below 2000 (`object_slot_required` past it), the animation fields in
 // bank 7E. A task chain whose waits never end stops at `task_chain_required`.
 //
@@ -33,7 +34,6 @@
 // cold boot replay records one at 80:AC8F), so the register-level routine runs there.
 import { recordedRoutine } from '../system/recorded-routines.mjs';
 import { taskStop } from '../system/task-stop.mjs';
-import { CarryArithmetic } from './carry-arithmetic.mjs';
 import {
   DP_VRAM_UPLOAD_INDEX,
   OBJECT_ACTION_DIRECTIONS,
@@ -70,7 +70,6 @@ import {
   WORD_MASK,
   WORD_SIGN,
 } from '../constants/bits.mjs';
-import { FLAG_NEGATIVE, FLAG_ZERO } from '../constants/cpu-flags.mjs';
 
 // The direct page words: the long pointer (direction table, then the picture), the
 // picture's tile count, the slot difference, the clock sum, the picture start and its
@@ -123,15 +122,17 @@ const setWord = (wram, at, value) => {
 const longWord = (mem, at) =>
   mem.read8(at & LONG_MASK) | (mem.read8((at + 1) & LONG_MASK) << BYTE_BITS);
 
-// Step the animation of the object in X (80:AC2F, called with JSR).
-export function stepAnimation(h, events) {
+// Step the animation of the object in slot (80:AC2F, called with JSR).
+export function stepAnimation(h, events, slot) {
   const recorded = recordedRoutine(events, 'object-animation');
-  if (recorded) return recorded(h, events);
-  const { ctx, a } = h,
+  if (recorded) {
+    // The register-level routine takes the slot in X.
+    h.ctx.x = slot;
+    return recorded(h, events);
+  }
+  const { a } = h,
     { mem } = a,
-    { wram } = mem,
-    math = new CarryArithmetic(ctx),
-    slot = ctx.x;
+    { wram } = mem;
   // A field read in the data bank 80 below 2000, a field of bank 7E, a long pointer in
   // the direct page.
   const near = (field, index = slot) => {
@@ -147,14 +148,10 @@ export function stepAnimation(h, events) {
     },
     pointer = (dp) => word(wram, dp) | (wram[dp + 2] << WORD_BITS);
 
-  a.pushWord(ctx.y);
-  let result = ctx.a;
+  // Y waits on the stack as the original's PHY and PLY.
+  a.pushWord(h.ctx.y);
   const done = () => {
-    ctx.a = result & WORD_MASK;
-    math.apply(ctx, ctx.a);
-    ctx.y = a.pullWord();
-    ctx.status = ctx.y & WORD_SIGN ? ctx.status | FLAG_NEGATIVE : ctx.status & ~FLAG_NEGATIVE;
-    ctx.status = ctx.y === 0 ? ctx.status | FLAG_ZERO : ctx.status & ~FLAG_ZERO;
+    a.pullWord();
     return h.rts();
   };
 
@@ -162,21 +159,18 @@ export function stepAnimation(h, events) {
   let picture = null;
   const change = get(OBJECT_PICTURE_CHANGE);
   if (change) {
-    math.compare(change, RESTART);
     put(OBJECT_PICTURE_CHANGE, 0);
     if (change !== RESTART) picture = change;
   }
   if (picture === null) {
-    const sum = math.add(getFar(OBJECT_ANIMATION_SPEED), getFar(OBJECT_ANIMATION_CLOCK));
+    // The clock: a carry into bit 7 (or out of the word) advances the frame.
+    const total = getFar(OBJECT_ANIMATION_SPEED) + getFar(OBJECT_ANIMATION_CLOCK),
+      sum = total & WORD_MASK,
+      clock = sum & CLOCK_MASK;
     setWord(wram, DP_CLOCK_SUM, sum);
-    result = sum & CLOCK_MASK;
-    putFar(OBJECT_ANIMATION_CLOCK, result);
-    if (!math.carry) {
-      math.compare(result, sum);
-      if (result === sum) return done();
-    }
+    putFar(OBJECT_ANIMATION_CLOCK, clock);
+    if (total <= WORD_MASK && clock === sum) return done();
     const directions = get(OBJECT_ACTION_DIRECTIONS);
-    result = directions;
     if (!directions) return done();
     setWord(wram, DP_STREAM, directions);
     const stream = (offset) => longWord(mem, pointer(DP_STREAM) + offset);
@@ -191,17 +185,12 @@ export function stepAnimation(h, events) {
         // The animation has ended.
         putFar(OBJECT_ANIMATION_SPEED, 0);
         put(OBJECT_SELECTION, get(OBJECT_SELECTION) | ENDED);
-        result = get(OBJECT_TASK);
-        if (!(result & WORD_SIGN)) {
-          const sent = sendEvents(tasksOf(a), result, END_EVENT);
-          result = sent.events;
-          ctx.x = sent.task;
-        }
+        const task = get(OBJECT_TASK);
+        if (!(task & WORD_SIGN)) sendEvents(tasksOf(a), task, END_EVENT);
         return done();
       }
-      math.compare(count, PLAYS_ONCE);
       let frames = count;
-      if (math.carry) {
+      if (count >= PLAYS_ONCE) {
         frames = count & COUNT_MASK;
         put(OBJECT_FRAME_COUNT, 0);
       }
@@ -219,7 +208,6 @@ export function stepAnimation(h, events) {
   const bit = (picture & HIGH_PICTURE) ^ HIGH_PICTURE;
   setWord(wram, DP_PICTURE_BIT, bit);
   const bank = PICTURE_BANK + (picture >>> (WORD_BITS - 1));
-  math.add(PICTURE_BANK, 0, picture & HIGH_PICTURE);
   setWord(wram, DP_POINTER_BANK, bank);
   setWord(wram, DP_PICTURE_BANK, bank);
   const start = picture | HIGH_PICTURE;
@@ -227,41 +215,36 @@ export function stepAnimation(h, events) {
   setWord(wram, DP_PICTURE_START, start);
   const tiles = mem.read8(pointer(DP_POINTER)),
     held = () => {
-      result = word(wram, DP_POINTER) ^ word(wram, DP_PICTURE_BIT);
-      put(OBJECT_PICTURE_CHANGE, result);
+      put(OBJECT_PICTURE_CHANGE, word(wram, DP_POINTER) ^ word(wram, DP_PICTURE_BIT));
       return done();
     };
   setWord(wram, DP_TILE_COUNT, tiles);
-  const jobs = math.add(tiles << TILE_JOB_SHIFT, word(wram, DP_VRAM_UPLOAD_INDEX));
-  if (!math.carry) {
-    math.compare(jobs, UPLOAD_LIMIT);
-    if (math.carry) return held();
-  }
-  // The carry is set here (SEC, or the carry of the addition), so the SBC subtracts
-  // exactly.
-  const difference = math.sub(tiles, get(OBJECT_VRAM_SLOT_COUNT));
+  // A list that would fill past 50 (without a carry out of the word) waits.
+  const jobs = (tiles << TILE_JOB_SHIFT) + word(wram, DP_VRAM_UPLOAD_INDEX);
+  if (jobs <= WORD_MASK && jobs >= UPLOAD_LIMIT) return held();
+  const owned = get(OBJECT_VRAM_SLOT_COUNT),
+    difference = (tiles - owned) & WORD_MASK;
   if (difference) {
-    if (math.carry) {
+    if (tiles >= owned) {
       // More slots: from the head of the free list, if enough are free.
-      math.compare(difference, word(wram, VRAM_SLOT_COUNT));
-      if (math.carry) return held();
-      setWord(wram, VRAM_SLOT_COUNT, math.sub(word(wram, VRAM_SLOT_COUNT), difference));
+      if (difference >= word(wram, VRAM_SLOT_COUNT)) return held();
+      setWord(wram, VRAM_SLOT_COUNT, word(wram, VRAM_SLOT_COUNT) - difference);
       for (let n = difference; n; n--) {
-        ctx.y = word(wram, VRAM_SLOT_FREE_LIST);
-        setWord(wram, VRAM_SLOT_FREE_LIST, get(VRAM_SLOT_NEXT, ctx.y));
-        put(VRAM_SLOT_NEXT, get(OBJECT_VRAM_SLOT_HEAD), ctx.y);
-        put(OBJECT_VRAM_SLOT_HEAD, ctx.y);
+        const taken = word(wram, VRAM_SLOT_FREE_LIST);
+        setWord(wram, VRAM_SLOT_FREE_LIST, get(VRAM_SLOT_NEXT, taken));
+        put(VRAM_SLOT_NEXT, get(OBJECT_VRAM_SLOT_HEAD), taken);
+        put(OBJECT_VRAM_SLOT_HEAD, taken);
       }
     } else {
       // Fewer slots: the surplus goes back to the free list.
       const surplus = (difference ^ WORD_MASK) + 1;
-      setWord(wram, VRAM_SLOT_COUNT, math.add(surplus, word(wram, VRAM_SLOT_COUNT)));
+      setWord(wram, VRAM_SLOT_COUNT, surplus + word(wram, VRAM_SLOT_COUNT));
       for (let n = surplus; n; n--) {
-        ctx.y = get(OBJECT_VRAM_SLOT_HEAD);
-        put(OBJECT_VRAM_SLOT_HEAD, get(VRAM_SLOT_NEXT, ctx.y));
+        const freed = get(OBJECT_VRAM_SLOT_HEAD);
+        put(OBJECT_VRAM_SLOT_HEAD, get(VRAM_SLOT_NEXT, freed));
         const free = word(wram, VRAM_SLOT_FREE_LIST);
-        setWord(wram, VRAM_SLOT_FREE_LIST, ctx.y);
-        put(VRAM_SLOT_NEXT, free, ctx.y);
+        setWord(wram, VRAM_SLOT_FREE_LIST, freed);
+        put(VRAM_SLOT_NEXT, free, freed);
       }
     }
     setWord(wram, DP_SLOT_CHANGE, 0);
@@ -279,7 +262,7 @@ export function stepAnimation(h, events) {
       job = (job + 2) & WORD_MASK;
       const tile = longWord(mem, pointer(DP_POINTER));
       put(VRAM_UPLOAD_SOURCES, tile & SOURCE_OFFSET, job);
-      put(VRAM_UPLOAD_BANKS, math.add(tile & SOURCE_BANK, FIRST_SOURCE_BANK), job);
+      put(VRAM_UPLOAD_BANKS, (tile & SOURCE_BANK) + FIRST_SOURCE_BANK, job);
       put(VRAM_UPLOAD_ADDRESSES, longWord(mem, half + tileSlot), job);
       if (half === SLOT_HALVES[1]) tileSlot = get(VRAM_SLOT_NEXT, tileSlot);
       setWord(wram, DP_POINTER, word(wram, DP_POINTER) + 2);
@@ -287,24 +270,19 @@ export function stepAnimation(h, events) {
   }
   setWord(wram, DP_TILE_COUNT, 0);
   setWord(wram, DP_VRAM_UPLOAD_INDEX, job);
-  ctx.y = job;
-  ctx.x = a.pullWord();
+  a.pullWord();
 
   // The picture shown, its shadow rule and depth bias.
-  result = word(wram, DP_POINTER) ^ word(wram, DP_PICTURE_BIT);
-  putFar(OBJECT_PICTURE, result);
-  const pointerAt = pointer(DP_POINTER);
-  result = longWord(mem, pointerAt + FIRST_CELL) & SHADOW_MASK;
-  put(OBJECT_DEPTH_RULE, result);
-  if (result) {
-    result |= SHADOW_RULE;
-    put(OBJECT_DEPTH_RULE, result);
+  putFar(OBJECT_PICTURE, word(wram, DP_POINTER) ^ word(wram, DP_PICTURE_BIT));
+  const rule = longWord(mem, pointer(DP_POINTER) + FIRST_CELL) & SHADOW_MASK;
+  put(OBJECT_DEPTH_RULE, rule);
+  if (rule) {
+    put(OBJECT_DEPTH_RULE, rule | SHADOW_RULE);
     const before = (word(wram, DP_PICTURE_START) - 1) & WORD_MASK;
     setWord(wram, DP_PICTURE_START, before);
-    const bias = longWord(mem, pointer(DP_PICTURE_START));
-    result = bias & BYTE_SIGN ? bias | HIGH_BYTE_MASK : bias & BYTE_MASK;
-    for (let n = 0; n < BIAS_SHIFT; n++) result = math.shiftLeft(result);
-    put(OBJECT_DEPTH_BIAS, result);
+    const bias = longWord(mem, pointer(DP_PICTURE_START)),
+      extended = bias & BYTE_SIGN ? bias | HIGH_BYTE_MASK : bias & BYTE_MASK;
+    put(OBJECT_DEPTH_BIAS, (extended << BIAS_SHIFT) & WORD_MASK);
   }
   return done();
 }
