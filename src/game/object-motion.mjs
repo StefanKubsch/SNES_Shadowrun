@@ -16,10 +16,11 @@
 // The direct page words the original uses as locals are written as in the original:
 // the position 1A and 1D, the box offset 20, the cell columns and rows 3E, 41, 44 and
 // 47, the box being linked 4D, the four corner cells 50, 53, 56 and 59, the next node
-// A0 and the frame bank 40. A, X, Y and the flags are left as the original leaves them;
-// the formation step 80:BAD5 that follows reads X and Y. The grid clear's and the
-// collision list's frames are reproduced on the stack, as the original leaves them
-// below its own.
+// A0 and the frame bank 40. Registers (user decision 2026-11-17): game state only; the
+// movement and the animation step take the slot as a parameter, and the pass leaves no
+// A, X, Y or flags (the formation step 80:BAD5 that follows reads none). The grid
+// clear's and the collision list's frames and the draw list index pushed around each
+// movement are reproduced on the stack, as the original leaves them below its own.
 import { taskStop } from '../system/task-stop.mjs';
 import { moveObject } from './object-move.mjs';
 import { stepAnimation } from './object-animation.mjs';
@@ -55,7 +56,6 @@ import {
 } from '../data/wram.mjs';
 import { BYTE_BITS, BYTE_MASK, WORD_MASK, WORD_SIGN } from '../constants/bits.mjs';
 import { WRAM_BANK_PAIR } from '../constants/memory-map.mjs';
-import { FLAG_CARRY, FLAG_NEGATIVE, FLAG_OVERFLOW, FLAG_ZERO } from '../constants/cpu-flags.mjs';
 
 const POSITION_SHIFT = 2,
   // A cell column from the masked x (ASL three times, then the high byte), a cell row
@@ -103,13 +103,6 @@ const setWord = (wram, at, value) => {
   wram[at % WRAM_SIZE] = value & BYTE_MASK;
   wram[(at + 1) % WRAM_SIZE] = (value >>> BYTE_BITS) & BYTE_MASK;
 };
-const flag = (ctx, bit, set) => {
-  ctx.status = set ? ctx.status | bit : ctx.status & ~bit;
-};
-const signAndZero = (ctx, value) => {
-  flag(ctx, FLAG_NEGATIVE, value & WORD_SIGN);
-  flag(ctx, FLAG_ZERO, value === 0);
-};
 // A word of a table in bank 80 below 2000 (the motion pass's data bank reaches WRAM
 // only there).
 const lowField = (wram, base, index) => {
@@ -142,9 +135,8 @@ function linkBox(wram, box, cells) {
 }
 
 // The collision boxes of the draw list's objects (81:8799), with the original's data
-// bank 7E. Returns the A, X and Y it leaves; the flags are set on ctx.
+// bank 7E.
 function buildCollisionList(h, wram) {
-  const { ctx } = h;
   // The data bank 7E, set through the stack as the original does.
   h.phb();
   h.push(WRAM_BANK_PAIR, 2);
@@ -163,23 +155,13 @@ function buildCollisionList(h, wram) {
   const nodes = word(wram, STATIC_NODE_END);
   setWord(wram, DP_NODE, nodes);
   const last = word(wram, DRAW_LIST_INDEX);
-  // The bank byte 80 pulled at the end: sign set.
-  const end = (registers) => {
-    h.plb();
-    return registers;
-  };
-  if (last & WORD_SIGN) return end({ a: nodes, x: last, y: ctx.y });
+  // The data bank 80 pulled at the end.
+  if (last & WORD_SIGN) return h.plb();
   setWord(wram, DP_BOX, MOVING_BOX_FIRST);
-  let a = MOVING_BOX_FIRST,
-    y = ctx.y;
   for (let index = last; !(index & WORD_SIGN); index = (index - 2) & WORD_MASK) {
     const slot = word(wram, DRAW_LIST + index),
       field = (base) => word(wram, base + slot);
-    y = slot;
-    a = field(OBJECT_FLAGS) & OBJECT_IN_GRID;
-    if (!a) continue;
-    a = field(OBJECT_BOX_HEIGHT);
-    if (!a) continue;
+    if (!(field(OBJECT_FLAGS) & OBJECT_IN_GRID) || !field(OBJECT_BOX_HEIGHT)) continue;
     const box = word(wram, DP_BOX),
       x = field(OBJECT_X) >>> POSITION_SHIFT,
       yPos = field(OBJECT_Y) >>> POSITION_SHIFT;
@@ -225,64 +207,44 @@ function buildCollisionList(h, wram) {
     h.a.pullWord();
     const next = (box + COLLISION_BOX_BYTES) & WORD_MASK;
     setWord(wram, DP_BOX, next);
-    // ADC #0C (the overflow stays), then LSR twice (the carry is bit 1 of the box).
-    flag(ctx, FLAG_OVERFLOW, (~(box ^ COLLISION_BOX_BYTES) & (box ^ next) & WORD_SIGN) !== 0);
-    flag(ctx, FLAG_CARRY, (box >>> 1) & 1);
-    a = slot;
-    setWord(wram, (COLLISION_BOX_OBJECT - WRAM_BANK + (box >>> BOX_OBJECT_SHIFT)) % WRAM_SIZE, a);
-    y = index;
+    setWord(
+      wram,
+      (COLLISION_BOX_OBJECT - WRAM_BANK + (box >>> BOX_OBJECT_SHIFT)) % WRAM_SIZE,
+      slot,
+    );
   }
-  return end({ a, x: WORD_MASK - 1, y });
+  h.plb();
 }
 
 // Move and animate the objects (80:AFC4) on the main loop's access h (data bank 80);
 // movement, target walking and animation compose their actual bodies directly.
 export function moveAndAnimate(h, events) {
-  const { ctx } = h,
-    { wram } = h.a.mem;
-  let listed;
+  const { wram } = h.a.mem;
   h.call(
     LIST_CALL,
     LIST_TARGET,
     () => {
-      listed = buildCollisionList(h, wram);
+      buildCollisionList(h, wram);
       return h.rtl();
     },
     true,
   );
-  ctx.a = listed.a;
-  ctx.x = listed.x;
-  ctx.y = listed.y;
   const last = word(wram, DRAW_LIST_INDEX);
-  ctx.y = last;
-  signAndZero(ctx, last);
   if (last & WORD_SIGN) return h.rts();
   // Each listed object that is not halted: its movement, then in a second pass its animation.
   const pass = (run) => {
-    // The index counts on from the Y a callee leaves, as the original's DEY does.
-    let index = last;
-    while (!(index & WORD_SIGN)) {
-      ctx.y = index;
-      const slot = lowField(wram, DRAW_LIST, index),
-        flags = lowField(wram, OBJECT_FLAGS, slot);
-      ctx.x = slot;
-      ctx.a = flags;
-      // LDA sets the sign, BIT #0400 the zero flag.
-      signAndZero(ctx, flags);
-      flag(ctx, FLAG_ZERO, !(flags & OBJECT_HALTED));
-      if (!(flags & OBJECT_HALTED)) run();
-      index = (ctx.y - 2) & WORD_MASK;
+    for (let index = last; !(index & WORD_SIGN); index = (index - 2) & WORD_MASK) {
+      const slot = lowField(wram, DRAW_LIST, index);
+      if (!(lowField(wram, OBJECT_FLAGS, slot) & OBJECT_HALTED)) run(slot, index);
     }
-    ctx.y = index;
-    signAndZero(ctx, index);
   };
-  pass(() => {
-    h.a.pushWord(ctx.y);
-    h.call(MOVE_CALL, MOVE_TARGET, () => moveObject(h, ctx.x));
-    ctx.y = h.a.pullWord();
+  pass((slot, index) => {
+    // The draw list index waits on the stack over the movement.
+    h.a.pushWord(index);
+    h.call(MOVE_CALL, MOVE_TARGET, () => moveObject(h, slot));
+    h.a.pullWord();
   });
   setWord(wram, DP_FRAME_BANK, FRAME_BANK);
-  ctx.a = FRAME_BANK;
-  pass(() => h.call(ANIMATION_CALL, ANIMATION_TARGET, () => stepAnimation(h, events, ctx.x)));
+  pass((slot) => h.call(ANIMATION_CALL, ANIMATION_TARGET, () => stepAnimation(h, events, slot)));
   return h.rts();
 }
