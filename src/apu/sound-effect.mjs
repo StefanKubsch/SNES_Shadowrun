@@ -12,7 +12,6 @@ import { loadSampleSet } from './music-mode.mjs';
 import { accessorPort } from '../system/hardware-port.mjs';
 import { taskStop } from '../system/task-stop.mjs';
 import {
-  APU_COMMAND_TOKEN,
   CAMERA_X,
   OBJECT_X,
   OBJECT_Y,
@@ -108,26 +107,21 @@ export function playSoundEffect(mem, port, { object, effect, level, voices }) {
   return sound;
 }
 
-// 80:C46E for register-level callers: the object, effect, level and voices in the
-// direct page words 0, 2, 4 and 6 (16-bit registers). Leaves the data bank at 80,
-// Y = the effect offset (not produced after a sample set load), X = the sound word with FF in its high byte and A with the
-// sound command in its high byte and the new command token in its low byte; the
-// status flags are not produced.
+// 80:C46E as callers run it: the object, effect, level and voices in the direct page
+// words 0, 2, 4 and 6 (16-bit registers). Leaves the data bank at 80. Game state only
+// (user decision 2026-11-17): the effect, sound word and command the original leaves in
+// Y, X and A are not kept; every caller sets its own before reading them.
 export function playSoundEffectRoutine(h) {
   const { ctx } = h,
     { mem } = h.a,
     { wram } = mem,
     dp = (offset) => word(wram, (ctx.d + offset) & WORD_MASK);
-  const effect = dp(DP_EFFECT),
-    sound = playSoundEffect(mem, accessorPort(h.a), {
-      object: dp(DP_OBJECT),
-      effect,
-      level: dp(DP_LEVEL),
-      voices: dp(DP_VOICES),
-    });
+  playSoundEffect(mem, accessorPort(h.a), {
+    object: dp(DP_OBJECT),
+    effect: dp(DP_EFFECT),
+    level: dp(DP_LEVEL),
+    voices: dp(DP_VOICES),
+  });
   ctx.bank = CODE_BANK;
-  ctx.y = effect;
-  ctx.x = sound | SOUND_HIGH_BYTE;
-  ctx.a = (APU_COMMAND_SOUND << BYTE_BITS) | wram[APU_COMMAND_TOKEN];
   return h.rts();
 }

@@ -59,9 +59,9 @@ const lifted =
   };
 // C46E: the registers its callers may read; the status flags are not produced, nor
 // Y after a sample set load (only offsets past the table load one).
-const effectRegisters = (h) =>
-  summary(['a', 'x', 'bank', 's', 'pc', 'programBank'])(h) +
-  (h.a.mem.wram[2] + (h.a.mem.wram[3] << 8) < 54 ? ',' + h.ctx.y.toString(HEX) : '');
+// Game state only (user decision 2026-11-17): the lifted sound effect leaves no A, X
+// and Y; the data bank, stack and return stay compared.
+const effectRegisters = summary(['bank', 's', 'pc', 'programBank']);
 const word = (wram, at, value) => {
   wram[at] = value & 0xff;
   wram[at + 1] = value >>> 8;

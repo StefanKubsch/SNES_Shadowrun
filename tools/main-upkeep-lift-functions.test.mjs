@@ -257,8 +257,7 @@ const registers = (h) => [h.ctx.x, h.ctx.y].map((v) => v.toString(16)).join();
 // it; the time limit's carry and overflow outlive the main loop's own loads.
 const roundRegisters = (h) =>
   [h.ctx.a, h.ctx.x, h.ctx.y, h.ctx.status & 0xc3].map((v) => v.toString(16)).join();
-const carryRegisters = (h) =>
-  [h.ctx.x, h.ctx.y, h.ctx.status & 0x41].map((v) => v.toString(16)).join();
+const timeLimitCarry = (h) => (h.ctx.status & 0x41).toString(16);
 
 const CASES = [
   {
@@ -496,13 +495,15 @@ const TIME_LIMIT = {
       status: s.rnd(0x100) & 0xc3,
     };
   },
-  result: carryRegisters,
+  // The carry the main loop's later callees see; the X and Y of the warning sound are
+  // no game state (user decision 2026-11-17).
+  result: timeLimitCarry,
   lifted: (h, input) => {
     Object.assign(h.ctx, input);
     h.ctx.programBank = 0x80;
     h.push(0x1234, 2);
     runTimeLimit(h, null, TIME_LIMIT_CALLEES);
-    return carryRegisters(h);
+    return timeLimitCarry(h);
   },
 };
 
