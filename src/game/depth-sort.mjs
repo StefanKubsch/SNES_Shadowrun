@@ -17,7 +17,8 @@
 //
 // The direct page words of the original are written: the keys 11 and 14, the first
 // object 17 and the list position 1A. The frames of the rule comparisons are
-// reproduced on the stack. A, X, Y and the flags are left as the original leaves them.
+// reproduced on the stack. Registers (user decision 2026-11-17): game state only; no A,
+// X, Y or flags are left (the sprite list sets its own before reading them).
 import { taskStop } from '../system/task-stop.mjs';
 import {
   DRAW_LIST,
@@ -29,7 +30,6 @@ import {
   OBJECT_Y,
 } from '../data/wram.mjs';
 import { BYTE_BITS, BYTE_MASK, WORD_MASK, WORD_SIGN } from '../constants/bits.mjs';
-import { FLAG_CARRY, FLAG_NEGATIVE, FLAG_OVERFLOW, FLAG_ZERO } from '../constants/cpu-flags.mjs';
 
 const LOW_WRAM_END = 0x2000,
   ENTRY_BYTES = 2,
@@ -61,29 +61,17 @@ const setWord = (wram, at, value) => {
   wram[at] = value & BYTE_MASK;
   wram[at + 1] = (value >>> BYTE_BITS) & BYTE_MASK;
 };
-const flag = (ctx, bit, set) => {
-  ctx.status = set ? ctx.status | bit : ctx.status & ~bit;
-};
-const signAndZero = (ctx, value) => {
-  flag(ctx, FLAG_NEGATIVE, value & WORD_SIGN);
-  flag(ctx, FLAG_ZERO, value === 0);
-};
 
 // Sort the draw list (80:AFFC) on the access h of the sprite list (data bank 80, which
 // reaches WRAM below 2000).
 export function sortDrawList(h) {
-  const { ctx } = h,
-    { wram } = h.a.mem;
+  const { wram } = h.a.mem;
   const get = (base, index) => {
     if (base + index + 1 >= LOW_WRAM_END) taskStop('object_slot_required', { base, index });
     return word(wram, base + index);
   };
   const last = get(DRAW_LIST_INDEX, 0);
-  if (last === 0 || last & WORD_SIGN) {
-    ctx.x = last;
-    signAndZero(ctx, last);
-    return h.rts();
-  }
+  if (last === 0 || last & WORD_SIGN) return h.rts();
   // One pair at list position: swap when the first key is below the second.
   const step = (position, [firstCall, secondCall]) => {
     const first = get(DRAW_LIST, position),
@@ -110,7 +98,6 @@ export function sortDrawList(h) {
               key = bySecond ? secondKey : firstKey,
               bias = get(OBJECT_DEPTH_BIAS, biased),
               sum = (key + bias) & WORD_MASK;
-            flag(ctx, FLAG_OVERFLOW, (~(key ^ bias) & (key ^ sum) & WORD_SIGN) !== 0);
             if (bySecond) secondKey = sum;
             else firstKey = sum;
             setWord(wram, bySecond ? DP_SECOND_KEY : DP_FIRST_KEY, sum);
@@ -119,12 +106,9 @@ export function sortDrawList(h) {
         },
       );
     }
-    ctx.y = second;
-    ctx.a = firstKey;
     if (firstKey < secondKey) {
       setWord(wram, DRAW_LIST + ENTRY_BYTES + position, first);
       setWord(wram, DRAW_LIST + position, second);
-      ctx.a = second;
     }
   };
   // Down from the last pair; the first step runs even when the position is negative.
@@ -133,23 +117,11 @@ export function sortDrawList(h) {
     step(position, DOWN_CALLS);
     position = (position - ENTRY_BYTES) & WORD_MASK;
   } while (!(position & WORD_SIGN));
-  ctx.x = position;
-  if (last === TWO_OBJECTS) {
-    // CMP #2 equal.
-    ctx.a = last;
-    flag(ctx, FLAG_NEGATIVE, false);
-    flag(ctx, FLAG_ZERO, true);
-    flag(ctx, FLAG_CARRY, true);
-    return h.rts();
-  }
+  if (last === TWO_OBJECTS) return h.rts();
   position = ENTRY_BYTES;
   do {
     step(position, UP_CALLS);
     position = (position + ENTRY_BYTES) & WORD_MASK;
   } while (position < last);
-  // CPX with the last position: the carry set, sign and zero of the difference.
-  ctx.x = position;
-  signAndZero(ctx, (position - last) & WORD_MASK);
-  flag(ctx, FLAG_CARRY, true);
   return h.rts();
 }

@@ -543,9 +543,9 @@ for (const [name, native, registers] of [
     { native, registers },
   );
 
-// The lifted depth sort and palette slot alone (src/game/depth-sort.mjs, palette-slots.mjs).
-// The palette slot takes the palette as a parameter (A in the original) and is compared by
-// game state (user decision 2026-11-17).
+// The lifted depth sort and palette slot alone (src/game/depth-sort.mjs, palette-slots.mjs),
+// both compared by game state (user decision 2026-11-17).
+// The palette slot takes the palette as a parameter (A in the original).
 import { sortDrawList } from '../src/game/depth-sort.mjs';
 import { paletteSlot } from '../src/game/palette-slots.mjs';
 const b8deWindows = (starts) => DIALOG_WINDOWS.b8de.filter((w) => starts.includes(w.start));
@@ -570,7 +570,7 @@ check(
     }
     return s;
   },
-  { native: (h) => sortDrawList(h) },
+  { native: (h) => sortDrawList(h), registers: GAME_STATE_REGISTERS },
 );
 check(
   'lifted AB0A',
