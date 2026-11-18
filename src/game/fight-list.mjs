@@ -14,14 +14,14 @@
 // none), else the music mode 0.
 //
 // Registers (user decision 2026-11-17): game state only, apart from two register
-// interfaces of callees that are still register-level: the notice 80:FEC1 returns its
-// window in A, and the music mode 81:EF47 takes the mode in A. Every other register
-// value the original leaves is dropped.
+// interface of a callee that is still register-level: the notice 80:FEC1 returns its
+// window in A. The music mode 81:EF47 takes the mode as a parameter (A in the
+// original). Every other register value the original leaves is dropped.
 import { setTextCursorRoutine, printNumberSequence } from './window-text.mjs';
 import { printTextSequence } from './text-print.mjs';
 import { showNoticeSequence } from './notice-show.mjs';
 import { drawTextBufferSequence } from './text-draw.mjs';
-import { setMusicModeRoutine } from '../apu/audio-routines.mjs';
+import { setMusicModeCall } from '../apu/audio-routines.mjs';
 import { playSoundEffectRoutine } from '../apu/sound-effect.mjs';
 import { setMusicMode } from '../apu/music-mode.mjs';
 import { dataBankWord, setDataBankWord } from '../system/data-bank.mjs';
@@ -181,17 +181,17 @@ export function* removeFromFightListSequence(h, events, renderBuffer = drawTextB
     yield* dialogCallBody(h, ...SOUND_CALL, () => segmentSequence(() => playSoundEffectRoutine(h)));
   }
   if (state === 'gain' || state === 'ended') {
-    let site = null;
-    // The music mode takes its mode in A (see the header).
+    let site = null,
+      mode;
     yield () => {
       if (!(word(wram, GAME_OPTIONS) & OPTION_MUSIC_RESTORE)) {
-        ctx.a = MUSIC_OFF;
+        mode = MUSIC_OFF;
         site = MUSIC_OFF_SITE;
         return;
       }
       const music = word(wram, FIGHT_MUSIC);
       if (negative(music)) return;
-      ctx.a = music;
+      mode = music;
       site = MUSIC_RESTORE_SITE;
     };
     if (site !== null)
@@ -199,7 +199,7 @@ export function* removeFromFightListSequence(h, events, renderBuffer = drawTextB
         h,
         site,
         MUSIC_MODE,
-        () => segmentSequence(() => setMusicModeRoutine(h)),
+        () => segmentSequence(() => setMusicModeCall(h, mode)),
         true,
       );
   }

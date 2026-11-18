@@ -22,8 +22,8 @@
 // restored (7F7F). Menus, text and displays compose through their original
 // frames, including sound and colour setup; scene cleanup also composes directly.
 //
-// Registers (user decision 2026-11-17): game state only, apart from the APU command
-// 81:F007, which still takes the command in A and its value in X. The object the
+// Registers (user decision 2026-11-17): game state only; the APU command 81:F007
+// takes the command and its value as parameters (A and X in the original). The object the
 // native keeps on the stack over the notice release (PEI, PLY) is a local.
 import { dialogCallBody, segmentSequence } from '../system/native-call-continuation.mjs';
 import { openWindowSequence } from './window-open.mjs';
@@ -39,7 +39,7 @@ import { drawTextBufferSequence } from './text-draw.mjs';
 import { equipmentRowsSequence } from './equipment-window.mjs';
 import { memberPortraitSequence } from './member-portrait.mjs';
 import { closeDialogSequence, clearFixedColourRoutine } from './dialog-talk.mjs';
-import { sendApuCommandRoutine } from '../apu/audio-routines.mjs';
+import { sendApuCommandCall } from '../apu/audio-routines.mjs';
 import { chooseFromMenuSequence, MENU } from './menu-choice.mjs';
 import { itemMenuSequence, ITEM_ENTRIES } from './item-menu.mjs';
 import { spellMenuSequence, STATUS_ENTRY } from './member-spell-menu.mjs';
@@ -186,8 +186,7 @@ export function* statusScreenSequence(
   entry = NATIVE_ENTRY,
   renderBuffer = drawTextBufferSequence,
 ) {
-  const { ctx } = h,
-    { mem } = h.a,
+  const { mem } = h.a,
     { wram } = mem,
     native = entry === NATIVE_ENTRY;
   // The record pointer DP F9 and its word, which the attribute rows step through.
@@ -228,15 +227,13 @@ export function* statusScreenSequence(
 
   yield () => {
     setWord(wram, STATUS_ITEMS_AT_ONCE, entry === ITEMS_ENTRY ? MARK_SET : 0);
-    // The APU command takes the command in A and its value in X (see the header).
-    ctx.a = APU_COMMAND_VOLUME_TARGET;
-    ctx.x = STATUS_VOLUME_TARGET;
   };
   yield* dialogCallBody(
     h,
     native ? 0x80ea77 : 0x80ea9a,
     SOUND,
-    () => segmentSequence(() => sendApuCommandRoutine(h)),
+    () =>
+      segmentSequence(() => sendApuCommandCall(h, APU_COMMAND_VOLUME_TARGET, STATUS_VOLUME_TARGET)),
     true,
   );
   // The native keeps its object DP 00 over the release (PEI, PLY in the original).
@@ -441,23 +438,19 @@ export function* statusScreenSequence(
 // ECF5: the cleanup, the status window released, the mark cleared and the sound
 // restored; then the RTS.
 function* closeSequence(h, events) {
-  const { ctx } = h,
-    { mem } = h.a,
+  const { mem } = h.a,
     { wram } = mem;
   yield* dialogCallBody(h, 0x80ecf5, STATUS_CLEANUP, () => closeDialogSequence(h, events));
   yield () => setWord(wram, 0, dataBankWord(mem, STATUS_WINDOW));
   yield* dialogCallBody(h, 0x80ecfd, RELEASE_WINDOW, () => releaseWindowJsrSequence(h.a, events));
   yield () => {
     setWord(wram, MEMBER_MENU_ACTIVE, 0);
-    // The APU command takes the command in A and its value in X (see the header).
-    ctx.a = APU_COMMAND_VOLUME_TARGET;
-    ctx.x = FULL_VOLUME;
   };
   yield* dialogCallBody(
     h,
     0x80ed09,
     SOUND,
-    () => segmentSequence(() => sendApuCommandRoutine(h)),
+    () => segmentSequence(() => sendApuCommandCall(h, APU_COMMAND_VOLUME_TARGET, FULL_VOLUME)),
     true,
   );
   return yield* returnSequence(h);

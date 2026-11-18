@@ -3,10 +3,12 @@
 // callers. Their register-level versions are the references in
 // proof/apu-reference/audio-routines.mjs.
 //
-// Both return with RTL and leave the registers their callers may read: A holds the
-// last command in its high byte and the new command token in its low byte. The
-// stack byte of the original PHP and the sample loader's direct page state
-// (src/apu/music-mode.mjs) are scratch and not produced.
+// Both return with RTL. The routine table entries leave the registers their
+// register-level callers may read: A holds the last command in its high byte and the
+// new command token in its low byte. Lifted callers use the call forms, which take
+// the command, its parameter and the mode as parameters and leave no registers (user
+// decision 2026-11-17). The stack byte of the original PHP and the sample loader's
+// direct page state (src/apu/music-mode.mjs) are scratch and not produced.
 import { sendApuCommand } from './apu-command.mjs';
 import { setMusicMode } from './music-mode.mjs';
 import { accessorPort } from '../system/hardware-port.mjs';
@@ -25,6 +27,20 @@ function requireApuEntry(ctx) {
     taskStop('task_apu_entry_required');
 }
 const commandResult = (wram, command) => (command << BYTE_BITS) | wram[APU_COMMAND_TOKEN];
+
+// 81:F007 for lifted callers: send the command (its low byte) with the parameter word.
+export function sendApuCommandCall(h, command, parameter) {
+  requireApuEntry(h.ctx);
+  sendApuCommand(h.a.mem.wram, accessorPort(h.a), command & BYTE_MASK, parameter);
+  return h.rtl();
+}
+
+// 81:EF47 for lifted callers: switch the music to the mode.
+export function setMusicModeCall(h, mode) {
+  requireApuEntry(h.ctx);
+  setMusicMode(h.a.mem, accessorPort(h.a), mode);
+  return h.rtl();
+}
 
 // 81:F007: send the command in the low byte of A with the parameter word in X. The
 // status flags are unchanged (PHP/PLP).
