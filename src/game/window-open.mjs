@@ -12,12 +12,10 @@
 // the window map (81:ACCF, window-list.mjs) and the map is uploaded (81:ACB5). The window
 // index is left in the direct page word 00.
 //
-// Registers: the routine leaves X the window index, A 0 with zero set, and Y, the carry
-// and the overflow of the window drawing (its last map row), as the original; past the
-// last index X the index, the carry set and A, Y and the overflow unchanged. The tile
+// Registers (user decision 2026-11-17): game state only; the routine leaves no A, X, Y
+// or flags (its callers read the window index from the direct page word 00). The tile
 // request waits with the lag-free frame model at its branch 81:ACC0 below the frames of
-// its JSR and JSL, with A the request word and the original's X, Y, carry and overflow;
-// the live path always uses lag-free frames. Recorded observations use the former
+// its JSR and JSL; the live path always uses lag-free frames. Recorded observations use the former
 // caller retained in proof/caller/window-open.mjs. Drawing's pushes are not reproduced.
 import { sceneRuntime } from '../system/scene-runtime.mjs';
 import { nmiAtBranch } from '../system/frame-wait.mjs';
@@ -47,13 +45,7 @@ import {
 } from '../data/wram.mjs';
 import { M7A, M7B, MPYL } from '../constants/hardware-registers.mjs';
 import { BYTE_BITS, BYTE_MASK, WORD_MASK, WORD_SIGN } from '../constants/bits.mjs';
-import {
-  FLAG_CARRY,
-  FLAG_MEMORY_8BIT,
-  FLAG_NEGATIVE,
-  FLAG_OVERFLOW,
-  FLAG_ZERO,
-} from '../constants/cpu-flags.mjs';
+import { FLAG_MEMORY_8BIT, FLAG_NEGATIVE, FLAG_ZERO } from '../constants/cpu-flags.mjs';
 
 const DP_LEFT = 0x00,
   DP_TOP = 0x02,
@@ -87,18 +79,13 @@ const PRODUCT_COLUMNS_SITE = 0x80f9ec,
   JSL_LAST_BYTE = 3,
   WAIT_BANK = 0x81,
   CALLER_BANK = 0x80,
-  // The carries of the shifts: bit 13 of the first tile (three ASL), bit 12 of the
-  // tile count (four ASL).
-  TILE_ADDRESS_CARRY_BIT = 13,
-  TILE_BYTES_CARRY_BIT = 12;
+  // The carry of the first tile's shifts (bit 13, three ASL) enters the address.
+  TILE_ADDRESS_CARRY_BIT = 13;
 
 const word = (wram, at) => wram[at] | (wram[at + 1] << BYTE_BITS);
 const setWord = (wram, at, value) => {
   wram[at] = value & BYTE_MASK;
   wram[at + 1] = (value >>> BYTE_BITS) & BYTE_MASK;
-};
-const flag = (ctx, bit, set) => {
-  ctx.status = set ? ctx.status | bit : ctx.status & ~bit;
 };
 
 // Clamp the position in the direct page word at: 0 becomes 1, a window past the limit
@@ -114,9 +101,8 @@ function clamp(wram, at, extent, limit) {
 }
 
 // The window's text tiles: (columns - 2) x (rows - 2) after the last window's, wrapping
-// to 2027 past 2400. Returns the first tile; the caller's flags are those of the last
-// addition.
-function allocateTiles({ wram, port }, ctx, x) {
+// to 2027 past 2400. Returns the first tile.
+function allocateTiles({ wram, port }, x) {
   port.write(M7A, (wram[DP_WINDOW_COLUMNS] - BORDER_CELLS) & BYTE_MASK, 1, PRODUCT_COLUMNS_SITE);
   port.write(M7A, 0, 1, PRODUCT_HIGH_SITE);
   port.write(M7B, (wram[DP_WINDOW_ROWS] - BORDER_CELLS) & BYTE_MASK, 1, PRODUCT_ROWS_SITE);
@@ -124,10 +110,7 @@ function allocateTiles({ wram, port }, ctx, x) {
   const count = port.read(MPYL, 2, PRODUCT_SITE);
   setWord(wram, WINDOW_TILE_COUNT + x, count);
   const add = (left, right) => {
-    const sum = left + right,
-      result = sum & WORD_MASK;
-    flag(ctx, FLAG_CARRY, sum > WORD_MASK);
-    flag(ctx, FLAG_OVERFLOW, ~(left ^ right) & (left ^ result) & WORD_SIGN);
+    const result = (left + right) & WORD_MASK;
     setWord(wram, WINDOW_NEXT_TILE, result);
     return result;
   };
@@ -161,18 +144,11 @@ function* requestTileClear(h, events, x) {
 }
 
 // The tile request 80:FA67 on its own, as other routines call it with JSR (their
-// sequence pushes the frame): the window in the direct page word 00. It leaves A 0 with
-// zero set and sign clear, X the window, Y unchanged and the carry and overflow of its
-// shifts and address addition, as the original. The existing JSR frame is consumed.
+// sequence pushes the frame): the window in the direct page word 00. It leaves no
+// registers. The existing JSR frame is consumed.
 export function* requestTileClearSequence(h, events) {
   yield* clearTiles(h, events, word(h.a.mem.wram, DP_LEFT));
-  let result;
-  yield () => {
-    flag(h.ctx, FLAG_ZERO, true);
-    flag(h.ctx, FLAG_NEGATIVE, false);
-    result = h.rts();
-  };
-  return result;
+  return yield* rts(h);
 }
 
 // The request's work and its wait 81:ACBD below the JSL frame, inside the JSR frame.
@@ -188,15 +164,11 @@ function* clearTiles(h, events, x) {
     const count = word(wram, WINDOW_TILE_COUNT + x);
     setWord(wram, TEXT_TILE_UPLOAD_BYTES, count << TILE_BYTE_SHIFT);
     setWord(wram, TEXT_TILE_UPLOAD, word(wram, TEXT_TILE_UPLOAD) + 1);
-    // The overflow of the address addition and the carry of the bytes' last shift.
-    flag(ctx, FLAG_OVERFLOW, ~(shifted ^ VRAM_BEFORE_TILES) & (shifted ^ address) & WORD_SIGN);
-    flag(ctx, FLAG_CARRY, (count >>> TILE_BYTES_CARRY_BIT) & 1);
-    ctx.x = x;
     pushFrame(h, TILE_WAIT_SITE, true);
     ctx.programBank = WAIT_BANK;
   };
+  // The wait's branch sees the request word's sign in 16-bit mode.
   for (let value; (value = word(wram, TEXT_TILE_UPLOAD)) !== 0;) {
-    ctx.a = value;
     const status =
       (ctx.status & ~(FLAG_MEMORY_8BIT | FLAG_ZERO | FLAG_NEGATIVE)) |
       (value & WORD_SIGN ? FLAG_NEGATIVE : 0);
@@ -205,23 +177,17 @@ function* clearTiles(h, events, x) {
   yield () => {
     pullFrame(h, true);
     ctx.programBank = CALLER_BANK;
-    ctx.a = 0;
   };
 }
 
 // Open the window of the direct page words 00 to 08 (80:F963), a sequence for a native
 // call continuation: h the caller's access (direct page 0, data bank 80).
 export function* openWindowSequence(h, events) {
-  const { ctx } = h,
-    m = sceneRuntime(h),
+  const m = sceneRuntime(h),
     { wram } = m;
   let x;
   yield () => {
     x = (word(wram, WINDOW_LAST_INDEX) + 2) & WORD_MASK;
-    ctx.x = x;
-    flag(ctx, FLAG_CARRY, x >= INDEX_LIMIT);
-    flag(ctx, FLAG_NEGATIVE, (x - INDEX_LIMIT) & WORD_SIGN);
-    flag(ctx, FLAG_ZERO, x === INDEX_LIMIT);
     if (x >= INDEX_LIMIT) return;
     setWord(wram, WINDOW_LAST_INDEX, x);
     clamp(wram, DP_LEFT, DP_WINDOW_COLUMNS, RIGHT_LIMIT);
@@ -239,25 +205,15 @@ export function* openWindowSequence(h, events) {
     for (const field of [WINDOW_CURSOR_PIXEL, WINDOW_LEFT_PIXEL, WINDOW_STYLE, WINDOW_FIELD_2160])
       setWord(wram, field + x, 0);
     setWord(wram, WINDOW_ACTIVE + x, word(wram, WINDOW_ACTIVE + x) - 1);
-    const first = allocateTiles(m, ctx, x);
+    const first = allocateTiles(m, x);
     for (const field of [WINDOW_TILE_START, WINDOW_TILE_INITIAL, WINDOW_CURSOR_TILE])
       setWord(wram, field + x, first);
     setWord(wram, DP_LEFT, x);
   };
   if (x >= INDEX_LIMIT) return yield* rts(h);
   yield* requestTileClear(h, events, x);
-  yield () => {
-    const drawn = drawWindow(wram, x);
-    ctx.y = drawn.y;
-    flag(ctx, FLAG_OVERFLOW, drawn.overflow);
-    flag(ctx, FLAG_CARRY, drawn.carry);
-  };
+  yield () => drawWindow(wram, x);
   yield* requestUploadCall(h, events, MAP_UPLOAD_SITE);
-  yield () => {
-    ctx.a = 0;
-    flag(ctx, FLAG_ZERO, true);
-    flag(ctx, FLAG_NEGATIVE, false);
-  };
   return yield* rts(h);
 }
 function* rts(h) {

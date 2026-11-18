@@ -1304,13 +1304,14 @@ const WINDOW_OPEN = {
   },
   reference: (h, events) => openWindowAdapter(h, events),
   events: windowEvents,
-  result: bankRegisters,
+  // The lifted window opening leaves no A, X, Y and flags (user decision 2026-11-17).
+  result: dataBank,
   lifted: (h, input) => {
     Object.assign(h.ctx, input);
     h.ctx.programBank = 0x80;
     h.push(0x1234, 2);
     runOpenWindow(h, liveWindowEvents(h));
-    return bankRegisters(h);
+    return dataBank(h);
   },
 };
 // The action menu 80:99EB: accepted actions alone and together (cast a spell, open and
