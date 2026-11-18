@@ -1,9 +1,14 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { compareRun } from './member-menu-caller-harness.mjs';
-import { hitObjectSequence } from '../src/game/object-hit.mjs';
+import { hitObjectSequence as liftedHit } from '../src/game/object-hit.mjs';
 import { hitObjectSequence as formerHit } from '../proof/caller/object-hit.mjs';
 import * as W from '../src/data/wram.mjs';
+
+// The lifted hit takes the damage, target and shooter as parameters (A, X and Y in the
+// original; user decision 2026-11-17), here from the registers the scenario sets.
+const hitObjectSequence = (h, events, render) =>
+  liftedHit(h, events, render, h.ctx.a, h.ctx.x, h.ctx.y);
 
 function runHit(sequence, hits, karma, request, budget, pads = [0x8000]) {
   const notice = hits === 3 || (hits === 7 && karma >= 8);

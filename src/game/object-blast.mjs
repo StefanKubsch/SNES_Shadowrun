@@ -6,6 +6,9 @@
 // it holds an object that can be hit (flag bit 15) and lies less than 60 from the centre
 // on each axis: X, Y and height. The hit composes directly through its frame,
 // with its own callees.
+//
+// Registers (user decision 2026-11-17): game state only. The hit takes the damage, the
+// slot and the shooter as parameters (A, X and Y in the original); no registers are left.
 import { dialogCallBody } from '../system/native-call-continuation.mjs';
 import { hitObjectSequence } from './object-hit.mjs';
 import { drawTextBufferSequence } from './text-draw.mjs';
@@ -20,7 +23,6 @@ import {
   OBJECT_Y,
 } from '../data/wram.mjs';
 import { BYTE_BITS, BYTE_MASK, WORD_MASK, WORD_SIGN } from '../constants/bits.mjs';
-import { FLAG_CARRY, FLAG_NEGATIVE, FLAG_OVERFLOW, FLAG_ZERO } from '../constants/cpu-flags.mjs';
 
 // The centre and damage in the direct page, the reach on each axis, the hit and its
 // call site.
@@ -37,41 +39,16 @@ const setWord = (wram, at, value) => {
   wram[at] = value & BYTE_MASK;
   wram[at + 1] = (value >>> BYTE_BITS) & BYTE_MASK;
 };
-const setFlag = (ctx, bit, set) => {
-  ctx.status = set ? ctx.status | bit : ctx.status & ~bit;
-};
-const setSignZero = (ctx, value) => {
-  setFlag(ctx, FLAG_NEGATIVE, value & WORD_SIGN);
-  setFlag(ctx, FLAG_ZERO, value === 0);
-};
-const load = (ctx, value) => {
-  ctx.a = value;
-  setSignZero(ctx, value);
-};
-
 // Whether the blast reaches the slot: an object that can be hit within reach on each
-// axis. Leaves A and, on the distance tests, the carry of the reach compare and the
-// overflow of the subtraction, as the original's tests do.
-function blastReaches(h, centre, slot) {
-  const { ctx } = h,
-    { mem } = h.a,
-    kind = word(mem.wram, OBJECT_KIND + slot);
-  load(ctx, kind);
-  if (kind & WORD_SIGN) return false;
-  const hittable = dataBankWord(mem, OBJECT_FLAGS, slot) & OBJECT_HITTABLE;
-  load(ctx, hittable);
-  if (!hittable) return false;
+// axis.
+function blastReaches(mem, centre, slot) {
+  if (word(mem.wram, OBJECT_KIND + slot) & WORD_SIGN) return false;
+  if (!(dataBankWord(mem, OBJECT_FLAGS, slot) & OBJECT_HITTABLE)) return false;
   for (const offset of [OBJECT_X, OBJECT_Y, OBJECT_HEIGHT]) {
-    const left = dataBankWord(mem, offset, slot),
-      right = dataBankWord(mem, offset, centre),
-      difference = (left - right) & WORD_MASK,
-      distance = difference & WORD_SIGN ? -difference & WORD_MASK : difference,
-      far = distance >= BLAST_REACH;
-    setFlag(ctx, FLAG_OVERFLOW, (left ^ right) & (left ^ difference) & WORD_SIGN);
-    // The sign and zero of the distance and its compare are always overwritten.
-    ctx.a = distance;
-    setFlag(ctx, FLAG_CARRY, far);
-    if (far) return false;
+    const difference =
+        (dataBankWord(mem, offset, slot) - dataBankWord(mem, offset, centre)) & WORD_MASK,
+      distance = difference & WORD_SIGN ? -difference & WORD_MASK : difference;
+    if (distance >= BLAST_REACH) return false;
   }
   return true;
 }
@@ -79,35 +56,23 @@ function blastReaches(h, centre, slot) {
 // 80:8E36: hit every object the blast around DP 00 reaches with the damage DP 02. A
 // sequence that ends with the native's RTS.
 export function* hitObjectsInBlastSequence(h, events, renderBuffer = drawTextBufferSequence) {
-  const { ctx } = h,
-    { wram } = h.a.mem,
+  const { mem } = h.a,
+    { wram } = mem,
     centre = word(wram, 0);
   yield () => {
-    ctx.y = centre;
     setWord(wram, DP_BLAST_CENTRE, centre);
     setWord(wram, DP_BLAST_DAMAGE, word(wram, 2));
   };
   for (let slot = OBJECT_LAST_SLOT; slot >= 0; slot -= 2) {
-    let reached;
+    let reached, damage;
     yield () => {
-      reached = blastReaches(h, centre, slot);
+      reached = blastReaches(mem, centre, slot);
+      damage = word(wram, DP_BLAST_DAMAGE);
     };
-    if (reached) {
-      yield () => {
-        ctx.x = slot;
-        load(ctx, word(wram, DP_BLAST_DAMAGE));
-        ctx.y = NO_SHOOTER;
-        setSignZero(ctx, NO_SHOOTER);
-      };
-      yield* dialogCallBody(h, HIT_CALL, HIT, () => hitObjectSequence(h, events, renderBuffer));
-      yield () => {
-        ctx.y = centre;
-      };
-    }
-    yield () => {
-      ctx.x = (slot - 2) & WORD_MASK;
-      setSignZero(ctx, ctx.x);
-    };
+    if (reached)
+      yield* dialogCallBody(h, HIT_CALL, HIT, () =>
+        hitObjectSequence(h, events, renderBuffer, damage, slot, NO_SHOOTER),
+      );
   }
   let result;
   yield () => {

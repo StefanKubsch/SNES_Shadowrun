@@ -1,8 +1,9 @@
 // A hit (lifted from 80:8691 with the player hit 80:881C; register-level version in
 // proof/replay/native-object-hit.mjs, which recorded waits and inputs replay).
 //
-// The hit takes the damage in A, the target's object slot in X and the shooter's in Y
-// (negative: none, as from the blast 80:8E36); the damage is kept in DP 00.
+// The hit takes the damage, the target's object slot and the shooter's (negative: none,
+// as from the blast 80:8E36) as parameters (A, X and Y in the original); the damage is
+// kept in DP 00.
 // - A target without flag bit 13 cannot be damaged. With flag bit 15 it means no harm
 //   and the hit is counted (7E:1FD4): the fourth warns, the eighth costs eight karma
 //   eighths (one karma point) with a notice when there are at least eight, else the
@@ -290,27 +291,31 @@ function* playerHitSequence(h, events, target) {
   yield* drawWindowListSequence(h, events, LIST_CALL);
 }
 
-// 80:8691: the hit with the damage in A on the target X by the shooter Y. A sequence
-// for a native call continuation that ends with the hit's RTS. renderBuffer draws text.
-export function* hitObjectSequence(h, events, renderBuffer = drawTextBufferSequence) {
+// 80:8691: the hit with the damage on the target by the shooter. A sequence for a
+// native call continuation that ends with the hit's RTS. renderBuffer draws text.
+export function* hitObjectSequence(
+  h,
+  events,
+  renderBuffer = drawTextBufferSequence,
+  damage,
+  target,
+  shooter,
+) {
   if (h.ctx.d !== 0) taskStop('task_direct_page_zero_required');
-  const { ctx } = h,
-    { mem } = h.a,
-    { wram } = mem,
-    target = ctx.x,
-    shooter = ctx.y;
-  setWord(wram, 0, ctx.a);
+  const { mem } = h.a,
+    { wram } = mem;
+  setWord(wram, 0, damage);
   const flags = dataBankWord(mem, OBJECT_FLAGS, target);
   if (!(flags & OBJECT_DAMAGEABLE)) yield* harmlessSequence(h, events, renderBuffer, flags);
   else {
     yield () => {
       setWord(wram, DP_HIT_SHOOTER, shooter);
-      const draw = drawBelowInDirectPage(mem, accessorPort(h.a), ctx.a),
-        damage = (draw + 1 - mem.read8(longAddress(OBJECT_ARMOUR, target))) & BYTE_MASK;
-      if (damage === 0 || damage & BYTE_SIGN) return;
-      const armour = (draw & HIGH_BYTE_MASK) | damage;
-      wram[0] = damage;
-      damageRecord(h, target, draw, damage);
+      const draw = drawBelowInDirectPage(mem, accessorPort(h.a), damage),
+        dealt = (draw + 1 - mem.read8(longAddress(OBJECT_ARMOUR, target))) & BYTE_MASK;
+      if (dealt === 0 || dealt & BYTE_SIGN) return;
+      const armour = (draw & HIGH_BYTE_MASK) | dealt;
+      wram[0] = dealt;
+      damageRecord(h, target, draw, dealt);
       placeHitEffect(h, target, armour);
     };
     yield () => {

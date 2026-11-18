@@ -256,15 +256,13 @@ function rollHits(run, offset, bonus) {
   left = subtract(left.value, word(wram, DP_WEAPON_PENALTY), left.carry);
   return negative(left.value);
 }
-// 80:8691 with the damage in A for the target X by the shooter Y.
+// 80:8691 with the weapon damage for the target by the shooter.
 function* hitSequence(run, hitCall, shooter, target) {
-  const { h, wram } = run;
+  let damage;
   yield () => {
-    h.ctx.a = word(wram, DP_WEAPON_DAMAGE);
-    h.ctx.x = target;
-    h.ctx.y = shooter;
+    damage = word(run.wram, DP_WEAPON_DAMAGE);
   };
-  yield* hitCall();
+  yield* hitCall(damage, target, shooter);
 }
 // 80:89B0: a miss marker (object E6, script 80) in a free slot near the target: its
 // height a draw below (box height + 0A) * 4 plus the target's height, over 4; one of
@@ -352,7 +350,10 @@ export function* shootAtObjectSequence(h, events, renderBuffer = drawTextBufferS
   faceTarget(run, shooter, target);
   yield* shotSequence(
     run,
-    () => dialogCallBody(h, HIT_CALL, HIT, () => hitObjectSequence(h, events, renderBuffer)),
+    (damage, target, shooter) =>
+      dialogCallBody(h, HIT_CALL, HIT, () =>
+        hitObjectSequence(h, events, renderBuffer, damage, target, shooter),
+      ),
     shooter,
     target,
   );
@@ -379,7 +380,10 @@ export function* shootAtGloveTargetSequence(h, events, renderBuffer = drawTextBu
   );
   yield* shotSequence(
     run,
-    () => dialogCallBody(h, HIT_CALL, HIT, () => hitObjectSequence(h, events, renderBuffer)),
+    (damage, target, shooter) =>
+      dialogCallBody(h, HIT_CALL, HIT, () =>
+        hitObjectSequence(h, events, renderBuffer, damage, target, shooter),
+      ),
     player,
     target,
   );
@@ -399,7 +403,10 @@ export function* shootWithOwnWeaponSequence(h, events, renderBuffer = drawTextBu
   faceTarget(run, shooter, target);
   yield* shotSequence(
     run,
-    () => dialogCallBody(h, HIT_CALL, HIT, () => hitObjectSequence(h, events, renderBuffer)),
+    (damage, target, shooter) =>
+      dialogCallBody(h, HIT_CALL, HIT, () =>
+        hitObjectSequence(h, events, renderBuffer, damage, target, shooter),
+      ),
     shooter,
     target,
   );
