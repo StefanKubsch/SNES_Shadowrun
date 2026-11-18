@@ -30,7 +30,7 @@
 // (around the move sound's arguments, which the original sets up and restores without
 // playing it) stay on the stack.
 import { dialogCallBody, segmentSequence } from '../system/native-call-continuation.mjs';
-import { frameWaitCallSequence, runPadPresses } from '../system/live-input-calls.mjs';
+import { frameWaitCallSequence, takePadWord } from '../system/live-input-calls.mjs';
 import { playSoundEffectRoutine } from '../apu/sound-effect.mjs';
 import { drawTextBufferSequence } from './text-draw.mjs';
 import { drawListSequence, markRowSequence, MARK, UNMARK } from './menu-list.mjs';
@@ -150,7 +150,7 @@ export function* chooseFromMenuSequence(
       helper(site, MARK_ROW, () => markRowSequence(h, events, renderBuffer, MARK, index)),
     unmark = (site) =>
       helper(site, UNMARK_ROW, () => markRowSequence(h, events, renderBuffer, UNMARK, index)),
-    pad = (site) => helper(site, PAD, () => segmentSequence(() => runPadPresses(h, events)));
+    pad = (site) => helper(site, PAD, () => segmentSequence(() => takePadWord(h, events)));
   let result;
   const rts = function* () {
     yield () => {

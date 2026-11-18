@@ -8,7 +8,7 @@ import { drawTextBufferSequence } from './text-draw.mjs';
 import { closeDialogSequence } from './dialog-talk.mjs';
 import { showNoticeSequence } from './notice-show.mjs';
 import { putGloveAwayCallSequence } from './window-release.mjs';
-import { frameWaitCallSequence, runPadPresses } from '../system/live-input-calls.mjs';
+import { frameWaitCallSequence, takePadWord } from '../system/live-input-calls.mjs';
 // Choosing with the action or spell glove (lifted from the script natives 80:8D0B and its
 // relatives; register-level version in proof/replay/native-glove-target.mjs, which
 // recorded waits and inputs replay).
@@ -239,7 +239,7 @@ export function* gloveFramesSequence(h, events, renderBuffer, [wait, pad, move])
   let pressed;
   do {
     yield* dialogCallBody(h, wait, FRAME_WAIT, () => frameWaitCallSequence(h, events), true);
-    yield* dialogCallBody(h, pad, PAD_WORD, () => segmentSequence(() => runPadPresses(h, events)));
+    yield* dialogCallBody(h, pad, PAD_WORD, () => segmentSequence(() => takePadWord(h, events)));
     yield* dialogCallBody(h, move, MOVE_GLOVE, () => gloveMoveSequence(h, events, renderBuffer));
     yield () => {
       pressed = word(wram, PAD_PRESSED) & CHOICE_BUTTONS;
@@ -274,13 +274,13 @@ export function* chooseObjectUnderGloveSequence(h, events, renderBuffer = drawTe
     yield* dialogCallBody(h, sites.awayChosen, PUT_AWAY, () => putGloveAwayCallSequence(h, events));
     yield () => takeSlot(h);
     yield* dialogCallBody(h, sites.padChosen, PAD_WORD, () =>
-      segmentSequence(() => runPadPresses(h, events)),
+      segmentSequence(() => takePadWord(h, events)),
     );
   } else {
     yield* dialogCallBody(h, sites.awayNone, PUT_AWAY, () => putGloveAwayCallSequence(h, events));
     yield () => setResult(h, NO_CHOICE);
     yield* dialogCallBody(h, sites.padNone, PAD_WORD, () =>
-      segmentSequence(() => runPadPresses(h, events)),
+      segmentSequence(() => takePadWord(h, events)),
     );
   }
   let result;
@@ -390,14 +390,14 @@ function* chooseInReachSequence(h, events, renderBuffer, pc) {
       );
       yield () => takeSlot(h);
       yield* dialogCallBody(h, sites.padChosen, PAD_WORD, () =>
-        segmentSequence(() => runPadPresses(h, events)),
+        segmentSequence(() => takePadWord(h, events)),
       );
     } else {
       yield* dialogCallBody(h, sites.awayNone, PUT_AWAY, () => putGloveAwayCallSequence(h, events));
       yield* redrawUnlessMenuSequence(h, events, sites.redrawNone);
       yield () => setResult(h, NO_CHOICE);
       yield* dialogCallBody(h, sites.padNone, PAD_WORD, () =>
-        segmentSequence(() => runPadPresses(h, events)),
+        segmentSequence(() => takePadWord(h, events)),
       );
     }
     return yield* returnSequence(h);
@@ -517,7 +517,7 @@ export function* spellGloveTargetSequence(h, events, renderBuffer = drawTextBuff
     yield* dialogCallBody(h, sites.awayChosen, PUT_AWAY, () => putGloveAwayCallSequence(h, events));
     yield () => takeSlot(h);
     yield* dialogCallBody(h, sites.padChosen, PAD_WORD, () =>
-      segmentSequence(() => runPadPresses(h, events)),
+      segmentSequence(() => takePadWord(h, events)),
     );
   } else {
     yield* dialogCallBody(h, sites.awayNone, PUT_AWAY, () => putGloveAwayCallSequence(h, events));
@@ -527,7 +527,7 @@ export function* spellGloveTargetSequence(h, events, renderBuffer = drawTextBuff
       setResult(h, NO_CHOICE);
     };
     yield* dialogCallBody(h, sites.padNone, PAD_WORD, () =>
-      segmentSequence(() => runPadPresses(h, events)),
+      segmentSequence(() => takePadWord(h, events)),
     );
   }
   return yield* returnSequence(h);

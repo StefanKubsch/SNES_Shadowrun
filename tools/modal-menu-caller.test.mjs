@@ -76,7 +76,10 @@ function run(module, { mask, override = 0, pads, script = false }, budget) {
         ? 'askYesNoSequence'
         : script
           ? 'chooseScriptActionSequence'
-          : 'chooseActionSequence',
+          : module === directAction
+            ? // The register form: the actions in A, the chosen flag left in A.
+              'chooseActionRoutineSequence'
+            : 'chooseActionSequence',
       result = finishTextWindow(
         side,
         module[name](
@@ -86,7 +89,8 @@ function run(module, { mask, override = 0, pads, script = false }, budget) {
         ),
         budget,
       );
-    return { ...result, input, chosen: h.ctx.a };
+    // The script native leaves its result in DP 00; the interpreter replaces A.
+    return { ...result, input, chosen: script ? mem.read16(0x7e0000) : h.ctx.a };
   } finally {
     for (const run of bindings) NATIVE_CALL_CONTINUATIONS.delete(run);
   }

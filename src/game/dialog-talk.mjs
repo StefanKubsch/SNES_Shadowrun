@@ -44,7 +44,7 @@ import {
   uploadFirstPortraitSequence,
   uploadSecondPortraitSequence,
 } from './portrait-upload.mjs';
-import { frameWaitCallSequence, runPadPresses } from '../system/live-input-calls.mjs';
+import { frameWaitCallSequence, takePadWord } from '../system/live-input-calls.mjs';
 import { sceneRuntime } from '../system/scene-runtime.mjs';
 import { fixesEnabled, preparePushkinTopics } from './bugfixes.mjs';
 import { DIALOG_TABLE, DIALOG_BANK_BASE } from '../data/portraits.mjs';
@@ -237,7 +237,7 @@ export function* closeDialogSequence(h, events) {
       writes.forEach(([register, value, width], n) => port.write(register, value, width, sites[n]));
     }
   };
-  yield* dialogCallBody(h, ...CALL.pad, () => segmentSequence(() => runPadPresses(h, events)));
+  yield* dialogCallBody(h, ...CALL.pad, () => segmentSequence(() => takePadWord(h, events)));
   yield* dialogCallBody(h, ...CALL.sprites, () => segmentSequence(() => buildSprites(h)));
   let result;
   yield () => {

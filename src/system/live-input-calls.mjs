@@ -35,9 +35,16 @@ NATIVE_CALL_CONTINUATIONS.set(runFrameWait, {
   create: (call) =>
     new NativeCallContinuation(call.h.a, frameWaitCallSequence(call.h, call.events)),
 });
-// The pad word: the original leaves A with its four low bits, sign clear, zero when
-// they are, and the carry of its comparison with the soft reset buttons 3030; the
-// glove movement 80:BE6D follows.
+// The pad word (80:9E1A, called with JSR) for lifted callers: the newly pressed and held
+// words taken; no registers are left (user decision 2026-11-17).
+export function takePadWord(h, events) {
+  if (!lagFree(events)) taskStop('game_lag_free_required');
+  takePadPresses(h.a.mem.wram);
+  return h.rts();
+}
+// The register form for the routine tables: the original leaves A with its four low
+// bits, sign clear, zero when they are, and the carry of its comparison with the soft
+// reset buttons 3030.
 const SOFT_RESET_BUTTONS = 0x3030,
   INVALID_PAD_BITS = 0x000f;
 export function runPadPresses(h, events) {

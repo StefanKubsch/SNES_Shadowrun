@@ -79,7 +79,7 @@ import { playerZonesRoutineSequence, playerZonesSequence } from './player-zones.
 import { moveAndAnimate } from './object-motion.mjs';
 import { buildSprites } from './sprite-list.mjs';
 import { frameWaitCallSequence } from '../system/live-input-calls.mjs';
-export { runFrameWait, runPadPresses } from '../system/live-input-calls.mjs';
+export { runFrameWait, runPadPresses, takePadWord } from '../system/live-input-calls.mjs';
 
 // The main loop's upkeep routines below work on game state only (user decision
 // 2026-11-17): the X and Y the originals leave (the colour phase, the palette cycle and
