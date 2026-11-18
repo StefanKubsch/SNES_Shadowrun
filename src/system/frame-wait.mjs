@@ -75,17 +75,18 @@ export function* waitForFrame(h, events, port) {
 }
 
 // The word wait (81:B0A1), a sequence like waitForFrame: wait until the NMI has
-// changed the frame counter word 7E:1C76, whatever the NMITIMEN shadow says. The
-// accumulator holds the counter, as the original's LDA leaves it; the NMI arrives at
-// the branch with the compare equal in 16-bit mode.
-export function* waitForCounterWord(h, events) {
+// changed the frame counter word 7E:1C76, whatever the NMITIMEN shadow says. The NMI
+// arrives at the branch with the compare equal in 16-bit mode. Lifted callers read no
+// registers (user decision 2026-11-17); with register true the accumulator holds the
+// counter, as the original's LDA leaves it, for register-level callers.
+export function* waitForCounterWord(h, events, register = false) {
   const { ctx } = h,
     { wram } = h.a.mem,
     counter = () => wram[RANDOM_STATE] | (wram[RANDOM_STATE + 1] << BYTE_BITS);
   let start;
   yield () => {
     start = counter();
-    ctx.a = start;
+    if (register) ctx.a = start;
   };
   while (counter() === start)
     yield* nmiAtBranch(

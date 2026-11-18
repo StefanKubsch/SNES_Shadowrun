@@ -17,8 +17,8 @@ import { FLAG_CARRY, FLAG_NEGATIVE, FLAG_ZERO } from '../constants/cpu-flags.mjs
 // both run lifted: the word wait (frame-wait.mjs) and the newly pressed
 // buttons (joypad.mjs). Recorded interrupt replays use the register-level
 // routines and instruction continuations in proof/vm/main-loop.mjs.
-export function* frameWaitCallSequence(h, events) {
-  yield* waitForCounterWord(h, events);
+export function* frameWaitCallSequence(h, events, register = false) {
+  yield* waitForCounterWord(h, events, register);
   let result;
   yield () => {
     result = h.rtl();
@@ -27,13 +27,13 @@ export function* frameWaitCallSequence(h, events) {
 }
 export function runFrameWait(h, events) {
   if (!lagFree(events)) taskStop('game_lag_free_required');
-  return drainNativeSequence(frameWaitCallSequence(h, events));
+  return drainNativeSequence(frameWaitCallSequence(h, events, true));
 }
 // Bind by function identity so this live wait can coexist with replay tables.
 NATIVE_CALL_CONTINUATIONS.set(runFrameWait, {
   run: runFrameWait,
   create: (call) =>
-    new NativeCallContinuation(call.h.a, frameWaitCallSequence(call.h, call.events)),
+    new NativeCallContinuation(call.h.a, frameWaitCallSequence(call.h, call.events, true)),
 });
 // The pad word (80:9E1A, called with JSR) for lifted callers: the newly pressed and held
 // words taken; no registers are left (user decision 2026-11-17).
