@@ -206,8 +206,10 @@ export function* roomStartSequence(h, events, room) {
   return ctx.pc;
 }
 
-// 80:960D as the title cycle runs it with JSR: start a new game; its first room returns in A.
+// 80:960D as the title cycle runs it with JSR: start a new game. Game state only (user
+// decision 2026-11-17): the first room the original returns in A is not kept; the
+// title cycle's demo loads its own room right after.
 export function runNewGame(h) {
-  h.ctx.a = startNewGame(h.a);
+  startNewGame(h.a);
   return h.rts();
 }
