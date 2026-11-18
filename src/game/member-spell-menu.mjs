@@ -19,6 +19,9 @@
 // The entry 80:E68E (from the status screen) leaves 1F68 clear: no script runs and the
 // equipment window is drawn at the end (80:E9C5). Windows, selection and cleanup
 // compose through their original frames; script append and nested visits compose directly.
+//
+// Registers (user decision 2026-11-17): game state only, apart from the script task
+// append 80:C34A, which still takes the script in X. No other register values are left.
 import { dialogCallBody, segmentSequence } from '../system/native-call-continuation.mjs';
 import { scriptVisitSequence } from '../system/script-visit.mjs';
 import { appendScriptTaskCall } from '../script/task-api.mjs';
@@ -87,14 +90,12 @@ import { translatedListWindow } from '../data/menu-layout.mjs';
 import {
   BYTE_BITS,
   BYTE_MASK,
-  HIGH_BYTE_MASK,
   LONG_MASK,
   WORD_BITS,
   WORD_MASK,
   WORD_SIGN,
 } from '../constants/bits.mjs';
 import { WRAM_BANK } from '../constants/memory-map.mjs';
-import { FLAG_CARRY, FLAG_NEGATIVE, FLAG_OVERFLOW, FLAG_ZERO } from '../constants/cpu-flags.mjs';
 
 // The callees and their call sites.
 const OPEN_WINDOW = [0x80e6ce, 0x80f963],
@@ -128,23 +129,11 @@ const setWord = (wram, at, value) => {
   wram[at] = value & BYTE_MASK;
   wram[at + 1] = (value >>> BYTE_BITS) & BYTE_MASK;
 };
-const setFlag = (ctx, bit, set) => {
-  ctx.status = set ? ctx.status | bit : ctx.status & ~bit;
-};
-const setSignZero = (ctx, value) => {
-  setFlag(ctx, FLAG_NEGATIVE, value & WORD_SIGN);
-  setFlag(ctx, FLAG_ZERO, value === 0);
-};
-const load = (ctx, value) => {
-  ctx.a = value;
-  setSignZero(ctx, value);
-};
 const negative = (value) => (value & WORD_SIGN) !== 0;
-// left + right + carry on words, with the carry and the signed overflow.
+// left + right + carry on words, with the carry.
 function add(left, right, carry = false) {
-  const sum = left + right + (carry ? 1 : 0),
-    value = sum & WORD_MASK;
-  return { value, carry: sum > WORD_MASK, overflow: negative(~(left ^ right) & (left ^ value)) };
+  const sum = left + right + (carry ? 1 : 0);
+  return { value: sum & WORD_MASK, carry: sum > WORD_MASK };
 }
 function* returnSequence(h) {
   let result;
@@ -172,12 +161,9 @@ function menuWindow(mem) {
   return translatedListWindow(mem, MENU_WINDOW, ids);
 }
 
-// The menu rows of the known spells after Exit (see above). Leaves X the last row's
-// offset and the overflow of the last level name's index.
-function listSpells(h) {
-  const { ctx } = h,
-    { mem } = h.a,
-    { wram } = mem;
+// The menu rows of the known spells after Exit (see above).
+function listSpells(mem) {
+  const { wram } = mem;
   setWord(wram, DP_LIST_OFFSET, 0);
   setDataBankWord(mem, MEMBER_MENU_NAMES, 0, TEXT_EXIT);
   let offset = 0;
@@ -199,40 +185,29 @@ function listSpells(h) {
     setDataBankWord(mem, SPELL_MENU_SCRIPTS, offset, column(SPELL_SCRIPTS_A, slotIndex));
     setDataBankWord(mem, SPELL_MENU_LEVEL_POINTERS, offset, address.value);
     setDataBankWord(mem, SPELL_MENU_LEVELS, offset, level);
-    setFlag(ctx, FLAG_OVERFLOW, nameIndex.overflow);
   }
-  ctx.x = offset;
   setDataBankWord(mem, MEMBER_MENU_NAMES + 2, offset, 0);
 }
 
-// The leader's choice: the row's script, level pointer and spell name selected. Leaves
-// A the name.
-function selectSpell(h, row) {
-  const { mem } = h.a;
+// The leader's choice: the row's script, level pointer and spell name selected.
+function selectSpell(mem, row) {
   for (const [column, target] of [
     [SPELL_MENU_LEADER_SCRIPTS, SELECTED_SPELL_SCRIPT],
     [SPELL_MENU_LEVEL_POINTERS, SELECTED_SPELL_LEVEL_POINTER],
     [SPELL_MENU_SPELL_NAMES, SELECTED_SPELL_NAME],
   ]) {
-    const value = dataBankWord(mem, column, row);
-    setWord(mem.wram, target, value);
-    load(h.ctx, value);
+    setWord(mem.wram, target, dataBankWord(mem, column, row));
   }
 }
 
 // After a visited script: the window list and portrait redrawn when it asks for it, and
 // a key awaited while a notice window is open.
 function* afterScriptSequence(h, events) {
-  const { ctx } = h,
-    { wram } = h.a.mem;
+  const { wram } = h.a.mem;
   let ended, redraw;
   yield () => {
-    const end = word(wram, DIALOG_END);
-    load(ctx, end);
-    ended = end !== 0;
-    if (ended) return;
-    redraw = word(wram, MEMBER_PORTRAIT_REDRAW);
-    load(ctx, redraw);
+    ended = word(wram, DIALOG_END) !== 0;
+    if (!ended) redraw = word(wram, MEMBER_PORTRAIT_REDRAW);
   };
   if (ended) return;
   if (redraw) {
@@ -243,17 +218,13 @@ function* afterScriptSequence(h, events) {
   yield () => {
     let x = NOTICE_WINDOW_LAST;
     for (;;) {
-      const window = word(wram, NOTICE_WINDOWS + x);
-      load(ctx, window);
-      if (!negative(window)) {
+      if (!negative(word(wram, NOTICE_WINDOWS + x))) {
         pending = true;
         break;
       }
       x = (x - 2) & WORD_MASK;
       if (negative(x)) break;
     }
-    // Without a notice window the release's load overwrites the sign and zero of X.
-    ctx.x = x;
   };
   if (pending) {
     yield* dialogCallBody(h, ...CONFIRM_KEY, () => waitForConfirmKeySequence(h, events));
@@ -278,35 +249,25 @@ export function* spellMenuSequence(
     else setWord(wram, SPELL_CHOICE_RUNS_SCRIPT, MARK_SET);
     for (let slot = SPELL_SLOT_FIRST; slot < SPELL_SLOT_END; slot++)
       if (spellLevel(mem, slot)) known++;
-    // The slot and count compares leave the carry; A is loaded again before any call.
-    ctx.x = known;
-    ctx.y = SPELL_SLOT_END;
-    setSignZero(ctx, known);
-    setFlag(ctx, FLAG_CARRY, true);
     if (!known) return;
     const rows = known + MENU_WINDOW.extraRows,
       window = menuWindow(mem);
-    ctx.x = rows;
     setWord(wram, DP_WINDOW_ROWS, rows);
     setWord(wram, DP_WINDOW_LEFT, window.left);
     setWord(wram, DP_WINDOW_TOP, window.top);
     setWord(wram, DP_WINDOW_COLUMNS, window.columns);
     setWord(wram, DP_WINDOW_ATTRIBUTES, 0);
-    load(ctx, 0);
   };
   if (known) {
     yield* dialogCallBody(h, ...OPEN_WINDOW, () => openWindowSequence(h, events));
     yield () => {
       setDataBankWord(mem, STATUS_SUBMENU_WINDOW, 0, word(wram, 0));
-      listSpells(h);
+      listSpells(mem);
       setWord(wram, DP_MENU_COLUMN, MENU_COLUMN);
       setWord(wram, DP_MENU_ROW, 0);
       setWord(wram, DP_MENU_VISIBLE_ROWS, MENU_WINDOW.visibleRows);
       setWord(wram, DP_LIST_TOKENS, MEMBER_MENU_NAMES);
       setWord(wram, DP_LIST_TOKEN_BANK, WRAM_BANK);
-      load(ctx, WRAM_BANK);
-      ctx.y = SPELL_SLOT_END;
-      setFlag(ctx, FLAG_CARRY, true);
     };
     yield* dialogCallBody(h, ...MENU, () =>
       chooseFromMenuSequence(h, events, renderBuffer, 0x80a6c7),
@@ -314,23 +275,18 @@ export function* spellMenuSequence(
     let script = false;
     yield () => {
       const chosen = word(wram, 0);
-      load(ctx, chosen);
       if (chosen === 0) return;
       if (negative(chosen)) {
         setWord(wram, DIALOG_END, chosen);
         return;
       }
       const row = (chosen << 1) & WORD_MASK;
-      ctx.y = row;
+      // The script task append 80:C34A takes the script in X (see the header).
       ctx.x = dataBankWord(mem, SPELL_MENU_SCRIPTS, row);
       setWord(wram, 0, dataBankWord(mem, SPELL_MENU_LEVELS, row));
-      const member = dataBankWord(mem, MEMBER_OBJECT),
-        player = dataBankWord(mem, PLAYER_OBJECT);
-      setFlag(ctx, FLAG_CARRY, member >= player);
-      if (member === player) return selectSpell(h, row);
-      const runs = word(wram, SPELL_CHOICE_RUNS_SCRIPT);
-      load(ctx, runs);
-      script = runs !== 0;
+      if (dataBankWord(mem, MEMBER_OBJECT) === dataBankWord(mem, PLAYER_OBJECT))
+        return selectSpell(mem, row);
+      script = word(wram, SPELL_CHOICE_RUNS_SCRIPT) !== 0;
     };
     if (script) {
       yield* dialogCallBody(h, ...APPEND_SCRIPT, () =>
@@ -340,18 +296,12 @@ export function* spellMenuSequence(
       yield* dialogCallBody(h, ...VISIT_SCRIPT, () => scriptVisitSequence(events));
       yield* afterScriptSequence(h, events);
     }
-    yield () => {
-      const window = dataBankWord(mem, STATUS_SUBMENU_WINDOW);
-      load(ctx, window);
-      setWord(wram, 0, window);
-    };
+    yield () => setWord(wram, 0, dataBankWord(mem, STATUS_SUBMENU_WINDOW));
     yield* dialogCallBody(h, ...RELEASE_WINDOW, () => releaseWindowJsrSequence(h.a, events));
   }
   let equipment;
   yield () => {
-    const runs = word(wram, SPELL_CHOICE_RUNS_SCRIPT);
-    load(ctx, runs);
-    equipment = runs === 0;
+    equipment = word(wram, SPELL_CHOICE_RUNS_SCRIPT) === 0;
   };
   if (equipment)
     yield* dialogCallBody(h, ...SHOW_EQUIPMENT, () =>
@@ -363,8 +313,7 @@ export function* spellMenuSequence(
 // 80:F254: the spell menu of the object DP 00 (see above). A sequence that ends with the
 // native's RTS.
 export function* openSpellMenuSequence(h, events, renderBuffer = drawTextBufferSequence) {
-  const { ctx } = h,
-    { mem } = h.a,
+  const { mem } = h.a,
     { wram } = mem;
   yield () => {
     setWord(wram, MEMBER_MENU_ACTIVE, MARK_SET);
@@ -378,19 +327,10 @@ export function* openSpellMenuSequence(h, events, renderBuffer = drawTextBufferS
     setWord(wram, MEMBER_NUMBER, number);
     setWord(wram, MEMBER_OBJECT, object);
     setWord(wram, MEMBER_INDEX, runner);
-    const skills = add(dataBankWord(mem, RUNNER_RECORD_POINTERS, runner), SKILLS_START),
-      bank = dataBankWord(mem, RUNNER_RECORD_BANKS, runner) & BYTE_MASK;
-    setWord(wram, DP_MEMBER_RECORD, skills.value);
-    wram[DP_MEMBER_RECORD_BANK] = bank;
+    const skills = (dataBankWord(mem, RUNNER_RECORD_POINTERS, runner) + SKILLS_START) & WORD_MASK;
+    setWord(wram, DP_MEMBER_RECORD, skills);
+    wram[DP_MEMBER_RECORD_BANK] = dataBankWord(mem, RUNNER_RECORD_BANKS, runner) & BYTE_MASK;
     setWord(wram, DIALOG_END, 0);
-    // The bank byte is loaded with an 8-bit A: the sum's high byte stays.
-    ctx.a = (skills.value & HIGH_BYTE_MASK) | bank;
-    ctx.x = runner;
-    ctx.y = object;
-    setFlag(ctx, FLAG_NEGATIVE, bank & (1 << (BYTE_BITS - 1)));
-    setFlag(ctx, FLAG_ZERO, bank === 0);
-    setFlag(ctx, FLAG_CARRY, skills.carry);
-    setFlag(ctx, FLAG_OVERFLOW, skills.overflow);
   };
   yield* dialogCallBody(h, ...SPELL_MENU, () =>
     spellMenuSequence(h, events, MENU_ENTRY, renderBuffer),
