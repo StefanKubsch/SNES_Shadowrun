@@ -40,7 +40,7 @@ import { sceneRuntime } from '../../src/system/scene-runtime.mjs';
 import { nmiAtBranch } from '../../src/system/frame-wait.mjs';
 import { lagFree } from '../../src/system/main-wait-interrupt.mjs';
 import { waitWord, unpackPortrait } from '../system/native-dialog-portrait.mjs';
-import { UNPACK_7F, unpackLongRegisters } from '../../src/system/unpack.mjs';
+import { UNPACK_7F, unpackLong } from '../../src/system/unpack.mjs';
 import {
   A1B0,
   A1T0L,
@@ -137,11 +137,11 @@ export function unpackPortraitRoutine(h, events) {
   h.pushByte(ctx.bank);
   h.a.pushWord(HIGH_BANK_PAIR);
   ctx.s = (ctx.s + 2) & WORD_MASK;
-  const registers = unpackLongRegisters(h.a.mem, ctx.a, ctx.y, ctx.x, UNPACK_7F);
+  const unpacked = unpackLong(h.a.mem, ctx.a, ctx.y, ctx.x, UNPACK_7F);
   // The length the routine pushes and pulls again (PHA, PLA).
-  h.a.pushWord(registers.a);
+  h.a.pushWord(unpacked.length);
   ctx.s = (ctx.s + 2) & WORD_MASK;
-  Object.assign(ctx, registers);
+  Object.assign(ctx, { a: unpacked.length, x: unpacked.sourceEnd, y: unpacked.outputEnd });
   // PLB, PLP: the data bank and the status as on entry.
   ctx.s = (ctx.s + 2) & WORD_MASK;
   return h.rts();

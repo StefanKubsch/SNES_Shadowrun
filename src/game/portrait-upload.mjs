@@ -40,7 +40,7 @@ import { dialogCallBody } from '../system/native-call-continuation.mjs';
 import { sceneRuntime } from '../system/scene-runtime.mjs';
 import { nmiAtBranch } from '../system/frame-wait.mjs';
 import { recordedRoutine } from '../system/recorded-routines.mjs';
-import { UNPACK_7F, unpackLongRegisters } from '../system/unpack.mjs';
+import { UNPACK_7F, unpackLong } from '../system/unpack.mjs';
 import {
   A1B0,
   A1T0L,
@@ -110,8 +110,8 @@ const setWord = (wram, at, value) => {
 };
 
 // Unpack the portrait stream (pointer, bank word) into bank 7F from the offset
-// (80:9F6D, called with JSR); returns the registers the original leaves, which only the
-// register form (proof/caller/portrait-routines.mjs) uses.
+// (80:9F6D, called with JSR); returns the unpacker's result (src/system/unpack.mjs),
+// whose values the register form (proof/caller/portrait-routines.mjs) leaves in A, X, Y.
 export function unpackPortraitStream(h, source, bank, offset) {
   const { ctx } = h;
   // PHP, PHB, PEA 7F7F, PLB, PLB: their bytes stay below the stack.
@@ -119,13 +119,13 @@ export function unpackPortraitStream(h, source, bank, offset) {
   h.pushByte(ctx.bank);
   h.a.pushWord(HIGH_BANK_PAIR);
   ctx.s = (ctx.s + 2) & WORD_MASK;
-  const registers = unpackLongRegisters(h.a.mem, source, bank, offset, UNPACK_7F);
+  const unpacked = unpackLong(h.a.mem, source, bank, offset, UNPACK_7F);
   // The length the routine pushes and pulls again (PHA, PLA).
-  h.a.pushWord(registers.a);
+  h.a.pushWord(unpacked.length);
   ctx.s = (ctx.s + 2) & WORD_MASK;
   // PLB, PLP: the data bank and the status as on entry.
   ctx.s = (ctx.s + 2) & WORD_MASK;
-  return registers;
+  return unpacked;
 }
 export function unpackPortrait(h, events, source, bank, offset) {
   const recorded = recordedRoutine(events, 'portrait-unpack');

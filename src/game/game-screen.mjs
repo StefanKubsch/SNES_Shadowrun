@@ -371,7 +371,7 @@ export function unpackWindowMap(m) {
     word(wram, WINDOW_MAP_SOURCE_BANK),
     WINDOW_MAP_BUFFER,
     UNPACK_7E,
-  );
+  ).outputEnd;
   let carry = 0,
     overflow = false;
   for (let x = WINDOW_MAP_LAST_WORD_OFFSET; x >= 0; x -= 2) {

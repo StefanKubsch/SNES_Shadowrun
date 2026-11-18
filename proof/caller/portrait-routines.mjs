@@ -12,7 +12,8 @@ export function unpackPortraitRoutine(h, events) {
   const recorded = recordedRoutine(events, 'portrait-unpack');
   if (recorded) return recorded(h, events);
   const { ctx } = h;
-  Object.assign(ctx, unpackPortraitStream(h, ctx.a, ctx.y, ctx.x));
+  const unpacked = unpackPortraitStream(h, ctx.a, ctx.y, ctx.x);
+  Object.assign(ctx, { a: unpacked.length, x: unpacked.sourceEnd, y: unpacked.outputEnd });
   return h.rts();
 }
 // The VRAM address in X; A the finished request word, its sign set.

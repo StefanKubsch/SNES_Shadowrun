@@ -172,20 +172,13 @@ const DP_LIMIT = 0xdb,
 // when the language has one (src/data/language.mjs); 80:9E7E does the same for 128
 // bytes, whatever the stream's length word says; 80:9F69 unpacks into bank 7F and
 // reads the stream as it is. Each leaves the direct page fields as the original.
-// Returns the index register Y the original leaves (unpackLongRegisters also A, the
-// output length it pulls at the end, and X).
+// Returns the output length, the source offset past the stream and the output offset
+// past its end (game state only, user decision 2026-11-17: register-level callers in
+// proof/ take them as the A, X and Y the original leaves).
 export const UNPACK_7E = Object.freeze({ outputBank: WRAM_STREAM_BANK, translated: true }),
   UNPACK_FIXED_7E = Object.freeze({ ...UNPACK_7E, length: FIXED_LENGTH }),
   UNPACK_7F = Object.freeze({ outputBank: WRAM_STREAM_BANK + 1, translated: false });
-export const unpackLong = (mem, pointer, bankWord, start, form) =>
-  unpackLongRegisters(mem, pointer, bankWord, start, form).y;
-export function unpackLongRegisters(
-  mem,
-  pointer,
-  bankWord,
-  start,
-  { outputBank, translated, length },
-) {
+export function unpackLong(mem, pointer, bankWord, start, { outputBank, translated, length }) {
   const { wram } = mem,
     setWord = (at, value) => {
       wram[at] = value & BYTE_MASK;
@@ -214,7 +207,7 @@ export function unpackLongRegisters(
     [DP_BITS, state.bits],
   ])
     setWord(at, value);
-  return { a: state.limit, x: state.endSource, y: state.endIndex };
+  return { length: state.limit, sourceEnd: state.endSource, outputEnd: state.endIndex };
 }
 
 // The stream form (80:9F4D, long form 80:F2A0): into bank 7E, reading the
