@@ -5,11 +5,21 @@
 // byte.
 import { setMusicMode } from '../../src/apu/music-mode.mjs';
 import { sendApuCommand } from '../../src/apu/apu-command.mjs';
-import { commandResult, requireApuEntry } from '../../src/apu/audio-routines.mjs';
 import { accessorPort } from '../../src/system/hardware-port.mjs';
+import { taskStop } from '../../src/system/task-stop.mjs';
+import { APU_COMMAND_TOKEN } from '../../src/data/wram.mjs';
 import { APU_COMMAND_VOLUME_TARGET } from '../../src/constants/sound-commands.mjs';
-import { FLAG_NEGATIVE, FLAG_ZERO } from '../../src/constants/cpu-flags.mjs';
-import { BYTE_MASK } from '../../src/constants/bits.mjs';
+import { FLAG_INDEX_8BIT, FLAG_NEGATIVE, FLAG_ZERO } from '../../src/constants/cpu-flags.mjs';
+import { BYTE_BITS, BYTE_MASK } from '../../src/constants/bits.mjs';
+
+// The original sends the parameter with a 16-bit STX and needs the direct page at 0
+// (moved from src/apu/audio-routines.mjs, whose lifted calls read no registers).
+export function requireApuEntry(ctx) {
+  if (ctx.d !== 0 || ctx.e !== 0 || ctx.status & FLAG_INDEX_8BIT)
+    taskStop('task_apu_entry_required');
+}
+// A after a command: the command in its high byte, the new command token in its low byte.
+export const commandResult = (wram, command) => (command << BYTE_BITS) | wram[APU_COMMAND_TOKEN];
 
 // EF47 ends with the volume target command and X = its left/right levels.
 const MUSIC_VOLUME_TARGET = 0x7f7f;
