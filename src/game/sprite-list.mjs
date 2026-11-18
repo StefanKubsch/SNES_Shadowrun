@@ -114,9 +114,8 @@ export function buildSprites(h) {
   ctx.y = player;
   signAndZero(ctx, player);
   if (!(player & WORD_SIGN)) {
-    ctx.a = lowField(wram, OBJECT_PALETTE, player);
-    signAndZero(ctx, ctx.a);
-    h.call(PLAYER_PALETTE_CALL, PALETTE_TARGET, () => paletteSlot(h));
+    const palette = lowField(wram, OBJECT_PALETTE, player);
+    h.call(PLAYER_PALETTE_CALL, PALETTE_TARGET, () => paletteSlot(h, palette));
   }
   // OAM entry 0 stays reserved (the glove sprite of the game NMI).
   setWord(wram, DP_OAM_OFFSET, OAM_ENTRY_BYTES);
@@ -138,7 +137,7 @@ export function buildSprites(h) {
       if (picture) {
         h.a.pushWord(index);
         ctx.y = slot;
-        h.call(OAM_CALL, OAM_TARGET, () => enterObjectSprites(h));
+        h.call(OAM_CALL, OAM_TARGET, () => enterObjectSprites(h, slot, picture));
         ctx.y = h.a.pullWord();
       }
     }

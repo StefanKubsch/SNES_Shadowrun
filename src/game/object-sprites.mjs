@@ -24,9 +24,10 @@
 // on screen (0004), and front walls and open cells as covered (0200) or hidden (0800).
 //
 // The direct page words of the original are written as it writes them, the return words
-// of the inner calls and the grid's pushed index and column on the stack. X is left as
-// the original leaves it (the sprite list's last object passes it on); A, the flags and
-// Y (the caller pulls it) are not produced. The fields the original reads through its
+// of the inner calls and the grid's pushed index and column on the stack. Registers (user
+// decision 2026-11-17): the object and the picture are parameters (Y and A in the
+// original); no registers are left (nothing after the sprite list reads the X the last
+// object leaves). The fields the original reads through its
 // data bank 80 lie below 2000 (`object_slot_required` past it), the walls in bank 7F, the
 // pictures in 9B and 9C.
 import { taskStop } from '../system/task-stop.mjs';
@@ -261,14 +262,12 @@ const quarter = (value) =>
     ? WORD_SIGN | (WORD_SIGN >>> 1) | (value >>> QUARTER_SHIFT)
     : value >>> QUARTER_SHIFT;
 
-// Enter the sprites of the object in Y with the picture in A (80:B20A, called with JSR);
+// Enter the sprites of the object slot with the picture (80:B20A, called with JSR);
 // returns with its RTS.
-export function enterObjectSprites(h) {
-  const { ctx, a } = h,
+export function enterObjectSprites(h, slot, picture) {
+  const { a } = h,
     { mem } = a,
-    { wram } = mem,
-    slot = ctx.y,
-    picture = ctx.a;
+    { wram } = mem;
   // Fields of the data bank 80 below 2000, the direct page, the OAM buffer in bank 7E.
   const at = (field, index) => {
     if (field + index + 1 >= LOW_WRAM_END) taskStop('object_slot_required', { field, index });
@@ -290,11 +289,9 @@ export function enterObjectSprites(h) {
     mem.write8(high, or ? bits | mem.read8(high) : bits & mem.read8(high));
     return x;
   };
-  let x = ctx.x;
-  const leave = () => {
-    ctx.x = x;
-    return h.rts();
-  };
+  // The working index of the wall map and the parts (X in the original).
+  let x;
+  const leave = () => h.rts();
   const hide = () => {
     put(OBJECT_FLAGS, get(OBJECT_FLAGS) | OBJECT_HIDDEN, get(ENTERED_OBJECT, 0));
     return leave();
@@ -310,10 +307,11 @@ export function enterObjectSprites(h) {
   setDp(DP_ANCHOR_X, longByte(mem, pictureAt(0)) << 1);
   setDp(DP_ANCHOR_Y, longByte(mem, pictureAt(1)) << 1);
   put(OBJECT_FLAGS, get(OBJECT_FLAGS) & ~(OBJECT_ON_SCREEN | OBJECT_COVERED | OBJECT_HIDDEN));
-  ctx.a = get(OBJECT_PALETTE);
-  h.call(PALETTE_CALL, PALETTE_TARGET, () => paletteSlot(h));
-  x = ctx.x;
-  setDp(DP_PALETTE_SLOT, ctx.a);
+  const palette = get(OBJECT_PALETTE);
+  setDp(
+    DP_PALETTE_SLOT,
+    h.call(PALETTE_CALL, PALETTE_TARGET, () => paletteSlot(h, palette)),
+  );
   setDp(DP_DEPTH, get(OBJECT_DIAGONAL) >>> QUARTER_SHIFT);
   const cameraY = word(wram, CAMERA_Y) >>> QUARTER_SHIFT;
   setDp(DP_CAMERA_Y, cameraY);
@@ -370,7 +368,7 @@ export function enterObjectSprites(h) {
     } while (dp(DP_COLUMNS_LEFT));
   } else {
     walkWallMap();
-    x = occlusionGrid();
+    occlusionGrid();
   }
   return enterParts();
 
@@ -478,7 +476,7 @@ export function enterObjectSprites(h) {
   }
 
   // The occlusion grid of the picture's alignment (80:B45D to 80:B754): each part's
-  // priority, and its covering wall tiles as 8x8 sprites. Returns the original's X.
+  // priority, and its covering wall tiles as 8x8 sprites.
   function occlusionGrid() {
     const aligned = dp(DP_COLUMN_ALIGNED) !== 0,
       grid = GRIDS[(aligned ? 'CD' : 'AB')[dp(DP_ROW_OFFSET) ? 0 : 1]];
@@ -519,7 +517,7 @@ export function enterObjectSprites(h) {
         continue;
       }
       setDp(DP_COLUMNS_LEFT, dp(DP_COLUMNS_LEFT) - 1);
-      if (!dp(DP_COLUMNS_LEFT)) return index;
+      if (!dp(DP_COLUMNS_LEFT)) return;
       const next = (y & ~(PART_COLUMN_BYTES - 1) & WORD_MASK) + PART_COLUMN_BYTES;
       y = next & WORD_MASK;
       setDp(DP_CELL_X, dp(DP_CELL_X) + PART_SIZE + (next > WORD_MASK ? 1 : 0));

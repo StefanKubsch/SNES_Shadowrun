@@ -5,6 +5,7 @@ import {
   window,
   decodeWindows,
   compareDialog,
+  GAME_STATE_REGISTERS,
   prng,
   romBytes,
 } from './task-native-dialog-harness.mjs';
@@ -476,10 +477,11 @@ const pictures = (() => {
     }
   return list;
 })();
-// The register-level reference and the lifted sprite list (src/game/sprite-list.mjs).
-for (const [name, native] of [
-  ['B8DE/AFFC/B20A/B130', (h) => buildSpriteList(h)],
-  ['lifted B8DE', (h) => runSpriteList(h)],
+// The register-level reference and the lifted sprite list (src/game/sprite-list.mjs),
+// which is compared by game state (user decision 2026-11-17).
+for (const [name, native, registers] of [
+  ['B8DE/AFFC/B20A/B130', (h) => buildSpriteList(h), undefined],
+  ['lifted B8DE', (h) => runSpriteList(h), GAME_STATE_REGISTERS],
 ])
   check(
     name,
@@ -538,11 +540,12 @@ for (const [name, native] of [
       put(0x1562, int(4));
       return s;
     },
-    { native },
+    { native, registers },
   );
 
-// The lifted depth sort and palette slot alone (src/game/depth-sort.mjs, palette-slots.mjs),
-// so that the registers and flags they leave, which the sprite list overwrites, are compared.
+// The lifted depth sort and palette slot alone (src/game/depth-sort.mjs, palette-slots.mjs).
+// The palette slot takes the palette as a parameter (A in the original) and is compared by
+// game state (user decision 2026-11-17).
 import { sortDrawList } from '../src/game/depth-sort.mjs';
 import { paletteSlot } from '../src/game/palette-slots.mjs';
 const b8deWindows = (starts) => DIALOG_WINDOWS.b8de.filter((w) => starts.includes(w.start));
@@ -581,7 +584,7 @@ check(
     put(0x17d4, 2 * int(0x10));
     return s;
   },
-  { native: (h) => paletteSlot(h) },
+  { native: (h) => paletteSlot(h, h.ctx.a), registers: GAME_STATE_REGISTERS },
 );
 
 // Native95/936C code with 92C5: every called routine uses an identical stub with a real frame

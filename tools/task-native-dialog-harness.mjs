@@ -7,14 +7,14 @@ import { TaskAccessor } from '../src/vm/task-accessor.mjs';
 import { isIoAddress, isArithmeticRegister } from '../src/vm/devices.mjs';
 import { dialogAccess } from '../src/system/native-dialog-support.mjs';
 
-// Testwerkzeug: Gleichungen der Dialogroutinen ($936C) gegen die Originalbefehle (w65c816-reference.mjs).
-// Beide Seiten starten mit demselben WRAM, denselben Registern und demselben Rücksprungrahmen; externe
-// Routinen mit eigenem Beweis laufen auf beiden Seiten als dieselben Module mit echten Rahmen.
+// Test tool: the dialog routines ($936C) against the original instructions (w65c816-reference.mjs).
+// Both sides start with the same WRAM, the same registers and the same return frame; external
+// routines with their own proof run on both sides as the same modules with real frames.
 const file = readFileSync(new URL('../Shadowrun (E).smc', import.meta.url));
 export const romBytes = inspectRom(file).bytes,
   rom = new Uint8Array(romBytes);
 const romOffset = (address) => (((address >>> 16) & 0x1f) << 15) | (address & 0x7fff);
-// Fenster aus der ROM (Start, Ende exklusiv); die Quelle selbst pinnt die Bytes getrennt.
+// A window of the ROM (start, end exclusive); the source itself pins the bytes separately.
 export const window = (start, end, extra = {}) => ({
   start,
   hex: Buffer.from(rom.subarray(romOffset(start), romOffset(start) + end - start))
@@ -24,7 +24,7 @@ export const window = (start, end, extra = {}) => ({
 });
 export const decodeWindows = (windows) => decodeTaskWindows(romBytes, windows).map;
 
-// Speicher ohne Gerätemodell: Hardwareschreibzugriffe (außer Recheneinheit) wirken nicht.
+// Memory without a device model: hardware writes (except the arithmetic unit) have no effect.
 export class DialogTestMemory extends VmMemory {
   constructor(wram, sram = null, sourceRom = rom) {
     super(sourceRom, wram, sram);
@@ -66,7 +66,7 @@ function side(s, root) {
     p: s.p,
     pc: s.entry & 0xffff,
   };
-  // Rücksprungrahmen des Aufrufers (Bank 80, Rücksprungwort 1234).
+  // The caller's return frame (bank 80, return word 1234).
   if (root === 'RTL') {
     mem.write8(vm.s, 0x80);
     vm.s--;
@@ -99,11 +99,11 @@ function side(s, root) {
   }
   return { mem, acc };
 }
-// Vergleicht native(h, events) mit den Originalbefehlen. scenario: {entry, wram, sram?, a, x, y, dbr, p, waits, io?}.
-// io: geordnete BYTE-/WORD-Gerätewerte; die Referenz liest ihre Bytes einzeln, beide Traces pinnen die PC.
-// calls(acc, events) -> Map Ziel -> run() für extern bewiesene Routinen der Referenzseite.
-// Warteschleifen, die die Referenz selbst ausführt: vor jedem Befehl an einer Schleifen-PC legt sie die
-// nächste BYTE- oder WORD-Beobachtung dieser PC an der Adresse ab (wie das Modul vor seinem Lesen).
+// Compares native(h, events) with the original instructions. scenario: {entry, wram, sram?, a, x, y, dbr, p, waits, io?}.
+// io: ordered byte or word device values; the reference reads their bytes one by one, both traces pin the PC.
+// calls(acc, events) -> map target -> run() for externally proved routines on the reference side.
+// Wait loops the reference runs itself: before each instruction at a loop PC it stores the next
+// byte or word observation of that PC at its address (as the module does before its read).
 export function waitHooks(s, pcs) {
   const queues = new Map(pcs.map((pc) => [pc, (s.waits ?? []).filter((o) => o.pc === pc)]));
   return new Map(
@@ -115,7 +115,7 @@ export function waitHooks(s, pcs) {
         if (!o) return;
         if (o.width === 1) mem.write8(o.address, o.value);
         else mem.write16(o.address, o.value);
-        // Austritt: vom NMI dabei geschriebene Wörter (andere Adresse, gleiche PC) sofort ablegen.
+        // Exit: words the NMI wrote meanwhile (another address, the same PC) are stored at once.
         while (queue.length && queue[0].address !== o.address) {
           const extra = queue.shift();
           mem.write16(extra.address, extra.value);
@@ -124,9 +124,22 @@ export function waitHooks(s, pcs) {
     ]),
   );
 }
-// feed(details) liefert eine fehlende Beobachtung (Warten an details.pc/address); das Native läuft dann vom
-// selben Anfangszustand erneut. Die Referenz erhält die fertige Liste: Schleifen-PCs (waits) über Hooks,
-// alle übrigen Beobachtungen (Zähler B0A1) über die Module in calls.
+// feed(details) supplies a missing observation (a wait at details.pc/address); the native then runs
+// again from the same initial state. The reference receives the finished list: loop PCs (waits)
+// through hooks, all other observations (counter B0A1) through the modules in calls.
+// registers: the registers compared after the run. A lifted native that works on game state only
+// (user decision 2026-11-17) is compared without A, X, Y and the flags (GAME_STATE_REGISTERS).
+export const CPU_REGISTERS = Object.freeze([
+  'a',
+  'x',
+  'y',
+  's',
+  'status',
+  'pc',
+  'programBank',
+  'bank',
+]);
+export const GAME_STATE_REGISTERS = Object.freeze(['s', 'pc', 'programBank', 'bank']);
 export function compareDialog(
   map,
   s,
@@ -137,6 +150,7 @@ export function compareDialog(
     waits = [],
     feed = null,
     referenceLimit = 1_000_000,
+    registers = CPU_REGISTERS,
   },
 ) {
   s.waits ??= [];
@@ -159,7 +173,7 @@ export function compareDialog(
       native(dialogAccess(n.acc), nativeEvents, s);
       break;
     } catch (error) {
-      // Module mit eigenem Zähler (B0A1, F963) melden den Index in ihrem Ausschnitt ab events.waitIndex.
+      // Modules with their own counter (B0A1, F963) report the index within their part from events.waitIndex.
       const missing =
         error?.reason === 'task_wait_observation_required' &&
         (error.observationIndex === s.waits.length ||
@@ -184,7 +198,7 @@ export function compareDialog(
     before: waitHooks(s, waits),
   });
   const differences = [];
-  for (const key of ['a', 'x', 'y', 's', 'status', 'pc', 'programBank', 'bank'])
+  for (const key of registers)
     if (n.acc.ctx[key] !== r.acc.ctx[key])
       differences.push(
         `${key} native ${n.acc.ctx[key].toString(16)} original ${r.acc.ctx[key].toString(16)}`,
