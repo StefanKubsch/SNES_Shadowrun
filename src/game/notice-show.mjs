@@ -19,7 +19,7 @@
 //
 // Registers (user decision 2026-11-17): game state only. The notice returns its window
 // in shown.window (A in the original) and leaves no registers; the register form for
-// register-level callers is noticeRoutineSequence.
+// register-level callers lives in proof/caller/upkeep-routines.mjs.
 import { taskStop } from '../system/task-stop.mjs';
 import { dialogCallBody } from '../system/native-call-continuation.mjs';
 import { openWindowSequence, requestTileClearSequence } from './window-open.mjs';
@@ -43,7 +43,6 @@ import {
   WINDOW_TILE_START,
 } from '../data/wram.mjs';
 import { BYTE_BITS, BYTE_MASK, WORD_MASK, WORD_SIGN } from '../constants/bits.mjs';
-import { FLAG_NEGATIVE, FLAG_ZERO } from '../constants/cpu-flags.mjs';
 
 const EFFECT_ATTRIBUTES = 0x400,
   EFFECT_FRAMES = 30,
@@ -176,19 +175,5 @@ export function* showNoticeSequence(h, events, renderBuffer = drawTextBufferSequ
     shown.slot = slot;
     result = h.rts();
   };
-  return result;
-}
-
-// The notice for register-level callers: A the window with its sign and zero and X the
-// slot, as the original leaves them.
-export function* noticeRoutineSequence(h, events, renderBuffer = drawTextBufferSequence) {
-  const shown = {},
-    result = yield* showNoticeSequence(h, events, renderBuffer, shown),
-    { ctx } = h;
-  ctx.a = shown.window;
-  ctx.x = shown.slot;
-  ctx.status &= ~(FLAG_NEGATIVE | FLAG_ZERO);
-  if (shown.window & WORD_SIGN) ctx.status |= FLAG_NEGATIVE;
-  if (shown.window === 0) ctx.status |= FLAG_ZERO;
   return result;
 }

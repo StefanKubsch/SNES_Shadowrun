@@ -15,8 +15,8 @@
 // Window opening, release and menus compose directly through their call frames.
 // Registers (user decision 2026-11-17): game state only; the menus take no register
 // input and the routines leave no registers (the result is in the direct page word 00).
-// The register form of the main menu for register-level callers leaves A the result
-// with the flags of its CMP #FFFF.
+// The register form of the main menu for register-level callers (A the result with the
+// flags of its CMP #FFFF) lives in proof/caller/upkeep-routines.mjs.
 import { dialogCallBody } from '../system/native-call-continuation.mjs';
 import { drawTextBufferSequence } from './text-draw.mjs';
 import { chooseFromMenuSequence } from './menu-choice.mjs';
@@ -26,7 +26,6 @@ import { openWindowSequence } from './window-open.mjs';
 import { releaseWindowSequence } from './window-release.mjs';
 import { DIALOG_END, TOPIC_FLAGS, TOPIC_LIST } from '../data/wram.mjs';
 import { BYTE_BITS, BYTE_MASK, WORD_BITS, WORD_MASK, WORD_SIGN } from '../constants/bits.mjs';
-import { FLAG_CARRY, FLAG_NEGATIVE, FLAG_ZERO } from '../constants/cpu-flags.mjs';
 
 const DP_RESULT = 0x00,
   DP_TEXT_WINDOW = 0x17,
@@ -53,13 +52,6 @@ const word = (wram, at) => wram[at] | (wram[at + 1] << BYTE_BITS);
 const setWord = (wram, at, value) => {
   wram[at] = value & BYTE_MASK;
   wram[at + 1] = (value >>> BYTE_BITS) & BYTE_MASK;
-};
-const flag = (ctx, bit, set) => {
-  ctx.status = set ? ctx.status | bit : ctx.status & ~bit;
-};
-const signAndZero = (ctx, value) => {
-  flag(ctx, FLAG_NEGATIVE, value & WORD_SIGN);
-  flag(ctx, FLAG_ZERO, value === 0);
 };
 // The direct page words from 00 (or 02) on.
 const setWords = (wram, from, values) =>
@@ -98,17 +90,6 @@ export function* chooseDialogActionSequence(h, events, renderBuffer = drawTextBu
   };
   return yield* rts(h);
 }
-// The register form: A the result, with the carry, sign and zero of CMP #FFFF.
-export function* dialogActionRoutineSequence(h, events, renderBuffer = drawTextBufferSequence) {
-  const result = yield* chooseDialogActionSequence(h, events, renderBuffer),
-    { ctx } = h,
-    chosen = word(h.a.mem.wram, DP_RESULT);
-  ctx.a = chosen;
-  flag(ctx, FLAG_CARRY, chosen === NONE);
-  signAndZero(ctx, (chosen + 1) & WORD_MASK);
-  return result;
-}
-
 // The dialog's topic choice (80:9215), a sequence for a native call continuation.
 export function* chooseDialogTopicSequence(h, events, renderBuffer = drawTextBufferSequence) {
   const { mem } = h.a,

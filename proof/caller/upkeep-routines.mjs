@@ -8,7 +8,7 @@ import {
   NATIVE_CALL_CONTINUATIONS,
   drainNativeSequence,
 } from '../../src/system/native-call-continuation.mjs';
-import { noticeRoutineSequence } from '../../src/game/notice-show.mjs';
+import { showNoticeSequence } from '../../src/game/notice-show.mjs';
 import {
   putGloveAwayRoutineSequence,
   releaseNoticeWindowsRoutineSequence,
@@ -16,8 +16,8 @@ import {
 } from '../../src/game/window-release.mjs';
 import { closeDialogSequence, talkSequence } from '../../src/game/dialog-talk.mjs';
 import {
+  chooseDialogActionSequence,
   chooseDialogTopicSequence,
-  dialogActionRoutineSequence,
 } from '../../src/game/dialog-menus.mjs';
 import { showDialogTextSequence } from '../../src/game/dialog-text.mjs';
 import {
@@ -33,7 +33,9 @@ import { printNumberSequence } from '../../src/game/window-text.mjs';
 import { printTextSequence } from '../../src/game/text-print.mjs';
 import { drawTextBufferSequence } from '../../src/game/text-draw.mjs';
 import { openWindowSequence } from '../../src/game/window-open.mjs';
-import { chooseActionRoutineSequence } from '../../src/game/action-menu.mjs';
+import { chooseActionSequence } from '../../src/game/action-menu.mjs';
+import { BYTE_BITS, WORD_MASK, WORD_SIGN } from '../../src/constants/bits.mjs';
+import { FLAG_CARRY, FLAG_NEGATIVE, FLAG_ZERO } from '../../src/constants/cpu-flags.mjs';
 
 // 80:FEC1, called with JSR; its window, text and release wait for the NMI, so it is a
 // native call continuation. The register-level notice keeps the target's registration,
@@ -199,3 +201,40 @@ NATIVE_CALL_CONTINUATIONS.set(runTalk, {
   run: runTalk,
   create: ({ h, events }) => new NativeCallContinuation(h.a, talkSequence(h, events)),
 });
+
+// The register forms of the lifted sequences for register-level callers.
+const flag = (ctx, bit, set) => {
+  ctx.status = set ? ctx.status | bit : ctx.status & ~bit;
+};
+const signAndZero = (ctx, value) => {
+  flag(ctx, FLAG_NEGATIVE, value & WORD_SIGN);
+  flag(ctx, FLAG_ZERO, value === 0);
+};
+// 80:91E2: A the chosen row (00) with the carry, sign and zero of CMP #FFFF.
+export function* dialogActionRoutineSequence(h, events, renderBuffer = drawTextBufferSequence) {
+  const result = yield* chooseDialogActionSequence(h, events, renderBuffer),
+    { ctx } = h,
+    { wram } = h.a.mem,
+    chosen = wram[0] | (wram[1] << BYTE_BITS);
+  ctx.a = chosen;
+  flag(ctx, FLAG_CARRY, chosen === WORD_MASK);
+  signAndZero(ctx, (chosen + 1) & WORD_MASK);
+  return result;
+}
+// 80:99EB: the accepted actions in A, the chosen flag left in A.
+export function* chooseActionRoutineSequence(h, events, renderBuffer = drawTextBufferSequence) {
+  const choice = {},
+    result = yield* chooseActionSequence(h, events, renderBuffer, h.ctx.a, choice);
+  h.ctx.a = choice.action;
+  return result;
+}
+// 80:FEC1: A the window with its sign and zero and X the slot, as the original leaves them.
+export function* noticeRoutineSequence(h, events, renderBuffer = drawTextBufferSequence) {
+  const shown = {},
+    result = yield* showNoticeSequence(h, events, renderBuffer, shown),
+    { ctx } = h;
+  ctx.a = shown.window;
+  ctx.x = shown.slot;
+  signAndZero(ctx, shown.window);
+  return result;
+}

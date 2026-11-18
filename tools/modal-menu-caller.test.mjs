@@ -1,6 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import * as directAction from '../src/game/action-menu.mjs';
+import { chooseActionRoutineSequence } from '../proof/caller/upkeep-routines.mjs';
 import * as formerAction from '../proof/caller/action-menu.mjs';
 import * as directQuestion from '../src/game/yes-no-question.mjs';
 import * as formerQuestion from '../proof/caller/yes-no-question.mjs';
@@ -82,7 +83,7 @@ function run(module, { mask, override = 0, pads, script = false }, budget) {
             : 'chooseActionSequence',
       result = finishTextWindow(
         side,
-        module[name](
+        (name === 'chooseActionRoutineSequence' ? chooseActionRoutineSequence : module[name])(
           h,
           events,
           module === directAction || module === directQuestion ? side.render : routines,

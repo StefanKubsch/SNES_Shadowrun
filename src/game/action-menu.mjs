@@ -16,8 +16,8 @@
 // Registers (user decision 2026-11-17): game state only. The accepted actions (A in the
 // original) are a parameter and the chosen flag is returned in choice.action; the menu
 // leaves no registers. The flag the original keeps on the stack over the window release
-// is a local. chooseActionRoutineSequence is the register form for register-level
-// callers: the actions in A, the chosen flag left in A.
+// is a local. The register form for register-level callers (the actions in A, the
+// chosen flag left in A) lives in proof/caller/upkeep-routines.mjs.
 import { dialogCallBody } from '../system/native-call-continuation.mjs';
 import { fitListWindow, listTextIds } from '../data/menu-layout.mjs';
 import { TEXT_EXIT } from '../data/port-extension.mjs';
@@ -168,13 +168,6 @@ export function* chooseActionSequence(
     setWord(wram, ACTION_MENU_OVERRIDE, 0);
   };
   return yield* rts(h);
-}
-// The register form of 80:99EB: the accepted actions in A, the chosen flag left in A.
-export function* chooseActionRoutineSequence(h, events, renderBuffer = drawTextBufferSequence) {
-  const choice = {},
-    result = yield* chooseActionSequence(h, events, renderBuffer, h.ctx.a, choice);
-  h.ctx.a = choice.action;
-  return result;
 }
 // The action menu as the script native 80:9BA0, a sequence: no override, the mask from
 // the first argument, the menu (JSR at 80:9BA5) and the chosen flag as the result.
