@@ -21,17 +21,19 @@ import {
   runFormationStep,
   runTileBuffers,
   runHitShake,
-  runNoticeTimeouts,
   runPaletteCycles,
-  runTimeLimit,
-  runGloveAction,
   runFrameWait,
   runPadPresses,
-  runGloveMove,
-  runPlayerZones,
   runObjectMotion,
   runSpriteList,
 } from '../src/game/main-upkeep.mjs';
+import {
+  runNoticeTimeouts,
+  runTimeLimit,
+  runGloveAction,
+  runGloveMove,
+  runPlayerZones,
+} from '../proof/caller/live-loop-routines.mjs';
 import { MAIN_CAMERA_REFERENCE_ENTRIES } from '../proof/game-reference/main-camera.mjs';
 import { MAIN_UPKEEP_REFERENCE_ENTRIES } from '../proof/game-reference/main-upkeep.mjs';
 import { MAIN_UPKEEP_ROUTINES } from '../proof/replay/main-loop-upkeep.mjs';

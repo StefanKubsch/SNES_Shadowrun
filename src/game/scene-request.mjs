@@ -22,12 +22,7 @@
 // sceneRequestRoutineSequence is the register form for the routine table: the carry
 // set when the request was taken.
 import { tasksOf } from '../script/task-api.mjs';
-import {
-  NativeCallContinuation,
-  NATIVE_CALL_CONTINUATIONS,
-  drainNativeSequence,
-  dialogCallBody,
-} from '../system/native-call-continuation.mjs';
+import { dialogCallBody } from '../system/native-call-continuation.mjs';
 import { cutsceneSequence } from '../cutscene/cutscene-scene.mjs';
 import { matrixSceneSequence } from '../matrix/matrix-scene.mjs';
 import { sceneRuntime } from '../system/scene-runtime.mjs';
@@ -44,7 +39,6 @@ import {
   SCENE_REQUEST_ROOM_ONLY,
 } from '../data/wram.mjs';
 import { BYTE_BITS, BYTE_MASK, WORD_MASK } from '../constants/bits.mjs';
-import { FLAG_CARRY } from '../constants/cpu-flags.mjs';
 
 export const SCENE_REQUEST_ENTRY = 0x80cc4b;
 const SCENE_REQUEST_NONE = WORD_MASK;
@@ -121,20 +115,3 @@ export function* sceneRequestSequence(h, events, request = {}) {
   };
   return result;
 }
-// The register form: the carry set when the request was taken.
-export function* sceneRequestRoutineSequence(h, events) {
-  const request = {},
-    result = yield* sceneRequestSequence(h, events, request);
-  h.ctx.status = request.taken ? h.ctx.status | FLAG_CARRY : h.ctx.status & ~FLAG_CARRY;
-  return result;
-}
-
-// The run wrapper for the main loop's routine table.
-export function processSceneRequest(h, events) {
-  return drainNativeSequence(sceneRequestRoutineSequence(h, events));
-}
-NATIVE_CALL_CONTINUATIONS.set(SCENE_REQUEST_ENTRY, {
-  run: processSceneRequest,
-  create: ({ h, events }) =>
-    new NativeCallContinuation(h.a, sceneRequestRoutineSequence(h, events)),
-});

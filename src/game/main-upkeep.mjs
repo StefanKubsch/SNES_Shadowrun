@@ -7,11 +7,6 @@
 // callee takes its NMI with them, which saves X and Y on the NMI stack (7E:1CB6-1CB9)
 // that the Mesen oracle compares. So the entries leave X and Y as the original; A and
 // the flags besides the width are not produced, every next callee loads its own A.
-import {
-  NativeCallContinuation,
-  NATIVE_CALL_CONTINUATIONS,
-  drainNativeSequence,
-} from '../system/native-call-continuation.mjs';
 import { sceneRuntime } from '../system/scene-runtime.mjs';
 import { noticeTimeoutSequence } from './notice-timeout.mjs';
 import { applyColourEffect } from './fixed-colour.mjs';
@@ -52,7 +47,7 @@ import { openSpellMenuSequence } from './member-spell-menu.mjs';
 import { controlPlayerSequence } from './player-control.mjs';
 import { NATIVE_ENTRY, statusScreenSequence } from './status-screen.mjs';
 import { mainMenuSequence } from './main-menu.mjs';
-import { playerZonesRoutineSequence, playerZonesSequence } from './player-zones.mjs';
+import { playerZonesSequence } from './player-zones.mjs';
 import { moveAndAnimate } from './object-motion.mjs';
 import { buildSprites } from './sprite-list.mjs';
 import { frameWaitCallSequence } from '../system/live-input-calls.mjs';
@@ -88,13 +83,6 @@ function* noticeTimeoutCallSequence(h, events) {
   };
   return result;
 }
-export function runNoticeTimeouts(h, events) {
-  return drainNativeSequence(noticeTimeoutCallSequence(h, events));
-}
-NATIVE_CALL_CONTINUATIONS.set(0x80ff14, {
-  run: runNoticeTimeouts,
-  create: ({ h, events }) => new NativeCallContinuation(h.a, noticeTimeoutCallSequence(h, events)),
-});
 // 80:BAD5, called with JSR.
 export function runFormationStep(h) {
   recordFormationStep(h.a.mem.wram);
@@ -188,49 +176,6 @@ export const liftedShootWithOwnWeaponSequence = (h, events) =>
 // The lifted blast 80:8E36 with the lifted hit, as the script native runs it with
 // lag-free frames.
 export const liftedBlastSequence = (h, events) => hitObjectsInBlastSequence(h, events);
-// 80:E270, called with JSR; its notice and text wait for the NMI of their uploads, so
-// it is a native call continuation of the main loop.
-export function runTimeLimit(h, events) {
-  return drainNativeSequence(timeLimitSequence(h, events));
-}
-NATIVE_CALL_CONTINUATIONS.set(0x80e270, {
-  run: runTimeLimit,
-  create: ({ h, events }) => new NativeCallContinuation(h.a, timeLimitSequence(h, events)),
-});
-// 80:BF3B, called with JSR; its notice, menu, dialog and input wait for the NMI, so it
-// is a native call continuation of the main loop.
-export function runGloveAction(h, events) {
-  return drainNativeSequence(gloveActionSequence(h, events));
-}
-NATIVE_CALL_CONTINUATIONS.set(0x80bf3b, {
-  run: runGloveAction,
-  create: ({ h, events }) => new NativeCallContinuation(h.a, gloveActionSequence(h, events)),
-});
-
-// 80:BE6D, called with JSR; its object search and release wait for the NMI, so it is
-// a native call continuation of the main loop. The glove natives bind the register-level
-// version to the same target, so this continuation is found by its run function.
-// The object search opens the name window with the lifted 80:F963 and prints the name
-// with the lifted text 80:FE69 and text buffer 80:FB39.
-export function runGloveMove(h, events) {
-  return drainNativeSequence(gloveMoveSequence(h, events));
-}
-NATIVE_CALL_CONTINUATIONS.set(runGloveMove, {
-  run: runGloveMove,
-  create: ({ h, events }) => new NativeCallContinuation(h.a, gloveMoveSequence(h, events)),
-});
-// 80:8000, called with JSR; its scene change waits for the NMI, so it is a native
-// call continuation of the main loop. The register-level reference keeps the target's
-// registration, so this one is found by its run function.
-// The zones append their script tasks with the lifted task append 80:C34A. The register
-// form leaves the carry set after a scene change.
-export function runPlayerZones(h, events) {
-  return drainNativeSequence(playerZonesRoutineSequence(h, events));
-}
-NATIVE_CALL_CONTINUATIONS.set(runPlayerZones, {
-  run: runPlayerZones,
-  create: ({ h, events }) => new NativeCallContinuation(h.a, playerZonesRoutineSequence(h, events)),
-});
 // 80:AFC4, called with JSR; nothing in it waits.
 export function runObjectMotion(h, events) {
   return moveAndAnimate(h, events);

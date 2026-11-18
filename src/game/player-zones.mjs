@@ -18,8 +18,8 @@
 //
 // Registers (user decision 2026-11-17): game state only; the scene change and the task
 // append take the data word as a parameter, and the routine leaves no A, X, Y or flags.
-// playerZonesRoutineSequence is the register form for register-level callers: the
-// carry set after a scene change.
+// The register form for register-level callers (the carry set after a scene change) is
+// in proof/caller/live-loop-routines.mjs.
 import { taskStop } from '../system/task-stop.mjs';
 import { dialogCallBody } from '../system/native-call-continuation.mjs';
 import { enterRoomCallSequence } from './room-entry.mjs';
@@ -44,7 +44,6 @@ import {
   WORD_MASK,
   WORD_SIGN,
 } from '../constants/bits.mjs';
-import { FLAG_CARRY } from '../constants/cpu-flags.mjs';
 
 const POSITION_SHIFT = 2,
   ZONE_BYTES = 14,
@@ -156,12 +155,5 @@ function* rts(h) {
   yield () => {
     result = h.rts();
   };
-  return result;
-}
-// The register form for register-level callers: the carry set after a scene change.
-export function* playerZonesRoutineSequence(h, events) {
-  const zones = {},
-    result = yield* playerZonesSequence(h, events, zones);
-  h.ctx.status = zones.changed ? h.ctx.status | FLAG_CARRY : h.ctx.status & ~FLAG_CARRY;
   return result;
 }

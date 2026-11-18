@@ -50,9 +50,9 @@ import {
   runFormationStep,
   runTileBuffers,
   runHitShake,
-  runNoticeTimeouts,
   runPaletteCycles,
 } from '../src/game/main-upkeep.mjs';
+import { runNoticeTimeouts } from '../proof/caller/live-loop-routines.mjs';
 import {
   runPutGloveAway,
   runOpenWindow,

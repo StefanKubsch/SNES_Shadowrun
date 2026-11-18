@@ -15,14 +15,16 @@ import {
 import {
   runCameraFollow,
   runColourEffect,
-  runNoticeTimeouts,
   runPaletteCycles,
   runTileBuffers,
-  runTimeLimit,
-  runGloveAction,
   runFrameWait,
   runPadPresses,
 } from '../src/game/main-upkeep.mjs';
+import {
+  runNoticeTimeouts,
+  runTimeLimit,
+  runGloveAction,
+} from '../proof/caller/live-loop-routines.mjs';
 import { MAIN_LOOP_ROUTINES } from '../proof/caller/live-loop-routines.mjs';
 import {
   MAIN_LOOP_ROUTINES as REPLAY_LOOP_ROUTINES,

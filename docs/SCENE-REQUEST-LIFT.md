@@ -19,13 +19,13 @@ a request, and the main loop then starts its next pass at its top (80:96AB).
 
 ## Modules
 
-| Module                                                         | Content                                                                                                                                                                          |
-| -------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| [scene-request.mjs](../src/game/scene-request.mjs)             | `sceneRequestSequence` (80:CC4B) and its run wrapper `processSceneRequest`, which the main loop's routine table (src/vm/main-loop.mjs) binds, with its native call continuation. |
-| [room-entry.mjs](../src/game/room-entry.mjs)                   | The forced blank 81:B0BD, the frame wait 81:B0A1 (`waitForFrameCall`) and the room entry 80:A4BF, which the request calls directly.                                              |
-| [game-screen.mjs](../src/game/game-screen.mjs)                 | The game screen set-up 80:9629, called directly.                                                                                                                                 |
-| [main-loop-motion.mjs](../proof/replay/main-loop-motion.mjs)   | `MAIN_MOTION_ROUTINES` keeps the register-level callees of the reference: 81:B0BD, 81:B0A1, 80:9629 and 80:A4BF.                                                                 |
-| [scene-request.mjs](../proof/game-reference/scene-request.mjs) | The register-level 80:CC4B (`processSceneRequestReference`), moved from main-loop-motion.mjs.                                                                                    |
+| Module                                                         | Content                                                                                                                                                                                                                          |
+| -------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| [scene-request.mjs](../src/game/scene-request.mjs)             | `sceneRequestSequence` (80:CC4B), which the live main loop composes directly; its run wrapper `processSceneRequest` with the carry as register form and its native call continuation are in proof/caller/live-loop-routines.mjs. |
+| [room-entry.mjs](../src/game/room-entry.mjs)                   | The forced blank 81:B0BD, the frame wait 81:B0A1 (`waitForFrameCall`) and the room entry 80:A4BF, which the request calls directly.                                                                                              |
+| [game-screen.mjs](../src/game/game-screen.mjs)                 | The game screen set-up 80:9629, called directly.                                                                                                                                                                                 |
+| [main-loop-motion.mjs](../proof/replay/main-loop-motion.mjs)   | `MAIN_MOTION_ROUTINES` keeps the register-level callees of the reference: 81:B0BD, 81:B0A1, 80:9629 and 80:A4BF.                                                                                                                 |
+| [scene-request.mjs](../proof/game-reference/scene-request.mjs) | The register-level 80:CC4B (`processSceneRequestReference`), moved from main-loop-motion.mjs.                                                                                                                                    |
 
 ## Boundaries
 

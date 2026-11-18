@@ -12,17 +12,19 @@ import {
   runFormationStep,
   runTileBuffers,
   runHitShake,
-  runNoticeTimeouts,
   runPaletteCycles,
-  runTimeLimit,
-  runGloveAction,
-  runGloveMove,
-  runPlayerZones,
   runObjectMotion,
   runSpriteList,
   runFrameWait,
   runPadPresses,
 } from '../../src/game/main-upkeep.mjs';
+import {
+  runNoticeTimeouts,
+  runTimeLimit,
+  runGloveAction,
+  runGloveMove,
+  runPlayerZones,
+} from '../caller/live-loop-routines.mjs';
 import { processSceneRequest } from '../caller/scene-request.mjs';
 import { NativeWaitContinuation } from '../system/native-wait-continuation.mjs';
 import { WAIT_PAUSED, WAIT_RETURNED } from '../../src/system/native-wait-continuation.mjs';
