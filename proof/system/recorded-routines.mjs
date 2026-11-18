@@ -11,5 +11,8 @@ installRecordedRoutine('object-animation', (h, events, slot) => {
   h.ctx.x = slot;
   return stepObjectAnimation(h, events);
 });
-// 80:9F6D: the portrait unpacker into bank 7F.
-installRecordedRoutine('portrait-unpack', unpackPortrait);
+// 80:9F6D: the portrait unpacker into bank 7F, the stream in A and Y, the offset in X.
+installRecordedRoutine('portrait-unpack', (h, events, source, bank, offset) => {
+  Object.assign(h.ctx, { a: source, y: bank, x: offset });
+  return unpackPortrait(h, events);
+});

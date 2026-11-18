@@ -9,9 +9,9 @@ import { FLAG_NEGATIVE, FLAG_ZERO } from '../../src/constants/cpu-flags.mjs';
 
 // The stream in A and Y, the offset in X; A, X and Y as the original's copy leaves them.
 export function unpackPortraitRoutine(h, events) {
-  const recorded = recordedRoutine(events, 'portrait-unpack');
-  if (recorded) return recorded(h, events);
-  const { ctx } = h;
+  const { ctx } = h,
+    recorded = recordedRoutine(events, 'portrait-unpack');
+  if (recorded) return recorded(h, events, ctx.a, ctx.y, ctx.x);
   const unpacked = unpackPortraitStream(h, ctx.a, ctx.y, ctx.x);
   Object.assign(ctx, { a: unpacked.length, x: unpacked.sourceEnd, y: unpacked.outputEnd });
   return h.rts();

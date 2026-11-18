@@ -129,10 +129,7 @@ export function unpackPortraitStream(h, source, bank, offset) {
 }
 export function unpackPortrait(h, events, source, bank, offset) {
   const recorded = recordedRoutine(events, 'portrait-unpack');
-  if (recorded) {
-    Object.assign(h.ctx, { a: source, y: bank, x: offset });
-    return recorded(h, events);
-  }
+  if (recorded) return recorded(h, events, source, bank, offset);
   unpackPortraitStream(h, source, bank, offset);
   return h.rts();
 }
