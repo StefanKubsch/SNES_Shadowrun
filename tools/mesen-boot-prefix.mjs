@@ -447,7 +447,14 @@ export function compareBootPrefix(
       assert.ok(observed, 'missing original boot NMI');
       assert.equal(cursor, observed.ioCursor, 'original boot NMI/IO order');
       assert.equal(a.ctx.programBank * 65536 + a.ctx.pc, observed.pc, 'original boot NMI resume');
-      assert.deepEqual(a.ctx, observed.context, 'original interrupted boot registers');
+      // Game state only (user decision 2026-11-17): A, X, Y and P at the interrupt reach
+      // only the NMI's saved registers (the lifted sound effect leaves no X and Y).
+      const resting = ({ a: _a, x, y, status, ...context }) => context;
+      assert.deepEqual(
+        resting(a.ctx),
+        resting(observed.context),
+        'original interrupted boot registers',
+      );
     }
     return readWord(address, wrap, ...rest);
   };
@@ -709,9 +716,12 @@ export function compareBootPrefix(
       );
       // MainLoopDriver has pushed the actual JSR frame; Scheduler.call owns
       // the following transfer to the fixed target C1E3 in program bank 80.
+      // Game state only (user decision 2026-11-17): the lifted main loop pass leaves no
+      // A, X and Y; S, D, the banks, P and the PC are compared.
+      const round = ({ a: _a, x, y, ...context }) => context;
       assert.deepEqual(
-        { ...vm.context(), e: vm.e, programBank: 0x80, pc: entry },
-        point.context,
+        round({ ...vm.context(), e: vm.e, programBank: 0x80, pc: entry }),
+        round(point.context),
         'original main caller registers',
       );
       return call(entry, budget);
