@@ -32,7 +32,7 @@ import {
   searchUpperYEdge,
   searchLowerYEdge,
   searchHeightCells,
-} from '../src/game/object-collision.mjs';
+} from '../proof/caller/object-collision.mjs';
 import { walkTowardsTarget } from '../src/game/object-target.mjs';
 
 const functions = [

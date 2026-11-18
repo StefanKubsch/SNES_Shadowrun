@@ -23,7 +23,7 @@ import {
   searchLowerYEdge,
   searchUpperXEdge,
   searchUpperYEdge,
-} from '../../src/game/object-collision.mjs';
+} from './object-collision.mjs';
 import {
   MOTION_ACTIVE,
   OBJECT_BLOCKED,

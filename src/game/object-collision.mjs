@@ -19,7 +19,8 @@
 // The tests take the object's slot as a parameter and return the height (free when it
 // is 0); the height test stops after the first cell with a height. They leave no
 // registers (user decision 2026-11-17). The register forms searchUpperXEdge and the
-// others, for register-level callers, take the slot in X and leave the height in A with
+// others (proof/caller/object-collision.mjs), for register-level callers, take the slot
+// in X and leave the height in A with
 // the carry set when it is 0 (the height test: the carry of its last cell search or
 // cell comparison), X the slot, Y and the data bank as on entry, the sign and zero of
 // the height (of the slot after the height test) and the overflow of its last addition
@@ -56,7 +57,6 @@ import {
 } from '../data/wram.mjs';
 import { BYTE_BITS, BYTE_MASK, WORD_MASK, WORD_SIGN } from '../constants/bits.mjs';
 import { WRAM_BANK_PAIR } from '../constants/memory-map.mjs';
-import { FLAG_CARRY, FLAG_NEGATIVE, FLAG_OVERFLOW, FLAG_ZERO } from '../constants/cpu-flags.mjs';
 
 const POSITION_SHIFT = 2,
   // A cell column from the masked x (ASL three times, then XBA), a cell row from the
@@ -106,13 +106,6 @@ const word = (wram, at) => wram[at % WRAM_SIZE] | (wram[(at + 1) % WRAM_SIZE] <<
 const setWord = (wram, at, value) => {
   wram[at % WRAM_SIZE] = value & BYTE_MASK;
   wram[(at + 1) % WRAM_SIZE] = (value >>> BYTE_BITS) & BYTE_MASK;
-};
-const flag = (ctx, bit, set) => {
-  ctx.status = set ? ctx.status | bit : ctx.status & ~bit;
-};
-const signAndZero = (ctx, value) => {
-  flag(ctx, FLAG_NEGATIVE, value & WORD_SIGN);
-  flag(ctx, FLAG_ZERO, value === 0);
 };
 // The overflow of a 16-bit addition a + b = sum and of a subtraction a - b = difference.
 const addOverflow = (a, b, sum) => (~(a ^ b) & (a ^ sum) & WORD_SIGN) !== 0;
@@ -289,19 +282,6 @@ function edgeTest(h, slot, words, [first, second], [firstCall, secondCall]) {
   if (second(test.box) !== first(test.box)) searchCell(h, test, secondCall, second(test.box));
   return finishTest(h, test, word(test.wram, DP_RESULT) === 0);
 }
-// The register form of a test: the slot in X; A, X, the sign, zero, carry and overflow
-// as the original leaves them.
-const registerForm = (run, edge) => (h) => {
-  const { ctx } = h,
-    slot = ctx.x,
-    found = run(h, slot);
-  ctx.x = slot;
-  ctx.a = found.height;
-  signAndZero(ctx, edge ? found.height : slot);
-  flag(ctx, FLAG_CARRY, found.free);
-  flag(ctx, FLAG_OVERFLOW, found.overflow);
-  return found.returned;
-};
 const cell = (row, column) => (box) => box[row] | box[column];
 
 // Upper x edge (80:80B2): the cells of the highest x.
@@ -412,10 +392,3 @@ export function heightCells(h, slot) {
       free = searchCell(h, test, HEIGHT_CALLS[n], cells[n]);
   return finishTest(h, test, free);
 }
-
-// The register forms for register-level callers.
-export const searchUpperXEdge = registerForm(upperXEdge, true),
-  searchLowerXEdge = registerForm(lowerXEdge, true),
-  searchUpperYEdge = registerForm(upperYEdge, true),
-  searchLowerYEdge = registerForm(lowerYEdge, true),
-  searchHeightCells = registerForm(heightCells, false);
