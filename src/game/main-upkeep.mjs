@@ -81,20 +81,24 @@ import { buildSprites } from './sprite-list.mjs';
 import { frameWaitCallSequence } from '../system/live-input-calls.mjs';
 export { runFrameWait, runPadPresses } from '../system/live-input-calls.mjs';
 
+// The main loop's upkeep routines below work on game state only (user decision
+// 2026-11-17): the X and Y the originals leave (the colour phase, the palette cycle and
+// shake indices, the formation, camera and tile buffer counters) are not produced; the
+// next routine of the loop sets its own.
+
 // 81:8877, called with JSL.
 export function runColourEffect(h) {
-  const phase = applyColourEffect(sceneRuntime(h));
-  if (phase !== undefined) h.ctx.x = phase;
+  applyColourEffect(sceneRuntime(h));
   return h.rtl();
 }
 // 81:8076, called with JSL.
 export function runPaletteCycles(h) {
-  h.ctx.x = advancePaletteCycles(h.a.mem.wram);
+  advancePaletteCycles(h.a.mem.wram);
   return h.rtl();
 }
 // 80:DE94, called with JSR.
 export function runHitShake(h) {
-  h.ctx.x = shakeHitPlayer(h.a.mem.wram);
+  shakeHitPlayer(h.a.mem.wram);
   return h.rts();
 }
 // 80:FF14, called with JSR; its window releases wait for the NMI of their uploads, so
@@ -116,22 +120,17 @@ NATIVE_CALL_CONTINUATIONS.set(0x80ff14, {
 });
 // 80:BAD5, called with JSR.
 export function runFormationStep(h) {
-  const { ctx } = h,
-    registers = recordFormationStep(h.a.mem.wram, ctx.x, ctx.y);
-  ctx.x = registers.x;
-  ctx.y = registers.y;
+  recordFormationStep(h.a.mem.wram);
   return h.rts();
 }
 // 81:8C2E, called with JSL.
 export function runCameraFollow(h) {
-  h.ctx.y = followPlayerWithCamera(h.a.mem, h.a.mem.wram);
+  followPlayerWithCamera(h.a.mem, h.a.mem.wram);
   return h.rtl();
 }
 // 81:8A91, called with JSL.
 export function runTileBuffers(h) {
-  const registers = updateTileBuffers(h.a.mem.wram, h.ctx.y);
-  h.ctx.x = registers.x;
-  h.ctx.y = registers.y;
+  updateTileBuffers(h.a.mem.wram);
   return h.rtl();
 }
 // 80:FEC1, called with JSR; its window, text and release wait for the NMI, so it is a

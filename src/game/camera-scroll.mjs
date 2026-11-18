@@ -113,11 +113,9 @@ function copyEdge(wram, from, step, start, bg1, bg2) {
 }
 
 // Move the camera by its speeds and fill the edge buffers of a newly crossed tile
-// column or row (81:8A91). Returns the X and Y the original leaves, from the incoming
-// y: the horizontal speed and y without a copy, else the layer offset after the last
-// copy and the buffer offset it started at.
-export function updateTileBuffers(wram, y = 0) {
-  const registers = { x: 0, y };
+// column or row (81:8A91). Game state only (user decision 2026-11-17): the X and Y the
+// original leaves are not produced.
+export function updateTileBuffers(wram) {
   setWord(wram, DP_OLD_COLUMN, moveAxis(wram, CAMERA_X, CAMERA_SPEED_X, CAMERA_X_MAX));
   setWord(wram, DP_OLD_ROW, moveAxis(wram, CAMERA_Y, CAMERA_SPEED_Y, CAMERA_Y_MAX));
   // Moving left or up, the old tile counts one further, as the new one.
@@ -137,7 +135,6 @@ export function updateTileBuffers(wram, y = 0) {
   }
   setWord(wram, DP_COLUMN, column);
   setWord(wram, DP_COLUMN_OFFSET, column * SCENE_LAYER_ROW_BYTES);
-  registers.x = word(wram, CAMERA_SPEED_X);
   if (column !== word(wram, DP_OLD_COLUMN)) {
     const vram = (column & MAP_TILE_MASK) + BG1_MAP_VRAM;
     setWord(wram, MAP_COLUMN_VRAM_BG1, vram);
@@ -150,8 +147,6 @@ export function updateTileBuffers(wram, y = 0) {
     const start = ((row + (up ? 0 : 1)) & MAP_TILE_MASK) * WORD_BYTES;
     setWord(wram, DP_COLUMN_END, start);
     copyEdge(wram, from, WORD_BYTES, start, MAP_COLUMN_BG1, MAP_COLUMN_BG2);
-    registers.x = (from + MAP_TILES * WORD_BYTES) & WORD_MASK;
-    registers.y = start;
     setWord(wram, MAP_COLUMN_UPLOAD, word(wram, MAP_COLUMN_UPLOAD) + 1);
   }
   if (row !== word(wram, DP_OLD_ROW)) {
@@ -166,11 +161,8 @@ export function updateTileBuffers(wram, y = 0) {
     const start = ((column + (left ? 0 : 1)) & MAP_TILE_MASK) * WORD_BYTES;
     setWord(wram, DP_COLUMN, start);
     copyEdge(wram, from, SCENE_LAYER_ROW_BYTES, start, MAP_ROW_BG1, MAP_ROW_BG2);
-    registers.x = (from + MAP_TILES * SCENE_LAYER_ROW_BYTES) & WORD_MASK;
-    registers.y = start;
     setWord(wram, MAP_ROW_UPLOAD, word(wram, MAP_ROW_UPLOAD) + 1);
   }
-  return registers;
 }
 
 // Send the marked map column (VRAM step 32) and row (step 1) of BG1 and BG2 by DMA,

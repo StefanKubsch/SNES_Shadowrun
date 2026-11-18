@@ -252,7 +252,9 @@ const lifted = (run, long, events) => (h, input) => {
   run(h, events?.(h));
   return registers(h);
 };
-const registers = (h) => [h.ctx.x, h.ctx.y].map((v) => v.toString(16)).join();
+// Game state only (user decision 2026-11-17): the lifted upkeep routines leave no X and
+// Y, so their cases compare the data bank and memory.
+const registers = (h) => h.ctx.bank.toString(16);
 // The glove action's A and N, V, Z and C reach the scheduler round 80:C1E3 that follows
 // it; the time limit's carry and overflow outlive the main loop's own loads.
 const roundRegisters = (h) =>

@@ -45,12 +45,12 @@ function objectWord(wram, table, slot) {
   return word(wram, at);
 }
 
-// Record a step of the player figure (80:BAD5). Returns the X and Y the original
-// leaves: the ring index and the player's slot (both unchanged during a hit).
-export function recordFormationStep(wram, x, y) {
+// Record a step of the player figure (80:BAD5). Game state only (user decision
+// 2026-11-17): the ring index and slot the original leaves in X and Y are not produced.
+export function recordFormationStep(wram) {
   if (word(wram, PLAYER_HIT_FRAMES)) {
     setWord(wram, FORMATION_UNMOVED, UNMOVED);
-    return { x, y };
+    return;
   }
   const slot = word(wram, PLAYER_OBJECT);
   let index = word(wram, FORMATION_INDEX);
@@ -62,7 +62,7 @@ export function recordFormationStep(wram, x, y) {
     fields[2] !== word(wram, FORMATION_HEIGHT + index);
   if (!moved) {
     setWord(wram, FORMATION_UNMOVED, UNMOVED);
-    return { x: index, y: slot };
+    return;
   }
   index = (index - 2) & WORD_MASK;
   if (index & WORD_SIGN) index = FORMATION_LAST;
@@ -72,5 +72,4 @@ export function recordFormationStep(wram, x, y) {
   setWord(wram, FORMATION_HEIGHT + index, fields[2]);
   setWord(wram, FORMATION_DIRECTION + index, objectWord(wram, OBJECT_DIRECTION, slot));
   setWord(wram, FORMATION_UNMOVED, 0);
-  return { x: index, y: slot };
 }
