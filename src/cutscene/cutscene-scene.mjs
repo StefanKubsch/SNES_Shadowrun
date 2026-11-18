@@ -129,10 +129,11 @@ function requireWideAccumulator(ctx) {
 }
 
 // 81:CDF8: play the cutscene scene with its argument (A and X in the original; user
-// decision 2026-11-17: lifted callers pass them, register-level ones leave the defaults).
+// decision 2026-11-17: callers pass them as values, register-level ones from their A
+// and X, as proof/caller/scene-entries.mjs does).
 // h is the accessor of the native call from the main loop (80:CC4B) or the frontend
 // (intro end, credits).
-export function* cutsceneSequence(h, events, scene = h.ctx.a, argument = h.ctx.x) {
+export function* cutsceneSequence(h, events, scene, argument) {
   const { ctx } = h;
   if (scene === INTRO_SCENE) {
     yield () => {

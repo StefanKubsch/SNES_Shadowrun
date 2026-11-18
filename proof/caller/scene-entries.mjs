@@ -111,11 +111,12 @@ NATIVE_CALL_CONTINUATIONS.set(0x809e1a, {
 });
 // 81:CDF8: play the cutscene in A with the argument in X (src/cutscene/cutscene-scene.mjs).
 export function playCutscene(h, events) {
-  return drainNativeSequence(cutsceneSequence(h, events));
+  return drainNativeSequence(cutsceneSequence(h, events, h.ctx.a, h.ctx.x));
 }
 NATIVE_CALL_CONTINUATIONS.set(0x81cdf8, {
   run: playCutscene,
-  create: ({ h, events }) => new NativeCallContinuation(h.a, cutsceneSequence(h, events)),
+  create: ({ h, events }) =>
+    new NativeCallContinuation(h.a, cutsceneSequence(h, events, h.ctx.a, h.ctx.x)),
 });
 // 81:DFE7: play the intro (src/intro/intro-scene.mjs).
 export function playIntro(h, events) {

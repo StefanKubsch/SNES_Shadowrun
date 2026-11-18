@@ -18,7 +18,7 @@ import { WAIT_PAUSED } from '../src/system/native-wait-continuation.mjs';
 import * as W from '../src/data/wram.mjs';
 
 // The lifted cutscene with the scene and argument from A and X, as the scenario sets them.
-const direct = (h, events) => cutsceneSequence(h, events);
+const direct = (h, events) => cutsceneSequence(h, events, h.ctx.a, h.ctx.x);
 
 function run(sequence, scene, budget, status = 0) {
   const side = createSide({ seed: 17, wram: new Uint8Array(0x20000) }, new Map()),
