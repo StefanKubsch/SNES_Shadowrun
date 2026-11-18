@@ -1743,13 +1743,14 @@ const PORTRAITS = [
     samples: 50,
     prepare: (s) => ({ ...wordInput(s), bank: s.pick([0x80, 0x7e, 0]) }),
     reference: (h) => TALK_ROUTINES.get(0x808f20)(h),
-    result: bankRegisters,
+    // Game state only (user decision 2026-11-17): the lifted rows leave no registers.
+    result: dataBank,
     lifted: (h, input) => {
       Object.assign(h.ctx, input);
       h.ctx.programBank = 0x80;
       h.push(0x1234, 2);
       shiftPortraitRowsRoutine(h);
-      return bankRegisters(h);
+      return dataBank(h);
     },
   },
   ...[
@@ -1768,13 +1769,14 @@ const PORTRAITS = [
     },
     reference: (h, events) => TALK_ROUTINES.get(entry)(h, events),
     events: portraitEvents,
-    result: roundRegisters,
+    // Game state only (user decision 2026-11-17): the lifted uploads leave no registers.
+    result: dataBank,
     lifted: (h, input) => {
       Object.assign(h.ctx, input);
       h.ctx.programBank = 0x80;
       h.push(0x1234, 2);
       drainNativeSequence(lifted(h, portraitEvents(), DMA_TABLE));
-      return roundRegisters(h);
+      return dataBank(h);
     },
   })),
 ];

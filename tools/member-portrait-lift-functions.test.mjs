@@ -51,7 +51,9 @@ function sample(seed) {
 }
 
 // The stand-ins of one side; both sides draw the same sequence.
-function standIns(s) {
+// registers: whether a call records A, X, Y and the flags; the real unpack and row shift
+// leave none (user decision 2026-11-17), so their case records game state only.
+function standIns(s, registers = true) {
   const random = prng(s.seed ^ 0x3c3c3c3c),
     rnd = (n) => Math.floor(random() * n),
     calls = [];
@@ -59,10 +61,9 @@ function standIns(s) {
     const { a } = h,
       { ctx } = a,
       w = a.mem.wram;
+    const state = registers ? [ctx.a, ctx.x, ctx.y, ctx.status & LEFT_FLAGS] : [];
     calls.push(
-      [target, ctx.a, ctx.x, ctx.y, ctx.status & LEFT_FLAGS, word(w, 0), word(w, 2), ctx.s]
-        .map((v) => v.toString(HEX))
-        .join(':'),
+      [target, ...state, word(w, 0), word(w, 2), ctx.s].map((v) => v.toString(HEX)).join(':'),
     );
     ctx.a = rnd(WORD);
     // The word wait keeps X, the window loop's counter.
@@ -103,7 +104,7 @@ const portraitCase = (name, referenceBind, liftedBind, samples) => ({
     };
   },
   reference: (h) => {
-    const { routines, calls } = standIns(current);
+    const { routines, calls } = standIns(current, false);
     referenceCalls = calls;
     for (const [target, run] of referenceBind) routines.set(target, run);
     drainNativeSequence(e4b3Sequence(h, null, routines));
@@ -113,7 +114,7 @@ const portraitCase = (name, referenceBind, liftedBind, samples) => ({
     Object.assign(h.ctx, input);
     h.ctx.programBank = CODE_BANK;
     h.push(CALLER_RETURN, 2);
-    const { routines, calls } = standIns(current);
+    const { routines, calls } = standIns(current, false);
     for (const [target, run] of liftedBind) routines.set(target, run);
     drainNativeSequence(memberPortraitSequence(h, null, routines));
     return returned(h, calls);

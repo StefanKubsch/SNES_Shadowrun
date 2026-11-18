@@ -24,11 +24,9 @@
 // its entries (the dialog flags' mirror bit 7 as bit 14 of the second), the OAM high
 // table's first word 28 and counts one more NMI job list (81:A954).
 //
-// The registers are left as the original: the row shift A FFFF, X 534F, Y the last
-// destination, the carry of its CPX and the sign and zero of the restored data bank; the
-// first portrait A 3200, X FFFE; the second one A 28, the carry clear and the sign and zero
-// of the job count, X 0800. Its data bank push and the job count's JSL frame are not
-// reproduced (nothing waits there).
+// Registers (user decision 2026-11-17): the row shift and both uploads leave no
+// registers or flags. The second upload's data bank push and the job count's JSL frame
+// are not reproduced (nothing waits there).
 //
 // The DMA job (80:8FF5) sets DMA channel 0 to move the 1000 bytes of 7F:5250 to the
 // VRAM data port (mode 1, VMDATAL and VMDATAH, the address incremented after the high
@@ -61,13 +59,7 @@ import {
   PORTRAIT_PALETTE_START,
 } from '../data/wram.mjs';
 import { BYTE_BITS, BYTE_MASK, BYTE_SIGN, WORD_MASK, WORD_SIGN } from '../constants/bits.mjs';
-import {
-  FLAG_CARRY,
-  FLAG_MEMORY_8BIT,
-  FLAG_NEGATIVE,
-  FLAG_OVERFLOW,
-  FLAG_ZERO,
-} from '../constants/cpu-flags.mjs';
+import { FLAG_MEMORY_8BIT, FLAG_NEGATIVE, FLAG_ZERO } from '../constants/cpu-flags.mjs';
 
 // Bank 7F in the WRAM array, and the row shift's addresses.
 const HIGH_BANK = 0x10000,
@@ -84,8 +76,6 @@ const FIRST_PALETTE = 0x91,
   HDMA_FILL_LAST = 0x1fd,
   HDMA_STRIDE = 4,
   OAM_HIGH_LAST = 0x1e,
-  // The clearing loop counts X down past 0.
-  OAM_LOOP_END = 0xfffe,
   FIRST_ENTRIES = Object.freeze([
     [0x3d0c, 0x83a6],
     [0x3d0e, 0x3200],
@@ -160,8 +150,7 @@ export function unpackPortraitRoutine(h, events) {
 
 // Move the portrait rows apart (80:8F20), called with JSR.
 export function shiftPortraitRowsRoutine(h) {
-  const { ctx } = h,
-    { wram } = h.a.mem;
+  const { wram } = h.a.mem;
   let x = SOURCE_END,
     y = DESTINATION_END;
   while (x !== SOURCE_STOP) {
@@ -172,21 +161,12 @@ export function shiftPortraitRowsRoutine(h) {
       y = (y - 1) & WORD_MASK;
     }
   }
-  ctx.a = WORD_MASK;
-  ctx.x = x;
-  ctx.y = y;
-  // The last SBC overflows never; CPX equal; PLB restores the data bank.
-  flag(ctx, FLAG_OVERFLOW, false);
-  flag(ctx, FLAG_CARRY, true);
-  flag(ctx, FLAG_NEGATIVE, ctx.bank & BYTE_SIGN);
-  flag(ctx, FLAG_ZERO, ctx.bank === 0);
   return h.rts();
 }
 
 // Upload the first portrait (80:9022), a sequence with a direct live DMA job.
 export function* uploadFirstPortraitSequence(h, events) {
-  const { ctx } = h,
-    { wram } = h.a.mem;
+  const { wram } = h.a.mem;
   yield () => {
     setWord(wram, PORTRAIT_PALETTE_START, FIRST_PALETTE);
   };
@@ -196,18 +176,13 @@ export function* uploadFirstPortraitSequence(h, events) {
       wram[HDMA_TABLE + x] = HDMA_FILL;
     for (let x = OAM_HIGH_LAST; x >= 0; x -= 2) setWord(wram, OAM_HIGH_TABLE + x, 0);
     for (const [at, value] of FIRST_ENTRIES) setWord(wram, at, value);
-    ctx.a = FIRST_ENTRIES[1][1];
-    ctx.x = OAM_LOOP_END;
-    flag(ctx, FLAG_NEGATIVE, false);
-    flag(ctx, FLAG_ZERO, false);
   };
   return yield* rts(h);
 }
 
 // Upload the second portrait (80:905E), a sequence with a direct live DMA job.
 export function* uploadSecondPortraitSequence(h, events) {
-  const { ctx } = h,
-    { wram } = h.a.mem;
+  const { wram } = h.a.mem;
   yield () => {
     setWord(wram, PORTRAIT_PALETTE_START, SECOND_PALETTE);
   };
@@ -217,12 +192,7 @@ export function* uploadSecondPortraitSequence(h, events) {
     const mirror = (word(wram, DIALOG_RECORD_FLAGS) & BYTE_SIGN) << MIRROR_SHIFT;
     setWord(wram, SECOND_SECOND[0], mirror | SECOND_SECOND[1]);
     setWord(wram, OAM_HIGH_TABLE, SECOND_OAM_HIGH);
-    ctx.a = SECOND_OAM_HIGH;
-    flag(ctx, FLAG_CARRY, false);
-    const jobs = (word(wram, NMI_JOB_LISTS) + 1) & WORD_MASK;
-    setWord(wram, NMI_JOB_LISTS, jobs);
-    flag(ctx, FLAG_NEGATIVE, jobs & WORD_SIGN);
-    flag(ctx, FLAG_ZERO, jobs === 0);
+    setWord(wram, NMI_JOB_LISTS, word(wram, NMI_JOB_LISTS) + 1);
   };
   return yield* rts(h);
 }
