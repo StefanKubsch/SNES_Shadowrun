@@ -8,6 +8,10 @@
 // for a negative number, otherwise the kind of 8D:B022 by item, six bytes a kind in
 // 8C:EFB0. The cursor (80:FAAC), text (80:FE69) and number (80:FD80) run through their
 // original frames with direct composition.
+//
+// Registers (user decision 2026-11-17): game state only; no callee takes a register
+// input and no register values are left. Armour, rating and weapon, which the original
+// keeps on the stack over the rows (PHA, PLA), are locals.
 import { dialogCallBody, segmentSequence } from '../system/native-call-continuation.mjs';
 import { setTextCursorRoutine, printNumberSequence } from './window-text.mjs';
 import { printTextSequence } from './text-print.mjs';
@@ -32,7 +36,6 @@ import {
   STATUS_WINDOW,
 } from '../data/wram.mjs';
 import { BYTE_BITS, BYTE_MASK, LONG_MASK, WORD_MASK, WORD_SIGN } from '../constants/bits.mjs';
-import { FLAG_CARRY, FLAG_NEGATIVE, FLAG_OVERFLOW, FLAG_ZERO } from '../constants/cpu-flags.mjs';
 
 // The items' kinds (by item number) and the kinds' name texts (six bytes a kind); the
 // runner entry's size and the leader's dermal armour bonus.
@@ -54,22 +57,11 @@ const setWord = (wram, at, value) => {
 };
 const longWord = (mem, at) =>
   mem.read8(at & LONG_MASK) | (mem.read8((at + 1) & LONG_MASK) << BYTE_BITS);
-const setFlag = (ctx, bit, set) => {
-  ctx.status = set ? ctx.status | bit : ctx.status & ~bit;
-};
-const setSignZero = (ctx, value) => {
-  setFlag(ctx, FLAG_NEGATIVE, value & WORD_SIGN);
-  setFlag(ctx, FLAG_ZERO, value === 0);
-};
-const load = (ctx, value) => {
-  ctx.a = value;
-  setSignZero(ctx, value);
-};
 
-// 80:E9A8: the item's name as text (A the item); a sequence that ends with its RTS.
+// 80:E9A8: the item's name as text (the original takes the item in A); a sequence
+// that ends with its RTS.
 function* itemTextSequence(h, events, renderBuffer, item) {
-  const { ctx } = h,
-    { mem } = h.a,
+  const { mem } = h.a,
     { wram } = mem;
   yield () => {
     let text = TEXT_NONE;
@@ -78,15 +70,10 @@ function* itemTextSequence(h, events, renderBuffer, item) {
         twice = (kind << 1) & WORD_MASK,
         // Six times: twice, then four times that added with the shift's carry.
         four = (twice << 1) & WORD_MASK,
-        sum = four + twice + (twice & WORD_SIGN ? 1 : 0),
-        index = sum & WORD_MASK;
+        index = (four + twice + (twice & WORD_SIGN ? 1 : 0)) & WORD_MASK;
       setWord(wram, DP_SCRATCH, twice);
-      setFlag(ctx, FLAG_CARRY, sum > WORD_MASK);
-      setFlag(ctx, FLAG_OVERFLOW, (~(four ^ twice) & (four ^ index) & WORD_SIGN) !== 0);
-      ctx.x = index;
       text = longWord(mem, KIND_NAMES + index);
     }
-    load(ctx, text);
     setWord(wram, 2, text);
   };
   yield* dialogCallBody(h, ITEM_TEXT_CALL, TEXT, () => printTextSequence(h, events, renderBuffer));
@@ -99,31 +86,19 @@ function* itemTextSequence(h, events, renderBuffer, item) {
 
 // 80:E9C5: the equipment rows (see above). A sequence that ends with its RTS.
 export function* equipmentRowsSequence(h, events, renderBuffer = drawTextBufferSequence) {
-  const { ctx } = h,
-    { mem } = h.a,
+  const { mem } = h.a,
     { wram } = mem;
-  const leader = () => {
-    const member = dataBankWord(mem, MEMBER_OBJECT),
-      player = dataBankWord(mem, PLAYER_OBJECT);
-    // The compare's carry; its sign and zero are overwritten before any call.
-    setFlag(ctx, FLAG_CARRY, member >= player);
-    return member === player;
-  };
+  const leader = () => dataBankWord(mem, MEMBER_OBJECT) === dataBankWord(mem, PLAYER_OBJECT);
   // The cursor at the value column of row, then a callee at pc.
   const cursor = function* (pc, row) {
     yield () => {
       setWord(wram, 2, STATUS_LAYOUT.valueColumn);
       setWord(wram, DP_CURSOR_ROW, row);
-      load(ctx, row);
     };
     yield* dialogCallBody(h, pc, CURSOR, () => segmentSequence(() => setTextCursorRoutine(h)));
   };
   const text = function* (pc, value) {
-    yield () => {
-      const v = typeof value === 'function' ? value() : value;
-      load(ctx, v);
-      setWord(wram, 2, v);
-    };
+    yield () => setWord(wram, 2, typeof value === 'function' ? value() : value);
     yield* dialogCallBody(h, pc, TEXT, () => printTextSequence(h, events, renderBuffer));
   };
   const itemText = (pc, item) =>
@@ -138,44 +113,25 @@ export function* equipmentRowsSequence(h, events, renderBuffer = drawTextBufferS
     yield* text(0x80e9e5, () => word(wram, SELECTED_SPELL_NAME));
   }
   yield* cursor(0x80e9f2, STATUS_LAYOUT.weaponRow);
+  // Armour, rating and weapon are read before the rows (the original pushes them).
+  let armour, rating, weapon;
   yield () => {
     const entry = (dataBankWord(mem, MEMBER_INDEX) << ENTRY_SHIFT) & WORD_MASK;
-    ctx.x = entry;
-    // Armour, rating and weapon stay on the stack over the rows as the original pushes
-    // them (PHA): a callee's wait takes its NMI at the same S.
-    h.push(word(wram, RUNNER_ARMOUR + entry), 2);
-    let value = word(wram, RUNNER_ARMOUR_RATING + entry);
-    if (leader() && wram[JAKE_DERMAL_ARMOUR]) {
-      const sum = value + DERMAL_ARMOUR_BONUS;
-      setFlag(ctx, FLAG_CARRY, sum > WORD_MASK);
-      setFlag(ctx, FLAG_OVERFLOW, (~value & sum & WORD_SIGN) !== 0);
-      value = sum & WORD_MASK;
-    }
-    h.push(value & BYTE_MASK, 2);
-    h.push(word(wram, RUNNER_WEAPON + entry), 2);
+    armour = word(wram, RUNNER_ARMOUR + entry);
+    rating = word(wram, RUNNER_ARMOUR_RATING + entry);
+    if (leader() && wram[JAKE_DERMAL_ARMOUR]) rating += DERMAL_ARMOUR_BONUS;
+    rating &= BYTE_MASK;
+    weapon = word(wram, RUNNER_WEAPON + entry);
   };
   yield* text(0x80ea2d, TEXT_BLANK_FIELD);
   yield* cursor(0x80ea3a, STATUS_LAYOUT.weaponRow);
-  let item;
-  yield () => {
-    item = h.pull(2);
-    load(ctx, item);
-  };
-  yield* itemText(0x80ea3e, item);
+  yield* itemText(0x80ea3e, weapon);
   yield* cursor(0x80ea4b, STATUS_LAYOUT.armourRow);
   yield* text(0x80ea53, TEXT_BLANK_FIELD);
   yield* cursor(0x80ea60, STATUS_LAYOUT.armourRow);
-  yield () => {
-    const rating = h.pull(2);
-    load(ctx, rating);
-    setWord(wram, 2, rating);
-  };
+  yield () => setWord(wram, 2, rating);
   yield* dialogCallBody(h, 0x80ea66, NUMBER, () => printNumberSequence(h, events, renderBuffer));
-  yield () => {
-    item = h.pull(2);
-    load(ctx, item);
-  };
-  yield* itemText(0x80ea6a, item);
+  yield* itemText(0x80ea6a, armour);
   let result;
   yield () => {
     result = h.rts();
