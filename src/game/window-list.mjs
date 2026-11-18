@@ -70,23 +70,18 @@ const setWord = (wram, at, value) => {
 
 // Draw window x (a word index) into the window map buffer (81:ACCF): the top border,
 // the rows with the text tiles between the side borders, the bottom border. Counts
-// run as the original's 16-bit loops (a count of 0 wraps). Returns the Y the original
-// leaves (the map offset of the bottom right border cell) and the overflow of its last
-// addition (the map row of the bottom border).
+// run as the original's 16-bit loops (a count of 0 wraps). Game state only (user
+// decision 2026-11-17): the Y, carry and overflow the original leaves are produced by
+// the register-level copy in proof/caller/window-list.mjs.
 export function drawWindow(wram, x) {
   const field = (table) => word(wram, table + x);
-  let y,
-    overflow = false,
-    carry = false;
+  let y;
   const put = (tile) => {
     setWord(wram, WINDOW_MAP_BUFFER + y, tile | word(wram, DP_ATTRIBUTES));
     y = (y + 2) & WORD_MASK;
   };
   const nextRow = () => {
-    const row = word(wram, DP_MAP_ROW),
-      next = (row + MAP_ROW_BYTES) & WORD_MASK;
-    overflow = (~(row ^ MAP_ROW_BYTES) & (row ^ next) & WORD_SIGN) !== 0;
-    carry = row + MAP_ROW_BYTES > WORD_MASK;
+    const next = (word(wram, DP_MAP_ROW) + MAP_ROW_BYTES) & WORD_MASK;
     setWord(wram, DP_MAP_ROW, next);
     y = next;
   };
@@ -132,7 +127,6 @@ export function drawWindow(wram, x) {
   put(BORDER_BOTTOM_LEFT);
   across(BORDER_BOTTOM);
   put(BORDER_BOTTOM_RIGHT);
-  return { y: (y - 2) & WORD_MASK, overflow, carry };
 }
 
 // Push the frame of a JSL at site (in the running bank).
