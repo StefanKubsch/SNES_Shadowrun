@@ -16,11 +16,14 @@
 // box's bottom up), else nothing. Among the moving boxes, the object's own box is
 // ignored, and the player figure's box by a searching object of class 3.
 //
-// The four edge tests return the height in A with the carry set when it is 0. The
-// height test stops after the first cell with a height and leaves the carry of its last
-// cell search or cell comparison. Every test leaves X the object's slot, Y and the data
-// bank as on entry, the sign and zero of the height (of the slot after the height test)
-// and the overflow of its last addition or subtraction. The direct page words the
+// The tests take the object's slot as a parameter and return the height (free when it
+// is 0); the height test stops after the first cell with a height. They leave no
+// registers (user decision 2026-11-17). The register forms searchUpperXEdge and the
+// others, for register-level callers, take the slot in X and leave the height in A with
+// the carry set when it is 0 (the height test: the carry of its last cell search or
+// cell comparison), X the slot, Y and the data bank as on entry, the sign and zero of
+// the height (of the slot after the height test) and the overflow of its last addition
+// or subtraction. The direct page words the
 // original uses as locals are written as in the original (box 11 to 20, cell columns
 // and rows 23 to 2C, cells 2F to 38, result 3B, slot 3E and box offset 68), and the
 // frames of the cell searches and their pushes are reproduced on the stack, as the
@@ -247,13 +250,12 @@ function objectBox(wram, slot) {
 }
 
 // The common start of a test: slot, bottom and top, and the frame with the data bank 7E.
-function beginTest(h) {
-  const { ctx } = h,
-    { wram } = h.a.mem,
-    slot = ctx.x,
+// Y and the data bank wait on the stack as the original pushes them.
+function beginTest(h, slot) {
+  const { wram } = h.a.mem,
     box = objectBox(wram, slot);
   setWord(wram, DP_SEARCHER, slot);
-  h.a.pushWord(ctx.y);
+  h.a.pushWord(h.ctx.y);
   h.phb();
   h.push(WRAM_BANK_PAIR, 2);
   h.plb();
@@ -270,35 +272,43 @@ function writeBox(test, words) {
     if (part.overflow !== undefined) test.overflow = part.overflow;
   }
 }
-// The end of a test: data bank and Y back, X the slot, A the result; the edge tests set
-// the carry and the sign and zero of the result.
-function finishTest(h, test, edge) {
-  const { ctx } = h;
+// The end of a test: the data bank and Y back; returns the height, whether it is free,
+// the overflow and the RTS result.
+function finishTest(h, test, free) {
   h.plb();
-  ctx.y = h.a.pullWord();
-  ctx.x = test.slot;
-  const result = word(test.wram, DP_RESULT);
-  ctx.a = result;
-  signAndZero(ctx, edge ? result : test.slot);
-  if (edge) flag(ctx, FLAG_CARRY, result === 0);
-  flag(ctx, FLAG_OVERFLOW, test.overflow);
-  return h.rts();
+  h.a.pullWord();
+  const height = word(test.wram, DP_RESULT);
+  return { height, free, overflow: test.overflow, returned: h.rts() };
 }
 
 // An edge test: write the box words, search the cell first and then second unless equal.
-function edgeTest(h, words, [first, second], [firstCall, secondCall]) {
-  const test = beginTest(h);
+function edgeTest(h, slot, words, [first, second], [firstCall, secondCall]) {
+  const test = beginTest(h, slot);
   writeBox(test, words(test.box));
   searchCell(h, test, firstCall, first(test.box));
   if (second(test.box) !== first(test.box)) searchCell(h, test, secondCall, second(test.box));
-  return finishTest(h, test, true);
+  return finishTest(h, test, word(test.wram, DP_RESULT) === 0);
 }
+// The register form of a test: the slot in X; A, X, the sign, zero, carry and overflow
+// as the original leaves them.
+const registerForm = (run, edge) => (h) => {
+  const { ctx } = h,
+    slot = ctx.x,
+    found = run(h, slot);
+  ctx.x = slot;
+  ctx.a = found.height;
+  signAndZero(ctx, edge ? found.height : slot);
+  flag(ctx, FLAG_CARRY, found.free);
+  flag(ctx, FLAG_OVERFLOW, found.overflow);
+  return found.returned;
+};
 const cell = (row, column) => (box) => box[row] | box[column];
 
 // Upper x edge (80:80B2): the cells of the highest x.
-export const searchUpperXEdge = (h) =>
+export const upperXEdge = (h, slot) =>
   edgeTest(
     h,
+    slot,
     (b) => [
       [DP_X0, b.x0],
       [DP_X1, b.x1],
@@ -314,9 +324,10 @@ export const searchUpperXEdge = (h) =>
     UPPER_X_CALLS,
   );
 // Lower x edge (80:8133): the cells of the lowest x.
-export const searchLowerXEdge = (h) =>
+export const lowerXEdge = (h, slot) =>
   edgeTest(
     h,
+    slot,
     (b) => [
       [DP_X1, b.x1],
       [DP_X0, b.x0],
@@ -332,9 +343,10 @@ export const searchLowerXEdge = (h) =>
     LOWER_X_CALLS,
   );
 // Upper y edge (80:81B4): the cells of the highest y.
-export const searchUpperYEdge = (h) =>
+export const upperYEdge = (h, slot) =>
   edgeTest(
     h,
+    slot,
     (b) => [
       [DP_Y0, b.y0],
       [DP_Y1, b.y1],
@@ -350,9 +362,10 @@ export const searchUpperYEdge = (h) =>
     UPPER_Y_CALLS,
   );
 // Lower y edge (80:8238): the cells of the lowest y.
-export const searchLowerYEdge = (h) =>
+export const lowerYEdge = (h, slot) =>
   edgeTest(
     h,
+    slot,
     (b) => [
       [DP_Y1, b.y1],
       [DP_Y0, b.y0],
@@ -371,8 +384,8 @@ export const searchLowerYEdge = (h) =>
 // Height test (80:82BC): the four corner cells, each distinct one once, until a cell
 // offers a height. The carry is that of the last search (a cell equal to an earlier one
 // is skipped with the carry its CPY sets, which the search before it set already).
-export function searchHeightCells(h) {
-  const test = beginTest(h),
+export function heightCells(h, slot) {
+  const test = beginTest(h, slot),
     b = test.box,
     c00 = b.rowY0 | b.columnX0,
     c10 = b.rowY0 | b.columnX1,
@@ -397,6 +410,12 @@ export function searchHeightCells(h) {
   for (let n = 0; n < cells.length && free; n++)
     if (!cells.slice(0, n).includes(cells[n]))
       free = searchCell(h, test, HEIGHT_CALLS[n], cells[n]);
-  flag(h.ctx, FLAG_CARRY, free);
-  return finishTest(h, test, false);
+  return finishTest(h, test, free);
 }
+
+// The register forms for register-level callers.
+export const searchUpperXEdge = registerForm(upperXEdge, true),
+  searchLowerXEdge = registerForm(lowerXEdge, true),
+  searchUpperYEdge = registerForm(upperYEdge, true),
+  searchLowerYEdge = registerForm(lowerYEdge, true),
+  searchHeightCells = registerForm(heightCells, false);

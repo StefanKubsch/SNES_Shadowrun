@@ -13,17 +13,18 @@
 // colliding object whose cells offer a height at the new one. Last, the diagonal
 // (x + y) / 2 the depth sort uses is updated.
 //
-// The direct page word 6B holds the old coordinate as in the original. A, X, Y and the
-// flags are left as the original leaves them: X the slot (as the callees leave it), Y
-// as the callees leave it, A the diagonal with the flags of its addition and shift.
+// The direct page word 6B holds the old coordinate as in the original. Registers (user
+// decision 2026-11-17): game state only; the slot is a parameter, the collision tests
+// return their heights, and the routine leaves no A, X, Y or flags. The walk towards
+// the target still takes the slot in X.
 import { taskStop } from '../system/task-stop.mjs';
 import { walkTowardsTarget } from './object-target.mjs';
 import {
-  searchHeightCells,
-  searchLowerXEdge,
-  searchLowerYEdge,
-  searchUpperXEdge,
-  searchUpperYEdge,
+  heightCells,
+  lowerXEdge,
+  lowerYEdge,
+  upperXEdge,
+  upperYEdge,
 } from './object-collision.mjs';
 import {
   MOTION_ACTIVE,
@@ -39,8 +40,7 @@ import {
   OBJECT_X,
   OBJECT_Y,
 } from '../data/wram.mjs';
-import { BYTE_BITS, BYTE_MASK, WORD_MASK, WORD_SIGN } from '../constants/bits.mjs';
-import { FLAG_CARRY, FLAG_NEGATIVE, FLAG_OVERFLOW, FLAG_ZERO } from '../constants/cpu-flags.mjs';
+import { BYTE_BITS, BYTE_MASK, WORD_MASK } from '../constants/bits.mjs';
 
 // A blocking height below 5 is climbed, each unit 4 height units up; a height below
 // 0100 is never reached.
@@ -62,14 +62,14 @@ const AXES = [
   {
     position: OBJECT_X,
     velocity: OBJECT_VELOCITY_X,
-    upper: [0xab53, 0x8080b2, searchUpperXEdge],
-    lower: [0xab6a, 0x808133, searchLowerXEdge],
+    upper: [0xab53, 0x8080b2, upperXEdge],
+    lower: [0xab6a, 0x808133, lowerXEdge],
   },
   {
     position: OBJECT_Y,
     velocity: OBJECT_VELOCITY_Y,
-    upper: [0xabaa, 0x8081b4, searchUpperYEdge],
-    lower: [0xabc1, 0x808238, searchLowerYEdge],
+    upper: [0xabaa, 0x8081b4, upperYEdge],
+    lower: [0xabc1, 0x808238, lowerYEdge],
   },
 ];
 
@@ -78,33 +78,27 @@ const setWord = (wram, at, value) => {
   wram[at % WRAM_SIZE] = value & BYTE_MASK;
   wram[(at + 1) % WRAM_SIZE] = (value >>> BYTE_BITS) & BYTE_MASK;
 };
-const flag = (ctx, bit, set) => {
-  ctx.status = set ? ctx.status | bit : ctx.status & ~bit;
-};
 
-// Move the object in X (80:AB26) with its actual walk towards the target.
-export function moveObject(h) {
-  const { ctx } = h,
-    { wram } = h.a.mem;
-  const target = word(wram, MOTION_ACTIVE + ctx.x);
-  if (target) {
-    ctx.a = target;
-    flag(ctx, FLAG_NEGATIVE, target & WORD_SIGN);
-    flag(ctx, FLAG_ZERO, false);
+// Move the object in slot (80:AB26) with its actual walk towards the target.
+export function moveObject(h, slot) {
+  const { wram } = h.a.mem;
+  if (word(wram, MOTION_ACTIVE + slot))
     h.call(TARGET_CALL, TARGET_TARGET, () => walkTowardsTarget(h));
-  }
   // The fields are read in the caller's data bank 80, which reaches WRAM below 2000.
-  const slot = ctx.x,
-    at = (base) => {
+  const at = (base) => {
       if (base + slot + 1 >= LOW_WRAM_END) taskStop('object_slot_required', { base, slot });
       return base + slot;
     },
     get = (base) => word(wram, at(base)),
     put = (base, value) => setWord(wram, at(base), value);
-  // A test through its frame; true when it found no height (carry set), with the height.
+  // A test through its frame: whether it found no height, and the height.
   const test = ([call, address, run]) => {
-    h.call(call, address, () => run(h));
-    return { free: (ctx.status & FLAG_CARRY) !== 0, height: ctx.a };
+    let found;
+    h.call(call, address, () => {
+      found = run(h, slot);
+      return found.returned;
+    });
+    return found;
   };
   put(OBJECT_FLAGS, get(OBJECT_FLAGS) & ~OBJECT_BLOCKED);
   for (const axis of AXES) {
@@ -133,22 +127,13 @@ export function moveObject(h) {
   if (reached && next !== height) {
     put(OBJECT_HEIGHT, next);
     if (get(OBJECT_FLAGS) & OBJECT_COLLIDES)
-      reached = test([HEIGHT_CALL, HEIGHT_TARGET, searchHeightCells]).free;
+      reached = test([HEIGHT_CALL, HEIGHT_TARGET, heightCells]).free;
   }
   if (!reached) {
     put(OBJECT_HEIGHT, height);
     put(OBJECT_VELOCITY_Z, 0);
   }
-  // CLC, x + y, LSR: the carry out of the addition is lost, the shift's carry stays.
-  const x = get(OBJECT_X),
-    y = get(OBJECT_Y),
-    total = (y + x) & WORD_MASK,
-    diagonal = total >>> 1;
-  put(OBJECT_DIAGONAL, diagonal);
-  ctx.a = diagonal;
-  flag(ctx, FLAG_NEGATIVE, false);
-  flag(ctx, FLAG_ZERO, diagonal === 0);
-  flag(ctx, FLAG_CARRY, total & 1);
-  flag(ctx, FLAG_OVERFLOW, (~(y ^ x) & (y ^ total) & WORD_SIGN) !== 0);
+  // CLC, x + y, LSR: the carry out of the addition is lost.
+  put(OBJECT_DIAGONAL, ((get(OBJECT_Y) + get(OBJECT_X)) & WORD_MASK) >>> 1);
   return h.rts();
 }

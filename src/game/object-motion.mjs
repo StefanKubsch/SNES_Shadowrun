@@ -278,7 +278,7 @@ export function moveAndAnimate(h, events) {
   };
   pass(() => {
     h.a.pushWord(ctx.y);
-    h.call(MOVE_CALL, MOVE_TARGET, () => moveObject(h));
+    h.call(MOVE_CALL, MOVE_TARGET, () => moveObject(h, ctx.x));
     ctx.y = h.a.pullWord();
   });
   setWord(wram, DP_FRAME_BANK, FRAME_BANK);
