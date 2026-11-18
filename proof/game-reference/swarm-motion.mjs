@@ -3,7 +3,7 @@
 // native-swarm-wave.mjs; lifted in src/game/swarm-motion.mjs. The proof plans, the Native58
 // dispatch of proof/task/native-dispatch.mjs and the instruction tests run these; the game
 // runs the lifted natives.
-import { FIRST_ARGUMENT, SECOND_ARGUMENT, leaf } from '../../src/system/native-leaf-support.mjs';
+import { FIRST_ARGUMENT, SECOND_ARGUMENT, leaf } from '../system/native-leaf-support.mjs';
 import { taskSelectionSupport } from '../script/native-object-turn.mjs';
 import { lsr, clc } from './register-helpers.mjs';
 import { WAVE_TABLE, PHASE_MASK, QUARTER_PHASE } from '../../src/game/object-bob.mjs';

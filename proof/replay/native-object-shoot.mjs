@@ -1,6 +1,6 @@
 import { withInterruptEvents } from './observed-native-events.mjs';
 import { taskStop } from '../../src/system/task-stop.mjs';
-import { leaf } from '../../src/system/native-leaf-support.mjs';
+import { leaf } from '../system/native-leaf-support.mjs';
 import { testLineOfSight, SIGHT_ROUTINE } from './line-of-sight.mjs';
 import { randomBelow } from './native-random.mjs';
 import { createObject } from '../script/native-object-create.mjs';

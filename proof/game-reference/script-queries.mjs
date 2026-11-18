@@ -3,7 +3,7 @@
 // native-player-object*.mjs and native-glove-screen-*.mjs; lifted in
 // src/game/script-queries.mjs). The proof plans and the Native58 dispatch of
 // proof/task/native-dispatch.mjs run these; the game runs the lifted natives.
-import { leaf } from '../../src/system/native-leaf-support.mjs';
+import { leaf } from '../system/native-leaf-support.mjs';
 import {
   GLOVE_SCREEN_X,
   GLOVE_SCREEN_Y,

@@ -7,7 +7,7 @@ import { sightA25FSpec, proveSightSource } from './task-sight-a25f-source.mjs';
 import { runReference } from './w65c816-reference.mjs';
 import { VmMemory } from '../src/vm/memory.mjs';
 import { TaskAccessor } from '../src/vm/task-accessor.mjs';
-import { leaf } from '../src/system/native-leaf-support.mjs';
+import { leaf } from '../proof/system/native-leaf-support.mjs';
 import { testLineOfSight, lineOfSightDevices } from '../proof/replay/line-of-sight.mjs';
 
 // 81:A25F: pinned source with closed stack proof, and the fixed equations of src/task/line-of-sight.mjs

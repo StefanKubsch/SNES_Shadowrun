@@ -3,7 +3,7 @@
 // plan, the Native58 dispatch of proof/task/native-dispatch.mjs and the instruction tests
 // run it; the game runs the lifted native.
 import { taskStop } from '../../src/system/task-stop.mjs';
-import { leaf } from '../../src/system/native-leaf-support.mjs';
+import { leaf } from '../system/native-leaf-support.mjs';
 import { selectAnimationRegisters, turnRegisters } from '../script/native-object-turn.mjs';
 import {
   GROUP_INDEX,

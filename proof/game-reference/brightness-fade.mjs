@@ -3,7 +3,7 @@
 // plan, the Native58 dispatch of proof/task/native-dispatch.mjs and the instruction test
 // of 80:D9AD run it; the game runs the lifted native.
 import { taskStop } from '../../src/system/task-stop.mjs';
-import { FIRST_ARGUMENT, leaf } from '../../src/system/native-leaf-support.mjs';
+import { FIRST_ARGUMENT, leaf } from '../system/native-leaf-support.mjs';
 import { FLAG_NEGATIVE, FLAG_CARRY } from '../../src/constants/cpu-flags.mjs';
 import { WORD_MASK } from '../../src/constants/bits.mjs';
 import { CODE_BANK } from '../../src/constants/memory-map.mjs';

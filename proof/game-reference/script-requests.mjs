@@ -9,7 +9,7 @@ import {
   SECOND_ARGUMENT,
   THIRD_ARGUMENT,
   leaf,
-} from '../../src/system/native-leaf-support.mjs';
+} from '../system/native-leaf-support.mjs';
 import {
   AIMING_SPELL,
   AIMING_WEAPON,

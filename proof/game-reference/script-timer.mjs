@@ -2,7 +2,7 @@
 // src/script/native-timer-start.mjs, native-timer-stop.mjs and native-timer-running.mjs;
 // lifted in src/game/time-limit.mjs). The proof plans and the Native58 dispatch of
 // proof/task/native-dispatch.mjs run these; the game runs the lifted natives.
-import { leaf } from '../../src/system/native-leaf-support.mjs';
+import { leaf } from '../system/native-leaf-support.mjs';
 import { TIMER, TIMER_FRAMES, TIMER_STOPPED } from '../../src/data/wram.mjs';
 import { WORD_MASK } from '../../src/constants/bits.mjs';
 

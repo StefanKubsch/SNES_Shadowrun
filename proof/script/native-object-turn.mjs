@@ -1,5 +1,5 @@
 import { taskStop } from '../../src/system/task-stop.mjs';
-import { FIRST_ARGUMENT, SECOND_ARGUMENT, leaf } from '../../src/system/native-leaf-support.mjs';
+import { FIRST_ARGUMENT, SECOND_ARGUMENT, leaf } from '../system/native-leaf-support.mjs';
 
 import {
   ANIMATION_CLOCK_START,

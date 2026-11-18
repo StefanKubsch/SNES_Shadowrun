@@ -2,7 +2,7 @@
 // src/task/native-sound-stereo.mjs; lifted in src/script/native-script-leaves.mjs with
 // soundLevels of src/apu/sound-effect.mjs).
 import { taskStop } from '../../src/system/task-stop.mjs';
-import { SECOND_ARGUMENT, leaf } from '../../src/system/native-leaf-support.mjs';
+import { SECOND_ARGUMENT, leaf } from '../system/native-leaf-support.mjs';
 import { computeSoundPan, sendApuCommand } from '../system/native-input-apu.mjs';
 import { WORD_MASK } from '../../src/constants/bits.mjs';
 import { CODE_BANK } from '../../src/constants/memory-map.mjs';

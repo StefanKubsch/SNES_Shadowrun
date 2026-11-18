@@ -21,7 +21,7 @@ import {
   canAttackNative,
 } from '../src/script/native-script-leaves.mjs';
 import { testLineOfSight } from '../proof/replay/line-of-sight.mjs';
-import { leafAccess } from '../src/system/native-leaf-support.mjs';
+import { leafAccess } from '../proof/system/native-leaf-support.mjs';
 import { lineOfSight } from '../src/game/line-of-sight.mjs';
 import { accessorPort } from '../src/system/hardware-port.mjs';
 

@@ -4,7 +4,7 @@
 // proof/task/native-dispatch.mjs and the instruction test of 80:90EB run these; the game
 // runs the lifted natives.
 import { taskStop } from '../../src/system/task-stop.mjs';
-import { FIRST_ARGUMENT, leaf } from '../../src/system/native-leaf-support.mjs';
+import { FIRST_ARGUMENT, leaf } from '../system/native-leaf-support.mjs';
 import {
   DP_TOPIC_NEXT_FLAGS,
   DP_TOPIC_SHIFT_FLAGS,

@@ -6,7 +6,7 @@
 // run these; the game runs the lifted natives.
 export { createObject as createObjectReference } from '../script/native-object-create.mjs';
 import { taskStop } from '../../src/system/task-stop.mjs';
-import { FIRST_ARGUMENT, SECOND_ARGUMENT, leaf } from '../../src/system/native-leaf-support.mjs';
+import { FIRST_ARGUMENT, SECOND_ARGUMENT, leaf } from '../system/native-leaf-support.mjs';
 import { createObject } from '../script/native-object-create.mjs';
 import { turnRegisters } from '../script/native-object-turn.mjs';
 import { lsr, clc } from './register-helpers.mjs';

@@ -2,7 +2,7 @@
 // by the register-level natives and references; the game creates objects through
 // src/game/object-create.mjs.
 import { taskStop } from '../../src/system/task-stop.mjs';
-import { FIRST_ARGUMENT, leaf } from '../../src/system/native-leaf-support.mjs';
+import { FIRST_ARGUMENT, leaf } from '../system/native-leaf-support.mjs';
 import { appendScriptTask } from '../system/task-append.mjs';
 
 import {

@@ -2,7 +2,7 @@
 // src/script/native-matrix-enter.mjs; lifted in src/game/matrix-enter.mjs. The proof plan,
 // the Native58 dispatch of proof/task/native-dispatch.mjs and the instruction tests run
 // it; the game runs the lifted native.
-import { leaf } from '../../src/system/native-leaf-support.mjs';
+import { leaf } from '../system/native-leaf-support.mjs';
 import {
   DECKER_COMPUTER_SKILL,
   DECKER_HEALTH,

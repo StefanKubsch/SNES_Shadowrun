@@ -4,7 +4,7 @@
 // proof/task/native-dispatch.mjs and the instruction tests run it; the game runs the
 // lifted native.
 import { taskStop } from '../../src/system/task-stop.mjs';
-import { FIRST_ARGUMENT, SECOND_ARGUMENT, leaf } from '../../src/system/native-leaf-support.mjs';
+import { FIRST_ARGUMENT, SECOND_ARGUMENT, leaf } from '../system/native-leaf-support.mjs';
 
 import {
   CELL_COORDINATE_MASK,

@@ -4,7 +4,7 @@
 // proof/task/native-dispatch.mjs and the instruction tests run these; the game runs the
 // lifted natives.
 import { taskStop } from '../../src/system/task-stop.mjs';
-import { FIRST_ARGUMENT, leaf } from '../../src/system/native-leaf-support.mjs';
+import { FIRST_ARGUMENT, leaf } from '../system/native-leaf-support.mjs';
 import { OBJECT_FLAGS, OBJECT_HALTED, OBJECT_TASK } from '../../src/data/wram.mjs';
 import { TASK_PREVIOUS, TASK_WAIT } from '../../src/vm/layout.mjs';
 import { BANK_SIZE, WORD_MASK } from '../../src/constants/bits.mjs';

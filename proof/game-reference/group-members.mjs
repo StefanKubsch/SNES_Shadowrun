@@ -3,7 +3,7 @@
 // lifted in src/game/group-members.mjs). The proof plans, the Native58 dispatch of
 // proof/task/native-dispatch.mjs and the instruction tests of 80:A297 and 80:A2B5 run
 // them; the game runs the lifted natives.
-import { FIRST_ARGUMENT, leaf } from '../../src/system/native-leaf-support.mjs';
+import { FIRST_ARGUMENT, leaf } from '../system/native-leaf-support.mjs';
 import {
   GROUP_INDEX,
   GROUP_NUMBERS,

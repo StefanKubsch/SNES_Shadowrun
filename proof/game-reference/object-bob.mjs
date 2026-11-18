@@ -3,7 +3,7 @@
 // lifted in src/game/object-bob.mjs). The proof plans, the Native58 dispatch of
 // proof/task/native-dispatch.mjs and the instruction tests of
 // tools/task-native-m1d.test.mjs run these; the game runs the lifted natives.
-import { FIRST_ARGUMENT, leaf } from '../../src/system/native-leaf-support.mjs';
+import { FIRST_ARGUMENT, leaf } from '../system/native-leaf-support.mjs';
 import {
   HALF_PHASE,
   PHASE_MASK,

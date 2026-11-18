@@ -12,7 +12,7 @@ import {
   THIRD_ARGUMENT,
   FOURTH_ARGUMENT,
   leaf,
-} from '../../src/system/native-leaf-support.mjs';
+} from '../system/native-leaf-support.mjs';
 import { indexObjectRecord, readRecordField } from '../system/native-leaf-support.mjs';
 import {
   OBJECT_ARMOUR,

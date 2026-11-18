@@ -5,7 +5,7 @@
 // proof/task/native-dispatch.mjs and the instruction tests run these; the game runs the
 // lifted natives.
 import { taskStop } from '../../src/system/task-stop.mjs';
-import { leaf } from '../../src/system/native-leaf-support.mjs';
+import { leaf } from '../system/native-leaf-support.mjs';
 import {
   ANIMATION_CLOCK_START,
   DRAW_LIST,

@@ -3,7 +3,7 @@
 // native-story-stage-get.mjs and native-story-stage-raise.mjs; lifted in
 // src/game/room-story.mjs). The proof plans and the Native58 dispatch of
 // proof/task/native-dispatch.mjs run these; the game runs the lifted natives.
-import { FIRST_ARGUMENT, leaf } from '../../src/system/native-leaf-support.mjs';
+import { FIRST_ARGUMENT, leaf } from '../system/native-leaf-support.mjs';
 import { ROOM, STORY_STAGE, WRAM } from '../../src/data/wram.mjs';
 import { ROOM_TABLE } from '../../src/data/rooms.mjs';
 import { BYTE_MASK, WORD_MASK, WORD_SIGN } from '../../src/constants/bits.mjs';

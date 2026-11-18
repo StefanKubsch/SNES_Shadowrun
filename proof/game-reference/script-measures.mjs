@@ -6,7 +6,7 @@
 // Native58 dispatch of proof/task/native-dispatch.mjs and the instruction tests of
 // tools/task-native-m1d.test.mjs run these; the game runs the lifted natives.
 import { taskStop } from '../../src/system/task-stop.mjs';
-import { FIRST_ARGUMENT, SECOND_ARGUMENT, leaf } from '../../src/system/native-leaf-support.mjs';
+import { FIRST_ARGUMENT, SECOND_ARGUMENT, leaf } from '../system/native-leaf-support.mjs';
 import { GLOVE_LIMITS } from '../../src/script/native-glove-crosshair-limits.mjs';
 import { applyGloveLimits } from './register-helpers.mjs';
 import { OBJECT_X, OBJECT_Y, PLAYER_OBJECT } from '../../src/data/wram.mjs';

@@ -1,7 +1,7 @@
 import { withInterruptEvents } from './observed-native-events.mjs';
 import { taskStop } from '../../src/system/task-stop.mjs';
 import { fitListWindow } from '../../src/data/menu-layout.mjs';
-import { leafAccess, finishLeaf } from '../../src/system/native-leaf-support.mjs';
+import { leafAccess, finishLeaf } from '../system/native-leaf-support.mjs';
 import {
   observedContinuation,
   drainNativeSequence,

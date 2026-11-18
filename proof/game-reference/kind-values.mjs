@@ -2,7 +2,7 @@
 // src/script/native-object-kind-attribute.mjs and native-record-kind-*.mjs; lifted in
 // src/game/kind-values.mjs). The proof plans and the Native58 dispatch of
 // proof/task/native-dispatch.mjs run these; the game runs the lifted natives.
-import { FIRST_ARGUMENT, leaf } from '../../src/system/native-leaf-support.mjs';
+import { FIRST_ARGUMENT, leaf } from '../system/native-leaf-support.mjs';
 import { readActorKind, returnKindValue } from '../system/native-leaf-support.mjs';
 import { OBJECT_KIND, WRAM } from '../../src/data/wram.mjs';
 import { KIND_FLAGS_OFFSET } from '../../src/data/kinds.mjs';

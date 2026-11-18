@@ -8,7 +8,7 @@ import {
   SECOND_ARGUMENT,
   THIRD_ARGUMENT,
   leaf,
-} from '../../src/system/native-leaf-support.mjs';
+} from '../system/native-leaf-support.mjs';
 import {
   DP_POINT_LIST,
   DP_POINT_LIST_BANK,

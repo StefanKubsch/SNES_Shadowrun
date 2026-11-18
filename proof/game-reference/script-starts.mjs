@@ -6,7 +6,7 @@
 // Native58 dispatch of proof/task/native-dispatch.mjs and the instruction tests run these;
 // the game runs the lifted natives.
 import { taskStop } from '../../src/system/task-stop.mjs';
-import { FIRST_ARGUMENT, SECOND_ARGUMENT, leaf } from '../../src/system/native-leaf-support.mjs';
+import { FIRST_ARGUMENT, SECOND_ARGUMENT, leaf } from '../system/native-leaf-support.mjs';
 import { taskSelectionSupport } from '../script/native-object-turn.mjs';
 import { appendScriptTask } from '../system/task-append.mjs';
 import {

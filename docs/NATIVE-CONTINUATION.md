@@ -238,8 +238,9 @@ pause through its existing outer callers to the driver. The glove choice also
 uses the same adapters and the shared BE5B code, but as an outer native caller
 it stays synchronous for now. Configured replacement routines stay decisive.
 The leaf access equations and their RTS are shared unchanged in `leafAccess`
-and `finishLeaf`; this lets FF79 keep its original WORD and index access across
-pauses.
+(proof/system/native-leaf-support.mjs) and `finishLeaf`
+(src/system/native-leaf-support.mjs); this lets FF79 keep its original WORD and
+index access across pauses.
 
 ## Window allocation, text composition and notice
 
