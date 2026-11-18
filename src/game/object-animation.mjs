@@ -148,12 +148,9 @@ export function stepAnimation(h, events, slot) {
     },
     pointer = (dp) => word(wram, dp) | (wram[dp + 2] << WORD_BITS);
 
-  // Y waits on the stack as the original's PHY and PLY.
-  a.pushWord(h.ctx.y);
-  const done = () => {
-    a.pullWord();
-    return h.rts();
-  };
+  // The original's PHY/PLY pair keeps the caller's Y, which lifted callers do not hold
+  // (user decision 2026-11-17): only free stack bytes differ.
+  const done = () => h.rts();
 
   // The next picture: a change waiting, or the next frame of the stream.
   let picture = null;

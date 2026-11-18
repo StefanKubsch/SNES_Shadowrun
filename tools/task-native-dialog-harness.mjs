@@ -52,7 +52,8 @@ const expand = (trace) =>
         ]
       : [{ kind: e.kind, pc: e.pc, address: e.address, value: e.value }],
   );
-const STACK = 0x1ef0;
+const STACK = 0x1ef0,
+  FREE_STACK_FLOOR = 0x1e80;
 function side(s, root) {
   const mem = new DialogTestMemory(s.wram.slice(), s.sram ? s.sram.slice() : null, s.rom ?? rom);
   const vm = {
@@ -129,6 +130,8 @@ export function waitHooks(s, pcs) {
 // through hooks, all other observations (counter B0A1) through the modules in calls.
 // registers: the registers compared after the run. A lifted native that works on game state only
 // (user decision 2026-11-17) is compared without A, X, Y and the flags (GAME_STATE_REGISTERS).
+// freeStack: also leave out the free stack bytes from FREE_STACK_FLOOR up to the final stack
+// pointer, where the original saves registers lifted callers do not hold.
 export const CPU_REGISTERS = Object.freeze([
   'a',
   'x',
@@ -151,6 +154,7 @@ export function compareDialog(
     feed = null,
     referenceLimit = 1_000_000,
     registers = CPU_REGISTERS,
+    freeStack = false,
   },
 ) {
   s.waits ??= [];
@@ -203,8 +207,9 @@ export function compareDialog(
       differences.push(
         `${key} native ${n.acc.ctx[key].toString(16)} original ${r.acc.ctx[key].toString(16)}`,
       );
+  const free = (i) => freeStack && i >= FREE_STACK_FLOOR && i <= r.acc.ctx.s;
   for (let i = 0; i < n.mem.wram.length; i++)
-    if (n.mem.wram[i] !== r.mem.wram[i]) {
+    if (n.mem.wram[i] !== r.mem.wram[i] && !free(i)) {
       differences.push(
         `wram ${(0x7e0000 + i).toString(16)} native ${n.mem.wram[i].toString(16)} original ${r.mem.wram[i].toString(16)}`,
       );

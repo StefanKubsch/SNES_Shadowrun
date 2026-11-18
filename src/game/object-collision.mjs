@@ -250,12 +250,13 @@ function objectBox(wram, slot) {
 }
 
 // The common start of a test: slot, bottom and top, and the frame with the data bank 7E.
-// Y and the data bank wait on the stack as the original pushes them.
+// The data bank waits on the stack as the original pushes it. The original's PHY/PLY
+// pair around the test keeps the caller's Y, which lifted callers do not hold
+// (user decision 2026-11-17): only free stack bytes differ.
 function beginTest(h, slot) {
   const { wram } = h.a.mem,
     box = objectBox(wram, slot);
   setWord(wram, DP_SEARCHER, slot);
-  h.a.pushWord(h.ctx.y);
   h.phb();
   h.push(WRAM_BANK_PAIR, 2);
   h.plb();
@@ -272,11 +273,10 @@ function writeBox(test, words) {
     if (part.overflow !== undefined) test.overflow = part.overflow;
   }
 }
-// The end of a test: the data bank and Y back; returns the height, whether it is free,
-// the overflow and the RTS result.
+// The end of a test: the data bank back; returns the height, whether it is free, the
+// overflow and the RTS result.
 function finishTest(h, test, free) {
   h.plb();
-  h.a.pullWord();
   const height = word(test.wram, DP_RESULT);
   return { height, free, overflow: test.overflow, returned: h.rts() };
 }

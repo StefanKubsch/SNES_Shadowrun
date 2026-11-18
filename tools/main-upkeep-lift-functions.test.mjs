@@ -934,12 +934,13 @@ registerCases([OBJECT_SEARCH], {
 });
 // A picture whose upload jobs or slots run past 2000 (a random tile count with as many
 // jobs, which the original writes into the hardware registers) is outside the lifted
-// domain.
+// domain. The free stack below the caller's frame (1EEF-1EF0) differs: the lifted step
+// pushes no caller Y (user decision 2026-11-17).
 registerCases([OBJECT_ANIMATION], {
   sample,
   side: (s) => createSide(s, new Map()),
   runtime: (h) => h,
-  ignored: [],
+  ignored: [[0x1e80, 0x1eef]],
   outside: new Set(['object_slot_required']),
 });
 // The motion pass reproduces the frames of its collision list, so the stack below the

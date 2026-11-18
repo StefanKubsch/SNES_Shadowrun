@@ -210,6 +210,8 @@ for (const [kind, list] of [
             native: (h) => (i === 5 ? list[i](h, turn) : list[i](h)),
             calls: (acc) => new Map([[0x80aaaf, () => turn(dialogAccess(acc))]]),
             ...(kind && i === 5 ? { registers: GAME_STATE_REGISTERS } : {}),
+            // Lifted tests push no caller Y: only the free stack differs.
+            freeStack: Boolean(kind),
           });
           assert.deepEqual(result.differences, [], `seed ${seed}`);
           for (const pc of result.visited) covered.add(pc);
@@ -306,6 +308,7 @@ for (const [name, run] of [
             [0x80aaaf, () => action(dialogAccess(acc))],
             [0x80ac2f, () => animation(dialogAccess(acc))],
           ]),
+        freeStack: true,
       });
       assert.deepEqual(result.differences, [], `seed ${seed}`);
       for (const pc of result.visited) covered.add(pc);
