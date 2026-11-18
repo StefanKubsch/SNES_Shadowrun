@@ -30,7 +30,7 @@ test('Mesen title skip reaches the new-game menu with an NMI inside the real buf
     assert.ok(recorded.io.some(o=>o.address===0x812140),'DDB1 original DBR81 APU reads');
     const at=recorded.chronology.findIndex(o=>o.kind==='H'&&o.pc===0x81DE28),nmi=recorded.chronology[at];
     assert.ok(nmi);assert.deepEqual(nmi.context,{a:0x252,x:0x5454,y:0x5455,s:0x133,d:0,bank:0x7E,status:5,programBank:0x81,pc:0xDE28,e:0});
-    const chronology=recorded.chronology.slice();chronology[at]={...nmi,context:{...nmi.context,a:nmi.context.a^1}};
+    const chronology=recorded.chronology.slice();chronology[at]={...nmi,context:{...nmi.context,bank:nmi.context.bank^1}};
     assert.throws(()=>compareBootPrefix({...recorded,chronology}),/original interrupted boot registers/);
     assert.throws(()=>compareBootPrefix({...recorded,io:recorded.io.slice(1)}),/original boot IO count/);
   });
@@ -66,7 +66,7 @@ test('Mesen cold boot completes the new-game menu with inner unpack NMIs and ori
       assert.ok(recorded.chronology.some(o=>o.kind==='H'&&o.pc===pc),'actual inner NMI '+pc.toString(16));
     const move=recorded.chronology.find(o=>o.kind==='H'&&o.pc===0x80A01C);
     assert.deepEqual(move.context,{a:0x507,x:0x2B58,y:0x2B59,s:0x12D,d:0,bank:0x7F,status:5,programBank:0x80,pc:0xA01C,e:0});
-    const chronology=recorded.chronology.slice();chronology[first]={...nmi,context:{...nmi.context,a:nmi.context.a^1}};
+    const chronology=recorded.chronology.slice();chronology[first]={...nmi,context:{...nmi.context,bank:nmi.context.bank^1}};
     assert.throws(()=>compareBootPrefix({...recorded,chronology}),/original interrupted boot registers/);
   });
 
