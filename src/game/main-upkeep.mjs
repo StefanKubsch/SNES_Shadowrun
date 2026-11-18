@@ -24,8 +24,8 @@ import { timeLimitSequence } from './time-limit.mjs';
 import { gloveActionSequence } from './glove-action.mjs';
 import { noticeRoutineSequence, showNoticeSequence } from './notice-show.mjs';
 import {
-  putGloveAwayCallSequence,
-  releaseNoticeWindowsCallSequence,
+  putGloveAwayRoutineSequence,
+  releaseNoticeWindowsRoutineSequence,
   releaseWindowSequence,
 } from './window-release.mjs';
 import { closeDialogSequence, talkSequence } from './dialog-talk.mjs';
@@ -148,11 +148,12 @@ NATIVE_CALL_CONTINUATIONS.set(runShowNotice, {
 export const liftedNoticeSequence = (h, events) => showNoticeSequence(h, events);
 // 80:BCB2, called with JSR; its name window release waits for the NMI.
 export function runPutGloveAway(h, events) {
-  return drainNativeSequence(putGloveAwayCallSequence(h, events));
+  return drainNativeSequence(putGloveAwayRoutineSequence(h, events));
 }
 NATIVE_CALL_CONTINUATIONS.set(runPutGloveAway, {
   run: runPutGloveAway,
-  create: ({ h, events }) => new NativeCallContinuation(h.a, putGloveAwayCallSequence(h, events)),
+  create: ({ h, events }) =>
+    new NativeCallContinuation(h.a, putGloveAwayRoutineSequence(h, events)),
 });
 // 80:FD80, called with JSR; its text buffer 80:FB39 waits for the NMI.
 export function runPrintNumber(h, events) {
@@ -219,12 +220,12 @@ NATIVE_CALL_CONTINUATIONS.set(runReleaseWindow, {
 // colour clear, glove release, notice windows, window opening, text width, window
 // release, word wait and sprite list (the glove action's table is not passed on).
 export function runReleaseNoticeWindows(h, events) {
-  return drainNativeSequence(releaseNoticeWindowsCallSequence(h, events));
+  return drainNativeSequence(releaseNoticeWindowsRoutineSequence(h, events));
 }
 NATIVE_CALL_CONTINUATIONS.set(runReleaseNoticeWindows, {
   run: runReleaseNoticeWindows,
   create: ({ h, events }) =>
-    new NativeCallContinuation(h.a, releaseNoticeWindowsCallSequence(h, events)),
+    new NativeCallContinuation(h.a, releaseNoticeWindowsRoutineSequence(h, events)),
 });
 // 80:FA67, a window's tile clear as its callers run it with JSR (the item list's and
 // the karma line's redraw).

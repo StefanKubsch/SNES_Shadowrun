@@ -15,6 +15,10 @@
 // original: the NMI of the upload wait writes below them. Each release passes its
 // window in the direct page word 00, as the original. Window indices are game-sized
 // (below 0100), so the tables are read in bank 7E.
+//
+// Registers (user decision 2026-11-17): the call forms leave no A, X or flags of their
+// own; the routine forms (releaseNameWindowRoutineSequence and the others) keep the
+// original's registers for register-level callers.
 import { sceneRuntime } from '../system/scene-runtime.mjs';
 import { drawWindowListSequence } from './window-list.mjs';
 import {
@@ -38,7 +42,7 @@ import {
   WINDOW_TILE_START,
 } from '../data/wram.mjs';
 import { BYTE_BITS, BYTE_MASK, WORD_BITS, WORD_MASK, WORD_SIGN } from '../constants/bits.mjs';
-import { FLAG_CARRY, FLAG_NEGATIVE, FLAG_ZERO } from '../constants/cpu-flags.mjs';
+import { FLAG_NEGATIVE, FLAG_ZERO } from '../constants/cpu-flags.mjs';
 
 const NOTICE_LOOP_END = 0xfffe,
   NONE = WORD_MASK,
@@ -70,22 +74,15 @@ function* belowJsr(h, site, sequence) {
 export function* releaseWindowSequence(h, events) {
   const { wram } = sceneRuntime(h);
   yield () => {
-    const { ctx } = h;
     let x = word(wram, DP_WINDOW);
     setWord(wram, WINDOW_ACTIVE + x, 0);
-    // X stays the window (or the window found below the last one), the carry is that of
-    // CPX with the last index; a window list without windows leaves them so.
-    const last = word(wram, WINDOW_LAST_INDEX);
-    ctx.x = x;
-    ctx.status = x >= last ? ctx.status | FLAG_CARRY : ctx.status & ~FLAG_CARRY;
-    if (x !== last) return;
+    if (x !== word(wram, WINDOW_LAST_INDEX)) return;
     // Down to the previous active window, or past the first (index FFFE).
     do x = (x - 2) & WORD_MASK;
     while (!(x & WORD_SIGN) && !word(wram, WINDOW_ACTIVE + x));
     const next = (x + 2) & WORD_MASK;
     setWord(wram, WINDOW_NEXT_TILE, word(wram, WINDOW_TILE_START + next));
     setWord(wram, WINDOW_LAST_INDEX, x);
-    ctx.x = x;
   };
   yield* drawWindowListSequence(h, events, REDRAW_SITE);
 }
@@ -160,39 +157,33 @@ export function* releaseGloveNameWindowSequence(h, events) {
 }
 
 // The name window release as called with JSR (80:BE5B), a sequence for the glove's
-// movement and object search: leaves A FFFF with its sign and zero, and X, Y, the carry
-// and the overflow of the window list's redraw, as the original; returns with its RTS.
+// movement and object search; returns with its RTS.
 export function* releaseNameWindowCallSequence(h, events) {
   yield* releaseGloveNameWindowSequence(h, events);
-  let result;
-  yield () => {
-    const { ctx } = h;
-    ctx.a = NONE;
-    ctx.status = (ctx.status | FLAG_NEGATIVE) & ~FLAG_ZERO;
-    result = h.rts();
-  };
-  return result;
+  return yield* rts(h);
 }
 
-// Put the glove away as called with JSR (80:BCB2), a sequence for the glove action:
-// leaves A the target tag with its sign and zero, X, Y, the carry and the overflow
-// unchanged without a target; with one, the registers of the name window release
-// (releaseNameWindowCallSequence), which runs in its JSR frame. Returns with its RTS.
-export function* putGloveAwayCallSequence(h, events) {
+// Put the glove away as called with JSR (80:BCB2), a sequence for the glove action;
+// the name window release runs in its JSR frame. Returns with its RTS.
+export function* putGloveAwayCallSequence(h, events, release = releaseNameWindowCallSequence) {
   const { wram } = sceneRuntime(h);
   let target = false;
   yield () => {
-    const { ctx } = h;
     setWord(wram, GLOVE_KIND, 0);
-    ctx.a = word(wram, GLOVE_TARGET_TAG);
-    ctx.status = ctx.a & WORD_SIGN ? ctx.status | FLAG_NEGATIVE : ctx.status & ~FLAG_NEGATIVE;
-    ctx.status = ctx.a === 0 ? ctx.status | FLAG_ZERO : ctx.status & ~FLAG_ZERO;
-    target = !(ctx.a & WORD_SIGN);
+    target = !(word(wram, GLOVE_TARGET_TAG) & WORD_SIGN);
   };
   if (target)
-    yield* dialogCallBody(h, GLOVE_NAME_SITE, NAME_RELEASE_TARGET, () =>
-      releaseNameWindowCallSequence(h, events),
-    );
+    yield* dialogCallBody(h, GLOVE_NAME_SITE, NAME_RELEASE_TARGET, () => release(h, events));
+  return yield* rts(h);
+}
+
+// The notice windows' release as called with JSR (80:FF79), a sequence for the dialog.
+// Returns with its RTS.
+export function* releaseNoticeWindowsCallSequence(h, events) {
+  yield* releaseNoticeWindowsSequence(h, events);
+  return yield* rts(h);
+}
+function* rts(h) {
   let result;
   yield () => {
     result = h.rts();
@@ -200,35 +191,40 @@ export function* putGloveAwayCallSequence(h, events) {
   return result;
 }
 
-// The notice windows' release as called with JSR (80:FF79), a sequence for the dialog:
-// leaves A the last slot's window (FFFF when it was released), X FFFE with the sign set
-// and Y, the carry and the overflow of the last release (or as they came), as the
-// original. Returns with its RTS.
-export function* releaseNoticeWindowsCallSequence(h, events) {
-  const { ctx } = h,
-    { wram } = sceneRuntime(h);
-  for (let x = NOTICE_WINDOW_LAST; x >= 0; x -= 2) {
-    const window = word(wram, NOTICE_WINDOWS + x);
-    yield () => (ctx.a = window);
-    if (window & WORD_SIGN) continue;
-    yield () => {
-      setWord(wram, DP_WINDOW, window);
-      h.a.pushWord(x);
-    };
-    yield* belowJsr(h, NOTICE_RELEASE_SITE, releaseWindowSequence(h, events));
-    yield () => {
-      h.a.pullWord();
-      ctx.a = NONE;
-      setWord(wram, NOTICE_WINDOWS + x, NONE);
-    };
+// Register forms for register-level callers. The name window release leaves A FFFF
+// with its sign and zero, and X, Y, the carry and the overflow of the window list's
+// redraw, as the original.
+const setSignZero = (ctx, value) => {
+  ctx.status = value & WORD_SIGN ? ctx.status | FLAG_NEGATIVE : ctx.status & ~FLAG_NEGATIVE;
+  ctx.status = value === 0 ? ctx.status | FLAG_ZERO : ctx.status & ~FLAG_ZERO;
+};
+export function* releaseNameWindowRoutineSequence(h, events) {
+  const result = yield* releaseNameWindowCallSequence(h, events);
+  h.ctx.a = NONE;
+  setSignZero(h.ctx, NONE);
+  return result;
+}
+// Putting the glove away leaves A the target tag with its sign and zero and X, Y, the
+// carry and the overflow unchanged without a target; with one, the registers of the
+// name window release.
+export function* putGloveAwayRoutineSequence(h, events) {
+  const tag = word(sceneRuntime(h).wram, GLOVE_TARGET_TAG),
+    result = yield* putGloveAwayCallSequence(h, events, releaseNameWindowRoutineSequence);
+  if (tag & WORD_SIGN) {
+    h.ctx.a = tag;
+    setSignZero(h.ctx, tag);
   }
-  let result;
-  yield () => {
-    setWord(wram, WINDOW_FIRST_INDEX, 0);
-    ctx.x = NOTICE_LOOP_END;
-    ctx.status = (ctx.status | FLAG_NEGATIVE) & ~FLAG_ZERO;
-    result = h.rts();
-  };
+  return result;
+}
+// The notice windows' release leaves A the last slot's window (FFFF when it was
+// released), X FFFE with the sign set and Y, the carry and the overflow of the last
+// release (or as they came).
+export function* releaseNoticeWindowsRoutineSequence(h, events) {
+  const result = yield* releaseNoticeWindowsCallSequence(h, events),
+    { ctx } = h;
+  ctx.a = word(sceneRuntime(h).wram, NOTICE_WINDOWS);
+  ctx.x = NOTICE_LOOP_END;
+  setSignZero(ctx, NOTICE_LOOP_END);
   return result;
 }
 

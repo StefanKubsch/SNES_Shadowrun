@@ -19,7 +19,7 @@
 // search reads that carry too.
 import { dialogCallBody } from '../../src/system/native-call-continuation.mjs';
 import { objectSearchSequence } from './object-search.mjs';
-import { releaseNameWindowCallSequence } from '../../src/game/window-release.mjs';
+import { releaseNameWindowRoutineSequence } from '../../src/game/window-release.mjs';
 import {
   GLOVE_KIND,
   GLOVE_SPEED_X,
@@ -136,7 +136,7 @@ export function* gloveMoveSequence(h, events, routines) {
     );
   else if (next === 'release')
     yield* dialogCallBody(h, RELEASE_CALL, RELEASE_TARGET, () =>
-      releaseNameWindowCallSequence(h, events),
+      releaseNameWindowRoutineSequence(h, events),
     );
   let result;
   yield () => {
