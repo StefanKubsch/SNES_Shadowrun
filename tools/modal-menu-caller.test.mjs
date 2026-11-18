@@ -89,8 +89,8 @@ function run(module, { mask, override = 0, pads, script = false }, budget) {
         ),
         budget,
       );
-    // The script native leaves its result in DP 00; the interpreter replaces A.
-    return { ...result, input, chosen: script ? mem.read16(0x7e0000) : h.ctx.a };
+    // The script natives leave their result in DP 00; the interpreter replaces A.
+    return { ...result, input, chosen: script || question ? mem.read16(0x7e0000) : h.ctx.a };
   } finally {
     for (const run of bindings) NATIVE_CALL_CONTINUATIONS.delete(run);
   }

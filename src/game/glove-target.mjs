@@ -1,7 +1,7 @@
 import {
   drawWindowListSequence,
   requestUploadJslSequence,
-  runUnpackWindowMap,
+  unpackWindowMapCall,
 } from './window-list.mjs';
 import { gloveMoveSequence } from './glove-move.mjs';
 import { drawTextBufferSequence } from './text-draw.mjs';
@@ -458,7 +458,7 @@ function* prepareWindowListSequence(h, events, pc) {
         h,
         PREPARE_LIST,
         UNPACK_MAP,
-        () => segmentSequence(() => runUnpackWindowMap(h)),
+        () => segmentSequence(() => unpackWindowMapCall(h)),
         true,
       );
       yield* dialogCallBody(
