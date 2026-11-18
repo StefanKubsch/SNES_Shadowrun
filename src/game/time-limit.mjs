@@ -17,11 +17,13 @@
 // The notice 80:FEC1 (lifted in notice-show.mjs), the text cursor 80:FAAC and the
 // number 80:FD80 (lifted in window-text.mjs) and the text 80:FE69 (text-print.mjs) run
 // directly through their call frames; the notice and the
-// text wait for the NMI of their uploads. Before each call A holds the value the
-// original leaves in it (none of them reads it, but a wait's NMI saves it). The sound
-// effect (src/apu/sound-effect.mjs) is lifted and waits for nothing; its frame is not
-// reproduced. The routine itself sets neither X nor Y; after a sound they are left as
-// the original sound effect leaves them (src/game/main-upkeep.mjs).
+// text wait for the NMI of their uploads. The sound effect (src/apu/sound-effect.mjs)
+// is lifted and waits for nothing; its frame is not reproduced.
+//
+// Registers (user decision 2026-11-17): game state only, apart from the notice 80:FEC1,
+// which still returns its window in A. The carry the original leaves in the last hour
+// reaches only the P a later NMI saves (the next main loop steps do not read it), so it
+// is not kept, nor are A, X and Y.
 import { dialogCallBody, segmentSequence } from '../system/native-call-continuation.mjs';
 import { showNoticeSequence } from './notice-show.mjs';
 import { setTextCursorRoutine, printNumberSequence } from './window-text.mjs';
@@ -46,7 +48,6 @@ import {
   TIMER_STOPPED,
 } from '../data/wram.mjs';
 import { BYTE_BITS, BYTE_MASK, WORD_MASK, WORD_SIGN } from '../constants/bits.mjs';
-import { FLAG_CARRY } from '../constants/cpu-flags.mjs';
 import { dataBankWord, setDataBankWord } from '../system/data-bank.mjs';
 
 const FRAMES_PER_HOUR = 0xdd4,
@@ -59,8 +60,7 @@ const FRAMES_PER_HOUR = 0xdd4,
   WARNING_SOUND = 0x26,
   WARNING_LEVEL = BYTE_MASK,
   WARNING_VOICES = 7,
-  NO_OBJECT = WORD_MASK,
-  SOUND_HIGH_BYTE = 0xff00;
+  NO_OBJECT = WORD_MASK;
 // The direct page words of the calls: the window (from the notice), the number and the text.
 const DP_WINDOW = 0x00,
   DP_ARGUMENT = 0x02,
@@ -105,33 +105,26 @@ export function* timeLimitSequence(h, events, renderBuffer = drawTextBufferSeque
       setWord(wram, DP_WINDOW_ATTRIBUTES, 0);
       setWord(wram, DP_NOTICE_TEXT, NOTICE.text);
       setWord(wram, DP_NOTICE_FRAMES, NOTICE.frames);
-      ctx.a = NOTICE.frames;
       path = 'notice';
       return;
     }
     const left = frames - 1;
     setWord(wram, TIMER_FRAMES, left);
     const fast = hours === 0 && left < WARNING_FAST_BELOW;
-    // The last hour compares the frames with E10; the carry stays for the main loop's
-    // later callees (its own loads change only sign and zero).
-    if (hours === 0) ctx.status = fast ? ctx.status & ~FLAG_CARRY : ctx.status | FLAG_CARRY;
     if (left & (fast ? WARNING_FAST_MASK : WARNING_SLOW_MASK)) return;
     setWord(wram, DP_SOUND_OBJECT, NO_OBJECT);
     setWord(wram, DP_SOUND_LEVEL, WARNING_LEVEL);
     setWord(wram, DP_SOUND_VOICE, WARNING_VOICES);
     setWord(wram, DP_SOUND_EFFECT, WARNING_SOUND);
-    const sound = playSoundEffect(mem, accessorPort(h.a), {
+    playSoundEffect(mem, accessorPort(h.a), {
       object: NO_OBJECT,
       effect: WARNING_SOUND,
       level: WARNING_LEVEL,
       voices: WARNING_VOICES,
     });
-    // The sound effect leaves the sound word with FF in its high byte and the offset.
-    ctx.x = sound | SOUND_HIGH_BYTE;
-    ctx.y = WARNING_SOUND;
   };
   if (path === 'notice') {
-    // The notice returns its window in A.
+    // The notice returns its window in A (see the header).
     yield* call(CALL.notice, NOTICE_CALL, () => showNoticeSequence(h, events, renderBuffer));
     yield () => {
       setWord(wram, DP_WINDOW, ctx.a);
@@ -142,14 +135,10 @@ export function* timeLimitSequence(h, events, renderBuffer = drawTextBufferSeque
     yield () => {
       const hours = word(wram, TIMER);
       setWord(wram, DP_ARGUMENT, hours);
-      ctx.a = (hours - 1) & WORD_MASK;
-      setWord(wram, TIMER, ctx.a);
+      setWord(wram, TIMER, (hours - 1) & WORD_MASK);
     };
     yield* call(CALL.number, NUMBER_CALL, () => printNumberSequence(h, events, renderBuffer));
-    yield () => {
-      ctx.a = word(wram, TIMER) ? TEXT_HOURS : TEXT_LAST_HOUR;
-      setWord(wram, DP_ARGUMENT, ctx.a);
-    };
+    yield () => setWord(wram, DP_ARGUMENT, word(wram, TIMER) ? TEXT_HOURS : TEXT_LAST_HOUR);
     yield* call(CALL.text, TEXT_CALL, () => printTextSequence(h, events, renderBuffer));
   }
   let result;
