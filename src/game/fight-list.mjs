@@ -12,6 +12,11 @@
 // entry (karma / 8 then and now) shows in a notice with its number and a sound, and with
 // the music option the music kept by the first entry plays again (none if there was
 // none), else the music mode 0.
+//
+// Registers (user decision 2026-11-17): game state only, apart from two register
+// interfaces of callees that are still register-level: the notice 80:FEC1 returns its
+// window in A, and the music mode 81:EF47 takes the mode in A. Every other register
+// value the original leaves is dropped.
 import { setTextCursorRoutine, printNumberSequence } from './window-text.mjs';
 import { printTextSequence } from './text-print.mjs';
 import { showNoticeSequence } from './notice-show.mjs';
@@ -153,39 +158,31 @@ export function* removeFromFightListSequence(h, events, renderBuffer = drawTextB
       [DP_NOTICE_FRAMES, NOTICE_FRAMES],
     ])
       setWord(wram, at, value);
-    // A holds the last value loaded, as the original passes it on.
-    ctx.a = NOTICE_FRAMES;
   };
   if (state === 'gain') {
     yield* dialogCallBody(h, ...NOTICE_CALL, () => showNoticeSequence(h, events, renderBuffer));
     yield () => {
-      // The notice leaves its window in A.
+      // The notice returns its window in A (see the header).
       setWord(wram, DP_WINDOW, ctx.a);
       setWord(wram, DP_TEXT, 0);
       setWord(wram, DP_CURSOR_ROW, 0);
     };
     yield* dialogCallBody(h, ...CURSOR_CALL, () => segmentSequence(() => setTextCursorRoutine(h)));
-    yield () => {
-      ctx.a = word(wram, FIGHT_KARMA);
-      setWord(wram, DP_TEXT, ctx.a);
-    };
+    yield () => setWord(wram, DP_TEXT, word(wram, FIGHT_KARMA));
     yield* dialogCallBody(h, ...NUMBER_CALL, () => printNumberSequence(h, events, renderBuffer));
-    yield () => {
-      ctx.a = TEXT_KARMA_GAIN;
-      setWord(wram, DP_TEXT, ctx.a);
-    };
+    yield () => setWord(wram, DP_TEXT, TEXT_KARMA_GAIN);
     yield* dialogCallBody(h, ...TEXT_CALL, () => printTextSequence(h, events, renderBuffer));
     yield () => {
       setWord(wram, 0, NO_OBJECT);
       setWord(wram, DP_SOUND_LEVEL, KARMA_SOUND_LEVEL);
       setWord(wram, DP_SOUND_VOICE, KARMA_SOUND_VOICES);
       setWord(wram, DP_SOUND_EFFECT, KARMA_SOUND);
-      ctx.a = KARMA_SOUND;
     };
     yield* dialogCallBody(h, ...SOUND_CALL, () => segmentSequence(() => playSoundEffectRoutine(h)));
   }
   if (state === 'gain' || state === 'ended') {
     let site = null;
+    // The music mode takes its mode in A (see the header).
     yield () => {
       if (!(word(wram, GAME_OPTIONS) & OPTION_MUSIC_RESTORE)) {
         ctx.a = MUSIC_OFF;
