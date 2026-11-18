@@ -28,7 +28,8 @@
 //
 // Game state only (docs/STRATEGY.md, 2026-11-14): its callers read the result from DP
 // B4 and restore their own registers, so the registers the original leaves are not
-// produced; only X during the word waits (the original's count) is kept. The random
+// produced, nor X during the word waits (the original's count; user decision
+// 2026-11-17). The random
 // number, the object slots 80:A835 and the sound 80:C46E run lifted as plain calls; the
 // notice window, text and word waits compose directly through their frames.
 // Confirmation, release and the player window list also compose directly.
@@ -149,8 +150,7 @@ const longAddress = (offset, index) => (WRAM + offset + index) & LONG_MASK;
 // A notice of the harmless hits: its window, text, thirty word waits, the confirm key
 // and the release.
 function* noticeSequence(h, events, renderBuffer, notice, calls) {
-  const { ctx } = h,
-    { mem } = h.a,
+  const { mem } = h.a,
     { wram } = mem;
   yield () => {
     setWord(wram, DP_WINDOW_LEFT, notice.margin);
@@ -165,12 +165,8 @@ function* noticeSequence(h, events, renderBuffer, notice, calls) {
     setWord(wram, 2, notice.text);
   };
   yield* dialogCallBody(h, calls.text, TEXT, () => printTextSequence(h, events, renderBuffer));
-  for (let left = NOTICE_COUNTER_WAITS; left > 0; left--) {
-    yield () => {
-      ctx.x = left;
-    };
+  for (let left = NOTICE_COUNTER_WAITS; left > 0; left--)
     yield* dialogCallBody(h, calls.wait, WORD_WAIT, () => frameWaitCallSequence(h, events), true);
-  }
   yield* dialogCallBody(h, calls.key, CONFIRM_KEY, () => waitForConfirmKeySequence(h, events));
   yield* dialogCallBody(h, calls.release, RELEASE_WINDOW, () =>
     releaseWindowJsrSequence(h.a, events),

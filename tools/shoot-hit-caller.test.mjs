@@ -74,7 +74,8 @@ function runShot(sequence, direct, options) {
       events.interrupts.textWait = (callee, frameEvents, status, pc) => {
         const caller = mem.read16(0x7e0000 | (h.ctx.s + 1));
         if (pc === 0x81b0a9 && (caller === 0x87b2 || caller === 0x87f8)) {
-          calls.push(['notice count', h.ctx.x]);
+          // Game state only (user decision 2026-11-17): no X (the original's wait count).
+          calls.push(['notice count']);
           put(W.RANDOM_STATE, mem.read16(W.RANDOM_STATE) + 1);
           return true;
         }
