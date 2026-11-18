@@ -34,7 +34,7 @@ import {
 } from '../../src/system/native-call-continuation.mjs';
 import { lagFree } from '../../src/system/main-wait-interrupt.mjs';
 import { nmiAtBranch } from '../../src/system/frame-wait.mjs';
-import { unpackWindowMap } from '../../src/game/game-screen.mjs';
+import { unpackWindowMap as unpackWindowMapReference } from '../system/native-render-unpack.mjs';
 import {
   DIALOG_WINDOW,
   TEXT_MAP_UPLOAD,
@@ -246,14 +246,11 @@ NATIVE_CALL_CONTINUATIONS.set(runRequestUpload, {
       : NATIVE_CALL_CONTINUATIONS.get(REQUEST_UPLOAD).create(call),
 });
 // 81:A9B2 for the callers' tables (called with JSL; nothing in it waits): the window
-// map unpacked, with the X, Y, carry and overflow it leaves.
+// map unpacked by the register-level reference (proof/system/native-render-unpack.mjs),
+// with the registers it leaves and its RTL; the lifted src/game/game-screen.mjs leaves
+// game state only.
 export function runUnpackWindowMap(h) {
-  const { ctx } = h,
-    left = unpackWindowMap(sceneRuntime(h));
-  ({ x: ctx.x, y: ctx.y } = left);
-  ctx.status = left.carry ? ctx.status | FLAG_CARRY : ctx.status & ~FLAG_CARRY;
-  ctx.status = left.overflow ? ctx.status | FLAG_OVERFLOW : ctx.status & ~FLAG_OVERFLOW;
-  return h.rtl();
+  return unpackWindowMapReference(h.a, false).rawReturnWord;
 }
 
 // Draw the window list (81:AD92), a sequence; events are the frame events of the
@@ -362,11 +359,8 @@ function* windowListBody(h, events) {
   if (events?.startupInterrupts) yield* call(WINDOW_MAP_SITE, UNPACK_WINDOW_MAP);
   else
     yield () => {
-      // Without windows the list leaves the X, Y, carry and overflow of the window map.
-      const left = unpackWindowMap(m);
-      ({ x: ctx.x, y: ctx.y } = left);
-      ctx.status = left.carry ? ctx.status | FLAG_CARRY : ctx.status & ~FLAG_CARRY;
-      ctx.status = left.overflow ? ctx.status | FLAG_OVERFLOW : ctx.status & ~FLAG_OVERFLOW;
+      // Without windows the list leaves the registers of the window map.
+      h.call(WINDOW_MAP_SITE, UNPACK_WINDOW_MAP, () => runUnpackWindowMap(h), true);
     };
   yield () => {
     const last = word(wram, WINDOW_LAST_INDEX);

@@ -91,10 +91,9 @@ function drawColumns(wram, rows, tiles, x, count) {
 }
 
 // Draw Jake's state bar into the window map buffer (81:AF1F); nothing without a
-// dialog window or with an empty group. m: {mem, wram, port}. Returns the index
-// registers the original leaves when it draws the bar (Y the maximum's remainder, as in
-// direct page A5; X the column after the segments above the value) with the carry and
-// overflow of its last arithmetic, otherwise undefined (X, Y and the flags unchanged).
+// dialog window or with an empty group. m: {mem, wram, port}. Game state only (user
+// decision 2026-11-17): the registers the original leaves are produced by the
+// register-level version in proof/script/native-bar-tiles.mjs.
 export function drawJakeStateBar({ mem, wram, port }) {
   if (word(wram, DIALOG_WINDOW) === 0) return;
   if (word(wram, GROUP_INDEX) & WORD_SIGN) return;
@@ -120,23 +119,16 @@ export function drawJakeStateBar({ mem, wram, port }) {
   x = FIRST_COLUMN;
   const valueSegments = port.read(RDDIVL, 2, VALUE_QUOTIENT_SITE),
     above = (maximumSegments - valueSegments) & WORD_MASK;
-  // The subtraction's carry and overflow, which the original leaves unless the small
-  // value's table addition follows.
-  let carry = maximumSegments >= valueSegments,
-    overflow = ((maximumSegments ^ valueSegments) & (maximumSegments ^ above) & WORD_SIGN) !== 0;
   if (above !== 0) x = drawColumns(wram, [MIDDLE_ROW], [ABOVE_VALUE_TILE], x, above);
   // The partial tile at the next column, by the value's remainder.
   let entry;
   if (maximumRest === 0) {
-    if (value === 0) return { x, y: maximumRest, carry, overflow };
+    if (value === 0) return;
     entry = port.read(RDMPYL, 2, REMAINDER_SITE);
   } else if (value < SMALL_VALUE) {
     const rest = port.read(RDMPYL, 2, SMALL_REMAINDER_SITE);
     entry = (rest + SMALL_VALUE_TABLE_BIAS) & WORD_MASK;
-    overflow = (~(rest ^ SMALL_VALUE_TABLE_BIAS) & (rest ^ entry) & WORD_SIGN) !== 0;
   } else entry = port.read(RDMPYL, 2, REMAINDER_SITE);
-  // The table offset is the entry doubled (ASL: its top bit is the carry).
-  carry = (entry & WORD_SIGN) !== 0;
+  // The table offset is the entry doubled.
   setWord(wram, MIDDLE_ROW + x, readWord(mem, PARTIAL_TILES + ((entry * 2) & WORD_MASK)));
-  return { x, y: maximumRest, carry, overflow };
 }

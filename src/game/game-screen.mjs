@@ -169,14 +169,7 @@ import {
   VRAM_WORD_BYTES,
 } from '../constants/ppu.mjs';
 import { WRAM_BANK } from '../constants/memory-map.mjs';
-import {
-  BYTE_BITS,
-  BYTE_MASK,
-  NIBBLE_BITS,
-  WORD_BITS,
-  WORD_MASK,
-  WORD_SIGN,
-} from '../constants/bits.mjs';
+import { BYTE_BITS, BYTE_MASK, NIBBLE_BITS, WORD_BITS, WORD_MASK } from '../constants/bits.mjs';
 
 const NONE = WORD_MASK,
   LONG_MASK = 0xffffff;
@@ -357,31 +350,25 @@ function unpackWithLength(mem, source, target) {
 // The window map (81:A9B2): unpack it from WINDOW_MAP_SOURCE into its buffer (80:9F49,
 // with the bank word of WINDOW_MAP_SOURCE_BANK, leaving the unpacker's direct page
 // state) and add the tile bias to every word from the last down, each addition taking
-// the carry of the one before; then Jake's state bar. m: {mem, wram, port}. Returns
-// the index registers {x, y} the original leaves: the bar's when it is drawn, otherwise
-// X past the tile loop (FFFE) and the unpacker's Y; with the carry and overflow of the
-// last addition (the bar's or the tile loop's).
-// The tile bias loop counts X down past the first word.
-const TILE_LOOP_END = 0xfffe;
+// the carry of the one before; then Jake's state bar. m: {mem, wram, port}. Game state
+// only (user decision 2026-11-17): the registers the original leaves are produced by
+// the register-level reference in proof/system/native-render-unpack.mjs.
 export function unpackWindowMap(m) {
   const { mem, wram } = m;
-  const unpackedY = unpackLong(
+  unpackLong(
     mem,
     word(wram, WINDOW_MAP_SOURCE),
     word(wram, WINDOW_MAP_SOURCE_BANK),
     WINDOW_MAP_BUFFER,
     UNPACK_7E,
-  ).outputEnd;
-  let carry = 0,
-    overflow = false;
+  );
+  let carry = 0;
   for (let x = WINDOW_MAP_LAST_WORD_OFFSET; x >= 0; x -= 2) {
-    const value = word(wram, WINDOW_MAP_BUFFER + x),
-      sum = value + WINDOW_MAP_TILE_BIAS + carry;
+    const sum = word(wram, WINDOW_MAP_BUFFER + x) + WINDOW_MAP_TILE_BIAS + carry;
     setWord(wram, WINDOW_MAP_BUFFER + x, sum);
     carry = sum >>> WORD_BITS;
-    overflow = (~(value ^ WINDOW_MAP_TILE_BIAS) & (value ^ sum) & WORD_SIGN) !== 0;
   }
-  return drawJakeStateBar(m) ?? { x: TILE_LOOP_END, y: unpackedY, carry: carry !== 0, overflow };
+  drawJakeStateBar(m);
 }
 // Load the window style unless it is loaded (81:AA9C): its tiles after the font by
 // DMA, its six colour bytes into CGRAM, then the window map from the style's source.
