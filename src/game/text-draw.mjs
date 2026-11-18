@@ -19,10 +19,10 @@
 // multiplier, through the port as in the original (Book I 2-15-1). A text of the language
 // (src/data/language.mjs) leaves out glyphs that no longer fit their line.
 //
-// Registers: the routine works in the direct page words A2 to D2 and leaves X, Y, the
-// carry and the overflow as the original, A 0 with zero set and sign clear. The upload
-// requests wait for the NMI with the original's X, Y, carry and overflow, and run below
-// the frames of their two JSLs, with A the request word, as the original; with the
+// Registers (user decision 2026-11-17): the routine works in the direct page words A2
+// to D2 and keeps the original's A, X, Y, carry and overflow as locals (each set before
+// it is read); it leaves no registers. The upload requests run below the frames of
+// their two JSLs, and their waits see the request word's sign, as the original; with the
 // lag-free frame model they are lifted, otherwise (recorded observations, the function
 // tests) the register-level requests run through their frames. With recorded interrupts
 // inside a glyph (the Mesen cold boot replay) the register-level routine runs. The frames
@@ -73,13 +73,7 @@ import {
   WORD_MASK,
   WORD_SIGN,
 } from '../constants/bits.mjs';
-import {
-  FLAG_CARRY,
-  FLAG_MEMORY_8BIT,
-  FLAG_NEGATIVE,
-  FLAG_OVERFLOW,
-  FLAG_ZERO,
-} from '../constants/cpu-flags.mjs';
+import { FLAG_MEMORY_8BIT, FLAG_NEGATIVE, FLAG_ZERO } from '../constants/cpu-flags.mjs';
 
 const DP_WINDOW = 0x00,
   // The geometry's line width and position in pixels.
@@ -150,15 +144,15 @@ const setWord = (wram, at, value) => {
 const romWord = (mem, at) => mem.read8(at) | (mem.read8(at + 1) << BYTE_BITS);
 const swap = (value) => ((value & BYTE_MASK) << BYTE_BITS) | (value >>> BYTE_BITS);
 
-// The registers the routine leaves: a (16 bits; byte operations keep the high byte),
-// x, y, the carry c and the overflow v.
+// The original's working registers as locals: a (16 bits; byte operations keep the high
+// byte), x, y, the carry c and the overflow v. Every value is set before it is read.
 class Registers {
-  constructor(ctx) {
-    this.a = ctx.a;
-    this.x = ctx.x;
-    this.y = ctx.y;
-    this.c = (ctx.status & FLAG_CARRY) !== 0;
-    this.v = (ctx.status & FLAG_OVERFLOW) !== 0;
+  constructor() {
+    this.a = 0;
+    this.x = 0;
+    this.y = 0;
+    this.c = false;
+    this.v = false;
   }
   byte(value) {
     this.a = (this.a & ~BYTE_MASK) | (value & BYTE_MASK);
@@ -194,19 +188,12 @@ class Registers {
     this.a = count < WORD_BITS ? old >>> count : 0;
     this.y = 0;
   }
-  store(ctx) {
-    ctx.a = this.a;
-    ctx.x = this.x;
-    ctx.y = this.y;
-    ctx.status = this.c ? ctx.status | FLAG_CARRY : ctx.status & ~FLAG_CARRY;
-    ctx.status = this.v ? ctx.status | FLAG_OVERFLOW : ctx.status & ~FLAG_OVERFLOW;
-  }
 }
 
 // The text drawing's state: memory, port and registers, with the window in r.x.
 function textState(h) {
   const { mem, wram, port } = sceneRuntime(h);
-  return { mem, wram, port, r: new Registers(h.ctx) };
+  return { mem, wram, port, r: new Registers() };
 }
 const field = (wram, table, x) => word(wram, table + x);
 const byteField = (wram, table, x) => wram[table + x];
@@ -487,20 +474,18 @@ function pullLongFrame(h) {
   h.ctx.s = (h.ctx.s + 1) & WORD_MASK;
 }
 // An upload request (81:AEF4 or 81:AEFC) as FB39 calls it with JSL: the request word
-// counts up and the wait loop runs until the NMI has taken it. The registers of r go
-// in; A is 0 afterwards with zero set and sign clear.
+// counts up and the wait loop runs until the NMI has taken it; A (r.a) is 0 afterwards.
 function* requestUpload(h, events, s, request) {
   const { ctx } = h,
     { wram, r } = s;
-  yield () => r.store(ctx);
   yield () => {
     pushLongFrame(h, request.site);
     ctx.programBank = REQUEST_BANK;
     setWord(wram, request.request, word(wram, request.request) + 1);
     pushLongFrame(h, request.waitSite);
   };
+  // The wait's branch sees the request word's sign in 16-bit mode.
   for (let value; (value = word(wram, request.request)) !== 0;) {
-    ctx.a = value;
     const status =
       (ctx.status & ~(FLAG_MEMORY_8BIT | FLAG_ZERO | FLAG_NEGATIVE)) |
       (value & WORD_SIGN ? FLAG_NEGATIVE : 0);
@@ -513,7 +498,6 @@ function* requestUpload(h, events, s, request) {
   };
   yield () => {
     r.a = 0;
-    ctx.status = (ctx.status | FLAG_ZERO) & ~FLAG_NEGATIVE;
   };
 }
 
@@ -608,10 +592,8 @@ export function* drawTextBufferSequence(h, events) {
   if (pending) yield* requestUpload(h, events, s, END_UPLOAD);
   let result;
   yield () => {
-    const { ctx } = h;
-    r.a = 0;
-    r.store(ctx);
-    ctx.status = (ctx.status | FLAG_ZERO) & ~(FLAG_NEGATIVE | FLAG_MEMORY_8BIT);
+    // The original returns with a 16-bit accumulator.
+    h.ctx.status &= ~FLAG_MEMORY_8BIT;
     result = h.rts();
   };
   return result;
