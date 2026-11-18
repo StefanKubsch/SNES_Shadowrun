@@ -30,6 +30,7 @@ const WRAM_BYTES = 0x20000,
   ROM = new DialogTestMemory(new Uint8Array(WRAM_BYTES)),
   ANIMATION_FRAMES = 0x113e,
   FRAME_COUNTER = 0x11a2,
+  NMI_SAVED_STACK = 0x1c7a,
   DP_CURSOR = 0x0e,
   DP_TEXT_XOR = 0x18,
   // The menu texts of bank 81 (src/data/menu-texts.mjs).
@@ -135,11 +136,17 @@ const CASES = [
     entry: 0x81e6ae,
     long: true,
     samples: 600,
-    prepare: (s) => ({ status: s.rnd(2) ? FLAG_CARRY : 0 }),
-    lifted: (m, r) => {
-      m.h.ctx.status = r.status;
-      return handleStartMenuNmi(m.h);
+    // The reference reads the interrupted carry from P; the lifted callback reads the
+    // P byte the NMI entry pushed below its saved stack pointer (7E:1C7A).
+    prepare: (s) => {
+      const status = s.rnd(2) ? FLAG_CARRY : 0,
+        stack = s.pick([0x1eff, 0x1fef, s.rnd(0x1b00) + 0x100]);
+      s.wram[NMI_SAVED_STACK] = stack & 0xff;
+      s.wram[NMI_SAVED_STACK + 1] = stack >>> 8;
+      s.wram[stack + 1] = (s.wram[stack + 1] & ~FLAG_CARRY) | status;
+      return { status };
     },
+    lifted: (m) => handleStartMenuNmi(m.h),
   },
 ];
 

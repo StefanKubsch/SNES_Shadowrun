@@ -38,8 +38,10 @@ a table stops at `menu_table_index_frontier`.
   (cursor 0E, text 10, choice 16, text XOR 18, timeout 1C, title colours 0E and
   1E).
 - The random restart of an animation in the NMI 81:E6AE takes the carry of the
-  interrupted code into its first addition, as the original does: the lifted
-  callback reads it from the status at its entry.
+  interrupted code into its first addition, as the original does. The lifted
+  callback reads no CPU register: the NMI entry 00:C112 pushes the interrupted P
+  on the game stack before it stores S in 7E:1C7A, so the callback takes the
+  carry from the byte at that saved stack pointer + 1 (user decision 2026-11-18).
 - The objects' frame counter is counted by an 8-bit INC in 81:E57E (only its low
   byte) and by a 16-bit INC in the NMI, as in the original.
 - The port additions keep working: the Credits row (`startMenuCredits`), the

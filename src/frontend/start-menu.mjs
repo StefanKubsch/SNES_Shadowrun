@@ -61,6 +61,7 @@ import {
   TITLE_PALETTE_BYTES,
   TITLE_STRIPE_SOURCES,
   PAD_HELD,
+  NMI_SAVED_STACK,
   WRAM,
 } from '../data/wram.mjs';
 import {
@@ -480,12 +481,14 @@ function nextRandom(mem, carry) {
 // 81:E6AE: the NMI callback of the start menu: the OAM buffer, the menu tilemap and
 // the title colours; after the first frame the animation stripes, the animation
 // steps, the frame count and a random restart; then the joypad. The random numbers
-// take the carry of the interrupted code, as in the original.
+// take the carry of the interrupted code, as in the original (user decision
+// 2026-11-18): the NMI entry 00:C112 pushes the interrupted P on the game stack before
+// it stores S in 7E:1C7A, so the callback reads that byte from the interrupt frame.
 export function handleStartMenuNmi(h) {
   const m = sceneRuntime(h),
     { mem, wram, video } = m,
     t = menuTables(mem);
-  let carry = h.ctx.status & FLAG_CARRY ? 1 : 0;
+  let carry = wram[(word(wram, NMI_SAVED_STACK) + 1) & WORD_MASK] & FLAG_CARRY ? 1 : 0;
   video.copyToOam(WRAM + OAM_SHADOW, OAM_BYTES);
   sendMenuTilemap(video);
   video.write(CGADD, 0, 1);
