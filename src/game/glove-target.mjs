@@ -169,23 +169,17 @@ const setWord = (wram, at, value) => {
 const swapBytes = (value) => ((value >>> BYTE_BITS) | (value << BYTE_BITS)) & WORD_MASK;
 
 // Subtract each value in turn with the borrow passed on (SEC, then SBC each); returns
-// the word and the last subtraction's carry and overflow.
+// the word.
 function subtractChain(start, values) {
   let value = start,
-    carry = true,
-    overflow = false;
+    carry = true;
   for (const right of values) {
-    const difference = value - right - (carry ? 0 : 1),
-      result = difference & WORD_MASK;
+    const difference = value - right - (carry ? 0 : 1);
     carry = difference >= 0;
-    overflow = subtractOverflow(value, right, result);
-    value = result;
+    value = difference & WORD_MASK;
   }
-  return { value, carry, overflow };
+  return value;
 }
-// The signed overflow of left - right = result.
-const subtractOverflow = (left, right, result) =>
-  ((left ^ right) & (left ^ result) & WORD_SIGN) !== 0;
 
 // The glove's position over the player figure (80:BC36): across from 0600 plus the
 // figure's Y less its X, the camera X and 10; down from 0C00 less the figure's diagonal,
@@ -200,9 +194,9 @@ export function placeGloveOverPlayer(h) {
     field(OBJECT_HEIGHT),
     word(wram, CAMERA_Y),
     GLOVE_OVER_PLAYER.yOffset,
-  ]).value;
+  ]);
   setWord(wram, GLOVE_Y, swapBytes(down >>> POSITION_SHIFT));
-  const { value: across } = subtractChain((GLOVE_OVER_PLAYER.xBase + field(OBJECT_Y)) & WORD_MASK, [
+  const across = subtractChain((GLOVE_OVER_PLAYER.xBase + field(OBJECT_Y)) & WORD_MASK, [
     field(OBJECT_X),
     word(wram, CAMERA_X),
     GLOVE_OVER_PLAYER.xOffset,
@@ -291,15 +285,10 @@ export function* chooseObjectUnderGloveSequence(h, events, renderBuffer = drawTe
 }
 
 // The distance of two objects on one axis: the difference, made positive when its sign
-// is set (so 8000 stays), and the subtraction's overflow.
+// is set (so 8000 stays).
 function axisDistance(mem, offset, from, to) {
-  const left = dataBankWord(mem, offset, from),
-    right = dataBankWord(mem, offset, to),
-    difference = (left - right) & WORD_MASK;
-  return {
-    distance: difference & WORD_SIGN ? -difference & WORD_MASK : difference,
-    overflow: subtractOverflow(left, right, difference),
-  };
+  const difference = (dataBankWord(mem, offset, from) - dataBankWord(mem, offset, to)) & WORD_MASK;
+  return difference & WORD_SIGN ? -difference & WORD_MASK : difference;
 }
 // Whether the target is out of the glove's reach from the player figure: the summed X
 // and Y distances (a word), or else the height distance, at least 81. DP 6B keeps the X
@@ -307,13 +296,11 @@ function axisDistance(mem, offset, from, to) {
 function outOfReach(h, target) {
   const { mem } = h.a,
     player = word(mem.wram, PLAYER_OBJECT),
-    across = axisDistance(mem, OBJECT_X, player, target).distance,
-    down = axisDistance(mem, OBJECT_Y, player, target).distance,
+    across = axisDistance(mem, OBJECT_X, player, target),
+    down = axisDistance(mem, OBJECT_Y, player, target),
     sum = (down + across) & WORD_MASK;
   setWord(mem.wram, DP_SCRATCH, across);
-  return (
-    sum >= GLOVE_REACH || axisDistance(mem, OBJECT_HEIGHT, player, target).distance >= GLOVE_REACH
-  );
+  return sum >= GLOVE_REACH || axisDistance(mem, OBJECT_HEIGHT, player, target) >= GLOVE_REACH;
 }
 // The out-of-reach notice's window, text and frames in the direct page.
 function prepareOutOfReachNotice(h) {
@@ -552,10 +539,10 @@ function gloveFloorPlace(mem, object) {
     word(wram, CAMERA_Y),
     pixelY,
     dataBankWord(mem, OBJECT_HEIGHT, object),
-  ]).value;
+  ]);
   const down = ((((raised << 1) & WORD_MASK) + cameraX) & WORD_MASK) >>> 1;
   const across = subtractChain((down + PLACE_X_BASE) & WORD_MASK, [pixelX, cameraX]);
-  return { down, across: across.value };
+  return { down, across };
 }
 
 // 80:C724: choose a place with the action glove for the object DP 00 to walk to. Its
