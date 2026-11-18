@@ -79,8 +79,6 @@ const ACTION_BANK = ACTION_TABLE >>> WORD_BITS,
   RECORD_BOX = 3,
   RECORD_BOX_HEIGHT = 7,
   RECORD_DIRECTIONS = 8,
-  // The last of the four box bytes.
-  RECORD_BOX_LAST = 3,
   FRAME_LOOP_FLAG = 0x80;
 // The return words of the JSRs (the bank offsets of their last bytes).
 const JSR_LAST_BYTE = 2,
@@ -104,9 +102,7 @@ const signedByte = (value) => (value & BYTE_SIGN ? value | HIGH_BYTE_MASK : valu
 
 // Select the animation in word 02 for the object in word 00 (80:A985) after the
 // original's check for an unchanged selection (selectObjectAnimation), or as the turn
-// calls it (the turn has set the object's selection to none). Returns the carry of the
-// last box byte's sign test and the overflow of the direction offsets' addition, which
-// the original leaves.
+// calls it (the turn has set the object's selection to none).
 function selectAnimation(mem, wram) {
   const slot = word(wram, DP_OBJECT),
     selection = word(wram, DP_ARGUMENT);
@@ -144,10 +140,6 @@ function selectAnimation(mem, wram) {
   setWord(wram, OBJECT_BOX_HEIGHT + slot, byte(RECORD_BOX_HEIGHT));
   setWord(wram, OBJECT_ANIMATION_CLOCK + slot, ANIMATION_CLOCK_START);
   setDataBankWord(mem, OBJECT_PICTURE_CHANGE, slot, NONE);
-  return {
-    carry: byte(RECORD_BOX + RECORD_BOX_LAST) >= BYTE_SIGN,
-    overflow: (~(record ^ RECORD_DIRECTIONS) & (record ^ directions) & WORD_SIGN) !== 0,
-  };
 }
 
 // Select the animation in word 02 for the object in word 00 unless it is already
@@ -159,38 +151,32 @@ export function selectObjectAnimation(mem, wram) {
 }
 
 // Turn the object in word 00 to the direction in word 02 (80:AAAF); a is the
-// accessor whose stack takes the selection's return word. Returns the registers the
-// original leaves: A (undefined: unchanged), X the slot, Y, the sign and zero of
-// the last load or comparison, the carry and the overflow (undefined: unchanged).
+// accessor whose stack takes the selection's return word. Game state only (user
+// decision 2026-11-17): it leaves no registers; the register-level reference is
+// turnRegisters in proof/script/native-object-turn.mjs.
 export function turnObject(mem, wram, a) {
   const slot = word(wram, DP_OBJECT),
     direction = word(wram, DP_ARGUMENT);
   const before = dataBankWord(mem, OBJECT_DIRECTION, slot);
-  // An unchanged direction or no selection to repeat: the comparison found them equal.
-  const equal = (value) => ({ a: value, x: slot, y: before, sign: 0, carry: true });
-  if (before === direction) return equal(undefined);
+  // An unchanged direction or no selection to repeat.
+  if (before === direction) return;
   setDataBankWord(mem, OBJECT_DIRECTION, slot, direction);
   const frames = dataBankWord(mem, OBJECT_FRAME_COUNT, slot);
   if (frames === 0 || frames >= FRAME_LOOP_FLAG) {
     const selection = dataBankWord(mem, OBJECT_SELECTION, slot);
-    if (selection === NONE) return equal(NONE);
+    if (selection === NONE) return;
     // The original sets the object's selection to none first, which the selection
     // then replaces (for a slot far out of range the word may alias another).
     setWord(wram, DP_ARGUMENT, selection & ~WORD_SIGN);
     setDataBankWord(mem, OBJECT_SELECTION, slot, NONE);
     // The selection's check for an unchanged selection: it holds only where that word
-    // did not take the write (ROM above the WRAM mirror); the selection then returns
-    // with A the selection, Y the slot and the comparison's flags. Its JSR's return
-    // word lies on the stack either way.
-    const wanted = word(wram, DP_ARGUMENT);
+    // did not take the write (ROM above the WRAM mirror). Its JSR's return word lies on
+    // the stack either way.
     a.pushWord(SELECTION_RETURN);
-    if (wanted === dataBankWord(mem, OBJECT_SELECTION, slot)) {
-      a.pullWord();
-      return { a: wanted, x: slot, y: slot, sign: 0, carry: true };
-    }
-    const { carry, overflow } = selectAnimation(mem, wram);
+    if (word(wram, DP_ARGUMENT) !== dataBankWord(mem, OBJECT_SELECTION, slot))
+      selectAnimation(mem, wram);
     a.pullWord();
-    return { a: NONE, x: slot, y: RECORD_BOX_HEIGHT, sign: NONE, carry, overflow };
+    return;
   }
   const directions = dataBankWord(mem, OBJECT_ACTION_DIRECTIONS, slot);
   setWord(wram, DP_FRAMES, directions);
@@ -198,20 +184,10 @@ export function turnObject(mem, wram, a) {
   // The frame offset's byte keeps its phase: the 8-bit SBC and ADC of the two offsets.
   const frameOffset = (CODE_BANK_BASE + OBJECT_FRAME_OFFSET + slot) & LONG_MASK,
     back = (mem.read8(frameOffset) - actionByte(mem, directions, before)) & BYTE_MASK,
-    forward = actionByte(mem, directions, direction),
-    sum = back + forward,
-    offset = sum & BYTE_MASK;
-  mem.write8(frameOffset, offset);
+    forward = actionByte(mem, directions, direction);
+  mem.write8(frameOffset, (back + forward) & BYTE_MASK);
   setWord(wram, OBJECT_ANIMATION_CLOCK + slot, ANIMATION_CLOCK_START);
   setDataBankWord(mem, OBJECT_PICTURE_CHANGE, slot, NONE);
-  return {
-    a: NONE,
-    x: slot,
-    y: direction,
-    sign: NONE,
-    carry: sum > BYTE_MASK,
-    overflow: (~(back ^ forward) & (back ^ offset) & BYTE_SIGN) !== 0,
-  };
 }
 
 // The turn as called with JSR for lifted callers: it leaves no registers and returns

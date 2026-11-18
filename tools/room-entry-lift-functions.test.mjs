@@ -29,8 +29,6 @@ import { createObject } from '../src/game/object-create.mjs';
 import { appendTableTaskCall } from '../proof/caller/task-append-call.mjs';
 import { appendScriptTask as appendScriptTaskReference } from '../proof/system/task-append.mjs';
 import { turnObject } from '../src/game/object-turn.mjs';
-import { turnObjectRoutine } from '../proof/caller/object-turn.mjs';
-import { setObjectDirectionReference as setObjectDirection } from '../proof/game-reference/object-turn.mjs';
 import {
   HEAP_NEXT_WORD,
   HEAP_SIZE_WORD,
@@ -742,38 +740,13 @@ const OBJECT_TURN = {
     h.a.pullWord();
   },
 };
-// The turn as the walk towards a target calls it (JSR, return word 1234), against the
-// register-level turn: the same states, with A, X, Y, sign, overflow, zero and carry
-// compared (proof/script/native-object-turn.mjs).
-const registerWords = (h) =>
-  [h.ctx.a, h.ctx.x, h.ctx.y, h.ctx.status, h.ctx.pc].map((v) => v.toString(16)).join();
-const TURN_REGISTERS = {
-  ...OBJECT_TURN,
-  name: 'turn 80:AAAF with registers',
-  prepare: (s) => ({
-    ...OBJECT_TURN.prepare(s),
-    a: s.rnd(0x10000),
-    x: s.rnd(0x10000),
-    y: s.rnd(0x10000),
-    status: s.rnd(0x100) & 0xc3,
-  }),
-  reference: (h) => setObjectDirection(h.a, false),
-  result: registerWords,
-  lifted: (h, input) => {
-    Object.assign(h.ctx, input);
-    h.ctx.programBank = 0x80;
-    h.push(0x1234, 2);
-    turnObjectRoutine(h);
-    return registerWords(h);
-  },
-};
 // A full heap or no free task slot stops the lifted creation at a frontier; a slot
 // past the object tables (a failed creation turned through the selection path) the
 // group and the turn.
 const FRONTIERS = new Set(['task_heap_required', 'task_slot_required', 'object_slot_required']);
 
 registerCases(CASES, { sample, side, runtime: (h) => h, ignored: IGNORED, outside: FRONTIERS });
-registerCases([OBJECT_CREATION, OBJECT_TURN, TURN_REGISTERS, TASK_APPEND, ...SCRIPT_NATIVES], {
+registerCases([OBJECT_CREATION, OBJECT_TURN, TASK_APPEND, ...SCRIPT_NATIVES], {
   sample,
   side,
   runtime: (h) => h,
