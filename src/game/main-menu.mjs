@@ -15,6 +15,11 @@
 // and plays sound 36 (80:C46E with FFFF, FF, FF). The window is released.
 // Main menu windows and selection compose directly through their original frames.
 // Main and save menus also compose their sound and resource refills directly.
+//
+// Registers (user decision 2026-11-17): both menus work on game state only and leave
+// no register values; comparisons check WRAM, video and outputs. None of the callees
+// takes a register input. The choice the original keeps on the stack over the window
+// release (PEI, PLA) is a local value.
 import { dialogCallBody, segmentSequence } from '../system/native-call-continuation.mjs';
 import { openWindowSequence } from './window-open.mjs';
 import { releaseWindowJsrSequence } from './window-release.mjs';
@@ -51,7 +56,6 @@ import { fitListWindow, listTextIds } from '../data/menu-layout.mjs';
 import { dataBankWord, setDataBankWord } from '../system/data-bank.mjs';
 import { CODE_BANK, CODE_BANK_BASE } from '../constants/memory-map.mjs';
 import { BYTE_BITS, BYTE_MASK, WORD_BITS, WORD_MASK, WORD_SIGN } from '../constants/bits.mjs';
-import { FLAG_CARRY, FLAG_NEGATIVE, FLAG_ZERO } from '../constants/cpu-flags.mjs';
 
 const OPEN_WINDOW = 0x80f963,
   TEXT = 0x80fe69,
@@ -86,14 +90,6 @@ const setWord = (wram, at, value) => {
   wram[at] = value & BYTE_MASK;
   wram[at + 1] = (value >>> BYTE_BITS) & BYTE_MASK;
 };
-const setFlag = (ctx, bit, set) => {
-  ctx.status = set ? ctx.status | bit : ctx.status & ~bit;
-};
-const load = (ctx, value) => {
-  ctx.a = value;
-  setFlag(ctx, FLAG_NEGATIVE, value & WORD_SIGN);
-  setFlag(ctx, FLAG_ZERO, value === 0);
-};
 const negative = (value) => (value & WORD_SIGN) !== 0;
 function* returnSequence(h) {
   let result;
@@ -102,7 +98,7 @@ function* returnSequence(h) {
   };
   return result;
 }
-// A window's place, size and plain attributes (A left 0), fitted to the texts in
+// A window's place, size and plain attributes, fitted to the texts in
 // another language.
 function setWindow(h, left, top, columns, rows, ids, options) {
   const { wram } = h.a.mem;
@@ -111,10 +107,9 @@ function setWindow(h, left, top, columns, rows, ids, options) {
   setWord(wram, DP_WINDOW_COLUMNS, columns);
   setWord(wram, DP_WINDOW_ROWS, rows);
   setWord(wram, DP_WINDOW_ATTRIBUTES, 0);
-  load(h.ctx, 0);
   fitListWindow(h.a.mem, h, ids, options);
 }
-// The menu's column, first row, visible rows and item list (A left the list's bank).
+// The menu's column, first row, visible rows and item list.
 function setMenu(h, visibleRows, items, bank) {
   const { wram } = h.a.mem;
   setWord(wram, 2, MENU_COLUMN);
@@ -122,29 +117,21 @@ function setMenu(h, visibleRows, items, bank) {
   setWord(wram, DP_MENU_VISIBLE_ROWS, visibleRows);
   setWord(wram, DP_LIST_TOKENS, items);
   setWord(wram, DP_LIST_TOKEN_BANK, bank);
-  load(h.ctx, bank);
 }
 // The main menu's window released: its number from 1CED.
 function* releaseMenuWindow(h, events, pc) {
   const { mem } = h.a;
-  yield () => {
-    const window = dataBankWord(mem, MAIN_MENU_WINDOW);
-    load(h.ctx, window);
-    setWord(mem.wram, 0, window);
-  };
+  yield () => setWord(mem.wram, 0, dataBankWord(mem, MAIN_MENU_WINDOW));
   yield* dialogCallBody(h, pc, RELEASE_WINDOW, () => releaseWindowJsrSequence(h.a, events));
 }
 
 // 80:CDD6: the save menu (see above). A sequence that ends with its RTS.
 export function* saveMenuSequence(h, events, renderBuffer = drawTextBufferSequence) {
-  const { ctx } = h,
-    { mem } = h.a,
+  const { mem } = h.a,
     { wram } = mem;
   let stopped;
   yield () => {
-    const timer = dataBankWord(mem, TIMER);
-    load(ctx, timer);
-    stopped = negative(timer);
+    stopped = negative(dataBankWord(mem, TIMER));
     if (stopped) return;
     setWindow(
       h,
@@ -158,10 +145,7 @@ export function* saveMenuSequence(h, events, renderBuffer = drawTextBufferSequen
   };
   if (!stopped) {
     yield* dialogCallBody(h, 0x80ce53, OPEN_WINDOW, () => openWindowSequence(h, events));
-    yield () => {
-      load(ctx, TEXT_SAVE_BLOCKED);
-      setWord(wram, 2, TEXT_SAVE_BLOCKED);
-    };
+    yield () => setWord(wram, 2, TEXT_SAVE_BLOCKED);
     yield* dialogCallBody(h, 0x80ce5b, TEXT, () => printTextSequence(h, events, renderBuffer));
     yield* dialogCallBody(h, 0x80ce5e, CONFIRM_KEY, () => waitForConfirmKeySequence(h, events));
     yield* dialogCallBody(h, 0x80ce61, RELEASE_WINDOW, () => releaseWindowJsrSequence(h.a, events));
@@ -200,14 +184,12 @@ export function* saveMenuSequence(h, events, renderBuffer = drawTextBufferSequen
   let slot;
   yield () => {
     slot = word(wram, 0);
-    load(ctx, slot);
     if (!slot || negative(slot)) return;
     // Slot n saves slot n - 1 (81:B17D).
     saveGame(mem, slot - 1, saveSlotCount(h.a) === FOUR_SAVE_SLOTS);
     setWord(wram, 0, WORD_MASK);
     setWord(wram, DP_SOUND_LEVEL, BYTE_MASK);
     setWord(wram, DP_SOUND_VOICE, BYTE_MASK);
-    load(ctx, SAVE_SOUND);
     setWord(wram, 2, SAVE_SOUND);
   };
   if (slot && !negative(slot))
@@ -220,8 +202,7 @@ export function* saveMenuSequence(h, events, renderBuffer = drawTextBufferSequen
 
 // 80:CE6D: the main menu (see above). A sequence that ends with its RTS.
 export function* mainMenuSequence(h, events, renderBuffer = drawTextBufferSequence) {
-  const { ctx } = h,
-    { mem } = h.a,
+  const { mem } = h.a,
     { wram } = mem,
     ids = mem.language
       ? listTextIds(mem, CODE_BANK_BASE | MAIN_MENU_ITEMS, MENU_WINDOW.visibleRows)
@@ -237,19 +218,12 @@ export function* mainMenuSequence(h, events, renderBuffer = drawTextBufferSequen
     yield* dialogCallBody(h, 0x80cea1, PLAIN_MENU, () =>
       chooseFromMenuSequence(h, events, renderBuffer, PLAIN_MENU),
     );
-    // The choice stays on the stack over the window's release (PEI, PLA).
-    yield () => h.push(word(wram, 0), 2);
-    yield* releaseMenuWindow(h, events, 0x80ceab);
+    // The choice is kept over the window's release (PEI, PLA in the original).
     let chosen;
     yield () => {
-      chosen = h.pull(2);
-      load(ctx, chosen);
-      if (!chosen || negative(chosen)) return;
-      // CMP #1 on a positive row: carry set, sign clear, zero for save.
-      setFlag(ctx, FLAG_CARRY, true);
-      setFlag(ctx, FLAG_NEGATIVE, false);
-      setFlag(ctx, FLAG_ZERO, chosen === SAVE_ROW);
+      chosen = word(wram, 0);
     };
+    yield* releaseMenuWindow(h, events, 0x80ceab);
     if (!chosen || negative(chosen)) break;
     if (chosen === SAVE_ROW)
       yield* dialogCallBody(h, 0x80ceb8, SAVE_MENU, () =>
