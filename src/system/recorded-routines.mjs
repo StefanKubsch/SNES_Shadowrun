@@ -8,7 +8,9 @@ import { taskStop } from './task-stop.mjs';
 
 const routines = new Map();
 
-// Installed by proof modules: name -> (h, events) => result.
+// Installed by proof modules: name -> (h, events, ...values) => result; the lifted
+// caller passes its parameters as values, the proof module puts them where the
+// register-level version takes them.
 export function installRecordedRoutine(name, run) {
   routines.set(name, run);
 }

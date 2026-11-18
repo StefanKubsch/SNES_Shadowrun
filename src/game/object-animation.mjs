@@ -125,11 +125,7 @@ const longWord = (mem, at) =>
 // Step the animation of the object in slot (80:AC2F, called with JSR).
 export function stepAnimation(h, events, slot) {
   const recorded = recordedRoutine(events, 'object-animation');
-  if (recorded) {
-    // The register-level routine takes the slot in X.
-    h.ctx.x = slot;
-    return recorded(h, events);
-  }
+  if (recorded) return recorded(h, events, slot);
   const { a } = h,
     { mem } = a,
     { wram } = mem;
