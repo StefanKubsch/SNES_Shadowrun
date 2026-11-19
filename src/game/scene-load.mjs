@@ -165,11 +165,9 @@ const TILE_STACK_HASH_MASK = BYTE_MASK;
 // Wall tiles: each wall map word holds four cells of three tile words.
 const WALL_CELL_TILES = WALL_CELL_BYTES / 2,
   WALL_WORD_LAYER_BYTES = 2 * WALL_WORD_CELLS;
-// The scene load runs in bank 81 with data bank 7E; a JSL pushes the address of its
-// last byte.
+// The scene load runs in bank 81 with data bank 7E.
 const SCENE_LOAD_BANK = 0x81,
-  SCENE_DATA_BANK = WRAM_START >>> WORD_BITS,
-  JSL_LAST_BYTE = 3;
+  SCENE_DATA_BANK = WRAM_START >>> WORD_BITS;
 
 const word = (wram, at) => wram[at] | (wram[at + 1] << BYTE_BITS);
 const setWord = (wram, at, value) => {
@@ -815,10 +813,11 @@ function buildLayerTileStacks(mem, wram) {
 
 // --- The scene load (81:A117) ---
 
-// Load scene (81:A117), a sequence. callSite is the address of the JSL that called the
-// scene load.
-export function* loadSceneSequence(h, scene, callSite) {
-  const { ctx, a } = h,
+// Load scene (81:A117), a sequence. Its JSL frame and the data bank it pushes (PHB)
+// lie only in free stack bytes and are not reproduced (game state only, user decision
+// 2026-11-17); the program and data banks are set and restored as the original's.
+export function* loadSceneSequence(h, scene) {
+  const { ctx } = h,
     { mem, wram } = sceneRuntime(h),
     callerBank = ctx.programBank,
     dataBank = ctx.bank;
@@ -828,11 +827,6 @@ export function* loadSceneSequence(h, scene, callSite) {
     return value;
   };
   yield () => {
-    a.write(ctx.s, callerBank);
-    ctx.s = (ctx.s - 1) & WORD_MASK;
-    a.pushWord((callSite + JSL_LAST_BYTE) & WORD_MASK);
-    a.write(ctx.s, dataBank);
-    ctx.s = (ctx.s - 1) & WORD_MASK;
     Object.assign(ctx, { programBank: SCENE_LOAD_BANK, bank: SCENE_DATA_BANK });
     setWord(wram, DP_SCRATCH, scene);
     const entry = SCENE_STREAMS + ((scene * SCENE_STREAM_BYTES) & WORD_MASK);
@@ -886,10 +880,7 @@ export function* loadSceneSequence(h, scene, callSite) {
       buildLayerTileStacks(mem, wram);
     }
     buildWallTiles(wram);
-    ctx.s = (ctx.s + 1) & WORD_MASK;
     ctx.bank = dataBank;
-    a.pullWord();
-    ctx.s = (ctx.s + 1) & WORD_MASK;
     ctx.programBank = callerBank;
   };
 }

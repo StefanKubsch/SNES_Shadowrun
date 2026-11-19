@@ -121,8 +121,7 @@ const CAMERA_ROW_BASE = 0x488,
 const BOX_DATA_SHIFTS = 3,
   POINT_SHIFTS = 2;
 // Original call sites of the routines still called through their frames.
-const SCENE_LOAD_SITE = 0x80a518,
-  FRAME_WAIT_SITE = 0x80a520,
+const FRAME_WAIT_SITE = 0x80a520,
   // A JSL pushes the address of its last byte.
   JSL_LAST_BYTE = 3,
   WINDOW_LIST_SITE = 0x80a5c9;
@@ -328,7 +327,7 @@ export function* enterRoomSequence(h, events, room) {
     setWord(wram, CAMERA_BOX, headerWord(mem, wram, ROOM_HEADER_CAMERA) - 1);
     scene = headerWord(mem, wram, 0) & BYTE_MASK;
   };
-  yield* loadSceneSequence(h, scene, SCENE_LOAD_SITE);
+  yield* loadSceneSequence(h, scene);
   yield () => forceBlank(wram);
   yield* waitForFrameCall(h, events, FRAME_WAIT_SITE);
   yield () => resetFixedColour(m);
