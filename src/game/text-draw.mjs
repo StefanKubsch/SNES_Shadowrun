@@ -54,7 +54,6 @@ import {
   WINDOW_LEFT_PIXEL,
   WINDOW_ROWS,
   WINDOW_STYLE,
-  WINDOW_TILE_INITIAL,
   WINDOW_TILE_START,
 } from '../data/wram.mjs';
 import {
@@ -198,62 +197,74 @@ const byteField = (wram, table, x) => wram[table + x];
 
 // The cursor tile's distance from the window's first text tile, divided by the text
 // columns on the divider (started here; the sites are the dividend's and divisor's).
-function divideDistance({ wram, port, r }, dividendSite, divisorSite) {
-  const x = r.x;
-  r.subtract(field(wram, WINDOW_CURSOR_TILE, x), field(wram, WINDOW_TILE_START, x), true);
-  port.write(WRDIVL, r.a, 2, dividendSite);
-  r.byte(byteField(wram, WINDOW_COLUMNS, x) - BORDER_COLUMNS);
-  port.write(WRDIVB, r.a & BYTE_MASK, 1, divisorSite);
+function divideDistance(wram, port, x, dividendSite, divisorSite) {
+  const distance =
+    (field(wram, WINDOW_CURSOR_TILE, x) - field(wram, WINDOW_TILE_START, x)) & WORD_MASK;
+  port.write(WRDIVL, distance, 2, dividendSite);
+  port.write(
+    WRDIVB,
+    (byteField(wram, WINDOW_COLUMNS, x) - BORDER_COLUMNS) & BYTE_MASK,
+    1,
+    divisorSite,
+  );
+}
+// Three ASL of a product word and the cursor pixel, added with the carry of the shifts
+// (the product's bit 13): the cursor's pixel position on its line.
+function linePixel(wram, x, product) {
+  const carry = (product >>> (WORD_BITS - PIXEL_SHIFT)) & 1;
+  return (
+    (((product << PIXEL_SHIFT) & WORD_MASK) + field(wram, WINDOW_CURSOR_PIXEL, x) + carry) &
+    WORD_MASK
+  );
 }
 
 // 81:ADBA: a cursor left of the window's left text pixel moves right to it.
-function alignCursor(s) {
-  const { wram, port, r } = s,
-    x = r.x;
-  divideDistance(s, 0x81adc9, 0x81add4);
-  r.shiftTile(port.read(RDMPYL, 2, 0x81addd));
-  r.add(r.a, field(wram, WINDOW_CURSOR_PIXEL, x), r.c);
-  r.subtract(r.a, field(wram, WINDOW_LEFT_PIXEL, x), true);
-  if (r.c) return;
-  const step = -r.a & WORD_MASK;
-  r.add(step & PIXEL_MASK, field(wram, WINDOW_CURSOR_PIXEL, x), false);
-  const carry = r.a >= TILE_PIXELS;
-  setWord(wram, WINDOW_CURSOR_PIXEL + x, r.a & PIXEL_MASK);
+function alignCursor(wram, port, x) {
+  divideDistance(wram, port, x, 0x81adc9, 0x81add4);
+  const behind =
+    linePixel(wram, x, port.read(RDMPYL, 2, 0x81addd)) - field(wram, WINDOW_LEFT_PIXEL, x);
+  if (behind >= 0) return;
+  const step = -behind & WORD_MASK,
+    pixel = ((step & PIXEL_MASK) + field(wram, WINDOW_CURSOR_PIXEL, x)) & WORD_MASK,
+    carry = pixel >= TILE_PIXELS ? 1 : 0;
+  setWord(wram, WINDOW_CURSOR_PIXEL + x, pixel & PIXEL_MASK);
   setWord(
     wram,
     WINDOW_CURSOR_TILE + x,
-    r.add(step >>> PIXEL_SHIFT, field(wram, WINDOW_CURSOR_TILE, x), carry),
+    (step >>> PIXEL_SHIFT) + field(wram, WINDOW_CURSOR_TILE, x) + carry,
   );
 }
-// 81:AE14: the pixels left on the cursor's line (in A).
-function lineRest(s) {
-  const { wram, port, r } = s,
-    x = r.x;
-  r.subtract(field(wram, WINDOW_CURSOR_TILE, x), field(wram, WINDOW_TILE_START, x), true);
-  port.write(WRDIVL, r.a, 2, 0x81ae23);
+// 81:AE14: the pixels left on the cursor's line.
+function lineRest(wram, port, x) {
+  const distance =
+    (field(wram, WINDOW_CURSOR_TILE, x) - field(wram, WINDOW_TILE_START, x)) & WORD_MASK;
+  port.write(WRDIVL, distance, 2, 0x81ae23);
   const columns = (field(wram, WINDOW_COLUMNS, x) - BORDER_COLUMNS) & WORD_MASK;
   port.write(WRDIVB, columns & BYTE_MASK, 1, 0x81ae2e);
-  setWord(wram, DP_LINE_WIDTH, r.shiftTile(columns));
-  r.shiftTile(port.read(RDMPYL, 2, 0x81ae39));
-  setWord(wram, DP_LINE_POSITION, r.add(r.a, field(wram, WINDOW_CURSOR_PIXEL, x), r.c));
-  r.subtract(word(wram, DP_LINE_WIDTH), word(wram, DP_LINE_POSITION), true);
+  setWord(wram, DP_LINE_WIDTH, columns << PIXEL_SHIFT);
+  setWord(wram, DP_LINE_POSITION, linePixel(wram, x, port.read(RDMPYL, 2, 0x81ae39)));
+  return (word(wram, DP_LINE_WIDTH) - word(wram, DP_LINE_POSITION)) & WORD_MASK;
 }
 // 81:AE4D: the cursor moves to the start of the next line, or of the window's first
 // line past its last.
-function newLine(s) {
-  const { wram, port, r } = s,
-    x = r.x;
-  divideDistance(s, 0x81ae5c, 0x81ae67);
-  // The last line before the reserved rows (its carry and overflow are replaced below).
-  const last = r.byte(byteField(wram, WINDOW_ROWS, x) - RESERVED_ROWS);
+function newLine(wram, port, x) {
+  divideDistance(wram, port, x, 0x81ae5c, 0x81ae67);
+  // The last line before the reserved rows.
+  const last = (byteField(wram, WINDOW_ROWS, x) - RESERVED_ROWS) & BYTE_MASK;
   if (last < port.read(RDDIVL, 1, 0x81ae73)) port.write(WRMPYA, 0, 1, 0x81ae78);
-  else port.write(WRMPYA, r.byte(port.read(RDDIVL, 1, 0x81ae7d) + 1), 1, 0x81ae81);
-  r.byte(byteField(wram, WINDOW_COLUMNS, x) - BORDER_COLUMNS);
-  port.write(WRMPYB, r.a & BYTE_MASK, 1, 0x81ae8a);
-  const tile = r.add(field(wram, WINDOW_TILE_START, x), port.read(RDMPYL, 2, 0x81ae94), false);
-  setWord(wram, WINDOW_CURSOR_TILE + x, tile);
+  else port.write(WRMPYA, (port.read(RDDIVL, 1, 0x81ae7d) + 1) & BYTE_MASK, 1, 0x81ae81);
+  port.write(
+    WRMPYB,
+    (byteField(wram, WINDOW_COLUMNS, x) - BORDER_COLUMNS) & BYTE_MASK,
+    1,
+    0x81ae8a,
+  );
+  setWord(
+    wram,
+    WINDOW_CURSOR_TILE + x,
+    field(wram, WINDOW_TILE_START, x) + port.read(RDMPYL, 2, 0x81ae94),
+  );
   setWord(wram, WINDOW_CURSOR_PIXEL + x, 0);
-  r.c = tile >= field(wram, WINDOW_TILE_INITIAL, x);
 }
 // 81:AEC8: close the mask at the pixel offset (a partly drawn tile counts) and note the
 // bytes to upload.
@@ -277,9 +288,12 @@ function closeMask({ mem, wram, r }) {
   setWord(wram, TEXT_BUFFER_BYTES, r.a);
 }
 // The window's text tile at the cursor, in video memory (7E:020E).
-function cursorAddress({ wram, r }) {
-  r.shiftTile(field(wram, WINDOW_CURSOR_TILE, r.x));
-  setWord(wram, TEXT_BUFFER_VRAM_ADDRESS, r.add(r.a, VRAM_TEXT_TILES, false));
+function cursorAddress(wram, x) {
+  setWord(
+    wram,
+    TEXT_BUFFER_VRAM_ADDRESS,
+    (field(wram, WINDOW_CURSOR_TILE, x) << PIXEL_SHIFT) + VRAM_TEXT_TILES,
+  );
 }
 // The mask rows: the bits left of the pixel offset kept, the others cleared (and at the
 // start ANDed with the read-back tile).
@@ -503,16 +517,14 @@ function* requestUpload(h, events, s, request) {
 // events.
 export function* drawTextBufferSequence(h, events) {
   const s = textState(h),
-    { mem, wram, r } = s;
+    { mem, wram, port, r } = s;
   yield () => {
     r.x = word(wram, DP_WINDOW);
-    alignCursor(s);
-    lineRest(s);
-    setWord(wram, TEXT_LINE_PIXELS, r.a);
-    r.a = field(wram, WINDOW_STYLE, r.x);
-    setWord(wram, TEXT_COMPOSE_STYLE, r.a);
+    alignCursor(wram, port, r.x);
+    setWord(wram, TEXT_LINE_PIXELS, lineRest(wram, port, r.x));
+    setWord(wram, TEXT_COMPOSE_STYLE, field(wram, WINDOW_STYLE, r.x));
     setWord(wram, TEXT_PENDING_BYTES, 0);
-    cursorAddress(s);
+    cursorAddress(wram, r.x);
   };
   yield* requestUpload(h, events, s, READBACK);
   yield () => {
@@ -533,11 +545,10 @@ export function* drawTextBufferSequence(h, events) {
     };
     if (pending) yield* requestUpload(h, events, s, LINE_UPLOAD);
     yield () => {
-      newLine(s);
-      alignCursor(s);
-      cursorAddress(s);
-      lineRest(s);
-      setWord(wram, TEXT_LINE_PIXELS, r.a);
+      newLine(wram, port, r.x);
+      alignCursor(wram, port, r.x);
+      cursorAddress(wram, r.x);
+      setWord(wram, TEXT_LINE_PIXELS, lineRest(wram, port, r.x));
       maskRows(s, false);
       r.x = word(wram, TEXT_CHARACTER_INDEX);
       r.a = wram[TEXT_BUFFER + r.x];
