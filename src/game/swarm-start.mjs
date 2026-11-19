@@ -77,8 +77,7 @@ const FOUR_SWARM_FLAG = 0x80,
   FOUR_SCRIPT = 0x032f,
   FOUR_POSITION_SHIFT = 2,
   FOUR_MEMBERS_END = 8,
-  FOUR_GOAL = 0x100,
-  FOUR_CREATE_RETURN = 0xd82a;
+  FOUR_GOAL = 0x100;
 // The wave swarm (D260).
 const TWELVE_SWARM_FLAG = 1,
   TWELVE_KIND = 0x4d,
@@ -88,8 +87,7 @@ const TWELVE_SWARM_FLAG = 1,
   TWELVE_HEIGHT = 0x40,
   TWELVE_SCRIPTS = 0xd2dd,
   TWELVE_LAST_SCRIPT = 8,
-  TWELVE_MEMBERS_END = 0x18,
-  TWELVE_CREATE_RETURN = 0xd2af;
+  TWELVE_MEMBERS_END = 0x18;
 // The circling leader (D63C).
 const CIRCLE_SPEED_LIMIT = 0x14,
   CIRCLE_SPEED_FLOOR = 0xffec,
@@ -107,9 +105,7 @@ const CIRCLE_SPEED_LIMIT = 0x14,
   FOLLOWER_SCRIPTS = 0xd704,
   FOLLOWER_INTERVAL = 8,
   FOLLOWERS_END = 0x10,
-  NO_MORE_FOLLOWERS = WORD_MASK,
-  TURN_RETURN = 0xd6bc,
-  FOLLOWER_CREATE_RETURN = 0xd6e6;
+  NO_MORE_FOLLOWERS = WORD_MASK;
 
 const word = (mem, at) => dataBankWord(mem, at);
 const setWord = (mem, at, value) => setDataBankWord(mem, at, 0, value & WORD_MASK);
@@ -131,12 +127,10 @@ function takeOrigin(mem, mask, keep) {
   setWord(mem, SWARM_ORIGIN_HEIGHT, dataBankWord(mem, OBJECT_HEIGHT, object));
   return argument;
 }
-// Create the object of the direct page arguments with a JSR whose return word is site.
-function create(mem, a, site) {
-  a.pushWord(site);
-  createObject(mem, mem.wram, a);
-  a.pullWord();
-}
+// Create the object of the direct page arguments. The calls' return words and the words
+// the original pushes around them lie only in free stack bytes and are not reproduced
+// (game state only, user decision 2026-11-17).
+const create = (mem, a) => createObject(mem, mem.wram, a);
 // The created member's slot (its low byte) at the member offset.
 const keepMember = (mem, offset) =>
   setDataBankWord(mem, SWARM_MEMBERS, offset, dpWord(mem.wram, DP_OBJECT) & BYTE_MASK);
@@ -154,11 +148,7 @@ export function startPathSwarm(mem, a) {
     ])
       setDpWord(wram, at, dataBankWord(mem, table, argument) >>> FOUR_POSITION_SHIFT);
     setDpWord(wram, DP_OBJECT_SCRIPT, FOUR_SCRIPT);
-    a.pushWord(argument);
-    a.pushWord(offset);
-    create(mem, a, FOUR_CREATE_RETURN);
-    a.pullWord();
-    a.pullWord();
+    create(mem, a);
     keepMember(mem, offset);
   }
   for (const at of [
@@ -179,8 +169,6 @@ export function startWaveSwarm(mem, a) {
   const { wram } = mem,
     argument = takeOrigin(mem, BYTE_MASK ^ TWELVE_SWARM_FLAG, SWARM_TWELVE_ORIGIN);
   for (let offset = 0; offset !== TWELVE_MEMBERS_END; offset += MEMBER_BYTES) {
-    a.pushWord(argument);
-    a.pushWord(offset);
     setDpWord(
       wram,
       DP_OBJECT_KIND,
@@ -194,9 +182,7 @@ export function startWaveSwarm(mem, a) {
       DP_OBJECT_SCRIPT,
       dataBankWord(mem, TWELVE_SCRIPTS, Math.min(offset, TWELVE_LAST_SCRIPT)),
     );
-    create(mem, a, TWELVE_CREATE_RETURN);
-    a.pullWord();
-    a.pullWord();
+    create(mem, a);
     keepMember(mem, offset);
   }
   setWord(mem, WAVE_TARGET_X, word(mem, SWARM_ORIGIN_X));
@@ -238,9 +224,7 @@ export function circleSwarmLeader(mem, a) {
   const facing =
     (((word(mem, CIRCLE_PHASE) + FACING_ROUNDING) & PHASE_MASK) << FACING_SHIFT) >>> BYTE_BITS;
   setDpWord(wram, DP_DIRECTION, facing & FACING_MASK);
-  a.pushWord(TURN_RETURN);
   turnObject(mem, wram);
-  a.pullWord();
   if (word(mem, CIRCLE_FOLLOWER_COUNTDOWN) & WORD_SIGN) return;
   const count = (word(mem, CIRCLE_FOLLOWER_COUNTDOWN) - 1) & WORD_MASK;
   setWord(mem, CIRCLE_FOLLOWER_COUNTDOWN, count);
@@ -251,9 +235,7 @@ export function circleSwarmLeader(mem, a) {
   setDpWord(wram, DP_OBJECT_Y, FOLLOWER_Y);
   setDpWord(wram, DP_OBJECT_HEIGHT, FOLLOWER_HEIGHT);
   setDpWord(wram, DP_OBJECT_SCRIPT, dataBankWord(mem, FOLLOWER_SCRIPTS, index));
-  a.pushWord(index);
-  create(mem, a, FOLLOWER_CREATE_RETURN);
-  a.pullWord();
+  create(mem, a);
   setDataBankWord(mem, CIRCLE_FOLLOWERS, index, dpWord(wram, DP_OBJECT));
   const next = (index + MEMBER_BYTES) & WORD_MASK;
   setWord(mem, CIRCLE_FOLLOWER_INDEX, next);
