@@ -9,8 +9,9 @@
 // (a notice with window attributes 0400 sets them), each pass plays one of three
 // effect sounds 80:FF73 with a chance of 3333/10000 (hex), at level 20 on voices 3.
 //
-// The release runs below the slot index the original pushes and the return word of
-// its JSR (80:FF2D), as the NMI of the upload wait writes below them. The random
+// The slot index the original pushes around the release and the return word of its JSR
+// (80:FF2D) lie only in free stack bytes and are not reproduced (game state only, user
+// decision 2026-11-17). The random
 // numbers (src/system/random.mjs) and the sound effect (src/apu/sound-effect.mjs)
 // are lifted; the direct page words 00 to 07 are left as the original leaves them:
 // the random word without a sound, the sound's arguments with one.
@@ -34,8 +35,7 @@ import {
 import { BYTE_BITS, BYTE_MASK, WORD_MASK, WORD_SIGN } from '../constants/bits.mjs';
 
 const NONE = WORD_MASK,
-  DP_WINDOW = 0x00,
-  RELEASE_RETURN = 0xff2f;
+  DP_WINDOW = 0x00;
 // The effect sounds: a chance below 3333 of the random word, then one of three
 // effect offsets in bank 80, played with no object at level 20 on voices 3.
 const EFFECT_CHANCE = 0x3333,
@@ -63,17 +63,9 @@ export function* noticeTimeoutSequence(h, events) {
     const frames = (word(wram, NOTICE_FRAMES + x) - 1) & WORD_MASK;
     yield () => setWord(wram, NOTICE_FRAMES + x, frames);
     if (frames) continue;
-    yield () => {
-      setWord(wram, DP_WINDOW, window);
-      h.a.pushWord(x);
-      h.a.pushWord(RELEASE_RETURN);
-    };
+    yield () => setWord(wram, DP_WINDOW, window);
     yield* releaseWindowSequence(h, events);
-    yield () => {
-      h.a.pullWord();
-      h.a.pullWord();
-      setWord(wram, NOTICE_WINDOWS + x, NONE);
-    };
+    yield () => setWord(wram, NOTICE_WINDOWS + x, NONE);
   }
   yield () => {
     const frames = word(wram, NOTICE_EFFECT_FRAMES);
