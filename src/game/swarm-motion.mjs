@@ -132,8 +132,9 @@ export function moveSwarmAlongPath(mem) {
 }
 
 // 80:D2E7: move the swarm as a wave, or set the wave's target (first argument 1, the
-// point in the second); a takes the members' PHY pushes.
-export function moveSwarmWave(mem, a, mode, point) {
+// point in the second). The members' PHY pushes lie only in free stack bytes and are not
+// reproduced (game state only).
+export function moveSwarmWave(mem, mode, point) {
   const { wram } = mem;
   if (mode === SET_TARGET) {
     // Six times the point by ASL three times and two SBCs, the second keeping the
@@ -171,7 +172,6 @@ export function moveSwarmWave(mem, a, mode, point) {
   // follow the comparison of the member offset (below the end: clear).
   let carry = secondSum > WORD_MASK ? 1 : 0;
   for (let offset = 0; offset !== WAVE_MEMBERS_END; offset += MEMBER_BYTES) {
-    a.pushWord(offset);
     setWord(mem, WAVE_HEIGHT_PART, waveByte(mem, word(mem, WAVE_MEMBER_PHASE)));
     const height =
       waveByte(mem, word(mem, WAVE_MEMBER_SECOND_PHASE)) + word(mem, WAVE_HEIGHT_PART) + carry;
@@ -191,7 +191,6 @@ export function moveSwarmWave(mem, a, mode, point) {
       WAVE_MEMBER_SECOND_PHASE,
       (word(mem, WAVE_MEMBER_SECOND_PHASE) + WAVE_MEMBER_SECOND_PHASE_STEP) & PHASE_MASK,
     );
-    a.pullWord();
     carry = 0;
   }
 }

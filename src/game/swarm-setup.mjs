@@ -35,8 +35,6 @@ export const FIRST_FOLLOWER_FRAMES = 0x64,
   ORBIT_PHASES_END = 0x20;
 const PHASE_BYTES = 2,
   CIRCLE_START_PHASE = HALF_PHASE;
-// The return word of 80:D604's JSR to the reset (the bank offset of its last byte).
-const RESET_RETURN = 0xd620;
 
 const setGoal = (mem, goal, value) => setDataBankWord(mem, goal, 0, value & WAVE_WORD_INDEX_MASK);
 
@@ -57,8 +55,9 @@ export function resetSwarmOrbit(mem) {
     setDataBankWord(mem, SWARM_MEMBERS, phase, ORBIT_START_PHASE);
 }
 
-// 80:D604: start the swarm orbit around the leader object; a takes the reset's call frame.
-export function startSwarmOrbit(mem, a, leader) {
+// 80:D604: start the swarm orbit around the leader object. The return word of its JSR to
+// the reset lies only in free stack bytes and is not reproduced (game state only).
+export function startSwarmOrbit(mem, leader) {
   setDataBankWord(mem, CIRCLE_LEADER, 0, leader);
   setDataBankWord(mem, CIRCLE_PHASE, 0, CIRCLE_START_PHASE);
   for (const word of [
@@ -69,7 +68,5 @@ export function startSwarmOrbit(mem, a, leader) {
     CIRCLE_PHASE_SPEED,
   ])
     setDataBankWord(mem, word, 0, 0);
-  a.pushWord(RESET_RETURN);
   resetSwarmOrbit(mem);
-  a.pullWord();
 }

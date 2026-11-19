@@ -11,6 +11,6 @@ export {
 // proof/game-reference/swarm-setup.mjs): start the swarm orbit around the leader object
 // (first argument).
 export const startSwarmOrbit = (a, outerReturn = true) => {
-  start(a.mem, a, leafArgument(a, FIRST_ARGUMENT));
+  start(a.mem, leafArgument(a, FIRST_ARGUMENT));
   return finishLeaf(a, outerReturn);
 };

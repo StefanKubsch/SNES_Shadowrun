@@ -10,6 +10,6 @@ import { moveSwarmWave as move } from '../game/swarm-motion.mjs';
 // proof/game-reference/swarm-motion.mjs): move the swarm as a wave, or with a first
 // argument of 1 set the wave's target to the point (second argument) of the room's list.
 export const moveSwarmWave = (a, outerReturn = true) => {
-  move(a.mem, a, leafArgument(a, FIRST_ARGUMENT), leafArgument(a, SECOND_ARGUMENT));
+  move(a.mem, leafArgument(a, FIRST_ARGUMENT), leafArgument(a, SECOND_ARGUMENT));
   return finishLeaf(a, outerReturn);
 };
