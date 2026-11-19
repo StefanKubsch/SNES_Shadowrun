@@ -11,10 +11,10 @@
 // frames left (the last of equal ones), whose window is released (80:FA3E, lifted in
 // window-release.mjs).
 //
-// The window opening and text are composed directly through their call frames,
-// as is the release with the frame and slot the
-// original pushes; the minimum the original pushes, and its allocation, lie on the
-// stack around them. The text number must point within bank 80
+// The window opening and text are composed directly through their call frames. The
+// window, the minimum and the slot the original pushes and the release's return word lie
+// only in free stack bytes and are not reproduced (game state only, user decision
+// 2026-11-17): the window is kept in a local. The text number must point within bank 80
 // (notice_text_required past it).
 //
 // Registers (user decision 2026-11-17): game state only. The notice returns its window
@@ -49,13 +49,10 @@ const EFFECT_ATTRIBUTES = 0x400,
   TEXT_NUMBERS = 0x80d9b8,
   BANK_END = 0x80ffff,
   DP_WINDOW = 0x00,
-  DP_TEXT = 0x02,
-  // A JSR pushes the address of its last byte.
-  JSR_LAST_BYTE = 2;
+  DP_TEXT = 0x02;
 // Original call sites and callees.
 const WINDOW_CALL = [0x80fece, 0x80f963],
   TEXT_CALL = [0x80fedd, 0x80fe69],
-  RELEASE_SITE = 0x80ff04,
   // The routines a paged notice adds between its pages.
   CONFIRM_KEY = 0x80f953,
   TILE_CLEAR = 0x80fa67;
@@ -109,7 +106,8 @@ export function* showNoticeSequence(h, events, renderBuffer = drawTextBufferSequ
   const { mem } = h.a,
     { wram } = mem,
     call = (site, body) => dialogCallBody(h, ...site, body);
-  let paged = null;
+  let paged = null,
+    window;
   yield () => {
     paged = fitNoticeWindow(
       mem,
@@ -121,7 +119,7 @@ export function* showNoticeSequence(h, events, renderBuffer = drawTextBufferSequ
   };
   yield* call(WINDOW_CALL, () => openWindowSequence(h, events));
   yield () => {
-    h.a.pushWord(word(wram, DP_WINDOW));
+    window = word(wram, DP_WINDOW);
     const text = word(wram, DP_NOTICE_TEXT),
       x = (text << 1) & WORD_MASK,
       at = TEXT_NUMBERS + x;
@@ -134,12 +132,11 @@ export function* showNoticeSequence(h, events, renderBuffer = drawTextBufferSequ
     slot;
   yield () => {
     // The last free slot from the top; on the way the fewest frames (the last of equal
-    // ones) and their slot. The minimum lies on the stack as the original pushes it.
+    // ones) and their slot.
     let minimum = WORD_MASK,
       fewest;
     for (let x = NOTICE_WINDOW_LAST; x >= 0; x -= 2) {
       if (word(wram, NOTICE_WINDOWS + x) & WORD_SIGN) {
-        h.a.pushWord(minimum);
         slot = x;
         return;
       }
@@ -149,27 +146,15 @@ export function* showNoticeSequence(h, events, renderBuffer = drawTextBufferSequ
         fewest = x;
       }
     }
-    // All used: release the window with the fewest frames left (the slot and the
-    // release's return word on the stack, as the original).
-    h.a.pushWord(minimum);
+    // All used: release the window with the fewest frames left.
     slot = fewest;
     setWord(wram, DP_WINDOW, word(wram, NOTICE_WINDOWS + slot));
-    h.a.pushWord(slot);
-    h.a.pushWord((RELEASE_SITE + JSR_LAST_BYTE) & WORD_MASK);
     replace = true;
   };
-  if (replace) {
-    yield* releaseWindowSequence(h, events);
-    yield () => {
-      h.a.pullWord();
-      h.a.pullWord();
-    };
-  }
+  if (replace) yield* releaseWindowSequence(h, events);
   let result;
   yield () => {
     setWord(wram, NOTICE_FRAMES + slot, word(wram, DP_NOTICE_FRAMES));
-    h.a.pullWord();
-    const window = h.a.pullWord();
     setWord(wram, NOTICE_WINDOWS + slot, window);
     shown.window = window;
     shown.slot = slot;
