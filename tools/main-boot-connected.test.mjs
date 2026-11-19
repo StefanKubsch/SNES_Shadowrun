@@ -464,7 +464,7 @@ test('one VM follows real boot and an observed software restart through the firs
     assert.equal(referenceE, 0);
     assert.equal(programBank, 0x80);
     assert.deepEqual(n.vm.context(), result);
-    assert.deepEqual(n.mem.wram, r.mem.wram);
+    assert.deepEqual(usedWram(n.mem.wram, n.vm.s), usedWram(r.mem.wram, n.vm.s));
     assert.deepEqual(n.mem.sram, r.mem.sram);
     assert.equal(n.mem.read16(0x250), n.mem.read16(0x24c));
     assert.ok(budgetStops > 0);

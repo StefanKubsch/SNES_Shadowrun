@@ -79,9 +79,6 @@ const ACTION_BANK = ACTION_TABLE >>> WORD_BITS,
   RECORD_BOX_HEIGHT = 7,
   RECORD_DIRECTIONS = 8,
   FRAME_LOOP_FLAG = 0x80;
-// The return words of the JSRs (the bank offsets of their last bytes).
-const JSR_LAST_BYTE = 2,
-  SELECTION_RETURN = 0xaadc;
 
 const word = (wram, at) => wram[at] | (wram[at + 1] << BYTE_BITS);
 const setWord = (wram, at, value) => {
@@ -149,11 +146,11 @@ export function selectObjectAnimation(mem, wram) {
   selectAnimation(mem, wram);
 }
 
-// Turn the object in word 00 to the direction in word 02 (80:AAAF); a is the
-// accessor whose stack takes the selection's return word. Game state only (user
-// decision 2026-11-17): it leaves no registers; the register-level reference is
-// turnRegisters in proof/script/native-object-turn.mjs.
-export function turnObject(mem, wram, a) {
+// Turn the object in word 00 to the direction in word 02 (80:AAAF). Game state only
+// (user decision 2026-11-17): it leaves no registers and no return words in free stack
+// bytes; the register-level reference is turnRegisters in
+// proof/script/native-object-turn.mjs.
+export function turnObject(mem, wram) {
   const slot = word(wram, DP_OBJECT),
     direction = word(wram, DP_ARGUMENT);
   const before = dataBankWord(mem, OBJECT_DIRECTION, slot);
@@ -169,12 +166,9 @@ export function turnObject(mem, wram, a) {
     setWord(wram, DP_ARGUMENT, selection & ~WORD_SIGN);
     setDataBankWord(mem, OBJECT_SELECTION, slot, NONE);
     // The selection's check for an unchanged selection: it holds only where that word
-    // did not take the write (ROM above the WRAM mirror). Its JSR's return word lies on
-    // the stack either way.
-    a.pushWord(SELECTION_RETURN);
+    // did not take the write (ROM above the WRAM mirror).
     if (word(wram, DP_ARGUMENT) !== dataBankWord(mem, OBJECT_SELECTION, slot))
       selectAnimation(mem, wram);
-    a.pullWord();
     return;
   }
   const directions = dataBankWord(mem, OBJECT_ACTION_DIRECTIONS, slot);
@@ -193,16 +187,14 @@ export function turnObject(mem, wram, a) {
 // with its RTS.
 export function turnObjectJsr(h) {
   const { mem } = h.a;
-  turnObject(mem, mem.wram, h.a);
+  turnObject(mem, mem.wram);
   return h.rts();
 }
 
-// The turn called with a JSR from site (its return word on the stack).
-export function turnObjectCall(h, site) {
+// The turn on the scene runtime of h.
+export function turnObjectCall(h) {
   const { mem, wram } = sceneRuntime(h);
-  h.a.pushWord((site + JSR_LAST_BYTE) & WORD_MASK);
-  turnObject(mem, wram, h.a);
-  h.a.pullWord();
+  turnObject(mem, wram);
 }
 
 // The animation selection as called with JSR (80:A985), its return word on the stack:

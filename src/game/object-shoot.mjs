@@ -229,7 +229,7 @@ function facingDirection(offsetX, offsetY, minusX, minusY) {
 // the direction in DP 02). The negative offsets stay in DP C0 and C3, the sizes in BA
 // and BD.
 function faceTarget(run, shooter, target) {
-  const { h, mem, wram } = run,
+  const { mem, wram } = run,
     field = (offset, slot) => dataBankWord(mem, offset, slot),
     down = (field(OBJECT_Y, target) - field(OBJECT_Y, shooter)) & WORD_MASK,
     across = (field(OBJECT_X, target) - field(OBJECT_X, shooter)) & WORD_MASK,
@@ -243,7 +243,7 @@ function faceTarget(run, shooter, target) {
   setWord(wram, DP_OFFSET_X, offsetX);
   setWord(wram, 0, shooter);
   setWord(wram, 2, facingDirection(offsetX, offsetY, minusX, minusY));
-  turnObject(mem, wram, h.a);
+  turnObject(mem, wram);
 }
 
 // A roll: a draw below 8; true for a hit, when draw + 1 - offset - bonus - range penalty

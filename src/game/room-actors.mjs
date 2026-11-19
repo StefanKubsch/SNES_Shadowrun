@@ -89,7 +89,6 @@ const ARMOUR_INDEX_SHIFT = 2;
 const LOW_WRAM_END = 0x2000;
 // Call sites and the return words of the JSRs from the room entry.
 const GROUP_CREATE_SITE = 0x80a32d,
-  GROUP_TURN_SITE = 0x80a340,
   ACTOR_CREATE_SITE = 0x80a423;
 
 const word = (wram, at) => wram[at] | (wram[at + 1] << BYTE_BITS);
@@ -143,7 +142,7 @@ export function* createGroupSequence(h) {
       if (kind === JAKE_KIND) setWord(wram, PLAYER_OBJECT, word(wram, DP_OBJECT_KIND));
       setWord(wram, DP_DIRECTION, word(wram, DP_START_DIRECTION));
     };
-    yield () => turnObjectCall(h, GROUP_TURN_SITE);
+    yield () => turnObjectCall(h);
     yield () => {
       const slot = word(wram, DP_OBJECT_KIND),
         number = word(wram, GROUP_NUMBERS + member);

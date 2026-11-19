@@ -98,7 +98,7 @@ export function addSceneObject(mem, a) {
   a.pushWord(directWord(mem, DP_OBJECT));
   setDirectWord(mem, DP_DIRECTION, directWord(mem, DP_SCENE_OBJECT_SCRATCH));
   a.pushWord(TURN_RETURN);
-  turnObject(mem, wram, a);
+  turnObject(mem, wram);
   a.pullWord();
   if (wramWord(mem, GROUP_INDEX) === 0) setBankWord(a, PLAYER_OBJECT, directWord(mem, DP_OBJECT));
   const slot = a.pullWord(),

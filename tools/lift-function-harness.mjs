@@ -1,7 +1,8 @@
 // Random per-function tests of lifted code against the register-level reference
 // (docs/MATRIX-LIFT.md). A sample is a random WRAM image; both sides run one
 // routine on their own copy and must leave the same game state: the same WRAM (outside
-// the ignored scratch and the CPU stacks), the same device writes and the same result,
+// the ignored scratch, the CPU stacks and the free bytes below the entry S), the same
+// device writes and the same result,
 // or stop at the same frontier. Game state only (user, 2026-11-14): registers, flags
 // and stack bytes count only where a callee or caller reads them as an argument or
 // result; stand-ins record their inputs with calleeRecord. Shared by tools/matrix-lift-functions.test.mjs and
@@ -18,6 +19,10 @@ const STACK = 0x1c9,
     [0x0100, 0x01ca],
     [0x1c7c, 0x1cbc],
   ],
+  // The free bytes below the entry S that a routine's own frames and pushes may leave
+  // (the task stacks 7E:1E80-1EEF are this deep); no code reads them before it pushes
+  // again, so they are not game state (user decision 2026-11-17).
+  FREE_STACK_DEPTH = 0x70,
   APU_PORT_0 = 0x2140,
   APU_COMMAND_TOKEN = 0x1ce4,
   // Bank 81 for the data bank and the long caller frame.
@@ -110,8 +115,15 @@ export function differences({ want, got }) {
 // register inputs; may narrow the sample), reference(h, e, r) (instead of the table
 // entry), events() (for the reference), lifted(m, input), result(h) (the reference
 // result), samples. side(s) builds a side; runtime(h) the lifted runtime.
-export function compareCase(c, s, { side, runtime, ignored }) {
-  const input = { a: 0, x: 0, y: 0, ...c.prepare?.(s) };
+// shake: invert the ignored bytes of the sample first (see readsIgnoredBytes).
+export function compareCase(c, s, { side, runtime, ignored }, shake = false) {
+  const input = { a: 0, x: 0, y: 0, ...c.prepare?.(s) },
+    entryStack = input.s ?? STACK,
+    free = [...CPU_STACKS, [Math.max(0, entryStack - FREE_STACK_DEPTH), entryStack + 1]];
+  ignored = [...ignored, ...free];
+  if (shake)
+    for (const [from, to] of ignored)
+      for (let at = from; at < to; at++) s.wram[at] ^= BYTE_VALUES - 1;
   const reference = side(s);
   Object.assign(reference.a.ctx, input);
   // The routine runs in its own bank; long routines (RTL) get a long caller frame.
@@ -135,9 +147,19 @@ export function compareCase(c, s, { side, runtime, ignored }) {
   return { want, got };
 }
 
+// Whether the lifted outcome of a sample changes with its ignored bytes (scratch and free
+// stack bytes): an out-of-range pointer of such a sample reads them, where only the
+// register-level reference leaves its pushes and locals (game state only, user decision
+// 2026-11-17).
+function readsIgnoredBytes(c, sampleOf, options, got) {
+  const shaken = compareCase(c, sampleOf(), options, true).got;
+  return differences({ want: got, got: shaken }).length > 0;
+}
+
 // Register one test per case. outside: lifted stops that mark a sample outside the
-// lifted domain (counted, at most 10 %); the reference's access budget stop counts
-// as unmeasured (at most 2 %).
+// lifted domain (counted, at most 10 %, together with differing samples whose lifted
+// outcome depends on free stack bytes); the reference's access budget stop counts as
+// unmeasured (at most 2 %).
 export function registerCases(
   cases,
   { sample, side, runtime, ignored, samples = SAMPLES, outside = new Set() },
@@ -149,7 +171,9 @@ export function registerCases(
         beyond = 0;
       const count = c.samples ?? samples;
       for (let seed = 1; seed <= count; seed++) {
-        const pair = compareCase(c, sample(seed * 7919 + c.entry), { side, runtime, ignored }); // magic-number-ok: a prime that spreads the seeds
+        const sampleOf = () => sample(seed * 7919 + c.entry), // magic-number-ok: a prime that spreads the seeds
+          options = { side, runtime, ignored },
+          pair = compareCase(c, sampleOf(), options);
         // The reference accessor stops after NATIVE_ACCESS_LIMIT accesses, a run time
         // budget, not a game result. Beyond it the reference gives no result.
         if (pair.want.stop === 'native_access_limit') {
@@ -160,7 +184,12 @@ export function registerCases(
           beyond++;
           continue;
         }
-        assert.deepEqual(differences(pair), [], `seed ${seed}`);
+        const differing = differences(pair);
+        if (differing.length && readsIgnoredBytes(c, sampleOf, options, pair.got)) {
+          beyond++;
+          continue;
+        }
+        assert.deepEqual(differing, [], `seed ${seed}`);
         if (pair.want.stop) stopped++;
       }
       assert.ok(stopped < count / 2, `${stopped} of ${count} samples stopped at a frontier`);

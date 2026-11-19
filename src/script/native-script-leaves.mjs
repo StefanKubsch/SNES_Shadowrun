@@ -228,6 +228,6 @@ export function setActorStateHolderNative(a, outerReturn = true) {
 // (src/game/member-facing.mjs).
 export function faceRoomDirectionNative(a, outerReturn = true) {
   const { mem } = leafRuntime(a);
-  faceRoomDirection(mem, a);
+  faceRoomDirection(mem);
   return finishLeaf(a, outerReturn);
 }

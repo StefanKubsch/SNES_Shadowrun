@@ -84,7 +84,7 @@ function directionToPlayer(mem, a, site) {
 function turnCall(mem, a, site, direction) {
   setWord(mem.wram, DP_TARGET, direction);
   a.pushWord(site);
-  turnObject(mem, mem.wram, a);
+  turnObject(mem, mem.wram);
   a.pullWord();
 }
 

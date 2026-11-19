@@ -351,7 +351,7 @@ const CASES = [
     },
     result: returned,
     lifted: lifted((a, outerReturn) => {
-      setActionAndDirection(a.mem, a);
+      setActionAndDirection(a.mem);
       return finishLeaf(a, outerReturn);
     }),
   },

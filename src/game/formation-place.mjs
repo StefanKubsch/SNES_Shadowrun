@@ -75,7 +75,7 @@ export function placeInFormation(mem, a) {
   // PEI 00 keeps the object over the turn.
   a.pushWord(object);
   a.pushWord(TURN_RETURN);
-  turnObject(mem, wram, a);
+  turnObject(mem, wram);
   a.pullWord();
   setWord(wram, DP_ARGUMENT, dataBankWord(mem, FORMATION_UNMOVED) === 0 ? WALKING : STANDING);
   setWord(wram, DP_OBJECT, a.pullWord());

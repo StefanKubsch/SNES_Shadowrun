@@ -239,7 +239,7 @@ export function circleSwarmLeader(mem, a) {
     (((word(mem, CIRCLE_PHASE) + FACING_ROUNDING) & PHASE_MASK) << FACING_SHIFT) >>> BYTE_BITS;
   setDpWord(wram, DP_DIRECTION, facing & FACING_MASK);
   a.pushWord(TURN_RETURN);
-  turnObject(mem, wram, a);
+  turnObject(mem, wram);
   a.pullWord();
   if (word(mem, CIRCLE_FOLLOWER_COUNTDOWN) & WORD_SIGN) return;
   const count = (word(mem, CIRCLE_FOLLOWER_COUNTDOWN) - 1) & WORD_MASK;

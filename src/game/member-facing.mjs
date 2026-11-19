@@ -28,13 +28,7 @@ const ROOM_DIRECTIONS = 0x8d929f,
   SECOND_MEMBER = 2,
   THIRD_MEMBER = 4,
   DIRECTION_MASK = 7,
-  WALKING = 2,
-  // The return words of 80:D15C's JSRs to 80:A985 and 80:AAAF (the bank offsets of
-  // their last bytes).
-  SELECTION_RETURN = 0xd162,
-  // and of 80:BBA0's JSR to 80:D15C.
-  SET_ACTION_RETURN = 0xbbf8,
-  TURN_RETURN = 0xd16b;
+  WALKING = 2;
 // The direct page: the object, the action and the direction as 80:D15C takes them, and
 // the room's direction the original keeps in A2.
 const DP_OBJECT = 0,
@@ -59,9 +53,8 @@ function memberIndex(wram, number) {
   return index;
 }
 
-// 80:BBA0: the member object (the direct page word 00) faces the room's direction; a is
-// the accessor whose stack takes the turn's call frame.
-export function faceRoomDirection(mem, a) {
+// 80:BBA0: the member object (the direct page word 00) faces the room's direction.
+export function faceRoomDirection(mem) {
   const { wram } = mem,
     object = word(wram, DP_OBJECT),
     room = word(wram, ROOM),
@@ -79,26 +72,20 @@ export function faceRoomDirection(mem, a) {
   setDataBankWord(mem, OBJECT_VELOCITY_X, object, romWord(mem, STEPS_X + step));
   setDataBankWord(mem, OBJECT_VELOCITY_Y, object, romWord(mem, STEPS_Y + step));
   setWord(wram, DP_ACTION, WALKING);
-  a.pushWord(SET_ACTION_RETURN);
-  setActionAndDirection(mem, a);
-  a.pullWord();
+  setActionAndDirection(mem);
 }
 
 // 80:D15C: the object (the direct page word 00) takes the action selection of word 02
 // (80:A985, unless selected) and turns to the direction of word 04 (80:AAAF), which
 // the original passes in word 02 with the object restored to word 00.
-export function setActionAndDirection(mem, a) {
-  // The pushed words and the return words of the JSRs lie on the stack as in the
-  // original: a record pointer far out of range reads them through the WRAM mirror.
-  const { wram } = mem;
-  a.pushWord(word(wram, DP_DIRECTION));
-  a.pushWord(word(wram, DP_OBJECT));
-  a.pushWord(SELECTION_RETURN);
+// Its pushed words and JSR return words are not reproduced: they lie only in free stack
+// bytes (game state only, user decision 2026-11-17).
+export function setActionAndDirection(mem) {
+  const { wram } = mem,
+    direction = word(wram, DP_DIRECTION),
+    object = word(wram, DP_OBJECT);
   selectObjectAnimation(mem, wram);
-  a.pullWord();
-  setWord(wram, DP_OBJECT, a.pullWord());
-  setWord(wram, DP_ACTION, a.pullWord());
-  a.pushWord(TURN_RETURN);
-  turnObject(mem, wram, a);
-  a.pullWord();
+  setWord(wram, DP_OBJECT, object);
+  setWord(wram, DP_ACTION, direction);
+  turnObject(mem, wram);
 }

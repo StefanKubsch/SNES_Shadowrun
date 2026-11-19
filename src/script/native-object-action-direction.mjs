@@ -7,6 +7,6 @@ import { setActionAndDirection } from '../game/member-facing.mjs';
 // proof/script/native-object-turn.mjs): set the
 // object's action selection (A985), then its direction (AAAF).
 export const setObjectActionAndDirection = (a, outerReturn = true) => {
-  setActionAndDirection(a.mem, a);
+  setActionAndDirection(a.mem);
   return finishLeaf(a, outerReturn);
 };
