@@ -19,7 +19,6 @@ import {
   TIMER,
   TIMER_STOPPED,
 } from '../data/wram.mjs';
-import { FLAG_DECIMAL, FLAG_INDEX_8BIT, FLAG_MEMORY_8BIT } from '../constants/cpu-flags.mjs';
 import { CODE_BANK } from '../constants/memory-map.mjs';
 import { BYTE_BITS, BYTE_MASK } from '../constants/bits.mjs';
 
@@ -43,16 +42,13 @@ const setWord = (wram, at, value) => {
 // first). The startup always enters A139 with 1 and the resume point A157 passes zero,
 // so the lifted owner takes it from its entry point and reads no register. Ends at the main start
 // 80:9688 with the return word A156 on the stack; returns that program counter. The
-// cycle's choice passes as a value (A in the original) and no registers are left.
+// cycle's choice passes as a value (A in the original) and no registers are left. Only
+// the entry point is checked; the register-level check (direct page 0, data bank 80,
+// 16-bit binary registers) stays with the proof caller in
+// proof/frontend-caller/game-owner.mjs.
 export function* gameOwnerSequence(h, events, routines) {
   const { ctx } = h;
-  if (
-    ctx.programBank !== CODE_BANK ||
-    ![GAME_OWNER_ENTRY, GAME_OWNER_RESUME].includes(ctx.pc) ||
-    ctx.d !== 0 ||
-    ctx.bank !== CODE_BANK ||
-    ctx.status & (FLAG_DECIMAL | FLAG_INDEX_8BIT | FLAG_MEMORY_8BIT)
-  )
+  if (ctx.programBank !== CODE_BANK || ![GAME_OWNER_ENTRY, GAME_OWNER_RESUME].includes(ctx.pc))
     taskStop('main_owner_entry_required', { pc: ctx.pc });
   const { wram } = h.a.mem,
     title = ctx.pc === GAME_OWNER_ENTRY,
