@@ -71,7 +71,6 @@ const PRODUCT_COLUMNS_SITE = 0x80f9ec,
   PRODUCT_ROWS_SITE = 0x80f9f6,
   PRODUCT_SITE = 0x80fa01,
   PRODUCT_AGAIN_SITE = 0x80fa19,
-  TILE_REQUEST_SITE = 0x80fa32,
   TILE_WAIT_SITE = 0x80fa84,
   TILE_WAIT_BRANCH = 0x81acc0,
   JSR_LAST_BYTE = 2,
@@ -135,12 +134,10 @@ function pullFrame(h, long) {
 }
 
 // The tile request (80:FA67): clear the window's text tiles in video memory with the
-// NMI's next upload, and wait for it (81:ACBD) below its JSR frame.
-function* requestTileClear(h, events, x) {
-  yield () => pushFrame(h, TILE_REQUEST_SITE, false);
-  yield* clearTiles(h, events, x);
-  yield () => pullFrame(h, false);
-}
+// NMI's next upload, and wait for it (81:ACBD). The return word of the window opening's
+// JSR to it lies only in free stack bytes and is not reproduced (game state only, user
+// decision 2026-11-17).
+const requestTileClear = (h, events, x) => clearTiles(h, events, x);
 
 // The tile request 80:FA67 on its own, as other routines call it with JSR (their
 // sequence pushes the frame): the window in the direct page word 00. It leaves no
