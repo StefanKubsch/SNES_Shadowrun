@@ -15,7 +15,9 @@
 // The products and quotients run on the hardware multiplier and divider through the
 // port, as in the original (Book I 2-15-1; on another platform: row * (columns - 2),
 // value / 10 and value % 10). Both routines push the data bank and the bank pair they
-// select (PHB, PEA, PLB, PLB) and restore the data bank.
+// select (PHB, PEA, PLB, PLB) and restore the data bank; those bytes lie only in free
+// stack bytes, and the old data bank is kept in a local (game state only, user decision
+// 2026-11-17). The cursor's bank 80 is read by none of its accesses.
 //
 // Registers (user decision 2026-11-17): game state only. A, X, Y and the flags the
 // original leaves are not kept; every caller sets its own before reading them.
@@ -46,11 +48,7 @@ const DP_WINDOW = 0x00,
   DIGITS = 5,
   RADIX = 10,
   CHARACTER_ZERO = 0x30,
-  PROGRAM_BANK_PAIR = 0x8080,
-  WRAM_BANK_PAIR = 0x7e7e,
-  WRAM_BANK = 0x7e,
-  // PEA and the two PLB.
-  BANK_PAIR_BYTES = 2;
+  WRAM_BANK = 0x7e;
 // Original instructions of the multiplier and divider accesses, the sites of the device
 // model, and the call of the text buffer.
 const ROW_SITE = 0x80fab8,
@@ -67,23 +65,10 @@ const setWord = (wram, at, value) => {
   wram[at] = value & BYTE_MASK;
   wram[at + 1] = (value >>> BYTE_BITS) & BYTE_MASK;
 };
-// PHB, PEA pair, PLB, PLB: the old data bank and the pair stay below the stack; the
-// bank's own pull (PLB at the end) is restoreBank.
-function selectBank(h, pair) {
-  h.pushByte(h.ctx.bank);
-  h.a.pushWord(pair);
-  h.ctx.s = (h.ctx.s + BANK_PAIR_BYTES) & WORD_MASK;
-}
-function restoreBank(h) {
-  const { ctx } = h;
-  ctx.s = (ctx.s + 1) & WORD_MASK;
-  ctx.bank = h.a.read(ctx.s);
-}
 
 // Set the text cursor of the window in the direct page word 00 (80:FAAC), called with JSR.
 export function setTextCursorRoutine(h) {
   const { wram, port } = sceneRuntime(h);
-  selectBank(h, PROGRAM_BANK_PAIR);
   const x = word(wram, DP_WINDOW);
   port.write(WRMPYA, wram[DP_CURSOR_ROW], 1, ROW_SITE);
   port.write(WRMPYB, (wram[WINDOW_COLUMNS + x] - BORDER_COLUMNS) & BYTE_MASK, 1, COLUMNS_SITE);
@@ -93,7 +78,6 @@ export function setTextCursorRoutine(h) {
     tile = (left + product + (start > WORD_MASK ? 1 : 0)) & WORD_MASK;
   setWord(wram, WINDOW_CURSOR_TILE + x, tile);
   setWord(wram, WINDOW_CURSOR_PIXEL + x, 0);
-  restoreBank(h);
   return h.rts();
 }
 
@@ -102,6 +86,7 @@ export function setTextCursorRoutine(h) {
 export function* printNumberSequence(h, events, renderBuffer = drawTextBufferSequence) {
   const { ctx } = h,
     { wram, port } = sceneRuntime(h);
+  let bank;
   yield () => {
     setWord(wram, TEXT_BUFFER + DIGITS, 0);
     let x = DIGITS,
@@ -113,7 +98,7 @@ export function* printNumberSequence(h, events, renderBuffer = drawTextBufferSeq
       wram[TEXT_BUFFER + x] = (CHARACTER_ZERO + port.read(RDMPYL, 1, REMAINDER_SITE)) & BYTE_MASK;
       value = port.read(RDDIVL, 2, QUOTIENT_SITE);
     } while (value !== 0);
-    selectBank(h, WRAM_BANK_PAIR);
+    bank = ctx.bank;
     ctx.bank = WRAM_BANK;
     // The digits move to the buffer's start, up to the cleared end byte.
     if (x !== 0) {
@@ -130,7 +115,7 @@ export function* printNumberSequence(h, events, renderBuffer = drawTextBufferSeq
   yield* dialogCallBody(h, ...DRAW_CALL, () => renderBuffer(h, events));
   let result;
   yield () => {
-    restoreBank(h);
+    ctx.bank = bank;
     result = h.rts();
   };
   return result;
