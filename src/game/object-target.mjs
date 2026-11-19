@@ -11,8 +11,8 @@
 // directions, turns to it (80:AAAF, lifted in object-turn.mjs, through its frame) and
 // takes that direction's
 // steps as its velocity; the steps come from table a, or table b when its selection
-// is 2 (src/data/tables.mjs, motion_x/y_a and _b), read in the caller's data bank 80
-// as in the original.
+// is 2 (src/data/tables.mjs, motion_x/y_a and _b), read in bank 80 (the callers' data bank;
+// the data bank register itself is not read, user decision 2026-11-17) as in the original.
 //
 // With bit 0 of the mode word 7E:4138, the object walks axis by axis: on its preferred
 // axis (y with bit 1, else x) until that axis is nearer than 12, which flips the
@@ -178,7 +178,7 @@ export function walkTowardsTarget(h, slot, action = turnObjectJsr) {
         offset = (pulled << 1) & WORD_MASK,
         selection = get(OBJECT_SELECTION),
         tables = selection === SELECTION_STEPS_B ? [STEPS_X_B, STEPS_Y_B] : [STEPS_X_A, STEPS_Y_A],
-        steps = tables.map((table) => h.read(h.abs(table) + offset, 2));
+        steps = tables.map((table) => dataBankWord(h.a.mem, table, offset));
       put(OBJECT_VELOCITY_X, steps[0]);
       put(OBJECT_VELOCITY_Y, steps[1]);
     };

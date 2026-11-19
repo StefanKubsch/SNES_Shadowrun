@@ -209,6 +209,10 @@ for (const [kind, list] of [
         const covered = new Set();
         for (let seed = 1; seed <= 1800; seed++) {
           const s = i === 5 ? targetScenario(seed) : motionScenario(spec.entry, seed);
+          // The lifted walk reads its step tables in bank 80, the data bank of all its
+          // live callers, and not through the data bank register (user decision
+          // 2026-11-17); the register-level walk keeps the data banks 80, 00 and 7E.
+          if (kind && i === 5) s.dbr = 0x80;
           // The lifted walk is compared on game state (user decision 2026-11-17); the
           // lifted collision tests' register forms on game state with the height in A and
           // the slot in X (their carry follows the result word; the overflow is not
