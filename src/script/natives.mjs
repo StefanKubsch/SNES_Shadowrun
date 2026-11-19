@@ -23,12 +23,7 @@ import { WAIT_PAUSED, WAIT_RETURNED } from '../system/native-wait-continuation.m
 import { NATIVE_POINTERS, NATIVE_RESUME } from '../vm/layout.mjs';
 import { WORD_BITS, WORD_MASK, WORD_SIGN } from '../constants/bits.mjs';
 import { CODE_BANK, CODE_BANK_BASE, WRAM_BASE } from '../constants/memory-map.mjs';
-import {
-  FLAG_INDEX_8BIT,
-  FLAG_MEMORY_8BIT,
-  FLAG_NEGATIVE,
-  FLAG_ZERO,
-} from '../constants/cpu-flags.mjs';
+import { FLAG_NEGATIVE, FLAG_ZERO } from '../constants/cpu-flags.mjs';
 
 // JSR 80:F52F at F4F6 pushes the return word F508; the native's RTS lands on F509.
 const NATIVE_RETURN_WORD = NATIVE_RESUME - 1;
@@ -96,7 +91,6 @@ export class ScriptNatives {
       at = entry & WORD_MASK,
       bytes = ENTRY_STACK_BYTES.get(at);
     if (bytes === undefined) taskStop('script_scheduler_entry_unknown', { entry });
-    if (ctx.d !== 0) taskStop('script_visit_direct_page', { entry, d: ctx.d });
     this.stacks.push((ctx.s - bytes) & WORD_MASK);
     try {
       yield* at === ROUND ? scheduler.rounds() : scheduler.headVisit();
@@ -162,17 +156,15 @@ export class ScriptNatives {
     }
   }
 
-  // F509: the native returned by RTS to F509 on its entry stack, in the bridge's modes.
+  // F509: the native returned by RTS to F509 on its entry stack. A native runs on the
+  // accessor of its nesting depth, whose registers the next native call sets again, so
+  // the direct page, data bank and register widths it leaves are not checked (user
+  // decision 2026-11-17; the register-level bridge in proof/vm/native-call.mjs checks
+  // them).
   finish(a, target, stack) {
     const ctx = a.ctx;
     this.depth--;
-    if (
-      ctx.pc !== NATIVE_RESUME ||
-      ctx.s !== stack ||
-      ctx.d !== 0 ||
-      ctx.bank !== CODE_BANK ||
-      ctx.status & (FLAG_INDEX_8BIT | FLAG_MEMORY_8BIT)
-    )
+    if (ctx.pc !== NATIVE_RESUME || ctx.s !== stack)
       taskStop('native_return_context', { target, pc: ctx.pc, s: ctx.s });
     return this.mem.read16(WRAM_BASE);
   }
