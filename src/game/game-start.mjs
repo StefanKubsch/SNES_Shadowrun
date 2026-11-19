@@ -11,7 +11,6 @@
 // The start ends before the first call of the main loop (80:96AB). The attract game
 // enters the room start directly with room AB (proof/replay/main-frontend.mjs).
 import { tasksOf } from '../script/task-api.mjs';
-import { taskStop } from '../system/task-stop.mjs';
 import { unpackStream } from '../system/unpack.mjs';
 import { sceneRuntime } from '../system/scene-runtime.mjs';
 import { unlockBulletproofVest } from './bugfixes.mjs';
@@ -56,8 +55,7 @@ import {
   STORY_STAGE,
   TOPIC_LIST,
 } from '../data/wram.mjs';
-import { FLAG_DECIMAL, FLAG_INDEX_8BIT, FLAG_MEMORY_8BIT } from '../constants/cpu-flags.mjs';
-import { CODE_BANK, CODE_BANK_BASE, SRAM_FIRST_BANK } from '../constants/memory-map.mjs';
+import { CODE_BANK_BASE, SRAM_FIRST_BANK } from '../constants/memory-map.mjs';
 import { BYTE_BITS, BYTE_MASK, WORD_MASK, WORD_SIGN } from '../constants/bits.mjs';
 
 // The main start, its end before the main loop's first call, and the room start.
@@ -163,20 +161,11 @@ export function loadSavedGame(a, slot) {
 
 // 80:9688: the main start. Ends before the main loop at 80:96AB; returns that
 // program counter.
-// The main start's entry: program counter 80:9688, direct page 0, data bank 80 and
-// 16-bit registers.
-export function requireGameStartEntry(ctx) {
-  if (
-    ctx.programBank !== CODE_BANK ||
-    ctx.pc !== GAME_START ||
-    ctx.d !== 0 ||
-    ctx.bank !== CODE_BANK ||
-    ctx.status & (FLAG_DECIMAL | FLAG_INDEX_8BIT | FLAG_MEMORY_8BIT)
-  )
-    taskStop('main_start_entry_required', { pc: ctx.pc });
-}
+// The live game loop enters it right after the owner (src/script/game-loop.mjs); it
+// checks no registers (user decision 2026-11-17). The register-level entry check
+// (direct page 0, data bank 80, 16-bit registers) belongs to the proof callers
+// (requireGameStartEntry in proof/caller/game-start.mjs).
 export function* gameStartSequence(h, events) {
-  requireGameStartEntry(h.ctx);
   let room;
   yield () => {
     const { wram } = h.a.mem,

@@ -2,11 +2,8 @@
 // proof/caller/main-start.mjs and proof/replay/main-start.mjs.
 import { dialogAccess } from '../../src/system/native-dialog-support.mjs';
 import { NativeCallContinuation } from '../../src/system/native-call-continuation.mjs';
-import {
-  GAME_START,
-  requireGameStartEntry,
-  gameStartSequence,
-} from '../../src/game/game-start.mjs';
+import { GAME_START, gameStartSequence } from '../../src/game/game-start.mjs';
+import { requireGameStartEntry } from '../caller/game-start.mjs';
 import { runGameStart } from '../caller/game-start-runs.mjs';
 
 export const MAIN_START = GAME_START;
