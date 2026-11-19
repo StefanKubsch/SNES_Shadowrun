@@ -1,4 +1,4 @@
-// The register-level ALU, compare, flag and push helpers of the dialog accessor
+// The register-level ALU, compare, flag, push and direct page helpers of the dialog accessor
 // (moved from src/system/native-dialog-support.mjs; user decision 2026-11-17: the
 // lifted code keeps no register arithmetic). Importing this module adds them to every
 // accessor dialogAccess creates; the register-level references and their tests import
@@ -6,6 +6,7 @@
 import { extendDialogAccess } from '../../src/system/native-dialog-support.mjs';
 import { taskStop } from '../../src/system/task-stop.mjs';
 import {
+  BANK_WRAP,
   BYTE_BITS,
   BYTE_MASK,
   BYTE_SIGN,
@@ -23,9 +24,33 @@ import {
 } from '../../src/constants/cpu-flags.mjs';
 
 extendDialogAccess((h) => {
-  const { a, ctx, m, xw, nz, load, read, write, dp, dpWrite, pointer, push } = h,
+  const { a, ctx, m, xw, nz, load, read, write, pointer, push } = h,
     wa = () => (m() ? 1 : 2),
     wi = () => (xw() ? 1 : 2);
+  // The direct page (D = 0) in bank 0 with the A width.
+  const dp = (offset, bytes = wa()) =>
+    bytes === 1 ? a.read(offset & WORD_MASK) : a.readWord(offset & WORD_MASK, BANK_WRAP);
+  const dpWrite = (offset, value, bytes = wa()) => {
+    if (bytes === 1) a.write(offset & WORD_MASK, value & BYTE_MASK);
+    else a.writeWord(offset & WORD_MASK, value & WORD_MASK, BANK_WRAP);
+  };
+  // Memory INC/DEC/ASL with the A width, of a long address or (bank0) the direct page.
+  const modify = (address, op, bank0 = false) => {
+    const bytes = wa(),
+      mask = bytes === 1 ? BYTE_MASK : WORD_MASK;
+    const get = () => (bank0 ? dp(address, bytes) : read(address, bytes)),
+      put = (v) => (bank0 ? dpWrite(address, v, bytes) : write(address, v, bytes));
+    let v = get();
+    if (op === 'asl') {
+      ctx.status =
+        (ctx.status & ~FLAG_CARRY) | (v >>> (bytes === 1 ? BYTE_BITS - 1 : WORD_BITS - 1));
+      v = (v << 1) & mask;
+    } else v = (v + (op === 'inc' ? 1 : -1)) & mask;
+    nz(v, bytes);
+    put(v);
+    return v;
+  };
+  const port = (offset, bytes, pc) => a.absoluteRead(offset, bytes, pc);
   // [dp],Y: the effective address with bank carry.
   const indirect = (offset, y = 0) => (pointer(offset) + y) & LONG_MASK;
   const compare = (left, right, bytes) => {
@@ -118,6 +143,10 @@ extendDialogAccess((h) => {
     } while (ctx.a !== WORD_MASK);
   };
   return {
+    dp,
+    dpWrite,
+    modify,
+    port,
     indirect,
     compare,
     cmp,

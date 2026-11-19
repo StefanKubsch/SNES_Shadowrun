@@ -37,6 +37,7 @@ import {
   TILE_STACK_SECOND,
   TILE_STACK_THIRD,
 } from '../src/data/wram.mjs';
+import '../proof/system/dialog-register-helpers.mjs';
 
 const WORD_BYTES = 2,
   WORD_MASK = 0xffff,

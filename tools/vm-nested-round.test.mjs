@@ -20,6 +20,7 @@ import { WAIT_PAUSED } from '../src/system/native-wait-continuation.mjs';
 import { WEAPON_MENU_ROUTINES } from '../proof/replay/native-member-spell-menu.mjs';
 import { prng, rom } from './vm-differential.mjs';
 import { randomFeed } from './vm-special-natives-differential.mjs';
+import '../proof/system/dialog-register-helpers.mjs';
 
 const romBytes = new Uint8Array(rom.buffer, rom.byteOffset, rom.length);
 const romByte = (address) => rom[(((address >>> 16) & 0x7f) << 15) | (address & 0x7fff)];

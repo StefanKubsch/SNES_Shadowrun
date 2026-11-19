@@ -40,6 +40,7 @@ import {
   FLAG_INDEX_8BIT,
   FLAG_MEMORY_8BIT,
 } from '../../src/constants/cpu-flags.mjs';
+import './dialog-register-helpers.mjs';
 
 const DP_DRAW_ATTRIBUTES = 0xc9;
 const DP_DRAW_MAP_ROW = 0xc3;

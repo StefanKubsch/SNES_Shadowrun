@@ -7,6 +7,7 @@ import { computeSoundPan, sendApuCommand } from '../system/native-input-apu.mjs'
 import { WORD_MASK } from '../../src/constants/bits.mjs';
 import { CODE_BANK } from '../../src/constants/memory-map.mjs';
 import { APU_COMMAND_SONG_LEVEL } from '../../src/constants/sound-commands.mjs';
+import '../system/dialog-register-helpers.mjs';
 const APU_CODE_BANK = 0x81;
 // 80:C461: set the song level (second argument) panned to the screen position of the
 // object (first argument): LDA DP02, JSR 80:C416 (left and right levels from A and the

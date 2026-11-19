@@ -12,6 +12,7 @@ import { playAttractGame } from '../proof/frontend-reference/title-cycle.mjs';
 import { TaskAccessor } from '../src/vm/task-accessor.mjs';
 import { DialogTestMemory, rom } from './task-native-dialog-harness.mjs';
 import { runReference } from './w65c816-reference.mjs';
+import '../proof/system/dialog-register-helpers.mjs';
 const FRONTEND_ROUTINES = withFrontendReference(FRONTEND_ROUTINES_TASK);
 const FRONTEND_MENU_ROUTINES = withFrontendReference(FRONTEND_MENU_ROUTINES_TASK);
 

@@ -26,6 +26,7 @@ import { dialogAccess } from '../src/system/native-dialog-support.mjs';
 import { TaskAccessor } from '../src/vm/task-accessor.mjs';
 import { proveWordStack } from './static-word-stack-proof.mjs';
 import { NATIVE_ACCESS_LIMIT } from '../src/vm/task-accessor.mjs';
+import '../proof/system/dialog-register-helpers.mjs';
 const maps = matrixControlSpecs.map((s) => decodeWindows(s.windows));
 const specFor = (name) => matrixControlSpecs.find((s) => s.name === name);
 const tiles = [

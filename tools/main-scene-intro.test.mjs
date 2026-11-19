@@ -2,6 +2,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import * as introTask from '../proof/intro-reference/intro-setup.mjs';
 import { playIntro } from '../proof/intro-reference/intro-scene.mjs';
+import '../proof/system/dialog-register-helpers.mjs';
 // The intro 81:DFE7 is lifted (src/intro); its register-level reference is proved here.
 const intro = { ...introTask, playIntro };
 import { playCutscene } from '../proof/cutscene-reference/cutscene-scene.mjs';

@@ -18,6 +18,7 @@ import { romOffset } from '../src/data/rom-bytes.mjs';
 import { buildLanguage, installLanguage } from '../src/data/language.mjs';
 import { redirectLanguageStream } from '../proof/system/native-unpack.mjs';
 import { VmMemory } from '../src/vm/memory.mjs';
+import '../proof/system/dialog-register-helpers.mjs';
 const FRONTEND_MENU_ROUTINES = withFrontendReference(FRONTEND_MENU_ROUTINES_TASK);
 
 const assets = JSON.parse(readFileSync('assets/vm-lz.json', 'utf8'));

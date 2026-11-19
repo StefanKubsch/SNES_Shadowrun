@@ -14,6 +14,7 @@ import { TaskAccessor } from '../src/vm/task-accessor.mjs';
 import { dialogAccess } from '../src/system/native-dialog-support.mjs';
 import { loadScene } from '../proof/system/main-scene-load.mjs';
 import { SCENE_RECORD, SCENE_BACKDROP, DP_SCENE_RECORD } from '../src/data/wram.mjs';
+import '../proof/system/dialog-register-helpers.mjs';
 
 const json = (name) => JSON.parse(readFileSync(`assets/vm-${name}.json`));
 const result = await auditSceneStreams();

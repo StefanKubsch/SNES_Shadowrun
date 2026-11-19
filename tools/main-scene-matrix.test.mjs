@@ -24,6 +24,7 @@ import { mainSceneSpecs } from './main-scene-source.mjs';
 import { dialogAccess } from '../src/system/native-dialog-support.mjs';
 import { TaskAccessor } from '../src/vm/task-accessor.mjs';
 import { proveWordStack } from './static-word-stack-proof.mjs';
+import '../proof/system/dialog-register-helpers.mjs';
 const maps = matrixSetupSpecs.map((s) => decodeWindows(s.windows));
 test('Matrix setup pins all own instructions, crossed WORD pulls and the admitted text dispatch table', () => {
   matrixSetupSpecs.forEach((s, i) => proveMatrixSetup(maps[i], s));

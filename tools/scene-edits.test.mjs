@@ -19,6 +19,7 @@ import { LiveGame } from '../src/video/live-game.mjs';
 import { renderMode1Frame } from '../src/video/ppu-frame.mjs';
 import { hdmaRows } from '../src/video/hdma.mjs';
 import { inspectRom } from './rom.mjs';
+import '../proof/system/dialog-register-helpers.mjs';
 
 const json = (name) => JSON.parse(readFileSync(`assets/vm-${name}.json`));
 const baseline = json('lz'),

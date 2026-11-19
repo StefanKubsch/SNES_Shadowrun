@@ -28,6 +28,7 @@ import {
   WRAM,
 } from '../../src/data/wram.mjs';
 import { LONG_WRAP, WORD_MASK } from '../../src/constants/bits.mjs';
+import '../system/dialog-register-helpers.mjs';
 
 // 80:CC97: switch to the room in the first argument without a scene sequence.
 export const changeRoomReference = (a, outerReturn = true) =>

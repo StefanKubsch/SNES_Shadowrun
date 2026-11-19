@@ -13,6 +13,7 @@ import { MAIN_LOOP_ROUTINES as REPLAY_LOOP_ROUTINES } from '../proof/vm/main-loo
 import { runObjectMotion } from '../src/game/main-upkeep.mjs';
 import { NATIVE_CALL_CONTINUATIONS } from '../src/system/native-call-continuation.mjs';
 import { WAIT_PAUSED } from '../src/system/native-wait-continuation.mjs';
+import '../proof/system/dialog-register-helpers.mjs';
 
 // The scene request's and the hit shake's own instructions are the register-level
 // references'; the main loop binds the lifted ones (src/game).

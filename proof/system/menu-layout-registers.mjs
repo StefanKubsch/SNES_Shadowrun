@@ -8,6 +8,7 @@ import {
   DP_WINDOW_COLUMNS,
   DP_WINDOW_ROWS,
 } from '../../src/data/wram.mjs';
+import './dialog-register-helpers.mjs';
 
 // Fit before F963 allocates tiles: changing only the frame afterwards would
 // leave the cursor stride, tile allocation and DMA length inconsistent.

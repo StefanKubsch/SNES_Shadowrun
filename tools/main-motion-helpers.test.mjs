@@ -34,6 +34,7 @@ import {
   searchHeightCells,
 } from '../proof/caller/object-collision.mjs';
 import { walkTowardsTarget } from '../src/game/object-target.mjs';
+import '../proof/system/dialog-register-helpers.mjs';
 
 const functions = [
   testUpperXEdge,

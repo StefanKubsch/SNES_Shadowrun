@@ -32,6 +32,7 @@ import {
 } from '../../src/data/wram.mjs';
 import { FLAG_CARRY, FLAG_ZERO } from '../../src/constants/cpu-flags.mjs';
 import { BANK_WRAP, WORD_MASK } from '../../src/constants/bits.mjs';
+import '../system/dialog-register-helpers.mjs';
 // Countdown of the VRAM slots still to free; return word of the JSR A8F5 (its last byte).
 const DP_SLOTS_LEFT = 0x17,
   RELEASE_RETURN_WORD = 0x80a8f7 & WORD_MASK;

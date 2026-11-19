@@ -30,6 +30,7 @@ import {
   MAIN_LOOP_LIFTED_TOP,
 } from '../proof/vm/main-loop.mjs';
 import { MAIN_UPKEEP_ROUTINES } from '../proof/replay/main-loop-upkeep.mjs';
+import '../proof/system/dialog-register-helpers.mjs';
 
 // The camera, the colour effect, the palette cycles, the notice time limits, the time limit and the glove action are proven as references; the main loop
 // binds their lifted entries (src/game/main-upkeep.mjs).

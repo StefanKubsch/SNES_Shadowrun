@@ -6,6 +6,7 @@ import { FIRST_ARGUMENT, leaf } from '../system/native-leaf-support.mjs';
 import { readActorKind, returnKindValue } from '../system/native-leaf-support.mjs';
 import { OBJECT_KIND, WRAM } from '../../src/data/wram.mjs';
 import { KIND_FLAGS_OFFSET } from '../../src/data/kinds.mjs';
+import '../system/dialog-register-helpers.mjs';
 
 // 80:C9F1: return the kind value of the object (first argument).
 export const getObjectKindValueReference = (a, outerReturn = true) =>

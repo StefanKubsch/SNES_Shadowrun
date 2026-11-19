@@ -24,6 +24,7 @@ import { runObservedIntroNmi } from '../proof/replay/intro-nmi-routines.mjs';
 import { proveWordStack } from './static-word-stack-proof.mjs';
 import { cpuToOffset } from './rom.mjs';
 import { runReference } from './w65c816-reference.mjs';
+import '../proof/system/dialog-register-helpers.mjs';
 const maps = mainInitializeSpecs.map((s) => decodeWindows(s.windows));
 const union = new Map(maps.flatMap((m) => [...m]));
 const c109 = sceneVideoSpecs.find((s) => s.entry === 0x80c109);

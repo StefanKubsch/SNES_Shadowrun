@@ -11,6 +11,7 @@ import {
 } from '../proof/vm/main-driver.mjs';
 import { FRONTEND_ROUTINES as FRONTEND_TASK_ROUTINES } from '../proof/replay/main-frontend.mjs';
 import { GAME_OWNER_REFERENCE_ENTRIES } from '../proof/frontend-reference/game-owner.mjs';
+import '../proof/system/dialog-register-helpers.mjs';
 // The register-level owner (proof): these tests stub its audio set-up 81:EF63, which
 // the lifted owner (src/frontend/game-owner.mjs) calls directly.
 const FRONTEND_ROUTINES = new Map([...FRONTEND_TASK_ROUTINES, ...GAME_OWNER_REFERENCE_ENTRIES]);

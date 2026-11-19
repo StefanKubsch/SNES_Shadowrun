@@ -27,6 +27,7 @@ import { TEXT_BUFFER, WINDOW_MAP_BUFFER, WRAM, GLOVE_NAME_WINDOW } from '../src/
 import { ORIGINAL_GAMEPLAY } from '../src/game/bugfixes.mjs';
 import { loadSave } from './mesen-f390-oracle.mjs';
 import { livePlanDriver } from './live-plan-driver.mjs';
+import '../proof/system/dialog-register-helpers.mjs';
 
 const originals = JSON.parse(readFileSync('assets/vm-texts.json')).texts;
 const german = buildLanguage(JSON.parse(readFileSync('assets/vm-texts-de.json')));

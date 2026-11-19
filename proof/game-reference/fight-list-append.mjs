@@ -19,6 +19,7 @@ import {
 import { WORD_MASK, WORD_BITS } from '../../src/constants/bits.mjs';
 import { FLAG_CARRY, FLAG_ZERO } from '../../src/constants/cpu-flags.mjs';
 import { CODE_BANK } from '../../src/constants/memory-map.mjs';
+import '../system/dialog-register-helpers.mjs';
 // JSL 81:EF47 (music mode in A) and its return word, the bank offset of the call's last byte.
 const MUSIC_ROUTINE = 0x81ef47,
   MUSIC_RETURN_WORD = 0x80855c & WORD_MASK;

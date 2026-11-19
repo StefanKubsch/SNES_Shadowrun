@@ -389,3 +389,15 @@ The end-of-run observation checks `finishInterruptObservations` and
 or the live script natives saw recorded interrupts or text DMA observations was
 reached by none of their 37 nearest test files: the game only runs the lag-free
 model, where both checks did nothing. The live loop keeps its device-read check.
+
+The register-level ALU, compare, flag, push and direct page helpers of the dialog
+accessor (`cmp`, `adc`, `sbc`, shifts, `xba`, `sep`, `pha`/`phx`/`phy`, `move`, `dp`,
+`dpWrite`, `port` and the direct page `modify`) moved to
+`proof/system/dialog-register-helpers.mjs` on 2026-11-19; importing it adds them to
+every accessor `dialogAccess` creates (`extendDialogAccess` in
+`src/system/native-dialog-support.mjs`), and each proof or test file that calls them
+imports it. The lifted code calls none of them. In the same batch the game NMI job
+entries moved to `proof/caller/game-nmi-jobs.mjs` (the live table binds the handler
+80:C152 only), the direct page form of the language stream redirect to
+`proof/system/native-unpack.mjs` and the register form of the list window fit to
+`proof/system/menu-layout-registers.mjs`.

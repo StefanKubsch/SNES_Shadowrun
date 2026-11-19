@@ -23,9 +23,9 @@ import {
 const JSR_RETURN_OFFSET = 2,
   JSL_RETURN_OFFSET = 3;
 
-// Helpers further modules add to every accessor: the register-level ALU, compare, flag
-// and push helpers of the references (proof/system/dialog-register-helpers.mjs, user
-// decision 2026-11-17: the lifted code uses none of them).
+// Helpers further modules add to every accessor: the register-level ALU, compare, flag,
+// push and direct page helpers of the references (proof/system/dialog-register-helpers.mjs,
+// user decision 2026-11-17: the lifted code uses none of them).
 const EXTENSIONS = [];
 export function extendDialogAccess(extend) {
   EXTENSIONS.push(extend);
@@ -68,29 +68,22 @@ export function dialogAccess(a) {
     if (bytes === 1) a.write(address & LONG_MASK, value & BYTE_MASK);
     else a.writeWord(address & LONG_MASK, value & WORD_MASK, LONG_WRAP);
   };
-  const dp = (offset, bytes = wa()) =>
-    bytes === 1 ? a.read(offset & WORD_MASK) : a.readWord(offset & WORD_MASK, BANK_WRAP);
-  const dpWrite = (offset, value, bytes = wa()) => {
-    if (bytes === 1) a.write(offset & WORD_MASK, value & BYTE_MASK);
-    else a.writeWord(offset & WORD_MASK, value & WORD_MASK, BANK_WRAP);
-  };
   // [dp] and [dp],Y: pointer afresh from three DP bytes, effective address with bank carry.
   const pointer = (offset) =>
     a.readWord(offset & WORD_MASK, BANK_WRAP) | (a.read((offset + 2) & WORD_MASK) << WORD_BITS);
-  // Memory INC/DEC/ASL with the A width.
-  const modify = (address, op, bank0 = false) => {
+  // Memory INC/DEC/ASL of a long address with the A width (the direct page form is
+  // added by proof/system/dialog-register-helpers.mjs).
+  const modify = (address, op) => {
     const bytes = wa(),
       mask = bytes === 1 ? BYTE_MASK : WORD_MASK;
-    const get = () => (bank0 ? dp(address, bytes) : read(address, bytes)),
-      put = (v) => (bank0 ? dpWrite(address, v, bytes) : write(address, v, bytes));
-    let v = get();
+    let v = read(address, bytes);
     if (op === 'asl') {
       ctx.status =
         (ctx.status & ~FLAG_CARRY) | (v >>> (bytes === 1 ? BYTE_BITS - 1 : WORD_BITS - 1));
       v = (v << 1) & mask;
     } else v = (v + (op === 'inc' ? 1 : -1)) & mask;
     nz(v, bytes);
-    put(v);
+    write(address, v, bytes);
     return v;
   };
   const rep = (bits) => {
@@ -156,7 +149,6 @@ export function dialogAccess(a) {
     ctx.pc = (raw + 1) & WORD_MASK;
     return raw;
   };
-  const port = (offset, bytes, pc) => a.absoluteRead(offset, bytes, pc);
   const portWrite = (offset, value, bytes, pc) => a.absoluteWrite(offset, value, bytes, pc);
   const h = {
     a,
@@ -169,8 +161,6 @@ export function dialogAccess(a) {
     abs,
     read,
     write,
-    dp,
-    dpWrite,
     pointer,
     modify,
     rep,
@@ -188,7 +178,6 @@ export function dialogAccess(a) {
     call,
     rts,
     rtl,
-    port,
     portWrite,
   };
   for (const extend of EXTENSIONS) Object.assign(h, extend(h));

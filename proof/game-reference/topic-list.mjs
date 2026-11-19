@@ -23,6 +23,7 @@ import {
   WORD_MASK,
 } from '../../src/constants/bits.mjs';
 import { FLAG_CARRY, FLAG_MEMORY_8BIT, FLAG_ZERO } from '../../src/constants/cpu-flags.mjs';
+import '../system/dialog-register-helpers.mjs';
 
 const TRUE = WORD_MASK,
   FALSE = 0,

@@ -18,6 +18,7 @@ import {
   runMainStart,
 } from '../proof/replay/main-start.mjs';
 import { withGameStartReference } from '../proof/game-reference/game-start.mjs';
+import '../proof/system/dialog-register-helpers.mjs';
 // The register-level start (proof/game-reference/game-start.mjs) against the ROM; the
 // lifted start is compared with it in tools/game-start-lift*.test.mjs.
 const MAIN_START_ROUTINES = withGameStartReference(MAIN_START_TASK_ROUTINES);

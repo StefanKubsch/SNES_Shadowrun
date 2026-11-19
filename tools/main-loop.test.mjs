@@ -21,6 +21,7 @@ import {
 } from '../proof/system/main-wait-interrupt.mjs';
 import { GAME_NMI_ROUTINES } from '../proof/replay/main-game-nmi.mjs';
 import { processSceneRequestReference } from '../proof/game-reference/scene-request.mjs';
+import '../proof/system/dialog-register-helpers.mjs';
 
 const map = decodeWindows([mainLoopWindow]);
 const calls = [...map.values()].filter(

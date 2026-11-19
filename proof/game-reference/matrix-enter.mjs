@@ -40,6 +40,7 @@ import {
   WORD_BITS,
   LONG_MASK,
 } from '../../src/constants/bits.mjs';
+import '../system/dialog-register-helpers.mjs';
 // 80:E30F: enter the Matrix: slot and position bytes, then two table searches (ROM 9700+X, 7E2DF0+X)
 // with the second starting at the first match. Misses end at X=FFFE via DEX/BPL.
 // Arguments: DP00 matrix system, DP02 room to return to, DP04 extra nodes, DP06 the

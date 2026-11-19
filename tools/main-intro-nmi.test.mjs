@@ -17,6 +17,7 @@ import { INTRO_NMI_ROUTINES as INTRO_TASK_ROUTINES } from '../proof/replay/intro
 import { drawIntroSpriteGrid } from '../proof/intro-reference/intro-sprites.mjs';
 import { runObservedNmi } from '../src/system/nmi-call.mjs';
 import { SCENE_REFERENCE_ROUTINES as MAIN_SCENE_ROUTINES } from '../proof/scene-reference-routines.mjs';
+import '../proof/system/dialog-register-helpers.mjs';
 // The callbacks 81:DF0E, 81:DAD6 and 81:D9D5 and the routines 81:E83A, 81:E971 and
 // 81:E900 are lifted (src/intro, src/frontend); their register-level references are proved here.
 const INTRO_NMI_ROUTINES = new Map([

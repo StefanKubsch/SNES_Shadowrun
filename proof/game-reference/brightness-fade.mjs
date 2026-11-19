@@ -8,6 +8,7 @@ import { FLAG_NEGATIVE, FLAG_CARRY } from '../../src/constants/cpu-flags.mjs';
 import { WORD_MASK } from '../../src/constants/bits.mjs';
 import { CODE_BANK } from '../../src/constants/memory-map.mjs';
 import { BRIGHTNESS_FADE, BRIGHTNESS_FADE_FRAMES } from '../../src/data/wram.mjs';
+import '../system/dialog-register-helpers.mjs';
 const FADE_RETURN_WORD = 0xd9b6,
   FADE_FRAMES_BASE = 8;
 // 80:D9AD: start a brightness fade with step -n (first argument n; positive n darkens):

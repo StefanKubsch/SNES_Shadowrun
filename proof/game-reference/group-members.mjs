@@ -14,6 +14,7 @@ import {
 } from '../../src/data/wram.mjs';
 import { FLAG_CARRY, FLAG_NEGATIVE, FLAG_ZERO } from '../../src/constants/cpu-flags.mjs';
 import { WORD_MASK, BANK_WRAP } from '../../src/constants/bits.mjs';
+import '../system/dialog-register-helpers.mjs';
 
 const MEMBER_BYTES = 2;
 // 80:A297: return the group position of the member object (first argument), searched

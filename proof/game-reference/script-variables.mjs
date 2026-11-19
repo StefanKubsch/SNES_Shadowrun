@@ -4,6 +4,7 @@
 // proof/task/native-dispatch.mjs run these; the game runs the lifted natives.
 import { FIRST_ARGUMENT, SECOND_ARGUMENT, leaf } from '../system/native-leaf-support.mjs';
 import { SCRIPT_VARIABLES, WRAM } from '../../src/data/wram.mjs';
+import '../system/dialog-register-helpers.mjs';
 // 80:CC07: return the script variable at the byte offset in the first argument.
 export const getScriptVariableReference = (a, outerReturn = true) =>
   leaf(

@@ -23,6 +23,7 @@ import {
 } from '../../src/data/wram.mjs';
 import { FLAG_CARRY, FLAG_ZERO, FLAG_NEGATIVE } from '../../src/constants/cpu-flags.mjs';
 import { WORD_MASK, BANK_WRAP } from '../../src/constants/bits.mjs';
+import '../system/dialog-register-helpers.mjs';
 const FORMATION_MEMBER_STEPS = 0xbb88;
 const FORMATION_RING_BYTES = FORMATION_LAST + 2;
 const FORMATION_ACTION_RETURN_WORD = 0xbb71;

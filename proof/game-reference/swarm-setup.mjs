@@ -29,6 +29,7 @@ import {
   ORBIT_START_PHASE,
   ORBIT_PHASES_END,
 } from '../../src/game/swarm-setup.mjs';
+import '../system/dialog-register-helpers.mjs';
 
 const PHASE_BYTES = 2;
 

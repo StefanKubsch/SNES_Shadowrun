@@ -25,6 +25,7 @@ import {
 import { playMatrixScene } from '../proof/matrix-reference/matrix-scene-loop.mjs';
 import { SCENE_REFERENCE_ROUTINES as MAIN_SCENE_ROUTINES } from '../proof/scene-reference-routines.mjs';
 import { MAIN_MOTION_ROUTINES } from '../proof/replay/main-loop-motion.mjs';
+import '../proof/system/dialog-register-helpers.mjs';
 const functions = [
   playCutscene,
   playMatrixScene,

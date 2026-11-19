@@ -9,6 +9,7 @@ import { OBJECT_FLAGS, OBJECT_HALTED, OBJECT_TASK } from '../../src/data/wram.mj
 import { TASK_PREVIOUS, TASK_WAIT } from '../../src/vm/layout.mjs';
 import { BANK_SIZE, WORD_MASK } from '../../src/constants/bits.mjs';
 import { FLAG_NEGATIVE } from '../../src/constants/cpu-flags.mjs';
+import '../system/dialog-register-helpers.mjs';
 // 80:8E96 and 80:8EB8: bit 10 of $1458 of object DP00 set (8E96) or cleared (8EB8); then from
 // $1350 (negative: done) along the links $0372 while $0BA2 is negative, and in the first nonnegative
 // $0BA2 bit 12 set or cleared. A link chain without end loops in the original; stop after 65536 links.

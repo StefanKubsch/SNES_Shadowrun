@@ -35,6 +35,7 @@ import {
   fadeOutScreen,
   waitForFrame,
 } from '../proof/system/main-scene-wait.mjs';
+import '../proof/system/dialog-register-helpers.mjs';
 const maps = sceneAnimationSpecs.map((s) => decodeWindows(s.windows));
 test('animation and wait graphs pin actual table, mode join, protected stack and external calls', () => {
   sceneAnimationSpecs.forEach((s, i) => proveSceneAnimation(maps[i], s));

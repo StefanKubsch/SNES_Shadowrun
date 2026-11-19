@@ -23,6 +23,7 @@ import { SCENE_REFERENCE_ROUTINES as MAIN_SCENE_ROUTINES } from '../proof/scene-
 import { mainSceneSpecs } from './main-scene-source.mjs';
 import { dialogAccess } from '../src/system/native-dialog-support.mjs';
 import { TaskAccessor } from '../src/vm/task-accessor.mjs';
+import '../proof/system/dialog-register-helpers.mjs';
 const maps = matrixObjectSpecs.map((s) => decodeWindows(s.windows));
 const specFor = (name) => matrixObjectSpecs.find((s) => s.name === name);
 test('Matrix objects pin their complete own code, actual data tables and separate helper stack contracts', () => {
