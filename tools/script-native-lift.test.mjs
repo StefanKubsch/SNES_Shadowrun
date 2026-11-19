@@ -186,6 +186,11 @@ const NOT_ON_ROUTE = new Set([0x80935b, 0x808a51, 0x808a8c, 0x80ea6e, 0x80ce6d])
 // natives do not produce (user decision 2026-11-13, game state only 2026-11-14); what a
 // later routine derives from them would still show in the compared state.
 const SIGHT_SCRATCH = [0x000e, 0x006d];
+// The scheduler's saved stack pointer 7E:01F2 (src/vm/layout.mjs OUTER_STACK): a task
+// that waits in a lifted dialog no longer holds the words the original parks on the
+// stack (docs/MAIN-LOOP-LIFT.md, free stack bytes), so its saved pointer is higher while
+// it waits, as in tools/live-title-cycle-plan.mjs.
+const SAVED_STACK_POINTER = [0x01f2, 0x01f4];
 // From the title into the apartment save (as the alley plan), then the club route.
 const ROUTE = [...PLAN.slice(0, 5), ...BADGE_OFFER_LIVE_PLAN.slice(3)];
 
@@ -224,7 +229,7 @@ test(
     try {
       result = await compareLift({
         plan: ROUTE,
-        ignored: [...CUTSCENE_IGNORED_WRAM, SIGHT_SCRATCH],
+        ignored: [...CUTSCENE_IGNORED_WRAM, SIGHT_SCRATCH, SAVED_STACK_POINTER],
         swap: () => {
           bind('reference', 3);
           return restore;

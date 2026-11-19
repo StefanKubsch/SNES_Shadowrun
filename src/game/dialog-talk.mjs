@@ -302,8 +302,11 @@ export function* talkSequence(h, events, renderBuffer = drawTextBufferSequence) 
     setWord(wram, DP_RECORD, longWord(mem, DIALOG_TABLE + ((number << 1) & WORD_MASK)));
   };
   yield* dialogCallBody(h, ...CALL.notices, () => releaseNoticeWindowsCallSequence(h, events));
-  // The dialog's music: its old music (or FFFF) stays on the stack.
-  let change = null;
+  // The dialog's music. The original keeps the old music (or FFFF) on the stack over the
+  // dialog, and later the two windows over the close; those words lie only in free stack
+  // bytes and are kept in locals here (game state only, user decision 2026-11-17).
+  let change = null,
+    oldMusic;
   yield () => {
     const flags = longWord(mem, pointer(wram, DP_RECORD, RECORD_FLAG_BYTE)) & BYTE_MASK;
     setWord(wram, DIALOG_RECORD_FLAGS, flags);
@@ -312,7 +315,7 @@ export function* talkSequence(h, events, renderBuffer = drawTextBufferSequence) 
         current = word(wram, MUSIC);
       if (value !== current) change = { value };
     }
-    h.a.pushWord(change ? word(wram, MUSIC) : NO_MUSIC);
+    oldMusic = change ? word(wram, MUSIC) : NO_MUSIC;
   };
   if (change) yield* music(change);
   yield () => window(PORTRAIT_FRAME);
@@ -405,18 +408,19 @@ export function* talkSequence(h, events, renderBuffer = drawTextBufferSequence) 
     if (stop) break;
   }
   // Close, release both windows and restore the old music.
+  let frameWindow, textWindow;
   yield () => {
-    h.a.pushWord(word(wram, DP_PORTRAIT_FRAME));
-    h.a.pushWord(word(wram, DP_TEXT_WINDOW));
+    frameWindow = word(wram, DP_PORTRAIT_FRAME);
+    textWindow = word(wram, DP_TEXT_WINDOW);
   };
   yield* dialogCallBody(h, ...CALL.close, () => closeDialogSequence(h, events));
-  yield () => setWord(wram, DP_OBJECT, h.a.pullWord());
+  yield () => setWord(wram, DP_OBJECT, textWindow);
   yield* dialogCallBody(h, ...CALL.releaseText, () => releaseWindowJsrSequence(h.a, events));
-  yield () => setWord(wram, DP_OBJECT, h.a.pullWord());
+  yield () => setWord(wram, DP_OBJECT, frameWindow);
   yield* dialogCallBody(h, ...CALL.releaseFrame, () => releaseWindowJsrSequence(h.a, events));
   let restore = null;
   yield () => {
-    const value = h.a.pullWord();
+    const value = oldMusic;
     if (!(value & WORD_SIGN)) restore = { value, restore: true };
   };
   if (restore) yield* music(restore);

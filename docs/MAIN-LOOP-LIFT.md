@@ -46,6 +46,32 @@ game-over story route. [game-loop.test.mjs](../tools/game-loop.test.mjs) retains
 the independent register-level comparison for new-game movement, the saved-game
 badge route with room transitions and nested native waits, and the attract demo.
 
+## Free stack bytes (2026-11-19)
+
+Lifted game routines no longer reproduce the words the original only parks on the
+stack: return words of internal JSR and JSL calls, saved data banks (PHB, PLB) and
+values pushed around a call and pulled again afterwards. They keep such values in
+locals. This covers the motion pass (collision list, movement, target walk,
+collision tests, turn), object creation and removal, the group, actor, scene object
+and swarm creation, the formation place, the facing natives, the notice show and
+time limits, the menus, the glove choices, the object search and the dialog talk.
+Those bytes lie below S, where no code reads them before it pushes again (game state
+only, user decision 2026-11-17). Frames that a recorded run's register-level callee
+returns from, such as the animation step's, stay.
+
+[lift-function-harness.mjs](../tools/lift-function-harness.mjs) therefore ignores the
+free bytes below the entry S as well as the CPU stacks. An out-of-range pointer of a
+random sample can still read those bytes or the ignored scratch, which only the
+register-level reference has written; a differing sample whose lifted outcome changes
+when its ignored bytes are inverted counts as outside the lifted domain, together with
+the lifted frontier stops (at most 10 % of the samples). The boot round comparison of
+[main-boot-connected.test.mjs](../tools/main-boot-connected.test.mjs) ignores free
+stack bytes as its other comparisons do. A task that waits inside a lifted dialog
+leaves the scheduler's saved stack pointer 7E:01F2 higher by the words it no longer
+parks, so the script native route comparison of
+[script-native-lift.test.mjs](../tools/script-native-lift.test.mjs) ignores that word,
+as the title cycle comparison already did.
+
 ## Lifted so far
 
 | Routine                                     | Module                                                                                               | Content                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       |
