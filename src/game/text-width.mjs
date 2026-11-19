@@ -9,9 +9,10 @@
 //
 // As in the original, the second character of a node is looked up with the high byte of
 // the running sum in its table index (the step loads the character into A's low byte
-// only): for sums of 256 and more it reads a later table entry. The bytes of the last
-// calls (the bit reader's JSL frame and refill push, a later width step's JSR frame)
-// stay below the stack, as the original leaves them.
+// only): for sums of 256 and more it reads a later table entry. The bytes of the inner
+// calls (the bit reader's JSL frame and refill push, the width steps' JSR frames) lie
+// only in free stack bytes and are not reproduced (game state only, user decision
+// 2026-11-17).
 //
 // Registers (user decision 2026-11-17): measureTextWidth leaves no registers; its
 // callers read the width from the direct page word BA. The register form for
@@ -28,13 +29,6 @@ const DP_TEXT = 0x00,
   CHARACTER_PAIR = 0x7f7f,
   TEXT_END = 0x0a,
   BRANCH_BYTES = 2;
-// The return words of the bit reader's JSL (bank 80) and of the two width steps' JSRs.
-const BIT_CALL_BANK = 0x80,
-  BIT_CALL_RETURN = 0xfafb,
-  FIRST_STEP_RETURN = 0xfb17,
-  SECOND_STEP_RETURN = 0xfb22,
-  JSL_FRAME_BYTES = 3,
-  PUSH_BYTES = 2;
 
 const word = (wram, at) => wram[at] | (wram[at + 1] << BYTE_BITS);
 const setWord = (wram, at, value) => {
@@ -50,31 +44,24 @@ export function measureTextWidth(h) {
 }
 // The measurement; returns the last tree or table index (X in the original), from x.
 export function measure(h, x) {
-  const { ctx } = h,
-    { mem } = h.a,
+  const { mem } = h.a,
     { wram } = mem,
     id = word(wram, DP_TEXT);
   startTextSource(mem, wram, id);
   setWord(wram, DP_WIDTH, 0);
   setWord(wram, TEXT_BITS_REMAINING, 0);
-  let a = 0,
-    pushed = null;
-  // The return word of a width step after the last bit reader's call, or null.
-  const last = { step: null };
+  let a = 0;
   // The width step (80:FB2A): X the character in A, its width added to the sum.
-  const step = (returnWord) => {
+  const step = () => {
     x = a;
     a = (((a & HIGH_BYTE_MASK) | mem.read8(GLYPH_WIDTHS + x)) + word(wram, DP_WIDTH)) & WORD_MASK;
     setWord(wram, DP_WIDTH, a);
-    last.step = returnWord;
   };
   for (;;) {
     a = 0;
     do {
       x = a;
-      const { bit, refilled } = readBit(mem, wram);
-      if (refilled) pushed = a;
-      last.step = null;
+      const { bit } = readBit(mem, wram);
       if (bit) x = (x + BRANCH_BYTES) & WORD_MASK;
       a = mem.read8(CODE_TREE + x) | (mem.read8(CODE_TREE + x + 1) << BYTE_BITS);
     } while (!(a & WORD_SIGN));
@@ -82,24 +69,11 @@ export function measure(h, x) {
     setWord(wram, TEXT_CHARACTER_INDEX, pair);
     a = pair >>> BYTE_BITS;
     if (a === TEXT_END) break;
-    step(FIRST_STEP_RETURN);
+    step();
     a = (a & HIGH_BYTE_MASK) | (pair & BYTE_MASK);
     if ((a & BYTE_MASK) === 0) continue;
     if ((a & BYTE_MASK) === TEXT_END) break;
-    step(SECOND_STEP_RETURN);
-  }
-  // The last calls' bytes below the stack: the bit reader's frame and refill push, then
-  // a width step's return word over the frame's top.
-  h.pushByte(BIT_CALL_BANK);
-  h.a.pushWord(BIT_CALL_RETURN);
-  if (pushed !== null) {
-    h.a.pushWord(pushed);
-    ctx.s = (ctx.s + PUSH_BYTES) & WORD_MASK;
-  }
-  ctx.s = (ctx.s + JSL_FRAME_BYTES) & WORD_MASK;
-  if (last.step !== null) {
-    h.a.pushWord(last.step);
-    ctx.s = (ctx.s + PUSH_BYTES) & WORD_MASK;
+    step();
   }
   const translated = languageTextWidth(mem, id);
   if (translated !== null) setWord(wram, DP_WIDTH, translated);
