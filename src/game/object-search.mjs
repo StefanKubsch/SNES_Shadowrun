@@ -140,8 +140,7 @@ const kindEntry = (kind) => {
 // main loop's access (direct page 0, data bank 80), events its frame events, renderBuffer
 // the text-buffer renderer.
 export function* objectSearchSequence(h, events, renderBuffer = drawTextBufferSequence) {
-  const { a } = h,
-    { mem } = a,
+  const { mem } = h.a,
     { wram } = mem;
   // A field below 2000, read in the data bank 80 as the original; a field of the
   // object tables in bank 7E.
@@ -263,12 +262,11 @@ export function* objectSearchSequence(h, events, renderBuffer = drawTextBufferSe
     }
     return yield* rts();
   }
-  if (marked) {
-    // Another object was marked: it lets go first (the slot kept on the stack).
-    yield () => a.pushWord(slot);
-    yield* release(RELEASE_OTHER_CALL);
-    yield () => a.pullWord();
-  }
+  // Another object was marked: it lets go first. The original keeps the slot and later
+  // the name text on the stack; those words lie only in free stack bytes and are kept in
+  // locals here (game state only, user decision 2026-11-17).
+  if (marked) yield* release(RELEASE_OTHER_CALL);
+  let text;
   yield () => {
     // The glove's offset from the object, its kind and slot, and its name.
     setWord(wram, GLOVE_SNAP_X, sub(word(wram, DP_OBJECT_X), word(wram, DP_SCREEN_X)));
@@ -276,7 +274,6 @@ export function* objectSearchSequence(h, events, renderBuffer = drawTextBufferSe
     const kind = far(OBJECT_KIND, slot);
     setWord(wram, GLOVE_TARGET_TAG, kind);
     setWord(wram, GLOVE_TARGET_OBJECT, slot);
-    let text;
     if ((near(OBJECT_FLAGS, slot) & KIND_ITEM_CLASS_MASK) === RUNNER_CLASS) {
       // The runner whose object number it is, from the last row down; with none the
       // index ends at FFFE and the name is read before the column.
@@ -290,7 +287,6 @@ export function* objectSearchSequence(h, events, renderBuffer = drawTextBufferSe
       text = longWord(mem, RUNNER_NAME_COLUMN + x);
     } else text = longWord(mem, KIND_TABLE + kindName(kind));
     setWord(wram, DP_TEXT, text);
-    a.pushWord(text);
   };
   yield* dialogCallBody(h, WIDTH_CALL, WIDTH_TARGET, () =>
     segmentSequence(() => measureTextWidth(h)),
@@ -310,7 +306,7 @@ export function* objectSearchSequence(h, events, renderBuffer = drawTextBufferSe
   yield* dialogCallBody(h, WINDOW_CALL, WINDOW_TARGET, () => openWindowSequence(h, events));
   yield () => {
     setWord(wram, GLOVE_NAME_WINDOW, word(wram, DP_TEXT));
-    setWord(wram, DP_TEXT_COPY, a.pullWord());
+    setWord(wram, DP_TEXT_COPY, text);
   };
   yield* dialogCallBody(h, TEXT_CALL, TEXT_TARGET, () =>
     printTextSequence(h, events, renderBuffer),
