@@ -51,24 +51,22 @@ const STEP_LIMIT = 5,
   WRAM_SIZE = 0x20000;
 // The direct page word with the old coordinate.
 const DP_OLD = 0x6b;
-// Original call sites: the turn towards the target (register-level) and the tests.
+// Original call site of the turn towards the target.
 const TARGET_CALL = 0xab2c,
-  TARGET_TARGET = 0x80c9e0,
-  HEIGHT_CALL = 0xac16,
-  HEIGHT_TARGET = 0x8082bc;
+  TARGET_TARGET = 0x80c9e0;
 // Each axis: position, velocity and the edge tests towards higher and lower values.
 const AXES = [
   {
     position: OBJECT_X,
     velocity: OBJECT_VELOCITY_X,
-    upper: [0xab53, 0x8080b2, upperXEdge],
-    lower: [0xab6a, 0x808133, lowerXEdge],
+    upper: upperXEdge,
+    lower: lowerXEdge,
   },
   {
     position: OBJECT_Y,
     velocity: OBJECT_VELOCITY_Y,
-    upper: [0xabaa, 0x8081b4, upperYEdge],
-    lower: [0xabc1, 0x808238, lowerYEdge],
+    upper: upperYEdge,
+    lower: lowerYEdge,
   },
 ];
 
@@ -90,15 +88,8 @@ export function moveObject(h, slot) {
     },
     get = (base) => word(wram, at(base)),
     put = (base, value) => setWord(wram, at(base), value);
-  // A test through its frame: whether it found no height, and the height.
-  const test = ([call, address, run]) => {
-    let found;
-    h.call(call, address, () => {
-      found = run(h, slot);
-      return found.returned;
-    });
-    return found;
-  };
+  // A test: whether it found no height, and the height.
+  const test = (run) => run(wram, slot);
   put(OBJECT_FLAGS, get(OBJECT_FLAGS) & ~OBJECT_BLOCKED);
   for (const axis of AXES) {
     const old = get(axis.position),
@@ -125,8 +116,7 @@ export function moveObject(h, slot) {
   let reached = next >= FALL_FLOOR;
   if (reached && next !== height) {
     put(OBJECT_HEIGHT, next);
-    if (get(OBJECT_FLAGS) & OBJECT_COLLIDES)
-      reached = test([HEIGHT_CALL, HEIGHT_TARGET, heightCells]).free;
+    if (get(OBJECT_FLAGS) & OBJECT_COLLIDES) reached = test(heightCells).free;
   }
   if (!reached) {
     put(OBJECT_HEIGHT, height);

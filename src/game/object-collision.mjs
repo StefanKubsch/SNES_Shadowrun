@@ -24,10 +24,11 @@
 // the carry set when it is 0 (the height test: the carry of its last cell search or
 // cell comparison), X the slot, Y and the data bank as on entry, and the sign and zero
 // of the height (of the slot after the height test); the overflow of the original's
-// last addition or subtraction is not produced. The direct page words the original uses as locals are written as in the original (box 11 to 20, cell columns
-// and rows 23 to 2C, cells 2F to 38, result 3B, slot 3E and box offset 68), and the
-// frames of the cell searches and their pushes are reproduced on the stack, as the
-// original leaves them below its own.
+// last addition or subtraction is not produced. The direct page words the original uses
+// as locals are written as in the original (box 11 to 20, cell columns and rows 23 to
+// 2C, cells 2F to 38, result 3B, slot 3E and box offset 68). The tests take the WRAM
+// and run as plain functions: the original's call frames, its saved data bank and the
+// list walks' pushes lie only in free stack bytes that nothing reads.
 import { taskStop } from '../system/task-stop.mjs';
 import {
   CELL_COORDINATE_MASK,
@@ -55,7 +56,6 @@ import {
   STATIC_CELL_HEADS,
 } from '../data/wram.mjs';
 import { BYTE_BITS, BYTE_MASK, WORD_MASK, WORD_SIGN } from '../constants/bits.mjs';
-import { WRAM_BANK_PAIR } from '../constants/memory-map.mjs';
 
 const POSITION_SHIFT = 2,
   // A cell column from the masked x (ASL three times, then XBA), a cell row from the
@@ -88,18 +88,6 @@ const DP_X0 = 0x11,
   DP_RESULT = 0x3b,
   DP_SEARCHER = 0x3e,
   DP_BOX = 0x68;
-// Original call sites of the cell search and its two lists.
-const CELL_TARGET = 0x8186e5,
-  STATIC_CALL = 0x86eb,
-  STATIC_TARGET = 0x8185fe,
-  MOVING_CALL = 0x86f5,
-  MOVING_TARGET = 0x818686;
-// The tests' calls of the cell search (first and second cell; the height test's four).
-const UPPER_X_CALLS = [0x8119, 0x8123],
-  LOWER_X_CALLS = [0x819a, 0x81a4],
-  UPPER_Y_CALLS = [0x821e, 0x8228],
-  LOWER_Y_CALLS = [0x82a2, 0x82ac],
-  HEIGHT_CALLS = [0x8338, 0x8344, 0x8354, 0x8368];
 
 const word = (wram, at) => wram[at % WRAM_SIZE] | (wram[(at + 1) % WRAM_SIZE] << BYTE_BITS);
 const setWord = (wram, at, value) => {
@@ -113,29 +101,15 @@ const boxObject = (wram, box) => {
   return word(wram, at);
 };
 
-// One cell search through its frame (81:86E5), on the state of a test (wram and the
-// searching slot): the static list,
-// with the cell pushed around it, then the moving list. True when no height was found
-// (the carry it leaves).
-function searchCell(h, test, pc, cell) {
+// One cell search (81:86E5) on the state of a test (wram and the searching slot): the
+// static list, then the moving list. True when no height was found (the carry it
+// leaves).
+function searchCell(test, cell) {
   const { wram } = test;
-  h.call(
-    pc,
-    CELL_TARGET,
-    () => {
-      const first = word(wram, STATIC_CELL_HEADS + cell);
-      if (!(first & WORD_SIGN)) {
-        h.a.pushWord(cell);
-        h.call(STATIC_CALL, STATIC_TARGET, () => searchList(h, test, first, true), true);
-        h.a.pullWord();
-      }
-      const moving = word(wram, COLLISION_CELL_HEADS + cell);
-      if (!(moving & WORD_SIGN))
-        h.call(MOVING_CALL, MOVING_TARGET, () => searchList(h, test, moving, false), true);
-      return h.rtl();
-    },
-    true,
-  );
+  const first = word(wram, STATIC_CELL_HEADS + cell);
+  if (!(first & WORD_SIGN)) searchList(test, first, true);
+  const moving = word(wram, COLLISION_CELL_HEADS + cell);
+  if (!(moving & WORD_SIGN)) searchList(test, moving, false);
   return word(wram, DP_RESULT) === 0;
 }
 
@@ -171,9 +145,8 @@ function centreInside(test, box) {
 }
 
 // One list of a cell from node on: the static boxes (81:85FE) or the moving ones
-// (81:8686). The registers it leaves are overwritten by the cell search and the tests;
-// only its pushes stay on the stack.
-function searchList(h, test, node, isStatic) {
+// (81:8686).
+function searchList(test, node, isStatic) {
   const { wram, slot } = test,
     searcherClass = () => word(wram, OBJECT_FLAGS + slot) & OBJECT_CLASS_MASK;
   for (; !(node & WORD_SIGN); node = word(wram, COLLISION_NODE_NEXT + node)) {
@@ -181,30 +154,17 @@ function searchList(h, test, node, isStatic) {
       height = offeredHeight(test, box);
     if (height === null) continue;
     if (isStatic) {
-      h.a.pushWord(node);
       setWord(wram, DP_BOX, box);
       if (!boxObject(wram, box)) setWord(wram, DP_RESULT, height);
       else if (searcherClass() === SPECIAL_CLASS && centreInside(test, box))
         setWord(wram, DP_RESULT, SPECIAL_CLASS_HEIGHT);
-      h.a.pullWord();
       continue;
     }
-    // The height and the node are pushed around the object read.
-    h.a.pushWord(height);
-    h.a.pushWord(node);
     const object = boxObject(wram, box);
-    h.a.pullWord();
-    h.a.pullWord();
     if (object === slot) continue;
-    if (object !== word(wram, PLAYER_OBJECT)) setWord(wram, DP_RESULT, height);
-    else {
-      // The height is pushed around the class read.
-      h.a.pushWord(height);
-      h.a.pullWord();
-      if (searcherClass() !== SPECIAL_CLASS) setWord(wram, DP_RESULT, height);
-    }
+    if (object !== word(wram, PLAYER_OBJECT) || searcherClass() !== SPECIAL_CLASS)
+      setWord(wram, DP_RESULT, height);
   }
-  return h.rtl();
 }
 
 // The box of slot in quarter units: lowest and highest x and y, bottom and top, and the
@@ -233,18 +193,10 @@ function objectBox(wram, slot) {
   return box;
 }
 
-// The common start of a test: slot, bottom and top, and the frame with the data bank 7E.
-// The data bank waits on the stack as the original pushes it. The original's PHY/PLY
-// pair around the test keeps the caller's Y, which lifted callers do not hold
-// (user decision 2026-11-17): only free stack bytes differ.
-function beginTest(h, slot) {
-  const { wram } = h.a.mem,
-    box = objectBox(wram, slot);
+// The common start of a test: slot, bottom and top.
+function beginTest(wram, slot) {
+  const box = objectBox(wram, slot);
   setWord(wram, DP_SEARCHER, slot);
-  h.phb();
-  h.push(WRAM_BANK_PAIR, 2);
-  h.plb();
-  h.plb();
   setWord(wram, DP_RESULT, 0);
   setWord(wram, DP_BOTTOM, box.bottom);
   setWord(wram, DP_TOP, box.top);
@@ -254,28 +206,23 @@ function beginTest(h, slot) {
 function writeBox(test, words) {
   for (const [at, value] of words) setWord(test.wram, at, value);
 }
-// The end of a test: the data bank back; returns the height, whether it is free and the
-// RTS result.
-function finishTest(h, test, free) {
-  h.plb();
-  const height = word(test.wram, DP_RESULT);
-  return { height, free, returned: h.rts() };
-}
+// The end of a test: the height and whether it is free.
+const finishTest = (test, free) => ({ height: word(test.wram, DP_RESULT), free });
 
 // An edge test: write the box words, search the cell first and then second unless equal.
-function edgeTest(h, slot, words, [first, second], [firstCall, secondCall]) {
-  const test = beginTest(h, slot);
+function edgeTest(wram, slot, words, [first, second]) {
+  const test = beginTest(wram, slot);
   writeBox(test, words(test.box));
-  searchCell(h, test, firstCall, first(test.box));
-  if (second(test.box) !== first(test.box)) searchCell(h, test, secondCall, second(test.box));
-  return finishTest(h, test, word(test.wram, DP_RESULT) === 0);
+  searchCell(test, first(test.box));
+  if (second(test.box) !== first(test.box)) searchCell(test, second(test.box));
+  return finishTest(test, word(test.wram, DP_RESULT) === 0);
 }
 const cell = (row, column) => (box) => box[row] | box[column];
 
 // Upper x edge (80:80B2): the cells of the highest x.
-export const upperXEdge = (h, slot) =>
+export const upperXEdge = (wram, slot) =>
   edgeTest(
-    h,
+    wram,
     slot,
     (b) => [
       [DP_X0, b.x0],
@@ -289,12 +236,11 @@ export const upperXEdge = (h, slot) =>
       [DP_CELL_X1_Y1, b.rowY1 | b.columnX1],
     ],
     [cell('rowY1', 'columnX1'), cell('rowY0', 'columnX1')],
-    UPPER_X_CALLS,
   );
 // Lower x edge (80:8133): the cells of the lowest x.
-export const lowerXEdge = (h, slot) =>
+export const lowerXEdge = (wram, slot) =>
   edgeTest(
-    h,
+    wram,
     slot,
     (b) => [
       [DP_X1, b.x1],
@@ -308,12 +254,11 @@ export const lowerXEdge = (h, slot) =>
       [DP_CELL_X0_Y1, b.rowY1 | b.columnX0],
     ],
     [cell('rowY1', 'columnX0'), cell('rowY0', 'columnX0')],
-    LOWER_X_CALLS,
   );
 // Upper y edge (80:81B4): the cells of the highest y.
-export const upperYEdge = (h, slot) =>
+export const upperYEdge = (wram, slot) =>
   edgeTest(
-    h,
+    wram,
     slot,
     (b) => [
       [DP_Y0, b.y0],
@@ -327,12 +272,11 @@ export const upperYEdge = (h, slot) =>
       [DP_CELL_X1_Y1, b.rowY1 | b.columnX1],
     ],
     [cell('rowY1', 'columnX1'), cell('rowY1', 'columnX0')],
-    UPPER_Y_CALLS,
   );
 // Lower y edge (80:8238): the cells of the lowest y.
-export const lowerYEdge = (h, slot) =>
+export const lowerYEdge = (wram, slot) =>
   edgeTest(
-    h,
+    wram,
     slot,
     (b) => [
       [DP_Y1, b.y1],
@@ -346,14 +290,13 @@ export const lowerYEdge = (h, slot) =>
       [DP_CELL_X1_Y0, b.rowY0 | b.columnX1],
     ],
     [cell('rowY0', 'columnX1'), cell('rowY0', 'columnX0')],
-    LOWER_Y_CALLS,
   );
 
 // Height test (80:82BC): the four corner cells, each distinct one once, until a cell
 // offers a height. The carry is that of the last search (a cell equal to an earlier one
 // is skipped with the carry its CPY sets, which the search before it set already).
-export function heightCells(h, slot) {
-  const test = beginTest(h, slot),
+export function heightCells(wram, slot) {
+  const test = beginTest(wram, slot),
     b = test.box,
     c00 = b.rowY0 | b.columnX0,
     c10 = b.rowY0 | b.columnX1,
@@ -376,7 +319,6 @@ export function heightCells(h, slot) {
   const cells = [c01, c00, c10, c11];
   let free = true;
   for (let n = 0; n < cells.length && free; n++)
-    if (!cells.slice(0, n).includes(cells[n]))
-      free = searchCell(h, test, HEIGHT_CALLS[n], cells[n]);
-  return finishTest(h, test, free);
+    if (!cells.slice(0, n).includes(cells[n])) free = searchCell(test, cells[n]);
+  return finishTest(test, free);
 }

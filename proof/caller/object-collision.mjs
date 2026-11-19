@@ -18,18 +18,19 @@ const signAndZero = (ctx, value) => {
   flag(ctx, FLAG_NEGATIVE, value & WORD_SIGN);
   flag(ctx, FLAG_ZERO, value === 0);
 };
-// The register form of a test: the slot in X; A, X, the sign, zero and carry as the
-// original leaves them. The overflow of the original's last box addition is not
-// produced (the lifted tests leave game state only, user decision 2026-11-17).
+// The register form of a test, called with JSR: the slot in X; A, X, the sign, zero and
+// carry as the original leaves them, and its RTS. The overflow of the original's last
+// box addition is not produced (the lifted tests leave game state only, user decision
+// 2026-11-17).
 const registerForm = (run, edge) => (h) => {
   const { ctx } = h,
     slot = ctx.x,
-    found = run(h, slot);
+    found = run(h.a.mem.wram, slot);
   ctx.x = slot;
   ctx.a = found.height;
   signAndZero(ctx, edge ? found.height : slot);
   flag(ctx, FLAG_CARRY, found.free);
-  return found.returned;
+  return h.rts();
 };
 
 export const searchUpperXEdge = registerForm(upperXEdge, true),
