@@ -1,5 +1,6 @@
 // The jobs of the game NMI handler 80:C152 (lifted; the register-level versions in
-// proof/replay/main-game-nmi.mjs are the references, GAME_NMI_ROUTINES; recorded runs
+// proof/replay/main-game-nmi.mjs are the references, GAME_NMI_ROUTINES; the jobs' table
+// entries for register-level callers are in proof/caller/game-nmi-jobs.mjs; recorded runs
 // compose both in proof/replay/game-nmi-jobs.mjs).
 //
 // The handler calls its jobs once per NMI with the direct page at 0 and the data bank
@@ -551,64 +552,6 @@ export function handleGameNmi(h) {
     port.write(register, wram[shadow], 1, site);
   return h.rtl();
 }
-
-// The jobs as routine table entries for the register-level handler: 80:999A, 80:8FBA
-// and 80:C06B are called with JSR, 81:8949, 81:A9E1, 81:80C4, 81:A919, 81:A958, 81:A98E and 81:B0D1 with JSL.
-export function uploadPortraitGraphicsRoutine(h) {
-  uploadPortraitGraphics(h.a.mem.wram, accessorPort(h.a));
-  return h.rts();
-}
-export function uploadGloveRoutine(h) {
-  uploadGlove(h.a.mem.wram, accessorPort(h.a));
-  return h.rts();
-}
-export function uploadReadyMapEdgesRoutine(h) {
-  uploadReadyMapEdges(h.a.mem.wram, sceneRuntime(h).video);
-  return h.rtl();
-}
-export function clearTextTilesRoutine(h) {
-  clearTextTiles(h.a.mem.wram, accessorPort(h.a));
-  return h.rtl();
-}
-export function uploadOamRoutine(h) {
-  uploadOam(h.a.mem.wram, accessorPort(h.a));
-  return h.rtl();
-}
-export function uploadScenePalettesRoutine(h) {
-  uploadScenePalettes(h.a.mem.wram, accessorPort(h.a));
-  return h.rts();
-}
-export function uploadPaletteCycleStepRoutine(h) {
-  uploadPaletteCycleStep(h.a.mem.wram, accessorPort(h.a));
-  return h.rtl();
-}
-export function uploadObjectPalettesRoutine(h) {
-  uploadObjectPalettes(h.a.mem.wram, accessorPort(h.a));
-  return h.rtl();
-}
-export function uploadVramRecordsRoutine(h) {
-  uploadVramRecords(h.a.mem.wram, accessorPort(h.a));
-  return h.rtl();
-}
-export function stepBrightnessFadeRoutine(h) {
-  stepBrightnessFade(h.a.mem.wram);
-  return h.rtl();
-}
-
-// The lifted jobs by their entries (the tests run these).
-export const GAME_NMI_LIFTED_ROUTINES = new Map([
-  [0x80999a, uploadScenePalettesRoutine],
-  [0x8180c4, uploadPaletteCycleStepRoutine],
-  [0x81a919, uploadObjectPalettesRoutine],
-  [0x81a958, uploadVramRecordsRoutine],
-  [0x81a98e, uploadOamRoutine],
-  [0x81b0d1, stepBrightnessFadeRoutine],
-  [0x808fba, uploadPortraitGraphicsRoutine],
-  [0x80c06b, uploadGloveRoutine],
-  [0x818949, uploadReadyMapEdgesRoutine],
-  [0x81a9e1, clearTextTilesRoutine],
-  [0x80c152, handleGameNmi],
-]);
 
 // 80:D9AD with 81:B0AC (the script native's JSL): start a brightness fade by n steps (n
 // positive darkens): the fade word is -n, its frames |n| + 8, both wrapping in 16 bits.
