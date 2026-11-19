@@ -5,6 +5,6 @@ import { placeInFormation } from '../game/formation-place.mjs';
 // proof/game-reference/formation-place.mjs): the object (first argument) takes its place
 // in the formation.
 export const placeObjectInFormation = (a, outerReturn = true) => {
-  placeInFormation(a.mem, a);
+  placeInFormation(a.mem);
   return finishLeaf(a, outerReturn);
 };

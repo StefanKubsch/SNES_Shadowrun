@@ -39,10 +39,6 @@ const DP_OBJECT = 0,
 // The actions: walking, and standing while the player figure moves.
 const WALKING = 2,
   STANDING = 0;
-// The return words of the JSRs to the turn and the selection (the bank offsets of their
-// last bytes).
-const TURN_RETURN = 0xbb71,
-  SELECTION_RETURN = 0xbb86;
 
 const word = (wram, at) => wram[at] | (wram[at + 1] << BYTE_BITS);
 const setWord = (wram, at, value) => {
@@ -52,9 +48,10 @@ const setWord = (wram, at, value) => {
 // A word of WRAM bank 7E at offset (which may cross into bank 7F).
 const wramWord = (mem, offset) => mem.read16((WRAM + offset) & LONG_MASK);
 
-// 80:BB2C: the object in word 00 takes its place in the formation; a takes the call
-// frames of the turn and the selection.
-export function placeInFormation(mem, a) {
+// 80:BB2C: the object in word 00 takes its place in the formation. The call frames of
+// the turn and the selection and the pushed object lie only in free stack bytes and are
+// not reproduced (game state only, user decision 2026-11-17).
+export function placeInFormation(mem) {
   const { wram } = mem,
     object = word(wram, DP_OBJECT),
     number = dataBankWord(mem, OBJECT_NUMBER, object);
@@ -72,14 +69,9 @@ export function placeInFormation(mem, a) {
   setDataBankWord(mem, OBJECT_X, object, wramWord(mem, FORMATION_X + entry));
   setDataBankWord(mem, OBJECT_Y, object, wramWord(mem, FORMATION_Y + entry));
   setWord(wram, DP_ARGUMENT, wramWord(mem, FORMATION_DIRECTION + entry));
-  // PEI 00 keeps the object over the turn.
-  a.pushWord(object);
-  a.pushWord(TURN_RETURN);
+  // The original keeps the object over the turn (PEI 00) and restores word 00.
   turnObject(mem, wram);
-  a.pullWord();
   setWord(wram, DP_ARGUMENT, dataBankWord(mem, FORMATION_UNMOVED) === 0 ? WALKING : STANDING);
-  setWord(wram, DP_OBJECT, a.pullWord());
-  a.pushWord(SELECTION_RETURN);
+  setWord(wram, DP_OBJECT, object);
   selectObjectAnimation(mem, wram);
-  a.pullWord();
 }
