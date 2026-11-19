@@ -388,11 +388,12 @@ function pullLongFrame(h) {
   h.ctx.s = (h.ctx.s + 1) & WORD_MASK;
 }
 // An upload request (81:AEF4 or 81:AEFC) as FB39 calls it with JSL: the request word
-// counts up and the wait loop runs until the NMI has taken it.
+// counts up and the wait loop runs until the NMI has taken it. The request's own JSL
+// frame lies only in free stack bytes and is not reproduced (game state only, user
+// decision 2026-11-17); the wait keeps its frame.
 function* requestUpload(h, events, wram, request) {
   const { ctx } = h;
   yield () => {
-    pushLongFrame(h, request.site);
     ctx.programBank = REQUEST_BANK;
     setWord(wram, request.request, word(wram, request.request) + 1);
     pushLongFrame(h, request.waitSite);
@@ -405,7 +406,6 @@ function* requestUpload(h, events, wram, request) {
     yield* nmiAtBranch(h, events, request.branch, status);
   }
   yield () => {
-    pullLongFrame(h);
     pullLongFrame(h);
     ctx.programBank = request.site >>> WORD_BITS;
   };

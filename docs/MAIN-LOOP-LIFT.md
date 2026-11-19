@@ -72,6 +72,21 @@ parks, so the script native route comparison of
 [script-native-lift.test.mjs](../tools/script-native-lift.test.mjs) ignores that word,
 as the title cycle comparison already did.
 
+The second batch (2026-11-20) extends the rule to the task append (its inner frames
+and the heap's parked next word; the direct page is 0 for every caller), the player
+zones (zone check frame, list offset, append return word; appendScript in
+[task-api.mjs](../src/script/task-api.mjs) appends without a JSR frame), the scene
+request's and the room entry's inner return words, the camera jump, the scene load's
+frame and data bank, the window releases, the text print, text width, window text and
+portrait unpack (saved data banks and bank pairs, bit reader frames), the OAM entry,
+sprite list, tile reload and animation step (pushed indices and slots), the menu
+hotkey, the dialog text, and the outer frames of the text map, tile clear and text
+upload requests. Waits keep their own frames: a test harness and the NMI see them
+at S. [text-caller.test.mjs](../tools/text-caller.test.mjs) ignores the free bytes
+below the entry S, and the lifted sprite list comparison of
+[task-native-dialog.test.mjs](../tools/task-native-dialog.test.mjs) uses its
+`freeStack` option.
+
 ## Lifted so far
 
 | Routine                                     | Module                                                                                               | Content                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       |
