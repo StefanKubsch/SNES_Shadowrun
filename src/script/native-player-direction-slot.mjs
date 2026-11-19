@@ -5,6 +5,6 @@ import { turnTowardsPlayer } from '../game/object-facing.mjs';
 // proof/game-reference/object-facing.mjs): turn the object (first argument) towards the
 // player object.
 export const turnObjectToPlayer = (a, outerReturn = true) => {
-  turnTowardsPlayer(a.mem, a);
+  turnTowardsPlayer(a.mem);
   return finishLeaf(a, outerReturn);
 };

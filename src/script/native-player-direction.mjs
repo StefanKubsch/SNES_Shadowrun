@@ -5,6 +5,6 @@ import { getDirectionToPlayer as directionToPlayer } from '../game/object-facing
 // proof/game-reference/object-facing.mjs): return the direction from the object in the
 // first argument towards the player object.
 export const getDirectionToPlayer = (a, outerReturn = true) => {
-  directionToPlayer(a.mem, a);
+  directionToPlayer(a.mem);
   return finishLeaf(a, outerReturn);
 };

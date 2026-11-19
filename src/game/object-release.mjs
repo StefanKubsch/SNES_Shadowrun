@@ -45,8 +45,6 @@ import { LONG_MASK, WORD_BITS, WORD_MASK } from '../constants/bits.mjs';
 // The direct page: the object and the countdown of the VRAM slots still to free.
 const DP_OBJECT = 0,
   DP_SLOTS_LEFT = 0x17;
-// The return word of A8F5's JSR to AA4C (the bank offset of its last byte).
-const RELEASE_RETURN = 0xa8f7;
 // A free object kind.
 const FREE_KIND = WORD_MASK;
 // The draw list search steps one word; a full turn of the 16-bit index.
@@ -96,11 +94,10 @@ export function releaseObjectGraphics(mem, a) {
 }
 
 // 80:A8F5: release the object in word 00 (AA4C), free its kind and take it off the draw
-// list.
+// list. The return word of its JSR to AA4C lies only in free stack bytes and is not
+// reproduced (game state only, user decision 2026-11-17).
 export function removeObject(mem, a) {
-  a.pushWord(RELEASE_RETURN);
   releaseObjectGraphics(mem, a);
-  a.pullWord();
   setWramWord(mem, OBJECT_KIND + directWord(mem, DP_OBJECT), FREE_KIND);
   let index = bankWord(a, DRAW_LIST_INDEX);
   setBankWord(a, DRAW_LIST_INDEX, bankWord(a, DRAW_LIST_INDEX) - 1);

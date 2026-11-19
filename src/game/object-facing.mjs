@@ -8,6 +8,9 @@
 // (A2 and A5). One axis dominates when half the other's magnitude is not below its own;
 // otherwise the two signs pick a diagonal. The directions: 0 plus Y, 2 plus X, 4 minus Y,
 // 6 minus X, the diagonals between them.
+//
+// The return words of the natives' JSRs to the direction body and the turn lie only in
+// free stack bytes and are not reproduced (game state only, user decision 2026-11-17).
 import { turnObject } from './object-turn.mjs';
 import { dataBankWord } from '../system/data-bank.mjs';
 import { OBJECT_X, OBJECT_Y, PLAYER_OBJECT } from '../data/wram.mjs';
@@ -31,12 +34,6 @@ const PLUS_Y = 0,
   MINUS_X_PLUS_Y = 7;
 // A target low byte FF: no object to turn towards (80:CF93).
 const NO_TARGET = 0xff;
-// The return words of the JSRs (the bank offsets of their last bytes): 80:CF93 to the
-// turn, 80:D1D2 to the direction and the turn, 80:D1DD to the direction.
-const FACE_TURN_RETURN = 0xd014,
-  PLAYER_DIRECTION_RETURN = 0xd1d4,
-  PLAYER_TURN_RETURN = 0xd1db,
-  DIRECTION_RETURN = 0xd1df;
 
 const word = (wram, at) => wram[at] | (wram[at + 1] << BYTE_BITS);
 const setWord = (wram, at, value) => {
@@ -68,40 +65,29 @@ function directionTowards(mem, object, target) {
   if (minusX) return minusY ? MINUS_X_MINUS_Y : MINUS_X_PLUS_Y;
   return minusY ? PLUS_X_MINUS_Y : PLUS_X_PLUS_Y;
 }
-// The direction body 80:D1E3 called with a JSR whose return word is site.
-function directionToPlayer(mem, a, site) {
-  a.pushWord(site);
-  const direction = directionTowards(
-    mem,
-    word(mem.wram, DP_OBJECT),
-    dataBankWord(mem, PLAYER_OBJECT),
-  );
-  a.pullWord();
-  return direction;
-}
-// The turn 80:AAAF of the object in word 00 to the direction in word 02, called with a
-// JSR whose return word is site.
-function turnCall(mem, a, site, direction) {
+// The direction body 80:D1E3 towards the player object.
+const directionToPlayer = (mem) =>
+  directionTowards(mem, word(mem.wram, DP_OBJECT), dataBankWord(mem, PLAYER_OBJECT));
+// The turn 80:AAAF of the object in word 00 to the direction in word 02.
+function turnCall(mem, direction) {
   setWord(mem.wram, DP_TARGET, direction);
-  a.pushWord(site);
   turnObject(mem, mem.wram);
-  a.pullWord();
 }
 
 // 80:CF93: the object (word 00) turns towards the object in word 02, unless its low byte
-// is FF; a is the accessor whose stack takes the call frames.
-export function turnTowardsObject(mem, a) {
+// is FF.
+export function turnTowardsObject(mem) {
   const { wram } = mem,
     target = word(wram, DP_TARGET);
   if ((target & BYTE_MASK) === NO_TARGET) return;
-  turnCall(mem, a, FACE_TURN_RETURN, directionTowards(mem, word(wram, DP_OBJECT), target));
+  turnCall(mem, directionTowards(mem, word(wram, DP_OBJECT), target));
 }
 // 80:D1D2: the object (word 00) turns towards the player object.
-export function turnTowardsPlayer(mem, a) {
-  turnCall(mem, a, PLAYER_TURN_RETURN, directionToPlayer(mem, a, PLAYER_DIRECTION_RETURN));
+export function turnTowardsPlayer(mem) {
+  turnCall(mem, directionToPlayer(mem));
 }
 // 80:D1DD: the direction from the object (word 00) towards the player object, returned in
 // word 00.
-export function getDirectionToPlayer(mem, a) {
-  setWord(mem.wram, DP_OBJECT, directionToPlayer(mem, a, DIRECTION_RETURN));
+export function getDirectionToPlayer(mem) {
+  setWord(mem.wram, DP_OBJECT, directionToPlayer(mem));
 }
