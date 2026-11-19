@@ -178,6 +178,11 @@ export function tasksOf(a) {
   return tasks;
 }
 
+// 80:C34A for lifted callers without its JSR frame: the script as a parameter and its
+// arguments in the words 00..; leaves no registers.
+export function appendScript(a, script) {
+  tasksOf(a).append(script, argumentWords(a.mem, script));
+}
 // 80:C34A for lifted callers, called with JSR: the script as a parameter and its
 // arguments in the words 00..; leaves no registers and returns the raw return word.
 export function appendScriptCall(a, script) {

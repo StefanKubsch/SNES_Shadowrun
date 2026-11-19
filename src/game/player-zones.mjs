@@ -10,20 +10,20 @@
 // changes the scene (80:A4BF, with the data word) and the main loop starts its next
 // pass at once (the carry set in the original, a returned flag here). Without a player figure nothing is tested.
 //
-// The scene change composes the live room entry through its frame below the zone
-// check's frame (its NMI writes below them); the task append (lifted in
-// src/game/task-append.mjs) runs below the pushed list offset and its return word. The direct page
-// words 0E, 11 and 14 (the position), 17 (the list) and 1A (the zones left) are written
-// as the original writes them.
+// The scene change composes the live room entry directly; the task append is the
+// lifted one of src/game/task-append.mjs. The original's zone check frame (JSR 803B),
+// the list offset it pushes around the append and the append's and the scene change's
+// return words lie only in free stack bytes and are not reproduced (game state only,
+// user decision 2026-11-17). The direct page words 0E, 11 and 14 (the position), 17
+// (the list) and 1A (the zones left) are written as the original writes them.
 //
 // Registers (user decision 2026-11-17): game state only; the scene change and the task
 // append take the data word as a parameter, and the routine leaves no A, X, Y or flags.
 // The register form for register-level callers (the carry set after a scene change) is
 // in proof/caller/live-loop-routines.mjs.
 import { taskStop } from '../system/task-stop.mjs';
-import { dialogCallBody } from '../system/native-call-continuation.mjs';
-import { enterRoomCallSequence } from './room-entry.mjs';
-import { appendScriptCall } from '../script/task-api.mjs';
+import { enterRoomSequence } from './room-entry.mjs';
+import { appendScript } from '../script/task-api.mjs';
 import {
   DP_ZONE_COUNT,
   DP_ZONE_HEIGHT,
@@ -54,12 +54,6 @@ const POSITION_SHIFT = 2,
   LIMIT_WORDS = 2 * AXES,
   LISTS = 2,
   LOW_WRAM_END = 0x2000;
-// The zone check's frame (JSR 803B at 80:8029), the task append's return word (JSR
-// C34A at 80:80A5) and the scene change's call site.
-const CHECK_RETURN = 0x802b,
-  APPEND_RETURN = 0x80a7,
-  SCENE_CHANGE_CALL = 0x8080ad,
-  SCENE_CHANGE = 0x80a4bf;
 
 // The limit words in their order: lowest x, y and height, then highest.
 const LIMITS = Array.from({ length: LIMIT_WORDS }, (_, n) => n);
@@ -102,7 +96,6 @@ export function* playerZonesSequence(h, events, zones = {}) {
     offset = (offset + 1) & WORD_MASK;
     if (!count) continue;
     setWord(wram, DP_ZONE_COUNT, count);
-    yield () => a.pushWord(CHECK_RETURN);
     for (;;) {
       const left = (word(wram, DP_ZONE_COUNT) - 1) & WORD_MASK;
       setWord(wram, DP_ZONE_COUNT, left);
@@ -121,30 +114,14 @@ export function* playerZonesSequence(h, events, zones = {}) {
       offset = (offset + ZONE_DATA) & WORD_MASK;
       if (index) {
         // A zone of the second list: the scene change, then the next pass.
-        yield* dialogCallBody(h, SCENE_CHANGE_CALL, SCENE_CHANGE, () =>
-          enterRoomCallSequence(h, events, data),
-        );
-        yield () => {
-          a.pullWord();
-          zones.changed = true;
-        };
+        yield* enterRoomSequence(h, events, data);
+        zones.changed = true;
         return yield* rts(h);
       }
       // A zone of the first list: append its script task, then go on.
       offset = (offset + 2) & WORD_MASK;
-      yield () => {
-        a.pushWord(offset);
-        a.pushWord(APPEND_RETURN);
-        const append = appendScriptCall(a, data);
-        if (append.rawReturnWord !== APPEND_RETURN)
-          taskStop('task_native_helper_return_required', {
-            actual: append.rawReturnWord,
-            expected: APPEND_RETURN,
-          });
-        offset = a.pullWord();
-      };
+      yield () => appendScript(a, data);
     }
-    yield () => a.pullWord();
   }
   // Both lists tested.
   yield () => setWord(wram, DP_ZONE_LIST_INDEX, LISTS);
