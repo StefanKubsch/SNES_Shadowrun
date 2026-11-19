@@ -1,4 +1,3 @@
-import { taskStop } from '../system/task-stop.mjs';
 import { finishLeaf } from '../system/native-leaf-support.mjs';
 import {
   circleSwarmLeader as circle,
@@ -11,7 +10,6 @@ import {
 const lifted =
   (run) =>
   (a, outerReturn = true) => {
-    if (a.ctx.d !== 0) taskStop('task_direct_page_zero_required');
     run(a.mem, a);
     return finishLeaf(a, outerReturn);
   };

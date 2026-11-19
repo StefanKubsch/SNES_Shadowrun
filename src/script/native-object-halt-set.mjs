@@ -1,4 +1,3 @@
-import { taskStop } from '../system/task-stop.mjs';
 import { finishLeaf } from '../system/native-leaf-support.mjs';
 import {
   haltObject as haltLiftedObject,
@@ -9,7 +8,6 @@ import {
 // proof/game-reference/object-halt.mjs): halt or resume the object (first argument) and
 // its task.
 const run = (a, outerReturn, lifted) => {
-  if (a.ctx.d !== 0) taskStop('task_direct_page_zero_required');
   lifted(a.mem, a);
   return finishLeaf(a, outerReturn);
 };

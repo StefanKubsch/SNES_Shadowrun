@@ -1,4 +1,3 @@
-import { taskStop } from './task-stop.mjs';
 import { BYTE_BITS, BANK_WRAP, BYTE_MASK, WORD_MASK } from '../constants/bits.mjs';
 import { CODE_BANK_BASE } from '../constants/memory-map.mjs';
 // The script natives' arguments, result and outer return for lifted callees (game state
@@ -13,10 +12,11 @@ export const SECOND_ARGUMENT = 2;
 export const THIRD_ARGUMENT = 4;
 export const FOURTH_ARGUMENT = 6;
 
-// For lifted script natives (game state only): a script argument word from the direct
-// page at 0, and the result word in place of the first argument.
+// For lifted script natives (game state only): a script argument word from the WRAM
+// words at 0 (the original's direct page; the dispatcher in src/script/natives.mjs
+// enters every native with D = 0, so no register is checked here), and the result word
+// in place of the first argument.
 export function leafArgument(a, offset) {
-  if (a.ctx.d !== 0) taskStop('task_direct_page_zero_required');
   const { wram } = a.mem;
   return wram[offset] | (wram[offset + 1] << BYTE_BITS);
 }

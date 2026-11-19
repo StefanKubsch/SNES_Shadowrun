@@ -1,4 +1,3 @@
-import { taskStop } from '../system/task-stop.mjs';
 import { finishLeaf } from '../system/native-leaf-support.mjs';
 import { removeObject as removeLiftedObject } from '../game/object-release.mjs';
 
@@ -7,7 +6,6 @@ import { removeObject as removeLiftedObject } from '../game/object-release.mjs';
 // scene: its graphics are released (80:AA4C), its kind becomes FFFF and it leaves the
 // draw list.
 export const removeObject = (a, outerReturn = true) => {
-  if (a.ctx.d !== 0) taskStop('task_direct_page_zero_required');
   removeLiftedObject(a.mem, a);
   return finishLeaf(a, outerReturn);
 };

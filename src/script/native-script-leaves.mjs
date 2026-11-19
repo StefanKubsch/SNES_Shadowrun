@@ -9,7 +9,6 @@
 // proof/game-reference/enemy-target-choice.mjs (80:8BC5) and proof/replay/native-combat.mjs (80:8C08,
 // 80:8C8D, 80:8CCF, 80:8D7F, 80:8D3F, 80:8D4E).
 import { FIRST_ARGUMENT, SECOND_ARGUMENT, finishLeaf } from '../system/native-leaf-support.mjs';
-import { taskStop } from '../system/task-stop.mjs';
 import { appendToFightList } from '../game/fight-list.mjs';
 import { sendApuCommand } from '../apu/apu-command.mjs';
 import { playSoundEffect, soundLevels } from '../apu/sound-effect.mjs';
@@ -39,9 +38,10 @@ const setArgument = (wram, at, value) => {
   wram[at] = value & BYTE_MASK;
   wram[at + 1] = (value >>> BYTE_BITS) & BYTE_MASK;
 };
-// The natives run with the direct page at 0 (the script arguments).
+// The script arguments lie in the WRAM words from 0; the natives read them there and
+// check no direct page register (the dispatcher in natives.mjs enters every native
+// with D = 0; user decision 2026-11-17).
 function leafRuntime(a) {
-  if (a.ctx.d !== 0) taskStop('task_direct_page_zero_required');
   return { mem: a.mem, wram: a.mem.wram, port: accessorPort(a) };
 }
 

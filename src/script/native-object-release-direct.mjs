@@ -1,4 +1,3 @@
-import { taskStop } from '../system/task-stop.mjs';
 import { finishLeaf } from '../system/native-leaf-support.mjs';
 import { releaseObjectGraphics as releaseLiftedGraphics } from '../game/object-release.mjs';
 
@@ -6,7 +5,6 @@ import { releaseObjectGraphics as releaseLiftedGraphics } from '../game/object-r
 // proof/game-reference/object-release.mjs): clear the picture, animation, box and motion
 // of the object (first argument) and return its VRAM slots to the free list.
 export const releaseObjectGraphics = (a, outerReturn = true) => {
-  if (a.ctx.d !== 0) taskStop('task_direct_page_zero_required');
   releaseLiftedGraphics(a.mem, a);
   return finishLeaf(a, outerReturn);
 };

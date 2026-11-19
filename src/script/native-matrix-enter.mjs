@@ -1,4 +1,3 @@
-import { taskStop } from '../system/task-stop.mjs';
 import { finishLeaf } from '../system/native-leaf-support.mjs';
 import { enterMatrix as enterLiftedMatrix } from '../game/matrix-enter.mjs';
 
@@ -7,7 +6,6 @@ import { enterMatrix as enterLiftedMatrix } from '../game/matrix-enter.mjs';
 // system, the room to return to, the extra nodes, the message list and the decker's
 // object number.
 export const enterMatrix = (a, outerReturn = true) => {
-  if (a.ctx.d !== 0) taskStop('task_direct_page_zero_required');
   enterLiftedMatrix(a.mem, a);
   return finishLeaf(a, outerReturn);
 };

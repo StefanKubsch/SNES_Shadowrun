@@ -1,4 +1,3 @@
-import { taskStop } from '../system/task-stop.mjs';
 import { finishLeaf } from '../system/native-leaf-support.mjs';
 import { turnTowardsObject } from '../game/object-facing.mjs';
 
@@ -6,7 +5,6 @@ import { turnTowardsObject } from '../game/object-facing.mjs';
 // proof/game-reference/object-facing.mjs): the object (first argument) turns towards the
 // object in the second argument (low byte FF: none).
 export const turnObjectToObject = (a, outerReturn = true) => {
-  if (a.ctx.d !== 0) taskStop('task_direct_page_zero_required');
   turnTowardsObject(a.mem, a);
   return finishLeaf(a, outerReturn);
 };
