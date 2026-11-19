@@ -7,8 +7,9 @@
 // allow. The object creation 80:A835 is lifted in object-create.mjs, the turn 80:AAAF
 // in object-turn.mjs. Both take their arguments in the direct page words 00 to 08;
 // the creation returns the new slot in word 00, which is read back after each call,
-// as in the original (the turn's selection path writes word 00 too). Both run below the words the original pushes around the calls; the
-// caller pushes the return word of its JSR. The direct page words the original uses
+// as in the original (the turn's selection path writes word 00 too). The words the
+// original pushes around the calls and the calls' return words lie only in free stack
+// bytes and are not reproduced (game state only). The direct page words the original uses
 // as locals (the member index 26; the actor flags 20, record 23 and the actors left
 // 29) are written as in the original: the Mesen oracle compares them.
 import { sceneRuntime } from '../system/scene-runtime.mjs';
@@ -112,8 +113,7 @@ function runnerIndex(mem, number) {
 // Create the group members at the start position (80:A2FA), a sequence. The player
 // figure and the dialog window are reset first; the last member comes first.
 export function* createGroupSequence(h) {
-  const { a } = h,
-    { mem, wram } = sceneRuntime(h);
+  const { mem, wram } = sceneRuntime(h);
   yield () => {
     setWord(wram, PLAYER_OBJECT, NONE);
     setWord(wram, DIALOG_WINDOW, NONE);
@@ -130,7 +130,6 @@ export function* createGroupSequence(h) {
       setWord(wram, DP_OBJECT_Y, word(wram, DP_START_Y));
       setWord(wram, DP_OBJECT_HEIGHT, word(wram, DP_START_Z));
       setWord(wram, DP_OBJECT_KIND, kind);
-      a.pushWord(kind);
       const number = word(wram, GROUP_NUMBERS + member);
       setWord(wram, DP_OBJECT_SCRIPT, readWord(mem, ACTOR_TABLE + ACTOR_SCRIPT + number));
     };
@@ -153,7 +152,6 @@ export function* createGroupSequence(h) {
       const index = runnerIndex(mem, number),
         armour = wram[RUNNER_ARMOUR_RATING + (index << ARMOUR_INDEX_SHIFT)];
       setWord(wram, OBJECT_ARMOUR + slot, armour);
-      a.pullWord();
       if (kind !== JAKE_KIND)
         setWord(wram, OBJECT_FLAGS + slot, word(wram, OBJECT_FLAGS + slot) | OBJECT_CLASS_MASK);
       else if (wram[JAKE_DERMAL_ARMOUR])
@@ -167,8 +165,7 @@ export function* createGroupSequence(h) {
 // stage are not zero and whose state record (if any) has no holder. Leaves the start
 // of the room lists behind the actors in direct page word 9A.
 export function* placeRoomActorsSequence(h) {
-  const { a } = h,
-    { mem, wram } = sceneRuntime(h),
+  const { mem, wram } = sceneRuntime(h),
     header = (wram[DP_ROOM_HEADER + 2] << WORD_BITS) | word(wram, DP_ROOM_HEADER),
     count = mem.read8((header + ROOM_HEADER_ACTOR_COUNT) & LONG_MASK);
   let offset = ROOM_HEADER_ACTOR_COUNT + 1;
@@ -192,26 +189,16 @@ export function* placeRoomActorsSequence(h) {
       );
       setWord(wram, DP_ACTOR_FLAGS, flags);
       if (shown) setWord(wram, DP_ACTOR_RECORD, record);
-      if (shown && record) {
-        // The original keeps the actor on the stack (PHX) while it reads the holder.
-        a.pushWord(actor);
-        create = word(wram, record + STATE_HOLDER) === NONE;
-        a.pullWord();
-      }
+      if (shown && record) create = word(wram, record + STATE_HOLDER) === NONE;
     };
     if (create) {
       yield () => {
         setWord(wram, DP_OBJECT_KIND, readWord(mem, ACTOR_TABLE + ACTOR_KIND + actor));
         setWord(wram, DP_OBJECT_SCRIPT, readWord(mem, ACTOR_TABLE + ACTOR_SCRIPT + actor));
-        // The original keeps the header offset and the actor on the stack (PHY, PHX).
-        a.pushWord(offset);
-        a.pushWord(actor);
       };
       yield () => createObjectCall(h);
       yield () => {
         const slot = word(wram, DP_OBJECT_KIND);
-        a.pullWord();
-        a.pullWord();
         setWord(wram, OBJECT_NUMBER + slot, actor);
         setWord(wram, OBJECT_DEPTH_ORDER + slot, depthOrder(word(wram, DP_ACTOR_FLAGS)));
         setWord(wram, OBJECT_RECORD + slot, word(wram, DP_ACTOR_RECORD));
