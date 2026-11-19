@@ -23,8 +23,9 @@
 // depth bias from the byte before the picture.
 //
 // The direct page words of the original are written as it writes them (11 to 15, 17,
-// 20, 35 to 38, 3B, 3E and the upload index 82). Y is kept on the stack as the
-// original's PHY and PLY, the slot around the tile queue. Registers (user decision
+// 20, 35 to 38, 3B, 3E and the upload index 82). The caller's Y (PHY, PLY) and the slot
+// the original pushes around the tile queue lie only in free stack bytes and are not
+// reproduced. Registers (user decision
 // 2026-11-17): game state only; the slot is a parameter and the routine leaves no A, X,
 // Y or flags. The fields the original reads through its data
 // bank 80 lie below 2000 (`object_slot_required` past it), the animation fields in
@@ -126,8 +127,7 @@ const longWord = (mem, at) =>
 export function stepAnimation(h, events, slot) {
   const recorded = recordedRoutine(events, 'object-animation');
   if (recorded) return recorded(h, events, slot);
-  const { a } = h,
-    { mem } = a,
+  const { mem } = h.a,
     { wram } = mem;
   // A field read in the data bank 80 below 2000, a field of bank 7E, a long pointer in
   // the direct page.
@@ -179,7 +179,7 @@ export function stepAnimation(h, events, slot) {
         putFar(OBJECT_ANIMATION_SPEED, 0);
         put(OBJECT_SELECTION, get(OBJECT_SELECTION) | ENDED);
         const task = get(OBJECT_TASK);
-        if (!(task & WORD_SIGN)) sendEvents(tasksOf(a), task, END_EVENT);
+        if (!(task & WORD_SIGN)) sendEvents(tasksOf(h.a), task, END_EVENT);
         return done();
       }
       let frames = count;
@@ -244,8 +244,7 @@ export function stepAnimation(h, events, slot) {
     put(OBJECT_VRAM_SLOT_COUNT, tiles);
   }
 
-  // Queue two upload jobs per tile, the slot kept on the stack.
-  a.pushWord(slot);
+  // Queue two upload jobs per tile.
   setWord(wram, DP_POINTER, start + 1);
   let job = word(wram, DP_VRAM_UPLOAD_INDEX),
     tileSlot = get(OBJECT_VRAM_SLOT_HEAD);
@@ -263,7 +262,6 @@ export function stepAnimation(h, events, slot) {
   }
   setWord(wram, DP_TILE_COUNT, 0);
   setWord(wram, DP_VRAM_UPLOAD_INDEX, job);
-  a.pullWord();
 
   // The picture shown, its shadow rule and depth bias.
   putFar(OBJECT_PICTURE, word(wram, DP_POINTER) ^ word(wram, DP_PICTURE_BIT));
