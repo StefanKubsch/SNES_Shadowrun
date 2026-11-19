@@ -15,7 +15,9 @@
 // are lifted, and so are the OAM entries (src/game/object-sprites.mjs), which run through
 // their frames. The frames of the fill and the job count are reproduced on the stack;
 // the job count's frame covers the bytes of the data bank 7E the original sets through
-// the stack for the hidden sprites. Registers (user decision 2026-11-17): game state only; no A, X, Y or flags are
+// the stack for the hidden sprites. The list position the original pushes over each
+// OAM entry call lies only in free stack bytes and is kept in a local (game state only,
+// user decision 2026-11-17). Registers (user decision 2026-11-17): game state only; no A, X, Y or flags are
 // left (the main loop and the talk end read none of them), and the object and picture
 // pass to the OAM entry as parameters.
 import { taskStop } from '../system/task-stop.mjs';
@@ -108,12 +110,7 @@ export function buildSprites(h) {
     if (!(flags & OBJECT_NOT_DRAWN)) {
       // The picture word is read in bank 7E (a long read).
       const picture = word(wram, OBJECT_PICTURE + slot);
-      if (picture) {
-        // The list position waits on the stack over the call.
-        h.a.pushWord(index);
-        h.call(OAM_CALL, OAM_TARGET, () => enterObjectSprites(h, slot, picture));
-        h.a.pullWord();
-      }
+      if (picture) h.call(OAM_CALL, OAM_TARGET, () => enterObjectSprites(h, slot, picture));
     }
     index = (index - 2) & WORD_MASK;
   }
