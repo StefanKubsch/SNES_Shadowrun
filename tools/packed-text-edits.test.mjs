@@ -11,7 +11,8 @@ import {
   CREDITS_EDIT,
   PACKED_TEXT_DOMAINS,
 } from '../src/data/packed-text-edits.mjs';
-import { buildLanguage, installLanguage, redirectLanguageStream } from '../src/data/language.mjs';
+import { buildLanguage, installLanguage } from '../src/data/language.mjs';
+import { redirectLanguageStream } from '../proof/system/native-unpack.mjs';
 import { VmMemory, PACKED_TEXT_BANK } from '../src/vm/memory.mjs';
 import { lzBits, lzDecode } from '../src/data/lz.mjs';
 import { LiveGame } from '../src/video/live-game.mjs';

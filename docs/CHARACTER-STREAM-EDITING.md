@@ -72,7 +72,7 @@ the language changes. Two BG 2 bpp identities are replaced:
 | `85:FC15` | Credits font |                  864 |                 896 |
 
 [language.mjs](../src/data/language.mjs), `buildLanguage` and
-`redirectLanguageStream`, map these English identities to the German A1
+`languageStreamSource`, map these English identities to the German A1
 bank. [packed-text-edits.mjs](../src/data/packed-text-edits.mjs) pins the
 text, map and font sources together during a load, including language
 switches. Editing only the English source would therefore change English

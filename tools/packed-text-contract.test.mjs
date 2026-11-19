@@ -15,7 +15,8 @@ import { dialogAccess } from '../src/system/native-dialog-support.mjs';
 import { lzBits, lzDecode, lzEncode } from '../src/data/lz.mjs';
 import { readLzStreams } from '../src/data/lz-streams.mjs';
 import { romOffset } from '../src/data/rom-bytes.mjs';
-import { buildLanguage, installLanguage, redirectLanguageStream } from '../src/data/language.mjs';
+import { buildLanguage, installLanguage } from '../src/data/language.mjs';
+import { redirectLanguageStream } from '../proof/system/native-unpack.mjs';
 import { VmMemory } from '../src/vm/memory.mjs';
 const FRONTEND_MENU_ROUTINES = withFrontendReference(FRONTEND_MENU_ROUTINES_TASK);
 

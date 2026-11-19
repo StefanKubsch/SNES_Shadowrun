@@ -172,8 +172,9 @@ editing of `vm-lz.json` also does not validate glyphs, layout or timing.
 The existing language layer already redirects seven packed sources into
 the read-only language bank `A1:8000`: both text/map/font triples and the
 license-screen map. `buildLanguage` accounts for two bytes of final
-read-ahead and rejects bank overflow. `redirectLanguageStream` changes
-DP `E1/E3` when unpacking starts. Effective edits use a separate temporary
+read-ahead and rejects bank overflow. `languageStreamSource` changes
+the unpacker's source when unpacking starts (DP `E1/E3` in the register-level
+form of proof/system/native-unpack.mjs). Effective edits use a separate temporary
 read-only bank `A2:8000`, with the complete edited text and the selected
 map/font streams. Their total size, including two read-ahead bytes, must
 fit in 32 KiB. The largest accepted credit text is 1,807 decoded bytes;

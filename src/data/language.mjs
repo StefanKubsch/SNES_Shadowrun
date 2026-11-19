@@ -14,7 +14,7 @@ import { VmFault, LANGUAGE_BANK } from '../vm/memory.mjs';
 import { romOffset, textPointerWord } from './rom-bytes.mjs';
 import { FONT } from './font.mjs';
 import { TEXT_END } from './texts.mjs';
-import { BYTE_SIGN, WORD_BITS, WORD_MASK, HEX_RADIX } from '../constants/bits.mjs';
+import { BYTE_SIGN, WORD_BITS, HEX_RADIX } from '../constants/bits.mjs';
 import { LOROM_OFFSET } from '../constants/memory-map.mjs';
 import { resolveFrontendTextEdits } from './frontend-text-edits.mjs';
 import { resolveMatrixTextEdits } from './matrix-text-edits.mjs';
@@ -386,11 +386,8 @@ export function languageTextWidth(memory, id) {
   return width;
 }
 
-// The unpacker 80:9F49 keeps its source in DP E1 (offset) and E3 (bank); a
-// stream with a translation is read from the language bank instead. h: the
-// unpacker's task access (dp, dpWrite).
-const DP_SOURCE = 0xe1,
-  DP_SOURCE_BANK = 0xe3;
+// A stream with a translation is read from the language bank instead (the register-level
+// unpacker's direct page form, redirectLanguageStream, is in proof/system/native-unpack.mjs).
 // CDB2/C3CA also use these credits sources for Matrix graphics and gauges.
 // Only the credits owner's snapshot may select their translated versions.
 const SHARED_CREDITS_GRAPHICS = new Set([0x85fc15, 0x85fd38]);
@@ -401,13 +398,6 @@ export function languageStreamSource(memory, cpu) {
   const sources = memory?.packedTextSnapshot?.sources;
   if (SHARED_CREDITS_GRAPHICS.has(cpu) && !sources?.has(cpu)) return cpu;
   return sources?.get(cpu) ?? languageStream(memory, cpu) ?? cpu;
-}
-export function redirectLanguageStream(memory, h) {
-  const cpu = h.dp(DP_SOURCE, 2) | (h.dp(DP_SOURCE_BANK, 1) << WORD_BITS),
-    target = languageStreamSource(memory, cpu);
-  if (target === cpu) return;
-  h.dpWrite(DP_SOURCE, target & WORD_MASK, 2);
-  h.dpWrite(DP_SOURCE_BANK, target >>> WORD_BITS, 2);
 }
 
 // A displayed menu keeps its arrow column across language switches until

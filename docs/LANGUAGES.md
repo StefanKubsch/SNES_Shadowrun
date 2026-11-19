@@ -152,7 +152,7 @@ the German credits' a-umlaut glyph. Full health therefore displayed repeated
 umlauts. The original gauge words are `2C..35`; the German credits map shifts
 them to `2E..37`. The Matrix's existing bank-7F unpacker uses the original map.
 
-`redirectLanguageStream` now selects translated versions of these two shared
+`languageStreamSource` now selects translated versions of these two shared
 sources only when an active packed-text snapshot owns them. The credits owner
 `81:CDF8` opens that snapshot before scene loading and closes it after the
 text and map loads. German credits and their edit/language snapshots retain

@@ -14,11 +14,11 @@ import {
   wrappedLines,
   noticeSize,
   languageTextWidth,
-  redirectLanguageStream,
   UMLAUTS,
   ENGLISH,
   GERMAN,
 } from '../src/data/language.mjs';
+import { redirectLanguageStream } from '../proof/system/native-unpack.mjs';
 import { parseRecording } from '../src/browser/recording.mjs';
 import { VmMemory, LANGUAGE_BANK } from '../src/vm/memory.mjs';
 import { lzBits, lzDecode } from '../src/data/lz.mjs';

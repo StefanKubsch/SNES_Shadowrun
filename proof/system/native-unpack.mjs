@@ -17,7 +17,7 @@ import {
   UNPACK_OUTPUT_START,
   WRAM,
 } from '../../src/data/wram.mjs';
-import { redirectLanguageStream } from '../../src/data/language.mjs';
+import { languageStreamSource } from '../../src/data/language.mjs';
 import {
   FLAG_INDEX_8BIT,
   FLAG_MEMORY_8BIT,
@@ -43,6 +43,21 @@ import {
 } from '../../src/constants/memory-map.mjs';
 import { interruptStep } from './main-wait-interrupt.mjs';
 import './dialog-register-helpers.mjs';
+
+// The unpacker 80:9F49 keeps its source in DP E1 (offset) and E3 (bank); a stream with a
+// translation is read from the language bank instead (languageStreamSource of
+// src/data/language.mjs). h: the unpacker's task access (dp, dpWrite). Moved from
+// src/data/language.mjs; the lifted unpacker (src/system/unpack.mjs) takes the source as
+// a value.
+const DP_SOURCE = 0xe1,
+  DP_SOURCE_BANK = 0xe3;
+export function redirectLanguageStream(memory, h) {
+  const cpu = h.dp(DP_SOURCE, 2) | (h.dp(DP_SOURCE_BANK, 1) << WORD_BITS),
+    target = languageStreamSource(memory, cpu);
+  if (target === cpu) return;
+  h.dpWrite(DP_SOURCE, target & WORD_MASK, 2);
+  h.dpWrite(DP_SOURCE_BANK, target >>> WORD_BITS, 2);
+}
 
 const UNPACK_HEADER_BYTES = 0x4;
 const FIXED_UNPACK_BYTES = 0x80;
