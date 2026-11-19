@@ -14,8 +14,9 @@
 // Memory is reached as the original reaches it: the group lists, the row factor, the
 // armour ratings and the object's armour long in bank 7E, the player object, the object
 // fields, the group slots and the runner numbers through the data bank, the actor table
-// long in bank 8D. The return words of the calls and the two pushed words lie on the
-// stack as in the original. A number no runner has, whose search the original never
+// long in bank 8D. The return words of the calls and the two pushed words lie only in
+// free stack bytes and are not reproduced (game state only, user decision 2026-11-17).
+// A number no runner has, whose search the original never
 // ends, stops at the frontier `runner_number_required` after a full turn of the index.
 import { taskStop } from '../system/task-stop.mjs';
 import { createObject } from './object-create.mjs';
@@ -48,9 +49,6 @@ import { BYTE_BITS, BYTE_MASK, LONG_MASK, WORD_BITS, WORD_MASK } from '../consta
 // The kind and the direction argument (words 00 and 02 of the creation and the turn).
 const DP_OBJECT = 0,
   DP_DIRECTION = 2;
-// The return words of the JSRs to the creation and the turn.
-const CREATE_RETURN = 0xa22f,
-  TURN_RETURN = 0xa239;
 // The position's coarse step (/ 8) and the runner armour rows (four bytes per runner
 // index word).
 const POSITION_SHIFT = 3,
@@ -88,21 +86,16 @@ export function addSceneObject(mem, a) {
   setWramWord(mem, GROUP_POSITIONS + index, position + directWord(mem, DP_SCENE_OBJECT_POSITION));
   const number = directWord(mem, DP_SCENE_OBJECT_NUMBER);
   setWramWord(mem, GROUP_NUMBERS + index, number);
-  a.pushWord(number);
   // The creation takes the actor's script; the direction waits in word 6B.
   setDirectWord(mem, DP_SCENE_OBJECT_SCRATCH, directWord(mem, DP_OBJECT_SCRIPT));
   setDirectWord(mem, DP_OBJECT_SCRIPT, actorWord(mem, ACTOR_SCRIPT + number));
-  a.pushWord(CREATE_RETURN);
   createObject(mem, wram, a);
-  a.pullWord();
-  a.pushWord(directWord(mem, DP_OBJECT));
+  // The original keeps the new slot and the number on the stack over the turn.
+  const slot = directWord(mem, DP_OBJECT),
+    actor = number;
   setDirectWord(mem, DP_DIRECTION, directWord(mem, DP_SCENE_OBJECT_SCRATCH));
-  a.pushWord(TURN_RETURN);
   turnObject(mem, wram);
-  a.pullWord();
   if (wramWord(mem, GROUP_INDEX) === 0) setBankWord(a, PLAYER_OBJECT, directWord(mem, DP_OBJECT));
-  const slot = a.pullWord(),
-    actor = a.pullWord();
   setBankWord(a, OBJECT_NUMBER + slot, actor);
   // The depth flags (bits 6 and 7) go to the high byte, then rotate left by one.
   const flags = (actorWord(mem, actor) & ACTOR_DEPTH_FLAGS) << BYTE_BITS;
