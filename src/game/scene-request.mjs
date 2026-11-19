@@ -14,8 +14,9 @@
 // the lifted ones of src/game/room-entry.mjs, the game screen set-up 80:9629 the one
 // of src/game/game-screen.mjs. The cutscene 81:CDF8 and the matrix 81:C3CA are
 // lifted scenes (src/cutscene, src/matrix) and keep the original's JSL frames: their
-// waits take NMIs on that stack. The room entry runs below the return word of the
-// original's JSR, as its frame waits do too.
+// waits take NMIs on that stack. The return word of the original's JSR to the room
+// entry lies only in free stack bytes and is not reproduced (game state only, user
+// decision 2026-11-17).
 //
 // Registers (user decision 2026-11-17): game state only; the cutscene takes the scene
 // and its argument as parameters and the routine leaves no A, X, Y or flags.
@@ -41,12 +42,10 @@ import {
 import { BYTE_BITS, BYTE_MASK, WORD_MASK } from '../constants/bits.mjs';
 
 const SCENE_REQUEST_NONE = WORD_MASK;
-// Original call sites: the frame wait (JSL), the cutscene and the matrix (JSL), and
-// the return word of the JSR to the room entry at 80:CC90.
+// Original call sites: the frame wait (JSL), the cutscene and the matrix (JSL).
 const FRAME_WAIT_SITE = 0xcc5c,
   CUTSCENE_SITE = 0xcc6b,
-  MATRIX_SITE = 0xcc71,
-  ROOM_ENTRY_RETURN = 0xcc92;
+  MATRIX_SITE = 0xcc71;
 const PLAY_CUTSCENE = 0x81cdf8,
   PLAY_MATRIX = 0x81c3ca;
 
@@ -105,11 +104,9 @@ export function* sceneRequestSequence(h, events, request = {}) {
   yield () => {
     setWord(wram, SCENE_REQUEST, SCENE_REQUEST_NONE);
     room = word(wram, ROOM);
-    h.a.pushWord(ROOM_ENTRY_RETURN);
   };
   yield* enterRoomSequence(h, events, room);
   yield () => {
-    h.a.pullWord();
     result = h.rts();
   };
   return result;
