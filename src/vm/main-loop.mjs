@@ -30,7 +30,6 @@ import {
   segmentSequence,
 } from '../system/native-call-continuation.mjs';
 import { BYTE_BITS } from '../constants/bits.mjs';
-import { FLAG_DECIMAL, FLAG_INDEX_8BIT, FLAG_MEMORY_8BIT } from '../constants/cpu-flags.mjs';
 import { MAIN_LOOP_EXIT, MAIN_LOOP_RELOAD } from '../data/wram.mjs';
 import { CODE_BANK, CODE_BANK_BASE } from '../constants/memory-map.mjs';
 
@@ -62,21 +61,15 @@ const MAIN_LOOP_EXIT_PC = 0x96ec,
 export function* mainLoopSequence(a, events, returnToOwner = false) {
   const { ctx } = a,
     { wram } = a.mem;
-  // The bound movement routines compute in binary. Reject invalid inputs before any WRAM effect.
-  if (
-    ctx.programBank !== CODE_BANK ||
-    ![MAIN_LOOP_RESUME, MAIN_LOOP_START].includes(ctx.pc) ||
-    ctx.d !== 0 ||
-    ctx.status & (FLAG_DECIMAL | FLAG_INDEX_8BIT | FLAG_MEMORY_8BIT)
-  )
+  // Only the entry point is checked: the lifted callees compute in binary on game state
+  // and read no register widths (user decision 2026-11-17); the register-level entry and
+  // return width checks stay with proof/vm/main-loop.mjs.
+  if (ctx.programBank !== CODE_BANK || ![MAIN_LOOP_RESUME, MAIN_LOOP_START].includes(ctx.pc))
     taskStop('main_loop_entry_required', { pc: ctx.pc });
   const h = dialogAccess(a);
   if (!lagFree(events)) taskStop('game_lag_free_required');
-  const call = function* (pc, target, body, long = false) {
-    yield* dialogCallBody(h, CODE_BANK_BASE | pc, target, body, long);
-    if (ctx.status & (FLAG_INDEX_8BIT | FLAG_MEMORY_8BIT))
-      taskStop('main_loop_return_width_required', { target });
-  };
+  const call = (pc, target, body, long = false) =>
+    dialogCallBody(h, CODE_BANK_BASE | pc, target, body, long);
   const once = (run) => () => segmentSequence(() => run(h, events));
   if (ctx.pc === MAIN_LOOP_START) return yield* top();
   // $96C3–$96E4; a scene change by a zone starts the next pass at once.
