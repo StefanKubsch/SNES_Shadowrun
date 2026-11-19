@@ -74,7 +74,6 @@ const PRODUCT_COLUMNS_SITE = 0x80f9ec,
   TILE_REQUEST_SITE = 0x80fa32,
   TILE_WAIT_SITE = 0x80fa84,
   TILE_WAIT_BRANCH = 0x81acc0,
-  MAP_UPLOAD_SITE = 0x80fa39,
   JSR_LAST_BYTE = 2,
   JSL_LAST_BYTE = 3,
   WAIT_BANK = 0x81,
@@ -213,7 +212,7 @@ export function* openWindowSequence(h, events) {
   if (x >= INDEX_LIMIT) return yield* rts(h);
   yield* requestTileClear(h, events, x);
   yield () => drawWindow(wram, x);
-  yield* requestUploadCall(h, events, MAP_UPLOAD_SITE);
+  yield* requestUploadCall(h, events);
   return yield* rts(h);
 }
 function* rts(h) {

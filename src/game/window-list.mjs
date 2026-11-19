@@ -8,7 +8,9 @@
 // of the original) and the upload is requested afterwards (81:ACB5): the request word
 // counts up and the request waits until the NMI has taken the upload (81:ACAF).
 //
-// Live uploads always use lag-free frames below the caller's JSL frame. Recorded
+// Live uploads always use lag-free frames below the caller's JSL frame. The JSL frame of
+// the upload request (81:ACB5) lies only in free stack bytes and is not reproduced (game
+// state only, user decision 2026-11-17); the request's own wait keeps its frame. Recorded
 // observations use the independent former composition in proof/caller/window-list.mjs.
 // Shared register/NMI interfaces are retained until their consumers are separated.
 //
@@ -53,10 +55,8 @@ const BORDER_TOP_LEFT = 0x2001,
   BORDER_BOTTOM_RIGHT = 0xe001,
   MAP_ROW_BYTES = 0x40,
   BORDER_CELLS = 2;
-// The list runs in bank 81; the call sites of the window map unpack and the upload
-// request; a JSL pushes the address of its last byte.
+// The list runs in bank 81; a JSL pushes the address of its last byte.
 const LIST_BANK = 0x81,
-  UPLOAD_SITE = 0x81adb5,
   JSL_LAST_BYTE = 3;
 // The request's JSL to the wait 81:ACAF and the wait's branch back to its load.
 const UPLOAD_WAIT_SITE = 0x81acb8,
@@ -144,16 +144,13 @@ function pullLongFrame(h) {
 // Request the text map upload and wait until the NMI takes it (81:ACB5/81:ACAF).
 // callerFrame means the caller already supplied the outer JSL frame. The wait holds
 // no request word in A (user decision 2026-11-17).
-function* requestUploadSequence(h, events, site = UPLOAD_SITE, callerFrame = false) {
+function* requestUploadSequence(h, events, callerFrame = false) {
   const { ctx } = h,
     { wram } = h.a.mem,
     callerBank = ctx.programBank;
   let result;
   yield () => {
-    if (!callerFrame) {
-      pushLongFrame(h, site);
-      ctx.programBank = LIST_BANK;
-    }
+    if (!callerFrame) ctx.programBank = LIST_BANK;
     setWord(wram, TEXT_MAP_UPLOAD, word(wram, TEXT_MAP_UPLOAD) + 1);
     pushLongFrame(h, UPLOAD_WAIT_SITE);
   };
@@ -170,19 +167,17 @@ function* requestUploadSequence(h, events, site = UPLOAD_SITE, callerFrame = fal
       result = h.rtl();
       return;
     }
-    pullLongFrame(h);
     ctx.programBank = callerBank;
   };
   return result;
 }
-// The text map upload as a caller's JSL at site (80:F963 calls it from bank 80).
-export const requestUploadCall = (h, events, site) => requestUploadSequence(h, events, site);
+// The text map upload as a caller's JSL (80:F963 calls it from bank 80).
+export const requestUploadCall = (h, events) => requestUploadSequence(h, events);
 
 // The upload as called with JSL by a lifted caller that has pushed its frame (the glove
 // target's list preparation 81:AEB8); the wait holds no request word in A (user decision
 // 2026-11-17).
-export const requestUploadJslSequence = (h, events) =>
-  requestUploadSequence(h, events, UPLOAD_SITE, true);
+export const requestUploadJslSequence = (h, events) => requestUploadSequence(h, events, true);
 // 81:A9B2 for lifted callers (called with JSL; nothing in it waits): the window map
 // unpacked; no registers are left.
 export function unpackWindowMapCall(h) {
@@ -247,5 +242,5 @@ function* windowListBody(h, events) {
     for (let x = 0; x <= last; x += 2)
       if (x >= word(wram, WINDOW_FIRST_INDEX) && word(wram, WINDOW_ACTIVE + x)) drawWindow(wram, x);
   };
-  yield* requestUploadSequence(h, events, UPLOAD_SITE);
+  yield* requestUploadSequence(h, events);
 }
