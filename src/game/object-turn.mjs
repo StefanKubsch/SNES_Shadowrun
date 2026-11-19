@@ -27,7 +27,6 @@
 import { sceneRuntime } from '../system/scene-runtime.mjs';
 import { dataBankWord, setDataBankWord } from '../system/data-bank.mjs';
 import { isOpenBus } from '../system/open-bus.mjs';
-import { taskStop } from '../system/task-stop.mjs';
 import {
   ANIMATION_CLOCK_START,
   OBJECT_ACTION_DIRECTIONS,
@@ -207,10 +206,10 @@ export function turnObjectCall(h, site) {
 }
 
 // The animation selection as called with JSR (80:A985), its return word on the stack:
-// direct page 0. Game state only (docs/STRATEGY.md, 2026-11-14): it leaves no registers
+// it reads the WRAM words at 0 and checks no direct page register (user decision
+// 2026-11-17). Game state only (docs/STRATEGY.md, 2026-11-14): it leaves no registers
 // for its callers, which read none, and returns with its RTS.
 export function selectAnimationRoutine(h) {
-  if (h.ctx.d !== 0) taskStop('task_direct_page_zero_required');
   const { mem } = h.a;
   selectObjectAnimation(mem, mem.wram);
   return h.rts();

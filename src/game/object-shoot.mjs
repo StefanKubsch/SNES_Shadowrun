@@ -143,9 +143,9 @@ function subtract(left, right, carry = true) {
 // The size of a signed word (8000 stays).
 const magnitude = (value) => (negative(value) ? -value & WORD_MASK : value);
 
-// The script natives run with the direct page at 0: mem, its WRAM and the hardware port.
+// The script natives run with the direct page at 0 (checked only by the register-level
+// caller in proof/caller/object-shoot.mjs): mem, its WRAM and the hardware port.
 function shotRuntime(h) {
-  if (h.ctx.d !== 0) taskStop('task_direct_page_zero_required');
   const { mem } = h.a;
   return { h, mem, wram: mem.wram, port: accessorPort(h.a) };
 }

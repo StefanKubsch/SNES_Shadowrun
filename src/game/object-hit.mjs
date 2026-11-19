@@ -46,7 +46,6 @@ import { accessorPort } from '../system/hardware-port.mjs';
 import { drawBelowInDirectPage } from '../system/random.mjs';
 import { playSoundEffect } from '../apu/sound-effect.mjs';
 import { fitListWindow } from '../data/menu-layout.mjs';
-import { taskStop } from '../system/task-stop.mjs';
 import { createObject } from './object-create.mjs';
 import { protectedJakeHealth } from './cheats.mjs';
 import {
@@ -288,7 +287,9 @@ function* playerHitSequence(h, events, target) {
 }
 
 // 80:8691: the hit with the damage on the target by the shooter. A sequence for a
-// native call continuation that ends with the hit's RTS. renderBuffer draws text.
+// native call continuation that ends with the hit's RTS. renderBuffer draws text. Its
+// live callers run with the direct page at 0; no register is checked (the register-level
+// caller in proof/caller/object-hit.mjs keeps that check).
 export function* hitObjectSequence(
   h,
   events,
@@ -297,7 +298,6 @@ export function* hitObjectSequence(
   target,
   shooter,
 ) {
-  if (h.ctx.d !== 0) taskStop('task_direct_page_zero_required');
   const { mem } = h.a,
     { wram } = mem;
   setWord(wram, 0, damage);
