@@ -20,8 +20,9 @@
 // data bank 7E it sets (PHB, PEA 7E7E, PLB) with 24-bit indexes, the box's object word
 // long in bank 7F. The direct page words the original uses as locals are written as in
 // the original (pointers 00 to 06, box 11 to 20, cell columns and rows 23 to 2C, cells
-// 2F to 38, height 3B, object 3E), and the bank byte, the return words of the calls and
-// the list walk's pushes lie on the stack as in the original.
+// 2F to 38, height 3B, object 3E). Return words, the saved data bank and the list
+// walk's pushes are not reproduced: they lie only in free stack bytes that nothing
+// reads (game state only, docs/STRATEGY.md).
 import {
   CELL_COORDINATE_MASK,
   COLLISION_BOX_BOTTOM,
@@ -43,10 +44,9 @@ import {
   WRAM,
 } from '../data/wram.mjs';
 import { ACTION_TABLE } from '../data/actions.mjs';
-import { CODE_BANK, WRAM_BANK } from '../constants/memory-map.mjs';
+import { WRAM_BANK } from '../constants/memory-map.mjs';
 import {
   BYTE_BITS,
-  BYTE_MASK,
   BYTE_SIGN,
   HIGH_BYTE_MASK,
   LONG_MASK,
@@ -92,10 +92,6 @@ const POSITION_SHIFT = 2,
   ROW_SHIFT = 1,
   BOX_OBJECT_SHIFT = 2,
   TOP_BIT = WORD_BITS - 1;
-// The return words of the JSRs to the cell search (one per corner) and of its JSL to
-// 81:8686 (the bank offsets of the calls' last bytes).
-const CELL_RETURNS = [0x844c, 0x8457, 0x8466, 0x8479],
-  BOXES_RETURN = 0x848e;
 const FOUND = WORD_MASK;
 const WRAM_BANK_BASE = WRAM_BANK << WORD_BITS;
 
@@ -104,18 +100,10 @@ const setDirectWord = (mem, offset, value) => mem.write16Bank0(offset, value & W
 // A word through the data bank 7E at offset (24-bit address).
 const wramWord = (mem, offset) => mem.read16((WRAM_BANK_BASE + offset) & LONG_MASK);
 const swapBytes = (value) => ((value >>> BYTE_BITS) | (value << BYTE_BITS)) & WORD_MASK;
-const pushByte = (a, value) => {
-  a.write(a.ctx.s, value & BYTE_MASK);
-  a.ctx.s = (a.ctx.s - 1) & WORD_MASK;
-};
-const pullByte = (a) => {
-  a.ctx.s = (a.ctx.s + 1) & WORD_MASK;
-  return a.read(a.ctx.s);
-};
 
 // The moving boxes of a cell's list from node on (81:8686): the largest height of an
 // overlapping box above the object's bottom goes to word 3B.
-function searchBoxes(mem, a, node) {
+function searchBoxes(mem, node) {
   const dp = (offset) => directWord(mem, offset);
   do {
     const box = wramWord(mem, COLLISION_NODE_BOX + node),
@@ -131,37 +119,23 @@ function searchBoxes(mem, a, node) {
       if (top < bottom) break check;
       const height = top - bottom;
       if (height < dp(DP_HEIGHT)) break check;
-      a.pushWord(height);
-      a.pushWord(node);
       const owner = mem.read16((COLLISION_BOX_OBJECT + (box >>> BOX_OBJECT_SHIFT)) & LONG_MASK);
-      a.pullWord();
-      a.pullWord();
       if (owner === dp(DP_MOVED_OBJECT)) break check;
-      if (owner === wramWord(mem, PLAYER_OBJECT)) {
-        a.pushWord(height);
-        const flags = wramWord(mem, OBJECT_FLAGS + dp(DP_MOVED_OBJECT));
-        a.pullWord();
-        if ((flags & PLAYER_PASSES) === PLAYER_PASSES) break check;
-      }
+      if (
+        owner === wramWord(mem, PLAYER_OBJECT) &&
+        (wramWord(mem, OBJECT_FLAGS + dp(DP_MOVED_OBJECT)) & PLAYER_PASSES) === PLAYER_PASSES
+      )
+        break check;
       setDirectWord(mem, DP_HEIGHT, height);
     }
     node = wramWord(mem, COLLISION_NODE_NEXT + node);
   } while (!(node & WORD_SIGN));
 }
 
-// The cell search 80:8486 through the JSR returning at site: true when a height was
-// found.
-function searchCell(mem, a, site, cell) {
-  a.pushWord(site);
+// The cell search 80:8486: true when a height was found.
+function searchCell(mem, cell) {
   const node = wramWord(mem, COLLISION_CELL_HEADS + cell);
-  if (!(node & WORD_SIGN)) {
-    pushByte(a, CODE_BANK);
-    a.pushWord(BOXES_RETURN);
-    searchBoxes(mem, a, node);
-    a.pullWord();
-    pullByte(a);
-  }
-  a.pullWord();
+  if (!(node & WORD_SIGN)) searchBoxes(mem, node);
   return directWord(mem, DP_HEIGHT) !== 0;
 }
 
@@ -175,7 +149,7 @@ function edge(mem, field, object, at) {
 
 // 80:8371: the collision test of the object in word 00 with its action in the direction
 // of word 02; the result in word 00.
-export function testActionBoxCollision(mem, a) {
+export function testActionBoxCollision(mem) {
   const dp = (offset) => directWord(mem, offset);
   const object = dp(DP_OBJECT);
   setDirectWord(mem, DP_MOVED_OBJECT, object);
@@ -201,11 +175,6 @@ export function testActionBoxCollision(mem, a) {
     setDirectWord(mem, at, value & BYTE_SIGN ? value | HIGH_BYTE_MASK : value);
   });
   setDirectWord(mem, DP_TOP, shapeByte(SHAPE_HEIGHT));
-  // PHB, PEA 7E7E, PLB, PLB: the data bank 7E, the caller's bank byte left on the stack.
-  pushByte(a, a.ctx.bank);
-  a.pushWord((WRAM_BANK << BYTE_BITS) | WRAM_BANK);
-  pullByte(a);
-  pullByte(a);
   const moved = dp(DP_MOVED_OBJECT);
   setDirectWord(mem, DP_HEIGHT, 0);
   const bottom = wramWord(mem, OBJECT_HEIGHT + moved) >>> POSITION_SHIFT;
@@ -225,16 +194,15 @@ export function testActionBoxCollision(mem, a) {
   setDirectWord(mem, DP_CELL_HIGH_X_HIGH_Y, dp(DP_HIGH_X_COLUMN) | dp(DP_HIGH_Y_ROW));
   setDirectWord(mem, DP_CELL_LOW_X_HIGH_Y, dp(DP_LOW_X_COLUMN) | dp(DP_HIGH_Y_ROW));
   // The four corner cells, each distinct one once, until one yields a height.
-  const [first, second, third, fourth] = CELL_RETURNS;
-  let found = searchCell(mem, a, first, dp(DP_CELL_LOW_X_HIGH_Y));
+  let found = searchCell(mem, dp(DP_CELL_LOW_X_HIGH_Y));
   if (!found) {
     const cell = dp(DP_CELL_LOW_X_LOW_Y);
-    if (cell !== dp(DP_CELL_LOW_X_HIGH_Y)) found = searchCell(mem, a, second, cell);
+    if (cell !== dp(DP_CELL_LOW_X_HIGH_Y)) found = searchCell(mem, cell);
   }
   if (!found) {
     const cell = dp(DP_CELL_HIGH_X_LOW_Y);
     if (cell !== dp(DP_CELL_LOW_X_HIGH_Y) && cell !== dp(DP_CELL_LOW_X_LOW_Y))
-      found = searchCell(mem, a, third, cell);
+      found = searchCell(mem, cell);
   }
   if (!found) {
     const cell = dp(DP_CELL_HIGH_X_HIGH_Y);
@@ -243,9 +211,7 @@ export function testActionBoxCollision(mem, a) {
       cell !== dp(DP_CELL_LOW_X_LOW_Y) &&
       cell !== dp(DP_CELL_HIGH_X_LOW_Y)
     )
-      found = searchCell(mem, a, fourth, cell);
+      found = searchCell(mem, cell);
   }
-  // PLB: the caller's data bank again.
-  a.ctx.bank = pullByte(a);
   setDirectWord(mem, DP_OBJECT, found ? FOUND : 0);
 }
