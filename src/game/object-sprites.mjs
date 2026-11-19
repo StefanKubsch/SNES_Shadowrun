@@ -24,7 +24,8 @@
 // on screen (0004), and front walls and open cells as covered (0200) or hidden (0800).
 //
 // The direct page words of the original are written as it writes them, the return words
-// of the inner calls and the grid's pushed index and column on the stack. Registers (user
+// of the inner calls on the stack; the grid's pushed index and column lie only in free
+// stack bytes and are kept in locals. Registers (user
 // decision 2026-11-17): the object and the picture are parameters (Y and A in the
 // original); no registers are left (nothing after the sprite list reads the X the last
 // object leaves). The fields the original reads through its
@@ -486,8 +487,11 @@ export function enterObjectSprites(h, slot, picture) {
       const covered = grid.checks.some((offset) => get(OCCLUSION_MASKS, y + offset));
       let priority = OAM_PRIORITY_2;
       if (covered) {
-        a.pushWord(index);
-        let call = 0;
+        // The original pushes the grid index and, at the next column, the cell x over
+        // the wall sprites; those words lie only in free stack bytes and are kept in
+        // locals (game state only, user decision 2026-11-17).
+        let call = 0,
+          cellX;
         for (const step of grid.steps) {
           if (step[0] === 'c') {
             const tile = get(OCCLUSION_TILES, y + parseInt(step.slice(1), HEX_RADIX));
@@ -498,14 +502,13 @@ export function enterObjectSprites(h, slot, picture) {
             setDp(DP_CELL_Y, dp(DP_CELL_Y) + CELL_SIZE);
           } else if (step === 'down') setDp(DP_CELL_Y, dp(DP_CELL_Y) + CELL_SIZE);
           else if (step === 'next' || step === 'nextOnly') {
-            a.pushWord(dp(DP_CELL_X));
+            cellX = dp(DP_CELL_X);
             setDp(DP_CELL_X, dp(DP_CELL_X) + CELL_SIZE);
             if (step === 'next') setDp(DP_CELL_Y, dp(DP_FIRST_CELL_Y));
           } else if (step === 'top') setDp(DP_CELL_Y, dp(DP_FIRST_CELL_Y));
           else if (step === 'right') setDp(DP_CELL_X, dp(DP_CELL_X) + CELL_SIZE);
         }
-        setDp(DP_CELL_X, a.pullWord());
-        index = a.pullWord();
+        setDp(DP_CELL_X, cellX);
         priority = OAM_PRIORITY_3;
       }
       put(OCCLUSION_MASKS, priority, index);

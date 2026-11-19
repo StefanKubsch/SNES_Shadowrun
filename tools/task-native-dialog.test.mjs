@@ -540,7 +540,8 @@ for (const [name, native, registers] of [
       put(0x1562, int(4));
       return s;
     },
-    { native, registers },
+    // The lifted list keeps the words the original parks below the stack in locals.
+    { native, registers, freeStack: registers === GAME_STATE_REGISTERS },
   );
 
 // The lifted depth sort and palette slot alone (src/game/depth-sort.mjs, palette-slots.mjs),
