@@ -248,9 +248,9 @@ export function gloveTarget(wram) {
 
 // Store the result word in DP 00.
 const setResult = (h, value) => setWord(h.a.mem.wram, 0, value);
-// The chosen slot waits on the stack while the glove is put away (PHA, PLA).
-const holdSlot = (h, slot) => h.a.pushWord(slot);
-const takeSlot = (h) => setResult(h, h.a.pullWord());
+// The original keeps the chosen slot on the stack while the glove is put away (PHA,
+// PLA); that word lies only in free stack bytes, and the slot is kept in a local here
+// (game state only, user decision 2026-11-17).
 
 // 80:8D0B: choose the object under the action glove, without a reach check. DP 00 gets
 // its slot or FFFF; a sequence that ends with the native's RTS.
@@ -262,11 +262,10 @@ export function* chooseObjectUnderGloveSequence(h, events, renderBuffer = drawTe
   let target;
   yield () => {
     target = gloveTarget(wram);
-    if (target !== null) holdSlot(h, target);
   };
   if (target !== null) {
     yield* dialogCallBody(h, sites.awayChosen, PUT_AWAY, () => putGloveAwayCallSequence(h, events));
-    yield () => takeSlot(h);
+    yield () => setResult(h, target);
     yield* dialogCallBody(h, sites.padChosen, PAD_WORD, () =>
       segmentSequence(() => takePadWord(h, events)),
     );
@@ -371,11 +370,14 @@ function* chooseInReachSequence(h, events, renderBuffer, pc) {
       yield* dialogCallBody(h, sites.notice, SHOW_NOTICE, () => showNoticeSequence(h, events));
     if (target !== null && !far) {
       yield* redrawUnlessMenuSequence(h, events, sites.redrawChosen);
-      yield () => holdSlot(h, word(wram, GLOVE_TARGET_OBJECT));
+      let chosen;
+      yield () => {
+        chosen = word(wram, GLOVE_TARGET_OBJECT);
+      };
       yield* dialogCallBody(h, sites.awayChosen, PUT_AWAY, () =>
         putGloveAwayCallSequence(h, events),
       );
-      yield () => takeSlot(h);
+      yield () => setResult(h, chosen);
       yield* dialogCallBody(h, sites.padChosen, PAD_WORD, () =>
         segmentSequence(() => takePadWord(h, events)),
       );
@@ -499,10 +501,9 @@ export function* spellGloveTargetSequence(h, events, renderBuffer = drawTextBuff
     yield* redrawUnlessMenuSequence(h, events, sites.redrawChosen);
     yield () => {
       setWord(wram, SPELL_TARGET_OBJECT, target);
-      holdSlot(h, target);
     };
     yield* dialogCallBody(h, sites.awayChosen, PUT_AWAY, () => putGloveAwayCallSequence(h, events));
-    yield () => takeSlot(h);
+    yield () => setResult(h, target);
     yield* dialogCallBody(h, sites.padChosen, PAD_WORD, () =>
       segmentSequence(() => takePadWord(h, events)),
     );
@@ -553,10 +554,10 @@ export function* choosePlaceWithGloveSequence(h, events, renderBuffer = drawText
   const { mem } = h.a,
     { wram } = mem,
     sites = PLACE;
+  let object;
   yield () => {
-    const object = word(wram, 0);
-    // The object's index waits on the stack during the choice.
-    h.a.pushWord(object);
+    // The original keeps the object's index on the stack during the choice.
+    object = word(wram, 0);
     setWord(wram, MOTION_MODE + object, 0);
   };
   yield* prepareWindowListSequence(h, events, sites.prepareList);
@@ -564,8 +565,7 @@ export function* choosePlaceWithGloveSequence(h, events, renderBuffer = drawText
   yield* gloveFramesSequence(h, events, renderBuffer, sites.frames);
   yield* redrawListSequence(h, events, sites.redraw);
   yield () => {
-    const object = h.a.pullWord(),
-      { down, across } = gloveFloorPlace(mem, object);
+    const { down, across } = gloveFloorPlace(mem, object);
     setWord(wram, MOTION_Y + object, down);
     setWord(wram, MOTION_X + object, across);
     setWord(wram, MOTION_ACTIVE + object, 1);

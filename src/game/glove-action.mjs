@@ -167,8 +167,8 @@ export function* gloveActionSequence(h, events, renderBuffer = drawTextBufferSeq
     if (!accepted) return;
     const pressed = word(wram, PAD_PRESSED);
     if (pressed & PAD_B) {
-      // The object slot waits on the stack over the menu.
-      h.a.pushWord(object);
+      // The original keeps the object slot on the stack over the menu and the dialog;
+      // that word lies only in free stack bytes, and object stays in its local.
       path = 'menu';
       return;
     }
@@ -193,7 +193,6 @@ export function* gloveActionSequence(h, events, renderBuffer = drawTextBufferSeq
     );
     let dialog = 0;
     yield () => {
-      object = h.a.pullWord();
       action = choice.action;
       if (!(action & TALK_ACTION)) return;
       // The dialog record is read in bank 7E (a long read).
@@ -202,14 +201,12 @@ export function* gloveActionSequence(h, events, renderBuffer = drawTextBufferSeq
         action = ACTION_WITHOUT_DIALOG;
         return;
       }
-      h.a.pushWord(object);
       setWord(wram, DP_DIALOG_OBJECT, object);
       setWord(wram, DP_DIALOG_RECORD, dialog);
     };
     if (dialog) {
       yield* dialogCallBody(h, ...CALL.dialog, () => talkSequence(h, events, renderBuffer));
       yield () => {
-        object = h.a.pullWord();
         action = 0;
       };
     }
