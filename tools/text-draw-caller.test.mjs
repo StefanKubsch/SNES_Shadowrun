@@ -28,7 +28,11 @@ function run(sequence, budget, style, request, variant) {
       ? ''
       : variant === 'wrap'
         ? 'Long words wrap around the window. |Bold| lower case and more words.'
-        : 'A |bold| word.';
+        : variant === 'long'
+          ? // A word wider than the line at the line's start: the line break runs with
+            // nothing drawn and takes its window from the index X still holds.
+            'W'.repeat(40) + ' end.'
+          : 'A |bold| word.';
   mem.wram.set(
     [...text].map((c) => c.charCodeAt(0)),
     TEXT_BUFFER,
@@ -38,7 +42,7 @@ function run(sequence, budget, style, request, variant) {
 }
 
 for (const budget of [1, 7])
-  for (const variant of ['empty', 'plain', 'wrap'])
+  for (const variant of ['empty', 'plain', 'wrap', 'long'])
     for (const style of [0, 8, 0x10, 0x20, 0x40, 0x60, 0x80, 0xb8])
       test(`live glyph uploads: ${variant}, style ${style}, budget ${budget}`, () => {
         for (const request of [0, 0xfffe, 0xffff]) {

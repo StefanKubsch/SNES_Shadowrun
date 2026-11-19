@@ -20,8 +20,10 @@
 // (src/data/language.mjs) leaves out glyphs that no longer fit their line.
 //
 // Registers (user decision 2026-11-17): the routine works in the direct page words A2
-// to D2 and keeps the original's A, X, Y and carry as locals (each set before
-// it is read); it leaves no registers. The upload requests run below the frames of
+// to D2 with plain values; it leaves no registers. Of the original's working registers
+// only X is carried from one step to the next, because a line break with nothing drawn
+// takes its window from the index X still holds (a character, glyph row or mask index),
+// as the original does. The upload requests run below the frames of
 // their two JSLs, and their waits see the request word's sign, as the original; with the
 // lag-free frame model they are lifted, otherwise (recorded observations, the function
 // tests) the register-level requests run through their frames. With recorded interrupts
@@ -143,55 +145,14 @@ const setWord = (wram, at, value) => {
 const romWord = (mem, at) => mem.read8(at) | (mem.read8(at + 1) << BYTE_BITS);
 const swap = (value) => ((value & BYTE_MASK) << BYTE_BITS) | (value >>> BYTE_BITS);
 
-// The original's working registers as locals: a (16 bits; byte operations keep the high
-// byte), x, y and the carry c. Every value is set before it is read; the overflow is
-// never read and not kept.
-class Registers {
-  constructor() {
-    this.a = 0;
-    this.x = 0;
-    this.y = 0;
-    this.c = false;
-  }
-  byte(value) {
-    this.a = (this.a & ~BYTE_MASK) | (value & BYTE_MASK);
-    return value & BYTE_MASK;
-  }
-  // ADC and SBC of 16-bit words (subtraction with the carry as no borrow).
-  add(left, right, carry) {
-    const sum = left + right + (carry ? 1 : 0),
-      result = sum & WORD_MASK;
-    this.c = sum > WORD_MASK;
-    this.a = result;
-    return result;
-  }
-  subtract(left, right, carry) {
-    const difference = left - right - (carry ? 0 : 1),
-      result = difference & WORD_MASK;
-    this.c = difference >= 0;
-    this.a = result;
-    return result;
-  }
-  // Three ASL of a word: the carry is its bit 13.
-  shiftTile(value) {
-    this.c = ((value >>> (WORD_BITS - PIXEL_SHIFT)) & 1) !== 0;
-    this.a = (value << PIXEL_SHIFT) & WORD_MASK;
-    return this.a;
-  }
-  // LSR of A count times (count 1 to 65535), as the original's loop with DEY.
-  shiftRight(count) {
-    const old = this.a;
-    this.c = count <= WORD_BITS && ((old >>> (count - 1)) & 1) !== 0;
-    this.a = count < WORD_BITS ? old >>> count : 0;
-    this.y = 0;
-  }
-}
-
-// The text drawing's state: memory, port and registers, with the window in r.x.
+// The text drawing's state: memory, port, and the index the original keeps in X from
+// one step to the next (see breakLine).
 function textState(h) {
   const { mem, wram, port } = sceneRuntime(h);
-  return { mem, wram, port, r: new Registers() };
+  return { mem, wram, port, x: 0 };
 }
+// LSR of a word count times (count 1 to 65535), as the original's loop with DEY.
+const shiftRight = (value, count) => (count < WORD_BITS ? value >>> count : 0);
 const field = (wram, table, x) => word(wram, table + x);
 const byteField = (wram, table, x) => wram[table + x];
 
@@ -268,24 +229,19 @@ function newLine(wram, port, x) {
 }
 // 81:AEC8: close the mask at the pixel offset (a partly drawn tile counts) and note the
 // bytes to upload.
-function closeMask({ mem, wram, r }) {
-  r.a = word(wram, TEXT_PENDING_BYTES);
-  r.x = word(wram, TEXT_PIXEL_OFFSET);
-  if (r.x !== 0) {
-    setWord(wram, TEXT_PENDING_BYTES, r.add(r.a, MASK_TILE_BYTES, false));
-    r.y = r.a;
-    r.c = (r.x & WORD_SIGN) !== 0;
-    r.x = (r.x << 1) & WORD_MASK;
-    setWord(wram, TEXT_WORK_WORD, romWord(mem, OFFSET_MASKS + r.x));
-    for (let n = 0; n < MASK_WORDS; n++) {
-      const at = TEXT_MASK_BUFFER - 2 + r.y;
+function closeMask(mem, wram) {
+  let bytes = word(wram, TEXT_PENDING_BYTES);
+  const offset = word(wram, TEXT_PIXEL_OFFSET);
+  if (offset !== 0) {
+    bytes = (bytes + MASK_TILE_BYTES) & WORD_MASK;
+    setWord(wram, TEXT_PENDING_BYTES, bytes);
+    setWord(wram, TEXT_WORK_WORD, romWord(mem, OFFSET_MASKS + ((offset << 1) & WORD_MASK)));
+    for (let n = 0, y = bytes; n < MASK_WORDS; n++, y = (y - 2) & WORD_MASK) {
+      const at = TEXT_MASK_BUFFER - 2 + y;
       setWord(wram, at, word(wram, at) | word(wram, TEXT_WORK_WORD));
-      r.y = (r.y - 2) & WORD_MASK;
     }
-    r.x = 0;
-    r.a = word(wram, TEXT_PENDING_BYTES);
   }
-  setWord(wram, TEXT_BUFFER_BYTES, r.a);
+  setWord(wram, TEXT_BUFFER_BYTES, bytes);
 }
 // The window's text tile at the cursor, in video memory (7E:020E).
 function cursorAddress(wram, x) {
@@ -297,180 +253,127 @@ function cursorAddress(wram, x) {
 }
 // The mask rows: the bits left of the pixel offset kept, the others cleared (and at the
 // start ANDed with the read-back tile).
-function maskRows({ wram, r }, initial) {
-  const offset = field(wram, WINDOW_CURSOR_PIXEL, r.x);
+function maskRows(wram, x, initial) {
+  const offset = field(wram, WINDOW_CURSOR_PIXEL, x);
   setWord(wram, TEXT_PIXEL_OFFSET, offset);
-  r.y = offset;
-  r.a = WORD_MASK;
+  let mask = WORD_MASK;
   if (offset !== 0) {
-    r.shiftRight(offset);
-    setWord(wram, TEXT_WORK_WORD, r.a);
-    r.a = swap(r.a) & r.a;
+    mask = shiftRight(mask, offset);
+    setWord(wram, TEXT_WORK_WORD, mask);
+    mask &= swap(mask);
   }
-  r.a ^= WORD_MASK;
-  if (initial) setWord(wram, TEXT_INITIAL_MASK, r.a);
-  for (let x = MASK_LAST_WORD; x >= 0; x -= 2) {
-    if (initial) r.a = word(wram, TEXT_MASK_BUFFER + x) & word(wram, TEXT_INITIAL_MASK);
-    setWord(wram, TEXT_MASK_BUFFER + x, r.a);
-  }
-  // The loop counts X down past 0.
-  r.x = MASK_LOOP_END;
+  mask ^= WORD_MASK;
+  if (initial) setWord(wram, TEXT_INITIAL_MASK, mask);
+  for (let at = MASK_LAST_WORD; at >= 0; at -= 2)
+    setWord(
+      wram,
+      TEXT_MASK_BUFFER + at,
+      initial ? word(wram, TEXT_MASK_BUFFER + at) & word(wram, TEXT_INITIAL_MASK) : mask,
+    );
 }
 // The next word's width (from the character index to a space or the end) against the
-// pixels left on the line: the carry set when it does not fit.
-function measureWord({ mem, wram, r }) {
+// pixels left on the line: true when it does not fit. X keeps the word's last character
+// (its glyph index).
+function measureWord(s) {
+  const { mem, wram } = s;
   setWord(wram, TEXT_WORK_WORD, 0);
   setWord(wram, TEXT_WORD_STATE, 0);
-  r.a = 0;
-  r.y = word(wram, TEXT_CHARACTER_INDEX);
-  for (;;) {
-    const ch = r.byte(wram[TEXT_BUFFER + r.y]);
+  for (let y = word(wram, TEXT_CHARACTER_INDEX); ;) {
+    const ch = wram[TEXT_BUFFER + y];
     if (ch === 0 || ch === SPACE) break;
     if (ch === STYLE_TOGGLE) {
       wram[TEXT_COMPOSE_STYLE] |= STYLE_BOLD;
-      wram[TEXT_BUFFER + r.y] = r.byte(STYLE_PLACEHOLDER);
+      wram[TEXT_BUFFER + y] = STYLE_PLACEHOLDER;
       continue;
     }
-    r.y = (r.y + 1) & WORD_MASK;
-    r.x = r.a;
+    y = (y + 1) & WORD_MASK;
+    s.x = ch;
     if (wram[TEXT_COMPOSE_STYLE] & STYLE_BOLD)
       wram[TEXT_WORK_WORD] = (wram[TEXT_WORK_WORD] + 1) & BYTE_MASK;
-    const glyph = mem.read8(GLYPH_WIDTHS + r.x),
-      sum = glyph + wram[TEXT_WORK_WORD],
-      width = sum & BYTE_MASK;
-    r.c = sum > BYTE_MASK;
-    r.byte(width);
-    wram[TEXT_WORK_WORD] = width;
+    wram[TEXT_WORK_WORD] = (mem.read8(GLYPH_WIDTHS + ch) + wram[TEXT_WORK_WORD]) & BYTE_MASK;
   }
-  r.a = word(wram, TEXT_WORK_WORD) || EMPTY_WORD_WIDTH;
-  r.c = r.a >= word(wram, TEXT_LINE_PIXELS);
-  return r.c;
+  return (word(wram, TEXT_WORK_WORD) || EMPTY_WORD_WIDTH) >= word(wram, TEXT_LINE_PIXELS);
 }
 // One character step: 'measure' after a word (its bold ends), 'end', or 'glyph' with the
-// character in A's low byte (capitals with style 80).
-function nextCharacter({ wram, r }) {
-  const style = r.byte(wram[TEXT_COMPOSE_STYLE]);
-  r.y = r.a;
-  r.c = (style & BYTE_SIGN) !== 0;
-  r.byte(style << 1);
+// character (capitals with style 80) in s.character.
+function nextCharacter(s) {
+  const { wram } = s,
+    capitals = (wram[TEXT_COMPOSE_STYLE] & BYTE_SIGN) !== 0;
   const endBold = () => {
-    r.byte(STYLE_BOLD);
     wram[TEXT_COMPOSE_STYLE] &= ~STYLE_BOLD;
     return 'measure';
   };
-  if (r.byte(wram[TEXT_WORD_STATE]) & BYTE_SIGN) return endBold();
-  r.x = word(wram, TEXT_CHARACTER_INDEX);
-  let ch = r.byte(wram[TEXT_BUFFER + r.x]);
+  if (wram[TEXT_WORD_STATE] & BYTE_SIGN) return endBold();
+  s.x = word(wram, TEXT_CHARACTER_INDEX);
+  let ch = wram[TEXT_BUFFER + s.x];
   if (ch === 0) return 'end';
-  const capitals = r.c;
   if (ch === SPACE) {
-    if (r.byte(wram[TEXT_WORD_STATE])) {
-      r.c = capitals;
-      return endBold();
-    }
+    if (wram[TEXT_WORD_STATE]) return endBold();
     wram[TEXT_WORD_STATE] = (wram[TEXT_WORD_STATE] - 1) & BYTE_MASK;
-    ch = r.byte(SPACE);
   } else wram[TEXT_WORD_STATE] = (wram[TEXT_WORD_STATE] + 1) & BYTE_MASK;
-  r.x = (r.x + 1) & WORD_MASK;
-  setWord(wram, TEXT_CHARACTER_INDEX, r.x);
-  r.c = capitals;
-  if (capitals) {
-    r.c = ch >= LOWER_FIRST;
-    if (r.c) {
-      r.c = ch >= LOWER_END;
-      if (!r.c) r.byte(ch & UPPER_MASK);
-    }
-  }
+  s.x = (s.x + 1) & WORD_MASK;
+  setWord(wram, TEXT_CHARACTER_INDEX, s.x);
+  if (capitals && ch >= LOWER_FIRST && ch < LOWER_END) ch &= UPPER_MASK;
+  s.character = ch;
   return 'glyph';
 }
-// Draw the glyph of the character in A's low byte at the pixel offset into the mask,
-// row by row from the bottom, and move the offset (and the pending bytes past a tile).
-function drawGlyph({ mem, wram, r }) {
-  r.a &= BYTE_MASK;
-  r.x = r.a;
-  setWord(wram, TEXT_WORK_WORD, romWord(mem, GLYPH_WIDTHS + r.x) & BYTE_MASK);
-  r.a = word(wram, TEXT_COMPOSE_STYLE) & STYLE_WIDER;
-  if (r.a) setWord(wram, TEXT_WORK_WORD, word(wram, TEXT_WORK_WORD) + 1);
-  r.x = r.shiftTile(r.x);
-  r.byte(GLYPH_LAST_ROW);
+// Whether a glyph row is shifted one pixel: every second row (style 60), the lower (20)
+// or the upper rows (40).
+function shiftedRow(style, row) {
+  if ((style & STYLE_SHIFT_ALL) === STYLE_SHIFT_ALL) return (row & 1) === 0;
+  if (style & STYLE_SHIFT_LOW) return row < ROW_SHIFT_BOUNDARY;
+  if (style & STYLE_SHIFT_HIGH) return row >= ROW_SHIFT_BOUNDARY;
+  return false;
+}
+// Draw the glyph of character at the pixel offset into the mask, row by row from the
+// bottom, and move the offset (and the pending bytes past a tile). X ends past the
+// glyph's rows.
+function drawGlyph(s, character) {
+  const { mem, wram } = s;
+  setWord(wram, TEXT_WORK_WORD, romWord(mem, GLYPH_WIDTHS + character) & BYTE_MASK);
+  if (word(wram, TEXT_COMPOSE_STYLE) & STYLE_WIDER)
+    setWord(wram, TEXT_WORK_WORD, word(wram, TEXT_WORK_WORD) + 1);
+  let x = (character << PIXEL_SHIFT) & WORD_MASK;
   wram[TEXT_GLYPH_ROW] = GLYPH_LAST_ROW;
   do {
-    const style = r.byte(wram[TEXT_COMPOSE_STYLE]),
-      row = () => wram[TEXT_GLYPH_ROW];
-    r.y = r.a;
-    let bits = mem.read8(GLYPHS + r.x);
-    if (style & STYLE_BOLD) {
-      r.c = (bits & BYTE_SIGN) !== 0;
-      bits = (bits << 1) | bits;
-    }
-    wram[TEXT_GLYPH_BITS] = r.byte(bits);
-    let shift = false;
-    // Shifted rows: every second (60), the lower (20) or the upper ones (40); A is
-    // replaced before it is read.
-    if ((style & STYLE_SHIFT_ALL) === STYLE_SHIFT_ALL) {
-      r.c = (row() & 1) !== 0;
-      shift = !r.c;
-    } else {
-      r.c = false;
-      if (style & STYLE_SHIFT_LOW) {
-        r.c = row() >= ROW_SHIFT_BOUNDARY;
-        shift = !r.c;
-      } else if (style & STYLE_SHIFT_HIGH) {
-        r.c = row() >= ROW_SHIFT_BOUNDARY;
-        shift = r.c;
-      }
-    }
-    if (shift) {
-      r.c = (wram[TEXT_GLYPH_BITS] & BYTE_SIGN) !== 0;
-      wram[TEXT_GLYPH_BITS] = (wram[TEXT_GLYPH_BITS] << 1) & BYTE_MASK;
-    }
-    r.byte(style & STYLE_UNDERLINE);
-    if (style & STYLE_UNDERLINE) {
-      r.byte(row());
-      if (row() === 0) {
-        r.c = r.x >= UNDERLINE_SKIP;
-        if (r.x !== UNDERLINE_SKIP) wram[TEXT_GLYPH_BITS] = r.byte(BYTE_MASK);
-      }
-    }
+    const style = wram[TEXT_COMPOSE_STYLE],
+      row = wram[TEXT_GLYPH_ROW];
+    let bits = mem.read8(GLYPHS + x);
+    if (style & STYLE_BOLD) bits |= bits << 1;
+    wram[TEXT_GLYPH_BITS] = bits & BYTE_MASK;
+    if (shiftedRow(style, row)) wram[TEXT_GLYPH_BITS] = (wram[TEXT_GLYPH_BITS] << 1) & BYTE_MASK;
+    if (style & STYLE_UNDERLINE && row === 0 && x !== UNDERLINE_SKIP)
+      wram[TEXT_GLYPH_BITS] = BYTE_MASK;
     wram[TEXT_GLYPH_HIGH] = 0;
-    r.a = swap(word(wram, TEXT_GLYPH_BITS));
-    r.y = word(wram, TEXT_WORK_WORD);
-    r.c = r.y >= TILE_PIXELS;
-    if (r.y !== TILE_PIXELS) {
-      const count = (TILE_PIXELS - r.y) & WORD_MASK;
-      r.a = count < WORD_BITS ? (r.a << count) & WORD_MASK : 0;
-      r.y = TILE_PIXELS;
-      r.c = true;
-    }
+    // The row's bits in the high byte, moved left past a narrow glyph's width, with the
+    // bits past its width set, and moved right to the pixel offset.
+    let pixels = swap(word(wram, TEXT_GLYPH_BITS));
     const width = word(wram, TEXT_WORK_WORD);
-    r.c = (width & WORD_SIGN) !== 0;
-    r.a ^= romWord(mem, WIDTH_MASKS + ((width << 1) & WORD_MASK));
-    r.y = word(wram, TEXT_PIXEL_OFFSET);
-    if (r.y !== 0) r.shiftRight(r.y);
-    r.y = word(wram, TEXT_PENDING_BYTES);
-    wram[TEXT_MASK_BUFFER + MASK_TILE_BYTES + r.y] = r.a & BYTE_MASK;
-    r.a = swap(r.a);
-    wram[TEXT_MASK_BUFFER + r.y] = r.byte(r.a | wram[TEXT_MASK_BUFFER + r.y]);
-    r.y = (r.y + 1) & WORD_MASK;
-    r.byte(BYTE_MASK);
-    wram[TEXT_MASK_BUFFER + r.y] = BYTE_MASK;
-    wram[TEXT_MASK_BUFFER + MASK_TILE_BYTES + r.y] = BYTE_MASK;
-    r.y = (r.y + 1) & WORD_MASK;
-    setWord(wram, TEXT_PENDING_BYTES, r.y);
-    r.x = (r.x + 1) & WORD_MASK;
+    if (width !== TILE_PIXELS) {
+      const count = (TILE_PIXELS - width) & WORD_MASK;
+      pixels = count < WORD_BITS ? (pixels << count) & WORD_MASK : 0;
+    }
+    pixels ^= romWord(mem, WIDTH_MASKS + ((width << 1) & WORD_MASK));
+    const offset = word(wram, TEXT_PIXEL_OFFSET);
+    if (offset !== 0) pixels = shiftRight(pixels, offset);
+    let y = word(wram, TEXT_PENDING_BYTES);
+    wram[TEXT_MASK_BUFFER + MASK_TILE_BYTES + y] = pixels & BYTE_MASK;
+    wram[TEXT_MASK_BUFFER + y] = (pixels >>> BYTE_BITS) | wram[TEXT_MASK_BUFFER + y];
+    y = (y + 1) & WORD_MASK;
+    wram[TEXT_MASK_BUFFER + y] = BYTE_MASK;
+    wram[TEXT_MASK_BUFFER + MASK_TILE_BYTES + y] = BYTE_MASK;
+    setWord(wram, TEXT_PENDING_BYTES, y + 1);
+    x = (x + 1) & WORD_MASK;
     wram[TEXT_GLYPH_ROW] = (wram[TEXT_GLYPH_ROW] - 1) & BYTE_MASK;
   } while (!(wram[TEXT_GLYPH_ROW] & BYTE_SIGN));
-  const width = word(wram, TEXT_WORK_WORD);
-  setWord(wram, TEXT_LINE_PIXELS, r.subtract(word(wram, TEXT_LINE_PIXELS), width, true));
-  r.add(word(wram, TEXT_PIXEL_OFFSET), width, false);
-  r.c = r.a >= TILE_PIXELS;
-  setWord(wram, TEXT_PIXEL_OFFSET, (r.a &= PIXEL_MASK));
-  if (!r.c)
-    setWord(
-      wram,
-      TEXT_PENDING_BYTES,
-      r.subtract(word(wram, TEXT_PENDING_BYTES), TILE_STEP_BACK - 1, false),
-    );
+  s.x = x;
+  const width = word(wram, TEXT_WORK_WORD),
+    offset = (word(wram, TEXT_PIXEL_OFFSET) + width) & WORD_MASK;
+  setWord(wram, TEXT_LINE_PIXELS, word(wram, TEXT_LINE_PIXELS) - width);
+  setWord(wram, TEXT_PIXEL_OFFSET, offset & PIXEL_MASK);
+  // Within the tile the pending bytes step back to its start.
+  if (offset < TILE_PIXELS)
+    setWord(wram, TEXT_PENDING_BYTES, word(wram, TEXT_PENDING_BYTES) - TILE_STEP_BACK);
 }
 
 // Push the frame of a JSL at site (in the running bank) and pull it again.
@@ -485,10 +388,9 @@ function pullLongFrame(h) {
   h.ctx.s = (h.ctx.s + 1) & WORD_MASK;
 }
 // An upload request (81:AEF4 or 81:AEFC) as FB39 calls it with JSL: the request word
-// counts up and the wait loop runs until the NMI has taken it; A (r.a) is 0 afterwards.
-function* requestUpload(h, events, s, request) {
-  const { ctx } = h,
-    { wram, r } = s;
+// counts up and the wait loop runs until the NMI has taken it.
+function* requestUpload(h, events, wram, request) {
+  const { ctx } = h;
   yield () => {
     pushLongFrame(h, request.site);
     ctx.programBank = REQUEST_BANK;
@@ -507,9 +409,6 @@ function* requestUpload(h, events, s, request) {
     pullLongFrame(h);
     ctx.programBank = request.site >>> WORD_BITS;
   };
-  yield () => {
-    r.a = 0;
-  };
 }
 
 // Draw the text buffer into the window (80:FB39), a sequence for a native call
@@ -517,52 +416,53 @@ function* requestUpload(h, events, s, request) {
 // events.
 export function* drawTextBufferSequence(h, events) {
   const s = textState(h),
-    { mem, wram, port, r } = s;
+    { mem, wram, port } = s;
+  const pendingMask = () => (word(wram, TEXT_PENDING_BYTES) | word(wram, TEXT_PIXEL_OFFSET)) !== 0;
   yield () => {
-    r.x = word(wram, DP_WINDOW);
-    alignCursor(wram, port, r.x);
-    setWord(wram, TEXT_LINE_PIXELS, lineRest(wram, port, r.x));
-    setWord(wram, TEXT_COMPOSE_STYLE, field(wram, WINDOW_STYLE, r.x));
+    s.x = word(wram, DP_WINDOW);
+    alignCursor(wram, port, s.x);
+    setWord(wram, TEXT_LINE_PIXELS, lineRest(wram, port, s.x));
+    setWord(wram, TEXT_COMPOSE_STYLE, field(wram, WINDOW_STYLE, s.x));
     setWord(wram, TEXT_PENDING_BYTES, 0);
-    cursorAddress(wram, r.x);
+    cursorAddress(wram, s.x);
   };
-  yield* requestUpload(h, events, s, READBACK);
+  yield* requestUpload(h, events, wram, READBACK);
   yield () => {
-    maskRows(s, true);
+    maskRows(wram, s.x, true);
+    // The mask loop counts X down past 0.
+    s.x = MASK_LOOP_END;
     setWord(wram, TEXT_CHARACTER_INDEX, 0);
   };
   // A line break: the mask uploaded if anything is drawn, the cursor on the next line; a
-  // space at its start is skipped (then the next word is measured again).
+  // space at its start is skipped (then the next word is measured again). With nothing
+  // drawn, the window is the index left in X by the step before (as the original).
   function* breakLine() {
     let pending, space;
     yield () => {
-      r.a = word(wram, TEXT_PENDING_BYTES) | word(wram, TEXT_PIXEL_OFFSET);
-      pending = r.a !== 0;
+      pending = pendingMask();
       if (!pending) return;
-      closeMask(s);
+      closeMask(mem, wram);
       setWord(wram, TEXT_PENDING_BYTES, 0);
-      r.x = word(wram, DP_WINDOW);
+      s.x = word(wram, DP_WINDOW);
     };
-    if (pending) yield* requestUpload(h, events, s, LINE_UPLOAD);
+    if (pending) yield* requestUpload(h, events, wram, LINE_UPLOAD);
     yield () => {
-      newLine(wram, port, r.x);
-      alignCursor(wram, port, r.x);
-      cursorAddress(wram, r.x);
-      setWord(wram, TEXT_LINE_PIXELS, lineRest(wram, port, r.x));
-      maskRows(s, false);
-      r.x = word(wram, TEXT_CHARACTER_INDEX);
-      r.a = wram[TEXT_BUFFER + r.x];
-      r.c = r.a >= SPACE;
-      space = r.a === SPACE;
+      newLine(wram, port, s.x);
+      alignCursor(wram, port, s.x);
+      cursorAddress(wram, s.x);
+      setWord(wram, TEXT_LINE_PIXELS, lineRest(wram, port, s.x));
+      maskRows(wram, s.x, false);
+      s.x = word(wram, TEXT_CHARACTER_INDEX);
+      space = wram[TEXT_BUFFER + s.x] === SPACE;
       if (!space) return;
-      r.x = (r.x + 1) & WORD_MASK;
-      setWord(wram, TEXT_CHARACTER_INDEX, r.x);
+      s.x = (s.x + 1) & WORD_MASK;
+      setWord(wram, TEXT_CHARACTER_INDEX, s.x);
     };
     return space;
   }
   // Text language: a glyph that no longer fits its line is left out.
   const overflows = () =>
-    mem.read8(GLYPH_WIDTHS + (r.a & BYTE_MASK)) + (wram[TEXT_COMPOSE_STYLE] & STYLE_WIDER ? 1 : 0) >
+    mem.read8(GLYPH_WIDTHS + s.character) + (wram[TEXT_COMPOSE_STYLE] & STYLE_WIDER ? 1 : 0) >
     word(wram, TEXT_LINE_PIXELS);
   let measure = true;
   for (;;) {
@@ -581,23 +481,26 @@ export function* drawTextBufferSequence(h, events) {
     measure = action === 'measure';
     if (measure) continue;
     if (mem.language && overflows()) continue;
-    yield () => drawGlyph(s);
+    yield () => drawGlyph(s, s.character);
   }
   let pending;
   yield () => {
-    r.a = word(wram, TEXT_PENDING_BYTES) | word(wram, TEXT_PIXEL_OFFSET);
-    pending = r.a !== 0;
+    pending = pendingMask();
     if (!pending) return;
-    closeMask(s);
-    r.a = word(wram, TEXT_PENDING_BYTES);
-    r.c = ((r.a >>> (TILE_BYTE_SHIFT - 1)) & 1) !== 0;
-    r.a >>>= TILE_BYTE_SHIFT;
-    r.x = word(wram, DP_WINDOW);
-    setWord(wram, WINDOW_CURSOR_TILE + r.x, r.add(r.a, field(wram, WINDOW_CURSOR_TILE, r.x), r.c));
-    r.a = word(wram, TEXT_PIXEL_OFFSET);
-    setWord(wram, WINDOW_CURSOR_PIXEL + r.x, r.a);
+    closeMask(mem, wram);
+    // The cursor moves past the pending tiles; a half tile (bit 3, the carry of the
+    // shifts) counts as one more.
+    const bytes = word(wram, TEXT_PENDING_BYTES),
+      half = (bytes >>> (TILE_BYTE_SHIFT - 1)) & 1;
+    s.x = word(wram, DP_WINDOW);
+    setWord(
+      wram,
+      WINDOW_CURSOR_TILE + s.x,
+      (bytes >>> TILE_BYTE_SHIFT) + field(wram, WINDOW_CURSOR_TILE, s.x) + half,
+    );
+    setWord(wram, WINDOW_CURSOR_PIXEL + s.x, word(wram, TEXT_PIXEL_OFFSET));
   };
-  if (pending) yield* requestUpload(h, events, s, END_UPLOAD);
+  if (pending) yield* requestUpload(h, events, wram, END_UPLOAD);
   let result;
   yield () => {
     // The original returns with a 16-bit accumulator.
