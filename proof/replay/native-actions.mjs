@@ -46,6 +46,7 @@ import {
   FLAG_CARRY,
 } from '../../src/constants/cpu-flags.mjs';
 import { CODE_BANK, WRAM_BANK } from '../../src/constants/memory-map.mjs';
+import '../system/dialog-register-helpers.mjs';
 
 const JSR_BYTES = 3;
 // Masks and text pointers in the pinned 99EB source. Original text ids are

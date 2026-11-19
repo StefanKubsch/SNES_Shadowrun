@@ -65,6 +65,7 @@ import {
 import { RUNNER_LAST_INDEX } from '../../src/data/runners.mjs';
 import { KIND_ITEM_CLASS_MASK, KIND_NO_NAME } from '../../src/data/kinds.mjs';
 import { BYTE_MASK, BYTE_BITS, WORD_BITS, WORD_MASK } from '../../src/constants/bits.mjs';
+import '../system/dialog-register-helpers.mjs';
 
 // BE6D: the D-pad bits of the high byte accelerate the glove by 30 per frame up to 300
 // (ADC 2F with the carry set); the position stays in 0300..EF00 and 0300..CE00.

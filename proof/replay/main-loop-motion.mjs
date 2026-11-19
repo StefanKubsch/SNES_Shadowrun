@@ -55,6 +55,7 @@ import {
 import { WORD_MASK } from '../../src/constants/bits.mjs';
 import { WRAM_BANK_PAIR } from '../../src/constants/memory-map.mjs';
 import { FLAG_ZERO, FLAG_CARRY, FLAG_NEGATIVE } from '../../src/constants/cpu-flags.mjs';
+import '../system/dialog-register-helpers.mjs';
 // Routines between the scheduler rounds. h accesses the shared VM WRAM directly.
 // The scene sequences use their jointly bound helper graphs.
 // Unbound calls stop before their return frame; there is no assumed return value.

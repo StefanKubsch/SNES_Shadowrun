@@ -33,6 +33,7 @@ import {
   WORD_MASK,
 } from '../../src/constants/bits.mjs';
 import { FLAG_CARRY } from '../../src/constants/cpu-flags.mjs';
+import '../system/dialog-register-helpers.mjs';
 
 const NO_MOTION = 0;
 

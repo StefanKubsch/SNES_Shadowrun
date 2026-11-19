@@ -63,6 +63,7 @@ import {
   FLAG_OVERFLOW,
   FLAG_ZERO,
 } from '../../src/constants/cpu-flags.mjs';
+import '../system/dialog-register-helpers.mjs';
 
 // The direct page words: the frame stream with its bank, the picture with its bank and
 // the tiles left to queue.

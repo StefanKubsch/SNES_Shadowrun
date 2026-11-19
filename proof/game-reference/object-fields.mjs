@@ -50,6 +50,7 @@ import { FLAG_CARRY, FLAG_NEGATIVE, FLAG_ZERO } from '../../src/constants/cpu-fl
 import { FLAG_MEMORY_8BIT } from '../../src/constants/cpu-flags.mjs';
 import { protectedJakeHealth } from '../../src/game/cheats.mjs';
 import { TASK_CURSOR } from '../../src/vm/layout.mjs';
+import '../system/dialog-register-helpers.mjs';
 
 // 80:CA05: return the flag word of the object (first argument).
 export const getObjectFlagsReference = (a, outerReturn = true) =>

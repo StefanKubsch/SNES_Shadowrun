@@ -93,6 +93,7 @@ import {
   languageMenuArrowShift,
   beginFrontendMenu,
 } from '../../src/data/language.mjs';
+import '../system/dialog-register-helpers.mjs';
 
 // The slot digit of "RESUME GAME 1" (81:E425), replaced for slots 3 and 4.
 const SLOT_DIGIT = 0x31,

@@ -50,6 +50,7 @@ import { FLAG_CARRY } from '../../src/constants/cpu-flags.mjs';
 import { WORD_MASK, BANK_WRAP, WORD_SIGN } from '../../src/constants/bits.mjs';
 import { CODE_BANK } from '../../src/constants/memory-map.mjs';
 import { KIND_TABLE, KIND_FLAGS_OFFSET } from '../../src/data/kinds.mjs';
+import '../system/dialog-register-helpers.mjs';
 // Return words of the JSL A8EB and of the JSR C366 (bank offsets of the calls' last bytes).
 const APPEND_RETURN_WORD = 0x80a8ee & WORD_MASK,
   C366_RETURN_WORD = 0x80c368 & WORD_MASK;

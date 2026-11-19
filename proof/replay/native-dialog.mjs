@@ -98,6 +98,7 @@ import { VMAINC_INCREMENT_AFTER_HIGH } from '../../src/constants/ppu.mjs';
 import { CODE_BANK, CODE_BANK_BASE } from '../../src/constants/memory-map.mjs';
 import { DIALOG_TABLE, DIALOG_BANK_BASE } from '../../src/data/portraits.mjs';
 import { JAKE_PORTRAIT_DIALOG, JAKE_ALTERNATE_PORTRAIT_DIALOG } from '../../src/data/runners.mjs';
+import '../system/dialog-register-helpers.mjs';
 
 // 92C5 reloads two 40-byte font blocks from bank 8D to VRAM 0000 and 0100 (DMA channel 0,
 // mode 1 to VMDATAL, address increment after the high byte), each with its eight call sites.

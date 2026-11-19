@@ -20,6 +20,7 @@ import { setObjectDirectionReference } from './object-turn.mjs';
 import { OBJECT_X, OBJECT_Y, PLAYER_OBJECT } from '../../src/data/wram.mjs';
 import { FLAG_CARRY, FLAG_NEGATIVE, FLAG_ZERO } from '../../src/constants/cpu-flags.mjs';
 import { BANK_WRAP, BYTE_MASK, WORD_MASK } from '../../src/constants/bits.mjs';
+import '../system/dialog-register-helpers.mjs';
 
 // 80:D1E3: direction (0..7, in Y) from the object (first argument, X) towards the player
 // object (0CC2): the differences player minus object as wrapped word differences, BPL

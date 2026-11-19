@@ -53,6 +53,7 @@ import {
   FLAG_OVERFLOW,
   FLAG_NEGATIVE,
 } from '../../src/constants/cpu-flags.mjs';
+import './dialog-register-helpers.mjs';
 
 // Value written to mark a wall height as empty (negative).
 const NONE = WORD_MASK;

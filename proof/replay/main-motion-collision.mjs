@@ -27,6 +27,7 @@ import {
 import { WORD_MASK } from '../../src/constants/bits.mjs';
 import { WRAM_BANK_PAIR } from '../../src/constants/memory-map.mjs';
 import { FLAG_CARRY, FLAG_ZERO, FLAG_NEGATIVE } from '../../src/constants/cpu-flags.mjs';
+import '../system/dialog-register-helpers.mjs';
 // Collision helpers $80:80B2/$8133/$81B4/$8238/$82BC on the shared VM WRAM.
 // All accesses follow the original order; after PHB/PEA/PLB high tables belong to DBR 7E.
 // The lists are original data. As in the original, a cyclic list does not end by itself.

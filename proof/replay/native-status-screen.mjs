@@ -128,6 +128,7 @@ import { TEXT_EXIT } from '../../src/data/port-extension.mjs';
 import { languageTextWidth } from '../../src/data/language.mjs';
 import { translatedListWindow, fitListWindow } from '../../src/data/menu-layout.mjs';
 import { itemCountColumns } from '../../src/system/native-status-screen.mjs';
+import '../system/dialog-register-helpers.mjs';
 
 // EA6E dims both sound channels with command 2 and ECF5 restores the full level.
 export const STATUS_VOLUME_TARGET = 0x2f2f,

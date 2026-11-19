@@ -27,6 +27,7 @@ import {
   FLAG_ZERO,
   FLAG_CARRY,
 } from '../../src/constants/cpu-flags.mjs';
+import '../system/dialog-register-helpers.mjs';
 
 // 81:F229: song command 04 with X 0, then (if A names a song) F1FA loads its mode
 // samples, F130 its sound set (complement plus 8100: 80FF - song) and command 04

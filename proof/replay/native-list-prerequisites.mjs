@@ -43,6 +43,7 @@ import {
   RDMPYH,
 } from '../../src/constants/hardware-registers.mjs';
 import { WRAM_BANK_PAIR, CODE_BANK } from '../../src/constants/memory-map.mjs';
+import '../system/dialog-register-helpers.mjs';
 
 const JSR_BYTES = 0x3;
 const DECIMAL_WORD_DIGITS = 0x5;

@@ -61,6 +61,7 @@ import {
 } from '../../src/constants/cpu-flags.mjs';
 import { WORD_MASK, BANK_WRAP, LONG_MASK, WORD_BITS } from '../../src/constants/bits.mjs';
 import { CODE_BANK, CODE_BANK_BASE } from '../../src/constants/memory-map.mjs';
+import '../system/dialog-register-helpers.mjs';
 
 // The glove choice waits for a newly pressed A, B, X or Y.
 const GLOVE_CHOICE_BUTTONS = PAD_A | PAD_B | PAD_X | PAD_Y;

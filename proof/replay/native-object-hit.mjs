@@ -76,6 +76,7 @@ import {
   FLAG_NEGATIVE,
 } from '../../src/constants/cpu-flags.mjs';
 import { CODE_BANK } from '../../src/constants/memory-map.mjs';
+import '../system/dialog-register-helpers.mjs';
 // Result word and shooter slot of a hit (8691), shared with the shots of 8AB5/8A51/8A8C:
 // the result is 0, FFFF after a kill flag or 1 after a notice; a negative shooter (8E36)
 // places no impact object.

@@ -39,6 +39,7 @@ import {
 } from '../../src/data/wram.mjs';
 import { FLAG_CARRY, FLAG_ZERO } from '../../src/constants/cpu-flags.mjs';
 import { WORD_MASK, BYTE_MASK } from '../../src/constants/bits.mjs';
+import '../system/dialog-register-helpers.mjs';
 // 80:D85B (no argument): move the swarm along its path. Five objects 1CEF+Y (Y = 0..8) follow a swinging path. Start 1D23 = 2*1D0B,
 // 1D25 = 2*1D0D, 1D27 = 4*1D0F, phases 1D39/1D3B from 1D3D/1D3F. Per object the bytes of the table D3D1 at
 // phase 1D39 (x), 1D39+80 (y) and 1D3B (height) minus 40 are added to 1D23/1D25/1D27; halved (height

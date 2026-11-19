@@ -53,6 +53,7 @@ import {
   FLAG_NEGATIVE,
 } from '../../src/constants/cpu-flags.mjs';
 import { CODE_BANK, CODE_BANK_PAIR } from '../../src/constants/memory-map.mjs';
+import '../system/dialog-register-helpers.mjs';
 
 // Reset entries: the power-on reset E382 runs in bank 00 or 80 (the 16-bit
 // offset is compared), the software reset 80:9E3D. The reset code sets the

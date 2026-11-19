@@ -24,6 +24,7 @@ import {
   FLAG_ZERO,
   FLAG_NEGATIVE,
 } from '../../src/constants/cpu-flags.mjs';
+import '../system/dialog-register-helpers.mjs';
 
 // 81:E83A draws sprite A at X/Y as a grid of 8x8 objects from the tables of bank 81 (by
 // sprite: columns, rows, first character, left and top offset); characters advance by one

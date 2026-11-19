@@ -30,6 +30,7 @@ import {
   FLAG_ZERO,
   FLAG_CARRY,
 } from '../../src/constants/cpu-flags.mjs';
+import './dialog-register-helpers.mjs';
 // Cache of original 128-byte tile streams, reflected/composited into DP0CDE.
 // PPU writes are requests at the original PCs; no VRAM/DMA effect is inferred.
 

@@ -23,6 +23,7 @@ import {
 import { BYTE_MASK } from '../../src/constants/bits.mjs';
 import { FLAG_CARRY, FLAG_NEGATIVE, FLAG_ZERO } from '../../src/constants/cpu-flags.mjs';
 import { CODE_BANK } from '../../src/constants/memory-map.mjs';
+import '../system/dialog-register-helpers.mjs';
 // Bytes still to consume after the failed bound comparison, including the data word.
 const ZONE_SKIP_BYTES = { xMin: 14, yMin: 12, zMin: 10, xMax: 8, yMax: 6, zMax: 4 };
 const APPEND_RETURN_WORD = 0x80a7;

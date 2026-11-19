@@ -30,6 +30,7 @@ import {
 import { LOROM_OFFSET } from '../../src/constants/memory-map.mjs';
 import { BYTE_MASK, WORD_MASK } from '../../src/constants/bits.mjs';
 import { FLAG_CARRY, FLAG_NEGATIVE, FLAG_ZERO } from '../../src/constants/cpu-flags.mjs';
+import '../system/dialog-register-helpers.mjs';
 
 const NONE = WORD_MASK;
 // Direct page of the room entry: the room header pointer, the script, point and sight

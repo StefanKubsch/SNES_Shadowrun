@@ -24,6 +24,7 @@ import { GAME_OWNER_REFERENCE_ENTRIES, runMenuGameMarker } from './game-owner.mj
 import { taskStop } from '../../src/system/task-stop.mjs';
 import { FLAG_ZERO } from '../../src/constants/cpu-flags.mjs';
 import { CODE_BANK_PAIR } from '../../src/constants/memory-map.mjs';
+import '../system/dialog-register-helpers.mjs';
 
 const bank80 = (h) => {
   h.push(CODE_BANK_PAIR, 2);

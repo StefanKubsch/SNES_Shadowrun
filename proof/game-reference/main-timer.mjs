@@ -24,6 +24,7 @@ import {
 } from '../../src/data/wram.mjs';
 import { BYTE_MASK, WORD_MASK } from '../../src/constants/bits.mjs';
 import { FLAG_NEGATIVE, FLAG_ZERO, FLAG_CARRY } from '../../src/constants/cpu-flags.mjs';
+import '../system/dialog-register-helpers.mjs';
 
 // E270: one timer hour lasts DD4 frames; its notice 08/02/11/04 shows text 4 for B4
 // frames, then the hours ("hour"/"hours before your Cortex bomb goes off."). In the last

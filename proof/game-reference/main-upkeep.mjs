@@ -39,6 +39,7 @@ import {
   FLAG_ZERO,
   FLAG_MEMORY_8BIT,
 } from '../../src/constants/cpu-flags.mjs';
+import '../system/dialog-register-helpers.mjs';
 
 // 8877 colour request bits, ramp steps and the 9-bit phase over color_ramp 80:D3D1;
 // the fast ramp ends at phase 180. COLDATA levels use the red bit (ppu.mjs) or all

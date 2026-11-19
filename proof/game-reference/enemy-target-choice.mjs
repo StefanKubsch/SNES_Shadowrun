@@ -15,6 +15,7 @@ import {
 import { WORD_MASK, BANK_WRAP, WORD_BITS } from '../../src/constants/bits.mjs';
 import { FLAG_ZERO, FLAG_CARRY } from '../../src/constants/cpu-flags.mjs';
 import { CODE_BANK } from '../../src/constants/memory-map.mjs';
+import '../system/dialog-register-helpers.mjs';
 // Return words of the JSR C51F and the JSL 81:A25F (bank offsets of the calls' last bytes).
 const RANDOM_RETURN_WORD = 0x808bdf & WORD_MASK,
   SIGHT_RETURN_WORD = 0x808bfe & WORD_MASK;

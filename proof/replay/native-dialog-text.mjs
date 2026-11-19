@@ -29,6 +29,7 @@ import {
   FLAG_MEMORY_8BIT,
   FLAG_NEGATIVE,
 } from '../../src/constants/cpu-flags.mjs';
+import '../system/dialog-register-helpers.mjs';
 
 const DP_DIALOG_RECORD = 0x11;
 const DP_TOPIC_TASK_ARGUMENT = 0x26;

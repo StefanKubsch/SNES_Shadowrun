@@ -25,6 +25,7 @@ import {
   TEXT_BITS_REMAINING,
 } from '../../src/data/wram.mjs';
 import { WORD_MASK, HIGH_BYTE_MASK, WORD_SIGN, WORD_BITS } from '../../src/constants/bits.mjs';
+import '../system/dialog-register-helpers.mjs';
 
 // DP BA: the text width FADD sums and returns.
 const DP_TEXT_WIDTH = TEXT_WORK_WORD;

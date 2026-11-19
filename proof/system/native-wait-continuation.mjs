@@ -22,6 +22,7 @@ import {
 import { BANK_SIZE, BYTE_MASK, WORD_BITS, WORD_MASK } from '../../src/constants/bits.mjs';
 
 import { WAIT_PAUSED, WAIT_RETURNED } from '../../src/system/native-wait-continuation.mjs';
+import './dialog-register-helpers.mjs';
 
 // 9E1A compares the entire word; the low four non-button bits invalidate input.
 const SOFT_RESET_BUTTONS = 0x3030,

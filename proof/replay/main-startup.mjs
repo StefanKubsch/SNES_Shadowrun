@@ -30,6 +30,7 @@ import {
 import { APUIO0, APUIO1, APUIO2, APUIO3 } from '../../src/constants/hardware-registers.mjs';
 import { CODE_BANK, CODE_BANK_PAIR } from '../../src/constants/memory-map.mjs';
 import { APU_COMMAND_SONG_LEVEL, APU_COMMAND_VOLUME } from '../../src/constants/sound-commands.mjs';
+import '../system/dialog-register-helpers.mjs';
 export const MAIN_STARTUP_ENTRY = 0xa133;
 // IPL transfer of 81:EFA5 (Book I appendix D, PDF 237/238; docs/SOUND-DRIVER.md): the IPL
 // reports AA/BB on ports 0/1, CC on port 0 starts a block at the port 2/3 address. The

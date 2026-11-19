@@ -17,6 +17,7 @@ import {
 import { BANK_WRAP, WORD_MASK, BANK_SIZE, BYTE_MASK } from '../../src/constants/bits.mjs';
 import { SLHV, OPHCT, OPVCT } from '../../src/constants/hardware-registers.mjs';
 import { CODE_BANK } from '../../src/constants/memory-map.mjs';
+import '../system/dialog-register-helpers.mjs';
 // C560 reads its byte permutation through DBR; C51F selects a WORD mask by
 // incrementing the initial index twice before each shift of its nonzero limit.
 const RANDOM_BYTE_TABLE = 0xc58d;

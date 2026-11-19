@@ -8,6 +8,7 @@ import { ROOM, STORY_STAGE, WRAM } from '../../src/data/wram.mjs';
 import { ROOM_TABLE } from '../../src/data/rooms.mjs';
 import { BYTE_MASK, WORD_MASK, WORD_SIGN } from '../../src/constants/bits.mjs';
 import { FLAG_CARRY } from '../../src/constants/cpu-flags.mjs';
+import '../system/dialog-register-helpers.mjs';
 
 // 80:CCCC: return the header word of the room (first argument) from the room table.
 // Entries are nine bytes: 8 * room (three ASLs) + room, by ADC without CLC, so the

@@ -94,6 +94,7 @@ import {
   WRAM_BANK,
   SRAM_FIRST_BANK,
 } from '../../src/constants/memory-map.mjs';
+import '../system/dialog-register-helpers.mjs';
 
 // CE6D/CDD6 window geometry and row counts from their pinned F963/A6C7 calls.
 const MAIN_WINDOW = Object.freeze({

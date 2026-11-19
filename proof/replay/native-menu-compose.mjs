@@ -67,6 +67,7 @@ import {
   RDMPYH,
 } from '../../src/constants/hardware-registers.mjs';
 import { CODE_BANK } from '../../src/constants/memory-map.mjs';
+import '../system/dialog-register-helpers.mjs';
 
 const TEXT_TILE_PIXEL_SHIFT = 0x3;
 const TEXT_TILE_VRAM_BEFORE_START = 0x4fff;

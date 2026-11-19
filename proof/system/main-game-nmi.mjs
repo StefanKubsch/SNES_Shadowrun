@@ -124,6 +124,7 @@ import {
   WORD_BITS,
   WORD_MASK,
 } from '../../src/constants/bits.mjs';
+import './dialog-register-helpers.mjs';
 // C152 and its original callback graph on the shared VM memory. Port stores
 // are requests; reads require chronological observations. Channel-5 readback
 // can consume explicit transfer bytes in A9E1; no automatic DMA or clock.

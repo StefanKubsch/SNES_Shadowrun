@@ -103,6 +103,7 @@ import {
   FLAG_CARRY,
   FLAG_ZERO,
 } from '../../src/constants/cpu-flags.mjs';
+import '../system/dialog-register-helpers.mjs';
 
 // Value written to mark a slot or the music as unset (negative).
 const NONE = WORD_MASK;

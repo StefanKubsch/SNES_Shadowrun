@@ -119,6 +119,7 @@ import { AUDIO_REFERENCE_ENTRIES } from '../apu-reference/audio-routines.mjs';
 import { FadePollContinuation } from '../system/main-wait-interrupt.mjs';
 import { SCENE_WAIT_ROUTINES, sceneWaitByte } from '../system/main-scene-wait.mjs';
 import { sendOamBuffer } from '../system/main-scene-video.mjs';
+import '../system/dialog-register-helpers.mjs';
 
 // The call boundary of the register-level cutscene: status and data bank 81.
 const begin = (h) => {

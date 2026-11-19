@@ -64,6 +64,7 @@ import {
   WRAM_BANK,
   WRAM_BASE,
 } from '../../src/constants/memory-map.mjs';
+import '../system/dialog-register-helpers.mjs';
 
 // 80:98E9 unpacks the new-game stream 8B:FBD2 to 7E:2E00 (inside the save
 // state), clears the 32 script words and copies the magic point and equipment

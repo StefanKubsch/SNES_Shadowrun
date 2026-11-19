@@ -26,6 +26,7 @@ import {
   STATIC_CELL_HEADS,
   STATIC_NODE_END,
 } from '../../src/data/wram.mjs';
+import './dialog-register-helpers.mjs';
 // Scene geometry from the original two layer streams and three zone lists.
 // Coordinates, list links and counters stay in the shared WRAM. No host map.
 

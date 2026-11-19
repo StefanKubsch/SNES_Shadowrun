@@ -46,6 +46,7 @@ import {
   RDMPYL,
   RDMPYH,
 } from '../../src/constants/hardware-registers.mjs';
+import '../system/dialog-register-helpers.mjs';
 const devices = Object.freeze({
   writes: Object.freeze([M7A, M7B, WRMPYA, WRMPYB, WRDIVL, WRDIVH, WRDIVB]),
   reads: Object.freeze([MPYL, MPYM, RDDIVL, RDDIVH, RDMPYL, RDMPYH]),

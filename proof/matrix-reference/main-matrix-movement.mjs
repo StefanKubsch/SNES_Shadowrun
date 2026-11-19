@@ -29,6 +29,7 @@ import {
 } from '../../src/data/wram.mjs';
 import { FLAG_ZERO, FLAG_CARRY, FLAG_NEGATIVE } from '../../src/constants/cpu-flags.mjs';
 import { BANK_MASK, BYTE_BITS, WORD_MASK } from '../../src/constants/bits.mjs';
+import '../system/dialog-register-helpers.mjs';
 // Matrix movement of main-matrix-control.mjs: direction (81:BA93), track (81:BC09)
 // and state (81:BD52) dispatch through their original word tables.
 

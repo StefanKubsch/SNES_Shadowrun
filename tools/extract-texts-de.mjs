@@ -43,6 +43,7 @@ import { UMLAUTS, LANGUAGE_FORMAT } from '../src/data/language.mjs';
 import { LOROM_OFFSET, LOROM_OFFSET_MASK } from '../src/constants/memory-map.mjs';
 import { ROM_SIZE } from '../src/vm/memory.mjs';
 import { BYTE_BITS, BYTE_MASK, WORD_BITS, WORD_MASK, WORD_SIGN } from '../src/constants/bits.mjs';
+import '../proof/system/dialog-register-helpers.mjs';
 
 const EN_SHA256 = '91dbfecf9017264b01885e065cf015840223b8e8d2f95dfa62c4c0d654c2f690',
   DE_SHA256 = 'fda5d1cc6e5202ee311e4777eaa8614ed7361a8f77661aad52c7a1a8cf86a17f';

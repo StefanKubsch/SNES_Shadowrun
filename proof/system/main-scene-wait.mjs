@@ -21,6 +21,7 @@ import {
   FLAG_ZERO,
   FLAG_INDEX_8BIT,
 } from '../../src/constants/cpu-flags.mjs';
+import './dialog-register-helpers.mjs';
 
 // 81:EEDD: fade the screen in, one brightness step per frame.
 export function fadeInScreen(h, events) {

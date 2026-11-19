@@ -103,6 +103,7 @@ import {
   FLAG_INDEX_8BIT,
 } from '../../src/constants/cpu-flags.mjs';
 import { CODE_BANK } from '../../src/constants/memory-map.mjs';
+import '../system/dialog-register-helpers.mjs';
 
 // DEC7: the pad directions index pad_directions 80:DF4B (10: none), turned by the camera
 // rotation word in SRAM and masked to the even directions, then walk_step_x/y DF27/DF39

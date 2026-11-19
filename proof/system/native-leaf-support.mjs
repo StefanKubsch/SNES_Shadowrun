@@ -25,6 +25,7 @@ import {
   FLAG_DECIMAL,
   FLAG_OVERFLOW,
 } from '../../src/constants/cpu-flags.mjs';
+import './dialog-register-helpers.mjs';
 export * from '../../src/system/native-leaf-support.mjs';
 import { OBJECT_RECORD, WRAM } from '../../src/data/wram.mjs';
 

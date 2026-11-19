@@ -37,6 +37,7 @@ import {
   RDVRAMH,
   DMAP5,
 } from '../../src/constants/hardware-registers.mjs';
+import './dialog-register-helpers.mjs';
 
 // Original text-upload routine. Port stores are requests; channel-5 readback
 // can additionally consume an explicitly observed transfer.

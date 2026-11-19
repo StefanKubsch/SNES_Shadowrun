@@ -132,6 +132,7 @@ import {
   FLAG_NEGATIVE,
   FLAG_MEMORY_8BIT,
 } from '../../src/constants/cpu-flags.mjs';
+import '../system/dialog-register-helpers.mjs';
 // Matrix map, text queue and display setup. The object/gameplay graph and the
 // NMI callback installed by CDB2 have separate owners. No callback is scheduled here.
 

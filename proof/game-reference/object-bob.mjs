@@ -22,6 +22,7 @@ import {
 } from '../../src/data/wram.mjs';
 import { FLAG_CARRY } from '../../src/constants/cpu-flags.mjs';
 import { BYTE_MASK, WORD_MASK } from '../../src/constants/bits.mjs';
+import '../system/dialog-register-helpers.mjs';
 
 const BOB_PHASE_STEP = 0x20,
   BOB_BASE_HEIGHT = 0x160;

@@ -32,6 +32,7 @@ import {
 } from '../../src/constants/cpu-flags.mjs';
 import { WORD_MASK, WORD_BITS } from '../../src/constants/bits.mjs';
 import { APU_COMMAND_OUTPUT_MODE } from '../../src/constants/sound-commands.mjs';
+import '../system/dialog-register-helpers.mjs';
 
 // BYTE checksum of the three settings (81:D5D0): seed plus the bytes, XORed at the end.
 const SETTINGS_CHECKSUM_SEED = 0xeb,

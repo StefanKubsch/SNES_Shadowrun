@@ -44,6 +44,7 @@ import {
   ACTOR_DEPTH_FLAGS,
 } from '../../src/data/actors.mjs';
 import { RUNNER_OBJECT_NUMBERS, RUNNER_LAST_INDEX } from '../../src/data/runners.mjs';
+import '../system/dialog-register-helpers.mjs';
 const CREATE_RETURN_WORD = 0xa22f;
 const ACTION_RETURN_WORD = 0xa239;
 // 80:A1E6: add a scene object. Appends the first argument to the object list 7E2DE8 (count 7E2DE6),

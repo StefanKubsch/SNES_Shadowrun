@@ -163,6 +163,7 @@ import {
   FLAG_ZERO,
 } from '../../src/constants/cpu-flags.mjs';
 import { BYTE_MASK, NIBBLE_BITS, WORD_BITS, WORD_MASK } from '../../src/constants/bits.mjs';
+import './dialog-register-helpers.mjs';
 const callFor = (h, e, r) => routineCaller(h, e, r, true);
 
 // Value written to mark a pointer, slot or request as unset (negative).

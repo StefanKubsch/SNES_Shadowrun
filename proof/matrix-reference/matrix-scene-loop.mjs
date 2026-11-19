@@ -38,6 +38,7 @@ import {
 } from '../../src/data/wram.mjs';
 import { BYTE_MASK, WORD_BITS, WORD_MASK } from '../../src/constants/bits.mjs';
 import { FLAG_CARRY, FLAG_MEMORY_8BIT, FLAG_ZERO } from '../../src/constants/cpu-flags.mjs';
+import '../system/dialog-register-helpers.mjs';
 
 const CREDITS_CHARACTERS = 0x85fd38;
 // 81:C3CA: audio mode 8, the register list 81:CDB2, the streams (src/data/lz-streams.mjs)

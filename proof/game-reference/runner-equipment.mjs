@@ -46,6 +46,7 @@ import {
   FLAG_ZERO,
 } from '../../src/constants/cpu-flags.mjs';
 import { BYTE_MASK, LONG_MASK, WORD_MASK, WORD_SIGN } from '../../src/constants/bits.mjs';
+import '../system/dialog-register-helpers.mjs';
 
 // Index of the member's equipment record: the member word index (MEMBER_INDEX) times
 // four by two ASLs, eight bytes per runner. Shared with 80:8B9F.

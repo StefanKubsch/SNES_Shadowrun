@@ -16,6 +16,7 @@ import {
 // The ROM comparison observes the register-level APU reads of 81:F007 at their data
 // bank address (80:2140) and its stack byte, so the startup table uses the audio references.
 import { withAudioReference } from '../proof/apu-reference/audio-routines.mjs';
+import '../proof/system/dialog-register-helpers.mjs';
 const MAIN_STARTUP_ROUTINES = withAudioReference(MAIN_STARTUP_TASK);
 import { NATIVE_CALL_CONTINUATIONS } from '../src/system/native-call-continuation.mjs';
 import { WAIT_PAUSED } from '../src/system/native-wait-continuation.mjs';

@@ -50,6 +50,7 @@ import {
   BANK_SIZE,
 } from '../../src/constants/bits.mjs';
 import { CODE_BANK } from '../../src/constants/memory-map.mjs';
+import '../system/dialog-register-helpers.mjs';
 // Return word of a JSR/JSL frame: the bank offset of the call's last byte.
 const callReturn = (address) => address & WORD_MASK;
 // Shot parameters of 8AB5 (DP04 hit bonus, DP06 kind, DP08 damage, DP0A range penalty) and

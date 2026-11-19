@@ -52,6 +52,7 @@ import {
   FLAG_CARRY,
   FLAG_NEGATIVE,
 } from '../../src/constants/cpu-flags.mjs';
+import '../system/dialog-register-helpers.mjs';
 // B1E2 consumes the original eight-byte DMA records by moving S, not by
 // indexing a copied queue. Every pull and the saved S at DP32 remain fresh.
 const DP_SAVED_STACK = 0x32;

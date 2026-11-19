@@ -17,6 +17,7 @@ import {
 import { LAYER_BG1, LAYER_BG2, LAYER_OBJ } from '../../src/constants/ppu.mjs';
 import { FLAG_MEMORY_8BIT } from '../../src/constants/cpu-flags.mjs';
 import { BYTE_MASK, WORD_BITS, WORD_MASK } from '../../src/constants/bits.mjs';
+import '../system/dialog-register-helpers.mjs';
 
 const callFor = (h, e, r) => routineCaller(h, e, r, true);
 const ports = (h, rows) => {

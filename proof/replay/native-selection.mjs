@@ -43,6 +43,7 @@ import {
   RDMPYH,
 } from '../../src/constants/hardware-registers.mjs';
 import { CODE_BANK } from '../../src/constants/memory-map.mjs';
+import '../system/dialog-register-helpers.mjs';
 export const selectionDevices = Object.freeze({
   writes: Object.freeze([WRMPYA, WRMPYB, WRDIVL, WRDIVH, WRDIVB]),
   reads: Object.freeze([RDDIVL, RDMPYL, RDMPYH]),

@@ -76,6 +76,7 @@ import {
   FLAG_CARRY,
   FLAG_ZERO,
 } from '../../src/constants/cpu-flags.mjs';
+import './dialog-register-helpers.mjs';
 
 // The room entry 80:A4BF for register-level callers: the room in A (moved from
 // src/game/room-entry.mjs, whose callers pass the room as a value).

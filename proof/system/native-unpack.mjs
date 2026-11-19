@@ -42,6 +42,7 @@ import {
   CODE_BANK_BASE,
 } from '../../src/constants/memory-map.mjs';
 import { interruptStep } from './main-wait-interrupt.mjs';
+import './dialog-register-helpers.mjs';
 
 const UNPACK_HEADER_BYTES = 0x4;
 const FIXED_UNPACK_BYTES = 0x80;

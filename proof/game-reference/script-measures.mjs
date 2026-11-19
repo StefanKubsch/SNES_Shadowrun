@@ -12,6 +12,7 @@ import { applyGloveLimits } from './register-helpers.mjs';
 import { OBJECT_X, OBJECT_Y, PLAYER_OBJECT } from '../../src/data/wram.mjs';
 import { BANK_WRAP, WORD_BITS, WORD_MASK, WORD_SIGN } from '../../src/constants/bits.mjs';
 import { FLAG_CARRY } from '../../src/constants/cpu-flags.mjs';
+import '../system/dialog-register-helpers.mjs';
 
 const DISTANCE_RETURN_WORD = 0xc692,
   DISTANCE_ENTRY = 0x80c696 & WORD_MASK,

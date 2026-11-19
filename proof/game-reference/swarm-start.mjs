@@ -51,6 +51,7 @@ import {
 } from '../../src/data/wram.mjs';
 import { FLAG_CARRY, FLAG_ZERO, FLAG_NEGATIVE } from '../../src/constants/cpu-flags.mjs';
 import { WORD_MASK, BANK_WRAP, BYTE_MASK, BYTE_BITS } from '../../src/constants/bits.mjs';
+import '../system/dialog-register-helpers.mjs';
 // Swarm natives around the proved object creation A835 (and the action AAAF), each with real JSR/RTS
 // frames. Tests may replace the called routines (routines.create/action receive the accessor).
 // Return word of a JSR: the bank offset of the call's last byte.

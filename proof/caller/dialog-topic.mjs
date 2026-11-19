@@ -2,6 +2,7 @@
 import { dialogCallBody, segmentSequence } from '../../src/system/native-call-continuation.mjs';
 import { appendScriptTask } from '../system/task-append.mjs';
 import { appendScriptTaskCall } from './task-append-call.mjs';
+import '../system/dialog-register-helpers.mjs';
 const DP_DIALOG_RECORD = 0x11,
   DP_TOPIC_TASK_ARGUMENT = 0x26;
 export function* dialogTopicSequence(h, events) {

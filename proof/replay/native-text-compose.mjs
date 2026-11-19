@@ -58,6 +58,7 @@ import {
   FLAG_ZERO,
   FLAG_NEGATIVE,
 } from '../../src/constants/cpu-flags.mjs';
+import '../system/dialog-register-helpers.mjs';
 
 const TEXT_MASK_BYTES = 0x10;
 const GLYPH_BOLD_STYLE = 0x8;

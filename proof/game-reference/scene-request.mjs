@@ -25,6 +25,7 @@ import {
 } from '../../src/data/wram.mjs';
 import { WORD_MASK } from '../../src/constants/bits.mjs';
 import { FLAG_CARRY, FLAG_MEMORY_8BIT, FLAG_ZERO } from '../../src/constants/cpu-flags.mjs';
+import '../system/dialog-register-helpers.mjs';
 
 // SCENE_REQUEST values: none, a room change only, the matrix (any other value names a sequence).
 const SCENE_NONE = 0xffff,

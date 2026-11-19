@@ -56,6 +56,7 @@ import {
   APU_COMMAND_VOLUME_TARGET,
   APU_FULL_VOLUME,
 } from '../../src/constants/sound-commands.mjs';
+import '../system/dialog-register-helpers.mjs';
 const downX = (h) => {
   h.index('x', h.ctx.x - 1);
   h.index('x', h.ctx.x - 1);

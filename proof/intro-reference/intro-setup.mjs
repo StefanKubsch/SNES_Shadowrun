@@ -72,6 +72,7 @@ import {
   FLAG_NEGATIVE,
   FLAG_CARRY,
 } from '../../src/constants/cpu-flags.mjs';
+import '../system/dialog-register-helpers.mjs';
 // The shared set-up routines of the intro 81:DFE7 (lifted in src/intro/, reference in
 // proof/intro-reference/), which the title pan still uses. Calls use the one VM stack;
 // PPU/DMA/APU stores remain requests. Waits and device replies come from the caller.

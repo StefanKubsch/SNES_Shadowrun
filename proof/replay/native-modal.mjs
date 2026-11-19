@@ -36,6 +36,7 @@ import {
   FLAG_ZERO,
 } from '../../src/constants/cpu-flags.mjs';
 import { CODE_BANK } from '../../src/constants/memory-map.mjs';
+import '../system/dialog-register-helpers.mjs';
 export const modalDevices = Object.freeze(
   Object.fromEntries(
     ['writes', 'reads', 'observationPcs'].map((key) => [

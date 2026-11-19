@@ -44,6 +44,7 @@ import {
   FLAG_NEGATIVE,
   FLAG_ZERO,
 } from '../../src/constants/cpu-flags.mjs';
+import '../system/dialog-register-helpers.mjs';
 
 // 81:DF0E draws near objects with priority 2; animations step every fourth frame and
 // a frame word FFFE restarts them.

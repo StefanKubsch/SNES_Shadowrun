@@ -41,6 +41,7 @@ import {
   BYTE_SIGN,
   WORD_SIGN,
 } from '../../src/constants/bits.mjs';
+import '../system/dialog-register-helpers.mjs';
 // 8371 direct page: long pointers to the action record of the object kind (bank 8C) and to
 // its box shape (bytes 3 to 6 signed edge offsets, byte 7 the height); the moved object, the
 // largest overlap so far, the box edges and their cell columns and rows, and the up to four

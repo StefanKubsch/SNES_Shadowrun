@@ -86,6 +86,7 @@ import {
   OAM_Y_BYTE,
   OBJECT_COUNT,
 } from '../../src/constants/ppu.mjs';
+import '../system/dialog-register-helpers.mjs';
 // Sprite setup of the scene (80:B8DE): sort the draw list $14B2 by screen depth (AFFC), fill the OAM buffer
 // 7E3D08 (4 bytes per sprite, pointer DP84) and the high bits 7E3F08 from the objects (B20A), hide the rest of
 // the OAM. h from dialogAccess (native-dialog-support.mjs); DBR at entry is the caller's.

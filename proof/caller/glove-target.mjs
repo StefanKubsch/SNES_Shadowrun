@@ -77,6 +77,7 @@ import {
   FLAG_OVERFLOW,
   FLAG_ZERO,
 } from '../../src/constants/cpu-flags.mjs';
+import '../system/dialog-register-helpers.mjs';
 
 // The choice ends on a newly pressed A, B, X or Y.
 const CHOICE_BUTTONS = PAD_A | PAD_B | PAD_X | PAD_Y;

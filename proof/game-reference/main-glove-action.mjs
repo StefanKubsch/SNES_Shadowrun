@@ -38,6 +38,7 @@ import {
 import { TASK_PREVIOUS, TASK_WAIT, TASK_EVENTS } from '../../src/vm/layout.mjs';
 import { WORD_MASK } from '../../src/constants/bits.mjs';
 import { FLAG_NEGATIVE, FLAG_ZERO, FLAG_CARRY } from '../../src/constants/cpu-flags.mjs';
+import '../system/dialog-register-helpers.mjs';
 
 // BF3B: task wait masks of the glove target's waiting task. When B alone was pressed
 // (DP6B holds the pressed B, L and R bits: 8000) and the task waits for 6002, its 6682

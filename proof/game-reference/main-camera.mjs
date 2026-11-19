@@ -29,6 +29,7 @@ import {
 } from '../../src/data/wram.mjs';
 import { WORD_MASK } from '../../src/constants/bits.mjs';
 import { FLAG_CARRY, FLAG_NEGATIVE, FLAG_ZERO } from '../../src/constants/cpu-flags.mjs';
+import '../system/dialog-register-helpers.mjs';
 
 // Projected camera position (DP0E X, DP11 Y) shared with 81:8A05.
 const DP_CAMERA_X = 0x0e,

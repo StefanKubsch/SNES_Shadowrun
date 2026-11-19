@@ -32,6 +32,7 @@ import { fitListWindow, listTextIds } from '../../src/data/menu-layout.mjs';
 import { WORD_MASK, BANK_WRAP, WORD_SIGN } from '../../src/constants/bits.mjs';
 import { FLAG_INDEX_8BIT, FLAG_MEMORY_8BIT, FLAG_ZERO } from '../../src/constants/cpu-flags.mjs';
 import { CODE_BANK, CODE_BANK_BASE, WRAM_BANK } from '../../src/constants/memory-map.mjs';
+import '../system/dialog-register-helpers.mjs';
 
 // E1CF: window 0E/05/10/07 (kept in DP0E) and a menu of five visible rows; the list loop
 // stops the port after 8000 entries (no original bound).

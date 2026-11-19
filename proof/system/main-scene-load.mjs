@@ -67,6 +67,7 @@ import {
   FLAG_CARRY,
   FLAG_NEGATIVE,
 } from '../../src/constants/cpu-flags.mjs';
+import './dialog-register-helpers.mjs';
 const down = (h, name = 'x', n = 2) => {
   for (let i = 0; i < n; i++) h.index(name, h.ctx[name] - 1);
 };

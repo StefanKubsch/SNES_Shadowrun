@@ -1,5 +1,6 @@
 import { taskStop } from '../../src/system/task-stop.mjs';
 import { randomBelow, randomBelowLong } from '../replay/native-random.mjs';
+import '../system/dialog-register-helpers.mjs';
 export { randomBelowLong };
 import { routineCaller } from '../system/routine-call.mjs';
 import { setCarry } from '../system/status-flags.mjs';

@@ -43,6 +43,7 @@ import {
 import { INIDISP, NMITIMEN, DMAP0 } from '../../src/constants/hardware-registers.mjs';
 import { BANK_WITHOUT_IO, IO_AREA_START, IO_AREA_END } from '../../src/constants/memory-map.mjs';
 import { ACTION_TABLE } from '../../src/data/actions.mjs';
+import '../system/dialog-register-helpers.mjs';
 // Registers answering inside 2000-7FFF (Book I PDF 93): the B bus 2100-21FF, the joypad ports
 // 4016/4017, the CPU registers 4200-421F and the DMA channels 4300-437F.
 const B_BUS_END = 0x2200,

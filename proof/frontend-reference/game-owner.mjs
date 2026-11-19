@@ -24,6 +24,7 @@ import {
 import { WORD_MASK } from '../../src/constants/bits.mjs';
 import { FLAG_DECIMAL, FLAG_INDEX_8BIT, FLAG_MEMORY_8BIT } from '../../src/constants/cpu-flags.mjs';
 import { CODE_BANK } from '../../src/constants/memory-map.mjs';
+import '../system/dialog-register-helpers.mjs';
 
 // E24E is the original menu/game marker, with its ordinary RTS frame: no countdown.
 const NO_TIMER = WORD_MASK;

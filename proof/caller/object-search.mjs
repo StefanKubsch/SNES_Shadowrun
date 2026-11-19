@@ -82,6 +82,7 @@ import {
   FLAG_OVERFLOW,
   FLAG_ZERO,
 } from '../../src/constants/cpu-flags.mjs';
+import '../system/dialog-register-helpers.mjs';
 
 // Kind 0B is only offered to the spell glove or an open spell aim or script choice.
 const RESTRICTED_KIND = 0x0b,

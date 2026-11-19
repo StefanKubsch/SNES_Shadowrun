@@ -8,6 +8,7 @@ import {
   MATRIX_IC_TEXT_COUNT,
   MATRIX_IC_TEXT_END,
 } from '../../src/data/wram.mjs';
+import '../system/dialog-register-helpers.mjs';
 
 const QUEUE_ENTRY_BYTES = 4,
   QUEUE_ENTRIES = 8,

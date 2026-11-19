@@ -46,6 +46,7 @@ import {
   WORD_BITS,
 } from '../../src/constants/bits.mjs';
 import { CODE_BANK } from '../../src/constants/memory-map.mjs';
+import '../system/dialog-register-helpers.mjs';
 // Return word of a JSR/JSL frame: the bank offset of the call's last byte.
 const callReturn = (address) => address & WORD_MASK;
 // 8B43: too few magic points open the notice 0B/14/13/03 with text 1 for 3C frames.

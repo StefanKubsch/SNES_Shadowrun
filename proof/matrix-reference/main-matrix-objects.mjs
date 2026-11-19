@@ -1,4 +1,5 @@
 import { clearOamHighTable, hideRemainingSprites } from '../system/main-scene-video.mjs';
+import '../system/dialog-register-helpers.mjs';
 export { clearOamHighTable, hideRemainingSprites };
 import { routineCaller } from '../system/routine-call.mjs';
 import { setCarry } from '../system/status-flags.mjs';

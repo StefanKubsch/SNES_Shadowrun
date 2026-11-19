@@ -38,6 +38,7 @@ import {
   FLAG_NEGATIVE,
   FLAG_ZERO,
 } from '../../src/constants/cpu-flags.mjs';
+import '../system/dialog-register-helpers.mjs';
 const APPEND_RETURN_WORD = 0x8ef3;
 // 80:8EDA: start the selected spell's script: X = its script (SELECTED_SPELL_SCRIPT),
 // the spell level byte from the long pointer SELECTED_SPELL_LEVEL_POINTER (bank 7E, via

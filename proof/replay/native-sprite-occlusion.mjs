@@ -46,6 +46,7 @@ import {
   FLAG_NEGATIVE,
   FLAG_MEMORY_8BIT,
 } from '../../src/constants/cpu-flags.mjs';
+import '../system/dialog-register-helpers.mjs';
 
 // Occlusion tiles of the scene sprites (native-scene-sprites.mjs): walls in front of an
 // object become 8x8 sprites from the map cells around it.

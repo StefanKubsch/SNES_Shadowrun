@@ -37,6 +37,7 @@ import {
   FLAG_CARRY,
 } from '../../src/constants/cpu-flags.mjs';
 import { taskStop } from '../../src/system/task-stop.mjs';
+import './dialog-register-helpers.mjs';
 
 // C416 maps the relative object/camera position into an unsigned pan byte.
 const PAN_CENTRE = 128,
