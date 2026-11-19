@@ -18,8 +18,10 @@
 // frame stream, 41 to 43 the picture, 44 the tile count, 82 the upload index).
 // Registers (user decision 2026-11-17): game state only; the slot passes to the reload
 // and the animation step as a parameter and the routine leaves no A, X, Y or flags.
-// Each object's draw list index is pushed around its reload (PHY, PLY), and the frames
-// of the inner calls are pushed as the original's JSR and JSL. With the lag-free frame model the NMI arrives
+// The frames of the inner calls are pushed as the original's JSR and JSL; the draw list
+// index the original pushes around each reload (PHY, PLY) and the frames of its job list
+// counts (JSL 81:A954) lie only in free stack bytes and are kept in locals or not
+// reproduced (game state only, user decision 2026-11-17). With the lag-free frame model the NMI arrives
 // at the waits' branches 80:AE61 and 80:AE0F; otherwise the recorded observations or
 // interrupts are replayed as by the register-level routine. The word wait comes from
 // the live frame sequence.
@@ -80,13 +82,9 @@ const FRAME_BANK = 0x8c,
 const RELOAD_CALL = [0x80ae00, 0x80ae12],
   ANIMATION_CALL = [0x80ae17, 0x80ac2f],
   WAIT_CALL = [0x80ae23, 0x81b0a1, true],
-  CHANGE_COUNT_SITE = 0x80ae1f,
-  FULL_COUNT_SITE = 0x80ae5a,
-  END_COUNT_SITE = 0x80ae08,
   FULL_WAIT = 0x80ae5e,
   END_WAIT = 0x80ae0c,
-  LOAD_BYTES = 3,
-  JSL_LAST_BYTE = 3;
+  LOAD_BYTES = 3;
 
 const word = (wram, at) => wram[at] | (wram[at + 1] << BYTE_BITS);
 const setWord = (wram, at, value) => {
@@ -96,13 +94,8 @@ const setWord = (wram, at, value) => {
 const longWord = (mem, at) =>
   mem.read8(at & LONG_MASK) | (mem.read8((at + 1) & LONG_MASK) << BYTE_BITS);
 
-// One more job list for the NMI (JSL 81:A954 at site): its frame stays below the stack.
-function countJobList(h, site) {
-  const { ctx } = h,
-    { wram } = h.a.mem;
-  h.pushByte(ctx.programBank);
-  h.a.pushWord((site + JSL_LAST_BYTE) & WORD_MASK);
-  ctx.s = (ctx.s + JSL_LAST_BYTE) & WORD_MASK;
+// One more job list for the NMI (81:A954).
+function countJobList(wram) {
   setWord(wram, NMI_JOB_LISTS, word(wram, NMI_JOB_LISTS) + 1);
 }
 
@@ -135,14 +128,13 @@ export function* reloadObjectTilesSequence(h, events) {
     yield () => {
       // The draw list through the data bank, as the original's LDX abs,Y.
       slot = longWord(mem, (ctx.bank << WORD_BITS) + DRAW_LIST + index);
-      h.a.pushWord(index);
     };
     yield* dialogCallBody(h, ...RELOAD_CALL, () => reloadSequence(h, events, slot));
     yield () => {
-      index = (h.a.pullWord() - FRAME_STEP) & WORD_MASK;
+      index = (index - FRAME_STEP) & WORD_MASK;
     };
   } while (!(index & WORD_SIGN));
-  yield () => countJobList(h, END_COUNT_SITE);
+  yield () => countJobList(wram);
   yield* waitForJobLists(h, events, END_WAIT);
   let result;
   yield () => {
@@ -177,7 +169,7 @@ function* reloadSequence(h, events, slot) {
       let waiting = false;
       yield () => {
         waiting = get(OBJECT_PICTURE_CHANGE) !== 0;
-        if (waiting) countJobList(h, CHANGE_COUNT_SITE);
+        if (waiting) countJobList(wram);
       };
       if (!waiting) return yield* rts(h);
       yield* dialogCallBody(
@@ -206,7 +198,7 @@ function* reloadSequence(h, events, slot) {
     const jobs = ((tiles << TILE_JOB_SHIFT) & WORD_MASK) + word(wram, DP_VRAM_UPLOAD_INDEX);
     // Past FFFF the original does not compare and does not wait.
     full = jobs <= WORD_MASK && jobs >= UPLOAD_LIMIT;
-    if (full) countJobList(h, FULL_COUNT_SITE);
+    if (full) countJobList(wram);
   };
   if (!tiles) return yield* rts(h);
   if (full) yield* waitForJobLists(h, events, FULL_WAIT);
