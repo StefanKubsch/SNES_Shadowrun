@@ -1,7 +1,7 @@
 import { talkSequence } from './dialog-talk.mjs';
 import { chooseActionSequence } from './action-menu.mjs';
 import { takePadWord } from '../system/live-input-calls.mjs';
-import { putGloveAwayCall } from './window-release.mjs';
+import { putGloveAwaySequence } from './window-release.mjs';
 // The action glove's buttons on an object (lifted from 80:BF3B; register-level
 // reference in proof/game-reference/main-glove-action.mjs).
 //
@@ -89,11 +89,9 @@ const DP_SCRATCH = 0x6b,
 // Original call sites and callees.
 const CALL = Object.freeze({
   notice: [0x80bfde, 0x80fec1],
-  noticeRelease: [0x80bfe1, 0x80bcb2],
   noticeInput: [0x80bfe4, 0x809e1a],
   menu: [0x80c00b, 0x8099eb],
   dialog: [0x80c032, 0x80936c],
-  release: [0x80c064, 0x80bcb2],
   input: [0x80c067, 0x809e1a],
 });
 
@@ -181,7 +179,7 @@ export function* gloveActionSequence(h, events, renderBuffer = drawTextBufferSeq
   };
   if (path === 'notice') {
     yield* dialogCallBody(h, ...CALL.notice, () => showNoticeSequence(h, events, renderBuffer));
-    yield* putGloveAwayCall(h, events, CALL.noticeRelease[0]);
+    yield* putGloveAwaySequence(h, events);
     yield* dialogCallBody(h, ...CALL.noticeInput, () =>
       segmentSequence(() => takePadWord(h, events)),
     );
@@ -222,7 +220,7 @@ export function* gloveActionSequence(h, events, renderBuffer = drawTextBufferSeq
       sendEvents(tasks, task, action);
     };
     if (path === 'pass') {
-      yield* putGloveAwayCall(h, events, CALL.release[0]);
+      yield* putGloveAwaySequence(h, events);
       yield* dialogCallBody(h, ...CALL.input, () => segmentSequence(() => takePadWord(h, events)));
     }
   }

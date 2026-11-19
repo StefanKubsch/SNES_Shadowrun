@@ -10,10 +10,11 @@
 // NMI. The notice windows release every used notice slot; putting the glove away
 // releases the name window of the glove's target.
 //
-// The calls are JSRs within bank 80 (the redraw a JSL); their return words, and the
-// slot index the notice windows push around a release, lie on the stack as in the
-// original: the NMI of the upload wait writes below them. Each release passes its
-// window in the direct page word 00, as the original. Window indices are game-sized
+// The calls are JSRs within bank 80 (the redraw a JSL). Their return words and the slot
+// index the notice windows push around a release lie only in free stack bytes and are
+// kept in locals (game state only, user decision 2026-11-17); the redraw keeps its own
+// frame for the upload wait. Each release passes its window in the direct page word
+// 00, as the original. Window indices are game-sized
 // (below 0100), so the tables are read in bank 7E.
 //
 // Registers (user decision 2026-11-17): the call forms leave no A, X or flags of their
@@ -39,14 +40,10 @@ import {
 import { BYTE_BITS, BYTE_MASK, WORD_BITS, WORD_MASK, WORD_SIGN } from '../constants/bits.mjs';
 
 const NONE = WORD_MASK,
-  DP_WINDOW = 0x00,
-  // A JSR pushes the address of its last byte.
-  JSR_LAST_BYTE = 2;
-// Original call sites: the redraw in the release, the release in the notice windows
-// and in the name window release, the name window release in the glove.
+  DP_WINDOW = 0x00;
+// Original call sites: the redraw in the release, the name window release in the
+// glove.
 const REDRAW_SITE = 0x80fa62,
-  NOTICE_RELEASE_SITE = 0x80ff85,
-  NAME_RELEASE_SITE = 0x80be60,
   GLOVE_NAME_SITE = 0x80bcba,
   NAME_RELEASE_TARGET = 0x80be5b;
 
@@ -55,13 +52,6 @@ const setWord = (wram, at, value) => {
   wram[at] = value & BYTE_MASK;
   wram[at + 1] = (value >>> BYTE_BITS) & BYTE_MASK;
 };
-
-// Run sequence below the return word of a JSR at site.
-function* belowJsr(h, site, sequence) {
-  yield () => h.a.pushWord((site + JSR_LAST_BYTE) & WORD_MASK);
-  yield* sequence;
-  yield () => h.a.pullWord();
-}
 
 // Release the window in the direct page word 00 (80:FA3E) and redraw the window list.
 export function* releaseWindowSequence(h, events) {
@@ -104,15 +94,9 @@ export function* releaseNoticeWindowsSequence(h, events) {
   for (let x = NOTICE_WINDOW_LAST; x >= 0; x -= 2) {
     const window = word(wram, NOTICE_WINDOWS + x);
     if (window & WORD_SIGN) continue;
-    yield () => {
-      setWord(wram, DP_WINDOW, window);
-      h.a.pushWord(x);
-    };
-    yield* belowJsr(h, NOTICE_RELEASE_SITE, releaseWindowSequence(h, events));
-    yield () => {
-      h.a.pullWord();
-      setWord(wram, NOTICE_WINDOWS + x, NONE);
-    };
+    yield () => setWord(wram, DP_WINDOW, window);
+    yield* releaseWindowSequence(h, events);
+    yield () => setWord(wram, NOTICE_WINDOWS + x, NONE);
   }
   yield () => setWord(wram, WINDOW_FIRST_INDEX, 0);
 }
@@ -123,14 +107,14 @@ export function* putGloveAwaySequence(h, events) {
   const { wram } = sceneRuntime(h);
   yield () => setWord(wram, GLOVE_KIND, 0);
   if (word(wram, GLOVE_TARGET_TAG) & WORD_SIGN) return;
-  yield* belowJsr(h, GLOVE_NAME_SITE, releaseGloveNameWindowSequence(h, events));
+  yield* releaseGloveNameWindowSequence(h, events);
 }
 // Release the name window of the glove's target and forget the target (80:BE5B); the
 // glove movement (src/game/glove-move.mjs) runs it in its JSR frame.
 export function* releaseGloveNameWindowSequence(h, events) {
   const { wram } = sceneRuntime(h);
   yield () => setWord(wram, DP_WINDOW, word(wram, GLOVE_NAME_WINDOW));
-  yield* belowJsr(h, NAME_RELEASE_SITE, releaseWindowSequence(h, events));
+  yield* releaseWindowSequence(h, events);
   yield () => {
     setWord(wram, GLOVE_TARGET_TAG, NONE);
     setWord(wram, GLOVE_TARGET_OBJECT, NONE);
@@ -171,9 +155,3 @@ function* rts(h) {
   };
   return result;
 }
-
-// The glove and the notice windows as the caller's JSRs at site.
-export const putGloveAwayCall = (h, events, site) =>
-  belowJsr(h, site, putGloveAwaySequence(h, events));
-export const releaseNoticeWindowsCall = (h, events, site) =>
-  belowJsr(h, site, releaseNoticeWindowsSequence(h, events));

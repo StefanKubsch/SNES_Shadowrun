@@ -31,7 +31,7 @@ import { uploadSceneTilesSequence } from './scene-tiles.mjs';
 import { updateTileBuffers, uploadMapEdges } from './camera-scroll.mjs';
 import { loadSceneSequence } from './scene-load.mjs';
 import { drawWindowListSequence } from './window-list.mjs';
-import { putGloveAwayCall, releaseNoticeWindowsCall } from './window-release.mjs';
+import { putGloveAwaySequence, releaseNoticeWindowsSequence } from './window-release.mjs';
 import {
   BRIGHTNESS_FADE,
   BRIGHTNESS_FADE_FRAMES,
@@ -121,10 +121,8 @@ const CAMERA_ROW_BASE = 0x488,
 const BOX_DATA_SHIFTS = 3,
   POINT_SHIFTS = 2;
 // Original call sites of the routines still called through their frames.
-const GLOVE_SITE = 0x80a4e1,
-  SCENE_LOAD_SITE = 0x80a518,
+const SCENE_LOAD_SITE = 0x80a518,
   FRAME_WAIT_SITE = 0x80a520,
-  NOTICE_WINDOWS_SITE = 0x80a528,
   CAMERA_JUMP_SITE = 0x80a55c,
   // A JSL pushes the address of its last byte.
   JSL_LAST_BYTE = 3,
@@ -330,7 +328,7 @@ export function* enterRoomSequence(h, events, room) {
     setWord(wram, DP_ROOM_HEADER, header | LOROM_OFFSET);
     startBrightnessFade(wram, FADE_OUT);
   };
-  yield* putGloveAwayCall(h, events, GLOVE_SITE);
+  yield* putGloveAwaySequence(h, events);
   yield () => tasksOf(h.a).reset();
   if (!keepsMusic(mem, wram)) yield () => stopMusic(m);
   let scene;
@@ -342,7 +340,7 @@ export function* enterRoomSequence(h, events, room) {
   yield () => forceBlank(wram);
   yield* waitForFrameCall(h, events, FRAME_WAIT_SITE);
   yield () => resetFixedColour(m);
-  yield* releaseNoticeWindowsCall(h, events, NOTICE_WINDOWS_SITE);
+  yield* releaseNoticeWindowsSequence(h, events);
   yield () => {
     resetObjectSlots(wram, video);
     setWord(wram, DP_START_DIRECTION, mem.read8(ROOM_TABLE + ROOM_ENTRY_DIRECTION + entry));
