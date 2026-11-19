@@ -21,7 +21,6 @@ import { runSceneList } from '../system/scene-list.mjs';
 import { waitForFrame } from '../system/frame-wait.mjs';
 import { fadeIn, fadeOut } from '../video/fades.mjs';
 import { setSceneScreen } from '../video/scene-screen.mjs';
-import { taskStop } from '../system/task-stop.mjs';
 import { restoreDefaultSettings, sendOutputMode, settingsValid } from './settings.mjs';
 import { SETTINGS_CONTROL_TYPE_A, SETTINGS_STEREO, SETTINGS_STEREO_ON } from '../data/wram.mjs';
 import { BYTE_BITS, BYTE_MASK } from '../constants/bits.mjs';
@@ -38,13 +37,13 @@ const SETTINGS_WORD_BITS = SETTINGS_STEREO_ON | (SETTINGS_CONTROL_TYPE_A << BYTE
 const CLEARED_WORD = 0x10;
 // The settings checksum leaves X past its first byte.
 
-// 81:E7BC, a sequence for a native call continuation: h is the accessor of the boot
-// (direct page 0), events its frame events. Returns with the status it came with,
-// after its RTL.
+// 81:E7BC, a sequence for a native call continuation: h is the accessor of the boot,
+// events its frame events. It writes the direct page word 10 at WRAM 0010 and checks no
+// direct page register (its callers run with D = 0; user decision 2026-11-17). Returns
+// with the status it came with, after its RTL.
 export function* bootScreensSequence(h, events) {
   const { ctx } = h,
     status = ctx.status;
-  if (ctx.d !== 0) taskStop('boot_direct_page_required', { d: ctx.d });
   let m;
   const wait = () => waitForFrame(h, events, m.port),
     hold = function* (frames) {
