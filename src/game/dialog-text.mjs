@@ -20,9 +20,10 @@
 // arguments; the task append takes the action's script as a parameter. The search and
 // the topic add keep the original's 8-bit accumulator as a local: byte loads keep its
 // high byte, XBA swaps the bytes, so the high byte carries the topics moved up. The
-// routine pushes the flag byte around the topic add, and the status and the text
-// position around the text, as the original; the topic add's own frame is pushed and
-// pulled as the original.
+// flag byte the original pushes around the topic add, the topic add's JSR frame, the
+// status and text position it pushes around the text and the text number 80:933A
+// pushes around the clearing lie only in free stack bytes and are kept in locals (game
+// state only, user decision 2026-11-17).
 //
 // Registers (user decision 2026-11-17): game state only; the routine leaves no A, X, Y
 // or flags.
@@ -43,13 +44,6 @@ import {
   WORD_BITS,
   WORD_MASK,
 } from '../constants/bits.mjs';
-import {
-  FLAG_CARRY,
-  FLAG_INDEX_8BIT,
-  FLAG_MEMORY_8BIT,
-  FLAG_NEGATIVE,
-  FLAG_ZERO,
-} from '../constants/cpu-flags.mjs';
 
 const DP_WINDOW = 0x00,
   DP_TEXT = 0x02,
@@ -70,9 +64,7 @@ const FIRST_ENTRY = 4,
 // Original call sites and callees.
 const REQUEST_CALL = [0x80917e, 0x80fa67],
   CURSOR_CALL = [0x809185, 0x80faac],
-  TOPICS_SITE = 0x8091ae,
-  TEXT_CALL = [0x8091c3, 0x80fe69],
-  JSR_LAST_BYTE = 2;
+  TEXT_CALL = [0x8091c3, 0x80fe69];
 
 const word = (wram, at) => wram[at] | (wram[at + 1] << BYTE_BITS);
 const setWord = (wram, at, value) => {
@@ -179,8 +171,7 @@ function liftedBodies(h, events, renderBuffer) {
 // Show the dialog text for the key (80:9178, A in the original), a sequence for a native
 // call continuation with an optional text renderer.
 export function* showDialogTextSequence(h, events, renderBuffer = drawTextBufferSequence, key) {
-  const { ctx } = h,
-    { mem } = h.a,
+  const { mem } = h.a,
     { wram } = mem,
     body = liftedBodies(h, events, renderBuffer),
     call = ([site, target], name) => dialogCallBody(h, site, target, body(name));
@@ -196,7 +187,8 @@ export function* showDialogTextSequence(h, events, renderBuffer = drawTextBuffer
     };
     yield* call(CURSOR_CALL, 'cursor');
     let entry,
-      action = false;
+      action = false,
+      at;
     yield () => {
       // The 8-bit accumulator's high byte carries the topics moved up in the topic add.
       const acc = new Accumulator(key);
@@ -206,38 +198,19 @@ export function* showDialogTextSequence(h, events, renderBuffer = drawTextBuffer
         key = FALLBACK_KEY;
         return;
       }
-      // The flag byte, pushed around the topic add (JSR with its frame).
+      // The flag byte, kept over the topic add.
       let y = entry.y;
       const flags = acc.byte(recordByte(mem, wram, y));
-      h.pushByte(flags);
-      h.a.pushWord((TOPICS_SITE + JSR_LAST_BYTE) & WORD_MASK);
       y = addTopics(mem, wram, acc, y);
-      h.a.pullWord();
-      ctx.s = (ctx.s + 1) & WORD_MASK;
-      // PLA, ASL: the action bit; REP, PHP, PHY push the status (as the original's) and
-      // the text position around the text.
-      acc.byte(flags << 1);
+      // The action bit; the text position is kept over the text.
       action = (flags & BYTE_SIGN) !== 0;
-      h.pushByte(
-        (ctx.status &
-          ~(FLAG_CARRY | FLAG_NEGATIVE | FLAG_ZERO | FLAG_MEMORY_8BIT | FLAG_INDEX_8BIT)) |
-          (action ? FLAG_CARRY : 0) |
-          (acc.low & BYTE_SIGN ? FLAG_NEGATIVE : 0) |
-          (acc.low === 0 ? FLAG_ZERO : 0),
-      );
-      h.a.pushWord(y);
+      at = y;
       if (action) y = (y + ACTION_WORD_BYTES) & WORD_MASK;
       setWord(wram, DP_TEXT, recordWord(mem, wram, y));
       setWord(wram, DP_WINDOW, word(wram, DP_TEXT_WINDOW));
     };
     if (entry.found) {
       yield* call(TEXT_CALL, 'text');
-      let at;
-      yield () => {
-        // PLY, PLP: the action word's position and the pushed status.
-        at = h.a.pullWord();
-        ctx.s = (ctx.s + 1) & WORD_MASK;
-      };
       if (action) yield* dialogTopicSequence(h, events, at);
       break;
     }
@@ -311,10 +284,7 @@ export function printWindowTextSequence(h, events, renderBuffer = drawTextBuffer
 export function* printTopicTextSequence(h, events, renderBuffer = drawTextBufferSequence) {
   const { wram } = h.a.mem,
     number = word(wram, 0);
-  yield () => {
-    h.a.pushWord(number);
-    setWord(wram, DP_WINDOW, word(wram, DP_TEXT_WINDOW));
-  };
+  yield () => setWord(wram, DP_WINDOW, word(wram, DP_TEXT_WINDOW));
   yield* dialogCallBody(h, ...TOPIC_TEXT.request, () => requestTileClearSequence(h, events));
   yield () => {
     setWord(wram, DP_TEXT, 0);
@@ -323,6 +293,5 @@ export function* printTopicTextSequence(h, events, renderBuffer = drawTextBuffer
   yield* dialogCallBody(h, ...TOPIC_TEXT.cursor, () =>
     segmentSequence(() => setTextCursorRoutine(h)),
   );
-  yield () => h.a.pullWord();
   return yield* printTextNumber(h, events, renderBuffer, number, TOPIC_TEXT_CALL);
 }
