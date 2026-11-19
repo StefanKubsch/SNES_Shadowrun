@@ -5,6 +5,6 @@ import { runnerStrength } from '../game/runner-state.mjs';
 // proof/game-reference/script-starts.mjs): return the Strength of the runner object
 // (first argument).
 export const getRunnerStrength = (a, outerReturn = true) => {
-  runnerStrength(a.mem, a);
+  runnerStrength(a.mem);
   return finishLeaf(a, outerReturn);
 };

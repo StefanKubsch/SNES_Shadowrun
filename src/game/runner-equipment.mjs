@@ -44,10 +44,6 @@ import { LONG_MASK, WORD_MASK, WORD_SIGN } from '../constants/bits.mjs';
 
 // The actor table's state record words (8D:B020 plus the actor entry; 0: none).
 const ACTOR_STATE_RECORDS = 0x8db020;
-// The return words of 80:9CE4's JSRs to the armour and weapon branches 80:9D3D and
-// 80:9D50 (the bank offsets of their last bytes).
-const ARMOUR_RETURN = 0x9d0f,
-  WEAPON_RETURN = 0x9d13;
 
 // A word or byte of WRAM bank 7E at offset (which may cross into bank 7F).
 const wramWord = (mem, offset) => mem.read16((WRAM + offset) & LONG_MASK);
@@ -81,45 +77,37 @@ export function equipWeapon(mem, item, kind, damage, range) {
   setWramByte(mem, RUNNER_WEAPON_RANGE + row, range);
 }
 // The first runner from the last down who wears the object number gets the default
-// armour or weapon again (a, when given, takes the call frame of 80:9CE4's JSR).
-function takeOff(mem, number, fixes, a) {
-  const call = (site, run) => {
-    a?.pushWord(site);
-    run();
-    a?.pullWord();
-  };
+// armour or weapon again. The return words of 80:9CE4's JSRs to its branches lie only in
+// free stack bytes and are not reproduced (game state only, user decision 2026-11-17).
+function takeOff(mem, number, fixes) {
   for (let row = RUNNER_EQUIPMENT_SCAN_START; row >= 0; row -= RUNNER_EQUIPMENT_BYTES) {
     if (number === wramWord(mem, RUNNER_ARMOUR + row)) {
-      call(ARMOUR_RETURN, () => {
-        setWramWord(mem, RUNNER_ARMOUR + row, dataBankWord(mem, RUNNER_DEFAULT_ARMOUR, row));
-        setWramByte(
-          mem,
-          RUNNER_ARMOUR_RATING + row,
-          dataBankByte(mem, RUNNER_DEFAULT_ARMOUR_RATING, row),
-        );
-      });
+      setWramWord(mem, RUNNER_ARMOUR + row, dataBankWord(mem, RUNNER_DEFAULT_ARMOUR, row));
+      setWramByte(
+        mem,
+        RUNNER_ARMOUR_RATING + row,
+        dataBankByte(mem, RUNNER_DEFAULT_ARMOUR_RATING, row),
+      );
       return;
     }
     if (number === wramWord(mem, RUNNER_WEAPON + row)) {
-      call(WEAPON_RETURN, () => {
-        const weapon = dataBankWord(mem, RUNNER_DEFAULT_WEAPON, row);
-        setWramWord(mem, RUNNER_WEAPON + row, weapon);
-        if (fixes) {
-          setWramWord(
-            mem,
-            RUNNER_WEAPON_KIND + row,
-            dataBankWord(mem, RUNNER_DEFAULT_WEAPON_KIND_DAMAGE, row),
-          );
-          setWramByte(
-            mem,
-            RUNNER_WEAPON_RANGE + row,
-            dataBankByte(mem, RUNNER_DEFAULT_WEAPON_RANGE, row),
-          );
-        } else {
-          setWramWord(mem, RUNNER_WEAPON_KIND + row, weapon);
-          setWramByte(mem, RUNNER_WEAPON_RANGE + row, weapon);
-        }
-      });
+      const weapon = dataBankWord(mem, RUNNER_DEFAULT_WEAPON, row);
+      setWramWord(mem, RUNNER_WEAPON + row, weapon);
+      if (fixes) {
+        setWramWord(
+          mem,
+          RUNNER_WEAPON_KIND + row,
+          dataBankWord(mem, RUNNER_DEFAULT_WEAPON_KIND_DAMAGE, row),
+        );
+        setWramByte(
+          mem,
+          RUNNER_WEAPON_RANGE + row,
+          dataBankByte(mem, RUNNER_DEFAULT_WEAPON_RANGE, row),
+        );
+      } else {
+        setWramWord(mem, RUNNER_WEAPON_KIND + row, weapon);
+        setWramByte(mem, RUNNER_WEAPON_RANGE + row, weapon);
+      }
       return;
     }
   }
@@ -130,13 +118,13 @@ export function setItemProperty(mem, item, property, fixes) {
   const record = dataBankWord(mem, OBJECT_RECORD, item);
   if (record === 0) return;
   setWramWord(mem, RECORD_PROPERTY + record, property);
-  takeOff(mem, dataBankWord(mem, OBJECT_NUMBER, item), fixes, null);
+  takeOff(mem, dataBankWord(mem, OBJECT_NUMBER, item), fixes);
 }
 // 80:9CE4: the state record of the actor entry gets the property word, and the actor's
-// item is taken off its runner; a takes the branches' call frames.
-export function setActorItemProperty(mem, actor, property, fixes, a) {
+// item is taken off its runner.
+export function setActorItemProperty(mem, actor, property, fixes) {
   const record = mem.read16((ACTOR_STATE_RECORDS + actor) & LONG_MASK);
   if (record === 0) return;
   setWramWord(mem, RECORD_PROPERTY + record, property);
-  takeOff(mem, actor, fixes, a);
+  takeOff(mem, actor, fixes);
 }

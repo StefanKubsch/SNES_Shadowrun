@@ -17,7 +17,6 @@ export const setActorItemPropertyAndUnequip = (a, outerReturn = true) => {
     leafArgument(a, FIRST_ARGUMENT),
     leafArgument(a, SECOND_ARGUMENT),
     fixesEnabled(a),
-    a,
   );
   return finishLeaf(a, outerReturn);
 };

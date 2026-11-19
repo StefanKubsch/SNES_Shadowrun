@@ -159,8 +159,7 @@ const DP_RECORD_POINTER = 0xa2,
   DP_RECORD_BANK = 0xa4,
   DP_RECORD_OFFSET = 2,
   STRENGTH_BYTE = 2,
-  RUNNER_BYTES = 2,
-  RECORD_LOOKUP_RETURN = 0xd06e;
+  RUNNER_BYTES = 2;
 function runnerRecordByte(mem) {
   const { wram } = mem,
     number = dataBankWord(mem, OBJECT_NUMBER, wramWord(wram, 0));
@@ -177,10 +176,9 @@ function runnerRecordByte(mem) {
   setWramWord(wram, 0, value & BYTE_MASK);
 }
 // 80:D067: the Strength (record byte 2) of the runner object in word 00, returned in word
-// 00; a takes the lookup's call frame.
-export function runnerStrength(mem, a) {
+// 00. The return word of the lookup's JSR lies only in free stack bytes and is not
+// reproduced (game state only, user decision 2026-11-17).
+export function runnerStrength(mem) {
   setWramWord(mem.wram, DP_RECORD_OFFSET, STRENGTH_BYTE);
-  a.pushWord(RECORD_LOOKUP_RETURN);
   runnerRecordByte(mem);
-  a.pullWord();
 }

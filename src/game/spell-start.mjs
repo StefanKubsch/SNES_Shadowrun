@@ -17,8 +17,7 @@ import {
 import { WRAM_BANK } from '../constants/memory-map.mjs';
 import { BYTE_BITS, BYTE_MASK, LONG_MASK } from '../constants/bits.mjs';
 
-const DP_ARGUMENT = 0,
-  APPEND_RETURN = 0x8ef3;
+const DP_ARGUMENT = 0;
 
 const wramWord = (mem, offset) => mem.read16((WRAM + offset) & LONG_MASK);
 const setWord = (wram, at, value) => {
@@ -26,7 +25,9 @@ const setWord = (wram, at, value) => {
   wram[at + 1] = (value >>> BYTE_BITS) & BYTE_MASK;
 };
 
-// 80:8EDA: start the selected spell's script with its level as the first argument.
+// 80:8EDA: start the selected spell's script with its level as the first argument; a is
+// the accessor of the tasks. The return word of the append's call lies only in free stack
+// bytes and is not reproduced (game state only, user decision 2026-11-17).
 export function startSelectedSpell(mem, a) {
   const { wram } = mem,
     script = wramWord(mem, SELECTED_SPELL_SCRIPT),
@@ -34,7 +35,5 @@ export function startSelectedSpell(mem, a) {
   setWord(wram, DP_SELECTION_POINTER, pointer);
   setWord(wram, DP_SELECTION_POINTER_BANK, WRAM_BANK);
   setWord(wram, DP_ARGUMENT, mem.read8(WRAM + pointer));
-  a.pushWord(APPEND_RETURN);
   tasksOf(a).append(script, argumentWords(mem, script));
-  a.pullWord();
 }
