@@ -72,10 +72,12 @@ export function* askYesNoSequence(h, events, renderBuffer = drawTextBufferSequen
   yield* dialogCallBody(h, ...MENU_CALL, () =>
     chooseFromMenuSequence(h, events, renderBuffer, MENU_CALL[1]),
   );
+  let answer;
   yield () => {
     const choice = word(wram, DP_WINDOW);
-    // The answer waits on the stack (PEA) while the window is released.
-    h.a.pushWord(choice === CANCEL || choice === NO_ROW ? NO : YES);
+    // The original keeps the answer on the stack (PEA) while the window is released;
+    // that word lies only in free stack bytes and is kept in a local here.
+    answer = choice === CANCEL || choice === NO_ROW ? NO : YES;
     setWord(wram, DP_WINDOW, word(wram, DP_QUESTION_WINDOW));
   };
   yield* dialogCallBody(h, ...RELEASE_CALL, function* () {
@@ -88,7 +90,7 @@ export function* askYesNoSequence(h, events, renderBuffer = drawTextBufferSequen
   });
   let result;
   yield () => {
-    setWord(wram, DP_WINDOW, h.a.pullWord());
+    setWord(wram, DP_WINDOW, answer);
     result = h.rts();
   };
   return result;

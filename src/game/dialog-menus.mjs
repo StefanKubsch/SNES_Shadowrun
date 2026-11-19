@@ -125,14 +125,16 @@ export function* chooseDialogTopicSequence(h, events, renderBuffer = drawTextBuf
     setWords(wram, 2, TOPIC_MENU);
   };
   yield* callee(h, events, renderBuffer, TOPIC_MENU_CALL, 'menu');
+  let chosen;
   yield () => {
-    // The chosen row waits on the stack over the release, as the original.
-    h.a.pushWord(word(wram, DP_RESULT));
+    // The original keeps the chosen row on the stack over the release; that word lies
+    // only in free stack bytes and is kept in a local here.
+    chosen = word(wram, DP_RESULT);
     setWord(wram, DP_RESULT, word(wram, DP_TOPIC_WINDOW));
   };
   yield* callee(h, events, renderBuffer, TOPIC_RELEASE_CALL, 'release');
   yield () => {
-    let row = h.a.pullWord();
+    let row = chosen;
     if (row === NONE) {
       setWord(wram, DIALOG_END, row);
       setWord(wram, DP_RESULT, row);
