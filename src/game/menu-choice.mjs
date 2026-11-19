@@ -28,7 +28,7 @@
 // leaves no A, X, Y or flags (the result is in the direct page word 00). The list
 // position's push around a hotkey and a move's pushes of the direct page words 00 and 06
 // (around the move sound's arguments, which the original sets up and restores without
-// playing it) stay on the stack.
+// playing it) lie only in free stack bytes and are kept in locals.
 import { dialogCallBody, segmentSequence } from '../system/native-call-continuation.mjs';
 import { frameWaitCallSequence, takePadWord } from '../system/live-input-calls.mjs';
 import { playSoundEffectRoutine } from '../apu/sound-effect.mjs';
@@ -314,20 +314,21 @@ export function* chooseFromMenuSequence(
     if (!hotkeys) continue;
     for (;;) {
       let end = false,
-        hit = false;
+        hit = false,
+        position;
       yield () => {
         end = token() === 0;
         if (end) return;
         hit = (hotkey() & field(PAD_PRESSED)) !== 0;
         if (hit) {
-          h.a.pushWord(index);
+          position = index;
           index = field(MENU_SELECTION);
         } else index = (index + 2) & WORD_MASK;
       };
       if (end) break;
       if (hit) {
         yield* unmark(SITES.hotkeyUnmark);
-        yield () => store(MENU_SELECTION, h.a.pullWord());
+        yield () => store(MENU_SELECTION, position);
         return yield* confirm();
       }
     }
