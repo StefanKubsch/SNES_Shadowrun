@@ -24,13 +24,12 @@
 //
 // The direct page words of the original are written: the distances A2 and A5, the
 // negative differences A8 and AB (0 when not negative), and the turn's object 00 and
-// direction 02; the direction is pushed around the turn as in the original.
-// Registers (user decision 2026-11-17): game state only; the slot is a parameter, the
-// turn is the JSR form that leaves no registers, and the routine leaves no A, X, Y or
-// flags.
+// direction 02. Game state only (user decision 2026-11-17): the slot is a parameter, the
+// routine leaves no registers, and its call frames and the pushed direction, which lie
+// only in free stack bytes, are not reproduced.
 import { taskStop } from '../system/task-stop.mjs';
 import { dataBankWord } from '../system/data-bank.mjs';
-import { turnObjectJsr } from './object-turn.mjs';
+import { turnObject } from './object-turn.mjs';
 import {
   MOTION_ACTIVE,
   MOTION_MODE,
@@ -83,17 +82,6 @@ const DP_OBJECT = 0,
   DP_DISTANCE_Y = 0xa5,
   DP_X_NEGATIVE = 0xa8,
   DP_Y_NEGATIVE = 0xab;
-// Original call sites: the two ways, the distance and the turns.
-const AXES_CALL = 0x80c9e9,
-  AXES_TARGET = 0x80c84d,
-  DIRECT_CALL = 0x80c9ed,
-  DIRECT_TARGET = 0x80c913,
-  AXES_DISTANCE_CALL = 0x80c858,
-  DIRECT_DISTANCE_CALL = 0x80c91f,
-  DISTANCE_TARGET = 0x80c80c,
-  AXES_TURN_CALL = 0x80c8a6,
-  DIRECT_TURN_CALL = 0x80c990,
-  TURN_TARGET = 0x80aaaf;
 
 const word = (wram, at) => wram[at % WRAM_SIZE] | (wram[(at + 1) % WRAM_SIZE] << BYTE_BITS);
 const setWord = (wram, at, value) => {
@@ -101,10 +89,12 @@ const setWord = (wram, at, value) => {
   wram[(at + 1) % WRAM_SIZE] = (value >>> BYTE_BITS) & BYTE_MASK;
 };
 
-// Walk the object in slot towards its target (80:C9E0, called with JSR); action is the
-// turn 80:AAAF, which ends with its own RTS.
-export function walkTowardsTarget(h, slot, action = turnObjectJsr) {
-  const { wram } = h.a.mem;
+// Walk the object in slot towards its target (80:C9E0); a is the accessor of the memory
+// and the tasks, turn the turn 80:AAAF of the object in word 00 to the direction in word
+// 02.
+export function walkTowardsTarget(a, slot, turn = (mem) => turnObject(mem, mem.wram)) {
+  const { mem } = a,
+    { wram } = mem;
   // Fields in the caller's data bank 80 (WRAM below 2000); the motion fields are long.
   const low = (base, index) => {
     if (base + index + 1 >= LOW_WRAM_END) taskStop('object_slot_required', { base, index });
@@ -122,72 +112,63 @@ export function walkTowardsTarget(h, slot, action = turnObjectJsr) {
     return left === 0;
   };
   // The distances to the target (80:C80C); returns their sum.
-  const distance = (call) => {
-    let sum;
-    h.call(call, DISTANCE_TARGET, () => {
-      setWord(wram, DP_X_NEGATIVE, 0);
-      setWord(wram, DP_Y_NEGATIVE, 0);
-      const toPoint = far(MOTION_X) !== 0;
-      let targetX, targetY;
-      if (toPoint) {
-        targetX = far(MOTION_X);
-        targetY = far(MOTION_Y);
-      } else {
-        // The original indexes the object with Y, which is set again before it leaves.
-        // Scripts may pass "none" (FFFF) as the target object: script 18A calls 80:C6F3
-        // with the result of native 07 before it tests that result for FF. The index then
-        // carries into bank 81 and the original reads the WRAM words just below the
-        // fields (src/system/data-bank.mjs); it does not stop.
-        const object = far(MOTION_Y);
-        targetX = dataBankWord(h.a.mem, OBJECT_X, object);
-        targetY = dataBankWord(h.a.mem, OBJECT_Y, object);
-      }
-      const measure = (target, own, negative) => {
-        const difference = (target - own) & WORD_MASK;
-        if (!(difference & WORD_SIGN)) return difference;
-        setWord(wram, negative, difference);
-        return -difference & WORD_MASK;
-      };
-      const dx = measure(targetX, get(OBJECT_X), DP_X_NEGATIVE),
-        dy = measure(targetY, get(OBJECT_Y), DP_Y_NEGATIVE);
-      setWord(wram, DP_DISTANCE_X, dx);
-      setWord(wram, DP_DISTANCE_Y, dy);
-      sum = (dy + dx) & WORD_MASK;
-      return h.rts();
-    });
-    return sum;
+  const distance = () => {
+    setWord(wram, DP_X_NEGATIVE, 0);
+    setWord(wram, DP_Y_NEGATIVE, 0);
+    let targetX, targetY;
+    if (far(MOTION_X) !== 0) {
+      targetX = far(MOTION_X);
+      targetY = far(MOTION_Y);
+    } else {
+      // The original indexes the object with Y, which is set again before it leaves.
+      // Scripts may pass "none" (FFFF) as the target object: script 18A calls 80:C6F3
+      // with the result of native 07 before it tests that result for FF. The index then
+      // carries into bank 81 and the original reads the WRAM words just below the
+      // fields (src/system/data-bank.mjs); it does not stop.
+      const object = far(MOTION_Y);
+      targetX = dataBankWord(mem, OBJECT_X, object);
+      targetY = dataBankWord(mem, OBJECT_Y, object);
+    }
+    const measure = (target, own, negative) => {
+      const difference = (target - own) & WORD_MASK;
+      if (!(difference & WORD_SIGN)) return difference;
+      setWord(wram, negative, difference);
+      return -difference & WORD_MASK;
+    };
+    const dx = measure(targetX, get(OBJECT_X), DP_X_NEGATIVE),
+      dy = measure(targetY, get(OBJECT_Y), DP_Y_NEGATIVE);
+    setWord(wram, DP_DISTANCE_X, dx);
+    setWord(wram, DP_DISTANCE_Y, dy);
+    return (dy + dx) & WORD_MASK;
   };
   // Arrived: stop and send the event to the waiting task of the object's task chain.
   const arrive = () => {
     put(OBJECT_VELOCITY_X, 0);
     put(OBJECT_VELOCITY_Y, 0);
     const task = get(OBJECT_TASK);
-    if (!(task & WORD_SIGN)) sendEvents(tasksOf(h.a), task, MOTION_END_EVENT);
-    return h.rts();
+    if (!(task & WORD_SIGN)) sendEvents(tasksOf(a), task, MOTION_END_EVENT);
   };
-  // Note the turn's object and direction, push the direction and run the turn unless
-  // skipped; then pull the direction and take its steps as the velocity.
-  const turnAndStep = (direction, turnCall, turn = true) => {
+  // Note the turn's object and direction for the turn; after it, take the direction's
+  // steps as the velocity.
+  const noteTurn = (direction) => {
     setWord(wram, DP_OBJECT, slot);
     setWord(wram, DP_DIRECTION, direction);
-    h.a.pushWord(direction);
-    return (noted) => {
-      if (turn) h.call(turnCall, TURN_TARGET, () => action(h));
-      if (noted !== undefined) noted();
-      const pulled = h.a.pullWord(),
-        offset = (pulled << 1) & WORD_MASK,
-        selection = get(OBJECT_SELECTION),
-        tables = selection === SELECTION_STEPS_B ? [STEPS_X_B, STEPS_Y_B] : [STEPS_X_A, STEPS_Y_A],
-        steps = tables.map((table) => dataBankWord(h.a.mem, table, offset));
-      put(OBJECT_VELOCITY_X, steps[0]);
-      put(OBJECT_VELOCITY_Y, steps[1]);
-    };
+  };
+  const step = (direction) => {
+    const offset = (direction << 1) & WORD_MASK,
+      tables =
+        get(OBJECT_SELECTION) === SELECTION_STEPS_B
+          ? [STEPS_X_B, STEPS_Y_B]
+          : [STEPS_X_A, STEPS_Y_A],
+      steps = tables.map((table) => dataBankWord(mem, table, offset));
+    put(OBJECT_VELOCITY_X, steps[0]);
+    put(OBJECT_VELOCITY_Y, steps[1]);
   };
 
   // 80:C84D: axis by axis.
   const walkAxes = () => {
-    if (!due()) return h.rts();
-    if (distance(AXES_DISTANCE_CALL) < ARRIVAL_DISTANCE) return arrive();
+    if (!due()) return;
+    if (distance() < ARRIVAL_DISTANCE) return arrive();
     let yAxis;
     if (get(OBJECT_FLAGS) & OBJECT_BLOCKED) {
       setFar(MOTION_ACTIVE, BLOCKED_DELAY);
@@ -203,14 +184,15 @@ export function walkTowardsTarget(h, slot, action = turnObjectJsr) {
     }
     const negative = word(wram, yAxis ? DP_Y_NEGATIVE : DP_X_NEGATIVE) !== 0,
       direction = yAxis ? (negative ? Y_MINUS : Y_PLUS) : negative ? X_MINUS : X_PLUS;
-    turnAndStep(direction, AXES_TURN_CALL)();
-    return h.rts();
+    noteTurn(direction);
+    turn(mem);
+    step(direction);
   };
 
   // 80:C913: straight, in eight directions.
   const walkDirect = () => {
-    if (!due()) return h.rts();
-    if (distance(DIRECT_DISTANCE_CALL) < ARRIVAL_DISTANCE) return arrive();
+    if (!due()) return;
+    if (distance() < ARRIVAL_DISTANCE) return arrive();
     const dx = word(wram, DP_DISTANCE_X),
       dy = word(wram, DP_DISTANCE_Y),
       xNegative = word(wram, DP_X_NEGATIVE) !== 0,
@@ -222,15 +204,14 @@ export function walkTowardsTarget(h, slot, action = turnObjectJsr) {
     else direction = yNegative ? X_PLUS_Y_MINUS : X_PLUS_Y_PLUS;
     const mode = far(MOTION_MODE),
       changed = mode !== 0 && mode >>> MODE_DIRECTION_SHIFT !== direction;
-    const rest = turnAndStep(direction, DIRECT_TURN_CALL, !changed);
+    noteTurn(direction);
     if (mode === 0 || changed)
       setFar(MOTION_MODE, ((direction << MODE_DIRECTION_SHIFT) | MODE_NOTED) & WORD_MASK);
-    rest();
+    if (!changed) turn(mem);
+    step(direction);
     setFar(MOTION_ACTIVE, STEP_DELAY);
-    return h.rts();
   };
 
-  if (far(MOTION_MODE) & MODE_AXES) h.call(AXES_CALL, AXES_TARGET, walkAxes);
-  else h.call(DIRECT_CALL, DIRECT_TARGET, walkDirect);
-  return h.rts();
+  if (far(MOTION_MODE) & MODE_AXES) walkAxes();
+  else walkDirect();
 }

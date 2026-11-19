@@ -36,6 +36,7 @@ import {
 import { walkTowardsTarget } from '../src/game/object-target.mjs';
 import '../proof/system/dialog-register-helpers.mjs';
 
+const TURN_STUB_RETURN = 0x1234;
 const functions = [
   testUpperXEdge,
   testLowerXEdge,
@@ -51,7 +52,15 @@ const lifted = [
   searchUpperYEdge,
   searchLowerYEdge,
   searchHeightCells,
-  (h, turn) => walkTowardsTarget(h, h.ctx.x, turn),
+  // The lifted walk calls the turn as a plain function: the stand-in gets its JSR frame
+  // here, and the walk its RTS.
+  (h, turn) => {
+    walkTowardsTarget(h.a, h.ctx.x, () => {
+      h.a.pushWord(TURN_STUB_RETURN);
+      turn(h);
+    });
+    return h.rts();
+  },
 ];
 const maps = mainMotionHelperSpecs.map((s) => decodeWindows(s.windows));
 test('six main-loop motion helper graphs pin original bytes, stack, widths and DBR', () => {
@@ -147,7 +156,7 @@ const turnStub = (registers) => (h) => {
   h.a.trace.push(
     registers
       ? { kind: 'action', x: h.ctx.x, y: h.ctx.y, direction: h.dp(2), s: h.ctx.s }
-      : { kind: 'action', object: h.dp(0), direction: h.dp(2), s: h.ctx.s },
+      : { kind: 'action', object: h.dp(0), direction: h.dp(2) },
   );
   h.load(h.dp(2) * 17);
   h.write(h.abs(0x1038) + h.dp(0), h.dp(2) & 2 ? 2 : 0);
@@ -155,7 +164,8 @@ const turnStub = (registers) => (h) => {
   return { rawReturnWord: h.rts() };
 };
 const action = turnStub(true),
-  // The lifted walk passes the turn's object and direction in DP 00 and 02 only.
+  // The lifted walk passes the turn's object and direction in DP 00 and 02 only, from
+  // any stack position.
   stateAction = turnStub(false);
 
 function targetScenario(seed) {

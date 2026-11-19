@@ -51,9 +51,6 @@ const STEP_LIMIT = 5,
   WRAM_SIZE = 0x20000;
 // The direct page word with the old coordinate.
 const DP_OLD = 0x6b;
-// Original call site of the turn towards the target.
-const TARGET_CALL = 0xab2c,
-  TARGET_TARGET = 0x80c9e0;
 // Each axis: position, velocity and the edge tests towards higher and lower values.
 const AXES = [
   {
@@ -79,8 +76,7 @@ const setWord = (wram, at, value) => {
 // Move the object in slot (80:AB26) with its actual walk towards the target.
 export function moveObject(h, slot) {
   const { wram } = h.a.mem;
-  if (word(wram, MOTION_ACTIVE + slot))
-    h.call(TARGET_CALL, TARGET_TARGET, () => walkTowardsTarget(h, slot));
+  if (word(wram, MOTION_ACTIVE + slot)) walkTowardsTarget(h.a, slot);
   // The fields are read in the caller's data bank 80, which reaches WRAM below 2000.
   const at = (base) => {
       if (base + slot + 1 >= LOW_WRAM_END) taskStop('object_slot_required', { base, slot });
