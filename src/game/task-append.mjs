@@ -10,11 +10,13 @@
 // The frame allocation writes the direct page words of the original (the script header
 // pointer 71, its bank word 73 and the frame 74) and the heap request, frame size and
 // argument count words. The return words of the inner calls and the next word the heap
-// pushes while it splits a block lie on the stack as in the original. Memory is
-// reached as the original reaches it: the heap, the task tables, the frame fields and
-// the argument source (FFFE plus the argument offset) through the data bank with a
-// 24-bit index, the direct page words and the copied arguments (direct page plus X) in
-// bank 0. In the game these all lie in WRAM below 2000; a damaged heap or task word
+// pushes while it splits a block lie only in free stack bytes and are kept in locals
+// (game state only, user decision 2026-11-17). Memory is reached as the original
+// reaches it: the heap, the task tables, the frame fields and the argument source
+// (FFFE plus the argument offset) through the data bank with a 24-bit index, the
+// direct page words and the copied arguments in bank 0. Every caller runs with the
+// direct page at 0 (the register-level caller in proof/caller/task-append-call.mjs
+// checks it), so those words lie at their own addresses. In the game these all lie in WRAM below 2000; a damaged heap or task word
 // reaches what the original reaches. Words the original reads again after writing are
 // read again here. A full heap or no free task slot, after which the original writes
 // through a meaningless frame or slot, stops at the frontiers `task_heap_required` and
@@ -63,18 +65,14 @@ const FRAME_SCRIPT = 0,
 const ARGUMENT_SOURCE = 0xfffe;
 // A heap block is split when at least a header and one data byte are left over.
 const HEAP_MIN_SPLIT_BYTES = HEAP_HEADER_BYTES + 1;
-// The return words of the JSRs to C2C8 (from C34A) and C242 (from C2F5).
-const FRAME_JSR_RETURN = 0xc34c,
-  HEAP_JSR_RETURN = 0xc2f7;
 
 // A word through the data bank at offset (absolute indexed: a 24-bit address).
 const bankAddress = (a, offset) => ((a.ctx.bank << WORD_BITS) + offset) & LONG_MASK;
 const bankWord = (a, offset) => a.mem.read16(bankAddress(a, offset));
 const setBankWord = (a, offset, value) => a.mem.write16(bankAddress(a, offset), value & WORD_MASK);
-// A word in bank 0 at the direct page plus offset (16-bit wrap).
-const directWord = (a, offset) => a.mem.read16Bank0((a.ctx.d + offset) & WORD_MASK);
-const setDirectWord = (a, offset, value) =>
-  a.mem.write16Bank0((a.ctx.d + offset) & WORD_MASK, value & WORD_MASK);
+// A direct page word (the direct page at 0) in bank 0.
+const directWord = (a, offset) => a.mem.read16Bank0(offset);
+const setDirectWord = (a, offset, value) => a.mem.write16Bank0(offset, value & WORD_MASK);
 
 // Take a heap block of size bytes (80:C242): the first free block that fits, merged
 // with the free blocks after it; split when enough is left over. Returns the block's
@@ -118,14 +116,14 @@ function allocateHeapBlock(a, size) {
       continue;
     }
     if (rest >= HEAP_MIN_SPLIT_BYTES) {
-      a.pushWord(next(x));
-      const sum = x + request(),
+      const following = next(x),
+        sum = x + request(),
         y = (sum + HEAP_HEADER_BYTES + (sum > WORD_MASK ? 1 : 0)) & WORD_MASK;
       setBankWord(a, HEAP_NEXT_WORD + x, y);
       // SBC with the borrow of the first subtraction going into the second.
       const difference = sizeWord(x) - request();
       setBankWord(a, HEAP_SIZE_WORD + y, difference - HEAP_HEADER_BYTES - (difference < 0 ? 1 : 0));
-      setBankWord(a, HEAP_NEXT_WORD + y, a.pullWord());
+      setBankWord(a, HEAP_NEXT_WORD + y, following);
       setBankWord(a, HEAP_SIZE_WORD + x, request() | HEAP_USED);
     } else setBankWord(a, HEAP_SIZE_WORD + x, sizeWord(x) | HEAP_USED);
     return (x + HEAP_DATA) & WORD_MASK;
@@ -148,15 +146,11 @@ function allocateTaskFrame(a, script) {
   );
   // The two counts of the script header and the fixed bytes, added in 8 bits; the
   // carry of the first addition goes into the second.
-  const header =
-      (mem.read8((a.ctx.d + DP_SCRIPT_HEADER_BANK) & WORD_MASK) << WORD_BITS) |
-      directWord(a, DP_SCRIPT_HEADER),
+  const header = (mem.read8(DP_SCRIPT_HEADER_BANK) << WORD_BITS) | directWord(a, DP_SCRIPT_HEADER),
     counts = mem.read8(header) + mem.read8((header + 1) & LONG_MASK),
     size = ((counts & BYTE_MASK) + FRAME_FIXED_BYTES + (counts > BYTE_MASK ? 1 : 0)) & BYTE_MASK;
   setBankWord(a, FRAME_SIZE, size);
-  a.pushWord(HEAP_JSR_RETURN);
   const frame = allocateHeapBlock(a, size);
-  a.pullWord();
   setDirectWord(a, DP_FRAME, frame);
   const returnBase = frame + FRAME_RETURN_BASE;
   setFrameField(FRAME_RETURN, returnBase);
@@ -171,7 +165,7 @@ function allocateTaskFrame(a, script) {
   for (let y = argumentBytes; y; y -= 2) {
     const argument = bankWord(a, ARGUMENT_SOURCE + y);
     x = (x - 1) & WORD_MASK;
-    mem.write16Bank0((a.ctx.d + x) & WORD_MASK, argument);
+    mem.write16Bank0(x, argument);
     x = (x - 1) & WORD_MASK;
   }
   setFrameField(FRAME_OPERAND_STACK, x);
@@ -190,9 +184,7 @@ function allocateTaskFrame(a, script) {
 // Start a task for script at the head of the task list (80:C34A); returns its slot and
 // the list's old head.
 export function appendTask(a, script) {
-  a.pushWord(FRAME_JSR_RETURN);
   const slot = allocateTaskFrame(a, script);
-  a.pullWord();
   setBankWord(a, TASK_NEXT + slot, bankWord(a, TASK_LIST_HEAD));
   setBankWord(a, TASK_PREVIOUS + slot, NO_TASK);
   const head = bankWord(a, TASK_LIST_HEAD);
