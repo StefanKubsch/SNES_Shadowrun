@@ -73,10 +73,10 @@ const setWord = (wram, at, value) => {
   wram[(at + 1) % WRAM_SIZE] = (value >>> BYTE_BITS) & BYTE_MASK;
 };
 
-// Move the object in slot (80:AB26) with its actual walk towards the target.
-export function moveObject(h, slot) {
-  const { wram } = h.a.mem;
-  if (word(wram, MOTION_ACTIVE + slot)) walkTowardsTarget(h.a, slot);
+// Move the object in slot (80:AB26) with its actual walk towards the target; a is the
+// accessor of the tasks the walk sends its arrival to.
+export function moveObject(wram, a, slot) {
+  if (word(wram, MOTION_ACTIVE + slot)) walkTowardsTarget(a, slot);
   // The fields are read in the caller's data bank 80, which reaches WRAM below 2000.
   const at = (base) => {
       if (base + slot + 1 >= LOW_WRAM_END) taskStop('object_slot_required', { base, slot });
@@ -120,5 +120,4 @@ export function moveObject(h, slot) {
   }
   // CLC, x + y, LSR: the carry out of the addition is lost.
   put(OBJECT_DIAGONAL, ((get(OBJECT_Y) + get(OBJECT_X)) & WORD_MASK) >>> 1);
-  return h.rts();
 }

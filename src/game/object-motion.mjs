@@ -18,9 +18,11 @@
 // 47, the box being linked 4D, the four corner cells 50, 53, 56 and 59, the next node
 // A0 and the frame bank 40. Registers (user decision 2026-11-17): game state only; the
 // movement and the animation step take the slot as a parameter, and the pass leaves no
-// A, X, Y or flags (the formation step 80:BAD5 that follows reads none). The grid
-// clear's and the collision list's frames and the draw list index pushed around each
-// movement are reproduced on the stack, as the original leaves them below its own.
+// A, X, Y or flags (the formation step 80:BAD5 that follows reads none). The collision
+// list, its grid clear, cell link and the movement run as plain functions: their frames,
+// the saved data bank and the draw list index pushed around each movement lie only in
+// free stack bytes, which are not reproduced. The animation step keeps its JSR frame,
+// which a recorded run's register-level step returns from.
 import { taskStop } from '../system/task-stop.mjs';
 import { moveObject } from './object-move.mjs';
 import { stepAnimation } from './object-animation.mjs';
@@ -55,7 +57,6 @@ import {
   STATIC_NODE_END,
 } from '../data/wram.mjs';
 import { BYTE_BITS, BYTE_MASK, WORD_MASK, WORD_SIGN } from '../constants/bits.mjs';
-import { WRAM_BANK_PAIR } from '../constants/memory-map.mjs';
 
 const POSITION_SHIFT = 2,
   // A cell column from the masked x (ASL three times, then the high byte), a cell row
@@ -85,17 +86,8 @@ const DP_X = 0x1a,
   DP_CELL_X1_Y0 = 0x56,
   DP_CELL_X0_Y1 = 0x59,
   DP_NODE = 0xa0;
-// Original call sites: the collision list, its grid clear and cell link (their frames
-// are reproduced on the stack), and the register-level callees.
-const LIST_CALL = 0xafc4,
-  LIST_TARGET = 0x818799,
-  CLEAR_CALL = 0x879f,
-  CLEAR_TARGET = 0x8180f7,
-  LINK_CALL = 0x8840,
-  LINK_TARGET = 0x81846e,
-  MOVE_CALL = 0xafd9,
-  MOVE_TARGET = 0x80ab26,
-  ANIMATION_CALL = 0xaff4,
+// Original call site of the animation step.
+const ANIMATION_CALL = 0xaff4,
   ANIMATION_TARGET = 0x80ac2f;
 
 const word = (wram, at) => wram[at % WRAM_SIZE] | (wram[(at + 1) % WRAM_SIZE] << BYTE_BITS);
@@ -134,29 +126,14 @@ function linkBox(wram, box, cells) {
   setWord(wram, DP_NODE, node);
 }
 
-// The collision boxes of the draw list's objects (81:8799), with the original's data
-// bank 7E.
-function buildCollisionList(h, wram) {
-  // The data bank 7E, set through the stack as the original does.
-  h.phb();
-  h.push(WRAM_BANK_PAIR, 2);
-  h.plb();
-  h.plb();
-  h.call(
-    CLEAR_CALL,
-    CLEAR_TARGET,
-    () => {
-      for (let cell = 0; cell < COLLISION_CELLS; cell++)
-        setWord(wram, COLLISION_CELL_HEADS + cell * NODE_BYTES, NO_NODE);
-      return h.rtl();
-    },
-    true,
-  );
+// The collision boxes of the draw list's objects (81:8799), with the grid clear 81:80F7.
+function buildCollisionList(wram) {
+  for (let cell = 0; cell < COLLISION_CELLS; cell++)
+    setWord(wram, COLLISION_CELL_HEADS + cell * NODE_BYTES, NO_NODE);
   const nodes = word(wram, STATIC_NODE_END);
   setWord(wram, DP_NODE, nodes);
   const last = word(wram, DRAW_LIST_INDEX);
-  // The data bank 80 pulled at the end.
-  if (last & WORD_SIGN) return h.plb();
+  if (last & WORD_SIGN) return;
   setWord(wram, DP_BOX, MOVING_BOX_FIRST);
   for (let index = last; !(index & WORD_SIGN); index = (index - 2) & WORD_MASK) {
     const slot = word(wram, DRAW_LIST + index),
@@ -194,17 +171,7 @@ function buildCollisionList(h, wram) {
     setWord(wram, DP_CELL_X1_Y1, c11);
     setWord(wram, DP_CELL_X1_Y0, c10);
     setWord(wram, DP_CELL_X0_Y1, c01);
-    h.a.pushWord(index);
-    h.call(
-      LINK_CALL,
-      LINK_TARGET,
-      () => {
-        linkBox(wram, box, [c00, c11, c10, c01]);
-        return h.rtl();
-      },
-      true,
-    );
-    h.a.pullWord();
+    linkBox(wram, box, [c00, c11, c10, c01]);
     const next = (box + COLLISION_BOX_BYTES) & WORD_MASK;
     setWord(wram, DP_BOX, next);
     setWord(
@@ -213,37 +180,23 @@ function buildCollisionList(h, wram) {
       slot,
     );
   }
-  h.plb();
 }
 
 // Move and animate the objects (80:AFC4) on the main loop's access h (data bank 80);
 // movement, target walking and animation compose their actual bodies directly.
 export function moveAndAnimate(h, events) {
   const { wram } = h.a.mem;
-  h.call(
-    LIST_CALL,
-    LIST_TARGET,
-    () => {
-      buildCollisionList(h, wram);
-      return h.rtl();
-    },
-    true,
-  );
+  buildCollisionList(wram);
   const last = word(wram, DRAW_LIST_INDEX);
   if (last & WORD_SIGN) return h.rts();
   // Each listed object that is not halted: its movement, then in a second pass its animation.
   const pass = (run) => {
     for (let index = last; !(index & WORD_SIGN); index = (index - 2) & WORD_MASK) {
       const slot = lowField(wram, DRAW_LIST, index);
-      if (!(lowField(wram, OBJECT_FLAGS, slot) & OBJECT_HALTED)) run(slot, index);
+      if (!(lowField(wram, OBJECT_FLAGS, slot) & OBJECT_HALTED)) run(slot);
     }
   };
-  pass((slot, index) => {
-    // The draw list index waits on the stack over the movement.
-    h.a.pushWord(index);
-    h.call(MOVE_CALL, MOVE_TARGET, () => moveObject(h, slot));
-    h.a.pullWord();
-  });
+  pass((slot) => moveObject(h.a.mem.wram, h.a, slot));
   setWord(wram, DP_FRAME_BANK, FRAME_BANK);
   pass((slot) => h.call(ANIMATION_CALL, ANIMATION_TARGET, () => stepAnimation(h, events, slot)));
   return h.rts();
