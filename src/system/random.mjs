@@ -25,16 +25,15 @@ const tables = (mem) =>
   }));
 
 // The next random byte pair as a word (80:C560); keeps the last byte in RANDOM_BYTE.
-// registers (optional) receives the Y the original leaves: the table index of the
-// high byte (the low byte mixed with the horizontal counter).
-export function randomWord(mem, port, registers = null) {
+// Game state only (user decision 2026-11-17): the Y the original leaves (the high
+// byte's table index) is not kept; no lifted caller reads it.
+export function randomWord(mem, port) {
   const { wram } = mem,
     { bytes } = tables(mem);
   port.read(SLHV, 1, LATCH_SITE);
   const low = bytes[wram[RANDOM_BYTE]] ^ wram[RANDOM_STATE];
   const index = low ^ port.read(OPHCT, 1, HORIZONTAL_SITE),
     high = bytes[index] ^ wram[RANDOM_STATE_HIGH];
-  if (registers) registers.y = index;
   let last = high ^ port.read(OPVCT, 1, VERTICAL_SITE);
   // The new byte never repeats the last one.
   if (last === wram[RANDOM_BYTE]) last = (last + 1) & BYTE_MASK;
@@ -47,14 +46,14 @@ export function rangeMask(mem, range) {
   while (!((range << bits) & WORD_SIGN)) bits++;
   return tables(mem).masks[bits];
 }
-// A random number from 0 to range - 1 (0 for a range of 0); registers as randomWord.
-// counter (optional) receives the number of random words drawn in counter.draws.
-export function randomBelow(mem, port, range, registers = null, counter = null) {
+// A random number from 0 to range - 1 (0 for a range of 0). counter (optional) receives
+// the number of random words drawn in counter.draws.
+export function randomBelow(mem, port, range, counter = null) {
   if (range === 0) return 0;
   const mask = rangeMask(mem, range);
   let value;
   do {
-    value = randomWord(mem, port, registers) & mask;
+    value = randomWord(mem, port) & mask;
     if (counter) counter.draws = (counter.draws ?? 0) + 1;
   } while (value >= range);
   return value;

@@ -89,7 +89,7 @@ export function randomBelowNative(a, outerReturn = true) {
     counter = {};
   setArgument(wram, SECOND_ARGUMENT, range);
   setArgument(wram, DP_RANDOM_MASK, mask);
-  setArgument(wram, FIRST_ARGUMENT, randomBelow(mem, port, range, null, counter));
+  setArgument(wram, FIRST_ARGUMENT, randomBelow(mem, port, range, counter));
   return { ...finishLeaf(a, outerReturn), zeroLimit: false, attempts: counter.draws, mask };
 }
 // 80:C560: a random word (two random bytes) as the result.
