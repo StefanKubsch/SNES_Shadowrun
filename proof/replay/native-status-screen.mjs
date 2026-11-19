@@ -126,7 +126,8 @@ import {
 import { KIND_ITEM_CLASS_MASK } from '../../src/data/kinds.mjs';
 import { TEXT_EXIT } from '../../src/data/port-extension.mjs';
 import { languageTextWidth } from '../../src/data/language.mjs';
-import { translatedListWindow, fitListWindow } from '../../src/data/menu-layout.mjs';
+import { translatedListWindow } from '../../src/data/menu-layout.mjs';
+import { fitListWindow } from '../system/menu-layout-registers.mjs';
 import { itemCountColumns } from '../../src/system/native-status-screen.mjs';
 import '../system/dialog-register-helpers.mjs';
 

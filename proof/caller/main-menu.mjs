@@ -43,7 +43,8 @@ import {
   TEXT_SAVE_GAME_1,
   TEXT_SAVE_GAME_2,
 } from '../../src/data/port-extension.mjs';
-import { fitListWindow, listTextIds } from '../../src/data/menu-layout.mjs';
+import { listTextIds } from '../../src/data/menu-layout.mjs';
+import { fitListWindow } from '../system/menu-layout-registers.mjs';
 import { dataBankWord, setDataBankWord } from '../../src/system/data-bank.mjs';
 import { CODE_BANK, CODE_BANK_BASE } from '../../src/constants/memory-map.mjs';
 import {

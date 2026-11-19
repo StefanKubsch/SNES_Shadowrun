@@ -2,7 +2,7 @@ import { withInterruptEvents } from './observed-native-events.mjs';
 import { lagFree } from '../../src/system/main-wait-interrupt.mjs';
 import { dialogAccess } from '../../src/system/native-dialog-support.mjs';
 import { taskStop } from '../../src/system/task-stop.mjs';
-import { fitListWindow } from '../../src/data/menu-layout.mjs';
+import { fitListWindow } from '../system/menu-layout-registers.mjs';
 import { taskTextAccess } from '../system/native-text-prerequisites.mjs';
 import { f963Sequence } from './native-window-open.mjs';
 import { menuComposeSequence } from './native-menu-compose.mjs';

@@ -136,7 +136,6 @@ export function* chooseActionSequence(
     setWord(wram, DP_WINDOW_ATTRIBUTES, WINDOW.attributes);
     fitListWindow(
       mem,
-      h,
       mem.language ? listTextIds(mem, (WRAM_BANK << WORD_BITS) | ACTION_MENU_NAMES, count) : [],
     );
   };

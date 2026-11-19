@@ -70,7 +70,8 @@ import {
   DP_WEAPON_RECORD_BANK,
   WRAM,
 } from '../../src/data/wram.mjs';
-import { fitListWindow, listTextIds } from '../../src/data/menu-layout.mjs';
+import { listTextIds } from '../../src/data/menu-layout.mjs';
+import { fitListWindow } from '../system/menu-layout-registers.mjs';
 import { RUNNER_RECORD_BANKS, RUNNER_RECORD_POINTERS } from '../../src/data/runners.mjs';
 import { dataBankWord, setDataBankWord } from '../../src/system/data-bank.mjs';
 import { CODE_BANK, CODE_BANK_BASE, WRAM_BANK } from '../../src/constants/memory-map.mjs';

@@ -1,5 +1,6 @@
 import { taskStop } from '../../src/system/task-stop.mjs';
-import { fitListWindow, listTextIds } from '../../src/data/menu-layout.mjs';
+import { listTextIds } from '../../src/data/menu-layout.mjs';
+import { fitListWindow } from '../system/menu-layout-registers.mjs';
 import { TOPICS } from '../../src/data/topics.mjs';
 import {
   requestWindowUpload,

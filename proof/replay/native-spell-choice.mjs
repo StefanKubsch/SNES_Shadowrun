@@ -28,7 +28,8 @@ import {
   DP_LIST_TOKEN_BANK,
 } from '../../src/data/wram.mjs';
 import { TEXT_EXIT } from '../../src/data/port-extension.mjs';
-import { fitListWindow, listTextIds } from '../../src/data/menu-layout.mjs';
+import { listTextIds } from '../../src/data/menu-layout.mjs';
+import { fitListWindow } from '../system/menu-layout-registers.mjs';
 import { WORD_MASK, BANK_WRAP, WORD_SIGN } from '../../src/constants/bits.mjs';
 import { FLAG_INDEX_8BIT, FLAG_MEMORY_8BIT, FLAG_ZERO } from '../../src/constants/cpu-flags.mjs';
 import { CODE_BANK, CODE_BANK_BASE, WRAM_BANK } from '../../src/constants/memory-map.mjs';

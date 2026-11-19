@@ -105,7 +105,7 @@ export function* chooseSpellSequence(h, events, renderBuffer = drawTextBufferSeq
       const ids = listTextIds(mem, (WRAM_BANK << WORD_BITS) + SPELL_LIST, LIST_ENTRY_LIMIT).map(
         (number) => mem.read16(CODE_BANK_BASE | (TEXT_NUMBERS + 2 * number)),
       );
-      fitListWindow(mem, h, [TEXT_EXIT, ...ids]);
+      fitListWindow(mem, [TEXT_EXIT, ...ids]);
     }
   };
   if (spells) {

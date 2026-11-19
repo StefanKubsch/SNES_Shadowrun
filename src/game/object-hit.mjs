@@ -157,7 +157,7 @@ function* noticeSequence(h, events, renderBuffer, notice, calls) {
     setWord(wram, DP_WINDOW_COLUMNS, notice.columns);
     setWord(wram, DP_WINDOW_ROWS, HARMLESS_NOTICE_ROWS);
     setWord(wram, DP_WINDOW_ATTRIBUTES, 0);
-    fitListWindow(mem, h, [notice.text], { column: 0 });
+    fitListWindow(mem, [notice.text], { column: 0 });
   };
   yield* dialogCallBody(h, calls.window, OPEN_WINDOW, () => openWindowSequence(h, events));
   yield () => {

@@ -45,7 +45,7 @@ import {
   STATUS_SUBMENU_WINDOW,
 } from '../../src/data/wram.mjs';
 import { JAKE_OBJECT_NUMBER, SKILL_COUNT } from '../../src/data/runners.mjs';
-import { fitListWindow } from '../../src/data/menu-layout.mjs';
+import { fitListWindow } from '../system/menu-layout-registers.mjs';
 import {
   BYTE_BITS,
   BYTE_MASK,

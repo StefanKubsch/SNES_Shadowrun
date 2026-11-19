@@ -176,7 +176,7 @@ export function* notesSequence(h, events, renderBuffer = drawTextBufferSequence)
       let rows = NOTES_WINDOW.jakeRows;
       for (const [flag] of CYBERWARE) if (wram[flag]) rows++;
       setWindow(h, NOTES_WINDOW, rows);
-      fitListWindow(mem, h, [TEXT_HEAD_COMPUTER, TEXT_DATAJACK, ...CYBERWARE.map(([, id]) => id)], {
+      fitListWindow(mem, [TEXT_HEAD_COMPUTER, TEXT_DATAJACK, ...CYBERWARE.map(([, id]) => id)], {
         column: 0,
       });
       return;
@@ -184,7 +184,7 @@ export function* notesSequence(h, events, renderBuffer = drawTextBufferSequence)
     datajack = dataBankWord(mem, MEMBER_DATAJACK);
     if (!datajack) return;
     setWindow(h, NOTES_WINDOW, NOTES_WINDOW.runnerRows);
-    fitListWindow(mem, h, [TEXT_DATAJACK], { column: 0 });
+    fitListWindow(mem, [TEXT_DATAJACK], { column: 0 });
   };
   if (!jake) {
     if (!datajack) return yield* returnSequence(h);

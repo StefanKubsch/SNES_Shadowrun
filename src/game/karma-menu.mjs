@@ -199,7 +199,7 @@ export function* buyStepSequence(h, events, renderBuffer = drawTextBufferSequenc
       setWord(wram, DP_WINDOW_COLUMNS, NOTICE_WINDOW.columns);
       setWord(wram, DP_WINDOW_ROWS, NOTICE_WINDOW.rows);
       setWord(wram, DP_WINDOW_ATTRIBUTES, 0);
-      fitListWindow(mem, h, [TEXT_KARMA_INSUFFICIENT], { column: 0 });
+      fitListWindow(mem, [TEXT_KARMA_INSUFFICIENT], { column: 0 });
       return;
     }
     mem.write16(WRAM + KARMA, karma - cost);
@@ -328,7 +328,7 @@ export function* karmaMenuSequence(h, events, renderBuffer = drawTextBufferSeque
       setWord(wram, DP_WINDOW_COLUMNS, columns);
       setWord(wram, DP_WINDOW_ROWS, rows);
       setWord(wram, DP_WINDOW_ATTRIBUTES, 0);
-      fitListWindow(mem, h, ids, options);
+      fitListWindow(mem, ids, options);
     };
     yield* dialogCallBody(h, pc, OPEN_WINDOW, () => openWindowSequence(h, events));
     yield () => setDataBankWord(mem, keep, 0, word(wram, 0));

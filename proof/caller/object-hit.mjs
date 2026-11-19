@@ -36,7 +36,7 @@ import { dataBankWord, setDataBankWord } from '../../src/system/data-bank.mjs';
 import { accessorPort } from '../../src/system/hardware-port.mjs';
 import { drawBelowInDirectPage } from '../../src/system/random.mjs';
 import { playSoundEffect } from '../../src/apu/sound-effect.mjs';
-import { fitListWindow } from '../../src/data/menu-layout.mjs';
+import { fitListWindow } from '../system/menu-layout-registers.mjs';
 import { taskStop } from '../../src/system/task-stop.mjs';
 import { createObject } from '../../src/game/object-create.mjs';
 import { protectedJakeHealth } from '../../src/game/cheats.mjs';

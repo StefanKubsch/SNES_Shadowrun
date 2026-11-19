@@ -15,7 +15,8 @@ import {
   DP_LIST_VALUES,
 } from '../../src/data/wram.mjs';
 import { TEXT_EXIT } from '../../src/data/port-extension.mjs';
-import { fitListWindow, listTextIds } from '../../src/data/menu-layout.mjs';
+import { listTextIds } from '../../src/data/menu-layout.mjs';
+import { fitListWindow } from '../system/menu-layout-registers.mjs';
 import { M7A, M7B, MPYL, MPYM } from '../../src/constants/hardware-registers.mjs';
 import { withInterruptEvents } from './observed-native-events.mjs';
 import { lagFree } from '../../src/system/main-wait-interrupt.mjs';

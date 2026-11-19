@@ -87,7 +87,7 @@ import {
   RUNNER_WEAPON_KIND,
   SELECTED_SPELL_SCRIPT,
 } from '../../src/data/wram.mjs';
-import { fitListWindow } from '../../src/data/menu-layout.mjs';
+import { fitListWindow } from '../system/menu-layout-registers.mjs';
 import { BYTE_BITS, BYTE_MASK, WORD_MASK, WORD_SIGN } from '../../src/constants/bits.mjs';
 import {
   FLAG_CARRY,

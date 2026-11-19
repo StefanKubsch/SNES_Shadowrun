@@ -6,7 +6,7 @@ import { createObject } from '../script/native-object-create.mjs';
 import { playSoundEffect, taskAudioDevices } from './native-audio-compose.mjs';
 import { releaseWindowJsrSequence } from '../../proof/caller/window-release.mjs';
 import { f963Sequence } from './native-window-open.mjs';
-import { fitListWindow } from '../../src/data/menu-layout.mjs';
+import { fitListWindow } from '../system/menu-layout-registers.mjs';
 import { printTextSequence } from './native-text-compose.mjs';
 import { waitForRandomStateChange } from '../system/native-frame-wait.mjs';
 import { waitForConfirmKeySequence } from './native-input-wait.mjs';

@@ -251,7 +251,7 @@ function* noticeSequence(h, events, [windowPc, textPc, waitPc, releasePc], notic
     setWord(wram, DP_WINDOW_ROWS, NOTICE_WINDOW.rows);
     setWord(wram, DP_WINDOW_ATTRIBUTES, 0);
     // Another language fits the window to the text.
-    fitListWindow(mem, h, [notice.text], { column: 0 });
+    fitListWindow(mem, [notice.text], { column: 0 });
   };
   yield* dialogCallBody(h, windowPc, OPEN_WINDOW, () => openWindowSequence(h, events));
   yield () => setWord(wram, 2, notice.text);

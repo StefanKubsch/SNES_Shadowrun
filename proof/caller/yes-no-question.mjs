@@ -7,7 +7,7 @@
 // two visible rows from column 1. The window is released afterwards; the result is FFFF
 // for Yes and 0 for No or a cancel.
 import { nativeCallSequence } from '../system/native-call-sequences.mjs';
-import { fitListWindow } from '../../src/data/menu-layout.mjs';
+import { fitListWindow } from '../system/menu-layout-registers.mjs';
 import {
   DP_LIST_TOKEN_BANK,
   DP_LIST_TOKENS,

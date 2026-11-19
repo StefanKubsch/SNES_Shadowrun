@@ -1,5 +1,6 @@
 import { languageTextWidth } from './language.mjs';
 import { DP_WINDOW_LEFT, DP_WINDOW_TOP, DP_WINDOW_COLUMNS, DP_WINDOW_ROWS } from './wram.mjs';
+import { BYTE_BITS, BYTE_MASK } from '../constants/bits.mjs';
 
 const TILE_PIXELS = 8,
   BORDER_COLUMNS = 2,
@@ -31,20 +32,29 @@ export function listTextIds(memory, pointer, count) {
 }
 
 // Fit before F963 allocates tiles: changing only the frame afterwards would
-// leave the cursor stride, tile allocation and DMA length inconsistent.
-export function fitListWindow(memory, h, ids, options) {
+// leave the cursor stride, tile allocation and DMA length inconsistent. The window
+// shape lies in the direct page words of its callers (D = 0), read and written as words
+// in WRAM (user decision 2026-11-17: no register widths; the register-level form for
+// register-level callers is in proof/system/menu-layout-registers.mjs).
+const word = (wram, at) => wram[at] | (wram[at + 1] << BYTE_BITS);
+const setWord = (wram, at, value) => {
+  wram[at] = value & BYTE_MASK;
+  wram[at + 1] = (value >>> BYTE_BITS) & BYTE_MASK;
+};
+export function fitListWindow(memory, ids, options) {
   if (!memory?.language) return;
-  const shape = translatedListWindow(
-    memory,
-    {
-      left: h.dp(DP_WINDOW_LEFT),
-      top: h.dp(DP_WINDOW_TOP),
-      columns: h.dp(DP_WINDOW_COLUMNS),
-      rows: h.dp(DP_WINDOW_ROWS),
-    },
-    ids,
-    options,
-  );
-  h.dpWrite(DP_WINDOW_LEFT, shape.left);
-  h.dpWrite(DP_WINDOW_COLUMNS, shape.columns);
+  const { wram } = memory,
+    shape = translatedListWindow(
+      memory,
+      {
+        left: word(wram, DP_WINDOW_LEFT),
+        top: word(wram, DP_WINDOW_TOP),
+        columns: word(wram, DP_WINDOW_COLUMNS),
+        rows: word(wram, DP_WINDOW_ROWS),
+      },
+      ids,
+      options,
+    );
+  setWord(wram, DP_WINDOW_LEFT, shape.left);
+  setWord(wram, DP_WINDOW_COLUMNS, shape.columns);
 }

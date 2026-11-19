@@ -20,7 +20,8 @@
 // get the registers the original passes them.
 import { nativeCallSequence } from '../system/native-call-sequences.mjs';
 import { dialogCallBody } from '../../src/system/native-call-continuation.mjs';
-import { fitListWindow, listTextIds } from '../../src/data/menu-layout.mjs';
+import { listTextIds } from '../../src/data/menu-layout.mjs';
+import { fitListWindow } from '../system/menu-layout-registers.mjs';
 import { TEXT_EXIT } from '../../src/data/port-extension.mjs';
 import { releaseWindowSequence } from './window-release.mjs';
 import {

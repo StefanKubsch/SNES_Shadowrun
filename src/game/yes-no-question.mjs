@@ -58,7 +58,7 @@ export function* askYesNoSequence(h, events, renderBuffer = drawTextBufferSequen
     setWord(wram, DP_WINDOW_COLUMNS, WINDOW_COLUMNS);
     setWord(wram, DP_WINDOW_ROWS, WINDOW_ROWS);
     setWord(wram, DP_WINDOW_ATTRIBUTES, 0);
-    fitListWindow(mem, h, YES_NO_TEXTS);
+    fitListWindow(mem, YES_NO_TEXTS);
   };
   yield* dialogCallBody(h, ...WINDOW_CALL, () => openWindowSequence(h, events));
   yield () => {

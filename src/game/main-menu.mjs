@@ -107,7 +107,7 @@ function setWindow(h, left, top, columns, rows, ids, options) {
   setWord(wram, DP_WINDOW_COLUMNS, columns);
   setWord(wram, DP_WINDOW_ROWS, rows);
   setWord(wram, DP_WINDOW_ATTRIBUTES, 0);
-  fitListWindow(h.a.mem, h, ids, options);
+  fitListWindow(h.a.mem, ids, options);
 }
 // The menu's column, first row, visible rows and item list.
 function setMenu(h, visibleRows, items, bank) {

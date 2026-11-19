@@ -78,7 +78,8 @@ import {
   TEXT_SAVE_GAME_2,
   PORT_TEXTS,
 } from '../../src/data/port-extension.mjs';
-import { fitListWindow, listTextIds } from '../../src/data/menu-layout.mjs';
+import { listTextIds } from '../../src/data/menu-layout.mjs';
+import { fitListWindow } from '../system/menu-layout-registers.mjs';
 import { RUNNER_RECORD_POINTERS, RUNNER_RECORD_BANKS } from '../../src/data/runners.mjs';
 import { BYTE_MASK, WORD_MASK, WORD_BITS, BANK_WRAP } from '../../src/constants/bits.mjs';
 import {

@@ -116,7 +116,7 @@ export function* chooseDialogTopicSequence(h, events, renderBuffer = drawTextBuf
     setWord(wram, TOPIC_MENU_BUFFER + y, 0);
     setWords(wram, DP_RESULT, TOPIC_WINDOW);
     if (mem.language)
-      fitListWindow(mem, h, listTextIds(mem, (WRAM_BANK << WORD_BITS) | TOPIC_MENU_BUFFER, TOPICS));
+      fitListWindow(mem, listTextIds(mem, (WRAM_BANK << WORD_BITS) | TOPIC_MENU_BUFFER, TOPICS));
   };
   if (none) return yield* rts(h);
   yield* callee(h, events, renderBuffer, TOPIC_WINDOW_CALL, 'allocate');
