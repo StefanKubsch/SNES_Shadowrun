@@ -9,6 +9,10 @@ import { WAIT_PAUSED } from '../src/system/native-wait-continuation.mjs';
 import { createSide } from './lift-function-harness.mjs';
 import { TEXT_BUFFER } from '../src/data/wram.mjs';
 
+// The depth of the free stack bytes ignored below the entry S (as the lift function
+// harness ignores them).
+const FREE_STACK_DEPTH = 0x70;
+
 // A renderer with multiple cooperative segments exposes lost replies, premature
 // bank restoration and missed returns without coupling the producer to a table.
 function run(sequence, id, budget, translated) {
@@ -40,6 +44,7 @@ function run(sequence, id, budget, translated) {
   if (translated) mem.language = new Map([[id, Uint8Array.from([65, 66, 67])]]);
   Object.assign(a.ctx, { programBank: 0x80, bank: 0x95, pc: 0xfe69, y: 71 });
   h.push(0x1234, 2);
+  const entryStack = a.ctx.s;
   function* renderer(callee) {
     yield () =>
       calls.push(['enter', callee.ctx.bank, mem.wram.slice(TEXT_BUFFER, TEXT_BUFFER + 256)]);
@@ -74,6 +79,9 @@ function run(sequence, id, budget, translated) {
   assert.deepEqual(mem.wram, before);
   let steps = 0;
   while (continuation.run(budget) === WAIT_PAUSED) assert.ok(++steps < 100);
+  // The free bytes below the entry S are not game state (user decision 2026-11-17): the
+  // lifted routines keep the words the original only parks there in locals.
+  mem.wram.fill(0, Math.max(0, entryStack - FREE_STACK_DEPTH), entryStack + 1);
   return { calls, writes, wram: mem.wram, ctx: a.ctx, result: continuation.result };
 }
 
