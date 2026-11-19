@@ -7,7 +7,8 @@
 // which leaves the direct page state of the original). It leaves A the stream's output
 // length, X and Y as the original's copy leaves them, and the status and the data bank
 // restored (PLP, PLB); the bytes of its pushes (status, data bank, the bank pair and the
-// length) stay below the stack, those of its bit reads' JSR frames are not reproduced.
+// length) and of its bit reads' JSR frames lie only in free stack bytes and are not
+// reproduced (game state only, user decision 2026-11-17).
 // A startup recording runs the register-level one (src/system/recorded-routines.mjs).
 // Lifted callers use unpackPortrait and uploadPortraitTiles, which take the stream, its
 // bank word, the offset and the VRAM address as parameters and leave no registers (user
@@ -63,7 +64,6 @@ import { FLAG_MEMORY_8BIT, FLAG_NEGATIVE, FLAG_ZERO } from '../constants/cpu-fla
 
 // Bank 7F in the WRAM array, and the row shift's addresses.
 const HIGH_BANK = 0x10000,
-  HIGH_BANK_PAIR = 0x7f7f,
   SOURCE_END = 0x5a4f,
   DESTINATION_END = 0x624f,
   SOURCE_STOP = 0x534f,
@@ -113,19 +113,7 @@ const setWord = (wram, at, value) => {
 // (80:9F6D, called with JSR); returns the unpacker's result (src/system/unpack.mjs),
 // whose values the register form (proof/caller/portrait-routines.mjs) leaves in A, X, Y.
 export function unpackPortraitStream(h, source, bank, offset) {
-  const { ctx } = h;
-  // PHP, PHB, PEA 7F7F, PLB, PLB: their bytes stay below the stack.
-  h.pushByte(ctx.status);
-  h.pushByte(ctx.bank);
-  h.a.pushWord(HIGH_BANK_PAIR);
-  ctx.s = (ctx.s + 2) & WORD_MASK;
-  const unpacked = unpackLong(h.a.mem, source, bank, offset, UNPACK_7F);
-  // The length the routine pushes and pulls again (PHA, PLA).
-  h.a.pushWord(unpacked.length);
-  ctx.s = (ctx.s + 2) & WORD_MASK;
-  // PLB, PLP: the data bank and the status as on entry.
-  ctx.s = (ctx.s + 2) & WORD_MASK;
-  return unpacked;
+  return unpackLong(h.a.mem, source, bank, offset, UNPACK_7F);
 }
 export function unpackPortrait(h, events, source, bank, offset) {
   const recorded = recordedRoutine(events, 'portrait-unpack');
