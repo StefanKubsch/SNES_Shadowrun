@@ -175,9 +175,12 @@ export function* chooseFromMenuSequence(
   };
   // Move to the row of the word index, with a new page past the page shown.
   const move = function* () {
-    let page = false;
+    let page = false,
+      target;
     yield () => {
-      h.a.pushWord(index);
+      // The original keeps the row on the stack (PHA, PLA) over the redraw; that word
+      // lies only in free stack bytes and is kept in a local here.
+      target = index;
       const start = field(MENU_PAGE_START),
         rows = field(DP_MENU_VISIBLE_ROWS),
         back = index < start,
@@ -198,19 +201,18 @@ export function* chooseFromMenuSequence(
       yield* list(SITES.pageList);
     } else yield* unmark(SITES.moveUnmark);
     yield () => {
-      index = h.a.pullWord();
+      index = target;
       store(MENU_SELECTION, index);
     };
     yield* mark(SITES.moveMark);
     yield () => {
-      // PEI 00, PEI 06, the move sound's arguments, PLA, PLA: the sound is not played.
+      // PEI 00, PEI 06, the move sound's arguments, PLA, PLA: the sound is not played and
+      // the two words are restored.
       const first = field(DP_RESULT),
         rows = field(DP_MENU_VISIBLE_ROWS);
-      h.a.pushWord(first);
-      h.a.pushWord(rows);
       soundArguments(MOVE_SOUND);
-      store(DP_MENU_VISIBLE_ROWS, h.a.pullWord());
-      store(DP_RESULT, h.a.pullWord());
+      store(DP_MENU_VISIBLE_ROWS, rows);
+      store(DP_RESULT, first);
     };
   };
   // The move a newly pressed button asks for, if any (the row's word index in index).

@@ -121,16 +121,11 @@ export function* drawListSequence(h, events, renderBuffer = drawTextBufferSequen
     number = () => listWord(((ctx.bank << WORD_BITS) | word(wram, DP_LIST_VALUES)) + at);
   const cursor = (site) =>
     dialogCallBody(h, ...site, () => segmentSequence(() => setTextCursorRoutine(h)));
-  // A text or number with the list position pushed around its call (PHY, PLY), or without.
-  function* print(site, body, keep) {
-    if (keep) yield () => h.a.pushWord(at);
-    yield* dialogCallBody(h, ...site, body);
-    if (keep)
-      yield () => {
-        at = h.a.pullWord();
-      };
-  }
-  const text = (site, keep) => print(site, () => printTextSequence(h, events, renderBuffer), keep);
+  // A text or number through its call. The original keeps the list position on the stack
+  // around some of them (PHY, PLY); that word lies only in free stack bytes, and the
+  // position is a local here.
+  const print = (site, body) => dialogCallBody(h, ...site, body);
+  const text = (site) => print(site, () => printTextSequence(h, events, renderBuffer));
   // A mark three columns before the window's right edge, in the row given.
   const corner = function* (row, cursorSite, textSite, mark) {
     yield () => {
@@ -140,7 +135,7 @@ export function* drawListSequence(h, events, renderBuffer = drawTextBufferSequen
     };
     yield* cursor(cursorSite);
     yield () => setWord(wram, DP_TEXT, mark);
-    yield* text(textSite, false);
+    yield* text(textSite);
   };
 
   yield () => {
@@ -163,16 +158,16 @@ export function* drawListSequence(h, events, renderBuffer = drawTextBufferSequen
       if (!end) setWord(wram, DP_TEXT, value);
     };
     if (end) break;
-    yield* text(ROW_TEXT, true);
+    yield* text(ROW_TEXT);
     let numbered = false;
     yield () => {
       numbered = word(wram, MENU_SHOW_NUMBERS) !== 0 && number() !== 0;
       if (numbered) setWord(wram, DP_TEXT, BLANK);
     };
     if (numbered) {
-      yield* text(NUMBER_BLANK, true);
+      yield* text(NUMBER_BLANK);
       yield () => setWord(wram, DP_TEXT, number());
-      yield* print(NUMBER, () => printNumberSequence(h, events, renderBuffer), true);
+      yield* print(NUMBER, () => printNumberSequence(h, events, renderBuffer));
     }
     let more = false;
     yield () => {
