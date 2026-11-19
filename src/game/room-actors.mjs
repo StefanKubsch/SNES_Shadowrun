@@ -87,9 +87,6 @@ const DEPTH_FRONT_SHIFT = 9,
 const ARMOUR_INDEX_SHIFT = 2;
 // The end of the WRAM mirror that the original's data bank 80 reads.
 const LOW_WRAM_END = 0x2000;
-// Call sites and the return words of the JSRs from the room entry.
-const GROUP_CREATE_SITE = 0x80a32d,
-  ACTOR_CREATE_SITE = 0x80a423;
 
 const word = (wram, at) => wram[at] | (wram[at + 1] << BYTE_BITS);
 const setWord = (wram, at, value) => {
@@ -137,7 +134,7 @@ export function* createGroupSequence(h) {
       const number = word(wram, GROUP_NUMBERS + member);
       setWord(wram, DP_OBJECT_SCRIPT, readWord(mem, ACTOR_TABLE + ACTOR_SCRIPT + number));
     };
-    yield () => createObjectCall(h, GROUP_CREATE_SITE);
+    yield () => createObjectCall(h);
     yield () => {
       if (kind === JAKE_KIND) setWord(wram, PLAYER_OBJECT, word(wram, DP_OBJECT_KIND));
       setWord(wram, DP_DIRECTION, word(wram, DP_START_DIRECTION));
@@ -210,7 +207,7 @@ export function* placeRoomActorsSequence(h) {
         a.pushWord(offset);
         a.pushWord(actor);
       };
-      yield () => createObjectCall(h, ACTOR_CREATE_SITE);
+      yield () => createObjectCall(h);
       yield () => {
         const slot = word(wram, DP_OBJECT_KIND);
         a.pullWord();

@@ -10,7 +10,8 @@
 // words 00 on.
 //
 // The kind times two is left in word 02. The return words of the calls (a JSL to
-// 80:A8EB, which calls C34A) lie on the stack as in the original. The object tables lie
+// 80:A8EB, which calls C34A) lie only in free stack bytes and are not reproduced (game
+// state only, user decision 2026-11-17). The object tables lie
 // in bank 7E below 2000, where the original's data bank 80 reads them; the draw list
 // entry and the task word, whose index may be damaged, are written through the data
 // bank as in the original.
@@ -66,12 +67,6 @@ const LONG_MASK = 0xffffff,
   POSITION_SHIFT = 2,
   // The kind table has six bytes per kind (kind * 4 + kind * 2).
   KIND_SHIFT = 1;
-// The return words of the JSL to 80:A8EB and the JSRs to C34A (from C366), C2C8 (from
-// C34A) and C242 (from C2F5).
-const CODE_BANK = 0x80,
-  APPEND_JSL_RETURN = 0xa8ee,
-  APPEND_JSR_RETURN = 0xc368,
-  JSR_LAST_BYTE = 2;
 
 const word = (wram, at) => wram[at] | (wram[at + 1] << BYTE_BITS);
 const setWord = (wram, at, value) => {
@@ -139,23 +134,14 @@ export function createObject(mem, wram, a) {
   mem.write16(dataBankAddress(a, DRAW_LIST + last), slot);
   const script = word(wram, DP_OBJECT_SCRIPT);
   if (script & WORD_SIGN) return;
-  a.write(a.ctx.s, CODE_BANK);
-  a.ctx.s = (a.ctx.s - 1) & WORD_MASK;
-  a.pushWord(APPEND_JSL_RETURN);
-  a.pushWord(APPEND_JSR_RETURN);
   const task = tasksOf(a).append(script, argumentWords(mem, script));
-  a.pullWord();
-  a.pullWord();
-  a.ctx.s = (a.ctx.s + 1) & WORD_MASK;
   // The slot is read again from the direct page word 00, which the argument copy of
   // the append may have overwritten.
   mem.write16(dataBankAddress(a, OBJECT_TASK + word(wram, DP_OBJECT_KIND)), task);
 }
 
-// The object creation as the caller's JSR at site.
-export function createObjectCall(h, site) {
+// The object creation on the scene runtime of h.
+export function createObjectCall(h) {
   const { mem, wram } = sceneRuntime(h);
-  h.a.pushWord((site + JSR_LAST_BYTE) & WORD_MASK);
   createObject(mem, wram, h.a);
-  h.a.pullWord();
 }
