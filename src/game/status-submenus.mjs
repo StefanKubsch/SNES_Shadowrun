@@ -106,7 +106,7 @@ function setWindow(h, { left, top, columns }, rows) {
 export function* skillsSequence(h, events, renderBuffer = drawTextBufferSequence) {
   const { mem } = h.a,
     { wram } = mem,
-    window = translatedSkillWindow(h);
+    window = translatedSkillWindow(h.a.mem);
   let known = 0;
   yield () => {
     for (let skill = 0; skill < SKILL_COUNT; skill++) if (recordByte(mem, skill)) known++;

@@ -372,7 +372,7 @@ export function* statusScreenSequence(
   yield () => {
     direct = dataBankWord(mem, STATUS_ITEMS_AT_ONCE) !== 0;
     if (direct) return;
-    const window = translatedMenuWindow(h);
+    const window = translatedMenuWindow(h.a.mem);
     setWord(wram, DP_WINDOW_LEFT, window.left);
     setWord(wram, DP_WINDOW_TOP, window.top);
     setWord(wram, DP_WINDOW_COLUMNS, window.columns);

@@ -80,13 +80,16 @@ const MENU_TILE_PIXELS = 8,
   MENU_BORDER_COLUMNS = 2,
   MENU_TEXT_COLUMN = 1;
 
-export function translatedMenuWindow(h) {
-  if (!h.a.mem?.language) return MENU_WINDOW;
+// The menu's text ids are the words of the ROM table 80:ED1E (read as words, whatever
+// the accumulator width; user decision 2026-11-17).
+const STATUS_MENU_TEXTS = 0x80ed1e,
+  SKILL_TEXTS = 0x80e8bc;
+export function translatedMenuWindow(memory) {
+  if (!memory?.language) return MENU_WINDOW;
   const ids = [];
-  for (let row = 0; row < MENU_WINDOW.visibleRows; row++) {
-    ids.push(h.read(0x80ed1e + row * 2));
-  }
-  return translatedListWindow(h.a.mem, MENU_WINDOW, ids, { column: MENU_TEXT_COLUMN });
+  for (let row = 0; row < MENU_WINDOW.visibleRows; row++)
+    ids.push(memory.read16(STATUS_MENU_TEXTS + row * 2));
+  return translatedListWindow(memory, MENU_WINDOW, ids, { column: MENU_TEXT_COLUMN });
 }
 
 // The cheat can expose both combat skills. Their German names also need
@@ -95,11 +98,15 @@ const SKILL_VALUE_COLUMNS = 2;
 
 const MAX_SKILL_COLUMNS = 30;
 
-export function translatedSkillWindow(h) {
-  if (!h.a.mem?.language) return { ...SKILL_WINDOW, valueColumn: SKILL_VALUE_COLUMN };
+// The skill names' text ids are the words of the ROM table 80:E8BC.
+export function translatedSkillWindow(memory) {
+  if (!memory?.language) return { ...SKILL_WINDOW, valueColumn: SKILL_VALUE_COLUMN };
   let widest = 0;
   for (let slot = 0; slot < SKILL_COUNT; slot++)
-    widest = Math.max(widest, languageTextWidth(h.a.mem, h.read(0x80e8bc + slot * 2)) ?? 0);
+    widest = Math.max(
+      widest,
+      languageTextWidth(memory, memory.read16(SKILL_TEXTS + slot * 2)) ?? 0,
+    );
   const valueColumn = Math.min(
       MAX_SKILL_COLUMNS - SKILL_VALUE_COLUMNS - MENU_BORDER_COLUMNS,
       Math.max(SKILL_VALUE_COLUMN, Math.ceil((widest + 1) / MENU_TILE_PIXELS) + 1),

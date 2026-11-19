@@ -423,7 +423,7 @@ export function* statusScreenSequence(h, events, routines, entry = NATIVE_ENTRY)
     load(ctx, atOnce);
     direct = atOnce !== 0;
     if (direct) return;
-    const window = translatedMenuWindow(h);
+    const window = translatedMenuWindow(h.a.mem);
     setWord(wram, DP_WINDOW_LEFT, window.left);
     setWord(wram, DP_WINDOW_TOP, window.top);
     setWord(wram, DP_WINDOW_COLUMNS, window.columns);
