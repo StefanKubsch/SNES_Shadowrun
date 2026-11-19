@@ -101,15 +101,16 @@ export function playSoundEffect(mem, port, { object, effect, level, voices }) {
   return sound;
 }
 
-// 80:C46E as callers run it: the object, effect, level and voices in the direct page
-// words 0, 2, 4 and 6 (16-bit registers). Leaves the data bank at 80. Game state only
-// (user decision 2026-11-17): the effect, sound word and command the original leaves in
-// Y, X and A are not kept; every caller sets its own before reading them.
+// 80:C46E as callers run it: the object, effect, level and voices in the WRAM words 0,
+// 2, 4 and 6 (the direct page of its callers, which all run with D = 0). Leaves the data
+// bank at 80. Game state only (user decision 2026-11-17): no direct page register is
+// read, and the effect, sound word and command the original leaves in Y, X and A are not
+// kept; every caller sets its own before reading them.
 export function playSoundEffectRoutine(h) {
   const { ctx } = h,
     { mem } = h.a,
     { wram } = mem,
-    dp = (offset) => word(wram, (ctx.d + offset) & WORD_MASK);
+    dp = (offset) => word(wram, offset);
   playSoundEffect(mem, accessorPort(h.a), {
     object: dp(DP_OBJECT),
     effect: dp(DP_EFFECT),
