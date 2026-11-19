@@ -126,10 +126,7 @@ const SCENE_LOAD_SITE = 0x80a518,
   CAMERA_JUMP_SITE = 0x80a55c,
   // A JSL pushes the address of its last byte.
   JSL_LAST_BYTE = 3,
-  WINDOW_LIST_SITE = 0x80a5c9,
-  // The return words of the JSRs to the group 80:A2FA and the actors 80:A3B6.
-  GROUP_RETURN = 0xa54d,
-  ACTORS_RETURN = 0xa550;
+  WINDOW_LIST_SITE = 0x80a5c9;
 const word = (wram, at) => wram[at] | (wram[at + 1] << BYTE_BITS);
 const setWord = (wram, at, value) => {
   wram[at] = value & BYTE_MASK;
@@ -349,15 +346,11 @@ export function* enterRoomSequence(h, events, room) {
     );
   };
   // The group and the actors call the object creation (object-create.mjs) and the
-  // group the turn (object-turn.mjs) below the return words of the original JSRs.
-  for (const [returnWord, sequence] of [
-    [GROUP_RETURN, createGroupSequence],
-    [ACTORS_RETURN, placeRoomActorsSequence],
-  ]) {
-    yield () => h.a.pushWord(returnWord);
-    yield* sequence(h);
-    yield () => h.a.pullWord();
-  }
+  // group the turn (object-turn.mjs). The return words of the original's JSRs to them
+  // lie only in free stack bytes and are not reproduced (game state only, user decision
+  // 2026-11-17).
+  yield* createGroupSequence(h);
+  yield* placeRoomActorsSequence(h);
   yield () => placeCameraAtStart(mem, wram);
   yield* uploadSceneTilesSequence(h);
   yield () => setWord(wram, SCENE_PALETTE_UPLOAD, word(wram, SCENE_PALETTE_UPLOAD) + 1);
