@@ -964,8 +964,9 @@ which the render proof of 81:8076 keeps using.
   [src/game/glove-target.mjs](../src/game/glove-target.mjs). Its table has the lifted
   window, text, release, glove release and turn and the lifted party status (below);
   the status screen and item list (`runStatusScreen` and `runItemList`, lifted, below)
-  the key wait 80:F953 and the animation selection 80:A985 (`selectAnimationRoutine` of
-  [src/game/object-turn.mjs](../src/game/object-turn.mjs), game state only; its own case
+  the key wait 80:F953 and the animation selection 80:A985 (`selectObjectAnimation` of
+  [src/game/object-turn.mjs](../src/game/object-turn.mjs), game state only, RTS form
+  `selectAnimationJsr` in proof/caller/jsr-forms.mjs; its own case
   in [tools/script-leaves-lift-functions.test.mjs](../tools/script-leaves-lift-functions.test.mjs))
   run lifted. The register-level native takes those three from
   its routines when present, so

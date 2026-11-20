@@ -189,12 +189,5 @@ export function turnObjectCall(h) {
   turnObject(mem, wram);
 }
 
-// The animation selection as called with JSR (80:A985), its return word on the stack:
-// it reads the WRAM words at 0 and checks no direct page register (user decision
-// 2026-11-17). Game state only (docs/STRATEGY.md, 2026-11-14): it leaves no registers
-// for its callers, which read none, and returns with its RTS.
-export function selectAnimationRoutine(h) {
-  const { mem } = h.a;
-  selectObjectAnimation(mem, mem.wram);
-  return h.rts();
-}
+// The animation selection's RTS form (80:A985) for register-level callers is
+// selectAnimationJsr in proof/caller/jsr-forms.mjs.

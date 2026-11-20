@@ -5,6 +5,7 @@ import { playSoundEffectCall } from '../../src/apu/sound-effect.mjs';
 import { printText } from '../../src/game/text-print.mjs';
 import { sortDrawListInPlace } from '../../src/game/depth-sort.mjs';
 import { paletteSlotInPlace } from '../../src/game/palette-slots.mjs';
+import { selectObjectAnimation } from '../../src/game/object-turn.mjs';
 import { enterRoomSequence } from '../../src/game/room-entry.mjs';
 import { printNumber, setTextCursor } from '../../src/game/window-text.mjs';
 import { drawTextBufferSequence } from '../../src/game/text-draw.mjs';
@@ -58,4 +59,12 @@ export function paletteSlotJsr(h, palette) {
   const slot = paletteSlotInPlace(h.a.mem.wram, palette);
   h.rts();
   return slot;
+}
+
+// The animation selection 80:A985: it reads the WRAM words at 0 and checks no direct
+// page register (user decision 2026-11-17); it leaves no registers.
+export function selectAnimationJsr(h) {
+  const { mem } = h.a;
+  selectObjectAnimation(mem, mem.wram);
+  return h.rts();
 }

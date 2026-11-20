@@ -31,7 +31,7 @@ import { setObjectActionAndDirection } from '../src/script/native-object-action-
 import { setObjectDirection } from '../src/script/native-object-action-set.mjs';
 import { setActionAndDirection } from '../src/game/member-facing.mjs';
 import { setObjectAnimation } from '../src/script/native-object-action-apply.mjs';
-import { selectAnimationRoutine } from '../src/game/object-turn.mjs';
+import { selectAnimationJsr } from '../proof/caller/jsr-forms.mjs';
 import {
   appendToFightListNative,
   panSongLevelToObject,
@@ -327,7 +327,7 @@ const CASES = [
       Object.assign(h.ctx, input);
       h.ctx.programBank = CODE_BANK;
       h.push(CALLER_RETURN, 2);
-      selectAnimationRoutine(h);
+      selectAnimationJsr(h);
       return returned(h);
     },
   },
