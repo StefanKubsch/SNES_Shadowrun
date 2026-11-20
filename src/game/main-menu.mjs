@@ -26,7 +26,7 @@ import { releaseWindowJsrSequence } from './window-release.mjs';
 import { chooseFromMenuSequence } from './menu-choice.mjs';
 import { playSoundEffectRoutine } from '../apu/sound-effect.mjs';
 import { karmaMenuSequence } from './karma-menu.mjs';
-import { printTextSequence } from './text-print.mjs';
+import { printText } from './text-print.mjs';
 import { waitForConfirmKeySequence } from './confirm-key.mjs';
 import { drawTextBufferSequence } from './text-draw.mjs';
 import { FOUR_SAVE_SLOTS, ORIGINAL_SAVE_SLOTS, saveGame, saveSlotCount } from './save-slots.mjs';
@@ -58,7 +58,6 @@ import { CODE_BANK, CODE_BANK_BASE } from '../constants/memory-map.mjs';
 import { BYTE_BITS, BYTE_MASK, WORD_BITS, WORD_MASK, WORD_SIGN } from '../constants/bits.mjs';
 
 const OPEN_WINDOW = 0x80f963,
-  TEXT = 0x80fe69,
   CONFIRM_KEY = 0x80f953,
   RELEASE_WINDOW = 0x80fa3e,
   PLAIN_MENU = 0x80a6c7,
@@ -146,7 +145,7 @@ export function* saveMenuSequence(h, events, renderBuffer = drawTextBufferSequen
   if (!stopped) {
     yield* dialogCallBody(h, 0x80ce53, OPEN_WINDOW, () => openWindowSequence(h, events));
     yield () => setWord(wram, 2, TEXT_SAVE_BLOCKED);
-    yield* dialogCallBody(h, 0x80ce5b, TEXT, () => printTextSequence(h, events, renderBuffer));
+    yield* printText(h, events, renderBuffer);
     yield* dialogCallBody(h, 0x80ce5e, CONFIRM_KEY, () => waitForConfirmKeySequence(h, events));
     yield* dialogCallBody(h, 0x80ce61, RELEASE_WINDOW, () => releaseWindowJsrSequence(h.a, events));
     return yield* returnSequence(h);

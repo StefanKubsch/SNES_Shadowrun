@@ -17,7 +17,7 @@
 // window as a value and the music mode 81:EF47 takes the mode as a parameter (A in
 // the original). Every other register value the original leaves is dropped.
 import { setTextCursorRoutine, printNumberSequence } from './window-text.mjs';
-import { printTextSequence } from './text-print.mjs';
+import { printText } from './text-print.mjs';
 import { showNoticeSequence } from './notice-show.mjs';
 import { drawTextBufferSequence } from './text-draw.mjs';
 import { setMusicModeCall } from '../apu/audio-routines.mjs';
@@ -104,7 +104,6 @@ const KARMA_NOTICE = { left: 10, top: 2, columns: 9, wideColumns: 10, rows: 3 },
 const NOTICE_CALL = [0x8085e4, 0x80fec1],
   CURSOR_CALL = [0x8085ed, 0x80faac],
   NUMBER_CALL = [0x8085f5, 0x80fd80],
-  TEXT_CALL = [0x8085fd, 0x80fe69],
   SOUND_CALL = [0x808614, 0x80c46e],
   MUSIC_RESTORE_SITE = 0x808624,
   MUSIC_OFF_SITE = 0x80862c,
@@ -171,7 +170,7 @@ export function* removeFromFightListSequence(h, events, renderBuffer = drawTextB
     yield () => setWord(wram, DP_TEXT, word(wram, FIGHT_KARMA));
     yield* dialogCallBody(h, ...NUMBER_CALL, () => printNumberSequence(h, events, renderBuffer));
     yield () => setWord(wram, DP_TEXT, TEXT_KARMA_GAIN);
-    yield* dialogCallBody(h, ...TEXT_CALL, () => printTextSequence(h, events, renderBuffer));
+    yield* printText(h, events, renderBuffer);
     yield () => {
       setWord(wram, 0, NO_OBJECT);
       setWord(wram, DP_SOUND_LEVEL, KARMA_SOUND_LEVEL);

@@ -113,9 +113,11 @@ function decodeText(mem, wram) {
   }
 }
 
-// Print the text in the direct page word 02 into the window in 00 (80:FE69), a sequence
-// for a native call continuation. renderBuffer is a sequence, defaulting to the live renderer.
-export function* printTextSequence(h, events, renderBuffer = drawTextBufferSequence) {
+// Print the text in the direct page word 02 into the window in 00 (80:FE69) for lifted
+// callers, without the JSR frame: the return word of the caller's JSR lies only in free
+// stack bytes (game state only, user decision 2026-11-17). renderBuffer is a sequence,
+// defaulting to the live renderer.
+export function* printText(h, events, renderBuffer = drawTextBufferSequence) {
   const { ctx } = h,
     { mem } = h.a,
     { wram } = mem;
@@ -135,9 +137,16 @@ export function* printTextSequence(h, events, renderBuffer = drawTextBufferSeque
     wram[TEXT_BUFFER + y] = 0;
   };
   yield* dialogCallBody(h, ...DRAW_CALL, () => renderBuffer(h, events));
-  let result;
   yield () => {
     ctx.bank = bank;
+  };
+}
+// The text print as called with JSR (80:FE69), a sequence for a native call
+// continuation whose caller has pushed the frame; returns with its RTS.
+export function* printTextSequence(h, events, renderBuffer = drawTextBufferSequence) {
+  yield* printText(h, events, renderBuffer);
+  let result;
+  yield () => {
     result = h.rts();
   };
   return result;

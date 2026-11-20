@@ -20,7 +20,7 @@ import { dialogCallBody, segmentSequence } from '../system/native-call-continuat
 import { openWindowSequence } from './window-open.mjs';
 import { releaseWindowSequence } from './window-release.mjs';
 import { setTextCursorRoutine, printNumberSequence } from './window-text.mjs';
-import { printTextSequence } from './text-print.mjs';
+import { printText } from './text-print.mjs';
 import { drawTextBufferSequence } from './text-draw.mjs';
 import { waitForConfirmKeySequence } from './confirm-key.mjs';
 import { dataBankWord, setDataBankWord } from '../system/data-bank.mjs';
@@ -59,7 +59,6 @@ import { BYTE_BITS, BYTE_MASK, LONG_MASK, WORD_BITS, WORD_MASK } from '../consta
 
 const OPEN_WINDOW = 0x80f963,
   CURSOR = 0x80faac,
-  TEXT = 0x80fe69,
   NUMBER = 0x80fd80,
   CONFIRM_KEY = 0x80f953,
   RELEASE_WINDOW = 0x80fa3e;
@@ -67,11 +66,11 @@ const OPEN_WINDOW = 0x80f963,
 const SKILL_EXTRA_ROWS = 2,
   DATAJACK_ROW = 1,
   ENDED = WORD_MASK;
-// Jake's cyberware: its flag byte, text and the cursor and text call sites.
+// Jake's cyberware: its flag byte, text and the cursor call site.
 const CYBERWARE = Object.freeze([
-  [JAKE_DERMAL_ARMOUR, TEXT_DERMAL_ARMOUR, [0x80e966, 0x80e96e]],
-  [JAKE_SKILLSOFT, TEXT_SKILLSOFT, [0x80e97e, 0x80e986]],
-  [JAKE_WIRED_REFLEXES, TEXT_WIRED_REFLEXES, [0x80e996, 0x80e99e]],
+  [JAKE_DERMAL_ARMOUR, TEXT_DERMAL_ARMOUR, 0x80e966],
+  [JAKE_SKILLSOFT, TEXT_SKILLSOFT, 0x80e97e],
+  [JAKE_WIRED_REFLEXES, TEXT_WIRED_REFLEXES, 0x80e996],
 ]);
 
 const word = (wram, at) => wram[at] | (wram[at + 1] << BYTE_BITS);
@@ -133,7 +132,7 @@ export function* skillsSequence(h, events, renderBuffer = drawTextBufferSequence
         segmentSequence(() => setTextCursorRoutine(h)),
       );
       yield () => setWord(wram, 2, name);
-      yield* dialogCallBody(h, 0x80e888, TEXT, () => printTextSequence(h, events, renderBuffer));
+      yield* printText(h, events, renderBuffer);
       yield () => setWord(wram, 2, window.valueColumn);
       yield* dialogCallBody(h, 0x80e890, CURSOR, () =>
         segmentSequence(() => setTextCursorRoutine(h)),
@@ -165,9 +164,9 @@ export function* skillsSequence(h, events, renderBuffer = drawTextBufferSequence
 export function* notesSequence(h, events, renderBuffer = drawTextBufferSequence) {
   const { mem } = h.a,
     { wram } = mem;
-  const text = function* (pc, value) {
+  const text = function* (value) {
     yield () => setWord(wram, 2, value);
-    yield* dialogCallBody(h, pc, TEXT, () => printTextSequence(h, events, renderBuffer));
+    yield* printText(h, events, renderBuffer);
   };
   let jake, datajack;
   yield () => {
@@ -189,7 +188,7 @@ export function* notesSequence(h, events, renderBuffer = drawTextBufferSequence)
   if (!jake) {
     if (!datajack) return yield* returnSequence(h);
     yield* dialogCallBody(h, 0x80e8ee, OPEN_WINDOW, () => openWindowSequence(h, events));
-    yield* text(0x80e8f6, TEXT_DATAJACK);
+    yield* text(TEXT_DATAJACK);
     yield* dialogCallBody(h, 0x80e8f9, CONFIRM_KEY, () => waitForConfirmKeySequence(h, events));
     yield* dialogCallBody(h, 0x80e8fc, RELEASE_WINDOW, () =>
       (function* () {
@@ -200,16 +199,16 @@ export function* notesSequence(h, events, renderBuffer = drawTextBufferSequence)
     return yield* returnSequence(h);
   }
   yield* dialogCallBody(h, 0x80e937, OPEN_WINDOW, () => openWindowSequence(h, events));
-  yield* text(0x80e93f, TEXT_HEAD_COMPUTER);
+  yield* text(TEXT_HEAD_COMPUTER);
   yield () => {
     setWord(wram, 2, 0);
     setWord(wram, DP_CURSOR_ROW, DATAJACK_ROW);
   };
   yield* dialogCallBody(h, 0x80e949, CURSOR, () => segmentSequence(() => setTextCursorRoutine(h)));
-  yield* text(0x80e951, TEXT_DATAJACK);
+  yield* text(TEXT_DATAJACK);
   // The cyberware rows count from the datajack's.
   yield () => setWord(wram, DP_CURSOR_ROW, DATAJACK_ROW);
-  for (const [flag, id, [cursorPc, textPc]] of CYBERWARE) {
+  for (const [flag, id, cursorPc] of CYBERWARE) {
     let fitted;
     yield () => {
       fitted = wram[flag];
@@ -221,7 +220,7 @@ export function* notesSequence(h, events, renderBuffer = drawTextBufferSequence)
     yield* dialogCallBody(h, cursorPc, CURSOR, () =>
       segmentSequence(() => setTextCursorRoutine(h)),
     );
-    yield* text(textPc, id);
+    yield* text(id);
   }
   yield* dialogCallBody(h, 0x80e9a1, CONFIRM_KEY, () => waitForConfirmKeySequence(h, events));
   yield* dialogCallBody(h, 0x80e9a4, RELEASE_WINDOW, () =>

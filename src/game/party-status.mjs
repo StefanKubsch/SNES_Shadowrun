@@ -20,7 +20,7 @@ import {
   putGloveAwayCallSequence,
 } from './window-release.mjs';
 import { setTextCursorRoutine, printNumberSequence } from './window-text.mjs';
-import { printTextSequence } from './text-print.mjs';
+import { printText } from './text-print.mjs';
 import { drawTextBufferSequence } from './text-draw.mjs';
 import { waitForConfirmKeySequence } from './confirm-key.mjs';
 import { dataBankWord, setDataBankWord } from '../system/data-bank.mjs';
@@ -77,11 +77,9 @@ const PARTY_WINDOW = Object.freeze({ left: 1, top: 1, columns: 0x1e, baseRows: 5
 const PUT_GLOVE_AWAY = [0x80ed3c, 0x80bcb2],
   RELEASE_NOTICES = [0x80ed3f, 0x80ff79],
   OPEN_WINDOW = [0x80ed67, 0x80f963],
-  TITLE = [0x80ed74, 0x80fe69],
   CONFIRM_KEY = [0x80ee4b, 0x80f953],
   RELEASE_WINDOW = [0x80ee53, 0x80fa3e],
   CURSOR = 0x80faac,
-  TEXT = 0x80fe69,
   NUMBER = 0x80fd80;
 
 const word = (wram, at) => wram[at] | (wram[at + 1] << BYTE_BITS);
@@ -129,6 +127,11 @@ export function* partyStatusSequence(h, events, renderBuffer = drawTextBufferSeq
     yield () => setWord(wram, 2, typeof value === 'function' ? value() : value);
     yield* dialogCallBody(h, pc, target, body);
   };
+  // The argument in the direct page word 02 for a lifted callee without a JSR frame.
+  const withArgument = function* (value, body) {
+    yield () => setWord(wram, 2, typeof value === 'function' ? value() : value);
+    yield* body();
+  };
   yield* dialogCallBody(h, ...PUT_GLOVE_AWAY, () => putGloveAwayCallSequence(h, events));
   yield* dialogCallBody(h, ...RELEASE_NOTICES, () => releaseNoticeWindowsCallSequence(h, events));
   yield () => {
@@ -145,7 +148,7 @@ export function* partyStatusSequence(h, events, renderBuffer = drawTextBufferSeq
   };
   yield* dialogCallBody(h, ...OPEN_WINDOW, () => openWindowSequence(h, events));
   yield () => setDataBankWord(mem, STATUS_WINDOW, 0, word(wram, 0));
-  yield* argument(TEXT_PARTY_STATUS, ...TITLE, () => printTextSequence(h, events, renderBuffer));
+  yield* withArgument(TEXT_PARTY_STATUS, () => printText(h, events, renderBuffer));
   let member = 0,
     more;
   do {
@@ -153,11 +156,9 @@ export function* partyStatusSequence(h, events, renderBuffer = drawTextBufferSeq
     yield* dialogCallBody(h, 0x80edcf, CURSOR, () =>
       segmentSequence(() => setTextCursorRoutine(h)),
     );
-    yield* argument(
+    yield* withArgument(
       () => word(wram, DP_PARTY_NAME),
-      0x80edd6,
-      TEXT,
-      () => printTextSequence(h, events, renderBuffer),
+      () => printText(h, events, renderBuffer),
     );
     yield* argument(COLUMNS.count, 0x80edde, CURSOR, () =>
       segmentSequence(() => setTextCursorRoutine(h)),
@@ -171,7 +172,7 @@ export function* partyStatusSequence(h, events, renderBuffer = drawTextBufferSeq
     yield* argument(COLUMNS.countSlash, 0x80edee, CURSOR, () =>
       segmentSequence(() => setTextCursorRoutine(h)),
     );
-    yield* argument(TEXT_SLASH, 0x80edf6, TEXT, () => printTextSequence(h, events, renderBuffer));
+    yield* withArgument(TEXT_SLASH, () => printText(h, events, renderBuffer));
     yield () => {
       // The count's maximum; the record pointer's low word steps on by one.
       const maximum = recordByte(mem, RECORD_COUNT_MAX);
@@ -191,7 +192,7 @@ export function* partyStatusSequence(h, events, renderBuffer = drawTextBufferSeq
     yield* argument(COLUMNS.magicSlash, 0x80ee26, CURSOR, () =>
       segmentSequence(() => setTextCursorRoutine(h)),
     );
-    yield* argument(TEXT_SLASH, 0x80ee2e, TEXT, () => printTextSequence(h, events, renderBuffer));
+    yield* withArgument(TEXT_SLASH, () => printText(h, events, renderBuffer));
     yield* argument(
       () => word(wram, DP_MAGIC_MAXIMUM),
       0x80ee35,

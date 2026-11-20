@@ -30,7 +30,7 @@
 import { dialogCallBody, segmentSequence } from '../system/native-call-continuation.mjs';
 import { printNumberSequence, setTextCursorRoutine } from './window-text.mjs';
 import { drawTextBufferSequence } from './text-draw.mjs';
-import { printTextSequence } from './text-print.mjs';
+import { printText } from './text-print.mjs';
 import {
   DP_CURSOR_ROW,
   DP_LIST_TOKEN_BANK,
@@ -53,12 +53,10 @@ const DP_TEXT = 2;
 export const MARK = Object.freeze({
     text: 0x7074,
     cursor: [0x80a60b, 0x80faac],
-    print: [0x80a613, 0x80fe69],
   }),
   UNMARK = Object.freeze({
     text: 0x707d,
     cursor: [0x80a5ed, 0x80faac],
-    print: [0x80a5f5, 0x80fe69],
   });
 
 // The list drawing's texts and call sites.
@@ -68,13 +66,9 @@ const BLANK = 0x707d,
   // The marks lie three columns and rows inside the window's far edges.
   MARK_INSET = 3,
   ROW_CURSOR = [0x80a633, 0x80faac],
-  ROW_TEXT = [0x80a63d, 0x80fe69],
-  NUMBER_BLANK = [0x80a650, 0x80fe69],
   NUMBER = [0x80a659, 0x80fd80],
   MORE_CURSOR = [0x80a67c, 0x80faac],
-  MORE_TEXT = [0x80a684, 0x80fe69],
-  PREVIOUS_CURSOR = [0x80a699, 0x80faac],
-  PREVIOUS_TEXT = [0x80a6a1, 0x80fe69];
+  PREVIOUS_CURSOR = [0x80a699, 0x80faac];
 
 const word = (wram, at) => wram[at] | (wram[at + 1] << BYTE_BITS);
 const setWord = (wram, at, value) => {
@@ -94,7 +88,7 @@ export function* markRowSequence(h, events, renderBuffer = drawTextBufferSequenc
   };
   yield* dialogCallBody(h, ...form.cursor, () => segmentSequence(() => setTextCursorRoutine(h)));
   yield () => setWord(wram, DP_TEXT, form.text);
-  yield* dialogCallBody(h, ...form.print, () => printTextSequence(h, events, renderBuffer));
+  yield* printText(h, events, renderBuffer);
   return yield* rts(h);
 }
 function* rts(h) {
@@ -125,9 +119,9 @@ export function* drawListSequence(h, events, renderBuffer = drawTextBufferSequen
   // around some of them (PHY, PLY); that word lies only in free stack bytes, and the
   // position is a local here.
   const print = (site, body) => dialogCallBody(h, ...site, body);
-  const text = (site) => print(site, () => printTextSequence(h, events, renderBuffer));
+  const text = () => printText(h, events, renderBuffer);
   // A mark three columns before the window's right edge, in the row given.
-  const corner = function* (row, cursorSite, textSite, mark) {
+  const corner = function* (row, cursorSite, mark) {
     yield () => {
       const x = word(wram, 0);
       setWord(wram, DP_TEXT, word(wram, WINDOW_COLUMNS + x) - MARK_INSET);
@@ -135,7 +129,7 @@ export function* drawListSequence(h, events, renderBuffer = drawTextBufferSequen
     };
     yield* cursor(cursorSite);
     yield () => setWord(wram, DP_TEXT, mark);
-    yield* text(textSite);
+    yield* text();
   };
 
   yield () => {
@@ -158,14 +152,14 @@ export function* drawListSequence(h, events, renderBuffer = drawTextBufferSequen
       if (!end) setWord(wram, DP_TEXT, value);
     };
     if (end) break;
-    yield* text(ROW_TEXT);
+    yield* text();
     let numbered = false;
     yield () => {
       numbered = word(wram, MENU_SHOW_NUMBERS) !== 0 && number() !== 0;
       if (numbered) setWord(wram, DP_TEXT, BLANK);
     };
     if (numbered) {
-      yield* text(NUMBER_BLANK);
+      yield* text();
       yield () => setWord(wram, DP_TEXT, number());
       yield* print(NUMBER, () => printNumberSequence(h, events, renderBuffer));
     }
@@ -182,7 +176,6 @@ export function* drawListSequence(h, events, renderBuffer = drawTextBufferSequen
       yield* corner(
         (x) => (word(wram, WINDOW_ROWS + x) - MARK_INSET) & WORD_MASK,
         MORE_CURSOR,
-        MORE_TEXT,
         MORE,
       );
     if (end) break;
@@ -191,6 +184,6 @@ export function* drawListSequence(h, events, renderBuffer = drawTextBufferSequen
   yield () => {
     previous = word(wram, MENU_PAGE_START) !== 0;
   };
-  if (previous) yield* corner(() => 0, PREVIOUS_CURSOR, PREVIOUS_TEXT, PREVIOUS);
+  if (previous) yield* corner(() => 0, PREVIOUS_CURSOR, PREVIOUS);
   return yield* rts(h);
 }

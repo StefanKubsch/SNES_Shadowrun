@@ -33,7 +33,7 @@
 // number, the object slots 80:A835 and the sound 80:C46E run lifted as plain calls; the
 // notice window, text and word waits compose directly through their frames.
 // Confirmation, release and the player window list also compose directly.
-import { printTextSequence } from './text-print.mjs';
+import { printText } from './text-print.mjs';
 import { waitForConfirmKeySequence } from './confirm-key.mjs';
 import { releaseWindowJsrSequence } from './window-release.mjs';
 import { drawTextBufferSequence } from './text-draw.mjs';
@@ -114,7 +114,6 @@ import {
 
 // The notices' callees and the window list (long calls: the word wait and the list).
 const OPEN_WINDOW = 0x80f963,
-  TEXT = 0x80fe69,
   WORD_WAIT = 0x81b0a1,
   CONFIRM_KEY = 0x80f953,
   RELEASE_WINDOW = 0x80fa3e,
@@ -163,7 +162,7 @@ function* noticeSequence(h, events, renderBuffer, notice, calls) {
   yield () => {
     setWord(wram, 2, notice.text);
   };
-  yield* dialogCallBody(h, calls.text, TEXT, () => printTextSequence(h, events, renderBuffer));
+  yield* printText(h, events, renderBuffer);
   for (let left = NOTICE_COUNTER_WAITS; left > 0; left--)
     yield* dialogCallBody(h, calls.wait, WORD_WAIT, () => frameWaitCallSequence(h, events), true);
   yield* dialogCallBody(h, calls.key, CONFIRM_KEY, () => waitForConfirmKeySequence(h, events));

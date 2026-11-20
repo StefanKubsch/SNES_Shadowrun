@@ -24,7 +24,7 @@
 // relative to the object, the kind index) are written as the original writes them.
 import { dialogCallBody, segmentSequence } from '../system/native-call-continuation.mjs';
 import { releaseNameWindowCallSequence } from './window-release.mjs';
-import { printTextSequence } from './text-print.mjs';
+import { printText } from './text-print.mjs';
 import { drawTextBufferSequence } from './text-draw.mjs';
 import { openWindowSequence } from './window-open.mjs';
 import { measureTextWidth } from './text-width.mjs';
@@ -115,8 +115,6 @@ const RELEASE_TARGET = 0x80be5b,
   WIDTH_TARGET = 0x80fadd,
   WINDOW_CALL = 0x80be29,
   WINDOW_TARGET = 0x80f963,
-  TEXT_CALL = 0x80be34,
-  TEXT_TARGET = 0x80fe69,
   LOW_WRAM_END = 0x2000;
 
 const word = (wram, at) => wram[at] | (wram[at + 1] << BYTE_BITS);
@@ -308,8 +306,6 @@ export function* objectSearchSequence(h, events, renderBuffer = drawTextBufferSe
     setWord(wram, GLOVE_NAME_WINDOW, word(wram, DP_TEXT));
     setWord(wram, DP_TEXT_COPY, text);
   };
-  yield* dialogCallBody(h, TEXT_CALL, TEXT_TARGET, () =>
-    printTextSequence(h, events, renderBuffer),
-  );
+  yield* printText(h, events, renderBuffer);
   return yield* rts();
 }

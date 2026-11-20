@@ -33,7 +33,7 @@ import {
   putGloveAwayCallSequence,
 } from './window-release.mjs';
 import { setTextCursorRoutine, printNumberSequence } from './window-text.mjs';
-import { printTextSequence } from './text-print.mjs';
+import { printText } from './text-print.mjs';
 import { decimalNumberSequence } from './decimal-number.mjs';
 import { drawTextBufferSequence } from './text-draw.mjs';
 import { equipmentRowsSequence } from './equipment-window.mjs';
@@ -130,7 +130,6 @@ const SOUND = 0x81f007,
   STATUS_SETUP = 0x81886a,
   OPEN_WINDOW = 0x80f963,
   CURSOR = 0x80faac,
-  TEXT = 0x80fe69,
   NUMBER = 0x80fd80,
   DECIMAL_NUMBER = 0x80fdcf,
   EQUIPMENT_ROWS = 0x80e9c5,
@@ -204,9 +203,9 @@ export function* statusScreenSequence(
     };
     yield* dialogCallBody(h, pc, CURSOR, () => segmentSequence(() => setTextCursorRoutine(h)));
   };
-  const text = function* (pc, id) {
+  const text = function* (id) {
     yield () => setWord(wram, 2, id);
-    yield* dialogCallBody(h, pc, TEXT, () => printTextSequence(h, events, renderBuffer));
+    yield* printText(h, events, renderBuffer);
   };
   const number = function* (pc, value) {
     yield () => setWord(wram, 2, value());
@@ -313,7 +312,7 @@ export function* statusScreenSequence(
       segmentSequence(() => setTextCursorRoutine(h)),
     );
     yield () => setWord(wram, 2, dataBankWord(mem, ATTRIBUTE_LABELS, word(wram, DP_SCRATCH)));
-    yield* dialogCallBody(h, 0x80eb6c, TEXT, () => printTextSequence(h, events, renderBuffer));
+    yield* printText(h, events, renderBuffer);
     yield* cursor(0x80eb74, STATUS_LAYOUT.valueColumn);
     yield () => {
       const value = nextRecordByte();
@@ -328,14 +327,14 @@ export function* statusScreenSequence(
   } while (!negative(at));
   yield* cursor(0x80eb9c, STATUS_ROWS.countColumn, STATUS_ROWS.stateCountRow);
   yield* number(0x80eba4, () => dataBankWord(mem, MEMBER_STATE_COUNT));
-  yield* text(0x80ebac, TEXT_SLASH);
+  yield* text(TEXT_SLASH);
   yield* number(0x80ebb8, nextRecordByte);
   yield* cursor(0x80ebc5, STATUS_ROWS.countColumn, STATUS_ROWS.magicRow);
   yield* number(
     0x80ebd6,
     () => longWord(mem, WRAM + MAGIC_POINTS + (dataBankWord(mem, MEMBER_INDEX) >>> 1)) & BYTE_MASK,
   );
-  yield* text(0x80ebde, TEXT_SLASH);
+  yield* text(TEXT_SLASH);
   yield* number(0x80ebe5, () => word(wram, DP_MAGIC_MAXIMUM));
   let jake;
   yield () => {
@@ -343,11 +342,11 @@ export function* statusScreenSequence(
   };
   if (jake) {
     yield* cursor(0x80ebfa, STATUS_ROWS.labelColumn, STATUS_ROWS.karmaRow);
-    yield* text(0x80ec02, TEXT_KARMA);
+    yield* text(TEXT_KARMA);
     yield* cursor(0x80ec0a, STATUS_LAYOUT.valueColumn);
     yield* number(0x80ec16, () => longWord(mem, WRAM + KARMA) >>> KARMA_SHIFT);
     yield* cursor(0x80ec23, STATUS_ROWS.labelColumn, STATUS_ROWS.moneyRow);
-    yield* text(0x80ec2b, TEXT_MONEY);
+    yield* text(TEXT_MONEY);
     yield* cursor(0x80ec33, STATUS_LAYOUT.valueColumn);
     yield () => {
       setWord(wram, DP_NUMBER_LOW, longWord(mem, WRAM + NUYEN));
@@ -357,12 +356,12 @@ export function* statusScreenSequence(
       decimalNumberSequence(h, events, renderBuffer),
     );
     yield* cursor(0x80ec4f, STATUS_ROWS.labelColumn, STATUS_ROWS.spellLabelRow);
-    yield* text(0x80ec57, TEXT_SPELL);
+    yield* text(TEXT_SPELL);
   }
   yield* cursor(0x80ec64, STATUS_ROWS.labelColumn, STATUS_ROWS.weaponLabelRow);
-  yield* text(0x80ec6c, TEXT_WEAPON);
+  yield* text(TEXT_WEAPON);
   yield* cursor(0x80ec79, STATUS_ROWS.labelColumn, STATUS_ROWS.armourLabelRow);
-  yield* text(0x80ec81, TEXT_ARMOUR);
+  yield* text(TEXT_ARMOUR);
   yield* dialogCallBody(h, 0x80ec84, EQUIPMENT_ROWS, () =>
     equipmentRowsSequence(h, events, renderBuffer),
   );

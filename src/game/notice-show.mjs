@@ -24,7 +24,7 @@ import { taskStop } from '../system/task-stop.mjs';
 import { dialogCallBody } from '../system/native-call-continuation.mjs';
 import { openWindowSequence, requestTileClearSequence } from './window-open.mjs';
 import { waitForConfirmKeySequence } from './confirm-key.mjs';
-import { printTextSequence } from './text-print.mjs';
+import { printText } from './text-print.mjs';
 import { drawTextBufferSequence } from './text-draw.mjs';
 import { fitNoticeWindow } from '../data/language.mjs';
 import { releaseWindowSequence } from './window-release.mjs';
@@ -92,7 +92,7 @@ function* pagesSequence(h, events, renderBuffer, { id, pages }) {
     yield () => {
       mem.noticePage = { id, codes: pages[page] };
     };
-    yield* dialogCallBody(h, ...TEXT_CALL, () => printTextSequence(h, events, renderBuffer));
+    yield* printText(h, events, renderBuffer);
     yield () => {
       mem.noticePage = null;
     };
@@ -127,7 +127,7 @@ export function* showNoticeSequence(h, events, renderBuffer = drawTextBufferSequ
     setWord(wram, DP_TEXT, mem.read8(at) | (mem.read8(at + 1) << BYTE_BITS));
   };
   if (paged) yield* pagesSequence(h, events, renderBuffer, paged);
-  else yield* call(TEXT_CALL, () => printTextSequence(h, events, renderBuffer));
+  else yield* printText(h, events, renderBuffer);
   let replace = false,
     slot;
   yield () => {

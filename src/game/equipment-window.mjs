@@ -14,7 +14,7 @@
 // keeps on the stack over the rows (PHA, PLA), are locals.
 import { dialogCallBody, segmentSequence } from '../system/native-call-continuation.mjs';
 import { setTextCursorRoutine, printNumberSequence } from './window-text.mjs';
-import { printTextSequence } from './text-print.mjs';
+import { printText } from './text-print.mjs';
 import { drawTextBufferSequence } from './text-draw.mjs';
 import { dataBankWord } from '../system/data-bank.mjs';
 import {
@@ -45,10 +45,8 @@ const ITEM_KINDS = 0x8db022,
   DERMAL_ARMOUR_BONUS = 2;
 // The callees and the call sites.
 const CURSOR = 0x80faac,
-  TEXT = 0x80fe69,
   NUMBER = 0x80fd80,
-  ITEM_TEXT = 0x80e9a8,
-  ITEM_TEXT_CALL = 0x80e9c1;
+  ITEM_TEXT = 0x80e9a8;
 
 const word = (wram, at) => wram[at] | (wram[at + 1] << BYTE_BITS);
 const setWord = (wram, at, value) => {
@@ -76,7 +74,7 @@ function* itemTextSequence(h, events, renderBuffer, item) {
     }
     setWord(wram, 2, text);
   };
-  yield* dialogCallBody(h, ITEM_TEXT_CALL, TEXT, () => printTextSequence(h, events, renderBuffer));
+  yield* printText(h, events, renderBuffer);
   let result;
   yield () => {
     result = h.rts();
@@ -97,9 +95,9 @@ export function* equipmentRowsSequence(h, events, renderBuffer = drawTextBufferS
     };
     yield* dialogCallBody(h, pc, CURSOR, () => segmentSequence(() => setTextCursorRoutine(h)));
   };
-  const text = function* (pc, value) {
+  const text = function* (value) {
     yield () => setWord(wram, 2, typeof value === 'function' ? value() : value);
-    yield* dialogCallBody(h, pc, TEXT, () => printTextSequence(h, events, renderBuffer));
+    yield* printText(h, events, renderBuffer);
   };
   const itemText = (pc, item) =>
     dialogCallBody(h, pc, ITEM_TEXT, () => itemTextSequence(h, events, renderBuffer, item));
@@ -110,7 +108,7 @@ export function* equipmentRowsSequence(h, events, renderBuffer = drawTextBufferS
   };
   if (isLeader) {
     yield* cursor(0x80e9dc, STATUS_LAYOUT.spellRow);
-    yield* text(0x80e9e5, () => word(wram, SELECTED_SPELL_NAME));
+    yield* text(() => word(wram, SELECTED_SPELL_NAME));
   }
   yield* cursor(0x80e9f2, STATUS_LAYOUT.weaponRow);
   // Armour, rating and weapon are read before the rows (the original pushes them).
@@ -123,11 +121,11 @@ export function* equipmentRowsSequence(h, events, renderBuffer = drawTextBufferS
     rating &= BYTE_MASK;
     weapon = word(wram, RUNNER_WEAPON + entry);
   };
-  yield* text(0x80ea2d, TEXT_BLANK_FIELD);
+  yield* text(TEXT_BLANK_FIELD);
   yield* cursor(0x80ea3a, STATUS_LAYOUT.weaponRow);
   yield* itemText(0x80ea3e, weapon);
   yield* cursor(0x80ea4b, STATUS_LAYOUT.armourRow);
-  yield* text(0x80ea53, TEXT_BLANK_FIELD);
+  yield* text(TEXT_BLANK_FIELD);
   yield* cursor(0x80ea60, STATUS_LAYOUT.armourRow);
   yield () => setWord(wram, 2, rating);
   yield* dialogCallBody(h, 0x80ea66, NUMBER, () => printNumberSequence(h, events, renderBuffer));

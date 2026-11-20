@@ -39,7 +39,7 @@ import { dialogCallBody, segmentSequence } from '../system/native-call-continuat
 import { chooseFromMenuSequence } from './menu-choice.mjs';
 import { openWindowSequence, requestTileClearSequence } from './window-open.mjs';
 import { setTextCursorRoutine, printNumberSequence } from './window-text.mjs';
-import { printTextSequence } from './text-print.mjs';
+import { printText } from './text-print.mjs';
 import {
   releaseNoticeWindowsCallSequence,
   putGloveAwayCallSequence,
@@ -104,7 +104,6 @@ import {
 const OPEN_WINDOW = 0x80f963,
   REDRAW_WINDOW = 0x80fa67,
   CURSOR = 0x80faac,
-  TEXT = 0x80fe69,
   NUMBER = 0x80fd80,
   CONFIRM_KEY = 0x80f953,
   RELEASE_WINDOW = 0x80fa3e,
@@ -168,7 +167,7 @@ export function* karmaLineSequence(h, events, renderBuffer = drawTextBufferSeque
   };
   yield* dialogCallBody(h, 0x80ef8e, CURSOR, () => segmentSequence(() => setTextCursorRoutine(h)));
   yield () => setWord(wram, 2, TEXT_KARMA);
-  yield* dialogCallBody(h, 0x80ef96, TEXT, () => printTextSequence(h, events, renderBuffer));
+  yield* printText(h, events, renderBuffer);
   yield () => {
     setWord(wram, 2, KARMA_NUMBER_COLUMN);
     setWord(wram, DP_CURSOR_ROW, 0);
@@ -210,7 +209,7 @@ export function* buyStepSequence(h, events, renderBuffer = drawTextBufferSequenc
   if (paid) return yield* returnSequence(h);
   yield* dialogCallBody(h, 0x80f032, OPEN_WINDOW, () => openWindowSequence(h, events));
   yield () => setWord(wram, 2, TEXT_KARMA_INSUFFICIENT);
-  yield* dialogCallBody(h, 0x80f03a, TEXT, () => printTextSequence(h, events, renderBuffer));
+  yield* printText(h, events, renderBuffer);
   yield* dialogCallBody(h, 0x80f03d, CONFIRM_KEY, () => waitForConfirmKeySequence(h, events));
   yield* dialogCallBody(h, 0x80f040, RELEASE_WINDOW, () => releaseWindowJsrSequence(h.a, events));
   yield () => setWord(wram, DP_KARMA_VALUE_POINTER, 0);
@@ -230,7 +229,7 @@ export function* karmaListSequence(h, events, entry, renderBuffer = drawTextBuff
     setDataBankWord(mem, KARMA_MENU_VALUES, 0, 0);
   };
   yield () => setWord(wram, 2, list.text);
-  yield* dialogCallBody(h, list.pcs.text, TEXT, () => printTextSequence(h, events, renderBuffer));
+  yield* printText(h, events, renderBuffer);
   yield () => {
     setWord(wram, DP_KARMA_VALUE_BANK, WRAM_BANK);
     // The first list builds Exit again in every round.

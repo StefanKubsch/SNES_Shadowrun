@@ -27,7 +27,7 @@
 import { dialogCallBody, segmentSequence } from '../system/native-call-continuation.mjs';
 import { showNoticeSequence } from './notice-show.mjs';
 import { setTextCursorRoutine, printNumberSequence } from './window-text.mjs';
-import { printTextSequence } from './text-print.mjs';
+import { printText } from './text-print.mjs';
 import { drawTextBufferSequence } from './text-draw.mjs';
 import { accessorPort } from '../system/hardware-port.mjs';
 import { playSoundEffect } from '../apu/sound-effect.mjs';
@@ -70,12 +70,10 @@ const CALL = Object.freeze({
   notice: 0x80e2ab,
   cursor: 0x80e2b4,
   number: 0x80e2c0,
-  text: 0x80e2d2,
 });
 const NOTICE_CALL = 0x80fec1,
   CURSOR_CALL = 0x80faac,
-  NUMBER_CALL = 0x80fd80,
-  TEXT_CALL = 0x80fe69;
+  NUMBER_CALL = 0x80fd80;
 
 const word = (wram, at) => wram[at] | (wram[at + 1] << BYTE_BITS);
 const setWord = (wram, at, value) => {
@@ -138,7 +136,7 @@ export function* timeLimitSequence(h, events, renderBuffer = drawTextBufferSeque
     };
     yield* call(CALL.number, NUMBER_CALL, () => printNumberSequence(h, events, renderBuffer));
     yield () => setWord(wram, DP_ARGUMENT, word(wram, TIMER) ? TEXT_HOURS : TEXT_LAST_HOUR);
-    yield* call(CALL.text, TEXT_CALL, () => printTextSequence(h, events, renderBuffer));
+    yield* printText(h, events, renderBuffer);
   }
   let result;
   yield () => {
