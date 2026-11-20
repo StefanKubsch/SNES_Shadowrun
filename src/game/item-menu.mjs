@@ -28,7 +28,7 @@ import { releaseNoticeWindowsSequence, releaseWindowSequence } from './window-re
 import { openWindow, requestTileClear } from './window-open.mjs';
 import { chooseFromMenuSequence, MENU_WITH_NUMBERS } from './menu-choice.mjs';
 import { waitForConfirmKeySequence } from './confirm-key.mjs';
-import { equipmentRowsSequence } from './equipment-window.mjs';
+import { equipmentRows } from './equipment-window.mjs';
 import { memberPortraitSequence } from './member-portrait.mjs';
 import { resetWindowListSequence } from './window-list.mjs';
 import { drawTextBufferSequence } from './text-draw.mjs';
@@ -110,8 +110,7 @@ const MENU = [0x80e65b, 0x80a6ad],
   VISIT = [0x80e545, 0x80c1ca],
   REDRAW_LIST = [0x80e552, 0x81aeb0],
   PORTRAIT = [0x80e556, 0x80e4b3],
-  CONFIRM_KEY = [0x80e568, 0x80f953],
-  EQUIPMENT = [0x80e56e, 0x80e9c5];
+  CONFIRM_KEY = [0x80e568, 0x80f953];
 // The list starts after Exit; a count of one is shown as none; the menu's first column.
 const FIRST_ITEM = 2,
   SINGLE = 1,
@@ -316,6 +315,6 @@ export function* useItemSequence(h, events, renderBuffer, actor) {
     yield* dialogCallBody(h, ...CONFIRM_KEY, () => waitForConfirmKeySequence(h, events));
     yield* releaseNoticeWindowsSequence(h, events);
   }
-  yield* dialogCallBody(h, ...EQUIPMENT, () => equipmentRowsSequence(h, events, renderBuffer));
+  yield* equipmentRows(h, events, renderBuffer);
   return yield* returnSequence(h);
 }

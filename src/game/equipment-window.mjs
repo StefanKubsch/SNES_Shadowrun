@@ -80,8 +80,8 @@ function* itemTextSequence(h, events, renderBuffer, item) {
   return result;
 }
 
-// 80:E9C5: the equipment rows (see above). A sequence that ends with its RTS.
-export function* equipmentRowsSequence(h, events, renderBuffer = drawTextBufferSequence) {
+// 80:E9C5: the equipment rows (see above) for lifted callers, without the JSR frame.
+export function* equipmentRows(h, events, renderBuffer = drawTextBufferSequence) {
   const { mem } = h.a,
     { wram } = mem;
   const leader = () => dataBankWord(mem, MEMBER_OBJECT) === dataBankWord(mem, PLAYER_OBJECT);
@@ -128,6 +128,10 @@ export function* equipmentRowsSequence(h, events, renderBuffer = drawTextBufferS
   yield () => setWord(wram, 2, rating);
   yield* printNumber(h, events, renderBuffer);
   yield* itemText(0x80ea6a, armour);
+}
+// The rows as called with JSR (80:E9C5); returns with its RTS.
+export function* equipmentRowsSequence(h, events, renderBuffer = drawTextBufferSequence) {
+  yield* equipmentRows(h, events, renderBuffer);
   let result;
   yield () => {
     result = h.rts();

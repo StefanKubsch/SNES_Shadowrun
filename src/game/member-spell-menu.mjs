@@ -29,7 +29,7 @@ import { openWindow } from './window-open.mjs';
 import { chooseFromMenuSequence } from './menu-choice.mjs';
 import { releaseWindowSequence, releaseNoticeWindowsSequence } from './window-release.mjs';
 import { waitForConfirmKeySequence } from './confirm-key.mjs';
-import { equipmentRowsSequence } from './equipment-window.mjs';
+import { equipmentRows } from './equipment-window.mjs';
 import { memberPortraitSequence } from './member-portrait.mjs';
 import { resetWindowListSequence } from './window-list.mjs';
 import { drawTextBufferSequence } from './text-draw.mjs';
@@ -104,7 +104,6 @@ const MENU = [0x80e74c, 0x80a6c7],
   REDRAW_LIST = [0x80e79b, 0x81aeb0],
   SHOW_PORTRAIT = [0x80e79f, 0x80e4b3],
   CONFIRM_KEY = [0x80e7b1, 0x80f953],
-  SHOW_EQUIPMENT = [0x80e7c4, 0x80e9c5],
   SPELL_MENU = [0x80f289, 0x80e693];
 // The entry from the status screen, which runs no scripts.
 export const STATUS_ENTRY = 0x80e68e;
@@ -299,10 +298,7 @@ export function* spellMenuSequence(
   yield () => {
     equipment = word(wram, SPELL_CHOICE_RUNS_SCRIPT) === 0;
   };
-  if (equipment)
-    yield* dialogCallBody(h, ...SHOW_EQUIPMENT, () =>
-      equipmentRowsSequence(h, events, renderBuffer),
-    );
+  if (equipment) yield* equipmentRows(h, events, renderBuffer);
   return yield* returnSequence(h);
 }
 

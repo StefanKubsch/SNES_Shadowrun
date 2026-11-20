@@ -36,7 +36,7 @@ import { setTextCursor, printNumber } from './window-text.mjs';
 import { printText } from './text-print.mjs';
 import { decimalNumberSequence } from './decimal-number.mjs';
 import { drawTextBufferSequence } from './text-draw.mjs';
-import { equipmentRowsSequence } from './equipment-window.mjs';
+import { equipmentRows } from './equipment-window.mjs';
 import { memberPortraitSequence } from './member-portrait.mjs';
 import { closeDialog, clearFixedColourRoutine } from './dialog-talk.mjs';
 import { sendApuCommandCall } from '../apu/audio-routines.mjs';
@@ -127,7 +127,6 @@ export const NATIVE_ENTRY = 0x80ea6e,
 const SOUND = 0x81f007,
   STATUS_SETUP = 0x81886a,
   DECIMAL_NUMBER = 0x80fdcf,
-  EQUIPMENT_ROWS = 0x80e9c5,
   PORTRAIT = 0x80e4b3,
   PLAIN_MENU = MENU,
   SKILLS_MENU = 0x80e834,
@@ -350,9 +349,7 @@ export function* statusScreenSequence(
   yield* text(TEXT_WEAPON);
   yield* cursor(STATUS_ROWS.labelColumn, STATUS_ROWS.armourLabelRow);
   yield* text(TEXT_ARMOUR);
-  yield* dialogCallBody(h, 0x80ec84, EQUIPMENT_ROWS, () =>
-    equipmentRowsSequence(h, events, renderBuffer),
-  );
+  yield* equipmentRows(h, events, renderBuffer);
   yield* dialogCallBody(h, 0x80ec87, PORTRAIT, () => memberPortraitSequence(h, events));
 
   let direct;
