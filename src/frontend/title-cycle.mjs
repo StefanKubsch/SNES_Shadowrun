@@ -65,8 +65,9 @@ const setWord = (wram, at, value) => {
 // for a new game) goes to shown.choice; the status is as at the entry. Registers (user
 // decision 2026-11-17): the title and the start menu return their results as values,
 // the music stop sends its command without its JSL frame, and the cycle leaves no
-// registers of its own.
-export function* titleCycleSequence(h, events, routines, title, shown = {}) {
+// registers of its own. The game owner runs it without the JSR frame (the owner's
+// return word lies only in free stack bytes).
+export function* titleCycle(h, events, routines, title, shown = {}) {
   const { ctx } = h,
     status = ctx.status,
     afterGame = !title,
@@ -131,14 +132,11 @@ export function* titleCycleSequence(h, events, routines, title, shown = {}) {
       titleNext = true;
     }
   }
-  let result;
   yield () => {
     ctx.bank = CODE_BANK;
     ctx.status = status;
     shown.choice = choice;
-    result = h.rts();
   };
-  return result;
 }
 
 // The credits from the start menu's Credits row (src/game/credits.mjs), called with

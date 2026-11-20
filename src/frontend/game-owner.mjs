@@ -1,12 +1,11 @@
 // The outer game owner (lifted from 80:A139 and its resume point 80:A157;
 // register-level reference in proof/frontend-reference/game-owner.mjs).
 //
-// The owner runs the title cycle until the player chooses a game, sets up the game's
-// audio and enters the game's main start 80:9688 with the original JSR frame of
-// 80:A154. When the game ends, the main loop returns to 80:A157 and the owner starts
+// The owner runs the title cycle (without its JSR frame) until the player chooses a
+// game, sets up the game's audio and enters the game's main start 80:9688 with the
+// original JSR frame of 80:A154. When the game ends, the main loop returns to 80:A157 and the owner starts
 // the cycle again without the title.
-import { dialogCallBody } from '../system/native-call-continuation.mjs';
-import { titleCycleSequence } from './title-cycle.mjs';
+import { titleCycle } from './title-cycle.mjs';
 import { taskStop } from '../system/task-stop.mjs';
 import { sceneRuntime } from '../system/scene-runtime.mjs';
 import { setUpGameAudio } from '../intro/intro-scene.mjs';
@@ -27,9 +26,6 @@ import { BYTE_BITS, BYTE_MASK } from '../constants/bits.mjs';
 export const GAME_OWNER_ENTRY = 0xa139,
   GAME_OWNER_RESUME = 0xa157,
   GAME_OWNER_RETURN_WORD = 0xa156;
-// The title cycle and its call site.
-const TITLE_CYCLE = 0x80a18c,
-  TITLE_CYCLE_SITE = 0x80a141;
 // The game's main start reads the cycle's choice from direct page word 0.
 const CHOICE = 0;
 
@@ -57,9 +53,7 @@ export function* gameOwnerSequence(h, events, routines) {
     // The cycle keeps the music on and restores it after the attract game.
     setWord(wram, GAME_OPTIONS, OPTION_MUSIC | OPTION_MUSIC_RESTORE);
   };
-  yield* dialogCallBody(h, TITLE_CYCLE_SITE, TITLE_CYCLE, () =>
-    titleCycleSequence(h, events, routines, title, shown),
-  );
+  yield* titleCycle(h, events, routines, title, shown);
   yield () => {
     setWord(wram, CHOICE, shown.choice);
     // The game plays music as the saved setting says.
