@@ -13,12 +13,11 @@
 //
 // The sort (src/game/depth-sort.mjs) and the palette slots (src/game/palette-slots.mjs)
 // are lifted, and so are the OAM entries (src/game/object-sprites.mjs), which run through
-// their frames. The fill runs without its frame; the job count's frame is reproduced;
-// the job count's frame covers the bytes of the data bank 7E the original sets through
-// the stack for the hidden sprites. The list position the original pushes over each
-// OAM entry call lies only in free stack bytes and is kept in a local (game state only,
-// user decision 2026-11-17). Registers (user decision 2026-11-17): game state only; no A, X, Y or flags are
-// left (the main loop and the talk end read none of them), and the object and picture
+// their frames. The fill and the job count run without their JSL frames, whose return
+// words lie only in free stack bytes. The list position the original pushes over each
+// OAM entry call lies there too and is kept in a local (game state only, user decision
+// 2026-11-17). Registers (user decision 2026-11-17): game state only; no A, X, Y or
+// flags are left (the main loop and the talk end read none of them), and the object and picture
 // pass to the OAM entry as parameters.
 import { taskStop } from '../system/task-stop.mjs';
 import { sortDrawList } from './depth-sort.mjs';
@@ -64,9 +63,7 @@ const SORT_CALL = 0xb8de,
   PLAYER_PALETTE_CALL = 0xb8f1,
   PALETTE_TARGET = 0x80ab0a,
   OAM_CALL = 0xb911,
-  OAM_TARGET = 0x80b20a,
-  JOBS_CALL = 0xbab6,
-  JOBS_TARGET = 0x81a954;
+  OAM_TARGET = 0x80b20a;
 
 const word = (wram, at) => wram[at] | (wram[at + 1] << BYTE_BITS);
 const setWord = (wram, at, value) => {
@@ -119,20 +116,13 @@ export function buildSpritesInPlace(h) {
   if (!Number.isInteger(firstHidden) || firstHidden < 0 || firstHidden > OBJECT_COUNT)
     taskStop('task_sprite_clear_target_open', { target });
   // The original sets the data bank 7E through the stack (PHB, PEA, PLB, PLB) and pulls
-  // the old one again; the job count's JSL frame below overwrites those three bytes, so
-  // the lifted stores leave the data bank and the stack alone.
+  // the old one again; those bytes lie only in free stack bytes, so the lifted stores
+  // leave the data bank and the stack alone.
   for (let n = firstHidden; n < OBJECT_COUNT; n++)
     wram[OAM_BUFFER + OAM_Y_BYTE + OAM_ENTRY_BYTES * n] = HIDDEN_Y;
-  h.call(
-    JOBS_CALL,
-    JOBS_TARGET,
-    () => {
-      const jobs = (lowField(wram, NMI_JOB_LISTS, 0) + 1) & WORD_MASK;
-      setWord(wram, NMI_JOB_LISTS, jobs);
-      return h.rtl();
-    },
-    true,
-  );
+  // The job count 81:A954, without its JSL frame (the return word lies only in free
+  // stack bytes).
+  setWord(wram, NMI_JOB_LISTS, (lowField(wram, NMI_JOB_LISTS, 0) + 1) & WORD_MASK);
 }
 // The sprite list as called with JSR; returns with its RTS.
 export function buildSprites(h) {
