@@ -38,7 +38,7 @@ import { putGloveAwaySequence } from './window-release.mjs';
 // object_slot_required or task_slot_required, and a task chain that never ends (the
 // original would hang) at task_chain_required.
 import { taskStop } from '../system/task-stop.mjs';
-import { showNoticeSequence } from './notice-show.mjs';
+import { showNotice } from './notice-show.mjs';
 import { drawTextBufferSequence } from './text-draw.mjs';
 import { dialogCallBody, segmentSequence } from '../system/native-call-continuation.mjs';
 import {
@@ -88,7 +88,6 @@ const DP_SCRATCH = 0x6b,
   DP_DIALOG_RECORD = 0x02;
 // Original call sites and callees.
 const CALL = Object.freeze({
-  notice: [0x80bfde, 0x80fec1],
   noticeInput: [0x80bfe4, 0x809e1a],
   menu: [0x80c00b, 0x8099eb],
   dialog: [0x80c032, 0x80936c],
@@ -178,7 +177,7 @@ export function* gloveActionSequence(h, events, renderBuffer = drawTextBufferSeq
     }
   };
   if (path === 'notice') {
-    yield* dialogCallBody(h, ...CALL.notice, () => showNoticeSequence(h, events, renderBuffer));
+    yield* showNotice(h, events, renderBuffer);
     yield* putGloveAwaySequence(h, events);
     yield* segmentSequence(() => takePad(h, events));
   }

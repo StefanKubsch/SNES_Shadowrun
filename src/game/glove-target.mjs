@@ -6,7 +6,7 @@ import {
 import { gloveMoveSequence } from './glove-move.mjs';
 import { drawTextBufferSequence } from './text-draw.mjs';
 import { closeDialogSequence } from './dialog-talk.mjs';
-import { showNoticeSequence } from './notice-show.mjs';
+import { showNotice } from './notice-show.mjs';
 import { putGloveAwaySequence } from './window-release.mjs';
 import { frameWaitCallSequence, takePad } from '../system/live-input-calls.mjs';
 // Choosing with the action or spell glove (lifted from the script natives 80:8D0B and its
@@ -103,7 +103,6 @@ const OVER_PLAYER = 0x80bc36,
 const SELECT = {
     putOn: 0x809c40,
     frames: [0x809c43, 0x809c4a],
-    notice: 0x809cb3,
     redrawChosen: 0x809cbd,
     awayChosen: 0x809cc5,
     awayNone: 0x809ccf,
@@ -148,7 +147,6 @@ const PIXEL_SHIFT = 6,
   PLACE_X_BASE = 0x600;
 const FRAME_WAIT = 0x81b0a1,
   MOVE_GLOVE = 0x80be6d,
-  SHOW_NOTICE = 0x80fec1,
   CLOSE_DIALOG = 0x8092c5,
   UNPACK_MAP = 0x81a9b2,
   REQUEST_UPLOAD = 0x81acb5;
@@ -354,8 +352,7 @@ function* chooseInReachSequence(h, events, renderBuffer, pc) {
       far = outOfReach(h, target);
       if (far) prepareOutOfReachNotice(h);
     };
-    if (target !== null && far)
-      yield* dialogCallBody(h, sites.notice, SHOW_NOTICE, () => showNoticeSequence(h, events));
+    if (target !== null && far) yield* showNotice(h, events);
     if (target !== null && !far) {
       yield* redrawUnlessMenuSequence(h, events, sites.redrawChosen);
       let chosen;

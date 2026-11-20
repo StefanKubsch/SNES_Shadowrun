@@ -97,10 +97,11 @@ function* pagesSequence(h, events, renderBuffer, { id, pages }) {
   }
 }
 
-// Show the notice (80:FEC1), a sequence for a native call continuation: h the caller's
-// access (direct page 0, data bank 80), events its frame events, and renderBuffer
-// the text-buffer renderer sequence; shown receives the window and the slot.
-export function* showNoticeSequence(h, events, renderBuffer = drawTextBufferSequence, shown = {}) {
+// Show the notice (80:FEC1) for lifted callers, without the JSR frame (the caller's
+// return word lies only in free stack bytes): h the caller's access (direct page 0,
+// data bank 80), events its frame events, and renderBuffer the text-buffer renderer
+// sequence; shown receives the window and the slot.
+export function* showNotice(h, events, renderBuffer = drawTextBufferSequence, shown = {}) {
   const { mem } = h.a,
     { wram } = mem;
   let paged = null,
@@ -149,12 +150,19 @@ export function* showNoticeSequence(h, events, renderBuffer = drawTextBufferSequ
     replace = true;
   };
   if (replace) yield* releaseWindowSequence(h, events);
-  let result;
   yield () => {
     setWord(wram, NOTICE_FRAMES + slot, word(wram, DP_NOTICE_FRAMES));
     setWord(wram, NOTICE_WINDOWS + slot, window);
     shown.window = window;
     shown.slot = slot;
+  };
+}
+// The notice as called with JSR (80:FEC1), a sequence for a native call continuation;
+// returns with its RTS.
+export function* showNoticeSequence(h, events, renderBuffer = drawTextBufferSequence, shown = {}) {
+  yield* showNotice(h, events, renderBuffer, shown);
+  let result;
+  yield () => {
     result = h.rts();
   };
   return result;

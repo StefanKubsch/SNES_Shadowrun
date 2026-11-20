@@ -7,9 +7,8 @@
 // (text 1, a window at 0B/14 of 19 columns and 3 rows, one second) and the result 0.
 // Game state only (user decision 2026-11-17): no register values are left; the notice
 // takes no register input.
-import { showNoticeSequence } from './notice-show.mjs';
+import { showNotice } from './notice-show.mjs';
 import { drawTextBufferSequence } from './text-draw.mjs';
-import { dialogCallBody } from '../system/native-call-continuation.mjs';
 import {
   DP_NOTICE_FRAMES,
   DP_NOTICE_TEXT,
@@ -24,7 +23,6 @@ import {
 import { BYTE_BITS, BYTE_MASK, WORD_MASK } from '../constants/bits.mjs';
 
 const NOTICE = { left: 0x0b, top: 0x14, columns: 0x13, rows: 3, text: 1, frames: 0x3c },
-  NOTICE_CALL = [0x808b84, 0x80fec1],
   PAID = WORD_MASK,
   NOT_PAID = 0;
 
@@ -59,7 +57,7 @@ export function* spendMagicPointsSequence(h, events, renderBuffer = drawTextBuff
       setWord(wram, offset, value);
   };
   if (!paid) {
-    yield* dialogCallBody(h, ...NOTICE_CALL, () => showNoticeSequence(h, events, renderBuffer));
+    yield* showNotice(h, events, renderBuffer);
     yield () => setWord(wram, 0, NOT_PAID);
   }
   let result;

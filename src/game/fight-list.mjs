@@ -18,7 +18,7 @@
 // the original). Every other register value the original leaves is dropped.
 import { setTextCursor, printNumber } from './window-text.mjs';
 import { printText } from './text-print.mjs';
-import { showNoticeSequence } from './notice-show.mjs';
+import { showNotice } from './notice-show.mjs';
 import { drawTextBufferSequence } from './text-draw.mjs';
 import { setMusicModeCall } from '../apu/audio-routines.mjs';
 import { playSoundEffectCall } from '../apu/sound-effect.mjs';
@@ -101,8 +101,7 @@ const KARMA_NOTICE = { left: 10, top: 2, columns: 9, wideColumns: 10, rows: 3 },
   // The music mode without the restore option.
   MUSIC_OFF = 0;
 // Original call sites (JSR, the music JSL) and callees.
-const NOTICE_CALL = [0x8085e4, 0x80fec1],
-  MUSIC_RESTORE_SITE = 0x808624,
+const MUSIC_RESTORE_SITE = 0x808624,
   MUSIC_OFF_SITE = 0x80862c,
   MUSIC_MODE = 0x81ef47;
 const negative = (value) => (value & WORD_SIGN) !== 0;
@@ -155,9 +154,7 @@ export function* removeFromFightListSequence(h, events, renderBuffer = drawTextB
   };
   if (state === 'gain') {
     const shown = {};
-    yield* dialogCallBody(h, ...NOTICE_CALL, () =>
-      showNoticeSequence(h, events, renderBuffer, shown),
-    );
+    yield* showNotice(h, events, renderBuffer, shown);
     yield () => {
       setWord(wram, DP_WINDOW, shown.window);
       setWord(wram, DP_TEXT, 0);

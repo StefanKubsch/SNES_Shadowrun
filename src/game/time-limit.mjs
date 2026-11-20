@@ -24,8 +24,8 @@
 // window as a value (A in the original). The carry the original leaves in the last hour
 // reaches only the P a later NMI saves (the next main loop steps do not read it), so it
 // is not kept, nor are A, X and Y.
-import { dialogCallBody, segmentSequence } from '../system/native-call-continuation.mjs';
-import { showNoticeSequence } from './notice-show.mjs';
+import { segmentSequence } from '../system/native-call-continuation.mjs';
+import { showNotice } from './notice-show.mjs';
 import { setTextCursor, printNumber } from './window-text.mjs';
 import { printText } from './text-print.mjs';
 import { drawTextBufferSequence } from './text-draw.mjs';
@@ -65,12 +65,6 @@ const FRAMES_PER_HOUR = 0xdd4,
 const DP_WINDOW = 0x00,
   DP_ARGUMENT = 0x02,
   DP_SOUND_OBJECT = 0x00;
-// Original call sites.
-const CALL = Object.freeze({
-  notice: 0x80e2ab,
-});
-const NOTICE_CALL = 0x80fec1;
-
 const word = (wram, at) => wram[at] | (wram[at + 1] << BYTE_BITS);
 const setWord = (wram, at, value) => {
   wram[at] = value & BYTE_MASK;
@@ -82,8 +76,7 @@ const setWord = (wram, at, value) => {
 // renderBuffer its text-buffer renderer sequence.
 export function* timeLimitSequence(h, events, renderBuffer = drawTextBufferSequence) {
   const { mem } = h.a,
-    { wram } = mem,
-    call = (site, target, body) => dialogCallBody(h, site, target, body);
+    { wram } = mem;
   let path = 'return';
   yield () => {
     const hours = word(wram, TIMER),
@@ -118,7 +111,7 @@ export function* timeLimitSequence(h, events, renderBuffer = drawTextBufferSeque
   };
   if (path === 'notice') {
     const shown = {};
-    yield* call(CALL.notice, NOTICE_CALL, () => showNoticeSequence(h, events, renderBuffer, shown));
+    yield* showNotice(h, events, renderBuffer, shown);
     yield () => {
       setWord(wram, DP_WINDOW, shown.window);
       setWord(wram, DP_ARGUMENT, 0);
