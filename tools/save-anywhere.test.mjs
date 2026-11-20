@@ -1,3 +1,5 @@
+import { readStateWord } from '../src/state/objects.mjs';
+import { toWram } from '../proof/state/to-wram.mjs';
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { cartridge } from './cartridge-harness.mjs';
@@ -29,7 +31,7 @@ const title = (slot) => (k) =>
       ? DOWN
       : 0;
 const walk = (k) => (k < 4000 ? title(0)(k) : k < 4100 ? RIGHT : 0);
-const word = (bytes, at) => bytes[at] | (bytes[at + 1] << 8);
+const word = readStateWord;
 const position = (wram) => {
   const object = word(wram, 0x0cc2);
   return [word(wram, 0x0e28 + object), word(wram, 0x0e80 + object)];
@@ -46,10 +48,14 @@ test(
     while (game.nmis < 4200) game.step();
     assert.ok(saveAnywhereReachable(game), 'Jake moves freely');
     const wram = game.memory.wram,
-      before = wram.slice(),
+      before = toWram(game.memory),
       walked = position(wram);
     saveToSlot(game, 1);
-    assert.deepEqual(wram, before, 'the WRAM, including direct page and stack, is unchanged');
+    assert.deepEqual(
+      toWram(game.memory),
+      before,
+      'game state, direct page and stack are unchanged',
+    );
     const sram = game.memory.sram;
     assert.deepEqual(sram.subarray(0, SLOT), loaded.subarray(0, SLOT), 'slot 1 unchanged');
     assert.deepEqual(sram.subarray(SLOT + 2, SLOT + SIZE), wram.subarray(BLOCK + 2, BLOCK + SIZE));

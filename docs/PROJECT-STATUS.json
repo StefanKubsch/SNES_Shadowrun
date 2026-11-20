@@ -1,7 +1,7 @@
 {
   "updated": "2026-11-20",
-  "focus": "State model rebuild (docs/STATE-MODEL-REBUILD.md): golden traces of the current game, then a typed game state with a projection to WRAM, subsystem by subsystem, a plain frame loop and a picture built without PPU registers. Batch state: HANDOFF.md.",
-  "next_step": "Phase 2: detached object storage and its projection are implemented; finish the shared release and push of the pending rebuild batch. Then phase 3: camera and tile maps. Collision grid storage and the remaining subsystems still use WRAM. One block per subsystem or phase step, shared release after two to three subsystem blocks.",
+  "focus": "State model rebuild (docs/STATE-MODEL-REBUILD.md): typed state, golden traces and WRAM projection, then a plain frame loop and rendering without PPU registers. Batch: HANDOFF.md.",
+  "next_step": "Detach the remaining collision grid state, then camera and tile maps. Objects have independent storage; batch state: HANDOFF.md.",
   "porting_resume": "216 original-form bytes remain: 121 code and 95 unidentified data. Read/hardware/data boundaries: docs/ROM-CODE-AUDIT.md. Unknown bytes and unused graphics stay preserved; unrecorded paths can report rom_byte_absent.",
   "open_issues": [
     "Keyword overflow: synthetic insertion of a 51st retained topic corrupts flags in European source and lifted code. Marking does not free storage. A reachable regular story route and a compatible gameplay correction remain unproved; see docs/BUGFIXES.md.",
