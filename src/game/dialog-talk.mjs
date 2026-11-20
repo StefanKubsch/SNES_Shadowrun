@@ -40,7 +40,7 @@ import {
 import { closePortraitWindowSequence, openPortraitWindowSequence } from './portrait-window.mjs';
 import {
   unpackPortrait,
-  shiftPortraitRowsRoutine,
+  shiftPortraitRowsInPlace,
   uploadFirstPortraitSequence,
   uploadSecondPortraitSequence,
 } from './portrait-upload.mjs';
@@ -140,13 +140,9 @@ const FONT_BLOCKS = Object.freeze([
   FONT_DMA_CHANNEL = 1;
 // Original call sites and callees.
 const CALL = Object.freeze({
-  colour: [0x80936c, 0x81886a, true],
-  narrow: [0x8093ec, 0x80fa92],
   jakeUnpack: [0x80944d, 0x809f6d],
-  jakeShift: [0x809450, 0x808f20],
   jakeUpload: [0x809453, 0x809022],
   partnerUnpack: [0x809470, 0x809f6d],
-  partnerShift: [0x809473, 0x808f20],
   partnerUpload: [0x809476, 0x80905e],
   portraitWindow: [0x809479, 0x808f3a],
   wait: [0x809489, 0x81b0a1, true],
@@ -177,16 +173,20 @@ const pointer = (wram, dp, y) => ((word(wram, dp) | (wram[dp + 2] << WORD_BITS))
 
 // Clear the fixed colour (81:886A), called with JSL: COLDATA black on all planes, no
 // colour math (CGADSUB 0).
-export function clearFixedColourRoutine(h) {
+export function clearFixedColourInPlace(h) {
   const { port } = sceneRuntime(h);
   port.write(COLDATA, FIXED_COLOUR_BLACK, 1, COLDATA_SITE);
   port.write(CGADSUB, 0, 1, CGADSUB_SITE);
+}
+// 81:886A as called with JSL; returns with its RTL.
+export function clearFixedColourRoutine(h) {
+  clearFixedColourInPlace(h);
   return h.rtl();
 }
 // Set the text area of the window in the direct page word 00 (80:FA92), called with JSR:
 // its left text pixel from 02, its width in pixels from 04, or, for 0 or less, the
 // window's columns plus 04 less two (as the original adds them).
-export function setWindowTextWidthRoutine(h) {
+export function setWindowTextWidthInPlace(h) {
   const { wram } = sceneRuntime(h),
     x = word(wram, DP_OBJECT);
   setWord(wram, WINDOW_LEFT_PIXEL + x, word(wram, DP_RECORD_NUMBER));
@@ -194,6 +194,10 @@ export function setWindowTextWidthRoutine(h) {
   if (width === 0 || width & WORD_SIGN)
     width = (width + word(wram, WINDOW_COLUMNS + x) - BORDER_COLUMNS) & WORD_MASK;
   setWord(wram, WINDOW_WIDTH_PIXELS + x, width);
+}
+// 80:FA92 as called with JSR; returns with its RTS.
+export function setWindowTextWidthRoutine(h) {
+  setWindowTextWidthInPlace(h);
   return h.rts();
 }
 
@@ -248,7 +252,7 @@ export function* talkSequence(h, events, renderBuffer = drawTextBufferSequence) 
   if (fixesEnabled(h.a)) preparePushkinTopics(h.a, word(wram, DP_RECORD_NUMBER));
   // Load a portrait record (pointer in F6, bank in F8) for the unpacker: its address and
   // bank and the buffer.
-  function* portrait(unpack, shift) {
+  function* portrait(unpack) {
     let stream;
     yield () => {
       const at = word(wram, DP_PORTRAIT_POINTER) | (wram[DP_PORTRAIT_BANK] << WORD_BITS);
@@ -257,7 +261,7 @@ export function* talkSequence(h, events, renderBuffer = drawTextBufferSequence) 
     yield* dialogCallBody(h, ...unpack, () =>
       segmentSequence(() => unpackPortrait(h, events, ...stream, PORTRAIT_BUFFER)),
     );
-    yield* dialogCallBody(h, ...shift, () => segmentSequence(() => shiftPortraitRowsRoutine(h)));
+    yield () => shiftPortraitRowsInPlace(h);
   }
   // Set the window of the direct page words 00 to 08.
   const window = ([left, top, columns, rows]) => {
@@ -271,13 +275,7 @@ export function* talkSequence(h, events, renderBuffer = drawTextBufferSequence) 
   const music = function* (mode) {
     yield () => setMusicModeInPlace(h, mode.value);
   };
-  yield* dialogCallBody(
-    h,
-    CALL.colour[0],
-    CALL.colour[1],
-    () => segmentSequence(() => clearFixedColourRoutine(h)),
-    true,
-  );
+  yield () => clearFixedColourInPlace(h);
   yield () => {
     setWord(wram, DIALOG_END, 0);
     setWord(wram, DP_DIALOG_OBJECT, word(wram, DP_OBJECT));
@@ -312,13 +310,7 @@ export function* talkSequence(h, events, renderBuffer = drawTextBufferSequence) 
     setWord(wram, DP_RECORD_NUMBER, FRAME_LEFT_PIXEL);
     setWord(wram, DP_PIXEL_WIDTH, FRAME_WIDTH_CHANGE);
   };
-  yield* dialogCallBody(
-    h,
-    CALL.narrow[0],
-    CALL.narrow[1],
-    () => segmentSequence(() => setWindowTextWidthRoutine(h)),
-    false,
-  );
+  yield () => setWindowTextWidthInPlace(h);
   yield () => window(TEXT_WINDOW);
   yield* openWindow(h, events);
   // Jake's portrait record, then the partner's from the dialog record.
@@ -333,13 +325,13 @@ export function* talkSequence(h, events, renderBuffer = drawTextBufferSequence) 
     wram[DP_PORTRAIT_BANK] = mem.read8(DIALOG_BANK_BASE + PORTRAIT_RECORD_BANK_BYTE + record);
     setWord(wram, DP_PORTRAIT_POINTER, longWord(mem, DIALOG_BANK_BASE + record));
   };
-  yield* portrait(CALL.jakeUnpack, CALL.jakeShift);
+  yield* portrait(CALL.jakeUnpack);
   yield* dialogCallBody(h, ...CALL.jakeUpload, () => uploadFirstPortraitSequence(h, events));
   yield () => {
     wram[DP_PORTRAIT_BANK] = mem.read8(pointer(wram, DP_RECORD, PORTRAIT_RECORD_BANK_BYTE));
     setWord(wram, DP_PORTRAIT_POINTER, longWord(mem, pointer(wram, DP_RECORD, 0)));
   };
-  yield* portrait(CALL.partnerUnpack, CALL.partnerShift);
+  yield* portrait(CALL.partnerUnpack);
   yield* dialogCallBody(h, ...CALL.partnerUpload, () => uploadSecondPortraitSequence(h, events));
   yield* dialogCallBody(h, ...CALL.portraitWindow, () => openPortraitWindowSequence(h, events));
   yield () => setWord(wram, DP_OBJECT, word(wram, DP_PORTRAIT_FRAME));

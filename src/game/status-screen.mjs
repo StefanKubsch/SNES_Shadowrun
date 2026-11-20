@@ -38,7 +38,7 @@ import { decimalNumberSequence } from './decimal-number.mjs';
 import { drawTextBufferSequence } from './text-draw.mjs';
 import { equipmentRows } from './equipment-window.mjs';
 import { memberPortrait } from './member-portrait.mjs';
-import { closeDialog, clearFixedColourRoutine } from './dialog-talk.mjs';
+import { closeDialog, clearFixedColourInPlace } from './dialog-talk.mjs';
 import { sendApuCommandInPlace } from '../apu/audio-routines.mjs';
 import { chooseFromMenuSequence, MENU } from './menu-choice.mjs';
 import { itemMenuSequence, ITEM_ENTRIES } from './item-menu.mjs';
@@ -124,8 +124,7 @@ import {
 export const NATIVE_ENTRY = 0x80ea6e,
   START_ENTRY = 0x80ea89,
   ITEMS_ENTRY = 0x80ea8e;
-const STATUS_SETUP = 0x81886a,
-  DECIMAL_NUMBER = 0x80fdcf,
+const DECIMAL_NUMBER = 0x80fdcf,
   PLAIN_MENU = MENU,
   SKILLS_MENU = 0x80e834,
   NOTES_MENU = 0x80e8c8;
@@ -248,13 +247,7 @@ export function* statusScreen(
     setWord(wram, MEMBER_INDEX, runner);
   };
   yield* putGloveAwaySequence(h, events);
-  yield* dialogCallBody(
-    h,
-    0x80eaed,
-    STATUS_SETUP,
-    () => segmentSequence(() => clearFixedColourRoutine(h)),
-    true,
-  );
+  yield () => clearFixedColourInPlace(h);
   yield () => {
     const runner = dataBankWord(mem, MEMBER_INDEX);
     setWord(wram, DP_MEMBER_RECORD, dataBankWord(mem, RUNNER_RECORD_POINTERS, runner));

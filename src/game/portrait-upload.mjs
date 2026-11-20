@@ -121,8 +121,8 @@ export function unpackPortrait(h, events, source, bank, offset) {
   unpackPortraitStream(h, source, bank, offset);
   return h.rts();
 }
-// Move the portrait rows apart (80:8F20), called with JSR.
-export function shiftPortraitRowsRoutine(h) {
+// Move the portrait rows apart (80:8F20) for lifted callers, without the JSR frame.
+export function shiftPortraitRowsInPlace(h) {
   const { wram } = h.a.mem;
   let x = SOURCE_END,
     y = DESTINATION_END;
@@ -134,6 +134,10 @@ export function shiftPortraitRowsRoutine(h) {
       y = (y - 1) & WORD_MASK;
     }
   }
+}
+// 80:8F20 as called with JSR; returns with its RTS.
+export function shiftPortraitRowsRoutine(h) {
+  shiftPortraitRowsInPlace(h);
   return h.rts();
 }
 
