@@ -17,17 +17,17 @@
 // further away it lets go. Without an object under the glove a marked one lets go.
 //
 // The name window release 80:BE5B (lifted in window-release.mjs), the text width
-// 80:FADD (text-width.mjs), the window 80:F963 and the text 80:FE69 run through
-// their frames. Registers (user decision 2026-11-17): game state only; the width comes
+// 80:FADD (text-width.mjs), the window 80:F963 and the text 80:FE69 run directly; the
+// return words of the original's JSRs to them lie only in free stack bytes. Registers (user decision 2026-11-17): game state only; the width comes
 // from the direct page word BA, the original's carry chains are word arithmetic, and
 // the search leaves no A, X, Y or flags. The direct page words 0E, 11, 14, 17 and 1A (the glove on the screen and
 // relative to the object, the kind index) are written as the original writes them.
-import { dialogCallBody, segmentSequence } from '../system/native-call-continuation.mjs';
-import { releaseNameWindowCallSequence } from './window-release.mjs';
+import { segmentSequence } from '../system/native-call-continuation.mjs';
+import { releaseGloveNameWindowSequence } from './window-release.mjs';
 import { printText } from './text-print.mjs';
 import { drawTextBufferSequence } from './text-draw.mjs';
 import { openWindow } from './window-open.mjs';
-import { measureTextWidth } from './text-width.mjs';
+import { measure } from './text-width.mjs';
 import { GLOVE_KIND_SPELL } from '../script/native-glove-crosshair-limits.mjs';
 import { taskStop } from '../system/task-stop.mjs';
 import {
@@ -105,15 +105,8 @@ const WINDOW_PADDING = 0x18,
   WINDOW_TOP = 0x17,
   WINDOW_ROWS = 3,
   WINDOW_ATTRIBUTES = 0x800;
-// Original call sites: the releases (no object, the same object too far away, another
-// object marked before), the text width, the window and the text.
-const RELEASE_TARGET = 0x80be5b,
-  RELEASE_NONE_CALL = 0x80bd9e,
-  RELEASE_AWAY_CALL = 0x80be57,
-  RELEASE_OTHER_CALL = 0x80bdb6,
-  WIDTH_CALL = 0x80be06,
-  WIDTH_TARGET = 0x80fadd,
-  LOW_WRAM_END = 0x2000;
+// The object fields read through the data bank 80 lie below this.
+const LOW_WRAM_END = 0x2000;
 
 const word = (wram, at) => wram[at] | (wram[at + 1] << BYTE_BITS);
 const setWord = (wram, at, value) => {
@@ -195,8 +188,6 @@ export function* objectSearchSequence(h, events, renderBuffer = drawTextBufferSe
     return (right & WORD_SIGN) !== 0 || right < screenX;
   };
 
-  const release = (pc) =>
-    dialogCallBody(h, pc, RELEASE_TARGET, () => releaseNameWindowCallSequence(h, events));
   let result;
   const rts = function* () {
     yield () => {
@@ -229,7 +220,7 @@ export function* objectSearchSequence(h, events, renderBuffer = drawTextBufferSe
   };
   const marked = !(tag & WORD_SIGN);
   if (slot === null) {
-    if (marked) yield* release(RELEASE_NONE_CALL);
+    if (marked) yield* releaseGloveNameWindowSequence(h, events);
     return yield* rts();
   }
   let same = false;
@@ -252,7 +243,7 @@ export function* objectSearchSequence(h, events, renderBuffer = drawTextBufferSe
         if (!away) setWord(wram, position, distance << BYTE_BITS);
       };
       if (away) {
-        yield* release(RELEASE_AWAY_CALL);
+        yield* releaseGloveNameWindowSequence(h, events);
         return yield* rts();
       }
     }
@@ -261,7 +252,7 @@ export function* objectSearchSequence(h, events, renderBuffer = drawTextBufferSe
   // Another object was marked: it lets go first. The original keeps the slot and later
   // the name text on the stack; those words lie only in free stack bytes and are kept in
   // locals here (game state only, user decision 2026-11-17).
-  if (marked) yield* release(RELEASE_OTHER_CALL);
+  if (marked) yield* releaseGloveNameWindowSequence(h, events);
   let text;
   yield () => {
     // The glove's offset from the object, its kind and slot, and its name.
@@ -284,9 +275,7 @@ export function* objectSearchSequence(h, events, renderBuffer = drawTextBufferSe
     } else text = longWord(mem, KIND_TABLE + kindName(kind));
     setWord(wram, DP_TEXT, text);
   };
-  yield* dialogCallBody(h, WIDTH_CALL, WIDTH_TARGET, () =>
-    segmentSequence(() => measureTextWidth(h)),
-  );
+  yield* segmentSequence(() => measure(h, 0));
   yield () => {
     // The window's columns from the text width (DP BA), and its place.
     let columns =

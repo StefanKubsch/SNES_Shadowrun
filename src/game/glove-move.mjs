@@ -16,7 +16,7 @@
 import { dialogCallBody } from '../system/native-call-continuation.mjs';
 import { drawTextBufferSequence } from './text-draw.mjs';
 import { objectSearchSequence } from './object-search.mjs';
-import { releaseNameWindowCallSequence } from './window-release.mjs';
+import { releaseGloveNameWindowSequence } from './window-release.mjs';
 import {
   GLOVE_KIND,
   GLOVE_SPEED_X,
@@ -41,9 +41,7 @@ const RIGHT = 1,
   DOWN = 4,
   UP = 8;
 // Original call sites.
-const RELEASE_CALL = 0x80bf33,
-  RELEASE_TARGET = 0x80be5b,
-  SEARCH_CALL = 0x80bf37,
+const SEARCH_CALL = 0x80bf37,
   SEARCH_TARGET = 0x80bcbe;
 
 const word = (wram, at) => wram[at] | (wram[at + 1] << BYTE_BITS);
@@ -91,10 +89,7 @@ export function* gloveMoveSequence(h, events, renderBuffer = drawTextBufferSeque
     yield* dialogCallBody(h, SEARCH_CALL, SEARCH_TARGET, () =>
       objectSearchSequence(h, events, renderBuffer),
     );
-  else if (next === 'release')
-    yield* dialogCallBody(h, RELEASE_CALL, RELEASE_TARGET, () =>
-      releaseNameWindowCallSequence(h, events),
-    );
+  else if (next === 'release') yield* releaseGloveNameWindowSequence(h, events);
   let result;
   yield () => {
     result = h.rts();
