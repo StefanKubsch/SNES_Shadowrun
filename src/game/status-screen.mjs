@@ -28,7 +28,7 @@
 import { dialogCallBody, segmentSequence } from '../system/native-call-continuation.mjs';
 import { openWindow } from './window-open.mjs';
 import {
-  releaseWindowJsrSequence,
+  releaseWindowSequence,
   releaseNoticeWindowsCallSequence,
   putGloveAwayCallSequence,
 } from './window-release.mjs';
@@ -134,7 +134,6 @@ const SOUND = 0x81f007,
   PLAIN_MENU = MENU,
   SKILLS_MENU = 0x80e834,
   NOTES_MENU = 0x80e8c8,
-  RELEASE_WINDOW = 0x80fa3e,
   STATUS_CLEANUP = 0x8092c5;
 // The attribute labels follow the rows; the attributes from index 6 down, the record's
 // byte after the third attribute is skipped; the submenus' jump table; the restored
@@ -424,7 +423,7 @@ export function* statusScreenSequence(
     if (ended) break;
   }
   yield () => setWord(wram, 0, dataBankWord(mem, STATUS_MENU_WINDOW));
-  yield* dialogCallBody(h, 0x80ecf2, RELEASE_WINDOW, () => releaseWindowJsrSequence(h.a, events));
+  yield* releaseWindowSequence(h, events);
   return yield* closeSequence(h, events);
 }
 
@@ -435,7 +434,7 @@ function* closeSequence(h, events) {
     { wram } = mem;
   yield* dialogCallBody(h, 0x80ecf5, STATUS_CLEANUP, () => closeDialogSequence(h, events));
   yield () => setWord(wram, 0, dataBankWord(mem, STATUS_WINDOW));
-  yield* dialogCallBody(h, 0x80ecfd, RELEASE_WINDOW, () => releaseWindowJsrSequence(h.a, events));
+  yield* releaseWindowSequence(h, events);
   yield () => {
     setWord(wram, MEMBER_MENU_ACTIVE, 0);
   };

@@ -35,7 +35,7 @@ import { openWindow } from './window-open.mjs';
 import {
   putGloveAwayCallSequence,
   releaseNoticeWindowsCallSequence,
-  releaseWindowJsrSequence,
+  releaseWindowSequence,
 } from './window-release.mjs';
 import { closePortraitWindowSequence, openPortraitWindowSequence } from './portrait-window.mjs';
 import {
@@ -413,9 +413,9 @@ export function* talkSequence(h, events, renderBuffer = drawTextBufferSequence) 
   };
   yield* dialogCallBody(h, ...CALL.close, () => closeDialogSequence(h, events));
   yield () => setWord(wram, DP_OBJECT, textWindow);
-  yield* dialogCallBody(h, ...CALL.releaseText, () => releaseWindowJsrSequence(h.a, events));
+  yield* releaseWindowSequence(h, events);
   yield () => setWord(wram, DP_OBJECT, frameWindow);
-  yield* dialogCallBody(h, ...CALL.releaseFrame, () => releaseWindowJsrSequence(h.a, events));
+  yield* releaseWindowSequence(h, events);
   let restore = null;
   yield () => {
     const value = oldMusic;

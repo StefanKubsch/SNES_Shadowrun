@@ -44,8 +44,7 @@ const MAIN_MENU = Object.freeze([2, 4, 3, 0x920d, CODE_BANK]),
   TOPIC_WINDOW = Object.freeze([6, 15, 14, 11, 0]);
 // Original call sites and callees.
 const MAIN_MENU_CALL = [0x8091ff, 0x80a6c7],
-  TOPIC_MENU_CALL = [0x809298, 0x80a6c7],
-  TOPIC_RELEASE_CALL = [0x8092a1, 0x80fa3e];
+  TOPIC_MENU_CALL = [0x809298, 0x80a6c7];
 
 const word = (wram, at) => wram[at] | (wram[at + 1] << BYTE_BITS);
 const setWord = (wram, at, value) => {
@@ -63,16 +62,11 @@ function* rts(h) {
   return result;
 }
 
-// Actual menu and window bodies retain their original JSR frames.
-function callee(h, events, renderBuffer, [site, target], name) {
-  let body;
-  if (name === 'release')
-    body = function* () {
-      yield* releaseWindowSequence(h, events);
-      return yield* rts(h);
-    };
-  else body = () => chooseFromMenuSequence(h, events, renderBuffer, target);
-  return dialogCallBody(h, site, target, body);
+// The menu choice keeps its original JSR frame: a test harness reads it at the wait.
+function menu(h, events, renderBuffer, [site, target]) {
+  return dialogCallBody(h, site, target, () =>
+    chooseFromMenuSequence(h, events, renderBuffer, target),
+  );
 }
 
 // The dialog's main menu (80:91E2), a sequence for a native call continuation.
@@ -82,7 +76,7 @@ export function* chooseDialogActionSequence(h, events, renderBuffer = drawTextBu
     setWord(wram, DP_RESULT, word(wram, DP_TEXT_WINDOW));
     setWords(wram, 2, MAIN_MENU);
   };
-  yield* callee(h, events, renderBuffer, MAIN_MENU_CALL, 'mainMenu');
+  yield* menu(h, events, renderBuffer, MAIN_MENU_CALL);
   yield () => {
     if (word(wram, DP_RESULT) === NONE) setWord(wram, DIALOG_END, NONE);
   };
@@ -122,7 +116,7 @@ export function* chooseDialogTopicSequence(h, events, renderBuffer = drawTextBuf
     setWord(wram, DP_TOPIC_WINDOW, word(wram, DP_RESULT));
     setWords(wram, 2, TOPIC_MENU);
   };
-  yield* callee(h, events, renderBuffer, TOPIC_MENU_CALL, 'menu');
+  yield* menu(h, events, renderBuffer, TOPIC_MENU_CALL);
   let chosen;
   yield () => {
     // The original keeps the chosen row on the stack over the release; that word lies
@@ -130,7 +124,7 @@ export function* chooseDialogTopicSequence(h, events, renderBuffer = drawTextBuf
     chosen = word(wram, DP_RESULT);
     setWord(wram, DP_RESULT, word(wram, DP_TOPIC_WINDOW));
   };
-  yield* callee(h, events, renderBuffer, TOPIC_RELEASE_CALL, 'release');
+  yield* releaseWindowSequence(h, events);
   yield () => {
     let row = chosen;
     if (row === NONE) {

@@ -74,9 +74,7 @@ const WINDOW = Object.freeze({ left: 12, top: 3, columns: 11, attributes: 0 }),
   DP_LEFT = 0x00,
   DP_TOP = 0x02;
 // Original call sites and callees.
-const MENU_CALL = [0x809b7d, 0x80a6a5],
-  RELEASE_SITE = 0x809b94,
-  RELEASE_TARGET = 0x80fa3e;
+const MENU_CALL = [0x809b7d, 0x80a6a5];
 
 const word = (wram, at) => wram[at] | (wram[at + 1] << BYTE_BITS);
 const setWord = (wram, at, value) => {
@@ -160,7 +158,7 @@ export function* chooseActionSequence(
     chosen = word(wram, ACTION_MENU_FLAGS + ((row << 1) & WORD_MASK));
     setWord(wram, DP_LEFT, word(wram, DP_ACTION_MENU_WINDOW));
   };
-  yield* dialogCallBody(h, RELEASE_SITE, RELEASE_TARGET, () => releaseThenReturn(h, events));
+  yield* releaseWindowSequence(h, events);
   yield () => {
     choice.action = chosen;
     setWord(wram, ACTION_MENU_OVERRIDE, 0);
@@ -183,11 +181,6 @@ export function* chooseScriptActionSequence(h, events, renderBuffer = drawTextBu
     result = h.rts();
   };
   return result;
-}
-// The lifted window release as a JSR callee: it returns with its RTS.
-function* releaseThenReturn(h, events) {
-  yield* releaseWindowSequence(h, events);
-  return yield* rts(h);
 }
 function* rts(h) {
   let result;

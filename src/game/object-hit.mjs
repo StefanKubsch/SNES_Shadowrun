@@ -35,7 +35,7 @@
 // Confirmation, release and the player window list also compose directly.
 import { printText } from './text-print.mjs';
 import { waitForConfirmKeySequence } from './confirm-key.mjs';
-import { releaseWindowJsrSequence } from './window-release.mjs';
+import { releaseWindowSequence } from './window-release.mjs';
 import { drawTextBufferSequence } from './text-draw.mjs';
 import { frameWaitCallSequence } from '../system/live-input-calls.mjs';
 import { openWindow } from './window-open.mjs';
@@ -115,7 +115,6 @@ import {
 // The notices' callees and the window list (long calls: the word wait and the list).
 const WORD_WAIT = 0x81b0a1,
   CONFIRM_KEY = 0x80f953,
-  RELEASE_WINDOW = 0x80fa3e,
   LIST_CALL = 0x80883b;
 // The call sites of the warning's and the penalty's callees.
 const WARNING_CALLS = Object.freeze({
@@ -161,9 +160,7 @@ function* noticeSequence(h, events, renderBuffer, notice, calls) {
   for (let left = NOTICE_COUNTER_WAITS; left > 0; left--)
     yield* dialogCallBody(h, calls.wait, WORD_WAIT, () => frameWaitCallSequence(h, events), true);
   yield* dialogCallBody(h, calls.key, CONFIRM_KEY, () => waitForConfirmKeySequence(h, events));
-  yield* dialogCallBody(h, calls.release, RELEASE_WINDOW, () =>
-    releaseWindowJsrSequence(h.a, events),
-  );
+  yield* releaseWindowSequence(h, events);
 }
 
 // A hit on a target that cannot be damaged: counted when it means no harm.

@@ -40,8 +40,7 @@ const WINDOW_COLUMNS = 6,
   CANCEL = WORD_MASK,
   BANK_SHIFT = 16;
 // Original call sites and callees.
-const MENU_CALL = [0x80cd6f, 0x80a6c7],
-  RELEASE_CALL = [0x80cd8a, 0x80fa3e];
+const MENU_CALL = [0x80cd6f, 0x80a6c7];
 
 const word = (wram, at) => wram[at] | (wram[at + 1] << BYTE_BITS);
 const setWord = (wram, at, value) => {
@@ -79,14 +78,7 @@ export function* askYesNoSequence(h, events, renderBuffer = drawTextBufferSequen
     answer = choice === CANCEL || choice === NO_ROW ? NO : YES;
     setWord(wram, DP_WINDOW, word(wram, DP_QUESTION_WINDOW));
   };
-  yield* dialogCallBody(h, ...RELEASE_CALL, function* () {
-    yield* releaseWindowSequence(h, events);
-    let result;
-    yield () => {
-      result = h.rts();
-    };
-    return result;
-  });
+  yield* releaseWindowSequence(h, events);
   let result;
   yield () => {
     setWord(wram, DP_WINDOW, answer);

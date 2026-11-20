@@ -57,8 +57,7 @@ import { JAKE_OBJECT_NUMBER, SKILL_COUNT } from '../data/runners.mjs';
 import { fitListWindow } from '../data/menu-layout.mjs';
 import { BYTE_BITS, BYTE_MASK, LONG_MASK, WORD_BITS, WORD_MASK } from '../constants/bits.mjs';
 
-const CONFIRM_KEY = 0x80f953,
-  RELEASE_WINDOW = 0x80fa3e;
+const CONFIRM_KEY = 0x80f953;
 // The skills window's extra rows; the first cyberware row of Jake's notes.
 const SKILL_EXTRA_ROWS = 2,
   DATAJACK_ROW = 1,
@@ -142,12 +141,7 @@ export function* skillsSequence(h, events, renderBuffer = drawTextBufferSequence
     if (word(wram, PAD_PRESSED) & PAD_SELECT) setWord(wram, DIALOG_END, ENDED);
     setWord(wram, 0, dataBankWord(mem, STATUS_SUBMENU_WINDOW));
   };
-  yield* dialogCallBody(h, 0x80e8b8, RELEASE_WINDOW, () =>
-    (function* () {
-      yield* releaseWindowSequence(h, events);
-      return yield* returnSequence(h);
-    })(),
-  );
+  yield* releaseWindowSequence(h, events);
   return yield* returnSequence(h);
 }
 
@@ -181,12 +175,7 @@ export function* notesSequence(h, events, renderBuffer = drawTextBufferSequence)
     yield* openWindow(h, events);
     yield* text(TEXT_DATAJACK);
     yield* dialogCallBody(h, 0x80e8f9, CONFIRM_KEY, () => waitForConfirmKeySequence(h, events));
-    yield* dialogCallBody(h, 0x80e8fc, RELEASE_WINDOW, () =>
-      (function* () {
-        yield* releaseWindowSequence(h, events);
-        return yield* returnSequence(h);
-      })(),
-    );
+    yield* releaseWindowSequence(h, events);
     return yield* returnSequence(h);
   }
   yield* openWindow(h, events);
@@ -212,11 +201,6 @@ export function* notesSequence(h, events, renderBuffer = drawTextBufferSequence)
     yield* text(id);
   }
   yield* dialogCallBody(h, 0x80e9a1, CONFIRM_KEY, () => waitForConfirmKeySequence(h, events));
-  yield* dialogCallBody(h, 0x80e9a4, RELEASE_WINDOW, () =>
-    (function* () {
-      yield* releaseWindowSequence(h, events);
-      return yield* returnSequence(h);
-    })(),
-  );
+  yield* releaseWindowSequence(h, events);
   return yield* returnSequence(h);
 }

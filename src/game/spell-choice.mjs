@@ -42,8 +42,7 @@ import { BYTE_BITS, BYTE_MASK, WORD_BITS, WORD_MASK } from '../constants/bits.mj
 import { CODE_BANK_BASE, WRAM_BANK } from '../constants/memory-map.mjs';
 
 // The callees and their call sites.
-const MENU = [0x80e229, 0x80a6c7],
-  RELEASE_WINDOW = [0x80e247, 0x80fa3e];
+const MENU = [0x80e229, 0x80a6c7];
 // The menu's first column and its cancel word, and the result without a spell.
 const MENU_COLUMN = 1,
   CANCELLED = WORD_MASK,
@@ -127,14 +126,7 @@ export function* chooseSpellSequence(h, events, renderBuffer = drawTextBufferSeq
   }
   // The result is kept over the window's release (on the stack in the original).
   yield () => setWord(wram, 0, word(wram, DP_SPELL_WINDOW));
-  yield* dialogCallBody(h, ...RELEASE_WINDOW, function* () {
-    yield* releaseWindowSequence(h, events);
-    let result;
-    yield () => {
-      result = h.rts();
-    };
-    return result;
-  });
+  yield* releaseWindowSequence(h, events);
   let result;
   yield () => {
     setWord(wram, 0, spell ?? NO_SPELL);

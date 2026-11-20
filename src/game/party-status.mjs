@@ -15,7 +15,7 @@
 import { dialogCallBody, segmentSequence } from '../system/native-call-continuation.mjs';
 import { openWindow } from './window-open.mjs';
 import {
-  releaseWindowJsrSequence,
+  releaseWindowSequence,
   releaseNoticeWindowsCallSequence,
   putGloveAwayCallSequence,
 } from './window-release.mjs';
@@ -76,8 +76,7 @@ const PARTY_WINDOW = Object.freeze({ left: 1, top: 1, columns: 0x1e, baseRows: 5
 // The callees and their call sites (the cursor, text and number per member in order).
 const PUT_GLOVE_AWAY = [0x80ed3c, 0x80bcb2],
   RELEASE_NOTICES = [0x80ed3f, 0x80ff79],
-  CONFIRM_KEY = [0x80ee4b, 0x80f953],
-  RELEASE_WINDOW = [0x80ee53, 0x80fa3e];
+  CONFIRM_KEY = [0x80ee4b, 0x80f953];
 
 const word = (wram, at) => wram[at] | (wram[at + 1] << BYTE_BITS);
 const setWord = (wram, at, value) => {
@@ -183,7 +182,7 @@ export function* partyStatusSequence(h, events, renderBuffer = drawTextBufferSeq
   } while (more);
   yield* dialogCallBody(h, ...CONFIRM_KEY, () => waitForConfirmKeySequence(h, events));
   yield () => setWord(wram, 0, dataBankWord(mem, STATUS_WINDOW));
-  yield* dialogCallBody(h, ...RELEASE_WINDOW, () => releaseWindowJsrSequence(h.a, events));
+  yield* releaseWindowSequence(h, events);
   let result;
   yield () => {
     result = h.rts();

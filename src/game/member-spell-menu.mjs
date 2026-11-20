@@ -27,7 +27,7 @@ import { scriptVisitSequence } from '../system/script-visit.mjs';
 import { appendScriptCall } from '../script/task-api.mjs';
 import { openWindow } from './window-open.mjs';
 import { chooseFromMenuSequence } from './menu-choice.mjs';
-import { releaseWindowJsrSequence, releaseNoticeWindowsCallSequence } from './window-release.mjs';
+import { releaseWindowSequence, releaseNoticeWindowsCallSequence } from './window-release.mjs';
 import { waitForConfirmKeySequence } from './confirm-key.mjs';
 import { equipmentRowsSequence } from './equipment-window.mjs';
 import { memberPortraitSequence } from './member-portrait.mjs';
@@ -105,7 +105,6 @@ const MENU = [0x80e74c, 0x80a6c7],
   SHOW_PORTRAIT = [0x80e79f, 0x80e4b3],
   CONFIRM_KEY = [0x80e7b1, 0x80f953],
   RELEASE_NOTICES = [0x80e7b4, 0x80ff79],
-  RELEASE_WINDOW = [0x80e7bc, 0x80fa3e],
   SHOW_EQUIPMENT = [0x80e7c4, 0x80e9c5],
   SPELL_MENU = [0x80f289, 0x80e693];
 // The entry from the status screen, which runs no scripts.
@@ -295,7 +294,7 @@ export function* spellMenuSequence(
       yield* afterScriptSequence(h, events);
     }
     yield () => setWord(wram, 0, dataBankWord(mem, STATUS_SUBMENU_WINDOW));
-    yield* dialogCallBody(h, ...RELEASE_WINDOW, () => releaseWindowJsrSequence(h.a, events));
+    yield* releaseWindowSequence(h, events);
   }
   let equipment;
   yield () => {

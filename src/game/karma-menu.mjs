@@ -43,7 +43,7 @@ import { printText } from './text-print.mjs';
 import {
   releaseNoticeWindowsCallSequence,
   putGloveAwayCallSequence,
-  releaseWindowJsrSequence,
+  releaseWindowSequence,
 } from './window-release.mjs';
 import { waitForConfirmKeySequence } from './confirm-key.mjs';
 import { drawTextBufferSequence } from './text-draw.mjs';
@@ -102,7 +102,6 @@ import {
 } from '../constants/bits.mjs';
 
 const CONFIRM_KEY = 0x80f953,
-  RELEASE_WINDOW = 0x80fa3e,
   NUMBERED_MENU = 0x80a6b8,
   RAISE_STATE_COUNT = 0x80cecb,
   KARMA_LINE = 0x80ef82,
@@ -207,7 +206,7 @@ export function* buyStepSequence(h, events, renderBuffer = drawTextBufferSequenc
   yield () => setWord(wram, 2, TEXT_KARMA_INSUFFICIENT);
   yield* printText(h, events, renderBuffer);
   yield* dialogCallBody(h, 0x80f03d, CONFIRM_KEY, () => waitForConfirmKeySequence(h, events));
-  yield* dialogCallBody(h, 0x80f040, RELEASE_WINDOW, () => releaseWindowJsrSequence(h.a, events));
+  yield* releaseWindowSequence(h, events);
   yield () => setWord(wram, DP_KARMA_VALUE_POINTER, 0);
   return yield* returnSequence(h);
 }
@@ -326,9 +325,9 @@ export function* karmaMenuSequence(h, events, renderBuffer = drawTextBufferSeque
     yield* openWindow(h, events);
     yield () => setDataBankWord(mem, keep, 0, word(wram, 0));
   };
-  const release = function* (pc, keep) {
+  const release = function* (keep) {
     yield () => setWord(wram, 0, dataBankWord(mem, keep));
-    yield* dialogCallBody(h, pc, RELEASE_WINDOW, () => releaseWindowJsrSequence(h.a, events));
+    yield* releaseWindowSequence(h, events);
   };
   yield* dialogCallBody(h, 0x80ee57, RELEASE_NOTICES, () =>
     releaseNoticeWindowsCallSequence(h, events),
@@ -420,11 +419,11 @@ export function* karmaMenuSequence(h, events, renderBuffer = drawTextBufferSeque
           : [0x80ef37, KARMA_LIST_THIRD];
     yield () => setWord(wram, 0, dataBankWord(mem, KARMA_HEADER_WINDOW));
     yield* dialogCallBody(h, pc, entry, () => karmaListSequence(h, events, entry, renderBuffer));
-    yield* release(0x80ef3f, KARMA_LIST_WINDOW);
-    yield* release(0x80ef47, KARMA_HEADER_WINDOW);
+    yield* release(KARMA_LIST_WINDOW);
+    yield* release(KARMA_HEADER_WINDOW);
   }
-  yield* release(0x80ef52, KARMA_CATEGORY_WINDOW);
-  yield* release(0x80ef5a, KARMA_BALANCE_WINDOW);
+  yield* release(KARMA_CATEGORY_WINDOW);
+  yield* release(KARMA_BALANCE_WINDOW);
   // The leader's state count and magic points topped up (FF: as far as they go).
   for (const [pc, target] of [
     [0x80ef67, RAISE_STATE_COUNT],

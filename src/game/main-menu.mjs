@@ -22,7 +22,7 @@
 // release (PEI, PLA) is a local value.
 import { dialogCallBody, segmentSequence } from '../system/native-call-continuation.mjs';
 import { openWindow } from './window-open.mjs';
-import { releaseWindowJsrSequence } from './window-release.mjs';
+import { releaseWindowSequence } from './window-release.mjs';
 import { chooseFromMenuSequence } from './menu-choice.mjs';
 import { playSoundEffectRoutine } from '../apu/sound-effect.mjs';
 import { karmaMenuSequence } from './karma-menu.mjs';
@@ -58,7 +58,6 @@ import { CODE_BANK, CODE_BANK_BASE } from '../constants/memory-map.mjs';
 import { BYTE_BITS, BYTE_MASK, WORD_BITS, WORD_MASK, WORD_SIGN } from '../constants/bits.mjs';
 
 const CONFIRM_KEY = 0x80f953,
-  RELEASE_WINDOW = 0x80fa3e,
   PLAIN_MENU = 0x80a6c7,
   SOUND_EFFECT = 0x80c46e,
   SAVE_MENU = 0x80cdd6,
@@ -117,10 +116,10 @@ function setMenu(h, visibleRows, items, bank) {
   setWord(wram, DP_LIST_TOKEN_BANK, bank);
 }
 // The main menu's window released: its number from 1CED.
-function* releaseMenuWindow(h, events, pc) {
+function* releaseMenuWindow(h, events) {
   const { mem } = h.a;
   yield () => setWord(mem.wram, 0, dataBankWord(mem, MAIN_MENU_WINDOW));
-  yield* dialogCallBody(h, pc, RELEASE_WINDOW, () => releaseWindowJsrSequence(h.a, events));
+  yield* releaseWindowSequence(h, events);
 }
 
 // 80:CDD6: the save menu (see above). A sequence that ends with its RTS.
@@ -146,7 +145,7 @@ export function* saveMenuSequence(h, events, renderBuffer = drawTextBufferSequen
     yield () => setWord(wram, 2, TEXT_SAVE_BLOCKED);
     yield* printText(h, events, renderBuffer);
     yield* dialogCallBody(h, 0x80ce5e, CONFIRM_KEY, () => waitForConfirmKeySequence(h, events));
-    yield* dialogCallBody(h, 0x80ce61, RELEASE_WINDOW, () => releaseWindowJsrSequence(h.a, events));
+    yield* releaseWindowSequence(h, events);
     return yield* returnSequence(h);
   }
   const four = saveSlotCount(h.a) === FOUR_SAVE_SLOTS;
@@ -194,7 +193,7 @@ export function* saveMenuSequence(h, events, renderBuffer = drawTextBufferSequen
     yield* dialogCallBody(h, 0x80ce31, SOUND_EFFECT, () =>
       segmentSequence(() => playSoundEffectRoutine(h)),
     );
-  yield* releaseMenuWindow(h, events, 0x80ce39);
+  yield* releaseMenuWindow(h, events);
   return yield* returnSequence(h);
 }
 
@@ -221,7 +220,7 @@ export function* mainMenuSequence(h, events, renderBuffer = drawTextBufferSequen
     yield () => {
       chosen = word(wram, 0);
     };
-    yield* releaseMenuWindow(h, events, 0x80ceab);
+    yield* releaseMenuWindow(h, events);
     if (!chosen || negative(chosen)) break;
     if (chosen === SAVE_ROW)
       yield* dialogCallBody(h, 0x80ceb8, SAVE_MENU, () =>
