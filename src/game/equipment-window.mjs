@@ -12,7 +12,7 @@
 // Registers (user decision 2026-11-17): game state only; no callee takes a register
 // input and no register values are left. Armour, rating and weapon, which the original
 // keeps on the stack over the rows (PHA, PLA), are locals.
-import { dialogCallBody, segmentSequence } from '../system/native-call-continuation.mjs';
+import { segmentSequence } from '../system/native-call-continuation.mjs';
 import { setTextCursor, printNumber } from './window-text.mjs';
 import { printText } from './text-print.mjs';
 import { drawTextBufferSequence } from './text-draw.mjs';
@@ -43,8 +43,6 @@ const ITEM_KINDS = 0x8db022,
   KIND_NAMES = 0x8cefb0,
   ENTRY_SHIFT = 2,
   DERMAL_ARMOUR_BONUS = 2;
-// The callees and the call sites.
-const ITEM_TEXT = 0x80e9a8;
 
 const word = (wram, at) => wram[at] | (wram[at + 1] << BYTE_BITS);
 const setWord = (wram, at, value) => {
@@ -54,9 +52,9 @@ const setWord = (wram, at, value) => {
 const longWord = (mem, at) =>
   mem.read8(at & LONG_MASK) | (mem.read8((at + 1) & LONG_MASK) << BYTE_BITS);
 
-// 80:E9A8: the item's name as text (the original takes the item in A); a sequence
-// that ends with its RTS.
-function* itemTextSequence(h, events, renderBuffer, item) {
+// 80:E9A8: the item's name as text (the original takes the item in A), without the
+// JSR frame of the equipment rows (its return word lies only in free stack bytes).
+function* itemText(h, events, renderBuffer, item) {
   const { mem } = h.a,
     { wram } = mem;
   yield () => {
@@ -73,11 +71,6 @@ function* itemTextSequence(h, events, renderBuffer, item) {
     setWord(wram, 2, text);
   };
   yield* printText(h, events, renderBuffer);
-  let result;
-  yield () => {
-    result = h.rts();
-  };
-  return result;
 }
 
 // 80:E9C5: the equipment rows (see above) for lifted callers, without the JSR frame.
@@ -97,8 +90,6 @@ export function* equipmentRows(h, events, renderBuffer = drawTextBufferSequence)
     yield () => setWord(wram, 2, typeof value === 'function' ? value() : value);
     yield* printText(h, events, renderBuffer);
   };
-  const itemText = (pc, item) =>
-    dialogCallBody(h, pc, ITEM_TEXT, () => itemTextSequence(h, events, renderBuffer, item));
   let isLeader;
   yield () => {
     setWord(wram, 0, dataBankWord(mem, STATUS_WINDOW));
@@ -121,13 +112,13 @@ export function* equipmentRows(h, events, renderBuffer = drawTextBufferSequence)
   };
   yield* text(TEXT_BLANK_FIELD);
   yield* cursor(STATUS_LAYOUT.weaponRow);
-  yield* itemText(0x80ea3e, weapon);
+  yield* itemText(h, events, renderBuffer, weapon);
   yield* cursor(STATUS_LAYOUT.armourRow);
   yield* text(TEXT_BLANK_FIELD);
   yield* cursor(STATUS_LAYOUT.armourRow);
   yield () => setWord(wram, 2, rating);
   yield* printNumber(h, events, renderBuffer);
-  yield* itemText(0x80ea6a, armour);
+  yield* itemText(h, events, renderBuffer, armour);
 }
 // The rows as called with JSR (80:E9C5); returns with its RTS.
 export function* equipmentRowsSequence(h, events, renderBuffer = drawTextBufferSequence) {
