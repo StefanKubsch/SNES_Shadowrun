@@ -7,12 +7,7 @@
 // bound game or demo owner; without this owner they remain a limit.
 import { taskStop } from '../../src/system/task-stop.mjs';
 import { dialogAccess } from '../../src/system/native-dialog-support.mjs';
-import {
-  runCameraFollow,
-  runTileBuffers,
-  runObjectMotion,
-  runSpriteList,
-} from '../../src/game/main-upkeep.mjs';
+import { runTileBuffers, runObjectMotion, runSpriteList } from '../../src/game/main-upkeep.mjs';
 import { runFrameWait, runPadPresses } from './input-routines.mjs';
 import {
   runNoticeTimeouts,
@@ -24,6 +19,7 @@ import {
   runFormationStep,
   runColourEffect,
   runPaletteCycles,
+  runCameraFollow,
 } from './live-loop-routines.mjs';
 import { processSceneRequest } from '../caller/scene-request.mjs';
 import { WAIT_PAUSED, WAIT_RETURNED } from '../../src/system/native-wait-continuation.mjs';

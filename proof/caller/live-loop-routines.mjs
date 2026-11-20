@@ -2,7 +2,6 @@
 // the live main loop composes them directly and looks up no routine table). Register-
 // level callers and the tests that check the bindings use it.
 import {
-  runCameraFollow,
   runObjectMotion,
   runSpriteList,
   runTileBuffers,
@@ -17,6 +16,7 @@ import { gloveActionSequence } from '../../src/game/glove-action.mjs';
 import { gloveMoveJsr } from './jsr-forms.mjs';
 import { shakeHitPlayer } from '../../src/game/player-hit.mjs';
 import { recordFormationStep } from '../../src/game/formation-trail.mjs';
+import { followPlayerWithCamera } from '../../src/game/camera-follow.mjs';
 import { advancePaletteCycles } from '../../src/game/palette-cycles.mjs';
 import { applyColourEffect } from '../../src/game/fixed-colour.mjs';
 import { sceneRuntime } from '../../src/system/scene-runtime.mjs';
@@ -67,6 +67,11 @@ export function runColourEffect(h) {
 // 81:8076, called with JSL.
 export function runPaletteCycles(h) {
   advancePaletteCycles(h.a.mem.wram);
+  return h.rtl();
+}
+// 81:8C2E, called with JSL.
+export function runCameraFollow(h) {
+  followPlayerWithCamera(h.a.mem, h.a.mem.wram);
   return h.rtl();
 }
 

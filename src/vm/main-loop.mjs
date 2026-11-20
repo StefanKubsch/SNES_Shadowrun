@@ -12,7 +12,6 @@ import {
   mainLoopGloveActionSequence,
   mainLoopGloveMoveSequence,
   mainLoopPlayerZonesSequence,
-  runCameraFollow,
   runTileBuffers,
   runObjectMotion,
   runSpriteList,
@@ -21,6 +20,7 @@ import {
 import { sceneRequestSequence } from '../game/scene-request.mjs';
 import { shakeHitPlayer } from '../game/player-hit.mjs';
 import { recordFormationStep } from '../game/formation-trail.mjs';
+import { followPlayerWithCamera } from '../game/camera-follow.mjs';
 import { advancePaletteCycles } from '../game/palette-cycles.mjs';
 import { applyColourEffect } from '../game/fixed-colour.mjs';
 import { sceneRuntime } from '../system/scene-runtime.mjs';
@@ -42,7 +42,6 @@ const CALL_PC = Object.freeze({
   GATE_8000: MAIN_LOOP_RESUME,
   CC4B: 0x96c8,
   AFC4: 0x96d0,
-  CAMERA_8C2E: 0x96d6,
   CAMERA_8A91: 0x96da,
   SPRITES_B8DE: 0x96de,
   FF14: 0x96e1,
@@ -78,7 +77,7 @@ export function* mainLoopSequence(a, events, returnToOwner = false) {
   yield () => shakeHitPlayer(wram);
   yield* call(CALL_PC.AFC4, 0x80afc4, once(runObjectMotion));
   yield () => recordFormationStep(wram);
-  yield* call(CALL_PC.CAMERA_8C2E, 0x818c2e, once(runCameraFollow), true);
+  yield () => followPlayerWithCamera(a.mem, wram);
   yield* call(CALL_PC.CAMERA_8A91, 0x818a91, once(runTileBuffers), true);
   yield* call(CALL_PC.SPRITES_B8DE, 0x80b8de, once(runSpriteList));
   yield* call(CALL_PC.FF14, 0x80ff14, () => mainLoopNoticeSequence(h, events));

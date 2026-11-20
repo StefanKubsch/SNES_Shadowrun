@@ -8,7 +8,6 @@
 // that the Mesen oracle compares. So the entries leave X and Y as the original; A and
 // the flags besides the width are not produced, every next callee loads its own A.
 import { noticeTimeoutSequence } from './notice-timeout.mjs';
-import { followPlayerWithCamera } from './camera-follow.mjs';
 import { updateTileBuffers } from './camera-scroll.mjs';
 import { timeLimitSequence } from './time-limit.mjs';
 import { gloveActionSequence } from './glove-action.mjs';
@@ -62,11 +61,6 @@ function* noticeTimeoutCallSequence(h, events) {
     result = h.rts();
   };
   return result;
-}
-// 81:8C2E, called with JSL.
-export function runCameraFollow(h) {
-  followPlayerWithCamera(h.a.mem, h.a.mem.wram);
-  return h.rtl();
 }
 // 81:8A91, called with JSL.
 export function runTileBuffers(h) {
