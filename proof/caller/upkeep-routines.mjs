@@ -28,7 +28,7 @@ import {
   uploadFirstPortraitSequence,
   uploadSecondPortraitSequence,
 } from '../../src/game/portrait-upload.mjs';
-import { reloadObjectTilesSequence } from '../../src/game/object-tiles.mjs';
+import { reloadObjectTiles } from '../../src/game/object-tiles.mjs';
 import { printNumberSequence } from '../../src/game/window-text.mjs';
 import { printTextSequence } from '../../src/game/text-print.mjs';
 import { drawTextBufferSequence } from '../../src/game/text-draw.mjs';
@@ -162,6 +162,16 @@ export function runUploadSecondPortrait(h, events) {
   return drainNativeSequence(uploadSecondPortraitSequence(h, events));
 }
 // 80:ADF4, the objects' tiles requested again after the dialog; it waits for the NMI.
+// The reload as called with JSR, returning with its RTS (moved from
+// src/game/object-tiles.mjs, whose live caller runs it without the frame).
+function* reloadObjectTilesSequence(h, events) {
+  yield* reloadObjectTiles(h, events);
+  let result;
+  yield () => {
+    result = h.rts();
+  };
+  return result;
+}
 export function runReloadObjectTiles(h, events) {
   return drainNativeSequence(reloadObjectTilesSequence(h, events));
 }

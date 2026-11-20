@@ -115,7 +115,8 @@ function* waitForJobLists(h, events, site) {
 // Request the tiles of the draw list's objects again (80:ADF4), a sequence composing the
 // live frame wait, for lifted callers without the JSR frame (the caller's return word
 // lies only in free stack bytes); the per-object request (80:AE12) runs without its
-// frame as well.
+// frame as well. The RTS form for register-level call tables is in
+// proof/caller/upkeep-routines.mjs.
 export function* reloadObjectTiles(h, events) {
   const { ctx } = h,
     { mem } = h.a,
@@ -137,11 +138,6 @@ export function* reloadObjectTiles(h, events) {
   } while (!(index & WORD_SIGN));
   yield () => countJobList(wram);
   yield* waitForJobLists(h, events, END_WAIT);
-}
-// The reload as called with JSR (80:ADF4); returns with its RTS.
-export function* reloadObjectTilesSequence(h, events) {
-  yield* reloadObjectTiles(h, events);
-  return yield* rts(h);
 }
 
 // Request the tiles of the object in slot again (80:AE12), without the JSR frame.
@@ -222,12 +218,4 @@ function* reloadSequence(h, events, slot) {
     setWord(wram, DP_TILES, 0);
     setWord(wram, DP_VRAM_UPLOAD_INDEX, job);
   };
-}
-
-function* rts(h) {
-  let result;
-  yield () => {
-    result = h.rts();
-  };
-  return result;
 }
