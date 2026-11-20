@@ -108,7 +108,7 @@ frame); spellMenu (the status screen's spell submenu and the spell menu native
 80:F254), so the status screen's submenu dispatch JSR ECEA keeps no frame;
 decimalNumber (Jake's money on the status screen); saveMenu (the main menu's save
 row); karmaMenu with karmaList and buyStep (the main menu's karma row);
-resetWindowList (the item use's and spell menu's list redraw; the list's own JSL
+resetWindowList (the item use's, spell menu's and glove choices' list redraw; the list's own JSL
 keeps its frame); talk (the glove action's dialog); objectSearch (the glove move's
 search); gloveMove (the glove choices' frames; the word wait keeps its frame); putting the glove on (80:BC67 and 80:BC99 with 80:BC36, both frames); the window release, the glove, the notice windows' release and the name
 window release already had one. The player control selects animations and turns

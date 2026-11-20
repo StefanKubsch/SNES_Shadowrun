@@ -1,8 +1,4 @@
-import {
-  drawWindowListSequence,
-  requestUploadJslSequence,
-  unpackWindowMapCall,
-} from './window-list.mjs';
+import { requestUploadJslSequence, resetWindowList, unpackWindowMapCall } from './window-list.mjs';
 import { gloveMove } from './glove-move.mjs';
 import { drawTextBufferSequence } from './text-draw.mjs';
 import { closeDialog } from './dialog-talk.mjs';
@@ -99,18 +95,14 @@ const UNDER_GLOVE = {
 // The call sites of 80:9C40 and its callers.
 const SELECT = {
     wait: 0x809c43,
-    redrawChosen: 0x809cbd,
     awayChosen: 0x809cc5,
     awayNone: 0x809ccf,
-    redrawNone: 0x809cd7,
   },
   SELECT_ENTRY = 0x809c40,
   NUMBER_SELECT = 0x809bc6,
   NUMBER_ENTRY = 0x809bc6,
   SCRIPT_NUMBER_SELECT = 0x809bbf,
   SCRIPT_SELECT = 0x809c39,
-  REDRAW_LIST = 0x81aeb0,
-  REDRAW_LIST_CALL = 0x81aeb3,
   PREPARE_LIST = 0x81aeb8,
   PREPARE_UPLOAD = 0x81aebc;
 // The call sites of 80:9BD3.
@@ -126,7 +118,6 @@ const SPELL = {
 const PLACE = {
   prepareList: 0x80c733,
   wait: 0x80c73a,
-  redraw: 0x80c74c,
   putAway: 0x80c798,
 };
 // The place choice's screen pixels of the glove (its position words shifted right six
@@ -280,31 +271,14 @@ function prepareOutOfReachNotice(h) {
   ])
     setWord(wram, offset, value);
 }
-// 81:AEB0 at its call site: the window list redrawn from its first window (81:AD92).
-function* redrawListSequence(h, events, pc) {
-  yield* dialogCallBody(
-    h,
-    pc,
-    REDRAW_LIST,
-    function* () {
-      yield () => setWord(h.a.mem.wram, WINDOW_FIRST_INDEX, 0);
-      yield* drawWindowListSequence(h, events, REDRAW_LIST_CALL);
-      let result;
-      yield () => {
-        result = h.rtl();
-      };
-      return result;
-    },
-    true,
-  );
-}
-// The window list is redrawn unless a member menu is open.
-function* redrawUnlessMenuSequence(h, events, pc) {
+// The window list is redrawn from its first window (81:AEB0 without its JSL frame)
+// unless a member menu is open.
+function* redrawUnlessMenuSequence(h, events) {
   let open;
   yield () => {
     open = word(h.a.mem.wram, MEMBER_MENU_ACTIVE) !== 0;
   };
-  if (!open) yield* redrawListSequence(h, events, pc);
+  if (!open) yield* resetWindowList(h, events);
 }
 function* returnSequence(h) {
   let result;
@@ -331,7 +305,7 @@ function* chooseInReachSequence(h, events, renderBuffer, pc) {
     };
     if (target !== null && far) yield* showNotice(h, events);
     if (target !== null && !far) {
-      yield* redrawUnlessMenuSequence(h, events, sites.redrawChosen);
+      yield* redrawUnlessMenuSequence(h, events);
       let chosen;
       yield () => {
         chosen = word(wram, GLOVE_TARGET_OBJECT);
@@ -341,7 +315,7 @@ function* chooseInReachSequence(h, events, renderBuffer, pc) {
       yield* segmentSequence(() => takePad(h, events));
     } else {
       yield* putGloveAwaySequence(h, events);
-      yield* redrawUnlessMenuSequence(h, events, sites.redrawNone);
+      yield* redrawUnlessMenuSequence(h, events);
       yield () => setResult(h, NO_CHOICE);
       yield* segmentSequence(() => takePad(h, events));
     }
@@ -453,7 +427,7 @@ export function* spellGloveTargetSequence(h, events, renderBuffer = drawTextBuff
     if (target === null || usable) break;
   }
   if (target !== null) {
-    yield* redrawUnlessMenuSequence(h, events, sites.redrawChosen);
+    yield* redrawUnlessMenuSequence(h, events);
     yield () => {
       setWord(wram, SPELL_TARGET_OBJECT, target);
     };
@@ -462,7 +436,7 @@ export function* spellGloveTargetSequence(h, events, renderBuffer = drawTextBuff
     yield* segmentSequence(() => takePad(h, events));
   } else {
     yield* putGloveAwaySequence(h, events);
-    yield* redrawUnlessMenuSequence(h, events, sites.redrawNone);
+    yield* redrawUnlessMenuSequence(h, events);
     yield () => {
       setWord(wram, SPELL_TARGET_OBJECT, NO_CHOICE);
       setResult(h, NO_CHOICE);
@@ -514,7 +488,7 @@ export function* choosePlaceWithGloveSequence(h, events, renderBuffer = drawText
   yield* prepareWindowListSequence(h, events, sites.prepareList);
   yield () => putGloveOn(h, GLOVE_LIMITS.action);
   yield* gloveFramesSequence(h, events, renderBuffer, sites.wait);
-  yield* redrawListSequence(h, events, sites.redraw);
+  yield* resetWindowList(h, events);
   yield () => {
     const { down, across } = gloveFloorPlace(mem, object);
     setWord(wram, MOTION_Y + object, down);
