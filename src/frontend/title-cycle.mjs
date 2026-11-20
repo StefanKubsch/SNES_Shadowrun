@@ -6,11 +6,11 @@
 // that times out plays the attract game, a demo of the game in room AB, and shows
 // the menu again. The port's Credits row (src/game/credits.mjs) plays the credits
 // instead of the attract game.
-import { dialogCallBody, segmentSequence } from '../system/native-call-continuation.mjs';
+import { dialogCallBody } from '../system/native-call-continuation.mjs';
 import { titleSequence } from './title.mjs';
 import { startMenuSequence } from './start-menu.mjs';
 import { attractRoundsSequence } from './attract-rounds.mjs';
-import { runNewGame } from '../game/game-start.mjs';
+import { startNewGame } from '../game/game-start.mjs';
 import { sceneRuntime } from '../system/scene-runtime.mjs';
 import { startSceneScreen } from '../system/nmi.mjs';
 import { loadSoundDirectory, setMusicMode, startSong } from '../apu/music-mode.mjs';
@@ -31,14 +31,13 @@ import { BYTE_BITS, BYTE_MASK, WORD_MASK } from '../constants/bits.mjs';
 
 // The routines the cycle calls through their original frames: the title, the start
 // menu, the attract game and its owner, the credits cutscene, the music stop, and
-// the new game set-up and room start of the attract game.
+// the room start of the attract game.
 const TITLE = 0x81d694,
   START_MENU = 0x81e14a,
   ATTRACT_GAME = 0x80a168,
   ATTRACT_OWNER = 0x8096f3,
   CUTSCENE = 0x81cdf8,
   MUSIC_STOP = 0x81ef94,
-  NEW_GAME = 0x80960d,
   START_ROOM = 0x809699;
 // Call sites (the return addresses the callees see).
 const TITLE_SITE = 0x80a1b1,
@@ -48,7 +47,6 @@ const TITLE_SITE = 0x80a1b1,
   MENU_AGAIN_SITE = 0x80a1d6,
   ATTRACT_SITE = 0x80a1d0,
   ATTRACT_OWNER_SITE = 0x80a16c,
-  NEW_GAME_SITE = 0x8096f6,
   START_ROOM_SITE = 0x8096fc;
 // The title song; the start menu's answer of a cancel or timeout; the attract room.
 const SONG_NONE = 0,
@@ -216,15 +214,17 @@ export function* attractGameSequence(h, events, routines) {
   return result;
 }
 
-// 80:96F3: the demo itself. No countdown, a new game's state, and the game's main
-// loop in room AB (80:9699, register-level) until the demo ends.
+// 80:96F3: the demo itself. No countdown, a new game's state (80:960D without its JSR
+// frame, whose return word lies only in free stack bytes; the first room it returns
+// is not kept), and the game's main loop in room AB (80:9699, register-level) until
+// the demo ends.
 export function* attractDemoSequence(h, events, routines) {
   const { ctx } = h;
   yield () => {
     ctx.bank = CODE_BANK;
     setWord(h.a.mem.wram, TIMER, TIMER_STOPPED);
   };
-  yield* dialogCallBody(h, NEW_GAME_SITE, NEW_GAME, () => segmentSequence(() => runNewGame(h)));
+  yield () => startNewGame(h.a);
   yield* dialogCallBody(h, START_ROOM_SITE, START_ROOM, () =>
     attractRoundsSequence(h, events, routines, ATTRACT_ROOM),
   );
