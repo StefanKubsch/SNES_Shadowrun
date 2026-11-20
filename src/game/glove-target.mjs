@@ -90,18 +90,14 @@ export const NO_CHOICE = WORD_MASK;
 // The glove positions keep the screen pixel in the high byte: the projected value is
 // shifted right twice and its bytes swapped.
 const POSITION_SHIFT = 2;
-// The routine 80:BC36 called from both glove entries, and the call sites of 80:8D0B.
-const OVER_PLAYER = 0x80bc36,
-  PUT_ON_ACTION = 0x80bc67,
-  UNDER_GLOVE = {
-    putOn: 0x808d0b,
-    wait: 0x808d0e,
-    awayChosen: 0x808d29,
-    awayNone: 0x808d33,
-  };
+// The call sites of 80:8D0B.
+const UNDER_GLOVE = {
+  wait: 0x808d0e,
+  awayChosen: 0x808d29,
+  awayNone: 0x808d33,
+};
 // The call sites of 80:9C40 and its callers.
 const SELECT = {
-    putOn: 0x809c40,
     wait: 0x809c43,
     redrawChosen: 0x809cbd,
     awayChosen: 0x809cc5,
@@ -119,19 +115,16 @@ const SELECT = {
   PREPARE_UPLOAD = 0x81aebc;
 // The call sites of 80:9BD3.
 const SPELL = {
-    prepareList: 0x809bdb,
-    putOn: 0x809bdf,
-    wait: 0x809be2,
-    redrawChosen: 0x809c06,
-    awayChosen: 0x809c11,
-    awayNone: 0x809c1b,
-    redrawNone: 0x809c23,
-  },
-  PUT_ON_SPELL = 0x80bc99;
+  prepareList: 0x809bdb,
+  wait: 0x809be2,
+  redrawChosen: 0x809c06,
+  awayChosen: 0x809c11,
+  awayNone: 0x809c1b,
+  redrawNone: 0x809c23,
+};
 // The call sites of 80:C724.
 const PLACE = {
   prepareList: 0x80c733,
-  putOn: 0x80c737,
   wait: 0x80c73a,
   redraw: 0x80c74c,
   putAway: 0x80c798,
@@ -191,25 +184,12 @@ export function placeGloveOverPlayer(h) {
   setWord(wram, GLOVE_X, swapBytes(across >>> POSITION_SHIFT));
 }
 
-// Put the glove on (80:BC67 action, 80:BC99 spell) at its call site pc, a sequence: the
-// position over the player figure, the kind's projection bases and the kind itself.
-export function* putGloveOnSequence(h, pc, entry, [baseX, baseY, kind]) {
-  yield* dialogCallBody(h, pc, entry, function* () {
-    let result;
-    yield () => {
-      const { wram } = h.a.mem;
-      h.call(entry, OVER_PLAYER, () => {
-        placeGloveOverPlayer(h);
-        return h.rts();
-      });
-      setWord(wram, GLOVE_BASE_X, baseX);
-      setWord(wram, GLOVE_BASE_Y, baseY);
-      setWord(wram, GLOVE_LIMIT_KIND, kind);
-      setWord(wram, GLOVE_KIND, kind);
-      result = h.rts();
-    };
-    return result;
-  });
+// Put the glove on (80:BC67 action, 80:BC99 spell) without the JSR frames of the entry
+// and of 80:BC36 (their return words lie only in free stack bytes): the position over
+// the player figure, the kind's projection bases and the kind itself.
+function putGloveOn(h, limits) {
+  placeGloveOverPlayer(h);
+  setGloveLimits(h.a.mem, limits);
 }
 
 // Each frame the word wait at the given call site, the pad word and the glove movement
@@ -244,7 +224,7 @@ const setResult = (h, value) => setWord(h.a.mem.wram, 0, value);
 export function* chooseObjectUnderGloveSequence(h, events, renderBuffer = drawTextBufferSequence) {
   const { wram } = h.a.mem,
     sites = UNDER_GLOVE;
-  yield* putGloveOnSequence(h, sites.putOn, PUT_ON_ACTION, GLOVE_LIMITS.action);
+  yield () => putGloveOn(h, GLOVE_LIMITS.action);
   yield* gloveFramesSequence(h, events, renderBuffer, sites.wait);
   let target;
   yield () => {
@@ -340,7 +320,7 @@ function* chooseInReachSequence(h, events, renderBuffer, pc) {
   yield* dialogCallBody(h, pc, SELECT_ENTRY, function* () {
     const { wram } = h.a.mem,
       sites = SELECT;
-    yield* putGloveOnSequence(h, sites.putOn, PUT_ON_ACTION, GLOVE_LIMITS.action);
+    yield () => putGloveOn(h, GLOVE_LIMITS.action);
     yield* gloveFramesSequence(h, events, renderBuffer, sites.wait);
     let target, far;
     yield () => {
@@ -460,7 +440,7 @@ export function* spellGloveTargetSequence(h, events, renderBuffer = drawTextBuff
   };
   if (open) yield* closeDialog(h, events);
   yield* prepareWindowListSequence(h, events, sites.prepareList);
-  yield* putGloveOnSequence(h, sites.putOn, PUT_ON_SPELL, GLOVE_LIMITS.spell);
+  yield () => putGloveOn(h, GLOVE_LIMITS.spell);
   let target;
   for (;;) {
     yield* gloveFramesSequence(h, events, renderBuffer, sites.wait);
@@ -532,7 +512,7 @@ export function* choosePlaceWithGloveSequence(h, events, renderBuffer = drawText
     setWord(wram, MOTION_MODE + object, 0);
   };
   yield* prepareWindowListSequence(h, events, sites.prepareList);
-  yield* putGloveOnSequence(h, sites.putOn, PUT_ON_ACTION, GLOVE_LIMITS.action);
+  yield () => putGloveOn(h, GLOVE_LIMITS.action);
   yield* gloveFramesSequence(h, events, renderBuffer, sites.wait);
   yield* redrawListSequence(h, events, sites.redraw);
   yield () => {
