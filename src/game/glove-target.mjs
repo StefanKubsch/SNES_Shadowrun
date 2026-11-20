@@ -3,7 +3,7 @@ import {
   requestUploadJslSequence,
   unpackWindowMapCall,
 } from './window-list.mjs';
-import { gloveMoveSequence } from './glove-move.mjs';
+import { gloveMove } from './glove-move.mjs';
 import { drawTextBufferSequence } from './text-draw.mjs';
 import { closeDialog } from './dialog-talk.mjs';
 import { showNotice } from './notice-show.mjs';
@@ -95,14 +95,14 @@ const OVER_PLAYER = 0x80bc36,
   PUT_ON_ACTION = 0x80bc67,
   UNDER_GLOVE = {
     putOn: 0x808d0b,
-    frames: [0x808d0e, 0x808d15],
+    wait: 0x808d0e,
     awayChosen: 0x808d29,
     awayNone: 0x808d33,
   };
 // The call sites of 80:9C40 and its callers.
 const SELECT = {
     putOn: 0x809c40,
-    frames: [0x809c43, 0x809c4a],
+    wait: 0x809c43,
     redrawChosen: 0x809cbd,
     awayChosen: 0x809cc5,
     awayNone: 0x809ccf,
@@ -121,7 +121,7 @@ const SELECT = {
 const SPELL = {
     prepareList: 0x809bdb,
     putOn: 0x809bdf,
-    frames: [0x809be2, 0x809be9],
+    wait: 0x809be2,
     redrawChosen: 0x809c06,
     awayChosen: 0x809c11,
     awayNone: 0x809c1b,
@@ -132,7 +132,7 @@ const SPELL = {
 const PLACE = {
   prepareList: 0x80c733,
   putOn: 0x80c737,
-  frames: [0x80c73a, 0x80c741],
+  wait: 0x80c73a,
   redraw: 0x80c74c,
   putAway: 0x80c798,
 };
@@ -145,7 +145,6 @@ const PIXEL_SHIFT = 6,
   PLACE_Y_BASE = 0x900,
   PLACE_X_BASE = 0x600;
 const FRAME_WAIT = 0x81b0a1,
-  MOVE_GLOVE = 0x80be6d,
   UNPACK_MAP = 0x81a9b2,
   REQUEST_UPLOAD = 0x81acb5;
 
@@ -213,16 +212,16 @@ export function* putGloveOnSequence(h, pc, entry, [baseX, baseY, kind]) {
   });
 }
 
-// Each frame the word wait and the glove movement at the given call sites and the pad
-// word between them, until a choosing button is newly pressed. The glove movement receives the
-// name renderer.
-export function* gloveFramesSequence(h, events, renderBuffer, [wait, move]) {
+// Each frame the word wait at the given call site, the pad word and the glove movement
+// (without its JSR frame), until a choosing button is newly pressed. The glove movement
+// receives the name renderer.
+export function* gloveFramesSequence(h, events, renderBuffer, wait) {
   const { wram } = h.a.mem;
   let pressed;
   do {
     yield* dialogCallBody(h, wait, FRAME_WAIT, () => frameWaitCallSequence(h, events), true);
     yield* segmentSequence(() => takePad(h, events));
-    yield* dialogCallBody(h, move, MOVE_GLOVE, () => gloveMoveSequence(h, events, renderBuffer));
+    yield* gloveMove(h, events, renderBuffer);
     yield () => {
       pressed = word(wram, PAD_PRESSED) & CHOICE_BUTTONS;
     };
@@ -246,7 +245,7 @@ export function* chooseObjectUnderGloveSequence(h, events, renderBuffer = drawTe
   const { wram } = h.a.mem,
     sites = UNDER_GLOVE;
   yield* putGloveOnSequence(h, sites.putOn, PUT_ON_ACTION, GLOVE_LIMITS.action);
-  yield* gloveFramesSequence(h, events, renderBuffer, sites.frames);
+  yield* gloveFramesSequence(h, events, renderBuffer, sites.wait);
   let target;
   yield () => {
     target = gloveTarget(wram);
@@ -342,7 +341,7 @@ function* chooseInReachSequence(h, events, renderBuffer, pc) {
     const { wram } = h.a.mem,
       sites = SELECT;
     yield* putGloveOnSequence(h, sites.putOn, PUT_ON_ACTION, GLOVE_LIMITS.action);
-    yield* gloveFramesSequence(h, events, renderBuffer, sites.frames);
+    yield* gloveFramesSequence(h, events, renderBuffer, sites.wait);
     let target, far;
     yield () => {
       target = gloveTarget(wram);
@@ -464,7 +463,7 @@ export function* spellGloveTargetSequence(h, events, renderBuffer = drawTextBuff
   yield* putGloveOnSequence(h, sites.putOn, PUT_ON_SPELL, GLOVE_LIMITS.spell);
   let target;
   for (;;) {
-    yield* gloveFramesSequence(h, events, renderBuffer, sites.frames);
+    yield* gloveFramesSequence(h, events, renderBuffer, sites.wait);
     let usable;
     yield () => {
       target = gloveTarget(wram);
@@ -534,7 +533,7 @@ export function* choosePlaceWithGloveSequence(h, events, renderBuffer = drawText
   };
   yield* prepareWindowListSequence(h, events, sites.prepareList);
   yield* putGloveOnSequence(h, sites.putOn, PUT_ON_ACTION, GLOVE_LIMITS.action);
-  yield* gloveFramesSequence(h, events, renderBuffer, sites.frames);
+  yield* gloveFramesSequence(h, events, renderBuffer, sites.wait);
   yield* redrawListSequence(h, events, sites.redraw);
   yield () => {
     const { down, across } = gloveFloorPlace(mem, object);

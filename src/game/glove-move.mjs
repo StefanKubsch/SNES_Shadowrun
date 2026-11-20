@@ -63,10 +63,10 @@ function axisPosition(position, speed, limit) {
   return Math.min(Math.max((position + speed) & WORD_MASK, POSITION_MIN), limit);
 }
 
-// Move the glove (80:BE6D), a sequence for a native call continuation: h the main
-// loop's access (data bank 80), events its frame events, renderBuffer the
-// text-buffer renderer used for an object name.
-export function* gloveMoveSequence(h, events, renderBuffer = drawTextBufferSequence) {
+// Move the glove (80:BE6D) for lifted callers, without the JSR frame (the caller's
+// return word lies only in free stack bytes): h the main loop's access (data bank 80),
+// events its frame events, renderBuffer the text-buffer renderer used for an object name.
+export function* gloveMove(h, events, renderBuffer = drawTextBufferSequence) {
   const { wram } = h.a.mem;
   let next = 'return';
   yield () => {
@@ -83,6 +83,11 @@ export function* gloveMoveSequence(h, events, renderBuffer = drawTextBufferSeque
   };
   if (next === 'search') yield* objectSearch(h, events, renderBuffer);
   else if (next === 'release') yield* releaseGloveNameWindowSequence(h, events);
+}
+// The movement as called with JSR (80:BE6D), a sequence for a native call continuation
+// and the upkeep routine table; returns with its RTS.
+export function* gloveMoveSequence(h, events, renderBuffer = drawTextBufferSequence) {
+  yield* gloveMove(h, events, renderBuffer);
   let result;
   yield () => {
     result = h.rts();
