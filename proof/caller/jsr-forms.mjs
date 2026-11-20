@@ -27,6 +27,12 @@ import {
   setWindowTextWidthInPlace,
   closeDialog,
 } from '../../src/game/dialog-talk.mjs';
+import {
+  shiftPortraitRowsInPlace,
+  uploadFirstPortrait,
+  uploadSecondPortrait,
+} from '../../src/game/portrait-upload.mjs';
+import { openPortraitWindow, closePortraitWindow } from '../../src/game/portrait-window.mjs';
 
 function* rts(h) {
   let result;
@@ -178,5 +184,35 @@ export function setWindowTextWidthJsr(h) {
 // The dialog close as called with JSR (80:92C5); returns with its RTS.
 export function* closeDialogJsr(h, events) {
   yield* closeDialog(h, events);
+  return yield* rts(h);
+}
+
+// 80:8F20 as called with JSR; returns with its RTS.
+export function shiftPortraitRowsJsr(h) {
+  shiftPortraitRowsInPlace(h);
+  return h.rts();
+}
+
+// The first upload as called with JSR (80:9022); returns with its RTS.
+export function* uploadFirstPortraitJsr(h, events) {
+  yield* uploadFirstPortrait(h, events);
+  return yield* rts(h);
+}
+
+// The second upload as called with JSR (80:905E); returns with its RTS.
+export function* uploadSecondPortraitJsr(h, events) {
+  yield* uploadSecondPortrait(h, events);
+  return yield* rts(h);
+}
+
+// The opening as called with JSR (80:8F3A); returns with its RTS.
+export function* openPortraitWindowJsr(h, events) {
+  yield* openPortraitWindow(h, events);
+  return yield* rts(h);
+}
+
+// The closing as called with JSR (80:8F97); returns with its RTS.
+export function* closePortraitWindowJsr(h, events) {
+  yield* closePortraitWindow(h, events);
   return yield* rts(h);
 }

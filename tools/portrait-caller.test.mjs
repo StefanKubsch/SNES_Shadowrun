@@ -1,8 +1,15 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import * as direct from '../src/game/portrait-window.mjs';
+import { closePortraitWindowJsr, openPortraitWindowJsr } from '../proof/caller/jsr-forms.mjs';
 import * as former from '../proof/caller/portrait-window.mjs';
 import { runFrameWait } from '../proof/caller/input-routines.mjs';
+
+// The lifted portrait window in its RTS forms (proof/caller/jsr-forms.mjs), named as the
+// former.
+const direct = {
+  openPortraitWindowSequence: openPortraitWindowJsr,
+  closePortraitWindowSequence: closePortraitWindowJsr,
+};
 import { textWindowSide, finishTextWindow } from './text-window-caller-harness.mjs';
 import { DIALOG_HDMA_TABLE, HDMAEN_SHADOW, TMW_SHADOW, RANDOM_STATE } from '../src/data/wram.mjs';
 

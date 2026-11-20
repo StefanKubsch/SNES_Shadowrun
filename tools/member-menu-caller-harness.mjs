@@ -12,7 +12,7 @@ import { setTextCursorRoutine, printNumberSequence } from '../proof/caller/windo
 import { printTextSequence } from '../proof/caller/text-print.mjs';
 import { frameWaitCallSequence } from '../src/system/live-input-calls.mjs';
 import { runPadPresses } from '../proof/caller/input-routines.mjs';
-import { playSoundEffectJsr } from '../proof/caller/jsr-forms.mjs';
+import { playSoundEffectJsr, shiftPortraitRowsJsr } from '../proof/caller/jsr-forms.mjs';
 import {
   NativeCallContinuation,
   NATIVE_CALL_CONTINUATIONS,
@@ -26,7 +26,6 @@ import {
   uploadFirstPortraitSequence,
   uploadPortraitTilesSequence,
 } from '../proof/caller/portrait-upload.mjs';
-import { shiftPortraitRowsRoutine } from '../src/game/portrait-upload.mjs';
 import { unpackPortraitRoutine } from '../proof/caller/portrait-routines.mjs';
 const MENU_SOUND_INDEX = 0x4c,
   PORTRAIT_STACK_TOP = 0x1eef,
@@ -146,7 +145,7 @@ export function configureMemberPortrait({ h, mem, events, put, routines, bind, c
     return service(callee, frameEvents, status, pc);
   };
   routines.set(0x809f6d, unpackPortraitRoutine);
-  routines.set(0x808f20, shiftPortraitRowsRoutine);
+  routines.set(0x808f20, shiftPortraitRowsJsr);
   bind(0x809022, () => uploadFirstPortraitSequence(h, events, routines));
   bind(0x808ff5, () => uploadPortraitTilesSequence(h, events, routines));
   bind(0x80e4b3, () => memberPortraitSequence(h, events, routines));

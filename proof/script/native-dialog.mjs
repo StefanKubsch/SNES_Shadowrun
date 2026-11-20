@@ -15,7 +15,6 @@ import {
   runOpenWindow,
 } from '../caller/upkeep-routines.mjs';
 
-import { shiftPortraitRowsRoutine } from '../../src/game/portrait-upload.mjs';
 import { unpackPortraitRoutine } from '../caller/portrait-routines.mjs';
 
 import { setMusicModeRoutine } from '../caller/audio-routines.mjs';
@@ -23,6 +22,7 @@ import {
   buildSpritesJsr,
   clearFixedColourJsl,
   setWindowTextWidthJsr,
+  shiftPortraitRowsJsr,
 } from '../caller/jsr-forms.mjs';
 
 export const TALK_ROUTINES = new Map([
@@ -31,7 +31,7 @@ export const TALK_ROUTINES = new Map([
   [0x80bcb2, runPutGloveAway],
   [0x80fa92, setWindowTextWidthJsr],
   [0x809f6d, unpackPortraitRoutine],
-  [0x808f20, shiftPortraitRowsRoutine],
+  [0x808f20, shiftPortraitRowsJsr],
   [0x809022, runUploadFirstPortrait],
   [0x80905e, runUploadSecondPortrait],
   [0x808f3a, runOpenPortraitWindow],

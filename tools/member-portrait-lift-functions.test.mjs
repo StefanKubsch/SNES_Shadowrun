@@ -16,9 +16,9 @@ import { e4b3Sequence } from '../proof/replay/native-member-spell-menu.mjs';
 import { memberPortraitSequence } from '../proof/caller/member-portrait.mjs';
 import { MEMBER_PORTRAIT } from '../src/data/wram.mjs';
 import { TALK_ROUTINES } from '../proof/replay/native-dialog.mjs';
-import { shiftPortraitRowsRoutine } from '../src/game/portrait-upload.mjs';
 import { unpackPortraitRoutine } from '../proof/caller/portrait-routines.mjs';
 import { drainNativeSequence } from '../src/system/native-call-continuation.mjs';
+import { shiftPortraitRowsJsr } from '../proof/caller/jsr-forms.mjs';
 
 const WRAM_BYTES = 0x20000,
   HEX = 16,
@@ -131,7 +131,7 @@ registerCases(
       ],
       [
         [UNPACK, unpackPortraitRoutine],
-        [SHIFT_ROWS, shiftPortraitRowsRoutine],
+        [SHIFT_ROWS, shiftPortraitRowsJsr],
       ],
       100,
     ),

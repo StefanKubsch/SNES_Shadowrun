@@ -20,16 +20,16 @@ import {
   chooseDialogTopicSequence,
 } from '../../src/game/dialog-menus.mjs';
 import { showDialogTextSequence } from '../../src/game/dialog-text.mjs';
-import {
-  closePortraitWindowSequence,
-  openPortraitWindowSequence,
-} from '../../src/game/portrait-window.mjs';
-import {
-  uploadFirstPortraitSequence,
-  uploadSecondPortraitSequence,
-} from '../../src/game/portrait-upload.mjs';
 import { reloadObjectTiles } from '../../src/game/object-tiles.mjs';
-import { printNumberJsr, printTextJsr, closeDialogJsr } from './jsr-forms.mjs';
+import {
+  printNumberJsr,
+  printTextJsr,
+  closeDialogJsr,
+  uploadFirstPortraitJsr,
+  uploadSecondPortraitJsr,
+  openPortraitWindowJsr,
+  closePortraitWindowJsr,
+} from './jsr-forms.mjs';
 import { drawTextBufferSequence } from '../../src/game/text-draw.mjs';
 import { openWindowSequence } from '../../src/game/window-open.mjs';
 import { chooseActionSequence } from '../../src/game/action-menu.mjs';
@@ -148,17 +148,17 @@ for (const [run, sequence] of [
   });
 // 80:8F3A and 80:8F97, the portrait window opened and closed over frames.
 export function runOpenPortraitWindow(h, events) {
-  return drainNativeSequence(openPortraitWindowSequence(h, events));
+  return drainNativeSequence(openPortraitWindowJsr(h, events));
 }
 export function runClosePortraitWindow(h, events) {
-  return drainNativeSequence(closePortraitWindowSequence(h, events));
+  return drainNativeSequence(closePortraitWindowJsr(h, events));
 }
 // 80:9022 and 80:905E, the portraits' uploads; the DMA job 80:8FF5 waits for the NMI.
 export function runUploadFirstPortrait(h, events) {
-  return drainNativeSequence(uploadFirstPortraitSequence(h, events));
+  return drainNativeSequence(uploadFirstPortraitJsr(h, events));
 }
 export function runUploadSecondPortrait(h, events) {
-  return drainNativeSequence(uploadSecondPortraitSequence(h, events));
+  return drainNativeSequence(uploadSecondPortraitJsr(h, events));
 }
 // 80:ADF4, the objects' tiles requested again after the dialog; it waits for the NMI.
 // The reload as called with JSR, returning with its RTS (moved from
@@ -179,10 +179,10 @@ NATIVE_CALL_CONTINUATIONS.set(runReloadObjectTiles, {
   create: ({ h, events }) => new NativeCallContinuation(h.a, reloadObjectTilesSequence(h, events)),
 });
 for (const [run, sequence] of [
-  [runOpenPortraitWindow, openPortraitWindowSequence],
-  [runClosePortraitWindow, closePortraitWindowSequence],
-  [runUploadFirstPortrait, uploadFirstPortraitSequence],
-  [runUploadSecondPortrait, uploadSecondPortraitSequence],
+  [runOpenPortraitWindow, openPortraitWindowJsr],
+  [runClosePortraitWindow, closePortraitWindowJsr],
+  [runUploadFirstPortrait, uploadFirstPortraitJsr],
+  [runUploadSecondPortrait, uploadSecondPortraitJsr],
 ])
   NATIVE_CALL_CONTINUATIONS.set(run, {
     run,

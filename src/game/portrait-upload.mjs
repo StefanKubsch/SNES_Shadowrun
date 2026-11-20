@@ -135,11 +135,6 @@ export function shiftPortraitRowsInPlace(h) {
     }
   }
 }
-// 80:8F20 as called with JSR; returns with its RTS.
-export function shiftPortraitRowsRoutine(h) {
-  shiftPortraitRowsInPlace(h);
-  return h.rts();
-}
 
 // Upload the first portrait (80:9022), a sequence with a direct live DMA job, for lifted
 // callers without the JSR frame (the tile upload keeps its own for its wait).
@@ -155,11 +150,6 @@ export function* uploadFirstPortrait(h, events) {
     for (let x = OAM_HIGH_LAST; x >= 0; x -= 2) setWord(wram, OAM_HIGH_TABLE + x, 0);
     for (const [at, value] of FIRST_ENTRIES) setWord(wram, at, value);
   };
-}
-// The first upload as called with JSR (80:9022); returns with its RTS.
-export function* uploadFirstPortraitSequence(h, events) {
-  yield* uploadFirstPortrait(h, events);
-  return yield* rts(h);
 }
 
 // Upload the second portrait (80:905E), a sequence with a direct live DMA job, for lifted
@@ -177,11 +167,6 @@ export function* uploadSecondPortrait(h, events) {
     setWord(wram, OAM_HIGH_TABLE, SECOND_OAM_HIGH);
     setWord(wram, NMI_JOB_LISTS, word(wram, NMI_JOB_LISTS) + 1);
   };
-}
-// The second upload as called with JSR (80:905E); returns with its RTS.
-export function* uploadSecondPortraitSequence(h, events) {
-  yield* uploadSecondPortrait(h, events);
-  return yield* rts(h);
 }
 // The portrait job's DMA channel 0 setup of 80:8FF5: 1000 bytes from 7F:5250 to VMDATA
 // in word mode, with the VRAM address incremented after the high byte. The game NMI

@@ -3,7 +3,6 @@ import assert from 'node:assert/strict';
 import * as direct from '../src/game/member-portrait.mjs';
 import * as former from '../proof/caller/member-portrait.mjs';
 import * as upload from '../proof/caller/portrait-upload.mjs';
-import { shiftPortraitRowsRoutine } from '../src/game/portrait-upload.mjs';
 import { unpackPortraitRoutine } from '../proof/caller/portrait-routines.mjs';
 import { frameWaitCallSequence } from '../src/system/live-input-calls.mjs';
 import {
@@ -23,6 +22,7 @@ import {
   PORTRAIT_WINDOW_RIGHT,
   TMW_SHADOW,
 } from '../src/data/wram.mjs';
+import { shiftPortraitRowsJsr } from '../proof/caller/jsr-forms.mjs';
 
 function run(module, member, jobs, shadow, budget) {
   const side = textWindowSide(),
@@ -63,7 +63,7 @@ function run(module, member, jobs, shadow, budget) {
   };
   const table = new Map([
       [0x809f6d, unpackPortraitRoutine],
-      [0x808f20, shiftPortraitRowsRoutine],
+      [0x808f20, shiftPortraitRowsJsr],
     ]),
     bindings = [];
   for (const [target, sequence] of [

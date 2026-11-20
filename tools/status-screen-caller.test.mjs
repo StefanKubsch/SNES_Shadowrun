@@ -22,9 +22,8 @@ import {
   uploadFirstPortraitSequence,
   uploadPortraitTilesSequence,
 } from '../proof/caller/portrait-upload.mjs';
-import { shiftPortraitRowsRoutine } from '../src/game/portrait-upload.mjs';
 import { unpackPortraitRoutine } from '../proof/caller/portrait-routines.mjs';
-import { clearFixedColourJsl } from '../proof/caller/jsr-forms.mjs';
+import { clearFixedColourJsl, shiftPortraitRowsJsr } from '../proof/caller/jsr-forms.mjs';
 function runStatus(
   module,
   direct,
@@ -154,7 +153,7 @@ function runStatus(
         return service(callee, frameEvents, status, pc);
       };
       routines.set(0x809f6d, unpackPortraitRoutine);
-      routines.set(0x808f20, shiftPortraitRowsRoutine);
+      routines.set(0x808f20, shiftPortraitRowsJsr);
       bind(0x809022, () => uploadFirstPortraitSequence(h, events, routines));
       bind(0x808ff5, () => uploadPortraitTilesSequence(h, events, routines));
       bind(0x80e4b3, () => memberPortraitSequence(h, events, routines));

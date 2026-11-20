@@ -3,6 +3,7 @@ import {
   clearFixedColourJsl,
   setWindowTextWidthJsr,
   closeDialogJsr,
+  shiftPortraitRowsJsr as liveShift,
 } from '../proof/caller/jsr-forms.mjs';
 import * as formerText from '../proof/caller/dialog-text.mjs';
 import * as formerMenus from '../proof/caller/dialog-menus.mjs';
@@ -356,7 +357,6 @@ function runTalk(
   for (const [, wram] of result.uploads) wram.fill(0, 0x1e80 - 0x1cc, 0x1ef0 - 0x1cc);
   return { ...result, frames, input, requests };
 }
-import { shiftPortraitRowsRoutine as liveShift } from '../src/game/portrait-upload.mjs';
 import { unpackPortraitRoutine as liveUnpack } from '../proof/caller/portrait-routines.mjs';
 for (const budget of [1, 7])
   for (const variant of ['exit', 'cancel', 'talk', 'topic'])
