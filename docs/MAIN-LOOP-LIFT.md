@@ -98,9 +98,10 @@ raiseMemberMagicPointsInPlace (the karma menu's body list and leader top-up); th
 sound command and music change (sendApuCommandInPlace, setMusicModeInPlace) without
 their JSL frames; clearFixedColourInPlace, setWindowTextWidthInPlace and
 shiftPortraitRowsInPlace (the dialog, status screen and portrait setup);
-buildSpritesInPlace (the dialog close); the window release, the glove, the notice
-windows' release and the name window release already had one. The player control
-selects animations and turns through the plain functions of
+buildSpritesInPlace (the dialog close); reloadObjectTiles with its per-object
+request (the dialog close; the frame wait keeps its JSL frame); the window release,
+the glove, the notice windows' release and the name window release already had one.
+The player control selects animations and turns through the plain functions of
 [object-turn.mjs](../src/game/object-turn.mjs). The unused call sites go with the
 frames. Frames stay where a callee's own wait or a recorded routine returns from
 them (the word wait, the menu choice, the confirm key, the portrait unpack and

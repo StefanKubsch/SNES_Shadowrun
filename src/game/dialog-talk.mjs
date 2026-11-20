@@ -29,7 +29,7 @@ import { setMusicModeInPlace } from '../apu/audio-routines.mjs';
 import { showDialogText } from './dialog-text.mjs';
 import { chooseDialogActionSequence, chooseDialogTopicSequence } from './dialog-menus.mjs';
 import { drawTextBufferSequence } from './text-draw.mjs';
-import { reloadObjectTilesSequence } from './object-tiles.mjs';
+import { reloadObjectTiles } from './object-tiles.mjs';
 import { buildSpritesInPlace } from './sprite-list.mjs';
 import { openWindow } from './window-open.mjs';
 import {
@@ -151,7 +151,6 @@ const CALL = Object.freeze({
   releaseText: [0x8094d9, 0x80fa3e],
   releaseFrame: [0x8094df, 0x80fa3e],
   closePortrait: [0x8092c5, 0x808f97],
-  tiles: [0x8092ce, 0x80adf4],
   closeWait: [0x8092d1, 0x81b0a1, true],
 });
 const OBJSEL_SITE = 0x809412,
@@ -207,7 +206,7 @@ export function* closeDialog(h, events) {
   const { port } = sceneRuntime(h);
   yield* dialogCallBody(h, ...CALL.closePortrait, () => closePortraitWindowSequence(h, events));
   yield () => port.write(OBJSEL, 0, 2, CLOSE_OBJSEL_SITE);
-  yield* dialogCallBody(h, ...CALL.tiles, () => reloadObjectTilesSequence(h, events));
+  yield* reloadObjectTiles(h, events);
   yield* dialogCallBody(
     h,
     CALL.closeWait[0],

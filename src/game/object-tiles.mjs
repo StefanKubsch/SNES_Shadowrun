@@ -79,8 +79,7 @@ const FRAME_BANK = 0x8c,
   SLOT_HALVES = [0x80aeb4, 0x80aec4],
   LOW_WRAM_END = 0x2000;
 // Original call sites, and the waits' loads (their branches follow the 3-byte load).
-const RELOAD_CALL = [0x80ae00, 0x80ae12],
-  ANIMATION_CALL = [0x80ae17, 0x80ac2f],
+const ANIMATION_CALL = [0x80ae17, 0x80ac2f],
   WAIT_CALL = [0x80ae23, 0x81b0a1, true],
   FULL_WAIT = 0x80ae5e,
   END_WAIT = 0x80ae0c,
@@ -113,9 +112,11 @@ function* waitForJobLists(h, events, site) {
   }
 }
 
-// Request the tiles of the draw list's objects again (80:ADF4), a sequence for a native
-// call continuation, called with JSR and composing the live frame wait.
-export function* reloadObjectTilesSequence(h, events) {
+// Request the tiles of the draw list's objects again (80:ADF4), a sequence composing the
+// live frame wait, for lifted callers without the JSR frame (the caller's return word
+// lies only in free stack bytes); the per-object request (80:AE12) runs without its
+// frame as well.
+export function* reloadObjectTiles(h, events) {
   const { ctx } = h,
     { mem } = h.a,
     { wram } = mem;
@@ -129,21 +130,21 @@ export function* reloadObjectTilesSequence(h, events) {
       // The draw list through the data bank, as the original's LDX abs,Y.
       slot = longWord(mem, (ctx.bank << WORD_BITS) + DRAW_LIST + index);
     };
-    yield* dialogCallBody(h, ...RELOAD_CALL, () => reloadSequence(h, events, slot));
+    yield* reloadSequence(h, events, slot);
     yield () => {
       index = (index - FRAME_STEP) & WORD_MASK;
     };
   } while (!(index & WORD_SIGN));
   yield () => countJobList(wram);
   yield* waitForJobLists(h, events, END_WAIT);
-  let result;
-  yield () => {
-    result = h.rts();
-  };
-  return result;
+}
+// The reload as called with JSR (80:ADF4); returns with its RTS.
+export function* reloadObjectTilesSequence(h, events) {
+  yield* reloadObjectTiles(h, events);
+  return yield* rts(h);
 }
 
-// Request the tiles of the object in slot again (80:AE12, called with JSR).
+// Request the tiles of the object in slot again (80:AE12), without the JSR frame.
 function* reloadSequence(h, events, slot) {
   const { mem } = h.a,
     { wram } = mem;
@@ -171,7 +172,7 @@ function* reloadSequence(h, events, slot) {
         waiting = get(OBJECT_PICTURE_CHANGE) !== 0;
         if (waiting) countJobList(wram);
       };
-      if (!waiting) return yield* rts(h);
+      if (!waiting) return;
       yield* dialogCallBody(
         h,
         WAIT_CALL[0],
@@ -200,7 +201,7 @@ function* reloadSequence(h, events, slot) {
     full = jobs <= WORD_MASK && jobs >= UPLOAD_LIMIT;
     if (full) countJobList(wram);
   };
-  if (!tiles) return yield* rts(h);
+  if (!tiles) return;
   if (full) yield* waitForJobLists(h, events, FULL_WAIT);
 
   // Two upload jobs per tile into the object's slots.
@@ -221,7 +222,6 @@ function* reloadSequence(h, events, slot) {
     setWord(wram, DP_TILES, 0);
     setWord(wram, DP_VRAM_UPLOAD_INDEX, job);
   };
-  return yield* rts(h);
 }
 
 function* rts(h) {
