@@ -4,6 +4,7 @@
 import { playSoundEffectCall } from '../../src/apu/sound-effect.mjs';
 import { printText } from '../../src/game/text-print.mjs';
 import { sortDrawListInPlace } from '../../src/game/depth-sort.mjs';
+import { paletteSlotInPlace } from '../../src/game/palette-slots.mjs';
 import { enterRoomSequence } from '../../src/game/room-entry.mjs';
 import { printNumber, setTextCursor } from '../../src/game/window-text.mjs';
 import { drawTextBufferSequence } from '../../src/game/text-draw.mjs';
@@ -50,4 +51,11 @@ export function* enterRoomJsr(h, events, room) {
 export function sortDrawListJsr(h) {
   sortDrawListInPlace(h);
   return h.rts();
+}
+
+// The palette slot 80:AB0A: returns the slot after its RTS.
+export function paletteSlotJsr(h, palette) {
+  const slot = paletteSlotInPlace(h.a.mem.wram, palette);
+  h.rts();
+  return slot;
 }

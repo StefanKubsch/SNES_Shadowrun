@@ -46,9 +46,5 @@ export function paletteSlotInPlace(wram, palette) {
   }
   return slot;
 }
-// The slot of the palette as called with JSR (80:AB0A): returns the slot after its RTS.
-export function paletteSlot(h, palette) {
-  const slot = paletteSlotInPlace(h.a.mem.wram, palette);
-  h.rts();
-  return slot;
-}
+// The RTS form for register-level callers is paletteSlotJsr in
+// proof/caller/jsr-forms.mjs.

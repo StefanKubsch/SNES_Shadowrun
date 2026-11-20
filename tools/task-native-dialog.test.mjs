@@ -547,8 +547,7 @@ for (const [name, native, registers] of [
 // The lifted depth sort and palette slot alone (src/game/depth-sort.mjs, palette-slots.mjs),
 // both compared by game state (user decision 2026-11-17).
 // The palette slot takes the palette as a parameter (A in the original).
-import { sortDrawListJsr } from '../proof/caller/jsr-forms.mjs';
-import { paletteSlot } from '../src/game/palette-slots.mjs';
+import { paletteSlotJsr, sortDrawListJsr } from '../proof/caller/jsr-forms.mjs';
 const b8deWindows = (starts) => DIALOG_WINDOWS.b8de.filter((w) => starts.includes(w.start));
 check(
   'lifted AFFC',
@@ -585,7 +584,7 @@ check(
     put(0x17d4, 2 * int(0x10));
     return s;
   },
-  { native: (h) => paletteSlot(h, h.ctx.a), registers: GAME_STATE_REGISTERS },
+  { native: (h) => paletteSlotJsr(h, h.ctx.a), registers: GAME_STATE_REGISTERS },
 );
 
 // Native95/936C code with 92C5: every called routine uses an identical stub with a real frame
