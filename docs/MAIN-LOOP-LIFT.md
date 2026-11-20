@@ -120,7 +120,8 @@ text 80:E9A8; the sprite list's OAM high table fill 81:A7FC; its NMI job count
 81:A954; its palette slot reset 81:A840; paletteSlotInPlace (80:AB0A from the sprite
 list and the OAM entry 80:B20A); the depth sort's rule comparisons 80:B0A5 and
 80:B0ED; stepAnimationInPlace (the motion pass's animation step 80:AC2F; a recorded
-run keeps the frame for its register-level step); sortDrawListInPlace (the sprite list's depth sort 80:AFFC);
+run keeps the frame for its register-level step); bootScreensInPlace (the startup 80:A133 with 80:A15C and
+81:E7BC); sortDrawListInPlace (the sprite list's depth sort 80:AFFC);
 enterObjectSpritesInPlace (its OAM entries 80:B20A); the OAM entry's wall sprites
 80:B130 (all 25 grid call sites); objectSearch (the glove move's search); gloveMove (the glove choices'
 frames; the word wait keeps its frame); putting the glove on (80:BC67 and 80:BC99
@@ -133,7 +134,7 @@ frames. Frames stay where a callee's own wait or a recorded routine returns from
 (the word wait, the menu choice, the confirm key, the portrait unpack and tile
 upload, the topic action's append and visit, the glove choices' window list
 preparation, whose upload wait a harness reads, the scene request's cutscene and
-matrix, the title, start menu and boot screens, and the attract demo's room start,
+matrix, the title and start menu, and the attract demo's room start,
 through which the main loop returns).
 
 ## Lifted so far

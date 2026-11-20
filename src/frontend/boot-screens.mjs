@@ -42,6 +42,17 @@ const CLEARED_WORD = 0x10;
 // direct page register (its callers run with D = 0; user decision 2026-11-17). Returns
 // with the status it came with, after its RTL.
 export function* bootScreensSequence(h, events) {
+  yield* bootScreensInPlace(h, events);
+  let result;
+  yield () => {
+    result = h.rtl();
+  };
+  return result;
+}
+
+// The boot screens 81:E7BC for the lifted startup, without the JSL frame (its return
+// address lies only in free stack bytes); the status is restored as by its PLP.
+export function* bootScreensInPlace(h, events) {
   const { ctx } = h,
     status = ctx.status;
   let m;
@@ -86,11 +97,8 @@ export function* bootScreensSequence(h, events) {
   yield* hold(SECOND_SCREEN_FRAMES);
   yield* fadeOut(m.video, wait);
   yield () => disableNmi(m.wram, m.port);
-  let result;
   yield () => {
     sendOutputMode(m);
     ctx.status = status;
-    result = h.rtl();
   };
-  return result;
 }

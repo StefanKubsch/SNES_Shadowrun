@@ -37,6 +37,10 @@ frames. Method: [MATRIX-LIFT.md](MATRIX-LIFT.md).
 
 - The JSL frames of the lifted callees and the status byte of the original PHP are not
   pushed. They lie below the caller's frame on the stack.
+- The live startup ([main-startup.mjs](../src/system/main-startup.mjs)) runs the
+  screens as `bootScreensInPlace`, without the JSR to 80:A15C and its JSL frame
+  (2026-11-20); 80:A15C's PHP and PLP and the data bank 80 it sets before its RTS are
+  kept in the context. `bootScreensSequence` keeps the RTL form for the proof callers.
 - 81:EB97 sets the interrupt disable flag, and the lifted screens set it too. The PLP at
   the end restores the entry status.
 - With recorded interrupt observations the register-level screens run, with their

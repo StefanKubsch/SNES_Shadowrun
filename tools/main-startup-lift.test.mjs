@@ -9,16 +9,27 @@ import { mainStartupSequence } from '../src/system/main-startup.mjs';
 import { MainStartupContinuation, MAIN_STARTUP_ROUTINES } from '../proof/script/live-startup.mjs';
 import { runMainReset, runMainSoftwareReset } from '../proof/replay/main-reset.mjs';
 import { WAIT_RETURNED } from '../src/system/native-wait-continuation.mjs';
-import { SETTINGS_CHECKSUM, SETTINGS_STEREO } from '../src/data/wram.mjs';
+import { NMI_SAVED_A, SETTINGS_CHECKSUM, SETTINGS_STEREO } from '../src/data/wram.mjs';
 import { BANK_SIZE } from '../src/constants/bits.mjs';
 
-// Compare all boot state, including stack bytes, at every NMI and after return.
-// The old caller uses address dispatch; the new caller invokes the screens directly.
+// Compare the boot state at every NMI and after return. The old caller uses address
+// dispatch and the original's frames; the new caller invokes the screens directly,
+// without the JSR and JSL frames. Game state only (user decision 2026-11-17): A, X, Y,
+// P, S, the CPU stacks (main 7E:0100-01C9, NMI 7E:1C7C-1CBB) and the interrupted A
+// and S the NMI saves (7E:1C78, 1C7A) are left out, as in main-owner-caller.test.mjs;
+// the return point, S and the data bank are checked after return.
+const CPU_STACKS = [
+  [0x0100, 0x01ca],
+  [NMI_SAVED_A, 0x1cbc],
+];
 function snapshot(game) {
-  const { ppu } = game.bus;
+  const { ppu } = game.bus,
+    { a, x, y, status, s, ...context } = game.loop.accessor.ctx,
+    wram = game.memory.wram.slice();
+  for (const [from, to] of CPU_STACKS) wram.fill(0, from, to);
   return {
-    context: { ...game.loop.accessor.ctx },
-    wram: game.memory.wram.slice(),
+    context,
+    wram,
     sram: game.memory.sram.slice(),
     video: Object.fromEntries(
       ['vram', 'cgram', 'oam', 'registers', 'scroll'].map((key) => [key, ppu[key].slice()]),
@@ -69,7 +80,9 @@ for (const valid of [true, false])
           } while (status !== WAIT_RETURNED);
           assert.equal(a.ctx.pc, 0xa139);
           assert.equal(a.ctx.s, 0x13f);
-          assert.equal(a.ctx.a, 1);
+          assert.equal(a.ctx.bank, 0x80);
+          // The owner takes A = 1 from its entry point (user decision 2026-11-17).
+          if (side === 0) assert.equal(a.ctx.a, 1);
         }
         assert.deepEqual(
           snapshot(games[1]),

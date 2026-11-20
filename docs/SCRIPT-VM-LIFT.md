@@ -381,8 +381,12 @@ registerLevelLoop})`); the observed rooms and boot replays keep the driver direc
   select callees through a ROM-address map or continuation registry. The game loop
   delegates to this sequence directly. Entry validation and the lag-free requirement
   remain explicit.
-- The original JSR/JSL frames, PHP/PLP and data-bank restoration remain because
-  shared boot and NMI helpers still use the register accessor. This block simplifies
+- The original JSR/JSL frames, PHP/PLP and data-bank restoration remained at first
+  because shared boot and NMI helpers still use the register accessor. Since
+  2026-11-20 the frames go (their return words lie only in free stack bytes); the
+  status and the data bank 80 are restored in the context, and
+  [main-startup-lift.test.mjs](../tools/main-startup-lift.test.mjs) compares game state
+  only, as main-owner-caller.test.mjs does. This block simplifies
   caller composition; it does not remove those register interfaces or change frame
   timing, save data or hardware behaviour.
 - The address-dispatched live path is retained independently in
