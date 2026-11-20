@@ -27,7 +27,6 @@ import {
   GLOVE_TARGET_OBJECT,
   PLAYER_OBJECT,
   MEMBER_INDEX,
-  OBJECT_NUMBER,
   RUNNER_ARMOUR,
   RUNNER_ARMOUR_RATING,
   RUNNER_WEAPON,
@@ -59,7 +58,7 @@ const memberRow = (mem) => (dataBankWord(mem, MEMBER_INDEX) << 2) & WORD_MASK;
 // glove, or the player object when none is under it, gets the rating.
 export function equipArmour(mem, item, rating) {
   const row = memberRow(mem);
-  setWramWord(mem, RUNNER_ARMOUR + row, dataBankWord(mem, OBJECT_NUMBER, item));
+  setWramWord(mem, RUNNER_ARMOUR + row, objectWord(mem, 'number', item));
   setWramByte(mem, RUNNER_ARMOUR_RATING + row, rating);
   const wearer = dataBankWord(
     mem,
@@ -70,7 +69,7 @@ export function equipArmour(mem, item, rating) {
 // 80:8B9F: the member wields the weapon item object with the kind, damage and range bytes.
 export function equipWeapon(mem, item, kind, damage, range) {
   const row = memberRow(mem);
-  setWramWord(mem, RUNNER_WEAPON + row, dataBankWord(mem, OBJECT_NUMBER, item));
+  setWramWord(mem, RUNNER_WEAPON + row, objectWord(mem, 'number', item));
   setWramByte(mem, RUNNER_WEAPON_KIND + row, kind);
   setWramByte(mem, RUNNER_WEAPON_DAMAGE + row, damage);
   setWramByte(mem, RUNNER_WEAPON_RANGE + row, range);
@@ -117,7 +116,7 @@ export function setItemProperty(mem, item, property, fixes) {
   const record = objectWord(mem, 'record', item);
   if (record === 0) return;
   setWramWord(mem, RECORD_PROPERTY + record, property);
-  takeOff(mem, dataBankWord(mem, OBJECT_NUMBER, item), fixes);
+  takeOff(mem, objectWord(mem, 'number', item), fixes);
 }
 // 80:9CE4: the state record of the actor entry gets the property word, and the actor's
 // item is taken off its runner.

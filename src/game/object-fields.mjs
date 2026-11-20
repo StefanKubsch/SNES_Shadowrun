@@ -15,12 +15,10 @@
 // table. A record lies in bank 7E at its pointer: byte 0, the flag byte at +1, the count
 // byte (ammunition or body) at +2 and the property word at +3. Without a record (pointer
 // 0) the reads return the bytes at 7E:0000 and the writes change nothing.
-import { dataBankWord } from '../system/data-bank.mjs';
 import { longObjectWord, objectWord, setLongObjectWord, setObjectWord } from '../state/objects.mjs';
 import {
   OBJECT_DEPTH_MODE_CLEAR_MASK,
   OBJECT_DEPTH_MODE_MASK,
-  OBJECT_NUMBER,
   NO_TASK,
   OBJECT_HIDDEN,
   OBJECT_COVERED,
@@ -109,7 +107,7 @@ export const objectCoarseHeight = (mem, object) => objectWord(mem, 'height', obj
 // 80:D255: the object's facing direction (low byte).
 export const objectDirection = (mem, object) => objectWord(mem, 'direction', object) & BYTE_MASK;
 // 80:D1CA: the object's number.
-export const objectNumber = (mem, object) => dataBankWord(mem, OBJECT_NUMBER, object);
+export const objectNumber = (mem, object) => objectWord(mem, 'number', object);
 // 80:D17B: the sprite mode bits of the object's depth order word.
 export const spriteMode = (mem, object) =>
   objectWord(mem, 'depthOrder', object) & OBJECT_DEPTH_MODE_MASK;

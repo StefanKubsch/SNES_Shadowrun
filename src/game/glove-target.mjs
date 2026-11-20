@@ -31,7 +31,6 @@ import { frameWaitCallSequence, takePad } from '../system/live-input-calls.mjs';
 // flags (the script interpreter replaces them and reads DP 00). The chosen slot and
 // the place choice's object still wait on the stack as in the original.
 import { dialogCallBody, segmentSequence } from '../system/native-call-continuation.mjs';
-import { dataBankWord } from '../system/data-bank.mjs';
 import { GLOVE_LIMITS, GLOVE_OVER_PLAYER } from '../script/native-glove-crosshair-limits.mjs';
 import {
   CAMERA_X,
@@ -60,7 +59,6 @@ import {
   DP_WINDOW_ROWS,
   DP_WINDOW_TOP,
   MEMBER_MENU_ACTIVE,
-  OBJECT_NUMBER,
   SCRIPT_GLOVE_CHOICE,
   SPELL_TARGET_OBJECT,
   WINDOW_FIRST_INDEX,
@@ -305,7 +303,7 @@ function* chooseNumberBodySequence(h, events, renderBuffer) {
   yield () => {
     const { mem } = h.a,
       slot = word(mem.wram, 0);
-    if (!(slot & WORD_SIGN)) setResult(h, dataBankWord(mem, OBJECT_NUMBER, slot));
+    if (!(slot & WORD_SIGN)) setResult(h, objectWord(mem, 'number', slot));
   };
 }
 // 80:9BC6: choose an object in reach with the action glove; DP 00 gets its number or

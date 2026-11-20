@@ -20,16 +20,9 @@ import {
   ANIMATION_CLOCK_START,
   DRAW_LIST,
   DRAW_LIST_INDEX,
-  MOTION_ACTIVE,
-  OBJECT_BOX_HEIGHT,
-  OBJECT_BOX_X1,
-  OBJECT_BOX_X2,
-  OBJECT_BOX_Y1,
-  OBJECT_BOX_Y2,
   VRAM_SLOT_COUNT,
   VRAM_SLOT_FREE_LIST,
   VRAM_SLOT_NEXT,
-  WRAM,
 } from '../data/wram.mjs';
 import { LONG_MASK, WORD_BITS, WORD_MASK } from '../constants/bits.mjs';
 import { bankObjectWord, setBankObjectWord, setLongObjectWord } from '../state/objects.mjs';
@@ -43,8 +36,7 @@ const FREE_KIND = WORD_MASK;
 const ENTRY_BYTES = 2,
   INDEX_TURN = (WORD_MASK + 1) / ENTRY_BYTES;
 
-// A word long in bank 7E or through the data bank at offset (24-bit addresses).
-const setWramWord = (mem, offset, value) => mem.write16((WRAM + offset) & LONG_MASK, value);
+// A word through the data bank at offset (24-bit addresses).
 const bankAddress = (a, offset) => ((a.ctx.bank << WORD_BITS) + offset) & LONG_MASK;
 const bankWord = (a, offset) => a.mem.read16(bankAddress(a, offset));
 const setBankWord = (a, offset, value) => a.mem.write16(bankAddress(a, offset), value & WORD_MASK);
@@ -55,15 +47,8 @@ const setDirectWord = (mem, offset, value) => mem.write16Bank0(offset, value & W
 // 80:AA4C: clear the graphics fields of the object in word 00 and free its VRAM slots.
 export function releaseObjectGraphics(mem, a) {
   const object = directWord(mem, DP_OBJECT);
-  for (const field of [
-    OBJECT_BOX_X1,
-    OBJECT_BOX_X2,
-    OBJECT_BOX_Y1,
-    OBJECT_BOX_Y2,
-    OBJECT_BOX_HEIGHT,
-    MOTION_ACTIVE,
-  ])
-    setWramWord(mem, field + object, 0);
+  for (const name of ['boxX1', 'boxX2', 'boxY1', 'boxY2', 'boxHeight', 'motionActive'])
+    setLongObjectWord(mem, name, object, 0);
   setBankObjectWord(a, 'pictureChange', object, 0);
   setLongObjectWord(mem, 'picture', object, 0);
   setBankObjectWord(a, 'actionDirections', object, 0);

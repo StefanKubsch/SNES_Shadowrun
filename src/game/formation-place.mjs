@@ -21,11 +21,10 @@ import {
   FORMATION_DIRECTION,
   FORMATION_LAST,
   FORMATION_UNMOVED,
-  OBJECT_NUMBER,
   WRAM,
 } from '../data/wram.mjs';
 import { BYTE_BITS, BYTE_MASK, LONG_MASK, WORD_MASK, WORD_SIGN } from '../constants/bits.mjs';
-import { setObjectWord } from '../state/objects.mjs';
+import { setObjectWord, objectWord } from '../state/objects.mjs';
 
 // The members' steps behind the newest trail entry (80:BB88, a word per member index).
 const MEMBER_STEPS = 0xbb88,
@@ -52,7 +51,7 @@ const wramWord = (mem, offset) => mem.read16((WRAM + offset) & LONG_MASK);
 export function placeInFormation(mem) {
   const { wram } = mem,
     object = word(wram, DP_OBJECT),
-    number = dataBankWord(mem, OBJECT_NUMBER, object);
+    number = objectWord(mem, 'number', object);
   let member = wramWord(mem, GROUP_INDEX);
   while (number !== wramWord(mem, GROUP_NUMBERS + member)) {
     member = (member - MEMBER_BYTES) & WORD_MASK;

@@ -70,7 +70,6 @@ import {
   MEMBER_PORTRAIT_REDRAW,
   NOTICE_WINDOW_LAST,
   NOTICE_WINDOWS,
-  OBJECT_NUMBER,
   STATUS_ITEMS_AT_ONCE,
   STATUS_SUBMENU_WINDOW,
   STORY_STAGE,
@@ -258,7 +257,7 @@ export function* useItem(h, events, renderBuffer, actor) {
   yield () => createObject(mem, wram, h.a);
   yield () => {
     const slot = word(wram, 0);
-    setDataBankWord(mem, OBJECT_NUMBER, slot, actor);
+    setObjectWord(mem, 'number', slot, actor);
     // The depth flags (bits 6 and 7) to bits 15 and 0 of the depth order.
     const flags = word(wram, DP_ITEM_FLAGS) & ACTOR_DEPTH_FLAGS,
       swapped = ((flags << BYTE_BITS) | (flags >>> BYTE_BITS)) & WORD_MASK,

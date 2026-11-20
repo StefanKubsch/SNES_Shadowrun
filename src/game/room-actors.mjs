@@ -29,7 +29,6 @@ import {
   GROUP_SLOTS,
   JAKE_DERMAL_ARMOUR,
   OBJECT_CLASS_MASK,
-  OBJECT_NUMBER,
   PLAYER_OBJECT,
   RUNNER_ARMOUR_RATING,
   STORY_STAGE,
@@ -45,7 +44,7 @@ import {
 import { ROOM_HEADER_ACTOR_COUNT } from '../data/rooms.mjs';
 import { RUNNER_LAST_INDEX, RUNNER_OBJECT_NUMBERS } from '../data/runners.mjs';
 import { BYTE_BITS, BYTE_MASK, WORD_BITS, WORD_MASK, WORD_SIGN } from '../constants/bits.mjs';
-import { objectWordIn, setObjectWordIn } from '../state/objects.mjs';
+import { objectWordIn, setObjectWordIn, setLowObjectWord } from '../state/objects.mjs';
 
 const NONE = WORD_MASK,
   LONG_MASK = 0xffffff,
@@ -83,8 +82,6 @@ const DEPTH_FRONT_SHIFT = 9,
   DEPTH_BACK_SHIFT = 7;
 // The runner armour is read at four times the runner's word index.
 const ARMOUR_INDEX_SHIFT = 2;
-// The end of the WRAM mirror that the original's data bank 80 reads.
-const LOW_WRAM_END = 0x2000;
 
 const word = (wram, at) => wram[at] | (wram[at + 1] << BYTE_BITS);
 const setWord = (wram, at, value) => {
@@ -142,8 +139,7 @@ export function* createGroupSequence(h) {
       // Only a failed creation (no free slot) and a turn through the selection path
       // leave a slot past the object tables, which the original reaches through its
       // data bank 80 (in ROM above 2000).
-      if (OBJECT_NUMBER + slot + 1 >= LOW_WRAM_END) taskStop('object_slot_required', { slot });
-      setWord(wram, OBJECT_NUMBER + slot, number);
+      setLowObjectWord(wram, 'number', slot, number);
       setObjectWordIn(wram, 'depthOrder', slot, depthOrder(mem.read8(ACTOR_TABLE + number)));
       setObjectWordIn(wram, 'record', slot, readWord(mem, ACTOR_TABLE + ACTOR_RECORD + number));
       const index = runnerIndex(mem, number),
@@ -196,7 +192,7 @@ export function* placeRoomActorsSequence(h) {
       yield () => createObjectCall(h);
       yield () => {
         const slot = word(wram, DP_OBJECT_KIND);
-        setWord(wram, OBJECT_NUMBER + slot, actor);
+        setObjectWordIn(wram, 'number', slot, actor);
         setObjectWordIn(wram, 'depthOrder', slot, depthOrder(word(wram, DP_ACTOR_FLAGS)));
         setObjectWordIn(wram, 'record', slot, word(wram, DP_ACTOR_RECORD));
       };

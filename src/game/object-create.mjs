@@ -26,28 +26,7 @@ import {
   DP_OBJECT_Y,
   DRAW_LIST,
   DRAW_LIST_INDEX,
-  MOTION_ACTIVE,
-  OBJECT_ACTION_DIRECTIONS,
-  OBJECT_ARMOUR,
-  OBJECT_BOX_HEIGHT,
-  OBJECT_BOX_X1,
-  OBJECT_BOX_X2,
-  OBJECT_BOX_Y1,
-  OBJECT_BOX_Y2,
-  OBJECT_DEPTH_ORDER,
-  OBJECT_DEPTH_RULE,
-  OBJECT_DIALOG,
-  OBJECT_DIRECTION,
   OBJECT_LAST_SLOT,
-  OBJECT_NUMBER,
-  OBJECT_PICTURE,
-  OBJECT_PICTURE_CHANGE,
-  OBJECT_RECORD,
-  OBJECT_VELOCITY_X,
-  OBJECT_VELOCITY_Y,
-  OBJECT_VELOCITY_Z,
-  OBJECT_VRAM_SLOT_COUNT,
-  OBJECT_VRAM_SLOT_HEAD,
 } from '../data/wram.mjs';
 import { KIND_FLAGS_OFFSET, KIND_TABLE } from '../data/kinds.mjs';
 import { BYTE_BITS, BYTE_MASK, WORD_BITS, WORD_MASK, WORD_SIGN } from '../constants/bits.mjs';
@@ -77,40 +56,40 @@ export function createObject(mem, wram, a) {
   }
   const kind = word(wram, DP_OBJECT_KIND);
   setObjectWordIn(wram, 'kind', slot, kind);
-  for (const table of [
-    OBJECT_VELOCITY_X,
-    OBJECT_VELOCITY_Y,
-    OBJECT_VELOCITY_Z,
-    OBJECT_DEPTH_RULE,
-    OBJECT_BOX_X1,
-    OBJECT_BOX_X2,
-    OBJECT_BOX_Y1,
-    OBJECT_BOX_Y2,
-    OBJECT_BOX_HEIGHT,
-    OBJECT_ARMOUR,
-    OBJECT_DIALOG,
-    MOTION_ACTIVE,
-    OBJECT_PICTURE_CHANGE,
-    OBJECT_PICTURE,
+  for (const name of [
+    'velocityX',
+    'velocityY',
+    'velocityZ',
+    'depthRule',
+    'boxX1',
+    'boxX2',
+    'boxY1',
+    'boxY2',
+    'boxHeight',
+    'armour',
+    'dialog',
+    'motionActive',
+    'pictureChange',
+    'picture',
   ])
-    setWord(wram, table + slot, 0);
+    setObjectWordIn(wram, name, slot, 0);
   const x = (word(wram, DP_OBJECT_X) << POSITION_SHIFT) & WORD_MASK,
     y = (word(wram, DP_OBJECT_Y) << POSITION_SHIFT) & WORD_MASK;
   setObjectWordIn(wram, 'x', slot, x);
   setObjectWordIn(wram, 'y', slot, y);
   setObjectWordIn(wram, 'diagonal', slot, ((x + y) & WORD_MASK) >>> 1);
   setObjectWordIn(wram, 'height', slot, word(wram, DP_OBJECT_HEIGHT) << POSITION_SHIFT);
-  for (const table of [
-    OBJECT_ACTION_DIRECTIONS,
-    OBJECT_VRAM_SLOT_COUNT,
-    OBJECT_VRAM_SLOT_HEAD,
-    OBJECT_DIRECTION,
-    OBJECT_RECORD,
-    OBJECT_DEPTH_ORDER,
+  for (const name of [
+    'actionDirections',
+    'vramSlotCount',
+    'vramSlotHead',
+    'direction',
+    'record',
+    'depthOrder',
   ])
-    setWord(wram, table + slot, 0);
+    setObjectWordIn(wram, name, slot, 0);
   setObjectWordIn(wram, 'selection', slot, WORD_MASK);
-  setWord(wram, OBJECT_NUMBER + slot, WORD_MASK);
+  setObjectWordIn(wram, 'number', slot, WORD_MASK);
   setObjectWordIn(wram, 'animationClock', slot, ANIMATION_CLOCK_START);
   setObjectWordIn(wram, 'frameRepeats', slot, 1);
   setWord(wram, DP_OBJECT_KIND, slot);

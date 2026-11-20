@@ -28,9 +28,6 @@ import { dataBankWord, setDataBankWord } from '../system/data-bank.mjs';
 import { pointerWord } from '../system/open-bus.mjs';
 import { PHASE_MASK, QUARTER_PHASE, WAVE_TABLE } from './object-bob.mjs';
 import {
-  OBJECT_HEIGHT,
-  OBJECT_X,
-  OBJECT_Y,
   PATH_PHASE_HEIGHT,
   PATH_PHASE_XY,
   PATH_SPEED_HEIGHT,
@@ -77,6 +74,7 @@ const SET_TARGET = 1,
   DP_POINT_LIST = 0xf3,
   DP_POINT_LIST_BANK = DP_POINT_LIST + 2,
   POINT_SHIFT = 2,
+  POINT_TIMES_EIGHT_SHIFT = 3,
   WAVE_PHASE_STEP = 0x0a,
   WAVE_SECOND_PHASE_STEP = 0xfff8,
   WAVE_BASE_HEIGHT = 0xe8,
@@ -107,11 +105,11 @@ export function moveSwarmAlongPath(mem) {
     const axis = (phase, sum, field, shift) => {
       const value = (waveByte(mem, phase) - WAVE_CENTRE + word(mem, sum)) & WORD_MASK;
       setWord(mem, sum, value);
-      setDataBankWord(mem, field, member(mem, offset), value >>> shift);
+      setObjectWord(mem, field, member(mem, offset), value >>> shift);
     };
-    axis(word(mem, PATH_PHASE_XY) & PHASE_MASK, SWARM_X, OBJECT_X, XY_SHIFT);
-    axis((word(mem, PATH_PHASE_XY) + QUARTER_PHASE) & PHASE_MASK, SWARM_Y, OBJECT_Y, XY_SHIFT);
-    axis(word(mem, PATH_PHASE_HEIGHT) & PHASE_MASK, SWARM_HEIGHT, OBJECT_HEIGHT, HEIGHT_SHIFT);
+    axis(word(mem, PATH_PHASE_XY) & PHASE_MASK, SWARM_X, 'x', XY_SHIFT);
+    axis((word(mem, PATH_PHASE_XY) + QUARTER_PHASE) & PHASE_MASK, SWARM_Y, 'y', XY_SHIFT);
+    axis(word(mem, PATH_PHASE_HEIGHT) & PHASE_MASK, SWARM_HEIGHT, 'height', HEIGHT_SHIFT);
     const advance = (speed, shift, bias, phase) => {
       let at = word(mem, speed) & PHASE_MASK;
       if (at === QUARTER_PHASE) at++;
@@ -140,7 +138,7 @@ export function moveSwarmWave(mem, mode, point) {
   if (mode === SET_TARGET) {
     // Six times the point by ASL three times and two SBCs, the second keeping the
     // borrow of the first.
-    const eight = (point << 3) & WORD_MASK,
+    const eight = (point << POINT_TIMES_EIGHT_SHIFT) & WORD_MASK,
       first = eight - point,
       entry = (first - point - (first < 0 ? 1 : 0)) & WORD_MASK;
     for (const [offset, target] of POINT_FIELDS) {

@@ -14,7 +14,6 @@ import {
   GROUP_INDEX,
   GROUP_NUMBERS,
   MAGIC_POINTS,
-  OBJECT_NUMBER,
   PLAYER_OBJECT,
   RECORD_COUNT,
 } from '../data/wram.mjs';
@@ -77,10 +76,10 @@ function findMember(mem, object, stop) {
     groupNumber = (at) => wramWord(wram, at),
     inGroup = (number) =>
       !(searchDown(groupNumber, GROUP_NUMBERS, wramWord(wram, GROUP_INDEX), number) & WORD_SIGN);
-  let number = dataBankWord(mem, OBJECT_NUMBER, object);
+  let number = objectWord(mem, 'number', object);
   if (!inGroup(number)) {
     object = wramWord(wram, PLAYER_OBJECT);
-    number = dataBankWord(mem, OBJECT_NUMBER, object);
+    number = objectWord(mem, 'number', object);
     if (!inGroup(number)) taskStop(stop);
   }
   const row = searchDown(
@@ -162,7 +161,7 @@ const DP_RECORD_POINTER = 0xa2,
   RUNNER_BYTES = 2;
 function runnerRecordByte(mem) {
   const { wram } = mem,
-    number = dataBankWord(mem, OBJECT_NUMBER, wramWord(wram, 0));
+    number = objectWord(mem, 'number', wramWord(wram, 0));
   let runner = RUNNER_LAST_INDEX;
   while (number !== dataBankWord(mem, RUNNER_OBJECT_NUMBERS, runner)) {
     runner = (runner - RUNNER_BYTES) & WORD_MASK;

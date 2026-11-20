@@ -42,6 +42,7 @@ import {
   OBJECT_FRAME_REPEATS,
   OBJECT_HEIGHT,
   OBJECT_KIND,
+  OBJECT_NUMBER,
   OBJECT_LAST_SLOT,
   OBJECT_PALETTE,
   OBJECT_PICTURE,
@@ -90,6 +91,7 @@ const FIELDS = Object.freeze({
   motionY: MOTION_Y,
   // Index into the kind table; bit 15 set marks a free slot.
   kind: OBJECT_KIND,
+  number: OBJECT_NUMBER,
   // The task the object belongs to (negative: none) and its record pointer (0: none).
   task: OBJECT_TASK,
   record: OBJECT_RECORD,

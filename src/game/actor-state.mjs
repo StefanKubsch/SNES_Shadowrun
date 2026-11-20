@@ -6,9 +6,9 @@
 // the WRAM address of its state record (0: none): the flag byte at +1, the count byte at
 // +2 and the property word at +3, in bank 7E (an address near FFFF reaches 7F). Without
 // a record the reads return the bytes at 7E:0001 to 0004 and the writes change nothing.
+import { objectWord } from '../state/objects.mjs';
 import { ACTOR_RECORD, ACTOR_TABLE } from '../data/actors.mjs';
-import { OBJECT_NUMBER, RECORD_COUNT, RECORD_FLAGS, RECORD_PROPERTY, WRAM } from '../data/wram.mjs';
-import { dataBankWord } from '../system/data-bank.mjs';
+import { RECORD_COUNT, RECORD_FLAGS, RECORD_PROPERTY, WRAM } from '../data/wram.mjs';
 import { BYTE_BITS, BYTE_MASK, LONG_MASK, WORD_MASK } from '../constants/bits.mjs';
 
 // A script's truth value.
@@ -55,7 +55,7 @@ export const isActorStateProperty = (mem, actor, wanted) =>
 // count) may change the count stored (the health cheat, src/game/cheats.mjs). TRUE (FFFF)
 // when it reaches 0 or there is no record, else 0.
 export function countDownObjectState(mem, object, guard = (_record, value) => value) {
-  const state = actorState(mem, dataBankWord(mem, OBJECT_NUMBER, object));
+  const state = actorState(mem, objectWord(mem, 'number', object));
   if (state === 0) return TRUE;
   const at = fieldAddress(state, RECORD_COUNT),
     count = guard(state, (mem.read8(at) - 1) & BYTE_MASK);

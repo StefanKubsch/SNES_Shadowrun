@@ -33,32 +33,22 @@
 //
 // With recorded interrupt observations an NMI may fall inside the routine (the Mesen
 // cold boot replay records one at 80:AC8F), so the register-level routine runs there.
+import {
+  lowObjectWord,
+  setLowObjectWord,
+  longObjectWord,
+  setLongObjectWord,
+} from '../state/objects.mjs';
 import { recordedRoutine } from '../system/recorded-routines.mjs';
 import { taskStop } from '../system/task-stop.mjs';
 import {
   DP_VRAM_UPLOAD_INDEX,
-  OBJECT_ACTION_DIRECTIONS,
-  OBJECT_ANIMATION_CLOCK,
-  OBJECT_ANIMATION_SPEED,
-  OBJECT_DEPTH_BIAS,
-  OBJECT_DEPTH_RULE,
-  OBJECT_DIRECTION,
-  OBJECT_FRAME_COUNT,
-  OBJECT_FRAME_OFFSET,
-  OBJECT_FRAME_REPEATS,
-  OBJECT_PICTURE,
-  OBJECT_PICTURE_CHANGE,
-  OBJECT_SELECTION,
-  OBJECT_TASK,
-  OBJECT_VRAM_SLOT_COUNT,
-  OBJECT_VRAM_SLOT_HEAD,
   VRAM_SLOT_COUNT,
   VRAM_SLOT_FREE_LIST,
   VRAM_SLOT_NEXT,
   VRAM_UPLOAD_ADDRESSES,
   VRAM_UPLOAD_BANKS,
   VRAM_UPLOAD_SOURCES,
-  WRAM,
 } from '../data/wram.mjs';
 import { sendEvents, tasksOf } from '../script/task-api.mjs';
 import {
@@ -145,11 +135,10 @@ export function stepAnimationInPlace(h, slot) {
   };
   const get = (field, index) => word(wram, near(field, index)),
     put = (field, value, index) => setWord(wram, near(field, index), value),
-    getFar = (field) => longWord(mem, WRAM + field + slot),
-    putFar = (field, value) => {
-      mem.write8((WRAM + field + slot) & LONG_MASK, value & BYTE_MASK);
-      mem.write8((WRAM + field + slot + 1) & LONG_MASK, (value >>> BYTE_BITS) & BYTE_MASK);
-    },
+    getObject = (name) => lowObjectWord(wram, name, slot),
+    putObject = (name, value) => setLowObjectWord(wram, name, slot, value),
+    getFar = (name) => longObjectWord(mem, name, slot),
+    putFar = (name, value) => setLongObjectWord(mem, name, slot, value),
     pointer = (dp) => word(wram, dp) | (wram[dp + 2] << WORD_BITS);
 
   // The original's PHY/PLY pair keeps the caller's Y, which lifted callers do not hold
@@ -158,49 +147,49 @@ export function stepAnimationInPlace(h, slot) {
 
   // The next picture: a change waiting, or the next frame of the stream.
   let picture = null;
-  const change = get(OBJECT_PICTURE_CHANGE);
+  const change = getObject('pictureChange');
   if (change) {
-    put(OBJECT_PICTURE_CHANGE, 0);
+    putObject('pictureChange', 0);
     if (change !== RESTART) picture = change;
   }
   if (picture === null) {
     // The clock: a carry into bit 7 (or out of the word) advances the frame.
-    const total = getFar(OBJECT_ANIMATION_SPEED) + getFar(OBJECT_ANIMATION_CLOCK),
+    const total = getFar('animationSpeed') + getFar('animationClock'),
       sum = total & WORD_MASK,
       clock = sum & CLOCK_MASK;
     setWord(wram, DP_CLOCK_SUM, sum);
-    putFar(OBJECT_ANIMATION_CLOCK, clock);
+    putFar('animationClock', clock);
     if (total <= WORD_MASK && clock === sum) return done();
-    const directions = get(OBJECT_ACTION_DIRECTIONS);
+    const directions = getObject('actionDirections');
     if (!directions) return done();
     setWord(wram, DP_STREAM, directions);
     const stream = (offset) => longWord(mem, pointer(DP_STREAM) + offset);
-    const repeats = (getFar(OBJECT_FRAME_REPEATS) - 1) & WORD_MASK;
-    putFar(OBJECT_FRAME_REPEATS, repeats);
+    const repeats = (getFar('frameRepeats') - 1) & WORD_MASK;
+    putFar('frameRepeats', repeats);
     let frame;
     if (repeats) {
-      frame = get(OBJECT_FRAME_OFFSET);
+      frame = getObject('frameOffset');
     } else {
-      const count = get(OBJECT_FRAME_COUNT);
+      const count = getObject('frameCount');
       if (!count) {
         // The animation has ended.
-        putFar(OBJECT_ANIMATION_SPEED, 0);
-        put(OBJECT_SELECTION, get(OBJECT_SELECTION) | ENDED);
-        const task = get(OBJECT_TASK);
+        putFar('animationSpeed', 0);
+        putObject('selection', getObject('selection') | ENDED);
+        const task = getObject('task');
         if (!(task & WORD_SIGN)) sendEvents(tasksOf(h.a), task, END_EVENT);
         return done();
       }
       let frames = count;
       if (count >= PLAYS_ONCE) {
         frames = count & COUNT_MASK;
-        put(OBJECT_FRAME_COUNT, 0);
+        putObject('frameCount', 0);
       }
-      putFar(OBJECT_FRAME_REPEATS, frames);
+      putFar('frameRepeats', frames);
       setWord(wram, DP_POINTER, directions);
       setWord(wram, DP_POINTER_BANK, FRAME_BANK);
-      frame = longWord(mem, pointer(DP_POINTER) + get(OBJECT_DIRECTION)) & BYTE_MASK;
+      frame = longWord(mem, pointer(DP_POINTER) + getObject('direction')) & BYTE_MASK;
     }
-    put(OBJECT_FRAME_OFFSET, frame + FRAME_STEP);
+    putObject('frameOffset', frame + FRAME_STEP);
     picture = stream(frame);
   }
 
@@ -216,14 +205,14 @@ export function stepAnimationInPlace(h, slot) {
   setWord(wram, DP_PICTURE_START, start);
   const tiles = mem.read8(pointer(DP_POINTER)),
     held = () => {
-      put(OBJECT_PICTURE_CHANGE, word(wram, DP_POINTER) ^ word(wram, DP_PICTURE_BIT));
+      putObject('pictureChange', word(wram, DP_POINTER) ^ word(wram, DP_PICTURE_BIT));
       return done();
     };
   setWord(wram, DP_TILE_COUNT, tiles);
   // A list that would fill past 50 (without a carry out of the word) waits.
   const jobs = (tiles << TILE_JOB_SHIFT) + word(wram, DP_VRAM_UPLOAD_INDEX);
   if (jobs <= WORD_MASK && jobs >= UPLOAD_LIMIT) return held();
-  const owned = get(OBJECT_VRAM_SLOT_COUNT),
+  const owned = getObject('vramSlotCount'),
     difference = (tiles - owned) & WORD_MASK;
   if (difference) {
     if (tiles >= owned) {
@@ -233,29 +222,29 @@ export function stepAnimationInPlace(h, slot) {
       for (let n = difference; n; n--) {
         const taken = word(wram, VRAM_SLOT_FREE_LIST);
         setWord(wram, VRAM_SLOT_FREE_LIST, get(VRAM_SLOT_NEXT, taken));
-        put(VRAM_SLOT_NEXT, get(OBJECT_VRAM_SLOT_HEAD), taken);
-        put(OBJECT_VRAM_SLOT_HEAD, taken);
+        put(VRAM_SLOT_NEXT, getObject('vramSlotHead'), taken);
+        putObject('vramSlotHead', taken);
       }
     } else {
       // Fewer slots: the surplus goes back to the free list.
       const surplus = (difference ^ WORD_MASK) + 1;
       setWord(wram, VRAM_SLOT_COUNT, surplus + word(wram, VRAM_SLOT_COUNT));
       for (let n = surplus; n; n--) {
-        const freed = get(OBJECT_VRAM_SLOT_HEAD);
-        put(OBJECT_VRAM_SLOT_HEAD, get(VRAM_SLOT_NEXT, freed));
+        const freed = getObject('vramSlotHead');
+        putObject('vramSlotHead', get(VRAM_SLOT_NEXT, freed));
         const free = word(wram, VRAM_SLOT_FREE_LIST);
         setWord(wram, VRAM_SLOT_FREE_LIST, freed);
         put(VRAM_SLOT_NEXT, free, freed);
       }
     }
     setWord(wram, DP_SLOT_CHANGE, 0);
-    put(OBJECT_VRAM_SLOT_COUNT, tiles);
+    putObject('vramSlotCount', tiles);
   }
 
   // Queue two upload jobs per tile.
   setWord(wram, DP_POINTER, start + 1);
   let job = word(wram, DP_VRAM_UPLOAD_INDEX),
-    tileSlot = get(OBJECT_VRAM_SLOT_HEAD);
+    tileSlot = getObject('vramSlotHead');
   // A picture without tiles counts down from 0 through FFFF, as the original's DEC.
   for (let n = tiles || WORD_MASK + 1; n; n--) {
     for (const half of SLOT_HALVES) {
@@ -272,16 +261,16 @@ export function stepAnimationInPlace(h, slot) {
   setWord(wram, DP_VRAM_UPLOAD_INDEX, job);
 
   // The picture shown, its shadow rule and depth bias.
-  putFar(OBJECT_PICTURE, word(wram, DP_POINTER) ^ word(wram, DP_PICTURE_BIT));
+  putFar('picture', word(wram, DP_POINTER) ^ word(wram, DP_PICTURE_BIT));
   const rule = longWord(mem, pointer(DP_POINTER) + FIRST_CELL) & SHADOW_MASK;
-  put(OBJECT_DEPTH_RULE, rule);
+  putObject('depthRule', rule);
   if (rule) {
-    put(OBJECT_DEPTH_RULE, rule | SHADOW_RULE);
+    putObject('depthRule', rule | SHADOW_RULE);
     const before = (word(wram, DP_PICTURE_START) - 1) & WORD_MASK;
     setWord(wram, DP_PICTURE_START, before);
     const bias = longWord(mem, pointer(DP_PICTURE_START)),
       extended = bias & BYTE_SIGN ? bias | HIGH_BYTE_MASK : bias & BYTE_MASK;
-    put(OBJECT_DEPTH_BIAS, (extended << BIAS_SHIFT) & WORD_MASK);
+    putObject('depthBias', (extended << BIAS_SHIFT) & WORD_MASK);
   }
   return done();
 }

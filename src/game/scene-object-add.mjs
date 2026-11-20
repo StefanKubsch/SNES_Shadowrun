@@ -32,7 +32,6 @@ import {
   GROUP_POSITIONS,
   GROUP_SLOTS,
   OBJECT_CLASS_MASK,
-  OBJECT_NUMBER,
   PLAYER_OBJECT,
   RUNNER_ARMOUR_RATING,
   SCENE_OBJECT_ROW_FACTOR,
@@ -93,7 +92,7 @@ export function addSceneObject(mem, a) {
   setDirectWord(mem, DP_DIRECTION, directWord(mem, DP_SCENE_OBJECT_SCRATCH));
   turnObject(mem, wram);
   if (wramWord(mem, GROUP_INDEX) === 0) setBankWord(a, PLAYER_OBJECT, directWord(mem, DP_OBJECT));
-  setBankWord(a, OBJECT_NUMBER + slot, actor);
+  setBankObjectWord(a, 'number', slot, actor);
   // The depth flags (bits 6 and 7) go to the high byte, then rotate left by one.
   const flags = (actorWord(mem, actor) & ACTOR_DEPTH_FLAGS) << BYTE_BITS;
   setBankObjectWord(a, 'depthOrder', slot, (flags << 1) + (flags >>> TOP_BIT));
@@ -102,7 +101,7 @@ export function addSceneObject(mem, a) {
     setBankObjectWord(a, 'flags', slot, bankObjectWord(a, 'flags', slot) | OBJECT_CLASS_MASK);
   setBankWord(a, GROUP_SLOTS + wramWord(mem, GROUP_INDEX), slot);
   // The runner with the object's number, searched from the last one down.
-  const objectNumber = bankWord(a, OBJECT_NUMBER + slot);
+  const objectNumber = bankObjectWord(a, 'number', slot);
   let runner = RUNNER_LAST_INDEX;
   for (let step = 0; bankWord(a, RUNNER_OBJECT_NUMBERS + runner) !== objectNumber; step++) {
     if (step === INDEX_TURN) taskStop('runner_number_required', { number: objectNumber });

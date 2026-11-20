@@ -95,7 +95,6 @@ import {
   GLOVE_TARGET_OBJECT,
   GLOVE_TARGET_TAG,
   OBJECT_ATTACKED,
-  OBJECT_NUMBER,
   PLAYER_OBJECT,
   RUNNER_WEAPON_KIND,
   RUNNER_WEAPON_RANGE,
@@ -157,7 +156,7 @@ const shotSound = (kind) =>
 // in the original; it stops after one pass over all owners' indices.
 function takeWeapon(run, shooter) {
   const { mem, wram, port } = run,
-    number = dataBankWord(mem, OBJECT_NUMBER, shooter);
+    number = objectWord(mem, 'number', shooter);
   let owner = WEAPON_OWNERS_END;
   for (let n = 0; ; n++) {
     if (n === WEAPON_SEARCH_LIMIT)

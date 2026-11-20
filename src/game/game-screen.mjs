@@ -9,6 +9,7 @@
 // slots (OAM cleared by DMA), the font and window style tiles, the window map, the
 // task scheduler and the sound state are reset, the game NMI is installed and
 // enabled.
+import { objectTable } from '../state/objects.mjs';
 import { setNmiCallback } from '../system/nmi.mjs';
 import { UNPACK_7E, unpackLong, unpackStream } from '../system/unpack.mjs';
 import { languageStreamSource } from '../data/language.mjs';
@@ -41,8 +42,6 @@ import {
   NOTICE_EFFECT_FRAMES,
   NOTICE_WINDOW_LAST,
   NOTICE_WINDOWS,
-  OBJECT_KIND,
-  OBJECT_LAST_SLOT,
   OBJECT_PALETTE_COUNT,
   PALETTE_INDEX,
   PALETTE_PROGRESS,
@@ -313,7 +312,7 @@ export function clearPaletteSlots(wram) {
 export function resetObjectSlots(wram, video) {
   setWord(wram, NMI_JOB_LISTS, 0);
   clearPaletteSlots(wram);
-  fillWordList(wram, OBJECT_KIND, OBJECT_LAST_SLOT, NONE);
+  objectTable(wram).kind.fill(NONE);
   video.write(DMAP1, DMAP_TWO_PORTS, 1);
   video.write(BBAD1, bBus(VMDATAL), 1);
   video.write(BBAD2, bBus(OAMDATA), 1);

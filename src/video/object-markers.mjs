@@ -15,24 +15,8 @@
 // conditions per object, so the hit area is a screen rectangle. The equations
 // below are BCBE's with the action glove limits 01E4 = 0600, 01E6 = 0C00
 // (80:BC67, src/script/native-glove-crosshair-limits.mjs).
-import {
-  CAMERA_X,
-  CAMERA_Y,
-  DRAW_LIST,
-  DRAW_LIST_INDEX,
-  GLOVE_KIND,
-  OBJECT_ACTION_DIRECTIONS,
-  OBJECT_BOX_HEIGHT,
-  OBJECT_BOX_X1,
-  OBJECT_BOX_X2,
-  OBJECT_BOX_Y1,
-  OBJECT_BOX_Y2,
-  OBJECT_DIAGONAL,
-  OBJECT_HEIGHT,
-  OBJECT_KIND,
-  OBJECT_X,
-  OBJECT_Y,
-} from '../data/wram.mjs';
+import { objectWordIn } from '../state/objects.mjs';
+import { CAMERA_X, CAMERA_Y, DRAW_LIST, DRAW_LIST_INDEX, GLOVE_KIND } from '../data/wram.mjs';
 import { KIND_TABLE } from '../data/kinds.mjs';
 import { WORD_MASK, BYTE_BITS } from '../constants/bits.mjs';
 import { RGBA_BYTES, SCREEN_HEIGHT, SCREEN_WIDTH } from '../constants/ppu.mjs';
@@ -96,26 +80,24 @@ export function usableObjectBoxes(memory) {
   // 14B0 is the last word index; a negative (FFFE or below) ends the list, as in BCBE.
   for (let y = word(DRAW_LIST_INDEX); y >= 0 && y < SIGN_BIT; y -= 2) {
     const x = word(DRAW_LIST + y),
-      field = (offset) => word(offset + x);
-    if (!word(OBJECT_ACTION_DIRECTIONS + x)) continue;
-    if (!usableKind(memory, word(OBJECT_KIND + x))) continue;
+      field = (name) => objectWordIn(wram, name, x);
+    if (!field('actionDirections')) continue;
+    if (!usableKind(memory, field('kind'))) continue;
 
     // Vertical: BCBE from 80:BD1F (DP17, the two bounds against DP11).
-    let base = m16(TOP - field(OBJECT_DIAGONAL) - field(OBJECT_HEIGHT) - word(CAMERA_Y));
+    let base = m16(TOP - field('diagonal') - field('height') - word(CAMERA_Y));
     if (negative(base)) continue;
     base >>= QUARTER_SHIFT;
-    const bottom = m16(2 * base - field(OBJECT_BOX_X1) - field(OBJECT_BOX_Y1));
+    const bottom = m16(2 * base - field('boxX1') - field('boxY1'));
     if (negative(bottom)) continue;
-    const upper = m16(
-      2 * m16(base - field(OBJECT_BOX_HEIGHT)) - field(OBJECT_BOX_X2) - field(OBJECT_BOX_Y2),
-    );
+    const upper = m16(2 * m16(base - field('boxHeight')) - field('boxX2') - field('boxY2'));
     // Horizontal: the ROR pair keeps the sign of a negative distance.
-    let across = m16(LEFT + field(OBJECT_Y) - field(OBJECT_X) - word(CAMERA_X));
+    let across = m16(LEFT + field('y') - field('x') - word(CAMERA_X));
     if (negative(across)) across = SIGN_BIT | ((SIGN_BIT | (across >> 1)) >> 1);
     across >>= QUARTER_SHIFT;
-    const right = m16(across - field(OBJECT_BOX_X1) + field(OBJECT_BOX_Y2));
+    const right = m16(across - field('boxX1') + field('boxY2'));
     if (negative(right)) continue;
-    const left = m16(across + field(OBJECT_BOX_Y1) - field(OBJECT_BOX_X2));
+    const left = m16(across + field('boxY1') - field('boxX2'));
     boxes.push([
       negative(left) ? 0 : left + 1,
       negative(upper) ? 0 : (upper >> 1) + 1,

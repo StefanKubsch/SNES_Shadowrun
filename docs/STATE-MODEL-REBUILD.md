@@ -105,5 +105,11 @@ own commit after `npm run test:block` and the golden trace test. One shared
   `--accept` is given, so a longer SCRATCH list is recorded again without risk.
 - 2026-11-20, object fields: every word-aligned object array is named in
   src/state/objects.mjs; about 45 modules use its accessors, which keep the original's
-  access for values that are no slot. Left: object-animation, object-search,
-  object-markers and the object number (odd address).
+  access for values that are no slot.
+- 2026-11-20, object field migration completed: animation, glove search, markers,
+  screen initialization, object creation and release, swarm movement and every object
+  number consumer use the named table. The number is a word at 7E:150A, aligned like
+  the other fields. Invalid slots retain the caller's original access family
+  (low mirror, raw WRAM, data bank or long address). Storage is still backed by WRAM;
+  detaching it and defining the projection, including the matrix overlays and indirect
+  address consumers, is the next phase step.

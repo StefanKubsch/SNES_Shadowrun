@@ -22,6 +22,7 @@
 //
 // Registers (user decision 2026-11-17): game state only; the script task append 80:C34A
 // takes the script as a parameter (X in the original). No register values are left.
+import { objectWord } from '../state/objects.mjs';
 import { dialogCallBody, segmentSequence } from '../system/native-call-continuation.mjs';
 import { scriptVisitSequence } from '../system/script-visit.mjs';
 import { appendScriptCall } from '../script/task-api.mjs';
@@ -64,7 +65,6 @@ import {
   MEMBER_PORTRAIT_REDRAW,
   NOTICE_WINDOW_LAST,
   NOTICE_WINDOWS,
-  OBJECT_NUMBER,
   PLAYER_OBJECT,
   SELECTED_SPELL_LEVEL_POINTER,
   SELECTED_SPELL_NAME,
@@ -302,7 +302,7 @@ export function* openSpellMenuSequence(h, events, renderBuffer = drawTextBufferS
   yield () => {
     setWord(wram, MEMBER_MENU_ACTIVE, MARK_SET);
     const object = word(wram, 0),
-      number = dataBankWord(mem, OBJECT_NUMBER, object);
+      number = objectWord(mem, 'number', object);
     let runner = RUNNER_LAST_INDEX;
     while (number !== dataBankWord(mem, RUNNER_OBJECT_NUMBERS, runner)) {
       runner = (runner - 2) & WORD_MASK;

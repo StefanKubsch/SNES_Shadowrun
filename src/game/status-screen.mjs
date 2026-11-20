@@ -89,7 +89,6 @@ import {
   MEMBER_PORTRAIT,
   MEMBER_STATE_COUNT,
   NUYEN,
-  OBJECT_NUMBER,
   PLAYER_OBJECT,
   STATUS_ITEMS_AT_ONCE,
   STATUS_MENU_WINDOW,
@@ -206,7 +205,7 @@ export function* statusScreen(
   };
   // Whether the object's number is in the group (searched from the group's index down).
   const inGroup = (object) => {
-    const objectNumber = dataBankWord(mem, OBJECT_NUMBER, object);
+    const objectNumber = objectWord(mem, 'number', object);
     for (let at = word(wram, GROUP_INDEX); !negative(at); at = (at - 2) & WORD_MASK)
       if (longWord(mem, WRAM + GROUP_NUMBERS + at) === objectNumber) return true;
     return false;
@@ -235,7 +234,7 @@ export function* statusScreen(
       if (!inGroup(object)) taskStop('task_ea6e_endless_search');
     }
     // The runner of the object's number (from the last; none leaves FFFE).
-    const number = dataBankWord(mem, OBJECT_NUMBER, object);
+    const number = objectWord(mem, 'number', object);
     let runner = RUNNER_LAST_INDEX;
     while (number !== dataBankWord(mem, RUNNER_OBJECT_NUMBERS, runner)) {
       runner = (runner - 2) & WORD_MASK;
