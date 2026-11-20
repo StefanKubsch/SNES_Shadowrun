@@ -1,11 +1,13 @@
 // Live main-loop caller 80:96AB-96F2: direct composition of its upkeep bodies.
 // Former address dispatch is retained in proof/caller/main-loop.mjs. The zones and the
 // scene request report a new pass as values; the loop leaves no A, X, Y or flags (user
-// decision 2026-11-17). Shared call frames remain until the callees and NMI no longer
-// need them.
+// decision 2026-11-17). The callees run without their JSR and JSL frames, whose return
+// words lie only in free stack bytes; their RTS and RTL forms for the register-level
+// tables are in proof/caller/live-loop-routines.mjs and proof/caller/jsr-forms.mjs. Only
+// the word wait 81:B0A1 keeps its JSL frame: the NMI it waits for is taken on that stack.
 import { taskStop } from '../system/task-stop.mjs';
 import { dialogAccess } from '../system/native-dialog-support.mjs';
-import { mainLoopFrameWaitSequence, mainLoopGloveMoveSequence } from '../game/main-upkeep.mjs';
+import { gloveMove } from '../game/glove-move.mjs';
 import { sceneRequestSequence } from '../game/scene-request.mjs';
 import { shakeHitPlayer } from '../game/player-hit.mjs';
 import { recordFormationStep } from '../game/formation-trail.mjs';
@@ -21,7 +23,7 @@ import { advancePaletteCycles } from '../game/palette-cycles.mjs';
 import { applyColourEffect } from '../game/fixed-colour.mjs';
 import { sceneRuntime } from '../system/scene-runtime.mjs';
 import { lagFree } from '../system/main-wait-interrupt.mjs';
-import { takePad } from '../system/live-input-calls.mjs';
+import { frameWaitCallSequence, takePad } from '../system/live-input-calls.mjs';
 import { NativeCallContinuation, dialogCallBody } from '../system/native-call-continuation.mjs';
 import { BYTE_BITS } from '../constants/bits.mjs';
 import { MAIN_LOOP_EXIT, MAIN_LOOP_RELOAD } from '../data/wram.mjs';
@@ -30,11 +32,7 @@ import { CODE_BANK, CODE_BANK_BASE } from '../constants/memory-map.mjs';
 export const MAIN_LOOP_RESUME = 0x96c3; // return from the round
 export const MAIN_LOOP_ROUND = 0x96c0; // JSR $C1E3
 const MAIN_LOOP_START = 0x96ab; // first pass after 9688
-// Original call sites in 80:96AB-96E4, named by the routine they call.
-const CALL_PC = Object.freeze({
-  CC4B: 0x96c8,
-  WAIT_B0A1: MAIN_LOOP_START,
-});
+const FRAME_WAIT = 0x81b0a1;
 const MAIN_LOOP_EXIT_PC = 0x96ec,
   MAIN_LOOP_RELOAD_PC = 0x96f2;
 // The main loop from 96C3 or the first 96AB up to the next scheduler round.
@@ -48,15 +46,13 @@ export function* mainLoopSequence(a, events, returnToOwner = false) {
     taskStop('main_loop_entry_required', { pc: ctx.pc });
   const h = dialogAccess(a);
   if (!lagFree(events)) taskStop('game_lag_free_required');
-  const call = (pc, target, body, long = false) =>
-    dialogCallBody(h, CODE_BANK_BASE | pc, target, body, long);
   if (ctx.pc === MAIN_LOOP_START) return yield* top();
   // $96C3–$96E4; a scene change by a zone starts the next pass at once.
   const zones = {};
   yield* playerZonesSequence(h, events, zones);
   if (zones.changed) return yield* top();
   const request = {};
-  yield* call(CALL_PC.CC4B, 0x80cc4b, () => sceneRequestSequence(h, events, request));
+  yield* sceneRequestSequence(h, events, request);
   if (request.taken) return yield* top();
   yield () => shakeHitPlayer(wram);
   yield () => moveAndAnimateInPlace(h, events);
@@ -79,11 +75,18 @@ export function* mainLoopSequence(a, events, returnToOwner = false) {
 
   // $96AB–$96BD, then the loop stands before JSR $C1E3.
   function* top() {
-    yield* call(CALL_PC.WAIT_B0A1, 0x81b0a1, () => mainLoopFrameWaitSequence(h, events), true);
+    // The word wait 81:B0A1, called with JSL at 96AB.
+    yield* dialogCallBody(
+      h,
+      CODE_BANK_BASE | MAIN_LOOP_START,
+      FRAME_WAIT,
+      () => frameWaitCallSequence(h, events),
+      true,
+    );
     yield () => applyColourEffect(sceneRuntime(h));
     yield () => advancePaletteCycles(wram);
     yield () => takePad(h, events);
-    yield* mainLoopGloveMoveSequence(h, events);
+    yield* gloveMove(h, events);
     yield* gloveActionSequence(h, events);
     ctx.pc = MAIN_LOOP_ROUND;
     return ctx.pc;

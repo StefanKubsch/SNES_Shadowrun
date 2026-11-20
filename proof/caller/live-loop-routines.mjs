@@ -2,7 +2,6 @@
 // the live main loop composes them directly and looks up no routine table). Register-
 // level callers and the tests that check the bindings use it.
 import { runFrameWait, runPadPresses } from './input-routines.mjs';
-import { sceneRequestSequence } from '../../src/game/scene-request.mjs';
 import { SCENE_REQUEST_ENTRY } from './scene-request.mjs';
 import {
   buildSpritesJsr,
@@ -11,6 +10,7 @@ import {
   moveAndAnimateJsr,
   noticeTimeoutJsr,
   playerZonesJsr,
+  sceneRequestJsr,
   timeLimitJsr,
 } from './jsr-forms.mjs';
 import { shakeHitPlayer } from '../../src/game/player-hit.mjs';
@@ -146,7 +146,7 @@ export function* playerZonesRoutineSequence(h, events) {
 // The register form: the carry set when the request was taken.
 export function* sceneRequestRoutineSequence(h, events) {
   const request = {},
-    result = yield* sceneRequestSequence(h, events, request);
+    result = yield* sceneRequestJsr(h, events, request);
   h.ctx.status = request.taken ? h.ctx.status | FLAG_CARRY : h.ctx.status & ~FLAG_CARRY;
   return result;
 }

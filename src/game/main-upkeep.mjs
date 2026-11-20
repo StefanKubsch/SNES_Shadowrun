@@ -1,12 +1,8 @@
-// The main loop's entries of its lifted upkeep routines: each runs the lifted
-// function and returns to the main loop as the original (RTL from bank 81, RTS in
-// bank 80). The register-level versions are references in
+// The lifted sequences the script natives run with lag-free frames. The main loop
+// composes its own callees directly (src/vm/main-loop.mjs); their RTS and RTL forms for
+// register-level tables are in proof/caller/live-loop-routines.mjs and
+// proof/caller/jsr-forms.mjs, their register-level references in
 // proof/game-reference/main-upkeep.mjs (MAIN_UPKEEP_REFERENCE_ENTRIES).
-//
-// The main loop reads none of the registers the routines leave, but a wait of a later
-// callee takes its NMI with them, which saves X and Y on the NMI stack (7E:1CB6-1CB9)
-// that the Mesen oracle compares. So the entries leave X and Y as the original; A and
-// the flags besides the width are not produced, every next callee loads its own A.
 import { showNoticeSequence } from './notice-show.mjs';
 import { talkSequence } from './dialog-talk.mjs';
 import { printTopicTextSequence, printWindowTextSequence } from './dialog-text.mjs';
@@ -25,7 +21,6 @@ import {
   scriptChooseObjectSequence,
   spellGloveTargetSequence,
 } from './glove-target.mjs';
-import { gloveMove } from './glove-move.mjs';
 import {
   shootAtGloveTargetSequence,
   shootAtObjectSequence,
@@ -37,12 +32,6 @@ import { openSpellMenuSequence } from './member-spell-menu.mjs';
 import { controlPlayerSequence } from './player-control.mjs';
 import { NATIVE_ENTRY, statusScreenSequence } from './status-screen.mjs';
 import { mainMenuSequence } from './main-menu.mjs';
-import { frameWaitCallSequence } from '../system/live-input-calls.mjs';
-
-// The main loop's upkeep routines below work on game state only (user decision
-// 2026-11-17): the X and Y the originals leave (the colour phase, the palette cycle and
-// shake indices, the formation, camera and tile buffer counters) are not produced; the
-// next routine of the loop sets its own.
 
 // The lifted notice as the script native 80:FEC1 runs it with lag-free frames
 // (src/vm/special-natives.mjs), with this module's window, text and release.
@@ -122,10 +111,3 @@ export const liftedShootWithOwnWeaponSequence = (h, events) =>
 // The lifted blast 80:8E36 with the lifted hit, as the script native runs it with
 // lag-free frames.
 export const liftedBlastSequence = (h, events) => hitObjectsInBlastSequence(h, events);
-
-// Direct sequences for the live main-loop caller. The wrappers above still serve
-// register-level helper tables; these bodies need no continuation registry lookup.
-export const mainLoopFrameWaitSequence = frameWaitCallSequence;
-// The glove move runs without its JSR frame (its return word lies only in free stack
-// bytes).
-export const mainLoopGloveMoveSequence = (h, events) => gloveMove(h, events);

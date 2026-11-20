@@ -20,8 +20,10 @@
 //
 // Registers (user decision 2026-11-17): game state only; the cutscene takes the scene
 // and its argument as parameters and the routine leaves no A, X, Y or flags.
-// sceneRequestRoutineSequence is the register form for the routine table: the carry
-// set when the request was taken.
+// The main loop runs it without its JSR frame. Its RTS form is sceneRequestJsr in
+// proof/caller/jsr-forms.mjs; sceneRequestRoutineSequence in
+// proof/caller/live-loop-routines.mjs is the register form for the routine table: the
+// carry set when the request was taken.
 import { tasksOf } from '../script/task-api.mjs';
 import { dialogCallBody } from '../system/native-call-continuation.mjs';
 import { cutsceneSequence } from '../cutscene/cutscene-scene.mjs';
@@ -60,13 +62,7 @@ const setWord = (wram, at, value) => {
 export function* sceneRequestSequence(h, events, request = {}) {
   const { wram } = sceneRuntime(h);
   request.taken = word(wram, SCENE_REQUEST) !== SCENE_REQUEST_NONE;
-  let result;
-  if (!request.taken) {
-    yield () => {
-      result = h.rts();
-    };
-    return result;
-  }
+  if (!request.taken) return;
   if (word(wram, SCENE_REQUEST) !== SCENE_REQUEST_ROOM_ONLY) {
     yield () => forceBlank(wram);
     yield* waitForFrameCall(h, events, FRAME_WAIT_SITE);
@@ -106,8 +102,4 @@ export function* sceneRequestSequence(h, events, request = {}) {
     room = word(wram, ROOM);
   };
   yield* enterRoomSequence(h, events, room);
-  yield () => {
-    result = h.rts();
-  };
-  return result;
 }

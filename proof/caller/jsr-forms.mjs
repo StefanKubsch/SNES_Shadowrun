@@ -19,6 +19,7 @@ import { noticeTimeoutSequence } from '../../src/game/notice-timeout.mjs';
 import { timeLimitSequence } from '../../src/game/time-limit.mjs';
 import { gloveActionSequence } from '../../src/game/glove-action.mjs';
 import { playerZonesSequence } from '../../src/game/player-zones.mjs';
+import { sceneRequestSequence } from '../../src/game/scene-request.mjs';
 import { drawTextBufferSequence } from '../../src/game/text-draw.mjs';
 
 function* rts(h) {
@@ -146,5 +147,12 @@ export function* gloveActionJsr(h, events, renderBuffer = drawTextBufferSequence
 // waits for the NMI.
 export function* playerZonesJsr(h, events, zones = {}) {
   yield* playerZonesSequence(h, events, zones);
+  return yield* rts(h);
+}
+
+// The scene request 80:CC4B; request.taken reports a taken request, whose scenes and room
+// entry wait for the NMI.
+export function* sceneRequestJsr(h, events, request = {}) {
+  yield* sceneRequestSequence(h, events, request);
   return yield* rts(h);
 }
