@@ -69,8 +69,6 @@ const UNPACK = [0x80e4e3, 0x809f6d],
   UPLOAD_PALETTE = [0x80e4e9, 0x809022],
   SECOND_TILES = [0x80e496, 0x808ff5],
   FRAME_WAIT = [0x80e470, 0x81b0a1],
-  SECOND_CHANNEL = [0x80e4ec, 0x80e48d],
-  COLOUR_WINDOW = [0x80e4ef, 0x80e433],
   SITES = Object.freeze({
     objsel: 0x80e4bf,
     window: 0x80e436,
@@ -121,8 +119,8 @@ export function* memberPortrait(h, events) {
   );
   yield () => shiftPortraitRowsInPlace(h);
   yield* dialogCallBody(h, ...UPLOAD_PALETTE, () => uploadFirstPortraitSequence(h, events));
-  yield* dialogCallBody(h, ...SECOND_CHANNEL, () => secondChannelSequence(h, events));
-  yield* dialogCallBody(h, ...COLOUR_WINDOW, () => colourWindowSequence(h, events));
+  yield* secondChannel(h, events);
+  yield* colourWindow(h, events);
 }
 // The portrait as called with JSR (80:E4B3); returns with its RTS.
 export function* memberPortraitSequence(h, events) {
@@ -139,8 +137,9 @@ function* returnSequence(h) {
   return result;
 }
 
-// 80:E48D: the second portrait channel and one more NMI job (81:A954).
-function* secondChannelSequence(h, events) {
+// 80:E48D: the second portrait channel and one more NMI job (81:A954), without the JSR
+// frame; the tile upload keeps its own.
+function* secondChannel(h, events) {
   const { mem } = h.a;
   yield () => {
     setDataBankWord(mem, PORTRAIT_PALETTE_START, 0, SECOND_PORTRAIT_PALETTE);
@@ -160,11 +159,11 @@ function* secondChannelSequence(h, events) {
     const jobs = (dataBankWord(mem, NMI_JOB_LISTS) + 1) & WORD_MASK;
     setDataBankWord(mem, NMI_JOB_LISTS, 0, jobs);
   };
-  return yield* returnSequence(h);
 }
 
-// 80:E433: the colour window on HDMA channel 0, its edges widened over eleven frames.
-function* colourWindowSequence(h, events) {
+// 80:E433: the colour window on HDMA channel 0, its edges widened over eleven frames,
+// without the JSR frame; the frame waits keep their JSL frames.
+function* colourWindow(h, events) {
   const { mem } = h.a,
     { wram } = mem,
     port = accessorPort(h.a);
@@ -191,5 +190,4 @@ function* colourWindowSequence(h, events) {
       step = (step + PORTRAIT_WINDOW.edgeStep) & WORD_MASK;
     };
   } while (step < PORTRAIT_WINDOW.edgeEnd);
-  return yield* returnSequence(h);
 }
