@@ -37,7 +37,7 @@
 // the stack over the detail windows (PHA, PLA) is a local value.
 import { dialogCallBody, segmentSequence } from '../system/native-call-continuation.mjs';
 import { chooseFromMenuSequence } from './menu-choice.mjs';
-import { openWindow, requestTileClearSequence } from './window-open.mjs';
+import { openWindow, requestTileClear } from './window-open.mjs';
 import { setTextCursor, printNumber } from './window-text.mjs';
 import { printText } from './text-print.mjs';
 import {
@@ -101,8 +101,7 @@ import {
   WORD_SIGN,
 } from '../constants/bits.mjs';
 
-const REDRAW_WINDOW = 0x80fa67,
-  CONFIRM_KEY = 0x80f953,
+const CONFIRM_KEY = 0x80f953,
   RELEASE_WINDOW = 0x80fa3e,
   NUMBERED_MENU = 0x80a6b8,
   RAISE_STATE_COUNT = 0x80cecb,
@@ -157,7 +156,7 @@ export function* karmaLineSequence(h, events, renderBuffer = drawTextBufferSeque
   const { mem } = h.a,
     { wram } = mem;
   yield () => setWord(wram, 0, dataBankWord(mem, KARMA_BALANCE_WINDOW));
-  yield* dialogCallBody(h, 0x80ef87, REDRAW_WINDOW, () => requestTileClearSequence(h, events));
+  yield* requestTileClear(h, events);
   yield () => {
     setWord(wram, 2, 0);
     setWord(wram, DP_CURSOR_ROW, 0);
@@ -256,9 +255,7 @@ export function* karmaListSequence(h, events, entry, renderBuffer = drawTextBuff
       }
       setWord(wram, 0, dataBankWord(mem, KARMA_LIST_WINDOW));
     };
-    yield* dialogCallBody(h, list.pcs.request, REDRAW_WINDOW, () =>
-      requestTileClearSequence(h, events),
-    );
+    yield* requestTileClear(h, events);
     yield () => {
       setWord(wram, 2, MENU_COLUMN);
       setWord(wram, DP_MENU_ROW, 0);
@@ -380,7 +377,7 @@ export function* karmaMenuSequence(h, events, renderBuffer = drawTextBufferSeque
       : [];
   for (;;) {
     yield () => setWord(wram, 0, dataBankWord(mem, KARMA_CATEGORY_WINDOW));
-    yield* dialogCallBody(h, 0x80eeb5, REDRAW_WINDOW, () => requestTileClearSequence(h, events));
+    yield* requestTileClear(h, events);
     yield () => {
       setWord(wram, 2, MENU_COLUMN);
       setWord(wram, DP_MENU_ROW, 0);

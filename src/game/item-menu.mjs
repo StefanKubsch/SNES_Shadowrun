@@ -25,7 +25,7 @@
 // input, and the item use takes the actor (X in the original) as a parameter.
 import { dialogCallBody, segmentSequence } from '../system/native-call-continuation.mjs';
 import { releaseNoticeWindowsCallSequence, releaseWindowJsrSequence } from './window-release.mjs';
-import { openWindow, requestTileClearSequence } from './window-open.mjs';
+import { openWindow, requestTileClear } from './window-open.mjs';
 import { chooseFromMenuSequence, MENU_WITH_NUMBERS } from './menu-choice.mjs';
 import { waitForConfirmKeySequence } from './confirm-key.mjs';
 import { equipmentRowsSequence } from './equipment-window.mjs';
@@ -106,7 +106,6 @@ export const ITEM_ENTRIES = Object.freeze({ 0x80e572: 0, 0x80e577: 1, 0x80e57f: 
 // The callees and their call sites.
 const MENU = [0x80e65b, 0x80a6ad],
   USE_ITEM = [0x80e672, 0x80e4f3],
-  REDRAW_WINDOW = [0x80e67f, 0x80fa67],
   RELEASE_WINDOW = [0x80e68a, 0x80fa3e],
   CREATE = [0x80e527, 0x80a835],
   VISIT = [0x80e545, 0x80c1ca],
@@ -247,7 +246,7 @@ export function* itemMenuSequence(h, events, entry, renderBuffer = drawTextBuffe
       if (!ended) setWord(wram, 0, dataBankWord(mem, STATUS_SUBMENU_WINDOW));
     };
     if (ended) break;
-    yield* dialogCallBody(h, ...REDRAW_WINDOW, () => requestTileClearSequence(h, events));
+    yield* requestTileClear(h, events);
   }
   yield () => setWord(wram, 0, dataBankWord(mem, STATUS_SUBMENU_WINDOW));
   yield* dialogCallBody(h, ...RELEASE_WINDOW, () => releaseWindowJsrSequence(h.a, events));

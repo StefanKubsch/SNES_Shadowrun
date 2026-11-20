@@ -22,7 +22,7 @@
 // register-level callers lives in proof/caller/upkeep-routines.mjs.
 import { taskStop } from '../system/task-stop.mjs';
 import { dialogCallBody } from '../system/native-call-continuation.mjs';
-import { openWindow, requestTileClearSequence } from './window-open.mjs';
+import { openWindow, requestTileClear } from './window-open.mjs';
 import { waitForConfirmKeySequence } from './confirm-key.mjs';
 import { printText } from './text-print.mjs';
 import { drawTextBufferSequence } from './text-draw.mjs';
@@ -53,8 +53,7 @@ const EFFECT_ATTRIBUTES = 0x400,
 // Original call sites and callees.
 const TEXT_CALL = [0x80fedd, 0x80fe69],
   // The routines a paged notice adds between its pages.
-  CONFIRM_KEY = 0x80f953,
-  TILE_CLEAR = 0x80fa67;
+  CONFIRM_KEY = 0x80f953;
 
 const word = (wram, at) => wram[at] | (wram[at + 1] << BYTE_BITS);
 const setWord = (wram, at, value) => {
@@ -78,7 +77,7 @@ function* pagesSequence(h, events, renderBuffer, { id, pages }) {
         waitForConfirmKeySequence(h, events),
       );
       yield () => setWord(wram, DP_WINDOW, window);
-      yield* dialogCallBody(h, TEXT_CALL[0], TILE_CLEAR, () => requestTileClearSequence(h, events));
+      yield* requestTileClear(h, events);
       yield () => {
         setWord(wram, WINDOW_CURSOR_TILE + window, word(wram, WINDOW_TILE_START + window));
         setWord(wram, WINDOW_TILE_INITIAL + window, word(wram, WINDOW_TILE_START + window));

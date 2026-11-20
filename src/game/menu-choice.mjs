@@ -34,7 +34,7 @@ import { frameWaitCallSequence, takePadWord } from '../system/live-input-calls.m
 import { playSoundEffectRoutine } from '../apu/sound-effect.mjs';
 import { drawTextBufferSequence } from './text-draw.mjs';
 import { drawListSequence, markRowSequence, MARK, UNMARK } from './menu-list.mjs';
-import { requestTileClearSequence } from './window-open.mjs';
+import { requestTileClear } from './window-open.mjs';
 import {
   DP_LIST_TOKEN_BANK,
   DP_LIST_TOKENS,
@@ -86,7 +86,6 @@ const SITES = Object.freeze({
   mark: 0x80a6e6,
   wait: 0x80a6e9,
   pad: 0x80a6ed,
-  pageRequest: 0x80a7f7,
   pageList: 0x80a7fa,
   moveUnmark: 0x80a78e,
   moveMark: 0x80a795,
@@ -100,7 +99,6 @@ const SITES = Object.freeze({
 const WAIT = 0x81b0a1,
   PAD = 0x809e1a,
   SOUND = 0x80c46e,
-  REQUEST = 0x80fa67,
   LIST = 0x80a617,
   MARK_ROW = 0x80a5f9,
   UNMARK_ROW = 0x80a5db;
@@ -197,7 +195,7 @@ export function* chooseFromMenuSequence(
       }
     };
     if (page) {
-      yield* helper(SITES.pageRequest, REQUEST, () => requestTileClearSequence(h, events));
+      yield* requestTileClear(h, events);
       yield* list(SITES.pageList);
     } else yield* unmark(SITES.moveUnmark);
     yield () => {

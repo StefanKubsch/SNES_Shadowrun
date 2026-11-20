@@ -28,7 +28,7 @@
 // Registers (user decision 2026-11-17): game state only; the routine leaves no A, X, Y
 // or flags.
 import { dialogCallBody, segmentSequence } from '../system/native-call-continuation.mjs';
-import { requestTileClearSequence } from './window-open.mjs';
+import { requestTileClear } from './window-open.mjs';
 import { setTextCursor } from './window-text.mjs';
 import { drawTextBufferSequence } from './text-draw.mjs';
 import { printText } from './text-print.mjs';
@@ -62,7 +62,6 @@ const FIRST_ENTRY = 4,
   TOPIC_COUNT_MASK = 0x0f,
   ACTION_WORD_BYTES = 2;
 // Original call sites and callees.
-const REQUEST_CALL = [0x80917e, 0x80fa67];
 
 const word = (wram, at) => wram[at] | (wram[at + 1] << BYTE_BITS);
 const setWord = (wram, at, value) => {
@@ -156,27 +155,17 @@ function searchEntry(mem, wram, acc) {
   }
 }
 
-// Text clearing composes its actual body.
-function liftedBodies(h, events) {
-  const lifted = {
-    request: () => requestTileClearSequence(h, events),
-  };
-  return (name) => lifted[name];
-}
-
 // Show the dialog text for the key (80:9178, A in the original), a sequence for a native
 // call continuation with an optional text renderer.
 export function* showDialogTextSequence(h, events, renderBuffer = drawTextBufferSequence, key) {
   const { mem } = h.a,
-    { wram } = mem,
-    body = liftedBodies(h, events),
-    call = ([site, target], name) => dialogCallBody(h, site, target, body(name));
+    { wram } = mem;
   for (;;) {
     yield () => {
       setWord(wram, DP_TOPIC_KEY, key);
       setWord(wram, DP_WINDOW, word(wram, DP_TEXT_WINDOW));
     };
-    yield* call(REQUEST_CALL, 'request');
+    yield* requestTileClear(h, events);
     yield () => {
       setWord(wram, DP_TEXT, 0);
       setWord(wram, DP_CURSOR_ROW, 0);
@@ -253,8 +242,7 @@ export function* dialogTopicSequence(h, events, at) {
 // window, sequences that end with the native's RTS: 80:935B prints it, 80:933A first
 // clears the window's text tiles (80:FA67) and sets its cursor to the top left (80:FAAC),
 // with the number pushed around them. renderBuffer is the text-buffer renderer sequence.
-const TEXT_NUMBERS = 0x80d9b8,
-  TOPIC_TEXT = { request: [0x809341, 0x80fa67] };
+const TEXT_NUMBERS = 0x80d9b8;
 function* printTextNumber(h, events, renderBuffer, number) {
   const { mem } = h.a,
     { wram } = mem;
@@ -279,7 +267,7 @@ export function* printTopicTextSequence(h, events, renderBuffer = drawTextBuffer
   const { wram } = h.a.mem,
     number = word(wram, 0);
   yield () => setWord(wram, DP_WINDOW, word(wram, DP_TEXT_WINDOW));
-  yield* dialogCallBody(h, ...TOPIC_TEXT.request, () => requestTileClearSequence(h, events));
+  yield* requestTileClear(h, events);
   yield () => {
     setWord(wram, DP_TEXT, 0);
     setWord(wram, DP_CURSOR_ROW, 0);

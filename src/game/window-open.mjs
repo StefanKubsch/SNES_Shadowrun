@@ -134,16 +134,18 @@ function pullFrame(h, long) {
 }
 
 // The tile request (80:FA67): clear the window's text tiles in video memory with the
-// NMI's next upload, and wait for it (81:ACBD). The return word of the window opening's
-// JSR to it lies only in free stack bytes and is not reproduced (game state only, user
-// decision 2026-11-17).
-const requestTileClear = (h, events, x) => clearTiles(h, events, x);
+// NMI's next upload, and wait for it (81:ACBD). The window opening runs it directly
+// (clearTiles); the return word of its JSR lies only in free stack bytes and is not
+// reproduced (game state only, user decision 2026-11-17).
 
-// The tile request 80:FA67 on its own, as other routines call it with JSR (their
-// sequence pushes the frame): the window in the direct page word 00. It leaves no
-// registers. The existing JSR frame is consumed.
+// The tile request 80:FA67 on its own for lifted callers, without the JSR frame (the
+// caller's return word lies only in free stack bytes): the window in the direct page
+// word 00. It leaves no registers.
+export const requestTileClear = (h, events) => clearTiles(h, events, word(h.a.mem.wram, DP_LEFT));
+// The tile request as other routines call it with JSR (their sequence pushes the
+// frame); the existing JSR frame is consumed.
 export function* requestTileClearSequence(h, events) {
-  yield* clearTiles(h, events, word(h.a.mem.wram, DP_LEFT));
+  yield* requestTileClear(h, events);
   return yield* rts(h);
 }
 
@@ -209,7 +211,7 @@ export function* openWindow(h, events) {
     setWord(wram, DP_LEFT, x);
   };
   if (x >= INDEX_LIMIT) return;
-  yield* requestTileClear(h, events, x);
+  yield* clearTiles(h, events, x);
   yield () => drawWindow(wram, x);
   yield* requestUploadCall(h, events);
 }
