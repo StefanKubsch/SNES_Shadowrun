@@ -15,7 +15,7 @@ import assert from 'node:assert/strict';
 import { compareLift } from './lift-compare.mjs';
 import { PLAN } from './live-alley-plan.mjs';
 import { CUTSCENE_IGNORED_WRAM } from './live-cutscene-plan.mjs';
-import { runTileBuffers, runObjectMotion, runSpriteList } from '../src/game/main-upkeep.mjs';
+import { runObjectMotion, runSpriteList } from '../src/game/main-upkeep.mjs';
 import { runFrameWait, runPadPresses } from '../proof/caller/input-routines.mjs';
 import {
   runNoticeTimeouts,
@@ -28,6 +28,7 @@ import {
   runColourEffect,
   runPaletteCycles,
   runCameraFollow,
+  runTileBuffers,
 } from '../proof/caller/live-loop-routines.mjs';
 import { MAIN_CAMERA_REFERENCE_ENTRIES } from '../proof/game-reference/main-camera.mjs';
 import { MAIN_UPKEEP_REFERENCE_ENTRIES } from '../proof/game-reference/main-upkeep.mjs';

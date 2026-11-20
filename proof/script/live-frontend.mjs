@@ -9,7 +9,6 @@ import { FRONTEND_MENU_ROUTINES } from './live-frontend-menu.mjs';
 import { MAIN_START_ROUTINES } from '../caller/main-start.mjs';
 import { roomStartSequence } from '../caller/game-start.mjs';
 import { MAIN_LOOP_ROUTINES, MAIN_LOOP_ROUND, MainLoopContinuation } from '../caller/main-loop.mjs';
-import { runTileBuffers } from '../../src/game/main-upkeep.mjs';
 import { dialogCallBody } from '../../src/system/native-call-continuation.mjs';
 import { frontendContinuations } from '../replay/main-frontend-text.mjs';
 import { playAttractDemo } from '../frontend-caller/title-cycle.mjs';
@@ -21,6 +20,7 @@ import {
 } from '../frontend-caller/game-owner.mjs';
 import { WORD_MASK } from '../../src/constants/bits.mjs';
 import { CODE_BANK_BASE } from '../../src/constants/memory-map.mjs';
+import { runTileBuffers } from '../caller/live-loop-routines.mjs';
 // The attract game's rounds run through the main round 80:C1E3.
 const MAIN_ROUND = 0x80c1e3 & WORD_MASK,
   GAME_OWNER = CODE_BANK_BASE | GAME_OWNER_ENTRY;

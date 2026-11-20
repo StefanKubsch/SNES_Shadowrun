@@ -8,7 +8,6 @@
 // that the Mesen oracle compares. So the entries leave X and Y as the original; A and
 // the flags besides the width are not produced, every next callee loads its own A.
 import { noticeTimeoutSequence } from './notice-timeout.mjs';
-import { updateTileBuffers } from './camera-scroll.mjs';
 import { timeLimitSequence } from './time-limit.mjs';
 import { gloveActionSequence } from './glove-action.mjs';
 import { showNoticeSequence } from './notice-show.mjs';
@@ -61,11 +60,6 @@ function* noticeTimeoutCallSequence(h, events) {
     result = h.rts();
   };
   return result;
-}
-// 81:8A91, called with JSL.
-export function runTileBuffers(h) {
-  updateTileBuffers(h.a.mem.wram);
-  return h.rtl();
 }
 // The lifted notice as the script native 80:FEC1 runs it with lag-free frames
 // (src/vm/special-natives.mjs), with this module's window, text and release.

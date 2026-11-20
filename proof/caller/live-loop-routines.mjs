@@ -4,7 +4,6 @@
 import {
   runObjectMotion,
   runSpriteList,
-  runTileBuffers,
   mainLoopNoticeSequence,
 } from '../../src/game/main-upkeep.mjs';
 import { runFrameWait, runPadPresses } from './input-routines.mjs';
@@ -16,6 +15,7 @@ import { gloveActionSequence } from '../../src/game/glove-action.mjs';
 import { gloveMoveJsr } from './jsr-forms.mjs';
 import { shakeHitPlayer } from '../../src/game/player-hit.mjs';
 import { recordFormationStep } from '../../src/game/formation-trail.mjs';
+import { updateTileBuffers } from '../../src/game/camera-scroll.mjs';
 import { followPlayerWithCamera } from '../../src/game/camera-follow.mjs';
 import { advancePaletteCycles } from '../../src/game/palette-cycles.mjs';
 import { applyColourEffect } from '../../src/game/fixed-colour.mjs';
@@ -72,6 +72,11 @@ export function runPaletteCycles(h) {
 // 81:8C2E, called with JSL.
 export function runCameraFollow(h) {
   followPlayerWithCamera(h.a.mem, h.a.mem.wram);
+  return h.rtl();
+}
+// 81:8A91, called with JSL.
+export function runTileBuffers(h) {
+  updateTileBuffers(h.a.mem.wram);
   return h.rtl();
 }
 
