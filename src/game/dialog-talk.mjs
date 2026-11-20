@@ -25,7 +25,7 @@
 // the colour clear and the text width leave no A, X, Y or flags. The old music and the
 // two windows wait on the stack as in the original.
 import { dialogCallBody, segmentSequence } from '../system/native-call-continuation.mjs';
-import { setMusicModeCall } from '../apu/audio-routines.mjs';
+import { setMusicModeInPlace } from '../apu/audio-routines.mjs';
 import { showDialogText } from './dialog-text.mjs';
 import { chooseDialogActionSequence, chooseDialogTopicSequence } from './dialog-menus.mjs';
 import { drawTextBufferSequence } from './text-draw.mjs';
@@ -141,7 +141,6 @@ const FONT_BLOCKS = Object.freeze([
 // Original call sites and callees.
 const CALL = Object.freeze({
   colour: [0x80936c, 0x81886a, true],
-  music: [0x8093bc, 0x81ef47, true],
   narrow: [0x8093ec, 0x80fa92],
   jakeUnpack: [0x80944d, 0x809f6d],
   jakeShift: [0x809450, 0x808f20],
@@ -155,7 +154,6 @@ const CALL = Object.freeze({
   topics: [0x8094a2, 0x809215],
   releaseText: [0x8094d9, 0x80fa3e],
   releaseFrame: [0x8094df, 0x80fa3e],
-  restoreMusic: [0x8094e5, 0x81ef47, true],
   closePortrait: [0x8092c5, 0x808f97],
   tiles: [0x8092ce, 0x80adf4],
   closeWait: [0x8092d1, 0x81b0a1, true],
@@ -270,15 +268,8 @@ export function* talkSequence(h, events, renderBuffer = drawTextBufferSequence) 
     setWord(wram, DP_WINDOW_ATTRIBUTES, 0);
   };
   // The music to change to, then the music to restore.
-  const music = (mode) => {
-    const [site, target, long] = mode.restore ? CALL.restoreMusic : CALL.music;
-    return dialogCallBody(
-      h,
-      site,
-      target,
-      () => segmentSequence(() => setMusicModeCall(h, mode.value)),
-      long,
-    );
+  const music = function* (mode) {
+    yield () => setMusicModeInPlace(h, mode.value);
   };
   yield* dialogCallBody(
     h,

@@ -3,9 +3,9 @@
 // versions are the references in proof/apu-reference/audio-routines.mjs; the routine
 // table entries of both are in proof/caller/audio-routines.mjs.
 //
-// Both return with RTL. Lifted callers use the call forms, which take
-// the command, its parameter and the mode as parameters and leave no registers (user
-// decision 2026-11-17); they read no register state either (the original's entry check
+// The call forms return with RTL; lifted callers use the in-place forms without the JSL
+// frame. Both take the command, its parameter and the mode as parameters and leave no
+// registers (user decision 2026-11-17); they read no register state either (the original's entry check
 // for a 16-bit X and direct page 0 belongs to the register-level entries). The stack
 // byte of the original PHP and the sample loader's direct page state
 // (src/apu/music-mode.mjs) are scratch and not produced.
@@ -14,14 +14,22 @@ import { setMusicMode } from './music-mode.mjs';
 import { accessorPort } from '../system/hardware-port.mjs';
 import { BYTE_MASK } from '../constants/bits.mjs';
 
-// 81:F007 for lifted callers: send the command (its low byte) with the parameter word.
-export function sendApuCommandCall(h, command, parameter) {
+// 81:F007 without the JSL frame: send the command (its low byte) with the parameter word.
+export function sendApuCommandInPlace(h, command, parameter) {
   sendApuCommand(h.a.mem.wram, accessorPort(h.a), command & BYTE_MASK, parameter);
+}
+// 81:F007 for callers that pushed the JSL frame; returns with its RTL.
+export function sendApuCommandCall(h, command, parameter) {
+  sendApuCommandInPlace(h, command, parameter);
   return h.rtl();
 }
 
-// 81:EF47 for lifted callers: switch the music to the mode.
-export function setMusicModeCall(h, mode) {
+// 81:EF47 without the JSL frame: switch the music to the mode.
+export function setMusicModeInPlace(h, mode) {
   setMusicMode(h.a.mem, accessorPort(h.a), mode);
+}
+// 81:EF47 for callers that pushed the JSL frame; returns with its RTL.
+export function setMusicModeCall(h, mode) {
+  setMusicModeInPlace(h, mode);
   return h.rtl();
 }

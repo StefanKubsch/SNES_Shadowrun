@@ -20,11 +20,11 @@ import { setTextCursor, printNumber } from './window-text.mjs';
 import { printText } from './text-print.mjs';
 import { showNotice } from './notice-show.mjs';
 import { drawTextBufferSequence } from './text-draw.mjs';
-import { setMusicModeCall } from '../apu/audio-routines.mjs';
+import { setMusicModeInPlace } from '../apu/audio-routines.mjs';
 import { playSoundEffectCall } from '../apu/sound-effect.mjs';
 import { setMusicMode } from '../apu/music-mode.mjs';
 import { dataBankWord, setDataBankWord } from '../system/data-bank.mjs';
-import { dialogCallBody, segmentSequence } from '../system/native-call-continuation.mjs';
+import { segmentSequence } from '../system/native-call-continuation.mjs';
 import {
   DP_CURSOR_ROW,
   DP_NOTICE_FRAMES,
@@ -101,9 +101,6 @@ const KARMA_NOTICE = { left: 10, top: 2, columns: 9, wideColumns: 10, rows: 3 },
   // The music mode without the restore option.
   MUSIC_OFF = 0;
 // Original call sites (JSR, the music JSL) and callees.
-const MUSIC_RESTORE_SITE = 0x808624,
-  MUSIC_OFF_SITE = 0x80862c,
-  MUSIC_MODE = 0x81ef47;
 const negative = (value) => (value & WORD_SIGN) !== 0;
 
 // Remove the object (the direct page word 00) from the fight list (80:855E), a sequence
@@ -174,27 +171,17 @@ export function* removeFromFightListSequence(h, events, renderBuffer = drawTextB
     yield* segmentSequence(() => playSoundEffectCall(h));
   }
   if (state === 'gain' || state === 'ended') {
-    let site = null,
-      mode;
+    let mode = null;
     yield () => {
       if (!(word(wram, GAME_OPTIONS) & OPTION_MUSIC_RESTORE)) {
         mode = MUSIC_OFF;
-        site = MUSIC_OFF_SITE;
         return;
       }
       const music = word(wram, FIGHT_MUSIC);
       if (negative(music)) return;
       mode = music;
-      site = MUSIC_RESTORE_SITE;
     };
-    if (site !== null)
-      yield* dialogCallBody(
-        h,
-        site,
-        MUSIC_MODE,
-        () => segmentSequence(() => setMusicModeCall(h, mode)),
-        true,
-      );
+    if (mode !== null) yield () => setMusicModeInPlace(h, mode);
   }
   let result;
   yield () => {

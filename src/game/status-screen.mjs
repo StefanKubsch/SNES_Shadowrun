@@ -39,7 +39,7 @@ import { drawTextBufferSequence } from './text-draw.mjs';
 import { equipmentRows } from './equipment-window.mjs';
 import { memberPortrait } from './member-portrait.mjs';
 import { closeDialog, clearFixedColourRoutine } from './dialog-talk.mjs';
-import { sendApuCommandCall } from '../apu/audio-routines.mjs';
+import { sendApuCommandInPlace } from '../apu/audio-routines.mjs';
 import { chooseFromMenuSequence, MENU } from './menu-choice.mjs';
 import { itemMenuSequence, ITEM_ENTRIES } from './item-menu.mjs';
 import { spellMenuSequence, STATUS_ENTRY } from './member-spell-menu.mjs';
@@ -124,8 +124,7 @@ import {
 export const NATIVE_ENTRY = 0x80ea6e,
   START_ENTRY = 0x80ea89,
   ITEMS_ENTRY = 0x80ea8e;
-const SOUND = 0x81f007,
-  STATUS_SETUP = 0x81886a,
+const STATUS_SETUP = 0x81886a,
   DECIMAL_NUMBER = 0x80fdcf,
   PLAIN_MENU = MENU,
   SKILLS_MENU = 0x80e834,
@@ -218,14 +217,7 @@ export function* statusScreen(
   yield () => {
     setWord(wram, STATUS_ITEMS_AT_ONCE, entry === ITEMS_ENTRY ? MARK_SET : 0);
   };
-  yield* dialogCallBody(
-    h,
-    native ? 0x80ea77 : 0x80ea9a,
-    SOUND,
-    () =>
-      segmentSequence(() => sendApuCommandCall(h, APU_COMMAND_VOLUME_TARGET, STATUS_VOLUME_TARGET)),
-    true,
-  );
+  yield () => sendApuCommandInPlace(h, APU_COMMAND_VOLUME_TARGET, STATUS_VOLUME_TARGET);
   // The native keeps its object DP 00 over the release (PEI, PLY in the original).
   let object;
   yield () => {
@@ -439,11 +431,5 @@ function* closeSequence(h, events) {
   yield () => {
     setWord(wram, MEMBER_MENU_ACTIVE, 0);
   };
-  yield* dialogCallBody(
-    h,
-    0x80ed09,
-    SOUND,
-    () => segmentSequence(() => sendApuCommandCall(h, APU_COMMAND_VOLUME_TARGET, FULL_VOLUME)),
-    true,
-  );
+  yield () => sendApuCommandInPlace(h, APU_COMMAND_VOLUME_TARGET, FULL_VOLUME);
 }
