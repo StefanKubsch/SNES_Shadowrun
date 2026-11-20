@@ -83,13 +83,25 @@ dependent. No input or simulation timing is changed.
 ## Logo provenance
 
 - User source: [ShadowrunLogo.png](../Ressources/ShadowrunLogo.png).
-- Runtime copy: [shadowrun-logo.png](../src/browser/shadowrun-logo.png).
-- Both are unchanged, byte-identical PNGs: 1500 by 729, 1,682,260 bytes.
-- SHA-256: `BB15215918BE7552D3437C7F71D4D2D0FB45140D3A28CCC09BF5430BFA9C3B8C`.
+  Unchanged PNG, 1500 by 729, 1,682,260 bytes, SHA-256
+  `BB15215918BE7552D3437C7F71D4D2D0FB45140D3A28CCC09BF5430BFA9C3B8C`.
+- Runtime copy: [shadowrun-logo.png](../src/browser/shadowrun-logo.png),
+  reduced on 2026-11-20 at the user's request: 432 by 210, 40,744 bytes,
+  SHA-256 `E4C2F8071B84D823305654A7D0172A960A8493C60EA20606C9DA5CFB8160F5F5`.
+
+The start screen draws the logo at most 216 by 106 raster pixels
+(`LOGO_MAX_WIDTH`, `LOGO_MAX_HEIGHT` in
+[start-screen.mjs](../src/browser/start-screen.mjs)), so the runtime copy is
+twice that width; the canvas still downsamples it with high-quality smoothing.
+It was made from the source with Pillow 12.3: RGBA Lanczos resize to 432 by 210
+(premultiplied alpha, no edge fringe), then a 256-entry RGBA palette (fast
+octree, no dithering) saved as optimized PNG. At the drawn size it is visually
+equal to the lossless reduction (163,498 bytes). Should the logo ever be drawn
+larger, rebuild the runtime copy from the source at twice the new size.
 
 The browser server exposes only the named runtime image, not the Ressources
-directory. Source artwork remains lossless and untouched; raster downsampling
-occurs only during presentation. No image generation was used for this logo.
+directory. The source artwork remains lossless and untouched. No image
+generation was used for this logo.
 
 ## Verification
 

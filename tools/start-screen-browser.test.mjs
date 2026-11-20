@@ -142,7 +142,8 @@ test(
         'the startup UI leaves the retained input frame unchanged',
       );
       assert.equal(initial.presentation, 'start');
-      assert.deepEqual(initial.logo, [1500, 729]);
+      // The runtime copy is twice the largest drawn size (docs/START-SCREEN.md).
+      assert.deepEqual(initial.logo, [432, 210]);
       assert.deepEqual(initial.accessible, ['Shadowrun Enhanced', 'Start Game', 'status']);
       assert.equal(
         initial.onScreenDom,
