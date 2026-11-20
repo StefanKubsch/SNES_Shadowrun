@@ -1,3 +1,4 @@
+import { readStateByte, writeStateByte } from '../state/objects.mjs';
 // The dialog's portrait window (lifted from 80:8F3A and 80:8F97 with the window edges
 // 80:8EFE; register-level versions in src/system/native-dialog-portrait.mjs stay the
 // reference).
@@ -47,8 +48,8 @@ const OPEN_WAIT = [0x808f77, 0x81b0a1],
   CLOSE_WAIT = [0x808f9a, 0x81b0a1];
 
 const setWord = (wram, at, value) => {
-  wram[at] = value & BYTE_MASK;
-  wram[at + 1] = (value >>> BYTE_BITS) & BYTE_MASK;
+  writeStateByte(wram, at, value & BYTE_MASK);
+  writeStateByte(wram, at + 1, (value >>> BYTE_BITS) & BYTE_MASK);
 };
 
 // The window edges for the step in X (80:8EFE): the left window from 39 and 3B, the
@@ -62,15 +63,19 @@ function setWindowEdges(wram, x) {
   const step = x & BYTE_MASK,
     inverse = step ^ BYTE_MASK;
   const leftRight = add(step, PORTRAIT_WINDOW.leftWindowRightBias, false);
-  wram[LEFT_WINDOW_RIGHT_EDGE] = leftRight.value;
+  writeStateByte(wram, LEFT_WINDOW_RIGHT_EDGE, leftRight.value);
   const rightRight = add(step, PORTRAIT_WINDOW.rightWindowRightBias, leftRight.carry);
-  wram[RIGHT_WINDOW_RIGHT_EDGE] = rightRight.value;
-  wram[LEFT_WINDOW_LEFT_EDGE] = add(
-    inverse,
-    PORTRAIT_WINDOW.leftWindowLeftBias,
-    rightRight.carry,
-  ).value;
-  wram[RIGHT_WINDOW_LEFT_EDGE] = add(inverse, PORTRAIT_WINDOW.rightWindowLeftBias, false).value;
+  writeStateByte(wram, RIGHT_WINDOW_RIGHT_EDGE, rightRight.value);
+  writeStateByte(
+    wram,
+    LEFT_WINDOW_LEFT_EDGE,
+    add(inverse, PORTRAIT_WINDOW.leftWindowLeftBias, rightRight.carry).value,
+  );
+  writeStateByte(
+    wram,
+    RIGHT_WINDOW_LEFT_EDGE,
+    add(inverse, PORTRAIT_WINDOW.rightWindowLeftBias, false).value,
+  );
 }
 
 // Open the portrait window (80:8F3A) with live frame waits, for lifted callers without
@@ -83,11 +88,15 @@ export function* openPortraitWindow(h, events) {
     port.write(WBGLOG, 0, 2, SITES.logic);
     port.write(A1T0L, DIALOG_HDMA_TABLE, 2, SITES.table);
     for (let x = HDMA_LAST_BYTE; x >= 0; x--)
-      wram[DIALOG_HDMA_TABLE + x] = mem.read8(HDMA_SOURCE + x);
+      writeStateByte(wram, DIALOG_HDMA_TABLE + x, mem.read8(HDMA_SOURCE + x));
     port.write(DMAP0, PORTRAIT_WINDOW.hdmaMode, 1, SITES.mode);
     port.write(BBAD0, PORTRAIT_WINDOW.hdmaTarget, 1, SITES.target);
     port.write(A1B0, WRAM_BANK, 1, SITES.bank);
-    wram[HDMAEN_SHADOW] |= PORTRAIT_WINDOW.hdmaChannel;
+    writeStateByte(
+      wram,
+      HDMAEN_SHADOW,
+      readStateByte(wram, HDMAEN_SHADOW) | PORTRAIT_WINDOW.hdmaChannel,
+    );
     setWord(wram, TMW_SHADOW, PORTRAIT_WINDOW.layers);
   };
   do {
@@ -113,6 +122,10 @@ export function* closePortraitWindow(h, events) {
   } while (!(step & WORD_SIGN));
   yield () => {
     setWord(wram, TMW_SHADOW, 0);
-    wram[HDMAEN_SHADOW] &= ~PORTRAIT_WINDOW.hdmaChannel;
+    writeStateByte(
+      wram,
+      HDMAEN_SHADOW,
+      readStateByte(wram, HDMAEN_SHADOW) & ~PORTRAIT_WINDOW.hdmaChannel,
+    );
   };
 }

@@ -1,3 +1,4 @@
+import { readStateByte, writeStateByte } from '../state/objects.mjs';
 // The window releases of the room entry (lifted from 80:FA3E, 80:FF79, 80:BCB2 and
 // 80:BE5B; register-level versions in proof/system/native-render-compose.mjs,
 // proof/replay/native-slot-release.mjs and src/system/native-dialog-portrait.mjs; the script
@@ -47,10 +48,10 @@ const REDRAW_SITE = 0x80fa62,
   GLOVE_NAME_SITE = 0x80bcba,
   NAME_RELEASE_TARGET = 0x80be5b;
 
-const word = (wram, at) => wram[at] | (wram[at + 1] << BYTE_BITS);
+const word = (wram, at) => readStateByte(wram, at) | (readStateByte(wram, at + 1) << BYTE_BITS);
 const setWord = (wram, at, value) => {
-  wram[at] = value & BYTE_MASK;
-  wram[at + 1] = (value >>> BYTE_BITS) & BYTE_MASK;
+  writeStateByte(wram, at, value & BYTE_MASK);
+  writeStateByte(wram, at + 1, (value >>> BYTE_BITS) & BYTE_MASK);
 };
 
 // Release the window in the direct page word 00 (80:FA3E) and redraw the window list.

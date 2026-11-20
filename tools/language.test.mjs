@@ -185,12 +185,12 @@ test(
       en = intro(ENGLISH);
     assert.ok(de.ids.length >= 3, 'the intro texts went through FE69');
     const last = german.texts.get(de.ids.at(-1));
-    const buffer = de.game.memory.wram.subarray(TEXT_BUFFER, TEXT_BUFFER + last.length + 1);
+    const buffer = toWram(de.game.memory).subarray(TEXT_BUFFER, TEXT_BUFFER + last.length + 1);
     assert.deepEqual([...buffer], [...last, 0], 'German text in the buffer');
     const englishText = english.find(
       (t) => t.address === `9D:${(de.ids.at(-1) | 0x8000).toString(16).toUpperCase()}`,
     ).text;
-    const englishBuffer = en.game.memory.wram.subarray(
+    const englishBuffer = toWram(en.game.memory).subarray(
       TEXT_BUFFER,
       TEXT_BUFFER + englishText.length,
     );

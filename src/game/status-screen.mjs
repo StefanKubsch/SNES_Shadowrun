@@ -1,3 +1,4 @@
+import { readStateByte, writeStateByte } from '../state/objects.mjs';
 // The status screen of a group member (lifted from 80:EA6E, 80:EA89 and 80:EA8E;
 // register-level version statusSequence in proof/replay/native-status-screen.mjs, which
 // recorded waits and inputs replay).
@@ -148,10 +149,10 @@ const TEXT_KARMA = 0x7117,
   TEXT_WEAPON = 0x7125,
   TEXT_ARMOUR = 0x70b6;
 
-const word = (wram, at) => wram[at] | (wram[at + 1] << BYTE_BITS);
+const word = (wram, at) => readStateByte(wram, at) | (readStateByte(wram, at + 1) << BYTE_BITS);
 const setWord = (wram, at, value) => {
-  wram[at] = value & BYTE_MASK;
-  wram[at + 1] = (value >>> BYTE_BITS) & BYTE_MASK;
+  writeStateByte(wram, at, value & BYTE_MASK);
+  writeStateByte(wram, at + 1, (value >>> BYTE_BITS) & BYTE_MASK);
 };
 const negative = (value) => (value & WORD_SIGN) !== 0;
 // A long word read: WRAM fields indexed past their bank reach the next one.
@@ -176,7 +177,8 @@ export function* statusScreen(
     { wram } = mem,
     native = entry === NATIVE_ENTRY;
   // The record pointer DP F9 and its word, which the attribute rows step through.
-  const record = () => word(wram, DP_MEMBER_RECORD) | (wram[DP_MEMBER_RECORD_BANK] << WORD_BITS);
+  const record = () =>
+    word(wram, DP_MEMBER_RECORD) | (readStateByte(wram, DP_MEMBER_RECORD_BANK) << WORD_BITS);
   const nextRecordByte = () => {
     const value = longWord(mem, record()) & BYTE_MASK;
     setWord(wram, DP_MEMBER_RECORD, word(wram, DP_MEMBER_RECORD) + 1);
@@ -249,15 +251,17 @@ export function* statusScreen(
   yield () => {
     const runner = dataBankWord(mem, MEMBER_INDEX);
     setWord(wram, DP_MEMBER_RECORD, dataBankWord(mem, RUNNER_RECORD_POINTERS, runner));
-    const alternate = runner === 0 && wram[JAKE_ALTERNATE_PORTRAIT] !== 0;
+    const alternate = runner === 0 && readStateByte(wram, JAKE_ALTERNATE_PORTRAIT) !== 0;
     setWord(
       wram,
       MEMBER_PORTRAIT,
       alternate ? JAKE_ALTERNATE_PORTRAIT_DIALOG : dataBankWord(mem, RUNNER_PORTRAITS, runner),
     );
     setWord(wram, MEMBER_DATAJACK, dataBankWord(mem, RUNNER_DATAJACKS, runner));
-    wram[DP_MEMBER_RECORD_BANK] = mem.read8(
-      (CODE_BANK_BASE + RUNNER_RECORD_BANKS + runner) & LONG_MASK,
+    writeStateByte(
+      wram,
+      DP_MEMBER_RECORD_BANK,
+      mem.read8((CODE_BANK_BASE + RUNNER_RECORD_BANKS + runner) & LONG_MASK),
     );
     setWord(wram, DIALOG_END, 0);
     setWord(wram, DP_WINDOW_LEFT, STATUS_WINDOW_SHAPE.left);

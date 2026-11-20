@@ -67,7 +67,7 @@ function clickAt(end, button) {
   });
   control = new MouseControl(game);
   const wram = game.memory.wram,
-    word = (a) => wram[a] | (wram[a + 1] << 8),
+    word = (a) => game.memory.read16(0x7e0000 + a),
     after = (n) => {
       const end = game.nmis + n;
       while (game.nmis < end) game.step();

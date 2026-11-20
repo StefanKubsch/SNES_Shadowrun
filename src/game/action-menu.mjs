@@ -1,3 +1,4 @@
+import { readStateByte, writeStateByte } from '../state/objects.mjs';
 // The action menu of the glove (lifted from 80:99EB; register-level version in
 // proof/replay/native-actions.mjs, which the script's native 13 at 80:9BA0 still uses).
 //
@@ -76,10 +77,10 @@ const WINDOW = Object.freeze({ left: 12, top: 3, columns: 11, attributes: 0 }),
 // Original call sites and callees.
 const MENU_CALL = [0x809b7d, 0x80a6a5];
 
-const word = (wram, at) => wram[at] | (wram[at + 1] << BYTE_BITS);
+const word = (wram, at) => readStateByte(wram, at) | (readStateByte(wram, at + 1) << BYTE_BITS);
 const setWord = (wram, at, value) => {
-  wram[at] = value & BYTE_MASK;
-  wram[at + 1] = (value >>> BYTE_BITS) & BYTE_MASK;
+  writeStateByte(wram, at, value & BYTE_MASK);
+  writeStateByte(wram, at + 1, (value >>> BYTE_BITS) & BYTE_MASK);
 };
 
 // Fill the menu's tables from the accepted actions; returns the table index past the

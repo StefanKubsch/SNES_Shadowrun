@@ -1,3 +1,4 @@
+import { WINDOW_TEXT_FIELDS, windowsText } from '../../src/state/windows-text.mjs';
 import { CAMERA_MAP_FIELDS, cameraMaps } from '../../src/state/camera-maps.mjs';
 import { COLLISION_FIELDS, collisionTable } from '../../src/state/collision.mjs';
 // A diagnostic projection, never imported by the product. The unconverted state
@@ -34,6 +35,13 @@ export function toWram(memory, into = new Uint8Array(memory.wram.length)) {
         into[base + i * bytes] = maps[name][i] & BYTE_MASK;
         if (bytes === 2) into[base + i * bytes + 1] = maps[name][i] >>> BYTE_BITS;
       }
+  const windows = windowsText(wram);
+  if (windows)
+    for (const [name, { base, count, bytes }] of Object.entries(WINDOW_TEXT_FIELDS))
+      for (let i = 0; i < count; i++) {
+        into[base + i * bytes] = windows[name][i] & BYTE_MASK;
+        if (bytes === 2) into[base + i * bytes + 1] = windows[name][i] >>> BYTE_BITS;
+      }
   return into;
 }
 
@@ -45,7 +53,13 @@ export function restoreWram(memory, bytes) {
     throw new Error('wram_snapshot_size_required');
   const collision = collisionTable(wram);
   const maps = cameraMaps(wram);
+  const windows = windowsText(wram);
   wram.set(bytes);
+  if (windows)
+    for (const [name, { base, count, bytes: width }] of Object.entries(WINDOW_TEXT_FIELDS))
+      for (let i = 0; i < count; i++)
+        windows[name][i] =
+          bytes[base + i * width] | (width === 2 ? bytes[base + i * width + 1] << BYTE_BITS : 0);
   if (maps)
     for (const [name, { base, count, bytes: width }] of Object.entries(CAMERA_MAP_FIELDS))
       for (let i = 0; i < count; i++)

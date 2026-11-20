@@ -1,3 +1,4 @@
+import { readStateByte, writeStateByte } from '../state/objects.mjs';
 // A 32-bit number as decimal text (lifted from 80:FDCF; register-level version in
 // proof/replay/native-status-screen.mjs), used for Jake's money and karma lines of the
 // status screen.
@@ -35,10 +36,10 @@ const DP_NUMBER_LOW = 2,
   DP_DIGIT_OFFSET = 0xa5;
 const DRAW_TEXT = [0x80fe40, 0x80fb39];
 
-const word = (wram, at) => wram[at] | (wram[at + 1] << BYTE_BITS);
+const word = (wram, at) => readStateByte(wram, at) | (readStateByte(wram, at + 1) << BYTE_BITS);
 const setWord = (wram, at, value) => {
-  wram[at] = value & BYTE_MASK;
-  wram[at + 1] = (value >>> BYTE_BITS) & BYTE_MASK;
+  writeStateByte(wram, at, value & BYTE_MASK);
+  writeStateByte(wram, at + 1, (value >>> BYTE_BITS) & BYTE_MASK);
 };
 
 // The digits into the text buffer; returns the offset after them.
@@ -60,9 +61,10 @@ function writeDigits(mem) {
     }
     power += POWER_BYTES;
     if (!offset && !quotient) continue;
-    wram[TEXT_BUFFER + offset] = (quotient + CHARACTER_ZERO) & BYTE_MASK;
+    writeStateByte(wram, TEXT_BUFFER + offset, (quotient + CHARACTER_ZERO) & BYTE_MASK);
     offset++;
-    if (COMMA_OFFSETS.includes(power)) wram[TEXT_BUFFER + offset++] = CHARACTER_COMMA;
+    if (COMMA_OFFSETS.includes(power))
+      writeStateByte(wram, TEXT_BUFFER + offset++, CHARACTER_COMMA);
     setWord(wram, DP_DIGIT_OFFSET, offset);
   }
   return offset;
@@ -75,9 +77,13 @@ export function* decimalNumber(h, events, renderBuffer = drawTextBufferSequence)
     { wram } = mem;
   yield () => {
     const offset = writeDigits(mem);
-    wram[TEXT_BUFFER + offset] = (wram[DP_NUMBER_LOW] + CHARACTER_ZERO) & BYTE_MASK;
-    wram[TEXT_BUFFER + offset + 1] = LINE_END;
-    wram[TEXT_BUFFER + offset + 2] = 0;
+    writeStateByte(
+      wram,
+      TEXT_BUFFER + offset,
+      (readStateByte(wram, DP_NUMBER_LOW) + CHARACTER_ZERO) & BYTE_MASK,
+    );
+    writeStateByte(wram, TEXT_BUFFER + offset + 1, LINE_END);
+    writeStateByte(wram, TEXT_BUFFER + offset + 2, 0);
     // The data bank 7E for the text routine; the old bank waits on the stack.
     h.phb();
     h.push(WRAM_BANK_PAIR, 2);

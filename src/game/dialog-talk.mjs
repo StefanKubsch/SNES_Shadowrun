@@ -1,3 +1,4 @@
+import { readStateByte, writeStateByte } from '../state/objects.mjs';
 // Talking with an object (lifted from 80:936C with the dialog close 80:92C5; the
 // register-level versions in proof/replay/native-dialog.mjs stay the reference and serve
 // the other callers).
@@ -153,15 +154,16 @@ const OBJSEL_SITE = 0x809412,
   CGADSUB_SITE = 0x818871,
   BORDER_COLUMNS = 2;
 
-const word = (wram, at) => wram[at] | (wram[at + 1] << BYTE_BITS);
+const word = (wram, at) => readStateByte(wram, at) | (readStateByte(wram, at + 1) << BYTE_BITS);
 const setWord = (wram, at, value) => {
-  wram[at] = value & BYTE_MASK;
-  wram[at + 1] = (value >>> BYTE_BITS) & BYTE_MASK;
+  writeStateByte(wram, at, value & BYTE_MASK);
+  writeStateByte(wram, at + 1, (value >>> BYTE_BITS) & BYTE_MASK);
 };
 const longWord = (mem, at) =>
   mem.read8(at & LONG_MASK) | (mem.read8((at + 1) & LONG_MASK) << BYTE_BITS);
 // The long pointer in the direct page at dp, plus y.
-const pointer = (wram, dp, y) => ((word(wram, dp) | (wram[dp + 2] << WORD_BITS)) + y) & LONG_MASK;
+const pointer = (wram, dp, y) =>
+  ((word(wram, dp) | (readStateByte(wram, dp + 2) << WORD_BITS)) + y) & LONG_MASK;
 
 // Clear the fixed colour (81:886A), called with JSL: COLDATA black on all planes, no
 // colour math (CGADSUB 0).
@@ -230,7 +232,8 @@ export function* talk(h, events, renderBuffer = drawTextBufferSequence) {
   function* portrait(unpack) {
     let stream;
     yield () => {
-      const at = word(wram, DP_PORTRAIT_POINTER) | (wram[DP_PORTRAIT_BANK] << WORD_BITS);
+      const at =
+        word(wram, DP_PORTRAIT_POINTER) | (readStateByte(wram, DP_PORTRAIT_BANK) << WORD_BITS);
       stream = [longWord(mem, at), longWord(mem, at + PORTRAIT_RECORD_BANK_BYTE) & BYTE_MASK];
     };
     yield* dialogCallBody(h, ...unpack, () =>
@@ -257,7 +260,7 @@ export function* talk(h, events, renderBuffer = drawTextBufferSequence) {
   };
   yield* putGloveAwaySequence(h, events);
   yield () => {
-    wram[DP_RECORD_BANK] = RECORD_BANK;
+    writeStateByte(wram, DP_RECORD_BANK, RECORD_BANK);
     const number = word(wram, DP_RECORD_NUMBER);
     setWord(wram, DP_RECORD, longWord(mem, DIALOG_TABLE + ((number << 1) & WORD_MASK)));
   };
@@ -293,17 +296,25 @@ export function* talk(h, events, renderBuffer = drawTextBufferSequence) {
     setWord(wram, DP_TEXT_WINDOW, word(wram, DP_OBJECT));
     port.write(OBJSEL, PORTRAIT_OBJSEL, 2, OBJSEL_SITE);
     setWord(wram, PALETTE_UPLOAD_LIST_BYTES, 0);
-    const jake = wram[JAKE_ALTERNATE_PORTRAIT]
+    const jake = readStateByte(wram, JAKE_ALTERNATE_PORTRAIT)
         ? JAKE_ALTERNATE_PORTRAIT_DIALOG
         : JAKE_PORTRAIT_DIALOG,
       record = longWord(mem, DIALOG_TABLE + (jake << 1));
-    wram[DP_PORTRAIT_BANK] = mem.read8(DIALOG_BANK_BASE + PORTRAIT_RECORD_BANK_BYTE + record);
+    writeStateByte(
+      wram,
+      DP_PORTRAIT_BANK,
+      mem.read8(DIALOG_BANK_BASE + PORTRAIT_RECORD_BANK_BYTE + record),
+    );
     setWord(wram, DP_PORTRAIT_POINTER, longWord(mem, DIALOG_BANK_BASE + record));
   };
   yield* portrait(CALL.jakeUnpack);
   yield* uploadFirstPortrait(h, events);
   yield () => {
-    wram[DP_PORTRAIT_BANK] = mem.read8(pointer(wram, DP_RECORD, PORTRAIT_RECORD_BANK_BYTE));
+    writeStateByte(
+      wram,
+      DP_PORTRAIT_BANK,
+      mem.read8(pointer(wram, DP_RECORD, PORTRAIT_RECORD_BANK_BYTE)),
+    );
     setWord(wram, DP_PORTRAIT_POINTER, longWord(mem, pointer(wram, DP_RECORD, 0)));
   };
   yield* portrait(CALL.partnerUnpack);

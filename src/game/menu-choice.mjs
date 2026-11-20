@@ -1,3 +1,4 @@
+import { readStateByte, writeStateByte } from '../state/objects.mjs';
 // A choice from a menu list (lifted from 80:A6A5 to 80:A845; register-level version in
 // proof/replay/native-menu-compose.mjs stays the reference).
 //
@@ -97,10 +98,10 @@ const WAIT = 0x81b0a1,
   MARK_ROW = 0x80a5f9,
   UNMARK_ROW = 0x80a5db;
 
-const word = (wram, at) => wram[at] | (wram[at + 1] << BYTE_BITS);
+const word = (wram, at) => readStateByte(wram, at) | (readStateByte(wram, at + 1) << BYTE_BITS);
 const setWord = (wram, at, value) => {
-  wram[at] = value & BYTE_MASK;
-  wram[at + 1] = (value >>> BYTE_BITS) & BYTE_MASK;
+  writeStateByte(wram, at, value & BYTE_MASK);
+  writeStateByte(wram, at + 1, (value >>> BYTE_BITS) & BYTE_MASK);
 };
 // Two additions of the visible rows with the carry chained (CLC, ADC, ADC).
 const addRowsTwice = (start, rows) => {
@@ -134,7 +135,9 @@ export function* chooseFromMenuSequence(
     longWord = (at) => mem.read8(at & LONG_MASK) | (mem.read8((at + 1) & LONG_MASK) << BYTE_BITS),
     // The list's texts at the long pointer, the hotkey words through the data bank.
     token = () =>
-      longWord((field(DP_LIST_TOKENS) | (wram[DP_LIST_TOKEN_BANK] << WORD_BITS)) + index),
+      longWord(
+        (field(DP_LIST_TOKENS) | (readStateByte(wram, DP_LIST_TOKEN_BANK) << WORD_BITS)) + index,
+      ),
     hotkey = () => longWord(((ctx.bank << WORD_BITS) | field(DP_LIST_VALUES)) + index);
   const helper = (site, target, body) => dialogCallBody(h, site, target, body);
   const list = (site) => helper(site, LIST, () => drawListSequence(h, events, renderBuffer)),

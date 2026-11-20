@@ -1,3 +1,4 @@
+import { windowTextByte, setWindowTextByte } from './windows-text.mjs';
 import { cameraMapByte, setCameraMapByte } from './camera-maps.mjs';
 import { collisionByte, setCollisionByte } from './collision.mjs';
 // The object table: one entry per object slot, each field a named array
@@ -237,13 +238,21 @@ for (const [name, base] of Object.entries(FIELDS)) {
 }
 export function readStateByte(wram, at) {
   const field = detached.has(wram) && byteFields[at];
-  if (!field) return collisionByte(wram, at) ?? cameraMapByte(wram, at) ?? wram[at];
+  if (!field)
+    return (
+      collisionByte(wram, at) ?? cameraMapByte(wram, at) ?? windowTextByte(wram, at) ?? wram[at]
+    );
   return (tables.get(wram)[field.name][field.index] >>> field.shift) & BYTE_MASK;
 }
 export function writeStateByte(wram, at, value) {
   const field = detached.has(wram) && byteFields[at];
   if (!field) {
-    if (!setCollisionByte(wram, at, value) && !setCameraMapByte(wram, at, value)) wram[at] = value;
+    if (
+      !setCollisionByte(wram, at, value) &&
+      !setCameraMapByte(wram, at, value) &&
+      !setWindowTextByte(wram, at, value)
+    )
+      wram[at] = value;
     return value;
   }
   const values = tables.get(wram)[field.name],

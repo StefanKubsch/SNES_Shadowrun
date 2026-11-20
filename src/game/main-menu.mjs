@@ -1,3 +1,4 @@
+import { readStateByte, writeStateByte } from '../state/objects.mjs';
 // The main menu (lifted from 80:CE6D and the save menu 80:CDD6; register-level versions
 // in proof/replay/native-main-menu.mjs, which recorded waits and inputs replay).
 //
@@ -79,10 +80,10 @@ const TEXT_SAVE_BLOCKED = 0x7058,
 // The save sound: 80:C46E with the object FFFF, level and voice FF and sound 36.
 const SAVE_SOUND = 0x36;
 
-const word = (wram, at) => wram[at] | (wram[at + 1] << BYTE_BITS);
+const word = (wram, at) => readStateByte(wram, at) | (readStateByte(wram, at + 1) << BYTE_BITS);
 const setWord = (wram, at, value) => {
-  wram[at] = value & BYTE_MASK;
-  wram[at + 1] = (value >>> BYTE_BITS) & BYTE_MASK;
+  writeStateByte(wram, at, value & BYTE_MASK);
+  writeStateByte(wram, at + 1, (value >>> BYTE_BITS) & BYTE_MASK);
 };
 const negative = (value) => (value & WORD_SIGN) !== 0;
 function* returnSequence(h) {

@@ -1,3 +1,4 @@
+import { readStateByte, writeStateByte } from '../state/objects.mjs';
 // The equipment rows of the status window (lifted from 80:E9C5 with its item text
 // 80:E9A8; register-level version in proof/replay/native-member-spell-menu.mjs).
 //
@@ -44,10 +45,10 @@ const ITEM_KINDS = 0x8db022,
   ENTRY_SHIFT = 2,
   DERMAL_ARMOUR_BONUS = 2;
 
-const word = (wram, at) => wram[at] | (wram[at + 1] << BYTE_BITS);
+const word = (wram, at) => readStateByte(wram, at) | (readStateByte(wram, at + 1) << BYTE_BITS);
 const setWord = (wram, at, value) => {
-  wram[at] = value & BYTE_MASK;
-  wram[at + 1] = (value >>> BYTE_BITS) & BYTE_MASK;
+  writeStateByte(wram, at, value & BYTE_MASK);
+  writeStateByte(wram, at + 1, (value >>> BYTE_BITS) & BYTE_MASK);
 };
 const longWord = (mem, at) =>
   mem.read8(at & LONG_MASK) | (mem.read8((at + 1) & LONG_MASK) << BYTE_BITS);
@@ -106,7 +107,7 @@ export function* equipmentRows(h, events, renderBuffer = drawTextBufferSequence)
     const entry = (dataBankWord(mem, MEMBER_INDEX) << ENTRY_SHIFT) & WORD_MASK;
     armour = word(wram, RUNNER_ARMOUR + entry);
     rating = word(wram, RUNNER_ARMOUR_RATING + entry);
-    if (leader() && wram[JAKE_DERMAL_ARMOUR]) rating += DERMAL_ARMOUR_BONUS;
+    if (leader() && readStateByte(wram, JAKE_DERMAL_ARMOUR)) rating += DERMAL_ARMOUR_BONUS;
     rating &= BYTE_MASK;
     weapon = word(wram, RUNNER_WEAPON + entry);
   };

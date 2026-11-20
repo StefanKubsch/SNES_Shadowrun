@@ -1,3 +1,4 @@
+import { readStateByte, writeStateByte } from '../state/objects.mjs';
 // The Yes/No question (lifted from the script native 80:CD43; register-level version in
 // proof/replay/native-modal.mjs, which recorded waits replay).
 //
@@ -42,10 +43,10 @@ const WINDOW_COLUMNS = 6,
 // Original call sites and callees.
 const MENU_CALL = [0x80cd6f, 0x80a6c7];
 
-const word = (wram, at) => wram[at] | (wram[at + 1] << BYTE_BITS);
+const word = (wram, at) => readStateByte(wram, at) | (readStateByte(wram, at + 1) << BYTE_BITS);
 const setWord = (wram, at, value) => {
-  wram[at] = value & BYTE_MASK;
-  wram[at + 1] = (value >>> BYTE_BITS) & BYTE_MASK;
+  writeStateByte(wram, at, value & BYTE_MASK);
+  writeStateByte(wram, at + 1, (value >>> BYTE_BITS) & BYTE_MASK);
 };
 
 // 80:CD43 composes opening, selection and release with an explicit renderer.

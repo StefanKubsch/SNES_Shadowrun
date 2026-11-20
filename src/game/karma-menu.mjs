@@ -1,3 +1,4 @@
+import { readStateByte, writeStateByte } from '../state/objects.mjs';
 // The karma menu of the main menu (lifted from 80:EE57, 80:EF82, 80:F006 and the lists
 // 80:F054, 80:F0F3 and 80:F1B5; register-level versions in proof/replay/native-main-menu.mjs,
 // which recorded waits and inputs replay).
@@ -128,14 +129,15 @@ const TEXT_KARMA = 0x7117,
 const TEXT_KARMA_INSUFFICIENT = 0x711b,
   NOTICE_WINDOW = Object.freeze({ left: 0x0e, top: 2, columns: 0x10, rows: 3 });
 
-const word = (wram, at) => wram[at] | (wram[at + 1] << BYTE_BITS);
+const word = (wram, at) => readStateByte(wram, at) | (readStateByte(wram, at + 1) << BYTE_BITS);
 const setWord = (wram, at, value) => {
-  wram[at] = value & BYTE_MASK;
-  wram[at + 1] = (value >>> BYTE_BITS) & BYTE_MASK;
+  writeStateByte(wram, at, value & BYTE_MASK);
+  writeStateByte(wram, at + 1, (value >>> BYTE_BITS) & BYTE_MASK);
 };
 // The long pointer DP 0E with its bank DP 10.
 const valueAddress = (wram) =>
-  (word(wram, DP_KARMA_VALUE_POINTER) | (wram[DP_KARMA_VALUE_BANK] << WORD_BITS)) & LONG_MASK;
+  (word(wram, DP_KARMA_VALUE_POINTER) | (readStateByte(wram, DP_KARMA_VALUE_BANK) << WORD_BITS)) &
+  LONG_MASK;
 
 // 80:EF82: the karma line (see above), for lifted callers without the JSR frame (the
 // caller's return word lies only in free stack bytes).
@@ -277,7 +279,11 @@ export function* karmaList(h, events, entry, renderBuffer = drawTextBufferSequen
         body = word(wram, DP_KARMA_VALUE_POINTER) === JAKE_BODY;
         if (!body) return;
         // The count maximum is a byte.
-        wram[JAKE_COUNT_MAX] = (wram[JAKE_COUNT_MAX] + BODY_COUNT_INCREMENT) & BYTE_MASK;
+        writeStateByte(
+          wram,
+          JAKE_COUNT_MAX,
+          (readStateByte(wram, JAKE_COUNT_MAX) + BODY_COUNT_INCREMENT) & BYTE_MASK,
+        );
         setWord(wram, 0, dataBankWord(mem, PLAYER_OBJECT));
         setWord(wram, 2, BODY_COUNT_INCREMENT);
       };
@@ -315,7 +321,7 @@ export function* karmaMenu(h, events, renderBuffer = drawTextBufferSequence) {
   yield () => {
     // Jake's record (the first runner's) at DP F9.
     setWord(wram, DP_WEAPON_RECORD, dataBankWord(mem, RUNNER_RECORD_POINTERS));
-    wram[DP_WEAPON_RECORD_BANK] = mem.read8(CODE_BANK_BASE + RUNNER_RECORD_BANKS);
+    writeStateByte(wram, DP_WEAPON_RECORD_BANK, mem.read8(CODE_BANK_BASE + RUNNER_RECORD_BANKS));
   };
   yield* openKept(
     [

@@ -472,7 +472,7 @@ function uploadFont(m) {
   video.write(A1B5, WRAM_BANK, 1);
   video.write(CGSWSEL, CGSWSEL_SUB_SCREEN, 1);
   video.write(CGADSUB, CGADSUB_BACKDROP | LAYER_OBJ | LAYER_BG3 | LAYER_BG2 | LAYER_BG1, 1);
-  wram[TM_SHADOW] |= LAYER_BG3;
+  writeStateByte(wram, TM_SHADOW, readStateByte(wram, TM_SHADOW) | LAYER_BG3);
   fillWordList(wram, WINDOW_ACTIVE, WINDOW_LAST_SLOT, 0);
   setWord(wram, LOADED_WINDOW_STYLE, NONE);
   fillWordList(wram, NOTICE_WINDOWS, NOTICE_WINDOW_LAST, NONE);
@@ -515,7 +515,7 @@ export function setUpGameScreen(m, tasks) {
   resetMusic(wram);
   setNmiCallback(wram, GAME_NMI);
   port.write(NMITIMEN, NMITIMEN_NMI_ENABLE | NMITIMEN_AUTO_JOYPAD, 1, NMI_ON_SITE);
-  wram[TM_SHADOW] |= GAME_LAYERS;
+  writeStateByte(wram, TM_SHADOW, readStateByte(wram, TM_SHADOW) | GAME_LAYERS);
   video.write(BG3VOFS, 0, 1);
   video.write(BG3VOFS, 0, 1);
   video.write(BG3HOFS, 0, 1);

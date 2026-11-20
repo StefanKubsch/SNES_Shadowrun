@@ -1,3 +1,4 @@
+import { detachWindowsText } from '../state/windows-text.mjs';
 import { detachCameraMaps } from '../state/camera-maps.mjs';
 import { detachCollisionStorage } from '../state/collision.mjs';
 // Live cold start (user decision 2026-10-30, docs/STRATEGY.md): the
@@ -90,6 +91,7 @@ export class LiveGame {
       detachObjectStorage(this.memory.wram);
       detachCollisionStorage(this.memory.wram);
       detachCameraMaps(this.memory.wram);
+      detachWindowsText(this.memory.wram);
     }
     this.memory.textEdits = cartridge.textEdits ?? null;
     if (settings.fourSaveSlots) installPortExtension(this.memory);

@@ -1,3 +1,4 @@
+import { toWram } from '../proof/state/to-wram.mjs';
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
@@ -155,7 +156,8 @@ test(
     assert.ok(tileEnd() < 0x2400, 'the notice ends below tile 2400');
     const pages = [];
     for (let page = 0; page < 2; page++) {
-      pages.push(Buffer.from(memory.wram.subarray(0x21a0, memory.wram.indexOf(0, 0x21a0))));
+      const state = toWram(memory);
+      pages.push(Buffer.from(state.subarray(0x21a0, state.indexOf(0, 0x21a0))));
       press(0x0080);
       steps(100);
     }

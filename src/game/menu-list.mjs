@@ -1,3 +1,4 @@
+import { readStateByte, writeStateByte } from '../state/objects.mjs';
 // A menu's list in its window (lifted from 80:A617, 80:A5DB and 80:A5F9; register-level
 // versions in proof/replay/native-list-prerequisites.mjs stay the reference).
 //
@@ -66,10 +67,10 @@ const BLANK = 0x707d,
   // The marks lie three columns and rows inside the window's far edges.
   MARK_INSET = 3;
 
-const word = (wram, at) => wram[at] | (wram[at + 1] << BYTE_BITS);
+const word = (wram, at) => readStateByte(wram, at) | (readStateByte(wram, at + 1) << BYTE_BITS);
 const setWord = (wram, at, value) => {
-  wram[at] = value & BYTE_MASK;
-  wram[at + 1] = (value >>> BYTE_BITS) & BYTE_MASK;
+  writeStateByte(wram, at, value & BYTE_MASK);
+  writeStateByte(wram, at + 1, (value >>> BYTE_BITS) & BYTE_MASK);
 };
 
 // Mark the row of the word index given, or remove its mark (80:A5F9 with MARK, 80:A5DB
@@ -106,7 +107,9 @@ export function* drawListSequence(h, events, renderBuffer = drawTextBufferSequen
   const listWord = (address) =>
       mem.read8(address & LONG_MASK) | (mem.read8((address + 1) & LONG_MASK) << BYTE_BITS),
     token = () =>
-      listWord((word(wram, DP_LIST_TOKENS) | (wram[DP_LIST_TOKEN_BANK] << WORD_BITS)) + at),
+      listWord(
+        (word(wram, DP_LIST_TOKENS) | (readStateByte(wram, DP_LIST_TOKEN_BANK) << WORD_BITS)) + at,
+      ),
     // The numbers through the data bank, as the original's LDA abs,Y.
     number = () => listWord(((ctx.bank << WORD_BITS) | word(wram, DP_LIST_VALUES)) + at);
   const cursor = () => segmentSequence(() => setTextCursor(h));

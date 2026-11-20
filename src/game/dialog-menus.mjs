@@ -1,3 +1,4 @@
+import { readStateByte, writeStateByte } from '../state/objects.mjs';
 // The dialog's main menu and topic choice (lifted from 80:91E2 and 80:9215; register-
 // level versions in proof/replay/native-dialog-text.mjs stay the reference).
 //
@@ -46,10 +47,10 @@ const MAIN_MENU = Object.freeze([2, 4, 3, 0x920d, CODE_BANK]),
 const MAIN_MENU_CALL = [0x8091ff, 0x80a6c7],
   TOPIC_MENU_CALL = [0x809298, 0x80a6c7];
 
-const word = (wram, at) => wram[at] | (wram[at + 1] << BYTE_BITS);
+const word = (wram, at) => readStateByte(wram, at) | (readStateByte(wram, at + 1) << BYTE_BITS);
 const setWord = (wram, at, value) => {
-  wram[at] = value & BYTE_MASK;
-  wram[at + 1] = (value >>> BYTE_BITS) & BYTE_MASK;
+  writeStateByte(wram, at, value & BYTE_MASK);
+  writeStateByte(wram, at + 1, (value >>> BYTE_BITS) & BYTE_MASK);
 };
 // The direct page words from 00 (or 02) on.
 const setWords = (wram, from, values) =>
@@ -87,13 +88,13 @@ export function* chooseDialogTopic(h, events, renderBuffer = drawTextBufferSeque
     none = true;
   };
   yield () => {
-    if (wram[TOPIC_LIST] === LIST_END) return empty();
+    if (readStateByte(wram, TOPIC_LIST) === LIST_END) return empty();
     let x = 0,
       y = 0;
-    for (; wram[TOPIC_LIST + x] !== LIST_END; x = (x + 1) & WORD_MASK) {
-      const topic = wram[TOPIC_LIST + x];
+    for (; readStateByte(wram, TOPIC_LIST + x) !== LIST_END; x = (x + 1) & WORD_MASK) {
+      const topic = readStateByte(wram, TOPIC_LIST + x);
       setWord(wram, DP_TOPIC_NUMBER, topic);
-      if (wram[TOPIC_FLAGS + x]) continue;
+      if (readStateByte(wram, TOPIC_FLAGS + x)) continue;
       const at = TOPIC_TEXTS + ((topic << 1) & WORD_MASK);
       setWord(wram, TOPIC_MENU_BUFFER + y, mem.read8(at) | (mem.read8(at + 1) << BYTE_BITS));
       y = (y + 2) & WORD_MASK;
@@ -129,7 +130,7 @@ export function* chooseDialogTopic(h, events, renderBuffer = drawTextBufferSeque
     // The chosen row counts the unflagged topics of the list.
     let x = 0;
     for (; ; x = (x + 1) & WORD_MASK) {
-      if (wram[TOPIC_FLAGS + x]) continue;
+      if (readStateByte(wram, TOPIC_FLAGS + x)) continue;
       row = (row - 1) & WORD_MASK;
       if (row & WORD_SIGN) break;
     }

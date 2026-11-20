@@ -182,3 +182,27 @@ own commit after `npm run test:block` and the golden trace test. One shared
   preserving all assertions; their four files passed 26/26 tests. The isolated
   save import browser retry passed unchanged after one transient Import missing
   failure. The shared release checks the complete delivery batch before push.
+
+- 2026-11-20, windows, text and menus: src/state/windows-text.mjs owns the window
+  slots, geometry, text cursors, styles, activity and tile allocation; the text bit
+  decoder, character buffer, window map, mask and DMA requests; notices; dialog
+  portrait tables and requests; and menu selection, lists and member display state.
+  Only the normal LiveGame loop imports them into independent typed arrays.
+- Status, karma, item and spell menus share the same list names, indices, values
+  and window handles. Spell sublists and action-menu overrides retain their byte
+  aliases, including unaligned words and words across field ends. Portrait edges
+  remain bytes of their HDMA tables. The text mask's owned span ends at 7E:2CE0;
+  accesses beyond it reach the camera row buffers through the same byte boundary.
+- Window, text and menu consumers, number printing, portrait uploads, the glove's
+  name window release and magic point spending use the shared state boundary.
+  Existing DMA and indirect native accesses already use VmMemory. Projection and
+  restore include every new field; raw WRAM does not mirror live writes. Direct
+  page workspace, saved topic/flag bytes, frontend layer aliases and algorithms
+  retain their existing contracts. The dialog topic choice buffer is independent;
+  its overflow still aliases the following fields rather than gaining a new limit.
+- Window/menu validation: 5956 passing checks in the initial block selection,
+  including all five unchanged golden traces. Six raw test observations were
+  migrated to projection or memory reads without changing assertions; their final
+  focused selection passed 826/826 tests in 491 seconds. Both browser checks
+  passed with elevated process access after managed Page.enable startup timeouts.
+  Nine storage contracts and all edited-file ESLint checks passed.

@@ -1,3 +1,4 @@
+import { readStateByte, writeStateByte } from '../state/objects.mjs';
 // Opening a window (lifted from 80:F963 with the tile upload request 80:FA67; register-
 // level version in proof/replay/native-window-open.mjs, which the other callers still use).
 //
@@ -80,10 +81,10 @@ const PRODUCT_COLUMNS_SITE = 0x80f9ec,
   // The carry of the first tile's shifts (bit 13, three ASL) enters the address.
   TILE_ADDRESS_CARRY_BIT = 13;
 
-const word = (wram, at) => wram[at] | (wram[at + 1] << BYTE_BITS);
+const word = (wram, at) => readStateByte(wram, at) | (readStateByte(wram, at + 1) << BYTE_BITS);
 const setWord = (wram, at, value) => {
-  wram[at] = value & BYTE_MASK;
-  wram[at + 1] = (value >>> BYTE_BITS) & BYTE_MASK;
+  writeStateByte(wram, at, value & BYTE_MASK);
+  writeStateByte(wram, at + 1, (value >>> BYTE_BITS) & BYTE_MASK);
 };
 
 // Clamp the position in the direct page word at: 0 becomes 1, a window past the limit
@@ -101,9 +102,19 @@ function clamp(wram, at, extent, limit) {
 // The window's text tiles: (columns - 2) x (rows - 2) after the last window's, wrapping
 // to 2027 past 2400. Returns the first tile.
 function allocateTiles({ wram, port }, x) {
-  port.write(M7A, (wram[DP_WINDOW_COLUMNS] - BORDER_CELLS) & BYTE_MASK, 1, PRODUCT_COLUMNS_SITE);
+  port.write(
+    M7A,
+    (readStateByte(wram, DP_WINDOW_COLUMNS) - BORDER_CELLS) & BYTE_MASK,
+    1,
+    PRODUCT_COLUMNS_SITE,
+  );
   port.write(M7A, 0, 1, PRODUCT_HIGH_SITE);
-  port.write(M7B, (wram[DP_WINDOW_ROWS] - BORDER_CELLS) & BYTE_MASK, 1, PRODUCT_ROWS_SITE);
+  port.write(
+    M7B,
+    (readStateByte(wram, DP_WINDOW_ROWS) - BORDER_CELLS) & BYTE_MASK,
+    1,
+    PRODUCT_ROWS_SITE,
+  );
   let first = word(wram, WINDOW_NEXT_TILE);
   const count = port.read(MPYL, 2, PRODUCT_SITE);
   setWord(wram, WINDOW_TILE_COUNT + x, count);

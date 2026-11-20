@@ -1,3 +1,4 @@
+import { readStateByte, writeStateByte } from '../state/objects.mjs';
 // Show a notice window (lifted from 80:FEC1; register-level version in
 // proof/replay/native-notice.mjs, which the other callers still use).
 //
@@ -55,10 +56,10 @@ const TEXT_CALL = [0x80fedd, 0x80fe69],
   // The routines a paged notice adds between its pages.
   CONFIRM_KEY = 0x80f953;
 
-const word = (wram, at) => wram[at] | (wram[at + 1] << BYTE_BITS);
+const word = (wram, at) => readStateByte(wram, at) | (readStateByte(wram, at + 1) << BYTE_BITS);
 const setWord = (wram, at, value) => {
-  wram[at] = value & BYTE_MASK;
-  wram[at + 1] = (value >>> BYTE_BITS) & BYTE_MASK;
+  writeStateByte(wram, at, value & BYTE_MASK);
+  writeStateByte(wram, at + 1, (value >>> BYTE_BITS) & BYTE_MASK);
 };
 
 // A translated notice too long for the text tiles left (fitNoticeWindow): its pages

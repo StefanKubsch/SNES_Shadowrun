@@ -1,3 +1,4 @@
+import { readStateByte, writeStateByte } from '../state/objects.mjs';
 // The time limits of the notice windows (lifted from 80:FF14; register-level
 // reference in proof/game-reference/main-upkeep.mjs).
 //
@@ -46,10 +47,10 @@ const EFFECT_CHANCE = 0x3333,
   // The register-level random leaves the range in the direct page word 02.
   DP_RANDOM_RANGE = 0x02;
 
-const word = (wram, at) => wram[at] | (wram[at + 1] << BYTE_BITS);
+const word = (wram, at) => readStateByte(wram, at) | (readStateByte(wram, at + 1) << BYTE_BITS);
 const setWord = (wram, at, value) => {
-  wram[at] = value & BYTE_MASK;
-  wram[at + 1] = (value >>> BYTE_BITS) & BYTE_MASK;
+  writeStateByte(wram, at, value & BYTE_MASK);
+  writeStateByte(wram, at + 1, (value >>> BYTE_BITS) & BYTE_MASK);
 };
 
 // Count the notices down and release the ones whose frames ran out (80:FF14), a

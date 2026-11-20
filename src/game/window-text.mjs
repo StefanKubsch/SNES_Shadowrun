@@ -1,3 +1,4 @@
+import { readStateByte, writeStateByte } from '../state/objects.mjs';
 // The text cursor and the number print of a window (lifted from 80:FAAC and 80:FD80;
 // register-level references remain in proof/replay/native-list-prerequisites.mjs).
 //
@@ -60,10 +61,10 @@ const ROW_SITE = 0x80fab8,
   QUOTIENT_SITE = 0x80fda7,
   DRAW_CALL = [0x80fdca, 0x80fb39];
 
-const word = (wram, at) => wram[at] | (wram[at + 1] << BYTE_BITS);
+const word = (wram, at) => readStateByte(wram, at) | (readStateByte(wram, at + 1) << BYTE_BITS);
 const setWord = (wram, at, value) => {
-  wram[at] = value & BYTE_MASK;
-  wram[at + 1] = (value >>> BYTE_BITS) & BYTE_MASK;
+  writeStateByte(wram, at, value & BYTE_MASK);
+  writeStateByte(wram, at + 1, (value >>> BYTE_BITS) & BYTE_MASK);
 };
 
 // Set the text cursor of the window in the direct page word 00 (80:FAAC) for lifted
@@ -72,8 +73,13 @@ const setWord = (wram, at, value) => {
 export function setTextCursor(h) {
   const { wram, port } = sceneRuntime(h);
   const x = word(wram, DP_WINDOW);
-  port.write(WRMPYA, wram[DP_CURSOR_ROW], 1, ROW_SITE);
-  port.write(WRMPYB, (wram[WINDOW_COLUMNS + x] - BORDER_COLUMNS) & BYTE_MASK, 1, COLUMNS_SITE);
+  port.write(WRMPYA, readStateByte(wram, DP_CURSOR_ROW), 1, ROW_SITE);
+  port.write(
+    WRMPYB,
+    (readStateByte(wram, WINDOW_COLUMNS + x) - BORDER_COLUMNS) & BYTE_MASK,
+    1,
+    COLUMNS_SITE,
+  );
   const start = word(wram, WINDOW_TILE_START + x) + word(wram, DP_VALUE),
     left = start & WORD_MASK,
     product = port.read(RDMPYL, 2, PRODUCT_SITE),
@@ -99,7 +105,11 @@ export function* printNumber(h, events, renderBuffer = drawTextBufferSequence) {
       port.write(WRDIVL, value, 2, DIVIDEND_SITE);
       port.write(WRDIVB, RADIX, 1, DIVISOR_SITE);
       x = (x - 1) & WORD_MASK;
-      wram[TEXT_BUFFER + x] = (CHARACTER_ZERO + port.read(RDMPYL, 1, REMAINDER_SITE)) & BYTE_MASK;
+      writeStateByte(
+        wram,
+        TEXT_BUFFER + x,
+        (CHARACTER_ZERO + port.read(RDMPYL, 1, REMAINDER_SITE)) & BYTE_MASK,
+      );
       value = port.read(RDDIVL, 2, QUOTIENT_SITE);
     } while (value !== 0);
     bank = ctx.bank;
@@ -108,8 +118,8 @@ export function* printNumber(h, events, renderBuffer = drawTextBufferSequence) {
     if (x !== 0) {
       let y = 0;
       for (;;) {
-        const byte = wram[TEXT_BUFFER + x];
-        wram[TEXT_BUFFER + y] = byte;
+        const byte = readStateByte(wram, TEXT_BUFFER + x);
+        writeStateByte(wram, TEXT_BUFFER + y, byte);
         if (byte === 0) break;
         x = (x + 1) & WORD_MASK;
         y = (y + 1) & WORD_MASK;

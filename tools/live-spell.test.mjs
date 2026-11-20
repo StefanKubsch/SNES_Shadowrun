@@ -1,3 +1,4 @@
+import { toWram } from '../proof/state/to-wram.mjs';
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { cartridge } from './cartridge-harness.mjs';
@@ -57,14 +58,14 @@ test(
           driver = livePlanDriver(SELECT, wram, () => game.loop.rounds);
         }
         if (driver.done() && !chosen) {
-          chosen = wram.slice();
+          chosen = toWram(game.memory);
           driver = livePlanDriver(CAST, wram, () => game.loop.rounds);
         }
         return driver.pad(k);
       },
     });
     while (!chosen || !driver.done()) game.step();
-    const wram = game.memory.wram;
+    const wram = toWram(game.memory);
     assert.deepEqual([chosen[0x1ce2], chosen[0x1d99]], [3, 1], 'Heal chosen as X spell');
     assert.deepEqual([chosen[0x3d0d], chosen[0x3d11]], [0x82, 0x92]);
     assert.deepEqual([wram[0x1d67], wram[0x3d0d], wram[0x3d11]], [0x56, 0x81, 0x91], 'cast at Me');

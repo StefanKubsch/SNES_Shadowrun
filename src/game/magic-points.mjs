@@ -1,3 +1,4 @@
+import { readStateWord } from '../state/objects.mjs';
 // Spending magic points (lifted from the script native 80:8B43; register-level version
 // in proof/replay/native-combat.mjs, which recorded waits replay).
 //
@@ -26,7 +27,7 @@ const NOTICE = { left: 0x0b, top: 0x14, columns: 0x13, rows: 3, text: 1, frames:
   PAID = WORD_MASK,
   NOT_PAID = 0;
 
-const word = (wram, at) => wram[at] | (wram[at + 1] << BYTE_BITS);
+const word = readStateWord;
 const setWord = (wram, at, value) => {
   wram[at] = value & BYTE_MASK;
   wram[at + 1] = (value >>> BYTE_BITS) & BYTE_MASK;

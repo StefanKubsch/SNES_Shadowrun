@@ -1,3 +1,4 @@
+import { readStateByte, writeStateByte } from '../state/objects.mjs';
 // Jake's state bar in the window map (lifted from 81:AF1F; register-level version in
 // proof/script/native-bar-tiles.mjs, which the register-level references use).
 //
@@ -67,10 +68,10 @@ const FRAME_DIVISION = [0x81af32, 0x81af39],
   SMALL_REMAINDER_SITE = 0x81b009,
   REMAINDER_SITE = 0x81b016;
 
-const word = (wram, at) => wram[at] | (wram[at + 1] << BYTE_BITS);
+const word = (wram, at) => readStateByte(wram, at) | (readStateByte(wram, at + 1) << BYTE_BITS);
 const setWord = (wram, at, value) => {
-  wram[at] = value & BYTE_MASK;
-  wram[at + 1] = (value >>> BYTE_BITS) & BYTE_MASK;
+  writeStateByte(wram, at, value & BYTE_MASK);
+  writeStateByte(wram, at + 1, (value >>> BYTE_BITS) & BYTE_MASK);
 };
 const readWord = (mem, at) => mem.read8(at) | (mem.read8(at + 1) << BYTE_BITS);
 
@@ -99,7 +100,7 @@ export function drawJakeStateBar({ mem, wram, port }) {
   if (word(wram, GROUP_INDEX) & WORD_SIGN) return;
   const rows = [TOP_ROW, MIDDLE_ROW, BOTTOM_ROW];
   // The frame: the caps, one segment per 20 points of the maximum, the left end.
-  divide(port, wram[JAKE_COUNT_MAX], FRAME_DIVISION);
+  divide(port, readStateByte(wram, JAKE_COUNT_MAX), FRAME_DIVISION);
   [TOP_CAP, MIDDLE_CAP, BOTTOM_CAP].forEach((at, n) => setWord(wram, at, CAP_TILES[n]));
   const segments = port.read(RDDIVL, 2, FRAME_QUOTIENT_SITE);
   let x = drawColumns(wram, rows, SEGMENT_TILES, FIRST_COLUMN, segments);
@@ -107,8 +108,8 @@ export function drawJakeStateBar({ mem, wram, port }) {
   rows.forEach((row, n) => setWord(wram, row + x, end[n]));
   // The maximum is divided again (its byte read again: a frame of 65536 segments
   // overwrites it), then the current value s rounded up.
-  divide(port, wram[JAKE_COUNT_MAX], MAXIMUM_DIVISION);
-  const value = wram[VALUE_BASE + readWord(mem, VALUE_POINTER)];
+  divide(port, readStateByte(wram, JAKE_COUNT_MAX), MAXIMUM_DIVISION);
+  const value = readStateByte(wram, VALUE_BASE + readWord(mem, VALUE_POINTER));
   setWord(wram, DP_VALUE, value);
   const maximumSegments = port.read(RDDIVL, 2, MAXIMUM_QUOTIENT_SITE);
   setWord(wram, DP_QUOTIENT, maximumSegments);

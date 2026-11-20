@@ -1,3 +1,4 @@
+import { readStateByte, writeStateByte } from '../state/objects.mjs';
 // The pixel width of a text (lifted from 80:FADD with its glyph width step 80:FB2A;
 // register-level version in proof/replay/native-glove-target-support.mjs, which the glove
 // natives still use).
@@ -30,10 +31,10 @@ const DP_TEXT = 0x00,
   TEXT_END = 0x0a,
   BRANCH_BYTES = 2;
 
-const word = (wram, at) => wram[at] | (wram[at + 1] << BYTE_BITS);
+const word = (wram, at) => readStateByte(wram, at) | (readStateByte(wram, at + 1) << BYTE_BITS);
 const setWord = (wram, at, value) => {
-  wram[at] = value & BYTE_MASK;
-  wram[at + 1] = (value >>> BYTE_BITS) & BYTE_MASK;
+  writeStateByte(wram, at, value & BYTE_MASK);
+  writeStateByte(wram, at + 1, (value >>> BYTE_BITS) & BYTE_MASK);
 };
 
 // Measure the text in the direct page word 00 into the direct page word BA (80:FADD),

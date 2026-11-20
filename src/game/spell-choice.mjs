@@ -1,3 +1,4 @@
+import { readStateByte, writeStateByte } from '../state/objects.mjs';
 // The spell choice (lifted from the script native 80:E1CF; register-level version in
 // proof/replay/native-spell-choice.mjs, which recorded waits and inputs replay).
 //
@@ -48,10 +49,10 @@ const MENU_COLUMN = 1,
   CANCELLED = WORD_MASK,
   NO_SPELL = 0;
 
-const word = (wram, at) => wram[at] | (wram[at + 1] << BYTE_BITS);
+const word = (wram, at) => readStateByte(wram, at) | (readStateByte(wram, at + 1) << BYTE_BITS);
 const setWord = (wram, at, value) => {
-  wram[at] = value & BYTE_MASK;
-  wram[at + 1] = (value >>> BYTE_BITS) & BYTE_MASK;
+  writeStateByte(wram, at, value & BYTE_MASK);
+  writeStateByte(wram, at + 1, (value >>> BYTE_BITS) & BYTE_MASK);
 };
 
 // The menu list: each learned spell's name text (in the order of the list) after Exit.

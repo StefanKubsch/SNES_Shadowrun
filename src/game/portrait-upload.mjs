@@ -1,3 +1,4 @@
+import { readStateByte, writeStateByte } from '../state/objects.mjs';
 // The dialog's portraits in video memory (lifted from 80:9F6D, 80:8F20, 80:9022, 80:905E
 // and 80:8FF5; register-level versions in src/system/native-dialog-portrait.mjs stay the
 // reference).
@@ -103,10 +104,10 @@ const TILE_BYTES = 0x1000,
 const FIRST_UPLOAD = [0x80902b, 0x808ff5],
   SECOND_UPLOAD = [0x809067, 0x808ff5];
 
-const word = (wram, at) => wram[at] | (wram[at + 1] << BYTE_BITS);
+const word = (wram, at) => readStateByte(wram, at) | (readStateByte(wram, at + 1) << BYTE_BITS);
 const setWord = (wram, at, value) => {
-  wram[at] = value & BYTE_MASK;
-  wram[at + 1] = (value >>> BYTE_BITS) & BYTE_MASK;
+  writeStateByte(wram, at, value & BYTE_MASK);
+  writeStateByte(wram, at + 1, (value >>> BYTE_BITS) & BYTE_MASK);
 };
 
 // Unpack the portrait stream (pointer, bank word) into bank 7F from the offset
@@ -129,7 +130,7 @@ export function shiftPortraitRowsInPlace(h) {
   while (x !== SOURCE_STOP) {
     y = (y - ROW_BYTES) & WORD_MASK;
     for (let n = 0; n < ROW_BYTES; n++) {
-      wram[HIGH_BANK + y] = wram[HIGH_BANK + x];
+      writeStateByte(wram, HIGH_BANK + y, readStateByte(wram, HIGH_BANK + x));
       x = (x - 1) & WORD_MASK;
       y = (y - 1) & WORD_MASK;
     }
@@ -146,7 +147,7 @@ export function* uploadFirstPortrait(h, events) {
   yield* dialogCallBody(h, ...FIRST_UPLOAD, () => uploadPortraitTiles(h, events, 0));
   yield () => {
     for (let x = HDMA_FILL_LAST; !(x & WORD_SIGN); x = (x - HDMA_STRIDE) & WORD_MASK)
-      wram[HDMA_TABLE + x] = HDMA_FILL;
+      writeStateByte(wram, HDMA_TABLE + x, HDMA_FILL);
     for (let x = OAM_HIGH_LAST; x >= 0; x -= 2) setWord(wram, OAM_HIGH_TABLE + x, 0);
     for (const [at, value] of FIRST_ENTRIES) setWord(wram, at, value);
   };

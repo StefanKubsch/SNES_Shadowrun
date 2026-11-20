@@ -1,3 +1,4 @@
+import { readStateByte, writeStateByte } from '../state/objects.mjs';
 // The shown member's portrait in the status and spell menus (lifted from 80:E4B3 with
 // 80:E48D, 80:E433 and 80:E41F; register-level version in
 // proof/replay/native-member-spell-menu.mjs).
@@ -78,10 +79,10 @@ const UNPACK = [0x80e4e3, 0x809f6d],
     bank: 0x80e45d,
   });
 
-const word = (wram, at) => wram[at] | (wram[at + 1] << BYTE_BITS);
+const word = (wram, at) => readStateByte(wram, at) | (readStateByte(wram, at + 1) << BYTE_BITS);
 const setWord = (wram, at, value) => {
-  wram[at] = value & BYTE_MASK;
-  wram[at + 1] = (value >>> BYTE_BITS) & BYTE_MASK;
+  writeStateByte(wram, at, value & BYTE_MASK);
+  writeStateByte(wram, at + 1, (value >>> BYTE_BITS) & BYTE_MASK);
 };
 const longWord = (mem, at) =>
   mem.read8(at & LONG_MASK) | (mem.read8((at + 1) & LONG_MASK) << BYTE_BITS);
@@ -91,8 +92,8 @@ function setWindowEdges(wram, step) {
     right = edge + PORTRAIT_WINDOW.leftWindowRightBias,
     left =
       ((edge ^ BYTE_MASK) + PORTRAIT_WINDOW.leftWindowLeftBias + (right >>> BYTE_BITS)) & BYTE_MASK;
-  wram[PORTRAIT_WINDOW_RIGHT] = right & BYTE_MASK;
-  wram[PORTRAIT_WINDOW_LEFT] = left;
+  writeStateByte(wram, PORTRAIT_WINDOW_RIGHT, right & BYTE_MASK);
+  writeStateByte(wram, PORTRAIT_WINDOW_LEFT, left);
 }
 
 // 80:E4B3: the member's portrait with its opening window (see above), for lifted
@@ -108,9 +109,10 @@ export function* memberPortrait(h, events) {
       record = dataBankWord(mem, DIALOG_TABLE & WORD_MASK, portrait);
     port.write(OBJSEL, PORTRAIT_OBJSEL, 2, SITES.objsel);
     setDataBankWord(mem, PALETTE_UPLOAD_LIST_BYTES, 0, 0);
-    wram[DP_PORTRAIT_BANK] = mem.read8((DIALOG_BANK_BASE + 2 + record) & LONG_MASK);
+    writeStateByte(wram, DP_PORTRAIT_BANK, mem.read8((DIALOG_BANK_BASE + 2 + record) & LONG_MASK));
     setWord(wram, DP_PORTRAIT_POINTER, longWord(mem, DIALOG_BANK_BASE + record));
-    const pointer = word(wram, DP_PORTRAIT_POINTER) | (wram[DP_PORTRAIT_BANK] << WORD_BITS);
+    const pointer =
+      word(wram, DP_PORTRAIT_POINTER) | (readStateByte(wram, DP_PORTRAIT_BANK) << WORD_BITS);
     stream = [longWord(mem, pointer), mem.read8((pointer + PORTRAIT_RECORD_BANK_BYTE) & LONG_MASK)];
   };
   yield* dialogCallBody(h, ...UNPACK, () =>
@@ -161,12 +163,12 @@ function* colourWindow(h, events) {
     // The table and the channel's enable bit are bytes (8-bit A, TSB, whose zero the
     // next load overwrites).
     for (let n = 0; n <= HDMA_TABLE_LAST; n++)
-      wram[PORTRAIT_HDMA_TABLE + n] = mem.read8(HDMA_TABLE_SOURCE + n);
+      writeStateByte(wram, PORTRAIT_HDMA_TABLE + n, mem.read8(HDMA_TABLE_SOURCE + n));
     port.write(DMAP0, PORTRAIT_WINDOW.hdmaMode, 1, SITES.mode);
     port.write(BBAD0, PORTRAIT_WINDOW.hdmaTarget, 1, SITES.target);
     port.write(A1B0, WRAM_BANK, 1, SITES.bank);
-    const shown = wram[HDMAEN_SHADOW];
-    wram[HDMAEN_SHADOW] = shown | PORTRAIT_WINDOW.hdmaChannel;
+    const shown = readStateByte(wram, HDMAEN_SHADOW);
+    writeStateByte(wram, HDMAEN_SHADOW, shown | PORTRAIT_WINDOW.hdmaChannel);
     setDataBankWord(mem, TMW_SHADOW, 0, PORTRAIT_WINDOW.layers);
   };
   let step = PORTRAIT_WINDOW.edgeFirst;

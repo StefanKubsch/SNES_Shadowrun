@@ -1,3 +1,4 @@
+import { toWram } from '../proof/state/to-wram.mjs';
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
@@ -143,7 +144,7 @@ test('FE69 and real FADD agree on longer, empty and port edits without changing 
     memory.write8(WRAM + WINDOW_MAP_BUFFER, 0xa5);
     const seq = printTextSequence(a, { calls: [] }, false);
     seq.next().value(); // The initial segment ends before FB39 mutates style markers.
-    assert.equal(text(memory.wram.subarray(TEXT_BUFFER, TEXT_BUFFER + value.length)), value);
+    assert.equal(text(toWram(memory).subarray(TEXT_BUFFER, TEXT_BUFFER + value.length)), value);
     assert.equal(memory.read8(WRAM + TEXT_BUFFER + value.length), 0);
     assert.equal(memory.read8(WRAM + WINDOW_MAP_BUFFER), 0xa5);
     assert.equal(memory.read16(2), word);

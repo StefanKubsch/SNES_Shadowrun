@@ -1,3 +1,4 @@
+import { readStateByte, writeStateByte } from '../state/objects.mjs';
 // A member's spell menu (lifted from the script native 80:F254 and its menu 80:E693;
 // register-level version in proof/replay/native-member-spell-menu.mjs, which recorded waits
 // and inputs replay).
@@ -117,10 +118,10 @@ const SPELL_SLOT_END = SPELL_SLOT_FIRST + SPELL_COUNT,
   LEVEL_NAMES = 0x80e7c8,
   MARK_SET = WORD_MASK;
 
-const word = (wram, at) => wram[at] | (wram[at + 1] << BYTE_BITS);
+const word = (wram, at) => readStateByte(wram, at) | (readStateByte(wram, at + 1) << BYTE_BITS);
 const setWord = (wram, at, value) => {
-  wram[at] = value & BYTE_MASK;
-  wram[at + 1] = (value >>> BYTE_BITS) & BYTE_MASK;
+  writeStateByte(wram, at, value & BYTE_MASK);
+  writeStateByte(wram, at + 1, (value >>> BYTE_BITS) & BYTE_MASK);
 };
 const negative = (value) => (value & WORD_SIGN) !== 0;
 // left + right + carry on words, with the carry.
@@ -139,7 +140,8 @@ function* returnSequence(h) {
 // The level byte of a spell slot in the runner's record (long pointer DP F9).
 function spellLevel(mem, slot) {
   const { wram } = mem,
-    record = word(wram, DP_MEMBER_RECORD) | (wram[DP_MEMBER_RECORD_BANK] << WORD_BITS);
+    record =
+      word(wram, DP_MEMBER_RECORD) | (readStateByte(wram, DP_MEMBER_RECORD_BANK) << WORD_BITS);
   return mem.read8((record + slot) & LONG_MASK);
 }
 // The window's shape: another language fits it to Exit and the level names.
@@ -313,7 +315,11 @@ export function* openSpellMenuSequence(h, events, renderBuffer = drawTextBufferS
     setWord(wram, MEMBER_INDEX, runner);
     const skills = (dataBankWord(mem, RUNNER_RECORD_POINTERS, runner) + SKILLS_START) & WORD_MASK;
     setWord(wram, DP_MEMBER_RECORD, skills);
-    wram[DP_MEMBER_RECORD_BANK] = dataBankWord(mem, RUNNER_RECORD_BANKS, runner) & BYTE_MASK;
+    writeStateByte(
+      wram,
+      DP_MEMBER_RECORD_BANK,
+      dataBankWord(mem, RUNNER_RECORD_BANKS, runner) & BYTE_MASK,
+    );
     setWord(wram, DIALOG_END, 0);
   };
   yield* spellMenu(h, events, MENU_ENTRY, renderBuffer);

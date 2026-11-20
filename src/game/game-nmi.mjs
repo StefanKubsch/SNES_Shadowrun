@@ -135,7 +135,7 @@ const setWord = (wram, at, value) => {
 // A list entry at base + index, whose bytes must lie below 2000.
 function listByte(wram, base, index) {
   if (base + index >= LOW_WRAM_END) taskStop('nmi_list_required', { base, index });
-  return wram[base + index];
+  return readStateByte(wram, base + index);
 }
 const listWord = (wram, base, index) =>
   listByte(wram, base, index) | (listByte(wram, base, index + 1) << BYTE_BITS);
@@ -248,8 +248,8 @@ export function uploadScenePalettes(wram, port) {
     y = (y - 2) & WORD_MASK;
   } while (y);
   port.write(CGADD, 0, 1, BACKDROP_SITES.colour);
-  port.write(CGDATA, wram[SCENE_BACKDROP], 1, BACKDROP_SITES.low);
-  port.write(CGDATA, wram[SCENE_BACKDROP + 1], 1, BACKDROP_SITES.high);
+  port.write(CGDATA, readStateByte(wram, SCENE_BACKDROP), 1, BACKDROP_SITES.low);
+  port.write(CGDATA, readStateByte(wram, SCENE_BACKDROP + 1), 1, BACKDROP_SITES.high);
   setWord(wram, SCENE_PALETTE_UPLOAD, 0);
 }
 
@@ -346,8 +346,8 @@ export function uploadPortraitGraphics(wram, port) {
     PORTRAIT_SITES.source,
   );
   port.write(DAS4L, PALETTE_COLOURS_BYTES, 2, PORTRAIT_SITES.bytes);
-  port.write(CGADD, wram[PORTRAIT_PALETTE_START], 1, PORTRAIT_SITES.colour);
-  port.write(A1B4, wram[DP_PORTRAIT_BANK], 1, PORTRAIT_SITES.bank);
+  port.write(CGADD, readStateByte(wram, PORTRAIT_PALETTE_START), 1, PORTRAIT_SITES.colour);
+  port.write(A1B4, readStateByte(wram, DP_PORTRAIT_BANK), 1, PORTRAIT_SITES.bank);
   port.write(MDMAEN, channel(DMAP4), 1, PORTRAIT_SITES.colourStart);
   setWord(wram, PORTRAIT_DMA_REQUEST, REQUEST_SENT);
 }
@@ -378,12 +378,12 @@ export function uploadGlove(wram, port) {
     setWord(wram, GLOVE_LIMIT_KIND, 0);
   }
   port.write(OAMADDL, 0, 2, GLOVE_SITES.oamAddress);
-  port.write(OAMDATA, wram[GLOVE_SCREEN_X], 1, GLOVE_SITES.x);
+  port.write(OAMDATA, readStateByte(wram, GLOVE_SCREEN_X), 1, GLOVE_SITES.x);
   if (!word(wram, GLOVE_KIND)) {
     port.write(OAMDATA, HIDDEN_Y, 1, GLOVE_SITES.hidden);
     return;
   }
-  port.write(OAMDATA, wram[GLOVE_SCREEN_Y], 1, GLOVE_SITES.y);
+  port.write(OAMDATA, readStateByte(wram, GLOVE_SCREEN_Y), 1, GLOVE_SITES.y);
   port.write(OAMDATA, 0, 1, GLOVE_SITES.tile);
   port.write(OAMDATA, OAM_PRIORITY_3, 1, GLOVE_SITES.attributes);
 }
@@ -502,12 +502,12 @@ export function stepBrightnessFade(wram) {
   setWord(wram, BRIGHTNESS_FADE_FRAMES, frames);
   if (frames) return;
   const out = Boolean(fade & WORD_SIGN),
-    shadow = wram[INIDISP_SHADOW],
+    shadow = readStateByte(wram, INIDISP_SHADOW),
     brightness = shadow & INIDISP_BRIGHTNESS_MASK;
   setWord(wram, BRIGHTNESS_FADE_FRAMES, out ? -fade : fade);
-  if (out && brightness !== 0) wram[INIDISP_SHADOW] = shadow - 1;
+  if (out && brightness !== 0) writeStateByte(wram, INIDISP_SHADOW, shadow - 1);
   else if (!out && brightness !== MAX_BRIGHTNESS)
-    wram[INIDISP_SHADOW] = (shadow + 1) & BYTE_MASK & ~INIDISP_FORCED_BLANK;
+    writeStateByte(wram, INIDISP_SHADOW, (shadow + 1) & BYTE_MASK & ~INIDISP_FORCED_BLANK);
   else setWord(wram, BRIGHTNESS_FADE, 0);
 }
 
@@ -550,7 +550,7 @@ export function handleGameNmi(h) {
   uploadGlove(wram, port);
   stepBrightnessFade(wram);
   for (const [shadow, register, site] of SCREEN_SHADOWS)
-    port.write(register, wram[shadow], 1, site);
+    port.write(register, readStateByte(wram, shadow), 1, site);
   return h.rtl();
 }
 

@@ -1,3 +1,4 @@
+import { readStateByte, writeStateByte } from '../state/objects.mjs';
 // The party status (lifted from 80:ED3C, which the player control 80:E014 calls on
 // Select; register-level version in proof/replay/native-player-control.mjs).
 //
@@ -76,15 +77,16 @@ const PARTY_WINDOW = Object.freeze({ left: 1, top: 1, columns: 0x1e, baseRows: 5
 // The callees and their call sites (the cursor, text and number per member in order).
 const CONFIRM_KEY = [0x80ee4b, 0x80f953];
 
-const word = (wram, at) => wram[at] | (wram[at + 1] << BYTE_BITS);
+const word = (wram, at) => readStateByte(wram, at) | (readStateByte(wram, at + 1) << BYTE_BITS);
 const setWord = (wram, at, value) => {
-  wram[at] = value & BYTE_MASK;
-  wram[at + 1] = (value >>> BYTE_BITS) & BYTE_MASK;
+  writeStateByte(wram, at, value & BYTE_MASK);
+  writeStateByte(wram, at + 1, (value >>> BYTE_BITS) & BYTE_MASK);
 };
 // A byte of the member's record (long pointer DP F9) at offset.
 const recordByte = (mem, offset) => {
   const { wram } = mem,
-    record = word(wram, DP_MEMBER_RECORD) | (wram[DP_MEMBER_RECORD_BANK] << WORD_BITS);
+    record =
+      word(wram, DP_MEMBER_RECORD) | (readStateByte(wram, DP_MEMBER_RECORD_BANK) << WORD_BITS);
   return mem.read8((record + offset) & LONG_MASK);
 };
 
@@ -103,9 +105,13 @@ function prepareMember(mem, member) {
   setWord(wram, MEMBER_INDEX, runner);
   setWord(wram, DP_PARTY_NAME, dataBankWord(mem, RUNNER_NAMES, runner));
   setWord(wram, DP_MEMBER_RECORD, dataBankWord(mem, RUNNER_RECORD_POINTERS, runner));
-  wram[DP_MEMBER_RECORD_BANK] = dataBankWord(mem, RUNNER_RECORD_BANKS, runner) & BYTE_MASK;
+  writeStateByte(
+    wram,
+    DP_MEMBER_RECORD_BANK,
+    dataBankWord(mem, RUNNER_RECORD_BANKS, runner) & BYTE_MASK,
+  );
   const record = objectWord(mem, 'record', slot);
-  setDataBankWord(mem, MEMBER_STATE_COUNT, 0, wram[STATE_COUNT + record]);
+  setDataBankWord(mem, MEMBER_STATE_COUNT, 0, readStateByte(wram, STATE_COUNT + record));
   // Ten times the magic byte.
   setWord(wram, DP_MAGIC_MAXIMUM, (recordByte(mem, RECORD_MAGIC) * MAGIC_FACTOR) & WORD_MASK);
   setWord(wram, 2, 0);
@@ -164,7 +170,7 @@ export function* partyStatus(h, events, renderBuffer = drawTextBufferSequence) {
     yield* printNumber(h, events, renderBuffer);
     yield* withArgument(COLUMNS.magic, () => segmentSequence(() => setTextCursor(h)));
     yield* withArgument(
-      () => wram[MAGIC_POINTS + (dataBankWord(mem, MEMBER_INDEX) >>> 1)],
+      () => readStateByte(wram, MAGIC_POINTS + (dataBankWord(mem, MEMBER_INDEX) >>> 1)),
       () => printNumber(h, events, renderBuffer),
     );
     yield* withArgument(COLUMNS.magicSlash, () => segmentSequence(() => setTextCursor(h)));

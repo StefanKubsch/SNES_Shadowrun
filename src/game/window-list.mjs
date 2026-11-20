@@ -1,3 +1,4 @@
+import { readStateByte, writeStateByte } from '../state/objects.mjs';
 // The window list (lifted from 81:AD92 with the window drawing 81:ACCF; register-level
 // versions in proof/system/native-render-compose.mjs, which recorded runs replay).
 //
@@ -62,10 +63,10 @@ const LIST_BANK = 0x81,
 const UPLOAD_WAIT_SITE = 0x81acb8,
   UPLOAD_WAIT_BRANCH = 0x81acb2;
 
-const word = (wram, at) => wram[at] | (wram[at + 1] << BYTE_BITS);
+const word = (wram, at) => readStateByte(wram, at) | (readStateByte(wram, at + 1) << BYTE_BITS);
 const setWord = (wram, at, value) => {
-  wram[at] = value & BYTE_MASK;
-  wram[at + 1] = (value >>> BYTE_BITS) & BYTE_MASK;
+  writeStateByte(wram, at, value & BYTE_MASK);
+  writeStateByte(wram, at + 1, (value >>> BYTE_BITS) & BYTE_MASK);
 };
 
 // Draw window x (a word index) into the window map buffer (81:ACCF): the top border,

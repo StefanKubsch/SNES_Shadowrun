@@ -1,3 +1,4 @@
+import { readStateByte, writeStateByte } from '../state/objects.mjs';
 import { talk } from './dialog-talk.mjs';
 import { chooseAction } from './action-menu.mjs';
 import { takePad } from '../system/live-input-calls.mjs';
@@ -81,10 +82,10 @@ const DP_SCRATCH = 0x6b,
   DP_DIALOG_OBJECT = 0x00,
   DP_DIALOG_RECORD = 0x02;
 
-const word = (wram, at) => wram[at] | (wram[at + 1] << BYTE_BITS);
+const word = (wram, at) => readStateByte(wram, at) | (readStateByte(wram, at + 1) << BYTE_BITS);
 const setWord = (wram, at, value) => {
-  wram[at] = value & BYTE_MASK;
-  wram[at + 1] = (value >>> BYTE_BITS) & BYTE_MASK;
+  writeStateByte(wram, at, value & BYTE_MASK);
+  writeStateByte(wram, at + 1, (value >>> BYTE_BITS) & BYTE_MASK);
 };
 // The distance of two objects in one field, taken without sign (a word).
 const distance = (wram, field, from, to) => {

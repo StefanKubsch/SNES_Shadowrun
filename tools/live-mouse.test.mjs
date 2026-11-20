@@ -34,8 +34,7 @@ test('mouse and back key drive menus and the glove', { timeout: 900000 }, () => 
     },
   });
   const control = new MouseControl(game),
-    wram = game.memory.wram,
-    word = (a) => wram[a] | (wram[a + 1] << 8);
+    word = (a) => game.memory.read16(0x7e0000 + a);
   // One step can cover many NMIs (synchronous sections); phases wait for conditions.
   const run = (n) => {
       while (game.nmis < n) game.step();

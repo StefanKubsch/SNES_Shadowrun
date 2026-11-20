@@ -1,3 +1,4 @@
+import { writeStateByte } from '../state/objects.mjs';
 // The glove put away from a script (lifted from the script native 80:CD9D;
 // register-level version in proof/replay/native-glove-release.mjs, which recorded waits
 // replay): the dialog window cleared (7E:1D61), the glove put away with its target's
@@ -12,8 +13,8 @@ const LIST_SITE = 0x80cda3;
 export function* releaseGloveSequence(h, events) {
   const { wram } = h.a.mem;
   yield () => {
-    wram[DIALOG_WINDOW] = 0;
-    wram[DIALOG_WINDOW + 1] = 0;
+    writeStateByte(wram, DIALOG_WINDOW, 0);
+    writeStateByte(wram, DIALOG_WINDOW + 1, 0);
   };
   yield* putGloveAwaySequence(h, events);
   yield* drawWindowListSequence(h, events, LIST_SITE);

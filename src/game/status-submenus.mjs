@@ -1,3 +1,4 @@
+import { readStateByte, writeStateByte } from '../state/objects.mjs';
 // The skills and notes submenus of the status screen (lifted from 80:E834 and 80:E8C8;
 // register-level versions in proof/replay/native-status-screen.mjs).
 //
@@ -69,15 +70,16 @@ const CYBERWARE = Object.freeze([
   [JAKE_WIRED_REFLEXES, TEXT_WIRED_REFLEXES],
 ]);
 
-const word = (wram, at) => wram[at] | (wram[at + 1] << BYTE_BITS);
+const word = (wram, at) => readStateByte(wram, at) | (readStateByte(wram, at + 1) << BYTE_BITS);
 const setWord = (wram, at, value) => {
-  wram[at] = value & BYTE_MASK;
-  wram[at + 1] = (value >>> BYTE_BITS) & BYTE_MASK;
+  writeStateByte(wram, at, value & BYTE_MASK);
+  writeStateByte(wram, at + 1, (value >>> BYTE_BITS) & BYTE_MASK);
 };
 // A byte of the runner's record (long pointer DP F9).
 function recordByte(mem, offset) {
   const { wram } = mem,
-    record = word(wram, DP_MEMBER_RECORD) | (wram[DP_MEMBER_RECORD_BANK] << WORD_BITS);
+    record =
+      word(wram, DP_MEMBER_RECORD) | (readStateByte(wram, DP_MEMBER_RECORD_BANK) << WORD_BITS);
   return mem.read8((record + offset) & LONG_MASK);
 }
 // The window's place, size and plain attributes in the direct page.
@@ -152,7 +154,7 @@ export function* notes(h, events, renderBuffer = drawTextBufferSequence) {
     jake = dataBankWord(mem, MEMBER_NUMBER) === JAKE_OBJECT_NUMBER;
     if (jake) {
       let rows = NOTES_WINDOW.jakeRows;
-      for (const [flag] of CYBERWARE) if (wram[flag]) rows++;
+      for (const [flag] of CYBERWARE) if (readStateByte(wram, flag)) rows++;
       setWindow(h, NOTES_WINDOW, rows);
       fitListWindow(mem, [TEXT_HEAD_COMPUTER, TEXT_DATAJACK, ...CYBERWARE.map(([, id]) => id)], {
         column: 0,
@@ -185,7 +187,7 @@ export function* notes(h, events, renderBuffer = drawTextBufferSequence) {
   for (const [flag, id] of CYBERWARE) {
     let fitted;
     yield () => {
-      fitted = wram[flag];
+      fitted = readStateByte(wram, flag);
       if (!fitted) return;
       setWord(wram, 2, 0);
       setWord(wram, DP_CURSOR_ROW, (word(wram, DP_CURSOR_ROW) + 1) & WORD_MASK);

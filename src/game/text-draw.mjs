@@ -1,3 +1,4 @@
+import { readStateByte, writeStateByte } from '../state/objects.mjs';
 // Drawing the text buffer into a window (lifted from 80:FB39 with the cursor geometry
 // 81:ADBA, 81:AE14 and 81:AE4D, the mask close 81:AEC8 and the upload requests 81:AEF4
 // and 81:AEFC; register-level versions in proof/replay/native-text-compose.mjs and
@@ -137,10 +138,10 @@ const READBACK = Object.freeze({
 const JSL_LAST_BYTE = 3,
   REQUEST_BANK = 0x81;
 
-const word = (wram, at) => wram[at] | (wram[at + 1] << BYTE_BITS);
+const word = (wram, at) => readStateByte(wram, at) | (readStateByte(wram, at + 1) << BYTE_BITS);
 const setWord = (wram, at, value) => {
-  wram[at] = value & BYTE_MASK;
-  wram[at + 1] = (value >>> BYTE_BITS) & BYTE_MASK;
+  writeStateByte(wram, at, value & BYTE_MASK);
+  writeStateByte(wram, at + 1, (value >>> BYTE_BITS) & BYTE_MASK);
 };
 const romWord = (mem, at) => mem.read8(at) | (mem.read8(at + 1) << BYTE_BITS);
 const swap = (value) => ((value & BYTE_MASK) << BYTE_BITS) | (value >>> BYTE_BITS);
@@ -154,7 +155,7 @@ function textState(h) {
 // LSR of a word count times (count 1 to 65535), as the original's loop with DEY.
 const shiftRight = (value, count) => (count < WORD_BITS ? value >>> count : 0);
 const field = (wram, table, x) => word(wram, table + x);
-const byteField = (wram, table, x) => wram[table + x];
+const byteField = (wram, table, x) => readStateByte(wram, table + x);
 
 // The cursor tile's distance from the window's first text tile, divided by the text
 // columns on the divider (started here; the sites are the dividend's and divisor's).
@@ -279,18 +280,26 @@ function measureWord(s) {
   setWord(wram, TEXT_WORK_WORD, 0);
   setWord(wram, TEXT_WORD_STATE, 0);
   for (let y = word(wram, TEXT_CHARACTER_INDEX); ;) {
-    const ch = wram[TEXT_BUFFER + y];
+    const ch = readStateByte(wram, TEXT_BUFFER + y);
     if (ch === 0 || ch === SPACE) break;
     if (ch === STYLE_TOGGLE) {
-      wram[TEXT_COMPOSE_STYLE] |= STYLE_BOLD;
-      wram[TEXT_BUFFER + y] = STYLE_PLACEHOLDER;
+      writeStateByte(
+        wram,
+        TEXT_COMPOSE_STYLE,
+        readStateByte(wram, TEXT_COMPOSE_STYLE) | STYLE_BOLD,
+      );
+      writeStateByte(wram, TEXT_BUFFER + y, STYLE_PLACEHOLDER);
       continue;
     }
     y = (y + 1) & WORD_MASK;
     s.x = ch;
-    if (wram[TEXT_COMPOSE_STYLE] & STYLE_BOLD)
-      wram[TEXT_WORK_WORD] = (wram[TEXT_WORK_WORD] + 1) & BYTE_MASK;
-    wram[TEXT_WORK_WORD] = (mem.read8(GLYPH_WIDTHS + ch) + wram[TEXT_WORK_WORD]) & BYTE_MASK;
+    if (readStateByte(wram, TEXT_COMPOSE_STYLE) & STYLE_BOLD)
+      writeStateByte(wram, TEXT_WORK_WORD, (readStateByte(wram, TEXT_WORK_WORD) + 1) & BYTE_MASK);
+    writeStateByte(
+      wram,
+      TEXT_WORK_WORD,
+      (mem.read8(GLYPH_WIDTHS + ch) + readStateByte(wram, TEXT_WORK_WORD)) & BYTE_MASK,
+    );
   }
   return (word(wram, TEXT_WORK_WORD) || EMPTY_WORD_WIDTH) >= word(wram, TEXT_LINE_PIXELS);
 }
@@ -298,19 +307,20 @@ function measureWord(s) {
 // character (capitals with style 80) in s.character.
 function nextCharacter(s) {
   const { wram } = s,
-    capitals = (wram[TEXT_COMPOSE_STYLE] & BYTE_SIGN) !== 0;
+    capitals = (readStateByte(wram, TEXT_COMPOSE_STYLE) & BYTE_SIGN) !== 0;
   const endBold = () => {
-    wram[TEXT_COMPOSE_STYLE] &= ~STYLE_BOLD;
+    writeStateByte(wram, TEXT_COMPOSE_STYLE, readStateByte(wram, TEXT_COMPOSE_STYLE) & ~STYLE_BOLD);
     return 'measure';
   };
-  if (wram[TEXT_WORD_STATE] & BYTE_SIGN) return endBold();
+  if (readStateByte(wram, TEXT_WORD_STATE) & BYTE_SIGN) return endBold();
   s.x = word(wram, TEXT_CHARACTER_INDEX);
-  let ch = wram[TEXT_BUFFER + s.x];
+  let ch = readStateByte(wram, TEXT_BUFFER + s.x);
   if (ch === 0) return 'end';
   if (ch === SPACE) {
-    if (wram[TEXT_WORD_STATE]) return endBold();
-    wram[TEXT_WORD_STATE] = (wram[TEXT_WORD_STATE] - 1) & BYTE_MASK;
-  } else wram[TEXT_WORD_STATE] = (wram[TEXT_WORD_STATE] + 1) & BYTE_MASK;
+    if (readStateByte(wram, TEXT_WORD_STATE)) return endBold();
+    writeStateByte(wram, TEXT_WORD_STATE, (readStateByte(wram, TEXT_WORD_STATE) - 1) & BYTE_MASK);
+  } else
+    writeStateByte(wram, TEXT_WORD_STATE, (readStateByte(wram, TEXT_WORD_STATE) + 1) & BYTE_MASK);
   s.x = (s.x + 1) & WORD_MASK;
   setWord(wram, TEXT_CHARACTER_INDEX, s.x);
   if (capitals && ch >= LOWER_FIRST && ch < LOWER_END) ch &= UPPER_MASK;
@@ -334,17 +344,22 @@ function drawGlyph(s, character) {
   if (word(wram, TEXT_COMPOSE_STYLE) & STYLE_WIDER)
     setWord(wram, TEXT_WORK_WORD, word(wram, TEXT_WORK_WORD) + 1);
   let x = (character << PIXEL_SHIFT) & WORD_MASK;
-  wram[TEXT_GLYPH_ROW] = GLYPH_LAST_ROW;
+  writeStateByte(wram, TEXT_GLYPH_ROW, GLYPH_LAST_ROW);
   do {
-    const style = wram[TEXT_COMPOSE_STYLE],
-      row = wram[TEXT_GLYPH_ROW];
+    const style = readStateByte(wram, TEXT_COMPOSE_STYLE),
+      row = readStateByte(wram, TEXT_GLYPH_ROW);
     let bits = mem.read8(GLYPHS + x);
     if (style & STYLE_BOLD) bits |= bits << 1;
-    wram[TEXT_GLYPH_BITS] = bits & BYTE_MASK;
-    if (shiftedRow(style, row)) wram[TEXT_GLYPH_BITS] = (wram[TEXT_GLYPH_BITS] << 1) & BYTE_MASK;
+    writeStateByte(wram, TEXT_GLYPH_BITS, bits & BYTE_MASK);
+    if (shiftedRow(style, row))
+      writeStateByte(
+        wram,
+        TEXT_GLYPH_BITS,
+        (readStateByte(wram, TEXT_GLYPH_BITS) << 1) & BYTE_MASK,
+      );
     if (style & STYLE_UNDERLINE && row === 0 && x !== UNDERLINE_SKIP)
-      wram[TEXT_GLYPH_BITS] = BYTE_MASK;
-    wram[TEXT_GLYPH_HIGH] = 0;
+      writeStateByte(wram, TEXT_GLYPH_BITS, BYTE_MASK);
+    writeStateByte(wram, TEXT_GLYPH_HIGH, 0);
     // The row's bits in the high byte, moved left past a narrow glyph's width, with the
     // bits past its width set, and moved right to the pixel offset.
     let pixels = swap(word(wram, TEXT_GLYPH_BITS));
@@ -357,15 +372,19 @@ function drawGlyph(s, character) {
     const offset = word(wram, TEXT_PIXEL_OFFSET);
     if (offset !== 0) pixels = shiftRight(pixels, offset);
     let y = word(wram, TEXT_PENDING_BYTES);
-    wram[TEXT_MASK_BUFFER + MASK_TILE_BYTES + y] = pixels & BYTE_MASK;
-    wram[TEXT_MASK_BUFFER + y] = (pixels >>> BYTE_BITS) | wram[TEXT_MASK_BUFFER + y];
+    writeStateByte(wram, TEXT_MASK_BUFFER + MASK_TILE_BYTES + y, pixels & BYTE_MASK);
+    writeStateByte(
+      wram,
+      TEXT_MASK_BUFFER + y,
+      (pixels >>> BYTE_BITS) | readStateByte(wram, TEXT_MASK_BUFFER + y),
+    );
     y = (y + 1) & WORD_MASK;
-    wram[TEXT_MASK_BUFFER + y] = BYTE_MASK;
-    wram[TEXT_MASK_BUFFER + MASK_TILE_BYTES + y] = BYTE_MASK;
+    writeStateByte(wram, TEXT_MASK_BUFFER + y, BYTE_MASK);
+    writeStateByte(wram, TEXT_MASK_BUFFER + MASK_TILE_BYTES + y, BYTE_MASK);
     setWord(wram, TEXT_PENDING_BYTES, y + 1);
     x = (x + 1) & WORD_MASK;
-    wram[TEXT_GLYPH_ROW] = (wram[TEXT_GLYPH_ROW] - 1) & BYTE_MASK;
-  } while (!(wram[TEXT_GLYPH_ROW] & BYTE_SIGN));
+    writeStateByte(wram, TEXT_GLYPH_ROW, (readStateByte(wram, TEXT_GLYPH_ROW) - 1) & BYTE_MASK);
+  } while (!(readStateByte(wram, TEXT_GLYPH_ROW) & BYTE_SIGN));
   s.x = x;
   const width = word(wram, TEXT_WORK_WORD),
     offset = (word(wram, TEXT_PIXEL_OFFSET) + width) & WORD_MASK;
@@ -453,7 +472,7 @@ export function* drawTextBufferSequence(h, events) {
       setWord(wram, TEXT_LINE_PIXELS, lineRest(wram, port, s.x));
       maskRows(wram, s.x, false);
       s.x = word(wram, TEXT_CHARACTER_INDEX);
-      space = wram[TEXT_BUFFER + s.x] === SPACE;
+      space = readStateByte(wram, TEXT_BUFFER + s.x) === SPACE;
       if (!space) return;
       s.x = (s.x + 1) & WORD_MASK;
       setWord(wram, TEXT_CHARACTER_INDEX, s.x);
@@ -462,7 +481,8 @@ export function* drawTextBufferSequence(h, events) {
   }
   // Text language: a glyph that no longer fits its line is left out.
   const overflows = () =>
-    mem.read8(GLYPH_WIDTHS + s.character) + (wram[TEXT_COMPOSE_STYLE] & STYLE_WIDER ? 1 : 0) >
+    mem.read8(GLYPH_WIDTHS + s.character) +
+      (readStateByte(wram, TEXT_COMPOSE_STYLE) & STYLE_WIDER ? 1 : 0) >
     word(wram, TEXT_LINE_PIXELS);
   let measure = true;
   for (;;) {

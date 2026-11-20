@@ -1,3 +1,4 @@
+import { readStateByte, writeStateByte } from '../state/objects.mjs';
 // The item submenu of the status screen (lifted from 80:E572, 80:E577 and 80:E57F with
 // 80:E585, and the item's use 80:E4F3; register-level versions in
 // proof/replay/native-status-screen.mjs).
@@ -109,10 +110,10 @@ const FIRST_ITEM = 2,
   CANCELLED = WORD_MASK,
   POSITION_SHIFT = 2;
 
-const word = (wram, at) => wram[at] | (wram[at + 1] << BYTE_BITS);
+const word = (wram, at) => readStateByte(wram, at) | (readStateByte(wram, at + 1) << BYTE_BITS);
 const setWord = (wram, at, value) => {
-  wram[at] = value & BYTE_MASK;
-  wram[at + 1] = (value >>> BYTE_BITS) & BYTE_MASK;
+  writeStateByte(wram, at, value & BYTE_MASK);
+  writeStateByte(wram, at + 1, (value >>> BYTE_BITS) & BYTE_MASK);
 };
 const longWord = (mem, at) =>
   mem.read8(at & LONG_MASK) | (mem.read8((at + 1) & LONG_MASK) << BYTE_BITS);
@@ -144,7 +145,7 @@ function listItems(mem) {
     const itemClass = longWord(mem, KIND_CLASS + kind.index) & KIND_ITEM_CLASS_MASK;
     if (itemClass !== dataBankWord(mem, ITEM_MENU_CLASS)) continue;
     if (word(wram, STATE_HOLDER + record) !== dataBankWord(mem, MEMBER_NUMBER)) continue;
-    const count = wram[STATE_COUNT + record];
+    const count = readStateByte(wram, STATE_COUNT + record);
     setWord(wram, DP_SCRATCH, kind.twice);
     setDataBankWord(mem, MEMBER_MENU_NAMES, offset, longWord(mem, KIND_NAMES + kind.index));
     setDataBankWord(mem, ITEM_MENU_ACTORS, offset, actor);

@@ -1,3 +1,4 @@
+import { readStateByte, writeStateByte } from '../state/objects.mjs';
 // The text print of a window (lifted from 80:FE69 with its bit reader 81:AF04;
 // register-level versions in proof/replay/native-text-compose.mjs and
 // native-text-prerequisites.mjs, which the other callers still use).
@@ -53,10 +54,10 @@ const DP_TEXT = 0x02,
 // The call of the text buffer.
 const DRAW_CALL = [0x80febc, 0x80fb39];
 
-const word = (wram, at) => wram[at] | (wram[at + 1] << BYTE_BITS);
+const word = (wram, at) => readStateByte(wram, at) | (readStateByte(wram, at + 1) << BYTE_BITS);
 const setWord = (wram, at, value) => {
-  wram[at] = value & BYTE_MASK;
-  wram[at + 1] = (value >>> BYTE_BITS) & BYTE_MASK;
+  writeStateByte(wram, at, value & BYTE_MASK);
+  writeStateByte(wram, at + 1, (value >>> BYTE_BITS) & BYTE_MASK);
 };
 
 // The bit reader (81:AF04) as a function: the next bit of the text source, refilling
@@ -69,7 +70,7 @@ export function readBit(mem, wram) {
   if (refilled) {
     setWord(wram, TEXT_BITS_REMAINING, REFILL_BITS);
     const pointer = word(wram, TEXT_SOURCE_POINTER),
-      at = pointer | (wram[TEXT_SOURCE_BANK] << WORD_BITS);
+      at = pointer | (readStateByte(wram, TEXT_SOURCE_BANK) << WORD_BITS);
     setWord(wram, TEXT_BIT_BUFFER, (mem.read8(at) << BYTE_BITS) | mem.read8((at + 1) & LONG_MASK));
     setWord(wram, TEXT_SOURCE_POINTER, pointer + BRANCH_BYTES);
   }
@@ -85,7 +86,7 @@ export function startTextSource(mem, wram, id) {
   const port = portTextAddress(mem, id);
   if (port !== null) {
     setWord(wram, TEXT_SOURCE_POINTER, port);
-    wram[TEXT_SOURCE_BANK] = port >>> WORD_BITS;
+    writeStateByte(wram, TEXT_SOURCE_BANK, port >>> WORD_BITS);
   }
 }
 
@@ -104,11 +105,11 @@ function decodeText(mem, wram) {
       first = pair >>> BYTE_BITS,
       second = pair & BYTE_MASK;
     if (first === TEXT_END) return y;
-    wram[TEXT_BUFFER + y] = first;
+    writeStateByte(wram, TEXT_BUFFER + y, first);
     y = (y + 1) & WORD_MASK;
     if (second === 0) continue;
     if (second === TEXT_END) return y;
-    wram[TEXT_BUFFER + y] = second;
+    writeStateByte(wram, TEXT_BUFFER + y, second);
     y = (y + 1) & WORD_MASK;
   }
 }
@@ -131,10 +132,10 @@ export function* printText(h, events, renderBuffer = drawTextBufferSequence) {
     let y = decodeText(mem, wram);
     const translated = languageText(mem, id);
     if (translated) {
-      translated.forEach((code, i) => (wram[TEXT_BUFFER + i] = code));
+      translated.forEach((code, i) => writeStateByte(wram, TEXT_BUFFER + i, code));
       y = translated.length;
     }
-    wram[TEXT_BUFFER + y] = 0;
+    writeStateByte(wram, TEXT_BUFFER + y, 0);
   };
   yield* dialogCallBody(h, ...DRAW_CALL, () => renderBuffer(h, events));
   yield () => {
