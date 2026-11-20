@@ -18,18 +18,18 @@
 // frame stream, 41 to 43 the picture, 44 the tile count, 82 the upload index).
 // Registers (user decision 2026-11-17): game state only; the slot passes to the reload
 // and the animation step as a parameter and the routine leaves no A, X, Y or flags.
-// The frames of the inner calls are pushed as the original's JSR and JSL; the draw list
-// index the original pushes around each reload (PHY, PLY) and the frames of its job list
-// counts (JSL 81:A954) lie only in free stack bytes and are kept in locals or not
-// reproduced (game state only, user decision 2026-11-17). With the lag-free frame model the NMI arrives
-// at the waits' branches 80:AE61 and 80:AE0F; otherwise the recorded observations or
-// interrupts are replayed as by the register-level routine. The word wait comes from
-// the live frame sequence.
-import { dialogCallBody, segmentSequence } from '../system/native-call-continuation.mjs';
+// The word wait 81:B0A1 keeps its JSL frame; the draw list index the original pushes
+// around each reload (PHY, PLY), the animation step's JSR frame and the frames of its
+// job list counts (JSL 81:A954) lie only in free stack bytes and are kept in locals or
+// not reproduced (game state only, user decision 2026-11-17). The reload requires the
+// lag-free frame model: the NMI arrives at the waits' branches 80:AE61 and 80:AE0F
+// (recorded runs use the register-level reload in proof/system/native-scene-tiles.mjs).
+// The word wait comes from the live frame sequence.
+import { dialogCallBody } from '../system/native-call-continuation.mjs';
 import { lagFree } from '../system/main-wait-interrupt.mjs';
 import { nmiAtBranch } from '../system/frame-wait.mjs';
 import { frameWaitCallSequence } from '../system/live-input-calls.mjs';
-import { stepAnimation } from './object-animation.mjs';
+import { stepAnimationInPlace } from './object-animation.mjs';
 import { taskStop } from '../system/task-stop.mjs';
 import {
   DP_VRAM_UPLOAD_INDEX,
@@ -79,8 +79,7 @@ const FRAME_BANK = 0x8c,
   SLOT_HALVES = [0x80aeb4, 0x80aec4],
   LOW_WRAM_END = 0x2000;
 // Original call sites, and the waits' loads (their branches follow the 3-byte load).
-const ANIMATION_CALL = [0x80ae17, 0x80ac2f],
-  WAIT_CALL = [0x80ae23, 0x81b0a1, true],
+const WAIT_CALL = [0x80ae23, 0x81b0a1, true],
   FULL_WAIT = 0x80ae5e,
   END_WAIT = 0x80ae0c,
   LOAD_BYTES = 3;
@@ -160,9 +159,7 @@ function* reloadSequence(h, events, slot) {
   };
   if (change) {
     for (;;) {
-      yield* dialogCallBody(h, ...ANIMATION_CALL, () =>
-        segmentSequence(() => stepAnimation(h, events, slot)),
-      );
+      yield () => stepAnimationInPlace(h, slot);
       let waiting = false;
       yield () => {
         waiting = get(OBJECT_PICTURE_CHANGE) !== 0;

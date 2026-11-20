@@ -100,7 +100,7 @@ sound command and music change (sendApuCommandInPlace, setMusicModeInPlace) with
 their JSL frames; clearFixedColourInPlace, setWindowTextWidthInPlace and
 shiftPortraitRowsInPlace (the dialog, status screen and portrait setup);
 buildSpritesInPlace (the dialog close); reloadObjectTiles with its per-object request
-(the dialog close; the frame wait keeps its JSL frame); the member portrait's second
+and animation step (the dialog close; the frame wait keeps its JSL frame); the member portrait's second
 channel and colour window; openPortraitWindow and closePortraitWindow (the dialog's
 portrait window); uploadFirstPortrait and uploadSecondPortrait; skills and notes
 (status screen submenus); itemMenu and useItem with its object creation (the item
@@ -1350,8 +1350,8 @@ which the render proof of 81:8076 keeps using.
   set and zero clear and X, Y, the carry and the overflow unchanged; with the lag-free
   frame model the NMI arrives at its branch 80:901F, otherwise its observations are
   replayed as by the register-level job. The object tiles 80:ADF4 with 80:AE12 run
-  lifted from the same table, with the lifted animation step 80:AC2F through its JSR
-  frame and the table's word wait 81:B0A1 through its JSL frame; the job count's JSL
+  lifted from the same table, with the lifted animation step 80:AC2F (without its JSR
+  frame since 2026-11-20) and the table's word wait 81:B0A1 through its JSL frame; the job count's JSL
   frames (81:A954) are pushed as the original. They leave A 0 with zero set and sign
   clear, X the last object's last slot (or what its animation step leaves), Y the draw
   list index below 0 and the carry and overflow of the last object's last addition;
