@@ -1,4 +1,4 @@
-import { talkSequence } from './dialog-talk.mjs';
+import { talk } from './dialog-talk.mjs';
 import { chooseAction } from './action-menu.mjs';
 import { takePad } from '../system/live-input-calls.mjs';
 import { putGloveAwaySequence } from './window-release.mjs';
@@ -40,7 +40,7 @@ import { putGloveAwaySequence } from './window-release.mjs';
 import { taskStop } from '../system/task-stop.mjs';
 import { showNotice } from './notice-show.mjs';
 import { drawTextBufferSequence } from './text-draw.mjs';
-import { dialogCallBody, segmentSequence } from '../system/native-call-continuation.mjs';
+import { segmentSequence } from '../system/native-call-continuation.mjs';
 import {
   ACTION_MENU_OVERRIDE,
   AIMING_SPELL,
@@ -86,12 +86,6 @@ const GLOVE_BUTTONS = PAD_B | PAD_L | PAD_R,
 const DP_SCRATCH = 0x6b,
   DP_DIALOG_OBJECT = 0x00,
   DP_DIALOG_RECORD = 0x02;
-// Original call sites and callees.
-const CALL = Object.freeze({
-  noticeInput: [0x80bfe4, 0x809e1a],
-  dialog: [0x80c032, 0x80936c],
-  input: [0x80c067, 0x809e1a],
-});
 
 const word = (wram, at) => wram[at] | (wram[at + 1] << BYTE_BITS);
 const setWord = (wram, at, value) => {
@@ -197,7 +191,7 @@ export function* gloveActionSequence(h, events, renderBuffer = drawTextBufferSeq
       setWord(wram, DP_DIALOG_RECORD, dialog);
     };
     if (dialog) {
-      yield* dialogCallBody(h, ...CALL.dialog, () => talkSequence(h, events, renderBuffer));
+      yield* talk(h, events, renderBuffer);
       yield () => {
         action = 0;
       };

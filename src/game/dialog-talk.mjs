@@ -238,9 +238,11 @@ export function* closeDialogSequence(h, events) {
   return result;
 }
 
-// Talk with the object (80:936C), a sequence for a native call continuation.
-// The glove action supplies direct page 0 and data bank 80; renderBuffer draws text.
-export function* talkSequence(h, events, renderBuffer = drawTextBufferSequence) {
+// Talk with the object (80:936C) for lifted callers, without the JSR frame (the
+// caller's return word lies only in free stack bytes); the menu, topic choice and waits
+// keep their own. The glove action supplies direct page 0 and data bank 80;
+// renderBuffer draws text.
+export function* talk(h, events, renderBuffer = drawTextBufferSequence) {
   const m = sceneRuntime(h),
     { mem, wram, port } = m;
   if (fixesEnabled(h.a)) preparePushkinTopics(h.a, word(wram, DP_RECORD_NUMBER));
@@ -393,6 +395,11 @@ export function* talkSequence(h, events, renderBuffer = drawTextBufferSequence) 
     if (!(value & WORD_SIGN)) restore = { value, restore: true };
   };
   if (restore) yield* music(restore);
+}
+// The talk as called with JSR (80:936C), a sequence for a native call continuation;
+// returns with its RTS.
+export function* talkSequence(h, events, renderBuffer = drawTextBufferSequence) {
+  yield* talk(h, events, renderBuffer);
   let result;
   yield () => {
     result = h.rts();
