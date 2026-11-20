@@ -37,7 +37,7 @@ import { printText } from './text-print.mjs';
 import { decimalNumberSequence } from './decimal-number.mjs';
 import { drawTextBufferSequence } from './text-draw.mjs';
 import { equipmentRows } from './equipment-window.mjs';
-import { memberPortraitSequence } from './member-portrait.mjs';
+import { memberPortrait } from './member-portrait.mjs';
 import { closeDialog, clearFixedColourRoutine } from './dialog-talk.mjs';
 import { sendApuCommandCall } from '../apu/audio-routines.mjs';
 import { chooseFromMenuSequence, MENU } from './menu-choice.mjs';
@@ -127,7 +127,6 @@ export const NATIVE_ENTRY = 0x80ea6e,
 const SOUND = 0x81f007,
   STATUS_SETUP = 0x81886a,
   DECIMAL_NUMBER = 0x80fdcf,
-  PORTRAIT = 0x80e4b3,
   PLAIN_MENU = MENU,
   SKILLS_MENU = 0x80e834,
   NOTES_MENU = 0x80e8c8;
@@ -350,7 +349,7 @@ export function* statusScreenSequence(
   yield* cursor(STATUS_ROWS.labelColumn, STATUS_ROWS.armourLabelRow);
   yield* text(TEXT_ARMOUR);
   yield* equipmentRows(h, events, renderBuffer);
-  yield* dialogCallBody(h, 0x80ec87, PORTRAIT, () => memberPortraitSequence(h, events));
+  yield* memberPortrait(h, events);
 
   let direct;
   yield () => {

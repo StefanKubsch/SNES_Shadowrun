@@ -29,7 +29,7 @@ import { openWindow, requestTileClear } from './window-open.mjs';
 import { chooseFromMenuSequence, MENU_WITH_NUMBERS } from './menu-choice.mjs';
 import { waitForConfirmKeySequence } from './confirm-key.mjs';
 import { equipmentRows } from './equipment-window.mjs';
-import { memberPortraitSequence } from './member-portrait.mjs';
+import { memberPortrait } from './member-portrait.mjs';
 import { resetWindowListSequence } from './window-list.mjs';
 import { drawTextBufferSequence } from './text-draw.mjs';
 import { dataBankWord, setDataBankWord } from '../system/data-bank.mjs';
@@ -109,7 +109,6 @@ const MENU = [0x80e65b, 0x80a6ad],
   CREATE = [0x80e527, 0x80a835],
   VISIT = [0x80e545, 0x80c1ca],
   REDRAW_LIST = [0x80e552, 0x81aeb0],
-  PORTRAIT = [0x80e556, 0x80e4b3],
   CONFIRM_KEY = [0x80e568, 0x80f953];
 // The list starts after Exit; a count of one is shown as none; the menu's first column.
 const FIRST_ITEM = 2,
@@ -297,7 +296,7 @@ export function* useItemSequence(h, events, renderBuffer, actor) {
   if (ended) return yield* returnSequence(h);
   if (redraw) {
     yield* dialogCallBody(h, ...REDRAW_LIST, () => resetWindowListSequence(h, events), true);
-    yield* dialogCallBody(h, ...PORTRAIT, () => memberPortraitSequence(h, events));
+    yield* memberPortrait(h, events);
   }
   let pending = false;
   yield () => {

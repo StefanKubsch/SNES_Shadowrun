@@ -99,9 +99,10 @@ function setWindowEdges(wram, step) {
   wram[PORTRAIT_WINDOW_LEFT] = left;
 }
 
-// 80:E4B3: the member's portrait with its opening window (see above). A sequence that
-// ends with its RTS.
-export function* memberPortraitSequence(h, events) {
+// 80:E4B3: the member's portrait with its opening window (see above), for lifted
+// callers without the JSR frame (the caller's return word lies only in free stack
+// bytes). Its inner calls keep their frames: a recorded unpack returns from its own.
+export function* memberPortrait(h, events) {
   const { mem } = h.a,
     { wram } = mem,
     port = accessorPort(h.a);
@@ -125,6 +126,10 @@ export function* memberPortraitSequence(h, events) {
   yield* dialogCallBody(h, ...UPLOAD_PALETTE, () => uploadFirstPortraitSequence(h, events));
   yield* dialogCallBody(h, ...SECOND_CHANNEL, () => secondChannelSequence(h, events));
   yield* dialogCallBody(h, ...COLOUR_WINDOW, () => colourWindowSequence(h, events));
+}
+// The portrait as called with JSR (80:E4B3); returns with its RTS.
+export function* memberPortraitSequence(h, events) {
+  yield* memberPortrait(h, events);
   return yield* returnSequence(h);
 }
 
