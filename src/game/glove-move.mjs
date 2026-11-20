@@ -84,13 +84,4 @@ export function* gloveMove(h, events, renderBuffer = drawTextBufferSequence) {
   if (next === 'search') yield* objectSearch(h, events, renderBuffer);
   else if (next === 'release') yield* releaseGloveNameWindowSequence(h, events);
 }
-// The movement as called with JSR (80:BE6D), a sequence for a native call continuation
-// and the upkeep routine table; returns with its RTS.
-export function* gloveMoveSequence(h, events, renderBuffer = drawTextBufferSequence) {
-  yield* gloveMove(h, events, renderBuffer);
-  let result;
-  yield () => {
-    result = h.rts();
-  };
-  return result;
-}
+// The RTS form for register-level callers is gloveMoveJsr in proof/caller/jsr-forms.mjs.

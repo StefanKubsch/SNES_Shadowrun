@@ -35,7 +35,7 @@ import {
   scriptChooseObjectSequence,
   spellGloveTargetSequence,
 } from './glove-target.mjs';
-import { gloveMoveSequence } from './glove-move.mjs';
+import { gloveMove } from './glove-move.mjs';
 import {
   shootAtGloveTargetSequence,
   shootAtObjectSequence,
@@ -191,6 +191,8 @@ export const mainLoopNoticeSequence = noticeTimeoutCallSequence;
 export const mainLoopFrameWaitSequence = frameWaitCallSequence;
 export const mainLoopTimeLimitSequence = (h, events) => timeLimitSequence(h, events);
 export const mainLoopGloveActionSequence = (h, events) => gloveActionSequence(h, events);
-export const mainLoopGloveMoveSequence = (h, events) => gloveMoveSequence(h, events);
+// The glove move runs without its JSR frame (its return word lies only in free stack
+// bytes).
+export const mainLoopGloveMoveSequence = (h, events) => gloveMove(h, events);
 export const mainLoopPlayerZonesSequence = (h, events, zones) =>
   playerZonesSequence(h, events, zones);

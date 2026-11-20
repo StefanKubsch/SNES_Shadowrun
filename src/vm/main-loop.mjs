@@ -52,7 +52,6 @@ const CALL_PC = Object.freeze({
   ANIMATION_8877: 0x96af,
   PALETTE_8076: 0x96b3,
   INPUT_9E1A: 0x96b7,
-  GLOVE_BE6D: 0x96ba,
   BF3B: 0x96bd,
 });
 const MAIN_LOOP_EXIT_PC = 0x96ec,
@@ -104,7 +103,7 @@ export function* mainLoopSequence(a, events, returnToOwner = false) {
     yield* call(CALL_PC.ANIMATION_8877, 0x818877, once(runColourEffect), true);
     yield* call(CALL_PC.PALETTE_8076, 0x818076, once(runPaletteCycles), true);
     yield* call(CALL_PC.INPUT_9E1A, 0x809e1a, once(takePadWord));
-    yield* call(CALL_PC.GLOVE_BE6D, 0x80be6d, () => mainLoopGloveMoveSequence(h, events));
+    yield* mainLoopGloveMoveSequence(h, events);
     yield* call(CALL_PC.BF3B, 0x80bf3b, () => mainLoopGloveActionSequence(h, events));
     ctx.pc = MAIN_LOOP_ROUND;
     return ctx.pc;

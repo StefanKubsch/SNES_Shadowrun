@@ -12,6 +12,7 @@ import { decimalNumber } from '../../src/game/decimal-number.mjs';
 import { hitObject } from '../../src/game/object-hit.mjs';
 import { objectSearch } from '../../src/game/object-search.mjs';
 import { startNewGame } from '../../src/game/game-start.mjs';
+import { gloveMove } from '../../src/game/glove-move.mjs';
 import { drawTextBufferSequence } from '../../src/game/text-draw.mjs';
 
 function* rts(h) {
@@ -97,4 +98,10 @@ export function* objectSearchJsr(h, events, renderBuffer = drawTextBufferSequenc
 export function startNewGameJsr(h) {
   startNewGame(h.a);
   return h.rts();
+}
+
+// The glove movement 80:BE6D; renderBuffer as for the text print.
+export function* gloveMoveJsr(h, events, renderBuffer = drawTextBufferSequence) {
+  yield* gloveMove(h, events, renderBuffer);
+  return yield* rts(h);
 }

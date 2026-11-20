@@ -1,15 +1,14 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { compareRun } from './member-menu-caller-harness.mjs';
-import { objectSearchJsr } from '../proof/caller/jsr-forms.mjs';
+import { gloveMoveJsr, objectSearchJsr } from '../proof/caller/jsr-forms.mjs';
 import { objectSearchSequence as formerSearch } from '../proof/caller/object-search.mjs';
-import { gloveMoveSequence } from '../src/game/glove-move.mjs';
 import { gloveMoveSequence as formerMove } from '../proof/caller/glove-move.mjs';
 import * as W from '../src/data/wram.mjs';
 
 function runSearch(sequence, budget, options = {}) {
   return compareRun(
-    sequence === objectSearchJsr || sequence === gloveMoveSequence
+    sequence === objectSearchJsr || sequence === gloveMoveJsr
       ? (h, events) => sequence(h, events)
       : sequence,
     false,
@@ -62,7 +61,7 @@ for (const budget of [1, 7])
     for (const marked of [false, true])
       test(`actual glove movement: held ${held}, marked ${marked}, budget ${budget}`, () => {
         const options = { held, marked };
-        const actual = runSearch(gloveMoveSequence, budget, options);
+        const actual = runSearch(gloveMoveJsr, budget, options);
         assert.deepEqual(actual, runSearch(formerMove, budget, options));
         if (held && marked) assert.equal(actual.wram[W.GLOVE_TARGET_TAG], 0xff);
         if (!held) assert.equal(actual.wram[W.GLOVE_TARGET_OBJECT], 2);
@@ -80,7 +79,7 @@ for (const budget of [1, 7])
       test(`glove movement speed and position boundary: ${held}/${speed}/${position}/${glove}, budget ${budget}`, () => {
         const options = { held, speed, position, glove, marked: true };
         assert.deepEqual(
-          runSearch(gloveMoveSequence, budget, options),
+          runSearch(gloveMoveJsr, budget, options),
           runSearch(formerMove, budget, options),
         );
       });

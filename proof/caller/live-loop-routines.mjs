@@ -18,7 +18,7 @@ import { SCENE_REQUEST_ENTRY } from './scene-request.mjs';
 import { playerZonesSequence } from '../../src/game/player-zones.mjs';
 import { timeLimitSequence } from '../../src/game/time-limit.mjs';
 import { gloveActionSequence } from '../../src/game/glove-action.mjs';
-import { gloveMoveSequence } from '../../src/game/glove-move.mjs';
+import { gloveMoveJsr } from './jsr-forms.mjs';
 import {
   NativeCallContinuation,
   NATIVE_CALL_CONTINUATIONS,
@@ -81,11 +81,11 @@ NATIVE_CALL_CONTINUATIONS.set(0x80bf3b, {
 // The object search opens the name window with the lifted 80:F963 and prints the name
 // with the lifted text 80:FE69 and text buffer 80:FB39.
 export function runGloveMove(h, events) {
-  return drainNativeSequence(gloveMoveSequence(h, events));
+  return drainNativeSequence(gloveMoveJsr(h, events));
 }
 NATIVE_CALL_CONTINUATIONS.set(runGloveMove, {
   run: runGloveMove,
-  create: ({ h, events }) => new NativeCallContinuation(h.a, gloveMoveSequence(h, events)),
+  create: ({ h, events }) => new NativeCallContinuation(h.a, gloveMoveJsr(h, events)),
 });
 
 // 80:8000, called with JSR; its scene change waits for the NMI, so it is a native
