@@ -370,6 +370,22 @@
         ><input id="save-file" type="file" accept=".srm" aria-describedby="save-import-help"
       /></label>
     </div>
+    <!-- Safety question before an .srm import replaces the stored slots (start.mjs). -->
+    <dialog
+      id="save-confirm"
+      class="overlay-dialog confirm-dialog"
+      aria-labelledby="save-confirm-title"
+      aria-describedby="save-confirm-text"
+    >
+      <form method="dialog" class="overlay-body">
+        <h3 id="save-confirm-title"></h3>
+        <p id="save-confirm-text"></p>
+        <div class="confirm-buttons">
+          <button id="save-confirm-yes" value="yes"></button>
+          <button id="save-confirm-no" value="no"></button>
+        </div>
+      </form>
+    </dialog>
   </section>
   <section id="recording" hidden>
     <p data-menu-text="recordingHelp">

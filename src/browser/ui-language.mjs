@@ -86,10 +86,13 @@ export const MENU_COPY = {
     saveFailed: 'The browser could not keep the save game. Please export it as .srm.',
     savedSlot: 'Saved as game {slot}.',
     saved: 'Game saved in the browser.',
-    saveImported: 'Save game imported. “Start game”, then “Start saved game”.',
-    importLost:
-      'This .srm file has only games 1 and 2. The stored game {games} will be removed. Continue?',
-    importRunning: 'The running game ends and unsaved progress is lost. Use this save game?',
+    saveImported: '“{file}” imported. “Start game”, then “Start saved game”.',
+    importConfirmTitle: 'Import save game?',
+    importConfirm: '“{file}” replaces all save games stored in this browser.',
+    importLost: 'This .srm file has only games 1 and 2; the stored game {games} will be removed.',
+    importRunning: 'The running game ends and unsaved progress is lost.',
+    importYes: 'Yes, import',
+    importNo: 'No',
     saveUnavailable:
       'Saving is only possible while Jake can move freely (no menu, dialogue, matrix or countdown).',
     debugUnavailable:
@@ -186,11 +189,14 @@ export const MENU_COPY = {
     savedSlot: 'Als Spiel {slot} gespeichert.',
     saved: 'Spielstand im Browser gespeichert.',
     saveImported:
-      'Spielstand importiert. Wähle „Spiel starten“, dann im Titelmenü „Gesichertes Spiel starten“ und den Speicherplatz.',
+      '„{file}“ importiert. Wähle „Spiel starten“, dann im Titelmenü „Gesichertes Spiel starten“ und den Speicherplatz.',
+    importConfirmTitle: 'Spielstand importieren?',
+    importConfirm: '„{file}“ ersetzt alle in diesem Browser gespeicherten Spielstände.',
     importLost:
-      'Diese .srm-Datei enthält nur Spiel 1 und 2. Das gespeicherte Spiel {games} wird entfernt. Fortfahren?',
-    importRunning:
-      'Die laufende Partie endet und ungespeicherter Fortschritt geht verloren. Diesen Spielstand verwenden?',
+      'Diese .srm-Datei enthält nur Spiel 1 und 2; das gespeicherte Spiel {games} wird entfernt.',
+    importRunning: 'Die laufende Partie endet und ungespeicherter Fortschritt geht verloren.',
+    importYes: 'Ja, importieren',
+    importNo: 'Nein',
     saveUnavailable:
       'Speichern ist nur möglich, solange Jake sich frei bewegen kann (ohne Menü, Dialog, Matrix oder Countdown).',
     debugUnavailable:

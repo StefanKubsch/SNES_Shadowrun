@@ -266,6 +266,9 @@ export async function browserLive({
         selector: '#save-file',
       });
       await cdp.call('DOM.setFileInputFiles', { nodeId: saveInput.nodeId, files: [savePath] });
+      // The page asks before replacing the stored slots; the test answers yes.
+      await until(`document.querySelector('#save-confirm').open`, 'Import question');
+      await evalJs(`document.querySelector('#save-confirm-yes').click()`);
       await until(`c.dataset.saveHash`, 'Save import');
     }
     // Hold the key before the first live frame, so every frame k has the same pad word.

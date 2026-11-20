@@ -22,7 +22,12 @@ separate steps in both languages:
    does not first save the current progress. Save into a slot before exporting
    a backup or moving the game to another browser or computer.
 3. **Import** replaces the browser's stored slots with a selected `.srm`.
-   A running session ends after confirmation and unsaved progress is lost.
+   It always asks first in a yes/no question above the overlay, naming the
+   file and, where they apply, the slots 3/4 it removes and the running session
+   it ends (unsaved progress is lost). "No" has the initial focus; "No" and
+   Escape keep everything. A successful import shows a green, check-marked
+   status line naming the file; a refused file shows a red one (user,
+   2026-11-20; [save-import-browser.test.mjs](../tools/save-import-browser.test.mjs)).
    Afterwards choose **Start game**, then **Start saved game** in the title
    menu and the desired slot. Importing alone does not resume a session.
 

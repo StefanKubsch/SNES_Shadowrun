@@ -328,6 +328,46 @@
 #save-now button[data-occupied='true']::after {
   background: #e0443a;
 }
+/* Save status (start.mjs showSave): a successful import stands out in green with a
+   check mark, a failure in red; ordinary status lines stay plain. */
+#save-status[data-tone='imported'],
+#save-status[data-tone='error'] {
+  padding: 8px 10px;
+  font-size: var(--overlay-text-size);
+  font-weight: 700;
+  border-radius: 6px;
+}
+#save-status[data-tone='imported'] {
+  color: #e3ffec;
+  background: #17432a;
+  border: 1px solid #3fcf6a;
+}
+#save-status[data-tone='imported']::before {
+  content: '✔ ';
+  color: #3fcf6a;
+}
+#save-status[data-tone='error'] {
+  color: #ffe6e3;
+  background: #4a1b17;
+  border: 1px solid #e0443a;
+}
+/* Import safety question (start.mjs confirmImport), above the save overlay. */
+.confirm-dialog {
+  width: min(440px, calc(100vw - 32px));
+}
+.confirm-dialog .overlay-body {
+  display: grid;
+  gap: var(--overlay-gap);
+}
+.confirm-dialog p {
+  font-size: var(--overlay-text-size);
+}
+.confirm-buttons {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: var(--overlay-gap);
+}
 #crt-settings fieldset {
   border: 0;
   padding: 6px 0 0;

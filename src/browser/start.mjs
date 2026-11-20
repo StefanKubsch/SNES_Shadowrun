@@ -717,8 +717,8 @@ const saveStatus = document.querySelector('#save-status'),
   saveInput = document.querySelector('#save-file');
 let save = storedSave(readStored(SAVE_KEY), readStored(SAVE_EXTRA_KEY));
 // replace: an imported file also replaces slots 3/4; a save from the game
-// with 8 KiB keeps them (mergeSave).
-function storeSave(bytes, message, replace = false) {
+// with 8 KiB keeps them (mergeSave). tone marks the status line (showSave).
+function storeSave(bytes, message, replace = false, tone = '') {
   save = replace ? bytes : mergeSave(save, bytes);
   canvas.dataset.saveHash = String(saveHash(save));
   const kept =
@@ -728,7 +728,7 @@ function storeSave(bytes, message, replace = false) {
       save.length > SRAM_SIZE ? saveToText(save.subarray(SRAM_SIZE)) : null,
     );
   navigator.storage?.persist?.().catch(() => {});
-  showSave(kept ? message : t('saveFailed'));
+  showSave(kept ? message : t('saveFailed'), kept ? tone : 'error');
 }
 // Slot occupancy with the title menu's own checksum rule (save-slots.mjs):
 // a dot on each "Save now" button, red for a used slot, green for a free one.
@@ -747,7 +747,8 @@ function showSlots() {
 }
 // The status matches the stored slots against the four-slot option of the
 // next start, so slots the game would not offer are never silently hidden.
-function showSave(message) {
+// tone 'imported' or 'error' highlights the line (overlays.css) until the next status.
+function showSave(message, tone = '') {
   saveExport.disabled = !save;
   showSlots();
   const used = occupiedSlots(save),
@@ -759,6 +760,7 @@ function showSave(message) {
     text = !games.length ? t('saveEmpty') : t('saveStored', { games: games.join(', ') });
   if (hidden.length && !fourSlots) text += t('saveHidden', { games: hidden.join(t('and')) });
   saveStatus.textContent = text;
+  saveStatus.dataset.tone = tone;
 }
 saveExport.addEventListener('click', () => {
   if (save) download(new Blob([save], { type: 'application/octet-stream' }), 'Shadowrun.srm');
@@ -769,6 +771,32 @@ function download(blob, name) {
   link.download = name;
   link.click();
   setTimeout(() => URL.revokeObjectURL(link.href), DOWNLOAD_URL_LIFETIME_MS);
+}
+// Safety question before an import (user, 2026-11-20): one in-page yes/no
+// dialog above the save overlay; "No", Escape and closing all keep the stored state.
+// "No" has the initial focus, so a stray Enter does not replace anything.
+const saveConfirm = document.querySelector('#save-confirm'),
+  saveConfirmNo = document.querySelector('#save-confirm-no');
+saveConfirm.addEventListener('keydown', (event) => {
+  // Escape closes only this question, not the save overlay underneath.
+  if (event.code !== 'Escape') return;
+  event.preventDefault();
+  event.stopPropagation();
+  saveConfirm.close('no');
+});
+function confirmImport(lines) {
+  document.querySelector('#save-confirm-title').textContent = t('importConfirmTitle');
+  document.querySelector('#save-confirm-text').textContent = lines.join(' ');
+  document.querySelector('#save-confirm-yes').textContent = t('importYes');
+  saveConfirmNo.textContent = t('importNo');
+  saveConfirm.returnValue = '';
+  return new Promise((resolve) => {
+    saveConfirm.addEventListener('close', () => resolve(saveConfirm.returnValue === 'yes'), {
+      once: true,
+    });
+    saveConfirm.showModal();
+    saveConfirmNo.focus({ preventScroll: true });
+  });
 }
 // An imported state replaces the stored one; a running game ends, because the game
 // reads the SRAM only in the title menu.
@@ -784,8 +812,10 @@ saveInput.addEventListener('change', async () => {
           taken && bytes.length < SRAM_SIZE_FOUR_SLOTS ? [ORIGINAL_SAVE_SLOTS + n + 1] : [],
         );
     // An 8 KiB file has no slots 3/4; importing it removes the stored ones.
-    if (lost.length && !confirm(t('importLost', { games: lost.join(t('and')) }))) return;
-    if (live && !confirm(t('importRunning'))) return;
+    const lines = [t('importConfirm', { file: file.name })];
+    if (lost.length) lines.push(t('importLost', { games: lost.join(t('and')) }));
+    if (live) lines.push(t('importRunning'));
+    if (!(await confirmImport(lines))) return;
     if (live || worker) {
       stopLive();
       worker?.terminate();
@@ -794,9 +824,10 @@ saveInput.addEventListener('change', async () => {
       start.hidden = !cartridge;
       start.disabled = false;
     }
-    storeSave(bytes, t('saveImported'), true);
+    storeSave(bytes, t('saveImported', { file: file.name }), true, 'imported');
   } catch (error) {
     saveStatus.textContent = error.message;
+    saveStatus.dataset.tone = 'error';
   }
 });
 showSave();
