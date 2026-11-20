@@ -17,6 +17,7 @@ import { buildSpritesInPlace } from '../../src/game/sprite-list.mjs';
 import { moveAndAnimateInPlace } from '../../src/game/object-motion.mjs';
 import { noticeTimeoutSequence } from '../../src/game/notice-timeout.mjs';
 import { timeLimitSequence } from '../../src/game/time-limit.mjs';
+import { gloveActionSequence } from '../../src/game/glove-action.mjs';
 import { drawTextBufferSequence } from '../../src/game/text-draw.mjs';
 
 function* rts(h) {
@@ -131,5 +132,11 @@ export function* noticeTimeoutJsr(h, events) {
 // The time limit 80:E270; its notice and text wait for the NMI of their uploads.
 export function* timeLimitJsr(h, events, renderBuffer = drawTextBufferSequence) {
   yield* timeLimitSequence(h, events, renderBuffer);
+  return yield* rts(h);
+}
+
+// The glove action 80:BF3B; its notice, menu, dialog and input wait for the NMI.
+export function* gloveActionJsr(h, events, renderBuffer = drawTextBufferSequence) {
+  yield* gloveActionSequence(h, events, renderBuffer);
   return yield* rts(h);
 }

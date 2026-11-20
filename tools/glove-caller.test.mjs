@@ -4,7 +4,7 @@ import { chooseFromMenuSequence } from '../proof/caller/menu-choice.mjs';
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { compareRun } from './member-menu-caller-harness.mjs';
-import { gloveActionSequence as directAction } from '../src/game/glove-action.mjs';
+import { gloveActionJsr as directAction } from '../proof/caller/jsr-forms.mjs';
 import { gloveActionSequence as formerAction } from '../proof/caller/glove-action.mjs';
 import { showNoticeSequence } from '../proof/caller/notice-show.mjs';
 import { chooseActionSequence } from '../proof/caller/action-menu.mjs';

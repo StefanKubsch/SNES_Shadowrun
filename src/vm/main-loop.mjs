@@ -7,7 +7,6 @@ import { taskStop } from '../system/task-stop.mjs';
 import { dialogAccess } from '../system/native-dialog-support.mjs';
 import {
   mainLoopFrameWaitSequence,
-  mainLoopGloveActionSequence,
   mainLoopGloveMoveSequence,
   mainLoopPlayerZonesSequence,
 } from '../game/main-upkeep.mjs';
@@ -17,6 +16,7 @@ import { recordFormationStep } from '../game/formation-trail.mjs';
 import { moveAndAnimateInPlace } from '../game/object-motion.mjs';
 import { noticeTimeoutSequence } from '../game/notice-timeout.mjs';
 import { timeLimitSequence } from '../game/time-limit.mjs';
+import { gloveActionSequence } from '../game/glove-action.mjs';
 import { buildSpritesInPlace } from '../game/sprite-list.mjs';
 import { updateTileBuffers } from '../game/camera-scroll.mjs';
 import { followPlayerWithCamera } from '../game/camera-follow.mjs';
@@ -38,7 +38,6 @@ const CALL_PC = Object.freeze({
   GATE_8000: MAIN_LOOP_RESUME,
   CC4B: 0x96c8,
   WAIT_B0A1: MAIN_LOOP_START,
-  BF3B: 0x96bd,
 });
 const MAIN_LOOP_EXIT_PC = 0x96ec,
   MAIN_LOOP_RELOAD_PC = 0x96f2;
@@ -89,7 +88,7 @@ export function* mainLoopSequence(a, events, returnToOwner = false) {
     yield () => advancePaletteCycles(wram);
     yield () => takePad(h, events);
     yield* mainLoopGloveMoveSequence(h, events);
-    yield* call(CALL_PC.BF3B, 0x80bf3b, () => mainLoopGloveActionSequence(h, events));
+    yield* gloveActionSequence(h, events);
     ctx.pc = MAIN_LOOP_ROUND;
     return ctx.pc;
   }

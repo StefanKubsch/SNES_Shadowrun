@@ -2,7 +2,7 @@ import { playSoundEffectJsr } from '../proof/caller/jsr-forms.mjs';
 import * as formerText from '../proof/caller/dialog-text.mjs';
 import * as formerMenus from '../proof/caller/dialog-menus.mjs';
 import { drawTextBufferSequence as formerDraw } from '../proof/caller/text-draw.mjs';
-import { gloveActionSequence as directGloveAction } from '../src/game/glove-action.mjs';
+import { gloveActionJsr as directGloveAction } from '../proof/caller/jsr-forms.mjs';
 import { gloveActionSequence as formerGloveAction } from '../proof/caller/glove-action.mjs';
 import { TASK_WAIT, TASK_EVENTS } from '../src/vm/layout.mjs';
 import test from 'node:test';

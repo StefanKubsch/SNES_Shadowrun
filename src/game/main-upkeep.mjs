@@ -7,7 +7,6 @@
 // callee takes its NMI with them, which saves X and Y on the NMI stack (7E:1CB6-1CB9)
 // that the Mesen oracle compares. So the entries leave X and Y as the original; A and
 // the flags besides the width are not produced, every next callee loads its own A.
-import { gloveActionSequence } from './glove-action.mjs';
 import { showNoticeSequence } from './notice-show.mjs';
 import { talkSequence } from './dialog-talk.mjs';
 import { printTopicTextSequence, printWindowTextSequence } from './dialog-text.mjs';
@@ -128,7 +127,6 @@ export const liftedBlastSequence = (h, events) => hitObjectsInBlastSequence(h, e
 // Direct sequences for the live main-loop caller. The wrappers above still serve
 // register-level helper tables; these bodies need no continuation registry lookup.
 export const mainLoopFrameWaitSequence = frameWaitCallSequence;
-export const mainLoopGloveActionSequence = (h, events) => gloveActionSequence(h, events);
 // The glove move runs without its JSR frame (its return word lies only in free stack
 // bytes).
 export const mainLoopGloveMoveSequence = (h, events) => gloveMove(h, events);

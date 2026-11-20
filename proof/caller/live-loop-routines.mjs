@@ -5,9 +5,9 @@ import { runFrameWait, runPadPresses } from './input-routines.mjs';
 import { sceneRequestSequence } from '../../src/game/scene-request.mjs';
 import { SCENE_REQUEST_ENTRY } from './scene-request.mjs';
 import { playerZonesSequence } from '../../src/game/player-zones.mjs';
-import { gloveActionSequence } from '../../src/game/glove-action.mjs';
 import {
   buildSpritesJsr,
+  gloveActionJsr,
   gloveMoveJsr,
   moveAndAnimateJsr,
   noticeTimeoutJsr,
@@ -103,11 +103,11 @@ NATIVE_CALL_CONTINUATIONS.set(0x80e270, {
 // 80:BF3B, called with JSR; its notice, menu, dialog and input wait for the NMI, so it
 // is a native call continuation of the main loop.
 export function runGloveAction(h, events) {
-  return drainNativeSequence(gloveActionSequence(h, events));
+  return drainNativeSequence(gloveActionJsr(h, events));
 }
 NATIVE_CALL_CONTINUATIONS.set(0x80bf3b, {
   run: runGloveAction,
-  create: ({ h, events }) => new NativeCallContinuation(h.a, gloveActionSequence(h, events)),
+  create: ({ h, events }) => new NativeCallContinuation(h.a, gloveActionJsr(h, events)),
 });
 
 // 80:BE6D, called with JSR; its object search and release wait for the NMI, so it is
