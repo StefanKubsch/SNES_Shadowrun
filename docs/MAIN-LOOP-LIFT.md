@@ -113,12 +113,13 @@ chooseDialogAction (the dialog's main menu 80:91E2; its menu choice keeps its fr
 chooseDialogTopic (the dialog's topic choice 80:9215, likewise); startNewGame (the
 attract demo's new game 80:960D); the music stop 81:EF94 with sendApuCommandInPlace
 (after the start menu's credits); titleCycle (the game owner's title cycle 80:A18C);
-objectSearch (the glove move's search); gloveMove (the glove choices' frames; the
-word wait keeps its frame); putting the glove on (80:BC67 and 80:BC99 with 80:BC36,
-both frames); the in-reach choice 80:9C40 (its callers 80:9BC6 and the script's
-80:9C33); the number choice 80:9BC6 (the script's 80:9BB9); the window release, the
-glove, the notice windows' release and the name window release already had one. The
-player control selects animations and turns through the plain functions of
+attractGame (the cycle's attract game 80:A168); objectSearch (the glove move's
+search); gloveMove (the glove choices' frames; the word wait keeps its frame);
+putting the glove on (80:BC67 and 80:BC99 with 80:BC36, both frames); the in-reach
+choice 80:9C40 (its callers 80:9BC6 and the script's 80:9C33); the number choice
+80:9BC6 (the script's 80:9BB9); the window release, the glove, the notice windows'
+release and the name window release already had one. The player control selects
+animations and turns through the plain functions of
 [object-turn.mjs](../src/game/object-turn.mjs). The unused call sites go with the
 frames. Frames stay where a callee's own wait or a recorded routine returns from them
 (the word wait, the menu choice, the confirm key, the portrait unpack and tile

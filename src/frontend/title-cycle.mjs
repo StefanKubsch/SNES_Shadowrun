@@ -30,11 +30,10 @@ import { CODE_BANK } from '../constants/memory-map.mjs';
 import { BYTE_BITS, BYTE_MASK, WORD_MASK } from '../constants/bits.mjs';
 
 // The routines the cycle calls through their original frames: the title, the start
-// menu, the attract game and its owner, the credits cutscene and the room start of
+// menu, the attract game's owner, the credits cutscene and the room start of
 // the attract game.
 const TITLE = 0x81d694,
   START_MENU = 0x81e14a,
-  ATTRACT_GAME = 0x80a168,
   ATTRACT_OWNER = 0x8096f3,
   CUTSCENE = 0x81cdf8,
   START_ROOM = 0x809699;
@@ -127,7 +126,7 @@ export function* titleCycle(h, events, routines, title, shown = {}) {
       choice = yield* menu(MENU_SITE, false);
       titleNext = false;
     } else {
-      yield* call(ATTRACT_SITE, ATTRACT_GAME, attractGameSequence, false);
+      yield* attractGame(h, events, routines);
       choice = yield* menu(MENU_AGAIN_SITE, false);
       titleNext = true;
     }
@@ -173,9 +172,10 @@ function* playMenuCredits(h, events, m) {
   };
 }
 
-// 80:A168: the attract game. The game's sounds, the demo, then the scene screen and
-// the title's sounds again for the start menu.
-export function* attractGameSequence(h, events, routines) {
+// 80:A168: the attract game, without the cycle's JSR frame (its return word lies only
+// in free stack bytes). The game's sounds, the demo, then the scene screen and the
+// title's sounds again for the start menu.
+export function* attractGame(h, events, routines) {
   const { ctx } = h;
   let m;
   yield () => {
@@ -190,16 +190,13 @@ export function* attractGameSequence(h, events, routines) {
     () => attractDemoSequence(h, events, routines),
     true,
   );
-  let result;
   yield () => {
     startSceneScreen(m.wram, m.video, m.port);
     startSong(m.mem, m.port, SONG_NONE);
     loadSoundDirectory(m.mem, m.port, SOUND_DIRECTORY_TITLE);
     setUpTitleAudio(m);
     ctx.bank = TITLE_AUDIO_BANK;
-    result = h.rts();
   };
-  return result;
 }
 
 // 80:96F3: the demo itself. No countdown, a new game's state (80:960D without its JSR
