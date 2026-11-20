@@ -27,7 +27,7 @@
 import { dialogCallBody, segmentSequence } from '../system/native-call-continuation.mjs';
 import { setMusicModeInPlace } from '../apu/audio-routines.mjs';
 import { showDialogText } from './dialog-text.mjs';
-import { chooseDialogActionSequence, chooseDialogTopicSequence } from './dialog-menus.mjs';
+import { chooseDialogAction, chooseDialogTopicSequence } from './dialog-menus.mjs';
 import { drawTextBufferSequence } from './text-draw.mjs';
 import { reloadObjectTiles } from './object-tiles.mjs';
 import { buildSpritesInPlace } from './sprite-list.mjs';
@@ -143,7 +143,6 @@ const CALL = Object.freeze({
   jakeUnpack: [0x80944d, 0x809f6d],
   partnerUnpack: [0x809470, 0x809f6d],
   wait: [0x809489, 0x81b0a1, true],
-  menu: [0x809490, 0x8091e2],
   topics: [0x8094a2, 0x809215],
   releaseText: [0x8094d9, 0x80fa3e],
   releaseFrame: [0x8094df, 0x80fa3e],
@@ -343,9 +342,7 @@ export function* talk(h, events, renderBuffer = drawTextBufferSequence) {
     );
   // The menu until Exit or the end word.
   for (;;) {
-    yield* dialogCallBody(h, ...CALL.menu, () =>
-      chooseDialogActionSequence(h, events, renderBuffer),
-    );
+    yield* chooseDialogAction(h, events, renderBuffer);
     let next, key;
     yield () => {
       // The menu leaves its row in the direct page word 00.

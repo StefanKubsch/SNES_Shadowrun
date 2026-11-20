@@ -69,8 +69,9 @@ function menu(h, events, renderBuffer, [site, target]) {
   );
 }
 
-// The dialog's main menu (80:91E2), a sequence for a native call continuation.
-export function* chooseDialogActionSequence(h, events, renderBuffer = drawTextBufferSequence) {
+// The dialog's main menu (80:91E2) for lifted callers, without the JSR frame (the
+// caller's return word lies only in free stack bytes; the menu choice keeps its frame).
+export function* chooseDialogAction(h, events, renderBuffer = drawTextBufferSequence) {
   const { wram } = h.a.mem;
   yield () => {
     setWord(wram, DP_RESULT, word(wram, DP_TEXT_WINDOW));
@@ -80,6 +81,11 @@ export function* chooseDialogActionSequence(h, events, renderBuffer = drawTextBu
   yield () => {
     if (word(wram, DP_RESULT) === NONE) setWord(wram, DIALOG_END, NONE);
   };
+}
+// The main menu as called with JSR (80:91E2), a sequence for a native call
+// continuation; returns with its RTS.
+export function* chooseDialogActionSequence(h, events, renderBuffer = drawTextBufferSequence) {
+  yield* chooseDialogAction(h, events, renderBuffer);
   return yield* rts(h);
 }
 // The dialog's topic choice (80:9215), a sequence for a native call continuation.

@@ -109,6 +109,7 @@ JSR ECEA keeps no frame; decimalNumber (Jake's money on the status screen); save
 (the main menu's save row); karmaMenu with karmaList and buyStep (the main menu's
 karma row); resetWindowList (the item use's, spell menu's and glove choices' list
 redraw; the list's own JSL keeps its frame); talk (the glove action's dialog);
+chooseDialogAction (the dialog's main menu 80:91E2; its menu choice keeps its frame);
 objectSearch (the glove move's search); gloveMove (the glove choices' frames; the
 word wait keeps its frame); putting the glove on (80:BC67 and 80:BC99 with 80:BC36,
 both frames); the in-reach choice 80:9C40 (its callers 80:9BC6 and the script's
