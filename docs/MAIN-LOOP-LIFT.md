@@ -57,7 +57,8 @@ and swarm creation, the formation place, the facing natives, the notice show and
 time limits, the menus, the glove choices, the object search and the dialog talk.
 Those bytes lie below S, where no code reads them before it pushes again (game state
 only, user decision 2026-11-17). Frames that a recorded run's register-level callee
-returns from, such as the animation step's, stay.
+returns from stay for that run only: the motion pass calls the animation step through
+its frame only when the run records instructions.
 
 [lift-function-harness.mjs](../tools/lift-function-harness.mjs) therefore ignores the
 free bytes below the entry S as well as the CPU stacks. An out-of-range pointer of a
@@ -118,7 +119,8 @@ room start's frame stays, the main loop returns through it); the equipment rows'
 text 80:E9A8; the sprite list's OAM high table fill 81:A7FC; its NMI job count
 81:A954; its palette slot reset 81:A840; paletteSlotInPlace (80:AB0A from the sprite
 list and the OAM entry 80:B20A); the depth sort's rule comparisons 80:B0A5 and
-80:B0ED; sortDrawListInPlace (the sprite list's depth sort 80:AFFC);
+80:B0ED; stepAnimationInPlace (the motion pass's animation step 80:AC2F; a recorded
+run keeps the frame for its register-level step); sortDrawListInPlace (the sprite list's depth sort 80:AFFC);
 enterObjectSpritesInPlace (its OAM entries 80:B20A); the OAM entry's wall sprites
 80:B130 (all 25 grid call sites); objectSearch (the glove move's search); gloveMove (the glove choices'
 frames; the word wait keeps its frame); putting the glove on (80:BC67 and 80:BC99

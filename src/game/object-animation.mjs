@@ -123,10 +123,18 @@ const setWord = (wram, at, value) => {
 const longWord = (mem, at) =>
   mem.read8(at & LONG_MASK) | (mem.read8((at + 1) & LONG_MASK) << BYTE_BITS);
 
-// Step the animation of the object in slot (80:AC2F, called with JSR).
+// Step the animation of the object in slot (80:AC2F, called with JSR); returns with
+// its RTS. A recorded run takes the register-level step.
 export function stepAnimation(h, events, slot) {
   const recorded = recordedRoutine(events, 'object-animation');
   if (recorded) return recorded(h, events, slot);
+  stepAnimationInPlace(h, slot);
+  return h.rts();
+}
+
+// The animation step 80:AC2F for lifted callers, without the JSR frame (its return
+// word lies only in free stack bytes); the caller has ruled out a recorded run.
+export function stepAnimationInPlace(h, slot) {
   const { mem } = h.a,
     { wram } = mem;
   // A field read in the data bank 80 below 2000, a field of bank 7E, a long pointer in
@@ -145,8 +153,8 @@ export function stepAnimation(h, events, slot) {
     pointer = (dp) => word(wram, dp) | (wram[dp + 2] << WORD_BITS);
 
   // The original's PHY/PLY pair keeps the caller's Y, which lifted callers do not hold
-  // (user decision 2026-11-17): only free stack bytes differ.
-  const done = () => h.rts();
+  // (user decision 2026-11-17): only free stack bytes differ. Every exit returns here.
+  const done = () => undefined;
 
   // The next picture: a change waiting, or the next frame of the stream.
   let picture = null;

@@ -11,7 +11,7 @@
 // nodes of the room (src/game/collision-grid.mjs), and the box's object is noted. Then
 // every object that is not halted (flag 0400) moves (80:AB26, src/game/object-move.mjs),
 // and in a second pass over the draw list every such object steps its animation
-// (80:AC2F, frames in bank 8C, src/game/object-animation.mjs) through its frame.
+// (80:AC2F, frames in bank 8C, src/game/object-animation.mjs).
 //
 // The direct page words the original uses as locals are written as in the original:
 // the position 1A and 1D, the box offset 20, the cell columns and rows 3E, 41, 44 and
@@ -21,11 +21,12 @@
 // A, X, Y or flags (the formation step 80:BAD5 that follows reads none). The collision
 // list, its grid clear, cell link and the movement run as plain functions: their frames,
 // the saved data bank and the draw list index pushed around each movement lie only in
-// free stack bytes, which are not reproduced. The animation step keeps its JSR frame,
-// which a recorded run's register-level step returns from.
+// free stack bytes, which are not reproduced. The animation step runs without its JSR
+// frame too; only a recorded run's register-level step returns through it.
 import { taskStop } from '../system/task-stop.mjs';
 import { moveObject } from './object-move.mjs';
-import { stepAnimation } from './object-animation.mjs';
+import { stepAnimation, stepAnimationInPlace } from './object-animation.mjs';
+import { recordedRoutine } from '../system/recorded-routines.mjs';
 import {
   CELL_COORDINATE_MASK,
   COLLISION_BOX_BOTTOM,
@@ -198,6 +199,10 @@ export function moveAndAnimate(h, events) {
   };
   pass((slot) => moveObject(h.a.mem.wram, h.a, slot));
   setWord(wram, DP_FRAME_BANK, FRAME_BANK);
-  pass((slot) => h.call(ANIMATION_CALL, ANIMATION_TARGET, () => stepAnimation(h, events, slot)));
+  // A recorded run's register-level step returns through the JSR frame; the lifted step
+  // runs without it.
+  if (recordedRoutine(events, 'object-animation'))
+    pass((slot) => h.call(ANIMATION_CALL, ANIMATION_TARGET, () => stepAnimation(h, events, slot)));
+  else pass((slot) => stepAnimationInPlace(h, slot));
   return h.rts();
 }
