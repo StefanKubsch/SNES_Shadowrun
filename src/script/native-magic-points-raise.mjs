@@ -29,7 +29,10 @@ function raiseMagicPointsBody(mem, object, amount) {
   setDpWord(wram, DP_RESOURCE_DOUBLE_MAGIC, doubleMagic);
   setDpWord(wram, DP_RESOURCE_MAX, max);
 }
-export const raiseMemberMagicPoints = (a, outerReturn = true) => {
+// The raise for lifted callers, without the JSR frame and its RTS.
+export const raiseMemberMagicPointsInPlace = (a) =>
   raiseMagicPointsBody(a.mem, leafArgument(a, FIRST_ARGUMENT), leafArgument(a, SECOND_ARGUMENT));
+export const raiseMemberMagicPoints = (a, outerReturn = true) => {
+  raiseMemberMagicPointsInPlace(a);
   return finishLeaf(a, outerReturn);
 };

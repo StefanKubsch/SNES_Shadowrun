@@ -93,7 +93,8 @@ register-level harnesses and script natives still bind: printText, openWindow,
 setTextCursor, printNumber, requestTileClear, takePad, playSoundEffectCall,
 showNotice, hitObject, closeDialog, equipmentRows, memberPortrait, karmaLine,
 showDialogText, chooseAction, statusScreen (the player control's Start and Y
-entries) and partyStatus (Select); the window release, the glove, the notice windows'
+entries), partyStatus (Select), raiseStateCountAndRedraw and
+raiseMemberMagicPointsInPlace (the karma menu's body list and leader top-up); the window release, the glove, the notice windows'
 release and the name window release already had one. The player control selects
 animations and turns through the plain functions of
 [object-turn.mjs](../src/game/object-turn.mjs). The unused call sites go with the

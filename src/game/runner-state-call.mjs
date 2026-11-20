@@ -3,15 +3,22 @@ import { raiseStateCountBody } from '../script/native-state-count-raise.mjs';
 import { restoreRunnersBody } from '../script/native-runners-restore.mjs';
 import { drawWindowListSequence } from './window-list.mjs';
 
-function* redrawAndReturn(h, events, body, callSite) {
+// The body and the redraw without the JSR frame, for lifted callers.
+function* redraw(h, events, body, callSite) {
   yield () => body(h);
   yield* drawWindowListSequence(h, events, callSite);
+}
+function* redrawAndReturn(h, events, body, callSite) {
+  yield* redraw(h, events, body, callSite);
   let result;
   yield () => {
     result = h.rts();
   };
   return result;
 }
+// 80:CECB for lifted callers: the caller's return word lies only in free stack bytes.
+export const raiseStateCountAndRedraw = (h, events) =>
+  redraw(h, events, raiseStateCountBody, 0x80cf29);
 export const raiseStateCountSequence = (h, events) =>
   redrawAndReturn(h, events, raiseStateCountBody, 0x80cf29);
 export const restoreRunnersSequence = (h, events) =>

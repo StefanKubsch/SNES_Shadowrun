@@ -47,8 +47,8 @@ import {
 } from './window-release.mjs';
 import { waitForConfirmKeySequence } from './confirm-key.mjs';
 import { drawTextBufferSequence } from './text-draw.mjs';
-import { raiseStateCountSequence } from './runner-state-call.mjs';
-import { raiseMemberMagicPoints } from '../script/native-magic-points-raise.mjs';
+import { raiseStateCountAndRedraw } from './runner-state-call.mjs';
+import { raiseMemberMagicPointsInPlace } from '../script/native-magic-points-raise.mjs';
 import { KARMA_LISTS, KARMA_WINDOWS } from '../system/native-main-menu.mjs';
 import { TEXT_EXIT } from '../data/port-extension.mjs';
 import {
@@ -103,10 +103,8 @@ import {
 
 const CONFIRM_KEY = 0x80f953,
   NUMBERED_MENU = 0x80a6b8,
-  RAISE_STATE_COUNT = 0x80cecb,
   BUY_STEP = 0x80f006,
-  PLAIN_MENU = 0x80a6c7,
-  RAISE_MAGIC_POINTS = 0x80cf2e;
+  PLAIN_MENU = 0x80a6c7;
 // The karma menu's categories (80:EF78) and their lists: row 1 Body (80:F0F3), row 2
 // the first list (80:F054), any other the third (80:F1B5); the detail windows leave
 // three columns for the values.
@@ -298,10 +296,7 @@ export function* karmaListSequence(h, events, entry, renderBuffer = drawTextBuff
         setWord(wram, 0, dataBankWord(mem, PLAYER_OBJECT));
         setWord(wram, 2, BODY_COUNT_INCREMENT);
       };
-      if (body)
-        yield* dialogCallBody(h, list.pcs.refill, RAISE_STATE_COUNT, () =>
-          raiseStateCountSequence(h, events),
-        );
+      if (body) yield* raiseStateCountAndRedraw(h, events);
     }
     yield* karmaLine(h, events, renderBuffer);
   }
@@ -423,19 +418,13 @@ export function* karmaMenuSequence(h, events, renderBuffer = drawTextBufferSeque
   yield* release(KARMA_CATEGORY_WINDOW);
   yield* release(KARMA_BALANCE_WINDOW);
   // The leader's state count and magic points topped up (FF: as far as they go).
-  for (const [pc, target] of [
-    [0x80ef67, RAISE_STATE_COUNT],
-    [0x80ef74, RAISE_MAGIC_POINTS],
-  ]) {
-    yield () => {
-      setWord(wram, 0, dataBankWord(mem, PLAYER_OBJECT));
-      setWord(wram, 2, BYTE_MASK);
-    };
-    if (target === RAISE_MAGIC_POINTS)
-      yield* dialogCallBody(h, pc, target, () =>
-        segmentSequence(() => raiseMemberMagicPoints(h.a, false)),
-      );
-    else yield* dialogCallBody(h, pc, target, () => raiseStateCountSequence(h, events));
-  }
+  const leaderArguments = () => {
+    setWord(wram, 0, dataBankWord(mem, PLAYER_OBJECT));
+    setWord(wram, 2, BYTE_MASK);
+  };
+  yield leaderArguments;
+  yield* raiseStateCountAndRedraw(h, events);
+  yield leaderArguments;
+  yield () => raiseMemberMagicPointsInPlace(h.a);
   return yield* returnSequence(h);
 }
