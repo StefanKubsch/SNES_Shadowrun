@@ -94,8 +94,6 @@ const UNDER_GLOVE = {
 const SELECT = {
     wait: 0x809c43,
   },
-  NUMBER_ENTRY = 0x809bc6,
-  SCRIPT_NUMBER_SELECT = 0x809bbf,
   PREPARE_LIST = 0x81aeb8,
   PREPARE_UPLOAD = 0x81aebc;
 // The call sites of 80:9BD3.
@@ -331,18 +329,14 @@ function* scriptChoiceSequence(h, body) {
   yield () => setWord(h.a.mem.wram, SCRIPT_GLOVE_CHOICE, 0);
   return yield* returnSequence(h);
 }
-// 80:9BB9: 80:9BC6 as the script's choice.
+// 80:9BB9: 80:9BC6 as the script's choice, without the JSR frame of 80:9BC6 (its
+// return word lies only in free stack bytes).
 export function* scriptChooseObjectNumberSequence(
   h,
   events,
   renderBuffer = drawTextBufferSequence,
 ) {
-  return yield* scriptChoiceSequence(h, () =>
-    dialogCallBody(h, SCRIPT_NUMBER_SELECT, NUMBER_ENTRY, function* () {
-      yield* chooseNumberBodySequence(h, events, renderBuffer);
-      return yield* returnSequence(h);
-    }),
-  );
+  return yield* scriptChoiceSequence(h, () => chooseNumberBodySequence(h, events, renderBuffer));
 }
 // 80:9C33: 80:9C40 (the slot) as the script's choice.
 export function* scriptChooseObjectSequence(h, events, renderBuffer = drawTextBufferSequence) {
