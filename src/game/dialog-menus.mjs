@@ -54,13 +54,6 @@ const setWord = (wram, at, value) => {
 // The direct page words from 00 (or 02) on.
 const setWords = (wram, from, values) =>
   values.forEach((value, n) => setWord(wram, from + 2 * n, value));
-function* rts(h) {
-  let result;
-  yield () => {
-    result = h.rts();
-  };
-  return result;
-}
 
 // The menu choice keeps its original JSR frame: a test harness reads it at the wait.
 function menu(h, events, renderBuffer, [site, target]) {
@@ -81,12 +74,6 @@ export function* chooseDialogAction(h, events, renderBuffer = drawTextBufferSequ
   yield () => {
     if (word(wram, DP_RESULT) === NONE) setWord(wram, DIALOG_END, NONE);
   };
-}
-// The main menu as called with JSR (80:91E2), a sequence for a native call
-// continuation; returns with its RTS.
-export function* chooseDialogActionSequence(h, events, renderBuffer = drawTextBufferSequence) {
-  yield* chooseDialogAction(h, events, renderBuffer);
-  return yield* rts(h);
 }
 // The dialog's topic choice (80:9215) for lifted callers, without the JSR frame (the
 // caller's return word lies only in free stack bytes; the menu choice keeps its frame).
@@ -148,10 +135,4 @@ export function* chooseDialogTopic(h, events, renderBuffer = drawTextBufferSeque
     }
     setWord(wram, DP_RESULT, x);
   };
-}
-// The topic choice as called with JSR (80:9215), a sequence for a native call
-// continuation; returns with its RTS.
-export function* chooseDialogTopicSequence(h, events, renderBuffer = drawTextBufferSequence) {
-  yield* chooseDialogTopic(h, events, renderBuffer);
-  return yield* rts(h);
 }

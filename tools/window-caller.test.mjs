@@ -1,10 +1,15 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import * as live from '../src/game/window-list.mjs';
+import * as liftedList from '../src/game/window-list.mjs';
 import * as previous from '../proof/caller/window-list.mjs';
 import * as liveRelease from '../src/game/window-release.mjs';
 import * as previousRelease from '../proof/caller/window-release.mjs';
-import * as liveOpen from '../src/game/window-open.mjs';
+import * as liftedOpen from '../src/game/window-open.mjs';
+import {
+  openWindowJsr,
+  requestTileClearJsr,
+  resetWindowListJsl,
+} from '../proof/caller/jsr-forms.mjs';
 import * as previousOpen from '../proof/caller/window-open.mjs';
 import { NativeCallContinuation } from '../src/system/native-call-continuation.mjs';
 import { WAIT_PAUSED } from '../src/system/native-wait-continuation.mjs';
@@ -12,6 +17,15 @@ import { LagFreeFrames } from '../src/vm/frame-events.mjs';
 import { createSide } from './lift-function-harness.mjs';
 import { windowMapSource, windowTables } from './lift-window-samples.mjs';
 import { prng } from './task-native-dialog-harness.mjs';
+
+// The lifted modules with their RTS and RTL forms (proof/caller/jsr-forms.mjs), named as the
+// former.
+const liveOpen = {
+  ...liftedOpen,
+  openWindowSequence: openWindowJsr,
+  requestTileClearSequence: requestTileClearJsr,
+};
+const live = { ...liftedList, resetWindowListSequence: resetWindowListJsl };
 
 // Isolate the upload boundary without replacing drawing or unpacking. Integration
 // tests service the same requests through real NMIs and compare all device state.

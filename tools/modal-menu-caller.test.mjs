@@ -1,6 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import * as directAction from '../src/game/action-menu.mjs';
+import * as liftedAction from '../src/game/action-menu.mjs';
+import { chooseActionJsr } from '../proof/caller/jsr-forms.mjs';
 import { chooseActionRoutineSequence } from '../proof/caller/upkeep-routines.mjs';
 import * as formerAction from '../proof/caller/action-menu.mjs';
 import * as directQuestion from '../src/game/yes-no-question.mjs';
@@ -22,6 +23,10 @@ import {
   SOUND_LOADED_SET,
   WINDOW_ACTIVE,
 } from '../src/data/wram.mjs';
+
+// The lifted module with its RTS and RTL forms (proof/caller/jsr-forms.mjs), named as the
+// former.
+const directAction = { ...liftedAction, chooseActionSequence: chooseActionJsr };
 
 function run(module, { mask, override = 0, pads, script = false }, budget) {
   const side = textWindowSide(),

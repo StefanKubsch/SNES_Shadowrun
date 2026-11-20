@@ -26,7 +26,6 @@
 // around the text (PLP restores the status with the carry of the action bit, which the
 // routine leaves); the topic add's own frame is pushed and pulled as the original.
 import { dialogCallBody, segmentSequence } from '../../src/system/native-call-continuation.mjs';
-import { requestTileClearSequence } from '../../src/game/window-open.mjs';
 import { setTextCursorRoutine } from './window-text.mjs';
 import { printTextSequence } from './text-print.mjs';
 import {
@@ -52,6 +51,7 @@ import {
   FLAG_OVERFLOW,
   FLAG_ZERO,
 } from '../../src/constants/cpu-flags.mjs';
+import { requestTileClearJsr } from './jsr-forms.mjs';
 
 const DP_WINDOW = 0x00,
   DP_TEXT = 0x02,
@@ -189,7 +189,7 @@ function searchEntry(h, acc) {
 function liftedBodies(h, events, routines, drawRoutines) {
   if (!drawRoutines || !isStandardTextRoutines(routines)) return textBodies(h, events, routines);
   const lifted = {
-    request: () => requestTileClearSequence(h, events),
+    request: () => requestTileClearJsr(h, events),
     cursor: () => segmentSequence(() => setTextCursorRoutine(h)),
     text: () => printTextSequence(h, events, drawRoutines),
   };
@@ -319,7 +319,7 @@ export function* printTopicTextSequence(h, events, drawRoutines) {
     h.a.pushWord(number);
     setWord(wram, DP_WINDOW, word(wram, DP_TEXT_WINDOW));
   };
-  yield* dialogCallBody(h, ...TOPIC_TEXT.request, () => requestTileClearSequence(h, events));
+  yield* dialogCallBody(h, ...TOPIC_TEXT.request, () => requestTileClearJsr(h, events));
   yield () => {
     setWord(wram, DP_TEXT, 0);
     setWord(wram, DP_CURSOR_ROW, 0);

@@ -1,7 +1,8 @@
 import { drawTextBufferSequence as formerDraw } from '../proof/caller/text-draw.mjs';
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import * as direct from '../src/game/dialog-menus.mjs';
+import * as liftedMenus from '../src/game/dialog-menus.mjs';
+import { chooseDialogActionJsr, chooseDialogTopicJsr } from '../proof/caller/jsr-forms.mjs';
 import * as previous from '../proof/caller/dialog-menus.mjs';
 import { dialogTextRoutines } from '../proof/replay/native-dialog-text.mjs';
 import { runFrameWait, runPadPresses } from '../proof/caller/input-routines.mjs';
@@ -18,6 +19,14 @@ import {
   WINDOW_ACTIVE,
   TEXT_MAP_UPLOAD,
 } from '../src/data/wram.mjs';
+
+// The lifted module with its RTS and RTL forms (proof/caller/jsr-forms.mjs), named as the
+// former.
+const direct = {
+  ...liftedMenus,
+  chooseDialogActionSequence: chooseDialogActionJsr,
+  chooseDialogTopicSequence: chooseDialogTopicJsr,
+};
 
 function run(module, variant, budget, realDrawing = false, counter = 0) {
   const side = textWindowSide(),

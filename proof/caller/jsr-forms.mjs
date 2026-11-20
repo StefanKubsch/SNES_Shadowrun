@@ -41,6 +41,11 @@ import { notes, skills } from '../../src/game/status-submenus.mjs';
 import { itemMenu, useItem } from '../../src/game/item-menu.mjs';
 import { spellMenu } from '../../src/game/member-spell-menu.mjs';
 import { memberPortrait } from '../../src/game/member-portrait.mjs';
+import { chooseAction } from '../../src/game/action-menu.mjs';
+import { chooseDialogAction, chooseDialogTopic } from '../../src/game/dialog-menus.mjs';
+import { showDialogText } from '../../src/game/dialog-text.mjs';
+import { openWindow, requestTileClear } from '../../src/game/window-open.mjs';
+import { resetWindowList } from '../../src/game/window-list.mjs';
 
 function* rts(h) {
   let result;
@@ -314,4 +319,65 @@ export function* spellMenuJsr(
 export function* memberPortraitJsr(h, events) {
   yield* memberPortrait(h, events);
   return yield* rts(h);
+}
+
+// The action menu as called with JSR (80:99EB); returns with its RTS.
+export function* chooseActionJsr(
+  h,
+  events,
+  renderBuffer = drawTextBufferSequence,
+  accepted,
+  choice = {},
+) {
+  yield* chooseAction(h, events, renderBuffer, accepted, choice);
+  return yield* rts(h);
+}
+
+// The main menu as called with JSR (80:91E2), a sequence for a native call
+// continuation; returns with its RTS.
+export function* chooseDialogActionJsr(h, events, renderBuffer = drawTextBufferSequence) {
+  yield* chooseDialogAction(h, events, renderBuffer);
+  return yield* rts(h);
+}
+
+// The topic choice as called with JSR (80:9215), a sequence for a native call
+// continuation; returns with its RTS.
+export function* chooseDialogTopicJsr(h, events, renderBuffer = drawTextBufferSequence) {
+  yield* chooseDialogTopic(h, events, renderBuffer);
+  return yield* rts(h);
+}
+
+// The dialog text as called with JSR (80:9178), a sequence for a native call
+// continuation; returns with its RTS.
+export function* showDialogTextJsr(h, events, renderBuffer = drawTextBufferSequence, key) {
+  yield* showDialogText(h, events, renderBuffer, key);
+  let result;
+  yield () => {
+    result = h.rts();
+  };
+  return result;
+}
+
+// The window opening as called with JSR (80:F963), a sequence for a native call
+// continuation whose caller has pushed the frame; returns with its RTS.
+export function* openWindowJsr(h, events) {
+  yield* openWindow(h, events);
+  return yield* rts(h);
+}
+
+// The tile request as other routines call it with JSR (their sequence pushes the
+// frame); the existing JSR frame is consumed.
+export function* requestTileClearJsr(h, events) {
+  yield* requestTileClear(h, events);
+  return yield* rts(h);
+}
+
+// 81:AEB0 as called with JSL; returns with its RTL (which takes the bank from the stack).
+export function* resetWindowListJsl(h, events) {
+  yield* resetWindowList(h, events);
+  let result;
+  yield () => {
+    result = h.rtl();
+  };
+  return result;
 }

@@ -1,7 +1,8 @@
 import { drawTextBufferSequence as formerDraw } from '../proof/caller/text-draw.mjs';
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import * as direct from '../src/game/dialog-text.mjs';
+import * as liftedText from '../src/game/dialog-text.mjs';
+import { showDialogTextJsr } from '../proof/caller/jsr-forms.mjs';
 import * as previous from '../proof/caller/dialog-text.mjs';
 import { dialogTextRoutines, dialogTopic } from '../proof/replay/native-dialog-text.mjs';
 import { appendScriptTask } from '../proof/system/task-append.mjs';
@@ -9,6 +10,10 @@ import * as V from '../src/vm/layout.mjs';
 import { NATIVE_CALL_CONTINUATIONS } from '../src/system/native-call-continuation.mjs';
 import { TOPIC_LIST, TOPIC_FLAGS } from '../src/data/wram.mjs';
 import { textWindowSide, finishTextWindow, rendererTable } from './text-window-caller-harness.mjs';
+
+// The lifted module with its RTS and RTL forms (proof/caller/jsr-forms.mjs), named as the
+// former.
+const direct = { ...liftedText, showDialogTextSequence: showDialogTextJsr };
 
 function entry(key, text, topics = [], action = null) {
   const flags = topics.length | (action === null ? 0 : 0x80),

@@ -203,16 +203,6 @@ export function* showDialogText(h, events, renderBuffer = drawTextBufferSequence
     if (entry.missing) break;
   }
 }
-// The dialog text as called with JSR (80:9178), a sequence for a native call
-// continuation; returns with its RTS.
-export function* showDialogTextSequence(h, events, renderBuffer = drawTextBufferSequence, key) {
-  yield* showDialogText(h, events, renderBuffer, key);
-  let result;
-  yield () => {
-    result = h.rts();
-  };
-  return result;
-}
 
 // Topic actions keep their own append and visit frames and argument chronology: the
 // script is the record's word at the position given, the object goes to the direct

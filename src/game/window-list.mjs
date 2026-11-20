@@ -231,15 +231,6 @@ export function* resetWindowList(h, events) {
     h.ctx.programBank = callerBank;
   };
 }
-// 81:AEB0 as called with JSL; returns with its RTL (which takes the bank from the stack).
-export function* resetWindowListSequence(h, events) {
-  yield* resetWindowList(h, events);
-  let result;
-  yield () => {
-    result = h.rtl();
-  };
-  return result;
-}
 // The list below its JSL frame, in bank 81.
 function* windowListBody(h, events) {
   const m = sceneRuntime(h),

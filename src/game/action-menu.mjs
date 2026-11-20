@@ -165,17 +165,6 @@ export function* chooseAction(
     setWord(wram, ACTION_MENU_OVERRIDE, 0);
   };
 }
-// The action menu as called with JSR (80:99EB); returns with its RTS.
-export function* chooseActionSequence(
-  h,
-  events,
-  renderBuffer = drawTextBufferSequence,
-  accepted,
-  choice = {},
-) {
-  yield* chooseAction(h, events, renderBuffer, accepted, choice);
-  return yield* rts(h);
-}
 // The action menu as the script native 80:9BA0, a sequence: no override, the mask from
 // the first argument, the menu and the chosen flag as the result.
 export function* chooseScriptActionSequence(h, events, renderBuffer = drawTextBufferSequence) {
@@ -186,13 +175,6 @@ export function* chooseScriptActionSequence(h, events, renderBuffer = drawTextBu
   let result;
   yield () => {
     setWord(wram, 0, choice.action);
-    result = h.rts();
-  };
-  return result;
-}
-function* rts(h) {
-  let result;
-  yield () => {
     result = h.rts();
   };
   return result;

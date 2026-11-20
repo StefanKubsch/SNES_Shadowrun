@@ -142,12 +142,6 @@ function pullFrame(h, long) {
 // caller's return word lies only in free stack bytes): the window in the direct page
 // word 00. It leaves no registers.
 export const requestTileClear = (h, events) => clearTiles(h, events, word(h.a.mem.wram, DP_LEFT));
-// The tile request as other routines call it with JSR (their sequence pushes the
-// frame); the existing JSR frame is consumed.
-export function* requestTileClearSequence(h, events) {
-  yield* requestTileClear(h, events);
-  return yield* rts(h);
-}
 
 // The request's work and its wait 81:ACBD below the JSL frame, inside the JSR frame.
 function* clearTiles(h, events, x) {
@@ -214,17 +208,4 @@ export function* openWindow(h, events) {
   yield* clearTiles(h, events, x);
   yield () => drawWindow(wram, x);
   yield* requestUploadCall(h, events);
-}
-// The window opening as called with JSR (80:F963), a sequence for a native call
-// continuation whose caller has pushed the frame; returns with its RTS.
-export function* openWindowSequence(h, events) {
-  yield* openWindow(h, events);
-  return yield* rts(h);
-}
-function* rts(h) {
-  let result;
-  yield () => {
-    result = h.rts();
-  };
-  return result;
 }

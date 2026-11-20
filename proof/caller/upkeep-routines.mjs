@@ -15,11 +15,6 @@ import {
   releaseNoticeWindowsCallSequence as releaseNoticeWindowsRoutineSequence,
 } from './window-release.mjs';
 import { talkSequence } from '../../src/game/dialog-talk.mjs';
-import {
-  chooseDialogActionSequence,
-  chooseDialogTopicSequence,
-} from '../../src/game/dialog-menus.mjs';
-import { showDialogTextSequence } from '../../src/game/dialog-text.mjs';
 import { reloadObjectTiles } from '../../src/game/object-tiles.mjs';
 import {
   printNumberJsr,
@@ -29,10 +24,13 @@ import {
   uploadSecondPortraitJsr,
   openPortraitWindowJsr,
   closePortraitWindowJsr,
+  chooseActionJsr,
+  chooseDialogActionJsr,
+  chooseDialogTopicJsr,
+  showDialogTextJsr,
+  openWindowJsr,
 } from './jsr-forms.mjs';
 import { drawTextBufferSequence } from '../../src/game/text-draw.mjs';
-import { openWindowSequence } from '../../src/game/window-open.mjs';
-import { chooseActionSequence } from '../../src/game/action-menu.mjs';
 import { BYTE_BITS, WORD_MASK, WORD_SIGN } from '../../src/constants/bits.mjs';
 import { FLAG_CARRY, FLAG_NEGATIVE, FLAG_ZERO } from '../../src/constants/cpu-flags.mjs';
 
@@ -81,11 +79,11 @@ NATIVE_CALL_CONTINUATIONS.set(runDrawTextBuffer, {
 });
 // 80:F963, called with JSR; its tile request and map upload wait for the NMI.
 export function runOpenWindow(h, events) {
-  return drainNativeSequence(openWindowSequence(h, events));
+  return drainNativeSequence(openWindowJsr(h, events));
 }
 NATIVE_CALL_CONTINUATIONS.set(runOpenWindow, {
   run: runOpenWindow,
-  create: ({ h, events }) => new NativeCallContinuation(h.a, openWindowSequence(h, events)),
+  create: ({ h, events }) => new NativeCallContinuation(h.a, openWindowJsr(h, events)),
 });
 // 80:99EB, called with JSR; its window, menu and release wait for the NMI. The register
 // form: the accepted actions in A, the chosen flag left in A.
@@ -127,18 +125,18 @@ export function runDialogMenu(h, events) {
   return drainNativeSequence(dialogActionRoutineSequence(h, events, drawTextBufferSequence));
 }
 export function runDialogTopics(h, events) {
-  return drainNativeSequence(chooseDialogTopicSequence(h, events, drawTextBufferSequence));
+  return drainNativeSequence(chooseDialogTopicJsr(h, events, drawTextBufferSequence));
 }
 // 80:9178 composes live clearing, cursor, text and topic task actions; the register
 // form takes the text key in A.
 const dialogTextRoutineSequence = (h, events, renderBuffer) =>
-  showDialogTextSequence(h, events, renderBuffer, h.ctx.a);
+  showDialogTextJsr(h, events, renderBuffer, h.ctx.a);
 export function runDialogText(h, events) {
   return drainNativeSequence(dialogTextRoutineSequence(h, events, drawTextBufferSequence));
 }
 for (const [run, sequence] of [
   [runDialogMenu, dialogActionRoutineSequence],
-  [runDialogTopics, chooseDialogTopicSequence],
+  [runDialogTopics, chooseDialogTopicJsr],
   [runDialogText, dialogTextRoutineSequence],
 ])
   NATIVE_CALL_CONTINUATIONS.set(run, {
@@ -221,7 +219,7 @@ const signAndZero = (ctx, value) => {
 };
 // 80:91E2: A the chosen row (00) with the carry, sign and zero of CMP #FFFF.
 export function* dialogActionRoutineSequence(h, events, renderBuffer = drawTextBufferSequence) {
-  const result = yield* chooseDialogActionSequence(h, events, renderBuffer),
+  const result = yield* chooseDialogActionJsr(h, events, renderBuffer),
     { ctx } = h,
     { wram } = h.a.mem,
     chosen = wram[0] | (wram[1] << BYTE_BITS);
@@ -233,7 +231,7 @@ export function* dialogActionRoutineSequence(h, events, renderBuffer = drawTextB
 // 80:99EB: the accepted actions in A, the chosen flag left in A.
 export function* chooseActionRoutineSequence(h, events, renderBuffer = drawTextBufferSequence) {
   const choice = {},
-    result = yield* chooseActionSequence(h, events, renderBuffer, h.ctx.a, choice);
+    result = yield* chooseActionJsr(h, events, renderBuffer, h.ctx.a, choice);
   h.ctx.a = choice.action;
   return result;
 }
