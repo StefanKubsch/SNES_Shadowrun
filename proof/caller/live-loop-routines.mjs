@@ -5,13 +5,13 @@ import { runFrameWait, runPadPresses } from './input-routines.mjs';
 import { sceneRequestSequence } from '../../src/game/scene-request.mjs';
 import { SCENE_REQUEST_ENTRY } from './scene-request.mjs';
 import { playerZonesSequence } from '../../src/game/player-zones.mjs';
-import { timeLimitSequence } from '../../src/game/time-limit.mjs';
 import { gloveActionSequence } from '../../src/game/glove-action.mjs';
 import {
   buildSpritesJsr,
   gloveMoveJsr,
   moveAndAnimateJsr,
   noticeTimeoutJsr,
+  timeLimitJsr,
 } from './jsr-forms.mjs';
 import { shakeHitPlayer } from '../../src/game/player-hit.mjs';
 import { recordFormationStep } from '../../src/game/formation-trail.mjs';
@@ -93,11 +93,11 @@ NATIVE_CALL_CONTINUATIONS.set(0x80ff14, {
 // 80:E270, called with JSR; its notice and text wait for the NMI of their uploads, so
 // it is a native call continuation of the main loop.
 export function runTimeLimit(h, events) {
-  return drainNativeSequence(timeLimitSequence(h, events));
+  return drainNativeSequence(timeLimitJsr(h, events));
 }
 NATIVE_CALL_CONTINUATIONS.set(0x80e270, {
   run: runTimeLimit,
-  create: ({ h, events }) => new NativeCallContinuation(h.a, timeLimitSequence(h, events)),
+  create: ({ h, events }) => new NativeCallContinuation(h.a, timeLimitJsr(h, events)),
 });
 
 // 80:BF3B, called with JSR; its notice, menu, dialog and input wait for the NMI, so it

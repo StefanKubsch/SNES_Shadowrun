@@ -8,7 +8,7 @@ import {
   printNumberSequence as formerNumber,
   setTextCursorRoutine as formerCursor,
 } from '../proof/caller/window-text.mjs';
-import { timeLimitSequence as directTimer } from '../src/game/time-limit.mjs';
+import { timeLimitJsr as directTimer } from '../proof/caller/jsr-forms.mjs';
 import { timeLimitSequence as formerTimer } from '../proof/caller/time-limit.mjs';
 import {
   NativeCallContinuation,

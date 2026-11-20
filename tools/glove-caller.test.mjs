@@ -1,4 +1,4 @@
-import { mainLoopTimeLimitSequence } from '../src/game/main-upkeep.mjs';
+import { timeLimitJsr } from '../proof/caller/jsr-forms.mjs';
 import { timeLimitSequence as formerTimer } from '../proof/caller/time-limit.mjs';
 import { chooseFromMenuSequence } from '../proof/caller/menu-choice.mjs';
 import test from 'node:test';
@@ -129,7 +129,7 @@ for (const budget of [1, 7])
     test(`main timer actual renderer: hours ${hours}, budget ${budget}`, () => {
       const run = (direct) =>
         compareRun(
-          direct ? mainLoopTimeLimitSequence : formerTimer,
+          direct ? timeLimitJsr : formerTimer,
           direct,
           ({ put }) => {
             put(W.TIMER, hours);
