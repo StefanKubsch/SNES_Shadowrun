@@ -32,10 +32,10 @@ const at = (base, index) => {
   return base + index;
 };
 
-// The slot of the palette (80:AB0A, called with JSR): returns the slot after its RTS.
-export function paletteSlot(h, palette) {
-  const { wram } = h.a.mem,
-    offset = (palette << 1) & WORD_MASK;
+// The slot of the palette (80:AB0A) for lifted callers, without the JSR frame (its
+// return word lies only in free stack bytes): returns the slot.
+export function paletteSlotInPlace(wram, palette) {
+  const offset = (palette << 1) & WORD_MASK;
   let slot = word(wram, at(PALETTE_SLOTS, offset));
   if (slot & WORD_SIGN) {
     slot = word(wram, PALETTE_UPLOAD_LIST_BYTES);
@@ -44,6 +44,11 @@ export function paletteSlot(h, palette) {
     setWord(wram, at(PALETTE_UPLOAD_LIST, slot), offset);
     setWord(wram, PALETTE_UPLOAD_LIST_BYTES, (slot + ENTRY_BYTES) & WORD_MASK);
   }
+  return slot;
+}
+// The slot of the palette as called with JSR (80:AB0A): returns the slot after its RTS.
+export function paletteSlot(h, palette) {
+  const slot = paletteSlotInPlace(h.a.mem.wram, palette);
   h.rts();
   return slot;
 }

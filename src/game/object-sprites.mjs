@@ -32,7 +32,7 @@
 // data bank 80 lie below 2000 (`object_slot_required` past it), the walls in bank 7F, the
 // pictures in 9B and 9C.
 import { taskStop } from '../system/task-stop.mjs';
-import { paletteSlot } from './palette-slots.mjs';
+import { paletteSlotInPlace } from './palette-slots.mjs';
 import {
   CAMERA_X,
   CAMERA_Y,
@@ -168,10 +168,9 @@ const PART_CELL_BYTES = 4,
 // The high table bytes: X bit 8 of a part (ORA) and the small size of a wall sprite (AND).
 const HIGH_X_BITS = 0x80b85e,
   SMALL_SPRITE_BITS = 0x80b18a;
-// The return words of the inner calls: the palette slot and the occlusion sprite.
-const PALETTE_CALL = 0x80b23d,
-  PALETTE_TARGET = 0x80ab0a,
-  SPRITE_TARGET = 0x80b130;
+// The occlusion sprite (the palette slot 80:AB0A runs without its JSR frame, whose
+// return word lies only in free stack bytes).
+const SPRITE_TARGET = 0x80b130;
 // The occlusion grids by alignment: A (neither column nor row aligned), B (row aligned),
 // C (column aligned), D (both). The cells tested (byte offsets of 1872 and 1A72), and
 // the steps between the wall sprites: a cell's sprite, the hidden flag, the first and
@@ -309,10 +308,7 @@ export function enterObjectSprites(h, slot, picture) {
   setDp(DP_ANCHOR_Y, longByte(mem, pictureAt(1)) << 1);
   put(OBJECT_FLAGS, get(OBJECT_FLAGS) & ~(OBJECT_ON_SCREEN | OBJECT_COVERED | OBJECT_HIDDEN));
   const palette = get(OBJECT_PALETTE);
-  setDp(
-    DP_PALETTE_SLOT,
-    h.call(PALETTE_CALL, PALETTE_TARGET, () => paletteSlot(h, palette)),
-  );
+  setDp(DP_PALETTE_SLOT, paletteSlotInPlace(wram, palette));
   setDp(DP_DEPTH, get(OBJECT_DIAGONAL) >>> QUARTER_SHIFT);
   const cameraY = word(wram, CAMERA_Y) >>> QUARTER_SHIFT;
   setDp(DP_CAMERA_Y, cameraY);

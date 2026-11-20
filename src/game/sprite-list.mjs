@@ -13,15 +13,16 @@
 //
 // The sort (src/game/depth-sort.mjs) and the palette slots (src/game/palette-slots.mjs)
 // are lifted, and so are the OAM entries (src/game/object-sprites.mjs), which run
-// through their frames. The palette reset, the fill and the job count run without their
-// JSL frames, whose return words lie only in free stack bytes. The list position the
-// original pushes over each OAM entry call lies there too and is kept in a local (game
-// state only, user decision 2026-11-17). Registers (user decision 2026-11-17): game
-// state only; no A, X, Y or flags are left (the main loop and the talk end read none of
-// them), and the object and picture pass to the OAM entry as parameters.
+// through their frames. The player's palette slot, the palette reset, the fill and the
+// job count run without their frames, whose return words lie only in free stack bytes.
+// The list position the original pushes over each OAM entry call lies there too and is
+// kept in a local (game state only, user decision 2026-11-17). Registers (user decision
+// 2026-11-17): game state only; no A, X, Y or flags are left (the main loop and the
+// talk end read none of them), and the object and picture pass to the OAM entry as
+// parameters.
 import { taskStop } from '../system/task-stop.mjs';
 import { sortDrawList } from './depth-sort.mjs';
-import { paletteSlot } from './palette-slots.mjs';
+import { paletteSlotInPlace } from './palette-slots.mjs';
 import { clearPaletteSlots } from './game-screen.mjs';
 import { enterObjectSprites } from './object-sprites.mjs';
 import {
@@ -59,8 +60,6 @@ const HIDE_SEQUENCE = 0xb933,
 // Original call sites.
 const SORT_CALL = 0xb8de,
   SORT_TARGET = 0x80affc,
-  PLAYER_PALETTE_CALL = 0xb8f1,
-  PALETTE_TARGET = 0x80ab0a,
   OAM_CALL = 0xb911,
   OAM_TARGET = 0x80b20a;
 
@@ -89,7 +88,7 @@ export function buildSpritesInPlace(h) {
   const player = word(wram, PLAYER_OBJECT);
   if (!(player & WORD_SIGN)) {
     const palette = lowField(wram, OBJECT_PALETTE, player);
-    h.call(PLAYER_PALETTE_CALL, PALETTE_TARGET, () => paletteSlot(h, palette));
+    paletteSlotInPlace(wram, palette);
   }
   // OAM entry 0 stays reserved (the glove sprite of the game NMI).
   setWord(wram, DP_OAM_OFFSET, OAM_ENTRY_BYTES);
