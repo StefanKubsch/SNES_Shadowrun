@@ -103,10 +103,11 @@ function listActions(wram, accepted) {
   return y;
 }
 
-// Choose an action from the menu (80:99EB), a sequence for a native call continuation:
-// h is the caller's access (direct page 0, data bank 80); renderBuffer draws text,
-// accepted are the accepted actions and choice receives the chosen flag (0 for none).
-export function* chooseActionSequence(
+// Choose an action from the menu (80:99EB) for lifted callers, without the JSR frame
+// (the caller's return word lies only in free stack bytes): h is the caller's access
+// (direct page 0, data bank 80); renderBuffer draws text, accepted are the accepted
+// actions and choice receives the chosen flag (0 for none).
+export function* chooseAction(
   h,
   events,
   renderBuffer = drawTextBufferSequence,
@@ -136,7 +137,7 @@ export function* chooseActionSequence(
       mem.language ? listTextIds(mem, (WRAM_BANK << WORD_BITS) | ACTION_MENU_NAMES, count) : [],
     );
   };
-  if (!count) return yield* rts(h);
+  if (!count) return;
   yield* openWindow(h, events);
   yield () => {
     setWord(wram, DP_ACTION_MENU_WINDOW, word(wram, DP_LEFT));
@@ -163,18 +164,25 @@ export function* chooseActionSequence(
     choice.action = chosen;
     setWord(wram, ACTION_MENU_OVERRIDE, 0);
   };
+}
+// The action menu as called with JSR (80:99EB); returns with its RTS.
+export function* chooseActionSequence(
+  h,
+  events,
+  renderBuffer = drawTextBufferSequence,
+  accepted,
+  choice = {},
+) {
+  yield* chooseAction(h, events, renderBuffer, accepted, choice);
   return yield* rts(h);
 }
 // The action menu as the script native 80:9BA0, a sequence: no override, the mask from
-// the first argument, the menu (JSR at 80:9BA5) and the chosen flag as the result.
-const SCRIPT_MENU_CALL = [0x809ba5, 0x8099eb];
+// the first argument, the menu and the chosen flag as the result.
 export function* chooseScriptActionSequence(h, events, renderBuffer = drawTextBufferSequence) {
   const { wram } = h.a.mem,
     choice = {};
   yield () => setWord(wram, ACTION_MENU_OVERRIDE, 0);
-  yield* dialogCallBody(h, ...SCRIPT_MENU_CALL, () =>
-    chooseActionSequence(h, events, renderBuffer, word(wram, 0), choice),
-  );
+  yield* chooseAction(h, events, renderBuffer, word(wram, 0), choice);
   let result;
   yield () => {
     setWord(wram, 0, choice.action);

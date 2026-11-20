@@ -87,6 +87,19 @@ below the entry S, and the lifted sprite list comparison of
 [task-native-dialog.test.mjs](../tools/task-native-dialog.test.mjs) uses its
 `freeStack` option.
 
+The third batch (2026-11-20) removes the JSR frames lifted callers built around
+lifted callees. Each callee has a frameless form beside its RTS form, which
+register-level harnesses and script natives still bind: printText, openWindow,
+setTextCursor, printNumber, requestTileClear, takePad, playSoundEffectCall,
+showNotice, hitObject, closeDialog, equipmentRows, memberPortrait, karmaLine,
+showDialogText and chooseAction; the window release, the glove, the notice windows'
+release and the name window release already had one. The player control selects
+animations and turns through the plain functions of
+[object-turn.mjs](../src/game/object-turn.mjs). The unused call sites go with the
+frames. Frames stay where a callee's own wait or a recorded routine returns from them
+(the word wait, the menu choice, the confirm key, the portrait unpack and uploads,
+the topic action's append and visit).
+
 ## Lifted so far
 
 | Routine                                     | Module                                                                                               | Content                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       |

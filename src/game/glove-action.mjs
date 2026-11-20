@@ -1,5 +1,5 @@
 import { talkSequence } from './dialog-talk.mjs';
-import { chooseActionSequence } from './action-menu.mjs';
+import { chooseAction } from './action-menu.mjs';
 import { takePad } from '../system/live-input-calls.mjs';
 import { putGloveAwaySequence } from './window-release.mjs';
 // The action glove's buttons on an object (lifted from 80:BF3B; register-level
@@ -89,7 +89,6 @@ const DP_SCRATCH = 0x6b,
 // Original call sites and callees.
 const CALL = Object.freeze({
   noticeInput: [0x80bfe4, 0x809e1a],
-  menu: [0x80c00b, 0x8099eb],
   dialog: [0x80c032, 0x80936c],
   input: [0x80c067, 0x809e1a],
 });
@@ -183,9 +182,7 @@ export function* gloveActionSequence(h, events, renderBuffer = drawTextBufferSeq
   }
   if (path === 'menu') {
     const choice = {};
-    yield* dialogCallBody(h, ...CALL.menu, () =>
-      chooseActionSequence(h, events, renderBuffer, accepted, choice),
-    );
+    yield* chooseAction(h, events, renderBuffer, accepted, choice);
     let dialog = 0;
     yield () => {
       action = choice.action;
