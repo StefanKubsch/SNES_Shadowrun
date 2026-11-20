@@ -12,7 +12,7 @@ import { setTextCursorRoutine, printNumberSequence } from '../proof/caller/windo
 import { printTextSequence } from '../proof/caller/text-print.mjs';
 import { frameWaitCallSequence } from '../src/system/live-input-calls.mjs';
 import { runPadPresses } from '../proof/caller/input-routines.mjs';
-import { playSoundEffectRoutine } from '../src/apu/sound-effect.mjs';
+import { playSoundEffectJsr } from '../proof/caller/jsr-forms.mjs';
 import {
   NativeCallContinuation,
   NATIVE_CALL_CONTINUATIONS,
@@ -65,7 +65,7 @@ export function compareRun(
   };
   const routines = new Map([
       [0x809e1a, runPadPresses],
-      [0x80c46e, playSoundEffectRoutine],
+      [0x80c46e, playSoundEffectJsr],
     ]),
     bindings = [];
   function bind(target, body) {

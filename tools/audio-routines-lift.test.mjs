@@ -12,10 +12,10 @@ import { compareLift } from './lift-compare.mjs';
 import { TITLE_CYCLE_PLANS, TITLE_CYCLE_IGNORED_WRAM } from './live-title-cycle-plan.mjs';
 import { sendApuCommandRoutine } from '../proof/caller/audio-routines.mjs';
 import { setMusicModeRoutine } from '../proof/caller/audio-routines.mjs';
-import { playSoundEffectRoutine } from '../src/apu/sound-effect.mjs';
+import { playSoundEffectJsr } from '../proof/caller/jsr-forms.mjs';
 import { AUDIO_REFERENCE_ENTRIES } from '../proof/apu-reference/audio-routines.mjs';
 
-const lifted = [sendApuCommandRoutine, setMusicModeRoutine, playSoundEffectRoutine],
+const lifted = [sendApuCommandRoutine, setMusicModeRoutine, playSoundEffectJsr],
   reference = new Map(AUDIO_REFERENCE_ENTRIES),
   session = 4,
   // Diagnosis: AUDIO_LIFT_FRAME=n lists the differing WRAM bytes at NMI n.

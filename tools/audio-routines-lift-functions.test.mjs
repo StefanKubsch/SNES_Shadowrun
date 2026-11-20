@@ -12,7 +12,7 @@ import { MAIN_SCENE_ROUTINES } from '../proof/replay/main-scene.mjs';
 import { withAudioReference } from '../proof/apu-reference/audio-routines.mjs';
 import { sendApuCommandRoutine } from '../proof/caller/audio-routines.mjs';
 import { setMusicModeRoutine } from '../proof/caller/audio-routines.mjs';
-import { playSoundEffectRoutine } from '../src/apu/sound-effect.mjs';
+import { playSoundEffectJsr } from '../proof/caller/jsr-forms.mjs';
 
 const WRAM_BYTES = 0x20000,
   HEX = 16,
@@ -127,7 +127,7 @@ const CASES = [
       return { bank: s.pick([0x7e, 0x80, 0x81]), pc: 0xc46e };
     },
     result: effectRegisters,
-    lifted: lifted(playSoundEffectRoutine, effectRegisters, 0x80),
+    lifted: lifted(playSoundEffectJsr, effectRegisters, 0x80),
   },
 ];
 

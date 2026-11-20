@@ -1,6 +1,7 @@
 // The RTS forms of lifted routines for register-level call tables and caller harnesses
 // (moved from src/, whose live callers run the routines without their JSR frames). Each
 // runs the lifted sequence or function, then returns through the caller's JSR frame.
+import { playSoundEffectCall } from '../../src/apu/sound-effect.mjs';
 import { printText } from '../../src/game/text-print.mjs';
 import { printNumber, setTextCursor } from '../../src/game/window-text.mjs';
 import { drawTextBufferSequence } from '../../src/game/text-draw.mjs';
@@ -28,5 +29,11 @@ export function* printNumberJsr(h, events, renderBuffer = drawTextBufferSequence
 // The text cursor 80:FAAC.
 export function setTextCursorJsr(h) {
   setTextCursor(h);
+  return h.rts();
+}
+
+// The sound effect 80:C46E.
+export function playSoundEffectJsr(h) {
+  playSoundEffectCall(h);
   return h.rts();
 }

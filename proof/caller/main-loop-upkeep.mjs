@@ -12,7 +12,7 @@ import {
   runOpenWindow,
 } from './upkeep-routines.mjs';
 import { setTextCursorJsr } from './jsr-forms.mjs';
-import { playSoundEffectRoutine } from '../../src/apu/sound-effect.mjs';
+import { playSoundEffectJsr } from './jsr-forms.mjs';
 import { randomByteNative, randomBelowNative } from '../../src/script/native-script-leaves.mjs';
 export const MAIN_UPKEEP_ROUTINES = new Map([
   [0x81b0a1, runFrameWait],
@@ -25,7 +25,7 @@ export const MAIN_UPKEEP_ROUTINES = new Map([
   [0x80fd80, runPrintNumber],
   [0x80fe69, runPrintText],
   [0x80fb39, runDrawTextBuffer],
-  [0x80c46e, playSoundEffectRoutine],
+  [0x80c46e, playSoundEffectJsr],
   [0x80c560, (h) => randomByteNative(h.a, false)],
   [0x80c51f, (h) => randomBelowNative(h.a, false)],
   [0x8099eb, runChooseAction],

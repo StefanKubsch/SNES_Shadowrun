@@ -3,7 +3,7 @@ import assert from 'node:assert/strict';
 import { chooseFromMenuSequence as direct } from '../src/game/menu-choice.mjs';
 import { chooseFromMenuSequence as dispatched } from '../proof/caller/menu-choice.mjs';
 import { runFrameWait, runPadPresses } from '../proof/caller/input-routines.mjs';
-import { playSoundEffectRoutine } from '../src/apu/sound-effect.mjs';
+import { playSoundEffectJsr } from '../proof/caller/jsr-forms.mjs';
 import { NativeCallContinuation } from '../src/system/native-call-continuation.mjs';
 import { WAIT_PAUSED } from '../src/system/native-wait-continuation.mjs';
 import { LagFreeFrames } from '../src/vm/frame-events.mjs';
@@ -74,7 +74,7 @@ function run(sequence, entry, pads, budget) {
   const routines = new Map([
     [0x81b0a1, runFrameWait],
     [0x809e1a, runPadPresses],
-    [0x80c46e, playSoundEffectRoutine],
+    [0x80c46e, playSoundEffectJsr],
     [0x80fb39, drawStandIn],
   ]);
   // Direct menus receive a renderer sequence and have no helper table.

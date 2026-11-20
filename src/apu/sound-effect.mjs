@@ -121,8 +121,5 @@ export function playSoundEffectCall(h) {
   });
   ctx.bank = CODE_BANK;
 }
-// The sound effect as called with JSR (80:C46E); returns with its RTS.
-export function playSoundEffectRoutine(h) {
-  playSoundEffectCall(h);
-  return h.rts();
-}
+// The RTS form for register-level callers is playSoundEffectJsr in
+// proof/caller/jsr-forms.mjs.

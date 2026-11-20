@@ -1,4 +1,4 @@
-import { playSoundEffectRoutine } from '../src/apu/sound-effect.mjs';
+import { playSoundEffectJsr } from '../proof/caller/jsr-forms.mjs';
 import * as formerText from '../proof/caller/dialog-text.mjs';
 import * as formerMenus from '../proof/caller/dialog-menus.mjs';
 import { drawTextBufferSequence as formerDraw } from '../proof/caller/text-draw.mjs';
@@ -304,7 +304,7 @@ function runTalk(
     [0x8091e2, live.runDialogMenu],
     [0x809215, live.runDialogTopics],
     [0x81ef47, setMusicModeRoutine],
-    [0x80c46e, playSoundEffectRoutine],
+    [0x80c46e, playSoundEffectJsr],
   ]);
   // Former orchestration must retain independent text and menu callers too.
   const bindings = [];

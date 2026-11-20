@@ -8,7 +8,7 @@ import { TALK_ROUTINES, talkWithObjectAdapter } from './native-dialog.mjs';
 import { showNoticeAdapter } from './native-notice.mjs';
 import { setTextCursor, printNumber } from './native-list-prerequisites.mjs';
 import { printTextAdapter, drawTextBufferAdapter } from './native-text-compose.mjs';
-import { playSoundEffectRoutine } from '../../src/apu/sound-effect.mjs';
+import { playSoundEffectJsr } from '../caller/jsr-forms.mjs';
 import { randomByte, randomBelow } from './native-random.mjs';
 import { chooseActionAdapter } from './native-actions.mjs';
 
@@ -20,7 +20,7 @@ export const MAIN_UPKEEP_ROUTINES = new Map([
   [0x80fd80, (h, e) => printNumber(h.a, e, false)],
   [0x80fe69, printTextAdapter],
   [0x80fb39, drawTextBufferAdapter],
-  [0x80c46e, playSoundEffectRoutine],
+  [0x80c46e, playSoundEffectJsr],
   [0x80c560, (h) => randomByte(h.a, false)],
   [0x80c51f, (h) => randomBelow(h.a, false)],
   [0x8099eb, chooseActionAdapter],

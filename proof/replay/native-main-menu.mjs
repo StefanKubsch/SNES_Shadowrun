@@ -11,7 +11,7 @@ import { validateDialogTaskOptions } from './native-dialog.mjs';
 import { lagFree } from '../../src/system/main-wait-interrupt.mjs';
 import { STATUS_SCREEN_ROUTINES } from './native-status-screen.mjs';
 import { chooseFromNumberedMenuWithSelectionAdapter } from './native-menu-compose.mjs';
-import { playSoundEffectRoutine } from '../../src/apu/sound-effect.mjs';
+import { playSoundEffectJsr } from '../caller/jsr-forms.mjs';
 import { raiseMemberStateCount } from './native-state-count-raise.mjs';
 import { raiseMemberMagicPoints } from '../../src/script/native-magic-points-raise.mjs';
 
@@ -148,7 +148,7 @@ const SAVE_SRAM_BASE = SRAM_FIRST_BANK << WORD_BITS,
 export const MAIN_MENU_ROUTINES = new Map([
   ...STATUS_SCREEN_ROUTINES,
   [0x80a6b8, chooseFromNumberedMenuWithSelectionAdapter],
-  [0x80c46e, playSoundEffectRoutine],
+  [0x80c46e, playSoundEffectJsr],
   [0x80cecb, (h, e) => raiseMemberStateCount(h.a, e, false)],
   [0x80cf2e, (h) => raiseMemberMagicPoints(h.a, false)],
 ]);

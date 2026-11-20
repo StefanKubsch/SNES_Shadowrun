@@ -5,7 +5,7 @@ import * as direct from '../src/game/dialog-menus.mjs';
 import * as previous from '../proof/caller/dialog-menus.mjs';
 import { dialogTextRoutines } from '../proof/replay/native-dialog-text.mjs';
 import { runFrameWait, runPadPresses } from '../proof/caller/input-routines.mjs';
-import { playSoundEffectRoutine } from '../src/apu/sound-effect.mjs';
+import { playSoundEffectJsr } from '../proof/caller/jsr-forms.mjs';
 import { NATIVE_CALL_CONTINUATIONS } from '../src/system/native-call-continuation.mjs';
 import { textWindowSide, finishTextWindow, rendererTable } from './text-window-caller-harness.mjs';
 import {
@@ -69,7 +69,7 @@ function run(module, variant, budget, realDrawing = false, counter = 0) {
     table = new Map([
       [0x81b0a1, runFrameWait],
       [0x809e1a, runPadPresses],
-      [0x80c46e, playSoundEffectRoutine],
+      [0x80c46e, playSoundEffectJsr],
       [0x80fb39, binding.run],
     ]);
   NATIVE_CALL_CONTINUATIONS.set(binding.run, binding);
