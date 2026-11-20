@@ -39,19 +39,10 @@ const CLEARED_WORD = 0x10;
 
 // 81:E7BC, a sequence for a native call continuation: h is the accessor of the boot,
 // events its frame events. It writes the direct page word 10 at WRAM 0010 and checks no
-// direct page register (its callers run with D = 0; user decision 2026-11-17). Returns
-// with the status it came with, after its RTL.
-export function* bootScreensSequence(h, events) {
-  yield* bootScreensInPlace(h, events);
-  let result;
-  yield () => {
-    result = h.rtl();
-  };
-  return result;
-}
-
-// The boot screens 81:E7BC for the lifted startup, without the JSL frame (its return
-// address lies only in free stack bytes); the status is restored as by its PLP.
+// direct page register (its callers run with D = 0; user decision 2026-11-17). The
+// lifted startup runs it without the JSL frame (its return address lies only in free
+// stack bytes); the status is restored as by its PLP. The RTL form for register-level
+// callers is in proof/frontend-caller/boot-screens.mjs.
 export function* bootScreensInPlace(h, events) {
   const { ctx } = h,
     status = ctx.status;

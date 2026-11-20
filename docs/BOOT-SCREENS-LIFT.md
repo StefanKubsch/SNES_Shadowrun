@@ -3,7 +3,8 @@
 After the reset, the start-up 80:A133 calls 80:A15C, which calls the boot screens
 81:E7BC. They are lifted in
 [src/frontend/boot-screens.mjs](../src/frontend/boot-screens.mjs)
-(`bootScreensSequence`). The register-level version stays in
+(`bootScreensInPlace`; the RTL form `bootScreensSequence` is in
+[proof/frontend-caller/boot-screens.mjs](../proof/frontend-caller/boot-screens.mjs)). The register-level version stays in
 [proof/replay/main-startup.mjs](../proof/replay/main-startup.mjs) (`showBootScreens`) as the
 reference, and recorded runs keep using it. The routine table entry
 `runBootScreensLifted` (MAIN_STARTUP_ROUTINES) runs the lifted screens with lag-free
@@ -40,7 +41,7 @@ frames. Method: [MATRIX-LIFT.md](MATRIX-LIFT.md).
 - The live startup ([main-startup.mjs](../src/system/main-startup.mjs)) runs the
   screens as `bootScreensInPlace`, without the JSR to 80:A15C and its JSL frame
   (2026-11-20); 80:A15C's PHP and PLP and the data bank 80 it sets before its RTS are
-  kept in the context. `bootScreensSequence` keeps the RTL form for the proof callers.
+  kept in the context.
 - 81:EB97 sets the interrupt disable flag, and the lifted screens set it too. The PLP at
   the end restores the entry status.
 - With recorded interrupt observations the register-level screens run, with their

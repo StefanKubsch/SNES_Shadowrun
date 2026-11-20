@@ -4,7 +4,7 @@ import { taskStop } from '../../src/system/task-stop.mjs';
 import { dialogAccess } from '../../src/system/native-dialog-support.mjs';
 import { FRONTEND_ROUTINES, MAIN_OWNER_ENTRY } from './live-frontend.mjs';
 import { lagFree } from '../../src/system/main-wait-interrupt.mjs';
-import { bootScreensSequence } from '../../src/frontend/boot-screens.mjs';
+import { bootScreensSequence } from '../frontend-caller/boot-screens.mjs';
 import { nativeCallSequence } from '../system/native-call-sequences.mjs';
 import {
   NativeCallContinuation,
