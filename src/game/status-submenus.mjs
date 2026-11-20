@@ -17,7 +17,7 @@
 // Registers (user decision 2026-11-17): game state only; no callee takes a register
 // input and no register values are left.
 import { dialogCallBody, segmentSequence } from '../system/native-call-continuation.mjs';
-import { openWindowSequence } from './window-open.mjs';
+import { openWindow } from './window-open.mjs';
 import { releaseWindowSequence } from './window-release.mjs';
 import { setTextCursorRoutine, printNumberSequence } from './window-text.mjs';
 import { printText } from './text-print.mjs';
@@ -57,8 +57,7 @@ import { JAKE_OBJECT_NUMBER, SKILL_COUNT } from '../data/runners.mjs';
 import { fitListWindow } from '../data/menu-layout.mjs';
 import { BYTE_BITS, BYTE_MASK, LONG_MASK, WORD_BITS, WORD_MASK } from '../constants/bits.mjs';
 
-const OPEN_WINDOW = 0x80f963,
-  CURSOR = 0x80faac,
+const CURSOR = 0x80faac,
   NUMBER = 0x80fd80,
   CONFIRM_KEY = 0x80f953,
   RELEASE_WINDOW = 0x80fa3e;
@@ -112,7 +111,7 @@ export function* skillsSequence(h, events, renderBuffer = drawTextBufferSequence
     if (known) setWindow(h, window, known + SKILL_EXTRA_ROWS);
   };
   if (!known) return yield* returnSequence(h);
-  yield* dialogCallBody(h, 0x80e863, OPEN_WINDOW, () => openWindowSequence(h, events));
+  yield* openWindow(h, events);
   yield () => {
     setDataBankWord(mem, STATUS_SUBMENU_WINDOW, 0, word(wram, 0));
     setWord(wram, DP_CURSOR_ROW, 0);
@@ -187,7 +186,7 @@ export function* notesSequence(h, events, renderBuffer = drawTextBufferSequence)
   };
   if (!jake) {
     if (!datajack) return yield* returnSequence(h);
-    yield* dialogCallBody(h, 0x80e8ee, OPEN_WINDOW, () => openWindowSequence(h, events));
+    yield* openWindow(h, events);
     yield* text(TEXT_DATAJACK);
     yield* dialogCallBody(h, 0x80e8f9, CONFIRM_KEY, () => waitForConfirmKeySequence(h, events));
     yield* dialogCallBody(h, 0x80e8fc, RELEASE_WINDOW, () =>
@@ -198,7 +197,7 @@ export function* notesSequence(h, events, renderBuffer = drawTextBufferSequence)
     );
     return yield* returnSequence(h);
   }
-  yield* dialogCallBody(h, 0x80e937, OPEN_WINDOW, () => openWindowSequence(h, events));
+  yield* openWindow(h, events);
   yield* text(TEXT_HEAD_COMPUTER);
   yield () => {
     setWord(wram, 2, 0);

@@ -11,8 +11,8 @@
 // frames left (the last of equal ones), whose window is released (80:FA3E, lifted in
 // window-release.mjs).
 //
-// The window opening and text are composed directly through their call frames. The
-// window, the minimum and the slot the original pushes and the release's return word lie
+// The window opening and text are composed directly, without the return words of the
+// original's JSRs. The window, the minimum and the slot the original pushes and the release's return word lie
 // only in free stack bytes and are not reproduced (game state only, user decision
 // 2026-11-17): the window is kept in a local. The text number must point within bank 80
 // (notice_text_required past it).
@@ -22,7 +22,7 @@
 // register-level callers lives in proof/caller/upkeep-routines.mjs.
 import { taskStop } from '../system/task-stop.mjs';
 import { dialogCallBody } from '../system/native-call-continuation.mjs';
-import { openWindowSequence, requestTileClearSequence } from './window-open.mjs';
+import { openWindow, requestTileClearSequence } from './window-open.mjs';
 import { waitForConfirmKeySequence } from './confirm-key.mjs';
 import { printText } from './text-print.mjs';
 import { drawTextBufferSequence } from './text-draw.mjs';
@@ -51,8 +51,7 @@ const EFFECT_ATTRIBUTES = 0x400,
   DP_WINDOW = 0x00,
   DP_TEXT = 0x02;
 // Original call sites and callees.
-const WINDOW_CALL = [0x80fece, 0x80f963],
-  TEXT_CALL = [0x80fedd, 0x80fe69],
+const TEXT_CALL = [0x80fedd, 0x80fe69],
   // The routines a paged notice adds between its pages.
   CONFIRM_KEY = 0x80f953,
   TILE_CLEAR = 0x80fa67;
@@ -104,8 +103,7 @@ function* pagesSequence(h, events, renderBuffer, { id, pages }) {
 // the text-buffer renderer sequence; shown receives the window and the slot.
 export function* showNoticeSequence(h, events, renderBuffer = drawTextBufferSequence, shown = {}) {
   const { mem } = h.a,
-    { wram } = mem,
-    call = (site, body) => dialogCallBody(h, ...site, body);
+    { wram } = mem;
   let paged = null,
     window;
   yield () => {
@@ -117,7 +115,7 @@ export function* showNoticeSequence(h, events, renderBuffer = drawTextBufferSequ
     if (word(wram, DP_WINDOW_ATTRIBUTES) === EFFECT_ATTRIBUTES)
       setWord(wram, NOTICE_EFFECT_FRAMES, EFFECT_FRAMES);
   };
-  yield* call(WINDOW_CALL, () => openWindowSequence(h, events));
+  yield* openWindow(h, events);
   yield () => {
     window = word(wram, DP_WINDOW);
     const text = word(wram, DP_NOTICE_TEXT),

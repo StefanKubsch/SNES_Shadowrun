@@ -21,7 +21,7 @@
 import { dialogCallBody } from '../system/native-call-continuation.mjs';
 import { fitListWindow, listTextIds } from '../data/menu-layout.mjs';
 import { TEXT_EXIT } from '../data/port-extension.mjs';
-import { openWindowSequence } from './window-open.mjs';
+import { openWindow } from './window-open.mjs';
 import { chooseFromMenuSequence } from './menu-choice.mjs';
 import { drawTextBufferSequence } from './text-draw.mjs';
 import { releaseWindowSequence } from './window-release.mjs';
@@ -74,8 +74,7 @@ const WINDOW = Object.freeze({ left: 12, top: 3, columns: 11, attributes: 0 }),
   DP_LEFT = 0x00,
   DP_TOP = 0x02;
 // Original call sites and callees.
-const WINDOW_CALL = [0x809b5b, 0x80f963],
-  MENU_CALL = [0x809b7d, 0x80a6a5],
+const MENU_CALL = [0x809b7d, 0x80a6a5],
   RELEASE_SITE = 0x809b94,
   RELEASE_TARGET = 0x80fa3e;
 
@@ -140,7 +139,7 @@ export function* chooseActionSequence(
     );
   };
   if (!count) return yield* rts(h);
-  yield* dialogCallBody(h, ...WINDOW_CALL, () => openWindowSequence(h, events));
+  yield* openWindow(h, events);
   yield () => {
     setWord(wram, DP_ACTION_MENU_WINDOW, word(wram, DP_LEFT));
     setWord(wram, DP_TOP, MENU_COLUMN);

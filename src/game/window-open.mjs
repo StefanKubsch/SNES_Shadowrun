@@ -176,9 +176,11 @@ function* clearTiles(h, events, x) {
   };
 }
 
-// Open the window of the direct page words 00 to 08 (80:F963), a sequence for a native
-// call continuation: h the caller's access (direct page 0, data bank 80).
-export function* openWindowSequence(h, events) {
+// Open the window of the direct page words 00 to 08 (80:F963) for lifted callers,
+// without the JSR frame: the return word of the caller's JSR lies only in free stack
+// bytes (game state only, user decision 2026-11-17). h is the caller's access (direct
+// page 0, data bank 80).
+export function* openWindow(h, events) {
   const m = sceneRuntime(h),
     { wram } = m;
   let x;
@@ -206,10 +208,15 @@ export function* openWindowSequence(h, events) {
       setWord(wram, field + x, first);
     setWord(wram, DP_LEFT, x);
   };
-  if (x >= INDEX_LIMIT) return yield* rts(h);
+  if (x >= INDEX_LIMIT) return;
   yield* requestTileClear(h, events, x);
   yield () => drawWindow(wram, x);
   yield* requestUploadCall(h, events);
+}
+// The window opening as called with JSR (80:F963), a sequence for a native call
+// continuation whose caller has pushed the frame; returns with its RTS.
+export function* openWindowSequence(h, events) {
+  yield* openWindow(h, events);
   return yield* rts(h);
 }
 function* rts(h) {

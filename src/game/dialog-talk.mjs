@@ -31,7 +31,7 @@ import { chooseDialogActionSequence, chooseDialogTopicSequence } from './dialog-
 import { drawTextBufferSequence } from './text-draw.mjs';
 import { reloadObjectTilesSequence } from './object-tiles.mjs';
 import { buildSprites } from './sprite-list.mjs';
-import { openWindowSequence } from './window-open.mjs';
+import { openWindow } from './window-open.mjs';
 import {
   putGloveAwayCallSequence,
   releaseNoticeWindowsCallSequence,
@@ -144,9 +144,7 @@ const CALL = Object.freeze({
   glove: [0x809377, 0x80bcb2],
   notices: [0x80938d, 0x80ff79],
   music: [0x8093bc, 0x81ef47, true],
-  frame: [0x8093db, 0x80f963],
   narrow: [0x8093ec, 0x80fa92],
-  text: [0x809408, 0x80f963],
   jakeUnpack: [0x80944d, 0x809f6d],
   jakeShift: [0x809450, 0x808f20],
   jakeUpload: [0x809453, 0x809022],
@@ -319,7 +317,7 @@ export function* talkSequence(h, events, renderBuffer = drawTextBufferSequence) 
   };
   if (change) yield* music(change);
   yield () => window(PORTRAIT_FRAME);
-  yield* dialogCallBody(h, ...CALL.frame, () => openWindowSequence(h, events));
+  yield* openWindow(h, events);
   yield () => {
     setWord(wram, DP_PORTRAIT_FRAME, word(wram, DP_OBJECT));
     setWord(wram, DP_RECORD_NUMBER, FRAME_LEFT_PIXEL);
@@ -333,7 +331,7 @@ export function* talkSequence(h, events, renderBuffer = drawTextBufferSequence) 
     false,
   );
   yield () => window(TEXT_WINDOW);
-  yield* dialogCallBody(h, ...CALL.text, () => openWindowSequence(h, events));
+  yield* openWindow(h, events);
   // Jake's portrait record, then the partner's from the dialog record.
   yield () => {
     setWord(wram, DP_TEXT_WINDOW, word(wram, DP_OBJECT));

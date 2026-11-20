@@ -38,7 +38,7 @@ import { waitForConfirmKeySequence } from './confirm-key.mjs';
 import { releaseWindowJsrSequence } from './window-release.mjs';
 import { drawTextBufferSequence } from './text-draw.mjs';
 import { frameWaitCallSequence } from '../system/live-input-calls.mjs';
-import { openWindowSequence } from './window-open.mjs';
+import { openWindow } from './window-open.mjs';
 import { dialogCallBody } from '../system/native-call-continuation.mjs';
 import { drawWindowListSequence } from './window-list.mjs';
 import { dataBankWord, setDataBankWord } from '../system/data-bank.mjs';
@@ -113,22 +113,17 @@ import {
 } from '../constants/bits.mjs';
 
 // The notices' callees and the window list (long calls: the word wait and the list).
-const OPEN_WINDOW = 0x80f963,
-  WORD_WAIT = 0x81b0a1,
+const WORD_WAIT = 0x81b0a1,
   CONFIRM_KEY = 0x80f953,
   RELEASE_WINDOW = 0x80fa3e,
   LIST_CALL = 0x80883b;
 // The call sites of the warning's and the penalty's callees.
 const WARNING_CALLS = Object.freeze({
-    window: 0x8087a1,
-    text: 0x8087a9,
     wait: 0x8087af,
     key: 0x8087b6,
     release: 0x8087b9,
   }),
   PENALTY_CALLS = Object.freeze({
-    window: 0x8087e7,
-    text: 0x8087ef,
     wait: 0x8087f5,
     key: 0x8087fc,
     release: 0x8087ff,
@@ -158,7 +153,7 @@ function* noticeSequence(h, events, renderBuffer, notice, calls) {
     setWord(wram, DP_WINDOW_ATTRIBUTES, 0);
     fitListWindow(mem, [notice.text], { column: 0 });
   };
-  yield* dialogCallBody(h, calls.window, OPEN_WINDOW, () => openWindowSequence(h, events));
+  yield* openWindow(h, events);
   yield () => {
     setWord(wram, 2, notice.text);
   };

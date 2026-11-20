@@ -26,7 +26,7 @@ import { dialogCallBody, segmentSequence } from '../system/native-call-continuat
 import { releaseNameWindowCallSequence } from './window-release.mjs';
 import { printText } from './text-print.mjs';
 import { drawTextBufferSequence } from './text-draw.mjs';
-import { openWindowSequence } from './window-open.mjs';
+import { openWindow } from './window-open.mjs';
 import { measureTextWidth } from './text-width.mjs';
 import { GLOVE_KIND_SPELL } from '../script/native-glove-crosshair-limits.mjs';
 import { taskStop } from '../system/task-stop.mjs';
@@ -113,8 +113,6 @@ const RELEASE_TARGET = 0x80be5b,
   RELEASE_OTHER_CALL = 0x80bdb6,
   WIDTH_CALL = 0x80be06,
   WIDTH_TARGET = 0x80fadd,
-  WINDOW_CALL = 0x80be29,
-  WINDOW_TARGET = 0x80f963,
   LOW_WRAM_END = 0x2000;
 
 const word = (wram, at) => wram[at] | (wram[at + 1] << BYTE_BITS);
@@ -301,7 +299,7 @@ export function* objectSearchSequence(h, events, renderBuffer = drawTextBufferSe
     setWord(wram, DP_WINDOW_ROWS, WINDOW_ROWS);
     setWord(wram, DP_WINDOW_ATTRIBUTES, WINDOW_ATTRIBUTES);
   };
-  yield* dialogCallBody(h, WINDOW_CALL, WINDOW_TARGET, () => openWindowSequence(h, events));
+  yield* openWindow(h, events);
   yield () => {
     setWord(wram, GLOVE_NAME_WINDOW, word(wram, DP_TEXT));
     setWord(wram, DP_TEXT_COPY, text);

@@ -13,7 +13,7 @@
 // Registers (user decision 2026-11-17): game state only; no callee takes a register
 // input and no register values are left.
 import { dialogCallBody, segmentSequence } from '../system/native-call-continuation.mjs';
-import { openWindowSequence } from './window-open.mjs';
+import { openWindow } from './window-open.mjs';
 import {
   releaseWindowJsrSequence,
   releaseNoticeWindowsCallSequence,
@@ -76,7 +76,6 @@ const PARTY_WINDOW = Object.freeze({ left: 1, top: 1, columns: 0x1e, baseRows: 5
 // The callees and their call sites (the cursor, text and number per member in order).
 const PUT_GLOVE_AWAY = [0x80ed3c, 0x80bcb2],
   RELEASE_NOTICES = [0x80ed3f, 0x80ff79],
-  OPEN_WINDOW = [0x80ed67, 0x80f963],
   CONFIRM_KEY = [0x80ee4b, 0x80f953],
   RELEASE_WINDOW = [0x80ee53, 0x80fa3e],
   CURSOR = 0x80faac,
@@ -146,7 +145,7 @@ export function* partyStatusSequence(h, events, renderBuffer = drawTextBufferSeq
     setWord(wram, DP_WINDOW_ROWS, rows);
     setWord(wram, DP_WINDOW_ATTRIBUTES, 0);
   };
-  yield* dialogCallBody(h, ...OPEN_WINDOW, () => openWindowSequence(h, events));
+  yield* openWindow(h, events);
   yield () => setDataBankWord(mem, STATUS_WINDOW, 0, word(wram, 0));
   yield* withArgument(TEXT_PARTY_STATUS, () => printText(h, events, renderBuffer));
   let member = 0,

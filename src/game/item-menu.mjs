@@ -25,7 +25,7 @@
 // input, and the item use takes the actor (X in the original) as a parameter.
 import { dialogCallBody, segmentSequence } from '../system/native-call-continuation.mjs';
 import { releaseNoticeWindowsCallSequence, releaseWindowJsrSequence } from './window-release.mjs';
-import { openWindowSequence, requestTileClearSequence } from './window-open.mjs';
+import { openWindow, requestTileClearSequence } from './window-open.mjs';
 import { chooseFromMenuSequence, MENU_WITH_NUMBERS } from './menu-choice.mjs';
 import { waitForConfirmKeySequence } from './confirm-key.mjs';
 import { equipmentRowsSequence } from './equipment-window.mjs';
@@ -104,8 +104,7 @@ const KIND_NAMES = 0x8cefb0,
 // The entries and their item classes.
 export const ITEM_ENTRIES = Object.freeze({ 0x80e572: 0, 0x80e577: 1, 0x80e57f: 2 });
 // The callees and their call sites.
-const OPEN_WINDOW = [0x80e638, 0x80f963],
-  MENU = [0x80e65b, 0x80a6ad],
+const MENU = [0x80e65b, 0x80a6ad],
   USE_ITEM = [0x80e672, 0x80e4f3],
   REDRAW_WINDOW = [0x80e67f, 0x80fa67],
   RELEASE_WINDOW = [0x80e68a, 0x80fa3e],
@@ -216,7 +215,7 @@ export function* itemMenuSequence(h, events, entry, renderBuffer = drawTextBuffe
     };
     if (empty) return yield* returnSequence(h);
     if (open) {
-      yield* dialogCallBody(h, ...OPEN_WINDOW, () => openWindowSequence(h, events));
+      yield* openWindow(h, events);
       yield () => setDataBankWord(mem, STATUS_SUBMENU_WINDOW, 0, word(wram, 0));
     }
     yield () => {

@@ -7,7 +7,7 @@
 // two visible rows from column 1. The window is released afterwards; the result is FFFF
 // for Yes and 0 for No or a cancel.
 import { dialogCallBody } from '../system/native-call-continuation.mjs';
-import { openWindowSequence } from './window-open.mjs';
+import { openWindow } from './window-open.mjs';
 import { releaseWindowSequence } from './window-release.mjs';
 import { chooseFromMenuSequence } from './menu-choice.mjs';
 import { drawTextBufferSequence } from './text-draw.mjs';
@@ -40,8 +40,7 @@ const WINDOW_COLUMNS = 6,
   CANCEL = WORD_MASK,
   BANK_SHIFT = 16;
 // Original call sites and callees.
-const WINDOW_CALL = [0x80cd52, 0x80f963],
-  MENU_CALL = [0x80cd6f, 0x80a6c7],
+const MENU_CALL = [0x80cd6f, 0x80a6c7],
   RELEASE_CALL = [0x80cd8a, 0x80fa3e];
 
 const word = (wram, at) => wram[at] | (wram[at + 1] << BYTE_BITS);
@@ -60,7 +59,7 @@ export function* askYesNoSequence(h, events, renderBuffer = drawTextBufferSequen
     setWord(wram, DP_WINDOW_ATTRIBUTES, 0);
     fitListWindow(mem, YES_NO_TEXTS);
   };
-  yield* dialogCallBody(h, ...WINDOW_CALL, () => openWindowSequence(h, events));
+  yield* openWindow(h, events);
   yield () => {
     setWord(wram, DP_QUESTION_WINDOW, word(wram, DP_WINDOW));
     setWord(wram, DP_MENU_COLUMN, MENU_COLUMN);

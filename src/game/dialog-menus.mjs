@@ -22,7 +22,7 @@ import { drawTextBufferSequence } from './text-draw.mjs';
 import { chooseFromMenuSequence } from './menu-choice.mjs';
 import { fitListWindow, listTextIds } from '../data/menu-layout.mjs';
 import { TOPICS } from '../data/topics.mjs';
-import { openWindowSequence } from './window-open.mjs';
+import { openWindow } from './window-open.mjs';
 import { releaseWindowSequence } from './window-release.mjs';
 import { DIALOG_END, TOPIC_FLAGS, TOPIC_LIST } from '../data/wram.mjs';
 import { BYTE_BITS, BYTE_MASK, WORD_BITS, WORD_MASK, WORD_SIGN } from '../constants/bits.mjs';
@@ -44,7 +44,6 @@ const MAIN_MENU = Object.freeze([2, 4, 3, 0x920d, CODE_BANK]),
   TOPIC_WINDOW = Object.freeze([6, 15, 14, 11, 0]);
 // Original call sites and callees.
 const MAIN_MENU_CALL = [0x8091ff, 0x80a6c7],
-  TOPIC_WINDOW_CALL = [0x809278, 0x80f963],
   TOPIC_MENU_CALL = [0x809298, 0x80a6c7],
   TOPIC_RELEASE_CALL = [0x8092a1, 0x80fa3e];
 
@@ -67,8 +66,7 @@ function* rts(h) {
 // Actual menu and window bodies retain their original JSR frames.
 function callee(h, events, renderBuffer, [site, target], name) {
   let body;
-  if (name === 'allocate') body = () => openWindowSequence(h, events);
-  else if (name === 'release')
+  if (name === 'release')
     body = function* () {
       yield* releaseWindowSequence(h, events);
       return yield* rts(h);
@@ -119,7 +117,7 @@ export function* chooseDialogTopicSequence(h, events, renderBuffer = drawTextBuf
       fitListWindow(mem, listTextIds(mem, (WRAM_BANK << WORD_BITS) | TOPIC_MENU_BUFFER, TOPICS));
   };
   if (none) return yield* rts(h);
-  yield* callee(h, events, renderBuffer, TOPIC_WINDOW_CALL, 'allocate');
+  yield* openWindow(h, events);
   yield () => {
     setWord(wram, DP_TOPIC_WINDOW, word(wram, DP_RESULT));
     setWords(wram, 2, TOPIC_MENU);

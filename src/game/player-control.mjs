@@ -17,7 +17,7 @@
 //
 // Registers (user decision 2026-11-17): game state only; the routine and its turns
 // (the JSR form of 80:AAAF) leave no A, X, Y or flags, and the result is in DP 00.
-import { openWindowSequence } from './window-open.mjs';
+import { openWindow } from './window-open.mjs';
 import { printText } from './text-print.mjs';
 import { waitForConfirmKeySequence } from './confirm-key.mjs';
 import { selectAnimationRoutine, turnObjectJsr } from './object-turn.mjs';
@@ -114,10 +114,9 @@ const PARTY_STATUS = [0x80e021, 0x80ed3c],
   SPELL_ACTION_CALL = [0x80e11f, 0x80a985],
   RELEASE_ACTION = [0x80e1aa, 0x80a985],
   PUT_GLOVE_AWAY = [0x80e1ad, 0x80bcb2],
-  WEAPON_NOTICE_CALLS = [0x80e098, 0x80e0a3, 0x80e0a6],
-  SPELL_NOTICE_CALLS = [0x80e0f8, 0x80e103, 0x80e106];
-const OPEN_WINDOW = 0x80f963,
-  CONFIRM_KEY = 0x80f953,
+  WEAPON_NOTICE_CALLS = [0x80e0a3, 0x80e0a6],
+  SPELL_NOTICE_CALLS = [0x80e103, 0x80e106];
+const CONFIRM_KEY = 0x80f953,
   RELEASE_WINDOW = 0x80fa3e;
 // The idle action, the set mark and the weapon kind whose aim takes both buttons.
 const IDLE = 0,
@@ -238,9 +237,10 @@ function* faceGloveSequence(h) {
   yield* dialogCallBody(h, ...GLOVE_TURN, () => segmentSequence(() => turnObjectJsr(h)));
 }
 
-// A notice with its window, text and key wait at the call sites calls, then the leader
+// A notice with its window, text and key wait (the key wait and release at the call
+// sites calls), then the leader
 // in DP 00 and the neutral action.
-function* noticeSequence(h, events, [windowPc, waitPc, releasePc], notice, renderBuffer) {
+function* noticeSequence(h, events, [waitPc, releasePc], notice, renderBuffer) {
   const { mem } = h.a,
     { wram } = mem;
   yield () => {
@@ -252,7 +252,7 @@ function* noticeSequence(h, events, [windowPc, waitPc, releasePc], notice, rende
     // Another language fits the window to the text.
     fitListWindow(mem, [notice.text], { column: 0 });
   };
-  yield* dialogCallBody(h, windowPc, OPEN_WINDOW, () => openWindowSequence(h, events));
+  yield* openWindow(h, events);
   yield () => setWord(wram, 2, notice.text);
   yield* printText(h, events, renderBuffer);
   yield* dialogCallBody(h, waitPc, CONFIRM_KEY, () => waitForConfirmKeySequence(h, events));

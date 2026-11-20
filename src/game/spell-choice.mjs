@@ -13,7 +13,7 @@
 // input (the plain menu 80:A6C7 has none) and no register values are left; the result
 // the original keeps on the stack over the window release is a local.
 import { dialogCallBody } from '../system/native-call-continuation.mjs';
-import { openWindowSequence } from './window-open.mjs';
+import { openWindow } from './window-open.mjs';
 import { releaseWindowSequence } from './window-release.mjs';
 import { chooseFromMenuSequence } from './menu-choice.mjs';
 import { drawTextBufferSequence } from './text-draw.mjs';
@@ -42,8 +42,7 @@ import { BYTE_BITS, BYTE_MASK, WORD_BITS, WORD_MASK } from '../constants/bits.mj
 import { CODE_BANK_BASE, WRAM_BANK } from '../constants/memory-map.mjs';
 
 // The callees and their call sites.
-const OPEN_WINDOW = [0x80e1ee, 0x80f963],
-  MENU = [0x80e229, 0x80a6c7],
+const MENU = [0x80e229, 0x80a6c7],
   RELEASE_WINDOW = [0x80e247, 0x80fa3e];
 // The menu's first column and its cancel word, and the result without a spell.
 const MENU_COLUMN = 1,
@@ -109,7 +108,7 @@ export function* chooseSpellSequence(h, events, renderBuffer = drawTextBufferSeq
     }
   };
   if (spells) {
-    yield* dialogCallBody(h, ...OPEN_WINDOW, () => openWindowSequence(h, events));
+    yield* openWindow(h, events);
     yield () => {
       setWord(wram, DP_SPELL_WINDOW, word(wram, 0));
       listSpellNames(mem);

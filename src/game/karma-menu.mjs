@@ -37,7 +37,7 @@
 // the stack over the detail windows (PHA, PLA) is a local value.
 import { dialogCallBody, segmentSequence } from '../system/native-call-continuation.mjs';
 import { chooseFromMenuSequence } from './menu-choice.mjs';
-import { openWindowSequence, requestTileClearSequence } from './window-open.mjs';
+import { openWindow, requestTileClearSequence } from './window-open.mjs';
 import { setTextCursorRoutine, printNumberSequence } from './window-text.mjs';
 import { printText } from './text-print.mjs';
 import {
@@ -101,8 +101,7 @@ import {
   WORD_SIGN,
 } from '../constants/bits.mjs';
 
-const OPEN_WINDOW = 0x80f963,
-  REDRAW_WINDOW = 0x80fa67,
+const REDRAW_WINDOW = 0x80fa67,
   CURSOR = 0x80faac,
   NUMBER = 0x80fd80,
   CONFIRM_KEY = 0x80f953,
@@ -207,7 +206,7 @@ export function* buyStepSequence(h, events, renderBuffer = drawTextBufferSequenc
     mem.write8(address, (mem.read8(address) + 1) & BYTE_MASK);
   };
   if (paid) return yield* returnSequence(h);
-  yield* dialogCallBody(h, 0x80f032, OPEN_WINDOW, () => openWindowSequence(h, events));
+  yield* openWindow(h, events);
   yield () => setWord(wram, 2, TEXT_KARMA_INSUFFICIENT);
   yield* printText(h, events, renderBuffer);
   yield* dialogCallBody(h, 0x80f03d, CONFIRM_KEY, () => waitForConfirmKeySequence(h, events));
@@ -320,7 +319,7 @@ export function* karmaMenuSequence(h, events, renderBuffer = drawTextBufferSeque
     { wram } = mem,
     { language } = mem;
   // A window opened and its number kept; a kept window released.
-  const openWindow = function* (pc, [left, top, columns, rows], keep, ids = [], options) {
+  const openKept = function* ([left, top, columns, rows], keep, ids = [], options) {
     yield () => {
       setWord(wram, DP_WINDOW_LEFT, left);
       setWord(wram, DP_WINDOW_TOP, top);
@@ -329,7 +328,7 @@ export function* karmaMenuSequence(h, events, renderBuffer = drawTextBufferSeque
       setWord(wram, DP_WINDOW_ATTRIBUTES, 0);
       fitListWindow(mem, ids, options);
     };
-    yield* dialogCallBody(h, pc, OPEN_WINDOW, () => openWindowSequence(h, events));
+    yield* openWindow(h, events);
     yield () => setDataBankWord(mem, keep, 0, word(wram, 0));
   };
   const release = function* (pc, keep) {
@@ -345,8 +344,7 @@ export function* karmaMenuSequence(h, events, renderBuffer = drawTextBufferSeque
     setWord(wram, DP_WEAPON_RECORD, dataBankWord(mem, RUNNER_RECORD_POINTERS));
     wram[DP_WEAPON_RECORD_BANK] = mem.read8(CODE_BANK_BASE + RUNNER_RECORD_BANKS);
   };
-  yield* openWindow(
-    0x80ee84,
+  yield* openKept(
     [
       KARMA_WINDOWS.left,
       KARMA_WINDOWS.balanceTop,
@@ -355,8 +353,7 @@ export function* karmaMenuSequence(h, events, renderBuffer = drawTextBufferSeque
     ],
     KARMA_BALANCE_WINDOW,
   );
-  yield* openWindow(
-    0x80eea5,
+  yield* openKept(
     [
       KARMA_WINDOWS.left,
       KARMA_WINDOWS.categoryTop,
@@ -402,15 +399,13 @@ export function* karmaMenuSequence(h, events, renderBuffer = drawTextBufferSeque
     };
     if (!chosen || chosen === WORD_MASK) break;
     const options = { valueColumns: KARMA_VALUE_COLUMNS };
-    yield* openWindow(
-      0x80eef4,
+    yield* openKept(
       [KARMA_WINDOWS.detailLeft, detailTop, KARMA_WINDOWS.detailColumns, KARMA_WINDOWS.headerRows],
       KARMA_HEADER_WINDOW,
       detailIds,
       options,
     );
-    yield* openWindow(
-      0x80ef15,
+    yield* openKept(
       [
         KARMA_WINDOWS.detailLeft,
         language ? detailTop + KARMA_WINDOWS.headerRows : KARMA_WINDOWS.listTop,

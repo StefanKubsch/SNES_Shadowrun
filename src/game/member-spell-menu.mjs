@@ -25,7 +25,7 @@
 import { dialogCallBody, segmentSequence } from '../system/native-call-continuation.mjs';
 import { scriptVisitSequence } from '../system/script-visit.mjs';
 import { appendScriptCall } from '../script/task-api.mjs';
-import { openWindowSequence } from './window-open.mjs';
+import { openWindow } from './window-open.mjs';
 import { chooseFromMenuSequence } from './menu-choice.mjs';
 import { releaseWindowJsrSequence, releaseNoticeWindowsCallSequence } from './window-release.mjs';
 import { waitForConfirmKeySequence } from './confirm-key.mjs';
@@ -98,8 +98,7 @@ import {
 import { WRAM_BANK } from '../constants/memory-map.mjs';
 
 // The callees and their call sites.
-const OPEN_WINDOW = [0x80e6ce, 0x80f963],
-  MENU = [0x80e74c, 0x80a6c7],
+const MENU = [0x80e74c, 0x80a6c7],
   APPEND_SCRIPT = [0x80e788, 0x80c34a],
   VISIT_SCRIPT = [0x80e78e, 0x80c1ca],
   REDRAW_LIST = [0x80e79b, 0x81aeb0],
@@ -258,7 +257,7 @@ export function* spellMenuSequence(
     setWord(wram, DP_WINDOW_ATTRIBUTES, 0);
   };
   if (known) {
-    yield* dialogCallBody(h, ...OPEN_WINDOW, () => openWindowSequence(h, events));
+    yield* openWindow(h, events);
     yield () => {
       setDataBankWord(mem, STATUS_SUBMENU_WINDOW, 0, word(wram, 0));
       listSpells(mem);

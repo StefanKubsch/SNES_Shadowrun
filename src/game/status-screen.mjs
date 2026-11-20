@@ -26,7 +26,7 @@
 // takes the command and its value as parameters (A and X in the original). The object the
 // native keeps on the stack over the notice release (PEI, PLY) is a local.
 import { dialogCallBody, segmentSequence } from '../system/native-call-continuation.mjs';
-import { openWindowSequence } from './window-open.mjs';
+import { openWindow } from './window-open.mjs';
 import {
   releaseWindowJsrSequence,
   releaseNoticeWindowsCallSequence,
@@ -128,7 +128,6 @@ const SOUND = 0x81f007,
   RELEASE_NOTICES = 0x80ff79,
   PUT_GLOVE_AWAY = 0x80bcb2,
   STATUS_SETUP = 0x81886a,
-  OPEN_WINDOW = 0x80f963,
   CURSOR = 0x80faac,
   NUMBER = 0x80fd80,
   DECIMAL_NUMBER = 0x80fdcf,
@@ -294,7 +293,7 @@ export function* statusScreenSequence(
     setWord(wram, DP_WINDOW_ROWS, STATUS_WINDOW_SHAPE.rows);
     setWord(wram, DP_WINDOW_ATTRIBUTES, 0);
   };
-  yield* dialogCallBody(h, 0x80eb3a, OPEN_WINDOW, () => openWindowSequence(h, events));
+  yield* openWindow(h, events);
   yield () => {
     setWord(wram, STATUS_WINDOW, word(wram, 0));
     const doubled = (longWord(mem, record() + RECORD_MAGIC) & BYTE_MASK) << 1;
@@ -379,7 +378,7 @@ export function* statusScreenSequence(
     setWord(wram, DP_WINDOW_ATTRIBUTES, 0);
   };
   if (!direct) {
-    yield* dialogCallBody(h, 0x80eca8, OPEN_WINDOW, () => openWindowSequence(h, events));
+    yield* openWindow(h, events);
     yield () => setWord(wram, STATUS_MENU_WINDOW, word(wram, 0));
   }
   for (;;) {
