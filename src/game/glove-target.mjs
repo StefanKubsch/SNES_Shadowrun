@@ -5,7 +5,7 @@ import {
 } from './window-list.mjs';
 import { gloveMoveSequence } from './glove-move.mjs';
 import { drawTextBufferSequence } from './text-draw.mjs';
-import { closeDialogSequence } from './dialog-talk.mjs';
+import { closeDialog } from './dialog-talk.mjs';
 import { showNotice } from './notice-show.mjs';
 import { putGloveAwaySequence } from './window-release.mjs';
 import { frameWaitCallSequence, takePad } from '../system/live-input-calls.mjs';
@@ -119,7 +119,6 @@ const SELECT = {
   PREPARE_UPLOAD = 0x81aebc;
 // The call sites of 80:9BD3.
 const SPELL = {
-    closeDialog: 0x809bd8,
     prepareList: 0x809bdb,
     putOn: 0x809bdf,
     frames: [0x809be2, 0x809be9],
@@ -147,7 +146,6 @@ const PIXEL_SHIFT = 6,
   PLACE_X_BASE = 0x600;
 const FRAME_WAIT = 0x81b0a1,
   MOVE_GLOVE = 0x80be6d,
-  CLOSE_DIALOG = 0x8092c5,
   UNPACK_MAP = 0x81a9b2,
   REQUEST_UPLOAD = 0x81acb5;
 
@@ -461,8 +459,7 @@ export function* spellGloveTargetSequence(h, events, renderBuffer = drawTextBuff
   yield () => {
     open = word(wram, MEMBER_MENU_ACTIVE) !== 0;
   };
-  if (open)
-    yield* dialogCallBody(h, sites.closeDialog, CLOSE_DIALOG, () => closeDialogSequence(h, events));
+  if (open) yield* closeDialog(h, events);
   yield* prepareWindowListSequence(h, events, sites.prepareList);
   yield* putGloveOnSequence(h, sites.putOn, PUT_ON_SPELL, GLOVE_LIMITS.spell);
   let target;

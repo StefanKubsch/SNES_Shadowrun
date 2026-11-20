@@ -38,7 +38,7 @@ import { decimalNumberSequence } from './decimal-number.mjs';
 import { drawTextBufferSequence } from './text-draw.mjs';
 import { equipmentRowsSequence } from './equipment-window.mjs';
 import { memberPortraitSequence } from './member-portrait.mjs';
-import { closeDialogSequence, clearFixedColourRoutine } from './dialog-talk.mjs';
+import { closeDialog, clearFixedColourRoutine } from './dialog-talk.mjs';
 import { sendApuCommandCall } from '../apu/audio-routines.mjs';
 import { chooseFromMenuSequence, MENU } from './menu-choice.mjs';
 import { itemMenuSequence, ITEM_ENTRIES } from './item-menu.mjs';
@@ -131,8 +131,7 @@ const SOUND = 0x81f007,
   PORTRAIT = 0x80e4b3,
   PLAIN_MENU = MENU,
   SKILLS_MENU = 0x80e834,
-  NOTES_MENU = 0x80e8c8,
-  STATUS_CLEANUP = 0x8092c5;
+  NOTES_MENU = 0x80e8c8;
 // The attribute labels follow the rows; the attributes from index 6 down, the record's
 // byte after the third attribute is skipped; the submenus' jump table; the restored
 // sound level; the mark set; the first submenu (items) for 1F64.
@@ -428,7 +427,7 @@ export function* statusScreenSequence(
 function* closeSequence(h, events) {
   const { mem } = h.a,
     { wram } = mem;
-  yield* dialogCallBody(h, 0x80ecf5, STATUS_CLEANUP, () => closeDialogSequence(h, events));
+  yield* closeDialog(h, events);
   yield () => setWord(wram, 0, dataBankWord(mem, STATUS_WINDOW));
   yield* releaseWindowSequence(h, events);
   yield () => {

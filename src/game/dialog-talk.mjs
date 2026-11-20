@@ -156,7 +156,6 @@ const CALL = Object.freeze({
   topics: [0x8094a2, 0x809215],
   topicText: [0x8094b8, 0x809178],
   talkText: [0x8094c5, 0x809178],
-  close: [0x8094d3, 0x8092c5],
   releaseText: [0x8094d9, 0x80fa3e],
   releaseFrame: [0x8094df, 0x80fa3e],
   restoreMusic: [0x8094e5, 0x81ef47, true],
@@ -203,9 +202,10 @@ export function setWindowTextWidthRoutine(h) {
   return h.rts();
 }
 
-// Close the dialog (80:92C5) with live portrait, frame and input calls.
-// Object tile reload and sprite composition retain their shared service table.
-export function* closeDialogSequence(h, events) {
+// Close the dialog (80:92C5) with live portrait, frame and input calls, for lifted
+// callers without the JSR frame (the caller's return word lies only in free stack
+// bytes). Object tile reload and sprite composition retain their shared service table.
+export function* closeDialog(h, events) {
   const { port } = sceneRuntime(h);
   yield* dialogCallBody(h, ...CALL.closePortrait, () => closePortraitWindowSequence(h, events));
   yield () => port.write(OBJSEL, 0, 2, CLOSE_OBJSEL_SITE);
@@ -234,6 +234,10 @@ export function* closeDialogSequence(h, events) {
   };
   yield* segmentSequence(() => takePad(h, events));
   yield* dialogCallBody(h, ...CALL.sprites, () => segmentSequence(() => buildSprites(h)));
+}
+// The dialog close as called with JSR (80:92C5); returns with its RTS.
+export function* closeDialogSequence(h, events) {
+  yield* closeDialog(h, events);
   let result;
   yield () => {
     result = h.rts();
@@ -408,7 +412,7 @@ export function* talkSequence(h, events, renderBuffer = drawTextBufferSequence) 
     frameWindow = word(wram, DP_PORTRAIT_FRAME);
     textWindow = word(wram, DP_TEXT_WINDOW);
   };
-  yield* dialogCallBody(h, ...CALL.close, () => closeDialogSequence(h, events));
+  yield* closeDialog(h, events);
   yield () => setWord(wram, DP_OBJECT, textWindow);
   yield* releaseWindowSequence(h, events);
   yield () => setWord(wram, DP_OBJECT, frameWindow);
