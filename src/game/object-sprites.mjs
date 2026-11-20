@@ -23,9 +23,9 @@
 // table, the wall sprites their small size. The object's flags collect the cells met:
 // on screen (0004), and front walls and open cells as covered (0200) or hidden (0800).
 //
-// The direct page words of the original are written as it writes them, the return words
-// of the inner calls on the stack; the grid's pushed index and column lie only in free
-// stack bytes and are kept in locals. Registers (user
+// The direct page words of the original are written as it writes them; the return words
+// of the inner calls and the grid's pushed index and column lie only in free stack
+// bytes and are not reproduced (the index and column are kept in locals). Registers (user
 // decision 2026-11-17): the object and the picture are parameters (Y and A in the
 // original); no registers are left (nothing after the sprite list reads the X the last
 // object leaves). The fields the original reads through its
@@ -168,13 +168,12 @@ const PART_CELL_BYTES = 4,
 // The high table bytes: X bit 8 of a part (ORA) and the small size of a wall sprite (AND).
 const HIGH_X_BITS = 0x80b85e,
   SMALL_SPRITE_BITS = 0x80b18a;
-// The occlusion sprite (the palette slot 80:AB0A runs without its JSR frame, whose
-// return word lies only in free stack bytes).
-const SPRITE_TARGET = 0x80b130;
 // The occlusion grids by alignment: A (neither column nor row aligned), B (row aligned),
 // C (column aligned), D (both). The cells tested (byte offsets of 1872 and 1A72), and
 // the steps between the wall sprites: a cell's sprite, the hidden flag, the first and
 // the next row down, the next column (saving the column), back to the top row, right.
+// The wall sprites 80:B130 and the palette slot 80:AB0A run without their JSR frames,
+// whose return words lie only in free stack bytes.
 const GRIDS = {
   A: {
     checks: [0, 2, 4, 0x20, 0x22, 0x24, 0x40, 0x42, 0x44],
@@ -200,7 +199,6 @@ const GRIDS = {
       'c44',
       'top',
     ],
-    calls: [0xb486, 0xb49c, 0xb4aa, 0xb4bd, 0xb4cb, 0xb4d9, 0xb4eb, 0xb4f9, 0xb507],
   },
   B: {
     checks: [0, 2, 0x20, 0x22, 0x40, 0x42],
@@ -220,7 +218,6 @@ const GRIDS = {
       'c42',
       'top',
     ],
-    calls: [0xb56c, 0xb582, 0xb595, 0xb5a3, 0xb5b5, 0xb5c3],
   },
   C: {
     checks: [0, 2, 4, 0x20, 0x22, 0x24],
@@ -239,12 +236,10 @@ const GRIDS = {
       'c24',
       'top',
     ],
-    calls: [0xb62f, 0xb645, 0xb653, 0xb666, 0xb674, 0xb682],
   },
   D: {
     checks: [0, 2, 0x20, 0x22],
     steps: ['c0', 'hide', 'first', 'c2', 'nextOnly', 'c22', 'top', 'c20'],
-    calls: [0xb6e1, 0xb6f7, 0xb706, 0xb710],
   },
 };
 const LOW_WRAM_END = 0x2000;
@@ -263,8 +258,7 @@ const quarter = (value) =>
     : value >>> QUARTER_SHIFT;
 
 // Enter the sprites of the object slot with the picture (80:B20A) for lifted callers,
-// without the JSR frame (its return word lies only in free stack bytes; the wall
-// sprites' calls keep theirs).
+// without the JSR frame (its return word lies only in free stack bytes).
 export function enterObjectSpritesInPlace(h, slot, picture) {
   const { a } = h,
     { mem } = a,
@@ -488,12 +482,11 @@ export function enterObjectSpritesInPlace(h, slot, picture) {
         // The original pushes the grid index and, at the next column, the cell x over
         // the wall sprites; those words lie only in free stack bytes and are kept in
         // locals (game state only, user decision 2026-11-17).
-        let call = 0,
-          cellX;
+        let cellX;
         for (const step of grid.steps) {
           if (step[0] === 'c') {
             const tile = get(OCCLUSION_TILES, y + parseInt(step.slice(1), HEX_RADIX));
-            h.call(grid.calls[call++], SPRITE_TARGET, () => wallSprite(tile, y));
+            wallSprite(tile, y);
           } else if (step === 'hide') addFlags(OBJECT_HIDDEN);
           else if (step === 'first') {
             setDp(DP_FIRST_CELL_Y, dp(DP_CELL_Y));
@@ -552,7 +545,6 @@ export function enterObjectSpritesInPlace(h, slot, picture) {
         }
       }
     }
-    return h.rts();
   }
 
   // The parts of the picture, column by column (80:B755 to 80:B813), then the cells met

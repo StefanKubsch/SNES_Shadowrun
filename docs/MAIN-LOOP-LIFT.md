@@ -119,8 +119,8 @@ text 80:E9A8; the sprite list's OAM high table fill 81:A7FC; its NMI job count
 81:A954; its palette slot reset 81:A840; paletteSlotInPlace (80:AB0A from the sprite
 list and the OAM entry 80:B20A); the depth sort's rule comparisons 80:B0A5 and
 80:B0ED; sortDrawListInPlace (the sprite list's depth sort 80:AFFC);
-enterObjectSpritesInPlace (its OAM entries 80:B20A; the wall sprites' calls keep
-their frames); objectSearch (the glove move's search); gloveMove (the glove choices'
+enterObjectSpritesInPlace (its OAM entries 80:B20A); the OAM entry's wall sprites
+80:B130 (all 25 grid call sites); objectSearch (the glove move's search); gloveMove (the glove choices'
 frames; the word wait keeps its frame); putting the glove on (80:BC67 and 80:BC99
 with 80:BC36, both frames); the in-reach choice 80:9C40 (its callers 80:9BC6 and the
 script's 80:9C33); the number choice 80:9BC6 (the script's 80:9BB9); the window
@@ -131,8 +131,8 @@ frames. Frames stay where a callee's own wait or a recorded routine returns from
 (the word wait, the menu choice, the confirm key, the portrait unpack and tile
 upload, the topic action's append and visit, the glove choices' window list
 preparation, whose upload wait a harness reads, the scene request's cutscene and
-matrix, the title, start menu and boot screens, the attract demo's room start,
-through which the main loop returns, and the wall sprites' calls).
+matrix, the title, start menu and boot screens, and the attract demo's room start,
+through which the main loop returns).
 
 ## Lifted so far
 
@@ -323,9 +323,9 @@ which the render proof of 81:8076 keeps using.
 - The OAM entry 80:B20A leaves X as the original (the sprite list's last object passes
   it on: the palette slot's X when hidden, else the last mask index, OAM offset or
   tile index); A, the flags and Y (pulled by the caller) are not produced. It writes
-  the direct page words of the original (0E to 6B and the OAM offset 84), pushes the
-  grid's mask index and column and leaves the return words of the palette slot and the
-  wall sprites on the stack. Fields below 2000 are read in bank 80
+  the direct page words of the original (0E to 6B and the OAM offset 84); the grid's
+  mask index and column and the return words of the palette slot and the wall sprites
+  lie only in free stack bytes and are not reproduced. Fields below 2000 are read in bank 80
   (`object_slot_required` past it), the walls in bank 7F and the pictures in 9B and 9C.
 - The lifted window release (src/game/window-release.mjs) and window list now leave
   X as 80:FA3E leaves it (the window, or the one found below the last) and the carry
