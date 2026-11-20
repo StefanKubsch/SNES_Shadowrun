@@ -183,14 +183,6 @@ export function turnObject(mem, wram) {
   setDataBankWord(mem, OBJECT_PICTURE_CHANGE, slot, NONE);
 }
 
-// The turn as called with JSR for lifted callers: it leaves no registers and returns
-// with its RTS.
-export function turnObjectJsr(h) {
-  const { mem } = h.a;
-  turnObject(mem, mem.wram);
-  return h.rts();
-}
-
 // The turn on the scene runtime of h.
 export function turnObjectCall(h) {
   const { mem, wram } = sceneRuntime(h);
