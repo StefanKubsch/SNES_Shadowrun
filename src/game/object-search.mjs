@@ -287,13 +287,5 @@ export function* objectSearch(h, events, renderBuffer = drawTextBufferSequence) 
   };
   yield* printText(h, events, renderBuffer);
 }
-// The search as called with JSR (80:BCBE), a sequence for a native call continuation;
-// returns with its RTS.
-export function* objectSearchSequence(h, events, renderBuffer = drawTextBufferSequence) {
-  yield* objectSearch(h, events, renderBuffer);
-  let result;
-  yield () => {
-    result = h.rts();
-  };
-  return result;
-}
+// The RTS form for register-level callers is objectSearchJsr in
+// proof/caller/jsr-forms.mjs.

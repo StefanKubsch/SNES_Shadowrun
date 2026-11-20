@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { compareRun } from './member-menu-caller-harness.mjs';
-import { objectSearchSequence } from '../src/game/object-search.mjs';
+import { objectSearchJsr } from '../proof/caller/jsr-forms.mjs';
 import { objectSearchSequence as formerSearch } from '../proof/caller/object-search.mjs';
 import { gloveMoveSequence } from '../src/game/glove-move.mjs';
 import { gloveMoveSequence as formerMove } from '../proof/caller/glove-move.mjs';
@@ -9,7 +9,7 @@ import * as W from '../src/data/wram.mjs';
 
 function runSearch(sequence, budget, options = {}) {
   return compareRun(
-    sequence === objectSearchSequence || sequence === gloveMoveSequence
+    sequence === objectSearchJsr || sequence === gloveMoveSequence
       ? (h, events) => sequence(h, events)
       : sequence,
     false,
@@ -51,7 +51,7 @@ for (const budget of [1, 7])
       for (const request of [0, 0xffff])
         test(`object search actual name window: kind ${kind}, marked ${marked}, request ${request}, budget ${budget}`, () => {
           const options = { kind, marked, request };
-          const actual = runSearch(objectSearchSequence, budget, options);
+          const actual = runSearch(objectSearchJsr, budget, options);
           assert.deepEqual(actual, runSearch(formerSearch, budget, options));
           assert.equal(actual.wram[W.GLOVE_TARGET_OBJECT], 2);
           assert.ok(actual.uploads.length > 0);

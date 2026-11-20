@@ -10,6 +10,7 @@ import { enterRoomSequence } from '../../src/game/room-entry.mjs';
 import { printNumber, setTextCursor } from '../../src/game/window-text.mjs';
 import { decimalNumber } from '../../src/game/decimal-number.mjs';
 import { hitObject } from '../../src/game/object-hit.mjs';
+import { objectSearch } from '../../src/game/object-search.mjs';
 import { drawTextBufferSequence } from '../../src/game/text-draw.mjs';
 
 function* rts(h) {
@@ -81,5 +82,11 @@ export function* decimalNumberJsr(h, events, renderBuffer = drawTextBufferSequen
 // original); renderBuffer as for the text print (undefined for the live renderer).
 export function* hitObjectJsr(h, events, renderBuffer, damage, target, shooter) {
   yield* hitObject(h, events, renderBuffer, damage, target, shooter);
+  return yield* rts(h);
+}
+
+// The glove's object search 80:BCBE; renderBuffer as for the text print.
+export function* objectSearchJsr(h, events, renderBuffer = drawTextBufferSequence) {
+  yield* objectSearch(h, events, renderBuffer);
   return yield* rts(h);
 }
