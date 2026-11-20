@@ -30,7 +30,7 @@ import { showDialogText } from './dialog-text.mjs';
 import { chooseDialogActionSequence, chooseDialogTopicSequence } from './dialog-menus.mjs';
 import { drawTextBufferSequence } from './text-draw.mjs';
 import { reloadObjectTilesSequence } from './object-tiles.mjs';
-import { buildSprites } from './sprite-list.mjs';
+import { buildSpritesInPlace } from './sprite-list.mjs';
 import { openWindow } from './window-open.mjs';
 import {
   putGloveAwaySequence,
@@ -153,7 +153,6 @@ const CALL = Object.freeze({
   closePortrait: [0x8092c5, 0x808f97],
   tiles: [0x8092ce, 0x80adf4],
   closeWait: [0x8092d1, 0x81b0a1, true],
-  sprites: [0x809336, 0x80b8de],
 });
 const OBJSEL_SITE = 0x809412,
   CLOSE_OBJSEL_SITE = 0x8092cb,
@@ -232,7 +231,7 @@ export function* closeDialog(h, events) {
     }
   };
   yield* segmentSequence(() => takePad(h, events));
-  yield* dialogCallBody(h, ...CALL.sprites, () => segmentSequence(() => buildSprites(h)));
+  yield () => buildSpritesInPlace(h);
 }
 // The dialog close as called with JSR (80:92C5); returns with its RTS.
 export function* closeDialogSequence(h, events) {

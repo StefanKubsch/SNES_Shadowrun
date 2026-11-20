@@ -81,8 +81,9 @@ const lowField = (wram, base, index) => {
   return word(wram, base + index);
 };
 
-// Build the sprite list (80:B8DE) on the access h of the caller (data bank 80).
-export function buildSprites(h) {
+// Build the sprite list (80:B8DE) on the access h of the caller (data bank 80), for
+// lifted callers without the JSR frame (its own JSR and JSL calls keep theirs).
+export function buildSpritesInPlace(h) {
   const { wram } = h.a.mem;
   h.call(SORT_CALL, SORT_TARGET, () => sortDrawList(h));
   h.call(PALETTES_CALL, PALETTES_TARGET, () => resetPaletteSlots(h), true);
@@ -140,5 +141,9 @@ export function buildSprites(h) {
     },
     true,
   );
+}
+// The sprite list as called with JSR; returns with its RTS.
+export function buildSprites(h) {
+  buildSpritesInPlace(h);
   return h.rts();
 }
