@@ -5,11 +5,7 @@
 // need them.
 import { taskStop } from '../system/task-stop.mjs';
 import { dialogAccess } from '../system/native-dialog-support.mjs';
-import {
-  mainLoopFrameWaitSequence,
-  mainLoopGloveMoveSequence,
-  mainLoopPlayerZonesSequence,
-} from '../game/main-upkeep.mjs';
+import { mainLoopFrameWaitSequence, mainLoopGloveMoveSequence } from '../game/main-upkeep.mjs';
 import { sceneRequestSequence } from '../game/scene-request.mjs';
 import { shakeHitPlayer } from '../game/player-hit.mjs';
 import { recordFormationStep } from '../game/formation-trail.mjs';
@@ -17,6 +13,7 @@ import { moveAndAnimateInPlace } from '../game/object-motion.mjs';
 import { noticeTimeoutSequence } from '../game/notice-timeout.mjs';
 import { timeLimitSequence } from '../game/time-limit.mjs';
 import { gloveActionSequence } from '../game/glove-action.mjs';
+import { playerZonesSequence } from '../game/player-zones.mjs';
 import { buildSpritesInPlace } from '../game/sprite-list.mjs';
 import { updateTileBuffers } from '../game/camera-scroll.mjs';
 import { followPlayerWithCamera } from '../game/camera-follow.mjs';
@@ -35,7 +32,6 @@ export const MAIN_LOOP_ROUND = 0x96c0; // JSR $C1E3
 const MAIN_LOOP_START = 0x96ab; // first pass after 9688
 // Original call sites in 80:96AB-96E4, named by the routine they call.
 const CALL_PC = Object.freeze({
-  GATE_8000: MAIN_LOOP_RESUME,
   CC4B: 0x96c8,
   WAIT_B0A1: MAIN_LOOP_START,
 });
@@ -57,7 +53,7 @@ export function* mainLoopSequence(a, events, returnToOwner = false) {
   if (ctx.pc === MAIN_LOOP_START) return yield* top();
   // $96C3–$96E4; a scene change by a zone starts the next pass at once.
   const zones = {};
-  yield* call(CALL_PC.GATE_8000, 0x808000, () => mainLoopPlayerZonesSequence(h, events, zones));
+  yield* playerZonesSequence(h, events, zones);
   if (zones.changed) return yield* top();
   const request = {};
   yield* call(CALL_PC.CC4B, 0x80cc4b, () => sceneRequestSequence(h, events, request));

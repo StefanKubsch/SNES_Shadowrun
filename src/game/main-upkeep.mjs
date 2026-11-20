@@ -37,7 +37,6 @@ import { openSpellMenuSequence } from './member-spell-menu.mjs';
 import { controlPlayerSequence } from './player-control.mjs';
 import { NATIVE_ENTRY, statusScreenSequence } from './status-screen.mjs';
 import { mainMenuSequence } from './main-menu.mjs';
-import { playerZonesSequence } from './player-zones.mjs';
 import { frameWaitCallSequence } from '../system/live-input-calls.mjs';
 
 // The main loop's upkeep routines below work on game state only (user decision
@@ -130,5 +129,3 @@ export const mainLoopFrameWaitSequence = frameWaitCallSequence;
 // The glove move runs without its JSR frame (its return word lies only in free stack
 // bytes).
 export const mainLoopGloveMoveSequence = (h, events) => gloveMove(h, events);
-export const mainLoopPlayerZonesSequence = (h, events, zones) =>
-  playerZonesSequence(h, events, zones);

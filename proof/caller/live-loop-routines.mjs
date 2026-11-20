@@ -4,13 +4,13 @@
 import { runFrameWait, runPadPresses } from './input-routines.mjs';
 import { sceneRequestSequence } from '../../src/game/scene-request.mjs';
 import { SCENE_REQUEST_ENTRY } from './scene-request.mjs';
-import { playerZonesSequence } from '../../src/game/player-zones.mjs';
 import {
   buildSpritesJsr,
   gloveActionJsr,
   gloveMoveJsr,
   moveAndAnimateJsr,
   noticeTimeoutJsr,
+  playerZonesJsr,
   timeLimitJsr,
 } from './jsr-forms.mjs';
 import { shakeHitPlayer } from '../../src/game/player-hit.mjs';
@@ -139,7 +139,7 @@ NATIVE_CALL_CONTINUATIONS.set(runPlayerZones, {
 // The register form for register-level callers: the carry set after a scene change.
 export function* playerZonesRoutineSequence(h, events) {
   const zones = {},
-    result = yield* playerZonesSequence(h, events, zones);
+    result = yield* playerZonesJsr(h, events, zones);
   h.ctx.status = zones.changed ? h.ctx.status | FLAG_CARRY : h.ctx.status & ~FLAG_CARRY;
   return result;
 }

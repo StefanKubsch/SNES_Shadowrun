@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { compareRun } from './member-menu-caller-harness.mjs';
-import { playerZonesSequence } from '../src/game/player-zones.mjs';
+import { playerZonesJsr } from '../proof/caller/jsr-forms.mjs';
 import { playerZonesSequence as formerZones } from '../proof/caller/player-zones.mjs';
 import { appendScriptTaskCall } from '../proof/caller/task-append-call.mjs';
 import { enterRoom } from '../proof/system/main-transition.mjs';
@@ -11,7 +11,7 @@ import * as V from '../src/vm/layout.mjs';
 function runZones(sequence, axis, coordinate, count, absent, budget, full = false) {
   return compareRun(
     (h, events) =>
-      sequence === playerZonesSequence
+      sequence === playerZonesJsr
         ? sequence(h, events)
         : sequence(h, events, {
             c34a: appendScriptTaskCall,
@@ -51,7 +51,7 @@ for (const budget of [1, 7])
       for (const count of [0, 1, 2])
         for (const absent of [false, true])
           test(`actual zone task: axis ${axis}, coordinate ${coordinate}, count ${count}, absent ${absent}, budget ${budget}`, () => {
-            const actual = runZones(playerZonesSequence, axis, coordinate, count, absent, budget);
+            const actual = runZones(playerZonesJsr, axis, coordinate, count, absent, budget);
             assert.deepEqual(
               actual,
               runZones(formerZones, axis, coordinate, count, absent, budget),
@@ -63,7 +63,7 @@ for (const budget of [1, 7])
 
 for (const budget of [1, 7])
   test(`zone task allocation failure remains explicit at budget ${budget}`, () => {
-    for (const sequence of [playerZonesSequence, formerZones])
+    for (const sequence of [playerZonesJsr, formerZones])
       assert.throws(
         () => runZones(sequence, W.OBJECT_X, 0x40, 1, false, budget, true),
         (error) => error.reason === 'task_slot_required',
@@ -73,7 +73,7 @@ for (const budget of [1, 7])
 function runRoomZone(sequence, room, budget) {
   return compareRun(
     (h, events) =>
-      sequence === playerZonesSequence
+      sequence === playerZonesJsr
         ? sequence(h, events)
         : sequence(h, events, { c34a: appendScriptTaskCall, a4bf: enterRoom }),
     false,
@@ -120,7 +120,7 @@ function runRoomZone(sequence, room, budget) {
 for (const budget of [1, 7])
   for (const room of [0, 3, 0xab, 0xd2, 0x159])
     test(`zone enters actual room ${room} at budget ${budget}`, () => {
-      const actual = runRoomZone(playerZonesSequence, room, budget);
+      const actual = runRoomZone(playerZonesJsr, room, budget);
       assert.deepEqual(actual, runRoomZone(formerZones, room, budget));
       assert.equal(actual.wram[W.ROOM] | (actual.wram[W.ROOM + 1] << 8), room);
       assert.ok(actual.calls.some((call) => call[0] === 'room frame'));

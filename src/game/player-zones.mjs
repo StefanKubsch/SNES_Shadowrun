@@ -67,7 +67,9 @@ const setWord = (wram, at, value) => {
 // Test the zones around the player figure (80:8000), a sequence for a native call
 // continuation: h the main loop's access (direct page 0, data bank 80), events its live
 // frame events. Both task creation and room entry compose directly. zones.changed
-// tells whether a zone changed the scene (the carry in the original).
+// tells whether a zone changed the scene (the carry in the original). The main loop
+// runs it without its JSR frame; the RTS form is playerZonesJsr in
+// proof/caller/jsr-forms.mjs.
 export function* playerZonesSequence(h, events, zones = {}) {
   const { a } = h,
     { mem } = a,
@@ -79,7 +81,7 @@ export function* playerZonesSequence(h, events, zones = {}) {
     return mem.read8(at & LONG_MASK) | (mem.read8((at + 1) & LONG_MASK) << BYTE_BITS);
   };
   const slot = word(wram, PLAYER_OBJECT);
-  if (slot & WORD_SIGN) return yield* rts(h);
+  if (slot & WORD_SIGN) return;
   let position;
   yield () => {
     if (OBJECT_HEIGHT + slot + 1 >= LOW_WRAM_END) taskStop('object_slot_required', { slot });
@@ -116,7 +118,7 @@ export function* playerZonesSequence(h, events, zones = {}) {
         // A zone of the second list: the scene change, then the next pass.
         yield* enterRoomSequence(h, events, data);
         zones.changed = true;
-        return yield* rts(h);
+        return;
       }
       // A zone of the first list: append its script task, then go on.
       offset = (offset + 2) & WORD_MASK;
@@ -125,12 +127,4 @@ export function* playerZonesSequence(h, events, zones = {}) {
   }
   // Both lists tested.
   yield () => setWord(wram, DP_ZONE_LIST_INDEX, LISTS);
-  return yield* rts(h);
-}
-function* rts(h) {
-  let result;
-  yield () => {
-    result = h.rts();
-  };
-  return result;
 }

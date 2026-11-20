@@ -18,6 +18,7 @@ import { moveAndAnimateInPlace } from '../../src/game/object-motion.mjs';
 import { noticeTimeoutSequence } from '../../src/game/notice-timeout.mjs';
 import { timeLimitSequence } from '../../src/game/time-limit.mjs';
 import { gloveActionSequence } from '../../src/game/glove-action.mjs';
+import { playerZonesSequence } from '../../src/game/player-zones.mjs';
 import { drawTextBufferSequence } from '../../src/game/text-draw.mjs';
 
 function* rts(h) {
@@ -138,5 +139,12 @@ export function* timeLimitJsr(h, events, renderBuffer = drawTextBufferSequence) 
 // The glove action 80:BF3B; its notice, menu, dialog and input wait for the NMI.
 export function* gloveActionJsr(h, events, renderBuffer = drawTextBufferSequence) {
   yield* gloveActionSequence(h, events, renderBuffer);
+  return yield* rts(h);
+}
+
+// The player zones 80:8000; zones.changed reports a scene change, whose room entry
+// waits for the NMI.
+export function* playerZonesJsr(h, events, zones = {}) {
+  yield* playerZonesSequence(h, events, zones);
   return yield* rts(h);
 }
