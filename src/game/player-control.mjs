@@ -20,7 +20,7 @@
 import { openWindow } from './window-open.mjs';
 import { printText } from './text-print.mjs';
 import { waitForConfirmKeySequence } from './confirm-key.mjs';
-import { selectAnimationRoutine, turnObjectJsr } from './object-turn.mjs';
+import { selectObjectAnimation, turnObject } from './object-turn.mjs';
 import { releaseWindowSequence, putGloveAwaySequence } from './window-release.mjs';
 import { START_ENTRY, ITEMS_ENTRY, statusScreenSequence } from './status-screen.mjs';
 import { partyStatusSequence } from './party-status.mjs';
@@ -106,13 +106,6 @@ import { BYTE_BITS, BYTE_MASK, WORD_MASK, WORD_SIGN } from '../constants/bits.mj
 const PARTY_STATUS = [0x80e021, 0x80ed3c],
   STATUS_SCREEN = [0x80e02c, 0x80ea89],
   ITEM_LIST = [0x80e037, 0x80ea8e],
-  IDLE_ACTION = [0x80defe, 0x80a985],
-  WALK_ACTION_CALL = [0x80df14, 0x80a985],
-  WALK_TURN = [0x80df23, 0x80aaaf],
-  GLOVE_TURN = [0x80e010, 0x80aaaf],
-  GLOVE_ACTION = [0x80e0d3, 0x80a985],
-  SPELL_ACTION_CALL = [0x80e11f, 0x80a985],
-  RELEASE_ACTION = [0x80e1aa, 0x80a985],
   WEAPON_NOTICE_CALLS = [0x80e0a3],
   SPELL_NOTICE_CALLS = [0x80e103];
 const CONFIRM_KEY = 0x80f953;
@@ -156,24 +149,20 @@ function* walkByPadSequence(h, player) {
   if (direction === NO_DIRECTION) {
     if (idle) return;
     yield () => setWord(wram, 2, IDLE);
-    yield* dialogCallBody(h, ...IDLE_ACTION, () =>
-      segmentSequence(() => selectAnimationRoutine(h)),
-    );
+    yield* segmentSequence(() => selectObjectAnimation(h.a.mem, h.a.mem.wram));
     yield () => setWord(wram, PLAYER_IDLE, MARK_SET);
     return;
   }
   if (idle) {
     yield () => setWord(wram, 2, WALK_ACTION);
-    yield* dialogCallBody(h, ...WALK_ACTION_CALL, () =>
-      segmentSequence(() => selectAnimationRoutine(h)),
-    );
+    yield* segmentSequence(() => selectObjectAnimation(h.a.mem, h.a.mem.wram));
     yield () => setWord(wram, PLAYER_IDLE, 0);
   }
   yield () => {
     setWord(wram, 2, direction >>> 1);
     setWord(wram, 0, word(wram, PLAYER_OBJECT));
   };
-  yield* dialogCallBody(h, ...WALK_TURN, () => segmentSequence(() => turnObjectJsr(h)));
+  yield* segmentSequence(() => turnObject(h.a.mem, h.a.mem.wram));
 }
 
 // 80:BC67, 80:BC80 or 80:BC99: the glove over the leader (80:BC36) with its limits and
@@ -232,7 +221,7 @@ function* faceGloveSequence(h) {
     setWord(wram, 0, player);
     setWord(wram, 2, sign ? ifSet : ifZero);
   };
-  yield* dialogCallBody(h, ...GLOVE_TURN, () => segmentSequence(() => turnObjectJsr(h)));
+  yield* segmentSequence(() => turnObject(h.a.mem, h.a.mem.wram));
 }
 
 // A notice with its window, text, key wait (at the call site in calls) and release, then
@@ -260,7 +249,7 @@ function* noticeSequence(h, events, [waitPc], notice, renderBuffer) {
 // The neutral action (80:A985 with DP 02 = 0).
 function* neutralSequence(h) {
   yield () => setWord(h.a.mem.wram, 2, IDLE);
-  yield* dialogCallBody(h, ...GLOVE_ACTION, () => segmentSequence(() => selectAnimationRoutine(h)));
+  yield* segmentSequence(() => selectObjectAnimation(h.a.mem, h.a.mem.wram));
 }
 
 // The aim's result with A or X held (80:E13E); returns it.
@@ -359,9 +348,7 @@ function* freeSequence(h, events, finish, renderBuffer, player) {
       yield* noticeSequence(h, events, WEAPON_NOTICE_CALLS, WEAPON_NOTICE, renderBuffer);
       return yield* finish();
     }
-    yield* dialogCallBody(h, ...GLOVE_ACTION, () =>
-      segmentSequence(() => selectAnimationRoutine(h)),
-    );
+    yield* segmentSequence(() => selectObjectAnimation(h.a.mem, h.a.mem.wram));
     return yield* finish();
   }
   if (test(PAD_X)) {
@@ -377,9 +364,7 @@ function* freeSequence(h, events, finish, renderBuffer, player) {
       yield* noticeSequence(h, events, SPELL_NOTICE_CALLS, SPELL_NOTICE, renderBuffer);
       return yield* finish();
     }
-    yield* dialogCallBody(h, ...SPELL_ACTION_CALL, () =>
-      segmentSequence(() => selectAnimationRoutine(h)),
-    );
+    yield* segmentSequence(() => selectObjectAnimation(h.a.mem, h.a.mem.wram));
     return yield* finish();
   }
   yield () => putGloveOn(h, GLOVE_LIMITS.action);
@@ -425,9 +410,7 @@ function* gloveSequence(h, events, finish) {
       // (docs/BUGFIXES.md). The correction reloads the leader first.
       if (aimReleaseFixed(h.a)) setWord(wram, 0, word(wram, PLAYER_OBJECT));
     };
-    yield* dialogCallBody(h, ...RELEASE_ACTION, () =>
-      segmentSequence(() => selectAnimationRoutine(h)),
-    );
+    yield* segmentSequence(() => selectObjectAnimation(h.a.mem, h.a.mem.wram));
   }
   if (step === 'end' || step === 'away') yield* putGloveAwaySequence(h, events);
   return yield* finish();
