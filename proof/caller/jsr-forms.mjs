@@ -3,6 +3,7 @@
 // runs the lifted sequence or function, then returns through the caller's JSR frame.
 import { playSoundEffectCall } from '../../src/apu/sound-effect.mjs';
 import { printText } from '../../src/game/text-print.mjs';
+import { enterRoomSequence } from '../../src/game/room-entry.mjs';
 import { printNumber, setTextCursor } from '../../src/game/window-text.mjs';
 import { drawTextBufferSequence } from '../../src/game/text-draw.mjs';
 
@@ -36,4 +37,10 @@ export function setTextCursorJsr(h) {
 export function playSoundEffectJsr(h) {
   playSoundEffectCall(h);
   return h.rts();
+}
+
+// The room entry 80:A4BF, the room given as a value.
+export function* enterRoomJsr(h, events, room) {
+  yield* enterRoomSequence(h, events, room);
+  return yield* rts(h);
 }

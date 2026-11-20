@@ -1,5 +1,5 @@
 import { routineCaller } from './routine-call.mjs';
-import { enterRoomCallSequence } from '../../src/game/room-entry.mjs';
+import { enterRoomJsr } from '../caller/jsr-forms.mjs';
 import { SCENE_GRAPHICS_ROUTINES } from './main-scene-graphics.mjs';
 import { TALK_ROUTINES } from '../script/native-dialog.mjs';
 import { createObject } from '../script/native-object-create.mjs';
@@ -80,8 +80,7 @@ import './dialog-register-helpers.mjs';
 
 // The room entry 80:A4BF for register-level callers: the room in A (moved from
 // src/game/room-entry.mjs, whose callers pass the room as a value).
-const enterRoomRoutineSequence = (h, events) =>
-  enterRoomCallSequence(h, events, h.ctx.a & WORD_MASK);
+const enterRoomRoutineSequence = (h, events) => enterRoomJsr(h, events, h.ctx.a & WORD_MASK);
 
 // Value written to mark a slot or the music as unset (negative).
 const NONE = WORD_MASK;

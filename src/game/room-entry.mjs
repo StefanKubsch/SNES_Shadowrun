@@ -369,13 +369,4 @@ export function* enterRoomSequence(h, events, room) {
     startBrightnessFade(wram, FADE_IN);
   };
 }
-
-// The room given, entered below the caller's existing 80:A4BF JSR frame.
-export function* enterRoomCallSequence(h, events, room) {
-  yield* enterRoomSequence(h, events, room);
-  let result;
-  yield () => {
-    result = h.rts();
-  };
-  return result;
-}
+// The RTS form for register-level callers is enterRoomJsr in proof/caller/jsr-forms.mjs.
