@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { compareRun } from './member-menu-caller-harness.mjs';
-import { hitObjectSequence as liftedHit } from '../src/game/object-hit.mjs';
+import { hitObjectJsr as liftedHit } from '../proof/caller/jsr-forms.mjs';
 import { hitObjectSequence as formerHit } from '../proof/caller/object-hit.mjs';
 import * as W from '../src/data/wram.mjs';
 

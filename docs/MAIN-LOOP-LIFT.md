@@ -899,7 +899,7 @@ which the render proof of 81:8076 keeps using.
   blast.
 - With lag-free frames the hit 80:8691 with the player hit 80:881C (called with JSR by
   the shooting natives and the blast: the damage in A, the target in X, the shooter in
-  Y) runs `hitObjectSequence` of [src/game/object-hit.mjs](../src/game/object-hit.mjs):
+  Y) runs `hitObject` (RTS form `hitObjectJsr` in proof/caller/jsr-forms.mjs) of [src/game/object-hit.mjs](../src/game/object-hit.mjs):
   harmless hits counted with the warning and the karma penalty, the damage drawn below
   the damage plus 1 less the armour byte, the record's count or the root task's event
   bit 11, the hit effect and impact objects and the player figure's sound, shake and

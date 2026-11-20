@@ -9,6 +9,7 @@ import { selectObjectAnimation } from '../../src/game/object-turn.mjs';
 import { enterRoomSequence } from '../../src/game/room-entry.mjs';
 import { printNumber, setTextCursor } from '../../src/game/window-text.mjs';
 import { decimalNumber } from '../../src/game/decimal-number.mjs';
+import { hitObject } from '../../src/game/object-hit.mjs';
 import { drawTextBufferSequence } from '../../src/game/text-draw.mjs';
 
 function* rts(h) {
@@ -73,5 +74,12 @@ export function selectAnimationJsr(h) {
 // The decimal number 80:FDCF; renderBuffer as for the text print.
 export function* decimalNumberJsr(h, events, renderBuffer = drawTextBufferSequence) {
   yield* decimalNumber(h, events, renderBuffer);
+  return yield* rts(h);
+}
+
+// The hit 80:8691: the damage, target and shooter as parameters (A, X and Y in the
+// original); renderBuffer as for the text print (undefined for the live renderer).
+export function* hitObjectJsr(h, events, renderBuffer, damage, target, shooter) {
+  yield* hitObject(h, events, renderBuffer, damage, target, shooter);
   return yield* rts(h);
 }

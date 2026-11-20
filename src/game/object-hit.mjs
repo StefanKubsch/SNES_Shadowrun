@@ -311,20 +311,4 @@ export function* hitObject(
     yield* playerHitSequence(h, events, target);
   }
 }
-// The hit as called with JSR (80:8691), a sequence for a native call continuation that
-// ends with the hit's RTS.
-export function* hitObjectSequence(
-  h,
-  events,
-  renderBuffer = drawTextBufferSequence,
-  damage,
-  target,
-  shooter,
-) {
-  yield* hitObject(h, events, renderBuffer, damage, target, shooter);
-  let result;
-  yield () => {
-    result = h.rts();
-  };
-  return result;
-}
+// The RTS form for register-level callers is hitObjectJsr in proof/caller/jsr-forms.mjs.
