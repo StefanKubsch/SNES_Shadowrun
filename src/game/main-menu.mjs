@@ -59,7 +59,6 @@ import { BYTE_BITS, BYTE_MASK, WORD_BITS, WORD_MASK, WORD_SIGN } from '../consta
 
 const CONFIRM_KEY = 0x80f953,
   PLAIN_MENU = 0x80a6c7,
-  SAVE_MENU = 0x80cdd6,
   KARMA_MENU = 0x80ee57;
 // The menus' window (0A, 0A, 0C columns; five rows, seven with four slots; three or
 // five rows visible) and the menus' item lists.
@@ -121,8 +120,9 @@ function* releaseMenuWindow(h, events) {
   yield* releaseWindowSequence(h, events);
 }
 
-// 80:CDD6: the save menu (see above). A sequence that ends with its RTS.
-export function* saveMenuSequence(h, events, renderBuffer = drawTextBufferSequence) {
+// 80:CDD6: the save menu (see above), for lifted callers without the JSR frame; the
+// confirm key and the menu choice keep their own.
+export function* saveMenu(h, events, renderBuffer = drawTextBufferSequence) {
   const { mem } = h.a,
     { wram } = mem;
   let stopped;
@@ -145,7 +145,7 @@ export function* saveMenuSequence(h, events, renderBuffer = drawTextBufferSequen
     yield* printText(h, events, renderBuffer);
     yield* dialogCallBody(h, 0x80ce5e, CONFIRM_KEY, () => waitForConfirmKeySequence(h, events));
     yield* releaseWindowSequence(h, events);
-    return yield* returnSequence(h);
+    return;
   }
   const four = saveSlotCount(h.a) === FOUR_SAVE_SLOTS;
   yield () =>
@@ -190,6 +190,10 @@ export function* saveMenuSequence(h, events, renderBuffer = drawTextBufferSequen
   };
   if (slot && !negative(slot)) yield* segmentSequence(() => playSoundEffectCall(h));
   yield* releaseMenuWindow(h, events);
+}
+// The save menu as called with JSR (80:CDD6); returns with its RTS.
+export function* saveMenuSequence(h, events, renderBuffer = drawTextBufferSequence) {
+  yield* saveMenu(h, events, renderBuffer);
   return yield* returnSequence(h);
 }
 
@@ -218,10 +222,7 @@ export function* mainMenuSequence(h, events, renderBuffer = drawTextBufferSequen
     };
     yield* releaseMenuWindow(h, events);
     if (!chosen || negative(chosen)) break;
-    if (chosen === SAVE_ROW)
-      yield* dialogCallBody(h, 0x80ceb8, SAVE_MENU, () =>
-        saveMenuSequence(h, events, renderBuffer),
-      );
+    if (chosen === SAVE_ROW) yield* saveMenu(h, events, renderBuffer);
     else
       yield* dialogCallBody(h, 0x80cebd, KARMA_MENU, () =>
         karmaMenuSequence(h, events, renderBuffer),
