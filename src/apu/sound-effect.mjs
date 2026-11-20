@@ -1,3 +1,4 @@
+import { readStateByte, writeStateByte } from '../state/objects.mjs';
 // Sound effects (lifted from 80:C46E with its stereo levels 80:C416; register-level
 // versions in proof/replay/native-audio-compose.mjs and native-input-apu.mjs, references
 // in proof/apu-reference/audio-routines.mjs).
@@ -51,10 +52,10 @@ const SOUND_EFFECTS = 0x80c4b3,
   // 80:C46E sets the data bank to its own bank and returns with RTS.
   CODE_BANK = 0x80;
 
-const word = (wram, at) => wram[at] | (wram[at + 1] << BYTE_BITS);
+const word = (wram, at) => readStateByte(wram, at) | (readStateByte(wram, at + 1) << BYTE_BITS);
 const setWord = (wram, at, value) => {
-  wram[at] = value & BYTE_MASK;
-  wram[at + 1] = (value >>> BYTE_BITS) & BYTE_MASK;
+  writeStateByte(wram, at, value & BYTE_MASK);
+  writeStateByte(wram, at + 1, (value >>> BYTE_BITS) & BYTE_MASK);
 };
 
 // The left and right levels of a sound at level (low byte used) from the object

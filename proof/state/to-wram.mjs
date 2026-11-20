@@ -1,3 +1,4 @@
+import { CAMERA_MAP_FIELDS, cameraMaps } from '../../src/state/camera-maps.mjs';
 import { COLLISION_FIELDS, collisionTable } from '../../src/state/collision.mjs';
 // A diagnostic projection, never imported by the product. The unconverted state
 // retains its bytes; the live object fields supply their original little-endian
@@ -26,6 +27,13 @@ export function toWram(memory, into = new Uint8Array(memory.wram.length)) {
         into[base + i * stride] = collision[name][i] & BYTE_MASK;
         into[base + i * stride + 1] = collision[name][i] >>> BYTE_BITS;
       }
+  const maps = cameraMaps(wram);
+  if (maps)
+    for (const [name, { base, count, bytes }] of Object.entries(CAMERA_MAP_FIELDS))
+      for (let i = 0; i < count; i++) {
+        into[base + i * bytes] = maps[name][i] & BYTE_MASK;
+        if (bytes === 2) into[base + i * bytes + 1] = maps[name][i] >>> BYTE_BITS;
+      }
   return into;
 }
 
@@ -36,7 +44,13 @@ export function restoreWram(memory, bytes) {
   if (!(bytes instanceof Uint8Array) || bytes.length !== wram.length)
     throw new Error('wram_snapshot_size_required');
   const collision = collisionTable(wram);
+  const maps = cameraMaps(wram);
   wram.set(bytes);
+  if (maps)
+    for (const [name, { base, count, bytes: width }] of Object.entries(CAMERA_MAP_FIELDS))
+      for (let i = 0; i < count; i++)
+        maps[name][i] =
+          bytes[base + i * width] | (width === 2 ? bytes[base + i * width + 1] << BYTE_BITS : 0);
   if (collision)
     for (const [name, { base, count, stride }] of Object.entries(COLLISION_FIELDS))
       for (let i = 0; i < count; i++)

@@ -1,3 +1,4 @@
+import { readStateByte, writeStateByte } from '../state/objects.mjs';
 // The game screen set-up (lifted from 80:9629 with 81:B064, 80:8FB3, 80:BC1A,
 // 81:891A, 81:8CB9, 81:8000, 81:A840, 81:A772, 81:AB2C, 81:AA9C, 81:A9B2, 81:A9E1,
 // 80:C1A6, 80:CC44, 80:E41B, 81:EF26 and 80:C109, and Jake's state bar 81:AF1F
@@ -235,10 +236,10 @@ const TEXT_TILE_CHUNK = 0x1400,
   WINDOW_MAP_BYTES = 0x740,
   TEXT_READBACK_BYTES = 0x10;
 
-const word = (wram, at) => wram[at] | (wram[at + 1] << BYTE_BITS);
+const word = (wram, at) => readStateByte(wram, at) | (readStateByte(wram, at + 1) << BYTE_BITS);
 const setWord = (wram, at, value) => {
-  wram[at] = value & BYTE_MASK;
-  wram[at + 1] = (value >>> BYTE_BITS) & BYTE_MASK;
+  writeStateByte(wram, at, value & BYTE_MASK);
+  writeStateByte(wram, at + 1, (value >>> BYTE_BITS) & BYTE_MASK);
 };
 const setWords = (wram, addresses, value) => {
   for (const at of addresses) setWord(wram, at, value);

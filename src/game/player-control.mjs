@@ -1,3 +1,4 @@
+import { readStateByte, writeStateByte } from '../state/objects.mjs';
 // The player's control for one frame (lifted from the script native 80:E014;
 // register-level version in proof/replay/native-player-control.mjs, which recorded waits
 // and inputs replay).
@@ -106,10 +107,10 @@ const IDLE = 0,
   TWO_BUTTON_WEAPON = 1,
   PIXEL_SHIFT = 2;
 
-const word = (wram, at) => wram[at] | (wram[at + 1] << BYTE_BITS);
+const word = (wram, at) => readStateByte(wram, at) | (readStateByte(wram, at + 1) << BYTE_BITS);
 const setWord = (wram, at, value) => {
-  wram[at] = value & BYTE_MASK;
-  wram[at + 1] = (value >>> BYTE_BITS) & BYTE_MASK;
+  writeStateByte(wram, at, value & BYTE_MASK);
+  writeStateByte(wram, at + 1, (value >>> BYTE_BITS) & BYTE_MASK);
 };
 const negative = (value) => (value & WORD_SIGN) !== 0;
 // left - right - borrow and left + right + carry on words.

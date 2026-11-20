@@ -1,3 +1,4 @@
+import { detachCameraMaps } from '../state/camera-maps.mjs';
 import { detachCollisionStorage } from '../state/collision.mjs';
 // Live cold start (user decision 2026-10-30, docs/STRATEGY.md): the
 // native owner begins at reset 00:E382 and runs from the start with
@@ -88,6 +89,7 @@ export class LiveGame {
     if (loop === gameLoop) {
       detachObjectStorage(this.memory.wram);
       detachCollisionStorage(this.memory.wram);
+      detachCameraMaps(this.memory.wram);
     }
     this.memory.textEdits = cartridge.textEdits ?? null;
     if (settings.fourSaveSlots) installPortExtension(this.memory);

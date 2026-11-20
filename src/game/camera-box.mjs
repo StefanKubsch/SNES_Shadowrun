@@ -1,3 +1,4 @@
+import { readStateByte, writeStateByte } from '../state/objects.mjs';
 // The camera box clamp (lifted from 81:8A05; register-level version in
 // proof/system/main-loop-camera.mjs, which the main loop camera 81:8C2E still calls).
 //
@@ -35,10 +36,10 @@ const AXIS_A_LIMITS = 1,
   MAXIMUM = 2;
 const BOX_POINTER_BYTES = 3;
 
-const word = (wram, at) => wram[at] | (wram[at + 1] << BYTE_BITS);
+const word = (wram, at) => readStateByte(wram, at) | (readStateByte(wram, at + 1) << BYTE_BITS);
 const setWord = (wram, at, value) => {
-  wram[at] = value & BYTE_MASK;
-  wram[at + 1] = (value >>> BYTE_BITS) & BYTE_MASK;
+  writeStateByte(wram, at, value & BYTE_MASK);
+  writeStateByte(wram, at + 1, (value >>> BYTE_BITS) & BYTE_MASK);
 };
 const readWord = (mem, at) =>
   mem.read8(at & LONG_MASK) | (mem.read8((at + 1) & LONG_MASK) << BYTE_BITS);
@@ -47,7 +48,8 @@ const readWord = (mem, at) =>
 // box (81:8A05).
 export function clampToCameraBox(mem, wram) {
   if (!word(wram, CAMERA_BOX_HIGH)) return;
-  for (let n = 0; n < BOX_POINTER_BYTES; n++) wram[DP_BOX + n] = wram[CAMERA_BOX + n];
+  for (let n = 0; n < BOX_POINTER_BYTES; n++)
+    wram[DP_BOX + n] = readStateByte(wram, CAMERA_BOX + n);
   const box = (wram[DP_BOX + 2] << WORD_BITS) | word(wram, DP_BOX),
     shiftedX = (word(wram, DP_CAMERA_X) - CAMERA_CENTRE_X) & WORD_MASK,
     doubleY = ((CAMERA_CENTRE_Y - word(wram, DP_CAMERA_Y)) << 1) & WORD_MASK;

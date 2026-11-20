@@ -1,3 +1,4 @@
+import { fillStateBytes } from '../src/state/objects.mjs';
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
@@ -229,7 +230,8 @@ test('short and empty edits preserve row tails and do not manufacture a save dig
   for (const value of ['', 'X', 'A much longer menu label']) {
     const game = gameFor(asset([entry('81:E3D2', value), entry('81:E425', '')]));
     seedFont(game.memory);
-    game.memory.wram.fill(
+    fillStateBytes(
+      game.memory.wram,
       0xa5,
       MENU_TILEMAP & 0xffff,
       (MENU_TILEMAP & 0xffff) + MENU_TILEMAP_BYTES,

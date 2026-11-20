@@ -1,3 +1,4 @@
+import { readStateByte, writeStateByte } from '../state/objects.mjs';
 // The sprites of one object (lifted from 80:B20A with the occlusion grids 80:B45D to
 // 80:B754, the map cell test and the occlusion sprite 80:B130; register-level versions
 // in proof/replay/native-scene-sprites.mjs and proof/replay/native-sprite-occlusion.mjs).
@@ -237,10 +238,10 @@ const GRIDS = {
 };
 const LOW_WRAM_END = 0x2000;
 
-const word = (wram, at) => wram[at] | (wram[at + 1] << BYTE_BITS);
+const word = (wram, at) => readStateByte(wram, at) | (readStateByte(wram, at + 1) << BYTE_BITS);
 const setWord = (wram, at, value) => {
-  wram[at] = value & BYTE_MASK;
-  wram[at + 1] = (value >>> BYTE_BITS) & BYTE_MASK;
+  writeStateByte(wram, at, value & BYTE_MASK);
+  writeStateByte(wram, at + 1, (value >>> BYTE_BITS) & BYTE_MASK);
 };
 const longByte = (mem, at) => mem.read8(at & LONG_MASK);
 const longWord = (mem, at) => longByte(mem, at) | (longByte(mem, at + 1) << BYTE_BITS);

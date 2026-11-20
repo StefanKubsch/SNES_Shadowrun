@@ -1,3 +1,4 @@
+import { readStateByte } from '../state/objects.mjs';
 // Marking usable objects (quality-of-life option, user decision 2026-11-04,
 // docs/OBJECT-MARKERS.md): a periodic pulsating ring at the centre of every
 // object the action glove can use. Display only: it reads the WRAM and draws
@@ -75,7 +76,7 @@ export function usableKind(memory, kind) {
 // usable objects; memory is the VmMemory of the running game.
 export function usableObjectBoxes(memory) {
   const wram = memory.wram,
-    word = (at) => wram[at] | (wram[at + 1] << BYTE_BITS),
+    word = (at) => readStateByte(wram, at) | (readStateByte(wram, at + 1) << BYTE_BITS),
     boxes = [];
   // 14B0 is the last word index; a negative (FFFE or below) ends the list, as in BCBE.
   for (let y = word(DRAW_LIST_INDEX); y >= 0 && y < SIGN_BIT; y -= 2) {

@@ -159,3 +159,26 @@ own commit after `npm run test:block` and the golden trace test. One shared
   non-browser block tests passed and the five final storage contracts passed.
   Two managed Edge startup checks stopped at Page.enable before product loading;
   both passed unchanged with the already authorized elevated process access.
+
+- 2026-11-20, camera and tile maps: src/state/camera-maps.mjs owns independent
+  camera positions, speeds and box pointer bytes; edge upload flags, destinations
+  and buffers; both scene layers; and the tile stack fields and hash heads. The
+  normal LiveGame loop detaches them once; proof fixtures remain byte-backed.
+- Every camera consumer, the sound pan, marker projection, scene layer clearing
+  and tile stack builder use the shared state byte boundary. It preserves reads
+  across table ends and the odd three-byte camera box pointer, including the
+  low-bank mirror. The diagnostic projection and restore include all these fields.
+- Fonts, the odd-addressed menu tilemap, intro maps, prologue text and title
+  palettes retain their aliases into the same layer arrays. Their frontend
+  consumers already use the shared byte boundary. Tile cache bytes continue to
+  alias the collision fields; no second cache copy is introduced. Shape grids,
+  wall occlusion data and the scene record remain in the later scene subsystem.
+- Eight storage contracts cover every entry and disjoint ownership, projection
+  and restore, frontend and stack boundary aliases, the three-byte box pointer,
+  wrapped row/column uploads in both directions, clamps and live activation.
+- Camera/map validation: eight storage contracts passed; the 152-file block run
+  passed 5692 tests and all five unchanged golden traces. Six old raw-layer text
+  observations or fixture seeds were migrated to the projection/state boundary,
+  preserving all assertions; their four files passed 26/26 tests. The isolated
+  save import browser retry passed unchanged after one transient Import missing
+  failure. The shared release checks the complete delivery batch before push.

@@ -18,6 +18,10 @@ import { lzBits, lzDecode } from '../src/data/lz.mjs';
 import { LiveGame } from '../src/video/live-game.mjs';
 import { requestCredits, startMenuWaiting } from '../src/game/credits.mjs';
 
+// Read through VmMemory: the decoded text aliases the detached scene layer.
+const decodedText = (memory, length) =>
+  Uint8Array.from({ length }, (_, i) => memory.read8(0x7e62a8 + i));
+
 const german = buildLanguage(JSON.parse(readFileSync('assets/vm-texts-de.json', 'utf8')));
 const asset = (en = [], de = []) => ({ format: TEXT_EDITS_FORMAT, en, de });
 const intro = (line, code = 'en') => ({
@@ -227,9 +231,7 @@ for (const language of ['en', 'de'])
           language,
           pad: (k) => {
             if (k > 700 && !requested) {
-              const buffer = Buffer.from(
-                game.memory.wram.subarray(0x62a8, 0x62a8 + introBytes.length),
-              );
+              const buffer = Buffer.from(decodedText(game.memory, introBytes.length));
               if (
                 !introSeen &&
                 buffer.equals(introBytes) &&
@@ -250,9 +252,7 @@ for (const language of ['en', 'de'])
             }
             if (
               requested &&
-              Buffer.from(game.memory.wram.subarray(0x62a8, 0x62a8 + creditBytes.length)).equals(
-                creditBytes,
-              )
+              Buffer.from(decodedText(game.memory, creditBytes.length)).equals(creditBytes)
             )
               creditsSeen ||= wordsVisible(
                 creditBytes.subarray(1, creditBytes.indexOf(0)),
@@ -287,7 +287,7 @@ for (const language of ['en', 'de'])
       assert.notEqual(game.language, language);
       game.setLanguage(language);
       assert.deepEqual(
-        Buffer.from(game.memory.wram.subarray(0x62a8, 0x62a8 + creditBytes.length)),
+        Buffer.from(decodedText(game.memory, creditBytes.length)),
         creditBytes,
         'switches do not rewrite the active sequence',
       );

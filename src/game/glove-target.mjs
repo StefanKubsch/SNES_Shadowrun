@@ -1,3 +1,4 @@
+import { readStateByte, writeStateByte } from '../state/objects.mjs';
 import { requestUploadJslSequence, resetWindowList, unpackWindowMapCall } from './window-list.mjs';
 import { gloveMove } from './glove-move.mjs';
 import { drawTextBufferSequence } from './text-draw.mjs';
@@ -108,10 +109,10 @@ const FRAME_WAIT = 0x81b0a1,
   UNPACK_MAP = 0x81a9b2,
   REQUEST_UPLOAD = 0x81acb5;
 
-const word = (wram, at) => wram[at] | (wram[at + 1] << BYTE_BITS);
+const word = (wram, at) => readStateByte(wram, at) | (readStateByte(wram, at + 1) << BYTE_BITS);
 const setWord = (wram, at, value) => {
-  wram[at] = value & BYTE_MASK;
-  wram[at + 1] = (value >>> BYTE_BITS) & BYTE_MASK;
+  writeStateByte(wram, at, value & BYTE_MASK);
+  writeStateByte(wram, at + 1, (value >>> BYTE_BITS) & BYTE_MASK);
 };
 const swapBytes = (value) => ((value >>> BYTE_BITS) | (value << BYTE_BITS)) & WORD_MASK;
 

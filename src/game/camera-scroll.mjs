@@ -1,3 +1,4 @@
+import { readStateByte, writeStateByte } from '../state/objects.mjs';
 // The camera scroll of the room entry's camera jump (lifted from 81:8A91 and 81:8954;
 // register-level versions in proof/system/main-loop-camera.mjs and
 // proof/replay/main-transition.mjs, which the main loop and the game NMI still call).
@@ -79,10 +80,10 @@ const MAP_CHANNEL = 1 << ((DMAP3 - DMAP0) / DMA_CHANNEL_STRIDE),
   SCROLL_SHIFT = 2,
   SECOND_LAYER = 2;
 
-const word = (wram, at) => wram[at] | (wram[at + 1] << BYTE_BITS);
+const word = (wram, at) => readStateByte(wram, at) | (readStateByte(wram, at + 1) << BYTE_BITS);
 const setWord = (wram, at, value) => {
-  wram[at] = value & BYTE_MASK;
-  wram[at + 1] = (value >>> BYTE_BITS) & BYTE_MASK;
+  writeStateByte(wram, at, value & BYTE_MASK);
+  writeStateByte(wram, at + 1, (value >>> BYTE_BITS) & BYTE_MASK);
 };
 const negative = (value) => (value & WORD_SIGN) !== 0;
 

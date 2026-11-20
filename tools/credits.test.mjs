@@ -1,3 +1,4 @@
+import { toWram } from '../proof/state/to-wram.mjs';
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
@@ -79,7 +80,7 @@ for (const language of [ENGLISH, GERMAN])
             return B;
           }
           if (phase === 'credits' && pictures > SHOWN) {
-            const pages = game.memory.wram.subarray(CREDIT_PAGES, CREDIT_PAGES + 0x400);
+            const pages = toWram(game.memory).subarray(CREDIT_PAGES, CREDIT_PAGES + 0x400);
             text = Buffer.from(pages).toString('latin1');
             ended = game.nmis;
             phase = 'ending';

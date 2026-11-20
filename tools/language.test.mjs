@@ -1,3 +1,4 @@
+import { toWram } from '../proof/state/to-wram.mjs';
 // Text language (src/data/language.mjs, docs/LANGUAGES.md): the German asset
 // covers every English text exactly once, its characters fit the free font
 // codes, the glyphs go into the game's own ROM copy only, and a live game
@@ -94,14 +95,13 @@ function intro(language) {
   }
   // Snapshots: the intro text screen (7E:62A8, unpacked by 81:DDFB) and the
   // main menu tilemap (7E:86A9, drawn by 81:D531).
-  const wram = game.memory.wram,
-    snapshots = {};
+  const snapshots = {};
   while (game.nmis < 3800) {
     game.step();
     if (!snapshots.intro && game.nmis >= INTRO_NMI)
-      snapshots.intro = wram.slice(INTRO_TEXT, INTRO_TEXT + 64);
+      snapshots.intro = toWram(game.memory).slice(INTRO_TEXT, INTRO_TEXT + 64);
     if (!snapshots.menu && game.nmis >= MENU_NMI)
-      snapshots.menu = wram.slice(0, MENU_TILEMAP + 0x800);
+      snapshots.menu = toWram(game.memory).slice(0, MENU_TILEMAP + 0x800);
   }
   return { game, ids, snapshots };
 }

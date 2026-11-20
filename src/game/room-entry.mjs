@@ -1,3 +1,4 @@
+import { readStateByte, writeStateByte } from '../state/objects.mjs';
 // The room entry (lifted from 80:A4BF with 80:A44D, 81:B0AC, 81:B0BD, 80:A464,
 // 81:8D05, 80:8511 and 80:BABB; register-level reference in
 // proof/game-reference/room-entry.mjs). The group 80:A2FA and the actors 80:A3B6
@@ -125,10 +126,10 @@ const FRAME_WAIT_SITE = 0x80a520,
   // A JSL pushes the address of its last byte.
   JSL_LAST_BYTE = 3,
   WINDOW_LIST_SITE = 0x80a5c9;
-const word = (wram, at) => wram[at] | (wram[at + 1] << BYTE_BITS);
+const word = (wram, at) => readStateByte(wram, at) | (readStateByte(wram, at + 1) << BYTE_BITS);
 const setWord = (wram, at, value) => {
-  wram[at] = value & BYTE_MASK;
-  wram[at + 1] = (value >>> BYTE_BITS) & BYTE_MASK;
+  writeStateByte(wram, at, value & BYTE_MASK);
+  writeStateByte(wram, at + 1, (value >>> BYTE_BITS) & BYTE_MASK);
 };
 const readWord = (mem, at) =>
   mem.read8(at & LONG_MASK) | (mem.read8((at + 1) & LONG_MASK) << BYTE_BITS);
@@ -147,7 +148,7 @@ function setRoomBanks(wram, header) {
     DP_POINT_LIST_BANK,
     DP_SIGHT_LIST_BANK,
   ])
-    wram[at] = bank;
+    writeStateByte(wram, at, bank);
 }
 // Start a brightness fade at speed (negative: out) (81:B0AC).
 function startBrightnessFade(wram, speed) {

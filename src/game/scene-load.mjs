@@ -1,3 +1,4 @@
+import { readStateByte, fillStateBytes } from '../state/objects.mjs';
 // The scene load (lifted from 81:A117 with the shapes 81:8DE2, 81:8D09, 81:8D23,
 // 81:8D3D and 81:8DC0, the tile stack interning 81:8E57 with its resets 81:8FC2 and
 // 81:8FF0, the layer and wall map clears 81:9022 and 81:902D, the grid blocks
@@ -170,10 +171,10 @@ const WALL_CELL_TILES = WALL_CELL_BYTES / 2,
 const SCENE_LOAD_BANK = 0x81,
   SCENE_DATA_BANK = WRAM_START >>> WORD_BITS;
 
-const word = (wram, at) => wram[at] | (wram[at + 1] << BYTE_BITS);
+const word = (wram, at) => readStateByte(wram, at) | (readStateByte(wram, at + 1) << BYTE_BITS);
 const setWord = (wram, at, value) => {
-  wram[at] = value & BYTE_MASK;
-  wram[at + 1] = (value >>> BYTE_BITS) & BYTE_MASK;
+  writeStateByte(wram, at, value & BYTE_MASK);
+  writeStateByte(wram, at + 1, (value >>> BYTE_BITS) & BYTE_MASK);
 };
 const readWord = (mem, at) =>
   mem.read8(at & LONG_MASK) | (mem.read8((at + 1) & LONG_MASK) << BYTE_BITS);
@@ -351,7 +352,7 @@ function resetTileStacksAscending(wram) {
 
 // Clear both tile layers (81:9022).
 function clearSceneLayers(wram) {
-  wram.fill(0, SCENE_LAYER_HIGH, SCENE_LAYER_HIGH + 2 * SCENE_LAYER_BYTES);
+  fillStateBytes(wram, 0, SCENE_LAYER_HIGH, SCENE_LAYER_HIGH + 2 * SCENE_LAYER_BYTES);
 }
 // Empty the wall map (81:902D).
 function clearWallMap(wram) {

@@ -1,3 +1,4 @@
+import { readStateByte, writeStateByte } from '../state/objects.mjs';
 // The camera follow of the main loop (lifted from 81:8C2E; register-level reference
 // in proof/game-reference/main-camera.mjs).
 //
@@ -30,10 +31,10 @@ const CAMERA_CENTRE_X = 0x400,
   SPEED_MAX = 0x20,
   STEP_MASK = 0xfffc;
 
-const word = (wram, at) => wram[at] | (wram[at + 1] << BYTE_BITS);
+const word = (wram, at) => readStateByte(wram, at) | (readStateByte(wram, at + 1) << BYTE_BITS);
 const setWord = (wram, at, value) => {
-  wram[at] = value & BYTE_MASK;
-  wram[at + 1] = (value >>> BYTE_BITS) & BYTE_MASK;
+  writeStateByte(wram, at, value & BYTE_MASK);
+  writeStateByte(wram, at + 1, (value >>> BYTE_BITS) & BYTE_MASK);
 };
 
 // The camera speed for a distance (a word): none below 8 either way, a quarter of

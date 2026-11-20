@@ -1,3 +1,4 @@
+import { readStateByte, writeStateByte } from '../state/objects.mjs';
 // The jobs of the game NMI handler 80:C152 (lifted; the register-level versions in
 // proof/replay/main-game-nmi.mjs are the references, GAME_NMI_ROUTINES; the jobs' table
 // entries for register-level callers are in proof/caller/game-nmi-jobs.mjs; recorded runs
@@ -125,10 +126,10 @@ const channel = (dmap) => 1 << ((dmap - DMAP0) / DMA_CHANNEL_STRIDE);
 
 // The data bank 0 reaches WRAM below 2000; the lists lie there in the game.
 const LOW_WRAM_END = 0x2000;
-const word = (wram, at) => wram[at] | (wram[at + 1] << BYTE_BITS);
+const word = (wram, at) => readStateByte(wram, at) | (readStateByte(wram, at + 1) << BYTE_BITS);
 const setWord = (wram, at, value) => {
-  wram[at] = value & BYTE_MASK;
-  wram[at + 1] = (value >>> BYTE_BITS) & BYTE_MASK;
+  writeStateByte(wram, at, value & BYTE_MASK);
+  writeStateByte(wram, at + 1, (value >>> BYTE_BITS) & BYTE_MASK);
 };
 
 // A list entry at base + index, whose bytes must lie below 2000.
