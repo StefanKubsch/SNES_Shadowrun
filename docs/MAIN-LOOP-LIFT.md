@@ -101,13 +101,13 @@ shiftPortraitRowsInPlace (the dialog, status screen and portrait setup);
 buildSpritesInPlace (the dialog close); reloadObjectTiles with its per-object
 request (the dialog close; the frame wait keeps its JSL frame); the member
 portrait's second channel and colour window; openPortraitWindow and
-closePortraitWindow (the dialog's portrait window); the window release, the glove,
-the notice windows' release and the name window release already had one. The player
-control selects animations and turns through the plain functions of
-[object-turn.mjs](../src/game/object-turn.mjs). The unused call sites go with the
-frames. Frames stay where a callee's own wait or a recorded routine returns from
-them (the word wait, the menu choice, the confirm key, the portrait unpack and
-uploads, the topic action's append and visit).
+closePortraitWindow (the dialog's portrait window); uploadFirstPortrait and
+uploadSecondPortrait; the window release, the glove, the notice windows' release and
+the name window release already had one. The player control selects animations and
+turns through the plain functions of [object-turn.mjs](../src/game/object-turn.mjs).
+The unused call sites go with the frames. Frames stay where a callee's own wait or a
+recorded routine returns from them (the word wait, the menu choice, the confirm key,
+the portrait unpack and tile upload, the topic action's append and visit).
 
 ## Lifted so far
 

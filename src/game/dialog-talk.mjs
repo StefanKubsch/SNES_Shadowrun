@@ -41,8 +41,8 @@ import { closePortraitWindow, openPortraitWindow } from './portrait-window.mjs';
 import {
   unpackPortrait,
   shiftPortraitRowsInPlace,
-  uploadFirstPortraitSequence,
-  uploadSecondPortraitSequence,
+  uploadFirstPortrait,
+  uploadSecondPortrait,
 } from './portrait-upload.mjs';
 import { frameWaitCallSequence, takePad } from '../system/live-input-calls.mjs';
 import { sceneRuntime } from '../system/scene-runtime.mjs';
@@ -141,9 +141,7 @@ const FONT_BLOCKS = Object.freeze([
 // Original call sites and callees.
 const CALL = Object.freeze({
   jakeUnpack: [0x80944d, 0x809f6d],
-  jakeUpload: [0x809453, 0x809022],
   partnerUnpack: [0x809470, 0x809f6d],
-  partnerUpload: [0x809476, 0x80905e],
   wait: [0x809489, 0x81b0a1, true],
   menu: [0x809490, 0x8091e2],
   topics: [0x8094a2, 0x809215],
@@ -322,13 +320,13 @@ export function* talkSequence(h, events, renderBuffer = drawTextBufferSequence) 
     setWord(wram, DP_PORTRAIT_POINTER, longWord(mem, DIALOG_BANK_BASE + record));
   };
   yield* portrait(CALL.jakeUnpack);
-  yield* dialogCallBody(h, ...CALL.jakeUpload, () => uploadFirstPortraitSequence(h, events));
+  yield* uploadFirstPortrait(h, events);
   yield () => {
     wram[DP_PORTRAIT_BANK] = mem.read8(pointer(wram, DP_RECORD, PORTRAIT_RECORD_BANK_BYTE));
     setWord(wram, DP_PORTRAIT_POINTER, longWord(mem, pointer(wram, DP_RECORD, 0)));
   };
   yield* portrait(CALL.partnerUnpack);
-  yield* dialogCallBody(h, ...CALL.partnerUpload, () => uploadSecondPortraitSequence(h, events));
+  yield* uploadSecondPortrait(h, events);
   yield* openPortraitWindow(h, events);
   yield () => setWord(wram, DP_OBJECT, word(wram, DP_PORTRAIT_FRAME));
   yield* showDialogText(h, events, renderBuffer, GREETING_TEXT);

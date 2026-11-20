@@ -20,7 +20,7 @@ import { dialogCallBody, segmentSequence } from '../system/native-call-continuat
 import {
   unpackPortrait,
   shiftPortraitRowsInPlace,
-  uploadFirstPortraitSequence,
+  uploadFirstPortrait,
   uploadPortraitTiles,
 } from './portrait-upload.mjs';
 import { frameWaitCallSequence } from '../system/live-input-calls.mjs';
@@ -66,7 +66,6 @@ const HDMA_TABLE_SOURCE = 0x80e480,
   HDMA_TABLE_LAST = 0x0c;
 // The callees and their call sites; the instruction sites of the port writes.
 const UNPACK = [0x80e4e3, 0x809f6d],
-  UPLOAD_PALETTE = [0x80e4e9, 0x809022],
   SECOND_TILES = [0x80e496, 0x808ff5],
   FRAME_WAIT = [0x80e470, 0x81b0a1],
   SITES = Object.freeze({
@@ -118,7 +117,7 @@ export function* memberPortrait(h, events) {
     segmentSequence(() => unpackPortrait(h, events, ...stream, PORTRAIT_BUFFER)),
   );
   yield () => shiftPortraitRowsInPlace(h);
-  yield* dialogCallBody(h, ...UPLOAD_PALETTE, () => uploadFirstPortraitSequence(h, events));
+  yield* uploadFirstPortrait(h, events);
   yield* secondChannel(h, events);
   yield* colourWindow(h, events);
 }
