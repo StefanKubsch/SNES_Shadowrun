@@ -13,15 +13,15 @@
 //
 // The sort (src/game/depth-sort.mjs) and the palette slots (src/game/palette-slots.mjs)
 // are lifted, and so are the OAM entries (src/game/object-sprites.mjs), which run
-// through their frames. The player's palette slot, the palette reset, the fill and the
-// job count run without their frames, whose return words lie only in free stack bytes.
-// The list position the original pushes over each OAM entry call lies there too and is
-// kept in a local (game state only, user decision 2026-11-17). Registers (user decision
-// 2026-11-17): game state only; no A, X, Y or flags are left (the main loop and the
-// talk end read none of them), and the object and picture pass to the OAM entry as
-// parameters.
+// through their frames. The sort, the player's palette slot, the palette reset, the
+// fill and the job count run without their frames, whose return words lie only in free
+// stack bytes. The list position the original pushes over each OAM entry call lies
+// there too and is kept in a local (game state only, user decision 2026-11-17).
+// Registers (user decision 2026-11-17): game state only; no A, X, Y or flags are left
+// (the main loop and the talk end read none of them), and the object and picture pass
+// to the OAM entry as parameters.
 import { taskStop } from '../system/task-stop.mjs';
-import { sortDrawList } from './depth-sort.mjs';
+import { sortDrawListInPlace } from './depth-sort.mjs';
 import { paletteSlotInPlace } from './palette-slots.mjs';
 import { clearPaletteSlots } from './game-screen.mjs';
 import { enterObjectSprites } from './object-sprites.mjs';
@@ -57,10 +57,8 @@ const HIDE_SEQUENCE = 0xb933,
   // The direct page word that holds the jump target.
   DP_JUMP = 0x0e,
   LOW_WRAM_END = 0x2000;
-// Original call sites.
-const SORT_CALL = 0xb8de,
-  SORT_TARGET = 0x80affc,
-  OAM_CALL = 0xb911,
+// The OAM entry and its call site.
+const OAM_CALL = 0xb911,
   OAM_TARGET = 0x80b20a;
 
 const word = (wram, at) => wram[at] | (wram[at + 1] << BYTE_BITS);
@@ -78,7 +76,7 @@ const lowField = (wram, base, index) => {
 // lifted callers without the JSR frame (its own JSR and JSL calls keep theirs).
 export function buildSpritesInPlace(h) {
   const { wram } = h.a.mem;
-  h.call(SORT_CALL, SORT_TARGET, () => sortDrawList(h));
+  sortDrawListInPlace(h);
   // The palette slots reset 81:A840, without its JSL frame.
   clearPaletteSlots(wram);
   // The OAM high table fill 81:A7FC, without its JSL frame (the return word lies only

@@ -58,15 +58,16 @@ const setWord = (wram, at, value) => {
 };
 
 // Sort the draw list (80:AFFC) on the access h of the sprite list (data bank 80, which
-// reaches WRAM below 2000).
-export function sortDrawList(h) {
+// reaches WRAM below 2000), without the JSR frame (its return word lies only in free
+// stack bytes).
+export function sortDrawListInPlace(h) {
   const { wram } = h.a.mem;
   const get = (base, index) => {
     if (base + index + 1 >= LOW_WRAM_END) taskStop('object_slot_required', { base, index });
     return word(wram, base + index);
   };
   const last = get(DRAW_LIST_INDEX, 0);
-  if (last === 0 || last & WORD_SIGN) return h.rts();
+  if (last === 0 || last & WORD_SIGN) return;
   // One pair at list position: swap when the first key is below the second.
   const step = (position) => {
     const first = get(DRAW_LIST, position),
@@ -106,11 +107,15 @@ export function sortDrawList(h) {
     step(position);
     position = (position - ENTRY_BYTES) & WORD_MASK;
   } while (!(position & WORD_SIGN));
-  if (last === TWO_OBJECTS) return h.rts();
+  if (last === TWO_OBJECTS) return;
   position = ENTRY_BYTES;
   do {
     step(position);
     position = (position + ENTRY_BYTES) & WORD_MASK;
   } while (position < last);
+}
+// The sort as called with JSR (80:AFFC); returns with its RTS.
+export function sortDrawList(h) {
+  sortDrawListInPlace(h);
   return h.rts();
 }
