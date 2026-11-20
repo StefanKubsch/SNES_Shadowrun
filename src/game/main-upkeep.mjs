@@ -7,9 +7,7 @@
 // callee takes its NMI with them, which saves X and Y on the NMI stack (7E:1CB6-1CB9)
 // that the Mesen oracle compares. So the entries leave X and Y as the original; A and
 // the flags besides the width are not produced, every next callee loads its own A.
-import { sceneRuntime } from '../system/scene-runtime.mjs';
 import { noticeTimeoutSequence } from './notice-timeout.mjs';
-import { applyColourEffect } from './fixed-colour.mjs';
 import { advancePaletteCycles } from './palette-cycles.mjs';
 import { followPlayerWithCamera } from './camera-follow.mjs';
 import { updateTileBuffers } from './camera-scroll.mjs';
@@ -56,11 +54,6 @@ export { takePadWord } from '../system/live-input-calls.mjs';
 // shake indices, the formation, camera and tile buffer counters) are not produced; the
 // next routine of the loop sets its own.
 
-// 81:8877, called with JSL.
-export function runColourEffect(h) {
-  applyColourEffect(sceneRuntime(h));
-  return h.rtl();
-}
 // 81:8076, called with JSL.
 export function runPaletteCycles(h) {
   advancePaletteCycles(h.a.mem.wram);

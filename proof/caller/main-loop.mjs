@@ -9,7 +9,6 @@ import { taskStop } from '../../src/system/task-stop.mjs';
 import { dialogAccess } from '../../src/system/native-dialog-support.mjs';
 import {
   runCameraFollow,
-  runColourEffect,
   runTileBuffers,
   runPaletteCycles,
   runObjectMotion,
@@ -24,6 +23,7 @@ import {
   runPlayerZones,
   runHitShake,
   runFormationStep,
+  runColourEffect,
 } from './live-loop-routines.mjs';
 import { processSceneRequest } from '../caller/scene-request.mjs';
 import { WAIT_PAUSED, WAIT_RETURNED } from '../../src/system/native-wait-continuation.mjs';

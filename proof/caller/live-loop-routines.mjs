@@ -3,7 +3,6 @@
 // level callers and the tests that check the bindings use it.
 import {
   runCameraFollow,
-  runColourEffect,
   runObjectMotion,
   runPaletteCycles,
   runSpriteList,
@@ -19,6 +18,8 @@ import { gloveActionSequence } from '../../src/game/glove-action.mjs';
 import { gloveMoveJsr } from './jsr-forms.mjs';
 import { shakeHitPlayer } from '../../src/game/player-hit.mjs';
 import { recordFormationStep } from '../../src/game/formation-trail.mjs';
+import { applyColourEffect } from '../../src/game/fixed-colour.mjs';
+import { sceneRuntime } from '../../src/system/scene-runtime.mjs';
 import {
   NativeCallContinuation,
   NATIVE_CALL_CONTINUATIONS,
@@ -57,6 +58,11 @@ export function runHitShake(h) {
 export function runFormationStep(h) {
   recordFormationStep(h.a.mem.wram);
   return h.rts();
+}
+// 81:8877, called with JSL.
+export function runColourEffect(h) {
+  applyColourEffect(sceneRuntime(h));
+  return h.rtl();
 }
 
 // The register-level entries of the main loop callees that wait.

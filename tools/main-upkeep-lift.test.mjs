@@ -17,7 +17,6 @@ import { PLAN } from './live-alley-plan.mjs';
 import { CUTSCENE_IGNORED_WRAM } from './live-cutscene-plan.mjs';
 import {
   runCameraFollow,
-  runColourEffect,
   runTileBuffers,
   runPaletteCycles,
   runObjectMotion,
@@ -32,6 +31,7 @@ import {
   runPlayerZones,
   runHitShake,
   runFormationStep,
+  runColourEffect,
 } from '../proof/caller/live-loop-routines.mjs';
 import { MAIN_CAMERA_REFERENCE_ENTRIES } from '../proof/game-reference/main-camera.mjs';
 import { MAIN_UPKEEP_REFERENCE_ENTRIES } from '../proof/game-reference/main-upkeep.mjs';

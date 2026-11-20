@@ -12,17 +12,13 @@ import {
   animatePalettes,
   releaseExpiredWindows,
 } from '../proof/game-reference/main-upkeep.mjs';
-import {
-  runCameraFollow,
-  runColourEffect,
-  runPaletteCycles,
-  runTileBuffers,
-} from '../src/game/main-upkeep.mjs';
+import { runCameraFollow, runPaletteCycles, runTileBuffers } from '../src/game/main-upkeep.mjs';
 import { runFrameWait, runPadPresses } from '../proof/caller/input-routines.mjs';
 import {
   runNoticeTimeouts,
   runTimeLimit,
   runGloveAction,
+  runColourEffect,
 } from '../proof/caller/live-loop-routines.mjs';
 import { MAIN_LOOP_ROUTINES } from '../proof/caller/live-loop-routines.mjs';
 import {

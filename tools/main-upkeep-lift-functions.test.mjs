@@ -44,16 +44,12 @@ import { MAIN_UPKEEP_REFERENCE_ENTRIES } from '../proof/game-reference/main-upke
 import { MAIN_TIMER_REFERENCE_ENTRIES } from '../proof/game-reference/main-timer.mjs';
 import { MAIN_GLOVE_ACTION_REFERENCE_ENTRIES } from '../proof/game-reference/main-glove-action.mjs';
 import { TASK_PREVIOUS, TASK_WAIT } from '../src/vm/layout.mjs';
-import {
-  runCameraFollow,
-  runColourEffect,
-  runTileBuffers,
-  runPaletteCycles,
-} from '../src/game/main-upkeep.mjs';
+import { runCameraFollow, runTileBuffers, runPaletteCycles } from '../src/game/main-upkeep.mjs';
 import {
   runNoticeTimeouts,
   runHitShake,
   runFormationStep,
+  runColourEffect,
 } from '../proof/caller/live-loop-routines.mjs';
 import {
   runPutGloveAway,

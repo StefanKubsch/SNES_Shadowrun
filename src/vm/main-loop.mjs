@@ -13,7 +13,6 @@ import {
   mainLoopGloveMoveSequence,
   mainLoopPlayerZonesSequence,
   runCameraFollow,
-  runColourEffect,
   runTileBuffers,
   runPaletteCycles,
   runObjectMotion,
@@ -23,6 +22,8 @@ import {
 import { sceneRequestSequence } from '../game/scene-request.mjs';
 import { shakeHitPlayer } from '../game/player-hit.mjs';
 import { recordFormationStep } from '../game/formation-trail.mjs';
+import { applyColourEffect } from '../game/fixed-colour.mjs';
+import { sceneRuntime } from '../system/scene-runtime.mjs';
 import { lagFree } from '../system/main-wait-interrupt.mjs';
 import {
   NativeCallContinuation,
@@ -47,7 +48,6 @@ const CALL_PC = Object.freeze({
   FF14: 0x96e1,
   TIMER_E270: 0x96e4,
   WAIT_B0A1: MAIN_LOOP_START,
-  ANIMATION_8877: 0x96af,
   PALETTE_8076: 0x96b3,
   INPUT_9E1A: 0x96b7,
   BF3B: 0x96bd,
@@ -98,7 +98,7 @@ export function* mainLoopSequence(a, events, returnToOwner = false) {
   // $96AB–$96BD, then the loop stands before JSR $C1E3.
   function* top() {
     yield* call(CALL_PC.WAIT_B0A1, 0x81b0a1, () => mainLoopFrameWaitSequence(h, events), true);
-    yield* call(CALL_PC.ANIMATION_8877, 0x818877, once(runColourEffect), true);
+    yield () => applyColourEffect(sceneRuntime(h));
     yield* call(CALL_PC.PALETTE_8076, 0x818076, once(runPaletteCycles), true);
     yield* call(CALL_PC.INPUT_9E1A, 0x809e1a, once(takePadWord));
     yield* mainLoopGloveMoveSequence(h, events);
