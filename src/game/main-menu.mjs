@@ -190,11 +190,6 @@ export function* saveMenu(h, events, renderBuffer = drawTextBufferSequence) {
   if (slot && !negative(slot)) yield* segmentSequence(() => playSoundEffectCall(h));
   yield* releaseMenuWindow(h, events);
 }
-// The save menu as called with JSR (80:CDD6); returns with its RTS.
-export function* saveMenuSequence(h, events, renderBuffer = drawTextBufferSequence) {
-  yield* saveMenu(h, events, renderBuffer);
-  return yield* returnSequence(h);
-}
 
 // 80:CE6D: the main menu (see above). A sequence that ends with its RTS.
 export function* mainMenuSequence(h, events, renderBuffer = drawTextBufferSequence) {

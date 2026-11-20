@@ -133,13 +133,6 @@ const setWord = (wram, at, value) => {
   wram[at] = value & BYTE_MASK;
   wram[at + 1] = (value >>> BYTE_BITS) & BYTE_MASK;
 };
-function* returnSequence(h) {
-  let result;
-  yield () => {
-    result = h.rts();
-  };
-  return result;
-}
 // The long pointer DP 0E with its bank DP 10.
 const valueAddress = (wram) =>
   (word(wram, DP_KARMA_VALUE_POINTER) | (wram[DP_KARMA_VALUE_BANK] << WORD_BITS)) & LONG_MASK;
@@ -169,11 +162,6 @@ export function* karmaLine(h, events, renderBuffer = drawTextBufferSequence) {
     setWord(wram, 2, shown);
   };
   yield* printNumber(h, events, renderBuffer);
-}
-// The karma line as called with JSR (80:EF82); returns with its RTS.
-export function* karmaLineSequence(h, events, renderBuffer = drawTextBufferSequence) {
-  yield* karmaLine(h, events, renderBuffer);
-  return yield* returnSequence(h);
 }
 
 // 80:F006: one step bought (see above), for lifted callers without the JSR frame; the
@@ -208,11 +196,6 @@ export function* buyStep(h, events, renderBuffer = drawTextBufferSequence) {
   yield* dialogCallBody(h, 0x80f03d, CONFIRM_KEY, () => waitForConfirmKeySequence(h, events));
   yield* releaseWindowSequence(h, events);
   yield () => setWord(wram, DP_KARMA_VALUE_POINTER, 0);
-}
-// The step bought as called with JSR (80:F006); returns with its RTS.
-export function* buyStepSequence(h, events, renderBuffer = drawTextBufferSequence) {
-  yield* buyStep(h, events, renderBuffer);
-  return yield* returnSequence(h);
 }
 
 const negative = (value) => (value & WORD_SIGN) !== 0;
@@ -302,11 +285,6 @@ export function* karmaList(h, events, entry, renderBuffer = drawTextBufferSequen
     }
     yield* karmaLine(h, events, renderBuffer);
   }
-}
-// The karma list as called with JSR; returns with its RTS.
-export function* karmaListSequence(h, events, entry, renderBuffer = drawTextBufferSequence) {
-  yield* karmaList(h, events, entry, renderBuffer);
-  return yield* returnSequence(h);
 }
 
 // 80:EE57: the karma menu (see above), for lifted callers without the JSR frame; the
@@ -434,9 +412,4 @@ export function* karmaMenu(h, events, renderBuffer = drawTextBufferSequence) {
   yield* raiseStateCountAndRedraw(h, events);
   yield leaderArguments;
   yield () => raiseMemberMagicPointsInPlace(h.a);
-}
-// The karma menu as called with JSR (80:EE57); returns with its RTS.
-export function* karmaMenuSequence(h, events, renderBuffer = drawTextBufferSequence) {
-  yield* karmaMenu(h, events, renderBuffer);
-  return yield* returnSequence(h);
 }

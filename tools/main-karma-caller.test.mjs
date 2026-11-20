@@ -4,15 +4,32 @@ import { compareRun } from './member-menu-caller-harness.mjs';
 import { liftedMainMenuSequence } from '../src/game/main-upkeep.mjs';
 import { raiseStateCountSequence } from '../proof/caller/runner-state-call.mjs';
 import { raiseMemberMagicPointsReference } from '../proof/game-reference/runner-state.mjs';
-import * as directMain from '../src/game/main-menu.mjs';
+import * as liftedMain from '../src/game/main-menu.mjs';
 import * as formerMain from '../proof/caller/main-menu.mjs';
 import { installPortExtension } from '../src/data/port-extension.mjs';
 import { occupiedSlots } from '../src/game/save-slots.mjs';
-import * as directKarma from '../src/game/karma-menu.mjs';
+import * as liftedKarma from '../src/game/karma-menu.mjs';
 import * as formerKarma from '../proof/caller/karma-menu.mjs';
 import { requestTileClearSequence } from '../proof/caller/window-open.mjs';
 import { chooseFromMenuSequence as formerChoose } from '../proof/caller/menu-choice.mjs';
 import { KARMA_LISTS } from '../src/system/native-main-menu.mjs';
+import {
+  buyStepJsr,
+  karmaLineJsr,
+  karmaListJsr,
+  karmaMenuJsr,
+  saveMenuJsr,
+} from '../proof/caller/jsr-forms.mjs';
+
+// The lifted menus with their RTS forms (proof/caller/jsr-forms.mjs), named as the former.
+const directMain = { ...liftedMain, saveMenuSequence: saveMenuJsr };
+const directKarma = {
+  ...liftedKarma,
+  buyStepSequence: buyStepJsr,
+  karmaLineSequence: karmaLineJsr,
+  karmaListSequence: karmaListJsr,
+  karmaMenuSequence: karmaMenuJsr,
+};
 
 import * as W from '../src/data/wram.mjs';
 

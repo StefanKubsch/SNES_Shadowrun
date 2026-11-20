@@ -1114,8 +1114,9 @@ which the render proof of 81:8076 keeps using.
   divided by eight, kept in DP 17) and the step purchase 80:F006 (eight times the value
   byte at the long pointer DP 0E from the karma, the byte raised by one with an 8-bit
   A; too little karma shows its notice until a key and clears DP 0E) run
-  `karmaLineSequence` and `buyStepSequence` of
-  [src/game/karma-menu.mjs](../src/game/karma-menu.mjs). The register-level karma menu
+  `karmaLine` and `buyStep` of
+  [src/game/karma-menu.mjs](../src/game/karma-menu.mjs) (RTS forms `karmaLineJsr` and
+  `buyStepJsr` in proof/caller/jsr-forms.mjs). The register-level karma menu
   and lists take them from their table when present; they run live with the lifted main
   menu.
   [tools/karma-menu-lift-functions.test.mjs](../tools/karma-menu-lift-functions.test.mjs)
@@ -1128,8 +1129,9 @@ which the render proof of 81:8076 keeps using.
   indices, the cursor DP 1A back on Exit when the row count changes, the numbered menu
   80:A6B8 in the redrawn list window; a row buys a step and shows the karma again; a
   Body step also raises 7E:3C00 by ten with an 8-bit A and the leader's state count
-  over 80:CECB) run `karmaListSequence` of
-  [src/game/karma-menu.mjs](../src/game/karma-menu.mjs). The same function test runs
+  over 80:CECB) run `karmaList` of
+  [src/game/karma-menu.mjs](../src/game/karma-menu.mjs) (RTS form `karmaListJsr` in
+  proof/caller/jsr-forms.mjs). The same function test runs
   each list (400 samples each; values none, below, at or above their limits, menu
   rows, Exit, cancels and purchases that clear DP 0E). Planted differences in both
   Exit headers, the limit compare, the row index, the Y left, the list end, the cursor
@@ -1139,7 +1141,8 @@ which the render proof of 81:8076 keeps using.
   and category windows with the karma line, the category menu 80:EF78; a category
   opens the header and list windows, runs its list and releases them; Exit or FFFF
   releases the windows and tops up the leader's state count and magic points) runs
-  `karmaMenuSequence` of [src/game/karma-menu.mjs](../src/game/karma-menu.mjs); the
+  `karmaMenu` of [src/game/karma-menu.mjs](../src/game/karma-menu.mjs) (RTS form
+  `karmaMenuJsr` in proof/caller/jsr-forms.mjs); the
   register-level menu takes the lists from its table when present. The function test
   runs it with stand-ins for the lists too and records S at every call, since the row
   stays on the stack over the detail windows (400 samples; Exit, FFFF, each list row
@@ -1153,7 +1156,7 @@ which the render proof of 81:8076 keeps using.
   menu; Exit or a cancel ends) and the save menu 80:CDD6 (a running countdown shows
   "Cannot save now" until a key; else the slots after Exit, or the port's list for
   four slots, and a slot n saves slot n - 1 with the lifted save 81:B17D, `saveGame` of
-  [src/game/save-slots.mjs](../src/game/save-slots.mjs), then sound 36) run `mainMenuSequence` and `saveMenuSequence` of
+  [src/game/save-slots.mjs](../src/game/save-slots.mjs), then sound 36) run `mainMenuSequence` and `saveMenu` (RTS form `saveMenuJsr` in proof/caller/jsr-forms.mjs) of
   [src/game/main-menu.mjs](../src/game/main-menu.mjs) as the script native 80:CE6D
   (the `lifted` parameter of its observed wrapper, lag-free frames). Its table has the
   lifted save and karma menus, lists, line, purchase, window, text, cursor, number,

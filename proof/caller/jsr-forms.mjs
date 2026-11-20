@@ -33,6 +33,8 @@ import {
   uploadSecondPortrait,
 } from '../../src/game/portrait-upload.mjs';
 import { openPortraitWindow, closePortraitWindow } from '../../src/game/portrait-window.mjs';
+import { buyStep, karmaLine, karmaList, karmaMenu } from '../../src/game/karma-menu.mjs';
+import { saveMenu } from '../../src/game/main-menu.mjs';
 
 function* rts(h) {
   let result;
@@ -214,5 +216,35 @@ export function* openPortraitWindowJsr(h, events) {
 // The closing as called with JSR (80:8F97); returns with its RTS.
 export function* closePortraitWindowJsr(h, events) {
   yield* closePortraitWindow(h, events);
+  return yield* rts(h);
+}
+
+// The step bought as called with JSR (80:F006); returns with its RTS.
+export function* buyStepJsr(h, events, renderBuffer = drawTextBufferSequence) {
+  yield* buyStep(h, events, renderBuffer);
+  return yield* rts(h);
+}
+
+// The karma line as called with JSR (80:EF82); returns with its RTS.
+export function* karmaLineJsr(h, events, renderBuffer = drawTextBufferSequence) {
+  yield* karmaLine(h, events, renderBuffer);
+  return yield* rts(h);
+}
+
+// The karma list as called with JSR; returns with its RTS.
+export function* karmaListJsr(h, events, entry, renderBuffer = drawTextBufferSequence) {
+  yield* karmaList(h, events, entry, renderBuffer);
+  return yield* rts(h);
+}
+
+// The karma menu as called with JSR (80:EE57); returns with its RTS.
+export function* karmaMenuJsr(h, events, renderBuffer = drawTextBufferSequence) {
+  yield* karmaMenu(h, events, renderBuffer);
+  return yield* rts(h);
+}
+
+// The save menu as called with JSR (80:CDD6); returns with its RTS.
+export function* saveMenuJsr(h, events, renderBuffer = drawTextBufferSequence) {
+  yield* saveMenu(h, events, renderBuffer);
   return yield* rts(h);
 }
