@@ -14,12 +14,9 @@ recordings in this game. This records the user's permission statement; the
 album is not described as an openly licensed asset.
 
 The twelve OGG files in [assets/tribute/](../assets/tribute/) are byte-identical
-copies of the supplied files in `Ressources/Julian Daniels - Shadowrun SNES
-Soundtrack (Tribute)/`, with shorter web filenames. No conversion, trimming,
-normalization or sample edits are applied. The supplied source OGG files and
-cover remain in the source folder and use Git LFS too. Only the web OGG copies
-are included by both the local server
-and `npm run build:web`. The local server supports audio byte ranges for seeking
+copies of the supplied album files, with shorter web filenames. No conversion,
+trimming, normalization or sample edits are applied. They use Git LFS and are
+included by both the local server and `npm run build:web`. The local server supports audio byte ranges for seeking
 and looping. See [STATIC-HOSTING.md](STATIC-HOSTING.md).
 
 Album and artist credit: [Shadowrun SNES Soundtrack (Tribute), Julian Daniels](https://juliandaniels.bandcamp.com/album/shadowrun-snes-soundtrack-tribute).

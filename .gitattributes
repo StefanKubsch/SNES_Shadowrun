@@ -7,5 +7,3 @@ assets/vm-cartridge.bin filter=lfs diff=lfs merge=lfs -text
 assets/vm-*.bmp filter=lfs diff=lfs merge=lfs -text
 assets/vm-samples/*.wav filter=lfs diff=lfs merge=lfs -text
 assets/tribute/*.ogg filter=lfs diff=lfs merge=lfs -text
-"Ressources/Julian Daniels - Shadowrun SNES Soundtrack (Tribute)/*.ogg" filter=lfs diff=lfs merge=lfs -text
-"Ressources/Julian Daniels - Shadowrun SNES Soundtrack (Tribute)/cover.jpg" filter=lfs diff=lfs merge=lfs -text
