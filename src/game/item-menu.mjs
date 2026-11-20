@@ -23,7 +23,7 @@
 //
 // Registers (user decision 2026-11-17): game state only; no callee takes a register
 // input, and the item use takes the actor (X in the original) as a parameter.
-import { dialogCallBody, segmentSequence } from '../system/native-call-continuation.mjs';
+import { dialogCallBody } from '../system/native-call-continuation.mjs';
 import { releaseNoticeWindowsSequence, releaseWindowSequence } from './window-release.mjs';
 import { openWindow, requestTileClear } from './window-open.mjs';
 import { chooseFromMenuSequence, MENU_WITH_NUMBERS } from './menu-choice.mjs';
@@ -105,8 +105,6 @@ const KIND_NAMES = 0x8cefb0,
 export const ITEM_ENTRIES = Object.freeze({ 0x80e572: 0, 0x80e577: 1, 0x80e57f: 2 });
 // The callees and their call sites.
 const MENU = [0x80e65b, 0x80a6ad],
-  USE_ITEM = [0x80e672, 0x80e4f3],
-  CREATE = [0x80e527, 0x80a835],
   VISIT = [0x80e545, 0x80c1ca],
   REDRAW_LIST = [0x80e552, 0x81aeb0],
   CONFIRM_KEY = [0x80e568, 0x80f953];
@@ -170,9 +168,9 @@ function listItems(mem) {
   return offset;
 }
 
-// 80:E572, 80:E577 or 80:E57F: the item submenu (see above). A sequence that ends with
-// its RTS.
-export function* itemMenuSequence(h, events, entry, renderBuffer = drawTextBufferSequence) {
+// 80:E572, 80:E577 or 80:E57F: the item submenu (see above), for lifted callers without
+// the JSR frame; the menu choice and the confirm key keep their own.
+export function* itemMenu(h, events, entry, renderBuffer = drawTextBufferSequence) {
   const { mem } = h.a,
     { wram } = mem;
   yield () => {
@@ -208,7 +206,7 @@ export function* itemMenuSequence(h, events, entry, renderBuffer = drawTextBuffe
       setWord(wram, DP_WINDOW_ROWS, window.rows);
       setWord(wram, DP_WINDOW_ATTRIBUTES, 0);
     };
-    if (empty) return yield* returnSequence(h);
+    if (empty) return;
     if (open) {
       yield* openWindow(h, events);
       yield () => setDataBankWord(mem, STATUS_SUBMENU_WINDOW, 0, word(wram, 0));
@@ -235,7 +233,7 @@ export function* itemMenuSequence(h, events, entry, renderBuffer = drawTextBuffe
       if (index) actor = dataBankWord(mem, ITEM_MENU_ACTORS, index);
     };
     if (actor === null) break;
-    yield* dialogCallBody(h, ...USE_ITEM, () => useItemSequence(h, events, renderBuffer, actor));
+    yield* useItem(h, events, renderBuffer, actor);
     let ended;
     yield () => {
       ended = dataBankWord(mem, DIALOG_END) !== 0;
@@ -246,12 +244,17 @@ export function* itemMenuSequence(h, events, entry, renderBuffer = drawTextBuffe
   }
   yield () => setWord(wram, 0, dataBankWord(mem, STATUS_SUBMENU_WINDOW));
   yield* releaseWindowSequence(h, events);
+}
+// The item submenu as called with JSR; returns with its RTS.
+export function* itemMenuSequence(h, events, entry, renderBuffer = drawTextBufferSequence) {
+  yield* itemMenu(h, events, entry, renderBuffer);
   return yield* returnSequence(h);
 }
 
-// 80:E4F3: use the item of the actor (X in the original; see above). A sequence that
-// ends with its RTS.
-export function* useItemSequence(h, events, renderBuffer, actor) {
+// 80:E4F3: use the item of the actor (X in the original; see above), without the JSR
+// frame; the object creation 80:A835 runs without one as well, the script visit keeps
+// its frame.
+export function* useItem(h, events, renderBuffer, actor) {
   const { mem } = h.a,
     { wram } = mem;
   yield () => {
@@ -269,12 +272,7 @@ export function* useItemSequence(h, events, renderBuffer, actor) {
     setWord(wram, DP_OBJECT_KIND, longWord(mem, entry + ACTOR_KIND));
     setWord(wram, DP_OBJECT_SCRIPT, longWord(mem, entry + ACTOR_SCRIPT));
   };
-  yield* dialogCallBody(h, ...CREATE, () =>
-    segmentSequence(() => {
-      createObject(mem, wram, h.a);
-      return h.rts();
-    }),
-  );
+  yield () => createObject(mem, wram, h.a);
   yield () => {
     const slot = word(wram, 0);
     setDataBankWord(mem, OBJECT_NUMBER, slot, actor);
@@ -293,7 +291,7 @@ export function* useItemSequence(h, events, renderBuffer, actor) {
     ended = dataBankWord(mem, DIALOG_END) !== 0;
     if (!ended) redraw = dataBankWord(mem, MEMBER_PORTRAIT_REDRAW);
   };
-  if (ended) return yield* returnSequence(h);
+  if (ended) return;
   if (redraw) {
     yield* dialogCallBody(h, ...REDRAW_LIST, () => resetWindowListSequence(h, events), true);
     yield* memberPortrait(h, events);
@@ -315,5 +313,9 @@ export function* useItemSequence(h, events, renderBuffer, actor) {
     yield* releaseNoticeWindowsSequence(h, events);
   }
   yield* equipmentRows(h, events, renderBuffer);
+}
+// The item use as called with JSR (80:E4F3); returns with its RTS.
+export function* useItemSequence(h, events, renderBuffer, actor) {
+  yield* useItem(h, events, renderBuffer, actor);
   return yield* returnSequence(h);
 }
