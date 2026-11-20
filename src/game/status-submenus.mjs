@@ -97,8 +97,9 @@ function setWindow(h, { left, top, columns }, rows) {
   setWord(wram, DP_WINDOW_ATTRIBUTES, 0);
 }
 
-// 80:E834: skills compose live callees directly and end with their RTS.
-export function* skillsSequence(h, events, renderBuffer = drawTextBufferSequence) {
+// 80:E834: the skills, composing live callees directly, for lifted callers without the
+// JSR frame (the confirm key keeps its own).
+export function* skills(h, events, renderBuffer = drawTextBufferSequence) {
   const { mem } = h.a,
     { wram } = mem,
     window = translatedSkillWindow(h.a.mem);
@@ -107,7 +108,7 @@ export function* skillsSequence(h, events, renderBuffer = drawTextBufferSequence
     for (let skill = 0; skill < SKILL_COUNT; skill++) if (recordByte(mem, skill)) known++;
     if (known) setWindow(h, window, known + SKILL_EXTRA_ROWS);
   };
-  if (!known) return yield* returnSequence(h);
+  if (!known) return;
   yield* openWindow(h, events);
   yield () => {
     setDataBankWord(mem, STATUS_SUBMENU_WINDOW, 0, word(wram, 0));
@@ -142,11 +143,17 @@ export function* skillsSequence(h, events, renderBuffer = drawTextBufferSequence
     setWord(wram, 0, dataBankWord(mem, STATUS_SUBMENU_WINDOW));
   };
   yield* releaseWindowSequence(h, events);
+}
+
+// The skills as called with JSR (80:E834); return with their RTS.
+export function* skillsSequence(h, events, renderBuffer = drawTextBufferSequence) {
+  yield* skills(h, events, renderBuffer);
   return yield* returnSequence(h);
 }
 
-// 80:E8C8: the notes (see above). A sequence that ends with its RTS.
-export function* notesSequence(h, events, renderBuffer = drawTextBufferSequence) {
+// 80:E8C8: the notes (see above), for lifted callers without the JSR frame (the confirm
+// key keeps its own).
+export function* notes(h, events, renderBuffer = drawTextBufferSequence) {
   const { mem } = h.a,
     { wram } = mem;
   const text = function* (value) {
@@ -171,12 +178,12 @@ export function* notesSequence(h, events, renderBuffer = drawTextBufferSequence)
     fitListWindow(mem, [TEXT_DATAJACK], { column: 0 });
   };
   if (!jake) {
-    if (!datajack) return yield* returnSequence(h);
+    if (!datajack) return;
     yield* openWindow(h, events);
     yield* text(TEXT_DATAJACK);
     yield* dialogCallBody(h, 0x80e8f9, CONFIRM_KEY, () => waitForConfirmKeySequence(h, events));
     yield* releaseWindowSequence(h, events);
-    return yield* returnSequence(h);
+    return;
   }
   yield* openWindow(h, events);
   yield* text(TEXT_HEAD_COMPUTER);
@@ -202,5 +209,9 @@ export function* notesSequence(h, events, renderBuffer = drawTextBufferSequence)
   }
   yield* dialogCallBody(h, 0x80e9a1, CONFIRM_KEY, () => waitForConfirmKeySequence(h, events));
   yield* releaseWindowSequence(h, events);
+}
+// The notes as called with JSR (80:E8C8); return with their RTS.
+export function* notesSequence(h, events, renderBuffer = drawTextBufferSequence) {
+  yield* notes(h, events, renderBuffer);
   return yield* returnSequence(h);
 }

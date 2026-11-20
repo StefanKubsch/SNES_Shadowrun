@@ -43,7 +43,7 @@ import { sendApuCommandInPlace } from '../apu/audio-routines.mjs';
 import { chooseFromMenuSequence, MENU } from './menu-choice.mjs';
 import { itemMenuSequence, ITEM_ENTRIES } from './item-menu.mjs';
 import { spellMenuSequence, STATUS_ENTRY } from './member-spell-menu.mjs';
-import { skillsSequence, notesSequence } from './status-submenus.mjs';
+import { skills, notes } from './status-submenus.mjs';
 import { taskStop } from '../system/task-stop.mjs';
 import { dataBankWord, setDataBankWord } from '../system/data-bank.mjs';
 import { DP_SCRATCH, STATUS_LAYOUT } from '../data/native-member-spell-menu.mjs';
@@ -378,7 +378,9 @@ export function* statusScreen(
       if (chosen === 0 || negative(chosen)) break;
     }
     direct = false;
-    let submenu, submenuSequence;
+    let submenu,
+      submenuSequence,
+      framed = true;
     yield () => {
       const offset = (chosen << 1) & WORD_MASK;
       submenu = CODE_BANK_BASE | dataBankWord(mem, SUBMENUS, offset);
@@ -386,12 +388,15 @@ export function* statusScreen(
         submenuSequence = itemMenuSequence(h, events, submenu, renderBuffer);
       else if (submenu === STATUS_ENTRY)
         submenuSequence = spellMenuSequence(h, events, STATUS_ENTRY, renderBuffer);
-      else if (submenu === SKILLS_MENU) submenuSequence = skillsSequence(h, events, renderBuffer);
-      else if (submenu === NOTES_MENU) submenuSequence = notesSequence(h, events, renderBuffer);
-      else taskStop('task_ea6e_submenu_open', { pc: 0x80ecea, x: offset, target: submenu });
+      else if (submenu === SKILLS_MENU || submenu === NOTES_MENU) {
+        framed = false;
+        submenuSequence = (submenu === SKILLS_MENU ? skills : notes)(h, events, renderBuffer);
+      } else taskStop('task_ea6e_submenu_open', { pc: 0x80ecea, x: offset, target: submenu });
     };
-    // JSR ECEA, whose JMP (ED2E,X) gives the submenu the JSR's frame.
-    yield* dialogCallBody(h, 0x80ece0, submenu, () => submenuSequence);
+    // JSR ECEA, whose JMP (ED2E,X) gives the submenu the JSR's frame; the skills and
+    // notes run without it.
+    if (framed) yield* dialogCallBody(h, 0x80ece0, submenu, () => submenuSequence);
+    else yield* submenuSequence;
     let ended;
     yield () => {
       ended = word(wram, DIALOG_END) !== 0;
