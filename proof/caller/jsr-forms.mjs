@@ -2,7 +2,7 @@
 // (moved from src/, whose live callers run the routines without their JSR frames). Each
 // runs the lifted sequence or function, then returns through the caller's JSR frame.
 import { printText } from '../../src/game/text-print.mjs';
-import { printNumber } from '../../src/game/window-text.mjs';
+import { printNumber, setTextCursor } from '../../src/game/window-text.mjs';
 import { drawTextBufferSequence } from '../../src/game/text-draw.mjs';
 
 function* rts(h) {
@@ -23,4 +23,10 @@ export function* printTextJsr(h, events, renderBuffer = drawTextBufferSequence) 
 export function* printNumberJsr(h, events, renderBuffer = drawTextBufferSequence) {
   yield* printNumber(h, events, renderBuffer);
   return yield* rts(h);
+}
+
+// The text cursor 80:FAAC.
+export function setTextCursorJsr(h) {
+  setTextCursor(h);
+  return h.rts();
 }

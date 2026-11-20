@@ -105,7 +105,7 @@ import {
   setTextCursor,
 } from '../proof/replay/native-list-prerequisites.mjs';
 import { MARK, UNMARK, drawListSequence, markRowSequence } from '../src/game/menu-list.mjs';
-import { setTextCursorRoutine } from '../src/game/window-text.mjs';
+import { setTextCursorJsr } from '../proof/caller/jsr-forms.mjs';
 import {
   CAMERA_BOX,
   CAMERA_SPEED_X,
@@ -1108,7 +1108,7 @@ const TEXT_CURSOR = {
     Object.assign(h.ctx, input);
     h.ctx.programBank = 0x80;
     h.push(0x1234, 2);
-    setTextCursorRoutine(h);
+    setTextCursorJsr(h);
     return dataBank(h);
   },
 };

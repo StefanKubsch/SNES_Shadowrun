@@ -11,7 +11,7 @@ import {
   runReleaseWindow,
   runOpenWindow,
 } from './upkeep-routines.mjs';
-import { setTextCursorRoutine } from '../../src/game/window-text.mjs';
+import { setTextCursorJsr } from './jsr-forms.mjs';
 import { playSoundEffectRoutine } from '../../src/apu/sound-effect.mjs';
 import { randomByteNative, randomBelowNative } from '../../src/script/native-script-leaves.mjs';
 export const MAIN_UPKEEP_ROUTINES = new Map([
@@ -21,7 +21,7 @@ export const MAIN_UPKEEP_ROUTINES = new Map([
   [0x80fa3e, runReleaseWindow],
   [0x80f963, runOpenWindow],
   [0x80fec1, runShowNotice],
-  [0x80faac, setTextCursorRoutine],
+  [0x80faac, setTextCursorJsr],
   [0x80fd80, runPrintNumber],
   [0x80fe69, runPrintText],
   [0x80fb39, runDrawTextBuffer],

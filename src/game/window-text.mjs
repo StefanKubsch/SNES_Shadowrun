@@ -81,11 +81,8 @@ export function setTextCursor(h) {
   setWord(wram, WINDOW_CURSOR_TILE + x, tile);
   setWord(wram, WINDOW_CURSOR_PIXEL + x, 0);
 }
-// The text cursor as called with JSR (80:FAAC); returns with its RTS.
-export function setTextCursorRoutine(h) {
-  setTextCursor(h);
-  return h.rts();
-}
+// The RTS form for register-level callers is setTextCursorJsr in
+// proof/caller/jsr-forms.mjs.
 
 // Print the number in the direct page word 02 into the window at its cursor (80:FD80)
 // for lifted callers, without the JSR frame (the caller's return word lies only in free
