@@ -13,9 +13,8 @@
 //
 // Registers (user decision 2026-11-17): game state only; the routine leaves no A, X, Y
 // or flags (the glove action, the object search and the scheduler round read none).
-import { dialogCallBody } from '../system/native-call-continuation.mjs';
 import { drawTextBufferSequence } from './text-draw.mjs';
-import { objectSearchSequence } from './object-search.mjs';
+import { objectSearch } from './object-search.mjs';
 import { releaseGloveNameWindowSequence } from './window-release.mjs';
 import {
   GLOVE_KIND,
@@ -40,9 +39,6 @@ const RIGHT = 1,
   LEFT = 2,
   DOWN = 4,
   UP = 8;
-// Original call sites.
-const SEARCH_CALL = 0x80bf37,
-  SEARCH_TARGET = 0x80bcbe;
 
 const word = (wram, at) => wram[at] | (wram[at + 1] << BYTE_BITS);
 const setWord = (wram, at, value) => {
@@ -85,10 +81,7 @@ export function* gloveMoveSequence(h, events, renderBuffer = drawTextBufferSeque
     if (!directions()) next = 'search';
     else if (!(word(wram, GLOVE_TARGET_TAG) & WORD_SIGN)) next = 'release';
   };
-  if (next === 'search')
-    yield* dialogCallBody(h, SEARCH_CALL, SEARCH_TARGET, () =>
-      objectSearchSequence(h, events, renderBuffer),
-    );
+  if (next === 'search') yield* objectSearch(h, events, renderBuffer);
   else if (next === 'release') yield* releaseGloveNameWindowSequence(h, events);
   let result;
   yield () => {

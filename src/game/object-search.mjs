@@ -125,10 +125,10 @@ const kindEntry = (kind) => {
   return { twice, entry: (shiftLeft(twice) + twice + (twice >>> (WORD_BITS - 1))) & WORD_MASK };
 };
 
-// Search the glove's object (80:BCBE), a sequence for a native call continuation: h the
-// main loop's access (direct page 0, data bank 80), events its frame events, renderBuffer
-// the text-buffer renderer.
-export function* objectSearchSequence(h, events, renderBuffer = drawTextBufferSequence) {
+// Search the glove's object (80:BCBE) for lifted callers, without the JSR frame (the
+// caller's return word lies only in free stack bytes): h the main loop's access (direct
+// page 0, data bank 80), events its frame events, renderBuffer the text-buffer renderer.
+export function* objectSearch(h, events, renderBuffer = drawTextBufferSequence) {
   const { mem } = h.a,
     { wram } = mem;
   // A field below 2000, read in the data bank 80 as the original; a field of the
@@ -188,14 +188,6 @@ export function* objectSearchSequence(h, events, renderBuffer = drawTextBufferSe
     return (right & WORD_SIGN) !== 0 || right < screenX;
   };
 
-  let result;
-  const rts = function* () {
-    yield () => {
-      result = h.rts();
-    };
-    return result;
-  };
-
   let slot = null,
     tag;
   yield () => {
@@ -221,7 +213,7 @@ export function* objectSearchSequence(h, events, renderBuffer = drawTextBufferSe
   const marked = !(tag & WORD_SIGN);
   if (slot === null) {
     if (marked) yield* releaseGloveNameWindowSequence(h, events);
-    return yield* rts();
+    return;
   }
   let same = false;
   if (marked) {
@@ -244,10 +236,10 @@ export function* objectSearchSequence(h, events, renderBuffer = drawTextBufferSe
       };
       if (away) {
         yield* releaseGloveNameWindowSequence(h, events);
-        return yield* rts();
+        return;
       }
     }
-    return yield* rts();
+    return;
   }
   // Another object was marked: it lets go first. The original keeps the slot and later
   // the name text on the stack; those words lie only in free stack bytes and are kept in
@@ -294,5 +286,14 @@ export function* objectSearchSequence(h, events, renderBuffer = drawTextBufferSe
     setWord(wram, DP_TEXT_COPY, text);
   };
   yield* printText(h, events, renderBuffer);
-  return yield* rts();
+}
+// The search as called with JSR (80:BCBE), a sequence for a native call continuation;
+// returns with its RTS.
+export function* objectSearchSequence(h, events, renderBuffer = drawTextBufferSequence) {
+  yield* objectSearch(h, events, renderBuffer);
+  let result;
+  yield () => {
+    result = h.rts();
+  };
+  return result;
 }
