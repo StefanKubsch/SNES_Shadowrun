@@ -63,6 +63,7 @@ const SHOWN_FAILURES = 20,
   MS_PER_SECOND = 1000;
 const MODULE = /\.(mjs|js)$/;
 const TEST = /\.test\.mjs$/;
+const GOLDEN = /^tools\/golden-[\w-]+\.test\.mjs$/;
 const IMPORT =
   /(?:import|export)\s[^'"]*?from\s*['"](\.{1,2}\/[^'"]+)['"]|import\s*\(\s*['"](\.{1,2}\/[^'"]+)['"]\s*\)|import\s+['"](\.{1,2}\/[^'"]+)['"]/g;
 
@@ -135,6 +136,9 @@ export function selectTests({ texts, importers, changed, depth = 2, extra = [] }
       if (TEST.test(test) && pattern.test(text)) add(test, `names ${path}`);
   }
   for (const path of extra) add(path, 'given with --with');
+  // The golden traces (docs/STATE-MODEL-REBUILD.md) check every change of the game.
+  if (changed.some((path) => path.startsWith('src/')))
+    for (const test of texts.keys()) if (GOLDEN.test(test)) add(test, 'golden trace of src/');
   return selected;
 }
 

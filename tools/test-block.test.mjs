@@ -56,6 +56,20 @@ test('a test file is not a path to further tests', () => {
   );
 });
 
+test('a change in src selects every golden trace, a change in tools none', () => {
+  const files = graph({
+    'src/game/menu.mjs': '',
+    'tools/menu.mjs': '',
+    'tools/golden-attract.test.mjs': '',
+    'tools/golden-new-game.test.mjs': '',
+  });
+  const golden = ['tools/golden-attract.test.mjs', 'tools/golden-new-game.test.mjs'];
+  const fromSrc = selectTests({ ...files, changed: ['src/game/menu.mjs'] });
+  assert.deepEqual([...fromSrc.keys()].sort(), golden);
+  assert.equal(fromSrc.get(golden[0]), 'golden trace of src/');
+  assert.equal(selectTests({ ...files, changed: ['tools/menu.mjs'] }).size, 0);
+});
+
 test('every slow tier entry names an existing test file and test', () => {
   for (const path of SLOW_FILES.keys()) assert.ok(existsSync(path), path);
   for (const [name, path] of SLOW_TESTS)

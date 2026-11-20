@@ -1,7 +1,7 @@
 {
-  "updated": "2026-11-17",
-  "focus": "Register-level code the live game no longer loads moved from src/ to proof/ in a twenty-block batch (contract: docs/SCENE-REFERENCE-OWNERSHIP.md). Batch state: HANDOFF.md.",
-  "next_step": "Continue moving proof-only register-level exports out of src/ where a lifted live path exists; shape editing and S-MIX stay deferred. Twenty-block batches, one commit each, then one release and push.",
+  "updated": "2026-11-20",
+  "focus": "State model rebuild (docs/STATE-MODEL-REBUILD.md): golden traces of the current game, then a typed game state with a projection to WRAM, subsystem by subsystem, a plain frame loop and a picture built without PPU registers. Batch state: HANDOFF.md.",
+  "next_step": "Phase 2: introduce the typed state model and the projection (identity at first) and move the first subsystem (objects, movement and collision) out of WRAM. One block per subsystem with test:block and the golden traces; release and push after every two to three subsystems.",
   "porting_resume": "216 original-form bytes remain: 121 code and 95 unidentified data. Read/hardware/data boundaries: docs/ROM-CODE-AUDIT.md. Unknown bytes and unused graphics stay preserved; unrecorded paths can report rom_byte_absent.",
   "open_issues": [
     "Keyword overflow: synthetic insertion of a 51st retained topic corrupts flags in European source and lifted code. Marking does not free storage. A reachable regular story route and a compatible gameplay correction remain unproved; see docs/BUGFIXES.md.",
@@ -20,6 +20,7 @@
   ],
   "optional_quality_checks": [],
   "references": [
+    "docs/STATE-MODEL-REBUILD.md",
     "docs/TEXT-ENTRY-COMPOSITION.md",
     "docs/SCENE-COMMAND-COMPOSITION.md",
     "docs/SCENE-ENTRY-COMPOSITION.md",

@@ -264,6 +264,16 @@ frame model, and replays with recorded interrupt observations run only against t
 references in `proof`. The game code stays as clean and simple as possible. Plan and
 phases: [SCRIPT-VM-LIFT.md](SCRIPT-VM-LIFT.md).
 
+## Decision of 2026-11-20: state model rebuild
+
+The routine-by-routine lift reached its limit: byte-identical WRAM as the comparison
+rule kept the SNES memory layout, direct page scratch and call frames in `src`. The user
+decided (2026-11-20): game state is compared through a projection of a typed state model
+plus golden traces of the current game; a block is a whole subsystem; the picture also
+moves away from the PPU registers (audio stays on the SNES model); the register-level
+code in `proof` is frozen. Plan, phases and cadence:
+[STATE-MODEL-REBUILD.md](STATE-MODEL-REBUILD.md).
+
 ## Later quality-of-life changes and other platforms
 
 The interpreter route blocks none of these, it rather makes them easier:
