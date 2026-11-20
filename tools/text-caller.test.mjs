@@ -1,8 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { printTextJsr } from '../proof/caller/jsr-forms.mjs';
+import { printNumberJsr, printTextJsr } from '../proof/caller/jsr-forms.mjs';
 import { printTextSequence as formerText } from '../proof/caller/text-print.mjs';
-import { printNumberSequence } from '../src/game/window-text.mjs';
 import { printNumberSequence as formerNumber } from '../proof/caller/window-text.mjs';
 import { NativeCallContinuation } from '../src/system/native-call-continuation.mjs';
 import { WAIT_PAUSED } from '../src/system/native-wait-continuation.mjs';
@@ -108,7 +107,7 @@ for (const budget of [1, 7])
     test(`number renderer interface: ${value}, budget ${budget}`, () => {
       // Game state only (user decision 2026-11-17): the lifted number leaves no A, X, Y
       // and flags.
-      const actual = run(printNumberSequence, value, budget, false),
+      const actual = run(printNumberJsr, value, budget, false),
         previous = run(formerNumber, value, budget, false);
       assert.deepEqual(strip(actual), strip(previous));
       const bytes = actual.calls[0][2],

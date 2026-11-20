@@ -29,8 +29,7 @@ import {
   uploadSecondPortraitSequence,
 } from '../../src/game/portrait-upload.mjs';
 import { reloadObjectTiles } from '../../src/game/object-tiles.mjs';
-import { printNumberSequence } from '../../src/game/window-text.mjs';
-import { printTextJsr } from './jsr-forms.mjs';
+import { printNumberJsr, printTextJsr } from './jsr-forms.mjs';
 import { drawTextBufferSequence } from '../../src/game/text-draw.mjs';
 import { openWindowSequence } from '../../src/game/window-open.mjs';
 import { chooseActionSequence } from '../../src/game/action-menu.mjs';
@@ -58,11 +57,11 @@ NATIVE_CALL_CONTINUATIONS.set(runPutGloveAway, {
 });
 // 80:FD80, called with JSR; its text buffer 80:FB39 waits for the NMI.
 export function runPrintNumber(h, events) {
-  return drainNativeSequence(printNumberSequence(h, events));
+  return drainNativeSequence(printNumberJsr(h, events));
 }
 NATIVE_CALL_CONTINUATIONS.set(runPrintNumber, {
   run: runPrintNumber,
-  create: ({ h, events }) => new NativeCallContinuation(h.a, printNumberSequence(h, events)),
+  create: ({ h, events }) => new NativeCallContinuation(h.a, printNumberJsr(h, events)),
 });
 // 80:FE69, called with JSR; its text buffer 80:FB39 waits for the NMI.
 export function runPrintText(h, events) {

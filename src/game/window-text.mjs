@@ -124,12 +124,4 @@ export function* printNumber(h, events, renderBuffer = drawTextBufferSequence) {
     ctx.bank = bank;
   };
 }
-// The number print as called with JSR (80:FD80); returns with its RTS.
-export function* printNumberSequence(h, events, renderBuffer = drawTextBufferSequence) {
-  yield* printNumber(h, events, renderBuffer);
-  let result;
-  yield () => {
-    result = h.rts();
-  };
-  return result;
-}
+// The RTS form for register-level callers is printNumberJsr in proof/caller/jsr-forms.mjs.
