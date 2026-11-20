@@ -30,11 +30,10 @@ import { CODE_BANK } from '../constants/memory-map.mjs';
 import { BYTE_BITS, BYTE_MASK, WORD_MASK } from '../constants/bits.mjs';
 
 // The routines the cycle calls through their original frames: the title, the start
-// menu, the attract game's owner, the credits cutscene and the room start of
+// menu, the credits cutscene and the room start of
 // the attract game.
 const TITLE = 0x81d694,
   START_MENU = 0x81e14a,
-  ATTRACT_OWNER = 0x8096f3,
   CUTSCENE = 0x81cdf8,
   START_ROOM = 0x809699;
 // Call sites (the return addresses the callees see).
@@ -44,7 +43,6 @@ const TITLE_SITE = 0x80a1b1,
   MENU_SITE = 0x80a1c7,
   MENU_AGAIN_SITE = 0x80a1d6,
   ATTRACT_SITE = 0x80a1d0,
-  ATTRACT_OWNER_SITE = 0x80a16c,
   START_ROOM_SITE = 0x8096fc;
 // The title song; the start menu's answer of a cancel or timeout; the attract room.
 const SONG_NONE = 0,
@@ -183,13 +181,7 @@ export function* attractGame(h, events, routines) {
     setUpGameAudio(m);
     ctx.bank = CODE_BANK;
   };
-  yield* dialogCallBody(
-    h,
-    ATTRACT_OWNER_SITE,
-    ATTRACT_OWNER,
-    () => attractDemoSequence(h, events, routines),
-    true,
-  );
+  yield* attractDemo(h, events, routines);
   yield () => {
     startSceneScreen(m.wram, m.video, m.port);
     startSong(m.mem, m.port, SONG_NONE);
@@ -199,11 +191,12 @@ export function* attractGame(h, events, routines) {
   };
 }
 
-// 80:96F3: the demo itself. No countdown, a new game's state (80:960D without its JSR
-// frame, whose return word lies only in free stack bytes; the first room it returns
-// is not kept), and the game's main loop in room AB (80:9699, register-level) until
-// the demo ends.
-export function* attractDemoSequence(h, events, routines) {
+// 80:96F3: the demo itself, without the attract game's JSL frame (its return word lies
+// only in free stack bytes; the room start's JSR frame stays, the main loop returns
+// through it). No countdown, a new game's state (80:960D without its JSR frame, whose
+// return word lies only in free stack bytes; the first room it returns is not kept),
+// and the game's main loop in room AB (80:9699, register-level) until the demo ends.
+export function* attractDemo(h, events, routines) {
   const { ctx } = h;
   yield () => {
     ctx.bank = CODE_BANK;
@@ -213,9 +206,4 @@ export function* attractDemoSequence(h, events, routines) {
   yield* dialogCallBody(h, START_ROOM_SITE, START_ROOM, () =>
     attractRoundsSequence(h, events, routines, ATTRACT_ROOM),
   );
-  let result;
-  yield () => {
-    result = h.rtl();
-  };
-  return result;
 }
