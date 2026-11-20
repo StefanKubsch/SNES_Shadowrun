@@ -195,10 +195,5 @@ export function* roomStartSequence(h, events, room) {
   return ctx.pc;
 }
 
-// 80:960D as called with JSR, for register-level harnesses: start a new game. Game
-// state only (user decision 2026-11-17): the first room the original returns in A is
-// not kept. The title cycle's demo runs startNewGame without the frame.
-export function runNewGame(h) {
-  startNewGame(h.a);
-  return h.rts();
-}
+// The title cycle's demo runs startNewGame (80:960D) without the frame; the RTS form
+// for register-level harnesses is startNewGameJsr in proof/caller/jsr-forms.mjs.

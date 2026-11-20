@@ -11,6 +11,7 @@ import { printNumber, setTextCursor } from '../../src/game/window-text.mjs';
 import { decimalNumber } from '../../src/game/decimal-number.mjs';
 import { hitObject } from '../../src/game/object-hit.mjs';
 import { objectSearch } from '../../src/game/object-search.mjs';
+import { startNewGame } from '../../src/game/game-start.mjs';
 import { drawTextBufferSequence } from '../../src/game/text-draw.mjs';
 
 function* rts(h) {
@@ -89,4 +90,11 @@ export function* hitObjectJsr(h, events, renderBuffer, damage, target, shooter) 
 export function* objectSearchJsr(h, events, renderBuffer = drawTextBufferSequence) {
   yield* objectSearch(h, events, renderBuffer);
   return yield* rts(h);
+}
+
+// A new game 80:960D. Game state only (user decision 2026-11-17): the first room the
+// original returns in A is not kept.
+export function startNewGameJsr(h) {
+  startNewGame(h.a);
+  return h.rts();
 }
