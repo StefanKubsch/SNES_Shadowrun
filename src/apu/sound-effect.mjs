@@ -106,7 +106,9 @@ export function playSoundEffect(mem, port, { object, effect, level, voices }) {
 // bank at 80. Game state only (user decision 2026-11-17): no direct page register is
 // read, and the effect, sound word and command the original leaves in Y, X and A are not
 // kept; every caller sets its own before reading them.
-export function playSoundEffectRoutine(h) {
+// playSoundEffectCall is it without the JSR frame for lifted callers (the caller's
+// return word lies only in free stack bytes).
+export function playSoundEffectCall(h) {
   const { ctx } = h,
     { mem } = h.a,
     { wram } = mem,
@@ -118,5 +120,9 @@ export function playSoundEffectRoutine(h) {
     voices: dp(DP_VOICES),
   });
   ctx.bank = CODE_BANK;
+}
+// The sound effect as called with JSR (80:C46E); returns with its RTS.
+export function playSoundEffectRoutine(h) {
+  playSoundEffectCall(h);
   return h.rts();
 }

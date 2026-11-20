@@ -21,7 +21,7 @@ import { printText } from './text-print.mjs';
 import { showNoticeSequence } from './notice-show.mjs';
 import { drawTextBufferSequence } from './text-draw.mjs';
 import { setMusicModeCall } from '../apu/audio-routines.mjs';
-import { playSoundEffectRoutine } from '../apu/sound-effect.mjs';
+import { playSoundEffectCall } from '../apu/sound-effect.mjs';
 import { setMusicMode } from '../apu/music-mode.mjs';
 import { dataBankWord, setDataBankWord } from '../system/data-bank.mjs';
 import { dialogCallBody, segmentSequence } from '../system/native-call-continuation.mjs';
@@ -102,7 +102,6 @@ const KARMA_NOTICE = { left: 10, top: 2, columns: 9, wideColumns: 10, rows: 3 },
   MUSIC_OFF = 0;
 // Original call sites (JSR, the music JSL) and callees.
 const NOTICE_CALL = [0x8085e4, 0x80fec1],
-  SOUND_CALL = [0x808614, 0x80c46e],
   MUSIC_RESTORE_SITE = 0x808624,
   MUSIC_OFF_SITE = 0x80862c,
   MUSIC_MODE = 0x81ef47;
@@ -175,7 +174,7 @@ export function* removeFromFightListSequence(h, events, renderBuffer = drawTextB
       setWord(wram, DP_SOUND_VOICE, KARMA_SOUND_VOICES);
       setWord(wram, DP_SOUND_EFFECT, KARMA_SOUND);
     };
-    yield* dialogCallBody(h, ...SOUND_CALL, () => segmentSequence(() => playSoundEffectRoutine(h)));
+    yield* segmentSequence(() => playSoundEffectCall(h));
   }
   if (state === 'gain' || state === 'ended') {
     let site = null,

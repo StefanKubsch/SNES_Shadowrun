@@ -24,7 +24,7 @@ import { dialogCallBody, segmentSequence } from '../system/native-call-continuat
 import { openWindow } from './window-open.mjs';
 import { releaseWindowSequence } from './window-release.mjs';
 import { chooseFromMenuSequence } from './menu-choice.mjs';
-import { playSoundEffectRoutine } from '../apu/sound-effect.mjs';
+import { playSoundEffectCall } from '../apu/sound-effect.mjs';
 import { karmaMenuSequence } from './karma-menu.mjs';
 import { printText } from './text-print.mjs';
 import { waitForConfirmKeySequence } from './confirm-key.mjs';
@@ -59,7 +59,6 @@ import { BYTE_BITS, BYTE_MASK, WORD_BITS, WORD_MASK, WORD_SIGN } from '../consta
 
 const CONFIRM_KEY = 0x80f953,
   PLAIN_MENU = 0x80a6c7,
-  SOUND_EFFECT = 0x80c46e,
   SAVE_MENU = 0x80cdd6,
   KARMA_MENU = 0x80ee57;
 // The menus' window (0A, 0A, 0C columns; five rows, seven with four slots; three or
@@ -189,10 +188,7 @@ export function* saveMenuSequence(h, events, renderBuffer = drawTextBufferSequen
     setWord(wram, DP_SOUND_VOICE, BYTE_MASK);
     setWord(wram, 2, SAVE_SOUND);
   };
-  if (slot && !negative(slot))
-    yield* dialogCallBody(h, 0x80ce31, SOUND_EFFECT, () =>
-      segmentSequence(() => playSoundEffectRoutine(h)),
-    );
+  if (slot && !negative(slot)) yield* segmentSequence(() => playSoundEffectCall(h));
   yield* releaseMenuWindow(h, events);
   return yield* returnSequence(h);
 }

@@ -31,7 +31,7 @@
 // playing it) lie only in free stack bytes and are kept in locals.
 import { dialogCallBody, segmentSequence } from '../system/native-call-continuation.mjs';
 import { frameWaitCallSequence, takePad } from '../system/live-input-calls.mjs';
-import { playSoundEffectRoutine } from '../apu/sound-effect.mjs';
+import { playSoundEffectCall } from '../apu/sound-effect.mjs';
 import { drawTextBufferSequence } from './text-draw.mjs';
 import { drawListSequence, markRowSequence, MARK, UNMARK } from './menu-list.mjs';
 import { requestTileClear } from './window-open.mjs';
@@ -90,11 +90,9 @@ const SITES = Object.freeze({
   moveMark: 0x80a795,
   hotkeyUnmark: 0x80a7d1,
   confirmUnmark: 0x80a802,
-  sound: 0x80a819,
   cancelUnmark: 0x80a829,
 });
 const WAIT = 0x81b0a1,
-  SOUND = 0x80c46e,
   LIST = 0x80a617,
   MARK_ROW = 0x80a5f9,
   UNMARK_ROW = 0x80a5db;
@@ -162,7 +160,7 @@ export function* chooseFromMenuSequence(
   // Confirm the selection: the sound, the row in 00, the pad word once more.
   const confirm = function* () {
     yield () => soundArguments(CONFIRM_SOUND);
-    yield* helper(SITES.sound, SOUND, () => segmentSequence(() => playSoundEffectRoutine(h)));
+    yield* segmentSequence(() => playSoundEffectCall(h));
     yield () => store(DP_RESULT, field(MENU_SELECTION) >>> 1);
     yield* pad();
     return yield* rts();
