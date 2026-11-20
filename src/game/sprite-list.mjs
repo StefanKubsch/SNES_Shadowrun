@@ -12,16 +12,17 @@
 // 80:B933), and the NMI gets one more job list (7E:1562).
 //
 // The sort (src/game/depth-sort.mjs) and the palette slots (src/game/palette-slots.mjs)
-// are lifted, and so are the OAM entries (src/game/object-sprites.mjs), which run through
-// their frames. The fill and the job count run without their JSL frames, whose return
-// words lie only in free stack bytes. The list position the original pushes over each
-// OAM entry call lies there too and is kept in a local (game state only, user decision
-// 2026-11-17). Registers (user decision 2026-11-17): game state only; no A, X, Y or
-// flags are left (the main loop and the talk end read none of them), and the object and picture
-// pass to the OAM entry as parameters.
+// are lifted, and so are the OAM entries (src/game/object-sprites.mjs), which run
+// through their frames. The palette reset, the fill and the job count run without their
+// JSL frames, whose return words lie only in free stack bytes. The list position the
+// original pushes over each OAM entry call lies there too and is kept in a local (game
+// state only, user decision 2026-11-17). Registers (user decision 2026-11-17): game
+// state only; no A, X, Y or flags are left (the main loop and the talk end read none of
+// them), and the object and picture pass to the OAM entry as parameters.
 import { taskStop } from '../system/task-stop.mjs';
 import { sortDrawList } from './depth-sort.mjs';
-import { paletteSlot, resetPaletteSlots } from './palette-slots.mjs';
+import { paletteSlot } from './palette-slots.mjs';
+import { clearPaletteSlots } from './game-screen.mjs';
 import { enterObjectSprites } from './object-sprites.mjs';
 import {
   DRAW_LIST,
@@ -58,8 +59,6 @@ const HIDE_SEQUENCE = 0xb933,
 // Original call sites.
 const SORT_CALL = 0xb8de,
   SORT_TARGET = 0x80affc,
-  PALETTES_CALL = 0xb8e1,
-  PALETTES_TARGET = 0x81a840,
   PLAYER_PALETTE_CALL = 0xb8f1,
   PALETTE_TARGET = 0x80ab0a,
   OAM_CALL = 0xb911,
@@ -81,7 +80,8 @@ const lowField = (wram, base, index) => {
 export function buildSpritesInPlace(h) {
   const { wram } = h.a.mem;
   h.call(SORT_CALL, SORT_TARGET, () => sortDrawList(h));
-  h.call(PALETTES_CALL, PALETTES_TARGET, () => resetPaletteSlots(h), true);
+  // The palette slots reset 81:A840, without its JSL frame.
+  clearPaletteSlots(wram);
   // The OAM high table fill 81:A7FC, without its JSL frame (the return word lies only
   // in free stack bytes).
   for (let at = 0; at < OAM_HIGH_TABLE_BYTES; at += 2)

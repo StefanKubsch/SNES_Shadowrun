@@ -116,16 +116,16 @@ attract demo's new game 80:960D); the music stop 81:EF94 with sendApuCommandInPl
 attractGame (the cycle's attract game 80:A168); attractDemo (its demo 80:96F3; the
 room start's frame stays, the main loop returns through it); the equipment rows' item
 text 80:E9A8; the sprite list's OAM high table fill 81:A7FC; its NMI job count
-81:A954; objectSearch (the glove move's search); gloveMove (the glove choices'
-frames; the word wait keeps its frame); putting the glove on (80:BC67 and 80:BC99
-with 80:BC36, both frames); the in-reach choice 80:9C40 (its callers 80:9BC6 and the
-script's 80:9C33); the number choice 80:9BC6 (the script's 80:9BB9); the window
-release, the glove, the notice windows' release and the name window release already
-had one. The player control selects animations and turns through the plain functions
-of [object-turn.mjs](../src/game/object-turn.mjs). The unused call sites go with the
-frames. Frames stay where a callee's own wait or a recorded routine returns from them
-(the word wait, the menu choice, the confirm key, the portrait unpack and tile
-upload, the topic action's append and visit).
+81:A954; its palette slot reset 81:A840; objectSearch (the glove move's search);
+gloveMove (the glove choices' frames; the word wait keeps its frame); putting the
+glove on (80:BC67 and 80:BC99 with 80:BC36, both frames); the in-reach choice 80:9C40
+(its callers 80:9BC6 and the script's 80:9C33); the number choice 80:9BC6 (the
+script's 80:9BB9); the window release, the glove, the notice windows' release and the
+name window release already had one. The player control selects animations and turns
+through the plain functions of [object-turn.mjs](../src/game/object-turn.mjs). The
+unused call sites go with the frames. Frames stay where a callee's own wait or a
+recorded routine returns from them (the word wait, the menu choice, the confirm key,
+the portrait unpack and tile upload, the topic action's append and visit).
 
 ## Lifted so far
 

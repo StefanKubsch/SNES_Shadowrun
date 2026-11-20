@@ -3,7 +3,7 @@
 // clearPaletteSlots in proof/system/main-initialize.mjs).
 //
 // Each pass the sprite list empties the palette upload list 7E:17D4 and unsets every
-// object palette's slot 7E:17E6 (81:A840). Every drawn object's palette then gets a slot
+// object palette's slot 7E:17E6 (81:A840, clearPaletteSlots in game-screen.mjs). Every drawn object's palette then gets a slot
 // (80:AB0A): an unset one (sign set) takes the next free one, the upload list's length
 // in bytes, and the palette's own offset is appended to the upload list, which the NMI
 // copies into the sprite colours. The OAM entry reads the slot as its palette bits.
@@ -13,7 +13,6 @@
 // callers overwrite them). The new slot keeps the palette offset in the direct page
 // word 6B as the original.
 import { taskStop } from '../system/task-stop.mjs';
-import { clearPaletteSlots } from './game-screen.mjs';
 import { PALETTE_SLOTS, PALETTE_UPLOAD_LIST, PALETTE_UPLOAD_LIST_BYTES } from '../data/wram.mjs';
 import { BYTE_BITS, BYTE_MASK, WORD_MASK, WORD_SIGN } from '../constants/bits.mjs';
 
@@ -32,12 +31,6 @@ const at = (base, index) => {
   if (base + index + 1 >= LOW_WRAM_END) taskStop('palette_slot_required', { base, index });
   return base + index;
 };
-
-// Unset all palette slots (81:A840, called with JSL).
-export function resetPaletteSlots(h) {
-  clearPaletteSlots(h.a.mem.wram);
-  return h.rtl();
-}
 
 // The slot of the palette (80:AB0A, called with JSR): returns the slot after its RTS.
 export function paletteSlot(h, palette) {
