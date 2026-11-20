@@ -21,26 +21,18 @@ import {
   DRAW_LIST,
   DRAW_LIST_INDEX,
   MOTION_ACTIVE,
-  OBJECT_ACTION_DIRECTIONS,
-  OBJECT_ANIMATION_CLOCK,
   OBJECT_BOX_HEIGHT,
   OBJECT_BOX_X1,
   OBJECT_BOX_X2,
   OBJECT_BOX_Y1,
   OBJECT_BOX_Y2,
-  OBJECT_FRAME_REPEATS,
-  OBJECT_KIND,
-  OBJECT_PICTURE,
-  OBJECT_PICTURE_CHANGE,
-  OBJECT_SELECTION,
-  OBJECT_VRAM_SLOT_COUNT,
-  OBJECT_VRAM_SLOT_HEAD,
   VRAM_SLOT_COUNT,
   VRAM_SLOT_FREE_LIST,
   VRAM_SLOT_NEXT,
   WRAM,
 } from '../data/wram.mjs';
 import { LONG_MASK, WORD_BITS, WORD_MASK } from '../constants/bits.mjs';
+import { bankObjectWord, setBankObjectWord, setLongObjectWord } from '../state/objects.mjs';
 
 // The direct page: the object and the countdown of the VRAM slots still to free.
 const DP_OBJECT = 0,
@@ -72,25 +64,25 @@ export function releaseObjectGraphics(mem, a) {
     MOTION_ACTIVE,
   ])
     setWramWord(mem, field + object, 0);
-  setBankWord(a, OBJECT_PICTURE_CHANGE + object, 0);
-  setWramWord(mem, OBJECT_PICTURE + object, 0);
-  setBankWord(a, OBJECT_ACTION_DIRECTIONS + object, 0);
-  setBankWord(a, OBJECT_SELECTION + object, WORD_MASK);
-  setWramWord(mem, OBJECT_ANIMATION_CLOCK + object, ANIMATION_CLOCK_START);
-  setWramWord(mem, OBJECT_FRAME_REPEATS + object, 1);
-  const count = bankWord(a, OBJECT_VRAM_SLOT_COUNT + object);
+  setBankObjectWord(a, 'pictureChange', object, 0);
+  setLongObjectWord(mem, 'picture', object, 0);
+  setBankObjectWord(a, 'actionDirections', object, 0);
+  setBankObjectWord(a, 'selection', object, WORD_MASK);
+  setLongObjectWord(mem, 'animationClock', object, ANIMATION_CLOCK_START);
+  setLongObjectWord(mem, 'frameRepeats', object, 1);
+  const count = bankObjectWord(a, 'vramSlotCount', object);
   if (count === 0) return;
   setDirectWord(mem, DP_SLOTS_LEFT, count);
   setBankWord(a, VRAM_SLOT_COUNT, count + bankWord(a, VRAM_SLOT_COUNT));
   do {
-    const slot = bankWord(a, OBJECT_VRAM_SLOT_HEAD + object);
-    setBankWord(a, OBJECT_VRAM_SLOT_HEAD + object, bankWord(a, VRAM_SLOT_NEXT + slot));
+    const slot = bankObjectWord(a, 'vramSlotHead', object);
+    setBankObjectWord(a, 'vramSlotHead', object, bankWord(a, VRAM_SLOT_NEXT + slot));
     const free = bankWord(a, VRAM_SLOT_FREE_LIST);
     setBankWord(a, VRAM_SLOT_FREE_LIST, slot);
     setBankWord(a, VRAM_SLOT_NEXT + slot, free);
     setDirectWord(mem, DP_SLOTS_LEFT, directWord(mem, DP_SLOTS_LEFT) - 1);
   } while (directWord(mem, DP_SLOTS_LEFT) !== 0);
-  setBankWord(a, OBJECT_VRAM_SLOT_COUNT + object, 0);
+  setBankObjectWord(a, 'vramSlotCount', object, 0);
 }
 
 // 80:A8F5: release the object in word 00 (AA4C), free its kind and take it off the draw
@@ -98,7 +90,7 @@ export function releaseObjectGraphics(mem, a) {
 // reproduced (game state only, user decision 2026-11-17).
 export function removeObject(mem, a) {
   releaseObjectGraphics(mem, a);
-  setWramWord(mem, OBJECT_KIND + directWord(mem, DP_OBJECT), FREE_KIND);
+  setLongObjectWord(mem, 'kind', directWord(mem, DP_OBJECT), FREE_KIND);
   let index = bankWord(a, DRAW_LIST_INDEX);
   setBankWord(a, DRAW_LIST_INDEX, bankWord(a, DRAW_LIST_INDEX) - 1);
   setBankWord(a, DRAW_LIST_INDEX, bankWord(a, DRAW_LIST_INDEX) - 1);

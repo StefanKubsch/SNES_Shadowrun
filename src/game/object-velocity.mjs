@@ -9,15 +9,7 @@
 // of the divisor, with the axis's sign. A jump adds half the divisor to the height
 // velocity, so the object rises. The divisions run on the hardware divider as in the
 // original (on another platform: an unsigned 16 by 8 bit division).
-import {
-  OBJECT_HEIGHT,
-  OBJECT_VELOCITY_X,
-  OBJECT_VELOCITY_Y,
-  OBJECT_VELOCITY_Z,
-  OBJECT_X,
-  OBJECT_Y,
-} from '../data/wram.mjs';
-import { dataBankWord, setDataBankWord } from '../system/data-bank.mjs';
+import { objectWord, setObjectWord } from '../state/objects.mjs';
 import { RDDIVL, WRDIVB, WRDIVL } from '../constants/hardware-registers.mjs';
 import { BYTE_BITS, BYTE_MASK, WORD_BITS, WORD_MASK, WORD_SIGN } from '../constants/bits.mjs';
 
@@ -40,14 +32,14 @@ const SITES = {
   y: [0x808e1a, 0x808e21, 0x808e2c],
 };
 
-// The object fields are reached through the data bank 80 as the original does
-// (src/system/data-bank.mjs).
+// The object fields come from the object table (src/state/objects.mjs); a value that is
+// no slot reaches the original's word through the data bank 80.
 
 // The position of object as a point.
 export const objectPoint = (mem, object) => ({
-  x: dataBankWord(mem, OBJECT_X, object),
-  y: dataBankWord(mem, OBJECT_Y, object),
-  height: dataBankWord(mem, OBJECT_HEIGHT, object),
+  x: objectWord(mem, 'x', object),
+  y: objectWord(mem, 'y', object),
+  height: objectWord(mem, 'height', object),
 });
 // The point index of number: 6 times the number in 16 bits, from the original's
 // subtractions with their borrow (they differ for numbers above 1FFF).
@@ -73,15 +65,15 @@ export function listPoint(mem, list, number) {
 // more. Returns the original's working values: the signs (FFFF: negative) and
 // magnitudes per axis and the divisor.
 export function setVelocityTowards(mem, port, object, point, move) {
-  const axis = (target, offset) => {
-    const distance = (target - dataBankWord(mem, offset, object)) & WORD_MASK;
+  const axis = (target, field) => {
+    const distance = (target - objectWord(mem, field, object)) & WORD_MASK;
     return distance & WORD_SIGN
       ? { sign: NEGATIVE, magnitude: -distance & WORD_MASK }
       : { sign: 0, magnitude: distance };
   };
-  const x = axis(point.x, OBJECT_X),
-    y = axis(point.y, OBJECT_Y),
-    height = axis(point.height, OBJECT_HEIGHT);
+  const x = axis(point.x, 'x'),
+    y = axis(point.y, 'y'),
+    height = axis(point.height, 'height');
   // The sum adds with the carry of the first addition, as the original's ADC chain.
   const first = height.magnitude + x.magnitude,
     sum = ((first & WORD_MASK) + y.magnitude + (first >>> WORD_BITS)) & WORD_MASK;
@@ -94,19 +86,19 @@ export function setVelocityTowards(mem, port, object, point, move) {
     let value = sign ^ port.read(RDDIVL, 2, quotientSite);
     // The original completes the negation whenever the result has its sign set.
     if (value & WORD_SIGN) value = (value + 1) & WORD_MASK;
-    setDataBankWord(mem, target, object, value);
+    setObjectWord(mem, target, object, value);
   };
-  velocity(height, SITES.height, OBJECT_VELOCITY_Z);
-  velocity(x, SITES.x, OBJECT_VELOCITY_X);
-  velocity(y, SITES.y, OBJECT_VELOCITY_Y);
+  velocity(height, SITES.height, 'velocityZ');
+  velocity(x, SITES.x, 'velocityX');
+  velocity(y, SITES.y, 'velocityY');
   return { x, y, height, divisor };
 }
 // A jump: the height velocity of object rises by half the divisor (80:8D3F, 80:8D4E).
 export function addRise(mem, object, divisor) {
-  setDataBankWord(
+  setObjectWord(
     mem,
-    OBJECT_VELOCITY_Z,
+    'velocityZ',
     object,
-    (dataBankWord(mem, OBJECT_VELOCITY_Z, object) + (divisor >>> 1)) & WORD_MASK,
+    (objectWord(mem, 'velocityZ', object) + (divisor >>> 1)) & WORD_MASK,
   );
 }

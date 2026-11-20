@@ -7,16 +7,10 @@
 // tables 80:BBFA for x and 80:BC0A for y), the walking action 2 (80:A985, unless
 // selected) and the direction (the turn 80:AAAF, src/game/object-turn.mjs).
 import { selectObjectAnimation, turnObject } from './object-turn.mjs';
-import { dataBankWord, setDataBankWord } from '../system/data-bank.mjs';
-import {
-  GROUP_INDEX,
-  GROUP_NUMBERS,
-  OBJECT_NUMBER,
-  OBJECT_VELOCITY_X,
-  OBJECT_VELOCITY_Y,
-  ROOM,
-} from '../data/wram.mjs';
+import { dataBankWord } from '../system/data-bank.mjs';
+import { GROUP_INDEX, GROUP_NUMBERS, OBJECT_NUMBER, ROOM } from '../data/wram.mjs';
 import { BYTE_BITS, BYTE_MASK, LONG_MASK, WORD_MASK, WORD_SIGN } from '../constants/bits.mjs';
+import { setObjectWord } from '../state/objects.mjs';
 
 const ROOM_DIRECTIONS = 0x8d929f,
   // The record index: the room times 8 (ASL thrice, the last one's carry is bit 13)
@@ -69,8 +63,8 @@ export function faceRoomDirection(mem) {
   direction &= DIRECTION_MASK;
   setWord(wram, DP_DIRECTION, direction);
   const step = direction << 1;
-  setDataBankWord(mem, OBJECT_VELOCITY_X, object, romWord(mem, STEPS_X + step));
-  setDataBankWord(mem, OBJECT_VELOCITY_Y, object, romWord(mem, STEPS_Y + step));
+  setObjectWord(mem, 'velocityX', object, romWord(mem, STEPS_X + step));
+  setObjectWord(mem, 'velocityY', object, romWord(mem, STEPS_Y + step));
   setWord(wram, DP_ACTION, WALKING);
   setActionAndDirection(mem);
 }

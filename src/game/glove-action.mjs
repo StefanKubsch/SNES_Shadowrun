@@ -37,7 +37,6 @@ import { putGloveAwaySequence } from './window-release.mjs';
 // 80 below 2000, as the original reads them; a slot or task index past it stops at
 // object_slot_required or task_slot_required, and a task chain that never ends (the
 // original would hang) at task_chain_required.
-import { taskStop } from '../system/task-stop.mjs';
 import { showNotice } from './notice-show.mjs';
 import { drawTextBufferSequence } from './text-draw.mjs';
 import { segmentSequence } from '../system/native-call-continuation.mjs';
@@ -54,11 +53,6 @@ import {
   DP_WINDOW_TOP,
   GLOVE_TARGET_OBJECT,
   GLOVE_TARGET_TAG,
-  OBJECT_DIALOG,
-  OBJECT_HEIGHT,
-  OBJECT_TASK,
-  OBJECT_X,
-  OBJECT_Y,
   PAD_B,
   PAD_L,
   PAD_PRESSED,
@@ -67,6 +61,7 @@ import {
 } from '../data/wram.mjs';
 import { sendEvents, tasksOf, waitingTask } from '../script/task-api.mjs';
 import { BYTE_BITS, BYTE_MASK, WORD_MASK, WORD_SIGN } from '../constants/bits.mjs';
+import { lowObjectWord, objectWordIn } from '../state/objects.mjs';
 
 const GLOVE_BUTTONS = PAD_B | PAD_L | PAD_R,
   OFFER_WAIT_BITS = 0x6002,
@@ -79,8 +74,7 @@ const GLOVE_BUTTONS = PAD_B | PAD_L | PAD_R,
   HEIGHT_REACH = 0x81,
   TALK_ACTION = 2,
   ACTION_WITHOUT_DIALOG = 2,
-  NOTICE = Object.freeze({ left: 2, top: 2, columns: 0x0c, rows: 3, text: 0, frames: 0x3c }),
-  LOW_WRAM_END = 0x2000;
+  NOTICE = Object.freeze({ left: 2, top: 2, columns: 0x0c, rows: 3, text: 0, frames: 0x3c });
 // The direct page word the original keeps the pressed buttons in, then the x distance;
 // the dialog's object and record.
 const DP_SCRATCH = 0x6b,
@@ -92,25 +86,20 @@ const setWord = (wram, at, value) => {
   wram[at] = value & BYTE_MASK;
   wram[at + 1] = (value >>> BYTE_BITS) & BYTE_MASK;
 };
-// A word of a table in bank 80 below 2000 (the original's data bank reaches WRAM only there).
-const lowField = (wram, base, index, reason) => {
-  if (base + index + 1 >= LOW_WRAM_END) taskStop(reason, { base, index });
-  return word(wram, base + index);
-};
 // The distance of two objects in one field, taken without sign (a word).
 const distance = (wram, field, from, to) => {
-  const a = lowField(wram, field, from, 'object_slot_required'),
-    b = lowField(wram, field, to, 'object_slot_required'),
+  const a = lowObjectWord(wram, field, from),
+    b = lowObjectWord(wram, field, to),
     d = (a - b) & WORD_MASK;
   return d & WORD_SIGN ? -d & WORD_MASK : d;
 };
 // Near: the x and y distances below A1 together and the height distance below 81.
 // Returns the x distance and whether the object is near.
 function reach(wram, player, object) {
-  const dx = distance(wram, OBJECT_X, player, object),
-    dy = distance(wram, OBJECT_Y, player, object);
+  const dx = distance(wram, 'x', player, object),
+    dy = distance(wram, 'y', player, object);
   if (((dx + dy) & WORD_MASK) >= ACTION_REACH) return { dx, near: false };
-  return { dx, near: distance(wram, OBJECT_HEIGHT, player, object) < HEIGHT_REACH };
+  return { dx, near: distance(wram, 'height', player, object) < HEIGHT_REACH };
 }
 
 // Pass a glove action on to the object's task (80:BF3B), a sequence for a native call
@@ -132,7 +121,7 @@ export function* gloveActionSequence(h, events, renderBuffer = drawTextBufferSeq
     if (!buttons) return;
     setWord(wram, ACTION_MENU_OVERRIDE, 0);
     object = word(wram, GLOVE_TARGET_OBJECT);
-    const task = lowField(wram, OBJECT_TASK, object, 'object_slot_required');
+    const task = lowObjectWord(wram, 'task', object);
     if (task & WORD_SIGN) return;
     setWord(wram, DP_SCRATCH, buttons);
     const offer = tasks.wait(waitingTask(tasks, task));
@@ -153,7 +142,7 @@ export function* gloveActionSequence(h, events, renderBuffer = drawTextBufferSeq
       return;
     }
     // The task is looked up again, as the original does.
-    const again = lowField(wram, OBJECT_TASK, object, 'object_slot_required');
+    const again = lowObjectWord(wram, 'task', object);
     if (again & WORD_SIGN) return;
     accepted = tasks.wait(waitingTask(tasks, again)) & ACCEPTED_ACTIONS;
     if (!accepted) return;
@@ -184,7 +173,7 @@ export function* gloveActionSequence(h, events, renderBuffer = drawTextBufferSeq
       action = choice.action;
       if (!(action & TALK_ACTION)) return;
       // The dialog record is read in bank 7E (a long read).
-      dialog = word(wram, OBJECT_DIALOG + object);
+      dialog = objectWordIn(wram, 'dialog', object);
       if (!dialog) {
         action = ACTION_WITHOUT_DIALOG;
         return;
@@ -202,7 +191,7 @@ export function* gloveActionSequence(h, events, renderBuffer = drawTextBufferSeq
   }
   if (path === 'pass') {
     yield () => {
-      const task = lowField(wram, OBJECT_TASK, object, 'object_slot_required');
+      const task = lowObjectWord(wram, 'task', object);
       if (task & WORD_SIGN) {
         path = 'return';
         return;

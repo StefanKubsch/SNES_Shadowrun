@@ -88,6 +88,15 @@ function runMotion(direct, count, flags, target, mode, animation, slots, budget)
   );
 }
 
+// The move keeps its old coordinate in a local, not in direct page 6B-6C
+// (docs/STATE-MODEL-REBUILD.md); the former pass in proof/ still writes it.
+const MOVE_SCRATCH = [0x6b, 0x6c];
+function withoutMoveScratch(result) {
+  const wram = result.wram.slice();
+  for (const at of MOVE_SCRATCH) wram[at] = 0;
+  return { ...result, wram };
+}
+
 for (const budget of [1, 7])
   for (const count of [0, 1, 3])
     for (const flags of [0, 0x20, 0x140, 0x160, 0x500])
@@ -102,8 +111,10 @@ for (const budget of [1, 7])
                 test(`motion actual callees: count ${count}, flags ${flags}, target ${target}, mode ${mode}, animation ${animation}, slots ${slots}, budget ${budget}`, () => {
                   const got = runMotion(true, count, flags, target, mode, animation, slots, budget);
                   assert.deepEqual(
-                    got,
-                    runMotion(false, count, flags, target, mode, animation, slots, budget),
+                    withoutMoveScratch(got),
+                    withoutMoveScratch(
+                      runMotion(false, count, flags, target, mode, animation, slots, budget),
+                    ),
                   );
                   if (count && !(flags & W.OBJECT_HALTED)) {
                     if (animation === 'ended')

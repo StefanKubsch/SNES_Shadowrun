@@ -14,36 +14,28 @@
 // six bytes each: a byte, then the X, Y and height words over 4. The original forms the
 // entry offset 6 * waypoint as 8 * waypoint minus the waypoint twice, the second
 // subtraction taking the first one's borrow, all in 16 bits.
-import { dataBankWord, setDataBankWord } from '../system/data-bank.mjs';
+import { dataBankWord } from '../system/data-bank.mjs';
 import {
   DP_POINT_LIST,
   DP_POINT_LIST_BANK,
-  OBJECT_HEIGHT,
-  OBJECT_X,
-  OBJECT_Y,
-  MOTION_ACTIVE,
   MOTION_BY_AXES,
-  MOTION_MODE,
   MOTION_START,
   MOTION_STRAIGHT,
-  MOTION_X,
-  MOTION_Y,
   PLAYER_OBJECT,
-  WRAM,
 } from '../data/wram.mjs';
 import { BYTE_BITS, LONG_MASK, WORD_BITS, WORD_MASK } from '../constants/bits.mjs';
+import { setLongObjectWord, setObjectWord } from '../state/objects.mjs';
 
 const NO_MOTION = 0,
   POINT_SCALE = 4;
 
-const setField = (mem, field, object, value) =>
-  mem.write16((WRAM + field + object) & LONG_MASK, value);
+const setField = (mem, field, object, value) => setLongObjectWord(mem, field, object, value);
 
 function startMotion(mem, object, mode, x, y) {
-  setField(mem, MOTION_MODE, object, mode);
-  setField(mem, MOTION_X, object, x);
-  setField(mem, MOTION_Y, object, y);
-  setField(mem, MOTION_ACTIVE, object, MOTION_START);
+  setField(mem, 'motionMode', object, mode);
+  setField(mem, 'motionX', object, x);
+  setField(mem, 'motionY', object, y);
+  setField(mem, 'motionActive', object, MOTION_START);
 }
 
 // 80:C6F3 (straight) and 80:C6F8 (axis by axis): move the object towards target.
@@ -66,7 +58,7 @@ export const moveToPoint = (mem, object, x, y, straight = false) =>
     (y * POINT_SCALE) & WORD_MASK,
   );
 // 80:C7C2: stop the object's motion.
-export const stopMotion = (mem, object) => setField(mem, MOTION_ACTIVE, object, NO_MOTION);
+export const stopMotion = (mem, object) => setField(mem, 'motionActive', object, NO_MOTION);
 
 const WAYPOINT_SHIFT = 3,
   // The X, Y and height words after the waypoint's first byte.
@@ -97,8 +89,8 @@ export function moveToWaypoint(mem, object, waypoint, straight = false) {
 }
 // 80:D105: place the object on the waypoint and stop its motion.
 export function placeOnWaypoint(mem, object, waypoint) {
-  [OBJECT_X, OBJECT_Y, OBJECT_HEIGHT].forEach((field, n) =>
-    setDataBankWord(mem, field, object, waypointWord(mem, waypoint, WAYPOINT_FIELDS[n])),
+  ['x', 'y', 'height'].forEach((field, n) =>
+    setObjectWord(mem, field, object, waypointWord(mem, waypoint, WAYPOINT_FIELDS[n])),
   );
   stopMotion(mem, object);
 }

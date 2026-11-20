@@ -11,7 +11,7 @@ import { sendApuCommand } from './apu-command.mjs';
 import { loadSampleSet } from './music-mode.mjs';
 import { accessorPort } from '../system/hardware-port.mjs';
 import { taskStop } from '../system/task-stop.mjs';
-import { CAMERA_X, OBJECT_X, OBJECT_Y, SOUND_LOADED_SET, SOUND_VOICE_MASK } from '../data/wram.mjs';
+import { CAMERA_X, SOUND_LOADED_SET, SOUND_VOICE_MASK } from '../data/wram.mjs';
 import {
   APU_COMMAND_SOUND,
   APU_COMMAND_SOUND_LEVEL,
@@ -19,6 +19,7 @@ import {
 } from '../constants/sound-commands.mjs';
 import { RDMPYH, WRMPYA, WRMPYB } from '../constants/hardware-registers.mjs';
 import { BYTE_BITS, BYTE_MASK, WORD_MASK, WORD_SIGN } from '../constants/bits.mjs';
+import { objectWordIn } from '../state/objects.mjs';
 
 const SOUND_EFFECTS = 0x80c4b3,
   LONG_MASK = 0xffffff,
@@ -66,7 +67,7 @@ export function soundLevels(wram, port, object, level) {
   let pan = PAN_CENTRE;
   if (!(object & WORD_SIGN)) {
     let distance =
-      (word(wram, OBJECT_Y + object) - word(wram, OBJECT_X + object) + PAN_BIAS) & WORD_MASK;
+      (objectWordIn(wram, 'y', object) - objectWordIn(wram, 'x', object) + PAN_BIAS) & WORD_MASK;
     if (distance & WORD_SIGN) distance = 0;
     const camera = word(wram, CAMERA_X);
     pan = distance < camera ? 0 : Math.min((distance - camera) >>> PAN_SHIFT, PAN_MAX);

@@ -36,11 +36,6 @@ import {
   DRAW_LIST,
   DRAW_LIST_INDEX,
   NMI_JOB_LISTS,
-  OBJECT_ACTION_DIRECTIONS,
-  OBJECT_FRAME_OFFSET,
-  OBJECT_PICTURE_CHANGE,
-  OBJECT_VRAM_SLOT_COUNT,
-  OBJECT_VRAM_SLOT_HEAD,
   VRAM_SLOT_NEXT,
   VRAM_UPLOAD_ADDRESSES,
   VRAM_UPLOAD_BANKS,
@@ -55,6 +50,7 @@ import {
   WORD_SIGN,
 } from '../constants/bits.mjs';
 import { FLAG_MEMORY_8BIT, FLAG_NEGATIVE, FLAG_ZERO } from '../constants/cpu-flags.mjs';
+import { lowObjectWord } from '../state/objects.mjs';
 
 // The direct page words: the frame stream with its bank, the picture with its bank and
 // the tiles left to queue.
@@ -155,14 +151,14 @@ function* reloadSequence(h, events, slot) {
   // A picture change still waiting: the animation step takes it, a frame apart.
   let change = 0;
   yield () => {
-    change = get(OBJECT_PICTURE_CHANGE);
+    change = lowObjectWord(wram, 'pictureChange', slot);
   };
   if (change) {
     for (;;) {
       yield () => stepAnimationInPlace(h, slot);
       let waiting = false;
       yield () => {
-        waiting = get(OBJECT_PICTURE_CHANGE) !== 0;
+        waiting = lowObjectWord(wram, 'pictureChange', slot) !== 0;
         if (waiting) countJobList(wram);
       };
       if (!waiting) return;
@@ -180,13 +176,13 @@ function* reloadSequence(h, events, slot) {
   let tiles = 0,
     full = false;
   yield () => {
-    const directions = get(OBJECT_ACTION_DIRECTIONS);
+    const directions = lowObjectWord(wram, 'actionDirections', slot);
     setWord(wram, DP_STREAM, directions);
-    const frame = (get(OBJECT_FRAME_OFFSET) - FRAME_STEP) & WORD_MASK,
+    const frame = (lowObjectWord(wram, 'frameOffset', slot) - FRAME_STEP) & WORD_MASK,
       picture = (longWord(mem, pointer(DP_STREAM) + frame) + 1) & WORD_MASK;
     setWord(wram, DP_PICTURE, picture | HIGH_PICTURE);
     setWord(wram, DP_PICTURE_BANK, PICTURE_BANK + (picture & HIGH_PICTURE ? 1 : 0));
-    tiles = get(OBJECT_VRAM_SLOT_COUNT);
+    tiles = lowObjectWord(wram, 'vramSlotCount', slot);
     if (!tiles) return;
     setWord(wram, DP_TILES, tiles);
     const jobs = ((tiles << TILE_JOB_SHIFT) & WORD_MASK) + word(wram, DP_VRAM_UPLOAD_INDEX);
@@ -200,7 +196,7 @@ function* reloadSequence(h, events, slot) {
   // Two upload jobs per tile into the object's slots.
   yield () => {
     let job = word(wram, DP_VRAM_UPLOAD_INDEX),
-      tileSlot = get(OBJECT_VRAM_SLOT_HEAD);
+      tileSlot = lowObjectWord(wram, 'vramSlotHead', slot);
     for (let n = tiles; n; n--) {
       for (const half of SLOT_HALVES) {
         job = (job + 2) & WORD_MASK;

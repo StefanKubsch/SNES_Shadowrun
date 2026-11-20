@@ -31,10 +31,7 @@ import {
   NMI_JOB_LISTS,
   OAM_BUFFER,
   OAM_HIGH_TABLE,
-  OBJECT_FLAGS,
   OBJECT_NOT_DRAWN,
-  OBJECT_PALETTE,
-  OBJECT_PICTURE,
   PLAYER_OBJECT,
 } from '../data/wram.mjs';
 import {
@@ -45,6 +42,7 @@ import {
   OBJECT_COUNT,
 } from '../constants/ppu.mjs';
 import { BYTE_BITS, BYTE_MASK, WORD_MASK, WORD_SIGN } from '../constants/bits.mjs';
+import { lowObjectWord, objectWordIn } from '../state/objects.mjs';
 
 // Direct page word of the OAM buffer offset of the OAM entry 80:B20A, shared with its
 // occlusion grids (register-level reference in proof/script/native-sprite-helpers.mjs).
@@ -82,7 +80,7 @@ export function buildSpritesInPlace(h) {
     setWord(wram, OAM_HIGH_TABLE + at, OAM_HIGH_ALL_LARGE);
   const player = word(wram, PLAYER_OBJECT);
   if (!(player & WORD_SIGN)) {
-    const palette = lowField(wram, OBJECT_PALETTE, player);
+    const palette = lowObjectWord(wram, 'palette', player);
     paletteSlotInPlace(wram, palette);
   }
   // OAM entry 0 stays reserved (the glove sprite of the game NMI).
@@ -90,10 +88,10 @@ export function buildSpritesInPlace(h) {
   let index = word(wram, DRAW_LIST_INDEX);
   while (!(index & WORD_SIGN)) {
     const slot = lowField(wram, DRAW_LIST, index),
-      flags = lowField(wram, OBJECT_FLAGS, slot);
+      flags = lowObjectWord(wram, 'flags', slot);
     if (!(flags & OBJECT_NOT_DRAWN)) {
       // The picture word is read in bank 7E (a long read).
-      const picture = word(wram, OBJECT_PICTURE + slot);
+      const picture = objectWordIn(wram, 'picture', slot);
       if (picture) enterObjectSpritesInPlace(h, slot, picture);
     }
     index = (index - 2) & WORD_MASK;

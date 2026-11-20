@@ -21,7 +21,6 @@
 // append take the data word as a parameter, and the routine leaves no A, X, Y or flags.
 // The register form for register-level callers (the carry set after a scene change) is
 // in proof/caller/live-loop-routines.mjs.
-import { taskStop } from '../system/task-stop.mjs';
 import { enterRoomSequence } from './room-entry.mjs';
 import { appendScript } from '../script/task-api.mjs';
 import {
@@ -31,9 +30,6 @@ import {
   DP_ZONE_LIST_INDEX,
   DP_ZONE_X,
   DP_ZONE_Y,
-  OBJECT_HEIGHT,
-  OBJECT_X,
-  OBJECT_Y,
   PLAYER_OBJECT,
 } from '../data/wram.mjs';
 import {
@@ -44,6 +40,7 @@ import {
   WORD_MASK,
   WORD_SIGN,
 } from '../constants/bits.mjs';
+import { lowObjectWord } from '../state/objects.mjs';
 
 const POSITION_SHIFT = 2,
   ZONE_BYTES = 14,
@@ -52,8 +49,7 @@ const POSITION_SHIFT = 2,
   // Three axes (x, y, height), each with a lowest and a highest limit.
   AXES = 3,
   LIMIT_WORDS = 2 * AXES,
-  LISTS = 2,
-  LOW_WRAM_END = 0x2000;
+  LISTS = 2;
 
 // The limit words in their order: lowest x, y and height, then highest.
 const LIMITS = Array.from({ length: LIMIT_WORDS }, (_, n) => n);
@@ -84,9 +80,9 @@ export function* playerZonesSequence(h, events, zones = {}) {
   if (slot & WORD_SIGN) return;
   let position;
   yield () => {
-    if (OBJECT_HEIGHT + slot + 1 >= LOW_WRAM_END) taskStop('object_slot_required', { slot });
-    position = [OBJECT_X, OBJECT_Y, OBJECT_HEIGHT].map(
-      (field) => word(wram, field + slot) >>> POSITION_SHIFT,
+    lowObjectWord(wram, 'height', slot);
+    position = ['x', 'y', 'height'].map(
+      (field) => lowObjectWord(wram, field, slot) >>> POSITION_SHIFT,
     );
     [DP_ZONE_X, DP_ZONE_Y, DP_ZONE_HEIGHT].forEach((dp, n) => setWord(wram, dp, position[n]));
     setWord(wram, DP_ZONE_LIST_INDEX, 0);

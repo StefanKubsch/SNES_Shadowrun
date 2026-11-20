@@ -38,8 +38,8 @@
 // the object minus this offset (follows moving objects).
 import { PAD_BIT, DIRECTIONS } from './controls.mjs';
 import { BYTE_BITS, BYTE_MASK, WORD_MASK, WORD_SIGN } from '../constants/bits.mjs';
-import { OBJECT_TASK } from '../data/wram.mjs';
 import { waitingTask } from '../script/task-api.mjs';
+import { objectWordIn } from '../state/objects.mjs';
 
 const HAND = 0xffff,
   OPEN = 0x01d8,
@@ -77,7 +77,7 @@ const ACTION_EVENTS = 0x67f2,
 // for example for people; this way a click opens, takes or uses directly.
 export function useEvent(wram, tasks) {
   const read = (a) => wram[a] | (wram[a + 1] << BYTE_BITS);
-  const task = read(OBJECT_TASK + read(SLOT));
+  const task = objectWordIn(wram, 'task', read(SLOT));
   if (task & WORD_SIGN) return 0;
   let flags;
   try {

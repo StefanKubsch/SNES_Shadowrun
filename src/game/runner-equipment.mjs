@@ -27,9 +27,7 @@ import {
   GLOVE_TARGET_OBJECT,
   PLAYER_OBJECT,
   MEMBER_INDEX,
-  OBJECT_ARMOUR,
   OBJECT_NUMBER,
-  OBJECT_RECORD,
   RUNNER_ARMOUR,
   RUNNER_ARMOUR_RATING,
   RUNNER_WEAPON,
@@ -41,6 +39,7 @@ import {
 } from '../data/wram.mjs';
 import { CODE_BANK_BASE } from '../constants/memory-map.mjs';
 import { LONG_MASK, WORD_MASK, WORD_SIGN } from '../constants/bits.mjs';
+import { objectWord, setLongObjectWord } from '../state/objects.mjs';
 
 // The actor table's state record words (8D:B020 plus the actor entry; 0: none).
 const ACTOR_STATE_RECORDS = 0x8db020;
@@ -66,7 +65,7 @@ export function equipArmour(mem, item, rating) {
     mem,
     dataBankWord(mem, GLOVE_TARGET_TAG) & WORD_SIGN ? PLAYER_OBJECT : GLOVE_TARGET_OBJECT,
   );
-  setWramWord(mem, OBJECT_ARMOUR + wearer, rating);
+  setLongObjectWord(mem, 'armour', wearer, rating);
 }
 // 80:8B9F: the member wields the weapon item object with the kind, damage and range bytes.
 export function equipWeapon(mem, item, kind, damage, range) {
@@ -115,7 +114,7 @@ function takeOff(mem, number, fixes) {
 // 80:9D15: the record of the item object gets the property word, and the item is taken
 // off its runner. Without a record nothing changes.
 export function setItemProperty(mem, item, property, fixes) {
-  const record = dataBankWord(mem, OBJECT_RECORD, item);
+  const record = objectWord(mem, 'record', item);
   if (record === 0) return;
   setWramWord(mem, RECORD_PROPERTY + record, property);
   takeOff(mem, dataBankWord(mem, OBJECT_NUMBER, item), fixes);

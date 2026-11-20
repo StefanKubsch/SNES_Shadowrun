@@ -85,17 +85,8 @@ import {
   DP_WINDOW_TOP,
   HARMLESS_HITS,
   KARMA,
-  OBJECT_ARMOUR,
-  OBJECT_BOX_HEIGHT,
   OBJECT_DAMAGEABLE,
-  OBJECT_DIRECTION,
-  OBJECT_FLAGS,
-  OBJECT_HEIGHT,
   OBJECT_HITTABLE,
-  OBJECT_RECORD,
-  OBJECT_TASK,
-  OBJECT_X,
-  OBJECT_Y,
   PLAYER_HIT_FRAMES,
   PLAYER_OBJECT,
   RECORD_COUNT,
@@ -111,6 +102,7 @@ import {
   WORD_MASK,
   WORD_SIGN,
 } from '../constants/bits.mjs';
+import { longObjectWord, objectWord, setLongObjectWord } from '../state/objects.mjs';
 
 // The notices' callees and the window list (long calls: the word wait and the list).
 const WORD_WAIT = 0x81b0a1,
@@ -196,7 +188,7 @@ function* harmlessSequence(h, events, renderBuffer, flags) {
 function damageRecord(h, target, draw, damage) {
   const { mem } = h.a,
     { wram } = mem,
-    record = dataBankWord(mem, OBJECT_RECORD, target);
+    record = objectWord(mem, 'record', target);
   // The accumulator's low byte at the store: the damage, or the count left.
   let low = damage;
   if (record !== 0) {
@@ -207,7 +199,7 @@ function damageRecord(h, target, draw, damage) {
     if (count !== 0) return;
     low = 0;
   }
-  const task = dataBankWord(mem, OBJECT_TASK, target);
+  const task = objectWord(mem, 'task', target);
   if (task & WORD_SIGN) {
     const at = longAddress(RECORD_COUNT, task);
     mem.write8(at, low);
@@ -223,37 +215,36 @@ function damageRecord(h, target, draw, damage) {
 function placeHitEffect(h, target, armour) {
   const { mem } = h.a,
     { wram } = mem,
-    field = (offset) => dataBankWord(mem, offset, target);
+    field = (name) => objectWord(mem, name, target);
   setWord(wram, DP_OBJECT_KIND, HIT_EFFECT_KIND);
-  setWord(wram, DP_OBJECT_X, field(OBJECT_X) >>> BOX_SHIFT);
-  setWord(wram, DP_OBJECT_Y, field(OBJECT_Y) >>> BOX_SHIFT);
+  setWord(wram, DP_OBJECT_X, field('x') >>> BOX_SHIFT);
+  setWord(wram, DP_OBJECT_Y, field('y') >>> BOX_SHIFT);
   setWord(wram, DP_OBJECT_SCRIPT, HIT_EFFECT_SCRIPT);
   // Two additions without a clear carry between them.
-  const raised =
-      (field(OBJECT_HEIGHT) >>> BOX_SHIFT) + mem.read16(longAddress(OBJECT_BOX_HEIGHT, target)),
+  const raised = (field('height') >>> BOX_SHIFT) + longObjectWord(mem, 'boxHeight', target),
     carry = raised > WORD_MASK ? 1 : 0;
   setWord(wram, DP_OBJECT_HEIGHT, raised + HIT_EFFECT_RAISE + carry);
   createObject(mem, wram, h.a);
-  mem.write16(longAddress(OBJECT_ARMOUR, word(wram, 0)), (armour - 1) & WORD_MASK);
+  setLongObjectWord(mem, 'armour', word(wram, 0), (armour - 1) & WORD_MASK);
 }
 
 // The impact object at the target, one unit towards the shooter's facing.
 function placeImpact(h, target, shooter) {
   const { mem } = h.a,
     { wram } = mem,
-    field = (offset) => dataBankWord(mem, offset, target),
-    box = mem.read16(longAddress(OBJECT_BOX_HEIGHT, target)),
-    half = ((field(OBJECT_HEIGHT) + box) & WORD_MASK) >>> 1,
-    facing = (dataBankWord(mem, OBJECT_DIRECTION, shooter) << 1) & WORD_MASK,
+    field = (name) => objectWord(mem, name, target),
+    box = longObjectWord(mem, 'boxHeight', target),
+    half = ((field('height') + box) & WORD_MASK) >>> 1,
+    facing = (objectWord(mem, 'direction', shooter) << 1) & WORD_MASK,
     offset = dataBankWord(mem, IMPACT_OFFSETS, facing);
   setWord(wram, DP_OBJECT_KIND, IMPACT_KIND);
   setWord(wram, DP_OBJECT_HEIGHT, ((half + box) & WORD_MASK) >>> 1);
-  setWord(wram, DP_OBJECT_X, (field(OBJECT_X) >>> BOX_SHIFT) + offset);
-  setWord(wram, DP_OBJECT_Y, (field(OBJECT_Y) >>> BOX_SHIFT) + offset);
+  setWord(wram, DP_OBJECT_X, (field('x') >>> BOX_SHIFT) + offset);
+  setWord(wram, DP_OBJECT_Y, (field('y') >>> BOX_SHIFT) + offset);
   setWord(wram, DP_OBJECT_SCRIPT, IMPACT_SCRIPT);
   const armour = dataBankWord(mem, IMPACT_FACINGS, facing);
   createObject(mem, wram, h.a);
-  mem.write16(longAddress(OBJECT_ARMOUR, word(wram, 0)), armour);
+  setLongObjectWord(mem, 'armour', word(wram, 0), armour);
 }
 
 // 80:881C: the player figure hit.
@@ -292,13 +283,13 @@ export function* hitObject(
   const { mem } = h.a,
     { wram } = mem;
   setWord(wram, 0, damage);
-  const flags = dataBankWord(mem, OBJECT_FLAGS, target);
+  const flags = objectWord(mem, 'flags', target);
   if (!(flags & OBJECT_DAMAGEABLE)) yield* harmlessSequence(h, events, renderBuffer, flags);
   else {
     yield () => {
       setWord(wram, DP_HIT_SHOOTER, shooter);
       const draw = drawBelowInDirectPage(mem, accessorPort(h.a), damage),
-        dealt = (draw + 1 - mem.read8(longAddress(OBJECT_ARMOUR, target))) & BYTE_MASK;
+        dealt = (draw + 1 - (longObjectWord(mem, 'armour', target) & BYTE_MASK)) & BYTE_MASK;
       if (dealt === 0 || dealt & BYTE_SIGN) return;
       const armour = (draw & HIGH_BYTE_MASK) | dealt;
       wram[0] = dealt;

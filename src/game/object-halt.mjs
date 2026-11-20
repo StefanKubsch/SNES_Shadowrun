@@ -8,27 +8,26 @@
 //
 // The object fields are reached through the data bank with 24-bit indexes, the task
 // through the task API (src/script/task-api.mjs).
-import { OBJECT_FLAGS, OBJECT_HALTED, OBJECT_TASK } from '../data/wram.mjs';
+import { OBJECT_HALTED } from '../data/wram.mjs';
 import { tasksOf, waitingTask } from '../script/task-api.mjs';
 import { WAIT_HALTED } from '../script/scheduler.mjs';
-import { LONG_MASK, WORD_BITS, WORD_MASK, WORD_SIGN } from '../constants/bits.mjs';
+import { WORD_SIGN } from '../constants/bits.mjs';
+import { bankObjectWord, setBankObjectWord } from '../state/objects.mjs';
 
 const DP_OBJECT = 0;
 
-const bankAddress = (a, offset) => ((a.ctx.bank << WORD_BITS) + offset) & LONG_MASK;
-const bankWord = (a, offset) => a.mem.read16(bankAddress(a, offset));
-const setBankWord = (a, offset, value) => a.mem.write16(bankAddress(a, offset), value & WORD_MASK);
 const withBit = (value, bit, set) => (set ? value | bit : value & ~bit);
 
 // Set (halt) or clear (resume) the halt bits of the object in word 00 and of its task.
 function setHalted(mem, a, set) {
   const object = mem.read16Bank0(DP_OBJECT);
-  setBankWord(
+  setBankObjectWord(
     a,
-    OBJECT_FLAGS + object,
-    withBit(bankWord(a, OBJECT_FLAGS + object), OBJECT_HALTED, set),
+    'flags',
+    object,
+    withBit(bankObjectWord(a, 'flags', object), OBJECT_HALTED, set),
   );
-  const task = bankWord(a, OBJECT_TASK + object);
+  const task = bankObjectWord(a, 'task', object);
   if (task & WORD_SIGN) return;
   const tasks = tasksOf(a),
     waiting = waitingTask(tasks, task);

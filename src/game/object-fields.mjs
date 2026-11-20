@@ -15,26 +15,13 @@
 // table. A record lies in bank 7E at its pointer: byte 0, the flag byte at +1, the count
 // byte (ammunition or body) at +2 and the property word at +3. Without a record (pointer
 // 0) the reads return the bytes at 7E:0000 and the writes change nothing.
-import { dataBankWord, setDataBankWord } from '../system/data-bank.mjs';
+import { dataBankWord } from '../system/data-bank.mjs';
+import { longObjectWord, objectWord, setLongObjectWord, setObjectWord } from '../state/objects.mjs';
 import {
-  OBJECT_ARMOUR,
   OBJECT_DEPTH_MODE_CLEAR_MASK,
   OBJECT_DEPTH_MODE_MASK,
-  OBJECT_DEPTH_ORDER,
-  OBJECT_DIRECTION,
-  OBJECT_FLAGS,
   OBJECT_NUMBER,
-  OBJECT_HEIGHT,
-  OBJECT_VELOCITY_X,
-  OBJECT_VELOCITY_Y,
-  OBJECT_VELOCITY_Z,
-  OBJECT_X,
-  OBJECT_Y,
-  OBJECT_RECORD,
-  OBJECT_TASK,
   NO_TASK,
-  OBJECT_DIALOG,
-  OBJECT_SELECTION,
   OBJECT_HIDDEN,
   OBJECT_COVERED,
   GROUP_NUMBERS,
@@ -47,10 +34,10 @@ import {
 import { BYTE_BITS, BYTE_MASK, LONG_MASK, WORD_MASK, WORD_SIGN } from '../constants/bits.mjs';
 
 // 80:CA05: the object's flag word.
-export const objectFlags = (mem, object) => dataBankWord(mem, OBJECT_FLAGS, object);
+export const objectFlags = (mem, object) => objectWord(mem, 'flags', object);
 // 80:CA0D: replace the object's flag word.
 export const setObjectFlags = (mem, object, flags) =>
-  setDataBankWord(mem, OBJECT_FLAGS, object, flags & WORD_MASK);
+  setObjectWord(mem, 'flags', object, flags & WORD_MASK);
 // 80:CA15: set bits in the object's flag word.
 export const setObjectFlagBits = (mem, object, bits) =>
   setObjectFlags(mem, object, objectFlags(mem, object) | bits);
@@ -59,7 +46,7 @@ export const keepObjectFlagBits = (mem, object, bits) =>
   setObjectFlags(mem, object, objectFlags(mem, object) & bits);
 
 // The object's record pointer (0: none).
-export const objectRecord = (mem, object) => dataBankWord(mem, OBJECT_RECORD, object);
+export const objectRecord = (mem, object) => objectWord(mem, 'record', object);
 // A record field's address in bank 7E (a pointer near the bank's end reaches 7F).
 const recordAddress = (record, offset) => (WRAM + offset + record) & LONG_MASK;
 const recordByte = (mem, object, offset) =>
@@ -98,18 +85,11 @@ export const setRecordCount = (mem, object, count, guard = (_record, value) => v
 
 // The object's armour word (7E:43F8 plus its slot, a long index: a slot near FFFF
 // reaches bank 7F).
-const armourAddress = (object) => (WRAM + OBJECT_ARMOUR + object) & LONG_MASK;
 // 80:8EF5: the object's armour.
-export function objectArmour(mem, object) {
-  const at = armourAddress(object);
-  return mem.read8(at) | (mem.read8((at + 1) & LONG_MASK) << BYTE_BITS);
-}
+export const objectArmour = (mem, object) => longObjectWord(mem, 'armour', object);
 // 80:8AF1: the object's armour set.
-export function storeObjectArmour(mem, object, armour) {
-  const at = armourAddress(object);
-  mem.write8(at, armour & BYTE_MASK);
-  mem.write8((at + 1) & LONG_MASK, (armour >>> BYTE_BITS) & BYTE_MASK);
-}
+export const storeObjectArmour = (mem, object, armour) =>
+  setLongObjectWord(mem, 'armour', object, armour & WORD_MASK);
 // 80:8AFA and 80:8B08: the armour raised or lowered by amount, wrapping in 16 bits.
 export const raiseObjectArmour = (mem, object, amount) =>
   storeObjectArmour(mem, object, objectArmour(mem, object) + amount);
@@ -117,44 +97,42 @@ export const lowerObjectArmour = (mem, object, amount) =>
   storeObjectArmour(mem, object, objectArmour(mem, object) - amount);
 
 // The object's velocities (80:A941, 80:A949, 80:A951) through the data bank 80.
-export const objectVelocityX = (mem, object) => dataBankWord(mem, OBJECT_VELOCITY_X, object);
-export const objectVelocityY = (mem, object) => dataBankWord(mem, OBJECT_VELOCITY_Y, object);
-export const objectVelocityZ = (mem, object) => dataBankWord(mem, OBJECT_VELOCITY_Z, object);
+export const objectVelocityX = (mem, object) => objectWord(mem, 'velocityX', object);
+export const objectVelocityY = (mem, object) => objectWord(mem, 'velocityY', object);
+export const objectVelocityZ = (mem, object) => objectWord(mem, 'velocityZ', object);
 // The object's position and height in box units, over 4 (80:A959, 80:A963, 80:A96D).
 const BOX_SHIFT = 2;
-export const objectCoarseX = (mem, object) => dataBankWord(mem, OBJECT_X, object) >>> BOX_SHIFT;
-export const objectCoarseY = (mem, object) => dataBankWord(mem, OBJECT_Y, object) >>> BOX_SHIFT;
-export const objectCoarseHeight = (mem, object) =>
-  dataBankWord(mem, OBJECT_HEIGHT, object) >>> BOX_SHIFT;
+export const objectCoarseX = (mem, object) => objectWord(mem, 'x', object) >>> BOX_SHIFT;
+export const objectCoarseY = (mem, object) => objectWord(mem, 'y', object) >>> BOX_SHIFT;
+export const objectCoarseHeight = (mem, object) => objectWord(mem, 'height', object) >>> BOX_SHIFT;
 
 // 80:D255: the object's facing direction (low byte).
-export const objectDirection = (mem, object) =>
-  dataBankWord(mem, OBJECT_DIRECTION, object) & BYTE_MASK;
+export const objectDirection = (mem, object) => objectWord(mem, 'direction', object) & BYTE_MASK;
 // 80:D1CA: the object's number.
 export const objectNumber = (mem, object) => dataBankWord(mem, OBJECT_NUMBER, object);
 // 80:D17B: the sprite mode bits of the object's depth order word.
 export const spriteMode = (mem, object) =>
-  dataBankWord(mem, OBJECT_DEPTH_ORDER, object) & OBJECT_DEPTH_MODE_MASK;
+  objectWord(mem, 'depthOrder', object) & OBJECT_DEPTH_MODE_MASK;
 // 80:D16D: the sprite mode bits replaced by mode (not masked: other bits it holds are
 // set too); the other depth order bits stay.
 export const storeSpriteMode = (mem, object, mode) =>
-  setDataBankWord(
+  setObjectWord(
     mem,
-    OBJECT_DEPTH_ORDER,
+    'depthOrder',
     object,
-    (dataBankWord(mem, OBJECT_DEPTH_ORDER, object) & OBJECT_DEPTH_MODE_CLEAR_MASK) | mode,
+    (objectWord(mem, 'depthOrder', object) & OBJECT_DEPTH_MODE_CLEAR_MASK) | mode,
   );
 
 // 80:A91D: detach the object from its task.
-export const clearObjectTask = (mem, object) => setDataBankWord(mem, OBJECT_TASK, object, NO_TASK);
+export const clearObjectTask = (mem, object) => setObjectWord(mem, 'task', object, NO_TASK);
 // 80:A926: bind the object to the currently running task (of the task API).
 export const bindObjectToCurrentTask = (mem, object, tasks) =>
-  setDataBankWord(mem, OBJECT_TASK, object, tasks.current());
+  setObjectWord(mem, 'task', object, tasks.current());
 // 80:A92F: set the object's X, Y and Z velocity.
 export const setObjectVelocity = (mem, object, x, y, z) => {
-  setDataBankWord(mem, OBJECT_VELOCITY_X, object, x);
-  setDataBankWord(mem, OBJECT_VELOCITY_Y, object, y);
-  setDataBankWord(mem, OBJECT_VELOCITY_Z, object, z);
+  setObjectWord(mem, 'velocityX', object, x);
+  setObjectWord(mem, 'velocityY', object, y);
+  setObjectWord(mem, 'velocityZ', object, z);
 };
 // 80:D13E: stop the object (all three velocities zero).
 export const clearObjectVelocity = (mem, object) => setObjectVelocity(mem, object, 0, 0, 0);
@@ -162,26 +140,26 @@ export const clearObjectVelocity = (mem, object) => setObjectVelocity(mem, objec
 // units), wrapping in 16 bits.
 const QUARTERS = 4;
 export const raiseObjectHeight = (mem, object, amount) =>
-  setDataBankWord(
+  setObjectWord(
     mem,
-    OBJECT_HEIGHT,
+    'height',
     object,
-    (((amount * QUARTERS) & WORD_MASK) + dataBankWord(mem, OBJECT_HEIGHT, object)) & WORD_MASK,
+    (((amount * QUARTERS) & WORD_MASK) + objectWord(mem, 'height', object)) & WORD_MASK,
   );
 
 // 80:94EE: the dialog record the action glove starts for the object (7E:4450 plus its
 // slot, a long index).
 export const setObjectDialog = (mem, object, dialog) =>
-  mem.write16((WRAM + OBJECT_DIALOG + object) & LONG_MASK, dialog);
+  setLongObjectWord(mem, 'dialog', object, dialog);
 // 80:D14A: place the object at x, y and height.
 export function setObjectPosition(mem, object, x, y, height) {
-  setDataBankWord(mem, OBJECT_X, object, x);
-  setDataBankWord(mem, OBJECT_Y, object, y);
-  setDataBankWord(mem, OBJECT_HEIGHT, object, height);
+  setObjectWord(mem, 'x', object, x);
+  setObjectWord(mem, 'y', object, y);
+  setObjectWord(mem, 'height', object, height);
 }
 // 80:BB90: TRUE (FFFF) when the object has no animation selected (FFFF), else 0.
 export const hasNoAnimation = (mem, object) =>
-  dataBankWord(mem, OBJECT_SELECTION, object) === WORD_MASK ? WORD_MASK : 0;
+  objectWord(mem, 'selection', object) === WORD_MASK ? WORD_MASK : 0;
 // The property word of the object's record set to value unless it has no record.
 function setRecordProperty(mem, object, value) {
   const record = objectRecord(mem, object);
@@ -206,13 +184,13 @@ export function hasRecordProperty(mem, object) {
 // gives both mode bits (8001), else bit 0; the other depth bits stay.
 const DEPTH_MODE_FRONT = 1;
 export function updateDepthMode(mem, object) {
-  const flags = dataBankWord(mem, OBJECT_FLAGS, object);
+  const flags = objectWord(mem, 'flags', object);
   if (flags & OBJECT_HIDDEN) return;
   const mode = flags & OBJECT_COVERED ? OBJECT_DEPTH_MODE_MASK : DEPTH_MODE_FRONT;
-  setDataBankWord(
+  setObjectWord(
     mem,
-    OBJECT_DEPTH_ORDER,
+    'depthOrder',
     object,
-    (dataBankWord(mem, OBJECT_DEPTH_ORDER, object) & OBJECT_DEPTH_MODE_CLEAR_MASK) | mode,
+    (objectWord(mem, 'depthOrder', object) & OBJECT_DEPTH_MODE_CLEAR_MASK) | mode,
   );
 }

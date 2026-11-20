@@ -90,7 +90,6 @@ import {
   MEMBER_STATE_COUNT,
   NUYEN,
   OBJECT_NUMBER,
-  OBJECT_RECORD,
   PLAYER_OBJECT,
   STATUS_ITEMS_AT_ONCE,
   STATUS_MENU_WINDOW,
@@ -119,6 +118,7 @@ import {
   WORD_MASK,
   WORD_SIGN,
 } from '../constants/bits.mjs';
+import { objectWord } from '../state/objects.mjs';
 
 // The entries: the script native, Start and Y in the player control.
 export const NATIVE_ENTRY = 0x80ea6e,
@@ -201,7 +201,7 @@ export function* statusScreen(
   };
   // The object's state count from its record.
   const keepStateCount = (object) => {
-    const at = dataBankWord(mem, OBJECT_RECORD, object);
+    const at = objectWord(mem, 'record', object);
     setDataBankWord(mem, MEMBER_STATE_COUNT, 0, longWord(mem, WRAM + STATE_COUNT + at) & BYTE_MASK);
   };
   // Whether the object's number is in the group (searched from the group's index down).

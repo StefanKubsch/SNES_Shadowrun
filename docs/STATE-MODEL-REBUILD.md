@@ -103,3 +103,7 @@ own commit after `npm run test:block` and the golden trace test. One shared
   check.
 - record.mjs keeps inputs, picture, video, audio and SRAM of an existing trace unless
   `--accept` is given, so a longer SCRATCH list is recorded again without risk.
+- 2026-11-20, object fields: every word-aligned object array is named in
+  src/state/objects.mjs; about 45 modules use its accessors, which keep the original's
+  access for values that are no slot. Left: object-animation, object-search,
+  object-markers and the object number (odd address).

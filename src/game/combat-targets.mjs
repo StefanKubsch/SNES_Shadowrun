@@ -16,14 +16,11 @@ import {
   GROUP_INDEX,
   GROUP_LEADER_ONLY,
   GROUP_SLOTS,
-  OBJECT_FLAGS,
-  OBJECT_HEIGHT,
   OBJECT_NO_TARGET,
   OBJECT_ON_SCREEN,
-  OBJECT_X,
-  OBJECT_Y,
 } from '../data/wram.mjs';
 import { BYTE_BITS, WORD_MASK, WORD_SIGN } from '../constants/bits.mjs';
+import { objectWord } from '../state/objects.mjs';
 
 // No target: the result word FFFF.
 export const NO_TARGET = WORD_MASK;
@@ -31,7 +28,7 @@ export const NO_TARGET = WORD_MASK;
 // The object fields, the fight list and the group's slots are read through the data
 // bank 80 as the original does (src/system/data-bank.mjs): an object index FFFF (none),
 // which scripts pass on, reads the WRAM word below the field.
-const flags = (mem, object) => dataBankWord(mem, OBJECT_FLAGS, object);
+const flags = (mem, object) => objectWord(mem, 'flags', object);
 const onScreen = (mem, object) => (flags(mem, object) & OBJECT_ON_SCREEN) !== 0;
 const isNoTarget = (mem, object) => (flags(mem, object) & OBJECT_NO_TARGET) !== 0;
 const fightListEntry = (mem, index) => dataBankWord(mem, FIGHT_LIST, index);
@@ -66,13 +63,13 @@ export function chooseEnemyTarget(mem, port, enemy) {
 // The distance of two objects as the sum of their axis distances in 16 bits. Returns
 // the sum and the partial sum of x and y, which the original keeps.
 function axisDistance(mem, from, to) {
-  const axis = (offset) => {
-    const a = dataBankWord(mem, offset, to),
-      b = dataBankWord(mem, offset, from);
+  const axis = (name) => {
+    const a = objectWord(mem, name, to),
+      b = objectWord(mem, name, from);
     return a >= b ? a - b : b - a;
   };
-  const plane = (axis(OBJECT_X) + axis(OBJECT_Y)) & WORD_MASK;
-  return { distance: (plane + axis(OBJECT_HEIGHT)) & WORD_MASK, plane };
+  const plane = (axis('x') + axis('y')) & WORD_MASK;
+  return { distance: (plane + axis('height')) & WORD_MASK, plane };
 }
 
 // 80:8C08: the nearest group member the object sees (strictly nearer wins, from the

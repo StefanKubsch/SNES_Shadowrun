@@ -41,7 +41,6 @@ import {
   MAGIC_POINTS,
   MEMBER_INDEX,
   MEMBER_STATE_COUNT,
-  OBJECT_RECORD,
   STATUS_WINDOW,
 } from '../data/wram.mjs';
 import {
@@ -62,6 +61,7 @@ import {
   WORD_MASK,
   WORD_SIGN,
 } from '../constants/bits.mjs';
+import { objectWord } from '../state/objects.mjs';
 
 // The window, its title and the members' columns; the member's word index and name
 // and the magic maximum in the direct page.
@@ -104,7 +104,7 @@ function prepareMember(mem, member) {
   setWord(wram, DP_PARTY_NAME, dataBankWord(mem, RUNNER_NAMES, runner));
   setWord(wram, DP_MEMBER_RECORD, dataBankWord(mem, RUNNER_RECORD_POINTERS, runner));
   wram[DP_MEMBER_RECORD_BANK] = dataBankWord(mem, RUNNER_RECORD_BANKS, runner) & BYTE_MASK;
-  const record = dataBankWord(mem, OBJECT_RECORD, slot);
+  const record = objectWord(mem, 'record', slot);
   setDataBankWord(mem, MEMBER_STATE_COUNT, 0, wram[STATE_COUNT + record]);
   // Ten times the magic byte.
   setWord(wram, DP_MAGIC_MAXIMUM, (recordByte(mem, RECORD_MAGIC) * MAGIC_FACTOR) & WORD_MASK);

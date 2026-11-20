@@ -10,7 +10,7 @@
 // to its direction (80:AAAF) and selects the walking action 2, or 0 while the player
 // figure moves (80:A985).
 import { selectObjectAnimation, turnObject } from './object-turn.mjs';
-import { dataBankWord, setDataBankWord } from '../system/data-bank.mjs';
+import { dataBankWord } from '../system/data-bank.mjs';
 import {
   GROUP_INDEX,
   GROUP_NUMBERS,
@@ -21,13 +21,11 @@ import {
   FORMATION_DIRECTION,
   FORMATION_LAST,
   FORMATION_UNMOVED,
-  OBJECT_HEIGHT,
   OBJECT_NUMBER,
-  OBJECT_X,
-  OBJECT_Y,
   WRAM,
 } from '../data/wram.mjs';
 import { BYTE_BITS, BYTE_MASK, LONG_MASK, WORD_MASK, WORD_SIGN } from '../constants/bits.mjs';
+import { setObjectWord } from '../state/objects.mjs';
 
 // The members' steps behind the newest trail entry (80:BB88, a word per member index).
 const MEMBER_STEPS = 0xbb88,
@@ -65,9 +63,9 @@ export function placeInFormation(mem) {
   if (entry >= RING_BYTES) entry -= RING_BYTES;
   const height = wramWord(mem, FORMATION_HEIGHT + entry);
   if (height === 0) return;
-  setDataBankWord(mem, OBJECT_HEIGHT, object, height);
-  setDataBankWord(mem, OBJECT_X, object, wramWord(mem, FORMATION_X + entry));
-  setDataBankWord(mem, OBJECT_Y, object, wramWord(mem, FORMATION_Y + entry));
+  setObjectWord(mem, 'height', object, height);
+  setObjectWord(mem, 'x', object, wramWord(mem, FORMATION_X + entry));
+  setObjectWord(mem, 'y', object, wramWord(mem, FORMATION_Y + entry));
   setWord(wram, DP_ARGUMENT, wramWord(mem, FORMATION_DIRECTION + entry));
   // The original keeps the object over the turn (PEI 00) and restores word 00.
   turnObject(mem, wram);

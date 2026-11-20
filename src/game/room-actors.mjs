@@ -28,12 +28,8 @@ import {
   GROUP_OBJECTS,
   GROUP_SLOTS,
   JAKE_DERMAL_ARMOUR,
-  OBJECT_ARMOUR,
   OBJECT_CLASS_MASK,
-  OBJECT_DEPTH_ORDER,
-  OBJECT_FLAGS,
   OBJECT_NUMBER,
-  OBJECT_RECORD,
   PLAYER_OBJECT,
   RUNNER_ARMOUR_RATING,
   STORY_STAGE,
@@ -49,6 +45,7 @@ import {
 import { ROOM_HEADER_ACTOR_COUNT } from '../data/rooms.mjs';
 import { RUNNER_LAST_INDEX, RUNNER_OBJECT_NUMBERS } from '../data/runners.mjs';
 import { BYTE_BITS, BYTE_MASK, WORD_BITS, WORD_MASK, WORD_SIGN } from '../constants/bits.mjs';
+import { objectWordIn, setObjectWordIn } from '../state/objects.mjs';
 
 const NONE = WORD_MASK,
   LONG_MASK = 0xffffff,
@@ -147,15 +144,15 @@ export function* createGroupSequence(h) {
       // data bank 80 (in ROM above 2000).
       if (OBJECT_NUMBER + slot + 1 >= LOW_WRAM_END) taskStop('object_slot_required', { slot });
       setWord(wram, OBJECT_NUMBER + slot, number);
-      setWord(wram, OBJECT_DEPTH_ORDER + slot, depthOrder(mem.read8(ACTOR_TABLE + number)));
-      setWord(wram, OBJECT_RECORD + slot, readWord(mem, ACTOR_TABLE + ACTOR_RECORD + number));
+      setObjectWordIn(wram, 'depthOrder', slot, depthOrder(mem.read8(ACTOR_TABLE + number)));
+      setObjectWordIn(wram, 'record', slot, readWord(mem, ACTOR_TABLE + ACTOR_RECORD + number));
       const index = runnerIndex(mem, number),
         armour = wram[RUNNER_ARMOUR_RATING + (index << ARMOUR_INDEX_SHIFT)];
-      setWord(wram, OBJECT_ARMOUR + slot, armour);
+      setObjectWordIn(wram, 'armour', slot, armour);
       if (kind !== JAKE_KIND)
-        setWord(wram, OBJECT_FLAGS + slot, word(wram, OBJECT_FLAGS + slot) | OBJECT_CLASS_MASK);
+        setObjectWordIn(wram, 'flags', slot, objectWordIn(wram, 'flags', slot) | OBJECT_CLASS_MASK);
       else if (wram[JAKE_DERMAL_ARMOUR])
-        setWord(wram, OBJECT_ARMOUR + slot, armour + DERMAL_ARMOUR_BONUS);
+        setObjectWordIn(wram, 'armour', slot, armour + DERMAL_ARMOUR_BONUS);
       setWord(wram, GROUP_SLOTS + member, slot);
     };
   }
@@ -200,8 +197,8 @@ export function* placeRoomActorsSequence(h) {
       yield () => {
         const slot = word(wram, DP_OBJECT_KIND);
         setWord(wram, OBJECT_NUMBER + slot, actor);
-        setWord(wram, OBJECT_DEPTH_ORDER + slot, depthOrder(word(wram, DP_ACTOR_FLAGS)));
-        setWord(wram, OBJECT_RECORD + slot, word(wram, DP_ACTOR_RECORD));
+        setObjectWordIn(wram, 'depthOrder', slot, depthOrder(word(wram, DP_ACTOR_FLAGS)));
+        setObjectWordIn(wram, 'record', slot, word(wram, DP_ACTOR_RECORD));
       };
     }
     yield () => setWord(wram, DP_ACTORS_LEFT, left - 1);

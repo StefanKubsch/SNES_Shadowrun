@@ -15,7 +15,6 @@ import {
   GROUP_NUMBERS,
   MAGIC_POINTS,
   OBJECT_NUMBER,
-  OBJECT_RECORD,
   PLAYER_OBJECT,
   RECORD_COUNT,
 } from '../data/wram.mjs';
@@ -37,6 +36,7 @@ import {
   WORD_SIGN,
 } from '../constants/bits.mjs';
 import { CODE_BANK_BASE } from '../constants/memory-map.mjs';
+import { objectWord } from '../state/objects.mjs';
 
 // The magic points are ten times the magic attribute: twice it plus eight times it.
 const MAGIC_DOUBLE_SHIFT = 1,
@@ -102,7 +102,7 @@ export function raiseStateCount(mem, object, amount) {
     { object: member, row } = findMember(mem, object, 'task_cecb_endless_search'),
     record = runnerRecord(mem, row, RECORD_COUNT_MAX),
     max = mem.read8(record),
-    objectRecord = dataBankWord(mem, OBJECT_RECORD, member);
+    objectRecord = objectWord(mem, 'record', member);
   if (objectRecord !== 0) {
     const raised = wram[RECORD_COUNT + objectRecord] + amount;
     wram[RECORD_COUNT + objectRecord] = (raised & WORD_MASK) >= max ? max : raised & BYTE_MASK;

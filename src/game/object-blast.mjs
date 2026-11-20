@@ -11,17 +11,9 @@
 // slot and the shooter as parameters (A, X and Y in the original); no registers are left.
 import { hitObject } from './object-hit.mjs';
 import { drawTextBufferSequence } from './text-draw.mjs';
-import { dataBankWord } from '../system/data-bank.mjs';
-import {
-  OBJECT_FLAGS,
-  OBJECT_HEIGHT,
-  OBJECT_HITTABLE,
-  OBJECT_KIND,
-  OBJECT_LAST_SLOT,
-  OBJECT_X,
-  OBJECT_Y,
-} from '../data/wram.mjs';
+import { OBJECT_HITTABLE, OBJECT_LAST_SLOT } from '../data/wram.mjs';
 import { BYTE_BITS, BYTE_MASK, WORD_MASK, WORD_SIGN } from '../constants/bits.mjs';
+import { objectWord, objectWordIn } from '../state/objects.mjs';
 
 // The centre and damage in the direct page and the reach on each axis.
 const DP_BLAST_CENTRE = 0xa2,
@@ -38,11 +30,10 @@ const setWord = (wram, at, value) => {
 // Whether the blast reaches the slot: an object that can be hit within reach on each
 // axis.
 function blastReaches(mem, centre, slot) {
-  if (word(mem.wram, OBJECT_KIND + slot) & WORD_SIGN) return false;
-  if (!(dataBankWord(mem, OBJECT_FLAGS, slot) & OBJECT_HITTABLE)) return false;
-  for (const offset of [OBJECT_X, OBJECT_Y, OBJECT_HEIGHT]) {
-    const difference =
-        (dataBankWord(mem, offset, slot) - dataBankWord(mem, offset, centre)) & WORD_MASK,
+  if (objectWordIn(mem.wram, 'kind', slot) & WORD_SIGN) return false;
+  if (!(objectWord(mem, 'flags', slot) & OBJECT_HITTABLE)) return false;
+  for (const field of ['x', 'y', 'height']) {
+    const difference = (objectWord(mem, field, slot) - objectWord(mem, field, centre)) & WORD_MASK,
       distance = difference & WORD_SIGN ? -difference & WORD_MASK : difference;
     if (distance >= BLAST_REACH) return false;
   }

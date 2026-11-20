@@ -29,7 +29,7 @@
 // shooter in Y.
 import { hitObject } from './object-hit.mjs';
 import { drawTextBufferSequence } from './text-draw.mjs';
-import { dataBankWord, setDataBankWord } from '../system/data-bank.mjs';
+import { dataBankWord } from '../system/data-bank.mjs';
 import { accessorPort } from '../system/hardware-port.mjs';
 import { drawBelowInDirectPage } from '../system/random.mjs';
 import { playSoundEffect } from '../apu/sound-effect.mjs';
@@ -94,14 +94,8 @@ import {
   DP_SOUND_VOICE,
   GLOVE_TARGET_OBJECT,
   GLOVE_TARGET_TAG,
-  OBJECT_ARMOUR,
   OBJECT_ATTACKED,
-  OBJECT_BOX_HEIGHT,
-  OBJECT_FLAGS,
-  OBJECT_HEIGHT,
   OBJECT_NUMBER,
-  OBJECT_X,
-  OBJECT_Y,
   PLAYER_OBJECT,
   RUNNER_WEAPON_KIND,
   RUNNER_WEAPON_RANGE,
@@ -116,6 +110,7 @@ import {
   WORD_MASK,
   WORD_SIGN,
 } from '../constants/bits.mjs';
+import { objectWord, objectWordIn, setObjectWord, setObjectWordIn } from '../state/objects.mjs';
 
 // The result of 80:8A51 when the sight is blocked; the weapon entries are four bytes.
 const GLOVE_BLOCKED = 1,
@@ -226,9 +221,8 @@ function facingDirection(offsetX, offsetY, minusX, minusY) {
 // and BD.
 function faceTarget(run, shooter, target) {
   const { mem, wram } = run,
-    field = (offset, slot) => dataBankWord(mem, offset, slot),
-    down = (field(OBJECT_Y, target) - field(OBJECT_Y, shooter)) & WORD_MASK,
-    across = (field(OBJECT_X, target) - field(OBJECT_X, shooter)) & WORD_MASK,
+    down = (objectWord(mem, 'y', target) - objectWord(mem, 'y', shooter)) & WORD_MASK,
+    across = (objectWord(mem, 'x', target) - objectWord(mem, 'x', shooter)) & WORD_MASK,
     minusY = negative(down) ? down : 0,
     minusX = negative(across) ? across : 0,
     offsetY = magnitude(down),
@@ -268,17 +262,25 @@ function placeMiss(run, shooter, target) {
   const { h, mem, wram } = run,
     field = (offset, slot) => dataBankWord(mem, offset, slot);
   setWord(wram, DP_HIT_SHOOTER, shooter);
-  const range = ((word(wram, OBJECT_BOX_HEIGHT + target) + MISS_HEIGHT_RAISE) << 2) & WORD_MASK,
-    height = (drawBelow(run, range) + field(OBJECT_HEIGHT, target)) & WORD_MASK;
+  const range = ((objectWordIn(wram, 'boxHeight', target) + MISS_HEIGHT_RAISE) << 2) & WORD_MASK,
+    height = (drawBelow(run, range) + objectWord(mem, 'height', target)) & WORD_MASK;
   setWord(wram, DP_OBJECT_HEIGHT, height >>> BOX_SHIFT);
   const spot = (drawBelow(run, MISS_SPOTS) << 1) & WORD_MASK;
-  setWord(wram, DP_OBJECT_X, (field(OBJECT_X, target) >>> BOX_SHIFT) + field(MISS_OFFSETS_X, spot));
-  setWord(wram, DP_OBJECT_Y, (field(OBJECT_Y, target) >>> BOX_SHIFT) + field(MISS_OFFSETS_Y, spot));
+  setWord(
+    wram,
+    DP_OBJECT_X,
+    (objectWord(mem, 'x', target) >>> BOX_SHIFT) + field(MISS_OFFSETS_X, spot),
+  );
+  setWord(
+    wram,
+    DP_OBJECT_Y,
+    (objectWord(mem, 'y', target) >>> BOX_SHIFT) + field(MISS_OFFSETS_Y, spot),
+  );
   const facing = field(MISS_FACINGS, spot);
   setWord(wram, DP_OBJECT_SCRIPT, MISS_SCRIPT);
   setWord(wram, DP_OBJECT_KIND, MISS_KIND);
   createObject(mem, wram, h.a);
-  setWord(wram, OBJECT_ARMOUR + word(wram, 0), facing);
+  setObjectWordIn(wram, 'armour', word(wram, 0), facing);
 }
 // A roll's outcome: the hit, or the miss marker.
 function* rolledSequence(run, hitCall, shooter, target, offset, bonus) {
@@ -293,11 +295,10 @@ function* shotSequence(run, hitCall, shooter, target) {
     yield* rolledSequence(run, hitCall, shooter, target, HIT_ROLL_OFFSET, DP_BONUS_CLOSE);
     return;
   }
-  const far = [OBJECT_X, OBJECT_Y, OBJECT_HEIGHT].some(
+  const far = ['x', 'y', 'height'].some(
     (offset) =>
-      magnitude(
-        (dataBankWord(mem, offset, target) - dataBankWord(mem, offset, shooter)) & WORD_MASK,
-      ) >= RANGED_REACH,
+      magnitude((objectWord(mem, offset, target) - objectWord(mem, offset, shooter)) & WORD_MASK) >=
+      RANGED_REACH,
   );
   if (far) placeMiss(run, shooter, target);
   else if (kind !== DAMAGE_BONUS_KIND)
@@ -365,12 +366,7 @@ export function* shootAtGloveTargetSequence(h, events, renderBuffer = drawTextBu
   const target = word(wram, GLOVE_TARGET_OBJECT);
   if (negative(word(wram, GLOVE_TARGET_TAG)) || negative(target)) return yield* finishSequence(run);
   if (sightBlocked(run, player, target)) return yield* finishSequence(run, GLOVE_BLOCKED);
-  setDataBankWord(
-    mem,
-    OBJECT_FLAGS,
-    target,
-    dataBankWord(mem, OBJECT_FLAGS, target) | OBJECT_ATTACKED,
-  );
+  setObjectWord(mem, 'flags', target, objectWord(mem, 'flags', target) | OBJECT_ATTACKED);
   yield* shotSequence(
     run,
     (damage, target, shooter) => hitObject(h, events, renderBuffer, damage, target, shooter),

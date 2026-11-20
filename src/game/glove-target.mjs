@@ -44,10 +44,6 @@ import {
   GLOVE_TARGET_TAG,
   GLOVE_X,
   GLOVE_Y,
-  OBJECT_DIAGONAL,
-  OBJECT_HEIGHT,
-  OBJECT_X,
-  OBJECT_Y,
   PAD_A,
   PAD_B,
   PAD_PRESSED,
@@ -64,11 +60,6 @@ import {
   DP_WINDOW_ROWS,
   DP_WINDOW_TOP,
   MEMBER_MENU_ACTIVE,
-  MOTION_ACTIVE,
-  MOTION_MODE,
-  MOTION_X,
-  MOTION_Y,
-  OBJECT_FLAGS,
   OBJECT_NUMBER,
   SCRIPT_GLOVE_CHOICE,
   SPELL_TARGET_OBJECT,
@@ -78,6 +69,7 @@ import {
 import { DP_SCRATCH } from '../data/native-member-spell-menu.mjs';
 import { GLOVE_REACH, OUT_OF_REACH_NOTICE } from '../data/native-glove-target.mjs';
 import { BYTE_BITS, BYTE_MASK, WORD_MASK, WORD_SIGN } from '../constants/bits.mjs';
+import { objectWord, setObjectWordIn } from '../state/objects.mjs';
 
 // The choice ends on a newly pressed A, B, X or Y.
 const CHOICE_BUTTONS = PAD_A | PAD_B | PAD_X | PAD_Y;
@@ -145,16 +137,16 @@ export function placeGloveOverPlayer(h) {
   const { mem } = h.a,
     { wram } = mem,
     player = word(wram, PLAYER_OBJECT),
-    field = (offset) => dataBankWord(mem, offset, player);
+    field = (name) => objectWord(mem, name, player);
   const down = subtractChain(GLOVE_OVER_PLAYER.yBase, [
-    field(OBJECT_DIAGONAL),
-    field(OBJECT_HEIGHT),
+    field('diagonal'),
+    field('height'),
     word(wram, CAMERA_Y),
     GLOVE_OVER_PLAYER.yOffset,
   ]);
   setWord(wram, GLOVE_Y, swapBytes(down >>> POSITION_SHIFT));
-  const across = subtractChain((GLOVE_OVER_PLAYER.xBase + field(OBJECT_Y)) & WORD_MASK, [
-    field(OBJECT_X),
+  const across = subtractChain((GLOVE_OVER_PLAYER.xBase + field('y')) & WORD_MASK, [
+    field('x'),
     word(wram, CAMERA_X),
     GLOVE_OVER_PLAYER.xOffset,
   ]);
@@ -225,8 +217,8 @@ export function* chooseObjectUnderGloveSequence(h, events, renderBuffer = drawTe
 
 // The distance of two objects on one axis: the difference, made positive when its sign
 // is set (so 8000 stays).
-function axisDistance(mem, offset, from, to) {
-  const difference = (dataBankWord(mem, offset, from) - dataBankWord(mem, offset, to)) & WORD_MASK;
+function axisDistance(mem, name, from, to) {
+  const difference = (objectWord(mem, name, from) - objectWord(mem, name, to)) & WORD_MASK;
   return difference & WORD_SIGN ? -difference & WORD_MASK : difference;
 }
 // Whether the target is out of the glove's reach from the player figure: the summed X
@@ -235,11 +227,11 @@ function axisDistance(mem, offset, from, to) {
 function outOfReach(h, target) {
   const { mem } = h.a,
     player = word(mem.wram, PLAYER_OBJECT),
-    across = axisDistance(mem, OBJECT_X, player, target),
-    down = axisDistance(mem, OBJECT_Y, player, target),
+    across = axisDistance(mem, 'x', player, target),
+    down = axisDistance(mem, 'y', player, target),
     sum = (down + across) & WORD_MASK;
   setWord(mem.wram, DP_SCRATCH, across);
-  return sum >= GLOVE_REACH || axisDistance(mem, OBJECT_HEIGHT, player, target) >= GLOVE_REACH;
+  return sum >= GLOVE_REACH || axisDistance(mem, 'height', player, target) >= GLOVE_REACH;
 }
 // The out-of-reach notice's window, text and frames in the direct page.
 function prepareOutOfReachNotice(h) {
@@ -400,7 +392,7 @@ export function* spellGloveTargetSequence(h, events, renderBuffer = drawTextBuff
     yield () => {
       target = gloveTarget(wram);
       if (target === null) return;
-      usable = (dataBankWord(mem, OBJECT_FLAGS, target) & WORD_SIGN) !== 0;
+      usable = (objectWord(mem, 'flags', target) & WORD_SIGN) !== 0;
     };
     if (target === null || usable) break;
   }
@@ -442,7 +434,7 @@ function gloveFloorPlace(mem, object) {
   const raised = subtractChain((PLACE_Y_BASE + halfPixelX) & WORD_MASK, [
     word(wram, CAMERA_Y),
     pixelY,
-    dataBankWord(mem, OBJECT_HEIGHT, object),
+    objectWord(mem, 'height', object),
   ]);
   const down = ((((raised << 1) & WORD_MASK) + cameraX) & WORD_MASK) >>> 1;
   const across = subtractChain((down + PLACE_X_BASE) & WORD_MASK, [pixelX, cameraX]);
@@ -461,7 +453,7 @@ export function* choosePlaceWithGloveSequence(h, events, renderBuffer = drawText
   yield () => {
     // The original keeps the object's index on the stack during the choice.
     object = word(wram, 0);
-    setWord(wram, MOTION_MODE + object, 0);
+    setObjectWordIn(wram, 'motionMode', object, 0);
   };
   yield* prepareWindowListSequence(h, events, sites.prepareList);
   yield () => putGloveOn(h, GLOVE_LIMITS.action);
@@ -469,9 +461,9 @@ export function* choosePlaceWithGloveSequence(h, events, renderBuffer = drawText
   yield* resetWindowList(h, events);
   yield () => {
     const { down, across } = gloveFloorPlace(mem, object);
-    setWord(wram, MOTION_Y + object, down);
-    setWord(wram, MOTION_X + object, across);
-    setWord(wram, MOTION_ACTIVE + object, 1);
+    setObjectWordIn(wram, 'motionY', object, down);
+    setObjectWordIn(wram, 'motionX', object, across);
+    setObjectWordIn(wram, 'motionActive', object, 1);
   };
   yield* putGloveAwaySequence(h, events);
   return yield* returnSequence(h);

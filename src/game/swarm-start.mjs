@@ -41,9 +41,6 @@ import {
   DP_OBJECT_SCRIPT,
   DP_OBJECT_X,
   DP_OBJECT_Y,
-  OBJECT_HEIGHT,
-  OBJECT_X,
-  OBJECT_Y,
   PATH_SPEED_HEIGHT,
   PATH_SPEED_HEIGHT_GOAL,
   PATH_SPEED_XY,
@@ -66,6 +63,7 @@ import {
   WAVE_TARGET_Y,
 } from '../data/wram.mjs';
 import { BYTE_BITS, BYTE_MASK, WORD_MASK, WORD_SIGN } from '../constants/bits.mjs';
+import { objectWord, setObjectWord } from '../state/objects.mjs';
 
 const MEMBER_BYTES = 2,
   DP_OBJECT = 0,
@@ -122,9 +120,9 @@ function takeOrigin(mem, mask, keep) {
   const argument = dpWord(mem.wram, DP_OBJECT),
     object = argument & mask;
   setWord(mem, keep, object);
-  setWord(mem, SWARM_ORIGIN_X, dataBankWord(mem, OBJECT_X, object));
-  setWord(mem, SWARM_ORIGIN_Y, dataBankWord(mem, OBJECT_Y, object));
-  setWord(mem, SWARM_ORIGIN_HEIGHT, dataBankWord(mem, OBJECT_HEIGHT, object));
+  setWord(mem, SWARM_ORIGIN_X, objectWord(mem, 'x', object));
+  setWord(mem, SWARM_ORIGIN_Y, objectWord(mem, 'y', object));
+  setWord(mem, SWARM_ORIGIN_HEIGHT, objectWord(mem, 'height', object));
   return argument;
 }
 // Create the object of the direct page arguments. The calls' return words and the words
@@ -142,11 +140,11 @@ export function startPathSwarm(mem, a) {
   for (let offset = 0; offset !== FOUR_MEMBERS_END; offset += MEMBER_BYTES) {
     setDpWord(wram, DP_OBJECT_KIND, argument & FOUR_SWARM_FLAG ? FOUR_FLAGGED_KIND : FOUR_KIND);
     for (const [table, at] of [
-      [OBJECT_X, DP_OBJECT_X],
-      [OBJECT_Y, DP_OBJECT_Y],
-      [OBJECT_HEIGHT, DP_OBJECT_HEIGHT],
+      ['x', DP_OBJECT_X],
+      ['y', DP_OBJECT_Y],
+      ['height', DP_OBJECT_HEIGHT],
     ])
-      setDpWord(wram, at, dataBankWord(mem, table, argument) >>> FOUR_POSITION_SHIFT);
+      setDpWord(wram, at, objectWord(mem, table, argument) >>> FOUR_POSITION_SHIFT);
     setDpWord(wram, DP_OBJECT_SCRIPT, FOUR_SCRIPT);
     create(mem, a);
     keepMember(mem, offset);
@@ -206,16 +204,16 @@ export function circleSwarmLeader(mem, a) {
   const heightPhase = (word(mem, CIRCLE_HEIGHT_PHASE) + word(mem, CIRCLE_SPEED)) & PHASE_MASK;
   setWord(mem, CIRCLE_HEIGHT_PHASE, heightPhase);
   const leader = word(mem, CIRCLE_LEADER);
-  setDataBankWord(
+  setObjectWord(
     mem,
-    OBJECT_HEIGHT,
+    'height',
     leader,
     (waveByte(mem, heightPhase) >>> CIRCLE_HEIGHT_SHIFT) + CIRCLE_BASE_HEIGHT,
   );
-  setDataBankWord(mem, OBJECT_X, leader, waveByte(mem, word(mem, CIRCLE_PHASE)) + CIRCLE_BASE_X);
-  setDataBankWord(
+  setObjectWord(mem, 'x', leader, waveByte(mem, word(mem, CIRCLE_PHASE)) + CIRCLE_BASE_X);
+  setObjectWord(
     mem,
-    OBJECT_Y,
+    'y',
     leader,
     waveByte(mem, (word(mem, CIRCLE_PHASE) + QUARTER_PHASE) & PHASE_MASK) + CIRCLE_BASE_Y,
   );

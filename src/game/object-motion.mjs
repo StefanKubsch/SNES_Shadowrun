@@ -25,6 +25,7 @@
 // frame too; only a recorded run's register-level step returns through it.
 import { taskStop } from '../system/task-stop.mjs';
 import { moveObject } from './object-move.mjs';
+import { objectIndex, objectTable } from '../state/objects.mjs';
 import { stepAnimation, stepAnimationInPlace } from './object-animation.mjs';
 import { recordedRoutine } from '../system/recorded-routines.mjs';
 import {
@@ -44,17 +45,8 @@ import {
   DRAW_LIST,
   DRAW_LIST_INDEX,
   MOVING_BOX_FIRST,
-  OBJECT_BOX_HEIGHT,
-  OBJECT_BOX_X1,
-  OBJECT_BOX_X2,
-  OBJECT_BOX_Y1,
-  OBJECT_BOX_Y2,
-  OBJECT_FLAGS,
   OBJECT_HALTED,
-  OBJECT_HEIGHT,
   OBJECT_IN_GRID,
-  OBJECT_X,
-  OBJECT_Y,
   STATIC_NODE_END,
 } from '../data/wram.mjs';
 import { BYTE_BITS, BYTE_MASK, WORD_MASK, WORD_SIGN } from '../constants/bits.mjs';
@@ -129,6 +121,7 @@ function linkBox(wram, box, cells) {
 
 // The collision boxes of the draw list's objects (81:8799), with the grid clear 81:80F7.
 function buildCollisionList(wram) {
+  const objects = objectTable(wram);
   for (let cell = 0; cell < COLLISION_CELLS; cell++)
     setWord(wram, COLLISION_CELL_HEADS + cell * NODE_BYTES, NO_NODE);
   const nodes = word(wram, STATIC_NODE_END);
@@ -138,31 +131,31 @@ function buildCollisionList(wram) {
   setWord(wram, DP_BOX, MOVING_BOX_FIRST);
   for (let index = last; !(index & WORD_SIGN); index = (index - 2) & WORD_MASK) {
     const slot = word(wram, DRAW_LIST + index),
-      field = (base) => word(wram, base + slot);
-    if (!(field(OBJECT_FLAGS) & OBJECT_IN_GRID) || !field(OBJECT_BOX_HEIGHT)) continue;
+      i = objectIndex(slot);
+    if (!(objects.flags[i] & OBJECT_IN_GRID) || !objects.boxHeight[i]) continue;
     const box = word(wram, DP_BOX),
-      x = field(OBJECT_X) >>> POSITION_SHIFT,
-      yPos = field(OBJECT_Y) >>> POSITION_SHIFT;
+      x = objects.x[i] >>> POSITION_SHIFT,
+      yPos = objects.y[i] >>> POSITION_SHIFT;
     setWord(wram, DP_X, x);
-    const x0 = (x + field(OBJECT_BOX_X1)) & WORD_MASK;
+    const x0 = (x + objects.boxX1[i]) & WORD_MASK;
     setWord(wram, COLLISION_BOX_X0 + box, x0);
     const columnX0 = (x0 & CELL_COORDINATE_MASK) >>> COLUMN_SHIFT;
     setWord(wram, DP_COLUMN_X0, columnX0);
     setWord(wram, DP_Y, yPos);
-    const y0 = (yPos + field(OBJECT_BOX_Y1)) & WORD_MASK;
+    const y0 = (yPos + objects.boxY1[i]) & WORD_MASK;
     setWord(wram, COLLISION_BOX_Y0 + box, y0);
     const rowY0 = (y0 & CELL_COORDINATE_MASK) >>> ROW_SHIFT;
     setWord(wram, DP_ROW_Y0, rowY0);
     const c00 = rowY0 | columnX0;
     setWord(wram, DP_CELL_X0_Y0, c00);
-    const bottom = field(OBJECT_HEIGHT) >>> POSITION_SHIFT;
+    const bottom = objects.height[i] >>> POSITION_SHIFT;
     setWord(wram, COLLISION_BOX_BOTTOM + box, bottom);
-    setWord(wram, COLLISION_BOX_TOP + box, bottom + field(OBJECT_BOX_HEIGHT));
-    const x1 = (field(OBJECT_BOX_X2) + x) & WORD_MASK;
+    setWord(wram, COLLISION_BOX_TOP + box, bottom + objects.boxHeight[i]);
+    const x1 = (objects.boxX2[i] + x) & WORD_MASK;
     setWord(wram, COLLISION_BOX_X1 + box, x1);
     const columnX1 = (x1 & CELL_COORDINATE_MASK) >>> COLUMN_SHIFT;
     setWord(wram, DP_COLUMN_X1, columnX1);
-    const y1 = (field(OBJECT_BOX_Y2) + yPos) & WORD_MASK;
+    const y1 = (objects.boxY2[i] + yPos) & WORD_MASK;
     setWord(wram, COLLISION_BOX_Y1 + box, y1);
     const rowY1 = (y1 & CELL_COORDINATE_MASK) >>> ROW_SHIFT;
     setWord(wram, DP_ROW_Y1, rowY1);
@@ -188,7 +181,8 @@ function buildCollisionList(wram) {
 // loop runs it without its JSR frame; the RTS form for register-level callers is
 // moveAndAnimateJsr in proof/caller/jsr-forms.mjs.
 export function moveAndAnimateInPlace(h, events) {
-  const { wram } = h.a.mem;
+  const { wram } = h.a.mem,
+    objects = objectTable(wram);
   buildCollisionList(wram);
   const last = word(wram, DRAW_LIST_INDEX);
   if (last & WORD_SIGN) return;
@@ -196,7 +190,7 @@ export function moveAndAnimateInPlace(h, events) {
   const pass = (run) => {
     for (let index = last; !(index & WORD_SIGN); index = (index - 2) & WORD_MASK) {
       const slot = lowField(wram, DRAW_LIST, index);
-      if (!(lowField(wram, OBJECT_FLAGS, slot) & OBJECT_HALTED)) run(slot);
+      if (!(objects.flags[objectIndex(slot)] & OBJECT_HALTED)) run(slot);
     }
   };
   pass((slot) => moveObject(h.a.mem.wram, h.a, slot));

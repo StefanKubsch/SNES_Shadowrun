@@ -9,20 +9,16 @@
 // as none, the rest moves a quarter of the way, at most 20 either way, in steps of
 // 4. The tile buffers 81:8A91 (camera-scroll.mjs) then move the camera. Without a
 // player figure (bit 15 of its slot) the camera stays.
-import { taskStop } from '../system/task-stop.mjs';
 import { clampToCameraBox } from './camera-box.mjs';
 import {
   CAMERA_SPEED_X,
   CAMERA_SPEED_Y,
   CAMERA_X,
   CAMERA_Y,
-  OBJECT_DIAGONAL,
-  OBJECT_HEIGHT,
-  OBJECT_X,
-  OBJECT_Y,
   PLAYER_OBJECT,
 } from '../data/wram.mjs';
 import { BYTE_BITS, BYTE_MASK, WORD_BITS, WORD_MASK, WORD_SIGN } from '../constants/bits.mjs';
+import { lowObjectWord, objectWordIn } from '../state/objects.mjs';
 
 const DP_CAMERA_X = 0x0e,
   DP_CAMERA_Y = 0x11;
@@ -32,8 +28,7 @@ const CAMERA_CENTRE_X = 0x400,
   DEAD_ZONE_MASK = 0xfff8,
   SPEED_SHIFT = 2,
   SPEED_MAX = 0x20,
-  STEP_MASK = 0xfffc,
-  LOW_WRAM_END = 0x2000;
+  STEP_MASK = 0xfffc;
 
 const word = (wram, at) => wram[at] | (wram[at + 1] << BYTE_BITS);
 const setWord = (wram, at, value) => {
@@ -55,15 +50,14 @@ export function followPlayerWithCamera(mem, wram) {
   const slot = word(wram, PLAYER_OBJECT);
   if (slot & WORD_SIGN) return slot;
   // The original's data bank 80 reaches the object tables only below 2000.
-  if (OBJECT_DIAGONAL + slot + 1 >= LOW_WRAM_END) taskStop('object_slot_required', { slot });
-  setWord(wram, DP_CAMERA_Y, PLAYER_ROW_BASE - word(wram, OBJECT_DIAGONAL + slot));
+  setWord(wram, DP_CAMERA_Y, PLAYER_ROW_BASE - lowObjectWord(wram, 'diagonal', slot));
   setWord(
     wram,
     DP_CAMERA_X,
-    CAMERA_CENTRE_X + word(wram, OBJECT_Y + slot) - word(wram, OBJECT_X + slot),
+    CAMERA_CENTRE_X + objectWordIn(wram, 'y', slot) - objectWordIn(wram, 'x', slot),
   );
   clampToCameraBox(mem, wram);
-  const aimY = word(wram, DP_CAMERA_Y) + CAMERA_HEIGHT_BASE - word(wram, OBJECT_HEIGHT + slot);
+  const aimY = word(wram, DP_CAMERA_Y) + CAMERA_HEIGHT_BASE - objectWordIn(wram, 'height', slot);
   setWord(wram, CAMERA_SPEED_Y, cameraSpeed((aimY - word(wram, CAMERA_Y)) & WORD_MASK));
   setWord(
     wram,

@@ -51,11 +51,11 @@ import {
   MUSIC,
   MUSIC_FIGHT,
   OPTION_MUSIC,
-  OBJECT_FLAGS,
   OBJECT_NO_TARGET,
   OBJECT_ON_SCREEN,
 } from '../data/wram.mjs';
 import { BYTE_BITS, BYTE_MASK, WORD_MASK, WORD_SIGN } from '../constants/bits.mjs';
+import { objectWord } from '../state/objects.mjs';
 
 // The fight's karma is an eighth of the karma; FFFF keeps no music.
 const FIGHT_KARMA_SHIFT = 3,
@@ -215,7 +215,7 @@ export const isInFightList = (mem, object) => (findInList(mem, object) < 0 ? 0 :
 // targeted, else 0.
 export function hasFightTarget(mem) {
   for (const entry of listEntries(mem)) {
-    const flags = dataBankWord(mem, OBJECT_FLAGS, listObject(mem, entry));
+    const flags = objectWord(mem, 'flags', listObject(mem, entry));
     if (flags & OBJECT_ON_SCREEN && !(flags & OBJECT_NO_TARGET)) return WORD_MASK;
   }
   return 0;

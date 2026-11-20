@@ -35,13 +35,7 @@ import {
   COLLISION_CELL_HEADS,
   COLLISION_NODE_BOX,
   COLLISION_NODE_NEXT,
-  OBJECT_FLAGS,
-  OBJECT_HEIGHT,
-  OBJECT_KIND,
-  OBJECT_X,
-  OBJECT_Y,
   PLAYER_OBJECT,
-  WRAM,
 } from '../data/wram.mjs';
 import { ACTION_TABLE } from '../data/actions.mjs';
 import { WRAM_BANK } from '../constants/memory-map.mjs';
@@ -54,6 +48,7 @@ import {
   WORD_MASK,
   WORD_SIGN,
 } from '../constants/bits.mjs';
+import { longObjectWord } from '../state/objects.mjs';
 
 // The direct page: the action record and shape pointers, the box, the cell columns,
 // rows and cells, the largest height and the object.
@@ -123,7 +118,7 @@ function searchBoxes(mem, node) {
       if (owner === dp(DP_MOVED_OBJECT)) break check;
       if (
         owner === wramWord(mem, PLAYER_OBJECT) &&
-        (wramWord(mem, OBJECT_FLAGS + dp(DP_MOVED_OBJECT)) & PLAYER_PASSES) === PLAYER_PASSES
+        (longObjectWord(mem, 'flags', dp(DP_MOVED_OBJECT)) & PLAYER_PASSES) === PLAYER_PASSES
       )
         break check;
       setDirectWord(mem, DP_HEIGHT, height);
@@ -142,7 +137,7 @@ function searchCell(mem, cell) {
 // A box edge: the object's position field over 4 plus the edge offset in word at.
 function edge(mem, field, object, at) {
   const value =
-    ((wramWord(mem, field + object) >>> POSITION_SHIFT) + directWord(mem, at)) & WORD_MASK;
+    ((longObjectWord(mem, field, object) >>> POSITION_SHIFT) + directWord(mem, at)) & WORD_MASK;
   setDirectWord(mem, at, value);
   return value;
 }
@@ -155,7 +150,7 @@ export function testActionBoxCollision(mem) {
   setDirectWord(mem, DP_MOVED_OBJECT, object);
   // The kind times two indexes the action table; the direction times two (with the bit
   // shifted out as carry) is added to the kind's entry.
-  const kind = (mem.read16((WRAM + OBJECT_KIND + object) & LONG_MASK) << 1) & WORD_MASK,
+  const kind = (longObjectWord(mem, 'kind', object) << 1) & WORD_MASK,
     direction = dp(DP_DIRECTION);
   setDirectWord(
     mem,
@@ -177,17 +172,17 @@ export function testActionBoxCollision(mem) {
   setDirectWord(mem, DP_TOP, shapeByte(SHAPE_HEIGHT));
   const moved = dp(DP_MOVED_OBJECT);
   setDirectWord(mem, DP_HEIGHT, 0);
-  const bottom = wramWord(mem, OBJECT_HEIGHT + moved) >>> POSITION_SHIFT;
+  const bottom = longObjectWord(mem, 'height', moved) >>> POSITION_SHIFT;
   setDirectWord(mem, DP_BOTTOM, bottom);
   setDirectWord(mem, DP_TOP, bottom + dp(DP_TOP));
   const row = (y) => (y & CELL_COORDINATE_MASK) >>> ROW_SHIFT;
-  setDirectWord(mem, DP_HIGH_Y_ROW, row(edge(mem, OBJECT_Y, moved, DP_HIGH_Y)));
-  setDirectWord(mem, DP_LOW_Y_ROW, row(edge(mem, OBJECT_Y, moved, DP_LOW_Y)));
+  setDirectWord(mem, DP_HIGH_Y_ROW, row(edge(mem, 'y', moved, DP_HIGH_Y)));
+  setDirectWord(mem, DP_LOW_Y_ROW, row(edge(mem, 'y', moved, DP_LOW_Y)));
   for (const [at, column, cell] of [
     [DP_LOW_X, DP_LOW_X_COLUMN, DP_CELL_LOW_X_LOW_Y],
     [DP_HIGH_X, DP_HIGH_X_COLUMN, DP_CELL_HIGH_X_LOW_Y],
   ]) {
-    const x = edge(mem, OBJECT_X, moved, at);
+    const x = edge(mem, 'x', moved, at);
     setDirectWord(mem, column, swapBytes((x & CELL_COORDINATE_MASK) << COLUMN_SHIFT));
     setDirectWord(mem, cell, dp(column) | dp(DP_LOW_Y_ROW));
   }

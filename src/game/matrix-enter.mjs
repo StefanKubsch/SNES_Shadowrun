@@ -24,7 +24,6 @@ import {
   MATRIX_EXTRA_NODES,
   MATRIX_MESSAGES,
   MATRIX_SYSTEM,
-  OBJECT_RECORD,
   RECORD_COUNT,
   ROOM,
   SCENE_REQUEST,
@@ -39,6 +38,7 @@ import {
   RUNNER_RECORD_POINTERS,
 } from '../data/runners.mjs';
 import { BYTE_MASK, LONG_MASK, WORD_BITS, WORD_MASK, WORD_SIGN } from '../constants/bits.mjs';
+import { bankObjectWord } from '../state/objects.mjs';
 
 // The arguments: the matrix system, the room to return to, the extra nodes, the message
 // list and the decker's object number; the runner record's long pointer.
@@ -97,7 +97,7 @@ export function enterMatrix(mem, a) {
     directWord(mem, DP_DECKER),
   );
   if (member < 0) return;
-  const objectRecord = bankWord(a, OBJECT_RECORD + bankWord(a, GROUP_SLOTS + member));
+  const objectRecord = bankObjectWord(a, 'record', bankWord(a, GROUP_SLOTS + member));
   if (objectRecord === 0) return;
   setBankByte(a, DECKER_HEALTH, mem.read8((WRAM + RECORD_COUNT + objectRecord) & LONG_MASK));
   setBankWord(a, DECKER_RECORD, objectRecord);

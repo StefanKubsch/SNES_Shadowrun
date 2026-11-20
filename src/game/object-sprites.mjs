@@ -44,16 +44,8 @@ import {
   OAM_BUFFER,
   OAM_HIGH_TABLE,
   OBJECT_COVERED,
-  OBJECT_DEPTH_ORDER,
-  OBJECT_DIAGONAL,
-  OBJECT_FLAGS,
-  OBJECT_HEIGHT,
   OBJECT_HIDDEN,
   OBJECT_ON_SCREEN,
-  OBJECT_PALETTE,
-  OBJECT_VRAM_SLOT_HEAD,
-  OBJECT_X,
-  OBJECT_Y,
   OCCLUSION_COLUMN_BYTES,
   OCCLUSION_MASKS,
   OCCLUSION_TILES,
@@ -87,6 +79,7 @@ import {
   WORD_MASK,
   WORD_SIGN,
 } from '../constants/bits.mjs';
+import { lowObjectWord, setLowObjectWord } from '../state/objects.mjs';
 
 // The direct page words: the picture pointer and its bank, the part's screen position
 // (12: the high byte of x), the top row, the anchor, the columns, the rows and the rows
@@ -289,7 +282,12 @@ export function enterObjectSpritesInPlace(h, slot, picture) {
   // Every exit of the original returns with its RTS here.
   const leave = () => undefined;
   const hide = () => {
-    put(OBJECT_FLAGS, get(OBJECT_FLAGS) | OBJECT_HIDDEN, get(ENTERED_OBJECT, 0));
+    setLowObjectWord(
+      wram,
+      'flags',
+      get(ENTERED_OBJECT, 0),
+      lowObjectWord(wram, 'flags', slot) | OBJECT_HIDDEN,
+    );
     return leave();
   };
 
@@ -302,14 +300,23 @@ export function enterObjectSpritesInPlace(h, slot, picture) {
     ((wram[DP_PICTURE_BANK] << WORD_BITS) + dp(DP_PICTURE) + offset) & LONG_MASK;
   setDp(DP_ANCHOR_X, longByte(mem, pictureAt(0)) << 1);
   setDp(DP_ANCHOR_Y, longByte(mem, pictureAt(1)) << 1);
-  put(OBJECT_FLAGS, get(OBJECT_FLAGS) & ~(OBJECT_ON_SCREEN | OBJECT_COVERED | OBJECT_HIDDEN));
-  const palette = get(OBJECT_PALETTE);
+  setLowObjectWord(
+    wram,
+    'flags',
+    slot,
+    lowObjectWord(wram, 'flags', slot) & ~(OBJECT_ON_SCREEN | OBJECT_COVERED | OBJECT_HIDDEN),
+  );
+  const palette = lowObjectWord(wram, 'palette', slot);
   setDp(DP_PALETTE_SLOT, paletteSlotInPlace(wram, palette));
-  setDp(DP_DEPTH, get(OBJECT_DIAGONAL) >>> QUARTER_SHIFT);
+  setDp(DP_DEPTH, lowObjectWord(wram, 'diagonal', slot) >>> QUARTER_SHIFT);
   const cameraY = word(wram, CAMERA_Y) >>> QUARTER_SHIFT;
   setDp(DP_CAMERA_Y, cameraY);
   const cellY = quarter(
-    (ROW_BASE - get(OBJECT_DIAGONAL) - get(OBJECT_HEIGHT) - dp(DP_ANCHOR_Y)) & WORD_MASK,
+    (ROW_BASE -
+      lowObjectWord(wram, 'diagonal', slot) -
+      lowObjectWord(wram, 'height', slot) -
+      dp(DP_ANCHOR_Y)) &
+      WORD_MASK,
   );
   setDp(DP_CELL_Y, cellY);
   const top = (cellY - cameraY) & WORD_MASK;
@@ -319,14 +326,18 @@ export function enterObjectSpritesInPlace(h, slot, picture) {
   const cameraX = word(wram, CAMERA_X) >>> QUARTER_SHIFT;
   setDp(DP_CAMERA_X, cameraX);
   const cellX = quarter(
-    (COLUMN_BASE + get(OBJECT_Y) - get(OBJECT_X) - dp(DP_ANCHOR_X)) & WORD_MASK,
+    (COLUMN_BASE +
+      lowObjectWord(wram, 'y', slot) -
+      lowObjectWord(wram, 'x', slot) -
+      dp(DP_ANCHOR_X)) &
+      WORD_MASK,
   );
   setDp(DP_CELL_X, cellX);
   const left = (cellX - cameraX) & WORD_MASK;
   if (!(left & WORD_SIGN) && left >= VISIBLE_WIDTH) return hide();
   setDp(DP_SCREEN_X, left);
-  setDp(DP_TILE, get(OBJECT_VRAM_SLOT_HEAD));
-  setDp(DP_DEPTH_ORDER, get(OBJECT_DEPTH_ORDER));
+  setDp(DP_TILE, lowObjectWord(wram, 'vramSlotHead', slot));
+  setDp(DP_DEPTH_ORDER, lowObjectWord(wram, 'depthOrder', slot));
   // The size: rows of parts (high nibble) and columns; entirely above or left: hidden.
   const size = longWord(mem, pictureAt(PICTURE_SIZE)),
     height = size & ROWS_MASK;
@@ -603,7 +614,7 @@ export function enterObjectSpritesInPlace(h, slot, picture) {
     let bits = entered;
     if (cells === CELL_BITS) bits = (entered & ~CELL_BITS) | OBJECT_HIDDEN;
     else if (cells) bits = (entered & ~CELL_BITS) | (cells & CELL_FRONT_WALL ? 0 : OBJECT_COVERED);
-    put(OBJECT_FLAGS, get(OBJECT_FLAGS, object) | bits, object);
+    setLowObjectWord(wram, 'flags', object, lowObjectWord(wram, 'flags', object) | bits);
     return leave();
   }
 }

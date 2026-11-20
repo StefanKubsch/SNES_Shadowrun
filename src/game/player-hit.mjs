@@ -5,17 +5,11 @@
 // down, each pass of the main loop moves the figure by 4 in x and -4 in y, or the
 // other way round, as the count before the pass is even or odd; on the last frame
 // the figure stops. Without a player figure (bit 15 of its slot) nothing happens.
-import { taskStop } from '../system/task-stop.mjs';
-import {
-  OBJECT_VELOCITY_X,
-  OBJECT_VELOCITY_Y,
-  PLAYER_HIT_FRAMES,
-  PLAYER_OBJECT,
-} from '../data/wram.mjs';
+import { PLAYER_HIT_FRAMES, PLAYER_OBJECT } from '../data/wram.mjs';
 import { BYTE_BITS, BYTE_MASK, WORD_MASK, WORD_SIGN } from '../constants/bits.mjs';
+import { lowObjectWord, setLowObjectWord } from '../state/objects.mjs';
 
-const SPEED = 4,
-  LOW_WRAM_END = 0x2000;
+const SPEED = 4;
 
 const word = (wram, at) => wram[at] | (wram[at + 1] << BYTE_BITS);
 const setWord = (wram, at, value) => {
@@ -32,9 +26,9 @@ export function shakeHitPlayer(wram) {
   if (!frames) return slot;
   setWord(wram, PLAYER_HIT_FRAMES, frames - 1);
   // The original's data bank 80 reaches the object tables only below 2000.
-  if (OBJECT_VELOCITY_Y + slot + 1 >= LOW_WRAM_END) taskStop('object_slot_required', { slot });
   const x = frames === 1 ? 0 : frames & 1 ? -SPEED : SPEED;
-  setWord(wram, OBJECT_VELOCITY_X + slot, x & WORD_MASK);
-  setWord(wram, OBJECT_VELOCITY_Y + slot, -x & WORD_MASK);
+  lowObjectWord(wram, 'velocityY', slot);
+  setLowObjectWord(wram, 'velocityX', slot, x & WORD_MASK);
+  setLowObjectWord(wram, 'velocityY', slot, -x & WORD_MASK);
   return slot;
 }

@@ -15,11 +15,10 @@ import {
   BOB_PHASE,
   BOB_SECOND_OBJECT,
   BOB_SECOND_PHASE,
-  OBJECT_HEIGHT,
-  OBJECT_X,
   SWARM_MEMBERS,
 } from '../data/wram.mjs';
 import { BYTE_MASK } from '../constants/bits.mjs';
+import { setObjectWord } from '../state/objects.mjs';
 
 // Wave table 80:D3D1 of the bobbing, swarm and orbit natives (also the colour ramp of 80:8877):
 // one byte per phase 0 to 1FF; 80 is a quarter and 100 half of the table.
@@ -47,9 +46,9 @@ export function bobObject(mem, object, second) {
   const phase = (dataBankWord(mem, phaseWord) + BOB_PHASE_STEP) & PHASE_MASK;
   setDataBankWord(mem, phaseWord, 0, phase);
   const wave = waveByte(mem, second ? (phase + HALF_PHASE) & PHASE_MASK : phase);
-  setDataBankWord(
+  setObjectWord(
     mem,
-    OBJECT_HEIGHT,
+    'height',
     dataBankWord(mem, objectWord),
     (wave >>> BOB_HEIGHT_SHIFT) + BOB_BASE_HEIGHT,
   );
@@ -60,10 +59,10 @@ export function advanceOrbit(mem, object, slot) {
   setDataBankWord(mem, SWARM_MEMBERS, slot, phase);
   let rise = 2 * waveByte(mem, phase);
   if (rise < ORBIT_LOW_LIMIT) rise = ((ORBIT_LOW_LIMIT - rise) >>> 1) + ORBIT_LOW_LIMIT;
-  setDataBankWord(mem, OBJECT_HEIGHT, object, rise + ORBIT_BASE_HEIGHT);
-  setDataBankWord(
+  setObjectWord(mem, 'height', object, rise + ORBIT_BASE_HEIGHT);
+  setObjectWord(
     mem,
-    OBJECT_X,
+    'x',
     object,
     waveByte(mem, (phase + QUARTER_PHASE) & PHASE_MASK) + ORBIT_BASE_X,
   );

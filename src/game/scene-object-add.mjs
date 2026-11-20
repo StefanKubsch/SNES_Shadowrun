@@ -31,12 +31,8 @@ import {
   GROUP_OBJECTS,
   GROUP_POSITIONS,
   GROUP_SLOTS,
-  OBJECT_ARMOUR,
   OBJECT_CLASS_MASK,
-  OBJECT_DEPTH_ORDER,
-  OBJECT_FLAGS,
   OBJECT_NUMBER,
-  OBJECT_RECORD,
   PLAYER_OBJECT,
   RUNNER_ARMOUR_RATING,
   SCENE_OBJECT_ROW_FACTOR,
@@ -45,6 +41,7 @@ import {
 import { ACTOR_DEPTH_FLAGS, ACTOR_RECORD, ACTOR_SCRIPT, ACTOR_TABLE } from '../data/actors.mjs';
 import { RUNNER_LAST_INDEX, RUNNER_OBJECT_NUMBERS } from '../data/runners.mjs';
 import { BYTE_BITS, BYTE_MASK, LONG_MASK, WORD_BITS, WORD_MASK } from '../constants/bits.mjs';
+import { bankObjectWord, setBankObjectWord, setLongObjectWord } from '../state/objects.mjs';
 
 // The kind and the direction argument (words 00 and 02 of the creation and the turn).
 const DP_OBJECT = 0,
@@ -99,10 +96,10 @@ export function addSceneObject(mem, a) {
   setBankWord(a, OBJECT_NUMBER + slot, actor);
   // The depth flags (bits 6 and 7) go to the high byte, then rotate left by one.
   const flags = (actorWord(mem, actor) & ACTOR_DEPTH_FLAGS) << BYTE_BITS;
-  setBankWord(a, OBJECT_DEPTH_ORDER + slot, (flags << 1) + (flags >>> TOP_BIT));
-  setBankWord(a, OBJECT_RECORD + slot, actorWord(mem, ACTOR_RECORD + actor));
+  setBankObjectWord(a, 'depthOrder', slot, (flags << 1) + (flags >>> TOP_BIT));
+  setBankObjectWord(a, 'record', slot, actorWord(mem, ACTOR_RECORD + actor));
   if (wramWord(mem, GROUP_INDEX) === 0)
-    setBankWord(a, OBJECT_FLAGS + slot, bankWord(a, OBJECT_FLAGS + slot) | OBJECT_CLASS_MASK);
+    setBankObjectWord(a, 'flags', slot, bankObjectWord(a, 'flags', slot) | OBJECT_CLASS_MASK);
   setBankWord(a, GROUP_SLOTS + wramWord(mem, GROUP_INDEX), slot);
   // The runner with the object's number, searched from the last one down.
   const objectNumber = bankWord(a, OBJECT_NUMBER + slot);
@@ -112,5 +109,5 @@ export function addSceneObject(mem, a) {
     runner = (runner - ENTRY_BYTES) & WORD_MASK;
   }
   const rating = wramWord(mem, RUNNER_ARMOUR_RATING + ((runner << ARMOUR_ROW_SHIFT) & WORD_MASK));
-  setWramWord(mem, OBJECT_ARMOUR + slot, rating & BYTE_MASK);
+  setLongObjectWord(mem, 'armour', slot, rating & BYTE_MASK);
 }

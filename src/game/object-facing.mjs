@@ -13,8 +13,9 @@
 // free stack bytes and are not reproduced (game state only, user decision 2026-11-17).
 import { turnObject } from './object-turn.mjs';
 import { dataBankWord } from '../system/data-bank.mjs';
-import { OBJECT_X, OBJECT_Y, PLAYER_OBJECT } from '../data/wram.mjs';
+import { PLAYER_OBJECT } from '../data/wram.mjs';
 import { BYTE_BITS, BYTE_MASK, WORD_MASK, WORD_SIGN } from '../constants/bits.mjs';
+import { objectWord } from '../state/objects.mjs';
 
 // The direct page: the object and the target (or the direction), the magnitudes and the
 // sign words of the target offset.
@@ -47,15 +48,15 @@ function directionTowards(mem, object, target) {
   const { wram } = mem,
     axis = (field, minus, distance) => {
       const difference =
-          (dataBankWord(mem, field, target) - dataBankWord(mem, field, object)) & WORD_MASK,
+          (objectWord(mem, field, target) - objectWord(mem, field, object)) & WORD_MASK,
         negative = (difference & WORD_SIGN) !== 0;
       setWord(wram, minus, negative ? difference : 0);
       setWord(wram, distance, negative ? -difference & WORD_MASK : difference);
     };
   setWord(wram, DP_MINUS_X, 0);
   setWord(wram, DP_MINUS_Y, 0);
-  axis(OBJECT_X, DP_MINUS_X, DP_DISTANCE_X);
-  axis(OBJECT_Y, DP_MINUS_Y, DP_DISTANCE_Y);
+  axis('x', DP_MINUS_X, DP_DISTANCE_X);
+  axis('y', DP_MINUS_Y, DP_DISTANCE_Y);
   const distanceX = word(wram, DP_DISTANCE_X),
     distanceY = word(wram, DP_DISTANCE_Y),
     minusX = word(wram, DP_MINUS_X) !== 0,

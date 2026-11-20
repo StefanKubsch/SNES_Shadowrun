@@ -58,6 +58,7 @@ import {
   WAVE_TARGET_Y,
 } from '../data/wram.mjs';
 import { BYTE_BITS, BYTE_MASK, WORD_BITS, WORD_MASK } from '../constants/bits.mjs';
+import { setObjectWord } from '../state/objects.mjs';
 
 const MEMBER_BYTES = 2,
   STEP = 2;
@@ -176,11 +177,11 @@ export function moveSwarmWave(mem, mode, point) {
     const height =
       waveByte(mem, word(mem, WAVE_MEMBER_SECOND_PHASE)) + word(mem, WAVE_HEIGHT_PART) + carry;
     const slot = member(mem, offset);
-    setDataBankWord(mem, OBJECT_HEIGHT, slot, (height + WAVE_BASE_HEIGHT) & WORD_MASK);
-    setDataBankWord(mem, OBJECT_X, slot, word(mem, SWARM_X));
+    setObjectWord(mem, 'height', slot, (height + WAVE_BASE_HEIGHT) & WORD_MASK);
+    setObjectWord(mem, 'x', slot, word(mem, SWARM_X));
     const y = (word(mem, SWARM_Y) - WAVE_MEMBER_SPACING) & WORD_MASK;
     setWord(mem, SWARM_Y, y);
-    setDataBankWord(mem, OBJECT_Y, slot, y);
+    setObjectWord(mem, 'y', slot, y);
     setWord(
       mem,
       WAVE_MEMBER_PHASE,

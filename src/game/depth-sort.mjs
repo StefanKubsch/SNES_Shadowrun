@@ -21,16 +21,9 @@
 // 2026-11-17): game state only; no A, X, Y or flags are left (the sprite list sets its
 // own before reading them).
 import { taskStop } from '../system/task-stop.mjs';
-import {
-  DRAW_LIST,
-  DRAW_LIST_INDEX,
-  OBJECT_DEPTH_BIAS,
-  OBJECT_DEPTH_RULE,
-  OBJECT_DIAGONAL,
-  OBJECT_X,
-  OBJECT_Y,
-} from '../data/wram.mjs';
+import { DRAW_LIST, DRAW_LIST_INDEX } from '../data/wram.mjs';
 import { BYTE_BITS, BYTE_MASK, WORD_MASK, WORD_SIGN } from '../constants/bits.mjs';
+import { lowObjectWord } from '../state/objects.mjs';
 
 const LOW_WRAM_END = 0x2000,
   ENTRY_BYTES = 2,
@@ -45,10 +38,10 @@ const DP_FIRST_KEY = 0x11,
 // The rules 1 to 4: the axis compared, and whether the first object's rule biases the
 // first object when it lies at or past the second (else before it).
 const RULES = new Map([
-  [1, { axis: OBJECT_Y, whenAhead: true }],
-  [2, { axis: OBJECT_X, whenAhead: true }],
-  [3, { axis: OBJECT_X, whenAhead: false }],
-  [4, { axis: OBJECT_Y, whenAhead: false }],
+  [1, { axis: 'y', whenAhead: true }],
+  [2, { axis: 'x', whenAhead: true }],
+  [3, { axis: 'x', whenAhead: false }],
+  [4, { axis: 'y', whenAhead: false }],
 ]);
 
 const word = (wram, at) => wram[at] | (wram[at + 1] << BYTE_BITS);
@@ -66,30 +59,31 @@ export function sortDrawListInPlace(h) {
     if (base + index + 1 >= LOW_WRAM_END) taskStop('object_slot_required', { base, index });
     return word(wram, base + index);
   };
+  const object = (name, slot) => lowObjectWord(wram, name, slot);
   const last = get(DRAW_LIST_INDEX, 0);
   if (last === 0 || last & WORD_SIGN) return;
   // One pair at list position: swap when the first key is below the second.
   const step = (position) => {
     const first = get(DRAW_LIST, position),
       second = get(DRAW_LIST + ENTRY_BYTES, position);
-    let firstKey = get(OBJECT_DIAGONAL, first),
-      secondKey = get(OBJECT_DIAGONAL, second);
+    let firstKey = object('diagonal', first),
+      secondKey = object('diagonal', second);
     setWord(wram, DP_FIRST_OBJECT, first);
     setWord(wram, DP_FIRST_KEY, firstKey);
-    const secondRule = get(OBJECT_DEPTH_RULE, second);
-    if (get(OBJECT_DEPTH_RULE, first) | secondRule) {
+    const secondRule = object('depthRule', second);
+    if (object('depthRule', first) | secondRule) {
       setWord(wram, DP_SECOND_KEY, secondKey);
       setWord(wram, DP_POSITION, position);
       const bySecond = (secondRule & WORD_SIGN) !== 0,
-        ruleWord = bySecond ? secondRule : get(OBJECT_DEPTH_RULE, first),
+        ruleWord = bySecond ? secondRule : object('depthRule', first),
         rule = RULES.get(ruleWord & RULE_MASK);
       // The comparison 80:B0A5 or 80:B0ED, without its JSR frame.
       if (!rule) taskStop('depth_rule_required', { rule: ruleWord });
-      const ahead = get(rule.axis, first) >= get(rule.axis, second);
+      const ahead = object(rule.axis, first) >= object(rule.axis, second);
       if (ahead === (rule.whenAhead !== bySecond)) {
         const biased = bySecond ? second : first,
           key = bySecond ? secondKey : firstKey,
-          bias = get(OBJECT_DEPTH_BIAS, biased),
+          bias = object('depthBias', biased),
           sum = (key + bias) & WORD_MASK;
         if (bySecond) secondKey = sum;
         else firstKey = sum;

@@ -19,8 +19,6 @@
 // The arithmetic stays in 16 bits as in the original, with its wraps. On another
 // platform the multiplier is an 8 by 8 bit product and the divider an unsigned 16 by
 // 8 bit division (a zero divisor gives FFFF).
-import { OBJECT_BOX_HEIGHT, OBJECT_HEIGHT, OBJECT_X, OBJECT_Y } from '../data/wram.mjs';
-import { dataBankWord } from '../system/data-bank.mjs';
 import {
   RDDIVL,
   RDMPYL,
@@ -30,6 +28,7 @@ import {
   WRMPYB,
 } from '../constants/hardware-registers.mjs';
 import { BYTE_BITS, BYTE_MASK, LONG_MASK, WORD_BITS, WORD_MASK } from '../constants/bits.mjs';
+import { objectWord, objectWordIn } from '../state/objects.mjs';
 
 // The direct page long pointer to the cell list.
 const DP_CELL_LIST = 0xfc;
@@ -97,10 +96,10 @@ const swapBytes = (value) => ((value >>> BYTE_BITS) | (value << BYTE_BITS)) & WO
 // box height.
 function sightLine(mem, viewer, target) {
   const { wram } = mem;
-  const viewerX = dataBankWord(mem, OBJECT_X, viewer) >>> BOX_SHIFT,
-    viewerY = dataBankWord(mem, OBJECT_Y, viewer) >>> BOX_SHIFT,
-    targetX = dataBankWord(mem, OBJECT_X, target) >>> BOX_SHIFT,
-    targetY = dataBankWord(mem, OBJECT_Y, target) >>> BOX_SHIFT,
+  const viewerX = objectWord(mem, 'x', viewer) >>> BOX_SHIFT,
+    viewerY = objectWord(mem, 'y', viewer) >>> BOX_SHIFT,
+    targetX = objectWord(mem, 'x', target) >>> BOX_SHIFT,
+    targetY = objectWord(mem, 'y', target) >>> BOX_SHIFT,
     cellX = viewerX >>> CELL_SHIFT,
     cellY = viewerY >>> CELL_SHIFT;
   let quadrant = 0;
@@ -112,14 +111,12 @@ function sightLine(mem, viewer, target) {
   };
   const spanX = span(targetX, cellX, LEFT),
     spanY = span(targetY, cellY, ABOVE);
-  const targetBox = word(wram, OBJECT_BOX_HEIGHT + target),
-    targetBottom = dataBankWord(mem, OBJECT_HEIGHT, target) >>> BOX_SHIFT,
-    viewerBox = word(wram, OBJECT_BOX_HEIGHT + viewer);
+  const targetBox = objectWordIn(wram, 'boxHeight', target),
+    targetBottom = objectWord(mem, 'height', target) >>> BOX_SHIFT,
+    viewerBox = objectWordIn(wram, 'boxHeight', viewer);
   // The eye at three quarters of the viewer's box.
   const eye =
-    ((dataBankWord(mem, OBJECT_HEIGHT, viewer) >>> BOX_SHIFT) +
-      (viewerBox >>> 1) +
-      (viewerBox >>> 2)) &
+    ((objectWord(mem, 'height', viewer) >>> BOX_SHIFT) + (viewerBox >>> 1) + (viewerBox >>> 2)) &
     WORD_MASK;
   return {
     minX: Math.min(viewerX, targetX),

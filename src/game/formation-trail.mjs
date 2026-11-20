@@ -21,14 +21,11 @@ import {
   FORMATION_UNMOVED,
   FORMATION_X,
   FORMATION_Y,
-  OBJECT_DIRECTION,
-  OBJECT_HEIGHT,
-  OBJECT_X,
-  OBJECT_Y,
   PLAYER_HIT_FRAMES,
   PLAYER_OBJECT,
 } from '../data/wram.mjs';
 import { BYTE_BITS, BYTE_MASK, WORD_MASK, WORD_SIGN } from '../constants/bits.mjs';
+import { OBJECT_FIELDS, isObjectSlot, objectWordIn } from '../state/objects.mjs';
 
 const UNMOVED = WORD_MASK,
   LOW_WRAM_END = 0x2000;
@@ -38,9 +35,10 @@ const setWord = (wram, at, value) => {
   wram[at] = value & BYTE_MASK;
   wram[at + 1] = (value >>> BYTE_BITS) & BYTE_MASK;
 };
-// A word of the figure's table at slot, through the data bank 80.
-function objectWord(wram, table, slot) {
-  const at = (table + slot) & WORD_MASK;
+// A field of the figure at slot, through the data bank 80 for a value that is no slot.
+function objectWord(wram, name, slot) {
+  if (isObjectSlot(slot)) return objectWordIn(wram, name, slot);
+  const at = (OBJECT_FIELDS[name] + slot) & WORD_MASK;
   if (at + 1 >= LOW_WRAM_END) taskStop('object_slot_required', { slot });
   return word(wram, at);
 }
@@ -54,7 +52,7 @@ export function recordFormationStep(wram) {
   }
   const slot = word(wram, PLAYER_OBJECT);
   let index = word(wram, FORMATION_INDEX);
-  const fields = [OBJECT_X, OBJECT_Y, OBJECT_HEIGHT].map((t) => objectWord(wram, t, slot));
+  const fields = ['x', 'y', 'height'].map((name) => objectWord(wram, name, slot));
   // The comparison stops at the first field that differs.
   const moved =
     fields[0] !== word(wram, FORMATION_X + index) ||
@@ -70,6 +68,6 @@ export function recordFormationStep(wram) {
   setWord(wram, FORMATION_X + index, fields[0]);
   setWord(wram, FORMATION_Y + index, fields[1]);
   setWord(wram, FORMATION_HEIGHT + index, fields[2]);
-  setWord(wram, FORMATION_DIRECTION + index, objectWord(wram, OBJECT_DIRECTION, slot));
+  setWord(wram, FORMATION_DIRECTION + index, objectWord(wram, 'direction', slot));
   setWord(wram, FORMATION_UNMOVED, 0);
 }

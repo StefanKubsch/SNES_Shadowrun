@@ -28,7 +28,6 @@ import {
   DRAW_LIST_INDEX,
   MOTION_ACTIVE,
   OBJECT_ACTION_DIRECTIONS,
-  OBJECT_ANIMATION_CLOCK,
   OBJECT_ARMOUR,
   OBJECT_BOX_HEIGHT,
   OBJECT_BOX_X1,
@@ -37,30 +36,22 @@ import {
   OBJECT_BOX_Y2,
   OBJECT_DEPTH_ORDER,
   OBJECT_DEPTH_RULE,
-  OBJECT_DIAGONAL,
   OBJECT_DIALOG,
   OBJECT_DIRECTION,
-  OBJECT_FLAGS,
-  OBJECT_FRAME_REPEATS,
-  OBJECT_HEIGHT,
-  OBJECT_KIND,
   OBJECT_LAST_SLOT,
   OBJECT_NUMBER,
   OBJECT_PICTURE,
   OBJECT_PICTURE_CHANGE,
   OBJECT_RECORD,
-  OBJECT_SELECTION,
-  OBJECT_TASK,
   OBJECT_VELOCITY_X,
   OBJECT_VELOCITY_Y,
   OBJECT_VELOCITY_Z,
   OBJECT_VRAM_SLOT_COUNT,
   OBJECT_VRAM_SLOT_HEAD,
-  OBJECT_X,
-  OBJECT_Y,
 } from '../data/wram.mjs';
 import { KIND_FLAGS_OFFSET, KIND_TABLE } from '../data/kinds.mjs';
 import { BYTE_BITS, BYTE_MASK, WORD_BITS, WORD_MASK, WORD_SIGN } from '../constants/bits.mjs';
+import { objectWordIn, setBankObjectWord, setObjectWordIn } from '../state/objects.mjs';
 
 const LONG_MASK = 0xffffff,
   // A position argument is stored times four.
@@ -80,12 +71,12 @@ const readWord = (mem, at) =>
 // Create an object (80:A835) from the direct page arguments.
 export function createObject(mem, wram, a) {
   let slot = OBJECT_LAST_SLOT;
-  while (!(word(wram, OBJECT_KIND + slot) & WORD_SIGN)) {
+  while (!(objectWordIn(wram, 'kind', slot) & WORD_SIGN)) {
     slot -= 2;
     if (slot < 0) return;
   }
   const kind = word(wram, DP_OBJECT_KIND);
-  setWord(wram, OBJECT_KIND + slot, kind);
+  setObjectWordIn(wram, 'kind', slot, kind);
   for (const table of [
     OBJECT_VELOCITY_X,
     OBJECT_VELOCITY_Y,
@@ -105,10 +96,10 @@ export function createObject(mem, wram, a) {
     setWord(wram, table + slot, 0);
   const x = (word(wram, DP_OBJECT_X) << POSITION_SHIFT) & WORD_MASK,
     y = (word(wram, DP_OBJECT_Y) << POSITION_SHIFT) & WORD_MASK;
-  setWord(wram, OBJECT_X + slot, x);
-  setWord(wram, OBJECT_Y + slot, y);
-  setWord(wram, OBJECT_DIAGONAL + slot, ((x + y) & WORD_MASK) >>> 1);
-  setWord(wram, OBJECT_HEIGHT + slot, word(wram, DP_OBJECT_HEIGHT) << POSITION_SHIFT);
+  setObjectWordIn(wram, 'x', slot, x);
+  setObjectWordIn(wram, 'y', slot, y);
+  setObjectWordIn(wram, 'diagonal', slot, ((x + y) & WORD_MASK) >>> 1);
+  setObjectWordIn(wram, 'height', slot, word(wram, DP_OBJECT_HEIGHT) << POSITION_SHIFT);
   for (const table of [
     OBJECT_ACTION_DIRECTIONS,
     OBJECT_VRAM_SLOT_COUNT,
@@ -118,16 +109,16 @@ export function createObject(mem, wram, a) {
     OBJECT_DEPTH_ORDER,
   ])
     setWord(wram, table + slot, 0);
-  setWord(wram, OBJECT_SELECTION + slot, WORD_MASK);
+  setObjectWordIn(wram, 'selection', slot, WORD_MASK);
   setWord(wram, OBJECT_NUMBER + slot, WORD_MASK);
-  setWord(wram, OBJECT_ANIMATION_CLOCK + slot, ANIMATION_CLOCK_START);
-  setWord(wram, OBJECT_FRAME_REPEATS + slot, 1);
+  setObjectWordIn(wram, 'animationClock', slot, ANIMATION_CLOCK_START);
+  setObjectWordIn(wram, 'frameRepeats', slot, 1);
   setWord(wram, DP_OBJECT_KIND, slot);
   // kind * 6 as kind * 4 + kind * 2, with the bit shifted out of kind * 2 as carry.
   const twice = (kind << KIND_SHIFT) & WORD_MASK,
     entry = ((twice << KIND_SHIFT) + twice + (twice >>> (WORD_BITS - 1))) & WORD_MASK;
   setWord(wram, DP_OBJECT_X, twice);
-  setWord(wram, OBJECT_FLAGS + slot, readWord(mem, KIND_TABLE + KIND_FLAGS_OFFSET + entry));
+  setObjectWordIn(wram, 'flags', slot, readWord(mem, KIND_TABLE + KIND_FLAGS_OFFSET + entry));
   const last = (word(wram, DRAW_LIST_INDEX) + 2) & WORD_MASK;
   setWord(wram, DRAW_LIST_INDEX, last);
   // The draw list index may be damaged: the entry is written through the data bank.
@@ -137,7 +128,7 @@ export function createObject(mem, wram, a) {
   const task = tasksOf(a).append(script, argumentWords(mem, script));
   // The slot is read again from the direct page word 00, which the argument copy of
   // the append may have overwritten.
-  mem.write16(dataBankAddress(a, OBJECT_TASK + word(wram, DP_OBJECT_KIND)), task);
+  setBankObjectWord(a, 'task', word(wram, DP_OBJECT_KIND), task);
 }
 
 // The object creation on the scene runtime of h.

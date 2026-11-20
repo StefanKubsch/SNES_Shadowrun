@@ -26,7 +26,7 @@ import { START_ENTRY, ITEMS_ENTRY, statusScreen } from './status-screen.mjs';
 import { partyStatus } from './party-status.mjs';
 import { drawTextBufferSequence } from './text-draw.mjs';
 import { dialogCallBody, segmentSequence } from '../system/native-call-continuation.mjs';
-import { dataBankWord, setDataBankWord } from '../system/data-bank.mjs';
+import { dataBankWord } from '../system/data-bank.mjs';
 import { placeGloveOverPlayer } from './glove-target.mjs';
 import { GLOVE_LIMITS } from '../script/native-glove-crosshair-limits.mjs';
 import {
@@ -77,13 +77,6 @@ import {
   GLOVE_TARGET_TAG,
   GLOVE_X,
   GLOVE_Y,
-  OBJECT_DIAGONAL,
-  OBJECT_FLAGS,
-  OBJECT_HEIGHT,
-  OBJECT_VELOCITY_X,
-  OBJECT_VELOCITY_Y,
-  OBJECT_X,
-  OBJECT_Y,
   PAD_A,
   PAD_DIRECTIONS,
   PAD_HELD,
@@ -101,6 +94,7 @@ import {
 import { fitListWindow } from '../data/menu-layout.mjs';
 import { aimReleaseFixed } from './bugfixes.mjs';
 import { BYTE_BITS, BYTE_MASK, WORD_MASK, WORD_SIGN } from '../constants/bits.mjs';
+import { objectWord, setObjectWord } from '../state/objects.mjs';
 
 // The callees and their call sites.
 const WEAPON_NOTICE_CALLS = [0x80e0a3],
@@ -139,8 +133,8 @@ function* walkByPadSequence(h, player) {
         turned = subtract(subtract(entry, rotation), rotation);
       direction = turned & DIRECTION_MASK;
     }
-    setDataBankWord(mem, OBJECT_VELOCITY_X, player, dataBankWord(mem, WALK_STEP_X, direction));
-    setDataBankWord(mem, OBJECT_VELOCITY_Y, player, dataBankWord(mem, WALK_STEP_Y, direction));
+    setObjectWord(mem, 'velocityX', player, dataBankWord(mem, WALK_STEP_X, direction));
+    setObjectWord(mem, 'velocityY', player, dataBankWord(mem, WALK_STEP_Y, direction));
     idle = word(wram, PLAYER_IDLE);
   };
   if (direction === NO_DIRECTION) {
@@ -183,16 +177,16 @@ function* faceGloveSequence(h) {
     const gloveX = word(wram, GLOVE_X) >>> PIXEL_SHIFT,
       gloveY = word(wram, GLOVE_Y) >>> PIXEL_SHIFT,
       player = word(wram, PLAYER_OBJECT),
-      field = (offset) => dataBankWord(mem, offset, player);
+      field = (name) => objectWord(mem, name, player);
     setWord(wram, DP_FACING_GLOVE_X, gloveX);
     setWord(wram, DP_FACING_GLOVE_Y, gloveY);
-    let down = subtract(GLOVE_FACING.yBase, field(OBJECT_DIAGONAL));
-    down = subtract(down, field(OBJECT_HEIGHT));
+    let down = subtract(GLOVE_FACING.yBase, field('diagonal'));
+    down = subtract(down, field('height'));
     down = subtract(down, word(wram, CAMERA_Y));
     down = subtract(down, GLOVE_FACING.yOffset, false);
     down = subtract((down << GLOVE_FACING.shift) & WORD_MASK, gloveY);
-    let across = add(GLOVE_FACING.xBase, field(OBJECT_Y));
-    across = subtract(across, field(OBJECT_X));
+    let across = add(GLOVE_FACING.xBase, field('y'));
+    across = subtract(across, field('x'));
     across = subtract(across, word(wram, CAMERA_X));
     across = subtract((across << GLOVE_FACING.shift) & WORD_MASK, gloveX);
     const signY = negative(down) ? down : 0,
@@ -260,7 +254,7 @@ function aimResult(h) {
     return both();
   if (!negative(word(wram, GLOVE_TARGET_TAG))) {
     const target = word(wram, GLOVE_TARGET_OBJECT);
-    if (negative(dataBankWord(mem, OBJECT_FLAGS, target))) {
+    if (negative(objectWord(mem, 'flags', target))) {
       setWord(wram, AIM_TARGET_OBJECT, target);
       if (wram[RUNNER_WEAPON_KIND] === TWO_BUTTON_WEAPON) return both();
       return pressed(AIM_BUTTONS);
@@ -322,8 +316,8 @@ function* freeSequence(h, events, finish, renderBuffer, player) {
   yield () => {
     if (word(wram, PLAYER_IDLE)) return;
     setWord(wram, PLAYER_IDLE, MARK_SET);
-    setDataBankWord(mem, OBJECT_VELOCITY_X, player, 0);
-    setDataBankWord(mem, OBJECT_VELOCITY_Y, player, 0);
+    setObjectWord(mem, 'velocityX', player, 0);
+    setObjectWord(mem, 'velocityY', player, 0);
   };
   if (test(PAD_A)) {
     let armed;

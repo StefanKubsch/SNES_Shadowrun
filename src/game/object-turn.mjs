@@ -25,29 +25,9 @@
 // bank 81 or what lies above, as the original. The return words of the JSR to the turn and of its JSR to
 // the selection lie on the stack as in the original.
 import { sceneRuntime } from '../system/scene-runtime.mjs';
-import { dataBankWord, setDataBankWord } from '../system/data-bank.mjs';
 import { isOpenBus } from '../system/open-bus.mjs';
-import {
-  ANIMATION_CLOCK_START,
-  OBJECT_ACTION_DIRECTIONS,
-  OBJECT_ANIMATION_CLOCK,
-  OBJECT_ANIMATION_SPEED,
-  OBJECT_BOX_HEIGHT,
-  OBJECT_BOX_X1,
-  OBJECT_BOX_X2,
-  OBJECT_BOX_Y1,
-  OBJECT_BOX_Y2,
-  OBJECT_DIRECTION,
-  OBJECT_FRAME_COUNT,
-  OBJECT_FRAME_OFFSET,
-  OBJECT_FRAME_REPEATS,
-  OBJECT_KIND,
-  OBJECT_PALETTE,
-  OBJECT_PICTURE_CHANGE,
-  OBJECT_SELECTION,
-} from '../data/wram.mjs';
+import { ANIMATION_CLOCK_START } from '../data/wram.mjs';
 import { ACTION_TABLE } from '../data/actions.mjs';
-import { CODE_BANK_BASE } from '../constants/memory-map.mjs';
 import {
   BYTE_BITS,
   BYTE_MASK,
@@ -58,6 +38,7 @@ import {
   WORD_MASK,
   WORD_SIGN,
 } from '../constants/bits.mjs';
+import { objectWord, objectWordIn, setObjectWord, setObjectWordIn } from '../state/objects.mjs';
 
 const NONE = WORD_MASK;
 // The direct page: the object and the direction (or selection), then the long
@@ -102,11 +83,11 @@ const signedByte = (value) => (value & BYTE_SIGN ? value | HIGH_BYTE_MASK : valu
 function selectAnimation(mem, wram) {
   const slot = word(wram, DP_OBJECT),
     selection = word(wram, DP_ARGUMENT);
-  setDataBankWord(mem, OBJECT_SELECTION, slot, selection);
+  setObjectWord(mem, 'selection', slot, selection);
   // The entry of the kind's list: the selection doubled (ASL, its bit 15 to the carry)
   // plus the list word with that carry; the record's direction offsets take the carry
   // of that sum.
-  const kindOffset = (word(wram, OBJECT_KIND + slot) << 1) & WORD_MASK,
+  const kindOffset = (objectWordIn(wram, 'kind', slot) << 1) & WORD_MASK,
     sum =
       ((selection << 1) & WORD_MASK) +
       readWord(mem, ACTION_TABLE + kindOffset) +
@@ -117,32 +98,32 @@ function selectAnimation(mem, wram) {
   const record = actionWord(mem, entry, 0),
     directions = (record + RECORD_DIRECTIONS + (sum >>> WORD_BITS)) & WORD_MASK;
   setWord(wram, DP_RECORD, record);
-  setDataBankWord(mem, OBJECT_ACTION_DIRECTIONS, slot, directions);
+  setObjectWord(mem, 'actionDirections', slot, directions);
   setWord(wram, DP_FRAMES, directions);
   const byte = (offset) => actionByte(mem, record, offset);
-  setDataBankWord(
+  setObjectWord(
     mem,
-    OBJECT_FRAME_OFFSET,
+    'frameOffset',
     slot,
-    actionByte(mem, directions, dataBankWord(mem, OBJECT_DIRECTION, slot)),
+    actionByte(mem, directions, objectWord(mem, 'direction', slot)),
   );
-  setWord(wram, OBJECT_ANIMATION_SPEED + slot, byte(0));
-  setDataBankWord(mem, OBJECT_FRAME_COUNT, slot, byte(RECORD_FRAME_COUNT) ^ FRAME_LOOP_FLAG);
-  setWord(wram, OBJECT_FRAME_REPEATS + slot, 1);
-  setDataBankWord(mem, OBJECT_PALETTE, slot, byte(RECORD_PALETTE));
-  [OBJECT_BOX_X1, OBJECT_BOX_X2, OBJECT_BOX_Y1, OBJECT_BOX_Y2].forEach((table, n) =>
-    setWord(wram, table + slot, signedByte(byte(RECORD_BOX + n))),
+  setObjectWordIn(wram, 'animationSpeed', slot, byte(0));
+  setObjectWord(mem, 'frameCount', slot, byte(RECORD_FRAME_COUNT) ^ FRAME_LOOP_FLAG);
+  setObjectWordIn(wram, 'frameRepeats', slot, 1);
+  setObjectWord(mem, 'palette', slot, byte(RECORD_PALETTE));
+  ['boxX1', 'boxX2', 'boxY1', 'boxY2'].forEach((name, n) =>
+    setObjectWordIn(wram, name, slot, signedByte(byte(RECORD_BOX + n))),
   );
-  setWord(wram, OBJECT_BOX_HEIGHT + slot, byte(RECORD_BOX_HEIGHT));
-  setWord(wram, OBJECT_ANIMATION_CLOCK + slot, ANIMATION_CLOCK_START);
-  setDataBankWord(mem, OBJECT_PICTURE_CHANGE, slot, NONE);
+  setObjectWordIn(wram, 'boxHeight', slot, byte(RECORD_BOX_HEIGHT));
+  setObjectWordIn(wram, 'animationClock', slot, ANIMATION_CLOCK_START);
+  setObjectWord(mem, 'pictureChange', slot, NONE);
 }
 
 // Select the animation in word 02 for the object in word 00 unless it is already
 // selected (80:A985 as 80:D15C calls it).
 export function selectObjectAnimation(mem, wram) {
   const slot = word(wram, DP_OBJECT);
-  if (word(wram, DP_ARGUMENT) === dataBankWord(mem, OBJECT_SELECTION, slot)) return;
+  if (word(wram, DP_ARGUMENT) === objectWord(mem, 'selection', slot)) return;
   selectAnimation(mem, wram);
 }
 
@@ -153,34 +134,38 @@ export function selectObjectAnimation(mem, wram) {
 export function turnObject(mem, wram) {
   const slot = word(wram, DP_OBJECT),
     direction = word(wram, DP_ARGUMENT);
-  const before = dataBankWord(mem, OBJECT_DIRECTION, slot);
+  const before = objectWord(mem, 'direction', slot);
   // An unchanged direction or no selection to repeat.
   if (before === direction) return;
-  setDataBankWord(mem, OBJECT_DIRECTION, slot, direction);
-  const frames = dataBankWord(mem, OBJECT_FRAME_COUNT, slot);
+  setObjectWord(mem, 'direction', slot, direction);
+  const frames = objectWord(mem, 'frameCount', slot);
   if (frames === 0 || frames >= FRAME_LOOP_FLAG) {
-    const selection = dataBankWord(mem, OBJECT_SELECTION, slot);
+    const selection = objectWord(mem, 'selection', slot);
     if (selection === NONE) return;
     // The original sets the object's selection to none first, which the selection
     // then replaces (for a slot far out of range the word may alias another).
     setWord(wram, DP_ARGUMENT, selection & ~WORD_SIGN);
-    setDataBankWord(mem, OBJECT_SELECTION, slot, NONE);
+    setObjectWord(mem, 'selection', slot, NONE);
     // The selection's check for an unchanged selection: it holds only where that word
     // did not take the write (ROM above the WRAM mirror).
-    if (word(wram, DP_ARGUMENT) !== dataBankWord(mem, OBJECT_SELECTION, slot))
-      selectAnimation(mem, wram);
+    if (word(wram, DP_ARGUMENT) !== objectWord(mem, 'selection', slot)) selectAnimation(mem, wram);
     return;
   }
-  const directions = dataBankWord(mem, OBJECT_ACTION_DIRECTIONS, slot);
+  const directions = objectWord(mem, 'actionDirections', slot);
   setWord(wram, DP_FRAMES, directions);
   setWord(wram, DP_FRAMES_BANK, ACTION_BANK);
   // The frame offset's byte keeps its phase: the 8-bit SBC and ADC of the two offsets.
-  const frameOffset = (CODE_BANK_BASE + OBJECT_FRAME_OFFSET + slot) & LONG_MASK,
-    back = (mem.read8(frameOffset) - actionByte(mem, directions, before)) & BYTE_MASK,
+  const frameOffset = objectWord(mem, 'frameOffset', slot),
+    back = (frameOffset - actionByte(mem, directions, before)) & BYTE_MASK,
     forward = actionByte(mem, directions, direction);
-  mem.write8(frameOffset, (back + forward) & BYTE_MASK);
-  setWord(wram, OBJECT_ANIMATION_CLOCK + slot, ANIMATION_CLOCK_START);
-  setDataBankWord(mem, OBJECT_PICTURE_CHANGE, slot, NONE);
+  setObjectWord(
+    mem,
+    'frameOffset',
+    slot,
+    (frameOffset & ~BYTE_MASK) | ((back + forward) & BYTE_MASK),
+  );
+  setObjectWordIn(wram, 'animationClock', slot, ANIMATION_CLOCK_START);
+  setObjectWord(mem, 'pictureChange', slot, NONE);
 }
 
 // The turn on the scene runtime of h.

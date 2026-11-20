@@ -70,12 +70,7 @@ import {
   MEMBER_PORTRAIT_REDRAW,
   NOTICE_WINDOW_LAST,
   NOTICE_WINDOWS,
-  OBJECT_DEPTH_ORDER,
-  OBJECT_HEIGHT,
   OBJECT_NUMBER,
-  OBJECT_RECORD,
-  OBJECT_X,
-  OBJECT_Y,
   STATUS_ITEMS_AT_ONCE,
   STATUS_SUBMENU_WINDOW,
   STORY_STAGE,
@@ -97,6 +92,7 @@ import { TEXT_EXIT } from '../data/port-extension.mjs';
 import { translatedListWindow } from '../data/menu-layout.mjs';
 import { BYTE_BITS, BYTE_MASK, LONG_MASK, WORD_MASK, WORD_SIGN } from '../constants/bits.mjs';
 import { WRAM_BANK } from '../constants/memory-map.mjs';
+import { objectWord, setObjectWord } from '../state/objects.mjs';
 
 // The kinds' names (six bytes a kind) and their class word two bytes on.
 const KIND_NAMES = 0x8cefb0,
@@ -247,11 +243,11 @@ export function* useItem(h, events, renderBuffer, actor) {
   yield () => {
     const member = dataBankWord(mem, MEMBER_OBJECT);
     for (const [field, offset] of [
-      [OBJECT_X, DP_OBJECT_X],
-      [OBJECT_Y, DP_OBJECT_Y],
-      [OBJECT_HEIGHT, DP_OBJECT_HEIGHT],
+      ['x', DP_OBJECT_X],
+      ['y', DP_OBJECT_Y],
+      ['height', DP_OBJECT_HEIGHT],
     ]) {
-      setWord(wram, offset, dataBankWord(mem, field, member) >>> POSITION_SHIFT);
+      setWord(wram, offset, objectWord(mem, field, member) >>> POSITION_SHIFT);
     }
     const entry = ACTOR_TABLE + actor;
     setWord(wram, DP_ITEM_FLAGS, mem.read8(entry & LONG_MASK));
@@ -268,8 +264,8 @@ export function* useItem(h, events, renderBuffer, actor) {
       swapped = ((flags << BYTE_BITS) | (flags >>> BYTE_BITS)) & WORD_MASK,
       shifted = swapped << 1,
       depth = ((shifted & WORD_MASK) + (shifted > WORD_MASK ? 1 : 0)) & WORD_MASK;
-    setDataBankWord(mem, OBJECT_DEPTH_ORDER, slot, depth);
-    setDataBankWord(mem, OBJECT_RECORD, slot, word(wram, DP_ITEM_RECORD));
+    setObjectWord(mem, 'depthOrder', slot, depth);
+    setObjectWord(mem, 'record', slot, word(wram, DP_ITEM_RECORD));
     setDataBankWord(mem, MEMBER_PORTRAIT_REDRAW, 0, 0);
   };
   yield* dialogCallBody(h, ...VISIT, () => scriptVisitSequence(events));
