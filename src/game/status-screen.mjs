@@ -42,7 +42,7 @@ import { closeDialog, clearFixedColourInPlace } from './dialog-talk.mjs';
 import { sendApuCommandInPlace } from '../apu/audio-routines.mjs';
 import { chooseFromMenuSequence, MENU } from './menu-choice.mjs';
 import { itemMenu, ITEM_ENTRIES } from './item-menu.mjs';
-import { spellMenuSequence, STATUS_ENTRY } from './member-spell-menu.mjs';
+import { spellMenu, STATUS_ENTRY } from './member-spell-menu.mjs';
 import { skills, notes } from './status-submenus.mjs';
 import { taskStop } from '../system/task-stop.mjs';
 import { dataBankWord, setDataBankWord } from '../system/data-bank.mjs';
@@ -378,26 +378,21 @@ export function* statusScreen(
       if (chosen === 0 || negative(chosen)) break;
     }
     direct = false;
-    let submenu,
-      submenuSequence,
-      framed = true;
+    let submenuSequence;
     yield () => {
       const offset = (chosen << 1) & WORD_MASK;
-      submenu = CODE_BANK_BASE | dataBankWord(mem, SUBMENUS, offset);
-      if (Object.hasOwn(ITEM_ENTRIES, submenu)) {
-        framed = false;
+      const submenu = CODE_BANK_BASE | dataBankWord(mem, SUBMENUS, offset);
+      if (Object.hasOwn(ITEM_ENTRIES, submenu))
         submenuSequence = itemMenu(h, events, submenu, renderBuffer);
-      } else if (submenu === STATUS_ENTRY)
-        submenuSequence = spellMenuSequence(h, events, STATUS_ENTRY, renderBuffer);
-      else if (submenu === SKILLS_MENU || submenu === NOTES_MENU) {
-        framed = false;
-        submenuSequence = (submenu === SKILLS_MENU ? skills : notes)(h, events, renderBuffer);
-      } else taskStop('task_ea6e_submenu_open', { pc: 0x80ecea, x: offset, target: submenu });
+      else if (submenu === STATUS_ENTRY)
+        submenuSequence = spellMenu(h, events, STATUS_ENTRY, renderBuffer);
+      else if (submenu === SKILLS_MENU) submenuSequence = skills(h, events, renderBuffer);
+      else if (submenu === NOTES_MENU) submenuSequence = notes(h, events, renderBuffer);
+      else taskStop('task_ea6e_submenu_open', { pc: 0x80ecea, x: offset, target: submenu });
     };
-    // JSR ECEA, whose JMP (ED2E,X) gives the submenu the JSR's frame; the items, skills
-    // and notes run without it.
-    if (framed) yield* dialogCallBody(h, 0x80ece0, submenu, () => submenuSequence);
-    else yield* submenuSequence;
+    // JSR ECEA, whose JMP (ED2E,X) runs the submenu; the lifted submenus run without the
+    // JSR frame.
+    yield* submenuSequence;
     let ended;
     yield () => {
       ended = word(wram, DIALOG_END) !== 0;

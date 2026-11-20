@@ -102,8 +102,7 @@ const MENU = [0x80e74c, 0x80a6c7],
   APPEND_SCRIPT = [0x80e788, 0x80c34a],
   VISIT_SCRIPT = [0x80e78e, 0x80c1ca],
   REDRAW_LIST = [0x80e79b, 0x81aeb0],
-  CONFIRM_KEY = [0x80e7b1, 0x80f953],
-  SPELL_MENU = [0x80f289, 0x80e693];
+  CONFIRM_KEY = [0x80e7b1, 0x80f953];
 // The entry from the status screen, which runs no scripts.
 export const STATUS_ENTRY = 0x80e68e;
 const MENU_ENTRY = 0x80e693;
@@ -228,13 +227,9 @@ function* afterScriptSequence(h, events) {
 }
 
 // 80:E693 (or the entry 80:E68E): the spell menu of the member in 1F5C with its record
-// at DP F9. A sequence that ends with its RTS.
-export function* spellMenuSequence(
-  h,
-  events,
-  entry = MENU_ENTRY,
-  renderBuffer = drawTextBufferSequence,
-) {
+// at DP F9, for lifted callers without the JSR frame; the menu choice, the script append
+// and visit keep their own.
+export function* spellMenu(h, events, entry = MENU_ENTRY, renderBuffer = drawTextBufferSequence) {
   const { mem } = h.a,
     { wram } = mem;
   let known = 0;
@@ -298,6 +293,15 @@ export function* spellMenuSequence(
     equipment = word(wram, SPELL_CHOICE_RUNS_SCRIPT) === 0;
   };
   if (equipment) yield* equipmentRows(h, events, renderBuffer);
+}
+// The spell menu as called with JSR; returns with its RTS.
+export function* spellMenuSequence(
+  h,
+  events,
+  entry = MENU_ENTRY,
+  renderBuffer = drawTextBufferSequence,
+) {
+  yield* spellMenu(h, events, entry, renderBuffer);
   return yield* returnSequence(h);
 }
 
@@ -323,9 +327,7 @@ export function* openSpellMenuSequence(h, events, renderBuffer = drawTextBufferS
     wram[DP_MEMBER_RECORD_BANK] = dataBankWord(mem, RUNNER_RECORD_BANKS, runner) & BYTE_MASK;
     setWord(wram, DIALOG_END, 0);
   };
-  yield* dialogCallBody(h, ...SPELL_MENU, () =>
-    spellMenuSequence(h, events, MENU_ENTRY, renderBuffer),
-  );
+  yield* spellMenu(h, events, MENU_ENTRY, renderBuffer);
   yield () => setWord(wram, MEMBER_MENU_ACTIVE, 0);
   return yield* returnSequence(h);
 }
