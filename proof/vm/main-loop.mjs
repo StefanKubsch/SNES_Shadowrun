@@ -6,7 +6,6 @@
 // bound game or demo owner; without this owner they remain a limit.
 import { taskStop } from '../../src/system/task-stop.mjs';
 import { dialogAccess } from '../../src/system/native-dialog-support.mjs';
-import { runObjectMotion } from '../../src/game/main-upkeep.mjs';
 import { runFrameWait, runPadPresses } from '../caller/input-routines.mjs';
 import {
   runNoticeTimeouts,
@@ -44,7 +43,7 @@ import { releaseExpiredWindows } from '../game-reference/main-upkeep.mjs';
 import { updateTimeLimit } from '../game-reference/main-timer.mjs';
 import { moveGlove } from '../replay/native-glove.mjs';
 import { passGloveActionToTask } from '../game-reference/main-glove-action.mjs';
-import { buildSpritesJsr } from '../caller/jsr-forms.mjs';
+import { buildSpritesJsr, moveAndAnimateJsr } from '../caller/jsr-forms.mjs';
 
 export const MAIN_LOOP_RESUME = 0x96c3; // return from the round
 export const MAIN_LOOP_ROUND = 0x96c0; // JSR $C1E3
@@ -79,7 +78,7 @@ export const MAIN_LOOP_ROUTINES = new Map([
   [0x808000, checkPlayerZones], // zones around the player figure: append a task or change the scene
   [0x80cc4b, processSceneRequestReference],
   [0x80de94, runHitShake],
-  [0x80afc4, runObjectMotion],
+  [0x80afc4, moveAndAnimateJsr],
   [0x80bad5, runFormationStep],
   [0x818c2e, runCameraFollow],
   [0x818a91, runTileBuffers],

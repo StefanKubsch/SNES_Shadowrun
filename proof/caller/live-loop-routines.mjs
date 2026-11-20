@@ -1,14 +1,14 @@
 // The routine table of the lifted main loop's callees (moved from src/vm/main-loop.mjs;
 // the live main loop composes them directly and looks up no routine table). Register-
 // level callers and the tests that check the bindings use it.
-import { runObjectMotion, mainLoopNoticeSequence } from '../../src/game/main-upkeep.mjs';
+import { mainLoopNoticeSequence } from '../../src/game/main-upkeep.mjs';
 import { runFrameWait, runPadPresses } from './input-routines.mjs';
 import { sceneRequestSequence } from '../../src/game/scene-request.mjs';
 import { SCENE_REQUEST_ENTRY } from './scene-request.mjs';
 import { playerZonesSequence } from '../../src/game/player-zones.mjs';
 import { timeLimitSequence } from '../../src/game/time-limit.mjs';
 import { gloveActionSequence } from '../../src/game/glove-action.mjs';
-import { buildSpritesJsr, gloveMoveJsr } from './jsr-forms.mjs';
+import { buildSpritesJsr, gloveMoveJsr, moveAndAnimateJsr } from './jsr-forms.mjs';
 import { shakeHitPlayer } from '../../src/game/player-hit.mjs';
 import { recordFormationStep } from '../../src/game/formation-trail.mjs';
 import { updateTileBuffers } from '../../src/game/camera-scroll.mjs';
@@ -27,7 +27,7 @@ export const MAIN_LOOP_ROUTINES = new Map([
   [0x808000, runPlayerZones], // zones around the player figure: append a task or change the scene
   [0x80cc4b, processSceneRequest],
   [0x80de94, runHitShake],
-  [0x80afc4, runObjectMotion],
+  [0x80afc4, moveAndAnimateJsr],
   [0x80bad5, runFormationStep],
   [0x818c2e, runCameraFollow],
   [0x818a91, runTileBuffers],

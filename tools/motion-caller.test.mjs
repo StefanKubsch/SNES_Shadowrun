@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { compareRun } from './member-menu-caller-harness.mjs';
-import { moveAndAnimate } from '../src/game/object-motion.mjs';
+import { moveAndAnimateJsr } from '../proof/caller/jsr-forms.mjs';
 import { moveAndAnimate as formerMotion } from '../proof/caller/object-motion.mjs';
 import { walkTowardsTarget } from '../src/game/object-target.mjs';
 import { stepAnimation } from '../src/game/object-animation.mjs';
@@ -32,7 +32,7 @@ function runMotion(direct, count, flags, target, mode, animation, slots, budget)
     (h, events) =>
       segmentSequence(() =>
         direct
-          ? moveAndAnimate(h, events)
+          ? moveAndAnimateJsr(h, events)
           : formerMotion(
               h,
               events,

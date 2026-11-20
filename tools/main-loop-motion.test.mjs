@@ -9,15 +9,15 @@ import { processSceneRequest, runHitShake } from '../proof/caller/live-loop-rout
 import { processSceneRequestReference } from '../proof/game-reference/scene-request.mjs';
 import { MAIN_LOOP_ROUTINES } from '../proof/caller/live-loop-routines.mjs';
 import { MAIN_LOOP_ROUTINES as REPLAY_LOOP_ROUTINES } from '../proof/vm/main-loop.mjs';
-import { runObjectMotion } from '../src/game/main-upkeep.mjs';
 import { NATIVE_CALL_CONTINUATIONS } from '../src/system/native-call-continuation.mjs';
 import { WAIT_PAUSED } from '../src/system/native-wait-continuation.mjs';
 import '../proof/system/dialog-register-helpers.mjs';
+import { moveAndAnimateJsr } from '../proof/caller/jsr-forms.mjs';
 
 // The scene request's and the hit shake's own instructions are the register-level
 // references'; the main loop binds the lifted ones (src/game).
 const implementations = [processSceneRequestReference, shakeHitPlayer, moveAndAnimateObjects];
-const bound = [processSceneRequest, runHitShake, runObjectMotion];
+const bound = [processSceneRequest, runHitShake, moveAndAnimateJsr];
 const maps = mainLoopMotionSpecs.map((spec) => decodeWindows(spec.windows));
 
 test('main-loop scene gate, movement prefix and movement graph pin every own instruction and return', () => {

@@ -184,12 +184,14 @@ function buildCollisionList(wram) {
 }
 
 // Move and animate the objects (80:AFC4) on the main loop's access h (data bank 80);
-// movement, target walking and animation compose their actual bodies directly.
-export function moveAndAnimate(h, events) {
+// movement, target walking and animation compose their actual bodies directly. The main
+// loop runs it without its JSR frame; the RTS form for register-level callers is
+// moveAndAnimateJsr in proof/caller/jsr-forms.mjs.
+export function moveAndAnimateInPlace(h, events) {
   const { wram } = h.a.mem;
   buildCollisionList(wram);
   const last = word(wram, DRAW_LIST_INDEX);
-  if (last & WORD_SIGN) return h.rts();
+  if (last & WORD_SIGN) return;
   // Each listed object that is not halted: its movement, then in a second pass its animation.
   const pass = (run) => {
     for (let index = last; !(index & WORD_SIGN); index = (index - 2) & WORD_MASK) {
@@ -204,5 +206,4 @@ export function moveAndAnimate(h, events) {
   if (recordedRoutine(events, 'object-animation'))
     pass((slot) => h.call(ANIMATION_CALL, ANIMATION_TARGET, () => stepAnimation(h, events, slot)));
   else pass((slot) => stepAnimationInPlace(h, slot));
-  return h.rts();
 }

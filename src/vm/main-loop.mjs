@@ -12,11 +12,11 @@ import {
   mainLoopGloveActionSequence,
   mainLoopGloveMoveSequence,
   mainLoopPlayerZonesSequence,
-  runObjectMotion,
 } from '../game/main-upkeep.mjs';
 import { sceneRequestSequence } from '../game/scene-request.mjs';
 import { shakeHitPlayer } from '../game/player-hit.mjs';
 import { recordFormationStep } from '../game/formation-trail.mjs';
+import { moveAndAnimateInPlace } from '../game/object-motion.mjs';
 import { buildSpritesInPlace } from '../game/sprite-list.mjs';
 import { updateTileBuffers } from '../game/camera-scroll.mjs';
 import { followPlayerWithCamera } from '../game/camera-follow.mjs';
@@ -25,11 +25,7 @@ import { applyColourEffect } from '../game/fixed-colour.mjs';
 import { sceneRuntime } from '../system/scene-runtime.mjs';
 import { lagFree } from '../system/main-wait-interrupt.mjs';
 import { takePad } from '../system/live-input-calls.mjs';
-import {
-  NativeCallContinuation,
-  dialogCallBody,
-  segmentSequence,
-} from '../system/native-call-continuation.mjs';
+import { NativeCallContinuation, dialogCallBody } from '../system/native-call-continuation.mjs';
 import { BYTE_BITS } from '../constants/bits.mjs';
 import { MAIN_LOOP_EXIT, MAIN_LOOP_RELOAD } from '../data/wram.mjs';
 import { CODE_BANK, CODE_BANK_BASE } from '../constants/memory-map.mjs';
@@ -41,7 +37,6 @@ const MAIN_LOOP_START = 0x96ab; // first pass after 9688
 const CALL_PC = Object.freeze({
   GATE_8000: MAIN_LOOP_RESUME,
   CC4B: 0x96c8,
-  AFC4: 0x96d0,
   FF14: 0x96e1,
   TIMER_E270: 0x96e4,
   WAIT_B0A1: MAIN_LOOP_START,
@@ -62,7 +57,6 @@ export function* mainLoopSequence(a, events, returnToOwner = false) {
   if (!lagFree(events)) taskStop('game_lag_free_required');
   const call = (pc, target, body, long = false) =>
     dialogCallBody(h, CODE_BANK_BASE | pc, target, body, long);
-  const once = (run) => () => segmentSequence(() => run(h, events));
   if (ctx.pc === MAIN_LOOP_START) return yield* top();
   // $96C3–$96E4; a scene change by a zone starts the next pass at once.
   const zones = {};
@@ -72,7 +66,7 @@ export function* mainLoopSequence(a, events, returnToOwner = false) {
   yield* call(CALL_PC.CC4B, 0x80cc4b, () => sceneRequestSequence(h, events, request));
   if (request.taken) return yield* top();
   yield () => shakeHitPlayer(wram);
-  yield* call(CALL_PC.AFC4, 0x80afc4, once(runObjectMotion));
+  yield () => moveAndAnimateInPlace(h, events);
   yield () => recordFormationStep(wram);
   yield () => followPlayerWithCamera(a.mem, wram);
   yield () => updateTileBuffers(wram);

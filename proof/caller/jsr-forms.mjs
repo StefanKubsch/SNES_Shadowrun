@@ -14,6 +14,7 @@ import { objectSearch } from '../../src/game/object-search.mjs';
 import { startNewGame } from '../../src/game/game-start.mjs';
 import { gloveMove } from '../../src/game/glove-move.mjs';
 import { buildSpritesInPlace } from '../../src/game/sprite-list.mjs';
+import { moveAndAnimateInPlace } from '../../src/game/object-motion.mjs';
 import { drawTextBufferSequence } from '../../src/game/text-draw.mjs';
 
 function* rts(h) {
@@ -110,5 +111,11 @@ export function* gloveMoveJsr(h, events, renderBuffer = drawTextBufferSequence) 
 // The sprite list 80:B8DE; nothing in it waits.
 export function buildSpritesJsr(h) {
   buildSpritesInPlace(h);
+  return h.rts();
+}
+
+// The motion pass 80:AFC4; nothing in it waits.
+export function moveAndAnimateJsr(h, events) {
+  moveAndAnimateInPlace(h, events);
   return h.rts();
 }

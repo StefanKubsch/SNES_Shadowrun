@@ -41,7 +41,6 @@ import { controlPlayerSequence } from './player-control.mjs';
 import { NATIVE_ENTRY, statusScreenSequence } from './status-screen.mjs';
 import { mainMenuSequence } from './main-menu.mjs';
 import { playerZonesSequence } from './player-zones.mjs';
-import { moveAndAnimate } from './object-motion.mjs';
 import { frameWaitCallSequence } from '../system/live-input-calls.mjs';
 
 // The main loop's upkeep routines below work on game state only (user decision
@@ -137,10 +136,6 @@ export const liftedShootWithOwnWeaponSequence = (h, events) =>
 // The lifted blast 80:8E36 with the lifted hit, as the script native runs it with
 // lag-free frames.
 export const liftedBlastSequence = (h, events) => hitObjectsInBlastSequence(h, events);
-// 80:AFC4, called with JSR; nothing in it waits.
-export function runObjectMotion(h, events) {
-  return moveAndAnimate(h, events);
-}
 
 // Direct sequences for the live main-loop caller. The wrappers above still serve
 // register-level helper tables; these bodies need no continuation registry lookup.
