@@ -183,12 +183,3 @@ export function* partyStatus(h, events, renderBuffer = drawTextBufferSequence) {
   yield () => setWord(wram, 0, dataBankWord(mem, STATUS_WINDOW));
   yield* releaseWindowSequence(h, events);
 }
-// The party status as called with JSR (80:ED3C); returns with its RTS.
-export function* partyStatusSequence(h, events, renderBuffer = drawTextBufferSequence) {
-  yield* partyStatus(h, events, renderBuffer);
-  let result;
-  yield () => {
-    result = h.rts();
-  };
-  return result;
-}

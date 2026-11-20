@@ -74,13 +74,6 @@ const setWord = (wram, at, value) => {
   wram[at] = value & BYTE_MASK;
   wram[at + 1] = (value >>> BYTE_BITS) & BYTE_MASK;
 };
-function* returnSequence(h) {
-  let result;
-  yield () => {
-    result = h.rts();
-  };
-  return result;
-}
 // A byte of the runner's record (long pointer DP F9).
 function recordByte(mem, offset) {
   const { wram } = mem,
@@ -145,12 +138,6 @@ export function* skills(h, events, renderBuffer = drawTextBufferSequence) {
   yield* releaseWindowSequence(h, events);
 }
 
-// The skills as called with JSR (80:E834); return with their RTS.
-export function* skillsSequence(h, events, renderBuffer = drawTextBufferSequence) {
-  yield* skills(h, events, renderBuffer);
-  return yield* returnSequence(h);
-}
-
 // 80:E8C8: the notes (see above), for lifted callers without the JSR frame (the confirm
 // key keeps its own).
 export function* notes(h, events, renderBuffer = drawTextBufferSequence) {
@@ -209,9 +196,4 @@ export function* notes(h, events, renderBuffer = drawTextBufferSequence) {
   }
   yield* dialogCallBody(h, 0x80e9a1, CONFIRM_KEY, () => waitForConfirmKeySequence(h, events));
   yield* releaseWindowSequence(h, events);
-}
-// The notes as called with JSR (80:E8C8); return with their RTS.
-export function* notesSequence(h, events, renderBuffer = drawTextBufferSequence) {
-  yield* notes(h, events, renderBuffer);
-  return yield* returnSequence(h);
 }

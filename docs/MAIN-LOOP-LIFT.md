@@ -992,8 +992,9 @@ which the render proof of 81:8076 keeps using.
 - The equipment rows 80:E9C5 of the status window (the leader's selected spell, the
   weapon's name, the armour rating with the leader's dermal armour bonus and the
   armour's name, each row blanked first; the item names through 80:E9A8) run
-  `equipmentRowsSequence` of
-  [src/game/equipment-window.mjs](../src/game/equipment-window.mjs), composed directly
+  `equipmentRows` of
+  [src/game/equipment-window.mjs](../src/game/equipment-window.mjs) (RTS form
+  `equipmentRowsJsr` in proof/caller/jsr-forms.mjs), composed directly
   by the spell menu, with the lifted cursor, text and number.
   [tools/equipment-window-lift-functions.test.mjs](../tools/equipment-window-lift-functions.test.mjs)
   compares it with the register-level routine and shared stand-ins (400 samples; the
@@ -1020,8 +1021,9 @@ which the render proof of 81:8076 keeps using.
   it; the left edge's carry from the right edge never occurs with the edges up to 20.
 - The skills and notes submenus 80:E834 and 80:E8C8 of the status screen (the known
   skills with names and values, Select ending the screen; a runner's datajack, or
-  Jake's head computer, datajack and cyberware) run `skillsSequence` and
-  `notesSequence` of [src/game/status-submenus.mjs](../src/game/status-submenus.mjs)
+  Jake's head computer, datajack and cyberware) run `skills` and
+  `notes` of [src/game/status-submenus.mjs](../src/game/status-submenus.mjs) (RTS forms
+  `skillsJsr` and `notesJsr` in proof/caller/jsr-forms.mjs)
   with the lifted window, cursor, text, number and release. The register-level status
   screen now takes a submenu of its jump table ED2E from its routines when present (a
   tail call through the frame of its JSR to ECEA); the player control's status screen
@@ -1177,7 +1179,8 @@ which the render proof of 81:8076 keeps using.
   notice windows released, a window of five rows plus half the group's last index with
   that halving's carry, then per member the name, state count with its maximum and
   magic points with ten times the magic byte as maximum, a key and the release) runs
-  `partyStatusSequence` of [src/game/party-status.mjs](../src/game/party-status.mjs)
+  `partyStatus` of [src/game/party-status.mjs](../src/game/party-status.mjs) (RTS form
+  `partyStatusJsr` in proof/caller/jsr-forms.mjs)
   composed directly by the player control, with the lifted releases, window,
   text, cursor and number.
   [tools/party-status-lift-functions.test.mjs](../tools/party-status-lift-functions.test.mjs)

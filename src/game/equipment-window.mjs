@@ -120,12 +120,3 @@ export function* equipmentRows(h, events, renderBuffer = drawTextBufferSequence)
   yield* printNumber(h, events, renderBuffer);
   yield* itemText(h, events, renderBuffer, armour);
 }
-// The rows as called with JSR (80:E9C5); returns with its RTS.
-export function* equipmentRowsSequence(h, events, renderBuffer = drawTextBufferSequence) {
-  yield* equipmentRows(h, events, renderBuffer);
-  let result;
-  yield () => {
-    result = h.rts();
-  };
-  return result;
-}

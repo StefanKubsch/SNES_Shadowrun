@@ -35,6 +35,9 @@ import {
 import { openPortraitWindow, closePortraitWindow } from '../../src/game/portrait-window.mjs';
 import { buyStep, karmaLine, karmaList, karmaMenu } from '../../src/game/karma-menu.mjs';
 import { saveMenu } from '../../src/game/main-menu.mjs';
+import { equipmentRows } from '../../src/game/equipment-window.mjs';
+import { partyStatus } from '../../src/game/party-status.mjs';
+import { notes, skills } from '../../src/game/status-submenus.mjs';
 
 function* rts(h) {
   let result;
@@ -246,5 +249,37 @@ export function* karmaMenuJsr(h, events, renderBuffer = drawTextBufferSequence) 
 // The save menu as called with JSR (80:CDD6); returns with its RTS.
 export function* saveMenuJsr(h, events, renderBuffer = drawTextBufferSequence) {
   yield* saveMenu(h, events, renderBuffer);
+  return yield* rts(h);
+}
+
+// The rows as called with JSR (80:E9C5); returns with its RTS.
+export function* equipmentRowsJsr(h, events, renderBuffer = drawTextBufferSequence) {
+  yield* equipmentRows(h, events, renderBuffer);
+  let result;
+  yield () => {
+    result = h.rts();
+  };
+  return result;
+}
+
+// The party status as called with JSR (80:ED3C); returns with its RTS.
+export function* partyStatusJsr(h, events, renderBuffer = drawTextBufferSequence) {
+  yield* partyStatus(h, events, renderBuffer);
+  let result;
+  yield () => {
+    result = h.rts();
+  };
+  return result;
+}
+
+// The notes as called with JSR (80:E8C8); return with their RTS.
+export function* notesJsr(h, events, renderBuffer = drawTextBufferSequence) {
+  yield* notes(h, events, renderBuffer);
+  return yield* rts(h);
+}
+
+// The skills as called with JSR (80:E834); return with their RTS.
+export function* skillsJsr(h, events, renderBuffer = drawTextBufferSequence) {
+  yield* skills(h, events, renderBuffer);
   return yield* rts(h);
 }

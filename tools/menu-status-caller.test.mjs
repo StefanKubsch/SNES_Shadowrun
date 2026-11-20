@@ -1,19 +1,22 @@
 import { drawTextBufferSequence as formerDraw } from '../proof/caller/text-draw.mjs';
-import * as directParty from '../src/game/party-status.mjs';
 import * as formerParty from '../proof/caller/party-status.mjs';
 import {
   putGloveAwayCallSequence,
   releaseNoticeWindowsCallSequence,
 } from '../proof/caller/window-release.mjs';
 import { STATE_COUNT } from '../src/data/actors.mjs';
-import * as directSubmenus from '../src/game/status-submenus.mjs';
 import * as formerSubmenus from '../proof/caller/status-submenus.mjs';
 import { waitForConfirmKeySequence } from '../proof/caller/confirm-key.mjs';
-import * as directEquipment from '../src/game/equipment-window.mjs';
 import * as formerEquipment from '../proof/caller/equipment-window.mjs';
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import * as directSpell from '../src/game/spell-choice.mjs';
+import {
+  equipmentRowsJsr,
+  notesJsr,
+  partyStatusJsr,
+  skillsJsr,
+} from '../proof/caller/jsr-forms.mjs';
 import * as formerSpell from '../proof/caller/spell-choice.mjs';
 import { openWindowSequence } from '../proof/caller/window-open.mjs';
 import { releaseWindowSequence } from '../proof/caller/window-release.mjs';
@@ -138,7 +141,7 @@ for (const budget of [1, 7])
           mem.wram[W.JAKE_DERMAL_ARMOUR] = dermal;
           put(W.SELECTED_SPELL_NAME, 0x714d);
         };
-        const actual = compareRun(directEquipment.equipmentRowsSequence, true, prepare, budget);
+        const actual = compareRun(equipmentRowsJsr, true, prepare, budget);
         assert.deepEqual(
           actual,
           compareRun(formerEquipment.equipmentRowsSequence, false, prepare, budget),
@@ -166,7 +169,7 @@ for (const budget of [1, 7])
           mem.wram.set(skills, 0x6000);
         };
         const pads = skills.some(Boolean) ? [button] : [];
-        const actual = compareRun(directSubmenus.skillsSequence, true, prepare, budget, pads);
+        const actual = compareRun(skillsJsr, true, prepare, budget, pads);
         assert.deepEqual(
           actual,
           compareRun(formerSubmenus.skillsSequence, false, prepare, budget, pads),
@@ -194,7 +197,7 @@ for (const budget of [1, 7])
         });
       };
       const pads = jake || datajack ? [0x8000] : [];
-      const actual = compareRun(directSubmenus.notesSequence, true, prepare, budget, pads);
+      const actual = compareRun(notesJsr, true, prepare, budget, pads);
       assert.deepEqual(
         actual,
         compareRun(formerSubmenus.notesSequence, false, prepare, budget, pads),
@@ -236,7 +239,7 @@ for (const budget of [1, 7])
         mem.wram[record + 1] = 25;
         mem.wram[record + 5] = 255;
       };
-      const actual = compareRun(directParty.partyStatusSequence, true, prepare, budget, [0x8000]);
+      const actual = compareRun(partyStatusJsr, true, prepare, budget, [0x8000]);
       assert.deepEqual(
         actual,
         compareRun(formerParty.partyStatusSequence, false, prepare, budget, [0x8000]),
@@ -261,7 +264,7 @@ for (const budget of [1, 7])
     ],
     [
       'equipment',
-      directEquipment.equipmentRowsSequence,
+      equipmentRowsJsr,
       formerEquipment.equipmentRowsSequence,
       ({ put }) => {
         put(W.STATUS_WINDOW, 0);
@@ -275,7 +278,7 @@ for (const budget of [1, 7])
     ],
     [
       'skills',
-      directSubmenus.skillsSequence,
+      skillsJsr,
       formerSubmenus.skillsSequence,
       ({ put, mem }) => {
         put(W.DP_MEMBER_RECORD, 0x6000);
@@ -286,7 +289,7 @@ for (const budget of [1, 7])
     ],
     [
       'notes',
-      directSubmenus.notesSequence,
+      notesJsr,
       formerSubmenus.notesSequence,
       ({ put, mem }) => {
         put(W.MEMBER_NUMBER, 0x08b2);
@@ -296,7 +299,7 @@ for (const budget of [1, 7])
     ],
     [
       'party',
-      directParty.partyStatusSequence,
+      partyStatusJsr,
       formerParty.partyStatusSequence,
       ({ put, mem }) => {
         put(W.GLOVE_TARGET_TAG, 0xffff);
