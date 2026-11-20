@@ -6,7 +6,6 @@
 import { taskStop } from '../system/task-stop.mjs';
 import { dialogAccess } from '../system/native-dialog-support.mjs';
 import {
-  mainLoopNoticeSequence,
   mainLoopFrameWaitSequence,
   mainLoopTimeLimitSequence,
   mainLoopGloveActionSequence,
@@ -17,6 +16,7 @@ import { sceneRequestSequence } from '../game/scene-request.mjs';
 import { shakeHitPlayer } from '../game/player-hit.mjs';
 import { recordFormationStep } from '../game/formation-trail.mjs';
 import { moveAndAnimateInPlace } from '../game/object-motion.mjs';
+import { noticeTimeoutSequence } from '../game/notice-timeout.mjs';
 import { buildSpritesInPlace } from '../game/sprite-list.mjs';
 import { updateTileBuffers } from '../game/camera-scroll.mjs';
 import { followPlayerWithCamera } from '../game/camera-follow.mjs';
@@ -37,7 +37,6 @@ const MAIN_LOOP_START = 0x96ab; // first pass after 9688
 const CALL_PC = Object.freeze({
   GATE_8000: MAIN_LOOP_RESUME,
   CC4B: 0x96c8,
-  FF14: 0x96e1,
   TIMER_E270: 0x96e4,
   WAIT_B0A1: MAIN_LOOP_START,
   BF3B: 0x96bd,
@@ -71,7 +70,7 @@ export function* mainLoopSequence(a, events, returnToOwner = false) {
   yield () => followPlayerWithCamera(a.mem, wram);
   yield () => updateTileBuffers(wram);
   yield () => buildSpritesInPlace(h);
-  yield* call(CALL_PC.FF14, 0x80ff14, () => mainLoopNoticeSequence(h, events));
+  yield* noticeTimeoutSequence(h, events);
   yield* call(CALL_PC.TIMER_E270, 0x80e270, () => mainLoopTimeLimitSequence(h, events));
   // The game leaves the loop to its owner when it ends (7E:1FDA) or reloads (7E:1FD8).
   for (const [word, pc] of [

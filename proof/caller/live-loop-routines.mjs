@@ -1,14 +1,18 @@
 // The routine table of the lifted main loop's callees (moved from src/vm/main-loop.mjs;
 // the live main loop composes them directly and looks up no routine table). Register-
 // level callers and the tests that check the bindings use it.
-import { mainLoopNoticeSequence } from '../../src/game/main-upkeep.mjs';
 import { runFrameWait, runPadPresses } from './input-routines.mjs';
 import { sceneRequestSequence } from '../../src/game/scene-request.mjs';
 import { SCENE_REQUEST_ENTRY } from './scene-request.mjs';
 import { playerZonesSequence } from '../../src/game/player-zones.mjs';
 import { timeLimitSequence } from '../../src/game/time-limit.mjs';
 import { gloveActionSequence } from '../../src/game/glove-action.mjs';
-import { buildSpritesJsr, gloveMoveJsr, moveAndAnimateJsr } from './jsr-forms.mjs';
+import {
+  buildSpritesJsr,
+  gloveMoveJsr,
+  moveAndAnimateJsr,
+  noticeTimeoutJsr,
+} from './jsr-forms.mjs';
 import { shakeHitPlayer } from '../../src/game/player-hit.mjs';
 import { recordFormationStep } from '../../src/game/formation-trail.mjs';
 import { updateTileBuffers } from '../../src/game/camera-scroll.mjs';
@@ -79,11 +83,11 @@ export function runTileBuffers(h) {
 // The register-level entries of the main loop callees that wait.
 // 80:FF14, called with JSR; its window releases wait for the NMI of their uploads.
 export function runNoticeTimeouts(h, events) {
-  return drainNativeSequence(mainLoopNoticeSequence(h, events));
+  return drainNativeSequence(noticeTimeoutJsr(h, events));
 }
 NATIVE_CALL_CONTINUATIONS.set(0x80ff14, {
   run: runNoticeTimeouts,
-  create: ({ h, events }) => new NativeCallContinuation(h.a, mainLoopNoticeSequence(h, events)),
+  create: ({ h, events }) => new NativeCallContinuation(h.a, noticeTimeoutJsr(h, events)),
 });
 
 // 80:E270, called with JSR; its notice and text wait for the NMI of their uploads, so

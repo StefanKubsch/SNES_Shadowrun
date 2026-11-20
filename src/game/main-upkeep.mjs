@@ -7,7 +7,6 @@
 // callee takes its NMI with them, which saves X and Y on the NMI stack (7E:1CB6-1CB9)
 // that the Mesen oracle compares. So the entries leave X and Y as the original; A and
 // the flags besides the width are not produced, every next callee loads its own A.
-import { noticeTimeoutSequence } from './notice-timeout.mjs';
 import { timeLimitSequence } from './time-limit.mjs';
 import { gloveActionSequence } from './glove-action.mjs';
 import { showNoticeSequence } from './notice-show.mjs';
@@ -48,16 +47,6 @@ import { frameWaitCallSequence } from '../system/live-input-calls.mjs';
 // shake indices, the formation, camera and tile buffer counters) are not produced; the
 // next routine of the loop sets its own.
 
-// 80:FF14, called with JSR; its window releases wait for the NMI of their uploads, so
-// it is a native call continuation of the main loop.
-function* noticeTimeoutCallSequence(h, events) {
-  yield* noticeTimeoutSequence(h, events);
-  let result;
-  yield () => {
-    result = h.rts();
-  };
-  return result;
-}
 // The lifted notice as the script native 80:FEC1 runs it with lag-free frames
 // (src/vm/special-natives.mjs), with this module's window, text and release.
 export const liftedNoticeSequence = (h, events) => showNoticeSequence(h, events);
@@ -139,7 +128,6 @@ export const liftedBlastSequence = (h, events) => hitObjectsInBlastSequence(h, e
 
 // Direct sequences for the live main-loop caller. The wrappers above still serve
 // register-level helper tables; these bodies need no continuation registry lookup.
-export const mainLoopNoticeSequence = noticeTimeoutCallSequence;
 export const mainLoopFrameWaitSequence = frameWaitCallSequence;
 export const mainLoopTimeLimitSequence = (h, events) => timeLimitSequence(h, events);
 export const mainLoopGloveActionSequence = (h, events) => gloveActionSequence(h, events);

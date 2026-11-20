@@ -15,6 +15,7 @@ import { startNewGame } from '../../src/game/game-start.mjs';
 import { gloveMove } from '../../src/game/glove-move.mjs';
 import { buildSpritesInPlace } from '../../src/game/sprite-list.mjs';
 import { moveAndAnimateInPlace } from '../../src/game/object-motion.mjs';
+import { noticeTimeoutSequence } from '../../src/game/notice-timeout.mjs';
 import { drawTextBufferSequence } from '../../src/game/text-draw.mjs';
 
 function* rts(h) {
@@ -118,4 +119,10 @@ export function buildSpritesJsr(h) {
 export function moveAndAnimateJsr(h, events) {
   moveAndAnimateInPlace(h, events);
   return h.rts();
+}
+
+// The notice timeouts 80:FF14; their window releases wait for the NMI of their uploads.
+export function* noticeTimeoutJsr(h, events) {
+  yield* noticeTimeoutSequence(h, events);
+  return yield* rts(h);
 }
