@@ -34,7 +34,7 @@ import {
 } from './window-release.mjs';
 import { setTextCursor, printNumber } from './window-text.mjs';
 import { printText } from './text-print.mjs';
-import { decimalNumberSequence } from './decimal-number.mjs';
+import { decimalNumber } from './decimal-number.mjs';
 import { drawTextBufferSequence } from './text-draw.mjs';
 import { equipmentRows } from './equipment-window.mjs';
 import { memberPortrait } from './member-portrait.mjs';
@@ -124,8 +124,7 @@ import {
 export const NATIVE_ENTRY = 0x80ea6e,
   START_ENTRY = 0x80ea89,
   ITEMS_ENTRY = 0x80ea8e;
-const DECIMAL_NUMBER = 0x80fdcf,
-  PLAIN_MENU = MENU,
+const PLAIN_MENU = MENU,
   SKILLS_MENU = 0x80e834,
   NOTES_MENU = 0x80e8c8;
 // The attribute labels follow the rows; the attributes from index 6 down, the record's
@@ -323,9 +322,7 @@ export function* statusScreen(
       setWord(wram, DP_NUMBER_LOW, longWord(mem, WRAM + NUYEN));
       setWord(wram, DP_NUMBER_HIGH, longWord(mem, WRAM + NUYEN + 2));
     };
-    yield* dialogCallBody(h, 0x80ec42, DECIMAL_NUMBER, () =>
-      decimalNumberSequence(h, events, renderBuffer),
-    );
+    yield* decimalNumber(h, events, renderBuffer);
     yield* cursor(STATUS_ROWS.labelColumn, STATUS_ROWS.spellLabelRow);
     yield* text(TEXT_SPELL);
   }

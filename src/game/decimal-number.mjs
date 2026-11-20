@@ -68,9 +68,9 @@ function writeDigits(mem) {
   return offset;
 }
 
-// 80:FDCF: the number DP 04:02 as decimal text (see above). A sequence that ends with
-// its RTS.
-export function* decimalNumberSequence(h, events, renderBuffer = drawTextBufferSequence) {
+// 80:FDCF: the number DP 04:02 as decimal text (see above), for lifted callers without
+// the JSR frame; the text draw keeps its own and the saved data bank its stack byte.
+export function* decimalNumber(h, events, renderBuffer = drawTextBufferSequence) {
   const { mem } = h.a,
     { wram } = mem;
   yield () => {
@@ -85,9 +85,13 @@ export function* decimalNumberSequence(h, events, renderBuffer = drawTextBufferS
     h.plb();
   };
   yield* dialogCallBody(h, ...DRAW_TEXT, () => renderBuffer(h, events));
+  yield () => h.plb();
+}
+// The decimal number as called with JSR (80:FDCF); returns with its RTS.
+export function* decimalNumberSequence(h, events, renderBuffer = drawTextBufferSequence) {
+  yield* decimalNumber(h, events, renderBuffer);
   let result;
   yield () => {
-    h.plb();
     result = h.rts();
   };
   return result;
