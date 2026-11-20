@@ -1,3 +1,4 @@
+import { readStateWord } from '../src/state/objects.mjs';
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { cartridge } from './cartridge-harness.mjs';
@@ -21,7 +22,7 @@ const TITLE = (k) =>
     : k >= 3150 && k < 3154
       ? 0x0400
       : 0;
-const word = (w, a) => w[a] | (w[a + 1] << 8);
+const word = readStateWord;
 test(
   'the debug room warp goes there only while Jake moves freely, and its exit returns',
   { timeout: 900000 },

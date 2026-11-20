@@ -2,6 +2,7 @@
 // and 81:EB97; register-level versions in proof/system/main-scene-video.mjs).
 // NMITIMEN has a shadow in WRAM that the frame wait reads; the NMI handler
 // calls the long callback in 7E:006E-0070.
+import { readStateByte, writeStateByte } from '../state/objects.mjs';
 import {
   CLEAR_COLOUR,
   NMI_CALLBACK,
@@ -38,13 +39,13 @@ const SCREEN_START_CALLBACK = 0x81ec15,
   // A sprite off screen: X FF, Y F0.
   OAM_OFF_SCREEN = 0xf0ff;
 
-const word = (wram, at) => wram[at] | (wram[at + 1] << BYTE_BITS);
+const word = (wram, at) => readStateByte(wram, at) | (readStateByte(wram, at + 1) << BYTE_BITS);
 const setWord = (wram, at, value) => {
-  wram[at] = value & BYTE_MASK;
-  wram[at + 1] = (value >>> BYTE_BITS) & BYTE_MASK;
+  writeStateByte(wram, at, value & BYTE_MASK);
+  writeStateByte(wram, at + 1, (value >>> BYTE_BITS) & BYTE_MASK);
 };
 function setNmiTimen(wram, port, value, site) {
-  wram[NMITIMEN_SHADOW] = value;
+  writeStateByte(wram, NMITIMEN_SHADOW, value);
   port.write(NMITIMEN, value, 1, site);
 }
 
@@ -53,18 +54,23 @@ export function enableNmiAndJoypad(wram, port) {
   setNmiTimen(
     wram,
     port,
-    wram[NMITIMEN_SHADOW] | NMITIMEN_NMI_ENABLE | NMITIMEN_AUTO_JOYPAD,
+    readStateByte(wram, NMITIMEN_SHADOW) | NMITIMEN_NMI_ENABLE | NMITIMEN_AUTO_JOYPAD,
     ENABLE_SITE,
   );
 }
 // Disable the NMI, keep the other bits (81:EB89).
 export function disableNmi(wram, port) {
-  setNmiTimen(wram, port, wram[NMITIMEN_SHADOW] & ~NMITIMEN_NMI_ENABLE & BYTE_MASK, DISABLE_SITE);
+  setNmiTimen(
+    wram,
+    port,
+    readStateByte(wram, NMITIMEN_SHADOW) & ~NMITIMEN_NMI_ENABLE & BYTE_MASK,
+    DISABLE_SITE,
+  );
 }
 // The NMI callback, a long address (80:C109).
 export function setNmiCallback(wram, callback) {
   setWord(wram, NMI_CALLBACK, callback & WORD_MASK);
-  wram[NMI_CALLBACK_BANK] = callback >>> WORD_BITS;
+  writeStateByte(wram, NMI_CALLBACK_BANK, callback >>> WORD_BITS);
 }
 // Hide every sprite of the OAM buffer and clear its high table (81:EDB6).
 export function hideAllSprites(wram) {

@@ -6,6 +6,7 @@
 // does. A negative scene is mirrored. The lifted scene and NMI callback read no
 // register width (user decision 2026-11-17); the register-level caller in
 // proof/caller/cutscene-scene.mjs keeps the original's 16-bit accumulator check.
+import { readStateByte, writeStateByte } from '../state/objects.mjs';
 import { sceneFrames } from '../system/scene-frames.mjs';
 import { introSequence } from '../intro/intro-scene.mjs';
 import { heldPad, menuCreditsRunning, CREDITS_SEQUENCE } from '../game/credits.mjs';
@@ -120,10 +121,10 @@ const INTRO_SCENE = 0x14,
   POSITION_SCROLL_SHIFT = 7,
   SCROLL_MIRROR = 0x1ff;
 
-const word = (wram, at) => wram[at] | (wram[at + 1] << BYTE_BITS);
+const word = (wram, at) => readStateByte(wram, at) | (readStateByte(wram, at + 1) << BYTE_BITS);
 const setWord = (wram, at, value) => {
-  wram[at] = value & BYTE_MASK;
-  wram[at + 1] = (value >>> BYTE_BITS) & BYTE_MASK;
+  writeStateByte(wram, at, value & BYTE_MASK);
+  writeStateByte(wram, at + 1, (value >>> BYTE_BITS) & BYTE_MASK);
 };
 
 // 81:CDF8: play the cutscene scene with its argument (A and X in the original; user
@@ -189,8 +190,8 @@ export function* cutsceneSequence(h, events, scene, argument) {
     video.write(TMW, SCENE_LAYERS, 1);
     video.write(WBGLOG, 0, 1);
     video.write(WOBJLOG, 0, 1);
-    wram[SCENE_BRIGHTNESS_TARGET] = MAX_BRIGHTNESS;
-    wram[SCENE_BRIGHTNESS] = 0;
+    writeStateByte(wram, SCENE_BRIGHTNESS_TARGET, MAX_BRIGHTNESS);
+    writeStateByte(wram, SCENE_BRIGHTNESS, 0);
     const mode = t.audioModes(n);
     if (!(mode & WORD_SIGN)) setMusicMode(m.mem, m.port, mode);
     const sound = t.sounds(n);
@@ -231,14 +232,14 @@ export function* cutsceneSequence(h, events, scene, argument) {
   yield () => {
     startSong(m.mem, m.port, 0);
     m.sound(APU_COMMAND_SOUND_VOLUME, SCENE_END_SOUND);
-    m.wram[SCENE_BRIGHTNESS_TARGET] = 0;
+    writeStateByte(m.wram, SCENE_BRIGHTNESS_TARGET, 0);
   };
   // Wait until the NMI callback has faded the brightness to 0 (a recorded run polls
   // its observations instead).
   if (clock.brightnessZero) yield* clock.brightnessZero(m);
   else
-    while (m.wram[SCENE_BRIGHTNESS] !== 0) {
-      const brightness = m.wram[SCENE_BRIGHTNESS],
+    while (readStateByte(m.wram, SCENE_BRIGHTNESS) !== 0) {
+      const brightness = readStateByte(m.wram, SCENE_BRIGHTNESS),
         // After LDA of a nonzero byte in 8-bit mode: Z clear, N its bit 7.
         status = (ctx.status | FLAG_MEMORY_8BIT) & ~(FLAG_NEGATIVE | FLAG_ZERO);
       yield* clock.atBranch(FADE_BRANCH, brightness & BYTE_SIGN ? status | FLAG_NEGATIVE : status);
@@ -268,8 +269,8 @@ export function handleCutsceneNmi(h) {
   if (word(wram, DP_SCENE) & WORD_SIGN) scroll ^= SCROLL_MIRROR;
   video.write(BG2HOFS, scroll & BYTE_MASK, 1);
   video.write(BG2HOFS, scroll >>> BYTE_BITS, 1);
-  video.write(BG1VOFS, wram[DP_SCROLL_Y], 1);
-  video.write(BG1VOFS, wram[DP_SCROLL_Y + 1], 1);
+  video.write(BG1VOFS, readStateByte(wram, DP_SCROLL_Y), 1);
+  video.write(BG1VOFS, readStateByte(wram, DP_SCROLL_Y + 1), 1);
   const target = word(wram, DP_TARGET),
     step = word(wram, DP_STEP);
   let speed = word(wram, DP_SPEED);
@@ -282,11 +283,11 @@ export function handleCutsceneNmi(h) {
   }
   setWord(wram, DP_SPEED, speed);
   setWord(wram, DP_POSITION, (speed + word(wram, DP_POSITION)) & WORD_MASK);
-  const brightness = wram[SCENE_BRIGHTNESS],
-    goal = wram[SCENE_BRIGHTNESS_TARGET];
+  const brightness = readStateByte(wram, SCENE_BRIGHTNESS),
+    goal = readStateByte(wram, SCENE_BRIGHTNESS_TARGET);
   video.write(INIDISP, brightness === 0 ? INIDISP_FORCED_BLANK : brightness, 1);
   if (brightness !== goal)
-    wram[SCENE_BRIGHTNESS] = (brightness + (brightness > goal ? -1 : 1)) & BYTE_MASK;
+    writeStateByte(wram, SCENE_BRIGHTNESS, (brightness + (brightness > goal ? -1 : 1)) & BYTE_MASK);
   setWord(wram, PAD_HELD, readJoypad(m.port));
   return h.rtl();
 }

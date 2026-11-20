@@ -3,6 +3,7 @@
 // can show the frame; the other matrix code is plain functions in matrix-world.mjs
 // and matrix-text.mjs. Shared frame waits, unpacking, fades, sound and input
 // compose directly; frame waits come from the scene frame interface.
+import { readStateByte, writeStateByte } from '../state/objects.mjs';
 import { sceneFrames } from '../system/scene-frames.mjs';
 import { entryOf } from './matrix-tables.mjs';
 import { readJoypad, takePadPresses } from '../system/joypad.mjs';
@@ -277,7 +278,7 @@ export function* matrixSceneSequence(h, events) {
   }
   yield () => {
     const { wram } = m,
-      system = wram[MATRIX_SYSTEM];
+      system = readStateByte(wram, MATRIX_SYSTEM);
     // The original adds with the carry its shifts leave (bit 5 of the system number).
     const carry = (system >>> (WORD_BITS - SYSTEM_MAP_SHIFT)) & 1;
     setWord(wram, MATRIX_MAP, (system << SYSTEM_MAP_SHIFT) + MAP_BUFFER + carry);
@@ -294,14 +295,14 @@ export function* matrixSceneSequence(h, events) {
   let messages;
   yield () => {
     const { wram } = m;
-    setWord(wram, MATRIX_HEALTH, wram[DECKER_HEALTH]);
+    setWord(wram, MATRIX_HEALTH, readStateByte(wram, DECKER_HEALTH));
     for (const at of [MATRIX_DEATH_COUNTER, MATRIX_MEMORY_SHOWN, MATRIX_MEMORY])
       setWord(wram, at, 0);
-    setWord(wram, MATRIX_MEMORY_LIMIT, wram[DECKER_MEMORY]);
+    setWord(wram, MATRIX_MEMORY_LIMIT, readStateByte(wram, DECKER_MEMORY));
     for (const at of [MATRIX_DATA_BITS, MATRIX_CPU_BITS, MATRIX_DOWNLOAD_BITS])
       setWord(wram, at, 0);
     // Without messages (the datajack path) the grid is never shown.
-    messages = wram[MATRIX_MESSAGES];
+    messages = readStateByte(wram, MATRIX_MESSAGES);
   };
   if (messages !== 0) {
     yield* fadeToWhite(m, wait);
@@ -351,9 +352,9 @@ export function* matrixSceneSequence(h, events) {
   let result;
   yield () => {
     const { wram } = m;
-    wram[DECKER_HEALTH] = wram[MATRIX_HEALTH];
-    wram[DECKER_DATA_BITS] = wram[MATRIX_DATA_BITS];
-    wram[DECKER_DOWNLOAD_BITS] = wram[MATRIX_DOWNLOAD_BITS];
+    writeStateByte(wram, DECKER_HEALTH, readStateByte(wram, MATRIX_HEALTH));
+    writeStateByte(wram, DECKER_DATA_BITS, readStateByte(wram, MATRIX_DATA_BITS));
+    writeStateByte(wram, DECKER_DOWNLOAD_BITS, readStateByte(wram, MATRIX_DOWNLOAD_BITS));
     result = h.rtl();
   };
   return result;

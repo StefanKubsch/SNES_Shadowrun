@@ -23,9 +23,9 @@
 // the saved data bank and the draw list index pushed around each movement lie only in
 // free stack bytes, which are not reproduced. The animation step runs without its JSR
 // frame too; only a recorded run's register-level step returns through it.
+import { readStateByte, writeStateByte, objectIndex, objectTable } from '../state/objects.mjs';
 import { taskStop } from '../system/task-stop.mjs';
 import { moveObject } from './object-move.mjs';
-import { objectIndex, objectTable } from '../state/objects.mjs';
 import { stepAnimation, stepAnimationInPlace } from './object-animation.mjs';
 import { recordedRoutine } from '../system/recorded-routines.mjs';
 import {
@@ -83,10 +83,11 @@ const DP_X = 0x1a,
 const ANIMATION_CALL = 0xaff4,
   ANIMATION_TARGET = 0x80ac2f;
 
-const word = (wram, at) => wram[at % WRAM_SIZE] | (wram[(at + 1) % WRAM_SIZE] << BYTE_BITS);
+const word = (wram, at) =>
+  readStateByte(wram, at % WRAM_SIZE) | (readStateByte(wram, (at + 1) % WRAM_SIZE) << BYTE_BITS);
 const setWord = (wram, at, value) => {
-  wram[at % WRAM_SIZE] = value & BYTE_MASK;
-  wram[(at + 1) % WRAM_SIZE] = (value >>> BYTE_BITS) & BYTE_MASK;
+  writeStateByte(wram, at % WRAM_SIZE, value & BYTE_MASK);
+  writeStateByte(wram, (at + 1) % WRAM_SIZE, (value >>> BYTE_BITS) & BYTE_MASK);
 };
 // A word of a table in bank 80 below 2000 (the motion pass's data bank reaches WRAM
 // only there).

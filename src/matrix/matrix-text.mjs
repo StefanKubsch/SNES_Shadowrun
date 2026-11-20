@@ -2,6 +2,7 @@
 // Texts wait in a ring of eight entries and are typed one character per delay
 // into a BG3 row that the NMI copies to VRAM; edited language texts replace the
 // cartridge bytes of an entry (src/data/matrix-text-edits.mjs).
+import { readStateByte } from '../state/objects.mjs';
 import { taskStop } from '../system/task-stop.mjs';
 import { VmFault } from '../vm/memory.mjs';
 import { MATRIX_COUNT_TEXT } from '../data/matrix-text-edits.mjs';
@@ -141,7 +142,10 @@ function readText(mem) {
   const active = mem.matrixTextState?.active;
   if (!active) {
     const w = mem.wram;
-    return longWord(mem, (w[TEXT_POINTER_BANK] << WORD_BITS) | word(w, TEXT_POINTER));
+    return longWord(
+      mem,
+      (readStateByte(w, TEXT_POINTER_BANK) << WORD_BITS) | word(w, TEXT_POINTER),
+    );
   }
   if (active.position >= active.bytes.length - 1) throw new VmFault('matrix_edit_stream_required');
   return active.bytes[active.position] | (active.bytes[active.position + 1] << BYTE_BITS);
@@ -195,7 +199,7 @@ export function queueText(m, text, bankWord = text >>> WORD_BITS) {
 // Queue the message list of the current system (81:C39F).
 export function queueSystemMessages(m) {
   const { mem, wram } = m,
-    list = longWord(mem, MESSAGE_LISTS + (wram[MATRIX_MESSAGES] << 1)),
+    list = longWord(mem, MESSAGE_LISTS + (readStateByte(wram, MATRIX_MESSAGES) << 1)),
     entry = (offset) => longWord(mem, (MESSAGE_LISTS & ~WORD_MASK) + list + offset);
   let count = entry(0) & BYTE_MASK,
     offset = 1;

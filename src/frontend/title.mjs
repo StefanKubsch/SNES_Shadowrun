@@ -8,6 +8,7 @@
 // until position 0401 with objects moving over it, scrolls the city down, narrows
 // the window and blends three views of the picture in and out, then fades out. A
 // held button ends either at once; the title then returns 1 instead of 0.
+import { readStateByte, writeStateByte, fillStateBytes } from '../state/objects.mjs';
 import { sceneFrames } from '../system/scene-frames.mjs';
 import {
   beginPackedTextEdit,
@@ -192,10 +193,10 @@ const PROLOGUE_TILEMAP_VRAM = 0x1000,
   SCROLL_FIRST_COLOUR = 0x10,
   DMA_CHANNEL_0 = 1;
 
-const word = (wram, at) => wram[at] | (wram[at + 1] << BYTE_BITS);
+const word = (wram, at) => readStateByte(wram, at) | (readStateByte(wram, at + 1) << BYTE_BITS);
 const setWord = (wram, at, value) => {
-  wram[at] = value & BYTE_MASK;
-  wram[at + 1] = (value >>> BYTE_BITS) & BYTE_MASK;
+  writeStateByte(wram, at, value & BYTE_MASK);
+  writeStateByte(wram, at + 1, (value >>> BYTE_BITS) & BYTE_MASK);
 };
 const readLongWord = (mem, at) =>
   mem.read8(at & LONG_MASK) | (mem.read8((at + 1) & LONG_MASK) << BYTE_BITS);
@@ -266,9 +267,17 @@ export function drawPrologueLine(mem) {
 export function moveTitleWindow(wram) {
   const first = INTRO_WINDOW_HDMA - WRAM,
     second = first + INTRO_WINDOW_ENTRY_BYTES;
-  if (wram[first] === 1) return;
-  wram[first] = (wram[first] - 1) & BYTE_MASK;
-  wram[second] = wram[second + INTRO_WINDOW_ENTRY_BYTES] = (wram[second] + 1) & BYTE_MASK;
+  if (readStateByte(wram, first) === 1) return;
+  writeStateByte(wram, first, (readStateByte(wram, first) - 1) & BYTE_MASK);
+  writeStateByte(
+    wram,
+    second,
+    writeStateByte(
+      wram,
+      second + INTRO_WINDOW_ENTRY_BYTES,
+      (readStateByte(wram, second) + 1) & BYTE_MASK,
+    ),
+  );
 }
 // One fade step of the blend (81:D8E5): the original ANDs the step's mask with zero
 // and shifts the result, so colours 16-63 of the title palette become black.
@@ -574,7 +583,12 @@ export function* titleSequence(h, events, routines, shown = {}) {
       for (const at of [DP_PROLOGUE_SCROLL, DP_PROLOGUE_DELAY, DP_PROLOGUE_READ])
         setWord(wram, at, 0);
       enableNmiAndJoypad(wram, port);
-      wram.fill(0, PROLOGUE_TILEMAP - WRAM, PROLOGUE_TILEMAP - WRAM + PROLOGUE_TILEMAP_BYTES);
+      fillStateBytes(
+        wram,
+        0,
+        PROLOGUE_TILEMAP - WRAM,
+        PROLOGUE_TILEMAP - WRAM + PROLOGUE_TILEMAP_BYTES,
+      );
     };
     yield* fadeIn(m.video, wait);
     for (let frame = PROLOGUE_FRAMES; ;) {

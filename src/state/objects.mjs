@@ -5,9 +5,10 @@
 // A slot value is what scripts and natives pass around: the slot's byte offset in the
 // original word arrays (0, 2, ..., 0x56). index(slot) turns it into the entry number.
 //
-// For now each field is a view onto its original WRAM array, so the bytes stay where
-// the projection (proof/) and the save code expect them. When the subsystem's storage
-// is detached, the fields get their own buffers and the projection copies them.
+// The live game owns independent typed arrays. The original byte addresses remain
+// an explicit compatibility boundary for overlapping intro, OAM and matrix data and
+// indirect native arguments. Proof fixtures can retain views onto their input WRAM;
+// proof/state/to-wram.mjs projects the live fields for comparisons.
 //
 // Scripts also pass values that are no slot, above all FFFF for "none". The original
 // then reads or writes the word at field + value: through its data bank 80 (the low
@@ -136,6 +137,19 @@ export function objectTable(wram) {
   return table;
 }
 
+// Install the live storage before the loop starts, importing the initial bytes
+// once. Repeated calls keep the same table and arrays.
+const detached = new WeakSet();
+export function detachObjectStorage(wram) {
+  const table = objectTable(wram);
+  if (!detached.has(wram)) {
+    for (const name of Object.keys(FIELDS)) table[name] = table[name].slice();
+    detached.add(wram);
+  }
+  return table;
+}
+export const hasDetachedObjects = (wram) => detached.has(wram);
+
 // Whether a value is a slot of the table.
 export const isObjectSlot = (slot) =>
   Number.isInteger(slot) && slot >= 0 && slot <= OBJECT_LAST_SLOT && slot % SLOT_BYTES === 0;
@@ -163,7 +177,7 @@ const wramAt = (name, slot) => (FIELDS[name] + slot) % WRAM_BYTES;
 export function objectWordIn(wram, name, slot) {
   if (isObjectSlot(slot)) return objectTable(wram)[name][slot / SLOT_BYTES];
   const at = wramAt(name, slot);
-  return wram[at] | (wram[(at + 1) % WRAM_BYTES] << BYTE_BITS);
+  return readStateByte(wram, at) | (readStateByte(wram, (at + 1) % WRAM_BYTES) << BYTE_BITS);
 }
 export function setObjectWordIn(wram, name, slot, value) {
   if (isObjectSlot(slot)) {
@@ -171,8 +185,8 @@ export function setObjectWordIn(wram, name, slot, value) {
     return;
   }
   const at = wramAt(name, slot);
-  wram[at] = value & BYTE_MASK;
-  wram[(at + 1) % WRAM_BYTES] = (value >>> BYTE_BITS) & BYTE_MASK;
+  writeStateByte(wram, at, value & BYTE_MASK);
+  writeStateByte(wram, (at + 1) % WRAM_BYTES, (value >>> BYTE_BITS) & BYTE_MASK);
 }
 // A field through the original's data bank 80 where only the low WRAM mirror is safe:
 // a value whose word lies at or above 2000 stops the task.
@@ -207,4 +221,40 @@ export function longObjectWord(mem, name, slot) {
 export function setLongObjectWord(mem, name, slot, value) {
   if (isObjectSlot(slot)) objectTable(mem.wram)[name][slot / SLOT_BYTES] = value;
   else mem.write16(longAddress(name, slot), value & WORD_MASK);
+}
+
+// Byte aliases at the legacy boundary. The mapping is shared by every game; only
+// fields owned by the object table are redirected. The raw WRAM bytes are never
+// refreshed as a side effect of a read or a projection.
+const byteFields = [];
+for (const [name, base] of Object.entries(FIELDS)) {
+  for (let index = 0; index < OBJECT_SLOTS; index++) {
+    byteFields[base + index * SLOT_BYTES] = { name, index, shift: 0 };
+    byteFields[base + index * SLOT_BYTES + 1] = { name, index, shift: BYTE_BITS };
+  }
+}
+export function readStateByte(wram, at) {
+  const field = detached.has(wram) && byteFields[at];
+  if (!field) return wram[at];
+  return (tables.get(wram)[field.name][field.index] >>> field.shift) & BYTE_MASK;
+}
+export function writeStateByte(wram, at, value) {
+  const field = detached.has(wram) && byteFields[at];
+  if (!field) {
+    wram[at] = value;
+    return value;
+  }
+  const values = tables.get(wram)[field.name],
+    mask = BYTE_MASK << field.shift;
+  values[field.index] = (values[field.index] & ~mask) | ((value & BYTE_MASK) << field.shift);
+  return value;
+}
+export const readStateWord = (wram, at) =>
+  readStateByte(wram, at) | (readStateByte(wram, at + 1) << BYTE_BITS);
+export function writeStateWord(wram, at, value) {
+  writeStateByte(wram, at, value);
+  writeStateByte(wram, at + 1, value >>> BYTE_BITS);
+}
+export function fillStateBytes(wram, value, start, end) {
+  for (let at = start; at < end; at++) writeStateByte(wram, at, value);
 }

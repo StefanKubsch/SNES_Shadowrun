@@ -7,6 +7,7 @@
 // five packed streams, plays its song and a sound, fades in and runs 300 frames
 // unless a button is held. It fades out, plays cutscene 5 mirrored and sets up the
 // game's sounds again.
+import { readStateByte, writeStateByte } from '../state/objects.mjs';
 import { dialogCallBody } from '../system/native-call-continuation.mjs';
 import { sceneFrames } from '../system/scene-frames.mjs';
 import { cutsceneSequence } from '../cutscene/cutscene-scene.mjs';
@@ -128,10 +129,10 @@ export const INTRO_FRAMES = 300,
   // 81:EF63 leaves the data bank at 80.
   RETURN_DATA_BANK = 0x80;
 
-const word = (wram, at) => wram[at] | (wram[at + 1] << BYTE_BITS);
+const word = (wram, at) => readStateByte(wram, at) | (readStateByte(wram, at + 1) << BYTE_BITS);
 const setWord = (wram, at, value) => {
-  wram[at] = value & BYTE_MASK;
-  wram[at + 1] = (value >>> BYTE_BITS) & BYTE_MASK;
+  writeStateByte(wram, at, value & BYTE_MASK);
+  writeStateByte(wram, at + 1, (value >>> BYTE_BITS) & BYTE_MASK);
 };
 
 // Build the intro screen (81:D60F): the scene screen, the screen list, the packed
@@ -159,7 +160,7 @@ export function setUpIntroWindow(m) {
   const { mem, wram, video } = m;
   video.write(A1T7L, INTRO_WINDOW_HDMA & WORD_MASK, 2);
   for (let n = 0; n < WINDOW_TABLE_BYTES; n++)
-    wram[INTRO_WINDOW_HDMA - WRAM + n] = mem.read8(WINDOW_SOURCE + n);
+    writeStateByte(wram, INTRO_WINDOW_HDMA - WRAM + n, mem.read8(WINDOW_SOURCE + n));
   video.write(DMAP7, DMAP_TWO_PORTS, 1);
   video.write(BBAD7, WH0 & BYTE_MASK, 1);
   video.write(A1B7, WRAM_BANK, 1);

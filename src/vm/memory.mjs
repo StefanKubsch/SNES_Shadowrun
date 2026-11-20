@@ -8,6 +8,7 @@
 // 2026-10-14, for example STA $97AE,X in $9D15); they are counted and, in diagnostic mode (romWriteLog = []),
 // logged with their address. In bank $00 they arise only from overflows of the stack or direct page and remain
 // a proof limit (error). Everything else is an error, no invented values.
+import { readStateByte, writeStateByte } from '../state/objects.mjs';
 import {
   WORD_BITS,
   WORD_MASK,
@@ -116,9 +117,10 @@ export class VmMemory {
   read8(address) {
     const bank = address >>> WORD_BITS,
       offset = address & WORD_MASK;
-    if (bank === WRAM_BANK || bank === WRAM_HIGH_BANK) return this.wram[address - WRAM_BASE];
+    if (bank === WRAM_BANK || bank === WRAM_HIGH_BANK)
+      return readStateByte(this.wram, address - WRAM_BASE);
     if (!(bank & BANK_WITHOUT_IO)) {
-      if (offset < LOW_RAM_END) return this.wram[offset];
+      if (offset < LOW_RAM_END) return readStateByte(this.wram, offset);
       if (offset >= LOROM_OFFSET) {
         if ((bank & MIRROR_BANK_MASK) < ROM_BANK_COUNT) {
           const o = ((bank & ROM_BANK_MASK) << LOROM_BANK_SHIFT) | (offset & LOROM_OFFSET_MASK);
@@ -160,12 +162,12 @@ export class VmMemory {
     const bank = address >>> WORD_BITS,
       offset = address & WORD_MASK;
     if (bank === WRAM_BANK || bank === WRAM_HIGH_BANK) {
-      this.wram[address - WRAM_BASE] = value;
+      writeStateByte(this.wram, address - WRAM_BASE, value);
       return;
     }
     if (!(bank & BANK_WITHOUT_IO)) {
       if (offset < LOW_RAM_END) {
-        this.wram[offset] = value;
+        writeStateByte(this.wram, offset, value);
         return;
       }
       if (offset >= LOROM_OFFSET && bank !== 0 && (bank & MIRROR_BANK_MASK) < ROM_BANK_COUNT) {

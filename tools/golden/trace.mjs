@@ -6,6 +6,8 @@
 // (pokes) at the frame where it made them. Per frame it keeps five FNV-1a hashes:
 // picture, game state, video memory, audio and SRAM. Every SNAPSHOT_EVERY frames it
 // keeps the masked WRAM so that a difference can be located by address.
+import { WRAM } from '../../src/data/wram.mjs';
+import { toWram } from '../../proof/state/to-wram.mjs';
 import { readFileSync, writeFileSync } from 'node:fs';
 import { gzipSync, gunzipSync, constants as zlib } from 'node:zlib';
 import { LiveGame } from '../../src/video/live-game.mjs';
@@ -37,10 +39,14 @@ const HASH_BYTES = Uint32Array.BYTES_PER_ELEMENT,
   LISTED_ADDRESSES = 16,
   FNV_PRIME = 0x01000193;
 
-// The game state as compared: WRAM with the scratch set to zero. Phase 2 of the
-// rebuild replaces this with the projection of the typed state.
+// The compared game state: the typed fields projected to the original addresses,
+// with scratch set to zero.
 export function gameState(game, into = new Uint8Array(game.memory.wram.length)) {
-  into.set(game.memory.wram);
+  toWram(game.memory, into);
+  return maskScratch(into);
+}
+
+function maskScratch(into) {
   for (const [from, to] of SCRATCH) into.fill(0, from, to);
   return into;
 }
@@ -76,9 +82,10 @@ function frameHashes(game, state, cache) {
     { ppu } = bus;
   const video = hash(ppu.oam, hash(ppu.cgram, hash(ppu.vram)));
   const audio = hash(game.apu.dsp.regs, hash(game.apu.ram));
-  const gameHash = hash(gameState(game, state));
+  toWram(game.memory, state);
   let key = hash(ppu.scroll, hash(ppu.registers, video));
-  if (ppu.hdmaEnabled) key = hash(game.memory.wram, hash(bus.dma, key ^ ppu.hdmaEnabled));
+  if (ppu.hdmaEnabled) key = hash(state, hash(bus.dma, key ^ ppu.hdmaEnabled));
+  const gameHash = hash(maskScratch(state));
   return [picture(game, cache, key), gameHash, video, audio, hash(game.memory.sram)];
 }
 
@@ -98,15 +105,17 @@ export function attach(game, inputs = null) {
   if (!inputs) {
     const pad = loop.pad,
       count = devices.counter,
-      before = new Uint8Array(game.memory.wram.length);
+      before = new Uint8Array(game.memory.wram.length),
+      after = new Uint8Array(before.length);
     let last = -1;
     loop.pad = (k) => {
       const { wram } = game.memory;
-      before.set(wram);
+      toWram(game.memory, before);
       const word = pad(k);
-      if (Buffer.compare(before, wram) !== 0)
+      toWram(game.memory, after);
+      if (Buffer.compare(before, after) !== 0)
         for (let at = 0; at < wram.length; at++)
-          if (before[at] !== wram[at]) pokes.push([k, at, wram[at]]);
+          if (before[at] !== after[at]) pokes.push([k, at, after[at]]);
       if (word !== last) pads.push([k, word]);
       last = word;
       return word;
@@ -124,7 +133,7 @@ export function attach(game, inputs = null) {
     loop.pad = (k) => {
       while (nextPoke < inputs.pokes.length && inputs.pokes[nextPoke][0] <= k) {
         const [, at, value] = inputs.pokes[nextPoke++];
-        game.memory.wram[at] = value;
+        game.memory.write8(WRAM + at, value);
       }
       while (nextPad < inputs.pads.length && inputs.pads[nextPad][0] <= k)
         word = inputs.pads[nextPad++][1];

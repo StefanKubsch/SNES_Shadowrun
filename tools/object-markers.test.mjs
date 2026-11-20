@@ -1,3 +1,4 @@
+import { readStateWord } from '../src/state/objects.mjs';
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
@@ -24,7 +25,7 @@ const title = (k) =>
     : k >= 3150 && k < 3154
       ? DOWN
       : 0;
-const word = (wram, at) => wram[at] | (wram[at + 1] << 8);
+const word = readStateWord;
 
 test('items and devices are marked, people, creatures and doors are not', () => {
   const memory = new VmMemory(cartridge.rom, undefined, null, cartridge.present);

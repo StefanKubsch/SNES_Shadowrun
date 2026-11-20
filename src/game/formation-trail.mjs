@@ -25,7 +25,7 @@ import {
   PLAYER_OBJECT,
 } from '../data/wram.mjs';
 import { BYTE_BITS, BYTE_MASK, WORD_MASK, WORD_SIGN } from '../constants/bits.mjs';
-import { OBJECT_FIELDS, isObjectSlot, objectWordIn } from '../state/objects.mjs';
+import { OBJECT_FIELDS, isObjectSlot, objectWordIn, readStateWord } from '../state/objects.mjs';
 
 const UNMOVED = WORD_MASK,
   LOW_WRAM_END = 0x2000;
@@ -40,7 +40,7 @@ function objectWord(wram, name, slot) {
   if (isObjectSlot(slot)) return objectWordIn(wram, name, slot);
   const at = (OBJECT_FIELDS[name] + slot) & WORD_MASK;
   if (at + 1 >= LOW_WRAM_END) taskStop('object_slot_required', { slot });
-  return word(wram, at);
+  return readStateWord(wram, at);
 }
 
 // Record a step of the player figure (80:BAD5). Game state only (user decision

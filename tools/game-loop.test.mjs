@@ -1,10 +1,11 @@
+import { toWram } from '../proof/state/to-wram.mjs';
 // Script VM lift phase 5 (docs/SCRIPT-VM-LIFT.md): the plain game loop.
 // Two live games run in lockstep from the reset with the same pad: A on the register-level
 // driver, interpreter, scheduler and native bridge with the task tables and heap in WRAM
 // (proof/script/register-level-loop.mjs), B on the plain game loop with its JS scheduler
 // (src/script/game-loop.mjs), followed by the conversion layer (proof/script/live-tasks.mjs).
 // At every NMI the WRAM, VRAM, CGRAM and OAM of both games must be equal: A's task bytes
-// against the projection of B's task state, the rest byte for byte outside the
+// against the projections of B's task and object state, the rest byte for byte outside the
 // interpreter's work bytes. B never reads or writes the original's task bytes.
 //
 // Routes: the benchmark route (title, menu, opening dialog, walking); the closed badge
@@ -74,7 +75,7 @@ const inside = (n, [start, end]) => n >= start && n < end;
 function snapshot(game, tasks = null) {
   const { ppu } = game.bus;
   return {
-    wram: game.memory.wram.slice(),
+    wram: toWram(game.memory),
     projection: tasks?.project() ?? null,
     ...Object.fromEntries(PPU_MEMORIES.map((key) => [key, ppu[key].slice()])),
   };

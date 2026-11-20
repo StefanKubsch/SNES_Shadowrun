@@ -2,6 +2,7 @@
 // map of a system, the objects on it (persona, gates, falling IC), the persona's
 // states and what A and B do on the node ahead. Positions are pixels; a map tile
 // is 16 pixels and the persona acts only on the tile grid.
+import { readStateByte } from '../state/objects.mjs';
 import { taskStop } from '../system/task-stop.mjs';
 import { protectedJakeHealth } from '../game/cheats.mjs';
 import {
@@ -784,7 +785,7 @@ export function useNodeAhead(m) {
     setWord(wram, MATRIX_FOUGHT_IC, tile);
     queueText(m, TEXT_COMBAT);
     const draw = m.random(COMBAT_RANGE);
-    if ((draw - (wram[DECKER_COMPUTER_SKILL] & BYTE_MASK)) & WORD_SIGN) {
+    if ((draw - (readStateByte(wram, DECKER_COMPUTER_SKILL) & BYTE_MASK)) & WORD_SIGN) {
       const direction = entryOf(word(wram, MATRIX_DIRECTION));
       addObject(
         m,

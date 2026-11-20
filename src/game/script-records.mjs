@@ -5,14 +5,15 @@
 // The nuyen are a 32-bit count, its low word first. An actor's entry in the actor table
 // (src/data/actors.mjs) points at its state record in WRAM (or 0 for none), whose holder
 // word names the object that holds the actor's item.
+import { readStateByte, writeStateByte } from '../state/objects.mjs';
 import { NUYEN } from '../data/wram.mjs';
 import { ACTOR_RECORD, ACTOR_TABLE, STATE_HOLDER } from '../data/actors.mjs';
 import { BYTE_BITS, BYTE_MASK, LONG_MASK } from '../constants/bits.mjs';
 
-const word = (wram, at) => wram[at] | (wram[at + 1] << BYTE_BITS);
+const word = (wram, at) => readStateByte(wram, at) | (readStateByte(wram, at + 1) << BYTE_BITS);
 const setWord = (wram, at, value) => {
-  wram[at] = value & BYTE_MASK;
-  wram[at + 1] = (value >>> BYTE_BITS) & BYTE_MASK;
+  writeStateByte(wram, at, value & BYTE_MASK);
+  writeStateByte(wram, at + 1, (value >>> BYTE_BITS) & BYTE_MASK);
 };
 
 // 80:CD20: pay amount nuyen if there are enough. Returns whether they were paid.

@@ -113,3 +113,29 @@ own commit after `npm run test:block` and the golden trace test. One shared
   (low mirror, raw WRAM, data bank or long address). Storage is still backed by WRAM;
   detaching it and defining the projection, including the matrix overlays and indirect
   address consumers, is the next phase step.
+
+- 2026-11-20, detached object storage: the normal LiveGame loop imports the initial
+  bytes once into independent Uint16Array fields. Raw proof fixtures and the injected
+  reference loop keep WRAM views. The product does not maintain a byte mirror of the
+  object arrays. [to-wram.mjs](../proof/state/to-wram.mjs) produces a separate,
+  side-effect-free projection for diagnostics and the golden state hashes.
+- A shared byte boundary in src/state/objects.mjs resolves the original aliases into
+  the detached fields. VmMemory, intro/title/OAM and matrix consumers use it; byte
+  writes retain their expression value, and odd words resolve each byte separately.
+  The matrix still uses its named legacy offsets through this boundary; its own
+  subsystem migration remains later in phase 3.
+- Two observed alias cases: formation-trail's FFFF slot reads the previous field's
+  bytes through its wrapped low address, and scene-load's resetScenePalettes writes
+  DMA setup to 7E:4340/4341 with data bank 7E, temporarily changing a collision field.
+  Both remain original behaviour. Nine focused storage tests cover isolation,
+  projection and restore, mirrors, odd words, FFFF, assignment chaining, these
+  overlays and activation in the shipped live loop.
+- Browser recording hashes and live plan drivers read the compatibility boundary.
+  Golden snapshots, HDMA cache keys and recorded pokes use the projection; replay
+  pokes use memory writes. Existing trace files stay unchanged.
+
+- Storage validation: all five golden traces unchanged; corrected comparison tests
+  30/30 and storage contracts 9/9. Both actual-browser checks passed with elevated
+  process access after managed-environment Page.enable timeouts before product
+  loading. No GPU setting or browser helper was changed. The exact startup
+  restriction remains undiagnosed.

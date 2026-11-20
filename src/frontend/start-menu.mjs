@@ -9,6 +9,7 @@
 // New game, Saved game and Options (and Credits in the port). B or Start chooses,
 // Up and Select or Down move; the menu times out as if cancelled. It returns the
 // save slot (FFFF: a new game) or FFFE (cancelled).
+import { readStateByte, writeStateByte, fillStateBytes } from '../state/objects.mjs';
 import { sceneFrames } from '../system/scene-frames.mjs';
 import { decodeOnce, tableEntries } from '../data/named-tables.mjs';
 import { taskStop } from '../system/task-stop.mjs';
@@ -240,10 +241,10 @@ const ANIMATIONS = 4,
   TITLE_STRIPE_BYTES = 0x80,
   DMA_CHANNEL_0 = 1;
 
-const word = (wram, at) => wram[at] | (wram[at + 1] << BYTE_BITS);
+const word = (wram, at) => readStateByte(wram, at) | (readStateByte(wram, at + 1) << BYTE_BITS);
 const setWord = (wram, at, value) => {
-  wram[at] = value & BYTE_MASK;
-  wram[at + 1] = (value >>> BYTE_BITS) & BYTE_MASK;
+  writeStateByte(wram, at, value & BYTE_MASK);
+  writeStateByte(wram, at + 1, (value >>> BYTE_BITS) & BYTE_MASK);
 };
 const readLongWord = (mem, at) =>
   mem.read8(at & LONG_MASK) | (mem.read8((at + 1) & LONG_MASK) << BYTE_BITS);
@@ -302,7 +303,7 @@ export function clearMenuTilemap(mem) {
     writeLongWord(mem, MENU_TILEMAP + at, MENU_TEXT_ATTRIBUTES);
   setWord(mem.wram, DP_MENU_TEXT_XOR, 0);
   drawMenuText(mem, COPYRIGHT_POSITION, TEXT_COPYRIGHT);
-  mem.wram.fill(0, MENU_ROW_DISABLED, MENU_ROW_DISABLED + MENU_ROW_DISABLED_BYTES);
+  fillStateBytes(mem.wram, 0, MENU_ROW_DISABLED, MENU_ROW_DISABLED + MENU_ROW_DISABLED_BYTES);
 }
 // The menu tilemap to VRAM (81:D59E).
 function sendMenuTilemap(video) {
@@ -481,7 +482,8 @@ export function handleStartMenuNmi(h) {
   const m = sceneRuntime(h),
     { mem, wram, video } = m,
     t = menuTables(mem);
-  let carry = wram[(word(wram, NMI_SAVED_STACK) + 1) & WORD_MASK] & FLAG_CARRY ? 1 : 0;
+  let carry =
+    readStateByte(wram, (word(wram, NMI_SAVED_STACK) + 1) & WORD_MASK) & FLAG_CARRY ? 1 : 0;
   video.copyToOam(WRAM + OAM_SHADOW, OAM_BYTES);
   sendMenuTilemap(video);
   video.write(CGADD, 0, 1);
@@ -553,7 +555,7 @@ export function fadeTitleColours(mem, step) {
 function showTitleObjects(m) {
   const { mem, wram, video } = m,
     t = menuTables(mem);
-  for (let n = 0; n < TITLE_OBJECT_BYTES; n++) wram[OAM_SHADOW + n] = t.objects(n);
+  for (let n = 0; n < TITLE_OBJECT_BYTES; n++) writeStateByte(wram, OAM_SHADOW + n, t.objects(n));
   setWord(wram, OAM_SHADOW_HIGH, TITLE_SPRITES_HIGH);
   for (let n = 0; n < ANIMATIONS; n++) setWord(wram, TITLE_ANIMATION_FRAMES + n * 2, 0);
   for (const n of TITLE_START_SOUNDS) m.sound(APU_COMMAND_SOUND_VOLUME, t.sounds(n));
@@ -561,7 +563,11 @@ function showTitleObjects(m) {
   video.write(OBJSEL, TITLE_OBJSEL, 1);
   video.write(TM, TITLE_LAYERS | LAYER_OBJ, 1);
   // An 8-bit INC: only the low byte of the frame counter counts.
-  wram[FRONTEND_FRAME_COUNTER] = (wram[FRONTEND_FRAME_COUNTER] + 1) & BYTE_MASK;
+  writeStateByte(
+    wram,
+    FRONTEND_FRAME_COUNTER,
+    (readStateByte(wram, FRONTEND_FRAME_COUNTER) + 1) & BYTE_MASK,
+  );
 }
 
 // 81:E14A: the start menu. h is the accessor of the native call from the title

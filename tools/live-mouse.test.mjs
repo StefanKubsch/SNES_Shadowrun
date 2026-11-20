@@ -1,3 +1,4 @@
+import { toWram } from '../proof/state/to-wram.mjs';
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { cartridge } from './cartridge-harness.mjs';
@@ -134,14 +135,14 @@ test('mouse and back key drive menus and the glove', { timeout: 900000 }, () => 
   input.mouse = { seq: 5, x: 120, y: 60 };
   after(3);
   assert.ok(word(0x01da) & 0x8000, 'object released outside');
-  const jake = wram.slice(0x0e00, 0x1000);
+  const jake = toWram(game.memory).slice(0x0e00, 0x1000);
   input.word = input.keyDirections = R;
   after(4);
   assert.equal(word(OPEN), 0, 'closed by the keyboard direction');
   after(40);
   input.word = input.keyDirections = 0;
   after(10);
-  assert.notDeepEqual(wram.slice(0x0e00, 0x1000), jake, 'Jake moved');
+  assert.notDeepEqual(toWram(game.memory).slice(0x0e00, 0x1000), jake, 'Jake moved');
   assert.equal(word(OPEN), 0, 'no reopening without a new mouse move');
   // Esc closes an open glove in free play.
   input.mouse = { seq: 6, x: 100, y: 100 };

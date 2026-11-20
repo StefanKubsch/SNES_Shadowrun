@@ -20,7 +20,8 @@ import {
   MOUSE_Y_SHIFT,
 } from './shared-input.mjs';
 import { toBase64, fromBase64 } from './save-file.mjs';
-import { fnv1a } from '../data/fnv.mjs';
+import { FNV_OFFSET } from '../data/fnv.mjs';
+import { readStateByte } from '../state/objects.mjs';
 import { gameplaySettings, ORIGINAL_GAMEPLAY } from '../game/bugfixes.mjs';
 import {
   DEBUG_ROOM_EVENT,
@@ -54,7 +55,8 @@ const EVENTS = new Map([
   ...LANGUAGES.map((code) => [languageEvent(code), (game) => game.setLanguage(code)]),
 ]);
 const RECORDING_FORMAT = 'shadowrun-recording-1',
-  CHECK_EVERY = 1000;
+  CHECK_EVERY = 1000,
+  FNV_PRIME = 0x01000193;
 export const unpackInput = (word, keys, mouse, buttons, wheel) => ({
   word,
   keyDirections: keys & DIRECTIONS,
@@ -70,7 +72,12 @@ export const unpackInput = (word, keys, mouse, buttons, wheel) => ({
   wheel,
 });
 // FNV-1a over the WRAM.
-export const wramHash = fnv1a;
+export function wramHash(wram) {
+  let h = FNV_OFFSET;
+  for (let at = 0; at < wram.length; at++)
+    h = Math.imul(h ^ readStateByte(wram, at), FNV_PRIME) >>> 0;
+  return h;
+}
 
 export class Recorder {
   constructor(seed, sram, gameplay = ORIGINAL_GAMEPLAY, language = ENGLISH) {

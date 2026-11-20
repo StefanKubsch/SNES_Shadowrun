@@ -1,6 +1,7 @@
 // Shared runtime of the lifted matrix (docs/MATRIX-LIFT.md): plain word access to
 // the game state in WRAM, reads of the cartridge tables, the VRAM transfer queue
 // the matrix NMI sends, and the video, hardware, sound and random interfaces.
+import { readStateByte, writeStateByte } from '../state/objects.mjs';
 import { sceneRuntime } from '../system/scene-runtime.mjs';
 import { matrixTables } from './matrix-tables.mjs';
 import {
@@ -21,10 +22,11 @@ const WRAM_START = 0x7e0000,
 
 // Words of the game state. at is a WRAM offset: 0-1FFF for the low RAM that bank 81
 // addresses directly, 7E:xxxx and 7F:xxxx minus WRAM_START otherwise.
-export const word = (wram, at) => wram[at] | (wram[at + 1] << BYTE_BITS);
+export const word = (wram, at) =>
+  readStateByte(wram, at) | (readStateByte(wram, at + 1) << BYTE_BITS);
 export const setWord = (wram, at, value) => {
-  wram[at] = value & BYTE_MASK;
-  wram[at + 1] = (value >>> BYTE_BITS) & BYTE_MASK;
+  writeStateByte(wram, at, value & BYTE_MASK);
+  writeStateByte(wram, at + 1, (value >>> BYTE_BITS) & BYTE_MASK);
 };
 export const wramOffset = (address) => address - WRAM_START;
 
@@ -42,8 +44,8 @@ export const setLongWord = (mem, address, value) => {
 export function queueVramCopy(wram, bytes, source, address) {
   const at = word(wram, MATRIX_DMA_END);
   setWord(wram, DMA_RECORD_COUNT + at, bytes);
-  wram[DMA_RECORD_VMAINC + at] = VMAINC_INCREMENT_AFTER_HIGH;
-  wram[DMA_RECORD_BANK + at] = source >>> WORD_BITS;
+  writeStateByte(wram, DMA_RECORD_VMAINC + at, VMAINC_INCREMENT_AFTER_HIGH);
+  writeStateByte(wram, DMA_RECORD_BANK + at, source >>> WORD_BITS);
   setWord(wram, DMA_RECORD_SOURCE + at, source & WORD_MASK);
   setWord(wram, DMA_RECORD_VRAM + at, address);
   setWord(wram, DMA_RECORD_COUNT + DMA_RECORD_BYTES + at, 0);
@@ -57,9 +59,10 @@ export function sendVramCopies(wram, video) {
     video.copyToVram(() => {
       transfer.bytes = word(wram, DMA_RECORD_COUNT + at);
       if (transfer.bytes === 0) return null;
-      transfer.increment = wram[DMA_RECORD_VMAINC + at];
+      transfer.increment = readStateByte(wram, DMA_RECORD_VMAINC + at);
       transfer.source =
-        (wram[DMA_RECORD_BANK + at] << WORD_BITS) | word(wram, DMA_RECORD_SOURCE + at);
+        (readStateByte(wram, DMA_RECORD_BANK + at) << WORD_BITS) |
+        word(wram, DMA_RECORD_SOURCE + at);
       transfer.address = word(wram, DMA_RECORD_VRAM + at);
       at += DMA_RECORD_BYTES;
       return transfer;

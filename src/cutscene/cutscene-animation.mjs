@@ -7,6 +7,7 @@
 // The scene state lives in the direct page, where the NMI callback 81:D479 reads
 // it: BG1 scroll (14), BG2 speed (16), its step (18) and target (1A), the BG2
 // position (1C, scroll times 128) and the scene (1E, negative: mirrored).
+import { readStateByte, writeStateByte } from '../state/objects.mjs';
 import { taskStop } from '../system/task-stop.mjs';
 import { decodeOnce, tableEntries } from '../data/named-tables.mjs';
 import {
@@ -170,10 +171,10 @@ const PICTURE_ROWS = 0x1e,
   ROW_MIRROR = 0x3e,
   PICTURE_BYTES = 0x780;
 
-const word = (wram, at) => wram[at] | (wram[at + 1] << BYTE_BITS);
+const word = (wram, at) => readStateByte(wram, at) | (readStateByte(wram, at + 1) << BYTE_BITS);
 const setWord = (wram, at, value) => {
-  wram[at] = value & BYTE_MASK;
-  wram[at + 1] = (value >>> BYTE_BITS) & BYTE_MASK;
+  writeStateByte(wram, at, value & BYTE_MASK);
+  writeStateByte(wram, at + 1, (value >>> BYTE_BITS) & BYTE_MASK);
 };
 const longWord = (mem, address) => mem.read8(address) | (mem.read8(address + 1) << BYTE_BITS);
 const setLongWord = (mem, address, value) => {
@@ -370,11 +371,15 @@ function animateLineScroll(m) {
 function drawPortrait(m) {
   const { wram, video } = m;
   let offset = word(wram, SCENE_ARGUMENT_MOVED);
-  if (wram[SCENE_ANIMATION_STEP] !== PORTRAIT_STEPS) {
+  if (readStateByte(wram, SCENE_ANIMATION_STEP) !== PORTRAIT_STEPS) {
     // Only the low byte of the argument replaces the offset.
-    offset = (offset & ~BYTE_MASK) | wram[SCENE_ARGUMENT];
-    wram[SCENE_ANIMATION_STEP] = (wram[SCENE_ANIMATION_STEP] + 1) & BYTE_MASK;
-    video.write(BG2VOFS, wram[SCENE_COUNTER], 1);
+    offset = (offset & ~BYTE_MASK) | readStateByte(wram, SCENE_ARGUMENT);
+    writeStateByte(
+      wram,
+      SCENE_ANIMATION_STEP,
+      (readStateByte(wram, SCENE_ANIMATION_STEP) + 1) & BYTE_MASK,
+    );
+    video.write(BG2VOFS, readStateByte(wram, SCENE_COUNTER), 1);
     video.write(BG2VOFS, 0, 1);
   }
   // Three times the offset (the shift's carry included), in 1/256.

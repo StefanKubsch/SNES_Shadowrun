@@ -10,6 +10,7 @@
 // The title pan draws both lists from intro_frames, scrolled by a quarter (near) and
 // an eighth (far) of the title position, and adds objects when the frame counter
 // reaches the times of its event lists.
+import { readStateByte, writeStateByte, fillStateBytes } from '../state/objects.mjs';
 import { taskStop } from '../system/task-stop.mjs';
 import { decodeOnce, tableEntries } from '../data/named-tables.mjs';
 import { readJoypad } from '../system/joypad.mjs';
@@ -101,10 +102,10 @@ const SPAWN_FRAMES = 0x64,
   DEPARTURE_FRAME = 0x46,
   FAR_FRACTION_SLOT = 1;
 
-const word = (wram, at) => wram[at] | (wram[at + 1] << BYTE_BITS);
+const word = (wram, at) => readStateByte(wram, at) | (readStateByte(wram, at + 1) << BYTE_BITS);
 const setWord = (wram, at, value) => {
-  wram[at] = value & BYTE_MASK;
-  wram[at + 1] = (value >>> BYTE_BITS) & BYTE_MASK;
+  writeStateByte(wram, at, value & BYTE_MASK);
+  writeStateByte(wram, at + 1, (value >>> BYTE_BITS) & BYTE_MASK);
 };
 const swap = (value) => ((value << BYTE_BITS) | (value >>> BYTE_BITS)) & WORD_MASK;
 // The words of a slot: near slots 0-7, far slots 8-15.
@@ -215,12 +216,15 @@ export function drawSpriteGrid(m, picture, x, y, attributes, at) {
       name = (name + 1) & WORD_MASK;
       if (column >>> BYTE_BITS) {
         const object = (at & BYTE_MASK) / OAM_ENTRY_BYTES;
-        wram[OAM_SHADOW_HIGH + Math.floor(object / HIGH_TABLE_SLOTS)] |= t.oamXBits(
-          object % HIGH_TABLE_SLOTS,
+        writeStateByte(
+          wram,
+          OAM_SHADOW_HIGH + Math.floor(object / HIGH_TABLE_SLOTS),
+          readStateByte(wram, OAM_SHADOW_HIGH + Math.floor(object / HIGH_TABLE_SLOTS)) |
+            t.oamXBits(object % HIGH_TABLE_SLOTS),
         );
       }
-      wram[OAM_SHADOW + at] = column & BYTE_MASK;
-      wram[OAM_SHADOW + at + 1] = top & BYTE_MASK;
+      writeStateByte(wram, OAM_SHADOW + at, column & BYTE_MASK);
+      writeStateByte(wram, OAM_SHADOW + at + 1, top & BYTE_MASK);
       at += OAM_ENTRY_BYTES;
       column = (column + TILE_SIZE) & WORD_MASK;
       count = (count - 1) & WORD_MASK;
@@ -239,7 +243,7 @@ export function drawIntroObjects(m) {
   const { wram, video } = m,
     t = introTables(m.mem);
   video.copyToOam(WRAM + OAM_SHADOW, OAM_BYTES);
-  wram.fill(0, OAM_SHADOW_HIGH, OAM_SHADOW_HIGH + OAM_HIGH_TABLE_BYTES);
+  fillStateBytes(wram, 0, OAM_SHADOW_HIGH, OAM_SHADOW_HIGH + OAM_HIGH_TABLE_BYTES);
   const animate = (word(wram, FRONTEND_FRAME_COUNTER) & ANIMATION_PERIOD_MASK) === 0;
   let at = 0;
   for (let slot = DRAWN_SLOTS - 1; slot >= 0; slot--) {
@@ -374,7 +378,7 @@ function runPanEvents(m, events, event, add) {
 export function drawPanObjects(m, position) {
   const { wram } = m,
     t = introTables(m.mem);
-  wram.fill(0, OAM_SHADOW_HIGH, OAM_SHADOW_HIGH + OAM_HIGH_TABLE_BYTES);
+  fillStateBytes(wram, 0, OAM_SHADOW_HIGH, OAM_SHADOW_HIGH + OAM_HIGH_TABLE_BYTES);
   let at = drawPanList(
     m,
     t,

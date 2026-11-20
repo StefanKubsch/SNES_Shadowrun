@@ -1,3 +1,8 @@
+import { GameLoop } from '../src/script/game-loop.mjs';
+import { FRONTEND_ROUTINES } from '../src/system/main-frontend.mjs';
+import { nativeOpcodeTargets } from '../src/data/native-opcode-targets.mjs';
+import { nativeTarget } from '../src/script/native-targets.mjs';
+import { toWram } from '../proof/state/to-wram.mjs';
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { LiveGame } from '../src/video/live-game.mjs';
@@ -20,6 +25,16 @@ import { MainLoopContinuation, MAIN_LOOP_ROUND } from '../src/vm/main-loop.mjs';
 import { MAIN_LOOP_EXIT, MAIN_LOOP_RELOAD, NMI_SAVED_A } from '../src/data/wram.mjs';
 import { ROUND } from '../src/script/natives.mjs';
 
+// Inject the same JS loop explicitly for the frozen reference side. LiveGame keeps
+// its reference WRAM views for injected loops; the shipped default owns detached fields.
+const referenceLoop = (game) =>
+  new GameLoop(game.vm, {
+    devices: game.devices,
+    routines: FRONTEND_ROUTINES,
+    admitted: nativeOpcodeTargets,
+    implementation: nativeTarget,
+  });
+
 // The same JS scheduler and devices on both sides isolate caller composition.
 // Game state only (user decision 2026-11-17): the lifted side keeps no register values
 // and no stack-kept values, so A, X, Y, P, S, the CPU stacks (main 7E:0100-01C9, NMI
@@ -32,7 +47,7 @@ const CPU_STACKS = [
 function snapshot(game) {
   const { ppu } = game.bus,
     { a, x, y, status, s, ...context } = game.loop.accessor.ctx,
-    wram = game.memory.wram.slice();
+    wram = toWram(game.memory);
   for (const [from, to] of CPU_STACKS) wram.fill(0, from, to);
   return {
     context,
@@ -127,6 +142,7 @@ for (const budget of [1, 7])
           let driver,
             resumeAt = null;
           const game = new LiveGame(cartridge, {
+            ...(side === 0 ? { loop: referenceLoop } : {}),
             sram: loadSave('apartment'),
             pad: (k) => {
               if (resumeAt !== null) return (k - resumeAt) % 40 < 6 ? 0x8000 : 0;

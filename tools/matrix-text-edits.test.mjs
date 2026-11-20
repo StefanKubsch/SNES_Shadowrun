@@ -1,3 +1,4 @@
+import { toWram, restoreWram } from '../proof/state/to-wram.mjs';
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
@@ -328,7 +329,7 @@ test('empty overrides finish cleanly and structured stream snapshots retain a pa
   enqueue(first, 0x81c5c0);
   invoke(first, 0x81b2d1);
   const second = gameFor(edited);
-  second.memory.wram.set(first.memory.wram);
+  restoreWram(second.memory, toWram(first.memory));
   second.memory.matrixTextState = structuredClone(first.memory.matrixTextState);
   assert.deepEqual(drain(second), drain(first));
 });

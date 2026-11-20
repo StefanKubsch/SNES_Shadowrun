@@ -12,6 +12,13 @@
 // bytes and are not reproduced (game state only). The direct page words the original uses
 // as locals (the member index 26; the actor flags 20, record 23 and the actors left
 // 29) are written as in the original: the Mesen oracle compares them.
+import {
+  readStateByte,
+  writeStateByte,
+  objectWordIn,
+  setObjectWordIn,
+  setLowObjectWord,
+} from '../state/objects.mjs';
 import { sceneRuntime } from '../system/scene-runtime.mjs';
 import { taskStop } from '../system/task-stop.mjs';
 import { createObjectCall } from './object-create.mjs';
@@ -44,7 +51,6 @@ import {
 import { ROOM_HEADER_ACTOR_COUNT } from '../data/rooms.mjs';
 import { RUNNER_LAST_INDEX, RUNNER_OBJECT_NUMBERS } from '../data/runners.mjs';
 import { BYTE_BITS, BYTE_MASK, WORD_BITS, WORD_MASK, WORD_SIGN } from '../constants/bits.mjs';
-import { objectWordIn, setObjectWordIn, setLowObjectWord } from '../state/objects.mjs';
 
 const NONE = WORD_MASK,
   LONG_MASK = 0xffffff,
@@ -83,10 +89,10 @@ const DEPTH_FRONT_SHIFT = 9,
 // The runner armour is read at four times the runner's word index.
 const ARMOUR_INDEX_SHIFT = 2;
 
-const word = (wram, at) => wram[at] | (wram[at + 1] << BYTE_BITS);
+const word = (wram, at) => readStateByte(wram, at) | (readStateByte(wram, at + 1) << BYTE_BITS);
 const setWord = (wram, at, value) => {
-  wram[at] = value & BYTE_MASK;
-  wram[at + 1] = (value >>> BYTE_BITS) & BYTE_MASK;
+  writeStateByte(wram, at, value & BYTE_MASK);
+  writeStateByte(wram, at + 1, (value >>> BYTE_BITS) & BYTE_MASK);
 };
 const readWord = (mem, at) =>
   mem.read8(at & LONG_MASK) | (mem.read8((at + 1) & LONG_MASK) << BYTE_BITS);
@@ -143,11 +149,11 @@ export function* createGroupSequence(h) {
       setObjectWordIn(wram, 'depthOrder', slot, depthOrder(mem.read8(ACTOR_TABLE + number)));
       setObjectWordIn(wram, 'record', slot, readWord(mem, ACTOR_TABLE + ACTOR_RECORD + number));
       const index = runnerIndex(mem, number),
-        armour = wram[RUNNER_ARMOUR_RATING + (index << ARMOUR_INDEX_SHIFT)];
+        armour = readStateByte(wram, RUNNER_ARMOUR_RATING + (index << ARMOUR_INDEX_SHIFT));
       setObjectWordIn(wram, 'armour', slot, armour);
       if (kind !== JAKE_KIND)
         setObjectWordIn(wram, 'flags', slot, objectWordIn(wram, 'flags', slot) | OBJECT_CLASS_MASK);
-      else if (wram[JAKE_DERMAL_ARMOUR])
+      else if (readStateByte(wram, JAKE_DERMAL_ARMOUR))
         setObjectWordIn(wram, 'armour', slot, armour + DERMAL_ARMOUR_BONUS);
       setWord(wram, GROUP_SLOTS + member, slot);
     };
@@ -159,7 +165,7 @@ export function* createGroupSequence(h) {
 // of the room lists behind the actors in direct page word 9A.
 export function* placeRoomActorsSequence(h) {
   const { mem, wram } = sceneRuntime(h),
-    header = (wram[DP_ROOM_HEADER + 2] << WORD_BITS) | word(wram, DP_ROOM_HEADER),
+    header = (readStateByte(wram, DP_ROOM_HEADER + 2) << WORD_BITS) | word(wram, DP_ROOM_HEADER),
     count = mem.read8((header + ROOM_HEADER_ACTOR_COUNT) & LONG_MASK);
   let offset = ROOM_HEADER_ACTOR_COUNT + 1;
   if (count) yield () => setWord(wram, DP_ACTORS_LEFT, count);

@@ -11,6 +11,7 @@
 // the WRAM content at power-on is not defined; the boot does not clear it
 // completely, and different content changes Jake's posture from the morgue
 // onwards (assumption, reversible). SRAM is the saved game (8 KiB or empty).
+import { detachObjectStorage } from '../state/objects.mjs';
 import { VmMemory, VmFault, SRAM_SIZE, SRAM_SIZE_FOUR_SLOTS, WRAM_SIZE } from '../vm/memory.mjs';
 import { CGDATA, OAMDATA, VMDATAH, VMDATAL } from '../constants/hardware-registers.mjs';
 import { INIDISP_FORCED_BLANK } from '../constants/ppu.mjs';
@@ -83,6 +84,7 @@ export class LiveGame {
       cart = new Uint8Array(size);
     if (sram) cart.set(sram.subarray(0, size));
     this.memory = new VmMemory(rom, new Uint8Array(WRAM_SIZE), cart, present);
+    if (loop === gameLoop) detachObjectStorage(this.memory.wram);
     this.memory.textEdits = cartridge.textEdits ?? null;
     if (settings.fourSaveSlots) installPortExtension(this.memory);
     // Text language (src/data/language.mjs): languages maps a code to buildLanguage's result.

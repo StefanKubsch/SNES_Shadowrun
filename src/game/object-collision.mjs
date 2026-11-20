@@ -19,8 +19,8 @@
 // Each test takes the object's slot and returns { height, free } (free when the height
 // is 0); the height test stops after the first cell with a height. The box and the
 // running result are locals; the original's direct page words for them are not kept.
+import { readStateByte, objectIndex, objectTable } from '../state/objects.mjs';
 import { taskStop } from '../system/task-stop.mjs';
-import { objectIndex, objectTable } from '../state/objects.mjs';
 import {
   CELL_COORDINATE_MASK,
   COLLISION_BOX_BOTTOM,
@@ -53,7 +53,7 @@ const POSITION_SHIFT = 2,
   WRAM_SIZE = 0x20000,
   WRAM_BANK = 0x7e0000;
 
-const word = (wram, at) => wram[at] | (wram[at + 1] << BYTE_BITS);
+const word = (wram, at) => readStateByte(wram, at) | (readStateByte(wram, at + 1) << BYTE_BITS);
 // The object word of a box (a long read in bank 7F, which must stay in WRAM).
 const boxObject = (wram, box) => {
   const at = COLLISION_BOX_OBJECT - WRAM_BANK + (box >>> BOX_OBJECT_SHIFT);

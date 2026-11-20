@@ -20,6 +20,7 @@
 // with data bank 7E below its JSL frame and data bank byte, as the original. The
 // direct page words the original uses are written as in the original; the Mesen
 // oracle compares them.
+import { writeStateByte } from '../state/objects.mjs';
 import { sceneRuntime } from '../system/scene-runtime.mjs';
 import { UNPACK_7F, unpackLong } from '../system/unpack.mjs';
 import { resetScenePalettes } from './game-screen.mjs';
@@ -854,7 +855,7 @@ export function* loadSceneSequence(h, scene) {
     resetTileStacks(wram);
     // The original runs 81:8CB9 with data bank 7E: its DMA channel set-up lands in
     // WRAM at the register addresses (7E:4340 and 7E:4341), not in the hardware.
-    resetScenePalettes(wram, { write: (address, value) => (wram[address] = value) });
+    resetScenePalettes(wram, { write: (address, value) => writeStateByte(wram, address, value) });
     clearSceneLayers(wram);
     placeGridBlocks(mem, wram);
     clearWallMap(wram);
