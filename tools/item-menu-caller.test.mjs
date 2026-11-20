@@ -5,10 +5,14 @@ import {
   configureMemberPortrait,
   configureScriptVisit,
 } from './member-menu-caller-harness.mjs';
-import * as directItem from '../src/game/item-menu.mjs';
+import * as liftedItem from '../src/game/item-menu.mjs';
+import { itemMenuJsr, useItemJsr } from '../proof/caller/jsr-forms.mjs';
 import * as formerItem from '../proof/caller/item-menu.mjs';
 import { equipmentRowsSequence } from '../proof/caller/equipment-window.mjs';
 import * as W from '../src/data/wram.mjs';
+
+// The lifted module with its RTS forms (proof/caller/jsr-forms.mjs), named as the former.
+const directItem = { ...liftedItem, itemMenuSequence: itemMenuJsr, useItemSequence: useItemJsr };
 import { runResetWindowList } from '../proof/caller/window-list.mjs';
 import { createObject } from '../proof/script/native-object-create.mjs';
 import { tasksOf } from '../src/script/task-api.mjs';

@@ -1,6 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import * as direct from '../src/game/member-portrait.mjs';
+import * as liftedPortrait from '../src/game/member-portrait.mjs';
+import { memberPortraitJsr } from '../proof/caller/jsr-forms.mjs';
 import * as former from '../proof/caller/member-portrait.mjs';
 import * as upload from '../proof/caller/portrait-upload.mjs';
 import { unpackPortraitRoutine } from '../proof/caller/portrait-routines.mjs';
@@ -23,6 +24,9 @@ import {
   TMW_SHADOW,
 } from '../src/data/wram.mjs';
 import { shiftPortraitRowsJsr } from '../proof/caller/jsr-forms.mjs';
+
+// The lifted module with its RTS forms (proof/caller/jsr-forms.mjs), named as the former.
+const direct = { ...liftedPortrait, memberPortraitSequence: memberPortraitJsr };
 
 function run(module, member, jobs, shadow, budget) {
   const side = textWindowSide(),

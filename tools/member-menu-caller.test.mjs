@@ -30,10 +30,14 @@ for (const budget of [1, 7])
         }
       });
 
-import * as directMember from '../src/game/member-spell-menu.mjs';
+import * as liftedMember from '../src/game/member-spell-menu.mjs';
+import { spellMenuJsr } from '../proof/caller/jsr-forms.mjs';
 import * as formerMember from '../proof/caller/member-spell-menu.mjs';
 import { equipmentRowsSequence } from '../proof/caller/equipment-window.mjs';
 import * as W from '../src/data/wram.mjs';
+
+// The lifted module with its RTS forms (proof/caller/jsr-forms.mjs), named as the former.
+const directMember = { ...liftedMember, spellMenuSequence: spellMenuJsr };
 import { runResetWindowList } from '../proof/caller/window-list.mjs';
 import { tasksOf } from '../src/script/task-api.mjs';
 import { appendScriptTaskCall } from '../proof/caller/task-append-call.mjs';

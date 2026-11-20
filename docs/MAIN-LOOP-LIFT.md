@@ -946,8 +946,9 @@ which the render proof of 81:8076 keeps using.
   DP 00's runner looked up, the record pointer DP F9 at its skills, then 80:E693 with
   the known spells after Exit in a window menu; a leader's choice selects the spell,
   another member's appends and visits its script as a nested round, then redraws and
-  waits as the script asks) runs `openSpellMenuSequence` and `spellMenuSequence` of
-  [src/game/member-spell-menu.mjs](../src/game/member-spell-menu.mjs) with the lifted
+  waits as the script asks) runs `openSpellMenuSequence` and `spellMenu` of
+  [src/game/member-spell-menu.mjs](../src/game/member-spell-menu.mjs) (RTS form
+  `spellMenuJsr` in proof/caller/jsr-forms.mjs) with the lifted
   window, plain menu, releases and equipment rows 80:E9C5 (below); the script append
   and visit stay register-level; the window list 81:AEB0, the key wait 80:F953 and the
   portrait 80:E4B3 runs
@@ -1005,8 +1006,9 @@ which the render proof of 81:8076 keeps using.
 - The member portrait 80:E4B3 (the dialog's portrait record unpacked and uploaded, the
   second portrait channel 80:E48D with its HDMA words and one more NMI job, then the
   colour window 80:E433 on HDMA channel 0 opening over eleven frames with the edges of
-  80:E41F) runs `memberPortraitSequence` of
-  [src/game/member-portrait.mjs](../src/game/member-portrait.mjs), composed directly by
+  80:E41F) runs `memberPortrait` of
+  [src/game/member-portrait.mjs](../src/game/member-portrait.mjs) (RTS form
+  `memberPortraitJsr` in proof/caller/jsr-forms.mjs), composed directly by
   the spell menu, with the lifted word wait and (since block 79) the dialog's
   lifted unpack 80:9F6D, row shift 80:8F20, first upload 80:9022 and DMA job 80:8FF5 of
   [src/game/portrait-upload.mjs](../src/game/portrait-upload.mjs), which keep the
@@ -1040,8 +1042,9 @@ which the render proof of 81:8076 keeps using.
   with a numbered menu 80:A6AD, rebuilt after each use) and the item use 80:E4F3 (the
   actor's object created at a quarter of the member's position with its depth flags,
   its task visited as a nested round, then portrait, key and equipment rows) run
-  `itemMenuSequence` and `useItemSequence` of
-  [src/game/item-menu.mjs](../src/game/item-menu.mjs) in the player control's status
+  `itemMenu` and `useItem` of
+  [src/game/item-menu.mjs](../src/game/item-menu.mjs) (RTS forms `itemMenuJsr` and
+  `useItemJsr` in proof/caller/jsr-forms.mjs) in the player control's status
   screen, with the lifted window, releases, portrait, equipment rows, numbered menu
   80:A6AD, redraw 80:FA67, key wait 80:F953, object creation 80:A835 and window list
   81:AEB0; the visit 80:C1CA stays register-level. The

@@ -122,13 +122,6 @@ const setWord = (wram, at, value) => {
 const longWord = (mem, at) =>
   mem.read8(at & LONG_MASK) | (mem.read8((at + 1) & LONG_MASK) << BYTE_BITS);
 const negative = (value) => (value & WORD_SIGN) !== 0;
-function* returnSequence(h) {
-  let result;
-  yield () => {
-    result = h.rts();
-  };
-  return result;
-}
 // Six times a kind (twice, then four times that added with the shift's carry), as an
 // index into the kinds' table.
 function kindIndex(kind) {
@@ -244,11 +237,6 @@ export function* itemMenu(h, events, entry, renderBuffer = drawTextBufferSequenc
   yield () => setWord(wram, 0, dataBankWord(mem, STATUS_SUBMENU_WINDOW));
   yield* releaseWindowSequence(h, events);
 }
-// The item submenu as called with JSR; returns with its RTS.
-export function* itemMenuSequence(h, events, entry, renderBuffer = drawTextBufferSequence) {
-  yield* itemMenu(h, events, entry, renderBuffer);
-  return yield* returnSequence(h);
-}
 
 // 80:E4F3: use the item of the actor (X in the original; see above), without the JSR
 // frame; the object creation 80:A835 runs without one as well, the script visit keeps
@@ -312,9 +300,4 @@ export function* useItem(h, events, renderBuffer, actor) {
     yield* releaseNoticeWindowsSequence(h, events);
   }
   yield* equipmentRows(h, events, renderBuffer);
-}
-// The item use as called with JSR (80:E4F3); returns with its RTS.
-export function* useItemSequence(h, events, renderBuffer, actor) {
-  yield* useItem(h, events, renderBuffer, actor);
-  return yield* returnSequence(h);
 }

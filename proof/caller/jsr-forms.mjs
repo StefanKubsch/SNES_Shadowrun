@@ -38,6 +38,9 @@ import { saveMenu } from '../../src/game/main-menu.mjs';
 import { equipmentRows } from '../../src/game/equipment-window.mjs';
 import { partyStatus } from '../../src/game/party-status.mjs';
 import { notes, skills } from '../../src/game/status-submenus.mjs';
+import { itemMenu, useItem } from '../../src/game/item-menu.mjs';
+import { spellMenu } from '../../src/game/member-spell-menu.mjs';
+import { memberPortrait } from '../../src/game/member-portrait.mjs';
 
 function* rts(h) {
   let result;
@@ -281,5 +284,34 @@ export function* notesJsr(h, events, renderBuffer = drawTextBufferSequence) {
 // The skills as called with JSR (80:E834); return with their RTS.
 export function* skillsJsr(h, events, renderBuffer = drawTextBufferSequence) {
   yield* skills(h, events, renderBuffer);
+  return yield* rts(h);
+}
+
+// The item submenu as called with JSR; returns with its RTS.
+export function* itemMenuJsr(h, events, entry, renderBuffer = drawTextBufferSequence) {
+  yield* itemMenu(h, events, entry, renderBuffer);
+  return yield* rts(h);
+}
+
+// The item use as called with JSR (80:E4F3); returns with its RTS.
+export function* useItemJsr(h, events, renderBuffer, actor) {
+  yield* useItem(h, events, renderBuffer, actor);
+  return yield* rts(h);
+}
+
+// The spell menu as called with JSR; returns with its RTS.
+export function* spellMenuJsr(
+  h,
+  events,
+  entry, // undefined: the menu entry 80:E693
+  renderBuffer = drawTextBufferSequence,
+) {
+  yield* spellMenu(h, events, entry, renderBuffer);
+  return yield* rts(h);
+}
+
+// The portrait as called with JSR (80:E4B3); returns with its RTS.
+export function* memberPortraitJsr(h, events) {
+  yield* memberPortrait(h, events);
   return yield* rts(h);
 }

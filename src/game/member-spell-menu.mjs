@@ -293,16 +293,6 @@ export function* spellMenu(h, events, entry = MENU_ENTRY, renderBuffer = drawTex
   };
   if (equipment) yield* equipmentRows(h, events, renderBuffer);
 }
-// The spell menu as called with JSR; returns with its RTS.
-export function* spellMenuSequence(
-  h,
-  events,
-  entry = MENU_ENTRY,
-  renderBuffer = drawTextBufferSequence,
-) {
-  yield* spellMenu(h, events, entry, renderBuffer);
-  return yield* returnSequence(h);
-}
 
 // 80:F254: the spell menu of the object DP 00 (see above). A sequence that ends with the
 // native's RTS.

@@ -121,20 +121,8 @@ export function* memberPortrait(h, events) {
   yield* secondChannel(h, events);
   yield* colourWindow(h, events);
 }
-// The portrait as called with JSR (80:E4B3); returns with its RTS.
-export function* memberPortraitSequence(h, events) {
-  yield* memberPortrait(h, events);
-  return yield* returnSequence(h);
-}
 
 // The RTS that ends a sequence.
-function* returnSequence(h) {
-  let result;
-  yield () => {
-    result = h.rts();
-  };
-  return result;
-}
 
 // 80:E48D: the second portrait channel and one more NMI job (81:A954), without the JSR
 // frame; the tile upload keeps its own.
