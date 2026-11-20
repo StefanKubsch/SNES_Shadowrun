@@ -98,19 +98,21 @@ raiseMemberMagicPointsInPlace (the karma menu's body list and leader top-up); th
 sound command and music change (sendApuCommandInPlace, setMusicModeInPlace) without
 their JSL frames; clearFixedColourInPlace, setWindowTextWidthInPlace and
 shiftPortraitRowsInPlace (the dialog, status screen and portrait setup);
-buildSpritesInPlace (the dialog close); reloadObjectTiles with its per-object
-request (the dialog close; the frame wait keeps its JSL frame); the member
-portrait's second channel and colour window; openPortraitWindow and
-closePortraitWindow (the dialog's portrait window); uploadFirstPortrait and
-uploadSecondPortrait; skills and notes (status screen submenus); itemMenu and
-useItem with its object creation (the item submenu; the script visit keeps its
-frame); spellMenu (the status screen's spell submenu and the spell menu native
-80:F254), so the status screen's submenu dispatch JSR ECEA keeps no frame;
-decimalNumber (Jake's money on the status screen); saveMenu (the main menu's save
-row); karmaMenu with karmaList and buyStep (the main menu's karma row);
-resetWindowList (the item use's, spell menu's and glove choices' list redraw; the list's own JSL
-keeps its frame); talk (the glove action's dialog); objectSearch (the glove move's
-search); gloveMove (the glove choices' frames; the word wait keeps its frame); putting the glove on (80:BC67 and 80:BC99 with 80:BC36, both frames); the window release, the glove, the notice windows' release and the name
+buildSpritesInPlace (the dialog close); reloadObjectTiles with its per-object request
+(the dialog close; the frame wait keeps its JSL frame); the member portrait's second
+channel and colour window; openPortraitWindow and closePortraitWindow (the dialog's
+portrait window); uploadFirstPortrait and uploadSecondPortrait; skills and notes
+(status screen submenus); itemMenu and useItem with its object creation (the item
+submenu; the script visit keeps its frame); spellMenu (the status screen's spell
+submenu and the spell menu native 80:F254), so the status screen's submenu dispatch
+JSR ECEA keeps no frame; decimalNumber (Jake's money on the status screen); saveMenu
+(the main menu's save row); karmaMenu with karmaList and buyStep (the main menu's
+karma row); resetWindowList (the item use's, spell menu's and glove choices' list
+redraw; the list's own JSL keeps its frame); talk (the glove action's dialog);
+objectSearch (the glove move's search); gloveMove (the glove choices' frames; the
+word wait keeps its frame); putting the glove on (80:BC67 and 80:BC99 with 80:BC36,
+both frames); the in-reach choice 80:9C40 (its callers 80:9BC6 and the script's
+80:9C33); the window release, the glove, the notice windows' release and the name
 window release already had one. The player control selects animations and turns
 through the plain functions of [object-turn.mjs](../src/game/object-turn.mjs). The
 unused call sites go with the frames. Frames stay where a callee's own wait or a

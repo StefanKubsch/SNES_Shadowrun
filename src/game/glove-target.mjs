@@ -89,36 +89,24 @@ const POSITION_SHIFT = 2;
 // The call sites of 80:8D0B.
 const UNDER_GLOVE = {
   wait: 0x808d0e,
-  awayChosen: 0x808d29,
-  awayNone: 0x808d33,
 };
 // The call sites of 80:9C40 and its callers.
 const SELECT = {
     wait: 0x809c43,
-    awayChosen: 0x809cc5,
-    awayNone: 0x809ccf,
   },
-  SELECT_ENTRY = 0x809c40,
-  NUMBER_SELECT = 0x809bc6,
   NUMBER_ENTRY = 0x809bc6,
   SCRIPT_NUMBER_SELECT = 0x809bbf,
-  SCRIPT_SELECT = 0x809c39,
   PREPARE_LIST = 0x81aeb8,
   PREPARE_UPLOAD = 0x81aebc;
 // The call sites of 80:9BD3.
 const SPELL = {
   prepareList: 0x809bdb,
   wait: 0x809be2,
-  redrawChosen: 0x809c06,
-  awayChosen: 0x809c11,
-  awayNone: 0x809c1b,
-  redrawNone: 0x809c23,
 };
 // The call sites of 80:C724.
 const PLACE = {
   prepareList: 0x80c733,
   wait: 0x80c73a,
-  putAway: 0x80c798,
 };
 // The place choice's screen pixels of the glove (its position words shifted right six
 // times) in the direct page, and the bases of its projection back onto the floor.
@@ -288,44 +276,42 @@ function* returnSequence(h) {
   return result;
 }
 
-// 80:9C40 at its call site pc: choose an object in reach with the action glove; DP 00
-// gets its slot or FFFF.
-function* chooseInReachSequence(h, events, renderBuffer, pc) {
-  yield* dialogCallBody(h, pc, SELECT_ENTRY, function* () {
-    const { wram } = h.a.mem,
-      sites = SELECT;
-    yield () => putGloveOn(h, GLOVE_LIMITS.action);
-    yield* gloveFramesSequence(h, events, renderBuffer, sites.wait);
-    let target, far;
+// 80:9C40 without the JSR frame of its callers 80:9BC6 and 80:9C33 (the return word
+// lies only in free stack bytes; the word wait keeps its frame): choose an object in
+// reach with the action glove; DP 00 gets its slot or FFFF.
+function* chooseInReach(h, events, renderBuffer) {
+  const { wram } = h.a.mem,
+    sites = SELECT;
+  yield () => putGloveOn(h, GLOVE_LIMITS.action);
+  yield* gloveFramesSequence(h, events, renderBuffer, sites.wait);
+  let target, far;
+  yield () => {
+    target = gloveTarget(wram);
+    if (target === null) return;
+    far = outOfReach(h, target);
+    if (far) prepareOutOfReachNotice(h);
+  };
+  if (target !== null && far) yield* showNotice(h, events);
+  if (target !== null && !far) {
+    yield* redrawUnlessMenuSequence(h, events);
+    let chosen;
     yield () => {
-      target = gloveTarget(wram);
-      if (target === null) return;
-      far = outOfReach(h, target);
-      if (far) prepareOutOfReachNotice(h);
+      chosen = word(wram, GLOVE_TARGET_OBJECT);
     };
-    if (target !== null && far) yield* showNotice(h, events);
-    if (target !== null && !far) {
-      yield* redrawUnlessMenuSequence(h, events);
-      let chosen;
-      yield () => {
-        chosen = word(wram, GLOVE_TARGET_OBJECT);
-      };
-      yield* putGloveAwaySequence(h, events);
-      yield () => setResult(h, chosen);
-      yield* segmentSequence(() => takePad(h, events));
-    } else {
-      yield* putGloveAwaySequence(h, events);
-      yield* redrawUnlessMenuSequence(h, events);
-      yield () => setResult(h, NO_CHOICE);
-      yield* segmentSequence(() => takePad(h, events));
-    }
-    return yield* returnSequence(h);
-  });
+    yield* putGloveAwaySequence(h, events);
+    yield () => setResult(h, chosen);
+    yield* segmentSequence(() => takePad(h, events));
+  } else {
+    yield* putGloveAwaySequence(h, events);
+    yield* redrawUnlessMenuSequence(h, events);
+    yield () => setResult(h, NO_CHOICE);
+    yield* segmentSequence(() => takePad(h, events));
+  }
 }
 // 80:9BC6 without its RTS: the chosen slot becomes the object's number in DP 00 (FFFF
 // stays).
 function* chooseNumberBodySequence(h, events, renderBuffer) {
-  yield* chooseInReachSequence(h, events, renderBuffer, NUMBER_SELECT);
+  yield* chooseInReach(h, events, renderBuffer);
   yield () => {
     const { mem } = h.a,
       slot = word(mem.wram, 0);
@@ -360,9 +346,7 @@ export function* scriptChooseObjectNumberSequence(
 }
 // 80:9C33: 80:9C40 (the slot) as the script's choice.
 export function* scriptChooseObjectSequence(h, events, renderBuffer = drawTextBufferSequence) {
-  return yield* scriptChoiceSequence(h, () =>
-    chooseInReachSequence(h, events, renderBuffer, SCRIPT_SELECT),
-  );
+  return yield* scriptChoiceSequence(h, () => chooseInReach(h, events, renderBuffer));
 }
 
 // 81:AEB8 at its call site: the window list prepared (the window map unpacked 81:A9B2,
