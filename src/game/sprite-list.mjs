@@ -13,7 +13,7 @@
 //
 // The sort (src/game/depth-sort.mjs) and the palette slots (src/game/palette-slots.mjs)
 // are lifted, and so are the OAM entries (src/game/object-sprites.mjs), which run through
-// their frames. The frames of the fill and the job count are reproduced on the stack;
+// their frames. The fill runs without its frame; the job count's frame is reproduced;
 // the job count's frame covers the bytes of the data bank 7E the original sets through
 // the stack for the hidden sprites. The list position the original pushes over each
 // OAM entry call lies only in free stack bytes and is kept in a local (game state only,
@@ -61,8 +61,6 @@ const SORT_CALL = 0xb8de,
   SORT_TARGET = 0x80affc,
   PALETTES_CALL = 0xb8e1,
   PALETTES_TARGET = 0x81a840,
-  HIGH_CALL = 0xb8e5,
-  HIGH_TARGET = 0x81a7fc,
   PLAYER_PALETTE_CALL = 0xb8f1,
   PALETTE_TARGET = 0x80ab0a,
   OAM_CALL = 0xb911,
@@ -87,16 +85,10 @@ export function buildSpritesInPlace(h) {
   const { wram } = h.a.mem;
   h.call(SORT_CALL, SORT_TARGET, () => sortDrawList(h));
   h.call(PALETTES_CALL, PALETTES_TARGET, () => resetPaletteSlots(h), true);
-  h.call(
-    HIGH_CALL,
-    HIGH_TARGET,
-    () => {
-      for (let at = 0; at < OAM_HIGH_TABLE_BYTES; at += 2)
-        setWord(wram, OAM_HIGH_TABLE + at, OAM_HIGH_ALL_LARGE);
-      return h.rtl();
-    },
-    true,
-  );
+  // The OAM high table fill 81:A7FC, without its JSL frame (the return word lies only
+  // in free stack bytes).
+  for (let at = 0; at < OAM_HIGH_TABLE_BYTES; at += 2)
+    setWord(wram, OAM_HIGH_TABLE + at, OAM_HIGH_ALL_LARGE);
   const player = word(wram, PLAYER_OBJECT);
   if (!(player & WORD_SIGN)) {
     const palette = lowField(wram, OBJECT_PALETTE, player);
