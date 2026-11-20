@@ -155,6 +155,8 @@ export function compareDialog(
     referenceLimit = 1_000_000,
     registers = CPU_REGISTERS,
     freeStack = false,
+    // Half-open WRAM ranges of direct page locals the lifted side no longer writes.
+    scratch = [],
   },
 ) {
   s.waits ??= [];
@@ -207,7 +209,9 @@ export function compareDialog(
       differences.push(
         `${key} native ${n.acc.ctx[key].toString(16)} original ${r.acc.ctx[key].toString(16)}`,
       );
-  const free = (i) => freeStack && i >= FREE_STACK_FLOOR && i <= r.acc.ctx.s;
+  const free = (i) =>
+    (freeStack && i >= FREE_STACK_FLOOR && i <= r.acc.ctx.s) ||
+    scratch.some(([from, to]) => i >= from && i < to);
   for (let i = 0; i < n.mem.wram.length; i++)
     if (n.mem.wram[i] !== r.mem.wram[i] && !free(i)) {
       differences.push(

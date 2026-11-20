@@ -1,6 +1,6 @@
-// The collision tests of an object's movement (lifted from 80:80B2, 80:8133, 80:81B4,
-// 80:8238 and 80:82BC with their cell search 81:86E5, the static list 81:85FE and the
-// moving list 81:8686; register-level reference in proof/replay/main-motion-collision.mjs).
+// The collision tests of an object's movement (from 80:80B2, 80:8133, 80:81B4, 80:8238
+// and 80:82BC with their cell search 81:86E5, the static list 81:85FE and the moving
+// list 81:8686; register-level reference in proof/replay/main-motion-collision.mjs).
 //
 // An object's collision box in quarter units is its position divided by 4 plus its box
 // offsets (lowest and highest x and y), from its height divided by 4 (bottom) up by its
@@ -16,20 +16,11 @@
 // box's bottom up), else nothing. Among the moving boxes, the object's own box is
 // ignored, and the player figure's box by a searching object of class 3.
 //
-// The tests take the object's slot as a parameter and return the height (free when it
-// is 0); the height test stops after the first cell with a height. They leave no
-// registers (user decision 2026-11-17). The register forms searchUpperXEdge and the
-// others (proof/caller/object-collision.mjs), for register-level callers, take the slot
-// in X and leave the height in A with
-// the carry set when it is 0 (the height test: the carry of its last cell search or
-// cell comparison), X the slot, Y and the data bank as on entry, and the sign and zero
-// of the height (of the slot after the height test); the overflow of the original's
-// last addition or subtraction is not produced. The direct page words the original uses
-// as locals are written as in the original (box 11 to 20, cell columns and rows 23 to
-// 2C, cells 2F to 38, result 3B, slot 3E and box offset 68). The tests take the WRAM
-// and run as plain functions: the original's call frames, its saved data bank and the
-// list walks' pushes lie only in free stack bytes that nothing reads.
+// Each test takes the object's slot and returns { height, free } (free when the height
+// is 0); the height test stops after the first cell with a height. The box and the
+// running result are locals; the original's direct page words for them are not kept.
 import { taskStop } from '../system/task-stop.mjs';
+import { objectIndex, objectTable } from '../state/objects.mjs';
 import {
   CELL_COORDINATE_MASK,
   COLLISION_BOX_BOTTOM,
@@ -42,20 +33,11 @@ import {
   COLLISION_CELL_HEADS,
   COLLISION_NODE_BOX,
   COLLISION_NODE_NEXT,
-  OBJECT_BOX_HEIGHT,
-  OBJECT_BOX_X1,
-  OBJECT_BOX_X2,
-  OBJECT_BOX_Y1,
-  OBJECT_BOX_Y2,
   OBJECT_CLASS_MASK,
-  OBJECT_FLAGS,
-  OBJECT_HEIGHT,
-  OBJECT_X,
-  OBJECT_Y,
   PLAYER_OBJECT,
   STATIC_CELL_HEADS,
 } from '../data/wram.mjs';
-import { BYTE_BITS, BYTE_MASK, WORD_MASK, WORD_SIGN } from '../constants/bits.mjs';
+import { BYTE_BITS, WORD_MASK, WORD_SIGN } from '../constants/bits.mjs';
 
 const POSITION_SHIFT = 2,
   // A cell column from the masked x (ASL three times, then XBA), a cell row from the
@@ -70,30 +52,8 @@ const POSITION_SHIFT = 2,
   SPECIAL_CLASS_HEIGHT = 0x40,
   WRAM_SIZE = 0x20000,
   WRAM_BANK = 0x7e0000;
-// Direct page locals of the original.
-const DP_X0 = 0x11,
-  DP_X1 = 0x14,
-  DP_Y0 = 0x17,
-  DP_Y1 = 0x1a,
-  DP_BOTTOM = 0x1d,
-  DP_TOP = 0x20,
-  DP_COLUMN_X0 = 0x23,
-  DP_COLUMN_X1 = 0x26,
-  DP_ROW_Y0 = 0x29,
-  DP_ROW_Y1 = 0x2c,
-  DP_CELL_X1_Y0 = 0x2f,
-  DP_CELL_X0_Y1 = 0x32,
-  DP_CELL_X1_Y1 = 0x35,
-  DP_CELL_X0_Y0 = 0x38,
-  DP_RESULT = 0x3b,
-  DP_SEARCHER = 0x3e,
-  DP_BOX = 0x68;
 
-const word = (wram, at) => wram[at % WRAM_SIZE] | (wram[(at + 1) % WRAM_SIZE] << BYTE_BITS);
-const setWord = (wram, at, value) => {
-  wram[at % WRAM_SIZE] = value & BYTE_MASK;
-  wram[(at + 1) % WRAM_SIZE] = (value >>> BYTE_BITS) & BYTE_MASK;
-};
+const word = (wram, at) => wram[at] | (wram[at + 1] << BYTE_BITS);
 // The object word of a box (a long read in bank 7F, which must stay in WRAM).
 const boxObject = (wram, box) => {
   const at = COLLISION_BOX_OBJECT - WRAM_BANK + (box >>> BOX_OBJECT_SHIFT);
@@ -101,224 +61,125 @@ const boxObject = (wram, box) => {
   return word(wram, at);
 };
 
-// One cell search (81:86E5) on the state of a test (wram and the searching slot): the
-// static list, then the moving list. True when no height was found (the carry it
-// leaves).
-function searchCell(test, cell) {
-  const { wram } = test;
-  const first = word(wram, STATIC_CELL_HEADS + cell);
-  if (!(first & WORD_SIGN)) searchList(test, first, true);
-  const moving = word(wram, COLLISION_CELL_HEADS + cell);
-  if (!(moving & WORD_SIGN)) searchList(test, moving, false);
-  return word(wram, DP_RESULT) === 0;
-}
-
 // The height a box offers the searching object (its top above the object's bottom), or
 // null when the box does not overlap the object's box or offers no more than the result.
 function offeredHeight(test, box) {
-  const { wram } = test,
-    field = (base) => word(wram, base + box),
-    dp = (at) => word(wram, at);
-  if (dp(DP_X1) < field(COLLISION_BOX_X0) || field(COLLISION_BOX_X1) < dp(DP_X0)) return null;
-  if (dp(DP_Y1) < field(COLLISION_BOX_Y0) || field(COLLISION_BOX_Y1) < dp(DP_Y0)) return null;
-  if (dp(DP_TOP) < field(COLLISION_BOX_BOTTOM)) return null;
+  const { wram, box: own } = test,
+    field = (base) => word(wram, base + box);
+  if (own.x1 < field(COLLISION_BOX_X0) || field(COLLISION_BOX_X1) < own.x0) return null;
+  if (own.y1 < field(COLLISION_BOX_Y0) || field(COLLISION_BOX_Y1) < own.y0) return null;
+  if (own.top < field(COLLISION_BOX_BOTTOM)) return null;
   const top = field(COLLISION_BOX_TOP),
-    bottom = dp(DP_BOTTOM),
-    height = (top - bottom) & WORD_MASK;
-  if (top < bottom || height < dp(DP_RESULT)) return null;
+    height = (top - own.bottom) & WORD_MASK;
+  if (top < own.bottom || height < test.result) return null;
   return height;
 }
 
 // The searching object's centre inside a static box from its bottom up (81:8652).
 function centreInside(test, box) {
-  const { wram, slot } = test,
+  const { wram, objects, i } = test,
     field = (base) => word(wram, base + box),
-    x = word(wram, OBJECT_X + slot) >>> POSITION_SHIFT,
-    y = word(wram, OBJECT_Y + slot) >>> POSITION_SHIFT;
+    x = objects.x[i] >>> POSITION_SHIFT,
+    y = objects.y[i] >>> POSITION_SHIFT;
   return (
     x >= field(COLLISION_BOX_X0) &&
     x < field(COLLISION_BOX_X1) &&
     y >= field(COLLISION_BOX_Y0) &&
     y < field(COLLISION_BOX_Y1) &&
-    word(wram, DP_BOTTOM) >= field(COLLISION_BOX_BOTTOM)
+    test.box.bottom >= field(COLLISION_BOX_BOTTOM)
   );
 }
 
 // One list of a cell from node on: the static boxes (81:85FE) or the moving ones
 // (81:8686).
 function searchList(test, node, isStatic) {
-  const { wram, slot } = test,
-    searcherClass = () => word(wram, OBJECT_FLAGS + slot) & OBJECT_CLASS_MASK;
+  const { wram, slot, objects, i } = test,
+    special = () => (objects.flags[i] & OBJECT_CLASS_MASK) === SPECIAL_CLASS;
   for (; !(node & WORD_SIGN); node = word(wram, COLLISION_NODE_NEXT + node)) {
     const box = word(wram, COLLISION_NODE_BOX + node),
       height = offeredHeight(test, box);
     if (height === null) continue;
     if (isStatic) {
-      setWord(wram, DP_BOX, box);
-      if (!boxObject(wram, box)) setWord(wram, DP_RESULT, height);
-      else if (searcherClass() === SPECIAL_CLASS && centreInside(test, box))
-        setWord(wram, DP_RESULT, SPECIAL_CLASS_HEIGHT);
+      if (!boxObject(wram, box)) test.result = height;
+      else if (special() && centreInside(test, box)) test.result = SPECIAL_CLASS_HEIGHT;
       continue;
     }
     const object = boxObject(wram, box);
     if (object === slot) continue;
-    if (object !== word(wram, PLAYER_OBJECT) || searcherClass() !== SPECIAL_CLASS)
-      setWord(wram, DP_RESULT, height);
+    if (object !== word(wram, PLAYER_OBJECT) || !special()) test.result = height;
   }
 }
 
-// The box of slot in quarter units: lowest and highest x and y, bottom and top, and the
-// cell columns and rows of its edges.
-function objectBox(wram, slot) {
-  const x = word(wram, OBJECT_X + slot) >>> POSITION_SHIFT,
-    y = word(wram, OBJECT_Y + slot) >>> POSITION_SHIFT,
-    bottom = word(wram, OBJECT_HEIGHT + slot) >>> POSITION_SHIFT,
-    boxHeight = word(wram, OBJECT_BOX_HEIGHT + slot),
-    offset = (base) => word(wram, base + slot),
+// One cell search (81:86E5): the static list, then the moving list. True when no
+// height was found so far.
+function searchCell(test, cell) {
+  const { wram } = test;
+  const first = word(wram, STATIC_CELL_HEADS + cell);
+  if (!(first & WORD_SIGN)) searchList(test, first, true);
+  const moving = word(wram, COLLISION_CELL_HEADS + cell);
+  if (!(moving & WORD_SIGN)) searchList(test, moving, false);
+  return test.result === 0;
+}
+
+// The box of an object in quarter units: lowest and highest x and y, bottom and top,
+// and the grid cells of its four corners.
+function objectBox(objects, i) {
+  const x = objects.x[i] >>> POSITION_SHIFT,
+    y = objects.y[i] >>> POSITION_SHIFT,
+    bottom = objects.height[i] >>> POSITION_SHIFT,
     add = (a, b) => (a + b) & WORD_MASK,
     column = (v) => (v & CELL_COORDINATE_MASK) >>> COLUMN_SHIFT,
     row = (v) => (v & CELL_COORDINATE_MASK) >>> ROW_SHIFT;
   const box = {
-    top: add(bottom, boxHeight),
-    x0: add(x, offset(OBJECT_BOX_X1)),
-    x1: add(x, offset(OBJECT_BOX_X2)),
-    y0: add(y, offset(OBJECT_BOX_Y1)),
-    y1: add(y, offset(OBJECT_BOX_Y2)),
+    x0: add(x, objects.boxX1[i]),
+    x1: add(x, objects.boxX2[i]),
+    y0: add(y, objects.boxY1[i]),
+    y1: add(y, objects.boxY2[i]),
     bottom,
+    top: add(bottom, objects.boxHeight[i]),
   };
-  box.columnX0 = column(box.x0);
-  box.columnX1 = column(box.x1);
-  box.rowY0 = row(box.y0);
-  box.rowY1 = row(box.y1);
+  const columnX0 = column(box.x0),
+    columnX1 = column(box.x1),
+    rowY0 = row(box.y0),
+    rowY1 = row(box.y1);
+  box.cellX0Y0 = rowY0 | columnX0;
+  box.cellX1Y0 = rowY0 | columnX1;
+  box.cellX0Y1 = rowY1 | columnX0;
+  box.cellX1Y1 = rowY1 | columnX1;
   return box;
 }
 
-// The common start of a test: slot, bottom and top.
 function beginTest(wram, slot) {
-  const box = objectBox(wram, slot);
-  setWord(wram, DP_SEARCHER, slot);
-  setWord(wram, DP_RESULT, 0);
-  setWord(wram, DP_BOTTOM, box.bottom);
-  setWord(wram, DP_TOP, box.top);
-  return { wram, slot, box };
+  const objects = objectTable(wram),
+    i = objectIndex(slot);
+  return { wram, slot, objects, i, box: objectBox(objects, i), result: 0 };
 }
-// Write the box words in the order of a test.
-function writeBox(test, words) {
-  for (const [at, value] of words) setWord(test.wram, at, value);
-}
-// The end of a test: the height and whether it is free.
-const finishTest = (test, free) => ({ height: word(test.wram, DP_RESULT), free });
+const finish = (test) => ({ height: test.result, free: test.result === 0 });
 
-// An edge test: write the box words, search the cell first and then second unless equal.
-function edgeTest(wram, slot, words, [first, second]) {
+// An edge test: search the first cell, then the second unless it is the same.
+function edgeTest(wram, slot, first, second) {
   const test = beginTest(wram, slot);
-  writeBox(test, words(test.box));
-  searchCell(test, first(test.box));
-  if (second(test.box) !== first(test.box)) searchCell(test, second(test.box));
-  return finishTest(test, word(test.wram, DP_RESULT) === 0);
+  searchCell(test, test.box[first]);
+  if (test.box[second] !== test.box[first]) searchCell(test, test.box[second]);
+  return finish(test);
 }
-const cell = (row, column) => (box) => box[row] | box[column];
 
 // Upper x edge (80:80B2): the cells of the highest x.
-export const upperXEdge = (wram, slot) =>
-  edgeTest(
-    wram,
-    slot,
-    (b) => [
-      [DP_X0, b.x0],
-      [DP_X1, b.x1],
-      [DP_COLUMN_X1, b.columnX1],
-      [DP_Y0, b.y0],
-      [DP_ROW_Y0, b.rowY0],
-      [DP_CELL_X1_Y0, b.rowY0 | b.columnX1],
-      [DP_Y1, b.y1],
-      [DP_ROW_Y1, b.rowY1],
-      [DP_CELL_X1_Y1, b.rowY1 | b.columnX1],
-    ],
-    [cell('rowY1', 'columnX1'), cell('rowY0', 'columnX1')],
-  );
+export const upperXEdge = (wram, slot) => edgeTest(wram, slot, 'cellX1Y1', 'cellX1Y0');
 // Lower x edge (80:8133): the cells of the lowest x.
-export const lowerXEdge = (wram, slot) =>
-  edgeTest(
-    wram,
-    slot,
-    (b) => [
-      [DP_X1, b.x1],
-      [DP_X0, b.x0],
-      [DP_COLUMN_X0, b.columnX0],
-      [DP_Y0, b.y0],
-      [DP_ROW_Y0, b.rowY0],
-      [DP_CELL_X0_Y0, b.rowY0 | b.columnX0],
-      [DP_Y1, b.y1],
-      [DP_ROW_Y1, b.rowY1],
-      [DP_CELL_X0_Y1, b.rowY1 | b.columnX0],
-    ],
-    [cell('rowY1', 'columnX0'), cell('rowY0', 'columnX0')],
-  );
+export const lowerXEdge = (wram, slot) => edgeTest(wram, slot, 'cellX0Y1', 'cellX0Y0');
 // Upper y edge (80:81B4): the cells of the highest y.
-export const upperYEdge = (wram, slot) =>
-  edgeTest(
-    wram,
-    slot,
-    (b) => [
-      [DP_Y0, b.y0],
-      [DP_Y1, b.y1],
-      [DP_ROW_Y1, b.rowY1],
-      [DP_X0, b.x0],
-      [DP_COLUMN_X0, b.columnX0],
-      [DP_CELL_X0_Y1, b.rowY1 | b.columnX0],
-      [DP_X1, b.x1],
-      [DP_COLUMN_X1, b.columnX1],
-      [DP_CELL_X1_Y1, b.rowY1 | b.columnX1],
-    ],
-    [cell('rowY1', 'columnX1'), cell('rowY1', 'columnX0')],
-  );
+export const upperYEdge = (wram, slot) => edgeTest(wram, slot, 'cellX1Y1', 'cellX0Y1');
 // Lower y edge (80:8238): the cells of the lowest y.
-export const lowerYEdge = (wram, slot) =>
-  edgeTest(
-    wram,
-    slot,
-    (b) => [
-      [DP_Y1, b.y1],
-      [DP_Y0, b.y0],
-      [DP_ROW_Y0, b.rowY0],
-      [DP_X0, b.x0],
-      [DP_COLUMN_X0, b.columnX0],
-      [DP_CELL_X0_Y0, b.rowY0 | b.columnX0],
-      [DP_X1, b.x1],
-      [DP_COLUMN_X1, b.columnX1],
-      [DP_CELL_X1_Y0, b.rowY0 | b.columnX1],
-    ],
-    [cell('rowY0', 'columnX1'), cell('rowY0', 'columnX0')],
-  );
+export const lowerYEdge = (wram, slot) => edgeTest(wram, slot, 'cellX1Y0', 'cellX0Y0');
 
 // Height test (80:82BC): the four corner cells, each distinct one once, until a cell
-// offers a height. The carry is that of the last search (a cell equal to an earlier one
-// is skipped with the carry its CPY sets, which the search before it set already).
+// offers a height.
 export function heightCells(wram, slot) {
   const test = beginTest(wram, slot),
     b = test.box,
-    c00 = b.rowY0 | b.columnX0,
-    c10 = b.rowY0 | b.columnX1,
-    c11 = b.rowY1 | b.columnX1,
-    c01 = b.rowY1 | b.columnX0;
-  writeBox(test, [
-    [DP_Y1, b.y1],
-    [DP_ROW_Y1, b.rowY1],
-    [DP_Y0, b.y0],
-    [DP_ROW_Y0, b.rowY0],
-    [DP_X0, b.x0],
-    [DP_COLUMN_X0, b.columnX0],
-    [DP_CELL_X0_Y0, c00],
-    [DP_X1, b.x1],
-    [DP_COLUMN_X1, b.columnX1],
-    [DP_CELL_X1_Y0, c10],
-    [DP_CELL_X1_Y1, c11],
-    [DP_CELL_X0_Y1, c01],
-  ]);
-  const cells = [c01, c00, c10, c11];
-  let free = true;
-  for (let n = 0; n < cells.length && free; n++)
-    if (!cells.slice(0, n).includes(cells[n])) free = searchCell(test, cells[n]);
-  return finishTest(test, free);
+    cells = [b.cellX0Y1, b.cellX0Y0, b.cellX1Y0, b.cellX1Y1];
+  for (let n = 0; n < cells.length; n++)
+    if (!cells.slice(0, n).includes(cells[n]) && !searchCell(test, cells[n])) break;
+  return finish(test);
 }

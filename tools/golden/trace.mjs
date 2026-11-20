@@ -25,6 +25,9 @@ export const SCRATCH = Object.freeze([
   [0x0089, 0x008c],
   [0x008f, 0x009a],
   [0x00db, 0x00f3],
+  // A direct page local word of several routines (the move's old coordinate, sprite,
+  // palette and scene scratch), each writing it before reading it.
+  [0x006b, 0x006d],
   [0x0100, 0x01ca],
   [0x1c78, 0x1cbc],
 ]);
@@ -132,13 +135,15 @@ export function attach(game, inputs = null) {
       return inputs.counter[nextCounter++];
     };
   }
-  const onNmi = loop.onNmi;
+  const onNmi = loop.onNmi,
+    collector = { frames, snapshots, pads, pokes, counter, firstNmi: null };
   loop.onNmi = (k) => {
     onNmi?.(k);
+    collector.firstNmi ??= k;
     frames.push(...frameHashes(game, state, cache));
     if (k % SNAPSHOT_EVERY === 0) snapshots.push([k, gzipSync(gameState(game)).toString('base64')]);
   };
-  return { frames, snapshots, pads, pokes, counter };
+  return collector;
 }
 
 // Records a scenario. scenario.record(cartridge, hook) runs it to its end and calls
@@ -212,7 +217,7 @@ export function replayScenario(scenario, cartridge, trace = readTrace(scenario.n
             (_, c) => collector.frames[at + c] !== trace.frames[at + c],
           );
         if (differing.length) {
-          difference = { nmi: checked + 1, categories: differing };
+          difference = { nmi: collector.firstNmi + checked, categories: differing };
           break;
         }
       }
@@ -221,16 +226,23 @@ export function replayScenario(scenario, cartridge, trace = readTrace(scenario.n
     difference = { nmi: game.nmis, error: error.message };
   }
   if (difference?.categories?.includes('state')) {
-    // Run on to the next snapshot and name the addresses.
+    // Run on to the next snapshot and name the addresses, taken at that very NMI (a step
+    // can run past it).
     const next = [...snapshots.keys()].find((k) => k >= difference.nmi);
-    if (next !== undefined)
-      try {
-        while (game.nmis < next) game.step();
+    if (next !== undefined) {
+      const onNmi = game.frames.onNmi;
+      game.frames.onNmi = (k) => {
+        onNmi(k);
+        if (k !== next) return;
         difference.snapshot = next;
         difference.addresses = stateDifferences(snapshots.get(next), gameState(game));
+      };
+      try {
+        while (!difference.snapshot) game.step();
       } catch (error) {
         difference.snapshotError = error.message;
       }
+    }
   }
   if (!difference && collector.frames.length / width < recorded)
     difference = { nmi: game.nmis, error: 'ended early' };

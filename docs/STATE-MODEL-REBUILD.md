@@ -85,3 +85,21 @@ own commit after `npm run test:block` and the golden trace test. One shared
   projection's named fields.
 - Scenario coverage is finite. A path no trace reaches keeps its existing
   differential test until a trace covers it.
+
+## Progress
+
+- 2026-11-20, phase 1: golden traces recorded (tools/golden/, five scenarios).
+- 2026-11-20, phase 2 started: [src/state/objects.mjs](../src/state/objects.mjs) names
+  the object fields (position, velocity, height, diagonal, flags, collision box, motion
+  target) as arrays indexed by entry; for now they are views onto the original WRAM
+  arrays. The move ([object-move.mjs](../src/game/object-move.mjs)) and the collision
+  tests ([object-collision.mjs](../src/game/object-collision.mjs)) use them and keep
+  their box, result and old coordinate in locals instead of direct page words.
+- Finding: direct page 7E:006B-006C is a local word of several routines (the move, the
+  sprites, palette slots, scene objects), each writing it before reading it; it joined
+  the golden SCRATCH list. Poisoning the whole direct page every frame is not possible:
+  it also holds state across frames (the NMI callback pointer) and locals live across
+  blocking waits, so scratch is decided per routine, with the golden traces as the
+  check.
+- record.mjs keeps inputs, picture, video, audio and SRAM of an existing trace unless
+  `--accept` is given, so a longer SCRATCH list is recorded again without risk.

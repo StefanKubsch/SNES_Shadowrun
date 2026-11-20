@@ -37,6 +37,14 @@ import '../proof/system/dialog-register-helpers.mjs';
 import { runFormationStep } from '../proof/caller/live-loop-routines.mjs';
 
 const TURN_STUB_RETURN = 0x1234;
+// Direct page locals the lifted collision tests and move keep in JS (the box and result
+// words 11 to 3F, the box offset 68 and the move's old coordinate 6B,
+// docs/STATE-MODEL-REBUILD.md).
+const COLLISION_SCRATCH = [
+  [0x11, 0x40],
+  [0x68, 0x6a],
+  [0x6b, 0x6d],
+];
 const functions = [
   testUpperXEdge,
   testLowerXEdge,
@@ -237,6 +245,7 @@ for (const [kind, list] of [
               : {}),
             // Lifted tests push no caller Y: only the free stack differs.
             freeStack: Boolean(kind),
+            scratch: kind && i < 5 ? COLLISION_SCRATCH : [],
           });
           assert.deepEqual(result.differences, [], `seed ${seed}`);
           for (const pc of result.visited) covered.add(pc);
@@ -280,9 +289,9 @@ test('BAD5 formation history matches every original instruction, including uncha
 
 // The register-level equations and retained former pass (proof/caller/object-motion.mjs).
 // Actual direct movement and animation composition is compared in motion-caller.test.mjs.
-for (const [name, run] of [
-  ['AFC4', moveAndAnimateObjects],
-  ['former lifted AFC4', runObjectMotion],
+for (const [name, run, scratch] of [
+  ['AFC4', moveAndAnimateObjects, []],
+  ['former lifted AFC4', runObjectMotion, COLLISION_SCRATCH],
 ])
   test(`${name} combines grid, all six bound motion helpers and animation with real nested frames`, () => {
     const spec = mainMovementGraphSpec,
@@ -334,6 +343,7 @@ for (const [name, run] of [
             [0x80ac2f, () => animation(dialogAccess(acc))],
           ]),
         freeStack: true,
+        scratch,
       });
       assert.deepEqual(result.differences, [], `seed ${seed}`);
       for (const pc of result.visited) covered.add(pc);
