@@ -14,7 +14,6 @@ import {
   mainLoopPlayerZonesSequence,
   runCameraFollow,
   runColourEffect,
-  runFormationStep,
   runTileBuffers,
   runPaletteCycles,
   runObjectMotion,
@@ -23,6 +22,7 @@ import {
 } from '../game/main-upkeep.mjs';
 import { sceneRequestSequence } from '../game/scene-request.mjs';
 import { shakeHitPlayer } from '../game/player-hit.mjs';
+import { recordFormationStep } from '../game/formation-trail.mjs';
 import { lagFree } from '../system/main-wait-interrupt.mjs';
 import {
   NativeCallContinuation,
@@ -41,7 +41,6 @@ const CALL_PC = Object.freeze({
   GATE_8000: MAIN_LOOP_RESUME,
   CC4B: 0x96c8,
   AFC4: 0x96d0,
-  BAD5: 0x96d3,
   CAMERA_8C2E: 0x96d6,
   CAMERA_8A91: 0x96da,
   SPRITES_B8DE: 0x96de,
@@ -79,7 +78,7 @@ export function* mainLoopSequence(a, events, returnToOwner = false) {
   if (request.taken) return yield* top();
   yield () => shakeHitPlayer(wram);
   yield* call(CALL_PC.AFC4, 0x80afc4, once(runObjectMotion));
-  yield* call(CALL_PC.BAD5, 0x80bad5, once(runFormationStep));
+  yield () => recordFormationStep(wram);
   yield* call(CALL_PC.CAMERA_8C2E, 0x818c2e, once(runCameraFollow), true);
   yield* call(CALL_PC.CAMERA_8A91, 0x818a91, once(runTileBuffers), true);
   yield* call(CALL_PC.SPRITES_B8DE, 0x80b8de, once(runSpriteList));

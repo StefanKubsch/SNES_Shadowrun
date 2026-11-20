@@ -22,7 +22,6 @@ import {
 } from '../proof/replay/main-motion-collision.mjs';
 import { moveObjectTowardsTarget } from '../proof/replay/main-motion-target.mjs';
 import { recordFormationStep } from '../proof/game-reference/main-camera.mjs';
-import { runFormationStep } from '../src/game/main-upkeep.mjs';
 import { moveAndAnimateObjects, MAIN_MOTION_ROUTINES } from '../proof/replay/main-loop-motion.mjs';
 import { MAIN_LOOP_ROUTINES } from '../proof/vm/main-loop.mjs';
 import { moveAndAnimate as runObjectMotion } from '../proof/caller/object-motion.mjs';
@@ -35,6 +34,7 @@ import {
 } from '../proof/caller/object-collision.mjs';
 import { walkTowardsTarget } from '../src/game/object-target.mjs';
 import '../proof/system/dialog-register-helpers.mjs';
+import { runFormationStep } from '../proof/caller/live-loop-routines.mjs';
 
 const TURN_STUB_RETURN = 0x1234;
 const functions = [

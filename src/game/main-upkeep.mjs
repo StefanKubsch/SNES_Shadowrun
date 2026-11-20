@@ -13,7 +13,6 @@ import { applyColourEffect } from './fixed-colour.mjs';
 import { advancePaletteCycles } from './palette-cycles.mjs';
 import { followPlayerWithCamera } from './camera-follow.mjs';
 import { updateTileBuffers } from './camera-scroll.mjs';
-import { recordFormationStep } from './formation-trail.mjs';
 import { timeLimitSequence } from './time-limit.mjs';
 import { gloveActionSequence } from './glove-action.mjs';
 import { showNoticeSequence } from './notice-show.mjs';
@@ -76,11 +75,6 @@ function* noticeTimeoutCallSequence(h, events) {
     result = h.rts();
   };
   return result;
-}
-// 80:BAD5, called with JSR.
-export function runFormationStep(h) {
-  recordFormationStep(h.a.mem.wram);
-  return h.rts();
 }
 // 81:8C2E, called with JSL.
 export function runCameraFollow(h) {

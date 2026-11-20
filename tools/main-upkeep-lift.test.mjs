@@ -18,7 +18,6 @@ import { CUTSCENE_IGNORED_WRAM } from './live-cutscene-plan.mjs';
 import {
   runCameraFollow,
   runColourEffect,
-  runFormationStep,
   runTileBuffers,
   runPaletteCycles,
   runObjectMotion,
@@ -32,6 +31,7 @@ import {
   runGloveMove,
   runPlayerZones,
   runHitShake,
+  runFormationStep,
 } from '../proof/caller/live-loop-routines.mjs';
 import { MAIN_CAMERA_REFERENCE_ENTRIES } from '../proof/game-reference/main-camera.mjs';
 import { MAIN_UPKEEP_REFERENCE_ENTRIES } from '../proof/game-reference/main-upkeep.mjs';

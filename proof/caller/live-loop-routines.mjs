@@ -4,7 +4,6 @@
 import {
   runCameraFollow,
   runColourEffect,
-  runFormationStep,
   runObjectMotion,
   runPaletteCycles,
   runSpriteList,
@@ -19,6 +18,7 @@ import { timeLimitSequence } from '../../src/game/time-limit.mjs';
 import { gloveActionSequence } from '../../src/game/glove-action.mjs';
 import { gloveMoveJsr } from './jsr-forms.mjs';
 import { shakeHitPlayer } from '../../src/game/player-hit.mjs';
+import { recordFormationStep } from '../../src/game/formation-trail.mjs';
 import {
   NativeCallContinuation,
   NATIVE_CALL_CONTINUATIONS,
@@ -51,6 +51,11 @@ export const MAIN_LOOP_ROUTINES = new Map([
 // 80:DE94, called with JSR.
 export function runHitShake(h) {
   shakeHitPlayer(h.a.mem.wram);
+  return h.rts();
+}
+// 80:BAD5, called with JSR.
+export function runFormationStep(h) {
+  recordFormationStep(h.a.mem.wram);
   return h.rts();
 }
 
