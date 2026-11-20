@@ -12,7 +12,6 @@ import {
   runColourEffect,
   runFormationStep,
   runTileBuffers,
-  runHitShake,
   runPaletteCycles,
   runObjectMotion,
   runSpriteList,
@@ -24,6 +23,7 @@ import {
   runGloveAction,
   runGloveMove,
   runPlayerZones,
+  runHitShake,
 } from './live-loop-routines.mjs';
 import { processSceneRequest } from '../caller/scene-request.mjs';
 import { WAIT_PAUSED, WAIT_RETURNED } from '../../src/system/native-wait-continuation.mjs';

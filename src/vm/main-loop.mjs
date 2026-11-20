@@ -16,13 +16,13 @@ import {
   runColourEffect,
   runFormationStep,
   runTileBuffers,
-  runHitShake,
   runPaletteCycles,
   runObjectMotion,
   runSpriteList,
   takePadWord,
 } from '../game/main-upkeep.mjs';
 import { sceneRequestSequence } from '../game/scene-request.mjs';
+import { shakeHitPlayer } from '../game/player-hit.mjs';
 import { lagFree } from '../system/main-wait-interrupt.mjs';
 import {
   NativeCallContinuation,
@@ -40,7 +40,6 @@ const MAIN_LOOP_START = 0x96ab; // first pass after 9688
 const CALL_PC = Object.freeze({
   GATE_8000: MAIN_LOOP_RESUME,
   CC4B: 0x96c8,
-  DE94: 0x96cd,
   AFC4: 0x96d0,
   BAD5: 0x96d3,
   CAMERA_8C2E: 0x96d6,
@@ -78,7 +77,7 @@ export function* mainLoopSequence(a, events, returnToOwner = false) {
   const request = {};
   yield* call(CALL_PC.CC4B, 0x80cc4b, () => sceneRequestSequence(h, events, request));
   if (request.taken) return yield* top();
-  yield* call(CALL_PC.DE94, 0x80de94, once(runHitShake));
+  yield () => shakeHitPlayer(wram);
   yield* call(CALL_PC.AFC4, 0x80afc4, once(runObjectMotion));
   yield* call(CALL_PC.BAD5, 0x80bad5, once(runFormationStep));
   yield* call(CALL_PC.CAMERA_8C2E, 0x818c2e, once(runCameraFollow), true);

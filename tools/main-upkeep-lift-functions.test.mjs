@@ -49,10 +49,9 @@ import {
   runColourEffect,
   runFormationStep,
   runTileBuffers,
-  runHitShake,
   runPaletteCycles,
 } from '../src/game/main-upkeep.mjs';
-import { runNoticeTimeouts } from '../proof/caller/live-loop-routines.mjs';
+import { runNoticeTimeouts, runHitShake } from '../proof/caller/live-loop-routines.mjs';
 import {
   runPutGloveAway,
   runOpenWindow,

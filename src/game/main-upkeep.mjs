@@ -11,7 +11,6 @@ import { sceneRuntime } from '../system/scene-runtime.mjs';
 import { noticeTimeoutSequence } from './notice-timeout.mjs';
 import { applyColourEffect } from './fixed-colour.mjs';
 import { advancePaletteCycles } from './palette-cycles.mjs';
-import { shakeHitPlayer } from './player-hit.mjs';
 import { followPlayerWithCamera } from './camera-follow.mjs';
 import { updateTileBuffers } from './camera-scroll.mjs';
 import { recordFormationStep } from './formation-trail.mjs';
@@ -67,11 +66,6 @@ export function runColourEffect(h) {
 export function runPaletteCycles(h) {
   advancePaletteCycles(h.a.mem.wram);
   return h.rtl();
-}
-// 80:DE94, called with JSR.
-export function runHitShake(h) {
-  shakeHitPlayer(h.a.mem.wram);
-  return h.rts();
 }
 // 80:FF14, called with JSR; its window releases wait for the NMI of their uploads, so
 // it is a native call continuation of the main loop.

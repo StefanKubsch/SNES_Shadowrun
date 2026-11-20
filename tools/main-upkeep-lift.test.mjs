@@ -20,7 +20,6 @@ import {
   runColourEffect,
   runFormationStep,
   runTileBuffers,
-  runHitShake,
   runPaletteCycles,
   runObjectMotion,
   runSpriteList,
@@ -32,6 +31,7 @@ import {
   runGloveAction,
   runGloveMove,
   runPlayerZones,
+  runHitShake,
 } from '../proof/caller/live-loop-routines.mjs';
 import { MAIN_CAMERA_REFERENCE_ENTRIES } from '../proof/game-reference/main-camera.mjs';
 import { MAIN_UPKEEP_REFERENCE_ENTRIES } from '../proof/game-reference/main-upkeep.mjs';

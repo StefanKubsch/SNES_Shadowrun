@@ -5,8 +5,7 @@ import { compareDialog, decodeWindows, prng } from './task-native-dialog-harness
 import { dialogAccess } from '../src/system/native-dialog-support.mjs';
 import { MAIN_MOTION_ROUTINES, moveAndAnimateObjects } from '../proof/replay/main-loop-motion.mjs';
 import { shakeHitPlayer } from '../proof/game-reference/main-upkeep.mjs';
-import { runHitShake } from '../src/game/main-upkeep.mjs';
-import { processSceneRequest } from '../proof/caller/live-loop-routines.mjs';
+import { processSceneRequest, runHitShake } from '../proof/caller/live-loop-routines.mjs';
 import { processSceneRequestReference } from '../proof/game-reference/scene-request.mjs';
 import { MAIN_LOOP_ROUTINES } from '../proof/caller/live-loop-routines.mjs';
 import { MAIN_LOOP_ROUTINES as REPLAY_LOOP_ROUTINES } from '../proof/vm/main-loop.mjs';

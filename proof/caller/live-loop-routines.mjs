@@ -5,7 +5,6 @@ import {
   runCameraFollow,
   runColourEffect,
   runFormationStep,
-  runHitShake,
   runObjectMotion,
   runPaletteCycles,
   runSpriteList,
@@ -19,6 +18,7 @@ import { playerZonesSequence } from '../../src/game/player-zones.mjs';
 import { timeLimitSequence } from '../../src/game/time-limit.mjs';
 import { gloveActionSequence } from '../../src/game/glove-action.mjs';
 import { gloveMoveJsr } from './jsr-forms.mjs';
+import { shakeHitPlayer } from '../../src/game/player-hit.mjs';
 import {
   NativeCallContinuation,
   NATIVE_CALL_CONTINUATIONS,
@@ -44,6 +44,15 @@ export const MAIN_LOOP_ROUTINES = new Map([
   [0x80be6d, runGloveMove],
   [0x80bf3b, runGloveAction],
 ]);
+
+// The RTS and RTL forms of the synchronous callees (moved from src/game/main-upkeep.mjs;
+// the live main loop runs the lifted functions without their call frames, whose return
+// words lie only in free stack bytes).
+// 80:DE94, called with JSR.
+export function runHitShake(h) {
+  shakeHitPlayer(h.a.mem.wram);
+  return h.rts();
+}
 
 // The register-level entries of the main loop callees that wait.
 // 80:FF14, called with JSR; its window releases wait for the NMI of their uploads.
