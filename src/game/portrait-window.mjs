@@ -73,8 +73,9 @@ function setWindowEdges(wram, x) {
   wram[RIGHT_WINDOW_LEFT_EDGE] = add(inverse, PORTRAIT_WINDOW.rightWindowLeftBias, false).value;
 }
 
-// Open the portrait window (80:8F3A) with live frame waits.
-export function* openPortraitWindowSequence(h, events) {
+// Open the portrait window (80:8F3A) with live frame waits, for lifted callers without
+// the JSR frame (the frame waits keep their JSL frames).
+export function* openPortraitWindow(h, events) {
   const { mem, wram, port } = sceneRuntime(h);
   let step = PORTRAIT_WINDOW.edgeFirst;
   yield () => {
@@ -96,11 +97,16 @@ export function* openPortraitWindowSequence(h, events) {
       step = (step + PORTRAIT_WINDOW.edgeStep) & WORD_MASK;
     };
   } while (step < PORTRAIT_WINDOW.edgeEnd);
+}
+// The opening as called with JSR (80:8F3A); returns with its RTS.
+export function* openPortraitWindowSequence(h, events) {
+  yield* openPortraitWindow(h, events);
   return yield* rts(h);
 }
 
-// Close the portrait window (80:8F97) with live frame waits.
-export function* closePortraitWindowSequence(h, events) {
+// Close the portrait window (80:8F97) with live frame waits, for lifted callers without
+// the JSR frame (the frame waits keep their JSL frames).
+export function* closePortraitWindow(h, events) {
   const { wram } = sceneRuntime(h);
   let step = PORTRAIT_WINDOW.edgeLast;
   do {
@@ -114,6 +120,10 @@ export function* closePortraitWindowSequence(h, events) {
     setWord(wram, TMW_SHADOW, 0);
     wram[HDMAEN_SHADOW] &= ~PORTRAIT_WINDOW.hdmaChannel;
   };
+}
+// The closing as called with JSR (80:8F97); returns with its RTS.
+export function* closePortraitWindowSequence(h, events) {
+  yield* closePortraitWindow(h, events);
   return yield* rts(h);
 }
 function* rts(h) {

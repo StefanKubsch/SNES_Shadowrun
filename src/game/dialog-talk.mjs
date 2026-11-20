@@ -37,7 +37,7 @@ import {
   releaseNoticeWindowsSequence,
   releaseWindowSequence,
 } from './window-release.mjs';
-import { closePortraitWindowSequence, openPortraitWindowSequence } from './portrait-window.mjs';
+import { closePortraitWindow, openPortraitWindow } from './portrait-window.mjs';
 import {
   unpackPortrait,
   shiftPortraitRowsInPlace,
@@ -144,13 +144,11 @@ const CALL = Object.freeze({
   jakeUpload: [0x809453, 0x809022],
   partnerUnpack: [0x809470, 0x809f6d],
   partnerUpload: [0x809476, 0x80905e],
-  portraitWindow: [0x809479, 0x808f3a],
   wait: [0x809489, 0x81b0a1, true],
   menu: [0x809490, 0x8091e2],
   topics: [0x8094a2, 0x809215],
   releaseText: [0x8094d9, 0x80fa3e],
   releaseFrame: [0x8094df, 0x80fa3e],
-  closePortrait: [0x8092c5, 0x808f97],
   closeWait: [0x8092d1, 0x81b0a1, true],
 });
 const OBJSEL_SITE = 0x809412,
@@ -204,7 +202,7 @@ export function setWindowTextWidthRoutine(h) {
 // bytes). Object tile reload and sprite composition retain their shared service table.
 export function* closeDialog(h, events) {
   const { port } = sceneRuntime(h);
-  yield* dialogCallBody(h, ...CALL.closePortrait, () => closePortraitWindowSequence(h, events));
+  yield* closePortraitWindow(h, events);
   yield () => port.write(OBJSEL, 0, 2, CLOSE_OBJSEL_SITE);
   yield* reloadObjectTiles(h, events);
   yield* dialogCallBody(
@@ -331,7 +329,7 @@ export function* talkSequence(h, events, renderBuffer = drawTextBufferSequence) 
   };
   yield* portrait(CALL.partnerUnpack);
   yield* dialogCallBody(h, ...CALL.partnerUpload, () => uploadSecondPortraitSequence(h, events));
-  yield* dialogCallBody(h, ...CALL.portraitWindow, () => openPortraitWindowSequence(h, events));
+  yield* openPortraitWindow(h, events);
   yield () => setWord(wram, DP_OBJECT, word(wram, DP_PORTRAIT_FRAME));
   yield* showDialogText(h, events, renderBuffer, GREETING_TEXT);
   // The greeting waits until the frame count passes below 0.
