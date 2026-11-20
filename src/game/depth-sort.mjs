@@ -114,8 +114,5 @@ export function sortDrawListInPlace(h) {
     position = (position + ENTRY_BYTES) & WORD_MASK;
   } while (position < last);
 }
-// The sort as called with JSR (80:AFFC); returns with its RTS.
-export function sortDrawList(h) {
-  sortDrawListInPlace(h);
-  return h.rts();
-}
+// The RTS form for register-level callers is sortDrawListJsr in
+// proof/caller/jsr-forms.mjs.

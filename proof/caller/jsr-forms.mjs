@@ -3,6 +3,7 @@
 // runs the lifted sequence or function, then returns through the caller's JSR frame.
 import { playSoundEffectCall } from '../../src/apu/sound-effect.mjs';
 import { printText } from '../../src/game/text-print.mjs';
+import { sortDrawListInPlace } from '../../src/game/depth-sort.mjs';
 import { enterRoomSequence } from '../../src/game/room-entry.mjs';
 import { printNumber, setTextCursor } from '../../src/game/window-text.mjs';
 import { drawTextBufferSequence } from '../../src/game/text-draw.mjs';
@@ -43,4 +44,10 @@ export function playSoundEffectJsr(h) {
 export function* enterRoomJsr(h, events, room) {
   yield* enterRoomSequence(h, events, room);
   return yield* rts(h);
+}
+
+// The depth sort 80:AFFC.
+export function sortDrawListJsr(h) {
+  sortDrawListInPlace(h);
+  return h.rts();
 }
