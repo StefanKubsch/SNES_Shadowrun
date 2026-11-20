@@ -13,6 +13,7 @@ import { hitObject } from '../../src/game/object-hit.mjs';
 import { objectSearch } from '../../src/game/object-search.mjs';
 import { startNewGame } from '../../src/game/game-start.mjs';
 import { gloveMove } from '../../src/game/glove-move.mjs';
+import { buildSpritesInPlace } from '../../src/game/sprite-list.mjs';
 import { drawTextBufferSequence } from '../../src/game/text-draw.mjs';
 
 function* rts(h) {
@@ -104,4 +105,10 @@ export function startNewGameJsr(h) {
 export function* gloveMoveJsr(h, events, renderBuffer = drawTextBufferSequence) {
   yield* gloveMove(h, events, renderBuffer);
   return yield* rts(h);
+}
+
+// The sprite list 80:B8DE; nothing in it waits.
+export function buildSpritesJsr(h) {
+  buildSpritesInPlace(h);
+  return h.rts();
 }

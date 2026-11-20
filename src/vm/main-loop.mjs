@@ -13,11 +13,11 @@ import {
   mainLoopGloveMoveSequence,
   mainLoopPlayerZonesSequence,
   runObjectMotion,
-  runSpriteList,
 } from '../game/main-upkeep.mjs';
 import { sceneRequestSequence } from '../game/scene-request.mjs';
 import { shakeHitPlayer } from '../game/player-hit.mjs';
 import { recordFormationStep } from '../game/formation-trail.mjs';
+import { buildSpritesInPlace } from '../game/sprite-list.mjs';
 import { updateTileBuffers } from '../game/camera-scroll.mjs';
 import { followPlayerWithCamera } from '../game/camera-follow.mjs';
 import { advancePaletteCycles } from '../game/palette-cycles.mjs';
@@ -42,7 +42,6 @@ const CALL_PC = Object.freeze({
   GATE_8000: MAIN_LOOP_RESUME,
   CC4B: 0x96c8,
   AFC4: 0x96d0,
-  SPRITES_B8DE: 0x96de,
   FF14: 0x96e1,
   TIMER_E270: 0x96e4,
   WAIT_B0A1: MAIN_LOOP_START,
@@ -77,7 +76,7 @@ export function* mainLoopSequence(a, events, returnToOwner = false) {
   yield () => recordFormationStep(wram);
   yield () => followPlayerWithCamera(a.mem, wram);
   yield () => updateTileBuffers(wram);
-  yield* call(CALL_PC.SPRITES_B8DE, 0x80b8de, once(runSpriteList));
+  yield () => buildSpritesInPlace(h);
   yield* call(CALL_PC.FF14, 0x80ff14, () => mainLoopNoticeSequence(h, events));
   yield* call(CALL_PC.TIMER_E270, 0x80e270, () => mainLoopTimeLimitSequence(h, events));
   // The game leaves the loop to its owner when it ends (7E:1FDA) or reloads (7E:1FD8).

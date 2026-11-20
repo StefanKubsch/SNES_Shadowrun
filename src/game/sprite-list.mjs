@@ -118,8 +118,5 @@ export function buildSpritesInPlace(h) {
   // stack bytes).
   setWord(wram, NMI_JOB_LISTS, (lowField(wram, NMI_JOB_LISTS, 0) + 1) & WORD_MASK);
 }
-// The sprite list as called with JSR; returns with its RTS.
-export function buildSprites(h) {
-  buildSpritesInPlace(h);
-  return h.rts();
-}
+// The RTS form for register-level callers is buildSpritesJsr in
+// proof/caller/jsr-forms.mjs.

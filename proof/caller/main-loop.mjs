@@ -7,7 +7,7 @@
 // bound game or demo owner; without this owner they remain a limit.
 import { taskStop } from '../../src/system/task-stop.mjs';
 import { dialogAccess } from '../../src/system/native-dialog-support.mjs';
-import { runObjectMotion, runSpriteList } from '../../src/game/main-upkeep.mjs';
+import { runObjectMotion } from '../../src/game/main-upkeep.mjs';
 import { runFrameWait, runPadPresses } from './input-routines.mjs';
 import {
   runNoticeTimeouts,
@@ -37,6 +37,7 @@ import {
 } from '../../src/constants/cpu-flags.mjs';
 import { MAIN_LOOP_EXIT, MAIN_LOOP_RELOAD } from '../../src/data/wram.mjs';
 import { CODE_BANK } from '../../src/constants/memory-map.mjs';
+import { buildSpritesJsr } from './jsr-forms.mjs';
 
 export const MAIN_LOOP_RESUME = 0x96c3; // return from the round
 export const MAIN_LOOP_ROUND = 0x96c0; // JSR $C1E3
@@ -75,7 +76,7 @@ export const MAIN_LOOP_ROUTINES = new Map([
   [0x80bad5, runFormationStep],
   [0x818c2e, runCameraFollow],
   [0x818a91, runTileBuffers],
-  [0x80b8de, runSpriteList],
+  [0x80b8de, buildSpritesJsr],
   [0x80ff14, runNoticeTimeouts],
   [0x80e270, runTimeLimit],
   [0x81b0a1, runFrameWait],

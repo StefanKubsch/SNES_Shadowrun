@@ -1,4 +1,3 @@
-import { runSpriteList } from '../../src/game/main-upkeep.mjs';
 import { runFrameWait, runPadPresses } from '../caller/input-routines.mjs';
 import {
   runCloseDialog,
@@ -22,6 +21,7 @@ import { shiftPortraitRowsRoutine } from '../../src/game/portrait-upload.mjs';
 import { unpackPortraitRoutine } from '../caller/portrait-routines.mjs';
 
 import { setMusicModeRoutine } from '../caller/audio-routines.mjs';
+import { buildSpritesJsr } from '../caller/jsr-forms.mjs';
 
 export const TALK_ROUTINES = new Map([
   [0x8092c5, runCloseDialog],
@@ -38,7 +38,7 @@ export const TALK_ROUTINES = new Map([
   [0x809215, runDialogTopics],
   [0x808f97, runClosePortraitWindow],
   [0x80adf4, runReloadObjectTiles],
-  [0x80b8de, runSpriteList],
+  [0x80b8de, buildSpritesJsr],
   [0x80ff79, runReleaseNoticeWindows],
   [0x81ef47, setMusicModeRoutine],
   [0x80fa3e, runReleaseWindow],

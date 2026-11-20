@@ -15,7 +15,7 @@ import assert from 'node:assert/strict';
 import { compareLift } from './lift-compare.mjs';
 import { PLAN } from './live-alley-plan.mjs';
 import { CUTSCENE_IGNORED_WRAM } from './live-cutscene-plan.mjs';
-import { runObjectMotion, runSpriteList } from '../src/game/main-upkeep.mjs';
+import { runObjectMotion } from '../src/game/main-upkeep.mjs';
 import { runFrameWait, runPadPresses } from '../proof/caller/input-routines.mjs';
 import {
   runNoticeTimeouts,
@@ -39,6 +39,7 @@ import { moveAndAnimateObjects } from '../proof/replay/main-loop-motion.mjs';
 import { buildSpriteList } from '../proof/replay/native-scene-sprites.mjs';
 import { MAIN_TIMER_REFERENCE_ENTRIES } from '../proof/game-reference/main-timer.mjs';
 import { MAIN_GLOVE_ACTION_REFERENCE_ENTRIES } from '../proof/game-reference/main-glove-action.mjs';
+import { buildSpritesJsr } from '../proof/caller/jsr-forms.mjs';
 
 // Diagnosis: MAIN_UPKEEP_LIFT_FRAME=n lists the differing WRAM bytes at NMI n.
 const snapshotAt = Number(process.env.MAIN_UPKEEP_LIFT_FRAME ?? -1);
@@ -64,7 +65,7 @@ test(
         runGloveMove,
         runPlayerZones,
         runObjectMotion,
-        runSpriteList,
+        buildSpritesJsr,
       ],
       reference: new Map([
         ...MAIN_UPKEEP_REFERENCE_ENTRIES,

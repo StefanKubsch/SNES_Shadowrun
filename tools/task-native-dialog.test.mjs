@@ -463,7 +463,6 @@ check(
 // Scene sprites (B8DE with AFFC, AB0A, B20A, B130). Choose each object's camera so images land on, beside,
 // and outside the screen; the bank 7F map uses empty (negative) and small cells.
 import { buildSpriteList } from '../proof/replay/native-scene-sprites.mjs';
-import { runSpriteList } from '../src/game/main-upkeep.mjs';
 const romByte = (address) => rom[romOffset(address)];
 // Image headers with 1..6 rows and columns (byte 2): 0 counts 65536 times as in the original; large images run
 // into $1C72 through the occlusion buffers $1872/$1A72 (neither case occurs for real characters).
@@ -481,7 +480,7 @@ const pictures = (() => {
 // which is compared by game state (user decision 2026-11-17).
 for (const [name, native, registers] of [
   ['B8DE/AFFC/B20A/B130', (h) => buildSpriteList(h), undefined],
-  ['lifted B8DE', (h) => runSpriteList(h), GAME_STATE_REGISTERS],
+  ['lifted B8DE', (h) => buildSpritesJsr(h), GAME_STATE_REGISTERS],
 ])
   check(
     name,
@@ -547,7 +546,7 @@ for (const [name, native, registers] of [
 // The lifted depth sort and palette slot alone (src/game/depth-sort.mjs, palette-slots.mjs),
 // both compared by game state (user decision 2026-11-17).
 // The palette slot takes the palette as a parameter (A in the original).
-import { paletteSlotJsr, sortDrawListJsr } from '../proof/caller/jsr-forms.mjs';
+import { paletteSlotJsr, sortDrawListJsr, buildSpritesJsr } from '../proof/caller/jsr-forms.mjs';
 const b8deWindows = (starts) => DIALOG_WINDOWS.b8de.filter((w) => starts.includes(w.start));
 check(
   'lifted AFFC',
