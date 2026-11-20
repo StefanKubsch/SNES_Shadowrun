@@ -23,7 +23,7 @@ import { waitForConfirmKeySequence } from './confirm-key.mjs';
 import { selectObjectAnimation, turnObject } from './object-turn.mjs';
 import { releaseWindowSequence, putGloveAwaySequence } from './window-release.mjs';
 import { START_ENTRY, ITEMS_ENTRY, statusScreen } from './status-screen.mjs';
-import { partyStatusSequence } from './party-status.mjs';
+import { partyStatus } from './party-status.mjs';
 import { drawTextBufferSequence } from './text-draw.mjs';
 import { dialogCallBody, segmentSequence } from '../system/native-call-continuation.mjs';
 import { dataBankWord, setDataBankWord } from '../system/data-bank.mjs';
@@ -103,8 +103,7 @@ import { aimReleaseFixed } from './bugfixes.mjs';
 import { BYTE_BITS, BYTE_MASK, WORD_MASK, WORD_SIGN } from '../constants/bits.mjs';
 
 // The callees and their call sites.
-const PARTY_STATUS = [0x80e021, 0x80ed3c],
-  WEAPON_NOTICE_CALLS = [0x80e0a3],
+const WEAPON_NOTICE_CALLS = [0x80e0a3],
   SPELL_NOTICE_CALLS = [0x80e103];
 const CONFIRM_KEY = 0x80f953;
 // The idle action, the set mark and the weapon kind whose aim takes both buttons.
@@ -295,7 +294,7 @@ export function* controlPlayerSequence(h, events, renderBuffer = drawTextBufferS
     else path = word(wram, GLOVE_KIND) ? 'glove' : 'free';
   };
   if (path === 'party') {
-    yield* dialogCallBody(h, ...PARTY_STATUS, () => partyStatusSequence(h, events, renderBuffer));
+    yield* partyStatus(h, events, renderBuffer);
     return yield* finish();
   }
   if (path === 'status') {

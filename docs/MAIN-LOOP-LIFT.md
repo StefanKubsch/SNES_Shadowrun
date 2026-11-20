@@ -92,8 +92,8 @@ lifted callees. Each callee has a frameless form beside its RTS form, which
 register-level harnesses and script natives still bind: printText, openWindow,
 setTextCursor, printNumber, requestTileClear, takePad, playSoundEffectCall,
 showNotice, hitObject, closeDialog, equipmentRows, memberPortrait, karmaLine,
-showDialogText, chooseAction and statusScreen (the player control's Start and Y
-entries); the window release, the glove, the notice windows'
+showDialogText, chooseAction, statusScreen (the player control's Start and Y
+entries) and partyStatus (Select); the window release, the glove, the notice windows'
 release and the name window release already had one. The player control selects
 animations and turns through the plain functions of
 [object-turn.mjs](../src/game/object-turn.mjs). The unused call sites go with the

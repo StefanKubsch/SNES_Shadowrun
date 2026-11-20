@@ -112,8 +112,9 @@ function prepareMember(mem, member) {
   setWord(wram, DP_CURSOR_ROW, (member >>> 1) + FIRST_ROW);
 }
 
-// 80:ED3C: the party status (see above). A sequence that ends with its RTS.
-export function* partyStatusSequence(h, events, renderBuffer = drawTextBufferSequence) {
+// 80:ED3C: the party status (see above) for lifted callers, without the JSR frame (the
+// caller's return word lies only in free stack bytes).
+export function* partyStatus(h, events, renderBuffer = drawTextBufferSequence) {
   const { mem } = h.a,
     { wram } = mem;
   // DP 02 gets value before a lifted callee, which runs without a JSR frame.
@@ -181,6 +182,10 @@ export function* partyStatusSequence(h, events, renderBuffer = drawTextBufferSeq
   yield* dialogCallBody(h, ...CONFIRM_KEY, () => waitForConfirmKeySequence(h, events));
   yield () => setWord(wram, 0, dataBankWord(mem, STATUS_WINDOW));
   yield* releaseWindowSequence(h, events);
+}
+// The party status as called with JSR (80:ED3C); returns with its RTS.
+export function* partyStatusSequence(h, events, renderBuffer = drawTextBufferSequence) {
+  yield* partyStatus(h, events, renderBuffer);
   let result;
   yield () => {
     result = h.rts();
