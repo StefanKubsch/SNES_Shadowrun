@@ -168,9 +168,9 @@ function* returnSequence(h) {
   return result;
 }
 
-// 80:EA6E, 80:EA89 or 80:EA8E: the status screen (see above). A sequence that ends
-// with its RTS.
-export function* statusScreenSequence(
+// 80:EA6E, 80:EA89 or 80:EA8E: the status screen (see above) for lifted callers, without
+// the JSR frame (the caller's return word lies only in free stack bytes).
+export function* statusScreen(
   h,
   events,
   entry = NATIVE_ENTRY,
@@ -417,9 +417,19 @@ export function* statusScreenSequence(
   yield* releaseWindowSequence(h, events);
   return yield* closeSequence(h, events);
 }
+// The status screen as called with JSR (or as the script native); returns with its RTS.
+export function* statusScreenSequence(
+  h,
+  events,
+  entry = NATIVE_ENTRY,
+  renderBuffer = drawTextBufferSequence,
+) {
+  yield* statusScreen(h, events, entry, renderBuffer);
+  return yield* returnSequence(h);
+}
 
 // ECF5: the cleanup, the status window released, the mark cleared and the sound
-// restored; then the RTS.
+// restored (the RTS follows in statusScreenSequence).
 function* closeSequence(h, events) {
   const { mem } = h.a,
     { wram } = mem;
@@ -436,5 +446,4 @@ function* closeSequence(h, events) {
     () => segmentSequence(() => sendApuCommandCall(h, APU_COMMAND_VOLUME_TARGET, FULL_VOLUME)),
     true,
   );
-  return yield* returnSequence(h);
 }

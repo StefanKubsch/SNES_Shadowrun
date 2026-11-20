@@ -22,7 +22,7 @@ import { printText } from './text-print.mjs';
 import { waitForConfirmKeySequence } from './confirm-key.mjs';
 import { selectObjectAnimation, turnObject } from './object-turn.mjs';
 import { releaseWindowSequence, putGloveAwaySequence } from './window-release.mjs';
-import { START_ENTRY, ITEMS_ENTRY, statusScreenSequence } from './status-screen.mjs';
+import { START_ENTRY, ITEMS_ENTRY, statusScreen } from './status-screen.mjs';
 import { partyStatusSequence } from './party-status.mjs';
 import { drawTextBufferSequence } from './text-draw.mjs';
 import { dialogCallBody, segmentSequence } from '../system/native-call-continuation.mjs';
@@ -104,8 +104,6 @@ import { BYTE_BITS, BYTE_MASK, WORD_MASK, WORD_SIGN } from '../constants/bits.mj
 
 // The callees and their call sites.
 const PARTY_STATUS = [0x80e021, 0x80ed3c],
-  STATUS_SCREEN = [0x80e02c, 0x80ea89],
-  ITEM_LIST = [0x80e037, 0x80ea8e],
   WEAPON_NOTICE_CALLS = [0x80e0a3],
   SPELL_NOTICE_CALLS = [0x80e103];
 const CONFIRM_KEY = 0x80f953;
@@ -301,15 +299,11 @@ export function* controlPlayerSequence(h, events, renderBuffer = drawTextBufferS
     return yield* finish();
   }
   if (path === 'status') {
-    yield* dialogCallBody(h, ...STATUS_SCREEN, () =>
-      statusScreenSequence(h, events, START_ENTRY, renderBuffer),
-    );
+    yield* statusScreen(h, events, START_ENTRY, renderBuffer);
     return yield* finish();
   }
   if (path === 'items') {
-    yield* dialogCallBody(h, ...ITEM_LIST, () =>
-      statusScreenSequence(h, events, ITEMS_ENTRY, renderBuffer),
-    );
+    yield* statusScreen(h, events, ITEMS_ENTRY, renderBuffer);
     return yield* finish();
   }
   if (path === 'free') return yield* freeSequence(h, events, finish, renderBuffer, player);
