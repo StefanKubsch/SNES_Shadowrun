@@ -5,22 +5,21 @@
 // confirming buttons the original leaves in A are not kept; no caller reads them, and
 // the script interpreter loads its next opcode into A after the native.
 import { dialogCallBody, segmentSequence } from '../system/native-call-continuation.mjs';
-import { frameWaitCallSequence, takePadWord } from '../system/live-input-calls.mjs';
+import { frameWaitCallSequence, takePad } from '../system/live-input-calls.mjs';
 import { PAD_PRESSED } from '../data/wram.mjs';
 import { BYTE_BITS } from '../constants/bits.mjs';
 
 // B, Y and Select in the high byte, A and X in the low byte.
 const CONFIRM_BUTTONS = 0xe0c0,
-  WAIT_CALL = [0x80f953, 0x81b0a1],
-  PAD_CALL = [0x80f957, 0x809e1a];
+  WAIT_CALL = [0x80f953, 0x81b0a1];
 
-// 80:F953 composes the live word wait and pad read directly through their frames.
+// 80:F953 composes the live word wait through its frame and reads the pad directly.
 export function* waitForConfirmKeySequence(h, events) {
   const { wram } = h.a.mem;
   let pressed = 0;
   do {
     yield* dialogCallBody(h, ...WAIT_CALL, () => frameWaitCallSequence(h, events), true);
-    yield* dialogCallBody(h, ...PAD_CALL, () => segmentSequence(() => takePadWord(h, events)));
+    yield* segmentSequence(() => takePad(h, events));
     yield () => {
       pressed = (wram[PAD_PRESSED] | (wram[PAD_PRESSED + 1] << BYTE_BITS)) & CONFIRM_BUTTONS;
     };

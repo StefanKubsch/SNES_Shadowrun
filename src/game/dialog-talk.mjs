@@ -44,7 +44,7 @@ import {
   uploadFirstPortraitSequence,
   uploadSecondPortraitSequence,
 } from './portrait-upload.mjs';
-import { frameWaitCallSequence, takePadWord } from '../system/live-input-calls.mjs';
+import { frameWaitCallSequence, takePad } from '../system/live-input-calls.mjs';
 import { sceneRuntime } from '../system/scene-runtime.mjs';
 import { fixesEnabled, preparePushkinTopics } from './bugfixes.mjs';
 import { DIALOG_TABLE, DIALOG_BANK_BASE } from '../data/portraits.mjs';
@@ -163,7 +163,6 @@ const CALL = Object.freeze({
   closePortrait: [0x8092c5, 0x808f97],
   tiles: [0x8092ce, 0x80adf4],
   closeWait: [0x8092d1, 0x81b0a1, true],
-  pad: [0x809333, 0x809e1a],
   sprites: [0x809336, 0x80b8de],
 });
 const OBJSEL_SITE = 0x809412,
@@ -233,7 +232,7 @@ export function* closeDialogSequence(h, events) {
       writes.forEach(([register, value, width], n) => port.write(register, value, width, sites[n]));
     }
   };
-  yield* dialogCallBody(h, ...CALL.pad, () => segmentSequence(() => takePadWord(h, events)));
+  yield* segmentSequence(() => takePad(h, events));
   yield* dialogCallBody(h, ...CALL.sprites, () => segmentSequence(() => buildSprites(h)));
   let result;
   yield () => {

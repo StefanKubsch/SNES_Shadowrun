@@ -1,6 +1,6 @@
 import { talkSequence } from './dialog-talk.mjs';
 import { chooseActionSequence } from './action-menu.mjs';
-import { takePadWord } from '../system/live-input-calls.mjs';
+import { takePad } from '../system/live-input-calls.mjs';
 import { putGloveAwaySequence } from './window-release.mjs';
 // The action glove's buttons on an object (lifted from 80:BF3B; register-level
 // reference in proof/game-reference/main-glove-action.mjs).
@@ -180,9 +180,7 @@ export function* gloveActionSequence(h, events, renderBuffer = drawTextBufferSeq
   if (path === 'notice') {
     yield* dialogCallBody(h, ...CALL.notice, () => showNoticeSequence(h, events, renderBuffer));
     yield* putGloveAwaySequence(h, events);
-    yield* dialogCallBody(h, ...CALL.noticeInput, () =>
-      segmentSequence(() => takePadWord(h, events)),
-    );
+    yield* segmentSequence(() => takePad(h, events));
   }
   if (path === 'menu') {
     const choice = {};
@@ -221,7 +219,7 @@ export function* gloveActionSequence(h, events, renderBuffer = drawTextBufferSeq
     };
     if (path === 'pass') {
       yield* putGloveAwaySequence(h, events);
-      yield* dialogCallBody(h, ...CALL.input, () => segmentSequence(() => takePadWord(h, events)));
+      yield* segmentSequence(() => takePad(h, events));
     }
   }
   let result;

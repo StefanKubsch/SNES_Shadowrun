@@ -18,10 +18,15 @@ export function* frameWaitCallSequence(h, events) {
   };
   return result;
 }
-// The pad word (80:9E1A, called with JSR) for lifted callers: the newly pressed and held
-// words taken; no registers are left (user decision 2026-11-17).
-export function takePadWord(h, events) {
+// The pad word (80:9E1A) for lifted callers, without the JSR frame (the caller's return
+// word lies only in free stack bytes): the newly pressed and held words taken; no
+// registers are left (user decision 2026-11-17).
+export function takePad(h, events) {
   if (!lagFree(events)) taskStop('game_lag_free_required');
   takePadPresses(h.a.mem.wram);
+}
+// The pad word as called with JSR (80:9E1A); returns with its RTS.
+export function takePadWord(h, events) {
+  takePad(h, events);
   return h.rts();
 }

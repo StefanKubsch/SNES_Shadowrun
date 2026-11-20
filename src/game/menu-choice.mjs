@@ -30,7 +30,7 @@
 // (around the move sound's arguments, which the original sets up and restores without
 // playing it) lie only in free stack bytes and are kept in locals.
 import { dialogCallBody, segmentSequence } from '../system/native-call-continuation.mjs';
-import { frameWaitCallSequence, takePadWord } from '../system/live-input-calls.mjs';
+import { frameWaitCallSequence, takePad } from '../system/live-input-calls.mjs';
 import { playSoundEffectRoutine } from '../apu/sound-effect.mjs';
 import { drawTextBufferSequence } from './text-draw.mjs';
 import { drawListSequence, markRowSequence, MARK, UNMARK } from './menu-list.mjs';
@@ -85,19 +85,15 @@ const SITES = Object.freeze({
   list: 0x80a6e0,
   mark: 0x80a6e6,
   wait: 0x80a6e9,
-  pad: 0x80a6ed,
   pageList: 0x80a7fa,
   moveUnmark: 0x80a78e,
   moveMark: 0x80a795,
   hotkeyUnmark: 0x80a7d1,
   confirmUnmark: 0x80a802,
   sound: 0x80a819,
-  confirmPad: 0x80a822,
   cancelUnmark: 0x80a829,
-  cancelPad: 0x80a831,
 });
 const WAIT = 0x81b0a1,
-  PAD = 0x809e1a,
   SOUND = 0x80c46e,
   LIST = 0x80a617,
   MARK_ROW = 0x80a5f9,
@@ -148,7 +144,7 @@ export function* chooseFromMenuSequence(
       helper(site, MARK_ROW, () => markRowSequence(h, events, renderBuffer, MARK, index)),
     unmark = (site) =>
       helper(site, UNMARK_ROW, () => markRowSequence(h, events, renderBuffer, UNMARK, index)),
-    pad = (site) => helper(site, PAD, () => segmentSequence(() => takePadWord(h, events)));
+    pad = () => segmentSequence(() => takePad(h, events));
   let result;
   const rts = function* () {
     yield () => {
@@ -168,7 +164,7 @@ export function* chooseFromMenuSequence(
     yield () => soundArguments(CONFIRM_SOUND);
     yield* helper(SITES.sound, SOUND, () => segmentSequence(() => playSoundEffectRoutine(h)));
     yield () => store(DP_RESULT, field(MENU_SELECTION) >>> 1);
-    yield* pad(SITES.confirmPad);
+    yield* pad();
     return yield* rts();
   };
   // Move to the row of the word index, with a new page past the page shown.
@@ -271,7 +267,7 @@ export function* chooseFromMenuSequence(
   yield* mark(SITES.mark);
   for (;;) {
     yield* dialogCallBody(h, SITES.wait, WAIT, () => frameWaitCallSequence(h, events), true);
-    yield* pad(SITES.pad);
+    yield* pad();
     let branch;
     yield () => {
       store(MENU_NAVIGATION_INPUT, field(PAD_PRESSED));
@@ -292,7 +288,7 @@ export function* chooseFromMenuSequence(
     if (branch === 'cancel') {
       yield* unmark(SITES.cancelUnmark);
       yield () => store(DP_RESULT, NONE);
-      yield* pad(SITES.cancelPad);
+      yield* pad();
       return yield* rts();
     }
     if (branch === 'confirm') {
