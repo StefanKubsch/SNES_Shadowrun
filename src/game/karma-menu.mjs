@@ -103,7 +103,6 @@ import {
 
 const CONFIRM_KEY = 0x80f953,
   NUMBERED_MENU = 0x80a6b8,
-  BUY_STEP = 0x80f006,
   PLAIN_MENU = 0x80a6c7;
 // The karma menu's categories (80:EF78) and their lists: row 1 Body (80:F0F3), row 2
 // the first list (80:F054), any other the third (80:F1B5); the detail windows leave
@@ -177,8 +176,9 @@ export function* karmaLineSequence(h, events, renderBuffer = drawTextBufferSeque
   return yield* returnSequence(h);
 }
 
-// 80:F006: one step bought (see above). A sequence that ends with its RTS.
-export function* buyStepSequence(h, events, renderBuffer = drawTextBufferSequence) {
+// 80:F006: one step bought (see above), for lifted callers without the JSR frame; the
+// confirm key keeps its own.
+export function* buyStep(h, events, renderBuffer = drawTextBufferSequence) {
   const { mem } = h.a,
     { wram } = mem;
   let paid;
@@ -201,21 +201,25 @@ export function* buyStepSequence(h, events, renderBuffer = drawTextBufferSequenc
     const address = valueAddress(wram);
     mem.write8(address, (mem.read8(address) + 1) & BYTE_MASK);
   };
-  if (paid) return yield* returnSequence(h);
+  if (paid) return;
   yield* openWindow(h, events);
   yield () => setWord(wram, 2, TEXT_KARMA_INSUFFICIENT);
   yield* printText(h, events, renderBuffer);
   yield* dialogCallBody(h, 0x80f03d, CONFIRM_KEY, () => waitForConfirmKeySequence(h, events));
   yield* releaseWindowSequence(h, events);
   yield () => setWord(wram, DP_KARMA_VALUE_POINTER, 0);
+}
+// The step bought as called with JSR (80:F006); returns with its RTS.
+export function* buyStepSequence(h, events, renderBuffer = drawTextBufferSequence) {
+  yield* buyStep(h, events, renderBuffer);
   return yield* returnSequence(h);
 }
 
 const negative = (value) => (value & WORD_SIGN) !== 0;
 
-// 80:F054, 80:F0F3 or 80:F1B5: a karma list (see above). A sequence that ends with its
-// RTS.
-export function* karmaListSequence(h, events, entry, renderBuffer = drawTextBufferSequence) {
+// 80:F054, 80:F0F3 or 80:F1B5: a karma list (see above), for lifted callers without the
+// JSR frame; the menu choice keeps its own.
+export function* karmaList(h, events, entry, renderBuffer = drawTextBufferSequence) {
   const { mem } = h.a,
     { wram } = mem,
     list = KARMA_LISTS[entry];
@@ -276,16 +280,14 @@ export function* karmaListSequence(h, events, entry, renderBuffer = drawTextBuff
     yield () => {
       chosen = word(wram, 0);
     };
-    if (!chosen || negative(chosen)) return yield* returnSequence(h);
+    if (!chosen || negative(chosen)) return;
     yield () => {
       setWord(wram, DP_KARMA_SELECTION, chosen);
       const index = dataBankWord(mem, KARMA_MENU_INDICES, chosen << 1),
         pointer = dataBankWord(mem, list.pointers, index);
       setWord(wram, DP_KARMA_VALUE_POINTER, pointer);
     };
-    yield* dialogCallBody(h, list.pcs.buy, BUY_STEP, () =>
-      buyStepSequence(h, events, renderBuffer),
-    );
+    yield* buyStep(h, events, renderBuffer);
     if (list.body) {
       let body;
       yield () => {
@@ -301,9 +303,15 @@ export function* karmaListSequence(h, events, entry, renderBuffer = drawTextBuff
     yield* karmaLine(h, events, renderBuffer);
   }
 }
+// The karma list as called with JSR; returns with its RTS.
+export function* karmaListSequence(h, events, entry, renderBuffer = drawTextBufferSequence) {
+  yield* karmaList(h, events, entry, renderBuffer);
+  return yield* returnSequence(h);
+}
 
-// 80:EE57: the karma menu (see above). A sequence that ends with its RTS.
-export function* karmaMenuSequence(h, events, renderBuffer = drawTextBufferSequence) {
+// 80:EE57: the karma menu (see above), for lifted callers without the JSR frame; the
+// menu choices keep their own.
+export function* karmaMenu(h, events, renderBuffer = drawTextBufferSequence) {
   const { mem } = h.a,
     { wram } = mem,
     { language } = mem;
@@ -404,14 +412,14 @@ export function* karmaMenuSequence(h, events, renderBuffer = drawTextBufferSeque
       options,
     );
     // Row 1 is the Body list, row 2 the first list, any other the third.
-    const [pc, entry] =
+    const entry =
       chosen === BODY_ROW
-        ? [0x80ef28, KARMA_LIST_BODY]
+        ? KARMA_LIST_BODY
         : chosen === FIRST_LIST_ROW
-          ? [0x80ef32, KARMA_LIST_FIRST]
-          : [0x80ef37, KARMA_LIST_THIRD];
+          ? KARMA_LIST_FIRST
+          : KARMA_LIST_THIRD;
     yield () => setWord(wram, 0, dataBankWord(mem, KARMA_HEADER_WINDOW));
-    yield* dialogCallBody(h, pc, entry, () => karmaListSequence(h, events, entry, renderBuffer));
+    yield* karmaList(h, events, entry, renderBuffer);
     yield* release(KARMA_LIST_WINDOW);
     yield* release(KARMA_HEADER_WINDOW);
   }
@@ -426,5 +434,9 @@ export function* karmaMenuSequence(h, events, renderBuffer = drawTextBufferSeque
   yield* raiseStateCountAndRedraw(h, events);
   yield leaderArguments;
   yield () => raiseMemberMagicPointsInPlace(h.a);
+}
+// The karma menu as called with JSR (80:EE57); returns with its RTS.
+export function* karmaMenuSequence(h, events, renderBuffer = drawTextBufferSequence) {
+  yield* karmaMenu(h, events, renderBuffer);
   return yield* returnSequence(h);
 }

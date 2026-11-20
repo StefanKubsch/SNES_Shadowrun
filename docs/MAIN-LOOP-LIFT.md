@@ -107,12 +107,13 @@ useItem with its object creation (the item submenu; the script visit keeps its
 frame); spellMenu (the status screen's spell submenu and the spell menu native
 80:F254), so the status screen's submenu dispatch JSR ECEA keeps no frame;
 decimalNumber (Jake's money on the status screen); saveMenu (the main menu's save
-row); the window release, the glove, the notice windows' release and the name window
-release already had one. The player control selects animations and turns through the
-plain functions of [object-turn.mjs](../src/game/object-turn.mjs). The unused call
-sites go with the frames. Frames stay where a callee's own wait or a recorded
-routine returns from them (the word wait, the menu choice, the confirm key, the
-portrait unpack and tile upload, the topic action's append and visit).
+row); karmaMenu with karmaList and buyStep (the main menu's karma row); the window
+release, the glove, the notice windows' release and the name window release already
+had one. The player control selects animations and turns through the plain functions
+of [object-turn.mjs](../src/game/object-turn.mjs). The unused call sites go with the
+frames. Frames stay where a callee's own wait or a recorded routine returns from
+them (the word wait, the menu choice, the confirm key, the portrait unpack and tile
+upload, the topic action's append and visit).
 
 ## Lifted so far
 

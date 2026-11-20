@@ -25,7 +25,7 @@ import { openWindow } from './window-open.mjs';
 import { releaseWindowSequence } from './window-release.mjs';
 import { chooseFromMenuSequence } from './menu-choice.mjs';
 import { playSoundEffectCall } from '../apu/sound-effect.mjs';
-import { karmaMenuSequence } from './karma-menu.mjs';
+import { karmaMenu } from './karma-menu.mjs';
 import { printText } from './text-print.mjs';
 import { waitForConfirmKeySequence } from './confirm-key.mjs';
 import { drawTextBufferSequence } from './text-draw.mjs';
@@ -58,8 +58,7 @@ import { CODE_BANK, CODE_BANK_BASE } from '../constants/memory-map.mjs';
 import { BYTE_BITS, BYTE_MASK, WORD_BITS, WORD_MASK, WORD_SIGN } from '../constants/bits.mjs';
 
 const CONFIRM_KEY = 0x80f953,
-  PLAIN_MENU = 0x80a6c7,
-  KARMA_MENU = 0x80ee57;
+  PLAIN_MENU = 0x80a6c7;
 // The menus' window (0A, 0A, 0C columns; five rows, seven with four slots; three or
 // five rows visible) and the menus' item lists.
 const MENU_WINDOW = Object.freeze({
@@ -223,10 +222,7 @@ export function* mainMenuSequence(h, events, renderBuffer = drawTextBufferSequen
     yield* releaseMenuWindow(h, events);
     if (!chosen || negative(chosen)) break;
     if (chosen === SAVE_ROW) yield* saveMenu(h, events, renderBuffer);
-    else
-      yield* dialogCallBody(h, 0x80cebd, KARMA_MENU, () =>
-        karmaMenuSequence(h, events, renderBuffer),
-      );
+    else yield* karmaMenu(h, events, renderBuffer);
   }
   return yield* returnSequence(h);
 }
