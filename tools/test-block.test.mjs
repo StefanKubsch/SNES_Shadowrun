@@ -70,13 +70,17 @@ test('the sweep removes stale leftovers only and keeps live and counted entries'
     old = (now - STALE_MS - 1) / 1000;
   const entries = {
     'temp/snes-rom-abc123/run.smc': true,
-    'temp/snes-release-abc123/summary.json': false,
+    'temp/snes-release-abc123/summary.json': true,
+    'temp/Importer_0_4 (12)/.keep': true,
+    'temp/snes-block-abc123/batch.log': false,
     'temp/rb9-01.log': true,
     'temp/rb9-01.tests': true,
     'temp/snes-window-focused.log': true,
     'temp/other-tool.log': false,
     'temp/msedge_url_fetcher_999999999_1/x': true,
     [`temp/msedge_url_fetcher_${process.pid}_1/x`]: false,
+    'temp/scoped_dir999999999_1/CRX_INSTALL/x': true,
+    [`temp/scoped_dir${process.pid}_1/x`]: false,
     'mesen/Debugger/run-1-2-abc.cdl': true,
     'mesen/Debugger/Shadowrun.cdl': false,
   };

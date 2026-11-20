@@ -1,4 +1,4 @@
-import { readFile, writeFile, readdir, mkdtemp } from 'node:fs/promises';
+import { mkdir, readFile, writeFile, readdir, mkdtemp } from 'node:fs/promises';
 import { createHash } from 'node:crypto';
 import { execFile } from 'node:child_process';
 import { promisify } from 'node:util';
@@ -7,7 +7,7 @@ import { availableParallelism, tmpdir } from 'node:os';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 import { createReleaseCache } from './release-cache.mjs';
 import { projectStatusTextFindings } from './project-status-text.mjs';
-import { pruneTempDirs } from './temp-dir.mjs';
+import { removeDirQuietly } from './temp-dir.mjs';
 import { cleanTemp, describeClean } from './clean-temp.mjs';
 const exec = promisify(execFile);
 // Test files running at once, each possibly with its own Edge or Mesen.
@@ -205,15 +205,13 @@ export async function verifyModuleSyntax({ root, files, logDir, command = runLog
     throw Error('Incomplete syntax batch result');
   return result;
 }
-// Older log directories in the temp folder are removed when a release check starts: it
-// keeps the newest 19 release logs (20 with this run) and 50 browser test logs.
-const KEPT_LOG_DIRS = [
-  ['snes-release-', 19],
-  ['snes-browser-frame-', 50],
-];
+// Temporary data must not pile up (user, 2026-11-20): a passing release check removes
+// its log directory and keeps only its summary in .cache/release/last-summary.json; a
+// failing one keeps the directory, which clean:temp sweeps after six hours. Browser
+// tests likewise remove their own logs after passing (tools/browser-frame.mjs).
+export const LAST_SUMMARY = join('.cache', 'release', 'last-summary.json');
 export async function verifyRelease(root, { full = false } = {}) {
   console.log(describeClean(await cleanTemp()));
-  for (const [prefix, keep] of KEPT_LOG_DIRS) await pruneTempDirs(prefix, keep);
   const logDir = await mkdtemp(join(tmpdir(), 'snes-release-'));
   const summary = {
     passed: false,
@@ -350,8 +348,12 @@ export async function verifyRelease(root, { full = false } = {}) {
     await run('lfs-fsck', 'git', ['lfs', 'fsck']);
     await run('lfs-status', 'git', ['lfs', 'status']);
     summary.passed = true;
-    await writeFile(join(logDir, 'summary.json'), JSON.stringify(summary, null, 2) + '\n');
-    console.log(`Release checks passed; summary: ${join(logDir, 'summary.json')}`);
+    delete summary.log_dir;
+    const summaryPath = join(root, LAST_SUMMARY);
+    await mkdir(dirname(summaryPath), { recursive: true });
+    await writeFile(summaryPath, JSON.stringify(summary, null, 2) + '\n');
+    await removeDirQuietly(logDir);
+    console.log(`Release checks passed; summary: ${LAST_SUMMARY} (logs removed).`);
     return summary;
   } catch (error) {
     summary.failed_step = step;

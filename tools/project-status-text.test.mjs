@@ -1,8 +1,8 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { mkdir, writeFile, readFile } from 'node:fs/promises';
-import { join } from 'node:path';
-import { testTempDir } from './temp-dir.mjs';
+import { dirname, join } from 'node:path';
+import { removeDirQuietly, testTempDir } from './temp-dir.mjs';
 import { projectStatusTextFindings, PROJECT_STATUS_TEXT_LIMIT } from './project-status-text.mjs';
 import { verifyRelease } from './verify-release.mjs';
 
@@ -55,6 +55,8 @@ test('Release rejects overlong status text before needing formatters, generators
     return /failed at project-status: focus: 401 characters/.test(failure.message);
   });
   const summaryPath = error.message.split('\nSummary: ')[1];
+  // A failing release keeps its log directory; this deliberate failure removes it.
+  t.after(() => removeDirQuietly(dirname(summaryPath)));
   const summary = JSON.parse(await readFile(summaryPath, 'utf8'));
   assert.equal(summary.passed, false);
   assert.equal(summary.failed_step, 'project-status');

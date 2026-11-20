@@ -64,7 +64,7 @@ async function connect(url, commandTimeout) {
 }
 // Edge headless on the local start page (served like npm start, with cross-origin
 // isolation). use({cdp,evalJs,logDir}) runs once the page is loaded; the browser
-// closes afterwards and its log stays in logDir. commandTimeout limits each
+// closes afterwards and logDir stays only after a failure. commandTimeout limits each
 // browser command; keep it below the test timeout so a hang names its command.
 export async function withStartPage(
   { root = process.cwd(), exe = findEdge(), commandTimeout = DEFAULT_COMMAND_TIMEOUT_MS } = {},
@@ -77,7 +77,9 @@ export async function withStartPage(
   // Exports (recording, save) are links the tests click; with a fresh profile
   // the headless browser would save them in the user's Downloads folder. The
   // profile's preferences send them to logDir/downloads, where they stay with the log.
-  const downloads = join(logDir, 'downloads');
+  const downloads = join(logDir, 'downloads'),
+    edgeTemp = join(logDir, 'profile', 'temp');
+  await mkdir(edgeTemp, { recursive: true });
   await mkdir(join(logDir, 'profile', 'Default'), { recursive: true });
   await mkdir(downloads, { recursive: true });
   await writeFile(
@@ -109,11 +111,19 @@ export async function withStartPage(
       '--window-size=1100,1000',
       'about:blank',
     ],
-    { windowsHide: true, stdio: ['ignore', 'ignore', 'pipe'] },
+    // Edge's own temporary files (such as an empty Importer_0_4 folder per start)
+    // go to logDir/profile/temp instead of %TEMP% and leave with the profile.
+    {
+      windowsHide: true,
+      stdio: ['ignore', 'ignore', 'pipe'],
+      env: { ...process.env, TEMP: edgeTemp, TMP: edgeTemp },
+    },
   );
   let stderr = '';
   child.stderr.on('data', (chunk) => (stderr += chunk));
-  let cdp, guard;
+  let cdp,
+    guard,
+    passed = false;
   try {
     let port;
     const deadline = Date.now() + DEBUGGER_WAIT_MS;
@@ -185,7 +195,12 @@ export async function withStartPage(
     await evalJs(
       `new Promise((resolve,reject)=>{const stop=Date.now()+30000;const check=()=>{if(document.readyState==='complete'&&document.querySelector('#start'))resolve(true);else if(Date.now()>stop)reject(Error('Start button missing'));else setTimeout(check,50)};check();})`,
     );
-    return await use({ cdp, evalJs, logDir });
+    const result = await use({ cdp, evalJs, logDir });
+    passed = true;
+    return result;
+  } catch (error) {
+    if (error instanceof Error) error.message += ` (browser log: ${logDir})`;
+    throw error;
   } finally {
     clearInterval(guard);
     if (cdp) {
@@ -201,10 +216,16 @@ export async function withStartPage(
     child.unref();
     server.closeAllConnections();
     server.close();
-    await writeFile(join(logDir, 'browser.log'), stderr);
-    // The Edge profile (about 1000 files per run) is not a log; the log,
-    // foreign-page notes and downloads stay in logDir.
-    await removeDirQuietly(join(logDir, 'profile'));
+    // Temporary data must not pile up (user, 2026-11-20): a passing run removes
+    // logDir with its screenshots; SNES_KEEP_BROWSER_LOGS=1 keeps them for
+    // inspection. A failing run keeps the log, foreign-page notes and downloads
+    // (its error names logDir); only the Edge profile (about 1000 files) goes.
+    // clean:temp sweeps kept folders after six hours.
+    if (passed && process.env.SNES_KEEP_BROWSER_LOGS !== '1') await removeDirQuietly(logDir);
+    else {
+      await writeFile(join(logDir, 'browser.log'), stderr);
+      await removeDirQuietly(join(logDir, 'profile'));
+    }
   }
 }
 // The real start page in Edge: it loads the game data package (no ROM), "Start game" (live cold start

@@ -387,20 +387,27 @@ tests without it and then repeat them because of the predictable index
 failure. An index failure is not a passing release and must not be hidden
 by permanently weakening the sandbox.
 
-Individual logs and `summary.json` are stored in a new temporary directory;
-the command prints its path. It does not commit or push. At its start it
-removes older `snes-release-*` directories beyond the newest 19 and
-`snes-browser-frame-*` directories beyond the newest 50. Browser tests
-delete their Edge profile after each run and keep only log and downloads;
-Mesen scripts and test fixtures live in temporary directories that are
+Individual logs and `summary.json` are stored in a new temporary
+`snes-release-*` directory. It does not commit or push. A passing check
+removes that directory and keeps only its summary in
+`.cache/release/last-summary.json`; a failing one keeps it, prints its path
+and leaves it to `clean:temp` after six hours. A passing
+browser test removes its `snes-browser-frame-*` directory with screenshots
+and downloads; a failing one keeps log and downloads, names the directory in
+its error and loses only the Edge profile; `clean:temp` sweeps it after six
+hours. Set `SNES_KEEP_BROWSER_LOGS=1` to keep passing runs' screenshots for
+inspection. Mesen scripts and test fixtures live in temporary directories that are
 removed after the run ([temp-dir.mjs](../tools/temp-dir.mjs)).
 
 Temporary data must not pile up (user, 2026-11-10 and 2026-11-20).
 `npm run clean:temp` ([clean-temp.mjs](../tools/clean-temp.mjs);
 `--dry-run` lists instead) removes leftovers older than six hours: `snes-*`
 folders of killed runs, former agent logs (`rb*.log`, `rb*.tests`,
-`snes-*.log`), Edge's `msedge_url_fetcher_*` folders whose process has ended
-and Mesen's per-run files. `test:block` and `verify:release` run it first.
+`snes-*.log`), Edge's `msedge_url_fetcher_*` folders whose process has ended,
+Edge's empty `Importer_*` folders, Chromium's `scoped_dir<pid>_*` folders
+whose process has ended and Mesen's per-run files. Browser tests
+give Edge its own `TEMP` inside the test folder, so its temporary files leave
+with the Edge profile. `test:block` and `verify:release` run it first.
 Each Mesen run removes the files Mesen keeps beside its program under the
 run's ROM name (`Saves/*.srm`, `Debugger/*.cdl`, `SaveStates`), and browser
 tests start Edge with `--disable-component-update`, which otherwise left a

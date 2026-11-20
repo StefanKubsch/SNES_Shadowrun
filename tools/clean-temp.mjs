@@ -4,7 +4,11 @@
 // data; this sweep catches what killed or crashed runs and external programs
 // left behind. It only removes entries older than STALE_MS, so parallel runs
 // keep their live folders.
-// - %TEMP%/snes-* folders, except the log folders that pruneTempDirs keeps by count;
+// - %TEMP%/snes-* folders (including failed release and browser test logs),
+//   except the block log folders that test-block.mjs keeps by count;
+// - Edge's empty Importer_* folders and Chromium's scoped_dir<pid>_* folders
+//   whose process has ended, from earlier browser tests (Edge now gets its own
+//   TEMP inside the test folder);
 // - former agent logs in %TEMP% (rb*.log, rb*.tests, snes-*.log);
 // - Edge's msedge_url_fetcher_<pid>_* folders whose process has ended (browser
 //   tests now start Edge without the component updater that made them);
@@ -22,10 +26,17 @@ const HOUR_MS = 3600000,
 export const STALE_MS = STALE_HOURS * HOUR_MS;
 // A few short retries: a still locked entry waits for the next sweep.
 const REMOVE_OPTIONS = { recursive: true, force: true, maxRetries: 3, retryDelay: 100 }; // magic-number-ok: retry count and delay in ms
-// Log folders kept by count (pruneTempDirs in verify-release.mjs and test-block.mjs).
-const COUNTED_PREFIXES = ['snes-release-', 'snes-browser-frame-', 'snes-block-'];
+// Log folders kept by count (pruneTempDirs in test-block.mjs).
+const COUNTED_PREFIXES = ['snes-block-'];
+const EDGE_IMPORTER = /^Importer_\d+_\d+(?: \(\d+\))?$/;
 const TEMP_FILE = /^(?:rb\d[\w-]*\.(?:log|tests)|snes-[\w.-]+\.log)$/;
 const EDGE_FETCHER = /^msedge_url_fetcher_(\d+)_\d+$/;
+// Chromium's scoped_dir<pid>_<n> folders (extension installs, CRX_INSTALL).
+const SCOPED_DIR = /^scoped_dir(\d+)_\d+$/;
+const ended = (pattern, name) => {
+  const match = name.match(pattern);
+  return Boolean(match) && !processAlive(Number(match[1]));
+};
 const MESEN_RUN = /^run-\d+-\d+-/;
 
 function processAlive(pid) {
@@ -89,7 +100,9 @@ export async function cleanTemp({
     (name, isDir) =>
       isDir
         ? (name.startsWith('snes-') && !COUNTED_PREFIXES.some((p) => name.startsWith(p))) ||
-          (EDGE_FETCHER.test(name) && !processAlive(Number(name.match(EDGE_FETCHER)[1])))
+          EDGE_IMPORTER.test(name) ||
+          ended(EDGE_FETCHER, name) ||
+          ended(SCOPED_DIR, name)
         : TEMP_FILE.test(name),
     result,
   );
