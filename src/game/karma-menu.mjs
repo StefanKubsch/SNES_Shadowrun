@@ -104,7 +104,6 @@ import {
 const CONFIRM_KEY = 0x80f953,
   NUMBERED_MENU = 0x80a6b8,
   RAISE_STATE_COUNT = 0x80cecb,
-  KARMA_LINE = 0x80ef82,
   BUY_STEP = 0x80f006,
   PLAIN_MENU = 0x80a6c7,
   RAISE_MAGIC_POINTS = 0x80cf2e;
@@ -148,8 +147,9 @@ function* returnSequence(h) {
 const valueAddress = (wram) =>
   (word(wram, DP_KARMA_VALUE_POINTER) | (wram[DP_KARMA_VALUE_BANK] << WORD_BITS)) & LONG_MASK;
 
-// 80:EF82: the karma line (see above). A sequence that ends with its RTS.
-export function* karmaLineSequence(h, events, renderBuffer = drawTextBufferSequence) {
+// 80:EF82: the karma line (see above), for lifted callers without the JSR frame (the
+// caller's return word lies only in free stack bytes).
+export function* karmaLine(h, events, renderBuffer = drawTextBufferSequence) {
   const { mem } = h.a,
     { wram } = mem;
   yield () => setWord(wram, 0, dataBankWord(mem, KARMA_BALANCE_WINDOW));
@@ -172,6 +172,10 @@ export function* karmaLineSequence(h, events, renderBuffer = drawTextBufferSeque
     setWord(wram, 2, shown);
   };
   yield* printNumber(h, events, renderBuffer);
+}
+// The karma line as called with JSR (80:EF82); returns with its RTS.
+export function* karmaLineSequence(h, events, renderBuffer = drawTextBufferSequence) {
+  yield* karmaLine(h, events, renderBuffer);
   return yield* returnSequence(h);
 }
 
@@ -299,9 +303,7 @@ export function* karmaListSequence(h, events, entry, renderBuffer = drawTextBuff
           raiseStateCountSequence(h, events),
         );
     }
-    yield* dialogCallBody(h, list.pcs.karma, KARMA_LINE, () =>
-      karmaLineSequence(h, events, renderBuffer),
-    );
+    yield* karmaLine(h, events, renderBuffer);
   }
 }
 
@@ -355,7 +357,7 @@ export function* karmaMenuSequence(h, events, renderBuffer = drawTextBufferSeque
       ? listTextIds(mem, CODE_BANK_BASE | KARMA_MENU_ITEMS, KARMA_WINDOWS.categoryVisibleRows)
       : [],
   );
-  yield* dialogCallBody(h, 0x80eead, KARMA_LINE, () => karmaLineSequence(h, events, renderBuffer));
+  yield* karmaLine(h, events, renderBuffer);
   // Translated category and upgrade labels cannot both fit across thirty tiles: the
   // detail windows go below the categories instead of beside them.
   const detailTop = language
