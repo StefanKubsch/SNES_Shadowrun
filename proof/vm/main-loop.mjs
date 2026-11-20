@@ -9,7 +9,6 @@ import { dialogAccess } from '../../src/system/native-dialog-support.mjs';
 import {
   runCameraFollow,
   runTileBuffers,
-  runPaletteCycles,
   runObjectMotion,
   runSpriteList,
 } from '../../src/game/main-upkeep.mjs';
@@ -23,6 +22,7 @@ import {
   runHitShake,
   runFormationStep,
   runColourEffect,
+  runPaletteCycles,
 } from '../caller/live-loop-routines.mjs';
 import { processSceneRequest } from '../caller/scene-request.mjs';
 import { NativeWaitContinuation } from '../system/native-wait-continuation.mjs';

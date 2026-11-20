@@ -8,7 +8,6 @@
 // that the Mesen oracle compares. So the entries leave X and Y as the original; A and
 // the flags besides the width are not produced, every next callee loads its own A.
 import { noticeTimeoutSequence } from './notice-timeout.mjs';
-import { advancePaletteCycles } from './palette-cycles.mjs';
 import { followPlayerWithCamera } from './camera-follow.mjs';
 import { updateTileBuffers } from './camera-scroll.mjs';
 import { timeLimitSequence } from './time-limit.mjs';
@@ -54,11 +53,6 @@ export { takePadWord } from '../system/live-input-calls.mjs';
 // shake indices, the formation, camera and tile buffer counters) are not produced; the
 // next routine of the loop sets its own.
 
-// 81:8076, called with JSL.
-export function runPaletteCycles(h) {
-  advancePaletteCycles(h.a.mem.wram);
-  return h.rtl();
-}
 // 80:FF14, called with JSR; its window releases wait for the NMI of their uploads, so
 // it is a native call continuation of the main loop.
 function* noticeTimeoutCallSequence(h, events) {

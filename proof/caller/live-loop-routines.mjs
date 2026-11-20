@@ -4,7 +4,6 @@
 import {
   runCameraFollow,
   runObjectMotion,
-  runPaletteCycles,
   runSpriteList,
   runTileBuffers,
   mainLoopNoticeSequence,
@@ -18,6 +17,7 @@ import { gloveActionSequence } from '../../src/game/glove-action.mjs';
 import { gloveMoveJsr } from './jsr-forms.mjs';
 import { shakeHitPlayer } from '../../src/game/player-hit.mjs';
 import { recordFormationStep } from '../../src/game/formation-trail.mjs';
+import { advancePaletteCycles } from '../../src/game/palette-cycles.mjs';
 import { applyColourEffect } from '../../src/game/fixed-colour.mjs';
 import { sceneRuntime } from '../../src/system/scene-runtime.mjs';
 import {
@@ -62,6 +62,11 @@ export function runFormationStep(h) {
 // 81:8877, called with JSL.
 export function runColourEffect(h) {
   applyColourEffect(sceneRuntime(h));
+  return h.rtl();
+}
+// 81:8076, called with JSL.
+export function runPaletteCycles(h) {
+  advancePaletteCycles(h.a.mem.wram);
   return h.rtl();
 }
 
