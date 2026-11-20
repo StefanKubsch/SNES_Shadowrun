@@ -26,7 +26,7 @@
 // two windows wait on the stack as in the original.
 import { dialogCallBody, segmentSequence } from '../system/native-call-continuation.mjs';
 import { setMusicModeCall } from '../apu/audio-routines.mjs';
-import { showDialogTextSequence } from './dialog-text.mjs';
+import { showDialogText } from './dialog-text.mjs';
 import { chooseDialogActionSequence, chooseDialogTopicSequence } from './dialog-menus.mjs';
 import { drawTextBufferSequence } from './text-draw.mjs';
 import { reloadObjectTilesSequence } from './object-tiles.mjs';
@@ -150,12 +150,9 @@ const CALL = Object.freeze({
   partnerShift: [0x809473, 0x808f20],
   partnerUpload: [0x809476, 0x80905e],
   portraitWindow: [0x809479, 0x808f3a],
-  greeting: [0x809483, 0x809178],
   wait: [0x809489, 0x81b0a1, true],
   menu: [0x809490, 0x8091e2],
   topics: [0x8094a2, 0x809215],
-  topicText: [0x8094b8, 0x809178],
-  talkText: [0x8094c5, 0x809178],
   releaseText: [0x8094d9, 0x80fa3e],
   releaseFrame: [0x8094df, 0x80fa3e],
   restoreMusic: [0x8094e5, 0x81ef47, true],
@@ -355,9 +352,7 @@ export function* talkSequence(h, events, renderBuffer = drawTextBufferSequence) 
   yield* dialogCallBody(h, ...CALL.partnerUpload, () => uploadSecondPortraitSequence(h, events));
   yield* dialogCallBody(h, ...CALL.portraitWindow, () => openPortraitWindowSequence(h, events));
   yield () => setWord(wram, DP_OBJECT, word(wram, DP_PORTRAIT_FRAME));
-  yield* dialogCallBody(h, ...CALL.greeting, () =>
-    showDialogTextSequence(h, events, renderBuffer, GREETING_TEXT),
-  );
+  yield* showDialogText(h, events, renderBuffer, GREETING_TEXT);
   // The greeting waits until the frame count passes below 0.
   for (let frames = GREETING_WAIT_FRAMES; !(frames & WORD_SIGN); frames = (frames - 1) & WORD_MASK)
     yield* dialogCallBody(
@@ -397,9 +392,7 @@ export function* talkSequence(h, events, renderBuffer = drawTextBufferSequence) 
       if (next === 'end') break;
       if (next === 'menu') continue;
     }
-    yield* dialogCallBody(h, ...(next === 'talk' ? CALL.talkText : CALL.topicText), () =>
-      showDialogTextSequence(h, events, renderBuffer, key),
-    );
+    yield* showDialogText(h, events, renderBuffer, key);
     let stop;
     yield () => {
       stop = word(wram, DIALOG_END) !== 0;

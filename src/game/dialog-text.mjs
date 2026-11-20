@@ -155,9 +155,10 @@ function searchEntry(mem, wram, acc) {
   }
 }
 
-// Show the dialog text for the key (80:9178, A in the original), a sequence for a native
-// call continuation with an optional text renderer.
-export function* showDialogTextSequence(h, events, renderBuffer = drawTextBufferSequence, key) {
+// Show the dialog text for the key (80:9178, A in the original) for lifted callers,
+// without the JSR frame (the caller's return word lies only in free stack bytes); an
+// optional text renderer.
+export function* showDialogText(h, events, renderBuffer = drawTextBufferSequence, key) {
   const { mem } = h.a,
     { wram } = mem;
   for (;;) {
@@ -201,6 +202,11 @@ export function* showDialogTextSequence(h, events, renderBuffer = drawTextBuffer
     }
     if (entry.missing) break;
   }
+}
+// The dialog text as called with JSR (80:9178), a sequence for a native call
+// continuation; returns with its RTS.
+export function* showDialogTextSequence(h, events, renderBuffer = drawTextBufferSequence, key) {
+  yield* showDialogText(h, events, renderBuffer, key);
   let result;
   yield () => {
     result = h.rts();
