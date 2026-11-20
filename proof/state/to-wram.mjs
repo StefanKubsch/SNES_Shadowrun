@@ -1,3 +1,4 @@
+import { COLLISION_FIELDS, collisionTable } from '../../src/state/collision.mjs';
 // A diagnostic projection, never imported by the product. The unconverted state
 // retains its bytes; the live object fields supply their original little-endian
 // positions, including matrix, intro and OAM aliases. Projection does not mutate
@@ -18,6 +19,13 @@ export function toWram(memory, into = new Uint8Array(memory.wram.length)) {
         into[base + index * 2 + 1] = value >>> BYTE_BITS;
       }
   }
+  const collision = collisionTable(wram);
+  if (collision)
+    for (const [name, { base, count, stride }] of Object.entries(COLLISION_FIELDS))
+      for (let i = 0; i < count; i++) {
+        into[base + i * stride] = collision[name][i] & BYTE_MASK;
+        into[base + i * stride + 1] = collision[name][i] >>> BYTE_BITS;
+      }
   return into;
 }
 
@@ -27,7 +35,12 @@ export function restoreWram(memory, bytes) {
   const { wram } = memory;
   if (!(bytes instanceof Uint8Array) || bytes.length !== wram.length)
     throw new Error('wram_snapshot_size_required');
+  const collision = collisionTable(wram);
   wram.set(bytes);
+  if (collision)
+    for (const [name, { base, count, stride }] of Object.entries(COLLISION_FIELDS))
+      for (let i = 0; i < count; i++)
+        collision[name][i] = bytes[base + i * stride] | (bytes[base + i * stride + 1] << BYTE_BITS);
   if (hasDetachedObjects(wram)) {
     const objects = objectTable(wram);
     for (const [name, base] of Object.entries(OBJECT_FIELDS))

@@ -1,3 +1,4 @@
+import { detachCollisionStorage } from '../state/collision.mjs';
 // Live cold start (user decision 2026-10-30, docs/STRATEGY.md): the
 // native owner begins at reset 00:E382 and runs from the start with
 // lag-free frames (src/vm/frame-events.mjs), live pad, native APU and PPU.
@@ -84,7 +85,10 @@ export class LiveGame {
       cart = new Uint8Array(size);
     if (sram) cart.set(sram.subarray(0, size));
     this.memory = new VmMemory(rom, new Uint8Array(WRAM_SIZE), cart, present);
-    if (loop === gameLoop) detachObjectStorage(this.memory.wram);
+    if (loop === gameLoop) {
+      detachObjectStorage(this.memory.wram);
+      detachCollisionStorage(this.memory.wram);
+    }
     this.memory.textEdits = cartridge.textEdits ?? null;
     if (settings.fourSaveSlots) installPortExtension(this.memory);
     // Text language (src/data/language.mjs): languages maps a code to buildLanguage's result.

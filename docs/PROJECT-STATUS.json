@@ -1,7 +1,7 @@
 {
   "updated": "2026-11-20",
   "focus": "State model rebuild (docs/STATE-MODEL-REBUILD.md): typed state, golden traces and WRAM projection, then a plain frame loop and rendering without PPU registers. Batch: HANDOFF.md.",
-  "next_step": "Detach the remaining collision grid state, then camera and tile maps. Objects have independent storage; batch state: HANDOFF.md.",
+  "next_step": "Detach camera and tile map state. Objects and the collision grid have independent storage; preserve tile cache overlays through the state byte boundary. Batch state: HANDOFF.md.",
   "porting_resume": "216 original-form bytes remain: 121 code and 95 unidentified data. Read/hardware/data boundaries: docs/ROM-CODE-AUDIT.md. Unknown bytes and unused graphics stay preserved; unrecorded paths can report rom_byte_absent.",
   "open_issues": [
     "Keyword overflow: synthetic insertion of a 51st retained topic corrupts flags in European source and lifted code. Marking does not free storage. A reachable regular story route and a compatible gameplay correction remain unproved; see docs/BUGFIXES.md.",

@@ -1,3 +1,4 @@
+import { collisionByte, setCollisionByte } from './collision.mjs';
 // The object table: one entry per object slot, each field a named array
 // (docs/STATE-MODEL-REBUILD.md, phase 2). Game code reads and writes objects through
 // these fields instead of WRAM addresses.
@@ -235,13 +236,13 @@ for (const [name, base] of Object.entries(FIELDS)) {
 }
 export function readStateByte(wram, at) {
   const field = detached.has(wram) && byteFields[at];
-  if (!field) return wram[at];
+  if (!field) return collisionByte(wram, at) ?? wram[at];
   return (tables.get(wram)[field.name][field.index] >>> field.shift) & BYTE_MASK;
 }
 export function writeStateByte(wram, at, value) {
   const field = detached.has(wram) && byteFields[at];
   if (!field) {
-    wram[at] = value;
+    if (!setCollisionByte(wram, at, value)) wram[at] = value;
     return value;
   }
   const values = tables.get(wram)[field.name],

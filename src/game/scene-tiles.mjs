@@ -1,3 +1,4 @@
+import { readStateByte, writeStateByte } from '../state/objects.mjs';
 // The scene tiles (lifted from 81:9AE6 with 81:A1BC, 81:A1E1, 81:A243 and 81:9490;
 // register-level version in proof/system/main-scene-graphics.mjs).
 //
@@ -62,10 +63,10 @@ const PLANE_BYTES = 8,
 const SCENE_TILES_VRAM = 0x1000,
   STACK_END = TILE_STACK_LAST + 2;
 
-const word = (wram, at) => wram[at] | (wram[at + 1] << BYTE_BITS);
+const word = (wram, at) => readStateByte(wram, at) | (readStateByte(wram, at + 1) << BYTE_BITS);
 const setWord = (wram, at, value) => {
-  wram[at] = value & BYTE_MASK;
-  wram[at + 1] = (value >>> BYTE_BITS) & BYTE_MASK;
+  writeStateByte(wram, at, value & BYTE_MASK);
+  writeStateByte(wram, at + 1, (value >>> BYTE_BITS) & BYTE_MASK);
 };
 const readWord = (mem, at) =>
   mem.read8(at & LONG_MASK) | (mem.read8((at + 1) & LONG_MASK) << BYTE_BITS);
@@ -132,7 +133,7 @@ function tileUnits(mem, wram, at, id) {
     size = horizontal ? 1 : 2,
     units = [];
   for (let offset = 0; offset < TILE_BYTES; offset += size) {
-    let value = size === 1 ? wram[at + offset] : word(wram, at + offset);
+    let value = size === 1 ? readStateByte(wram, at + offset) : word(wram, at + offset);
     if (horizontal) value = mem.read8(BIT_REVERSE + value);
     else if (vertical) value = ((value & BYTE_MASK) << BYTE_BITS) | (value >>> BYTE_BITS);
     const row = offset & ROW_MASK,
@@ -141,8 +142,9 @@ function tileUnits(mem, wram, at, id) {
   }
   return units;
 }
-const put = (wram, at, value, size) => (size === 1 ? (wram[at] = value) : setWord(wram, at, value));
-const get = (wram, at, size) => (size === 1 ? wram[at] : word(wram, at));
+const put = (wram, at, value, size) =>
+  size === 1 ? writeStateByte(wram, at, value) : setWord(wram, at, value);
+const get = (wram, at, size) => (size === 1 ? readStateByte(wram, at) : word(wram, at));
 
 // Overlay tile id on the composed tile: its pixels replace the planes below (81:9490).
 function overlayStackTile(wram, mem, id) {

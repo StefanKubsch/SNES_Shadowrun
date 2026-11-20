@@ -139,3 +139,23 @@ own commit after `npm run test:block` and the golden trace test. One shared
   process access after managed-environment Page.enable timeouts before product
   loading. No GPU setting or browser helper was changed. The exact startup
   restriction remains undiagnosed.
+
+- 2026-11-20, collision storage: src/state/collision.mjs owns independent arrays for
+  the static and moving cell heads, node boxes and links, six box coordinates,
+  owner words and static end markers in the normal LiveGame loop. Proof fixtures
+  keep their byte storage. The schema splits the original table spans at their
+  adjacent bases (268 boxes, 1072 nodes); these are storage spans, not new limits
+  on original indices. Access beyond a span still resolves through the byte
+  boundary, including an alias into another field or the remaining raw store.
+- Box owners have a three-byte stride, so every second word is unaligned. Their
+  unused intervening bytes remain raw. The scene tile cache overlays the static
+  end markers, static heads, moving heads and boxes; its byte and word accesses
+  now use the shared state boundary, including horizontally flipped tile reads.
+  Unpacking already uses VmMemory writes. Raw WRAM is never refreshed on reads.
+- The existing diagnostic projection and snapshot restore include all collision
+  fields without changing the register-level reference implementations. Direct
+  page scratch and collision algorithms remain unchanged in this storage step.
+- Collision storage validation: all five golden traces remain unchanged; 3747
+  non-browser block tests passed and the five final storage contracts passed.
+  Two managed Edge startup checks stopped at Page.enable before product loading;
+  both passed unchanged with the already authorized elevated process access.
