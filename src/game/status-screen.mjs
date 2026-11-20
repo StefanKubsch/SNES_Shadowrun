@@ -29,7 +29,7 @@ import { dialogCallBody, segmentSequence } from '../system/native-call-continuat
 import { openWindow } from './window-open.mjs';
 import {
   releaseWindowSequence,
-  releaseNoticeWindowsCallSequence,
+  releaseNoticeWindowsSequence,
   putGloveAwaySequence,
 } from './window-release.mjs';
 import { setTextCursor, printNumber } from './window-text.mjs';
@@ -125,7 +125,6 @@ export const NATIVE_ENTRY = 0x80ea6e,
   START_ENTRY = 0x80ea89,
   ITEMS_ENTRY = 0x80ea8e;
 const SOUND = 0x81f007,
-  RELEASE_NOTICES = 0x80ff79,
   STATUS_SETUP = 0x81886a,
   DECIMAL_NUMBER = 0x80fdcf,
   EQUIPMENT_ROWS = 0x80e9c5,
@@ -236,9 +235,7 @@ export function* statusScreenSequence(
     setWord(wram, MEMBER_MENU_ACTIVE, MARK_SET);
     if (native) object = word(wram, 0);
   };
-  yield* dialogCallBody(h, native ? 0x80ea83 : 0x80eaa4, RELEASE_NOTICES, () =>
-    releaseNoticeWindowsCallSequence(h, events),
-  );
+  yield* releaseNoticeWindowsSequence(h, events);
   yield () => {
     if (!native) {
       const tag = dataBankWord(mem, GLOVE_TARGET_TAG);

@@ -41,7 +41,7 @@ import { openWindow, requestTileClear } from './window-open.mjs';
 import { setTextCursor, printNumber } from './window-text.mjs';
 import { printText } from './text-print.mjs';
 import {
-  releaseNoticeWindowsCallSequence,
+  releaseNoticeWindowsSequence,
   putGloveAwaySequence,
   releaseWindowSequence,
 } from './window-release.mjs';
@@ -106,7 +106,6 @@ const CONFIRM_KEY = 0x80f953,
   RAISE_STATE_COUNT = 0x80cecb,
   KARMA_LINE = 0x80ef82,
   BUY_STEP = 0x80f006,
-  RELEASE_NOTICES = 0x80ff79,
   PLAIN_MENU = 0x80a6c7,
   RAISE_MAGIC_POINTS = 0x80cf2e;
 // The karma menu's categories (80:EF78) and their lists: row 1 Body (80:F0F3), row 2
@@ -328,9 +327,7 @@ export function* karmaMenuSequence(h, events, renderBuffer = drawTextBufferSeque
     yield () => setWord(wram, 0, dataBankWord(mem, keep));
     yield* releaseWindowSequence(h, events);
   };
-  yield* dialogCallBody(h, 0x80ee57, RELEASE_NOTICES, () =>
-    releaseNoticeWindowsCallSequence(h, events),
-  );
+  yield* releaseNoticeWindowsSequence(h, events);
   yield* putGloveAwaySequence(h, events);
   yield () => {
     // Jake's record (the first runner's) at DP F9.

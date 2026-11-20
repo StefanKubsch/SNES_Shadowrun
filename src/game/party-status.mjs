@@ -16,7 +16,7 @@ import { dialogCallBody, segmentSequence } from '../system/native-call-continuat
 import { openWindow } from './window-open.mjs';
 import {
   releaseWindowSequence,
-  releaseNoticeWindowsCallSequence,
+  releaseNoticeWindowsSequence,
   putGloveAwaySequence,
 } from './window-release.mjs';
 import { setTextCursor, printNumber } from './window-text.mjs';
@@ -74,8 +74,7 @@ const PARTY_WINDOW = Object.freeze({ left: 1, top: 1, columns: 0x1e, baseRows: 5
   FIRST_ROW = 2,
   MAGIC_FACTOR = 10;
 // The callees and their call sites (the cursor, text and number per member in order).
-const RELEASE_NOTICES = [0x80ed3f, 0x80ff79],
-  CONFIRM_KEY = [0x80ee4b, 0x80f953];
+const CONFIRM_KEY = [0x80ee4b, 0x80f953];
 
 const word = (wram, at) => wram[at] | (wram[at + 1] << BYTE_BITS);
 const setWord = (wram, at, value) => {
@@ -123,7 +122,7 @@ export function* partyStatusSequence(h, events, renderBuffer = drawTextBufferSeq
     yield* body();
   };
   yield* putGloveAwaySequence(h, events);
-  yield* dialogCallBody(h, ...RELEASE_NOTICES, () => releaseNoticeWindowsCallSequence(h, events));
+  yield* releaseNoticeWindowsSequence(h, events);
   yield () => {
     setWord(wram, DP_WINDOW_LEFT, PARTY_WINDOW.left);
     setWord(wram, DP_WINDOW_TOP, PARTY_WINDOW.top);

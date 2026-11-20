@@ -34,7 +34,7 @@ import { buildSprites } from './sprite-list.mjs';
 import { openWindow } from './window-open.mjs';
 import {
   putGloveAwaySequence,
-  releaseNoticeWindowsCallSequence,
+  releaseNoticeWindowsSequence,
   releaseWindowSequence,
 } from './window-release.mjs';
 import { closePortraitWindowSequence, openPortraitWindowSequence } from './portrait-window.mjs';
@@ -141,7 +141,6 @@ const FONT_BLOCKS = Object.freeze([
 // Original call sites and callees.
 const CALL = Object.freeze({
   colour: [0x80936c, 0x81886a, true],
-  notices: [0x80938d, 0x80ff79],
   music: [0x8093bc, 0x81ef47, true],
   narrow: [0x8093ec, 0x80fa92],
   jakeUnpack: [0x80944d, 0x809f6d],
@@ -298,7 +297,7 @@ export function* talkSequence(h, events, renderBuffer = drawTextBufferSequence) 
     const number = word(wram, DP_RECORD_NUMBER);
     setWord(wram, DP_RECORD, longWord(mem, DIALOG_TABLE + ((number << 1) & WORD_MASK)));
   };
-  yield* dialogCallBody(h, ...CALL.notices, () => releaseNoticeWindowsCallSequence(h, events));
+  yield* releaseNoticeWindowsSequence(h, events);
   // The dialog's music. The original keeps the old music (or FFFF) on the stack over the
   // dialog, and later the two windows over the close; those words lie only in free stack
   // bytes and are kept in locals here (game state only, user decision 2026-11-17).

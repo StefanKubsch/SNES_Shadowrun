@@ -24,7 +24,7 @@
 // Registers (user decision 2026-11-17): game state only; no callee takes a register
 // input, and the item use takes the actor (X in the original) as a parameter.
 import { dialogCallBody, segmentSequence } from '../system/native-call-continuation.mjs';
-import { releaseNoticeWindowsCallSequence, releaseWindowSequence } from './window-release.mjs';
+import { releaseNoticeWindowsSequence, releaseWindowSequence } from './window-release.mjs';
 import { openWindow, requestTileClear } from './window-open.mjs';
 import { chooseFromMenuSequence, MENU_WITH_NUMBERS } from './menu-choice.mjs';
 import { waitForConfirmKeySequence } from './confirm-key.mjs';
@@ -111,7 +111,6 @@ const MENU = [0x80e65b, 0x80a6ad],
   REDRAW_LIST = [0x80e552, 0x81aeb0],
   PORTRAIT = [0x80e556, 0x80e4b3],
   CONFIRM_KEY = [0x80e568, 0x80f953],
-  RELEASE_NOTICES = [0x80e56b, 0x80ff79],
   EQUIPMENT = [0x80e56e, 0x80e9c5];
 // The list starts after Exit; a count of one is shown as none; the menu's first column.
 const FIRST_ITEM = 2,
@@ -315,7 +314,7 @@ export function* useItemSequence(h, events, renderBuffer, actor) {
   };
   if (pending) {
     yield* dialogCallBody(h, ...CONFIRM_KEY, () => waitForConfirmKeySequence(h, events));
-    yield* dialogCallBody(h, ...RELEASE_NOTICES, () => releaseNoticeWindowsCallSequence(h, events));
+    yield* releaseNoticeWindowsSequence(h, events);
   }
   yield* dialogCallBody(h, ...EQUIPMENT, () => equipmentRowsSequence(h, events, renderBuffer));
   return yield* returnSequence(h);
