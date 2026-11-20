@@ -14,7 +14,6 @@ import {
   mainLoopPlayerZonesSequence,
   runObjectMotion,
   runSpriteList,
-  takePadWord,
 } from '../game/main-upkeep.mjs';
 import { sceneRequestSequence } from '../game/scene-request.mjs';
 import { shakeHitPlayer } from '../game/player-hit.mjs';
@@ -25,6 +24,7 @@ import { advancePaletteCycles } from '../game/palette-cycles.mjs';
 import { applyColourEffect } from '../game/fixed-colour.mjs';
 import { sceneRuntime } from '../system/scene-runtime.mjs';
 import { lagFree } from '../system/main-wait-interrupt.mjs';
+import { takePad } from '../system/live-input-calls.mjs';
 import {
   NativeCallContinuation,
   dialogCallBody,
@@ -46,7 +46,6 @@ const CALL_PC = Object.freeze({
   FF14: 0x96e1,
   TIMER_E270: 0x96e4,
   WAIT_B0A1: MAIN_LOOP_START,
-  INPUT_9E1A: 0x96b7,
   BF3B: 0x96bd,
 });
 const MAIN_LOOP_EXIT_PC = 0x96ec,
@@ -97,7 +96,7 @@ export function* mainLoopSequence(a, events, returnToOwner = false) {
     yield* call(CALL_PC.WAIT_B0A1, 0x81b0a1, () => mainLoopFrameWaitSequence(h, events), true);
     yield () => applyColourEffect(sceneRuntime(h));
     yield () => advancePaletteCycles(wram);
-    yield* call(CALL_PC.INPUT_9E1A, 0x809e1a, once(takePadWord));
+    yield () => takePad(h, events);
     yield* mainLoopGloveMoveSequence(h, events);
     yield* call(CALL_PC.BF3B, 0x80bf3b, () => mainLoopGloveActionSequence(h, events));
     ctx.pc = MAIN_LOOP_ROUND;

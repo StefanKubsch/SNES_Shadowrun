@@ -25,8 +25,3 @@ export function takePad(h, events) {
   if (!lagFree(events)) taskStop('game_lag_free_required');
   takePadPresses(h.a.mem.wram);
 }
-// The pad word as called with JSR (80:9E1A); returns with its RTS.
-export function takePadWord(h, events) {
-  takePad(h, events);
-  return h.rts();
-}

@@ -32,12 +32,15 @@ of the live tests on 2026-11-18 found no other lookup.
 
 [proof/caller/main-loop.mjs](../proof/caller/main-loop.mjs) preserves the former
 live dispatch and its independent continuation. Recorded observation replays
-keep [proof/vm/main-loop.mjs](../proof/vm/main-loop.mjs). Calls retain their
-original frames and validate actual returns and register widths because shared
-callees and NMI code still use the accessor. Since 2026-11-20 the glove move 80:BE6D, the hit
-shake 80:DE94, the formation step 80:BAD5 and the colour effect 81:8877, the palette cycles 81:8076, the camera follow 81:8C2E and the tile buffers 81:8A91 (without their JSL frames) run without their frames, whose return words lie only in free stack
-bytes; their RTS forms stay in proof/caller/live-loop-routines.mjs for the register-level
-tables. The other callees keep their frames for now. The two carry short circuits, first
+keep [proof/vm/main-loop.mjs](../proof/vm/main-loop.mjs). Since 2026-11-20 the callees
+run without their call frames, whose
+return words lie only in free stack bytes: the glove move 80:BE6D, the hit shake
+80:DE94, the formation step 80:BAD5, the colour effect 81:8877, the palette cycles
+81:8076, the camera follow 81:8C2E, the tile buffers 81:8A91 and the pad word 80:9E1A.
+Their RTS and RTL forms stay in proof/caller/live-loop-routines.mjs (the pad word's in
+proof/caller/input-routines.mjs) for the register-level tables. The other callees keep
+their original frames for now, which validate actual returns because shared callees
+and NMI code still use the accessor. The two carry short circuits, first
 pass, upkeep order and exit-before-reload priority are unchanged.
 
 [main-owner-caller.test.mjs](../tools/main-owner-caller.test.mjs) compares the old
