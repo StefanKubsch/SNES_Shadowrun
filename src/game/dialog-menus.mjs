@@ -88,8 +88,9 @@ export function* chooseDialogActionSequence(h, events, renderBuffer = drawTextBu
   yield* chooseDialogAction(h, events, renderBuffer);
   return yield* rts(h);
 }
-// The dialog's topic choice (80:9215), a sequence for a native call continuation.
-export function* chooseDialogTopicSequence(h, events, renderBuffer = drawTextBufferSequence) {
+// The dialog's topic choice (80:9215) for lifted callers, without the JSR frame (the
+// caller's return word lies only in free stack bytes; the menu choice keeps its frame).
+export function* chooseDialogTopic(h, events, renderBuffer = drawTextBufferSequence) {
   const { mem } = h.a,
     { wram } = mem;
   let none = false;
@@ -116,7 +117,7 @@ export function* chooseDialogTopicSequence(h, events, renderBuffer = drawTextBuf
     if (mem.language)
       fitListWindow(mem, listTextIds(mem, (WRAM_BANK << WORD_BITS) | TOPIC_MENU_BUFFER, TOPICS));
   };
-  if (none) return yield* rts(h);
+  if (none) return;
   yield* openWindow(h, events);
   yield () => {
     setWord(wram, DP_TOPIC_WINDOW, word(wram, DP_RESULT));
@@ -147,5 +148,10 @@ export function* chooseDialogTopicSequence(h, events, renderBuffer = drawTextBuf
     }
     setWord(wram, DP_RESULT, x);
   };
+}
+// The topic choice as called with JSR (80:9215), a sequence for a native call
+// continuation; returns with its RTS.
+export function* chooseDialogTopicSequence(h, events, renderBuffer = drawTextBufferSequence) {
+  yield* chooseDialogTopic(h, events, renderBuffer);
   return yield* rts(h);
 }

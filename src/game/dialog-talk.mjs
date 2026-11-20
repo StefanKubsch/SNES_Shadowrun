@@ -27,7 +27,7 @@
 import { dialogCallBody, segmentSequence } from '../system/native-call-continuation.mjs';
 import { setMusicModeInPlace } from '../apu/audio-routines.mjs';
 import { showDialogText } from './dialog-text.mjs';
-import { chooseDialogAction, chooseDialogTopicSequence } from './dialog-menus.mjs';
+import { chooseDialogAction, chooseDialogTopic } from './dialog-menus.mjs';
 import { drawTextBufferSequence } from './text-draw.mjs';
 import { reloadObjectTiles } from './object-tiles.mjs';
 import { buildSpritesInPlace } from './sprite-list.mjs';
@@ -143,7 +143,6 @@ const CALL = Object.freeze({
   jakeUnpack: [0x80944d, 0x809f6d],
   partnerUnpack: [0x809470, 0x809f6d],
   wait: [0x809489, 0x81b0a1, true],
-  topics: [0x8094a2, 0x809215],
   releaseText: [0x8094d9, 0x80fa3e],
   releaseFrame: [0x8094df, 0x80fa3e],
   closeWait: [0x8092d1, 0x81b0a1, true],
@@ -356,9 +355,7 @@ export function* talk(h, events, renderBuffer = drawTextBufferSequence) {
     };
     if (next === 'end') break;
     if (next === 'topics') {
-      yield* dialogCallBody(h, ...CALL.topics, () =>
-        chooseDialogTopicSequence(h, events, renderBuffer),
-      );
+      yield* chooseDialogTopic(h, events, renderBuffer);
       yield () => {
         if (word(wram, DIALOG_END)) return void (next = 'end');
         const topic = word(wram, DP_OBJECT);
