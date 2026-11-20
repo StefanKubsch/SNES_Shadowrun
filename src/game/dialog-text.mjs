@@ -29,7 +29,7 @@
 // or flags.
 import { dialogCallBody, segmentSequence } from '../system/native-call-continuation.mjs';
 import { requestTileClearSequence } from './window-open.mjs';
-import { setTextCursorRoutine } from './window-text.mjs';
+import { setTextCursor } from './window-text.mjs';
 import { drawTextBufferSequence } from './text-draw.mjs';
 import { printText } from './text-print.mjs';
 import { appendScriptCall } from '../script/task-api.mjs';
@@ -62,8 +62,7 @@ const FIRST_ENTRY = 4,
   TOPIC_COUNT_MASK = 0x0f,
   ACTION_WORD_BYTES = 2;
 // Original call sites and callees.
-const REQUEST_CALL = [0x80917e, 0x80fa67],
-  CURSOR_CALL = [0x809185, 0x80faac];
+const REQUEST_CALL = [0x80917e, 0x80fa67];
 
 const word = (wram, at) => wram[at] | (wram[at + 1] << BYTE_BITS);
 const setWord = (wram, at, value) => {
@@ -157,11 +156,10 @@ function searchEntry(mem, wram, acc) {
   }
 }
 
-// Text clearing and cursor placement compose their actual bodies.
+// Text clearing composes its actual body.
 function liftedBodies(h, events) {
   const lifted = {
     request: () => requestTileClearSequence(h, events),
-    cursor: () => segmentSequence(() => setTextCursorRoutine(h)),
   };
   return (name) => lifted[name];
 }
@@ -183,7 +181,7 @@ export function* showDialogTextSequence(h, events, renderBuffer = drawTextBuffer
       setWord(wram, DP_TEXT, 0);
       setWord(wram, DP_CURSOR_ROW, 0);
     };
-    yield* call(CURSOR_CALL, 'cursor');
+    yield* segmentSequence(() => setTextCursor(h));
     let entry,
       action = false,
       at;
@@ -256,7 +254,7 @@ export function* dialogTopicSequence(h, events, at) {
 // clears the window's text tiles (80:FA67) and sets its cursor to the top left (80:FAAC),
 // with the number pushed around them. renderBuffer is the text-buffer renderer sequence.
 const TEXT_NUMBERS = 0x80d9b8,
-  TOPIC_TEXT = { request: [0x809341, 0x80fa67], cursor: [0x809348, 0x80faac] };
+  TOPIC_TEXT = { request: [0x809341, 0x80fa67] };
 function* printTextNumber(h, events, renderBuffer, number) {
   const { mem } = h.a,
     { wram } = mem;
@@ -286,8 +284,6 @@ export function* printTopicTextSequence(h, events, renderBuffer = drawTextBuffer
     setWord(wram, DP_TEXT, 0);
     setWord(wram, DP_CURSOR_ROW, 0);
   };
-  yield* dialogCallBody(h, ...TOPIC_TEXT.cursor, () =>
-    segmentSequence(() => setTextCursorRoutine(h)),
-  );
+  yield* segmentSequence(() => setTextCursor(h));
   return yield* printTextNumber(h, events, renderBuffer, number);
 }

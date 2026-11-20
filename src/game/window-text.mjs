@@ -66,8 +66,10 @@ const setWord = (wram, at, value) => {
   wram[at + 1] = (value >>> BYTE_BITS) & BYTE_MASK;
 };
 
-// Set the text cursor of the window in the direct page word 00 (80:FAAC), called with JSR.
-export function setTextCursorRoutine(h) {
+// Set the text cursor of the window in the direct page word 00 (80:FAAC) for lifted
+// callers, without the JSR frame (the caller's return word lies only in free stack
+// bytes).
+export function setTextCursor(h) {
   const { wram, port } = sceneRuntime(h);
   const x = word(wram, DP_WINDOW);
   port.write(WRMPYA, wram[DP_CURSOR_ROW], 1, ROW_SITE);
@@ -78,6 +80,10 @@ export function setTextCursorRoutine(h) {
     tile = (left + product + (start > WORD_MASK ? 1 : 0)) & WORD_MASK;
   setWord(wram, WINDOW_CURSOR_TILE + x, tile);
   setWord(wram, WINDOW_CURSOR_PIXEL + x, 0);
+}
+// The text cursor as called with JSR (80:FAAC); returns with its RTS.
+export function setTextCursorRoutine(h) {
+  setTextCursor(h);
   return h.rts();
 }
 

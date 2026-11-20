@@ -28,7 +28,7 @@
 // word index as a parameter and leave no A, X, Y or flags. The list position's pushes
 // around the prints stay on the stack.
 import { dialogCallBody, segmentSequence } from '../system/native-call-continuation.mjs';
-import { printNumberSequence, setTextCursorRoutine } from './window-text.mjs';
+import { printNumberSequence, setTextCursor } from './window-text.mjs';
 import { drawTextBufferSequence } from './text-draw.mjs';
 import { printText } from './text-print.mjs';
 import {
@@ -65,10 +65,7 @@ const BLANK = 0x707d,
   PREVIOUS = 0x7077,
   // The marks lie three columns and rows inside the window's far edges.
   MARK_INSET = 3,
-  ROW_CURSOR = [0x80a633, 0x80faac],
-  NUMBER = [0x80a659, 0x80fd80],
-  MORE_CURSOR = [0x80a67c, 0x80faac],
-  PREVIOUS_CURSOR = [0x80a699, 0x80faac];
+  NUMBER = [0x80a659, 0x80fd80];
 
 const word = (wram, at) => wram[at] | (wram[at + 1] << BYTE_BITS);
 const setWord = (wram, at, value) => {
@@ -86,7 +83,7 @@ export function* markRowSequence(h, events, renderBuffer = drawTextBufferSequenc
     setWord(wram, DP_CURSOR_ROW, row + word(wram, MENU_ROW));
     setWord(wram, DP_TEXT, word(wram, MENU_COLUMN) - 1);
   };
-  yield* dialogCallBody(h, ...form.cursor, () => segmentSequence(() => setTextCursorRoutine(h)));
+  yield* segmentSequence(() => setTextCursor(h));
   yield () => setWord(wram, DP_TEXT, form.text);
   yield* printText(h, events, renderBuffer);
   return yield* rts(h);
@@ -113,21 +110,20 @@ export function* drawListSequence(h, events, renderBuffer = drawTextBufferSequen
       listWord((word(wram, DP_LIST_TOKENS) | (wram[DP_LIST_TOKEN_BANK] << WORD_BITS)) + at),
     // The numbers through the data bank, as the original's LDA abs,Y.
     number = () => listWord(((ctx.bank << WORD_BITS) | word(wram, DP_LIST_VALUES)) + at);
-  const cursor = (site) =>
-    dialogCallBody(h, ...site, () => segmentSequence(() => setTextCursorRoutine(h)));
+  const cursor = () => segmentSequence(() => setTextCursor(h));
   // A text or number through its call. The original keeps the list position on the stack
   // around some of them (PHY, PLY); that word lies only in free stack bytes, and the
   // position is a local here.
   const print = (site, body) => dialogCallBody(h, ...site, body);
   const text = () => printText(h, events, renderBuffer);
   // A mark three columns before the window's right edge, in the row given.
-  const corner = function* (row, cursorSite, mark) {
+  const corner = function* (row, mark) {
     yield () => {
       const x = word(wram, 0);
       setWord(wram, DP_TEXT, word(wram, WINDOW_COLUMNS + x) - MARK_INSET);
       setWord(wram, DP_CURSOR_ROW, row(x));
     };
-    yield* cursor(cursorSite);
+    yield* cursor();
     yield () => setWord(wram, DP_TEXT, mark);
     yield* text();
   };
@@ -145,7 +141,7 @@ export function* drawListSequence(h, events, renderBuffer = drawTextBufferSequen
       setWord(wram, DP_CURSOR_ROW, row);
       setWord(wram, MENU_DRAW_ROW, row + 1);
     };
-    yield* cursor(ROW_CURSOR);
+    yield* cursor();
     yield () => {
       const value = token();
       end = value === 0;
@@ -172,18 +168,13 @@ export function* drawListSequence(h, events, renderBuffer = drawTextBufferSequen
       more = token() !== 0;
       end = true;
     };
-    if (more)
-      yield* corner(
-        (x) => (word(wram, WINDOW_ROWS + x) - MARK_INSET) & WORD_MASK,
-        MORE_CURSOR,
-        MORE,
-      );
+    if (more) yield* corner((x) => (word(wram, WINDOW_ROWS + x) - MARK_INSET) & WORD_MASK, MORE);
     if (end) break;
   }
   let previous = false;
   yield () => {
     previous = word(wram, MENU_PAGE_START) !== 0;
   };
-  if (previous) yield* corner(() => 0, PREVIOUS_CURSOR, PREVIOUS);
+  if (previous) yield* corner(() => 0, PREVIOUS);
   return yield* rts(h);
 }

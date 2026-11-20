@@ -19,7 +19,7 @@
 import { dialogCallBody, segmentSequence } from '../system/native-call-continuation.mjs';
 import { openWindow } from './window-open.mjs';
 import { releaseWindowSequence } from './window-release.mjs';
-import { setTextCursorRoutine, printNumberSequence } from './window-text.mjs';
+import { setTextCursor, printNumberSequence } from './window-text.mjs';
 import { printText } from './text-print.mjs';
 import { drawTextBufferSequence } from './text-draw.mjs';
 import { waitForConfirmKeySequence } from './confirm-key.mjs';
@@ -57,19 +57,18 @@ import { JAKE_OBJECT_NUMBER, SKILL_COUNT } from '../data/runners.mjs';
 import { fitListWindow } from '../data/menu-layout.mjs';
 import { BYTE_BITS, BYTE_MASK, LONG_MASK, WORD_BITS, WORD_MASK } from '../constants/bits.mjs';
 
-const CURSOR = 0x80faac,
-  NUMBER = 0x80fd80,
+const NUMBER = 0x80fd80,
   CONFIRM_KEY = 0x80f953,
   RELEASE_WINDOW = 0x80fa3e;
 // The skills window's extra rows; the first cyberware row of Jake's notes.
 const SKILL_EXTRA_ROWS = 2,
   DATAJACK_ROW = 1,
   ENDED = WORD_MASK;
-// Jake's cyberware: its flag byte, text and the cursor call site.
+// Jake's cyberware: its flag byte and text.
 const CYBERWARE = Object.freeze([
-  [JAKE_DERMAL_ARMOUR, TEXT_DERMAL_ARMOUR, 0x80e966],
-  [JAKE_SKILLSOFT, TEXT_SKILLSOFT, 0x80e97e],
-  [JAKE_WIRED_REFLEXES, TEXT_WIRED_REFLEXES, 0x80e996],
+  [JAKE_DERMAL_ARMOUR, TEXT_DERMAL_ARMOUR],
+  [JAKE_SKILLSOFT, TEXT_SKILLSOFT],
+  [JAKE_WIRED_REFLEXES, TEXT_WIRED_REFLEXES],
 ]);
 
 const word = (wram, at) => wram[at] | (wram[at + 1] << BYTE_BITS);
@@ -127,15 +126,11 @@ export function* skillsSequence(h, events, renderBuffer = drawTextBufferSequence
         name = dataBankWord(mem, SKILL_NAMES, skill << 1);
         setWord(wram, 2, 0);
       };
-      yield* dialogCallBody(h, 0x80e882, CURSOR, () =>
-        segmentSequence(() => setTextCursorRoutine(h)),
-      );
+      yield* segmentSequence(() => setTextCursor(h));
       yield () => setWord(wram, 2, name);
       yield* printText(h, events, renderBuffer);
       yield () => setWord(wram, 2, window.valueColumn);
-      yield* dialogCallBody(h, 0x80e890, CURSOR, () =>
-        segmentSequence(() => setTextCursorRoutine(h)),
-      );
+      yield* segmentSequence(() => setTextCursor(h));
       yield () => {
         setWord(wram, DP_CURSOR_ROW, (word(wram, DP_CURSOR_ROW) + 1) & WORD_MASK);
         setWord(wram, 2, value);
@@ -203,11 +198,11 @@ export function* notesSequence(h, events, renderBuffer = drawTextBufferSequence)
     setWord(wram, 2, 0);
     setWord(wram, DP_CURSOR_ROW, DATAJACK_ROW);
   };
-  yield* dialogCallBody(h, 0x80e949, CURSOR, () => segmentSequence(() => setTextCursorRoutine(h)));
+  yield* segmentSequence(() => setTextCursor(h));
   yield* text(TEXT_DATAJACK);
   // The cyberware rows count from the datajack's.
   yield () => setWord(wram, DP_CURSOR_ROW, DATAJACK_ROW);
-  for (const [flag, id, cursorPc] of CYBERWARE) {
+  for (const [flag, id] of CYBERWARE) {
     let fitted;
     yield () => {
       fitted = wram[flag];
@@ -216,9 +211,7 @@ export function* notesSequence(h, events, renderBuffer = drawTextBufferSequence)
       setWord(wram, DP_CURSOR_ROW, (word(wram, DP_CURSOR_ROW) + 1) & WORD_MASK);
     };
     if (!fitted) continue;
-    yield* dialogCallBody(h, cursorPc, CURSOR, () =>
-      segmentSequence(() => setTextCursorRoutine(h)),
-    );
+    yield* segmentSequence(() => setTextCursor(h));
     yield* text(id);
   }
   yield* dialogCallBody(h, 0x80e9a1, CONFIRM_KEY, () => waitForConfirmKeySequence(h, events));

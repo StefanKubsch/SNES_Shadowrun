@@ -38,7 +38,7 @@
 import { dialogCallBody, segmentSequence } from '../system/native-call-continuation.mjs';
 import { chooseFromMenuSequence } from './menu-choice.mjs';
 import { openWindow, requestTileClearSequence } from './window-open.mjs';
-import { setTextCursorRoutine, printNumberSequence } from './window-text.mjs';
+import { setTextCursor, printNumberSequence } from './window-text.mjs';
 import { printText } from './text-print.mjs';
 import {
   releaseNoticeWindowsCallSequence,
@@ -102,7 +102,6 @@ import {
 } from '../constants/bits.mjs';
 
 const REDRAW_WINDOW = 0x80fa67,
-  CURSOR = 0x80faac,
   NUMBER = 0x80fd80,
   CONFIRM_KEY = 0x80f953,
   RELEASE_WINDOW = 0x80fa3e,
@@ -164,14 +163,14 @@ export function* karmaLineSequence(h, events, renderBuffer = drawTextBufferSeque
     setWord(wram, 2, 0);
     setWord(wram, DP_CURSOR_ROW, 0);
   };
-  yield* dialogCallBody(h, 0x80ef8e, CURSOR, () => segmentSequence(() => setTextCursorRoutine(h)));
+  yield* segmentSequence(() => setTextCursor(h));
   yield () => setWord(wram, 2, TEXT_KARMA);
   yield* printText(h, events, renderBuffer);
   yield () => {
     setWord(wram, 2, KARMA_NUMBER_COLUMN);
     setWord(wram, DP_CURSOR_ROW, 0);
   };
-  yield* dialogCallBody(h, 0x80efa0, CURSOR, () => segmentSequence(() => setTextCursorRoutine(h)));
+  yield* segmentSequence(() => setTextCursor(h));
   yield () => {
     const shown = mem.read16(WRAM + KARMA) >>> KARMA_SHIFT;
     setWord(wram, DP_KARMA_DISPLAY, shown);

@@ -19,7 +19,7 @@ import {
   releaseNoticeWindowsCallSequence,
   putGloveAwayCallSequence,
 } from './window-release.mjs';
-import { setTextCursorRoutine, printNumberSequence } from './window-text.mjs';
+import { setTextCursor, printNumberSequence } from './window-text.mjs';
 import { printText } from './text-print.mjs';
 import { drawTextBufferSequence } from './text-draw.mjs';
 import { waitForConfirmKeySequence } from './confirm-key.mjs';
@@ -78,7 +78,6 @@ const PUT_GLOVE_AWAY = [0x80ed3c, 0x80bcb2],
   RELEASE_NOTICES = [0x80ed3f, 0x80ff79],
   CONFIRM_KEY = [0x80ee4b, 0x80f953],
   RELEASE_WINDOW = [0x80ee53, 0x80fa3e],
-  CURSOR = 0x80faac,
   NUMBER = 0x80fd80;
 
 const word = (wram, at) => wram[at] | (wram[at + 1] << BYTE_BITS);
@@ -152,25 +151,19 @@ export function* partyStatusSequence(h, events, renderBuffer = drawTextBufferSeq
     more;
   do {
     yield () => prepareMember(mem, member);
-    yield* dialogCallBody(h, 0x80edcf, CURSOR, () =>
-      segmentSequence(() => setTextCursorRoutine(h)),
-    );
+    yield* segmentSequence(() => setTextCursor(h));
     yield* withArgument(
       () => word(wram, DP_PARTY_NAME),
       () => printText(h, events, renderBuffer),
     );
-    yield* argument(COLUMNS.count, 0x80edde, CURSOR, () =>
-      segmentSequence(() => setTextCursorRoutine(h)),
-    );
+    yield* withArgument(COLUMNS.count, () => segmentSequence(() => setTextCursor(h)));
     yield* argument(
       () => dataBankWord(mem, MEMBER_STATE_COUNT),
       0x80ede6,
       NUMBER,
       () => printNumberSequence(h, events, renderBuffer),
     );
-    yield* argument(COLUMNS.countSlash, 0x80edee, CURSOR, () =>
-      segmentSequence(() => setTextCursorRoutine(h)),
-    );
+    yield* withArgument(COLUMNS.countSlash, () => segmentSequence(() => setTextCursor(h)));
     yield* withArgument(TEXT_SLASH, () => printText(h, events, renderBuffer));
     yield () => {
       // The count's maximum; the record pointer's low word steps on by one.
@@ -179,18 +172,14 @@ export function* partyStatusSequence(h, events, renderBuffer = drawTextBufferSeq
       setWord(wram, 2, maximum);
     };
     yield* dialogCallBody(h, 0x80ee05, NUMBER, () => printNumberSequence(h, events, renderBuffer));
-    yield* argument(COLUMNS.magic, 0x80ee0d, CURSOR, () =>
-      segmentSequence(() => setTextCursorRoutine(h)),
-    );
+    yield* withArgument(COLUMNS.magic, () => segmentSequence(() => setTextCursor(h)));
     yield* argument(
       () => wram[MAGIC_POINTS + (dataBankWord(mem, MEMBER_INDEX) >>> 1)],
       0x80ee1e,
       NUMBER,
       () => printNumberSequence(h, events, renderBuffer),
     );
-    yield* argument(COLUMNS.magicSlash, 0x80ee26, CURSOR, () =>
-      segmentSequence(() => setTextCursorRoutine(h)),
-    );
+    yield* withArgument(COLUMNS.magicSlash, () => segmentSequence(() => setTextCursor(h)));
     yield* withArgument(TEXT_SLASH, () => printText(h, events, renderBuffer));
     yield* argument(
       () => word(wram, DP_MAGIC_MAXIMUM),

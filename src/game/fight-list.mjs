@@ -16,7 +16,7 @@
 // Registers (user decision 2026-11-17): game state only. The notice 80:FEC1 returns its
 // window as a value and the music mode 81:EF47 takes the mode as a parameter (A in
 // the original). Every other register value the original leaves is dropped.
-import { setTextCursorRoutine, printNumberSequence } from './window-text.mjs';
+import { setTextCursor, printNumberSequence } from './window-text.mjs';
 import { printText } from './text-print.mjs';
 import { showNoticeSequence } from './notice-show.mjs';
 import { drawTextBufferSequence } from './text-draw.mjs';
@@ -102,7 +102,6 @@ const KARMA_NOTICE = { left: 10, top: 2, columns: 9, wideColumns: 10, rows: 3 },
   MUSIC_OFF = 0;
 // Original call sites (JSR, the music JSL) and callees.
 const NOTICE_CALL = [0x8085e4, 0x80fec1],
-  CURSOR_CALL = [0x8085ed, 0x80faac],
   NUMBER_CALL = [0x8085f5, 0x80fd80],
   SOUND_CALL = [0x808614, 0x80c46e],
   MUSIC_RESTORE_SITE = 0x808624,
@@ -166,7 +165,7 @@ export function* removeFromFightListSequence(h, events, renderBuffer = drawTextB
       setWord(wram, DP_TEXT, 0);
       setWord(wram, DP_CURSOR_ROW, 0);
     };
-    yield* dialogCallBody(h, ...CURSOR_CALL, () => segmentSequence(() => setTextCursorRoutine(h)));
+    yield* segmentSequence(() => setTextCursor(h));
     yield () => setWord(wram, DP_TEXT, word(wram, FIGHT_KARMA));
     yield* dialogCallBody(h, ...NUMBER_CALL, () => printNumberSequence(h, events, renderBuffer));
     yield () => setWord(wram, DP_TEXT, TEXT_KARMA_GAIN);
