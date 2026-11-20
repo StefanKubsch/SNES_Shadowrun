@@ -30,7 +30,7 @@ import { chooseFromMenuSequence, MENU_WITH_NUMBERS } from './menu-choice.mjs';
 import { waitForConfirmKeySequence } from './confirm-key.mjs';
 import { equipmentRows } from './equipment-window.mjs';
 import { memberPortrait } from './member-portrait.mjs';
-import { resetWindowListSequence } from './window-list.mjs';
+import { resetWindowList } from './window-list.mjs';
 import { drawTextBufferSequence } from './text-draw.mjs';
 import { dataBankWord, setDataBankWord } from '../system/data-bank.mjs';
 import { scriptVisitSequence } from '../system/script-visit.mjs';
@@ -106,7 +106,6 @@ export const ITEM_ENTRIES = Object.freeze({ 0x80e572: 0, 0x80e577: 1, 0x80e57f: 
 // The callees and their call sites.
 const MENU = [0x80e65b, 0x80a6ad],
   VISIT = [0x80e545, 0x80c1ca],
-  REDRAW_LIST = [0x80e552, 0x81aeb0],
   CONFIRM_KEY = [0x80e568, 0x80f953];
 // The list starts after Exit; a count of one is shown as none; the menu's first column.
 const FIRST_ITEM = 2,
@@ -293,7 +292,7 @@ export function* useItem(h, events, renderBuffer, actor) {
   };
   if (ended) return;
   if (redraw) {
-    yield* dialogCallBody(h, ...REDRAW_LIST, () => resetWindowListSequence(h, events), true);
+    yield* resetWindowList(h, events);
     yield* memberPortrait(h, events);
   }
   let pending = false;

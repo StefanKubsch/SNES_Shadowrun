@@ -31,7 +31,7 @@ import { releaseWindowSequence, releaseNoticeWindowsSequence } from './window-re
 import { waitForConfirmKeySequence } from './confirm-key.mjs';
 import { equipmentRows } from './equipment-window.mjs';
 import { memberPortrait } from './member-portrait.mjs';
-import { resetWindowListSequence } from './window-list.mjs';
+import { resetWindowList } from './window-list.mjs';
 import { drawTextBufferSequence } from './text-draw.mjs';
 import { dataBankWord, setDataBankWord } from '../system/data-bank.mjs';
 import {
@@ -101,7 +101,6 @@ import { WRAM_BANK } from '../constants/memory-map.mjs';
 const MENU = [0x80e74c, 0x80a6c7],
   APPEND_SCRIPT = [0x80e788, 0x80c34a],
   VISIT_SCRIPT = [0x80e78e, 0x80c1ca],
-  REDRAW_LIST = [0x80e79b, 0x81aeb0],
   CONFIRM_KEY = [0x80e7b1, 0x80f953];
 // The entry from the status screen, which runs no scripts.
 export const STATUS_ENTRY = 0x80e68e;
@@ -205,7 +204,7 @@ function* afterScriptSequence(h, events) {
   };
   if (ended) return;
   if (redraw) {
-    yield* dialogCallBody(h, ...REDRAW_LIST, () => resetWindowListSequence(h, events), true);
+    yield* resetWindowList(h, events);
     yield* memberPortrait(h, events);
   }
   let pending = false;

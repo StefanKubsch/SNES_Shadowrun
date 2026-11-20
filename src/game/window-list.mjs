@@ -216,15 +216,24 @@ export function* redrawDialogWindowListSequence(h, events) {
   return result;
 }
 
-// 81:AEB0 (called with JSL): the window list from the first window on, after the first
-// index is cleared; the list's JSL at 81:AEB3, then the RTL.
+// 81:AEB0: the window list from the first window on, after the first index is cleared;
+// the list's JSL at 81:AEB3 keeps its frame. For lifted callers without the JSL frame:
+// the program bank returns to the caller's.
 const RESET_LIST_SITE = 0x81aeb3;
-export function* resetWindowListSequence(h, events) {
+export function* resetWindowList(h, events) {
+  const callerBank = h.ctx.programBank;
   yield () => {
     setWord(h.a.mem.wram, WINDOW_FIRST_INDEX, 0);
     h.ctx.programBank = LIST_BANK;
   };
   yield* drawWindowListSequence(h, events, RESET_LIST_SITE);
+  yield () => {
+    h.ctx.programBank = callerBank;
+  };
+}
+// 81:AEB0 as called with JSL; returns with its RTL (which takes the bank from the stack).
+export function* resetWindowListSequence(h, events) {
+  yield* resetWindowList(h, events);
   let result;
   yield () => {
     result = h.rtl();
