@@ -111,7 +111,8 @@ karma row); resetWindowList (the item use's, spell menu's and glove choices' lis
 redraw; the list's own JSL keeps its frame); talk (the glove action's dialog);
 chooseDialogAction (the dialog's main menu 80:91E2; its menu choice keeps its frame);
 chooseDialogTopic (the dialog's topic choice 80:9215, likewise); startNewGame (the
-attract demo's new game 80:960D); objectSearch (the glove move's search); gloveMove
+attract demo's new game 80:960D); the music stop 81:EF94 with sendApuCommandInPlace
+(after the start menu's credits); objectSearch (the glove move's search); gloveMove
 (the glove choices' frames; the word wait keeps its frame); putting the glove on
 (80:BC67 and 80:BC99 with 80:BC36, both frames); the in-reach choice 80:9C40 (its
 callers 80:9BC6 and the script's 80:9C33); the number choice 80:9BC6 (the script's

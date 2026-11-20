@@ -16,7 +16,7 @@ import { startSceneScreen } from '../system/nmi.mjs';
 import { loadSoundDirectory, setMusicMode, startSong } from '../apu/music-mode.mjs';
 import { setUpGameAudio, setUpTitleAudio } from '../intro/intro-scene.mjs';
 import { cutsceneSequence } from '../cutscene/cutscene-scene.mjs';
-import { sendApuCommandCall } from '../apu/audio-routines.mjs';
+import { sendApuCommandInPlace } from '../apu/audio-routines.mjs';
 import {
   CREDITS_ARGUMENT,
   CREDITS_SEQUENCE,
@@ -30,14 +30,13 @@ import { CODE_BANK } from '../constants/memory-map.mjs';
 import { BYTE_BITS, BYTE_MASK, WORD_MASK } from '../constants/bits.mjs';
 
 // The routines the cycle calls through their original frames: the title, the start
-// menu, the attract game and its owner, the credits cutscene, the music stop, and
-// the room start of the attract game.
+// menu, the attract game and its owner, the credits cutscene and the room start of
+// the attract game.
 const TITLE = 0x81d694,
   START_MENU = 0x81e14a,
   ATTRACT_GAME = 0x80a168,
   ATTRACT_OWNER = 0x8096f3,
   CUTSCENE = 0x81cdf8,
-  MUSIC_STOP = 0x81ef94,
   START_ROOM = 0x809699;
 // Call sites (the return addresses the callees see).
 const TITLE_SITE = 0x80a1b1,
@@ -65,7 +64,7 @@ const setWord = (wram, at, value) => {
 // in the original). The start menu's choice (A in the original: the save slot, or FFFF
 // for a new game) goes to shown.choice; the status is as at the entry. Registers (user
 // decision 2026-11-17): the title and the start menu return their results as values,
-// the music stop sends its command through the call form, and the cycle leaves no
+// the music stop sends its command without its JSL frame, and the cycle leaves no
 // registers of its own.
 export function* titleCycleSequence(h, events, routines, title, shown = {}) {
   const { ctx } = h,
@@ -163,22 +162,13 @@ function* playMenuCredits(h, events, m) {
     true,
   );
   yield () => markMenuCredits(h.a.vm, false);
+  // The music stop 81:EF94 with its sound command 81:F007, without their JSL frames
+  // (their return words lie only in free stack bytes).
   yield () => {
     ctx.bank = CODE_BANK;
+    setWord(h.a.mem.wram, MUSIC, WORD_MASK);
+    sendApuCommandInPlace(h, APU_COMMAND_VOLUME_TARGET, 0);
   };
-  yield* dialogCallBody(
-    h,
-    ATTRACT_SITE,
-    MUSIC_STOP,
-    function* () {
-      yield () => {
-        setWord(h.a.mem.wram, MUSIC, WORD_MASK);
-        h.call(0x81efa0, 0x81f007, () => sendApuCommandCall(h, APU_COMMAND_VOLUME_TARGET, 0), true);
-        return h.rtl();
-      };
-    },
-    true,
-  );
   yield () => {
     startSong(m.mem, m.port, SONG_NONE);
     loadSoundDirectory(m.mem, m.port, SOUND_DIRECTORY_TITLE);
