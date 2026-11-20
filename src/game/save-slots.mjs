@@ -1,3 +1,4 @@
+import { readStateByte } from '../state/objects.mjs';
 // Four save slots (quality-of-life option fourSaveSlots, docs/SAVING.md).
 // The original slot table 81:B124 already lists four offsets (0, 0FFE, 1FFC,
 // 2FFA), but only two slots fit into the 8 KiB SRAM: a third at 1FFC would
@@ -84,10 +85,13 @@ export function saveGame(mem, slot, four) {
   const offset = slotOffset(mem, slot, four),
     { wram } = mem;
   for (let i = 0; i < SAVED_BYTES; i++)
-    mem.write8(SRAM_BASE + ((offset + i) & WORD_MASK), wram[SAVE_STATE_START + i]);
+    mem.write8(SRAM_BASE + ((offset + i) & WORD_MASK), readStateByte(wram, SAVE_STATE_START + i));
   // The saved bytes are the state's: their checksum is that of the state after its
   // first word.
-  mem.write16(SRAM_BASE + offset, slotChecksum(wram, SAVE_STATE_START));
+  mem.write16(
+    SRAM_BASE + offset,
+    checksumSums((i) => readStateByte(wram, i), SAVE_STATE_START + CHECKSUM_WORD_BYTES).word,
+  );
 }
 
 // Whether a save slot passes its checksum (lifted from 81:B1AB with 81:B11A and

@@ -152,6 +152,6 @@ export function drawObjectMarkers(pixels, boxes, t) {
 // menus, dialogues, sequences or the matrix.
 export function markersAllowed(game) {
   const wram = game.memory.wram,
-    glove = wram[GLOVE_KIND] | (wram[GLOVE_KIND + 1] << BYTE_BITS);
+    glove = readStateByte(wram, GLOVE_KIND) | (readStateByte(wram, GLOVE_KIND + 1) << BYTE_BITS);
   return (game.controlNmi >= 0 && game.nmis - game.controlNmi <= 1) || glove === ACTION_GLOVE;
 }

@@ -1,3 +1,4 @@
+import { readStateByte, writeStateByte } from '../state/objects.mjs';
 // A group member turned to the room's direction (lifted from the script native 80:BBA0
 // with 80:D15C; register-level version in proof/replay/native-selection.mjs).
 //
@@ -29,10 +30,10 @@ const DP_OBJECT = 0,
   DP_DIRECTION = 4,
   DP_ROOM_DIRECTION = 0xa2;
 
-const word = (wram, at) => wram[at] | (wram[at + 1] << BYTE_BITS);
+const word = (wram, at) => readStateByte(wram, at) | (readStateByte(wram, at + 1) << BYTE_BITS);
 const setWord = (wram, at, value) => {
-  wram[at] = value & BYTE_MASK;
-  wram[at + 1] = (value >>> BYTE_BITS) & BYTE_MASK;
+  writeStateByte(wram, at, value & BYTE_MASK);
+  writeStateByte(wram, at + 1, (value >>> BYTE_BITS) & BYTE_MASK);
 };
 const romWord = (mem, at) => mem.read8(at) | (mem.read8((at + 1) & LONG_MASK) << BYTE_BITS);
 

@@ -1,3 +1,4 @@
+import { readStateByte, writeStateByte } from '../state/objects.mjs';
 // Optional player-requested changes. Layout and limits: docs/CHEATS.md.
 import { CHEAT } from './cheat-settings.mjs';
 import { RECORD_ATTRIBUTE, RECORD_SKILL, RECORD_SPELL } from '../data/runners.mjs';
@@ -24,10 +25,10 @@ export const ATTRIBUTE_MAX = 20,
   FIREARMS_MAX = 16;
 export const RESOURCE_PER_ATTRIBUTE = 10;
 const MATRIX_NMI = 0x81bec3;
-const word = (wram, at) => wram[at] | (wram[at + 1] << BYTE_BITS);
+const word = (wram, at) => readStateByte(wram, at) | (readStateByte(wram, at + 1) << BYTE_BITS);
 const putWord = (wram, at, value) => {
-  wram[at] = value & BYTE_MASK;
-  wram[at + 1] = value >>> BYTE_BITS;
+  writeStateByte(wram, at, value & BYTE_MASK);
+  writeStateByte(wram, at + 1, value >>> BYTE_BITS);
 };
 
 // Called before the damage store and its zero/death decision, rather than
@@ -43,27 +44,39 @@ export function applyCheats(game) {
   const mask = game.vm.cheats;
   if (!mask) return;
   const wram = game.memory.wram;
-  if (!word(wram, STORY_STAGE) || !wram[JAKE_BODY] || !wram[JAKE_BODY + RECORD_ATTRIBUTE.count_max])
+  if (
+    !word(wram, STORY_STAGE) ||
+    !readStateByte(wram, JAKE_BODY) ||
+    !readStateByte(wram, JAKE_BODY + RECORD_ATTRIBUTE.count_max)
+  )
     return;
   let refillMagic = false;
   if (mask & CHEAT.stats) {
-    wram[JAKE_BODY + RECORD_ATTRIBUTE.body] = ATTRIBUTE_MAX;
-    wram[JAKE_BODY + RECORD_ATTRIBUTE.strength] = ORDINARY_STAT_MAX;
-    wram[JAKE_BODY + RECORD_ATTRIBUTE.charisma] = ORDINARY_STAT_MAX;
-    wram[JAKE_BODY + RECORD_ATTRIBUTE.count_max] = ATTRIBUTE_MAX * RESOURCE_PER_ATTRIBUTE;
+    writeStateByte(wram, JAKE_BODY + RECORD_ATTRIBUTE.body, ATTRIBUTE_MAX);
+    writeStateByte(wram, JAKE_BODY + RECORD_ATTRIBUTE.strength, ORDINARY_STAT_MAX);
+    writeStateByte(wram, JAKE_BODY + RECORD_ATTRIBUTE.charisma, ORDINARY_STAT_MAX);
+    writeStateByte(
+      wram,
+      JAKE_BODY + RECORD_ATTRIBUTE.count_max,
+      ATTRIBUTE_MAX * RESOURCE_PER_ATTRIBUTE,
+    );
     for (const [name, offset] of Object.entries(RECORD_SKILL))
-      wram[JAKE_BODY + offset] = name === 'firearms' ? FIREARMS_MAX : ORDINARY_STAT_MAX;
+      writeStateByte(
+        wram,
+        JAKE_BODY + offset,
+        name === 'firearms' ? FIREARMS_MAX : ORDINARY_STAT_MAX,
+      );
   }
   if (mask & CHEAT.spells) {
     for (const offset of Object.values(RECORD_SPELL)) {
-      refillMagic ||= wram[JAKE_BODY + offset] !== ORDINARY_STAT_MAX;
-      wram[JAKE_BODY + offset] = ORDINARY_STAT_MAX;
+      refillMagic ||= readStateByte(wram, JAKE_BODY + offset) !== ORDINARY_STAT_MAX;
+      writeStateByte(wram, JAKE_BODY + offset, ORDINARY_STAT_MAX);
     }
   }
   if (mask & (CHEAT.stats | CHEAT.spells)) {
-    refillMagic ||= wram[JAKE_BODY + RECORD_ATTRIBUTE.magic] !== ATTRIBUTE_MAX;
-    wram[JAKE_BODY + RECORD_ATTRIBUTE.magic] = ATTRIBUTE_MAX;
-    if (refillMagic) wram[MAGIC_POINTS] = ATTRIBUTE_MAX * RESOURCE_PER_ATTRIBUTE;
+    refillMagic ||= readStateByte(wram, JAKE_BODY + RECORD_ATTRIBUTE.magic) !== ATTRIBUTE_MAX;
+    writeStateByte(wram, JAKE_BODY + RECORD_ATTRIBUTE.magic, ATTRIBUTE_MAX);
+    if (refillMagic) writeStateByte(wram, MAGIC_POINTS, ATTRIBUTE_MAX * RESOURCE_PER_ATTRIBUTE);
   }
   if (mask & CHEAT.money) {
     putWord(wram, NUYEN, WORD_MASK);
@@ -71,14 +84,27 @@ export function applyCheats(game) {
   }
   const matrix =
     word(wram, NMI_CALLBACK) === (MATRIX_NMI & WORD_MASK) &&
-    wram[NMI_CALLBACK_BANK] === MATRIX_NMI >>> (2 * BYTE_BITS);
+    readStateByte(wram, NMI_CALLBACK_BANK) === MATRIX_NMI >>> (2 * BYTE_BITS);
   if (matrix && word(wram, DECKER_RECORD) === JAKE_STATE_RECORD) {
-    if (mask & CHEAT.stats) wram[DECKER_COMPUTER_SKILL] = wram[JAKE_BODY + RECORD_SKILL.computer];
+    if (mask & CHEAT.stats)
+      writeStateByte(
+        wram,
+        DECKER_COMPUTER_SKILL,
+        readStateByte(wram, JAKE_BODY + RECORD_SKILL.computer),
+      );
     if (mask & CHEAT.health) {
-      wram[DECKER_HEALTH] = wram[JAKE_BODY + RECORD_ATTRIBUTE.count_max];
-      putWord(wram, MATRIX_HEALTH, wram[DECKER_HEALTH]);
+      writeStateByte(
+        wram,
+        DECKER_HEALTH,
+        readStateByte(wram, JAKE_BODY + RECORD_ATTRIBUTE.count_max),
+      );
+      putWord(wram, MATRIX_HEALTH, readStateByte(wram, DECKER_HEALTH));
     }
   }
-  if (mask & CHEAT.health && wram[JAKE_STATE_RECORD + RECORD_COUNT] > 0)
-    wram[JAKE_STATE_RECORD + RECORD_COUNT] = wram[JAKE_BODY + RECORD_ATTRIBUTE.count_max];
+  if (mask & CHEAT.health && readStateByte(wram, JAKE_STATE_RECORD + RECORD_COUNT) > 0)
+    writeStateByte(
+      wram,
+      JAKE_STATE_RECORD + RECORD_COUNT,
+      readStateByte(wram, JAKE_BODY + RECORD_ATTRIBUTE.count_max),
+    );
 }

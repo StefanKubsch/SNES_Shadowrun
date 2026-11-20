@@ -1,3 +1,4 @@
+import { combatByte, setCombatByte } from './combat.mjs';
 import { windowTextByte, setWindowTextByte } from './windows-text.mjs';
 import { cameraMapByte, setCameraMapByte } from './camera-maps.mjs';
 import { collisionByte, setCollisionByte } from './collision.mjs';
@@ -240,7 +241,11 @@ export function readStateByte(wram, at) {
   const field = detached.has(wram) && byteFields[at];
   if (!field)
     return (
-      collisionByte(wram, at) ?? cameraMapByte(wram, at) ?? windowTextByte(wram, at) ?? wram[at]
+      collisionByte(wram, at) ??
+      cameraMapByte(wram, at) ??
+      windowTextByte(wram, at) ??
+      combatByte(wram, at) ??
+      wram[at]
     );
   return (tables.get(wram)[field.name][field.index] >>> field.shift) & BYTE_MASK;
 }
@@ -250,7 +255,8 @@ export function writeStateByte(wram, at, value) {
     if (
       !setCollisionByte(wram, at, value) &&
       !setCameraMapByte(wram, at, value) &&
-      !setWindowTextByte(wram, at, value)
+      !setWindowTextByte(wram, at, value) &&
+      !setCombatByte(wram, at, value)
     )
       wram[at] = value;
     return value;

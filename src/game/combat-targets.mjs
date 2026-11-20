@@ -1,3 +1,4 @@
+import { readStateByte } from '../state/objects.mjs';
 // Targets in a fight by line of sight (lifted from the script natives 80:8BC5, 80:8C08,
 // 80:8C8D and 80:8CCF; register-level references in
 // proof/game-reference/enemy-target-choice.mjs and proof/replay/native-combat.mjs). The natives'
@@ -33,7 +34,7 @@ const onScreen = (mem, object) => (flags(mem, object) & OBJECT_ON_SCREEN) !== 0;
 const isNoTarget = (mem, object) => (flags(mem, object) & OBJECT_NO_TARGET) !== 0;
 const fightListEntry = (mem, index) => dataBankWord(mem, FIGHT_LIST, index);
 const groupSlot = (mem, index) => dataBankWord(mem, GROUP_SLOTS, index);
-const wramWord = (wram, at) => wram[at] | (wram[at + 1] << BYTE_BITS);
+const wramWord = (wram, at) => readStateByte(wram, at) | (readStateByte(wram, at + 1) << BYTE_BITS);
 const negative = (index) => (index & WORD_SIGN) !== 0;
 const sees = (mem, port, viewer, target) => !lineOfSight(mem, port, viewer, target).blocked;
 

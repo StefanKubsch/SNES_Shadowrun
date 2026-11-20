@@ -1,3 +1,4 @@
+import { readStateByte, writeStateByte } from '../state/objects.mjs';
 // The fight list (lifted from 80:8521 and 80:855E; register-level references in
 // proof/game-reference/fight-list-append.mjs and proof/replay/native-fight-list-remove.mjs).
 //
@@ -61,10 +62,10 @@ import { objectWord } from '../state/objects.mjs';
 const FIGHT_KARMA_SHIFT = 3,
   NO_MUSIC = WORD_MASK;
 
-const word = (wram, at) => wram[at] | (wram[at + 1] << BYTE_BITS);
+const word = (wram, at) => readStateByte(wram, at) | (readStateByte(wram, at + 1) << BYTE_BITS);
 const setWord = (wram, at, value) => {
-  wram[at] = value & BYTE_MASK;
-  wram[at + 1] = (value >>> BYTE_BITS) & BYTE_MASK;
+  writeStateByte(wram, at, value & BYTE_MASK);
+  writeStateByte(wram, at + 1, (value >>> BYTE_BITS) & BYTE_MASK);
 };
 
 // Append object to the fight list (80:8521; the original has no capacity check).

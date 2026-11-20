@@ -77,8 +77,7 @@ test(
       },
     });
     control = new MouseControl(game);
-    const wram = game.memory.wram,
-      word = (a) => wram[a] | (wram[a + 1] << 8);
+    const word = (a) => game.memory.read16(0x7e0000 + a);
     const run = (n) => {
         while (game.nmis < n) game.step();
       },
@@ -113,7 +112,7 @@ test(
       input.mouse = { seq, x, y };
       after(6);
       assert.deepEqual(
-        [word(OPEN), wram[0x1d5], wram[0x1d7]],
+        [word(OPEN), game.memory.read8(0x1d5), game.memory.read8(0x1d7)],
         [0xfffe, x, y],
         'crosshair under the mouse',
       );

@@ -2,7 +2,7 @@
 // steer the glove or player towards a target; optional round counts use main loop
 // returns instead of NMIs so original lag frames do not change the route.
 // Each completed command records its NMI, player slot, position and round count.
-import { readStateWord } from '../src/state/objects.mjs';
+import { readStateWord, readStateByte } from '../src/state/objects.mjs';
 import { PLAYER_OBJECT, OBJECT_X, OBJECT_Y, GLOVE_X, GLOVE_Y } from '../src/data/wram.mjs';
 import { BYTE_MASK, WORD_SIGN } from '../src/constants/bits.mjs';
 
@@ -103,8 +103,8 @@ export function livePlanDriver(plan, wram, rounds = () => 0) {
           else input = STEER[(sx + 1) * STEERING_COLUMNS + sy + 1];
         }
       } else if (kind === 'glove' || kind === 'aim') {
-        const x = wram[GLOVE_X + 1],
-          y = wram[GLOVE_Y + 1];
+        const x = readStateByte(wram, GLOVE_X + 1),
+          y = readStateByte(wram, GLOVE_Y + 1);
         const [tx, ty] =
           kind === 'glove'
             ? [command[1], command[2]]

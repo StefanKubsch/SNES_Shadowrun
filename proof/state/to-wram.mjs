@@ -1,3 +1,4 @@
+import { COMBAT_FIELDS, combatState } from '../../src/state/combat.mjs';
 import { WINDOW_TEXT_FIELDS, windowsText } from '../../src/state/windows-text.mjs';
 import { CAMERA_MAP_FIELDS, cameraMaps } from '../../src/state/camera-maps.mjs';
 import { COLLISION_FIELDS, collisionTable } from '../../src/state/collision.mjs';
@@ -42,6 +43,13 @@ export function toWram(memory, into = new Uint8Array(memory.wram.length)) {
         into[base + i * bytes] = windows[name][i] & BYTE_MASK;
         if (bytes === 2) into[base + i * bytes + 1] = windows[name][i] >>> BYTE_BITS;
       }
+  const combatStateFields = combatState(wram);
+  if (combatStateFields)
+    for (const [name, { base, count, bytes, stride }] of Object.entries(COMBAT_FIELDS))
+      for (let i = 0; i < count; i++) {
+        into[base + i * stride] = combatStateFields[name][i] & BYTE_MASK;
+        if (bytes === 2) into[base + i * stride + 1] = combatStateFields[name][i] >>> BYTE_BITS;
+      }
   return into;
 }
 
@@ -54,7 +62,13 @@ export function restoreWram(memory, bytes) {
   const collision = collisionTable(wram);
   const maps = cameraMaps(wram);
   const windows = windowsText(wram);
+  const combatStateFields = combatState(wram);
   wram.set(bytes);
+  if (combatStateFields)
+    for (const [name, { base, count, bytes: width, stride }] of Object.entries(COMBAT_FIELDS))
+      for (let i = 0; i < count; i++)
+        combatStateFields[name][i] =
+          bytes[base + i * stride] | (width === 2 ? bytes[base + i * stride + 1] << BYTE_BITS : 0);
   if (windows)
     for (const [name, { base, count, bytes: width }] of Object.entries(WINDOW_TEXT_FIELDS))
       for (let i = 0; i < count; i++)

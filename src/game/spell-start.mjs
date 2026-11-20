@@ -1,3 +1,4 @@
+import { writeStateByte } from '../state/objects.mjs';
 // Starting the selected spell (lifted from the script native 80:8EDA; register-level
 // reference in proof/game-reference/script-starts.mjs).
 //
@@ -21,8 +22,8 @@ const DP_ARGUMENT = 0;
 
 const wramWord = (mem, offset) => mem.read16((WRAM + offset) & LONG_MASK);
 const setWord = (wram, at, value) => {
-  wram[at] = value & BYTE_MASK;
-  wram[at + 1] = (value >>> BYTE_BITS) & BYTE_MASK;
+  writeStateByte(wram, at, value & BYTE_MASK);
+  writeStateByte(wram, at + 1, (value >>> BYTE_BITS) & BYTE_MASK);
 };
 
 // 80:8EDA: start the selected spell's script with its level as the first argument; a is

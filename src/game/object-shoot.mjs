@@ -1,3 +1,4 @@
+import { readStateByte, writeStateByte } from '../state/objects.mjs';
 // Shooting (lifted from the script natives 80:8AB5, 80:8A51 and 80:8A8C; register-level
 // version in proof/replay/native-object-shoot.mjs, which recorded waits and inputs replay).
 //
@@ -119,10 +120,10 @@ const GLOVE_BLOCKED = 1,
   // A low box lowers the close bonus by this much.
   LOW_BOX_PENALTY = 2;
 
-const word = (wram, at) => wram[at] | (wram[at + 1] << BYTE_BITS);
+const word = (wram, at) => readStateByte(wram, at) | (readStateByte(wram, at + 1) << BYTE_BITS);
 const setWord = (wram, at, value) => {
-  wram[at] = value & BYTE_MASK;
-  wram[at + 1] = (value >>> BYTE_BITS) & BYTE_MASK;
+  writeStateByte(wram, at, value & BYTE_MASK);
+  writeStateByte(wram, at + 1, (value >>> BYTE_BITS) & BYTE_MASK);
 };
 const negative = (value) => (value & WORD_SIGN) !== 0;
 // left - right - borrow on words, with the borrow passed on as the 65816 carry.
@@ -175,10 +176,10 @@ function takeWeapon(run, shooter) {
   setWord(wram, DP_BONUS_RANGED, (ranged >>> 1) + (ranged & 1));
   setWord(wram, DP_BONUS_CLOSE, record(RECORD_BONUS_CLOSE));
   const entry = (owner << WEAPON_ENTRY_SHIFT) & WORD_MASK,
-    kind = wram[RUNNER_WEAPON_KIND + entry],
-    range = wram[RUNNER_WEAPON_RANGE + entry];
+    kind = readStateByte(wram, RUNNER_WEAPON_KIND + entry),
+    range = readStateByte(wram, RUNNER_WEAPON_RANGE + entry);
   setWord(wram, DP_WEAPON_KIND, kind);
-  setWord(wram, DP_WEAPON_DAMAGE, wram[WEAPON_DAMAGE + entry]);
+  setWord(wram, DP_WEAPON_DAMAGE, readStateByte(wram, WEAPON_DAMAGE + entry));
   setWord(wram, DP_WEAPON_PENALTY, range >= BYTE_SIGN ? range | HIGH_BYTE_MASK : range);
   const sound = shotSound(kind);
   if (sound === null) return;

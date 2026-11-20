@@ -1,3 +1,4 @@
+import { detachCombat } from '../state/combat.mjs';
 import { detachWindowsText } from '../state/windows-text.mjs';
 import { detachCameraMaps } from '../state/camera-maps.mjs';
 import { detachCollisionStorage } from '../state/collision.mjs';
@@ -92,6 +93,7 @@ export class LiveGame {
       detachCollisionStorage(this.memory.wram);
       detachCameraMaps(this.memory.wram);
       detachWindowsText(this.memory.wram);
+      detachCombat(this.memory.wram);
     }
     this.memory.textEdits = cartridge.textEdits ?? null;
     if (settings.fourSaveSlots) installPortExtension(this.memory);

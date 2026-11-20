@@ -1,3 +1,4 @@
+import { readStateByte, writeStateByte } from '../state/objects.mjs';
 // An object takes its place in the group's formation (lifted from the script native
 // 80:BB2C; register-level reference in proof/game-reference/formation-place.mjs).
 //
@@ -37,10 +38,10 @@ const DP_OBJECT = 0,
 const WALKING = 2,
   STANDING = 0;
 
-const word = (wram, at) => wram[at] | (wram[at + 1] << BYTE_BITS);
+const word = (wram, at) => readStateByte(wram, at) | (readStateByte(wram, at + 1) << BYTE_BITS);
 const setWord = (wram, at, value) => {
-  wram[at] = value & BYTE_MASK;
-  wram[at + 1] = (value >>> BYTE_BITS) & BYTE_MASK;
+  writeStateByte(wram, at, value & BYTE_MASK);
+  writeStateByte(wram, at + 1, (value >>> BYTE_BITS) & BYTE_MASK);
 };
 // A word of WRAM bank 7E at offset (which may cross into bank 7F).
 const wramWord = (mem, offset) => mem.read16((WRAM + offset) & LONG_MASK);

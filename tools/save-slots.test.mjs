@@ -1,3 +1,4 @@
+import { toWram } from '../proof/state/to-wram.mjs';
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { cartridge } from './cartridge-harness.mjs';
@@ -102,14 +103,14 @@ test('with four slots the bed saves slot 4 and the title loads it', { timeout: 9
   while (again.nmis < 4000) again.step();
   assert.ok(saveAnywhereReachable(again));
   assert.deepEqual(
-    again.memory.wram.subarray(BLOCK + 4, BLOCK + SIZE),
+    toWram(again.memory).subarray(BLOCK + 4, BLOCK + SIZE),
     sram.subarray(SLOT_4 + 4, SLOT_4 + SIZE),
   );
   // Save anywhere reaches slot 3 with the option.
   saveToSlot(again, 2);
   assert.deepEqual(
     again.memory.sram.subarray(0x2000 + 2, 0x2000 + SIZE),
-    again.memory.wram.subarray(BLOCK + 2, BLOCK + SIZE),
+    toWram(again.memory).subarray(BLOCK + 2, BLOCK + SIZE),
   );
   assert.deepEqual(occupiedSlots(again.memory.sram), [true, false, true, true]);
 });

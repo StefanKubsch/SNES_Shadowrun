@@ -174,8 +174,8 @@ export function* objectSearch(h, events, renderBuffer = drawTextBufferSequence) 
   yield () => {
     let y = word(wram, DRAW_LIST_INDEX);
     if (!(y & WORD_SIGN)) {
-      const screenX = wram[GLOVE_X + 1],
-        screenY = wram[GLOVE_Y + 1];
+      const screenX = readStateByte(wram, GLOVE_X + 1),
+        screenY = readStateByte(wram, GLOVE_Y + 1);
       setWord(wram, DP_SCREEN_X, screenX);
       setWord(wram, DP_SCREEN_Y, screenY);
       for (;;) {

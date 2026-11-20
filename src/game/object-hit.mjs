@@ -1,3 +1,4 @@
+import { readStateByte, writeStateByte } from '../state/objects.mjs';
 // A hit (lifted from 80:8691 with the player hit 80:881C; register-level version in
 // proof/replay/native-object-hit.mjs, which recorded waits and inputs replay).
 //
@@ -123,10 +124,10 @@ const WARNING_CALLS = Object.freeze({
 const BOX_SHIFT = 2,
   NOTICE_RESULT = 1;
 
-const word = (wram, at) => wram[at] | (wram[at + 1] << BYTE_BITS);
+const word = (wram, at) => readStateByte(wram, at) | (readStateByte(wram, at + 1) << BYTE_BITS);
 const setWord = (wram, at, value) => {
-  wram[at] = value & BYTE_MASK;
-  wram[at + 1] = (value >>> BYTE_BITS) & BYTE_MASK;
+  writeStateByte(wram, at, value & BYTE_MASK);
+  writeStateByte(wram, at + 1, (value >>> BYTE_BITS) & BYTE_MASK);
 };
 // A long WRAM word or byte (bank 7E, crossing into 7F as the original's long index does).
 const longAddress = (offset, index) => (WRAM + offset + index) & LONG_MASK;
@@ -292,7 +293,7 @@ export function* hitObject(
         dealt = (draw + 1 - (longObjectWord(mem, 'armour', target) & BYTE_MASK)) & BYTE_MASK;
       if (dealt === 0 || dealt & BYTE_SIGN) return;
       const armour = (draw & HIGH_BYTE_MASK) | dealt;
-      wram[0] = dealt;
+      writeStateByte(wram, 0, dealt);
       damageRecord(h, target, draw, dealt);
       placeHitEffect(h, target, armour);
     };

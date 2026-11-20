@@ -54,7 +54,7 @@ test(
         if (!driver) {
           wram.set([3], 0x3bfc);
           wram.set([1, 2, 1, 1, 1, 1], 0x3c07);
-          wram.set([30, 0], 0x3c96);
+          game.memory.write16(0x7e3c96, 30);
           driver = livePlanDriver(SELECT, wram, () => game.loop.rounds);
         }
         if (driver.done() && !chosen) {

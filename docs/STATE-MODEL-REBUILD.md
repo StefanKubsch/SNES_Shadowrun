@@ -206,3 +206,21 @@ own commit after `npm run test:block` and the golden trace test. One shared
   focused selection passed 826/826 tests in 491 seconds. Both browser checks
   passed with elevated process access after managed Page.enable startup timeouts.
   Nine storage contracts and all edited-file ESLint checks passed.
+
+- 2026-11-21, combat storage: src/state/combat.mjs owns fight lists and counters,
+  aiming and glove state, group membership and formation trails, selected spells,
+  runner equipment and magic points. The normal live loop imports independent
+  typed arrays; proof fixtures retain bytes. Shared byte access preserves fight
+  list overflow into the music word, equipment's odd weapon words and each row's
+  byte fields, group aliases and words crossing the end of a table.
+- SRAM save checksums and copies read the shared state boundary; loading and new
+  game setup write through it. Saved party, equipment and magic therefore retain
+  the original .srm format without a WRAM mirror. Projection and restore include
+  every field. Mouse aiming and marker readers use the same live byte boundary.
+- Eight combat storage contracts cover ownership and restore, equipment/row/glove
+  aliases, fight overflow, hit countdowns and exact save/load SRAM equality.
+- Combat validation: the initial block run passed 5824 checks and all five golden
+  traces; twelve route checks stopped because their shared driver still observed
+  raw glove bytes. Its two coordinate reads now use the shared boundary. The
+  affected selection passed 55/55 tests across sixteen files in 431 seconds.
+  Eight storage contracts, edited-file ESLint and formatting passed.

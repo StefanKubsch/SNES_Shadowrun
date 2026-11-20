@@ -134,7 +134,7 @@ const setWord = (wram, at, value) => {
 const readWord = (mem, at) =>
   mem.read8(at & LONG_MASK) | (mem.read8((at + 1) & LONG_MASK) << BYTE_BITS);
 // The long pointer in direct page word at with its bank byte two bytes on.
-const longPointer = (wram, at) => (wram[at + 2] << WORD_BITS) | word(wram, at);
+const longPointer = (wram, at) => (readStateByte(wram, at + 2) << WORD_BITS) | word(wram, at);
 
 // The header's bank (80:A44D): bit 15 of the header word selects the second room
 // bank; the header, the camera box and the room lists all lie in it.

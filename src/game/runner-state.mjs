@@ -1,3 +1,4 @@
+import { readStateByte, writeStateByte } from '../state/objects.mjs';
 // The runners' state counts and magic points (lifted from 80:CECB, 80:CF2E and 80:D079
 // with 80:D08A; register-level references in proof/game-reference/runner-state.mjs). The
 // script natives call them before they redraw the window list
@@ -41,10 +42,10 @@ import { objectWord } from '../state/objects.mjs';
 const MAGIC_DOUBLE_SHIFT = 1,
   MAGIC_EIGHT_SHIFT = 3;
 
-const wramWord = (wram, at) => wram[at] | (wram[at + 1] << BYTE_BITS);
+const wramWord = (wram, at) => readStateByte(wram, at) | (readStateByte(wram, at + 1) << BYTE_BITS);
 const setWramWord = (wram, at, value) => {
-  wram[at] = value & BYTE_MASK;
-  wram[at + 1] = (value >>> BYTE_BITS) & BYTE_MASK;
+  writeStateByte(wram, at, value & BYTE_MASK);
+  writeStateByte(wram, at + 1, (value >>> BYTE_BITS) & BYTE_MASK);
 };
 // The object fields are reached through the data bank 80 as the original does
 // (src/system/data-bank.mjs).
@@ -103,8 +104,12 @@ export function raiseStateCount(mem, object, amount) {
     max = mem.read8(record),
     objectRecord = objectWord(mem, 'record', member);
   if (objectRecord !== 0) {
-    const raised = wram[RECORD_COUNT + objectRecord] + amount;
-    wram[RECORD_COUNT + objectRecord] = (raised & WORD_MASK) >= max ? max : raised & BYTE_MASK;
+    const raised = readStateByte(wram, RECORD_COUNT + objectRecord) + amount;
+    writeStateByte(
+      wram,
+      RECORD_COUNT + objectRecord,
+      (raised & WORD_MASK) >= max ? max : raised & BYTE_MASK,
+    );
   }
   return { record, max };
 }
@@ -121,8 +126,8 @@ export function raiseMagicPoints(mem, object, amount) {
     // Eight times the attribute plus twice it.
     max = (doubleMagic << (MAGIC_EIGHT_SHIFT - MAGIC_DOUBLE_SHIFT)) + doubleMagic,
     points = MAGIC_POINTS + (row >>> 1),
-    raised = (wram[points] + amount) & WORD_MASK;
-  wram[points] = (raised >= max ? max : raised) & BYTE_MASK;
+    raised = (readStateByte(wram, points) + amount) & WORD_MASK;
+  writeStateByte(wram, points, (raised >= max ? max : raised) & BYTE_MASK);
   return { bank: record >>> WORD_BITS, doubleMagic, max };
 }
 
@@ -141,10 +146,13 @@ export function restoreRunners(mem) {
     if (objectRecord === 0) continue;
     const magic = mem.read8(record);
     doubleMagic = (magic << MAGIC_DOUBLE_SHIFT) & BYTE_MASK;
-    wram[MAGIC_POINTS + (row >>> 1)] =
-      (((magic << MAGIC_EIGHT_SHIFT) & BYTE_MASK) + doubleMagic) & BYTE_MASK;
+    writeStateByte(
+      wram,
+      MAGIC_POINTS + (row >>> 1),
+      (((magic << MAGIC_EIGHT_SHIFT) & BYTE_MASK) + doubleMagic) & BYTE_MASK,
+    );
     record = (record & ~WORD_MASK) | ((record + RECORD_COUNT_MAX - RECORD_MAGIC) & WORD_MASK);
-    wram[RECORD_COUNT + objectRecord] = mem.read8(record);
+    writeStateByte(wram, RECORD_COUNT + objectRecord, mem.read8(record));
   }
   return { record, doubleMagic };
 }
@@ -170,7 +178,7 @@ function runnerRecordByte(mem) {
   const pointer = dataBankWord(mem, RUNNER_RECORD_POINTERS, runner),
     bank = mem.read8((CODE_BANK_BASE + RUNNER_RECORD_BANKS + runner) & LONG_MASK);
   setWramWord(wram, DP_RECORD_POINTER, pointer);
-  wram[DP_RECORD_BANK] = bank;
+  writeStateByte(wram, DP_RECORD_BANK, bank);
   const value = pointerWord(mem, (bank << WORD_BITS) | pointer, wramWord(wram, DP_RECORD_OFFSET));
   setWramWord(wram, 0, value & BYTE_MASK);
 }

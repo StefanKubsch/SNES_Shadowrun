@@ -1,3 +1,4 @@
+import { readStateByte, writeStateByte } from '../state/objects.mjs';
 // The formation trail of the player figure (lifted from 80:BAD5; register-level
 // reference in proof/game-reference/main-camera.mjs). The room entry clears the
 // trail (80:BABB, room-entry.mjs).
@@ -30,10 +31,10 @@ import { OBJECT_FIELDS, isObjectSlot, objectWordIn, readStateWord } from '../sta
 const UNMOVED = WORD_MASK,
   LOW_WRAM_END = 0x2000;
 
-const word = (wram, at) => wram[at] | (wram[at + 1] << BYTE_BITS);
+const word = (wram, at) => readStateByte(wram, at) | (readStateByte(wram, at + 1) << BYTE_BITS);
 const setWord = (wram, at, value) => {
-  wram[at] = value & BYTE_MASK;
-  wram[at + 1] = (value >>> BYTE_BITS) & BYTE_MASK;
+  writeStateByte(wram, at, value & BYTE_MASK);
+  writeStateByte(wram, at + 1, (value >>> BYTE_BITS) & BYTE_MASK);
 };
 // A field of the figure at slot, through the data bank 80 for a value that is no slot.
 function objectWord(wram, name, slot) {

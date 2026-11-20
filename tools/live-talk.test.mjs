@@ -77,8 +77,8 @@ function clickAt(end, button) {
     open: word(OPEN),
     object: word(TARGET),
     use: useEvent(wram, game.tasks),
-    x: wram[0x1d5],
-    y: wram[0x1d7],
+    x: game.memory.read8(0x1d5),
+    y: game.memory.read8(0x1d7),
   };
   // The page sends the mouse button as its bound pad bits (start.mjs) plus the left/right state.
   if (button >= 0) {

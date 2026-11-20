@@ -1,3 +1,4 @@
+import { readStateByte, writeStateByte } from '../state/objects.mjs';
 // The movement of the action and spell glove (lifted from 80:BE6D; register-level
 // version in proof/replay/native-glove.mjs, which the glove natives keep calling).
 //
@@ -40,10 +41,10 @@ const RIGHT = 1,
   DOWN = 4,
   UP = 8;
 
-const word = (wram, at) => wram[at] | (wram[at + 1] << BYTE_BITS);
+const word = (wram, at) => readStateByte(wram, at) | (readStateByte(wram, at + 1) << BYTE_BITS);
 const setWord = (wram, at, value) => {
-  wram[at] = value & BYTE_MASK;
-  wram[at + 1] = (value >>> BYTE_BITS) & BYTE_MASK;
+  writeStateByte(wram, at, value & BYTE_MASK);
+  writeStateByte(wram, at + 1, (value >>> BYTE_BITS) & BYTE_MASK);
 };
 
 // The speed on one axis: forward (right or down) up to 300, back down to -300, or none.

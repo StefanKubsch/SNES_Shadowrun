@@ -257,7 +257,7 @@ function aimResult(h) {
     const target = word(wram, GLOVE_TARGET_OBJECT);
     if (negative(objectWord(mem, 'flags', target))) {
       setWord(wram, AIM_TARGET_OBJECT, target);
-      if (wram[RUNNER_WEAPON_KIND] === TWO_BUTTON_WEAPON) return both();
+      if (readStateByte(wram, RUNNER_WEAPON_KIND) === TWO_BUTTON_WEAPON) return both();
       return pressed(AIM_BUTTONS);
     }
   }
@@ -326,7 +326,7 @@ function* freeSequence(h, events, finish, renderBuffer, player) {
       armed = !negative(word(wram, RUNNER_WEAPON));
       if (!armed) return;
       putGloveOn(h, GLOVE_LIMITS.crosshair);
-      const heavy = wram[RUNNER_WEAPON_KIND + 1] >= HEAVY_WEAPON_DAMAGE,
+      const heavy = readStateByte(wram, RUNNER_WEAPON_KIND + 1) >= HEAVY_WEAPON_DAMAGE,
         action = heavy ? HEAVY_AIM_ACTION : AIM_ACTION;
       setWord(wram, 2, action);
       setWord(wram, AIM_ACTION_NEXT, action + 1);

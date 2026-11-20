@@ -1,3 +1,4 @@
+import { readStateByte, writeStateByte } from '../state/objects.mjs';
 // The hit shake of the player figure (lifted from 80:DE94; register-level reference
 // in proof/game-reference/main-upkeep.mjs).
 //
@@ -11,10 +12,10 @@ import { lowObjectWord, setLowObjectWord } from '../state/objects.mjs';
 
 const SPEED = 4;
 
-const word = (wram, at) => wram[at] | (wram[at + 1] << BYTE_BITS);
+const word = (wram, at) => readStateByte(wram, at) | (readStateByte(wram, at + 1) << BYTE_BITS);
 const setWord = (wram, at, value) => {
-  wram[at] = value & BYTE_MASK;
-  wram[at + 1] = (value >>> BYTE_BITS) & BYTE_MASK;
+  writeStateByte(wram, at, value & BYTE_MASK);
+  writeStateByte(wram, at + 1, (value >>> BYTE_BITS) & BYTE_MASK);
 };
 
 // Shake the hit player figure (80:DE94). Returns the player's slot, the X the

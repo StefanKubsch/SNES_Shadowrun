@@ -1,3 +1,4 @@
+import { readStateByte, writeStateByte } from '../state/objects.mjs';
 // The start of a game (lifted from 80:9688, 80:9699, 80:960D, 80:98E9 and 81:B198;
 // register-level reference in proof/game-reference/game-start.mjs). The room start
 // calls the lifted game screen set-up (src/game/game-screen.mjs), room entry
@@ -102,10 +103,10 @@ const SLOT_OFFSETS = 0x81b124,
   SAVE_SLOT_BYTES = SLOT_CHECKED_BYTES + CHECKSUM_WORD_BYTES;
 const SRAM_BASE = SRAM_FIRST_BANK << 16;
 
-const word = (wram, at) => wram[at] | (wram[at + 1] << BYTE_BITS);
+const word = (wram, at) => readStateByte(wram, at) | (readStateByte(wram, at + 1) << BYTE_BITS);
 const setWord = (wram, at, value) => {
-  wram[at] = value & BYTE_MASK;
-  wram[at + 1] = (value >>> BYTE_BITS) & BYTE_MASK;
+  writeStateByte(wram, at, value & BYTE_MASK);
+  writeStateByte(wram, at + 1, (value >>> BYTE_BITS) & BYTE_MASK);
 };
 const readRomWord = (mem, at) => mem.read8(at) | (mem.read8(at + 1) << BYTE_BITS);
 
@@ -118,15 +119,23 @@ export function setUpNewGameState(a) {
   unlockBulletproofVest(a);
   wram.fill(0, SCRIPT_VARIABLES, SCRIPT_VARIABLES + SCRIPT_WORDS * 2);
   for (let i = 0; i < RUNNERS * RUNNER_EQUIPMENT_BYTES; i++)
-    wram[RUNNER_ARMOUR + i] = mem.read8(CODE_BANK_BASE | (RUNNER_EQUIPMENT_ROWS + i));
+    writeStateByte(
+      wram,
+      RUNNER_ARMOUR + i,
+      mem.read8(CODE_BANK_BASE | (RUNNER_EQUIPMENT_ROWS + i)),
+    );
   for (let i = 0; i < RUNNERS; i++)
-    wram[MAGIC_POINTS + i] = mem.read8(CODE_BANK_BASE | (RUNNER_MAGIC_POINT_ROWS + i));
+    writeStateByte(
+      wram,
+      MAGIC_POINTS + i,
+      mem.read8(CODE_BANK_BASE | (RUNNER_MAGIC_POINT_ROWS + i)),
+    );
   for (const field of ['body', 'strength', 'charisma'])
-    wram[JAKE_BODY + RECORD_ATTRIBUTE[field]] = JAKE_START_ATTRIBUTE;
-  wram[JAKE_BODY + RECORD_ATTRIBUTE.count_max] = JAKE_START_COUNT_MAX;
-  for (const at of JAKE_CLEARED_BYTES) wram[at] = 0;
-  wram[JAKE_BODY + RECORD_SKILL.firearms] = JAKE_START_SKILL;
-  wram[JAKE_BODY + RECORD_SKILL.computer] = JAKE_START_SKILL;
+    writeStateByte(wram, JAKE_BODY + RECORD_ATTRIBUTE[field], JAKE_START_ATTRIBUTE);
+  writeStateByte(wram, JAKE_BODY + RECORD_ATTRIBUTE.count_max, JAKE_START_COUNT_MAX);
+  for (const at of JAKE_CLEARED_BYTES) writeStateByte(wram, at, 0);
+  writeStateByte(wram, JAKE_BODY + RECORD_SKILL.firearms, JAKE_START_SKILL);
+  writeStateByte(wram, JAKE_BODY + RECORD_SKILL.computer, JAKE_START_SKILL);
   for (const at of CLEARED_WORDS) setWord(wram, at, 0);
   setWord(wram, SELECTED_SPELL_NAME, TEXT_NONE);
 }
@@ -155,7 +164,11 @@ export function loadSavedGame(a, slot) {
   const { mem } = a,
     offset = saveSlotOffset(a, slot);
   for (let i = 0; i < SAVE_SLOT_BYTES; i++)
-    mem.wram[SAVE_STATE_START + i] = mem.read8(SRAM_BASE | ((offset + i) & WORD_MASK));
+    writeStateByte(
+      mem.wram,
+      SAVE_STATE_START + i,
+      mem.read8(SRAM_BASE | ((offset + i) & WORD_MASK)),
+    );
   unlockBulletproofVest(a);
 }
 

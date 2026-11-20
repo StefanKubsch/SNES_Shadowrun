@@ -1,3 +1,4 @@
+import { readStateByte, writeStateByte } from '../state/objects.mjs';
 // Mouse and back key (user decisions 2026-10-30). Runs in the worker at the
 // NMI where the original reads the pad word (LiveGame pad); ROM evidence in
 // docs/CONTROLS.md.
@@ -76,7 +77,7 @@ const ACTION_EVENTS = 0x67f2,
 // 0600 counts as none). Without an event the button opens the action list (B),
 // for example for people; this way a click opens, takes or uses directly.
 export function useEvent(wram, tasks) {
-  const read = (a) => wram[a] | (wram[a + 1] << BYTE_BITS);
+  const read = (a) => readStateByte(wram, a) | (readStateByte(wram, a + 1) << BYTE_BITS);
   const task = objectWordIn(wram, 'task', read(SLOT));
   if (task & WORD_SIGN) return 0;
   let flags;
@@ -128,10 +129,10 @@ export class MouseControl {
     } = {},
   ) {
     const wram = this.game.memory.wram,
-      read = (a) => wram[a] | (wram[a + 1] << BYTE_BITS),
+      read = (a) => readStateByte(wram, a) | (readStateByte(wram, a + 1) << BYTE_BITS),
       write = (a, v) => {
-        wram[a] = v & BYTE_MASK;
-        wram[a + 1] = (v >> BYTE_BITS) & BYTE_MASK;
+        writeStateByte(wram, a, v & BYTE_MASK);
+        writeStateByte(wram, a + 1, (v >> BYTE_BITS) & BYTE_MASK);
       };
     // control: E014 ran in the last frame (condition for injected keys). For the
     // meaning of the keys a window counts, because E014 skips single frames in free
@@ -235,8 +236,8 @@ export class MouseControl {
       // Over an object (01DA not negative) BCBE sets the position to the object minus the
       // recorded offset 01E0/01E2; the offset moves along, otherwise the glove snaps in.
       if (!(read(TARGET) & WORD_SIGN)) {
-        write(OFFSET_X, (read(OFFSET_X) + wram[GLOVE_X + 1] - x) & WORD_MASK);
-        write(OFFSET_Y, (read(OFFSET_Y) + wram[GLOVE_Y + 1] - y) & WORD_MASK);
+        write(OFFSET_X, (read(OFFSET_X) + readStateByte(wram, GLOVE_X + 1) - x) & WORD_MASK);
+        write(OFFSET_Y, (read(OFFSET_Y) + readStateByte(wram, GLOVE_Y + 1) - y) & WORD_MASK);
       }
       write(GLOVE_X, x << BYTE_BITS);
       write(GLOVE_Y, y << BYTE_BITS);

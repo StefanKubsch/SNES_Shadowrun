@@ -1,3 +1,4 @@
+import { readStateByte, writeStateByte } from '../state/objects.mjs';
 import { readStateWord } from '../state/objects.mjs';
 // Spending magic points (lifted from the script native 80:8B43; register-level version
 // in proof/replay/native-combat.mjs, which recorded waits replay).
@@ -29,8 +30,8 @@ const NOTICE = { left: 0x0b, top: 0x14, columns: 0x13, rows: 3, text: 1, frames:
 
 const word = readStateWord;
 const setWord = (wram, at, value) => {
-  wram[at] = value & BYTE_MASK;
-  wram[at + 1] = (value >>> BYTE_BITS) & BYTE_MASK;
+  writeStateByte(wram, at, value & BYTE_MASK);
+  writeStateByte(wram, at + 1, (value >>> BYTE_BITS) & BYTE_MASK);
 };
 
 // 80:8B43, ending with the native's RTS and composing its notice directly.
@@ -39,10 +40,10 @@ export function* spendMagicPointsSequence(h, events, renderBuffer = drawTextBuff
   let paid = false;
   yield () => {
     const at = MAGIC_POINTS + (word(wram, MEMBER_INDEX) >>> 1),
-      left = wram[at] - wram[0];
+      left = readStateByte(wram, at) - readStateByte(wram, 0);
     paid = left >= 0;
     if (paid) {
-      wram[at] = left;
+      writeStateByte(wram, at, left);
       setWord(wram, 0, PAID);
       return;
     }
