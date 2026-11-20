@@ -11,7 +11,6 @@ import { closeDialogSequence as formerClose } from '../proof/caller/dialog-talk.
 import { closePortraitWindowSequence } from '../proof/caller/portrait-window.mjs';
 import { reloadObjectTiles } from '../proof/system/native-scene-tiles.mjs';
 import { buildSpriteList } from '../proof/replay/native-scene-sprites.mjs';
-import { clearFixedColourRoutine } from '../src/game/dialog-talk.mjs';
 import * as W from '../src/data/wram.mjs';
 import { sendApuCommand } from '../proof/system/native-input-apu.mjs';
 import { itemMenuSequence } from '../proof/caller/item-menu.mjs';
@@ -25,6 +24,7 @@ import {
 } from '../proof/caller/portrait-upload.mjs';
 import { shiftPortraitRowsRoutine } from '../src/game/portrait-upload.mjs';
 import { unpackPortraitRoutine } from '../proof/caller/portrait-routines.mjs';
+import { clearFixedColourJsl } from '../proof/caller/jsr-forms.mjs';
 function runStatus(
   module,
   direct,
@@ -158,7 +158,7 @@ function runStatus(
       bind(0x809022, () => uploadFirstPortraitSequence(h, events, routines));
       bind(0x808ff5, () => uploadPortraitTilesSequence(h, events, routines));
       bind(0x80e4b3, () => memberPortraitSequence(h, events, routines));
-      routines.set(0x81886a, clearFixedColourRoutine);
+      routines.set(0x81886a, clearFixedColourJsl);
       routines.set(0x81f007, (callee) => sendApuCommand(callee.a, false));
       routines.set(0x80adf4, reloadObjectTiles);
       routines.set(0x80b8de, buildSpriteList);

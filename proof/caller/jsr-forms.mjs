@@ -1,6 +1,7 @@
-// The RTS forms of lifted routines for register-level call tables and caller harnesses
-// (moved from src/, whose live callers run the routines without their JSR frames). Each
-// runs the lifted sequence or function, then returns through the caller's JSR frame.
+// The RTS and RTL forms of lifted routines for register-level call tables and caller
+// harnesses (moved from src/, whose live callers run the routines without their JSR and
+// JSL frames). Each runs the lifted sequence or function, then returns through the
+// caller's frame (suffix Jsr for RTS, Jsl for RTL).
 import { playSoundEffectCall } from '../../src/apu/sound-effect.mjs';
 import { printText } from '../../src/game/text-print.mjs';
 import { sortDrawListInPlace } from '../../src/game/depth-sort.mjs';
@@ -21,6 +22,11 @@ import { gloveActionSequence } from '../../src/game/glove-action.mjs';
 import { playerZonesSequence } from '../../src/game/player-zones.mjs';
 import { sceneRequestSequence } from '../../src/game/scene-request.mjs';
 import { drawTextBufferSequence } from '../../src/game/text-draw.mjs';
+import {
+  clearFixedColourInPlace,
+  setWindowTextWidthInPlace,
+  closeDialog,
+} from '../../src/game/dialog-talk.mjs';
 
 function* rts(h) {
   let result;
@@ -154,5 +160,23 @@ export function* playerZonesJsr(h, events, zones = {}) {
 // entry wait for the NMI.
 export function* sceneRequestJsr(h, events, request = {}) {
   yield* sceneRequestSequence(h, events, request);
+  return yield* rts(h);
+}
+
+// 81:886A as called with JSL; returns with its RTL.
+export function clearFixedColourJsl(h) {
+  clearFixedColourInPlace(h);
+  return h.rtl();
+}
+
+// 80:FA92 as called with JSR; returns with its RTS.
+export function setWindowTextWidthJsr(h) {
+  setWindowTextWidthInPlace(h);
+  return h.rts();
+}
+
+// The dialog close as called with JSR (80:92C5); returns with its RTS.
+export function* closeDialogJsr(h, events) {
+  yield* closeDialog(h, events);
   return yield* rts(h);
 }

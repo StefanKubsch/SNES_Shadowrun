@@ -98,14 +98,17 @@ import {
   chooseDialogTopicSequence,
 } from '../proof/caller/dialog-menus.mjs';
 import { dialogAccess } from '../src/system/native-dialog-support.mjs';
-import { clearFixedColourRoutine, setWindowTextWidthRoutine } from '../src/game/dialog-talk.mjs';
 import {
   printNumber,
   runTaskListHelper,
   setTextCursor,
 } from '../proof/replay/native-list-prerequisites.mjs';
 import { MARK, UNMARK, drawListSequence, markRowSequence } from '../src/game/menu-list.mjs';
-import { setTextCursorJsr } from '../proof/caller/jsr-forms.mjs';
+import {
+  setTextCursorJsr,
+  clearFixedColourJsl,
+  setWindowTextWidthJsr,
+} from '../proof/caller/jsr-forms.mjs';
 import {
   CAMERA_BOX,
   CAMERA_SPEED_X,
@@ -1492,7 +1495,7 @@ const DIALOG_SMALL = [
     reference: (h) => TALK_ROUTINES.get(0x81886a)(h),
     // The lifted colour clear leaves no registers.
     result: dataBank,
-    lifted: plainLifted(clearFixedColourRoutine, true, undefined, dataBank),
+    lifted: plainLifted(clearFixedColourJsl, true, undefined, dataBank),
   },
   {
     name: 'text width 80:FA92',
@@ -1506,7 +1509,7 @@ const DIALOG_SMALL = [
     reference: (h) => TALK_ROUTINES.get(0x80fa92)(h),
     // The lifted text width leaves no registers.
     result: dataBank,
-    lifted: plainLifted(setWindowTextWidthRoutine, false, undefined, dataBank),
+    lifted: plainLifted(setWindowTextWidthJsr, false, undefined, dataBank),
   },
   {
     name: 'notice windows 80:FF79',

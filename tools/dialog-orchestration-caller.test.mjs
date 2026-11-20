@@ -1,4 +1,9 @@
-import { playSoundEffectJsr } from '../proof/caller/jsr-forms.mjs';
+import {
+  playSoundEffectJsr,
+  clearFixedColourJsl,
+  setWindowTextWidthJsr,
+  closeDialogJsr,
+} from '../proof/caller/jsr-forms.mjs';
 import * as formerText from '../proof/caller/dialog-text.mjs';
 import * as formerMenus from '../proof/caller/dialog-menus.mjs';
 import { drawTextBufferSequence as formerDraw } from '../proof/caller/text-draw.mjs';
@@ -89,7 +94,11 @@ function runClose(module, shadow, counter, held, budget) {
   try {
     let pressed, finalShadow;
     function* sequence() {
-      const result = yield* module.closeDialogSequence(h, events, table);
+      const result = yield* (module === direct ? closeDialogJsr : module.closeDialogSequence)(
+        h,
+        events,
+        table,
+      );
       pressed = mem.read16(PAD_PRESSED);
       finalShadow = mem.wram[HDMAEN_SHADOW];
       return result;
@@ -121,7 +130,6 @@ import { dialogTextRoutines, dialogTopic } from '../proof/replay/native-dialog-t
 import { appendScriptTask } from '../proof/system/task-append.mjs';
 import * as V from '../src/vm/layout.mjs';
 import { DIALOG_TABLE, DIALOG_BANK_BASE } from '../src/data/portraits.mjs';
-import { clearFixedColourRoutine, setWindowTextWidthRoutine } from '../src/game/dialog-talk.mjs';
 import {
   GAME_OPTIONS,
   MUSIC,
@@ -286,8 +294,8 @@ function runTalk(
     [0x80936c, live.runTalk],
     [0x80adf4, reloadObjectTiles],
     [0x80b8de, buildSpriteList],
-    [0x81886a, clearFixedColourRoutine],
-    [0x80fa92, setWindowTextWidthRoutine],
+    [0x81886a, clearFixedColourJsl],
+    [0x80fa92, setWindowTextWidthJsr],
     [0x80bcb2, live.runPutGloveAway],
     [0x80ff79, live.runReleaseNoticeWindows],
     [0x80f963, live.runOpenWindow],

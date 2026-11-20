@@ -11,8 +11,8 @@ import {
   runRequestUpload,
   runUnpackWindowMap,
 } from '../proof/caller/window-list.mjs';
-import { closeDialogSequence } from '../src/game/dialog-talk.mjs';
 import * as W from '../src/data/wram.mjs';
+import { closeDialogJsr } from '../proof/caller/jsr-forms.mjs';
 
 function runChoice(module, name, budget, target, pads, options = {}) {
   let finalShadow;
@@ -53,7 +53,7 @@ function runChoice(module, name, budget, target, pads, options = {}) {
       routines.set(0x81ad92, runDrawWindowList);
       routines.set(0x81a9b2, runUnpackWindowMap);
       routines.set(0x81acb5, runRequestUpload);
-      bind(0x8092c5, () => closeDialogSequence(h, events));
+      bind(0x8092c5, () => closeDialogJsr(h, events));
       bind(0x80fec1, () => showNoticeSequence(h, events, routines));
       if (options.close) {
         h.ctx.s = 0x1eef;

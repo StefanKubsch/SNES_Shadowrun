@@ -170,11 +170,6 @@ export function clearFixedColourInPlace(h) {
   port.write(COLDATA, FIXED_COLOUR_BLACK, 1, COLDATA_SITE);
   port.write(CGADSUB, 0, 1, CGADSUB_SITE);
 }
-// 81:886A as called with JSL; returns with its RTL.
-export function clearFixedColourRoutine(h) {
-  clearFixedColourInPlace(h);
-  return h.rtl();
-}
 // Set the text area of the window in the direct page word 00 (80:FA92), called with JSR:
 // its left text pixel from 02, its width in pixels from 04, or, for 0 or less, the
 // window's columns plus 04 less two (as the original adds them).
@@ -186,11 +181,6 @@ export function setWindowTextWidthInPlace(h) {
   if (width === 0 || width & WORD_SIGN)
     width = (width + word(wram, WINDOW_COLUMNS + x) - BORDER_COLUMNS) & WORD_MASK;
   setWord(wram, WINDOW_WIDTH_PIXELS + x, width);
-}
-// 80:FA92 as called with JSR; returns with its RTS.
-export function setWindowTextWidthRoutine(h) {
-  setWindowTextWidthInPlace(h);
-  return h.rts();
 }
 
 // Close the dialog (80:92C5) with live portrait, frame and input calls, for lifted
@@ -225,15 +215,6 @@ export function* closeDialog(h, events) {
   };
   yield* segmentSequence(() => takePad(h, events));
   yield () => buildSpritesInPlace(h);
-}
-// The dialog close as called with JSR (80:92C5); returns with its RTS.
-export function* closeDialogSequence(h, events) {
-  yield* closeDialog(h, events);
-  let result;
-  yield () => {
-    result = h.rts();
-  };
-  return result;
 }
 
 // Talk with the object (80:936C) for lifted callers, without the JSR frame (the

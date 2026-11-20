@@ -14,7 +14,7 @@ import {
   putGloveAwayCallSequence as putGloveAwayRoutineSequence,
   releaseNoticeWindowsCallSequence as releaseNoticeWindowsRoutineSequence,
 } from './window-release.mjs';
-import { closeDialogSequence, talkSequence } from '../../src/game/dialog-talk.mjs';
+import { talkSequence } from '../../src/game/dialog-talk.mjs';
 import {
   chooseDialogActionSequence,
   chooseDialogTopicSequence,
@@ -29,7 +29,7 @@ import {
   uploadSecondPortraitSequence,
 } from '../../src/game/portrait-upload.mjs';
 import { reloadObjectTiles } from '../../src/game/object-tiles.mjs';
-import { printNumberJsr, printTextJsr } from './jsr-forms.mjs';
+import { printNumberJsr, printTextJsr, closeDialogJsr } from './jsr-forms.mjs';
 import { drawTextBufferSequence } from '../../src/game/text-draw.mjs';
 import { openWindowSequence } from '../../src/game/window-open.mjs';
 import { chooseActionSequence } from '../../src/game/action-menu.mjs';
@@ -190,7 +190,7 @@ for (const [run, sequence] of [
   });
 // 80:92C5 (the dialog closed), called with JSR; its portrait window waits for the NMI.
 function* closeDialogCallSequence(h, events) {
-  return yield* closeDialogSequence(h, events);
+  return yield* closeDialogJsr(h, events);
 }
 export function runCloseDialog(h, events) {
   return drainNativeSequence(closeDialogCallSequence(h, events));

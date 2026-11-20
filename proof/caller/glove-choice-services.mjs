@@ -1,6 +1,5 @@
 import { drawWindowListSequence, requestUploadJslSequence } from '../../src/game/window-list.mjs';
 import { runUnpackWindowMap } from './window-list.mjs';
-import { closeDialogSequence } from '../../src/game/dialog-talk.mjs';
 import { showNoticeSequence } from '../../src/game/notice-show.mjs';
 import { putGloveAwayCallSequence as putGloveAwayRoutineSequence } from './window-release.mjs';
 import { frameWaitCallSequence } from '../../src/system/live-input-calls.mjs';
@@ -85,6 +84,7 @@ import {
   FLAG_ZERO,
 } from '../../src/constants/cpu-flags.mjs';
 import '../system/dialog-register-helpers.mjs';
+import { closeDialogJsr } from './jsr-forms.mjs';
 
 // The choice ends on a newly pressed A, B, X or Y.
 const CHOICE_BUTTONS = PAD_A | PAD_B | PAD_X | PAD_Y;
@@ -577,7 +577,7 @@ export function* spellGloveTargetSequence(h, events, routines) {
     open = menu !== 0;
   };
   if (open)
-    yield* dialogCallBody(h, sites.closeDialog, CLOSE_DIALOG, () => closeDialogSequence(h, events));
+    yield* dialogCallBody(h, sites.closeDialog, CLOSE_DIALOG, () => closeDialogJsr(h, events));
   yield* prepareWindowListSequence(h, events, sites.prepareList);
   yield* putGloveOnSequence(h, sites.putOn, PUT_ON_SPELL, GLOVE_LIMITS.spell);
   let target;
