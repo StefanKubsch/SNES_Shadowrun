@@ -87,12 +87,5 @@ export function* decimalNumber(h, events, renderBuffer = drawTextBufferSequence)
   yield* dialogCallBody(h, ...DRAW_TEXT, () => renderBuffer(h, events));
   yield () => h.plb();
 }
-// The decimal number as called with JSR (80:FDCF); returns with its RTS.
-export function* decimalNumberSequence(h, events, renderBuffer = drawTextBufferSequence) {
-  yield* decimalNumber(h, events, renderBuffer);
-  let result;
-  yield () => {
-    result = h.rts();
-  };
-  return result;
-}
+// The RTS form for register-level callers is decimalNumberJsr in
+// proof/caller/jsr-forms.mjs.

@@ -8,6 +8,7 @@ import { paletteSlotInPlace } from '../../src/game/palette-slots.mjs';
 import { selectObjectAnimation } from '../../src/game/object-turn.mjs';
 import { enterRoomSequence } from '../../src/game/room-entry.mjs';
 import { printNumber, setTextCursor } from '../../src/game/window-text.mjs';
+import { decimalNumber } from '../../src/game/decimal-number.mjs';
 import { drawTextBufferSequence } from '../../src/game/text-draw.mjs';
 
 function* rts(h) {
@@ -67,4 +68,10 @@ export function selectAnimationJsr(h) {
   const { mem } = h.a;
   selectObjectAnimation(mem, mem.wram);
   return h.rts();
+}
+
+// The decimal number 80:FDCF; renderBuffer as for the text print.
+export function* decimalNumberJsr(h, events, renderBuffer = drawTextBufferSequence) {
+  yield* decimalNumber(h, events, renderBuffer);
+  return yield* rts(h);
 }

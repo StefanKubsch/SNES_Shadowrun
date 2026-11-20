@@ -1057,7 +1057,7 @@ which the render proof of 81:8076 keeps using.
 - The decimal number 80:FDCF (DP 04:02 by repeated subtraction of the powers of ten
   80:FE45, digits after the first non-zero one with commas after the billions, millions
   and thousands, then the remainder, 0D and 0, printed by 80:FB39 with the data bank
-  7E) runs `decimalNumberSequence` of
+  7E) runs `decimalNumber` (RTS form `decimalNumberJsr` in proof/caller/jsr-forms.mjs) of
   [src/game/decimal-number.mjs](../src/game/decimal-number.mjs) in the player control's
   status screen with the lifted text buffer; the register-level screen takes it from
   its table when present.

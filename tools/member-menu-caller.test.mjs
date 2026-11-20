@@ -5,7 +5,7 @@ import {
   configureMemberPortrait,
   configureScriptVisit,
 } from './member-menu-caller-harness.mjs';
-import { decimalNumberSequence as directDecimal } from '../src/game/decimal-number.mjs';
+import { decimalNumberJsr as directDecimal } from '../proof/caller/jsr-forms.mjs';
 import { decimalNumberSequence as formerDecimal } from '../proof/caller/decimal-number.mjs';
 for (const budget of [1, 7])
   for (const value of [0, 9, 10, 999, 1000, 999999, 1000000, 1000000000, 0xffffffff])
