@@ -141,13 +141,4 @@ export function* printText(h, events, renderBuffer = drawTextBufferSequence) {
     ctx.bank = bank;
   };
 }
-// The text print as called with JSR (80:FE69), a sequence for a native call
-// continuation whose caller has pushed the frame; returns with its RTS.
-export function* printTextSequence(h, events, renderBuffer = drawTextBufferSequence) {
-  yield* printText(h, events, renderBuffer);
-  let result;
-  yield () => {
-    result = h.rts();
-  };
-  return result;
-}
+// The RTS form for register-level callers is printTextJsr in proof/caller/jsr-forms.mjs.

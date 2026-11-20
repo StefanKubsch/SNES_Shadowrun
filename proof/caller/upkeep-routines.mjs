@@ -30,7 +30,7 @@ import {
 } from '../../src/game/portrait-upload.mjs';
 import { reloadObjectTiles } from '../../src/game/object-tiles.mjs';
 import { printNumberSequence } from '../../src/game/window-text.mjs';
-import { printTextSequence } from '../../src/game/text-print.mjs';
+import { printTextJsr } from './jsr-forms.mjs';
 import { drawTextBufferSequence } from '../../src/game/text-draw.mjs';
 import { openWindowSequence } from '../../src/game/window-open.mjs';
 import { chooseActionSequence } from '../../src/game/action-menu.mjs';
@@ -66,11 +66,11 @@ NATIVE_CALL_CONTINUATIONS.set(runPrintNumber, {
 });
 // 80:FE69, called with JSR; its text buffer 80:FB39 waits for the NMI.
 export function runPrintText(h, events) {
-  return drainNativeSequence(printTextSequence(h, events));
+  return drainNativeSequence(printTextJsr(h, events));
 }
 NATIVE_CALL_CONTINUATIONS.set(runPrintText, {
   run: runPrintText,
-  create: ({ h, events }) => new NativeCallContinuation(h.a, printTextSequence(h, events)),
+  create: ({ h, events }) => new NativeCallContinuation(h.a, printTextJsr(h, events)),
 });
 // 80:FB39, called with JSR; its upload requests wait for the NMI.
 export function runDrawTextBuffer(h, events) {

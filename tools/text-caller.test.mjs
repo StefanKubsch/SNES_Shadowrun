@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { printTextSequence } from '../src/game/text-print.mjs';
+import { printTextJsr } from '../proof/caller/jsr-forms.mjs';
 import { printTextSequence as formerText } from '../proof/caller/text-print.mjs';
 import { printNumberSequence } from '../src/game/window-text.mjs';
 import { printNumberSequence as formerNumber } from '../proof/caller/window-text.mjs';
@@ -94,7 +94,7 @@ for (const budget of [1, 7])
       test(`text renderer interface: ${id.toString(16)}, budget ${budget}, translation ${translated}`, () => {
         // Game state only (user decision 2026-11-17): the lifted text print leaves no A,
         // X, Y and flags; the Y below is the stub renderer's.
-        const actual = run(printTextSequence, id, budget, translated),
+        const actual = run(printTextJsr, id, budget, translated),
           previous = run(formerText, id, budget, translated);
         assert.deepEqual(strip(actual), strip(previous));
         assert.equal(actual.calls.length, 2);
