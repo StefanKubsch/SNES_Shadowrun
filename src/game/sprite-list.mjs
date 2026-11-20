@@ -12,19 +12,19 @@
 // 80:B933), and the NMI gets one more job list (7E:1562).
 //
 // The sort (src/game/depth-sort.mjs) and the palette slots (src/game/palette-slots.mjs)
-// are lifted, and so are the OAM entries (src/game/object-sprites.mjs), which run
-// through their frames. The sort, the player's palette slot, the palette reset, the
-// fill and the job count run without their frames, whose return words lie only in free
-// stack bytes. The list position the original pushes over each OAM entry call lies
-// there too and is kept in a local (game state only, user decision 2026-11-17).
-// Registers (user decision 2026-11-17): game state only; no A, X, Y or flags are left
-// (the main loop and the talk end read none of them), and the object and picture pass
-// to the OAM entry as parameters.
+// are lifted, and so are the OAM entries (src/game/object-sprites.mjs). The sort, the
+// OAM entries, the player's palette slot, the palette reset, the fill and the job count
+// run without their frames, whose return words lie only in free stack bytes. The list
+// position the original pushes over each OAM entry call lies there too and is kept in a
+// local (game state only, user decision 2026-11-17). Registers (user decision
+// 2026-11-17): game state only; no A, X, Y or flags are left (the main loop and the
+// talk end read none of them), and the object and picture pass to the OAM entry as
+// parameters.
 import { taskStop } from '../system/task-stop.mjs';
 import { sortDrawListInPlace } from './depth-sort.mjs';
 import { paletteSlotInPlace } from './palette-slots.mjs';
 import { clearPaletteSlots } from './game-screen.mjs';
-import { enterObjectSprites } from './object-sprites.mjs';
+import { enterObjectSpritesInPlace } from './object-sprites.mjs';
 import {
   DRAW_LIST,
   DRAW_LIST_INDEX,
@@ -57,9 +57,6 @@ const HIDE_SEQUENCE = 0xb933,
   // The direct page word that holds the jump target.
   DP_JUMP = 0x0e,
   LOW_WRAM_END = 0x2000;
-// The OAM entry and its call site.
-const OAM_CALL = 0xb911,
-  OAM_TARGET = 0x80b20a;
 
 const word = (wram, at) => wram[at] | (wram[at + 1] << BYTE_BITS);
 const setWord = (wram, at, value) => {
@@ -97,7 +94,7 @@ export function buildSpritesInPlace(h) {
     if (!(flags & OBJECT_NOT_DRAWN)) {
       // The picture word is read in bank 7E (a long read).
       const picture = word(wram, OBJECT_PICTURE + slot);
-      if (picture) h.call(OAM_CALL, OAM_TARGET, () => enterObjectSprites(h, slot, picture));
+      if (picture) enterObjectSpritesInPlace(h, slot, picture);
     }
     index = (index - 2) & WORD_MASK;
   }

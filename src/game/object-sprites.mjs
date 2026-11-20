@@ -262,9 +262,10 @@ const quarter = (value) =>
     ? WORD_SIGN | (WORD_SIGN >>> 1) | (value >>> QUARTER_SHIFT)
     : value >>> QUARTER_SHIFT;
 
-// Enter the sprites of the object slot with the picture (80:B20A, called with JSR);
-// returns with its RTS.
-export function enterObjectSprites(h, slot, picture) {
+// Enter the sprites of the object slot with the picture (80:B20A) for lifted callers,
+// without the JSR frame (its return word lies only in free stack bytes; the wall
+// sprites' calls keep theirs).
+export function enterObjectSpritesInPlace(h, slot, picture) {
   const { a } = h,
     { mem } = a,
     { wram } = mem;
@@ -291,7 +292,8 @@ export function enterObjectSprites(h, slot, picture) {
   };
   // The working index of the wall map and the parts (X in the original).
   let x;
-  const leave = () => h.rts();
+  // Every exit of the original returns with its RTS here.
+  const leave = () => undefined;
   const hide = () => {
     put(OBJECT_FLAGS, get(OBJECT_FLAGS) | OBJECT_HIDDEN, get(ENTERED_OBJECT, 0));
     return leave();
