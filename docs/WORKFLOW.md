@@ -73,12 +73,38 @@ not a quota to fill with incomplete proofs.
 Progress comes from completed source and native work, not repeated checks
 of unchanged results that have already passed.
 
-Before the first test run, determine affected test files from changed
-modules, their direct consumers and shared contracts. Run common handler,
-provider and progress checks once for the group.
+### Block checks
+
+User decision of 2026-11-20: a block's check covers the tests close to its
+change, not every test that loads it transitively. Run
+`npm run test:block` ([test-block.mjs](../tools/test-block.mjs)) before the
+block's commit. By default it takes the files changed against HEAD plus
+untracked files (`--since <rev>` or explicit paths change that) and selects:
+
+- changed test files;
+- test files that reach a changed module within two static imports (the
+  test, one helper or caller module, the module; `--depth` changes it);
+- test files that name a changed module by folder and base name, such as
+  `game/karma-menu`, which is how lift comparisons name what they cover;
+- test files given with `--with` (for example the dialog inventory, see below).
+
+The slow tier (`SLOW_FILES` and `SLOW_TESTS` in test-block.mjs: Mesen boots
+and live room runs, cold starts, Game Over and matrix sessions, recorded
+replays, the source mutation sweep) stays out unless `--slow` is given.
+A test that runs for about a minute or longer and replays a whole session,
+rather than checking the changed module's contract, belongs there.
+The shared release check runs everything affected, including the slow
+tier, once per batch. If it fails, `git bisect run` with the failing test
+file finds the block, because every block is its own commit.
+Measured on 2026-11-20: the former transitive selection ran 270 to 300 test
+files (about 18 to 21 minutes) per block; the block selection for
+`src/game/status-screen.mjs` runs 12 files in about two minutes.
+
+The tool prints the selection with its reasons, then counts and duration. A
+passing run removes its log folder; a failing run names it for excerpts.
 New native or proof-inventory roots require the dialog inventory in the
-test selection, including an explicitly empty call list for a root that
-makes no calls. Each existing body retains its individual ROM and behavior
+selection (`--with tools/dialog-inventory.test.mjs`), including an explicitly
+empty call list for a root that makes no calls. Each existing body retains its individual ROM and behavior
 checks. New tests need a specific failure case or contract boundary;
 parameterize similar cases and reuse shared fixtures.
 
@@ -105,17 +131,16 @@ Delegation does not replace source evidence.
 Tests and generators run in the terminal; the model selects checks and
 evaluates their results. Changing models does not automatically shorten the
 test process itself. The main agent does not repeat delegated passing runs.
-Keep complete output in temporary logs. Return only the command, exit code,
-pass/fail/skip counts, duration, log path and specific findings.
-For failures, read only the relevant excerpts. For example:
+Return only the command, exit code, pass/fail/skip counts, duration, log
+path and specific findings. For failures, read only the relevant excerpts of
+the log folder that `npm run test:block` names. Do not redirect test output
+into separate files in %TEMP%; a failing deep comparison can write hundreds of
+megabytes of TAP output. For example:
 
 ```powershell
-$testLog = Join-Path $env:TEMP ('snes-focused-' + [guid]::NewGuid() + '.log')
-node --test --test-reporter=tap tools/render-905e-source.test.mjs tools/render-905e.test.mjs *> $testLog
-$testExit = $LASTEXITCODE
-Get-Content -LiteralPath $testLog -Tail 12
-Write-Output "Exit code: $testExit; Log: $testLog"
-# If testExit is nonzero, inspect the relevant failures in the log.
+npm run test:block
+npm run test:block -- --with tools/dialog-inventory.test.mjs
+npm run test:block -- --list src/game/karma-menu.mjs
 ```
 
 After a failure, fix its cause first and verify it with a targeted check.
@@ -313,8 +338,9 @@ whole cache. The untracked cache is stored in `.cache/release/`.
 `summary.json` lists executed and unchanged generators and test files, plus
 entries that cannot be cached.
 
-The incremental release check enables the Mesen recording cache
-([mesen.mjs](../tools/mesen.mjs)) with `SNES_MESEN_CACHE=1`.
+The incremental release check, `npm run test:block` and `npm test` enable
+the Mesen recording cache ([mesen.mjs](../tools/mesen.mjs)) with
+`SNES_MESEN_CACHE=1`; `SNES_MESEN_CACHE=0` starts Mesen for every run.
 A recording is stored in `.cache/mesen/`, keyed by the SHA-256 hashes of
 `Mesen.exe`, `MesenCore.dll`, `settings.json`, the ROM, final Lua script,
 arguments and save file. An identical key reuses the recording instead of
@@ -369,7 +395,18 @@ delete their Edge profile after each run and keep only log and downloads;
 Mesen scripts and test fixtures live in temporary directories that are
 removed after the run ([temp-dir.mjs](../tools/temp-dir.mjs)).
 
-After each block passes its focused checks, stage only its files, run
+Temporary data must not pile up (user, 2026-11-10 and 2026-11-20).
+`npm run clean:temp` ([clean-temp.mjs](../tools/clean-temp.mjs);
+`--dry-run` lists instead) removes leftovers older than six hours: `snes-*`
+folders of killed runs, former agent logs (`rb*.log`, `rb*.tests`,
+`snes-*.log`), Edge's `msedge_url_fetcher_*` folders whose process has ended
+and Mesen's per-run files. `test:block` and `verify:release` run it first.
+Each Mesen run removes the files Mesen keeps beside its program under the
+run's ROM name (`Saves/*.srm`, `Debugger/*.cdl`, `SaveStates`), and browser
+tests start Edge with `--disable-component-update`, which otherwise left a
+fetcher folder per start (10 GB of such leftovers removed on 2026-11-20).
+
+After each block passes its block check, stage only its files, run
 `git diff --cached --check`, and create its authorized commit. After the tenth
 block, run the shared release check. After success, record the result in the
 handoff and perform the authorized push of the batch.

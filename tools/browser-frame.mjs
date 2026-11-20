@@ -97,6 +97,9 @@ export async function withStartPage(
       '--mute-audio',
       '--no-first-run',
       '--no-default-browser-check',
+      // Edge's component updater otherwise leaves a msedge_url_fetcher_* folder in
+      // %TEMP% on every start (4.3 GB by 2026-11-20); the tests need no components.
+      '--disable-component-update',
       // Hardware rendering by default, as players see it; SNES_BROWSER_GPU=0
       // selects the software renderer, such as in a sandbox without GPU access.
       ...(process.env.SNES_BROWSER_GPU === '0' ? ['--disable-gpu'] : []),

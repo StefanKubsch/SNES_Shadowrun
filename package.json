@@ -84,6 +84,8 @@
     "probe:render-ad92": "node tools/probe-render-ad92.mjs",
     "probe:render-be6d": "node tools/probe-render-be6d.mjs",
     "test": "node tools/run-tests.mjs",
+    "test:block": "node tools/test-block.mjs",
+    "clean:temp": "node tools/clean-temp.mjs",
     "analyze:render-bf3b": "node tools/analyze-render-bf3b.mjs",
     "probe:render-fec1": "node tools/probe-render-fec1.mjs",
     "analyze:render-audio": "node tools/analyze-render-audio.mjs",

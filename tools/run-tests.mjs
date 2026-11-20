@@ -18,7 +18,14 @@ for (const batch of await testBatches(root, paths)) {
   const result = spawnSync(
     process.execPath,
     ['--test', `--test-concurrency=${batch.concurrency}`, ...batch.paths],
-    { cwd: root, stdio: 'inherit' },
+    // Mesen runs replay from the recording cache, as in verify:release; a
+    // recording depends only on Mesen, the ROM and the script, not on src/.
+    // SNES_MESEN_CACHE=0 starts Mesen for every run.
+    {
+      cwd: root,
+      stdio: 'inherit',
+      env: { ...process.env, SNES_MESEN_CACHE: process.env.SNES_MESEN_CACHE ?? '1' },
+    },
   );
   if (result.status !== 0) failed = true;
 }

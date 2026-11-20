@@ -8,6 +8,7 @@ import { fileURLToPath, pathToFileURL } from 'node:url';
 import { createReleaseCache } from './release-cache.mjs';
 import { projectStatusTextFindings } from './project-status-text.mjs';
 import { pruneTempDirs } from './temp-dir.mjs';
+import { cleanTemp, describeClean } from './clean-temp.mjs';
 const exec = promisify(execFile);
 // Test files running at once, each possibly with its own Edge or Mesen.
 // User decision 2026-11-01: at most 8 (node's default is all threads but
@@ -211,6 +212,7 @@ const KEPT_LOG_DIRS = [
   ['snes-browser-frame-', 50],
 ];
 export async function verifyRelease(root, { full = false } = {}) {
+  console.log(describeClean(await cleanTemp()));
   for (const [prefix, keep] of KEPT_LOG_DIRS) await pruneTempDirs(prefix, keep);
   const logDir = await mkdtemp(join(tmpdir(), 'snes-release-'));
   const summary = {
