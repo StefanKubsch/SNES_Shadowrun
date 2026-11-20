@@ -571,7 +571,7 @@ check(
     }
     return s;
   },
-  { native: (h) => sortDrawList(h), registers: GAME_STATE_REGISTERS },
+  { native: (h) => sortDrawList(h), registers: GAME_STATE_REGISTERS, freeStack: true },
 );
 check(
   'lifted AB0A',

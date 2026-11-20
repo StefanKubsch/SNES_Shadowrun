@@ -16,9 +16,10 @@
 // the original's jump tables and stops at `depth_rule_required`.
 //
 // The direct page words of the original are written: the keys 11 and 14, the first
-// object 17 and the list position 1A. The frames of the rule comparisons are
-// reproduced on the stack. Registers (user decision 2026-11-17): game state only; no A,
-// X, Y or flags are left (the sprite list sets its own before reading them).
+// object 17 and the list position 1A. The rule comparisons run without their JSR
+// frames, whose return words lie only in free stack bytes. Registers (user decision
+// 2026-11-17): game state only; no A, X, Y or flags are left (the sprite list sets its
+// own before reading them).
 import { taskStop } from '../system/task-stop.mjs';
 import {
   DRAW_LIST,
@@ -49,12 +50,6 @@ const RULES = new Map([
   [3, { axis: OBJECT_X, whenAhead: false }],
   [4, { axis: OBJECT_Y, whenAhead: false }],
 ]);
-// Original call sites of the comparisons: by the first object's rule (B0A5) or the
-// second's (B0ED), in the pass down and in the pass up.
-const FIRST_RULE_TARGET = 0x80b0a5,
-  SECOND_RULE_TARGET = 0x80b0ed,
-  DOWN_CALLS = [0x80b029, 0x80b02e],
-  UP_CALLS = [0x80b07b, 0x80b080];
 
 const word = (wram, at) => wram[at] | (wram[at + 1] << BYTE_BITS);
 const setWord = (wram, at, value) => {
@@ -73,7 +68,7 @@ export function sortDrawList(h) {
   const last = get(DRAW_LIST_INDEX, 0);
   if (last === 0 || last & WORD_SIGN) return h.rts();
   // One pair at list position: swap when the first key is below the second.
-  const step = (position, [firstCall, secondCall]) => {
+  const step = (position) => {
     const first = get(DRAW_LIST, position),
       second = get(DRAW_LIST + ENTRY_BYTES, position);
     let firstKey = get(OBJECT_DIAGONAL, first),
@@ -87,24 +82,18 @@ export function sortDrawList(h) {
       const bySecond = (secondRule & WORD_SIGN) !== 0,
         ruleWord = bySecond ? secondRule : get(OBJECT_DEPTH_RULE, first),
         rule = RULES.get(ruleWord & RULE_MASK);
-      h.call(
-        bySecond ? secondCall : firstCall,
-        bySecond ? SECOND_RULE_TARGET : FIRST_RULE_TARGET,
-        () => {
-          if (!rule) taskStop('depth_rule_required', { rule: ruleWord });
-          const ahead = get(rule.axis, first) >= get(rule.axis, second);
-          if (ahead === (rule.whenAhead !== bySecond)) {
-            const biased = bySecond ? second : first,
-              key = bySecond ? secondKey : firstKey,
-              bias = get(OBJECT_DEPTH_BIAS, biased),
-              sum = (key + bias) & WORD_MASK;
-            if (bySecond) secondKey = sum;
-            else firstKey = sum;
-            setWord(wram, bySecond ? DP_SECOND_KEY : DP_FIRST_KEY, sum);
-          }
-          return h.rts();
-        },
-      );
+      // The comparison 80:B0A5 or 80:B0ED, without its JSR frame.
+      if (!rule) taskStop('depth_rule_required', { rule: ruleWord });
+      const ahead = get(rule.axis, first) >= get(rule.axis, second);
+      if (ahead === (rule.whenAhead !== bySecond)) {
+        const biased = bySecond ? second : first,
+          key = bySecond ? secondKey : firstKey,
+          bias = get(OBJECT_DEPTH_BIAS, biased),
+          sum = (key + bias) & WORD_MASK;
+        if (bySecond) secondKey = sum;
+        else firstKey = sum;
+        setWord(wram, bySecond ? DP_SECOND_KEY : DP_FIRST_KEY, sum);
+      }
     }
     if (firstKey < secondKey) {
       setWord(wram, DRAW_LIST + ENTRY_BYTES + position, first);
@@ -114,13 +103,13 @@ export function sortDrawList(h) {
   // Down from the last pair; the first step runs even when the position is negative.
   let position = (last - ENTRY_BYTES) & WORD_MASK;
   do {
-    step(position, DOWN_CALLS);
+    step(position);
     position = (position - ENTRY_BYTES) & WORD_MASK;
   } while (!(position & WORD_SIGN));
   if (last === TWO_OBJECTS) return h.rts();
   position = ENTRY_BYTES;
   do {
-    step(position, UP_CALLS);
+    step(position);
     position = (position + ENTRY_BYTES) & WORD_MASK;
   } while (position < last);
   return h.rts();
