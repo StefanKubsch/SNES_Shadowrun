@@ -21,7 +21,7 @@ import { openWindow } from './window-open.mjs';
 import { printText } from './text-print.mjs';
 import { waitForConfirmKeySequence } from './confirm-key.mjs';
 import { selectAnimationRoutine, turnObjectJsr } from './object-turn.mjs';
-import { releaseWindowSequence, putGloveAwayCallSequence } from './window-release.mjs';
+import { releaseWindowSequence, putGloveAwaySequence } from './window-release.mjs';
 import { START_ENTRY, ITEMS_ENTRY, statusScreenSequence } from './status-screen.mjs';
 import { partyStatusSequence } from './party-status.mjs';
 import { drawTextBufferSequence } from './text-draw.mjs';
@@ -113,7 +113,6 @@ const PARTY_STATUS = [0x80e021, 0x80ed3c],
   GLOVE_ACTION = [0x80e0d3, 0x80a985],
   SPELL_ACTION_CALL = [0x80e11f, 0x80a985],
   RELEASE_ACTION = [0x80e1aa, 0x80a985],
-  PUT_GLOVE_AWAY = [0x80e1ad, 0x80bcb2],
   WEAPON_NOTICE_CALLS = [0x80e0a3],
   SPELL_NOTICE_CALLS = [0x80e103];
 const CONFIRM_KEY = 0x80f953;
@@ -430,7 +429,6 @@ function* gloveSequence(h, events, finish) {
       segmentSequence(() => selectAnimationRoutine(h)),
     );
   }
-  if (step === 'end' || step === 'away')
-    yield* dialogCallBody(h, ...PUT_GLOVE_AWAY, () => putGloveAwayCallSequence(h, events));
+  if (step === 'end' || step === 'away') yield* putGloveAwaySequence(h, events);
   return yield* finish();
 }

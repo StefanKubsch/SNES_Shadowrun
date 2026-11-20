@@ -33,7 +33,7 @@ import { reloadObjectTilesSequence } from './object-tiles.mjs';
 import { buildSprites } from './sprite-list.mjs';
 import { openWindow } from './window-open.mjs';
 import {
-  putGloveAwayCallSequence,
+  putGloveAwaySequence,
   releaseNoticeWindowsCallSequence,
   releaseWindowSequence,
 } from './window-release.mjs';
@@ -141,7 +141,6 @@ const FONT_BLOCKS = Object.freeze([
 // Original call sites and callees.
 const CALL = Object.freeze({
   colour: [0x80936c, 0x81886a, true],
-  glove: [0x809377, 0x80bcb2],
   notices: [0x80938d, 0x80ff79],
   music: [0x8093bc, 0x81ef47, true],
   narrow: [0x8093ec, 0x80fa92],
@@ -293,7 +292,7 @@ export function* talkSequence(h, events, renderBuffer = drawTextBufferSequence) 
     setWord(wram, DIALOG_END, 0);
     setWord(wram, DP_DIALOG_OBJECT, word(wram, DP_OBJECT));
   };
-  yield* dialogCallBody(h, ...CALL.glove, () => putGloveAwayCallSequence(h, events));
+  yield* putGloveAwaySequence(h, events);
   yield () => {
     wram[DP_RECORD_BANK] = RECORD_BANK;
     const number = word(wram, DP_RECORD_NUMBER);

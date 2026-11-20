@@ -30,7 +30,7 @@ import { openWindow } from './window-open.mjs';
 import {
   releaseWindowSequence,
   releaseNoticeWindowsCallSequence,
-  putGloveAwayCallSequence,
+  putGloveAwaySequence,
 } from './window-release.mjs';
 import { setTextCursor, printNumber } from './window-text.mjs';
 import { printText } from './text-print.mjs';
@@ -126,7 +126,6 @@ export const NATIVE_ENTRY = 0x80ea6e,
   ITEMS_ENTRY = 0x80ea8e;
 const SOUND = 0x81f007,
   RELEASE_NOTICES = 0x80ff79,
-  PUT_GLOVE_AWAY = 0x80bcb2,
   STATUS_SETUP = 0x81886a,
   DECIMAL_NUMBER = 0x80fdcf,
   EQUIPMENT_ROWS = 0x80e9c5,
@@ -262,7 +261,7 @@ export function* statusScreenSequence(
     setWord(wram, MEMBER_OBJECT, object);
     setWord(wram, MEMBER_INDEX, runner);
   };
-  yield* dialogCallBody(h, 0x80eaea, PUT_GLOVE_AWAY, () => putGloveAwayCallSequence(h, events));
+  yield* putGloveAwaySequence(h, events);
   yield* dialogCallBody(
     h,
     0x80eaed,

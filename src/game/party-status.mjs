@@ -17,7 +17,7 @@ import { openWindow } from './window-open.mjs';
 import {
   releaseWindowSequence,
   releaseNoticeWindowsCallSequence,
-  putGloveAwayCallSequence,
+  putGloveAwaySequence,
 } from './window-release.mjs';
 import { setTextCursor, printNumber } from './window-text.mjs';
 import { printText } from './text-print.mjs';
@@ -74,8 +74,7 @@ const PARTY_WINDOW = Object.freeze({ left: 1, top: 1, columns: 0x1e, baseRows: 5
   FIRST_ROW = 2,
   MAGIC_FACTOR = 10;
 // The callees and their call sites (the cursor, text and number per member in order).
-const PUT_GLOVE_AWAY = [0x80ed3c, 0x80bcb2],
-  RELEASE_NOTICES = [0x80ed3f, 0x80ff79],
+const RELEASE_NOTICES = [0x80ed3f, 0x80ff79],
   CONFIRM_KEY = [0x80ee4b, 0x80f953];
 
 const word = (wram, at) => wram[at] | (wram[at + 1] << BYTE_BITS);
@@ -123,7 +122,7 @@ export function* partyStatusSequence(h, events, renderBuffer = drawTextBufferSeq
     yield () => setWord(wram, 2, typeof value === 'function' ? value() : value);
     yield* body();
   };
-  yield* dialogCallBody(h, ...PUT_GLOVE_AWAY, () => putGloveAwayCallSequence(h, events));
+  yield* putGloveAwaySequence(h, events);
   yield* dialogCallBody(h, ...RELEASE_NOTICES, () => releaseNoticeWindowsCallSequence(h, events));
   yield () => {
     setWord(wram, DP_WINDOW_LEFT, PARTY_WINDOW.left);
