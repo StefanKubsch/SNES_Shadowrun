@@ -13,7 +13,7 @@
 // input and no register values are left. Armour, rating and weapon, which the original
 // keeps on the stack over the rows (PHA, PLA), are locals.
 import { dialogCallBody, segmentSequence } from '../system/native-call-continuation.mjs';
-import { setTextCursor, printNumberSequence } from './window-text.mjs';
+import { setTextCursor, printNumber } from './window-text.mjs';
 import { printText } from './text-print.mjs';
 import { drawTextBufferSequence } from './text-draw.mjs';
 import { dataBankWord } from '../system/data-bank.mjs';
@@ -44,8 +44,7 @@ const ITEM_KINDS = 0x8db022,
   ENTRY_SHIFT = 2,
   DERMAL_ARMOUR_BONUS = 2;
 // The callees and the call sites.
-const NUMBER = 0x80fd80,
-  ITEM_TEXT = 0x80e9a8;
+const ITEM_TEXT = 0x80e9a8;
 
 const word = (wram, at) => wram[at] | (wram[at + 1] << BYTE_BITS);
 const setWord = (wram, at, value) => {
@@ -127,7 +126,7 @@ export function* equipmentRowsSequence(h, events, renderBuffer = drawTextBufferS
   yield* text(TEXT_BLANK_FIELD);
   yield* cursor(STATUS_LAYOUT.armourRow);
   yield () => setWord(wram, 2, rating);
-  yield* dialogCallBody(h, 0x80ea66, NUMBER, () => printNumberSequence(h, events, renderBuffer));
+  yield* printNumber(h, events, renderBuffer);
   yield* itemText(0x80ea6a, armour);
   let result;
   yield () => {

@@ -87,9 +87,10 @@ export function setTextCursorRoutine(h) {
   return h.rts();
 }
 
-// Print the number in the direct page word 02 into the window at its cursor (80:FD80),
-// a sequence for a native call continuation with an explicit renderer sequence.
-export function* printNumberSequence(h, events, renderBuffer = drawTextBufferSequence) {
+// Print the number in the direct page word 02 into the window at its cursor (80:FD80)
+// for lifted callers, without the JSR frame (the caller's return word lies only in free
+// stack bytes); renderBuffer is the renderer sequence.
+export function* printNumber(h, events, renderBuffer = drawTextBufferSequence) {
   const { ctx } = h,
     { wram, port } = sceneRuntime(h);
   let bank;
@@ -119,9 +120,15 @@ export function* printNumberSequence(h, events, renderBuffer = drawTextBufferSeq
     }
   };
   yield* dialogCallBody(h, ...DRAW_CALL, () => renderBuffer(h, events));
-  let result;
   yield () => {
     ctx.bank = bank;
+  };
+}
+// The number print as called with JSR (80:FD80); returns with its RTS.
+export function* printNumberSequence(h, events, renderBuffer = drawTextBufferSequence) {
+  yield* printNumber(h, events, renderBuffer);
+  let result;
+  yield () => {
     result = h.rts();
   };
   return result;

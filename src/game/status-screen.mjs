@@ -32,7 +32,7 @@ import {
   releaseNoticeWindowsCallSequence,
   putGloveAwayCallSequence,
 } from './window-release.mjs';
-import { setTextCursor, printNumberSequence } from './window-text.mjs';
+import { setTextCursor, printNumber } from './window-text.mjs';
 import { printText } from './text-print.mjs';
 import { decimalNumberSequence } from './decimal-number.mjs';
 import { drawTextBufferSequence } from './text-draw.mjs';
@@ -128,7 +128,6 @@ const SOUND = 0x81f007,
   RELEASE_NOTICES = 0x80ff79,
   PUT_GLOVE_AWAY = 0x80bcb2,
   STATUS_SETUP = 0x81886a,
-  NUMBER = 0x80fd80,
   DECIMAL_NUMBER = 0x80fdcf,
   EQUIPMENT_ROWS = 0x80e9c5,
   PORTRAIT = 0x80e4b3,
@@ -205,9 +204,9 @@ export function* statusScreenSequence(
     yield () => setWord(wram, 2, id);
     yield* printText(h, events, renderBuffer);
   };
-  const number = function* (pc, value) {
+  const number = function* (value) {
     yield () => setWord(wram, 2, value());
-    yield* dialogCallBody(h, pc, NUMBER, () => printNumberSequence(h, events, renderBuffer));
+    yield* printNumber(h, events, renderBuffer);
   };
   // The object's state count from its record.
   const keepStateCount = (object) => {
@@ -316,22 +315,21 @@ export function* statusScreenSequence(
         setWord(wram, DP_MEMBER_RECORD, word(wram, DP_MEMBER_RECORD) + 1);
       setWord(wram, 2, value);
     };
-    yield* dialogCallBody(h, 0x80eb89, NUMBER, () => printNumberSequence(h, events, renderBuffer));
+    yield* printNumber(h, events, renderBuffer);
     yield () => {
       at = (word(wram, DP_SCRATCH) - 2) & WORD_MASK;
     };
   } while (!negative(at));
   yield* cursor(STATUS_ROWS.countColumn, STATUS_ROWS.stateCountRow);
-  yield* number(0x80eba4, () => dataBankWord(mem, MEMBER_STATE_COUNT));
+  yield* number(() => dataBankWord(mem, MEMBER_STATE_COUNT));
   yield* text(TEXT_SLASH);
-  yield* number(0x80ebb8, nextRecordByte);
+  yield* number(nextRecordByte);
   yield* cursor(STATUS_ROWS.countColumn, STATUS_ROWS.magicRow);
   yield* number(
-    0x80ebd6,
     () => longWord(mem, WRAM + MAGIC_POINTS + (dataBankWord(mem, MEMBER_INDEX) >>> 1)) & BYTE_MASK,
   );
   yield* text(TEXT_SLASH);
-  yield* number(0x80ebe5, () => word(wram, DP_MAGIC_MAXIMUM));
+  yield* number(() => word(wram, DP_MAGIC_MAXIMUM));
   let jake;
   yield () => {
     jake = dataBankWord(mem, MEMBER_NUMBER) === JAKE_OBJECT_NUMBER;
@@ -340,7 +338,7 @@ export function* statusScreenSequence(
     yield* cursor(STATUS_ROWS.labelColumn, STATUS_ROWS.karmaRow);
     yield* text(TEXT_KARMA);
     yield* cursor(STATUS_LAYOUT.valueColumn);
-    yield* number(0x80ec16, () => longWord(mem, WRAM + KARMA) >>> KARMA_SHIFT);
+    yield* number(() => longWord(mem, WRAM + KARMA) >>> KARMA_SHIFT);
     yield* cursor(STATUS_ROWS.labelColumn, STATUS_ROWS.moneyRow);
     yield* text(TEXT_MONEY);
     yield* cursor(STATUS_LAYOUT.valueColumn);

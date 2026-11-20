@@ -27,8 +27,8 @@
 // Registers (user decision 2026-11-17): game state only; the routines take the row's
 // word index as a parameter and leave no A, X, Y or flags. The list position's pushes
 // around the prints stay on the stack.
-import { dialogCallBody, segmentSequence } from '../system/native-call-continuation.mjs';
-import { printNumberSequence, setTextCursor } from './window-text.mjs';
+import { segmentSequence } from '../system/native-call-continuation.mjs';
+import { printNumber, setTextCursor } from './window-text.mjs';
 import { drawTextBufferSequence } from './text-draw.mjs';
 import { printText } from './text-print.mjs';
 import {
@@ -64,8 +64,7 @@ const BLANK = 0x707d,
   MORE = 0x707a,
   PREVIOUS = 0x7077,
   // The marks lie three columns and rows inside the window's far edges.
-  MARK_INSET = 3,
-  NUMBER = [0x80a659, 0x80fd80];
+  MARK_INSET = 3;
 
 const word = (wram, at) => wram[at] | (wram[at + 1] << BYTE_BITS);
 const setWord = (wram, at, value) => {
@@ -111,10 +110,9 @@ export function* drawListSequence(h, events, renderBuffer = drawTextBufferSequen
     // The numbers through the data bank, as the original's LDA abs,Y.
     number = () => listWord(((ctx.bank << WORD_BITS) | word(wram, DP_LIST_VALUES)) + at);
   const cursor = () => segmentSequence(() => setTextCursor(h));
-  // A text or number through its call. The original keeps the list position on the stack
-  // around some of them (PHY, PLY); that word lies only in free stack bytes, and the
-  // position is a local here.
-  const print = (site, body) => dialogCallBody(h, ...site, body);
+  // A text. The original keeps the list position on the stack around some texts and
+  // numbers (PHY, PLY); that word lies only in free stack bytes, and the position is a
+  // local here.
   const text = () => printText(h, events, renderBuffer);
   // A mark three columns before the window's right edge, in the row given.
   const corner = function* (row, mark) {
@@ -157,7 +155,7 @@ export function* drawListSequence(h, events, renderBuffer = drawTextBufferSequen
     if (numbered) {
       yield* text();
       yield () => setWord(wram, DP_TEXT, number());
-      yield* print(NUMBER, () => printNumberSequence(h, events, renderBuffer));
+      yield* printNumber(h, events, renderBuffer);
     }
     let more = false;
     yield () => {

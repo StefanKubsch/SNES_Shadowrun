@@ -19,7 +19,7 @@
 import { dialogCallBody, segmentSequence } from '../system/native-call-continuation.mjs';
 import { openWindow } from './window-open.mjs';
 import { releaseWindowSequence } from './window-release.mjs';
-import { setTextCursor, printNumberSequence } from './window-text.mjs';
+import { setTextCursor, printNumber } from './window-text.mjs';
 import { printText } from './text-print.mjs';
 import { drawTextBufferSequence } from './text-draw.mjs';
 import { waitForConfirmKeySequence } from './confirm-key.mjs';
@@ -57,8 +57,7 @@ import { JAKE_OBJECT_NUMBER, SKILL_COUNT } from '../data/runners.mjs';
 import { fitListWindow } from '../data/menu-layout.mjs';
 import { BYTE_BITS, BYTE_MASK, LONG_MASK, WORD_BITS, WORD_MASK } from '../constants/bits.mjs';
 
-const NUMBER = 0x80fd80,
-  CONFIRM_KEY = 0x80f953,
+const CONFIRM_KEY = 0x80f953,
   RELEASE_WINDOW = 0x80fa3e;
 // The skills window's extra rows; the first cyberware row of Jake's notes.
 const SKILL_EXTRA_ROWS = 2,
@@ -135,9 +134,7 @@ export function* skillsSequence(h, events, renderBuffer = drawTextBufferSequence
         setWord(wram, DP_CURSOR_ROW, (word(wram, DP_CURSOR_ROW) + 1) & WORD_MASK);
         setWord(wram, 2, value);
       };
-      yield* dialogCallBody(h, 0x80e898, NUMBER, () =>
-        printNumberSequence(h, events, renderBuffer),
-      );
+      yield* printNumber(h, events, renderBuffer);
     }
   }
   yield* dialogCallBody(h, 0x80e8a2, CONFIRM_KEY, () => waitForConfirmKeySequence(h, events));

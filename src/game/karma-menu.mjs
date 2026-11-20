@@ -38,7 +38,7 @@
 import { dialogCallBody, segmentSequence } from '../system/native-call-continuation.mjs';
 import { chooseFromMenuSequence } from './menu-choice.mjs';
 import { openWindow, requestTileClearSequence } from './window-open.mjs';
-import { setTextCursor, printNumberSequence } from './window-text.mjs';
+import { setTextCursor, printNumber } from './window-text.mjs';
 import { printText } from './text-print.mjs';
 import {
   releaseNoticeWindowsCallSequence,
@@ -102,7 +102,6 @@ import {
 } from '../constants/bits.mjs';
 
 const REDRAW_WINDOW = 0x80fa67,
-  NUMBER = 0x80fd80,
   CONFIRM_KEY = 0x80f953,
   RELEASE_WINDOW = 0x80fa3e,
   NUMBERED_MENU = 0x80a6b8,
@@ -176,7 +175,7 @@ export function* karmaLineSequence(h, events, renderBuffer = drawTextBufferSeque
     setWord(wram, DP_KARMA_DISPLAY, shown);
     setWord(wram, 2, shown);
   };
-  yield* dialogCallBody(h, 0x80efae, NUMBER, () => printNumberSequence(h, events, renderBuffer));
+  yield* printNumber(h, events, renderBuffer);
   return yield* returnSequence(h);
 }
 

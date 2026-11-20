@@ -26,7 +26,7 @@
 // is not kept, nor are A, X and Y.
 import { dialogCallBody, segmentSequence } from '../system/native-call-continuation.mjs';
 import { showNoticeSequence } from './notice-show.mjs';
-import { setTextCursor, printNumberSequence } from './window-text.mjs';
+import { setTextCursor, printNumber } from './window-text.mjs';
 import { printText } from './text-print.mjs';
 import { drawTextBufferSequence } from './text-draw.mjs';
 import { accessorPort } from '../system/hardware-port.mjs';
@@ -68,10 +68,8 @@ const DP_WINDOW = 0x00,
 // Original call sites.
 const CALL = Object.freeze({
   notice: 0x80e2ab,
-  number: 0x80e2c0,
 });
-const NOTICE_CALL = 0x80fec1,
-  NUMBER_CALL = 0x80fd80;
+const NOTICE_CALL = 0x80fec1;
 
 const word = (wram, at) => wram[at] | (wram[at + 1] << BYTE_BITS);
 const setWord = (wram, at, value) => {
@@ -132,7 +130,7 @@ export function* timeLimitSequence(h, events, renderBuffer = drawTextBufferSeque
       setWord(wram, DP_ARGUMENT, hours);
       setWord(wram, TIMER, (hours - 1) & WORD_MASK);
     };
-    yield* call(CALL.number, NUMBER_CALL, () => printNumberSequence(h, events, renderBuffer));
+    yield* printNumber(h, events, renderBuffer);
     yield () => setWord(wram, DP_ARGUMENT, word(wram, TIMER) ? TEXT_HOURS : TEXT_LAST_HOUR);
     yield* printText(h, events, renderBuffer);
   }

@@ -19,7 +19,7 @@ import {
   releaseNoticeWindowsCallSequence,
   putGloveAwayCallSequence,
 } from './window-release.mjs';
-import { setTextCursor, printNumberSequence } from './window-text.mjs';
+import { setTextCursor, printNumber } from './window-text.mjs';
 import { printText } from './text-print.mjs';
 import { drawTextBufferSequence } from './text-draw.mjs';
 import { waitForConfirmKeySequence } from './confirm-key.mjs';
@@ -77,8 +77,7 @@ const PARTY_WINDOW = Object.freeze({ left: 1, top: 1, columns: 0x1e, baseRows: 5
 const PUT_GLOVE_AWAY = [0x80ed3c, 0x80bcb2],
   RELEASE_NOTICES = [0x80ed3f, 0x80ff79],
   CONFIRM_KEY = [0x80ee4b, 0x80f953],
-  RELEASE_WINDOW = [0x80ee53, 0x80fa3e],
-  NUMBER = 0x80fd80;
+  RELEASE_WINDOW = [0x80ee53, 0x80fa3e];
 
 const word = (wram, at) => wram[at] | (wram[at + 1] << BYTE_BITS);
 const setWord = (wram, at, value) => {
@@ -120,12 +119,7 @@ function prepareMember(mem, member) {
 export function* partyStatusSequence(h, events, renderBuffer = drawTextBufferSequence) {
   const { mem } = h.a,
     { wram } = mem;
-  // DP 02 gets value before a callee at pc.
-  const argument = function* (value, pc, target, body) {
-    yield () => setWord(wram, 2, typeof value === 'function' ? value() : value);
-    yield* dialogCallBody(h, pc, target, body);
-  };
-  // The argument in the direct page word 02 for a lifted callee without a JSR frame.
+  // DP 02 gets value before a lifted callee, which runs without a JSR frame.
   const withArgument = function* (value, body) {
     yield () => setWord(wram, 2, typeof value === 'function' ? value() : value);
     yield* body();
@@ -157,11 +151,9 @@ export function* partyStatusSequence(h, events, renderBuffer = drawTextBufferSeq
       () => printText(h, events, renderBuffer),
     );
     yield* withArgument(COLUMNS.count, () => segmentSequence(() => setTextCursor(h)));
-    yield* argument(
+    yield* withArgument(
       () => dataBankWord(mem, MEMBER_STATE_COUNT),
-      0x80ede6,
-      NUMBER,
-      () => printNumberSequence(h, events, renderBuffer),
+      () => printNumber(h, events, renderBuffer),
     );
     yield* withArgument(COLUMNS.countSlash, () => segmentSequence(() => setTextCursor(h)));
     yield* withArgument(TEXT_SLASH, () => printText(h, events, renderBuffer));
@@ -171,21 +163,17 @@ export function* partyStatusSequence(h, events, renderBuffer = drawTextBufferSeq
       setWord(wram, DP_MEMBER_RECORD, (word(wram, DP_MEMBER_RECORD) + 1) & WORD_MASK);
       setWord(wram, 2, maximum);
     };
-    yield* dialogCallBody(h, 0x80ee05, NUMBER, () => printNumberSequence(h, events, renderBuffer));
+    yield* printNumber(h, events, renderBuffer);
     yield* withArgument(COLUMNS.magic, () => segmentSequence(() => setTextCursor(h)));
-    yield* argument(
+    yield* withArgument(
       () => wram[MAGIC_POINTS + (dataBankWord(mem, MEMBER_INDEX) >>> 1)],
-      0x80ee1e,
-      NUMBER,
-      () => printNumberSequence(h, events, renderBuffer),
+      () => printNumber(h, events, renderBuffer),
     );
     yield* withArgument(COLUMNS.magicSlash, () => segmentSequence(() => setTextCursor(h)));
     yield* withArgument(TEXT_SLASH, () => printText(h, events, renderBuffer));
-    yield* argument(
+    yield* withArgument(
       () => word(wram, DP_MAGIC_MAXIMUM),
-      0x80ee35,
-      NUMBER,
-      () => printNumberSequence(h, events, renderBuffer),
+      () => printNumber(h, events, renderBuffer),
     );
     yield () => {
       const next = (word(wram, DP_PARTY_MEMBER) + 1) & WORD_MASK;
