@@ -277,11 +277,11 @@ function* playerHitSequence(h, events, target) {
   yield* drawWindowListSequence(h, events, LIST_CALL);
 }
 
-// 80:8691: the hit with the damage on the target by the shooter. A sequence for a
-// native call continuation that ends with the hit's RTS. renderBuffer draws text. Its
-// live callers run with the direct page at 0; no register is checked (the register-level
-// caller in proof/caller/object-hit.mjs keeps that check).
-export function* hitObjectSequence(
+// 80:8691: the hit with the damage on the target by the shooter, for lifted callers
+// without the JSR frame (the caller's return word lies only in free stack bytes).
+// renderBuffer draws text. Its live callers run with the direct page at 0; no register
+// is checked (the register-level caller in proof/caller/object-hit.mjs keeps that check).
+export function* hitObject(
   h,
   events,
   renderBuffer = drawTextBufferSequence,
@@ -310,6 +310,18 @@ export function* hitObjectSequence(
     };
     yield* playerHitSequence(h, events, target);
   }
+}
+// The hit as called with JSR (80:8691), a sequence for a native call continuation that
+// ends with the hit's RTS.
+export function* hitObjectSequence(
+  h,
+  events,
+  renderBuffer = drawTextBufferSequence,
+  damage,
+  target,
+  shooter,
+) {
+  yield* hitObject(h, events, renderBuffer, damage, target, shooter);
   let result;
   yield () => {
     result = h.rts();

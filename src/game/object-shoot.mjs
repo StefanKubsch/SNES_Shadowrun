@@ -27,8 +27,7 @@
 // 2026-11-13). Only the hit 80:8691, whose notices wait for frames, runs through its
 // JSR frame by direct composition, with the damage in A, the target in X and the
 // shooter in Y.
-import { dialogCallBody } from '../system/native-call-continuation.mjs';
-import { hitObjectSequence } from './object-hit.mjs';
+import { hitObject } from './object-hit.mjs';
 import { drawTextBufferSequence } from './text-draw.mjs';
 import { dataBankWord, setDataBankWord } from '../system/data-bank.mjs';
 import { accessorPort } from '../system/hardware-port.mjs';
@@ -118,9 +117,6 @@ import {
   WORD_SIGN,
 } from '../constants/bits.mjs';
 
-// The hit 80:8691 and its call site in 80:8904.
-const HIT = 0x808691,
-  HIT_CALL = 0x8089ac;
 // The result of 80:8A51 when the sight is blocked; the weapon entries are four bytes.
 const GLOVE_BLOCKED = 1,
   WEAPON_ENTRY_SHIFT = 2,
@@ -350,10 +346,7 @@ export function* shootAtObjectSequence(h, events, renderBuffer = drawTextBufferS
   faceTarget(run, shooter, target);
   yield* shotSequence(
     run,
-    (damage, target, shooter) =>
-      dialogCallBody(h, HIT_CALL, HIT, () =>
-        hitObjectSequence(h, events, renderBuffer, damage, target, shooter),
-      ),
+    (damage, target, shooter) => hitObject(h, events, renderBuffer, damage, target, shooter),
     shooter,
     target,
   );
@@ -380,10 +373,7 @@ export function* shootAtGloveTargetSequence(h, events, renderBuffer = drawTextBu
   );
   yield* shotSequence(
     run,
-    (damage, target, shooter) =>
-      dialogCallBody(h, HIT_CALL, HIT, () =>
-        hitObjectSequence(h, events, renderBuffer, damage, target, shooter),
-      ),
+    (damage, target, shooter) => hitObject(h, events, renderBuffer, damage, target, shooter),
     player,
     target,
   );
@@ -403,10 +393,7 @@ export function* shootWithOwnWeaponSequence(h, events, renderBuffer = drawTextBu
   faceTarget(run, shooter, target);
   yield* shotSequence(
     run,
-    (damage, target, shooter) =>
-      dialogCallBody(h, HIT_CALL, HIT, () =>
-        hitObjectSequence(h, events, renderBuffer, damage, target, shooter),
-      ),
+    (damage, target, shooter) => hitObject(h, events, renderBuffer, damage, target, shooter),
     shooter,
     target,
   );

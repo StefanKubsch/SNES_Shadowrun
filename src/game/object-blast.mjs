@@ -9,8 +9,7 @@
 //
 // Registers (user decision 2026-11-17): game state only. The hit takes the damage, the
 // slot and the shooter as parameters (A, X and Y in the original); no registers are left.
-import { dialogCallBody } from '../system/native-call-continuation.mjs';
-import { hitObjectSequence } from './object-hit.mjs';
+import { hitObject } from './object-hit.mjs';
 import { drawTextBufferSequence } from './text-draw.mjs';
 import { dataBankWord } from '../system/data-bank.mjs';
 import {
@@ -24,13 +23,10 @@ import {
 } from '../data/wram.mjs';
 import { BYTE_BITS, BYTE_MASK, WORD_MASK, WORD_SIGN } from '../constants/bits.mjs';
 
-// The centre and damage in the direct page, the reach on each axis, the hit and its
-// call site.
+// The centre and damage in the direct page and the reach on each axis.
 const DP_BLAST_CENTRE = 0xa2,
   DP_BLAST_DAMAGE = 0xa5,
   BLAST_REACH = 0x60,
-  HIT = 0x808691,
-  HIT_CALL = 0x808e8c,
   // The hit gets no shooter.
   NO_SHOOTER = WORD_MASK;
 
@@ -69,10 +65,7 @@ export function* hitObjectsInBlastSequence(h, events, renderBuffer = drawTextBuf
       reached = blastReaches(mem, centre, slot);
       damage = word(wram, DP_BLAST_DAMAGE);
     };
-    if (reached)
-      yield* dialogCallBody(h, HIT_CALL, HIT, () =>
-        hitObjectSequence(h, events, renderBuffer, damage, slot, NO_SHOOTER),
-      );
+    if (reached) yield* hitObject(h, events, renderBuffer, damage, slot, NO_SHOOTER);
   }
   let result;
   yield () => {
