@@ -45,8 +45,6 @@ const RESET_CONTEXT = Object.freeze({
   bank: 0,
   status: 0x34,
 });
-// The return word of the JSR C1E3 at 96C0; the round's RTS lands on 96C3.
-const ROUND_RETURN_WORD = 0x96c2;
 const ROUND_RESUME = 0x8096c3;
 
 export class GameLoop {
@@ -102,6 +100,7 @@ export class GameLoop {
         // observations the live game does not have.
         round: (entry) => taskStop('game_loop_synchronous_round', { entry }),
         nestedRound: (entry) => this.round(entry),
+        valueRounds: true,
       };
     const a = this.accessor;
     a.resetAccessBudget(target);
@@ -110,11 +109,13 @@ export class GameLoop {
     return events;
   }
 
-  // A scheduler entry by JSR (the frame is on the accessor's stack) as a continuation;
-  // its natives pause at the budget the loop gives it.
+  // Ordinary rounds pause at the native work budget without a caller CPU frame.
   round(entry) {
     const natives = this.natives,
-      visit = natives.visitContinuation(this.accessor, this.scheduler, entry);
+      visit =
+        entry === ROUND
+          ? natives.roundContinuation(this.scheduler, this.accessor.ctx.s)
+          : natives.visitContinuation(this.accessor, this.scheduler, entry);
     return {
       get work() {
         return visit.work;
@@ -149,7 +150,6 @@ export class GameLoop {
       for (;;) {
         yield* endOfFrame(h, events);
         this.closeInterval();
-        a.pushWord(ROUND_RETURN_WORD);
         yield { continuation: this.round(ROUND) };
         this.rounds++;
         events = this.interval(ROUND_RESUME);

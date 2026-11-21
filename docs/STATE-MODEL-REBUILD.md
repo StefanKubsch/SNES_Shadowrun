@@ -88,6 +88,22 @@ own commit after `npm run test:block` and the golden trace test. One shared
 
 ## Progress
 
+- 2026-11-21, phase 4, ordinary scheduler rounds: the normal game and attract
+  loop enter the JS scheduler directly and return observation results as values.
+  They neither create a C1E3 caller frame nor consume its return word. The native
+  bridge lends deeper callees the caller's existing CPU workspace pointer without
+  subtracting any scheduler frame bytes. Nested visits retain their
+  compatibility adapter until the next composition step.
+- Scheduler continuations ignore zero budgets, retain one generator across pauses,
+  reject reentry and failed replay, and return completion repeatedly without work.
+  Their workspace is released on completion and failure. No frozen proof code or
+  golden trace changes are needed. Phase 4 remains unfinished.
+- Ordinary scheduler round validation: 409/409 tests across 47 selected files
+  passed in 363 seconds, including all five unchanged golden traces and the
+  browser check. Frozen caller drivers install tools/scheduler-frame-adapter.mjs
+  to retain their original scheduler return assertions. Edited-file ESLint,
+  formatting, source scan and diff checks passed.
+
 - 2026-11-21, phase 4, waiting native boundary: all 29 waiting native targets
   support ordinary script returns. Their dispatcher neither pushes the original
   F508 return word nor reads F509 or the returned stack to accept completion. The

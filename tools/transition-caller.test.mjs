@@ -20,6 +20,7 @@ import { loadSave } from './mesen-f390-oracle.mjs';
 import { exploreLive } from './explore-live.mjs';
 import { CUTSCENE_PLAN } from './live-cutscene-plan.mjs';
 import { PLAN as MATRIX_PLAN } from './live-matrix-plan.mjs';
+import { withSchedulerFrames } from './scheduler-frame-adapter.mjs';
 
 // Same JS tasks and devices, with the previous caller on the reference side.
 // The loop ends only after the plan; no game-over route is asserted here.
@@ -74,7 +75,7 @@ function run(plan, budget, previous) {
     sram: loadSave('apartment'),
     loop: (game) => {
       const Type = previous ? PreviousCallerLoop : GameLoop;
-      return new Type(game.vm, {
+      const loop = new Type(game.vm, {
         devices: game.devices,
         routines: previous
           ? new Map([...formerRoutines, ...FRONTEND_ROUTINES, [0x80cc4b, processSceneRequest]])
@@ -82,6 +83,7 @@ function run(plan, budget, previous) {
         admitted: nativeOpcodeTargets,
         implementation: nativeTarget,
       });
+      return previous ? withSchedulerFrames(loop) : loop;
     },
     onGame(game) {
       const step = game.step.bind(game);

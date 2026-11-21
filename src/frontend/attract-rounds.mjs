@@ -11,14 +11,13 @@ export function* attractRoundsSequence(h, e, r, room, roomStart) {
   h.rts();
 }
 
-// Ordinary demo playback returns to its generator caller. Scheduler visits still
-// use their compatibility adapter until the native bridge is rebuilt.
+// Ordinary demo playback and its live scheduler rounds return to their caller.
 export function* runAttractRounds(h, e, r, room, roomStart = () => roomStartSequence(h, e, room)) {
   yield* roomStart();
   for (;;) {
     yield* endOfFrame(h, e);
     if (typeof e?.round !== 'function') taskStop('main_round_owner_required', { pc: 0x8096c0 });
-    yield* dialogCallBody(h, 0x8096c0, 0x80c1e3, function* () {
+    const visit = function* () {
       let more;
       if (typeof e.nestedRound === 'function') {
         const round = e.nestedRound(MAIN_ROUND);
@@ -30,7 +29,9 @@ export function* runAttractRounds(h, e, r, room, roomStart = () => roomStartSequ
         };
       if (more?.wait?.length) e.values = Object.freeze([...e.values, ...more.wait]);
       if (more?.input?.length) e.inputs = Object.freeze([...e.inputs, ...more.input]);
-    });
+    };
+    if (e.valueRounds) yield* visit();
+    else yield* dialogCallBody(h, 0x8096c0, 0x80c1e3, visit);
     if (yield* update(h, e)) break;
   }
 }

@@ -79,16 +79,50 @@ export class ScriptNatives {
   }
   // The same as a resumable continuation of a native sequence (work budget units).
   visitContinuation(a, scheduler, entry) {
-    const steps = this.enter(a, scheduler, entry);
+    return this.continuation(this.enter(a, scheduler, entry));
+  }
+
+  // Normal game and attract rounds have no CPU entry or return frame.
+  roundContinuation(scheduler, workspace) {
+    return this.continuation(this.roundSteps(scheduler, workspace));
+  }
+  *roundSteps(scheduler, workspace) {
+    this.stacks.push(workspace);
+    try {
+      yield* scheduler.rounds();
+    } finally {
+      this.stacks.pop();
+    }
+    return { wait: [], input: [] };
+  }
+
+  continuation(steps) {
+    let running = false,
+      done = false,
+      failed = false;
     return {
       work: 0,
       result: undefined,
       run(budget) {
         if (!Number.isSafeInteger(budget) || budget < 0) taskStop('script_visit_budget_required');
-        this.work += VISIT_WORK;
-        if (!steps.next().done) return WAIT_PAUSED;
-        this.result = { wait: [], input: [] };
-        return WAIT_RETURNED;
+        if (running) taskStop('script_visit_reentry');
+        if (failed) taskStop('script_visit_failed');
+        if (done) return WAIT_RETURNED;
+        if (budget === 0) return WAIT_PAUSED;
+        running = true;
+        try {
+          this.work += VISIT_WORK;
+          const next = steps.next();
+          if (!next.done) return WAIT_PAUSED;
+          this.result = next.value ?? { wait: [], input: [] };
+          done = true;
+          return WAIT_RETURNED;
+        } catch (error) {
+          failed = true;
+          throw error;
+        } finally {
+          running = false;
+        }
       },
     };
   }

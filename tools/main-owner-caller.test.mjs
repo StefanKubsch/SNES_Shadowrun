@@ -24,6 +24,7 @@ import { MainLoopContinuation as DispatchedLoop } from '../proof/caller/main-loo
 import { MainLoopContinuation, MAIN_LOOP_ROUND } from './main-frame-adapter.mjs';
 import { MAIN_LOOP_EXIT, MAIN_LOOP_RELOAD, NMI_SAVED_A } from '../src/data/wram.mjs';
 import { ROUND } from '../src/script/natives.mjs';
+import { withSchedulerFrames } from './scheduler-frame-adapter.mjs';
 
 // Inject the same JS loop explicitly for the frozen reference side. LiveGame keeps
 // its reference WRAM views for injected loops; the shipped default owns detached fields.
@@ -168,6 +169,7 @@ for (const budget of [1, 7])
               return driver.pad(k);
             },
           });
+          withSchedulerFrames(game.loop);
           const onNmi = game.frames.onNmi;
           game.frames.onNmi = (k) => {
             onNmi(k);
