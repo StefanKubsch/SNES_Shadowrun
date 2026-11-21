@@ -22,7 +22,8 @@ import { Scheduler } from './scheduler.mjs';
 import { ScriptNatives, ROUND, nativeTarget } from './natives.mjs';
 import { JsTasks } from './task-api.mjs';
 import { interruptEventsOf } from '../vm/devices.mjs';
-import { NativeCallContinuation } from '../system/native-call-continuation.mjs';
+import { NATIVE_CALL_CONTINUATIONS } from '../system/native-call-continuation.mjs';
+import { SequenceRunner } from '../system/sequence-runner.mjs';
 import { dialogAccess } from '../system/native-dialog-support.mjs';
 import { runMainReset } from '../system/main-reset.mjs';
 import { mainStartupSequence, MAIN_STARTUP_ENTRY } from '../system/main-startup.mjs';
@@ -75,7 +76,7 @@ export class GameLoop {
     this.rounds = 0;
     // The game's main loop runs (from its main start until it returns to the owner).
     this.ownsGame = false;
-    this.work = new NativeCallContinuation(a, this.game());
+    this.work = new SequenceRunner(this.game(), NATIVE_CALL_CONTINUATIONS);
   }
 
   // Runs up to `budget` work units; a native that pauses inside a round pauses the loop.
@@ -143,11 +144,9 @@ export class GameLoop {
     for (;;) {
       const ownerReturn = ctx.s,
         h = dialogAccess(a);
-      yield {
-        continuation: new NativeCallContinuation(a, gameOwnerSequence(h, events, routines)),
-      };
+      yield* gameOwnerSequence(h, events, routines);
       this.ownsGame = true;
-      yield { continuation: new NativeCallContinuation(a, gameStartSequence(h, events)) };
+      yield* gameStartSequence(h, events);
       for (;;) {
         yield* endOfFrame(h, events);
         this.closeInterval();

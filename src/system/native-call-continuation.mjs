@@ -1,5 +1,6 @@
 import { taskStop } from './task-stop.mjs';
-import { WAIT_PAUSED, WAIT_RETURNED } from './native-wait-continuation.mjs';
+import { WAIT_PAUSED } from './native-wait-continuation.mjs';
+import { SequenceRunner } from './sequence-runner.mjs';
 import { WORD_MASK, WORD_BITS } from '../constants/bits.mjs';
 
 export const JSR_RETURN_OFFSET = 2,
@@ -11,22 +12,14 @@ const registers = ['e', 'programBank', 'pc', 'a', 'x', 'y', 's', 'd', 'bank', 's
 // adapters before their existing cyclic module graph has initialized.
 export const NATIVE_CALL_CONTINUATIONS = new Map();
 
-// Cooperative composition of fixed native equations. A yielded function is
-// one bounded caller segment; a call descriptor owns a genuine stack frame.
-// Factories are admitted by target AND function identity, so injected routines
-// are never silently replaced. This class neither decodes nor times CPU code.
-export class NativeCallContinuation {
+// Compatibility guard for the remaining register-level native and oracle calls.
+// The live outer loop uses SequenceRunner directly and owns no register snapshot.
+export class NativeCallContinuation extends SequenceRunner {
   constructor(a, sequence, continuations = NATIVE_CALL_CONTINUATIONS) {
+    super(sequence, continuations);
     this.a = a;
     this.context = a.ctx;
-    this.sequence = sequence;
-    this.continuations = continuations;
     this.saved = registers.map((key) => a.ctx[key]);
-    this.work = 0;
-    this.done = false;
-    this.failed = false;
-    this.current = null;
-    this.child = null;
   }
   run(budget) {
     if (!Number.isSafeInteger(budget) || budget < 0) taskStop('native_call_budget_required');
@@ -37,53 +30,10 @@ export class NativeCallContinuation {
     )
       taskStop('native_call_owner_required');
     try {
-      while (budget > 0 && !this.done) {
-        if (!this.current) {
-          const next = this.sequence.next(this.reply);
-          this.reply = undefined;
-          if (next.done) {
-            this.done = true;
-            this.result = next.value;
-            break;
-          }
-          this.current = next.value;
-          if (this.current.continuation) this.child = this.current.continuation;
-          else if (typeof this.current !== 'function') {
-            // A factory is registered by target, or by its run function when
-            // another implementation of the same target exists (proof references).
-            const factory = this.continuations.get(this.current.target);
-            if (factory?.run === this.current.run) this.child = factory.create(this.current);
-            else
-              this.child = this.continuations.get(this.current.run)?.create(this.current) ?? null;
-          }
-        }
-        if (this.child) {
-          const before = this.child.work,
-            status = this.child.run(budget),
-            used = this.child.work - before;
-          budget -= used;
-          this.work += used;
-          if (status === WAIT_PAUSED) break;
-          this.reply = this.child.result;
-          this.child = null;
-        } else {
-          const action = this.current;
-          this.reply =
-            typeof action === 'function'
-              ? action()
-              : action.run(action.h, action.events, action.routines);
-          budget--;
-          this.work++;
-        }
-        this.current = null;
-      }
-    } catch (error) {
-      this.failed = true;
-      throw error;
+      return super.run(budget);
     } finally {
       for (let n = 0; n < registers.length; n++) this.saved[n] = this.context[registers[n]];
     }
-    return this.done ? WAIT_RETURNED : WAIT_PAUSED;
   }
 }
 

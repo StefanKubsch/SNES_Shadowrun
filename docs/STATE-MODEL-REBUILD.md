@@ -333,3 +333,15 @@ own commit after `npm run test:block` and the golden trace test. One shared
 - Coroutine block validation passed 748/748 tests across 44 selected files in
   282 seconds, including all five unchanged golden traces. Edited-file ESLint
   and formatting passed. No frozen register-level proof was changed.
+
+- 2026-11-21, phase 4, sequence execution: src/system/sequence-runner.mjs owns
+  budgeted generator composition, child pauses and replies without an accessor,
+  CPU register snapshots or return addresses. The live GameLoop uses it directly
+  and composes the owner and game start with yield*. A reentry guard prevents an
+  action from resuming its own runner; failed actions cannot be replayed.
+- NativeCallContinuation now adds the compatibility ownership check to that runner
+  for the remaining register-level native and oracle calls. Their guard is retained;
+  this block does not remove TaskAccessor or the native bridge's CPU stack.
+- Sequence runner block validation: 6333/6333 selected tests passed across 194
+  files in 784 seconds, with no failures or skips; all five golden traces are
+  unchanged. Edited-file ESLint, formatting and the source scan passed.
