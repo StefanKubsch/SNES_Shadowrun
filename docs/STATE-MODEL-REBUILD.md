@@ -88,6 +88,14 @@ own commit after `npm run test:block` and the golden trace test. One shared
 
 ## Progress
 
+- Matrix/cutscene playback, text rendering and glove target flow shared release
+  passed 13252/13252 tests with no failures or skips: 347 files executed and
+  324 unchanged. All five golden traces and frozen proof code remain unchanged.
+  Artifact verification ran 239 generators with 533 unchanged and checked 3491
+  outputs; syntax covered 3184 modules. Format, AC source, diff/staged diff and
+  LFS passed. Artifact work took 434 seconds, tests 1129 seconds. Passing logs
+  were removed; .cache/release/last-summary.json retains the summary.
+
 - 2026-11-21, phase 4, glove target flow: all six choices compose frame waits
   directly. Spell/place choices compose map preparation, upload and first-window
   advancement without nested CPU frames. Forty-two direct flow cases and four
