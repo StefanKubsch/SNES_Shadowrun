@@ -8,6 +8,23 @@ comparisons. Caller comparisons use actual window and glyph uploads at
 continuation budgets one and seven. Upload servicing is a controlled boundary;
 existing device and scene integrations retain their evidence.
 
+## Phase 4 direct target flow
+
+All six target-choice entries compose their counter waits directly. Spell and
+place choices also unpack the map, await its upload and advance the first window
+directly, without the preparation, unpack or upload CPU frames. The original
+call-site constants are removed from the game API. Outer native adapters still
+consume their caller's RTS when requested. Open-member dialog closing and deeper
+device callers retain their existing compatibility contracts.
+
+Forty-two direct choice contracts check context and stack after every single step,
+input ordering, zero budgets, upload wrap, repeated completion and failure/replay
+rejection. Four more lifecycle cases cover preparation and failed uploads. Actual
+movement callers retain their full result, name, glyph, map and input comparisons.
+At the preparation upload they assert the direct caller stack separately from the
+former physical return frames, then compare the same list state. Historical
+blocks below describe the earlier framed composition.
+
 ## Block 1: object name window
 
 Object search composes window opening through its original 80:BE29 JSR frame.

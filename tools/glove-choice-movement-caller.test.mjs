@@ -42,22 +42,39 @@ function runChoice(module, name, budget, target, pads, request = 0, far = false)
     pads,
     true,
     ({ h, events, routines, bind, mem, calls }) => {
+      if (module === direct) events.frameJobs = () => assert.fail('fixture services every wait');
       bind(0x80be6d, () => gloveMoveSequence(h, events, routines));
       routines.set(0x81ad92, runDrawWindowList);
       routines.set(0x81a9b2, runUnpackWindowMap);
       routines.set(0x81acb5, runRequestUpload);
       bind(0x80fec1, () => showNoticeSequence(h, events, routines));
       const service = events.interrupts.textWait;
+      let prepared = false;
       events.interrupts.textWait = (callee, frameEvents, status, pc) => {
-        // The direct upload retains its caller's JSL entry, without the former
-        // three-byte internal wait frame. Check the same enclosing caller words.
-        const waitBytes = module === direct ? 0 : 3;
-        if (pc === 0x81acb2 && mem.read16(0x7e0000 | (h.ctx.s + 1 + waitBytes)) === 0xaebf)
+        if (
+          !prepared &&
+          request !== 0xffff &&
+          pc === 0x81acb2 &&
+          (name === 'spellGloveTargetSequence' || name === 'choosePlaceWithGloveSequence')
+        ) {
+          prepared = true;
+          if (module === direct) {
+            assert.equal(h.ctx.s, 0x1c7, 'preparation keeps only the outer native frame');
+            assert.equal(h.ctx.programBank, 0x80);
+          } else {
+            assert.equal(mem.read16(0x7e0000 | (h.ctx.s + 4)), 0xaebf);
+            assert.equal(
+              mem.read16(0x7e0000 | (h.ctx.s + 7)),
+              name === 'spellGloveTargetSequence' ? 0x9bde : 0xc736,
+            );
+            assert.equal(mem.read8(0x7e0000 | (h.ctx.s + 9)), 0x80);
+          }
           calls.push([
-            'prepare frame',
-            mem.read16(0x7e0000 | (h.ctx.s + 4 + waitBytes)),
-            mem.read8(0x7e0000 | (h.ctx.s + 6 + waitBytes)),
+            'prepare upload',
+            mem.read16(W.WINDOW_FIRST_INDEX),
+            mem.read16(W.WINDOW_LAST_INDEX),
           ]);
+        }
         return service(callee, frameEvents, status, pc);
       };
     },
@@ -84,16 +101,8 @@ for (const budget of [1, 7])
             assert.equal(actual.wram[W.GLOVE_KIND], 0);
             if (name === 'spellGloveTargetSequence' || name === 'choosePlaceWithGloveSequence')
               assert.deepEqual(
-                actual.calls.filter((call) => call[0] === 'prepare frame'),
-                request === 0xffff
-                  ? []
-                  : [
-                      [
-                        'prepare frame',
-                        name === 'spellGloveTargetSequence' ? 0x9bde : 0xc736,
-                        0x80,
-                      ],
-                    ],
+                actual.calls.filter((call) => call[0] === 'prepare upload'),
+                request === 0xffff ? [] : [['prepare upload', 0, 0]],
               );
             if (name === 'choosePlaceWithGloveSequence')
               assert.equal(actual.wram[W.MOTION_ACTIVE + 4], 1);

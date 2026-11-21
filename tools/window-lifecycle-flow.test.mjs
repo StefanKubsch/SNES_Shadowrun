@@ -14,6 +14,7 @@ import {
 import { SequenceRunner } from '../src/system/sequence-runner.mjs';
 import { WAIT_PAUSED } from '../src/system/native-wait-continuation.mjs';
 import { LagFreeFrames } from '../src/vm/frame-events.mjs';
+import { prepareWindowListSequence } from '../src/game/glove-target.mjs';
 import { createSide } from './lift-function-harness.mjs';
 import { windowMapSource } from './lift-window-samples.mjs';
 import * as W from '../src/data/wram.mjs';
@@ -83,6 +84,7 @@ const operations = [
   releaseWindowSequence,
   releaseNoticeWindowsSequence,
   putGloveAwaySequence,
+  prepareWindowListSequence,
 ];
 
 for (const operation of operations)
@@ -103,12 +105,18 @@ for (const operation of operations)
       const mapRequest = operation !== requestTileClear;
       const expected = request === 0xffff ? 0 : Number(tileRequest) + Number(mapRequest);
       assert.equal(side.polls.length, expected, 'each nonzero request is serviced once');
+      if (operation === prepareWindowListSequence)
+        assert.equal(
+          side.mem.read16(W.WINDOW_FIRST_INDEX),
+          1,
+          'first window follows the last after upload',
+        );
       const completed = side.mem.wram.slice();
       runner.run(10);
       assert.deepEqual(side.mem.wram, completed, 'completed calls do not issue more uploads');
     });
 
-for (const operation of [drawWindowListSequence, openWindow])
+for (const operation of [drawWindowListSequence, openWindow, prepareWindowListSequence])
   test(`${operation.name} preserves the caller context when upload service fails`, () => {
     const side = fixture(0);
     const failure = new Error('upload failed');

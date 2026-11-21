@@ -88,6 +88,16 @@ own commit after `npm run test:block` and the golden trace test. One shared
 
 ## Progress
 
+- 2026-11-21, phase 4, glove target flow: all six choices compose frame waits
+  directly. Spell/place choices compose map preparation, upload and first-window
+  advancement without nested CPU frames. Forty-two direct flow cases and four
+  additional lifecycle cases cover stack/context, ordering, wrap and failure
+  replay; actual movement callers retain their independent game/device checks.
+  Open-member dialog and deeper device callers remain compatibility boundaries.
+- Glove target validation: 3926/3926 tests passed across 49 selected files in
+  143 seconds, including all five unchanged golden traces. Edited-file ESLint,
+  formatting and diff checks passed.
+
 - 2026-11-21, phase 4, text rendering: glyph drawing and its three actual callers
   (text, short numbers and 32-bit decimal numbers) compose without internal CPU
   frames or temporary banks. Upload counters and frame jobs retain read-back,

@@ -143,9 +143,7 @@ function* requestUploadSequence(h, events) {
 // The text map upload for direct callers such as window opening.
 export const requestUploadCall = (h, events) => requestUploadSequence(h, events);
 
-// The upload as called with JSL by a lifted caller that has pushed its frame (the glove
-// target's list preparation 81:AEB8); the wait holds no request word in A (user decision
-// 2026-11-17).
+// Compatibility upload for retained register-level callers with an outer JSL frame.
 export function* requestUploadJslSequence(h, events) {
   yield* requestUploadSequence(h, events);
   let result;
@@ -153,12 +151,6 @@ export function* requestUploadJslSequence(h, events) {
     result = h.rtl();
   };
   return result;
-}
-// 81:A9B2 for lifted callers (called with JSL; nothing in it waits): the window map
-// unpacked; no registers are left.
-export function unpackWindowMapCall(h) {
-  unpackWindowMap(sceneRuntime(h));
-  return h.rtl();
 }
 // Draw the window list (81:AD92) and wait for its upload directly.
 export function* drawWindowListSequence(h, events) {
