@@ -7,8 +7,6 @@ import { putGloveAwaySequence } from './window-release.mjs';
 import { drawWindowListSequence } from './window-list.mjs';
 import { DIALOG_WINDOW } from '../data/wram.mjs';
 
-const LIST_SITE = 0x80cda3;
-
 // 80:CD9D, ending with the native's RTS; both cleanup callees compose directly.
 export function* releaseGloveSequence(h, events, outerReturn = true) {
   const { wram } = h.a.mem;
@@ -17,7 +15,7 @@ export function* releaseGloveSequence(h, events, outerReturn = true) {
     writeStateByte(wram, DIALOG_WINDOW + 1, 0);
   };
   yield* putGloveAwaySequence(h, events);
-  yield* drawWindowListSequence(h, events, LIST_SITE);
+  yield* drawWindowListSequence(h, events);
   let result;
   yield () => {
     if (outerReturn) result = h.rts();

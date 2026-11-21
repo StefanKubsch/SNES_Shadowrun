@@ -13,8 +13,8 @@ import { readStateByte, writeStateByte } from '../state/objects.mjs';
 //
 // The calls are JSRs within bank 80 (the redraw a JSL). Their return words and the slot
 // index the notice windows push around a release lie only in free stack bytes and are
-// kept in locals (game state only, user decision 2026-11-17); the redraw keeps its own
-// frame for the upload wait. Each release passes its window in the direct page word
+// kept in locals. The redraw and upload wait compose directly without frames.
+// Each release passes its window in the direct page word
 // 00, as the original. Window indices are game-sized
 // (below 0100), so the tables are read in bank 7E.
 //
@@ -23,7 +23,6 @@ import { readStateByte, writeStateByte } from '../state/objects.mjs';
 // proof/caller/window-release.mjs.
 import { sceneRuntime } from '../system/scene-runtime.mjs';
 import { drawWindowListSequence } from './window-list.mjs';
-import { dialogCallBody } from '../system/native-call-continuation.mjs';
 import { dialogAccess } from '../system/native-dialog-support.mjs';
 import {
   GLOVE_KIND,
@@ -42,12 +41,6 @@ import { BYTE_BITS, BYTE_MASK, WORD_BITS, WORD_MASK, WORD_SIGN } from '../consta
 
 const NONE = WORD_MASK,
   DP_WINDOW = 0x00;
-// Original call sites: the redraw in the release, the name window release in the
-// glove.
-const REDRAW_SITE = 0x80fa62,
-  GLOVE_NAME_SITE = 0x80bcba,
-  NAME_RELEASE_TARGET = 0x80be5b;
-
 const word = (wram, at) => readStateByte(wram, at) | (readStateByte(wram, at + 1) << BYTE_BITS);
 const setWord = (wram, at, value) => {
   writeStateByte(wram, at, value & BYTE_MASK);
@@ -68,7 +61,7 @@ export function* releaseWindowSequence(h, events) {
     setWord(wram, WINDOW_NEXT_TILE, word(wram, WINDOW_TILE_START + next));
     setWord(wram, WINDOW_LAST_INDEX, x);
   };
-  yield* drawWindowListSequence(h, events, REDRAW_SITE);
+  yield* drawWindowListSequence(h, events);
 }
 
 // The release as called with JSR (80:FA3E), whose caller has pushed the frame; returns
@@ -129,17 +122,9 @@ export function* releaseNameWindowCallSequence(h, events) {
   return yield* rts(h);
 }
 
-// Put the glove away as called with JSR (80:BCB2), a sequence for the glove action;
-// the name window release runs in its JSR frame. Returns with its RTS.
-export function* putGloveAwayCallSequence(h, events, release = releaseNameWindowCallSequence) {
-  const { wram } = sceneRuntime(h);
-  let target = false;
-  yield () => {
-    setWord(wram, GLOVE_KIND, 0);
-    target = !(word(wram, GLOVE_TARGET_TAG) & WORD_SIGN);
-  };
-  if (target)
-    yield* dialogCallBody(h, GLOVE_NAME_SITE, NAME_RELEASE_TARGET, () => release(h, events));
+// Compatibility JSR entry: cleanup composes directly, then consumes the outer RTS.
+export function* putGloveAwayCallSequence(h, events) {
+  yield* putGloveAwaySequence(h, events);
   return yield* rts(h);
 }
 

@@ -9,11 +9,9 @@ import { readStateByte, writeStateByte } from '../state/objects.mjs';
 // of the original) and the upload is requested afterwards (81:ACB5): the request word
 // counts up and the request waits until the NMI has taken the upload (81:ACAF).
 //
-// Live uploads always use lag-free frames below the caller's JSL frame. The JSL frame of
-// the upload request (81:ACB5) lies only in free stack bytes and is not reproduced (game
-// state only, user decision 2026-11-17); the request's own wait keeps its frame. Recorded
-// observations use the independent former composition in proof/caller/window-list.mjs.
-// Shared register/NMI interfaces are retained until their consumers are separated.
+// Live uploads compose the drawing and blocking wait directly without CPU frames
+// or temporary banks. Entry wrappers consume only their caller-provided frame.
+// Recorded observations use proof/caller/window-list.mjs independently.
 //
 // The direct page words of the window drawing (the map row C3, the columns C6, the
 // attributes C9, the cells left CC, the window CF and the next tile D2) are written as
@@ -56,12 +54,8 @@ const BORDER_TOP_LEFT = 0x2001,
   BORDER_BOTTOM_RIGHT = 0xe001,
   MAP_ROW_BYTES = 0x40,
   BORDER_CELLS = 2;
-// The list runs in bank 81; a JSL pushes the address of its last byte.
-const LIST_BANK = 0x81,
-  JSL_LAST_BYTE = 3;
-// The request's JSL to the wait 81:ACAF and the wait's branch back to its load.
-const UPLOAD_WAIT_SITE = 0x81acb8,
-  UPLOAD_WAIT_BRANCH = 0x81acb2;
+// The original wait's branch back to its load, retained for device observations.
+const UPLOAD_WAIT_BRANCH = 0x81acb2;
 
 const word = (wram, at) => readStateByte(wram, at) | (readStateByte(wram, at + 1) << BYTE_BITS);
 const setWord = (wram, at, value) => {
@@ -130,30 +124,13 @@ export function drawWindow(wram, x) {
   put(BORDER_BOTTOM_RIGHT);
 }
 
-// Push the frame of a JSL at site (in the running bank).
-function pushLongFrame(h, site) {
-  const { ctx, a } = h;
-  a.write(ctx.s, ctx.programBank);
-  ctx.s = (ctx.s - 1) & WORD_MASK;
-  a.pushWord((site + JSL_LAST_BYTE) & WORD_MASK);
-}
-function pullLongFrame(h) {
-  h.a.pullWord();
-  h.ctx.s = (h.ctx.s + 1) & WORD_MASK;
-}
-
 // Request the text map upload and wait until the NMI takes it (81:ACB5/81:ACAF).
-// callerFrame means the caller already supplied the outer JSL frame. The wait holds
-// no request word in A (user decision 2026-11-17).
-function* requestUploadSequence(h, events, callerFrame = false) {
+// The request word and frame jobs govern progress; no CPU frame is created.
+function* requestUploadSequence(h, events) {
   const { ctx } = h,
-    { wram } = h.a.mem,
-    callerBank = ctx.programBank;
-  let result;
+    { wram } = h.a.mem;
   yield () => {
-    if (!callerFrame) ctx.programBank = LIST_BANK;
     setWord(wram, TEXT_MAP_UPLOAD, word(wram, TEXT_MAP_UPLOAD) + 1);
-    pushLongFrame(h, UPLOAD_WAIT_SITE);
   };
   for (let request; (request = word(wram, TEXT_MAP_UPLOAD)) !== 0;) {
     // After LDA of a nonzero word in 16-bit mode: Z clear, N from bit 15.
@@ -162,54 +139,38 @@ function* requestUploadSequence(h, events, callerFrame = false) {
       (request & WORD_SIGN ? FLAG_NEGATIVE : 0);
     yield* nmiAtBranch(h, events, UPLOAD_WAIT_BRANCH, status);
   }
-  yield () => {
-    pullLongFrame(h);
-    if (callerFrame) {
-      result = h.rtl();
-      return;
-    }
-    ctx.programBank = callerBank;
-  };
-  return result;
 }
-// The text map upload as a caller's JSL (80:F963 calls it from bank 80).
+// The text map upload for direct callers such as window opening.
 export const requestUploadCall = (h, events) => requestUploadSequence(h, events);
 
 // The upload as called with JSL by a lifted caller that has pushed its frame (the glove
 // target's list preparation 81:AEB8); the wait holds no request word in A (user decision
 // 2026-11-17).
-export const requestUploadJslSequence = (h, events) => requestUploadSequence(h, events, true);
+export function* requestUploadJslSequence(h, events) {
+  yield* requestUploadSequence(h, events);
+  let result;
+  yield () => {
+    result = h.rtl();
+  };
+  return result;
+}
 // 81:A9B2 for lifted callers (called with JSL; nothing in it waits): the window map
 // unpacked; no registers are left.
 export function unpackWindowMapCall(h) {
   unpackWindowMap(sceneRuntime(h));
   return h.rtl();
 }
-// Draw the window list (81:AD92), a sequence; events are the frame events of the
-// caller, callSite the address of its JSL. It leaves no registers; the register form
-// is in proof/caller/window-list.mjs.
-export function* drawWindowListSequence(h, events, callSite) {
-  const { ctx } = h,
-    callerBank = ctx.programBank;
-  yield () => {
-    pushLongFrame(h, callSite);
-    ctx.programBank = LIST_BANK;
-  };
+// Draw the window list (81:AD92) and wait for its upload directly.
+export function* drawWindowListSequence(h, events) {
   yield* windowListBody(h, events);
-  yield () => {
-    pullLongFrame(h);
-    ctx.programBank = callerBank;
-  };
 }
 
 // The dialog window's list redrawn (80:CDA8), a sequence for the script native: the
-// dialog window as the list's first argument, the list (JSL at 80:CDAD), the native's
-// RTS.
-const REDRAW_SITE = 0x80cdad;
+// dialog window as the list's first argument, then its redraw and optional RTS.
 export function* redrawDialogWindowListSequence(h, events, outerReturn = true) {
   const { wram } = h.a.mem;
   yield () => setWord(wram, 0, word(wram, DIALOG_WINDOW));
-  yield* drawWindowListSequence(h, events, REDRAW_SITE);
+  yield* drawWindowListSequence(h, events);
   let result;
   yield () => {
     if (outerReturn) result = h.rts();
@@ -217,22 +178,14 @@ export function* redrawDialogWindowListSequence(h, events, outerReturn = true) {
   return result;
 }
 
-// 81:AEB0: the window list from the first window on, after the first index is cleared;
-// the list's JSL at 81:AEB3 keeps its frame. For lifted callers without the JSL frame:
-// the program bank returns to the caller's.
-const RESET_LIST_SITE = 0x81aeb3;
+// 81:AEB0: redraw from the first window after clearing the first index.
 export function* resetWindowList(h, events) {
-  const callerBank = h.ctx.programBank;
   yield () => {
     setWord(h.a.mem.wram, WINDOW_FIRST_INDEX, 0);
-    h.ctx.programBank = LIST_BANK;
   };
-  yield* drawWindowListSequence(h, events, RESET_LIST_SITE);
-  yield () => {
-    h.ctx.programBank = callerBank;
-  };
+  yield* drawWindowListSequence(h, events);
 }
-// The list below its JSL frame, in bank 81.
+// The shared list body; memory and upload requests are explicit.
 function* windowListBody(h, events) {
   const m = sceneRuntime(h),
     { wram } = m;

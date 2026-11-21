@@ -15,8 +15,8 @@ import { readStateByte, writeStateByte } from '../state/objects.mjs';
 //
 // Registers (user decision 2026-11-17): game state only; the routine leaves no A, X, Y
 // or flags (its callers read the window index from the direct page word 00). The tile
-// request waits with the lag-free frame model at its branch 81:ACC0 below the frames of
-// its JSR and JSL; the live path always uses lag-free frames. Recorded observations use the former
+// request waits with the lag-free frame model at its branch 81:ACC0 without a CPU
+// frame or bank switch. Recorded observations use the former
 // caller retained in proof/caller/window-open.mjs. Drawing's pushes are not reproduced.
 import { sceneRuntime } from '../system/scene-runtime.mjs';
 import { nmiAtBranch } from '../system/frame-wait.mjs';
@@ -65,19 +65,13 @@ const DP_LEFT = 0x00,
   VRAM_BEFORE_TILES = 0x4fff,
   // A window field whose role is unproved; it is cleared with the cursor and style.
   WINDOW_FIELD_2160 = 0x2160;
-// Original sites: the product's accesses, the tile request's JSR and its JSL to the
-// wait, the wait loop's load and branch, the window drawing's and the map upload's JSL.
+// Original product access sites and the blocking tile wait branch.
 const PRODUCT_COLUMNS_SITE = 0x80f9ec,
   PRODUCT_HIGH_SITE = 0x80f9ef,
   PRODUCT_ROWS_SITE = 0x80f9f6,
   PRODUCT_SITE = 0x80fa01,
   PRODUCT_AGAIN_SITE = 0x80fa19,
-  TILE_WAIT_SITE = 0x80fa84,
   TILE_WAIT_BRANCH = 0x81acc0,
-  JSR_LAST_BYTE = 2,
-  JSL_LAST_BYTE = 3,
-  WAIT_BANK = 0x81,
-  CALLER_BANK = 0x80,
   // The carry of the first tile's shifts (bit 13, three ASL) enters the address.
   TILE_ADDRESS_CARRY_BIT = 13;
 
@@ -130,20 +124,6 @@ function allocateTiles({ wram, port }, x) {
   return first;
 }
 
-// Push the frame of a JSR or JSL at site (in the running bank) and pull it again.
-function pushFrame(h, site, long) {
-  const { ctx, a } = h;
-  if (long) {
-    a.write(ctx.s, ctx.programBank);
-    ctx.s = (ctx.s - 1) & WORD_MASK;
-  }
-  a.pushWord((site + (long ? JSL_LAST_BYTE : JSR_LAST_BYTE)) & WORD_MASK);
-}
-function pullFrame(h, long) {
-  h.a.pullWord();
-  if (long) h.ctx.s = (h.ctx.s + 1) & WORD_MASK;
-}
-
 // The tile request (80:FA67): clear the window's text tiles in video memory with the
 // NMI's next upload, and wait for it (81:ACBD). The window opening runs it directly
 // (clearTiles); the return word of its JSR lies only in free stack bytes and is not
@@ -154,7 +134,7 @@ function pullFrame(h, long) {
 // word 00. It leaves no registers.
 export const requestTileClear = (h, events) => clearTiles(h, events, word(h.a.mem.wram, DP_LEFT));
 
-// The request's work and its wait 81:ACBD below the JSL frame, inside the JSR frame.
+// The request and its wait 81:ACBD, composed without a call frame.
 function* clearTiles(h, events, x) {
   const { ctx } = h,
     { wram } = h.a.mem;
@@ -167,8 +147,6 @@ function* clearTiles(h, events, x) {
     const count = word(wram, WINDOW_TILE_COUNT + x);
     setWord(wram, TEXT_TILE_UPLOAD_BYTES, count << TILE_BYTE_SHIFT);
     setWord(wram, TEXT_TILE_UPLOAD, word(wram, TEXT_TILE_UPLOAD) + 1);
-    pushFrame(h, TILE_WAIT_SITE, true);
-    ctx.programBank = WAIT_BANK;
   };
   // The wait's branch sees the request word's sign in 16-bit mode.
   for (let value; (value = word(wram, TEXT_TILE_UPLOAD)) !== 0;) {
@@ -177,10 +155,6 @@ function* clearTiles(h, events, x) {
       (value & WORD_SIGN ? FLAG_NEGATIVE : 0);
     yield* nmiAtBranch(h, events, TILE_WAIT_BRANCH, status);
   }
-  yield () => {
-    pullFrame(h, true);
-    ctx.programBank = CALLER_BANK;
-  };
 }
 
 // Open the window of the direct page words 00 to 08 (80:F963) for lifted callers,

@@ -8,6 +8,25 @@ equations to plain code, after the game screen set-up
 in [proof/game-reference/room-entry.mjs](../proof/game-reference/room-entry.mjs)
 (`ROOM_ENTRY_REFERENCE_ENTRIES`, `withRoomEntryReference`).
 
+## State model composition (2026-11-21)
+
+The live room entry, camera jump and scene request now compose
+`waitForCounterWord` directly without a CPU call frame or temporary program bank.
+Scene loading names its memory destinations explicitly and never switches CPU
+banks. The palette setup still writes WRAM at the original register addresses;
+removing the data-bank register does not turn those writes into hardware access.
+Window redraws, uploads and releases likewise compose directly, as described in
+[WINDOW-CALLER-LIFT.md](WINDOW-CALLER-LIFT.md).
+
+[scene-initialization-flow.test.mjs](../tools/scene-initialization-flow.test.mjs)
+rejects scene-loader CPU-context access and checks stack stability at each budget
+boundary. Zone comparisons assert the retained outer stack on the live side and
+the original internal frame on the reference side. The original register, bank
+and frame equations below describe the source and frozen reference; they no
+longer prescribe the live control representation. Cutscene/matrix entry wrappers
+and deeper text/device callers remain separate phase 4 work. Game-start boundary
+PCs remain diagnostic metadata.
+
 ## Modules
 
 | Module                                                     | Content                                                                                                                                                                                                                                                                                                        |

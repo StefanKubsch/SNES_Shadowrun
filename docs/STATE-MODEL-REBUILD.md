@@ -88,6 +88,19 @@ own commit after `npm run test:block` and the golden trace test. One shared
 
 ## Progress
 
+- 2026-11-21, phase 4, window lifecycle: list drawing/reset, map uploads, window
+  opening and text-tile clearing run without internal CPU call frames or temporary
+  program banks. Window and glove/notice releases compose that same direct graph;
+  the compatibility glove entry no longer creates a name-release frame. Consumers
+  pass no original redraw call-site address. Entry adapters still consume the
+  caller-provided RTS/RTL frame for remaining native and comparison callers.
+- Twenty-six window flow contracts check every single-step context/stack boundary,
+  zero budgets, upload counter wrap, single servicing and repeated completion,
+  plus failure propagation and replay rejection for tile and map uploads. Existing
+  drawing, release and opening differential tests retain their state/device checks.
+  Text rendering, glove list preparation, matrix/cutscene and other deeper caller
+  frames remain later phase 4 work; phase 5 has not started.
+
 - 2026-11-21, phase 4, room and scene initialization: room entry, camera jumps
   and scene requests compose the counter wait directly, without a JSL frame or
   temporary program bank. Scene loading passes memory explicitly and never

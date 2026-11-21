@@ -49,11 +49,14 @@ function runChoice(module, name, budget, target, pads, request = 0, far = false)
       bind(0x80fec1, () => showNoticeSequence(h, events, routines));
       const service = events.interrupts.textWait;
       events.interrupts.textWait = (callee, frameEvents, status, pc) => {
-        if (pc === 0x81acb2 && mem.read16(0x7e0000 | (h.ctx.s + 4)) === 0xaebf)
+        // The direct upload retains its caller's JSL entry, without the former
+        // three-byte internal wait frame. Check the same enclosing caller words.
+        const waitBytes = module === direct ? 0 : 3;
+        if (pc === 0x81acb2 && mem.read16(0x7e0000 | (h.ctx.s + 1 + waitBytes)) === 0xaebf)
           calls.push([
             'prepare frame',
-            mem.read16(0x7e0000 | (h.ctx.s + 7)),
-            mem.read8(0x7e0000 | (h.ctx.s + 9)),
+            mem.read16(0x7e0000 | (h.ctx.s + 4 + waitBytes)),
+            mem.read8(0x7e0000 | (h.ctx.s + 6 + waitBytes)),
           ]);
         return service(callee, frameEvents, status, pc);
       };

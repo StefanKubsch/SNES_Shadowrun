@@ -7,6 +7,28 @@ The original equations and hardware contracts remain in
 [ROOM-ENTRY-LIFT.md](ROOM-ENTRY-LIFT.md). This work changes caller composition;
 it introduces no new hardware effects or timing assumptions.
 
+## State model composition (2026-11-21)
+
+Drawing/resetting the window list, requesting its map upload, opening a window
+and clearing its text tiles now compose directly without internal CPU call frames
+or temporary banks. Window, notice and glove-name releases use the same graph.
+Redraw consumers no longer pass original call-site addresses. The glove cleanup
+entry composes name release directly and consumes only its caller's outer RTS.
+Other RTS/RTL entry wrappers remain for native and frozen comparison callers.
+
+[window-lifecycle-flow.test.mjs](../tools/window-lifecycle-flow.test.mjs) checks
+every CPU register and stack byte at single-step boundaries and serviced waits,
+zero budgets, request-word wrap, single servicing and repeated completion. Tile
+and map failures preserve the caller context and reject replay. Existing isolated
+comparisons still check drawing, allocation, release, device writes and upload
+payloads. Relocated CPU stacks are excluded explicitly; glove preparation tests
+still assert the retained enclosing caller words at their new stack offsets.
+
+Text rendering and glove list preparation retain their own compatibility entry
+frames. The dated delivery phases below record the earlier separation from
+recorded observations; the current batch cadence is defined in
+[STATE-MODEL-REBUILD.md](STATE-MODEL-REBUILD.md).
+
 ## Delivery phases
 
 1. Window list and map upload: separate recorded observations from live drawing,
@@ -18,7 +40,7 @@ it introduces no new hardware effects or timing assumptions.
 4. Menu selection: compose the live frame, input and sound calls directly,
    keeping the former menu caller and its helper injection in proof.
 
-Each phase has its own release check, handoff, commit and push.
+These historical phases each had their own release check, handoff, commit and push.
 
 ## Phase 1: window list (2026-11-15)
 

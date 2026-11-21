@@ -105,10 +105,9 @@ import {
 } from '../constants/bits.mjs';
 import { longObjectWord, objectWord, setLongObjectWord } from '../state/objects.mjs';
 
-// The notices' callees and the window list (long calls: the word wait and the list).
+// The notices' remaining framed callees.
 const WORD_WAIT = 0x81b0a1,
-  CONFIRM_KEY = 0x80f953,
-  LIST_CALL = 0x80883b;
+  CONFIRM_KEY = 0x80f953;
 // The call sites of the warning's and the penalty's callees.
 const WARNING_CALLS = Object.freeze({
     wait: 0x8087af,
@@ -266,7 +265,7 @@ function* playerHitSequence(h, events, target) {
     });
     setDataBankWord(mem, PLAYER_HIT_FRAMES, 0, PLAYER_HIT_STUN);
   };
-  yield* drawWindowListSequence(h, events, LIST_CALL);
+  yield* drawWindowListSequence(h, events);
 }
 
 // 80:8691: the hit with the damage on the target by the shooter, for lifted callers

@@ -121,7 +121,6 @@ const CAMERA_ROW_BASE = 0x488,
 // (6 bytes); a list is skipped as its count byte plus count * (2 << shifts) - count * 2.
 const BOX_DATA_SHIFTS = 3,
   POINT_SHIFTS = 2;
-const WINDOW_LIST_SITE = 0x80a5c9;
 const word = (wram, at) => readStateByte(wram, at) | (readStateByte(wram, at + 1) << BYTE_BITS);
 const setWord = (wram, at, value) => {
   writeStateByte(wram, at, value & BYTE_MASK);
@@ -332,7 +331,7 @@ export function* enterRoomSequence(h, events, room) {
     resetFormationTrail(wram);
     setWord(wram, DIALOG_WINDOW, 0);
   };
-  yield* drawWindowListSequence(h, events, WINDOW_LIST_SITE);
+  yield* drawWindowListSequence(h, events);
   yield () => {
     setWord(wram, DIALOG_WINDOW, NONE);
     startBrightnessFade(wram, FADE_IN);

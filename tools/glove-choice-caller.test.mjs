@@ -78,7 +78,13 @@ function runChoice(module, name, budget, target, pads, options = {}) {
           }
           return service(callee, frameEvents, status, pc);
         };
-        return (result) => ({ ...result, finalShadow });
+        return (result) => {
+          // This fixture relocates the CPU stack out of the default masked range.
+          // Released internal frames leave different free bytes after composition.
+          result.wram.fill(0, 0x1e80, 0x1ef0);
+          for (const [, payload] of result.uploads) payload.fill(0, 0x1e80 - 0x1cc, 0x1ef0 - 0x1cc);
+          return { ...result, finalShadow };
+        };
       }
     },
   );
