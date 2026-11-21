@@ -759,7 +759,7 @@ required transfer is missing).
 
 ## Observed DMA masks and further wait callers
 
-[main-dma-readback.mjs](../src/system/main-dma-readback.mjs) takes exactly one
+[main-dma-readback.mjs](../proof/system/main-dma-readback.mjs) takes exactly one
 observed channel 5 transfer at the original BYTE STA `$81:AA93`. The shared set
 holds `dmaTransfers` and the running `dmaIndex`; array, records and each
 `bytes` array must be frozen. A record has `pc: 0x81AA93`, `address:

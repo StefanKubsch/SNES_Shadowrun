@@ -316,3 +316,20 @@ own commit after `npm run test:block` and the golden trace test. One shared
 - Frame orchestration block passed 475/475 selected tests across 51 files in
   377 seconds, including all five unchanged golden traces. Edited-file ESLint
   and formatting passed. Historical links now name the test-only adapter.
+
+- 2026-11-21, phase 4, script coroutines: each task retains one generator across
+  script-child calls, counter/event waits and native budget pauses. Resumption
+  supplies the result directly to the suspended yield. A WeakMap keyed by the
+  task makes slot reuse, reset and replacement by proof imports independent.
+- Continuation labels remain diagnostic metadata for frozen proof adapters and
+  flow statistics; existing coroutines do not use them to select a resume path.
+  Imported tasks already suspended in the original still receive their result.
+  List order, child completion, readiness counters, event masks and reentry guards
+  retain their existing contracts. Bytecode PC and local call stack describe the
+  script language; the native bridge's CPU contexts remain later phase 4 work.
+- Two new coroutine contracts cover wait/child results with diagnostic labels
+  cleared, slot reuse, and native budget pauses without repeated calls/readiness.
+  The existing randomized original-scheduler differential also passes unchanged.
+- Coroutine block validation passed 748/748 tests across 44 selected files in
+  282 seconds, including all five unchanged golden traces. Edited-file ESLint
+  and formatting passed. No frozen register-level proof was changed.

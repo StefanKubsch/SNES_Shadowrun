@@ -93,6 +93,9 @@ export class Scheduler {
     this.cursor = NONE; // the task being visited
     this.running = new Set(); // slots whose bytecode runs (a native may visit others)
     this.job = null; // a round paused by a native (beginRound)
+    // A task keeps its JS generator across child and counter/event suspension.
+    // Weak keys also let reset, release and proof-import replacement discard it.
+    this.coroutines = new WeakMap();
     this.tasks = null; // the task API over this scheduler (task-api.mjs JsTasks)
   }
 
@@ -231,40 +234,63 @@ export class Scheduler {
     }
   }
 
-  // F378 (enter) or the continuation F495/F509, then bytecode until the task ends,
-  // calls a script or waits. Returns { ended, word } with the word left at 7E:0000:
-  // the END result (null after an empty stack) or the wait mask.
+  // Drive the same coroutine on every visit. `how` remains diagnostic metadata
+  // for the frozen projection and observers; it does not select a resume path.
   *run(slot, how, input) {
     const entry = this.slots[slot],
       task = entry.task;
     if (task === null) taskStop('task_slot_free', { slot });
-    if (how !== null) finishCall(this.mem, task, input);
-    else if (task.call !== null) taskStop('task_call_pending', { slot });
+    let coroutine = this.coroutines.get(task);
+    if (!coroutine) {
+      // A proof adapter can import a task already suspended at F495/F509.
+      if (task.call !== null && how === null) taskStop('task_call_pending', { slot });
+      coroutine = this.taskCoroutine(slot, task, input);
+      this.coroutines.set(task, coroutine);
+    }
     this.running.add(slot);
     try {
-      for (;;) {
-        const exit = runTask(this.mem, task);
-        if (exit.kind === EXIT_END) return { ended: true, word: exit.result };
-        if (exit.kind === EXIT_SCRIPT) {
-          this.child(exit.id, exit.args);
-          return { ended: false, word: null };
-        }
-        if (isWaitNative(this.mem, exit.id)) {
-          // C401: the mask and counter from the words 00 and 02, events cleared.
-          const [mask, counter] = exit.args;
-          if (counter === undefined) taskStop('task_wait_arguments', { slot });
-          const waiting = this.slots[this.cursor];
-          waiting.wait = mask;
-          waiting.counter = counter;
-          waiting.events = 0;
-          waiting.continuation = RESUME_WAIT;
-          return { ended: false, word: mask };
-        }
-        if (this.native === null) taskStop('script_native_required', { native: exit.id });
-        finishCall(this.mem, task, yield* this.callNative(entry, exit.id, exit.args, slot));
+      let next = coroutine.next(input);
+      while (!next.done) {
+        // Native work-budget pauses yield undefined. Script waits and child
+        // calls yield their scheduler result and retain their generator position.
+        if (next.value !== undefined) return next.value;
+        yield;
+        next = coroutine.next();
       }
+      this.coroutines.delete(task);
+      return next.value;
     } finally {
       this.running.delete(slot);
+    }
+  }
+
+  *taskCoroutine(slot, task, importedInput) {
+    const entry = this.slots[slot];
+    if (task.call !== null) finishCall(this.mem, task, importedInput);
+    for (;;) {
+      const exit = runTask(this.mem, task);
+      if (exit.kind === EXIT_END) return { ended: true, word: exit.result };
+      if (exit.kind === EXIT_SCRIPT) {
+        this.child(exit.id, exit.args);
+        const result = yield { ended: false, word: null };
+        finishCall(this.mem, task, result);
+        continue;
+      }
+      if (isWaitNative(this.mem, exit.id)) {
+        // C401: the mask and counter from the words 00 and 02, events cleared.
+        const [mask, counter] = exit.args;
+        if (counter === undefined) taskStop('task_wait_arguments', { slot });
+        const waiting = this.slots[this.cursor];
+        waiting.wait = mask;
+        waiting.counter = counter;
+        waiting.events = 0;
+        waiting.continuation = RESUME_WAIT;
+        const result = yield { ended: false, word: mask };
+        finishCall(this.mem, task, result);
+        continue;
+      }
+      if (this.native === null) taskStop('script_native_required', { native: exit.id });
+      finishCall(this.mem, task, yield* this.callNative(entry, exit.id, exit.args, slot));
     }
   }
 
