@@ -27,21 +27,21 @@ Commands without records remain visible as missing observations.
 
 ## Recorded snapshot before the single-writer cleanup
 
-| Measurement | Count |
-|---|---:|
-| Release generators | 769 |
-| Current cache records | 769 |
-| Missing or stale records | 0 |
-| Other npm commands outside this graph | 35 |
-| Distinct recorded output files | 1,564 |
-| Producer-to-consumer command dependencies | 3,520 |
-| File references behind those dependencies | 4,520 |
-| Dependencies on a command later in the current release order | 598 |
-| Recorded cycle groups | 1 |
-| Generators in that cycle | 38 |
-| Output files with multiple recorded writers | 2 |
-| Generators with no recorded writes | 2 |
-| Artifact inputs without a recorded producer in this graph | 1,936 |
+| Measurement                                                  | Count |
+| ------------------------------------------------------------ | ----: |
+| Release generators                                           |   769 |
+| Current cache records                                        |   769 |
+| Missing or stale records                                     |     0 |
+| Other npm commands outside this graph                        |    35 |
+| Distinct recorded output files                               | 1,564 |
+| Producer-to-consumer command dependencies                    | 3,520 |
+| File references behind those dependencies                    | 4,520 |
+| Dependencies on a command later in the current release order |   598 |
+| Recorded cycle groups                                        |     1 |
+| Generators in that cycle                                     |    38 |
+| Output files with multiple recorded writers                  |     2 |
+| Generators with no recorded writes                           |     2 |
+| Artifact inputs without a recorded producer in this graph    | 1,936 |
 
 A backward dependency is not itself proof of a failed current release:
 checked-in artifacts supply the existing starting state. It does show why
@@ -98,13 +98,13 @@ listed separately as described below. Generated artifacts remain versioned.
 
 The most widely used tool modules in these records are:
 
-| Module | Generators reading or loading it |
-|---|---:|
-| `tools/rom.mjs` | 723 |
-| `tools/disassemble.mjs` | 690 |
-| `tools/pinned-task-source.mjs` | 633 |
-| `tools/task-control-source.mjs` | 632 |
-| `tools/task-partial-source.mjs` | 627 |
+| Module                          | Generators reading or loading it |
+| ------------------------------- | -------------------------------: |
+| `tools/rom.mjs`                 |                              723 |
+| `tools/disassemble.mjs`         |                              690 |
+| `tools/pinned-task-source.mjs`  |                              633 |
+| `tools/task-control-source.mjs` |                              632 |
+| `tools/task-partial-source.mjs` |                              627 |
 
 These shared inputs explain why moving a common helper can affect hundreds
 of generator records. A directory reorganization should follow an explicit
@@ -157,10 +157,10 @@ It derives the per-ID paths from
 [script-opcode-specs.json](../tools/script-opcode-specs.json) and includes
 the generic opcode and separate continuation contracts.
 
-| Intended owner | Reports | Count |
-|---|---|---:|
-| `analyze:render-task-script-opcode` | Source contracts | 939 |
-| `probe:render-task-script-opcode` | Native contracts | 939 |
+| Intended owner                      | Reports          | Count |
+| ----------------------------------- | ---------------- | ----: |
+| `analyze:render-task-script-opcode` | Source contracts |   939 |
+| `probe:render-task-script-opcode`   | Native contracts |   939 |
 
 The inventory reads these definitions without importing the emitters or
 running proofs. It rejects declarations whose command differs from
@@ -199,12 +199,12 @@ exists, source evidence and ROM or recording prerequisites. Prerequisites
 are not a complete dependency list. This catalogue classifies existing
 inputs; it is not a complete output manifest for the listed tools.
 
-| Category | Files | Source |
-|---|---:|---|
-| Generated outside the selected graph | 54 | 27 legacy analyzers, decoders and extractors |
-| Recording-dependent reports | 3 | Explicit recording and merge tools |
-| Retained input with no current writer | 1 | Palette range list |
-| Unclassified in this snapshot | 0 | Every remaining path has a source category |
+| Category                              | Files | Source                                       |
+| ------------------------------------- | ----: | -------------------------------------------- |
+| Generated outside the selected graph  |    54 | 27 legacy analyzers, decoders and extractors |
+| Recording-dependent reports           |     3 | Explicit recording and merge tools           |
+| Retained input with no current writer |     1 | Palette range list                           |
+| Unclassified in this snapshot         |     0 | Every remaining path has a source category   |
 
 Of the 27 ordinary generator tools, 24 have npm commands outside the
 render/VM selection. They produce the original entry and opcode listings,
@@ -220,11 +220,11 @@ the release fails to check it.
 
 The three recording-dependent reports require more than ROM bytes:
 
-| Report | Producer | Required observations |
-|---|---|---|
+| Report                            | Producer                                                | Required observations                                                                                |
+| --------------------------------- | ------------------------------------------------------- | ---------------------------------------------------------------------------------------------------- |
 | `analysis/rom-code-observed.json` | [rom-code-coverage.mjs](../tools/rom-code-coverage.mjs) | Mesen scenario executions; merges into retained instruction states and the data reads in banks 80/81 |
-| `analysis/rom-reads.json` | [rom-reads.mjs](../tools/rom-reads.mjs) | `.cache/rom-reads.bin`; merges into retained read ranges |
-| `analysis/rom-vram.json` | [rom-vram.mjs](../tools/rom-vram.mjs) | `.cache/rom-vram/*.json`, including recorded screen uses; also reads ROM and the palette list |
+| `analysis/rom-reads.json`         | [rom-reads.mjs](../tools/rom-reads.mjs)                 | `.cache/rom-reads.bin`; merges into retained read ranges                                             |
+| `analysis/rom-vram.json`          | [rom-vram.mjs](../tools/rom-vram.mjs)                   | `.cache/rom-vram/*.json`, including recorded screen uses; also reads ROM and the palette list        |
 
 The palette list, `analysis/rom-palettes.json`, describes bounded palette
 tables plus observed direct CGRAM transfers. Its retained scope and the
@@ -539,8 +539,7 @@ The inventory comparison confirms exactly two removed edges (C34A to 9178
 and C1CA to 9178) and none added. 9178, C34A and the child-yield analysis
 leave the cyclic set; one group of 23 commands remains: C1CA and 22 task
 opcode analyses. Command dependencies fall from 3,495 to 3,493, file
-dependencies from 4,492 to 4,490, and backward dependencies from 588 to
-586. All 769 records are current. Both 9178 report hashes and byte lengths
+dependencies from 4,492 to 4,490, and backward dependencies from 588 to 586. All 769 records are current. Both 9178 report hashes and byte lengths
 are unchanged. The release passed 42 tests in two selected files with no
 failures or skips. Results are in `.cache/logs/9178-task-graph.json` and
 `.cache/logs/9178-task-hashes.json`.
@@ -643,8 +642,8 @@ under `analysis/` are no longer versioned; `.gitignore` excludes
 `analysis/` except the five recorded or retained inputs there. Generated
 runtime data in `assets/` stays versioned for now, because `npm start`
 loads it directly and a fresh checkout should stay playable without a
-rebuild; removing it is an open user decision. `docs/PORTIERUNGSSTAND.md`,
-written by `docs:progress`, also stays versioned as documentation.
+rebuild; removing it is an open user decision. `docs:progress` validates the
+historical JSON evidence inventory without writing a Markdown duplicate.
 [rebuild-artifacts.test.mjs](../tools/rebuild-artifacts.test.mjs) checks
 the command sequence, the retained list against the input catalogue and
 the ignore rules.

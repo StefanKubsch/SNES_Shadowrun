@@ -48,7 +48,6 @@ async function fixture(t) {
   });
   for (const dir of ['docs', 'tools', 'src', 'analysis', 'assets', 'logs'])
     await mkdir(join(root, dir));
-  await writeFile(join(root, 'docs/PORTIERUNGSSTAND.md'), 'stable');
   await writeFile(join(root, 'analysis/dialog-936c-inventory.json'), '{}');
   return root;
 }
@@ -182,7 +181,10 @@ test('Two real generator passes accept stable output and reject changing second-
     path,
     'import {writeFileSync} from "node:fs"; writeFileSync("analysis/render-test.json","stable");',
   );
-  assert.equal(Object.keys(await verifyArtifactPasses(options)).length, 3);
+  assert.deepEqual(Object.keys(await verifyArtifactPasses(options)).sort(), [
+    'analysis/dialog-936c-inventory.json',
+    'analysis/render-test.json',
+  ]);
   await writeFile(
     path,
     'import {readFileSync,writeFileSync,existsSync} from "node:fs"; const n=existsSync("count")?Number(readFileSync("count","utf8"))+1:1; writeFileSync("count",String(n)); writeFileSync("analysis/render-test.json",String(n));',

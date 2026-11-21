@@ -6,9 +6,9 @@ this short summary. Keep this as the single source for the current task;
 do not copy a mutable backlog into reports or individual source contracts.
 
 [PORTIERUNGSSTAND.json](PORTIERUNGSSTAND.json) preserves the earlier proof
-inventory, its recorded plans and local boundaries. Its readable
-[overview](PORTIERUNGSSTAND.md) is generated from that JSON. Edit the JSON
-rather than the generated Markdown when a proof record needs updating.
+inventory, its recorded plans and local boundaries. Edit this JSON when a
+proof record needs updating. `npm run docs:progress` validates its evidence
+without generating a duplicate Markdown overview.
 These historical records do not describe the current product backlog.
 Reports retain a stable `progress_reference` to this evidence inventory.
 Use `node tools/status-next.mjs --history` for a shortened historical view,
@@ -195,7 +195,7 @@ in the repository root.
   is missing.
 - `pre-read-guard.mjs` denies whole-file
   reads of `docs/PORTIERUNGSSTAND.json` and of files above 64 KiB in
-  `analysis/` and `docs/handoff-archiv/`. Read a line range, or limit a shell
+  `analysis/`. Read a line range, or limit a shell
   read with a pipe or a line count.
 - `post-edit.mjs` formats each edited file with
   Prettier, then reports findings on lines changed since HEAD (new files
@@ -216,8 +216,7 @@ in the repository root.
     [src/vm/layout.mjs](../src/vm/layout.mjs). Name a value only where its
     meaning is established; operands of the 1:1 ported routines without a
     documented meaning stay literal for now.
-  - German text in code comments and Markdown prose, outside
-    `docs/handoff-archiv/`. Mark a deliberate German quotation with
+  - German text in code comments and Markdown prose. Mark a deliberate German quotation with
     `language-ok`.
   - Relative Markdown links whose target does not exist.
   - Current-work texts in `PROJECT-STATUS.json` longer than the status CLI's
@@ -428,8 +427,8 @@ tests start Edge with `--disable-component-update`, which otherwise left a
 fetcher folder per start (10 GB of such leftovers removed on 2026-11-20).
 
 After each block passes its block check, stage only its files, run
-`git diff --cached --check`, and create its authorized commit. After the tenth
-block, run the shared release check. After success, record the result in the
+`git diff --cached --check`, and create its authorized commit. After two to three
+subsystem blocks, run the shared release check. After success, record the result in the
 handoff and perform the authorized push of the batch.
 Then compare HEAD, origin/main and the actual remote main.
 Earlier handoff results remain historical evidence.
@@ -442,7 +441,8 @@ To read current work without release verification:
 npm run status:next
 ```
 
-To regenerate the historical proof overview without release verification:
+To regenerate the dialog inventory and validate historical proof evidence
+without release verification:
 
 ```powershell
 npm run plan:dialog

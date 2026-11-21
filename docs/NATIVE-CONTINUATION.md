@@ -1,7 +1,8 @@
 # Resumable wait and input points
 
-The next work block is in the [porting status](PORTIERUNGSSTAND.md), group
-`main-loop-96ab`. This contract complements the
+Current work is in [PROJECT-STATUS.json](PROJECT-STATUS.json). Historical
+evidence is available with `node tools/status-next.mjs main-loop-96ab`.
+This contract complements the
 [cold task owner](BOOT-ORACLE.md#cold-owner-task-rounds-and-native-nmi) and the [room output](PPU-ROOM.md).
 
 ## Original sources and continuation

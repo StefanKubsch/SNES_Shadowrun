@@ -78,7 +78,7 @@ export async function artifactHashes(root) {
       for (const name of (await readdir(join(root, dir, entry.name))).sort())
         paths.push(`${dir}/${entry.name}/${name}`);
     }
-  paths.push('analysis/dialog-936c-inventory.json', 'docs/PORTIERUNGSSTAND.md');
+  paths.push('analysis/dialog-936c-inventory.json');
   const hashes = {};
   for (const path of paths)
     hashes[path] = createHash('sha256')

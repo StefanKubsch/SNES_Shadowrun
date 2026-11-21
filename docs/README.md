@@ -10,7 +10,7 @@ Where to find what. Start with HANDOFF.md and
 | [STRATEGY.md](STRATEGY.md)                             | Direction, priorities and decisions                                  |
 | [WORKFLOW.md](WORKFLOW.md)                             | Work and testing process, release check                              |
 | [GENERATOR-DEPENDENCIES.md](GENERATOR-DEPENDENCIES.md) | Generator dependency inventory used by the incremental release check |
-| [PORTING-PLAN.md](PORTING-PLAN.md)                     | Historical goal and step plan                                        |
+| [PORTING-PLAN.md](PORTING-PLAN.md)                     | Historical plan pointer and links to current direction               |
 | [WINDOWS-INFRASTRUCTURE.md](WINDOWS-INFRASTRUCTURE.md) | Windows sandbox and artefact open errors (2026-10-09)                |
 
 ## Understanding the code
@@ -59,5 +59,4 @@ Where to find what. Start with HANDOFF.md and
 | ------------------------------------------------------------ | ----------------------------------------------------------------------------------------------------- |
 | [PROJECT-STATUS.json](PROJECT-STATUS.json)                   | Current work (`npm run status:next`)                                                                  |
 | `PORTIERUNGSSTAND.json`                                      | Historical proof groups (about 1 MB; use `node tools/status-next.mjs <group-id>`, never load in full) |
-| `PORTIERUNGSSTAND.md`                                        | Generated German view of the historical status (`npm run docs:progress`)                              |
 | [GENERATOR-INPUT-SOURCES.json](GENERATOR-INPUT-SOURCES.json) | Recorded generator inputs                                                                             |

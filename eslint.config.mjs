@@ -1,19 +1,11 @@
 // ESLint flat configuration: the recommended JavaScript rules for all project
-// modules. Formatting stays with Prettier; generated data and archives are skipped.
+// modules. Formatting stays with Prettier; generated data is skipped.
 import js from '@eslint/js';
 import globals from 'globals';
 
 export default [
   {
-    ignores: [
-      'analysis/',
-      'assets/',
-      'Ressources/',
-      'docs/handoff-archiv/',
-      '.cache/',
-      'dist/',
-      'node_modules/',
-    ],
+    ignores: ['analysis/', 'assets/', 'Ressources/', '.cache/', 'dist/', 'node_modules/'],
   },
   js.configs.recommended,
   {
