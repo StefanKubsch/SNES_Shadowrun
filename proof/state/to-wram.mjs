@@ -1,3 +1,4 @@
+import { MATRIX_FIELDS, matrixState } from '../../src/state/matrix.mjs';
 import { SCENE_ROOM_FIELDS, sceneRoomState } from '../../src/state/scene-room.mjs';
 import { COMBAT_FIELDS, combatState } from '../../src/state/combat.mjs';
 import { WINDOW_TEXT_FIELDS, windowsText } from '../../src/state/windows-text.mjs';
@@ -50,6 +51,7 @@ export function toWram(memory, into = new Uint8Array(memory.wram.length)) {
     [WINDOW_TEXT_FIELDS, windowsText],
     [COMBAT_FIELDS, combatState],
     [SCENE_ROOM_FIELDS, sceneRoomState],
+    [MATRIX_FIELDS, matrixState],
   ]) {
     const table = get(wram);
     if (table)
@@ -70,7 +72,13 @@ export function restoreWram(memory, bytes) {
   const windows = windowsText(wram);
   const combatStateFields = combatState(wram);
   const sceneRoomStateFields = sceneRoomState(wram);
+  const matrixStateFields = matrixState(wram);
   wram.set(bytes);
+  if (matrixStateFields)
+    for (const [name, { base, count, bytes: width, stride }] of Object.entries(MATRIX_FIELDS))
+      for (let i = 0; i < count; i++)
+        matrixStateFields[name][i] =
+          bytes[base + i * stride] | (width === 2 ? bytes[base + i * stride + 1] << BYTE_BITS : 0);
   if (sceneRoomStateFields)
     for (const [name, { base, count, bytes: width, stride }] of Object.entries(SCENE_ROOM_FIELDS))
       for (let i = 0; i < count; i++)

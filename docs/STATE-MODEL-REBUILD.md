@@ -268,3 +268,19 @@ own commit after `npm run test:block` and the golden trace test. One shared
   seven-session matrix health write-back and save-anywhere serialized bytes.
   They now read shared bytes or the projection, preserving every health, picture,
   SRAM and state assertion. Both files passed 4/4 slow tests in 226 seconds.
+
+- 2026-11-21, matrix storage: src/state/matrix.mjs owns the remaining matrix
+  speeds/positions, animations, text ring, node/scroll/state/combat/memory fields
+  and decker bytes. The speed/position spans split at existing object owners;
+  persona X ends in the ordinary NMI job words. Matrix records share the ordinary
+  draw list, VRAM bank/source/address queues and object-backed DMA records.
+- Object-backed type/flag/picture/direction/text prefixes retain their owners.
+  Scene wall storage retains the matrix font, system maps, message row, map edit
+  ring and gauges. No second matrix copy is introduced. Only normal LiveGame
+  detaches; fixtures retain bytes. Projection and restore include every new field.
+- Seven storage contracts cover every entry and disjoint ownership, odd fragment
+  boundaries, ordinary-room queue overlays, ordered DMA and NMI reset, the text
+  ring's bank words/wrap, decker byte/word aliases and normal-loop activation.
+- Matrix block validation passed 4711/4711 tests across 136 selected files in
+  622 seconds, including all five unchanged golden traces. Seven new storage
+  contracts, edited-file ESLint and formatting passed.

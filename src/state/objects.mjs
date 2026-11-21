@@ -1,3 +1,4 @@
+import { MATRIX_FIELDS, matrixByte, setMatrixByte } from './matrix.mjs';
 import { SCENE_ROOM_FIELDS, sceneRoomByte, setSceneRoomByte } from './scene-room.mjs';
 import { COMBAT_FIELDS, combatByte, setCombatByte } from './combat.mjs';
 import { WINDOW_TEXT_FIELDS, windowTextByte, setWindowTextByte } from './windows-text.mjs';
@@ -248,6 +249,7 @@ for (const [schema, read, write] of [
   [WINDOW_TEXT_FIELDS, windowTextByte, setWindowTextByte],
   [COMBAT_FIELDS, combatByte, setCombatByte],
   [SCENE_ROOM_FIELDS, sceneRoomByte, setSceneRoomByte],
+  [MATRIX_FIELDS, matrixByte, setMatrixByte],
 ])
   for (const { base, count, bytes = 2, stride = bytes } of Object.values(schema))
     for (let index = 0; index < count; index++)
