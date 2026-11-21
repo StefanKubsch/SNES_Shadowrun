@@ -34,7 +34,7 @@ import { setTextCursor } from './window-text.mjs';
 import { drawTextBufferSequence } from './text-draw.mjs';
 import { printText } from './text-print.mjs';
 import { appendScriptCall } from '../script/task-api.mjs';
-import { scriptVisitSequence } from '../system/script-visit.mjs';
+import { scriptVisitCallSequence } from '../system/script-visit.mjs';
 import { taskStop } from '../system/task-stop.mjs';
 import { TOPIC_FLAGS, TOPIC_LIST } from '../data/wram.mjs';
 import {
@@ -208,7 +208,7 @@ export function* showDialogText(h, events, renderBuffer = drawTextBufferSequence
   }
 }
 
-// Topic actions keep their own append and visit frames and argument chronology: the
+// Topic actions keep their append call and argument chronology: the
 // script is the record's word at the position given, the object goes to the direct
 // page word 00 as the script's argument.
 export function* dialogTopicSequence(h, events, at) {
@@ -228,14 +228,11 @@ export function* dialogTopicSequence(h, events, at) {
   yield* dialogCallBody(h, 0x8091d1, 0x80c34a, () =>
     segmentSequence(() => appendScriptCall(h.a, script)),
   );
-  yield* dialogCallBody(h, 0x8091d4, 0x80c1ca, () =>
-    scriptVisitSequence(events, 'task_dialog_topic_visit_open', (more) => {
-      if (more?.wait?.length)
-        events.values = Object.freeze([...(events.values ?? []), ...more.wait]);
-      if (more?.input?.length)
-        events.inputs = Object.freeze([...(events.inputs ?? []), ...more.input]);
-    }),
-  );
+  yield* scriptVisitCallSequence(h, events, 0x8091d4, 'task_dialog_topic_visit_open', (more) => {
+    if (more?.wait?.length) events.values = Object.freeze([...(events.values ?? []), ...more.wait]);
+    if (more?.input?.length)
+      events.inputs = Object.freeze([...(events.inputs ?? []), ...more.input]);
+  });
 }
 
 // The script natives that print a text number (first argument) into the dialog's text

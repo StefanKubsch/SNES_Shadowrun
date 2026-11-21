@@ -69,6 +69,7 @@ function nativeSequence(a, options, sequence) {
     ...options?.interruptEvents,
     round: options?.round,
     nestedRound: options?.nestedRound,
+    valueRounds: options?.valueRounds,
   };
   if (!lagFree(events)) taskStop('script_native_lag_free_required');
   return sequence(dialogAccess(a), events, !options?.valueReturn);

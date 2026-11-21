@@ -30,16 +30,9 @@ import { WORD_BITS, WORD_MASK, WORD_SIGN } from '../constants/bits.mjs';
 import { CODE_BANK, CODE_BANK_BASE, WRAM_BASE } from '../constants/memory-map.mjs';
 import { FLAG_NEGATIVE, FLAG_ZERO } from '../constants/cpu-flags.mjs';
 
-// Scheduler entries a native or the main loop calls with JSR.
+// Original scheduler entry names used by the remaining callback interface.
 export const HEAD_VISIT = 0xc1ca;
 export const ROUND = 0xc1e3;
-// Stack bytes between the JSR into the scheduler and the task entry F378: the round
-// pushes its visit's return and the task's return (C1E3, C1FE); the head visit also
-// saves the cursor (C1CA).
-const ENTRY_STACK_BYTES = new Map([
-  [ROUND, 4],
-  [HEAD_VISIT, 6],
-]);
 // Work units of one resumption of a nested visit (the budget belongs to its natives).
 const VISIT_WORK = 1;
 
@@ -58,7 +51,7 @@ export class ScriptNatives {
     this.devices = devices;
     // Finite: special natives with a resumable sequence pause at their own limits.
     this.workBudget = Infinity;
-    // S at the task entry F378 of the visit that runs now (innermost last).
+    // Workspace available to deeper native callees (innermost visit last).
     this.stacks = [];
     // One accessor per nesting depth of native calls (a nested visit's natives).
     this.accessors = [];
@@ -71,8 +64,7 @@ export class ScriptNatives {
     this.native = (id, args, scheduler, slot) => this.call(id, args, scheduler, slot);
   }
 
-  // A scheduler entry by JSR from code on accessor `a` (the JSR frame is on its stack):
-  // the round C1E3 or the head visit C1CA, run to the end; then its RTS.
+  // A nested scheduler visit borrows workspace but returns through its generator.
   visit(a, scheduler, entry) {
     const steps = this.enter(a, scheduler, entry);
     for (;;) if (steps.next().done) return;
@@ -86,10 +78,10 @@ export class ScriptNatives {
   roundContinuation(scheduler, workspace) {
     return this.continuation(this.roundSteps(scheduler, workspace));
   }
-  *roundSteps(scheduler, workspace) {
+  *roundSteps(scheduler, workspace, entry = ROUND) {
     this.stacks.push(workspace);
     try {
-      yield* scheduler.rounds();
+      yield* entry === ROUND ? scheduler.rounds() : scheduler.headVisit();
     } finally {
       this.stacks.pop();
     }
@@ -127,21 +119,9 @@ export class ScriptNatives {
     };
   }
   *enter(a, scheduler, entry) {
-    const ctx = a.ctx,
-      at = entry & WORD_MASK,
-      bytes = ENTRY_STACK_BYTES.get(at);
-    if (bytes === undefined) taskStop('script_scheduler_entry_unknown', { entry });
-    this.stacks.push((ctx.s - bytes) & WORD_MASK);
-    try {
-      yield* at === ROUND ? scheduler.rounds() : scheduler.headVisit();
-    } finally {
-      this.stacks.pop();
-    }
-    // C1E3 ends with LDA of the list head, C1CA with PLA of the saved cursor; no caller
-    // reads that A (user decision 2026-11-17), so the round leaves none. Both set
-    // DBR = 80 (PEA 8080, PLB, PLB) and return by RTS.
-    ctx.bank = CODE_BANK;
-    ctx.pc = (a.pullWord() + 1) & WORD_MASK;
+    const at = entry & WORD_MASK;
+    if (at !== ROUND && at !== HEAD_VISIT) taskStop('script_scheduler_entry_unknown', { entry });
+    return yield* this.roundSteps(scheduler, a.ctx.s, at);
   }
 
   accessor() {
@@ -225,6 +205,7 @@ export class ScriptNatives {
   options(a, target, scheduler, set, interruptEvents) {
     return {
       valueReturn: true,
+      valueRounds: true,
       waitMode: 'record-observations',
       waitObservations: set.wait,
       inputMode: 'record-observations',

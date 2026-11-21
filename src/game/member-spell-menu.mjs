@@ -25,7 +25,7 @@ import { readStateByte, writeStateByte } from '../state/objects.mjs';
 // takes the script as a parameter (X in the original). No register values are left.
 import { objectWord } from '../state/objects.mjs';
 import { dialogCallBody, segmentSequence } from '../system/native-call-continuation.mjs';
-import { scriptVisitSequence } from '../system/script-visit.mjs';
+import { scriptVisitCallSequence } from '../system/script-visit.mjs';
 import { appendScriptCall } from '../script/task-api.mjs';
 import { openWindow } from './window-open.mjs';
 import { chooseFromMenuSequence } from './menu-choice.mjs';
@@ -101,7 +101,7 @@ import { WRAM_BANK } from '../constants/memory-map.mjs';
 // The callees and their call sites.
 const MENU = [0x80e74c, 0x80a6c7],
   APPEND_SCRIPT = [0x80e788, 0x80c34a],
-  VISIT_SCRIPT = [0x80e78e, 0x80c1ca],
+  VISIT_SCRIPT = 0x80e78e,
   CONFIRM_KEY = [0x80e7b1, 0x80f953];
 // The entry from the status screen, which runs no scripts.
 export const STATUS_ENTRY = 0x80e68e;
@@ -283,7 +283,7 @@ export function* spellMenu(h, events, entry = MENU_ENTRY, renderBuffer = drawTex
         segmentSequence(() => appendScriptCall(h.a, spellScript)),
       );
       yield () => setWord(wram, MEMBER_PORTRAIT_REDRAW, 0);
-      yield* dialogCallBody(h, ...VISIT_SCRIPT, () => scriptVisitSequence(events));
+      yield* scriptVisitCallSequence(h, events, VISIT_SCRIPT);
       yield* afterScriptSequence(h, events);
     }
     yield () => setWord(wram, 0, dataBankWord(mem, STATUS_SUBMENU_WINDOW));

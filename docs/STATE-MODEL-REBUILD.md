@@ -88,6 +88,22 @@ own commit after `npm run test:block` and the golden trace test. One shared
 
 ## Progress
 
+- 2026-11-21, phase 4, nested scheduler composition: dialog topics, item actions
+  and spell scripts call the head visit directly through their live event service.
+  They create no scheduler caller frame. The native bridge borrows only the
+  caller's workspace pointer and returns observation results through its generator;
+  it consumes no scheduler return word and writes no return PC or bank.
+- Compatibility callbacks without valueRounds retain their original framed
+  caller wrapper. Frozen caller drivers provide their own scheduler entry adapter
+  in tools; no proof code is extended or moved. Deeper native, window, text, scene
+  and device frames remain explicit phase 4 work. Phase 5 has not started.
+- Six additional contracts cover both nested scheduler entries with inaccessible
+  CPU return metadata, nested workspace restoration on failure, unknown entries,
+  and all three live head-visit callers with unusable CPU helpers across pauses.
+- Nested scheduler validation: 3344/3344 tests across 68 selected files passed
+  in 331 seconds, without failures or skips, including all five unchanged golden
+  traces. Edited-file ESLint, formatting, source scan and diff checks passed.
+
 - 2026-11-21, phase 4, ordinary scheduler rounds: the normal game and attract
   loop enter the JS scheduler directly and return observation results as values.
   They neither create a C1E3 caller frame nor consume its return word. The native
