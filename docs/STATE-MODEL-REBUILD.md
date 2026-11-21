@@ -88,6 +88,24 @@ own commit after `npm run test:block` and the golden trace test. One shared
 
 ## Progress
 
+- 2026-11-21, phase 4, frontend composition: the title cycle calls ordinary title,
+  start-menu, cutscene/intro and attract-round playback. The title returns its
+  early-input flag, the menu returns its choice and the owner receives that value
+  directly. Credits and the intro's mirrored ending compose their scenes with
+  yield*. No frontend call site pushes a scene or demo return address or checks
+  the callee's return PC. Compatibility entries retain their RTS/RTL and the
+  intro comparison adapter retains its original nested ending frame.
+- Twelve contracts run title skip, new game, menu timeout, cutscene and both intro
+  entries at budgets one and seven with PC, program bank and stack poisoned at
+  every pause; all CPU frame helpers fail if used. Existing scene-entry comparisons
+  still check their complete original return contexts. Scheduler entry frames,
+  waiting/device native contexts and deeper game text/window frames remain open.
+  This is a complete frontend composition step, not completion of phase 4.
+- Frontend composition validation: 366/366 tests passed across 38 selected files
+  in 426 seconds, including the dialog inventory and all five unchanged golden
+  traces. The twelve poisoned-context contracts and the 42 existing scene-entry
+  comparisons passed; edited-file ESLint, source scan and diff checks passed.
+
 - 2026-11-21, phase 4, synchronous script leaves: every admitted non-waiting
   native receives memory, host settings, tasks and an explicit data bank. The
   dispatcher allocates no TaskAccessor, initializes no CPU registers and pushes
@@ -99,6 +117,10 @@ own commit after `npm run test:block` and the golden trace test. One shared
   Two contracts cover setters/getters including FFFF and task-producing creation
   with no CPU context and an unusable saved stack. Waiting and device natives,
   scheduler entry frames and frontend frames remain later phase 4 work.
+- Synchronous leaf validation: 5530 non-browser tests passed in 594 seconds in
+  the 185-file selection, including all five unchanged golden traces. Two managed
+  Edge startup timeouts at Page.enable passed unchanged with elevated access
+  (2/2 in 26 seconds). Edited-file ESLint, source scan and diff checks passed.
 
 - 2026-11-21, phase 4, frame job interfaces: all nine game, matrix, cutscene,
   intro and title/menu callbacks expose ordinary update functions. They read game

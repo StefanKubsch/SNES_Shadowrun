@@ -6,13 +6,14 @@ import { roomStartSequence } from '../game/game-start.mjs';
 import { update, endOfFrame } from '../game/frame-loop.mjs';
 import { WORD_MASK } from '../constants/bits.mjs';
 const MAIN_ROUND = 0x80c1e3 & WORD_MASK;
-export function* attractRoundsSequence(
-  h,
-  e,
-  r,
-  room,
-  roomStart = () => roomStartSequence(h, e, room),
-) {
+export function* attractRoundsSequence(h, e, r, room, roomStart) {
+  yield* runAttractRounds(h, e, r, room, roomStart);
+  h.rts();
+}
+
+// Ordinary demo playback returns to its generator caller. Scheduler visits still
+// use their compatibility adapter until the native bridge is rebuilt.
+export function* runAttractRounds(h, e, r, room, roomStart = () => roomStartSequence(h, e, room)) {
   yield* roomStart();
   for (;;) {
     yield* endOfFrame(h, e);
@@ -32,6 +33,4 @@ export function* attractRoundsSequence(
     });
     if (yield* update(h, e)) break;
   }
-  // The surrounding title/room adapter still owns this original return frame.
-  h.rts();
 }

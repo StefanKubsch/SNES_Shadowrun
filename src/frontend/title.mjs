@@ -423,6 +423,12 @@ export function updateTitleScrollFrame(h) {
 // (A = 1 in the original, 0 after the whole title); no A, X, Y or flags are left
 // (user decision 2026-11-17), only the status width the original restores.
 export function* titleSequence(h, events, routines, shown = {}) {
+  shown.key = yield* playTitle(h, events, routines);
+  return yield () => h.rtl();
+}
+
+// Ordinary scene playback returns whether input ended the title early.
+export function* playTitle(h, events, routines) {
   const { ctx } = h,
     status = ctx.status,
     clock = sceneFrames(h, events, 'title', routines);
@@ -496,13 +502,10 @@ export function* titleSequence(h, events, routines, shown = {}) {
       m.video.write(HDMAEN, 0, key ? 2 : 1);
     };
     if (!key) yield* beat(BEAT_AT_END);
-    let result;
     yield () => {
       ctx.status = key ? status : status & ~FLAG_MEMORY_8BIT;
-      shown.key = key;
-      result = h.rtl();
     };
-    return result;
+    return key;
   };
 
   yield () => {

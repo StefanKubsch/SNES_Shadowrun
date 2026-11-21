@@ -7,16 +7,15 @@ import { writeStateByte } from '../state/objects.mjs';
 // that times out plays the attract game, a demo of the game in room AB, and shows
 // the menu again. The port's Credits row (src/game/credits.mjs) plays the credits
 // instead of the attract game.
-import { dialogCallBody } from '../system/native-call-continuation.mjs';
-import { titleSequence } from './title.mjs';
-import { startMenuSequence } from './start-menu.mjs';
-import { attractRoundsSequence } from './attract-rounds.mjs';
+import { playTitle } from './title.mjs';
+import { chooseStartGame } from './start-menu.mjs';
+import { runAttractRounds } from './attract-rounds.mjs';
 import { startNewGame } from '../game/game-start.mjs';
 import { sceneRuntime } from '../system/scene-runtime.mjs';
 import { startSceneScreen } from '../system/nmi.mjs';
 import { loadSoundDirectory, setMusicMode, startSong } from '../apu/music-mode.mjs';
 import { setUpGameAudio, setUpTitleAudio } from '../intro/intro-scene.mjs';
-import { cutsceneSequence } from '../cutscene/cutscene-scene.mjs';
+import { playCutscene } from '../cutscene/cutscene-scene.mjs';
 import { sendApuCommandInPlace } from '../apu/audio-routines.mjs';
 import {
   CREDITS_ARGUMENT,
@@ -30,21 +29,6 @@ import { APU_COMMAND_VOLUME_TARGET, SOUND_DIRECTORY_TITLE } from '../constants/s
 import { CODE_BANK } from '../constants/memory-map.mjs';
 import { BYTE_BITS, BYTE_MASK, WORD_MASK } from '../constants/bits.mjs';
 
-// The routines the cycle calls through their original frames: the title, the start
-// menu, the credits cutscene and the room start of
-// the attract game.
-const TITLE = 0x81d694,
-  START_MENU = 0x81e14a,
-  CUTSCENE = 0x81cdf8,
-  START_ROOM = 0x809699;
-// Call sites (the return addresses the callees see).
-const TITLE_SITE = 0x80a1b1,
-  TITLE_AGAIN_SITE = 0x80a1c0,
-  MENU_AFTER_TITLE_SITE = 0x80a1ba,
-  MENU_SITE = 0x80a1c7,
-  MENU_AGAIN_SITE = 0x80a1d6,
-  ATTRACT_SITE = 0x80a1d0,
-  START_ROOM_SITE = 0x8096fc;
 // The title song; the start menu's answer of a cancel or timeout; the attract room.
 const SONG_NONE = 0,
   SONG_TITLE = 1,
@@ -59,31 +43,17 @@ const setWord = (wram, at, value) => {
 };
 
 // 80:A18C: the title cycle. title is false when the cycle starts after a game (A zero
-// in the original). The start menu's choice (A in the original: the save slot, or FFFF
-// for a new game) goes to shown.choice; the status is as at the entry. Registers (user
-// decision 2026-11-17): the title and the start menu return their results as values,
-// the music stop sends its command without its JSL frame, and the cycle leaves no
-// registers of its own. The game owner runs it without the JSR frame (the owner's
-// return word lies only in free stack bytes).
-export function* titleCycle(h, events, routines, title, shown = {}) {
+// in the original). The start menu's choice (the save slot, or FFFF for a new game)
+// is returned directly. The title, menu, credits and demo are ordinary generator
+// calls; no entry PCs, saved return words or return checks select their flow.
+// Compatibility scene entries retain their original returns separately.
+export function* titleCycle(h, events, routines, title) {
   const { ctx } = h,
     status = ctx.status,
-    afterGame = !title,
-    call = (site, target, sequence, long = true) =>
-      dialogCallBody(h, site, target, () => sequence(h, events, routines), long);
+    afterGame = !title;
   let m;
   // The menu times out sooner right after the whole title.
-  const menu = function* (site, shortTimeout) {
-    const chosen = {};
-    yield* dialogCallBody(
-      h,
-      site,
-      START_MENU,
-      () => startMenuSequence(h, events, routines, shortTimeout, chosen),
-      true,
-    );
-    return chosen.choice;
-  };
+  const menu = (shortTimeout) => chooseStartGame(h, events, routines, shortTimeout);
   yield () => {
     m = sceneRuntime(h);
     ctx.bank = CODE_BANK;
@@ -97,20 +67,13 @@ export function* titleCycle(h, events, routines, title, shown = {}) {
       ctx.bank = TITLE_AUDIO_BANK;
       startSong(m.mem, m.port, SONG_TITLE);
     };
-    choice = yield* menu(MENU_AGAIN_SITE, false);
+    choice = yield* menu(false);
     titleNext = true;
   } else {
-    const shown = {};
-    yield* dialogCallBody(
-      h,
-      TITLE_SITE,
-      TITLE,
-      () => titleSequence(h, events, routines, shown),
-      true,
-    );
+    const key = yield* playTitle(h, events, routines);
     // A held button ends the title early.
-    const wholeTitle = !shown.key;
-    choice = yield* menu(wholeTitle ? MENU_AFTER_TITLE_SITE : MENU_SITE, wholeTitle);
+    const wholeTitle = !key;
+    choice = yield* menu(wholeTitle);
     titleNext = false;
   }
   // A cancelled menu shows the attract game and the title in turn, each followed
@@ -118,27 +81,26 @@ export function* titleCycle(h, events, routines, title, shown = {}) {
   while (choice === MENU_CANCELLED) {
     if (takeCreditsRequest(h.a.vm)) {
       yield* playMenuCredits(h, events, m);
-      choice = yield* menu(MENU_AGAIN_SITE, false);
+      choice = yield* menu(false);
       titleNext = true;
     } else if (titleNext) {
-      yield* call(TITLE_AGAIN_SITE, TITLE, titleSequence);
-      choice = yield* menu(MENU_SITE, false);
+      yield* playTitle(h, events, routines);
+      choice = yield* menu(false);
       titleNext = false;
     } else {
       yield* attractGame(h, events, routines);
-      choice = yield* menu(MENU_AGAIN_SITE, false);
+      choice = yield* menu(false);
       titleNext = true;
     }
   }
   yield () => {
     ctx.bank = CODE_BANK;
     ctx.status = status;
-    shown.choice = choice;
   };
+  return choice;
 }
 
-// The credits from the start menu's Credits row (src/game/credits.mjs), called with
-// the frame of the attract game. They set up the game's sounds,
+// The credits from the start menu's Credits row (src/game/credits.mjs) set up the game's sounds,
 // play the ending room's music and afterwards stop it and load the title's sounds.
 function* playMenuCredits(h, events, m) {
   const { ctx } = h;
@@ -150,16 +112,9 @@ function* playMenuCredits(h, events, m) {
     setMusicMode(m.mem, m.port, endingMusic(m.mem));
   };
   yield () => markMenuCredits(h.a.vm, true);
-  yield* dialogCallBody(
-    h,
-    ATTRACT_SITE,
-    CUTSCENE,
-    () => cutsceneSequence(h, events, CREDITS_SEQUENCE, CREDITS_ARGUMENT),
-    true,
-  );
+  yield* playCutscene(h, events, CREDITS_SEQUENCE, CREDITS_ARGUMENT);
   yield () => markMenuCredits(h.a.vm, false);
-  // The music stop 81:EF94 with its sound command 81:F007, without their JSL frames
-  // (their return words lie only in free stack bytes).
+  // The music stop 81:EF94 with its sound command 81:F007.
   yield () => {
     ctx.bank = CODE_BANK;
     setWord(h.a.mem.wram, MUSIC, WORD_MASK);
@@ -192,11 +147,9 @@ export function* attractGame(h, events, routines) {
   };
 }
 
-// 80:96F3: the demo itself, without the attract game's JSL frame (its return word lies
-// only in free stack bytes; the room start's JSR frame stays, the main loop returns
-// through it). No countdown, a new game's state (80:960D without its JSR frame, whose
-// return word lies only in free stack bytes; the first room it returns is not kept),
-// and the game's main loop in room AB (80:9699, register-level) until the demo ends.
+// 80:96F3: no countdown, a new game's state and the ordinary game rounds in room AB
+// until the demo ends. The room and demo return through generator composition;
+// their scheduler visits still retain the separate native compatibility adapter.
 export function* attractDemo(h, events, routines) {
   const { ctx } = h;
   yield () => {
@@ -204,7 +157,5 @@ export function* attractDemo(h, events, routines) {
     setWord(h.a.mem.wram, TIMER, TIMER_STOPPED);
   };
   yield () => startNewGame(h.a);
-  yield* dialogCallBody(h, START_ROOM_SITE, START_ROOM, () =>
-    attractRoundsSequence(h, events, routines, ATTRACT_ROOM),
-  );
+  yield* runAttractRounds(h, events, routines, ATTRACT_ROOM);
 }

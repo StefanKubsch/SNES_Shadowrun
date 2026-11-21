@@ -8,7 +8,7 @@
 // proof/caller/cutscene-scene.mjs keeps the original's 16-bit accumulator check.
 import { readStateByte, writeStateByte } from '../state/objects.mjs';
 import { sceneFrames } from '../system/scene-frames.mjs';
-import { introSequence } from '../intro/intro-scene.mjs';
+import { introSequence, playIntro } from '../intro/intro-scene.mjs';
 import { heldPad, menuCreditsRunning, CREDITS_SEQUENCE } from '../game/credits.mjs';
 import {
   beginPackedTextEdit,
@@ -141,6 +141,14 @@ export function* cutsceneSequence(h, events, scene, argument) {
     };
     return yield* introSequence(h, events);
   }
+  yield* playCutscene(h, events, scene, argument);
+  return yield () => h.rtl();
+}
+
+// Ordinary playback composes the intro directly and owns no return frame.
+export function* playCutscene(h, events, scene, argument) {
+  if (scene === INTRO_SCENE) return yield* playIntro(h, events);
+  const { ctx } = h;
   const clock = sceneFrames(h, events, 'cutscene');
   let m, t, n;
   const wait = () => clock.wait(m),
@@ -245,7 +253,6 @@ export function* cutsceneSequence(h, events, scene, argument) {
       yield* clock.atBranch(FADE_BRANCH, brightness & BYTE_SIGN ? status | FLAG_NEGATIVE : status);
     }
   yield* wait();
-  let result;
   yield () => {
     const { wram, video } = m;
     disableNmi(wram, m.port);
@@ -253,9 +260,7 @@ export function* cutsceneSequence(h, events, scene, argument) {
     setWord(wram, SOUND_LOADED_SET, 0);
     setWord(wram, SOUND_VOICE_MASK, 0);
     setWord(wram, MUSIC, NO_MUSIC);
-    result = h.rtl();
   };
-  return result;
 }
 
 // 81:D479: the NMI callback of the cutscenes: sprites, the BG2 scroll from its

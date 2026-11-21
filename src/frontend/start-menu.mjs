@@ -582,6 +582,12 @@ function showTitleObjects(m) {
 // slot, FFFF for a new game or FFFE after a cancel or timeout. No A, X, Y or flags are
 // left (user decision 2026-11-17), only the status the original restores.
 export function* startMenuSequence(h, events, routines, afterTitle, menu = {}) {
+  menu.choice = yield* chooseStartGame(h, events, routines, afterTitle);
+  return yield () => h.rtl();
+}
+
+// Ordinary menu playback returns the selected game, cancel or timeout marker.
+export function* chooseStartGame(h, events, routines, afterTitle) {
   const { ctx } = h,
     status = ctx.status,
     clock = sceneFrames(h, events, 'start-menu', routines);
@@ -666,14 +672,11 @@ export function* startMenuSequence(h, events, routines, afterTitle, menu = {}) {
   const finish = function* (result) {
     yield () => m.sound(APU_COMMAND_VOLUME_TARGET, 0);
     yield* fadeOut(m.video, wait);
-    let out;
     yield () => {
       disableNmi(m.wram, m.port);
-      menu.choice = result;
       ctx.status = status;
-      out = h.rtl();
     };
-    return out;
+    return result;
   };
 
   yield () => {

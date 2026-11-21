@@ -10,7 +10,7 @@
 import { readStateByte, writeStateByte } from '../state/objects.mjs';
 import { dialogCallBody } from '../system/native-call-continuation.mjs';
 import { sceneFrames } from '../system/scene-frames.mjs';
-import { cutsceneSequence } from '../cutscene/cutscene-scene.mjs';
+import { cutsceneSequence, playCutscene } from '../cutscene/cutscene-scene.mjs';
 import { sceneRuntime } from '../system/scene-runtime.mjs';
 import { startSceneScreen, enableNmiAndJoypad, disableNmi } from '../system/nmi.mjs';
 import { runSceneList } from '../system/scene-list.mjs';
@@ -195,6 +195,24 @@ export function setUpGameAudio(m) {
 // 81:DFE7: play the intro. h is the accessor of the native call that 81:CDF8
 // passes on.
 export function* introSequence(h, events) {
+  yield* introPlayback(h, events, () =>
+    dialogCallBody(
+      h,
+      CUTSCENE_SITE,
+      CUTSCENE,
+      () => cutsceneSequence(h, events, END_SCENE, END_SCENE_ARGUMENT),
+      true,
+    ),
+  );
+  return yield () => h.rtl();
+}
+
+export function* playIntro(h, events) {
+  yield* introPlayback(h, events, () => playCutscene(h, events, END_SCENE, END_SCENE_ARGUMENT));
+}
+
+// Both entries share the scene; only the comparison adapter frames its ending.
+function* introPlayback(h, events, ending) {
   const { ctx } = h,
     // The original saves the status and runs with 16-bit registers in data bank 81.
     status = ctx.status,
@@ -247,21 +265,12 @@ export function* introSequence(h, events) {
   yield () => {
     disableNmi(m.wram, m.port);
   };
-  yield* dialogCallBody(
-    h,
-    CUTSCENE_SITE,
-    CUTSCENE,
-    () => cutsceneSequence(h, events, END_SCENE, END_SCENE_ARGUMENT),
-    true,
-  );
-  let result;
+  yield* ending();
   yield () => {
     setUpGameAudio(m);
     ctx.bank = RETURN_DATA_BANK;
     ctx.status = status;
-    result = h.rtl();
   };
-  return result;
 }
 
 // 81:DF0E: the NMI callback of the intro (src/intro/intro-objects.mjs).

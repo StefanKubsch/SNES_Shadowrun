@@ -36,15 +36,14 @@ const setWord = (wram, at, value) => {
 // The selected save slot or new-game marker is returned as a value. Direct page
 // word 0 is retained for legacy callers; it does not select live control flow.
 export function* gameOwnerSequence(h, events, routines, showTitle = true) {
-  const { wram } = h.a.mem,
-    shown = {};
+  const { wram } = h.a.mem;
   yield () => {
     // The cycle keeps the music on and restores it after the attract game.
     setWord(wram, GAME_OPTIONS, OPTION_MUSIC | OPTION_MUSIC_RESTORE);
   };
-  yield* titleCycle(h, events, routines, showTitle, shown);
+  const choice = yield* titleCycle(h, events, routines, showTitle);
   yield () => {
-    setWord(wram, CHOICE, shown.choice);
+    setWord(wram, CHOICE, choice);
     // The game plays music as the saved setting says.
     setWord(wram, GAME_OPTIONS, h.a.mem.read16(SETTINGS_MUSIC));
     setUpGameAudio(sceneRuntime(h));
@@ -52,5 +51,5 @@ export function* gameOwnerSequence(h, events, routines, showTitle = true) {
     setWord(wram, TIMER, TIMER_STOPPED);
     h.ctx.bank = CODE_BANK;
   };
-  return shown.choice;
+  return choice;
 }
