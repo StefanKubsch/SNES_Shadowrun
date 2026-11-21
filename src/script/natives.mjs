@@ -3,9 +3,9 @@
 //
 //   F4CB  the argument words go to the direct page words 00.. (args[0] at 00), as the
 //         call_native prefix leaves them for the native
-//   F4F6  the native runs on the outer stack (S as F378 saved it at 01F2), with D = 0,
-//         DBR = 80, A = its pointer, X = 2 * ID and the return word F508 pushed
-//   F509  after its RTS the result is the word at 7E:0000 (the scheduler pushes it only
+//   F4F6  admitted synchronous natives receive ordinary game services and bank 80.
+//         Special natives still use the compatibility CPU entry and return word.
+//   F509  the result is the word at 7E:0000 (the scheduler pushes it only
 //         when the table 82:D970 says the native has one)
 //
 // The natives are the lifted modules of the register-level bridge (proof/vm/native-call.mjs):
@@ -60,6 +60,8 @@ export class ScriptNatives {
     // One accessor per nesting depth of native calls (a nested visit's natives).
     this.accessors = [];
     this.depth = 0;
+    // Synchronous lifted leaves need only game services, never CPU registers.
+    this.leaf = { mem, vm: host, dataBank: CODE_BANK, valueReturn: true };
     this.calls = 0;
     // The scheduler callback: native(id, args, scheduler, slot).
     this.native = (id, args, scheduler, slot) => this.call(id, args, scheduler, slot);
@@ -121,6 +123,12 @@ export class ScriptNatives {
       target = nativeTarget(mem, id),
       stack = this.stacks[this.stacks.length - 1];
     args.forEach((value, n) => mem.write16(WRAM_BASE + 2 * n, value));
+    if (this.admitted.has(target)) {
+      this.leaf.tasks = scheduler.tasks ??= new JsTasks(scheduler);
+      this.calls++;
+      this.implementation(target)(this.leaf, false);
+      return mem.read16(WRAM_BASE);
+    }
     const a = this.accessor(),
       ctx = a.ctx,
       pointer = target & WORD_MASK;
@@ -147,8 +155,7 @@ export class ScriptNatives {
         : undefined;
     try {
       if (resumable) return this.pending(a, target, stack, scheduler, resumable);
-      if (this.admitted.has(target)) this.implementation(target)(a, false);
-      else this.callSpecial(a, target, scheduler);
+      this.callSpecial(a, target, scheduler);
       return this.finish(a, target, stack);
     } catch (error) {
       this.depth--;

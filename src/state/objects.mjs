@@ -1,3 +1,4 @@
+import { dataBankOf } from '../system/data-bank.mjs';
 import { FRONTEND_FIELDS, frontendByte, setFrontendByte } from './frontend.mjs';
 import { MATRIX_FIELDS, matrixByte, setMatrixByte } from './matrix.mjs';
 import { SCENE_ROOM_FIELDS, sceneRoomByte, setSceneRoomByte } from './scene-room.mjs';
@@ -207,10 +208,10 @@ export function setLowObjectWord(wram, name, slot, value) {
   if (base + slot + 1 >= LOW_WRAM_END) taskStop('object_slot_required', { base, index: slot });
   setObjectWordIn(wram, name, slot, value);
 }
-// A field through the caller's data bank register (a.ctx.bank) for values that are no
-// slot; a is a task accessor.
+// A field through the caller's explicit data bank, or its compatibility register,
+// for values that are no slot.
 const bankAddress = (a, name, slot) =>
-  ((a.ctx.bank << WORD_BITS) + FIELDS[name] + slot) & LONG_MASK;
+  ((dataBankOf(a) << WORD_BITS) + FIELDS[name] + slot) & LONG_MASK;
 export function bankObjectWord(a, name, slot) {
   if (isObjectSlot(slot)) return objectTable(a.mem.wram)[name][slot / SLOT_BYTES];
   return a.mem.read16(bankAddress(a, name, slot));

@@ -1,3 +1,4 @@
+import { dataBankOf } from '../system/data-bank.mjs';
 import { readStateByte, writeStateByte } from '../state/objects.mjs';
 // The object creation (lifted from 80:A835; register-level version in
 // src/script/native-object-create.mjs, which the other callers still use).
@@ -44,7 +45,7 @@ const setWord = (wram, at, value) => {
   writeStateByte(wram, at, value & BYTE_MASK);
   writeStateByte(wram, at + 1, (value >>> BYTE_BITS) & BYTE_MASK);
 };
-const dataBankAddress = (a, offset) => ((a.ctx.bank << WORD_BITS) + offset) & LONG_MASK;
+const dataBankAddress = (a, offset) => ((dataBankOf(a) << WORD_BITS) + offset) & LONG_MASK;
 const readWord = (mem, at) =>
   mem.read8(at & LONG_MASK) | (mem.read8((at + 1) & LONG_MASK) << BYTE_BITS);
 

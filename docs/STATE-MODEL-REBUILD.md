@@ -88,6 +88,18 @@ own commit after `npm run test:block` and the golden trace test. One shared
 
 ## Progress
 
+- 2026-11-21, phase 4, synchronous script leaves: every admitted non-waiting
+  native receives memory, host settings, tasks and an explicit data bank. The
+  dispatcher allocates no TaskAccessor, initializes no CPU registers and pushes
+  or checks no return word for these calls. Arguments and results retain their
+  shared word boundary; scripts still decide whether to consume the result.
+- Object creation/release, scene members, matrix entry and invalid object indices
+  use the explicit bank in ordinary calls. Compatibility callers still supply
+  their original data bank register, preserving cross-bank and overflow aliases.
+  Two contracts cover setters/getters including FFFF and task-producing creation
+  with no CPU context and an unusable saved stack. Waiting and device natives,
+  scheduler entry frames and frontend frames remain later phase 4 work.
+
 - 2026-11-21, phase 4, frame job interfaces: all nine game, matrix, cutscene,
   intro and title/menu callbacks expose ordinary update functions. They read game
   state and submit device jobs without a CPU return frame. Existing NMI entries

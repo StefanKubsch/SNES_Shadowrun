@@ -1,3 +1,4 @@
+import { dataBankOf } from '../system/data-bank.mjs';
 // Entering the Matrix (lifted from the script native 80:E30F; register-level reference in
 // proof/game-reference/matrix-enter.mjs).
 //
@@ -53,7 +54,7 @@ const DP_SYSTEM = 0,
 const DECK_MEMORY = 0x40;
 const ENTRY_BYTES = 2;
 
-const bankAddress = (a, offset) => ((a.ctx.bank << WORD_BITS) + offset) & LONG_MASK;
+const bankAddress = (a, offset) => ((dataBankOf(a) << WORD_BITS) + offset) & LONG_MASK;
 const bankWord = (a, offset) => a.mem.read16(bankAddress(a, offset));
 const setBankWord = (a, offset, value) => a.mem.write16(bankAddress(a, offset), value);
 const setBankByte = (a, offset, value) => a.mem.write8(bankAddress(a, offset), value & BYTE_MASK);

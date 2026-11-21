@@ -1,3 +1,4 @@
+import { dataBankOf } from '../system/data-bank.mjs';
 // Releasing an object (lifted from the script natives 80:AA4C and 80:A8F5; register-level
 // references in proof/game-reference/object-release.mjs).
 //
@@ -37,7 +38,7 @@ const ENTRY_BYTES = 2,
   INDEX_TURN = (WORD_MASK + 1) / ENTRY_BYTES;
 
 // A word through the data bank at offset (24-bit addresses).
-const bankAddress = (a, offset) => ((a.ctx.bank << WORD_BITS) + offset) & LONG_MASK;
+const bankAddress = (a, offset) => ((dataBankOf(a) << WORD_BITS) + offset) & LONG_MASK;
 const bankWord = (a, offset) => a.mem.read16(bankAddress(a, offset));
 const setBankWord = (a, offset, value) => a.mem.write16(bankAddress(a, offset), value & WORD_MASK);
 // A direct page word (direct page 0).

@@ -31,6 +31,9 @@ export function setLeafWord(a, offset, value) {
   writeStateByte(wram, offset + 1, (value >>> BYTE_BITS) & BYTE_MASK);
 }
 export function finishLeaf(a, outerReturn = true) {
+  // Ordinary script calls return their result through the shared argument word.
+  // They have no CPU context or return word to consume.
+  if (a.valueReturn) return leafArgument(a, FIRST_ARGUMENT);
   const rawReturnWord = a.readWord(
     (a.ctx.s + 1) & WORD_MASK,
     BANK_WRAP,

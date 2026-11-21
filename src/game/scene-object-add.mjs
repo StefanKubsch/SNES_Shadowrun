@@ -1,3 +1,4 @@
+import { dataBankOf } from '../system/data-bank.mjs';
 // A group member's object added to the scene (lifted from the script native 80:A1E6;
 // register-level reference in proof/game-reference/scene-object-add.mjs).
 //
@@ -56,7 +57,7 @@ const ENTRY_BYTES = 2,
 const wramAddress = (offset) => (WRAM + offset) & LONG_MASK;
 const wramWord = (mem, offset) => mem.read16(wramAddress(offset));
 const setWramWord = (mem, offset, value) => mem.write16(wramAddress(offset), value & WORD_MASK);
-const bankAddress = (a, offset) => ((a.ctx.bank << WORD_BITS) + offset) & LONG_MASK;
+const bankAddress = (a, offset) => ((dataBankOf(a) << WORD_BITS) + offset) & LONG_MASK;
 const bankWord = (a, offset) => a.mem.read16(bankAddress(a, offset));
 const setBankWord = (a, offset, value) => a.mem.write16(bankAddress(a, offset), value & WORD_MASK);
 const directWord = (mem, offset) => mem.read16Bank0(offset);
