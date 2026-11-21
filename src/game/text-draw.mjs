@@ -24,14 +24,12 @@ import { readStateByte, writeStateByte } from '../state/objects.mjs';
 // to D2 with plain values; it leaves no registers. Of the original's working registers
 // only X is carried from one step to the next, because a line break with nothing drawn
 // takes its window from the index X still holds (a character, glyph row or mask index),
-// as the original does. The upload requests run below the frames of
-// their two JSLs, and their waits see the request word's sign, as the original; with the
-// lag-free frame model they are lifted, otherwise (recorded observations, the function
-// tests) the register-level requests run through their frames. With recorded interrupts
-// inside a glyph (the Mesen cold boot replay) the register-level routine runs. The frames
-// of the calls that do not wait (geometry, mask) and the routine's own pushes are not
-// reproduced.
+// as the original does. Live rendering and upload waits compose without CPU frames
+// or temporary program banks. Waits retain the request word's sign. Recorded
+// comparisons retain their independent register-level callers, including interrupts
+// inside a glyph. The compatibility renderer consumes its caller's outer RTS only.
 import { sceneRuntime } from '../system/scene-runtime.mjs';
+import { dialogCallBody } from '../system/native-call-continuation.mjs';
 import { nmiAtBranch } from '../system/frame-wait.mjs';
 import {
   TEXT_BUFFER,
@@ -116,27 +114,17 @@ const SPACE = 0x20,
   LOWER_FIRST = 0x61,
   LOWER_END = 0x7b,
   UPPER_MASK = 0x5f;
-// The upload requests: the JSL sites in FB39, the request routines, their JSL sites of
-// the wait loops and the branches back to the loops' loads.
+// The two upload counters and the original branches that service their waits.
 const READBACK = Object.freeze({
-    name: 'AEFC',
-    site: 0x80fb5b,
-    target: 0x81aefc,
     request: TEXT_BUFFER_READBACK,
-    waitSite: 0x81aeff,
     branch: 0x81accc,
   }),
   LINE_UPLOAD = Object.freeze({
-    name: 'AEF4',
-    site: 0x80fbdf,
-    target: 0x81aef4,
     request: TEXT_BUFFER_UPLOAD,
-    waitSite: 0x81aef7,
     branch: 0x81acc6,
-  }),
-  END_UPLOAD = Object.freeze({ ...LINE_UPLOAD, site: 0x80fd7b });
-const JSL_LAST_BYTE = 3,
-  REQUEST_BANK = 0x81;
+  });
+const TEXT_DRAW_ENTRY = 0x80fb39,
+  TEXT_DATA_BANK = 0x7e;
 
 const word = (wram, at) => readStateByte(wram, at) | (readStateByte(wram, at + 1) << BYTE_BITS);
 const setWord = (wram, at, value) => {
@@ -395,27 +383,12 @@ function drawGlyph(s, character) {
     setWord(wram, TEXT_PENDING_BYTES, word(wram, TEXT_PENDING_BYTES) - TILE_STEP_BACK);
 }
 
-// Push the frame of a JSL at site (in the running bank) and pull it again.
-function pushLongFrame(h, site) {
-  const { ctx, a } = h;
-  a.write(ctx.s, ctx.programBank);
-  ctx.s = (ctx.s - 1) & WORD_MASK;
-  a.pushWord((site + JSL_LAST_BYTE) & WORD_MASK);
-}
-function pullLongFrame(h) {
-  h.a.pullWord();
-  h.ctx.s = (h.ctx.s + 1) & WORD_MASK;
-}
-// An upload request (81:AEF4 or 81:AEFC) as FB39 calls it with JSL: the request word
-// counts up and the wait loop runs until the NMI has taken it. The request's own JSL
-// frame lies only in free stack bytes and is not reproduced (game state only, user
-// decision 2026-11-17); the wait keeps its frame.
+// Upload requests count up and wait until the frame job takes them. Neither the
+// request nor its wait needs a CPU frame or a temporary program bank.
 function* requestUpload(h, events, wram, request) {
   const { ctx } = h;
   yield () => {
-    ctx.programBank = REQUEST_BANK;
     setWord(wram, request.request, word(wram, request.request) + 1);
-    pushLongFrame(h, request.waitSite);
   };
   // The wait's branch sees the request word's sign in 16-bit mode.
   for (let value; (value = word(wram, request.request)) !== 0;) {
@@ -424,16 +397,19 @@ function* requestUpload(h, events, wram, request) {
       (value & WORD_SIGN ? FLAG_NEGATIVE : 0);
     yield* nmiAtBranch(h, events, request.branch, status);
   }
-  yield () => {
-    pullLongFrame(h);
-    ctx.programBank = request.site >>> WORD_BITS;
+}
+
+// The register-level entry (80:FB39) consumes its caller's return frame.
+export function* drawTextBufferSequence(h, events) {
+  yield* drawTextBuffer(h, events);
+  return yield () => {
+    h.ctx.status &= ~FLAG_MEMORY_8BIT;
+    return h.rts();
   };
 }
 
-// Draw the text buffer into the window (80:FB39), a sequence for a native call
-// continuation: h the caller's access (direct page 0, data bank 7E), events its frame
-// events.
-export function* drawTextBufferSequence(h, events) {
+// The direct renderer used by ordinary text and number printing.
+export function* drawTextBuffer(h, events) {
   const s = textState(h),
     { mem, wram, port } = s;
   const pendingMask = () => (word(wram, TEXT_PENDING_BYTES) | word(wram, TEXT_PIXEL_OFFSET)) !== 0;
@@ -520,12 +496,20 @@ export function* drawTextBufferSequence(h, events) {
     );
     setWord(wram, WINDOW_CURSOR_PIXEL + s.x, word(wram, TEXT_PIXEL_OFFSET));
   };
-  if (pending) yield* requestUpload(h, events, wram, END_UPLOAD);
-  let result;
-  yield () => {
-    // The original returns with a 16-bit accumulator.
-    h.ctx.status &= ~FLAG_MEMORY_8BIT;
-    result = h.rts();
-  };
-  return result;
+  if (pending) yield* requestUpload(h, events, wram, LINE_UPLOAD);
+}
+
+// Injected register-level renderers retain their old entry contract. The normal
+// renderer composes directly and never reads or changes the caller's data bank.
+export function* renderTextBuffer(h, events, renderer, site) {
+  if (renderer === drawTextBufferSequence) return yield* drawTextBuffer(h, events);
+  const bank = h.ctx.bank;
+  try {
+    yield () => {
+      h.ctx.bank = TEXT_DATA_BANK;
+    };
+    yield* dialogCallBody(h, site, TEXT_DRAW_ENTRY, () => renderer(h, events));
+  } finally {
+    h.ctx.bank = bank;
+  }
 }

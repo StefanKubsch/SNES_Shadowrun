@@ -11,18 +11,15 @@ import { readStateByte, writeStateByte } from '../state/objects.mjs';
 // second branch); a node with its top bit set holds up to two characters, 0A ends the
 // text. The characters go into the text buffer 7E:21A0 with a 0 at the end; a text of
 // the language (src/data/language.mjs) replaces them. The buffer is then drawn into the
-// window by the live text-buffer renderer through its call frame
-// with the data bank 7E.
+// window by the live text-buffer renderer without a CPU call frame.
 //
 // The original reads each bit with a JSL to 81:AF04, which pushes A while it refills
 // the buffer, and keeps the old data bank on the stack (PHB, PEA, PLB, PLB) while it
-// prints. Those bytes lie only in free stack bytes; the old data bank is kept in a
-// local (game state only, user decision 2026-11-17).
+// prints. Live rendering addresses memory explicitly and needs neither operation.
 //
 // Registers (user decision 2026-11-17): game state only. FB39 sets its own registers
 // before reading them, and no A, X, Y or flags are left; the data bank is restored.
-import { dialogCallBody } from '../system/native-call-continuation.mjs';
-import { drawTextBufferSequence } from './text-draw.mjs';
+import { drawTextBufferSequence, renderTextBuffer } from './text-draw.mjs';
 import { portTextAddress } from '../data/port-extension.mjs';
 import { languageText } from '../data/language.mjs';
 import {
@@ -49,10 +46,9 @@ const DP_TEXT = 0x02,
   CHARACTER_PAIR = 0x7f7f,
   TEXT_END = 0x0a,
   REFILL_BITS = 0x0f,
-  BRANCH_BYTES = 2,
-  WRAM_BANK = 0x7e;
+  BRANCH_BYTES = 2;
 // The call of the text buffer.
-const DRAW_CALL = [0x80febc, 0x80fb39];
+const DRAW_SITE = 0x80febc;
 
 const word = (wram, at) => readStateByte(wram, at) | (readStateByte(wram, at + 1) << BYTE_BITS);
 const setWord = (wram, at, value) => {
@@ -119,15 +115,11 @@ function decodeText(mem, wram) {
 // stack bytes (game state only, user decision 2026-11-17). renderBuffer is a sequence,
 // defaulting to the live renderer.
 export function* printText(h, events, renderBuffer = drawTextBufferSequence) {
-  const { ctx } = h,
-    { mem } = h.a,
+  const { mem } = h.a,
     { wram } = mem;
-  let bank;
   yield () => {
-    bank = ctx.bank;
     const id = word(wram, DP_TEXT);
     startTextSource(mem, wram, id);
-    ctx.bank = WRAM_BANK;
     setWord(wram, TEXT_BITS_REMAINING, 0);
     let y = decodeText(mem, wram);
     const translated = languageText(mem, id);
@@ -137,9 +129,6 @@ export function* printText(h, events, renderBuffer = drawTextBufferSequence) {
     }
     writeStateByte(wram, TEXT_BUFFER + y, 0);
   };
-  yield* dialogCallBody(h, ...DRAW_CALL, () => renderBuffer(h, events));
-  yield () => {
-    ctx.bank = bank;
-  };
+  yield* renderTextBuffer(h, events, renderBuffer, DRAW_SITE);
 }
 // The RTS form for register-level callers is printTextJsr in proof/caller/jsr-forms.mjs.

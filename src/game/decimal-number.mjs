@@ -10,14 +10,12 @@ import { readStateByte, writeStateByte } from '../state/objects.mjs';
 // text, which the text buffer routine (80:FB39) prints with the data bank 7E.
 //
 // Registers (user decision 2026-11-17): game state only; A, X, Y and the flags the
-// original leaves are not kept (80:FB39 sets its own before reading them). The data
-// bank 7E stays, since the text routine addresses the buffer through it.
-import { dialogCallBody } from '../system/native-call-continuation.mjs';
-import { drawTextBufferSequence } from './text-draw.mjs';
+// original leaves are not kept (80:FB39 sets its own before reading them). Live
+// rendering uses explicit memory access without changing the data bank.
+import { drawTextBufferSequence, renderTextBuffer } from './text-draw.mjs';
 import { dataBankWord } from '../system/data-bank.mjs';
 import { TEXT_BUFFER } from '../data/wram.mjs';
 import { BYTE_BITS, BYTE_MASK } from '../constants/bits.mjs';
-import { WRAM_BANK_PAIR } from '../constants/memory-map.mjs';
 
 // The powers' table, its stride and end; the power offsets followed by a comma; the
 // characters of the digit 0, the comma and the line end.
@@ -34,7 +32,7 @@ const DP_NUMBER_LOW = 2,
   DP_NUMBER_HIGH = 4,
   DP_REMAINDER_LOW = 0xa2,
   DP_DIGIT_OFFSET = 0xa5;
-const DRAW_TEXT = [0x80fe40, 0x80fb39];
+const DRAW_SITE = 0x80fe40;
 
 const word = (wram, at) => readStateByte(wram, at) | (readStateByte(wram, at + 1) << BYTE_BITS);
 const setWord = (wram, at, value) => {
@@ -71,7 +69,7 @@ function writeDigits(mem) {
 }
 
 // 80:FDCF: the number DP 04:02 as decimal text (see above), for lifted callers without
-// the JSR frame; the text draw keeps its own and the saved data bank its stack byte.
+// CPU call frames or a saved data-bank stack byte.
 export function* decimalNumber(h, events, renderBuffer = drawTextBufferSequence) {
   const { mem } = h.a,
     { wram } = mem;
@@ -84,14 +82,8 @@ export function* decimalNumber(h, events, renderBuffer = drawTextBufferSequence)
     );
     writeStateByte(wram, TEXT_BUFFER + offset + 1, LINE_END);
     writeStateByte(wram, TEXT_BUFFER + offset + 2, 0);
-    // The data bank 7E for the text routine; the old bank waits on the stack.
-    h.phb();
-    h.push(WRAM_BANK_PAIR, 2);
-    h.plb();
-    h.plb();
   };
-  yield* dialogCallBody(h, ...DRAW_TEXT, () => renderBuffer(h, events));
-  yield () => h.plb();
+  yield* renderTextBuffer(h, events, renderBuffer, DRAW_SITE);
 }
 // The RTS form for register-level callers is decimalNumberJsr in
 // proof/caller/jsr-forms.mjs.

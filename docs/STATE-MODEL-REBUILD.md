@@ -88,6 +88,16 @@ own commit after `npm run test:block` and the golden trace test. One shared
 
 ## Progress
 
+- 2026-11-21, phase 4, text rendering: glyph drawing and its three actual callers
+  (text, short numbers and 32-bit decimal numbers) compose without internal CPU
+  frames or temporary banks. Upload counters and frame jobs retain read-back,
+  line and final upload order. The outer RTS adapter and explicitly injected
+  register renderers retain their comparison contracts. Sixteen flow cases cover
+  every CPU-context/stack boundary, zero budgets, request wrap and failure replay.
+- Text rendering validation: 5132/5132 tests passed across 51 selected files in
+  139 seconds, including all five unchanged golden traces. Edited-file ESLint,
+  formatting and diff checks passed.
+
 - 2026-11-21, phase 4, matrix and cutscene playback: scene requests compose the
   matrix, cutscenes and nested intro/credits directly without CPU call frames.
   Register-level entry adapters remain available to recorded comparisons. The

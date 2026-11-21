@@ -3,6 +3,22 @@
 The live register entries own the same renderer as their direct game callers.
 Their original caller frames and cooperative return contracts stay intact.
 
+## Phase 4 direct rendering
+
+Text, short numbers and 32-bit decimal numbers compose `drawTextBuffer` directly.
+Glyph drawing, read-back and line/final uploads create no CPU frames and change
+neither the program bank nor the data bank. Decimal conversion also keeps no
+saved data bank on the CPU stack. The direct renderer leaves register widths
+unchanged. `drawTextBufferSequence` remains the outer RTS adapter for existing
+register-level entries; it retains their 16-bit accumulator return contract.
+
+`renderTextBuffer` supplies the former bank/frame contract only for explicitly
+injected register-level renderers used by independent comparisons. Normal game
+callers select the direct renderer. Sixteen flow contracts check all four direct
+operations at every single-step boundary, zero budgets, request wrap, repeated
+completion and upload failure/replay rejection. Existing glyph, text, number,
+dialog and menu comparisons keep their game-state and device assertions.
+
 ## Decimal entry
 
 The 80:FD80 entry and its continuation compose decimal conversion and real glyph

@@ -10,21 +10,18 @@ import { readStateByte, writeStateByte } from '../state/objects.mjs';
 // A number (the direct page word 02) is printed by its decimal digits: they are written
 // from the right into the text buffer 7E:21A0 (ending at 21A5, which is cleared), moved
 // to its start, and the buffer is drawn into the window at the cursor by 80:FB39, which
-// runs through its call frame with the
-// data bank 7E, as the original sets it.
+// composes directly without a CPU frame or a temporary data bank.
 //
 // The products and quotients run on the hardware multiplier and divider through the
 // port, as in the original (Book I 2-15-1; on another platform: row * (columns - 2),
 // value / 10 and value % 10). Both routines push the data bank and the bank pair they
-// select (PHB, PEA, PLB, PLB) and restore the data bank; those bytes lie only in free
-// stack bytes, and the old data bank is kept in a local (game state only, user decision
-// 2026-11-17). The cursor's bank 80 is read by none of its accesses.
+// select (PHB, PEA, PLB, PLB). Explicit memory access replaces those operations.
+// The cursor's bank 80 is read by none of its accesses.
 //
 // Registers (user decision 2026-11-17): game state only. A, X, Y and the flags the
 // original leaves are not kept; every caller sets its own before reading them.
-import { drawTextBufferSequence } from './text-draw.mjs';
+import { drawTextBufferSequence, renderTextBuffer } from './text-draw.mjs';
 import { sceneRuntime } from '../system/scene-runtime.mjs';
-import { dialogCallBody } from '../system/native-call-continuation.mjs';
 import {
   DP_CURSOR_ROW,
   TEXT_BUFFER,
@@ -48,8 +45,7 @@ const DP_WINDOW = 0x00,
   BORDER_COLUMNS = 2,
   DIGITS = 5,
   RADIX = 10,
-  CHARACTER_ZERO = 0x30,
-  WRAM_BANK = 0x7e;
+  CHARACTER_ZERO = 0x30;
 // Original instructions of the multiplier and divider accesses, the sites of the device
 // model, and the call of the text buffer.
 const ROW_SITE = 0x80fab8,
@@ -59,7 +55,7 @@ const ROW_SITE = 0x80fab8,
   DIVISOR_SITE = 0x80fd93,
   REMAINDER_SITE = 0x80fd9e,
   QUOTIENT_SITE = 0x80fda7,
-  DRAW_CALL = [0x80fdca, 0x80fb39];
+  DRAW_SITE = 0x80fdca;
 
 const word = (wram, at) => readStateByte(wram, at) | (readStateByte(wram, at + 1) << BYTE_BITS);
 const setWord = (wram, at, value) => {
@@ -94,9 +90,7 @@ export function setTextCursor(h) {
 // for lifted callers, without the JSR frame (the caller's return word lies only in free
 // stack bytes); renderBuffer is the renderer sequence.
 export function* printNumber(h, events, renderBuffer = drawTextBufferSequence) {
-  const { ctx } = h,
-    { wram, port } = sceneRuntime(h);
-  let bank;
+  const { wram, port } = sceneRuntime(h);
   yield () => {
     setWord(wram, TEXT_BUFFER + DIGITS, 0);
     let x = DIGITS,
@@ -112,8 +106,6 @@ export function* printNumber(h, events, renderBuffer = drawTextBufferSequence) {
       );
       value = port.read(RDDIVL, 2, QUOTIENT_SITE);
     } while (value !== 0);
-    bank = ctx.bank;
-    ctx.bank = WRAM_BANK;
     // The digits move to the buffer's start, up to the cleared end byte.
     if (x !== 0) {
       let y = 0;
@@ -126,9 +118,6 @@ export function* printNumber(h, events, renderBuffer = drawTextBufferSequence) {
       }
     }
   };
-  yield* dialogCallBody(h, ...DRAW_CALL, () => renderBuffer(h, events));
-  yield () => {
-    ctx.bank = bank;
-  };
+  yield* renderTextBuffer(h, events, renderBuffer, DRAW_SITE);
 }
 // The RTS form for register-level callers is printNumberJsr in proof/caller/jsr-forms.mjs.
