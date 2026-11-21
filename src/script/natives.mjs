@@ -4,7 +4,7 @@
 //   F4CB  the argument words go to the direct page words 00.. (args[0] at 00), as the
 //         call_native prefix leaves them for the native
 //   F4F6  admitted synchronous natives receive ordinary game services and bank 80.
-//         Special natives still use the compatibility CPU entry and return word.
+//         Device leaves share that value interface; waiting natives retain CPU frames.
 //   F509  the result is the word at 7E:0000 (the scheduler pushes it only
 //         when the table 82:D970 says the native has one)
 //
@@ -15,10 +15,15 @@
 // with a resumable sequence pause; the scheduler keeps the pending call as the task's
 // continuation, and a nested visit inside it pauses with it.
 import { taskStop } from '../system/task-stop.mjs';
+import { DeviceAccess } from '../vm/device-access.mjs';
 import { TaskAccessor } from '../vm/task-accessor.mjs';
 import { JsTasks } from './task-api.mjs';
 import { interruptEventsOf } from '../vm/devices.mjs';
-import { SPECIAL_NATIVES, SPECIAL_NATIVE_CONTINUATIONS } from '../vm/special-natives.mjs';
+import {
+  DEVICE_NATIVE_LEAVES,
+  SPECIAL_NATIVES,
+  SPECIAL_NATIVE_CONTINUATIONS,
+} from '../vm/special-natives.mjs';
 import { WAIT_PAUSED, WAIT_RETURNED } from '../system/native-wait-continuation.mjs';
 import { NATIVE_POINTERS, NATIVE_RESUME } from '../vm/layout.mjs';
 import { WORD_BITS, WORD_MASK, WORD_SIGN } from '../constants/bits.mjs';
@@ -61,7 +66,8 @@ export class ScriptNatives {
     this.accessors = [];
     this.depth = 0;
     // Synchronous lifted leaves need only game services, never CPU registers.
-    this.leaf = { mem, vm: host, dataBank: CODE_BANK, valueReturn: true };
+    this.leaf = new DeviceAccess(host);
+    Object.assign(this.leaf, { dataBank: CODE_BANK, valueReturn: true, devices });
     this.calls = 0;
     // The scheduler callback: native(id, args, scheduler, slot).
     this.native = (id, args, scheduler, slot) => this.call(id, args, scheduler, slot);
@@ -118,10 +124,8 @@ export class ScriptNatives {
 
   // F4F6 to F509 for script native `id` with its argument words.
   call(id, args, scheduler, slot) {
-    if (this.stacks.length === 0) taskStop('script_native_outside_visit', { native: id });
     const mem = this.mem,
-      target = nativeTarget(mem, id),
-      stack = this.stacks[this.stacks.length - 1];
+      target = nativeTarget(mem, id);
     args.forEach((value, n) => mem.write16(WRAM_BASE + 2 * n, value));
     if (this.admitted.has(target)) {
       this.leaf.tasks = scheduler.tasks ??= new JsTasks(scheduler);
@@ -129,7 +133,22 @@ export class ScriptNatives {
       this.implementation(target)(this.leaf, false);
       return mem.read16(WRAM_BASE);
     }
-    const a = this.accessor(),
+    const deviceLeaf = DEVICE_NATIVE_LEAVES.get(target);
+    if (deviceLeaf) {
+      const a = this.leaf;
+      this.observations(a, target);
+      this.calls++;
+      try {
+        deviceLeaf(a, false);
+        this.closeObservations(a, target);
+        return mem.read16(WRAM_BASE);
+      } finally {
+        a.io = null;
+      }
+    }
+    if (this.stacks.length === 0) taskStop('script_native_outside_visit', { native: id });
+    const stack = this.stacks[this.stacks.length - 1],
+      a = this.accessor(),
       ctx = a.ctx,
       pointer = target & WORD_MASK;
     // Game code inside the native reaches the tasks through the task API.

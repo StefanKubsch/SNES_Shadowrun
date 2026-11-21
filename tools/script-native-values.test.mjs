@@ -15,9 +15,7 @@ function fixture() {
   const mem = new VmMemory(cartridge.rom, new Uint8Array(0x20000), null, cartridge.present);
   const natives = new ScriptNatives(mem, { admitted: nativeTargetEntries, implementation });
   const scheduler = new Scheduler(mem);
-  // The remaining scheduler entry adapter owns the visit; the leaf must never
-  // allocate or touch a TaskAccessor, even with an unusable outer stack value.
-  natives.stacks.push(NaN);
+  // Ordinary calls need no scheduler entry frame or CPU accessor.
   natives.accessor = () => assert.fail('ordinary leaf allocated a CPU accessor');
   const call = (target, args) => {
     let id = 0;
@@ -52,4 +50,34 @@ test('object creation appends its script through ordinary task services', () => 
   assert.equal(call(0x80a959, [OBJECT_LAST_SLOT]), 10);
   assert.ok(scheduler.tasks);
   assert.equal(scheduler.slots.filter((slot) => slot.task).length, 1);
+});
+
+test('device leaves use ordered observations without allocating CPU contexts', () => {
+  const { natives, call } = fixture();
+  const taken = [];
+  natives.devices = {
+    take(target) {
+      taken.push(target);
+      return { io: [], wait: [], input: [] };
+    },
+    read() {
+      return 0;
+    },
+  };
+  natives.leaf.devices = natives.devices;
+  assert.equal(call(0x80c51f, [0]), 0);
+  assert.equal(call(0x80c560, []), 0x3d1a);
+  assert.equal(call(0x80cd20, [0]), 0xffff);
+  assert.deepEqual(taken, [0x80c51f, 0x80c560, 0x80cd20]);
+  assert.equal(natives.depth, 0);
+  assert.equal(natives.accessors.length, 0);
+  assert.equal(natives.leaf.io, null);
+});
+
+test('device leaf failure closes its observation interval', () => {
+  const { natives, call } = fixture();
+  natives.devices = { take: () => ({ io: [{ unused: true }] }) };
+  assert.throws(() => call(0x80c51f, [0]), { reason: 'device_observation_unused' });
+  assert.equal(natives.leaf.io, null);
+  assert.equal(natives.depth, 0);
 });

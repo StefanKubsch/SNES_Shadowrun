@@ -88,6 +88,17 @@ own commit after `npm run test:block` and the golden trace test. One shared
 
 ## Progress
 
+- 2026-11-21, phase 4, device native services: all fifteen non-waiting device
+  natives run with ordinary memory, host settings and device access, without a CPU
+  accessor or scheduler entry frame. The shared device boundary preserves ordered
+  observations, bank aliases, live fallback, arithmetic, writes and diagnostic traces.
+  The compatibility TaskAccessor uses the same device boundary.
+- Device service validation: 1409/1409 tests across 173 selected files passed in
+  470 seconds, including all five unchanged golden traces. Four new contracts cover
+  observation rejection/order, memory/arithmetic/writes, ordinary random/payment
+  calls and observation cleanup after a failure. Edited-file ESLint and scan passed.
+  Waiting natives and scheduler/nested game frames remain phase 4 work.
+
 - 2026-11-21, phase 4, frontend composition: the title cycle calls ordinary title,
   start-menu, cutscene/intro and attract-round playback. The title returns its
   early-input flag, the menu returns its choice and the owner receives that value

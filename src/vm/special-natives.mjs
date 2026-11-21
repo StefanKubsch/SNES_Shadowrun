@@ -114,7 +114,7 @@ for (const [target, sequence] of [
     }),
   );
 }
-for (const [target, run] of [
+export const DEVICE_NATIVE_LEAVES = new Map([
   [0x80c46e, playSoundEffectNative],
   [0x80c51f, randomBelowNative],
   [0x80c560, randomByteNative],
@@ -130,5 +130,5 @@ for (const [target, run] of [
   [0x808d7f, moveObjectTowardsObject],
   [0x808d3f, jumpObjectTowardsObject],
   [0x808d4e, jumpObjectTowardsPoint],
-])
-  SPECIAL_NATIVES.set(target, (a) => run(a, false));
+]);
+for (const [target, run] of DEVICE_NATIVE_LEAVES) SPECIAL_NATIVES.set(target, (a) => run(a, false));
