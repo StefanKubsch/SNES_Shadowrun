@@ -28,7 +28,7 @@ import { runMainReset } from '../system/main-reset.mjs';
 import { mainStartupSequence, MAIN_STARTUP_ENTRY } from '../system/main-startup.mjs';
 import { gameOwnerSequence, GAME_OWNER_RESUME } from '../frontend/game-owner.mjs';
 import { gameStartSequence } from '../game/game-start.mjs';
-import { MainLoopContinuation, MAIN_LOOP_ROUND } from '../vm/main-loop.mjs';
+import { update, endOfFrame } from '../game/frame-loop.mjs';
 import { CODE_BANK_BASE } from '../constants/memory-map.mjs';
 
 // The power-on registers (as after reset: E=1, P=34, S=01FF) at the reset entry 00:E382.
@@ -45,7 +45,8 @@ const RESET_CONTEXT = Object.freeze({
   status: 0x34,
 });
 // The return word of the JSR C1E3 at 96C0; the round's RTS lands on 96C3.
-const ROUND_RETURN_WORD = MAIN_LOOP_ROUND + 2;
+const ROUND_RETURN_WORD = 0x96c2;
+const ROUND_RESUME = 0x8096c3;
 
 export class GameLoop {
   // host: the game's settings as the accessors see them (a.vm: mem, gameplay, cheats,
@@ -148,16 +149,19 @@ export class GameLoop {
       this.ownsGame = true;
       yield { continuation: new NativeCallContinuation(a, gameStartSequence(h, events)) };
       for (;;) {
-        yield {
-          continuation: new MainLoopContinuation(a, { events, returnToOwner: true }),
-        };
+        yield* endOfFrame(h, events);
         this.closeInterval();
-        if (ctx.pc !== MAIN_LOOP_ROUND) break;
         a.pushWord(ROUND_RETURN_WORD);
         yield { continuation: this.round(ROUND) };
         this.rounds++;
-        events = this.interval(CODE_BANK_BASE | ctx.pc);
+        events = this.interval(ROUND_RESUME);
+        if (yield* update(h, events)) {
+          this.closeInterval();
+          break;
+        }
       }
+      // Only the boot/owner adapter still expects its original return frame.
+      h.rts();
       // The main loop's RTS returned to the owner's JSR 9688 at A154.
       if (ctx.pc !== GAME_OWNER_RESUME || ctx.s !== ownerReturn)
         taskStop('game_loop_owner_return', { pc: ctx.pc, s: ctx.s, expected: ownerReturn });

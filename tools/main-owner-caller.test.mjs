@@ -21,7 +21,7 @@ import { FRONTEND_ROUTINES as dispatchedRoutines } from '../proof/script/live-fr
 import { mainStartContinuation } from '../proof/system/main-start.mjs';
 import { mainStartContinuation as dispatchedStart } from '../proof/caller/main-start.mjs';
 import { MainLoopContinuation as DispatchedLoop } from '../proof/caller/main-loop.mjs';
-import { MainLoopContinuation, MAIN_LOOP_ROUND } from '../src/vm/main-loop.mjs';
+import { MainLoopContinuation, MAIN_LOOP_ROUND } from './main-frame-adapter.mjs';
 import { MAIN_LOOP_EXIT, MAIN_LOOP_RELOAD, NMI_SAVED_A } from '../src/data/wram.mjs';
 import { ROUND } from '../src/script/natives.mjs';
 
@@ -45,6 +45,21 @@ const CPU_STACKS = [
   [NMI_SAVED_A, 0x1cbc],
 ];
 const MAX_PENDING_STATES = 4;
+// Compare every value without constructing a multi-megabyte nested assertion diff.
+// A state mismatch must name its first byte, rather than exhaust the test process.
+function compareSnapshots(actual, expected, key) {
+  assert.deepEqual(actual.context, expected.context, `${key}: context`);
+  assert.equal(actual.writes, expected.writes, `${key}: PPU writes`);
+  const arrays = (a, b, name) => {
+    assert.equal(a.length, b.length, `${key}: ${name} length`);
+    for (let index = 0; index < a.length; index++)
+      if (a[index] !== b[index])
+        assert.fail(`${key}: ${name}[0x${index.toString(16)}]: ${a[index]} != ${b[index]}`);
+  };
+  for (const name of ['wram', 'sram', 'sound']) arrays(actual[name], expected[name], name);
+  for (const name of Object.keys(actual.video))
+    arrays(actual.video[name], expected.video[name], `video.${name}`);
+}
 function snapshot(game) {
   const { ppu } = game.bus,
     { a, x, y, status, s, ...context } = game.loop.accessor.ctx,
@@ -132,7 +147,7 @@ for (const budget of [1, 7])
             other = pending[1 - side];
           if (!other.has(key)) pending[side].set(key, mine);
           else {
-            assert.deepEqual(mine, other.get(key), key);
+            compareSnapshots(mine, other.get(key), key);
             other.delete(key);
             if (typeof key === 'number') counts.frames++;
             else counts.boundaries++;
@@ -186,6 +201,6 @@ for (const budget of [1, 7])
         assert.equal(counts.boundaries, 4);
         assert.ok(counts.frames > 1000, `NMIs compared: ${counts.frames}`);
         assert.deepEqual([...pending[0].keys(), ...pending[1].keys()], []);
-        assert.deepEqual(snapshot(games[0]), snapshot(games[1]), 'final return');
+        compareSnapshots(snapshot(games[0]), snapshot(games[1]), 'final return');
       },
     );

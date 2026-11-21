@@ -301,3 +301,18 @@ own commit after `npm run test:block` and the golden trace test. One shared
   plain frame loop and script coroutine work; phase 5 replaces the PPU-facing
   picture interface. Existing register references remain frozen.
 - Frontend block validation passed 4723/4723 tests across 137 selected files in 624 seconds, with no failures or skips. All five golden traces are unchanged; edited-file ESLint and formatting passed.
+
+- 2026-11-21, phase 4, frame orchestration: src/game/frame-loop.mjs provides
+  update and endOfFrame sequences for both the main game and attract demo.
+  Scene shortcuts and exit/reload decisions are values, not program counters.
+  Live frame waits no longer create the main loop's synthetic JSL frame.
+- The main driver calls these phases directly and closes the device interval on
+  exits as well as ordinary rounds. The boot/owner and script-native bridges
+  still retain their compatibility contexts; this is not all of phase 4.
+- The former main-loop entry adapter is tools/main-frame-adapter.mjs, outside
+  shipped src. Frozen register-level proof equations remain unchanged. Owner
+  comparisons report the first differing array value rather than formatting an
+  entire nested state diff; every state, video, sound and context check remains.
+- Frame orchestration block passed 475/475 selected tests across 51 files in
+  377 seconds, including all five unchanged golden traces. Edited-file ESLint
+  and formatting passed. Historical links now name the test-only adapter.

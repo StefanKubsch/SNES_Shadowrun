@@ -8,7 +8,7 @@ import { gameOwnerSequence, GAME_OWNER_RESUME } from '../src/frontend/game-owner
 import { gameStartSequence } from '../proof/caller/game-start.mjs';
 import { processSceneRequest } from '../proof/caller/scene-request.mjs';
 import { MainLoopContinuation } from '../proof/caller/main-loop.mjs';
-import { MAIN_LOOP_ROUND } from '../src/vm/main-loop.mjs';
+import { MAIN_LOOP_ROUND } from './main-frame-adapter.mjs';
 import { ROUND } from '../src/script/natives.mjs';
 import { FRONTEND_ROUTINES } from '../src/system/main-frontend.mjs';
 import { FRONTEND_ROUTINES as formerRoutines } from '../proof/script/live-frontend.mjs';

@@ -1,5 +1,5 @@
 // The lifted sequences the script natives run with lag-free frames. The main loop
-// composes its own callees directly (src/vm/main-loop.mjs); their RTS and RTL forms for
+// composes its own callees directly (src/game/frame-loop.mjs); their RTS and RTL forms for
 // register-level tables are in proof/caller/live-loop-routines.mjs and
 // proof/caller/jsr-forms.mjs, their register-level references in
 // proof/game-reference/main-upkeep.mjs (MAIN_UPKEEP_REFERENCE_ENTRIES).

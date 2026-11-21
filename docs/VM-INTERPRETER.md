@@ -453,7 +453,7 @@ identical:
 
 Since the user decision of 2026-10-16 the extension of Mesen windows rests;
 the next work branch was `wait-interrupt-main`.
-[main-loop.mjs](../src/vm/main-loop.mjs) runs the 25 own instructions from
+[main-frame-adapter.mjs](../tools/main-frame-adapter.mjs) runs the 25 own instructions from
 `$96C3` (return of the round) up to before the next `JSR $C1E3` at `$96C0` as
 equations. Called routines are in `MAIN_LOOP_ROUTINES`; a missing target
 reports `main_loop_frontier`; the two original exits at `$96EC`/`$96F2` report

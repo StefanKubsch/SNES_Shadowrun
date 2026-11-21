@@ -3,7 +3,7 @@
 import { taskStop } from '../system/task-stop.mjs';
 import { dialogCallBody } from '../system/native-call-continuation.mjs';
 import { roomStartSequence } from '../game/game-start.mjs';
-import { MAIN_LOOP_ROUND, MainLoopContinuation } from '../vm/main-loop.mjs';
+import { update, endOfFrame } from '../game/frame-loop.mjs';
 import { WORD_MASK } from '../constants/bits.mjs';
 const MAIN_ROUND = 0x80c1e3 & WORD_MASK;
 export function* attractRoundsSequence(
@@ -13,16 +13,9 @@ export function* attractRoundsSequence(
   room,
   roomStart = () => roomStartSequence(h, e, room),
 ) {
-  const { ctx } = h;
-  const loop = () => ({
-    continuation: new MainLoopContinuation(h.a, {
-      events: e,
-      returnToOwner: true,
-    }),
-  });
   yield* roomStart();
-  yield loop();
-  while (ctx.pc === MAIN_LOOP_ROUND) {
+  for (;;) {
+    yield* endOfFrame(h, e);
     if (typeof e?.round !== 'function') taskStop('main_round_owner_required', { pc: 0x8096c0 });
     yield* dialogCallBody(h, 0x8096c0, 0x80c1e3, function* () {
       let more;
@@ -37,6 +30,8 @@ export function* attractRoundsSequence(
       if (more?.wait?.length) e.values = Object.freeze([...e.values, ...more.wait]);
       if (more?.input?.length) e.inputs = Object.freeze([...e.inputs, ...more.input]);
     });
-    yield loop();
+    if (yield* update(h, e)) break;
   }
+  // The surrounding title/room adapter still owns this original return frame.
+  h.rts();
 }

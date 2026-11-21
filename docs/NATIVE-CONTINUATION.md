@@ -36,7 +36,7 @@ main loop driver (see below).
 
 ## Original main loop owner
 
-[main-loop.mjs](../src/vm/main-loop.mjs) shares its call equations between the
+[main-frame-adapter.mjs](../tools/main-frame-adapter.mjs) shares its call equations between the
 synchronous run and `MainLoopContinuation`. Every helper first gets the
 original JSR/JSL frame. Across a pause in B0A1, in particular, the WORD 96AE
 with bank 80 stays on the stack. Only the real RTL allows the continuation at
