@@ -83,7 +83,12 @@ function chosenSpell(wram, row) {
 
 // 80:E1CF: choose one of the learned spells; DP 00 gets it or 0. A sequence that ends
 // with the native's RTS.
-export function* chooseSpellSequence(h, events, renderBuffer = drawTextBufferSequence) {
+export function* chooseSpellSequence(
+  h,
+  events,
+  renderBuffer = drawTextBufferSequence,
+  outerReturn = true,
+) {
   const { mem } = h.a,
     { wram } = mem;
   let spells,
@@ -131,7 +136,7 @@ export function* chooseSpellSequence(h, events, renderBuffer = drawTextBufferSeq
   let result;
   yield () => {
     setWord(wram, 0, spell ?? NO_SPELL);
-    result = h.rts();
+    if (outerReturn) result = h.rts();
   };
   return result;
 }

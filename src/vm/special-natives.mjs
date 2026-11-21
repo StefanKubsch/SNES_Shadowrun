@@ -48,6 +48,8 @@ import {
 } from '../script/native-script-leaves.mjs';
 import { dialogAccess } from '../system/native-dialog-support.mjs';
 import { drainNativeSequence, observedContinuation } from '../system/native-call-continuation.mjs';
+import { SequenceRunner } from '../system/sequence-runner.mjs';
+import { NATIVE_CALL_CONTINUATIONS } from '../system/native-call-continuation.mjs';
 import { lagFree } from '../system/main-wait-interrupt.mjs';
 import { taskStop } from '../system/task-stop.mjs';
 import { raiseStateCountSequence, restoreRunnersSequence } from '../game/runner-state-call.mjs';
@@ -69,7 +71,7 @@ function nativeSequence(a, options, sequence) {
     nestedRound: options?.nestedRound,
   };
   if (!lagFree(events)) taskStop('script_native_lag_free_required');
-  return sequence(dialogAccess(a), events);
+  return sequence(dialogAccess(a), events, !options?.valueReturn);
 }
 export const SPECIAL_NATIVES = new Map();
 export const SPECIAL_NATIVE_CONTINUATIONS = new Map();
@@ -107,12 +109,14 @@ for (const [target, sequence] of [
   SPECIAL_NATIVES.set(target, (a, options) =>
     drainNativeSequence(nativeSequence(a, options, sequence)),
   );
-  SPECIAL_NATIVE_CONTINUATIONS.set(target, (a, options) =>
-    observedContinuation(a, {
-      sequence: nativeSequence(a, options, sequence),
-      finish: (result) => result,
-    }),
-  );
+  SPECIAL_NATIVE_CONTINUATIONS.set(target, (a, options) => {
+    const steps = nativeSequence(a, options, sequence);
+    if (options?.valueReturn) {
+      const continuation = new SequenceRunner(steps, NATIVE_CALL_CONTINUATIONS);
+      return { continuation, finish: () => continuation.result };
+    }
+    return observedContinuation(a, { sequence: steps, finish: (result) => result });
+  });
 }
 export const DEVICE_NATIVE_LEAVES = new Map([
   [0x80c46e, playSoundEffectNative],

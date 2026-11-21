@@ -35,7 +35,12 @@ const setWord = (wram, at, value) => {
 };
 
 // 80:8B43, ending with the native's RTS and composing its notice directly.
-export function* spendMagicPointsSequence(h, events, renderBuffer = drawTextBufferSequence) {
+export function* spendMagicPointsSequence(
+  h,
+  events,
+  renderBuffer = drawTextBufferSequence,
+  outerReturn = true,
+) {
   const { wram } = h.a.mem;
   let paid = false;
   yield () => {
@@ -64,7 +69,7 @@ export function* spendMagicPointsSequence(h, events, renderBuffer = drawTextBuff
   }
   let result;
   yield () => {
-    result = h.rts();
+    if (outerReturn) result = h.rts();
   };
   return result;
 }

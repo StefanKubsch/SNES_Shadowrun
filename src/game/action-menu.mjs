@@ -168,7 +168,12 @@ export function* chooseAction(
 }
 // The action menu as the script native 80:9BA0, a sequence: no override, the mask from
 // the first argument, the menu and the chosen flag as the result.
-export function* chooseScriptActionSequence(h, events, renderBuffer = drawTextBufferSequence) {
+export function* chooseScriptActionSequence(
+  h,
+  events,
+  renderBuffer = drawTextBufferSequence,
+  outerReturn = true,
+) {
   const { wram } = h.a.mem,
     choice = {};
   yield () => setWord(wram, ACTION_MENU_OVERRIDE, 0);
@@ -176,7 +181,7 @@ export function* chooseScriptActionSequence(h, events, renderBuffer = drawTextBu
   let result;
   yield () => {
     setWord(wram, 0, choice.action);
-    result = h.rts();
+    if (outerReturn) result = h.rts();
   };
   return result;
 }

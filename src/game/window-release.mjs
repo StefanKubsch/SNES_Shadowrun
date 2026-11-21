@@ -145,9 +145,9 @@ export function* putGloveAwayCallSequence(h, events, release = releaseNameWindow
 
 // The notice windows' release as called with JSR (80:FF79), a sequence for the dialog.
 // Returns with its RTS.
-export function* releaseNoticeWindowsCallSequence(h, events) {
+export function* releaseNoticeWindowsCallSequence(h, events, outerReturn = true) {
   yield* releaseNoticeWindowsSequence(h, events);
-  return yield* rts(h);
+  if (outerReturn) return yield* rts(h);
 }
 function* rts(h) {
   let result;

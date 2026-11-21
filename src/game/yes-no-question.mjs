@@ -50,7 +50,12 @@ const setWord = (wram, at, value) => {
 };
 
 // 80:CD43 composes opening, selection and release with an explicit renderer.
-export function* askYesNoSequence(h, events, renderBuffer = drawTextBufferSequence) {
+export function* askYesNoSequence(
+  h,
+  events,
+  renderBuffer = drawTextBufferSequence,
+  outerReturn = true,
+) {
   const { mem } = h.a,
     { wram } = mem;
   yield () => {
@@ -83,7 +88,7 @@ export function* askYesNoSequence(h, events, renderBuffer = drawTextBufferSequen
   let result;
   yield () => {
     setWord(wram, DP_WINDOW, answer);
-    result = h.rts();
+    if (outerReturn) result = h.rts();
   };
   return result;
 }

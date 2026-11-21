@@ -4,7 +4,7 @@
 //   F4CB  the argument words go to the direct page words 00.. (args[0] at 00), as the
 //         call_native prefix leaves them for the native
 //   F4F6  admitted synchronous natives receive ordinary game services and bank 80.
-//         Device leaves share that value interface; waiting natives retain CPU frames.
+//         Waiting natives also return values; deeper callees retain CPU workspace.
 //   F509  the result is the word at 7E:0000 (the scheduler pushes it only
 //         when the table 82:D970 says the native has one)
 //
@@ -25,13 +25,11 @@ import {
   SPECIAL_NATIVE_CONTINUATIONS,
 } from '../vm/special-natives.mjs';
 import { WAIT_PAUSED, WAIT_RETURNED } from '../system/native-wait-continuation.mjs';
-import { NATIVE_POINTERS, NATIVE_RESUME } from '../vm/layout.mjs';
+import { NATIVE_POINTERS } from '../vm/layout.mjs';
 import { WORD_BITS, WORD_MASK, WORD_SIGN } from '../constants/bits.mjs';
 import { CODE_BANK, CODE_BANK_BASE, WRAM_BASE } from '../constants/memory-map.mjs';
 import { FLAG_NEGATIVE, FLAG_ZERO } from '../constants/cpu-flags.mjs';
 
-// JSR 80:F52F at F4F6 pushes the return word F508; the native's RTS lands on F509.
-const NATIVE_RETURN_WORD = NATIVE_RESUME - 1;
 // Scheduler entries a native or the main loop calls with JSR.
 export const HEAD_VISIT = 0xc1ca;
 export const ROUND = 0xc1e3;
@@ -166,37 +164,33 @@ export class ScriptNatives {
       bank: CODE_BANK,
       status: flagsOf(pointer),
     });
-    a.pushWord(NATIVE_RETURN_WORD);
     this.calls++;
     const resumable =
       this.workBudget !== Infinity && !this.admitted.has(target)
         ? SPECIAL_NATIVE_CONTINUATIONS.get(target)
         : undefined;
     try {
-      if (resumable) return this.pending(a, target, stack, scheduler, resumable);
+      if (resumable) return this.pending(a, target, scheduler, resumable);
       this.callSpecial(a, target, scheduler);
-      return this.finish(a, target, stack);
+      return this.finish();
     } catch (error) {
+      a.io = null;
       this.depth--;
       throw error;
     }
   }
 
-  // F509: the native returned by RTS to F509 on its entry stack. A native runs on the
-  // accessor of its nesting depth, whose registers the next native call sets again, so
-  // the direct page, data bank and register widths it leaves are not checked (user
-  // decision 2026-11-17; the register-level bridge in proof/vm/native-call.mjs checks
-  // them).
-  finish(a, target, stack) {
-    const ctx = a.ctx;
+  // The ordinary script boundary consumes only the shared result word. The
+  // accessor remains workspace for deeper callees that still own CPU frames.
+  finish() {
+    const result = this.mem.read16(WRAM_BASE);
     this.depth--;
-    if (ctx.pc !== NATIVE_RESUME || ctx.s !== stack)
-      taskStop('native_return_context', { target, pc: ctx.pc, s: ctx.s });
-    return this.mem.read16(WRAM_BASE);
+    return result;
   }
 
   options(a, target, scheduler, set, interruptEvents) {
     return {
+      valueReturn: true,
       waitMode: 'record-observations',
       waitObservations: set.wait,
       inputMode: 'record-observations',
@@ -237,34 +231,43 @@ export class ScriptNatives {
   }
 
   // A special native with a resumable sequence: the first resume() starts it.
-  pending(a, target, stack, scheduler, create) {
+  pending(a, target, scheduler, create) {
     const set = this.observations(a, target),
       interruptEvents = interruptEventsOf(set, target),
       made = create(a, this.options(a, target, scheduler, set, interruptEvents)),
       natives = this;
-    let ioIndex = 0;
+    let ioIndex = 0,
+      running = false,
+      done = false,
+      failed = false;
+    a.io = null;
     return {
       target,
       result: null,
       resume() {
+        if (running) taskStop('script_native_reentry', { target });
+        if (failed) taskStop('script_native_failed', { target });
+        if (done) return true;
+        running = true;
         a.io = set.io;
         a.ioIndex = ioIndex;
-        let paused;
         try {
-          paused = made.continuation.run(natives.workBudget) === WAIT_PAUSED;
+          const paused = made.continuation.run(natives.workBudget) === WAIT_PAUSED;
+          ioIndex = a.ioIndex;
+          if (paused) return false;
+          made.finish();
+          natives.closeObservations(a, target);
+          this.result = natives.finish();
+          done = true;
+          return true;
         } catch (error) {
+          failed = true;
           natives.depth--;
           throw error;
-        }
-        ioIndex = a.ioIndex;
-        if (paused) {
+        } finally {
+          running = false;
           a.io = null;
-          return false;
         }
-        made.finish();
-        natives.closeObservations(a, target);
-        this.result = natives.finish(a, target, stack);
-        return true;
       },
     };
   }

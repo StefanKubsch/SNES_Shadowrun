@@ -106,7 +106,12 @@ const negative = (value) => (value & WORD_SIGN) !== 0;
 
 // Remove the object (the direct page word 00) from the fight list (80:855E), a sequence
 // that ends with the native's RTS and composes all reward and audio callees directly.
-export function* removeFromFightListSequence(h, events, renderBuffer = drawTextBufferSequence) {
+export function* removeFromFightListSequence(
+  h,
+  events,
+  renderBuffer = drawTextBufferSequence,
+  outerReturn = true,
+) {
   const { mem } = h.a,
     { wram } = mem;
   let state = 'missing';
@@ -186,7 +191,7 @@ export function* removeFromFightListSequence(h, events, renderBuffer = drawTextB
   }
   let result;
   yield () => {
-    result = h.rts();
+    if (outerReturn) result = h.rts();
   };
   return result;
 }

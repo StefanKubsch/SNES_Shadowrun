@@ -316,12 +316,12 @@ function* shotSequence(run, hitCall, shooter, target) {
 }
 
 // The result word into DP 00 (the hit's result by default), then the native's RTS.
-function* finishSequence(run, value) {
+function* finishSequence(run, value, outerReturn) {
   const { h, wram } = run;
   let result;
   yield () => {
     setWord(wram, 0, value ?? word(wram, DP_HIT_RESULT));
-    result = h.rts();
+    if (outerReturn) result = h.rts();
   };
   return result;
 }
@@ -329,13 +329,18 @@ function* finishSequence(run, value) {
 // 80:8AB5: the object DP 00 shoots at the object DP 02 (none when negative) with the hit
 // bonus DP 04, kind DP 06, damage DP 08 and range penalty DP 0A. A sequence that ends
 // with the native's RTS.
-export function* shootAtObjectSequence(h, events, renderBuffer = drawTextBufferSequence) {
+export function* shootAtObjectSequence(
+  h,
+  events,
+  renderBuffer = drawTextBufferSequence,
+  outerReturn = true,
+) {
   const run = shotRuntime(h),
     { wram } = run,
     shooter = word(wram, 0),
     target = word(wram, 2);
   setWord(wram, DP_HIT_RESULT, 0);
-  if (negative(target)) return yield* finishSequence(run);
+  if (negative(target)) return yield* finishSequence(run, undefined, outerReturn);
   const bonus = word(wram, DP_SHOT_BONUS);
   setWord(wram, DP_BONUS_KIND_5, bonus);
   setWord(wram, DP_BONUS_RANGED, bonus);
@@ -343,7 +348,7 @@ export function* shootAtObjectSequence(h, events, renderBuffer = drawTextBufferS
   setWord(wram, DP_WEAPON_KIND, word(wram, DP_SHOT_KIND));
   setWord(wram, DP_WEAPON_DAMAGE, word(wram, DP_SHOT_DAMAGE));
   setWord(wram, DP_WEAPON_PENALTY, word(wram, DP_SHOT_PENALTY));
-  if (sightBlocked(run, shooter, target)) return yield* finishSequence(run, WORD_MASK);
+  if (sightBlocked(run, shooter, target)) return yield* finishSequence(run, WORD_MASK, outerReturn);
   faceTarget(run, shooter, target);
   yield* shotSequence(
     run,
@@ -351,21 +356,28 @@ export function* shootAtObjectSequence(h, events, renderBuffer = drawTextBufferS
     shooter,
     target,
   );
-  return yield* finishSequence(run);
+  return yield* finishSequence(run, undefined, outerReturn);
 }
 
 // 80:8A51: the player figure shoots with its weapon at the object under the glove (none
 // when 7E:01DA or the slot 7E:01DE is negative), which is marked as attacked. A
 // sequence that ends with the native's RTS.
-export function* shootAtGloveTargetSequence(h, events, renderBuffer = drawTextBufferSequence) {
+export function* shootAtGloveTargetSequence(
+  h,
+  events,
+  renderBuffer = drawTextBufferSequence,
+  outerReturn = true,
+) {
   const run = shotRuntime(h),
     { mem, wram } = run,
     player = word(wram, PLAYER_OBJECT);
   setWord(wram, DP_HIT_RESULT, 0);
   takeWeapon(run, player);
   const target = word(wram, GLOVE_TARGET_OBJECT);
-  if (negative(word(wram, GLOVE_TARGET_TAG)) || negative(target)) return yield* finishSequence(run);
-  if (sightBlocked(run, player, target)) return yield* finishSequence(run, GLOVE_BLOCKED);
+  if (negative(word(wram, GLOVE_TARGET_TAG)) || negative(target))
+    return yield* finishSequence(run, undefined, outerReturn);
+  if (sightBlocked(run, player, target))
+    return yield* finishSequence(run, GLOVE_BLOCKED, outerReturn);
   setObjectWord(mem, 'flags', target, objectWord(mem, 'flags', target) | OBJECT_ATTACKED);
   yield* shotSequence(
     run,
@@ -373,19 +385,24 @@ export function* shootAtGloveTargetSequence(h, events, renderBuffer = drawTextBu
     player,
     target,
   );
-  return yield* finishSequence(run);
+  return yield* finishSequence(run, undefined, outerReturn);
 }
 
 // 80:8A8C: the object DP 00 shoots with its weapon at the object DP 02. A sequence that
 // ends with the native's RTS.
-export function* shootWithOwnWeaponSequence(h, events, renderBuffer = drawTextBufferSequence) {
+export function* shootWithOwnWeaponSequence(
+  h,
+  events,
+  renderBuffer = drawTextBufferSequence,
+  outerReturn = true,
+) {
   const run = shotRuntime(h),
     { wram } = run,
     shooter = word(wram, 0);
   setWord(wram, DP_HIT_RESULT, 0);
   takeWeapon(run, shooter);
   const target = word(wram, 2);
-  if (sightBlocked(run, shooter, target)) return yield* finishSequence(run, WORD_MASK);
+  if (sightBlocked(run, shooter, target)) return yield* finishSequence(run, WORD_MASK, outerReturn);
   faceTarget(run, shooter, target);
   yield* shotSequence(
     run,
@@ -393,5 +410,5 @@ export function* shootWithOwnWeaponSequence(h, events, renderBuffer = drawTextBu
     shooter,
     target,
   );
-  return yield* finishSequence(run);
+  return yield* finishSequence(run, undefined, outerReturn);
 }

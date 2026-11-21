@@ -384,11 +384,16 @@ export function* talk(h, events, renderBuffer = drawTextBufferSequence) {
 }
 // The talk as called with JSR (80:936C), a sequence for a native call continuation;
 // returns with its RTS.
-export function* talkSequence(h, events, renderBuffer = drawTextBufferSequence) {
+export function* talkSequence(
+  h,
+  events,
+  renderBuffer = drawTextBufferSequence,
+  outerReturn = true,
+) {
   yield* talk(h, events, renderBuffer);
   let result;
   yield () => {
-    result = h.rts();
+    if (outerReturn) result = h.rts();
   };
   return result;
 }

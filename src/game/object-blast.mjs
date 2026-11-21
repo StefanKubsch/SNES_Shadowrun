@@ -43,7 +43,12 @@ function blastReaches(mem, centre, slot) {
 
 // 80:8E36: hit every object the blast around DP 00 reaches with the damage DP 02. A
 // sequence that ends with the native's RTS.
-export function* hitObjectsInBlastSequence(h, events, renderBuffer = drawTextBufferSequence) {
+export function* hitObjectsInBlastSequence(
+  h,
+  events,
+  renderBuffer = drawTextBufferSequence,
+  outerReturn = true,
+) {
   const { mem } = h.a,
     { wram } = mem,
     centre = word(wram, 0);
@@ -61,7 +66,7 @@ export function* hitObjectsInBlastSequence(h, events, renderBuffer = drawTextBuf
   }
   let result;
   yield () => {
-    result = h.rts();
+    if (outerReturn) result = h.rts();
   };
   return result;
 }

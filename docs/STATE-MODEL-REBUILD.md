@@ -88,6 +88,25 @@ own commit after `npm run test:block` and the golden trace test. One shared
 
 ## Progress
 
+- 2026-11-21, phase 4, waiting native boundary: all 29 waiting native targets
+  support ordinary script returns. Their dispatcher neither pushes the original
+  F508 return word nor reads F509 or the returned stack to accept completion. The
+  shared argument word still supplies exactly the result the script consumes.
+- Waiting script calls run on SequenceRunner without the outer CPU ownership
+  snapshot. Compatibility callers retain their original returns and guard. Native
+  accessors, entry registers and scheduler stack seeds remain workspace for deeper
+  calls; inner window, text, device and scheduler frames are not removed by this step.
+  Phase 4 remains unfinished and phase 5 has not started.
+- Pending calls close their observation interval on pause, completion and failure.
+  Completion is idempotent; failure cannot replay or release an accessor twice, and
+  a running call rejects reentry. Seven contracts exercise actual blast and no-target
+  shooting paths at budgets one, seven and synchronous completion with unusable
+  CPU frame helpers, poisoned return metadata, and an unused-observation failure.
+- Waiting boundary validation: 5333/5333 tests across 89 selected files passed in
+  358 seconds, including the dialog inventory and all five unchanged golden traces.
+  Compatibility comparisons retain their original context assertions. Edited-file
+  ESLint, source scan, formatting and diff checks passed.
+
 - 2026-11-21, phase 4, device native services: all fifteen non-waiting device
   natives run with ordinary memory, host settings and device access, without a CPU
   accessor or scheduler entry frame. The shared device boundary preserves ordered

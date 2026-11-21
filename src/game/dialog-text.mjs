@@ -243,7 +243,7 @@ export function* dialogTopicSequence(h, events, at) {
 // clears the window's text tiles (80:FA67) and sets its cursor to the top left (80:FAAC),
 // with the number pushed around them. renderBuffer is the text-buffer renderer sequence.
 const TEXT_NUMBERS = 0x80d9b8;
-function* printTextNumber(h, events, renderBuffer, number) {
+function* printTextNumber(h, events, renderBuffer, number, outerReturn) {
   const { mem } = h.a,
     { wram } = mem;
   yield () => {
@@ -254,16 +254,26 @@ function* printTextNumber(h, events, renderBuffer, number) {
   yield* printText(h, events, renderBuffer);
   let result;
   yield () => {
-    result = h.rts();
+    if (outerReturn) result = h.rts();
   };
   return result;
 }
 // 80:935B: the text number printed at the window's cursor.
-export function printWindowTextSequence(h, events, renderBuffer = drawTextBufferSequence) {
-  return printTextNumber(h, events, renderBuffer, word(h.a.mem.wram, 0));
+export function printWindowTextSequence(
+  h,
+  events,
+  renderBuffer = drawTextBufferSequence,
+  outerReturn = true,
+) {
+  return printTextNumber(h, events, renderBuffer, word(h.a.mem.wram, 0), outerReturn);
 }
 // 80:933A: the window cleared, the cursor at its top left, the text number printed.
-export function* printTopicTextSequence(h, events, renderBuffer = drawTextBufferSequence) {
+export function* printTopicTextSequence(
+  h,
+  events,
+  renderBuffer = drawTextBufferSequence,
+  outerReturn = true,
+) {
   const { wram } = h.a.mem,
     number = word(wram, 0);
   yield () => setWord(wram, DP_WINDOW, word(wram, DP_TEXT_WINDOW));
@@ -273,5 +283,5 @@ export function* printTopicTextSequence(h, events, renderBuffer = drawTextBuffer
     setWord(wram, DP_CURSOR_ROW, 0);
   };
   yield* segmentSequence(() => setTextCursor(h));
-  return yield* printTextNumber(h, events, renderBuffer, number);
+  return yield* printTextNumber(h, events, renderBuffer, number, outerReturn);
 }

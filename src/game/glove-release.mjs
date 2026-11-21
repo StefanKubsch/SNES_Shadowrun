@@ -10,7 +10,7 @@ import { DIALOG_WINDOW } from '../data/wram.mjs';
 const LIST_SITE = 0x80cda3;
 
 // 80:CD9D, ending with the native's RTS; both cleanup callees compose directly.
-export function* releaseGloveSequence(h, events) {
+export function* releaseGloveSequence(h, events, outerReturn = true) {
   const { wram } = h.a.mem;
   yield () => {
     writeStateByte(wram, DIALOG_WINDOW, 0);
@@ -20,7 +20,7 @@ export function* releaseGloveSequence(h, events) {
   yield* drawWindowListSequence(h, events, LIST_SITE);
   let result;
   yield () => {
-    result = h.rts();
+    if (outerReturn) result = h.rts();
   };
   return result;
 }

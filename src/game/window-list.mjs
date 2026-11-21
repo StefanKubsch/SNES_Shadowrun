@@ -206,13 +206,13 @@ export function* drawWindowListSequence(h, events, callSite) {
 // dialog window as the list's first argument, the list (JSL at 80:CDAD), the native's
 // RTS.
 const REDRAW_SITE = 0x80cdad;
-export function* redrawDialogWindowListSequence(h, events) {
+export function* redrawDialogWindowListSequence(h, events, outerReturn = true) {
   const { wram } = h.a.mem;
   yield () => setWord(wram, 0, word(wram, DIALOG_WINDOW));
   yield* drawWindowListSequence(h, events, REDRAW_SITE);
   let result;
   yield () => {
-    result = h.rts();
+    if (outerReturn) result = h.rts();
   };
   return result;
 }

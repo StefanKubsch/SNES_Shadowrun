@@ -157,10 +157,10 @@ const setWord = (wram, at, value) => {
 const negative = (value) => (value & WORD_SIGN) !== 0;
 // A long word read: WRAM fields indexed past their bank reach the next one.
 const longWord = (mem, address) => mem.read16(address & LONG_MASK);
-function* returnSequence(h) {
+function* returnSequence(h, outerReturn = true) {
   let result;
   yield () => {
-    result = h.rts();
+    if (outerReturn) result = h.rts();
   };
   return result;
 }
@@ -409,9 +409,10 @@ export function* statusScreenSequence(
   events,
   entry = NATIVE_ENTRY,
   renderBuffer = drawTextBufferSequence,
+  outerReturn = true,
 ) {
   yield* statusScreen(h, events, entry, renderBuffer);
-  return yield* returnSequence(h);
+  return yield* returnSequence(h, outerReturn);
 }
 
 // ECF5: the cleanup, the status window released, the mark cleared and the sound

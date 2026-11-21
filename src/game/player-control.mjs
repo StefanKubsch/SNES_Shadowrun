@@ -266,14 +266,19 @@ function aimResult(h) {
 
 // 80:E014: one frame of the player's control (see above). A sequence that ends with the
 // native's RTS.
-export function* controlPlayerSequence(h, events, renderBuffer = drawTextBufferSequence) {
+export function* controlPlayerSequence(
+  h,
+  events,
+  renderBuffer = drawTextBufferSequence,
+  outerReturn = true,
+) {
   const { mem } = h.a,
     { wram } = mem;
   const finish = function* (result = 0) {
     yield () => setWord(wram, 0, result);
     let returned;
     yield () => {
-      returned = h.rts();
+      if (outerReturn) returned = h.rts();
     };
     return returned;
   };

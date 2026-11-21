@@ -129,10 +129,10 @@ function add(left, right, carry = false) {
   const sum = left + right + (carry ? 1 : 0);
   return { value: sum & WORD_MASK, carry: sum > WORD_MASK };
 }
-function* returnSequence(h) {
+function* returnSequence(h, outerReturn = true) {
   let result;
   yield () => {
-    result = h.rts();
+    if (outerReturn) result = h.rts();
   };
   return result;
 }
@@ -298,7 +298,12 @@ export function* spellMenu(h, events, entry = MENU_ENTRY, renderBuffer = drawTex
 
 // 80:F254: the spell menu of the object DP 00 (see above). A sequence that ends with the
 // native's RTS.
-export function* openSpellMenuSequence(h, events, renderBuffer = drawTextBufferSequence) {
+export function* openSpellMenuSequence(
+  h,
+  events,
+  renderBuffer = drawTextBufferSequence,
+  outerReturn = true,
+) {
   const { mem } = h.a,
     { wram } = mem;
   yield () => {
@@ -324,5 +329,5 @@ export function* openSpellMenuSequence(h, events, renderBuffer = drawTextBufferS
   };
   yield* spellMenu(h, events, MENU_ENTRY, renderBuffer);
   yield () => setWord(wram, MEMBER_MENU_ACTIVE, 0);
-  return yield* returnSequence(h);
+  return yield* returnSequence(h, outerReturn);
 }

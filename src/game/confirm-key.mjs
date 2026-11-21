@@ -15,7 +15,7 @@ const CONFIRM_BUTTONS = 0xe0c0,
   WAIT_CALL = [0x80f953, 0x81b0a1];
 
 // 80:F953 composes the live word wait through its frame and reads the pad directly.
-export function* waitForConfirmKeySequence(h, events) {
+export function* waitForConfirmKeySequence(h, events, outerReturn = true) {
   const { wram } = h.a.mem;
   let pressed = 0;
   do {
@@ -29,7 +29,7 @@ export function* waitForConfirmKeySequence(h, events) {
   } while (pressed === 0);
   let result;
   yield () => {
-    result = h.rts();
+    if (outerReturn) result = h.rts();
   };
   return result;
 }

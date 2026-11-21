@@ -189,7 +189,12 @@ const setResult = (h, value) => setWord(h.a.mem.wram, 0, value);
 
 // 80:8D0B: choose the object under the action glove, without a reach check. DP 00 gets
 // its slot or FFFF; a sequence that ends with the native's RTS.
-export function* chooseObjectUnderGloveSequence(h, events, renderBuffer = drawTextBufferSequence) {
+export function* chooseObjectUnderGloveSequence(
+  h,
+  events,
+  renderBuffer = drawTextBufferSequence,
+  outerReturn = true,
+) {
   const { wram } = h.a.mem,
     sites = UNDER_GLOVE;
   yield () => putGloveOn(h, GLOVE_LIMITS.action);
@@ -209,7 +214,7 @@ export function* chooseObjectUnderGloveSequence(h, events, renderBuffer = drawTe
   }
   let result;
   yield () => {
-    result = h.rts();
+    if (outerReturn) result = h.rts();
   };
   return result;
 }
@@ -257,10 +262,10 @@ function* redrawUnlessMenuSequence(h, events) {
   };
   if (!open) yield* resetWindowList(h, events);
 }
-function* returnSequence(h) {
+function* returnSequence(h, outerReturn) {
   let result;
   yield () => {
-    result = h.rts();
+    if (outerReturn) result = h.rts();
   };
   return result;
 }
@@ -309,16 +314,21 @@ function* chooseNumberBodySequence(h, events, renderBuffer) {
 }
 // 80:9BC6: choose an object in reach with the action glove; DP 00 gets its number or
 // FFFF. A sequence that ends with the native's RTS.
-export function* chooseObjectNumberSequence(h, events, renderBuffer = drawTextBufferSequence) {
+export function* chooseObjectNumberSequence(
+  h,
+  events,
+  renderBuffer = drawTextBufferSequence,
+  outerReturn = true,
+) {
   yield* chooseNumberBodySequence(h, events, renderBuffer);
-  return yield* returnSequence(h);
+  return yield* returnSequence(h, outerReturn);
 }
 // Mark the glove choice as the script's while body runs (7E:1D6D FFFF, then 0).
-function* scriptChoiceSequence(h, body) {
+function* scriptChoiceSequence(h, body, outerReturn) {
   yield () => setWord(h.a.mem.wram, SCRIPT_GLOVE_CHOICE, WORD_MASK);
   yield* body();
   yield () => setWord(h.a.mem.wram, SCRIPT_GLOVE_CHOICE, 0);
-  return yield* returnSequence(h);
+  return yield* returnSequence(h, outerReturn);
 }
 // 80:9BB9: 80:9BC6 as the script's choice, without the JSR frame of 80:9BC6 (its
 // return word lies only in free stack bytes).
@@ -326,12 +336,22 @@ export function* scriptChooseObjectNumberSequence(
   h,
   events,
   renderBuffer = drawTextBufferSequence,
+  outerReturn = true,
 ) {
-  return yield* scriptChoiceSequence(h, () => chooseNumberBodySequence(h, events, renderBuffer));
+  return yield* scriptChoiceSequence(
+    h,
+    () => chooseNumberBodySequence(h, events, renderBuffer),
+    outerReturn,
+  );
 }
 // 80:9C33: 80:9C40 (the slot) as the script's choice.
-export function* scriptChooseObjectSequence(h, events, renderBuffer = drawTextBufferSequence) {
-  return yield* scriptChoiceSequence(h, () => chooseInReach(h, events, renderBuffer));
+export function* scriptChooseObjectSequence(
+  h,
+  events,
+  renderBuffer = drawTextBufferSequence,
+  outerReturn = true,
+) {
+  return yield* scriptChoiceSequence(h, () => chooseInReach(h, events, renderBuffer), outerReturn);
 }
 
 // 81:AEB8 at its call site: the window list prepared (the window map unpacked 81:A9B2,
@@ -373,7 +393,12 @@ function* prepareWindowListSequence(h, events, pc) {
 // is closed first (80:92C5) and the window list prepared. Objects without bit 15 of
 // their flags cannot be chosen (the glove stays out); the chosen slot or FFFF goes to
 // DP 00 and 7E:1FD2. A sequence that ends with the native's RTS.
-export function* spellGloveTargetSequence(h, events, renderBuffer = drawTextBufferSequence) {
+export function* spellGloveTargetSequence(
+  h,
+  events,
+  renderBuffer = drawTextBufferSequence,
+  outerReturn = true,
+) {
   const { mem } = h.a,
     { wram } = mem,
     sites = SPELL;
@@ -412,7 +437,7 @@ export function* spellGloveTargetSequence(h, events, renderBuffer = drawTextBuff
     };
     yield* segmentSequence(() => takePad(h, events));
   }
-  return yield* returnSequence(h);
+  return yield* returnSequence(h, outerReturn);
 }
 
 // The glove's place on the floor (80:C724 after the choice): the glove position's screen
@@ -444,7 +469,12 @@ function gloveFloorPlace(mem, object) {
 // motion record (7E:4138, 7E:4190, 7E:41E8 and 7E:40E0 at the object's index) gets mode
 // 0, then the glove's floor place and 1 as active; the window list is prepared before
 // and redrawn after the choice. A sequence that ends with the native's RTS.
-export function* choosePlaceWithGloveSequence(h, events, renderBuffer = drawTextBufferSequence) {
+export function* choosePlaceWithGloveSequence(
+  h,
+  events,
+  renderBuffer = drawTextBufferSequence,
+  outerReturn = true,
+) {
   const { mem } = h.a,
     { wram } = mem,
     sites = PLACE;
@@ -465,7 +495,7 @@ export function* choosePlaceWithGloveSequence(h, events, renderBuffer = drawText
     setObjectWordIn(wram, 'motionActive', object, 1);
   };
   yield* putGloveAwaySequence(h, events);
-  return yield* returnSequence(h);
+  return yield* returnSequence(h, outerReturn);
 }
 
 // 80:BC83 and 80:BC9C (the script natives' tails of 80:BC80 and 80:BC99): the projection

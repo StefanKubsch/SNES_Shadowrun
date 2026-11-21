@@ -86,10 +86,10 @@ const setWord = (wram, at, value) => {
   writeStateByte(wram, at + 1, (value >>> BYTE_BITS) & BYTE_MASK);
 };
 const negative = (value) => (value & WORD_SIGN) !== 0;
-function* returnSequence(h) {
+function* returnSequence(h, outerReturn = true) {
   let result;
   yield () => {
-    result = h.rts();
+    if (outerReturn) result = h.rts();
   };
   return result;
 }
@@ -193,7 +193,12 @@ export function* saveMenu(h, events, renderBuffer = drawTextBufferSequence) {
 }
 
 // 80:CE6D: the main menu (see above). A sequence that ends with its RTS.
-export function* mainMenuSequence(h, events, renderBuffer = drawTextBufferSequence) {
+export function* mainMenuSequence(
+  h,
+  events,
+  renderBuffer = drawTextBufferSequence,
+  outerReturn = true,
+) {
   const { mem } = h.a,
     { wram } = mem,
     ids = mem.language
@@ -220,5 +225,5 @@ export function* mainMenuSequence(h, events, renderBuffer = drawTextBufferSequen
     if (chosen === SAVE_ROW) yield* saveMenu(h, events, renderBuffer);
     else yield* karmaMenu(h, events, renderBuffer);
   }
-  return yield* returnSequence(h);
+  return yield* returnSequence(h, outerReturn);
 }

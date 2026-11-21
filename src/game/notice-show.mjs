@@ -160,11 +160,17 @@ export function* showNotice(h, events, renderBuffer = drawTextBufferSequence, sh
 }
 // The notice as called with JSR (80:FEC1), a sequence for a native call continuation;
 // returns with its RTS.
-export function* showNoticeSequence(h, events, renderBuffer = drawTextBufferSequence, shown = {}) {
+export function* showNoticeSequence(
+  h,
+  events,
+  renderBuffer = drawTextBufferSequence,
+  shown = {},
+  outerReturn = true,
+) {
   yield* showNotice(h, events, renderBuffer, shown);
   let result;
   yield () => {
-    result = h.rts();
+    if (outerReturn) result = h.rts();
   };
   return result;
 }
