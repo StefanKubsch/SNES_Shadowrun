@@ -1,3 +1,4 @@
+import { readStateByte, readStateWord } from '../src/state/objects.mjs';
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { cartridge } from './cartridge-harness.mjs';
@@ -40,7 +41,7 @@ import { APARTMENT, PLAN } from './live-matrix-plan.mjs';
 // 1C76) and switch to the same counter sequence; Mesen returns the bytes from its
 // read callback (tools/mesen/explore.lua "counter"). Then every 4th frame of the
 // original equals the native frame with the same distance from that point.
-const word = (w, a) => w[a] | (w[a + 1] << 8);
+const word = readStateWord;
 
 // The plan natively (tools/explore-live.mjs): the state record and health at
 // each matrix entry, and the state after each jack-out (the end of its wait 300).
@@ -55,11 +56,11 @@ function nativeRun(plan) {
       const w = game.memory.wram;
       if (c[0] === 'matrix') {
         record = word(w, 0x1d93);
-        sessions.push({ record, health: w[record + 2] });
+        sessions.push({ record, health: readStateByte(w, record + 2) });
       }
       if (c[0] === 'wait' && c[1] === 300)
         outs.push({
-          health: w[record + 2],
+          health: readStateByte(w, record + 2),
           room: word(w, 0x2de2),
           free: game.nmis - game.controlNmi <= 1,
         });

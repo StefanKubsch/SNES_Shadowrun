@@ -264,3 +264,7 @@ own commit after `npm run test:block` and the golden trace test. One shared
   skips in 767 seconds, including all five unchanged golden traces. Edited-file
   ESLint and formatting passed. The initial allocation failures and corrected raw
   fixture/observation reads are retained in the local handoff archive.
+- The shared release exposed two further raw observations in the slow tier:
+  seven-session matrix health write-back and save-anywhere serialized bytes.
+  They now read shared bytes or the projection, preserving every health, picture,
+  SRAM and state assertion. Both files passed 4/4 slow tests in 226 seconds.

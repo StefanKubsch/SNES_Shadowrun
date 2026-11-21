@@ -58,7 +58,10 @@ test(
     );
     const sram = game.memory.sram;
     assert.deepEqual(sram.subarray(0, SLOT), loaded.subarray(0, SLOT), 'slot 1 unchanged');
-    assert.deepEqual(sram.subarray(SLOT + 2, SLOT + SIZE), wram.subarray(BLOCK + 2, BLOCK + SIZE));
+    assert.deepEqual(
+      sram.subarray(SLOT + 2, SLOT + SIZE),
+      before.subarray(BLOCK + 2, BLOCK + SIZE),
+    );
     assert.deepEqual(sram.subarray(0x1ffc), loaded.subarray(0x1ffc), 'options unchanged');
 
     // "Resume game 2" accepts the checksum and restores the block; Jake enters the
@@ -68,7 +71,7 @@ test(
     assert.ok(saveAnywhereReachable(again));
     const resumed = again.memory.wram;
     assert.deepEqual(
-      resumed.subarray(BLOCK + 4, BLOCK + SIZE),
+      toWram(again.memory).subarray(BLOCK + 4, BLOCK + SIZE),
       sram.subarray(SLOT + 4, SLOT + SIZE),
     );
     assert.notDeepEqual(position(resumed), walked);
