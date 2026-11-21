@@ -88,6 +88,13 @@ own commit after `npm run test:block` and the golden trace test. One shared
 
 ## Progress
 
+- Room initialization and window lifecycle shared release passed 13046/13046 tests,
+  with no failures or skips: 335 files executed and 334 unchanged. All five golden
+  trace files and frozen proof code remain unchanged. Artifact passes each ran 239
+  generators, reused 533 and matched 3492 outputs. Syntax checked 3182 modules;
+  formatting, AC source, diff/staged diff and LFS checks passed. Passing logs were
+  removed; the retained summary is .cache/release/last-summary.json.
+
 - 2026-11-21, phase 4, window lifecycle: list drawing/reset, map uploads, window
   opening and text-tile clearing run without internal CPU call frames or temporary
   program banks. Window and glove/notice releases compose that same direct graph;
