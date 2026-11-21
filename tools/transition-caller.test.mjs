@@ -4,7 +4,7 @@ import { GameLoop } from '../src/script/game-loop.mjs';
 import { dialogAccess } from '../src/system/native-dialog-support.mjs';
 import { runMainReset } from '../src/system/main-reset.mjs';
 import { mainStartupSequence } from '../src/system/main-startup.mjs';
-import { gameOwnerSequence, GAME_OWNER_RESUME } from '../src/frontend/game-owner.mjs';
+import { gameOwnerSequence, GAME_OWNER_RESUME } from './owner-entry-adapter.mjs';
 import { gameStartSequence } from '../proof/caller/game-start.mjs';
 import { processSceneRequest } from '../proof/caller/scene-request.mjs';
 import { MainLoopContinuation } from '../proof/caller/main-loop.mjs';

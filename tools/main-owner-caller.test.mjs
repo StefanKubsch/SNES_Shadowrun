@@ -15,7 +15,7 @@ import { NativeCallContinuation } from '../src/system/native-call-continuation.m
 import { WAIT_RETURNED } from '../src/system/native-wait-continuation.mjs';
 import { runMainReset } from '../src/system/main-reset.mjs';
 import { mainStartupSequence } from '../src/system/main-startup.mjs';
-import { gameOwnerSequence, GAME_OWNER_RESUME } from '../src/frontend/game-owner.mjs';
+import { gameOwnerSequence, GAME_OWNER_RESUME } from './owner-entry-adapter.mjs';
 import { gameOwnerSequence as dispatchedOwner } from '../proof/frontend-caller/game-owner.mjs';
 import { FRONTEND_ROUTINES as dispatchedRoutines } from '../proof/script/live-frontend.mjs';
 import { mainStartContinuation } from '../proof/system/main-start.mjs';

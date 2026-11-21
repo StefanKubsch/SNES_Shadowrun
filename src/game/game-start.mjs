@@ -176,14 +176,14 @@ export function loadSavedGame(a, slot) {
 // 80:9688: the main start. Ends before the main loop at 80:96AB; returns that
 // program counter.
 // The live game loop enters it right after the owner (src/script/game-loop.mjs); it
-// checks no registers (user decision 2026-11-17). The register-level entry check
+// receives the owner's choice as a value. Legacy callers may omit it and use
+// direct page word 0. It checks no registers. The register-level entry check
 // (direct page 0, data bank 80, 16-bit registers) belongs to the proof callers
 // (requireGameStartEntry in proof/caller/game-start.mjs).
-export function* gameStartSequence(h, events) {
+export function* gameStartSequence(h, events, choice = word(h.a.mem.wram, CHOICE)) {
   let room;
   yield () => {
-    const { wram } = h.a.mem,
-      choice = word(wram, CHOICE);
+    const { wram } = h.a.mem;
     if (choice & WORD_SIGN) room = startNewGame(h.a);
     else {
       loadSavedGame(h.a, choice);

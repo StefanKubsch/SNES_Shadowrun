@@ -345,3 +345,21 @@ own commit after `npm run test:block` and the golden trace test. One shared
 - Sequence runner block validation: 6333/6333 selected tests passed across 194
   files in 784 seconds, with no failures or skips; all five golden traces are
   unchanged. Edited-file ESLint, formatting and the source scan passed.
+
+- 2026-11-21, phase 4, boot/owner orchestration: startup is called directly without
+  an entry-PC guard. The owner receives showTitle explicitly, returns the selected
+  game as a value and creates no game return frame. The game loop starts the title
+  once, then resumes the menu after exit/reload with ordinary generator flow.
+- Game setup accepts that choice directly; omitted arguments retain the original
+  direct-page input for existing callers. The owner still writes the old choice
+  word for compatibility observations. Final startup and room PCs remain diagnostic
+  metadata; the live outer loop does not read them to select its next phase.
+- tools/owner-entry-adapter.mjs supplies entry/return metadata only for frozen
+  caller comparisons, checks the returned choice and unchanged stack, and poisons
+  the former PC selector. Startup comparisons likewise poison the entry PC. Three
+  game setup contracts cover a new game and both original slots with stale direct
+  page input. Native/NMI contexts and deeper frontend call frames remain open;
+  phase 4 is not complete and phase 5 has not started.
+- Boot/owner block validation: 3657/3657 selected tests passed across 85 files in
+  572 seconds, with no failures or skips. All five golden traces are unchanged;
+  edited-file ESLint, formatting and source scan passed.

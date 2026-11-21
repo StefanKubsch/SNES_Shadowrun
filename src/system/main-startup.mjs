@@ -12,12 +12,10 @@ export const MAIN_STARTUP_ENTRY = 0xa133;
 // whose return words lie only in free stack bytes; the PHP and PLP around the screens
 // and the data bank 80 the routine sets before its RTS are kept in the context (game
 // state only, user decision 2026-11-17). Calls are direct; no routine table or factory
-// lookup. Only the entry point is checked; the register-level check (direct page 0,
-// data bank 80, 16-bit binary registers) stays with proof/script/live-startup.mjs.
+// lookup. The caller selects startup directly; entry PC and register checks stay
+// with proof/script/live-startup.mjs. The final PC is diagnostic metadata.
 export function* mainStartupSequence(h, events) {
   const { ctx } = h;
-  if (ctx.programBank !== CODE_BANK || ctx.pc !== MAIN_STARTUP_ENTRY)
-    taskStop('main_startup_entry_required', { pc: ctx.pc });
   if (!lagFree(events)) taskStop('game_lag_free_required');
   const status = ctx.status;
   yield* bootScreensInPlace(h, events);
@@ -26,7 +24,7 @@ export function* mainStartupSequence(h, events) {
     ctx.status = status;
   };
   // The original passes the owner A = 1 (LDA #1; show the title first); the lifted
-  // owner takes that from its entry point (user decision 2026-11-17: no registers).
+  // caller passes showTitle = true explicitly; no register selects that choice.
   yield () => {
     ctx.pc = GAME_OWNER_ENTRY;
   };

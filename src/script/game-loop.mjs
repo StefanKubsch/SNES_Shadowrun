@@ -26,7 +26,7 @@ import { NATIVE_CALL_CONTINUATIONS } from '../system/native-call-continuation.mj
 import { SequenceRunner } from '../system/sequence-runner.mjs';
 import { dialogAccess } from '../system/native-dialog-support.mjs';
 import { runMainReset } from '../system/main-reset.mjs';
-import { mainStartupSequence, MAIN_STARTUP_ENTRY } from '../system/main-startup.mjs';
+import { mainStartupSequence } from '../system/main-startup.mjs';
 import { gameOwnerSequence, GAME_OWNER_RESUME } from '../frontend/game-owner.mjs';
 import { gameStartSequence } from '../game/game-start.mjs';
 import { update, endOfFrame } from '../game/frame-loop.mjs';
@@ -135,18 +135,17 @@ export class GameLoop {
 
   *game() {
     const a = this.accessor,
-      { ctx } = a,
       routines = this.routines;
     let events = this.interval(CODE_BANK_BASE | RESET_CONTEXT.pc);
     yield () => runMainReset(a);
-    if (ctx.pc !== MAIN_STARTUP_ENTRY) taskStop('game_loop_startup_required', { pc: ctx.pc });
     yield* mainStartupSequence(dialogAccess(a), events);
+    let showTitle = true;
     for (;;) {
-      const ownerReturn = ctx.s,
-        h = dialogAccess(a);
-      yield* gameOwnerSequence(h, events, routines);
+      const h = dialogAccess(a),
+        choice = yield* gameOwnerSequence(h, events, routines, showTitle);
+      showTitle = false;
       this.ownsGame = true;
-      yield* gameStartSequence(h, events);
+      yield* gameStartSequence(h, events, choice);
       for (;;) {
         yield* endOfFrame(h, events);
         this.closeInterval();
@@ -159,11 +158,6 @@ export class GameLoop {
           break;
         }
       }
-      // Only the boot/owner adapter still expects its original return frame.
-      h.rts();
-      // The main loop's RTS returned to the owner's JSR 9688 at A154.
-      if (ctx.pc !== GAME_OWNER_RESUME || ctx.s !== ownerReturn)
-        taskStop('game_loop_owner_return', { pc: ctx.pc, s: ctx.s, expected: ownerReturn });
       this.ownsGame = false;
       events = this.interval(CODE_BANK_BASE | GAME_OWNER_RESUME);
     }

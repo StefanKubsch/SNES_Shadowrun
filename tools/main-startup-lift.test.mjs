@@ -69,6 +69,8 @@ for (const valid of [true, false])
             a.ctx.pc = 0x9e3d;
             runMainSoftwareReset(a, events, MAIN_STARTUP_ROUTINES);
           } else runMainReset(a);
+          // The direct caller selects startup without inspecting its entry PC.
+          if (side === 1) a.ctx.pc = 0x1234;
           const call =
             side === 0
               ? new MainStartupContinuation(a, events)
