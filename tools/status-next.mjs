@@ -3,7 +3,11 @@
 import { readFile } from 'node:fs/promises';
 import { resolve, dirname } from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
-import { PROJECT_STATUS_TEXT_LIMIT } from './project-status-text.mjs';
+import {
+  PROJECT_STATUS_TEXT_LIMIT,
+  summarizeCurrentWork,
+  serializeStatus,
+} from './project-status-text.mjs';
 
 export const currentWorkReference = 'docs/PROJECT-STATUS.json';
 const HISTORICAL_REASON_LIMIT = 1200;
@@ -29,26 +33,10 @@ export function summarizeProgress(progress, groupId = null, currentWork = null) 
     return out;
   }
   if (currentWork && groupId !== '--history') {
-    const work = currentWork;
-    return {
-      current_work: {
-        updated: work.updated,
-        focus: short(work.focus),
-        next_step: short(work.next_step),
-        porting_resume: short(work.porting_resume),
-        open_issues: work.open_issues.map((issue) => short(issue)),
-        accepted_model_assumptions: work.accepted_model_assumptions.map((note) => short(note)),
-        implementation_limits: work.implementation_limits.map((note) => short(note)),
-        optional_quality_checks: work.optional_quality_checks.map((note) => short(note)),
-        references: work.references,
-      },
-      evidence_inventory: {
-        supplied: progress.supplied.length,
-        work_groups: progress.work_groups.length,
-        group_details: 'node tools/status-next.mjs <group-id>',
-        history: 'node tools/status-next.mjs --history',
-      },
-    };
+    return summarizeCurrentWork(currentWork, {
+      supplied: progress.supplied.length,
+      work_groups: progress.work_groups.length,
+    });
   }
   const next = progress.next_block;
   return {
@@ -72,7 +60,7 @@ if (process.argv[1] && import.meta.url === pathToFileURL(resolve(process.argv[1]
     readFile(resolve(root, 'docs/PORTIERUNGSSTAND.json'), 'utf8').then(JSON.parse),
     readFile(resolve(root, currentWorkReference), 'utf8').then(JSON.parse),
   ]);
-  console.log(
-    JSON.stringify(summarizeProgress(progress, process.argv[2] ?? null, currentWork), null, 2),
+  process.stdout.write(
+    serializeStatus(summarizeProgress(progress, process.argv[2] ?? null, currentWork)),
   );
 }

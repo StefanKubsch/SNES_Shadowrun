@@ -6,7 +6,7 @@ import { resolve, join, dirname, win32 } from 'node:path';
 import { availableParallelism, tmpdir } from 'node:os';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 import { createReleaseCache } from './release-cache.mjs';
-import { projectStatusTextFindings } from './project-status-text.mjs';
+import { checkProjectStatus } from './check-project-status.mjs';
 import { removeDirQuietly } from './temp-dir.mjs';
 import { cleanTemp, describeClean } from './clean-temp.mjs';
 const exec = promisify(execFile);
@@ -232,9 +232,7 @@ export async function verifyRelease(root, { full = false } = {}) {
     // Catch overlong notes before any formatter, generator or test is started,
     // including shell edits that do not trigger the agent's post-edit hook.
     step = 'project-status';
-    const statusFindings = projectStatusTextFindings(
-      await readFile(join(root, 'docs/PROJECT-STATUS.json'), 'utf8'),
-    );
+    const statusFindings = checkProjectStatus(root);
     if (statusFindings.length) throw Error(statusFindings.map(({ text }) => text).join('\n'));
     const cache = await createReleaseCache({ root, trackDir: join(logDir, 'track'), full });
     // Game and proof code stay Prettier-formatted; checked first because it is cheap.

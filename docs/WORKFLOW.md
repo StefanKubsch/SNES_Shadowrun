@@ -88,6 +88,10 @@ untracked files (`--since <rev>` or explicit paths change that) and selects:
   `game/karma-menu`, which is how lift comparisons name what they cover;
 - test files given with `--with` (for example the dialog inventory, see below).
 
+Before selecting tests, the command validates the individual status texts and
+the complete `status:next` output. A failure stops before loading the test graph.
+`npm run check:status` runs only this fast check, including after shell edits.
+
 The slow tier (`SLOW_FILES` and `SLOW_TESTS` in test-block.mjs: Mesen boots
 and live room runs, cold starts, Game Over and matrix sessions, recorded
 replays, the source mutation sweep) stays out unless `--slow` is given.
@@ -217,8 +221,11 @@ in the repository root.
     `language-ok`.
   - Relative Markdown links whose target does not exist.
   - Current-work texts in `PROJECT-STATUS.json` longer than the status CLI's
-    400-character limit. The whole status file is checked whenever it is edited;
-    findings identify the field or list entry, actual length and excess.
+    400-character limit, or complete output reaching 5000 UTF-8 bytes (including
+    indentation, references, inventory and the final newline). The whole status
+    file is checked whenever it is edited; findings identify the field or list
+    entry, actual size and required reduction. Many short notes can exceed the
+    complete-output limit even when each note fits individually.
     Keep longer details in the handoff or the relevant source document.
   - ESLint findings ([eslint.config.mjs](../eslint.config.mjs), the
     recommended rules) in `.mjs` and `.js` files: findings on changed lines,
@@ -227,9 +234,16 @@ in the repository root.
     The local test `tools/post-edit-eslint.test.mjs` covers the comparison
     and both adapters.
 
-  The release check validates the same text limit before formatting, generation
-  or tests, so edits made through shell scripts are covered too. The shared
-  validator and CLI use one limit in [project-status-text.mjs](../tools/project-status-text.mjs).
+  Block and release checks validate the same limits before their expensive work,
+  so edits made through shell scripts are covered too. The validator and CLI share
+  the summary construction and serialization in
+  [project-status-text.mjs](../tools/project-status-text.mjs).
+
+  The local `.git/hooks/pre-commit` runs
+  `node tools/check-project-status.mjs --staged`. It validates the index, so an
+  unstaged correction cannot hide an invalid staged status. It never formats or
+  changes files. Like the agent hooks it is local, not versioned; the versioned
+  block/release preflight remains active in other checkouts without a Git hook.
 
   To check whole files by hand, run
   `node tools/hooks/post-edit.mjs --scan <file>...`.

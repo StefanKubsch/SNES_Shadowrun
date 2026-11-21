@@ -30,6 +30,7 @@ import { fileURLToPath } from 'node:url';
 import { cleanTemp, describeClean } from './clean-temp.mjs';
 import { pruneTempDirs, removeDirQuietly } from './temp-dir.mjs';
 import { testBatches } from './verify-release.mjs';
+import { checkProjectStatus } from './check-project-status.mjs';
 
 // Whole test files of the slow tier, with the reason.
 export const SLOW_FILES = new Map([
@@ -204,6 +205,11 @@ async function runBatch(root, batch, args, logPath, env) {
 
 export async function testBlock(root, argv) {
   const options = parseArgs(argv);
+  const statusFindings = checkProjectStatus(root);
+  if (statusFindings.length) {
+    console.error(statusFindings.map(({ text }) => text).join('\n'));
+    return 1;
+  }
   const changed = options.files.length ? options.files : changedFiles(root, options.since);
   const { texts, importers } = await moduleGraph(root);
   const selected = selectTests({
