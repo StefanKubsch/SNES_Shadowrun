@@ -14,10 +14,8 @@ import { readStateByte, writeStateByte } from '../state/objects.mjs';
 // The forced blank 81:B0BD, the frame wait 81:B0A1 and the room entry 80:A4BF are
 // the lifted ones of src/game/room-entry.mjs, the game screen set-up 80:9629 the one
 // of src/game/game-screen.mjs. The cutscene 81:CDF8 and the matrix 81:C3CA are
-// lifted scenes (src/cutscene, src/matrix) and keep the original's JSL frames: their
-// waits take NMIs on that stack. The return word of the original's JSR to the room
-// entry lies only in free stack bytes and is not reproduced (game state only, user
-// decision 2026-11-17).
+// lifted scenes (src/cutscene, src/matrix). Scenes, the nested intro credits and
+// room entry compose directly without CPU call frames.
 //
 // Registers (user decision 2026-11-17): game state only; the cutscene takes the scene
 // and its argument as parameters and the routine leaves no A, X, Y or flags.
@@ -26,9 +24,8 @@ import { readStateByte, writeStateByte } from '../state/objects.mjs';
 // proof/caller/live-loop-routines.mjs is the register form for the routine table: the
 // carry set when the request was taken.
 import { tasksOf } from '../script/task-api.mjs';
-import { dialogCallBody } from '../system/native-call-continuation.mjs';
-import { cutsceneSequence } from '../cutscene/cutscene-scene.mjs';
-import { matrixSceneSequence } from '../matrix/matrix-scene.mjs';
+import { playCutscene } from '../cutscene/cutscene-scene.mjs';
+import { playMatrix } from '../matrix/matrix-scene.mjs';
 import { sceneRuntime } from '../system/scene-runtime.mjs';
 import { setUpGameScreen } from './game-screen.mjs';
 import { enterRoomSequence, forceBlank } from './room-entry.mjs';
@@ -46,11 +43,6 @@ import {
 import { BYTE_BITS, BYTE_MASK, WORD_MASK } from '../constants/bits.mjs';
 
 const SCENE_REQUEST_NONE = WORD_MASK;
-// Original call sites of the remaining cutscene and matrix wrappers.
-const CUTSCENE_SITE = 0xcc6b,
-  MATRIX_SITE = 0xcc71;
-const PLAY_CUTSCENE = 0x81cdf8,
-  PLAY_MATRIX = 0x81c3ca;
 
 const word = (wram, at) => readStateByte(wram, at) | (readStateByte(wram, at + 1) << BYTE_BITS);
 const setWord = (wram, at, value) => {
@@ -73,22 +65,9 @@ export function* sceneRequestSequence(h, events, request = {}) {
       scene = word(wram, SCENE_REQUEST);
       argument = word(wram, SCENE_REQUEST_ARGUMENT);
     };
-    if (scene !== SCENE_REQUEST_MATRIX)
-      yield* dialogCallBody(
-        h,
-        CUTSCENE_SITE,
-        PLAY_CUTSCENE,
-        () => cutsceneSequence(h, events, scene, argument),
-        true,
-      );
+    if (scene !== SCENE_REQUEST_MATRIX) yield* playCutscene(h, events, scene, argument);
     else {
-      yield* dialogCallBody(
-        h,
-        MATRIX_SITE,
-        PLAY_MATRIX,
-        () => matrixSceneSequence(h, events),
-        true,
-      );
+      yield* playMatrix(h, events);
       yield () => {
         const record = word(wram, DECKER_RECORD);
         // A long store indexed by X: a record near FFFF reaches into bank 7F.

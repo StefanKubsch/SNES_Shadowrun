@@ -249,6 +249,12 @@ function* setUpScreen(m, wait) {
 // 81:C3CA: play the matrix until the decker jacks out or the health runs out. h is
 // the accessor of the native call from the main loop (80:CC4B).
 export function* matrixSceneSequence(h, events) {
+  yield* playMatrix(h, events);
+  return yield () => h.rtl();
+}
+
+// Ordinary scene playback owns no CPU return frame.
+export function* playMatrix(h, events) {
   const clock = sceneFrames(h, events, 'matrix'),
     wait = () => clock.wait(m);
   let m, more;
@@ -349,15 +355,12 @@ export function* matrixSceneSequence(h, events) {
     }
   }
   yield* fadeOut(m.video, wait);
-  let result;
   yield () => {
     const { wram } = m;
     writeStateByte(wram, DECKER_HEALTH, readStateByte(wram, MATRIX_HEALTH));
     writeStateByte(wram, DECKER_DATA_BITS, readStateByte(wram, MATRIX_DATA_BITS));
     writeStateByte(wram, DECKER_DOWNLOAD_BITS, readStateByte(wram, MATRIX_DOWNLOAD_BITS));
-    result = h.rtl();
   };
-  return result;
 }
 
 // Keep the persona inside the screen columns and rows 60 to 90 (81:B84A).

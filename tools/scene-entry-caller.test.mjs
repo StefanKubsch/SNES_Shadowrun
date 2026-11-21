@@ -1,10 +1,10 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { cutsceneSequence } from '../src/cutscene/cutscene-scene.mjs';
+import { cutsceneSequence, playCutscene as cutsceneBody } from '../src/cutscene/cutscene-scene.mjs';
 import { cutsceneSequence as former } from '../proof/caller/cutscene-scene.mjs';
-import { introSequence } from '../src/intro/intro-scene.mjs';
+import { introSequence, playIntro as introBody } from '../src/intro/intro-scene.mjs';
 import { introSequence as formerIntro } from '../proof/caller/intro-scene.mjs';
-import { matrixSceneSequence } from '../src/matrix/matrix-scene.mjs';
+import { matrixSceneSequence, playMatrix as matrixBody } from '../src/matrix/matrix-scene.mjs';
 import { matrixSceneSequence as formerMatrix } from '../proof/caller/matrix-scene.mjs';
 import { playCutscene, playIntro, playMatrixScene } from '../proof/caller/scene-entries.mjs';
 import { createSide } from './lift-function-harness.mjs';
@@ -20,7 +20,7 @@ import * as W from '../src/data/wram.mjs';
 // The lifted cutscene with the scene and argument from A and X, as the scenario sets them.
 const direct = (h, events) => cutsceneSequence(h, events, h.ctx.a, h.ctx.x);
 
-function run(sequence, scene, budget, status = 0) {
+function run(sequence, scene, budget, status = 0, frameless = false) {
   const side = createSide({ seed: 17, wram: new Uint8Array(0x20000) }, new Map()),
     { h, a, mem } = side;
   a.vm.menuCredits = true;
@@ -38,6 +38,14 @@ function run(sequence, scene, budget, status = 0) {
   Object.assign(a.ctx, { a: scene, x: 0, status, programBank: 0x81, bank: 0x80, pc: 0xcdf8 });
   h.pushByte(0x80);
   h.a.pushWord(0x1234);
+  const stack = h.ctx.s;
+  if (frameless) {
+    h.pushByte =
+      h.a.pushWord =
+      h.rts =
+      h.rtl =
+        () => assert.fail('scene body must not use CPU frames');
+  }
   const routines = new Map();
   const runIntro = (callee, e, r) => drainNativeSequence(formerIntro(callee, e, r)),
     runCutscene = (callee, e, r) => drainNativeSequence(former(callee, e, r));
@@ -62,6 +70,7 @@ function run(sequence, scene, budget, status = 0) {
     assert.deepEqual(mem.wram, before);
     let calls = 0;
     while (continuation.run(budget) === WAIT_PAUSED) assert.ok(++calls < 100000);
+    if (frameless) assert.equal(h.ctx.s, stack, 'scene preserves the caller stack');
     // Game state only (user decision 2026-11-17): no A, X, Y and flags, nor the
     // interrupted A and S the NMI saves (7E:1C78-1C7B).
     const { a: _a, x: _x, y: _y, status: _status, ...ctx } = a.ctx,
@@ -79,6 +88,27 @@ function run(sequence, scene, budget, status = 0) {
     NATIVE_CALL_CONTINUATIONS.delete(runCutscene);
   }
 }
+
+for (const budget of [1, 7])
+  for (const [body, wrapper, scene] of [
+    [matrixBody, matrixSceneSequence, 0],
+    [introBody, introSequence, 0x14],
+    ...[0, 1, 2, 3, 4, 0x14, 0x8000, 0x8001, 0x8002, 0x8003, 0x8004].map((scene) => [
+      (h, events) => cutsceneBody(h, events, scene, 0),
+      direct,
+      scene,
+    ]),
+  ])
+    test(`direct scene graph preserves state and waits without CPU frames, scene ${scene}, budget ${budget}, ${body.name}`, () => {
+      const actual = run(body, scene, budget, 0, true),
+        expected = run(wrapper, scene, budget);
+      // CPU stack bytes and return metadata belong only to the compatibility entry.
+      for (const result of [actual, expected]) result.wram.fill(0, 0x100, 0x1ca);
+      assert.deepEqual(actual.wram, expected.wram);
+      assert.deepEqual(actual.writes, expected.writes);
+      assert.deepEqual(actual.waits, expected.waits);
+      assert.equal(actual.ctx.bank, expected.ctx.bank);
+    });
 
 for (const budget of [1, 7])
   test(`matrix setup, login and return own their waits, budget ${budget}`, () => {

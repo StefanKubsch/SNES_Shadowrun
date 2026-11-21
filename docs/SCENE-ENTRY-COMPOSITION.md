@@ -1,5 +1,24 @@
 # Scene entry composition
 
+## Phase 4 direct scene graph
+
+The normal scene request composes `playMatrix` and `playCutscene` directly.
+Cutscene 14 uses `playIntro`, whose ending calls the mirrored credits directly.
+This complete playback graph creates no CPU return frames. Matrix playback writes
+back decker state before returning as an ordinary generator. The request retains
+its post-wait reread, health-record update, screen restoration and room entry.
+
+The original entry adapters remain for register-level and recorded callers. In
+particular, `matrixSceneSequence` consumes only its caller's outer RTL frame.
+Existing intro/cutscene compatibility adapters retain their recorded call graph;
+ordinary playback does not enter them. The sections below describe that retained
+comparison interface, not the normal scene request.
+
+Twenty-six direct graph cases reject stack helper calls, preserve the caller's
+stack and compare all game bytes, device writes and serviced waits against the
+existing entries at budgets one and seven, including intro/credits and mirrors.
+Only CPU stack bytes and return metadata are excluded from that direct comparison.
+
 ## Cutscene intro tail
 
 Cutscene 14 transfers its existing long caller frame directly to the intro body.

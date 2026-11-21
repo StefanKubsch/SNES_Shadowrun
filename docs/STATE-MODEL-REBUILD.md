@@ -88,6 +88,16 @@ own commit after `npm run test:block` and the golden trace test. One shared
 
 ## Progress
 
+- 2026-11-21, phase 4, matrix and cutscene playback: scene requests compose the
+  matrix, cutscenes and nested intro/credits directly without CPU call frames.
+  Register-level entry adapters remain available to recorded comparisons. The
+  matrix adapter consumes its outer return only. Twenty-six direct graph cases
+  reject CPU stack helpers and retain game state, device and wait comparisons.
+  Phase 4 remains unfinished; phase 5 has not started.
+- Scene playback validation: 3475/3475 tests passed across 50 selected files in
+  225 seconds, including all five unchanged golden traces. Edited-file ESLint,
+  formatting and diff checks passed.
+
 - Room initialization and window lifecycle shared release passed 13046/13046 tests,
   with no failures or skips: 335 files executed and 334 unchanged. All five golden
   trace files and frozen proof code remain unchanged. Artifact passes each ran 239
