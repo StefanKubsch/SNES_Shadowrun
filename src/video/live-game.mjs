@@ -1,3 +1,4 @@
+import { detachSceneRoom } from '../state/scene-room.mjs';
 import { detachCombat } from '../state/combat.mjs';
 import { detachWindowsText } from '../state/windows-text.mjs';
 import { detachCameraMaps } from '../state/camera-maps.mjs';
@@ -93,6 +94,7 @@ export class LiveGame {
       detachCollisionStorage(this.memory.wram);
       detachCameraMaps(this.memory.wram);
       detachWindowsText(this.memory.wram);
+      detachSceneRoom(this.memory.wram);
       detachCombat(this.memory.wram);
     }
     this.memory.textEdits = cartridge.textEdits ?? null;

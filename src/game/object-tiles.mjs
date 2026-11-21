@@ -1,3 +1,4 @@
+import { readStateByte, writeStateByte } from '../state/objects.mjs';
 // The objects' tiles requested again (lifted from 80:ADF4 with 80:AE12; register-level
 // versions in proof/system/native-scene-tiles.mjs stay the reference).
 //
@@ -80,10 +81,10 @@ const WAIT_CALL = [0x80ae23, 0x81b0a1, true],
   END_WAIT = 0x80ae0c,
   LOAD_BYTES = 3;
 
-const word = (wram, at) => wram[at] | (wram[at + 1] << BYTE_BITS);
+const word = (wram, at) => readStateByte(wram, at) | (readStateByte(wram, at + 1) << BYTE_BITS);
 const setWord = (wram, at, value) => {
-  wram[at] = value & BYTE_MASK;
-  wram[at + 1] = (value >>> BYTE_BITS) & BYTE_MASK;
+  writeStateByte(wram, at, value & BYTE_MASK);
+  writeStateByte(wram, at + 1, (value >>> BYTE_BITS) & BYTE_MASK);
 };
 const longWord = (mem, at) =>
   mem.read8(at & LONG_MASK) | (mem.read8((at + 1) & LONG_MASK) << BYTE_BITS);
@@ -146,7 +147,7 @@ function* reloadSequence(h, events, slot) {
   };
   const get = (field, index) => word(wram, near(field, index)),
     put = (field, value, index) => setWord(wram, near(field, index), value),
-    pointer = (dp) => word(wram, dp) | (wram[dp + 2] << WORD_BITS);
+    pointer = (dp) => word(wram, dp) | (readStateByte(wram, dp + 2) << WORD_BITS);
 
   // A picture change still waiting: the animation step takes it, a frame apart.
   let change = 0;

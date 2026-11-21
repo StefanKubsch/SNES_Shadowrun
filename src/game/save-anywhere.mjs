@@ -1,3 +1,4 @@
+import { readStateByte } from '../state/objects.mjs';
 // Save anywhere (quality-of-life option, docs/SAVING.md): the page asks the
 // game to save into a slot outside the bed menu. The save is the same as
 // "Save game 1/2" at a bed (81:B17D, lifted as saveGame in
@@ -19,7 +20,7 @@ export const SAVE_SLOT_EVENTS = Object.freeze([
 ]);
 const NO_SCENE_REQUEST = WORD_MASK;
 
-const word = (wram, at) => wram[at] | (wram[at + 1] << BYTE_BITS);
+const word = (wram, at) => readStateByte(wram, at) | (readStateByte(wram, at + 1) << BYTE_BITS);
 
 // Same moments as the debug room shortcut (src/browser/debug-room.mjs): the
 // player control 80:E014 ran in the last picture (no menu, dialogue, glove

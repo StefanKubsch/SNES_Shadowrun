@@ -49,8 +49,8 @@ const readWord = (mem, at) =>
 export function clampToCameraBox(mem, wram) {
   if (!word(wram, CAMERA_BOX_HIGH)) return;
   for (let n = 0; n < BOX_POINTER_BYTES; n++)
-    wram[DP_BOX + n] = readStateByte(wram, CAMERA_BOX + n);
-  const box = (wram[DP_BOX + 2] << WORD_BITS) | word(wram, DP_BOX),
+    writeStateByte(wram, DP_BOX + n, readStateByte(wram, CAMERA_BOX + n));
+  const box = (readStateByte(wram, DP_BOX + 2) << WORD_BITS) | word(wram, DP_BOX),
     shiftedX = (word(wram, DP_CAMERA_X) - CAMERA_CENTRE_X) & WORD_MASK,
     doubleY = ((CAMERA_CENTRE_Y - word(wram, DP_CAMERA_Y)) << 1) & WORD_MASK;
   let a = ((doubleY - shiftedX) & WORD_MASK) >>> AXIS_SHIFT,

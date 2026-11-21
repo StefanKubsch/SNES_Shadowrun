@@ -1,3 +1,4 @@
+import { readStateByte } from '../state/objects.mjs';
 // The swarms' motion each frame (lifted from the script natives 80:D85B and 80:D2E7;
 // register-level references in proof/game-reference/swarm-motion.mjs).
 //
@@ -143,9 +144,9 @@ export function moveSwarmWave(mem, mode, point) {
       entry = (first - point - (first < 0 ? 1 : 0)) & WORD_MASK;
     for (const [offset, target] of POINT_FIELDS) {
       const pointer =
-        wram[DP_POINT_LIST] |
-        (wram[DP_POINT_LIST + 1] << BYTE_BITS) |
-        (wram[DP_POINT_LIST_BANK] << WORD_BITS);
+        readStateByte(wram, DP_POINT_LIST) |
+        (readStateByte(wram, DP_POINT_LIST + 1) << BYTE_BITS) |
+        (readStateByte(wram, DP_POINT_LIST_BANK) << WORD_BITS);
       setWord(mem, target, pointerWord(mem, pointer, (entry + offset) & WORD_MASK) << POINT_SHIFT);
     }
     return;

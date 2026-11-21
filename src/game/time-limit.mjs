@@ -1,3 +1,4 @@
+import { readStateByte, writeStateByte } from '../state/objects.mjs';
 // The time limit of the Cortex bomb (lifted from 80:E270 and the script natives 80:E255,
 // 80:E24E and 80:E262; register-level references in proof/game-reference/main-timer.mjs
 // and proof/game-reference/script-timer.mjs).
@@ -65,10 +66,10 @@ const FRAMES_PER_HOUR = 0xdd4,
 const DP_WINDOW = 0x00,
   DP_ARGUMENT = 0x02,
   DP_SOUND_OBJECT = 0x00;
-const word = (wram, at) => wram[at] | (wram[at + 1] << BYTE_BITS);
+const word = (wram, at) => readStateByte(wram, at) | (readStateByte(wram, at + 1) << BYTE_BITS);
 const setWord = (wram, at, value) => {
-  wram[at] = value & BYTE_MASK;
-  wram[at + 1] = (value >>> BYTE_BITS) & BYTE_MASK;
+  writeStateByte(wram, at, value & BYTE_MASK);
+  writeStateByte(wram, at + 1, (value >>> BYTE_BITS) & BYTE_MASK);
 };
 
 // Count the time limit down (80:E270), a sequence for a native call continuation:

@@ -1,3 +1,4 @@
+import { readStateByte } from '../state/objects.mjs';
 import { FIRST_ARGUMENT, finishLeaf, leafArgument } from '../system/native-leaf-support.mjs';
 import { equipWeapon } from '../game/runner-equipment.mjs';
 import {
@@ -15,9 +16,9 @@ export const equipRunnerWeapon = (a, outerReturn = true) => {
   equipWeapon(
     a.mem,
     leafArgument(a, FIRST_ARGUMENT),
-    wram[DP_EQUIP_WEAPON_KIND],
-    wram[DP_EQUIP_WEAPON_DAMAGE],
-    wram[DP_EQUIP_WEAPON_RANGE],
+    readStateByte(wram, DP_EQUIP_WEAPON_KIND),
+    readStateByte(wram, DP_EQUIP_WEAPON_DAMAGE),
+    readStateByte(wram, DP_EQUIP_WEAPON_RANGE),
   );
   return finishLeaf(a, outerReturn);
 };

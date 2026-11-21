@@ -1,3 +1,4 @@
+import { readStateByte } from '../state/objects.mjs';
 // The frame waits (lifted from 81:EEBB and 81:B0A1; register-level versions in
 // proof/system/main-scene-wait.mjs and proof/system/native-frame-wait.mjs). 81:EEBB: with
 // the NMI enabled in the NMITIMEN shadow, wait until the NMI has changed the frame
@@ -65,12 +66,12 @@ export function* nmiAtBranch(h, events, branch, status) {
 export function* waitForFrame(h, events, port) {
   const { ctx } = h,
     { wram } = h.a.mem;
-  if (!(wram[NMITIMEN_SHADOW] & NMITIMEN_NMI_ENABLE)) {
+  if (!(readStateByte(wram, NMITIMEN_SHADOW) & NMITIMEN_NMI_ENABLE)) {
     while (port.read(HVBJOY, 1, VBLANK_SITE) & HVBJOY_VBLANK);
     return;
   }
-  const counter = wram[RANDOM_STATE];
-  while (wram[RANDOM_STATE] === counter)
+  const counter = readStateByte(wram, RANDOM_STATE);
+  while (readStateByte(wram, RANDOM_STATE) === counter)
     yield* nmiAtBranch(h, events, WAIT_BRANCH, (ctx.status | WAIT_FLAGS) & ~FLAG_NEGATIVE);
 }
 
@@ -82,7 +83,8 @@ export function* waitForFrame(h, events, port) {
 export function* waitForCounterWord(h, events) {
   const { ctx } = h,
     { wram } = h.a.mem,
-    counter = () => wram[RANDOM_STATE] | (wram[RANDOM_STATE + 1] << BYTE_BITS);
+    counter = () =>
+      readStateByte(wram, RANDOM_STATE) | (readStateByte(wram, RANDOM_STATE + 1) << BYTE_BITS);
   let start;
   yield () => {
     start = counter();

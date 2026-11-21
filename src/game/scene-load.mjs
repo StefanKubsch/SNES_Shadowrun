@@ -178,7 +178,7 @@ const setWord = (wram, at, value) => {
 };
 const readWord = (mem, at) =>
   mem.read8(at & LONG_MASK) | (mem.read8((at + 1) & LONG_MASK) << BYTE_BITS);
-const longPointer = (wram, at) => (wram[at + 2] << WORD_BITS) | word(wram, at);
+const longPointer = (wram, at) => (readStateByte(wram, at + 2) << WORD_BITS) | word(wram, at);
 // The word at a direct page long pointer plus an offset (it runs on into the next bank).
 const pointed = (mem, wram, dp, offset) => readWord(mem, longPointer(wram, dp) + offset);
 const pointedByte = (mem, wram, dp, offset) =>
@@ -357,7 +357,7 @@ function clearSceneLayers(wram) {
 // Empty the wall map (81:902D).
 function clearWallMap(wram) {
   setWord(wram, DP_WALL_NEXT, 0);
-  wram.fill(BYTE_MASK, wramAt(WALL_MAP), wramAt(WALL_MAP) + WALL_MAP_BYTES);
+  fillStateBytes(wram, BYTE_MASK, wramAt(WALL_MAP), wramAt(WALL_MAP) + WALL_MAP_BYTES);
 }
 // Look palette up in the palette cycles (81:801A): a hit fills the next of the two
 // cycle slots for scene palette slot.
@@ -740,7 +740,7 @@ function drawGraphic(mem, wram) {
 function buildLayerTileStacks(mem, wram) {
   const record = (y) => pointed(mem, wram, DP_SCENE_RECORD, y),
     definition = (y) => pointed(mem, wram, DP_LAYER_DEFINITION, y);
-  wram[DP_LAYER_DEFINITION_BANK] = DEFINITION_OBJECT_BANK;
+  writeStateByte(wram, DP_LAYER_DEFINITION_BANK, DEFINITION_OBJECT_BANK);
   let y = 0;
   do {
     const object = record(y),
@@ -780,8 +780,10 @@ function buildLayerTileStacks(mem, wram) {
         const part = definition(p),
           index = (((part << 1) & WORD_MASK) + part) & GRAPHIC_INDEX_MASK;
         p += 2;
-        wram[DP_GRAPHIC_BANK] = mem.read8(
-          (GRAPHIC_TABLE + GRAPHIC_BANK_OFFSET + index) & LONG_MASK,
+        writeStateByte(
+          wram,
+          DP_GRAPHIC_BANK,
+          mem.read8((GRAPHIC_TABLE + GRAPHIC_BANK_OFFSET + index) & LONG_MASK),
         );
         setWord(wram, DP_GRAPHIC, readWord(mem, GRAPHIC_TABLE + index));
         setWord(
@@ -832,8 +834,8 @@ export function* loadSceneSequence(h, scene) {
     Object.assign(ctx, { programBank: SCENE_LOAD_BANK, bank: SCENE_DATA_BANK });
     setWord(wram, DP_SCRATCH, scene);
     const entry = SCENE_STREAMS + ((scene * SCENE_STREAM_BYTES) & WORD_MASK);
-    wram[DP_SCENE_RECORD_BANK] = WRAM_HIGH_BANK;
-    wram[DP_OBJECT_LISTS_BANK] = WRAM_HIGH_BANK;
+    writeStateByte(wram, DP_SCENE_RECORD_BANK, WRAM_HIGH_BANK);
+    writeStateByte(wram, DP_OBJECT_LISTS_BANK, WRAM_HIGH_BANK);
     setWord(wram, DP_SCENE_RECORD, SCENE_RECORD & WORD_MASK);
     unpackLong(
       mem,

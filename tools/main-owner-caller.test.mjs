@@ -44,6 +44,7 @@ const CPU_STACKS = [
   [0x0100, 0x01ca],
   [NMI_SAVED_A, 0x1cbc],
 ];
+const MAX_PENDING_STATES = 4;
 function snapshot(game) {
   const { ppu } = game.bus,
     { a, x, y, status, s, ...context } = game.loop.accessor.ctx,
@@ -96,8 +97,7 @@ function* session(game, owner, routines, boundary, resume, side, request) {
   yield { continuation: loop.round(ROUND) };
   yield () => {
     loop.closeInterval(events);
-    game.memory.wram[request] = 1;
-    game.memory.wram[request + 1] = 0;
+    game.memory.write16(0x7e0000 + request, 1);
   };
   const returning = loop.interval(0x8096c3);
   yield {
@@ -171,6 +171,14 @@ for (const budget of [1, 7])
         while (!done.every(Boolean))
           for (const [side, game] of games.entries()) {
             if (done[side]) continue;
+            // Let the slower side catch up before retaining more full snapshots.
+            // Each side keeps its work budget, and every frame is still compared.
+            if (
+              !done[1 - side] &&
+              pending[side].size > MAX_PENDING_STATES &&
+              pending[side].size > pending[1 - side].size
+            )
+              continue;
             game.loop.accessor.resetAccessBudget();
             done[side] = game.loop.work.run(budget) === WAIT_RETURNED;
             assert.ok(game.nmis < 20000, 'session must finish');

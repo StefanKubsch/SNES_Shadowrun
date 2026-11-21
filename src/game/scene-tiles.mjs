@@ -201,7 +201,10 @@ export function* uploadSceneTilesSequence(h) {
           for (let plane = 0; plane < 2; plane++)
             video.write(
               VMDATAL + plane,
-              wram[TILE_COMPOSE + pair * PLANE_PAIR_BYTES + row + plane * PLANE_BYTES],
+              readStateByte(
+                wram,
+                TILE_COMPOSE + pair * PLANE_PAIR_BYTES + row + plane * PLANE_BYTES,
+              ),
               1,
             );
     };

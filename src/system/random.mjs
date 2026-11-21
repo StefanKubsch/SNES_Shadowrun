@@ -1,3 +1,4 @@
+import { readStateByte, writeStateByte } from '../state/objects.mjs';
 // Random numbers (lifted from 80:C51F and 80:C560; long form 80:F2A8, register-level
 // version in proof/replay/native-random.mjs). A random byte mixes the last byte, the
 // frame counter word and the horizontal and vertical beam counters through the
@@ -31,13 +32,13 @@ export function randomWord(mem, port) {
   const { wram } = mem,
     { bytes } = tables(mem);
   port.read(SLHV, 1, LATCH_SITE);
-  const low = bytes[wram[RANDOM_BYTE]] ^ wram[RANDOM_STATE];
+  const low = bytes[readStateByte(wram, RANDOM_BYTE)] ^ readStateByte(wram, RANDOM_STATE);
   const index = low ^ port.read(OPHCT, 1, HORIZONTAL_SITE),
-    high = bytes[index] ^ wram[RANDOM_STATE_HIGH];
+    high = bytes[index] ^ readStateByte(wram, RANDOM_STATE_HIGH);
   let last = high ^ port.read(OPVCT, 1, VERTICAL_SITE);
   // The new byte never repeats the last one.
-  if (last === wram[RANDOM_BYTE]) last = (last + 1) & BYTE_MASK;
-  wram[RANDOM_BYTE] = last;
+  if (last === readStateByte(wram, RANDOM_BYTE)) last = (last + 1) & BYTE_MASK;
+  writeStateByte(wram, RANDOM_BYTE, last);
   return low | (high << BYTE_BITS);
 }
 // The mask of a nonzero range's bit length, which a draw is cut to.
@@ -64,8 +65,8 @@ export function randomBelow(mem, port, range, counter = null) {
 export function drawBelowInDirectPage(mem, port, range) {
   const { wram } = mem,
     setWord = (at, value) => {
-      wram[at] = value & BYTE_MASK;
-      wram[at + 1] = (value >>> BYTE_BITS) & BYTE_MASK;
+      writeStateByte(wram, at, value & BYTE_MASK);
+      writeStateByte(wram, at + 1, (value >>> BYTE_BITS) & BYTE_MASK);
     };
   setWord(DP_DRAW, range);
   if (range === 0) return 0;

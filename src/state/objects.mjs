@@ -1,7 +1,8 @@
-import { combatByte, setCombatByte } from './combat.mjs';
-import { windowTextByte, setWindowTextByte } from './windows-text.mjs';
-import { cameraMapByte, setCameraMapByte } from './camera-maps.mjs';
-import { collisionByte, setCollisionByte } from './collision.mjs';
+import { SCENE_ROOM_FIELDS, sceneRoomByte, setSceneRoomByte } from './scene-room.mjs';
+import { COMBAT_FIELDS, combatByte, setCombatByte } from './combat.mjs';
+import { WINDOW_TEXT_FIELDS, windowTextByte, setWindowTextByte } from './windows-text.mjs';
+import { CAMERA_MAP_FIELDS, cameraMapByte, setCameraMapByte } from './camera-maps.mjs';
+import { COLLISION_FIELDS, collisionByte, setCollisionByte } from './collision.mjs';
 // The object table: one entry per object slot, each field a named array
 // (docs/STATE-MODEL-REBUILD.md, phase 2). Game code reads and writes objects through
 // these fields instead of WRAM addresses.
@@ -237,33 +238,40 @@ for (const [name, base] of Object.entries(FIELDS)) {
     byteFields[base + index * SLOT_BYTES + 1] = { name, index, shift: BYTE_BITS };
   }
 }
+// Route each legacy byte straight to its owner. Unowned workspace takes the raw
+// path without probing every subsystem's WeakMap on each native read or write.
+const byteReaders = [],
+  byteWriters = [];
+for (const [schema, read, write] of [
+  [COLLISION_FIELDS, collisionByte, setCollisionByte],
+  [CAMERA_MAP_FIELDS, cameraMapByte, setCameraMapByte],
+  [WINDOW_TEXT_FIELDS, windowTextByte, setWindowTextByte],
+  [COMBAT_FIELDS, combatByte, setCombatByte],
+  [SCENE_ROOM_FIELDS, sceneRoomByte, setSceneRoomByte],
+])
+  for (const { base, count, bytes = 2, stride = bytes } of Object.values(schema))
+    for (let index = 0; index < count; index++)
+      for (let byte = 0; byte < bytes; byte++) {
+        byteReaders[base + index * stride + byte] = read;
+        byteWriters[base + index * stride + byte] = write;
+      }
 export function readStateByte(wram, at) {
-  const field = detached.has(wram) && byteFields[at];
-  if (!field)
-    return (
-      collisionByte(wram, at) ??
-      cameraMapByte(wram, at) ??
-      windowTextByte(wram, at) ??
-      combatByte(wram, at) ??
-      wram[at]
-    );
-  return (tables.get(wram)[field.name][field.index] >>> field.shift) & BYTE_MASK;
+  const field = byteFields[at];
+  if (field && detached.has(wram))
+    return (tables.get(wram)[field.name][field.index] >>> field.shift) & BYTE_MASK;
+  const read = byteReaders[at];
+  return read ? (read(wram, at) ?? wram[at]) : wram[at];
 }
 export function writeStateByte(wram, at, value) {
-  const field = detached.has(wram) && byteFields[at];
-  if (!field) {
-    if (
-      !setCollisionByte(wram, at, value) &&
-      !setCameraMapByte(wram, at, value) &&
-      !setWindowTextByte(wram, at, value) &&
-      !setCombatByte(wram, at, value)
-    )
-      wram[at] = value;
-    return value;
+  const field = byteFields[at];
+  if (field && detached.has(wram)) {
+    const values = tables.get(wram)[field.name],
+      mask = BYTE_MASK << field.shift;
+    values[field.index] = (values[field.index] & ~mask) | ((value & BYTE_MASK) << field.shift);
+  } else {
+    const write = byteWriters[at];
+    if (!write || !write(wram, at, value)) wram[at] = value;
   }
-  const values = tables.get(wram)[field.name],
-    mask = BYTE_MASK << field.shift;
-  values[field.index] = (values[field.index] & ~mask) | ((value & BYTE_MASK) << field.shift);
   return value;
 }
 export const readStateWord = (wram, at) =>

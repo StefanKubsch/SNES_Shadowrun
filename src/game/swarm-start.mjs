@@ -1,3 +1,4 @@
+import { readStateByte, writeStateByte } from '../state/objects.mjs';
 // The swarms' start and the circling leader (lifted from the script natives 80:D7DD,
 // 80:D260 and 80:D63C; register-level references in proof/game-reference/swarm-start.mjs).
 //
@@ -107,10 +108,10 @@ const CIRCLE_SPEED_LIMIT = 0x14,
 
 const word = (mem, at) => dataBankWord(mem, at);
 const setWord = (mem, at, value) => setDataBankWord(mem, at, 0, value & WORD_MASK);
-const dpWord = (wram, at) => wram[at] | (wram[at + 1] << BYTE_BITS);
+const dpWord = (wram, at) => readStateByte(wram, at) | (readStateByte(wram, at + 1) << BYTE_BITS);
 const setDpWord = (wram, at, value) => {
-  wram[at] = value & BYTE_MASK;
-  wram[at + 1] = (value >>> BYTE_BITS) & BYTE_MASK;
+  writeStateByte(wram, at, value & BYTE_MASK);
+  writeStateByte(wram, at + 1, (value >>> BYTE_BITS) & BYTE_MASK);
 };
 const waveByte = (mem, phase) => dataBankWord(mem, WAVE_TABLE, phase) & BYTE_MASK;
 

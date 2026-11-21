@@ -1,3 +1,4 @@
+import { readStateByte } from '../state/objects.mjs';
 // Waiting for a confirming key (lifted from the script native 80:F953; register-level
 // version in proof/replay/native-input-wait.mjs, which recorded waits and inputs replay):
 // each frame the word wait 81:B0A1 and the newly pressed buttons 80:9E1A, until one of
@@ -21,7 +22,9 @@ export function* waitForConfirmKeySequence(h, events) {
     yield* dialogCallBody(h, ...WAIT_CALL, () => frameWaitCallSequence(h, events), true);
     yield* segmentSequence(() => takePad(h, events));
     yield () => {
-      pressed = (wram[PAD_PRESSED] | (wram[PAD_PRESSED + 1] << BYTE_BITS)) & CONFIRM_BUTTONS;
+      pressed =
+        (readStateByte(wram, PAD_PRESSED) | (readStateByte(wram, PAD_PRESSED + 1) << BYTE_BITS)) &
+        CONFIRM_BUTTONS;
     };
   } while (pressed === 0);
   let result;

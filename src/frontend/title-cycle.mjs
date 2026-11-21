@@ -1,3 +1,4 @@
+import { writeStateByte } from '../state/objects.mjs';
 // The title cycle and the attract game (lifted from 80:A18C, 80:A168 and 80:96F3;
 // register-level reference in proof/frontend-reference/title-cycle.mjs).
 //
@@ -53,8 +54,8 @@ const SONG_NONE = 0,
 const TITLE_AUDIO_BANK = 0x81;
 
 const setWord = (wram, at, value) => {
-  wram[at] = value & BYTE_MASK;
-  wram[at + 1] = (value >>> BYTE_BITS) & BYTE_MASK;
+  writeStateByte(wram, at, value & BYTE_MASK);
+  writeStateByte(wram, at + 1, (value >>> BYTE_BITS) & BYTE_MASK);
 };
 
 // 80:A18C: the title cycle. title is false when the cycle starts after a game (A zero

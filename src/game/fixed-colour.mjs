@@ -1,3 +1,4 @@
+import { readStateByte, writeStateByte } from '../state/objects.mjs';
 // The fixed colour of colour math (lifted from 81:8861 with its common tail 81:886A
 // and the colour effect 81:8877; register-level versions in
 // proof/replay/main-transition.mjs and src/system/native-dialog-portrait.mjs, which their
@@ -37,10 +38,10 @@ const FLASH_FIXED_COLOUR = 0xe5,
   FLASH_COLOUR_MATH = 0xe3,
   RAMP_COLOUR_MATH = 0x23;
 
-const word = (wram, at) => wram[at] | (wram[at + 1] << BYTE_BITS);
+const word = (wram, at) => readStateByte(wram, at) | (readStateByte(wram, at + 1) << BYTE_BITS);
 const setWord = (wram, at, value) => {
-  wram[at] = value & BYTE_MASK;
-  wram[at + 1] = (value >>> BYTE_BITS) & BYTE_MASK;
+  writeStateByte(wram, at, value & BYTE_MASK);
+  writeStateByte(wram, at + 1, (value >>> BYTE_BITS) & BYTE_MASK);
 };
 
 // The fixed colour black and colour math off (81:886A).

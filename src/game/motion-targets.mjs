@@ -1,3 +1,4 @@
+import { readStateByte } from '../state/objects.mjs';
 // The motion targets scripts give objects (lifted from the script natives 80:C6F3,
 // 80:C6F8, 80:C716, 80:C71D, 80:C79C, 80:C7A1, 80:C7C2, 80:C6BF, 80:C6C4 and 80:D105;
 // register-level references in proof/game-reference/motion-targets.mjs).
@@ -73,9 +74,9 @@ function waypointEntry(waypoint) {
 function waypointWord(mem, waypoint, offset) {
   const { wram } = mem,
     list =
-      wram[DP_POINT_LIST] |
-      (wram[DP_POINT_LIST + 1] << BYTE_BITS) |
-      (wram[DP_POINT_LIST_BANK] << WORD_BITS);
+      readStateByte(wram, DP_POINT_LIST) |
+      (readStateByte(wram, DP_POINT_LIST + 1) << BYTE_BITS) |
+      (readStateByte(wram, DP_POINT_LIST_BANK) << WORD_BITS);
   return (
     (mem.read16((list + ((waypointEntry(waypoint) + offset) & WORD_MASK)) & LONG_MASK) *
       POINT_SCALE) &

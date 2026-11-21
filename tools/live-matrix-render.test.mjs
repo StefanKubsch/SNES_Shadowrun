@@ -52,10 +52,6 @@ test(
       'matrix alternates enabled TM layers and TS state',
     );
     assert.deepEqual(errors, [], 'each observed frame renders');
-    assert.equal(
-      result.game.memory.wram[0x2de2] | (result.game.memory.wram[0x2de3] << 8),
-      345,
-      'jack out returns to room 345',
-    );
+    assert.equal(result.game.memory.read16(0x7e2de2), 345, 'jack out returns to room 345');
   },
 );

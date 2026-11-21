@@ -1,3 +1,4 @@
+import { writeStateByte } from '../state/objects.mjs';
 // Scene command lists (lifted from 81:EC16 and its commands 81:EC41-ECD0, with the
 // palette copy 81:ECF2; register-level version in proof/system/main-scene-video.mjs).
 // A list of command bytes with their arguments sets up a screen: the NMI
@@ -47,8 +48,8 @@ const LONG_MASK = 0xffffff,
   DMA_CHANNEL_0 = 1,
   WRAM_BANK = WRAM >>> WORD_BITS;
 const setWord = (wram, at, value) => {
-  wram[at] = value & BYTE_MASK;
-  wram[at + 1] = (value >>> BYTE_BITS) & BYTE_MASK;
+  writeStateByte(wram, at, value & BYTE_MASK);
+  writeStateByte(wram, at + 1, (value >>> BYTE_BITS) & BYTE_MASK);
 };
 
 // Copy count colours from source (long address) to CGRAM from colour first and to

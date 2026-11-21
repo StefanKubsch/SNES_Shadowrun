@@ -189,8 +189,8 @@ test('cheat switches before and during a real cold session replay with identical
     onFrame: (f) => recorder.frame(f.nmi, game.memory.wram),
   });
   while (game.nmis < 5100) game.step();
-  assert.equal(game.memory.wram[0x3bfb + RECORD_ATTRIBUTE.body], 20);
-  assert.equal(game.memory.wram[0x3bfb + RECORD_SPELL.heal], 6);
+  assert.equal(game.memory.read8(0x7e3bfb + RECORD_ATTRIBUTE.body), 20);
+  assert.equal(game.memory.read8(0x7e3bfb + RECORD_SPELL.heal), 6);
   const recording = parseRecording(JSON.stringify(recorder));
   assert.ok(recording.events.some((e) => e[1] === 'cheats-0'));
   const replay = replayRecording(cartridge, recording, { until: game.nmis, stop: true });

@@ -1,3 +1,4 @@
+import { readStateByte, writeStateByte } from '../state/objects.mjs';
 // An object's walk towards its motion target (lifted from 80:C9E0 with the two ways
 // 80:C84D and 80:C913 and the distance 80:C80C; register-level reference
 // moveObjectTowardsTarget in proof/replay/main-motion-target.mjs).
@@ -69,10 +70,11 @@ const DP_OBJECT = 0,
   DP_X_NEGATIVE = 0xa8,
   DP_Y_NEGATIVE = 0xab;
 
-const word = (wram, at) => wram[at % WRAM_SIZE] | (wram[(at + 1) % WRAM_SIZE] << BYTE_BITS);
+const word = (wram, at) =>
+  readStateByte(wram, at % WRAM_SIZE) | (readStateByte(wram, (at + 1) % WRAM_SIZE) << BYTE_BITS);
 const setWord = (wram, at, value) => {
-  wram[at % WRAM_SIZE] = value & BYTE_MASK;
-  wram[(at + 1) % WRAM_SIZE] = (value >>> BYTE_BITS) & BYTE_MASK;
+  writeStateByte(wram, at % WRAM_SIZE, value & BYTE_MASK);
+  writeStateByte(wram, (at + 1) % WRAM_SIZE, (value >>> BYTE_BITS) & BYTE_MASK);
 };
 
 // Walk the object in slot towards its target (80:C9E0); a is the accessor of the memory

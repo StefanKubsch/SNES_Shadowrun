@@ -1,3 +1,4 @@
+import { readStateByte, writeStateByte } from '../state/objects.mjs';
 // A blast (lifted from the script native 80:8E36; register-level version in
 // proof/replay/native-object-hit.mjs, which recorded waits and inputs replay).
 //
@@ -22,10 +23,10 @@ const DP_BLAST_CENTRE = 0xa2,
   // The hit gets no shooter.
   NO_SHOOTER = WORD_MASK;
 
-const word = (wram, at) => wram[at] | (wram[at + 1] << BYTE_BITS);
+const word = (wram, at) => readStateByte(wram, at) | (readStateByte(wram, at + 1) << BYTE_BITS);
 const setWord = (wram, at, value) => {
-  wram[at] = value & BYTE_MASK;
-  wram[at + 1] = (value >>> BYTE_BITS) & BYTE_MASK;
+  writeStateByte(wram, at, value & BYTE_MASK);
+  writeStateByte(wram, at + 1, (value >>> BYTE_BITS) & BYTE_MASK);
 };
 // Whether the blast reaches the slot: an object that can be hit within reach on each
 // axis.

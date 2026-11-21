@@ -1,3 +1,4 @@
+import { readStateByte, writeStateByte } from '../state/objects.mjs';
 // The depth sort of the draw list (lifted from 80:AFFC with its depth rule comparisons
 // 80:B0A5 and 80:B0ED; register-level reference runDrawListSortPass in
 // proof/replay/native-scene-sprites.mjs).
@@ -44,10 +45,10 @@ const RULES = new Map([
   [4, { axis: 'y', whenAhead: false }],
 ]);
 
-const word = (wram, at) => wram[at] | (wram[at + 1] << BYTE_BITS);
+const word = (wram, at) => readStateByte(wram, at) | (readStateByte(wram, at + 1) << BYTE_BITS);
 const setWord = (wram, at, value) => {
-  wram[at] = value & BYTE_MASK;
-  wram[at + 1] = (value >>> BYTE_BITS) & BYTE_MASK;
+  writeStateByte(wram, at, value & BYTE_MASK);
+  writeStateByte(wram, at + 1, (value >>> BYTE_BITS) & BYTE_MASK);
 };
 
 // Sort the draw list (80:AFFC) on the access h of the sprite list (data bank 80, which

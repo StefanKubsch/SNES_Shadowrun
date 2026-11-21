@@ -1,3 +1,4 @@
+import { writeStateByte } from '../state/objects.mjs';
 import { readStateByte } from '../state/objects.mjs';
 // Four save slots (quality-of-life option fourSaveSlots, docs/SAVING.md).
 // The original slot table 81:B124 already lists four offsets (0, 0FFE, 1FFC,
@@ -106,10 +107,10 @@ export function saveSlotValid(mem, slot, four) {
       (i) => mem.read8(SRAM_BASE + (i & WORD_MASK)),
       offset + CHECKSUM_WORD_BYTES,
     );
-  wram[DP_SAVE_SLOT] = slot & BYTE_MASK;
-  wram[DP_SAVE_SLOT + 1] = (slot >>> BYTE_BITS) & BYTE_MASK;
-  wram[DP_CHECKSUM_FIRST_SUM] = sums.first;
-  wram[DP_CHECKSUM_WORD] = sums.low;
-  wram[DP_CHECKSUM_HIGH] = sums.high;
+  writeStateByte(wram, DP_SAVE_SLOT, slot & BYTE_MASK);
+  writeStateByte(wram, DP_SAVE_SLOT + 1, (slot >>> BYTE_BITS) & BYTE_MASK);
+  writeStateByte(wram, DP_CHECKSUM_FIRST_SUM, sums.first);
+  writeStateByte(wram, DP_CHECKSUM_WORD, sums.low);
+  writeStateByte(wram, DP_CHECKSUM_HIGH, sums.high);
   return sums.word === mem.read16(SRAM_BASE + offset);
 }

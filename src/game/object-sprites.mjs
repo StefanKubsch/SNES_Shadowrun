@@ -272,7 +272,7 @@ export function enterObjectSpritesInPlace(h, slot, picture) {
   const highBits = (offset, table, or) => {
     const index = ((offset >>> QUARTER_SHIFT) - 1) & WORD_MASK,
       bits = longByte(mem, table + index);
-    wram[DP_SCRATCH] = bits;
+    writeStateByte(wram, DP_SCRATCH, bits);
     const x = (index & ~BYTE_MASK) | ((index & BYTE_MASK) >>> QUARTER_SHIFT),
       high = (WRAM + OAM_HIGH_TABLE + x) & LONG_MASK;
     mem.write8(high, or ? bits | mem.read8(high) : bits & mem.read8(high));
@@ -298,7 +298,7 @@ export function enterObjectSpritesInPlace(h, slot, picture) {
   setDp(DP_PICTURE, picture | HIGH_PICTURE);
   setDp(DP_PICTURE_BANK, PICTURE_BANK + (picture >>> (WORD_BITS - 1)));
   const pictureAt = (offset) =>
-    ((wram[DP_PICTURE_BANK] << WORD_BITS) + dp(DP_PICTURE) + offset) & LONG_MASK;
+    ((readStateByte(wram, DP_PICTURE_BANK) << WORD_BITS) + dp(DP_PICTURE) + offset) & LONG_MASK;
   setDp(DP_ANCHOR_X, longByte(mem, pictureAt(0)) << 1);
   setDp(DP_ANCHOR_Y, longByte(mem, pictureAt(1)) << 1);
   setLowObjectWord(
@@ -581,20 +581,22 @@ export function enterObjectSpritesInPlace(h, slot, picture) {
         else {
           oam(x, screenX & BYTE_MASK);
           oam(x + OAM_Y_BYTE, (screenY - 1) & BYTE_MASK);
-          oam(x + OAM_NAME_BYTE, wram[DP_TILE]);
+          oam(x + OAM_NAME_BYTE, readStateByte(wram, DP_TILE));
           oam(
             x + OAM_ATTRIBUTE_BYTE,
-            (byte & OAM_FLIP_MASK) | wram[DP_PALETTE_SLOT] | wram[DP_PRIORITY],
+            (byte & OAM_FLIP_MASK) |
+              readStateByte(wram, DP_PALETTE_SLOT) |
+              readStateByte(wram, DP_PRIORITY),
           );
           x = (x + OAM_ENTRY_BYTES) & WORD_MASK;
           setDp(DP_OAM_OFFSET, x);
-          if (wram[DP_SCREEN_X_HIGH] & BYTE_SIGN) x = highBits(x, HIGH_X_BITS, true);
+          if (readStateByte(wram, DP_SCREEN_X_HIGH) & BYTE_SIGN) x = highBits(x, HIGH_X_BITS, true);
         }
       }
       if (next) {
         // The next VRAM tile of the slot chain (a byte).
         x = dp(DP_TILE);
-        wram[DP_TILE] = wram[at(VRAM_SLOT_NEXT, x)];
+        writeStateByte(wram, DP_TILE, readStateByte(wram, at(VRAM_SLOT_NEXT, x)));
       }
       part = (part + 1) & WORD_MASK;
       setDp(DP_ROWS_LEFT, dp(DP_ROWS_LEFT) - 1);

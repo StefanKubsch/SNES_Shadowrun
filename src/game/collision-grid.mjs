@@ -106,7 +106,7 @@ const setWord = (wram, at, value) => {
 };
 const readWord = (mem, at) =>
   mem.read8(at & LONG_MASK) | (mem.read8((at + 1) & LONG_MASK) << BYTE_BITS);
-const longPointer = (wram, at) => (wram[at + 2] << WORD_BITS) | word(wram, at);
+const longPointer = (wram, at) => (readStateByte(wram, at + 2) << WORD_BITS) | word(wram, at);
 // A WRAM word of bank 7E at an absolute address plus an index (it runs on into 7F).
 const boxWord = (wram, at, index) => word(wram, at + index);
 const setBoxWord = (wram, at, index, value) => setWord(wram, at + index, value);
@@ -242,7 +242,7 @@ export function buildCollisionGrid(mem, wram) {
   for (let cell = LAST_CELL_WORD; cell >= 0; cell -= 2)
     setWord(wram, STATIC_CELL_HEADS + cell, NO_NODE);
   let box = word(wram, STATIC_BOX_END);
-  wram[DP_DEFINITION_BANK] = DEFINITION_BANK;
+  writeStateByte(wram, DP_DEFINITION_BANK, DEFINITION_BANK);
   box = addObjectBoxes(mem, wram, box);
   box = addObjectBoxes(mem, wram, box);
   let offset = 0;

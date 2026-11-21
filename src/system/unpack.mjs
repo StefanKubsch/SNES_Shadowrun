@@ -1,3 +1,4 @@
+import { writeStateByte } from '../state/objects.mjs';
 // The unpacker (lifted from 80:9E9B-A032; register-level versions in
 // proof/system/native-unpack.mjs; format in
 // src/data/lz.mjs). A stream starts with its output length and the offset of
@@ -181,8 +182,8 @@ export const UNPACK_7E = Object.freeze({ outputBank: WRAM_STREAM_BANK, translate
 export function unpackLong(mem, pointer, bankWord, start, { outputBank, translated, length }) {
   const { wram } = mem,
     setWord = (at, value) => {
-      wram[at] = value & BYTE_MASK;
-      wram[at + 1] = (value >>> BYTE_BITS) & BYTE_MASK;
+      writeStateByte(wram, at, value & BYTE_MASK);
+      writeStateByte(wram, at + 1, (value >>> BYTE_BITS) & BYTE_MASK);
     };
   let source = ((bankWord & BYTE_MASK) << BANK_SHIFT) | pointer;
   if (translated) {

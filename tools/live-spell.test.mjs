@@ -52,8 +52,8 @@ test(
         if (k < 5000) return TITLE(k);
         const wram = game.memory.wram;
         if (!driver) {
-          wram.set([3], 0x3bfc);
-          wram.set([1, 2, 1, 1, 1, 1], 0x3c07);
+          game.memory.write8(0x7e3bfc, 3);
+          [1, 2, 1, 1, 1, 1].forEach((value, i) => game.memory.write8(0x7e3c07 + i, value));
           game.memory.write16(0x7e3c96, 30);
           driver = livePlanDriver(SELECT, wram, () => game.loop.rounds);
         }

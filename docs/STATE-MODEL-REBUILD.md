@@ -224,3 +224,43 @@ own commit after `npm run test:block` and the golden trace test. One shared
   raw glove bytes. Its two coordinate reads now use the shared boundary. The
   affected selection passed 55/55 tests across sixteen files in 431 seconds.
   Eight storage contracts, edited-file ESLint and formatting passed.
+
+- 2026-11-21, scenes and rooms: src/state/scene-room.mjs owns the shape grid,
+  unpacked scene record, wall map/heights/tiles, occlusion buffers, scene and object
+  palette caches and cycles, tile composition, room requests, room/story state,
+  timers and loop exit/reload requests. Storage spans end at their adjacent original
+  owners (wall tiles at tile-stack heads, grid at scene record, record at collision
+  owner words). These are ownership boundaries, without new index limits.
+- The shared saved store is now fully independent: actor records, script variables,
+  the leader record and flags, funds, karma, learned spells, topics and topic flags.
+  Combat already owns saved party, equipment, magic and spell selection fields.
+  Together they cover every byte of 7E:2DE0-3D07. The save checksum/copy/load bridge
+  retains the original format; no live saved bytes are mirrored into raw WRAM.
+- Remaining game/native/VM helpers use the shared byte boundary, including generic
+  record and list access, unpacking, debug warps and main-loop exit checks. Wall
+  clearing and new-game script clearing use state fills. Direct page workspace,
+  algorithms, hardware jobs and the frozen register reference remain unchanged.
+- Frontend random/stripe data and matrix fonts, maps and gauges keep their aliases
+  into the scene wall storage. Topic overflow into flags and OAM, spell overflow
+  into equipment, and odd grid/record/collision boundary words remain explicit.
+- Eight storage contracts cover disjoint ownership, projection/restore, aliases,
+  debug-room writes, full saved-byte serialization and new-game unpack/clearing.
+- The shared byte boundary now precomputes the owning reader/writer of every
+  migrated byte. Raw workspace avoids all subsystem WeakMaps; detached fields
+  dispatch directly to one owner. A local host microbenchmark of two million
+  workspace reads changed from 137.6 ms to 14.7 ms (raw array reads: 2.1 ms).
+  These are access timings, not a bound on whole-frame performance.
+- Diagnostic projection copies cached contiguous field byte views on little-endian
+  hosts; the explicit little-endian loop remains for other hosts and strided
+  fields. All 47 storage contracts across the six state modules passed, including
+  odd collision owners and projection/restore of every migrated entry.
+- The paired owner test now injects loop exit/reload through VmMemory. Its old raw
+  poke never reached detached flags, retaining unmatched full-frame snapshots and
+  eventually causing allocation failures in other parallel workers. The paired
+  driver also waits for the slower side instead of accumulating frame history;
+  every frame and state comparison and each work budget is retained. The corrected
+  owner comparison passed all ten scenarios/budgets in 155 seconds.
+- Scene/room final block validation passed 6245/6245 tests without failures or
+  skips in 767 seconds, including all five unchanged golden traces. Edited-file
+  ESLint and formatting passed. The initial allocation failures and corrected raw
+  fixture/observation reads are retained in the local handoff archive.

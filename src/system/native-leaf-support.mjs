@@ -1,3 +1,4 @@
+import { readStateByte, writeStateByte } from '../state/objects.mjs';
 import { BYTE_BITS, BANK_WRAP, BYTE_MASK, WORD_MASK } from '../constants/bits.mjs';
 import { CODE_BANK_BASE } from '../constants/memory-map.mjs';
 // The script natives' arguments, result and outer return for lifted callees (game state
@@ -18,7 +19,7 @@ export const FOURTH_ARGUMENT = 6;
 // in place of the first argument.
 export function leafArgument(a, offset) {
   const { wram } = a.mem;
-  return wram[offset] | (wram[offset + 1] << BYTE_BITS);
+  return readStateByte(wram, offset) | (readStateByte(wram, offset + 1) << BYTE_BITS);
 }
 export function setLeafResult(a, value) {
   setLeafWord(a, FIRST_ARGUMENT, value);
@@ -26,8 +27,8 @@ export function setLeafResult(a, value) {
 // An argument word of the direct page at 0 replaced (as some natives leave one).
 export function setLeafWord(a, offset, value) {
   const { wram } = a.mem;
-  wram[offset] = value & BYTE_MASK;
-  wram[offset + 1] = (value >>> BYTE_BITS) & BYTE_MASK;
+  writeStateByte(wram, offset, value & BYTE_MASK);
+  writeStateByte(wram, offset + 1, (value >>> BYTE_BITS) & BYTE_MASK);
 }
 export function finishLeaf(a, outerReturn = true) {
   const rawReturnWord = a.readWord(

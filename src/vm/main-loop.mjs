@@ -1,3 +1,4 @@
+import { readStateByte } from '../state/objects.mjs';
 // Live main-loop caller 80:96AB-96F2: direct composition of its upkeep bodies.
 // Former address dispatch is retained in proof/caller/main-loop.mjs. The zones and the
 // scene request report a new pass as values; the loop leaves no A, X, Y or flags (user
@@ -67,7 +68,7 @@ export function* mainLoopSequence(a, events, returnToOwner = false) {
     [MAIN_LOOP_EXIT, MAIN_LOOP_EXIT_PC],
     [MAIN_LOOP_RELOAD, MAIN_LOOP_RELOAD_PC],
   ]) {
-    if (!(wram[word] | (wram[word + 1] << BYTE_BITS))) continue;
+    if (!(readStateByte(wram, word) | (readStateByte(wram, word + 1) << BYTE_BITS))) continue;
     if (returnToOwner) return h.rts();
     taskStop('main_loop_exit', { pc });
   }

@@ -1,3 +1,4 @@
+import { readStateByte, writeStateByte } from '../state/objects.mjs';
 // The palette cycles of the main loop (lifted from 81:8076; register-level reference
 // in proof/game-reference/main-upkeep.mjs).
 //
@@ -30,10 +31,10 @@ import {
 const SLOTS = 2,
   READY = BYTE_SIGN;
 
-const word = (wram, at) => wram[at] | (wram[at + 1] << BYTE_BITS);
+const word = (wram, at) => readStateByte(wram, at) | (readStateByte(wram, at + 1) << BYTE_BITS);
 const setWord = (wram, at, value) => {
-  wram[at] = value & BYTE_MASK;
-  wram[at + 1] = (value >>> BYTE_BITS) & BYTE_MASK;
+  writeStateByte(wram, at, value & BYTE_MASK);
+  writeStateByte(wram, at + 1, (value >>> BYTE_BITS) & BYTE_MASK);
 };
 
 // Advance the palette cycles (81:8076). Returns the slot offset it ended at (0 or 2,

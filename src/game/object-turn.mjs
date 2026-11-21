@@ -1,3 +1,4 @@
+import { readStateByte, writeStateByte } from '../state/objects.mjs';
 // The object turn (lifted from 80:AAAF with the animation selection 80:A985;
 // register-level versions in proof/script/native-object-turn.mjs, which the other callers
 // still use).
@@ -61,10 +62,10 @@ const ACTION_BANK = ACTION_TABLE >>> WORD_BITS,
   RECORD_DIRECTIONS = 8,
   FRAME_LOOP_FLAG = 0x80;
 
-const word = (wram, at) => wram[at] | (wram[at + 1] << BYTE_BITS);
+const word = (wram, at) => readStateByte(wram, at) | (readStateByte(wram, at + 1) << BYTE_BITS);
 const setWord = (wram, at, value) => {
-  wram[at] = value & BYTE_MASK;
-  wram[at + 1] = (value >>> BYTE_BITS) & BYTE_MASK;
+  writeStateByte(wram, at, value & BYTE_MASK);
+  writeStateByte(wram, at + 1, (value >>> BYTE_BITS) & BYTE_MASK);
 };
 // A byte of bank 8C at pointer + offset (which may cross into the next bank).
 function actionByte(mem, pointer, offset) {

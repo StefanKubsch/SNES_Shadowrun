@@ -1,3 +1,4 @@
+import { readStateByte } from '../state/objects.mjs';
 // Credits from the start menu (quality-of-life option, fourth in-game menu row):
 // the staff credits that the game otherwise plays only at its end.
 //
@@ -57,7 +58,8 @@ export function markMenuCredits(vm, running) {
 }
 export const menuCreditsRunning = (vm) => vm?.menuCredits === true;
 // PAD_HELD (7E:01CA) without a recorded access.
-export const heldPad = (wram) => wram[PAD_HELD] | (wram[PAD_HELD + 1] << BYTE_BITS);
+export const heldPad = (wram) =>
+  readStateByte(wram, PAD_HELD) | (readStateByte(wram, PAD_HELD + 1) << BYTE_BITS);
 
 // The ending room: table entry 8 names room 5's header.
 const ENDING_ROOM_ENTRY = 8;

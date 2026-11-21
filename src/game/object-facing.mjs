@@ -1,3 +1,4 @@
+import { readStateByte, writeStateByte } from '../state/objects.mjs';
 // Turning an object towards another object or the player object (lifted from the script
 // natives 80:CF93, 80:D1D2 and 80:D1DD with their direction body 80:D1E3; register-level
 // references in proof/game-reference/object-facing.mjs).
@@ -36,10 +37,10 @@ const PLUS_Y = 0,
 // A target low byte FF: no object to turn towards (80:CF93).
 const NO_TARGET = 0xff;
 
-const word = (wram, at) => wram[at] | (wram[at + 1] << BYTE_BITS);
+const word = (wram, at) => readStateByte(wram, at) | (readStateByte(wram, at + 1) << BYTE_BITS);
 const setWord = (wram, at, value) => {
-  wram[at] = value & BYTE_MASK;
-  wram[at + 1] = (value >>> BYTE_BITS) & BYTE_MASK;
+  writeStateByte(wram, at, value & BYTE_MASK);
+  writeStateByte(wram, at + 1, (value >>> BYTE_BITS) & BYTE_MASK);
 };
 
 // The direction from the object towards the target (80:D1E3 and the body of 80:CF93),

@@ -1,3 +1,4 @@
+import { readStateByte, writeStateByte } from '../state/objects.mjs';
 // The sprite list of a pass (lifted from 80:B8DE with the OAM high table fill 81:A7FC
 // and the NMI job count 81:A954; register-level reference in
 // proof/replay/native-scene-sprites.mjs).
@@ -56,10 +57,10 @@ const HIDE_SEQUENCE = 0xb933,
   DP_JUMP = 0x0e,
   LOW_WRAM_END = 0x2000;
 
-const word = (wram, at) => wram[at] | (wram[at + 1] << BYTE_BITS);
+const word = (wram, at) => readStateByte(wram, at) | (readStateByte(wram, at + 1) << BYTE_BITS);
 const setWord = (wram, at, value) => {
-  wram[at] = value & BYTE_MASK;
-  wram[at + 1] = (value >>> BYTE_BITS) & BYTE_MASK;
+  writeStateByte(wram, at, value & BYTE_MASK);
+  writeStateByte(wram, at + 1, (value >>> BYTE_BITS) & BYTE_MASK);
 };
 // A word of a table in bank 80 below 2000 (the caller's data bank 80 reaches WRAM only there).
 const lowField = (wram, base, index) => {
@@ -111,7 +112,7 @@ export function buildSpritesInPlace(h) {
   // the old one again; those bytes lie only in free stack bytes, so the lifted stores
   // leave the data bank and the stack alone.
   for (let n = firstHidden; n < OBJECT_COUNT; n++)
-    wram[OAM_BUFFER + OAM_Y_BYTE + OAM_ENTRY_BYTES * n] = HIDDEN_Y;
+    writeStateByte(wram, OAM_BUFFER + OAM_Y_BYTE + OAM_ENTRY_BYTES * n, HIDDEN_Y);
   // The job count 81:A954, without its JSL frame (the return word lies only in free
   // stack bytes).
   setWord(wram, NMI_JOB_LISTS, (lowField(wram, NMI_JOB_LISTS, 0) + 1) & WORD_MASK);

@@ -1,3 +1,4 @@
+import { readStateByte } from '../state/objects.mjs';
 // The line of sight from a viewer object to a target object through the map boxes of
 // the current cell list (lifted from 81:A25F; the register-level version in
 // proof/replay/line-of-sight.mjs stays for the shooting natives 80:8AB5, 80:8A51 and
@@ -87,7 +88,7 @@ const HEIGHT_SITES = {
   },
 };
 
-const word = (wram, at) => wram[at] | (wram[at + 1] << BYTE_BITS);
+const word = (wram, at) => readStateByte(wram, at) | (readStateByte(wram, at + 1) << BYTE_BITS);
 const swapBytes = (value) => ((value >>> BYTE_BITS) | (value << BYTE_BITS)) & WORD_MASK;
 
 // The line from the viewer to the target: its bounding box in box units, the viewer's
@@ -239,7 +240,8 @@ function meetingAxis(port, line, edges, sites, recordOffset) {
 // the line (the original's direct page word 68 = FFFF), which the shooting natives read.
 export function lineOfSight(mem, port, viewer, target) {
   const { wram } = mem,
-    list = (word(wram, DP_CELL_LIST) | (wram[DP_CELL_LIST + 2] << WORD_BITS)) & LONG_MASK,
+    list =
+      (word(wram, DP_CELL_LIST) | (readStateByte(wram, DP_CELL_LIST + 2) << WORD_BITS)) & LONG_MASK,
     read = (offset) => {
       const at = (list + offset) & LONG_MASK;
       return mem.read8(at) | (mem.read8((at + 1) & LONG_MASK) << BYTE_BITS);

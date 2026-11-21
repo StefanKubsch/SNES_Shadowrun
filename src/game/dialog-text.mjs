@@ -1,3 +1,4 @@
+import { readStateByte, writeStateByte } from '../state/objects.mjs';
 // The dialog's texts (lifted from 80:9178 with the topic add 80:908C; register-level
 // versions in proof/replay/native-dialog-text.mjs stay the reference).
 //
@@ -63,14 +64,14 @@ const FIRST_ENTRY = 4,
   ACTION_WORD_BYTES = 2;
 // Original call sites and callees.
 
-const word = (wram, at) => wram[at] | (wram[at + 1] << BYTE_BITS);
+const word = (wram, at) => readStateByte(wram, at) | (readStateByte(wram, at + 1) << BYTE_BITS);
 const setWord = (wram, at, value) => {
-  wram[at] = value & BYTE_MASK;
-  wram[at + 1] = (value >>> BYTE_BITS) & BYTE_MASK;
+  writeStateByte(wram, at, value & BYTE_MASK);
+  writeStateByte(wram, at + 1, (value >>> BYTE_BITS) & BYTE_MASK);
 };
 // The record's byte or word at y (the long pointer in the direct page 11 to 13).
 const recordAt = (wram, y) =>
-  ((word(wram, DP_RECORD) | (wram[DP_RECORD + 2] << WORD_BITS)) + y) & LONG_MASK;
+  ((word(wram, DP_RECORD) | (readStateByte(wram, DP_RECORD + 2) << WORD_BITS)) + y) & LONG_MASK;
 const recordByte = (mem, wram, y) => mem.read8(recordAt(wram, y));
 const recordWord = (mem, wram, y) => {
   const at = recordAt(wram, y);
@@ -101,15 +102,15 @@ function addTopics(mem, wram, acc, y) {
   y = (y + 1) & WORD_MASK;
   if (acc.low === 0) return y;
   let x;
-  wram[DP_TOPICS_LEFT] = acc.low;
+  writeStateByte(wram, DP_TOPICS_LEFT, acc.low);
   do {
     const key = acc.byte(recordByte(mem, wram, y));
-    wram[DP_TOPIC_KEY] = key;
+    writeStateByte(wram, DP_TOPIC_KEY, key);
     y = (y + 1) & WORD_MASK;
     x = 0;
     let insert = false;
     for (; ; x = (x + 1) & WORD_MASK) {
-      const topic = acc.byte(wram[TOPIC_LIST + x]);
+      const topic = acc.byte(readStateByte(wram, TOPIC_LIST + x));
       // The list end first (a key FF is inserted there), then an equal topic stays.
       if (topic !== LIST_END && topic === key) break;
       if (topic === LIST_END || topic > key) {
@@ -119,22 +120,25 @@ function addTopics(mem, wram, acc, y) {
     }
     if (!insert) continue;
     // Insert the key here; the topics after it move up one place with their flags.
-    acc.byte(wram[TOPIC_LIST + x]);
+    acc.byte(readStateByte(wram, TOPIC_LIST + x));
     acc.swap();
-    wram[DP_ENTRY_BYTES] = acc.byte(wram[TOPIC_FLAGS + x]);
-    wram[TOPIC_LIST + x] = acc.byte(wram[DP_TOPIC_KEY]);
-    wram[TOPIC_FLAGS + x] = acc.byte(0);
+    writeStateByte(wram, DP_ENTRY_BYTES, acc.byte(readStateByte(wram, TOPIC_FLAGS + x)));
+    writeStateByte(wram, TOPIC_LIST + x, acc.byte(readStateByte(wram, DP_TOPIC_KEY)));
+    writeStateByte(wram, TOPIC_FLAGS + x, acc.byte(0));
     for (;;) {
       x = (x + 1) & WORD_MASK;
-      acc.byte(wram[TOPIC_LIST + x]);
+      acc.byte(readStateByte(wram, TOPIC_LIST + x));
       acc.swap();
-      wram[TOPIC_LIST + x] = acc.low;
+      writeStateByte(wram, TOPIC_LIST + x, acc.low);
       if (acc.low === LIST_END) break;
-      wram[DP_MOVED_FLAGS] = acc.byte(wram[TOPIC_FLAGS + x]);
-      wram[TOPIC_FLAGS + x] = acc.byte(wram[DP_ENTRY_BYTES]);
-      wram[DP_ENTRY_BYTES] = acc.byte(wram[DP_MOVED_FLAGS]);
+      writeStateByte(wram, DP_MOVED_FLAGS, acc.byte(readStateByte(wram, TOPIC_FLAGS + x)));
+      writeStateByte(wram, TOPIC_FLAGS + x, acc.byte(readStateByte(wram, DP_ENTRY_BYTES)));
+      writeStateByte(wram, DP_ENTRY_BYTES, acc.byte(readStateByte(wram, DP_MOVED_FLAGS)));
     }
-  } while ((wram[DP_TOPICS_LEFT] = (wram[DP_TOPICS_LEFT] - 1) & BYTE_MASK) !== 0);
+  } while (
+    writeStateByte(wram, DP_TOPICS_LEFT, (readStateByte(wram, DP_TOPICS_LEFT) - 1) & BYTE_MASK) !==
+    0
+  );
   return y;
 }
 
@@ -146,7 +150,7 @@ function searchEntry(mem, wram, acc) {
     const key = acc.byte(recordByte(mem, wram, y));
     if (key === RECORD_END) return { found: false };
     y = (y + 1) & WORD_MASK;
-    if (key === wram[DP_TOPIC_KEY]) return { found: true, y: (y + 1) & WORD_MASK };
+    if (key === readStateByte(wram, DP_TOPIC_KEY)) return { found: true, y: (y + 1) & WORD_MASK };
     // Skip the entry: its length byte added to the index (16-bit, the carry cleared).
     const length = recordWord(mem, wram, y) & BYTE_MASK;
     setWord(wram, DP_ENTRY_BYTES, length);

@@ -1,3 +1,4 @@
+import { readStateByte, writeStateByte } from '../state/objects.mjs';
 // The joypad (lifted from 80:9E0B and 80:9E1A; long forms 80:F290 and 80:F298,
 // register-level versions in proof/system/main-scene-wait.mjs and
 // proof/system/native-input-apu.mjs). The NMI stores the held buttons; the game
@@ -16,10 +17,10 @@ const AUTO_READ_BUSY = 1,
   SOFT_RESET_BUTTONS = 0x3030,
   INVALID_PAD_BITS = 0x000f;
 
-const word = (wram, at) => wram[at] | (wram[at + 1] << BYTE_BITS);
+const word = (wram, at) => readStateByte(wram, at) | (readStateByte(wram, at + 1) << BYTE_BITS);
 const setWord = (wram, at, value) => {
-  wram[at] = value & BYTE_MASK;
-  wram[at + 1] = (value >>> BYTE_BITS) & BYTE_MASK;
+  writeStateByte(wram, at, value & BYTE_MASK);
+  writeStateByte(wram, at + 1, (value >>> BYTE_BITS) & BYTE_MASK);
 };
 
 // The buttons held on controller 1 (PAD_* bits in src/data/wram.mjs): wait while

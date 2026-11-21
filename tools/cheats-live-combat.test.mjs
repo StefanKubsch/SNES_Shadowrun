@@ -46,7 +46,7 @@ test(
       hits.every((value) => value === 200),
       `all actual hit results remain full: ${hits}`,
     );
-    assert.equal(game.memory.wram[0x33de], 200);
+    assert.equal(game.memory.read8(0x7e33de), 200);
     assert.equal(game.vm.cheats, CHEAT_MASK);
   },
 );

@@ -1,3 +1,4 @@
+import { fillStateBytes } from '../state/objects.mjs';
 import { readStateByte, writeStateByte } from '../state/objects.mjs';
 // The start of a game (lifted from 80:9688, 80:9699, 80:960D, 80:98E9 and 81:B198;
 // register-level reference in proof/game-reference/game-start.mjs). The room start
@@ -117,7 +118,7 @@ export function setUpNewGameState(a) {
     { wram } = mem;
   unpackStream(mem, NEW_GAME_STREAM, NEW_GAME_TARGET);
   unlockBulletproofVest(a);
-  wram.fill(0, SCRIPT_VARIABLES, SCRIPT_VARIABLES + SCRIPT_WORDS * 2);
+  fillStateBytes(wram, 0, SCRIPT_VARIABLES, SCRIPT_VARIABLES + SCRIPT_WORDS * 2);
   for (let i = 0; i < RUNNERS * RUNNER_EQUIPMENT_BYTES; i++)
     writeStateByte(
       wram,

@@ -1,3 +1,4 @@
+import { fillStateBytes } from '../src/state/objects.mjs';
 import { toWram, restoreWram } from '../proof/state/to-wram.mjs';
 import test from 'node:test';
 import assert from 'node:assert/strict';
@@ -258,17 +259,17 @@ test('IC count snapshots keep each digit and leave the original template and scr
   const game = gameFor(asset([entry('81:C60D', '\nCOUNT {count}\n')]));
   setup(game);
   const start = 0x7f0140;
-  game.memory.wram.fill(0x5a, 0x10140, 0x1015a);
+  fillStateBytes(game.memory.wram, 0x5a, 0x10140, 0x1015a);
   for (const digit of [0x31, 0x38]) {
     game.memory.write8(start + 8, digit);
     enqueue(game, start);
   }
   game.memory.write8(start + 8, 0x34);
-  const before = game.memory.wram.slice(0x10140, 0x1015a);
+  const before = toWram(game.memory).slice(0x10140, 0x1015a);
   const result = drain(game);
   row(result, 0x822, 'COUNT 1');
   row(result, 0x862, 'COUNT 8');
-  assert.deepEqual(game.memory.wram.slice(0x10140, 0x1015a), before);
+  assert.deepEqual(toWram(game.memory).slice(0x10140, 0x1015a), before);
   assert.equal(
     build(asset([entry('81:C60D', '\nCOUNT {count}\n')]))
       .matrix.en.get(0x81c60d)
@@ -280,7 +281,7 @@ test('IC count snapshots keep each digit and leave the original template and scr
   assert.throws(() => enqueue(invalid, start), /matrix_edit_count_required/);
   assert.equal(invalid.memory.read16(0x1710), 0);
   assert.equal(invalid.memory.matrixTextState, null);
-  game.memory.wram.set([4, 0x41, 4, 0], 0x10600);
+  [4, 0x41, 4, 0].forEach((value, i) => game.memory.write8(0x7f0600 + i, value));
   enqueue(game, 0x7f0600);
   const nextRow = game.memory.read16(0x1350) + 0x20;
   row(drain(game), nextRow, 'A');

@@ -1,3 +1,4 @@
+import { toWram } from '../proof/state/to-wram.mjs';
 import { readStateWord } from '../src/state/objects.mjs';
 import test from 'node:test';
 import assert from 'node:assert/strict';
@@ -118,7 +119,7 @@ test(
         driver ??= livePlanDriver([...MORGUE_DOOR_PLAN, ['wait', 500]], w, rounds);
         if (driver.done() && phase === 'door' && debugRoomReachable(game)) {
           assert.deepEqual(activeMorticians(), [], 'both morticians have actually fled');
-          departed = w.slice(0x2e69, 0x2e73);
+          departed = toWram(game.memory).slice(0x2e69, 0x2e73);
           assert.equal(departed[1] & 1, 1, 'first mortician remembers the opening scene');
           assert.equal(departed[6] & 1, 1, 'second mortician remembers the opening scene');
           assert.equal(word(departed, 3), 0xffff, 'first holder permits reentry');
@@ -149,7 +150,7 @@ test(
       'the source room initializer recreates both',
     );
     assert.deepEqual(
-      game.memory.wram.slice(0x2e69, 0x2e73),
+      toWram(game.memory).slice(0x2e69, 0x2e73),
       departed,
       'their persistent records were not reset',
     );

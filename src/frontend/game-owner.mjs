@@ -1,3 +1,4 @@
+import { writeStateByte } from '../state/objects.mjs';
 // The outer game owner (lifted from 80:A139 and its resume point 80:A157;
 // register-level reference in proof/frontend-reference/game-owner.mjs).
 //
@@ -30,8 +31,8 @@ export const GAME_OWNER_ENTRY = 0xa139,
 const CHOICE = 0;
 
 const setWord = (wram, at, value) => {
-  wram[at] = value & BYTE_MASK;
-  wram[at + 1] = (value >>> BYTE_BITS) & BYTE_MASK;
+  writeStateByte(wram, at, value & BYTE_MASK);
+  writeStateByte(wram, at + 1, (value >>> BYTE_BITS) & BYTE_MASK);
 };
 
 // 80:A139 / 80:A157: the original's A is the cycle's argument (nonzero: show the title

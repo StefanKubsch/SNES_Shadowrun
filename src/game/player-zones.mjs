@@ -1,3 +1,4 @@
+import { readStateByte, writeStateByte } from '../state/objects.mjs';
 // The zones around the player figure (lifted from 80:8000 with its zone check
 // 80:803B; register-level reference in proof/replay/main-zone-gate.mjs).
 //
@@ -54,10 +55,10 @@ const POSITION_SHIFT = 2,
 // The limit words in their order: lowest x, y and height, then highest.
 const LIMITS = Array.from({ length: LIMIT_WORDS }, (_, n) => n);
 
-const word = (wram, at) => wram[at] | (wram[at + 1] << BYTE_BITS);
+const word = (wram, at) => readStateByte(wram, at) | (readStateByte(wram, at + 1) << BYTE_BITS);
 const setWord = (wram, at, value) => {
-  wram[at] = value & BYTE_MASK;
-  wram[at + 1] = (value >>> BYTE_BITS) & BYTE_MASK;
+  writeStateByte(wram, at, value & BYTE_MASK);
+  writeStateByte(wram, at + 1, (value >>> BYTE_BITS) & BYTE_MASK);
 };
 
 // Test the zones around the player figure (80:8000), a sequence for a native call
@@ -73,7 +74,8 @@ export function* playerZonesSequence(h, events, zones = {}) {
   zones.changed = false;
   // The zone lists through the long pointer, read as the original's [9D],Y.
   const list = (offset) => {
-    const at = (word(wram, DP_ZONE_LIST) | (wram[DP_ZONE_LIST + 2] << WORD_BITS)) + offset;
+    const at =
+      (word(wram, DP_ZONE_LIST) | (readStateByte(wram, DP_ZONE_LIST + 2) << WORD_BITS)) + offset;
     return mem.read8(at & LONG_MASK) | (mem.read8((at + 1) & LONG_MASK) << BYTE_BITS);
   };
   const slot = word(wram, PLAYER_OBJECT);

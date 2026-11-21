@@ -1,3 +1,4 @@
+import { toWram } from '../proof/state/to-wram.mjs';
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
@@ -56,7 +57,7 @@ test(
         `${language}: original gauge graphics reached VRAM`,
       );
       assert.deepEqual(
-        memory.wram.subarray(0x100c0, 0x100d4),
+        toWram(memory).subarray(0x100c0, 0x100d4),
         map.subarray(0xc0, 0xd4),
         `${language}: full, partial, empty and cap tile words remain original`,
       );

@@ -1,3 +1,4 @@
+import { readStateByte, writeStateByte } from '../state/objects.mjs';
 // The object palette slots of the sprite list (lifted from 80:AB0A and 81:A840;
 // register-level references runPaletteSlot in proof/replay/native-scene-sprites.mjs and
 // clearPaletteSlots in proof/system/main-initialize.mjs).
@@ -21,10 +22,10 @@ const LOW_WRAM_END = 0x2000,
   // The direct page word that keeps the palette offset.
   DP_PALETTE = 0x6b;
 
-const word = (wram, at) => wram[at] | (wram[at + 1] << BYTE_BITS);
+const word = (wram, at) => readStateByte(wram, at) | (readStateByte(wram, at + 1) << BYTE_BITS);
 const setWord = (wram, at, value) => {
-  wram[at] = value & BYTE_MASK;
-  wram[at + 1] = (value >>> BYTE_BITS) & BYTE_MASK;
+  writeStateByte(wram, at, value & BYTE_MASK);
+  writeStateByte(wram, at + 1, (value >>> BYTE_BITS) & BYTE_MASK);
 };
 // A word of a table in the caller's data bank 80, which reaches WRAM below 2000.
 const at = (base, index) => {

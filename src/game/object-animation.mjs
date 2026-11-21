@@ -1,3 +1,4 @@
+import { readStateByte, writeStateByte } from '../state/objects.mjs';
 // The animation step of an object (lifted from 80:AC2F; register-level version in
 // proof/system/native-scene-tiles.mjs, which the tile reload 80:AE12 and the replays with
 // recorded interrupts keep using).
@@ -105,10 +106,10 @@ const RESTART = WORD_MASK,
   BIAS_SHIFT = 2,
   LOW_WRAM_END = 0x2000;
 
-const word = (wram, at) => wram[at] | (wram[at + 1] << BYTE_BITS);
+const word = (wram, at) => readStateByte(wram, at) | (readStateByte(wram, at + 1) << BYTE_BITS);
 const setWord = (wram, at, value) => {
-  wram[at] = value & BYTE_MASK;
-  wram[at + 1] = (value >>> BYTE_BITS) & BYTE_MASK;
+  writeStateByte(wram, at, value & BYTE_MASK);
+  writeStateByte(wram, at + 1, (value >>> BYTE_BITS) & BYTE_MASK);
 };
 const longWord = (mem, at) =>
   mem.read8(at & LONG_MASK) | (mem.read8((at + 1) & LONG_MASK) << BYTE_BITS);
@@ -139,7 +140,7 @@ export function stepAnimationInPlace(h, slot) {
     putObject = (name, value) => setLowObjectWord(wram, name, slot, value),
     getFar = (name) => longObjectWord(mem, name, slot),
     putFar = (name, value) => setLongObjectWord(mem, name, slot, value),
-    pointer = (dp) => word(wram, dp) | (wram[dp + 2] << WORD_BITS);
+    pointer = (dp) => word(wram, dp) | (readStateByte(wram, dp + 2) << WORD_BITS);
 
   // The original's PHY/PLY pair keeps the caller's Y, which lifted callers do not hold
   // (user decision 2026-11-17): only free stack bytes differ. Every exit returns here.

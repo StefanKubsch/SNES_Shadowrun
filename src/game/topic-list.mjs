@@ -1,3 +1,4 @@
+import { readStateByte, writeStateByte } from '../state/objects.mjs';
 // The topic list scripts ask about, mark and extend (lifted from the script natives
 // 80:9159, 80:913C and 80:90EB; register-level references in
 // proof/game-reference/topic-list.mjs).
@@ -58,12 +59,12 @@ export function addTopic(mem) {
     step();
     const known = mem.read8(listAddress(entry));
     if (known === TOPIC_LIST_END) break;
-    if (known === wram[0]) return;
-    if (known > wram[0]) break;
+    if (known === readStateByte(wram, 0)) return;
+    if (known > readStateByte(wram, 0)) break;
   }
   let displaced = mem.read8(listAddress(entry));
-  wram[DP_TOPIC_SHIFT_FLAGS] = mem.read8(flagAddress(entry));
-  mem.write8(listAddress(entry), wram[0]);
+  writeStateByte(wram, DP_TOPIC_SHIFT_FLAGS, mem.read8(flagAddress(entry)));
+  mem.write8(listAddress(entry), readStateByte(wram, 0));
   mem.write8(flagAddress(entry), 0);
   for (;;) {
     entry = (entry + 1) & WORD_MASK;
@@ -71,9 +72,9 @@ export function addTopic(mem) {
     const next = mem.read8(listAddress(entry));
     mem.write8(listAddress(entry), displaced);
     if (displaced === TOPIC_LIST_END) return;
-    wram[DP_TOPIC_NEXT_FLAGS] = mem.read8(flagAddress(entry));
-    mem.write8(flagAddress(entry), wram[DP_TOPIC_SHIFT_FLAGS]);
-    wram[DP_TOPIC_SHIFT_FLAGS] = wram[DP_TOPIC_NEXT_FLAGS];
+    writeStateByte(wram, DP_TOPIC_NEXT_FLAGS, mem.read8(flagAddress(entry)));
+    mem.write8(flagAddress(entry), readStateByte(wram, DP_TOPIC_SHIFT_FLAGS));
+    writeStateByte(wram, DP_TOPIC_SHIFT_FLAGS, readStateByte(wram, DP_TOPIC_NEXT_FLAGS));
     displaced = next;
   }
 }

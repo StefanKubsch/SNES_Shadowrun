@@ -1,3 +1,4 @@
+import { readStateByte, writeStateByte } from '../state/objects.mjs';
 // Debug room shortcut (docs/TCRF-NOTES.md): the matchbox handler (script $126) unlocks its
 // "Open" action at the end of a hidden lamppost sequence. "Open" saves the current room entry
 // 7E:2DE2 in script word $1A (7E:3BD5, table 7E:3BBB) and calls native $56 (80:CC97) with
@@ -18,10 +19,10 @@ const NO_SCENE_REQUEST = 0xffff,
 const OPEN_UNLOCK = SCRIPT_VARIABLES + 0x18,
   SAVED_ROOM = SCRIPT_VARIABLES + 0x1a,
   UNLOCKED = 0xffff;
-const readWord = (wram, at) => wram[at] | (wram[at + 1] << BYTE_BITS);
+const readWord = (wram, at) => readStateByte(wram, at) | (readStateByte(wram, at + 1) << BYTE_BITS);
 const writeWord = (wram, at, value) => {
-  wram[at] = value & BYTE_MASK;
-  wram[at + 1] = value >>> BYTE_BITS;
+  writeStateByte(wram, at, value & BYTE_MASK);
+  writeStateByte(wram, at + 1, value >>> BYTE_BITS);
 };
 export function debugRoomReachable(game) {
   const wram = game.memory.wram;

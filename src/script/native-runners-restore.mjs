@@ -1,3 +1,4 @@
+import { writeStateByte } from '../state/objects.mjs';
 import { restoreRunners } from '../game/runner-state.mjs';
 
 import {
@@ -16,8 +17,8 @@ import { BYTE_BITS, BYTE_MASK, WORD_BITS, WORD_MASK } from '../constants/bits.mj
 // get ten times the BYTE [6B] (BYTE arithmetic), the record's state count BYTE the BYTE
 // [6B+4] (record byte 5, the state count maximum).
 const setDpWord = (wram, at, value) => {
-  wram[at] = value & BYTE_MASK;
-  wram[at + 1] = (value >>> BYTE_BITS) & BYTE_MASK;
+  writeStateByte(wram, at, value & BYTE_MASK);
+  writeStateByte(wram, at + 1, (value >>> BYTE_BITS) & BYTE_MASK);
 };
 
 // The lifted body (src/game/runner-state.mjs) with the direct page values the original
@@ -27,6 +28,6 @@ export function restoreRunnersBody(h) {
     { wram } = mem,
     { record, doubleMagic } = restoreRunners(mem);
   setDpWord(wram, DP_RESOURCE_RECORD, record & WORD_MASK);
-  wram[DP_RESOURCE_RECORD_BANK] = record >>> WORD_BITS;
-  if (doubleMagic !== undefined) wram[DP_REFILL_DOUBLE_MAGIC] = doubleMagic;
+  writeStateByte(wram, DP_RESOURCE_RECORD_BANK, record >>> WORD_BITS);
+  if (doubleMagic !== undefined) writeStateByte(wram, DP_REFILL_DOUBLE_MAGIC, doubleMagic);
 }

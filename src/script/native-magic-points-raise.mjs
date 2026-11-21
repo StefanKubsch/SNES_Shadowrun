@@ -1,3 +1,4 @@
+import { writeStateByte } from '../state/objects.mjs';
 import {
   FIRST_ARGUMENT,
   SECOND_ARGUMENT,
@@ -16,8 +17,8 @@ import { BYTE_BITS, BYTE_MASK } from '../constants/bits.mjs';
 // proof/game-reference/runner-state.mjs; first argument the object, second the amount,
 // no result): raise a member's magic points, at most ten times its magic attribute.
 const setDpWord = (wram, at, value) => {
-  wram[at] = value & BYTE_MASK;
-  wram[at + 1] = (value >>> BYTE_BITS) & BYTE_MASK;
+  writeStateByte(wram, at, value & BYTE_MASK);
+  writeStateByte(wram, at + 1, (value >>> BYTE_BITS) & BYTE_MASK);
 };
 // The lifted body with the direct page values the original leaves: the record
 // pointer's bank, twice the magic attribute over the pointer's word, and the maximum.
@@ -25,7 +26,7 @@ const setDpWord = (wram, at, value) => {
 function raiseMagicPointsBody(mem, object, amount) {
   const { wram } = mem,
     { bank, doubleMagic, max } = raiseMagicPoints(mem, object, amount);
-  wram[DP_RESOURCE_RECORD_BANK] = bank;
+  writeStateByte(wram, DP_RESOURCE_RECORD_BANK, bank);
   setDpWord(wram, DP_RESOURCE_DOUBLE_MAGIC, doubleMagic);
   setDpWord(wram, DP_RESOURCE_MAX, max);
 }

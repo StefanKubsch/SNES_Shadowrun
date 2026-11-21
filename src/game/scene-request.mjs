@@ -1,3 +1,4 @@
+import { readStateByte, writeStateByte } from '../state/objects.mjs';
 // The scene request of the main loop (lifted from 80:CC4B; register-level
 // reference in proof/game-reference/scene-request.mjs).
 //
@@ -51,10 +52,10 @@ const FRAME_WAIT_SITE = 0xcc5c,
 const PLAY_CUTSCENE = 0x81cdf8,
   PLAY_MATRIX = 0x81c3ca;
 
-const word = (wram, at) => wram[at] | (wram[at + 1] << BYTE_BITS);
+const word = (wram, at) => readStateByte(wram, at) | (readStateByte(wram, at + 1) << BYTE_BITS);
 const setWord = (wram, at, value) => {
-  wram[at] = value & BYTE_MASK;
-  wram[at + 1] = (value >>> BYTE_BITS) & BYTE_MASK;
+  writeStateByte(wram, at, value & BYTE_MASK);
+  writeStateByte(wram, at + 1, (value >>> BYTE_BITS) & BYTE_MASK);
 };
 
 // 80:CC4B: compose the live scenes and room directly. request.taken reports whether a
@@ -91,7 +92,7 @@ export function* sceneRequestSequence(h, events, request = {}) {
       yield () => {
         const record = word(wram, DECKER_RECORD);
         // A long store indexed by X: a record near FFFF reaches into bank 7F.
-        wram[RECORD_COUNT + record] = wram[DECKER_HEALTH];
+        writeStateByte(wram, RECORD_COUNT + record, readStateByte(wram, DECKER_HEALTH));
       };
     }
     yield () => setUpGameScreen(sceneRuntime(h), tasksOf(h.a));

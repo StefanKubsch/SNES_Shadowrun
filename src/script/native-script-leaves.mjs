@@ -1,3 +1,4 @@
+import { readStateByte, writeStateByte } from '../state/objects.mjs';
 // Script natives without frame waits that run lifted code (docs/MAIN-LOOP-LIFT.md):
 // each takes its arguments from the direct page words the script interpreter fills,
 // calls the lifted function and returns with the native's RTS. The interpreter's
@@ -33,10 +34,10 @@ const DP_OBJECT = 0,
   DP_EFFECT = 2,
   DP_LEVEL = 4,
   DP_VOICES = 6;
-const argument = (wram, at) => wram[at] | (wram[at + 1] << BYTE_BITS);
+const argument = (wram, at) => readStateByte(wram, at) | (readStateByte(wram, at + 1) << BYTE_BITS);
 const setArgument = (wram, at, value) => {
-  wram[at] = value & BYTE_MASK;
-  wram[at + 1] = (value >>> BYTE_BITS) & BYTE_MASK;
+  writeStateByte(wram, at, value & BYTE_MASK);
+  writeStateByte(wram, at + 1, (value >>> BYTE_BITS) & BYTE_MASK);
 };
 // The script arguments lie in the WRAM words from 0; the natives read them there and
 // check no direct page register (the dispatcher in natives.mjs enters every native
@@ -153,7 +154,7 @@ export function jumpObjectTowardsObject(a, outerReturn = true) {
 export function jumpObjectTowardsPoint(a, outerReturn = true) {
   const { mem } = a,
     { wram } = mem,
-    list = argument(wram, DP_POINT_LIST) | (wram[DP_POINT_LIST + 2] << WORD_BITS),
+    list = argument(wram, DP_POINT_LIST) | (readStateByte(wram, DP_POINT_LIST + 2) << WORD_BITS),
     jump = velocityTowards(a, listPoint(mem, list, argument(wram, SECOND_ARGUMENT)), false);
   addRise(jump.mem, jump.object, jump.divisor);
   return finishLeaf(a, outerReturn);
