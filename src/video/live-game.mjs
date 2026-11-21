@@ -35,6 +35,7 @@ import { LagFreeFrames, LiveDevices } from '../vm/frame-events.mjs';
 import { Apu } from '../apu/apu.mjs';
 import { gameplaySettings, ORIGINAL_GAMEPLAY } from '../game/bugfixes.mjs';
 import { serviceTextWait } from '../game/instant-text.mjs';
+import { runFrameJobs } from '../system/live-frame-jobs.mjs';
 // Player control 80:E014 runs every frame while the player steers freely.
 const PLAYER_CONTROL = 0x80e014;
 // WRAM target of the channel 5 VRAM read (A9E1, src/video/ppu-state.mjs).
@@ -136,6 +137,7 @@ export class LiveGame {
     this.devices = new LiveDevices(frames, FRONTEND_ROUTINES, {
       bus: this.bus,
       apu: this.apu,
+      ...(loop === gameLoop ? { frameJobs: runFrameJobs } : {}),
       ...(counter ? { counter } : {}),
     });
     this.loop = loop(this);

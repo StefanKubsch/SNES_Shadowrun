@@ -215,12 +215,13 @@ export class LiveDevices {
   constructor(
     frames,
     interruptRoutines,
-    { bus = null, counter = counterBytes(), apu = null } = {},
+    { bus = null, counter = counterBytes(), apu = null, frameJobs = null } = {},
   ) {
     if (
       !(frames instanceof LagFreeFrames) ||
       !(interruptRoutines instanceof Map) ||
-      typeof counter !== 'function'
+      typeof counter !== 'function' ||
+      (frameJobs !== null && typeof frameJobs !== 'function')
     )
       throw new VmFault('frame_devices_required');
     this.frames = frames;
@@ -234,6 +235,7 @@ export class LiveDevices {
       input: EMPTY,
       interrupts: frames,
       interruptRoutines,
+      ...(frameJobs ? { frameJobs } : {}),
     });
     this.calls = 0;
   }

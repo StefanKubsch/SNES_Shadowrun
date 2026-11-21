@@ -60,10 +60,13 @@ function compareSnapshots(actual, expected, key) {
   for (const name of Object.keys(actual.video))
     arrays(actual.video[name], expected.video[name], `video.${name}`);
 }
-function snapshot(game) {
+function snapshot(game, inFrame = false) {
   const { ppu } = game.bus,
-    { a, x, y, status, s, ...context } = game.loop.accessor.ctx,
+    { a, x, y, status, s, pc, programBank, ...context } = game.loop.accessor.ctx,
     wram = toWram(game.memory);
+  // Live frames leave the caller's PC alone; the reference reports its wait
+  // branch. Keep the PC comparison at each completed caller boundary.
+  if (!inFrame) Object.assign(context, { pc, programBank });
   for (const [from, to] of CPU_STACKS) wram.fill(0, from, to);
   return {
     context,
@@ -143,7 +146,7 @@ for (const budget of [1, 7])
         const pending = [new Map(), new Map()];
         const counts = { frames: 0, boundaries: 0 };
         const compare = (side, key, game) => {
-          const mine = snapshot(game),
+          const mine = snapshot(game, typeof key === 'number'),
             other = pending[1 - side];
           if (!other.has(key)) pending[side].set(key, mine);
           else {

@@ -22,10 +22,13 @@ const CPU_STACKS = [
   [0x0100, 0x01ca],
   [NMI_SAVED_A, 0x1cbc],
 ];
-function snapshot(game) {
+function snapshot(game, inFrame = false) {
   const { ppu } = game.bus,
-    { a, x, y, status, s, ...context } = game.loop.accessor.ctx,
+    { a, x, y, status, s, pc, programBank, ...context } = game.loop.accessor.ctx,
     wram = game.memory.wram.slice();
+  // Interrupt PCs belong to the reference adapter. Completed caller return
+  // points remain checked here and by the explicit return assertions below.
+  if (!inFrame) Object.assign(context, { pc, programBank });
   for (const [from, to] of CPU_STACKS) wram.fill(0, from, to);
   return {
     context,
@@ -55,8 +58,8 @@ for (const valid of [true, false])
         const onNmi = game.frames.onNmi;
         game.frames.onNmi = (k) => {
           onNmi(k);
-          if (side === 0) frames.push(snapshot(game));
-          else assert.deepEqual(snapshot(game), frames[compared++], `NMI ${k}`);
+          if (side === 0) frames.push(snapshot(game, true));
+          else assert.deepEqual(snapshot(game, true), frames[compared++], `NMI ${k}`);
         };
       }
       // A software restart abandons its old call stack and reaches the same startup

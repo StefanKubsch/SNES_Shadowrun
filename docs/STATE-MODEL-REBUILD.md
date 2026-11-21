@@ -377,3 +377,27 @@ own commit after `npm run test:block` and the golden trace test. One shared
 - Frame job interface block validation: 373/373 tests across 38 selected files
   passed in 236 seconds, including all five unchanged golden traces. Edited-file
   ESLint, formatting and source scan passed.
+
+- 2026-11-21, phase 4, live frame delivery: the normal LiveGame installs direct
+  frame jobs in its device events. Blocking waits service text, sound-only waits
+  and actual frames without writing an entry PC, CPU stack, NMI save words or
+  register snapshot. A completed frame still pauses the running sequence once.
+- The existing scene callback pointer selects one of the nine ordinary update
+  functions or the empty boot job. The shared frame counter increments before
+  the jobs; menu carry is a value. Frame presentation, audio advance, pad latching
+  and device interval order retain their existing frame model. Unknown callbacks
+  stop explicitly, and a failed job closes the frame interval before propagating.
+- Injected reference loops and recorded observation sets retain their original
+  interrupt adapter. No frozen proof file or golden trace is changed. Six focused
+  contracts cover budget pauses, both carries, zero budget, counter wrap without
+  stack writes, failure/replay rejection, instant text and sound-only progress.
+  Script native entry/return stacks and deeper frontend call frames remain open;
+  phase 4 is not complete and phase 5 has not started.
+
+- Live frame delivery validation: the 223-file selection passed 4757 checks and
+  all five unchanged golden traces; fourteen caller comparisons still expected
+  the synthetic wait PC during a frame. Their snapshots now omit only PC and
+  program bank at frame entry, retaining completed boundary contexts and explicit
+  PC/stack/data-bank assertions, plus every state, video, sound and SRAM check.
+  The corrected two-file block selection passed 14/14 in 183 seconds. Initial
+  selection: 513 seconds; edited-file ESLint, formatting and source scan passed.

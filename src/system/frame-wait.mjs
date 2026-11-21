@@ -6,11 +6,10 @@ import { readStateByte } from '../state/objects.mjs';
 // waits for a change of the counter word.
 //
 // The NMI comes from the lag-free frame model (src/vm/frame-events.mjs), which
-// delivers it only at a blocking loop branch of the original. For the delivery
-// the wait presents the state the original has there: the branch 81:EED1 back to
-// the counter compare, with the accumulator in 8-bit mode and the compare equal.
-// The NMI handler pushes and restores that state; afterwards the caller's
-// context is put back. Only the interrupt delivery sees this state.
+// delivers it only at a blocking loop branch of the original. The normal game
+// dispatches frame jobs directly with the branch condition and carry as values.
+// Recorded comparisons retain the original interrupt context: branch 81:EED1,
+// an equal byte compare, and the handler's push/restore before returning here.
 import { InterruptStepContinuation, lagFree } from './main-wait-interrupt.mjs';
 import { WAIT_PAUSED, WAIT_RETURNED } from './native-wait-continuation.mjs';
 import { NMITIMEN_SHADOW, RANDOM_STATE } from '../data/wram.mjs';
@@ -48,10 +47,31 @@ class FramePause {
 }
 
 // One pass of the lag-free frame model at the blocking branch of an original wait
-// loop, with the status the original has there: an NMI, or with the NMI disabled at a
-// wait for the sound driver, audio time (src/vm/frame-events.mjs). The caller's
-// context is put back after it; after an NMI the native call pauses.
+// loop: frame jobs, or audio time at a sound wait with the NMI disabled. Normal
+// live execution does not change the caller's CPU context. The compatibility
+// path below restores its temporary interrupt context. A frame pauses the call.
 export function* nmiAtBranch(h, events, branch, status) {
+  const frames = lagFree(events);
+  if (frames && events.frameJobs) {
+    const nmis = frames.nmis;
+    yield () => {
+      if (frames.textWait?.(h, events, status, branch)) return;
+      const samples = frames.audioSamples;
+      if (!frames.nmiAt(status, branch)) {
+        if (frames.audioSamples !== samples) h.a.resetAccessBudget?.(h.a.entry);
+        return;
+      }
+      h.a.resetAccessBudget?.(h.a.entry);
+      frames.enterNmi();
+      try {
+        events.frameJobs(h.a, status & FLAG_CARRY ? 1 : 0);
+      } finally {
+        frames.leaveNmi();
+      }
+    };
+    if (frames.nmis !== nmis) yield { continuation: new FramePause() };
+    return;
+  }
   const { ctx } = h,
     saved = { programBank: ctx.programBank, pc: ctx.pc, status: ctx.status },
     nmis = lagFree(events)?.nmis;

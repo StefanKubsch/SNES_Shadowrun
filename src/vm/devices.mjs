@@ -41,6 +41,7 @@ export function interruptEventsOf(set, target) {
         interrupts: set.interrupts,
         interruptIndex: 0,
         interruptRoutines: set.interruptRoutines,
+        ...(set.frameJobs ? { frameJobs: set.frameJobs } : {}),
         dmaTransfers: set.dmaTransfers,
         dmaIndex: 0,
         startupInterrupts: set.startupInterrupts,
