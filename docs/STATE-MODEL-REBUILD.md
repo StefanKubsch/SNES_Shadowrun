@@ -88,6 +88,17 @@ own commit after `npm run test:block` and the golden trace test. One shared
 
 ## Progress
 
+- 2026-11-21, phase 4, room and scene initialization: room entry, camera jumps
+  and scene requests compose the counter wait directly, without a JSL frame or
+  temporary program bank. Scene loading passes memory explicitly and never
+  changes the CPU program or data bank; its original bank-7E palette setup still
+  writes WRAM explicitly. Game-start boundary PCs remain diagnostic metadata.
+- Scene initialization contracts reject CPU-context access across every budget
+  boundary, preserve the caller stack and check zero budgets and completed calls.
+  Existing randomized scene, room and game-start comparisons remain in place.
+  Window upload/release frames and matrix/cutscene entry wrappers are later blocks;
+  phase 4 remains unfinished and phase 5 has not started.
+
 - 2026-11-21, phase 4, nested scheduler composition: dialog topics, item actions
   and spell scripts call the head visit directly through their live event service.
   They create no scheduler caller frame. The native bridge borrows only the

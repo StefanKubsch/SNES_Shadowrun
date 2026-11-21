@@ -121,11 +121,7 @@ const CAMERA_ROW_BASE = 0x488,
 // (6 bytes); a list is skipped as its count byte plus count * (2 << shifts) - count * 2.
 const BOX_DATA_SHIFTS = 3,
   POINT_SHIFTS = 2;
-// Original call sites of the routines still called through their frames.
-const FRAME_WAIT_SITE = 0x80a520,
-  // A JSL pushes the address of its last byte.
-  JSL_LAST_BYTE = 3,
-  WINDOW_LIST_SITE = 0x80a5c9;
+const WINDOW_LIST_SITE = 0x80a5c9;
 const word = (wram, at) => readStateByte(wram, at) | (readStateByte(wram, at + 1) << BYTE_BITS);
 const setWord = (wram, at, value) => {
   writeStateByte(wram, at, value & BYTE_MASK);
@@ -233,48 +229,21 @@ function placeCameraAtStart(mem, wram) {
   }
 }
 
-// The live word wait keeps its JSL frame for nested NMIs.
-const WAIT_BANK = 0x81;
-export function* waitForFrameCall(h, events, site) {
-  const { ctx, a } = h;
-  let callerBank;
-  yield () => {
-    callerBank = ctx.programBank;
-    a.write(ctx.s, callerBank);
-    ctx.s = (ctx.s - 1) & WORD_MASK;
-    a.pushWord((site + JSL_LAST_BYTE) & WORD_MASK);
-    ctx.programBank = WAIT_BANK;
-  };
-  yield* waitForCounterWord(h, events);
-  yield () => {
-    a.pullWord();
-    ctx.s = (ctx.s + 1) & WORD_MASK;
-    ctx.programBank = callerBank;
-  };
-}
-
 // 81:8BD9: the camera jumps by 0400 in x (back when it is at 0400 or more), then
 // scrolls there in 32 steps of 20 with the camera box off and the map uploads held
 // back once more; each step fills the tile buffers (81:8A91) and sends the map edges
-// and the scroll (81:8954), both lifted in camera-scroll.mjs. The jump runs in bank 81;
-// its JSL frame and the camera box word and step count it keeps on the stack lie only
-// in free stack bytes and are kept in locals (game state only, user decision
-// 2026-11-17). Its frame wait keeps its own frame.
+// and the scroll (81:8954), both lifted in camera-scroll.mjs. The camera box and
+// step count are locals; the counter wait composes directly without a CPU frame.
 const CAMERA_JUMP = 0x400,
   CAMERA_JUMP_STEP = 0x20,
-  CAMERA_JUMP_STEPS = 0x20,
-  JUMP_BANK = 0x81,
-  JUMP_WAIT_SITE = 0x818bdd;
+  CAMERA_JUMP_STEPS = 0x20;
 function* jumpCameraSequence(h, events) {
-  const { ctx } = h,
-    { wram, video } = sceneRuntime(h),
-    callerBank = ctx.programBank;
+  const { wram, video } = sceneRuntime(h);
   let boxHigh;
   yield () => {
-    ctx.programBank = JUMP_BANK;
     forceBlank(wram);
   };
-  yield* waitForFrameCall(h, events, JUMP_WAIT_SITE);
+  yield* waitForCounterWord(h, events);
   yield () => {
     setWord(wram, MAP_UPLOAD_HELD, word(wram, MAP_UPLOAD_HELD) - 1);
     boxHigh = word(wram, CAMERA_BOX_HIGH);
@@ -295,7 +264,6 @@ function* jumpCameraSequence(h, events) {
     setWord(wram, CAMERA_SPEED_X, 0);
     setWord(wram, CAMERA_BOX_HIGH, boxHigh);
     setWord(wram, MAP_UPLOAD_HELD, word(wram, MAP_UPLOAD_HELD) + 1);
-    ctx.programBank = callerBank;
   };
 }
 
@@ -330,7 +298,7 @@ export function* enterRoomSequence(h, events, room) {
   };
   yield* loadSceneSequence(h, scene);
   yield () => forceBlank(wram);
-  yield* waitForFrameCall(h, events, FRAME_WAIT_SITE);
+  yield* waitForCounterWord(h, events);
   yield () => resetFixedColour(m);
   yield* releaseNoticeWindowsSequence(h, events);
   yield () => {

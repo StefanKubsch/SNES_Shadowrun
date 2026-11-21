@@ -102,7 +102,15 @@ function runRoomZone(sequence, room, budget) {
       const service = events.interrupts.textWait;
       events.interrupts.textWait = (callee, frameEvents, status, pc) => {
         if (pc === 0x81b0a9) {
-          calls.push(['room frame', mem.read16(0x7e0000 | (h.ctx.s + 1)), h.ctx.programBank]);
+          const live = sequence === playerZonesJsr;
+          assert.equal(mem.read16(0x7e0000 | (h.ctx.s + 1)), live ? 0x1234 : 0x80af);
+          if (live) assert.equal(h.ctx.s, 0x1eed, 'room wait preserves the outer caller stack');
+          assert.equal(
+            h.ctx.programBank,
+            0x81,
+            'comparison interrupt adapter selects the wait bank',
+          );
+          calls.push(['room frame', pc]);
           put(W.RANDOM_STATE, mem.read16(W.RANDOM_STATE) + 1);
           return true;
         }

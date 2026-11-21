@@ -31,7 +31,8 @@ import { cutsceneSequence } from '../cutscene/cutscene-scene.mjs';
 import { matrixSceneSequence } from '../matrix/matrix-scene.mjs';
 import { sceneRuntime } from '../system/scene-runtime.mjs';
 import { setUpGameScreen } from './game-screen.mjs';
-import { enterRoomSequence, forceBlank, waitForFrameCall } from './room-entry.mjs';
+import { enterRoomSequence, forceBlank } from './room-entry.mjs';
+import { waitForCounterWord } from '../system/frame-wait.mjs';
 import {
   DECKER_HEALTH,
   DECKER_RECORD,
@@ -45,9 +46,8 @@ import {
 import { BYTE_BITS, BYTE_MASK, WORD_MASK } from '../constants/bits.mjs';
 
 const SCENE_REQUEST_NONE = WORD_MASK;
-// Original call sites: the frame wait (JSL), the cutscene and the matrix (JSL).
-const FRAME_WAIT_SITE = 0xcc5c,
-  CUTSCENE_SITE = 0xcc6b,
+// Original call sites of the remaining cutscene and matrix wrappers.
+const CUTSCENE_SITE = 0xcc6b,
   MATRIX_SITE = 0xcc71;
 const PLAY_CUTSCENE = 0x81cdf8,
   PLAY_MATRIX = 0x81c3ca;
@@ -66,7 +66,7 @@ export function* sceneRequestSequence(h, events, request = {}) {
   if (!request.taken) return;
   if (word(wram, SCENE_REQUEST) !== SCENE_REQUEST_ROOM_ONLY) {
     yield () => forceBlank(wram);
-    yield* waitForFrameCall(h, events, FRAME_WAIT_SITE);
+    yield* waitForCounterWord(h, events);
     // The scene takes the request, read again after the wait, and its argument.
     let scene, argument;
     yield () => {

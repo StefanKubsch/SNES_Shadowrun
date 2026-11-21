@@ -17,8 +17,8 @@ import { readStateByte, fillStateBytes } from '../state/objects.mjs';
 // second layer apart for the wall map cells.
 //
 // The scene record is unpacked with the lifted unpacker (80:9F69, src/system/unpack.mjs),
-// which leaves its direct page state as the original. The scene load runs in bank 81
-// with data bank 7E below its JSL frame and data bank byte, as the original. The
+// which leaves its direct page state as the original. Memory and palette writes
+// name their destination explicitly without a CPU bank switch or call frame. The
 // direct page words the original uses are written as in the original; the Mesen
 // oracle compares them.
 import { writeStateByte } from '../state/objects.mjs';
@@ -167,10 +167,6 @@ const TILE_STACK_HASH_MASK = BYTE_MASK;
 // Wall tiles: each wall map word holds four cells of three tile words.
 const WALL_CELL_TILES = WALL_CELL_BYTES / 2,
   WALL_WORD_LAYER_BYTES = 2 * WALL_WORD_CELLS;
-// The scene load runs in bank 81 with data bank 7E.
-const SCENE_LOAD_BANK = 0x81,
-  SCENE_DATA_BANK = WRAM_START >>> WORD_BITS;
-
 const word = (wram, at) => readStateByte(wram, at) | (readStateByte(wram, at + 1) << BYTE_BITS);
 const setWord = (wram, at, value) => {
   writeStateByte(wram, at, value & BYTE_MASK);
@@ -817,21 +813,16 @@ function buildLayerTileStacks(mem, wram) {
 
 // --- The scene load (81:A117) ---
 
-// Load scene (81:A117), a sequence. Its JSL frame and the data bank it pushes (PHB)
-// lie only in free stack bytes and are not reproduced (game state only, user decision
-// 2026-11-17); the program and data banks are set and restored as the original's.
+// Load scene (81:A117) directly. Every helper receives memory explicitly, and the
+// original data-bank-7E palette writes use the WRAM writer below.
 export function* loadSceneSequence(h, scene) {
-  const { ctx } = h,
-    { mem, wram } = sceneRuntime(h),
-    callerBank = ctx.programBank,
-    dataBank = ctx.bank;
+  const { mem, wram } = sceneRuntime(h);
   const nextByte = () => {
     const value = pointedByte(mem, wram, DP_SCENE_RECORD, 0);
     setWord(wram, DP_SCENE_RECORD, word(wram, DP_SCENE_RECORD) + 1);
     return value;
   };
   yield () => {
-    Object.assign(ctx, { programBank: SCENE_LOAD_BANK, bank: SCENE_DATA_BANK });
     setWord(wram, DP_SCRATCH, scene);
     const entry = SCENE_STREAMS + ((scene * SCENE_STREAM_BYTES) & WORD_MASK);
     writeStateByte(wram, DP_SCENE_RECORD_BANK, WRAM_HIGH_BANK);
@@ -884,7 +875,5 @@ export function* loadSceneSequence(h, scene) {
       buildLayerTileStacks(mem, wram);
     }
     buildWallTiles(wram);
-    ctx.bank = dataBank;
-    ctx.programBank = callerBank;
   };
 }
