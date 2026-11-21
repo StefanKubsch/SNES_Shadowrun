@@ -103,6 +103,13 @@ own commit after `npm run test:block` and the golden trace test. One shared
 - Nested scheduler validation: 3344/3344 tests across 68 selected files passed
   in 331 seconds, without failures or skips, including all five unchanged golden
   traces. Edited-file ESLint, formatting, source scan and diff checks passed.
+- Shared scheduler release: verify:release passed 13015/13015 tests across 331
+  executed files, with 336 unchanged and no failures or skips, in 1009 seconds.
+  Both artifact passes ran 239 generators with 533 unchanged and 3492 matching
+  artifacts; generation took 419 seconds. Syntax covered 3180 modules. Format,
+  AC source, diff/staged diff and LFS checks passed. Passing logs were removed;
+  the summary remains in .cache/release/last-summary.json. Regenerated historical
+  Markdown was verified formatting-equivalent and restored to its HEAD bytes.
 
 - 2026-11-21, phase 4, ordinary scheduler rounds: the normal game and attract
   loop enter the JS scheduler directly and return observation results as values.
