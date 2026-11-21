@@ -1,3 +1,4 @@
+import { detachFrontend } from '../state/frontend.mjs';
 import { detachMatrix } from '../state/matrix.mjs';
 import { detachSceneRoom } from '../state/scene-room.mjs';
 import { detachCombat } from '../state/combat.mjs';
@@ -95,6 +96,7 @@ export class LiveGame {
       detachCollisionStorage(this.memory.wram);
       detachCameraMaps(this.memory.wram);
       detachWindowsText(this.memory.wram);
+      detachFrontend(this.memory.wram);
       detachMatrix(this.memory.wram);
       detachSceneRoom(this.memory.wram);
       detachCombat(this.memory.wram);

@@ -284,3 +284,20 @@ own commit after `npm run test:block` and the golden trace test. One shared
 - Matrix block validation passed 4711/4711 tests across 136 selected files in
   622 seconds, including all five unchanged golden traces. Seven new storage
   contracts, edited-file ESLint and formatting passed.
+
+- 2026-11-21, cutscene/intro/title shared storage: src/state/frontend.mjs owns
+  pad edges, display shadows and fades, options, shared random state, the odd
+  path/wave/circle workspace and four opaque script bytes at 1D6F-1D72. Intro
+  and title objects, scene counters/arguments, palettes/maps/fonts/HDMA and
+  frontend random data retain their existing object/camera/window/scene owners.
+  No second frontend state copy is introduced; existing consumers use shared bytes.
+- Twelve storage contracts cover every entry and restore, frontend aliases,
+  pad transitions, four fade limits with high bytes retained, scripted-motion
+  aliases and odd cross-owner words, and normal-loop activation. An audit over
+  all 937 script bodies proves all 41 direct script addresses (including both
+  bytes of word operands), and every byte of the fixed save block, have owners.
+- Storage remains a bounded phase step: direct page locals, CPU/task continuation
+  bookkeeping, audio and video staging are not reinterpreted. Phase 4 is the
+  plain frame loop and script coroutine work; phase 5 replaces the PPU-facing
+  picture interface. Existing register references remain frozen.
+- Frontend block validation passed 4723/4723 tests across 137 selected files in 624 seconds, with no failures or skips. All five golden traces are unchanged; edited-file ESLint and formatting passed.
