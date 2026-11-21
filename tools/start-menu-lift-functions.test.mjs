@@ -14,7 +14,7 @@ import {
   clearMenuTilemap,
   drawMenuText,
   fadeTitleColours,
-  handleStartMenuNmi,
+  updateStartMenuFrame,
   setAnimationSources,
   toggleMenuHighlight,
 } from '../src/frontend/start-menu.mjs';
@@ -151,12 +151,12 @@ const CASES = [
     lifted: (m, r) => saveSlotValid(m.mem, r.a, false),
   },
   {
-    name: 'handleStartMenuNmi 81:E6AE',
+    name: 'updateStartMenuFrame 81:E6AE',
     entry: 0x81e6ae,
     long: true,
     samples: 600,
-    // The reference reads the interrupted carry from P; the lifted callback reads the
-    // P byte the NMI entry pushed below its saved stack pointer (7E:1C7A).
+    // The reference receives carry in P; the frame jobs receive it as a value.
+    // Poison the saved stack pointer while running the jobs.
     prepare: (s) => {
       const status = s.rnd(2) ? FLAG_CARRY : 0,
         stack = s.pick([0x1eff, 0x1fef, s.rnd(0x1b00) + 0x100]);
@@ -165,7 +165,13 @@ const CASES = [
       s.wram[stack + 1] = (s.wram[stack + 1] & ~FLAG_CARRY) | status;
       return { status };
     },
-    lifted: (m) => handleStartMenuNmi(m.h),
+    lifted: (m, r) => {
+      m.mem.wram[NMI_SAVED_STACK] ^= 0xff;
+      m.mem.wram[NMI_SAVED_STACK + 1] ^= 0xff;
+      updateStartMenuFrame(m.h, r.status & FLAG_CARRY ? 1 : 0);
+      m.mem.wram[NMI_SAVED_STACK] ^= 0xff;
+      m.mem.wram[NMI_SAVED_STACK + 1] ^= 0xff;
+    },
   },
 ];
 

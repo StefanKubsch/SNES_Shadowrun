@@ -299,6 +299,12 @@ function showTitlePicture(video) {
 // 81:DD54: the NMI callback of the prologue: the text tilemap to VRAM, the BG3
 // scroll, then the joypad.
 export function handlePrologueNmi(h) {
+  updatePrologueFrame(h);
+  return h.rtl();
+}
+
+// Frame jobs return directly; the compatibility entry above owns the original RTL.
+export function updatePrologueFrame(h) {
   const { wram, video, port } = sceneRuntime(h);
   video.write(VMADDL, PROLOGUE_TILEMAP_VRAM, 2);
   video.write(DMAP0, VRAM_WORD_DMA, 2);
@@ -309,7 +315,6 @@ export function handlePrologueNmi(h) {
   video.write(A1B0, WRAM_BANK, 1);
   video.write(MDMAEN, DMA_CHANNEL_0, 1);
   setWord(wram, PAD_HELD, readJoypad(port));
-  return h.rtl();
 }
 // An 800 byte map from source in bank 7E to the VRAM word vram, by DMA on channel 0.
 function sendMap(video, source, vram) {
@@ -325,15 +330,26 @@ function sendMap(video, source, vram) {
 // 81:DAD6: the NMI callback of the title's first frames: the OAM buffer, then the
 // objects (81:D9D5).
 export function handleTitleObjectsNmi(h) {
+  updateTitleObjectsFrame(h);
+  return h.rtl();
+}
+
+// Frame jobs return directly; the compatibility entry above owns the original RTL.
+export function updateTitleObjectsFrame(h) {
   const m = sceneRuntime(h);
   m.video.copyToOam(WRAM + OAM_SHADOW, OAM_BYTES);
   drawPanObjects(m, word(m.wram, DP_TITLE_POSITION));
-  return h.rtl();
 }
 // 81:D93E: the NMI callback of the pan: the OAM buffer; until position 0401 the
 // speed, position and horizontal scrolls and a map upload at the positions of the
 // table; then the objects (81:D9D5).
 export function handleTitlePanNmi(h) {
+  updateTitlePanFrame(h);
+  return h.rtl();
+}
+
+// Frame jobs return directly; the compatibility entry above owns the original RTL.
+export function updateTitlePanFrame(h) {
   const m = sceneRuntime(h),
     { wram, video } = m;
   video.copyToOam(WRAM + OAM_SHADOW, OAM_BYTES);
@@ -356,12 +372,17 @@ export function handleTitlePanNmi(h) {
       }
   }
   drawPanObjects(m, word(wram, DP_TITLE_POSITION));
-  return h.rtl();
 }
 // 81:DCAC: the NMI callback of the vertical scroll: the OAM buffer, the speed by one
 // toward its target, the position, the scrolls or the title colours, a map upload
 // once the position passes the next entry of the table, then the joypad.
 export function handleTitleScrollNmi(h) {
+  updateTitleScrollFrame(h);
+  return h.rtl();
+}
+
+// Frame jobs return directly; the compatibility entry above owns the original RTL.
+export function updateTitleScrollFrame(h) {
   const m = sceneRuntime(h),
     { wram, video } = m;
   video.copyToOam(WRAM + OAM_SHADOW, OAM_BYTES);
@@ -395,7 +416,6 @@ export function handleTitleScrollNmi(h) {
     sendMap(video, t.scrollUploads(n + 1), t.scrollUploads(n + 2));
   }
   setWord(wram, PAD_HELD, readJoypad(m.port));
-  return h.rtl();
 }
 
 // 81:D694: play the prologue and the title. h is the accessor of the native call

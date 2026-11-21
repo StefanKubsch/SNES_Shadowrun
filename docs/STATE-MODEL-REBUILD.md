@@ -88,6 +88,16 @@ own commit after `npm run test:block` and the golden trace test. One shared
 
 ## Progress
 
+- 2026-11-21, phase 4, frame job interfaces: all nine game, matrix, cutscene,
+  intro and title/menu callbacks expose ordinary update functions. They read game
+  state and submit device jobs without a CPU return frame. Existing NMI entries
+  call the same functions and retain RTL for recorded original comparisons.
+- The start menu receives the interrupted carry as an explicit value. Its
+  compatibility entry alone reads the original saved stack byte. Randomized
+  comparisons poison that saved pointer while running the ordinary jobs. Nine
+  interface checks run every update without a dialog context or return helper.
+  Live interrupt dispatch is the next step; phase 4 remains unfinished.
+
 - 2026-11-20, phase 1: golden traces recorded (tools/golden/, five scenarios).
 - 2026-11-20, phase 2 started: [src/state/objects.mjs](../src/state/objects.mjs) names
   the object fields (position, velocity, height, diagonal, flags, collision box, motion
@@ -363,3 +373,7 @@ own commit after `npm run test:block` and the golden trace test. One shared
 - Boot/owner block validation: 3657/3657 selected tests passed across 85 files in
   572 seconds, with no failures or skips. All five golden traces are unchanged;
   edited-file ESLint, formatting and source scan passed.
+
+- Frame job interface block validation: 373/373 tests across 38 selected files
+  passed in 236 seconds, including all five unchanged golden traces. Edited-file
+  ESLint, formatting and source scan passed.

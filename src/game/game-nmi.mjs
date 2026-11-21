@@ -527,6 +527,12 @@ const BLANK_SITE = 0x80c156;
 // the screen shadows to INIDISP, TM, TS, TMW and HDMAEN. The jobs' frames are not
 // pushed (they lie below the NMI stack's top and nothing reads them).
 export function handleGameNmi(h) {
+  updateGameFrame(h);
+  return h.rtl();
+}
+
+// Frame jobs return directly; the compatibility entry above owns the original RTL.
+export function updateGameFrame(h) {
   const { video } = sceneRuntime(h),
     wram = h.a.mem.wram,
     port = accessorPort(h.a);
@@ -551,7 +557,6 @@ export function handleGameNmi(h) {
   stepBrightnessFade(wram);
   for (const [shadow, register, site] of SCREEN_SHADOWS)
     port.write(register, readStateByte(wram, shadow), 1, site);
-  return h.rtl();
 }
 
 // 80:D9AD with 81:B0AC (the script native's JSL): start a brightness fade by n steps (n

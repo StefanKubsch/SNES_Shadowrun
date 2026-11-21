@@ -380,6 +380,12 @@ function scrollToPersona(m) {
 // 81:BEC3: the matrix NMI callback: sprites, colours, blink, scroll, the message row,
 // the queued VRAM copies and the text cursor, then the joypad.
 export function handleMatrixNmi(h) {
+  updateMatrixFrame(h);
+  return h.rtl();
+}
+
+// Frame jobs return directly; the compatibility entry above owns the original RTL.
+export function updateMatrixFrame(h) {
   const m = matrixRuntime(h),
     { mem, wram, video } = m;
   video.copyToOam(WRAM + OAM_SHADOW, OAM_BYTES);
@@ -413,5 +419,4 @@ export function handleMatrixNmi(h) {
   setWord(wram, MATRIX_TEXT_CURSOR_SHOWN, cursor);
   video.setVramWord(cursor, CURSOR_TILE);
   setWord(wram, PAD_HELD, readJoypad(m.port));
-  return h.rtl();
 }

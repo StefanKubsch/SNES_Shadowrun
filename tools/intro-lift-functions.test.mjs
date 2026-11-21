@@ -15,7 +15,7 @@ import {
   placeFirstNearObjects,
 } from '../src/intro/intro-objects.mjs';
 import {
-  handleIntroNmi,
+  updateIntroFrame,
   setUpGameAudio,
   setUpIntroWindow,
   setUpTitleAudio,
@@ -67,11 +67,11 @@ function sample(seed) {
 
 const CASES = [
   {
-    name: 'handleIntroNmi 81:DF0E',
+    name: 'updateIntroFrame 81:DF0E',
     entry: 0x81df0e,
     long: true,
     samples: 600,
-    lifted: (m) => handleIntroNmi(m.h),
+    lifted: (m) => updateIntroFrame(m.h),
   },
   {
     name: 'addNearObject 81:E900',

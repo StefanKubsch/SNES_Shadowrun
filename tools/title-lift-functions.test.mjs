@@ -14,10 +14,10 @@ import { startFarObject } from '../src/intro/intro-objects.mjs';
 import {
   drawPrologueLine,
   fadeTitleBlend,
-  handlePrologueNmi,
-  handleTitleObjectsNmi,
-  handleTitlePanNmi,
-  handleTitleScrollNmi,
+  updatePrologueFrame,
+  updateTitleObjectsFrame,
+  updateTitlePanFrame,
+  updateTitleScrollFrame,
   moveTitleWindow,
 } from '../src/frontend/title.mjs';
 import { handlePanObjects } from '../proof/caller/scene-routine-adapters.mjs';
@@ -120,17 +120,17 @@ const CASES = [
     lifted: (m, r) => fadeTitleBlend(m, r.x),
   },
   {
-    name: 'handlePrologueNmi 81:DD54',
+    name: 'updatePrologueFrame 81:DD54',
     entry: 0x81dd54,
     long: true,
-    lifted: (m) => handlePrologueNmi(m.h),
+    lifted: (m) => updatePrologueFrame(m.h),
   },
   {
-    name: 'handleTitleObjectsNmi 81:DAD6',
+    name: 'updateTitleObjectsFrame 81:DAD6',
     entry: 0x81dad6,
     long: true,
     samples: 600,
-    lifted: (m) => handleTitleObjectsNmi(m.h),
+    lifted: (m) => updateTitleObjectsFrame(m.h),
   },
   {
     name: 'handlePanObjects 81:D9D5',
@@ -139,18 +139,18 @@ const CASES = [
     lifted: (m) => handlePanObjects(m.h),
   },
   {
-    name: 'handleTitlePanNmi 81:D93E',
+    name: 'updateTitlePanFrame 81:D93E',
     entry: 0x81d93e,
     long: true,
     samples: 600,
-    lifted: (m) => handleTitlePanNmi(m.h),
+    lifted: (m) => updateTitlePanFrame(m.h),
   },
   {
-    name: 'handleTitleScrollNmi 81:DCAC',
+    name: 'updateTitleScrollFrame 81:DCAC',
     entry: 0x81dcac,
     long: true,
     samples: 600,
-    lifted: (m) => handleTitleScrollNmi(m.h),
+    lifted: (m) => updateTitleScrollFrame(m.h),
   },
   {
     name: 'startFarObject 81:E971',

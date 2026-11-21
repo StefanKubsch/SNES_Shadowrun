@@ -479,11 +479,18 @@ function nextRandom(mem, carry) {
 // 2026-11-18): the NMI entry 00:C112 pushes the interrupted P on the game stack before
 // it stores S in 7E:1C7A, so the callback reads that byte from the interrupt frame.
 export function handleStartMenuNmi(h) {
+  const { wram } = h.a.mem;
+  const carry =
+    readStateByte(wram, (word(wram, NMI_SAVED_STACK) + 1) & WORD_MASK) & FLAG_CARRY ? 1 : 0;
+  updateStartMenuFrame(h, carry);
+  return h.rtl();
+}
+
+// Frame jobs return directly; the compatibility entry above owns the original RTL.
+export function updateStartMenuFrame(h, carry) {
   const m = sceneRuntime(h),
     { mem, wram, video } = m,
     t = menuTables(mem);
-  let carry =
-    readStateByte(wram, (word(wram, NMI_SAVED_STACK) + 1) & WORD_MASK) & FLAG_CARRY ? 1 : 0;
   video.copyToOam(WRAM + OAM_SHADOW, OAM_BYTES);
   sendMenuTilemap(video);
   video.write(CGADD, 0, 1);
@@ -532,7 +539,6 @@ export function handleStartMenuNmi(h) {
     }
   }
   setWord(wram, PAD_HELD, readJoypad(m.port));
-  return h.rtl();
 }
 
 // One fade step of the title colours 16-63 from white (81:E5DB).

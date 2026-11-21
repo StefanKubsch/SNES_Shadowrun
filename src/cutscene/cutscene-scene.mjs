@@ -262,6 +262,12 @@ export function* cutsceneSequence(h, events, scene, argument) {
 // position, the BG1 scroll, the BG2 speed towards its target, the brightness
 // towards its target, then the joypad.
 export function handleCutsceneNmi(h) {
+  updateCutsceneFrame(h);
+  return h.rtl();
+}
+
+// Frame jobs return directly; the compatibility entry above owns the original RTL.
+export function updateCutsceneFrame(h) {
   const m = sceneRuntime(h),
     { wram, video } = m;
   video.copyToOam(WRAM + OAM_SHADOW, OAM_BYTES);
@@ -289,5 +295,4 @@ export function handleCutsceneNmi(h) {
   if (brightness !== goal)
     writeStateByte(wram, SCENE_BRIGHTNESS, (brightness + (brightness > goal ? -1 : 1)) & BYTE_MASK);
   setWord(wram, PAD_HELD, readJoypad(m.port));
-  return h.rtl();
 }

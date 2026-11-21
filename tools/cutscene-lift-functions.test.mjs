@@ -14,7 +14,7 @@ import {
   fillTextMap,
   sendMirroredPicture,
 } from '../src/cutscene/cutscene-animation.mjs';
-import { handleCutsceneNmi } from '../src/cutscene/cutscene-scene.mjs';
+import { updateCutsceneFrame } from '../src/cutscene/cutscene-scene.mjs';
 import { startSong } from '../src/apu/music-mode.mjs';
 import { setSceneScreen } from '../src/video/scene-screen.mjs';
 import { startSong as startSongReference } from '../proof/apu-reference/audio-routines.mjs';
@@ -81,10 +81,10 @@ const CASES = [
   { name: 'fillTextMap 81:D37D', entry: 0x81d37d, lifted: (m) => fillTextMap(m) },
   { name: 'sendMirroredPicture 81:CF79', entry: 0x81cf79, lifted: (m) => sendMirroredPicture(m) },
   {
-    name: 'handleCutsceneNmi 81:D479',
+    name: 'updateCutsceneFrame 81:D479',
     entry: 0x81d479,
     long: true,
-    lifted: (m) => handleCutsceneNmi(m.h),
+    lifted: (m) => updateCutsceneFrame(m.h),
   },
   {
     // Songs with the cartridge's sound directory.
