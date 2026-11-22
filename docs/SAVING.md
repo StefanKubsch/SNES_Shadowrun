@@ -144,7 +144,7 @@ separate steps in both languages:
 1. Save at a bed or use **Save** while Jake can move freely. Browser
    storage retains these slots in the current browser profile; clearing site
    data can erase them.
-2. **Bundle** downloads `Shadowrun.shadowrun`, including all stored slots,
+2. **Bundle** downloads `shadowrun-saves.shadowrun`, including all stored slots,
    pictures and dates. **.srm** downloads only the original game data as
    `Shadowrun.srm`. Neither first saves current progress. Save into a slot
    before exporting a backup or moving to another browser or computer.

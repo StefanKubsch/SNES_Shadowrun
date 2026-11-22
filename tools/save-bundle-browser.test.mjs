@@ -81,7 +81,7 @@ test(
         });
       };
       await clickDownload('#save-bundle-export');
-      const bundle = await downloaded(join(logDir, 'downloads', 'Shadowrun.shadowrun'));
+      const bundle = await downloaded(join(logDir, 'downloads', 'shadowrun-saves.shadowrun'));
       // Separate user activations: browsers block a second automatic download.
       await clickDownload('#save-export');
       const raw = await downloaded(join(logDir, 'downloads', 'Shadowrun.srm')),

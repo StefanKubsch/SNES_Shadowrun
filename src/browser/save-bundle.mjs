@@ -5,7 +5,7 @@ import { describeSaveSlots } from './save-details.mjs';
 
 const BUNDLE_FORMAT = 'shadowrun-save',
   BUNDLE_VERSION = 1;
-export const SAVE_BUNDLE_NAME = 'Shadowrun.shadowrun';
+export const SAVE_BUNDLE_NAME = 'shadowrun-saves.shadowrun';
 // Four bounded PNG data URLs, exact slot identities and a 16 KiB SRAM fit here.
 export const MAX_SAVE_IMPORT_BYTES = 512000;
 
