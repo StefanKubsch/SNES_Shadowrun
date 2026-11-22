@@ -164,7 +164,7 @@ test(
       );
       assert.match(
         await evalJs("document.querySelector('#save-status').textContent"),
-        /Noch kein Spielstand/,
+        /Noch keine Spielstände\./,
       );
       await evalJs(`(async()=>{const {parseBindings}=await import('/src/browser/controls.mjs');
         const bindings=parseBindings(null);bindings.A=['key:k'];
