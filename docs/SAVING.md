@@ -206,6 +206,14 @@ restoration, import confirmation, handbook and compact-layout browser checks.
 The initial download test was corrected to use two separate user clicks,
 because browsers block a second automatic download from one activation.
 
+The package filename follow-up passed 11/11 block tests in 102 seconds.
+The shared incremental release, explicitly requested by the user, passed
+65/65 tests across 25 executed files, with 651 unchanged files reused and no
+failures or skips. All 772 generators were reused; 3,491 outputs were verified
+and syntax covered 3,192 modules. Format, AC source, diff/staged diff and LFS
+checks passed. Tests took 165 seconds and artifact verification took 18 seconds.
+Summary: `.cache/release/last-summary.json`.
+
 The personal root export `Shadowrun.srm` is ignored by Git and is no longer
 tracked as of 2026-11-09. Removing it from version control preserves the local
 file; a fresh checkout does not include this personal save. Versioned test
