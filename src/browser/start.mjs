@@ -74,6 +74,7 @@ import {
   updateSaveDetails,
   saveRoomName,
 } from './save-details.mjs';
+import { encodeSavePreview } from './save-preview.mjs';
 
 const LANGUAGE_KEY = 'shadowrun.language.1';
 let language = readStored(LANGUAGE_KEY) === GERMAN ? GERMAN : ENGLISH;
@@ -606,7 +607,14 @@ start.addEventListener('click', () => {
       return;
     }
     if (data.save instanceof Uint8Array) {
-      storeSave(data.save, savedSlot >= 0 ? t('savedSlot', { slot: savedSlot + 1 }) : t('saved'));
+      storeSave(
+        data.save,
+        savedSlot >= 0 ? t('savedSlot', { slot: savedSlot + 1 }) : t('saved'),
+        false,
+        '',
+        data.savePreviews?.map((preview) => encodeSavePreview(preview, document)) ?? null,
+        data.savedSlots,
+      );
       savedSlot = -1;
       return;
     }
@@ -629,9 +637,6 @@ start.addEventListener('click', () => {
       canvas.dataset.preventExploits = String(data.gameplay.preventExploits);
       canvas.dataset.fourSaveSlots = String(data.gameplay.fourSaveSlots === true);
       start.hidden = true;
-      saveNow.hidden = false;
-      // Slots 3/4 only with the four-slot option of this session.
-      showSlots();
       canvas.dataset.saveLoaded = String(data.save);
       live = {
         queue: [],
@@ -703,22 +708,31 @@ debugRoomButton.addEventListener('click', () => {
 
 // Save anywhere (src/game/save-anywhere.mjs): the worker runs the original slot save at its
 // next pad read if Jake can move freely, and answers with the slot or -1.
-const saveNow = document.querySelector('#save-now'),
-  saveCards = document.querySelector('#save-slot-list');
+const saveCards = document.querySelector('#save-slot-list');
 for (let slot = 0; slot < FOUR_SAVE_SLOTS; slot++) {
   const card = document.createElement('section'),
     title = document.createElement('h3'),
+    preview = document.createElement('div'),
+    image = document.createElement('img'),
+    placeholder = document.createElement('span'),
     description = document.createElement('p'),
     button = document.createElement('button');
   card.className = 'overlay-card';
   card.dataset.saveSlot = slot;
   title.id = `save-slot-title-${slot}`;
+  preview.className = 'save-preview';
+  image.hidden = true;
+  image.addEventListener('error', () => {
+    image.hidden = true;
+    placeholder.hidden = false;
+  });
+  preview.append(image, placeholder);
   description.id = `save-slot-description-${slot}`;
   card.setAttribute('aria-labelledby', title.id);
   button.type = 'button';
   button.dataset.slot = slot;
   button.setAttribute('aria-describedby', description.id);
-  card.append(title, description, button);
+  card.append(title, preview, description, button);
   saveCards.append(card);
 }
 let savedSlot = -1;
@@ -740,13 +754,15 @@ let save = storedSave(readStored(SAVE_KEY), readStored(SAVE_EXTRA_KEY));
 let saveDetails = parseSaveDetails(readStored(SAVE_DETAILS_KEY));
 // replace: an imported file also replaces slots 3/4; a save from the game
 // with 8 KiB keeps them (mergeSave). tone marks the status line (showSave).
-function storeSave(bytes, message, replace = false, tone = '') {
+function storeSave(bytes, message, replace = false, tone = '', preview = null, savedSlots = []) {
   const next = replace ? bytes : mergeSave(save, bytes);
   saveDetails = updateSaveDetails(
     save,
     next,
     saveDetails,
     replace ? null : new Date().toISOString(),
+    preview,
+    savedSlots,
   );
   save = next;
   canvas.dataset.saveHash = String(saveHash(save));
@@ -756,9 +772,12 @@ function storeSave(bytes, message, replace = false, tone = '') {
       SAVE_EXTRA_KEY,
       save.length > SRAM_SIZE ? saveToText(save.subarray(SRAM_SIZE)) : null,
     );
-  writeStored(SAVE_DETAILS_KEY, JSON.stringify(saveDetails));
+  const detailsKept = writeStored(SAVE_DETAILS_KEY, JSON.stringify(saveDetails));
   navigator.storage?.persist?.().catch(() => {});
-  showSave(kept ? message : t('saveFailed'), kept ? tone : 'error');
+  showSave(
+    kept ? (detailsKept ? message : `${message} ${t('saveDetailsFailed')}`) : t('saveFailed'),
+    kept ? tone : 'error',
+  );
 }
 // Slot occupancy with the title menu's own checksum rule (save-slots.mjs):
 // a dot on each "Save now" button, red for a used slot, green for a free one.
@@ -769,25 +788,35 @@ function showSlots() {
     const slot = Number(button.dataset.slot),
       detail = details[slot],
       taken = !!detail,
-      card = button.closest('.overlay-card');
+      card = button.closest('.overlay-card'),
+      image = card.querySelector('img'),
+      placeholder = card.querySelector('.save-preview span');
     // Keep stored extra slots visible even when the next session uses two.
     card.hidden = slot >= ORIGINAL_SAVE_SLOTS && !fourSlots && !taken;
     card.querySelector('h3').textContent = t('saveSlotTitle', { slot: slot + 1 });
+    placeholder.textContent = t('savePreviewMissing');
+    placeholder.hidden = !!detail?.preview;
+    image.hidden = !detail?.preview;
+    image.alt = t('savePreviewAlt', { slot: slot + 1 });
+    if (detail?.preview) {
+      if (image.getAttribute('src') !== detail.preview) image.src = detail.preview;
+    } else image.removeAttribute('src');
     card.querySelector('p').textContent = detail
-      ? `${saveRoomName(detail.room, language) ?? t('saveRoom', { room: detail.room })} · ${
+      ? `${saveRoomName(detail.room, language) ?? t('saveRoom', { room: detail.room })}${
           detail.savedAt
-            ? t('saveDate', {
+            ? ' · ' +
+              t('saveDate', {
                 date: new Intl.DateTimeFormat(language, {
-                  dateStyle: 'medium',
+                  dateStyle: 'short',
                   timeStyle: 'short',
                 }).format(new Date(detail.savedAt)),
               })
-            : t('saveDateUnknown')
+            : ''
         }${slot >= ORIGINAL_SAVE_SLOTS && !fourSlots ? ' · ' + t('saveSlotDisabled') : ''}`
       : t('saveSlotEmpty');
     button.hidden = !live || (slot >= ORIGINAL_SAVE_SLOTS && !fourSlots);
     button.dataset.occupied = String(taken);
-    button.textContent = t('saveNow', { slot: slot + 1 });
+    button.textContent = t('saveSlotAction');
     button.setAttribute(
       'aria-label',
       `${t('saveNow', { slot: slot + 1 })} (${t(taken ? 'slotUsed' : 'slotFree')})`,
@@ -802,12 +831,9 @@ function showSave(message, tone = '') {
   showSlots();
   const used = occupiedSlots(save),
     games = used.flatMap((taken, slot) => (taken ? [slot + 1] : [])),
-    hidden = games.filter((game) => game > ORIGINAL_SAVE_SLOTS),
-    fourSlots = live ? canvas.dataset.fourSaveSlots === 'true' : gameplay.fourSaveSlots;
+    hasGames = games.length > 0;
   let text = message;
-  if (text === undefined)
-    text = !games.length ? t('saveEmpty') : t('saveStored', { games: games.join(', ') });
-  if (hidden.length && !fourSlots) text += t('saveHidden', { games: hidden.join(t('and')) });
+  if (text === undefined) text = hasGames ? t('saveStored') : t('saveEmpty');
   saveStatus.textContent = text;
   saveStatus.dataset.tone = tone;
 }
@@ -1159,7 +1185,6 @@ function stopLive() {
   stopAudio();
   monitorUi.setRunning(false);
   showDebugRoom(false);
-  saveNow.hidden = true;
   showSlots();
   delete canvas.dataset.nmi;
   delete canvas.dataset.paused;

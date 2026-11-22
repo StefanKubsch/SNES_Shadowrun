@@ -1,7 +1,7 @@
 {
   "updated": "2026-11-22",
-  "focus": "User priority: descriptive save slots (docs/SAVING.md). Room cards and dates passed block checks; one local block awaits shared release. State model rebuild phase 4 remains unfinished. Batch: HANDOFF.md.",
-  "next_step": "Save slots: add previews tied to saved bytes and verified room names. Play time needs source evidence. Then resume phase 4: portrait uploads/waits, object tile reload, dialog device callers and native bridges. Delivery: HANDOFF.md.",
+  "focus": "Save slots (docs/SAVING.md): room cards, dates, previews and compact layout passed block checks; two blocks await shared release. State model rebuild phase 4 remains unfinished. Batch: HANDOFF.md.",
+  "next_step": "Run shared verify:release and push the save-slot batch. Then resume phase 4: portrait uploads/waits, object tile reload, dialog device callers and native bridges. Total play time still needs source evidence. Delivery: HANDOFF.md.",
   "porting_resume": "216 original-form bytes remain: 121 code and 95 unidentified data. Read/hardware/data boundaries: docs/ROM-CODE-AUDIT.md. Unknown bytes and unused graphics stay preserved; unrecorded paths can report rom_byte_absent.",
   "open_issues": [
     "Keyword overflow: synthetic insertion of a 51st retained topic corrupts flags in European source and lifted code. Marking does not free storage. A reachable regular story route and a compatible gameplay correction remain unproved; see docs/BUGFIXES.md.",

@@ -31,6 +31,8 @@ import {
 import { buildLanguage, LANGUAGES, ENGLISH } from '../data/language.mjs';
 import { languageEvent } from './recording.mjs';
 import { faultText } from './fault-text.mjs';
+import { SavePreview, previewRoomKeys } from './save-preview.mjs';
+import { describeSaveSlots } from './save-details.mjs';
 
 // Lead growth after a step that produced several pictures (in MIN_LEAD units).
 const LEAD_GROWTH = 4;
@@ -47,6 +49,7 @@ const LEAD = 2,
 let game = null,
   control = null,
   watch = null,
+  preview = null,
   recorder = null,
   shared = null,
   debugRoom = false,
@@ -131,7 +134,7 @@ self.onmessage = ({ data }) => {
             recorder.event(SAVE_SLOT_EVENTS[slot]);
             saveToSlot(game, slot);
           }
-          self.postMessage({ savedSlot: reachable ? slot : -1 });
+          if (!reachable) self.postMessage({ savedSlot: -1 });
         }
         // Text language (language.mjs): switched at this pad read and recorded as an event.
         if (pendingLanguage) {
@@ -170,13 +173,22 @@ self.onmessage = ({ data }) => {
           sram: data.sram ? new Uint8Array(data.sram) : null,
           onFrame: (f) => {
             recorder.frame(f.nmi, game.memory.wram);
+            preview.observe(game, f.pixels);
             // Object markers (object-markers.mjs): display only, after the recording's check.
             if (markers && markersAllowed(game)) {
               const pulse = markerPulse(f.nmi);
               if (pulse > 0) drawObjectMarkers(f.pixels, usableObjectBoxes(game.memory), pulse);
             }
             const save = watch.check();
-            if (save) self.postMessage({ save }, [save.buffer]);
+            if (save) {
+              const savePreviews = describeSaveSlots(save).map((slot) =>
+                slot ? preview.take(slot.room) : null,
+              );
+              self.postMessage({ save, savePreviews, savedSlots: watch.completedSlots }, [
+                save.buffer,
+                ...savePreviews.filter(Boolean).map((view) => view.pixels.buffer),
+              ]);
+            }
             const audio = game.apu.takeOutput();
             const effects = game.apu.takeEffectsOutput(),
               music = game.apu.musicState();
@@ -203,6 +215,11 @@ self.onmessage = ({ data }) => {
       );
       control = new MouseControl(game);
       watch = new SaveWatch(game.memory.sram);
+      game.memory.onSaveSlot = (slot) => {
+        watch.request(slot);
+        self.postMessage({ savedSlot: slot });
+      };
+      preview = new SavePreview(previewRoomKeys((at) => game.memory.read8(at)));
       // Between two NMIs the title waits up to about 141 frames of audio time
       // for the sound driver without NMI; the buffer holds 256 frames.
       game.apu.enableOutput(AUDIO_BUFFER_FRAMES);

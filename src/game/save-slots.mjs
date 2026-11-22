@@ -93,6 +93,8 @@ export function saveGame(mem, slot, four) {
     SRAM_BASE + offset,
     checksumSums((i) => readStateByte(wram, i), SAVE_STATE_START + CHECKSUM_WORD_BYTES).word,
   );
+  // Presentation observers also need completed saves whose bytes did not change.
+  mem.onSaveSlot?.(slot);
 }
 
 // Whether a save slot passes its checksum (lifted from 81:B1AB with 81:B11A and

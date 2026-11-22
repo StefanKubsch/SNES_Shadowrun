@@ -66,10 +66,16 @@ export class SaveWatch {
     this.sram = sram;
     this.saved = sram.slice();
     this.pending = null;
+    this.requestedSlots = new Set();
+    this.completedSlots = [];
+  }
+  request(slot) {
+    this.requestedSlots.add(slot);
+    this.pending = null;
   }
   check() {
     const { sram } = this;
-    if (same(sram, this.saved)) {
+    if (same(sram, this.saved) && !this.requestedSlots.size) {
       this.pending = null;
       return null;
     }
@@ -79,6 +85,8 @@ export class SaveWatch {
     }
     this.saved = this.pending;
     this.pending = null;
+    this.completedSlots = [...this.requestedSlots];
+    this.requestedSlots.clear();
     return this.saved.slice();
   }
 }

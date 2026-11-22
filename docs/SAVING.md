@@ -10,7 +10,7 @@ As of 2026-11-09. Code: [save-file.mjs](../src/browser/save-file.mjs),
 
 The Save/load game overlay shows a card for each available slot, including
 before starting a session. Cards show the saved room and, when known, the
-local save date and time. Empty slots are labelled explicitly. Stored slots
+local save date and time. Unknown dates are omitted. Empty slots are labelled explicitly. Stored slots
 3/4 remain visible with an explanation when the four-slot option is off;
 their save actions are hidden. Loading still uses the game's title menu.
 
@@ -23,39 +23,107 @@ English/German names. Other entries display their decimal room number until
 their names are established. This is the saved room entry, not Jake's position.
 
 Browser metadata is separate from SRAM under `shadowrun.save-details.1`.
-The existing stable-SRAM notification covers both bed and browser saves;
-only changed valid slots get a new timestamp. Unchanged slots keep their
+The stable-SRAM notification covers both bed and browser saves. Changed valid
+slots and explicitly completed saves get a new timestamp. Other slots keep their
 date. Exact Base64 of the complete saved slot bytes binds each date to its
 content. Changes to global SRAM options do not change slot dates. An 8 KiB
 session preserves the extra slots and their metadata. Import never creates
 a save date: matching metadata can remain, while different content discards
-it. Old saves, absent or malformed metadata show "Save date unknown".
+it. Old saves and absent or malformed metadata simply omit the date.
 The timestamp is the browser's local clock at the stable-save notification,
-not historical information extracted from SRAM. Byte-identical repeated saves
-do not produce a new SRAM notification or date. Normal `.srm` exports contain
+not historical information extracted from SRAM. Completed byte-identical saves
+also update their date and preview. Normal `.srm` exports contain
 only game data; optional dates remain in the browser.
 
-This first step includes neither previews nor total play time. The previous
+The first step did not include previews or total play time. The previous
 description of changed slot byte 024C as play time was unproved; a differing
 byte alone does not establish that meaning. A play-time field needs its own
-source evidence before display. Previews are a subsequent delivery.
+source evidence before display. Previews are described below.
 
 Tests: [save-details.test.mjs](../tools/save-details.test.mjs) covers fixture
 room decoding, per-slot dates, changed valid imports, checksum damage,
 extra-slot preservation and malformed metadata. The
 [import browser test](../tools/save-import-browser.test.mjs) checks actual
-cards, unknown imported dates, empty slots and narrow layout.
+cards, omitted imported dates, empty slots and narrow layout.
+
+## Slot previews (2026-11-22)
+
+Each slot card reserves a 4:3 picture area. A stored preview appears there;
+older saves, empty slots and unavailable or damaged previews show a localized
+placeholder. The accompanying note explains that the picture is the latest
+unobstructed room view and that loading resumes at the room entrance.
+Previews have localized alternative text and remain inside the responsive cards.
+
+[save-preview.mjs](../src/browser/save-preview.mjs) retains a reusable 128 x 112
+RGBA sample of the latest eligible frame, before object markers, CRT effects
+and worker frame transfer. Eligibility uses `saveAnywhereReachable`, a closed
+glove and a negative `WINDOW_LAST_INDEX`. The negative last index is the empty
+window-list result of `src/game/window-release.mjs`. Thus bed and dialog
+windows retain the earlier free view rather than replacing it with their menus.
+The cache retains only two recent room headers. The actual bed route briefly
+visits entry 347 and then restores the saved entry 345; retaining both lets the
+return use the earlier matching apartment view. A room without a cached eligible
+view has no preview; a different room header's picture is never substituted. The cache
+starts empty for each game session. This is a presentation policy, not new SNES behavior.
+
+Room table entries select entrances rather than unique physical rooms.
+`previewRoomKeys` uses the original header mapping from `src/data/rooms.mjs`.
+The user's reported saved entry 170 and entry 335 share one header; a capture
+through either entry is valid for the other's saved room. Distinct headers
+remain separate. This alias case is covered against the actual data package.
+
+At the stable SRAM notification, the worker selects a separate thumbnail for
+each valid saved slot's room header and transfers it alongside the save. The
+page encodes the small copies as PNGs once per notification. Changed valid
+slots and explicitly saved slots receive an image tagged with their saved
+entry. Missing captures clear the saved slot's earlier image. Other
+slots retain their own previews, including slots 3/4 during an 8 KiB session.
+Images use the existing metadata record and exact slot-byte identity. Imports
+preserve only matching metadata; importing different content cannot display an
+old preview. `.srm` exports contain neither PNGs nor other browser metadata.
+
+After writing the checksum, `saveGame` calls the optional `memory.onSaveSlot`
+presentation observer. The worker requests a stable SaveWatch notification
+and records the completed slot numbers, including when the save bytes are
+identical. The notification still waits one unchanged frame. This observer
+does not change saved bytes, game state or input recordings. An identical
+import is not a completed save and retains existing metadata instead.
+
+PNG data URLs are type/size checked before use. Encoding failure yields the
+placeholder without blocking the save. Image decoding failure also falls back
+to the placeholder. If browser metadata cannot be stored, the save notification
+distinguishes stored game data from unavailable slot details. A failed SRAM
+write continues to use the existing save failure message.
+
+Tests: [save-preview.test.mjs](../tools/save-preview.test.mjs) checks sampling,
+frame-transfer ownership, menu/glove exclusion and room changes. The actual
+[bed save test](../tools/live-save.test.mjs) checks capture during the existing
+native route. [save-details.test.mjs](../tools/save-details.test.mjs) covers
+image identity, missing captures, imports and rejected URLs; the
+[preview browser test](../tools/save-preview-browser.test.mjs) checks real PNG
+encoding/decoding, persistence, extra slots, localization and narrow layout.
+
+User layout direction of 2026-11-22: the save overlay must show its controls
+without scrolling, and slot numbers belong only in card headings. Cards use
+small thumbnails beside their room/date and a plain "Save" button. They form
+two columns on wide screens and four compact rows on narrow screens. Repeated
+slot lists and date-unknown notices are removed; the save/load, backup and
+import instructions are shorter. Import still asks for confirmation and explains
+that running progress will be lost. The preview browser test measures all four
+cards with save actions shown at 1280 x 720 and 390 x 844, in German, and checks
+that the full overlay body fits without vertical or horizontal scrolling,
+also at 390 x 720.
 
 ## Flow
 
 **Options → Save/load game** opens a compact modal overlay. Its German label uses
 the corresponding save/load wording. **Four save slots** is also in this overlay;
 the setting remains fixed during a running session. Opening pauses gameplay
-and audio; Save now closes it before submitting the slot request, while a normal
+and audio; Save closes it before submitting the slot request, while a normal
 close restores the prior P pause. The overlay and handbook explain these
 separate steps in both languages:
 
-1. Save at a bed or use **Save now** while Jake can move freely. Browser
+1. Save at a bed or use **Save** while Jake can move freely. Browser
    storage retains these slots in the current browser profile; clearing site
    data can erase them.
 2. **Export** downloads all stored slots together as `Shadowrun.srm`. It
@@ -105,7 +173,7 @@ fixtures in `tools/mesen/saves/` remain separate.
 User request of 2026-11-04 (quality of life): save from the page at any time,
 into a chosen slot. Code: [save-anywhere.mjs](../src/game/save-anywhere.mjs).
 
-- The Save/load game overlay ("Save now: game 1/2") sends the slot to the
+- The Save/load game overlay ("Save: game 1/2") sends the slot to the
   worker. At its next pad read the worker runs the slot save of the bed's
   "Save game 1/2" (81:B17D, lifted as `saveGame` in
   [save-slots.mjs](../src/game/save-slots.mjs)). It copies 7E:2DE0..3D07
@@ -167,7 +235,7 @@ without the key keep two slots). Code:
   under `shadowrun.sram.extra.1`. A game without the option reports 8 KiB;
   the page then keeps the stored slots 3/4. Export writes 16 KiB when slots
   3/4 are stored, import accepts 8 or 16 KiB (an 8 KiB import clears 3/4).
-- "Save now" offers games 3/4 with the option.
+- "Save" offers games 3/4 with the option.
 - Matching the stored slots against the option (user request 2026-11-05).
   The game always sees exactly the SRAM size of its session: 16 KiB with the
   option (an 8 KiB save is padded with zeros, whose slots 3/4 fail the
@@ -181,7 +249,7 @@ without the key keep two slots). Code:
 
 ## Slot occupancy on the page
 
-User request of 2026-11-05: each "Save now" button carries a dot in its
+User request of 2026-11-05: each "Save" button carries a dot in its
 upper right corner, red for a used slot and green for a free one (the
 accessible name says "used, will be overwritten" or "free").
 
@@ -197,14 +265,14 @@ accessible name says "used, will be overwritten" or "free").
 - Evidence ([save-slots.test.mjs](../tools/save-slots.test.mjs)): the Mesen
   save `apartment` gives game 1 used and game 2 free, as its title menu
   shows; one changed byte empties the slot; zero-filled slots 3/4 are free;
-  after the bed's "Save game 4" and "Save now" into slot 3 the dots match the
+  after the bed's "Save game 4" and "Save" into slot 3 the dots match the
   slots the title menu then enables.
 - Evidence: [save-slots.test.mjs](../tools/save-slots.test.mjs). Port texts
   decode to "Save game 3/4"; without the option the game sees 8 KiB, no port
-  bank and only two "Save now" slots; with it the bed's "Save game 4"
+  bank and only two "Save" slots; with it the bed's "Save game 4"
   writes the loaded state to 2FFE (only bytes 0/1 and 24C differ, the first
   8 KiB unchanged, no VRAM/CGRAM/OAM access outside blanking), and "Resume
-  game 4" in the title restores it; "Save now" reaches slot 3.
+  game 4" in the title restores it; "Save" reaches slot 3.
 - Limits: the five-row title menu and bed window were checked in rendered
   pictures only, not against an original (there is none). Emulators read
   only the first 8 KiB of a 16 KiB file.

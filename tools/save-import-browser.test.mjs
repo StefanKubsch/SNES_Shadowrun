@@ -87,8 +87,8 @@ test(
       }))`);
       assert.match(cards[0].text, /Game 1/);
       assert.match(cards[0].text, /Jake’s apartment/);
-      assert.match(cards[0].text, /Save date unknown/);
-      assert.match(cards[1].text, /Empty slot/);
+      assert.doesNotMatch(cards[0].text, /Invalid Date|2026/);
+      assert.match(cards[1].text, /Empty/);
       assert.equal(
         cards[0].buttonHidden,
         true,

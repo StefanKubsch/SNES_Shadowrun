@@ -89,3 +89,54 @@ test('old saves and malformed optional metadata stay readable', () => {
   }
   assert.deepEqual(describeSaveSlots(null), [null, null]);
 });
+
+test('previews follow only changed slots in the matching room and survive identical imports', () => {
+  const image = 'data:image/png;base64,AAAA',
+    preview = { room: APARTMENT_ROOM, image },
+    details = updateSaveDetails(null, apartment, [], FIRST_DATE, preview);
+  assert.equal(describeSaveSlots(apartment, details)[0].preview, image);
+  assert.deepEqual(updateSaveDetails(apartment, apartment, details), details);
+  const other = apartment.slice();
+  other[2] ^= 1;
+  new DataView(other.buffer).setUint16(0, slotChecksum(other, 0), true);
+  assert.equal(describeSaveSlots(other, details)[0].preview, null);
+  assert.equal(updateSaveDetails(apartment, other, details, SECOND_DATE, preview)[0].preview, null);
+  assert.equal(
+    updateSaveDetails(null, apartment, [], FIRST_DATE, { ...preview, room: 3 })[0].preview,
+    null,
+  );
+  assert.equal(updateSaveDetails(apartment, other, details)[0].preview, null);
+  assert.equal(updateSaveDetails(null, apartment, [], FIRST_DATE)[0].preview, null);
+  for (const invalid of [
+    'javascript:alert(1)',
+    'https://example.com/image.png',
+    'data:image/svg+xml;base64,AAAA',
+    'data:image/png;base64,' + 'A'.repeat(100001),
+  ]) {
+    assert.equal(
+      updateSaveDetails(null, apartment, [], FIRST_DATE, { ...preview, image: invalid })[0].preview,
+      null,
+    );
+  }
+});
+
+test('an explicitly completed identical save updates its date and missing preview only for that slot', () => {
+  const image = 'data:image/png;base64,AAAA',
+    details = updateSaveDetails(null, apartment, [], FIRST_DATE),
+    next = updateSaveDetails(
+      apartment,
+      apartment,
+      details,
+      SECOND_DATE,
+      [{ room: APARTMENT_ROOM, image }],
+      [0],
+    );
+  assert.equal(next[0].savedAt, SECOND_DATE);
+  assert.equal(next[0].preview, image);
+  assert.equal(next[1], null);
+  assert.equal(
+    updateSaveDetails(apartment, apartment, next)[0].preview,
+    image,
+    'identical import retains the known image',
+  );
+});

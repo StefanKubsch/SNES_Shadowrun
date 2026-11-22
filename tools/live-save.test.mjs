@@ -5,6 +5,8 @@ import { loadSave } from './mesen-f390-oracle.mjs';
 import { livePlanDriver } from './live-plan-driver.mjs';
 import { LiveGame } from '../src/video/live-game.mjs';
 import { SaveWatch, importSave, saveFromText, saveToText } from '../src/browser/save-file.mjs';
+import { SavePreview, previewRoomKeys } from '../src/browser/save-preview.mjs';
+import { WINDOW_LAST_INDEX } from '../src/data/wram.mjs';
 
 // Save game in the browser (src/browser/save-file.mjs): .srm files are the
 // raw 8 KiB SRAM, and the localStorage text returns them unchanged.
@@ -36,7 +38,7 @@ test('the save watch reports a changed SRAM once it stayed unchanged for a frame
 // "Start saved game", "Resume game 1" loads Jake's apartment; at the bed "Save game",
 // "Save game 2". Native loading and saving give the loaded state in slot 2 (from 0FFE,
 // 0FFE bytes per slot); only bytes 0/1 and 24C of the slot differ (checksum and
-// play time). The waits are lag-free (shorter than in the Mesen plan
+// an unidentified byte). The waits are lag-free (shorter than in the Mesen plan
 // SAVES.apartment).
 const START = 0x1000,
   DOWN = 0x0400,
@@ -69,7 +71,8 @@ test(
   () => {
     const loaded = new Uint8Array(loadSave('apartment'));
     let driver = null,
-      watch = null;
+      watch = null,
+      preview = null;
     const reports = [];
     const game = new LiveGame(cartridge, {
       sram: loaded,
@@ -79,11 +82,20 @@ test(
         return driver.pad(k);
       },
       onFrame: (f) => {
+        preview.observe(game, f.pixels);
         const save = watch.check();
-        if (save) reports.push({ nmi: f.nmi, save });
+        if (save)
+          reports.push({
+            nmi: f.nmi,
+            save,
+            preview: preview.take(),
+            window: game.memory.wram[WINDOW_LAST_INDEX],
+          });
       },
     });
     watch = new SaveWatch(game.memory.sram);
+    game.memory.onSaveSlot = (slot) => watch.request(slot);
+    preview = new SavePreview(previewRoomKeys((at) => game.memory.read8(at)));
     while (!driver?.done()) game.step();
     const sram = game.memory.sram,
       differs = [];
@@ -94,6 +106,18 @@ test(
     assert.equal(reports.length, 1, JSON.stringify(reports.map((r) => r.nmi)));
     assert.ok(reports[0].nmi > 5700);
     assert.deepEqual(reports[0].save, sram);
+    assert.ok(reports[0].preview, 'the apartment view survives the intermediate bed room');
+    assert.equal(
+      reports[0].preview.room,
+      loaded[2] | (loaded[3] << 8),
+      'bed save keeps the unobstructed apartment view',
+    );
+    assert.ok(reports[0].preview.pixels.some((value) => value !== 0));
+    assert.notEqual(
+      reports[0].window,
+      0xfe,
+      'the save notification arrives with the bed menu open',
+    );
     assert.equal(game.dataOutsideBlank, 0);
   },
 );

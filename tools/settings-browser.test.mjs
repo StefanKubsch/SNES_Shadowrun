@@ -238,10 +238,17 @@ test(
           deviceScaleFactor: 1,
           mobile: false,
         });
-        assert.equal(
+        const bounds =
           await evalJs(`(()=>{const d=document.querySelector('#${dialogId(name)}'),b=d.getBoundingClientRect();
-          return b.left>=0&&b.right<=innerWidth&&b.top>=0&&b.bottom<=innerHeight&&d.scrollWidth<=d.clientWidth;})()`),
-          true,
+          return {left:b.left,right:b.right,top:b.top,bottom:b.bottom,width:innerWidth,height:innerHeight,scroll:d.scrollWidth,client:d.clientWidth,
+          overflow:Array.from(d.querySelectorAll('*')).filter(e=>e.getBoundingClientRect().right>b.right).slice(0,8).map(e=>({tag:e.tagName,id:e.id,class:e.className,width:e.getBoundingClientRect().width,right:e.getBoundingClientRect().right}))};})()`);
+        assert.ok(
+          bounds.left >= 0 &&
+            bounds.right <= bounds.width &&
+            bounds.top >= 0 &&
+            bounds.bottom <= bounds.height &&
+            bounds.scroll <= bounds.client,
+          `${name}: ${JSON.stringify(bounds)}`,
         );
         const narrow = await appearance(name);
         narrowAppearance ??= narrow;

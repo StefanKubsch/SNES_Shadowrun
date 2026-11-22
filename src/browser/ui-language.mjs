@@ -62,33 +62,30 @@ export const MENU_COPY = {
     pressKey: 'Press a key …',
     saves: 'Save/load game',
     savesHelp:
-      'Save at a bed or with “Save now” below. Only saved progress is kept in this browser profile; clearing browser data can erase it. Load a slot through “Start saved game” in the game’s title menu.',
-    saveExportHelp:
-      'Export downloads all saved slots together as Shadowrun.srm. It does not save your current position: save into a slot first. Keep the file as a backup or transfer it to another browser or computer.',
-    saveImportHelp:
-      'Import selects an .srm file and replaces the slots stored in this browser. A running game ends and unsaved progress is lost. Then choose “Start game”, “Start saved game” in the title menu and the slot to load. Importing alone does not continue the game.',
-    saveNowHelp:
-      'Save now, without a bed, while Jake can move freely. Loading starts at the entrance of the current room, as after a bed.',
+      'Save at a bed or here while Jake can move freely. Load through “Start saved game” on the title screen. Export a backup before clearing browser data.',
+    saveExportHelp: 'Download all slots. Save your progress first.',
+    saveImportHelp: 'Replaces stored slots and ends the game. Unsaved progress is lost.',
     saveNow: 'Save now: game {slot}',
     slotUsed: 'used, will be overwritten',
     slotFree: 'free',
     saveSlotTitle: 'Game {slot}',
-    saveSlotEmpty: 'Empty slot',
+    saveSlotAction: 'Save',
+    saveSlotEmpty: 'Empty',
     saveRoom: 'Room {room}',
-    saveDate: 'Saved: {date}',
-    saveDateUnknown: 'Save date unknown',
-    saveSlotDisabled: 'Enable four save slots to load this game',
+    saveDate: '{date}',
+    saveSlotDisabled: 'Requires four slots',
+    savePreviewMissing: 'No image',
+    savePreviewAlt: 'Game scene for save slot {slot}',
+    savePreviewHelp: 'Preview: last unobstructed room view. Loading starts at the room entrance.',
+    saveDetailsFailed: 'The game data were stored, but the slot details could not be stored.',
     saveExport: 'Export (.srm)',
     saveImport: 'Import (.srm)',
     recording: 'Recording',
     recordingHelp:
       'The game records all input since the start. If something goes wrong, export the recording and send it along: it replays the session exactly.',
     recordingExport: 'Export recording (.json)',
-    saveEmpty: 'No save game yet. Save at a bed (“Save game”) or use “Save now” during play.',
-    saveStored:
-      'Stored in the browser: game {games}. “Start saved game” in the title menu loads it.',
-    saveHidden:
-      ' Game {games} can only be loaded with “Four save slots: on” (set it before starting).',
+    saveEmpty: 'No saved games yet.',
+    saveStored: 'Saved in this browser.',
     saveFailed: 'The browser could not keep the save game. Please export it as .srm.',
     savedSlot: 'Saved as game {slot}.',
     saved: 'Game saved in the browser.',
@@ -168,34 +165,31 @@ export const MENU_COPY = {
     pressKey: 'Taste drücken …',
     saves: 'Spiel speichern/laden',
     savesHelp:
-      'Speichere an einem Bett oder unten mit „Jetzt speichern“. Nur gespeicherter Fortschritt bleibt in diesem Browserprofil erhalten; beim Löschen der Browserdaten kann er verloren gehen. Einen Speicherplatz lädst du im Titelmenü des Spiels über „Gesichertes Spiel starten“.',
-    saveExportHelp:
-      'Exportieren lädt alle gespeicherten Plätze zusammen als Shadowrun.srm herunter. Deine aktuelle Position wird dabei nicht gespeichert: Speichere vorher in einen Spielstand. Bewahre die Datei als Sicherung auf oder übertrage sie auf einen anderen Browser oder Computer.',
-    saveImportHelp:
-      'Importieren öffnet eine .srm-Datei und ersetzt die im Browser gespeicherten Plätze. Eine laufende Partie endet und ungespeicherter Fortschritt geht verloren. Wähle danach „Spiel starten“, im Titelmenü „Gesichertes Spiel starten“ und den gewünschten Speicherplatz. Der Import allein setzt die Partie noch nicht fort.',
-    saveNowHelp:
-      'Speichere sofort ohne Bett, solange Jake sich frei bewegen kann. Beim Laden beginnst du am Eingang des aktuellen Raums, wie nach dem Speichern in einem Bett.',
+      'Speichere am Bett oder hier, solange Jake sich frei bewegen kann. Laden: „Gesichertes Spiel starten“ im Titelmenü. Vor dem Löschen der Browserdaten eine Sicherung exportieren.',
+    saveExportHelp: 'Alle Speicherplätze herunterladen. Fortschritt vorher speichern.',
+    saveImportHelp: 'Ersetzt die Plätze und beendet die Partie. Ungespeichertes geht verloren.',
     saveNow: 'Jetzt speichern: Spiel {slot}',
     slotUsed: 'belegt, wird überschrieben',
     slotFree: 'frei',
     saveSlotTitle: 'Spielstand {slot}',
-    saveSlotEmpty: 'Freier Speicherplatz',
+    saveSlotAction: 'Speichern',
+    saveSlotEmpty: 'Leer',
     saveRoom: 'Raum {room}',
-    saveDate: 'Gespeichert: {date}',
-    saveDateUnknown: 'Speicherdatum unbekannt',
-    saveSlotDisabled: 'Zum Laden vier Speicherplätze aktivieren',
+    saveDate: '{date}',
+    saveSlotDisabled: 'Benötigt vier Plätze',
+    savePreviewMissing: 'Kein Bild',
+    savePreviewAlt: 'Spielszene zu Spielstand {slot}',
+    savePreviewHelp: 'Vorschau: letzte freie Raumansicht. Laden startet am Raumeingang.',
+    saveDetailsFailed:
+      'Die Spieldaten wurden gespeichert, die Angaben zum Speicherplatz konnten jedoch nicht gespeichert werden.',
     saveExport: 'Exportieren (.srm)',
     saveImport: 'Importieren (.srm)',
     recording: 'Aufzeichnung',
     recordingHelp:
       'Das Spiel zeichnet alle Eingaben seit dem Start auf. Wenn etwas schiefgeht, exportiere die Aufzeichnung und schicke sie mit: Sie gibt die Sitzung genau wieder.',
     recordingExport: 'Aufzeichnung exportieren (.json)',
-    saveEmpty:
-      'Noch kein Spielstand vorhanden. Speichere an einem Bett („Spiel speichern“) oder während der Partie mit „Jetzt speichern“.',
-    saveStored:
-      'Im Browser gespeichert: Spiel {games}. „Gesichertes Spiel starten“ im Titelmenü lädt den Spielstand.',
-    saveHidden:
-      ' Spiel {games} kann nur mit „Vier Speicherplätze: ein“ geladen werden (vor dem Start einstellen).',
+    saveEmpty: 'Noch keine Spielstände.',
+    saveStored: 'In diesem Browser gespeichert.',
     saveFailed:
       'Der Browser konnte den Spielstand nicht behalten. Bitte exportiere ihn als .srm-Datei.',
     savedSlot: 'Als Spiel {slot} gespeichert.',

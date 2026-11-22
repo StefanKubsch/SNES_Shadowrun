@@ -117,7 +117,7 @@
   align-content: start;
   gap: var(--overlay-gap);
 }
-.settings-content > :is(h3, p, fieldset, #bindings, #save-now, #save-slot-list, #four-save-slots) {
+.settings-content > :is(h3, p, fieldset, #bindings, #save-slot-list, #four-save-slots) {
   grid-column: 1 / -1;
 }
 .settings-content .overlay-card button {
@@ -313,15 +313,67 @@
 /* Slot occupancy dot (start.mjs showSlots): red used, green free. */
 #save-slot-list {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(min(240px, 100%), 1fr));
+  grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: var(--overlay-gap);
 }
+#save-slot-list > .overlay-card:not([hidden]) {
+  display: grid;
+  grid-template-columns: 72px minmax(0, 1fr) auto;
+  align-items: center;
+  column-gap: 8px;
+}
+#save-slot-list h3 {
+  grid-column: 2;
+}
 #save-slot-list p {
+  grid-column: 2;
+  margin: 0;
   overflow-wrap: anywhere;
 }
+.save-preview {
+  grid-column: 1;
+  grid-row: 1 / span 2;
+  display: grid;
+  place-items: center;
+  aspect-ratio: 4 / 3;
+  margin: 0;
+  background: #080e11;
+  border: 1px solid #243b32;
+  overflow: hidden;
+}
+.save-preview img {
+  width: 100%;
+  height: 100%;
+  image-rendering: pixelated;
+}
+.save-preview span {
+  padding: 3px;
+  color: #a0b6aa;
+  font-size: var(--overlay-copy-size);
+  text-align: center;
+}
 #save-slot-list button {
+  grid-column: 3;
+  grid-row: 1 / span 2;
   position: relative;
+  width: auto;
+  text-align: center;
   padding-right: 20px;
+}
+#saves {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+#saves .overlay-card > label {
+  display: block;
+  text-align: center;
+}
+@media (max-width: 700px) {
+  #save-slot-list {
+    grid-template-columns: 1fr;
+  }
+  #save-slot-list > .overlay-card:not([hidden]) {
+    grid-template-columns: 56px minmax(0, 1fr) auto;
+  }
 }
 #save-slot-list button[data-occupied]::after {
   content: '';
