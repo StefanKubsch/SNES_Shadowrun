@@ -363,6 +363,15 @@
 #saves {
   grid-template-columns: repeat(2, minmax(0, 1fr));
 }
+.save-export-actions {
+  display: flex;
+  gap: var(--overlay-gap);
+}
+.settings-content .save-export-actions button {
+  flex: 1;
+  width: auto;
+  text-align: center;
+}
 #saves .overlay-card > label {
   display: block;
   text-align: center;

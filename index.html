@@ -345,24 +345,41 @@
     <p data-menu-text="savePreviewHelp"></p>
     <div class="overlay-card">
       <p id="save-export-help" data-menu-text="saveExportHelp"></p>
-      <button
-        id="save-export"
-        type="button"
-        data-menu-text="saveExport"
-        aria-describedby="save-export-help"
-        disabled
-      >
-        Export (.srm)
-      </button>
+      <div class="save-export-actions">
+        <button
+          id="save-bundle-export"
+          type="button"
+          data-menu-text="saveBundleExport"
+          data-menu-label="saveBundleExportLabel"
+          aria-describedby="save-export-help"
+          disabled
+        >
+          Bundle
+        </button>
+        <button
+          id="save-export"
+          type="button"
+          data-menu-text="saveExport"
+          data-menu-label="saveExportLabel"
+          aria-describedby="save-export-help"
+          disabled
+        >
+          .srm
+        </button>
+      </div>
     </div>
     <div class="overlay-card">
       <p id="save-import-help" data-menu-text="saveImportHelp"></p>
       <label
-        ><span data-menu-text="saveImport">Import (.srm)</span
-        ><input id="save-file" type="file" accept=".srm" aria-describedby="save-import-help"
+        ><span data-menu-text="saveImport">Import</span
+        ><input
+          id="save-file"
+          type="file"
+          accept=".srm,.shadowrun"
+          aria-describedby="save-import-help"
       /></label>
     </div>
-    <!-- Safety question before an .srm import replaces the stored slots (start.mjs). -->
+    <!-- Safety question before a save import replaces the stored slots (start.mjs). -->
     <dialog
       id="save-confirm"
       class="overlay-dialog confirm-dialog"

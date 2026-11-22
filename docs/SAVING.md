@@ -144,10 +144,11 @@ separate steps in both languages:
 1. Save at a bed or use **Save** while Jake can move freely. Browser
    storage retains these slots in the current browser profile; clearing site
    data can erase them.
-2. **Export** downloads all stored slots together as `Shadowrun.srm`. It
-   does not first save the current progress. Save into a slot before exporting
-   a backup or moving the game to another browser or computer.
-3. **Import** replaces the browser's stored slots with a selected `.srm`.
+2. **Bundle** downloads `Shadowrun.shadowrun`, including all stored slots,
+   pictures and dates. **.srm** downloads only the original game data as
+   `Shadowrun.srm`. Neither first saves current progress. Save into a slot
+   before exporting a backup or moving to another browser or computer.
+3. **Import** accepts either `.srm` or `.shadowrun` and replaces the browser's stored slots.
    It always asks first in a yes/no question above the overlay, naming the
    file and, where they apply, the slots 3/4 it removes and the running session
    it ends (unsaved progress is lost). "No" has the initial focus; "No" and
@@ -159,6 +160,51 @@ separate steps in both languages:
 
 The export and import controls also reference their own visible help through
 `aria-describedby`.
+
+## Portable save bundles (2026-11-22)
+
+[save-bundle.mjs](../src/browser/save-bundle.mjs) defines a single-file,
+versioned UTF-8 JSON backup with extension `.shadowrun`. Format
+`shadowrun-save`, version `1`, contains canonical Base64 `sram` (8 or 16 KiB)
+and a `slots` array with two or four entries. Each valid slot carries its exact
+saved-byte identity, optional ISO save date and optional bounded PNG data URL;
+invalid/empty slots are null. Export keeps every SRAM byte and includes only
+metadata matching those saved bytes. It does not save current gameplay or
+include unrelated browser settings. No archive dependency is needed.
+
+The importer uses the selected filename to distinguish raw `.srm` from
+`.shadowrun`, case-insensitively, even when a damaged package happens to have
+exactly the size of raw SRAM. Packages are bounded to 512,000 bytes before
+reading the file. Invalid UTF-8/JSON, format/version, canonical SRAM encoding,
+slot count, slot-byte identity, date or PNG URL reject the entire package
+before confirmation, storage changes or ending the running session. PNG
+decoding retains the existing placeholder fallback. A future package version
+gets a separate localized unsupported-version message.
+
+Confirmation and cancellation work identically for both formats. A confirmed
+package supplies authoritative metadata, including missing images/dates; it
+does not silently merge local metadata into the package. A plain SRAM import
+retains only already-known matching local metadata, as before. Importing 8 KiB
+replaces rather than merges the extra slots, with the existing loss warning.
+Loading still uses the title menu; the four-slot option keeps its existing
+behavior. Storage failures keep the existing game-data/details messages.
+
+The export card offers Bundle and .srm beside each other; the single Import
+picker accepts both extensions. This preserves the compact no-scroll layout.
+The handbook explains the two choices in both languages.
+
+Tests: [save-bundle.test.mjs](../tools/save-bundle.test.mjs) covers two/four-slot
+round trips, byte preservation, stale metadata, raw import and invalid packages.
+[save-bundle-browser.test.mjs](../tools/save-bundle-browser.test.mjs) downloads
+both actual exports, clears the test profile's save store, restores the package
+and verifies images/dates, cancellation, invalid-version rejection and a later
+plain SRAM import. Existing preview/settings tests check the compact layout.
+
+Block verification passed 23/23 tests in 117 seconds across fourteen files,
+including all five unchanged golden traces, actual package/raw downloads,
+restoration, import confirmation, handbook and compact-layout browser checks.
+The initial download test was corrected to use two separate user clicks,
+because browsers block a second automatic download from one activation.
 
 The personal root export `Shadowrun.srm` is ignored by Git and is no longer
 tracked as of 2026-11-09. Removing it from version control preserves the local

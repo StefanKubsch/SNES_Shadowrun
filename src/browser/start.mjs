@@ -20,7 +20,6 @@ import {
 import {
   SAVE_KEY,
   SAVE_EXTRA_KEY,
-  importSave,
   mergeSave,
   storedSave,
   saveHash,
@@ -74,6 +73,12 @@ import {
   updateSaveDetails,
   saveRoomName,
 } from './save-details.mjs';
+import {
+  exportSaveBundle,
+  importSaveFile,
+  SAVE_BUNDLE_NAME,
+  MAX_SAVE_IMPORT_BYTES,
+} from './save-bundle.mjs';
 import { encodeSavePreview } from './save-preview.mjs';
 
 const LANGUAGE_KEY = 'shadowrun.language.1';
@@ -607,14 +612,10 @@ start.addEventListener('click', () => {
       return;
     }
     if (data.save instanceof Uint8Array) {
-      storeSave(
-        data.save,
-        savedSlot >= 0 ? t('savedSlot', { slot: savedSlot + 1 }) : t('saved'),
-        false,
-        '',
-        data.savePreviews?.map((preview) => encodeSavePreview(preview, document)) ?? null,
-        data.savedSlots,
-      );
+      storeSave(data.save, savedSlot >= 0 ? t('savedSlot', { slot: savedSlot + 1 }) : t('saved'), {
+        preview: data.savePreviews?.map((preview) => encodeSavePreview(preview, document)) ?? null,
+        savedSlots: data.savedSlots,
+      });
       savedSlot = -1;
       return;
     }
@@ -749,21 +750,28 @@ for (const button of saveCards.querySelectorAll('button'))
 // completely written state; export and import as an .srm file.
 const saveStatus = document.querySelector('#save-status'),
   saveExport = document.querySelector('#save-export'),
+  saveBundleExport = document.querySelector('#save-bundle-export'),
   saveInput = document.querySelector('#save-file');
 let save = storedSave(readStored(SAVE_KEY), readStored(SAVE_EXTRA_KEY));
 let saveDetails = parseSaveDetails(readStored(SAVE_DETAILS_KEY));
 // replace: an imported file also replaces slots 3/4; a save from the game
 // with 8 KiB keeps them (mergeSave). tone marks the status line (showSave).
-function storeSave(bytes, message, replace = false, tone = '', preview = null, savedSlots = []) {
+function storeSave(
+  bytes,
+  message,
+  { replace = false, tone = '', preview = null, savedSlots = [], details = null } = {},
+) {
   const next = replace ? bytes : mergeSave(save, bytes);
-  saveDetails = updateSaveDetails(
-    save,
-    next,
-    saveDetails,
-    replace ? null : new Date().toISOString(),
-    preview,
-    savedSlots,
-  );
+  saveDetails =
+    details ??
+    updateSaveDetails(
+      save,
+      next,
+      saveDetails,
+      replace ? null : new Date().toISOString(),
+      preview,
+      savedSlots,
+    );
   save = next;
   canvas.dataset.saveHash = String(saveHash(save));
   const kept =
@@ -828,6 +836,7 @@ function showSlots() {
 // tone 'imported' or 'error' highlights the line (overlays.css) until the next status.
 function showSave(message, tone = '') {
   saveExport.disabled = !save;
+  saveBundleExport.disabled = !save;
   showSlots();
   const used = occupiedSlots(save),
     games = used.flatMap((taken, slot) => (taken ? [slot + 1] : [])),
@@ -839,6 +848,13 @@ function showSave(message, tone = '') {
 }
 saveExport.addEventListener('click', () => {
   if (save) download(new Blob([save], { type: 'application/octet-stream' }), 'Shadowrun.srm');
+});
+saveBundleExport.addEventListener('click', () => {
+  if (save)
+    download(
+      new Blob([exportSaveBundle(save, saveDetails)], { type: 'application/json' }),
+      SAVE_BUNDLE_NAME,
+    );
 });
 function download(blob, name) {
   const link = document.createElement('a');
@@ -880,7 +896,10 @@ saveInput.addEventListener('change', async () => {
   saveInput.value = '';
   if (!file) return;
   try {
-    const bytes = importSave(new Uint8Array(await file.arrayBuffer())),
+    if (file.size > MAX_SAVE_IMPORT_BYTES)
+      throw Object.assign(new Error(), { code: 'saveBundleInvalid' });
+    const imported = importSaveFile(new Uint8Array(await file.arrayBuffer()), file.name),
+      bytes = imported.save,
       lost = occupiedSlots(save)
         .slice(ORIGINAL_SAVE_SLOTS)
         .flatMap((taken, n) =>
@@ -899,9 +918,13 @@ saveInput.addEventListener('change', async () => {
       start.hidden = !cartridge;
       start.disabled = false;
     }
-    storeSave(bytes, t('saveImported', { file: file.name }), true, 'imported');
+    storeSave(bytes, t('saveImported', { file: file.name }), {
+      replace: true,
+      tone: 'imported',
+      details: imported.details,
+    });
   } catch (error) {
-    saveStatus.textContent = error.message;
+    saveStatus.textContent = typeof error.code === 'string' ? t(error.code) : error.message;
     saveStatus.dataset.tone = 'error';
   }
 });
