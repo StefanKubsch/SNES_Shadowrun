@@ -114,6 +114,24 @@ cards with save actions shown at 1280 x 720 and 390 x 844, in German, and checks
 that the full overlay body fits without vertical or horizontal scrolling,
 also at 390 x 720.
 
+## Delivery verification (2026-11-22)
+
+The room/date block passed 20 tests across eleven files. The preview and layout
+block passed 524 tests across 42 files, including all five unchanged golden
+traces. Focused checks cover actual bed saving, the 170/335 entrance alias,
+byte-identical saves, per-slot image ownership and compact browser layout.
+The user confirmed that the reported bed preview works after the correction.
+
+The final incremental shared release passed 13,027/13,027 tests across 336
+executed files, with 338 unchanged files reused and no failures or skips.
+All 772 generators were reused; 3,490 render outputs and one planning output
+were verified, and syntax covered 3,189 modules. Format, AC source, diff,
+staged diff and LFS checks passed. Test duration was 1,052 seconds; artifact
+verification took 15 seconds. Summary: `.cache/release/last-summary.json`.
+The first shared run found one outdated handbook-browser expectation for the
+shortened empty-save text; its focused check and the final shared run passed
+after updating that expectation.
+
 ## Flow
 
 **Options → Save/load game** opens a compact modal overlay. Its German label uses
