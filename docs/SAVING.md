@@ -6,6 +6,46 @@ As of 2026-11-09. Code: [save-file.mjs](../src/browser/save-file.mjs),
 [live-save.test.mjs](../tools/live-save.test.mjs) (native),
 [live-game-browser.test.mjs](../tools/live-game-browser.test.mjs) (real Edge).
 
+## Slot descriptions (2026-11-22)
+
+The Save/load game overlay shows a card for each available slot, including
+before starting a session. Cards show the saved room and, when known, the
+local save date and time. Empty slots are labelled explicitly. Stored slots
+3/4 remain visible with an explanation when the four-slot option is off;
+their save actions are hidden. Loading still uses the game's title menu.
+
+[save-details.mjs](../src/browser/save-details.mjs) validates slots with the
+existing checksum and reads the room WORD at slot offset 2: `ROOM` (2DE2)
+minus `SAVE_STATE_START` (2DE0). New-game room 3 is the morgue
+(`src/game/game-start.mjs`); the recorded apartment fixture
+`tools/mesen/saves/apartment.srm` holds room 345. These two entries have
+English/German names. Other entries display their decimal room number until
+their names are established. This is the saved room entry, not Jake's position.
+
+Browser metadata is separate from SRAM under `shadowrun.save-details.1`.
+The existing stable-SRAM notification covers both bed and browser saves;
+only changed valid slots get a new timestamp. Unchanged slots keep their
+date. Exact Base64 of the complete saved slot bytes binds each date to its
+content. Changes to global SRAM options do not change slot dates. An 8 KiB
+session preserves the extra slots and their metadata. Import never creates
+a save date: matching metadata can remain, while different content discards
+it. Old saves, absent or malformed metadata show "Save date unknown".
+The timestamp is the browser's local clock at the stable-save notification,
+not historical information extracted from SRAM. Byte-identical repeated saves
+do not produce a new SRAM notification or date. Normal `.srm` exports contain
+only game data; optional dates remain in the browser.
+
+This first step includes neither previews nor total play time. The previous
+description of changed slot byte 024C as play time was unproved; a differing
+byte alone does not establish that meaning. A play-time field needs its own
+source evidence before display. Previews are a subsequent delivery.
+
+Tests: [save-details.test.mjs](../tools/save-details.test.mjs) covers fixture
+room decoding, per-slot dates, changed valid imports, checksum damage,
+extra-slot preservation and malformed metadata. The
+[import browser test](../tools/save-import-browser.test.mjs) checks actual
+cards, unknown imported dates, empty slots and narrow layout.
+
 ## Flow
 
 **Options → Save/load game** opens a compact modal overlay. Its German label uses
@@ -43,7 +83,7 @@ fixtures in `tools/mesen/saves/` remain separate.
   ([ROM-ANALYSIS.md](ROM-ANALYSIS.md)). The game writes it itself: at a bed
   "Save game", then "Save game 1" or "Save game 2". A slot is 0FFE bytes
   long (slot 1 from 0000, slot 2 from 0FFE); bytes 0/1 and 24C of the slot
-  differ when the same state is saved again (checksum and play time).
+  differ in the recorded repeated-save case (checksum and an unidentified byte).
 - Loading happens in the title menu: "Start saved game", "Resume game 1/2".
   The game reads the SRAM only there; an imported save game therefore ends a
   running game (after a confirmation), and "Start game" begins anew from the

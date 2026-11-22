@@ -3,11 +3,10 @@
 // the overlay, "Yes" imports and marks the status line green; a wrong file is red.
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { writeFile } from 'node:fs/promises';
+import { readFile, writeFile } from 'node:fs/promises';
 import { join } from 'node:path';
 import { withStartPage, findEdge } from './browser-frame.mjs';
 import { testTempDir } from './temp-dir.mjs';
-import { SRAM_SIZE } from '../src/vm/memory.mjs';
 
 const edge = findEdge();
 // detail: an expression whose value the timeout error appends (page state).
@@ -25,11 +24,11 @@ test(
     const dir = await testTempDir(t, 'snes-save-import-test-'),
       good = join(dir, 'Backup.srm'),
       bad = join(dir, 'Broken.srm');
-    await writeFile(good, new Uint8Array(SRAM_SIZE));
+    await writeFile(good, await readFile(new URL('./mesen/saves/apartment.srm', import.meta.url)));
     await writeFile(bad, new Uint8Array(3));
     await withStartPage({ exe: edge, commandTimeout: 30000 }, async ({ cdp, evalJs }) => {
       await evalJs(
-        "document.querySelector('#menu-toggle').click();document.querySelector('#saves-settings-open').click()",
+        "document.querySelector('#menu-toggle').click();document.querySelector('#saves-settings-open').click();window.importCloses=0;document.querySelector('#save-confirm').addEventListener('close',()=>window.importCloses++)",
       );
       const { root } = await cdp.call('DOM.getDocument');
       const input = await cdp.call('DOM.querySelector', {
@@ -53,6 +52,7 @@ test(
       assert.match(s.question, /Backup\.srm/);
       assert.deepEqual([s.yes, s.no], ['Yes, import', 'No']);
       await evalJs("document.querySelector('#save-confirm-no').click()");
+      await evalJs(waitFor('()=>window.importCloses===1', 'First cancellation did not settle'));
       s = await evalJs(state);
       assert.deepEqual([s.open, s.hash, s.tone, s.overlay], [false, null, '', true]);
 
@@ -60,6 +60,7 @@ test(
       await asked();
       await cdp.call('Input.dispatchKeyEvent', { type: 'keyDown', code: 'Escape', key: 'Escape' });
       await cdp.call('Input.dispatchKeyEvent', { type: 'keyUp', code: 'Escape', key: 'Escape' });
+      await evalJs(waitFor('()=>window.importCloses===2', 'Escape cancellation did not settle'));
       s = await evalJs(state);
       assert.deepEqual(
         [s.open, s.hash, s.overlay],
@@ -80,6 +81,37 @@ test(
       s = await evalJs(state);
       assert.equal(s.tone, 'imported');
       assert.match(s.status, /Backup\.srm/);
+      const cards =
+        await evalJs(`Array.from(document.querySelectorAll('#save-slot-list > section')).map(card => ({
+        hidden: card.hidden, text: card.textContent, buttonHidden: card.querySelector('button').hidden
+      }))`);
+      assert.match(cards[0].text, /Game 1/);
+      assert.match(cards[0].text, /Jake’s apartment/);
+      assert.match(cards[0].text, /Save date unknown/);
+      assert.match(cards[1].text, /Empty slot/);
+      assert.equal(
+        cards[0].buttonHidden,
+        true,
+        'descriptions are visible before starting; save action is not',
+      );
+      assert.deepEqual(
+        cards.map((card) => card.hidden),
+        [false, false, true, true],
+      );
+      await cdp.call('Emulation.setDeviceMetricsOverride', {
+        width: 390,
+        height: 844,
+        deviceScaleFactor: 1,
+        mobile: false,
+      });
+      assert.equal(
+        await evalJs(`(() => {
+        const list = document.querySelector('#save-slot-list');
+        return list.scrollWidth <= list.clientWidth;
+      })()`),
+        true,
+        'slot cards fit the narrow overlay',
+      );
       const colour = await evalJs(
         "getComputedStyle(document.querySelector('#save-status')).backgroundColor",
       );
