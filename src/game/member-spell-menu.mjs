@@ -24,9 +24,8 @@ import { readStateByte, writeStateByte } from '../state/objects.mjs';
 // Registers (user decision 2026-11-17): game state only; the script task append 80:C34A
 // takes the script as a parameter (X in the original). No register values are left.
 import { objectWord } from '../state/objects.mjs';
-import { dialogCallBody, segmentSequence } from '../system/native-call-continuation.mjs';
 import { scriptVisitCallSequence } from '../system/script-visit.mjs';
-import { appendScriptCall } from '../script/task-api.mjs';
+import { appendScript } from '../script/task-api.mjs';
 import { openWindow } from './window-open.mjs';
 import { chooseFromMenu } from './menu-choice.mjs';
 import { releaseWindowSequence, releaseNoticeWindowsSequence } from './window-release.mjs';
@@ -99,8 +98,7 @@ import {
 import { WRAM_BANK } from '../constants/memory-map.mjs';
 
 // The callees and their call sites.
-const APPEND_SCRIPT = [0x80e788, 0x80c34a],
-  VISIT_SCRIPT = 0x80e78e;
+const VISIT_SCRIPT = 0x80e78e;
 // The entry from the status screen, which runs no scripts.
 export const STATUS_ENTRY = 0x80e68e;
 const MENU_ENTRY = 0x80e693;
@@ -226,8 +224,8 @@ function* afterScriptSequence(h, events) {
 }
 
 // 80:E693 (or the entry 80:E68E): the spell menu of the member in 1F5C with its record
-// at DP F9, for lifted callers without the JSR frame; the menu choice, the script append
-// and visit keep their own.
+// at DP F9. Menu selection and task creation compose directly; legacy scheduler
+// hooks alone retain their visit adapter.
 export function* spellMenu(h, events, entry = MENU_ENTRY, renderBuffer = drawTextBufferSequence) {
   const { mem } = h.a,
     { wram } = mem;
@@ -275,9 +273,7 @@ export function* spellMenu(h, events, entry = MENU_ENTRY, renderBuffer = drawTex
       script = word(wram, SPELL_CHOICE_RUNS_SCRIPT) !== 0;
     };
     if (script) {
-      yield* dialogCallBody(h, ...APPEND_SCRIPT, () =>
-        segmentSequence(() => appendScriptCall(h.a, spellScript)),
-      );
+      yield () => appendScript(h.a, spellScript);
       yield () => setWord(wram, MEMBER_PORTRAIT_REDRAW, 0);
       yield* scriptVisitCallSequence(h, events, VISIT_SCRIPT);
       yield* afterScriptSequence(h, events);

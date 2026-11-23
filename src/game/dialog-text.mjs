@@ -28,12 +28,12 @@ import { readStateByte, writeStateByte } from '../state/objects.mjs';
 //
 // Registers (user decision 2026-11-17): game state only; the routine leaves no A, X, Y
 // or flags.
-import { dialogCallBody, segmentSequence } from '../system/native-call-continuation.mjs';
+import { segmentSequence } from '../system/native-call-continuation.mjs';
 import { requestTileClear } from './window-open.mjs';
 import { setTextCursor } from './window-text.mjs';
 import { drawTextBufferSequence } from './text-draw.mjs';
 import { printText } from './text-print.mjs';
-import { appendScriptCall } from '../script/task-api.mjs';
+import { appendScript } from '../script/task-api.mjs';
 import { scriptVisitCallSequence } from '../system/script-visit.mjs';
 import { taskStop } from '../system/task-stop.mjs';
 import { TOPIC_FLAGS, TOPIC_LIST } from '../data/wram.mjs';
@@ -208,7 +208,7 @@ export function* showDialogText(h, events, renderBuffer = drawTextBufferSequence
   }
 }
 
-// Topic actions keep their append call and argument chronology: the
+// Topic actions compose task creation directly and keep their argument chronology: the
 // script is the record's word at the position given, the object goes to the direct
 // page word 00 as the script's argument.
 export function* dialogTopicSequence(h, events, at) {
@@ -225,9 +225,7 @@ export function* dialogTopicSequence(h, events, at) {
     script = recordWord(mem, wram, at);
     setWord(wram, DP_WINDOW, word(wram, DP_DIALOG_OBJECT));
   };
-  yield* dialogCallBody(h, 0x8091d1, 0x80c34a, () =>
-    segmentSequence(() => appendScriptCall(h.a, script)),
-  );
+  yield () => appendScript(h.a, script);
   yield* scriptVisitCallSequence(h, events, 0x8091d4, 'task_dialog_topic_visit_open', (more) => {
     if (more?.wait?.length) events.values = Object.freeze([...(events.values ?? []), ...more.wait]);
     if (more?.input?.length)

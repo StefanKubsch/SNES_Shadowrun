@@ -193,22 +193,8 @@ export function appendTask(a, script) {
   return { slot, head };
 }
 
-// Start a task for script (80:C34A) below the caller's frame on the stack of a, with
-// the data bank and direct page of a; returns the new task slot.
+// Start a task for script (80:C34A) with the compatibility data bank and direct
+// page of a, without a CPU call frame; returns the new task slot.
 export function appendScriptTask(a, script) {
   return appendTask(a, script).slot;
-}
-
-// The task append for lifted callers, called with JSR: the script is a parameter (X in
-// the original) and no registers are left (user decision 2026-11-17; the script visit
-// that follows reads task state only); its arithmetic is binary, whatever the decimal
-// flag. Its live callers run with the direct page at 0 and it checks no direct page
-// register (the register-level caller in proof/caller/task-append-call.mjs keeps that
-// check). Returns the raw return word its RTS takes.
-export function appendScriptReturn(a, script) {
-  const { ctx } = a;
-  appendTask(a, script);
-  const rawReturnWord = a.pullWord();
-  ctx.pc = (rawReturnWord + 1) & WORD_MASK;
-  return { rawReturnWord };
 }

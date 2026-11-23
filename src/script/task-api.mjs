@@ -9,15 +9,14 @@
 //
 // Two implementations:
 // - JsTasks over the JS scheduler (src/script/scheduler.mjs);
-// - WramTasks over the original's task tables and heap in WRAM, for the register-level
-//   scheduler that still drives the game until the plain game loop (phase 5) and the
-//   register-level references (phase 6 moves it to proof/).
+// - WramTasks over the original's task tables and heap in WRAM, for compatibility
+//   fixtures and the frozen register-level references. The live game uses JsTasks.
 //
 // tasksOf(a) gives the tasks of an accessor: the JS scheduler's when one is attached to
 // it (`a.tasks`), else the WRAM tables.
 import { taskStop } from '../system/task-stop.mjs';
 import { WRAM } from '../data/wram.mjs';
-import { appendScriptTask, appendScriptReturn as appendTableScript } from '../game/task-append.mjs';
+import { appendScriptTask } from '../game/task-append.mjs';
 import { NONE, TASK_SLOTS, WAIT_FOR_CHILD } from './scheduler.mjs';
 import { scriptArgumentWords } from './tasks.mjs';
 import {
@@ -182,13 +181,4 @@ export function tasksOf(a) {
 // arguments in the words 00..; leaves no registers.
 export function appendScript(a, script) {
   tasksOf(a).append(script, argumentWords(a.mem, script));
-}
-// 80:C34A for lifted callers, called with JSR: the script as a parameter and its
-// arguments in the words 00..; leaves no registers and returns the raw return word.
-export function appendScriptCall(a, script) {
-  if (!a.tasks) return appendTableScript(a, script);
-  a.tasks.append(script, argumentWords(a.mem, script));
-  const rawReturnWord = a.pullWord();
-  a.ctx.pc = (rawReturnWord + 1) & WORD_MASK;
-  return { rawReturnWord };
 }

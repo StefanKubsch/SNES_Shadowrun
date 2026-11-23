@@ -88,6 +88,18 @@ own commit after `npm run test:block` and the golden trace test. One shared
 
 ## Progress
 
+- 2026-11-23, phase 4, task creation: dialog topic actions and member spell
+  choices append through the ordinary task API, without a synthetic call or
+  return word. Both unused append return adapters were deleted from src.
+  Normal nested visits remain value-based; frozen scheduler hooks keep their
+  explicit visit adapter. Contract: [TASK-APPEND-COMPOSITION.md](TASK-APPEND-COMPOSITION.md).
+- Twelve direct-flow cases cover JS and WRAM task backends, exact task count,
+  argument order, synchronous/nested visits, the actual member spell graph,
+  budget pauses and failure replay with CPU context and stack unchanged.
+  Block validation passed 5012/5012 tests across 79 files in 528 seconds,
+  with no failures or skips and all five golden traces unchanged. Edited-file
+  ESLint and formatting passed; no frozen proof code or inventory root changed.
+
 - 2026-11-23, phase 4, menus and confirmation: all four menu forms compose list
   drawing, row marks, paging and counter waits directly. All game callers use
   the direct selection and confirmation operations. The confirmation sound
