@@ -39,6 +39,11 @@ function assertStatusEqual(actual, expected) {
       assert.equal(first, -1, `${key}[${first}] differs`);
     } else assert.equal(isDeepStrictEqual(left, right), true, `${key} differs`);
   }
+  assert.equal(
+    isDeepStrictEqual(actual, expected),
+    true,
+    'status result type or properties differ',
+  );
 }
 function runStatus(
   module,

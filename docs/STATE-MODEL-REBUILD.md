@@ -88,6 +88,21 @@ own commit after `npm run test:block` and the golden trace test. One shared
 
 ## Progress
 
+- Portrait and dialog device shared release passed 13145/13145 tests in 334
+  files, with 345 unchanged files and no failures or skips. All five golden
+  traces and frozen proof code remain unchanged. Both artifact passes ran
+  239 generators, reused 533 and matched 3491 outputs; syntax covered 3195
+  modules. Format, AC source, diff/staged diff and LFS checks passed. Artifact
+  verification took 447 seconds and tests 1293 seconds. Passing logs removed.
+- The status caller's bounded diagnostics retain a final exact whole-result
+  comparison, including types and extra properties, in addition to locating
+  the first differing field/entry. This follow-up changes no game code.
+- Final diagnostic follow-up release passed 100/100 tests in five files, with
+  674 unchanged files. All 772 generators were reused in both passes; artifact,
+  AC source, syntax, diff and LFS checks passed. Tests took 1.6 seconds and
+  artifact verification 15.7 seconds. Passing logs removed; the final summary
+  remains in .cache/release/last-summary.json.
+
 - 2026-11-23, phase 4, dialog devices: pending object picture changes compose
   counter waits directly. Dialog greeting and close also use direct counter
   waits; closing composes portrait, tile restore, font DMA, pad refresh and
