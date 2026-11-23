@@ -39,11 +39,40 @@ once per loaded image under the names of `LOOKUP_TABLES` in
 apply. Code takes an entry by index (`t.pushX(entryOf(direction))`), not a
 byte at an address. An index outside a table stops at the frontier
 `matrix_table_index_frontier`, where the original reads on into the bytes
-behind the table: an odd heading, or a node cell without a side of value 07
-in B56F. The game reaches neither (the live sessions pass). One such read is
-part of the game and is kept by name: B on a taken data node (40) indexes
+behind the table, such as an odd heading. Known reads beyond a table are
+handled explicitly: B on a taken data node (40) indexes
 `matrix_bits` with 30 and ORs the word at 81:C334, entries 4 and 5 of
 `matrix_amounts_10`, into the data bits.
+
+### Node gate lookup without a connecting tile
+
+The reported matrix stop `matrix_table_index_frontier` at index 4 exposed
+another reachable read beyond a table. When none of a node's four neighbours
+has tile 07, the search at 81:B58E-B59E ends with Y = 8. The original still
+updates the node and scans for gates; it neither skips the node nor stops.
+Its column lookup at 81:B5A4 reads 81:B601, the first word of
+`matrix_cell_rows` (FFFF, or -1 in the original data). Its row lookup at
+81:B5B4 reads 81:B609, the bytes 64 14 of `STZ $14`, as the word 1464.
+The lifted code keeps the column alias through the loaded table and the
+fixed instruction bytes as a named displacement, including word wrapping.
+It then performs the ordinary gate scan at the displaced cell.
+
+[matrix-node-gates.test.mjs](../tools/matrix-node-gates.test.mjs) pins both
+original words and compares the resulting game state, gate objects, sound
+writes and return count against the frozen reference. It covers all four
+connecting sides, the missing side and masked node bits. This corrects the
+port's stopping condition independently of the optional original-game bug
+fixes; it does not change the original game's displacement.
+
+Validation of the user recording `Shadowrun-recording-2026-11-22T15-59-30-929Z.json`
+(2026-11-23): all 89 WRAM checks match and pad reads stay on the recorded
+path through NMI 88349. The captured node is at column 16, row 12 in map
+4A16, with neighbouring tiles 02, 01, 21, 01. Reinstating the old lookup on
+that captured state reproduces `matrix_cell_columns`, index 4. The fixed
+call matches the reference, returns zero gates and moves the node to column
+15, row 5232. The fixed recording replay continues through NMI 88352 without
+a stop or input divergence. The supplied recording and save exports remain
+local user files; automated tests use the focused gate fixtures above.
 
 Not named data, on purpose: the message lists 81:C515 (the original stores
 the byte after each entry as the bank word in the WRAM text ring), the text

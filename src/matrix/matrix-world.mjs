@@ -149,6 +149,10 @@ const SIDES = 4,
   // entries 4 and 5 of matrix_amounts_10 (81:C334), which go into the data bits.
   TAKEN_NODE_BITS_LOW = 4,
   TAKEN_NODE_BITS_HIGH = 5;
+// With no neighbouring tile 07, B56F leaves Y = 8. Its row lookup then
+// reads 81:B609, the bytes 64 14 (STZ $14), as a word. Keep that original
+// displacement; the column lookup aliases entry 0 of matrix_cell_rows.
+const NO_SIDE_ROW_STEP = 0x1464;
 // Matrix texts (src/data/matrix-texts.mjs).
 const TEXT_ATTACKED = 0x81c5c0, // ATTACKED BY IC
   TEXT_COMBAT = 0x81c5d2, // EXEC. COMBAT.EXE
@@ -486,8 +490,8 @@ export function openNodeGates(m, bits) {
       if (readNodeSideTile(m, node, t.sideOffsets(side)) === NODE_COSTS_HEALTH) break;
       side++;
     }
-    add(wram, columns, t.cellColumns(side));
-    add(wram, rows, t.cellRows(side));
+    add(wram, columns, side === SIDES ? t.cellRows(0) : t.cellColumns(side));
+    add(wram, rows, side === SIDES ? NO_SIDE_ROW_STEP : t.cellRows(side));
     const cell = [
       (word(wram, columns) << TILE_PIXEL_SHIFT) & WORD_MASK,
       (word(wram, rows) << TILE_PIXEL_SHIFT) & WORD_MASK,

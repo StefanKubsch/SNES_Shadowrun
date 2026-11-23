@@ -3,9 +3,9 @@
 // decoded once from the loaded image, so edited table assets apply. The lifted
 // code takes entries by index instead of reading bytes at an address.
 //
-// An index outside a table (an odd or too large heading, a cell without a side
-// of value 07) stops at a frontier: the original would read on into the bytes
-// behind the table, which the game never does.
+// An index outside a table (an odd or too large heading) stops at a frontier.
+// Original reads beyond table ends that gameplay reaches are handled explicitly
+// in matrix-world.mjs, including a node without a side of value 07.
 import { taskStop } from '../system/task-stop.mjs';
 import { MATRIX_ANIMATIONS, MATRIX_ANIMATIONS_END } from '../data/tables.mjs';
 import { decodeOnce, tableEntries } from '../data/named-tables.mjs';

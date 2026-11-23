@@ -150,7 +150,7 @@ function sample(seed) {
     word(0x16f2 + n * 2, n < nodes ? rnd(32) : rnd(2) ? 0xffff : 0x8000 | rnd(32));
     word(0x1700 + n * 2, n < nodes ? rnd(32) : rnd(65536));
     // A side of value 07 next to each node, which B56F moves the cell toward; a
-    // few samples leave it out (the table frontier of matrix-tables.mjs).
+    // few samples leave it out to exercise the original reads beyond the tables.
     if (n < nodes && !noSeven) {
       const cell = map + wram[0x1700 + n * 2] * 64 + wram[0x16f2 + n * 2] * 2;
       word(MAP_WRAM + ((cell + pick(SIDE_STEPS)) & 0xffff), 7);
