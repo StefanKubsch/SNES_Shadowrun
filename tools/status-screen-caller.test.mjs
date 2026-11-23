@@ -1,5 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
+import { isDeepStrictEqual } from 'node:util';
 import { compareRun } from './member-menu-caller-harness.mjs';
 import { controlPlayerSequence as directPlayer } from '../src/game/player-control.mjs';
 import { controlPlayerSequence as formerPlayer } from '../proof/caller/player-control.mjs';
@@ -24,6 +25,21 @@ import {
 } from '../proof/caller/portrait-upload.mjs';
 import { unpackPortraitRoutine } from '../proof/caller/portrait-routines.mjs';
 import { clearFixedColourJsl, shiftPortraitRowsJsr } from '../proof/caller/jsr-forms.mjs';
+
+// Keep every comparison, but report the first differing field/entry instead of
+// formatting all nested upload snapshots (which can exhaust the test process).
+function assertStatusEqual(actual, expected) {
+  assert.deepEqual(Object.keys(actual), Object.keys(expected));
+  for (const key of Object.keys(expected)) {
+    const left = actual[key],
+      right = expected[key];
+    if (Array.isArray(right) || ArrayBuffer.isView(right)) {
+      assert.equal(left.length, right.length, `${key} length`);
+      const first = left.findIndex((value, index) => !isDeepStrictEqual(value, right[index]));
+      assert.equal(first, -1, `${key}[${first}] differs`);
+    } else assert.equal(isDeepStrictEqual(left, right), true, `${key} differs`);
+  }
+}
 function runStatus(
   module,
   direct,
@@ -118,6 +134,7 @@ function runStatus(
       ];
       captureFinal = () => calls.push(['final portrait', ...snapshot()]);
       const service = events.interrupts.textWait;
+      let openingFrames = 0;
       events.interrupts.textWait = (callee, frameEvents, status, pc) => {
         if (pc === 0x80ae0c) return true;
         if (pc === 0x80ae0f) {
@@ -131,6 +148,9 @@ function runStatus(
           return true;
         }
         if (pc === 0x80901f) {
+          // The second transfer is followed by eleven opening steps. Closing
+          // frames are identified by chronology, not removed CPU return words.
+          if (mem.read16(W.PORTRAIT_DMA_REQUEST) === 0x800) openingFrames = 11;
           calls.push([
             'portrait upload',
             mem.read16(W.PORTRAIT_DMA_REQUEST),
@@ -143,10 +163,11 @@ function runStatus(
         const caller = mem.read16(0x7e0000 | (h.ctx.s + 1));
         if (pc === 0x81b0a9 && caller !== 0xa6ec && caller !== 0xf956) {
           calls.push([
-            [0x8f9d, 0x92d4].includes(caller) ? 'scene close frame' : 'portrait frame',
+            openingFrames > 0 ? 'portrait frame' : 'scene close frame',
             // Game state only (user decision 2026-11-17): no X (the portrait window step).
             ...snapshot(),
           ]);
+          if (openingFrames > 0) openingFrames--;
           put(W.RANDOM_STATE, mem.read16(W.RANDOM_STATE) + 1);
           return true;
         }
@@ -191,7 +212,7 @@ for (const budget of [1, 7])
     ])
       test(`status caller: entry ${entry}, runner ${runner}, ${variant}, budget ${budget}`, () => {
         const actual = runStatus(directStatus, true, entry, runner, variant, budget);
-        assert.deepEqual(actual, runStatus(formerStatus, false, entry, runner, variant, budget));
+        assertStatusEqual(actual, runStatus(formerStatus, false, entry, runner, variant, budget));
         assert.equal(actual.input, entry === 0x80ea8e ? 1 : variant === 'submenu' ? 5 : 1);
         assert.equal(
           actual.wram[W.MEMBER_MENU_ACTIVE] | (actual.wram[W.MEMBER_MENU_ACTIVE + 1] << 8),
@@ -212,7 +233,7 @@ for (const budget of [1, 7])
   for (const runner of [0, 1])
     test(`status default glyphs: runner ${runner}, budget ${budget}`, () => {
       const actual = runStatus(directStatus, true, 0x80ea89, runner, 'Exit', budget, true);
-      assert.deepEqual(
+      assertStatusEqual(
         actual,
         runStatus(formerStatus, false, 0x80ea89, runner, 'Exit', budget, true),
       );
@@ -222,7 +243,7 @@ for (const budget of [1, 7])
 for (const budget of [1, 7])
   test(`status alternate Jake portrait, budget ${budget}`, () => {
     const actual = runStatus(directStatus, true, 0x80ea89, 0, 'Exit', budget, false, true);
-    assert.deepEqual(
+    assertStatusEqual(
       actual,
       runStatus(formerStatus, false, 0x80ea89, 0, 'Exit', budget, false, true),
     );
@@ -245,7 +266,7 @@ for (const budget of [1, 7])
           budget,
           realDrawing,
         );
-        assert.deepEqual(
+        assertStatusEqual(
           actual,
           runStatus(formerStatus, false, 0x80ea89, 0, 'submenu-' + row, budget, realDrawing),
         );
@@ -257,7 +278,7 @@ for (const budget of [1, 7]) {
   for (const row of [5, 6])
     test(`status Select in submenu: row ${row}, budget ${budget}`, () => {
       const actual = runStatus(directStatus, true, 0x80ea89, 0, 'submenu-' + row + '-end', budget);
-      assert.deepEqual(
+      assertStatusEqual(
         actual,
         runStatus(formerStatus, false, 0x80ea89, 0, 'submenu-' + row + '-end', budget),
       );
@@ -302,7 +323,7 @@ for (const budget of [1, 7])
         false,
         token,
       );
-      assert.deepEqual(
+      assertStatusEqual(
         actual,
         runStatus(formerStatus, false, 0x80ea89, 0, 'cancel', budget, false, false, token),
       );
@@ -326,7 +347,7 @@ for (const budget of [1, 7])
           0,
           true,
         );
-        assert.deepEqual(
+        assertStatusEqual(
           actual,
           runStatus(formerStatus, false, 0x80ea89, 0, variant, budget, glyphs, false, 0, true),
         );
@@ -351,7 +372,7 @@ for (const budget of [1, 7])
           0,
           true,
         );
-        assert.deepEqual(
+        assertStatusEqual(
           actual,
           runStatus(formerStatus, false, 0x80ea8e, runner, 'items', budget, glyphs, false, 0, true),
         );

@@ -19,8 +19,8 @@ import { readStateByte, writeStateByte } from '../state/objects.mjs';
 // An unpacked portrait (7F:5250) has its eight rows of 100 bytes moved apart (80:8F20:
 // rows 1 to 7 by MVP within bank 7F, from the last one up). The first portrait then goes
 // to VRAM word 0000 with the palette start 91 (80:9022), the second to 0800 with A1
-// (80:905E), each by the NMI's DMA job 80:8FF5, composed directly through its JSR
-// frame. The first one also fills every fourth byte of the
+// (80:905E), each by the NMI's DMA job 80:8FF5, composed without a CPU frame.
+// The first one also fills every fourth byte of the
 // portraits' HDMA table 7E:3D08 with F0 (the lines without the sprite layer), clears the
 // OAM high table copy 7E:3F08 and sets the table's first two entries; the second one sets
 // its entries (the dialog flags' mirror bit 7 as bit 14 of the second), the OAM high
@@ -38,7 +38,6 @@ import { readStateByte, writeStateByte } from '../state/objects.mjs';
 // The independent former caller retains recorded polls. It
 // leaves A the request word with its sign set and zero clear, X, Y, the carry and the
 // overflow unchanged, as the original.
-import { dialogCallBody } from '../system/native-call-continuation.mjs';
 import { sceneRuntime } from '../system/scene-runtime.mjs';
 import { nmiAtBranch } from '../system/frame-wait.mjs';
 import { recordedRoutine } from '../system/recorded-routines.mjs';
@@ -101,8 +100,6 @@ const TILE_BYTES = 0x1000,
     mode: 0x809014,
   }),
   REQUEST_BRANCH = 0x80901f;
-const FIRST_UPLOAD = [0x80902b, 0x808ff5],
-  SECOND_UPLOAD = [0x809067, 0x808ff5];
 
 const word = (wram, at) => readStateByte(wram, at) | (readStateByte(wram, at + 1) << BYTE_BITS);
 const setWord = (wram, at, value) => {
@@ -138,13 +135,13 @@ export function shiftPortraitRowsInPlace(h) {
 }
 
 // Upload the first portrait (80:9022), a sequence with a direct live DMA job, for lifted
-// callers without the JSR frame (the tile upload keeps its own for its wait).
+// callers without CPU call frames, including the tile upload wait.
 export function* uploadFirstPortrait(h, events) {
   const { wram } = h.a.mem;
   yield () => {
     setWord(wram, PORTRAIT_PALETTE_START, FIRST_PALETTE);
   };
-  yield* dialogCallBody(h, ...FIRST_UPLOAD, () => uploadPortraitTiles(h, events, 0));
+  yield* transferPortraitTiles(h, events, 0);
   yield () => {
     for (let x = HDMA_FILL_LAST; !(x & WORD_SIGN); x = (x - HDMA_STRIDE) & WORD_MASK)
       writeStateByte(wram, HDMA_TABLE + x, HDMA_FILL);
@@ -154,13 +151,13 @@ export function* uploadFirstPortrait(h, events) {
 }
 
 // Upload the second portrait (80:905E), a sequence with a direct live DMA job, for lifted
-// callers without the JSR frame (the tile upload keeps its own for its wait).
+// callers without CPU call frames, including the tile upload wait.
 export function* uploadSecondPortrait(h, events) {
   const { wram } = h.a.mem;
   yield () => {
     setWord(wram, PORTRAIT_PALETTE_START, SECOND_PALETTE);
   };
-  yield* dialogCallBody(h, ...SECOND_UPLOAD, () => uploadPortraitTiles(h, events, SECOND_VRAM));
+  yield* transferPortraitTiles(h, events, SECOND_VRAM);
   yield () => {
     setWord(wram, SECOND_FIRST[0], SECOND_FIRST[1]);
     const mirror = (word(wram, DIALOG_RECORD_FLAGS) & BYTE_SIGN) << MIRROR_SHIFT;
@@ -181,9 +178,9 @@ export function writePortraitTileChannel(port) {
   port.write(DMAP0, TILE_MODE, 1, DMA_SITES.mode);
 }
 
-// Upload the unpacked portrait to the VRAM word address (80:8FF5), a sequence for a
-// native call continuation, called with JSR. Leaves no registers.
-export function* uploadPortraitTiles(h, events, vram) {
+// Upload the unpacked portrait to the VRAM word address (80:8FF5), composing
+// directly through the request wait without a CPU return frame or register writes.
+export function* transferPortraitTiles(h, events, vram) {
   const { ctx } = h,
     { wram, port } = sceneRuntime(h);
   yield () => {
@@ -198,9 +195,10 @@ export function* uploadPortraitTiles(h, events, vram) {
       (value === 0 ? FLAG_ZERO : 0);
     yield* nmiAtBranch(h, events, REQUEST_BRANCH, status);
   }
-  return yield* rts(h);
 }
-function* rts(h) {
+// Compatibility entry for register-level callers that supplied an RTS frame.
+export function* uploadPortraitTiles(h, events, vram) {
+  yield* transferPortraitTiles(h, events, vram);
   let result;
   yield () => {
     result = h.rts();

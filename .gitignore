@@ -3,8 +3,9 @@ node_modules/
 # Local ROM inputs for generators and original comparisons.
 *.smc
 *.sfc
-# Personal browser save export; keep the local file outside version control.
+# Personal browser save exports; keep local files outside version control.
 /Shadowrun.srm
+/shadowrun-saves.shadowrun
 # Generated analysis reports; rebuild them with npm run rebuild:artifacts.
 # Recorded and retained inputs stay versioned.
 /analysis/*

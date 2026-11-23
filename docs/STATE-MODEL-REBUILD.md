@@ -88,6 +88,20 @@ own commit after `npm run test:block` and the golden trace test. One shared
 
 ## Progress
 
+- 2026-11-23, phase 4, portraits: both uploads, portrait-window opening and
+  closing, and member-portrait unpack/transfer/window composition create no
+  internal CPU frames. Dialog portrait unpacking also runs directly; startup
+  recordings retain their explicit unpack adapter. The original DMA setup,
+  palette/HDMA/OAM writes and frame chronology remain unchanged.
+- Twenty-seven direct flow contracts cover every budget boundary, zero budgets,
+  job wrap, delayed completion, failed replay and actual frame pauses. Existing
+  caller comparisons and all five golden traces remain binding. Contract:
+  [PORTRAIT-COMPOSITION.md](PORTRAIT-COMPOSITION.md).
+- Portrait block validation passed 3607/3607 tests across 47 selected files in
+  196 seconds, with no failures or skips, including all five unchanged golden
+  traces. Edited-file ESLint and formatting passed. Status caller observations
+  classify opening frames from upload chronology and report bounded differences.
+
 - Matrix/cutscene playback, text rendering and glove target flow shared release
   passed 13252/13252 tests with no failures or skips: 347 files executed and
   324 unchanged. All five golden traces and frozen proof code remain unchanged.

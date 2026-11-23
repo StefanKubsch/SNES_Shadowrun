@@ -12,12 +12,11 @@ import { readStateByte, writeStateByte } from '../state/objects.mjs';
 // bytes 7E:0148/0149 and 7E:014E/014F around the screen's centre (Book I 2-27, the
 // window registers 2126 to 2129).
 //
-// Each frame waits directly with live 81:B0A1 through its JSL frame. Registers (user
+// Each frame composes the live counter wait without a CPU frame. Registers (user
 // decision 2026-11-17): game state only; the step (X in the original) is a local and no
 // registers are left. The edges' JSR frame and their pushed status are not reproduced
 // (nothing waits there).
-import { dialogCallBody } from '../system/native-call-continuation.mjs';
-import { frameWaitCallSequence } from '../system/live-input-calls.mjs';
+import { waitForCounterWord } from '../system/frame-wait.mjs';
 import { sceneRuntime } from '../system/scene-runtime.mjs';
 import { PORTRAIT_WINDOW } from '../system/native-dialog-portrait.mjs';
 import {
@@ -44,8 +43,6 @@ const SITES = Object.freeze({
   target: 0x808f5f,
   bank: 0x808f64,
 });
-const OPEN_WAIT = [0x808f77, 0x81b0a1],
-  CLOSE_WAIT = [0x808f9a, 0x81b0a1];
 
 const setWord = (wram, at, value) => {
   writeStateByte(wram, at, value & BYTE_MASK);
@@ -79,7 +76,7 @@ function setWindowEdges(wram, x) {
 }
 
 // Open the portrait window (80:8F3A) with live frame waits, for lifted callers without
-// the JSR frame (the frame waits keep their JSL frames).
+// CPU call frames, including the counter waits.
 export function* openPortraitWindow(h, events) {
   const { mem, wram, port } = sceneRuntime(h);
   let step = PORTRAIT_WINDOW.edgeFirst;
@@ -100,7 +97,7 @@ export function* openPortraitWindow(h, events) {
     setWord(wram, TMW_SHADOW, PORTRAIT_WINDOW.layers);
   };
   do {
-    yield* dialogCallBody(h, ...OPEN_WAIT, () => frameWaitCallSequence(h, events), true);
+    yield* waitForCounterWord(h, events);
     yield () => {
       setWindowEdges(wram, step);
       step = (step + PORTRAIT_WINDOW.edgeStep) & WORD_MASK;
@@ -109,12 +106,12 @@ export function* openPortraitWindow(h, events) {
 }
 
 // Close the portrait window (80:8F97) with live frame waits, for lifted callers without
-// the JSR frame (the frame waits keep their JSL frames).
+// CPU call frames, including the counter waits.
 export function* closePortraitWindow(h, events) {
   const { wram } = sceneRuntime(h);
   let step = PORTRAIT_WINDOW.edgeLast;
   do {
-    yield* dialogCallBody(h, ...CLOSE_WAIT, () => frameWaitCallSequence(h, events), true);
+    yield* waitForCounterWord(h, events);
     yield () => {
       setWindowEdges(wram, step);
       step = (step - PORTRAIT_WINDOW.edgeStep) & WORD_MASK;

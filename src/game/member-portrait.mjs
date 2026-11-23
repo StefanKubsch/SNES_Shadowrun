@@ -10,8 +10,8 @@ import { readStateByte, writeStateByte } from '../state/objects.mjs';
 // job (81:A954). Then the colour window opens on channel 0 from the 13-byte HDMA table
 // 80:E480 (copied to 1F3F): over eleven frames (81:B0A1) the left window's edges
 // widen with X = 2, 5, ... 20 (1F44 = X + 39, 1F43 = (X EOR FF) + 3B with that carry).
-// The live callees compose directly through their frames; 80:E48D and 80:E433
-// run as the JSR bodies the original calls, so a wait takes its NMI at the same S.
+// Live unpacking, both tile transfers and all window waits compose without CPU
+// call frames. Instruction-level recordings retain their unpack adapter.
 //
 // Registers (user decision 2026-11-17): game state only. The portrait unpack 80:9F6D
 // and the tile upload 80:8FF5 take their stream, offset and VRAM address as parameters
@@ -20,11 +20,12 @@ import { readStateByte, writeStateByte } from '../state/objects.mjs';
 import { dialogCallBody, segmentSequence } from '../system/native-call-continuation.mjs';
 import {
   unpackPortrait,
+  unpackPortraitStream,
   shiftPortraitRowsInPlace,
   uploadFirstPortrait,
-  uploadPortraitTiles,
+  transferPortraitTiles,
 } from './portrait-upload.mjs';
-import { frameWaitCallSequence } from '../system/live-input-calls.mjs';
+import { waitForCounterWord } from '../system/frame-wait.mjs';
 import { dataBankWord, setDataBankWord } from '../system/data-bank.mjs';
 import { accessorPort } from '../system/hardware-port.mjs';
 import {
@@ -67,8 +68,6 @@ const HDMA_TABLE_SOURCE = 0x80e480,
   HDMA_TABLE_LAST = 0x0c;
 // The callees and their call sites; the instruction sites of the port writes.
 const UNPACK = [0x80e4e3, 0x809f6d],
-  SECOND_TILES = [0x80e496, 0x808ff5],
-  FRAME_WAIT = [0x80e470, 0x81b0a1],
   SITES = Object.freeze({
     objsel: 0x80e4bf,
     window: 0x80e436,
@@ -98,7 +97,7 @@ function setWindowEdges(wram, step) {
 
 // 80:E4B3: the member's portrait with its opening window (see above), for lifted
 // callers without the JSR frame (the caller's return word lies only in free stack
-// bytes). Its inner calls keep their frames: a recorded unpack returns from its own.
+// bytes). Instruction-level recordings alone retain the unpacker's caller frame.
 export function* memberPortrait(h, events) {
   const { mem } = h.a,
     { wram } = mem,
@@ -115,27 +114,25 @@ export function* memberPortrait(h, events) {
       word(wram, DP_PORTRAIT_POINTER) | (readStateByte(wram, DP_PORTRAIT_BANK) << WORD_BITS);
     stream = [longWord(mem, pointer), mem.read8((pointer + PORTRAIT_RECORD_BANK_BYTE) & LONG_MASK)];
   };
-  yield* dialogCallBody(h, ...UNPACK, () =>
-    segmentSequence(() => unpackPortrait(h, events, ...stream, PORTRAIT_BUFFER)),
-  );
+  if (events?.startupInterrupts)
+    yield* dialogCallBody(h, ...UNPACK, () =>
+      segmentSequence(() => unpackPortrait(h, events, ...stream, PORTRAIT_BUFFER)),
+    );
+  else yield () => unpackPortraitStream(h, ...stream, PORTRAIT_BUFFER);
   yield () => shiftPortraitRowsInPlace(h);
   yield* uploadFirstPortrait(h, events);
   yield* secondChannel(h, events);
   yield* colourWindow(h, events);
 }
 
-// The RTS that ends a sequence.
-
 // 80:E48D: the second portrait channel and one more NMI job (81:A954), without the JSR
-// frame; the tile upload keeps its own.
+// frame, including its tile transfer.
 function* secondChannel(h, events) {
   const { mem } = h.a;
   yield () => {
     setDataBankWord(mem, PORTRAIT_PALETTE_START, 0, SECOND_PORTRAIT_PALETTE);
   };
-  yield* dialogCallBody(h, ...SECOND_TILES, () =>
-    uploadPortraitTiles(h, events, SECOND_PORTRAIT_VRAM),
-  );
+  yield* transferPortraitTiles(h, events, SECOND_PORTRAIT_VRAM);
   yield () => {
     const hdma = SECOND_PORTRAIT_HDMA;
     for (const [address, value] of [
@@ -151,7 +148,7 @@ function* secondChannel(h, events) {
 }
 
 // 80:E433: the colour window on HDMA channel 0, its edges widened over eleven frames,
-// without the JSR frame; the frame waits keep their JSL frames.
+// without CPU call frames, including the counter waits.
 function* colourWindow(h, events) {
   const { mem } = h.a,
     { wram } = mem,
@@ -173,7 +170,7 @@ function* colourWindow(h, events) {
   };
   let step = PORTRAIT_WINDOW.edgeFirst;
   do {
-    yield* dialogCallBody(h, ...FRAME_WAIT, () => frameWaitCallSequence(h, events), true);
+    yield* waitForCounterWord(h, events);
     yield () => {
       setWindowEdges(wram, step);
       step = (step + PORTRAIT_WINDOW.edgeStep) & WORD_MASK;

@@ -41,6 +41,7 @@ import {
 import { closePortraitWindow, openPortraitWindow } from './portrait-window.mjs';
 import {
   unpackPortrait,
+  unpackPortraitStream,
   shiftPortraitRowsInPlace,
   uploadFirstPortrait,
   uploadSecondPortrait,
@@ -236,9 +237,11 @@ export function* talk(h, events, renderBuffer = drawTextBufferSequence) {
         word(wram, DP_PORTRAIT_POINTER) | (readStateByte(wram, DP_PORTRAIT_BANK) << WORD_BITS);
       stream = [longWord(mem, at), longWord(mem, at + PORTRAIT_RECORD_BANK_BYTE) & BYTE_MASK];
     };
-    yield* dialogCallBody(h, ...unpack, () =>
-      segmentSequence(() => unpackPortrait(h, events, ...stream, PORTRAIT_BUFFER)),
-    );
+    if (events?.startupInterrupts)
+      yield* dialogCallBody(h, ...unpack, () =>
+        segmentSequence(() => unpackPortrait(h, events, ...stream, PORTRAIT_BUFFER)),
+      );
+    else yield () => unpackPortraitStream(h, ...stream, PORTRAIT_BUFFER);
     yield () => shiftPortraitRowsInPlace(h);
   }
   // Set the window of the direct page words 00 to 08.
