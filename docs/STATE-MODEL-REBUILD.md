@@ -88,6 +88,19 @@ own commit after `npm run test:block` and the golden trace test. One shared
 
 ## Progress
 
+- 2026-11-23, phase 4, dialog devices: pending object picture changes compose
+  counter waits directly. Dialog greeting and close also use direct counter
+  waits; closing composes portrait, tile restore, font DMA, pad refresh and
+  sprite rebuilding without internal CPU frames. Menu and topic/native entry
+  adapters remain explicit boundaries; phase 4 is unfinished.
+- Twenty device flow cases cover single-step context/stack preservation, zero
+  budgets, empty/full uploads, pending pictures, index/job wrap, repeated
+  completion, wait failures and actual portrait/greeting composition. Contract:
+  [DIALOG-DEVICE-COMPOSITION.md](DIALOG-DEVICE-COMPOSITION.md).
+- Dialog device block validation passed 3558/3558 tests across 43 selected
+  files in 140 seconds, without failures or skips, including all five unchanged
+  golden traces. Edited-file ESLint, formatting and source scan passed.
+
 - 2026-11-23, phase 4, portraits: both uploads, portrait-window opening and
   closing, and member-portrait unpack/transfer/window composition create no
   internal CPU frames. Dialog portrait unpacking also runs directly; startup

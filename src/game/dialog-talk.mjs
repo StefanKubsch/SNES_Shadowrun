@@ -8,7 +8,7 @@ import { readStateByte, writeStateByte } from '../state/objects.mjs';
 // effect (81:886A), puts the glove away (80:BCB2), releases the notice windows (80:FF79)
 // and, when the record's flag byte 3 names a music (bits 0 to 6, table 80:94E8) other
 // than the current one and the music option is on, changes the music (81:EF47); the old
-// music, or FFFF, stays on the stack. It opens the portrait frame (1, 1, 1E x D; moved to
+// music, or FFFF, is kept for restoration. It opens the portrait frame (1, 1, 1E x D; moved to
 // pixel 54 and narrowed by 8 with 80:FA92) and the text window (1, E, 1E x D), unpacks and
 // uploads Jake's portrait (dialog record 4E, or 4F when 7E:3C17 says so) and the
 // partner's (80:9F6D, 80:8F20, 80:9022, 80:905E), opens the portrait window (80:8F3A),
@@ -46,7 +46,8 @@ import {
   uploadFirstPortrait,
   uploadSecondPortrait,
 } from './portrait-upload.mjs';
-import { frameWaitCallSequence, takePad } from '../system/live-input-calls.mjs';
+import { takePad } from '../system/live-input-calls.mjs';
+import { waitForCounterWord } from '../system/frame-wait.mjs';
 import { sceneRuntime } from '../system/scene-runtime.mjs';
 import { fixesEnabled, preparePushkinTopics } from './bugfixes.mjs';
 import { DIALOG_TABLE, DIALOG_BANK_BASE } from '../data/portraits.mjs';
@@ -144,10 +145,6 @@ const FONT_BLOCKS = Object.freeze([
 const CALL = Object.freeze({
   jakeUnpack: [0x80944d, 0x809f6d],
   partnerUnpack: [0x809470, 0x809f6d],
-  wait: [0x809489, 0x81b0a1, true],
-  releaseText: [0x8094d9, 0x80fa3e],
-  releaseFrame: [0x8094df, 0x80fa3e],
-  closeWait: [0x8092d1, 0x81b0a1, true],
 });
 const OBJSEL_SITE = 0x809412,
   CLOSE_OBJSEL_SITE = 0x8092cb,
@@ -188,19 +185,14 @@ export function setWindowTextWidthInPlace(h) {
 
 // Close the dialog (80:92C5) with live portrait, frame and input calls, for lifted
 // callers without the JSR frame (the caller's return word lies only in free stack
-// bytes). Object tile reload and sprite composition retain their shared service table.
+// bytes). Tile restoration, counter waits, font DMA and sprite rebuilding compose
+// directly, preserving device order without internal CPU call frames.
 export function* closeDialog(h, events) {
   const { port } = sceneRuntime(h);
   yield* closePortraitWindow(h, events);
   yield () => port.write(OBJSEL, 0, 2, CLOSE_OBJSEL_SITE);
   yield* reloadObjectTiles(h, events);
-  yield* dialogCallBody(
-    h,
-    CALL.closeWait[0],
-    CALL.closeWait[1],
-    () => frameWaitCallSequence(h, events),
-    true,
-  );
+  yield* waitForCounterWord(h, events);
   yield () => {
     for (const [vram, source, sites] of FONT_BLOCKS) {
       const writes = [
@@ -221,8 +213,9 @@ export function* closeDialog(h, events) {
 }
 
 // Talk with the object (80:936C) for lifted callers, without the JSR frame (the
-// caller's return word lies only in free stack bytes); the menu, topic choice and waits
-// keep their own. The glove action supplies direct page 0 and data bank 80;
+// caller's return word lies only in free stack bytes). Greeting and device waits
+// compose directly; menu and topic native adapters retain their compatibility frames.
+// The glove action supplies direct page 0 and data bank 80;
 // renderBuffer draws text.
 export function* talk(h, events, renderBuffer = drawTextBufferSequence) {
   const m = sceneRuntime(h),
@@ -327,13 +320,7 @@ export function* talk(h, events, renderBuffer = drawTextBufferSequence) {
   yield* showDialogText(h, events, renderBuffer, GREETING_TEXT);
   // The greeting waits until the frame count passes below 0.
   for (let frames = GREETING_WAIT_FRAMES; !(frames & WORD_SIGN); frames = (frames - 1) & WORD_MASK)
-    yield* dialogCallBody(
-      h,
-      CALL.wait[0],
-      CALL.wait[1],
-      () => frameWaitCallSequence(h, events),
-      true,
-    );
+    yield* waitForCounterWord(h, events);
   // The menu until Exit or the end word.
   for (;;) {
     yield* chooseDialogAction(h, events, renderBuffer);

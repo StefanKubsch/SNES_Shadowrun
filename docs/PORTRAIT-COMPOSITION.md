@@ -20,8 +20,8 @@ frame model retain their contracts.
   increments the NMI job count with word wrapping.
 - `talk` uses the direct unpacker for both portraits. Instruction-level
   startup recordings alone retain the unpack call frame and their installed
-  recorded routine. Other dialog waits and object tile reload are separate
-  callers with their existing contracts.
+  recorded routine. Other dialog waits and object tile reload compose as
+  described in [DIALOG-DEVICE-COMPOSITION.md](DIALOG-DEVICE-COMPOSITION.md).
 
 `uploadPortraitTiles` remains the outer RTS adapter used by existing
 register-level callers and frozen reference modules. It delegates the work

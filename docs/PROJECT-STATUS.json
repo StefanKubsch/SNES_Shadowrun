@@ -1,7 +1,7 @@
 {
   "updated": "2026-11-23",
-  "focus": "State model rebuild (docs/STATE-MODEL-REBUILD.md), phase 4. Portrait uploads and window waits compose directly; matrix gate lookup fixed. Batch: HANDOFF.md.",
-  "next_step": "Phase 4: compose object tile reload and dialog device callers, then remaining native bridges. Portrait uploads/waits are direct; deeper natives retain CPU workspace. Delivery: HANDOFF.md.",
+  "focus": "State model rebuild, phase 4. Portrait and dialog device waits compose directly; matrix gate lookup fixed. Batch: HANDOFF.md.",
+  "next_step": "Phase 4: compose menu/confirmation graphs and dialog task append, then remaining native bridges. Portraits, tile reload and dialog device waits are direct. CPU workspace remains a compatibility boundary. Delivery: HANDOFF.md.",
   "porting_resume": "216 original-form bytes remain: 121 code and 95 unidentified data. Read/hardware/data boundaries: docs/ROM-CODE-AUDIT.md. Unknown bytes and unused graphics stay preserved; unrecorded paths can report rom_byte_absent.",
   "open_issues": [
     "Keyword overflow: synthetic insertion of a 51st retained topic corrupts flags in European source and lifted code. Marking does not free storage. A reachable regular story route and a compatible gameplay correction remain unproved; see docs/BUGFIXES.md.",
@@ -22,6 +22,7 @@
   "references": [
     "docs/STATE-MODEL-REBUILD.md",
     "docs/PORTRAIT-COMPOSITION.md",
+    "docs/DIALOG-DEVICE-COMPOSITION.md",
     "docs/TEXT-ENTRY-COMPOSITION.md",
     "docs/SCENE-COMMAND-COMPOSITION.md",
     "docs/SCENE-ENTRY-COMPOSITION.md",

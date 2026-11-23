@@ -19,17 +19,15 @@ import { readStateByte, writeStateByte } from '../state/objects.mjs';
 // frame stream, 41 to 43 the picture, 44 the tile count, 82 the upload index).
 // Registers (user decision 2026-11-17): game state only; the slot passes to the reload
 // and the animation step as a parameter and the routine leaves no A, X, Y or flags.
-// The word wait 81:B0A1 keeps its JSL frame; the draw list index the original pushes
+// The word wait 81:B0A1 composes directly; the draw list index the original pushes
 // around each reload (PHY, PLY), the animation step's JSR frame and the frames of its
 // job list counts (JSL 81:A954) lie only in free stack bytes and are kept in locals or
 // not reproduced (game state only, user decision 2026-11-17). The reload requires the
 // lag-free frame model: the NMI arrives at the waits' branches 80:AE61 and 80:AE0F
 // (recorded runs use the register-level reload in proof/system/native-scene-tiles.mjs).
 // The word wait comes from the live frame sequence.
-import { dialogCallBody } from '../system/native-call-continuation.mjs';
 import { lagFree } from '../system/main-wait-interrupt.mjs';
-import { nmiAtBranch } from '../system/frame-wait.mjs';
-import { frameWaitCallSequence } from '../system/live-input-calls.mjs';
+import { nmiAtBranch, waitForCounterWord } from '../system/frame-wait.mjs';
 import { stepAnimationInPlace } from './object-animation.mjs';
 import { taskStop } from '../system/task-stop.mjs';
 import {
@@ -75,9 +73,8 @@ const FRAME_BANK = 0x8c,
   // The VRAM addresses of each slot's two halves in bank 80.
   SLOT_HALVES = [0x80aeb4, 0x80aec4],
   LOW_WRAM_END = 0x2000;
-// Original call sites, and the waits' loads (their branches follow the 3-byte load).
-const WAIT_CALL = [0x80ae23, 0x81b0a1, true],
-  FULL_WAIT = 0x80ae5e,
+// The waits' loads (their branches follow the 3-byte load).
+const FULL_WAIT = 0x80ae5e,
   END_WAIT = 0x80ae0c,
   LOAD_BYTES = 3;
 
@@ -163,13 +160,7 @@ function* reloadSequence(h, events, slot) {
         if (waiting) countJobList(wram);
       };
       if (!waiting) return;
-      yield* dialogCallBody(
-        h,
-        WAIT_CALL[0],
-        WAIT_CALL[1],
-        () => frameWaitCallSequence(h, events),
-        true,
-      );
+      yield* waitForCounterWord(h, events);
     }
   }
 
