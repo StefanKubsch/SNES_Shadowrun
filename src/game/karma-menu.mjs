@@ -36,8 +36,8 @@ import { readStateByte, writeStateByte } from '../state/objects.mjs';
 // no register values; comparisons check WRAM, video and outputs. The numbered menu
 // 80:A6B8 takes its preselected row as a parameter. The category row the original keeps on
 // the stack over the detail windows (PHA, PLA) is a local value.
-import { dialogCallBody, segmentSequence } from '../system/native-call-continuation.mjs';
-import { chooseFromMenuSequence } from './menu-choice.mjs';
+import { segmentSequence } from '../system/native-call-continuation.mjs';
+import { chooseFromMenu } from './menu-choice.mjs';
 import { openWindow, requestTileClear } from './window-open.mjs';
 import { setTextCursor, printNumber } from './window-text.mjs';
 import { printText } from './text-print.mjs';
@@ -46,7 +46,7 @@ import {
   putGloveAwaySequence,
   releaseWindowSequence,
 } from './window-release.mjs';
-import { waitForConfirmKeySequence } from './confirm-key.mjs';
+import { waitForConfirmKey } from './confirm-key.mjs';
 import { drawTextBufferSequence } from './text-draw.mjs';
 import { raiseStateCountAndRedraw } from './runner-state-call.mjs';
 import { raiseMemberMagicPointsInPlace } from '../script/native-magic-points-raise.mjs';
@@ -102,8 +102,7 @@ import {
   WORD_SIGN,
 } from '../constants/bits.mjs';
 
-const CONFIRM_KEY = 0x80f953,
-  NUMBERED_MENU = 0x80a6b8,
+const NUMBERED_MENU = 0x80a6b8,
   PLAIN_MENU = 0x80a6c7;
 // The karma menu's categories (80:EF78) and their lists: row 1 Body (80:F0F3), row 2
 // the first list (80:F054), any other the third (80:F1B5); the detail windows leave
@@ -195,7 +194,7 @@ export function* buyStep(h, events, renderBuffer = drawTextBufferSequence) {
   yield* openWindow(h, events);
   yield () => setWord(wram, 2, TEXT_KARMA_INSUFFICIENT);
   yield* printText(h, events, renderBuffer);
-  yield* dialogCallBody(h, 0x80f03d, CONFIRM_KEY, () => waitForConfirmKeySequence(h, events));
+  yield* waitForConfirmKey(h, events);
   yield* releaseWindowSequence(h, events);
   yield () => setWord(wram, DP_KARMA_VALUE_POINTER, 0);
 }
@@ -252,15 +251,7 @@ export function* karmaList(h, events, entry, renderBuffer = drawTextBufferSequen
       setWord(wram, DP_LIST_TOKEN_BANK, WRAM_BANK);
       setWord(wram, DP_LIST_VALUES, KARMA_MENU_VALUES);
     };
-    yield* dialogCallBody(h, list.pcs.menu, NUMBERED_MENU, () =>
-      chooseFromMenuSequence(
-        h,
-        events,
-        renderBuffer,
-        NUMBERED_MENU,
-        word(wram, DP_KARMA_SELECTION),
-      ),
-    );
+    yield* chooseFromMenu(h, events, renderBuffer, NUMBERED_MENU, word(wram, DP_KARMA_SELECTION));
     let chosen;
     yield () => {
       chosen = word(wram, 0);
@@ -369,9 +360,7 @@ export function* karmaMenu(h, events, renderBuffer = drawTextBufferSequence) {
       setWord(wram, DP_LIST_TOKENS, KARMA_MENU_ITEMS);
       setWord(wram, DP_LIST_TOKEN_BANK, CODE_BANK);
     };
-    yield* dialogCallBody(h, 0x80eece, PLAIN_MENU, () =>
-      chooseFromMenuSequence(h, events, renderBuffer, PLAIN_MENU),
-    );
+    yield* chooseFromMenu(h, events, renderBuffer, PLAIN_MENU);
     let chosen;
     yield () => {
       chosen = word(wram, 0);

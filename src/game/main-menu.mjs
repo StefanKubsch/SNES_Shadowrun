@@ -21,14 +21,14 @@ import { readStateByte, writeStateByte } from '../state/objects.mjs';
 // no register values; comparisons check WRAM, video and outputs. None of the callees
 // takes a register input. The choice the original keeps on the stack over the window
 // release (PEI, PLA) is a local value.
-import { dialogCallBody, segmentSequence } from '../system/native-call-continuation.mjs';
+import { segmentSequence } from '../system/native-call-continuation.mjs';
 import { openWindow } from './window-open.mjs';
 import { releaseWindowSequence } from './window-release.mjs';
-import { chooseFromMenuSequence } from './menu-choice.mjs';
+import { chooseFromMenu } from './menu-choice.mjs';
 import { playSoundEffectCall } from '../apu/sound-effect.mjs';
 import { karmaMenu } from './karma-menu.mjs';
 import { printText } from './text-print.mjs';
-import { waitForConfirmKeySequence } from './confirm-key.mjs';
+import { waitForConfirmKey } from './confirm-key.mjs';
 import { drawTextBufferSequence } from './text-draw.mjs';
 import { FOUR_SAVE_SLOTS, ORIGINAL_SAVE_SLOTS, saveGame, saveSlotCount } from './save-slots.mjs';
 import {
@@ -58,8 +58,7 @@ import { dataBankWord, setDataBankWord } from '../system/data-bank.mjs';
 import { CODE_BANK, CODE_BANK_BASE } from '../constants/memory-map.mjs';
 import { BYTE_BITS, BYTE_MASK, WORD_BITS, WORD_MASK, WORD_SIGN } from '../constants/bits.mjs';
 
-const CONFIRM_KEY = 0x80f953,
-  PLAIN_MENU = 0x80a6c7;
+const PLAIN_MENU = 0x80a6c7;
 // The menus' window (0A, 0A, 0C columns; five rows, seven with four slots; three or
 // five rows visible) and the menus' item lists.
 const MENU_WINDOW = Object.freeze({
@@ -143,7 +142,7 @@ export function* saveMenu(h, events, renderBuffer = drawTextBufferSequence) {
     yield* openWindow(h, events);
     yield () => setWord(wram, 2, TEXT_SAVE_BLOCKED);
     yield* printText(h, events, renderBuffer);
-    yield* dialogCallBody(h, 0x80ce5e, CONFIRM_KEY, () => waitForConfirmKeySequence(h, events));
+    yield* waitForConfirmKey(h, events);
     yield* releaseWindowSequence(h, events);
     return;
   }
@@ -174,9 +173,7 @@ export function* saveMenu(h, events, renderBuffer = drawTextBufferSequence) {
       );
     else setMenu(h, MENU_WINDOW.visibleRows, SAVE_MENU_ITEMS, CODE_BANK);
   };
-  yield* dialogCallBody(h, 0x80ce0f, PLAIN_MENU, () =>
-    chooseFromMenuSequence(h, events, renderBuffer, PLAIN_MENU),
-  );
+  yield* chooseFromMenu(h, events, renderBuffer, PLAIN_MENU);
   let slot;
   yield () => {
     slot = word(wram, 0);
@@ -212,9 +209,7 @@ export function* mainMenuSequence(
       setDataBankWord(mem, MAIN_MENU_WINDOW, 0, word(wram, 0));
       setMenu(h, MENU_WINDOW.visibleRows, MAIN_MENU_ITEMS, CODE_BANK);
     };
-    yield* dialogCallBody(h, 0x80cea1, PLAIN_MENU, () =>
-      chooseFromMenuSequence(h, events, renderBuffer, PLAIN_MENU),
-    );
+    yield* chooseFromMenu(h, events, renderBuffer, PLAIN_MENU);
     // The choice is kept over the window's release (PEI, PLA in the original).
     let chosen;
     yield () => {

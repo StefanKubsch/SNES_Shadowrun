@@ -19,11 +19,10 @@ import { readStateByte, writeStateByte } from '../state/objects.mjs';
 // leaves no registers. The flag the original keeps on the stack over the window release
 // is a local. The register form for register-level callers (the actions in A, the
 // chosen flag left in A) lives in proof/caller/upkeep-routines.mjs.
-import { dialogCallBody } from '../system/native-call-continuation.mjs';
 import { fitListWindow, listTextIds } from '../data/menu-layout.mjs';
 import { TEXT_EXIT } from '../data/port-extension.mjs';
 import { openWindow } from './window-open.mjs';
-import { chooseFromMenuSequence } from './menu-choice.mjs';
+import { chooseFromMenu } from './menu-choice.mjs';
 import { drawTextBufferSequence } from './text-draw.mjs';
 import { releaseWindowSequence } from './window-release.mjs';
 import {
@@ -149,9 +148,7 @@ export function* chooseAction(
     setWord(wram, DP_LIST_TOKEN_BANK, WRAM_BANK);
     setWord(wram, DP_LIST_VALUES, ACTION_MENU_HOTKEYS);
   };
-  yield* dialogCallBody(h, ...MENU_CALL, () =>
-    chooseFromMenuSequence(h, events, renderBuffer, MENU_CALL[1]),
-  );
+  yield* chooseFromMenu(h, events, renderBuffer, MENU_CALL[1]);
   let chosen;
   yield () => {
     // The chosen row (a cancel counts as Exit) as a table index; the window to release.

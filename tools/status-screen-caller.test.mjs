@@ -123,7 +123,7 @@ function runStatus(
     budget,
     pads,
     realDrawing,
-    ({ h, mem, events, put, routines, bind, calls }) => {
+    ({ h, mem, events, put, routines, bind, calls, remainingInput }) => {
       if (variant === 'unknown') {
         const read = mem.read8.bind(mem);
         mem.read8 = (address) =>
@@ -165,8 +165,7 @@ function runStatus(
           put(W.PORTRAIT_DMA_REQUEST, mem.read16(W.PORTRAIT_DMA_REQUEST) | 0x8000);
           return true;
         }
-        const caller = mem.read16(0x7e0000 | (h.ctx.s + 1));
-        if (pc === 0x81b0a9 && caller !== 0xa6ec && caller !== 0xf956) {
+        if (pc === 0x81b0a9 && (openingFrames > 0 || remainingInput() === 0)) {
           calls.push([
             openingFrames > 0 ? 'portrait frame' : 'scene close frame',
             // Game state only (user decision 2026-11-17): no X (the portrait window step).

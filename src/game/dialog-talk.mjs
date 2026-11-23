@@ -214,7 +214,7 @@ export function* closeDialog(h, events) {
 
 // Talk with the object (80:936C) for lifted callers, without the JSR frame (the
 // caller's return word lies only in free stack bytes). Greeting and device waits
-// compose directly; menu and topic native adapters retain their compatibility frames.
+// compose directly; topic task append retains its compatibility adapter.
 // The glove action supplies direct page 0 and data bank 80;
 // renderBuffer draws text.
 export function* talk(h, events, renderBuffer = drawTextBufferSequence) {

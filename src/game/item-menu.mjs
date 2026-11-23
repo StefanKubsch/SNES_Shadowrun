@@ -24,11 +24,10 @@ import { readStateByte, writeStateByte } from '../state/objects.mjs';
 //
 // Registers (user decision 2026-11-17): game state only; no callee takes a register
 // input, and the item use takes the actor (X in the original) as a parameter.
-import { dialogCallBody } from '../system/native-call-continuation.mjs';
 import { releaseNoticeWindowsSequence, releaseWindowSequence } from './window-release.mjs';
 import { openWindow, requestTileClear } from './window-open.mjs';
-import { chooseFromMenuSequence, MENU_WITH_NUMBERS } from './menu-choice.mjs';
-import { waitForConfirmKeySequence } from './confirm-key.mjs';
+import { chooseFromMenu, MENU_WITH_NUMBERS } from './menu-choice.mjs';
+import { waitForConfirmKey } from './confirm-key.mjs';
 import { equipmentRows } from './equipment-window.mjs';
 import { memberPortrait } from './member-portrait.mjs';
 import { resetWindowList } from './window-list.mjs';
@@ -100,9 +99,7 @@ const KIND_NAMES = 0x8cefb0,
 // The entries and their item classes.
 export const ITEM_ENTRIES = Object.freeze({ 0x80e572: 0, 0x80e577: 1, 0x80e57f: 2 });
 // The callees and their call sites.
-const MENU = [0x80e65b, 0x80a6ad],
-  VISIT = 0x80e545,
-  CONFIRM_KEY = [0x80e568, 0x80f953];
+const VISIT = 0x80e545;
 // The list starts after Exit; a count of one is shown as none; the menu's first column.
 const FIRST_ITEM = 2,
   SINGLE = 1,
@@ -207,9 +204,7 @@ export function* itemMenu(h, events, entry, renderBuffer = drawTextBufferSequenc
       setWord(wram, DP_LIST_TOKEN_BANK, WRAM_BANK);
       setWord(wram, DP_LIST_VALUES, ITEM_MENU_COUNTS);
     };
-    yield* dialogCallBody(h, ...MENU, () =>
-      chooseFromMenuSequence(h, events, renderBuffer, MENU_WITH_NUMBERS),
-    );
+    yield* chooseFromMenu(h, events, renderBuffer, MENU_WITH_NUMBERS);
     let actor = null;
     yield () => {
       const row = word(wram, 0);
@@ -292,7 +287,7 @@ export function* useItem(h, events, renderBuffer, actor) {
     }
   };
   if (pending) {
-    yield* dialogCallBody(h, ...CONFIRM_KEY, () => waitForConfirmKeySequence(h, events));
+    yield* waitForConfirmKey(h, events);
     yield* releaseNoticeWindowsSequence(h, events);
   }
   yield* equipmentRows(h, events, renderBuffer);

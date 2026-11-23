@@ -7,10 +7,9 @@ import { readStateByte, writeStateByte } from '../state/objects.mjs';
 // plain menu 80:A6C7 lists Yes and No (the list 80:CD91 with the texts 714D and 7150) in
 // two visible rows from column 1. The window is released afterwards; the result is FFFF
 // for Yes and 0 for No or a cancel.
-import { dialogCallBody } from '../system/native-call-continuation.mjs';
 import { openWindow } from './window-open.mjs';
 import { releaseWindowSequence } from './window-release.mjs';
-import { chooseFromMenuSequence } from './menu-choice.mjs';
+import { chooseFromMenu } from './menu-choice.mjs';
 import { drawTextBufferSequence } from './text-draw.mjs';
 import { fitListWindow } from '../data/menu-layout.mjs';
 import {
@@ -73,9 +72,7 @@ export function* askYesNoSequence(
     setWord(wram, DP_LIST_TOKENS, YES_NO_ITEMS & WORD_MASK);
     setWord(wram, DP_LIST_TOKEN_BANK, YES_NO_ITEMS >>> BANK_SHIFT);
   };
-  yield* dialogCallBody(h, ...MENU_CALL, () =>
-    chooseFromMenuSequence(h, events, renderBuffer, MENU_CALL[1]),
-  );
+  yield* chooseFromMenu(h, events, renderBuffer, MENU_CALL[1]);
   let answer;
   yield () => {
     const choice = word(wram, DP_WINDOW);

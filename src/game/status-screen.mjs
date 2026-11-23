@@ -26,7 +26,7 @@ import { readStateByte, writeStateByte } from '../state/objects.mjs';
 // Registers (user decision 2026-11-17): game state only; the APU command 81:F007
 // takes the command and its value as parameters (A and X in the original). The object the
 // native keeps on the stack over the notice release (PEI, PLY) is a local.
-import { dialogCallBody, segmentSequence } from '../system/native-call-continuation.mjs';
+import { segmentSequence } from '../system/native-call-continuation.mjs';
 import { openWindow } from './window-open.mjs';
 import {
   releaseWindowSequence,
@@ -41,7 +41,7 @@ import { equipmentRows } from './equipment-window.mjs';
 import { memberPortrait } from './member-portrait.mjs';
 import { closeDialog, clearFixedColourInPlace } from './dialog-talk.mjs';
 import { sendApuCommandInPlace } from '../apu/audio-routines.mjs';
-import { chooseFromMenuSequence, MENU } from './menu-choice.mjs';
+import { chooseFromMenu, MENU } from './menu-choice.mjs';
 import { itemMenu, ITEM_ENTRIES } from './item-menu.mjs';
 import { spellMenu, STATUS_ENTRY } from './member-spell-menu.mjs';
 import { skills, notes } from './status-submenus.mjs';
@@ -124,8 +124,7 @@ import { objectWord } from '../state/objects.mjs';
 export const NATIVE_ENTRY = 0x80ea6e,
   START_ENTRY = 0x80ea89,
   ITEMS_ENTRY = 0x80ea8e;
-const PLAIN_MENU = MENU,
-  SKILLS_MENU = 0x80e834,
+const SKILLS_MENU = 0x80e834,
   NOTES_MENU = 0x80e8c8;
 // The attribute labels follow the rows; the attributes from index 6 down, the record's
 // byte after the third attribute is skipped; the submenus' jump table; the restored
@@ -369,9 +368,7 @@ export function* statusScreen(
     };
     if (close) return yield* closeSequence(h, events);
     if (!direct) {
-      yield* dialogCallBody(h, 0x80ecd0, PLAIN_MENU, () =>
-        chooseFromMenuSequence(h, events, renderBuffer, MENU),
-      );
+      yield* chooseFromMenu(h, events, renderBuffer, MENU);
       yield () => {
         chosen = word(wram, 0);
       };

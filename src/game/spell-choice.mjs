@@ -13,10 +13,9 @@ import { readStateByte, writeStateByte } from '../state/objects.mjs';
 // Registers (user decision 2026-11-17): game state only. No callee takes a register
 // input (the plain menu 80:A6C7 has none) and no register values are left; the result
 // the original keeps on the stack over the window release is a local.
-import { dialogCallBody } from '../system/native-call-continuation.mjs';
 import { openWindow } from './window-open.mjs';
 import { releaseWindowSequence } from './window-release.mjs';
-import { chooseFromMenuSequence } from './menu-choice.mjs';
+import { chooseFromMenu } from './menu-choice.mjs';
 import { drawTextBufferSequence } from './text-draw.mjs';
 import { dataBankWord, setDataBankWord } from '../system/data-bank.mjs';
 import { taskStop } from '../system/task-stop.mjs';
@@ -123,9 +122,7 @@ export function* chooseSpellSequence(
       setWord(wram, DP_LIST_TOKENS, SPELL_CHOICE_HEADER);
       setWord(wram, DP_LIST_TOKEN_BANK, WRAM_BANK);
     };
-    yield* dialogCallBody(h, ...MENU, () =>
-      chooseFromMenuSequence(h, events, renderBuffer, MENU[1]),
-    );
+    yield* chooseFromMenu(h, events, renderBuffer, MENU[1]);
     yield () => {
       spell = chosenSpell(wram, word(wram, 0));
     };

@@ -13,14 +13,13 @@ import { readStateByte, writeStateByte } from '../state/objects.mjs';
 // the window; a cancel sets the end word, else the result is the chosen topic's index in
 // the topic list. The result stays in the direct page word 00.
 //
-// Window opening, release and menus compose directly through their call frames.
+// Window opening, release and menus compose directly without CPU call frames.
 // Registers (user decision 2026-11-17): game state only; the menus take no register
 // input and the routines leave no registers (the result is in the direct page word 00).
 // The register form of the main menu for register-level callers (A the result with the
 // flags of its CMP #FFFF) lives in proof/caller/upkeep-routines.mjs.
-import { dialogCallBody } from '../system/native-call-continuation.mjs';
 import { drawTextBufferSequence } from './text-draw.mjs';
-import { chooseFromMenuSequence } from './menu-choice.mjs';
+import { chooseFromMenu, MENU } from './menu-choice.mjs';
 import { fitListWindow, listTextIds } from '../data/menu-layout.mjs';
 import { TOPICS } from '../data/topics.mjs';
 import { openWindow } from './window-open.mjs';
@@ -43,9 +42,6 @@ const DP_RESULT = 0x00,
 const MAIN_MENU = Object.freeze([2, 4, 3, 0x920d, CODE_BANK]),
   TOPIC_MENU = Object.freeze([1, 0, 9, TOPIC_MENU_BUFFER, WRAM_BANK]),
   TOPIC_WINDOW = Object.freeze([6, 15, 14, 11, 0]);
-// Original call sites and callees.
-const MAIN_MENU_CALL = [0x8091ff, 0x80a6c7],
-  TOPIC_MENU_CALL = [0x809298, 0x80a6c7];
 
 const word = (wram, at) => readStateByte(wram, at) | (readStateByte(wram, at + 1) << BYTE_BITS);
 const setWord = (wram, at, value) => {
@@ -56,28 +52,21 @@ const setWord = (wram, at, value) => {
 const setWords = (wram, from, values) =>
   values.forEach((value, n) => setWord(wram, from + 2 * n, value));
 
-// The menu choice keeps its original JSR frame: a test harness reads it at the wait.
-function menu(h, events, renderBuffer, [site, target]) {
-  return dialogCallBody(h, site, target, () =>
-    chooseFromMenuSequence(h, events, renderBuffer, target),
-  );
-}
-
 // The dialog's main menu (80:91E2) for lifted callers, without the JSR frame (the
-// caller's return word lies only in free stack bytes; the menu choice keeps its frame).
+// caller's return word lies only in free stack bytes). Selection composes directly.
 export function* chooseDialogAction(h, events, renderBuffer = drawTextBufferSequence) {
   const { wram } = h.a.mem;
   yield () => {
     setWord(wram, DP_RESULT, word(wram, DP_TEXT_WINDOW));
     setWords(wram, 2, MAIN_MENU);
   };
-  yield* menu(h, events, renderBuffer, MAIN_MENU_CALL);
+  yield* chooseFromMenu(h, events, renderBuffer, MENU);
   yield () => {
     if (word(wram, DP_RESULT) === NONE) setWord(wram, DIALOG_END, NONE);
   };
 }
 // The dialog's topic choice (80:9215) for lifted callers, without the JSR frame (the
-// caller's return word lies only in free stack bytes; the menu choice keeps its frame).
+// caller's return word lies only in free stack bytes). Selection composes directly.
 export function* chooseDialogTopic(h, events, renderBuffer = drawTextBufferSequence) {
   const { mem } = h.a,
     { wram } = mem;
@@ -111,7 +100,7 @@ export function* chooseDialogTopic(h, events, renderBuffer = drawTextBufferSeque
     setWord(wram, DP_TOPIC_WINDOW, word(wram, DP_RESULT));
     setWords(wram, 2, TOPIC_MENU);
   };
-  yield* menu(h, events, renderBuffer, TOPIC_MENU_CALL);
+  yield* chooseFromMenu(h, events, renderBuffer, MENU);
   let chosen;
   yield () => {
     // The original keeps the chosen row on the stack over the release; that word lies

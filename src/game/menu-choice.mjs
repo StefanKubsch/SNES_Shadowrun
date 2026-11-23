@@ -30,11 +30,13 @@ import { readStateByte, writeStateByte } from '../state/objects.mjs';
 // position's push around a hotkey and a move's pushes of the direct page words 00 and 06
 // (around the move sound's arguments, which the original sets up and restores without
 // playing it) lie only in free stack bytes and are kept in locals.
-import { dialogCallBody, segmentSequence } from '../system/native-call-continuation.mjs';
-import { frameWaitCallSequence, takePad } from '../system/live-input-calls.mjs';
-import { playSoundEffectCall } from '../apu/sound-effect.mjs';
+import { segmentSequence } from '../system/native-call-continuation.mjs';
+import { takePad } from '../system/live-input-calls.mjs';
+import { waitForCounterWord } from '../system/frame-wait.mjs';
+import { playSoundEffect } from '../apu/sound-effect.mjs';
+import { accessorPort } from '../system/hardware-port.mjs';
 import { drawTextBufferSequence } from './text-draw.mjs';
-import { drawListSequence, markRowSequence, MARK, UNMARK } from './menu-list.mjs';
+import { drawList, markRow, MARK, UNMARK } from './menu-list.mjs';
 import { requestTileClear } from './window-open.mjs';
 import {
   DP_LIST_TOKEN_BANK,
@@ -81,23 +83,6 @@ const NONE = WORD_MASK,
   CONFIRM = 0xd0c0,
   PAGE_BACK = 0x20,
   PAGE_FORWARD = 0x10;
-// The original's call sites.
-const SITES = Object.freeze({
-  list: 0x80a6e0,
-  mark: 0x80a6e6,
-  wait: 0x80a6e9,
-  pageList: 0x80a7fa,
-  moveUnmark: 0x80a78e,
-  moveMark: 0x80a795,
-  hotkeyUnmark: 0x80a7d1,
-  confirmUnmark: 0x80a802,
-  cancelUnmark: 0x80a829,
-});
-const WAIT = 0x81b0a1,
-  LIST = 0x80a617,
-  MARK_ROW = 0x80a5f9,
-  UNMARK_ROW = 0x80a5db;
-
 const word = (wram, at) => readStateByte(wram, at) | (readStateByte(wram, at + 1) << BYTE_BITS);
 const setWord = (wram, at, value) => {
   writeStateByte(wram, at, value & BYTE_MASK);
@@ -115,16 +100,10 @@ const subtractRowsTwice = (start, rows) => {
   return { value: second & WORD_MASK, carry: second >= 0 };
 };
 
-// Choose from the menu list (entry one of the four above), a sequence for a native call
-// continuation, called with JSR, with an explicit text-buffer renderer sequence. row is
+// Choose from the menu list directly and return the selected row (FFFF on cancel).
+// The renderer is a sequence. row is
 // the preselected row of 80:A6B8 (A in the original).
-export function* chooseFromMenuSequence(
-  h,
-  events,
-  renderBuffer = drawTextBufferSequence,
-  entry,
-  row = 0,
-) {
+export function* chooseFromMenu(h, events, renderBuffer = drawTextBufferSequence, entry, row = 0) {
   const { ctx } = h,
     { mem } = h.a,
     { wram } = mem;
@@ -139,20 +118,12 @@ export function* chooseFromMenuSequence(
         (field(DP_LIST_TOKENS) | (readStateByte(wram, DP_LIST_TOKEN_BANK) << WORD_BITS)) + index,
       ),
     hotkey = () => longWord(((ctx.bank << WORD_BITS) | field(DP_LIST_VALUES)) + index);
-  const helper = (site, target, body) => dialogCallBody(h, site, target, body);
-  const list = (site) => helper(site, LIST, () => drawListSequence(h, events, renderBuffer)),
-    mark = (site) =>
-      helper(site, MARK_ROW, () => markRowSequence(h, events, renderBuffer, MARK, index)),
-    unmark = (site) =>
-      helper(site, UNMARK_ROW, () => markRowSequence(h, events, renderBuffer, UNMARK, index)),
+  const list = () => drawList(h, events, renderBuffer),
+    mark = () => markRow(h, events, renderBuffer, MARK, index),
+    unmark = () => markRow(h, events, renderBuffer, UNMARK, index),
     pad = () => segmentSequence(() => takePad(h, events));
-  let result;
-  const rts = function* () {
-    yield () => {
-      result = h.rts();
-    };
-    return result;
-  };
+  // The selected row is also retained in DP 00 for the existing state boundary.
+  const selected = () => field(DP_RESULT);
   // The sound effect's arguments in the direct page (the result word 00 set to FFFF).
   const soundArguments = (effect) => {
     store(DP_RESULT, NONE);
@@ -163,10 +134,17 @@ export function* chooseFromMenuSequence(
   // Confirm the selection: the sound, the row in 00, the pad word once more.
   const confirm = function* () {
     yield () => soundArguments(CONFIRM_SOUND);
-    yield* segmentSequence(() => playSoundEffectCall(h));
+    yield* segmentSequence(() =>
+      playSoundEffect(mem, accessorPort(h.a), {
+        object: field(DP_RESULT),
+        effect: field(DP_SOUND_EFFECT),
+        level: field(DP_SOUND_LEVEL),
+        voices: field(DP_SOUND_VOICE),
+      }),
+    );
     yield () => store(DP_RESULT, field(MENU_SELECTION) >>> 1);
     yield* pad();
-    return yield* rts();
+    return selected();
   };
   // Move to the row of the word index, with a new page past the page shown.
   const move = function* () {
@@ -193,13 +171,13 @@ export function* chooseFromMenuSequence(
     };
     if (page) {
       yield* requestTileClear(h, events);
-      yield* list(SITES.pageList);
-    } else yield* unmark(SITES.moveUnmark);
+      yield* list();
+    } else yield* unmark();
     yield () => {
       index = target;
       store(MENU_SELECTION, index);
     };
-    yield* mark(SITES.moveMark);
+    yield* mark();
     yield () => {
       // PEI 00, PEI 06, the move sound's arguments, PLA, PLA: the sound is not played and
       // the two words are restored.
@@ -261,13 +239,13 @@ export function* chooseFromMenuSequence(
     store(MENU_PAGE_START, 0);
     store(MENU_REPEAT_COUNTER, 0);
   };
-  yield* list(SITES.list);
+  yield* list();
   yield () => {
     index = field(MENU_SELECTION);
   };
-  yield* mark(SITES.mark);
+  yield* mark();
   for (;;) {
-    yield* dialogCallBody(h, SITES.wait, WAIT, () => frameWaitCallSequence(h, events), true);
+    yield* waitForCounterWord(h, events);
     yield* pad();
     let branch;
     yield () => {
@@ -287,13 +265,13 @@ export function* chooseFromMenuSequence(
       index = field(MENU_SELECTION);
     };
     if (branch === 'cancel') {
-      yield* unmark(SITES.cancelUnmark);
+      yield* unmark();
       yield () => store(DP_RESULT, NONE);
       yield* pad();
-      return yield* rts();
+      return selected();
     }
     if (branch === 'confirm') {
-      yield* unmark(SITES.confirmUnmark);
+      yield* unmark();
       return yield* confirm();
     }
     let moving = false;
@@ -322,10 +300,22 @@ export function* chooseFromMenuSequence(
       };
       if (end) break;
       if (hit) {
-        yield* unmark(SITES.hotkeyUnmark);
+        yield* unmark();
         yield () => store(MENU_SELECTION, position);
         return yield* confirm();
       }
     }
   }
+}
+
+// Compatibility entry for register-level callers; internal menus use the value above.
+export function* chooseFromMenuSequence(h, events, renderBuffer, entry, row = 0) {
+  const selected = yield* chooseFromMenu(h, events, renderBuffer, entry, row);
+  let result;
+  yield () => {
+    // The original sound entry leaves its code bank on confirmed choices.
+    if (selected !== NONE) h.ctx.bank = MENU >>> WORD_BITS;
+    result = h.rts();
+  };
+  return result;
 }

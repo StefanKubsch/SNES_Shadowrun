@@ -20,13 +20,13 @@ import { readStateByte, writeStateByte } from '../state/objects.mjs';
 // (the JSR form of 80:AAAF) leave no A, X, Y or flags, and the result is in DP 00.
 import { openWindow } from './window-open.mjs';
 import { printText } from './text-print.mjs';
-import { waitForConfirmKeySequence } from './confirm-key.mjs';
+import { waitForConfirmKey } from './confirm-key.mjs';
 import { selectObjectAnimation, turnObject } from './object-turn.mjs';
 import { releaseWindowSequence, putGloveAwaySequence } from './window-release.mjs';
 import { START_ENTRY, ITEMS_ENTRY, statusScreen } from './status-screen.mjs';
 import { partyStatus } from './party-status.mjs';
 import { drawTextBufferSequence } from './text-draw.mjs';
-import { dialogCallBody, segmentSequence } from '../system/native-call-continuation.mjs';
+import { segmentSequence } from '../system/native-call-continuation.mjs';
 import { dataBankWord } from '../system/data-bank.mjs';
 import { placeGloveOverPlayer } from './glove-target.mjs';
 import { GLOVE_LIMITS } from '../script/native-glove-crosshair-limits.mjs';
@@ -98,9 +98,6 @@ import { BYTE_BITS, BYTE_MASK, WORD_MASK, WORD_SIGN } from '../constants/bits.mj
 import { objectWord, setObjectWord } from '../state/objects.mjs';
 
 // The callees and their call sites.
-const WEAPON_NOTICE_CALLS = [0x80e0a3],
-  SPELL_NOTICE_CALLS = [0x80e103];
-const CONFIRM_KEY = 0x80f953;
 // The idle action, the set mark and the weapon kind whose aim takes both buttons.
 const IDLE = 0,
   MARK_SET = WORD_MASK,
@@ -216,9 +213,9 @@ function* faceGloveSequence(h) {
   yield* segmentSequence(() => turnObject(h.a.mem, h.a.mem.wram));
 }
 
-// A notice with its window, text, key wait (at the call site in calls) and release, then
+// A notice with its window, text, direct key wait and release, then
 // the leader in DP 00 and the neutral action.
-function* noticeSequence(h, events, [waitPc], notice, renderBuffer) {
+function* noticeSequence(h, events, notice, renderBuffer) {
   const { mem } = h.a,
     { wram } = mem;
   yield () => {
@@ -233,7 +230,7 @@ function* noticeSequence(h, events, [waitPc], notice, renderBuffer) {
   yield* openWindow(h, events);
   yield () => setWord(wram, 2, notice.text);
   yield* printText(h, events, renderBuffer);
-  yield* dialogCallBody(h, waitPc, CONFIRM_KEY, () => waitForConfirmKeySequence(h, events));
+  yield* waitForConfirmKey(h, events);
   yield* releaseWindowSequence(h, events);
   yield () => setWord(wram, 0, word(wram, PLAYER_OBJECT));
   yield* neutralSequence(h);
@@ -338,7 +335,7 @@ function* freeSequence(h, events, finish, renderBuffer, player) {
       setWord(wram, AIMING_WEAPON, MARK_SET);
     };
     if (!armed) {
-      yield* noticeSequence(h, events, WEAPON_NOTICE_CALLS, WEAPON_NOTICE, renderBuffer);
+      yield* noticeSequence(h, events, WEAPON_NOTICE, renderBuffer);
       return yield* finish();
     }
     yield* segmentSequence(() => selectObjectAnimation(h.a.mem, h.a.mem.wram));
@@ -354,7 +351,7 @@ function* freeSequence(h, events, finish, renderBuffer, player) {
       setWord(wram, 2, SPELL_ACTION);
     };
     if (!selected) {
-      yield* noticeSequence(h, events, SPELL_NOTICE_CALLS, SPELL_NOTICE, renderBuffer);
+      yield* noticeSequence(h, events, SPELL_NOTICE, renderBuffer);
       return yield* finish();
     }
     yield* segmentSequence(() => selectObjectAnimation(h.a.mem, h.a.mem.wram));

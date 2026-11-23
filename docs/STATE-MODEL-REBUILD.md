@@ -88,6 +88,19 @@ own commit after `npm run test:block` and the golden trace test. One shared
 
 ## Progress
 
+- 2026-11-23, phase 4, menus and confirmation: all four menu forms compose list
+  drawing, row marks, paging and counter waits directly. All game callers use
+  the direct selection and confirmation operations. The confirmation sound
+  preserves the direct caller's data bank; outer adapters retain the original
+  entry result. Contract: [MENU-COMPOSITION.md](MENU-COMPOSITION.md).
+- Sixteen new contracts preserve the full CPU context and stack at every
+  single-step pause, with CPU call/return helpers forbidden. The initial block
+  run passed 5291 existing checks; its sixteen new cases exposed fixture
+  setup errors and the remaining sound bank adapter. After correction, the
+  affected block selection passed 739/739 tests in fourteen files in 98 seconds,
+  including all five unchanged golden traces. ESLint and formatting passed.
+  Shared release remains pending until the task append subsystem is complete.
+
 - Portrait and dialog device shared release passed 13145/13145 tests in 334
   files, with 345 unchanged files and no failures or skips. All five golden
   traces and frozen proof code remain unchanged. Both artifact passes ran

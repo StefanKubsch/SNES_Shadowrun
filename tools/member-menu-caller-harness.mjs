@@ -36,9 +36,8 @@ const MENU_SOUND_INDEX = 0x4c,
   PORTRAIT_TILES_START = 0x15250,
   PORTRAIT_TILES_END = 0x16250,
   REQUEST_COMPLETE = 0x8000,
-  WRAM_BASE = 0x7e0000,
-  MENU_FRAME_RETURN = 0xa6ec,
-  CONFIRM_FRAME_RETURN = 0xf956;
+  PORTRAIT_OPENING_FRAMES = 11,
+  SECOND_PORTRAIT_DESTINATION = 0x800;
 
 export function compareRun(
   sequence,
@@ -97,7 +96,9 @@ export function compareRun(
   bind(0x80f953, () => waitForConfirmKeySequence(h, events, routines));
   bind(0x80fb39, () => side.render(h, events));
   if (realDrawing) side.render = formerDraw;
-  const finish = configure({ ...side, routines, bind }) ?? ((result) => result);
+  const finish =
+    configure({ ...side, routines, bind, remainingInput: () => pads.length - input }) ??
+    ((result) => result);
   prepare(side);
   try {
     const result = finishTextWindow(
@@ -123,8 +124,11 @@ export function configureMemberPortrait({ h, mem, events, put, routines, bind, c
     mem.wram[W.PORTRAIT_WINDOW_RIGHT],
   ];
   const service = events.interrupts.textWait;
+  let openingFrames = 0;
   events.interrupts.textWait = (callee, frameEvents, status, pc) => {
     if (pc === 0x80901f) {
+      if (mem.read16(W.PORTRAIT_DMA_REQUEST) === SECOND_PORTRAIT_DESTINATION)
+        openingFrames = PORTRAIT_OPENING_FRAMES;
       calls.push([
         'portrait upload',
         mem.read16(W.PORTRAIT_DMA_REQUEST),
@@ -134,8 +138,8 @@ export function configureMemberPortrait({ h, mem, events, put, routines, bind, c
       put(W.PORTRAIT_DMA_REQUEST, mem.read16(W.PORTRAIT_DMA_REQUEST) | REQUEST_COMPLETE);
       return true;
     }
-    const caller = mem.read16(WRAM_BASE | (h.ctx.s + 1));
-    if (pc === 0x81b0a9 && caller !== MENU_FRAME_RETURN && caller !== CONFIRM_FRAME_RETURN) {
+    if (pc === 0x81b0a9 && openingFrames > 0) {
+      openingFrames--;
       // Game state only (user decision 2026-11-17): the window step (X in the original)
       // shows in the window edges of the snapshot, not in a register.
       calls.push(['portrait frame', ...snapshot()]);

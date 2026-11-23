@@ -28,9 +28,9 @@ import { dialogCallBody, segmentSequence } from '../system/native-call-continuat
 import { scriptVisitCallSequence } from '../system/script-visit.mjs';
 import { appendScriptCall } from '../script/task-api.mjs';
 import { openWindow } from './window-open.mjs';
-import { chooseFromMenuSequence } from './menu-choice.mjs';
+import { chooseFromMenu } from './menu-choice.mjs';
 import { releaseWindowSequence, releaseNoticeWindowsSequence } from './window-release.mjs';
-import { waitForConfirmKeySequence } from './confirm-key.mjs';
+import { waitForConfirmKey } from './confirm-key.mjs';
 import { equipmentRows } from './equipment-window.mjs';
 import { memberPortrait } from './member-portrait.mjs';
 import { resetWindowList } from './window-list.mjs';
@@ -99,10 +99,8 @@ import {
 import { WRAM_BANK } from '../constants/memory-map.mjs';
 
 // The callees and their call sites.
-const MENU = [0x80e74c, 0x80a6c7],
-  APPEND_SCRIPT = [0x80e788, 0x80c34a],
-  VISIT_SCRIPT = 0x80e78e,
-  CONFIRM_KEY = [0x80e7b1, 0x80f953];
+const APPEND_SCRIPT = [0x80e788, 0x80c34a],
+  VISIT_SCRIPT = 0x80e78e;
 // The entry from the status screen, which runs no scripts.
 export const STATUS_ENTRY = 0x80e68e;
 const MENU_ENTRY = 0x80e693;
@@ -222,7 +220,7 @@ function* afterScriptSequence(h, events) {
     }
   };
   if (pending) {
-    yield* dialogCallBody(h, ...CONFIRM_KEY, () => waitForConfirmKeySequence(h, events));
+    yield* waitForConfirmKey(h, events);
     yield* releaseNoticeWindowsSequence(h, events);
   }
 }
@@ -259,9 +257,7 @@ export function* spellMenu(h, events, entry = MENU_ENTRY, renderBuffer = drawTex
       setWord(wram, DP_LIST_TOKENS, MEMBER_MENU_NAMES);
       setWord(wram, DP_LIST_TOKEN_BANK, WRAM_BANK);
     };
-    yield* dialogCallBody(h, ...MENU, () =>
-      chooseFromMenuSequence(h, events, renderBuffer, 0x80a6c7),
-    );
+    yield* chooseFromMenu(h, events, renderBuffer, 0x80a6c7);
     let script = false,
       spellScript;
     yield () => {

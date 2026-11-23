@@ -13,7 +13,7 @@ import { readStateByte, writeStateByte } from '../state/objects.mjs';
 //
 // Registers (user decision 2026-11-17): game state only; no callee takes a register
 // input and no register values are left.
-import { dialogCallBody, segmentSequence } from '../system/native-call-continuation.mjs';
+import { segmentSequence } from '../system/native-call-continuation.mjs';
 import { openWindow } from './window-open.mjs';
 import {
   releaseWindowSequence,
@@ -23,7 +23,7 @@ import {
 import { setTextCursor, printNumber } from './window-text.mjs';
 import { printText } from './text-print.mjs';
 import { drawTextBufferSequence } from './text-draw.mjs';
-import { waitForConfirmKeySequence } from './confirm-key.mjs';
+import { waitForConfirmKey } from './confirm-key.mjs';
 import { dataBankWord, setDataBankWord } from '../system/data-bank.mjs';
 import { TEXT_SLASH } from '../system/native-status-screen.mjs';
 import {
@@ -74,9 +74,6 @@ const PARTY_WINDOW = Object.freeze({ left: 1, top: 1, columns: 0x1e, baseRows: 5
   DP_MAGIC_MAXIMUM = 8,
   FIRST_ROW = 2,
   MAGIC_FACTOR = 10;
-// The callees and their call sites (the cursor, text and number per member in order).
-const CONFIRM_KEY = [0x80ee4b, 0x80f953];
-
 const word = (wram, at) => readStateByte(wram, at) | (readStateByte(wram, at + 1) << BYTE_BITS);
 const setWord = (wram, at, value) => {
   writeStateByte(wram, at, value & BYTE_MASK);
@@ -185,7 +182,7 @@ export function* partyStatus(h, events, renderBuffer = drawTextBufferSequence) {
       more = next < word(wram, GROUP_INDEX) && dataBankWord(mem, GROUP_LEADER_ONLY) === 0;
     };
   } while (more);
-  yield* dialogCallBody(h, ...CONFIRM_KEY, () => waitForConfirmKeySequence(h, events));
+  yield* waitForConfirmKey(h, events);
   yield () => setWord(wram, 0, dataBankWord(mem, STATUS_WINDOW));
   yield* releaseWindowSequence(h, events);
 }

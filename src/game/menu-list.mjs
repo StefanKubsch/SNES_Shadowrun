@@ -27,7 +27,7 @@ import { readStateByte, writeStateByte } from '../state/objects.mjs';
 //
 // Registers (user decision 2026-11-17): game state only; the routines take the row's
 // word index as a parameter and leave no A, X, Y or flags. The list position's pushes
-// around the prints stay on the stack.
+// around the prints are kept in locals.
 import { segmentSequence } from '../system/native-call-continuation.mjs';
 import { printNumber, setTextCursor } from './window-text.mjs';
 import { drawTextBufferSequence } from './text-draw.mjs';
@@ -74,9 +74,9 @@ const setWord = (wram, at, value) => {
 };
 
 // Mark the row of the word index given, or remove its mark (80:A5F9 with MARK, 80:A5DB
-// with UNMARK), a sequence for a native call continuation, called with JSR.
+// with UNMARK), a direct sequence without a CPU call frame.
 // renderBuffer is the text-buffer renderer sequence.
-export function* markRowSequence(h, events, renderBuffer = drawTextBufferSequence, form, index) {
+export function* markRow(h, events, renderBuffer = drawTextBufferSequence, form, index) {
   const { wram } = h.a.mem;
   yield () => {
     const row = ((index - word(wram, MENU_PAGE_START)) & WORD_MASK) >>> 1;
@@ -86,7 +86,6 @@ export function* markRowSequence(h, events, renderBuffer = drawTextBufferSequenc
   yield* segmentSequence(() => setTextCursor(h));
   yield () => setWord(wram, DP_TEXT, form.text);
   yield* printText(h, events, renderBuffer);
-  return yield* rts(h);
 }
 function* rts(h) {
   let result;
@@ -96,9 +95,8 @@ function* rts(h) {
   return result;
 }
 
-// Draw the menu's list (80:A617), a sequence for a native call continuation, called
-// with JSR, receiving the renderer sequence.
-export function* drawListSequence(h, events, renderBuffer = drawTextBufferSequence) {
+// Draw the menu's list (80:A617) directly, receiving the renderer sequence.
+export function* drawList(h, events, renderBuffer = drawTextBufferSequence) {
   const { ctx } = h,
     { mem } = h.a,
     { wram } = mem;
@@ -177,5 +175,14 @@ export function* drawListSequence(h, events, renderBuffer = drawTextBufferSequen
     previous = word(wram, MENU_PAGE_START) !== 0;
   };
   if (previous) yield* corner(() => 0, PREVIOUS);
+}
+
+// Register-level entry adapters consume only the supplied outer caller frame.
+export function* markRowSequence(h, events, renderBuffer, form, index) {
+  yield* markRow(h, events, renderBuffer, form, index);
+  return yield* rts(h);
+}
+export function* drawListSequence(h, events, renderBuffer) {
+  yield* drawList(h, events, renderBuffer);
   return yield* rts(h);
 }

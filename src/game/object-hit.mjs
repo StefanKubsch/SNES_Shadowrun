@@ -35,7 +35,7 @@ import { readStateByte, writeStateByte } from '../state/objects.mjs';
 // notice window, text and word waits compose directly through their frames.
 // Confirmation, release and the player window list also compose directly.
 import { printText } from './text-print.mjs';
-import { waitForConfirmKeySequence } from './confirm-key.mjs';
+import { waitForConfirmKey } from './confirm-key.mjs';
 import { releaseWindowSequence } from './window-release.mjs';
 import { drawTextBufferSequence } from './text-draw.mjs';
 import { frameWaitCallSequence } from '../system/live-input-calls.mjs';
@@ -106,8 +106,7 @@ import {
 import { longObjectWord, objectWord, setLongObjectWord } from '../state/objects.mjs';
 
 // The notices' remaining framed callees.
-const WORD_WAIT = 0x81b0a1,
-  CONFIRM_KEY = 0x80f953;
+const WORD_WAIT = 0x81b0a1;
 // The call sites of the warning's and the penalty's callees.
 const WARNING_CALLS = Object.freeze({
     wait: 0x8087af,
@@ -151,7 +150,7 @@ function* noticeSequence(h, events, renderBuffer, notice, calls) {
   yield* printText(h, events, renderBuffer);
   for (let left = NOTICE_COUNTER_WAITS; left > 0; left--)
     yield* dialogCallBody(h, calls.wait, WORD_WAIT, () => frameWaitCallSequence(h, events), true);
-  yield* dialogCallBody(h, calls.key, CONFIRM_KEY, () => waitForConfirmKeySequence(h, events));
+  yield* waitForConfirmKey(h, events);
   yield* releaseWindowSequence(h, events);
 }
 

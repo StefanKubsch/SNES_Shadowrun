@@ -249,7 +249,8 @@ function runTalk(
   }
   let frames = 0,
     input = 0,
-    requests = 0;
+    requests = 0,
+    preludeFrames = 0;
   events.interrupts.textWait = (callee, frameEvents, status, pc) => {
     if (pc === 0x80ae0c) return true;
     if (pc === 0x80ae0f) {
@@ -276,8 +277,13 @@ function runTalk(
     if (pc !== 0x81b0a9) return serviceUpload(callee, frameEvents, status, pc);
     if (!(status & 2)) return true;
     frames++;
-    // Opening is eleven frames, the greeting waits another sixty-one.
-    if (mem.read16(0x7e0000 | (h.ctx.s + 1)) === 0xa6ec && input < pads.length)
+    // The optional glove menu precedes the two transfers. Opening and greeting
+    // then wait seventy-two frames before dialog menus consume their input.
+    if (requests === 0) preludeFrames++;
+    if (
+      (requests === 0 || (frames > preludeFrames + 72 && !mem.read16(DIALOG_END))) &&
+      input < pads.length
+    )
       put(PAD_HELD, pads[input++]);
     else put(PAD_HELD, 0);
     assert.ok(frames < 140, 'bounded talk input');
