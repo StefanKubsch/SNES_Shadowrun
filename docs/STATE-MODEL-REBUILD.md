@@ -88,6 +88,15 @@ own commit after `npm run test:block` and the golden trace test. One shared
 
 ## Progress
 
+- Menu/confirmation and dialog/member spell task creation shared release passed
+  13340/13340 tests in 362 files, with 319 unchanged files and no failures or
+  skips. All five golden traces and frozen proof modules remain unchanged.
+  Both artifact passes ran 252 generators, reused 520 and matched 3491 outputs;
+  AC source artifacts were unchanged and syntax covered 3197 modules. Format,
+  diff/staged diff and LFS checks passed. Artifact verification took 445.6
+  seconds and tests 1330.7 seconds. Both blocks passed edited-file ESLint.
+  Passing logs were removed; .cache/release/last-summary.json retains the result.
+
 - 2026-11-23, phase 4, task creation: dialog topic actions and member spell
   choices append through the ordinary task API, without a synthetic call or
   return word. Both unused append return adapters were deleted from src.
@@ -111,7 +120,7 @@ own commit after `npm run test:block` and the golden trace test. One shared
   setup errors and the remaining sound bank adapter. After correction, the
   affected block selection passed 739/739 tests in fourteen files in 98 seconds,
   including all five unchanged golden traces. ESLint and formatting passed.
-  Shared release remains pending until the task append subsystem is complete.
+  The shared release for both subsystems is recorded above.
 
 - Portrait and dialog device shared release passed 13145/13145 tests in 334
   files, with 345 unchanged files and no failures or skips. All five golden
