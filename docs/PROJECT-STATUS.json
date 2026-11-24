@@ -1,7 +1,7 @@
 {
   "updated": "2026-11-24",
-  "focus": "Phase 4: four control-flow blocks release-verified. Batch: HANDOFF.md.",
-  "next_step": "Phase 4: remove boot/reset and frontend CPU contexts. Start with main-reset/main-startup. Keep recorded adapters; four blocks per release. Delivery: HANDOFF.md.",
+  "focus": "Phase 4: boot, frontend and live loop service blocks done. Batch: HANDOFF.md.",
+  "next_step": "Phase 4: audit remaining src register adapters (nmi-call, native-dialog-support, main-wait-interrupt); move recorded-only ones out of src where frozen proof allows. Delivery: HANDOFF.md.",
   "porting_resume": "216 original-form bytes remain: 121 code and 95 unidentified data. Read/hardware/data boundaries: docs/ROM-CODE-AUDIT.md. Unknown bytes and unused graphics stay preserved; unrecorded paths can report rom_byte_absent.",
   "open_issues": [
     "Keyword overflow: synthetic insertion of a 51st retained topic corrupts flags in European source and lifted code. Marking does not free storage. A reachable regular story route and a compatible gameplay correction remain unproved; see docs/BUGFIXES.md.",
@@ -20,14 +20,12 @@
   ],
   "optional_quality_checks": [],
   "references": [
+    "docs/LIVE-LOOP-SERVICES.md",
+    "docs/FRONTEND-SERVICE-COMPOSITION.md",
+    "docs/BOOT-SERVICE-COMPOSITION.md",
     "docs/NATIVE-SERVICE-COMPOSITION.md",
     "docs/SCHEDULER-SERVICE-COMPOSITION.md",
     "docs/STATE-MODEL-REBUILD.md",
-    "docs/PORTRAIT-COMPOSITION.md",
-    "docs/DIALOG-DEVICE-COMPOSITION.md",
-    "docs/TEXT-ENTRY-COMPOSITION.md",
-    "docs/SCENE-COMMAND-COMPOSITION.md",
-    "docs/SCENE-ENTRY-COMPOSITION.md",
     "docs/PPU-BROWSER.md",
     "docs/LANGUAGES.md",
     "docs/CHARACTER-STREAM-EDITING.md",
