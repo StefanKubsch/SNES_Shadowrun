@@ -43,16 +43,7 @@ import { sceneRuntime } from '../system/scene-runtime.mjs';
 import { nmiAtBranch } from '../system/frame-wait.mjs';
 import { recordedRoutine } from '../system/recorded-routines.mjs';
 import { UNPACK_7F, unpackLong } from '../system/unpack.mjs';
-import {
-  A1B0,
-  A1T0L,
-  BBAD0,
-  DAS0L,
-  DMAP0,
-  VMAINC,
-  VMDATAL,
-} from '../constants/hardware-registers.mjs';
-import { VMAINC_INCREMENT_AFTER_HIGH } from '../constants/ppu.mjs';
+import { videoOf } from '../video/video-port.mjs';
 import {
   DIALOG_RECORD_FLAGS,
   NMI_JOB_LISTS,
@@ -60,7 +51,14 @@ import {
   PORTRAIT_DMA_REQUEST,
   PORTRAIT_PALETTE_START,
 } from '../data/wram.mjs';
-import { BYTE_BITS, BYTE_MASK, BYTE_SIGN, WORD_MASK, WORD_SIGN } from '../constants/bits.mjs';
+import {
+  BYTE_BITS,
+  BYTE_MASK,
+  BYTE_SIGN,
+  WORD_BITS,
+  WORD_MASK,
+  WORD_SIGN,
+} from '../constants/bits.mjs';
 import { FLAG_MEMORY_8BIT, FLAG_NEGATIVE, FLAG_ZERO } from '../constants/cpu-flags.mjs';
 
 // Bank 7F in the WRAM array, and the row shift's addresses.
@@ -91,7 +89,6 @@ const FIRST_PALETTE = 0x91,
 const TILE_BYTES = 0x1000,
   TILE_SOURCE = 0x5250,
   TILE_BANK = 0x7f,
-  TILE_MODE = 1,
   DMA_SITES = Object.freeze({
     bytes: 0x808ff8,
     source: 0x808ffe,
@@ -171,12 +168,7 @@ export function* uploadSecondPortrait(h, events) {
 // in word mode, with the VRAM address incremented after the high byte. The game NMI
 // (src/game/game-nmi.mjs) repeats it when the palette cycle step took channel 0 first.
 export function writePortraitTileChannel(port) {
-  port.write(DAS0L, TILE_BYTES, 2, DMA_SITES.bytes);
-  port.write(A1T0L, TILE_SOURCE, 2, DMA_SITES.source);
-  port.write(A1B0, TILE_BANK, 1, DMA_SITES.bank);
-  port.write(BBAD0, VMDATAL & BYTE_MASK, 1, DMA_SITES.target);
-  port.write(VMAINC, VMAINC_INCREMENT_AFTER_HIGH, 1, DMA_SITES.increment);
-  port.write(DMAP0, TILE_MODE, 1, DMA_SITES.mode);
+  videoOf(port).setUpVramTransfer((TILE_BANK << WORD_BITS) | TILE_SOURCE, TILE_BYTES, DMA_SITES);
 }
 
 // Upload the unpacked portrait to the VRAM word address (80:8FF5), composing

@@ -25,17 +25,43 @@ of descriptions instead of the picture's only path.
   tools/frame-description.test.mjs pins the format and the renderer's import list.
   The live benchmark measures the picture at 2.29 ms per NMI before and after.
 
+## Step 2: NMI picture jobs through the video interface (2026-11-24)
+
+ROM scene register lists and the font upload set up DMA channels 1, 2 and 4 to 7 as
+register data, so a register decoder remains part of the SNES back end. Game code,
+however, no longer needs to name registers:
+
+- The game NMI's picture jobs (src/game/game-nmi.mjs: scene and object palettes,
+  palette cycle step, VRAM records, OAM buffer, portrait characters and colours, the
+  glove picture and sprite, text tile clears, window map, text mask and its read
+  back, blanking and the screen shadows) state each transfer in full through
+  src/video/video-port.mjs: source, size and destination, with the original
+  instruction sites. The module imports no hardware register.
+- The SNES back end of each new VideoPort method writes exactly the registers the
+  original writes, in its order; the channel modes and targets set earlier are
+  named in each method's comment. Register-level callers keep passing a hardware
+  port, which `videoOf` wraps, so frozen proof callers are unchanged. The portrait
+  channel setup (src/game/portrait-upload.mjs) uses the same interface.
+- Evidence: game NMI lift comparisons, DMA read-back, window text and instant text
+  tests and all five golden traces pass (32/32), so the register writes, video
+  memory and pictures are unchanged.
+
 ## Plan for the next steps
 
-1. Producers: game code builds the parts of the description it owns (palettes,
+1. The other direct picture writers (portrait window and member portrait H-DMA,
+   dialog colour math and OBJSEL, window opening, text drawing, game screen H-DMA)
+   move to the video interface the same way.
+2. A second video back end writes the picture state (palette, sprites, layer
+   settings, character and map bytes) directly, without registers, for live play.
+3. Producers: game code builds the parts of the description it owns (palettes,
    sprite list, BG layer settings, scroll, colour effects) as typed state, and the
    description is assembled from that state instead of from PPU registers. The
    golden picture hash stays binding; the video memory hash becomes diagnostic for
    the converted parts, as decided on 2026-11-20.
-2. Character and map memory remain a byte store for now: the text code reads its
+4. Character and map memory remain a byte store for now: the text code reads its
    rendered rows back from video memory (81:A9E1, channel 5), so tile data stays
    readable game state.
-3. The register-writing upload functions (src/game/game-nmi.mjs and others) are
+5. The register-writing upload functions (src/game/game-nmi.mjs and others) are
    called directly by frozen proof modules. As with the phase 4 boundary
    ([REGISTER-COMPAT-BOUNDARY.md](REGISTER-COMPAT-BOUNDARY.md)) they stay as
    compatibility code for recorded comparisons, while live play takes the new

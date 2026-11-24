@@ -4,6 +4,13 @@
 // the register writes of the original, in the original order, so the PPU
 // model (src/video/ppu-state.mjs) sees exactly the same writes. Another
 // platform implements the same methods on its own display.
+//
+// The NMI transfers below (sendPalette to readVramToWram) state each transfer in
+// full: source, size and destination. The SNES back end writes only the registers the
+// original writes there; the mode and B-bus target of the channels it does not set
+// come from the channel setup the game made earlier (the font upload 81:AB2C and the
+// scene register lists), as each method notes. site arguments are the original
+// instructions of the writes; the device model may tell accesses apart by them.
 import {
   A1B0,
   A1T0L,
@@ -33,8 +40,10 @@ import {
   OAMADDL,
   OAMDATA,
   OBJSEL,
+  RDVRAMH,
   SETINI,
   TM,
+  TMW,
   TS,
   VMADDL,
   VMAINC,
@@ -47,6 +56,7 @@ import {
   COLDATA_GREEN,
   COLDATA_RED,
   DMAP_FIXED_SOURCE,
+  DMAP_ONE_PORT,
   DMAP_TWO_PORTS,
   VMAINC_INCREMENT_AFTER_HIGH,
 } from '../constants/ppu.mjs';
@@ -55,10 +65,16 @@ import { BYTE_BITS, BYTE_MASK, WORD_BITS, WORD_MASK } from '../constants/bits.mj
 // DMA channel registers are 16 bytes apart; the general transfers use channel 0.
 const DMA_CHANNEL_STRIDE = 0x10,
   DMA_CHANNEL_0 = 1,
+  // A palette: 15 colours of two bytes.
+  PALETTE_COLOURS_BYTES = 0x1e,
   // A BG layer has a horizontal and a vertical scroll register (BG1HOFS, BG1VOFS, ...).
   SCROLL_REGISTERS_PER_LAYER = 2;
 // The scene defaults of 81:EE4F: all WRIO outputs high, COLDATA 0 on all three
 // components, colour math prevented everywhere (CGWSEL bits 4-5 = 3) and FastROM.
+// A channel's register from the channel 0 register, and its MDMAEN bit.
+const channelRegister = (register, channel) => register + channel * DMA_CHANNEL_STRIDE,
+  channelBit = (channel) => 1 << channel;
+
 const WRIO_ALL_HIGH = 0xff,
   COLDATA_ALL_ZERO = COLDATA_RED | COLDATA_GREEN | COLDATA_BLUE,
   CGSWSEL_MATH_PREVENTED = 0x30,
@@ -85,9 +101,11 @@ const WRIO_ALL_HIGH = 0xff,
   ];
 
 export class VideoPort {
-  // write(address, value, width) reaches the hardware at a bank-0 bus address.
-  constructor(write) {
+  // write(address, value, width, site) and read(address, width, site) reach the
+  // hardware at a bank-0 bus address.
+  constructor(write, read = null) {
     this.write = write;
+    this.read = read;
   }
   // One VRAM word at a word address (the increment mode is already set).
   setVramWord(address, value) {
@@ -180,8 +198,8 @@ export class VideoPort {
     this.write(MEMSEL, MEMSEL_FAST_ROM, 1);
   }
   // Forced blank and brightness (INIDISP).
-  setDisplay(value) {
-    this.write(INIDISP, value, 1);
+  setDisplay(value, site) {
+    this.write(INIDISP, value, 1, site);
   }
   // Consecutive colours (15-bit BGR) from a CGRAM index on.
   setColours(index, ...colours) {
@@ -208,11 +226,15 @@ export class VideoPort {
     this.write(port, (y >>> BYTE_BITS) & BYTE_MASK, 1);
   }
   // Layer bits of the main and the sub screen (LAYER_* in src/constants/ppu.mjs).
-  setMainLayers(layers) {
-    this.write(TM, layers, 1);
+  setMainLayers(layers, site) {
+    this.write(TM, layers, 1, site);
   }
-  setSubLayers(layers) {
-    this.write(TS, layers, 1);
+  setSubLayers(layers, site) {
+    this.write(TS, layers, 1, site);
+  }
+  // Layer bits of the main screen that its window areas mask.
+  setMainWindowLayers(layers, site) {
+    this.write(TMW, layers, 1, site);
   }
   // Colour math: the source selection and the layers it applies to.
   setColourSelect(select) {
@@ -233,7 +255,137 @@ export class VideoPort {
     this.write(A1T0L + at, table & WORD_MASK, 2);
     this.write(A1B0 + at, table >>> WORD_BITS, 1);
   }
-  enableHdma(channels) {
-    this.write(HDMAEN, channels, 1);
+  enableHdma(channels, site) {
+    this.write(HDMAEN, channels, 1, site);
+  }
+
+  // 15 colours from a long CPU address to CGRAM from colour on, by DMA on channel 4
+  // (mode 0 to CGDATA from the channel setup). sites: source, bytes, colour, bank, start.
+  sendPalette(source, colour, sites) {
+    this.write(channelRegister(A1T0L, 4), source & WORD_MASK, 2, sites.source);
+    this.write(channelRegister(DAS0L, 4), PALETTE_COLOURS_BYTES, 2, sites.bytes);
+    this.write(CGADD, colour & BYTE_MASK, 1, sites.colour);
+    this.write(channelRegister(A1B0, 4), source >>> WORD_BITS, 1, sites.bank);
+    this.write(MDMAEN, channelBit(4), 1, sites.start);
+  }
+  // One colour by CGADD and two CGDATA bytes. sites: colour, low, high.
+  setColour(colour, value, sites) {
+    this.write(CGADD, colour, 1, sites.colour);
+    this.write(CGDATA, value & BYTE_MASK, 1, sites.low);
+    this.write(CGDATA, (value >>> BYTE_BITS) & BYTE_MASK, 1, sites.high);
+  }
+  // bytes of colours from a long CPU address to CGRAM from colour on, by DMA on
+  // channel 0 with its whole setup. sites: source, bytes, mode, colour, bank, start.
+  sendPaletteStep(source, bytes, colour, sites) {
+    this.write(A1T0L, source & WORD_MASK, 2, sites.source);
+    this.write(DAS0L, bytes, 2, sites.bytes);
+    this.write(DMAP0, ((CGDATA & BYTE_MASK) << BYTE_BITS) | DMAP_ONE_PORT, 2, sites.mode);
+    this.write(CGADD, colour, 1, sites.colour);
+    this.write(A1B0, source >>> WORD_BITS, 1, sites.bank);
+    this.write(MDMAEN, channelBit(0), 1, sites.start);
+  }
+  // bytes from a long CPU address to VRAM from a word address on, by DMA on channel 1
+  // (word mode to VMDATA from the channel setup). sites: source, bytes, address,
+  // increment, bank, start.
+  sendVramRecord(source, bytes, address, sites) {
+    this.write(channelRegister(A1T0L, 1), source & WORD_MASK, 2, sites.source);
+    this.write(channelRegister(DAS0L, 1), bytes, 2, sites.bytes);
+    this.write(VMADDL, address, 2, sites.address);
+    this.write(VMAINC, VMAINC_INCREMENT_AFTER_HIGH, 1, sites.increment);
+    this.write(channelRegister(A1B0, 1), source >>> WORD_BITS, 1, sites.bank);
+    this.write(MDMAEN, channelBit(1), 1, sites.start);
+  }
+  // The OAM from an OAM address word on (with its priority rotation bit): bytes from a
+  // WRAM address of bank 7E, by DMA on channel 2 (to OAMDATA from the channel setup).
+  // sites: source, bytes, address, start.
+  sendOamBuffer(source, bytes, oamAddress, sites) {
+    this.write(channelRegister(A1T0L, 2), source & WORD_MASK, 2, sites.source);
+    this.write(channelRegister(DAS0L, 2), bytes, 2, sites.bytes);
+    this.write(OAMADDL, oamAddress, 2, sites.address);
+    this.write(MDMAEN, channelBit(2), 1, sites.start);
+  }
+  // Channel 0 set up for a later VRAM transfer: bytes from a long CPU address to
+  // VMDATA in word mode. sites: bytes, source, bank, target, increment, mode.
+  setUpVramTransfer(source, bytes, sites) {
+    this.write(DAS0L, bytes, 2, sites.bytes);
+    this.write(A1T0L, source & WORD_MASK, 2, sites.source);
+    this.write(A1B0, source >>> WORD_BITS, 1, sites.bank);
+    this.write(BBAD0, VMDATAL & BYTE_MASK, 1, sites.target);
+    this.write(VMAINC, VMAINC_INCREMENT_AFTER_HIGH, 1, sites.increment);
+    this.write(DMAP0, DMAP_TWO_PORTS, 1, sites.mode);
+  }
+  // Start the VRAM transfer channel 0 holds (setUpVramTransfer) at a word address.
+  // sites: address, start.
+  startVramTransfer(address, sites) {
+    this.write(VMADDL, address, 2, sites.address);
+    this.write(MDMAEN, channelBit(0), 1, sites.start);
+  }
+  // A picture in two halves of bytes each, from a long CPU address to VRAM word 0 and
+  // the word address lower, by DMA on channel 0. sites: source, bank, target,
+  // increment, mode, upperAddress, upperBytes, upperStart, lowerAddress, lowerBytes,
+  // lowerStart.
+  sendSplitPicture(source, bytes, lower, sites) {
+    this.write(A1T0L, source & WORD_MASK, 2, sites.source);
+    this.write(A1B0, source >>> WORD_BITS, 1, sites.bank);
+    this.write(BBAD0, VMDATAL & BYTE_MASK, 1, sites.target);
+    this.write(VMAINC, VMAINC_INCREMENT_AFTER_HIGH, 1, sites.increment);
+    this.write(DMAP0, DMAP_TWO_PORTS, 1, sites.mode);
+    this.write(VMADDL, 0, 2, sites.upperAddress);
+    this.write(DAS0L, bytes, 2, sites.upperBytes);
+    this.write(MDMAEN, channelBit(0), 1, sites.upperStart);
+    this.write(VMADDL, lower, 2, sites.lowerAddress);
+    this.write(DAS0L, bytes, 2, sites.lowerBytes);
+    this.write(MDMAEN, channelBit(0), 1, sites.lowerStart);
+  }
+  // OAM entry 0: X, Y, character and attributes. sites: oamAddress, x, y, tile,
+  // attributes.
+  setFirstSprite(x, y, tile, attributes, sites) {
+    this.write(OAMADDL, 0, 2, sites.oamAddress);
+    this.write(OAMDATA, x, 1, sites.x);
+    this.write(OAMDATA, y, 1, sites.y);
+    this.write(OAMDATA, tile, 1, sites.tile);
+    this.write(OAMDATA, attributes, 1, sites.attributes);
+  }
+  // OAM entry 0 hidden: its X and the hidden Y only. sites: oamAddress, x, hidden.
+  hideFirstSprite(x, hiddenY, sites) {
+    this.write(OAMADDL, 0, 2, sites.oamAddress);
+    this.write(OAMDATA, x, 1, sites.x);
+    this.write(OAMDATA, hiddenY, 1, sites.hidden);
+  }
+  // bytes of the zero byte at a long CPU address to VRAM from a word address on, by
+  // DMA on channel 6 (fixed source, word mode to VMDATA, bank 81 from the font
+  // upload). sites: source, bytes, address, increment, start.
+  clearVramChunk(source, bytes, address, sites) {
+    this.write(channelRegister(A1T0L, 6), source & WORD_MASK, 2, sites.source);
+    this.write(channelRegister(DAS0L, 6), bytes, 2, sites.bytes);
+    this.write(VMADDL, address, 2, sites.address);
+    this.write(VMAINC, VMAINC_INCREMENT_AFTER_HIGH, 1, sites.increment);
+    this.write(MDMAEN, channelBit(6), 1, sites.start);
+  }
+  // bytes from a WRAM address of bank 7E to VRAM from a word address on, by DMA on
+  // channel 7 (word mode to VMDATA, bank 7E from the font upload). sites: source,
+  // bytes, address, increment, start.
+  copyWramToVram(source, bytes, address, sites) {
+    this.write(channelRegister(A1T0L, 7), source & WORD_MASK, 2, sites.source);
+    this.write(channelRegister(DAS0L, 7), bytes, 2, sites.bytes);
+    this.write(VMADDL, address, 2, sites.address);
+    this.write(VMAINC, VMAINC_INCREMENT_AFTER_HIGH, 1, sites.increment);
+    this.write(MDMAEN, channelBit(7), 1, sites.start);
+  }
+  // bytes read back from VRAM at a word address into a WRAM address of bank 7E, by
+  // DMA on channel 5 (from RDVRAM, bank 7E from the font upload), after the latching
+  // dummy read of RDVRAMH. sites: address, bytes, target, increment, latch, start.
+  readVramToWram(address, bytes, target, sites) {
+    this.write(VMADDL, address, 2, sites.address);
+    this.write(channelRegister(DAS0L, 5), bytes, 2, sites.bytes);
+    this.write(channelRegister(A1T0L, 5), target & WORD_MASK, 2, sites.target);
+    this.write(VMAINC, VMAINC_INCREMENT_AFTER_HIGH, 1, sites.increment);
+    this.read(RDVRAMH, 1, sites.latch);
+    this.write(MDMAEN, channelBit(5), 1, sites.start);
   }
 }
+
+// The video interface over a hardware port (src/system/hardware-port.mjs); a video
+// interface passes through. Register-level callers hand the NMI jobs a hardware port.
+export const videoOf = (port) =>
+  port instanceof VideoPort ? port : new VideoPort(port.write, port.read);

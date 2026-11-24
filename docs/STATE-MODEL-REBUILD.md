@@ -88,6 +88,11 @@ own commit after `npm run test:block` and the golden trace test. One shared
 
 ## Progress
 
+- 2026-11-24, phase 5, NMI picture jobs: the game NMI jobs state their transfers
+  through src/video/video-port.mjs and name no hardware register; the SNES back end
+  writes the same registers with the same sites. Block check 3414/3414 in 161
+  seconds, golden traces unchanged ([FRAME-DESCRIPTION.md](FRAME-DESCRIPTION.md)).
+
 - 2026-11-24, phase 5, frame description: src/video/frame-renderer.mjs draws a
   frame description without PPU registers; src/video/ppu-frame.mjs builds the
   description from the PPU model with every former source check. Block check

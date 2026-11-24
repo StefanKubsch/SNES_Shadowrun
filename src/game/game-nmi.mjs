@@ -5,12 +5,15 @@ import { readStateByte, writeStateByte } from '../state/objects.mjs';
 // compose both in proof/replay/game-nmi-jobs.mjs).
 //
 // The handler calls its jobs once per NMI with the direct page at 0 and the data bank
-// at 0, so the fields below 2000 lie in WRAM. Each job states its DMA transfers and
-// PPU writes through the hardware port, in the original order and with the original
-// instruction sites, so the PPU model sees the same writes. The handler restores the
+// at 0, so the fields below 2000 lie in WRAM. Each job states its transfers through
+// the video interface (src/video/video-port.mjs) with the original instruction sites;
+// its SNES back end makes the original writes in the original order, so the PPU model
+// sees the same writes. Register-level callers pass a hardware port, which the jobs
+// wrap in that interface. The handler restores the
 // interrupted registers afterwards, so the jobs leave no registers to their caller
 // except the 16-bit modes they came with.
 import { accessorPort } from '../system/hardware-port.mjs';
+import { videoOf } from '../video/video-port.mjs';
 import { sceneRuntime } from '../system/scene-runtime.mjs';
 import { uploadMapEdges } from './camera-scroll.mjs';
 import { readJoypad } from '../system/joypad.mjs';
@@ -65,64 +68,16 @@ import {
   VRAM_UPLOAD_BYTES,
   VRAM_UPLOAD_SOURCES,
 } from '../data/wram.mjs';
-import {
-  A1B0,
-  A1B1,
-  A1B4,
-  A1T0L,
-  A1T1L,
-  A1T2L,
-  A1T4L,
-  A1T5L,
-  A1T6L,
-  A1T7L,
-  BBAD0,
-  CGADD,
-  CGDATA,
-  DAS0L,
-  DAS1L,
-  DAS2L,
-  DAS4L,
-  DAS5L,
-  DAS6L,
-  DAS7L,
-  DMAP0,
-  DMAP1,
-  DMAP2,
-  DMAP4,
-  DMAP5,
-  DMAP6,
-  DMAP7,
-  HDMAEN,
-  INIDISP,
-  MDMAEN,
-  OAMADDL,
-  OAMDATA,
-  RDVRAMH,
-  TM,
-  TMW,
-  TS,
-  VMADDL,
-  VMAINC,
-  VMDATAL,
-} from '../constants/hardware-registers.mjs';
 import { CYCLE_TABLE } from '../data/palette-cycles.mjs';
 import {
-  DMAP_ONE_PORT,
-  DMAP_TWO_PORTS,
   INIDISP_BRIGHTNESS_MASK,
   INIDISP_FORCED_BLANK,
   MAX_BRIGHTNESS,
   OAM_BYTES,
   OAMADDH_PRIORITY_ROTATION,
   OAM_PRIORITY_3,
-  VMAINC_INCREMENT_AFTER_HIGH,
 } from '../constants/ppu.mjs';
 import { BYTE_BITS, BYTE_MASK, WORD_BITS, WORD_MASK, WORD_SIGN } from '../constants/bits.mjs';
-
-const DMA_CHANNEL_STRIDE = 0x10;
-// The MDMAEN bit of the DMA channel whose DMAPx register is given.
-const channel = (dmap) => 1 << ((dmap - DMAP0) / DMA_CHANNEL_STRIDE);
 
 // The data bank 0 reaches WRAM below 2000; the lists lie there in the game.
 const LOW_WRAM_END = 0x2000;
@@ -147,16 +102,14 @@ const SCENE_PALETTES = 0x8cf624,
   SCENE_PALETTE_SHIFT = 5,
   OBJECT_PALETTES = 0x8df1ba,
   PALETTE_SHIFT = 4,
-  PALETTE_COLOURS_BYTES = 0x1e,
   OBJ_FIRST_COLOUR = 0x81,
   // The list index (two bytes per entry) times 8 is the slot's first colour.
   LIST_TO_COLOUR_SHIFT = 3,
   // ASL into the carry: the bit that leaves a word or a byte.
   WORD_TOP = 15,
   BYTE_TOP = 7;
-// A palette cycle step comes from the cycle table's bank; CGDATA is the DMA's target.
-const CYCLE_BANK = CYCLE_TABLE >>> WORD_BITS,
-  CGDATA_PORT = CGDATA & BYTE_MASK;
+// A palette cycle step comes from the cycle table's bank.
+const CYCLE_BANK = CYCLE_TABLE & ~WORD_MASK;
 // The carry the original's last ASL leaves when it shifts a word (or a byte) by shift.
 const wordShiftCarry = (value, shift) => (value >>> (WORD_TOP - (shift - 1))) & 1,
   byteShiftCarry = (value, shift) => ((value & BYTE_MASK) >>> (BYTE_TOP - (shift - 1))) & 1;
@@ -165,15 +118,6 @@ const wordShiftCarry = (value, shift) => (value >>> (WORD_TOP - (shift - 1))) & 
 const paletteSource = (table, palette, shift) =>
   (table & ~WORD_MASK) |
   (((palette << shift) + (table & WORD_MASK) + wordShiftCarry(palette, shift)) & WORD_MASK);
-// One palette by DMA on channel 4: its source, the 15 colours, the first colour, the
-// bank and the start, at the sites of the original's writes.
-function sendPalette(port, source, colour, sites) {
-  port.write(A1T4L, source & WORD_MASK, 2, sites.source);
-  port.write(DAS4L, PALETTE_COLOURS_BYTES, 2, sites.bytes);
-  port.write(CGADD, colour & BYTE_MASK, 1, sites.colour);
-  port.write(A1B4, source >>> WORD_BITS, 1, sites.bank);
-  port.write(MDMAEN, channel(DMAP4), 1, sites.start);
-}
 const SCENE_PALETTE_SITES = Object.freeze({
   source: 0x8099b1,
   bytes: 0x8099b7,
@@ -212,13 +156,13 @@ const VRAM_RECORD_SITES = Object.freeze({
 // bit 5 of the list index (0 for the game's lists).
 export function uploadObjectPalettes(wram, port) {
   if (!word(wram, NMI_JOB_LISTS)) return;
+  const video = videoOf(port);
   const bytes = word(wram, PALETTE_UPLOAD_LIST_BYTES);
   if (!bytes) return;
   let y = (bytes - 2) & WORD_MASK;
   do {
     const palette = listWord(wram, PALETTE_UPLOAD_LIST, y);
-    sendPalette(
-      port,
+    video.sendPalette(
       paletteSource(OBJECT_PALETTES, palette, PALETTE_SHIFT),
       (y << LIST_TO_COLOUR_SHIFT) + OBJ_FIRST_COLOUR + byteShiftCarry(y, LIST_TO_COLOUR_SHIFT),
       OBJECT_PALETTE_SITES,
@@ -234,22 +178,20 @@ export function uploadObjectPalettes(wram, port) {
 // first colour is the list index times 8 plus 1.
 export function uploadScenePalettes(wram, port) {
   if (!word(wram, SCENE_PALETTE_UPLOAD)) return;
+  const video = videoOf(port);
   const count = word(wram, SCENE_PALETTE_COUNT);
   if (!count) return;
   let y = (count << 1) & WORD_MASK;
   do {
     const palette = listWord(wram, SCENE_PALETTE_LIST, y);
-    sendPalette(
-      port,
+    video.sendPalette(
       paletteSource(SCENE_PALETTES, palette, SCENE_PALETTE_SHIFT),
       (y << LIST_TO_COLOUR_SHIFT) + 1,
       SCENE_PALETTE_SITES,
     );
     y = (y - 2) & WORD_MASK;
   } while (y);
-  port.write(CGADD, 0, 1, BACKDROP_SITES.colour);
-  port.write(CGDATA, readStateByte(wram, SCENE_BACKDROP), 1, BACKDROP_SITES.low);
-  port.write(CGDATA, readStateByte(wram, SCENE_BACKDROP + 1), 1, BACKDROP_SITES.high);
+  video.setColour(0, word(wram, SCENE_BACKDROP), BACKDROP_SITES);
   setWord(wram, SCENE_PALETTE_UPLOAD, 0);
 }
 
@@ -260,13 +202,13 @@ export function uploadScenePalettes(wram, port) {
 export function uploadPaletteCycleStep(wram, port) {
   const pointer = word(wram, PALETTE_REQUEST_POINTER);
   if (!pointer) return false;
-  port.write(A1T0L, pointer, 2, CYCLE_SITES.source);
   const slot = word(wram, PALETTE_REQUEST_SLOT);
-  port.write(DAS0L, word(wram, PALETTE_BYTES), 2, CYCLE_SITES.bytes);
-  port.write(DMAP0, (CGDATA_PORT << BYTE_BITS) | DMAP_ONE_PORT, 2, CYCLE_SITES.mode);
-  port.write(CGADD, listByte(wram, PALETTE_DIRECTION, slot), 1, CYCLE_SITES.colour);
-  port.write(A1B0, CYCLE_BANK, 1, CYCLE_SITES.bank);
-  port.write(MDMAEN, channel(DMAP0), 1, CYCLE_SITES.start);
+  videoOf(port).sendPaletteStep(
+    CYCLE_BANK | pointer,
+    word(wram, PALETTE_BYTES),
+    listByte(wram, PALETTE_DIRECTION, slot),
+    CYCLE_SITES,
+  );
   setWord(wram, PALETTE_REQUEST_POINTER, 0);
   return true;
 }
@@ -278,13 +220,14 @@ export function uploadVramRecords(wram, port) {
   if (!word(wram, NMI_JOB_LISTS)) return;
   let x = word(wram, DP_VRAM_UPLOAD_INDEX);
   if (x & WORD_SIGN) return;
+  const video = videoOf(port);
   do {
-    port.write(A1T1L, listWord(wram, VRAM_UPLOAD_SOURCES, x), 2, VRAM_RECORD_SITES.source);
-    port.write(DAS1L, VRAM_UPLOAD_BYTES, 2, VRAM_RECORD_SITES.bytes);
-    port.write(VMADDL, listWord(wram, VRAM_UPLOAD_ADDRESSES, x), 2, VRAM_RECORD_SITES.address);
-    port.write(VMAINC, VMAINC_INCREMENT_AFTER_HIGH, 1, VRAM_RECORD_SITES.increment);
-    port.write(A1B1, listByte(wram, VRAM_UPLOAD_BANKS, x), 1, VRAM_RECORD_SITES.bank);
-    port.write(MDMAEN, channel(DMAP1), 1, VRAM_RECORD_SITES.start);
+    video.sendVramRecord(
+      (listByte(wram, VRAM_UPLOAD_BANKS, x) << WORD_BITS) | listWord(wram, VRAM_UPLOAD_SOURCES, x),
+      VRAM_UPLOAD_BYTES,
+      listWord(wram, VRAM_UPLOAD_ADDRESSES, x),
+      VRAM_RECORD_SITES,
+    );
     x = (x - 2) & WORD_MASK;
   } while (!(x & WORD_SIGN));
   setWord(wram, DP_VRAM_UPLOAD_INDEX, x);
@@ -293,15 +236,14 @@ export function uploadVramRecords(wram, port) {
 // The portrait's colours follow 3 bytes after its pointer; a sent request is negative.
 const PORTRAIT_COLOURS_OFFSET = 3,
   REQUEST_SENT = WORD_MASK;
-const PORTRAIT_SITES = Object.freeze({
-  address: 0x808fbf,
-  start: 0x808fc6,
-  source: 0x808fd1,
-  bytes: 0x808fd7,
-  colour: 0x808fdf,
-  bank: 0x808fe4,
-  colourStart: 0x808fe9,
-});
+const PORTRAIT_SITES = Object.freeze({ address: 0x808fbf, start: 0x808fc6 }),
+  PORTRAIT_COLOUR_SITES = Object.freeze({
+    source: 0x808fd1,
+    bytes: 0x808fd7,
+    colour: 0x808fdf,
+    bank: 0x808fe4,
+    start: 0x808fe9,
+  });
 // The glove pictures (bank 8D), one per glove kind, sent as two halves to the OBJ
 // characters 0 and 0x10 (VRAM words 0 and 100); the glove is OAM entry 0, hidden at
 // Y F0 without a glove.
@@ -337,18 +279,14 @@ const GLOVE_SITES = Object.freeze({
 export function uploadPortraitGraphics(wram, port) {
   const request = word(wram, PORTRAIT_DMA_REQUEST);
   if (request & WORD_SIGN) return;
-  port.write(VMADDL, request, 2, PORTRAIT_SITES.address);
-  port.write(MDMAEN, channel(DMAP0), 1, PORTRAIT_SITES.start);
-  port.write(
-    A1T4L,
-    (word(wram, DP_PORTRAIT_POINTER) + PORTRAIT_COLOURS_OFFSET) & WORD_MASK,
-    2,
-    PORTRAIT_SITES.source,
+  const video = videoOf(port);
+  video.startVramTransfer(request, PORTRAIT_SITES);
+  video.sendPalette(
+    (readStateByte(wram, DP_PORTRAIT_BANK) << WORD_BITS) |
+      ((word(wram, DP_PORTRAIT_POINTER) + PORTRAIT_COLOURS_OFFSET) & WORD_MASK),
+    readStateByte(wram, PORTRAIT_PALETTE_START),
+    PORTRAIT_COLOUR_SITES,
   );
-  port.write(DAS4L, PALETTE_COLOURS_BYTES, 2, PORTRAIT_SITES.bytes);
-  port.write(CGADD, readStateByte(wram, PORTRAIT_PALETTE_START), 1, PORTRAIT_SITES.colour);
-  port.write(A1B4, readStateByte(wram, DP_PORTRAIT_BANK), 1, PORTRAIT_SITES.bank);
-  port.write(MDMAEN, channel(DMAP4), 1, PORTRAIT_SITES.colourStart);
   setWord(wram, PORTRAIT_DMA_REQUEST, REQUEST_SENT);
 }
 
@@ -356,7 +294,8 @@ export function uploadPortraitGraphics(wram, port) {
 // glove) by DMA on channel 0, then the glove as OAM entry 0: its X, and its Y, tile 0
 // and priority 3, or the hidden Y without a glove.
 export function uploadGlove(wram, port) {
-  const kind = word(wram, GLOVE_LIMIT_KIND);
+  const video = videoOf(port),
+    kind = word(wram, GLOVE_LIMIT_KIND);
   if (kind) {
     const picture =
       kind === GLOVE_KIND_CROSSHAIR
@@ -364,28 +303,12 @@ export function uploadGlove(wram, port) {
         : kind === GLOVE_KIND_SPELL
           ? GLOVE_SPELL_PICTURE
           : GLOVE_ACTION_PICTURE;
-    port.write(A1T0L, picture & WORD_MASK, 2, GLOVE_SITES.source);
-    port.write(A1B0, picture >>> WORD_BITS, 1, GLOVE_SITES.bank);
-    port.write(BBAD0, VMDATAL & BYTE_MASK, 1, GLOVE_SITES.target);
-    port.write(VMAINC, VMAINC_INCREMENT_AFTER_HIGH, 1, GLOVE_SITES.increment);
-    port.write(DMAP0, DMAP_TWO_PORTS, 1, GLOVE_SITES.mode);
-    port.write(VMADDL, 0, 2, GLOVE_SITES.upperAddress);
-    port.write(DAS0L, GLOVE_HALF_BYTES, 2, GLOVE_SITES.upperBytes);
-    port.write(MDMAEN, channel(DMAP0), 1, GLOVE_SITES.upperStart);
-    port.write(VMADDL, GLOVE_LOWER_VRAM, 2, GLOVE_SITES.lowerAddress);
-    port.write(DAS0L, GLOVE_HALF_BYTES, 2, GLOVE_SITES.lowerBytes);
-    port.write(MDMAEN, channel(DMAP0), 1, GLOVE_SITES.lowerStart);
+    video.sendSplitPicture(picture, GLOVE_HALF_BYTES, GLOVE_LOWER_VRAM, GLOVE_SITES);
     setWord(wram, GLOVE_LIMIT_KIND, 0);
   }
-  port.write(OAMADDL, 0, 2, GLOVE_SITES.oamAddress);
-  port.write(OAMDATA, readStateByte(wram, GLOVE_SCREEN_X), 1, GLOVE_SITES.x);
-  if (!word(wram, GLOVE_KIND)) {
-    port.write(OAMDATA, HIDDEN_Y, 1, GLOVE_SITES.hidden);
-    return;
-  }
-  port.write(OAMDATA, readStateByte(wram, GLOVE_SCREEN_Y), 1, GLOVE_SITES.y);
-  port.write(OAMDATA, 0, 1, GLOVE_SITES.tile);
-  port.write(OAMDATA, OAM_PRIORITY_3, 1, GLOVE_SITES.attributes);
+  const x = readStateByte(wram, GLOVE_SCREEN_X);
+  if (!word(wram, GLOVE_KIND)) video.hideFirstSprite(x, HIDDEN_Y, GLOVE_SITES);
+  else video.setFirstSprite(x, readStateByte(wram, GLOVE_SCREEN_Y), 0, OAM_PRIORITY_3, GLOVE_SITES);
 }
 
 // The text tiles: cleared from the zero byte at 81:AC8C in chunks of 1400 bytes by DMA
@@ -399,27 +322,35 @@ const TEXT_CLEAR_SOURCE = 0x81ac8c,
   BG3_MAP_VRAM = 0x7800,
   TEXT_READBACK_BYTES = 0x10;
 const TEXT_SITES = Object.freeze({
-  clearSource: 0x81a9e9,
-  clearBytes: 0x81aa02,
-  clearAddress: 0x81aa08,
-  clearIncrement: 0x81aa16,
-  clearStart: 0x81aa1b,
-  mapSource: 0x81aa28,
-  mapBytes: 0x81aa2e,
-  mapAddress: 0x81aa34,
-  mapIncrement: 0x81aa3b,
-  mapStart: 0x81aa40,
-  bufferSource: 0x81aa50,
-  bufferBytes: 0x81aa56,
-  bufferAddress: 0x81aa5c,
-  bufferIncrement: 0x81aa63,
-  bufferStart: 0x81aa68,
-  readAddress: 0x81aa78,
-  readBytes: 0x81aa7e,
-  readTarget: 0x81aa84,
-  readIncrement: 0x81aa8b,
-  readLatch: 0x81aa8e,
-  readStart: 0x81aa93,
+  clear: Object.freeze({
+    source: 0x81a9e9,
+    bytes: 0x81aa02,
+    address: 0x81aa08,
+    increment: 0x81aa16,
+    start: 0x81aa1b,
+  }),
+  map: Object.freeze({
+    source: 0x81aa28,
+    bytes: 0x81aa2e,
+    address: 0x81aa34,
+    increment: 0x81aa3b,
+    start: 0x81aa40,
+  }),
+  buffer: Object.freeze({
+    source: 0x81aa50,
+    bytes: 0x81aa56,
+    address: 0x81aa5c,
+    increment: 0x81aa63,
+    start: 0x81aa68,
+  }),
+  read: Object.freeze({
+    address: 0x81aa78,
+    bytes: 0x81aa7e,
+    target: 0x81aa84,
+    increment: 0x81aa8b,
+    latch: 0x81aa8e,
+    start: 0x81aa93,
+  }),
 });
 
 // 81:8949: unless the map upload is held, with open NMI job lists the marked map edges
@@ -434,59 +365,59 @@ export function uploadReadyMapEdges(wram, video) {
 // mask and its read back (after the latching dummy read of VMDATAH) are sent whole.
 // Each request is cleared when it is done.
 export function clearTextTiles(wram, port) {
+  const video = videoOf(port);
   if (word(wram, TEXT_TILE_UPLOAD)) {
-    port.write(A1T6L, TEXT_CLEAR_SOURCE & WORD_MASK, 2, TEXT_SITES.clearSource);
     let bytes = word(wram, TEXT_TILE_UPLOAD_BYTES);
     if (bytes > TEXT_TILE_CHUNK) {
       setWord(wram, TEXT_TILE_UPLOAD_BYTES, bytes - TEXT_TILE_CHUNK);
       bytes = TEXT_TILE_CHUNK;
     } else setWord(wram, TEXT_TILE_UPLOAD, 0);
-    port.write(DAS6L, bytes, 2, TEXT_SITES.clearBytes);
     const address = word(wram, TEXT_TILE_UPLOAD_ADDRESS);
-    port.write(VMADDL, address, 2, TEXT_SITES.clearAddress);
     setWord(wram, TEXT_TILE_UPLOAD_ADDRESS, address + TEXT_TILE_CHUNK / VRAM_WORD_BYTES);
-    port.write(VMAINC, VMAINC_INCREMENT_AFTER_HIGH, 1, TEXT_SITES.clearIncrement);
-    port.write(MDMAEN, channel(DMAP6), 1, TEXT_SITES.clearStart);
+    video.clearVramChunk(TEXT_CLEAR_SOURCE, bytes, address, TEXT_SITES.clear);
   }
   if (word(wram, TEXT_MAP_UPLOAD)) {
-    port.write(A1T7L, WINDOW_MAP_BUFFER, 2, TEXT_SITES.mapSource);
-    port.write(DAS7L, WINDOW_MAP_BYTES, 2, TEXT_SITES.mapBytes);
-    port.write(VMADDL, BG3_MAP_VRAM, 2, TEXT_SITES.mapAddress);
-    port.write(VMAINC, VMAINC_INCREMENT_AFTER_HIGH, 1, TEXT_SITES.mapIncrement);
-    port.write(MDMAEN, channel(DMAP7), 1, TEXT_SITES.mapStart);
+    video.copyWramToVram(WINDOW_MAP_BUFFER, WINDOW_MAP_BYTES, BG3_MAP_VRAM, TEXT_SITES.map);
     setWord(wram, TEXT_MAP_UPLOAD, 0);
   }
   if (word(wram, TEXT_BUFFER_UPLOAD)) {
-    port.write(A1T7L, TEXT_MASK_BUFFER, 2, TEXT_SITES.bufferSource);
-    port.write(DAS7L, word(wram, TEXT_BUFFER_BYTES), 2, TEXT_SITES.bufferBytes);
-    port.write(VMADDL, word(wram, TEXT_BUFFER_VRAM_ADDRESS), 2, TEXT_SITES.bufferAddress);
-    port.write(VMAINC, VMAINC_INCREMENT_AFTER_HIGH, 1, TEXT_SITES.bufferIncrement);
-    port.write(MDMAEN, channel(DMAP7), 1, TEXT_SITES.bufferStart);
+    video.copyWramToVram(
+      TEXT_MASK_BUFFER,
+      word(wram, TEXT_BUFFER_BYTES),
+      word(wram, TEXT_BUFFER_VRAM_ADDRESS),
+      TEXT_SITES.buffer,
+    );
     setWord(wram, TEXT_BUFFER_UPLOAD, 0);
   }
   if (word(wram, TEXT_BUFFER_READBACK)) {
-    port.write(VMADDL, word(wram, TEXT_BUFFER_VRAM_ADDRESS), 2, TEXT_SITES.readAddress);
-    port.write(DAS5L, TEXT_READBACK_BYTES, 2, TEXT_SITES.readBytes);
-    port.write(A1T5L, TEXT_MASK_BUFFER, 2, TEXT_SITES.readTarget);
-    port.write(VMAINC, VMAINC_INCREMENT_AFTER_HIGH, 1, TEXT_SITES.readIncrement);
-    port.read(RDVRAMH, 1, TEXT_SITES.readLatch);
-    port.write(MDMAEN, channel(DMAP5), 1, TEXT_SITES.readStart);
+    video.readVramToWram(
+      word(wram, TEXT_BUFFER_VRAM_ADDRESS),
+      TEXT_READBACK_BYTES,
+      TEXT_MASK_BUFFER,
+      TEXT_SITES.read,
+    );
     setWord(wram, TEXT_BUFFER_READBACK, 0);
   }
 }
 
 // Original instructions of the OAM transfer's writes.
-const OAM_SITES = Object.freeze({ source: 0x81a996, bytes: 0x81a99c, address: 0x81a9a2 }),
-  OAM_START_SITE = 0x81a9a9;
+const OAM_SITES = Object.freeze({
+  source: 0x81a996,
+  bytes: 0x81a99c,
+  address: 0x81a9a2,
+  start: 0x81a9a9,
+});
 
 // 81:A98E: with open NMI job lists, the OAM buffer to the OAM by DMA on channel 2 (from
 // OAM address 0 with the priority rotation bit); the job lists are then closed.
 export function uploadOam(wram, port) {
   if (!word(wram, NMI_JOB_LISTS)) return;
-  port.write(A1T2L, OAM_BUFFER, 2, OAM_SITES.source);
-  port.write(DAS2L, OAM_BYTES, 2, OAM_SITES.bytes);
-  port.write(OAMADDL, OAMADDH_PRIORITY_ROTATION << BYTE_BITS, 2, OAM_SITES.address);
-  port.write(MDMAEN, channel(DMAP2), 1, OAM_START_SITE);
+  videoOf(port).sendOamBuffer(
+    OAM_BUFFER,
+    OAM_BYTES,
+    OAMADDH_PRIORITY_ROTATION << BYTE_BITS,
+    OAM_SITES,
+  );
   setWord(wram, NMI_JOB_LISTS, 0);
 }
 
@@ -513,11 +444,11 @@ export function stepBrightnessFade(wram) {
 
 // The handler's screen shadows, copied to their registers after the jobs.
 const SCREEN_SHADOWS = Object.freeze([
-  [INIDISP_SHADOW, INIDISP, 0x80c188],
-  [TM_SHADOW, TM, 0x80c18e],
-  [TS_SHADOW, TS, 0x80c194],
-  [TMW_SHADOW, TMW, 0x80c19a],
-  [HDMAEN_SHADOW, HDMAEN, 0x80c1a0],
+  [INIDISP_SHADOW, 'setDisplay', 0x80c188],
+  [TM_SHADOW, 'setMainLayers', 0x80c18e],
+  [TS_SHADOW, 'setSubLayers', 0x80c194],
+  [TMW_SHADOW, 'setMainWindowLayers', 0x80c19a],
+  [HDMAEN_SHADOW, 'enableHdma', 0x80c1a0],
 ]);
 const BLANK_SITE = 0x80c156;
 
@@ -533,30 +464,31 @@ export function handleGameNmi(h) {
 
 // Frame jobs return directly; the compatibility entry above owns the original RTL.
 export function updateGameFrame(h) {
-  const { video } = sceneRuntime(h),
+  const scene = sceneRuntime(h).video,
     wram = h.a.mem.wram,
-    port = accessorPort(h.a);
-  port.write(INIDISP, INIDISP_FORCED_BLANK, 1, BLANK_SITE);
-  uploadReadyMapEdges(wram, video);
-  clearTextTiles(wram, port);
-  uploadScenePalettes(wram, port);
-  const cycled = uploadPaletteCycleStep(wram, port);
-  uploadObjectPalettes(wram, port);
-  uploadVramRecords(wram, port);
-  uploadOam(wram, port);
+    port = accessorPort(h.a),
+    video = videoOf(port);
+  video.setDisplay(INIDISP_FORCED_BLANK, BLANK_SITE);
+  uploadReadyMapEdges(wram, scene);
+  clearTextTiles(wram, video);
+  uploadScenePalettes(wram, video);
+  const cycled = uploadPaletteCycleStep(wram, video);
+  uploadObjectPalettes(wram, video);
+  uploadVramRecords(wram, video);
+  uploadOam(wram, video);
   // Correction: the portrait job 80:8FBA starts channel 0 as the portrait code set it up
   // before the NMI, but a palette cycle step in the same NMI has replaced that setup. The
   // original code then starts a 64 KiB transfer (count 0) from the cycle table's bank to
   // CGDATA, through the I/O area 8B:2000-5FFF, and the portrait never reaches VRAM; the
   // port restores the portrait's channel setup first (docs/BUGFIXES.md, "Portrait upload
   // after a palette cycle step").
-  if (cycled && !(word(wram, PORTRAIT_DMA_REQUEST) & WORD_SIGN)) writePortraitTileChannel(port);
-  uploadPortraitGraphics(wram, port);
+  if (cycled && !(word(wram, PORTRAIT_DMA_REQUEST) & WORD_SIGN)) writePortraitTileChannel(video);
+  uploadPortraitGraphics(wram, video);
   setWord(wram, PAD_HELD, readJoypad(port));
-  uploadGlove(wram, port);
+  uploadGlove(wram, video);
   stepBrightnessFade(wram);
-  for (const [shadow, register, site] of SCREEN_SHADOWS)
-    port.write(register, readStateByte(wram, shadow), 1, site);
+  for (const [shadow, method, site] of SCREEN_SHADOWS)
+    video[method](readStateByte(wram, shadow), site);
 }
 
 // 80:D9AD with 81:B0AC (the script native's JSL): start a brightness fade by n steps (n
