@@ -44,6 +44,11 @@ power-on through title, menu and new game to NMI 4200 proves at run time that li
 play installs and needs no compatibility entry. The golden traces load proof modules
 and therefore run with the entries installed; they prove unchanged behaviour.
 
+User decision 2026-11-24: tools/production-boundary.test.mjs, which otherwise
+requires every src module to be loaded by the game (decision of 2026-11-01), lists
+these four modules as the only permitted exception and also requires that the game
+does not load them.
+
 ## Remaining limits
 
 - The register modules stay in src/ as long as frozen proof modules import them.

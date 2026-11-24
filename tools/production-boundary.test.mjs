@@ -12,6 +12,16 @@ const entries = [
   'src/browser/game-worker.mjs',
   'src/browser/audio-worklet.mjs',
 ];
+// User decision 2026-11-24: the register compatibility modules stay in src/ although
+// the game no longer loads them, because frozen proof modules import them by these
+// paths (docs/REGISTER-COMPAT-BOUNDARY.md). They leave src only together with those
+// proof modules. No other module may be unreached.
+const REGISTER_COMPAT_MODULES = [
+  'src/system/main-wait-interrupt.mjs',
+  'src/system/native-call-continuation.mjs',
+  'src/system/native-dialog-support.mjs',
+  'src/system/nmi-call.mjs',
+];
 const importPattern =
   /(?:(?:import|export)\s[^'";]*?from\s*|import\s*\(\s*|import\s+|new URL\(\s*)(['"])(\.{1,2}\/[^'"]+)\1/g;
 const local = (path) => relative(process.cwd(), path).split('\\').join('/');
@@ -47,7 +57,13 @@ test('every src module is loaded by the game and none imports proof code', () =>
   assert.deepEqual(proofImports, [], 'game modules must not import proof/');
   assert.deepEqual(missing, [], 'game imports resolve');
   const unreached = modules('src').filter((file) => !reached.has(file));
-  assert.deepEqual(unreached, [], 'modules the game never loads belong in proof/');
+  assert.deepEqual(
+    unreached.filter((file) => !REGISTER_COMPAT_MODULES.includes(file)),
+    [],
+    'modules the game never loads belong in proof/',
+  );
+  for (const file of REGISTER_COMPAT_MODULES)
+    assert.ok(!reached.has(file), `${file} must stay outside the game graph`);
 });
 
 test('atomic task plan APIs belong in proof modules', () => {
