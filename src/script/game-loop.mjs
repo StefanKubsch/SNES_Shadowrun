@@ -31,9 +31,11 @@ import { mainStartupSequence } from '../system/main-startup.mjs';
 import { gameOwnerSequence, GAME_OWNER_RESUME } from '../frontend/game-owner.mjs';
 import { gameStartSequence } from '../game/game-start.mjs';
 import { update, endOfFrame } from '../game/frame-loop.mjs';
-import { CODE_BANK_BASE } from '../constants/memory-map.mjs';
+import { CODE_BANK, CODE_BANK_BASE } from '../constants/memory-map.mjs';
 
-// The power-on registers (as after reset: E=1, P=34, S=01FF) at the reset entry 00:E382.
+// The power-on registers (as after reset: E=1, P=34, S=01FF) at the reset entry 00:E382:
+// the seed of recorded callers that run the register-level reset on this accessor.
+// Live play never reads or writes the accessor's CPU context.
 const RESET_CONTEXT = Object.freeze({
   e: 1,
   programBank: 0,
@@ -48,7 +50,7 @@ const RESET_CONTEXT = Object.freeze({
 });
 // The registers the reset leaves at the startup 80:A133 (E=0, 16-bit A/X/Y, S=013F,
 // D=0, data bank 80, P = I and C). The reset service takes no context; this is the
-// compatibility workspace of register-level owners and natives that still borrow it.
+// compatibility workspace of injected recorded loops without frame jobs.
 export const STARTUP_CONTEXT = Object.freeze({
   e: 0,
   programBank: 0x80,
@@ -181,14 +183,17 @@ export class GameLoop {
     const a = this.accessor,
       routines = this.routines;
     let events = this.interval(CODE_BANK_BASE | RESET_CONTEXT.pc);
-    yield () => {
-      resetHardware(accessorPort(a), a.mem);
-      Object.assign(a.ctx, STARTUP_CONTEXT);
-    };
-    // Live play takes game services only; injected recorded loops without frame
-    // jobs keep the compatibility context (docs/LIVE-LOOP-SERVICES.md).
+    // Live play takes game services only and never touches the accessor's CPU
+    // context: game code reads the data bank 80 as a value. Injected recorded loops
+    // without frame jobs keep the context the reset leaves
+    // (docs/LIVE-LOOP-SERVICES.md).
     const live = Boolean(events.frameJobs),
       services = () => (live ? this.services : dialogAccess(a));
+    yield () => {
+      resetHardware(accessorPort(a), a.mem);
+      if (live) a.dataBank = CODE_BANK;
+      else Object.assign(a.ctx, STARTUP_CONTEXT);
+    };
     yield* mainStartupSequence(services(), events);
     let showTitle = true;
     for (;;) {

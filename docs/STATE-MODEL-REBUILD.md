@@ -88,6 +88,14 @@ own commit after `npm run test:block` and the golden trace test. One shared
 
 ## Progress
 
+- 2026-11-24, phase 4, live accessor: the live GameLoop never reads or writes
+  its accessor's CPU context; live play reads data bank 80 as a value, which
+  object creation during room entry needed. Only injected recorded loops receive
+  `STARTUP_CONTEXT`. Contract: [LIVE-LOOP-SERVICES.md](LIVE-LOOP-SERVICES.md).
+- The live-loop contracts now poison every context register from construction
+  on; all five golden traces passed with that poisoning during development.
+  Block check: 408/408 in 358 seconds; edited-file ESLint and format passed.
+
 - 2026-11-24, phase 4, live loop services: the live GameLoop passes one frozen
   `{ a }` service object to startup, owner, game start and the main loop phases;
   the game start returns no PC in live play. Recorded callers keep the 80:96AB

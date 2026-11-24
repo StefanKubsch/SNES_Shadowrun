@@ -1,11 +1,10 @@
 // Live play passes game services only (docs/LIVE-LOOP-SERVICES.md): from the reset
 // through the boot screens, title, menu and game start into the main loop, no phase
-// reads the caller beyond its game services or writes the CPU context.
+// reads the caller beyond its game services or touches the accessor's CPU context.
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { LiveGame } from '../src/video/live-game.mjs';
 import { cartridge } from './cartridge-harness.mjs';
-import { STARTUP_CONTEXT } from '../src/script/game-loop.mjs';
 import { MAIN_LOOP_EXIT } from '../src/data/wram.mjs';
 
 // The benchmark route's opening: Start on the title and in the menu (a new game),
@@ -28,10 +27,15 @@ for (const budget of [1, 7])
           key === 'a' ? target.a : assert.fail(`live play read h.${String(key)}`),
       },
     );
-    // The first step runs the reset service; then the context stays frozen.
-    game.step({ budget: 1 });
-    assert.deepEqual({ ...a.ctx }, STARTUP_CONTEXT);
-    Object.freeze(a.ctx);
+    // Every register of the accessor's context fails on any read or write, also
+    // through the accessor's own helpers, which share the same object.
+    for (const key of Object.keys(a.ctx))
+      Object.defineProperty(a.ctx, key, {
+        get: () => assert.fail(`live play read the CPU register ${key}`),
+        set: () => {
+          assert.fail(`live play wrote the CPU register ${key}`);
+        },
+      });
     let steps = 0;
     while (game.nmis < GAME_NMIS) {
       game.step({ budget });
@@ -40,5 +44,4 @@ for (const budget of [1, 7])
     assert.ok(loop.ownsGame, 'the game started');
     assert.ok(loop.rounds > 0, 'main loop rounds ran');
     assert.equal(game.memory.read16(0x7e0000 + MAIN_LOOP_EXIT), 0);
-    assert.deepEqual({ ...a.ctx }, STARTUP_CONTEXT, 'live play left the CPU context alone');
   });

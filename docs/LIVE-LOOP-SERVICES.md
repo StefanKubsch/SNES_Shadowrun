@@ -13,13 +13,20 @@ which the frozen register-level main start and game-screen comparisons check.
 Injected recorded loops without frame jobs keep the dialog access with its
 compatibility context.
 
+The live accessor carries no CPU workspace either. After the reset service, live
+play reads the data bank 80 as a value (`a.dataBank`, through `dataBankOf` in
+src/system/data-bank.mjs), as waiting native services already do; object creation
+during room entry was the last live reader of the context's data bank. Only
+injected recorded loops without frame jobs receive `STARTUP_CONTEXT`. The
+power-on context the constructor writes remains the seed for recorded callers
+that run the register-level reset on this accessor.
+
 Contract (tools/live-loop-services.test.mjs): a live game runs from power-on
 through the boot screens, title and start menu into a new game and its main loop
 up to NMI 4200, at budgets one and seven. Every access to the services beyond
-`h.a` fails, and the CPU context is frozen after the reset service; it still
-equals `STARTUP_CONTEXT` at the end. All five golden traces also passed with this
-guard in place during the block's development.
+`h.a` fails, and every register of the accessor's CPU context fails on any read
+or write from construction on. All five golden traces passed with the same
+poisoned context during the block's development.
 
-The accessor still owns a CPU context object for recorded callers and the
-`STARTUP_CONTEXT` workspace; removing those from live play is the outer
-accessor step.
+Recorded comparisons, the numeric scheduler entry API and register-level native
+accessors keep their compatibility contexts.
