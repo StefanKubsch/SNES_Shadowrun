@@ -13,11 +13,14 @@ import { TITLE_CYCLE_PLANS } from './live-title-cycle-plan.mjs';
 import { dialogAccess } from '../src/system/native-dialog-support.mjs';
 import { NativeCallContinuation } from '../src/system/native-call-continuation.mjs';
 import { WAIT_RETURNED } from '../src/system/native-wait-continuation.mjs';
-import { resetWithEntryContext, startupWithEntryContext } from './startup-entry-adapter.mjs';
+import {
+  resetWithEntryContext,
+  startupWithEntryContext,
+  gameStartWithEntryContext,
+} from './startup-entry-adapter.mjs';
 import { gameOwnerSequence, GAME_OWNER_RESUME } from './owner-entry-adapter.mjs';
 import { gameOwnerSequence as dispatchedOwner } from '../proof/frontend-caller/game-owner.mjs';
 import { FRONTEND_ROUTINES as dispatchedRoutines } from '../proof/script/live-frontend.mjs';
-import { mainStartContinuation } from '../proof/system/main-start.mjs';
 import { mainStartContinuation as dispatchedStart } from '../proof/caller/main-start.mjs';
 import { MainLoopContinuation as DispatchedLoop } from '../proof/caller/main-loop.mjs';
 import { MainLoopContinuation, MAIN_LOOP_ROUND } from './main-frame-adapter.mjs';
@@ -100,9 +103,7 @@ function* session(game, owner, routines, boundary, resume, side, request) {
   yield () => boundary('first owner');
   yield {
     continuation:
-      side === 0
-        ? dispatchedStart(a, events, routines)
-        : mainStartContinuation(a, events, routines),
+      side === 0 ? dispatchedStart(a, events, routines) : gameStartWithEntryContext(a, events),
   };
   yield () => boundary('game start');
   yield {

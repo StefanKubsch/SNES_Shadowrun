@@ -88,6 +88,15 @@ own commit after `npm run test:block` and the golden trace test. One shared
 
 ## Progress
 
+- 2026-11-24, phase 4, live loop services: the live GameLoop passes one frozen
+  `{ a }` service object to startup, owner, game start and the main loop phases;
+  the game start returns no PC in live play. Recorded callers keep the 80:96AB
+  end; tools/startup-entry-adapter.mjs supplies it for the owner comparison.
+  Contract: [LIVE-LOOP-SERVICES.md](LIVE-LOOP-SERVICES.md).
+- Two contracts run power-on to NMI 4200 of a new game with only `h.a` reachable
+  and the CPU context frozen. All five golden traces passed with that guard.
+  Block check: 3675/3675 in 420 seconds; edited-file ESLint and format passed.
+
 - 2026-11-24, phase 4, frontend services: title, start menu, title cycle,
   attract game, intro, ordinary cutscenes and the game owner take game services
   only with frame jobs. Polling branches build their condition bits with

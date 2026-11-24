@@ -195,8 +195,9 @@ export function* gameStartSequence(h, events, choice = word(h.a.mem.wram, CHOICE
 
 // 80:9699: the game screen, the room and the fixed colour; the main loop's reload
 // and exit requests are cleared. Ends before the main loop at 80:96AB.
+// Live starts (with frame jobs) take game services only; recorded callers see the
+// original end at 80:96AB as their PC.
 export function* roomStartSequence(h, events, room) {
-  const { ctx } = h;
   yield () => setUpGameScreen(sceneRuntime(h), tasksOf(h.a));
   yield* enterRoomSequence(h, events, room);
   yield () => {
@@ -204,9 +205,10 @@ export function* roomStartSequence(h, events, room) {
     setWord(m.wram, MAIN_LOOP_RELOAD, 0);
     setWord(m.wram, MAIN_LOOP_EXIT, 0);
     resetFixedColour(m);
-    ctx.pc = GAME_START_END;
   };
-  return ctx.pc;
+  if (events?.frameJobs) return undefined;
+  h.ctx.pc = GAME_START_END;
+  return h.ctx.pc;
 }
 
 // The title cycle's demo runs startNewGame (80:960D) without the frame; the RTS form

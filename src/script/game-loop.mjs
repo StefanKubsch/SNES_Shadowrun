@@ -86,6 +86,8 @@ export class GameLoop {
     a.devices = devices;
     a.tasks = this.tasks;
     Object.assign(a.ctx, RESET_CONTEXT);
+    // The game services of live play (docs/LIVE-LOOP-SERVICES.md): no CPU context.
+    this.services = Object.freeze({ a });
     // Main loop rounds since the reset; the owner's rounds (attract demo) do not count.
     this.rounds = 0;
     // The game's main loop runs (from its main start until it returns to the owner).
@@ -183,12 +185,14 @@ export class GameLoop {
       resetHardware(accessorPort(a), a.mem);
       Object.assign(a.ctx, STARTUP_CONTEXT);
     };
-    // Live startup takes game services only (docs/BOOT-SERVICE-COMPOSITION.md);
-    // injected recorded loops without frame jobs keep the compatibility context.
-    yield* mainStartupSequence(events.frameJobs ? { a } : dialogAccess(a), events);
+    // Live play takes game services only; injected recorded loops without frame
+    // jobs keep the compatibility context (docs/LIVE-LOOP-SERVICES.md).
+    const live = Boolean(events.frameJobs),
+      services = () => (live ? this.services : dialogAccess(a));
+    yield* mainStartupSequence(services(), events);
     let showTitle = true;
     for (;;) {
-      const h = dialogAccess(a),
+      const h = services(),
         choice = yield* gameOwnerSequence(h, events, routines, showTitle);
       showTitle = false;
       this.ownsGame = true;
