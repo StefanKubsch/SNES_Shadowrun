@@ -216,7 +216,7 @@ export function* dialogTopicSequence(h, events, at) {
     { wram } = mem;
   let script;
   yield () => {
-    if (!events.nestedRound && !events.round)
+    if (!events.nestedHeadVisit && !events.headVisit && !events.nestedRound && !events.round)
       taskStop('task_dialog_topic_visit_open', {
         pc: 0x8091ca,
         append: 0x80c34a,

@@ -72,6 +72,24 @@ const TITLE = (k) =>
 const hex = (n) => n.toString(16);
 const inside = (n, [start, end]) => n >= start && n < end;
 
+// Keep the frozen task projection and guards. Observe actual scheduler rounds
+// independently of the live or recorded callback name that requested them.
+function followTaskRounds(game) {
+  const state = followLiveTasks(game),
+    { loop } = game,
+    scheduler = loop.scheduler,
+    rounds = scheduler.rounds.bind(scheduler);
+  let calls = 0;
+  scheduler.rounds = function* () {
+    calls++;
+    yield* rounds();
+  };
+  Object.defineProperty(state, 'paths', {
+    get: () => ({ driver: loop.rounds, owner: calls - loop.rounds }),
+  });
+  return state;
+}
+
 function snapshot(game, tasks = null) {
   const { ppu } = game.bus;
   return {
@@ -97,7 +115,7 @@ function lockstep({ options, nmis, done = () => false }) {
   const games = {};
   games.a = new LiveGame(cartridge, { ...options(games), loop: registerLevelLoop });
   games.b = new LiveGame(cartridge, options(games));
-  const js = followLiveTasks(games.b),
+  const js = followTaskRounds(games.b),
     pending = [new Map(), new Map()];
   let compared = 0;
   [games.a, games.b].forEach((game, side) => {

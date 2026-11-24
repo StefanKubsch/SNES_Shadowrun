@@ -79,9 +79,15 @@ export class ScriptNatives {
     return this.continuation(this.enter(a, scheduler, entry));
   }
 
-  // Normal game and attract rounds have no CPU entry or return frame.
+  // Normal game and attract rounds have no CPU workspace. Recorded callers
+  // retain the explicit workspace parameter of their compatibility adapter.
   roundContinuation(scheduler, workspace) {
-    return this.continuation(this.roundSteps(scheduler, workspace));
+    return this.continuation(
+      this.valueServices ? scheduler.rounds() : this.roundSteps(scheduler, workspace),
+    );
+  }
+  headContinuation(scheduler) {
+    return this.continuation(scheduler.headVisit());
   }
   *roundSteps(scheduler, workspace, entry = ROUND) {
     this.stacks.push(workspace);
@@ -232,15 +238,27 @@ export class ScriptNatives {
       inputMode: 'record-observations',
       inputObservations: set.input,
       interruptEvents,
-      round: (entry) => {
-        if (entry >>> WORD_BITS !== CODE_BANK) taskStop('script_visit_bank', { target, entry });
-        this.visit(a, scheduler, entry);
-        return { wait: [], input: [] };
-      },
-      nestedRound: (entry) => {
-        if (entry >>> WORD_BITS !== CODE_BANK) taskStop('script_visit_bank', { target, entry });
-        return this.visitContinuation(a, scheduler, entry);
-      },
+      ...(this.valueServices
+        ? {
+            headVisit: () => {
+              scheduler.visitHead();
+              return { wait: [], input: [] };
+            },
+            nestedHeadVisit: () => this.headContinuation(scheduler),
+          }
+        : {
+            round: (entry) => {
+              if (entry >>> WORD_BITS !== CODE_BANK)
+                taskStop('script_visit_bank', { target, entry });
+              this.visit(a, scheduler, entry);
+              return { wait: [], input: [] };
+            },
+            nestedRound: (entry) => {
+              if (entry >>> WORD_BITS !== CODE_BANK)
+                taskStop('script_visit_bank', { target, entry });
+              return this.visitContinuation(a, scheduler, entry);
+            },
+          }),
     };
   }
 

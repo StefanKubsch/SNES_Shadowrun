@@ -3,6 +3,7 @@
 import { ROUND, HEAD_VISIT } from '../src/script/natives.mjs';
 import { CODE_BANK } from '../src/constants/memory-map.mjs';
 import { WORD_MASK } from '../src/constants/bits.mjs';
+import { taskStop } from '../src/system/task-stop.mjs';
 
 const ENTRY_STACK_BYTES = new Map([
   [ROUND, 4],
@@ -11,7 +12,18 @@ const ENTRY_STACK_BYTES = new Map([
 
 export function withSchedulerFrames(loop) {
   const interval = loop.interval.bind(loop);
-  loop.interval = (target) => ({ ...interval(target), valueRounds: false });
+  loop.interval = (target) => {
+    const events = interval(target);
+    // Frozen callers must reach this adapter, including when the actual side
+    // uses direct frame jobs. Named live callbacks would bypass its return frame.
+    delete events.schedulerRound;
+    delete events.headVisit;
+    delete events.nestedHeadVisit;
+    events.round ??= (entry) => taskStop('game_loop_synchronous_round', { entry });
+    events.nestedRound = (entry) => loop.round(entry);
+    events.valueRounds = false;
+    return events;
+  };
   loop.round = (entry) => {
     const { natives, accessor: a, scheduler } = loop;
     const visit = natives.continuation(

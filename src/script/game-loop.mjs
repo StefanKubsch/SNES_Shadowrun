@@ -19,7 +19,7 @@
 import { taskStop } from '../system/task-stop.mjs';
 import { TaskAccessor } from '../vm/task-accessor.mjs';
 import { Scheduler } from './scheduler.mjs';
-import { ScriptNatives, ROUND, nativeTarget } from './natives.mjs';
+import { ScriptNatives, ROUND, HEAD_VISIT, nativeTarget } from './natives.mjs';
 import { JsTasks } from './task-api.mjs';
 import { interruptEventsOf } from '../vm/devices.mjs';
 import { NATIVE_CALL_CONTINUATIONS } from '../system/native-call-continuation.mjs';
@@ -96,10 +96,16 @@ export class GameLoop {
         inputs: set.input,
         inputIndex: 0,
         ...interruptEventsOf(set, target),
-        // The live owner's rounds pause with their natives; a synchronous one would need
-        // observations the live game does not have.
-        round: (entry) => taskStop('game_loop_synchronous_round', { entry }),
-        nestedRound: (entry) => this.round(entry),
+        ...(set.frameJobs
+          ? {
+              schedulerRound: () => this.schedulerRound(),
+              nestedHeadVisit: () => this.headVisit(),
+            }
+          : {
+              // Recorded callers retain their original entry selector.
+              round: (entry) => taskStop('game_loop_synchronous_round', { entry }),
+              nestedRound: (entry) => this.round(entry),
+            }),
         valueRounds: true,
       };
     const a = this.accessor;
@@ -110,13 +116,30 @@ export class GameLoop {
     return events;
   }
 
-  // Ordinary rounds pause at the native work budget without a caller CPU frame.
+  // Ordinary rounds and head visits have no entry selector or CPU workspace.
+  schedulerRound() {
+    return this.natives.valueServices
+      ? this.budgetedVisit(this.natives.roundContinuation(this.scheduler))
+      : this.round(ROUND);
+  }
+  headVisit() {
+    return this.natives.valueServices
+      ? this.budgetedVisit(this.natives.headContinuation(this.scheduler))
+      : this.round(HEAD_VISIT);
+  }
+
+  // Compatibility entry selector for recorded callers and injected reference loops.
   round(entry) {
     const natives = this.natives,
       visit =
         entry === ROUND
           ? natives.roundContinuation(this.scheduler, this.accessor.ctx.s)
           : natives.visitContinuation(this.accessor, this.scheduler, entry);
+    return this.budgetedVisit(visit);
+  }
+
+  budgetedVisit(visit) {
+    const natives = this.natives;
     return {
       get work() {
         return visit.work;
@@ -125,11 +148,12 @@ export class GameLoop {
         return visit.result;
       },
       run(budget) {
+        const previousBudget = natives.workBudget;
         natives.workBudget = budget;
         try {
           return visit.run(budget);
         } finally {
-          natives.workBudget = Infinity;
+          natives.workBudget = previousBudget;
         }
       },
     };
@@ -151,7 +175,7 @@ export class GameLoop {
       for (;;) {
         yield* endOfFrame(h, events);
         this.closeInterval();
-        yield { continuation: this.round(ROUND) };
+        yield { continuation: this.schedulerRound() };
         this.rounds++;
         events = this.interval(ROUND_RESUME);
         if (yield* update(h, events)) {

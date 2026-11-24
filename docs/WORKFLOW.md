@@ -152,12 +152,12 @@ npm run test:block -- --list src/game/karma-menu.mjs
 ```
 
 After a failure, fix its cause first and verify it with a targeted check.
-Run `verify:release` once after all ten blocks of the delivery batch are finished.
+Run `verify:release` once after all four blocks of the delivery batch are finished.
 The incremental release check replaces the former combined affected suite:
 it selects affected test files from their recorded inputs.
 After it passes, do not add another `npm test` or repeat passing checks.
 Later changes to code, tests, generators or contracts require renewed
-focused checks; the shared release check covers the final ten-block state. Adding the actual result to the handoff
+focused checks; the shared release check covers the final four-block state. Adding the actual result to the handoff
 requires only a diff check. A failed release remains incomplete until it
 passes after the correction.
 
@@ -301,7 +301,7 @@ separate steps. The [dialog inventory](../analysis/dialog-936c-inventory.json)
 lists original calls and stops at unknown mode changes; it does not replace
 a source contract.
 
-After every tenth completed block, before pushing the porting batch:
+After every fourth completed block, before pushing the porting batch:
 
 ```powershell
 npm run verify:release

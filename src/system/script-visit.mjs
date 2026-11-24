@@ -12,14 +12,16 @@ export function* scriptVisitCallSequence(h, events, pc, missingReason, onRound) 
 }
 
 export function* scriptVisitSequence(events, missingReason = 'task_f254_visit_open', onRound) {
-  const round = events.nestedRound?.(SCRIPT_VISIT);
+  const round = events.nestedHeadVisit
+    ? events.nestedHeadVisit()
+    : events.nestedRound?.(SCRIPT_VISIT);
   if (round) {
     return yield { continuation: round };
   }
   let result;
   yield () => {
-    if (!events.round) taskStop(missingReason);
-    result = events.round(SCRIPT_VISIT);
+    if (!events.headVisit && !events.round) taskStop(missingReason);
+    result = events.headVisit ? events.headVisit() : events.round(SCRIPT_VISIT);
     onRound?.(result);
   };
   return result;

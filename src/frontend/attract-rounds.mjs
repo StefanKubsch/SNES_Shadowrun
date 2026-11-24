@@ -16,11 +16,12 @@ export function* runAttractRounds(h, e, r, room, roomStart = () => roomStartSequ
   yield* roomStart();
   for (;;) {
     yield* endOfFrame(h, e);
-    if (typeof e?.round !== 'function') taskStop('main_round_owner_required', { pc: 0x8096c0 });
+    if (typeof e?.schedulerRound !== 'function' && typeof e?.round !== 'function')
+      taskStop('main_round_owner_required', { pc: 0x8096c0 });
     const visit = function* () {
       let more;
-      if (typeof e.nestedRound === 'function') {
-        const round = e.nestedRound(MAIN_ROUND);
+      if (typeof e.schedulerRound === 'function' || typeof e.nestedRound === 'function') {
+        const round = e.schedulerRound ? e.schedulerRound() : e.nestedRound(MAIN_ROUND);
         yield { continuation: round };
         more = round.result;
       } else

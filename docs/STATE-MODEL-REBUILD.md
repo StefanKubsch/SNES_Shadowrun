@@ -88,6 +88,18 @@ own commit after `npm run test:block` and the golden trace test. One shared
 
 ## Progress
 
+- 2026-11-24, phase 4, scheduler services: main and attract rounds and nested
+  dialog/item/spell head visits use named callbacks, without numeric entries or
+  borrowed CPU workspace. Enclosing native budgets survive nested calls and
+  rejected reentry. Recorded intervals retain their numeric compatibility API.
+  Contract: [SCHEDULER-SERVICE-COMPOSITION.md](SCHEDULER-SERVICE-COMPOSITION.md).
+- Seven new service contracts and 33 focused cases passed. Initial block check:
+  3760 passes and five fixture failures in 106 files, 481 seconds. The observer
+  now counts actual scheduler rounds; frozen callers explicitly select their
+  existing frame adapter. Corrected comparisons passed 19/19 tests in three
+  files in 317 seconds. All five golden traces and frozen proof code remain
+  unchanged; edited-file ESLint and format passed. Passing logs were removed.
+
 - 2026-11-24, phase 4, native services: waiting live script natives use ordinary
   memory, device and task services with no CPU context or dialog register helpers.
   A service object per nesting depth retains observation ownership across pauses.

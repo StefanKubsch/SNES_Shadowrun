@@ -67,8 +67,9 @@ function nativeSequence(a, options, sequence) {
     inputs: options?.inputObservations,
     inputIndex: 0,
     ...options?.interruptEvents,
-    round: options?.round,
-    nestedRound: options?.nestedRound,
+    ...(options?.valueServices
+      ? { headVisit: options.headVisit, nestedHeadVisit: options.nestedHeadVisit }
+      : { round: options?.round, nestedRound: options?.nestedRound }),
     valueRounds: options?.valueRounds,
   };
   if (!lagFree(events)) taskStop('script_native_lag_free_required');
