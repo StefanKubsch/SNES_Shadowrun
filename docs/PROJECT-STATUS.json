@@ -1,7 +1,7 @@
 {
   "updated": "2026-11-24",
-  "focus": "Phase 4: boot, frontend and live loop service blocks done. Batch: HANDOFF.md.",
-  "next_step": "Phase 4: audit remaining src register adapters (nmi-call, native-dialog-support, main-wait-interrupt); move recorded-only ones out of src where frozen proof allows. Delivery: HANDOFF.md.",
+  "focus": "Phase 4 closed by user decision (register compat boundary). Phase 5 step 1: frame description renderer. Batch: HANDOFF.md.",
+  "next_step": "Phase 5: game code owns palettes, sprites and layer settings as state; the description is assembled from it (docs/FRAME-DESCRIPTION.md). Delivery: HANDOFF.md.",
   "porting_resume": "216 original-form bytes remain: 121 code and 95 unidentified data. Read/hardware/data boundaries: docs/ROM-CODE-AUDIT.md. Unknown bytes and unused graphics stay preserved; unrecorded paths can report rom_byte_absent.",
   "open_issues": [
     "Keyword overflow: synthetic insertion of a 51st retained topic corrupts flags in European source and lifted code. Marking does not free storage. A reachable regular story route and a compatible gameplay correction remain unproved; see docs/BUGFIXES.md.",
@@ -20,9 +20,10 @@
   ],
   "optional_quality_checks": [],
   "references": [
+    "docs/FRAME-DESCRIPTION.md",
+    "docs/REGISTER-COMPAT-BOUNDARY.md",
     "docs/LIVE-LOOP-SERVICES.md",
     "docs/FRONTEND-SERVICE-COMPOSITION.md",
-    "docs/BOOT-SERVICE-COMPOSITION.md",
     "docs/NATIVE-SERVICE-COMPOSITION.md",
     "docs/SCHEDULER-SERVICE-COMPOSITION.md",
     "docs/STATE-MODEL-REBUILD.md",
