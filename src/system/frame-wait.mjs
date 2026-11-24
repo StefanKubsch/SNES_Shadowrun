@@ -16,6 +16,7 @@ import { NMITIMEN_SHADOW, RANDOM_STATE } from '../data/wram.mjs';
 import { HVBJOY, HVBJOY_VBLANK, NMITIMEN_NMI_ENABLE } from '../constants/hardware-registers.mjs';
 import { FLAG_CARRY, FLAG_MEMORY_8BIT, FLAG_NEGATIVE, FLAG_ZERO } from '../constants/cpu-flags.mjs';
 import { BYTE_BITS } from '../constants/bits.mjs';
+import { waitStatus } from './wait-status.mjs';
 
 // Original instructions: the vertical blank poll (a site of the device model) and
 // the branch where the NMI arrives.
@@ -84,15 +85,14 @@ export function* nmiAtBranch(h, events, branch, status) {
 // A sequence (yield* waitForFrame(...)) for a native call continuation. h is the
 // accessor of the running scene, events its frame events, port its hardware port.
 export function* waitForFrame(h, events, port) {
-  const { ctx } = h,
-    { wram } = h.a.mem;
+  const { wram } = h.a.mem;
   if (!(readStateByte(wram, NMITIMEN_SHADOW) & NMITIMEN_NMI_ENABLE)) {
     while (port.read(HVBJOY, 1, VBLANK_SITE) & HVBJOY_VBLANK);
     return;
   }
   const counter = readStateByte(wram, RANDOM_STATE);
   while (readStateByte(wram, RANDOM_STATE) === counter)
-    yield* nmiAtBranch(h, events, WAIT_BRANCH, (ctx.status | WAIT_FLAGS) & ~FLAG_NEGATIVE);
+    yield* nmiAtBranch(h, events, WAIT_BRANCH, waitStatus(h, events, FLAG_NEGATIVE, WAIT_FLAGS));
 }
 
 // The word wait (81:B0A1), a sequence like waitForFrame: wait until the NMI has
@@ -101,8 +101,7 @@ export function* waitForFrame(h, events, port) {
 // registers (user decision 2026-11-17); the register form with the counter in A is in
 // proof/caller/input-routines.mjs.
 export function* waitForCounterWord(h, events) {
-  const { ctx } = h,
-    { wram } = h.a.mem,
+  const { wram } = h.a.mem,
     counter = () =>
       readStateByte(wram, RANDOM_STATE) | (readStateByte(wram, RANDOM_STATE + 1) << BYTE_BITS);
   let start;
@@ -114,6 +113,6 @@ export function* waitForCounterWord(h, events) {
       h,
       events,
       COUNTER_BRANCH,
-      (ctx.status | COUNTER_FLAGS) & ~(FLAG_NEGATIVE | FLAG_MEMORY_8BIT),
+      waitStatus(h, events, FLAG_NEGATIVE | FLAG_MEMORY_8BIT, COUNTER_FLAGS),
     );
 }

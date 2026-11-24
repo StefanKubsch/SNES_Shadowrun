@@ -1,3 +1,4 @@
+import { waitStatus } from '../system/wait-status.mjs';
 import { readStateByte, writeStateByte } from '../state/objects.mjs';
 // The dialog's portraits in video memory (lifted from 80:9F6D, 80:8F20, 80:9022, 80:905E
 // and 80:8FF5; register-level versions in src/system/native-dialog-portrait.mjs stay the
@@ -181,8 +182,7 @@ export function writePortraitTileChannel(port) {
 // Upload the unpacked portrait to the VRAM word address (80:8FF5), composing
 // directly through the request wait without a CPU return frame or register writes.
 export function* transferPortraitTiles(h, events, vram) {
-  const { ctx } = h,
-    { wram, port } = sceneRuntime(h);
+  const { wram, port } = sceneRuntime(h);
   yield () => {
     writePortraitTileChannel(port);
     setWord(wram, PORTRAIT_DMA_REQUEST, vram);
@@ -190,9 +190,12 @@ export function* transferPortraitTiles(h, events, vram) {
   // The wait's branch sees the request word's zero in 16-bit mode.
   const done = (value) => (value & WORD_SIGN) !== 0;
   for (let value; !done((value = word(wram, PORTRAIT_DMA_REQUEST)));) {
-    const status =
-      (ctx.status & ~(FLAG_MEMORY_8BIT | FLAG_NEGATIVE | FLAG_ZERO)) |
-      (value === 0 ? FLAG_ZERO : 0);
+    const status = waitStatus(
+      h,
+      events,
+      FLAG_MEMORY_8BIT | FLAG_NEGATIVE | FLAG_ZERO,
+      value === 0 ? FLAG_ZERO : 0,
+    );
     yield* nmiAtBranch(h, events, REQUEST_BRANCH, status);
   }
 }

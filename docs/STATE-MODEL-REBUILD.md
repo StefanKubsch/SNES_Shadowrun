@@ -88,6 +88,17 @@ own commit after `npm run test:block` and the golden trace test. One shared
 
 ## Progress
 
+- 2026-11-24, phase 4, wait services: all shared live counter, window, text,
+  object-job and portrait waits derive their condition bits without a CPU status
+  register. Recorded interrupts retain every unaffected caller bit. Object reload
+  obtains its data bank through the existing service boundary. Contract:
+  [WAIT-SERVICE-COMPOSITION.md](WAIT-SERVICE-COMPOSITION.md).
+- Eight direct service contracts cover the wait graphs with CPU context reads
+  forbidden, every status byte for recorded masks, budget pauses and repeat
+  completion. Block validation passed 5545/5545 tests in 66 files in 146 seconds,
+  with no failures/skips and all five golden traces unchanged. ESLint and format
+  passed. Passing logs were removed.
+
 - 2026-11-24, phase 4, hit notices: warning and karma penalty compose all thirty
   counter waits without CPU frames. Hit, shot and blast caller fixtures classify
   delay waits by their input chronology. Contract: [HIT-NOTICE-COMPOSITION.md](HIT-NOTICE-COMPOSITION.md).

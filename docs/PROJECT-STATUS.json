@@ -1,7 +1,7 @@
 {
-  "updated": "2026-11-23",
-  "focus": "Phase 4 rebuild. Menu/confirmation and dialog/spell task append are release-verified. Batch: HANDOFF.md.",
-  "next_step": "Phase 4: remove hit-notice wait frames, then native bridge workspace. Menus and task append are direct; CPU/accessor workspace remains a boundary. Delivery: HANDOFF.md.",
+  "updated": "2026-11-24",
+  "focus": "Phase 4 rebuild. Hit-notice waits are direct. Shared release after four subsystem blocks. Batch: HANDOFF.md.",
+  "next_step": "Phase 4: complete live wait services, ordinary native services and direct scheduler callbacks. Preserve recorded compatibility adapters. Delivery: HANDOFF.md.",
   "porting_resume": "216 original-form bytes remain: 121 code and 95 unidentified data. Read/hardware/data boundaries: docs/ROM-CODE-AUDIT.md. Unknown bytes and unused graphics stay preserved; unrecorded paths can report rom_byte_absent.",
   "open_issues": [
     "Keyword overflow: synthetic insertion of a 51st retained topic corrupts flags in European source and lifted code. Marking does not free storage. A reachable regular story route and a compatible gameplay correction remain unproved; see docs/BUGFIXES.md.",

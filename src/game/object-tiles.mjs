@@ -1,3 +1,5 @@
+import { waitStatus } from '../system/wait-status.mjs';
+import { dataBankOf } from '../system/data-bank.mjs';
 import { readStateByte, writeStateByte } from '../state/objects.mjs';
 // The objects' tiles requested again (lifted from 80:ADF4 with 80:AE12; register-level
 // versions in proof/system/native-scene-tiles.mjs stay the reference).
@@ -93,14 +95,16 @@ function countJobList(wram) {
 
 // Wait at the load site until the NMI has run all job lists (LDA 7E:1562, BNE back).
 function* waitForJobLists(h, events, site) {
-  const { ctx } = h,
-    { wram } = h.a.mem;
+  const { wram } = h.a.mem;
   if (!lagFree(events)) taskStop('game_lag_free_required');
   // The wait's branch sees the job count's sign in 16-bit mode.
   for (let value; (value = word(wram, NMI_JOB_LISTS)) !== 0;) {
-    const status =
-      (ctx.status & ~(FLAG_MEMORY_8BIT | FLAG_NEGATIVE | FLAG_ZERO)) |
-      (value & WORD_SIGN ? FLAG_NEGATIVE : 0);
+    const status = waitStatus(
+      h,
+      events,
+      FLAG_MEMORY_8BIT | FLAG_NEGATIVE | FLAG_ZERO,
+      value & WORD_SIGN ? FLAG_NEGATIVE : 0,
+    );
     yield* nmiAtBranch(h, events, site + LOAD_BYTES, status);
   }
 }
@@ -111,8 +115,7 @@ function* waitForJobLists(h, events, site) {
 // frame as well. The RTS form for register-level call tables is in
 // proof/caller/upkeep-routines.mjs.
 export function* reloadObjectTiles(h, events) {
-  const { ctx } = h,
-    { mem } = h.a,
+  const { mem } = h.a,
     { wram } = mem;
   let index, slot;
   yield () => {
@@ -122,7 +125,7 @@ export function* reloadObjectTiles(h, events) {
   do {
     yield () => {
       // The draw list through the data bank, as the original's LDX abs,Y.
-      slot = longWord(mem, (ctx.bank << WORD_BITS) + DRAW_LIST + index);
+      slot = longWord(mem, (dataBankOf(h.a) << WORD_BITS) + DRAW_LIST + index);
     };
     yield* reloadSequence(h, events, slot);
     yield () => {

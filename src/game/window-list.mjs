@@ -1,3 +1,4 @@
+import { waitStatus } from '../system/wait-status.mjs';
 import { readStateByte, writeStateByte } from '../state/objects.mjs';
 // The window list (lifted from 81:AD92 with the window drawing 81:ACCF; register-level
 // versions in proof/system/native-render-compose.mjs, which recorded runs replay).
@@ -127,16 +128,18 @@ export function drawWindow(wram, x) {
 // Request the text map upload and wait until the NMI takes it (81:ACB5/81:ACAF).
 // The request word and frame jobs govern progress; no CPU frame is created.
 function* requestUploadSequence(h, events) {
-  const { ctx } = h,
-    { wram } = h.a.mem;
+  const { wram } = h.a.mem;
   yield () => {
     setWord(wram, TEXT_MAP_UPLOAD, word(wram, TEXT_MAP_UPLOAD) + 1);
   };
   for (let request; (request = word(wram, TEXT_MAP_UPLOAD)) !== 0;) {
     // After LDA of a nonzero word in 16-bit mode: Z clear, N from bit 15.
-    const status =
-      (ctx.status & ~(FLAG_MEMORY_8BIT | FLAG_ZERO | FLAG_NEGATIVE)) |
-      (request & WORD_SIGN ? FLAG_NEGATIVE : 0);
+    const status = waitStatus(
+      h,
+      events,
+      FLAG_MEMORY_8BIT | FLAG_ZERO | FLAG_NEGATIVE,
+      request & WORD_SIGN ? FLAG_NEGATIVE : 0,
+    );
     yield* nmiAtBranch(h, events, UPLOAD_WAIT_BRANCH, status);
   }
 }

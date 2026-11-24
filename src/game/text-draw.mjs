@@ -1,3 +1,4 @@
+import { waitStatus } from '../system/wait-status.mjs';
 import { readStateByte, writeStateByte } from '../state/objects.mjs';
 // Drawing the text buffer into a window (lifted from 80:FB39 with the cursor geometry
 // 81:ADBA, 81:AE14 and 81:AE4D, the mask close 81:AEC8 and the upload requests 81:AEF4
@@ -386,15 +387,17 @@ function drawGlyph(s, character) {
 // Upload requests count up and wait until the frame job takes them. Neither the
 // request nor its wait needs a CPU frame or a temporary program bank.
 function* requestUpload(h, events, wram, request) {
-  const { ctx } = h;
   yield () => {
     setWord(wram, request.request, word(wram, request.request) + 1);
   };
   // The wait's branch sees the request word's sign in 16-bit mode.
   for (let value; (value = word(wram, request.request)) !== 0;) {
-    const status =
-      (ctx.status & ~(FLAG_MEMORY_8BIT | FLAG_ZERO | FLAG_NEGATIVE)) |
-      (value & WORD_SIGN ? FLAG_NEGATIVE : 0);
+    const status = waitStatus(
+      h,
+      events,
+      FLAG_MEMORY_8BIT | FLAG_ZERO | FLAG_NEGATIVE,
+      value & WORD_SIGN ? FLAG_NEGATIVE : 0,
+    );
     yield* nmiAtBranch(h, events, request.branch, status);
   }
 }
