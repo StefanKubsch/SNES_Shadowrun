@@ -88,6 +88,19 @@ own commit after `npm run test:block` and the golden trace test. One shared
 
 ## Progress
 
+- 2026-11-24, phase 5, frame description: src/video/frame-renderer.mjs draws a
+  frame description without PPU registers; src/video/ppu-frame.mjs builds the
+  description from the PPU model with every former source check. Block check
+  452/452 in 278 seconds. All five golden
+  traces unchanged; picture time per NMI unchanged. Contract and plan:
+  [FRAME-DESCRIPTION.md](FRAME-DESCRIPTION.md).
+
+- 2026-11-24, user decision: phase 4 is complete. Live play composes services and
+  frame jobs without CPU context, and its import graph holds no register adapter.
+  The remaining recorded branches in src/ stay a documented compatibility boundary
+  ([REGISTER-COMPAT-BOUNDARY.md](REGISTER-COMPAT-BOUNDARY.md)) until the frozen
+  proof modules that call them are deleted. Phase 5 starts.
+
 - 2026-11-24, phase 4, register compatibility boundary: the browser game's import
   graph contains none of the four remaining register adapters (nmi-call,
   main-wait-interrupt, native-call-continuation, native-dialog-support). Live

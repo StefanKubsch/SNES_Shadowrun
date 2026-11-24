@@ -79,8 +79,6 @@ export const requireValue = (ok, reason, details) => {
   if (!ok) throw new PpuBoundary(reason, details);
 };
 
-// Bytes between two plane pairs of a tile row in planar tile data.
-const PLANE_PAIR_STRIDE = 16;
 // Address halves written so far: bit 0 low byte, bit 1 high byte.
 const LOW_KNOWN = 1,
   HIGH_KNOWN = 2,
@@ -123,16 +121,6 @@ const REVERSE_DMA = Object.freeze({
   length: 16,
 });
 
-// Colour index of one pixel in planar tile data (sources in ppu-frame.mjs): plane pairs
-// interleave per row, higher pairs follow 16 bytes later; bit is 7 - x.
-export function planarIndex(vram, start, bit, planes) {
-  let index = 0;
-  for (let plane = 0; plane < planes; plane++)
-    index |=
-      ((vram[(start + (plane >>> 1) * PLANE_PAIR_STRIDE + (plane & 1)) & WORD_MASK] >>> bit) & 1) <<
-      plane;
-  return index;
-}
 // Every flag byte is 1. Compares four flags at once where the array is word aligned.
 function allKnown(known) {
   let n = 0;
