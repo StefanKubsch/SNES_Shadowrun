@@ -11,6 +11,7 @@
 // save slot (FFFF: a new game) or FFFE (cancelled).
 import { readStateByte, writeStateByte, fillStateBytes } from '../state/objects.mjs';
 import { sceneFrames } from '../system/scene-frames.mjs';
+import { waitStatus } from '../system/wait-status.mjs';
 import { decodeOnce, tableEntries } from '../data/named-tables.mjs';
 import { taskStop } from '../system/task-stop.mjs';
 import { languageMenuText, languageMenuArrowShift, beginFrontendMenu } from '../data/language.mjs';
@@ -588,10 +589,11 @@ export function* startMenuSequence(h, events, routines, afterTitle, menu = {}) {
 
 // Ordinary menu playback returns the selected game, cancel or timeout marker.
 export function* chooseStartGame(h, events, routines, afterTitle) {
-  const { ctx } = h,
-    status = ctx.status,
+  // Recorded comparisons only; live scenes take game services (docs/FRONTEND-SERVICE-COMPOSITION.md).
+  const ctx = events.frameJobs ? null : h.ctx,
+    status = ctx?.status,
     clock = sceneFrames(h, events, 'start-menu', routines);
-  ctx.status &= ~(FLAG_MEMORY_8BIT | FLAG_INDEX_8BIT);
+  if (ctx) ctx.status &= ~(FLAG_MEMORY_8BIT | FLAG_INDEX_8BIT);
   let m;
   const wait = () => clock.wait(m),
     input = () => clock.input(m),
@@ -604,15 +606,20 @@ export function* chooseStartGame(h, events, routines, afterTitle) {
       yield () => (port = m.port.read(APUIO2, 1, site));
       if (port === value) return;
       const difference = (port - value) & BYTE_MASK,
-        after =
-          ((ctx.status | FLAG_MEMORY_8BIT) & ~(FLAG_NEGATIVE | FLAG_ZERO | FLAG_CARRY)) |
-          (port >= value ? FLAG_CARRY : 0) |
-          (difference & BYTE_SIGN ? FLAG_NEGATIVE : 0);
+        after = waitStatus(
+          h,
+          events,
+          FLAG_NEGATIVE | FLAG_ZERO | FLAG_CARRY,
+          FLAG_MEMORY_8BIT |
+            (port >= value ? FLAG_CARRY : 0) |
+            (difference & BYTE_SIGN ? FLAG_NEGATIVE : 0),
+        );
       yield* clock.atBranch(site + CUE_BRANCH_OFFSET, after);
     }
   };
-  // The menu draws in data bank 81 (81:E38D), which the arrow text uses.
-  const menuBank = () => ctx.bank;
+  // The menu draws in data bank 81 (81:E38D), which the arrow text uses; recorded
+  // callers read the bank their context holds.
+  const menuBank = () => (ctx ? ctx.bank : FRONTEND_BANK);
   const disabled = () => word(m.wram, MENU_ROW_DISABLED + ((cursor() << 1) & WORD_MASK)) !== 0;
   const next = (rows) =>
     moveArrow(
@@ -674,7 +681,7 @@ export function* chooseStartGame(h, events, routines, afterTitle) {
     yield* fadeOut(m.video, wait);
     yield () => {
       disableNmi(m.wram, m.port);
-      ctx.status = status;
+      if (ctx) ctx.status = status;
     };
     return result;
   };
@@ -705,7 +712,7 @@ export function* chooseStartGame(h, events, routines, afterTitle) {
   };
   for (;;) {
     yield () => {
-      ctx.bank = FRONTEND_BANK;
+      if (ctx) ctx.bank = FRONTEND_BANK;
       drawStartMenu(m);
       setWord(m.wram, DP_MENU_CURSOR, 0);
     };
@@ -767,7 +774,7 @@ export function* chooseStartGame(h, events, routines, afterTitle) {
 
   // 81:E50C: the title start after the music cue.
   function* titleStart() {
-    ctx.bank = FRONTEND_BANK;
+    if (ctx) ctx.bank = FRONTEND_BANK;
     yield* cue(TITLE_CUE_SITE, TITLE_MUSIC_CUE);
     const { mem, wram } = m,
       gradient = (at, value) => writeLongWord(mem, TITLE_GRADIENT + at, value);

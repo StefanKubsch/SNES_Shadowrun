@@ -213,12 +213,15 @@ export function* playIntro(h, events) {
 
 // Both entries share the scene; only the comparison adapter frames its ending.
 function* introPlayback(h, events, ending) {
-  const { ctx } = h,
-    // The original saves the status and runs with 16-bit registers in data bank 81.
-    status = ctx.status,
+  // The original saves the status and runs with 16-bit registers in data bank 81.
+  // Recorded comparisons only; live scenes take game services.
+  const ctx = events.frameJobs ? null : h.ctx,
+    status = ctx?.status,
     clock = sceneFrames(h, events, 'intro');
-  ctx.status &= ~(FLAG_MEMORY_8BIT | FLAG_INDEX_8BIT);
-  ctx.bank = INTRO_DATA_BANK;
+  if (ctx) {
+    ctx.status &= ~(FLAG_MEMORY_8BIT | FLAG_INDEX_8BIT);
+    ctx.bank = INTRO_DATA_BANK;
+  }
   let m;
   const wait = () => clock.wait(m),
     input = () => clock.input(m);
@@ -268,8 +271,10 @@ function* introPlayback(h, events, ending) {
   yield* ending();
   yield () => {
     setUpGameAudio(m);
-    ctx.bank = RETURN_DATA_BANK;
-    ctx.status = status;
+    if (ctx) {
+      ctx.bank = RETURN_DATA_BANK;
+      ctx.status = status;
+    }
   };
 }
 

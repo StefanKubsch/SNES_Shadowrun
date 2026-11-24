@@ -8,6 +8,7 @@
 // proof/caller/cutscene-scene.mjs keeps the original's 16-bit accumulator check.
 import { readStateByte, writeStateByte } from '../state/objects.mjs';
 import { sceneFrames } from '../system/scene-frames.mjs';
+import { waitStatus } from '../system/wait-status.mjs';
 import { introSequence, playIntro } from '../intro/intro-scene.mjs';
 import { heldPad, menuCreditsRunning, CREDITS_SEQUENCE } from '../game/credits.mjs';
 import {
@@ -148,7 +149,6 @@ export function* cutsceneSequence(h, events, scene, argument) {
 // Ordinary playback composes the intro directly and owns no return frame.
 export function* playCutscene(h, events, scene, argument) {
   if (scene === INTRO_SCENE) return yield* playIntro(h, events);
-  const { ctx } = h;
   const clock = sceneFrames(h, events, 'cutscene');
   let m, t, n;
   const wait = () => clock.wait(m),
@@ -249,8 +249,13 @@ export function* playCutscene(h, events, scene, argument) {
     while (readStateByte(m.wram, SCENE_BRIGHTNESS) !== 0) {
       const brightness = readStateByte(m.wram, SCENE_BRIGHTNESS),
         // After LDA of a nonzero byte in 8-bit mode: Z clear, N its bit 7.
-        status = (ctx.status | FLAG_MEMORY_8BIT) & ~(FLAG_NEGATIVE | FLAG_ZERO);
-      yield* clock.atBranch(FADE_BRANCH, brightness & BYTE_SIGN ? status | FLAG_NEGATIVE : status);
+        status = waitStatus(
+          h,
+          events,
+          FLAG_NEGATIVE | FLAG_ZERO,
+          FLAG_MEMORY_8BIT | (brightness & BYTE_SIGN ? FLAG_NEGATIVE : 0),
+        );
+      yield* clock.atBranch(FADE_BRANCH, status);
     }
   yield* wait();
   yield () => {

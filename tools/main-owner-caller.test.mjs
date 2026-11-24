@@ -62,11 +62,11 @@ function compareSnapshots(actual, expected, key) {
 }
 function snapshot(game, inFrame = false) {
   const { ppu } = game.bus,
-    { a, x, y, status, s, pc, programBank, ...context } = game.loop.accessor.ctx,
+    { a, x, y, status, s, pc, programBank, bank, ...context } = game.loop.accessor.ctx,
     wram = toWram(game.memory);
-  // Live frames leave the caller's PC alone; the reference reports its wait
-  // branch. Keep the PC comparison at each completed caller boundary.
-  if (!inFrame) Object.assign(context, { pc, programBank });
+  // Live frames leave the caller's PC and data bank alone; the reference reports
+  // its wait branch and scene banks. Keep both at each completed caller boundary.
+  if (!inFrame) Object.assign(context, { pc, programBank, bank });
   for (const [from, to] of CPU_STACKS) wram.fill(0, from, to);
   return {
     context,

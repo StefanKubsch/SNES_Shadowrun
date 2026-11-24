@@ -10,6 +10,7 @@
 // held button ends either at once; the title then returns 1 instead of 0.
 import { readStateByte, writeStateByte, fillStateBytes } from '../state/objects.mjs';
 import { sceneFrames } from '../system/scene-frames.mjs';
+import { waitStatus } from '../system/wait-status.mjs';
 import {
   beginPackedTextEdit,
   endPackedTextEdit,
@@ -429,10 +430,11 @@ export function* titleSequence(h, events, routines, shown = {}) {
 
 // Ordinary scene playback returns whether input ended the title early.
 export function* playTitle(h, events, routines) {
-  const { ctx } = h,
-    status = ctx.status,
+  // Recorded comparisons only; live scenes take game services (docs/FRONTEND-SERVICE-COMPOSITION.md).
+  const ctx = events.frameJobs ? null : h.ctx,
+    status = ctx?.status,
     clock = sceneFrames(h, events, 'title', routines);
-  ctx.status &= ~(FLAG_MEMORY_8BIT | FLAG_INDEX_8BIT);
+  if (ctx) ctx.status &= ~(FLAG_MEMORY_8BIT | FLAG_INDEX_8BIT);
   let m;
   const wait = () => clock.wait(m),
     input = () => clock.input(m),
@@ -445,10 +447,14 @@ export function* playTitle(h, events, routines) {
       let value;
       yield () => (value = m.port.read(APUIO2, 1, site));
       if (value === 0) return;
-      const after = (ctx.status | FLAG_MEMORY_8BIT) & ~(FLAG_NEGATIVE | FLAG_ZERO);
       yield* clock.atBranch(
         site + BEAT_BRANCH_OFFSET,
-        value & BYTE_SIGN ? after | FLAG_NEGATIVE : after,
+        waitStatus(
+          h,
+          events,
+          FLAG_NEGATIVE | FLAG_ZERO,
+          FLAG_MEMORY_8BIT | (value & BYTE_SIGN ? FLAG_NEGATIVE : 0),
+        ),
       );
     }
   };
@@ -470,7 +476,7 @@ export function* playTitle(h, events, routines) {
       m.video.write(CGSWSEL, CGSWSEL_SUB_SCREEN, 1);
       m.video.write(CGADSUB, BLEND_MATH, 1);
     };
-    ctx.bank = TITLE_DATA_BANK;
+    if (ctx) ctx.bank = TITLE_DATA_BANK;
     for (let step = BLEND_FADE_FIRST; step !== BLEND_FADE_END; step++) {
       yield* wait();
       yield () => fadeTitleBlend(m, step);
@@ -503,7 +509,7 @@ export function* playTitle(h, events, routines) {
     };
     if (!key) yield* beat(BEAT_AT_END);
     yield () => {
-      ctx.status = key ? status : status & ~FLAG_MEMORY_8BIT;
+      if (ctx) ctx.status = key ? status : status & ~FLAG_MEMORY_8BIT;
     };
     return key;
   };
@@ -517,7 +523,7 @@ export function* playTitle(h, events, routines) {
   if (yield* prologue()) return yield* finish(true);
   yield () => {
     setUpIntroScene(m);
-    ctx.bank = TITLE_DATA_BANK;
+    if (ctx) ctx.bank = TITLE_DATA_BANK;
     setUpIntroWindow(m);
   };
   yield* beat(BEAT_BEFORE_FADE_IN);

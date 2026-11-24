@@ -88,6 +88,17 @@ own commit after `npm run test:block` and the golden trace test. One shared
 
 ## Progress
 
+- 2026-11-24, phase 4, frontend services: title, start menu, title cycle,
+  attract game, intro, ordinary cutscenes and the game owner take game services
+  only with frame jobs. Polling branches build their condition bits with
+  `waitStatus`; recorded callers keep status widths, data banks and PLP
+  restoration. Contract: [FRONTEND-SERVICE-COMPOSITION.md](FRONTEND-SERVICE-COMPOSITION.md).
+- Fourteen contracts (seven scenes, two budgets) passed with only `h.a` reachable
+  and the context frozen. Block check: 390/400 in 318 seconds, all five golden
+  traces unchanged; the ten owner comparisons compared the data bank inside live
+  frames. They now compare it at completed boundaries, where the owner adapter
+  restores bank 80; owner and transition comparisons passed 16/16 in 243 seconds.
+
 - 2026-11-24, phase 4, boot services: the power-on reset is a hardware service
   with the original write order and sites and its two stack bytes; the live
   startup and boot screens take game services only. The register reset stays in

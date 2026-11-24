@@ -49,7 +49,8 @@ export function* gameOwnerSequence(h, events, routines, showTitle = true) {
     setUpGameAudio(sceneRuntime(h));
     // The game starts without a countdown.
     setWord(wram, TIMER, TIMER_STOPPED);
-    h.ctx.bank = CODE_BANK;
+    // Recorded callers see the data bank 80 the original leaves.
+    if (!events.frameJobs) h.ctx.bank = CODE_BANK;
   };
   return choice;
 }
