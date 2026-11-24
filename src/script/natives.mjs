@@ -4,7 +4,7 @@
 //   F4CB  the argument words go to the direct page words 00.. (args[0] at 00), as the
 //         call_native prefix leaves them for the native
 //   F4F6  admitted synchronous natives receive ordinary game services and bank 80.
-//         Waiting natives also return values; deeper callees retain CPU workspace.
+//         Waiting live natives use the same services, with one per nesting depth.
 //   F509  the result is the word at 7E:0000 (the scheduler pushes it only
 //         when the table 82:D970 says the native has one)
 //
@@ -43,18 +43,23 @@ export class ScriptNatives {
   // admitted and implementation: the lifted natives without devices (target -> run);
   // devices: the observation source of the special natives (LiveDevices); host: the
   // game's settings as the natives' accessors see them (a.vm: gameplay, cheats).
-  constructor(mem, { admitted, implementation, devices = null, host = { mem } }) {
+  constructor(
+    mem,
+    { admitted, implementation, devices = null, host = { mem }, valueServices = false },
+  ) {
     this.mem = mem;
     this.host = host;
     this.admitted = new Set(admitted);
     this.implementation = implementation;
     this.devices = devices;
+    this.valueServices = valueServices;
     // Finite: special natives with a resumable sequence pause at their own limits.
     this.workBudget = Infinity;
-    // Workspace available to deeper native callees (innermost visit last).
+    // Recorded interrupt adapters alone borrow CPU workspace (innermost last).
     this.stacks = [];
     // One accessor per nesting depth of native calls (a nested visit's natives).
     this.accessors = [];
+    this.services = [];
     this.depth = 0;
     // Synchronous lifted leaves need only game services, never CPU registers.
     this.leaf = new DeviceAccess(host);
@@ -121,6 +126,10 @@ export class ScriptNatives {
   *enter(a, scheduler, entry) {
     const at = entry & WORD_MASK;
     if (at !== ROUND && at !== HEAD_VISIT) taskStop('script_scheduler_entry_unknown', { entry });
+    if (this.valueServices) {
+      yield* at === ROUND ? scheduler.rounds() : scheduler.headVisit();
+      return { wait: [], input: [] };
+    }
     return yield* this.roundSteps(scheduler, a.ctx.s, at);
   }
 
@@ -132,6 +141,17 @@ export class ScriptNatives {
       this.accessors.push(a);
     }
     return this.accessors[depth];
+  }
+
+  // A waiting live native owns only game services, reused at its nesting depth.
+  service() {
+    const depth = this.depth++;
+    if (depth === this.services.length) {
+      const a = new DeviceAccess(this.host);
+      Object.assign(a, { dataBank: CODE_BANK, valueReturn: true, devices: this.devices });
+      this.services.push(a);
+    }
+    return this.services[depth];
   }
 
   // F4F6 to F509 for script native `id` with its argument words.
@@ -158,26 +178,27 @@ export class ScriptNatives {
         a.io = null;
       }
     }
-    if (this.stacks.length === 0) taskStop('script_native_outside_visit', { native: id });
-    const stack = this.stacks[this.stacks.length - 1],
-      a = this.accessor(),
-      ctx = a.ctx,
-      pointer = target & WORD_MASK;
+    if (!this.valueServices && this.stacks.length === 0)
+      taskStop('script_native_outside_visit', { native: id });
+    const a = this.valueServices ? this.service() : this.accessor();
     // Game code inside the native reaches the tasks through the task API.
     a.tasks = scheduler.tasks ??= new JsTasks(scheduler);
-    a.resetAccessBudget(target);
-    Object.assign(ctx, {
-      e: 0,
-      programBank: CODE_BANK,
-      pc: pointer,
-      a: pointer,
-      x: (2 * id) & WORD_MASK,
-      y: scheduler.slots[slot].task.pc,
-      s: stack,
-      d: 0,
-      bank: CODE_BANK,
-      status: flagsOf(pointer),
-    });
+    a.resetAccessBudget?.(target);
+    if (!this.valueServices) {
+      const pointer = target & WORD_MASK;
+      Object.assign(a.ctx, {
+        e: 0,
+        programBank: CODE_BANK,
+        pc: pointer,
+        a: pointer,
+        x: (2 * id) & WORD_MASK,
+        y: scheduler.slots[slot].task.pc,
+        s: this.stacks[this.stacks.length - 1],
+        d: 0,
+        bank: CODE_BANK,
+        status: flagsOf(pointer),
+      });
+    }
     this.calls++;
     const resumable =
       this.workBudget !== Infinity && !this.admitted.has(target)
@@ -194,8 +215,7 @@ export class ScriptNatives {
     }
   }
 
-  // The ordinary script boundary consumes only the shared result word. The
-  // accessor remains workspace for deeper callees that still own CPU frames.
+  // Both service and recorded calls consume only the shared result word here.
   finish() {
     const result = this.mem.read16(WRAM_BASE);
     this.depth--;
@@ -205,6 +225,7 @@ export class ScriptNatives {
   options(a, target, scheduler, set, interruptEvents) {
     return {
       valueReturn: true,
+      valueServices: this.valueServices,
       valueRounds: true,
       waitMode: 'record-observations',
       waitObservations: set.wait,

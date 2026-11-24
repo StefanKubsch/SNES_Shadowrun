@@ -103,6 +103,7 @@ export class GameLoop {
         valueRounds: true,
       };
     const a = this.accessor;
+    this.natives.valueServices = Boolean(events.frameJobs);
     a.resetAccessBudget(target);
     a.io = set.io;
     a.ioIndex = 0;

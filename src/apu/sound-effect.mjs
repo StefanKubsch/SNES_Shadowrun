@@ -1,4 +1,5 @@
 import { readStateByte, writeStateByte } from '../state/objects.mjs';
+import { setDataBankOf } from '../system/data-bank.mjs';
 // Sound effects (lifted from 80:C46E with its stereo levels 80:C416; register-level
 // versions in proof/replay/native-audio-compose.mjs and native-input-apu.mjs, references
 // in proof/apu-reference/audio-routines.mjs).
@@ -111,8 +112,7 @@ export function playSoundEffect(mem, port, { object, effect, level, voices }) {
 // playSoundEffectCall is it without the JSR frame for lifted callers (the caller's
 // return word lies only in free stack bytes).
 export function playSoundEffectCall(h) {
-  const { ctx } = h,
-    { mem } = h.a,
+  const { mem } = h.a,
     { wram } = mem,
     dp = (offset) => word(wram, offset);
   playSoundEffect(mem, accessorPort(h.a), {
@@ -121,7 +121,7 @@ export function playSoundEffectCall(h) {
     level: dp(DP_LEVEL),
     voices: dp(DP_VOICES),
   });
-  ctx.bank = CODE_BANK;
+  setDataBankOf(h.a, CODE_BANK);
 }
 // The RTS form for register-level callers is playSoundEffectJsr in
 // proof/caller/jsr-forms.mjs.

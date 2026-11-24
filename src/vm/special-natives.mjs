@@ -72,7 +72,8 @@ function nativeSequence(a, options, sequence) {
     valueRounds: options?.valueRounds,
   };
   if (!lagFree(events)) taskStop('script_native_lag_free_required');
-  return sequence(dialogAccess(a), events, !options?.valueReturn);
+  if (options?.valueServices && !events.frameJobs) taskStop('script_native_frame_jobs_required');
+  return sequence(options?.valueServices ? { a } : dialogAccess(a), events, !options?.valueReturn);
 }
 export const SPECIAL_NATIVES = new Map();
 export const SPECIAL_NATIVE_CONTINUATIONS = new Map();

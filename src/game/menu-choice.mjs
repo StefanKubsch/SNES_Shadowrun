@@ -1,3 +1,4 @@
+import { dataBankOf } from '../system/data-bank.mjs';
 import { readStateByte, writeStateByte } from '../state/objects.mjs';
 // A choice from a menu list (lifted from 80:A6A5 to 80:A845; register-level version in
 // proof/replay/native-menu-compose.mjs stays the reference).
@@ -104,8 +105,7 @@ const subtractRowsTwice = (start, rows) => {
 // The renderer is a sequence. row is
 // the preselected row of 80:A6B8 (A in the original).
 export function* chooseFromMenu(h, events, renderBuffer = drawTextBufferSequence, entry, row = 0) {
-  const { ctx } = h,
-    { mem } = h.a,
+  const { mem } = h.a,
     { wram } = mem;
   // The row's word index (Y in the original).
   let index = 0;
@@ -117,7 +117,7 @@ export function* chooseFromMenu(h, events, renderBuffer = drawTextBufferSequence
       longWord(
         (field(DP_LIST_TOKENS) | (readStateByte(wram, DP_LIST_TOKEN_BANK) << WORD_BITS)) + index,
       ),
-    hotkey = () => longWord(((ctx.bank << WORD_BITS) | field(DP_LIST_VALUES)) + index);
+    hotkey = () => longWord(((dataBankOf(h.a) << WORD_BITS) | field(DP_LIST_VALUES)) + index);
   const list = () => drawList(h, events, renderBuffer),
     mark = () => markRow(h, events, renderBuffer, MARK, index),
     unmark = () => markRow(h, events, renderBuffer, UNMARK, index),

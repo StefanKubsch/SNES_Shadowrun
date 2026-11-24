@@ -88,6 +88,18 @@ own commit after `npm run test:block` and the golden trace test. One shared
 
 ## Progress
 
+- 2026-11-24, phase 4, native services: waiting live script natives use ordinary
+  memory, device and task services with no CPU context or dialog register helpers.
+  A service object per nesting depth retains observation ownership across pauses.
+  Menu banks, instant text, health protection and save/fight sound effects use
+  the same service boundary. Recorded interrupt callers keep their adapters.
+  Contract: [NATIVE-SERVICE-COMPOSITION.md](NATIVE-SERVICE-COMPOSITION.md).
+- Eighteen focused contracts passed. The initial 81-file block check passed 1298
+  tests and exposed five live cheat/save failures at two residual accessor uses.
+  Their corrected tool-selected suite passed 5407/5407 tests in 96 files in 207
+  seconds, without failures/skips and with all five golden traces unchanged.
+  Edited-file ESLint and format passed; passing logs were removed.
+
 - 2026-11-24, phase 4, wait services: all shared live counter, window, text,
   object-job and portrait waits derive their condition bits without a CPU status
   register. Recorded interrupts retain every unaffected caller bit. Object reload

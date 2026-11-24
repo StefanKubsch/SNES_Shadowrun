@@ -15,7 +15,7 @@ import { BLOCKING_BRANCHES } from '../vm/frame-events.mjs';
 import { NMI_CALLBACK, NMI_CALLBACK_BANK } from '../data/wram.mjs';
 import { NMITIMEN_NMI_ENABLE } from '../constants/hardware-registers.mjs';
 import { accessorPort } from '../system/hardware-port.mjs';
-import { BANK_WRAP, WORD_BITS } from '../constants/bits.mjs';
+import { WORD_BITS } from '../constants/bits.mjs';
 
 // Back branches of the four text waits (src/vm/frame-events.mjs).
 const TEXT_WAIT_BRANCHES = new Set([0x81acb2, 0x81acc0, 0x81acc6, 0x81accc]);
@@ -28,7 +28,7 @@ export function serviceTextWait(frames, h, events, status, pc) {
   if (!TEXT_WAIT_BRANCHES.has(pc) || !BLOCKING_BRANCHES.get(pc)(status)) return false;
   if (frames.inNmi || !(frames.nmitimen & NMITIMEN_NMI_ENABLE)) return false;
   const { a } = h,
-    callback = a.readWord(NMI_CALLBACK, BANK_WRAP) | (a.read(NMI_CALLBACK_BANK) << WORD_BITS);
+    callback = a.mem.read16Bank0(NMI_CALLBACK) | (a.mem.read8(NMI_CALLBACK_BANK) << WORD_BITS);
   // Only the game handler calls A9E1; other handlers keep their real frames.
   if (callback !== GAME_NMI_CALLBACK) return false;
   // The transfer counts as VBlank access (Book I PDF 121: VRAM data only in

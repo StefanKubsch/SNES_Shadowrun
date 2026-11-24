@@ -12,6 +12,10 @@ const address = (offset, index) => (CODE_BANK_BASE + offset + index) & LONG_MASK
 // Ordinary native services supply their bank as data. Reference callers retain
 // their original register, including unusual banks and cross-bank indices.
 export const dataBankOf = (services) => services.dataBank ?? services.ctx.bank;
+export function setDataBankOf(services, bank) {
+  if (services.dataBank !== undefined) services.dataBank = bank;
+  else services.ctx.bank = bank;
+}
 
 // The word at offset + index through the data bank 80.
 export const dataBankWord = (mem, offset, index = 0) => mem.read16(address(offset, index));

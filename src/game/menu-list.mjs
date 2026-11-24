@@ -1,3 +1,4 @@
+import { dataBankOf } from '../system/data-bank.mjs';
 import { readStateByte, writeStateByte } from '../state/objects.mjs';
 // A menu's list in its window (lifted from 80:A617, 80:A5DB and 80:A5F9; register-level
 // versions in proof/replay/native-list-prerequisites.mjs stay the reference).
@@ -97,8 +98,7 @@ function* rts(h) {
 
 // Draw the menu's list (80:A617) directly, receiving the renderer sequence.
 export function* drawList(h, events, renderBuffer = drawTextBufferSequence) {
-  const { ctx } = h,
-    { mem } = h.a,
+  const { mem } = h.a,
     { wram } = mem;
   // The list position (Y in the original).
   let at = 0;
@@ -109,7 +109,7 @@ export function* drawList(h, events, renderBuffer = drawTextBufferSequence) {
         (word(wram, DP_LIST_TOKENS) | (readStateByte(wram, DP_LIST_TOKEN_BANK) << WORD_BITS)) + at,
       ),
     // The numbers through the data bank, as the original's LDA abs,Y.
-    number = () => listWord(((ctx.bank << WORD_BITS) | word(wram, DP_LIST_VALUES)) + at);
+    number = () => listWord(((dataBankOf(h.a) << WORD_BITS) | word(wram, DP_LIST_VALUES)) + at);
   const cursor = () => segmentSequence(() => setTextCursor(h));
   // A text. The original keeps the list position on the stack around some texts and
   // numbers (PHY, PLY); that word lies only in free stack bytes, and the position is a

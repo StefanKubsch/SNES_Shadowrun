@@ -35,7 +35,7 @@ const putWord = (wram, at, value) => {
 // healing at the next frame after a lethal hit has already woken the task.
 export function protectedJakeHealth(a, record, remaining) {
   if (!(a.vm?.cheats & CHEAT.health) || record !== JAKE_STATE_RECORD) return remaining;
-  return a.read(WRAM + JAKE_BODY + RECORD_ATTRIBUTE.count_max) || remaining;
+  return a.mem.read8(WRAM + JAKE_BODY + RECORD_ATTRIBUTE.count_max) || remaining;
 }
 
 // A pad read is the common boundary for browser changes and recording replay.
