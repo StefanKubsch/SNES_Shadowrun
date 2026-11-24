@@ -29,6 +29,7 @@ import {
 import { waitForCounterWord } from '../system/frame-wait.mjs';
 import { dataBankWord, setDataBankWord } from '../system/data-bank.mjs';
 import { accessorPort } from '../system/hardware-port.mjs';
+import { videoOf } from '../video/video-port.mjs';
 import {
   DP_PORTRAIT_BANK,
   DP_PORTRAIT_POINTER,
@@ -52,15 +53,6 @@ import {
   TMW_SHADOW,
 } from '../data/wram.mjs';
 import { DIALOG_BANK_BASE, DIALOG_TABLE } from '../data/portraits.mjs';
-import {
-  A1B0,
-  A1T0L,
-  BBAD0,
-  DMAP0,
-  OBJSEL,
-  W12SEL,
-  WBGLOG,
-} from '../constants/hardware-registers.mjs';
 import { BYTE_BITS, BYTE_MASK, LONG_MASK, WORD_BITS, WORD_MASK } from '../constants/bits.mjs';
 import { WRAM_BANK } from '../constants/memory-map.mjs';
 
@@ -107,7 +99,7 @@ export function* memberPortrait(h, events) {
   yield () => {
     const portrait = (dataBankWord(mem, MEMBER_PORTRAIT) << 1) & WORD_MASK,
       record = dataBankWord(mem, DIALOG_TABLE & WORD_MASK, portrait);
-    port.write(OBJSEL, PORTRAIT_OBJSEL, 2, SITES.objsel);
+    videoOf(port).setObjectSelect(PORTRAIT_OBJSEL, SITES.objsel);
     setDataBankWord(mem, PALETTE_UPLOAD_LIST_BYTES, 0, 0);
     writeStateByte(wram, DP_PORTRAIT_BANK, mem.read8((DIALOG_BANK_BASE + 2 + record) & LONG_MASK));
     setWord(wram, DP_PORTRAIT_POINTER, longWord(mem, DIALOG_BANK_BASE + record));
@@ -155,16 +147,19 @@ function* colourWindow(h, events) {
     { wram } = mem,
     port = accessorPort(h.a);
   yield () => {
-    port.write(W12SEL, PORTRAIT_WINDOW.select, 2, SITES.window);
-    port.write(WBGLOG, 0, 2, SITES.logic);
-    port.write(A1T0L, PORTRAIT_HDMA_TABLE, 2, SITES.table);
+    const video = videoOf(port);
+    video.setWindowSelect(PORTRAIT_WINDOW.select, SITES.window);
+    video.setWindowLogic(0, SITES.logic);
     // The table and the channel's enable bit are bytes (8-bit A, TSB, whose zero the
     // next load overwrites).
     for (let n = 0; n <= HDMA_TABLE_LAST; n++)
       writeStateByte(wram, PORTRAIT_HDMA_TABLE + n, mem.read8(HDMA_TABLE_SOURCE + n));
-    port.write(DMAP0, PORTRAIT_WINDOW.hdmaMode, 1, SITES.mode);
-    port.write(BBAD0, PORTRAIT_WINDOW.hdmaTarget, 1, SITES.target);
-    port.write(A1B0, WRAM_BANK, 1, SITES.bank);
+    video.setUpHdmaTable(
+      PORTRAIT_WINDOW.hdmaMode,
+      PORTRAIT_WINDOW.hdmaTarget,
+      (WRAM_BANK << WORD_BITS) | PORTRAIT_HDMA_TABLE,
+      SITES,
+    );
     const shown = readStateByte(wram, HDMAEN_SHADOW);
     writeStateByte(wram, HDMAEN_SHADOW, shown | PORTRAIT_WINDOW.hdmaChannel);
     setDataBankWord(mem, TMW_SHADOW, 0, PORTRAIT_WINDOW.layers);

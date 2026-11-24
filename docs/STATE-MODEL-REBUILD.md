@@ -88,6 +88,11 @@ own commit after `npm run test:block` and the golden trace test. One shared
 
 ## Progress
 
+- 2026-11-24, phase 5, portrait and dialog writers: portrait windows, OBJSEL stores,
+  dialog colour math, font transfers and the game screen's H-DMA stop use the video
+  interface; src/game writes no picture register through the hardware port. Block
+  check 5606/5606 in 433 seconds, golden traces unchanged.
+
 - 2026-11-24, phase 5, NMI picture jobs: the game NMI jobs state their transfers
   through src/video/video-port.mjs and name no hardware register; the SNES back end
   writes the same registers with the same sites. Block check 3414/3414 in 161

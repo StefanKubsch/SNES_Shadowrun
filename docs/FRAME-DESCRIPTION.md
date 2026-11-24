@@ -46,11 +46,25 @@ however, no longer needs to name registers:
   tests and all five golden traces pass (32/32), so the register writes, video
   memory and pictures are unchanged.
 
+## Step 3: portrait, dialog and game screen writers (2026-11-24)
+
+- The portrait window and the member portrait's colour window (window select and
+  logic, H-DMA channel 0 table), the portrait and dialog-close OBJSEL stores, the
+  dialog's fixed colour and colour math reset, the dialog-close font transfers and
+  the game screen's H-DMA stop go through new VideoPort methods with their sites.
+  No module in src/game now writes a picture register through the hardware port;
+  the remaining port writes there are the multiplier, divider and M7A/M7B product
+  (arithmetic hardware).
+- The scene runtime's video interface now forwards sites and reads.
+- Evidence: block check 5606/5606 in 433 seconds; golden traces unchanged.
+
 ## Plan for the next steps
 
-1. The other direct picture writers (portrait window and member portrait H-DMA,
-   dialog colour math and OBJSEL, window opening, text drawing, game screen H-DMA)
-   move to the video interface the same way.
+1. Scene code still names registers through the raw `video.write`: 230 calls in
+   game-screen (81), title (38), start menu (26), cutscene animation (24) and scene
+   (17), intro (11), camera scroll (11), scene lists (10), fixed colour (8) and scene
+   tiles (4). They move to semantic VideoPort methods the same way. The ROM scene
+   lists stay register data and need the register decoder.
 2. A second video back end writes the picture state (palette, sprites, layer
    settings, character and map bytes) directly, without registers, for live play.
 3. Producers: game code builds the parts of the description it owns (palettes,

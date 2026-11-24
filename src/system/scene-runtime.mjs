@@ -14,7 +14,10 @@ export function sceneRuntime(h) {
     h,
     mem,
     wram: mem.wram,
-    video: new VideoPort((address, value, width) => a.busWrite(address, value, width)),
+    video: new VideoPort(
+      (address, value, width, site) => a.busWrite(address, value, width, site),
+      (address, width, site) => a.busRead(address, width, site),
+    ),
     port,
     // Sound command (APU_COMMAND_* in src/constants/sound-commands.mjs) with its word.
     sound: (command, parameter) => sendApuCommand(mem.wram, port, command, parameter),

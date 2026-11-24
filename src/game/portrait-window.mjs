@@ -28,8 +28,8 @@ import {
   RIGHT_WINDOW_RIGHT_EDGE,
   TMW_SHADOW,
 } from '../data/wram.mjs';
-import { A1B0, A1T0L, BBAD0, DMAP0, W12SEL, WBGLOG } from '../constants/hardware-registers.mjs';
-import { BYTE_BITS, BYTE_MASK, WORD_MASK, WORD_SIGN } from '../constants/bits.mjs';
+import { videoOf } from '../video/video-port.mjs';
+import { BYTE_BITS, BYTE_MASK, WORD_BITS, WORD_MASK, WORD_SIGN } from '../constants/bits.mjs';
 
 const HDMA_SOURCE = 0x808f87,
   HDMA_LAST_BYTE = 0x0f,
@@ -78,17 +78,20 @@ function setWindowEdges(wram, x) {
 // Open the portrait window (80:8F3A) with live frame waits, for lifted callers without
 // CPU call frames, including the counter waits.
 export function* openPortraitWindow(h, events) {
-  const { mem, wram, port } = sceneRuntime(h);
+  const { mem, wram, port } = sceneRuntime(h),
+    video = videoOf(port);
   let step = PORTRAIT_WINDOW.edgeFirst;
   yield () => {
-    port.write(W12SEL, PORTRAIT_WINDOW.select, 2, SITES.select);
-    port.write(WBGLOG, 0, 2, SITES.logic);
-    port.write(A1T0L, DIALOG_HDMA_TABLE, 2, SITES.table);
+    video.setWindowSelect(PORTRAIT_WINDOW.select, SITES.select);
+    video.setWindowLogic(0, SITES.logic);
     for (let x = HDMA_LAST_BYTE; x >= 0; x--)
       writeStateByte(wram, DIALOG_HDMA_TABLE + x, mem.read8(HDMA_SOURCE + x));
-    port.write(DMAP0, PORTRAIT_WINDOW.hdmaMode, 1, SITES.mode);
-    port.write(BBAD0, PORTRAIT_WINDOW.hdmaTarget, 1, SITES.target);
-    port.write(A1B0, WRAM_BANK, 1, SITES.bank);
+    video.setUpHdmaTable(
+      PORTRAIT_WINDOW.hdmaMode,
+      PORTRAIT_WINDOW.hdmaTarget,
+      (WRAM_BANK << WORD_BITS) | DIALOG_HDMA_TABLE,
+      SITES,
+    );
     writeStateByte(
       wram,
       HDMAEN_SHADOW,

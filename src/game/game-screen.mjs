@@ -88,7 +88,6 @@ import {
   NMITIMEN,
   NMITIMEN_AUTO_JOYPAD,
   NMITIMEN_NMI_ENABLE,
-  HDMAEN,
   MEMSEL,
   OAMADDL,
   OAMADDH,
@@ -500,7 +499,7 @@ export function setUpGameScreen(m, tasks) {
   const { wram, video, port } = m;
   port.write(MEMSEL, FAST_ROM, 1, MEMSEL_SITE);
   port.write(NMITIMEN, 0, 1, NMI_OFF_SITE);
-  port.write(HDMAEN, 0, 1, HDMA_OFF_SITE);
+  video.enableHdma(0, HDMA_OFF_SITE);
   setUpGameVideo(wram, video);
   setWord(wram, PORTRAIT_DMA_REQUEST, NONE);
   resetGlove(wram);

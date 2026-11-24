@@ -49,6 +49,7 @@ import {
   VMAINC,
   VMDATAL,
   W12SEL,
+  WBGLOG,
   WRIO,
 } from '../constants/hardware-registers.mjs';
 import {
@@ -240,12 +241,33 @@ export class VideoPort {
   setColourSelect(select) {
     this.write(CGSWSEL, select, 1);
   }
-  setColourMathLayers(layers) {
-    this.write(CGADSUB, layers, 1);
+  setColourMathLayers(layers, site) {
+    this.write(CGADSUB, layers, 1, site);
   }
   // Fixed colour: the component bits and a 5-bit intensity.
-  setFixedColour(value) {
-    this.write(COLDATA, value, 1);
+  setFixedColour(value, site) {
+    this.write(COLDATA, value, 1, site);
+  }
+  // OBJ sizes and character base (OBJSEL) by the game's 16-bit store, whose high byte
+  // also reaches OAMADDL.
+  setObjectSelect(value, site) {
+    this.write(OBJSEL, value, 2, site);
+  }
+  // Window areas of BG1-BG4 (W12SEL and W34SEL) by one 16-bit store.
+  setWindowSelect(value, site) {
+    this.write(W12SEL, value, 2, site);
+  }
+  // Window logic of BG1-BG4 and OBJ/colour (WBGLOG and WOBJLOG) by one 16-bit store.
+  setWindowLogic(value, site) {
+    this.write(WBGLOG, value, 2, site);
+  }
+  // H-DMA channel 0 from a table at a long CPU address: transfer mode and target
+  // register, in the order of the portrait window code. sites: table, mode, target, bank.
+  setUpHdmaTable(mode, register, table, sites) {
+    this.write(A1T0L, table & WORD_MASK, 2, sites.table);
+    this.write(DMAP0, mode, 1, sites.mode);
+    this.write(BBAD0, register & BYTE_MASK, 1, sites.target);
+    this.write(A1B0, table >>> WORD_BITS, 1, sites.bank);
   }
   // H-DMA channel: transfer mode, target register, table (long CPU address).
   setUpHdma(channel, mode, register, table) {
@@ -313,6 +335,19 @@ export class VideoPort {
     this.write(BBAD0, VMDATAL & BYTE_MASK, 1, sites.target);
     this.write(VMAINC, VMAINC_INCREMENT_AFTER_HIGH, 1, sites.increment);
     this.write(DMAP0, DMAP_TWO_PORTS, 1, sites.mode);
+  }
+  // bytes from a long CPU address to VRAM at a word address, by DMA on channel 0 with
+  // its whole setup (word mode to VMDATA). sites: address, bytes, source, bank, target,
+  // increment, mode, start.
+  sendToVram(source, bytes, address, sites) {
+    this.write(VMADDL, address, 2, sites.address);
+    this.write(DAS0L, bytes, 2, sites.bytes);
+    this.write(A1T0L, source & WORD_MASK, 2, sites.source);
+    this.write(A1B0, source >>> WORD_BITS, 1, sites.bank);
+    this.write(BBAD0, VMDATAL & BYTE_MASK, 1, sites.target);
+    this.write(VMAINC, VMAINC_INCREMENT_AFTER_HIGH, 1, sites.increment);
+    this.write(DMAP0, DMAP_TWO_PORTS, 1, sites.mode);
+    this.write(MDMAEN, channelBit(0), 1, sites.start);
   }
   // Start the VRAM transfer channel 0 holds (setUpVramTransfer) at a word address.
   // sites: address, start.

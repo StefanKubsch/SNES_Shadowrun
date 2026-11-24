@@ -50,6 +50,7 @@ import {
 import { takePad } from '../system/live-input-calls.mjs';
 import { waitForCounterWord } from '../system/frame-wait.mjs';
 import { sceneRuntime } from '../system/scene-runtime.mjs';
+import { videoOf } from '../video/video-port.mjs';
 import { fixesEnabled, preparePushkinTopics } from './bugfixes.mjs';
 import { DIALOG_TABLE, DIALOG_BANK_BASE } from '../data/portraits.mjs';
 import { JAKE_PORTRAIT_DIALOG, JAKE_ALTERNATE_PORTRAIT_DIALOG } from '../data/runners.mjs';
@@ -80,21 +81,6 @@ import {
   WINDOW_LEFT_PIXEL,
   WINDOW_WIDTH_PIXELS,
 } from '../data/wram.mjs';
-import {
-  A1B0,
-  A1T0L,
-  BBAD0,
-  CGADSUB,
-  COLDATA,
-  DAS0L,
-  DMAP0,
-  MDMAEN,
-  OBJSEL,
-  VMADDL,
-  VMAINC,
-  VMDATAL,
-} from '../constants/hardware-registers.mjs';
-import { VMAINC_INCREMENT_AFTER_HIGH } from '../constants/ppu.mjs';
 import {
   BYTE_BITS,
   BYTE_MASK,
@@ -129,19 +115,23 @@ const RECORD_FLAG_BYTE = 3,
   MENU_EXIT = 0,
   MENU_TALK = 1;
 // The two font blocks of the dialog close: VRAM word address and source in bank 8D, 40
-// bytes by DMA channel 0 (mode 1 to VMDATAL, increment after the high byte), each with
+// bytes by DMA channel 0 (word mode to VMDATA, increment after the high byte), each with
 // the sites of its eight writes.
+const fontSites = (address, bytes, source, bank, target, increment, mode, start) =>
+  Object.freeze({ address, bytes, source, bank, target, increment, mode, start });
 const FONT_BLOCKS = Object.freeze([
-    [0, 0xfb78, [0x8092d8, 0x8092de, 0x8092e4, 0x8092eb, 0x8092f0, 0x8092f5, 0x8092fa, 0x8092ff]],
+    [
+      0,
+      0x8dfb78,
+      fontSites(0x8092d8, 0x8092de, 0x8092e4, 0x8092eb, 0x8092f0, 0x8092f5, 0x8092fa, 0x8092ff),
+    ],
     [
       0x100,
-      0xfd78,
-      [0x809307, 0x80930d, 0x809313, 0x80931a, 0x80931f, 0x809324, 0x809329, 0x80932e],
+      0x8dfd78,
+      fontSites(0x809307, 0x80930d, 0x809313, 0x80931a, 0x80931f, 0x809324, 0x809329, 0x80932e),
     ],
   ]),
-  FONT_BYTES = 0x40,
-  FONT_DMA_MODE = 1,
-  FONT_DMA_CHANNEL = 1;
+  FONT_BYTES = 0x40;
 // Original call sites and callees.
 const CALL = Object.freeze({
   jakeUnpack: [0x80944d, 0x809f6d],
@@ -167,9 +157,9 @@ const pointer = (wram, dp, y) =>
 // Clear the fixed colour (81:886A), called with JSL: COLDATA black on all planes, no
 // colour math (CGADSUB 0).
 export function clearFixedColourInPlace(h) {
-  const { port } = sceneRuntime(h);
-  port.write(COLDATA, FIXED_COLOUR_BLACK, 1, COLDATA_SITE);
-  port.write(CGADSUB, 0, 1, CGADSUB_SITE);
+  const video = videoOf(sceneRuntime(h).port);
+  video.setFixedColour(FIXED_COLOUR_BLACK, COLDATA_SITE);
+  video.setColourMathLayers(0, CGADSUB_SITE);
 }
 // Set the text area of the window in the direct page word 00 (80:FA92), called with JSR:
 // its left text pixel from 02, its width in pixels from 04, or, for 0 or less, the
@@ -189,25 +179,14 @@ export function setWindowTextWidthInPlace(h) {
 // bytes). Tile restoration, counter waits, font DMA and sprite rebuilding compose
 // directly, preserving device order without internal CPU call frames.
 export function* closeDialog(h, events) {
-  const { port } = sceneRuntime(h);
+  const video = videoOf(sceneRuntime(h).port);
   yield* closePortraitWindow(h, events);
-  yield () => port.write(OBJSEL, 0, 2, CLOSE_OBJSEL_SITE);
+  yield () => video.setObjectSelect(0, CLOSE_OBJSEL_SITE);
   yield* reloadObjectTiles(h, events);
   yield* waitForCounterWord(h, events);
   yield () => {
-    for (const [vram, source, sites] of FONT_BLOCKS) {
-      const writes = [
-        [VMADDL, vram, 2],
-        [DAS0L, FONT_BYTES, 2],
-        [A1T0L, source, 2],
-        [A1B0, RECORD_BANK, 1],
-        [BBAD0, VMDATAL & BYTE_MASK, 1],
-        [VMAINC, VMAINC_INCREMENT_AFTER_HIGH, 1],
-        [DMAP0, FONT_DMA_MODE, 1],
-        [MDMAEN, FONT_DMA_CHANNEL, 1],
-      ];
-      writes.forEach(([register, value, width], n) => port.write(register, value, width, sites[n]));
-    }
+    for (const [vram, source, sites] of FONT_BLOCKS)
+      video.sendToVram(source, FONT_BYTES, vram, sites);
   };
   yield* segmentSequence(() => takePad(h, events));
   yield () => buildSpritesInPlace(h);
@@ -292,7 +271,7 @@ export function* talk(h, events, renderBuffer = drawTextBufferSequence) {
   // Jake's portrait record, then the partner's from the dialog record.
   yield () => {
     setWord(wram, DP_TEXT_WINDOW, word(wram, DP_OBJECT));
-    port.write(OBJSEL, PORTRAIT_OBJSEL, 2, OBJSEL_SITE);
+    videoOf(port).setObjectSelect(PORTRAIT_OBJSEL, OBJSEL_SITE);
     setWord(wram, PALETTE_UPLOAD_LIST_BYTES, 0);
     const jake = readStateByte(wram, JAKE_ALTERNATE_PORTRAIT)
         ? JAKE_ALTERNATE_PORTRAIT_DIALOG
