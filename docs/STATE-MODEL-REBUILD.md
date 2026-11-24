@@ -88,6 +88,15 @@ own commit after `npm run test:block` and the golden trace test. One shared
 
 ## Progress
 
+- Hit notices, shared waits, native services and scheduler callbacks passed one
+  shared release: 14015/14015 tests in 435 executed files, with 250 unchanged
+  files, no failures and no skips. All five golden traces and frozen proof
+  modules remain unchanged. Both artifact passes ran 434 generators and reused
+  338; all 3491 outputs matched. AC source was unchanged; syntax covered 3202
+  modules. Format, diff/staged diff and LFS checks passed. Artifact verification
+  took 493.8 seconds and tests 1097.3 seconds. Passing logs were removed;
+  .cache/release/last-summary.json retains the result.
+
 - 2026-11-24, phase 4, scheduler services: main and attract rounds and nested
   dialog/item/spell head visits use named callbacks, without numeric entries or
   borrowed CPU workspace. Enclosing native budgets survive nested calls and
