@@ -25,7 +25,8 @@ import { interruptEventsOf } from '../vm/devices.mjs';
 import { NATIVE_CALL_CONTINUATIONS } from '../system/native-call-continuation.mjs';
 import { SequenceRunner } from '../system/sequence-runner.mjs';
 import { dialogAccess } from '../system/native-dialog-support.mjs';
-import { runMainReset } from '../system/main-reset.mjs';
+import { resetHardware } from '../system/main-reset.mjs';
+import { accessorPort } from '../system/hardware-port.mjs';
 import { mainStartupSequence } from '../system/main-startup.mjs';
 import { gameOwnerSequence, GAME_OWNER_RESUME } from '../frontend/game-owner.mjs';
 import { gameStartSequence } from '../game/game-start.mjs';
@@ -44,6 +45,21 @@ const RESET_CONTEXT = Object.freeze({
   d: 0,
   bank: 0,
   status: 0x34,
+});
+// The registers the reset leaves at the startup 80:A133 (E=0, 16-bit A/X/Y, S=013F,
+// D=0, data bank 80, P = I and C). The reset service takes no context; this is the
+// compatibility workspace of register-level owners and natives that still borrow it.
+export const STARTUP_CONTEXT = Object.freeze({
+  e: 0,
+  programBank: 0x80,
+  pc: 0xa133,
+  a: 1,
+  x: 0xff,
+  y: 0,
+  s: 0x13f,
+  d: 0,
+  bank: 0x80,
+  status: 0x05,
 });
 const ROUND_RESUME = 0x8096c3;
 
@@ -163,8 +179,13 @@ export class GameLoop {
     const a = this.accessor,
       routines = this.routines;
     let events = this.interval(CODE_BANK_BASE | RESET_CONTEXT.pc);
-    yield () => runMainReset(a);
-    yield* mainStartupSequence(dialogAccess(a), events);
+    yield () => {
+      resetHardware(accessorPort(a), a.mem);
+      Object.assign(a.ctx, STARTUP_CONTEXT);
+    };
+    // Live startup takes game services only (docs/BOOT-SERVICE-COMPOSITION.md);
+    // injected recorded loops without frame jobs keep the compatibility context.
+    yield* mainStartupSequence(events.frameJobs ? { a } : dialogAccess(a), events);
     let showTitle = true;
     for (;;) {
       const h = dialogAccess(a),

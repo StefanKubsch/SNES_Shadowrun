@@ -5,7 +5,7 @@ import { cartridge } from './cartridge-harness.mjs';
 import { loadSave } from './mesen-f390-oracle.mjs';
 import { dialogAccess } from '../src/system/native-dialog-support.mjs';
 import { NativeCallContinuation } from '../src/system/native-call-continuation.mjs';
-import { mainStartupSequence } from '../src/system/main-startup.mjs';
+import { startupWithEntryContext } from './startup-entry-adapter.mjs';
 import { MainStartupContinuation, MAIN_STARTUP_ROUTINES } from '../proof/script/live-startup.mjs';
 import { runMainReset, runMainSoftwareReset } from '../proof/replay/main-reset.mjs';
 import { WAIT_RETURNED } from '../src/system/native-wait-continuation.mjs';
@@ -77,7 +77,7 @@ for (const valid of [true, false])
           const call =
             side === 0
               ? new MainStartupContinuation(a, events)
-              : new NativeCallContinuation(a, mainStartupSequence(dialogAccess(a), events));
+              : new NativeCallContinuation(a, startupWithEntryContext(dialogAccess(a), events));
           let status;
           do {
             a.resetAccessBudget();

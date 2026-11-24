@@ -88,6 +88,16 @@ own commit after `npm run test:block` and the golden trace test. One shared
 
 ## Progress
 
+- 2026-11-24, phase 4, boot services: the power-on reset is a hardware service
+  with the original write order and sites and its two stack bytes; the live
+  startup and boot screens take game services only. The register reset stays in
+  proof; tools/startup-entry-adapter.mjs restores the original entry metadata for
+  frozen callers. Contract: [BOOT-SERVICE-COMPOSITION.md](BOOT-SERVICE-COMPOSITION.md).
+- Three new contracts passed. Block check: 444/450 in the selection, 273 seconds,
+  all five golden traces unchanged; six transition comparisons failed because an
+  injected loop without frame jobs received no context. With that fixed they
+  passed 6/6. Edited-file ESLint and format passed.
+
 - Hit notices, shared waits, native services and scheduler callbacks passed one
   shared release: 14015/14015 tests in 435 executed files, with 250 unchanged
   files, no failures and no skips. All five golden traces and frozen proof

@@ -13,7 +13,9 @@
 // callback is the plain return the scene screen start installs.
 //
 // Registers (user decision 2026-11-17): game state only; the checksum and the output
-// mode leave no A or X. The status is restored on return, as the original's PLP.
+// mode leave no A or X. Live screens (with frame jobs) take game services only and
+// never touch a CPU context (docs/BOOT-SERVICE-COMPOSITION.md). Recorded callers keep
+// the original status changes and its restoration by the PLP on return.
 import { sceneRuntime } from '../system/scene-runtime.mjs';
 import { startSoundDriver } from '../apu/sound-driver-start.mjs';
 import { disableNmi, enableNmiAndJoypad, startSceneScreen } from '../system/nmi.mjs';
@@ -41,11 +43,12 @@ const CLEARED_WORD = 0x10;
 // events its frame events. It writes the direct page word 10 at WRAM 0010 and checks no
 // direct page register (its callers run with D = 0; user decision 2026-11-17). The
 // lifted startup runs it without the JSL frame (its return address lies only in free
-// stack bytes); the status is restored as by its PLP. The RTL form for register-level
-// callers is in proof/frontend-caller/boot-screens.mjs.
+// stack bytes). The RTL form for register-level callers is in
+// proof/frontend-caller/boot-screens.mjs.
 export function* bootScreensInPlace(h, events) {
-  const { ctx } = h,
-    status = ctx.status;
+  // Recorded comparisons only: their interrupt path combines the caller's status.
+  const ctx = events.frameJobs ? null : h.ctx,
+    status = ctx?.status;
   let m;
   const wait = () => waitForFrame(h, events, m.port),
     hold = function* (frames) {
@@ -54,7 +57,7 @@ export function* bootScreensInPlace(h, events) {
     showScreen = function* (list) {
       yield () => {
         // 81:EB97 sets the interrupt disable flag; the screen start's own PLP keeps it.
-        ctx.status |= FLAG_IRQ_DISABLE;
+        if (ctx) ctx.status |= FLAG_IRQ_DISABLE;
         startSceneScreen(m.wram, m.video, m.port);
         runSceneList(m.mem, m.video, m.port, list);
         setSceneScreen(m.video);
@@ -64,7 +67,7 @@ export function* bootScreensInPlace(h, events) {
     };
   yield () => {
     m = sceneRuntime(h);
-    ctx.status &= ~(FLAG_MEMORY_8BIT | FLAG_INDEX_8BIT);
+    if (ctx) ctx.status &= ~(FLAG_MEMORY_8BIT | FLAG_INDEX_8BIT);
     m.wram[CLEARED_WORD] = 0;
     m.wram[CLEARED_WORD + 1] = 0;
   };
@@ -90,6 +93,6 @@ export function* bootScreensInPlace(h, events) {
   yield () => disableNmi(m.wram, m.port);
   yield () => {
     sendOutputMode(m);
-    ctx.status = status;
+    if (ctx) ctx.status = status;
   };
 }

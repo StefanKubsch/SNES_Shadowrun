@@ -13,8 +13,7 @@ import { TITLE_CYCLE_PLANS } from './live-title-cycle-plan.mjs';
 import { dialogAccess } from '../src/system/native-dialog-support.mjs';
 import { NativeCallContinuation } from '../src/system/native-call-continuation.mjs';
 import { WAIT_RETURNED } from '../src/system/native-wait-continuation.mjs';
-import { runMainReset } from '../src/system/main-reset.mjs';
-import { mainStartupSequence } from '../src/system/main-startup.mjs';
+import { resetWithEntryContext, startupWithEntryContext } from './startup-entry-adapter.mjs';
 import { gameOwnerSequence, GAME_OWNER_RESUME } from './owner-entry-adapter.mjs';
 import { gameOwnerSequence as dispatchedOwner } from '../proof/frontend-caller/game-owner.mjs';
 import { FRONTEND_ROUTINES as dispatchedRoutines } from '../proof/script/live-frontend.mjs';
@@ -95,8 +94,8 @@ function* session(game, owner, routines, boundary, resume, side, request) {
     h = dialogAccess(a),
     events = loop.interval(0x80e382),
     Loop = side === 0 ? DispatchedLoop : MainLoopContinuation;
-  yield () => runMainReset(a);
-  yield* mainStartupSequence(h, events);
+  yield () => resetWithEntryContext(a);
+  yield* startupWithEntryContext(h, events);
   yield* owner(h, events, routines);
   yield () => boundary('first owner');
   yield {

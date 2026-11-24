@@ -2,8 +2,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { GameLoop } from '../src/script/game-loop.mjs';
 import { dialogAccess } from '../src/system/native-dialog-support.mjs';
-import { runMainReset } from '../src/system/main-reset.mjs';
-import { mainStartupSequence } from '../src/system/main-startup.mjs';
+import { resetWithEntryContext, startupWithEntryContext } from './startup-entry-adapter.mjs';
 import { gameOwnerSequence, GAME_OWNER_RESUME } from './owner-entry-adapter.mjs';
 import { gameStartSequence } from '../proof/caller/game-start.mjs';
 import { processSceneRequest } from '../proof/caller/scene-request.mjs';
@@ -29,8 +28,8 @@ class PreviousCallerLoop extends GameLoop {
     const a = this.accessor,
       h = dialogAccess(a);
     let events = this.interval(0x80e382);
-    yield () => runMainReset(a);
-    yield* mainStartupSequence(h, events);
+    yield () => resetWithEntryContext(a);
+    yield* startupWithEntryContext(h, events);
     for (;;) {
       const ownerReturn = a.ctx.s;
       yield* gameOwnerSequence(h, events, this.routines);
