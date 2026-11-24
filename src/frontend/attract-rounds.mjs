@@ -1,7 +1,7 @@
 // The live attract demo enters its room (AB; A in the original, a parameter here, user
 // decision 2026-11-17) and runs its main-loop rounds until return.
 import { taskStop } from '../system/task-stop.mjs';
-import { dialogCallBody } from '../system/native-call-continuation.mjs';
+import { recordedCallBody } from '../system/register-compat.mjs';
 import { roomStartSequence } from '../game/game-start.mjs';
 import { update, endOfFrame } from '../game/frame-loop.mjs';
 import { WORD_MASK } from '../constants/bits.mjs';
@@ -32,7 +32,7 @@ export function* runAttractRounds(h, e, r, room, roomStart = () => roomStartSequ
       if (more?.input?.length) e.inputs = Object.freeze([...e.inputs, ...more.input]);
     };
     if (e.valueRounds) yield* visit();
-    else yield* dialogCallBody(h, 0x8096c0, 0x80c1e3, visit);
+    else yield* recordedCallBody(h, 0x8096c0, 0x80c1e3, visit);
     if (yield* update(h, e)) break;
   }
 }

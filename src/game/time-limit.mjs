@@ -25,7 +25,7 @@ import { readStateByte, writeStateByte } from '../state/objects.mjs';
 // window as a value (A in the original). The carry the original leaves in the last hour
 // reaches only the P a later NMI saves (the next main loop steps do not read it), so it
 // is not kept, nor are A, X and Y.
-import { segmentSequence } from '../system/native-call-continuation.mjs';
+import { segmentSequence } from '../system/sequence-runner.mjs';
 import { showNotice } from './notice-show.mjs';
 import { setTextCursor, printNumber } from './window-text.mjs';
 import { printText } from './text-print.mjs';

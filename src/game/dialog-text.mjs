@@ -28,7 +28,7 @@ import { readStateByte, writeStateByte } from '../state/objects.mjs';
 //
 // Registers (user decision 2026-11-17): game state only; the routine leaves no A, X, Y
 // or flags.
-import { segmentSequence } from '../system/native-call-continuation.mjs';
+import { segmentSequence } from '../system/sequence-runner.mjs';
 import { requestTileClear } from './window-open.mjs';
 import { setTextCursor } from './window-text.mjs';
 import { drawTextBufferSequence } from './text-draw.mjs';

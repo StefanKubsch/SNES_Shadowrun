@@ -8,7 +8,7 @@
 // unless a button is held. It fades out, plays cutscene 5 mirrored and sets up the
 // game's sounds again.
 import { readStateByte, writeStateByte } from '../state/objects.mjs';
-import { dialogCallBody } from '../system/native-call-continuation.mjs';
+import { recordedCallBody } from '../system/register-compat.mjs';
 import { sceneFrames } from '../system/scene-frames.mjs';
 import { cutsceneSequence, playCutscene } from '../cutscene/cutscene-scene.mjs';
 import { sceneRuntime } from '../system/scene-runtime.mjs';
@@ -196,7 +196,7 @@ export function setUpGameAudio(m) {
 // passes on.
 export function* introSequence(h, events) {
   yield* introPlayback(h, events, () =>
-    dialogCallBody(
+    recordedCallBody(
       h,
       CUTSCENE_SITE,
       CUTSCENE,

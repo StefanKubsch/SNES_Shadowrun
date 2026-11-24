@@ -69,3 +69,38 @@ export class SequenceRunner {
     return this.done ? WAIT_RETURNED : WAIT_PAUSED;
   }
 }
+
+// Factories that implementations register for their fixed equations, by target or
+// by run function. This neutral map must never import a callback graph: that would
+// pull scene tables into wait adapters before their cyclic module graph has
+// initialized.
+export const NATIVE_CALL_CONTINUATIONS = new Map();
+
+// Run a sequence to its end, draining every pause of its child continuations, when
+// the caller requests synchronous completion.
+export function drainNativeSequence(sequence) {
+  let reply;
+  for (let next = sequence.next(); ; next = sequence.next(reply)) {
+    if (next.done) return next.value;
+    const action = next.value;
+    if (action.continuation) {
+      while (action.continuation.run(Number.MAX_SAFE_INTEGER) === WAIT_PAUSED) {
+        // Each pause ends one frame; synchronous completion runs the next at once.
+      }
+      reply = action.continuation.result;
+    } else
+      reply =
+        typeof action === 'function'
+          ? action()
+          : action.run(action.h, action.events, action.routines);
+  }
+}
+
+// A callee without its own sequence stays one segment.
+export function* segmentSequence(run) {
+  let result;
+  yield () => {
+    result = run();
+  };
+  return result;
+}

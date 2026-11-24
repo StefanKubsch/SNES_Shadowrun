@@ -13,7 +13,7 @@ import { readStateByte, writeStateByte } from '../state/objects.mjs';
 //
 // Registers (user decision 2026-11-17): game state only; no callee takes a register
 // input and no register values are left.
-import { segmentSequence } from '../system/native-call-continuation.mjs';
+import { segmentSequence } from '../system/sequence-runner.mjs';
 import { openWindow } from './window-open.mjs';
 import {
   releaseWindowSequence,

@@ -1,7 +1,7 @@
 // Live frame and input entry points shared by the main loop and menus.
 import { waitForCounterWord } from './frame-wait.mjs';
 import { takePadPresses } from './joypad.mjs';
-import { lagFree } from './main-wait-interrupt.mjs';
+import { lagFree } from '../vm/frame-events.mjs';
 import { taskStop } from './task-stop.mjs';
 
 // 81:B0A1 (called with JSL) and 80:9E1A (JSR) at the top of the main loop. With the

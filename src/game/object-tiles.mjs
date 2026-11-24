@@ -28,7 +28,7 @@ import { readStateByte, writeStateByte } from '../state/objects.mjs';
 // lag-free frame model: the NMI arrives at the waits' branches 80:AE61 and 80:AE0F
 // (recorded runs use the register-level reload in proof/system/native-scene-tiles.mjs).
 // The word wait comes from the live frame sequence.
-import { lagFree } from '../system/main-wait-interrupt.mjs';
+import { lagFree } from '../vm/frame-events.mjs';
 import { nmiAtBranch, waitForCounterWord } from '../system/frame-wait.mjs';
 import { stepAnimationInPlace } from './object-animation.mjs';
 import { taskStop } from '../system/task-stop.mjs';

@@ -29,7 +29,7 @@ import { readStateByte, writeStateByte } from '../state/objects.mjs';
 // Registers (user decision 2026-11-17): game state only; the routines take the row's
 // word index as a parameter and leave no A, X, Y or flags. The list position's pushes
 // around the prints are kept in locals.
-import { segmentSequence } from '../system/native-call-continuation.mjs';
+import { segmentSequence } from '../system/sequence-runner.mjs';
 import { printNumber, setTextCursor } from './window-text.mjs';
 import { drawTextBufferSequence } from './text-draw.mjs';
 import { printText } from './text-print.mjs';

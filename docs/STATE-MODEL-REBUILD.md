@@ -88,6 +88,16 @@ own commit after `npm run test:block` and the golden trace test. One shared
 
 ## Progress
 
+- 2026-11-24, phase 4, register compatibility boundary: the browser game's import
+  graph contains none of the four remaining register adapters (nmi-call,
+  main-wait-interrupt, native-call-continuation, native-dialog-support). Live
+  modules reach their recorded branches through src/system/register-compat.mjs,
+  where those modules install themselves; frozen proof keeps its import paths.
+  Contract: [REGISTER-COMPAT-BOUNDARY.md](REGISTER-COMPAT-BOUNDARY.md).
+- Block check: 6890/6897 in 645 seconds, all five golden traces unchanged; seven
+  register-path native cases loaded no compatibility module and now import it
+  (7/7). The 16 further tests without such a module passed 93/93.
+
 - 2026-11-24, phase 4, live accessor: the live GameLoop never reads or writes
   its accessor's CPU context; live play reads data bank 80 as a value, which
   object creation during room entry needed. Only injected recorded loops receive

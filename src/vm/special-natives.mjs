@@ -46,11 +46,13 @@ import {
   chooseRandomFightTargetNative,
   canAttackNative,
 } from '../script/native-script-leaves.mjs';
-import { dialogAccess } from '../system/native-dialog-support.mjs';
-import { drainNativeSequence, observedContinuation } from '../system/native-call-continuation.mjs';
-import { SequenceRunner } from '../system/sequence-runner.mjs';
-import { NATIVE_CALL_CONTINUATIONS } from '../system/native-call-continuation.mjs';
-import { lagFree } from '../system/main-wait-interrupt.mjs';
+import {
+  SequenceRunner,
+  NATIVE_CALL_CONTINUATIONS,
+  drainNativeSequence,
+} from '../system/sequence-runner.mjs';
+import { registerCompat } from '../system/register-compat.mjs';
+import { lagFree } from './frame-events.mjs';
 import { taskStop } from '../system/task-stop.mjs';
 import { raiseStateCountSequence, restoreRunnersSequence } from '../game/runner-state-call.mjs';
 
@@ -74,7 +76,11 @@ function nativeSequence(a, options, sequence) {
   };
   if (!lagFree(events)) taskStop('script_native_lag_free_required');
   if (options?.valueServices && !events.frameJobs) taskStop('script_native_frame_jobs_required');
-  return sequence(options?.valueServices ? { a } : dialogAccess(a), events, !options?.valueReturn);
+  return sequence(
+    options?.valueServices ? { a } : registerCompat('dialogAccess')(a),
+    events,
+    !options?.valueReturn,
+  );
 }
 export const SPECIAL_NATIVES = new Map();
 export const SPECIAL_NATIVE_CONTINUATIONS = new Map();
@@ -118,7 +124,10 @@ for (const [target, sequence] of [
       const continuation = new SequenceRunner(steps, NATIVE_CALL_CONTINUATIONS);
       return { continuation, finish: () => continuation.result };
     }
-    return observedContinuation(a, { sequence: steps, finish: (result) => result });
+    return registerCompat('observedContinuation')(a, {
+      sequence: steps,
+      finish: (result) => result,
+    });
   });
 }
 export const DEVICE_NATIVE_LEAVES = new Map([

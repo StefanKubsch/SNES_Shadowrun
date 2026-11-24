@@ -30,7 +30,7 @@ import { readStateByte, writeStateByte } from '../state/objects.mjs';
 // comparisons retain their independent register-level callers, including interrupts
 // inside a glyph. The compatibility renderer consumes its caller's outer RTS only.
 import { sceneRuntime } from '../system/scene-runtime.mjs';
-import { dialogCallBody } from '../system/native-call-continuation.mjs';
+import { recordedCallBody } from '../system/register-compat.mjs';
 import { nmiAtBranch } from '../system/frame-wait.mjs';
 import {
   TEXT_BUFFER,
@@ -511,7 +511,7 @@ export function* renderTextBuffer(h, events, renderer, site) {
     yield () => {
       h.ctx.bank = TEXT_DATA_BANK;
     };
-    yield* dialogCallBody(h, site, TEXT_DRAW_ENTRY, () => renderer(h, events));
+    yield* recordedCallBody(h, site, TEXT_DRAW_ENTRY, () => renderer(h, events));
   } finally {
     h.ctx.bank = bank;
   }

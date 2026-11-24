@@ -85,6 +85,10 @@ export function nmitimenAfterWrite(current, address, value, width) {
   return current;
 }
 
+// The lag-free frame source of an event set, or null for recorded interrupt records.
+export const lagFree = (events) =>
+  events?.interrupts instanceof LagFreeFrames ? events.interrupts : null;
+
 export class LagFreeFrames {
   // onNmi runs at NMI entry before the handler: end of the visible frame.
   // pad(k) returns the word for live NMI k (from zero), read at 9E13.

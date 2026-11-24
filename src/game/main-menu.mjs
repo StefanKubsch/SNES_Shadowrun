@@ -21,7 +21,7 @@ import { readStateByte, writeStateByte } from '../state/objects.mjs';
 // no register values; comparisons check WRAM, video and outputs. None of the callees
 // takes a register input. The choice the original keeps on the stack over the window
 // release (PEI, PLA) is a local value.
-import { segmentSequence } from '../system/native-call-continuation.mjs';
+import { segmentSequence } from '../system/sequence-runner.mjs';
 import { openWindow } from './window-open.mjs';
 import { releaseWindowSequence } from './window-release.mjs';
 import { chooseFromMenu } from './menu-choice.mjs';

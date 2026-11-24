@@ -26,7 +26,7 @@ import { releaseWindowSequence, putGloveAwaySequence } from './window-release.mj
 import { START_ENTRY, ITEMS_ENTRY, statusScreen } from './status-screen.mjs';
 import { partyStatus } from './party-status.mjs';
 import { drawTextBufferSequence } from './text-draw.mjs';
-import { segmentSequence } from '../system/native-call-continuation.mjs';
+import { segmentSequence } from '../system/sequence-runner.mjs';
 import { dataBankWord } from '../system/data-bank.mjs';
 import { placeGloveOverPlayer } from './glove-target.mjs';
 import { GLOVE_LIMITS } from '../script/native-glove-crosshair-limits.mjs';

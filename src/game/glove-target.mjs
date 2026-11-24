@@ -34,7 +34,7 @@ import { waitForCounterWord } from '../system/frame-wait.mjs';
 // Registers (user decision 2026-11-17): game state only; the natives leave no A, X, Y or
 // flags (the script interpreter replaces them and reads DP 00). Chosen slots and
 // the place choice's object stay in generator locals across waits.
-import { segmentSequence } from '../system/native-call-continuation.mjs';
+import { segmentSequence } from '../system/sequence-runner.mjs';
 import { GLOVE_LIMITS, GLOVE_OVER_PLAYER } from '../script/native-glove-crosshair-limits.mjs';
 import {
   CAMERA_X,

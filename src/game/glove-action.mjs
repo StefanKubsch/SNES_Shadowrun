@@ -40,7 +40,7 @@ import { putGloveAwaySequence } from './window-release.mjs';
 // original would hang) at task_chain_required.
 import { showNotice } from './notice-show.mjs';
 import { drawTextBufferSequence } from './text-draw.mjs';
-import { segmentSequence } from '../system/native-call-continuation.mjs';
+import { segmentSequence } from '../system/sequence-runner.mjs';
 import {
   ACTION_MENU_OVERRIDE,
   AIMING_SPELL,

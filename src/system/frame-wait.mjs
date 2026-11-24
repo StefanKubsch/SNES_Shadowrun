@@ -10,7 +10,8 @@ import { readStateByte } from '../state/objects.mjs';
 // dispatches frame jobs directly with the branch condition and carry as values.
 // Recorded comparisons retain the original interrupt context: branch 81:EED1,
 // an equal byte compare, and the handler's push/restore before returning here.
-import { InterruptStepContinuation, lagFree } from './main-wait-interrupt.mjs';
+import { lagFree } from '../vm/frame-events.mjs';
+import { registerCompat } from './register-compat.mjs';
 import { WAIT_PAUSED, WAIT_RETURNED } from './native-wait-continuation.mjs';
 import { NMITIMEN_SHADOW, RANDOM_STATE } from '../data/wram.mjs';
 import { HVBJOY, HVBJOY_VBLANK, NMITIMEN_NMI_ENABLE } from '../constants/hardware-registers.mjs';
@@ -73,12 +74,8 @@ export function* nmiAtBranch(h, events, branch, status) {
     if (frames.nmis !== nmis) yield { continuation: new FramePause() };
     return;
   }
-  const { ctx } = h,
-    saved = { programBank: ctx.programBank, pc: ctx.pc, status: ctx.status },
-    nmis = lagFree(events)?.nmis;
-  ctx.status = status;
-  yield { continuation: new InterruptStepContinuation(h, events, branch) };
-  yield () => Object.assign(ctx, saved);
+  const nmis = lagFree(events)?.nmis;
+  yield* registerCompat('interruptAtBranch')(h, events, branch, status);
   if (lagFree(events)?.nmis !== nmis) yield { continuation: new FramePause() };
 }
 

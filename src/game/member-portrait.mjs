@@ -17,7 +17,8 @@ import { readStateByte, writeStateByte } from '../state/objects.mjs';
 // and the tile upload 80:8FF5 take their stream, offset and VRAM address as parameters
 // (A, Y and X in the original); the window step (X) is a local, and no registers or
 // flags are left.
-import { dialogCallBody, segmentSequence } from '../system/native-call-continuation.mjs';
+import { segmentSequence } from '../system/sequence-runner.mjs';
+import { recordedCallBody } from '../system/register-compat.mjs';
 import {
   unpackPortrait,
   unpackPortraitStream,
@@ -115,7 +116,7 @@ export function* memberPortrait(h, events) {
     stream = [longWord(mem, pointer), mem.read8((pointer + PORTRAIT_RECORD_BANK_BYTE) & LONG_MASK)];
   };
   if (events?.startupInterrupts)
-    yield* dialogCallBody(h, ...UNPACK, () =>
+    yield* recordedCallBody(h, ...UNPACK, () =>
       segmentSequence(() => unpackPortrait(h, events, ...stream, PORTRAIT_BUFFER)),
     );
   else yield () => unpackPortraitStream(h, ...stream, PORTRAIT_BUFFER);

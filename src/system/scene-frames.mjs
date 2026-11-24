@@ -7,7 +7,7 @@
 // original call sites. That register-level driver lives in proof/ and installs
 // itself here; the scenes never see the original addresses.
 import { taskStop } from './task-stop.mjs';
-import { lagFree } from './main-wait-interrupt.mjs';
+import { lagFree } from '../vm/frame-events.mjs';
 import { takePadPresses } from './joypad.mjs';
 import { nmiAtBranch, waitForFrame } from './frame-wait.mjs';
 

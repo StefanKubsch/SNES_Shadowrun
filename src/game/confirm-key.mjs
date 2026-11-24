@@ -5,7 +5,7 @@ import { readStateByte } from '../state/objects.mjs';
 // B, Y, Select, A or X is pressed. Game state only (user decision 2026-11-17): the
 // confirming buttons the original leaves in A are not kept; no caller reads them, and
 // the script interpreter loads its next opcode into A after the native.
-import { segmentSequence } from '../system/native-call-continuation.mjs';
+import { segmentSequence } from '../system/sequence-runner.mjs';
 import { takePad } from '../system/live-input-calls.mjs';
 import { waitForCounterWord } from '../system/frame-wait.mjs';
 import { PAD_PRESSED } from '../data/wram.mjs';

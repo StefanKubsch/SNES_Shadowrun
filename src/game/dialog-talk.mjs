@@ -25,7 +25,8 @@ import { readStateByte, writeStateByte } from '../state/objects.mjs';
 // Registers (user decision 2026-11-17): game state only; the routine, the dialog close,
 // the colour clear and the text width leave no A, X, Y or flags. The old music and the
 // two windows wait on the stack as in the original.
-import { dialogCallBody, segmentSequence } from '../system/native-call-continuation.mjs';
+import { segmentSequence } from '../system/sequence-runner.mjs';
+import { recordedCallBody } from '../system/register-compat.mjs';
 import { setMusicModeInPlace } from '../apu/audio-routines.mjs';
 import { showDialogText } from './dialog-text.mjs';
 import { chooseDialogAction, chooseDialogTopic } from './dialog-menus.mjs';
@@ -232,7 +233,7 @@ export function* talk(h, events, renderBuffer = drawTextBufferSequence) {
       stream = [longWord(mem, at), longWord(mem, at + PORTRAIT_RECORD_BANK_BYTE) & BYTE_MASK];
     };
     if (events?.startupInterrupts)
-      yield* dialogCallBody(h, ...unpack, () =>
+      yield* recordedCallBody(h, ...unpack, () =>
         segmentSequence(() => unpackPortrait(h, events, ...stream, PORTRAIT_BUFFER)),
       );
     else yield () => unpackPortraitStream(h, ...stream, PORTRAIT_BUFFER);

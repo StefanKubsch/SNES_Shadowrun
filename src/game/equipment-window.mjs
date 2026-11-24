@@ -13,7 +13,7 @@ import { readStateByte, writeStateByte } from '../state/objects.mjs';
 // Registers (user decision 2026-11-17): game state only; no callee takes a register
 // input and no register values are left. Armour, rating and weapon, which the original
 // keeps on the stack over the rows (PHA, PLA), are locals.
-import { segmentSequence } from '../system/native-call-continuation.mjs';
+import { segmentSequence } from '../system/sequence-runner.mjs';
 import { setTextCursor, printNumber } from './window-text.mjs';
 import { printText } from './text-print.mjs';
 import { drawTextBufferSequence } from './text-draw.mjs';

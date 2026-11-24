@@ -22,9 +22,8 @@ import { Scheduler } from './scheduler.mjs';
 import { ScriptNatives, ROUND, HEAD_VISIT, nativeTarget } from './natives.mjs';
 import { JsTasks } from './task-api.mjs';
 import { interruptEventsOf } from '../vm/devices.mjs';
-import { NATIVE_CALL_CONTINUATIONS } from '../system/native-call-continuation.mjs';
-import { SequenceRunner } from '../system/sequence-runner.mjs';
-import { dialogAccess } from '../system/native-dialog-support.mjs';
+import { SequenceRunner, NATIVE_CALL_CONTINUATIONS } from '../system/sequence-runner.mjs';
+import { registerCompat } from '../system/register-compat.mjs';
 import { resetHardware } from '../system/main-reset.mjs';
 import { accessorPort } from '../system/hardware-port.mjs';
 import { mainStartupSequence } from '../system/main-startup.mjs';
@@ -188,7 +187,7 @@ export class GameLoop {
     // without frame jobs keep the context the reset leaves
     // (docs/LIVE-LOOP-SERVICES.md).
     const live = Boolean(events.frameJobs),
-      services = () => (live ? this.services : dialogAccess(a));
+      services = () => (live ? this.services : registerCompat('dialogAccess')(a));
     yield () => {
       resetHardware(accessorPort(a), a.mem);
       if (live) a.dataBank = CODE_BANK;

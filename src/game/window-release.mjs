@@ -23,7 +23,6 @@ import { readStateByte, writeStateByte } from '../state/objects.mjs';
 // proof/caller/window-release.mjs.
 import { sceneRuntime } from '../system/scene-runtime.mjs';
 import { drawWindowListSequence } from './window-list.mjs';
-import { dialogAccess } from '../system/native-dialog-support.mjs';
 import {
   GLOVE_KIND,
   GLOVE_NAME_WINDOW,
@@ -37,7 +36,7 @@ import {
   WINDOW_NEXT_TILE,
   WINDOW_TILE_START,
 } from '../data/wram.mjs';
-import { BYTE_BITS, BYTE_MASK, WORD_BITS, WORD_MASK, WORD_SIGN } from '../constants/bits.mjs';
+import { BYTE_BITS, BYTE_MASK, WORD_MASK, WORD_SIGN } from '../constants/bits.mjs';
 
 const NONE = WORD_MASK,
   DP_WINDOW = 0x00;
@@ -64,23 +63,6 @@ export function* releaseWindowSequence(h, events) {
   yield* drawWindowListSequence(h, events);
 }
 
-// The release as called with JSR (80:FA3E), whose caller has pushed the frame; returns
-// with its RTS as { rawReturnWord, returnTarget }.
-function* releaseWindowCallSequence(h, events) {
-  yield* releaseWindowSequence(h, events);
-  let result;
-  yield () => {
-    const { ctx, a } = h,
-      rawReturnWord = a.pullWord();
-    ctx.pc = (rawReturnWord + 1) & WORD_MASK;
-    result = { rawReturnWord, returnTarget: (ctx.programBank << WORD_BITS) | ctx.pc };
-  };
-  return result;
-}
-// The live release entered with a caller-provided JSR frame. Recorded callers
-// use the independently retained sequence in proof/caller/window-release.mjs.
-export const releaseWindowJsrSequence = (a, events) =>
-  releaseWindowCallSequence(dialogAccess(a), events);
 // Release every used notice window, from the last slot down, and reset the first window
 // index (80:FF79).
 export function* releaseNoticeWindowsSequence(h, events) {

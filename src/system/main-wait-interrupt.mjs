@@ -1,13 +1,14 @@
 import { taskStop } from './task-stop.mjs';
 import { runObservedNmi, ObservedNmiContinuation } from './nmi-call.mjs';
 import { NativeCallContinuation } from './native-call-continuation.mjs';
-import { LagFreeFrames } from '../vm/frame-events.mjs';
+import { lagFree } from '../vm/frame-events.mjs';
+import { installRegisterCompat } from './register-compat.mjs';
 import { WORD_BITS, WORD_MASK } from '../constants/bits.mjs';
 
 const NMI = Object.freeze({ nmi: true }),
   NO_NMI = Object.freeze({ nmi: false });
-export const lagFree = (events) =>
-  events?.interrupts instanceof LagFreeFrames ? events.interrupts : null;
+// Frozen callers import lagFree from here; it lives with the frame model.
+export { lagFree };
 // One interrupt step at pc: an explicit record for every reached instruction (nmi:false
 // is an observed absence, not elapsed time), or a LagFreeFrames source that delivers
 // an NMI only at a blocking loop branch.
@@ -96,3 +97,16 @@ function* interruptSequence(h, events, pc) {
     };
   }
 }
+
+// One recorded pass at the blocking branch of a frame wait (src/system/frame-wait.mjs):
+// the branch status and site in the interrupted context, the observed NMI, then the
+// caller's PB, PC and P restored.
+export function* interruptAtBranch(h, events, branch, status) {
+  const { ctx } = h,
+    saved = { programBank: ctx.programBank, pc: ctx.pc, status: ctx.status };
+  ctx.status = status;
+  yield { continuation: new InterruptStepContinuation(h, events, branch) };
+  yield () => Object.assign(ctx, saved);
+}
+
+installRegisterCompat({ interruptAtBranch });

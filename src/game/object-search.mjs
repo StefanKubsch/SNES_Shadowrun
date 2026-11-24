@@ -24,7 +24,7 @@ import { readStateByte, writeStateByte } from '../state/objects.mjs';
 // the search leaves no A, X, Y or flags. The direct page words 0E, 11, 14, 17 and 1A (the glove on the screen and
 // relative to the object, the kind index) are written as the original writes them.
 import { lowObjectWord, longObjectWord } from '../state/objects.mjs';
-import { segmentSequence } from '../system/native-call-continuation.mjs';
+import { segmentSequence } from '../system/sequence-runner.mjs';
 import { releaseGloveNameWindowSequence } from './window-release.mjs';
 import { printText } from './text-print.mjs';
 import { drawTextBufferSequence } from './text-draw.mjs';

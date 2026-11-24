@@ -2,7 +2,7 @@
 // (docs/BOOT-SERVICE-COMPOSITION.md). The former address-dispatched path is retained
 // in proof/script/live-startup.mjs.
 import { taskStop } from './task-stop.mjs';
-import { lagFree } from './main-wait-interrupt.mjs';
+import { lagFree } from '../vm/frame-events.mjs';
 import { bootScreensInPlace } from '../frontend/boot-screens.mjs';
 
 // The JSR to 80:A15C and its JSL to the boot screens 81:E7BC run without their

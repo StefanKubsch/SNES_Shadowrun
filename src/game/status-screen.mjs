@@ -26,7 +26,7 @@ import { readStateByte, writeStateByte } from '../state/objects.mjs';
 // Registers (user decision 2026-11-17): game state only; the APU command 81:F007
 // takes the command and its value as parameters (A and X in the original). The object the
 // native keeps on the stack over the notice release (PEI, PLY) is a local.
-import { segmentSequence } from '../system/native-call-continuation.mjs';
+import { segmentSequence } from '../system/sequence-runner.mjs';
 import { openWindow } from './window-open.mjs';
 import {
   releaseWindowSequence,

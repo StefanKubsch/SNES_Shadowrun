@@ -36,7 +36,7 @@ import { readStateByte, writeStateByte } from '../state/objects.mjs';
 // no register values; comparisons check WRAM, video and outputs. The numbered menu
 // 80:A6B8 takes its preselected row as a parameter. The category row the original keeps on
 // the stack over the detail windows (PHA, PLA) is a local value.
-import { segmentSequence } from '../system/native-call-continuation.mjs';
+import { segmentSequence } from '../system/sequence-runner.mjs';
 import { chooseFromMenu } from './menu-choice.mjs';
 import { openWindow, requestTileClear } from './window-open.mjs';
 import { setTextCursor, printNumber } from './window-text.mjs';

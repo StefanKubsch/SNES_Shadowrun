@@ -31,7 +31,7 @@ import { readStateByte, writeStateByte } from '../state/objects.mjs';
 // position's push around a hotkey and a move's pushes of the direct page words 00 and 06
 // (around the move sound's arguments, which the original sets up and restores without
 // playing it) lie only in free stack bytes and are kept in locals.
-import { segmentSequence } from '../system/native-call-continuation.mjs';
+import { segmentSequence } from '../system/sequence-runner.mjs';
 import { takePad } from '../system/live-input-calls.mjs';
 import { waitForCounterWord } from '../system/frame-wait.mjs';
 import { playSoundEffect } from '../apu/sound-effect.mjs';

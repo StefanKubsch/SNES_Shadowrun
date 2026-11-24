@@ -25,7 +25,7 @@ import { setMusicModeInPlace } from '../apu/audio-routines.mjs';
 import { playSoundEffectCall } from '../apu/sound-effect.mjs';
 import { setMusicMode } from '../apu/music-mode.mjs';
 import { dataBankWord, setDataBankWord } from '../system/data-bank.mjs';
-import { segmentSequence } from '../system/native-call-continuation.mjs';
+import { segmentSequence } from '../system/sequence-runner.mjs';
 import {
   DP_CURSOR_ROW,
   DP_NOTICE_FRAMES,
