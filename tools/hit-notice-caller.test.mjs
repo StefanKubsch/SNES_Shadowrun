@@ -25,11 +25,11 @@ function runHit(sequence, hits, karma, request, budget, pads = [0x8000]) {
     budget,
     notice ? pads : [],
     true,
-    ({ h, mem, put, events, calls }) => {
+    ({ mem, put, events, calls }) => {
       const service = events.interrupts.textWait;
       events.interrupts.textWait = (callee, frameEvents, status, pc) => {
-        const caller = mem.read16(0x7e0000 | (h.ctx.s + 1));
-        if (pc === 0x81b0a9 && (caller === 0x87b2 || caller === 0x87f8)) {
+        // Both implementations delay thirty counter changes before reading the pad.
+        if (pc === 0x81b0a9 && calls.length < 30) {
           // Game state only (user decision 2026-11-17): no X (the original's wait count).
           calls.push(['notice count']);
           put(W.RANDOM_STATE, mem.read16(W.RANDOM_STATE) + 1);

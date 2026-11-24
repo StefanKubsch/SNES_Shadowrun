@@ -71,9 +71,11 @@ function runShot(sequence, direct, options) {
       bind(0x808691, () => formerHit(h, events, routines));
       routines.set(0x81ad92, runDrawWindowList);
       const service = events.interrupts.textWait;
+      let noticeWaits = 0;
       events.interrupts.textWait = (callee, frameEvents, status, pc) => {
-        const caller = mem.read16(0x7e0000 | (h.ctx.s + 1));
-        if (pc === 0x81b0a9 && (caller === 0x87b2 || caller === 0x87f8)) {
+        // A notice delays thirty counter changes before its first pad read.
+        if (notice && pc === 0x81b0a9 && noticeWaits < 30) {
+          noticeWaits++;
           // Game state only (user decision 2026-11-17): no X (the original's wait count).
           calls.push(['notice count']);
           put(W.RANDOM_STATE, mem.read16(W.RANDOM_STATE) + 1);

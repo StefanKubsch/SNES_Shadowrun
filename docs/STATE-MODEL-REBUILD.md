@@ -72,9 +72,9 @@ and nothing else imports it.
 
 ## Cadence
 
-User decision of 2026-11-20: a block is a complete subsystem or phase step with its
+User decisions of 2026-11-20 and 2026-11-24: a block is a complete subsystem or phase step with its
 own commit after `npm run test:block` and the golden trace test. One shared
-`npm run verify:release` and push after every two to three subsystem blocks.
+`npm run verify:release` and push after every four subsystem blocks.
 
 ## Known risks
 
@@ -87,6 +87,14 @@ own commit after `npm run test:block` and the golden trace test. One shared
   differential test until a trace covers it.
 
 ## Progress
+
+- 2026-11-24, phase 4, hit notices: warning and karma penalty compose all thirty
+  counter waits without CPU frames. Hit, shot and blast caller fixtures classify
+  delay waits by their input chronology. Contract: [HIT-NOTICE-COMPOSITION.md](HIT-NOTICE-COMPOSITION.md).
+- Initial block check passed 4051 tests and exposed 388 fixture failures. After
+  correcting the remaining blast/shot return selectors and four final WRAM reads,
+  the focused selection passed 1220/1220 in two seconds, without failures or skips.
+  All five golden traces remain unchanged; edited-file ESLint and format passed.
 
 - Menu/confirmation and dialog/member spell task creation shared release passed
   13340/13340 tests in 362 files, with 319 unchanged files and no failures or

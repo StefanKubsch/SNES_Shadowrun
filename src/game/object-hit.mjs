@@ -32,15 +32,14 @@ import { readStateByte, writeStateByte } from '../state/objects.mjs';
 // produced, nor X during the word waits (the original's count; user decision
 // 2026-11-17). The random
 // number, the object slots 80:A835 and the sound 80:C46E run lifted as plain calls; the
-// notice window, text and word waits compose directly through their frames.
+// notice window, text and word waits compose directly without CPU frames.
 // Confirmation, release and the player window list also compose directly.
 import { printText } from './text-print.mjs';
 import { waitForConfirmKey } from './confirm-key.mjs';
 import { releaseWindowSequence } from './window-release.mjs';
 import { drawTextBufferSequence } from './text-draw.mjs';
-import { frameWaitCallSequence } from '../system/live-input-calls.mjs';
+import { waitForCounterWord } from '../system/frame-wait.mjs';
 import { openWindow } from './window-open.mjs';
-import { dialogCallBody } from '../system/native-call-continuation.mjs';
 import { drawWindowListSequence } from './window-list.mjs';
 import { dataBankWord, setDataBankWord } from '../system/data-bank.mjs';
 import { accessorPort } from '../system/hardware-port.mjs';
@@ -105,19 +104,6 @@ import {
 } from '../constants/bits.mjs';
 import { longObjectWord, objectWord, setLongObjectWord } from '../state/objects.mjs';
 
-// The notices' remaining framed callees.
-const WORD_WAIT = 0x81b0a1;
-// The call sites of the warning's and the penalty's callees.
-const WARNING_CALLS = Object.freeze({
-    wait: 0x8087af,
-    key: 0x8087b6,
-    release: 0x8087b9,
-  }),
-  PENALTY_CALLS = Object.freeze({
-    wait: 0x8087f5,
-    key: 0x8087fc,
-    release: 0x8087ff,
-  });
 // Box units: coordinates over 4; the result of a notice.
 const BOX_SHIFT = 2,
   NOTICE_RESULT = 1;
@@ -132,7 +118,7 @@ const longAddress = (offset, index) => (WRAM + offset + index) & LONG_MASK;
 
 // A notice of the harmless hits: its window, text, thirty word waits, the confirm key
 // and the release.
-function* noticeSequence(h, events, renderBuffer, notice, calls) {
+function* noticeSequence(h, events, renderBuffer, notice) {
   const { mem } = h.a,
     { wram } = mem;
   yield () => {
@@ -148,8 +134,7 @@ function* noticeSequence(h, events, renderBuffer, notice, calls) {
     setWord(wram, 2, notice.text);
   };
   yield* printText(h, events, renderBuffer);
-  for (let left = NOTICE_COUNTER_WAITS; left > 0; left--)
-    yield* dialogCallBody(h, calls.wait, WORD_WAIT, () => frameWaitCallSequence(h, events), true);
+  for (let left = NOTICE_COUNTER_WAITS; left > 0; left--) yield* waitForCounterWord(h, events);
   yield* waitForConfirmKey(h, events);
   yield* releaseWindowSequence(h, events);
 }
@@ -162,7 +147,7 @@ function* harmlessSequence(h, events, renderBuffer, flags) {
   const hits = (dataBankWord(mem, HARMLESS_HITS) + 1) & WORD_MASK;
   setDataBankWord(mem, HARMLESS_HITS, 0, hits);
   if (hits === HARMLESS_WARNING.hits) {
-    yield* noticeSequence(h, events, renderBuffer, HARMLESS_WARNING, WARNING_CALLS);
+    yield* noticeSequence(h, events, renderBuffer, HARMLESS_WARNING);
     yield () => {
       setWord(wram, DP_HIT_RESULT, NOTICE_RESULT);
     };
@@ -171,7 +156,7 @@ function* harmlessSequence(h, events, renderBuffer, flags) {
   if (hits !== HARMLESS_PENALTY.hits) return;
   let karma = 0;
   if (mem.read16(WRAM + KARMA) >= KARMA_PENALTY) {
-    yield* noticeSequence(h, events, renderBuffer, HARMLESS_PENALTY, PENALTY_CALLS);
+    yield* noticeSequence(h, events, renderBuffer, HARMLESS_PENALTY);
     karma = mem.read16(WRAM + KARMA) - KARMA_PENALTY;
     if (karma < 0) karma = 0;
   }

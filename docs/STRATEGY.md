@@ -1,5 +1,9 @@
 # Strategy: faster to the finished port
 
+Current delivery cadence (user decision of 2026-11-24): four complete subsystem
+blocks, each with focused verification and its own commit, followed by one shared
+release check and push. This supersedes the older delivery counts recorded below.
+
 Decided 2026-10-13. Applies to all models and takes precedence over older
 handoff entries. The concrete next block is in
 [PROJECT-STATUS.json](PROJECT-STATUS.json) (`npm run status:next`).

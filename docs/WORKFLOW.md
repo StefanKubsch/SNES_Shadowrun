@@ -50,6 +50,10 @@ the central record, local contract and handoff, followed by commit and push.
 
 ## Efficient work blocks and test responsibility
 
+Current cadence, user decision of 2026-11-24: complete four whole subsystem
+blocks, each with `test:block`, edited-file ESLint and its own commit, then run
+one shared release check and push. This supersedes the historical cadences below.
+
 User decision of 2026-11-16: after the current five-block status menu batch
 has passed its shared release and been pushed, complete ten blocks/phases in
 sequence, each with focused checks and its own commit. Then run one shared
@@ -427,7 +431,7 @@ tests start Edge with `--disable-component-update`, which otherwise left a
 fetcher folder per start (10 GB of such leftovers removed on 2026-11-20).
 
 After each block passes its block check, stage only its files, run
-`git diff --cached --check`, and create its authorized commit. After two to three
+`git diff --cached --check`, and create its authorized commit. After four
 subsystem blocks, run the shared release check. After success, record the result in the
 handoff and perform the authorized push of the batch.
 Then compare HEAD, origin/main and the actual remote main.
