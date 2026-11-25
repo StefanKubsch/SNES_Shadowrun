@@ -1,5 +1,15 @@
 # Resumable wait and input points
 
+Note (2026-11-25): the register-level game loop (proof/vm/main-driver.mjs,
+proof/script/register-level-loop.mjs), the address-dispatched owner and title cycle
+(proof/frontend-caller/), the register-level startup and reset references and the
+recorded Mesen boot replays were retired (user decision,
+[STATE-MODEL-REBUILD.md](STATE-MODEL-REBUILD.md), Progress). The lockstep and lift
+comparisons this document names (tools/game-loop.test.mjs, tools/lift-compare.mjs and
+its tests, the owner and transition caller tests) went with them; the golden traces
+are the reference. Where the text below names them, it describes the state before
+that date.
+
 Current work is in [PROJECT-STATUS.json](PROJECT-STATUS.json). Historical
 evidence is available with `node tools/status-next.mjs main-loop-96ab`.
 This contract complements the
@@ -37,7 +47,7 @@ main loop driver (see below).
 
 ## Original main loop owner
 
-[main-frame-adapter.mjs](../tools/main-frame-adapter.mjs) shares its call equations between the
+main-frame-adapter.mjs (removed) shares its call equations between the
 synchronous run and `MainLoopContinuation`. Every helper first gets the
 original JSR/JSL frame. Across a pause in B0A1, in particular, the WORD 96AE
 with bank 80 stays on the stack. Only the real RTL allows the continuation at
@@ -49,7 +59,7 @@ NMI, boot and scene caller segments described below. Other helper graphs are
 still atomic synchronous calls with their previous source contracts. A budget
 therefore does not limit the running time of such a helper.
 
-[MainLoopDriver](../proof/vm/main-driver.mjs) optionally accepts
+MainLoopDriver (removed) optionally accepts
 `run(opcodeBudget, {mainBudget})` and `resume(opcodeBudget, {mainBudget})`.
 `STOP_MAIN_WAIT` keeps the same accessor, PBR, context, device and interrupt
 cursor. The observation set is taken exactly once. Only after it is used up
@@ -151,11 +161,11 @@ neither general time nor a dynamic frame.
 
 ## Boot, intro and scene changes
 
-[E7BC/A15C/A133](../proof/replay/main-startup.mjs) and
+E7BC/A15C/A133 (removed) and
 [EED5](../proof/system/main-scene-wait.mjs) use fixed caller segments. PHP, the
 actual BYTE/WORD widths, all JSL wait calls and the original return words are
 kept across pauses. `MainStartupContinuation` ends only at the original A139.
-Sources are the unchanged pinned [startupSpecs](../tools/main-startup-source.mjs)
+Sources are the unchanged pinned startupSpecs (removed)
 and [sceneAnimationSpecs](../tools/main-scene-animation-source.mjs). The SPC
 transfer stays a synchronous segment with its single original observations; a
 work budget replaces no APU reply.
@@ -292,7 +302,7 @@ follow.
 The [interpreter](../proof/vm/interpreter.mjs) then reports `EXIT_NATIVE_WAIT`,
 the [TaskScheduler](../proof/vm/scheduler.mjs) `STOP_NATIVE_WAIT`. Its `resume`
 first continues the paused native; a foreign VM PC or foreign registers are
-refused before any effect. The [MainLoopDriver](../proof/vm/main-driver.mjs) uses
+refused before any effect. The MainLoopDriver (removed) uses
 its main loop budget during the round also as the native work budget and sets it
 back to `Infinity` afterwards. A scheduler round nested from a native stays
 synchronous, because its caller has no pause frame. CD9D, CECB and D079 use
@@ -569,7 +579,7 @@ failed helpers, changed real return bytes, PC wraparound and the reset path
 that does not return. These cases are synthetic.
 
 [main-loop.test.mjs](../tools/main-loop.test.mjs) and
-[main-driver.test.mjs](../tools/main-driver.test.mjs) check call frames, carry
+main-driver.test.mjs (removed) check call frames, carry
 shortcuts, the owner return and the interplay of both budgets. The
 cold original test (removed) additionally uses a
 main loop budget of 1024 for its existing budget counter check. It checks the
@@ -602,7 +612,7 @@ absence. The [CC4B test](../tools/main-loop-motion.test.mjs) checks all original
 scene branches with their real frames; the main loop test uses the real CC4B
 entry. These additional cases stay synthetic.
 
-The extended [boot comparisons](../tools/main-startup-connected.test.mjs) check
+The extended boot comparisons (removed) check
 E7BC, A15C and A133 including both reset paths also with single work units.
 After every captured NMI all registers and the whole WRAM match the original
 instructions; the final comparison also covers SRAM and all device bytes. The
@@ -644,7 +654,7 @@ CDA8, CD9D, D079, F953, E1CF, 936C, 8D0B, 9BC6, E014, F254, CE6D, 9BA0, 8E36 and
 935B through F4F6 with an explicit F509 task frame, once synchronously and once
 with budget one through `TaskScheduler.resume`. Registers, WRAM, the access
 order and the device cursor match; every NMI taken pauses in 9E0B. The
-[driver test](../tools/main-driver.test.mjs) runs FF79 from a synthetic script
+driver test (removed) runs FF79 from a synthetic script
 inside the real round with main budget one up to the original return 96C3.
 Records stay synthetic.
 
@@ -741,12 +751,12 @@ after the closing.
 If Jake dies, the main loop returns with a real RTS to 80:A157
 (`STOP_MAIN_OWNER_RETURN`); `ObservedRoom.stepLive` allows that, and the next
 step continues the menu owner. `mainOwnerContinuation`
-([main-frontend.mjs](../proof/replay/main-frontend.mjs)) runs A139/A157 (the lifted
+(main-frontend.mjs (removed)) runs A139/A157 (the lifted
 owner [game-owner.mjs](../src/frontend/game-owner.mjs), or its proof reference
 from the routine table) up to the JSR 9688 frame with a budget; A18C, E14A with the fallthrough E1B4, E29F, E354, E50C,
 the title D694, DDDB and D87C are sequences of the same equations
-([main-frontend-menu.mjs](../proof/replay/main-frontend-menu.mjs),
-[main-frontend-text.mjs](../proof/replay/main-frontend-text.mjs); since 2026-11-11 lifted
+(main-frontend-menu.mjs (removed),
+main-frontend-text.mjs (removed); since 2026-11-11 lifted
 in src/frontend, see [TITLE-LIFT.md](TITLE-LIFT.md) and
 [START-MENU-LIFT.md](START-MENU-LIFT.md)); their synchronous
 form runs the sequence to the end. They pause in EEBB, F298, EEDD and EEF1 and

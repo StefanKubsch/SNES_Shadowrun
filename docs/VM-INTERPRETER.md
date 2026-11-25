@@ -173,11 +173,11 @@ the relevant contract.
 ## Main loop and scene references
 
 The recorded main interval connects 80:96AB with the real scheduler round
-80:C1E3 through [main-driver.mjs](../proof/vm/main-driver.mjs). Budgets,
+80:C1E3 through main-driver.mjs (removed). Budgets,
 missing natives, unknown continuations and breakpoints preserve reached state.
 A changed return word is not repaired. Entry/owner/budget checks precede
 observation consumption; execution after entry is not an atomic transaction.
-See [main-driver.test.mjs](../tools/main-driver.test.mjs).
+See main-driver.test.mjs (removed).
 
 The direct live caller and its lag-free contract are in
 [MAIN-LOOP-LIFT.md](MAIN-LOOP-LIFT.md). Scene selection, Matrix and cutscenes
@@ -535,9 +535,9 @@ checks appending after a round and the kept consumption index.
 
 ## Connected boot, owner and route coverage
 
-The reference chain uses [main-reset.mjs](../proof/replay/main-reset.mjs),
-[main-startup.mjs](../proof/replay/main-startup.mjs),
-[main-frontend.mjs](../proof/replay/main-frontend.mjs) and
+The reference chain uses main-reset.mjs (removed),
+main-startup.mjs (removed),
+main-frontend.mjs (removed) and
 [main-start.mjs](../proof/replay/main-start.mjs) for reset, prelude, menu owner
 and new/load entry before the first scheduler round. These are proof/replay
 contracts; current frontend composition is documented separately.
@@ -553,7 +553,7 @@ word 70:1FFD/1FFE from a fresh copy; other SRAM reads/writes remain boundaries.
 These synthetic connected runs are separate from the actual cold original
 comparison in [BOOT-ORACLE.md](BOOT-ORACLE.md).
 
-[main-boot-native-observations.mjs](../tools/main-boot-native-observations.mjs)
+main-boot-native-observations.mjs (removed)
 builds each call's frozen chronology on a private reached state. Synthetic PPU
 product, counters, busy status, APU answers and text-readback bytes are device
 inputs, not measured frame timings. Readiness, task state, counters and time

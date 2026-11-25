@@ -1,5 +1,15 @@
 # Room entry lift
 
+Note (2026-11-25): the register-level game loop (proof/vm/main-driver.mjs,
+proof/script/register-level-loop.mjs), the address-dispatched owner and title cycle
+(proof/frontend-caller/), the register-level startup and reset references and the
+recorded Mesen boot replays were retired (user decision,
+[STATE-MODEL-REBUILD.md](STATE-MODEL-REBUILD.md), Progress). The lockstep and lift
+comparisons this document names (tools/game-loop.test.mjs, tools/lift-compare.mjs and
+its tests, the owner and transition caller tests) went with them; the golden traces
+are the reference. Where the text below names them, it describes the state before
+that date.
+
 The room entry 80:A4BF, which the room start, the scene return of the main loop
 (80:CC90) and the zone exits (80:80AD) call, is lifted from register-level 65816
 equations to plain code, after the game screen set-up
@@ -273,11 +283,11 @@ address, the scroll shift and high byte, the cleared mark). Not visible to it
 either: the jump's forced blank (the
 entry blanked the screen already) and the pushed step word (free stack).
 
-[tools/room-entry-lift.test.mjs](../tools/room-entry-lift.test.mjs) runs the
+tools/room-entry-lift.test.mjs (removed) runs the
 title cycle sessions 2, 3 and 4 (a new game, a saved game, the attract game; the
 reference side also runs the register-level start of a game) and the matrix
 sessions (each return enters the room through the main loop; since moved to
-[tools/scene-request-lift.test.mjs](../tools/scene-request-lift.test.mjs)); every NMI must be
+tools/scene-request-lift.test.mjs (removed)); every NMI must be
 equal. A planted difference (the fade frames) fails all four. The lifted frame wait, upload
 wait and music run there: a wrong branch address hangs the delivery; an upload
 request that does not wait for the NMI and another music mode fail all four.
@@ -308,7 +318,7 @@ The previous composition remains independently in
 [proof/caller/scene-request.mjs](../proof/caller/scene-request.mjs) and
 [proof/caller/game-start.mjs](../proof/caller/game-start.mjs). Recorded drivers
 and the existing function/reference comparisons use those versions.
-[transition-caller.test.mjs](../tools/transition-caller.test.mjs) compares the
+transition-caller.test.mjs (removed) compares the
 previous and direct callers on the same JS scheduler and devices, at budgets one
 and seven: three room changes, all cutscene sessions and the matrix sessions.
 Every NMI compares WRAM outside CPU stacks and saved interrupt registers, SRAM,

@@ -56,10 +56,10 @@ fade tables and the object frame and event lists are read by their
 ## What is compared
 
 tools/title-lift.test.mjs (removed) runs the six sessions
-of [tools/live-title-plan.mjs](../tools/live-title-plan.mjs) from power-on: the
+of tools/live-title-plan.mjs (removed) from power-on: the
 whole prologue and title, and a held Start in the prologue, the first title
 frames, the pan, the vertical scroll and the blend. Every NMI must be equal
-through [tools/lift-compare.mjs](../tools/lift-compare.mjs), with the ignored
+through tools/lift-compare.mjs (removed), with the ignored
 WRAM of the intro. A planted difference (the speed word in the 100th scroll NMI)
 fails it at NMI 2615.
 

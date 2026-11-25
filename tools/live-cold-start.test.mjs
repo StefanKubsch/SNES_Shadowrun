@@ -3,8 +3,7 @@ import assert from 'node:assert/strict';
 import { createHash } from 'node:crypto';
 import { cartridge } from './cartridge-harness.mjs';
 import { findMesen } from './mesen.mjs';
-import { recordColdPictures } from './mesen-cold-start.mjs';
-import { originalLogoPixels } from './capture-boot-logo.mjs';
+import { recordColdPictures, originalPixels } from './mesen-cold-start.mjs';
 import { LiveGame } from '../src/video/live-game.mjs';
 
 // Live cold start (src/video/live-game.mjs), from reset 00:E382 without
@@ -43,9 +42,7 @@ test(
         let last = 0;
         const missing = [];
         for (const k of PICTURES) {
-          const next = byHash
-            .get(hash(originalLogoPixels(pictures.get(k))))
-            ?.find((n) => n >= last);
+          const next = byHash.get(hash(originalPixels(pictures.get(k))))?.find((n) => n >= last);
           if (next === undefined) missing.push(k);
           else last = next;
         }

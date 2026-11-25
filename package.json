@@ -782,7 +782,6 @@
     "probe:render-task-native-cbcb": "node tools/probe-render-task-native-cbcb.mjs",
     "start": "node tools/serve-browser.mjs",
     "build:web": "node tools/build-web.mjs",
-    "capture:boot-logo": "node tools/capture-boot-logo.mjs",
     "analyze:vm-rom-map": "node tools/rom-map.mjs",
     "extract:vm-texts": "node tools/extract-texts.mjs",
     "extract:vm-tiles": "node tools/extract-tiles.mjs",

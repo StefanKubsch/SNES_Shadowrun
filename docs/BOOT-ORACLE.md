@@ -1,8 +1,18 @@
 # Boot oracle: original comparison of the boot prelude and task rounds
 
-Tools: [recorder](../tools/mesen/trace-boot-prefix.lua),
-[comparison](../tools/mesen-boot-prefix.mjs),
-[test](../tools/mesen-boot-prefix.test.mjs). The canonical next step is only
+Note (2026-11-25): the register-level game loop (proof/vm/main-driver.mjs,
+proof/script/register-level-loop.mjs), the address-dispatched owner and title cycle
+(proof/frontend-caller/), the register-level startup and reset references and the
+recorded Mesen boot replays were retired (user decision,
+[STATE-MODEL-REBUILD.md](STATE-MODEL-REBUILD.md), Progress). The lockstep and lift
+comparisons this document names (tools/game-loop.test.mjs, tools/lift-compare.mjs and
+its tests, the owner and transition caller tests) went with them; the golden traces
+are the reference. Where the text below names them, it describes the state before
+that date.
+
+Tools: recorder (removed),
+comparison (removed),
+test (removed). The canonical next step is only
 in the [project status](PROJECT-STATUS.json), readable via
 `npm run status:next`. This file merges and translates the former German
 `BOOT-ORAKEL.md` and `BOOT-TASKRUNDEN.md` (original wording at git commit
@@ -187,7 +197,7 @@ another S do not close it). Both records have their own device and instruction
 positions; all records are numbered independently; the real number of 96C3
 returns is recorded.
 
-**Shared native owner.** The [comparison](../tools/mesen-boot-prefix.mjs) in
+**Shared native owner.** The comparison (removed) in
 mode driverRounds uses MainLoopDriver with the same NativeCalls accessor,
 memory, TaskScheduler and ScriptInterpreter; all native bindings run through
 their real modules (no helper stubs, entered task lists or readiness values).
@@ -266,7 +276,7 @@ data set starts every round with opcode budget 0 and keeps the real scheduler
 frame via resume; it also uses main loop budget 1024, keeps the real B0A1 frame
 and must end identically. Counter-probes change caller frames, ownership
 boundaries, registers and DMA records and must fail; the
-[segment tests](../tools/mesen-boot-observations.test.mjs) check missing,
+segment tests (removed) check missing,
 overlapping and unowned observations and each of the 16 readback places. The
 extended cold comparison covers 1,587 rounds, 144,274 script opcodes and 13,554
 native calls; 2,273 real NMIs and 19,582,782 instruction observations agree;

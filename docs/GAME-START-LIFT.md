@@ -1,5 +1,15 @@
 # Game start lift
 
+Note (2026-11-25): the register-level game loop (proof/vm/main-driver.mjs,
+proof/script/register-level-loop.mjs), the address-dispatched owner and title cycle
+(proof/frontend-caller/), the register-level startup and reset references and the
+recorded Mesen boot replays were retired (user decision,
+[STATE-MODEL-REBUILD.md](STATE-MODEL-REBUILD.md), Progress). The lockstep and lift
+comparisons this document names (tools/game-loop.test.mjs, tools/lift-compare.mjs and
+its tests, the owner and transition caller tests) went with them; the golden traces
+are the reference. Where the text below names them, it describes the state before
+that date.
+
 The start of a game is lifted from
 register-level 65816 equations to plain code, after the title cycle and the
 outer game owner ([TITLE-CYCLE-LIFT.md](TITLE-CYCLE-LIFT.md)); method in
@@ -13,11 +23,11 @@ tests and recorded replays.
 | Module                                                  | Content                                                                                                                  |
 | ------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------ |
 | [game-start.mjs](../src/game/game-start.mjs)            | The main start 80:9688, the room start 80:9699, the new game 80:960D and its state 80:98E9, the save load 81:B198.       |
-| [main-start.mjs](../proof/system/main-start.mjs)        | Register-level entry (`runMainStart`, `mainStartContinuation`) for caller tests; the live owner enters the lifted start. |
-| [retained live caller](../proof/caller/main-start.mjs)  | Former address-dispatched live entry for independent comparisons.                                                        |
+| main-start.mjs (removed)        | Register-level entry (`runMainStart`, `mainStartContinuation`) for caller tests; the live owner enters the lifted start. |
+| retained live caller (removed)  | Former address-dispatched live entry for independent comparisons.                                                        |
 | [replay main-start.mjs](../proof/replay/main-start.mjs) | Address-dispatched entry for recorded observations and register-level references.                                        |
 | [fixed-colour.mjs](../src/game/fixed-colour.mjs)        | The fixed colour reset 81:8861 with its tail 81:886A (fixed colour black, colour math off).                              |
-| [main-frontend.mjs](../proof/replay/main-frontend.mjs)  | The attract game's rounds 80:9699: the lifted room start, then the main loop's rounds (driver glue).                     |
+| main-frontend.mjs (removed)  | The attract game's rounds 80:9699: the lifted room start, then the main loop's rounds (driver glue).                     |
 
 ## Boundaries
 
@@ -50,9 +60,9 @@ tests and recorded replays.
 
 ## What is compared
 
-[tools/game-start-lift.test.mjs](../tools/game-start-lift.test.mjs) runs the
+tools/game-start-lift.test.mjs (removed) runs the
 new game, saved game and attract game sessions of
-[tools/live-title-cycle-plan.mjs](../tools/live-title-cycle-plan.mjs); every
+tools/live-title-cycle-plan.mjs (removed); every
 NMI must be equal. A planted difference (Jake's Computer skill) fails it.
 
 [tools/game-start-lift-functions.test.mjs](../tools/game-start-lift-functions.test.mjs)
@@ -71,7 +81,7 @@ reference against the ROM.
 
 ## Direct caller comparison (2026-11-15)
 
-[main-owner-caller.test.mjs](../tools/main-owner-caller.test.mjs) compares the
+main-owner-caller.test.mjs (removed) compares the
 retained live start with the direct start on the same JS scheduler and devices.
 The five title sessions include New Game, a save load, credits, repeated attract
 games and the menu after them. Budgets of one and seven exercise pauses; every

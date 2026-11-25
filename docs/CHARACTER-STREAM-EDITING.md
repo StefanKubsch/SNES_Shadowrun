@@ -50,7 +50,7 @@ observations. The static groups overlap:
   `81:E1A3` and `81:E1B0` unpack them through `80:F2A4` into `7F:0018`
   and `7F:8018`. `84:DAF2` also has a direct frontend font consumer in
   `81:D60F`, besides its scene-list use. See
-  [main-frontend-menu.mjs](../proof/replay/main-frontend-menu.mjs).
+  main-frontend-menu.mjs (removed).
 
 Twenty-three scene commands across fifteen sources transfer more bytes than
 their stream produces. For example, `81:FF08` produces 64 bytes while

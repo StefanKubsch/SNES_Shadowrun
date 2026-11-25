@@ -1,5 +1,15 @@
 # Main loop lift
 
+Note (2026-11-25): the register-level game loop (proof/vm/main-driver.mjs,
+proof/script/register-level-loop.mjs), the address-dispatched owner and title cycle
+(proof/frontend-caller/), the register-level startup and reset references and the
+recorded Mesen boot replays were retired (user decision,
+[STATE-MODEL-REBUILD.md](STATE-MODEL-REBUILD.md), Progress). The lockstep and lift
+comparisons this document names (tools/game-loop.test.mjs, tools/lift-compare.mjs and
+its tests, the owner and transition caller tests) went with them; the golden traces
+are the reference. Where the text below names them, it describes the state before
+that date.
+
 Contract and evidence map for the main-loop lifts. Current work is maintained
 in [PROJECT-STATUS.json](PROJECT-STATUS.json); active rebuild rules and remaining
 phases are in [STATE-MODEL-REBUILD.md](STATE-MODEL-REBUILD.md). The earlier
@@ -9,7 +19,7 @@ comparisons describe reference coverage, not requirements for new game code.
 ## Direct live caller
 
 The main loop 80:96AB–96F2 composes sixteen callees directly through
-[main-frame-adapter.mjs](../tools/main-frame-adapter.mjs). Synchronous entries
+main-frame-adapter.mjs (removed). Synchronous entries
 run as segments; zone gates, scene requests, notices, time limits, waits and
 glove actions delegate to named sequences. The caller does not select them
 through a ROM-address map. Work budgets and nested waits use the shared
@@ -20,7 +30,7 @@ The live routine table holds NMI callbacks. Former caller and return-frame
 bindings remain in [live-loop-routines.mjs](../proof/caller/live-loop-routines.mjs),
 [jsr-forms.mjs](../proof/caller/jsr-forms.mjs) and
 [input-routines.mjs](../proof/caller/input-routines.mjs).
-[proof/caller/main-loop.mjs](../proof/caller/main-loop.mjs) preserves the former
+proof/caller/main-loop.mjs (removed) preserves the former
 live dispatch; [proof/vm/main-loop.mjs](../proof/vm/main-loop.mjs) preserves
 instruction-based recorded replay. These references are frozen under the rebuild
 rules.
@@ -85,7 +95,7 @@ requirements. [NATIVE-MODULES.md](NATIVE-MODULES.md) maps the other script nativ
 - **80:A617, 80:A5F9, 80:A5DB**: [menu-list.mjs](../src/game/menu-list.mjs). `drawListSequence`, `markRowSequence` (`MARK`, `UNMARK`)
 - **80:A6A5 to 80:A845**: [menu-choice.mjs](../src/game/menu-choice.mjs). `chooseFromMenuSequence` (`runMenuWithHotkeys`)
 - **80:C152 with its jobs**: [game-nmi.mjs](../src/game/game-nmi.mjs). `uploadScenePalettes`, `uploadPaletteCycleStep`, `uploadObjectPalettes`, `uploadVramRecords`, `uploadOam`, `stepBrightnessFade`, `uploadPortraitGraphics`, `uploadGlove`, `uploadReadyMapEdges`, `clearTextTiles`, `handleGameNmi` (the live routine table binds the handler only; the jobs' table entries `GAME_NMI_LIFTED_ROUTINES` are in proof/caller/game-nmi-jobs.mjs; the entries of `GAME_NMI_LIFTED_JOBS`, bound in MAIN_SCENE_ROUTINES of proof/replay/main-scene.mjs, run them with lag-free frames and the register-level jobs for recorded runs; proof/scene-reference-routines.mjs keeps the register-level jobs for the ROM proofs)
-- **80:96AB**: [main-frame-adapter.mjs](../tools/main-frame-adapter.mjs). The loop's own instructions
+- **80:96AB**: main-frame-adapter.mjs (removed). The loop's own instructions
 - **entries**: [main-upkeep.mjs](../src/game/main-upkeep.mjs). The main loop's table entries (RTL or RTS as the original) and the native call continuation of 80:FF14.
 
 Register-level palette equations are in
@@ -137,10 +147,10 @@ word. The current policy is in [STRATEGY.md](STRATEGY.md).
 
 ## Tests
 
-[main-owner-caller.test.mjs](../tools/main-owner-caller.test.mjs) compares direct
+main-owner-caller.test.mjs (removed) compares direct
 and former live callers at each NMI and owner/game-start boundary, with finite
 budgets and exit/reload fixtures. Those fixtures do not prove a game-over story
-route. [game-loop.test.mjs](../tools/game-loop.test.mjs) retains independent
+route. game-loop.test.mjs (removed) retains independent
 comparisons for movement, the saved-game badge route and attract mode.
 
 Function differentials cover edge and random inputs against frozen equations;
@@ -160,10 +170,10 @@ result; function and source comparisons remain necessary.
 The following index preserves the test links from the former delivery log.
 It is a lookup aid, not a hand-maintained block-test selection:
 
-- [main-owner-caller.test.mjs](../tools/main-owner-caller.test.mjs)
-- [game-loop.test.mjs](../tools/game-loop.test.mjs)
+- main-owner-caller.test.mjs (removed)
+- game-loop.test.mjs (removed)
 - main-boot-connected.test.mjs (removed)
-- [script-native-lift.test.mjs](../tools/script-native-lift.test.mjs)
+- script-native-lift.test.mjs (removed)
 - [text-caller.test.mjs](../tools/text-caller.test.mjs)
 - [task-native-dialog.test.mjs](../tools/task-native-dialog.test.mjs)
 - mesen-live-room.test.mjs (removed)
@@ -221,8 +231,8 @@ It is a lookup aid, not a hand-maintained block-test selection:
 - [sight-lift-functions.test.mjs](../tools/sight-lift-functions.test.mjs)
 - [main-upkeep-lift-functions.test.mjs](../tools/main-upkeep-lift-functions.test.mjs)
 - [game-nmi-lift-functions.test.mjs](../tools/game-nmi-lift-functions.test.mjs)
-- [game-nmi-lift.test.mjs](../tools/game-nmi-lift.test.mjs)
-- [main-upkeep-lift.test.mjs](../tools/main-upkeep-lift.test.mjs)
+- game-nmi-lift.test.mjs (removed)
+- main-upkeep-lift.test.mjs (removed)
 - [main-loop-camera.test.mjs](../tools/main-loop-camera.test.mjs)
 - [main-motion-helpers.test.mjs](../tools/main-motion-helpers.test.mjs)
 - [main-loop-motion.test.mjs](../tools/main-loop-motion.test.mjs)

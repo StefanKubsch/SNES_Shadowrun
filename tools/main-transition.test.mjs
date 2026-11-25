@@ -41,8 +41,6 @@ import { mainLoopMotionSpecs } from './main-loop-motion-source.mjs';
 import { MAIN_SCENE_ROUTINES } from '../proof/replay/main-scene.mjs';
 import { NATIVE_CALL_CONTINUATIONS } from '../src/system/native-call-continuation.mjs';
 import { WAIT_PAUSED } from '../src/system/native-wait-continuation.mjs';
-import { MAIN_STARTUP_ROUTINES } from '../proof/replay/main-startup.mjs';
-import { finishInterruptObservations } from '../proof/system/main-wait-interrupt.mjs';
 const specs = [...sceneCollisionSpecs, ...sceneGraphicsSpecs, ...transitionSpecs],
   maps = specs.map((s) => decodeWindows(s.windows));
 const graph = new Map(
@@ -414,66 +412,6 @@ for (const resumable of [false, true])
     }
   });
 
-test('A4BF and nested 8BD9 retain both actual B0A1 frames through observed NMI and finite budgets', () => {
-  const spec = transitionSpecs.find((s) => s.entry === 0x80a4bf),
-    camera = transitionSpecs.find((s) => s.entry === 0x818bd9);
-  const map = decodeWindows([...spec.windows, ...camera.windows]),
-    routines = new Map(TRANSITION_ROUTINES);
-  for (const [target, op] of [...spec.externalReturns, ...camera.externalReturns])
-    if (![0x818bd9, 0x81b0a1].includes(target))
-      routines.set(target, (h) => (op === 'RTL' ? h.rtl() : h.rts()));
-  const f = base(0x80a4bf);
-  f.word(0x6e, 0xe839);
-  f.wram[0x70] = 0x81;
-  f.word(0xcc4, 0x400);
-  const records = Object.freeze(
-    Array.from({ length: 2 }, () =>
-      [0x81b0a1, 0x81b0a5, 0x81b0a9, 0x81b0ab].map((pc) =>
-        Object.freeze({ pc, nmi: pc === 0x81b0a5 }),
-      ),
-    ).flat(),
-  );
-  f.io = Array.from({ length: 2 }, () => ({
-    pc: 0x00c118,
-    address: 0x804210,
-    width: 2,
-    value: 0x80,
-  }));
-  const bind = (e) => {
-    e.interrupts = records;
-    e.interruptIndex = 0;
-    e.interruptRoutines = MAIN_STARTUP_ROUTINES;
-  };
-  const result = compareDialog(map, f, {
-    native: (h, e) => {
-      bind(e);
-      const c = NATIVE_CALL_CONTINUATIONS.get(enterRoomReference).create({
-        h,
-        events: e,
-        routines,
-      });
-      let pauses = 0,
-        waits = 0;
-      while (c.run(1) === WAIT_PAUSED) {
-        assert.ok(++pauses < 1000);
-        if (h.ctx.programBank === 0x81 && h.ctx.pc === 0xb0a5) {
-          const raw = h.a.stackWord();
-          assert.ok([0xa523, 0x8be0].includes(raw));
-          waits++;
-        }
-      }
-      assert.ok(waits >= 2);
-      finishInterruptObservations(e);
-      assert.equal(h.ctx.pc, 0x1235);
-      assert.equal(h.ctx.s, 0x1ef0);
-    },
-    calls: (a, e) => {
-      bind(e);
-      return external(a, e, map, routines);
-    },
-  });
-  assert.deepEqual(result.differences, []);
-});
 test('A4BF requires observed waits and reports missing callees before adding their frame', () => {
   const f = initialized(0),
     s = transitionSpecs[0],

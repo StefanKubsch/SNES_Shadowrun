@@ -50,7 +50,6 @@ test('Recorded and retained catalogue inputs are never deleted and stay versione
       'analysis/rom-vram.json',
       'assets/vm-font.bmp',
       'assets/nested/vm-x.json',
-      'assets/boot-logo-observations.json',
     ];
   try {
     for (const path of files) {

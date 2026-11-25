@@ -18,7 +18,6 @@ export const retainedInputs = [
   'analysis/rom-palettes.json',
   'analysis/rom-reads.json',
   'analysis/rom-vram.json',
-  'assets/boot-logo-observations.json',
 ];
 export const generatedDirectories = ['analysis', 'assets'];
 // ROM-only producers whose outputs no release generator reads.

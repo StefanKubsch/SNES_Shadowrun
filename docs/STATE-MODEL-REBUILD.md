@@ -96,6 +96,20 @@ own commit after `npm run test:block` and the golden trace test. One shared
 
 ## Progress
 
+- 2026-11-25, register-level loop and boot replay retirement (user decision: also the
+  boot replays): proof/vm/main-driver.mjs, proof/script/register-level-loop.mjs and
+  live-tasks.mjs, proof/frontend-caller/, the startup, reset and frontend replay modules
+  (main-startup, main-reset, main-frontend, -menu, -nmi, -text, live-startup,
+  live-frontend), the main start and main loop callers, proof/video/boot-observed.mjs and
+  snes-video.mjs are gone, with the lockstep test of the old interpreter and scheduler
+  (game-loop), lift-compare and its nine lift tests, the owner and transition caller
+  tests, main-driver, the startup and reset ROM proofs, and the Mesen boot replays (boot
+  prefix, logo, boot observations, assets/boot-logo-observations.json). The golden traces
+  are now the only reference for the game loop, scheduler, startup and frontend. The
+  live cold start's picture comparison with Mesen (tools/live-cold-start.test.mjs) stays.
+  proof/apu-reference/ stays: the remaining ROM proofs' routine table and proof/task use
+  it.
+
 - 2026-11-25, golden scenario game-over: a cold start plays the new game route and ALLEY_PLAN of tools/mesen-f390-oracle.mjs until the orc assassin kills Jake (the owner takes over near NMI 15760). Without input the menu times out to the title, the menu, the attract demo and the menu again; Start at NMI 26600 begins a new game (28500 NMIs, about 1 MiB). It closes the gap the cut room replay left (Game Over and the menu timeout had no test).
 
 - 2026-11-25, frontend and intro set-up proof retirement: proof/frontend-reference/

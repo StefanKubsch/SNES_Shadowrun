@@ -1,5 +1,15 @@
 # Script VM lift
 
+Note (2026-11-25): the register-level game loop (proof/vm/main-driver.mjs,
+proof/script/register-level-loop.mjs), the address-dispatched owner and title cycle
+(proof/frontend-caller/), the register-level startup and reset references and the
+recorded Mesen boot replays were retired (user decision,
+[STATE-MODEL-REBUILD.md](STATE-MODEL-REBUILD.md), Progress). The lockstep and lift
+comparisons this document names (tools/game-loop.test.mjs, tools/lift-compare.mjs and
+its tests, the owner and transition caller tests) went with them; the golden traces
+are the reference. Where the text below names them, it describes the state before
+that date.
+
 User decisions of 2026-11-14 (see [STRATEGY.md](STRATEGY.md)):
 
 1. The bytecode interpreter and the task scheduler are lifted to plain JS state. Tasks,
@@ -26,7 +36,7 @@ task state.
   ready, C401 native wait, F378 enter, F488/F495 script call), the native bridge
   ([native-call.mjs](../proof/vm/native-call.mjs), nested rounds from natives such as
   the dialog's JSR C1CA), and the drivers
-  ([main-driver.mjs](../proof/vm/main-driver.mjs),
+  (main-driver.mjs (removed),
   [live-game.mjs](../src/video/live-game.mjs)), which run the boot, the owner and the
   main loop from ROM addresses with routine tables keyed by address and opcode
   budgets.
@@ -195,7 +205,7 @@ budget)` runs opcodes until END (`{kind: 'end', result}`), a native or script ca
   A the original leaves (the restored cursor of C1CA, the list head of C1E3) is read by
   no caller and left out (user decision 2026-11-17). With a finite work budget the special
   natives with a resumable sequence pause, and a nested visit inside one pauses with it.
-- proof/script/js-rounds.mjs (replaced in phase 5 by [live-tasks.mjs](../proof/script/live-tasks.mjs)) attaches the JS rounds to a
+- proof/script/js-rounds.mjs (replaced in phase 5 by live-tasks.mjs (removed)) attaches the JS rounds to a
   live game: the driver's round C1E3 after the main interval and the owner's resumable
   round 96C0 (attract demo). Until phase 4 the rest of the game keeps the task tables and
   the heap in WRAM, so each round loads the JS scheduler through the conversion layer and
@@ -203,7 +213,7 @@ budget)` runs opcodes until END (`{kind: 'end', result}`), a native or script ca
   register-level code inside a native changed the tables or the heap, the conversion
   layer reads them back in place (`reload`, tasks with unchanged frames keep their
   objects), also before a nested visit.
-- tools/script-natives.test.mjs (since phase 5 [tools/game-loop.test.mjs](../tools/game-loop.test.mjs)) runs two live games in
+- tools/script-natives.test.mjs (since phase 5 tools/game-loop.test.mjs (removed)) runs two live games in
   lockstep from the reset, one with the register-level rounds and one with the JS rounds,
   and compares the WRAM (task bytes through the projection), VRAM, CGRAM and OAM at every
   NMI: the benchmark route for 6000 NMIs with synchronous natives, the closed badge route
@@ -253,14 +263,14 @@ budget)` runs opcodes until END (`{kind: 'end', result}`), a native or script ca
   the member spell menu and the zone gate) keep their direct table accesses; they run
   only with recorded observations and move to `proof/` in phase 6.
 - [src/script/natives.mjs](../src/script/natives.mjs) attaches the JS scheduler's API to
-  each native's accessor. proof/script/js-rounds.mjs (replaced in phase 5 by [live-tasks.mjs](../proof/script/live-tasks.mjs)) no
+  each native's accessor. proof/script/js-rounds.mjs (replaced in phase 5 by live-tasks.mjs (removed)) no
   longer stores the projection before natives or reads the tables back after them: while
   a round is open (also while it is paused across steps) any read or write of
   7E:0246-0CC1 through the memory stops with `RegisterLevelTaskAccess`; `sync()` stores
   the projection of an open round for the comparison at an NMI. Rounds still load from
   and store to the WRAM, as the main loop between rounds stays on the WRAM tables until
   phase 5.
-- tools/script-natives.test.mjs (since phase 5 [tools/game-loop.test.mjs](../tools/game-loop.test.mjs)): all three routes are
+- tools/script-natives.test.mjs (since phase 5 tools/game-loop.test.mjs (removed)): all three routes are
   equal with the trap armed; on the badge route the projectiles of 80:8AB5 and the topic
   tasks are appended through the API inside natives.
   [tools/task-api.test.mjs](../tools/task-api.test.mjs): 200 random sequences of 120 API
@@ -292,17 +302,17 @@ budget)` runs opcodes until END (`{kind: 'end', result}`), a native or script ca
   option `loop(game)` makes the loop.
 - The register-level modules the game no longer loads moved to `proof/vm/`: the
   interpreter, its handlers and CPU helpers, the scheduler, the native bridge and the
-  main driver. [proof/script/register-level-loop.mjs](../proof/script/register-level-loop.mjs)
+  main driver. proof/script/register-level-loop.mjs (removed)
   builds the former live loop on them (`new LiveGame(cartridge, {loop:
 registerLevelLoop})`); the observed rooms and boot replays keep the driver directly.
   tools/production-boundary.test.mjs has no exemption left.
 - [proof/script/task-layout.mjs](../proof/script/task-layout.mjs) `followScheduler` follows
   a live JS scheduler from the start and replays the original heap from the first C1A6
   on (nothing is projected before it; PREVIOUS of slots 1-47 is projected once the slot
-  is allocated). [proof/script/live-tasks.mjs](../proof/script/live-tasks.mjs) replaces
+  is allocated). proof/script/live-tasks.mjs (removed) replaces
   js-rounds: the projection, the locals guard and the statistics, with the trap on
   7E:0246-0CC1 armed for every read and write of the whole run.
-- [tools/game-loop.test.mjs](../tools/game-loop.test.mjs) (formerly script-natives) runs the
+- tools/game-loop.test.mjs (removed) (formerly script-natives) runs the
   register-level loop and the plain loop in lockstep from the reset and compares WRAM,
   VRAM, CGRAM, OAM and the projected task bytes at every NMI: the benchmark route (6000
   NMIs), the closed badge route from the apartment save (pausing natives, nested topic
@@ -385,19 +395,19 @@ registerLevelLoop})`); the observed rooms and boot replays keep the driver direc
   because shared boot and NMI helpers still use the register accessor. Since
   2026-11-20 the frames go (their return words lie only in free stack bytes); the
   status and the data bank 80 are restored in the context, and
-  [main-startup-lift.test.mjs](../tools/main-startup-lift.test.mjs) compares game state
+  main-startup-lift.test.mjs (removed) compares game state
   only, as main-owner-caller.test.mjs does. This block simplifies
   caller composition; it does not remove those register interfaces or change frame
   timing, save data or hardware behaviour.
 - The address-dispatched live path is retained independently in
-  [proof/script/live-startup.mjs](../proof/script/live-startup.mjs). The register-level
+  proof/script/live-startup.mjs (removed). The register-level
   game-loop differential uses it; recorded boot replays keep their separate
-  [proof/replay/main-startup.mjs](../proof/replay/main-startup.mjs). The game uses
+  proof/replay/main-startup.mjs (removed). The game uses
   the frontend's routine table for its remaining callers and interrupt adapters;
   the boot screen's immediate-return NMI callback (81:E839) now belongs to
   main-frontend-nmi.mjs. Lift comparisons discover the retained live startup table
   in proof/script as well.
-- [main-startup-lift.test.mjs](../tools/main-startup-lift.test.mjs) compares every
+- main-startup-lift.test.mjs (removed) compares every
   WRAM byte (including the stack), SRAM, PPU memories and registers, scroll, PPU write
   count, sound RAM and CPU context at every NMI and on return. Cases cover valid and
   invalid settings, work budgets of one and seven, cold boot and startup after the
@@ -419,16 +429,16 @@ registerLevelLoop})`); the observed rooms and boot replays keep the driver direc
   consumers. The credits cutscene and music-stop calls retain their shared adapters;
   the main game start, main-loop routine table and lower scene/audio helpers remain
   later groups. Save data, sound behavior and lag-free frames are unchanged.
-- The former callers live in [proof/frontend-caller/](../proof/frontend-caller/).
+- The former callers live in proof/frontend-caller/ (removed).
   Recorded replays bind those retained callers, while the register-level live loop
-  uses [live-frontend.mjs](../proof/script/live-frontend.mjs) and
-  [live-frontend-menu.mjs](../proof/script/live-frontend-menu.mjs). Existing per-function
+  uses live-frontend.mjs (removed) and
+  live-frontend-menu.mjs (removed). Existing per-function
   and register-level lift comparisons continue to test that independent path.
   Title and start-menu table wrappers now belong only to proof; the live NMI table
   inherits the shared text helpers directly. Its proof counterpart binds the same
   wrapper identities as the existing title/menu lift comparisons, so their reference
   swaps also reach the retained live table.
-- [main-owner-caller.test.mjs](../tools/main-owner-caller.test.mjs) compares the old
+- main-owner-caller.test.mjs (removed) compares the old
   dispatched callers with the direct callers on the same JS scheduler and devices.
   Five input sessions cover the whole title, interrupted title, menu timeouts,
   repeated attract demos, menu credits, New Game and a saved game, at work budgets
@@ -442,9 +452,9 @@ registerLevelLoop})`); the observed rooms and boot replays keep the driver direc
 
 ## Phase 8, game start and main-loop composition (2026-11-15)
 
-- The register-level entry in [main-start.mjs](../proof/system/main-start.mjs)
+- The register-level entry in main-start.mjs (removed)
   invokes the game-start body directly; the live owner enters the lifted start
-  itself (moved to proof on 2026-11-17). [main-frame-adapter.mjs](../tools/main-frame-adapter.mjs) composes its
+  itself (moved to proof on 2026-11-17). main-frame-adapter.mjs (removed) composes its
   upkeep entries and waiting sequences directly, using the common continuation
   instead of its former dispatch-specific continuation. The game and attract
   loops no longer forward a routine table to the per-frame caller.
@@ -466,7 +476,7 @@ registerLevelLoop})`); the observed rooms and boot replays keep the driver direc
 - The previous room, scene-request and game-start composition remains in
   proof/caller/. Recorded drivers and existing reference comparisons use it.
   Lower helper tables, saves and the lag-free frame model remain unchanged.
-- [transition-caller.test.mjs](../tools/transition-caller.test.mjs) checks the old
+- transition-caller.test.mjs (removed) checks the old
   and direct transitions on the JS scheduler, frame by frame at budgets one and
   seven, for room changes, cutscenes and matrix entry/return. Contracts:
   [ROOM-ENTRY-LIFT.md](ROOM-ENTRY-LIFT.md) and
@@ -482,7 +492,7 @@ registerLevelLoop})`); the observed rooms and boot replays keep the driver direc
   opcodes and the cheap arithmetic ones; F927 becomes the frontier `script_opcode_unused`
   instead of a return through the operand stack.
 - Frame residue: C2C8 does not clear a new frame, so locals start with the residue of
-  earlier frames. [tools/probe-fresh-script-locals.mjs](../tools/probe-fresh-script-locals.mjs)
+  earlier frames. tools/probe-fresh-script-locals.mjs (removed)
   found no local load of an unwritten byte (12000 NMIs of the benchmark route: 32
   frames, 21023 local loads in 6000 NMIs, none fresh). All 937 scripts of the corpus
   index only their declared locals. So JS frames start zeroed; the phase 1

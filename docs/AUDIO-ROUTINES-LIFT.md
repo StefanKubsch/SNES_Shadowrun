@@ -1,5 +1,15 @@
 # Audio routines lift
 
+Note (2026-11-25): the register-level game loop (proof/vm/main-driver.mjs,
+proof/script/register-level-loop.mjs), the address-dispatched owner and title cycle
+(proof/frontend-caller/), the register-level startup and reset references and the
+recorded Mesen boot replays were retired (user decision,
+[STATE-MODEL-REBUILD.md](STATE-MODEL-REBUILD.md), Progress). The lockstep and lift
+comparisons this document names (tools/game-loop.test.mjs, tools/lift-compare.mjs and
+its tests, the owner and transition caller tests) went with them; the golden traces
+are the reference. Where the text below names them, it describes the state before
+that date.
+
 The audio routines of the scene routine table (proof/replay/main-scene.mjs) now run
 as lifted code, after the game start
 ([GAME-START-LIFT.md](GAME-START-LIFT.md)); method in
@@ -91,8 +101,8 @@ placed around the camera (every stereo clamp); A, X, Y (within the table), the
 data bank, S and PC must be equal. Planted differences (the token in A, X after
 EF47, the stereo bias, the sample set cache, the voice cache) fail it.
 
-[tools/audio-routines-lift.test.mjs](../tools/audio-routines-lift.test.mjs) runs
-session 4 of [tools/live-title-cycle-plan.mjs](../tools/live-title-cycle-plan.mjs)
+tools/audio-routines-lift.test.mjs (removed) runs
+session 4 of tools/live-title-cycle-plan.mjs (removed)
 (boot, attract game, new game; five F007, two EF47 and 19 C46E calls through
 the entries); every NMI must be equal. A planted difference (another music mode)
 fails it.

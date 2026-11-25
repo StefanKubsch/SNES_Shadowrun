@@ -57,9 +57,9 @@ drawing and list reset against the former composition on 40 deterministic window
 states, with budgets one and seven and request words 0, FFFE and FFFF. The last
 request wraps to zero without waiting. Zero budget has no memory effects. A
 service stand-in captures the whole upload payload; it does not model an NMI.
-[transition-caller.test.mjs](../tools/transition-caller.test.mjs) retains the
+transition-caller.test.mjs (removed) retains the
 room/cutscene/matrix comparisons with real NMIs, devices and sound, and
-[script-native-lift.test.mjs](../tools/script-native-lift.test.mjs) retains the
+script-native-lift.test.mjs (removed) retains the
 dialog and script-native comparisons. CPU stacks and saved interrupt registers
 are excluded from the new isolated comparison; direct-page state is compared.
 

@@ -22,7 +22,7 @@ the replays of recorded chronologies.
 | Module                                                           | Content                                                                                                                                                                                       |
 | ---------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | [start-menu.mjs](../src/frontend/start-menu.mjs)                 | The menu 81:E14A/E1B4/E29F as a generator, its texts (81:D531, D555, E32F, E343, E354, E371, E38D, E3DA, E446), settings (D5E4, EF36), the title start (E50C, E57E, E5DB, E623) and NMI E6AE. |
-| [main-frontend-text.mjs](../proof/replay/main-frontend-text.mjs) | Still register-level: the settings routines the startup 80:A133 calls (D5D0, D5E4, D5EC, D5F4, EF36), the save checksum 81:B1AB entry and the frontend call frames.                           |
+| main-frontend-text.mjs (removed) | Still register-level: the settings routines the startup 80:A133 calls (D5D0, D5E4, D5EC, D5F4, EF36), the save checksum 81:B1AB entry and the frontend call frames.                           |
 
 The texts are read from bank 81 or from their translation or edit
 (`languageMenuText`), as before ([EDITABLE-TEXT.md](EDITABLE-TEXT.md));
@@ -59,7 +59,7 @@ a table stops at `menu_table_index_frontier`.
 ## What is compared
 
 tools/start-menu-lift.test.mjs (removed) runs the four
-sessions of [tools/live-start-menu-plan.mjs](../tools/live-start-menu-plan.mjs)
+sessions of tools/live-start-menu-plan.mjs (removed)
 from power-on: all options and the saved games menu with Exit before loading a
 game, a new game, the Credits row, and the timeout after the whole title. Every
 NMI must be equal; a planted difference (an animation frame in the 200th menu

@@ -1,11 +1,21 @@
 # Boot screens lift
 
+Note (2026-11-25): the register-level game loop (proof/vm/main-driver.mjs,
+proof/script/register-level-loop.mjs), the address-dispatched owner and title cycle
+(proof/frontend-caller/), the register-level startup and reset references and the
+recorded Mesen boot replays were retired (user decision,
+[STATE-MODEL-REBUILD.md](STATE-MODEL-REBUILD.md), Progress). The lockstep and lift
+comparisons this document names (tools/game-loop.test.mjs, tools/lift-compare.mjs and
+its tests, the owner and transition caller tests) went with them; the golden traces
+are the reference. Where the text below names them, it describes the state before
+that date.
+
 After the reset, the start-up 80:A133 calls 80:A15C, which calls the boot screens
 81:E7BC. They are lifted in
 [src/frontend/boot-screens.mjs](../src/frontend/boot-screens.mjs)
 (`bootScreensInPlace`; the RTL form `bootScreensSequence` is in
-[proof/frontend-caller/boot-screens.mjs](../proof/frontend-caller/boot-screens.mjs)). The register-level version stays in
-[proof/replay/main-startup.mjs](../proof/replay/main-startup.mjs) (`showBootScreens`) as the
+proof/frontend-caller/boot-screens.mjs (removed)). The register-level version stays in
+proof/replay/main-startup.mjs (removed) (`showBootScreens`) as the
 reference, and recorded runs keep using it. The routine table entry
 `runBootScreensLifted` (MAIN_STARTUP_ROUTINES) runs the lifted screens with lag-free
 frames. Method: [MATRIX-LIFT.md](MATRIX-LIFT.md).
@@ -49,7 +59,7 @@ frames. Method: [MATRIX-LIFT.md](MATRIX-LIFT.md).
 
 ## Tests
 
-[tools/boot-screens-lift.test.mjs](../tools/boot-screens-lift.test.mjs) runs the first
+tools/boot-screens-lift.test.mjs (removed) runs the first
 2989 frames from the reset into the title, for the apartment save and for a copy with
 mono output and an invalid settings checksum (the defaults restore stereo), each twice:
 once with the lifted screens and once with the register-level ones. It compares WRAM

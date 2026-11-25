@@ -2,7 +2,7 @@
 
 The live start calls `gameStartSequence` directly. It does not own a helper
 address table. The former tables remain independently in
-[the caller](../proof/caller/main-start.mjs) and
+the caller (removed) and
 [the replay](../proof/replay/main-start.mjs).
 
 The consumer inventory starts at `FRONTEND_ROUTINES`, passed to `LiveDevices`
@@ -20,7 +20,7 @@ before its reference moves. Register-level originals and former caller
 compositions stay available for independent comparisons. Source windows,
 recorded observations, scratch masks and hardware assumptions do not change.
 
-[Owner caller tests](../tools/main-owner-caller.test.mjs) compare actual starts,
+Owner caller tests (removed) compare actual starts,
 owner returns, reloads and main-loop entry with the retained dispatched callers.
 Existing source and scene comparisons continue to own their original evidence.
 Moving a reference creates no new hardware, route or timing evidence.
@@ -28,7 +28,7 @@ Moving a reference creates no new hardware, route or timing evidence.
 The frontend NMI table binds the start-menu callback directly. It no longer
 includes settings helper entries. Their byte-for-byte
 equations and frontend call helpers already remain in
-[the replay frontend helpers](../proof/replay/main-frontend-text.mjs), so the
+the replay frontend helpers (removed), so the
 unused duplicate game module is removed rather than copied again.
 The live start menu still calls the save-slot checksum through a fixed helper;
 the frontend table therefore binds that helper explicitly.

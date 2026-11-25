@@ -34,7 +34,6 @@ import { checkProjectStatus } from './check-project-status.mjs';
 
 // Whole test files of the slow tier, with the reason.
 export const SLOW_FILES = new Map([
-  ['tools/mesen-boot-prefix.test.mjs', 'Mesen cold boot to the title owner'],
   ['tools/mesen-oracle.test.mjs', 'Mesen opcode comparison of the first rooms'],
   ['tools/live-matrix.test.mjs', 'the seven matrix sessions against the original'],
   ['tools/live-alley-bus.test.mjs', 'alley session with open-bus reads'],

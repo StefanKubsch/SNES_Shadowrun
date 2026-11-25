@@ -17,7 +17,6 @@ import { TEXT_NONE } from '../replay/native-member-spell-menu.mjs';
 import { MAIN_START_ROUTINES } from '../replay/main-start.mjs';
 import { GAME_SCREEN_REFERENCE_ENTRIES } from './game-screen.mjs';
 import { ROOM_ENTRY_REFERENCE_ENTRIES } from './room-entry.mjs';
-import { attractRoundsSequence } from '../replay/main-frontend.mjs';
 import {
   RECORD_ATTRIBUTE,
   RECORD_SKILL,
@@ -231,18 +230,9 @@ function* referenceRoomStartSequence(h, e, r) {
   };
   return ctx.pc;
 }
-// Original routine $80:9699 for the attract game: the reference room start, then the
-// shared main loop rounds (proof/replay/main-frontend.mjs).
-export function runReferenceAttractRounds(h, e, r = referenceRoutines()) {
-  return drainNativeSequence(referenceAttractRoundsSequence(h, e, r));
-}
-const referenceAttractRoundsSequence = (h, e, r) =>
-  attractRoundsSequence(h, e, r, () => referenceRoomStartSequence(h, e, r));
-
-const REFERENCE = [
-  [0x809688, runReferenceGameStart, referenceGameStartSequence],
-  [0x809699, runReferenceAttractRounds, referenceAttractRoundsSequence],
-];
+// The attract game's entry 80:9699 lost its reference caller with the address-dispatched
+// demo owner (retired on 2026-11-25); the golden traces attract and game-over cover it.
+const REFERENCE = [[0x809688, runReferenceGameStart, referenceGameStartSequence]];
 const REFERENCE_ROUTINES = [
   [0x80960d, runNewGame],
   [0x8098e9, runNewGameDefaults],

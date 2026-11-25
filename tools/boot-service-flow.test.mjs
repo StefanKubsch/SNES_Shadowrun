@@ -2,51 +2,22 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { LiveGame } from '../src/video/live-game.mjs';
-import { SNES_VIDEO } from '../proof/video/snes-video.mjs';
 import { cartridge } from './cartridge-harness.mjs';
 import { resetHardware } from '../src/system/main-reset.mjs';
 import { mainStartupSequence } from '../src/system/main-startup.mjs';
 import { accessorPort } from '../src/system/hardware-port.mjs';
-import { STARTUP_CONTEXT } from '../src/script/game-loop.mjs';
 import { NativeCallContinuation } from '../src/system/native-call-continuation.mjs';
 import { WAIT_PAUSED, WAIT_RETURNED } from '../src/system/native-wait-continuation.mjs';
-import { runMainReset } from '../proof/replay/main-reset.mjs';
-import { toWram } from '../proof/state/to-wram.mjs';
-import { WORD_MASK } from '../src/constants/bits.mjs';
 
-// Device writes by register: the port reaches every system register at bank 00.
-const byRegister = (trace) =>
-  trace.map(({ kind, pc, address, width, value }) => ({
-    kind,
-    pc,
-    register: address & WORD_MASK,
-    width,
-    value,
-  }));
-
-function resetRun(reset) {
-  // The reset compares PPU registers and write counts: the SNES back end.
-  const game = new LiveGame(cartridge, { video: SNES_VIDEO }),
-    a = game.loop.accessor;
-  a.trace = [];
-  reset(a);
-  return { game, a, trace: byRegister(a.trace) };
-}
-
-test('the reset service writes the original registers and stack bytes', () => {
-  const reference = resetRun((a) => runMainReset(a)),
-    lifted = resetRun((a) => {
-      const power = { ...a.ctx };
-      Object.freeze(a.ctx);
-      resetHardware(accessorPort(a), a.mem);
-      assert.deepEqual({ ...a.ctx }, power, 'the reset service leaves the CPU context alone');
-    });
-  assert.equal(lifted.trace.length, reference.trace.length);
-  assert.deepEqual(lifted.trace, reference.trace);
-  assert.deepEqual({ ...reference.a.ctx }, STARTUP_CONTEXT, 'startup workspace');
-  assert.deepEqual(toWram(lifted.game.memory), toWram(reference.game.memory));
-  assert.deepEqual(lifted.game.bus.ppu.registers, reference.game.bus.ppu.registers);
-  assert.equal(lifted.game.bus.ppuWrites, reference.game.bus.ppuWrites);
+// The register-level reset reference (proof/replay/main-reset.mjs) was retired on
+// 2026-11-25; the golden traces start from this reset.
+test('the reset service leaves the CPU context alone', () => {
+  const game = new LiveGame(cartridge),
+    a = game.loop.accessor,
+    power = { ...a.ctx };
+  Object.freeze(a.ctx);
+  resetHardware(accessorPort(a), a.mem);
+  assert.deepEqual({ ...a.ctx }, power);
 });
 
 for (const budget of [1, 7])

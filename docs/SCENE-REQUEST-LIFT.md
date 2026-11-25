@@ -1,5 +1,15 @@
 # Scene request lift
 
+Note (2026-11-25): the register-level game loop (proof/vm/main-driver.mjs,
+proof/script/register-level-loop.mjs), the address-dispatched owner and title cycle
+(proof/frontend-caller/), the register-level startup and reset references and the
+recorded Mesen boot replays were retired (user decision,
+[STATE-MODEL-REBUILD.md](STATE-MODEL-REBUILD.md), Progress). The lockstep and lift
+comparisons this document names (tools/game-loop.test.mjs, tools/lift-compare.mjs and
+its tests, the owner and transition caller tests) went with them; the golden traces
+are the reference. Where the text below names them, it describes the state before
+that date.
+
 The scene request 80:CC4B, which the main loop calls in every pass after the zone
 gate 80:8000 (80:96C8), is lifted from register-level 65816 equations to plain
 code, after the room entry ([ROOM-ENTRY-LIFT.md](ROOM-ENTRY-LIFT.md)); method in
@@ -54,7 +64,7 @@ a request, and the main loop then starts its next pass at its top (80:96AB).
 
 ## Tests
 
-[tools/scene-request-lift.test.mjs](../tools/scene-request-lift.test.mjs) compares
+tools/scene-request-lift.test.mjs (removed) compares
 the lifted request with the reference request, game screen set-up and room entry
 (all register-level through their frames) in three live sessions: the matrix
 sessions of tools/live-matrix-plan.mjs, the cutscene sessions of
@@ -62,7 +72,7 @@ tools/live-cutscene-plan.mjs, and three room changes only (7FFF) from the
 apartment save into the debug room entry D2, back to entry 159 and into room 3.
 Every NMI is equal. A planted difference (the decker's health byte flipped in its
 lowest bit) fails the matrix session. The empty request runs in every main loop
-pass of all sessions. [tools/lift-compare.mjs](../tools/lift-compare.mjs) now also
+pass of all sessions. tools/lift-compare.mjs (removed) now also
 swaps references into the routine tables of src/vm (the main loop's).
 
 The room entry's matrix session moved here from tools/room-entry-lift.test.mjs:
@@ -88,7 +98,7 @@ The previous composition remains independently in
 [proof/caller/scene-request.mjs](../proof/caller/scene-request.mjs) and
 [proof/caller/game-start.mjs](../proof/caller/game-start.mjs). Recorded drivers
 and the existing function/reference comparisons use those versions.
-[transition-caller.test.mjs](../tools/transition-caller.test.mjs) compares the
+transition-caller.test.mjs (removed) compares the
 previous and direct callers on the same JS scheduler and devices, at budgets one
 and seven: three room changes, all cutscene sessions and the matrix sessions.
 Every NMI compares WRAM outside CPU stacks and saved interrupt registers, SRAM,

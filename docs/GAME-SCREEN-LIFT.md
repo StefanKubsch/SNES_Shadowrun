@@ -1,5 +1,15 @@
 # Game screen lift
 
+Note (2026-11-25): the register-level game loop (proof/vm/main-driver.mjs,
+proof/script/register-level-loop.mjs), the address-dispatched owner and title cycle
+(proof/frontend-caller/), the register-level startup and reset references and the
+recorded Mesen boot replays were retired (user decision,
+[STATE-MODEL-REBUILD.md](STATE-MODEL-REBUILD.md), Progress). The lockstep and lift
+comparisons this document names (tools/game-loop.test.mjs, tools/lift-compare.mjs and
+its tests, the owner and transition caller tests) went with them; the golden traces
+are the reference. Where the text below names them, it describes the state before
+that date.
+
 The game screen set-up 80:9629, which the room start calls before it enters a
 room, is lifted from register-level 65816 equations to plain code, after the game
 start ([GAME-START-LIFT.md](GAME-START-LIFT.md)) and the audio routines
@@ -59,9 +69,9 @@ chain, the colour count, BG3 on the main screen, the style word; in the state ba
 the small value bias, the tile above the value, a quotient 0 drawn as one segment
 and a skipped partial tile) fail it.
 
-[tools/game-screen-lift.test.mjs](../tools/game-screen-lift.test.mjs) runs
+tools/game-screen-lift.test.mjs (removed) runs
 sessions 2 (new game) and 4 (attract game, then a new game) of
-[tools/live-title-cycle-plan.mjs](../tools/live-title-cycle-plan.mjs); every NMI
+tools/live-title-cycle-plan.mjs (removed); every NMI
 must be equal. Its reference side also runs the register-level start of a game
 (`withGameStartReference`), which calls the reference set-up through its
 original frame. A planted difference (the colour count) fails both.

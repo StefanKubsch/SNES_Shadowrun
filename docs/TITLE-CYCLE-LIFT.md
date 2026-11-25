@@ -24,7 +24,7 @@ proof/frontend-reference/title-cycle.mjs (removed);
 | ------------------------------------------------------ | ---------------------------------------------------------------------------------------------------------------------------------------------- |
 | [title-cycle.mjs](../src/frontend/title-cycle.mjs)     | The cycle 80:A18C with the port's credits from the start menu, the attract game 80:A168 and the demo owner 80:96F3 (generators).               |
 | [game-owner.mjs](../src/frontend/game-owner.mjs)       | The outer game owner 80:A139/A157 (see "Outer game owner" below).                                                                              |
-| [main-frontend.mjs](../proof/replay/main-frontend.mjs) | The demo's rounds 80:9699 (its own continuation; room start lifted, [GAME-START-LIFT.md](GAME-START-LIFT.md)) and the driver's owner dispatch. |
+| main-frontend.mjs (removed) | The demo's rounds 80:9699 (its own continuation; room start lifted, [GAME-START-LIFT.md](GAME-START-LIFT.md)) and the driver's owner dispatch. |
 
 The audio and screen routines the cycle called (81:F229, 81:F092, 81:DDB1,
 81:EF63, 81:EB97, 81:EF47) are the lifted functions of src/apu, src/intro and
@@ -61,7 +61,7 @@ called through their original frames, so the reference can replace them.
 
 tools/title-cycle-lift.test.mjs (removed) runs the
 five sessions of
-[tools/live-title-cycle-plan.mjs](../tools/live-title-cycle-plan.mjs) from power
+tools/live-title-cycle-plan.mjs (removed) from power
 on: about 14600 frames without input (title, menu, attract game, menu, title,
 menu, attract game, menu), the Credits row followed by the title and a new
 game, a new game and a saved game after Start in the title, and a new game
