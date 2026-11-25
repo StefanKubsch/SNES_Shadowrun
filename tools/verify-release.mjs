@@ -78,7 +78,6 @@ export async function artifactHashes(root) {
       for (const name of (await readdir(join(root, dir, entry.name))).sort())
         paths.push(`${dir}/${entry.name}/${name}`);
     }
-  paths.push('analysis/dialog-936c-inventory.json');
   const hashes = {};
   for (const path of paths)
     hashes[path] = createHash('sha256')
@@ -248,9 +247,6 @@ export async function verifyRelease(root, { full = false } = {}) {
       /^(analyze|extract|probe):(render|vm)-/.test(name),
     );
     if (!generators.length) throw Error('No render generators configured');
-    // Optional final generators (see tools/generator-dependencies.mjs).
-    for (const name of ['plan:dialog', 'docs:progress'])
-      if (pkg.scripts[name]) generators.push([name, pkg.scripts[name]]);
     step = 'artifacts';
     const artifactStats = {},
       artifactsStarted = Date.now(),

@@ -9,10 +9,6 @@ export function releaseGenerators(scripts) {
     /^(analyze|extract|probe):(render|vm)-/.test(name),
   );
   if (!generators.length) throw Error('No render generators configured');
-  // The former inventory generators run last when a checkout still defines them (the
-  // native proof inventory was retired on 2026-11-25).
-  for (const name of ['plan:dialog', 'docs:progress'])
-    if (scripts[name]) generators.push([name, scripts[name]]);
   return generators;
 }
 

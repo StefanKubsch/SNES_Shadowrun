@@ -20,8 +20,7 @@ source classifications to
 an ignored cache file. Run from the project directory.
 
 The tool uses the same command selection as the release check: render and
-VM analysis, extraction and probe commands, followed by `plan:dialog` and
-`docs:progress`. It reads `.cache/release/generators/` and checks each record
+VM analysis, extraction and probe commands. It reads `.cache/release/generators/` and checks each record
 against current files using the existing release-cache validator.
 Commands without records remain visible as missing observations.
 
@@ -618,7 +617,7 @@ producers in `package.json` order, the three catalogued tools without an
 npm script (the 81B4 and C9E0 motion helper listings and the slot motion
 direction data), the ROM-only `extract:slot-action-data`,
 `extract:slot-target-data` and `extract:motion-postpass-data`, and then the
-release generators including `plan:dialog` and `docs:progress`. `--clean`
+release generators. `--clean`
 deletes the generated files first. Seven inputs are never deleted: the
 Mesen-dependent `mesen-coverage.json`, `rom-code-observed.json`,
 `rom-reads.json` and `rom-vram.json`, the retained `rom-palettes.json`, and

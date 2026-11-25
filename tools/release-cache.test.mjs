@@ -11,7 +11,6 @@ async function fixture(t) {
   t.after(() => rm(root, { recursive: true, force: true }));
   for (const d of ['tools', 'analysis', 'assets', 'docs', 'data', 'logs'])
     await mkdir(join(root, d));
-  await writeFile(join(root, 'analysis/dialog-936c-inventory.json'), '{}');
   for (const f of ['track-inputs.mjs', 'release-cache.mjs'])
     await copyFile(join(import.meta.dirname, f), join(root, 'tools', f));
   return root;

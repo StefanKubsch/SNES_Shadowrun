@@ -294,9 +294,7 @@ node --test tools/render-905e-source.test.mjs tools/render-905e.test.mjs
 Small related sources and their native implementation can form one delivery
 group. Additional helpers, unknown return modes, stack effects and external
 observations must be established first. Larger or unresolved parts remain
-separate steps. The [dialog inventory](../analysis/dialog-936c-inventory.json)
-lists original calls and stops at unknown mode changes; it does not replace
-a source contract.
+separate steps.
 
 After every fourth completed block, before pushing the porting batch:
 

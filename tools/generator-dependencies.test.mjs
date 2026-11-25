@@ -62,11 +62,11 @@ test('An entry for a different command and duplicate generator names are rejecte
   assert.throws(() => buildInventory(generators('a', 'a'), new Map()), /Duplicate generator name/);
 });
 
-test('The inventory follows release generator selection and keeps planning commands last', () => {
+test('The inventory follows release generator selection', () => {
   const selected = releaseGenerators({'start': 'node tools/server.mjs', 'analyze:render-a': 'node tools/a.mjs',
     'docs:progress': 'node tools/progress.mjs', 'analyze:vm-coverage': 'node tools/coverage.mjs',
     'plan:dialog': 'node tools/dialog.mjs', 'decode:scripts': 'node tools/scripts.mjs'});
-  assert.deepEqual(selected.map(([name]) => name), ['analyze:render-a', 'analyze:vm-coverage', 'plan:dialog', 'docs:progress']);
+  assert.deepEqual(selected.map(([name]) => name), ['analyze:render-a', 'analyze:vm-coverage']);
   assert.throws(() => releaseGenerators({}), /No render generators/);
   assert.deepEqual(releaseGenerators({'analyze:render-a': 'node tools/a.mjs'}).map(([name]) => name), ['analyze:render-a']);
 });
