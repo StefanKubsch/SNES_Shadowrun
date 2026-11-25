@@ -86,7 +86,7 @@ open bus.
 
 The remaining readers are implemented in
 [main-scene-video.mjs](../proof/system/main-scene-video.mjs),
-[cutscene-animation.mjs](../proof/cutscene-reference/cutscene-animation.mjs),
+[cutscene-animation.mjs](../src/cutscene/cutscene-animation.mjs),
 [start-menu-text.mjs](../proof/frontend-reference/start-menu-text.mjs) (with its lifted form
 [start-menu.mjs](../src/frontend/start-menu.mjs)) and
 [intro-setup.mjs](../proof/intro-reference/intro-setup.mjs) (with its lifted form

@@ -98,7 +98,6 @@ the entries); every NMI must be equal. A planted difference (another music mode)
 fails it.
 
 The existing function tests of src/apu (tools/matrix-lift-functions.test.mjs,
-tools/cutscene-lift-functions.test.mjs, tools/intro-lift-functions.test.mjs)
-keep proving the lifted music code; the cutscene test and
-tools/main-scene-animation.test.mjs take the register-level song start from the
-reference.
+tools/intro-lift-functions.test.mjs) keep proving the lifted music code; the
+golden traces cutscenes and intro play it (the cutscene function test and
+tools/main-scene-animation.test.mjs were retired on 2026-11-25).

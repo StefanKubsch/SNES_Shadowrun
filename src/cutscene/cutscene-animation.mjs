@@ -1,5 +1,5 @@
-// Cutscene animation (lifted from 81:CF72-D336 and 81:D37D-D4E8; register-level
-// reference in proof/cutscene-reference/). Each cutscene runs one animation per
+// Cutscene animation (lifted from 81:CF72-D336 and 81:D37D-D4E8; the register-level
+// reference was retired on 2026-11-25, the golden traces cutscenes and intro cover it). Each cutscene runs one animation per
 // frame (table scene_animation_calls): an engine sound with shaking sprites, a
 // sound with a rising pitch over a per-line BG2 scroll, a line scroll alone, a
 // sprite that moves forward or back, or the credits pages.
@@ -460,7 +460,8 @@ function animateCredits(m) {
     tint(mem, (counter + TINT_SECOND_LINE) & WORD_MASK, TM_LINE);
 }
 
-const ANIMATIONS = new Map([
+// The animations of the table scene_animation_calls (81:D41F), by their bank 81 address.
+export const CUTSCENE_ANIMATIONS = new Map([
   [0xcfcc, animateEngine],
   [0xd02a, animatePitch],
   [0xd160, animateLineScroll],
@@ -471,7 +472,7 @@ const ANIMATIONS = new Map([
 // Run the animation of the current scene (81:CF72, table scene_animation_calls).
 export function animateCutscene(m) {
   const handler = cutsceneTables(m.mem).animationCalls(sceneIndex(m.wram)),
-    run = ANIMATIONS.get(handler);
+    run = CUTSCENE_ANIMATIONS.get(handler);
   if (!run)
     taskStop('main_scene_animation_frontier', { pc: 0x81cf76, target: ANIMATION_BANK | handler });
   run(m);

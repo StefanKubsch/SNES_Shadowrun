@@ -16,24 +16,17 @@ import {
   playCutscene as liftedCutscene,
 } from '../proof/replay/main-scene.mjs';
 import { readInputLong } from '../proof/replay/main-scene.mjs';
-import {
-  playCutscene,
-  fillCutsceneTextMap,
-  drawCutsceneSprites,
-  sendMirroredCutscenePicture,
-} from '../proof/cutscene-reference/cutscene-scene.mjs';
 import { playMatrixScene } from '../proof/matrix-reference/matrix-scene-loop.mjs';
 import { SCENE_REFERENCE_ROUTINES as MAIN_SCENE_ROUTINES } from '../proof/scene-reference-routines.mjs';
 import { MAIN_MOTION_ROUTINES } from '../proof/replay/main-loop-motion.mjs';
 import '../proof/system/dialog-register-helpers.mjs';
-const functions = [
-  playCutscene,
-  playMatrixScene,
-  fillCutsceneTextMap,
-  drawCutsceneSprites,
-  sendMirroredCutscenePicture,
-  readInputLong,
-];
+// The register-level functions compared instruction by instruction with the original.
+// The cutscene entries (CDF8, D37D, D4E8, CF79) have no register-level reference since
+// 2026-11-25 (golden traces cutscenes and intro); their graphs are still proved above.
+const functions = new Map([
+  ['c3ca', playMatrixScene],
+  ['f298', readInputLong],
+]);
 const maps = mainSceneSpecs.map((s) => decodeWindows(s.windows));
 test('scene entry own code pins PHK, conditional external tails and all local stack frames', () => {
   mainSceneSpecs.forEach((s, i) => proveMainScene(maps[i], s));
@@ -116,32 +109,34 @@ function stubs(h, seed, spec) {
     ]),
   );
 }
-mainSceneSpecs.forEach((spec, i) =>
-  test(`${spec.name}: all own scene equations match original instructions`, () => {
-    const covered = new Set();
-    for (let seed = 1; seed <= 60; seed++) {
-      const s = scenario(spec.entry, seed),
-        result = compareDialog(maps[i], s, {
-          root: spec.rootReturn,
-          waits: [0x81cf4c],
-          native: (h, e) => {
-            const calls = stubs(h, seed, spec),
-              routines = new Map([...calls].map(([t, run]) => [t, () => run()]));
-            return functions[i](h, e, routines);
-          },
-          calls: (a) => stubs(dialogAccess(a), seed, spec),
-        });
-      assert.deepEqual(result.differences, [], `seed ${seed}`);
-      for (const pc of result.visited) covered.add(pc);
-    }
-    // JML DFE7 is an intentionally stopped external tail, separately checked below.
-    assert.deepEqual(
-      [...maps[i].keys()]
-        .filter((pc) => pc !== 0x81cdfd && !covered.has(pc))
-        .map((pc) => pc.toString(16)),
-      [],
-    );
-  }),
+mainSceneSpecs.forEach(
+  (spec, i) =>
+    functions.has(spec.name) &&
+    test(`${spec.name}: all own scene equations match original instructions`, () => {
+      const covered = new Set();
+      for (let seed = 1; seed <= 60; seed++) {
+        const s = scenario(spec.entry, seed),
+          result = compareDialog(maps[i], s, {
+            root: spec.rootReturn,
+            waits: [0x81cf4c],
+            native: (h, e) => {
+              const calls = stubs(h, seed, spec),
+                routines = new Map([...calls].map(([t, run]) => [t, () => run()]));
+              return functions.get(spec.name)(h, e, routines);
+            },
+            calls: (a) => stubs(dialogAccess(a), seed, spec),
+          });
+        assert.deepEqual(result.differences, [], `seed ${seed}`);
+        for (const pc of result.visited) covered.add(pc);
+      }
+      // JML DFE7 is an intentionally stopped external tail, separately checked below.
+      assert.deepEqual(
+        [...maps[i].keys()]
+          .filter((pc) => pc !== 0x81cdfd && !covered.has(pc))
+          .map((pc) => pc.toString(16)),
+        [],
+      );
+    }),
 );
 
 test('scene entries reach BYTE observations; an unbound special tail creates no extra frame', () => {
@@ -171,13 +166,14 @@ test('scene entries reach BYTE observations; an unbound special tail creates no 
   const incomplete = new Map(MAIN_SCENE_ROUTINES);
   incomplete.delete(0x81dfe7);
   assert.throws(
-    () => playCutscene(n.h, null, incomplete),
+    () => liftedCutscene(n.h, null, incomplete),
     (e) => e.taskBoundary && e.target === 0x81dfe7,
   );
   assert.deepEqual(n.mem.wram, before);
   assert.equal(n.a.ctx.s, stack);
-  assert.equal(n.a.ctx.status & 0x83, 3);
-  for (const entry of [0x81cdf8, 0x81c3ca]) {
+  // The lifted cutscene leaves no CPU flags (user decision 2026-11-17).
+  // The register-level matrix scene (the lifted cutscene sends its audio directly).
+  for (const entry of [0x81c3ca]) {
     const s = scenario(entry, 1);
     s.a = 0;
     s.dbr = 0x80;
@@ -188,7 +184,7 @@ test('scene entries reach BYTE observations; an unbound special tail creates no 
     for (const target of [0x81ef47, 0x81f007, 0x81f130]) routines.set(target, (h) => h.rtl());
     assert.throws(
       () =>
-        functions[entry === 0x81cdf8 ? 0 : 1](
+        playMatrixScene(
           state.h,
           { mode: 'record-observations', values: [], waitIndex: 0, waitEvents: [] },
           routines,

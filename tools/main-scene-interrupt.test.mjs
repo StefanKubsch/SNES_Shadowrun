@@ -13,7 +13,7 @@ import { assertPinnedTaskSource } from './pinned-task-source.mjs';
 import { runReference } from './w65c816-reference.mjs';
 import { TaskAccessor } from '../src/vm/task-accessor.mjs';
 import { dialogAccess } from '../src/system/native-dialog-support.mjs';
-import { playCutscene } from '../proof/cutscene-reference/cutscene-scene.mjs';
+import { playCutscene } from '../proof/replay/main-scene.mjs';
 import { playMatrixScene } from '../proof/matrix-reference/matrix-scene-loop.mjs';
 import { SCENE_REFERENCE_ROUTINES as MAIN_SCENE_ROUTINES } from '../proof/scene-reference-routines.mjs';
 import { finishInterruptObservations } from '../proof/system/main-wait-interrupt.mjs';
@@ -294,23 +294,6 @@ test('combined scene and callback execution retains each pinned original root', 
   ])
     assertPinnedTaskSource(decodeWindows(windows), windows);
 });
-test('DFE7 special tail and nested CDF8 execute the actually installed callbacks through complete original NMI/RTI', () => {
-  for (const early of [false, true]) {
-    const { n, visited, hits } = compare('intro', early);
-    assert.deepEqual(
-      n.installed.map((o) => o[1]),
-      [0x81dad6, 0x81df0e, 0x81d479],
-    );
-    assert.deepEqual([...new Set(n.callbacks)], [0x81df0e, 0x81d479]);
-    // DAD6 is installed while NMI is disabled, then overwritten before the
-    // first wait. It must not be fabricated as an executed callback here.
-    assert.equal(hits.get(0x809e1a) > 0, true);
-    assert.ok(visited.has(0x81cdfd));
-    assert.ok(visited.has(0x81e120));
-    assert.equal(hits.get(0x81e07e), early ? 1 : 300);
-    assert.equal(n.mem.read8(0x11a3), 0);
-  }
-});
 test('whole C3CA returns through real Matrix queue producers, BEC3 consumption, control and fade', () => {
   for (const option of [0, 1]) {
     const { n, visited } = compare('matrix', option);
@@ -333,14 +316,6 @@ test('C3CA preserves both complete fades, every live wait frame and actual Matri
     assert.ok(pauses > 500);
     assert.equal(n.mem.read16(0x1748), 0);
     assert.equal(n.mem.read16(0x174a), 0);
-  }
-});
-test('CDF8 transfers its actual frame to DFE7 and preserves nested CDF8, input and direct fade polls across finite budgets', () => {
-  for (const early of [false, true]) {
-    const { pauses, n, hits } = compare('intro', early, true);
-    assert.ok(pauses > 500);
-    assert.equal(hits.get(0x81e07e), early ? 1 : 300);
-    assert.equal(n.mem.read8(0x11a3), 0);
   }
 });
 test('both resumable brightness loops retain BYTE hardware polls and their actual PHP/PLP frames', () => {

@@ -96,6 +96,14 @@ own commit after `npm run test:block` and the golden trace test. One shared
 
 ## Progress
 
+- 2026-11-25, first proof retirement (user decision: ROM proofs may go where golden
+  traces cover the lifted path): proof/cutscene-reference/ (1190 lines),
+  tools/cutscene-lift(-functions).test.mjs and tools/main-scene-animation.test.mjs are
+  gone, with the CDF8, D479 and nested DFE7 cases of the ROM proofs. The golden traces
+  cutscenes and intro cover the path; the credits text contracts run the lifted code;
+  rom-map and extract-tables take the animation table from src
+  ([CUTSCENE-LIFT.md](CUTSCENE-LIFT.md)).
+
 - 2026-11-25, golden coverage: three new scenarios (spell, bed, cutscenes) and
   `npm run golden:coverage`; the traces reach 1929 of 2573 src functions (was 1814).
   Prerequisite for retiring proof modules (user decision 2026-11-25: first close the

@@ -5,8 +5,7 @@
 // device writes and the same result,
 // or stop at the same frontier. Game state only (user, 2026-11-14): registers, flags
 // and stack bytes count only where a callee or caller reads them as an argument or
-// result; stand-ins record their inputs with calleeRecord. Shared by tools/matrix-lift-functions.test.mjs and
-// tools/cutscene-lift-functions.test.mjs.
+// result; stand-ins record their inputs with calleeRecord. Shared by the *-lift-functions tests.
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { DialogTestMemory, prng } from './task-native-dialog-harness.mjs';

@@ -5,7 +5,6 @@ import { playIntro } from '../proof/intro-reference/intro-scene.mjs';
 import '../proof/system/dialog-register-helpers.mjs';
 // The intro 81:DFE7 is lifted (src/intro); its register-level reference is proved here.
 const intro = { ...introTask, playIntro };
-import { playCutscene } from '../proof/cutscene-reference/cutscene-scene.mjs';
 import { SCENE_REFERENCE_ROUTINES as MAIN_SCENE_ROUTINES } from '../proof/scene-reference-routines.mjs';
 import { subtractSampleLength } from '../proof/replay/native-audio-compose.mjs';
 import { sceneIntroSpecs, proveSceneIntro, sceneIntroTables } from './main-scene-intro-source.mjs';
@@ -341,77 +340,6 @@ test('F092 reads both original directory streams through the real APU byte/word 
       },
     });
     assert.deepEqual(r.differences, []);
-  }
-});
-test('special CDF8 tail shares its caller frame through real DFE7, all scene helpers and nested CDF8', () => {
-  const tables = Buffer.from(window(0x81d3fb, 0x81d413).hex, 'hex'),
-    count = tables.readUInt16LE(10) + tables.readUInt16LE(22) + 2;
-  for (const introPolls of [1, 300]) {
-    const s = sample(0x81dfe7, introPolls);
-    s.a = 0x14;
-    s.p = introPolls === 1 ? 3 : 0x47;
-    s.wram[0x1c76] = 0;
-    s.wram[0x1c77] = 0;
-    s.wram[0x1ce4] = 0;
-    s.inputs = Array.from({ length: introPolls + count }, () => ({
-      pc: 0x809e1a,
-      address: 0x8101ca,
-      width: 2,
-      value: introPolls === 1 ? 0x9000 : 0,
-    }));
-    let counter = 0;
-    const waits = (n) =>
-      Array.from({ length: n }, () => ({
-        pc: 0x81eecd,
-        address: 0x7e1c76,
-        width: 1,
-        value: ++counter & 255,
-      }));
-    s.waits = [
-      ...waits(16 + introPolls + 16 + count),
-      ...Array.from({ length: 16 }, (_, i) => ({
-        pc: 0x81cf4c,
-        address: 0x8011a3,
-        width: 1,
-        value: 15 - i,
-      })),
-      ...waits(1),
-    ];
-    const installed = [],
-      routines = new Map(MAIN_SCENE_ROUTINES),
-      ec16 = routines.get(0x81ec16);
-    routines.set(0x81ec16, (h, e) => {
-      const at = h.ctx.x,
-        result = ec16(h, e);
-      installed.push([at, h.dp(0x6e, 2) | (h.dp(0x70, 1) << 16)]);
-      return result;
-    });
-    const cdf8Program = Buffer.from(window(0x81f497, 0x81f499).hex, 'hex').readUInt16LE();
-    const r = compareDialog(maps[9], s, {
-      root: 'RTL',
-      native: (h, e) => {
-        matchingAck(h);
-        playCutscene(h, e, routines);
-        assert.equal(h.ctx.bank, 0x80);
-        assert.equal(h.ctx.s, 0x1ef0);
-        assert.equal(h.ctx.pc, 0x1235);
-        assert.deepEqual(installed, [
-          [0xf6ef, 0x81dad6],
-          [0xf79f, 0x81df0e],
-          [cdf8Program, 0x81d479],
-        ]);
-        assert.equal(h.dp(0x1c, 2), 0);
-        assert.equal(h.dp(0x16, 2), 0);
-      },
-      calls: (acc, e) => {
-        const h = dialogAccess(acc);
-        matchingAck(h);
-        return new Map([...realCalls(h, e)].filter(([t]) => !maps[9].has(t)));
-      },
-    });
-    assert.deepEqual(r.differences, []);
-    assert.equal(r.events.inputIndex, s.inputs.length);
-    assert.equal(r.events.waitIndex, s.waits.length);
   }
 });
 test('F092 long directory and raw payload pointers carry into the next WRAM bank', () => {

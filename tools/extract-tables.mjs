@@ -11,7 +11,7 @@ import {
   trackCalls,
 } from '../proof/matrix-reference/main-matrix-movement.mjs';
 import { textCommands } from '../proof/matrix-reference/main-scene-matrix.mjs';
-import { SCENE_ANIMATION_TARGETS } from '../proof/cutscene-reference/cutscene-animation.mjs';
+import { CUTSCENE_ANIMATIONS } from '../src/cutscene/cutscene-animation.mjs';
 import { KARMA_LISTS } from '../proof/replay/native-main-menu.mjs';
 import { SUBMENU_SEQUENCES } from '../proof/replay/native-status-screen.mjs';
 import { SCENE_VIDEO_COMMANDS } from '../proof/system/main-scene-video.mjs';
@@ -75,6 +75,8 @@ if (
   throw new Error('the karma tables differ from KARMA_LISTS');
 // The handler of every ported opcode, and only ported matrix call targets at
 // the indexes the dispatch accepts.
+// The cutscene animations lie in bank 81 (src/cutscene/cutscene-animation.mjs).
+const SCENE_CODE_BANK = 0x810000;
 const label = (a) =>
   `${(a >> 16).toString(16).toUpperCase()}:${(a & 0xffff).toString(16).toUpperCase().padStart(4, '0')}`;
 for (const [opcode, { handler }] of Object.entries(scriptOpcodes))
@@ -85,7 +87,11 @@ for (const [name, targets, step, firstZero] of [
   ['matrix_track_calls', trackCalls, 2],
   ['matrix_state_calls', stateCalls, 1],
   ['matrix_text_commands', textCommands, 1],
-  ['scene_animation_calls', SCENE_ANIMATION_TARGETS, 1],
+  [
+    'scene_animation_calls',
+    new Set([...CUTSCENE_ANIMATIONS.keys()].map((t) => SCENE_CODE_BANK | t)),
+    1,
+  ],
   [
     'status_submenu_calls',
     new Set([...SUBMENU_SEQUENCES.keys()].map((t) => 0x800000 | t)),

@@ -7,11 +7,8 @@ import { readFileSync } from 'node:fs';
 import { cartridge } from './cartridge-harness.mjs';
 import { rom, compareDialog, decodeWindows } from './task-native-dialog-harness.mjs';
 import { frontendSpecs } from './main-frontend-source.mjs';
-import { sceneAnimationSpecs } from './main-scene-animation-source.mjs';
 import { FRONTEND_MENU_ROUTINES as FRONTEND_MENU_ROUTINES_TASK } from '../proof/replay/main-frontend-menu.mjs';
-import { SCENE_ANIMATION_TARGETS } from '../proof/cutscene-reference/cutscene-animation.mjs';
-import { fillCutsceneTextMap } from '../proof/cutscene-reference/cutscene-scene.mjs';
-import { dialogAccess } from '../src/system/native-dialog-support.mjs';
+import { CUTSCENE_ANIMATIONS } from '../src/cutscene/cutscene-animation.mjs';
 import { lzBits, lzDecode, lzEncode } from '../src/data/lz.mjs';
 import { readLzStreams } from '../src/data/lz-streams.mjs';
 import { romOffset } from '../src/data/rom-bytes.mjs';
@@ -215,8 +212,23 @@ test('intro centering, full rows and terminators match the original renderer', (
   }
 });
 
+// The credits page animation 81:D1F0 (lifted in src/cutscene/cutscene-animation.mjs,
+// golden trace cutscenes) on a fixture: the text map, the text offset after the page
+// (7E:119E) and the memory around them. Its video transfers are not needed here.
+const CREDITS_ANIMATION = 0xd1f0;
+function credits(data) {
+  const { wram } = fixture(0, data),
+    mem = new VmMemory(cartridge.rom, wram, null, cartridge.present),
+    video = new Proxy({}, { get: () => () => {} });
+  CUTSCENE_ANIMATIONS.get(CREDITS_ANIMATION)({ mem, wram: mem.wram, video });
+  return {
+    wram: mem.wram,
+    output: Buffer.from(mem.wram.slice(0x4ea8, 0x56a8)),
+    cursor: mem.read16(0x7e119e),
+  };
+}
+
 test('credits centering exposes the 32-column stride and page overflow boundaries', () => {
-  const map = decodeWindows(sceneAnimationSpecs[0].windows);
   for (const [count, length] of [
     [0, 0],
     [1, 0],
@@ -228,18 +240,7 @@ test('credits centering exposes the 32-column stride and page overflow boundarie
     const data = count
       ? [count, ...Array.from({ length: count }, () => [...Array(length).fill(0x41), 0]).flat(), 0]
       : [0];
-    const s = fixture(0x81d1f0, data);
-    let output, cursor;
-    const result = compareDialog(map, s, {
-      native: (h, e) => {
-        SCENE_ANIMATION_TARGETS.get(s.entry)(h, e, new Map([[0x81d37d, fillCutsceneTextMap]]));
-        output = Buffer.from(h.a.mem.wram.slice(0x4ea8, 0x56a8));
-        cursor = h.read(0x7e119e, 2);
-      },
-      calls: (a) =>
-        new Map([[0x81d37d, () => ({ rawReturnWord: fillCutsceneTextMap(dialogAccess(a)) })]]),
-    });
-    assert.deepEqual(result.differences, [], `${count} lines of ${length}`);
+    const { output, cursor } = credits(data);
     assert.equal(cursor, data.length - 1, 'page consumes exactly its count and line terminators');
     const rows = [
       ...new Set(
@@ -260,19 +261,12 @@ test('credits centering exposes the 32-column stride and page overflow boundarie
 });
 
 test('credits M8 indexing aliases high character bytes and preserves the map high byte', () => {
-  const map = decodeWindows(sceneAnimationSpecs[0].windows);
-  const s = fixture(0x81d1f0, [1, 0xa1, 0, 0]);
-  let tile;
-  const result = compareDialog(map, s, {
-    native: (h, e) => {
-      SCENE_ANIMATION_TARGETS.get(s.entry)(h, e, new Map([[0x81d37d, fillCutsceneTextMap]]));
-      tile = h.read(0x7e5206, 2);
-    },
-    calls: (a) =>
-      new Map([[0x81d37d, () => ({ rawReturnWord: fillCutsceneTextMap(dialogAccess(a)) })]]),
-  });
-  assert.deepEqual(result.differences, []);
-  assert.equal(tile, 0x2002, 'A1 aliases ASCII 21; only the low table byte replaces the tile');
+  const { wram } = credits([1, 0xa1, 0, 0]);
+  assert.equal(
+    wram[0x5206] | (wram[0x5207] << 8),
+    0x2002,
+    'A1 aliases ASCII 21; only the low table byte replaces the tile',
+  );
 });
 
 test('language switches select the source at unpack time and do not replace loaded WRAM', () => {

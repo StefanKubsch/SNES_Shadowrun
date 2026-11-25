@@ -1,4 +1,4 @@
-// Cutscene sessions in the live game for tools/cutscene-lift.test.mjs: from the
+// Cutscene sessions in the live game for the golden trace cutscenes: from the
 // apartment save, each request 7E:1CE9 = scene (7E:1CEB its argument) makes the
 // main loop play the cutscene 81:CDF8, as the game's natives do. The sequences 0-4
 // run to their end, two of them mirrored (bit 15), one with an argument, one is

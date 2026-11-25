@@ -1,5 +1,5 @@
-// Cutscenes (lifted from 81:CDF8 and the NMI callback 81:D479; register-level
-// reference in proof/cutscene-reference/). A cutscene sets up its screen from a
+// Cutscenes (lifted from 81:CDF8 and the NMI callback 81:D479; the register-level
+// reference was retired on 2026-11-25, the golden traces cutscenes and intro cover it). A cutscene sets up its screen from a
 // scene list, plays its music and sound, animates every frame for its frame
 // count (B or Start ends it), slows the BG2 scroll for its end frames and fades
 // out. Scene 14 is the intro (81:DFE7, src/intro/), passed on as the original

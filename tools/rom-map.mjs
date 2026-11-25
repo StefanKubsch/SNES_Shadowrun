@@ -177,10 +177,12 @@ import {
   directionCalls,
   trackCalls,
 } from '../proof/matrix-reference/main-matrix-movement.mjs';
-import { SCENE_ANIMATION_TARGETS } from '../proof/cutscene-reference/cutscene-animation.mjs';
+import { CUTSCENE_ANIMATIONS } from '../src/cutscene/cutscene-animation.mjs';
 import { SCENE_VIDEO_COMMANDS } from '../proof/system/main-scene-video.mjs';
 import { CALLBACKS } from '../src/system/nmi-call.mjs';
 
+// The cutscene animations lie in bank 81 (src/cutscene/cutscene-animation.mjs).
+const SCENE_CODE_BANK = 0x810000;
 // Jump tables behind indirect jumps (JMP/JSR (abs,X) read the table and the
 // target in the program bank): the targets the port has ported for each one.
 // The trace goes on at each target with the state at the jump; every target
@@ -196,7 +198,10 @@ const JUMP_TABLES = new Map([
   ['81:BA93', { table: 0x81bb56, targets: [...directionCalls.keys()] }],
   ['81:BC09', { table: 0x81bc1b, targets: [...trackCalls.keys()] }],
   ['81:BD52', { table: 0x81bd56, targets: [...stateCalls.keys()] }],
-  ['81:CF76', { table: 0x81d41f, targets: [...SCENE_ANIMATION_TARGETS.keys()] }],
+  [
+    '81:CF76',
+    { table: 0x81d41f, targets: [...CUTSCENE_ANIMATIONS.keys()].map((t) => SCENE_CODE_BANK | t) },
+  ],
   ['81:EC28', { table: 0x81ec2f, targets: [...SCENE_VIDEO_COMMANDS.keys()] }],
 ]);
 

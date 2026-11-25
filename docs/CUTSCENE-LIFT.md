@@ -3,11 +3,9 @@
 The cutscenes 81:CDF8 are the second scene lifted from register-level 65816
 equations to plain code, after the matrix (user direction 2026-11-10,
 [STRATEGY.md](STRATEGY.md) "Lifted code"; the method and the shared routines
-are described in [MATRIX-LIFT.md](MATRIX-LIFT.md)). The register-level version
-stays as reference in [proof/cutscene-reference/](../proof/cutscene-reference/);
-the ROM proof tests (`tools/main-scene*.test.mjs`, `tools/main-fade-interrupt.test.mjs`,
-`tools/packed-text-contract.test.mjs`) keep checking it against the original
-instructions through [proof/scene-reference-routines.mjs](../proof/scene-reference-routines.mjs).
+are described in [MATRIX-LIFT.md](MATRIX-LIFT.md)). The register-level reference
+(proof/cutscene-reference/) was retired on 2026-11-25 (user decision: ROM proofs may go
+where golden traces cover the lifted path); see "What is compared".
 
 ## Modules
 
@@ -45,22 +43,19 @@ their `LOOKUP_TABLES` names; a scene past the tables stops at the frontier
 
 ## What is compared
 
-[tools/cutscene-lift.test.mjs](../tools/cutscene-lift.test.mjs) runs the
-sessions of [tools/live-cutscene-plan.mjs](../tools/live-cutscene-plan.mjs)
-(scenes 0-4 to their end, two mirrored, one with an argument, one ended with B,
-the credits for 7068 frames; requested through 7E:1CE9/1CEB from the apartment
-save) once lifted and once with the reference, through
-[tools/lift-compare.mjs](../tools/lift-compare.mjs). Every NMI must be equal:
-WRAM outside the direct page 00-13 and 20-33, the unpacker and sample loader
-state and the stacks; VRAM, CGRAM, OAM, PPU registers and scroll, PPU write
-count and sound RAM. A planted difference (another end sound) fails it at the
-first affected NMI.
-
-[tools/cutscene-lift-functions.test.mjs](../tools/cutscene-lift-functions.test.mjs)
-runs the animation (1200 samples), sprites, text map, mirrored picture, NMI
-callback, `startSong` and the screen registers on random states against the
-reference ([tools/lift-function-harness.mjs](../tools/lift-function-harness.mjs),
-shared with the matrix): every scene and its mirror, positions, speeds and
-counters including word wrap values, random credit pages. Line coverage of
-`cutscene-animation.mjs` is 100 %; the scene generator is covered by the live
-sessions.
+Since 2026-11-25 the golden traces cutscenes and intro (tools/golden/scenarios.mjs,
+[STATE-MODEL-REBUILD.md](STATE-MODEL-REBUILD.md)) fix the behaviour: the sessions of
+[tools/live-cutscene-plan.mjs](../tools/live-cutscene-plan.mjs) (scenes 0-4 to their end,
+two mirrored, one with an argument, one ended with B, the credits) and of
+[tools/live-intro-plan.mjs](../tools/live-intro-plan.mjs), with picture, game state,
+video memory, audio and SRAM hashes per frame. Before, tools/cutscene-lift.test.mjs had
+proved these sessions equal to the register-level reference at every NMI, and
+tools/cutscene-lift-functions.test.mjs had compared the animation, sprites, text map,
+picture, NMI callback and screen registers on random states; both were retired with the
+reference, as were tools/main-scene-animation.test.mjs and the CDF8, D479 and nested
+DFE7 cases of the ROM proofs (main-scene, main-scene-interrupt, main-fade-interrupt,
+main-scene-intro). The ROM graph proofs of the cutscene entries remain
+(tools/main-scene.test.mjs), and the credits text contracts
+(tools/packed-text-contract.test.mjs: centring, 32-column stride, page overflow, high
+character bytes) now run the lifted credits animation. src/cutscene functions reached by
+the golden traces: 34 of 36 (the two missed are the register-level entries).
