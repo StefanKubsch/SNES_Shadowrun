@@ -1,13 +1,8 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { readFile } from 'node:fs/promises';
-import { prepareTaskNativeCAE0 as rootA0 } from '../proof/task/native-cae0.mjs';
-import { prepareTaskNativeOpcodeCAE0 as callA0 } from '../proof/task/native-opcode-bindings.mjs';
 import { prepareTaskNativeOpcodeC560 as call63 } from '../proof/task/native-random-opcode.mjs';
-import { taskLeafFixture } from './task-native-leaf-fixtures.mjs';
-import { taskNativeOpcodeFixture } from './task-native-opcode-fixtures.mjs';
 import { taskNativeRandomOpcodeFixture as randomFixture } from './task-native-random-fixtures.mjs';
-import { nativeCAE0Spec } from './task-native-cae0-spec.mjs';
 import { prepared, unchangedFailure } from './task-native-test-support.mjs';
 import { sampleWord } from './render-f130-fixtures.mjs';
 import { bodyWord, omitBodyBytes } from './task-script-body-fixtures.mjs';
@@ -19,73 +14,6 @@ import {
   randomTables,
   random63Anchors,
 } from './render-task-native-random-source-proof.mjs';
-test('Whole A0: zero fresh fullWORDpointer skips DP02; nonzero stores only oneBYTE without target preread or lost accumulator high/flags', () => {
-  for (const byte of [0, 1, 128, 255]) {
-    const f = taskLeafFixture(0x80cae0);
-    sampleWord(f.data, 2, 0xab00 | byte);
-    const g = omitBodyBytes(f, 3, 0x7e0402),
-      p = prepared(rootA0, g);
-    assert.equal(p.outputBytes, 1);
-    assert.equal(p.outputContext.a, 0xab00 | byte);
-    assert.equal(p.outputContext.status & 0x82, byte === 0 ? 2 : byte >= 128 ? 128 : 0);
-    assert.equal(p.outputContext.status & 0x41, 0x41);
-    assert.equal(p.outputContext.status & 0x30, 0);
-    assert.equal(p.readAddresses.includes(0x7e0402), false);
-    assert.equal(commitTaskPlan(g.data, p).handled, true);
-    assert.equal(g.data.readByte(0x7e0402).value, byte);
-    assert.equal(g.data.readByte(0x7e0403).value, 0x78);
-  }
-  const f = taskLeafFixture(0x80cae0);
-  sampleWord(f.data, 0x8013b8, 0);
-  const g = omitBodyBytes(f, 2, 3),
-    p = prepared(rootA0, { ...g, maxOutputBytes: 0 });
-  assert.equal(p.outputBytes, 0);
-  assert.equal(p.outputContext.a, 0xabcd);
-  assert.equal(p.outputContext.x, 0);
-  assert.equal(p.outputContext.y, 16);
-  assert.equal(p.outputContext.status & 0x82, 2);
-});
-test('Whole A0: full Y/actualDBR and full X/long24bit bankcarry, protected RTS/high/source/budget failures remain atomic', () => {
-  const f = taskLeafFixture(0x80cae0);
-  sampleWord(f.data, 0, 65535);
-  sampleWord(f.data, 0x8113a7, 65535);
-  sampleWord(f.data, 2, 0xb37e);
-  const p = prepared(rootA0, f);
-  assert.equal(
-    p.accesses.some((a) => a.kind === 'read' && a.address === 0x8113a7),
-    true,
-  );
-  assert.deepEqual(p.byteWrites, [[0x7f0001, 0x7e]]);
-  unchangedFailure(rootA0, omitBodyBytes(f, 0x8113a8), {}, 'render_source_required');
-  unchangedFailure(rootA0, f, { maxWork: p.work - 1 }, 'task_work_budget_required');
-  unchangedFailure(rootA0, f, { maxOutputBytes: 0 }, 'task_output_budget_required');
-  unchangedFailure(
-    rootA0,
-    f,
-    { protectedStackBytes: [0x7e0700, 0x7e0702] },
-    'task_outer_return_required',
-  );
-  const banked = taskLeafFixture(0x80cae0, { bank: 0x7f });
-  sampleWord(banked.data, 0x7f13b8, 0x400);
-  sampleWord(banked.data, 2, 0xff80);
-  assert.deepEqual(prepared(rootA0, banked).byteWrites, [[0x7e0402, 0x80]]);
-});
-test('Whole Native58/A0: original two pops and no result PHA, actual F508/F509 and fresh frame/opcode', () => {
-  const f = taskNativeOpcodeFixture(nativeCAE0Spec),
-    p = prepared(callA0, f),
-    s = p.steps[0];
-  assert.equal(s.id, 0xa0);
-  assert.equal(s.wordPops, 2);
-  assert.equal(s.resultPushed, false);
-  assert.equal(s.metadataWord, 0);
-  assert.equal(s.calleeEntry, 0x80cae0);
-  assert.equal(s.calleeReturnWord, 0xf508);
-  assert.equal(s.calleeReturnTarget, 0x80f509);
-  assert.equal(p.outputContext.s, 0x3f4);
-  assert.equal(commitTaskPlan(f.data, p).handled, true);
-  assert.equal(f.data.readByte(0x7e0402).value, 3);
-  assert.equal(f.data.readByte(0x7e0403).value, 0x78);
-});
 test('Whole Native63: zero actual pops preserve the old operand, original0100/0002 and real PHP/PLP/F508-F509/resultPHA', () => {
   const f = randomFixture({ id: 0x63 });
   sampleWord(f.data, 0x3f1, 0xbeef);

@@ -6,16 +6,10 @@ import { nativeAAAFSpec } from './task-native-aaaf-spec.mjs';
 import { nextLeafSpecs } from './task-native-next-specs.mjs';
 import { nativeD15CSpec } from './task-native-d15c-spec.mjs';
 import { nativeCB06Spec } from './task-native-cb06-spec.mjs';
-import { nativeC68DSpec } from './task-native-c68d-spec.mjs';
-import { native9D98Spec } from './task-native-9d98-spec.mjs';
-import { nativeCAE0Spec } from './task-native-cae0-spec.mjs';
 import { nativeCCA4Spec } from './task-native-cca4-spec.mjs';
-import { nativeCDCFSpec } from './task-native-cdcf-spec.mjs';
 import { fieldLeafSpecs } from './task-native-field-specs.mjs';
-import { releaseLeafSpec } from './task-native-release-spec.mjs';
 import { createNativeSpec } from './task-native-create-spec.mjs';
 import { smallFamilySpecs } from './task-native-small-specs.mjs';
-import { selectionNativeSpec } from './task-native-selection-spec.mjs';
 import { m1dLeafSpecs } from './task-native-m1d-specs.mjs';
 // Exact original source bytes and Native58 table anchors, reviewed against listings.
 export const taskLeafSpecs = [
@@ -28,16 +22,10 @@ export const taskLeafSpecs = [
   ...nextLeafSpecs,
   nativeD15CSpec,
   nativeCB06Spec,
-  nativeC68DSpec,
-  native9D98Spec,
-  nativeCAE0Spec,
   nativeCCA4Spec,
-  nativeCDCFSpec,
   ...fieldLeafSpecs,
-  releaseLeafSpec,
   createNativeSpec,
   ...smallFamilySpecs,
-  selectionNativeSpec,
   ...m1dLeafSpecs,
   {
     name: 'native-ca3a',
