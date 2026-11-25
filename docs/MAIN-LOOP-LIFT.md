@@ -233,7 +233,7 @@ It is a lookup aid, not a hand-maintained block-test selection:
 - [game-nmi-lift-functions.test.mjs](../tools/game-nmi-lift-functions.test.mjs)
 - game-nmi-lift.test.mjs (removed)
 - main-upkeep-lift.test.mjs (removed)
-- [main-loop-camera.test.mjs](../tools/main-loop-camera.test.mjs)
+- main-loop-camera.test.mjs (removed)
 - [main-motion-helpers.test.mjs](../tools/main-motion-helpers.test.mjs)
 - [main-loop-motion.test.mjs](../tools/main-loop-motion.test.mjs)
 - [main-text-continuation.test.mjs](../tools/main-text-continuation.test.mjs)

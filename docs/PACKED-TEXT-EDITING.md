@@ -223,8 +223,8 @@ placement and first-offset underflow. Synthetic maps make character reads,
 the prologue mask and credits low-byte stores visible. Language switching
 checks future stream redirection and preservation of loaded WRAM.
 
-Existing [frontend source specs](../tools/main-frontend-source.mjs),
-[scene animation specs](../tools/main-scene-animation-source.mjs),
+Existing frontend source specs (removed),
+scene animation specs (removed),
 [language tests](../tools/language.test.mjs) and the
 [live credits test](../tools/credits.test.mjs) retain their established
 source, timing and original-content checks.

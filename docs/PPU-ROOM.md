@@ -136,7 +136,7 @@ original's fade-in pictures confirm this for every level 1–14. The original ha
 19 more lag NMIs on this route, so the plan's open hold commands move Jake a bit
 differently and the game states diverge; therefore only the renderer is checked
 here: Mesen also supplies its PPU state for chosen pictures (`shotPpu`: all
-`ppu.*` fields, VRAM, CGRAM, OAM), and [mesen-ppu-state.mjs](../tools/mesen-ppu-state.mjs)
+`ppu.*` fields, VRAM, CGRAM, OAM), and mesen-ppu-state.mjs (removed)
 builds a `PpuState` with the same register bytes. Room pictures (live NMI 30 and 500) and the corridor picture (2300) are pixel-equal. Mesen's end-of-frame
 picture during the fade is sometimes still the previous one; the test requires
 per picture the rendering of its own or the previous state and an own picture

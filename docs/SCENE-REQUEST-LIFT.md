@@ -81,8 +81,8 @@ reaches the reference entry.
 
 [tools/main-loop-motion.test.mjs](../tools/main-loop-motion.test.mjs),
 [tools/main-transition.test.mjs](../tools/main-transition.test.mjs),
-[tools/main-initialize.test.mjs](../tools/main-initialize.test.mjs) and
-[tools/main-loop.test.mjs](../tools/main-loop.test.mjs) keep proving the reference
+tools/main-initialize.test.mjs (removed) and
+tools/main-loop.test.mjs (removed) keep proving the reference
 against the ROM, alone and inside the main loop.
 
 ## Direct caller composition (2026-11-15)

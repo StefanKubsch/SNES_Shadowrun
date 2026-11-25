@@ -22,12 +22,12 @@ JavaScript equations for four existing ROM routines. It decodes no CPU
 instructions. One step executes exactly one original instruction and keeps PC,
 registers, flags and the real return frame on the same owner.
 
-| Entry   | Pinned source                                                                                          | Kept contract                                                                                             |
-| ------- | ------------------------------------------------------------------------------------------------------ | --------------------------------------------------------------------------------------------------------- |
-| 81:B0A1 | [counterWindows](../tools/render-task-native-counter-b0a1-source-proof.mjs), 11 bytes / 4 instructions | WORD base in A, fresh long CMP at 7E:1C76, BEQ from the flags already set, actual RTL                     |
-| 81:EEBB | [sceneAnimationSpecs, eebb](../tools/main-scene-animation-source.mjs)                                  | PHP/SEP20, BYTE counter or HVBJOY bit 7, kept high A, PLP before RTL                                      |
-| 80:9E0B | [gameNmiSpecs](../tools/main-game-nmi-source.mjs), 15 bytes / 6 instructions                           | WORD reads of 4212 until busy bit 0 is clear, then WORD of 4218, store to DBR:01CA, actual RTS            |
-| 80:9E1A | [inputApuWindows](../tools/render-task-native-input-apu-source-proof.mjs), normal 35 bytes             | Three fresh input word reads, edge and previous state, reset compare 3030 and the original low bit filter |
+| Entry   | Pinned source                                       | Kept contract                                                                                             |
+| ------- | --------------------------------------------------- | --------------------------------------------------------------------------------------------------------- |
+| 81:B0A1 | counterWindows (removed), 11 bytes / 4 instructions | WORD base in A, fresh long CMP at 7E:1C76, BEQ from the flags already set, actual RTL                     |
+| 81:EEBB | sceneAnimationSpecs, eebb (removed)                 | PHP/SEP20, BYTE counter or HVBJOY bit 7, kept high A, PLP before RTL                                      |
+| 80:9E0B | gameNmiSpecs (removed), 15 bytes / 6 instructions   | WORD reads of 4212 until busy bit 0 is clear, then WORD of 4218, store to DBR:01CA, actual RTS            |
+| 80:9E1A | inputApuWindows (removed), normal 35 bytes          | Three fresh input word reads, edge and previous state, reset compare 3030 and the original low bit filter |
 
 `run(budget)` returns `WAIT_PAUSED` or `WAIT_RETURNED`. Budget zero has no
 effect. The budget unit is a measure of work, not CPU time. Any number of
@@ -78,8 +78,8 @@ choose the size of the pieces processed synchronously.
 fixed JavaScript caller segments. The synchronous and resumable paths of
 [00:C112](../src/system/nmi-call.mjs) and
 [80:C152](../proof/replay/main-game-nmi.mjs) use the same equations. The pinned
-sources remain [matrixNmiSpecs, nmi](../tools/main-matrix-nmi-source.mjs) with
-the hardware/handler stack lemma and [gameNmiSpecs](../tools/main-game-nmi-source.mjs)
+sources remain matrixNmiSpecs, nmi (removed) with
+the hardware/handler stack lemma and gameNmiSpecs (removed)
 with all eleven actual child calls and their closed stack proof. No
 instructions are decoded. The routines register their own continuations in a
 neutral module. Wait adapters therefore import no callback or scene graph; the
@@ -105,10 +105,10 @@ passes on the same frame and the real return value; it creates no further
 JSR/JSL frame.
 
 The sources of these callers are in
-[sceneAnimationSpecs, d479](../tools/main-scene-animation-source.mjs),
-[matrixNmiSpecs, bec3](../tools/main-matrix-nmi-source.mjs),
-[introNmiSpecs](../tools/main-intro-nmi-source.mjs) and
-[frontendSpecs](../tools/main-frontend-source.mjs). The existing proofs of path
+sceneAnimationSpecs, d479 (removed),
+matrixNmiSpecs, bec3 (removed),
+introNmiSpecs (removed) and
+frontendSpecs (removed). The existing proofs of path
 widths, PHK banks, stack pointer changes and indirect jumps still hold. The
 unchanged graphics, data and audio helpers before F290 each stay synchronous
 segments with their existing observation contracts.
@@ -142,7 +142,7 @@ The two brightness loops EEDD/EEF1 keep PHP, the actual BYTE indexes, every
 JSL EEBB return and PLP/RTL. The matrix callers BFD8/BFF8 and C029 also pass
 their own EEBB pauses through. F298 keeps its PHP, REP30, the real JSR word
 F29D and PLP/RTL across an interruption in 9E1A. Sources are
-[sceneAnimationSpecs](../tools/main-scene-animation-source.mjs),
+sceneAnimationSpecs (removed),
 [matrixSetupSpecs](../tools/main-scene-matrix-source.mjs) and
 [mainSceneSpecs, f298/c3ca](../tools/main-scene-source.mjs).
 
@@ -166,7 +166,7 @@ E7BC/A15C/A133 (removed) and
 actual BYTE/WORD widths, all JSL wait calls and the original return words are
 kept across pauses. `MainStartupContinuation` ends only at the original A139.
 Sources are the unchanged pinned startupSpecs (removed)
-and [sceneAnimationSpecs](../tools/main-scene-animation-source.mjs). The SPC
+and sceneAnimationSpecs (removed). The SPC
 transfer stays a synchronous segment with its single original observations; a
 work budget replaces no APU reply.
 
@@ -178,7 +178,7 @@ register-level reference was retired on 2026-11-25)
 passes on the existing frame; only the original JSL at E120 creates the frame
 of the nested CDF8. The D479/DF0E callbacks actually installed and the
 existing source proof are kept: [mainSceneSpecs](../tools/main-scene-source.mjs),
-[sceneIntroSpecs](../tools/main-scene-intro-source.mjs).
+sceneIntroSpecs (removed).
 
 [A4BF and 8BD9](../proof/replay/main-transition.mjs) pass their B0A1 pauses on
 through both main loop callers: [8000/803B](../proof/replay/main-zone-gate.mjs)
@@ -194,7 +194,7 @@ A133 up to the first main loop interval in the same observation set. A cold
 reset stays a synchronous segment of its own; its actual change from E1 to E0 is
 kept across later pauses. The outer menu call stays synchronous.
 `MainLoopContinuation.work` counts the work units really used in this nested
-use too. Sources are [mainStartSpecs](../tools/main-start-source.mjs) and the
+use too. Sources are mainStartSpecs (removed) and the
 existing reset and menu owner contracts; no new initial state is introduced.
 
 ## WORD wait requests
@@ -207,7 +207,7 @@ and, for requests, the INC around it with the real nested JSL. Every
 instruction reached still needs its explicit interrupt record. An NMI between
 LDA and BNE changes no value already read. The original text mask DMA stays an
 observation of its own before Clear01FC. Source:
-[wordInterruptWindows](../tools/main-word-wait-interrupt-source.mjs), 48 bytes
+wordInterruptWindows (removed), 48 bytes
 and 21 instructions with a closed stack proof.
 
 The following window render chain, the window allocation, the text
@@ -229,8 +229,8 @@ return objects keep their previous results; the synchronous adapters share the
 same equations.
 
 Sources are the closed graphs
-[renderComposeWindows](../tools/task-native-render-compose-source.mjs) and
-[clearFF79Windows](../tools/task-native-clear-ff79-source.mjs) with the existing
+renderComposeWindows (removed) and
+clearFF79Windows (removed) with the existing
 mixed stack proofs and the BCB2/BE5B windows of
 [motion-reset-bcb2](../tools/analyze-motion-reset-bcb2.mjs). The actual list
 compares, the backward search, the scratch words and the marker order are
@@ -280,9 +280,9 @@ synchronous segments.
 
 The source contracts are unchanged the pinned graphs
 fec1Windows (task-native-fec1-source.mjs, removed),
-[textComposeWindows](../tools/task-native-text-compose-source.mjs),
-[taskNativeRenderSpec](../tools/task-native-render-spec.mjs) and
-[mainCameraSpecs](../tools/main-loop-camera-source.mjs). The same bound adapters
+textComposeWindows (removed),
+taskNativeRenderSpec (removed) and
+mainCameraSpecs (removed). The same bound adapters
 serve the native tables of 936C, 9BC6 and F254; configured replacement routines
 stay decisive.
 
@@ -569,7 +569,7 @@ time or position of an NMI between other native equations.
 
 ## Checks and limits
 
-[native-wait-continuation.test.mjs](../tools/native-wait-continuation.test.mjs)
+native-wait-continuation.test.mjs (removed)
 compares every instruction boundary reached and the complete memory against the
 pinned original instructions. Independently executed original NMI/RTI check all
 possible interruption points, BYTE/WORD wraparound, DBR 00/80/81/7E, both EEBB
@@ -578,7 +578,7 @@ an unchanged wait without an external writer, budget zero, foreign owners,
 failed helpers, changed real return bytes, PC wraparound and the reset path
 that does not return. These cases are synthetic.
 
-[main-loop.test.mjs](../tools/main-loop.test.mjs) and
+main-loop.test.mjs (removed) and
 main-driver.test.mjs (removed) check call frames, carry
 shortcuts, the owner return and the interplay of both budgets. The
 cold original test (removed) additionally uses a
@@ -587,7 +587,7 @@ same complete original record including all registers, WRAM/SRAM and the CPU
 and DMA chronology. The real browser now compares both room canvases over the
 productive continuation path. No new route probe.
 
-[native-nmi-continuation.test.mjs](../tools/native-nmi-continuation.test.mjs)
+native-nmi-continuation.test.mjs (removed)
 compares the new nested path against the complete original NMI up to RTI: every
 joypad wait boundary reached, both caller frames, all registers and the whole
 WRAM as well as device bytes. The synthetic cases cover DBR 00/80/81/7E,
@@ -602,7 +602,7 @@ F290 callbacks and pauses in the active NMI before the first C1E3 round. The
 existing cold original and browser counter check covers the changed productive
 path; there is no new route probe.
 
-[main-scene-interrupt.test.mjs](../tools/main-scene-interrupt.test.mjs) checks
+main-scene-interrupt.test.mjs (removed) checks
 both complete C3CA paths with finite budgets against the same original
 instructions and actual matrix helpers. All captured states after NMI/RTI at the
 wait and input points, the complete WRAM and the device bytes match. An extra
@@ -628,7 +628,7 @@ WORD contract tests (removed) also compare
 all seven continuations across DBR, flags, INC wraparound and every
 interruption phase with the complete original NMI/RTI and text DMA.
 
-[Render continuation tests](../tools/main-render-continuation.test.mjs) run the
+Render continuation tests (removed) run the
 whole original graphs of BCB2, BE5B, FF79, FA3E and AD92. 60 synthetic cases
 check DBR 00/80/81/7E, different saved flags, empty and used slots, the backward
 search, INC wraparound and an NMI at the request, LDA and BNE. All captured NMI
@@ -647,7 +647,7 @@ budget one. Interrupt, device and DMA records are synthetic; the busy poll
 alternates, so that every NMI taken pauses in 9E0B. Registers, WRAM, the device
 chronology and the use of all records match. The own instructions of
 FF14/E270/BF3B stay checked against the original by the
-[camera test](../tools/main-loop-camera.test.mjs) with 1000 cases per routine.
+camera test (removed) with 1000 cases per routine.
 
 The [bridge test](../tools/vm-native-continuation.test.mjs) calls FEC1, FF79,
 CDA8, CD9D, D079, F953, E1CF, 936C, 8D0B, 9BC6, E014, F254, CE6D, 9BA0, 8E36 and

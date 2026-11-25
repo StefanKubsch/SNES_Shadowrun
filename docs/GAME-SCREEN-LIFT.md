@@ -76,6 +76,6 @@ must be equal. Its reference side also runs the register-level start of a game
 (`withGameStartReference`), which calls the reference set-up through its
 original frame. A planted difference (the colour count) fails both.
 
-[tools/main-initialize.test.mjs](../tools/main-initialize.test.mjs) and
-[tools/main-game-nmi.test.mjs](../tools/main-game-nmi.test.mjs) keep proving the
+tools/main-initialize.test.mjs (removed) and
+tools/main-game-nmi.test.mjs (removed) keep proving the
 reference against the ROM.

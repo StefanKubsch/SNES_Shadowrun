@@ -86,7 +86,7 @@ output bytes and fails.
   test memory swallowed at device addresses; it now uses `absoluteWrite` with
   the original PC (a WRAM target stays allowed). For this two-byte STA Mesen's
   data access PC is ECC9; other reached device instructions are three bytes
-  long; pinned in [main-scene-video-source.mjs](../tools/main-scene-video-source.mjs).
+  long; pinned in main-scene-video-source.mjs (removed).
   The oracle tool now derives the PC end of device instructions from their ROM
   opcode (four-byte long stores in 9AE6, three-byte absolute accesses, the
   two-byte indirect store ECC7); this decoding exists only in the test tool.
@@ -150,7 +150,7 @@ set to its data commands and unpackers; E14A falls into section E1B4 after both
 graphics streams without an extra stack frame. Source windows stay pinned in
 task-native-unpack-spec.mjs, render-9f6d.json, main-scene-video-source.mjs,
 main-scene-graphics-source.mjs and the frontend sources.
-[main-unpack-interrupt.test.mjs](../tools/main-unpack-interrupt.test.mjs)
+main-unpack-interrupt.test.mjs (removed)
 compares all registers, scratch and stack before every reached unpacker
 instruction and every MVN byte against the original instructions (the test
 evaluator has the explicit option repeatBlockMoves); missing entry
@@ -172,7 +172,7 @@ interruption is before BNE and the return keeps the real compare flags. The
 recording holds the explicit absence of an NMI for every visit of these sites;
 all recorded NMIs must be consumed exactly there; an NMI elsewhere stays a
 limit (no automatic interrupt planning, no shift to the helper end).
-[main-scene-continuations.test.mjs](../tools/main-scene-continuations.test.mjs)
+main-scene-continuations.test.mjs (removed)
 checks registers, scratch and fresh stack at all 20 chosen scene/graphics sites
 against the original instructions (its synthetic start WRAM fixture is only for
 this equation test); a counter-probe changes the observed S at the first 8FCB
@@ -224,11 +224,11 @@ an NMI at 80:AC8F: animation post-run AC2F has already executed `LDA [$11],Y`;
 `AND #00FF` follows only afterwards; the full accumulator and its flags survive
 NMI/RTI. The bound equations separate both operations and, in explicit
 startupInterrupts mode, consume the record before AND. The
-[differential test](../tools/main-wait-interrupt.test.mjs) independently runs
+differential test (removed) independently runs
 the whole original AC2F and NMI handler with and without NMI and DBR 00/80/81;
 its WORD 800A must also survive completely in the NMI save area 1C78. In the
 longer intro a real NMI also interrupts 80:FD21 in the
-[pinned FB39 glyph build](../tools/task-native-text-compose-source.mjs): M8/X16,
+pinned FB39 glyph build (removed): M8/X16,
 the first BYTE mask store at 2AE0,Y is done, the following INY not yet; the NMI
 sees exactly this partly written glyph buffer. NativeCalls and
 withInterruptEvents pass startupInterrupts mode to the same text owner; the
@@ -310,4 +310,4 @@ recorded separately from the Shadowrun-specific ROM flow and the observed bytes.
 | Native hardware interrupt      | CPU manual ch. 9.11/9.12, PDF 37 (3-9-3)                                                        | PBR = 00, saved PBR and cleared decimal flag; the concrete interrupted iteration comes from the original Mesen run                                                                                                 |
 
 The Shadowrun-specific sequence STA AA93, REP AA96 and STZ AA98 and the job
-registers are pinned in the [A9E1 source proof](../tools/main-game-nmi-source.mjs).
+registers are pinned in the A9E1 source proof (removed).

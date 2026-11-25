@@ -143,13 +143,13 @@ carry the original PC. A native-bridge comparison checks the binding, not an
 independent implementation of the callee. Equation/source tests and Mesen
 comparisons provide that separate evidence.
 
-| Layer                                                  | Evidence                                                                                                                                                                     |
-| ------------------------------------------------------ | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Opcodes and admitted natives                           | vm-differential.mjs (removed), vm-interpreter.test.mjs (removed)                                                             |
-| Scheduler, child calls, readiness and parent resume    | vm-scheduler-differential.mjs (removed), vm-scheduler.test.mjs (removed)                                             |
-| Hardware-dependent natives and observation consumption | vm-special-natives-differential.mjs (removed), vm-special-natives.test.mjs (removed)                     |
+| Layer                                                  | Evidence                                                                                                                                                 |
+| ------------------------------------------------------ | -------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Opcodes and admitted natives                           | vm-differential.mjs (removed), vm-interpreter.test.mjs (removed)                                                                                         |
+| Scheduler, child calls, readiness and parent resume    | vm-scheduler-differential.mjs (removed), vm-scheduler.test.mjs (removed)                                                                                 |
+| Hardware-dependent natives and observation consumption | vm-special-natives-differential.mjs (removed), vm-special-natives.test.mjs (removed)                                                                     |
 | Earlier individual bodies                              | vm-body-specs.mjs (removed): 1,503 cases of 219 specs matched once (682 complete, 821 to suspension); some fixtures use synthetic bytes and observations |
-| Original game runs                                     | [MESEN-ORACLE.md](MESEN-ORACLE.md), [BOOT-ORACLE.md](BOOT-ORACLE.md)                                                                                                         |
+| Original game runs                                     | [MESEN-ORACLE.md](MESEN-ORACLE.md), [BOOT-ORACLE.md](BOOT-ORACLE.md)                                                                                     |
 
 The 2026-10-14 static result was 937/937 scripts with no missing native.
 Run npm run analyze:vm-coverage to rebuild the reachable-native ranking in
@@ -216,7 +216,7 @@ Then it reads the saved S freshly, clears `$1748/$174A`, writes BYTE 0 to
 `$420B` and restores P. Neither the producer counter nor an invented maximum
 bounds the reading (missing termination reaches the diagnostic access guard);
 no source data are copied and no DMA effects computed.
-[main-matrix-nmi-source.mjs](../tools/main-matrix-nmi-source.mjs) pins three
+main-matrix-nmi-source.mjs (removed) pins three
 graphs with 168 instructions and 407 bytes plus vector and palette table; the
 normal stack proof holds for `$BEC3` under its three helper contracts; separate
 source lemmas describe the two TCS flows and their stack areas (no general
@@ -257,7 +257,7 @@ src/intro, its register-level reference retired on 2026-11-25) use the same oute
   words stay fresh; OAM writes aliasing across banks are not cached; zero
   counters keep the WORD do-loops; no invented OAM capacity limit.
 
-[main-intro-nmi-source.mjs](../tools/main-intro-nmi-source.mjs) pins four
+main-intro-nmi-source.mjs (removed) pins four
 graphs with 284 instructions and 568 code bytes plus four data windows with
 964 bytes; own stack areas 3–9 bytes under separate helper contracts (the
 whole NMI stack ownership stays open).
@@ -308,7 +308,7 @@ by sprite build `$B8DE`.
 graphs, 490 instructions and 1,275 code bytes; own protected stack areas 2–6
 bytes, the connected graph needs 11 bytes under the separate unpack/render
 contracts (no global stack or termination guarantee).
-[main-initialize.test.mjs](../tools/main-initialize.test.mjs): 80 synthetic
+main-initialize.test.mjs (removed): 80 synthetic
 cases each with all own instructions, 16 connected runs with real ROM font
 streams; counter-probes for missing device values, wrong bank/width, ASL
 carry, a changed saved index and the callback pointer as alias of the outer
@@ -347,11 +347,11 @@ D, DBR and status. Device reads need the real PC, address and width: `$4210`
 before the DBR switch, optional BYTE `$213A`, WORD `$4212` until bit 0 is
 clear, then WORD `$4218`. Missing values stay limits; direct VM execution keeps
 earlier effects at such a limit (not an atomic plan).
-[main-game-nmi-source.mjs](../tools/main-game-nmi-source.mjs) pins the same
+main-game-nmi-source.mjs (removed) pins the same
 complete graph as the [C152 source contract](reference/render-routines.md#c152):
 1,027 bytes, 419 instructions, six protected return bytes, no external return
 assumption (a local stack proof; handler and hardware frames have their own
-contract). [main-game-nmi.test.mjs](../tools/main-game-nmi.test.mjs) compares
+contract). main-game-nmi.test.mjs (removed) compares
 own equations, the whole callback and full NMI calls to RTI with the original
 instructions; the real init installs C152, and original palette and fade
 producers then create consumed jobs on the same memory. Interrupt occurrences
@@ -391,7 +391,7 @@ before it with the real interrupted registers.
   records; missing, mutable, misordered or exhausted records stop at the named
   original PC without invented progress.
 
-[main-wait-interrupt.test.mjs](../tools/main-wait-interrupt.test.mjs) uses the
+main-wait-interrupt.test.mjs (removed) uses the
 pinned source and stack contracts of the three roots; the reference side runs
 the full original handler and C152 to RTI; registers, shared WRAM and all
 device accesses compared with interrupts at every reachable instruction, WORD
@@ -407,7 +407,7 @@ shared memory freshly; the following BNE keeps its flags even after an NMI. An
 already zero job returns without invented interrupt; while non-zero each
 further instruction needs its own record. The request routines `$ACB5`,
 `$AEF4`, `$AEFC` run INC, real JSL and RTL (WORD wrap `$FFFF` → 0 kept).
-[main-word-wait-interrupt-source.mjs](../tools/main-word-wait-interrupt-source.mjs)
+main-word-wait-interrupt-source.mjs (removed)
 pins 48 bytes and 21 instructions; closed local stack proofs with three
 protected return bytes for a poll and six for request plus poll (the interrupt
 keeps its separate frame contract).
@@ -469,7 +469,7 @@ DBR:420B`, `width: 1`, `value: 0x20`, `dmap: 0x81`, `bbad: 0x39`, `a1b: 0x7E`,
   `$0140` negative and empties tile jobs; the following DP $82 and `$1562`
   reads use this memory; old extra `nmiWords` are not written in this mode.
 
-[main-dma-readback.test.mjs](../tools/main-dma-readback.test.mjs) compares the
+main-dma-readback.test.mjs (removed) compares the
 original A9E1 register stores with an independent synthetic transfer device,
 checks every physical BYTE target address, clear order, register, direction
 and width faults, unchanged neighbour bytes and several occurrences; full
@@ -489,7 +489,7 @@ observation API stays valid. The locally proven callback `$81:D479` is now an
 admitted target of the shared `runObservedNmi`: its real ED8B call, scroll and
 brightness progress and F290/9E0B run on the same memory; it ends with M1 and
 only the surrounding handler restores P, A, X, Y, DBR and D and returns by RTI.
-[main-fade-interrupt.test.mjs](../tools/main-fade-interrupt.test.mjs) uses the
+main-fade-interrupt.test.mjs (removed) uses the
 pinned original CDF8, D479, ED8B, NMI and input instructions: full NMI return
 in BYTE/WORD modes, DBR variants, stack wrap, non-zero interrupted DP and
 different scroll branches; the inline poll checks brightness up to `$FF`,
@@ -562,7 +562,7 @@ counters, events and continuation. Missing special-native sets leave F4F6
 repeatable; a supplied set resumes without repeating arguments or the opcode.
 Budget zero finishes the native return and stops before F390.
 
-[main-scene-interrupt.test.mjs](../tools/main-scene-interrupt.test.mjs) tests
+main-scene-interrupt.test.mjs (removed) tests
 whole scene calls with their really installed callbacks and synthetic device
 answers. Every supplied NMI must follow actual enable. This does not model
 device time or prove untested story routes.

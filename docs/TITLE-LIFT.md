@@ -19,7 +19,7 @@ proof/frontend-reference/title.mjs (removed); the
 ROM proof tests (`tools/main-frontend-menu.test.mjs`,
 `tools/main-frontend-nmi.test.mjs`, `tools/main-intro-nmi.test.mjs`, the
 connected boot and frontend tests) run with it through `withTitleReference` and
-[proof/scene-reference-routines.mjs](../proof/scene-reference-routines.mjs).
+proof/scene-reference-routines.mjs (removed).
 
 ## Modules
 

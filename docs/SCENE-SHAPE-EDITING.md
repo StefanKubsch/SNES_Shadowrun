@@ -25,7 +25,7 @@ rectangle border `81:8D3D`, rectangle fill `81:8DC0`, and block placement
 [main-scene-load.mjs](../proof/system/main-scene-load.mjs); the pinned source windows
 and existing original-instruction comparisons are in
 [main-scene-load-source.mjs](../tools/main-scene-load-source.mjs) and
-[main-scene-load.test.mjs](../tools/main-scene-load.test.mjs).
+main-scene-load.test.mjs (removed).
 
 The grid occupies `7F:CA14` through `7F:DA13`: 4,096 bytes, 32 rows of
 64 words. A shape's readable column is a byte offset, not a word-cell number.

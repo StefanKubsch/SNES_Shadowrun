@@ -52,9 +52,9 @@ It does not provide an executable order inside a cyclic group.
 
 The initial 38-command cycle included the dialog/render analyses and several
 task opcode analyses. A smaller cycle was visible directly in
-[analyze-render-bf3b.mjs](../tools/analyze-render-bf3b.mjs),
-[analyze-render-9f6d.mjs](../tools/analyze-render-9f6d.mjs) and
-[analyze-render-8f20.mjs](../tools/analyze-render-8f20.mjs):
+analyze-render-bf3b.mjs (removed),
+analyze-render-9f6d.mjs (removed) and
+analyze-render-8f20.mjs (removed):
 
 ```mermaid
 graph LR
@@ -252,7 +252,7 @@ reconstruction plan or permit removal of retained artifacts.
 
 ## ROM-only checks for BF3B, 9F6D and 8F20
 
-[render-dialog-source.mjs](../tools/render-dialog-source.mjs) now provides
+render-dialog-source.mjs (removed) now provides
 the complete 9F6D/9E65 and 8F20 source contracts to their analyzers and
 BF3B. It has no file I/O and does not import any analyzer or report. Every
 call checks the complete ROM identity, decodes fresh instructions and
@@ -416,7 +416,7 @@ artifacts stay versioned and no bootstrap order is established.
 
 ## Conditional menu and partial text source contracts
 
-[render-menu-source.mjs](../tools/render-menu-source.mjs) now supplies the
+render-menu-source.mjs (removed) now supplies the
 ROM-backed A6A5 menu, 91E2/9215 selection and partial 9178/908C contracts.
 It declares their source ranges explicitly and has no file I/O. Each call
 checks ROM identity, decodes fresh instructions under the routine's
@@ -446,7 +446,7 @@ whole-owner ROM windows. Selection and text use the shared menu source
 ranges instead of reading the A6A5 report. This replaces seven reads within
 the four-command group. Existing report paths remain provenance fields.
 
-[render-menu-source-reports.mjs](../tools/render-menu-source-reports.mjs)
+render-menu-source-reports.mjs (removed)
 retains the external report checks against BE6D, 9E1A, input flow, audio and
 AD92. It validates ROM identity and complete window descriptors using the
 original direct or transitive ownership policy. Its report cache is local
@@ -484,10 +484,10 @@ reconstruction order is established.
 
 ## Direct C46E menu window for the audio analyzer
 
-[analyze-render-audio.mjs](../tools/analyze-render-audio.mjs) no longer reads
+analyze-render-audio.mjs (removed) no longer reads
 the A6A5 report. Its C46E drift check now compares its own decode with
 `describeRenderMenuWindow` from
-[render-menu-source.mjs](../tools/render-menu-source.mjs). That function
+render-menu-source.mjs (removed). That function
 checks ROM identity and decodes the menu-owned `selectedAudioC46E` window
 (80:C46E to 80:C4B3) under the original menu policy. It accepts only menu
 window names and performs no file I/O. The F007 check against the 9E1A
@@ -512,9 +512,9 @@ failures or skips. Results are in `.cache/logs/audio-cycle-graph.json` and
 
 ## Direct C34A and C1CA sources for the 9178 analyzer
 
-[analyze-render-9178.mjs](../tools/analyze-render-9178.mjs) no longer reads
+analyze-render-9178.mjs (removed) no longer reads
 the C34A or C1CA reports. It calls `proveRender9178TaskSources` from
-[render-9178-task-source.mjs](../tools/render-9178-task-source.mjs), which
+render-9178-task-source.mjs (removed), which
 checks ROM identity and decodes the same windows under the same policies as
 the C34A analyzer (three windows, REP/SEP tracked) and the C1CA analyzer
 (nine windows, all WORD). It has no file I/O. It recomputes the C34A

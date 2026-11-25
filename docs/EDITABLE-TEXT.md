@@ -132,7 +132,7 @@ line remains independently at column 2. Positions and shifts are byte
 offsets internally, with two bytes per tile.
 
 The source contract comes from the pinned bank-81 routines in
-[main-frontend-source.mjs](../tools/main-frontend-source.mjs) and their
+main-frontend-source.mjs (removed) and their
 [native implementation](../src/frontend/start-menu.mjs) (register-level reference
 start-menu-text.mjs (removed)):
 

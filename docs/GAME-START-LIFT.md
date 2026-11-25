@@ -23,11 +23,11 @@ tests and recorded replays.
 | Module                                                  | Content                                                                                                                  |
 | ------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------ |
 | [game-start.mjs](../src/game/game-start.mjs)            | The main start 80:9688, the room start 80:9699, the new game 80:960D and its state 80:98E9, the save load 81:B198.       |
-| main-start.mjs (removed)        | Register-level entry (`runMainStart`, `mainStartContinuation`) for caller tests; the live owner enters the lifted start. |
-| retained live caller (removed)  | Former address-dispatched live entry for independent comparisons.                                                        |
+| main-start.mjs (removed)                                | Register-level entry (`runMainStart`, `mainStartContinuation`) for caller tests; the live owner enters the lifted start. |
+| retained live caller (removed)                          | Former address-dispatched live entry for independent comparisons.                                                        |
 | [replay main-start.mjs](../proof/replay/main-start.mjs) | Address-dispatched entry for recorded observations and register-level references.                                        |
 | [fixed-colour.mjs](../src/game/fixed-colour.mjs)        | The fixed colour reset 81:8861 with its tail 81:886A (fixed colour black, colour math off).                              |
-| main-frontend.mjs (removed)  | The attract game's rounds 80:9699: the lifted room start, then the main loop's rounds (driver glue).                     |
+| main-frontend.mjs (removed)                             | The attract game's rounds 80:9699: the lifted room start, then the main loop's rounds (driver glue).                     |
 
 ## Boundaries
 
@@ -76,7 +76,7 @@ the scratch, SRAM, device writes and the read registers must be equal; planted
 differences (one magic point row, one save byte, the colour phase, the colour
 math layers, the music reset of the game screen) fail it.
 
-[tools/main-start.test.mjs](../tools/main-start.test.mjs) keeps proving the
+tools/main-start.test.mjs (removed) keeps proving the
 reference against the ROM.
 
 ## Direct caller comparison (2026-11-15)
