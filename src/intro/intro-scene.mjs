@@ -47,21 +47,6 @@ import {
   WRAM,
 } from '../data/wram.mjs';
 import {
-  A1B7,
-  A1T7L,
-  BBAD7,
-  DMAP7,
-  HDMAEN,
-  TMW,
-  W12SEL,
-  W34SEL,
-  WBGLOG,
-  WH0,
-  WOBJLOG,
-  WOBJSEL,
-} from '../constants/hardware-registers.mjs';
-import {
-  DMAP_TWO_PORTS,
   LAYER_BG1,
   LAYER_BG2,
   LAYER_BG3,
@@ -98,7 +83,8 @@ const UNPACK_ENTRY_WORDS = 3;
 // inverted on BG1-BG3 and OBJ masks them on the main screen.
 const WINDOW_TABLE_BYTES = 14,
   WINDOW_SOURCE = 0x81d687,
-  WRAM_BANK = WRAM >>> WORD_BITS,
+  // H-DMA channel 7 writes the window edges.
+  WINDOW_CHANNEL = 7,
   HDMA_CHANNEL_7 = 0x80,
   WINDOW = WINDOW_1_ENABLE | WINDOW_1_INVERT,
   WINDOW_LAYERS = LAYER_BG1 | LAYER_BG2 | LAYER_BG3 | LAYER_OBJ;
@@ -158,19 +144,15 @@ export function setUpIntroScene(m) {
 // Set up the intro window H-DMA and masks (81:D642).
 export function setUpIntroWindow(m) {
   const { mem, wram, video } = m;
-  video.write(A1T7L, INTRO_WINDOW_HDMA & WORD_MASK, 2);
+  const edges = { to: 'windowEdges', source: INTRO_WINDOW_HDMA };
+  video.transfer(WINDOW_CHANNEL, edges, ['source']);
   for (let n = 0; n < WINDOW_TABLE_BYTES; n++)
     writeStateByte(wram, INTRO_WINDOW_HDMA - WRAM + n, mem.read8(WINDOW_SOURCE + n));
-  video.write(DMAP7, DMAP_TWO_PORTS, 1);
-  video.write(BBAD7, WH0 & BYTE_MASK, 1);
-  video.write(A1B7, WRAM_BANK, 1);
-  video.write(HDMAEN, HDMA_CHANNEL_7, 1);
-  video.write(W12SEL, WINDOW | (WINDOW << WINDOW_HIGH_LAYER_SHIFT), 1);
-  video.write(W34SEL, WINDOW, 1);
-  video.write(WOBJSEL, WINDOW, 1);
-  video.write(TMW, WINDOW_LAYERS, 1);
-  video.write(WBGLOG, 0, 1);
-  video.write(WOBJLOG, 0, 1);
+  video.transfer(WINDOW_CHANNEL, edges, ['mode', 'target', 'bank']);
+  video.enableHdma(HDMA_CHANNEL_7);
+  video.setWindowAreas(WINDOW | (WINDOW << WINDOW_HIGH_LAYER_SHIFT), WINDOW, WINDOW);
+  video.setMainWindowLayers(WINDOW_LAYERS);
+  video.setWindowLogicBytes(0, 0);
 }
 // The title's audio (81:DDB1): fade step, sounds on voices 0 and 1, full volume.
 export function setUpTitleAudio(m) {

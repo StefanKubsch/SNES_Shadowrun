@@ -88,6 +88,13 @@ own commit after `npm run test:block` and the golden trace test. One shared
 
 ## Progress
 
+- 2026-11-25, phase 5, scene code: the game screen, camera scroll, colour effects,
+  scene tiles, title, start menu, cutscenes, intro, scene lists and scene screen
+  state their picture work through VideoPort transfers and setters; no module
+  outside src/video/video-port.mjs calls the raw `video.write`. Four block checks
+  (2028, 127, 622 and 526 tests) passed, golden traces unchanged
+  ([FRAME-DESCRIPTION.md](FRAME-DESCRIPTION.md), step 4).
+
 - 2026-11-24, phase 5, portrait and dialog writers: portrait windows, OBJSEL stores,
   dialog colour math, font transfers and the game screen's H-DMA stop use the video
   interface; src/game writes no picture register through the hardware port. Block

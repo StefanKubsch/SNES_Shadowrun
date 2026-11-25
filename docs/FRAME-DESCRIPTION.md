@@ -58,24 +58,43 @@ however, no longer needs to name registers:
 - The scene runtime's video interface now forwards sites and reads.
 - Evidence: block check 5606/5606 in 433 seconds; golden traces unchanged.
 
+## Step 4: scene code (2026-11-25)
+
+- The 230 raw `video.write` register calls of the scene code are gone: game screen,
+  camera scroll, fixed colour, scene tiles, title, start menu, cutscene animation and
+  scene, intro, scene lists and scene screen use VideoPort methods. Only
+  src/video/video-port.mjs writes registers.
+- DMA and H-DMA transfers are described by their parts:
+  `transfer(channel, {to, fixed, source, bytes, address, increment}, order)` and
+  `setUpDma([[channel, t], ...], order)`. `to` names the destination (VRAM, VRAM
+  read-back, CGRAM, OAM) or the per-line H-DMA target (main layers, BG2 scroll,
+  window edges). `order` lists the parts in the order the original sets them, so the
+  SNES back end writes the same registers in the same order; a back end without
+  channel registers can perform the transfer at its start and ignore the rest. A
+  part not listed keeps the channel's earlier set-up, as on the hardware.
+- New setters cover the BG mode, OBJ select byte, map and character bases, single
+  scroll offsets, window areas and logic bytes, the 16-bit H-DMA enable store, VRAM
+  address, increment, words and bytes, and colour bytes. Layer numbers are
+  `BG_1` to `BG_4` (src/constants/ppu.mjs).
+- Register data from ROM stays register data: the scene list's register command
+  and the text read-back's latching RDVRAMH read go through the hardware port.
+- Evidence: block checks 2028/2028 (game), 127/127 (title and start menu), 622/622
+  (cutscenes) and 526/526 (intro, scene lists, scene screen, final back end); all
+  five golden traces unchanged throughout.
+
 ## Plan for the next steps
 
-1. Scene code still names registers through the raw `video.write`: 230 calls in
-   game-screen (81), title (38), start menu (26), cutscene animation (24) and scene
-   (17), intro (11), camera scroll (11), scene lists (10), fixed colour (8) and scene
-   tiles (4). They move to semantic VideoPort methods the same way. The ROM scene
-   lists stay register data and need the register decoder.
-2. A second video back end writes the picture state (palette, sprites, layer
+1. A second video back end writes the picture state (palette, sprites, layer
    settings, character and map bytes) directly, without registers, for live play.
-3. Producers: game code builds the parts of the description it owns (palettes,
+2. Producers: game code builds the parts of the description it owns (palettes,
    sprite list, BG layer settings, scroll, colour effects) as typed state, and the
    description is assembled from that state instead of from PPU registers. The
    golden picture hash stays binding; the video memory hash becomes diagnostic for
    the converted parts, as decided on 2026-11-20.
-4. Character and map memory remain a byte store for now: the text code reads its
+3. Character and map memory remain a byte store for now: the text code reads its
    rendered rows back from video memory (81:A9E1, channel 5), so tile data stays
    readable game state.
-5. The register-writing upload functions (src/game/game-nmi.mjs and others) are
+4. The register-writing upload functions (src/game/game-nmi.mjs and others) are
    called directly by frozen proof modules. As with the phase 4 boundary
    ([REGISTER-COMPAT-BOUNDARY.md](REGISTER-COMPAT-BOUNDARY.md)) they stay as
    compatibility code for recorded comparisons, while live play takes the new

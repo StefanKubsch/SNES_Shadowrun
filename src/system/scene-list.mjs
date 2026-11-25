@@ -18,6 +18,7 @@ import {
   SCENE_COMMAND_REGISTER,
 } from '../data/scene-commands.mjs';
 import { unpackStream } from './unpack.mjs';
+import { videoOf } from '../video/video-port.mjs';
 import {
   NMI_CALLBACK,
   NMI_CALLBACK_BANK,
@@ -25,28 +26,12 @@ import {
   SCENE_LAYER_HIGH,
   WRAM,
 } from '../data/wram.mjs';
-import {
-  A1B0,
-  A1T0L,
-  BBAD0,
-  CGADD,
-  CGDATA,
-  DAS0L,
-  DMAP0,
-  MDMAEN,
-  VMADDL,
-  VMAINC,
-  VMDATAL,
-} from '../constants/hardware-registers.mjs';
-import { DMAP_TWO_PORTS, VMAINC_INCREMENT_AFTER_HIGH } from '../constants/ppu.mjs';
 import { BYTE_BITS, BYTE_MASK, WORD_BITS, WORD_MASK } from '../constants/bits.mjs';
 
 const LONG_MASK = 0xffffff,
   // Single register writes address banks 80 (data bank of 81:ECB7).
   REGISTER_BANK = 0x800000,
-  REGISTER_SITE = 0x81ecc7,
-  DMA_CHANNEL_0 = 1,
-  WRAM_BANK = WRAM >>> WORD_BITS;
+  REGISTER_SITE = 0x81ecc7;
 const setWord = (wram, at, value) => {
   writeStateByte(wram, at, value & BYTE_MASK);
   writeStateByte(wram, at + 1, (value >>> BYTE_BITS) & BYTE_MASK);
@@ -58,20 +43,22 @@ export function copyPalette(mem, video, source, first, count) {
   const bytes = (count * 2) & WORD_MASK;
   let shadow = first * 2,
     offset = 0;
-  video.write(CGADD, first, 1);
+  const colours = [];
   do {
     const value = mem.read8((source + offset) & LONG_MASK);
     mem.write8(WRAM + PALETTE_SHADOW + (shadow & WORD_MASK), value);
-    video.write(CGDATA, value, 1);
+    colours.push(value);
     shadow++;
     offset = (offset + 1) & WORD_MASK;
   } while (offset % 2 !== 0 || offset !== bytes);
+  videoOf(video).setColourBytes(first, colours);
 }
 
 // Run the scene command list at list (long address).
 export function runSceneList(mem, video, port, list) {
   const { wram } = mem,
-    table = sceneListCommands(mem);
+    table = sceneListCommands(mem),
+    v = videoOf(video);
   let at = 0;
   const byte = () => mem.read8((list + at++) & LONG_MASK),
     word = () => byte() | (byte() << BYTE_BITS);
@@ -101,17 +88,22 @@ export function runSceneList(mem, video, port, list) {
       );
     } else if (handler.operation === SCENE_COMMAND_PACKED_VRAM) {
       // Unpack into the scene buffer at 7E:46A8, then send it to VRAM by DMA.
-      video.write(VMAINC, VMAINC_INCREMENT_AFTER_HIGH, 1);
-      video.write(DMAP0, DMAP_TWO_PORTS, 1);
-      video.write(BBAD0, VMDATAL & BYTE_MASK, 1);
-      video.write(VMADDL, word(), 2);
-      const stream = word(),
-        bank = word();
-      video.write(DAS0L, word(), 2);
+      // The unpacking only fills WRAM, so it may precede the transfer's set-up.
+      const address = word(),
+        stream = word(),
+        bank = word(),
+        bytes = word();
       unpackStream(mem, ((bank & BYTE_MASK) << WORD_BITS) | stream, SCENE_LAYER_HIGH);
-      video.write(A1T0L, SCENE_LAYER_HIGH, 2);
-      video.write(A1B0, WRAM_BANK, 1);
-      video.write(MDMAEN, DMA_CHANNEL_0, 1);
+      v.transfer(0, { to: 'vram', address, bytes, source: WRAM + SCENE_LAYER_HIGH }, [
+        'increment',
+        'mode',
+        'target',
+        'address',
+        'bytes',
+        'source',
+        'bank',
+        'start',
+      ]);
     } else if (handler.operation === SCENE_COMMAND_REGISTER) {
       const register = word();
       port.write(REGISTER_BANK | register, byte(), 1, REGISTER_SITE);

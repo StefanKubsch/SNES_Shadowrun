@@ -450,16 +450,21 @@ export class VideoPort {
   transfer(channel, t, order, sites = {}) {
     for (const part of order) this.#dmaPart(channel, t, part, sites[part]);
   }
+  // A part's register write, with the site argument only where the original has one.
+  #put(address, value, width, site) {
+    if (site === undefined) this.write(address, value, width);
+    else this.write(address, value, width, site);
+  }
   #dmaPart(channel, t, part, site) {
     switch (part) {
       case 'mode':
-        this.write(channelRegister(DMAP0, channel), dmaMode(t), 1, site);
+        this.#put(channelRegister(DMAP0, channel), dmaMode(t), 1, site);
         return;
       case 'target':
-        this.write(channelRegister(BBAD0, channel), DMA_TARGETS[t.to][0] & BYTE_MASK, 1, site);
+        this.#put(channelRegister(BBAD0, channel), DMA_TARGETS[t.to][0] & BYTE_MASK, 1, site);
         return;
       case 'modeAndTarget':
-        this.write(
+        this.#put(
           channelRegister(DMAP0, channel),
           ((DMA_TARGETS[t.to][0] & BYTE_MASK) << BYTE_BITS) | dmaMode(t),
           2,
@@ -467,26 +472,26 @@ export class VideoPort {
         );
         return;
       case 'source':
-        this.write(channelRegister(A1T0L, channel), t.source & WORD_MASK, 2, site);
+        this.#put(channelRegister(A1T0L, channel), t.source & WORD_MASK, 2, site);
         return;
       case 'bank':
-        this.write(channelRegister(A1B0, channel), t.source >>> WORD_BITS, 1, site);
+        this.#put(channelRegister(A1B0, channel), t.source >>> WORD_BITS, 1, site);
         return;
       case 'bytes':
-        this.write(channelRegister(DAS0L, channel), t.bytes, 2, site);
+        this.#put(channelRegister(DAS0L, channel), t.bytes, 2, site);
         return;
       case 'address':
-        if (t.to === 'cgram') this.write(CGADD, t.address, 1, site);
+        if (t.to === 'cgram') this.#put(CGADD, t.address, 1, site);
         else if (t.to === 'oam') {
-          this.write(OAMADDL, t.address & BYTE_MASK, 1, site);
-          this.write(OAMADDH, t.address >>> BYTE_BITS, 1, site);
-        } else this.write(VMADDL, t.address, 2, site);
+          this.#put(OAMADDL, t.address & BYTE_MASK, 1, site);
+          this.#put(OAMADDH, t.address >>> BYTE_BITS, 1, site);
+        } else this.#put(VMADDL, t.address, 2, site);
         return;
       case 'increment':
-        this.write(VMAINC, t.increment ?? VMAINC_INCREMENT_AFTER_HIGH, 1, site);
+        this.#put(VMAINC, t.increment ?? VMAINC_INCREMENT_AFTER_HIGH, 1, site);
         return;
       case 'start':
-        this.write(MDMAEN, channelBit(channel), 1, site);
+        this.#put(MDMAEN, channelBit(channel), 1, site);
         return;
       default:
         throw new Error(`unknown DMA part ${part}`);
