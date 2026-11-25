@@ -1,5 +1,5 @@
 // Random per-function tests of the lifted script natives without frame waits
-// (src/script/native-script-leaves.mjs) against their register-level references: the
+// (src/script/native-script-leaves.mjs) against the frozen outcomes (tools/lift-vectors/) of their former register-level references: the
 // fight list append 80:8521 with its fight music, the panned song level 80:C461, the
 // sound effect 80:C46E, the random numbers 80:C51F and 80:C560 and the movements towards
 // an object or a point 80:8D7F, 80:8D3F and 80:8D4E with the hardware divider, the nuyen
@@ -11,27 +11,10 @@
 import { prng, DialogTestMemory } from './task-native-dialog-harness.mjs';
 import { finishLeaf } from '../src/system/native-leaf-support.mjs';
 import { createSide, registerCases, useLiftVectors } from './lift-function-harness.mjs';
-import { appendToFightListReference } from '../proof/game-reference/fight-list-append.mjs';
-import { panSongLevelToObjectReference } from '../proof/apu-reference/sound-stereo.mjs';
-import { playSoundEffect as playSoundEffectReference } from '../proof/replay/native-audio-compose.mjs';
-import { randomBelow, randomByte } from '../proof/replay/native-random.mjs';
-import {
-  moveObjectTowardsObject as moveReference,
-  jumpObjectTowardsObject as jumpReference,
-  jumpObjectTowardsPoint as jumpToPointReference,
-} from '../proof/replay/native-combat.mjs';
-import { runTaskModalObserved } from '../proof/replay/native-modal.mjs';
-import { runTaskSelectionObserved } from '../proof/replay/native-selection.mjs';
-import {
-  setObjectActionAndDirectionReference,
-  setObjectAnimationReference,
-  setObjectDirectionReference,
-} from '../proof/game-reference/object-turn.mjs';
 import { setObjectActionAndDirection } from '../src/script/native-object-action-direction.mjs';
 import { setObjectDirection } from '../src/script/native-object-action-set.mjs';
 import { setActionAndDirection } from '../src/game/member-facing.mjs';
 import { setObjectAnimation } from '../src/script/native-object-action-apply.mjs';
-import { selectAnimationJsr } from '../proof/caller/jsr-forms.mjs';
 import {
   appendToFightListNative,
   panSongLevelToObject,
@@ -45,6 +28,7 @@ import {
   setActorStateHolderNative,
   faceRoomDirectionNative,
 } from '../src/script/native-script-leaves.mjs';
+import { selectAnimationJsr } from '../proof/caller/jsr-forms.mjs';
 
 useLiftVectors(import.meta.url);
 
@@ -97,19 +81,6 @@ function sample(seed) {
   wram[APU_COMMAND_TOKEN] = rnd(256);
   return { seed, wram, rnd, pick };
 }
-const REFERENCES = new Map([
-  [0x808521, (h) => appendToFightListReference(h.a, false)],
-  [0x80c461, (h) => panSongLevelToObjectReference(h.a, false)],
-  [0x80c46e, (h) => playSoundEffectReference(h.a, { calls: [] }, false)],
-  [0x80c51f, (h) => randomBelow(h.a, false)],
-  [0x80c560, (h) => randomByte(h.a, false)],
-  [0x808d7f, (h) => moveReference(h.a, false)],
-  [0x808d3f, (h) => jumpReference(h.a, false)],
-  [0x808d4e, (h) => jumpToPointReference(h.a, false)],
-  [0x80cd20, (h) => runTaskModalObserved(h.a, {}, 0x80cd20, false)],
-  [0x80cbf7, (h) => runTaskModalObserved(h.a, {}, 0x80cbf7, false)],
-  [0x80bba0, (h) => runTaskSelectionObserved(h.a, {}, 0x80bba0, false)],
-]);
 // Two objects (0-43) at positions near each other or anywhere, for the movements.
 const OBJECT_HEIGHT = 0x0ed8,
   POINT_LIST = 0x7f4000;
@@ -128,7 +99,7 @@ function twoObjects(s) {
     );
   }
 }
-const side = (s) => createSide(s, REFERENCES);
+const side = (s) => createSide(s, new Map());
 const returned = (h) => [h.ctx.pc, h.ctx.s].map((v) => v.toString(HEX)).join();
 // The lifted side starts with the reference's registers and RTS frame.
 const lifted = (run) => (h, input) => {
@@ -163,7 +134,6 @@ const CASES = [
       word(s.wram, MUSIC, s.pick([6, 6, 0x0600, 4, 0x0100, 0, s.rnd(16), s.rnd(65536)]));
       return { bank: CODE_BANK, status: s.rnd(256) & 0xc3 };
     },
-    result: returned,
     lifted: lifted(appendToFightListNative),
   },
   {
@@ -174,7 +144,6 @@ const CASES = [
       word(s.wram, 2, s.rnd(65536));
       return { bank: CODE_BANK, status: s.rnd(256) & 0xc3 };
     },
-    result: returned,
     lifted: lifted(panSongLevelToObject),
   },
   {
@@ -198,7 +167,6 @@ const CASES = [
         );
       return { bank: CODE_BANK, status: s.rnd(256) & 0xc3 };
     },
-    result: returned,
     lifted: lifted(playSoundEffectNative),
   },
   {
@@ -214,7 +182,6 @@ const CASES = [
       );
       return { bank: CODE_BANK, status: s.rnd(256) & 0xc3 };
     },
-    result: returned,
     lifted: lifted(randomBelowNative),
   },
   {
@@ -222,7 +189,6 @@ const CASES = [
     name: 'randomByte 80:C560',
     entry: 0x80c560,
     prepare: (s) => ({ bank: CODE_BANK, status: s.rnd(256) & 0xc3 }),
-    result: returned,
     lifted: lifted(randomByteNative),
   },
   ...[
@@ -237,7 +203,6 @@ const CASES = [
       word(s.wram, 4, s.rnd(65536));
       return { bank: CODE_BANK, status: s.rnd(256) & 0xc3 };
     },
-    result: returned,
     lifted: lifted(run),
   })),
   {
@@ -252,7 +217,6 @@ const CASES = [
       s.wram[0xf5] = POINT_LIST >>> 16;
       return { bank: CODE_BANK, status: s.rnd(256) & 0xc3 };
     },
-    result: returned,
     lifted: lifted(jumpObjectTowardsPoint),
   },
   {
@@ -267,7 +231,6 @@ const CASES = [
       word(s.wram, 0, s.pick([0, low, (low + 1) & 0xffff, (low - 1) & 0xffff, s.rnd(65536)]));
       return { bank: CODE_BANK, status: s.rnd(256) & 0xc3 };
     },
-    result: returned,
     lifted: lifted(payNuyenNative),
   },
   {
@@ -280,7 +243,6 @@ const CASES = [
       word(s.wram, 2, s.rnd(65536));
       return { bank: CODE_BANK, status: s.rnd(256) & 0xc3 };
     },
-    result: returned,
     lifted: lifted(setActorStateHolderNative),
   },
   {
@@ -305,7 +267,6 @@ const CASES = [
       word(s.wram, OBJECT_FRAME_COUNT + object, s.pick([0, 0x80, s.rnd(0x80), s.rnd(65536)]));
       return { bank: CODE_BANK, status: s.rnd(256) & 0xc3 };
     },
-    result: returned,
     lifted: lifted(faceRoomDirectionNative),
   },
   {
@@ -314,7 +275,6 @@ const CASES = [
     name: 'selectAnimation 80:A985',
     entry: 0x80a985,
     samples: 600,
-    reference: (h) => setObjectAnimationReference(h.a, false),
     prepare: (s) => {
       const object = 2 * s.rnd(44);
       word(s.wram, 0, object);
@@ -324,7 +284,6 @@ const CASES = [
       word(s.wram, OBJECT_DIRECTION + object, s.pick([s.rnd(8), s.rnd(8), s.rnd(65536)]));
       return { bank: CODE_BANK, status: s.rnd(256) & 0xc3 };
     },
-    result: returned,
     lifted: (h, input) => {
       Object.assign(h.ctx, input);
       h.ctx.programBank = CODE_BANK;
@@ -339,7 +298,6 @@ const CASES = [
     name: 'setActionAndDirection 80:D15C',
     entry: 0x80d15c,
     samples: 600,
-    reference: (h) => setObjectActionAndDirectionReference(h.a, false),
     prepare: (s) => {
       const object = 2 * s.rnd(44);
       word(s.wram, 0, object);
@@ -351,7 +309,6 @@ const CASES = [
       word(s.wram, OBJECT_FRAME_COUNT + object, s.pick([0, 0x80, s.rnd(0x80), s.rnd(65536)]));
       return { bank: CODE_BANK, status: s.rnd(256) & 0xc3 };
     },
-    result: returned,
     lifted: lifted((a, outerReturn) => {
       setActionAndDirection(a.mem);
       return finishLeaf(a, outerReturn);
@@ -362,7 +319,6 @@ const CASES = [
     name: 'setObjectAnimation native 80:A985',
     entry: 0x80a985,
     samples: 300,
-    reference: (h) => setObjectAnimationReference(h.a, false),
     prepare: (s) => {
       const object = 2 * s.rnd(44);
       word(s.wram, 0, object);
@@ -372,14 +328,12 @@ const CASES = [
       word(s.wram, OBJECT_DIRECTION + object, s.pick([s.rnd(8), s.rnd(8), s.rnd(65536)]));
       return { bank: CODE_BANK, status: s.rnd(256) & 0xc3 };
     },
-    result: returned,
     lifted: lifted(setObjectAnimation),
   },
   {
     name: 'setObjectDirection native 80:AAAF',
     entry: 0x80aaaf,
     samples: 300,
-    reference: (h) => setObjectDirectionReference(h.a, false),
     prepare: (s) => {
       const object = 2 * s.rnd(44);
       word(s.wram, 0, object);
@@ -390,14 +344,12 @@ const CASES = [
       word(s.wram, OBJECT_FRAME_COUNT + object, s.pick([0, 0x80, s.rnd(0x80), s.rnd(65536)]));
       return { bank: CODE_BANK, status: s.rnd(256) & 0xc3 };
     },
-    result: returned,
     lifted: lifted(setObjectDirection),
   },
   {
     name: 'setObjectActionAndDirection native 80:D15C',
     entry: 0x80d15c,
     samples: 300,
-    reference: (h) => setObjectActionAndDirectionReference(h.a, false),
     prepare: (s) => {
       const object = 2 * s.rnd(44);
       word(s.wram, 0, object);
@@ -409,7 +361,6 @@ const CASES = [
       word(s.wram, OBJECT_FRAME_COUNT + object, s.pick([0, 0x80, s.rnd(0x80), s.rnd(65536)]));
       return { bank: CODE_BANK, status: s.rnd(256) & 0xc3 };
     },
-    result: returned,
     lifted: lifted(setObjectActionAndDirection),
   },
 ];

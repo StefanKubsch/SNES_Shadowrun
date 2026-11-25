@@ -1,6 +1,6 @@
 // Random per-function test of the lifted script native 80:E30F, entering the Matrix
-// (src/game/matrix-enter.mjs through src/script/native-matrix-enter.mjs), against its
-// register-level reference (proof/game-reference/matrix-enter.mjs). The native runs from
+// (src/game/matrix-enter.mjs through src/script/native-matrix-enter.mjs), against the frozen outcomes (tools/lift-vectors/) of its
+// former register-level reference (proof/game-reference/matrix-enter.mjs). The native runs from
 // its script call (data bank 80, direct page 0, the RTS frame). The decker is a runner
 // of the table (or any number: both searches miss); the group holds the decker at or
 // below the runner's index, or not; the member's object has a record in WRAM, none, or
@@ -8,7 +8,6 @@
 // the device writes and the return must be equal.
 import { DialogTestMemory, prng } from './task-native-dialog-harness.mjs';
 import { createSide, registerCases, useLiftVectors } from './lift-function-harness.mjs';
-import { enterMatrixReference } from '../proof/game-reference/matrix-enter.mjs';
 import { enterMatrix } from '../src/script/native-matrix-enter.mjs';
 import { GROUP_NUMBERS, GROUP_SLOTS, OBJECT_RECORD } from '../src/data/wram.mjs';
 import { RUNNERS, RUNNER_OBJECT_NUMBERS } from '../src/data/runners.mjs';
@@ -56,9 +55,7 @@ registerCases(
       name: 'enterMatrix 80:E30F',
       entry: 0x80e30f,
       samples: 500,
-      reference: (h) => enterMatrixReference(h.a, false),
       prepare: (s) => ({ bank: CODE_BANK, status: s.rnd(BYTE) & 0xc3 }),
-      result: returned,
       lifted: (h, input) => {
         Object.assign(h.ctx, input);
         h.ctx.programBank = CODE_BANK;

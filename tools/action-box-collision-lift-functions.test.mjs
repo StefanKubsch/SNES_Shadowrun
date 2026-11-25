@@ -1,6 +1,6 @@
 // Random per-function test of the lifted script native 80:8371, the collision test of an
 // object's action box (src/game/action-box-collision.mjs through
-// src/script/native-object-collision.mjs), against its register-level reference
+// src/script/native-object-collision.mjs), against the frozen outcomes (tools/lift-vectors/) of its former register-level reference
 // (proof/game-reference/action-box-collision.mjs). The native runs from its script call
 // (data bank 80, direct page 0, the RTS frame). The object is a game slot of any kind of
 // the action table (or any word) in a direction (or any word), at a position in the
@@ -11,7 +11,6 @@
 // the device writes and the return must be equal.
 import { prng } from './task-native-dialog-harness.mjs';
 import { createSide, registerCases, useLiftVectors } from './lift-function-harness.mjs';
-import { testObjectCollisionReference } from '../proof/game-reference/action-box-collision.mjs';
 import { testObjectCollision } from '../src/script/native-object-collision.mjs';
 import {
   COLLISION_BOX_X0,
@@ -89,9 +88,7 @@ registerCases(
       name: 'testObjectCollision 80:8371',
       entry: 0x808371,
       samples: 600,
-      reference: (h) => testObjectCollisionReference(h.a, false),
       prepare: (s) => ({ bank: CODE_BANK, status: s.rnd(BYTE) & 0xc3 }),
-      result: returned,
       lifted: (h, input) => {
         Object.assign(h.ctx, input);
         h.ctx.programBank = CODE_BANK;

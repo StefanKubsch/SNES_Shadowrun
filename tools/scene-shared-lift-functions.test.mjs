@@ -6,6 +6,8 @@
 // random WRAM images. Both sides run one routine on their own copy and must leave the
 // same WRAM (outside the scratch both may differ in), the same device writes, the same
 // sound commands, the same result, or stop at the same frontier.
+// The reference side is frozen: its outcomes are kept in tools/lift-vectors/
+// (docs/REGISTER-COMPAT-BOUNDARY.md, removal plan).
 import { DialogTestMemory, prng } from './task-native-dialog-harness.mjs';
 import { createSide, registerCases, useLiftVectors } from './lift-function-harness.mjs';
 import { IGNORED_WRAM } from './live-matrix-plan.mjs';
@@ -17,10 +19,7 @@ import { enableNmiAndJoypad, startSceneScreen } from '../src/system/nmi.mjs';
 import { runSceneList } from '../src/system/scene-list.mjs';
 import { setMusicMode } from '../src/apu/music-mode.mjs';
 import { sendApuCommand } from '../src/apu/apu-command.mjs';
-import { MAIN_SCENE_ROUTINES } from '../proof/replay/main-scene.mjs';
-import { AUDIO_REFERENCE_ENTRIES } from '../proof/apu-reference/audio-routines.mjs';
 import { MATRIX_COUNT_TEXT } from '../src/data/matrix-text-edits.mjs';
-import { readInput } from '../proof/system/native-input-apu.mjs';
 
 useLiftVectors(import.meta.url);
 
@@ -245,9 +244,7 @@ function sample(seed) {
 
 // One side (tools/lift-function-harness.mjs) with the sample's language edits and
 // edit streams already queued.
-// The register-level scene routines with the register-level audio.
-const REFERENCE_ROUTINES = new Map([...MAIN_SCENE_ROUTINES, ...AUDIO_REFERENCE_ENTRIES]);
-const side = (s) => createSide(s, REFERENCE_ROUTINES, prepareMemory);
+const side = (s) => createSide(s, new Map(), prepareMemory);
 function prepareMemory(mem, s) {
   mem.matrixTextEdits = s.edits;
   const stream = (text) => {
@@ -274,7 +271,6 @@ const CASES = [
       return { range };
     },
     lifted: (m, r) => randomBelow(m.mem, m.port, r.range),
-    result: (h) => h.read(0x7e0000, 2),
   },
   {
     name: 'sendApuCommand 81:F007',
@@ -322,7 +318,6 @@ const CASES = [
     // recorded observation or runs the interrupt-stepped form.
     name: 'takePadPresses 80:9E1A',
     entry: 0x809e1a,
-    reference: (h) => readInput(h.a, false),
     prepare: (s) => {
       const set = (at, v) => {
         s.wram[at] = v & 255;
@@ -389,7 +384,6 @@ const CASES = [
     name: 'setMusicMode 81:EF47',
     entry: 0x81ef47,
     long: true,
-    events: () => ({ calls: [] }),
     prepare: (s) => {
       s.wram[0x1ce6] = s.pick([0, 0, 0xff, 1]);
       if (s.rnd(2)) {

@@ -1,16 +1,12 @@
 // Random per-function tests of the lifted script natives 80:D067 (the Strength of a runner
 // object, src/game/runner-state.mjs) and 80:D186 (the player object after a BRK,
-// src/game/script-queries.mjs) through their natives in src/task against their
-// register-level references (proof/game-reference/script-starts.mjs). Both sides run the
+// src/game/script-queries.mjs) through their natives in src/task against the frozen outcomes (tools/lift-vectors/) of their
+// former register-level references (proof/game-reference/script-starts.mjs). Both sides run the
 // native from its script call (data bank 80, direct page 0, the RTS frame). Game state
 // only (docs/STRATEGY.md, 2026-11-14): WRAM outside the stacks, the device writes and the
 // return must be equal.
 import { DialogTestMemory, prng } from './task-native-dialog-harness.mjs';
 import { createSide, registerCases, useLiftVectors } from './lift-function-harness.mjs';
-import {
-  getPlayerObjectAfterBreakReference,
-  getRunnerStrengthReference,
-} from '../proof/game-reference/script-starts.mjs';
 import { getRunnerStrength } from '../src/script/native-runner-record-byte.mjs';
 import { getPlayerObjectAfterBreak } from '../src/script/native-player-object-break.mjs';
 import { OBJECT_NUMBER } from '../src/data/wram.mjs';
@@ -50,13 +46,11 @@ function sample(seed) {
   return { seed, wram, rnd };
 }
 const returned = (h) => [h.ctx.pc, h.ctx.s].map((v) => v.toString(HEX)).join();
-const step = (name, entry, reference, run) => ({
+const step = (name, entry, run) => ({
   name,
   entry,
   samples: 500,
-  reference: (h) => reference(h.a, false),
   prepare: (s) => ({ bank: CODE_BANK, status: s.rnd(BYTE) & 0xc3 }),
-  result: returned,
   lifted: (h, input) => {
     Object.assign(h.ctx, input);
     h.ctx.programBank = CODE_BANK;
@@ -67,13 +61,8 @@ const step = (name, entry, reference, run) => ({
 });
 registerCases(
   [
-    step('getRunnerStrength 80:D067', 0x80d067, getRunnerStrengthReference, getRunnerStrength),
-    step(
-      'getPlayerObjectAfterBreak 80:D186',
-      0x80d186,
-      getPlayerObjectAfterBreakReference,
-      getPlayerObjectAfterBreak,
-    ),
+    step('getRunnerStrength 80:D067', 0x80d067, getRunnerStrength),
+    step('getPlayerObjectAfterBreak 80:D186', 0x80d186, getPlayerObjectAfterBreak),
   ],
   { sample, side: (s) => createSide(s, new Map()), runtime: (h) => h, ignored: [] },
 );

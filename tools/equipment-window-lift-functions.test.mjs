@@ -6,10 +6,10 @@
 // above its return word (the pushed armour, rating and weapon), and leaves
 // registers and flags drawn from the sample's own sequence. WRAM outside the stack, the
 // calls, the return and the registers left must be equal.
+// The reference side is frozen: its outcomes are kept in tools/lift-vectors/
+// (docs/REGISTER-COMPAT-BOUNDARY.md, removal plan).
 import { prng } from './task-native-dialog-harness.mjs';
 import { createSide, registerCases, useLiftVectors } from './lift-function-harness.mjs';
-import { e9c5Sequence } from '../proof/replay/native-member-spell-menu.mjs';
-import { equipmentRowsSequence } from '../proof/caller/equipment-window.mjs';
 import {
   JAKE_DERMAL_ARMOUR,
   MEMBER_INDEX,
@@ -20,6 +20,7 @@ import {
   RUNNER_WEAPON,
 } from '../src/data/wram.mjs';
 import { drainNativeSequence } from '../src/system/native-call-continuation.mjs';
+import { equipmentRowsSequence } from '../proof/caller/equipment-window.mjs';
 
 useLiftVectors(import.meta.url);
 
@@ -101,7 +102,7 @@ const returned = (h, calls) =>
     .join() +
   ' ' +
   calls.join(' ');
-let referenceCalls, current;
+let current;
 registerCases(
   [
     {
@@ -118,12 +119,6 @@ registerCases(
           status: s.rnd(BYTE) & LEFT_FLAGS,
         };
       },
-      reference: (h) => {
-        const { routines, calls } = standIns(current);
-        referenceCalls = calls;
-        drainNativeSequence(e9c5Sequence(h, null, routines));
-      },
-      result: (h) => returned(h, referenceCalls),
       lifted: (h, input) => {
         Object.assign(h.ctx, input);
         h.ctx.programBank = CODE_BANK;

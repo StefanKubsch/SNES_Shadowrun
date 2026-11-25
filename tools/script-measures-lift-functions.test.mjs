@@ -1,6 +1,6 @@
 // Random per-function tests of the lifted glove limit, distance and halving natives
 // (src/game/glove-target.mjs, object-distance.mjs and script-queries.mjs through their
-// natives in src/task) against their register-level references
+// natives in src/task) against the frozen outcomes (tools/lift-vectors/) of their former register-level references
 // (proof/game-reference/script-measures.mjs): the crosshair and spell glove limits 80:BC83
 // and 80:BC9C, the distances 80:C68D (to the player) and 80:C694 (between two objects) and
 // the signed halving 80:D9A7. Both sides run the native from its script call (data bank
@@ -8,13 +8,6 @@
 // outside the stacks, the device writes and the return must be equal.
 import { prng } from './task-native-dialog-harness.mjs';
 import { createSide, registerCases, useLiftVectors } from './lift-function-harness.mjs';
-import {
-  getDistanceBetweenObjectsReference,
-  getDistanceToPlayerReference,
-  halveArgumentSignedReference,
-  limitCrosshairReference,
-  limitSpellGloveReference,
-} from '../proof/game-reference/script-measures.mjs';
 import { limitCrosshair } from '../src/script/native-glove-crosshair-limits.mjs';
 import { limitSpellGlove } from '../src/script/native-glove-spell-limits.mjs';
 import { getDistanceToPlayer } from '../src/script/native-object-distance.mjs';
@@ -55,13 +48,11 @@ function sample(seed) {
   return { seed, wram, rnd };
 }
 const returned = (h) => [h.ctx.pc, h.ctx.s].map((v) => v.toString(HEX)).join();
-const measure = (name, entry, reference, run) => ({
+const measure = (name, entry, run) => ({
   name,
   entry,
   samples: 300,
-  reference: (h) => reference(h.a, false),
   prepare: (s) => ({ bank: CODE_BANK, status: s.rnd(BYTE) & 0xc3 }),
-  result: returned,
   lifted: (h, input) => {
     Object.assign(h.ctx, input);
     h.ctx.programBank = CODE_BANK;
@@ -72,26 +63,11 @@ const measure = (name, entry, reference, run) => ({
 });
 registerCases(
   [
-    measure('limitCrosshair 80:BC83', 0x80bc83, limitCrosshairReference, limitCrosshair),
-    measure('limitSpellGlove 80:BC9C', 0x80bc9c, limitSpellGloveReference, limitSpellGlove),
-    measure(
-      'getDistanceToPlayer 80:C68D',
-      0x80c68d,
-      getDistanceToPlayerReference,
-      getDistanceToPlayer,
-    ),
-    measure(
-      'getDistanceBetweenObjects 80:C694',
-      0x80c694,
-      getDistanceBetweenObjectsReference,
-      getDistanceBetweenObjects,
-    ),
-    measure(
-      'halveArgumentSigned 80:D9A7',
-      0x80d9a7,
-      halveArgumentSignedReference,
-      halveArgumentSigned,
-    ),
+    measure('limitCrosshair 80:BC83', 0x80bc83, limitCrosshair),
+    measure('limitSpellGlove 80:BC9C', 0x80bc9c, limitSpellGlove),
+    measure('getDistanceToPlayer 80:C68D', 0x80c68d, getDistanceToPlayer),
+    measure('getDistanceBetweenObjects 80:C694', 0x80c694, getDistanceBetweenObjects),
+    measure('halveArgumentSigned 80:D9A7', 0x80d9a7, halveArgumentSigned),
   ],
   { sample, side: (s) => createSide(s, new Map()), runtime: (h) => h, ignored: [] },
 );

@@ -4,11 +4,12 @@
 // release 80:BCB2 (JSR) and the window list 81:AD92 (JSL), which record A and the
 // dialog window word and return; WRAM outside the stack, the calls and the return must
 // be equal.
+// The reference side is frozen: its outcomes are kept in tools/lift-vectors/
+// (docs/REGISTER-COMPAT-BOUNDARY.md, removal plan).
 import { prng } from './task-native-dialog-harness.mjs';
 import { createSide, registerCases, useLiftVectors } from './lift-function-harness.mjs';
-import { releaseGlove } from '../proof/replay/native-glove-release.mjs';
-import { releaseGloveSequence } from '../proof/caller/glove-release.mjs';
 import { drainNativeSequence } from '../src/system/native-call-continuation.mjs';
+import { releaseGloveSequence } from '../proof/caller/glove-release.mjs';
 
 useLiftVectors(import.meta.url);
 
@@ -43,7 +44,7 @@ function stub(calls, target, a) {
 }
 const returned = (h, calls) =>
   [h.ctx.pc, h.ctx.s].map((v) => v.toString(HEX)).join() + ' ' + calls.join(' ');
-let referenceCalls, liftedCalls;
+let liftedCalls;
 registerCases(
   [
     {
@@ -51,14 +52,6 @@ registerCases(
       entry: 0x80cd9d,
       samples: 100,
       prepare: (s) => ({ bank: CODE_BANK, status: s.rnd(256) & 0xc3 & ~0x30 }),
-      reference: (h) => {
-        referenceCalls = [];
-        releaseGlove(h.a, null, false, {
-          bcb2: (x) => stub(referenceCalls, GLOVE, x.a),
-          list: (x) => stub(referenceCalls, LIST, x.a),
-        });
-      },
-      result: (h) => returned(h, referenceCalls),
       lifted: (h, input) => {
         Object.assign(h.ctx, input);
         h.ctx.programBank = CODE_BANK;

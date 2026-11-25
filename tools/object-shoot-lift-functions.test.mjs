@@ -10,6 +10,8 @@
 // scratch, the device writes, the hit calls and the return must be equal; the
 // registers the natives leave are not compared (the script interpreter replaces them).
 // Actual direct shooting and hit composition is compared in shoot-hit-caller.test.mjs.
+// The reference side is frozen: its outcomes are kept in tools/lift-vectors/
+// (docs/REGISTER-COMPAT-BOUNDARY.md, removal plan).
 import { DialogTestMemory, prng } from './task-native-dialog-harness.mjs';
 import {
   calleeRecord,
@@ -17,12 +19,6 @@ import {
   registerCases,
   useLiftVectors,
 } from './lift-function-harness.mjs';
-import {
-  NATIVE_8AB5_ROUTINES,
-  shootAtGloveTarget,
-  shootAtObject,
-  shootWithOwnWeapon,
-} from '../proof/replay/native-object-shoot.mjs';
 import {
   shootAtGloveTargetSequence,
   shootAtObjectSequence,
@@ -194,8 +190,8 @@ function hitStandIn(s) {
   return { hit, calls };
 }
 const returned = (h, calls) => [h.ctx.pc.toString(HEX), h.ctx.s.toString(HEX), ...calls].join(' ');
-let referenceCalls, current;
-const shot = (name, entry, reference, lifted) => ({
+let current;
+const shot = (name, entry, lifted) => ({
   name,
   entry,
   samples: 400,
@@ -203,12 +199,6 @@ const shot = (name, entry, reference, lifted) => ({
     current = s;
     return { bank: CODE_BANK, a: s.rnd(WORD), x: s.rnd(WORD), y: s.rnd(WORD) };
   },
-  reference: (h) => {
-    const { hit, calls } = hitStandIn(current);
-    referenceCalls = calls;
-    reference(h.a, { calls: [] }, false, { ...NATIVE_8AB5_ROUTINES, hit });
-  },
-  result: (h) => returned(h, referenceCalls),
   lifted: (h, input) => {
     Object.assign(h.ctx, input);
     h.ctx.programBank = CODE_BANK;
@@ -220,9 +210,9 @@ const shot = (name, entry, reference, lifted) => ({
 });
 registerCases(
   [
-    shot('shootAtObject 80:8AB5', 0x808ab5, shootAtObject, shootAtObjectSequence),
-    shot('shootAtGloveTarget 80:8A51', 0x808a51, shootAtGloveTarget, shootAtGloveTargetSequence),
-    shot('shootWithOwnWeapon 80:8A8C', 0x808a8c, shootWithOwnWeapon, shootWithOwnWeaponSequence),
+    shot('shootAtObject 80:8AB5', 0x808ab5, shootAtObjectSequence),
+    shot('shootAtGloveTarget 80:8A51', 0x808a51, shootAtGloveTargetSequence),
+    shot('shootWithOwnWeapon 80:8A8C', 0x808a8c, shootWithOwnWeaponSequence),
   ],
   { sample, side: (s) => createSide(s, new Map()), runtime: (h) => h, ignored: IGNORED },
 );

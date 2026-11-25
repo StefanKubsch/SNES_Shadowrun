@@ -7,16 +7,10 @@
 // pressed buttons (a choosing one after a few frames) and the glove movement an object
 // under the glove or none. WRAM outside the stack, the calls, the return and the
 // registers left must be equal.
+// The reference side is frozen: its outcomes are kept in tools/lift-vectors/
+// (docs/REGISTER-COMPAT-BOUNDARY.md, removal plan).
 import { prng } from './task-native-dialog-harness.mjs';
 import { createSide, registerCases, useLiftVectors } from './lift-function-harness.mjs';
-import {
-  chooseObjectUnderGlove,
-  chooseObjectNumberWithGlove,
-  choosePlaceWithGlove,
-  scriptChooseObjectNumberWithGlove,
-  scriptChooseObjectWithGlove,
-  targetWithSpellGlove,
-} from '../proof/replay/native-glove-target.mjs';
 import {
   chooseObjectUnderGloveSequence,
   chooseObjectNumberSequence,
@@ -166,8 +160,8 @@ const prepare = (s) => ({
   y: s.rnd(WORD),
   status: s.rnd(BYTE) & LEFT_FLAGS,
 });
-let referenceCalls, current;
-const choice = (name, entry, reference, lifted) => ({
+let current;
+const choice = (name, entry, lifted) => ({
   name,
   entry,
   samples: 300,
@@ -175,12 +169,6 @@ const choice = (name, entry, reference, lifted) => ({
     current = s;
     return prepare(s);
   },
-  reference: (h) => {
-    const { routines, calls } = standIns(current);
-    referenceCalls = calls;
-    reference(h.a, null, false, routines);
-  },
-  result: (h) => returned(h, referenceCalls),
   lifted: (h, input) => {
     Object.assign(h.ctx, input);
     h.ctx.programBank = CODE_BANK;
@@ -192,42 +180,12 @@ const choice = (name, entry, reference, lifted) => ({
 });
 registerCases(
   [
-    choice(
-      'chooseObjectUnderGlove 80:8D0B',
-      0x808d0b,
-      chooseObjectUnderGlove,
-      chooseObjectUnderGloveSequence,
-    ),
-    choice(
-      'chooseObjectNumberWithGlove 80:9BC6',
-      0x809bc6,
-      chooseObjectNumberWithGlove,
-      chooseObjectNumberSequence,
-    ),
-    choice(
-      'scriptChooseObjectNumberWithGlove 80:9BB9',
-      0x809bb9,
-      scriptChooseObjectNumberWithGlove,
-      scriptChooseObjectNumberSequence,
-    ),
-    choice(
-      'scriptChooseObjectWithGlove 80:9C33',
-      0x809c33,
-      scriptChooseObjectWithGlove,
-      scriptChooseObjectSequence,
-    ),
-    choice(
-      'targetWithSpellGlove 80:9BD3',
-      0x809bd3,
-      targetWithSpellGlove,
-      spellGloveTargetSequence,
-    ),
-    choice(
-      'choosePlaceWithGlove 80:C724',
-      0x80c724,
-      choosePlaceWithGlove,
-      choosePlaceWithGloveSequence,
-    ),
+    choice('chooseObjectUnderGlove 80:8D0B', 0x808d0b, chooseObjectUnderGloveSequence),
+    choice('chooseObjectNumberWithGlove 80:9BC6', 0x809bc6, chooseObjectNumberSequence),
+    choice('scriptChooseObjectNumberWithGlove 80:9BB9', 0x809bb9, scriptChooseObjectNumberSequence),
+    choice('scriptChooseObjectWithGlove 80:9C33', 0x809c33, scriptChooseObjectSequence),
+    choice('targetWithSpellGlove 80:9BD3', 0x809bd3, spellGloveTargetSequence),
+    choice('choosePlaceWithGlove 80:C724', 0x80c724, choosePlaceWithGloveSequence),
   ],
   { sample, side: (s) => createSide(s, new Map()), runtime: (h) => h, ignored: IGNORED },
 );

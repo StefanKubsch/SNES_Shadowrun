@@ -1,5 +1,5 @@
 // Random per-function tests of the lifted swarm motion natives (src/game/swarm-motion.mjs
-// through their natives in src/task) against their register-level references
+// through their natives in src/task) against the frozen outcomes (tools/lift-vectors/) of their former register-level references
 // (proof/game-reference/swarm-motion.mjs): 80:D85B (along a path) and 80:D2E7 (as a wave,
 // or setting its target from the room's point list, open bus included). Both sides run
 // the native from its script call (data bank 80, direct page 0, the RTS frame). Game
@@ -7,10 +7,6 @@
 // and the return must be equal.
 import { prng } from './task-native-dialog-harness.mjs';
 import { createSide, registerCases, useLiftVectors } from './lift-function-harness.mjs';
-import {
-  moveSwarmAlongPathReference,
-  moveSwarmWaveReference,
-} from '../proof/game-reference/swarm-motion.mjs';
 import { moveSwarmAlongPath } from '../src/script/native-swarm-follow-path.mjs';
 import { moveSwarmWave } from '../src/script/native-swarm-wave.mjs';
 import { SWARM_MEMBERS } from '../src/data/wram.mjs';
@@ -57,13 +53,11 @@ function sample(seed) {
   return { seed, wram, rnd };
 }
 const returned = (h) => [h.ctx.pc, h.ctx.s].map((v) => v.toString(HEX)).join();
-const step = (name, entry, reference, run) => ({
+const step = (name, entry, run) => ({
   name,
   entry,
   samples: 600,
-  reference: (h) => reference(h.a, false),
   prepare: (s) => ({ bank: CODE_BANK, status: s.rnd(BYTE) & 0xc3 }),
-  result: returned,
   lifted: (h, input) => {
     Object.assign(h.ctx, input);
     h.ctx.programBank = CODE_BANK;
@@ -74,8 +68,8 @@ const step = (name, entry, reference, run) => ({
 });
 registerCases(
   [
-    step('moveSwarmAlongPath 80:D85B', 0x80d85b, moveSwarmAlongPathReference, moveSwarmAlongPath),
-    step('moveSwarmWave 80:D2E7', 0x80d2e7, moveSwarmWaveReference, moveSwarmWave),
+    step('moveSwarmAlongPath 80:D85B', 0x80d85b, moveSwarmAlongPath),
+    step('moveSwarmWave 80:D2E7', 0x80d2e7, moveSwarmWave),
   ],
   { sample, side: (s) => createSide(s, new Map()), runtime: (h) => h, ignored: [] },
 );

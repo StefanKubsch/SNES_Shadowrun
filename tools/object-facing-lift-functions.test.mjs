@@ -1,5 +1,5 @@
 // Random per-function tests of the lifted facing natives (src/game/object-facing.mjs
-// through their natives in src/task) against their register-level references
+// through their natives in src/task) against the frozen outcomes (tools/lift-vectors/) of their former register-level references
 // (proof/game-reference/object-facing.mjs): 80:CF93 (towards another object), 80:D1D2
 // (towards the player object) and 80:D1DD (the direction towards the player object).
 // Both sides run the native from its script call (data bank 80, direct page 0, the RTS
@@ -7,11 +7,6 @@
 // device writes and the return must be equal.
 import { prng } from './task-native-dialog-harness.mjs';
 import { createSide, registerCases, useLiftVectors } from './lift-function-harness.mjs';
-import {
-  getDirectionToPlayerReference,
-  turnObjectToObjectReference,
-  turnObjectToPlayerReference,
-} from '../proof/game-reference/object-facing.mjs';
 import { turnObjectToObject } from '../src/script/native-object-face-object.mjs';
 import { turnObjectToPlayer } from '../src/script/native-player-direction-slot.mjs';
 import { getDirectionToPlayer } from '../src/script/native-player-direction.mjs';
@@ -68,13 +63,11 @@ function sample(seed) {
   return { seed, wram, rnd };
 }
 const returned = (h) => [h.ctx.pc, h.ctx.s].map((v) => v.toString(HEX)).join();
-const step = (name, entry, reference, run) => ({
+const step = (name, entry, run) => ({
   name,
   entry,
   samples: 500,
-  reference: (h) => reference(h.a, false),
   prepare: (s) => ({ bank: CODE_BANK, status: s.rnd(BYTE) & 0xc3 }),
-  result: returned,
   lifted: (h, input) => {
     Object.assign(h.ctx, input);
     h.ctx.programBank = CODE_BANK;
@@ -85,14 +78,9 @@ const step = (name, entry, reference, run) => ({
 });
 registerCases(
   [
-    step('turnObjectToObject 80:CF93', 0x80cf93, turnObjectToObjectReference, turnObjectToObject),
-    step('turnObjectToPlayer 80:D1D2', 0x80d1d2, turnObjectToPlayerReference, turnObjectToPlayer),
-    step(
-      'getDirectionToPlayer 80:D1DD',
-      0x80d1dd,
-      getDirectionToPlayerReference,
-      getDirectionToPlayer,
-    ),
+    step('turnObjectToObject 80:CF93', 0x80cf93, turnObjectToObject),
+    step('turnObjectToPlayer 80:D1D2', 0x80d1d2, turnObjectToPlayer),
+    step('getDirectionToPlayer 80:D1DD', 0x80d1dd, getDirectionToPlayer),
   ],
   { sample, side: (s) => createSide(s, new Map()), runtime: (h) => h, ignored: [] },
 );

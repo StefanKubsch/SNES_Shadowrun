@@ -5,14 +5,10 @@
 // script call (data bank 80, direct page 0, the RTS frame). Game state only
 // (docs/STRATEGY.md, 2026-11-14): WRAM outside the stacks, the device writes and the
 // return (program counter and stack pointer) must be equal.
+// The reference side is frozen: its outcomes are kept in tools/lift-vectors/
+// (docs/REGISTER-COMPAT-BOUNDARY.md, removal plan).
 import { prng } from './task-native-dialog-harness.mjs';
 import { createSide, registerCases, useLiftVectors } from './lift-function-harness.mjs';
-import {
-  getScriptVariableReference,
-  keepScriptVariableBitsReference,
-  setScriptVariableBitsReference,
-  setScriptVariableReference,
-} from '../proof/game-reference/script-variables.mjs';
 import { getScriptVariable } from '../src/script/native-script-variable-get.mjs';
 import { setScriptVariable } from '../src/script/native-script-variable-set.mjs';
 import { setScriptVariableBits } from '../src/script/native-script-variable-or.mjs';
@@ -44,13 +40,11 @@ function sample(seed) {
   return { seed, wram, rnd };
 }
 const returned = (h) => [h.ctx.pc, h.ctx.s].map((v) => v.toString(HEX)).join();
-const variable = (name, entry, reference, run) => ({
+const variable = (name, entry, run) => ({
   name,
   entry,
   samples: 400,
-  reference: (h) => reference(h.a, false),
   prepare: (s) => ({ bank: CODE_BANK, status: s.rnd(BYTE) & 0xc3 }),
-  result: returned,
   lifted: (h, input) => {
     Object.assign(h.ctx, input);
     h.ctx.programBank = CODE_BANK;
@@ -61,20 +55,10 @@ const variable = (name, entry, reference, run) => ({
 });
 registerCases(
   [
-    variable('getScriptVariable 80:CC07', 0x80cc07, getScriptVariableReference, getScriptVariable),
-    variable('setScriptVariable 80:CC10', 0x80cc10, setScriptVariableReference, setScriptVariable),
-    variable(
-      'setScriptVariableBits 80:CC19',
-      0x80cc19,
-      setScriptVariableBitsReference,
-      setScriptVariableBits,
-    ),
-    variable(
-      'keepScriptVariableBits 80:CC26',
-      0x80cc26,
-      keepScriptVariableBitsReference,
-      keepScriptVariableBits,
-    ),
+    variable('getScriptVariable 80:CC07', 0x80cc07, getScriptVariable),
+    variable('setScriptVariable 80:CC10', 0x80cc10, setScriptVariable),
+    variable('setScriptVariableBits 80:CC19', 0x80cc19, setScriptVariableBits),
+    variable('keepScriptVariableBits 80:CC26', 0x80cc26, keepScriptVariableBits),
   ],
   { sample, side: (s) => createSide(s, new Map()), runtime: (h) => h, ignored: IGNORED },
 );

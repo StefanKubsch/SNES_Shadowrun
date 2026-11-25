@@ -3,11 +3,12 @@
 // native (spendMagicPoints in src/task/native-combat.mjs). Both sides call the same
 // stand-in for the notice 80:FEC1 (it records A and the direct page window and text
 // words and returns); WRAM outside the stack, the call and the return must be equal.
+// The reference side is frozen: its outcomes are kept in tools/lift-vectors/
+// (docs/REGISTER-COMPAT-BOUNDARY.md, removal plan).
 import { prng } from './task-native-dialog-harness.mjs';
 import { createSide, registerCases, useLiftVectors } from './lift-function-harness.mjs';
-import { spendMagicPoints, NATIVE_COMBAT_ROUTINES } from '../proof/replay/native-combat.mjs';
-import { spendMagicPointsSequence } from '../proof/caller/magic-points.mjs';
 import { drainNativeSequence } from '../src/system/native-call-continuation.mjs';
+import { spendMagicPointsSequence } from '../proof/caller/magic-points.mjs';
 
 useLiftVectors(import.meta.url);
 
@@ -41,7 +42,7 @@ function stub(calls, a) {
 }
 const returned = (h, calls) =>
   [h.ctx.pc, h.ctx.s].map((v) => v.toString(HEX)).join() + ' ' + calls.join(' ');
-let referenceCalls, liftedCalls;
+let liftedCalls;
 registerCases(
   [
     {
@@ -57,14 +58,6 @@ registerCases(
         word(s.wram, 0, s.pick([points, points + 1, points - 1, 0, s.rnd(65536)]) & 0xffff);
         return { bank: CODE_BANK, status: s.rnd(256) & 0xc3 };
       },
-      reference: (h) => {
-        referenceCalls = [];
-        spendMagicPoints(h.a, null, false, {
-          ...NATIVE_COMBAT_ROUTINES,
-          notice: (a) => stub(referenceCalls, a),
-        });
-      },
-      result: (h) => returned(h, referenceCalls),
       lifted: (h, input) => {
         Object.assign(h.ctx, input);
         h.ctx.programBank = CODE_BANK;

@@ -77,7 +77,12 @@ mostly script natives (src/script 56 %).
    from their seeds, so a changed sample function needs new vectors, which only the
    reference can record: change samples before step 2 or not at all.
 2. Strip the references from those tests and delete the proof modules nobody imports
-   any more.
+   any more (done: the 54 tests run no reference; `matchesFrozen` freezes the one
+   hand-written comparison of game-nmi; 34 proof modules went). Their remaining proof
+   imports are scaffolding of the lifted side: caller adapters (proof/caller), callee
+   stand-ins and routine tables (proof/replay, proof/system) and data tables. A
+   helper's reference parameter was removed only together with the matching argument
+   of every call (checked per call), so no reference runs in place of lifted code.
 3. The same for the caller tests (tools/text-window-caller-harness.mjs,
    tools/member-menu-caller-harness.mjs) and the remaining hand-written comparisons.
 4. Decouple the product tools and tests that reach proof only for data or helpers:

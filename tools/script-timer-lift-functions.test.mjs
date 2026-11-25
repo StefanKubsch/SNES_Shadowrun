@@ -1,16 +1,11 @@
 // Random per-function tests of the lifted time limit natives (src/game/time-limit.mjs
-// through their natives in src/task) against their register-level references
+// through their natives in src/task) against the frozen outcomes (tools/lift-vectors/) of their former register-level references
 // (proof/game-reference/script-timer.mjs): 80:E255 (start), 80:E24E (stop) and 80:E262
 // (running). Both sides run the native from its script call (data bank 80, direct page
 // 0, the RTS frame). Game state only (docs/STRATEGY.md, 2026-11-14): WRAM outside the
 // stacks, the device writes and the return must be equal.
 import { prng } from './task-native-dialog-harness.mjs';
 import { createSide, registerCases, useLiftVectors } from './lift-function-harness.mjs';
-import {
-  isTimerRunningReference,
-  startTimerReference,
-  stopTimerReference,
-} from '../proof/game-reference/script-timer.mjs';
 import { startTimer } from '../src/script/native-timer-start.mjs';
 import { stopTimer } from '../src/script/native-timer-stop.mjs';
 import { isTimerRunning } from '../src/script/native-timer-running.mjs';
@@ -38,13 +33,11 @@ function sample(seed) {
   return { seed, wram, rnd };
 }
 const returned = (h) => [h.ctx.pc, h.ctx.s].map((v) => v.toString(HEX)).join();
-const timer = (name, entry, reference, run) => ({
+const timer = (name, entry, run) => ({
   name,
   entry,
   samples: 200,
-  reference: (h) => reference(h.a, false),
   prepare: (s) => ({ bank: CODE_BANK, status: s.rnd(BYTE) & 0xc3 }),
-  result: returned,
   lifted: (h, input) => {
     Object.assign(h.ctx, input);
     h.ctx.programBank = CODE_BANK;
@@ -55,9 +48,9 @@ const timer = (name, entry, reference, run) => ({
 });
 registerCases(
   [
-    timer('startTimer 80:E255', 0x80e255, startTimerReference, startTimer),
-    timer('stopTimer 80:E24E', 0x80e24e, stopTimerReference, stopTimer),
-    timer('isTimerRunning 80:E262', 0x80e262, isTimerRunningReference, isTimerRunning),
+    timer('startTimer 80:E255', 0x80e255, startTimer),
+    timer('stopTimer 80:E24E', 0x80e24e, stopTimer),
+    timer('isTimerRunning 80:E262', 0x80e262, isTimerRunning),
   ],
   { sample, side: (s) => createSide(s, new Map()), runtime: (h) => h, ignored: [] },
 );

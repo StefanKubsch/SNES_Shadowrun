@@ -4,12 +4,13 @@
 // bank, A, X, Y, the flags N, V, Z and C and the direct page words 00 and 02, and leaves
 // registers and flags drawn from the sample's own sequence. WRAM outside the stack, the
 // calls, the return and the registers left must be equal.
+// The reference side is frozen: its outcomes are kept in tools/lift-vectors/
+// (docs/REGISTER-COMPAT-BOUNDARY.md, removal plan).
 import { prng } from './task-native-dialog-harness.mjs';
 import { createSide, registerCases, useLiftVectors } from './lift-function-harness.mjs';
-import { fdcfSequence } from '../proof/replay/native-status-screen.mjs';
-import { decimalNumberSequence } from '../proof/caller/decimal-number.mjs';
 
 import { drainNativeSequence } from '../src/system/native-call-continuation.mjs';
+import { decimalNumberSequence } from '../proof/caller/decimal-number.mjs';
 
 useLiftVectors(import.meta.url);
 
@@ -78,7 +79,7 @@ const returned = (h, calls) =>
     .join() +
   ' ' +
   calls.join(' ');
-let referenceCalls, current;
+let current;
 registerCases(
   [
     {
@@ -95,12 +96,6 @@ registerCases(
           status: s.rnd(BYTE) & LEFT_FLAGS,
         };
       },
-      reference: (h) => {
-        const { routines, calls } = standIns(current);
-        referenceCalls = calls;
-        drainNativeSequence(fdcfSequence(h, null, routines));
-      },
-      result: (h) => returned(h, referenceCalls),
       lifted: (h, input) => {
         Object.assign(h.ctx, input);
         h.ctx.programBank = CODE_BANK;

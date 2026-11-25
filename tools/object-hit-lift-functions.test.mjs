@@ -10,6 +10,8 @@
 // registers the hit leaves are not compared (its callers restore their own).
 // Actual direct composition is compared separately in hit-notice-caller.test.mjs
 // and player-hit-caller.test.mjs, using real windows, glyphs and list redraws.
+// The reference side is frozen: its outcomes are kept in tools/lift-vectors/
+// (docs/REGISTER-COMPAT-BOUNDARY.md, removal plan).
 import { prng } from './task-native-dialog-harness.mjs';
 import {
   calleeRecord,
@@ -17,8 +19,6 @@ import {
   registerCases,
   useLiftVectors,
 } from './lift-function-harness.mjs';
-import { hitObject } from '../proof/replay/native-object-hit.mjs';
-import { hitObjectSequence } from '../proof/caller/object-hit.mjs';
 import {
   DRAW_LIST_INDEX,
   HARMLESS_HITS,
@@ -45,6 +45,7 @@ import {
   TASK_WAIT,
 } from '../src/vm/layout.mjs';
 import { drainNativeSequence } from '../src/system/native-call-continuation.mjs';
+import { hitObjectSequence } from '../proof/caller/object-hit.mjs';
 
 useLiftVectors(import.meta.url);
 
@@ -154,7 +155,7 @@ function standIns(s) {
   return { routines, calls };
 }
 const returned = (h, calls) => [h.ctx.pc.toString(HEX), h.ctx.s.toString(HEX), ...calls].join(' ');
-let referenceCalls, current;
+let current;
 registerCases(
   [
     {
@@ -165,12 +166,6 @@ registerCases(
         current = s;
         return { bank: CODE_BANK, a: s.damage, x: s.target, y: s.shooter, status: 0 };
       },
-      reference: (h) => {
-        const { routines, calls } = standIns(current);
-        referenceCalls = calls;
-        hitObject(h.a, { calls: [] }, false, routines);
-      },
-      result: (h) => returned(h, referenceCalls),
       lifted: (h, input) => {
         Object.assign(h.ctx, input);
         h.ctx.programBank = CODE_BANK;

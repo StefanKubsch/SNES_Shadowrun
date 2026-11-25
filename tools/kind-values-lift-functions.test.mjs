@@ -1,5 +1,5 @@
 // Random per-function tests of the lifted kind natives (src/game/kind-values.mjs through
-// their natives in src/task) against their register-level references
+// their natives in src/task) against the frozen outcomes (tools/lift-vectors/) of their former register-level references
 // (proof/game-reference/kind-values.mjs): the object's kind value 80:C9F1 and the actor
 // entry's kind value 80:CAF2, kind flags 80:CB06 and kind 80:D0FC. Both sides run the
 // native from its script call (data bank 80, direct page 0, the RTS frame). Game state
@@ -7,12 +7,6 @@
 // return must be equal.
 import { prng } from './task-native-dialog-harness.mjs';
 import { createSide, registerCases, useLiftVectors } from './lift-function-harness.mjs';
-import {
-  getActorKindFlagsReference,
-  getActorKindReference,
-  getActorKindValueReference,
-  getObjectKindValueReference,
-} from '../proof/game-reference/kind-values.mjs';
 import { getObjectKindValue } from '../src/script/native-object-kind-attribute.mjs';
 import { getActorKindValue } from '../src/script/native-record-kind-attribute.mjs';
 import { getActorKindFlags } from '../src/script/native-record-kind-second-attribute.mjs';
@@ -47,13 +41,11 @@ function sample(seed) {
   return { seed, wram, rnd };
 }
 const returned = (h) => [h.ctx.pc, h.ctx.s].map((v) => v.toString(HEX)).join();
-const query = (name, entry, reference, run) => ({
+const query = (name, entry, run) => ({
   name,
   entry,
   samples: 400,
-  reference: (h) => reference(h.a, false),
   prepare: (s) => ({ bank: CODE_BANK, status: s.rnd(BYTE) & 0xc3 }),
-  result: returned,
   lifted: (h, input) => {
     Object.assign(h.ctx, input);
     h.ctx.programBank = CODE_BANK;
@@ -64,10 +56,10 @@ const query = (name, entry, reference, run) => ({
 });
 registerCases(
   [
-    query('getObjectKindValue 80:C9F1', 0x80c9f1, getObjectKindValueReference, getObjectKindValue),
-    query('getActorKindValue 80:CAF2', 0x80caf2, getActorKindValueReference, getActorKindValue),
-    query('getActorKindFlags 80:CB06', 0x80cb06, getActorKindFlagsReference, getActorKindFlags),
-    query('getActorKind 80:D0FC', 0x80d0fc, getActorKindReference, getActorKind),
+    query('getObjectKindValue 80:C9F1', 0x80c9f1, getObjectKindValue),
+    query('getActorKindValue 80:CAF2', 0x80caf2, getActorKindValue),
+    query('getActorKindFlags 80:CB06', 0x80cb06, getActorKindFlags),
+    query('getActorKind 80:D0FC', 0x80d0fc, getActorKind),
   ],
   { sample, side: (s) => createSide(s, new Map()), runtime: (h) => h, ignored: [] },
 );

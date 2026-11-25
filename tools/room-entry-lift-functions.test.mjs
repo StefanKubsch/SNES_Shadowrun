@@ -1,5 +1,5 @@
 // Random per-function test of the lifted room entry 80:A4BF (src/game/room-entry.mjs,
-// table entry enterRoom in proof/system/main-transition.mjs) against the register-level
+// table entry enterRoom in proof/system/main-transition.mjs) against the frozen outcomes (tools/lift-vectors/) of the former register-level
 // reference (proof/game-reference/room-entry.mjs), docs/ROOM-ENTRY-LIFT.md. The
 // glove 80:BCB2 and the notice windows 80:FF79 release their windows for real on both
 // sides (each release redraws the window list). The routines both sides still call
@@ -16,8 +16,6 @@
 import { DialogTestMemory, prng } from './task-native-dialog-harness.mjs';
 import { createSide, registerCases, useLiftVectors } from './lift-function-harness.mjs';
 import { uploadEvents, windowMapSource, windowTables } from './lift-window-samples.mjs';
-import { MAIN_START_ROUTINES } from '../proof/replay/main-start.mjs';
-import { TRANSITION_ROUTINES, enterRoom } from '../proof/replay/main-transition.mjs';
 import { clampToCameraBox } from '../src/game/camera-box.mjs';
 import { createGroupSequence, placeRoomActorsSequence } from '../src/game/room-actors.mjs';
 import { buildCollisionGrid } from '../src/game/collision-grid.mjs';
@@ -26,8 +24,6 @@ import { updateTileBuffers, uploadMapEdges } from '../src/game/camera-scroll.mjs
 import { sceneRuntime } from '../src/system/scene-runtime.mjs';
 import { loadSceneSequence } from '../src/game/scene-load.mjs';
 import { createObject } from '../src/game/object-create.mjs';
-import { appendTableTaskCall } from '../proof/caller/task-append-call.mjs';
-import { appendScriptTask as appendScriptTaskReference } from '../proof/system/task-append.mjs';
 import { turnObject } from '../src/game/object-turn.mjs';
 import {
   HEAP_NEXT_WORD,
@@ -37,25 +33,12 @@ import {
   TASK_LIST_HEAD,
   TASK_NEXT,
 } from '../src/vm/layout.mjs';
-import {
-  putGloveAwaySequence,
-  releaseNoticeWindowsSequence,
-} from '../proof/caller/window-release.mjs';
 import { SCENES } from '../src/data/lz-streams.mjs';
 import { TILE_STREAMS } from '../src/data/tiles.mjs';
 import { OBJECT_TYPES } from '../src/data/object-types.mjs';
 import { drainNativeSequence } from '../src/system/native-call-continuation.mjs';
-import { enterRoomReference } from '../proof/game-reference/room-entry.mjs';
-import {
-  circleSwarmLeaderReference,
-  createObjectReference,
-  startPathSwarmReference,
-  startWaveSwarmReference,
-} from '../proof/game-reference/swarm-start.mjs';
 import { createObjectNative } from '../src/script/native-object-create.mjs';
-import { addSceneObjectReference } from '../proof/game-reference/scene-object-add.mjs';
 import { addSceneObject } from '../src/script/native-scene-object-add.mjs';
-import { appendSelectedSpellTaskReference } from '../proof/game-reference/script-starts.mjs';
 import { appendSelectedSpellTask } from '../src/script/native-task-append-from-list.mjs';
 import {
   circleSwarmLeader,
@@ -96,6 +79,13 @@ import {
 } from '../src/data/wram.mjs';
 import { RUNNERS, RUNNER_TABLE } from '../src/data/runners.mjs';
 import { ACTORS, ACTOR_BYTES, ACTOR_TABLE } from '../src/data/actors.mjs';
+import { MAIN_START_ROUTINES } from '../proof/replay/main-start.mjs';
+import { TRANSITION_ROUTINES, enterRoom } from '../proof/replay/main-transition.mjs';
+import { appendTableTaskCall } from '../proof/caller/task-append-call.mjs';
+import {
+  putGloveAwaySequence,
+  releaseNoticeWindowsSequence,
+} from '../proof/caller/window-release.mjs';
 
 useLiftVectors(import.meta.url);
 
@@ -282,9 +272,6 @@ const CASES = [
         s: GAME_STACK,
       };
     },
-    events: uploadEvents,
-    reference: (h, e, r) => enterRoomReference(h, e, r),
-    result: summary,
     lifted: (h, input) => {
       Object.assign(h.ctx, input);
       h.ctx.programBank = 0x80;
@@ -395,8 +382,6 @@ ALONE.push(
         }
       return { bank: 0x80, s: GAME_STACK };
     },
-    events: () => ({ calls: [] }),
-    result: calls,
     lifted: liftedAlone(createGroupSequence),
   },
   {
@@ -420,8 +405,6 @@ ALONE.push(
       }
       return { bank: 0x80, s: GAME_STACK };
     },
-    events: () => ({ calls: [] }),
-    result: calls,
     lifted: liftedAlone(placeRoomActorsSequence),
   },
 );
@@ -494,7 +477,6 @@ ALONE.push({
   long: true,
   samples: 60,
   prepare: () => ({ bank: 0x80, s: GAME_STACK }),
-  events: () => ({ calls: [] }),
   lifted: (h, input) => {
     Object.assign(h.ctx, input);
     h.ctx.programBank = 0x81;
@@ -513,7 +495,6 @@ ALONE.push({
   long: true,
   samples: 2 * SCENES,
   prepare: (s) => ({ a: s.rnd(SCENES), bank: 0x80, s: GAME_STACK }),
-  events: () => ({ calls: [] }),
   lifted: (h, input) => {
     Object.assign(h.ctx, input);
     h.ctx.programBank = 0x81;
@@ -534,7 +515,6 @@ const RELEASES = [
   name,
   entry,
   prepare: () => ({ bank: 0x80, s: GAME_STACK }),
-  events: uploadEvents,
   lifted: (h, input) => {
     Object.assign(h.ctx, input);
     h.ctx.programBank = 0x80;
@@ -582,7 +562,7 @@ const nativeWords = (s, words) => {
     s.wram[at + 1] = (value >>> 8) & 0xff;
   }
 };
-const scriptNative = (name, entry, reference, run, prepare) => ({
+const scriptNative = (name, entry, run, prepare) => ({
   name,
   entry,
   samples: 300,
@@ -590,8 +570,6 @@ const scriptNative = (name, entry, reference, run, prepare) => ({
     prepare(s);
     return { bank: 0x80, s: GAME_STACK };
   },
-  reference: (h) => reference(h.a, false),
-  result: (h) => [h.ctx.pc, h.ctx.s].map((v) => v.toString(16)).join(),
   lifted: (h, input) => {
     Object.assign(h.ctx, input);
     h.ctx.programBank = 0x80;
@@ -615,32 +593,22 @@ const swarmOrigin = (s) =>
 const SCRIPT_NATIVES = [
   // The selected spell's task 80:8EDA: a script of the table, its level byte anywhere
   // in bank 7E.
-  scriptNative(
-    'appendSelectedSpellTask 80:8EDA',
-    0x808eda,
-    appendSelectedSpellTaskReference,
-    appendSelectedSpellTask,
-    (s) =>
-      nativeWords(s, [
-        [0x3c13, s.rnd(SCRIPTS)],
-        [0x3c1a, s.pick([0x3c80 + s.rnd(0x40), s.rnd(0x10000)])],
-      ]),
+  scriptNative('appendSelectedSpellTask 80:8EDA', 0x808eda, appendSelectedSpellTask, (s) =>
+    nativeWords(s, [
+      [0x3c13, s.rnd(SCRIPTS)],
+      [0x3c1a, s.pick([0x3c80 + s.rnd(0x40), s.rnd(0x10000)])],
+    ]),
   ),
-  scriptNative(
-    'createObject native 80:A835',
-    0x80a835,
-    createObjectReference,
-    createObjectNative,
-    (s) =>
-      nativeWords(s, [
-        [DP_OBJECT_KIND, s.pick([s.rnd(0x100), s.rnd(0x10000)])],
-        [DP_OBJECT_SCRIPT, s.pick([0xffff, s.rnd(SCRIPTS), s.rnd(SCRIPTS)])],
-      ]),
+  scriptNative('createObject native 80:A835', 0x80a835, createObjectNative, (s) =>
+    nativeWords(s, [
+      [DP_OBJECT_KIND, s.pick([s.rnd(0x100), s.rnd(0x10000)])],
+      [DP_OBJECT_SCRIPT, s.pick([0xffff, s.rnd(SCRIPTS), s.rnd(SCRIPTS)])],
+    ]),
   ),
   // A group member's object 80:A1E6: a kind, a direction or any word, a runner's actor
   // entry, any position; an empty group (the first member) or up to three members. No
   // runner's actor has depth flags, so the depth order's rotation stays untested here.
-  scriptNative('addSceneObject 80:A1E6', 0x80a1e6, addSceneObjectReference, addSceneObject, (s) => {
+  scriptNative('addSceneObject 80:A1E6', 0x80a1e6, addSceneObject, (s) => {
     const at = RUNNER_TABLE + 2 * s.rnd(RUNNERS);
     nativeWords(s, [
       [0, s.pick([JAKE_KIND, s.rnd(0x100)])],
@@ -650,33 +618,16 @@ const SCRIPT_NATIVES = [
       [GROUP_INDEX, s.pick([0xfffe, 0xfffe, 0, 2, 4])],
     ]);
   }),
-  scriptNative(
-    'startPathSwarm 80:D7DD',
-    0x80d7dd,
-    startPathSwarmReference,
-    startPathSwarm,
-    swarmOrigin,
-  ),
-  scriptNative(
-    'startWaveSwarm 80:D260',
-    0x80d260,
-    startWaveSwarmReference,
-    startWaveSwarm,
-    swarmOrigin,
-  ),
-  scriptNative(
-    'circleSwarmLeader 80:D63C',
-    0x80d63c,
-    circleSwarmLeaderReference,
-    circleSwarmLeader,
-    (s) =>
-      nativeWords(s, [
-        [0x1d4d, s.pick([2 * s.rnd(OBJECT_SLOTS), s.rnd(0x10000)])],
-        [0x1d35, s.pick([s.rnd(0x20), 0xffec + s.rnd(0x14), s.rnd(0x10000)])],
-        [0x1d37, s.pick([s.rnd(0x10), s.rnd(0x10000)])],
-        [0x1d33, s.pick([1, 1, 0, 0xffff, s.rnd(8), s.rnd(0x10000)])],
-        [0x1d31, s.pick([2 * s.rnd(8), 0x0e, s.rnd(0x10000)])],
-      ]),
+  scriptNative('startPathSwarm 80:D7DD', 0x80d7dd, startPathSwarm, swarmOrigin),
+  scriptNative('startWaveSwarm 80:D260', 0x80d260, startWaveSwarm, swarmOrigin),
+  scriptNative('circleSwarmLeader 80:D63C', 0x80d63c, circleSwarmLeader, (s) =>
+    nativeWords(s, [
+      [0x1d4d, s.pick([2 * s.rnd(OBJECT_SLOTS), s.rnd(0x10000)])],
+      [0x1d35, s.pick([s.rnd(0x20), 0xffec + s.rnd(0x14), s.rnd(0x10000)])],
+      [0x1d37, s.pick([s.rnd(0x10), s.rnd(0x10000)])],
+      [0x1d33, s.pick([1, 1, 0, 0xffff, s.rnd(8), s.rnd(0x10000)])],
+      [0x1d31, s.pick([2 * s.rnd(8), 0x0e, s.rnd(0x10000)])],
+    ]),
   ),
 ];
 // The register form's A, X, Y, sign, zero and return; the carry and overflow of the
@@ -698,8 +649,6 @@ const TASK_APPEND = {
     y: s.rnd(0x10000),
     status: s.rnd(0x100) & 0xc3,
   }),
-  reference: (h) => appendScriptTaskReference(h.a, false),
-  result: (h) => appendRegisters(h),
   lifted: (h, input) => {
     Object.assign(h.ctx, input);
     h.ctx.programBank = 0x80;

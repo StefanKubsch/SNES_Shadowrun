@@ -1,5 +1,5 @@
 // Random per-function tests of the lifted actor state natives (src/game/actor-state.mjs
-// through src/task/native-record-*.mjs) against their register-level references
+// through src/task/native-record-*.mjs) against the frozen outcomes (tools/lift-vectors/) of their former register-level references
 // (proof/game-reference/actor-state.mjs): the flag byte 80:CB2B, count 80:CB3C and
 // property 80:CB4D as results, and the flag byte's set 80:CB9F, OR 80:CBB3 and AND
 // 80:CBCB, with the bug fixes and the exploit prevention on or off (Akimi's and the
@@ -8,17 +8,6 @@
 // 2026-11-14): WRAM outside the stacks, the device writes and the return must be equal.
 import { prng } from './task-native-dialog-harness.mjs';
 import { createSide, registerCases, useLiftVectors } from './lift-function-harness.mjs';
-import {
-  getActorStateCountReference,
-  getActorStateFlagsReference,
-  getActorStatePropertyReference,
-  keepActorStateFlagBitsReference,
-  setActorStateFlagBitsReference,
-  setActorStateFlagsReference,
-  isActorStatePropertyReference,
-  decrementObjectStateCountReference,
-  addActorStateCountReference,
-} from '../proof/game-reference/actor-state.mjs';
 import { getActorStateFlags } from '../src/script/native-record-flags-get.mjs';
 import { getActorStateCount } from '../src/script/native-record-count-get.mjs';
 import { getActorStateProperty } from '../src/script/native-record-property-get.mjs';
@@ -76,19 +65,14 @@ function sample(seed) {
 }
 const returned = (h) => [h.ctx.pc, h.ctx.s].map((v) => v.toString(HEX)).join();
 let current;
-const native = (name, entry, reference, run) => ({
+const native = (name, entry, run) => ({
   name,
   entry,
   samples: 400,
-  reference: (h) => {
-    h.a.vm = { gameplay: current.gameplay };
-    reference(h.a, false);
-  },
   prepare: (s) => {
     current = s;
     return { bank: CODE_BANK, status: s.rnd(BYTE) & 0xc3 };
   },
-  result: returned,
   lifted: (h, input) => {
     Object.assign(h.ctx, input);
     h.a.vm = { gameplay: current.gameplay };
@@ -100,38 +84,19 @@ const native = (name, entry, reference, run) => ({
 });
 registerCases(
   [
-    native('getActorStateFlags 80:CB2B', 0x80cb2b, getActorStateFlagsReference, getActorStateFlags),
-    native('getActorStateCount 80:CB3C', 0x80cb3c, getActorStateCountReference, getActorStateCount),
-    native(
-      'getActorStateProperty 80:CB4D',
-      0x80cb4d,
-      getActorStatePropertyReference,
-      getActorStateProperty,
-    ),
-    native('setActorStateFlags 80:CB9F', 0x80cb9f, setActorStateFlagsReference, setActorStateFlags),
-    native(
-      'setActorStateFlagBits 80:CBB3',
-      0x80cbb3,
-      setActorStateFlagBitsReference,
-      setActorStateFlagBits,
-    ),
-    native(
-      'keepActorStateFlagBits 80:CBCB',
-      0x80cbcb,
-      keepActorStateFlagBitsReference,
-      keepActorStateFlagBits,
-    ),
-    native('addActorStateCount 80:9DEC', 0x809dec, addActorStateCountReference, addActorStateCount),
+    native('getActorStateFlags 80:CB2B', 0x80cb2b, getActorStateFlags),
+    native('getActorStateCount 80:CB3C', 0x80cb3c, getActorStateCount),
+    native('getActorStateProperty 80:CB4D', 0x80cb4d, getActorStateProperty),
+    native('setActorStateFlags 80:CB9F', 0x80cb9f, setActorStateFlags),
+    native('setActorStateFlagBits 80:CBB3', 0x80cbb3, setActorStateFlagBits),
+    native('keepActorStateFlagBits 80:CBCB', 0x80cbcb, keepActorStateFlagBits),
+    native('addActorStateCount 80:9DEC', 0x809dec, addActorStateCount),
     // 80:9DC8 takes an object (a game slot) whose number is an actor entry, Jake's in some
     // samples, with and without the health cheat.
     ...[0, CHEAT.health].map((cheats) => ({
       ...native(
         `decrementObjectStateCount 80:9DC8${cheats ? ' with the health cheat' : ''}`,
         0x809dc8,
-        (a, o) => {
-          a.vm = { ...a.vm, cheats };
-          return decrementObjectStateCountReference(a, o);
-        },
         (a, o) => {
           a.vm = { ...a.vm, cheats };
           return decrementObjectStateCount(a, o);
@@ -158,12 +123,7 @@ registerCases(
     // 80:9DAE takes the actor as the second argument and the wanted property as the
     // first; in half the samples the wanted word is the record's property.
     {
-      ...native(
-        'isActorStateProperty 80:9DAE',
-        0x809dae,
-        isActorStatePropertyReference,
-        isActorStateProperty,
-      ),
+      ...native('isActorStateProperty 80:9DAE', 0x809dae, isActorStateProperty),
       prepare: (s) => {
         current = s;
         const w = s.wram,

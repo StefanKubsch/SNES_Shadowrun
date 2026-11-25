@@ -1,6 +1,6 @@
 // Random per-function tests of the lifted sight natives (src/game/combat-targets.mjs
 // with src/game/line-of-sight.mjs, bridges in src/script/native-script-leaves.mjs)
-// against their register-level references: the enemy's target 80:8BC5, the nearest
+// against the frozen outcomes (tools/lift-vectors/) of their former register-level references: the enemy's target 80:8BC5, the nearest
 // visible member 80:8C08, the random fight target 80:8C8D and the attack test 80:8CCF.
 // Both sides run the native from its script call (data bank 80, direct page 0, the RTS
 // frame) and must leave the same WRAM outside the line of sight's direct page working
@@ -8,20 +8,12 @@
 // return. The line of sight runs on the same arithmetic unit model on both sides.
 import { prng } from './task-native-dialog-harness.mjs';
 import { createSide, registerCases, useLiftVectors } from './lift-function-harness.mjs';
-import { chooseEnemyTarget as enemyReference } from '../proof/game-reference/enemy-target-choice.mjs';
-import {
-  findNearestVisibleMember as nearestReference,
-  chooseRandomFightTarget as fightReference,
-  canObjectAttack as attackReference,
-} from '../proof/replay/native-combat.mjs';
 import {
   chooseEnemyTargetNative,
   findNearestVisibleMemberNative,
   chooseRandomFightTargetNative,
   canAttackNative,
 } from '../src/script/native-script-leaves.mjs';
-import { testLineOfSight } from '../proof/replay/line-of-sight.mjs';
-import { leafAccess } from '../proof/system/native-leaf-support.mjs';
 import { lineOfSight } from '../src/game/line-of-sight.mjs';
 import { accessorPort } from '../src/system/hardware-port.mjs';
 
@@ -116,13 +108,7 @@ function sample(seed) {
     word(wram, FIGHT_LIST + 2 * n, rnd(8) ? 2 * rnd(OBJECTS) : 0xffff);
   return { seed, wram, rnd, pick };
 }
-const REFERENCES = new Map([
-  [0x808bc5, (h) => enemyReference(h.a, false)],
-  [0x808c08, (h) => nearestReference(h.a, false)],
-  [0x808c8d, (h) => fightReference(h.a, false)],
-  [0x808ccf, (h) => attackReference(h.a, false)],
-]);
-const side = (s) => createSide(s, REFERENCES);
+const side = (s) => createSide(s, new Map());
 const returned = (h) => [h.ctx.pc, h.ctx.s].map((v) => v.toString(HEX)).join();
 // The lifted side starts with the reference's registers and RTS frame.
 const lifted = (run) => (h, input) => {
@@ -157,7 +143,6 @@ const CASES = [
     arguments_(s, entry === 0x808ccf);
     return { bank: CODE_BANK, status: s.rnd(256) & 0xc3 };
   },
-  result: returned,
   lifted: lifted(run),
 }));
 // The line of sight itself against 81:A25F: blocked (the carry), the low box mark (the
@@ -176,10 +161,6 @@ const SIGHT_CASE = {
     bank: CODE_BANK,
     status: s.rnd(256) & 0xc3,
   }),
-  reference: (h) => {
-    h.a.trace = [];
-    testLineOfSight(leafAccess(h.a));
-  },
   result: (h) =>
     [
       h.ctx.status & 1,

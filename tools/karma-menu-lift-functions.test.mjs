@@ -10,16 +10,12 @@
 // flags N, V, Z and C and the direct page words 00, 02, 0E, 1A and the cursor row, and
 // leaves registers and flags drawn from the sample's own sequence. WRAM outside the stack, the calls,
 // the return and the registers left must be equal.
+// The reference side is frozen: its outcomes are kept in tools/lift-vectors/
+// (docs/REGISTER-COMPAT-BOUNDARY.md, removal plan).
 import { prng } from './task-native-dialog-harness.mjs';
 import { createSide, registerCases, useLiftVectors } from './lift-function-harness.mjs';
 import { DialogTestMemory } from './task-native-dialog-harness.mjs';
-import {
-  KARMA_LISTS,
-  ee57Sequence,
-  ef82Sequence,
-  f006Sequence,
-  karmaListSequence as referenceList,
-} from '../proof/replay/native-main-menu.mjs';
+import { KARMA_LISTS } from '../proof/replay/native-main-menu.mjs';
 import {
   buyStepSequence,
   karmaLineSequence,
@@ -128,8 +124,8 @@ const returned = (h, calls) =>
     .join() +
   ' ' +
   calls.join(' ');
-let referenceCalls, current;
-const routine = (name, entry, reference, lifted) => ({
+let current;
+const routine = (name, entry, lifted) => ({
   name,
   entry,
   samples: 400,
@@ -143,12 +139,6 @@ const routine = (name, entry, reference, lifted) => ({
       status: s.rnd(BYTE) & LEFT_FLAGS,
     };
   },
-  reference: (h) => {
-    const { routines, calls } = standIns(current);
-    referenceCalls = calls;
-    drainNativeSequence(reference(h, null, routines));
-  },
-  result: (h) => returned(h, referenceCalls),
   lifted: (h, input) => {
     Object.assign(h.ctx, input);
     h.ctx.programBank = CODE_BANK;
@@ -160,15 +150,14 @@ const routine = (name, entry, reference, lifted) => ({
 });
 registerCases(
   [
-    routine('karma menu 80:EE57', 0x80ee57, ee57Sequence, karmaMenuSequence),
-    routine('karma line 80:EF82', 0x80ef82, ef82Sequence, karmaLineSequence),
-    routine('step bought 80:F006', 0x80f006, f006Sequence, buyStepSequence),
+    routine('karma menu 80:EE57', 0x80ee57, karmaMenuSequence),
+    routine('karma line 80:EF82', 0x80ef82, karmaLineSequence),
+    routine('step bought 80:F006', 0x80f006, buyStepSequence),
     ...Object.keys(KARMA_LISTS).map((key) => {
       const entry = Number(key);
       return routine(
         'karma list 80:' + entry.toString(HEX).slice(2).toUpperCase(),
         entry,
-        (h, events, routines) => referenceList(h, events, routines, entry),
         (h, events, routines) => karmaListSequence(h, events, routines, entry),
       );
     }),

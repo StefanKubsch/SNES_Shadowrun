@@ -1,5 +1,5 @@
 // Random per-function tests of the lifted start of a game (src/game/game-start.mjs)
-// against the register-level reference (proof/game-reference/game-start.mjs): the
+// against the frozen outcomes (tools/lift-vectors/) of the former register-level reference (proof/game-reference/game-start.mjs): the
 // new game state 80:98E9, the new game 80:960D, the save load 81:B198 for every
 // slot, and the main start 80:9688 with both choices (docs/MATRIX-LIFT.md). The
 // reference calls the register-level game screen set-up 80:9629, room entry 80:A4BF
@@ -15,9 +15,6 @@ import { prng } from './task-native-dialog-harness.mjs';
 import { createSide, registerCases, useLiftVectors } from './lift-function-harness.mjs';
 import { uploadEvents, windowMapSource, windowTables } from './lift-window-samples.mjs';
 import { MAIN_START_ROUTINES } from '../proof/replay/main-start.mjs';
-import { GAME_START_REFERENCE_ENTRIES } from '../proof/game-reference/game-start.mjs';
-import { GAME_SCREEN_REFERENCE_ENTRIES } from '../proof/game-reference/game-screen.mjs';
-import { ROOM_ENTRY_REFERENCE_ENTRIES } from '../proof/game-reference/room-entry.mjs';
 import { DialogTestMemory } from './task-native-dialog-harness.mjs';
 import {
   runGameStart,
@@ -63,7 +60,6 @@ const WRAM_BYTES = 0x20000,
     [0x00db, 0x00f3],
     [0x1e80, GAME_STACK],
   ];
-const reference = new Map(GAME_START_REFERENCE_ENTRIES);
 
 // The object creation's inputs on both sides: object slots, half of them free, or one
 // (often the first); a draw
@@ -136,14 +132,9 @@ function sample(seed) {
 // whether the stub records A.
 const STUBS = [[0x81b0a1, true]];
 function stubbedRoutines() {
-  // The reference's own callees (98E9, B198, 9629, A4BF) are references too; the
-  // lifted start calls its functions directly.
-  const routines = new Map([
-    ...MAIN_START_ROUTINES,
-    ...GAME_START_REFERENCE_ENTRIES,
-    ...GAME_SCREEN_REFERENCE_ENTRIES,
-    ...ROOM_ENTRY_REFERENCE_ENTRIES,
-  ]);
+  // The routines the lifted start reaches through its routine table (the main start
+  // routines) and the stubs.
+  const routines = new Map([...MAIN_START_ROUTINES]);
   for (const [target, long, readsA] of STUBS)
     routines.set(target, (h) => {
       const { ctx } = h;
@@ -184,8 +175,6 @@ const CASES = [
     entry: 0x8098e9,
     samples: 40,
     prepare: () => ({ bank: 0x80, s: GAME_STACK }),
-    reference: (h, e, r) => reference.get(0x8098e9)(h, e, r),
-    result: summary([]),
     lifted: lifted(runNewGameState, false, []),
   },
   {
@@ -193,8 +182,6 @@ const CASES = [
     entry: 0x80960d,
     samples: 40,
     prepare: () => ({ bank: 0x80, s: GAME_STACK }),
-    reference: (h, e, r) => reference.get(0x80960d)(h, e, r),
-    result: summary(['a']),
     lifted: lifted(runNewGame, false, ['a']),
   },
   {
@@ -207,8 +194,6 @@ const CASES = [
       status: s.pick([0, 0x43]),
       s: GAME_STACK,
     }),
-    reference: (h, e, r) => reference.get(0x81b198)(h, e, r),
-    result: summary(['status']),
     lifted: (h, input) => lifted(runSaveLoad, true, ['status'])(h, { ...input, programBank: 0x81 }),
   },
   {
@@ -217,9 +202,6 @@ const CASES = [
     samples: 60,
     prepare: () => ({ pc: 0x9688, bank: 0x80, s: GAME_STACK }),
     // The room entry passes its frame events on to its callees.
-    events: uploadEvents,
-    reference: (h, e, r) => reference.get(0x809688)(h, e, r),
-    result: summary(['pc']),
     lifted: lifted(runGameStart, false, ['pc']),
   },
 ];

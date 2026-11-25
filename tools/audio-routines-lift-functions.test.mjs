@@ -1,5 +1,5 @@
 // Random per-function tests of the lifted audio table entries
-// (src/apu/audio-routines.mjs) against the register-level references
+// (src/apu/audio-routines.mjs) against the frozen outcomes (tools/lift-vectors/) of the former register-level references
 // (proof/apu-reference/audio-routines.mjs): the sound driver command 81:F007 in
 // both accumulator widths, the music change 81:EF47 with the cartridge's sound
 // directory and the sound effect 80:C46E with its stereo levels 80:C416
@@ -8,8 +8,6 @@
 // read (A, X, the status flags, the stack pointer and the program counter).
 import { prng, DialogTestMemory } from './task-native-dialog-harness.mjs';
 import { createSide, registerCases, useLiftVectors } from './lift-function-harness.mjs';
-import { MAIN_SCENE_ROUTINES } from '../proof/replay/main-scene.mjs';
-import { withAudioReference } from '../proof/apu-reference/audio-routines.mjs';
 import { sendApuCommandRoutine } from '../proof/caller/audio-routines.mjs';
 import { setMusicModeRoutine } from '../proof/caller/audio-routines.mjs';
 import { playSoundEffectJsr } from '../proof/caller/jsr-forms.mjs';
@@ -45,7 +43,7 @@ function sample(seed) {
   return { seed, wram, rnd, pick };
 }
 
-const side = (s) => createSide(s, withAudioReference(MAIN_SCENE_ROUTINES));
+const side = (s) => createSide(s, new Map());
 const summary = (names) => (h) => names.map((r) => h.ctx[r].toString(HEX)).join();
 const registers = summary(['a', 'x', 'status', 's', 'pc', 'programBank']);
 // The lifted side starts with the reference's registers and caller frame (long for
@@ -81,7 +79,6 @@ const CASES = [
       y: s.rnd(65536),
       status: s.pick([0, MEMORY_8BIT]) | (s.rnd(256) & 0xc7),
     }),
-    result: registers,
     lifted: lifted(sendApuCommandRoutine),
   },
   {
@@ -89,13 +86,11 @@ const CASES = [
     entry: 0x81ef47,
     long: true,
     samples: 120,
-    events: () => ({ calls: [] }),
     prepare: (s) => ({
       a: s.pick([0, 8, 0xff, s.rnd(16), s.rnd(65536)]),
       x: s.rnd(65536),
       status: s.rnd(256) & 0xc7,
     }),
-    result: registers,
     lifted: lifted(setMusicModeRoutine),
   },
   {
@@ -104,7 +99,6 @@ const CASES = [
     name: 'playSoundEffect 80:C46E',
     entry: 0x80c46e,
     samples: 400,
-    events: () => ({ calls: [] }),
     prepare: (s) => {
       // Offsets past the table read code words, some with bit 15 (a sample set).
       const effect = s.pick([2 * s.rnd(27), 2 * s.rnd(27), s.rnd(0x400)]);
@@ -128,7 +122,6 @@ const CASES = [
       }
       return { bank: s.pick([0x7e, 0x80, 0x81]), pc: 0xc46e };
     },
-    result: effectRegisters,
     lifted: lifted(playSoundEffectJsr, effectRegisters, 0x80),
   },
 ];

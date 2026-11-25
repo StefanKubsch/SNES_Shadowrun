@@ -1,18 +1,12 @@
 // Random per-function tests of the lifted room header and story stage natives
-// (src/game/room-story.mjs through their natives in src/task) against their
-// register-level references (proof/game-reference/room-story.mjs): 80:CCCC (a room's
+// (src/game/room-story.mjs through their natives in src/task) against the frozen outcomes (tools/lift-vectors/) of their
+// former register-level references (proof/game-reference/room-story.mjs): 80:CCCC (a room's
 // header), 80:CCB9 (the current room's), 80:D134 (the stage) and 80:CCA4 (its raise).
 // Both sides run the native from its script call (data bank 80, direct page 0, the RTS
 // frame). Game state only (docs/STRATEGY.md, 2026-11-14): WRAM outside the stacks, the
 // device writes and the return must be equal.
 import { prng } from './task-native-dialog-harness.mjs';
 import { createSide, registerCases, useLiftVectors } from './lift-function-harness.mjs';
-import {
-  getCurrentRoomHeaderReference,
-  getRoomHeaderReference,
-  getStoryStageReference,
-  raiseStoryStageReference,
-} from '../proof/game-reference/room-story.mjs';
 import { getRoomHeader } from '../src/script/native-room-entry.mjs';
 import { getCurrentRoomHeader } from '../src/script/native-room-entry-current.mjs';
 import { getStoryStage } from '../src/script/native-story-stage-get.mjs';
@@ -48,13 +42,11 @@ function sample(seed) {
   return { seed, wram, rnd };
 }
 const returned = (h) => [h.ctx.pc, h.ctx.s].map((v) => v.toString(HEX)).join();
-const native = (name, entry, reference, run) => ({
+const native = (name, entry, run) => ({
   name,
   entry,
   samples: 400,
-  reference: (h) => reference(h.a, false),
   prepare: (s) => ({ bank: CODE_BANK, status: s.rnd(BYTE) & 0xc3 }),
-  result: returned,
   lifted: (h, input) => {
     Object.assign(h.ctx, input);
     h.ctx.programBank = CODE_BANK;
@@ -65,15 +57,10 @@ const native = (name, entry, reference, run) => ({
 });
 registerCases(
   [
-    native('getRoomHeader 80:CCCC', 0x80cccc, getRoomHeaderReference, getRoomHeader),
-    native(
-      'getCurrentRoomHeader 80:CCB9',
-      0x80ccb9,
-      getCurrentRoomHeaderReference,
-      getCurrentRoomHeader,
-    ),
-    native('getStoryStage 80:D134', 0x80d134, getStoryStageReference, getStoryStage),
-    native('raiseStoryStage 80:CCA4', 0x80cca4, raiseStoryStageReference, raiseStoryStage),
+    native('getRoomHeader 80:CCCC', 0x80cccc, getRoomHeader),
+    native('getCurrentRoomHeader 80:CCB9', 0x80ccb9, getCurrentRoomHeader),
+    native('getStoryStage 80:D134', 0x80d134, getStoryStage),
+    native('raiseStoryStage 80:CCA4', 0x80cca4, raiseStoryStage),
   ],
   { sample, side: (s) => createSide(s, new Map()), runtime: (h) => h, ignored: [] },
 );

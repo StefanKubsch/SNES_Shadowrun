@@ -222,6 +222,22 @@ const vectorEntry = (want) =>
     want,
     want.result !== undefined,
   )}`;
+// A single frozen comparison outside registerCases: whether the lifted outcome got matches
+// the frozen reference outcome number index of the series name. While recording, want()
+// gives the reference outcome, which is kept and compared as before; once the reference
+// is retired, want is null and the series can no longer be recorded.
+export function matchesFrozen(name, index, want, got) {
+  if (recording) {
+    if (!want)
+      throw new Error(`${name}: the reference is retired; its vectors cannot be recorded again`);
+    const reference = want();
+    (vectors[name] ??= [])[index] = vectorEntry(reference);
+    return differences({ want: reference, got }).length === 0;
+  }
+  const entry = vectors?.[name]?.[index];
+  if (entry === undefined) throw new Error(`no frozen vector ${name} ${index}`);
+  return outcomeKey(got, (Number(entry[0]) & RESULT_FLAG) !== 0) === entry.slice(1);
+}
 
 // Register one test per case. outside: lifted stops that mark a sample outside the
 // lifted domain (counted, at most 10 %, together with differing samples whose lifted

@@ -82,7 +82,7 @@ the module that implements it.
 | `native-bc9c`            | [native-glove-spell-limits.mjs](../src/script/native-glove-spell-limits.mjs)                               |
 | `native-c0f7`            | [native-glove-screen-x.mjs](../src/script/native-glove-screen-x.mjs)                                       |
 | `native-c100`            | [native-glove-screen-y.mjs](../src/script/native-glove-screen-y.mjs)                                       |
-| `native-c461`            | [native-sound-stereo.mjs](../proof/apu-reference/sound-stereo.mjs)                                         |
+| `native-c461`            | native-sound-stereo.mjs (removed)                                                                          |
 | `native-c68d`            | [native-object-distance.mjs](../src/script/native-object-distance.mjs)                                     |
 | `native-c694`            | [native-object-distance-direct.mjs](../src/script/native-object-distance-direct.mjs)                       |
 | `native-c6bf`            | [native-motion-waypoint-follow.mjs](../src/script/native-motion-waypoint-follow.mjs)                       |

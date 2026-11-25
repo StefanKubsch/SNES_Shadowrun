@@ -10,8 +10,9 @@ import { printNumberSequence as formerNumberSequence } from '../proof/caller/win
 import { printTextSequence as formerTextSequence } from '../proof/caller/text-print.mjs';
 
 // Random per-function tests of the main loop's lifted upkeep (src/game/main-upkeep.mjs)
-// against the register-level references (proof/game-reference/main-upkeep.mjs and
-// main-camera.mjs), docs/MAIN-LOOP-LIFT.md: the colour effect 81:8877, the palette
+// against the frozen outcomes (tools/lift-vectors/) of the former register-level
+// references (proof/game-reference/main-upkeep.mjs and main-camera.mjs),
+// docs/MAIN-LOOP-LIFT.md: the colour effect 81:8877, the palette
 // cycles 81:8076, the hit shake 80:DE94, the camera follow 81:8C2E, the tile buffers
 // 81:8A91, the formation step 80:BAD5, the notice time limits 80:FF14 and the time
 // limit 80:E270 and the glove action 80:BF3B (proof/game-reference/main-timer.mjs and
@@ -33,17 +34,8 @@ import { printTextSequence as formerTextSequence } from '../proof/caller/text-pr
 // (tools/lift-function-harness.mjs).
 import { prng, DialogTestMemory } from './task-native-dialog-harness.mjs';
 import { createSide, registerCases, useLiftVectors } from './lift-function-harness.mjs';
-import {
-  uploadEvents,
-  liveWindowEvents,
-  windowMapSource,
-  windowTables,
-} from './lift-window-samples.mjs';
+import { liveWindowEvents, windowMapSource, windowTables } from './lift-window-samples.mjs';
 import { MAIN_UPKEEP_ROUTINES } from '../proof/replay/main-loop-upkeep.mjs';
-import { MAIN_CAMERA_REFERENCE_ENTRIES } from '../proof/game-reference/main-camera.mjs';
-import { MAIN_UPKEEP_REFERENCE_ENTRIES } from '../proof/game-reference/main-upkeep.mjs';
-import { MAIN_TIMER_REFERENCE_ENTRIES } from '../proof/game-reference/main-timer.mjs';
-import { MAIN_GLOVE_ACTION_REFERENCE_ENTRIES } from '../proof/game-reference/main-glove-action.mjs';
 import { TASK_PREVIOUS, TASK_WAIT } from '../src/vm/layout.mjs';
 import {
   runNoticeTimeouts,
@@ -60,23 +52,14 @@ import {
   runReleaseNoticeWindows,
 } from '../proof/caller/upkeep-routines.mjs';
 import { MAIN_MOTION_ROUTINES, moveAndAnimateObjects } from '../proof/replay/main-loop-motion.mjs';
-import { bcbeSequence, moveGlove } from '../proof/replay/native-glove.mjs';
+import { moveGlove } from '../proof/replay/native-glove.mjs';
 import { objectSearchSequence } from '../proof/caller/object-search.mjs';
 import { gloveMoveSequence } from '../proof/caller/glove-move.mjs';
 import { stepAnimation } from '../src/game/object-animation.mjs';
-import { stepObjectAnimation } from '../proof/system/native-scene-tiles.mjs';
 import { drainNativeSequence } from '../src/system/native-call-continuation.mjs';
 import { GLOVE_ROUTINES } from '../proof/replay/native-glove-target-support.mjs';
-import { showNotice } from '../proof/replay/native-notice.mjs';
 import { drawTextBuffer, printText } from '../proof/replay/native-text-compose.mjs';
-import { openWindowAdapter } from '../proof/replay/native-window-open.mjs';
-import { chooseAction } from '../proof/replay/native-actions.mjs';
-import { talkWithObject, TALK_ROUTINES } from '../proof/replay/native-dialog.mjs';
-import {
-  chooseDialogAction,
-  chooseDialogTopic,
-  showDialogText,
-} from '../proof/replay/native-dialog-text.mjs';
+import { TALK_ROUTINES } from '../proof/replay/native-dialog.mjs';
 import { showDialogTextSequence } from '../proof/caller/dialog-text.mjs';
 import {
   openPortraitWindowSequence,
@@ -99,11 +82,7 @@ import {
   chooseDialogTopicSequence,
 } from '../proof/caller/dialog-menus.mjs';
 import { dialogAccess } from '../src/system/native-dialog-support.mjs';
-import {
-  printNumber,
-  runTaskListHelper,
-  setTextCursor,
-} from '../proof/replay/native-list-prerequisites.mjs';
+import { runTaskListHelper } from '../proof/replay/native-list-prerequisites.mjs';
 import { MARK, UNMARK, drawListSequence, markRowSequence } from '../src/game/menu-list.mjs';
 import {
   setTextCursorJsr,
@@ -242,15 +221,7 @@ function sample(seed) {
   return { seed, wram, rnd, pick, put };
 }
 // The reference calls its register-level callees (window release, random, sound).
-const side = (s) =>
-  createSide(
-    s,
-    new Map([
-      ...MAIN_UPKEEP_ROUTINES,
-      ...MAIN_UPKEEP_REFERENCE_ENTRIES,
-      ...MAIN_CAMERA_REFERENCE_ENTRIES,
-    ]),
-  );
+const side = (s) => createSide(s, new Map([...MAIN_UPKEEP_ROUTINES]));
 // The lifted side starts from the reference's registers and caller frame.
 const lifted = (run, long, events) => (h, input) => {
   Object.assign(h.ctx, input);
@@ -284,7 +255,6 @@ const CASES = [
       s.put(COLOUR_PHASE, s.pick([0x100, 0x140, 0x170, 0x180, 0x1f0, 0x1ff, s.rnd(0x10000)]));
       return { bank: 0x80, s: GAME_STACK };
     },
-    result: registers,
     lifted: lifted(runColourEffect, true),
   },
   {
@@ -304,7 +274,6 @@ const CASES = [
       }
       return { bank: 0x80, s: GAME_STACK };
     },
-    result: registers,
     lifted: lifted(runPaletteCycles, true),
   },
   {
@@ -316,7 +285,6 @@ const CASES = [
       s.put(PLAYER_HIT_FRAMES, s.pick([0, 1, 2, 3, 0x10, 0x11, 0x8000, 0xffff, s.rnd(0x10000)]));
       return { bank: 0x80, s: GAME_STACK };
     },
-    result: registers,
     lifted: lifted(runHitShake, false),
   },
 ];
@@ -361,7 +329,6 @@ CASES.push(
       }
       return { bank: 0x80, s: GAME_STACK };
     },
-    result: registers,
     lifted: lifted(runCameraFollow, true),
   },
   {
@@ -377,7 +344,6 @@ CASES.push(
       s.put(CAMERA_SPEED_Y, speed());
       return { bank: 0x80, s: GAME_STACK };
     },
-    result: registers,
     lifted: lifted(runTileBuffers, true),
   },
   {
@@ -403,7 +369,6 @@ CASES.push(
         );
       return { bank: 0x80, s: GAME_STACK, x: s.rnd(0x10000), y: s.rnd(0x10000) };
     },
-    result: registers,
     lifted: lifted(runFormationStep, false),
   },
 );
@@ -421,9 +386,7 @@ const NOTICE_TIMEOUT = {
     if (s.rnd(4) === 0) s.put(NOTICE_WINDOWS + 2 * s.rnd(4), 0xffff);
     return { bank: 0x80, s: GAME_STACK };
   },
-  events: uploadEvents,
   // Game state only (user decision 2026-11-17): the lifted side leaves no X and Y.
-  result: () => '',
   lifted: (h, input) => (lifted(runNoticeTimeouts, false, liveWindowEvents)(h, input), ''),
 };
 
@@ -478,7 +441,6 @@ const timeLimitSide = (s) =>
   createSide(
     s,
     new Map([
-      ...MAIN_TIMER_REFERENCE_ENTRIES,
       ...TIME_LIMIT_CALLEES,
       // The reference plays the warning sound through its frame.
       [0x80c46e, MAIN_UPKEEP_ROUTINES.get(0x80c46e)],
@@ -509,7 +471,6 @@ const TIME_LIMIT = {
   },
   // Game state only (user decision 2026-11-17): the carry of the last hour reaches only
   // the P a later NMI saves; the X and Y of the warning sound are no game state either.
-  result: () => '',
   lifted: (h, input) => {
     Object.assign(h.ctx, input);
     h.ctx.programBank = 0x80;
@@ -568,7 +529,6 @@ const GLOVE_ACTION = {
       status: s.rnd(0x100) & 0xc3,
     };
   },
-  result: roundRegisters,
   lifted: (h, input) => {
     Object.assign(h.ctx, input);
     h.ctx.programBank = 0x80;
@@ -592,7 +552,6 @@ const GLOVE_MOVE_CALLEES = new Map([
 ]);
 const GLOVE_MOVE = {
   name: 'glove movement 80:BE6D',
-  events: uploadEvents,
   entry: 0x80be6d,
   samples: 600,
   prepare: (s) => {
@@ -617,7 +576,6 @@ const GLOVE_MOVE = {
       status: s.rnd(0x100) & 0xc3,
     };
   },
-  result: roundRegisters,
   lifted: (h, input) => {
     Object.assign(h.ctx, input);
     h.ctx.programBank = 0x80;
@@ -718,9 +676,6 @@ const OBJECT_SEARCH = {
       status: s.rnd(0x100) & 0xc3,
     };
   },
-  events: uploadEvents,
-  reference: (h, events) => drainNativeSequence(bcbeSequence(h, events, GLOVE_MOVE_CALLEES)),
-  result: roundRegisters,
   lifted: (h, input) => {
     Object.assign(h.ctx, input);
     h.ctx.programBank = 0x80;
@@ -812,9 +767,7 @@ const OBJECT_ANIMATION = {
       status: s.rnd(0x100) & 0xc3,
     };
   },
-  reference: (h) => stepObjectAnimation(h, null),
   // The lifted animation step leaves no registers.
-  result: dataBank,
   lifted: (h, input) => {
     Object.assign(h.ctx, input);
     h.ctx.programBank = 0x80;
@@ -882,7 +835,6 @@ const OBJECT_MOTION = {
       status: s.rnd(0x100) & 0xc3,
     };
   },
-  result: roundRegisters,
   lifted: (h, input) => {
     Object.assign(h.ctx, input);
     h.ctx.programBank = 0x80;
@@ -915,8 +867,7 @@ registerCases([TIME_LIMIT], {
 // The glove action leaves no frames below its caller's but the stand-ins', equal on both sides.
 registerCases([GLOVE_ACTION], {
   sample,
-  side: (s) =>
-    createSide(s, new Map([...MAIN_GLOVE_ACTION_REFERENCE_ENTRIES, ...GLOVE_ACTION_CALLEES])),
+  side: (s) => createSide(s, new Map(GLOVE_ACTION_CALLEES)),
   runtime: (h) => h,
   ignored: [[0x1e80, 0x1eef]],
   outside: new Set(['object_slot_required', 'task_slot_required']),
@@ -988,9 +939,6 @@ const NOTICE_SHOW = {
       status: s.rnd(0x100) & 0xc3,
     };
   },
-  reference: (h, events) => showNotice(h.a, events, false, NOTICE_CALLEES),
-  events: uploadEvents,
-  result: roundRegisters,
   lifted: (h, input) => {
     Object.assign(h.ctx, input);
     h.ctx.programBank = 0x80;
@@ -1016,8 +964,6 @@ const GLOVE_RELEASE = {
       status: s.rnd(0x100) & 0xc3,
     };
   },
-  events: uploadEvents,
-  result: roundRegisters,
   lifted: (h, input) => {
     Object.assign(h.ctx, input);
     h.ctx.programBank = 0x80;
@@ -1108,8 +1054,6 @@ const TEXT_CURSOR = {
     s.put(2, s.pick([0, 1, 0x10, 0x7fff, 0xffff, s.rnd(0x10000)]));
     return wordInput(s);
   },
-  reference: (h) => setTextCursor(h.a, { calls: [] }, false),
-  result: dataBank,
   lifted: (h, input) => {
     Object.assign(h.ctx, input);
     h.ctx.programBank = 0x80;
@@ -1138,8 +1082,6 @@ const PRINT_NUMBER = {
     s.put(2, s.pick([0, 1, 9, 10, 99, 100, 9999, 10000, 0xffff, s.rnd(0x10000)]));
     return wordInput(s);
   },
-  reference: (h) => printNumber(h.a, { calls: [] }, false, NUMBER_CALLEES),
-  result: bankRegisters,
   lifted: (h, input) => {
     Object.assign(h.ctx, input);
     h.ctx.programBank = 0x80;
@@ -1179,7 +1121,6 @@ const TEXT_PRINT = {
   },
   reference: (h) =>
     printText(h.a, { calls: [], values: null, waitIndex: 0 }, false, NUMBER_CALLEES),
-  result: bankRegisters,
   lifted: (h, input) => {
     Object.assign(h.ctx, input);
     h.ctx.programBank = 0x80;
@@ -1265,9 +1206,6 @@ const TEXT_DRAW = {
     textObservations = findTextObservations(s, input);
     return input;
   },
-  reference: (h, events) => drawTextBuffer(h.a, events, false),
-  events: textEvents,
-  result: bankRegisters,
   lifted: (h, input) => {
     Object.assign(h.ctx, input);
     h.ctx.programBank = 0x80;
@@ -1287,19 +1225,9 @@ registerCases([TEXT_DRAW], {
 
 // The window opening 80:F963: the last window index anywhere up to past the limit, window
 // positions at and past the map's edges, sizes from 3 x 3 up, attributes, and the next
-// tile near the wrap at 2400. The reference uses recorded upload polls; the live
+// tile near the wrap at 2400. The lifted
 // side services the same tile and map requests at their lag-free blocking branches.
 // Real upload NMIs remain covered by the integration comparisons.
-const windowEvents = () => ({
-  mode: 'record-observations',
-  values: [
-    Object.freeze({ pc: 0x81acbd, address: 0x8001f6, width: 2, value: 0 }),
-    Object.freeze({ pc: 0x81acaf, address: 0x8001f8, width: 2, value: 0 }),
-  ],
-  waitIndex: 0,
-  calls: [],
-  waitEvents: [],
-});
 const WINDOW_OPEN = {
   name: 'window opening 80:F963',
   entry: 0x80f963,
@@ -1314,10 +1242,7 @@ const WINDOW_OPEN = {
     s.put(WINDOW_NEXT_TILE, s.pick([0x40, 0x100, 0x2300, 0x23f0, 0x2400 - 9, s.rnd(0x2400)]));
     return wordInput(s);
   },
-  reference: (h, events) => openWindowAdapter(h, events),
-  events: windowEvents,
   // The lifted window opening leaves no A, X, Y and flags (user decision 2026-11-17).
-  result: dataBank,
   lifted: (h, input) => {
     Object.assign(h.ctx, input);
     h.ctx.programBank = 0x80;
@@ -1360,9 +1285,6 @@ const ACTION_MENU = {
     s.put(ACTION_MENU_OVERRIDE, s.pick([0, 0, 0, accepted ^ 0x80, s.rnd(0x10000)]));
     return { ...wordInput(s), a: s.pick([accepted, accepted, 0, s.rnd(0x10000)]) };
   },
-  reference: (h, events) => chooseAction(h.a, events, MENU_CALLEES),
-  events: uploadEvents,
-  result: roundRegisters,
   lifted: (h, input) => {
     Object.assign(h.ctx, input);
     h.ctx.programBank = 0x80;
@@ -1456,9 +1378,6 @@ const DIALOG = {
     s.wram[JAKE_ALTERNATE_PORTRAIT] = s.pick([0, 0, 1]);
     return wordInput(s);
   },
-  reference: (h, events) => talkWithObject(h.a, events, false, DIALOG_CALLEES),
-  events: dialogEvents,
-  result: roundRegisters,
   lifted: (h, input) => {
     Object.assign(h.ctx, input);
     h.ctx.programBank = 0x80;
@@ -1495,9 +1414,7 @@ const DIALOG_SMALL = [
     long: true,
     samples: 100,
     prepare: wordInput,
-    reference: (h) => TALK_ROUTINES.get(0x81886a)(h),
     // The lifted colour clear leaves no registers.
-    result: dataBank,
     lifted: plainLifted(clearFixedColourJsl, true, undefined, dataBank),
   },
   {
@@ -1509,9 +1426,7 @@ const DIALOG_SMALL = [
       s.put(4, s.pick([0, 1, 0x50, 0xfff8, 0x8000, s.rnd(0x10000)]));
       return wordInput(s);
     },
-    reference: (h) => TALK_ROUTINES.get(0x80fa92)(h),
     // The lifted text width leaves no registers.
-    result: dataBank,
     lifted: plainLifted(setWindowTextWidthJsr, false, undefined, dataBank),
   },
   {
@@ -1522,9 +1437,6 @@ const DIALOG_SMALL = [
       for (let x = 0; x < 8; x += 2) if (s.rnd(3) === 0) s.put(NOTICE_WINDOWS + x, 0xffff);
       return wordInput(s);
     },
-    reference: (h, events) => TALK_ROUTINES.get(0x80ff79)(h, events),
-    events: uploadEvents,
-    result: roundRegisters,
     lifted: plainLifted(runReleaseNoticeWindows, false, liveWindowEvents),
   },
 ];
@@ -1555,9 +1467,9 @@ const menuRoutines = () => ({
   release: (a) => standIn(2)(dialogAccess(a)),
 });
 const DIALOG_MENUS = [
-  [0x8091e2, 'main menu 80:91E2', chooseDialogAction, chooseDialogActionSequence],
-  [0x809215, 'topic choice 80:9215', chooseDialogTopic, chooseDialogTopicSequence],
-].map(([entry, name, reference, lifted]) => ({
+  [0x8091e2, 'main menu 80:91E2', chooseDialogActionSequence],
+  [0x809215, 'topic choice 80:9215', chooseDialogTopicSequence],
+].map(([entry, name, lifted]) => ({
   name: `dialog ${name}`,
   entry,
   samples: 600,
@@ -1572,9 +1484,6 @@ const DIALOG_MENUS = [
     s.put(DIALOG_END, 0);
     return wordInput(s);
   },
-  reference: (h, events) => reference(h, events, menuRoutines()),
-  events: dialogEvents,
-  result: roundRegisters,
   lifted: (h, input) => {
     Object.assign(h.ctx, input);
     h.ctx.programBank = 0x80;
@@ -1633,9 +1542,6 @@ const DIALOG_TEXT = {
     if (!count) s.wram[TOPIC_LIST] = 0xff;
     return { ...wordInput(s), a: key };
   },
-  reference: (h, events) => showDialogText(h, events, textRoutines()),
-  events: dialogEvents,
-  result: roundRegisters,
   lifted: (h, input) => {
     Object.assign(h.ctx, input);
     h.ctx.programBank = 0x80;
@@ -1705,9 +1611,6 @@ const PORTRAIT_WINDOWS = [
     portraitPolls = findCounterPolls(s, input, (h, e) => TALK_ROUTINES.get(entry)(h, e));
     return input;
   },
-  reference: (h, events) => TALK_ROUTINES.get(entry)(h, events),
-  events: portraitEvents,
-  result: roundRegisters,
   lifted: (h, input) => {
     Object.assign(h.ctx, input);
     h.ctx.programBank = 0x80;
@@ -1742,9 +1645,6 @@ const PORTRAITS = [
       portraitPolls = findCounterPolls(s, input, (h, e) => uploadPortraitTiles(h, e));
       return input;
     },
-    reference: (h, events) => uploadPortraitTiles(h, events),
-    events: portraitEvents,
-    result: roundRegisters,
     lifted: (h, input) => {
       Object.assign(h.ctx, input);
       h.ctx.programBank = 0x80;
@@ -1758,9 +1658,7 @@ const PORTRAITS = [
     entry: 0x808f20,
     samples: 50,
     prepare: (s) => ({ ...wordInput(s), bank: s.pick([0x80, 0x7e, 0]) }),
-    reference: (h) => TALK_ROUTINES.get(0x808f20)(h),
     // Game state only (user decision 2026-11-17): the lifted rows leave no registers.
-    result: dataBank,
     lifted: (h, input) => {
       Object.assign(h.ctx, input);
       h.ctx.programBank = 0x80;
@@ -1783,10 +1681,7 @@ const PORTRAITS = [
       portraitPolls = findCounterPolls(s, input, (h, e) => TALK_ROUTINES.get(entry)(h, e));
       return input;
     },
-    reference: (h, events) => TALK_ROUTINES.get(entry)(h, events),
-    events: portraitEvents,
     // Game state only (user decision 2026-11-17): the lifted uploads leave no registers.
-    result: dataBank,
     lifted: (h, input) => {
       Object.assign(h.ctx, input);
       h.ctx.programBank = 0x80;
@@ -1848,9 +1743,6 @@ const OBJECT_TILES = {
     );
     return input;
   },
-  reference: (h, events) => TALK_ROUTINES.get(0x80adf4)(h, events),
-  events: portraitEvents,
-  result: roundRegisters,
   lifted: (h, input) => {
     Object.assign(h.ctx, input);
     h.ctx.programBank = 0x80;
@@ -1888,8 +1780,6 @@ const PORTRAIT_UNPACK = {
       bank: s.pick([0x80, 0x7e, s.rnd(0x100)]),
     };
   },
-  reference: (h, events) => TALK_ROUTINES.get(0x809f6d)(h, events),
-  result: bankRegisters,
   lifted: (h, input) => {
     Object.assign(h.ctx, input);
     h.ctx.programBank = 0x80;
@@ -1957,10 +1847,7 @@ const MENU_MARKS = [
     textObservations = findListObservations(s, input, entry);
     return input;
   },
-  reference: (h, events) => runTaskListHelper(h.a, events, entry, false),
-  events: textEvents,
   // The marks end with the lifted text print, which leaves no A, X, Y and flags.
-  result: dataBank,
   lifted: (h, input) => {
     Object.assign(h.ctx, input);
     h.ctx.programBank = 0x80;
@@ -2010,9 +1897,6 @@ const MENU_LIST = {
     textObservations = findListObservations(s, input, 0x80a617);
     return input;
   },
-  reference: (h, events) => runTaskListHelper(h.a, events, 0x80a617, false),
-  events: textEvents,
-  result: dataBank,
   lifted: (h, input) => {
     Object.assign(h.ctx, input);
     h.ctx.programBank = 0x80;
@@ -2134,8 +2018,6 @@ const MENU_CHOICES = MENU_ENTRIES.map((entry) => ({
   },
   reference: (h, events) =>
     drainNativeSequence(menuComposeSequence(h.a, events, entry, false, MENU_STAND_INS)),
-  events: menuEvents,
-  result: bankRegisters,
   lifted: (h, input) => {
     Object.assign(h.ctx, input);
     h.ctx.programBank = 0x80;

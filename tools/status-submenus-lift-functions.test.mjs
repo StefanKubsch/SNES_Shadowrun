@@ -6,9 +6,10 @@
 // Each records its target, A, X, Y, the flags N, V, Z and C and the direct page words
 // 00 and 02, and leaves registers and flags drawn from the sample's own sequence. WRAM
 // outside the stack, the calls, the return and the registers left must be equal.
+// The reference side is frozen: its outcomes are kept in tools/lift-vectors/
+// (docs/REGISTER-COMPAT-BOUNDARY.md, removal plan).
 import { DialogTestMemory, prng } from './task-native-dialog-harness.mjs';
 import { createSide, registerCases, useLiftVectors } from './lift-function-harness.mjs';
-import { e834Sequence, e8c8Sequence } from '../proof/replay/native-status-screen.mjs';
 import { notesSequence, skillsSequence } from '../proof/caller/status-submenus.mjs';
 import {
   JAKE_DERMAL_ARMOUR,
@@ -106,8 +107,8 @@ const returned = (h, calls) =>
     .join() +
   ' ' +
   calls.join(' ');
-let referenceCalls, current;
-const submenu = (name, entry, reference, lifted) => ({
+let current;
+const submenu = (name, entry, lifted) => ({
   name,
   entry,
   samples: 400,
@@ -121,12 +122,6 @@ const submenu = (name, entry, reference, lifted) => ({
       status: s.rnd(BYTE) & LEFT_FLAGS,
     };
   },
-  reference: (h) => {
-    const { routines, calls } = standIns(current);
-    referenceCalls = calls;
-    drainNativeSequence(reference(h, null, routines));
-  },
-  result: (h) => returned(h, referenceCalls),
   lifted: (h, input) => {
     Object.assign(h.ctx, input);
     h.ctx.programBank = CODE_BANK;
@@ -138,8 +133,8 @@ const submenu = (name, entry, reference, lifted) => ({
 });
 registerCases(
   [
-    submenu('skills 80:E834', 0x80e834, e834Sequence, skillsSequence),
-    submenu('notes 80:E8C8', 0x80e8c8, e8c8Sequence, notesSequence),
+    submenu('skills 80:E834', 0x80e834, skillsSequence),
+    submenu('notes 80:E8C8', 0x80e8c8, notesSequence),
   ],
   { sample, side: (s) => createSide(s, new Map()), runtime: (h) => h, ignored: IGNORED },
 );

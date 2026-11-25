@@ -1,6 +1,6 @@
 // Random per-function tests of the lifted motion target natives
-// (src/game/motion-targets.mjs through their natives in src/task) against their
-// register-level references (proof/game-reference/motion-targets.mjs): towards an object
+// (src/game/motion-targets.mjs through their natives in src/task) against the frozen outcomes (tools/lift-vectors/) of their
+// former register-level references (proof/game-reference/motion-targets.mjs): towards an object
 // 80:C6F3 and 80:C6F8, towards the player 80:C716 and 80:C71D, towards a point 80:C79C
 // and 80:C7A1, the stop 80:C7C2, towards a waypoint 80:C6BF and 80:C6C4 and onto one
 // 80:D105. Both sides run the native from its script call (data
@@ -8,18 +8,6 @@
 // WRAM outside the stacks, the device writes and the return must be equal.
 import { prng } from './task-native-dialog-harness.mjs';
 import { createSide, registerCases, useLiftVectors } from './lift-function-harness.mjs';
-import {
-  moveObjectStraightToObjectReference,
-  moveObjectStraightToPlayerReference,
-  moveObjectStraightToPointReference,
-  moveObjectToObjectReference,
-  moveObjectToPlayerReference,
-  moveObjectToPointReference,
-  stopMotionReference,
-  moveObjectStraightToWaypointReference,
-  moveObjectToWaypointReference,
-  placeObjectOnWaypointReference,
-} from '../proof/game-reference/motion-targets.mjs';
 import { moveObjectStraightToObject } from '../src/script/native-motion-object-follow.mjs';
 import { moveObjectToObject } from '../src/script/native-motion-object-move.mjs';
 import { moveObjectStraightToPlayer } from '../src/script/native-motion-player-follow.mjs';
@@ -61,13 +49,11 @@ function sample(seed) {
   return { seed, wram, rnd };
 }
 const returned = (h) => [h.ctx.pc, h.ctx.s].map((v) => v.toString(HEX)).join();
-const motion = (name, entry, reference, run) => ({
+const motion = (name, entry, run) => ({
   name,
   entry,
   samples: 300,
-  reference: (h) => reference(h.a, false),
   prepare: (s) => ({ bank: CODE_BANK, status: s.rnd(BYTE) & 0xc3 }),
-  result: returned,
   lifted: (h, input) => {
     Object.assign(h.ctx, input);
     h.ctx.programBank = CODE_BANK;
@@ -78,46 +64,16 @@ const motion = (name, entry, reference, run) => ({
 });
 registerCases(
   [
-    motion(
-      'moveObjectStraightToObject 80:C6F3',
-      0x80c6f3,
-      moveObjectStraightToObjectReference,
-      moveObjectStraightToObject,
-    ),
-    motion('moveObjectToObject 80:C6F8', 0x80c6f8, moveObjectToObjectReference, moveObjectToObject),
-    motion(
-      'moveObjectStraightToPlayer 80:C716',
-      0x80c716,
-      moveObjectStraightToPlayerReference,
-      moveObjectStraightToPlayer,
-    ),
-    motion('moveObjectToPlayer 80:C71D', 0x80c71d, moveObjectToPlayerReference, moveObjectToPlayer),
-    motion(
-      'moveObjectStraightToPoint 80:C79C',
-      0x80c79c,
-      moveObjectStraightToPointReference,
-      moveObjectStraightToPoint,
-    ),
-    motion('moveObjectToPoint 80:C7A1', 0x80c7a1, moveObjectToPointReference, moveObjectToPoint),
-    motion('stopMotion 80:C7C2', 0x80c7c2, stopMotionReference, stopMotion),
-    motion(
-      'moveObjectStraightToWaypoint 80:C6BF',
-      0x80c6bf,
-      moveObjectStraightToWaypointReference,
-      moveObjectStraightToWaypoint,
-    ),
-    motion(
-      'moveObjectToWaypoint 80:C6C4',
-      0x80c6c4,
-      moveObjectToWaypointReference,
-      moveObjectToWaypoint,
-    ),
-    motion(
-      'placeObjectOnWaypoint 80:D105',
-      0x80d105,
-      placeObjectOnWaypointReference,
-      placeObjectOnWaypoint,
-    ),
+    motion('moveObjectStraightToObject 80:C6F3', 0x80c6f3, moveObjectStraightToObject),
+    motion('moveObjectToObject 80:C6F8', 0x80c6f8, moveObjectToObject),
+    motion('moveObjectStraightToPlayer 80:C716', 0x80c716, moveObjectStraightToPlayer),
+    motion('moveObjectToPlayer 80:C71D', 0x80c71d, moveObjectToPlayer),
+    motion('moveObjectStraightToPoint 80:C79C', 0x80c79c, moveObjectStraightToPoint),
+    motion('moveObjectToPoint 80:C7A1', 0x80c7a1, moveObjectToPoint),
+    motion('stopMotion 80:C7C2', 0x80c7c2, stopMotion),
+    motion('moveObjectStraightToWaypoint 80:C6BF', 0x80c6bf, moveObjectStraightToWaypoint),
+    motion('moveObjectToWaypoint 80:C6C4', 0x80c6c4, moveObjectToWaypoint),
+    motion('placeObjectOnWaypoint 80:D105', 0x80d105, placeObjectOnWaypoint),
   ],
   { sample, side: (s) => createSide(s, new Map()), runtime: (h) => h, ignored: [] },
 );

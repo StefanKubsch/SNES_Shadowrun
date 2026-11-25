@@ -19,7 +19,7 @@ remaining register-level table entries. The sound effect 80:C46E with its stereo
 levels 80:C416 followed as plain code (src/apu/sound-effect.mjs) for the tables
 of the main loop upkeep and the main menu. The register-level versions stay as
 reference in
-[proof/apu-reference/audio-routines.mjs](../proof/apu-reference/audio-routines.mjs)
+proof/apu-reference/audio-routines.mjs (removed)
 (`AUDIO_REFERENCE_ENTRIES`, `withAudioReference`; also part of
 `INTRO_SETUP_REFERENCE_ENTRIES`, which the intro, title, start menu and title
 cycle references carry, and of `FRONTEND_REFERENCE_ENTRIES` and so of the scene
@@ -27,13 +27,13 @@ reference table).
 
 ## Modules
 
-| Module                                                                  | Content                                                                                                                                                                                  |
-| ----------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| [audio-routines.mjs](../src/apu/audio-routines.mjs)                     | The call forms on top of the lifted code; the table entries 81:F007 (`sendApuCommandRoutine`) and 81:EF47 (`setMusicModeRoutine`) are in proof/caller/audio-routines.mjs.                |
-| [apu-command.mjs](../src/apu/apu-command.mjs)                           | The sound driver command 81:F007 (unchanged).                                                                                                                                            |
-| [music-mode.mjs](../src/apu/music-mode.mjs)                             | Music change, song start and sample loader (unchanged).                                                                                                                                  |
-| [sound-effect.mjs](../src/apu/sound-effect.mjs)                         | The sound effect 80:C46E (`playSoundEffect`, in place `playSoundEffectCall`; RTS form `playSoundEffectJsr` in proof/caller/jsr-forms.mjs) and its stereo levels 80:C416 (`soundLevels`). |
-| [audio-routines.mjs](../proof/apu-reference/audio-routines.mjs) (proof) | The register-level entries 81:EF47, 81:F007, 81:F229, 81:F1FA, 81:F130, 81:F100, 81:F122, 81:F03A and 80:C46E; the song start 81:F229 moved here from main-scene.mjs.                    |
+| Module                                              | Content                                                                                                                                                                                  |
+| --------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| [audio-routines.mjs](../src/apu/audio-routines.mjs) | The call forms on top of the lifted code; the table entries 81:F007 (`sendApuCommandRoutine`) and 81:EF47 (`setMusicModeRoutine`) are in proof/caller/audio-routines.mjs.                |
+| [apu-command.mjs](../src/apu/apu-command.mjs)       | The sound driver command 81:F007 (unchanged).                                                                                                                                            |
+| [music-mode.mjs](../src/apu/music-mode.mjs)         | Music change, song start and sample loader (unchanged).                                                                                                                                  |
+| [sound-effect.mjs](../src/apu/sound-effect.mjs)     | The sound effect 80:C46E (`playSoundEffect`, in place `playSoundEffectCall`; RTS form `playSoundEffectJsr` in proof/caller/jsr-forms.mjs) and its stereo levels 80:C416 (`soundLevels`). |
+| audio-routines.mjs (removed) (proof)                | The register-level entries 81:EF47, 81:F007, 81:F229, 81:F1FA, 81:F130, 81:F100, 81:F122, 81:F03A and 80:C46E; the song start 81:F229 moved here from main-scene.mjs.                    |
 
 ## Boundaries
 

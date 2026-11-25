@@ -10,10 +10,10 @@
 // and the direct page words 00 and 02, and leaves registers and flags drawn from the
 // sample's own sequence. WRAM outside the stack, the calls, the return and the
 // registers left must be equal.
+// The reference side is frozen: its outcomes are kept in tools/lift-vectors/
+// (docs/REGISTER-COMPAT-BOUNDARY.md, removal plan).
 import { DialogTestMemory, prng } from './task-native-dialog-harness.mjs';
 import { createSide, registerCases, useLiftVectors } from './lift-function-harness.mjs';
-import { e4f3Sequence, e585Sequence } from '../proof/replay/native-status-screen.mjs';
-import { itemMenuSequence, useItemSequence } from '../proof/caller/item-menu.mjs';
 import {
   DIALOG_END,
   MEMBER_NUMBER,
@@ -24,6 +24,7 @@ import {
   STORY_STAGE,
 } from '../src/data/wram.mjs';
 import { drainNativeSequence } from '../src/system/native-call-continuation.mjs';
+import { itemMenuSequence, useItemSequence } from '../proof/caller/item-menu.mjs';
 
 useLiftVectors(import.meta.url);
 
@@ -118,8 +119,8 @@ const returned = (h, calls) =>
     .join() +
   ' ' +
   calls.join(' ');
-let referenceCalls, current;
-const routine = (name, entry, reference, lifted, actorInX = false) => ({
+let current;
+const routine = (name, entry, lifted, actorInX = false) => ({
   name,
   entry,
   samples: 200,
@@ -133,12 +134,6 @@ const routine = (name, entry, reference, lifted, actorInX = false) => ({
       status: s.rnd(BYTE) & LEFT_FLAGS,
     };
   },
-  reference: (h) => {
-    const { routines, calls } = standIns(current);
-    referenceCalls = calls;
-    drainNativeSequence(reference(h, routines));
-  },
-  result: (h) => returned(h, referenceCalls),
   lifted: (h, input) => {
     Object.assign(h.ctx, input);
     h.ctx.programBank = CODE_BANK;
@@ -154,17 +149,10 @@ registerCases(
       routine(
         `itemMenu ${entry.toString(HEX).toUpperCase().replace(/^80/, '80:')}`,
         entry,
-        (h, routines) => e585Sequence(h, null, routines, entry),
         (h, routines) => itemMenuSequence(h, null, routines, entry),
       ),
     ),
-    routine(
-      'useItem 80:E4F3',
-      0x80e4f3,
-      (h, routines) => e4f3Sequence(h, null, routines),
-      (h, routines) => useItemSequence(h, null, routines),
-      true,
-    ),
+    routine('useItem 80:E4F3', 0x80e4f3, (h, routines) => useItemSequence(h, null, routines), true),
   ],
   { sample, side: (s) => createSide(s, new Map()), runtime: (h) => h, ignored: IGNORED },
 );

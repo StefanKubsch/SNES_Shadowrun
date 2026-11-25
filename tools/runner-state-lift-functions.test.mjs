@@ -1,19 +1,14 @@
 // Random per-function tests of the lifted runner state bodies of the script natives
 // 80:CECB, 80:CF2E and 80:D079 (src/game/runner-state.mjs through raiseStateCountBody and
-// restoreRunnersBody, and the leaf 80:CF2E with its RTS) against their register-level references
+// restoreRunnersBody, and the leaf 80:CF2E with its RTS) against the frozen outcomes (tools/lift-vectors/) of their former register-level references
 // (proof/game-reference/runner-state.mjs). Both natives then call the same window list
 // 81:AD92 with the same frame; these tests compare the bodies before it: the WRAM outside
 // the stack, including the direct page values both leave, or the same stop.
 import { prng, DialogTestMemory } from './task-native-dialog-harness.mjs';
 import { createSide, registerCases, useLiftVectors } from './lift-function-harness.mjs';
-import {
-  raiseMemberMagicPointsReference,
-  raiseStateCountRegisters,
-  restoreRunnersRegisters,
-} from '../proof/game-reference/runner-state.mjs';
+import { raiseMemberMagicPoints } from '../src/script/native-magic-points-raise.mjs';
 import { raiseStateCountBody } from '../proof/replay/native-state-count-raise.mjs';
 import { restoreRunnersBody } from '../proof/replay/native-runners-restore.mjs';
-import { raiseMemberMagicPoints } from '../src/script/native-magic-points-raise.mjs';
 
 useLiftVectors(import.meta.url);
 
@@ -57,7 +52,6 @@ const CASES = [
     name: 'raiseStateCount 80:CECB',
     entry: 0x80cecb,
     samples: 600,
-    reference: (h) => raiseStateCountRegisters(h),
     prepare: (s) => members(s),
     lifted: lifted(raiseStateCountBody),
   },
@@ -67,7 +61,6 @@ const CASES = [
     name: 'raiseMagicPoints 80:CF2E',
     entry: 0x80cf2e,
     samples: 600,
-    reference: (h) => raiseMemberMagicPointsReference(h.a, false),
     prepare: (s) => members(s),
     lifted: (h, input) => {
       Object.assign(h.ctx, input);
@@ -79,7 +72,6 @@ const CASES = [
   {
     name: 'restoreRunners 80:D079',
     entry: 0x80d079,
-    reference: (h) => restoreRunnersRegisters(h),
     prepare: (s) => ({ bank: CODE_BANK, status: s.rnd(256) & 0xc3 }),
     lifted: lifted(restoreRunnersBody),
   },

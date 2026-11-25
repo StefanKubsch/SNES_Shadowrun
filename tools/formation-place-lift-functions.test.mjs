@@ -1,12 +1,11 @@
 // Random per-function test of the lifted formation native 80:BB2C
-// (src/game/formation-place.mjs through its native in src/task) against its register-level
+// (src/game/formation-place.mjs through its native in src/task) against the frozen outcomes (tools/lift-vectors/) of its former register-level
 // reference (proof/game-reference/formation-place.mjs). Both sides run the native from its
 // script call (data bank 80, direct page 0, the RTS frame). Game state only
 // (docs/STRATEGY.md, 2026-11-14): WRAM outside the stacks, the device writes and the
 // return must be equal.
 import { prng } from './task-native-dialog-harness.mjs';
 import { createSide, registerCases, useLiftVectors } from './lift-function-harness.mjs';
-import { placeObjectInFormationReference } from '../proof/game-reference/formation-place.mjs';
 import { placeObjectInFormation } from '../src/script/native-formation-place.mjs';
 import {
   FORMATION_HEIGHT,
@@ -65,9 +64,7 @@ registerCases(
       name: 'placeObjectInFormation 80:BB2C',
       entry: 0x80bb2c,
       samples: 600,
-      reference: (h) => placeObjectInFormationReference(h.a, false),
       prepare: (s) => ({ bank: CODE_BANK, status: s.rnd(BYTE) & 0xc3 }),
-      result: returned,
       lifted: (h, input) => {
         Object.assign(h.ctx, input);
         h.ctx.programBank = CODE_BANK;

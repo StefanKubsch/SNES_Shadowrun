@@ -1,6 +1,6 @@
 // Random per-function tests of the lifted room, scene and main loop requests
-// (src/game/script-requests.mjs through their natives in src/task) against their
-// register-level references (proof/game-reference/script-requests.mjs): 80:CC97 (room),
+// (src/game/script-requests.mjs through their natives in src/task) against the frozen outcomes (tools/lift-vectors/) of their
+// former register-level references (proof/game-reference/script-requests.mjs): 80:CC97 (room),
 // 80:CC33 (scene), 80:D016 (reload), 80:D9A0 (exit), 80:CDCF (dialog end) and 80:DE7E
 // (player control reset). Both sides run the native from
 // its script call (data bank 80, direct page 0, the RTS frame). Game state only
@@ -8,14 +8,6 @@
 // return must be equal.
 import { prng } from './task-native-dialog-harness.mjs';
 import { createSide, registerCases, useLiftVectors } from './lift-function-harness.mjs';
-import {
-  changeRoomReference,
-  changeSceneReference,
-  endDialogReference,
-  resetPlayerControlReference,
-  requestMainLoopExitReference,
-  requestRoomReloadReference,
-} from '../proof/game-reference/script-requests.mjs';
 import { changeRoom } from '../src/script/native-room-change.mjs';
 import { changeScene } from '../src/script/native-scene-change.mjs';
 import { requestRoomReload } from '../src/script/native-room-reload.mjs';
@@ -39,13 +31,11 @@ function sample(seed) {
   return { seed, wram, rnd };
 }
 const returned = (h) => [h.ctx.pc, h.ctx.s].map((v) => v.toString(HEX)).join();
-const request = (name, entry, reference, run) => ({
+const request = (name, entry, run) => ({
   name,
   entry,
   samples: 200,
-  reference: (h) => reference(h.a, false),
   prepare: (s) => ({ bank: CODE_BANK, status: s.rnd(BYTE) & 0xc3 }),
-  result: returned,
   lifted: (h, input) => {
     Object.assign(h.ctx, input);
     h.ctx.programBank = CODE_BANK;
@@ -56,22 +46,12 @@ const request = (name, entry, reference, run) => ({
 });
 registerCases(
   [
-    request('changeRoom 80:CC97', 0x80cc97, changeRoomReference, changeRoom),
-    request('changeScene 80:CC33', 0x80cc33, changeSceneReference, changeScene),
-    request('requestRoomReload 80:D016', 0x80d016, requestRoomReloadReference, requestRoomReload),
-    request(
-      'requestMainLoopExit 80:D9A0',
-      0x80d9a0,
-      requestMainLoopExitReference,
-      requestMainLoopExit,
-    ),
-    request('endDialog 80:CDCF', 0x80cdcf, endDialogReference, endDialog),
-    request(
-      'resetPlayerControl 80:DE7E',
-      0x80de7e,
-      resetPlayerControlReference,
-      resetPlayerControl,
-    ),
+    request('changeRoom 80:CC97', 0x80cc97, changeRoom),
+    request('changeScene 80:CC33', 0x80cc33, changeScene),
+    request('requestRoomReload 80:D016', 0x80d016, requestRoomReload),
+    request('requestMainLoopExit 80:D9A0', 0x80d9a0, requestMainLoopExit),
+    request('endDialog 80:CDCF', 0x80cdcf, endDialog),
+    request('resetPlayerControl 80:DE7E', 0x80de7e, resetPlayerControl),
   ],
   { sample, side: (s) => createSide(s, new Map()), runtime: (h) => h, ignored: [] },
 );

@@ -1,16 +1,11 @@
 // Random per-function tests of the lifted fight list queries (src/game/fight-list.mjs
-// through their natives in src/task) against their register-level references
+// through their natives in src/task) against the frozen outcomes (tools/lift-vectors/) of their former register-level references
 // (proof/game-reference/fight-list-queries.mjs): 80:8656 (in the list), 80:866F (a target
 // on screen) and 80:8631 (the previous object). Both sides run the native from its script
 // call (data bank 80, direct page 0, the RTS frame). Game state only (docs/STRATEGY.md,
 // 2026-11-14): WRAM outside the stacks, the device writes and the return must be equal.
 import { prng } from './task-native-dialog-harness.mjs';
 import { createSide, registerCases, useLiftVectors } from './lift-function-harness.mjs';
-import {
-  getPreviousFightObjectReference,
-  hasFightTargetReference,
-  isInFightListReference,
-} from '../proof/game-reference/fight-list-queries.mjs';
 import { isInFightList } from '../src/script/native-fight-list-contains.mjs';
 import { hasFightTarget } from '../src/script/native-fight-list-any-active.mjs';
 import { getPreviousFightObject } from '../src/script/native-fight-list-previous.mjs';
@@ -51,13 +46,11 @@ function sample(seed) {
   return { seed, wram, rnd };
 }
 const returned = (h) => [h.ctx.pc, h.ctx.s].map((v) => v.toString(HEX)).join();
-const query = (name, entry, reference, run) => ({
+const query = (name, entry, run) => ({
   name,
   entry,
   samples: 400,
-  reference: (h) => reference(h.a, false),
   prepare: (s) => ({ bank: CODE_BANK, status: s.rnd(BYTE) & 0xc3 }),
-  result: returned,
   lifted: (h, input) => {
     Object.assign(h.ctx, input);
     h.ctx.programBank = CODE_BANK;
@@ -68,14 +61,9 @@ const query = (name, entry, reference, run) => ({
 });
 registerCases(
   [
-    query('isInFightList 80:8656', 0x808656, isInFightListReference, isInFightList),
-    query('hasFightTarget 80:866F', 0x80866f, hasFightTargetReference, hasFightTarget),
-    query(
-      'getPreviousFightObject 80:8631',
-      0x808631,
-      getPreviousFightObjectReference,
-      getPreviousFightObject,
-    ),
+    query('isInFightList 80:8656', 0x808656, isInFightList),
+    query('hasFightTarget 80:866F', 0x80866f, hasFightTarget),
+    query('getPreviousFightObject 80:8631', 0x808631, getPreviousFightObject),
   ],
   { sample, side: (s) => createSide(s, new Map()), runtime: (h) => h, ignored: [] },
 );

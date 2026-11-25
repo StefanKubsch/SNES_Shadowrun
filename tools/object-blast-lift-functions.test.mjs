@@ -5,10 +5,10 @@
 // drawn from the sample's own sequence. WRAM outside the stack, the calls, the return
 // and the registers left must be equal.
 // Actual direct blast and hit composition is compared in blast-hit-caller.test.mjs.
+// The reference side is frozen: its outcomes are kept in tools/lift-vectors/
+// (docs/REGISTER-COMPAT-BOUNDARY.md, removal plan).
 import { prng } from './task-native-dialog-harness.mjs';
 import { createSide, registerCases, useLiftVectors } from './lift-function-harness.mjs';
-import { hitObjectsInBlast } from '../proof/replay/native-object-hit.mjs';
-import { hitObjectsInBlastSequence } from '../proof/caller/object-blast.mjs';
 import {
   OBJECT_FLAGS,
   OBJECT_HEIGHT,
@@ -18,6 +18,7 @@ import {
   OBJECT_Y,
 } from '../src/data/wram.mjs';
 import { drainNativeSequence } from '../src/system/native-call-continuation.mjs';
+import { hitObjectsInBlastSequence } from '../proof/caller/object-blast.mjs';
 
 useLiftVectors(import.meta.url);
 
@@ -91,7 +92,7 @@ const returned = (h, calls) =>
     .join() +
   ' ' +
   calls.join(' ');
-let referenceCalls, current;
+let current;
 registerCases(
   [
     {
@@ -108,12 +109,6 @@ registerCases(
           status: s.rnd(BYTE) & LEFT_FLAGS,
         };
       },
-      reference: (h) => {
-        const { routines, calls } = standIns(current);
-        referenceCalls = calls;
-        hitObjectsInBlast(h.a, { calls: [] }, false, routines);
-      },
-      result: (h) => returned(h, referenceCalls),
       lifted: (h, input) => {
         Object.assign(h.ctx, input);
         h.ctx.programBank = CODE_BANK;

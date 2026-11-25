@@ -14,7 +14,7 @@ The start of a game is lifted from
 register-level 65816 equations to plain code, after the title cycle and the
 outer game owner ([TITLE-CYCLE-LIFT.md](TITLE-CYCLE-LIFT.md)); method in
 [MATRIX-LIFT.md](MATRIX-LIFT.md). The register-level versions stay as reference
-in [proof/game-reference/game-start.mjs](../proof/game-reference/game-start.mjs);
+in proof/game-reference/game-start.mjs (removed);
 `withGameStartReference` and `withFrontendReference` put them into the ROM proof
 tests and recorded replays.
 

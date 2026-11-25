@@ -6,11 +6,12 @@
 // proofs and live comparisons; the test covers the removal, the formation countdown,
 // the karma gain, the notice's set-up and the music choice. WRAM outside the stack,
 // the calls with their A and the return must be equal.
+// The reference side is frozen: its outcomes are kept in tools/lift-vectors/
+// (docs/REGISTER-COMPAT-BOUNDARY.md, removal plan).
 import { prng } from './task-native-dialog-harness.mjs';
 import { createSide, registerCases, useLiftVectors } from './lift-function-harness.mjs';
-import { removeFromFightList } from '../proof/replay/native-fight-list-remove.mjs';
-import { removeFromFightListSequence } from '../proof/caller/fight-list.mjs';
 import { drainNativeSequence } from '../src/system/native-call-continuation.mjs';
+import { removeFromFightListSequence } from '../proof/caller/fight-list.mjs';
 
 useLiftVectors(import.meta.url);
 
@@ -46,7 +47,6 @@ function sample(seed) {
 // The callees' stand-ins: each records its target and A and returns (RTS, or RTL for
 // the music mode); the notice leaves its window in A.
 const CALLEES = [0x80fec1, 0x80faac, 0x80fd80, 0x80fe69, 0x80c46e, 0x81ef47];
-const NAMES = ['notice', 'cursor', 'number', 'text', 'sound', 'music'];
 function stub(calls, target, a) {
   // The callee's A and its direct page arguments (the notice's window 00-0C).
   const dp = Array.from({ length: 7 }, (_, n) => a.mem.wram[2 * n] | (a.mem.wram[2 * n + 1] << 8));
@@ -62,7 +62,7 @@ function stub(calls, target, a) {
 }
 const returned = (h, calls) =>
   [h.ctx.pc, h.ctx.s].map((v) => v.toString(HEX)).join() + ' ' + calls.join(' ');
-let referenceCalls, liftedCalls;
+let liftedCalls;
 const CASE = {
   name: 'removeFromFightList 80:855E',
   entry: 0x80855e,
@@ -90,14 +90,6 @@ const CASE = {
     word(s.wram, FIGHT_MUSIC, s.pick([0xffff, 0, 4, s.rnd(65536)]));
     return { bank: CODE_BANK, status: s.rnd(256) & 0xc3 };
   },
-  reference: (h) => {
-    referenceCalls = [];
-    const routines = Object.fromEntries(
-      NAMES.map((name, n) => [name, (a) => stub(referenceCalls, CALLEES[n], a)]),
-    );
-    removeFromFightList(h.a, null, false, routines);
-  },
-  result: (h) => returned(h, referenceCalls),
   lifted: (h, input) => {
     Object.assign(h.ctx, input);
     h.ctx.programBank = CODE_BANK;

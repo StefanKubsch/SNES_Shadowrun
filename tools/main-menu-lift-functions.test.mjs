@@ -9,6 +9,8 @@
 // the direct page words 00, 02, 04 and 06 it reads, and leaves registers and flags drawn
 // from the sample's own sequence. WRAM outside the stacks and the save routine's direct
 // page scratch, SRAM, the calls and the return target must be equal.
+// The reference side is frozen: its outcomes are kept in tools/lift-vectors/
+// (docs/REGISTER-COMPAT-BOUNDARY.md, removal plan).
 import { prng } from './task-native-dialog-harness.mjs';
 import {
   calleeRecord,
@@ -16,7 +18,6 @@ import {
   registerCases,
   useLiftVectors,
 } from './lift-function-harness.mjs';
-import { cdd6Sequence, mainMenuRoutineSequence } from '../proof/replay/native-main-menu.mjs';
 import { mainMenuSequence, saveMenuSequence } from '../proof/caller/main-menu.mjs';
 import { TIMER } from '../src/data/wram.mjs';
 import { drainNativeSequence } from '../src/system/native-call-continuation.mjs';
@@ -74,8 +75,8 @@ function standIns(s) {
   return { routines: new Map(TARGETS.map((t) => [t, stub(t)])), calls };
 }
 const returned = (h, calls) => h.ctx.pc.toString(HEX) + ' ' + calls.join(' ');
-let referenceCalls, current;
-const routine = (name, entry, reference, lifted) => ({
+let current;
+const routine = (name, entry, lifted) => ({
   name,
   entry,
   samples: 300,
@@ -89,12 +90,6 @@ const routine = (name, entry, reference, lifted) => ({
       status: s.rnd(BYTE) & LEFT_FLAGS,
     };
   },
-  reference: (h) => {
-    const { routines, calls } = standIns(current);
-    referenceCalls = calls;
-    drainNativeSequence(reference(h, null, routines));
-  },
-  result: (h) => returned(h, referenceCalls),
   lifted: (h, input) => {
     Object.assign(h.ctx, input);
     h.ctx.programBank = CODE_BANK;
@@ -106,8 +101,8 @@ const routine = (name, entry, reference, lifted) => ({
 });
 registerCases(
   [
-    routine('save menu 80:CDD6', 0x80cdd6, cdd6Sequence, saveMenuSequence),
-    routine('main menu 80:CE6D', 0x80ce6d, mainMenuRoutineSequence, mainMenuSequence),
+    routine('save menu 80:CDD6', 0x80cdd6, saveMenuSequence),
+    routine('main menu 80:CE6D', 0x80ce6d, mainMenuSequence),
   ],
   { sample, side: (s) => createSide(s, new Map()), runtime: (h) => h, ignored: IGNORED },
 );

@@ -1,6 +1,6 @@
 // Random per-function tests of the lifted karma, nuyen and magic point sums
-// (src/game/party-funds.mjs through their natives in src/task) against their
-// register-level references (proof/game-reference/party-funds.mjs): 80:CDB2 (karma),
+// (src/game/party-funds.mjs through their natives in src/task) against the frozen outcomes (tools/lift-vectors/) of their
+// former register-level references (proof/game-reference/party-funds.mjs): 80:CDB2 (karma),
 // 80:CCDB (nuyen), 80:8B8A (the shown member's magic points) and 80:E1B3 (a learned
 // spell), and the brightness fade 80:D9AD (src/game/game-nmi.mjs). Both sides run the
 // native from its script call (data bank 80, direct page 0, the RTS frame). Game state
@@ -8,13 +8,6 @@
 // return must be equal.
 import { prng } from './task-native-dialog-harness.mjs';
 import { createSide, registerCases, useLiftVectors } from './lift-function-harness.mjs';
-import {
-  addKarmaReference,
-  addMagicPointsReference,
-  addNuyenReference,
-  learnSpellReference,
-} from '../proof/game-reference/party-funds.mjs';
-import { startBrightnessFadeReference } from '../proof/game-reference/brightness-fade.mjs';
 import { learnSpell } from '../src/script/native-spell-add.mjs';
 import { startBrightnessFade } from '../src/script/native-signed-offset-set.mjs';
 import { addKarma } from '../src/script/native-karma-add.mjs';
@@ -58,13 +51,11 @@ const FADE_WORDS = 0x1c6,
   FADE_STACK = 0x1c2;
 const fadeResult = (h, returnState) =>
   `${returnState} ${[...h.a.mem.wram.subarray(FADE_WORDS, FADE_WORDS + 4)].join()}`;
-const sum = (name, entry, reference, run) => ({
+const sum = (name, entry, run) => ({
   name,
   entry,
   samples: 400,
-  reference: (h) => reference(h.a, false),
   prepare: (s) => ({ bank: CODE_BANK, status: s.rnd(BYTE) & 0xc3 }),
-  result: returned,
   lifted: (h, input) => {
     Object.assign(h.ctx, input);
     h.ctx.programBank = CODE_BANK;
@@ -75,22 +66,16 @@ const sum = (name, entry, reference, run) => ({
 });
 registerCases(
   [
-    sum('addKarma 80:CDB2', 0x80cdb2, addKarmaReference, addKarma),
-    sum('addNuyen 80:CCDB', 0x80ccdb, addNuyenReference, addNuyen),
-    sum('addMagicPoints 80:8B8A', 0x808b8a, addMagicPointsReference, addMagicPoints),
-    sum('learnSpell 80:E1B3', 0x80e1b3, learnSpellReference, learnSpell),
+    sum('addKarma 80:CDB2', 0x80cdb2, addKarma),
+    sum('addNuyen 80:CCDB', 0x80ccdb, addNuyen),
+    sum('addMagicPoints 80:8B8A', 0x808b8a, addMagicPoints),
+    sum('learnSpell 80:E1B3', 0x80e1b3, learnSpell),
     // The fade words 7E:01C6-01C9 lie in the stack page the harness ignores, so the result
     // holds them; the harness stack moves to 01C2 below them, as the register-level fade's JSL frame at
     // 01C9 would overlap them (the game's stack lies elsewhere).
     {
-      ...sum(
-        'startBrightnessFade 80:D9AD',
-        0x80d9ad,
-        startBrightnessFadeReference,
-        startBrightnessFade,
-      ),
+      ...sum('startBrightnessFade 80:D9AD', 0x80d9ad, startBrightnessFade),
       prepare: (s) => ({ bank: CODE_BANK, status: s.rnd(BYTE) & 0xc3, s: FADE_STACK }),
-      result: (h) => fadeResult(h, returned(h)),
       lifted: (h, input) => {
         Object.assign(h.ctx, input);
         h.ctx.programBank = CODE_BANK;

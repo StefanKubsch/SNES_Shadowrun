@@ -10,14 +10,15 @@
 // unpack and row shift on both sides (the register-level ones of the dialog's table and
 // the lifted ones of src/game/portrait-upload.mjs that the game's table binds), with
 // stand-ins for the uploads and the word wait only.
+// The reference side is frozen: its outcomes are kept in tools/lift-vectors/
+// (docs/REGISTER-COMPAT-BOUNDARY.md, removal plan).
 import { prng } from './task-native-dialog-harness.mjs';
 import { createSide, registerCases, useLiftVectors } from './lift-function-harness.mjs';
-import { e4b3Sequence } from '../proof/replay/native-member-spell-menu.mjs';
-import { memberPortraitSequence } from '../proof/caller/member-portrait.mjs';
 import { MEMBER_PORTRAIT } from '../src/data/wram.mjs';
+import { drainNativeSequence } from '../src/system/native-call-continuation.mjs';
+import { memberPortraitSequence } from '../proof/caller/member-portrait.mjs';
 import { TALK_ROUTINES } from '../proof/replay/native-dialog.mjs';
 import { unpackPortraitRoutine } from '../proof/caller/portrait-routines.mjs';
-import { drainNativeSequence } from '../src/system/native-call-continuation.mjs';
 import { shiftPortraitRowsJsr } from '../proof/caller/jsr-forms.mjs';
 
 useLiftVectors(import.meta.url);
@@ -90,7 +91,7 @@ const returned = (h, calls) =>
     .join() +
   ' ' +
   calls.join(' ');
-let referenceCalls, current;
+let current;
 // The case with the real unpack and row shift (bind: the map of target to routine).
 const portraitCase = (name, referenceBind, liftedBind, samples) => ({
   name,
@@ -106,13 +107,6 @@ const portraitCase = (name, referenceBind, liftedBind, samples) => ({
       status: s.rnd(BYTE) & LEFT_FLAGS,
     };
   },
-  reference: (h) => {
-    const { routines, calls } = standIns(current, false);
-    referenceCalls = calls;
-    for (const [target, run] of referenceBind) routines.set(target, run);
-    drainNativeSequence(e4b3Sequence(h, null, routines));
-  },
-  result: (h) => returned(h, referenceCalls),
   lifted: (h, input) => {
     Object.assign(h.ctx, input);
     h.ctx.programBank = CODE_BANK;
@@ -151,12 +145,6 @@ registerCases(
           status: s.rnd(BYTE) & LEFT_FLAGS,
         };
       },
-      reference: (h) => {
-        const { routines, calls } = standIns(current);
-        referenceCalls = calls;
-        drainNativeSequence(e4b3Sequence(h, null, routines));
-      },
-      result: (h) => returned(h, referenceCalls),
       lifted: (h, input) => {
         Object.assign(h.ctx, input);
         h.ctx.programBank = CODE_BANK;

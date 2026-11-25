@@ -96,6 +96,8 @@ own commit after `npm run test:block` and the golden trace test. One shared
 
 ## Progress
 
+- 2026-11-25, register compatibility removal, step 2: the 54 frozen lift-function tests no longer run or import their references; the one hand-written comparison (game-nmi portrait channel) uses the new `matchesFrozen`. 34 proof modules (game-reference and apu-reference) went. A first scripted pass had shortened a helper signature without its calls in item-menu, so the reference ran on the lifted side and still passed; a per-call argument check over all 54 files found only that case, now fixed.
+
 - 2026-11-25, register compatibility removal, step 1 (user decisions: remove the register compatibility code with its proof callers; keep uncovered paths by freezing the references' outcomes): the 54 lift-function tests compare the lifted side with frozen reference vectors (tools/lift-vectors/, 294 cases, 116,290 samples, 985 KB); recorded and frozen runs both 297/297, and a deliberate change to the karma sum fails its case. Plan: [REGISTER-COMPAT-BOUNDARY.md](REGISTER-COMPAT-BOUNDARY.md#removal-plan-user-decisions-2026-11-25).
 
 - 2026-11-25, phase 5, one picture path: a call count over the golden replays shows no picture register traffic left (only APU ports and system registers), and palettes go from ROM to CGRAM by DMA with no WRAM buffer to convert. LiveGame lost its unused `video` and `loop` options; it always runs the plain game loop and draws through the picture back end ([FRAME-DESCRIPTION.md](FRAME-DESCRIPTION.md), step 9). The phase 5 producers are done; character and map memory stay a byte store as planned.

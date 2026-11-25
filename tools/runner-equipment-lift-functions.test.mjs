@@ -1,5 +1,5 @@
 // Random per-function tests of the lifted equipment natives (src/game/runner-equipment.mjs
-// through their natives in src/task) against their register-level references
+// through their natives in src/task) against the frozen outcomes (tools/lift-vectors/) of their former register-level references
 // (proof/game-reference/runner-equipment.mjs): 80:8B16 (armour), 80:8B9F (weapon), 80:9D15
 // and 80:9CE4 (an item's property word, taking it off its runner), with the bug fixes off
 // and on. Both sides run the native from its script call (data bank 80, direct page 0,
@@ -7,12 +7,6 @@
 // stacks, the device writes and the return must be equal.
 import { prng } from './task-native-dialog-harness.mjs';
 import { createSide, registerCases, useLiftVectors } from './lift-function-harness.mjs';
-import {
-  equipRunnerArmourReference,
-  equipRunnerWeaponReference,
-  setActorItemPropertyAndUnequipReference,
-  setItemPropertyAndUnequipReference,
-} from '../proof/game-reference/runner-equipment.mjs';
 import { equipRunnerArmour } from '../src/script/native-runner-armour-equip.mjs';
 import { equipRunnerWeapon } from '../src/script/native-runner-weapon-equip.mjs';
 import { setItemPropertyAndUnequip } from '../src/script/native-object-record-property-equip.mjs';
@@ -70,13 +64,11 @@ function sample(seed) {
   return { seed, wram, rnd, fixes: rnd(2) === 1 };
 }
 const returned = (h) => [h.ctx.pc, h.ctx.s].map((v) => v.toString(HEX)).join();
-const step = (name, entry, reference, run) => ({
+const step = (name, entry, run) => ({
   name,
   entry,
   samples: 500,
-  reference: (h) => reference(h.a, false),
   prepare: (s) => ({ bank: CODE_BANK, status: s.rnd(BYTE) & 0xc3 }),
-  result: returned,
   lifted: (h, input) => {
     Object.assign(h.ctx, input);
     h.ctx.programBank = CODE_BANK;
@@ -92,20 +84,10 @@ const side = (s) => {
 };
 registerCases(
   [
-    step('equipRunnerArmour 80:8B16', 0x808b16, equipRunnerArmourReference, equipRunnerArmour),
-    step('equipRunnerWeapon 80:8B9F', 0x808b9f, equipRunnerWeaponReference, equipRunnerWeapon),
-    step(
-      'setItemPropertyAndUnequip 80:9D15',
-      0x809d15,
-      setItemPropertyAndUnequipReference,
-      setItemPropertyAndUnequip,
-    ),
-    step(
-      'setActorItemPropertyAndUnequip 80:9CE4',
-      0x809ce4,
-      setActorItemPropertyAndUnequipReference,
-      setActorItemPropertyAndUnequip,
-    ),
+    step('equipRunnerArmour 80:8B16', 0x808b16, equipRunnerArmour),
+    step('equipRunnerWeapon 80:8B9F', 0x808b9f, equipRunnerWeapon),
+    step('setItemPropertyAndUnequip 80:9D15', 0x809d15, setItemPropertyAndUnequip),
+    step('setActorItemPropertyAndUnequip 80:9CE4', 0x809ce4, setActorItemPropertyAndUnequip),
   ],
   { sample, side, runtime: (h) => h, ignored: [] },
 );

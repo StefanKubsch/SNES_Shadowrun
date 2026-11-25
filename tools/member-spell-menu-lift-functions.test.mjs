@@ -10,9 +10,10 @@
 // the flags N, V, Z and C and the direct page words 00 and 02, and leaves registers and
 // flags drawn from the sample's own sequence. WRAM outside the stack, the calls, the
 // return and the registers left must be equal.
+// The reference side is frozen: its outcomes are kept in tools/lift-vectors/
+// (docs/REGISTER-COMPAT-BOUNDARY.md, removal plan).
 import { DialogTestMemory, prng } from './task-native-dialog-harness.mjs';
 import { createSide, registerCases, useLiftVectors } from './lift-function-harness.mjs';
-import { openWeaponMenu, e693Sequence } from '../proof/replay/native-member-spell-menu.mjs';
 import {
   openSpellMenuSequence,
   spellMenuSequence,
@@ -162,8 +163,8 @@ const returned = (h, calls) =>
     .join() +
   ' ' +
   calls.join(' ');
-let referenceCalls, current;
-const menu = (name, entry, reference, lifted) => ({
+let current;
+const menu = (name, entry, lifted) => ({
   name,
   entry,
   samples: 400,
@@ -177,12 +178,6 @@ const menu = (name, entry, reference, lifted) => ({
       status: s.rnd(BYTE) & LEFT_FLAGS,
     };
   },
-  reference: (h) => {
-    const { routines, calls } = standIns(current);
-    referenceCalls = calls;
-    reference(h, routines);
-  },
-  result: (h) => returned(h, referenceCalls),
   lifted: (h, input) => {
     Object.assign(h.ctx, input);
     h.ctx.programBank = CODE_BANK;
@@ -196,11 +191,8 @@ registerCases(
   [
     // 80:F254 with its menu as a stand-in: the registers it passes.
     {
-      ...menu(
-        'openSpellMenu 80:F254 (menu stand-in)',
-        0x80f254,
-        (h, routines) => openWeaponMenu(h.a, null, false, routines),
-        (h, routines) => openSpellMenuSequence(h, null, routines),
+      ...menu('openSpellMenu 80:F254 (menu stand-in)', 0x80f254, (h, routines) =>
+        openSpellMenuSequence(h, null, routines),
       ),
       prepare: (s) => {
         current = { ...s, menuStandIn: true };
@@ -213,23 +205,12 @@ registerCases(
         };
       },
     },
-    menu(
-      'openSpellMenu 80:F254',
-      0x80f254,
-      (h, routines) => openWeaponMenu(h.a, null, false, routines),
-      (h, routines) => openSpellMenuSequence(h, null, routines),
+    menu('openSpellMenu 80:F254', 0x80f254, (h, routines) =>
+      openSpellMenuSequence(h, null, routines),
     ),
-    menu(
-      'spellMenu 80:E693',
-      0x80e693,
-      (h, routines) => drainNativeSequence(e693Sequence(h, null, routines)),
-      (h, routines) => spellMenuSequence(h, null, routines),
-    ),
-    menu(
-      'spellMenu 80:E68E',
-      STATUS_ENTRY,
-      (h, routines) => drainNativeSequence(e693Sequence(h, null, routines, STATUS_ENTRY)),
-      (h, routines) => spellMenuSequence(h, null, routines, STATUS_ENTRY),
+    menu('spellMenu 80:E693', 0x80e693, (h, routines) => spellMenuSequence(h, null, routines)),
+    menu('spellMenu 80:E68E', STATUS_ENTRY, (h, routines) =>
+      spellMenuSequence(h, null, routines, STATUS_ENTRY),
     ),
   ],
   { sample, side: (s) => createSide(s, new Map()), runtime: (h) => h, ignored: IGNORED },

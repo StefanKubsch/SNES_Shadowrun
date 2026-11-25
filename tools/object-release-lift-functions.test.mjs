@@ -1,5 +1,5 @@
 // Random per-function tests of the lifted object release natives (src/game/object-release.mjs
-// through their natives in src/task) against their register-level references
+// through their natives in src/task) against the frozen outcomes (tools/lift-vectors/) of their former register-level references
 // (proof/game-reference/object-release.mjs): 80:AA4C (an object's graphics fields and VRAM
 // slots) and 80:A8F5 (the object leaves the scene and the draw list). Both sides run the
 // native from its script call (data bank 80, direct page 0, the RTS frame). Object
@@ -8,10 +8,6 @@
 // return must be equal.
 import { prng } from './task-native-dialog-harness.mjs';
 import { createSide, registerCases, useLiftVectors } from './lift-function-harness.mjs';
-import {
-  releaseObjectGraphicsReference,
-  removeObjectReference,
-} from '../proof/game-reference/object-release.mjs';
 import { removeObject } from '../src/script/native-object-release.mjs';
 import { releaseObjectGraphics } from '../src/script/native-object-release-direct.mjs';
 import {
@@ -64,13 +60,11 @@ function sample(seed) {
   return { seed, wram, rnd };
 }
 const returned = (h) => [h.ctx.pc, h.ctx.s].map((v) => v.toString(HEX)).join();
-const step = (name, entry, reference, run) => ({
+const step = (name, entry, run) => ({
   name,
   entry,
   samples: 500,
-  reference: (h) => reference(h.a, false),
   prepare: (s) => ({ bank: CODE_BANK, status: s.rnd(BYTE) & 0xc3 }),
-  result: returned,
   lifted: (h, input) => {
     Object.assign(h.ctx, input);
     h.ctx.programBank = CODE_BANK;
@@ -81,13 +75,8 @@ const step = (name, entry, reference, run) => ({
 });
 registerCases(
   [
-    step(
-      'releaseObjectGraphics 80:AA4C',
-      0x80aa4c,
-      releaseObjectGraphicsReference,
-      releaseObjectGraphics,
-    ),
-    step('removeObject 80:A8F5', 0x80a8f5, removeObjectReference, removeObject),
+    step('releaseObjectGraphics 80:AA4C', 0x80aa4c, releaseObjectGraphics),
+    step('removeObject 80:A8F5', 0x80a8f5, removeObject),
   ],
   { sample, side: (s) => createSide(s, new Map()), runtime: (h) => h, ignored: [] },
 );

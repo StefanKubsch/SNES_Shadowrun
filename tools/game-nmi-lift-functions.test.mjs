@@ -3,17 +3,18 @@
 // proof/system/main-game-nmi.mjs; docs/MAIN-LOOP-LIFT.md). Both sides must leave the same
 // WRAM, the same device writes and the registers the handler keeps (S, PC, program
 // bank, 16-bit modes); the handler restores the others.
+// The reference side is frozen: its outcomes are kept in tools/lift-vectors/
+// (docs/REGISTER-COMPAT-BOUNDARY.md, removal plan).
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { prng } from './task-native-dialog-harness.mjs';
 import {
-  compareCase,
   createSide,
-  differences,
+  liftedOutcome,
+  matchesFrozen,
   registerCases,
   useLiftVectors,
 } from './lift-function-harness.mjs';
-import { GAME_NMI_ROUTINES } from '../proof/replay/main-game-nmi.mjs';
 import { GAME_NMI_LIFTED_ROUTINES } from '../proof/caller/game-nmi-jobs.mjs';
 import { writePortraitTileChannel } from '../src/game/portrait-upload.mjs';
 import {
@@ -131,7 +132,7 @@ function sample(seed) {
   );
   return { seed, wram, rnd, pick };
 }
-const side = (s) => createSide(s, GAME_NMI_ROUTINES);
+const side = (s) => createSide(s, new Map());
 const registers = (h) =>
   ['s', 'pc', 'programBank'].map((r) => h.ctx[r].toString(HEX)).join() +
   ',' +
@@ -143,7 +144,6 @@ const job = (name, entry, long = true) => ({
   entry,
   long,
   prepare: (s) => ({ bank: 0, d: 0, status: s.rnd(256) & 0xc7, s: NMI_STACK }),
-  result: registers,
   lifted: (h, input) => {
     Object.assign(h.ctx, input);
     h.ctx.programBank = entry >>> 16;
@@ -204,23 +204,28 @@ test('handleGameNmi 80:C152 restores the portrait channel after a palette cycle 
   writePortraitTileChannel({
     write: (address, value, width) => channel.push([address & 0xffff, value, width].join()),
   });
-  const handler = CASES[0];
+  const handler = { ...CASES[0], prepare: handlerInput },
+    options = { side, runtime: (h) => h, ignored: IGNORED };
   for (let seed = 1; seed <= 100; seed++) {
-    const s = sample(seed);
-    setWord(s.wram, PALETTE_REQUEST_POINTER, 0x8000 | s.rnd(0x8000));
-    s.wram[PORTRAIT_DMA_REQUEST + 1] &= 0x7f;
-    const request = word(s.wram, PORTRAIT_DMA_REQUEST);
-    const pair = compareCase({ ...handler, prepare: handlerInput }, s, {
-      side,
-      runtime: (h) => h,
-      ignored: IGNORED,
-    });
-    if (pair.want.stop || pair.got.stop) continue;
-    const writes = pair.got.writes,
+    const sampleOf = () => {
+      const s = sample(seed);
+      setWord(s.wram, PALETTE_REQUEST_POINTER, 0x8000 | s.rnd(0x8000));
+      s.wram[PORTRAIT_DMA_REQUEST + 1] &= 0x7f;
+      return s;
+    };
+    const s = sampleOf(),
+      request = word(s.wram, PORTRAIT_DMA_REQUEST),
+      got = liftedOutcome(handler, s, options);
+    if (got.stop) continue;
+    const writes = got.writes,
       at = writes.findIndex((_, n) => channel.every((w, k) => writes[n + k] === w));
     assert.ok(at >= 0, `seed ${seed}: no channel restore`);
     assert.equal(writes[at + channel.length], `${0x2116},${request},2`, `seed ${seed}`);
+    // Without the restore, the outcome is the frozen register-level handler's.
     const without = writes.slice(0, at).concat(writes.slice(at + channel.length));
-    assert.deepEqual(differences({ want: pair.want, got: { ...pair.got, writes: without } }), []);
+    assert.ok(
+      matchesFrozen('handleGameNmi portrait channel', seed, null, { ...got, writes: without }),
+      `seed ${seed}`,
+    );
   }
 });

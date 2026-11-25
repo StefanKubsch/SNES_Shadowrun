@@ -1,6 +1,6 @@
 // Random per-function tests of the lifted object field script natives
-// (src/game/object-fields.mjs through src/task/native-object-flags-*.mjs) against their
-// register-level references (proof/game-reference/object-fields.mjs): the flag word's
+// (src/game/object-fields.mjs through src/task/native-object-flags-*.mjs) against the frozen outcomes (tools/lift-vectors/) of their
+// former register-level references (proof/game-reference/object-fields.mjs): the flag word's
 // get 80:CA05, set 80:CA0D, OR 80:CA15 and AND 80:CA20, and the record's byte 0 80:CA2B,
 // flag byte 80:CA3A, count 80:CA49 and property 80:CA58, the flag byte's set 80:CAA2, OR
 // 80:CAB4 and AND 80:CACA and the count's set 80:CAE0 (with and without the health
@@ -17,46 +17,6 @@
 // replaces the registers the natives leave.
 import { prng } from './task-native-dialog-harness.mjs';
 import { createSide, registerCases, useLiftVectors } from './lift-function-harness.mjs';
-import {
-  getObjectFlagsReference,
-  keepObjectFlagBitsReference,
-  setObjectFlagBitsReference,
-  setObjectFlagsReference,
-  getObjectRecordFirstByteReference,
-  getObjectRecordFlagsReference,
-  getObjectRecordCountReference,
-  getObjectRecordPropertyReference,
-  setObjectRecordFlagsReference,
-  setObjectRecordFlagBitsReference,
-  keepObjectRecordFlagBitsReference,
-  setObjectRecordCountReference,
-  getObjectArmourReference,
-  setObjectArmourReference,
-  addObjectArmourReference,
-  subtractObjectArmourReference,
-  getObjectVelocityXReference,
-  getObjectVelocityYReference,
-  getObjectVelocityZReference,
-  getObjectCoarseXReference,
-  getObjectCoarseYReference,
-  getObjectCoarseHeightReference,
-  getObjectDirectionReference,
-  getObjectNumberReference,
-  getSpriteModeReference,
-  setSpriteModeReference,
-  clearObjectTaskReference,
-  bindObjectToCurrentTaskReference,
-  setObjectVelocityReference,
-  clearObjectVelocityReference,
-  addObjectHeightReference,
-  setObjectDialogReference,
-  setObjectPositionReference,
-  hasNoObjectAnimationReference,
-  setObjectRecordPropertyFromGroupReference,
-  resetObjectRecordPropertyReference,
-  hasObjectRecordPropertyReference,
-  updateObjectDepthModeReference,
-} from '../proof/game-reference/object-fields.mjs';
 import { getObjectRecordFirstByte } from '../src/script/native-object-record-byte0.mjs';
 import { getObjectRecordFlags } from '../src/script/native-object-record-flags.mjs';
 import { getObjectRecordCount } from '../src/script/native-object-record-count.mjs';
@@ -148,16 +108,11 @@ const lifted = (run) => (h, input) => {
   return returned(h);
 };
 // cheats: the cheat mask of the game (the health cheat protects Jake's count).
-const field = (name, entry, reference, run, cheats = 0) => ({
+const field = (name, entry, run, cheats = 0) => ({
   name,
   entry,
   samples: 400,
-  reference: (h) => {
-    h.a.vm = { cheats };
-    reference(h.a, false);
-  },
   prepare: (s) => ({ bank: CODE_BANK, status: s.rnd(BYTE) & 0xc3 }),
-  result: returned,
   lifted: (h, input) => {
     h.a.vm = { cheats };
     return lifted(run)(h, input);
@@ -165,136 +120,50 @@ const field = (name, entry, reference, run, cheats = 0) => ({
 });
 registerCases(
   [
-    field('getObjectFlags 80:CA05', 0x80ca05, getObjectFlagsReference, getObjectFlags),
-    field('setObjectFlags 80:CA0D', 0x80ca0d, setObjectFlagsReference, setObjectFlags),
-    field('setObjectFlagBits 80:CA15', 0x80ca15, setObjectFlagBitsReference, setObjectFlagBits),
-    field('keepObjectFlagBits 80:CA20', 0x80ca20, keepObjectFlagBitsReference, keepObjectFlagBits),
-    field(
-      'getObjectRecordFirstByte 80:CA2B',
-      0x80ca2b,
-      getObjectRecordFirstByteReference,
-      getObjectRecordFirstByte,
-    ),
-    field(
-      'getObjectRecordFlags 80:CA3A',
-      0x80ca3a,
-      getObjectRecordFlagsReference,
-      getObjectRecordFlags,
-    ),
-    field(
-      'getObjectRecordCount 80:CA49',
-      0x80ca49,
-      getObjectRecordCountReference,
-      getObjectRecordCount,
-    ),
-    field(
-      'getObjectRecordProperty 80:CA58',
-      0x80ca58,
-      getObjectRecordPropertyReference,
-      getObjectRecordProperty,
-    ),
-    field(
-      'setObjectRecordFlags 80:CAA2',
-      0x80caa2,
-      setObjectRecordFlagsReference,
-      setObjectRecordFlags,
-    ),
-    field(
-      'setObjectRecordFlagBits 80:CAB4',
-      0x80cab4,
-      setObjectRecordFlagBitsReference,
-      setObjectRecordFlagBits,
-    ),
-    field(
-      'keepObjectRecordFlagBits 80:CACA',
-      0x80caca,
-      keepObjectRecordFlagBitsReference,
-      keepObjectRecordFlagBits,
-    ),
-    field(
-      'setObjectRecordCount 80:CAE0',
-      0x80cae0,
-      setObjectRecordCountReference,
-      setObjectRecordCount,
-    ),
+    field('getObjectFlags 80:CA05', 0x80ca05, getObjectFlags),
+    field('setObjectFlags 80:CA0D', 0x80ca0d, setObjectFlags),
+    field('setObjectFlagBits 80:CA15', 0x80ca15, setObjectFlagBits),
+    field('keepObjectFlagBits 80:CA20', 0x80ca20, keepObjectFlagBits),
+    field('getObjectRecordFirstByte 80:CA2B', 0x80ca2b, getObjectRecordFirstByte),
+    field('getObjectRecordFlags 80:CA3A', 0x80ca3a, getObjectRecordFlags),
+    field('getObjectRecordCount 80:CA49', 0x80ca49, getObjectRecordCount),
+    field('getObjectRecordProperty 80:CA58', 0x80ca58, getObjectRecordProperty),
+    field('setObjectRecordFlags 80:CAA2', 0x80caa2, setObjectRecordFlags),
+    field('setObjectRecordFlagBits 80:CAB4', 0x80cab4, setObjectRecordFlagBits),
+    field('keepObjectRecordFlagBits 80:CACA', 0x80caca, keepObjectRecordFlagBits),
+    field('setObjectRecordCount 80:CAE0', 0x80cae0, setObjectRecordCount),
     field(
       'setObjectRecordCount 80:CAE0 with the health cheat',
       0x80cae0,
-      setObjectRecordCountReference,
       setObjectRecordCount,
       CHEAT.health,
     ),
-    field('getObjectArmour 80:8EF5', 0x808ef5, getObjectArmourReference, getObjectArmour),
-    field('setObjectArmour 80:8AF1', 0x808af1, setObjectArmourReference, setObjectArmour),
-    field('addObjectArmour 80:8AFA', 0x808afa, addObjectArmourReference, addObjectArmour),
-    field(
-      'subtractObjectArmour 80:8B08',
-      0x808b08,
-      subtractObjectArmourReference,
-      subtractObjectArmour,
-    ),
-    field('getObjectVelocityX 80:A941', 0x80a941, getObjectVelocityXReference, getObjectVelocityX),
-    field('getObjectVelocityY 80:A949', 0x80a949, getObjectVelocityYReference, getObjectVelocityY),
-    field('getObjectVelocityZ 80:A951', 0x80a951, getObjectVelocityZReference, getObjectVelocityZ),
-    field('getObjectCoarseX 80:A959', 0x80a959, getObjectCoarseXReference, getObjectCoarseX),
-    field('getObjectCoarseY 80:A963', 0x80a963, getObjectCoarseYReference, getObjectCoarseY),
-    field(
-      'getObjectCoarseHeight 80:A96D',
-      0x80a96d,
-      getObjectCoarseHeightReference,
-      getObjectCoarseHeight,
-    ),
-    field('getObjectDirection 80:D255', 0x80d255, getObjectDirectionReference, getObjectDirection),
-    field('getObjectNumber 80:D1CA', 0x80d1ca, getObjectNumberReference, getObjectNumber),
-    field('getSpriteMode 80:D17B', 0x80d17b, getSpriteModeReference, getSpriteMode),
-    field('setSpriteMode 80:D16D', 0x80d16d, setSpriteModeReference, setSpriteMode),
-    field('clearObjectTask 80:A91D', 0x80a91d, clearObjectTaskReference, clearObjectTask),
-    field(
-      'bindObjectToCurrentTask 80:A926',
-      0x80a926,
-      bindObjectToCurrentTaskReference,
-      bindObjectToCurrentTask,
-    ),
-    field('setObjectVelocity 80:A92F', 0x80a92f, setObjectVelocityReference, setObjectVelocity),
-    field(
-      'clearObjectVelocity 80:D13E',
-      0x80d13e,
-      clearObjectVelocityReference,
-      clearObjectVelocity,
-    ),
-    field('addObjectHeight 80:A977', 0x80a977, addObjectHeightReference, addObjectHeight),
-    field('setObjectDialog 80:94EE', 0x8094ee, setObjectDialogReference, setObjectDialog),
-    field('setObjectPosition 80:D14A', 0x80d14a, setObjectPositionReference, setObjectPosition),
-    field(
-      'hasNoObjectAnimation 80:BB90',
-      0x80bb90,
-      hasNoObjectAnimationReference,
-      hasNoObjectAnimation,
-    ),
-    field(
-      'setObjectRecordPropertyFromGroup 80:9D6A',
-      0x809d6a,
-      setObjectRecordPropertyFromGroupReference,
-      setObjectRecordPropertyFromGroup,
-    ),
-    field(
-      'resetObjectRecordProperty 80:9D7A',
-      0x809d7a,
-      resetObjectRecordPropertyReference,
-      resetObjectRecordProperty,
-    ),
-    field(
-      'hasObjectRecordProperty 80:9D98',
-      0x809d98,
-      hasObjectRecordPropertyReference,
-      hasObjectRecordProperty,
-    ),
-    field(
-      'updateObjectDepthMode 80:D0D3',
-      0x80d0d3,
-      updateObjectDepthModeReference,
-      updateObjectDepthMode,
-    ),
+    field('getObjectArmour 80:8EF5', 0x808ef5, getObjectArmour),
+    field('setObjectArmour 80:8AF1', 0x808af1, setObjectArmour),
+    field('addObjectArmour 80:8AFA', 0x808afa, addObjectArmour),
+    field('subtractObjectArmour 80:8B08', 0x808b08, subtractObjectArmour),
+    field('getObjectVelocityX 80:A941', 0x80a941, getObjectVelocityX),
+    field('getObjectVelocityY 80:A949', 0x80a949, getObjectVelocityY),
+    field('getObjectVelocityZ 80:A951', 0x80a951, getObjectVelocityZ),
+    field('getObjectCoarseX 80:A959', 0x80a959, getObjectCoarseX),
+    field('getObjectCoarseY 80:A963', 0x80a963, getObjectCoarseY),
+    field('getObjectCoarseHeight 80:A96D', 0x80a96d, getObjectCoarseHeight),
+    field('getObjectDirection 80:D255', 0x80d255, getObjectDirection),
+    field('getObjectNumber 80:D1CA', 0x80d1ca, getObjectNumber),
+    field('getSpriteMode 80:D17B', 0x80d17b, getSpriteMode),
+    field('setSpriteMode 80:D16D', 0x80d16d, setSpriteMode),
+    field('clearObjectTask 80:A91D', 0x80a91d, clearObjectTask),
+    field('bindObjectToCurrentTask 80:A926', 0x80a926, bindObjectToCurrentTask),
+    field('setObjectVelocity 80:A92F', 0x80a92f, setObjectVelocity),
+    field('clearObjectVelocity 80:D13E', 0x80d13e, clearObjectVelocity),
+    field('addObjectHeight 80:A977', 0x80a977, addObjectHeight),
+    field('setObjectDialog 80:94EE', 0x8094ee, setObjectDialog),
+    field('setObjectPosition 80:D14A', 0x80d14a, setObjectPosition),
+    field('hasNoObjectAnimation 80:BB90', 0x80bb90, hasNoObjectAnimation),
+    field('setObjectRecordPropertyFromGroup 80:9D6A', 0x809d6a, setObjectRecordPropertyFromGroup),
+    field('resetObjectRecordProperty 80:9D7A', 0x809d7a, resetObjectRecordProperty),
+    field('hasObjectRecordProperty 80:9D98', 0x809d98, hasObjectRecordProperty),
+    field('updateObjectDepthMode 80:D0D3', 0x80d0d3, updateObjectDepthMode),
   ],
   { sample, side: (s) => createSide(s, new Map()), runtime: (h) => h, ignored: IGNORED },
 );

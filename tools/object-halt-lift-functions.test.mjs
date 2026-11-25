@@ -1,6 +1,6 @@
 // Random per-function tests of the lifted script natives 80:8E96 and 80:8EB8, halting
 // and resuming an object and its task (src/game/object-halt.mjs through
-// src/script/native-object-halt-set.mjs), against their register-level references
+// src/script/native-object-halt-set.mjs), against the frozen outcomes (tools/lift-vectors/) of their former register-level references
 // (proof/game-reference/object-halt.mjs). Both run from their script call (data bank 80,
 // direct page 0, the RTS frame). The object is a game slot (rarely any word) with a task, none
 // or rarely any word; the task waits for a child up to three links deep, the links among
@@ -8,10 +8,6 @@
 // the stacks, the device writes and the return must be equal.
 import { prng } from './task-native-dialog-harness.mjs';
 import { createSide, registerCases, useLiftVectors } from './lift-function-harness.mjs';
-import {
-  haltObjectReference,
-  resumeObjectReference,
-} from '../proof/game-reference/object-halt.mjs';
 import { haltObject, resumeObject } from '../src/script/native-object-halt-set.mjs';
 import { OBJECT_TASK } from '../src/data/wram.mjs';
 import { TASK_PREVIOUS, TASK_WAIT } from '../src/vm/layout.mjs';
@@ -58,13 +54,11 @@ function sample(seed) {
   return { seed, wram, rnd };
 }
 const returned = (h) => [h.ctx.pc, h.ctx.s].map((v) => v.toString(HEX)).join();
-const step = (name, entry, reference, run) => ({
+const step = (name, entry, run) => ({
   name,
   entry,
   samples: 500,
-  reference: (h) => reference(h.a, false),
   prepare: (s) => ({ bank: CODE_BANK, status: s.rnd(BYTE) & 0xc3 }),
-  result: returned,
   lifted: (h, input) => {
     Object.assign(h.ctx, input);
     h.ctx.programBank = CODE_BANK;
@@ -75,8 +69,8 @@ const step = (name, entry, reference, run) => ({
 });
 registerCases(
   [
-    step('haltObject 80:8E96', 0x808e96, haltObjectReference, haltObject),
-    step('resumeObject 80:8EB8', 0x808eb8, resumeObjectReference, resumeObject),
+    step('haltObject 80:8E96', 0x808e96, haltObject),
+    step('resumeObject 80:8EB8', 0x808eb8, resumeObject),
   ],
   {
     sample,
