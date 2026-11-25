@@ -11,6 +11,7 @@ import { BADGE_BUY_LIVE_PLAN } from '../live-plans.mjs';
 import { PLAN as ALLEY_PLAN } from '../live-alley-plan.mjs';
 import { PLAN as MATRIX_PLAN } from '../live-matrix-plan.mjs';
 import { CUTSCENE_PLAN } from '../live-cutscene-plan.mjs';
+import { INTRO_PLAN } from '../live-intro-plan.mjs';
 import { ORIGINAL_GAMEPLAY } from '../../src/game/bugfixes.mjs';
 import { KARMA } from '../../src/data/wram.mjs';
 import { WRAM_BASE as WRAM_BANK } from '../../src/constants/memory-map.mjs';
@@ -245,6 +246,8 @@ export const SCENARIOS = Object.freeze([
   continued('bed', [BED_SAVE, BED_KARMA], { prepare: prepareKarma }),
   // Cutscenes 0-4, mirrored, ended with B, and the credits (tools/live-cutscene-plan.mjs).
   explored('cutscenes', CUTSCENE_PLAN),
+  // Two intros (81:DFE7) with the credits after them, one ended with A (tools/live-intro-plan.mjs).
+  explored('intro', INTRO_PLAN),
 ]);
 export const scenario = (name) => {
   const found = SCENARIOS.find((s) => s.name === name);

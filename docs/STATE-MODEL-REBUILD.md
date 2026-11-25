@@ -46,8 +46,8 @@ becomes the reference for the rebuild ([tools/golden/](../tools/golden/)):
 
 Scenarios (tools/golden/scenarios.mjs): attract, new-game, badge, alley, matrix, and since
 2026-11-25 spell (status submenus, party status, a spell chosen and cast, instant
-text), bed (bed menu, save, karma menu up to "Not enough karma") and cutscenes (all
-cutscenes and the credits). `npm run golden:coverage` (tools/golden-coverage.mjs)
+text), bed (bed menu, save, karma menu up to "Not enough karma"), cutscenes (all
+cutscenes and the credits) and intro (two intros with the credits, one ended with A). `npm run golden:coverage` (tools/golden-coverage.mjs)
 reports the src functions the traces reach; on 2026-11-25 1929 of 2573 (75 %, up from
 71 % with the first five), with the script natives (55 %) and the data decoders (59 %)
 the largest gaps. A proof module is retired only where its src path is reached.
