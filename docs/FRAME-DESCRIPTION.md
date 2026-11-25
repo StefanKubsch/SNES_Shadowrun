@@ -82,19 +82,44 @@ however, no longer needs to name registers:
   (cutscenes) and 526/526 (intro, scene lists, scene screen, final back end); all
   five golden traces unchanged throughout.
 
+## Step 5: register-free picture back end for live play (2026-11-25)
+
+- src/video/picture-video.mjs implements every VideoPort method on a typed picture
+  state: display, BG mode and layers (map base and size, character base, scroll),
+  main and sub screens, window areas and edges, colour math and fixed colour, OBJ
+  settings, a 256-colour palette, VRAM and OAM bytes, and the DMA channel set-ups the
+  game makes in parts. `describe()` builds the frame description from that state,
+  with the same rejections as the SNES back end (mode 1 only, no mosaic, interlace,
+  direct colour or two-window logic, no OBJ rotation).
+- Register numbers remain only for register data: `writeRegister` decodes the
+  power-on reset, the scene list's register command and the window tile
+  multiplication (M7A/M7B, `readProduct`), and H-DMA tables, which name their
+  per-line target register, are decoded into row changes.
+- Routing: `LiveGame` takes `video: PICTURE_VIDEO` (default `SNES_VIDEO`). The
+  picture back end is then the device bus; `DeviceAccess.video`, the hardware port's
+  `video` field, `videoOf` and `sceneRuntime` hand it to the lifted code, so its
+  calls skip the registers. The scene default's CPU register writes go back to the
+  devices through the hardware path. The browser worker, the recording replay and the
+  golden trace replay use it; the register-level tests keep the SNES back end and its
+  raster write counts (null with the picture back end).
+- Both back ends hold the same VRAM, OAM and palette bytes, so the golden video
+  memory hash stays binding as well.
+- Evidence: tools/picture-video.test.mjs (both back ends from the same calls give
+  equal descriptions, pixels, memories, product and read-back); block check
+  4966/4966 in 584 seconds with all five golden traces replayed through the picture
+  back end unchanged; tools/recording.test.mjs 2/2.
+
 ## Plan for the next steps
 
-1. A second video back end writes the picture state (palette, sprites, layer
-   settings, character and map bytes) directly, without registers, for live play.
-2. Producers: game code builds the parts of the description it owns (palettes,
+1. Producers: game code builds the parts of the description it owns (palettes,
    sprite list, BG layer settings, scroll, colour effects) as typed state, and the
    description is assembled from that state instead of from PPU registers. The
    golden picture hash stays binding; the video memory hash becomes diagnostic for
    the converted parts, as decided on 2026-11-20.
-3. Character and map memory remain a byte store for now: the text code reads its
+2. Character and map memory remain a byte store for now: the text code reads its
    rendered rows back from video memory (81:A9E1, channel 5), so tile data stays
    readable game state.
-4. The register-writing upload functions (src/game/game-nmi.mjs and others) are
+3. The register-writing upload functions (src/game/game-nmi.mjs and others) are
    called directly by frozen proof modules. As with the phase 4 boundary
    ([REGISTER-COMPAT-BOUNDARY.md](REGISTER-COMPAT-BOUNDARY.md)) they stay as
    compatibility code for recorded comparisons, while live play takes the new
@@ -105,4 +130,7 @@ however, no longer needs to name registers:
 - The description covers what the mode 1 renderer covered: other video modes,
   mosaic, interlace, direct colour and two-window logic remain rejected by the
   SNES back end.
-- Character and map memory are still the PPU model's VRAM bytes.
+- Character and map memory are still VRAM bytes (in the PPU model or the picture
+  state).
+- The picture back end does not prove that every value a frame reads was written
+  (the SNES back end's known flags); its memories start at zero.

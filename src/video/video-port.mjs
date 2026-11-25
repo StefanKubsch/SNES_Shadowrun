@@ -88,16 +88,17 @@ const channelRegister = (register, channel) => register + channel * DMA_CHANNEL_
 // The B-bus register of each transfer destination and its channel mode.
 // H-DMA tables name their per-line target: 'mainLayers' (one TM byte), 'bg2Scroll'
 // (the BG2 horizontal offset, written twice) or 'windowEdges' (WH0 and WH1).
-const DMA_TARGETS = {
-    vram: [VMDATAL, DMAP_TWO_PORTS],
-    vramRead: [RDVRAML, DMAP_B_TO_A | DMAP_TWO_PORTS],
-    cgram: [CGDATA, DMAP_ONE_PORT],
-    oam: [OAMDATA, DMAP_ONE_PORT],
-    mainLayers: [TM, DMAP_ONE_PORT],
-    bg2Scroll: [BG1HOFS + SCROLL_REGISTERS_PER_LAYER, DMAP_WRITE_TWICE],
-    windowEdges: [WH0, DMAP_TWO_PORTS],
-  },
-  dmaMode = (t) => DMA_TARGETS[t.to][1] | (t.fixed ? DMAP_FIXED_SOURCE : 0);
+export const DMA_TARGETS = {
+  vram: [VMDATAL, DMAP_TWO_PORTS],
+  vramRead: [RDVRAML, DMAP_B_TO_A | DMAP_TWO_PORTS],
+  cgram: [CGDATA, DMAP_ONE_PORT],
+  oam: [OAMDATA, DMAP_ONE_PORT],
+  mainLayers: [TM, DMAP_ONE_PORT],
+  bg2Scroll: [BG1HOFS + SCROLL_REGISTERS_PER_LAYER, DMAP_WRITE_TWICE],
+  windowEdges: [WH0, DMAP_TWO_PORTS],
+};
+// The channel mode of a transfer: its destination's pattern, with a fixed source.
+export const dmaMode = (t) => DMA_TARGETS[t.to][1] | (t.fixed ? DMAP_FIXED_SOURCE : 0);
 
 const WRIO_ALL_HIGH = 0xff,
   COLDATA_ALL_ZERO = COLDATA_RED | COLDATA_GREEN | COLDATA_BLUE,
@@ -579,6 +580,8 @@ export class VideoPort {
 }
 
 // The video interface over a hardware port (src/system/hardware-port.mjs); a video
-// interface passes through. Register-level callers hand the NMI jobs a hardware port.
+// interface passes through, and a port that carries the register-free back end of live
+// play (src/video/picture-video.mjs) hands over that one. Register-level callers hand
+// the NMI jobs a hardware port.
 export const videoOf = (port) =>
-  port instanceof VideoPort ? port : new VideoPort(port.write, port.read);
+  port instanceof VideoPort ? port : (port.video ?? new VideoPort(port.write, port.read));

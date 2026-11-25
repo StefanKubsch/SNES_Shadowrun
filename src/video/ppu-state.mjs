@@ -369,6 +369,14 @@ export class PpuBus {
     for (let n = 0; n < width; n++)
       this.writeByte((address + n) & WORD_MASK, (value >>> (BYTE_BITS * n)) & BYTE_MASK);
   }
+  // The register reads the live devices answer from the picture hardware
+  // (src/vm/frame-events.mjs): the multiplication product and the VRAM read-back.
+  readProduct(port) {
+    return this.ppu.readProduct(port);
+  }
+  readVram(port) {
+    return this.ppu.readVram(port);
+  }
   writeByte(port, value) {
     if (port >= INIDISP && port <= SETINI) {
       this.beforePpuWrite?.(this.ppuWrites, port, value);

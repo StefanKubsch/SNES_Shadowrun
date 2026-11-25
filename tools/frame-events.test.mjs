@@ -356,13 +356,16 @@ test('the PPU multiplier is signed 16 x 8 bits and rejects an interleaved latch'
     () => p.writeByte(0x211c, 1),
     (e) => e.reason === 'ppu_multiplier_latch_required',
   );
-  // Live devices answer 2134 from the PPU; without a PPU the text mask DMA is a boundary.
+  // Live devices answer 2134 from the picture hardware (here the PPU model); without
+  // a PPU the text mask DMA is a boundary.
   const q = new PpuState();
   q.writeByte(0x211b, 7);
   q.writeByte(0x211b, 0);
   q.writeByte(0x211c, 6);
   const frames = new LagFreeFrames({ nmitimen: 0x81 }),
-    live = new LiveDevices(frames, GAME_NMI_ROUTINES, { bus: { ppu: q, write() {} } });
+    live = new LiveDevices(frames, GAME_NMI_ROUTINES, {
+      bus: { ppu: q, write() {}, readProduct: (port) => q.readProduct(port) },
+    });
   assert.equal(live.read(0x802134, 2, 0x80fa01), 42);
   assert.equal(live.read(0x802136, 1, 0x80fa19), 0);
   assert.equal(live.read(0x7e2134, 2, 0x80fa01), undefined);

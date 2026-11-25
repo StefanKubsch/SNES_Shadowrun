@@ -88,6 +88,11 @@ own commit after `npm run test:block` and the golden trace test. One shared
 
 ## Progress
 
+- 2026-11-25, phase 5, picture back end: src/video/picture-video.mjs draws live play
+  from a typed picture state without PPU registers; the browser, the recording replay
+  and the golden traces use it. Block check 4966/4966 in 584 seconds, all five golden
+  traces unchanged ([FRAME-DESCRIPTION.md](FRAME-DESCRIPTION.md), step 5).
+
 - 2026-11-25, phase 5, scene code: the game screen, camera scroll, colour effects,
   scene tiles, title, start menu, cutscenes, intro, scene lists and scene screen
   state their picture work through VideoPort transfers and setters; no module

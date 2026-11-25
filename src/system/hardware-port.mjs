@@ -9,9 +9,12 @@
 export class HardwarePort {
   // read(address, width, site) and write(address, value, width, site) reach the
   // devices at a bank-0 bus address.
-  constructor(read, write) {
+  // video: the register-free picture back end of live play (src/video/picture-video.mjs)
+  // or null; videoOf (src/video/video-port.mjs) prefers it to the registers.
+  constructor(read, write, video = null) {
     this.read = read;
     this.write = write;
+    this.video = video;
   }
 }
 // The hardware port of a task accessor (src/vm/task-accessor.mjs).
@@ -19,4 +22,5 @@ export const accessorPort = (a) =>
   new HardwarePort(
     (address, width, site) => a.busRead(address, width, site, true),
     (address, value, width, site) => a.busWrite(address, value, width, site, true),
+    a.video ?? null,
   );

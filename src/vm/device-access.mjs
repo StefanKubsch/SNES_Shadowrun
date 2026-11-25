@@ -5,6 +5,11 @@ import { isIoAddress, isArithmeticRegister } from './devices.mjs';
 import { BYTE_MASK, WORD_MASK, LONG_WRAP } from '../constants/bits.mjs';
 
 export class DeviceAccess {
+  // The register-free picture back end of live play (src/video/picture-video.mjs), when
+  // the devices draw through one; null for the SNES back end and recorded devices.
+  get video() {
+    return this.devices?.bus?.video ?? null;
+  }
   constructor(vm) {
     this.vm = vm;
     const mem = (this.mem = vm.mem);

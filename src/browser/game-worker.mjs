@@ -9,7 +9,7 @@
 // with the held key. Without shared memory the worker computes ahead as far as the last
 // section was long, and the page reports the pad word and the pictures shown by message
 // (inputs in sections then act up to about three seconds later).
-import { LiveGame } from '../video/live-game.mjs';
+import { LiveGame, PICTURE_VIDEO } from '../video/live-game.mjs';
 import { SoundtrackApu } from '../apu/soundtrack-apu.mjs';
 import { counterBytes } from '../vm/frame-events.mjs';
 import { MouseControl } from './mouse-control.mjs';
@@ -168,6 +168,8 @@ self.onmessage = ({ data }) => {
           languages,
           language,
           apu: new SoundtrackApu(),
+          // The register-free picture back end (docs/FRAME-DESCRIPTION.md).
+          video: PICTURE_VIDEO,
           pad: padAt,
           counter: counterBytes(seed),
           sram: data.sram ? new Uint8Array(data.sram) : null,

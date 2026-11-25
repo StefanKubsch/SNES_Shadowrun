@@ -254,7 +254,7 @@ export class LiveDevices {
   // the A9E1 VRAM prefetch at 81:AA8E come from the PPU model, not from time.
   read(address, width, pc) {
     const offset = address & WORD_MASK,
-      ppu = this.bus?.ppu;
+      bus = this.bus;
     if (this.apu && isApuPort(address) && offset + width <= APUIO3 + 1) {
       let value = 0;
       for (let n = 0; n < width; n++)
@@ -285,13 +285,13 @@ export class LiveDevices {
         throw new VmFault('frame_vblank_poll_with_nmi', address, { pc });
       return 0;
     }
-    if (ppu && inSystemArea(address)) {
+    if (bus && inSystemArea(address)) {
       if (offset >= MPYL && offset + width <= MPYH + 1) {
         let value = 0;
-        for (let n = 0; n < width; n++) value |= ppu.readProduct(offset + n) << (BYTE_BITS * n);
+        for (let n = 0; n < width; n++) value |= bus.readProduct(offset + n) << (BYTE_BITS * n);
         return value;
       }
-      if (offset === RDVRAMH && width === 1 && pc === VRAM_PREFETCH_PC) return ppu.readVram(offset);
+      if (offset === RDVRAMH && width === 1 && pc === VRAM_PREFETCH_PC) return bus.readVram(offset);
     }
     return this.frames.read(address, width, pc);
   }

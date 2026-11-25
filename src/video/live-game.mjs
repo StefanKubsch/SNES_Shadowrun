@@ -30,6 +30,9 @@ import { nativeTarget } from '../script/native-targets.mjs';
 import { FRONTEND_ROUTINES } from '../system/main-frontend.mjs';
 import { PpuBus, PpuState } from './ppu-state.mjs';
 import { renderMode1Frame } from './ppu-frame.mjs';
+import { renderFrame } from './frame-renderer.mjs';
+import { PictureVideo } from './picture-video.mjs';
+import { DeviceAccess } from '../vm/device-access.mjs';
 import { hdmaRows } from './hdma.mjs';
 import { LagFreeFrames, LiveDevices } from '../vm/frame-events.mjs';
 import { Apu } from '../apu/apu.mjs';
@@ -40,6 +43,10 @@ import { runFrameJobs } from '../system/live-frame-jobs.mjs';
 const PLAYER_CONTROL = 0x80e014;
 // WRAM target of the channel 5 VRAM read (A9E1, src/video/ppu-state.mjs).
 const TEXT_MASK_BUFFER = 0x7e2ae0;
+// Picture back ends (docs/FRAME-DESCRIPTION.md): the SNES back end (PPU model, the
+// register-level comparisons) or the register-free picture state of live play.
+export const SNES_VIDEO = 'snes',
+  PICTURE_VIDEO = 'picture';
 // Default work budget of one step (src/script/game-loop.mjs).
 const STEP_BUDGET = 4096;
 const need = (ok, reason) => {
@@ -62,7 +69,8 @@ export class LiveGame {
   // cartridge: the ROM (tools, original comparisons) or the data package
   // {rom,present} without code (src/data/cartridge.mjs, docs/ROM-FREE.md).
   // loop(game) makes the game loop (default: src/script/game-loop.mjs; a proof can pass
-  // the register-level driver with the same interface).
+  // the register-level driver with the same interface). video selects the picture back
+  // end: SNES_VIDEO (bus.ppu, raster write counts) or PICTURE_VIDEO (picture).
   constructor(
     cartridge,
     {
@@ -75,6 +83,7 @@ export class LiveGame {
       language = ENGLISH,
       apu = new Apu(),
       loop = gameLoop,
+      video = SNES_VIDEO,
     } = {},
   ) {
     need(
@@ -113,12 +122,21 @@ export class LiveGame {
     this.vm = { mem: this.memory, gameplay: settings, startMenuCredits: true };
     this.gameplay = settings;
     this.apu = apu;
-    this.bus = new PpuBus(this.memory, new PpuState());
+    const picture = video === PICTURE_VIDEO ? new PictureVideo(this.memory) : null;
+    if (video !== PICTURE_VIDEO) need(video === SNES_VIDEO, 'live_video_back_end_required');
+    // The register-free picture state of live play, or null with the SNES back end.
+    this.picture = picture;
+    this.bus = picture ?? new PpuBus(this.memory, new PpuState());
     let rasterWrites = 0;
     const frames = (this.frames = new LagFreeFrames({
       pad,
       apu: this.apu,
       onNmi: (nmi) => {
+        if (picture) {
+          if (onFrame && picture.displaySet)
+            onFrame({ nmi, rasterWrites: null, pixels: renderFrame(picture.describe()) }, picture);
+          return;
+        }
         if (onFrame && this.bus.ppu.registerKnown[0])
           onFrame(
             {
@@ -154,13 +172,23 @@ export class LiveGame {
         this.choosing = false;
       } else if (CHOOSING.has(target)) this.choosing = true;
     };
+    // The picture back end's CPU register writes (the scene default) reach the devices
+    // as the hardware port's do. It has no raster write counts.
+    if (picture) {
+      const access = new DeviceAccess(this.vm);
+      access.devices = this.devices;
+      picture.system = (address, value, width) => access.busWrite(address, value, width);
+      this.dataOutsideBlank = null;
+      return;
+    }
     // Without a frame position, every write outside the NMI with the display
     // on counts as a raster write (position unknown). In the
     // cold start these are only registers (brightness, layers, scroll,
     // colour math), never VRAM, CGRAM or OAM; their data may only be written in
     // VBlank (CGRAM also in HBlank) or forced blank (Book I
     // PDF 116 OAM 2104, PDF 121 VRAM 2118/2119, PDF 125 CGRAM 2122).
-    // dataOutsideBlank counts such data accesses (the tests require zero).
+    // dataOutsideBlank counts such data accesses (the tests require zero; null with
+    // the picture back end).
     this.dataOutsideBlank = 0;
     const outsideBlank = () =>
       !frames.inNmi &&

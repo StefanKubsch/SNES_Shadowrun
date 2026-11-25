@@ -10,9 +10,10 @@ import { WRAM } from '../../src/data/wram.mjs';
 import { toWram } from '../../proof/state/to-wram.mjs';
 import { readFileSync, writeFileSync } from 'node:fs';
 import { gzipSync, gunzipSync, constants as zlib } from 'node:zlib';
-import { LiveGame } from '../../src/video/live-game.mjs';
+import { LiveGame, PICTURE_VIDEO } from '../../src/video/live-game.mjs';
 import { renderMode1Frame } from '../../src/video/ppu-frame.mjs';
 import { hdmaRows } from '../../src/video/hdma.mjs';
+import { renderFrame } from '../../src/video/frame-renderer.mjs';
 import { fnv1a, FNV_OFFSET } from '../../src/data/fnv.mjs';
 
 export const TRACE_FORMAT = 'shadowrun-golden-trace-1';
@@ -65,26 +66,36 @@ function hash(array, h = FNV_OFFSET) {
 }
 
 // The picture at NMI entry, as LiveGame's onFrame draws it; none before the first
-// write to 2100. `key` hashes everything the renderer reads (PPU memories, registers,
-// scroll and, with HDMA on, the DMA registers and the WRAM tables); an unchanged key
-// gives the previous picture without drawing it again.
+// write to 2100. `key` hashes everything the renderer reads (video memories, the
+// picture settings or the PPU registers and scroll and, with HDMA on, the DMA set-up
+// and the WRAM tables); an unchanged key gives the previous picture without drawing it
+// again. Both picture back ends (LiveGame's `video` option) hold the same video memory
+// bytes, the palette as 16-bit little-endian colours, so a trace replays against either.
 function picture(game, cache, key) {
   const { bus } = game;
-  if (!bus.ppu.registerKnown[0]) return FNV_OFFSET;
+  if (game.picture ? !game.picture.displaySet : !bus.ppu.registerKnown[0]) return FNV_OFFSET;
   if (cache.key === key) return cache.picture;
-  const pixels = renderMode1Frame(bus.ppu, { objects: true, rows: hdmaRows(bus) });
+  const pixels = game.picture
+    ? renderFrame(game.picture.describe())
+    : renderMode1Frame(bus.ppu, { objects: true, rows: hdmaRows(bus) });
   cache.key = key;
   cache.picture = hash(pixels);
   return cache.picture;
 }
 function frameHashes(game, state, cache) {
   const { bus } = game,
-    { ppu } = bus;
-  const video = hash(ppu.oam, hash(ppu.cgram, hash(ppu.vram)));
+    ppu = game.picture ?? bus.ppu;
+  const video = hash(ppu.oam, hash(game.picture ? ppu.palette : ppu.cgram, hash(ppu.vram)));
   const audio = hash(game.apu.dsp.regs, hash(game.apu.ram));
   toWram(game.memory, state);
-  let key = hash(ppu.scroll, hash(ppu.registers, video));
-  if (ppu.hdmaEnabled) key = hash(state, hash(bus.dma, key ^ ppu.hdmaEnabled));
+  let key;
+  if (game.picture) {
+    key = hash(game.picture.settings(), video);
+    if (game.picture.hdma) key = hash(state, key);
+  } else {
+    key = hash(ppu.scroll, hash(ppu.registers, video));
+    if (ppu.hdmaEnabled) key = hash(state, hash(bus.dma, key ^ ppu.hdmaEnabled));
+  }
   const gameHash = hash(maskScratch(state));
   return [picture(game, cache, key), gameHash, video, audio, hash(game.memory.sram)];
 }
@@ -206,11 +217,11 @@ function stateDifferences(snapshot, current) {
 }
 
 // Replays a trace from the scenario's start options (scenario.options(), LiveGame's)
-// and compares every frame. Returns null when equal, else the first difference: its
+// with the picture back end of live play, and compares every frame. Returns null when equal, else the first difference: its
 // NMI, the categories that differ and, for the game state, the differing addresses at
 // the next snapshot.
 export function replayScenario(scenario, cartridge, trace = readTrace(scenario.name)) {
-  const game = new LiveGame(cartridge, scenario.options());
+  const game = new LiveGame(cartridge, { ...scenario.options(), video: PICTURE_VIDEO });
   const collector = attach(game, trace);
   const width = CATEGORIES.length,
     snapshots = new Map(trace.snapshots);

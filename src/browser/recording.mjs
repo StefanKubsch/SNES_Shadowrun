@@ -8,7 +8,7 @@
 // Raw input at a pad read: word (pad bits), keys (keyboard directions and A/X), mouse
 // (sequence<<16 | y<<8 | x), buttons (pad bits of the mouse | left<<16 | right<<17 | back<<18)
 // and wheel (sum of the wheel steps); the same packing as the shared memory (shared-input.mjs).
-import { LiveGame } from '../video/live-game.mjs';
+import { LiveGame, PICTURE_VIDEO } from '../video/live-game.mjs';
 import { counterBytes } from '../vm/frame-events.mjs';
 import { MouseControl } from './mouse-control.mjs';
 import { PAD_BIT, DIRECTIONS } from './controls.mjs';
@@ -171,6 +171,7 @@ export function replayRecording(
     languages,
     language: recording.language ?? ENGLISH,
     counter: counterBytes(recording.seed),
+    video: PICTURE_VIDEO,
     sram: recording.sram ? recording.sram.slice() : null,
     pad: (k) => {
       while (nextEvent < events.length && events[nextEvent][0] <= read)
