@@ -4,17 +4,20 @@ The intro 81:DFE7 (cutscene 14) is the third scene lifted from register-level
 65816 equations to plain code, after the matrix and the cutscenes (user
 direction 2026-11-10, [STRATEGY.md](STRATEGY.md) "Lifted code"; method and
 shared routines in [MATRIX-LIFT.md](MATRIX-LIFT.md), the cutscene entry in
-[CUTSCENE-LIFT.md](CUTSCENE-LIFT.md)). The register-level versions of 81:DFE7
-and of its NMI callback 81:DF0E stay as reference in
-[proof/intro-reference/](../proof/intro-reference/); the ROM proof tests
-(`tools/main-scene-intro.test.mjs`, `tools/main-intro-nmi.test.mjs`) keep
-checking them against the original instructions. Its set-up routines (81:D60F,
-81:D83E, 81:DC43, 81:D642, 81:DDB1, 81:E8E5, 81:E900, 81:EF63, 81:F092) and the
-sprite grid 81:E83A with the far object start 81:E971 are references in
-[proof/intro-reference/](../proof/intro-reference/) as well (intro-setup.mjs,
-intro-sprites.mjs; table entries in intro-routines.mjs), since the title, start
-menu and title cycle are lifted too; the frontend references call them, and they are
-the reference of the random tests. Live, only the outer owner 80:A141 still calls
+[CUTSCENE-LIFT.md](CUTSCENE-LIFT.md)). The register-level reference of 81:DFE7, its
+NMI callback 81:DF0E, its set-up routines (81:D60F, 81:D83E, 81:DC43, 81:D642,
+81:DDB1, 81:E8E5, 81:E900, 81:EF63, 81:F092), the sprite grid 81:E83A and the far
+object start 81:E971 (proof/intro-reference/) was retired on 2026-11-25 (user
+decision: ROM proofs may go where golden traces cover the lifted path), with
+tools/intro-lift.test.mjs, tools/intro-lift-functions.test.mjs and
+tools/main-scene-intro.test.mjs. The golden traces intro and attract cover the path
+([STATE-MODEL-REBUILD.md](STATE-MODEL-REBUILD.md)). The register-level frontend
+references (title, start menu, title cycle) and the scene reference table reach the
+lifted routines through [proof/caller/intro-setup-entries.mjs](../proof/caller/intro-setup-entries.mjs),
+which reads the register arguments and returns like the original.
+tools/main-intro-nmi.test.mjs keeps proving the register-level title callback
+81:DAD6 against the original instructions, with the lifted helpers as logged stubs.
+Live, only the outer owner 80:A141 still calls
 81:EF63, through the lifted `setUpGameAudio` (`setUpGameAudioRoutine`). The title was lifted next ([TITLE-LIFT.md](TITLE-LIFT.md)).
 
 ## Modules
@@ -57,23 +60,12 @@ The window copy reads fourteen bytes as the original does, the thirteen of
 
 ## What is compared
 
-[tools/intro-lift.test.mjs](../tools/intro-lift.test.mjs) runs the sessions of
-[tools/live-intro-plan.mjs](../tools/live-intro-plan.mjs) (from the apartment
-save, request 7E:1CE9 = 14: one intro over its 300 frames with spawns and the
-departure of the far object, one ended with A after about 60 frames, each
-followed by the credits of scene 5, about 20,000 NMIs) once lifted and once with
-the reference, through [tools/lift-compare.mjs](../tools/lift-compare.mjs).
-Every NMI must be equal: WRAM outside the ignored scratch of the cutscenes and
-the word 7E:0016, the scratch of the sprite grid (the following cutscene sets
-it before reading it); VRAM, CGRAM, OAM, PPU registers and scroll, PPU write
-count and sound RAM. A planted difference (one OAM byte in the 200th intro NMI)
-fails it at NMI 5201.
-
-[tools/intro-lift-functions.test.mjs](../tools/intro-lift-functions.test.mjs)
-runs the NMI callback (600 samples), the near object with its sound, the first
-objects, the clearing of the slots, the window, the title and game audio and
-both sound directory uploads on random states against the reference
-([tools/lift-function-harness.mjs](../tools/lift-function-harness.mjs)): every
-frame offset that holds a picture, free and taken slots, positions off screen
-and at the word wrap, every phase of the frame counter. The scene generator and
-the frame step are covered by the live sessions.
+Until 2026-11-25, tools/intro-lift.test.mjs compared the sessions of
+[tools/live-intro-plan.mjs](../tools/live-intro-plan.mjs) (from the apartment save,
+request 7E:1CE9 = 14: one intro over its 300 frames with spawns and the departure of
+the far object, one ended with A after about 60 frames, each followed by the credits
+of scene 5) NMI by NMI with the register-level reference, and
+tools/intro-lift-functions.test.mjs ran the callbacks and set-up routines on random
+states against it. The same sessions are now the golden trace intro
+([tools/golden/](../tools/golden/)): picture, game state, audio and SRAM hashes per
+frame, recorded from the proved lifted code.

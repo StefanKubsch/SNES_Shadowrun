@@ -4,8 +4,7 @@
 // tools/game-owner-lift.test.mjs reach only A139 (docs/MATRIX-LIFT.md). The title
 // cycle answers as a stub that records its call (return address, A, data bank) and
 // returns a random choice; both sides call the live table's game audio set-up
-// 81:EF63 (lifted; its register-level form is compared in
-// tools/intro-lift-functions.test.mjs). Both sides must leave the same WRAM, device
+// 81:EF63 (lifted; the golden traces cover it). Both sides must leave the same WRAM, device
 // writes, stack pointer, program counter and data bank.
 import { prng } from './task-native-dialog-harness.mjs';
 import { createSide, registerCases } from './lift-function-harness.mjs';

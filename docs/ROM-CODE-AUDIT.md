@@ -57,15 +57,15 @@ Read evidence still takes precedence; it is not removed by this correction.
 
 ## Established CPU readers
 
-| Retained code bytes                      | Actual original reader  | Why the bytes are read                                                                                      |
-| ---------------------------------------- | ----------------------- | ----------------------------------------------------------------------------------------------------------- |
-| `80:98FE` to `990F`                       | `80:A989 CMP $1038,Y`   | A985 compares the selection word with an index reaching bank-80 ROM instead of the WRAM mirror.             |
-| `80:9A5E` to `9A6F`                       | `80:A9BA LDY $1198,X`   | The same object index later reads the direction-table pointer from the ROM region.                          |
-| `81:CDF8`                                | `81:EC1E LDA [$28],Y`   | WORD read of the scene-command terminator at CDF7, then AND with 00FF.                                      |
-| `81:D02A`                                | `81:D008 LDA $D022,Y`   | WORD read of the last of eight BYTE displacement entries, then AND with 0003.                               |
-| `81:D10D`                                | `81:D0D4 LDA $D0FD,Y`   | WORD read of the last of sixteen BYTE displacement entries, then AND with 0007.                             |
-| `81:D59E`, `81:E3DA`, `81:E446`          | `81:D531 LDA $0000,Y`   | WORD read of a menu-text terminator, then AND with 00FF.                                                    |
-| `81:D694`                                | `81:D64E LDA $81D687,X` | A BYTE copy loop copies fourteen bytes, including this first byte after the thirteen-byte intro HDMA table. |
+| Retained code bytes             | Actual original reader  | Why the bytes are read                                                                                      |
+| ------------------------------- | ----------------------- | ----------------------------------------------------------------------------------------------------------- |
+| `80:98FE` to `990F`             | `80:A989 CMP $1038,Y`   | A985 compares the selection word with an index reaching bank-80 ROM instead of the WRAM mirror.             |
+| `80:9A5E` to `9A6F`             | `80:A9BA LDY $1198,X`   | The same object index later reads the direction-table pointer from the ROM region.                          |
+| `81:CDF8`                       | `81:EC1E LDA [$28],Y`   | WORD read of the scene-command terminator at CDF7, then AND with 00FF.                                      |
+| `81:D02A`                       | `81:D008 LDA $D022,Y`   | WORD read of the last of eight BYTE displacement entries, then AND with 0003.                               |
+| `81:D10D`                       | `81:D0D4 LDA $D0FD,Y`   | WORD read of the last of sixteen BYTE displacement entries, then AND with 0007.                             |
+| `81:D59E`, `81:E3DA`, `81:E446` | `81:D531 LDA $0000,Y`   | WORD read of a menu-text terminator, then AND with 00FF.                                                    |
+| `81:D694`                       | `81:D64E LDA $81D687,X` | A BYTE copy loop copies fourteen bytes, including this first byte after the thirteen-byte intro HDMA table. |
 
 The first four words have complementary recordings: the 9906/9A66 words
 occur in the native alley-bus regression, while 98FE/9A5E occur in the
@@ -89,8 +89,8 @@ The remaining readers are implemented in
 [cutscene-animation.mjs](../src/cutscene/cutscene-animation.mjs),
 [start-menu-text.mjs](../proof/frontend-reference/start-menu-text.mjs) (with its lifted form
 [start-menu.mjs](../src/frontend/start-menu.mjs)) and
-[intro-setup.mjs](../proof/intro-reference/intro-setup.mjs) (with its lifted form
-[intro-scene.mjs](../src/intro/intro-scene.mjs)). In addition,
+[intro-scene.mjs](../src/intro/intro-scene.mjs) (lifted; the register-level
+reference was retired on 2026-11-25). In addition,
 `81:E50C` is retained after the final options text: the same menu WORD
 reader must fetch it as the high byte of the terminator at E50B, although
 neither read recording contains a hit there.

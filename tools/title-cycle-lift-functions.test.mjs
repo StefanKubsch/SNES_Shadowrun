@@ -11,7 +11,7 @@ import { prng } from './task-native-dialog-harness.mjs';
 import { createSide, registerCases } from './lift-function-harness.mjs';
 import { START_MENU_IGNORED_WRAM } from './live-start-menu-plan.mjs';
 import { FRONTEND_ROUTINES } from '../proof/replay/main-frontend.mjs';
-import { INTRO_SETUP_REFERENCE_ENTRIES } from '../proof/intro-reference/intro-routines.mjs';
+import { INTRO_SETUP_ENTRIES } from '../proof/caller/intro-setup-entries.mjs';
 import { GAME_OWNER_REFERENCE_ENTRIES } from '../proof/frontend-reference/game-owner.mjs';
 import {
   TITLE_CYCLE_REFERENCE_ENTRIES,
@@ -54,11 +54,11 @@ const ARGUMENTS = new Map([
   [0x809699, ['a']],
 ]);
 function stubbedRoutines(s) {
-  // The register-level audio set-up (proof/intro-reference) and no-countdown marker
+  // The lifted audio set-up (proof/caller/intro-setup-entries.mjs) and no-countdown marker
   // 80:E24E (proof/frontend-reference/game-owner.mjs) the reference calls.
   const routines = new Map([
     ...FRONTEND_ROUTINES,
-    ...INTRO_SETUP_REFERENCE_ENTRIES,
+    ...INTRO_SETUP_ENTRIES,
     ...GAME_OWNER_REFERENCE_ENTRIES,
   ]);
   let menus = 0;

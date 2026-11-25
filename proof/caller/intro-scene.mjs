@@ -1,7 +1,7 @@
 // Former intro orchestration retained for independent caller comparisons.
 // The intro (lifted from 81:DFE7, cutscene 14, with its set-up 81:D60F, 81:D83E,
 // 81:D642, 81:DDB1 and 81:EF63 and the NMI callback 81:DF0E; register-level
-// reference in proof/intro-reference/). The cutscene entry 81:CDF8 passes scene 14
+// reference retired on 2026-11-25). The cutscene entry 81:CDF8 passes scene 14
 // on to it (src/cutscene/cutscene-scene.mjs).
 //
 // The intro loads the title's sounds, builds its screen from two scene lists and

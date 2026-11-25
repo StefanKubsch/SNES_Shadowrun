@@ -1,4 +1,4 @@
-// Intro sessions in the live game for tools/intro-lift.test.mjs: from the apartment
+// Intro sessions in the live game for the golden trace intro: from the apartment
 // save, the request 7E:1CE9 = 14 makes the main loop play cutscene 14, the intro
 // 81:DFE7, which then plays cutscene 5 mirrored (the credits pages, 7068 frames; its
 // animation clears the pad word, so no button ends it). One intro runs its 300

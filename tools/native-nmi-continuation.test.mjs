@@ -250,15 +250,16 @@ test('a configured callback override executes its own routine instead of a regis
 });
 
 test('all F290 callback owners retain the original long frames, saved widths and tail jump through RTI', () => {
-  // The cutscene callback 81:D479 runs lifted since 2026-11-25 (no register-level reference).
-  const callbacks = [0x81bec3, 0x81dad6, 0x81df0e, 0x81dd54, 0x81d93e, 0x81dcac, 0x81e6ae];
+  // The cutscene callback 81:D479 and the intro callback 81:DF0E run lifted since
+  // 2026-11-25 (no register-level reference).
+  const callbacks = [0x81bec3, 0x81dad6, 0x81dd54, 0x81d93e, 0x81dcac, 0x81e6ae];
   const d479 = sceneAnimationSpecs.find((s) => s.entry === 0x81d479);
   const graph = decodeWindows([
     ...matrixNmiSpecs[2].windows,
     ...matrixNmiSpecs[0].windows,
     ...matrixNmiSpecs[1].windows,
     ...d479.windows,
-    ...introNmiSpecs.slice(0, 2).flatMap((s) => s.windows),
+    ...introNmiSpecs.slice(0, 1).flatMap((s) => s.windows),
     ...frontendSpecs.filter((s) => callbacks.includes(s.entry)).flatMap((s) => s.windows),
   ]);
   const routines = new Map([...FRONTEND_NMI_ROUTINES, ...MAIN_SCENE_ROUTINES]);
@@ -268,7 +269,7 @@ test('all F290 callback owners retain the original long frames, saved widths and
   // original instructions on the reference side, including D93E's tail jump.
   for (const target of callbacks)
     for (const p of [0x41, 0x31]) {
-      const padBank = [0x81dad6, 0x81df0e, 0x81d93e, 0x81dcac].includes(target) ? 0x81 : 0;
+      const padBank = [0x81dad6, 0x81d93e, 0x81dcac].includes(target) ? 0x81 : 0;
       const prepare = () => {
         const v = side({ p });
         v.mem.write16(0x6e, target & 65535);

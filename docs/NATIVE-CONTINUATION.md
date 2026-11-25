@@ -163,8 +163,8 @@ work budget replaces no APU reply.
 [CDF8](../proof/replay/main-scene.mjs) keeps both original wait phases, the input
 evaluation and its direct BYTE fade poll at CF4C/CF4F. `FadePollContinuation`
 lets the NMI return completely up to RTI before the same LDA or BNE
-instruction follows. The jump to DFE7 ([reference](../proof/intro-reference/intro-scene.mjs),
-lifted in [src/intro](../src/intro/intro-scene.mjs))
+instruction follows. The jump to DFE7 (lifted in [src/intro](../src/intro/intro-scene.mjs); the
+register-level reference was retired on 2026-11-25)
 passes on the existing frame; only the original JSL at E120 creates the frame
 of the nested CDF8. The D479/DF0E callbacks actually installed and the
 existing source proof are kept: [mainSceneSpecs](../tools/main-scene-source.mjs),
@@ -683,10 +683,10 @@ The browser live mode uses the same path ([PPU-ROOM.md](PPU-ROOM.md)).
 With a PPU bus, `LiveDevices` answers two more device reads from the PPU model,
 independent of time:
 
-| Read                                        | Source                                                                                                                                                                                                                                             |
-| ------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Read                                        | Source                                                                                                                                                                                                                                               |
+| ------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | 2134-2136, for example F963 at 80:FA01/FA19 | product from [PpuState](../proof/video/ppu-state.mjs): Book I PDF 124 (2-27-10), 16 bits at 211B in two writes low/high, 8 bits once at 211C; PDF 134 (2-27-20), 24-bit result in two's complement. Another M7 write between low and high is a limit |
-| 213A at 81:AA8E (BYTE)                      | VRAM prefetch of A9E1 from the PPU model                                                                                                                                                                                                           |
+| 213A at 81:AA8E (BYTE)                      | VRAM prefetch of A9E1 from the PPU model                                                                                                                                                                                                             |
 
 The channel 5 DMA of the text mask (A9E1, 2139/213A to 7E2AE0) is carried out by
 the PPU bus in live mode and writes the 16 bytes to WRAM; A9E1 then uses no

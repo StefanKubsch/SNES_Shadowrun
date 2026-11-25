@@ -8,18 +8,37 @@ import {
   window,
   prng,
   DialogTestMemory,
-  rom,
 } from './task-native-dialog-harness.mjs';
 import { runReference } from './w65c816-reference.mjs';
-import { cpuToOffset } from './rom.mjs';
 import { proveWordStack } from './static-word-stack-proof.mjs';
 import { INTRO_NMI_ROUTINES as INTRO_TASK_ROUTINES } from '../proof/replay/intro-nmi-routines.mjs';
-import { drawIntroSpriteGrid } from '../proof/intro-reference/intro-sprites.mjs';
 import { runObservedNmi } from '../src/system/nmi-call.mjs';
 import { SCENE_REFERENCE_ROUTINES as MAIN_SCENE_ROUTINES } from '../proof/scene-reference-routines.mjs';
 import '../proof/system/dialog-register-helpers.mjs';
 // The callbacks 81:DF0E, 81:DAD6 and 81:D9D5 and the routines 81:E83A, 81:E971 and
-// 81:E900 are lifted (src/intro, src/frontend); their register-level references are proved here.
+// 81:E900 are lifted (src/intro, src/frontend). The register-level title callback
+// 81:DAD6 (proof/frontend-reference/title.mjs) is proved here; the intro reference of
+// 81:DF0E, 81:E83A and 81:E971 was retired on 2026-11-25, when the golden traces
+// attract and intro covered the lifted path (docs/STATE-MODEL-REBUILD.md), so their
+// specs only pin the original source.
+const REFERENCE_SPECS = new Set(['dad6']);
+// The lifted sprite grid 81:E83A, far object 81:E971 and near object 81:E900
+// (proof/caller/intro-setup-entries.mjs) answer as logged stubs on both sides, so the
+// NMI frame of the register-level title callback is compared on its own.
+const HELPER_STUBS = new Map(
+  [0x81e83a, 0x81e971, 0x81e900].map((target) => [
+    target,
+    (h) => {
+      h.a.trace.push({
+        kind: 'intro-nmi-call',
+        pc: target,
+        address: h.ctx.x,
+        value: h.ctx.a + h.ctx.y * 65536,
+      });
+      return h.rtl();
+    },
+  ]),
+);
 const INTRO_NMI_ROUTINES = new Map([
   ...INTRO_TASK_ROUTINES,
   ...[0x81df0e, 0x81dad6, 0x81d9d5, 0x81e83a, 0x81e971, 0x81e900].map((t) => [
@@ -28,9 +47,8 @@ const INTRO_NMI_ROUTINES = new Map([
   ]),
 ]);
 const runObservedIntroNmi = (a, e = null, r = INTRO_NMI_ROUTINES) => runObservedNmi(a, e, r);
-import { setupIntroScene, clearIntroObjects } from '../proof/intro-reference/intro-setup.mjs';
 import { dialogAccess } from '../src/system/native-dialog-support.mjs';
-import { TaskAccessor, NATIVE_ACCESS_LIMIT } from '../src/vm/task-accessor.mjs';
+import { TaskAccessor } from '../src/vm/task-accessor.mjs';
 const maps = introNmiSpecs.map((s) => decodeWindows(s.windows));
 const animationOffsets = Array.from({ length: 86 }, (_, i) => i * 2).filter(
   (i) => ![38, 58].includes(i),
@@ -162,33 +180,35 @@ function isolated(spec) {
     ]),
   );
 }
-introNmiSpecs.forEach((spec, i) =>
-  test(`${spec.name}: all own equations match original instructions`, () => {
-    const scenarios = Array.from({ length: 240 }, (_, i) => sample(spec.entry, i + 1));
-    if (spec.name === 'df0e')
-      for (const offset of [22, 36, 50, 108]) {
-        const s = sample(spec.entry, 1);
-        s.word(0x11a2, 0);
-        s.word(0x113e, offset);
-        scenarios.push(s);
+introNmiSpecs.forEach(
+  (spec, i) =>
+    REFERENCE_SPECS.has(spec.name) &&
+    test(`${spec.name}: all own equations match original instructions`, () => {
+      const scenarios = Array.from({ length: 240 }, (_, i) => sample(spec.entry, i + 1));
+      if (spec.name === 'df0e')
+        for (const offset of [22, 36, 50, 108]) {
+          const s = sample(spec.entry, 1);
+          s.word(0x11a2, 0);
+          s.word(0x113e, offset);
+          scenarios.push(s);
+        }
+      const covered = new Set();
+      for (const s of scenarios) {
+        s.io = [];
+        const r = isolated(spec),
+          result = compareDialog(maps[i], s, {
+            root: 'RTL',
+            native: (h, e) => INTRO_NMI_ROUTINES.get(spec.entry)(h, e, r),
+            calls: (a, e) => external(dialogAccess(a), e, maps[i], r),
+          });
+        assert.deepEqual(result.differences, [], `seed ${s.seed}`);
+        for (const pc of result.visited) covered.add(pc);
       }
-    const covered = new Set();
-    for (const s of scenarios) {
-      s.io = [];
-      const r = isolated(spec),
-        result = compareDialog(maps[i], s, {
-          root: 'RTL',
-          native: (h, e) => INTRO_NMI_ROUTINES.get(spec.entry)(h, e, r),
-          calls: (a, e) => external(dialogAccess(a), e, maps[i], r),
-        });
-      assert.deepEqual(result.differences, [], `seed ${s.seed}`);
-      for (const pc of result.visited) covered.add(pc);
-    }
-    assert.deepEqual(
-      [...maps[i].keys()].filter((pc) => !covered.has(pc)).map((pc) => pc.toString(16)),
-      [],
-    );
-  }),
+      assert.deepEqual(
+        [...maps[i].keys()].filter((pc) => !covered.has(pc)).map((pc) => pc.toString(16)),
+        [],
+      );
+    }),
 );
 function matchingAck(a) {
   const read = a.absoluteRead;
@@ -202,24 +222,6 @@ function matchingAck(a) {
     return value;
   };
 }
-test('callbacks compose actual OAM, allocation, input and sprite helpers', () => {
-  for (const i of [0, 1])
-    for (let seed = 1; seed <= 40; seed++) {
-      const s = sample(introNmiSpecs[i].entry, seed);
-      const r = compareDialog(maps[i], s, {
-        root: 'RTL',
-        native: (h, e) => {
-          matchingAck(h.a);
-          return INTRO_NMI_ROUTINES.get(s.entry)(h, e, MAIN_SCENE_ROUTINES);
-        },
-        calls: (a, e) => {
-          matchingAck(a);
-          return external(dialogAccess(a), e, maps[i], MAIN_SCENE_ROUTINES);
-        },
-      });
-      assert.deepEqual(r.differences, [], `entry ${i} seed ${seed}`);
-    }
-});
 const expand = (trace) =>
   trace.flatMap((e) =>
     e.width === 2
@@ -249,9 +251,9 @@ function side(s) {
   a.devices = { write() {} };
   return { mem, a, h: dialogAccess(a) };
 }
-test('both installed callbacks share the original native NMI frame through DBR81 exits and RTI', () => {
+test('the installed title callback shares the original native NMI frame through DBR81 exits and RTI', () => {
   const covered = new Set();
-  for (const target of [0x81dad6, 0x81df0e])
+  for (const target of [0x81dad6])
     for (let seed = 1; seed <= 24; seed++) {
       const s = sample(target, seed);
       s.dbr = [0, 0x80, 0x81][seed % 3];
@@ -278,24 +280,18 @@ test('both installed callbacks share the original native NMI frame through DBR81
         return read(address);
       };
       r.a.ioIndex = 1;
-      runObservedIntroNmi(n.a);
+      runObservedIntroNmi(n.a, null, new Map([...INTRO_NMI_ROUTINES, ...HELPER_STUBS]));
       const { h, a } = r;
       h.pushByte(a.ctx.programBank);
       h.push(a.ctx.pc, 2);
       h.pushByte(a.ctx.status);
       a.ctx.status = (a.ctx.status | 4) & ~8;
       a.ctx.programBank = 0;
-      const map = new Map([
-        ...decodeWindows(matrixNmiSpecs[2].windows),
-        ...maps[0],
-        ...maps[1],
-        ...maps[2],
-        ...maps[3],
-      ]);
+      const map = new Map([...decodeWindows(matrixNmiSpecs[2].windows), ...maps[0], ...maps[1]]);
       const result = runReference(map, r.mem, a.ctx, {
         entry: 0x00c112,
         root: 'RTI',
-        calls: external(h, null, map, MAIN_SCENE_ROUTINES),
+        calls: external(h, null, map, new Map([...MAIN_SCENE_ROUTINES, ...HELPER_STUBS])),
         io: a.trace,
       });
       for (const pc of result.visited) covered.add(pc);
@@ -313,23 +309,6 @@ test('both installed callbacks share the original native NMI frame through DBR81
     }
   assert.ok(covered.has(0x00c14e));
   assert.ok(covered.has(0x81dad5));
-  assert.ok(covered.has(0x81df76));
-});
-test('BYTE high-X updates use the original mask and preserve incoming DBR', () => {
-  for (const x of [0xffff, 0, 255, 256]) {
-    const s = sample(0x81e83a, 1);
-    s.a = 0;
-    s.x = x;
-    s.y = 100;
-    s.word(0x2c, 0);
-    s.wram.fill(0, 0x111e, 0x113e);
-    const { h } = side(s);
-    h.pushByte(0x80);
-    h.push(0x1234, 2);
-    drawIntroSpriteGrid(h);
-    assert.equal(h.ctx.bank, s.dbr);
-    if (x === 0 || x === 0xffff) assert.equal(h.read(0x111e, 1), 1);
-  }
 });
 test('missing and wrongly addressed device values retain an explicit boundary', () => {
   for (const target of [0x81dad6, 0x81df0e])
@@ -382,67 +361,4 @@ test('hardware-frame alias of 006E dispatches the fresh proved callback and reje
       assert.deepEqual(seen, []);
     }
   }
-});
-test('original scene setup installs DAD6 and its native callbacks advance the same animation state', () => {
-  const s = sample(0x81d60f, 1);
-  s.dbr = 0x81;
-  s.p = 0;
-  s.wram[0x1ce4] = 0;
-  const { a, h, mem } = side(s);
-  matchingAck(a);
-  h.call(0x811000, 0x81e8e5, () => clearIntroObjects(h), true);
-  h.call(0x811004, 0x81d60f, () => setupIntroScene(h, null, MAIN_SCENE_ROUTINES));
-  assert.equal(h.pointer(0x6e), 0x81dad6);
-  assert.equal(mem.read16(0x11a2), 0);
-  // Sixteen expressly supplied interrupt occurrences; no elapsed-frame claim.
-  for (let n = 0; n < 16; n++) {
-    a.io = [
-      { pc: 0x00c118, address: 0x814210, width: 2, value: 0 },
-      { pc: 0x809e0b, address: 0x814212, width: 2, value: 0 },
-      { pc: 0x809e13, address: 0x814218, width: 2, value: 0 },
-    ];
-    a.ioIndex = 0;
-    const before = { ...a.ctx };
-    runObservedIntroNmi(a);
-    assert.deepEqual(a.ctx, before);
-    assert.equal(mem.read16(0x11a2), n + 1);
-    assert.equal(a.ioIndex, 3);
-  }
-  assert.equal(mem.read16(0x119e), 6);
-  assert.equal(mem.read16(0x11a0), 6);
-  assert.equal(h.ctx.s, 0x1ef0);
-});
-test('sprite writes can alias the fresh grid X scratch word across a bank boundary', () => {
-  const s = sample(0x81e83a, 1);
-  s.a = 0;
-  s.x = 16;
-  s.y = 100;
-  s.dbr = 0x81;
-  s.word(0x2c, 0xf100);
-  s.word(0x24, 0x2000);
-  s.io = [];
-  const r = compareDialog(maps[2], s, {
-    root: 'RTL',
-    native: (h) => {
-      drawIntroSpriteGrid(h);
-      assert.equal(h.dp(0x20, 2), 0x2008);
-      assert.equal(h.dp(0x2c, 2), 0xf104);
-    },
-  });
-  assert.deepEqual(r.differences, []);
-});
-test('zero sprite width retains the original do-loop and diagnostic access boundary', () => {
-  // A zero width is a full WORD do-loop, not an empty grid. Redirect only test
-  // data, keeping the pinned original helper instructions intact.
-  const s = sample(0x81e83a, 1);
-  s.a = 0;
-  s.x = 16;
-  s.rom = rom.slice();
-  s.rom.set([0, 0], cpuToOffset(0x81e9f3, rom.length));
-  const v = side(s);
-  v.a.accesses = NATIVE_ACCESS_LIMIT - 100;
-  assert.throws(
-    () => drawIntroSpriteGrid(v.h),
-    (e) => e.reason === 'native_access_limit',
-  );
 });

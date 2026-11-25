@@ -96,6 +96,13 @@ own commit after `npm run test:block` and the golden trace test. One shared
 
 ## Progress
 
+- 2026-11-25, intro proof retirement: proof/intro-reference/ (954 lines),
+  tools/intro-lift(-functions).test.mjs and tools/main-scene-intro.test.mjs are gone,
+  with the DF0E, E83A and E971 cases of tools/main-intro-nmi.test.mjs. The golden
+  traces intro and attract cover the path; the frontend references and the scene
+  reference table call the lifted set-up routines through
+  proof/caller/intro-setup-entries.mjs ([INTRO-LIFT.md](INTRO-LIFT.md)).
+
 - 2026-11-25, first proof retirement (user decision: ROM proofs may go where golden
   traces cover the lifted path): proof/cutscene-reference/ (1190 lines),
   tools/cutscene-lift(-functions).test.mjs and tools/main-scene-animation.test.mjs are

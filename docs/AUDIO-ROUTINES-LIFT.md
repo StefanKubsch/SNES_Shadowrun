@@ -97,7 +97,6 @@ session 4 of [tools/live-title-cycle-plan.mjs](../tools/live-title-cycle-plan.mj
 the entries); every NMI must be equal. A planted difference (another music mode)
 fails it.
 
-The existing function tests of src/apu (tools/matrix-lift-functions.test.mjs,
-tools/intro-lift-functions.test.mjs) keep proving the lifted music code; the
-golden traces cutscenes and intro play it (the cutscene function test and
-tools/main-scene-animation.test.mjs were retired on 2026-11-25).
+The function test tools/matrix-lift-functions.test.mjs keeps proving the lifted
+music code; the golden traces cutscenes and intro play it (the cutscene and intro
+function tests and tools/main-scene-animation.test.mjs were retired on 2026-11-25).
