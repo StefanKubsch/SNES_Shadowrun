@@ -4,20 +4,20 @@ The intro 81:DFE7 (cutscene 14) is the third scene lifted from register-level
 65816 equations to plain code, after the matrix and the cutscenes (user
 direction 2026-11-10, [STRATEGY.md](STRATEGY.md) "Lifted code"; method and
 shared routines in [MATRIX-LIFT.md](MATRIX-LIFT.md), the cutscene entry in
-[CUTSCENE-LIFT.md](CUTSCENE-LIFT.md)). The register-level reference of 81:DFE7, its
-NMI callback 81:DF0E, its set-up routines (81:D60F, 81:D83E, 81:DC43, 81:D642,
-81:DDB1, 81:E8E5, 81:E900, 81:EF63, 81:F092), the sprite grid 81:E83A and the far
-object start 81:E971 (proof/intro-reference/) was retired on 2026-11-25 (user
-decision: ROM proofs may go where golden traces cover the lifted path), with
-tools/intro-lift.test.mjs, tools/intro-lift-functions.test.mjs and
-tools/main-scene-intro.test.mjs. The golden traces intro and attract cover the path
-([STATE-MODEL-REBUILD.md](STATE-MODEL-REBUILD.md)). The register-level frontend
-references (title, start menu, title cycle) and the scene reference table reach the
-lifted routines through [proof/caller/intro-setup-entries.mjs](../proof/caller/intro-setup-entries.mjs),
-which reads the register arguments and returns like the original.
-tools/main-intro-nmi.test.mjs keeps proving the register-level title callback
-81:DAD6 against the original instructions, with the lifted helpers as logged stubs.
-Live, only the outer owner 80:A141 still calls
+[CUTSCENE-LIFT.md](CUTSCENE-LIFT.md)). The register-level reference of 81:DFE7 and
+its NMI callback 81:DF0E (proof/intro-reference/intro-scene.mjs) was retired on
+2026-11-25 (user decision: ROM proofs may go where golden traces cover the lifted
+path), with tools/intro-lift.test.mjs; the golden traces intro and attract cover the
+path ([STATE-MODEL-REBUILD.md](STATE-MODEL-REBUILD.md)). Its set-up routines (81:D60F,
+81:D83E, 81:DC43, 81:D642, 81:DDB1, 81:E8E5, 81:E900, 81:EF63, 81:F092), the sprite
+grid 81:E83A and the far object start 81:E971 stay as register-level references in
+[proof/intro-reference/](../proof/intro-reference/) (intro-setup.mjs,
+intro-sprites.mjs; table entries in intro-routines.mjs): the frontend references
+(title, start menu, title cycle) call them, and the recorded Mesen chronologies of the
+boot place NMIs inside their unpack calls, which a lifted entry cannot replay (an
+attempt with lifted adapters on 2026-11-25 failed 22 release tests). The ROM proofs
+tools/main-scene-intro.test.mjs and tools/main-intro-nmi.test.mjs and the random tests
+of tools/intro-lift-functions.test.mjs keep checking them. Live, only the outer owner 80:A141 still calls
 81:EF63, through the lifted `setUpGameAudio` (`setUpGameAudioRoutine`). The title was lifted next ([TITLE-LIFT.md](TITLE-LIFT.md)).
 
 ## Modules
@@ -65,7 +65,7 @@ Until 2026-11-25, tools/intro-lift.test.mjs compared the sessions of
 request 7E:1CE9 = 14: one intro over its 300 frames with spawns and the departure of
 the far object, one ended with A after about 60 frames, each followed by the credits
 of scene 5) NMI by NMI with the register-level reference, and
-tools/intro-lift-functions.test.mjs ran the callbacks and set-up routines on random
-states against it. The same sessions are now the golden trace intro
+tools/intro-lift-functions.test.mjs ran the callback 81:DF0E on random states against
+it (its set-up cases remain). The same sessions are now the golden trace intro
 ([tools/golden/](../tools/golden/)): picture, game state, audio and SRAM hashes per
 frame, recorded from the proved lifted code.

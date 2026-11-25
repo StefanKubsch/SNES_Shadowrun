@@ -1,6 +1,6 @@
 // Register-level reference of the start menu 81:E14A/E1B4 and its input 81:E29F
 // (the lifted version is src/frontend/start-menu.mjs).
-import { INTRO_SETUP_ENTRIES } from '../caller/intro-setup-entries.mjs';
+import { INTRO_SETUP_REFERENCE_ENTRIES } from '../intro-reference/intro-routines.mjs';
 import { saveSlotCount } from '../../src/game/save-slots.mjs';
 
 import { creditsRequested, markStartMenu, requestCredits } from '../../src/game/credits.mjs';
@@ -374,7 +374,7 @@ const REFERENCE = [
   [0x81e29f, chooseMenuRow, chooseMenuRowSequence],
 ];
 export const START_MENU_REFERENCE_ENTRIES = [
-  ...INTRO_SETUP_ENTRIES,
+  ...INTRO_SETUP_REFERENCE_ENTRIES,
   ...START_MENU_TEXT_ENTRIES,
   ...REFERENCE.map(([target, run]) => [target, run]),
 ];

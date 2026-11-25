@@ -1,6 +1,6 @@
 // Intro and title objects (lifted from 81:E8E5, 81:DC43, 81:E900, 81:E971, 81:E83A,
 // the NMI drawing of 81:DF0E and 81:D9D5 and the frame step of 81:DFE7;
-// register-level reference of 81:D9D5 in proof/frontend-reference/; the register-level intro reference was retired on 2026-11-25).
+// register-level reference in proof/intro-reference/ and proof/frontend-reference/).
 //
 // Intro and title show up to sixteen objects in two lists of eight slots (near and
 // far), each with an animation offset into a frame list (negative: the slot is free),

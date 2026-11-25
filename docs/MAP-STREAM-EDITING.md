@@ -41,8 +41,8 @@ The title table loads `84:F202`, `84:F251`, `84:F293`, `84:F416` and
 `84:D8DD` into `7E:4EA8`, `56A8`, `5EA8`, `66A8` and `76A8` respectively.
 Each produces 2,048 bytes. The title's scrolling and NMI consumers retain
 their buffer ordering; see
-[intro-scene.mjs](../src/intro/intro-scene.mjs) (lifted from 81:D83E; its register-level
-reference was retired on 2026-11-25),
+[intro-scene.mjs](../src/intro/intro-scene.mjs) (lifted from 81:D83E; reference
+[intro-setup.mjs](../proof/intro-reference/intro-setup.mjs), `unpackIntroList`),
 [title.mjs](../src/frontend/title.mjs) and
 [main-intro-nmi.mjs](../src/system/main-intro-nmi.mjs).
 

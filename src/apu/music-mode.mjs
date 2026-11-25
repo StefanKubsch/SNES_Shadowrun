@@ -1,7 +1,8 @@
 // Music modes and sample loading (lifted from 81:EF47, 81:F25A, 81:F1FA, 81:F130,
 // 81:F100, 81:F122/F1E8, 81:F03A and the directory load 81:F092; register-level
-// versions in proof/replay/native-audio-compose.mjs; the reference of 81:F092 was retired
-// on 2026-11-25; directory and block formats in src/data/sound.mjs).
+// versions in proof/replay/native-audio-compose.mjs and proof/intro-reference/intro-setup.mjs;
+// directory and block formats in
+// src/data/sound.mjs).
 //
 // A music mode starts its song, loads the samples its mode list names and sets
 // the song level and volume. Samples go to the sound driver as byte pairs: a

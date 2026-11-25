@@ -105,12 +105,14 @@ own commit after `npm run test:block` and the golden trace test. One shared
   writer, and rom-map and extract-tables take the jump table targets from
   src/matrix/matrix-tables.mjs ([MATRIX-LIFT.md](MATRIX-LIFT.md)).
 
-- 2026-11-25, intro proof retirement: proof/intro-reference/ (954 lines),
-  tools/intro-lift(-functions).test.mjs and tools/main-scene-intro.test.mjs are gone,
-  with the DF0E, E83A and E971 cases of tools/main-intro-nmi.test.mjs. The golden
-  traces intro and attract cover the path; the frontend references and the scene
-  reference table call the lifted set-up routines through
-  proof/caller/intro-setup-entries.mjs ([INTRO-LIFT.md](INTRO-LIFT.md)).
+- 2026-11-25, intro proof retirement: the register-level intro playback
+  (proof/intro-reference/intro-scene.mjs, 333 lines) and tools/intro-lift.test.mjs are
+  gone, with the DFE7 and DF0E cases of the intro ROM proofs and the NMI continuation
+  proof. The golden traces intro and attract cover the path. The register-level set-up
+  routines stay: the frontend references run them, and the recorded Mesen chronologies
+  of the boot place NMIs inside their unpack calls, which lifted entries cannot replay
+  (a first attempt with lifted adapters failed 22 release tests)
+  ([INTRO-LIFT.md](INTRO-LIFT.md)).
 
 - 2026-11-25, first proof retirement (user decision: ROM proofs may go where golden
   traces cover the lifted path): proof/cutscene-reference/ (1190 lines),

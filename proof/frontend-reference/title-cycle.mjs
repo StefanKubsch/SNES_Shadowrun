@@ -19,7 +19,7 @@ import {
   attractRoundsSequence,
   runAttractRounds,
 } from '../replay/main-frontend.mjs';
-import { INTRO_SETUP_ENTRIES } from '../caller/intro-setup-entries.mjs';
+import { INTRO_SETUP_REFERENCE_ENTRIES } from '../intro-reference/intro-routines.mjs';
 import { GAME_OWNER_REFERENCE_ENTRIES, runMenuGameMarker } from './game-owner.mjs';
 import { taskStop } from '../../src/system/task-stop.mjs';
 import { FLAG_ZERO } from '../../src/constants/cpu-flags.mjs';
@@ -162,7 +162,7 @@ const REFERENCE = [
   [0x8096f3, playAttractGame, frontendAttractLoopSequence],
 ];
 export const TITLE_CYCLE_REFERENCE_ENTRIES = [
-  ...INTRO_SETUP_ENTRIES,
+  ...INTRO_SETUP_REFERENCE_ENTRIES,
   // The no-countdown marker the demo owner 96F3 calls.
   [0x80e24e, runMenuGameMarker],
   ...REFERENCE.map(([target, run]) => [target, run]),

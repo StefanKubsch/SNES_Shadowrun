@@ -228,8 +228,9 @@ jobs, wrong vector, real shared text/map producers. Device answers and
 interrupt occurrences are synthetic.
 
 The intro callbacks in [main-intro-nmi.mjs](../src/system/main-intro-nmi.mjs) (the sprite
-grid `$E83A`, `$E971` and `$DF0E` lifted in src/intro; their register-level
-reference was retired on 2026-11-25) use the same outer NMI flow:
+grid `$E83A` and `$E971` as reference in
+[intro-sprites.mjs](../proof/intro-reference/intro-sprites.mjs); `$DF0E` lifted in
+src/intro, its register-level reference retired on 2026-11-25) use the same outer NMI flow:
 
 - `$DAD6` first requests the current OAM buffer via `$ED8B` and jumps on the
   existing long frame to `$D9D5`, where PHK sets DBR `$81`. Two lists of eight

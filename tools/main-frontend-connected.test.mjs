@@ -108,17 +108,6 @@ function compare(entry, keys, initialA = 0, save = false) {
     r.a.trace.push({ kind: 'read', pc, address, width, value });
     return value;
   };
-  // The lifted set-up routines (proof/caller/intro-setup-entries.mjs, such as the sound
-  // directory 81:F092) read the devices through the hardware port.
-  const busRead = r.a.busRead;
-  r.a.busRead = (address, width, pc, anyBank) => {
-    if (!isIoAddress(address) || isArithmeticRegister(address, false))
-      return busRead(address, width, pc, anyBank);
-    const value = valueFor(pc, address);
-    io.push({ pc, address, width, value });
-    r.a.trace.push({ kind: 'read', pc, address, width, value });
-    return value;
-  };
   // Only own LDA operands use the reference memory's byte reads. Shared
   // helper modules use absoluteRead above. Keep each WORD as one observation.
   const read = r.mem.read8.bind(r.mem);

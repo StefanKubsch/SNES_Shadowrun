@@ -23,10 +23,8 @@ import {
   drainNativeSequence,
 } from '../../src/system/native-call-continuation.mjs';
 import { routineCaller } from '../system/routine-call.mjs';
-// The near objects' animation start and Y bias (81:DC43, as in src/intro/intro-objects.mjs).
-const INTRO_START_ANIMATION = 0x3c,
-  INTRO_NEAR_Y_BIAS = 0x38;
-import { INTRO_SETUP_ENTRIES } from '../caller/intro-setup-entries.mjs';
+import { INTRO_NEAR_Y_BIAS, INTRO_START_ANIMATION } from '../intro-reference/intro-setup.mjs';
+import { INTRO_SETUP_REFERENCE_ENTRIES } from '../intro-reference/intro-routines.mjs';
 import { INTRO_NMI_ROUTINES } from '../replay/intro-nmi-routines.mjs';
 
 import { FRONTEND_NMI_ROUTINES } from '../replay/main-frontend-nmi.mjs';
@@ -1054,7 +1052,7 @@ const REFERENCE = [
   [0x81d9d5, drawPanObjects, drawPanObjectsSequence],
 ];
 export const TITLE_REFERENCE_ENTRIES = [
-  ...INTRO_SETUP_ENTRIES,
+  ...INTRO_SETUP_REFERENCE_ENTRIES,
   ...REFERENCE.map(([target, run]) => [target, run]),
   [0x81de93, drawPrologueLine],
   [0x81d81f, moveTitleWindow],
