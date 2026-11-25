@@ -7,7 +7,7 @@ import { taskNativeOpcodeFixture } from './task-native-opcode-fixtures.mjs';
 import { nativeOpcodeSpecs } from './task-native-opcode-specs.mjs';
 import * as bindings from '../proof/task/native-opcode-bindings.mjs';
 import { prepared, commit, unchangedFailure } from './task-native-test-support.mjs';
-import { createRenderData, renderAddress } from '../proof/render/data.mjs';
+import { renderAddress } from '../proof/render/data.mjs';
 import { readFileSync } from 'node:fs';
 import { inspectRom } from './rom.mjs';
 import { decodeTaskWindows } from './task-partial-source.mjs';
@@ -16,10 +16,8 @@ import { proveLeafSource } from './task-native-leaf-source.mjs';
 import { VmMemory, VmFault } from '../src/vm/memory.mjs';
 import { TaskAccessor } from '../src/vm/task-accessor.mjs';
 import { getDistanceBetweenObjectsReference as getDistanceBetweenObjects } from '../proof/game-reference/script-measures.mjs';
-import { getStoryStageReference as getStoryStage } from '../proof/game-reference/room-story.mjs';
 import { moveObjectToObjectReference as moveObjectToObject } from '../proof/game-reference/motion-targets.mjs';
 import { getDirectionToPlayerReference as getDirectionToPlayer } from '../proof/game-reference/object-facing.mjs';
-import { getRunnerStrengthReference as getRunnerStrength } from '../proof/game-reference/script-starts.mjs';
 import { addMagicPointsReference as addMagicPoints } from '../proof/game-reference/party-funds.mjs';
 import {
   haltObjectReference as haltObject,
@@ -34,10 +32,6 @@ import { addTopicReference as addTopic } from '../proof/game-reference/topic-lis
 import { getPreviousFightObjectReference as getPreviousFightObject } from '../proof/game-reference/fight-list-queries.mjs';
 import { isInFightListReference as isInFightList } from '../proof/game-reference/fight-list-queries.mjs';
 import {
-  setItemPropertyAndUnequipReference as setItemPropertyAndUnequip,
-  setActorItemPropertyAndUnequipReference as setActorItemPropertyAndUnequip,
-} from '../proof/game-reference/runner-equipment.mjs';
-import {
   bobObjectReference as bobObject,
   bobSecondObjectReference as bobSecondObject,
   advanceOrbitReference as advanceOrbit,
@@ -45,7 +39,6 @@ import {
 import { D796_ENTRIES } from '../src/script/native-orbit.mjs';
 import { decrementObjectStateCountReference as decrementObjectStateCount } from '../proof/game-reference/actor-state.mjs';
 import { removeGroupMemberReference as removeGroupMember } from '../proof/game-reference/group-members.mjs';
-import { startBrightnessFadeReference as startBrightnessFade } from '../proof/game-reference/brightness-fade.mjs';
 import { placeObjectInFormationReference as placeObjectInFormation } from '../proof/game-reference/formation-place.mjs';
 import { hasNoObjectAnimationReference as hasNoObjectAnimation } from '../proof/game-reference/object-fields.mjs';
 import { getGroupMemberPositionReference as getGroupMemberPosition } from '../proof/game-reference/group-members.mjs';
@@ -63,12 +56,6 @@ const blocks = new Map(
 const fixture = (entry) => ({ b: blocks.get(entry), f: taskLeafFixture(entry) });
 const put = (f, a, v) => f.data.seed(a, [v & 255, v >>> 8]);
 const word = (f, a) => f.data.readByte(a).value | (f.data.readByte(a + 1).value << 8);
-const omit = (f, ...addresses) => {
-  const data = createRenderData({ writeWindows: f.data.snapshot().writeWindows }),
-    set = new Set(addresses.map(renderAddress));
-  for (const [a, v] of f.data.snapshot().bytes) if (!set.has(a)) data.seed(a, [v]);
-  return { ...f, data };
-};
 test('Native7D/E30F full path: slot bytes, both table matches, fresh [A2]+9 BYTE and record fields', () => {
   const { b, f } = fixture(0x80e30f),
     p = commit(b.prepare, f);
@@ -131,52 +118,6 @@ test('Native7D long pointer Y addition carries into the next bank; second search
   // First match is X=18 (searched downward), so 7E2DF0+18 is compared before any lower index.
   assert.ok(!p.accesses.some((r) => r.address === renderAddress(0x7e2e06)));
 });
-test('Native7F/CCB9 ADC uses the third ASL carry and fresh 7E2DE2; decimal mode stops', () => {
-  const { b, f } = fixture(0x80ccb9);
-  put(f, 0x7e2de2, 0x2000);
-  put(f, 0x8d929d + 0x2001, 0xbeef);
-  const p = commit(b.prepare, f);
-  assert.equal(p.outputContext.x, 0x2001);
-  assert.equal(word(f, 0), 0xbeef);
-  assert.equal(p.outputContext.status & 0xc3, 0x80);
-  unchangedFailure(
-    b.prepare,
-    f,
-    { context: Object.freeze({ ...f.context, status: f.context.status | 8 }) },
-    'task_binary_arithmetic_required',
-  );
-});
-test('Native6F/9D6A and Native96/CAA2 skip zero records, carry X across banks and keep high A on BYTE store', () => {
-  for (const entry of [0x809d6a, 0x80caa2]) {
-    const { b, f } = fixture(entry);
-    put(f, 0x8013b8, 0);
-    const z = prepared(b.prepare, f);
-    assert.equal(z.outputBytes, 0);
-    assert.equal(z.outputContext.status & 2, 2);
-    const g = fixture(entry).f;
-    put(g, 0x8013b8, 0xffff);
-    put(g, 2, 0x1280);
-    const p = commit(b.prepare, g);
-    if (entry === 0x809d6a) {
-      assert.equal(word(g, 0x7f0002), 0x2468);
-      assert.equal(p.outputContext.a, 0x2468);
-    } else {
-      assert.equal(g.data.readByte(0x7f0000).value, 0x80);
-      assert.equal(p.outputContext.a, 0xab80);
-      assert.equal(p.outputContext.status & 0xa2, 0x80);
-    }
-  }
-});
-test('Native83/D14A writes fresh DP02/DP04/DP06 WORDs at actualDBR 0E28/0E80/0ED8+X', () => {
-  const { b, f } = fixture(0x80d14a),
-    p = commit(b.prepare, f);
-  assert.equal(word(f, 0x7e0e38), 3);
-  assert.equal(word(f, 0x7e0e90), 5);
-  assert.equal(word(f, 0x7e0ee8), 0x4567);
-  assert.equal(p.outputContext.a, 0x4567);
-  assert.equal(p.outputContext.x, 0x10);
-  unchangedFailure(b.prepare, omit(f, 7), {}, 'render_source_required');
-});
 test('Native98/9159 FF terminator STZs with CMP flags; DP00 match stores FFFF; X counts past the hit', () => {
   const { b, f } = fixture(0x809159);
   f.data.seed(0x7e3ca3, [1, 2, 0xff]);
@@ -194,153 +135,6 @@ test('Native98/9159 FF terminator STZs with CMP flags; DP00 match stores FFFF; X
   const h = fixture(0x809159).f;
   h.data.seed(0x7e3ca3, [1]);
   unchangedFailure(b.prepare, h, {}, 'render_source_required');
-});
-test('NativeC4/E262 ORs 1D87/1D89 at actualDBR; nonzero stores FFFF with LDA# flags, zero keeps ORA Z', () => {
-  const { b, f } = fixture(0x80e262),
-    bank = f.context.bank * 65536,
-    p = commit(b.prepare, f);
-  assert.equal(word(f, 0), 0xffff);
-  assert.equal(p.outputContext.a, 0xffff);
-  assert.equal(p.outputContext.status & 0x82, 0x80);
-  const g = fixture(0x80e262).f;
-  put(g, bank + 0x1d89, 0);
-  const z = commit(b.prepare, g);
-  assert.equal(word(g, 0), 0);
-  assert.equal(z.outputContext.a, 0);
-  assert.equal(z.outputContext.status & 0x82, 2);
-  const h = fixture(0x80e262).f;
-  put(h, bank + 0x1d87, 0x8000);
-  put(h, bank + 0x1d89, 0);
-  assert.equal(commit(b.prepare, h).outputContext.a, 0xffff);
-  unchangedFailure(b.prepare, omit(f, bank + 0x1d89), {}, 'render_source_required');
-});
-test('NativeB2/8371 overlap in the first cell stores FFFF; real JSR/JSL frames and DBR restored', () => {
-  const { b, f } = fixture(0x808371),
-    p = commit(b.prepare, f);
-  assert.equal(word(f, 0), 0xffff);
-  assert.equal(word(f, 0x3b), 0x20);
-  assert.equal(word(f, 0x3e), 0x10);
-  assert.deepEqual(
-    [0x11, 0x14, 0x17, 0x1a, 0x1d, 0x20].map((n) => word(f, n)),
-    [0x38, 0x48, 0x38, 0x48, 0, 0x10],
-  );
-  assert.deepEqual(
-    [0x23, 0x26, 0x29, 0x2c, 0x2f, 0x32, 0x35, 0x38].map((n) => word(f, n)),
-    [0, 2, 0, 0x20, 2, 0x20, 0x22, 0],
-  );
-  assert.equal(p.outputContext.a, 0xffff);
-  assert.equal(p.outputContext.status & 0x83, 0x80);
-  assert.equal(p.outputContext.bank, f.context.bank);
-  assert.equal(p.outputContext.s, f.context.s + 2);
-});
-test('NativeB2 without overlap visits all four cells and stores 0; own object and player rules skip boxes', () => {
-  const empty = fixture(0x808371);
-  put(empty.f, 0x7ee0cc, 0xffff);
-  const e = commit(empty.b.prepare, empty.f);
-  assert.equal(word(empty.f, 0), 0);
-  assert.equal(e.outputContext.status & 1, 1);
-  for (const cell of [0x20, 0, 2, 0x22])
-    assert.ok(
-      e.accesses.some((r) => r.address === renderAddress(0x7ee0ac + cell)),
-      cell.toString(16),
-    );
-  const own = fixture(0x808371);
-  put(own.f, 0x7fe216, 0x10);
-  assert.equal((commit(own.b.prepare, own.f), word(own.f, 0)), 0);
-  const player = fixture(0x808371);
-  put(player.f, 0x7fe216, 0x40);
-  put(player.f, 0x7e1468, 3);
-  assert.equal((commit(player.b.prepare, player.f), word(player.f, 0)), 0);
-  const blocking = fixture(0x808371);
-  put(blocking.f, 0x7fe216, 0x40);
-  put(blocking.f, 0x7e1468, 1);
-  assert.equal((commit(blocking.b.prepare, blocking.f), word(blocking.f, 0)), 0xffff);
-  const low = fixture(0x808371);
-  put(low.f, 0x7e0008 + 0xe2b0, 0x11);
-  assert.equal((commit(low.b.prepare, low.f), word(low.f, 0)), 0);
-  unchangedFailure(
-    empty.b.prepare,
-    omit(fixture(0x808371).f, 0x7ef7a0),
-    {},
-    'render_source_required',
-  );
-});
-test('Native88/DE7E resets the control flags at actualDBR; flags from LDA#FFFF', () => {
-  const { b, f } = fixture(0x80de7e),
-    bank = f.context.bank * 65536,
-    p = commit(b.prepare, f);
-  assert.deepEqual(
-    [0x1d5b, 0x1d5d, 0x1d5f, 0x1d65, 0x1d6b, 0x1d6d].map((o) => word(f, bank + o)),
-    [0xffff, 0, 0, 0, 0, 0],
-  );
-  assert.equal(p.outputContext.a, 0xffff);
-  assert.equal(p.outputContext.status & 0x82, 0x80);
-});
-test('Native59/866F searches 1FB2 downward: bit 12 skips, bit 2 stores FFFF; exhausted or negative list stores 0', () => {
-  const { b, f } = fixture(0x80866f),
-    bank = f.context.bank * 65536,
-    p = commit(b.prepare, f);
-  assert.equal(word(f, 0), 0xffff);
-  assert.equal(p.outputContext.x, 2);
-  assert.equal(p.outputContext.y, 0x20);
-  assert.equal(p.outputContext.a, 0xffff);
-  assert.equal(p.outputContext.status & 0x82, 0x80);
-  // No candidate: the loop ends after X=0 with N from DEX; STZ keeps those flags.
-  const none = fixture(0x80866f).f;
-  put(none, bank + 0x1458 + 0x20, 0x1004);
-  put(none, bank + 0x1458 + 0x30, 0);
-  const q = commit(b.prepare, none);
-  assert.equal(word(none, 0), 0);
-  assert.equal(q.outputContext.x, 0xfffe);
-  assert.equal(q.outputContext.a, 0);
-  assert.equal(q.outputContext.status & 0x82, 0x80);
-  // Negative 1FB0 skips the list entirely.
-  const empty = fixture(0x80866f).f;
-  put(empty, bank + 0x1fb0, 0xfffe);
-  const r = commit(b.prepare, empty);
-  assert.equal(word(empty, 0), 0);
-  assert.ok(!r.accesses.some((e) => e.address === renderAddress(bank + 0x1fb6)));
-});
-test('Native1B/CF93 picks the direction from the dominant axis and calls AAAF with a real JSR; FF target returns early', () => {
-  const { b, f } = fixture(0x80cf93),
-    p = commit(b.prepare, f);
-  assert.deepEqual(
-    [0, 2, 0xa2, 0xa5, 0xa8, 0xab].map((o) => word(f, o)),
-    [0x10, 2, 0x50, 0x10, 0, 0],
-  );
-  assert.equal(p.outputContext.x, 0x10);
-  // All eight directions from the source branches: +dx 2, -dx 6, +dy 0, -dy 4, diagonals 1/7/5/3.
-  for (const [dx, dy, direction] of [
-    [0x50, 0, 2],
-    [-0x50, 0, 6],
-    [0, 0x50, 0],
-    [0, -0x50, 4],
-    [0x40, 0x40, 1],
-    [-0x40, 0x40, 7],
-    [-0x40, -0x40, 5],
-    [0x40, -0x40, 3],
-  ]) {
-    const g = fixture(0x80cf93).f,
-      bank = g.context.bank * 65536;
-    put(g, bank + 0x0e48, 0x100 + dx);
-    put(g, bank + 0x0ea0, 0x100 + dy);
-    put(g, bank + 0x1198 + 0x10, direction);
-    commit(b.prepare, g);
-    assert.equal(word(g, 2), direction, `${dx},${dy}`);
-    if (dx < 0) assert.equal(word(g, 0xa8), (dx + 65536) & 65535);
-    if (dy < 0) assert.equal(word(g, 0xab), (dy + 65536) & 65535);
-  }
-  const none = fixture(0x80cf93).f;
-  put(none, 2, 0x12ff);
-  const q = commit(b.prepare, none);
-  assert.equal(q.outputContext.status & 3, 3);
-  assert.ok(!q.accesses.some((e) => e.address === renderAddress(0x7e00a8)));
-  unchangedFailure(
-    b.prepare,
-    fixture(0x80cf93).f,
-    { context: Object.freeze({ ...f.context, status: f.context.status | 8 }) },
-    'task_binary_arithmetic_required',
-  );
 });
 test('Native92/C694 stores the larger axis distance shifted right twice; negative differences are negated', () => {
   const { b, f } = fixture(0x80c694),
@@ -361,11 +155,7 @@ test('Native92/C694 stores the larger axis distance shifted right twice; negativ
     'task_binary_arithmetic_required',
   );
 });
-test('NativeD5/D134, B1/C6F8 and 29/D1DD: masked 7E2DE4, four record words, direction through the real D1E3 frame', () => {
-  const d = fixture(0x80d134),
-    p = commit(d.b.prepare, d.f);
-  assert.equal(word(d.f, 0), 0x34);
-  assert.equal(p.outputContext.status & 0x82, 0);
+test('NativeB1/C6F8 and 29/D1DD: four record words, direction through the real D1E3 frame', () => {
   const c = fixture(0x80c6f8);
   commit(c.b.prepare, c.f);
   assert.deepEqual(
@@ -385,13 +175,7 @@ test('NativeD5/D134, B1/C6F8 and 29/D1DD: masked 7E2DE4, four record words, dire
 // indices, positions and flags; both sides start from the same WRAM and registers.
 const romBytes = inspectRom(readFileSync(new URL('../Shadowrun (E).smc', import.meta.url))).bytes,
   romArray = new Uint8Array(romBytes);
-test('Native0F/D067 reads byte 2 of the object record; B8/BC83 and 6B/BC9C set the crosshair and spell glove limits', () => {
-  const d = fixture(0x80d067),
-    p = commit(d.b.prepare, d.f);
-  assert.equal(word(d.f, 0), 0x56);
-  assert.equal(word(d.f, 2), 2);
-  assert.equal(p.outputContext.x, 0);
-  assert.equal(word(d.f, 0xa2), 0x3bfb);
+test('NativeB8/BC83 and 6B/BC9C set the crosshair and spell glove limits', () => {
   for (const [entry, limits] of [
     [0x80bc83, [0x05e4, 0x0be8, 0xfffe, 0xfffe]],
     [0x80bc9c, [0x0600, 0x0c00, 0xfffd, 0xfffd]],
@@ -472,17 +256,6 @@ test('Native71/90EB inserts a topic, 48/8631 and 5F/8656 search the fight list, 
     [1, 12, 20, 1],
   );
 });
-test('Native75/9D15 copies the ROM equipment entry; its two ROM writes have no effect', () => {
-  const d = fixture(0x809d15),
-    p = commit(d.b.prepare, d.f);
-  assert.equal(word(d.f, 0x7e0403), 3);
-  assert.equal(word(d.f, 0x7e3c31 + 0x60), 0x5678);
-  assert.equal(word(d.f, 0x7e3c33 + 0x60), 0x5678);
-  assert.equal(d.f.data.readByte(0x7e3c35 + 0x60).value, 0x78);
-  assert.ok(
-    !p.accesses.some((a) => a.kind === 'write' && a.address >= 0x808000 && a.address < 0x7e0000),
-  );
-});
 test('Native5E/D714 and 65/D73B bob an object by the table D3D1; D769..D793 swing it in two axes', () => {
   for (const [entry, phase, height] of [
     [0x80d714, 0x1d57, 0x169],
@@ -505,7 +278,7 @@ test('Native5E/D714 and 65/D73B bob an object by the table D3D1; D769..D793 swin
     assert.equal(word(d.f, bank + 0x0e28 + x), 0x7f + 0x648);
   }
 });
-test('Native2B/9DC8 counts a record down, 84/A2B5 removes a group member, 55/D9AD stores the negated DP00', () => {
+test('Native2B/9DC8 counts a record down, 84/A2B5 removes a group member', () => {
   const c = fixture(0x809dc8);
   commit(c.b.prepare, c.f);
   assert.equal(word(c.f, 0), 0xffff);
@@ -523,16 +296,8 @@ test('Native2B/9DC8 counts a record down, 84/A2B5 removes a group member, 55/D9A
     [0, 2].map((n) => word(g.f, 0x7e2df0 + n)),
     [0x200, 0x202],
   );
-  const d = fixture(0x80d9ad),
-    db = d.f.context.bank * 65536,
-    dp = word(d.f, 0),
-    p = commit(d.b.prepare, d.f),
-    v = (0x10000 - dp) & 0xffff;
-  assert.equal(word(d.f, db + 0x01c6), v);
-  assert.equal(word(d.f, db + 0x01c8), ((v & 0x8000 ? 0x10000 - v : v) + 8) & 0xffff);
-  assert.equal(p.outputContext.s, d.f.context.s + 2);
 });
-test('Native0B/BB2C places an object at its recorded formation position; BC/9CE4 copies the ROM equipment entry', () => {
+test('Native0B/BB2C places an object at its recorded formation position', () => {
   const f = fixture(0x80bb2c),
     bank = f.f.context.bank * 65536,
     p = commit(f.b.prepare, f.f);
@@ -543,12 +308,6 @@ test('Native0B/BB2C places an object at its recorded formation position; BC/9CE4
   assert.equal(word(f.f, 0), 0x10);
   assert.equal(word(f.f, 2), 2);
   assert.equal(p.outputContext.s, f.f.context.s + 2);
-  const e = fixture(0x809ce4),
-    q = commit(e.b.prepare, e.f);
-  assert.equal(word(e.f, 0x7e0403), 3);
-  assert.equal(word(e.f, 0x7e3c2e + 0x60), 0x5678);
-  assert.equal(e.f.data.readByte(0x7e3c30 + 0x60).value, 0x9a);
-  assert.equal(q.outputContext.s, e.f.context.s + 2);
 });
 test('Native6E/BB90 tests the selection, D6/A297 reads the group column, AD/D604 resets the swing phases', () => {
   const b = fixture(0x80bb90);
@@ -640,10 +399,8 @@ const recordObjects = Array.from(
 );
 for (const [entry, run] of [
   [0x80c694, getDistanceBetweenObjects],
-  [0x80d134, getStoryStage],
   [0x80c6f8, moveObjectToObject],
   [0x80d1dd, getDirectionToPlayer],
-  [0x80d067, getRunnerStrength],
   [0x80bc83, limitCrosshair],
   [0x80bc9c, limitSpellGlove],
   [0x808b8a, addMagicPoints],
@@ -658,15 +415,12 @@ for (const [entry, run] of [
   [0x808631, getPreviousFightObject],
   [0x808656, isInFightList],
   [0x80c7a1, moveObjectToPoint],
-  [0x809d15, setItemPropertyAndUnequip],
   [0x80d714, bobObject],
   [0x80d73b, bobSecondObject],
   ...[...D796_ENTRIES].map(([entry, slot]) => [entry, (a, o) => advanceOrbit(a, slot, o)]),
   [0x809dc8, decrementObjectStateCount],
   [0x80a2b5, removeGroupMember],
-  [0x80d9ad, startBrightnessFade],
   [0x80bb2c, placeObjectInFormation],
-  [0x809ce4, setActorItemPropertyAndUnequip],
   [0x80bb90, hasNoObjectAnimation],
   [0x80a297, getGroupMemberPosition],
   [0x80d604, startSwarmOrbit],
@@ -1006,30 +760,6 @@ for (const [entry, run] of [
     );
     assert.ok(faults < 800, 'faults ' + faults); // unknown object numbers (1 in 5 for D067)
   });
-test('Native78/A1E6 appends the object, runs A835/AAAF with real JSR frames and fills the record fields', () => {
-  const { b, f } = fixture(0x80a1e6),
-    bank = f.context.bank * 65536,
-    p = commit(b.prepare, f);
-  assert.equal(word(f, 0x7e2de6), 2);
-  assert.equal(word(f, 0x7e2dea), 0x10);
-  assert.equal(word(f, 0x7e2dfa), 0x50);
-  assert.equal(word(f, 0x7e2df2), 4);
-  assert.equal(word(f, 0x7e3f7e), 0x10);
-  assert.equal(word(f, bank + 0x150a + 0x56), 4);
-  assert.equal(word(f, bank + 0x13a8 + 0x56), 0x1204);
-  assert.equal(word(f, bank + 0x1400 + 0x56), 0x0000);
-  assert.equal(word(f, bank + 0x1faa), 0x56);
-  assert.equal(word(f, 0x7e43f8 + 0x56), 0x77);
-  assert.equal(word(f, bank + 0x0cc2), 0x3456);
-  assert.equal(p.outputContext.x, 0x56);
-  assert.equal(p.outputContext.s, f.context.s + 2);
-  const first = fixture(0x80a1e6).f;
-  put(first, 0x7e2de6, 0xfffe);
-  commit(b.prepare, first);
-  assert.equal(word(first, 0x7e2de6), 0);
-  assert.equal(word(first, bank + 0x0cc2), 0x56);
-  assert.equal(word(first, bank + 0x1458 + 0x56) & 3, 3);
-});
 test('M1d leaves run as whole Native58 opcodes with original argument and result metadata', () => {
   for (const s of m1dLeafSpecs) {
     const spec = nativeOpcodeSpecs.find((n) => n.entry === s.entry),

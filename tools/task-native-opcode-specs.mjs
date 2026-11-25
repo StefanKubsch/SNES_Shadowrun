@@ -1,5 +1,8 @@
 import { taskLeafSpecs } from './task-native-leaf-specs.mjs';
 import { nativeOpcodeTargets } from '../src/data/native-opcode-targets.mjs';
+import { provedNativeTargets } from './retired-native-proofs.mjs';
+
+const proved = provedNativeTargets(nativeOpcodeTargets);
 export const nativeOpcodeSpecs = Object.freeze(
   [...taskLeafSpecs]
     .sort((a, b) => a.id - b.id)
@@ -13,8 +16,8 @@ export const nativeOpcodeSpecs = Object.freeze(
     ),
 );
 if (
-  nativeOpcodeSpecs.length !== 146 ||
-  new Set(nativeOpcodeSpecs.map((s) => s.entry)).size !== 146 ||
-  nativeOpcodeTargets.some((t) => !nativeOpcodeSpecs.some((s) => s.entry === t))
+  nativeOpcodeSpecs.length !== proved.length ||
+  new Set(nativeOpcodeSpecs.map((s) => s.entry)).size !== proved.length ||
+  proved.some((t) => !nativeOpcodeSpecs.some((s) => s.entry === t))
 )
   throw Error('Native58 composition catalog drift');

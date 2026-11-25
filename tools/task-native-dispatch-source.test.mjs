@@ -6,6 +6,7 @@ import { decodeTaskWindows, taskRomHash } from './task-partial-source.mjs';
 import { dispatchSpec, prove } from './render-task-native-dispatch-source-proof.mjs';
 import { taskLeafSpecs } from './task-native-leaf-specs.mjs';
 import { nativeTargetEntries } from '../src/script/native-targets.mjs';
+import { provedNativeTargets } from './retired-native-proofs.mjs';
 import { proveLeafSource } from './task-native-leaf-source.mjs';
 import { continuationSpecs } from './task-native-continuation-specs.mjs';
 import { proveContinuation } from './task-native-continuation-source.mjs';
@@ -41,7 +42,11 @@ test('F52F original absolute-indirect bank00 pointer and every decoder-field mut
 });
 test('every bounded Native58 target has an exact source/mode/two-byte typedRTS proof, no inferred calls', async () => {
   const report = JSON.parse(await readFile('analysis/render-task-native-dispatch.json'));
-  assert.deepEqual([...nativeTargetEntries].sort(), taskLeafSpecs.map((s) => s.entry).sort());
+  // Retired natives (tools/retired-native-proofs.mjs) keep no source proof.
+  assert.deepEqual(
+    provedNativeTargets([...nativeTargetEntries]).sort(),
+    taskLeafSpecs.map((s) => s.entry).sort(),
+  );
   assert.equal(new Set(nativeTargetEntries).size, nativeTargetEntries.length);
   assert.equal(report.target_dependencies.length, taskLeafSpecs.length);
   for (const s of taskLeafSpecs) {

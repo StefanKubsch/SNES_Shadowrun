@@ -3880,19 +3880,6 @@
           "reason": "Whole original4B/CBCB call-free24byte/10instruction leaf, fullDP00/LongX8DB020 WORDpointer, zero skips mask/field; nonzero fresh record+1 BYTE AND freshDP02 BYTE/store/REP20/actualRTS. Pointer Ahigh, BYTE N/Z and preserved C/V/DBR/Y/DP, fullindex/24bitcarry/freshaliases retained; no fieldhigh write. Own0204/0000 metadata/two realWORDpops/zeroresultPHA and actualF508/F509; no record/caller/scene/frame initialization."
         },
         {
-          "id": "task-f378-native-opcode-9d6a",
-          "entries": ["80:F390"],
-          "native_function_id": 111,
-          "callee": "80:9D6A",
-          "status": "composition-required",
-          "source_contract": "analysis/render-task-native-opcode-9d6a.json",
-          "manual_native": {
-            "module": "proof/task/native-opcode-bindings.mjs",
-            "report": "analysis/render-task-native-opcode-9d6a-native.json"
-          },
-          "reason": "Separat erneuerte Original-ID/Tabelle/Metadaten/Leaf und ganze Native58-Folge Argumente/Brücke/RTS/Wiederaufnahme. Synthetische Quellen; ganzer Task und Initialisierung offen."
-        },
-        {
           "id": "task-f378-native-opcode-e30f",
           "entries": ["80:F390"],
           "native_function_id": 125,
@@ -3902,45 +3889,6 @@
           "manual_native": {
             "module": "proof/task/native-opcode-bindings.mjs",
             "report": "analysis/render-task-native-opcode-e30f-native.json"
-          },
-          "reason": "Separat erneuerte Original-ID/Tabelle/Metadaten/Leaf und ganze Native58-Folge Argumente/Brücke/RTS/Wiederaufnahme. Synthetische Quellen; ganzer Task und Initialisierung offen."
-        },
-        {
-          "id": "task-f378-native-opcode-ccb9",
-          "entries": ["80:F390"],
-          "native_function_id": 127,
-          "callee": "80:CCB9",
-          "status": "composition-required",
-          "source_contract": "analysis/render-task-native-opcode-ccb9.json",
-          "manual_native": {
-            "module": "proof/task/native-opcode-bindings.mjs",
-            "report": "analysis/render-task-native-opcode-ccb9-native.json"
-          },
-          "reason": "Separat erneuerte Original-ID/Tabelle/Metadaten/Leaf und ganze Native58-Folge Argumente/Brücke/RTS/Wiederaufnahme. Synthetische Quellen; ganzer Task und Initialisierung offen."
-        },
-        {
-          "id": "task-f378-native-opcode-d14a",
-          "entries": ["80:F390"],
-          "native_function_id": 131,
-          "callee": "80:D14A",
-          "status": "composition-required",
-          "source_contract": "analysis/render-task-native-opcode-d14a.json",
-          "manual_native": {
-            "module": "proof/task/native-opcode-bindings.mjs",
-            "report": "analysis/render-task-native-opcode-d14a-native.json"
-          },
-          "reason": "Separat erneuerte Original-ID/Tabelle/Metadaten/Leaf und ganze Native58-Folge Argumente/Brücke/RTS/Wiederaufnahme. Synthetische Quellen; ganzer Task und Initialisierung offen."
-        },
-        {
-          "id": "task-f378-native-opcode-caa2",
-          "entries": ["80:F390"],
-          "native_function_id": 150,
-          "callee": "80:CAA2",
-          "status": "composition-required",
-          "source_contract": "analysis/render-task-native-opcode-caa2.json",
-          "manual_native": {
-            "module": "proof/task/native-opcode-bindings.mjs",
-            "report": "analysis/render-task-native-opcode-caa2-native.json"
           },
           "reason": "Separat erneuerte Original-ID/Tabelle/Metadaten/Leaf und ganze Native58-Folge Argumente/Brücke/RTS/Wiederaufnahme. Synthetische Quellen; ganzer Task und Initialisierung offen."
         },
@@ -3958,84 +3906,6 @@
           "reason": "Separat erneuerte Original-ID/Tabelle/Metadaten/Leaf und ganze Native58-Folge Argumente/Brücke/RTS/Wiederaufnahme. Synthetische Quellen; ganzer Task und Initialisierung offen."
         },
         {
-          "id": "task-f378-native-opcode-e262",
-          "entries": ["80:F390"],
-          "native_function_id": 196,
-          "callee": "80:E262",
-          "status": "composition-required",
-          "source_contract": "analysis/render-task-native-opcode-e262.json",
-          "manual_native": {
-            "module": "proof/task/native-opcode-bindings.mjs",
-            "report": "analysis/render-task-native-opcode-e262-native.json"
-          },
-          "reason": "Separat erneuerte Original-ID/Tabelle/Metadaten/Leaf und ganze Native58-Folge Argumente/Brücke/RTS/Wiederaufnahme. Synthetische Quellen; ganzer Task und Initialisierung offen."
-        },
-        {
-          "id": "task-f378-native-opcode-8371",
-          "entries": ["80:F390"],
-          "native_function_id": 178,
-          "callee": "80:8371",
-          "status": "composition-required",
-          "source_contract": "analysis/render-task-native-opcode-8371.json",
-          "manual_native": {
-            "module": "proof/task/native-opcode-bindings.mjs",
-            "report": "analysis/render-task-native-opcode-8371-native.json"
-          },
-          "reason": "Separat erneuerte Original-ID/Tabelle/Metadaten/Leaf und ganze Native58-Folge Argumente/Brücke/RTS/Wiederaufnahme. Synthetische Quellen; ganzer Task und Initialisierung offen."
-        },
-        {
-          "id": "task-f378-native-opcode-de7e",
-          "entries": ["80:F390"],
-          "native_function_id": 136,
-          "callee": "80:DE7E",
-          "status": "composition-required",
-          "source_contract": "analysis/render-task-native-opcode-de7e.json",
-          "manual_native": {
-            "module": "proof/task/native-opcode-bindings.mjs",
-            "report": "analysis/render-task-native-opcode-de7e-native.json"
-          },
-          "reason": "Separat erneuerte Original-ID/Tabelle/Metadaten/Leaf und ganze Native58-Folge Argumente/Brücke/RTS/Wiederaufnahme. Synthetische Quellen; ganzer Task und Initialisierung offen."
-        },
-        {
-          "id": "task-f378-native-opcode-a1e6",
-          "entries": ["80:F390"],
-          "native_function_id": 120,
-          "callee": "80:A1E6",
-          "status": "composition-required",
-          "source_contract": "analysis/render-task-native-opcode-a1e6.json",
-          "manual_native": {
-            "module": "proof/task/native-opcode-bindings.mjs",
-            "report": "analysis/render-task-native-opcode-a1e6-native.json"
-          },
-          "reason": "Separat erneuerte Original-ID/Tabelle/Metadaten/Leaf und ganze Native58-Folge Argumente/Brücke/RTS/Wiederaufnahme. Synthetische Quellen; ganzer Task und Initialisierung offen."
-        },
-        {
-          "id": "task-f378-native-opcode-866f",
-          "entries": ["80:F390"],
-          "native_function_id": 89,
-          "callee": "80:866F",
-          "status": "composition-required",
-          "source_contract": "analysis/render-task-native-opcode-866f.json",
-          "manual_native": {
-            "module": "proof/task/native-opcode-bindings.mjs",
-            "report": "analysis/render-task-native-opcode-866f-native.json"
-          },
-          "reason": "Separat erneuerte Original-ID/Tabelle/Metadaten/Leaf und ganze Native58-Folge Argumente/Brücke/RTS/Wiederaufnahme. Synthetische Quellen; ganzer Task und Initialisierung offen."
-        },
-        {
-          "id": "task-f378-native-opcode-cf93",
-          "entries": ["80:F390"],
-          "native_function_id": 27,
-          "callee": "80:CF93",
-          "status": "composition-required",
-          "source_contract": "analysis/render-task-native-opcode-cf93.json",
-          "manual_native": {
-            "module": "proof/task/native-opcode-bindings.mjs",
-            "report": "analysis/render-task-native-opcode-cf93-native.json"
-          },
-          "reason": "Separat erneuerte Original-ID/Tabelle/Metadaten/Leaf und ganze Native58-Folge Argumente/Brücke/RTS/Wiederaufnahme. Synthetische Quellen; ganzer Task und Initialisierung offen."
-        },
-        {
           "id": "task-f378-native-opcode-c694",
           "entries": ["80:F390"],
           "native_function_id": 146,
@@ -4045,19 +3915,6 @@
           "manual_native": {
             "module": "proof/task/native-opcode-bindings.mjs",
             "report": "analysis/render-task-native-opcode-c694-native.json"
-          },
-          "reason": "Separat erneuerte Original-ID/Tabelle/Metadaten/Leaf und ganze Native58-Folge Argumente/Brücke/RTS/Wiederaufnahme. Synthetische Quellen; ganzer Task und Initialisierung offen."
-        },
-        {
-          "id": "task-f378-native-opcode-d134",
-          "entries": ["80:F390"],
-          "native_function_id": 213,
-          "callee": "80:D134",
-          "status": "composition-required",
-          "source_contract": "analysis/render-task-native-opcode-d134.json",
-          "manual_native": {
-            "module": "proof/task/native-opcode-bindings.mjs",
-            "report": "analysis/render-task-native-opcode-d134-native.json"
           },
           "reason": "Separat erneuerte Original-ID/Tabelle/Metadaten/Leaf und ganze Native58-Folge Argumente/Brücke/RTS/Wiederaufnahme. Synthetische Quellen; ganzer Task und Initialisierung offen."
         },
@@ -4084,19 +3941,6 @@
           "manual_native": {
             "module": "proof/task/native-opcode-bindings.mjs",
             "report": "analysis/render-task-native-opcode-d1dd-native.json"
-          },
-          "reason": "Separat erneuerte Original-ID/Tabelle/Metadaten/Leaf und ganze Native58-Folge Argumente/Brücke/RTS/Wiederaufnahme. Synthetische Quellen; ganzer Task und Initialisierung offen."
-        },
-        {
-          "id": "task-f378-native-opcode-d067",
-          "entries": ["80:F390"],
-          "native_function_id": 15,
-          "callee": "80:D067",
-          "status": "composition-required",
-          "source_contract": "analysis/render-task-native-opcode-d067.json",
-          "manual_native": {
-            "module": "proof/task/native-opcode-bindings.mjs",
-            "report": "analysis/render-task-native-opcode-d067-native.json"
           },
           "reason": "Separat erneuerte Original-ID/Tabelle/Metadaten/Leaf und ganze Native58-Folge Argumente/Brücke/RTS/Wiederaufnahme. Synthetische Quellen; ganzer Task und Initialisierung offen."
         },
@@ -4283,19 +4127,6 @@
           "reason": "Separat erneuerte Original-ID/Tabelle/Metadaten/Leaf und ganze Native58-Folge Argumente/Brücke/RTS/Wiederaufnahme. Synthetische Quellen; ganzer Task und Initialisierung offen."
         },
         {
-          "id": "task-f378-native-opcode-9d15",
-          "entries": ["80:F390"],
-          "native_function_id": 117,
-          "callee": "80:9D15",
-          "status": "composition-required",
-          "source_contract": "analysis/render-task-native-opcode-9d15.json",
-          "manual_native": {
-            "module": "proof/task/native-opcode-bindings.mjs",
-            "report": "analysis/render-task-native-opcode-9d15-native.json"
-          },
-          "reason": "Separat erneuerte Original-ID/Tabelle/Metadaten/Leaf und ganze Native58-Folge Argumente/Brücke/RTS/Wiederaufnahme. Synthetische Quellen; ganzer Task und Initialisierung offen."
-        },
-        {
           "id": "task-f378-native-opcode-d714",
           "entries": ["80:F390"],
           "native_function_id": 94,
@@ -4452,19 +4283,6 @@
           "reason": "Separat erneuerte Original-ID/Tabelle/Metadaten/Leaf und ganze Native58-Folge Argumente/Brücke/RTS/Wiederaufnahme. Synthetische Quellen; ganzer Task und Initialisierung offen."
         },
         {
-          "id": "task-f378-native-opcode-d9ad",
-          "entries": ["80:F390"],
-          "native_function_id": 85,
-          "callee": "80:D9AD",
-          "status": "composition-required",
-          "source_contract": "analysis/render-task-native-opcode-d9ad.json",
-          "manual_native": {
-            "module": "proof/task/native-opcode-bindings.mjs",
-            "report": "analysis/render-task-native-opcode-d9ad-native.json"
-          },
-          "reason": "Separat erneuerte Original-ID/Tabelle/Metadaten/Leaf und ganze Native58-Folge Argumente/Brücke/RTS/Wiederaufnahme. Synthetische Quellen; ganzer Task und Initialisierung offen."
-        },
-        {
           "id": "task-f378-native-opcode-bb2c",
           "entries": ["80:F390"],
           "native_function_id": 11,
@@ -4474,19 +4292,6 @@
           "manual_native": {
             "module": "proof/task/native-opcode-bindings.mjs",
             "report": "analysis/render-task-native-opcode-bb2c-native.json"
-          },
-          "reason": "Separat erneuerte Original-ID/Tabelle/Metadaten/Leaf und ganze Native58-Folge Argumente/Brücke/RTS/Wiederaufnahme. Synthetische Quellen; ganzer Task und Initialisierung offen."
-        },
-        {
-          "id": "task-f378-native-opcode-9ce4",
-          "entries": ["80:F390"],
-          "native_function_id": 188,
-          "callee": "80:9CE4",
-          "status": "composition-required",
-          "source_contract": "analysis/render-task-native-opcode-9ce4.json",
-          "manual_native": {
-            "module": "proof/task/native-opcode-bindings.mjs",
-            "report": "analysis/render-task-native-opcode-9ce4-native.json"
           },
           "reason": "Separat erneuerte Original-ID/Tabelle/Metadaten/Leaf und ganze Native58-Folge Argumente/Brücke/RTS/Wiederaufnahme. Synthetische Quellen; ganzer Task und Initialisierung offen."
         },
@@ -17684,17 +17489,6 @@
       "reason": "Whole Native33/CAB4: fresh full DP00/Y and actualDBR13A8+Y pointer WORD/X. Null pointer returns before record and DP02. Nonzero SEP20 loads long7E0001+X BYTE, ORs fresh DP02 BYTE, writes only low record byte, REP20 and actual protected RTS. A highbyte, C/V/Y/DBR retained; BYTE N/Z from OR. No DP02 high or record high preread. Full WORD indexes, 24bit carry, aliases, source/owner/window/budget failures atomic; original caller/init/Task/scene/frames separate."
     },
     {
-      "id": "task-f378-native-9d6a",
-      "entries": ["80:9D6A"],
-      "status": "composition-required",
-      "source_contract": "analysis/render-task-native-9d6a.json",
-      "manual_native": {
-        "module": "proof/task/native-9d6a.mjs",
-        "report": "analysis/render-task-native-9d6a-native.json"
-      },
-      "reason": "M1d: aufruffreies Leaf nach analysis/vm-coverage.json; gepinnte Originalbytes und Native58-Tabellenanker, Gleichung in src/task, Verhaltenstests tools/task-native-m1d.test.mjs. Synthetische Quellen; Originalcaller, Initialisierung, ganzer Task und Szene bleiben offen. Vertrag: FullYDP00, actualDBR13A8+Y WORD; zeroX skips. Otherwise fresh long7E2DF0 WORD to7E0003+X with full bank carry."
-    },
-    {
       "id": "task-f378-native-e30f",
       "entries": ["80:E30F"],
       "status": "composition-required",
@@ -17704,39 +17498,6 @@
         "report": "analysis/render-task-native-e30f-native.json"
       },
       "reason": "M1d: aufruffreies Leaf nach analysis/vm-coverage.json; gepinnte Originalbytes und Native58-Tabellenanker, Gleichung in src/task, Verhaltenstests tools/task-native-m1d.test.mjs. Synthetische Quellen; Originalcaller, Initialisierung, ganzer Task und Szene bleiben offen. Vertrag: WORDFFFE to1CE9, freshDP02 to7E2DE2, BYTE40/DP06/DP00/DP04 to1D8D/1D90/1D8F/1D8E. DP08 searched in actualDBR9700+X from X18 down; miss ends X=FFFE/N1 with last CMP carry. Match: 971A+X WORD and9734+X BYTE to DPA2/A4, fresh [A2]+9 BYTE to1D8C, second search7E2DF0+X from the match index. Match: 1FA8+X to Y, 13A8+Y to X, nonzero X: 7E0002+X BYTE to1D8B and X to1D93. No result pushed."
-    },
-    {
-      "id": "task-f378-native-ccb9",
-      "entries": ["80:CCB9"],
-      "status": "composition-required",
-      "source_contract": "analysis/render-task-native-ccb9.json",
-      "manual_native": {
-        "module": "proof/task/native-ccb9.mjs",
-        "report": "analysis/render-task-native-ccb9-native.json"
-      },
-      "reason": "M1d: aufruffreies Leaf nach analysis/vm-coverage.json; gepinnte Originalbytes und Native58-Tabellenanker, Gleichung in src/task, Verhaltenstests tools/task-native-m1d.test.mjs. Synthetische Quellen; Originalcaller, Initialisierung, ganzer Task und Szene bleiben offen. Vertrag: Fresh long7E2DE2 WORD, three ASLs, ADC fresh7E2DE2 with third ASL carry, no CLC; fullX ROM8D929D+X WORD toDP00. Binary required."
-    },
-    {
-      "id": "task-f378-native-d14a",
-      "entries": ["80:D14A"],
-      "status": "composition-required",
-      "source_contract": "analysis/render-task-native-d14a.json",
-      "manual_native": {
-        "module": "proof/task/native-d14a.mjs",
-        "report": "analysis/render-task-native-d14a-native.json"
-      },
-      "reason": "M1d: aufruffreies Leaf nach analysis/vm-coverage.json; gepinnte Originalbytes und Native58-Tabellenanker, Gleichung in src/task, Verhaltenstests tools/task-native-m1d.test.mjs. Synthetische Quellen; Originalcaller, Initialisierung, ganzer Task und Szene bleiben offen. Vertrag: FullXDP00; freshDP02/DP04/DP06 WORDs to actualDBR0E28/0E80/0ED8+X; flags from lastLDA."
-    },
-    {
-      "id": "task-f378-native-caa2",
-      "entries": ["80:CAA2"],
-      "status": "composition-required",
-      "source_contract": "analysis/render-task-native-caa2.json",
-      "manual_native": {
-        "module": "proof/task/native-caa2.mjs",
-        "report": "analysis/render-task-native-caa2-native.json"
-      },
-      "reason": "M1d: aufruffreies Leaf nach analysis/vm-coverage.json; gepinnte Originalbytes und Native58-Tabellenanker, Gleichung in src/task, Verhaltenstests tools/task-native-m1d.test.mjs. Synthetische Quellen; Originalcaller, Initialisierung, ganzer Task und Szene bleiben offen. Vertrag: FullYDP00, actualDBR13A8+Y WORD; zeroX skips. Otherwise SEP20 freshDP02 BYTE to7E0001+X, high A retained."
     },
     {
       "id": "task-f378-native-9159",
@@ -17750,72 +17511,6 @@
       "reason": "M1d: aufruffreies Leaf nach analysis/vm-coverage.json; gepinnte Originalbytes und Native58-Tabellenanker, Gleichung in src/task, Verhaltenstests tools/task-native-m1d.test.mjs. Synthetische Quellen; Originalcaller, Initialisierung, ganzer Task und Szene bleiben offen. Vertrag: BYTE list7E3CA3+X from X0, INX before both compares. FF terminator STZDP00 keeps A and CMP flags; match with fresh DP00 low byte stores FFFF. No inferred capacity."
     },
     {
-      "id": "task-f378-native-e262",
-      "entries": ["80:E262"],
-      "status": "composition-required",
-      "source_contract": "analysis/render-task-native-e262.json",
-      "manual_native": {
-        "module": "proof/task/native-e262.mjs",
-        "report": "analysis/render-task-native-e262-native.json"
-      },
-      "reason": "M1d: aufruffreies Leaf nach analysis/vm-coverage.json; gepinnte Originalbytes und Native58-Tabellenanker, Gleichung in src/task, Verhaltenstests tools/task-native-m1d.test.mjs. Synthetische Quellen; Originalcaller, Initialisierung, ganzer Task und Szene bleiben offen. Vertrag: Fresh actualDBR1D87 WORD ORA fresh1D89 WORD; nonzero becomes FFFF via LDA#, zero keeps ORA flags. Result toDP00. Gegen Mesen2 im ersten Raum geprüft (tools/mesen-f390-oracle.mjs)."
-    },
-    {
-      "id": "task-f378-native-de7e",
-      "entries": ["80:DE7E"],
-      "status": "composition-required",
-      "source_contract": "analysis/render-task-native-de7e.json",
-      "manual_native": {
-        "module": "proof/task/native-de7e.mjs",
-        "report": "analysis/render-task-native-de7e-native.json"
-      },
-      "reason": "M1d: aufruffreies Leaf nach analysis/vm-coverage.json; gepinnte Originalbytes und Native58-Tabellenanker, Gleichung in src/task, Verhaltenstests tools/task-native-m1d.test.mjs. Synthetische Quellen; Originalcaller, Initialisierung, ganzer Task und Szene bleiben offen. Vertrag: WORDFFFF to actualDBR1D5B, STZ 1D5D/1D5F/1D65/1D6B/1D6D beim Szenenwechsel. Gegen Mesen2 beim Verlassen der Leichenhalle geprüft (tools/mesen-f390-oracle.mjs)."
-    },
-    {
-      "id": "task-f378-native-8371",
-      "entries": ["80:8371"],
-      "status": "composition-required",
-      "source_contract": "analysis/render-task-native-8371.json",
-      "manual_native": {
-        "module": "proof/task/native-8371.mjs",
-        "report": "analysis/render-task-native-8371-native.json"
-      },
-      "reason": "M1d: Native mit geschlossenem Helfergraph (8371/8486/81:8686) nach analysis/vm-coverage.json; gepinnte Originalbytes, Native58-Tabellenanker, statischer Stapelbeweis mit echten JSR/JSL-Rahmen und gepinntem PLY-Datenwort, Gleichung in src/task, Verhaltenstests tools/task-native-m1d.test.mjs. Synthetische Quellen; Originalcaller, Initialisierung, ganzer Task und Szene bleiben offen. Gegen Mesen2 beim Öffnen der Leichenhallentür geprüft (tools/mesen-f390-oracle.mjs). Vertrag: Kollision des Objekts DP00 mit Bewegung DP02 gegen bis zu vier Kartenzellen; Überlappung speichert FFFF nach DP00, sonst 0."
-    },
-    {
-      "id": "task-f378-native-a1e6",
-      "entries": ["80:A1E6"],
-      "status": "composition-required",
-      "source_contract": "analysis/render-task-native-a1e6.json",
-      "manual_native": {
-        "module": "proof/task/native-a1e6.mjs",
-        "report": "analysis/render-task-native-a1e6-native.json"
-      },
-      "reason": "M1d: Native mit geschlossenem Helfergraph (A1E6 mit den bewiesenen A835- und AAAF/A985-Fenstern); gepinnte Originalbytes, Native58-Tabellenanker, statischer Stapelbeweis (15 lokale Bytes, echte JSR/JSL-Rahmen, gepinntes PLY-Datenwort A245), Gleichung in src/task, Verhaltenstests tools/task-native-m1d.test.mjs. Synthetische Quellen; Originalcaller, Initialisierung, ganzer Task und Szene bleiben offen. Gegen Mesen2 beim Szenenaufbau der Leichenhalle geprüft. Vertrag: Szenenobjekt anlegen (Liste 7E2DE6/7E2DE8, Position, Typ, A835-Slot, AAAF-Aktion, Datensatzfelder aus ROM 8DB01F/8DB020, 9700-Typsuche)."
-    },
-    {
-      "id": "task-f378-native-cf93",
-      "entries": ["80:CF93"],
-      "status": "composition-required",
-      "source_contract": "analysis/render-task-native-cf93.json",
-      "manual_native": {
-        "module": "proof/task/native-cf93.mjs",
-        "report": "analysis/render-task-native-cf93-native.json"
-      },
-      "reason": "M1d: Native58-Callee nach analysis/vm-coverage.json; gepinnte Originalbytes und Native58-Tabellenanker, Gleichung in src/task, Verhaltenstests tools/task-native-m1d.test.mjs. Synthetische Quellen; Originalcaller, Initialisierung, ganzer Task und Szene bleiben offen. Vertrag: Objekt DP00 dreht sich zu Objekt DP02 (Richtung 0..7 aus 0E28/0E80) und ruft das bewiesene AAAF über echtes JSR; geschlossener Helfergraph mit AAAF/A985. Gegen Mesen2 im Kampf in der Gasse 8-mal identisch."
-    },
-    {
-      "id": "task-f378-native-866f",
-      "entries": ["80:866F"],
-      "status": "composition-required",
-      "source_contract": "analysis/render-task-native-866f.json",
-      "manual_native": {
-        "module": "proof/task/native-866f.mjs",
-        "report": "analysis/render-task-native-866f-native.json"
-      },
-      "reason": "M1d: Native58-Callee nach analysis/vm-coverage.json; gepinnte Originalbytes und Native58-Tabellenanker, Gleichung in src/task, Verhaltenstests tools/task-native-m1d.test.mjs. Synthetische Quellen; Originalcaller, Initialisierung, ganzer Task und Szene bleiben offen. Vertrag: Kampfliste 1FB2 abwärts nach einem Objekt mit Bit 2 und ohne Bit 12 in 1458 durchsuchen; Treffer FFFF, sonst 0 nach DP00. Gegen Mesen2 im Kampf in der Gasse 649-mal identisch."
-    },
-    {
       "id": "task-f378-native-c694",
       "entries": ["80:C694"],
       "status": "composition-required",
@@ -17825,17 +17520,6 @@
         "report": "analysis/render-task-native-c694-native.json"
       },
       "reason": "M1d: Native58-Callee nach analysis/vm-coverage.json; gepinnte Originalbytes und Native58-Tabellenanker, Gleichung in src/task, Verhaltenstests und Vergleich gegen die Originalbefehle in tools/task-native-m1d.test.mjs. Synthetische Quellen; Originalcaller, Initialisierung, ganzer Task und Szene bleiben offen. Vertrag: Abstand der Objekte DP00 und DP02, größerer Betrag von dx (0E28) und dy (0E80) zweimal nach rechts geschoben nach DP00; Rumpf C696 gemeinsam mit Native0A/C68D."
-    },
-    {
-      "id": "task-f378-native-d134",
-      "entries": ["80:D134"],
-      "status": "composition-required",
-      "source_contract": "analysis/render-task-native-d134.json",
-      "manual_native": {
-        "module": "proof/task/native-d134.mjs",
-        "report": "analysis/render-task-native-d134-native.json"
-      },
-      "reason": "M1d: Native58-Callee nach analysis/vm-coverage.json; gepinnte Originalbytes und Native58-Tabellenanker, Gleichung in src/task, Verhaltenstests und Vergleich gegen die Originalbefehle in tools/task-native-m1d.test.mjs. Synthetische Quellen; Originalcaller, Initialisierung, ganzer Task und Szene bleiben offen. Vertrag: Fester Wert 7E2DE4 mit 00FF maskiert nach DP00."
     },
     {
       "id": "task-f378-native-c6f8",
@@ -18405,34 +18089,14 @@
         "tools/main-reset-source.mjs"
       ],
       "entry_modes": {
-        "81:D5D0": {
-          "m": 1
-        },
-        "81:D5E4": {
-          "m": 1
-        },
-        "81:D5EC": {
-          "m": 1
-        },
-        "81:EFA5": {
-          "m": 1
-        },
-        "81:EFFA": {
-          "m": 1
-        },
-        "81:F001": {
-          "m": 1
-        },
-        "00:E382": {
-          "e": 1,
-          "m": 1,
-          "x": 1
-        },
-        "80:E382": {
-          "e": 1,
-          "m": 1,
-          "x": 1
-        }
+        "81:D5D0": { "m": 1 },
+        "81:D5E4": { "m": 1 },
+        "81:D5EC": { "m": 1 },
+        "81:EFA5": { "m": 1 },
+        "81:EFFA": { "m": 1 },
+        "81:F001": { "m": 1 },
+        "00:E382": { "e": 1, "m": 1, "x": 1 },
+        "80:E382": { "e": 1, "m": 1, "x": 1 }
       },
       "browser_modules": [
         "src/video/ppu-state.mjs",
