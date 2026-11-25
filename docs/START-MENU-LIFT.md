@@ -1,12 +1,19 @@
 # Start menu lift
 
+Note (2026-11-25): the register-level frontend reference (proof/frontend-reference/)
+and the intro set-up reference (proof/intro-reference/) were retired with their ROM
+proofs and lift comparisons, after the recorded Mesen replays through the title were cut
+(user decision, [STATE-MODEL-REBUILD.md](STATE-MODEL-REBUILD.md), Progress). The golden
+traces attract, new-game and intro cover the lifted frontend. Where the text below says
+that a reference stays or a test checks it, it describes the state before that date.
+
 The start menu 81:E14A (with its fallthrough 81:E1B4 and input 81:E29F) is the
 second frontend delivery group lifted from register-level 65816 equations to
 plain code, after the title ([TITLE-LIFT.md](TITLE-LIFT.md); method in
 [MATRIX-LIFT.md](MATRIX-LIFT.md)). The register-level versions stay as reference
-in [proof/frontend-reference/start-menu.mjs](../proof/frontend-reference/start-menu.mjs)
-and [start-menu-text.mjs](../proof/frontend-reference/start-menu-text.mjs);
-[frontend.mjs](../proof/frontend-reference/frontend.mjs) (`withFrontendReference`)
+in proof/frontend-reference/start-menu.mjs (removed)
+and start-menu-text.mjs (removed);
+frontend.mjs (removed) (`withFrontendReference`)
 puts title and menu references into a routine table for the ROM proof tests and
 the replays of recorded chronologies.
 
@@ -51,7 +58,7 @@ a table stops at `menu_table_index_frontier`.
 
 ## What is compared
 
-[tools/start-menu-lift.test.mjs](../tools/start-menu-lift.test.mjs) runs the four
+tools/start-menu-lift.test.mjs (removed) runs the four
 sessions of [tools/live-start-menu-plan.mjs](../tools/live-start-menu-plan.mjs)
 from power-on: all options and the saved games menu with Exit before loading a
 game, a new game, the Credits row, and the timeout after the whole title. Every
@@ -67,7 +74,7 @@ and started a second round in the same frame. NestedRoundContinuation
 [tools/live-step-budget.test.mjs](../tools/live-step-budget.test.mjs) checks that
 the attract game gives the same frames with small step budgets.
 
-[tools/start-menu-lift-functions.test.mjs](../tools/start-menu-lift-functions.test.mjs)
+tools/start-menu-lift-functions.test.mjs (removed)
 runs the text writer (600 samples), tilemap clear, highlight, settings checksum,
 animation sources, colour fade and the NMI callback (600 samples, either carry)
 against the reference on random states;

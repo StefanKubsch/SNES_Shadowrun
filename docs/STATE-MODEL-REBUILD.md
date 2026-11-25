@@ -96,6 +96,17 @@ own commit after `npm run test:block` and the golden trace test. One shared
 
 ## Progress
 
+- 2026-11-25, frontend and intro set-up proof retirement: proof/frontend-reference/
+  (title, start menu and its texts, title cycle, game owner; 2684 lines) and the rest of
+  proof/intro-reference/ (set-up routines and sprites) are gone, with their ROM proofs
+  (main-frontend-connected, -menu, -nmi, main-intro-nmi, main-scene-intro, the start
+  menu text cases of main-frontend, the frontend callback case of the NMI continuation
+  proof, the game owner cases of main-driver) and the lift comparisons of title, start
+  menu, title cycle, game owner and intro set-up. The golden traces attract, new-game and
+  intro cover the lifted path; the scene reference table names the game start, game
+  screen and room entry references itself; the boot proofs end at the title owner; the
+  prologue line contract runs the lifted code.
+
 - 2026-11-25, Mesen title replays cut (user decision 2026-11-25: the Mesen proofs may be
   reduced completely, so that the frontend and intro set-up references can go): the
   recorded cold-boot room replay (proof/video/room-observed.mjs,

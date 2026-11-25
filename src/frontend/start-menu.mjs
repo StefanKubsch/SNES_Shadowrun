@@ -1,8 +1,8 @@
 // The start menu (lifted from 81:E14A/E1B4 with its input 81:E29F, the menu texts
 // 81:D531, 81:D555, 81:D59E, 81:E32F, 81:E343, 81:E354, 81:E371, 81:E38D, 81:E3DA,
 // 81:E446, the settings 81:D5E4 and 81:EF36 (settings.mjs), the title start 81:E50C with 81:E57E,
-// 81:E5DB, 81:E623, and the NMI callback 81:E6AE; register-level reference in
-// proof/frontend-reference/start-menu.mjs).
+// 81:E5DB, 81:E623, and the NMI callback 81:E6AE; register-level reference
+// retired on 2026-11-25).
 //
 // The menu starts its song, shows the title picture with four animations, waits for
 // the music, lets a light run down the title and fades its colours in, then offers

@@ -2,8 +2,8 @@
 // sequences, the settings checksum 81:D5D0 with its store 81:D5E4, compare 81:D5EC
 // and defaults 81:D5F4, and the output mode 81:EF36 (the startup 80:A133 uses them),
 // and the save checksum 81:B1AB of the save code. The start menu with its texts and
-// its NMI callback 81:E6AE is lifted (src/frontend/start-menu.mjs; register-level
-// reference in proof/frontend-reference/start-menu-text.mjs).
+// its NMI callback 81:E6AE is lifted (src/frontend/start-menu.mjs;
+// register-level reference retired on 2026-11-25).
 import '../system/recorded-scene-frames.mjs';
 import { taskStop } from '../../src/system/task-stop.mjs';
 import { MAIN_SCENE_ROUTINES } from './main-scene.mjs';

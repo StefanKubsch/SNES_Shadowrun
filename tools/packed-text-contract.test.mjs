@@ -1,13 +1,11 @@
 // Source and native layout boundaries for the packed text domains. This does
 // not enable edits; docs/PACKED-TEXT-EDITING.md defines the admission contract.
-import { withFrontendReference } from '../proof/frontend-reference/frontend.mjs';
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import { cartridge } from './cartridge-harness.mjs';
-import { rom, compareDialog, decodeWindows } from './task-native-dialog-harness.mjs';
-import { frontendSpecs } from './main-frontend-source.mjs';
-import { FRONTEND_MENU_ROUTINES as FRONTEND_MENU_ROUTINES_TASK } from '../proof/replay/main-frontend-menu.mjs';
+import { rom } from './task-native-dialog-harness.mjs';
+import { drawPrologueLine } from '../src/frontend/title.mjs';
 import { CUTSCENE_ANIMATIONS } from '../src/cutscene/cutscene-animation.mjs';
 import { lzBits, lzDecode, lzEncode } from '../src/data/lz.mjs';
 import { readLzStreams } from '../src/data/lz-streams.mjs';
@@ -16,7 +14,6 @@ import { buildLanguage, installLanguage } from '../src/data/language.mjs';
 import { redirectLanguageStream } from '../proof/system/native-unpack.mjs';
 import { VmMemory } from '../src/vm/memory.mjs';
 import '../proof/system/dialog-register-helpers.mjs';
-const FRONTEND_MENU_ROUTINES = withFrontendReference(FRONTEND_MENU_ROUTINES_TASK);
 
 const assets = JSON.parse(readFileSync('assets/vm-lz.json', 'utf8'));
 const germanAsset = JSON.parse(readFileSync('assets/vm-texts-de.json', 'utf8'));
@@ -188,21 +185,17 @@ function fixture(entry, data) {
 const mapWords = (bytes) =>
   Array.from({ length: bytes.length / 2 }, (_, n) => bytes.readUInt16LE(2 * n));
 
+// The prologue line 81:DE93 (lifted in src/frontend/title.mjs, golden trace attract; its
+// register-level reference was retired on 2026-11-25) on a fixture: the row below the
+// screen, the text offset of the next line (7E:0018) and the end delay (7E:001C).
 test('intro centering, full rows and terminators match the original renderer', () => {
-  const spec = frontendSpecs.find((s) => s.entry === 0x81de93);
-  const map = decodeWindows(spec.windows);
   for (const length of [0, 1, 30, 31, 32]) {
-    const s = fixture(spec.entry, [...Array(length).fill(0x41), 0, 0]);
-    let output, cursor, delay;
-    const result = compareDialog(map, s, {
-      native: (h) => {
-        FRONTEND_MENU_ROUTINES.get(spec.entry)(h);
-        output = Buffer.from(h.a.mem.wram.slice(0x5628, 0x5668));
-        cursor = h.dp(0x18, 2);
-        delay = h.dp(0x1c, 2);
-      },
-    });
-    assert.deepEqual(result.differences, [], `length ${length}`);
+    const { wram } = fixture(0, [...Array(length).fill(0x41), 0, 0]),
+      mem = new VmMemory(cartridge.rom, wram, null, cartridge.present);
+    drawPrologueLine(mem);
+    const output = Buffer.from(mem.wram.slice(0x5628, 0x5668)),
+      cursor = mem.wram[0x18] | (mem.wram[0x19] << 8),
+      delay = mem.wram[0x1c] | (mem.wram[0x1d] << 8);
     const expected = Array(32).fill(0);
     if (length)
       expected.fill(0x22, Math.floor((32 - length) / 2), Math.floor((32 - length) / 2) + length);

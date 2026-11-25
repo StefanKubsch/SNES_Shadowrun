@@ -1,8 +1,8 @@
 // The NMI routines of the intro and title for recorded runs: the live callbacks
 // (src/system/main-intro-nmi.mjs) and the shared register-level routines that
 // recorded interrupt observations call from their original sites. The
-// register-level sprite grid 81:E83A, far object start 81:E971 and near object
-// sound 81:E900 are references in proof/intro-reference/.
+// sprite grid 81:E83A, far object start 81:E971 and near object sound 81:E900 are
+// lifted (src/intro; register-level reference retired on 2026-11-25).
 import { INTRO_NMI_ROUTINES as INTRO_NMI_CALLBACKS } from '../../src/system/main-intro-nmi.mjs';
 import {
   sendOamBuffer,

@@ -1,7 +1,7 @@
 // The title (lifted from 81:D694 with the prologue 81:DDDB and 81:DE93, the window
 // 81:D81F, the picture 81:D927, the blend 81:D87C with 81:D8E5, and the NMI callbacks
-// 81:DD54, 81:DAD6, 81:D93E with 81:D9D5, and 81:DCAC; register-level reference in
-// proof/frontend-reference/).
+// 81:DD54, 81:DAD6, 81:D93E with 81:D9D5, and 81:DCAC; register-level reference
+// retired on 2026-11-25).
 //
 // The prologue scrolls its text up over 980 frames while the title song fades in.
 // The title then shows the intro screen (src/intro), waits, pans the skyline right

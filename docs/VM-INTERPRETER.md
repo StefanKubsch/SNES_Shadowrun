@@ -229,7 +229,7 @@ interrupt occurrences are synthetic.
 
 The intro callbacks in [main-intro-nmi.mjs](../src/system/main-intro-nmi.mjs) (the sprite
 grid `$E83A` and `$E971` as reference in
-[intro-sprites.mjs](../proof/intro-reference/intro-sprites.mjs); `$DF0E` lifted in
+intro-sprites.mjs (removed); `$DF0E` lifted in
 src/intro, its register-level reference retired on 2026-11-25) use the same outer NMI flow:
 
 - `$DAD6` first requests the current OAM buffer via `$ED8B` and jumps on the
@@ -261,7 +261,7 @@ src/intro, its register-level reference retired on 2026-11-25) use the same oute
 graphs with 284 instructions and 568 code bytes plus four data windows with
 964 bytes; own stack areas 3–9 bytes under separate helper contracts (the
 whole NMI stack ownership stays open).
-[main-intro-nmi.test.mjs](../tools/main-intro-nmi.test.mjs): 240 synthetic
+main-intro-nmi.test.mjs (removed): 240 synthetic
 cases each plus animation end cases, 80 callback comparisons with real
 helpers, 48 NMI comparisons to RTI, BYTE masks, full allocation, missing or
 misaddressed device values, an OAM/DP20 alias across the bank boundary, and a

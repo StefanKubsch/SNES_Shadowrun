@@ -1,6 +1,6 @@
 import { writeStateByte } from '../state/objects.mjs';
 // The outer game owner (lifted from 80:A139 and its resume point 80:A157;
-// register-level reference in proof/frontend-reference/game-owner.mjs).
+// register-level reference retired on 2026-11-25).
 //
 // The owner runs the title cycle until the player chooses a game, sets up its
 // audio and returns the choice. After a game, the caller requests the cycle

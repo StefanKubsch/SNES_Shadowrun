@@ -59,4 +59,4 @@ seconds. A first screen held for 149 frames fails it. The cleared direct page wo
 lies in the ignored scratch, so this test cannot see it, nor SRAM itself; a boot that
 skips the defaults differs in the sound RAM at NMI 394. The settings functions 81:D5EC,
 81:D5F4 and 81:EF36 have random state tests in
-[tools/start-menu-lift-functions.test.mjs](../tools/start-menu-lift-functions.test.mjs).
+tools/start-menu-lift-functions.test.mjs (removed).

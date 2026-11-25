@@ -1,6 +1,6 @@
 import { writeStateByte } from '../state/objects.mjs';
 // The title cycle and the attract game (lifted from 80:A18C, 80:A168 and 80:96F3;
-// register-level reference in proof/frontend-reference/title-cycle.mjs).
+// register-level reference retired on 2026-11-25).
 //
 // The cycle shows the title (or, after a game, goes straight to the start menu with
 // the title song) and then the start menu until the player chooses a game. A menu

@@ -1,5 +1,12 @@
 # Intro lift
 
+Note (2026-11-25): the register-level frontend reference (proof/frontend-reference/)
+and the intro set-up reference (proof/intro-reference/) were retired with their ROM
+proofs and lift comparisons, after the recorded Mesen replays through the title were cut
+(user decision, [STATE-MODEL-REBUILD.md](STATE-MODEL-REBUILD.md), Progress). The golden
+traces attract, new-game and intro cover the lifted frontend. Where the text below says
+that a reference stays or a test checks it, it describes the state before that date.
+
 The intro 81:DFE7 (cutscene 14) is the third scene lifted from register-level
 65816 equations to plain code, after the matrix and the cutscenes (user
 direction 2026-11-10, [STRATEGY.md](STRATEGY.md) "Lifted code"; method and
@@ -11,7 +18,7 @@ path), with tools/intro-lift.test.mjs; the golden traces intro and attract cover
 path ([STATE-MODEL-REBUILD.md](STATE-MODEL-REBUILD.md)). Its set-up routines (81:D60F,
 81:D83E, 81:DC43, 81:D642, 81:DDB1, 81:E8E5, 81:E900, 81:EF63, 81:F092), the sprite
 grid 81:E83A and the far object start 81:E971 stay as register-level references in
-[proof/intro-reference/](../proof/intro-reference/) (intro-setup.mjs,
+proof/intro-reference/ (removed) (intro-setup.mjs,
 intro-sprites.mjs; table entries in intro-routines.mjs): the frontend references
 (title, start menu, title cycle) call them, and the recorded Mesen chronologies of the
 boot place NMIs inside their unpack calls, which a lifted entry cannot replay (an

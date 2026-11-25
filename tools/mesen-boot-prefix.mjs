@@ -21,7 +21,7 @@ import { STOP_RETURNED, STOP_BUDGET } from '../proof/vm/scheduler.mjs';
 import { SPECIAL_NATIVES } from '../proof/vm/special-natives.mjs';
 import { runMainReset } from '../proof/replay/main-reset.mjs';
 import { runMainStartup, MAIN_STARTUP_ROUTINES } from '../proof/replay/main-startup.mjs';
-import { withFrontendReference } from '../proof/frontend-reference/frontend.mjs';
+import { withAudioReference } from '../proof/apu-reference/audio-routines.mjs';
 import { runMainOwnerStart } from '../proof/replay/main-frontend.mjs';
 import { runMainStart } from '../proof/replay/main-start.mjs';
 import { finishInterruptObservations } from '../proof/system/main-wait-interrupt.mjs';
@@ -627,9 +627,9 @@ export function compareBootPrefix(
   }
   assert.equal(pending, null, 'unconsumed original boot NMI');
   assert.equal(interrupts.length, recorded.instructionSteps, 'original boot instruction count');
-  // The recorded boot has every instruction of the title (prologue fill, polls at
-  // bank 81): it runs the register-level reference (proof/frontend-reference).
-  const routines = withFrontendReference(MAIN_STARTUP_ROUTINES),
+  // The recorded boot ends at the title owner; the replays through the register-level
+  // title were retired on 2026-11-25 (docs/STATE-MODEL-REBUILD.md).
+  const routines = withAudioReference(MAIN_STARTUP_ROUTINES),
     stop = Symbol('boot checkpoint');
   const events = {
     interrupts: Object.freeze(interrupts),

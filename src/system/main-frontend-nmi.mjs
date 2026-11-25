@@ -1,6 +1,6 @@
 // The NMI callbacks of the frontend: the lifted prologue, pan and vertical scroll
-// callbacks 81:DD54, 81:D93E and 81:DCAC (src/frontend/title.mjs; register-level
-// reference in proof/frontend-reference/title.mjs).
+// callbacks 81:DD54, 81:D93E and 81:DCAC (src/frontend/title.mjs;
+// register-level reference retired on 2026-11-25).
 import { INTRO_NMI_ROUTINES } from './main-intro-nmi.mjs';
 import { handleGameNmi } from '../game/game-nmi.mjs';
 import { handleMatrixNmi } from '../matrix/matrix-scene.mjs';

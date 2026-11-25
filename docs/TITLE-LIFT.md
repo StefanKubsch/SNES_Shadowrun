@@ -1,5 +1,12 @@
 # Title lift
 
+Note (2026-11-25): the register-level frontend reference (proof/frontend-reference/)
+and the intro set-up reference (proof/intro-reference/) were retired with their ROM
+proofs and lift comparisons, after the recorded Mesen replays through the title were cut
+(user decision, [STATE-MODEL-REBUILD.md](STATE-MODEL-REBUILD.md), Progress). The golden
+traces attract, new-game and intro cover the lifted frontend. Where the text below says
+that a reference stays or a test checks it, it describes the state before that date.
+
 The title 81:D694 with the prologue 81:DDDB is the fourth part lifted from
 register-level 65816 equations to plain code, after the matrix, the cutscenes
 and the intro (user direction 2026-11-10, [STRATEGY.md](STRATEGY.md) "Lifted
@@ -8,7 +15,7 @@ the first of two delivery groups of the frontend; the start menu followed
 ([START-MENU-LIFT.md](START-MENU-LIFT.md)), then the title cycle 80:A18C
 ([TITLE-CYCLE-LIFT.md](TITLE-CYCLE-LIFT.md)). The register-level
 versions stay as reference in
-[proof/frontend-reference/title.mjs](../proof/frontend-reference/title.mjs); the
+proof/frontend-reference/title.mjs (removed); the
 ROM proof tests (`tools/main-frontend-menu.test.mjs`,
 `tools/main-frontend-nmi.test.mjs`, `tools/main-intro-nmi.test.mjs`, the
 connected boot and frontend tests) run with it through `withTitleReference` and
@@ -48,7 +55,7 @@ fade tables and the object frame and event lists are read by their
 
 ## What is compared
 
-[tools/title-lift.test.mjs](../tools/title-lift.test.mjs) runs the six sessions
+tools/title-lift.test.mjs (removed) runs the six sessions
 of [tools/live-title-plan.mjs](../tools/live-title-plan.mjs) from power-on: the
 whole prologue and title, and a held Start in the prologue, the first title
 frames, the pan, the vertical scroll and the blend. Every NMI must be equal
@@ -61,7 +68,7 @@ the last live step runs past it depend on the work units the code uses, which
 differ between lifted and reference code (the title sessions ended up to 28
 NMIs apart behind identical frames).
 
-[tools/title-lift-functions.test.mjs](../tools/title-lift-functions.test.mjs)
+tools/title-lift-functions.test.mjs (removed)
 runs the line renderer (600 samples), window, blend step, all NMI callbacks and
 81:E971 on random states against the reference: prologue lines of every length,
 the window at its limits, positions at the upload entries and the pan end,

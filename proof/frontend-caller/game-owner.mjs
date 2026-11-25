@@ -1,6 +1,6 @@
 // Address-dispatched caller retained for independent comparisons and recorded replays.
 // The outer game owner (lifted from 80:A139 and its resume point 80:A157;
-// register-level reference in proof/frontend-reference/game-owner.mjs).
+// register-level reference retired on 2026-11-25).
 //
 // The owner runs the title cycle until the player chooses a game, sets up the game's
 // audio and enters the game's main start 80:9688 with the original JSR frame of

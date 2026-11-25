@@ -6,15 +6,17 @@ import { VmMemory, VmFault, WRAM_SIZE, SRAM_SIZE } from '../../src/vm/memory.mjs
 import { ScriptInterpreter } from '../vm/interpreter.mjs';
 import { TaskAccessor } from '../../src/vm/task-accessor.mjs';
 import { runMainReset } from '../replay/main-reset.mjs';
+// The recorded logo chronology ends before the title, whose register-level reference was
+// retired on 2026-11-25 with the replays through it (docs/STATE-MODEL-REBUILD.md).
 import {
   runMainStartup,
   MAIN_STARTUP_ROUTINES as STARTUP_ROUTINES,
 } from '../replay/main-startup.mjs';
-import { withFrontendReference } from '../frontend-reference/frontend.mjs';
+import { withAudioReference } from '../apu-reference/audio-routines.mjs';
 
-// Recorded chronologies hold every instruction of the title (prologue fill, polls in
-// bank 81): they replay with the register-level title (proof/frontend-reference).
-const MAIN_STARTUP_ROUTINES = withFrontendReference(STARTUP_ROUTINES);
+// The recorded reads of the APU ports are those of the register-level 81:F007 at its
+// data bank address (80:2140).
+const MAIN_STARTUP_ROUTINES = withAudioReference(STARTUP_ROUTINES);
 import { finishInterruptObservations } from '../system/main-wait-interrupt.mjs';
 import { PpuBus } from './ppu-state.mjs';
 

@@ -1,4 +1,3 @@
-import { withFrontendReference } from '../proof/frontend-reference/frontend.mjs';
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { ObservedNmiContinuation } from '../src/system/nmi-call.mjs';
@@ -10,12 +9,6 @@ import { gameNmiSpecs, proveGameNmi } from './main-game-nmi-source.mjs';
 import { matrixNmiSpecs, proveMatrixNmi } from './main-matrix-nmi-source.mjs';
 import { decodeWindows, DialogTestMemory, rom } from './task-native-dialog-harness.mjs';
 import { runReference } from './w65c816-reference.mjs';
-import { sceneAnimationSpecs } from './main-scene-animation-source.mjs';
-import { introNmiSpecs } from './main-intro-nmi-source.mjs';
-import { frontendSpecs } from './main-frontend-source.mjs';
-import { SCENE_REFERENCE_ROUTINES as MAIN_SCENE_ROUTINES } from '../proof/scene-reference-routines.mjs';
-import { FRONTEND_NMI_ROUTINES as FRONTEND_NMI_ROUTINES_TASK } from '../proof/replay/main-frontend-nmi.mjs';
-const FRONTEND_NMI_ROUTINES = withFrontendReference(FRONTEND_NMI_ROUTINES_TASK);
 
 const map = decodeWindows([
   ...matrixNmiSpecs[2].windows,
@@ -247,108 +240,4 @@ test('a configured callback override executes its own routine instead of a regis
   assert.equal(calls, 1);
   assert.equal(v.a.ioIndex, 1);
   assert.equal(v.mem.read16(0x1ca), 0x1111);
-});
-
-test('all F290 callback owners retain the original long frames, saved widths and tail jump through RTI', () => {
-  // The matrix callback 81:BEC3, the cutscene callback 81:D479 and the intro callback
-  // 81:DF0E run lifted since 2026-11-25 (no register-level reference).
-  const callbacks = [0x81dad6, 0x81dd54, 0x81d93e, 0x81dcac, 0x81e6ae];
-  const d479 = sceneAnimationSpecs.find((s) => s.entry === 0x81d479);
-  const graph = decodeWindows([
-    ...matrixNmiSpecs[2].windows,
-    ...matrixNmiSpecs[0].windows,
-    ...matrixNmiSpecs[1].windows,
-    ...d479.windows,
-    ...introNmiSpecs.slice(0, 1).flatMap((s) => s.windows),
-    ...frontendSpecs.filter((s) => callbacks.includes(s.entry)).flatMap((s) => s.windows),
-  ]);
-  const routines = new Map([...FRONTEND_NMI_ROUTINES, ...MAIN_SCENE_ROUTINES]);
-  const busySites = new Set([0x809e0b, 0x809e0e, 0x809e11, 0x809e13, 0x809e16, 0x809e19]);
-  // Unchanged leaf helpers are already proved independently. All changed
-  // callback equations, both F290 widths and the entire pad wait execute as
-  // original instructions on the reference side, including D93E's tail jump.
-  for (const target of callbacks)
-    for (const p of [0x41, 0x31]) {
-      const padBank = [0x81dad6, 0x81d93e, 0x81dcac].includes(target) ? 0x81 : 0;
-      const prepare = () => {
-        const v = side({ p });
-        v.mem.write16(0x6e, target & 65535);
-        v.mem.write8(0x70, 0x81);
-        for (let at = 0x113e; at < 0x115e; at += 2) v.mem.write16(at, 0xffff);
-        v.mem.write16(0x11a2, target === 0x81e6ae ? 0 : 0xffff);
-        v.mem.write16(0x1e, target === 0x81d93e ? 0x401 : 0);
-        v.a.io = v.a.io.map((o) =>
-          [0x809e0b, 0x809e13].includes(o.pc)
-            ? { ...o, address: (padBank << 16) | (o.address & 65535) }
-            : o,
-        );
-        return v;
-      };
-      const n = prepare(),
-        r = prepare(),
-        states = [];
-      let byte = 0;
-      const read = r.mem.read8.bind(r.mem);
-      r.mem.read8 = (address) => {
-        const o = r.a.io[r.a.ioIndex];
-        if (o && address === o.address + byte) {
-          const value = (o.value >>> (8 * byte++)) & 255;
-          if (byte === o.width) {
-            r.a.ioIndex++;
-            byte = 0;
-          }
-          return value;
-        }
-        return read(address);
-      };
-      const c = r.a.ctx;
-      r.h.pushByte(c.programBank);
-      r.h.push(c.pc, 2);
-      r.h.pushByte(c.status);
-      c.status = (c.status | 4) & ~8;
-      c.programBank = 0;
-      const calls = new Map(
-        [...routines]
-          .filter(([entry]) => !graph.has(entry))
-          .map(([entry, run]) => [
-            entry,
-            () => {
-              const result = run(dialogAccess(r.a), null, routines);
-              return { rawReturnWord: result?.rawReturnWord ?? result };
-            },
-          ]),
-      );
-      const before = new Map(
-        [...busySites].map((pc) => [
-          pc,
-          () => {
-            c.programBank = pc >>> 16;
-            c.pc = pc & 65535;
-            states.push(snapshot(r));
-          },
-        ]),
-      );
-      runReference(graph, r.mem, c, { entry: 0x00c112, root: 'RTI', calls, before, io: r.a.trace });
-      const continuation = new ObservedNmiContinuation(n.a, null, routines);
-      let index = 0,
-        pauses = 0;
-      while (continuation.run(1) === WAIT_PAUSED) {
-        assert.ok(++pauses < 150);
-        const state = states[index];
-        if (state && n.a.ctx.programBank === 0x80 && n.a.ctx.pc === state.ctx.pc) {
-          assert.deepEqual(
-            snapshot(n),
-            state,
-            `${target.toString(16)} at ${state.ctx.pc.toString(16)}`,
-          );
-          index++;
-        }
-      }
-      assert.equal(index, states.length);
-      assert.ok(index >= 15);
-      assert.deepEqual(snapshot(n), snapshot(r));
-      assert.deepEqual(expand(n.a.trace), expand(r.a.trace));
-      assert.equal(n.mem.read16(0x1ca), 0xc100);
-      assert.equal(n.a.ioIndex, n.a.io.length);
-    }
 });

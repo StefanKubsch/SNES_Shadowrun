@@ -134,7 +134,7 @@ offsets internally, with two bytes per tile.
 The source contract comes from the pinned bank-81 routines in
 [main-frontend-source.mjs](../tools/main-frontend-source.mjs) and their
 [native implementation](../src/frontend/start-menu.mjs) (register-level reference
-[start-menu-text.mjs](../proof/frontend-reference/start-menu-text.mjs)):
+start-menu-text.mjs (removed)):
 
 | Original routine                | Established behavior and edit constraint                                                                                                                                                                                                              |
 | ------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |

@@ -87,9 +87,9 @@ open bus.
 The remaining readers are implemented in
 [main-scene-video.mjs](../proof/system/main-scene-video.mjs),
 [cutscene-animation.mjs](../src/cutscene/cutscene-animation.mjs),
-[start-menu-text.mjs](../proof/frontend-reference/start-menu-text.mjs) (with its lifted form
+start-menu-text.mjs (removed) (with its lifted form
 [start-menu.mjs](../src/frontend/start-menu.mjs)) and
-[intro-setup.mjs](../proof/intro-reference/intro-setup.mjs) (with its lifted form
+intro-setup.mjs (removed) (with its lifted form
 [intro-scene.mjs](../src/intro/intro-scene.mjs)). In addition,
 `81:E50C` is retained after the final options text: the same menu WORD
 reader must fetch it as the high byte of the terminator at E50B, although

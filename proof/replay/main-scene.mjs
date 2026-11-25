@@ -78,8 +78,7 @@ export const MAIN_SCENE_ROUTINES = new Map([
   [0x80f290, readJoypadLong],
   [0x809e0b, readJoypad],
   [0x81cdf8, playCutscene],
-  // The lifted intro (src/intro); its register-level set-up routines are references
-  // (proof/intro-reference/intro-routines.mjs). The outer owner 80:A141 still calls
+  // The lifted intro (src/intro; register-level reference retired on 2026-11-25). The outer owner 80:A141 still calls
   // the game's audio 81:EF63.
   [0x81dfe7, playIntro],
   [0x81ef63, setUpGameAudioRoutine],

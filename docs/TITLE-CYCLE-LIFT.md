@@ -1,5 +1,12 @@
 # Title cycle lift
 
+Note (2026-11-25): the register-level frontend reference (proof/frontend-reference/)
+and the intro set-up reference (proof/intro-reference/) were retired with their ROM
+proofs and lift comparisons, after the recorded Mesen replays through the title were cut
+(user decision, [STATE-MODEL-REBUILD.md](STATE-MODEL-REBUILD.md), Progress). The golden
+traces attract, new-game and intro cover the lifted frontend. Where the text below says
+that a reference stays or a test checks it, it describes the state before that date.
+
 The title cycle 80:A18C, the attract game 80:A168 and its demo owner 80:96F3
 are the third frontend delivery group lifted from register-level 65816
 equations to plain code, after the title ([TITLE-LIFT.md](TITLE-LIFT.md)) and
@@ -8,7 +15,7 @@ the start menu ([START-MENU-LIFT.md](START-MENU-LIFT.md)); method in
 plays when the start menu times out: the game runs by itself in room AB until
 the demo ends, then the menu returns. The register-level versions stay as
 reference in
-[proof/frontend-reference/title-cycle.mjs](../proof/frontend-reference/title-cycle.mjs);
+proof/frontend-reference/title-cycle.mjs (removed);
 `withFrontendReference` puts them into the ROM proof tests and recorded replays.
 
 ## Modules
@@ -52,7 +59,7 @@ called through their original frames, so the reference can replace them.
 
 ## What is compared
 
-[tools/title-cycle-lift.test.mjs](../tools/title-cycle-lift.test.mjs) runs the
+tools/title-cycle-lift.test.mjs (removed) runs the
 five sessions of
 [tools/live-title-cycle-plan.mjs](../tools/live-title-cycle-plan.mjs) from power
 on: about 14600 frames without input (title, menu, attract game, menu, title,
@@ -61,7 +68,7 @@ game, a new game and a saved game after Start in the title, and a new game
 from the menu behind the attract game. Every NMI must be equal; a planted
 difference (no title audio set-up after the attract game) fails it.
 
-[tools/title-cycle-lift-functions.test.mjs](../tools/title-cycle-lift-functions.test.mjs)
+tools/title-cycle-lift-functions.test.mjs (removed)
 runs the three routines against the reference on random states with recorded
 stub callees, including the path after a game, which the live sessions do not
 reach: random orders of cancelled menus, credits requests and choices, with
@@ -106,7 +113,7 @@ The outer owner 80:A139 (entered after the start-up) and its resume point
 80:A157 (reached when the game's main loop returns after a game) run as plain
 code in [game-owner.mjs](../src/frontend/game-owner.mjs); the register-level
 version and the no-countdown marker 80:E24E it called are in
-[proof/frontend-reference/game-owner.mjs](../proof/frontend-reference/game-owner.mjs)
+proof/frontend-reference/game-owner.mjs (removed)
 and join `withFrontendReference`.
 
 - The owner is the routine table's entry 80:A139, so the reference can replace
@@ -121,9 +128,9 @@ and join `withFrontendReference`.
 - Not produced: the return address the JSL to 81:EF63 leaves in the free stack
   below the owner's frame, and A and the flags after E24E (the main start loads
   A from direct page 0 first).
-- [tools/game-owner-lift.test.mjs](../tools/game-owner-lift.test.mjs) compares
+- tools/game-owner-lift.test.mjs (removed) compares
   every NMI of the new game and saved game sessions of the title cycle plan;
-  [tools/game-owner-lift-functions.test.mjs](../tools/game-owner-lift-functions.test.mjs)
+  tools/game-owner-lift-functions.test.mjs (removed)
   compares both entries on random states with a stubbed title cycle. Planted
   differences (the countdown word) fail both.
 - The driver tests (tools/main-driver.test.mjs) stub the audio set-up 81:EF63
