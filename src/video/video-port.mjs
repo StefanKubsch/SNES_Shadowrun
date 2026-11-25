@@ -15,7 +15,9 @@ import {
   A1B0,
   A1T0L,
   BBAD0,
+  BG12NBA,
   BG1HOFS,
+  BG1SC,
   BG34NBA,
   BGMODE,
   CGADD,
@@ -37,10 +39,12 @@ import {
   MDMAEN,
   MEMSEL,
   NMITIMEN,
+  OAMADDH,
   OAMADDL,
   OAMDATA,
   OBJSEL,
   RDVRAMH,
+  RDVRAML,
   SETINI,
   TM,
   TMW,
@@ -49,13 +53,17 @@ import {
   VMAINC,
   VMDATAL,
   W12SEL,
+  W34SEL,
   WBGLOG,
+  WOBJLOG,
+  WOBJSEL,
   WRIO,
 } from '../constants/hardware-registers.mjs';
 import {
   COLDATA_BLUE,
   COLDATA_GREEN,
   COLDATA_RED,
+  DMAP_B_TO_A,
   DMAP_FIXED_SOURCE,
   DMAP_ONE_PORT,
   DMAP_TWO_PORTS,
@@ -75,6 +83,11 @@ const DMA_CHANNEL_STRIDE = 0x10,
 // A channel's register from the channel 0 register, and its MDMAEN bit.
 const channelRegister = (register, channel) => register + channel * DMA_CHANNEL_STRIDE,
   channelBit = (channel) => 1 << channel;
+// The B-bus register of each transfer destination and its channel mode.
+const DMA_TARGETS = { vram: VMDATAL, vramRead: RDVRAML, cgram: CGDATA, oam: OAMDATA },
+  dmaMode = (t) =>
+    (t.to === 'vram' ? DMAP_TWO_PORTS : t.to === 'vramRead' ? DMAP_B_TO_A | DMAP_TWO_PORTS : 0) |
+    (t.fixed ? DMAP_FIXED_SOURCE : 0);
 
 const WRIO_ALL_HIGH = 0xff,
   COLDATA_ALL_ZERO = COLDATA_RED | COLDATA_GREEN | COLDATA_BLUE,
@@ -407,6 +420,136 @@ export class VideoPort {
     this.write(VMAINC, VMAINC_INCREMENT_AFTER_HIGH, 1, sites.increment);
     this.write(MDMAEN, channelBit(7), 1, sites.start);
   }
+  // DMA channel set-ups and transfers described by their parts (scene code). A transfer
+  // t is {to, fixed, source, bytes, address, increment}: to names the destination,
+  // 'vram' (word mode to VMDATA), 'vramRead' (word mode from RDVRAM to the CPU),
+  // 'cgram' or 'oam' (byte mode); fixed keeps the source address; source is a long CPU
+  // address; address is a VRAM word address, a colour or an OAM address word with its
+  // priority rotation bit; increment is the VRAM address step (default: after the
+  // high byte). order lists the parts in the order the original sets them, one
+  // register write each, for every listed channel in turn:
+  //   mode, target, modeAndTarget (one 16-bit store), source (the address word), bank,
+  //   bytes, address (two byte stores for the OAM), increment, start.
+  // A part not listed keeps the channel's earlier set-up. A back end without channel
+  // registers performs the transfer at its start. sites maps parts to the original
+  // instructions of a single channel's writes.
+  setUpDma(channels, order, sites = {}) {
+    for (const part of order)
+      for (const [channel, t] of channels) this.#dmaPart(channel, t, part, sites[part]);
+  }
+  transfer(channel, t, order, sites = {}) {
+    for (const part of order) this.#dmaPart(channel, t, part, sites[part]);
+  }
+  #dmaPart(channel, t, part, site) {
+    switch (part) {
+      case 'mode':
+        this.write(channelRegister(DMAP0, channel), dmaMode(t), 1, site);
+        return;
+      case 'target':
+        this.write(channelRegister(BBAD0, channel), DMA_TARGETS[t.to] & BYTE_MASK, 1, site);
+        return;
+      case 'modeAndTarget':
+        this.write(
+          channelRegister(DMAP0, channel),
+          ((DMA_TARGETS[t.to] & BYTE_MASK) << BYTE_BITS) | dmaMode(t),
+          2,
+          site,
+        );
+        return;
+      case 'source':
+        this.write(channelRegister(A1T0L, channel), t.source & WORD_MASK, 2, site);
+        return;
+      case 'bank':
+        this.write(channelRegister(A1B0, channel), t.source >>> WORD_BITS, 1, site);
+        return;
+      case 'bytes':
+        this.write(channelRegister(DAS0L, channel), t.bytes, 2, site);
+        return;
+      case 'address':
+        if (t.to === 'cgram') this.write(CGADD, t.address, 1, site);
+        else if (t.to === 'oam') {
+          this.write(OAMADDL, t.address & BYTE_MASK, 1, site);
+          this.write(OAMADDH, t.address >>> BYTE_BITS, 1, site);
+        } else this.write(VMADDL, t.address, 2, site);
+        return;
+      case 'increment':
+        this.write(VMAINC, t.increment ?? VMAINC_INCREMENT_AFTER_HIGH, 1, site);
+        return;
+      case 'start':
+        this.write(MDMAEN, channelBit(channel), 1, site);
+        return;
+      default:
+        throw new Error(`unknown DMA part ${part}`);
+    }
+  }
+  // The VRAM address step after the low (0) or high byte, by an 8-bit store or by the
+  // game's 16-bit store, whose high byte reaches VMADDL.
+  setVramIncrement(increment, width = 1) {
+    this.write(VMAINC, increment, width);
+  }
+  setVramAddress(address) {
+    this.write(VMADDL, address, 2);
+  }
+  // count VRAM words at the current address (the increment mode is already set).
+  writeVramWords(values) {
+    for (const value of values) this.write(VMDATAL, value, 2);
+  }
+  // A VRAM word at the current address as its low byte, then its high byte.
+  writeVramBytes(low, high) {
+    this.write(VMDATAL, low, 1);
+    this.write(VMDATAL + 1, high, 1);
+  }
+  // BG mode and BG3 priority (BGMODE).
+  setBgMode(value) {
+    this.write(BGMODE, value, 1);
+  }
+  // OBJ sizes and character base by an 8-bit store.
+  setObjectSelectByte(value) {
+    this.write(OBJSEL, value, 1);
+  }
+  // Map base and size of BG layer 1-4 (BG1SC-BG4SC).
+  setMapBase(layer, value) {
+    this.write(BG1SC + layer - 1, value, 1);
+  }
+  // Character bases of BG1/BG2 (first = 1) or BG3/BG4 (first = 3), a nibble each.
+  setCharacterBases(first, value) {
+    this.write(first === 1 ? BG12NBA : BG34NBA, value, 1);
+  }
+  // One scroll offset of BG layer 1-4 by its two byte stores (low, then high).
+  setHorizontalScroll(layer, x) {
+    const port = BG1HOFS + (layer - 1) * SCROLL_REGISTERS_PER_LAYER;
+    this.write(port, x & BYTE_MASK, 1);
+    this.write(port, (x >>> BYTE_BITS) & BYTE_MASK, 1);
+  }
+  // One scroll offset by a low and a high byte given apart (the high byte may exceed
+  // the offset's bits as the original stores it).
+  setScrollBytes(layer, vertical, low, high) {
+    const port = BG1HOFS + (layer - 1) * SCROLL_REGISTERS_PER_LAYER + (vertical ? 1 : 0);
+    this.write(port, low, 1);
+    this.write(port, high, 1);
+  }
+  // Window areas of BG1/BG2, BG3/BG4 and OBJ/colour (W12SEL, W34SEL, WOBJSEL) by
+  // three 8-bit stores.
+  setWindowAreas(bg12, bg34, objColour) {
+    this.write(W12SEL, bg12, 1);
+    this.write(W34SEL, bg34, 1);
+    this.write(WOBJSEL, objColour, 1);
+  }
+  // Window logic of BG1-BG4 and of OBJ/colour by two 8-bit stores.
+  setWindowLogicBytes(bg, objColour) {
+    this.write(WBGLOG, bg, 1);
+    this.write(WOBJLOG, objColour, 1);
+  }
+  // H-DMA channel enable by a 16-bit store, whose high byte reaches MEMSEL.
+  enableHdmaWord(channels, site) {
+    this.write(HDMAEN, channels, 2, site);
+  }
+  // Colour bytes from a CGRAM index on, as the original stores them one by one.
+  setColourBytes(index, bytes) {
+    this.write(CGADD, index, 1);
+    for (const value of bytes) this.write(CGDATA, value, 1);
+  }
+
   // bytes read back from VRAM at a word address into a WRAM address of bank 7E, by
   // DMA on channel 5 (from RDVRAM, bank 7E from the font upload), after the latching
   // dummy read of RDVRAMH. sites: address, bytes, target, increment, latch, start.

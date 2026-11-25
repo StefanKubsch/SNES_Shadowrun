@@ -80,6 +80,12 @@ export const COLDATA_RED = 0x20;
 export const COLDATA_GREEN = 0x40;
 export const COLDATA_BLUE = 0x80;
 
+// BG layer numbers of the video interface (src/video/video-port.mjs).
+export const BG_1 = 1;
+export const BG_2 = 2;
+export const BG_3 = 3;
+export const BG_4 = 4;
+
 // Screen designation and colour math (Book I, book1_text.pdf PDF 128 TM/TS 2-27-14, PDF 130
 // CGSWSEL 2-27-16, PDF 131 CGADSUB 2-27-17). TM, TS and CGADSUB share the layer bits 0-4;
 // CGADSUB bit 5 adds the backdrop. CGSWSEL bit 1 adds the sub screen instead of the fixed colour.

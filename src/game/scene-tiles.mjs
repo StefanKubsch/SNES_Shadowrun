@@ -31,7 +31,6 @@ import {
   TILE_STACK_USES,
 } from '../data/wram.mjs';
 import { TILE_BANK, TILE_TABLE } from '../data/tiles.mjs';
-import { VMADDL, VMAINC, VMDATAL } from '../constants/hardware-registers.mjs';
 import { PLANE_PAIR_BYTES, TILE_H_FLIP, VMAINC_INCREMENT_AFTER_HIGH } from '../constants/ppu.mjs';
 import { BYTE_BITS, BYTE_MASK, WORD_MASK, WORD_SIGN } from '../constants/bits.mjs';
 
@@ -59,7 +58,9 @@ const PLANE_BYTES = 8,
   TILE_BYTES = 32,
   TILE_WORDS = TILE_BYTES / 2,
   PLANE_PAIRS = 2,
-  ROW_MASK = PLANE_BYTES - 1;
+  ROW_MASK = PLANE_BYTES - 1,
+  // An unused stack entry uploads a tile of zero words.
+  EMPTY_TILE = new Array(TILE_WORDS).fill(0);
 const SCENE_TILES_VRAM = 0x1000,
   STACK_END = TILE_STACK_LAST + 2;
 
@@ -173,14 +174,14 @@ export function* uploadSceneTilesSequence(h) {
   const { mem, wram, video } = sceneRuntime(h);
   yield () => {
     clearTileCache(wram);
-    video.write(VMAINC, VMAINC_INCREMENT_AFTER_HIGH, 2);
-    video.write(VMADDL, SCENE_TILES_VRAM, 2);
+    video.setVramIncrement(VMAINC_INCREMENT_AFTER_HIGH, 2);
+    video.setVramAddress(SCENE_TILES_VRAM);
   };
   for (let x = 0; x !== STACK_END; x = word(wram, DP_STACK_ENTRY) + 2) {
     setWord(wram, DP_STACK_ENTRY, x);
     if (word(wram, TILE_STACK_USES + x) & WORD_SIGN) {
       yield () => {
-        for (let n = 0; n < TILE_WORDS; n++) video.write(VMDATAL, 0, 2);
+        video.writeVramWords(EMPTY_TILE);
       };
       continue;
     }
@@ -197,16 +198,10 @@ export function* uploadSceneTilesSequence(h) {
       }
       // Two plane pairs, each row as the low and the high byte of a VRAM word.
       for (let pair = 0; pair < PLANE_PAIRS; pair++)
-        for (let row = 0; row < PLANE_BYTES; row++)
-          for (let plane = 0; plane < 2; plane++)
-            video.write(
-              VMDATAL + plane,
-              readStateByte(
-                wram,
-                TILE_COMPOSE + pair * PLANE_PAIR_BYTES + row + plane * PLANE_BYTES,
-              ),
-              1,
-            );
+        for (let row = 0; row < PLANE_BYTES; row++) {
+          const at = TILE_COMPOSE + pair * PLANE_PAIR_BYTES + row;
+          video.writeVramBytes(readStateByte(wram, at), readStateByte(wram, at + PLANE_BYTES));
+        }
     };
   }
 }

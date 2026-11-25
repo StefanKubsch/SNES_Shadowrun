@@ -12,6 +12,7 @@ import { readStateByte, writeStateByte } from '../state/objects.mjs';
 // enabled.
 import { objectTable } from '../state/objects.mjs';
 import { setNmiCallback } from '../system/nmi.mjs';
+import { videoOf } from '../video/video-port.mjs';
 import { UNPACK_7E, unpackLong, unpackStream } from '../system/unpack.mjs';
 import { languageStreamSource } from '../data/language.mjs';
 import { drawJakeStateBar } from './state-bar.mjs';
@@ -89,73 +90,18 @@ import {
   NMITIMEN_AUTO_JOYPAD,
   NMITIMEN_NMI_ENABLE,
   MEMSEL,
-  OAMADDL,
-  OAMADDH,
-  OAMDATA,
-  OBJSEL,
-  BGMODE,
-  BG1SC,
-  BG2SC,
-  BG3SC,
-  BG12NBA,
-  BG34NBA,
-  BG3HOFS,
-  BG3VOFS,
-  VMAINC,
-  VMADDL,
-  VMDATAL,
-  RDVRAML,
   RDVRAMH,
-  CGADD,
-  CGDATA,
-  CGSWSEL,
-  CGADSUB,
-  MDMAEN,
-  DMA_CHANNEL_STRIDE,
-  DMAP0,
-  BBAD0,
-  A1T0L,
-  A1B0,
-  DAS0L,
-  DMAP1,
-  BBAD1,
-  BBAD2,
-  A1T2L,
-  A1B2,
-  DAS2L,
-  DMAP2,
-  DMAP3,
-  BBAD3,
-  A1B3,
-  DMAP4,
-  BBAD4,
-  DMAP5,
-  BBAD5,
-  A1T5L,
-  A1B5,
-  DAS5L,
-  DMAP6,
-  BBAD6,
-  A1T6L,
-  A1B6,
-  DAS6L,
-  DMAP7,
-  BBAD7,
-  A1T7L,
-  A1B7,
-  DAS7L,
 } from '../constants/hardware-registers.mjs';
 import {
+  BG_1,
+  BG_2,
+  BG_3,
   BGMODE_BG3_PRIORITY,
   BGMODE_MODE_1,
   BGSC_BASE_SHIFT,
   CGADSUB_BACKDROP,
   CGSWSEL_SUB_SCREEN,
   CHARACTER_BASE_STEP,
-  DMAP_B_TO_A,
-  DMAP_FIXED_SOURCE,
-  DMAP_ONE_PORT,
-  DMAP_TWO_PORTS,
   INIDISP_FORCED_BLANK,
   LAYER_BG1,
   LAYER_BG2,
@@ -164,7 +110,6 @@ import {
   OAM_BYTES,
   OAMADDH_PRIORITY_ROTATION,
   TILE_PRIORITY,
-  VMAINC_INCREMENT_AFTER_HIGH,
   VRAM_WORD_BYTES,
 } from '../constants/ppu.mjs';
 import { WRAM_BANK } from '../constants/memory-map.mjs';
@@ -181,9 +126,18 @@ const BG1_MAP_VRAM = 0x7000,
   BG3_CHARACTER_VRAM = 0x5000;
 const screenBase = (vram) => (vram * VRAM_WORD_BYTES) >> BGSC_BASE_SHIFT,
   characterSegment = (vram) => (vram * VRAM_WORD_BYTES) / CHARACTER_BASE_STEP;
-// The MDMAEN bit of a channel by its DMAPx register; a B-bus register as BBADx takes it.
-const channel = (dmap) => 1 << ((dmap - DMAP0) / DMA_CHANNEL_STRIDE),
-  bBus = (register) => register & BYTE_MASK;
+// DMA channels of the game screen: 1 VRAM records, 2 the OAM, 3 the map edges, 4 the
+// palettes, 5 the text mask readback, 6 the text tile clear, 7 WRAM copies to VRAM.
+// Channel set-ups that leave the source word open take bank 7E.
+const RECORD_CHANNEL = 1,
+  OAM_CHANNEL = 2,
+  MAP_CHANNEL = 3,
+  PALETTE_CHANNEL = 4,
+  READBACK_CHANNEL = 5,
+  CLEAR_CHANNEL = 6,
+  WRAM_COPY_CHANNEL = 7,
+  WRAM_SOURCE = WRAM_BANK << WORD_BITS,
+  NO_SITES = {};
 // The game NMI handler (proof/replay/main-game-nmi.mjs) and the game's main screen layers.
 const GAME_NMI = 0x80c152,
   GAME_LAYERS = LAYER_BG1 | LAYER_BG2 | LAYER_OBJ;
@@ -253,14 +207,14 @@ const fillWordList = (wram, start, last, value) => {
 // Mode 1, the BG map and character bases, and the screen blanked through the shadows
 // (81:B064).
 function setUpGameVideo(wram, video) {
-  video.write(BGMODE, BGMODE_MODE_1 | BGMODE_BG3_PRIORITY, 1);
-  video.write(OBJSEL, 0, 1);
-  video.write(BG1SC, screenBase(BG1_MAP_VRAM), 1);
-  video.write(BG2SC, screenBase(BG2_MAP_VRAM), 1);
-  video.write(BG3SC, screenBase(BG3_MAP_VRAM), 1);
+  video.setBgMode(BGMODE_MODE_1 | BGMODE_BG3_PRIORITY);
+  video.setObjectSelectByte(0);
+  video.setMapBase(BG_1, screenBase(BG1_MAP_VRAM));
+  video.setMapBase(BG_2, screenBase(BG2_MAP_VRAM));
+  video.setMapBase(BG_3, screenBase(BG3_MAP_VRAM));
   const bg12 = characterSegment(BG12_CHARACTER_VRAM);
-  video.write(BG12NBA, bg12 | (bg12 << NIBBLE_BITS), 1);
-  video.write(BG34NBA, characterSegment(BG3_CHARACTER_VRAM), 1);
+  video.setCharacterBases(BG_1, bg12 | (bg12 << NIBBLE_BITS));
+  video.setCharacterBases(BG_3, characterSegment(BG3_CHARACTER_VRAM));
   setWords(wram, [TM_SHADOW, TS_SHADOW], 0);
   setWord(wram, INIDISP_SHADOW, INIDISP_FORCED_BLANK);
   setWords(wram, [BRIGHTNESS_FADE, TMW_SHADOW, HDMAEN_SHADOW], 0);
@@ -282,17 +236,14 @@ function resetCamera(wram, video) {
     0,
   );
   setWord(wram, MAP_UPLOAD_HELD, 0);
-  video.write(DMAP3, DMAP_TWO_PORTS, 1);
-  video.write(BBAD3, bBus(VMDATAL), 1);
-  video.write(A1B3, WRAM_BANK, 1);
+  video.setUpDma([[MAP_CHANNEL, { to: 'vram', source: WRAM_SOURCE }]], ['mode', 'target', 'bank']);
 }
 // The scene palette slots free, DMA channel 4 for CGRAM, the palette request and
 // both palette cycles reset (81:8CB9 with 81:8000).
 export function resetScenePalettes(wram, video) {
   setWord(wram, SCENE_PALETTE_COUNT, 0);
   fillWordList(wram, SCENE_PALETTE_SLOTS - WRAM, SCENE_PALETTE_LAST, NONE);
-  video.write(DMAP4, DMAP_ONE_PORT, 1);
-  video.write(BBAD4, bBus(CGDATA), 1);
+  videoOf(video).setUpDma([[PALETTE_CHANNEL, { to: 'cgram' }]], ['mode', 'target']);
   setWord(wram, SCENE_PALETTE_UPLOAD, 0);
   setWords(wram, [PALETTE_REQUEST_POINTER, PALETTE_SLOT_END], 0);
   for (const at of [2, 0])
@@ -313,18 +264,20 @@ export function resetObjectSlots(wram, video) {
   setWord(wram, NMI_JOB_LISTS, 0);
   clearPaletteSlots(wram);
   objectTable(wram).kind.fill(NONE);
-  video.write(DMAP1, DMAP_TWO_PORTS, 1);
-  video.write(BBAD1, bBus(VMDATAL), 1);
-  video.write(BBAD2, bBus(OAMDATA), 1);
-  video.write(DAS2L, OAM_BYTES, 2);
-  video.write(A1T2L, OAM_FILL_SOURCE & WORD_MASK, 2);
-  video.write(A1B2, OAM_FILL_SOURCE >>> WORD_BITS, 1);
-  video.write(DMAP2, DMAP_FIXED_SOURCE | DMAP_ONE_PORT, 1);
-  video.write(OAMADDL, 0, 1);
-  video.write(OAMADDH, OAMADDH_PRIORITY_ROTATION, 1);
-  video.write(MDMAEN, channel(DMAP2), 1);
-  video.write(DMAP2, DMAP_ONE_PORT, 1);
-  video.write(A1B2, WRAM_BANK, 1);
+  const v = videoOf(video);
+  v.setUpDma([[RECORD_CHANNEL, { to: 'vram' }]], ['mode', 'target']);
+  v.transfer(
+    OAM_CHANNEL,
+    {
+      to: 'oam',
+      fixed: true,
+      source: OAM_FILL_SOURCE,
+      bytes: OAM_BYTES,
+      address: OAMADDH_PRIORITY_ROTATION << BYTE_BITS,
+    },
+    ['target', 'bytes', 'source', 'bank', 'mode', 'address', 'start'],
+  );
+  v.setUpDma([[OAM_CHANNEL, { to: 'oam', source: WRAM_SOURCE }]], ['mode', 'bank']);
   setWord(wram, DRAW_LIST_INDEX, EMPTY_LIST);
   setWord(wram, DP_VRAM_UPLOAD_INDEX, EMPTY_LIST);
   setWord(wram, VRAM_SLOT_COUNT, OBJECT_VRAM_SLOTS);
@@ -379,19 +332,25 @@ export function loadWindowStyle(m, style) {
   const entry = WINDOW_STYLES + ((style * STYLE_BYTES) & WORD_MASK);
   const tiles =
     (mem.read8((entry + STYLE_TILES_BANK) & LONG_MASK) << WORD_BITS) | readWord(mem, entry);
-  video.write(DAS7L, unpackWithLength(mem, tiles, WINDOW_MAP_BUFFER), 2);
-  video.write(A1T7L, WINDOW_MAP_BUFFER, 2);
-  video.write(VMADDL, WINDOW_TILES_VRAM, 2);
-  video.write(VMAINC, VMAINC_INCREMENT_AFTER_HIGH, 1);
-  video.write(MDMAEN, channel(DMAP7), 1);
+  video.transfer(
+    WRAM_COPY_CHANNEL,
+    {
+      to: 'vram',
+      bytes: unpackWithLength(mem, tiles, WINDOW_MAP_BUFFER),
+      source: WINDOW_MAP_BUFFER,
+      address: WINDOW_TILES_VRAM,
+    },
+    ['bytes', 'source', 'address', 'increment', 'start'],
+  );
   const bank = mem.read8((entry + STYLE_COLOURS_BANK) & LONG_MASK);
   setWord(wram, WINDOW_MAP_SOURCE_BANK, bank);
   let at = readWord(mem, entry + STYLE_COLOURS);
-  video.write(CGADD, WINDOW_COLOURS_FIRST, 1);
+  const colours = [];
   for (let n = 0; n < WINDOW_COLOUR_BYTES; n++) {
-    video.write(CGDATA, mem.read8((bank << WORD_BITS) | at), 1);
+    colours.push(mem.read8((bank << WORD_BITS) | at));
     at = (at + 1) & WORD_MASK;
   }
+  video.setColourBytes(WINDOW_COLOURS_FIRST, colours);
   setWord(wram, WINDOW_MAP_SOURCE, at);
   unpackWindowMap(m);
 }
@@ -400,43 +359,43 @@ export function loadWindowStyle(m, style) {
 export function runTextUploads(m) {
   const { wram, video, port } = m;
   if (word(wram, TEXT_TILE_UPLOAD) !== 0) {
-    video.write(A1T6L, TEXT_CLEAR_SOURCE & WORD_MASK, 2);
     let bytes = word(wram, TEXT_TILE_UPLOAD_BYTES);
     if (bytes > TEXT_TILE_CHUNK) {
       setWord(wram, TEXT_TILE_UPLOAD_BYTES, bytes - TEXT_TILE_CHUNK);
       bytes = TEXT_TILE_CHUNK;
     } else setWord(wram, TEXT_TILE_UPLOAD, 0);
-    video.write(DAS6L, bytes, 2);
     const address = word(wram, TEXT_TILE_UPLOAD_ADDRESS);
-    video.write(VMADDL, address, 2);
     setWord(wram, TEXT_TILE_UPLOAD_ADDRESS, address + TEXT_TILE_CHUNK / VRAM_WORD_BYTES);
-    video.write(VMAINC, VMAINC_INCREMENT_AFTER_HIGH, 1);
-    video.write(MDMAEN, channel(DMAP6), 1);
+    video.clearVramChunk(TEXT_CLEAR_SOURCE, bytes, address, NO_SITES);
   }
   if (word(wram, TEXT_MAP_UPLOAD) !== 0) {
-    video.write(A1T7L, WINDOW_MAP_BUFFER, 2);
-    video.write(DAS7L, WINDOW_MAP_BYTES, 2);
-    video.write(VMADDL, BG3_MAP_VRAM, 2);
-    video.write(VMAINC, VMAINC_INCREMENT_AFTER_HIGH, 1);
-    video.write(MDMAEN, channel(DMAP7), 1);
+    video.copyWramToVram(WINDOW_MAP_BUFFER, WINDOW_MAP_BYTES, BG3_MAP_VRAM, NO_SITES);
     setWord(wram, TEXT_MAP_UPLOAD, 0);
   }
   if (word(wram, TEXT_BUFFER_UPLOAD) !== 0) {
-    video.write(A1T7L, TEXT_MASK_BUFFER, 2);
-    video.write(DAS7L, word(wram, TEXT_BUFFER_BYTES), 2);
-    video.write(VMADDL, word(wram, TEXT_BUFFER_VRAM_ADDRESS), 2);
-    video.write(VMAINC, VMAINC_INCREMENT_AFTER_HIGH, 1);
-    video.write(MDMAEN, channel(DMAP7), 1);
+    video.copyWramToVram(
+      TEXT_MASK_BUFFER,
+      word(wram, TEXT_BUFFER_BYTES),
+      word(wram, TEXT_BUFFER_VRAM_ADDRESS),
+      NO_SITES,
+    );
     setWord(wram, TEXT_BUFFER_UPLOAD, 0);
   }
   if (word(wram, TEXT_BUFFER_READBACK) !== 0) {
-    video.write(VMADDL, word(wram, TEXT_BUFFER_VRAM_ADDRESS), 2);
-    video.write(DAS5L, TEXT_READBACK_BYTES, 2);
-    video.write(A1T5L, TEXT_MASK_BUFFER, 2);
-    video.write(VMAINC, VMAINC_INCREMENT_AFTER_HIGH, 1);
-    // The original reads RDVRAMH once before the transfer; the value is not used.
+    video.transfer(
+      READBACK_CHANNEL,
+      {
+        to: 'vramRead',
+        address: word(wram, TEXT_BUFFER_VRAM_ADDRESS),
+        bytes: TEXT_READBACK_BYTES,
+        source: TEXT_MASK_BUFFER,
+      },
+      ['address', 'bytes', 'source', 'increment'],
+    );
+    // The original reads RDVRAMH once before the transfer; the value is not used. The
+    // hardware port reads it, so a recorded read matches by register in any bank.
     port.read(RDVRAMH, 1, VRAM_READ_SITE);
-    video.write(MDMAEN, channel(DMAP5), 1);
+    video.transfer(READBACK_CHANNEL, {}, ['start']);
     setWord(wram, TEXT_BUFFER_READBACK, 0);
   }
 }
@@ -445,32 +404,26 @@ export function runTextUploads(m) {
 // window style and the window map upload (81:AB2C).
 function uploadFont(m) {
   const { wram, video } = m;
-  video.write(VMADDL, BG3_CHARACTER_VRAM, 2);
-  video.write(DAS0L, FONT_BYTES, 2);
-  video.write(A1T0L, FONT_SOURCE & WORD_MASK, 2);
-  video.write(A1B0, FONT_SOURCE >>> WORD_BITS, 1);
-  video.write(BBAD0, bBus(VMDATAL), 1);
-  video.write(VMAINC, VMAINC_INCREMENT_AFTER_HIGH, 1);
-  video.write(DMAP0, DMAP_TWO_PORTS, 1);
-  video.write(MDMAEN, channel(DMAP0), 1);
-  video.write(DAS0L, FONT_COLOURS_BYTES, 2);
-  video.write(A1T0L, FONT_COLOURS_SOURCE & WORD_MASK, 2);
-  video.write(A1B0, FONT_COLOURS_SOURCE >>> WORD_BITS, 1);
-  video.write(CGADD, 0, 1);
-  video.write(BBAD0, bBus(CGDATA), 1);
-  video.write(DMAP0, DMAP_ONE_PORT, 1);
-  video.write(MDMAEN, channel(DMAP0), 1);
-  video.write(DMAP7, DMAP_TWO_PORTS, 1);
-  video.write(DMAP6, DMAP_FIXED_SOURCE | DMAP_TWO_PORTS, 1);
-  video.write(DMAP5, DMAP_B_TO_A | DMAP_TWO_PORTS, 1);
-  video.write(BBAD7, bBus(VMDATAL), 1);
-  video.write(BBAD6, bBus(VMDATAL), 1);
-  video.write(BBAD5, bBus(RDVRAML), 1);
-  video.write(A1B7, WRAM_BANK, 1);
-  video.write(A1B6, TEXT_CLEAR_SOURCE >>> WORD_BITS, 1);
-  video.write(A1B5, WRAM_BANK, 1);
-  video.write(CGSWSEL, CGSWSEL_SUB_SCREEN, 1);
-  video.write(CGADSUB, CGADSUB_BACKDROP | LAYER_OBJ | LAYER_BG3 | LAYER_BG2 | LAYER_BG1, 1);
+  video.transfer(
+    0,
+    { to: 'vram', source: FONT_SOURCE, bytes: FONT_BYTES, address: BG3_CHARACTER_VRAM },
+    ['address', 'bytes', 'source', 'bank', 'target', 'increment', 'mode', 'start'],
+  );
+  video.transfer(
+    0,
+    { to: 'cgram', source: FONT_COLOURS_SOURCE, bytes: FONT_COLOURS_BYTES, address: 0 },
+    ['bytes', 'source', 'bank', 'address', 'target', 'mode', 'start'],
+  );
+  video.setUpDma(
+    [
+      [WRAM_COPY_CHANNEL, { to: 'vram', source: WRAM_SOURCE }],
+      [CLEAR_CHANNEL, { to: 'vram', fixed: true, source: TEXT_CLEAR_SOURCE }],
+      [READBACK_CHANNEL, { to: 'vramRead', source: WRAM_SOURCE }],
+    ],
+    ['mode', 'target', 'bank'],
+  );
+  video.setColourSelect(CGSWSEL_SUB_SCREEN);
+  video.setColourMathLayers(CGADSUB_BACKDROP | LAYER_OBJ | LAYER_BG3 | LAYER_BG2 | LAYER_BG1);
   writeStateByte(wram, TM_SHADOW, readStateByte(wram, TM_SHADOW) | LAYER_BG3);
   fillWordList(wram, WINDOW_ACTIVE, WINDOW_LAST_SLOT, 0);
   setWord(wram, LOADED_WINDOW_STYLE, NONE);
@@ -515,8 +468,6 @@ export function setUpGameScreen(m, tasks) {
   setNmiCallback(wram, GAME_NMI);
   port.write(NMITIMEN, NMITIMEN_NMI_ENABLE | NMITIMEN_AUTO_JOYPAD, 1, NMI_ON_SITE);
   writeStateByte(wram, TM_SHADOW, readStateByte(wram, TM_SHADOW) | GAME_LAYERS);
-  video.write(BG3VOFS, 0, 1);
-  video.write(BG3VOFS, 0, 1);
-  video.write(BG3HOFS, 0, 1);
-  video.write(BG3HOFS, 0, 1);
+  video.setVerticalScroll(BG_3, 0);
+  video.setHorizontalScroll(BG_3, 0);
 }

@@ -16,7 +16,6 @@ import { readStateByte, writeStateByte } from '../state/objects.mjs';
 // A ramp's level comes from the colour ramp 80:D3D1 at the 9-bit phase: the fast
 // ramp darkens all three planes, the slow one only red and clears green and blue.
 import { COLOUR_PHASE, COLOUR_REQUEST } from '../data/wram.mjs';
-import { CGADSUB, COLDATA } from '../constants/hardware-registers.mjs';
 import { COLDATA_BLUE, COLDATA_GREEN, COLDATA_RED } from '../constants/ppu.mjs';
 import { BYTE_BITS, BYTE_MASK } from '../constants/bits.mjs';
 
@@ -46,8 +45,8 @@ const setWord = (wram, at, value) => {
 
 // The fixed colour black and colour math off (81:886A).
 export function clearFixedColour(video) {
-  video.write(COLDATA, COLDATA_RED | COLDATA_GREEN | COLDATA_BLUE, 1);
-  video.write(CGADSUB, 0, 1);
+  video.setFixedColour(COLDATA_RED | COLDATA_GREEN | COLDATA_BLUE);
+  video.setColourMathLayers(0);
 }
 // No colour effect requested, its phase at the start, the fixed colour cleared
 // (81:8861). m: {wram, video}.
@@ -67,8 +66,8 @@ export function applyColourEffect({ mem, wram, video }) {
     return;
   }
   if (request & FLASH) {
-    video.write(COLDATA, FLASH_FIXED_COLOUR, 1);
-    video.write(CGADSUB, FLASH_COLOUR_MATH, 1);
+    video.setFixedColour(FLASH_FIXED_COLOUR);
+    video.setColourMathLayers(FLASH_COLOUR_MATH);
     setWord(wram, COLOUR_REQUEST, request & ~FLASH);
     return;
   }
@@ -78,12 +77,12 @@ export function applyColourEffect({ mem, wram, video }) {
   setWord(wram, COLOUR_PHASE, phase);
   let level = mem.read8(COLOUR_RAMP + phase) >>> (fast ? FAST_SHIFT : SLOW_SHIFT);
   if (level) level--;
-  if (fast) video.write(COLDATA, level | COLDATA_RED | COLDATA_GREEN | COLDATA_BLUE, 1);
+  if (fast) video.setFixedColour(level | COLDATA_RED | COLDATA_GREEN | COLDATA_BLUE);
   else {
-    video.write(COLDATA, level | COLDATA_RED, 1);
-    video.write(COLDATA, COLDATA_GREEN | COLDATA_BLUE, 1);
+    video.setFixedColour(level | COLDATA_RED);
+    video.setFixedColour(COLDATA_GREEN | COLDATA_BLUE);
   }
-  video.write(CGADSUB, RAMP_COLOUR_MATH, 1);
+  video.setColourMathLayers(RAMP_COLOUR_MATH);
   if (fast && phase === FAST_RAMP_END) setWord(wram, COLOUR_REQUEST, request & ~FAST_RAMP);
   return phase;
 }

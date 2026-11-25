@@ -37,19 +37,8 @@ import {
   SCENE_LAYER_LOW,
   SCENE_LAYER_ROW_BYTES,
 } from '../data/wram.mjs';
-import {
-  A1T3L,
-  BG1HOFS,
-  BG1VOFS,
-  DAS3L,
-  DMA_CHANNEL_STRIDE,
-  DMAP0,
-  DMAP3,
-  MDMAEN,
-  VMADDL,
-  VMAINC,
-} from '../constants/hardware-registers.mjs';
-import { VMAINC_INCREMENT_AFTER_HIGH, VMAINC_STEP_32 } from '../constants/ppu.mjs';
+import { videoOf } from '../video/video-port.mjs';
+import { BG_1, BG_2, VMAINC_INCREMENT_AFTER_HIGH, VMAINC_STEP_32 } from '../constants/ppu.mjs';
 import { BYTE_BITS, BYTE_MASK, WORD_MASK, WORD_SIGN } from '../constants/bits.mjs';
 
 // VRAM word addresses of the BG1 and BG2 maps (src/game/game-screen.mjs).
@@ -76,9 +65,8 @@ const DP_COLUMN = 0x0e,
   DP_COLUMN_OFFSET = 0x1d,
   DP_COLUMN_END = 0x20;
 // The map edges use DMA channel 3; the scroll registers take camera / 4.
-const MAP_CHANNEL = 1 << ((DMAP3 - DMAP0) / DMA_CHANNEL_STRIDE),
-  SCROLL_SHIFT = 2,
-  SECOND_LAYER = 2;
+const MAP_CHANNEL = 3,
+  SCROLL_SHIFT = 2;
 
 const word = (wram, at) => readStateByte(wram, at) | (readStateByte(wram, at + 1) << BYTE_BITS);
 const setWord = (wram, at, value) => {
@@ -170,6 +158,7 @@ export function updateTileBuffers(wram) {
 // then the scroll registers of both layers (81:8954). The DMA channel's mode, B-bus
 // register and source bank are set by the game screen.
 export function uploadMapEdges(wram, video) {
+  const v = videoOf(video);
   for (const [pending, bg1, bg2, vram1, vram2, increment] of [
     [
       MAP_COLUMN_UPLOAD,
@@ -189,26 +178,27 @@ export function uploadMapEdges(wram, video) {
     ],
   ]) {
     if (!word(wram, pending)) continue;
-    video.write(A1T3L, bg1, 2);
-    video.write(DAS3L, MAP_LINE_BYTES, 2);
-    video.write(VMADDL, word(wram, vram1), 2);
-    video.write(VMAINC, increment, 1);
-    video.write(MDMAEN, MAP_CHANNEL, 1);
-    video.write(A1T3L, bg2, 2);
-    video.write(DAS3L, MAP_LINE_BYTES, 2);
-    video.write(VMADDL, word(wram, vram2), 2);
-    video.write(MDMAEN, MAP_CHANNEL, 1);
+    v.transfer(
+      MAP_CHANNEL,
+      { to: 'vram', source: bg1, bytes: MAP_LINE_BYTES, address: word(wram, vram1), increment },
+      ['source', 'bytes', 'address', 'increment', 'start'],
+    );
+    v.transfer(
+      MAP_CHANNEL,
+      { to: 'vram', source: bg2, bytes: MAP_LINE_BYTES, address: word(wram, vram2) },
+      ['source', 'bytes', 'address', 'start'],
+    );
     setWord(wram, pending, 0);
   }
-  // Each scroll register takes the low byte, then a zero high byte.
-  for (const [position, register] of [
-    [CAMERA_X, BG1HOFS],
-    [CAMERA_Y, BG1VOFS],
+  // Each scroll offset takes the low byte, then a zero high byte: both horizontal
+  // offsets, then both vertical ones.
+  for (const [position, vertical] of [
+    [CAMERA_X, false],
+    [CAMERA_Y, true],
   ]) {
     const scroll = (word(wram, position) >>> SCROLL_SHIFT) & BYTE_MASK;
-    for (const port of [register, register + SECOND_LAYER]) {
-      video.write(port, scroll, 1);
-      video.write(port, 0, 1);
-    }
+    for (const layer of [BG_1, BG_2])
+      if (vertical) v.setVerticalScroll(layer, scroll);
+      else v.setHorizontalScroll(layer, scroll);
   }
 }
