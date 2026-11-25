@@ -13,6 +13,7 @@ import { readStateByte, writeStateByte } from '../state/objects.mjs';
 // interrupted registers afterwards, so the jobs leave no registers to their caller
 // except the 16-bit modes they came with.
 import { accessorPort } from '../system/hardware-port.mjs';
+import { spriteTable } from '../state/sprites.mjs';
 import { videoOf } from '../video/video-port.mjs';
 import { sceneRuntime } from '../system/scene-runtime.mjs';
 import { uploadMapEdges } from './camera-scroll.mjs';
@@ -409,7 +410,9 @@ const OAM_SITES = Object.freeze({
 });
 
 // 81:A98E: with open NMI job lists, the OAM buffer to the OAM by DMA on channel 2 (from
-// OAM address 0 with the priority rotation bit); the job lists are then closed.
+// OAM address 0 with the priority rotation bit); the job lists are then closed. The
+// game's typed sprite list (src/state/sprites.mjs), when live play keeps one, goes
+// with it: the picture back end takes the sprites from its fields.
 export function uploadOam(wram, port) {
   if (!word(wram, NMI_JOB_LISTS)) return;
   videoOf(port).sendOamBuffer(
@@ -417,6 +420,7 @@ export function uploadOam(wram, port) {
     OAM_BYTES,
     OAMADDH_PRIORITY_ROTATION << BYTE_BITS,
     OAM_SITES,
+    spriteTable(wram) ?? null,
   );
   setWord(wram, NMI_JOB_LISTS, 0);
 }

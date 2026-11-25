@@ -6,6 +6,7 @@ import { COMBAT_FIELDS, combatByte, setCombatByte } from './combat.mjs';
 import { WINDOW_TEXT_FIELDS, windowTextByte, setWindowTextByte } from './windows-text.mjs';
 import { CAMERA_MAP_FIELDS, cameraMapByte, setCameraMapByte } from './camera-maps.mjs';
 import { COLLISION_FIELDS, collisionByte, setCollisionByte } from './collision.mjs';
+import { SPRITE_FIELDS, spriteByte, setSpriteByte } from './sprites.mjs';
 // The object table: one entry per object slot, each field a named array
 // (docs/STATE-MODEL-REBUILD.md, phase 2). Game code reads and writes objects through
 // these fields instead of WRAM addresses.
@@ -253,6 +254,7 @@ for (const [schema, read, write] of [
   [SCENE_ROOM_FIELDS, sceneRoomByte, setSceneRoomByte],
   [FRONTEND_FIELDS, frontendByte, setFrontendByte],
   [MATRIX_FIELDS, matrixByte, setMatrixByte],
+  [SPRITE_FIELDS, spriteByte, setSpriteByte],
 ])
   for (const { base, count, bytes = 2, stride = bytes } of Object.values(schema))
     for (let index = 0; index < count; index++)

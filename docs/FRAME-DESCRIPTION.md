@@ -124,6 +124,22 @@ however, no longer needs to name registers:
 - Evidence: block check 449/449 in 509 seconds; the slow live tests (cold start, save
   anywhere, alley bus, matrix) 9/9 on the picture back end.
 
+## Step 7: the sprite list as typed state (2026-11-25)
+
+- src/state/sprites.mjs is the first producer: the OAM buffer 7E:3D08-3F27 becomes
+  typed fields per sprite (x, y, name, attributes) and the size bytes of the high
+  table. Live play detaches it like the other subsystems; byte writers of the object
+  pass (src/game/object-sprites.mjs, sprite-list.mjs) reach the fields through the
+  shared byte boundary, and proof/state/to-wram.mjs projects them back, so the game
+  state hash keeps its layout.
+- The game NMI's OAM job (81:A98E) hands the table to the video interface. The
+  picture back end, whose own sprites are now the same typed fields, copies them
+  without a byte transfer; the SNES back end ignores the table and transfers the same
+  bytes from memory. Scene code OAM transfers (81:ED8B) keep the byte path.
+- Evidence: tools/sprite-state.test.mjs (single owner, byte aliases, projection, and
+  table versus byte transfer on both back ends); block check 5059/5059 in 583 seconds,
+  golden traces unchanged.
+
 ## Plan for the next steps
 
 1. Producers: game code builds the parts of the description it owns (palettes,

@@ -88,6 +88,11 @@ own commit after `npm run test:block` and the golden trace test. One shared
 
 ## Progress
 
+- 2026-11-25, phase 5, sprite list producer: src/state/sprites.mjs owns the OAM
+  buffer as typed sprite fields; the game NMI hands the table to the picture back end.
+  Block check 5059/5059, golden traces unchanged
+  ([FRAME-DESCRIPTION.md](FRAME-DESCRIPTION.md), step 7).
+
 - 2026-11-25, phase 5, picture back end by default: LiveGame draws through
   src/video/picture-video.mjs unless a register-level comparison chooses SNES_VIDEO;
   tests read video memory and pixels through `game.screen` and `game.render()`.

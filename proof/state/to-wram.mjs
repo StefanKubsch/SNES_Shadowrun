@@ -5,6 +5,7 @@ import { COMBAT_FIELDS, combatState } from '../../src/state/combat.mjs';
 import { WINDOW_TEXT_FIELDS, windowsText } from '../../src/state/windows-text.mjs';
 import { CAMERA_MAP_FIELDS, cameraMaps } from '../../src/state/camera-maps.mjs';
 import { COLLISION_FIELDS, collisionTable } from '../../src/state/collision.mjs';
+import { SPRITE_FIELDS, spriteTable } from '../../src/state/sprites.mjs';
 // A diagnostic projection, never imported by the product. The unconverted state
 // retains its bytes; the live object fields supply their original little-endian
 // positions, including matrix, intro and OAM aliases. Projection does not mutate
@@ -54,6 +55,7 @@ export function toWram(memory, into = new Uint8Array(memory.wram.length)) {
     [SCENE_ROOM_FIELDS, sceneRoomState],
     [FRONTEND_FIELDS, frontendState],
     [MATRIX_FIELDS, matrixState],
+    [SPRITE_FIELDS, spriteTable],
   ]) {
     const table = get(wram);
     if (table)
@@ -76,7 +78,11 @@ export function restoreWram(memory, bytes) {
   const sceneRoomStateFields = sceneRoomState(wram);
   const matrixStateFields = matrixState(wram);
   const frontendStateFields = frontendState(wram);
+  const sprites = spriteTable(wram);
   wram.set(bytes);
+  if (sprites)
+    for (const [name, { base, count, stride }] of Object.entries(SPRITE_FIELDS))
+      for (let i = 0; i < count; i++) sprites[name][i] = bytes[base + i * stride];
   if (frontendStateFields)
     for (const [name, { base, count, bytes: width, stride }] of Object.entries(FRONTEND_FIELDS))
       for (let i = 0; i < count; i++)

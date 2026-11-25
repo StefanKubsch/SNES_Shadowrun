@@ -99,8 +99,8 @@ import {
   INIDISP_FORCED_BLANK,
   OAM_BYTES,
   OAM_BYTE_ADDRESS_MASK,
-  OAM_ENTRY_BYTES,
   OAM_HIGH_TABLE,
+  OAM_HIGH_TABLE_BYTES,
   OAM_HIGH_TABLE_MASK,
   OBJECT_COUNT,
   OBJSEL_BASE_MASK,
@@ -122,6 +122,7 @@ import {
   WINDOW_AREAS,
 } from './frame-renderer.mjs';
 import { DMA_TARGETS, dmaMode } from './video-port.mjs';
+import { spriteBytes } from '../state/sprites.mjs';
 
 // A transfer or frame the picture state cannot describe (as PpuBoundary of the SNES
 // back end).
@@ -198,11 +199,7 @@ const OBJSEL_SIZE_SHIFT = 5,
     [16, 64],
     [32, 64],
   ],
-  // OAM entry bytes, high table bits, attributes, coordinate ranges.
-  OAM_X = 0,
-  OAM_Y = 1,
-  OAM_NAME = 2,
-  OAM_ATTRIBUTES = 3,
+  // High table bits, attributes, coordinate ranges.
   OBJECTS_PER_HIGH_BYTE_SHIFT = 2,
   OBJECT_IN_HIGH_BYTE_MASK = 3,
   HIGH_BITS_PER_OBJECT = 2,
@@ -249,6 +246,17 @@ const windowArea = (nibble) => ({
   twoInvert: !!(nibble & WINDOW_2_INVERT),
 });
 const NO_AREA = windowArea(0);
+// The low table's bytes of a sprite, in OAM order.
+const SPRITE_PARTS = ['x', 'y', 'name', 'attributes'],
+  OAM_PART_MASK = 3,
+  OAM_ENTRY_SHIFT = 2;
+const newSprites = () => ({
+  x: new Uint8Array(OBJECT_COUNT),
+  y: new Uint8Array(OBJECT_COUNT),
+  name: new Uint8Array(OBJECT_COUNT),
+  attributes: new Uint8Array(OBJECT_COUNT),
+  sizes: new Uint8Array(OAM_HIGH_TABLE_BYTES),
+});
 const newLayer = () => ({ base: 0, wide: false, tall: false, chars: 0, h: 0, v: 0 });
 const newChannel = () => ({ mode: 0, port: B_BUS, source: 0, bank: 0, bytes: 0 });
 // A map base and size byte (BGnSC) as map fields.
@@ -316,7 +324,8 @@ export class PictureVideo {
     this.vramAddress = 0;
     this.vramIncrement = 0;
     this.vramReadBuffer = 0;
-    this.oam = new Uint8Array(OAM_BYTES);
+    // The sprites (src/state/sprites.mjs fields): x, y, name, attributes, size bytes.
+    this.sprites = newSprites();
     this.oamAddress = 0;
     this.oamByte = 0;
     this.oamLow = null;
@@ -332,6 +341,10 @@ export class PictureVideo {
   // The video interface of the lifted code (sceneRuntime and videoOf).
   get video() {
     return this;
+  }
+  // The sprites as OAM bytes (the golden video hash).
+  get oam() {
+    return spriteBytes(this.sprites);
   }
   // The palette as CGRAM bytes (little endian), as the SNES back end holds them.
   get cgram() {
@@ -458,16 +471,21 @@ export class PictureVideo {
     this.#oamLowAddress(value & BYTE_MASK);
     this.#oamHighAddress(value >>> BYTE_BITS);
   }
+  // One OAM byte as its sprite field: the low table's four bytes per sprite, then the
+  // size bytes.
+  #spriteByte(address, value) {
+    if (address >= OAM_HIGH_TABLE) this.sprites.sizes[address & OAM_HIGH_TABLE_MASK] = value;
+    else this.sprites[SPRITE_PARTS[address & OAM_PART_MASK]][address >>> OAM_ENTRY_SHIFT] = value;
+  }
   #oamData(value) {
     this.onData?.();
     const address = this.oamByte;
-    if (address >= OAM_HIGH_TABLE)
-      this.oam[OAM_HIGH_TABLE + (address & OAM_HIGH_TABLE_MASK)] = value;
+    if (address >= OAM_HIGH_TABLE) this.#spriteByte(address, value);
     else if (!(address & 1)) this.oamLow = value;
     else {
       need(this.oamLow !== null, 'picture_oam_low_required');
-      this.oam[address - 1] = this.oamLow;
-      this.oam[address] = value;
+      this.#spriteByte(address - 1, this.oamLow);
+      this.#spriteByte(address, value);
       this.oamLow = null;
     }
     this.oamByte = (address + 1) & OAM_BYTE_ADDRESS_MASK;
@@ -841,11 +859,21 @@ export class PictureVideo {
     this.vramIncrement = VMAINC_INCREMENT_AFTER_HIGH;
     this.#run(RECORD);
   }
-  // The source's bank comes from the channel set-up (WRAM bank 7E).
-  sendOamBuffer(source, bytes, oamAddress) {
+  // The source's bank comes from the channel set-up (WRAM bank 7E). With the game's
+  // sprite table (src/state/sprites.mjs) the whole list is taken from its fields; the
+  // OAM address and the channel end as after the transfer.
+  sendOamBuffer(source, bytes, oamAddress, sites, sprites = null) {
     this.#setSourceWord(OAM_BUFFER, source);
     this.#channelSet(OAM_BUFFER, { bytes });
     this.#oamWordAddress(oamAddress);
+    if (sprites && bytes === OAM_BYTES && this.oamByte === 0) {
+      for (const part of [...SPRITE_PARTS, 'sizes']) this.sprites[part].set(sprites[part]);
+      const c = this.channels[OAM_BUFFER];
+      c.source = (c.source + bytes) & WORD_MASK;
+      c.bytes = 0;
+      this.oamByte = bytes & OAM_BYTE_ADDRESS_MASK;
+      return;
+    }
     this.#run(OAM_BUFFER);
   }
   setUpVramTransfer(source, bytes) {
@@ -1122,16 +1150,15 @@ export class PictureVideo {
       need(!this.objectRotation, 'picture_obj_rotation_required');
       const sizes = OBJ_SIZES[this.objectSizes];
       for (let n = 0; n < OBJECT_COUNT; n++) {
-        const entry = n * OAM_ENTRY_BYTES,
-          high =
-            this.oam[OAM_HIGH_TABLE + (n >>> OBJECTS_PER_HIGH_BYTE_SHIFT)] >>>
+        const high =
+            this.sprites.sizes[n >>> OBJECTS_PER_HIGH_BYTE_SHIFT] >>>
             ((n & OBJECT_IN_HIGH_BYTE_MASK) * HIGH_BITS_PER_OBJECT),
-          attr = this.oam[entry + OAM_ATTRIBUTES];
+          attr = this.sprites.attributes[n];
         sprites.push({
-          x: this.oam[entry + OAM_X] - (high & 1 ? OBJ_X_HIGH : 0),
-          y: this.oam[entry + OAM_Y],
+          x: this.sprites.x[n] - (high & 1 ? OBJ_X_HIGH : 0),
+          y: this.sprites.y[n],
           size: sizes[(high >>> HIGH_SIZE_BIT) & 1],
-          name: this.oam[entry + OAM_NAME],
+          name: this.sprites.name[n],
           vFlip: !!(attr & OBJ_V_FLIP),
           hFlip: !!(attr & OBJ_H_FLIP),
           priority: (attr >>> OBJ_PRIORITY_SHIFT) & OBJ_PRIORITY_MASK,

@@ -5,6 +5,7 @@ import { detachCombat } from '../state/combat.mjs';
 import { detachWindowsText } from '../state/windows-text.mjs';
 import { detachCameraMaps } from '../state/camera-maps.mjs';
 import { detachCollisionStorage } from '../state/collision.mjs';
+import { detachSprites } from '../state/sprites.mjs';
 // Live cold start (user decision 2026-10-30, docs/STRATEGY.md): the
 // native owner begins at reset 00:E382 and runs from the start with
 // lag-free frames (src/vm/frame-events.mjs), live pad, native APU and PPU.
@@ -111,6 +112,7 @@ export class LiveGame {
       detachMatrix(this.memory.wram);
       detachSceneRoom(this.memory.wram);
       detachCombat(this.memory.wram);
+      detachSprites(this.memory.wram);
     }
     this.memory.textEdits = cartridge.textEdits ?? null;
     if (settings.fourSaveSlots) installPortExtension(this.memory);

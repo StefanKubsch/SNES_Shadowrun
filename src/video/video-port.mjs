@@ -344,6 +344,8 @@ export class VideoPort {
   // The OAM from an OAM address word on (with its priority rotation bit): bytes from a
   // WRAM address of bank 7E, by DMA on channel 2 (to OAMDATA from the channel setup).
   // sites: source, bytes, address, start.
+  // The game's typed sprite list, a fifth argument for the picture back end, is not
+  // needed here: the transfer reads the same bytes from memory.
   sendOamBuffer(source, bytes, oamAddress, sites) {
     this.write(channelRegister(A1T0L, 2), source & WORD_MASK, 2, sites.source);
     this.write(channelRegister(DAS0L, 2), bytes, 2, sites.bytes);
