@@ -77,3 +77,14 @@ export const matrixTables = (mem) => decodeOnce(mem, 'matrix', decode);
 // The entry of a table by heading (0 up, 2 diagonal, 4 right, ..., 14) or by a
 // word offset: one entry per word.
 export const entryOf = (offset) => offset / 2;
+
+// The targets of the matrix jump tables that the lifted code covers (bank 81 code
+// addresses; the lifted code takes the entries by index). tools/extract-tables.mjs and
+// tools/rom-map.mjs check every table word against them. Direction calls (81:BB56):
+// stop and the four moves; state calls (81:BD56): enter, control, track, the two turns
+// and the hit; track calls (81:BC1B): the track tile check; text commands (81:B370):
+// palette, new line, pause and cursor back.
+export const MATRIX_DIRECTION_CALLS = new Set([0x81ba97, 0x81bb3e, 0x81bb44, 0x81bb4a, 0x81bb50]),
+  MATRIX_STATE_CALLS = new Set([0x81ba70, 0x81ba77, 0x81bbf6, 0x81bcc3, 0x81bce8, 0x81bd0d]),
+  MATRIX_TRACK_CALLS = new Set([0x81bc41]),
+  MATRIX_TEXT_COMMANDS = new Set([0x81b37e, 0x81b389, 0x81b3bc, 0x81b3c8]);

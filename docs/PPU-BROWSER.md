@@ -102,7 +102,7 @@ enables BG3 and OBJ (`TM=14`); the grid then enables BG1/BG2. After adding
 large cells, the same replay exposed channel 6's previously unsupported
 BG3SC target at NMI 7904. `81:C029` configures that channel from `81:C101`
 and channel 5's BG3 vertical scroll from `7F:0150`; these are original
-equations in [main-scene-matrix.mjs](../proof/matrix-reference/main-scene-matrix.mjs).
+equations, lifted in [matrix-scene.mjs](../src/matrix/matrix-scene.mjs).
 
 Hardware sources, checked separately from the game's register values:
 

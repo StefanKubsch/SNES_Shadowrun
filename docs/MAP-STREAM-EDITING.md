@@ -84,8 +84,8 @@ their row and column into a top-left character index. `81:B4D3` records
 node coordinates for identities `21` through `27`; movement, node actions
 and map mutations read the selected WRAM map. Editing them can change
 gameplay. See [main-scene.mjs](../proof/replay/main-scene.mjs),
-[main-scene-matrix.mjs](../proof/matrix-reference/main-scene-matrix.mjs), and the
-`main-matrix-objects`, `main-matrix-movement` and `main-matrix-control` modules.
+[matrix-world.mjs](../src/matrix/matrix-world.mjs) and
+[matrix-scene.mjs](../src/matrix/matrix-scene.mjs).
 
 Three map sources have German replacements: `81:F803`, `85:FD38` and
 `81:FB0A`. The first two participate in the packed text/font contract;

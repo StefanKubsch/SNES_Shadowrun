@@ -188,7 +188,8 @@ neither a whole scene nor an automatic frame clock.
 
 ## Explicitly called Matrix and intro NMIs
 
-[main-matrix-nmi.mjs](../proof/matrix-reference/main-matrix-nmi.mjs) follows the native
+The matrix NMI (register-level reference main-matrix-nmi.mjs, retired on 2026-11-25; lifted in
+[matrix-scene.mjs](../src/matrix/matrix-scene.mjs)) followed the native
 vector `$00:FFEA = C112`. `runObservedMatrixNmi` receives the really
 interrupted register state and pushes PB, PC and P onto its stack through the
 shared flow in [observed-nmi.mjs](../src/system/nmi-call.mjs). The handler
@@ -220,7 +221,7 @@ graphs with 168 instructions and 407 bytes plus vector and palette table; the
 normal stack proof holds for `$BEC3` under its three helper contracts; separate
 source lemmas describe the two TCS flows and their stack areas (no general
 stack alias or ownership guarantee).
-[main-matrix-nmi.test.mjs](../tools/main-matrix-nmi.test.mjs): 192
+tools/main-matrix-nmi.test.mjs (retired on 2026-11-25): 192
 callback/queue cases and 96 NMI cases vs. original, all own instructions; stack
 wrap with a valid hardware frame, counter wrap, fresh DP32, changed follow-up
 jobs, wrong vector, real shared text/map producers. Device answers and

@@ -2,33 +2,26 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import { encodeMatrixText, readMatrixTexts } from '../src/data/matrix-texts.mjs';
-import {
-  MATRIX_SETUP_ROUTINES,
-  CHARACTER_TILES,
-  TEXT_BUFFER,
-  TEXT_ROW,
-} from '../proof/matrix-reference/main-scene-matrix.mjs';
+import { typeText } from '../src/matrix/matrix-text.mjs';
 import { matrixSetupSpecs } from './main-scene-matrix-source.mjs';
+import { MATRIX_IC_TEXT_BUFFER as TEXT_BUFFER } from '../src/data/wram.mjs';
 import { matrixControlSpecs } from './main-matrix-control-source.mjs';
 import { mainSceneSpecs } from './main-scene-source.mjs';
-import { SCENE_REFERENCE_ROUTINES as MAIN_SCENE_ROUTINES } from '../proof/scene-reference-routines.mjs';
-import {
-  compareDialog,
-  decodeWindows,
-  rom,
-  DialogTestMemory,
-} from './task-native-dialog-harness.mjs';
-import { dialogAccess } from '../src/system/native-dialog-support.mjs';
+import { decodeWindows, rom, DialogTestMemory } from './task-native-dialog-harness.mjs';
 import { cpuToOffset } from './rom.mjs';
 
 const asset = JSON.parse(readFileSync('assets/vm-matrix-texts.json'));
-const spec = matrixSetupSpecs.find((s) => s.name === 'b2d1');
-const instructions = decodeWindows(spec.windows);
+// The BG3 tile word of each character and the row the typed characters gather in
+// (src/matrix/matrix-text.mjs).
+const CHARACTER_TILES = 0x7effc0,
+  TEXT_ROW = 0x7f015a;
 
-// Synthetic text and font isolate the writer's bounds. Every step still
-// compares registers, WRAM and traces with the pinned original instructions.
+// Synthetic text and font isolate the bounds of the lifted writer 81:B2D1
+// (src/matrix/matrix-text.mjs, typeText). Its register-level reference, which these
+// cases compared with the original instructions, was retired on 2026-11-25 when the
+// golden trace matrix covered the lifted path (docs/STATE-MODEL-REBUILD.md).
 function writer(bytes, columns = 32) {
-  let wram = new Uint8Array(0x20000);
+  const wram = new Uint8Array(0x20000);
   wram.set(bytes, 0x6000);
   const memory = new DialogTestMemory(wram);
   for (const [at, value] of [
@@ -42,44 +35,11 @@ function writer(bytes, columns = 32) {
   ])
     memory.write16(at, value);
   for (let c = 0x20; c <= 0x7e; c++) memory.write16(CHARACTER_TILES + 2 * c, c);
+  const m = { mem: memory, wram: memory.wram };
   return {
+    // One call of the writer; true once the last text has ended and the ring is empty.
     step() {
-      let completed;
-      const result = compareDialog(
-        instructions,
-        {
-          entry: 0x81b2d1,
-          wram,
-          a: 0,
-          x: 0,
-          y: 0,
-          dbr: 0x81,
-          p: 0,
-        },
-        {
-          native(h, e) {
-            MATRIX_SETUP_ROUTINES.get(0x81b2d1)(h, e, MAIN_SCENE_ROUTINES);
-            wram = h.a.mem.wram.slice();
-            completed = !(h.ctx.status & 1);
-          },
-          calls(a, e) {
-            return new Map([
-              [
-                0x81b259,
-                () => ({
-                  rawReturnWord: MATRIX_SETUP_ROUTINES.get(0x81b259)(
-                    dialogAccess(a),
-                    e,
-                    MAIN_SCENE_ROUTINES,
-                  ),
-                }),
-              ],
-            ]);
-          },
-        },
-      );
-      assert.deepEqual(result.differences, []);
-      return completed;
+      return !typeText(m);
     },
     word(at) {
       return wram[at] | (wram[at + 1] << 8);
@@ -236,7 +196,7 @@ test('wait zero is a 65536-call delay, not no delay; unsupported commands remain
       (error) =>
         error.taskBoundary &&
         error.reason === 'matrix_text_command_frontier' &&
-        error.commandIndex === command * 2,
+        error.command === command,
     );
 });
 

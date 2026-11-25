@@ -3,7 +3,6 @@ import assert from 'node:assert/strict';
 import { mainSceneSpecs } from './main-scene-source.mjs';
 import { sceneIntroSpecs } from './main-scene-intro-source.mjs';
 import { sceneAnimationSpecs } from './main-scene-animation-source.mjs';
-import { sceneVideoSpecs } from './main-scene-video-source.mjs';
 import { matrixNmiSpecs } from './main-matrix-nmi-source.mjs';
 import { introNmiSpecs } from './main-intro-nmi-source.mjs';
 import { matrixSetupSpecs } from './main-scene-matrix-source.mjs';
@@ -13,9 +12,8 @@ import { assertPinnedTaskSource } from './pinned-task-source.mjs';
 import { runReference } from './w65c816-reference.mjs';
 import { TaskAccessor } from '../src/vm/task-accessor.mjs';
 import { dialogAccess } from '../src/system/native-dialog-support.mjs';
-import { playCutscene } from '../proof/replay/main-scene.mjs';
-import { playMatrixScene } from '../proof/matrix-reference/matrix-scene-loop.mjs';
-import { SCENE_REFERENCE_ROUTINES as MAIN_SCENE_ROUTINES } from '../proof/scene-reference-routines.mjs';
+// Registers the continuations of the scene routines (the brightness loops EEDD, EEF1).
+import '../proof/scene-reference-routines.mjs';
 import { finishInterruptObservations } from '../proof/system/main-wait-interrupt.mjs';
 import { NATIVE_CALL_CONTINUATIONS } from '../src/system/native-call-continuation.mjs';
 import { WAIT_PAUSED } from '../src/system/native-wait-continuation.mjs';
@@ -41,13 +39,6 @@ const outerWindows = [
 const outer = decodeWindows(outerWindows),
   observations = decodeWindows([...spec(sceneAnimationSpecs, 'eebb').windows, inputWindow]);
 for (const pc of [0x81cf4c, 0x81cf4f]) observations.set(pc, outer.get(pc));
-const nmiWindows = [
-  ...matrixNmiSpecs.flatMap((s) => s.windows),
-  ...introNmiSpecs.flatMap((s) => s.windows),
-  ...spec(sceneAnimationSpecs, 'd479').windows,
-  ...spec(sceneVideoSpecs, 'ed8b').windows,
-];
-const nmi = decodeWindows(nmiWindows);
 const freeze = (rows) => Object.freeze(rows.map((o) => Object.freeze({ ...o })));
 const expand = (trace) =>
   trace.flatMap((o) =>
@@ -87,37 +78,6 @@ function side(kind, option) {
   }
   return { mem, a, h, installed: [], callbacks: [] };
 }
-// Explicit synthetic test replies, recorded in the trace. APU replies match
-// the current command token; no audio/time/PPU behavior is being implemented.
-function testReplies(v) {
-  const read = v.a.absoluteRead;
-  v.a.absoluteRead = (offset, width, pc) => {
-    if (![0x2140, 0x2137, 0x213c, 0x213d].includes(offset)) return read(offset, width, pc);
-    assert.equal(width, 1);
-    if (offset === 0x2140) assert.ok([0x81f00e, 0x81f046].includes(pc));
-    const value = offset === 0x2140 ? v.mem.read8(v.h.abs(0x1ce4)) : offset === 0x2137 ? 0x7b : 0;
-    v.a.trace.push({ kind: 'read', pc, address: v.h.abs(offset), width, value });
-    return value;
-  };
-}
-function routinesFor(v) {
-  const routines = new Map(MAIN_SCENE_ROUTINES),
-    install = routines.get(0x81ec16);
-  routines.set(0x81ec16, (h, e, r) => {
-    const program = h.ctx.x,
-      result = install(h, e, r);
-    v.installed.push([program, h.pointer(0x6e)]);
-    return result;
-  });
-  for (const target of [0x81bec3, 0x81dad6, 0x81df0e, 0x81d479]) {
-    const run = routines.get(target);
-    routines.set(target, (h, e, r) => {
-      v.callbacks.push(target);
-      return run(h, e, r);
-    });
-  }
-  return routines;
-}
 function referenceIo(v) {
   let byte = 0;
   const read = v.mem.read8.bind(v.mem);
@@ -134,150 +94,6 @@ function referenceIo(v) {
     return read(address);
   };
 }
-const calls = (v, e, routines, map) =>
-  new Map(
-    [...routines]
-      .filter(([target]) => !map.has(target))
-      .map(([target, run]) => [
-        target,
-        () => {
-          const result = run(v.h, e, routines);
-          return { rawReturnWord: result?.rawReturnWord ?? result };
-        },
-      ]),
-  );
-function originalNmi(v, e, routines, key) {
-  const { h, a, mem } = v,
-    before = { ...a.ctx };
-  assert.ok(mem.read8(0x30) & 0x80, 'the actual program has enabled NMI before this occurrence');
-  const target = h.pointer(0x6e),
-    inputBank = [0x81dad6, 0x81df0e].includes(target) ? 0x810000 : 0;
-  v.callbacks.push(target);
-  a.io.push(
-    { pc: 0x00c118, address: (before.bank << 16) | 0x4210, width: 2, value: 0x80 },
-    { pc: 0x809e0b, address: inputBank | 0x4212, width: 2, value: 1 },
-    { pc: 0x809e0b, address: inputBank | 0x4212, width: 2, value: 0 },
-    { pc: 0x809e13, address: inputBank | 0x4218, width: 2, value: key },
-  );
-  h.pushByte(before.programBank);
-  h.push(before.pc, 2);
-  h.pushByte(before.status);
-  a.ctx.status = (before.status | 4) & ~8;
-  a.ctx.programBank = 0;
-  runReference(nmi, mem, a.ctx, {
-    entry: 0x00c112,
-    root: 'RTI',
-    io: a.trace,
-    calls: calls(v, e, routines, nmi),
-  });
-  assert.deepEqual(a.ctx, before);
-}
-function compare(kind, option, resumable = false) {
-  const r = side(kind, option),
-    n = side(kind, option),
-    rr = routinesFor(r),
-    nr = routinesFor(n),
-    records = [],
-    states = [];
-  testReplies(r);
-  testReplies(n);
-  referenceIo(r);
-  const re = {
-      values: freeze([]),
-      waitIndex: 0,
-      waitEvents: [],
-      inputs: freeze([]),
-      inputIndex: 0,
-      calls: [],
-    },
-    hits = new Map();
-  const hooks = new Map(
-    [...observations.keys()].map((pc) => [
-      pc,
-      () => {
-        const hit = (hits.get(pc) ?? 0) + 1;
-        hits.set(pc, hit);
-        const take =
-          pc === 0x81eecd || pc === 0x81cf4c || (resumable && (pc === 0x81cf4f || pc === 0x809e26));
-        records.push({ pc, nmi: take });
-        r.a.ctx.programBank = pc >>> 16;
-        r.a.ctx.pc = pc & 65535;
-        if (take) originalNmi(r, re, rr, kind === 'intro' ? (option ? 0x9000 : 0) : 0x40);
-        if (resumable && take)
-          states.push({ ctx: { ...r.a.ctx }, wram: r.mem.wram.slice(), io: r.a.ioIndex });
-      },
-    ]),
-  );
-  hooks.set(0x81e07e, () => hits.set(0x81e07e, (hits.get(0x81e07e) ?? 0) + 1));
-  const entry = kind === 'intro' ? 0x81cdf8 : 0x81c3ca;
-  const result = runReference(outer, r.mem, r.a.ctx, {
-    entry,
-    root: 'RTL',
-    before: hooks,
-    io: r.a.trace,
-    calls: calls(r, re, rr, outer),
-    limit: 5_000_000,
-  });
-  n.a.io = r.a.io;
-  const events = {
-    ...re,
-    waitEvents: [],
-    calls: [],
-    interrupts: freeze(records),
-    interruptIndex: 0,
-    interruptRoutines: nr,
-  };
-  let pauses = 0,
-    matched = 0;
-  if (resumable) {
-    const factory = NATIVE_CALL_CONTINUATIONS.get(
-      kind === 'intro' ? playCutscene : playMatrixScene,
-    );
-    assert.equal(factory.run, kind === 'intro' ? playCutscene : playMatrixScene);
-    const c = factory.create({ h: n.h, events, routines: nr }),
-      before = n.mem.wram.slice();
-    assert.equal(c.run(0), WAIT_PAUSED);
-    assert.deepEqual(n.mem.wram, before);
-    // Each recorded boundary can now include a complete nested NMI, caller
-    // frame checks and the wait instruction. Bound test work by the actual
-    // finite reference records rather than the former atomic-helper count.
-    while (c.run(1) === WAIT_PAUSED) {
-      assert.ok(
-        ++pauses < records.length * 32 + 1000,
-        `pause bound: option=${option}, pc=${n.a.ctx.pc.toString(16)}, record=${events.interruptIndex}/${records.length}, matched=${matched}/${states.length}`,
-      );
-      const state = states[matched];
-      if (
-        state &&
-        n.a.ctx.pc === state.ctx.pc &&
-        n.a.ctx.programBank === state.ctx.programBank &&
-        n.a.ioIndex === state.io
-      ) {
-        assert.deepEqual(n.a.ctx, state.ctx);
-        assert.deepEqual(n.mem.wram, state.wram);
-        matched++;
-      }
-    }
-    assert.equal(matched, states.length);
-    assert.ok(matched >= 33);
-  } else (kind === 'intro' ? playCutscene : playMatrixScene)(n.h, events, nr);
-  finishInterruptObservations(events);
-  assert.deepEqual(n.a.ctx, r.a.ctx);
-  assert.deepEqual(n.mem.wram, r.mem.wram);
-  assert.deepEqual(expand(n.a.trace), expand(r.a.trace));
-  assert.deepEqual(n.installed, r.installed);
-  assert.deepEqual(n.callbacks, r.callbacks);
-  assert.equal(n.a.ioIndex, r.a.io.length);
-  assert.equal(r.a.ioIndex, r.a.io.length);
-  assert.equal(n.a.ctx.s, 0x1ef0);
-  assert.equal(n.a.ctx.pc, 0x1235);
-  assert.equal(n.a.ctx.bank, 0x80);
-  assert.equal(n.a.ctx.status, 0x43);
-  assert.equal(events.waitIndex, 0);
-  assert.equal(events.inputIndex, 0);
-  assert.deepEqual(events.waitEvents, []);
-  return { n, r, records, hits, visited: result.visited, pauses };
-}
 test('combined scene and callback execution retains each pinned original root', () => {
   // EEBB appears with multiple incoming M/X states in its callers. Pin each
   // original window separately rather than conflating their decoder metadata.
@@ -293,30 +109,6 @@ test('combined scene and callback execution retains each pinned original root', 
     [inputWindow],
   ])
     assertPinnedTaskSource(decodeWindows(windows), windows);
-});
-test('whole C3CA returns through real Matrix queue producers, BEC3 consumption, control and fade', () => {
-  for (const option of [0, 1]) {
-    const { n, visited } = compare('matrix', option);
-    assert.deepEqual(
-      n.installed.map((o) => o[1]),
-      [0x81bec3],
-    );
-    assert.deepEqual([...new Set(n.callbacks)], [0x81bec3]);
-    assert.equal(n.mem.read16(0x1748), 0);
-    assert.equal(n.mem.read16(0x174a), 0);
-    if (option)
-      for (const pc of [0x81c4b4, 0x81c4b7, 0x81c4ba, 0x81c4ea, 0x81c4fa])
-        assert.ok(visited.has(pc));
-    assert.ok(n.a.trace.some((o) => o.pc === 0x81b213 && o.value === 1));
-  }
-});
-test('C3CA preserves both complete fades, every live wait frame and actual Matrix effects across finite budgets', () => {
-  for (const option of [0, 1]) {
-    const { pauses, n } = compare('matrix', option, true);
-    assert.ok(pauses > 500);
-    assert.equal(n.mem.read16(0x1748), 0);
-    assert.equal(n.mem.read16(0x174a), 0);
-  }
 });
 test('both resumable brightness loops retain BYTE hardware polls and their actual PHP/PLP frames', () => {
   for (const name of ['eedd', 'eef1']) {

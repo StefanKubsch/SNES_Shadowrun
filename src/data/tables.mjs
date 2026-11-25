@@ -25,7 +25,7 @@
 //   it with verifyOpcodeTable),
 // - the matrix control tables of bank 81 (named data for the lifted matrix in
 //   src/matrix/matrix-tables.mjs, used by src/matrix/matrix-world.mjs; the register-level
-//   reference is in proof/matrix-reference/).
+//   reference was retired on 2026-11-25).
 //   Direction tables are indexed by 7E:141C (even 0 to 14, 0 up, 4 right,
 //   8 down, 12 left; the turns BCC3/BCE8 also pass the diagonals between,
 //   which only matrix_face_pictures fills):

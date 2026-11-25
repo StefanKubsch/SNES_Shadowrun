@@ -96,6 +96,15 @@ own commit after `npm run test:block` and the golden trace test. One shared
 
 ## Progress
 
+- 2026-11-25, matrix proof retirement: proof/matrix-reference/ (3161 lines), its ROM
+  proofs (main-matrix-control, main-matrix-nmi, main-matrix-objects, main-scene-matrix)
+  and the comparisons matrix-lift, matrix-lift-functions and matrix-node-gates are gone,
+  with the C3CA cases of the scene and interrupt tests. The golden trace matrix covers
+  the path (src/matrix 80 of 86 functions); the shared routine cases moved to
+  tools/scene-shared-lift-functions.test.mjs, the text writer contracts run the lifted
+  writer, and rom-map and extract-tables take the jump table targets from
+  src/matrix/matrix-tables.mjs ([MATRIX-LIFT.md](MATRIX-LIFT.md)).
+
 - 2026-11-25, intro proof retirement: proof/intro-reference/ (954 lines),
   tools/intro-lift(-functions).test.mjs and tools/main-scene-intro.test.mjs are gone,
   with the DF0E, E83A and E971 cases of tools/main-intro-nmi.test.mjs. The golden

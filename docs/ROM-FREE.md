@@ -626,7 +626,7 @@ tools/live-*.test.mjs`, then `node tools/rom-vram.mjs` writes
     (written as addresses, a zero word stays 0). `opcode_handlers` 80:F2B4
     (98 pointers, JMP ($F2B4,X) at 80:F390 with the even opcode byte; the
     generator checks every ported handler of src/script/opcodes.mjs). The
-    matrix control of proof/matrix-reference/main-matrix-control.mjs and main-matrix-movement.mjs reads 25 tables in
+    matrix control of src/matrix/matrix-world.mjs (src/matrix/matrix-tables.mjs) reads 25 tables in
     bank 81 by the direction 7E:141C (0 up, 4 right, 8 down, 12 left):
     damage ranges 81:BA3E, the push back BA50/BA60, the dispatch tables
     BB56 (pad direction), BC1B (track) and BD56 (state 7E:173E, the

@@ -20,9 +20,10 @@ The pinned original instructions are in
 [main-scene-matrix-source.mjs](../tools/main-scene-matrix-source.mjs),
 [main-matrix-control-source.mjs](../tools/main-matrix-control-source.mjs)
 and [main-scene-source.mjs](../tools/main-scene-source.mjs).
-The native readers are [main-scene-matrix.mjs](../proof/matrix-reference/main-scene-matrix.mjs),
-[main-matrix-control.mjs](../proof/matrix-reference/main-matrix-control.mjs) and
-[main-scene.mjs](../proof/replay/main-scene.mjs).
+The readers are [matrix-text.mjs](../src/matrix/matrix-text.mjs),
+[matrix-world.mjs](../src/matrix/matrix-world.mjs) and
+[main-scene.mjs](../proof/replay/main-scene.mjs) (the register-level matrix reference
+was retired on 2026-11-25).
 
 | Identity  | Original purpose         | Established reference                               |
 | --------- | ------------------------ | --------------------------------------------------- |
@@ -155,7 +156,7 @@ miss this message; inserting a longer template into this WRAM area would
 overwrite the scroll table at `7F:0150`.
 
 The implementation in [matrix-text-edits.mjs](../src/data/matrix-text-edits.mjs)
-and [matrix-text-stream.mjs](../proof/matrix-reference/matrix-text-stream.mjs) follows these
+and [matrix-text.mjs](../src/matrix/matrix-text.mjs) follows these
 contracts:
 
 - The existing `en`/`de` edit arrays accept exactly the 22 stable matrix

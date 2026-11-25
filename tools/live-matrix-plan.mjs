@@ -1,9 +1,9 @@
 // The seven matrix sessions of tools/live-matrix.test.mjs (see its description),
-// shared with tools/matrix-lift.test.mjs.
+// also the golden trace matrix.
 
 // Scratch the lifted matrix no longer writes (docs/MATRIX-LIFT.md): the direct
 // page words 00-33 below the persistent text pointer 34-37, and the stack pages
-// (main and NMI stack). Shared with tools/matrix-lift-functions.test.mjs.
+// (main and NMI stack). Shared with tools/scene-shared-lift-functions.test.mjs.
 export const IGNORED_WRAM = [
   [0x0000, 0x0034],
   // The unpacker's direct page state (src/system/unpack.mjs): every call sets each

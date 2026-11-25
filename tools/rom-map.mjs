@@ -171,12 +171,12 @@ import {
 } from '../src/data/object-graphics.mjs';
 import { COMPARE } from '../proof/replay/native-scene-sprites.mjs';
 import { SUBMENU_SEQUENCES } from '../proof/replay/native-status-screen.mjs';
-import { textCommands } from '../proof/matrix-reference/main-scene-matrix.mjs';
 import {
-  stateCalls,
-  directionCalls,
-  trackCalls,
-} from '../proof/matrix-reference/main-matrix-movement.mjs';
+  MATRIX_DIRECTION_CALLS,
+  MATRIX_STATE_CALLS,
+  MATRIX_TEXT_COMMANDS,
+  MATRIX_TRACK_CALLS,
+} from '../src/matrix/matrix-tables.mjs';
 import { CUTSCENE_ANIMATIONS } from '../src/cutscene/cutscene-animation.mjs';
 import { SCENE_VIDEO_COMMANDS } from '../proof/system/main-scene-video.mjs';
 import { CALLBACKS } from '../src/system/nmi-call.mjs';
@@ -194,10 +194,10 @@ const JUMP_TABLES = new Map([
   ['80:B0AC', { table: 0x80b0e3, targets: [...COMPARE.keys()].filter((t) => t < 0xb0e3) }],
   ['80:B0EF', { table: 0x80b126, targets: [...COMPARE.keys()].filter((t) => t > 0xb0e3) }],
   ['80:ECEA', { table: 0x80ed2e, targets: [...SUBMENU_SEQUENCES.keys()] }],
-  ['81:B307', { table: 0x81b370, targets: [...textCommands.keys()] }],
-  ['81:BA93', { table: 0x81bb56, targets: [...directionCalls.keys()] }],
-  ['81:BC09', { table: 0x81bc1b, targets: [...trackCalls.keys()] }],
-  ['81:BD52', { table: 0x81bd56, targets: [...stateCalls.keys()] }],
+  ['81:B307', { table: 0x81b370, targets: [...MATRIX_TEXT_COMMANDS] }],
+  ['81:BA93', { table: 0x81bb56, targets: [...MATRIX_DIRECTION_CALLS] }],
+  ['81:BC09', { table: 0x81bc1b, targets: [...MATRIX_TRACK_CALLS] }],
+  ['81:BD52', { table: 0x81bd56, targets: [...MATRIX_STATE_CALLS] }],
   [
     '81:CF76',
     { table: 0x81d41f, targets: [...CUTSCENE_ANIMATIONS.keys()].map((t) => SCENE_CODE_BANK | t) },

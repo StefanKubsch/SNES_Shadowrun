@@ -16,17 +16,14 @@ import {
   playCutscene as liftedCutscene,
 } from '../proof/replay/main-scene.mjs';
 import { readInputLong } from '../proof/replay/main-scene.mjs';
-import { playMatrixScene } from '../proof/matrix-reference/matrix-scene-loop.mjs';
 import { SCENE_REFERENCE_ROUTINES as MAIN_SCENE_ROUTINES } from '../proof/scene-reference-routines.mjs';
 import { MAIN_MOTION_ROUTINES } from '../proof/replay/main-loop-motion.mjs';
 import '../proof/system/dialog-register-helpers.mjs';
 // The register-level functions compared instruction by instruction with the original.
-// The cutscene entries (CDF8, D37D, D4E8, CF79) have no register-level reference since
-// 2026-11-25 (golden traces cutscenes and intro); their graphs are still proved above.
-const functions = new Map([
-  ['c3ca', playMatrixScene],
-  ['f298', readInputLong],
-]);
+// The cutscene entries (CDF8, D37D, D4E8, CF79) and the matrix C3CA have no
+// register-level reference since 2026-11-25 (golden traces cutscenes, intro and matrix);
+// their graphs are still proved above.
+const functions = new Map([['f298', readInputLong]]);
 const maps = mainSceneSpecs.map((s) => decodeWindows(s.windows));
 test('scene entry own code pins PHK, conditional external tails and all local stack frames', () => {
   mainSceneSpecs.forEach((s, i) => proveMainScene(maps[i], s));
@@ -172,28 +169,4 @@ test('scene entries reach BYTE observations; an unbound special tail creates no 
   assert.deepEqual(n.mem.wram, before);
   assert.equal(n.a.ctx.s, stack);
   // The lifted cutscene leaves no CPU flags (user decision 2026-11-17).
-  // The register-level matrix scene (the lifted cutscene sends its audio directly).
-  for (const entry of [0x81c3ca]) {
-    const s = scenario(entry, 1);
-    s.a = 0;
-    s.dbr = 0x80;
-    s.p = 0;
-    const state = side(s),
-      routines = new Map(MAIN_SCENE_ROUTINES);
-    // The exact init/command/decompression graphs run here; only audio is stubbed to avoid hardware replies.
-    for (const target of [0x81ef47, 0x81f007, 0x81f130]) routines.set(target, (h) => h.rtl());
-    assert.throws(
-      () =>
-        playMatrixScene(
-          state.h,
-          { mode: 'record-observations', values: [], waitIndex: 0, waitEvents: [] },
-          routines,
-        ),
-      (e) =>
-        e.taskBoundary &&
-        e.reason === 'task_wait_observation_required' &&
-        e.pc === 0x81eecd &&
-        e.width === 1,
-    );
-  }
 });

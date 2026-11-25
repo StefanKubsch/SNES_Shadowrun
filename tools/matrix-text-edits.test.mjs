@@ -9,11 +9,12 @@ import { buildTextEdits, TEXT_EDITS_FILE, TEXT_EDITS_FORMAT } from '../src/data/
 import { MATRIX_EDIT_COLUMNS, MATRIX_EDIT_STREAM_LIMIT } from '../src/data/matrix-text-edits.mjs';
 import { buildLanguage } from '../src/data/language.mjs';
 import { LiveGame } from '../src/video/live-game.mjs';
-import { TaskAccessor } from '../src/vm/task-accessor.mjs';
-import { dialogAccess } from '../src/system/native-dialog-support.mjs';
-import { SCENE_REFERENCE_ROUTINES as MAIN_SCENE_ROUTINES } from '../proof/scene-reference-routines.mjs';
-import { CHARACTER_TILES, TEXT_ROW } from '../proof/matrix-reference/main-scene-matrix.mjs';
+import { queueText, resetTextWindow, typeText } from '../src/matrix/matrix-text.mjs';
 import { loadSave } from './mesen-f390-oracle.mjs';
+// The BG3 tile word of each character and the row the typed characters gather in
+// (src/matrix/matrix-text.mjs).
+const CHARACTER_TILES = 0x7effc0,
+  TEXT_ROW = 0x7f015a;
 
 const originalTexts = JSON.parse(readFileSync('assets/vm-texts.json')).texts;
 const originalMenus = JSON.parse(readFileSync('assets/vm-menu-texts.json')).texts;
@@ -33,24 +34,17 @@ function gameFor(edits = asset(), language = 'en', options = {}) {
     },
   );
 }
+// The lifted text window reset 81:B2A0, enqueue 81:B282 (pointer in X, bank in Y) and
+// writer 81:B2D1 (src/matrix/matrix-text.mjs); the writer's result stands in for the
+// original's carry (set while texts remain).
 function invoke(game, target, x = 0, y = 0) {
-  const a = new TaskAccessor({
-    mem: game.memory,
-    a: 0,
-    x,
-    y,
-    s: 0x1ef0,
-    d: 0,
-    dbr: 0x81,
-    p: 0,
-    pc: target & 0xffff,
-  });
-  a.load();
-  a.ctx.programBank = 0x81;
-  const h = dialogAccess(a);
-  h.push(0x1234, 2);
-  MAIN_SCENE_ROUTINES.get(target)(h, { calls: [] }, MAIN_SCENE_ROUTINES);
-  return h;
+  const m = { mem: game.memory, wram: game.memory.wram };
+  let more = false;
+  if (target === 0x81b2a0) resetTextWindow(m);
+  else if (target === 0x81b282) queueText(m, (y << 16) | x, y);
+  else if (target === 0x81b2d1) more = typeText(m);
+  else throw new Error('no lifted matrix text entry ' + target.toString(16));
+  return { ctx: { status: more ? 1 : 0 } };
 }
 function setup(game, columns = 32) {
   invoke(game, 0x81b2a0);

@@ -2,10 +2,19 @@
 
 The matrix is the first part of `src` lifted from register-level 65816
 equations to plain code (user direction 2026-11-10, [STRATEGY.md](STRATEGY.md)
-"Lifted code"). The register-level version stays as reference in
-[proof/matrix-reference/](../proof/matrix-reference/); the ROM proof tests
-(`tools/main-matrix-*.test.mjs`, `tools/main-scene-matrix.test.mjs` and the
-interrupt tests) keep checking it against the original instructions.
+"Lifted code"). Its register-level reference (proof/matrix-reference/, 3161 lines)
+was retired on 2026-11-25 (user decision: ROM proofs may go where golden traces cover the
+lifted path), with its ROM proofs (tools/main-matrix-control, main-matrix-nmi,
+main-matrix-objects and main-scene-matrix tests, the C3CA cases of the scene and
+interrupt tests) and the comparisons tools/matrix-lift.test.mjs,
+tools/matrix-lift-functions.test.mjs and tools/matrix-node-gates.test.mjs. The golden
+trace matrix (the seven sessions of tools/live-matrix-plan.mjs) covers the path
+([STATE-MODEL-REBUILD.md](STATE-MODEL-REBUILD.md)). The random tests of the shared
+routines the matrix calls (random draw, APU command, joypad, unpacker, pad presses,
+NMI enable, scene screen, scene list, music mode, OAM copy) moved to
+[tools/scene-shared-lift-functions.test.mjs](../tools/scene-shared-lift-functions.test.mjs);
+the text writer contracts (tools/matrix-text-contract.test.mjs) run the lifted
+writer. The sections below on what was compared record the evidence of the lift.
 
 ## Modules
 
@@ -57,8 +66,8 @@ The lifted code keeps the column alias through the loaded table and the
 fixed instruction bytes as a named displacement, including word wrapping.
 It then performs the ordinary gate scan at the displaced cell.
 
-[matrix-node-gates.test.mjs](../tools/matrix-node-gates.test.mjs) pins both
-original words and compares the resulting game state, gate objects, sound
+tools/matrix-node-gates.test.mjs (retired on 2026-11-25) pinned both
+original words and compared the resulting game state, gate objects, sound
 writes and return count against the frozen reference. It covers all four
 connecting sides, the missing side and masked node bits. This corrects the
 port's stopping condition independently of the optional original-game bug
@@ -123,7 +132,7 @@ sources the hardware reads (81:B258, 81:C101).
 
 ## What "the same result" means
 
-[tools/matrix-lift.test.mjs](../tools/matrix-lift.test.mjs) runs the seven
+Until 2026-11-25, tools/matrix-lift.test.mjs ran the seven
 sessions of [tools/live-matrix.test.mjs](../tools/live-matrix.test.mjs)
 (combat won and lost, data, CPU and download nodes, gates, datajack path,
 death and Game Over, each with the return to the apartment) once with the
@@ -145,8 +154,8 @@ longer produces them:
 
 ### Random per-function tests
 
-[tools/matrix-lift-functions.test.mjs](../tools/matrix-lift-functions.test.mjs)
-covers the edge cases the sessions do not reach. Each of the 16 exported
+tools/matrix-lift-functions.test.mjs (retired on 2026-11-25; its shared routine cases live on in
+tools/scene-shared-lift-functions.test.mjs) covered the edge cases the sessions do not reach. Each of the 16 exported
 functions, the NMI copy queue and the lifted shared routines run on random WRAM images against their
 reference routine at the same address: 300 samples each, 1000 for the persona
 step and the A and B node actions. The matrix words are drawn from wide domains (all object kinds,

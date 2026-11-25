@@ -6,11 +6,11 @@ import { inspectRom, cpuToOffset } from './rom.mjs';
 import { readTables, readAnimations } from '../src/data/tables.mjs';
 import { scriptOpcodes } from '../src/script/opcodes.mjs';
 import {
-  directionCalls,
-  stateCalls,
-  trackCalls,
-} from '../proof/matrix-reference/main-matrix-movement.mjs';
-import { textCommands } from '../proof/matrix-reference/main-scene-matrix.mjs';
+  MATRIX_DIRECTION_CALLS,
+  MATRIX_STATE_CALLS,
+  MATRIX_TEXT_COMMANDS,
+  MATRIX_TRACK_CALLS,
+} from '../src/matrix/matrix-tables.mjs';
 import { CUTSCENE_ANIMATIONS } from '../src/cutscene/cutscene-animation.mjs';
 import { KARMA_LISTS } from '../proof/replay/native-main-menu.mjs';
 import { SUBMENU_SEQUENCES } from '../proof/replay/native-status-screen.mjs';
@@ -83,10 +83,10 @@ for (const [opcode, { handler }] of Object.entries(scriptOpcodes))
   if (byName.opcode_handlers[opcode / 2] !== label(0x800000 | handler))
     throw new Error(`opcode ${opcode} names another handler`);
 for (const [name, targets, step, firstZero] of [
-  ['matrix_direction_calls', directionCalls, 1],
-  ['matrix_track_calls', trackCalls, 2],
-  ['matrix_state_calls', stateCalls, 1],
-  ['matrix_text_commands', textCommands, 1],
+  ['matrix_direction_calls', MATRIX_DIRECTION_CALLS, 1],
+  ['matrix_track_calls', MATRIX_TRACK_CALLS, 2],
+  ['matrix_state_calls', MATRIX_STATE_CALLS, 1],
+  ['matrix_text_commands', MATRIX_TEXT_COMMANDS, 1],
   [
     'scene_animation_calls',
     new Set([...CUTSCENE_ANIMATIONS.keys()].map((t) => SCENE_CODE_BANK | t)),

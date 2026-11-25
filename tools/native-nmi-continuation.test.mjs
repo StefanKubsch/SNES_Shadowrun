@@ -250,9 +250,9 @@ test('a configured callback override executes its own routine instead of a regis
 });
 
 test('all F290 callback owners retain the original long frames, saved widths and tail jump through RTI', () => {
-  // The cutscene callback 81:D479 and the intro callback 81:DF0E run lifted since
-  // 2026-11-25 (no register-level reference).
-  const callbacks = [0x81bec3, 0x81dad6, 0x81dd54, 0x81d93e, 0x81dcac, 0x81e6ae];
+  // The matrix callback 81:BEC3, the cutscene callback 81:D479 and the intro callback
+  // 81:DF0E run lifted since 2026-11-25 (no register-level reference).
+  const callbacks = [0x81dad6, 0x81dd54, 0x81d93e, 0x81dcac, 0x81e6ae];
   const d479 = sceneAnimationSpecs.find((s) => s.entry === 0x81d479);
   const graph = decodeWindows([
     ...matrixNmiSpecs[2].windows,

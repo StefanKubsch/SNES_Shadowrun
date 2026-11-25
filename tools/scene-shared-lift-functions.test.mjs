@@ -1,21 +1,15 @@
-// Random per-function tests of the lifted matrix (src/matrix) against the
-// register-level reference (proof/matrix-reference), for the edge cases the seven
-// live sessions of tools/matrix-lift.test.mjs do not reach (docs/MATRIX-LIFT.md).
-// Each sample is a random WRAM image with the matrix words drawn from wide but
-// meaningful domains; both sides run one routine on their own copy and must
-// leave the same WRAM (outside the scratch both may differ in), the same device
-// writes, the same sound commands, the same result, or stop at the same frontier.
-import test from 'node:test';
-import assert from 'node:assert/strict';
+// Random per-function tests of the shared scene routines the matrix, cutscenes and
+// intro call (src/system, src/apu and the VideoPort) against their register-level
+// versions (proof/system, proof/replay, proof/apu-reference). They were part of
+// tools/matrix-lift-functions.test.mjs until the register-level matrix reference was
+// retired on 2026-11-25 (docs/STATE-MODEL-REBUILD.md); the samples keep the matrix's
+// random WRAM images. Both sides run one routine on their own copy and must leave the
+// same WRAM (outside the scratch both may differ in), the same device writes, the same
+// sound commands, the same result, or stop at the same frontier.
 import { DialogTestMemory, prng } from './task-native-dialog-harness.mjs';
-import {
-  createSide,
-  differences,
-  outcome as harnessOutcome,
-  registerCases,
-} from './lift-function-harness.mjs';
+import { createSide, registerCases } from './lift-function-harness.mjs';
 import { IGNORED_WRAM } from './live-matrix-plan.mjs';
-import { matrixRuntime, sendVramCopies, setWord } from '../src/matrix/matrix-runtime.mjs';
+import { matrixRuntime, setWord } from '../src/matrix/matrix-runtime.mjs';
 import { randomBelow } from '../src/system/random.mjs';
 import { readJoypad, takePadPresses } from '../src/system/joypad.mjs';
 import { unpack } from '../src/system/unpack.mjs';
@@ -23,34 +17,12 @@ import { enableNmiAndJoypad, startSceneScreen } from '../src/system/nmi.mjs';
 import { runSceneList } from '../src/system/scene-list.mjs';
 import { setMusicMode } from '../src/apu/music-mode.mjs';
 import { sendApuCommand } from '../src/apu/apu-command.mjs';
-import {
-  drawObjects,
-  openNodeGates,
-  placePersonaAtStart,
-  readNodeAhead,
-  removeFinishedObjects,
-  resetObjects,
-  stepPersona,
-  takeDamage,
-  uploadMap,
-  useNodeAhead,
-} from '../src/matrix/matrix-world.mjs';
-import {
-  clearTextMap,
-  queueSystemMessages,
-  queueText,
-  resetTextWindow,
-  typeText,
-  updateGauges,
-} from '../src/matrix/matrix-text.mjs';
-import { MATRIX_REFERENCE_ROUTINES } from '../proof/matrix-reference/matrix-scene-loop.mjs';
-import { sendMatrixDmaRecords } from '../proof/matrix-reference/main-matrix-nmi.mjs';
+import { MAIN_SCENE_ROUTINES } from '../proof/replay/main-scene.mjs';
+import { AUDIO_REFERENCE_ENTRIES } from '../proof/apu-reference/audio-routines.mjs';
 import { MATRIX_COUNT_TEXT } from '../src/data/matrix-text-edits.mjs';
-import { FLAG_CARRY } from '../src/constants/cpu-flags.mjs';
 import { readInput } from '../proof/system/native-input-apu.mjs';
 
-const SAMPLES = 300,
-  WRAM_BYTES = 0x20000,
+const WRAM_BYTES = 0x20000,
   MAP_WRAM = 0x10000;
 
 // Lifted stops outside the compared domain: an index past a named table
@@ -271,7 +243,9 @@ function sample(seed) {
 
 // One side (tools/lift-function-harness.mjs) with the sample's language edits and
 // edit streams already queued.
-const side = (s) => createSide(s, MATRIX_REFERENCE_ROUTINES, prepareMemory);
+// The register-level scene routines with the register-level audio.
+const REFERENCE_ROUTINES = new Map([...MAIN_SCENE_ROUTINES, ...AUDIO_REFERENCE_ENTRIES]);
+const side = (s) => createSide(s, REFERENCE_ROUTINES, prepareMemory);
 function prepareMemory(mem, s) {
   mem.matrixTextEdits = s.edits;
   const stream = (text) => {
@@ -281,84 +255,11 @@ function prepareMemory(mem, s) {
   if (s.slots)
     mem.matrixTextState = { slots: s.slots.slice(0, 8).map(stream), active: stream(s.slots[8]) };
 }
-const outcome = (state, run) => harnessOutcome(state, run, IGNORED_WRAM);
-const carry = (h) => (h.ctx.status & FLAG_CARRY) !== 0;
 
 // entry: the routine in the reference table; prepare(s) gives its register inputs
 // (and may narrow the sample); samples overrides SAMPLES for rarely reached branches;
 // lifted(m, input) runs the lifted function; result(h) reads the reference result.
 const CASES = [
-  {
-    name: 'uploadMap 81:B4D3',
-    entry: 0x81b4d3,
-    prepare: (s) => ({
-      a: s.wram[0x175c] | (s.wram[0x175d] << 8),
-      y: 0x7f,
-      x: s.pick([0x2000, 0x2400, s.rnd(65536)]),
-    }),
-    lifted: (m, r) => uploadMap(m, (r.y << 16) | r.a, r.x),
-  },
-  { name: 'placePersonaAtStart 81:B818', entry: 0x81b818, lifted: (m) => placePersonaAtStart(m) },
-  { name: 'resetObjects 81:BD62', entry: 0x81bd62, lifted: (m) => resetObjects(m) },
-  { name: 'drawObjects 81:BD7C', entry: 0x81bd7c, lifted: (m) => drawObjects(m) },
-  {
-    name: 'removeFinishedObjects 81:B90F',
-    entry: 0x81b90f,
-    lifted: (m) => removeFinishedObjects(m),
-  },
-  {
-    name: 'openNodeGates 81:B56F',
-    entry: 0x81b56f,
-    prepare: (s) => ({ a: s.pick([0xfe, 0x02, 0x80, 0, s.rnd(65536)]) }),
-    lifted: (m, r) => openNodeGates(m, r.a),
-    result: (h) => h.ctx.a,
-  },
-  {
-    name: 'takeDamage 81:B1B5',
-    entry: 0x81b1b5,
-    prepare: (s) => ({ a: s.pick([0, 1, 5, 0x7fff, 0xffff, s.rnd(65536)]) }),
-    lifted: (m, r) => takeDamage(m, r.a),
-  },
-  { name: 'stepPersona 81:BD44', entry: 0x81bd44, samples: 1000, lifted: (m) => stepPersona(m) },
-  { name: 'useNodeAhead 81:C111', entry: 0x81c111, samples: 1000, lifted: (m) => useNodeAhead(m) },
-  {
-    name: 'readNodeAhead 81:C28C',
-    entry: 0x81c28c,
-    samples: 1000,
-    lifted: (m) => readNodeAhead(m),
-  },
-  { name: 'resetTextWindow 81:B2A0', entry: 0x81b2a0, lifted: (m) => resetTextWindow(m) },
-  {
-    name: 'queueText 81:B282',
-    entry: 0x81b282,
-    prepare: (s) => {
-      const text = s.pick(TEXTS);
-      return { x: text & 0xffff, y: s.pick([text >>> 16, s.rnd(65536)]) };
-    },
-    lifted: (m, r) => queueText(m, r.x, r.y),
-  },
-  { name: 'queueSystemMessages 81:C39F', entry: 0x81c39f, lifted: (m) => queueSystemMessages(m) },
-  { name: 'typeText 81:B2D1', entry: 0x81b2d1, lifted: (m) => typeText(m), result: carry },
-  { name: 'clearTextMap 81:B228', entry: 0x81b228, lifted: (m) => clearTextMap(m) },
-  {
-    // A shown value wider than its gauge (health above CF, memory above 47) runs the
-    // empty-tile loop through all of bank 7F into the low RAM mirror, over the
-    // reference's direct page counters; the game keeps health at most C8 and
-    // memory at most 40. The domain ends at the widest gauge that fits its row.
-    name: 'updateGauges 81:B485',
-    entry: 0x81b485,
-    prepare: (s) => {
-      const set = (at, v) => {
-        s.wram[at] = v & 255;
-        s.wram[at + 1] = v >>> 8;
-      };
-      set(0x1752, s.pick([0, 1, 0x64, 0xc8, 0xcf, s.rnd(0xd0)]));
-      set(0x1754, s.pick([0, 1, 0x64, 0xc8, 0xcf, s.rnd(0xd0)]));
-      set(0x174e, s.pick([0, 1, 0x40, 0x47, s.rnd(0x48)]));
-      set(0x1750, s.pick([0, 1, 0x40, 0x47, s.rnd(0x48)]));
-    },
-    lifted: (m) => updateGauges(m),
-  },
   // Shared routines, lifted for the matrix (src/system, src/apu, VideoPort).
   {
     name: 'randomBelow 80:F2A8',
@@ -552,34 +453,4 @@ registerCases(CASES, {
   runtime: matrixRuntime,
   ignored: IGNORED_WRAM,
   outside: OUTSIDE,
-});
-
-test('sendVramCopies matches the matrix NMI DMA records on random queues', () => {
-  for (let seed = 1; seed <= SAMPLES; seed++) {
-    const s = sample(seed);
-    const reference = side(s);
-    reference.h.push(0x1234, 2);
-    const want = outcome(reference, () => {
-      sendMatrixDmaRecords(reference.h);
-    });
-    const lifted = side(s);
-    const got = outcome(lifted, () => {
-      const m = matrixRuntime(lifted.h);
-      sendVramCopies(m.wram, m.video);
-    });
-    assert.deepEqual(differences({ want, got }), [], `seed ${seed}`);
-  }
-});
-
-test('an odd heading stops the lifted persona at the table frontier', () => {
-  const s = sample(5);
-  s.wram[0x173e] = 0xa; // hit state: the face picture of the heading
-  s.wram[0x173f] = 0;
-  s.wram[0x1740] = 1;
-  s.wram[0x1741] = 0;
-  s.wram[0x141c] = 3;
-  s.wram[0x141d] = 0;
-  const lifted = side(s);
-  const got = outcome(lifted, () => stepPersona(matrixRuntime(lifted.h)));
-  assert.equal(got.stop, 'matrix_table_index_frontier');
 });

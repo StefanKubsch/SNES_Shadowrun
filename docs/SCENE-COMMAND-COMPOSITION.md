@@ -18,7 +18,7 @@ compare complete WRAM, source reads, ordered video/port writes and frontier
 details for every supported target, edited aliases, mixed commands, a palette
 crossing a bank boundary, a zero palette count, packed graphics with a bank word,
 and unknown or absent table entries. The existing `runSceneList 81:EC16` random
-comparison in [matrix-lift-functions.test.mjs](../tools/matrix-lift-functions.test.mjs)
+comparison in [scene-shared-lift-functions.test.mjs](../tools/scene-shared-lift-functions.test.mjs)
 retains the register-level original comparison.
 
 The callback bank remains a full word at this wide-register entry. A zero
