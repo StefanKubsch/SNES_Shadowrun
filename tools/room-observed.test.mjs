@@ -1,27 +1,8 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { readFileSync } from 'node:fs';
-import { gunzipSync } from 'node:zlib';
-import { rom } from './task-native-dialog-harness.mjs';
-import { ObservedRoom, roomInterrupts } from '../proof/video/room-observed.mjs';
 import { PpuState } from '../proof/video/ppu-state.mjs';
 import { renderMode1Frame } from '../proof/video/ppu-frame.mjs';
 
-test('room counter polls preserve both instructions and NMI occurrence', () => {
-  const result = roomInterrupts([-2, 0x81eecd, 0x81eed1, 0x180fd21]);
-  assert.deepEqual(
-    result.map((o) => [o.pc, o.nmi]),
-    [
-      [0x81eecd, false],
-      [0x81eed1, false],
-      [0x81eecd, false],
-      [0x81eed1, false],
-      [0x80fd21, true],
-    ],
-  );
-  assert.ok(Object.isFrozen(result) && result.every(Object.isFrozen));
-  assert.throws(() => roomInterrupts([-1, 0x81eecd, 0x81eed2]), /room_poll_record_required/);
-});
 test('VRAM dummy and alternating read ports reproduce the buffered word sequence', () => {
   const p = new PpuState();
   p.writeByte(0x2100, 128);
@@ -170,25 +151,5 @@ test('OBJ line limits: 33rd OBJ and tiles beyond 34 are not displayed', () => {
     pixel(renderMode1Frame(p, { objects: true }), 0, 0),
     red,
     'flipped left tile kept',
-  );
-});
-test('recorded blank windows are required and fully consumed by the cold room replay', () => {
-  const bundle = JSON.parse(gunzipSync(readFileSync('assets/room-observations.json.gz')));
-  const windows = bundle.windows.map((w) => ({ ...w }));
-  windows[0].start++;
-  assert.throws(
-    () => new ObservedRoom(rom, { ...bundle, windows }),
-    /ppu_original_write_window_required/,
-  );
-  windows[0] = { ...bundle.windows[0], blank: 0 };
-  assert.throws(
-    () => new ObservedRoom(rom, { ...bundle, windows }).step(),
-    /ppu_original_blank_state_required|ppu_observed_write_window_required/,
-  );
-  const frames = bundle.frames.map((f) => ({ ...f }));
-  frames[1].writes = frames[0].writes;
-  assert.throws(
-    () => new ObservedRoom(rom, { ...bundle, frames }),
-    /room_frame_observation_required/,
   );
 });

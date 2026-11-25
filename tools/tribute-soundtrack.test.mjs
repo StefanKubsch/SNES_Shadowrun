@@ -24,7 +24,7 @@ import { cartridge } from './cartridge-harness.mjs';
 import { browserServer, isServedPath } from './serve-browser.mjs';
 import { buildWeb } from './build-web.mjs';
 import { soundCatalog, romReader } from './sound-catalog.mjs';
-import { roomSchedule, runSchedule } from './sound-apu-schedule.mjs';
+import { bootSchedule, runSchedule } from './sound-apu-schedule.mjs';
 
 const evidence = JSON.parse(readFileSync('proof/apu/tribute-song-identification.json'));
 const tracks = [...Object.values(TRIBUTE_TRACKS), TRIBUTE_MAIN_THEME];
@@ -187,15 +187,14 @@ test('separating song voices preserves the original DSP and SFX, including their
   }
 });
 
-test('real boot and first-room commands retain every original sample and handshake with soundtrack observation', () => {
+test('live boot and first-room commands retain every original sample and handshake with soundtrack observation', () => {
   const original = new Apu(),
     split = new SoundtrackApu();
-  const reader = romReader(),
-    rom = readFileSync('Shadowrun (E).smc');
+  const reader = romReader();
   original.enableOutput(256);
   split.enableOutput(256);
   const states = [];
-  for (const event of roomSchedule(rom)) {
+  for (const event of bootSchedule()) {
     runSchedule([original, split], [event], reader);
     if (event[0] === 'f') {
       const full = split.takeOutput(),

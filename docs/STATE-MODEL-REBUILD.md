@@ -96,6 +96,18 @@ own commit after `npm run test:block` and the golden trace test. One shared
 
 ## Progress
 
+- 2026-11-25, Mesen title replays cut (user decision 2026-11-25: the Mesen proofs may be
+  reduced completely, so that the frontend and intro set-up references can go): the
+  recorded cold-boot room replay (proof/video/room-observed.mjs,
+  assets/room-observations.json.gz) and everything built on it are gone: mesen-live-room,
+  mesen-cold-rounds, live-game-over, live-nested-round, main-boot-connected (its contract
+  test moved to tools/main-boot-native-contracts.test.mjs), the live room cases of
+  frame-events, sound-apu and room-observed, the boot prefix cases past the title owner,
+  and the tools capture-room and live-plan-close. Given up: the original comparisons of
+  the first room, Game Over and the attract demo after a menu timeout. The sound tests
+  take their port schedule from a live cold start into the first room
+  (tools/sound-apu-schedule.mjs, bootSchedule).
+
 - 2026-11-25, matrix proof retirement: proof/matrix-reference/ (3161 lines), its ROM
   proofs (main-matrix-control, main-matrix-nmi, main-matrix-objects, main-scene-matrix)
   and the comparisons matrix-lift, matrix-lift-functions and matrix-node-gates are gone,

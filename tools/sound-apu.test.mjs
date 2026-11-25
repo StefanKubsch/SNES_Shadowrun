@@ -6,9 +6,8 @@ import { SpcIo } from '../src/apu/spc-io.mjs';
 import { SoundDriver, spcDivide, WAIT_PORT, IDLE } from '../src/apu/sound-driver.mjs';
 import { Spc700Reference } from './spc700-reference.mjs';
 import { decodeDriver, driverBytes } from './sound-driver-source.mjs';
-import { roomSchedule, syntheticSchedule, runSchedule } from './sound-apu-schedule.mjs';
+import { bootSchedule, syntheticSchedule, runSchedule } from './sound-apu-schedule.mjs';
 import { findMesen } from './mesen.mjs';
-import { recordLiveRoom } from './mesen-live-room.mjs';
 import {
   recordSpcDriver,
   ObservedSpcIo,
@@ -19,9 +18,7 @@ import {
 } from './mesen-spc-driver.mjs';
 import { rom } from './task-native-dialog-harness.mjs';
 import { readFileSync } from 'node:fs';
-import { gunzipSync } from 'node:zlib';
 import { join, dirname } from 'node:path';
-import { ObservedRoom } from '../proof/video/room-observed.mjs';
 import { SampleQueue } from '../src/browser/sample-queue.mjs';
 
 const bytes = driverBytes(Buffer.from(rom));
@@ -281,13 +278,13 @@ test('the native sound driver equals the original instructions', () => {
       if (a < 0x01e0 || a >= 0x01f0)
         if (native.ram[a] !== reference.ram[a]) assert.fail(`ARAM ${a.toString(16)} ${label}`);
   };
-  const room = roomSchedule(rom),
+  const room = bootSchedule(),
     synthetic = syntheticSchedule(Buffer.from(rom));
   for (let k = 0; k < room.length; k += 2000) {
     runSchedule([native, reference], room.slice(k, k + 2000));
-    compare('room ' + k);
+    compare('boot ' + k);
   }
-  assert.equal(room.filter((e) => e[0] === 'f').length, 2273);
+  assert.equal(room.filter((e) => e[0] === 'f').length, 6000);
   for (let k = 0; k < synthetic.length; k += 500) {
     runSchedule([native, reference], synthetic.slice(k, k + 500));
     compare('synthetic ' + k);
@@ -418,91 +415,6 @@ test('KON/KOF writes of one instant take effect one latch after another', () => 
 // remains a boundary of the lag-free model. In live mode the unit answers the
 // ports: Y opens the item list, command 02 is accepted and acknowledged; per frame
 // it outputs 640 sample pairs.
-test('the room replay drives the native audio unit and live mode answers the APU ports', () => {
-  const bundle = JSON.parse(
-    gunzipSync(readFileSync(new URL('../assets/room-observations.json.gz', import.meta.url))),
-  );
-  const room = new ObservedRoom(rom, bundle),
-    a = room.vm.natives.accessor,
-    busRead = a.busRead,
-    before = [0, 0, 0, 0],
-    stats = {};
-  const write = room.apu.cpuWrite.bind(room.apu);
-  room.apu.cpuWrite = (port, value, width) => {
-    for (let n = 0; n < width; n++) before[(port + n) & 3] = room.apu.cpuRead(port + n);
-    write(port, value, width);
-  };
-  // Every port read passes busRead: the original's absolute reads (80:2140) and the
-  // lifted code's (src/apu, 00:2140).
-  a.busRead = (address, width, pc, anyBank) => {
-    const value = busRead(address, width, pc, anyBank),
-      offset = address & 0xffff;
-    if (offset >= 0x2140 && offset <= 0x2143 && !(address & 0x400000) && !room.liveFrames) {
-      const port = offset - 0x2140,
-        now = room.apu.cpuRead(port);
-      const key =
-        pc.toString(16) +
-        ':' +
-        port +
-        ':' +
-        (value === now ? 'native' : value === before[port] ? 'pending' : 'other');
-      stats[key] = (stats[key] ?? 0) + 1;
-    }
-    return value;
-  };
-  room.finish();
-  assert.equal(room.apu.dsp.clocks, 2273 * 640 * 32);
-  assert.equal(room.apu.state, 'driver');
-  assert.equal(room.apu.cpuRead(0), room.memory.read8(0x7e1ce4));
-  assert.deepEqual(
-    Object.fromEntries(Object.entries(stats).filter(([k]) => k.endsWith('native'))),
-    {
-      '81efaa:0:native': 1,
-      '81efb1:1:native': 1,
-      '81efb8:1:native': 1,
-      '81efed:1:native': 1,
-      '81f001:0:native': 3158,
-      '81f00e:0:native': 101,
-      '81f046:0:native': 40950,
-    },
-  );
-  assert.deepEqual(
-    Object.keys(stats)
-      .filter((k) => k.endsWith('other'))
-      .sort(),
-    ['81e1b6:2:other', '81e510:2:other'],
-  );
-  const commands = [],
-    live = room.apu.cpuWrite.bind(room.apu);
-  room.apu.cpuWrite = (port, value, width) => {
-    if (port === 0) commands.push(room.apu.io.cpuIn[1]);
-    live(port, value, width);
-  };
-  const pads = [...Array(20).fill(0), ...Array(6).fill(0x4000)];
-  const frames = room.live({ pad: (k) => pads[k] ?? 0 });
-  // One live step can run many lag-free frames in the item list (about 90 with the
-  // lifted game NMI), so the buffer holds more than the frames the loop waits for.
-  room.apu.enableOutput(400);
-  let stop = null;
-  try {
-    while (frames.nmis < 120) room.stepLive({ mainBudget: 4096, opcodeBudget: 4096 });
-  } catch (error) {
-    stop = error;
-  }
-  assert.deepEqual(commands, [0x02]);
-  // Sound output: 640 L/R pairs per lag-free frame; the room music is audible.
-  const audio = room.apu.takeOutput();
-  assert.equal(audio.length, frames.nmis * 1280);
-  assert.ok(audio.filter((v) => v !== 0).length > audio.length / 2);
-  assert.equal(room.apu.cpuRead(0), room.memory.read8(0x7e1ce4));
-  assert.equal(room.apu.dsp.clocks, (2273 + frames.nmis) * 640 * 32);
-  // The item list with its HDMA window runs on without a boundary.
-  assert.equal(stop, null);
-});
-
-// Queue of the AudioWorklet: it starts playing only from the prebuffer, in order,
-// fills gaps with silence and then prebuffers again; above the limit the oldest
-// blocks are dropped.
 test('the browser sample queue prebuffers, keeps order, fills gaps with silence and drops the oldest', () => {
   const q = new SampleQueue({ prebuffer: 4, limit: 8, declick: false, maxPrebuffer: 4 }),
     l = new Float32Array(3),
@@ -547,51 +459,6 @@ const { exe, reason } = findMesen();
 // the same voices sound, and every voice sounds in almost as many NMIs (lag
 // frames of the original shift the count). Before the coupling in write order,
 // later KOF switched off freshly keyed voices.
-test(
-  'the live room keeps the voices of the original in Mesen',
-  { skip: exe ? false : reason, timeout: 900000 },
-  async () => {
-    const original = await recordLiveRoom(exe, [0], 300, { sound: true });
-    const bundle = JSON.parse(
-      gunzipSync(readFileSync(new URL('../assets/room-observations.json.gz', import.meta.url))),
-    );
-    const room = new ObservedRoom(rom, bundle).finish(),
-      env = [],
-      keys = [];
-    const frames = room.live({
-      pad: () => 0,
-      onFrame: (f) => {
-        env[f.nmi] = room.apu.dsp.voices.map((v) => v.env);
-      },
-    });
-    const write = room.apu.dsp.write.bind(room.apu.dsp);
-    room.apu.dsp.write = (r, v) => {
-      if (r === 0x4c) keys.push({ register: r, value: v });
-      write(r, v);
-    };
-    const nmis = original.env.length;
-    while (frames.nmis < nmis) room.stepLive();
-    const keyOns = (list) =>
-      Array.from(
-        { length: 8 },
-        (_, n) => list.filter((k) => k.register === 0x4c && (k.value >> n) & 1).length,
-      );
-    const sounding = (list) =>
-      Array.from({ length: 8 }, (_, n) => list.slice(0, nmis).filter((e) => e[n] > 0).length);
-    assert.ok(nmis > 290 && keyOns(original.keys).reduce((a, b) => a + b) > 20);
-    assert.deepEqual(keyOns(keys), keyOns(original.keys), 'key-ons per voice');
-    assert.deepEqual(
-      env[0].map((e) => e > 0),
-      original.env[0].map((e) => e > 0),
-      'voices at the first live NMI',
-    );
-    const a = sounding(original.env),
-      b = sounding(env);
-    a.forEach((count, n) =>
-      assert.ok(Math.abs(count - b[n]) <= nmis * 0.05, `voice ${n}: ${b[n]} / ${count} NMIs`),
-    );
-  },
-);
 let recording = null;
 const record = async () => (recording ??= await recordSpcDriver(exe, { frames: 2400, snap: 200 }));
 const exactApu = (events, order, options) =>

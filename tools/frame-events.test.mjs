@@ -18,10 +18,6 @@ import { WAIT_PAUSED, WAIT_RETURNED } from '../src/system/native-wait-continuati
 import { TaskAccessor } from '../src/vm/task-accessor.mjs';
 import { dialogAccess } from '../src/system/native-dialog-support.mjs';
 import { DialogTestMemory, rom } from './task-native-dialog-harness.mjs';
-import { readFileSync } from 'node:fs';
-import { gunzipSync } from 'node:zlib';
-import { createHash } from 'node:crypto';
-import { ObservedRoom } from '../proof/video/room-observed.mjs';
 
 const romAt = (address) => rom[((address >>> 16) & 0x7f) * 0x8000 + (address & 0x7fff)];
 // Synthetic WRAM for the original game NMI C152; not a PAL timing fixture.
@@ -273,57 +269,6 @@ test('recorded device streams are consumed before a live device answers', () => 
   );
   assert.equal(v.a.absoluteRead(0x4212, 2, 0x809e0b), 1);
   assert.equal(v.a.absoluteRead(0x4212, 2, 0x809e0b), 0);
-});
-
-// Not an original comparison: the lag-free model continues the same native
-// owner after the complete first-room replay with a live pad.
-const bundle = JSON.parse(gunzipSync(readFileSync('assets/room-observations.json.gz')));
-function liveRoom(padAt, count) {
-  const room = new ObservedRoom(rom, bundle);
-  assert.throws(
-    () => room.live({ pad: () => 0 }),
-    (e) => e.reason === 'room_replay_incomplete',
-  );
-  room.finish();
-  const hashes = [],
-    raster = [];
-  let nmi = 0;
-  const frames = room.live({
-    pad: (k) => padAt(k),
-    onFrame: (f) => {
-      assert.equal(f.nmi, nmi);
-      nmi++;
-      hashes.push(createHash('sha256').update(f.pixels).digest('hex'));
-      raster.push(f.rasterWrites);
-    },
-  });
-  assert.equal(frames.nmitimen, 0x81);
-  assert.throws(
-    () => room.live({ pad: () => 0 }),
-    (e) => e.reason === 'room_replay_incomplete',
-  );
-  while (frames.nmis < count) room.stepLive();
-  return { room, frames, hashes, raster, wram: room.memory.wram.slice() };
-}
-test('the first room continues live with lag-free frames and a live pad', () => {
-  const down = (at) => (at < 40 ? 0 : 0x0400),
-    a = liveRoom(down, 160),
-    b = liveRoom(down, 160),
-    idle = liveRoom(() => 0, 160);
-  // NMITIMEN comes from the replay's own last write (0x81 at 80:9671).
-  assert.equal(a.hashes.length, 160);
-  assert.deepEqual(a.hashes, b.hashes);
-  assert.deepEqual(a.wram, b.wram);
-  assert.ok(a.raster.every((n) => n === 0));
-  assert.deepEqual(a.hashes.slice(0, 41), idle.hashes.slice(0, 41));
-  assert.notDeepEqual(a.hashes.slice(41), idle.hashes.slice(41));
-  assert.notDeepEqual(a.wram, idle.wram);
-  // 9E0B stored the last latched live word at 01CA.
-  assert.equal((a.room.memory.wram[0x1cb] << 8) | a.room.memory.wram[0x1ca], 0x0400);
-  assert.throws(
-    () => new ObservedRoom(rom, bundle).stepLive(),
-    (e) => e.reason === 'room_live_required',
-  );
 });
 
 test('the PPU multiplier is signed 16 x 8 bits and rejects an interleaved latch', async () => {

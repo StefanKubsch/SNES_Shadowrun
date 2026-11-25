@@ -783,7 +783,6 @@
     "start": "node tools/serve-browser.mjs",
     "build:web": "node tools/build-web.mjs",
     "capture:boot-logo": "node tools/capture-boot-logo.mjs",
-    "capture:room": "node tools/capture-room.mjs",
     "analyze:vm-rom-map": "node tools/rom-map.mjs",
     "extract:vm-texts": "node tools/extract-texts.mjs",
     "extract:vm-tiles": "node tools/extract-tiles.mjs",

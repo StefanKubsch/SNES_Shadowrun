@@ -1,5 +1,10 @@
 # Mesen2 oracle (M2)
 
+Note (2026-11-25): the recorded cold-boot room replay (ObservedRoom,
+assets/room-observations.json.gz) and its original comparisons were removed by user
+decision ([STATE-MODEL-REBUILD.md](STATE-MODEL-REBUILD.md), Progress). The sections below
+record what they established.
+
 Part of [STRATEGY.md](STRATEGY.md), milestone M2. Mesen2 runs only in tools
 and tests, never in `src/`, and is not distributed with the repository
 (GPL-3.0). Translated and condensed from the former German `MESEN-ORAKEL.md`
@@ -227,7 +232,7 @@ missing on the routes so far:
 
 ## Live input in the first room (M5)
 
-[mesen-live-room.mjs](../tools/mesen-live-room.mjs) with
+mesen-live-room.mjs (removed) with
 [trace-live-room.lua](../tools/mesen/trace-live-room.lua) continues the input
 plan of the room recording and then supplies one pad word per NMI. The
 comparison with `ObservedRoom.live` and the handling of lag frames are in

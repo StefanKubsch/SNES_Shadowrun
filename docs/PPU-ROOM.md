@@ -1,5 +1,10 @@
 # Visible first room and original movement
 
+Note (2026-11-25): the recorded cold-boot room replay (ObservedRoom,
+assets/room-observations.json.gz) and its original comparisons were removed by user
+decision ([STATE-MODEL-REBUILD.md](STATE-MODEL-REBUILD.md), Progress). The sections below
+record what they established.
+
 Progress and the next block are in the project status, group
 `main-loop-96ab`. This contract extends the
 [cold task owner](BOOT-ORACLE.md#cold-owner-task-rounds-and-native-nmi) by two
@@ -157,7 +162,7 @@ not suit the title (brightness, colours and scrolls change per line via HDMA;
 Mesen's end-of-frame state has only the last value), so it is checked directly:
 all 36 original title pictures 13750–15500 (skyline with HDMA, cross-fades with
 colour math) occur pixel-equal and in order in the native sequence (offset 1242
-NMIs, [live-game-over.test.mjs](../tools/live-game-over.test.mjs)).
+NMIs, live-game-over.test.mjs (removed)).
 
 ## HDMA to TM and BG scroll (credits, 2026-11-06)
 

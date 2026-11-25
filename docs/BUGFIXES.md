@@ -144,7 +144,7 @@ These are game-state corrections; no new hardware or timing premise is needed.
   pointer: `80:A989` and `80:A9BA` read code bytes in bank 80
   (`80:1038 + 88D4 = 80:990C`), some writes reach WRAM through long tables,
   and the leader keeps the aim action until the next one. A Mesen comparison
-  ([mesen-live-room.test.mjs](../tools/mesen-live-room.test.mjs)) pins this
+  (mesen-live-room.test.mjs (removed)) pins this
   original result.
 - The ROM-free package held only the code words of the pointers `88C6` and
   `88CE`. It now keeps those of all nine actions of Jake's list (`80:98FE` to

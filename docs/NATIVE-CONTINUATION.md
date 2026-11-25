@@ -391,7 +391,7 @@ round stays synchronous; it now also puts the outer pending slot aside and
 restores the VM. The nested round of the main loop (main-frontend) and E4F3 stay
 synchronous.
 
-Check: [live-nested-round.test.mjs](../tools/live-nested-round.test.mjs) plays a
+Check: live-nested-round.test.mjs (removed) plays a
 fixed random input in live mode. Six weapon menu rounds run through, the sixth
 waits from live NMI 1584 on. With the pausable and with the synchronous round,
 WRAM, PPU memory, picture and APU port are the same at the NMIs 1580, 1588, 1600
@@ -412,7 +412,7 @@ byte for targets in $6000-$7FFF of the banks 00-3F/80-BF instead of stopping
 with `unmapped_read`. Other read paths keep the limit; there is no general bus
 model. Check: Mesen live comparison over 40 rounds with this input; registers,
 WRAM except hardware frames, SRAM, PPU memory and picture equal
-([mesen-live-room.test.mjs](../tools/mesen-live-room.test.mjs)). Afterwards 14
+(mesen-live-room.test.mjs (removed)). Afterwards 14
 random sequences ran over 3000 live NMIs each without a limit.
 
 ## Lag-free frame events
@@ -519,11 +519,11 @@ of NMI k right before that NMI; `pad(k)` of the live source gets the same index.
 The interruption point and S of every live NMI are logged. The comparison is at
 the R-th return to 80:96C3 after the stop point, that is at the same
 instruction boundary, together with the picture of the following NMI.
-[alignLiveNmis](../tools/mesen-live-room.mjs) allows another point only within
+alignLiveNmis (removed) allows another point only within
 the same wait loop and then shows its four frame bytes; every other difference
 counts as lag.
 
-[mesen-live-room.test.mjs](../tools/mesen-live-room.test.mjs): 15 frames without
+mesen-live-room.test.mjs (removed): 15 frames without
 a button, 30 down, 20 right, 20 left, 85 rounds. Without a lag frame all
 registers, the NMI count (85), the whole WRAM, SRAM, VRAM, CGRAM, OAM and all
 pixels of picture 85 are identical; 29 NMIs came in the original at the CMP
@@ -571,7 +571,7 @@ that does not return. These cases are synthetic.
 [main-loop.test.mjs](../tools/main-loop.test.mjs) and
 [main-driver.test.mjs](../tools/main-driver.test.mjs) check call frames, carry
 shortcuts, the owner return and the interplay of both budgets. The
-[cold original test](../tools/mesen-cold-rounds.test.mjs) additionally uses a
+cold original test (removed) additionally uses a
 main loop budget of 1024 for its existing budget counter check. It checks the
 same complete original record including all registers, WRAM/SRAM and the CPU
 and DMA chronology. The real browser now compares both room canvases over the
@@ -757,7 +757,7 @@ to the owner, and every round JSR C1E3 at 96C0 is a pausable nested round
 (`nestedRound` of the main loop driver, `NestedRoundContinuation`). Recorded and
 isolated runs keep the synchronous loop and round.
 
-[live-game-over.test.mjs](../tools/live-game-over.test.mjs): `ALLEY_PLAN` live,
+live-game-over.test.mjs (removed): `ALLEY_PLAN` live,
 Game Over at live NMI 8996, main menu, Start at NMI 9166, new game from 9219.
 Mesen plays the same pad words up to NMI 8900 and Start at 10400 (the original
 dies later because of its lag frames): all menu pictures 10340-10430 and all
@@ -798,7 +798,7 @@ Since 2026-11-01 tools/mesen/explore.lua knows the same round counts for `press`
 and `wait`, and [explore-live.mjs](../tools/explore-live.mjs) runs explore plans
 natively through livePlanDriver.
 
-[live-plan-close.mjs](../tools/live-plan-close.mjs) translates a duration route:
+live-plan-close.mjs (removed) translates a duration route:
 the original plays it, every "hold" becomes a `walk` to its end position (with
 an `exit` before or after it if the position jumps in the command or in the
 following "wait"); a second run counts the rounds per command (round based from
@@ -807,7 +807,7 @@ following "wait"); a second run counts the rounds per command (round based from
 apartment, Grim Reaper Club, Iced Tea to the guest, topic Lone Star, the business
 man, the money check fails at 20 nuyen), 127 commands.
 
-[live-game-over.test.mjs](../tools/live-game-over.test.mjs) plays the plan
+live-game-over.test.mjs (removed) plays the plan
 natively (about 18,400 live NMIs) and in the original, which evaluates it on its
 own WRAM (`recordLiveRoom(..., {livePlan, shotEnds})`): all 127 commands end on
 both sides at the same pixel position. At the end of the commands 37 pictures
@@ -825,7 +825,7 @@ see "Randomness in live mode"); the lag-free model does not reproduce lag
 
 The save game apartment has 20 nuyen and no weapon. The business man buys the
 Beretta for 200 nuyen (walkthrough lines 1427-1430); that needs no fight and no
-random loot. `badgeBuySource` in [live-plan-close.mjs](../tools/live-plan-close.mjs)
+random loot. `badgeBuySource` in live-plan-close.mjs (removed)
 assembles the route from `BADGE_OFFER_LIVE_PLAN`: in the south-west it turns into
 the alley, Jake picks up the Beretta (object $4C) next to the dead man with R and
 goes back without a fight while the orc keeps shooting. Then the club and Lone
@@ -838,7 +838,7 @@ in this run, not at 149/131 as on the new game route.
 `node tools/live-plan-close.mjs badge-buy` gives `BADGE_BUY_LIVE_PLAN` (165
 commands, two Mesen runs, about 5 minutes).
 
-[live-game-over.test.mjs](../tools/live-game-over.test.mjs) replaces the offer
+live-game-over.test.mjs (removed) replaces the offer
 test by this route: natively about 20,700 live NMIs, at the end 70 nuyen in
 $7E3C0D. In the original all commands end at the same pixel position except
 command 45 (B straight after the walk to 327/280 in the alley): there Jake stands

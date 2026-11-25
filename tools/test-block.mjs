@@ -34,12 +34,8 @@ import { checkProjectStatus } from './check-project-status.mjs';
 
 // Whole test files of the slow tier, with the reason.
 export const SLOW_FILES = new Map([
-  ['tools/mesen-cold-rounds.test.mjs', 'Mesen cold reset to room movement'],
-  ['tools/mesen-boot-prefix.test.mjs', 'Mesen cold boots to title, menu and first scene'],
-  ['tools/mesen-live-room.test.mjs', 'Mesen live room sessions'],
+  ['tools/mesen-boot-prefix.test.mjs', 'Mesen cold boot to the title owner'],
   ['tools/mesen-oracle.test.mjs', 'Mesen opcode comparison of the first rooms'],
-  ['tools/main-boot-connected.test.mjs', 'real boot and software restart into live tasks'],
-  ['tools/live-game-over.test.mjs', 'Game Over, attract game and saved game sessions'],
   ['tools/live-matrix.test.mjs', 'the seven matrix sessions against the original'],
   ['tools/live-alley-bus.test.mjs', 'alley session with open-bus reads'],
   ['tools/live-cold-start.test.mjs', 'live cold start from reset to the title'],

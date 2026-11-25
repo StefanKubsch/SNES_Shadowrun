@@ -235,7 +235,7 @@ lies between and all eight DMA active flags must already be false (an exec hook
 at AA96 alone is insufficient because Mesen can report it before the pending
 transfer). This is the immediate DMA result, not a later checkpoint image; the
 16 bytes go in proven target order as hardware observation to the
-[NMI DMA contract](../src/system/main-dma-readback.mjs). The earlier CPU dummy
+NMI DMA contract (removed). The earlier CPU dummy
 read at 213A stays a separate IO record. The global comparison still checks all
 forward DMA bytes against live native ROM/WRAM sources and all CPU device bytes
 and their order; the readback result is counted separately (no PPU model, no
@@ -259,7 +259,7 @@ moves player slot 42 from (1432, 2004, 256) to (1429, 2007, 256). The turn
 direction follows the DEC7 tables and the real cold SRAM; both owners and the
 final whole memory and register state agree.
 
-**Totals.** The [cold original test](../tools/mesen-cold-rounds.test.mjs)
+**Totals.** The cold original test (removed)
 checks all registers including E and whole WRAM/SRAM, CPU device bytes, forward
 DMA sources and observed readback results. A second native replay of the same
 data set starts every round with opcode budget 0 and keeps the real scheduler

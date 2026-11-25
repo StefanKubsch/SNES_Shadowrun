@@ -542,10 +542,10 @@ The reference chain uses [main-reset.mjs](../proof/replay/main-reset.mjs),
 and new/load entry before the first scheduler round. These are proof/replay
 contracts; current frontend composition is documented separately.
 
-[main-boot-connected.test.mjs](../tools/main-boot-connected.test.mjs) connects
+main-boot-connected.test.mjs (removed) connects
 the same owner through boot, menu selection, task rounds, morgue movement,
 object selection, actions, pickup, inventory, doors, street dialog and the
-alley fight. [main-boot-round-reference.mjs](../tools/main-boot-round-reference.mjs)
+alley fight. main-boot-round-reference.mjs (removed)
 and [main-boot-reference-view.mjs](../tools/main-boot-reference-view.mjs) keep
 comparison state private, publish successful visits only and preserve work,
 output and stack ownership checks. The narrow DEC7 SRAM contract reads camera
