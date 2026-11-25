@@ -4,7 +4,7 @@
 // is why the trace keeps the inputs they produced instead of the plans.
 import { LiveGame } from '../../src/video/live-game.mjs';
 import { counterBytes } from '../../src/vm/frame-events.mjs';
-import { loadSave } from '../mesen-f390-oracle.mjs';
+import { loadSave, ALLEY_PLAN as ALLEY_PLAN_FROM_ROOM } from '../mesen-f390-oracle.mjs';
 import { livePlanDriver } from '../live-plan-driver.mjs';
 import { exploreLive } from '../explore-live.mjs';
 import { BADGE_BUY_LIVE_PLAN } from '../live-plans.mjs';
@@ -38,13 +38,41 @@ const BENCHMARK_ROUTE = (k) =>
 const START = 0x1000,
   DOWN = 0x0400,
   PLAN_START = 5000,
-  PLAN_SKIP = 3;
+  PLAN_SKIP = 3,
+  PRESS_NMIS = 4;
 const TITLE = (k) =>
   (k >= 3000 && k < 3004) || (k >= 3300 && k < 3304) || (k >= 3600 && k < 3604)
     ? START
     : k >= 3150 && k < 3154
       ? DOWN
       : 0;
+
+// Game Over: the new game route of BENCHMARK_ROUTE up to the walk, then ALLEY_PLAN of
+// tools/mesen-f390-oracle.mjs (out of the morgue, along the street into the alley), where
+// the orc assassin shoots Jake (the owner takes over again near NMI 15760). Without input
+// the menu times out to the title, back to the menu, to the attract demo and back to the
+// menu again; then Start begins a new game from the menu owner.
+const GAME_OVER_PLAN_FROM = 5200,
+  GAME_OVER_START = 26600,
+  GAME_OVER_NMIS = 28500;
+const gameOver = {
+  name: 'game-over',
+  options: () => ({}),
+  record(cartridge, hook) {
+    let driver = null;
+    const game = new LiveGame(cartridge, {
+      counter: counterBytes(COUNTER_SEED),
+      pad: (k) => {
+        if (k < GAME_OVER_PLAN_FROM) return BENCHMARK_ROUTE(k);
+        if (k >= GAME_OVER_START) return k < GAME_OVER_START + PRESS_NMIS ? START : 0;
+        driver ??= livePlanDriver(ALLEY_PLAN_FROM_ROOM, game.memory.wram, () => game.loop.rounds);
+        return driver.done() ? 0 : driver.pad(k);
+      },
+    });
+    hook(game);
+    while (game.nmis < GAME_OVER_NMIS) game.step();
+  },
+};
 
 const apartment = () => ({ sram: new Uint8Array(loadSave('apartment')) });
 // A cold start played with pad(k) up to `nmis`.
@@ -248,6 +276,8 @@ export const SCENARIOS = Object.freeze([
   explored('cutscenes', CUTSCENE_PLAN),
   // Two intros (81:DFE7) with the credits after them, one ended with A (tools/live-intro-plan.mjs).
   explored('intro', INTRO_PLAN),
+  // Death in the alley, the menu timeout through title and attract demo, Start.
+  gameOver,
 ]);
 export const scenario = (name) => {
   const found = SCENARIOS.find((s) => s.name === name);

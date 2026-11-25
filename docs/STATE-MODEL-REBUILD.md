@@ -47,7 +47,7 @@ becomes the reference for the rebuild ([tools/golden/](../tools/golden/)):
 Scenarios (tools/golden/scenarios.mjs): attract, new-game, badge, alley, matrix, and since
 2026-11-25 spell (status submenus, party status, a spell chosen and cast, instant
 text), bed (bed menu, save, karma menu up to "Not enough karma"), cutscenes (all
-cutscenes and the credits) and intro (two intros with the credits, one ended with A). `npm run golden:coverage` (tools/golden-coverage.mjs)
+cutscenes and the credits), intro (two intros with the credits, one ended with A) and game-over (death in the alley from a cold start, the menu timeout through title and attract demo, Start for a new game). `npm run golden:coverage` (tools/golden-coverage.mjs)
 reports the src functions the traces reach; on 2026-11-25 1929 of 2573 (75 %, up from
 71 % with the first five), with the script natives (55 %) and the data decoders (59 %)
 the largest gaps. A proof module is retired only where its src path is reached.
@@ -95,6 +95,8 @@ own commit after `npm run test:block` and the golden trace test. One shared
   differential test until a trace covers it.
 
 ## Progress
+
+- 2026-11-25, golden scenario game-over: a cold start plays the new game route and ALLEY_PLAN of tools/mesen-f390-oracle.mjs until the orc assassin kills Jake (the owner takes over near NMI 15760). Without input the menu times out to the title, the menu, the attract demo and the menu again; Start at NMI 26600 begins a new game (28500 NMIs, about 1 MiB). It closes the gap the cut room replay left (Game Over and the menu timeout had no test).
 
 - 2026-11-25, frontend and intro set-up proof retirement: proof/frontend-reference/
   (title, start menu and its texts, title cycle, game owner; 2684 lines) and the rest of
