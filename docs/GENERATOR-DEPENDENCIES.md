@@ -618,10 +618,11 @@ npm script (the 81B4 and C9E0 motion helper listings and the slot motion
 direction data), the ROM-only `extract:slot-action-data`,
 `extract:slot-target-data` and `extract:motion-postpass-data`, and then the
 release generators. `--clean`
-deletes the generated files first. Seven inputs are never deleted: the
-Mesen-dependent `mesen-coverage.json`, `rom-code-observed.json`,
-`rom-reads.json` and `rom-vram.json`, the retained `rom-palettes.json`, and
-the captured `boot-logo-observations.json` and `room-observations.json.gz`.
+deletes the generated files first. It never deletes the Mesen-dependent
+`mesen-coverage.json`, `rom-code-observed.json`, `rom-reads.json` and
+`rom-vram.json`, the retained `rom-palettes.json`, or any versioned file under
+analysis/ and assets/ (hand-made inputs such as `vm-text-edits.json` and the
+tribute recordings; fixed on 2026-11-25 after a clean run had deleted them).
 
 Verification in scratch clones at commit 30169e6e:
 

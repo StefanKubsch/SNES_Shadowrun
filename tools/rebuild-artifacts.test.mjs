@@ -64,3 +64,9 @@ test('Recorded and retained catalogue inputs are never deleted and stay versione
     rmSync(root, { recursive: true, force: true });
   }
 });
+
+test('Clean never deletes a versioned file under the generated directories', () => {
+  const files = generatedFiles('.');
+  for (const path of ['assets/vm-text-edits.json', 'assets/tribute/01-main-theme.ogg'])
+    assert.ok(!files.includes(path), path);
+});

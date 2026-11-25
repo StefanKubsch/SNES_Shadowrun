@@ -5,7 +5,7 @@
 //   node tools/rebuild-artifacts.mjs            rebuild in this checkout
 //   node tools/rebuild-artifacts.mjs --clean    delete generated files first
 //   --root=<dir>                                operate on another checkout
-import { spawnSync } from 'node:child_process';
+import { spawnSync, execFileSync } from 'node:child_process';
 import { readFileSync, readdirSync, rmSync } from 'node:fs';
 import { join, resolve } from 'node:path';
 import { pathToFileURL } from 'node:url';
@@ -46,8 +46,25 @@ export function rebuildSequence(scripts, catalogue) {
   return [...named, ...bare, ...release];
 }
 
+// Versioned files under the generated directories (hand-made inputs such as
+// assets/vm-text-edits.json and the tribute recordings) are sources, never generated
+// files; a root outside a Git checkout has none.
+function versionedFiles(root) {
+  try {
+    return execFileSync('git', ['ls-files', '-z', '--', ...generatedDirectories], {
+      cwd: root,
+      encoding: 'utf8',
+      stdio: ['ignore', 'pipe', 'ignore'],
+    })
+      .split(String.fromCharCode(0))
+      .filter(Boolean);
+  } catch {
+    return [];
+  }
+}
+
 export function generatedFiles(root) {
-  const keep = new Set(retainedInputs);
+  const keep = new Set([...retainedInputs, ...versionedFiles(root)]);
   return generatedDirectories.flatMap((dir) =>
     readdirSync(join(root, dir), { recursive: true, withFileTypes: true })
       .filter((entry) => entry.isFile())
