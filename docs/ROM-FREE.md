@@ -1356,7 +1356,7 @@ tour3 tour4 tour5`). The story state stays that of the morgue, so the
     PDF 152 (43x8/43x9) the A2 table address counting up; the text layer
     of both pages has no printed page number. The continuation inside a
     field is Mesen's behaviour and not stated there.
-    src/video/hdma.mjs starts every table at its A1 address for each frame
+    proof/video/hdma.mjs starts every table at its A1 address for each frame
     and never reads past a terminator, so the product never reads these
     bytes. The original may show a few wrong window lines in that frame;
     the port does not model HDMA enabled during a field.

@@ -21,20 +21,15 @@ import { detachSprites } from '../state/sprites.mjs';
 // onwards (assumption, reversible). SRAM is the saved game (8 KiB or empty).
 import { detachObjectStorage } from '../state/objects.mjs';
 import { VmMemory, VmFault, SRAM_SIZE, SRAM_SIZE_FOUR_SLOTS, WRAM_SIZE } from '../vm/memory.mjs';
-import { CGDATA, OAMDATA, VMDATAH, VMDATAL } from '../constants/hardware-registers.mjs';
-import { INIDISP_FORCED_BLANK } from '../constants/ppu.mjs';
 import { installPortExtension } from '../data/port-extension.mjs';
 import { installLanguage, ENGLISH } from '../data/language.mjs';
 import { GameLoop } from '../script/game-loop.mjs';
 import { nativeOpcodeTargets } from '../data/native-opcode-targets.mjs';
 import { nativeTarget } from '../script/native-targets.mjs';
 import { FRONTEND_ROUTINES } from '../system/main-frontend.mjs';
-import { PpuBus, PpuState } from './ppu-state.mjs';
-import { renderMode1Frame } from './ppu-frame.mjs';
 import { renderFrame } from './frame-renderer.mjs';
 import { PictureVideo } from './picture-video.mjs';
 import { DeviceAccess } from '../vm/device-access.mjs';
-import { hdmaRows } from './hdma.mjs';
 import { LagFreeFrames, LiveDevices } from '../vm/frame-events.mjs';
 import { Apu } from '../apu/apu.mjs';
 import { gameplaySettings, ORIGINAL_GAMEPLAY } from '../game/bugfixes.mjs';
@@ -42,12 +37,10 @@ import { serviceTextWait } from '../game/instant-text.mjs';
 import { runFrameJobs } from '../system/live-frame-jobs.mjs';
 // Player control 80:E014 runs every frame while the player steers freely.
 const PLAYER_CONTROL = 0x80e014;
-// WRAM target of the channel 5 VRAM read (A9E1, src/video/ppu-state.mjs).
-const TEXT_MASK_BUFFER = 0x7e2ae0;
-// Picture back ends (docs/FRAME-DESCRIPTION.md): the SNES back end (PPU model, the
-// register-level comparisons) or the register-free picture state of live play.
-export const SNES_VIDEO = 'snes',
-  PICTURE_VIDEO = 'picture';
+// The register-free picture back end of live play (docs/FRAME-DESCRIPTION.md). The
+// register-level comparisons pass the SNES back end instead (SNES_VIDEO of
+// proof/video/snes-video.mjs: bus, screen, render and watch).
+export const PICTURE_VIDEO = 'picture';
 // Default work budget of one step (src/script/game-loop.mjs).
 const STEP_BUDGET = 4096;
 const need = (ok, reason) => {
@@ -71,8 +64,8 @@ export class LiveGame {
   // {rom,present} without code (src/data/cartridge.mjs, docs/ROM-FREE.md).
   // loop(game) makes the game loop (default: src/script/game-loop.mjs; a proof can pass
   // the register-level driver with the same interface). video selects the picture back
-  // end: PICTURE_VIDEO (picture, the default) or SNES_VIDEO (bus.ppu, PPU write and
-  // raster write counts, for register-level comparisons).
+  // end: PICTURE_VIDEO (picture, the default) or a back end object such as SNES_VIDEO
+  // (proof/video/snes-video.mjs: bus.ppu, PPU write and raster write counts).
   constructor(
     cartridge,
     {
@@ -126,11 +119,14 @@ export class LiveGame {
     this.gameplay = settings;
     this.apu = apu;
     const picture = video === PICTURE_VIDEO ? new PictureVideo(this.memory) : null;
-    if (video !== PICTURE_VIDEO) need(video === SNES_VIDEO, 'live_video_back_end_required');
-    // The register-free picture state of live play, or null with the SNES back end.
+    if (!picture)
+      need(video !== null && typeof video?.bus === 'function', 'live_video_back_end_required');
+    // The register-free picture state of live play, or null with another back end.
     this.picture = picture;
-    this.bus = picture ?? new PpuBus(this.memory, new PpuState());
-    let rasterWrites = 0;
+    this.backEnd = picture ? null : video;
+    this.bus = picture ?? video.bus(this.memory);
+    // Raster writes of the current frame (counted by a register back end only).
+    this.rasterWrites = null;
     const frames = (this.frames = new LagFreeFrames({
       pad,
       apu: this.apu,
@@ -140,16 +136,10 @@ export class LiveGame {
             onFrame({ nmi, rasterWrites: null, pixels: renderFrame(picture.describe()) }, picture);
           return;
         }
-        if (onFrame && this.bus.ppu.registerKnown[0])
-          onFrame(
-            {
-              nmi,
-              rasterWrites,
-              pixels: renderMode1Frame(this.bus.ppu, { objects: true, rows: hdmaRows(this.bus) }),
-            },
-            this.bus.ppu,
-          );
-        rasterWrites = 0;
+        const pixels = onFrame ? video.render(this.bus) : null;
+        if (pixels)
+          onFrame({ nmi, rasterWrites: this.rasterWrites, pixels }, video.screen(this.bus));
+        this.rasterWrites = 0;
       },
     }));
     // Instant text (docs/INSTANT-TEXT.md): text waits run the transfer at once.
@@ -176,55 +166,29 @@ export class LiveGame {
       } else if (CHOOSING.has(target)) this.choosing = true;
     };
     // The picture back end's CPU register writes (the scene default) reach the devices
-    // as the hardware port's do. It has no raster write counts; dataOutsideBlank counts
-    // its data bytes outside blank as described below.
-    if (picture) {
-      const access = new DeviceAccess(this.vm);
-      access.devices = this.devices;
-      picture.system = (address, value, width) => access.busWrite(address, value, width);
-      this.dataOutsideBlank = 0;
-      picture.onData = () => {
-        if (!frames.inNmi && !(picture.displaySet && picture.blank)) this.dataOutsideBlank++;
-      };
+    // as the hardware port's do. dataOutsideBlank counts the VRAM, CGRAM and OAM data
+    // bytes written outside VBlank and forced blank (the tests require zero).
+    if (!picture) {
+      video.watch(this, frames);
       return;
     }
-    // Without a frame position, every write outside the NMI with the display
-    // on counts as a raster write (position unknown). In the
-    // cold start these are only registers (brightness, layers, scroll,
-    // colour math), never VRAM, CGRAM or OAM; their data may only be written in
-    // VBlank (CGRAM also in HBlank) or forced blank (Book I
-    // PDF 116 OAM 2104, PDF 121 VRAM 2118/2119, PDF 125 CGRAM 2122).
-    // dataOutsideBlank counts such data accesses (the tests require zero; null with
-    // the picture back end).
+    const access = new DeviceAccess(this.vm);
+    access.devices = this.devices;
+    picture.system = (address, value, width) => access.busWrite(address, value, width);
     this.dataOutsideBlank = 0;
-    const outsideBlank = () =>
-      !frames.inNmi &&
-      !(this.bus.ppu.registerKnown[0] && this.bus.ppu.registers[0] & INIDISP_FORCED_BLANK);
-    this.bus.beforePpuWrite = (index, port) => {
-      this.bus.ppu.observedVblank = true;
-      if (!outsideBlank()) return;
-      rasterWrites++;
-      if (port === OAMDATA || port === VMDATAL || port === VMDATAH || port === CGDATA)
-        this.dataOutsideBlank++;
-    };
-    this.bus.beforeHdmaWrite = () => {
-      if (outsideBlank()) rasterWrites++;
-    };
-    // Channel 5 VRAM->WRAM (A9E1): the PPU supplies the bytes, the DMA writes them.
-    this.bus.reverseDma = (bytes) => {
-      for (let n = 0; n < bytes.length; n++) this.memory.write8(TEXT_MASK_BUFFER + n, bytes[n]);
+    picture.onData = () => {
+      if (!frames.inNmi && !(picture.displaySet && picture.blank)) this.dataOutsideBlank++;
     };
   }
   // Video memory of either back end: vram, cgram (bytes) and oam.
   get screen() {
-    return this.picture ?? this.bus.ppu;
+    return this.picture ?? this.backEnd.screen(this.bus);
   }
   // The current picture as RGBA pixels (as onFrame receives it), or null before the
   // first display write.
   render() {
     if (this.picture) return this.picture.displaySet ? renderFrame(this.picture.describe()) : null;
-    if (!this.bus.ppu.registerKnown[0]) return null;
-    return renderMode1Frame(this.bus.ppu, { objects: true, rows: hdmaRows(this.bus) });
+    return this.backEnd.render(this.bus);
   }
   get nmis() {
     return this.frames.nmis;

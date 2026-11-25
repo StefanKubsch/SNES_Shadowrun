@@ -10,7 +10,7 @@ import { fileURLToPath } from 'node:url';
 import { cartridge } from './cartridge-harness.mjs';
 import { loadSave } from './mesen-f390-oracle.mjs';
 import { exploreLive } from './explore-live.mjs';
-import { SNES_VIDEO } from '../src/video/live-game.mjs';
+import { SNES_VIDEO } from '../proof/video/snes-video.mjs';
 import { fnv1a } from '../src/data/fnv.mjs';
 import { registerLevelLoop } from '../proof/script/register-level-loop.mjs';
 

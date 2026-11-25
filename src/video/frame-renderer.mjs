@@ -1,6 +1,6 @@
 // The picture renderer of phase 5 (docs/FRAME-DESCRIPTION.md): it draws one frame
 // from a frame description and knows no PPU registers. The SNES back end
-// (src/video/ppu-frame.mjs) builds the description from its PPU model; game code
+// (proof/video/ppu-frame.mjs) builds the description from its PPU model; game code
 // can later build it directly.
 //
 // A frame description is either BLANK_FRAME (forced blank or brightness 0) or:
@@ -28,7 +28,7 @@
 //   rows         null, or per output row null or a list of changes applied before
 //                the row: ['edge', index, x], ['main', bits],
 //                ['map', layer, base, across, width, height], ['scroll', layer, axis, offset]
-// Composition follows the sources in src/video/ppu-frame.mjs (Book I chapter 27).
+// Composition follows the sources in proof/video/ppu-frame.mjs (Book I chapter 27).
 import { BYTE_BITS, BYTE_MASK, WORD_BITS, WORD_MASK } from '../constants/bits.mjs';
 import {
   COLOUR_COMPONENTS,

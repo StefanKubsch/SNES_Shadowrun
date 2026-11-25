@@ -6,8 +6,8 @@ import {
   WINDOW_AREAS,
   NO_WINDOW,
   renderFrame,
-} from './frame-renderer.mjs';
-import { BYTE_BITS, NIBBLE_BITS, NIBBLE_MASK } from '../constants/bits.mjs';
+} from '../../src/video/frame-renderer.mjs';
+import { BYTE_BITS, NIBBLE_BITS, NIBBLE_MASK } from '../../src/constants/bits.mjs';
 import {
   INIDISP,
   BGMODE,
@@ -30,7 +30,7 @@ import {
   BG1SC,
   BG4SC,
   BG12NBA,
-} from '../constants/hardware-registers.mjs';
+} from '../../src/constants/hardware-registers.mjs';
 import {
   CGRAM_COLOURS,
   INIDISP_BRIGHTNESS_MASK,
@@ -47,7 +47,7 @@ import {
   CHARACTER_BASE_STEP,
   OBJSEL_BASE_MASK,
   OBJ_NAME_BASE_STEP,
-} from '../constants/ppu.mjs';
+} from '../../src/constants/ppu.mjs';
 // The SNES back end of the picture (docs/FRAME-DESCRIPTION.md): the PPU registers,
 // VRAM, CGRAM and OAM at an explicit original boundary become a frame description,
 // which src/video/frame-renderer.mjs draws.

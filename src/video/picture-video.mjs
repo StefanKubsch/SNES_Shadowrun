@@ -15,7 +15,7 @@
 // the game sets them up in parts long before a transfer starts. Transfers read their
 // source through memory.read8 and write the typed state at once.
 //
-// The semantics follow the SNES back end (src/video/ppu-state.mjs, ppu-frame.mjs and
+// The semantics follow the SNES back end (proof/video/ppu-state.mjs, ppu-frame.mjs and
 // hdma.mjs; Book I chapter 27 PDF 115-134, chapter 28 PDF 143-152). That back end
 // also proves that every value the frame reads was written; this one starts from zero
 // memories, which the golden traces show the game always overwrites first.

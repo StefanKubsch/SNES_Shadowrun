@@ -17,7 +17,7 @@ import { fnv1a } from '../src/data/fnv.mjs';
 import { cartridge } from './cartridge-harness.mjs';
 import { loadSave } from './mesen-f390-oracle.mjs';
 import { exploreLive } from './explore-live.mjs';
-import { SNES_VIDEO } from '../src/video/live-game.mjs';
+import { SNES_VIDEO } from '../proof/video/snes-video.mjs';
 import { CUTSCENE_PLAN } from './live-cutscene-plan.mjs';
 import { PLAN as MATRIX_PLAN } from './live-matrix-plan.mjs';
 import { withSchedulerFrames } from './scheduler-frame-adapter.mjs';

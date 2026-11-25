@@ -1,6 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { LiveGame, SNES_VIDEO } from '../src/video/live-game.mjs';
+import { LiveGame } from '../src/video/live-game.mjs';
+import { SNES_VIDEO } from '../proof/video/snes-video.mjs';
 import { cartridge } from './cartridge-harness.mjs';
 import { loadSave } from './mesen-f390-oracle.mjs';
 import { dialogAccess } from '../src/system/native-dialog-support.mjs';

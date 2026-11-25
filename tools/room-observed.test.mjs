@@ -4,8 +4,8 @@ import { readFileSync } from 'node:fs';
 import { gunzipSync } from 'node:zlib';
 import { rom } from './task-native-dialog-harness.mjs';
 import { ObservedRoom, roomInterrupts } from '../proof/video/room-observed.mjs';
-import { PpuState } from '../src/video/ppu-state.mjs';
-import { renderMode1Frame } from '../src/video/ppu-frame.mjs';
+import { PpuState } from '../proof/video/ppu-state.mjs';
+import { renderMode1Frame } from '../proof/video/ppu-frame.mjs';
 
 test('room counter polls preserve both instructions and NMI occurrence', () => {
   const result = roomInterrupts([-2, 0x81eecd, 0x81eed1, 0x180fd21]);

@@ -11,8 +11,8 @@ import { toWram } from '../../proof/state/to-wram.mjs';
 import { readFileSync, writeFileSync } from 'node:fs';
 import { gzipSync, gunzipSync, constants as zlib } from 'node:zlib';
 import { LiveGame, PICTURE_VIDEO } from '../../src/video/live-game.mjs';
-import { renderMode1Frame } from '../../src/video/ppu-frame.mjs';
-import { hdmaRows } from '../../src/video/hdma.mjs';
+import { renderMode1Frame } from '../../proof/video/ppu-frame.mjs';
+import { hdmaRows } from '../../proof/video/hdma.mjs';
 import { renderFrame } from '../../src/video/frame-renderer.mjs';
 import { fnv1a, FNV_OFFSET } from '../../src/data/fnv.mjs';
 

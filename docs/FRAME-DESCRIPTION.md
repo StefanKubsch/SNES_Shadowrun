@@ -14,7 +14,7 @@ of descriptions instead of the picture's only path.
   memory, BG layers (map and character addresses, size, scroll, composition
   levels), sprites with decoded attributes, and per-row changes (window edges,
   main screen layers, map base and size, scroll).
-- src/video/ppu-frame.mjs is now the SNES back end: `describeMode1Frame` reads the
+- proof/video/ppu-frame.mjs is now the SNES back end: `describeMode1Frame` reads the
   PPU registers, VRAM, CGRAM, OAM and the H-DMA row writes into a description and
   performs every source check of the former renderer, in the same order and with
   the same reasons (including the per-row window edge check).
@@ -139,6 +139,19 @@ however, no longer needs to name registers:
 - Evidence: tools/sprite-state.test.mjs (single owner, byte aliases, projection, and
   table versus byte transfer on both back ends); block check 5059/5059 in 583 seconds,
   golden traces unchanged.
+
+## Step 8: the PPU register model moves to proof (2026-11-25)
+
+- ppu-state.mjs, ppu-frame.mjs and hdma.mjs moved from src/video to proof/video
+  (decision 3 of [STATE-MODEL-REBUILD.md](STATE-MODEL-REBUILD.md)). src/ imports
+  no PPU model.
+- proof/video/snes-video.mjs is the SNES back end object for LiveGame: `bus`,
+  `screen`, `render` and `watch` (raster write and data write counts, the text
+  read-back's WRAM write). Register-level comparisons pass `video: SNES_VIDEO` from
+  there; LiveGame's own default stays the picture back end.
+- The register-writing VideoPort (src/video/video-port.mjs) stays in src as
+  compatibility code for the recorded comparisons, like the phase 4 boundary.
+- Evidence: block check 1796/1796 in 602 seconds; boundary and core tests 33/33.
 
 ## Plan for the next steps
 

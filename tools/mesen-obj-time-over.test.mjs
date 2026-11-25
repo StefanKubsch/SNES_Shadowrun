@@ -12,8 +12,8 @@ import { mkdtempSync, writeFileSync, rmSync } from 'node:fs';
 import { join } from 'node:path';
 import { tmpdir } from 'node:os';
 import { findMesen, prepareScript, runMesen } from './mesen.mjs';
-import { PpuState } from '../src/video/ppu-state.mjs';
-import { renderMode1Frame } from '../src/video/ppu-frame.mjs';
+import { PpuState } from '../proof/video/ppu-state.mjs';
+import { renderMode1Frame } from '../proof/video/ppu-frame.mjs';
 
 const CGRAM_SOURCE = 0x1000,
   OAM_SOURCE = 0x1400,

@@ -15,7 +15,7 @@
 // The format of a stream follows from the VRAM address and the BG and OBJ
 // registers at the end of its list, when the scene is shown; lists often
 // set them after the transfers (Book I chapter 27, PDF 115-119; docs/PPU-BROWSER.md;
-// the same bases as src/video/ppu-frame.mjs): BGnSC 2107-2109 (map base
+// the same bases as proof/video/ppu-frame.mjs): BGnSC 2107-2109 (map base
 // (v & FC) << 8 words, 32 or 64 columns and rows), BG12NBA/BG34NBA 210B/210C
 // (character base nibble << 12 words), OBSEL 2101 (base (v & 7) << 13
 // words), BGMODE 2105 must be mode 1 (BG1 and BG2 4 bpp, BG3 2 bpp). If

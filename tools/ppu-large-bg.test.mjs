@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { PpuState } from '../src/video/ppu-state.mjs';
-import { renderMode1Frame } from '../src/video/ppu-frame.mjs';
+import { PpuState } from '../proof/video/ppu-state.mjs';
+import { renderMode1Frame } from '../proof/video/ppu-frame.mjs';
 
 const pixel = (frame, x, y) => Array.from(frame.subarray((y * 256 + x) * 4, (y * 256 + x) * 4 + 4));
 function fixture({ mode = 0x11, sc = 0x00, h = 0, v = 0 } = {}) {

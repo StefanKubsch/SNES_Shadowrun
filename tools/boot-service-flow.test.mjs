@@ -1,7 +1,8 @@
 // The live reset and startup take game services only (docs/BOOT-SERVICE-COMPOSITION.md).
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { LiveGame, SNES_VIDEO } from '../src/video/live-game.mjs';
+import { LiveGame } from '../src/video/live-game.mjs';
+import { SNES_VIDEO } from '../proof/video/snes-video.mjs';
 import { cartridge } from './cartridge-harness.mjs';
 import { resetHardware } from '../src/system/main-reset.mjs';
 import { mainStartupSequence } from '../src/system/main-startup.mjs';

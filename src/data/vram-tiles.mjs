@@ -4,7 +4,7 @@
 // obj4 are OBJ characters with 4 bits per pixel (Book I, OBJ data), bg2 and
 // bg4 BG characters with 2 and 4 bits per pixel (BG3 and BG1/BG2 in mode 1).
 // A character is 8x8 pixels in planar form, addressed as in
-// src/video/ppu-frame.mjs (Book I appendix A): row y of plane p is byte
+// proof/video/ppu-frame.mjs (Book I appendix A): row y of plane p is byte
 // (p >> 1) * 16 + y * 2 + (p & 1), bit 7 is the left pixel; 32 bytes with 4
 // planes, 16 with 2.
 // Native form: one indexed BMP per format (src/data/tiles.mjs, pixel = colour

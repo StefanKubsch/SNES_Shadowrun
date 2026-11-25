@@ -2,7 +2,7 @@
 // Game code states what the screen needs (a VRAM word, a colour, a scroll
 // position, a layer selection); this SNES back end turns each request into
 // the register writes of the original, in the original order, so the PPU
-// model (src/video/ppu-state.mjs) sees exactly the same writes. Another
+// model (proof/video/ppu-state.mjs) sees exactly the same writes. Another
 // platform implements the same methods on its own display.
 //
 // The NMI transfers below (sendPalette to readVramToWram) state each transfer in

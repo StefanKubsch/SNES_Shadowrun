@@ -327,7 +327,7 @@ test('the first room continues live with lag-free frames and a live pad', () => 
 });
 
 test('the PPU multiplier is signed 16 x 8 bits and rejects an interleaved latch', async () => {
-  const { PpuState } = await import('../src/video/ppu-state.mjs');
+  const { PpuState } = await import('../proof/video/ppu-state.mjs');
   const product = (a, b) => {
     const p = new PpuState();
     p.writeByte(0x211b, a & 255);

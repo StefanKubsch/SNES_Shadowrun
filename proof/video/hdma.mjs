@@ -1,5 +1,5 @@
 import { TRANSFER_UNITS, requireValue } from './ppu-state.mjs';
-import { BYTE_BITS, WORD_BITS, WORD_MASK } from '../constants/bits.mjs';
+import { BYTE_BITS, WORD_BITS, WORD_MASK } from '../../src/constants/bits.mjs';
 import {
   INIDISP,
   BG1SC,
@@ -12,7 +12,7 @@ import {
   WH2,
   WH3,
   DMA_CHANNEL_STRIDE,
-} from '../constants/hardware-registers.mjs';
+} from '../../src/constants/hardware-registers.mjs';
 import {
   DMAP_B_TO_A,
   DMAP_HDMA_INDIRECT,
@@ -26,8 +26,8 @@ import {
   HDMA_LINE_COUNT_MASK,
   HDMA_REPEAT,
   SCREEN_HEIGHT,
-} from '../constants/ppu.mjs';
-import { BANK_WITHOUT_IO, IO_AREA_END, IO_AREA_START } from '../constants/memory-map.mjs';
+} from '../../src/constants/ppu.mjs';
+import { BANK_WITHOUT_IO, IO_AREA_END, IO_AREA_START } from '../../src/constants/memory-map.mjs';
 // H-DMA per Book I chapter 17.2 (PDF 87), 420C/43x0-43xA (PDF 144, 149-152)
 // and appendix B-2 (PDF 220): absolute tables of [C|lines] headers, C=0 one
 // data unit for all lines, C=1 one unit per line, header 0 ends the channel.

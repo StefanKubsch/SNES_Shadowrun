@@ -88,6 +88,11 @@ own commit after `npm run test:block` and the golden trace test. One shared
 
 ## Progress
 
+- 2026-11-25, phase 5, PPU model to proof: ppu-state, ppu-frame and hdma moved to
+  proof/video; proof/video/snes-video.mjs hands the SNES back end to LiveGame for the
+  register-level comparisons; src/ imports no PPU model. Block check 1796/1796
+  ([FRAME-DESCRIPTION.md](FRAME-DESCRIPTION.md), step 8).
+
 - 2026-11-25, phase 5, sprite list producer: src/state/sprites.mjs owns the OAM
   buffer as typed sprite fields; the game NMI hands the table to the picture back end.
   Block check 5059/5059, golden traces unchanged
@@ -122,7 +127,7 @@ own commit after `npm run test:block` and the golden trace test. One shared
   seconds, golden traces unchanged ([FRAME-DESCRIPTION.md](FRAME-DESCRIPTION.md)).
 
 - 2026-11-24, phase 5, frame description: src/video/frame-renderer.mjs draws a
-  frame description without PPU registers; src/video/ppu-frame.mjs builds the
+  frame description without PPU registers; proof/video/ppu-frame.mjs builds the
   description from the PPU model with every former source check. Block check
   452/452 in 278 seconds. All five golden
   traces unchanged; picture time per NMI unchanged. Contract and plan:

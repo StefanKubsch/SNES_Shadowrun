@@ -30,9 +30,9 @@ import { withFrontendReference } from '../frontend-reference/frontend.mjs';
 // Recorded chronologies hold every instruction of the title (prologue fill, polls in
 // bank 81): they replay with the register-level title (proof/frontend-reference).
 const MAIN_STARTUP_ROUTINES = withFrontendReference(STARTUP_ROUTINES);
-import { PpuBus, PpuState, PpuBoundary } from '../../src/video/ppu-state.mjs';
-import { renderMode1Frame } from '../../src/video/ppu-frame.mjs';
-import { hdmaRows } from '../../src/video/hdma.mjs';
+import { PpuBus, PpuState, PpuBoundary } from './ppu-state.mjs';
+import { renderMode1Frame } from './ppu-frame.mjs';
+import { hdmaRows } from './hdma.mjs';
 import {
   LagFreeFrames,
   LiveDevices,

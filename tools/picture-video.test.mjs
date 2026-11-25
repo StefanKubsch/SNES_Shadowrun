@@ -7,9 +7,9 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { PictureVideo, PictureBoundary } from '../src/video/picture-video.mjs';
 import { VideoPort } from '../src/video/video-port.mjs';
-import { PpuBus, PpuState } from '../src/video/ppu-state.mjs';
-import { describeMode1Frame } from '../src/video/ppu-frame.mjs';
-import { hdmaRows } from '../src/video/hdma.mjs';
+import { PpuBus, PpuState } from '../proof/video/ppu-state.mjs';
+import { describeMode1Frame } from '../proof/video/ppu-frame.mjs';
+import { hdmaRows } from '../proof/video/hdma.mjs';
 import { renderFrame } from '../src/video/frame-renderer.mjs';
 import { BG_1, BG_2, BG_3 } from '../src/constants/ppu.mjs';
 import {

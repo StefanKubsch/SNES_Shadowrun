@@ -1,8 +1,8 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { PpuState, PpuBus } from '../src/video/ppu-state.mjs';
-import { renderMode1Frame } from '../src/video/ppu-frame.mjs';
-import { hdmaRows } from '../src/video/hdma.mjs';
+import { PpuState, PpuBus } from '../proof/video/ppu-state.mjs';
+import { renderMode1Frame } from '../proof/video/ppu-frame.mjs';
+import { hdmaRows } from '../proof/video/hdma.mjs';
 
 // Synthetic fixtures for the manual contracts only; the original evidence is
 // the live item list in mesen-live-room.test.mjs.

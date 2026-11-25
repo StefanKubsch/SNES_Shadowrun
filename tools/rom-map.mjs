@@ -921,7 +921,7 @@ for (const [offset, length] of readsFile.ranges)
 //   in the sound command loop 81:F00E: a channel enabled during the field continues from its A2
 //   address 43x8/43x9 behind that terminator. Book I PDF 144 (420C) has the initial settings made
 //   for every field and PDF 152 (43x8) the A2 address count up; the continuation inside a field
-//   is Mesen's behaviour, not stated there. src/video/hdma.mjs starts every table at its A1
+//   is Mesen's behaviour, not stated there. proof/video/hdma.mjs starts every table at its A1
 //   address 43x2 to 43x4 for each frame and never reads past the terminator.
 const CODE_CLASSES = new Set([CODE, STATIC, CODE_DEAD, CODE_UNUSED_NATIVE, CODE_UNUSED_OPCODE]);
 const observedReadCode = [],

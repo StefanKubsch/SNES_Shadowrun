@@ -7,7 +7,7 @@ import { recordLiveRoom, alignLiveNmis, inCpuStack, gameContext } from './mesen-
 import { originalLogoPixels } from './capture-boot-logo.mjs';
 import { rom } from './task-native-dialog-harness.mjs';
 import { ObservedRoom } from '../proof/video/room-observed.mjs';
-import { renderMode1Frame } from '../src/video/ppu-frame.mjs';
+import { renderMode1Frame } from '../proof/video/ppu-frame.mjs';
 import { ppuFromMesen } from './mesen-ppu-state.mjs';
 import { livePlanDriver } from './live-plan-driver.mjs';
 import { MORGUE_EXIT_PLAN } from './mesen-f390-oracle.mjs';

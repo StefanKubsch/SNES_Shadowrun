@@ -13,7 +13,7 @@ import { storageContract, blankMemory, WRAM } from './state-storage-contract.mjs
 import { toWram } from '../proof/state/to-wram.mjs';
 import { PictureVideo } from '../src/video/picture-video.mjs';
 import { VideoPort } from '../src/video/video-port.mjs';
-import { PpuBus, PpuState } from '../src/video/ppu-state.mjs';
+import { PpuBus, PpuState } from '../proof/video/ppu-state.mjs';
 import { LiveGame } from '../src/video/live-game.mjs';
 import { ROM_SIZE } from '../src/vm/memory.mjs';
 import { OAM_BUFFER, OAM_HIGH_TABLE } from '../src/data/wram.mjs';

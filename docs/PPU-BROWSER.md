@@ -119,10 +119,10 @@ Hardware sources, checked separately from the game's register values:
   `GetChrData`, independently confirms that adding quadrant offsets wraps
   the complete ten-bit character name, including row and name boundaries.
 
-[ppu-frame.mjs](../src/video/ppu-frame.mjs) now decodes both cell sizes,
+[ppu-frame.mjs](../proof/video/ppu-frame.mjs) now decodes both cell sizes,
 including quadrant selection, complete-cell flips, map quadrants, scrolling,
 name wrap, palettes and priority. The existing 8x8 path retains its equations.
-[hdma.mjs](../src/video/hdma.mjs) admits the four map base/size ports; the
+[hdma.mjs](../proof/video/hdma.mjs) admits the four map base/size ports; the
 renderer applies their changes before each row and retains them until the
 next row update, without changing the stored PPU state. Unsupported video
 modes remain explicit boundaries (`ppu_mode1_required`); this adds no

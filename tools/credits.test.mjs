@@ -22,7 +22,7 @@ const musicSilent = (wram) => (wram[MUSIC] | (wram[MUSIC + 1] << BYTE_BITS)) ===
 // The fourth in-game menu row (src/game/credits.mjs), live in both languages from power-on: Start opens
 // the start menu 81:E14A; the request leaves its wait loop 81:E29F like the timeout, and the
 // frontend loop 80:A18C calls the sequence 81:CDF8 with A = 5 instead of the attract game.
-// Every picture is rendered (H-DMA to TM, BG2HOFS and window 1, src/video/hdma.mjs); the German
+// Every picture is rendered (H-DMA to TM, BG2HOFS and window 1, proof/video/hdma.mjs); the German
 // credit pages come from the language bank (stream 81:F2BD to 7E:62A8, the bank's last stream
 // read with the unpacker's word fetch). B ends the sequence, and the start menu waits again.
 // The start menu plays no music; the credits play the ending room's music (81:EF47 with the

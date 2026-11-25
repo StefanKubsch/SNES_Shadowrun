@@ -96,7 +96,7 @@ export const LAYER_BG4 = 0x08;
 export const LAYER_OBJ = 0x10;
 export const CGADSUB_BACKDROP = 0x20;
 export const CGSWSEL_SUB_SCREEN = 0x02;
-// CGADSUB bit 6 halves the result (PDF 131, 2-27-17; src/video/ppu-frame.mjs CGADSUB_HALF).
+// CGADSUB bit 6 halves the result (PDF 131, 2-27-17; proof/video/ppu-frame.mjs CGADSUB_HALF).
 export const CGADSUB_HALF = 0x40;
 
 // Window mask settings W12SEL/W34SEL/WOBJSEL (Book I, book1_text.pdf PDF 126, 2-27-12): one
@@ -135,7 +135,7 @@ export const HDMA_REPEAT = 0x80;
 export const HDMA_LINE_COUNT_MASK = 0x7f;
 
 // Background and object registers (Book I chapter 27, PDF 115-119; the
-// renderer src/video/ppu-frame.mjs and the scene loader src/data/scene-lists.mjs).
+// renderer proof/video/ppu-frame.mjs and the scene loader src/data/scene-lists.mjs).
 /** VRAM holds 16-bit words; word address = byte address / 2. */
 export const VRAM_WORD_BYTES = 2;
 /** BGMODE $2105: background mode in bits 0-2. */

@@ -26,8 +26,14 @@ import {
   NTRL7,
   MDMAEN,
   DMA_CHANNEL_STRIDE,
-} from '../constants/hardware-registers.mjs';
-import { WORD_MASK, BYTE_MASK, BYTE_BITS, HIGH_BYTE_MASK, WORD_BITS } from '../constants/bits.mjs';
+} from '../../src/constants/hardware-registers.mjs';
+import {
+  WORD_MASK,
+  BYTE_MASK,
+  BYTE_BITS,
+  HIGH_BYTE_MASK,
+  WORD_BITS,
+} from '../../src/constants/bits.mjs';
 import {
   CGRAM_BYTES,
   CGRAM_HIGH_BYTE_MASK,
@@ -62,8 +68,8 @@ import {
   VRAM_ADDRESS_STEPS,
   VRAM_BYTES,
   VRAM_WORD_ADDRESS_MASK,
-} from '../constants/ppu.mjs';
-import { BANK_WITHOUT_IO, IO_AREA_END, IO_AREA_START } from '../constants/memory-map.mjs';
+} from '../../src/constants/ppu.mjs';
+import { BANK_WITHOUT_IO, IO_AREA_END, IO_AREA_START } from '../../src/constants/memory-map.mjs';
 
 // Nintendo Book I, chapter 27, PDF 115-125. This bounded write-side device
 // admits forced blank and explicitly observed VBlank transfers. No beam

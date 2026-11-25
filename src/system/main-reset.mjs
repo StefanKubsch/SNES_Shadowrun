@@ -44,7 +44,7 @@ import { CODE_BANK } from '../constants/memory-map.mjs';
 
 // Register resets 80:E3FA and 81:EE4F: all WRIO outputs high, COLDATA 0 on all three
 // components, colour math prevented everywhere (CGWSEL bits 4-5 = 3,
-// src/video/ppu-frame.mjs) and FastROM.
+// proof/video/ppu-frame.mjs) and FastROM.
 export const WRIO_ALL_HIGH = 0xff,
   CGSWSEL_MATH_PREVENTED = 0x30,
   MEMSEL_FAST_ROM = 1;
