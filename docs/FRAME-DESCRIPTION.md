@@ -153,13 +153,29 @@ however, no longer needs to name registers:
   compatibility code for the recorded comparisons, like the phase 4 boundary.
 - Evidence: block check 1796/1796 in 602 seconds; boundary and core tests 33/33.
 
+## Step 9: one picture path for live play (2026-11-25)
+
+- A count of the picture back end's calls over the golden replays alley and matrix
+  (every PictureVideo method) shows no picture register traffic left: the remaining
+  `writeRegister` calls are the APU ports 2140-2143 (audio stays on the SNES model),
+  NMITIMEN, WRIO, MEMSEL and the window tile multiplication. Layers, scroll, colour
+  effects and the display arrive as typed calls (setScroll, setMainLayers,
+  setDisplay and others), sprites as the typed table of step 7.
+- Palettes need no game-side producer: the scene and object palettes and the palette
+  cycle steps go to CGRAM by DMA straight from ROM data (sendPalette,
+  sendPaletteStep); no WRAM palette buffer exists that could become typed state, and
+  the picture back end already keeps CGRAM as its typed 256-colour palette.
+- The SNES back end object (proof/video/snes-video.mjs) was retired with the boot
+  replays, and no test chose it any more. LiveGame lost its `video` and `loop`
+  options: it always runs the plain game loop and draws through the picture back
+  end; PICTURE_VIDEO and the frame's `rasterWrites` field are gone.
+
 ## Plan for the next steps
 
-1. Producers: game code builds the parts of the description it owns (palettes,
-   sprite list, BG layer settings, scroll, colour effects) as typed state, and the
-   description is assembled from that state instead of from PPU registers. The
-   golden picture hash stays binding; the video memory hash becomes diagnostic for
-   the converted parts, as decided on 2026-11-20.
+1. Producers: done as far as the game owns picture state (sprite list, step 7; the
+   other parts are typed calls, step 9). The golden picture hash stays binding; the
+   video memory hash becomes diagnostic for the converted parts, as decided on
+   2026-11-20.
 2. Character and map memory remain a byte store for now: the text code reads its
    rendered rows back from video memory (81:A9E1, channel 5), so tile data stays
    readable game state.

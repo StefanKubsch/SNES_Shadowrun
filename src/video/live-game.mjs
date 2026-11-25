@@ -37,10 +37,6 @@ import { serviceTextWait } from '../game/instant-text.mjs';
 import { runFrameJobs } from '../system/live-frame-jobs.mjs';
 // Player control 80:E014 runs every frame while the player steers freely.
 const PLAYER_CONTROL = 0x80e014;
-// The register-free picture back end of live play (docs/FRAME-DESCRIPTION.md). The
-// register-level comparisons pass the SNES back end instead (SNES_VIDEO of
-// proof/video/snes-video.mjs: bus, screen, render and watch).
-export const PICTURE_VIDEO = 'picture';
 // Default work budget of one step (src/script/game-loop.mjs).
 const STEP_BUDGET = 4096;
 const need = (ok, reason) => {
@@ -57,15 +53,13 @@ const gameLoop = (game) =>
     implementation: nativeTarget,
   });
 export class LiveGame {
-  // pad(k) returns the pad word for NMI k, onFrame({nmi,rasterWrites,pixels}) the
+  // pad(k) returns the pad word for NMI k, onFrame({nmi,pixels}) the
   // picture at NMI entry (only from the first write to 2100; before that the
   // picture is not defined). counter replaces the H/V counter bytes of the random routine.
   // cartridge: the ROM (tools, original comparisons) or the data package
   // {rom,present} without code (src/data/cartridge.mjs, docs/ROM-FREE.md).
-  // loop(game) makes the game loop (default: src/script/game-loop.mjs; a proof can pass
-  // the register-level driver with the same interface). video selects the picture back
-  // end: PICTURE_VIDEO (picture, the default) or a back end object such as SNES_VIDEO
-  // (proof/video/snes-video.mjs: bus.ppu, PPU write and raster write counts).
+  // The game runs the plain game loop (src/script/game-loop.mjs) and draws through the
+  // register-free picture back end (src/video/picture-video.mjs, docs/FRAME-DESCRIPTION.md).
   constructor(
     cartridge,
     {
@@ -77,8 +71,6 @@ export class LiveGame {
       languages = {},
       language = ENGLISH,
       apu = new Apu(),
-      loop = gameLoop,
-      video = PICTURE_VIDEO,
     } = {},
   ) {
     need(
@@ -96,17 +88,18 @@ export class LiveGame {
       cart = new Uint8Array(size);
     if (sram) cart.set(sram.subarray(0, size));
     this.memory = new VmMemory(rom, new Uint8Array(WRAM_SIZE), cart, present);
-    if (loop === gameLoop) {
-      detachObjectStorage(this.memory.wram);
-      detachCollisionStorage(this.memory.wram);
-      detachCameraMaps(this.memory.wram);
-      detachWindowsText(this.memory.wram);
-      detachFrontend(this.memory.wram);
-      detachMatrix(this.memory.wram);
-      detachSceneRoom(this.memory.wram);
-      detachCombat(this.memory.wram);
-      detachSprites(this.memory.wram);
-    }
+    for (const detach of [
+      detachObjectStorage,
+      detachCollisionStorage,
+      detachCameraMaps,
+      detachWindowsText,
+      detachFrontend,
+      detachMatrix,
+      detachSceneRoom,
+      detachCombat,
+      detachSprites,
+    ])
+      detach(this.memory.wram);
     this.memory.textEdits = cartridge.textEdits ?? null;
     if (settings.fourSaveSlots) installPortExtension(this.memory);
     // Text language (src/data/language.mjs): languages maps a code to buildLanguage's result.
@@ -118,28 +111,15 @@ export class LiveGame {
     this.vm = { mem: this.memory, gameplay: settings, startMenuCredits: true };
     this.gameplay = settings;
     this.apu = apu;
-    const picture = video === PICTURE_VIDEO ? new PictureVideo(this.memory) : null;
-    if (!picture)
-      need(video !== null && typeof video?.bus === 'function', 'live_video_back_end_required');
-    // The register-free picture state of live play, or null with another back end.
-    this.picture = picture;
-    this.backEnd = picture ? null : video;
-    this.bus = picture ?? video.bus(this.memory);
-    // Raster writes of the current frame (counted by a register back end only).
-    this.rasterWrites = null;
+    // The register-free picture state of live play; it is also the device bus.
+    const picture = (this.picture = new PictureVideo(this.memory));
+    this.bus = picture;
     const frames = (this.frames = new LagFreeFrames({
       pad,
       apu: this.apu,
       onNmi: (nmi) => {
-        if (picture) {
-          if (onFrame && picture.displaySet)
-            onFrame({ nmi, rasterWrites: null, pixels: renderFrame(picture.describe()) }, picture);
-          return;
-        }
-        const pixels = onFrame ? video.render(this.bus) : null;
-        if (pixels)
-          onFrame({ nmi, rasterWrites: this.rasterWrites, pixels }, video.screen(this.bus));
-        this.rasterWrites = 0;
+        if (onFrame && picture.displaySet)
+          onFrame({ nmi, pixels: renderFrame(picture.describe()) }, picture);
       },
     }));
     // Instant text (docs/INSTANT-TEXT.md): text waits run the transfer at once.
@@ -148,10 +128,10 @@ export class LiveGame {
     this.devices = new LiveDevices(frames, FRONTEND_ROUTINES, {
       bus: this.bus,
       apu: this.apu,
-      ...(loop === gameLoop ? { frameJobs: runFrameJobs } : {}),
+      frameJobs: runFrameJobs,
       ...(counter ? { counter } : {}),
     });
-    this.loop = loop(this);
+    this.loop = gameLoop(this);
     // controlNmi: number of NMIs at the last call of the player control 80:E014
     // (runs every frame while the player steers freely; src/browser/mouse-control.mjs).
     // choosing: a target choice with the glove (9BC6 and relatives, special natives
@@ -168,10 +148,6 @@ export class LiveGame {
     // The picture back end's CPU register writes (the scene default) reach the devices
     // as the hardware port's do. dataOutsideBlank counts the VRAM, CGRAM and OAM data
     // bytes written outside VBlank and forced blank (the tests require zero).
-    if (!picture) {
-      video.watch(this, frames);
-      return;
-    }
     const access = new DeviceAccess(this.vm);
     access.devices = this.devices;
     picture.system = (address, value, width) => access.busWrite(address, value, width);
@@ -180,15 +156,14 @@ export class LiveGame {
       if (!frames.inNmi && !(picture.displaySet && picture.blank)) this.dataOutsideBlank++;
     };
   }
-  // Video memory of either back end: vram, cgram (bytes) and oam.
+  // Video memory: vram, cgram (bytes) and oam.
   get screen() {
-    return this.picture ?? this.backEnd.screen(this.bus);
+    return this.picture;
   }
   // The current picture as RGBA pixels (as onFrame receives it), or null before the
   // first display write.
   render() {
-    if (this.picture) return this.picture.displaySet ? renderFrame(this.picture.describe()) : null;
-    return this.backEnd.render(this.bus);
+    return this.picture.displaySet ? renderFrame(this.picture.describe()) : null;
   }
   get nmis() {
     return this.frames.nmis;

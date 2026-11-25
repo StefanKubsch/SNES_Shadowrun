@@ -7,7 +7,7 @@
 import { writeFileSync } from 'node:fs';
 import { resolve } from 'node:path';
 import { pathToFileURL } from 'node:url';
-import { LiveGame, PICTURE_VIDEO } from '../../src/video/live-game.mjs';
+import { LiveGame } from '../../src/video/live-game.mjs';
 import { cartridge } from '../cartridge-harness.mjs';
 import { SCENARIOS } from './scenarios.mjs';
 import { attach, readTrace } from './trace.mjs';
@@ -18,7 +18,7 @@ const HEX = 16,
 
 export function nativeReach(scenario) {
   const trace = readTrace(scenario.name),
-    game = new LiveGame(cartridge, { ...scenario.options(), video: PICTURE_VIDEO });
+    game = new LiveGame(cartridge, scenario.options());
   attach(game, trace);
   const seen = new Map(),
     previous = game.loop.onNative;

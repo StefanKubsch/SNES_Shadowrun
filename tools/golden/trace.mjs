@@ -10,7 +10,7 @@ import { WRAM } from '../../src/data/wram.mjs';
 import { toWram } from '../../proof/state/to-wram.mjs';
 import { readFileSync, writeFileSync } from 'node:fs';
 import { gzipSync, gunzipSync, constants as zlib } from 'node:zlib';
-import { LiveGame, PICTURE_VIDEO } from '../../src/video/live-game.mjs';
+import { LiveGame } from '../../src/video/live-game.mjs';
 import { renderMode1Frame } from '../../proof/video/ppu-frame.mjs';
 import { hdmaRows } from '../../proof/video/hdma.mjs';
 import { renderFrame } from '../../src/video/frame-renderer.mjs';
@@ -221,7 +221,7 @@ function stateDifferences(snapshot, current) {
 // NMI, the categories that differ and, for the game state, the differing addresses at
 // the next snapshot.
 export function replayScenario(scenario, cartridge, trace = readTrace(scenario.name)) {
-  const game = new LiveGame(cartridge, { ...scenario.options(), video: PICTURE_VIDEO });
+  const game = new LiveGame(cartridge, scenario.options());
   const collector = attach(game, trace);
   const width = CATEGORIES.length,
     snapshots = new Map(trace.snapshots);
