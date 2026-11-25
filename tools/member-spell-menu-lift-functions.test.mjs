@@ -11,7 +11,7 @@
 // flags drawn from the sample's own sequence. WRAM outside the stack, the calls, the
 // return and the registers left must be equal.
 import { DialogTestMemory, prng } from './task-native-dialog-harness.mjs';
-import { createSide, registerCases } from './lift-function-harness.mjs';
+import { createSide, registerCases, useLiftVectors } from './lift-function-harness.mjs';
 import { openWeaponMenu, e693Sequence } from '../proof/replay/native-member-spell-menu.mjs';
 import {
   openSpellMenuSequence,
@@ -27,6 +27,8 @@ import {
   MEMBER_OBJECT,
 } from '../src/data/wram.mjs';
 import { drainNativeSequence } from '../src/system/native-call-continuation.mjs';
+
+useLiftVectors(import.meta.url);
 
 const WRAM_BYTES = 0x20000,
   HEX = 16,

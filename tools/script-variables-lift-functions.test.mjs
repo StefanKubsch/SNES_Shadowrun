@@ -6,7 +6,7 @@
 // (docs/STRATEGY.md, 2026-11-14): WRAM outside the stacks, the device writes and the
 // return (program counter and stack pointer) must be equal.
 import { prng } from './task-native-dialog-harness.mjs';
-import { createSide, registerCases } from './lift-function-harness.mjs';
+import { createSide, registerCases, useLiftVectors } from './lift-function-harness.mjs';
 import {
   getScriptVariableReference,
   keepScriptVariableBitsReference,
@@ -17,6 +17,8 @@ import { getScriptVariable } from '../src/script/native-script-variable-get.mjs'
 import { setScriptVariable } from '../src/script/native-script-variable-set.mjs';
 import { setScriptVariableBits } from '../src/script/native-script-variable-or.mjs';
 import { keepScriptVariableBits } from '../src/script/native-script-variable-and.mjs';
+
+useLiftVectors(import.meta.url);
 
 const WRAM_BYTES = 0x20000,
   HEX = 16,

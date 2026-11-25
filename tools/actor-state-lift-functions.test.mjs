@@ -7,7 +7,7 @@
 // call (data bank 80, direct page 0, the RTS frame). Game state only (docs/STRATEGY.md,
 // 2026-11-14): WRAM outside the stacks, the device writes and the return must be equal.
 import { prng } from './task-native-dialog-harness.mjs';
-import { createSide, registerCases } from './lift-function-harness.mjs';
+import { createSide, registerCases, useLiftVectors } from './lift-function-harness.mjs';
 import {
   getActorStateCountReference,
   getActorStateFlagsReference,
@@ -33,6 +33,8 @@ import { JAKE_STATE_RECORD } from '../src/game/cheats.mjs';
 import { OBJECT_NUMBER } from '../src/data/wram.mjs';
 import { ACTOR_BYTES, ACTOR_RECORD, ACTOR_TABLE, ACTORS } from '../src/data/actors.mjs';
 import { DialogTestMemory } from './task-native-dialog-harness.mjs';
+
+useLiftVectors(import.meta.url);
 
 // The ROM for the property test's wanted word (the state record's pointer).
 const ROM = new DialogTestMemory(new Uint8Array(0x20000));

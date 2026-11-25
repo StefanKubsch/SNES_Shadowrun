@@ -6,11 +6,13 @@
 // leaves registers and flags drawn from the sample's own sequence. WRAM outside the
 // stack, the calls, the return and the registers left must be equal.
 import { prng } from './task-native-dialog-harness.mjs';
-import { createSide, registerCases } from './lift-function-harness.mjs';
+import { createSide, registerCases, useLiftVectors } from './lift-function-harness.mjs';
 import { chooseSpell } from '../proof/replay/native-spell-choice.mjs';
 import { chooseSpellSequence } from '../proof/caller/spell-choice.mjs';
 import { SPELL_LIST } from '../src/data/wram.mjs';
 import { drainNativeSequence } from '../src/system/native-call-continuation.mjs';
+
+useLiftVectors(import.meta.url);
 
 const WRAM_BYTES = 0x20000,
   HEX = 16,

@@ -7,7 +7,7 @@
 import { prng } from './task-native-dialog-harness.mjs';
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { createSide, registerCases } from './lift-function-harness.mjs';
+import { createSide, registerCases, useLiftVectors } from './lift-function-harness.mjs';
 import {
   addTopicReference,
   isTopicKnownReference,
@@ -18,6 +18,8 @@ import { markTopic } from '../src/script/native-topic-mark.mjs';
 import { addTopic } from '../src/script/native-topic-add.mjs';
 import { TOPIC_LIST, TOPIC_FLAGS, TOPIC_MARKED } from '../src/data/wram.mjs';
 import { addTopic as addKnownTopic, markTopic as markKnownTopic } from '../src/game/topic-list.mjs';
+
+useLiftVectors(import.meta.url);
 
 const WRAM_BYTES = 0x20000,
   HEX = 16,

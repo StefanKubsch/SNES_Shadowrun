@@ -6,8 +6,13 @@
 // or stop at the same frontier. Game state only (user, 2026-11-14): registers, flags
 // and stack bytes count only where a callee or caller reads them as an argument or
 // result; stand-ins record their inputs with calleeRecord. Shared by the *-lift-functions tests.
-import test from 'node:test';
+import test, { after } from 'node:test';
 import assert from 'node:assert/strict';
+import { createHash } from 'node:crypto';
+import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs';
+import { gunzipSync, gzipSync } from 'node:zlib';
+import { basename } from 'node:path';
+import { fileURLToPath } from 'node:url';
 import { DialogTestMemory, prng } from './task-native-dialog-harness.mjs';
 import { dialogAccess } from '../src/system/native-dialog-support.mjs';
 import { TaskAccessor } from '../src/vm/task-accessor.mjs';
@@ -34,7 +39,13 @@ const STACK = 0x1c9,
   WORD_BANK_SHIFT = 16,
   LISTED_BYTES = 8,
   HEX = 16,
-  BYTE_BITS = 8;
+  BYTE_BITS = 8,
+  // Frozen vector entries: a flag digit (bit 0 the reference stopped, bit 1 it returned a
+  // result) and the first KEY_DIGITS hex digits of the outcome's hash; 0 marks a sample
+  // beyond the reference budget.
+  STOPPED_FLAG = 1,
+  RESULT_FLAG = 2,
+  KEY_DIGITS = 12;
 
 // One side: a task accessor on its own copy of the sample's WRAM with its device
 // writes recorded. The sound driver echoes the command token on APU port 0; other
@@ -115,7 +126,7 @@ export function differences({ want, got }) {
 // entry), events() (for the reference), lifted(m, input), result(h) (the reference
 // result), samples. side(s) builds a side; runtime(h) the lifted runtime.
 // shake: invert the ignored bytes of the sample first (see readsIgnoredBytes).
-export function compareCase(c, s, { side, runtime, ignored }, shake = false) {
+function caseInput(c, s, ignored, shake) {
   const input = { a: 0, x: 0, y: 0, ...c.prepare?.(s) },
     entryStack = input.s ?? STACK,
     free = [...CPU_STACKS, [Math.max(0, entryStack - FREE_STACK_DEPTH), entryStack + 1]];
@@ -123,6 +134,21 @@ export function compareCase(c, s, { side, runtime, ignored }, shake = false) {
   if (shake)
     for (const [from, to] of ignored)
       for (let at = from; at < to; at++) s.wram[at] ^= BYTE_VALUES - 1;
+  return { input, ignored };
+}
+// The lifted side of a case alone (frozen vectors need no reference).
+export function liftedOutcome(c, s, { side, runtime, ignored }, shake = false) {
+  const prepared = caseInput(c, s, ignored, shake);
+  // The reference side is built first in compareCase; building it here too keeps any
+  // draw a side makes from the sample in the same order.
+  side(s);
+  const lifted = side(s);
+  return outcome(lifted, () => c.lifted(runtime(lifted.h), prepared.input), prepared.ignored);
+}
+export function compareCase(c, s, { side, runtime, ignored }, shake = false) {
+  const prepared = caseInput(c, s, ignored, shake),
+    input = prepared.input;
+  ignored = prepared.ignored;
   const reference = side(s);
   Object.assign(reference.a.ctx, input);
   // The routine runs in its own bank; long routines (RTL) get a long caller frame.
@@ -155,6 +181,48 @@ function readsIgnoredBytes(c, sampleOf, options, got) {
   return differences({ want: got, got: shaken }).length > 0;
 }
 
+// Frozen reference vectors (user decision 2026-11-25): before a register-level reference
+// leaves proof/, its outcome on every sample is kept as a hash in
+// tools/lift-vectors/<test>.json.gz, and the lifted side is compared with that hash. The
+// samples come from their seeds, so a changed sample function needs new vectors (which
+// only the reference can record). LIFT_VECTORS=record runs the references and writes the
+// vectors of every case a test file registers.
+const VECTOR_DIRECTORY = new URL('./lift-vectors/', import.meta.url);
+const recording = process.env.LIFT_VECTORS === 'record';
+let vectorFile = null,
+  vectors = null;
+export function useLiftVectors(testUrl) {
+  vectorFile = new URL(
+    `${basename(fileURLToPath(testUrl)).replace(/.test.mjs$/, '')}.json.gz`,
+    VECTOR_DIRECTORY,
+  );
+  vectors = existsSync(vectorFile) ? JSON.parse(gunzipSync(readFileSync(vectorFile))) : {};
+  if (!recording) return;
+  const file = vectorFile,
+    store = vectors;
+  after(() => {
+    mkdirSync(VECTOR_DIRECTORY, { recursive: true });
+    const sorted = Object.fromEntries(Object.entries(store).sort(([a], [b]) => (a < b ? -1 : 1)));
+    writeFileSync(file, gzipSync(JSON.stringify(sorted)));
+  });
+}
+// The outcome as one key: a stop alone, otherwise the result (where the reference has
+// one), WRAM, SRAM and device writes, as differences() compares them.
+function outcomeKey(o, withResult) {
+  if (o.stop) return `stop:${o.stop}`;
+  const hash = createHash('sha256');
+  if (withResult) hash.update(`result:${String(o.result)};`);
+  hash.update(o.wram);
+  if (o.sram) hash.update(o.sram);
+  hash.update(o.writes.join(';'));
+  return hash.digest('hex').slice(0, KEY_DIGITS);
+}
+const vectorEntry = (want) =>
+  `${(want.stop ? STOPPED_FLAG : 0) | (want.result !== undefined ? RESULT_FLAG : 0)}${outcomeKey(
+    want,
+    want.result !== undefined,
+  )}`;
+
 // Register one test per case. outside: lifted stops that mark a sample outside the
 // lifted domain (counted, at most 10 %, together with differing samples whose lifted
 // outcome depends on free stack bytes); the reference's access budget stop counts as
@@ -163,16 +231,46 @@ export function registerCases(
   cases,
   { sample, side, runtime, ignored, samples = SAMPLES, outside = new Set() },
 ) {
+  const store = vectors;
   for (const c of cases)
     test(`${c.name}: the lifted function matches the reference on random states`, () => {
       let stopped = 0,
         unmeasured = 0,
         beyond = 0;
-      const count = c.samples ?? samples;
+      const count = c.samples ?? samples,
+        frozen = !recording && store?.[c.name],
+        record = recording && store ? (store[c.name] = []) : null;
+      if (frozen) assert.equal(frozen.length, count, 'frozen vectors cover every sample');
       for (let seed = 1; seed <= count; seed++) {
         const sampleOf = () => sample(seed * 7919 + c.entry), // magic-number-ok: a prime that spreads the seeds
-          options = { side, runtime, ignored },
-          pair = compareCase(c, sampleOf(), options);
+          options = { side, runtime, ignored };
+        if (frozen) {
+          const entry = frozen[seed - 1];
+          if (entry === 0) {
+            unmeasured++;
+            continue;
+          }
+          const got = liftedOutcome(c, sampleOf(), options);
+          if (outside.has(got.stop)) {
+            beyond++;
+            continue;
+          }
+          const flags = Number(entry[0]);
+          if (outcomeKey(got, (flags & RESULT_FLAG) !== 0) !== entry.slice(1)) {
+            const shaken = liftedOutcome(c, sampleOf(), options, true);
+            if (differences({ want: got, got: shaken }).length) {
+              beyond++;
+              continue;
+            }
+            assert.fail(
+              `seed ${seed}: the lifted outcome (stop ${got.stop}, result ${got.result}) differs from the frozen reference`,
+            );
+          }
+          if (flags & STOPPED_FLAG) stopped++;
+          continue;
+        }
+        const pair = compareCase(c, sampleOf(), options);
+        record?.push(pair.want.stop === 'native_access_limit' ? 0 : vectorEntry(pair.want));
         // The reference accessor stops after NATIVE_ACCESS_LIMIT accesses, a run time
         // budget, not a game result. Beyond it the reference gives no result.
         if (pair.want.stop === 'native_access_limit') {

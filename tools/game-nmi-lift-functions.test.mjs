@@ -6,7 +6,13 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { prng } from './task-native-dialog-harness.mjs';
-import { compareCase, createSide, differences, registerCases } from './lift-function-harness.mjs';
+import {
+  compareCase,
+  createSide,
+  differences,
+  registerCases,
+  useLiftVectors,
+} from './lift-function-harness.mjs';
 import { GAME_NMI_ROUTINES } from '../proof/replay/main-game-nmi.mjs';
 import { GAME_NMI_LIFTED_ROUTINES } from '../proof/caller/game-nmi-jobs.mjs';
 import { writePortraitTileChannel } from '../src/game/portrait-upload.mjs';
@@ -33,6 +39,8 @@ import {
   TEXT_TILE_UPLOAD,
   TEXT_TILE_UPLOAD_BYTES,
 } from '../src/data/wram.mjs';
+
+useLiftVectors(import.meta.url);
 
 const WRAM_BYTES = 0x20000,
   HEX = 16,

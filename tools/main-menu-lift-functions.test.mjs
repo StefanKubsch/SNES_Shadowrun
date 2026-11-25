@@ -10,11 +10,18 @@
 // from the sample's own sequence. WRAM outside the stacks and the save routine's direct
 // page scratch, SRAM, the calls and the return target must be equal.
 import { prng } from './task-native-dialog-harness.mjs';
-import { calleeRecord, createSide, registerCases } from './lift-function-harness.mjs';
+import {
+  calleeRecord,
+  createSide,
+  registerCases,
+  useLiftVectors,
+} from './lift-function-harness.mjs';
 import { cdd6Sequence, mainMenuRoutineSequence } from '../proof/replay/native-main-menu.mjs';
 import { mainMenuSequence, saveMenuSequence } from '../proof/caller/main-menu.mjs';
 import { TIMER } from '../src/data/wram.mjs';
 import { drainNativeSequence } from '../src/system/native-call-continuation.mjs';
+
+useLiftVectors(import.meta.url);
 
 const WRAM_BYTES = 0x20000,
   SRAM_BYTES = 0x2000,

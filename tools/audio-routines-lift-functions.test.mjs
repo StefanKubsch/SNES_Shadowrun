@@ -7,12 +7,14 @@
 // outside the scratch, the same device writes and the registers their callers may
 // read (A, X, the status flags, the stack pointer and the program counter).
 import { prng, DialogTestMemory } from './task-native-dialog-harness.mjs';
-import { createSide, registerCases } from './lift-function-harness.mjs';
+import { createSide, registerCases, useLiftVectors } from './lift-function-harness.mjs';
 import { MAIN_SCENE_ROUTINES } from '../proof/replay/main-scene.mjs';
 import { withAudioReference } from '../proof/apu-reference/audio-routines.mjs';
 import { sendApuCommandRoutine } from '../proof/caller/audio-routines.mjs';
 import { setMusicModeRoutine } from '../proof/caller/audio-routines.mjs';
 import { playSoundEffectJsr } from '../proof/caller/jsr-forms.mjs';
+
+useLiftVectors(import.meta.url);
 
 const WRAM_BYTES = 0x20000,
   HEX = 16,

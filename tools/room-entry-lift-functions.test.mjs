@@ -14,7 +14,7 @@
 // real streams, the scene load on random scenes (twice their number). Both sides must
 // leave the same WRAM outside the scratch, the same device writes and the same calls.
 import { DialogTestMemory, prng } from './task-native-dialog-harness.mjs';
-import { createSide, registerCases } from './lift-function-harness.mjs';
+import { createSide, registerCases, useLiftVectors } from './lift-function-harness.mjs';
 import { uploadEvents, windowMapSource, windowTables } from './lift-window-samples.mjs';
 import { MAIN_START_ROUTINES } from '../proof/replay/main-start.mjs';
 import { TRANSITION_ROUTINES, enterRoom } from '../proof/replay/main-transition.mjs';
@@ -96,6 +96,8 @@ import {
 } from '../src/data/wram.mjs';
 import { RUNNERS, RUNNER_TABLE } from '../src/data/runners.mjs';
 import { ACTORS, ACTOR_BYTES, ACTOR_TABLE } from '../src/data/actors.mjs';
+
+useLiftVectors(import.meta.url);
 
 const WRAM_BYTES = 0x20000,
   // The cartridge, read through an empty WRAM.

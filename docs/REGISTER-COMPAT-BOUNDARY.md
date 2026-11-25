@@ -57,3 +57,32 @@ does not load them.
 - Recorded branches inside live modules (data bank and status setup for injected
   renderers, the recorded intro ending, attract and script visit frames) remain as
   compatibility code; they no longer pull register modules into the live graph.
+
+## Removal plan (user decisions 2026-11-25)
+
+The user chose to remove the register compatibility code with the proof references
+that still call it, and to keep the coverage of paths the golden traces do not reach
+by freezing the references' outcomes as test vectors.
+
+Measurement before the plan (`npm run golden:coverage -- --json`): 185 proof modules
+and 169 tests import the four register modules, directly or transitively. About half of
+the 89 lift-function and caller tests check src functions that no golden trace reaches,
+mostly script natives (src/script 56 %).
+
+1. Frozen vectors for the lift-function tests (done): `registerCases` in
+   tools/lift-function-harness.mjs keeps, per case and sample, a hash of the
+   reference's outcome (stop, or result, WRAM, SRAM and device writes) in
+   tools/lift-vectors/<test>.json.gz and compares the lifted side with it.
+   `LIFT_VECTORS=record` runs the references and writes the vectors. The samples come
+   from their seeds, so a changed sample function needs new vectors, which only the
+   reference can record: change samples before step 2 or not at all.
+2. Strip the references from those tests and delete the proof modules nobody imports
+   any more.
+3. The same for the caller tests (tools/text-window-caller-harness.mjs,
+   tools/member-menu-caller-harness.mjs) and the remaining hand-written comparisons.
+4. Decouple the product tools and tests that reach proof only for data or helpers:
+   the golden scenarios (through tools/mesen-f390-oracle.mjs and proof/vm/main-loop.mjs),
+   rom-map, extract-tables, extract-texts-de, the editing audits (through
+   proof/system/native-unpack.mjs) and the shared test harnesses.
+5. Delete the register modules, src/system/register-compat.mjs, the recorded branches
+   in live modules and the register path of src/video/video-port.mjs.

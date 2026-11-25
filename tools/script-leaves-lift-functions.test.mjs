@@ -10,7 +10,7 @@
 // same device writes and the same return (program counter and stack pointer).
 import { prng, DialogTestMemory } from './task-native-dialog-harness.mjs';
 import { finishLeaf } from '../src/system/native-leaf-support.mjs';
-import { createSide, registerCases } from './lift-function-harness.mjs';
+import { createSide, registerCases, useLiftVectors } from './lift-function-harness.mjs';
 import { appendToFightListReference } from '../proof/game-reference/fight-list-append.mjs';
 import { panSongLevelToObjectReference } from '../proof/apu-reference/sound-stereo.mjs';
 import { playSoundEffect as playSoundEffectReference } from '../proof/replay/native-audio-compose.mjs';
@@ -45,6 +45,8 @@ import {
   setActorStateHolderNative,
   faceRoomDirectionNative,
 } from '../src/script/native-script-leaves.mjs';
+
+useLiftVectors(import.meta.url);
 
 const WRAM_BYTES = 0x20000,
   HEX = 16,

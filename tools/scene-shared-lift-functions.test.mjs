@@ -7,7 +7,7 @@
 // same WRAM (outside the scratch both may differ in), the same device writes, the same
 // sound commands, the same result, or stop at the same frontier.
 import { DialogTestMemory, prng } from './task-native-dialog-harness.mjs';
-import { createSide, registerCases } from './lift-function-harness.mjs';
+import { createSide, registerCases, useLiftVectors } from './lift-function-harness.mjs';
 import { IGNORED_WRAM } from './live-matrix-plan.mjs';
 import { matrixRuntime, setWord } from '../src/matrix/matrix-runtime.mjs';
 import { randomBelow } from '../src/system/random.mjs';
@@ -21,6 +21,8 @@ import { MAIN_SCENE_ROUTINES } from '../proof/replay/main-scene.mjs';
 import { AUDIO_REFERENCE_ENTRIES } from '../proof/apu-reference/audio-routines.mjs';
 import { MATRIX_COUNT_TEXT } from '../src/data/matrix-text-edits.mjs';
 import { readInput } from '../proof/system/native-input-apu.mjs';
+
+useLiftVectors(import.meta.url);
 
 const WRAM_BYTES = 0x20000,
   MAP_WRAM = 0x10000;

@@ -6,7 +6,7 @@
 // only (docs/STRATEGY.md, 2026-11-14): WRAM outside the stacks, the device writes and the
 // return must be equal.
 import { prng } from './task-native-dialog-harness.mjs';
-import { createSide, registerCases } from './lift-function-harness.mjs';
+import { createSide, registerCases, useLiftVectors } from './lift-function-harness.mjs';
 import {
   getActorKindFlagsReference,
   getActorKindReference,
@@ -20,6 +20,8 @@ import { getActorKind } from '../src/script/native-record-kind-get.mjs';
 import { ACTOR_BYTES, ACTORS } from '../src/data/actors.mjs';
 import { KINDS } from '../src/data/kinds.mjs';
 import { OBJECT_KIND } from '../src/data/wram.mjs';
+
+useLiftVectors(import.meta.url);
 
 const WRAM_BYTES = 0x20000,
   HEX = 16,

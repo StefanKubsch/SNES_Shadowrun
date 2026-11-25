@@ -5,7 +5,7 @@
 // 81:AD92 with the same frame; these tests compare the bodies before it: the WRAM outside
 // the stack, including the direct page values both leave, or the same stop.
 import { prng, DialogTestMemory } from './task-native-dialog-harness.mjs';
-import { createSide, registerCases } from './lift-function-harness.mjs';
+import { createSide, registerCases, useLiftVectors } from './lift-function-harness.mjs';
 import {
   raiseMemberMagicPointsReference,
   raiseStateCountRegisters,
@@ -14,6 +14,8 @@ import {
 import { raiseStateCountBody } from '../proof/replay/native-state-count-raise.mjs';
 import { restoreRunnersBody } from '../proof/replay/native-runners-restore.mjs';
 import { raiseMemberMagicPoints } from '../src/script/native-magic-points-raise.mjs';
+
+useLiftVectors(import.meta.url);
 
 const WRAM_BYTES = 0x20000,
   CODE_BANK = 0x80,

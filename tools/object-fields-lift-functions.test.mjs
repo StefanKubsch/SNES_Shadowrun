@@ -16,7 +16,7 @@
 // return (program counter and stack pointer) must be equal; the script interpreter
 // replaces the registers the natives leave.
 import { prng } from './task-native-dialog-harness.mjs';
-import { createSide, registerCases } from './lift-function-harness.mjs';
+import { createSide, registerCases, useLiftVectors } from './lift-function-harness.mjs';
 import {
   getObjectFlagsReference,
   keepObjectFlagBitsReference,
@@ -99,6 +99,8 @@ import { getObjectFlags } from '../src/script/native-object-flags-get.mjs';
 import { setObjectFlags } from '../src/script/native-object-flags-set.mjs';
 import { setObjectFlagBits } from '../src/script/native-object-flags-or.mjs';
 import { keepObjectFlagBits } from '../src/script/native-object-flags-and.mjs';
+
+useLiftVectors(import.meta.url);
 
 const WRAM_BYTES = 0x20000,
   HEX = 16,

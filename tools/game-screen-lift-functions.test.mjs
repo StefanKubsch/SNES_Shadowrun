@@ -6,10 +6,12 @@
 // must leave the same WRAM outside the scratch, the same device writes and the
 // registers the callers keep (S, PC, data bank, program bank, 16-bit modes).
 import { prng } from './task-native-dialog-harness.mjs';
-import { createSide, registerCases } from './lift-function-harness.mjs';
+import { createSide, registerCases, useLiftVectors } from './lift-function-harness.mjs';
 import { MAIN_INITIALIZE_ROUTINES } from '../proof/system/main-initialize.mjs';
 import { initializeGameScreen } from '../proof/game-reference/game-screen.mjs';
 import { DIALOG_WINDOW, GROUP_INDEX, JAKE_COUNT_MAX } from '../src/data/wram.mjs';
+
+useLiftVectors(import.meta.url);
 
 const WRAM_BYTES = 0x20000,
   HEX = 16,

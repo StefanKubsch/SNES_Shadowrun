@@ -12,7 +12,7 @@
 // Both sides must leave the same WRAM outside the scratch, the same SRAM, device
 // writes and the registers their callers read.
 import { prng } from './task-native-dialog-harness.mjs';
-import { createSide, registerCases } from './lift-function-harness.mjs';
+import { createSide, registerCases, useLiftVectors } from './lift-function-harness.mjs';
 import { uploadEvents, windowMapSource, windowTables } from './lift-window-samples.mjs';
 import { MAIN_START_ROUTINES } from '../proof/replay/main-start.mjs';
 import { GAME_START_REFERENCE_ENTRIES } from '../proof/game-reference/game-start.mjs';
@@ -40,6 +40,8 @@ import {
   TILE_STACK_LAST,
   TILE_STACK_USES,
 } from '../src/data/wram.mjs';
+
+useLiftVectors(import.meta.url);
 
 const WRAM_BYTES = 0x20000,
   HEX = 16,

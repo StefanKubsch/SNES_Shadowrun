@@ -8,6 +8,7 @@ import { drawTextBufferSequence as recordedTextBufferSequence } from '../proof/c
 import { textBufferRenderer } from '../proof/caller/text-renderer.mjs';
 import { printNumberSequence as formerNumberSequence } from '../proof/caller/window-text.mjs';
 import { printTextSequence as formerTextSequence } from '../proof/caller/text-print.mjs';
+
 // Random per-function tests of the main loop's lifted upkeep (src/game/main-upkeep.mjs)
 // against the register-level references (proof/game-reference/main-upkeep.mjs and
 // main-camera.mjs), docs/MAIN-LOOP-LIFT.md: the colour effect 81:8877, the palette
@@ -31,7 +32,7 @@ import { printTextSequence as formerTextSequence } from '../proof/caller/text-pr
 // same WRAM, the same PPU writes and the same X and Y, which a later wait's NMI saves
 // (tools/lift-function-harness.mjs).
 import { prng, DialogTestMemory } from './task-native-dialog-harness.mjs';
-import { createSide, registerCases } from './lift-function-harness.mjs';
+import { createSide, registerCases, useLiftVectors } from './lift-function-harness.mjs';
 import {
   uploadEvents,
   liveWindowEvents,
@@ -196,6 +197,8 @@ import {
   OBJECT_VELOCITY_Z,
   STATIC_NODE_END,
 } from '../src/data/wram.mjs';
+
+useLiftVectors(import.meta.url);
 
 // Recorded poll comparisons retain the former renderer; live caller tests service NMIs.
 function runDrawTextBuffer(h, events) {

@@ -3,16 +3,19 @@
 // directory and module, the functions called at least once. A proof module (and its
 // differential test) may only be retired where the traces reach the same src path.
 //   npm run golden:coverage [-- --modules]   (--modules lists every partly reached module)
+//   --json writes .cache/golden-coverage.json: per loaded module the reached and the
+//   unreached function names.
 // Branches inside a reached function are not counted: reaching a function is the lower
 // bound the retirement check starts from, not the proof of every path.
 import { spawnSync } from 'node:child_process';
-import { mkdtempSync, readdirSync, readFileSync, rmSync } from 'node:fs';
+import { mkdirSync, mkdtempSync, readdirSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join, relative } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 const root = fileURLToPath(new URL('..', import.meta.url)),
   listModules = process.argv.includes('--modules'),
+  writeJson = process.argv.includes('--json'),
   // At most three replays at once (CPU limit of the user's machine).
   CONCURRENCY = 3,
   PERCENT = 100,
@@ -83,6 +86,19 @@ try {
         `modules ${d.modules}, not loaded ${d.unloaded}`,
     );
   if (listModules) for (const line of partly.sort()) console.log(line);
+  if (writeJson) {
+    const report = {};
+    for (const [path, functions] of [...modules].sort()) {
+      const names = (hit) =>
+        [...functions].filter(([, h]) => h === hit).map(([key]) => key.split('@')[0]);
+      report[path] = { reached: names(true), unreached: names(false) };
+    }
+    mkdirSync(join(root, '.cache'), { recursive: true });
+    writeFileSync(
+      join(root, '.cache/golden-coverage.json'),
+      `${JSON.stringify(report, null, 1)}\n`,
+    );
+  }
 } finally {
   rmSync(coverage, { recursive: true, force: true });
 }

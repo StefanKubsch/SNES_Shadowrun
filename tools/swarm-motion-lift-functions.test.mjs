@@ -6,7 +6,7 @@
 // state only (docs/STRATEGY.md, 2026-11-14): WRAM outside the stacks, the device writes
 // and the return must be equal.
 import { prng } from './task-native-dialog-harness.mjs';
-import { createSide, registerCases } from './lift-function-harness.mjs';
+import { createSide, registerCases, useLiftVectors } from './lift-function-harness.mjs';
 import {
   moveSwarmAlongPathReference,
   moveSwarmWaveReference,
@@ -14,6 +14,8 @@ import {
 import { moveSwarmAlongPath } from '../src/script/native-swarm-follow-path.mjs';
 import { moveSwarmWave } from '../src/script/native-swarm-wave.mjs';
 import { SWARM_MEMBERS } from '../src/data/wram.mjs';
+
+useLiftVectors(import.meta.url);
 
 const WRAM_BYTES = 0x20000,
   HEX = 16,

@@ -5,10 +5,12 @@
 // dialog window word and return; WRAM outside the stack, the calls and the return must
 // be equal.
 import { prng } from './task-native-dialog-harness.mjs';
-import { createSide, registerCases } from './lift-function-harness.mjs';
+import { createSide, registerCases, useLiftVectors } from './lift-function-harness.mjs';
 import { releaseGlove } from '../proof/replay/native-glove-release.mjs';
 import { releaseGloveSequence } from '../proof/caller/glove-release.mjs';
 import { drainNativeSequence } from '../src/system/native-call-continuation.mjs';
+
+useLiftVectors(import.meta.url);
 
 const WRAM_BYTES = 0x20000,
   HEX = 16,

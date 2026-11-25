@@ -6,7 +6,7 @@
 // and the registers left must be equal.
 // Actual direct blast and hit composition is compared in blast-hit-caller.test.mjs.
 import { prng } from './task-native-dialog-harness.mjs';
-import { createSide, registerCases } from './lift-function-harness.mjs';
+import { createSide, registerCases, useLiftVectors } from './lift-function-harness.mjs';
 import { hitObjectsInBlast } from '../proof/replay/native-object-hit.mjs';
 import { hitObjectsInBlastSequence } from '../proof/caller/object-blast.mjs';
 import {
@@ -18,6 +18,8 @@ import {
   OBJECT_Y,
 } from '../src/data/wram.mjs';
 import { drainNativeSequence } from '../src/system/native-call-continuation.mjs';
+
+useLiftVectors(import.meta.url);
 
 const WRAM_BYTES = 0x20000,
   HEX = 16,

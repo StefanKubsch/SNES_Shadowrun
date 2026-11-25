@@ -5,7 +5,7 @@
 // (data bank 80, direct page 0, the RTS frame). Game state only (docs/STRATEGY.md,
 // 2026-11-14): WRAM outside the stacks, the device writes and the return must be equal.
 import { prng } from './task-native-dialog-harness.mjs';
-import { createSide, registerCases } from './lift-function-harness.mjs';
+import { createSide, registerCases, useLiftVectors } from './lift-function-harness.mjs';
 import {
   resetSwarmPhasesReference,
   setSwarmHeightPhaseTargetReference,
@@ -20,6 +20,8 @@ import { setSwarmPathSpeedTarget } from '../src/script/native-swarm-path-speed-t
 import { setSwarmHeightSpeedTarget } from '../src/script/native-swarm-height-speed-target.mjs';
 import { resetSwarmPhases } from '../src/script/native-swarm-phases-reset.mjs';
 import { startSwarmOrbit } from '../src/script/native-swarm-orbit-start.mjs';
+
+useLiftVectors(import.meta.url);
 
 const WRAM_BYTES = 0x20000,
   HEX = 16,

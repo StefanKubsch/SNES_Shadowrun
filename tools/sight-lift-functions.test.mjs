@@ -7,7 +7,7 @@
 // bytes (user decision 2026-11-13) and the stack, the same device writes and the same
 // return. The line of sight runs on the same arithmetic unit model on both sides.
 import { prng } from './task-native-dialog-harness.mjs';
-import { createSide, registerCases } from './lift-function-harness.mjs';
+import { createSide, registerCases, useLiftVectors } from './lift-function-harness.mjs';
 import { chooseEnemyTarget as enemyReference } from '../proof/game-reference/enemy-target-choice.mjs';
 import {
   findNearestVisibleMember as nearestReference,
@@ -24,6 +24,8 @@ import { testLineOfSight } from '../proof/replay/line-of-sight.mjs';
 import { leafAccess } from '../proof/system/native-leaf-support.mjs';
 import { lineOfSight } from '../src/game/line-of-sight.mjs';
 import { accessorPort } from '../src/system/hardware-port.mjs';
+
+useLiftVectors(import.meta.url);
 
 const WRAM_BYTES = 0x20000,
   HEX = 16,

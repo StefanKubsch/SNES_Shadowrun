@@ -11,7 +11,7 @@
 // the lifted ones of src/game/portrait-upload.mjs that the game's table binds), with
 // stand-ins for the uploads and the word wait only.
 import { prng } from './task-native-dialog-harness.mjs';
-import { createSide, registerCases } from './lift-function-harness.mjs';
+import { createSide, registerCases, useLiftVectors } from './lift-function-harness.mjs';
 import { e4b3Sequence } from '../proof/replay/native-member-spell-menu.mjs';
 import { memberPortraitSequence } from '../proof/caller/member-portrait.mjs';
 import { MEMBER_PORTRAIT } from '../src/data/wram.mjs';
@@ -19,6 +19,8 @@ import { TALK_ROUTINES } from '../proof/replay/native-dialog.mjs';
 import { unpackPortraitRoutine } from '../proof/caller/portrait-routines.mjs';
 import { drainNativeSequence } from '../src/system/native-call-continuation.mjs';
 import { shiftPortraitRowsJsr } from '../proof/caller/jsr-forms.mjs';
+
+useLiftVectors(import.meta.url);
 
 const WRAM_BYTES = 0x20000,
   HEX = 16,

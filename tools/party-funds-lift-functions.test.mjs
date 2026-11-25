@@ -7,7 +7,7 @@
 // only (docs/STRATEGY.md, 2026-11-14): WRAM outside the stacks, the device writes and the
 // return must be equal.
 import { prng } from './task-native-dialog-harness.mjs';
-import { createSide, registerCases } from './lift-function-harness.mjs';
+import { createSide, registerCases, useLiftVectors } from './lift-function-harness.mjs';
 import {
   addKarmaReference,
   addMagicPointsReference,
@@ -21,6 +21,7 @@ import { addKarma } from '../src/script/native-karma-add.mjs';
 import { addNuyen } from '../src/script/native-nuyen-add.mjs';
 import { addMagicPoints } from '../src/script/native-magic-points-add.mjs';
 import { MEMBER_INDEX, NUYEN, SPELL_LIST } from '../src/data/wram.mjs';
+useLiftVectors(import.meta.url);
 
 const WRAM_BYTES = 0x20000,
   HEX = 16,
