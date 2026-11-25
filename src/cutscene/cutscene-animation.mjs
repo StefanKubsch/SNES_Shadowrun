@@ -27,30 +27,7 @@ import {
   WRAM,
 } from '../data/wram.mjs';
 import {
-  A1B0,
-  A1B5,
-  A1B6,
-  A1T0L,
-  A1T5L,
-  A1T6L,
-  BBAD5,
-  BBAD6,
-  BG2HOFS,
-  BG2VOFS,
-  DAS0L,
-  DMAP0,
-  DMAP5,
-  DMAP6,
-  HDMAEN,
-  MDMAEN,
-  TM,
-  VMADDL,
-  VMAINC,
-  VMDATAL,
-} from '../constants/hardware-registers.mjs';
-import {
-  DMAP_TWO_PORTS,
-  DMAP_WRITE_TWICE,
+  BG_2,
   LAYER_BG1,
   LAYER_BG2,
   LAYER_BG3,
@@ -59,7 +36,6 @@ import {
   OAM_NAME_BYTE,
   TILE_H_FLIP,
   TILE_PRIORITY,
-  VMAINC_INCREMENT_AFTER_HIGH,
 } from '../constants/ppu.mjs';
 import {
   APU_COMMAND_SOUND_VOICES,
@@ -76,8 +52,7 @@ import {
   WORD_SIGN,
 } from '../constants/bits.mjs';
 
-const WRAM_BANK = WRAM >>> WORD_BITS,
-  ANIMATION_BANK = 0x810000;
+const ANIMATION_BANK = 0x810000;
 // Scene buffers in bank 7E: the picture map (also the H-DMA table of channel 6 that
 // scrolls BG2 per line, three bytes an entry), the 32 by 32 text map after it, the
 // credits text and its character map, and the TM H-DMA table of 81:D37D (main
@@ -103,6 +78,9 @@ const SCENE_TM_LINES = SCENE_TM_HDMA + 2,
 const POSITION_SCROLL_SHIFT = 7,
   SCROLL_MIRROR = 0x1ff;
 // H-DMA of BG2HOFS (written twice per line) from bank 7E on channel 6, with 7 or 5 and 7.
+// H-DMA channel 5 sets the main layers per line, channel 6 the BG2 line scroll.
+const TM_CHANNEL = 5,
+  SCROLL_CHANNEL = 6;
 const HDMA_CHANNELS_6_7 = 0xc0,
   HDMA_CHANNELS_5_7 = 0xe0;
 // Line scroll: an 8.8 scroll and its step per line (the position, plus 3F00 for the
@@ -225,10 +203,12 @@ export function fillTextMap(m) {
   setLongWord(mem, SCENE_TM_LINES + 2 + TM_LINE_PAIRS_LAST, 0);
   for (let at = TM_LINE_PAIRS_LAST; at >= 0; at -= 2)
     setLongWord(mem, SCENE_TM_LINES + at, TM_LINE);
-  video.write(A1T5L, SCENE_TM_HDMA & WORD_MASK, 2);
-  video.write(DMAP5, 0, 1);
-  video.write(BBAD5, TM & BYTE_MASK, 1);
-  video.write(A1B5, SCENE_TM_HDMA >>> WORD_BITS, 1);
+  video.transfer(TM_CHANNEL, { to: 'mainLayers', source: SCENE_TM_HDMA }, [
+    'source',
+    'mode',
+    'target',
+    'bank',
+  ]);
 }
 
 // The two sprites of the scene at base (X in the low byte, Y in the high byte) (81:D4E8).
@@ -293,17 +273,18 @@ function lineScrollTerms(wram, bias) {
   return { scroll: (scroll & BYTE_MASK) << BYTE_BITS, step };
 }
 function enableLineScroll(video, channels) {
-  video.write(DMAP6, DMAP_WRITE_TWICE, 1);
-  video.write(BBAD6, BG2HOFS & BYTE_MASK, 1);
-  video.write(A1B6, WRAM_BANK, 1);
-  video.write(HDMAEN, channels, 1);
+  video.transfer(SCROLL_CHANNEL, { to: 'bg2Scroll', source: SCROLL_HDMA }, [
+    'mode',
+    'target',
+    'bank',
+  ]);
+  video.enableHdma(channels);
 }
 // BG2 scrolled up by 8 - speed, and the first H-DMA entry of speed - 6 lines.
 function scrollHead(m) {
   const { mem, wram, video } = m,
     speed = word(wram, DP_SPEED);
-  video.write(BG2VOFS, (HEAD_SCROLL_Y - speed) & BYTE_MASK, 1);
-  video.write(BG2VOFS, 0, 1);
+  video.setVerticalScroll(BG_2, (HEAD_SCROLL_Y - speed) & BYTE_MASK);
   let lines = (speed - HEAD_LINES_OFFSET) & BYTE_MASK;
   if (lines === 0 || lines & 0x80) lines = 1; // magic-number-ok: bit 7, the sign of the 8-bit count
   mem.write8(SCROLL_HDMA, lines);
@@ -331,9 +312,8 @@ function animatePitch(m) {
   m.sound(APU_COMMAND_SOUND_VOICES, PITCH_VOICES);
   m.sound(APU_COMMAND_SOUND_VOLUME, PITCH_SOUND);
   const terms = lineScrollTerms(wram, LINE_STEP_BIAS);
-  video.write(A1T6L, SCROLL_HDMA & WORD_MASK, 2);
-  video.write(BG2VOFS, PITCH_BG2_SCROLL_Y, 1);
-  video.write(BG2VOFS, 0, 1);
+  video.transfer(SCROLL_CHANNEL, { source: SCROLL_HDMA }, ['source']);
+  video.setVerticalScroll(BG_2, PITCH_BG2_SCROLL_Y);
   mem.write8(SCROLL_HDMA, PITCH_TOP_LINES);
   mem.write8(SCROLL_HDMA + 1, terms.scroll >>> BYTE_BITS);
   mem.write8(SCROLL_HDMA + 2, 0);
@@ -355,7 +335,7 @@ function animatePitch(m) {
 function animateLineScroll(m) {
   const { mem, wram, video } = m,
     terms = lineScrollTerms(wram, 0);
-  video.write(A1T6L, SCROLL_HDMA & WORD_MASK, 2);
+  video.transfer(SCROLL_CHANNEL, { source: SCROLL_HDMA }, ['source']);
   scrollHead(m);
   mem.write8(SCROLL_HDMA + HDMA_ENTRY_BYTES + LINE_SCROLL_LAST_ENTRY, 0);
   let scroll = terms.scroll;
@@ -379,8 +359,7 @@ function drawPortrait(m) {
       SCENE_ANIMATION_STEP,
       (readStateByte(wram, SCENE_ANIMATION_STEP) + 1) & BYTE_MASK,
     );
-    video.write(BG2VOFS, readStateByte(wram, SCENE_COUNTER), 1);
-    video.write(BG2VOFS, 0, 1);
+    video.setVerticalScroll(BG_2, readStateByte(wram, SCENE_COUNTER));
   }
   // Three times the offset (the shift's carry included), in 1/256.
   const triple = ((offset << 1) & WORD_MASK) + offset + ((offset >>> (WORD_BITS - 1)) & 1);
@@ -433,16 +412,14 @@ function drawCreditsLine(mem, text, start) {
 function animateCredits(m) {
   const { mem, wram, video } = m;
   setWord(wram, PAD_HELD, 0);
-  video.write(VMADDL, TEXT_MAP_VRAM, 2);
-  // DMAP0 and BBAD0 in one word write.
-  video.write(DMAP0, ((VMDATAL & BYTE_MASK) << BYTE_BITS) | DMAP_TWO_PORTS, 2);
-  video.write(A1T0L, SCENE_TEXT_MAP & WORD_MASK, 2);
-  video.write(DAS0L, MAP_BYTES, 2);
-  video.write(VMAINC, VMAINC_INCREMENT_AFTER_HIGH, 1);
-  video.write(A1B0, WRAM_BANK, 1);
-  video.write(MDMAEN, 1, 1);
+  // The channel mode and target are one 16-bit store.
+  video.transfer(
+    0,
+    { to: 'vram', source: SCENE_TEXT_MAP, bytes: MAP_BYTES, address: TEXT_MAP_VRAM },
+    ['address', 'modeAndTarget', 'source', 'bytes', 'increment', 'bank', 'start'],
+  );
   const scroll = (word(wram, DP_POSITION) >>> POSITION_SCROLL_SHIFT) ^ SCROLL_MIRROR;
-  video.write(A1T6L, SCROLL_HDMA & WORD_MASK, 2);
+  video.transfer(SCROLL_CHANNEL, { source: SCROLL_HDMA }, ['source']);
   scrollHead(m);
   mem.write8(SCROLL_HDMA + HDMA_ENTRY_BYTES, CREDITS_TEXT_LINES);
   setLongWord(mem, SCROLL_HDMA + HDMA_ENTRY_BYTES + 1, (scroll << 1) & WORD_MASK);

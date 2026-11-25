@@ -55,6 +55,7 @@ import {
   W12SEL,
   W34SEL,
   WBGLOG,
+  WH0,
   WOBJLOG,
   WOBJSEL,
   WRIO,
@@ -67,6 +68,7 @@ import {
   DMAP_FIXED_SOURCE,
   DMAP_ONE_PORT,
   DMAP_TWO_PORTS,
+  DMAP_WRITE_TWICE,
   VMAINC_INCREMENT_AFTER_HIGH,
 } from '../constants/ppu.mjs';
 import { BYTE_BITS, BYTE_MASK, WORD_BITS, WORD_MASK } from '../constants/bits.mjs';
@@ -84,10 +86,18 @@ const DMA_CHANNEL_STRIDE = 0x10,
 const channelRegister = (register, channel) => register + channel * DMA_CHANNEL_STRIDE,
   channelBit = (channel) => 1 << channel;
 // The B-bus register of each transfer destination and its channel mode.
-const DMA_TARGETS = { vram: VMDATAL, vramRead: RDVRAML, cgram: CGDATA, oam: OAMDATA },
-  dmaMode = (t) =>
-    (t.to === 'vram' ? DMAP_TWO_PORTS : t.to === 'vramRead' ? DMAP_B_TO_A | DMAP_TWO_PORTS : 0) |
-    (t.fixed ? DMAP_FIXED_SOURCE : 0);
+// H-DMA tables name their per-line target: 'mainLayers' (one TM byte), 'bg2Scroll'
+// (the BG2 horizontal offset, written twice) or 'windowEdges' (WH0 and WH1).
+const DMA_TARGETS = {
+    vram: [VMDATAL, DMAP_TWO_PORTS],
+    vramRead: [RDVRAML, DMAP_B_TO_A | DMAP_TWO_PORTS],
+    cgram: [CGDATA, DMAP_ONE_PORT],
+    oam: [OAMDATA, DMAP_ONE_PORT],
+    mainLayers: [TM, DMAP_ONE_PORT],
+    bg2Scroll: [BG1HOFS + SCROLL_REGISTERS_PER_LAYER, DMAP_WRITE_TWICE],
+    windowEdges: [WH0, DMAP_TWO_PORTS],
+  },
+  dmaMode = (t) => DMA_TARGETS[t.to][1] | (t.fixed ? DMAP_FIXED_SOURCE : 0);
 
 const WRIO_ALL_HIGH = 0xff,
   COLDATA_ALL_ZERO = COLDATA_RED | COLDATA_GREEN | COLDATA_BLUE,
@@ -446,12 +456,12 @@ export class VideoPort {
         this.write(channelRegister(DMAP0, channel), dmaMode(t), 1, site);
         return;
       case 'target':
-        this.write(channelRegister(BBAD0, channel), DMA_TARGETS[t.to] & BYTE_MASK, 1, site);
+        this.write(channelRegister(BBAD0, channel), DMA_TARGETS[t.to][0] & BYTE_MASK, 1, site);
         return;
       case 'modeAndTarget':
         this.write(
           channelRegister(DMAP0, channel),
-          ((DMA_TARGETS[t.to] & BYTE_MASK) << BYTE_BITS) | dmaMode(t),
+          ((DMA_TARGETS[t.to][0] & BYTE_MASK) << BYTE_BITS) | dmaMode(t),
           2,
           site,
         );

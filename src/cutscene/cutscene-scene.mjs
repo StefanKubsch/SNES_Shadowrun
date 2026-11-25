@@ -57,24 +57,8 @@ import {
   WRAM,
 } from '../data/wram.mjs';
 import {
-  A1B7,
-  A1T7L,
-  BBAD7,
-  BG1VOFS,
-  BG2HOFS,
-  DMAP7,
-  HDMAEN,
-  INIDISP,
-  TMW,
-  W12SEL,
-  W34SEL,
-  WBGLOG,
-  WH0,
-  WOBJLOG,
-  WOBJSEL,
-} from '../constants/hardware-registers.mjs';
-import {
-  DMAP_TWO_PORTS,
+  BG_1,
+  BG_2,
   INIDISP_FORCED_BLANK,
   MAX_BRIGHTNESS,
   OAM_BYTES,
@@ -107,6 +91,7 @@ const INTRO_SCENE = 0x14,
   // The scene window: H-DMA channel 7 writes WH0/WH1 from bank 81; window 1 inverted on
   // BG1-BG3 and OBJ, masking the scene layers on the main screen.
   WINDOW_HDMA_BANK = 0x81,
+  WINDOW_CHANNEL = 7,
   HDMA_CHANNEL_7 = 0x80,
   SCENE_WINDOW = WINDOW_1_ENABLE | WINDOW_1_INVERT,
   // Sounds play on voice 0, their set loaded first (bit 15). B or Start ends a scene;
@@ -187,17 +172,19 @@ export function* playCutscene(h, events, scene, argument) {
   yield () => {
     const { wram, video } = m;
     fillTextMap(m);
-    video.write(A1T7L, t.windowHdma(n), 2);
-    video.write(DMAP7, DMAP_TWO_PORTS, 1);
-    video.write(BBAD7, WH0 & BYTE_MASK, 1);
-    video.write(A1B7, WINDOW_HDMA_BANK, 1);
-    video.write(HDMAEN, HDMA_CHANNEL_7, 1);
-    video.write(W12SEL, SCENE_WINDOW | (SCENE_WINDOW << WINDOW_HIGH_LAYER_SHIFT), 1);
-    video.write(W34SEL, SCENE_WINDOW, 1);
-    video.write(WOBJSEL, SCENE_WINDOW, 1);
-    video.write(TMW, SCENE_LAYERS, 1);
-    video.write(WBGLOG, 0, 1);
-    video.write(WOBJLOG, 0, 1);
+    video.transfer(
+      WINDOW_CHANNEL,
+      { to: 'windowEdges', source: (WINDOW_HDMA_BANK << WORD_BITS) | t.windowHdma(n) },
+      ['source', 'mode', 'target', 'bank'],
+    );
+    video.enableHdma(HDMA_CHANNEL_7);
+    video.setWindowAreas(
+      SCENE_WINDOW | (SCENE_WINDOW << WINDOW_HIGH_LAYER_SHIFT),
+      SCENE_WINDOW,
+      SCENE_WINDOW,
+    );
+    video.setMainWindowLayers(SCENE_LAYERS);
+    video.setWindowLogicBytes(0, 0);
     writeStateByte(wram, SCENE_BRIGHTNESS_TARGET, MAX_BRIGHTNESS);
     writeStateByte(wram, SCENE_BRIGHTNESS, 0);
     const mode = t.audioModes(n);
@@ -261,7 +248,7 @@ export function* playCutscene(h, events, scene, argument) {
   yield () => {
     const { wram, video } = m;
     disableNmi(wram, m.port);
-    video.write(HDMAEN, 0, 1);
+    video.enableHdma(0);
     setWord(wram, SOUND_LOADED_SET, 0);
     setWord(wram, SOUND_VOICE_MASK, 0);
     setWord(wram, MUSIC, NO_MUSIC);
@@ -283,10 +270,13 @@ export function updateCutsceneFrame(h) {
   video.copyToOam(WRAM + OAM_SHADOW, OAM_BYTES);
   let scroll = word(wram, DP_POSITION) >>> POSITION_SCROLL_SHIFT;
   if (word(wram, DP_SCENE) & WORD_SIGN) scroll ^= SCROLL_MIRROR;
-  video.write(BG2HOFS, scroll & BYTE_MASK, 1);
-  video.write(BG2HOFS, scroll >>> BYTE_BITS, 1);
-  video.write(BG1VOFS, readStateByte(wram, DP_SCROLL_Y), 1);
-  video.write(BG1VOFS, readStateByte(wram, DP_SCROLL_Y + 1), 1);
+  video.setScrollBytes(BG_2, false, scroll & BYTE_MASK, scroll >>> BYTE_BITS);
+  video.setScrollBytes(
+    BG_1,
+    true,
+    readStateByte(wram, DP_SCROLL_Y),
+    readStateByte(wram, DP_SCROLL_Y + 1),
+  );
   const target = word(wram, DP_TARGET),
     step = word(wram, DP_STEP);
   let speed = word(wram, DP_SPEED);
@@ -301,7 +291,7 @@ export function updateCutsceneFrame(h) {
   setWord(wram, DP_POSITION, (speed + word(wram, DP_POSITION)) & WORD_MASK);
   const brightness = readStateByte(wram, SCENE_BRIGHTNESS),
     goal = readStateByte(wram, SCENE_BRIGHTNESS_TARGET);
-  video.write(INIDISP, brightness === 0 ? INIDISP_FORCED_BLANK : brightness, 1);
+  video.setDisplay(brightness === 0 ? INIDISP_FORCED_BLANK : brightness);
   if (brightness !== goal)
     writeStateByte(wram, SCENE_BRIGHTNESS, (brightness + (brightness > goal ? -1 : 1)) & BYTE_MASK);
   setWord(wram, PAD_HELD, readJoypad(m.port));
