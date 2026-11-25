@@ -343,13 +343,24 @@ for (const n of tables.native_functions)
   seed(0x800000 | parseInt(n.cpu_address.slice(3).replace(':', ''), 16), 0, 0, 0, `native ${n.id}`);
 for (let opcode = 0; opcode <= 0xc2; opcode += 2)
   seed(0x800000 | bytes.readUInt16LE(0x72b4 + opcode), 0, 0, 0, `opcode ${hex(opcode, 2)}`);
-const listings = (await readdir('analysis')).filter((f) => f.endsWith('.asm.txt')).sort();
-for (const file of listings) {
-  for (const m of (await readFile(resolve('analysis', file), 'utf8')).matchAll(
-    /^; Entry \$([0-9A-F]{2}):([0-9A-F]{4}); initial E=([01]) M=([01]) X=([01])/gm,
-  ))
-    seed(parseInt(m[1] + m[2], 16), +m[3], +m[4], +m[5], `analysis/${file}`);
-}
+// Listing entries: tools/rom-map-listing-entries.json holds the entries of every listing as
+// of 2026-11-25, when the ROM source proofs that wrote most of them were retired; a current
+// listing of the same name replaces its frozen entries. Seeds keep the file name order.
+const HEX_RADIX = 16;
+const listingEntries = JSON.parse(
+  await readFile(new URL('./rom-map-listing-entries.json', import.meta.url), 'utf8'),
+);
+for (const file of (await readdir('analysis')).filter((f) => f.endsWith('.asm.txt')))
+  listingEntries[file] = [
+    ...(await readFile(resolve('analysis', file), 'utf8')).matchAll(
+      /^; Entry \$(?<bank>[0-9A-F]{2}):(?<address>[0-9A-F]{4}); initial E=(?<e>[01]) M=(?<m>[01]) X=(?<x>[01])/gm,
+    ),
+  ].map(({ groups: g }) => `${g.bank}:${g.address} ${g.e}${g.m}${g.x}`);
+for (const file of Object.keys(listingEntries).sort())
+  for (const entry of listingEntries[file]) {
+    const [label, [e, m, x]] = entry.split(' ');
+    seed(parseInt(label.replace(':', ''), HEX_RADIX), +e, +m, +x, `analysis/${file}`);
+  }
 for (const [offset, state] of observedState)
   seeds.push({ cpu: cpuOf(offset), state: { ...state }, php: [], source: 'observed' });
 
@@ -980,7 +991,7 @@ const report = {
     addresses_with_several_states: observedMulti,
     scenarios: observed.scenarios,
   },
-  static_seeds: { total: seeds.length, listings: listings.length },
+  static_seeds: { total: seeds.length, listings: Object.keys(listingEntries).length },
   counts,
   call_return_assumptions: callReturns,
   observed_state_corrections: corrected,

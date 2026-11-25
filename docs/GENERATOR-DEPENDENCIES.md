@@ -553,7 +553,7 @@ I/O, exactly the C1CA report fields these analyzers used: the WORD-decoded
 `interpreterF378` (80:F378 to 80:F393) and `runC1F9` (80:C1F9 to 80:C242)
 window descriptors, the 257-byte opcode WORD source at 80:F2B4 and all 256
 byte-opcode targets with their classifications. Its results are computed
-as in [analyze-render-c1ca.mjs](../tools/analyze-render-c1ca.mjs).
+as in analyze-render-c1ca.mjs (removed).
 
 Sixteen analyzers call it directly; the five control-flow analyzers (jump,
 zero and nonzero jumps, local call and local return) use it through
@@ -563,7 +563,7 @@ as provenance. The C1CA analyzer still verifies all task opcode reports,
 and its open frontier, unresolved dynamic boundaries, false native-binding
 flags and null stack minimum are unchanged.
 
-[task-interpreter-source.test.mjs](../tools/task-interpreter-source.test.mjs)
+task-interpreter-source.test.mjs (removed)
 compares the shared fields with the retained C1CA report, checks that a
 mutated result cannot change the next one and rejects changed bytes in the
 opcode table and both windows. It runs all twenty-one analyzers with reads

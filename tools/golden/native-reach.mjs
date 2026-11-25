@@ -1,8 +1,8 @@
 // Which script native targets the golden traces reach (docs/STATE-MODEL-REBUILD.md,
 // "Golden traces"): replays every scenario with a hook on GameLoop.onNative and writes
 // tools/golden/native-reach.json (per scenario the 24-bit targets and their call counts).
-// A native's source proof may only be retired (tools/retired-native-proofs.mjs) when a
-// trace reaches it; tools/retired-native-proofs.test.mjs checks that against this file.
+// It shows which natives still lack a golden trace (the native ROM source proofs that
+// once used it are retired).
 //   node tools/golden/native-reach.mjs   (about nine minutes; rerun after a new scenario)
 import { writeFileSync } from 'node:fs';
 import { resolve } from 'node:path';

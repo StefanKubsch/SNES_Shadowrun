@@ -279,7 +279,7 @@ continuations (see below). FAAC/FD80, the random helpers and C46E stay
 synchronous segments.
 
 The source contracts are unchanged the pinned graphs
-[fec1Windows](../tools/task-native-fec1-source.mjs),
+fec1Windows (task-native-fec1-source.mjs, removed),
 [textComposeWindows](../tools/task-native-text-compose-source.mjs),
 [taskNativeRenderSpec](../tools/task-native-render-spec.mjs) and
 [mainCameraSpecs](../tools/main-loop-camera-source.mjs). The same bound adapters

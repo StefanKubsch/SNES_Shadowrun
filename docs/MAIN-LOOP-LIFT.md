@@ -175,7 +175,7 @@ It is a lookup aid, not a hand-maintained block-test selection:
 - main-boot-connected.test.mjs (removed)
 - script-native-lift.test.mjs (removed)
 - [text-caller.test.mjs](../tools/text-caller.test.mjs)
-- [task-native-dialog.test.mjs](../tools/task-native-dialog.test.mjs)
+- task-native-dialog.test.mjs (removed)
 - mesen-live-room.test.mjs (removed)
 - [script-leaves-lift-functions.test.mjs](../tools/script-leaves-lift-functions.test.mjs)
 - [object-fields-lift-functions.test.mjs](../tools/object-fields-lift-functions.test.mjs)
