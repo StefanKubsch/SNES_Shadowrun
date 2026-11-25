@@ -5,6 +5,7 @@ import {decodeScript,encodeScript} from '../src/script/codec.mjs';
 import {scriptBodySpecs,scriptBodyNativeSources} from '../proof/task/script-body-specs.mjs';
 import {taskOpcodeSpecs} from './task-opcode-specs.mjs';
 import {nativeOpcodeSpecs} from './task-native-opcode-specs.mjs';
+import {RETIRED_NATIVE_PROOFS} from './retired-native-proofs.mjs';
 import {proveOpcodeBinding} from './task-opcode-source.mjs';
 import {proveNativeOpcode} from './task-native-opcode-source.mjs';
 import {proveNativeWaitSources} from './task-native-wait-source.mjs';
@@ -85,6 +86,13 @@ export async function proveScriptBodyDependencies(bytes){
    natives.push({...p,admitted_targets:[{id:0x9F,target:'80:C401',anchors:p.anchors,windows:wait.windows.filter(w=>w.entry==='80:C401')}],
     parts:[...p.parts,{source_contract:'analysis/render-task-native-wait.json',windows:wait.windows,proof:wait.proofs[2]}]});
    continue;
+  }
+  // A retired native (tools/retired-native-proofs.mjs) keeps its pinned table anchors, checked
+  // against the ROM here; its behaviour reference is the golden traces, not a source proof.
+  if(!s&&fixed&&RETIRED_NATIVE_PROOFS.has(fixed.target)){
+   for(const a of fixed.anchors)if(!equal([...bytes.subarray(cpuToOffset(a.address,bytes.length),cpuToOffset(a.address,bytes.length)+a.bytes.length)],a.bytes))throw Error('Retired body native anchor drift');
+   natives.push({reference:'golden-traces',parts:[],admitted_targets:[{id,target:cpuLabel(fixed.target),windows:[],
+    anchors:fixed.anchors.map(a=>({entry:cpuLabel(a.address),machine_bytes:Buffer.from(a.bytes).toString('hex').toUpperCase()}))}]});continue;
   }
   if(!s||!fixed||fixed.target!==s.entry||!equal(fixed.anchors,s.anchors.map(a=>({address:a.start,bytes:a.hex.match(/../g).map(v=>parseInt(v,16))}))))throw Error('Unproved body native');
   natives.push(await proveNativeOpcode(bytes,s));}

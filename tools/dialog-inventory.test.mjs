@@ -494,7 +494,7 @@ test('936C planning inventory pins original direct callsites without promoting s
   assert.deepEqual(report.roots.find(r=>r.entry==='80:F420').boundaries,[{at:'80:F390',reason:'indirect jump'}]);
   assert.deepEqual(report.roots.find(r=>r.entry==='80:F509').boundaries,[{at:'80:F50F',reason:'unproved TCD'}]);
   assert.deepEqual(report.roots.find(r=>r.entry==='80:F52F').boundaries,[{at:'80:F52F',reason:'indirect jump'}]);
-  for(const entry of ['80:8EF5','80:8AF1','80:C6F3','80:D18A','80:E24E','80:CA20','80:C79C','80:8B08','80:C7C2','80:CA0D','80:C9F1','80:9DAE','80:A941','80:A949','80:A951','80:D0D3','80:D13E','80:A959'])assert.deepEqual(report.roots.find(r=>r.entry===entry).boundaries,[]);
+  for(const entry of ['80:8AF1','80:C6F3','80:C79C','80:8B08','80:CA0D','80:C9F1','80:A941','80:A949','80:A951','80:D0D3'])assert.deepEqual(report.roots.find(r=>r.entry===entry).boundaries,[]);
 });
 test('936C planning stops at unknown PLP and never invents its continuation width',()=>{
   const rom=Buffer.from(bytes),offset=cpuToOffset(0x808F3A,rom.length);rom[offset]=0x28;
