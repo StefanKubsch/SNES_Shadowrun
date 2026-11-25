@@ -65,25 +65,9 @@ import {
   NMI_SAVED_STACK,
   WRAM,
 } from '../data/wram.mjs';
-import {
-  A1B0,
-  A1T0L,
-  APUIO2,
-  BBAD0,
-  CGADD,
-  CGDATA,
-  DAS0L,
-  DMAP0,
-  MDMAEN,
-  OBJSEL,
-  TM,
-  VMADDL,
-  VMAINC,
-  VMDATAL,
-} from '../constants/hardware-registers.mjs';
+import { APUIO2 } from '../constants/hardware-registers.mjs';
 import {
   COLOUR_MASK,
-  DMAP_TWO_PORTS,
   LAYER_BG1,
   LAYER_BG2,
   LAYER_BG3,
@@ -91,7 +75,6 @@ import {
   OAM_BYTES,
   TILE_PALETTE_STEP,
   TILE_PRIORITY,
-  VMAINC_INCREMENT_AFTER_HIGH,
 } from '../constants/ppu.mjs';
 import {
   APU_COMMAND_SOUND_VOICES,
@@ -116,7 +99,6 @@ import {
 } from '../constants/cpu-flags.mjs';
 
 const LONG_MASK = 0xffffff,
-  WRAM_BANK = WRAM >>> WORD_BITS,
   FRONTEND_BANK = 0x81;
 // Menu texts of bank 81 (src/data/menu-texts.mjs).
 const TEXT_COPYRIGHT = 0x81d582,
@@ -171,6 +153,8 @@ const SONG_START_MENU = 2,
   TITLE_FADE_COLOURS = TITLE_PALETTE + 0x20,
   TITLE_FADE_BYTES = 0x60,
   WRAM_HIGH_BANK = 0x7f,
+  // The title stripes lie in bank 7F.
+  STRIPE_SOURCE_BANK = WRAM_HIGH_BANK << WORD_BITS,
   LARGE_FRAMES_PACKED = 0x87d71a,
   SMALL_FRAMES_PACKED = 0x84f9e8,
   LARGE_FRAME_GRAPHICS = 0x0018,
@@ -239,8 +223,7 @@ const ANIMATIONS = 4,
   ],
   LARGE_STRIPE_STEP = 0x400,
   TITLE_STRIPES = 10,
-  TITLE_STRIPE_BYTES = 0x80,
-  DMA_CHANNEL_0 = 1;
+  TITLE_STRIPE_BYTES = 0x80;
 
 const word = (wram, at) => readStateByte(wram, at) | (readStateByte(wram, at + 1) << BYTE_BITS);
 const setWord = (wram, at, value) => {
@@ -308,14 +291,11 @@ export function clearMenuTilemap(mem) {
 }
 // The menu tilemap to VRAM (81:D59E).
 function sendMenuTilemap(video) {
-  video.write(VMAINC, VMAINC_INCREMENT_AFTER_HIGH, 1);
-  video.write(DMAP0, DMAP_TWO_PORTS, 1);
-  video.write(BBAD0, VMDATAL & BYTE_MASK, 1);
-  video.write(A1T0L, MENU_TILEMAP & WORD_MASK, 2);
-  video.write(A1B0, WRAM_BANK, 1);
-  video.write(DAS0L, MENU_TILEMAP_BYTES, 2);
-  video.write(VMADDL, MENU_TILEMAP_VRAM, 2);
-  video.write(MDMAEN, DMA_CHANNEL_0, 1);
+  video.transfer(
+    0,
+    { to: 'vram', source: MENU_TILEMAP, bytes: MENU_TILEMAP_BYTES, address: MENU_TILEMAP_VRAM },
+    ['increment', 'mode', 'target', 'source', 'bank', 'bytes', 'address', 'start'],
+  );
 }
 // The tilemap offset of the menu row of cursor plus base: the original swaps the
 // bytes and halves, adding the shifted-out bit as the carry.
@@ -494,24 +474,29 @@ export function updateStartMenuFrame(h, carry) {
     t = menuTables(mem);
   video.copyToOam(WRAM + OAM_SHADOW, OAM_BYTES);
   sendMenuTilemap(video);
-  video.write(CGADD, 0, 1);
-  video.write(DMAP0, 0, 1);
-  video.write(BBAD0, CGDATA & BYTE_MASK, 1);
-  video.write(A1T0L, TITLE_PALETTE & WORD_MASK, 2);
-  video.write(A1B0, WRAM_BANK, 1);
-  video.write(DAS0L, TITLE_PALETTE_BYTES, 2);
-  video.write(MDMAEN, DMA_CHANNEL_0, 1);
+  video.transfer(
+    0,
+    { to: 'cgram', address: 0, source: TITLE_PALETTE, bytes: TITLE_PALETTE_BYTES },
+    ['address', 'mode', 'target', 'source', 'bank', 'bytes', 'start'],
+  );
   if (word(wram, FRONTEND_FRAME_COUNTER) !== 0) {
-    video.write(VMAINC, VMAINC_INCREMENT_AFTER_HIGH, 1);
-    video.write(DMAP0, DMAP_TWO_PORTS, 1);
-    video.write(A1B0, WRAM_HIGH_BANK, 1);
-    video.write(BBAD0, VMDATAL & BYTE_MASK, 1);
-    for (let n = TITLE_STRIPES - 1; n >= 0; n--) {
-      video.write(A1T0L, readLongWord(mem, TITLE_STRIPE_SOURCES + n * 2), 2);
-      video.write(DAS0L, TITLE_STRIPE_BYTES, 2);
-      video.write(VMADDL, t.stripeVram(n), 2);
-      video.write(MDMAEN, DMA_CHANNEL_0, 1);
-    }
+    video.transfer(0, { to: 'vram', source: STRIPE_SOURCE_BANK }, [
+      'increment',
+      'mode',
+      'bank',
+      'target',
+    ]);
+    for (let n = TITLE_STRIPES - 1; n >= 0; n--)
+      video.transfer(
+        0,
+        {
+          to: 'vram',
+          source: readLongWord(mem, TITLE_STRIPE_SOURCES + n * 2),
+          bytes: TITLE_STRIPE_BYTES,
+          address: t.stripeVram(n),
+        },
+        ['source', 'bytes', 'address', 'start'],
+      );
     if ((word(wram, FRONTEND_FRAME_COUNTER) & ANIMATION_PERIOD_MASK) === 0) {
       for (let n = ANIMATIONS - 1; n >= 0; n--) {
         const at = TITLE_ANIMATION_FRAMES + n * 2,
@@ -567,8 +552,8 @@ function showTitleObjects(m) {
   for (let n = 0; n < ANIMATIONS; n++) setWord(wram, TITLE_ANIMATION_FRAMES + n * 2, 0);
   for (const n of TITLE_START_SOUNDS) m.sound(APU_COMMAND_SOUND_VOLUME, t.sounds(n));
   setAnimationSources(mem);
-  video.write(OBJSEL, TITLE_OBJSEL, 1);
-  video.write(TM, TITLE_LAYERS | LAYER_OBJ, 1);
+  video.setObjectSelectByte(TITLE_OBJSEL);
+  video.setMainLayers(TITLE_LAYERS | LAYER_OBJ);
   // An 8-bit INC: only the low byte of the frame counter counts.
   writeStateByte(
     wram,
@@ -803,7 +788,7 @@ export function* chooseStartGame(h, events, routines, afterTitle) {
             (((step - TITLE_FADE_TAIL_STEP) & WORD_INDEX_MASK) ^ TITLE_GRADIENT_TAIL_BYTES) - 2,
             word(wram, DP_TITLE_BASE_COLOUR),
           );
-        m.video.write(TM, TITLE_LAYERS, 1);
+        m.video.setMainLayers(TITLE_LAYERS);
       };
     }
     yield* wait();

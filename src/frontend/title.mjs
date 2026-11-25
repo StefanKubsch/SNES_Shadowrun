@@ -49,44 +49,17 @@ import {
   VRAM_SLOT_COUNT,
   WRAM,
 } from '../data/wram.mjs';
+import { APUIO2, STAT77, STAT78_PAL } from '../constants/hardware-registers.mjs';
 import {
-  A1B0,
-  A1T0L,
-  APUIO2,
-  BBAD0,
-  BG12NBA,
-  BG1HOFS,
-  BG1VOFS,
-  BG2HOFS,
-  BG2VOFS,
-  BG3HOFS,
-  BG3VOFS,
-  CGADD,
-  CGADSUB,
-  CGDATA,
-  CGSWSEL,
-  DAS0L,
-  DMAP0,
-  HDMAEN,
-  MDMAEN,
-  STAT77,
-  STAT78_PAL,
-  TM,
-  TS,
-  VMADDL,
-  VMAINC,
-  VMDATAL,
-} from '../constants/hardware-registers.mjs';
-import {
+  BG_1,
+  BG_2,
+  BG_3,
   CGADSUB_HALF,
   CGSWSEL_SUB_SCREEN,
-  DMAP_ONE_PORT,
-  DMAP_TWO_PORTS,
   LAYER_BG1,
   LAYER_BG2,
   OAM_BYTES,
   TILE_FLIP_BITS,
-  VMAINC_INCREMENT_AFTER_HIGH,
 } from '../constants/ppu.mjs';
 import {
   APU_COMMAND_VOLUME,
@@ -109,7 +82,8 @@ import {
 } from '../constants/cpu-flags.mjs';
 
 const LONG_MASK = 0xffffff,
-  WRAM_BANK = WRAM >>> WORD_BITS;
+  // Sources in bank 7E given by their address word.
+  WRAM_SOURCE = (WRAM >>> WORD_BITS) << WORD_BITS;
 // The prologue: font and text (packed in bank 81) into bank 7E, its scene list, 980
 // frames; after 120 frames the title song starts at volume 0 and fades in. The text
 // scrolls one line every three frames; every eight lines a new text line is centred
@@ -186,13 +160,11 @@ const PICTURE_LAYERS = LAYER_BG1 | LAYER_BG2,
 // to VRAM at the positions of their upload tables (three words: position, source in
 // bank 7E, VRAM word).
 const PROLOGUE_TILEMAP_VRAM = 0x1000,
-  VRAM_WORD_DMA = ((VMDATAL & BYTE_MASK) << BYTE_BITS) | DMAP_TWO_PORTS,
   PAN_ACCELERATION = 0x7d0,
   UPLOAD_ENTRY_WORDS = 3,
   UPLOAD_BYTES = 0x800,
   BG2_SCROLL_END = 0x78,
-  SCROLL_FIRST_COLOUR = 0x10,
-  DMA_CHANNEL_0 = 1;
+  SCROLL_FIRST_COLOUR = 0x10;
 
 const word = (wram, at) => readStateByte(wram, at) | (readStateByte(wram, at + 1) << BYTE_BITS);
 const setWord = (wram, at, value) => {
@@ -204,10 +176,6 @@ const readLongWord = (mem, at) =>
 const writeLongWord = (mem, at, value) => {
   mem.write8(at & LONG_MASK, value & BYTE_MASK);
   mem.write8((at + 1) & LONG_MASK, (value >>> BYTE_BITS) & BYTE_MASK);
-};
-const writeHalves = (video, register, value) => {
-  video.write(register, value & BYTE_MASK, 1);
-  video.write(register, (value >>> BYTE_BITS) & BYTE_MASK, 1);
 };
 
 // The title tables of bank 81 by name (src/data/tables.mjs).
@@ -291,10 +259,9 @@ export function fadeTitleBlend(m, step) {
 }
 // Show the title picture (81:D927).
 function showTitlePicture(video) {
-  video.write(TM, PICTURE_LAYERS, 1);
-  video.write(BG12NBA, PICTURE_CHARACTERS, 1);
-  video.write(BG2VOFS, BG2_VIEWS[0], 1);
-  video.write(BG2VOFS, 0, 1);
+  video.setMainLayers(PICTURE_LAYERS);
+  video.setCharacterBases(BG_1, PICTURE_CHARACTERS);
+  video.setVerticalScroll(BG_2, BG2_VIEWS[0]);
 }
 
 // 81:DD54: the NMI callback of the prologue: the text tilemap to VRAM, the BG3
@@ -307,26 +274,24 @@ export function handlePrologueNmi(h) {
 // Frame jobs return directly; the compatibility entry above owns the original RTL.
 export function updatePrologueFrame(h) {
   const { wram, video, port } = sceneRuntime(h);
-  video.write(VMADDL, PROLOGUE_TILEMAP_VRAM, 2);
-  video.write(DMAP0, VRAM_WORD_DMA, 2);
-  video.write(A1T0L, PROLOGUE_TILEMAP & WORD_MASK, 2);
-  video.write(DAS0L, PROLOGUE_TILEMAP_BYTES, 2);
-  writeHalves(video, BG3VOFS, word(wram, DP_PROLOGUE_SCROLL));
-  video.write(VMAINC, VMAINC_INCREMENT_AFTER_HIGH, 1);
-  video.write(A1B0, WRAM_BANK, 1);
-  video.write(MDMAEN, DMA_CHANNEL_0, 1);
+  const tilemap = {
+    to: 'vram',
+    source: PROLOGUE_TILEMAP,
+    bytes: PROLOGUE_TILEMAP_BYTES,
+    address: PROLOGUE_TILEMAP_VRAM,
+  };
+  video.transfer(0, tilemap, ['address', 'modeAndTarget', 'source', 'bytes']);
+  video.setVerticalScroll(BG_3, word(wram, DP_PROLOGUE_SCROLL));
+  video.transfer(0, tilemap, ['increment', 'bank', 'start']);
   setWord(wram, PAD_HELD, readJoypad(port));
 }
 // An 800 byte map from source in bank 7E to the VRAM word vram, by DMA on channel 0.
 function sendMap(video, source, vram) {
-  video.write(VMAINC, VMAINC_INCREMENT_AFTER_HIGH, 1);
-  video.write(DMAP0, DMAP_TWO_PORTS, 1);
-  video.write(BBAD0, VMDATAL & BYTE_MASK, 1);
-  video.write(A1T0L, source, 2);
-  video.write(A1B0, WRAM_BANK, 1);
-  video.write(DAS0L, UPLOAD_BYTES, 2);
-  video.write(VMADDL, vram, 2);
-  video.write(MDMAEN, DMA_CHANNEL_0, 1);
+  video.transfer(
+    0,
+    { to: 'vram', source: WRAM_SOURCE | source, bytes: UPLOAD_BYTES, address: vram },
+    ['increment', 'mode', 'target', 'source', 'bank', 'bytes', 'address', 'start'],
+  );
 }
 // 81:DAD6: the NMI callback of the title's first frames: the OAM buffer, then the
 // objects (81:D9D5).
@@ -362,9 +327,9 @@ export function updateTitlePanFrame(h) {
     setWord(wram, DP_TITLE_SPEED_TARGET, fraction);
     const next = (position + (fraction > WORD_MASK ? 1 : 0)) & WORD_MASK;
     setWord(wram, DP_TITLE_POSITION, next);
-    writeHalves(video, BG1HOFS, position);
-    writeHalves(video, BG2HOFS, position >>> QUARTER_SHIFT);
-    writeHalves(video, BG3HOFS, position >>> EIGHTH_SHIFT);
+    video.setHorizontalScroll(BG_1, position);
+    video.setHorizontalScroll(BG_2, position >>> QUARTER_SHIFT);
+    video.setHorizontalScroll(BG_3, position >>> EIGHTH_SHIFT);
     const t = titleTables(m.mem);
     for (let n = 0; !(t.panUploads(n) & WORD_SIGN); n += UPLOAD_ENTRY_WORDS)
       if (t.panUploads(n) === next) {
@@ -395,17 +360,20 @@ export function updateTitleScrollFrame(h) {
   }
   const position = (word(wram, DP_TITLE_POSITION) + (speed >>> 2)) & WORD_MASK;
   setWord(wram, DP_TITLE_POSITION, position);
-  writeHalves(video, BG1VOFS, position >>> QUARTER_SHIFT);
+  video.setVerticalScroll(BG_1, position >>> QUARTER_SHIFT);
   if (position >>> EIGHTH_SHIFT < BG2_SCROLL_END)
-    writeHalves(video, BG2VOFS, position >>> EIGHTH_SHIFT);
+    video.setVerticalScroll(BG_2, position >>> EIGHTH_SHIFT);
   else {
-    video.write(CGADD, SCROLL_FIRST_COLOUR, 1);
-    video.write(DMAP0, DMAP_ONE_PORT, 1);
-    video.write(BBAD0, CGDATA & BYTE_MASK, 1);
-    video.write(A1T0L, TITLE_PALETTE & WORD_MASK, 2);
-    video.write(A1B0, WRAM_BANK, 1);
-    video.write(DAS0L, TITLE_SCROLL_COLOURS_BYTES, 2);
-    video.write(MDMAEN, DMA_CHANNEL_0, 1);
+    video.transfer(
+      0,
+      {
+        to: 'cgram',
+        address: SCROLL_FIRST_COLOUR,
+        source: TITLE_PALETTE,
+        bytes: TITLE_SCROLL_COLOURS_BYTES,
+      },
+      ['address', 'mode', 'target', 'source', 'bank', 'bytes', 'start'],
+    );
   }
   const t = titleTables(m.mem),
     upload = word(wram, DP_TITLE_UPLOAD);
@@ -471,10 +439,10 @@ export function* playTitle(h, events, routines) {
   // The blend of a view (81:D87C): true if a held button ended it.
   const blend = function* () {
     yield () => {
-      m.video.write(TM, LAYER_BG1, 1);
-      m.video.write(TS, LAYER_BG2, 1);
-      m.video.write(CGSWSEL, CGSWSEL_SUB_SCREEN, 1);
-      m.video.write(CGADSUB, BLEND_MATH, 1);
+      m.video.setMainLayers(LAYER_BG1);
+      m.video.setSubLayers(LAYER_BG2);
+      m.video.setColourSelect(CGSWSEL_SUB_SCREEN);
+      m.video.setColourMathLayers(BLEND_MATH);
     };
     if (ctx) ctx.bank = TITLE_DATA_BANK;
     for (let step = BLEND_FADE_FIRST; step !== BLEND_FADE_END; step++) {
@@ -492,8 +460,8 @@ export function* playTitle(h, events, routines) {
       if (held()) return true;
     }
     yield () => {
-      m.video.write(TM, LAYER_BG1, 1);
-      m.video.write(TS, 0, 1);
+      m.video.setMainLayers(LAYER_BG1);
+      m.video.setSubLayers(0);
     };
     return false;
   };
@@ -505,7 +473,8 @@ export function* playTitle(h, events, routines) {
     yield () => {
       disableNmi(m.wram, m.port);
       // The held button's exit writes the word 0 to HDMAEN and 420D.
-      m.video.write(HDMAEN, 0, key ? 2 : 1);
+      if (key) m.video.enableHdmaWord(0);
+      else m.video.enableHdma(0);
     };
     if (!key) yield* beat(BEAT_AT_END);
     yield () => {
@@ -562,7 +531,7 @@ export function* playTitle(h, events, routines) {
     if (held()) return yield* finish(true);
     if (position() >= TITLE_BG1_ONLY) break;
   }
-  yield () => m.video.write(TM, LAYER_BG1, 1);
+  yield () => m.video.setMainLayers(LAYER_BG1);
   for (;;) {
     yield* wait();
     yield* input();
@@ -577,10 +546,7 @@ export function* playTitle(h, events, routines) {
     [BG2_VIEWS[1], BEAT_VIEW_2],
     [BG2_VIEWS[2], BEAT_VIEW_3],
   ]) {
-    yield () => {
-      m.video.write(BG2VOFS, view, 1);
-      m.video.write(BG2VOFS, 0, 1);
-    };
+    yield () => m.video.setVerticalScroll(BG_2, view);
     yield* beat(site);
     if ((yield* blend()) || held()) return yield* finish(true);
   }
