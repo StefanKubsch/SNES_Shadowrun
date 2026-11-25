@@ -1,8 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import {readFile, readdir, access} from 'node:fs/promises';
+import {readFile, access} from 'node:fs/promises';
 import {buildInventory, releaseGenerators, classifyProducerGaps} from './generator-dependencies.mjs';
-import {scriptOpcodeOutputPlan, scriptOpcodeOutputDeclarations} from './script-opcode-outputs.mjs';
 
 const generators = (...names) => names.map(name => [name, `node tools/${name}.mjs`]);
 const record = (key, inputs, outputs) => [key, {key,
@@ -69,7 +68,7 @@ test('The inventory follows release generator selection and keeps planning comma
     'plan:dialog': 'node tools/dialog.mjs', 'decode:scripts': 'node tools/scripts.mjs'});
   assert.deepEqual(selected.map(([name]) => name), ['analyze:render-a', 'analyze:vm-coverage', 'plan:dialog', 'docs:progress']);
   assert.throws(() => releaseGenerators({}), /No render generators/);
-  assert.throws(() => releaseGenerators({'analyze:render-a': 'node tools/a.mjs'}), /Missing generator/);
+  assert.deepEqual(releaseGenerators({'analyze:render-a': 'node tools/a.mjs'}).map(([name]) => name), ['analyze:render-a']);
 });
 
 test('Intended ownership explains skipped writes without changing observations or cache records', () => {
@@ -111,27 +110,6 @@ test('Output declarations reject changed commands, unknown owners and duplicate 
   }
 });
 
-test('Script52 definitions cover every retained report, including the generic and continuation contracts', async () => {
-  const specs = JSON.parse(await readFile(new URL('./script-opcode-specs.json', import.meta.url), 'utf8'));
-  const {scripts} = JSON.parse(await readFile(new URL('../package.json', import.meta.url), 'utf8'));
-  const declarations = scriptOpcodeOutputDeclarations(specs);
-  const actual = (await readdir(new URL('../analysis/', import.meta.url)))
-    .filter(path => /^render-task-script-(?:opcode(?:-[0-9a-f]{3})?|continuation)(?:-native)?\.json$/.test(path))
-    .map(path => 'analysis/' + path).sort();
-  const declared = declarations.flatMap(declaration => declaration.outputs);
-  assert.equal(declared.length, 1878);
-  assert.equal(new Set(declared).size, declared.length);
-  assert.deepEqual(declared.sort(), actual);
-  for (const declaration of declarations) assert.equal(declaration.command, scripts[declaration.name]);
-  const plan = scriptOpcodeOutputPlan(specs);
-  assert.equal(plan.blocks[0].spec, null);
-  assert.deepEqual(plan.blocks.slice(1).map(block => block.spec), specs);
-  assert.ok(declarations[0].outputs.every(path => !path.endsWith('-native.json')));
-  assert.ok(declarations[1].outputs.every(path => path.endsWith('-native.json')));
-  for (const invalid of [[{id: 1}, {id: 1}], [{id: -1}], [{id: 0.5}]]) {
-    assert.throws(() => scriptOpcodeOutputPlan(invalid), /Invalid or duplicate Script52 ID/);
-  }
-});
 
 test('Source classifications preserve the observed graph and leave new gaps explicitly unknown', () => {
   const inventory = buildInventory(generators('reader'), new Map([

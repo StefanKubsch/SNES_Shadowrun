@@ -405,7 +405,7 @@ Check: live-nested-round.test.mjs (removed) plays a
 fixed random input in live mode. Six weapon menu rounds run through, the sixth
 waits from live NMI 1584 on. With the pausable and with the synchronous round,
 WRAM, PPU memory, picture and APU port are the same at the NMIs 1580, 1588, 1600
-and 1650. [vm-nested-round.test.mjs](../tools/vm-nested-round.test.mjs) runs the
+and 1650. vm-nested-round.test.mjs (removed) runs the
 topic action as a continuation in pieces of 40 opcodes against the direct
 scheduler run (all registers, WRAM) for all action scripts. Random input over
 3000 live NMIs then runs without a limit in five of six sequences.
@@ -624,7 +624,7 @@ actual callbacks and devices. A4BF, 8000 and CC4B are also compared with finite
 budgets against the complete original transition. A separate case checks both
 B0A1 frames in A4BF/8BD9 with an observed NMI; other helpers stay synthetic
 replacement routines there with their separate original proofs.
-[WORD contract tests](../tools/main-word-wait-interrupt.test.mjs) also compare
+WORD contract tests (removed) also compare
 all seven continuations across DBR, flags, INC wraparound and every
 interruption phase with the complete original NMI/RTI and text DMA.
 
@@ -638,7 +638,7 @@ busy polls and RTI. Further counter checks cover budget zero, foreign owners and
 the failed request, which allows no second execution. The FF79 case covers all
 four used slots and also checks the previously wrong return bytes.
 
-The [WORD contract test](../tools/main-word-wait-interrupt.test.mjs) also runs
+The WORD contract test (removed) also runs
 the complete F963 allocation with budget one against the original instructions
 and compares every NMI return state with all registers and the whole WRAM. The
 [text continuation test](../tools/main-text-continuation.test.mjs) runs FEC1,

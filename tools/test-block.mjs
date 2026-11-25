@@ -44,10 +44,6 @@ export const SLOW_FILES = new Map([
 // Single slow tests in otherwise fast files: name → declaring file.
 export const SLOW_TESTS = new Map([
   [
-    'shared handler and native source mutations are rejected once per common window and metadata anchor',
-    'tools/task-script-body-source.test.mjs',
-  ],
-  [
     'cheat switches before and during a real cold session replay with identical WRAM',
     'tools/cheats.test.mjs',
   ],

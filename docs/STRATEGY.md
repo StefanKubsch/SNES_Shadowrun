@@ -34,7 +34,7 @@ interpreter ($80:F389, table $80:F2B4, about 90 opcodes) and the natives behind
   `taskStop` and names the missing target as the frontier. No whitelist, no
   body list, no byte comparison per body.
 - The basis is the existing runner `runTaskOpcodeSequence`
-  ([opcode-sequence.mjs](../proof/task/opcode-sequence.mjs)) with its handler table.
+  (opcode-sequence.mjs (removed)) with its handler table.
 - The existing body specs (`src/task/script-body-*-specs.mjs`) stay as
   regression tests. No new single specs are created.
 - A scanner reads all scripts from the ROM, determines the opcodes and natives

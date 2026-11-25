@@ -264,15 +264,12 @@ by tools and tests live in `proof/` with the same subfolders (user decision
 [production-boundary.test.mjs](../tools/production-boundary.test.mjs) checks
 both directions. The browser server serves only `src/`.
 
-Atomic task plan APIs (`prepareTask*`, `commitTaskPlan` and
-`isLatestCommittedTaskPlan`) also live in `proof/task/`, including wrappers
-around routines shared with the game. Native adapters in `src/script/` and
-execution support in `src/system/` keep the shared execution routines;
-`src/system/task-stop.mjs` keeps the shared `taskStop`
-boundary. Historical inventory bindings and generated native reports name the
-proof module and retain their existing export names and schema. The manual
-native catalog resolves plan modules in `proof/task/` without a game-module
-fallback. Source contracts may still name `src/` for the shared equations.
+The native dispatch proof plan (`proof/task/`, the atomic task plan APIs, the manual
+native catalog and the native and opcode source proofs against the ROM) was retired on
+2026-11-25 (user decision, [STATE-MODEL-REBUILD.md](STATE-MODEL-REBUILD.md), Progress).
+The register-level references in `proof/game-reference/` and the lift-function tests
+that compare `src/` against them remain. docs/PORTIERUNGSSTAND.json is a historical
+record; no tool validates its evidence any more.
 
 All `.mjs` modules are syntax-checked together in one Node process using
 `vm.SourceTextModule` and `--experimental-vm-modules`. Each file remains a

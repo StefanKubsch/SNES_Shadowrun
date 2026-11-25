@@ -79,7 +79,7 @@ Of the 1,936 artifact inputs without a recorded producer, 1,875 have the
 have no recorded writes in this snapshot.
 
 The source explains this gap:
-[task-script-opcode-artifacts.mjs](../tools/task-script-opcode-artifacts.mjs)
+task-script-opcode-artifacts.mjs (removed)
 uses [writeArtifactIfChanged](../tools/write-artifact.mjs). That helper reads
 an existing file and skips the write when its final bytes are identical.
 The cache therefore records a read but no output write for that execution.
@@ -120,9 +120,9 @@ dependency and import review rather than treating scripts as independent.
 At the initial snapshot, both that command and
 `probe:render-task-native-random-opcode` called `emitTaskNativeRandomOpcode`
 for native IDs 3E and 63. The roles are now separated
-in the [analyzer](../tools/analyze-render-task-native-random-opcode.mjs),
-[probe](../tools/probe-render-task-native-random-opcode.mjs) and
-[source builder](../tools/task-native-random-opcode-source.mjs).
+in the analyzer (removed),
+probe (removed) and
+source builder (removed).
 
 The source builder shares complete report construction between the emitter
 and the read-only `verifyTaskNativeRandomOpcodeSource` function. Both load
@@ -150,9 +150,9 @@ baseline. The graph still contains the same 38-command cycle.
 
 ## Intended Script52 ownership
 
-[script-opcode-outputs.mjs](../tools/script-opcode-outputs.mjs) defines the
+script-opcode-outputs.mjs (removed) defines the
 paths used by both Script52 emitters in
-[task-script-opcode-artifacts.mjs](../tools/task-script-opcode-artifacts.mjs).
+task-script-opcode-artifacts.mjs (removed).
 It derives the per-ID paths from
 [script-opcode-specs.json](../tools/script-opcode-specs.json) and includes
 the generic opcode and separate continuation contracts.

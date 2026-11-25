@@ -145,10 +145,10 @@ comparisons provide that separate evidence.
 
 | Layer                                                  | Evidence                                                                                                                                                                     |
 | ------------------------------------------------------ | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Opcodes and admitted natives                           | [vm-differential.mjs](../tools/vm-differential.mjs), [vm-interpreter.test.mjs](../tools/vm-interpreter.test.mjs)                                                             |
-| Scheduler, child calls, readiness and parent resume    | [vm-scheduler-differential.mjs](../tools/vm-scheduler-differential.mjs), [vm-scheduler.test.mjs](../tools/vm-scheduler.test.mjs)                                             |
-| Hardware-dependent natives and observation consumption | [vm-special-natives-differential.mjs](../tools/vm-special-natives-differential.mjs), [vm-special-natives.test.mjs](../tools/vm-special-natives.test.mjs)                     |
-| Earlier individual bodies                              | [vm-body-specs.mjs](../tools/vm-body-specs.mjs): 1,503 cases of 219 specs matched once (682 complete, 821 to suspension); some fixtures use synthetic bytes and observations |
+| Opcodes and admitted natives                           | vm-differential.mjs (removed), vm-interpreter.test.mjs (removed)                                                             |
+| Scheduler, child calls, readiness and parent resume    | vm-scheduler-differential.mjs (removed), vm-scheduler.test.mjs (removed)                                             |
+| Hardware-dependent natives and observation consumption | vm-special-natives-differential.mjs (removed), vm-special-natives.test.mjs (removed)                     |
+| Earlier individual bodies                              | vm-body-specs.mjs (removed): 1,503 cases of 219 specs matched once (682 complete, 821 to suspension); some fixtures use synthetic bytes and observations |
 | Original game runs                                     | [MESEN-ORACLE.md](MESEN-ORACLE.md), [BOOT-ORACLE.md](BOOT-ORACLE.md)                                                                                                         |
 
 The 2026-10-14 static result was 937/937 scripts with no missing native.
@@ -423,7 +423,7 @@ counters are neither written nor consumed in this mode. On the text path
 bytes from VRAM to `$7E2AE0`; the former limit before RTL at `$81:ACCE` is
 closed by the observed transfer contract below. An already zero job or an INC
 wrap returns without invented transfer and reads existing memory.
-[main-word-wait-interrupt.test.mjs](../tools/main-word-wait-interrupt.test.mjs):
+main-word-wait-interrupt.test.mjs (removed):
 252 synthetic poll/request cases and twelve complete F963 allocations vs.
 original including the whole NMI handler and C152 to RTI (instruction
 positions, DBR, flags, INC wraps, multi-part `$01F6` jobs, unchanged polls; two
@@ -524,7 +524,7 @@ live interrupt set before execution with
 `task_interrupt_direct_execution_required` (no external cursor may be consumed
 before a successful outer commit); atomic render plans keep their separate
 request API.
-[vm-interrupt-observations.test.mjs](../tools/vm-interrupt-observations.test.mjs)
+vm-interrupt-observations.test.mjs (removed)
 compares F953 via the VM bridge and resume with the proven Native58
 composition, including two real NMIs with fresh joypad; hint windows with mask
 DMA, window clearing, window lists, glove switch-off and ammunition display
@@ -546,7 +546,7 @@ main-boot-connected.test.mjs (removed) connects
 the same owner through boot, menu selection, task rounds, morgue movement,
 object selection, actions, pickup, inventory, doors, street dialog and the
 alley fight. main-boot-round-reference.mjs (removed)
-and [main-boot-reference-view.mjs](../tools/main-boot-reference-view.mjs) keep
+and main-boot-reference-view.mjs (removed) keep
 comparison state private, publish successful visits only and preserve work,
 output and stack ownership checks. The narrow DEC7 SRAM contract reads camera
 word 70:1FFD/1FFE from a fresh copy; other SRAM reads/writes remain boundaries.

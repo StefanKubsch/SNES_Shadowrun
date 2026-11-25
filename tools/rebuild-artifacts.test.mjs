@@ -19,7 +19,6 @@ test('Rebuild runs outside producers before the release generators and ends with
   for (const group of catalogue.groups.filter((group) => group.kind === 'generated-outside-graph'))
     assert.ok(names.indexOf(group.npm_command ?? group.command) < firstRelease, group.command);
   assert.ok(names.indexOf('extract:slot-action-data') < firstRelease);
-  assert.deepEqual(names.slice(-2), ['plan:dialog', 'docs:progress']);
   assert.throws(
     () => rebuildSequence({ ...scripts, 'extract:slot-action-data': undefined }, catalogue),
     /Missing producer/,

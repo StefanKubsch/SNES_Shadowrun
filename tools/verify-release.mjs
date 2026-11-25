@@ -248,10 +248,9 @@ export async function verifyRelease(root, { full = false } = {}) {
       /^(analyze|extract|probe):(render|vm)-/.test(name),
     );
     if (!generators.length) throw Error('No render generators configured');
-    for (const name of ['plan:dialog', 'docs:progress']) {
-      if (!pkg.scripts[name]) throw Error('Missing generator ' + name);
-      generators.push([name, pkg.scripts[name]]);
-    }
+    // Optional final generators (see tools/generator-dependencies.mjs).
+    for (const name of ['plan:dialog', 'docs:progress'])
+      if (pkg.scripts[name]) generators.push([name, pkg.scripts[name]]);
     step = 'artifacts';
     const artifactStats = {},
       artifactsStarted = Date.now(),

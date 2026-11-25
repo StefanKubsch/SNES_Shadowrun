@@ -1,6 +1,5 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { spawnSync } from 'node:child_process';
 import { SPECIAL_NATIVES, SPECIAL_NATIVE_CONTINUATIONS } from '../src/vm/special-natives.mjs';
 import {
   SPECIAL_NATIVES as replayNatives,
@@ -23,21 +22,6 @@ import {
 } from '../proof/game-reference/runner-state.mjs';
 import { createSide } from './lift-function-harness.mjs';
 
-test('the game and dispatch proof initialize in either import order in a fresh process', () => {
-  const entries = ['./src/video/live-game.mjs', './proof/task/native-dispatch.mjs'];
-  for (const order of [entries, entries.toReversed()]) {
-    const result = spawnSync(
-      process.execPath,
-      [
-        '--input-type=module',
-        '-e',
-        order.map((entry) => `await import(${JSON.stringify(entry)})`).join(';'),
-      ],
-      { encoding: 'utf8', timeout: 30000 },
-    );
-    assert.equal(result.status, 0, result.stderr || result.error?.message);
-  }
-});
 
 test('live native targets cover the replay table and reject recorded waits before access', () => {
   assert.deepEqual([...SPECIAL_NATIVES.keys()].sort(), [...replayNatives.keys()].sort());

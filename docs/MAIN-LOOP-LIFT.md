@@ -227,7 +227,7 @@ It is a lookup aid, not a hand-maintained block-test selection:
 - [main-menu-lift-functions.test.mjs](../tools/main-menu-lift-functions.test.mjs)
 - [party-status-lift-functions.test.mjs](../tools/party-status-lift-functions.test.mjs)
 - [runner-state-lift-functions.test.mjs](../tools/runner-state-lift-functions.test.mjs)
-- [task-native-m1d.test.mjs](../tools/task-native-m1d.test.mjs)
+- task-native-m1d.test.mjs (removed)
 - [sight-lift-functions.test.mjs](../tools/sight-lift-functions.test.mjs)
 - [main-upkeep-lift-functions.test.mjs](../tools/main-upkeep-lift-functions.test.mjs)
 - [game-nmi-lift-functions.test.mjs](../tools/game-nmi-lift-functions.test.mjs)
