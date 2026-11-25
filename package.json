@@ -819,7 +819,8 @@
     "format:check": "prettier --check",
     "benchmark:crt": "node tools/crt-benchmark.mjs",
     "benchmark:live": "node --expose-gc tools/live-benchmark.mjs",
-    "lint": "eslint ."
+    "lint": "eslint .",
+    "golden:coverage": "node tools/golden-coverage.mjs"
   },
   "engines": {
     "node": ">=22"

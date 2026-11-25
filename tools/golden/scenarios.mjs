@@ -10,6 +10,10 @@ import { exploreLive } from '../explore-live.mjs';
 import { BADGE_BUY_LIVE_PLAN } from '../live-plans.mjs';
 import { PLAN as ALLEY_PLAN } from '../live-alley-plan.mjs';
 import { PLAN as MATRIX_PLAN } from '../live-matrix-plan.mjs';
+import { CUTSCENE_PLAN } from '../live-cutscene-plan.mjs';
+import { ORIGINAL_GAMEPLAY } from '../../src/game/bugfixes.mjs';
+import { KARMA } from '../../src/data/wram.mjs';
+import { WRAM_BASE as WRAM_BANK } from '../../src/constants/memory-map.mjs';
 
 // As in tools/game-loop.test.mjs.
 const COUNTER_SEED = 12345,
@@ -61,6 +65,145 @@ const explored = (name, plan) => ({
   },
 });
 
+// Continue with the apartment save, then once prepare(memory) (its writes become the
+// trace's pokes) and play the plan segments one after another (tools/live-plan-driver.mjs).
+// gameplay: LiveGame's gameplay options.
+const continued = (name, segments, { prepare = () => {}, gameplay = ORIGINAL_GAMEPLAY } = {}) => ({
+  name,
+  options: () => ({ ...apartment(), gameplay }),
+  record(cartridge, hook) {
+    let driver = null,
+      next = 0;
+    const game = new LiveGame(cartridge, {
+      ...apartment(),
+      gameplay,
+      counter: counterBytes(COUNTER_SEED),
+      pad: (k) => {
+        if (k < PLAN_START) return TITLE(k);
+        if (!driver) prepare(game.memory);
+        while ((!driver || driver.done()) && next < segments.length)
+          driver = livePlanDriver(segments[next++], game.memory.wram, () => game.loop.rounds);
+        return driver.done() ? 0 : driver.pad(k);
+      },
+    });
+    hook(game);
+    while (!driver?.done() || next < segments.length) game.step();
+  },
+});
+
+// Status screen: each submenu (Items, Weapon, Armour, Skills, Cyber) in a session of its
+// own, which Select ends; Select twice more shows and hides the party status in the room.
+// Then Magic, Heal as the X spell and its cast at Me (tools/live-spell.test.mjs: Magic 3,
+// six spell levels and 30 magic points for Jake), with instant text.
+const STATUS_BROWSE = [
+    ['press', 'start', 150],
+    ['press', 'down', 30],
+    ['press', 'b', 120],
+    ['press', 'select', 120],
+    ['press', 'start', 150],
+    ['press', 'down', 30],
+    ['press', 'down', 30],
+    ['press', 'down', 30],
+    ['press', 'b', 120],
+    ['press', 'select', 120],
+    ['press', 'start', 150],
+    ['press', 'down', 30],
+    ['press', 'down', 30],
+    ['press', 'down', 30],
+    ['press', 'down', 30],
+    ['press', 'b', 120],
+    ['press', 'select', 120],
+    ['press', 'start', 150],
+    ['press', 'down', 30],
+    ['press', 'down', 30],
+    ['press', 'down', 30],
+    ['press', 'down', 30],
+    ['press', 'down', 30],
+    ['press', 'b', 120],
+    ['press', 'select', 120],
+    ['press', 'start', 150],
+    ['press', 'down', 30],
+    ['press', 'down', 30],
+    ['press', 'down', 30],
+    ['press', 'down', 30],
+    ['press', 'down', 30],
+    ['press', 'down', 30],
+    ['press', 'b', 120],
+    ['press', 'select', 120],
+    ['press', 'select', 120],
+    ['press', 'select', 120],
+    ['press', 'select', 120],
+  ],
+  SPELL_SELECT = [
+    ['wait', 60],
+    ['press', 'start', 150],
+    ['wait', 150],
+    ['press', 'down', 30],
+    ['press', 'down', 30],
+    ['press', 'b', 120],
+    ['press', 'down', 30],
+    ['press', 'down', 30],
+    ['press', 'b', 120],
+    ['press', 'b', 120],
+    ['wait', 60],
+  ],
+  SPELL_CAST = [
+    ['press', 'x', 30],
+    ['press', 'b', 60],
+    ['wait', 200],
+  ],
+  MAGIC = 3,
+  SPELL_LEVELS = [1, 2, 1, 1, 1, 1],
+  MAGIC_POINTS = 30,
+  JAKE_MAGIC = 0x7e3bfc,
+  JAKE_SPELLS = 0x7e3c07,
+  JAKE_MAGIC_POINTS = 0x7e3c96;
+const prepareMagic = (memory) => {
+  memory.write8(JAKE_MAGIC, MAGIC);
+  SPELL_LEVELS.forEach((value, i) => memory.write8(JAKE_SPELLS + i, value));
+  memory.write16(JAKE_MAGIC_POINTS, MAGIC_POINTS);
+};
+// The bed in the apartment (tools/live-save.test.mjs): its menu, then save game 2.
+const BED_SAVE = [
+  ['press', 'b'],
+  ['glove', 122, 155],
+  ['wait', 8],
+  ['press', 'b', 40],
+  ['press', 'down', 20],
+  ['press', 'b', 80],
+  ['wait', 400],
+  ['press', 'down', 20],
+  ['press', 'b', 80],
+  ['wait', 60],
+  ['press', 'down', 20],
+  ['press', 'down', 20],
+  ['press', 'b', 120],
+  ['wait', 60],
+];
+// Then the main menu's third entry, Use karma (the cursor is back on Exit): a category,
+// steps bought until the karma runs out (Not enough karma, closed by the next key), and
+// out again with Select (the menu choice's cancel bit 2000).
+const BED_KARMA = [
+    ['press', 'down', 20],
+    ['press', 'down', 20],
+    ['press', 'b', 150],
+    ['press', 'down', 20],
+    ['press', 'b', 120],
+    ['press', 'down', 20],
+    ['press', 'b', 120],
+    ['press', 'b', 120],
+    ['press', 'b', 120],
+    ['press', 'b', 120],
+    ['press', 'b', 120],
+    ['press', 'b', 120],
+    ['press', 'select', 120],
+    ['press', 'select', 120],
+    ['press', 'select', 120],
+    ['wait', 120],
+  ],
+  KARMA_POINTS = 160,
+  prepareKarma = (memory) => memory.write16(WRAM_BANK + KARMA, KARMA_POINTS);
+
 export const SCENARIOS = Object.freeze([
   // Logo, intro, title and the attract demo.
   cold('attract', () => 0, COLD_NMIS),
@@ -93,6 +236,15 @@ export const SCENARIOS = Object.freeze([
   explored('alley', ALLEY_PLAN),
   // Seven matrix sessions (tools/live-matrix-plan.mjs).
   explored('matrix', MATRIX_PLAN),
+  // The status screen, a spell choice and its cast, with instant text.
+  continued('spell', [STATUS_BROWSE, SPELL_SELECT, SPELL_CAST], {
+    prepare: prepareMagic,
+    gameplay: { ...ORIGINAL_GAMEPLAY, instantText: true },
+  }),
+  // The bed menu and a save.
+  continued('bed', [BED_SAVE, BED_KARMA], { prepare: prepareKarma }),
+  // Cutscenes 0-4, mirrored, ended with B, and the credits (tools/live-cutscene-plan.mjs).
+  explored('cutscenes', CUTSCENE_PLAN),
 ]);
 export const scenario = (name) => {
   const found = SCENARIOS.find((s) => s.name === name);

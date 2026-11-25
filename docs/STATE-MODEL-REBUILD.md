@@ -44,6 +44,14 @@ becomes the reference for the rebuild ([tools/golden/](../tools/golden/)):
   OAM), audio (sound RAM and DSP registers) and SRAM.
 - Every 1000 frames a masked WRAM snapshot lets a failure be located by address.
 
+Scenarios (tools/golden/scenarios.mjs): attract, new-game, badge, alley, matrix, and since
+2026-11-25 spell (status submenus, party status, a spell chosen and cast, instant
+text), bed (bed menu, save, karma menu up to "Not enough karma") and cutscenes (all
+cutscenes and the credits). `npm run golden:coverage` (tools/golden-coverage.mjs)
+reports the src functions the traces reach; on 2026-11-25 1929 of 2573 (75 %, up from
+71 % with the first five), with the script natives (55 %) and the data decoders (59 %)
+the largest gaps. A proof module is retired only where its src path is reached.
+
 Binding for every block: picture, audio and SRAM always; game state through the
 projection. Video memory is binding until the picture rebuild (phase 5) and then
 becomes diagnostic only. A deliberate difference (a bug found, a port correction) is
@@ -87,6 +95,11 @@ own commit after `npm run test:block` and the golden trace test. One shared
   differential test until a trace covers it.
 
 ## Progress
+
+- 2026-11-25, golden coverage: three new scenarios (spell, bed, cutscenes) and
+  `npm run golden:coverage`; the traces reach 1929 of 2573 src functions (was 1814).
+  Prerequisite for retiring proof modules (user decision 2026-11-25: first close the
+  coverage gaps, then retire proof per covered subsystem).
 
 - 2026-11-25, phase 5, PPU model to proof: ppu-state, ppu-frame and hdma moved to
   proof/video; proof/video/snes-video.mjs hands the SNES back end to LiveGame for the
