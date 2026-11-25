@@ -20,8 +20,6 @@ import { dialogAccess } from '../src/system/native-dialog-support.mjs';
 import { buildLanguage, installLanguage } from '../src/data/language.mjs';
 import { LiveGame } from '../src/video/live-game.mjs';
 import { startMenuWaiting } from '../src/game/credits.mjs';
-import { renderMode1Frame } from '../src/video/ppu-frame.mjs';
-import { hdmaRows } from '../src/video/hdma.mjs';
 
 const baseline = JSON.parse(readFileSync('assets/vm-lz.json'));
 const sources = baseline.streams.filter((s) => Object.hasOwn(VRAM_FORMATS, s.format));
@@ -337,9 +335,9 @@ test(
       assert.ok(startMenuWaiting(game));
       for (let i = 0; i < 30; i++) game.step();
     }
-    const picture = (g) => renderMode1Frame(g.bus.ppu, { objects: true, rows: hdmaRows(g.bus) });
-    assert.deepEqual(games[0].bus.ppu.cgram, games[1].bus.ppu.cgram);
-    assert.notDeepEqual(games[0].bus.ppu.vram, games[1].bus.ppu.vram);
+    const picture = (g) => g.render();
+    assert.deepEqual(games[0].screen.cgram, games[1].screen.cgram);
+    assert.notDeepEqual(games[0].screen.vram, games[1].screen.vram);
     assert.notDeepEqual(picture(games[0]), picture(games[1]));
   },
 );

@@ -95,7 +95,7 @@ however, no longer needs to name registers:
   power-on reset, the scene list's register command and the window tile
   multiplication (M7A/M7B, `readProduct`), and H-DMA tables, which name their
   per-line target register, are decoded into row changes.
-- Routing: `LiveGame` takes `video: PICTURE_VIDEO` (default `SNES_VIDEO`). The
+- Routing: `LiveGame` takes `video: PICTURE_VIDEO` (the default since step 6). The
   picture back end is then the device bus; `DeviceAccess.video`, the hardware port's
   `video` field, `videoOf` and `sceneRuntime` hand it to the lifted code, so its
   calls skip the registers. The scene default's CPU register writes go back to the
@@ -108,6 +108,21 @@ however, no longer needs to name registers:
   equal descriptions, pixels, memories, product and read-back); block check
   4966/4966 in 584 seconds with all five golden traces replayed through the picture
   back end unchanged; tools/recording.test.mjs 2/2.
+
+## Step 6: the picture back end is the default (2026-11-25)
+
+- `LiveGame` now defaults to `PICTURE_VIDEO`. Back-end-neutral accessors replace
+  direct PPU reads: `game.screen` (vram, cgram bytes, oam of either back end) and
+  `game.render()` (the current pixels). `dataOutsideBlank` counts the picture back
+  end's VRAM, CGRAM and OAM data bytes outside VBlank and forced blank, as the SNES
+  back end counts its data port writes; raster write counts remain SNES only.
+- Tests that compare PPU registers, scroll latches or PPU write counts against a
+  register-level reference choose `video: SNES_VIDEO` explicitly (boot service flow,
+  main owner and startup callers, transition caller, tools/lift-compare.mjs);
+  tools/explore-live.mjs passes the option on. The proof room replays
+  (proof/video/room-observed.mjs) keep their own PPU bus.
+- Evidence: block check 449/449 in 509 seconds; the slow live tests (cold start, save
+  anywhere, alley bus, matrix) 9/9 on the picture back end.
 
 ## Plan for the next steps
 

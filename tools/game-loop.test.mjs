@@ -91,7 +91,7 @@ function followTaskRounds(game) {
 }
 
 function snapshot(game, tasks = null) {
-  const { ppu } = game.bus;
+  const ppu = game.screen;
   return {
     wram: toWram(game.memory),
     projection: tasks?.project() ?? null,

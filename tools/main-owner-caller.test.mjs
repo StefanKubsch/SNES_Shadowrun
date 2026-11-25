@@ -5,7 +5,7 @@ import { nativeTarget } from '../src/script/native-targets.mjs';
 import { toWram } from '../proof/state/to-wram.mjs';
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { LiveGame } from '../src/video/live-game.mjs';
+import { LiveGame, SNES_VIDEO } from '../src/video/live-game.mjs';
 import { cartridge } from './cartridge-harness.mjs';
 import { loadSave } from './mesen-f390-oracle.mjs';
 import { livePlanDriver } from './live-plan-driver.mjs';
@@ -162,6 +162,8 @@ for (const budget of [1, 7])
             resumeAt = null;
           const game = new LiveGame(cartridge, {
             ...(side === 0 ? { loop: referenceLoop } : {}),
+            // Both sides compare PPU registers and write counts: the SNES back end.
+            video: SNES_VIDEO,
             sram: loadSave('apartment'),
             pad: (k) => {
               if (resumeAt !== null) return (k - resumeAt) % 40 < 6 ? 0x8000 : 0;

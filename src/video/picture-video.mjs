@@ -275,6 +275,9 @@ export class PictureVideo {
   constructor(memory) {
     this.memory = memory;
     this.system = null;
+    // onData(): called before each VRAM, CGRAM or OAM data byte (LiveGame counts the
+    // ones outside blank, as the SNES back end does).
+    this.onData = null;
     // Whether the display register was written (the picture is defined from then on).
     this.displaySet = false;
     this.blank = false;
@@ -329,6 +332,10 @@ export class PictureVideo {
   // The video interface of the lifted code (sceneRuntime and videoOf).
   get video() {
     return this;
+  }
+  // The palette as CGRAM bytes (little endian), as the SNES back end holds them.
+  get cgram() {
+    return new Uint8Array(this.palette.buffer);
   }
 
   // ---- Typed state setters --------------------------------------------------------
@@ -398,6 +405,7 @@ export class PictureVideo {
   // One VRAM byte (high: the word's high byte) at the address; the address steps after
   // the byte the increment mode names.
   #vramByte(high, value) {
+    this.onData?.();
     need(!(this.vramIncrement & VMAINC_REMAP_BITS), 'picture_vram_remap_required', {
       mode: this.vramIncrement,
     });
@@ -424,6 +432,7 @@ export class PictureVideo {
     this.colourLow = null;
   }
   #colourByte(value) {
+    this.onData?.();
     if (this.colourLow === null) this.colourLow = value;
     else {
       this.palette[this.colourIndex] =
@@ -450,6 +459,7 @@ export class PictureVideo {
     this.#oamHighAddress(value >>> BYTE_BITS);
   }
   #oamData(value) {
+    this.onData?.();
     const address = this.oamByte;
     if (address >= OAM_HIGH_TABLE)
       this.oam[OAM_HIGH_TABLE + (address & OAM_HIGH_TABLE_MASK)] = value;

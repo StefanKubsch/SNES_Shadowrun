@@ -88,6 +88,12 @@ own commit after `npm run test:block` and the golden trace test. One shared
 
 ## Progress
 
+- 2026-11-25, phase 5, picture back end by default: LiveGame draws through
+  src/video/picture-video.mjs unless a register-level comparison chooses SNES_VIDEO;
+  tests read video memory and pixels through `game.screen` and `game.render()`.
+  Block check 449/449, slow live tests 9/9 ([FRAME-DESCRIPTION.md](FRAME-DESCRIPTION.md),
+  step 6).
+
 - 2026-11-25, phase 5, picture back end: src/video/picture-video.mjs draws live play
   from a typed picture state without PPU registers; the browser, the recording replay
   and the golden traces use it. Block check 4966/4966 in 584 seconds, all five golden

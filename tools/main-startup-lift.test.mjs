@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { LiveGame } from '../src/video/live-game.mjs';
+import { LiveGame, SNES_VIDEO } from '../src/video/live-game.mjs';
 import { cartridge } from './cartridge-harness.mjs';
 import { loadSave } from './mesen-f390-oracle.mjs';
 import { dialogAccess } from '../src/system/native-dialog-support.mjs';
@@ -50,7 +50,10 @@ for (const valid of [true, false])
         sram[SETTINGS_STEREO % BANK_SIZE] = 0;
         sram[SETTINGS_CHECKSUM % BANK_SIZE] ^= 1;
       }
-      const games = [new LiveGame(cartridge, { sram }), new LiveGame(cartridge, { sram })];
+      const games = [
+        new LiveGame(cartridge, { sram, video: SNES_VIDEO }),
+        new LiveGame(cartridge, { sram, video: SNES_VIDEO }),
+      ];
       // Retain only one side's snapshots until the second side reaches that NMI.
       const frames = [];
       let compared = 0;

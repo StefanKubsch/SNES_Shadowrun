@@ -15,8 +15,6 @@ import { VmMemory } from '../src/vm/memory.mjs';
 import { TaskAccessor } from '../src/vm/task-accessor.mjs';
 import { unpackFixedStream } from '../proof/system/native-unpack.mjs';
 import { LiveGame } from '../src/video/live-game.mjs';
-import { renderMode1Frame } from '../src/video/ppu-frame.mjs';
-import { hdmaRows } from '../src/video/hdma.mjs';
 import { SHAPE_GRID, SHAPE_GRID_BYTES } from '../src/data/wram.mjs';
 
 const baseline = JSON.parse(readFileSync('assets/vm-tiles.json', 'utf8'));
@@ -213,12 +211,11 @@ test(
       base.memory.wram.slice(grid, grid + SHAPE_GRID_BYTES),
       'scene collision grid stays unchanged',
     );
-    assert.deepEqual(changed.bus.ppu.cgram, base.bus.ppu.cgram, 'palettes stay unchanged');
-    const picture = (game) =>
-      renderMode1Frame(game.bus.ppu, { objects: true, rows: hdmaRows(game.bus) });
+    assert.deepEqual(changed.screen.cgram, base.screen.cgram, 'palettes stay unchanged');
+    const picture = (game) => game.render();
     const expected = picture(base),
       actual = picture(changed);
     assert.notDeepEqual(actual, expected, 'edited pixels reach the final room image');
-    assert.notDeepEqual(changed.bus.ppu.vram, base.bus.ppu.vram);
+    assert.notDeepEqual(changed.screen.vram, base.screen.vram);
   },
 );

@@ -47,7 +47,7 @@ function openStatusMenu(instantText) {
     textFrames,
     menu: game.memory.read16(0x1f62),
     picture: hash(pixels),
-    vram: hash(game.bus.ppu.vram),
+    vram: hash(game.screen.vram),
     outside: game.dataOutsideBlank,
   };
 }

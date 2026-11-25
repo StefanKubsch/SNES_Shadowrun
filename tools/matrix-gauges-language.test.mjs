@@ -7,8 +7,6 @@ import { exploreLive } from './explore-live.mjs';
 import { loadSave } from './mesen-f390-oracle.mjs';
 import { buildLanguage } from '../src/data/language.mjs';
 import { lzBits, lzDecode } from '../src/data/lz.mjs';
-import { renderMode1Frame } from '../src/video/ppu-frame.mjs';
-import { hdmaRows } from '../src/video/hdma.mjs';
 
 const german = buildLanguage(JSON.parse(readFileSync('assets/vm-texts-de.json')));
 const plan = [
@@ -52,7 +50,7 @@ test(
         bits,
       ).data;
       assert.deepEqual(
-        game.bus.ppu.vram.subarray(0, font.length),
+        game.screen.vram.subarray(0, font.length),
         font,
         `${language}: original gauge graphics reached VRAM`,
       );
@@ -62,10 +60,10 @@ test(
         `${language}: full, partial, empty and cap tile words remain original`,
       );
       results.push({
-        frame: renderMode1Frame(game.bus.ppu, { objects: true, rows: hdmaRows(game.bus) }),
+        frame: game.render(),
         health: memory.read16(0x1754),
-        healthRow: game.bus.ppu.vram.slice(0xec1 * 2, 0xec1 * 2 + 28),
-        memoryRow: game.bus.ppu.vram.slice(0xf01 * 2, 0xf01 * 2 + 20),
+        healthRow: game.screen.vram.slice(0xec1 * 2, 0xec1 * 2 + 28),
+        memoryRow: game.screen.vram.slice(0xf01 * 2, 0xf01 * 2 + 20),
       });
     }
     assert.ok(results[0].health > 0);

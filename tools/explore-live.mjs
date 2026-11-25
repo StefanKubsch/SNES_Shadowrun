@@ -43,10 +43,11 @@ const THIRD_ARGUMENT = 3,
   HEX = 16;
 
 const word = readStateWord;
-// loop: LiveGame's game loop option (default: the plain game loop).
+// loop: LiveGame's game loop option (default: the plain game loop); video: its picture
+// back end (default: the register-free picture back end).
 export function exploreLive(
   plan,
-  { cartridge, sram, onCommand = () => {}, onGame = () => {}, loop },
+  { cartridge, sram, onCommand = () => {}, onGame = () => {}, loop, video },
 ) {
   const base = counterBytes();
   let armed = null,
@@ -61,6 +62,7 @@ export function exploreLive(
     ends = [];
   const game = new LiveGame(cartridge, {
     ...(loop ? { loop } : {}),
+    ...(video ? { video } : {}),
     sram: new Uint8Array(sram),
     counter: () => (armed ? armed() : base()),
     pad: (k) => {

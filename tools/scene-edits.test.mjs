@@ -16,8 +16,6 @@ import { SCENE_COLLISION_ROUTINES } from '../proof/system/main-scene-collision.m
 import { SCENE_RECORD, SCENE_BACKDROP, DP_SCENE_RECORD, ROOM } from '../src/data/wram.mjs';
 import { buildLanguage, installLanguage } from '../src/data/language.mjs';
 import { LiveGame } from '../src/video/live-game.mjs';
-import { renderMode1Frame } from '../src/video/ppu-frame.mjs';
-import { hdmaRows } from '../src/video/hdma.mjs';
 import { inspectRom } from './rom.mjs';
 import '../proof/system/dialog-register-helpers.mjs';
 
@@ -260,14 +258,12 @@ test(
       assert.ok(game.loop.ownsGame);
     }
     assert.equal(games[0].vm.mem.read16(0x7e0000 + ROOM), games[1].vm.mem.read16(0x7e0000 + ROOM));
-    const p = games.map((g) => g.bus.ppu);
+    const p = games.map((g) => g.screen);
     assert.deepEqual(p[0].vram, p[1].vram);
     assert.deepEqual(p[0].oam, p[1].oam);
     assert.deepEqual(p[0].cgram.slice(2), p[1].cgram.slice(2));
     assert.deepEqual(p[1].cgram.slice(0, 2), Uint8Array.of(0x1f, 0x7c));
-    const pictures = games.map((g) =>
-      renderMode1Frame(g.bus.ppu, { objects: true, rows: hdmaRows(g.bus) }),
-    );
+    const pictures = games.map((g) => g.render());
     assert.notDeepEqual(pictures[0], pictures[1]);
   },
 );

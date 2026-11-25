@@ -1,7 +1,7 @@
 // The live reset and startup take game services only (docs/BOOT-SERVICE-COMPOSITION.md).
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { LiveGame } from '../src/video/live-game.mjs';
+import { LiveGame, SNES_VIDEO } from '../src/video/live-game.mjs';
 import { cartridge } from './cartridge-harness.mjs';
 import { resetHardware } from '../src/system/main-reset.mjs';
 import { mainStartupSequence } from '../src/system/main-startup.mjs';
@@ -24,7 +24,8 @@ const byRegister = (trace) =>
   }));
 
 function resetRun(reset) {
-  const game = new LiveGame(cartridge),
+  // The reset compares PPU registers and write counts: the SNES back end.
+  const game = new LiveGame(cartridge, { video: SNES_VIDEO }),
     a = game.loop.accessor;
   a.trace = [];
   reset(a);

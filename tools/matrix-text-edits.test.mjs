@@ -367,7 +367,7 @@ test(
       const label = language === 'en' ? 'EN LOGIN' : 'DE LOGIN';
       const prefix = language === 'en' ? 'COUNT ' : 'ANZAHL ';
       const visible = (text) => {
-        const vram = game.bus.ppu.vram;
+        const vram = game.screen.vram;
         const words = Array.from(
           text,
           (c) => game.memory.read16(CHARACTER_TILES + 2 * c.charCodeAt(0)) | 0x2400,

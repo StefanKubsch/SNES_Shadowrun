@@ -209,7 +209,7 @@ for (const language of ['en', 'de'])
         introSeen = false,
         creditsSeen = false;
       const wordsVisible = (codes, base, mask) => {
-        const vram = game.bus.ppu.vram;
+        const vram = game.screen.vram;
         const words = [...codes].map(
           (c) =>
             (game.memory.read16(0x7e56a8 + 2 * (c - 32)) & mask) | (mask === 0xff ? 0x2000 : 0),
@@ -240,7 +240,7 @@ for (const language of ['en', 'de'])
                 introSeen = true;
                 game.setLanguage(language);
                 assert.deepEqual(
-                  Buffer.from(game.bus.ppu.vram.subarray(0x4000, 0x4000 + 1312)),
+                  Buffer.from(game.screen.vram.subarray(0x4000, 0x4000 + 1312)),
                   unpack(game.memory, PACKED_TEXT_DOMAINS[0].font).data.subarray(0, 1312),
                 );
               }
@@ -301,7 +301,7 @@ for (const language of ['en', 'de'])
       const expectedFont = unpack(game.memory, fontSource).data;
       assert.equal(expectedFont.length, language === 'en' ? 864 : 896);
       assert.deepEqual(
-        Buffer.from(game.bus.ppu.vram.subarray(0x2000, 0x2000 + 864)),
+        Buffer.from(game.screen.vram.subarray(0x2000, 0x2000 + 864)),
         expectedFont.subarray(0, 864),
         'the original scene-list DMA installs the credits glyph range in VRAM',
       );

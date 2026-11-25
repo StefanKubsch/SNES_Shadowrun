@@ -70,7 +70,8 @@ export class LiveGame {
   // {rom,present} without code (src/data/cartridge.mjs, docs/ROM-FREE.md).
   // loop(game) makes the game loop (default: src/script/game-loop.mjs; a proof can pass
   // the register-level driver with the same interface). video selects the picture back
-  // end: SNES_VIDEO (bus.ppu, raster write counts) or PICTURE_VIDEO (picture).
+  // end: PICTURE_VIDEO (picture, the default) or SNES_VIDEO (bus.ppu, PPU write and
+  // raster write counts, for register-level comparisons).
   constructor(
     cartridge,
     {
@@ -83,7 +84,7 @@ export class LiveGame {
       language = ENGLISH,
       apu = new Apu(),
       loop = gameLoop,
-      video = SNES_VIDEO,
+      video = PICTURE_VIDEO,
     } = {},
   ) {
     need(
@@ -173,12 +174,16 @@ export class LiveGame {
       } else if (CHOOSING.has(target)) this.choosing = true;
     };
     // The picture back end's CPU register writes (the scene default) reach the devices
-    // as the hardware port's do. It has no raster write counts.
+    // as the hardware port's do. It has no raster write counts; dataOutsideBlank counts
+    // its data bytes outside blank as described below.
     if (picture) {
       const access = new DeviceAccess(this.vm);
       access.devices = this.devices;
       picture.system = (address, value, width) => access.busWrite(address, value, width);
-      this.dataOutsideBlank = null;
+      this.dataOutsideBlank = 0;
+      picture.onData = () => {
+        if (!frames.inNmi && !(picture.displaySet && picture.blank)) this.dataOutsideBlank++;
+      };
       return;
     }
     // Without a frame position, every write outside the NMI with the display
@@ -207,6 +212,17 @@ export class LiveGame {
     this.bus.reverseDma = (bytes) => {
       for (let n = 0; n < bytes.length; n++) this.memory.write8(TEXT_MASK_BUFFER + n, bytes[n]);
     };
+  }
+  // Video memory of either back end: vram, cgram (bytes) and oam.
+  get screen() {
+    return this.picture ?? this.bus.ppu;
+  }
+  // The current picture as RGBA pixels (as onFrame receives it), or null before the
+  // first display write.
+  render() {
+    if (this.picture) return this.picture.displaySet ? renderFrame(this.picture.describe()) : null;
+    if (!this.bus.ppu.registerKnown[0]) return null;
+    return renderMode1Frame(this.bus.ppu, { objects: true, rows: hdmaRows(this.bus) });
   }
   get nmis() {
     return this.frames.nmis;

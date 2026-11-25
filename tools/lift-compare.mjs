@@ -10,6 +10,7 @@ import { fileURLToPath } from 'node:url';
 import { cartridge } from './cartridge-harness.mjs';
 import { loadSave } from './mesen-f390-oracle.mjs';
 import { exploreLive } from './explore-live.mjs';
+import { SNES_VIDEO } from '../src/video/live-game.mjs';
 import { fnv1a } from '../src/data/fnv.mjs';
 import { registerLevelLoop } from '../proof/script/register-level-loop.mjs';
 
@@ -109,6 +110,8 @@ export async function compareLift({
       sram,
       onGame: record.onGame,
       loop: registerLevelLoop,
+      // The runs compare PPU registers and write counts: the SNES back end.
+      video: SNES_VIDEO,
     });
     record.frames.length = Math.min(record.frames.length, ends[plan.length - 1] + 1);
   };

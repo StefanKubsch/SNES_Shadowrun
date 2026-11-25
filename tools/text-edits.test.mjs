@@ -245,7 +245,7 @@ for (const language of ['en', 'de'])
         while (live.nmis < end) live.step();
       };
       while (live.nmis < 5100) live.step();
-      const tiles = live.bus.ppu.vram.slice(0xe000, 0xf000);
+      const tiles = live.screen.vram.slice(0xe000, 0xf000);
       pad = 0x1000;
       advance(2);
       pad = 0;
@@ -259,7 +259,7 @@ for (const language of ['en', 'de'])
       advance(100);
       assert.equal(live.memory.read16(0x1f62), 0);
       assert.equal(live.memory.read16(0x204), 0xfffe);
-      assert.deepEqual(live.bus.ppu.vram.slice(0xe000, 0xf000), tiles);
+      assert.deepEqual(live.screen.vram.slice(0xe000, 0xf000), tiles);
     },
   );
 
@@ -291,12 +291,12 @@ test(
       },
     );
     while (live.nmis < 5000) live.step();
-    const tiles = live.bus.ppu.vram.slice(0xe000, 0xf000);
+    const tiles = live.screen.vram.slice(0xe000, 0xf000);
     while (!driver?.done() && live.nmis < 6000) live.step();
     assert.ok(driver?.done());
     const window = live.memory.read16(WRAM + GLOVE_NAME_WINDOW);
     assert.ok(window < 0x20, 'the glove allocated its name window');
     assert.equal(live.memory.read16(0x7e2020 + window), 29);
-    assert.deepEqual(live.bus.ppu.vram.slice(0xe000, 0xf000), tiles);
+    assert.deepEqual(live.screen.vram.slice(0xe000, 0xf000), tiles);
   },
 );

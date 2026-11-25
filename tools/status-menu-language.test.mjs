@@ -46,7 +46,7 @@ for (const language of ['en', 'de'])
       // Window allocation ends at tile 2400 (F963). Its 2-bpp glyph uploads
       // belong below E000; overflowing German rows used to overwrite the
       // room's graphics here and leave cyan floor artifacts after closing.
-      const sceneTiles = game.bus.ppu.vram.slice(0xe000, 0xf000);
+      const sceneTiles = game.screen.vram.slice(0xe000, 0xf000);
       for (mask of [0, CHEAT_MASK]) {
         for (let choice = 1; choice <= 6; choice++) {
           press(0x1000);
@@ -89,7 +89,7 @@ for (const language of ['en', 'de'])
           assert.equal(memory.read16(0x1f62), 0, 'status closes back to the scene');
           assert.equal(memory.read16(0x204), 65534, 'all windows are released');
           assert.deepEqual(
-            game.bus.ppu.vram.slice(0xe000, 0xf000),
+            game.screen.vram.slice(0xe000, 0xf000),
             sceneTiles,
             `choice ${choice}, mask ${mask}: no persistent scene tile corruption`,
           );

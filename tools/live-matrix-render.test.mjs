@@ -3,8 +3,6 @@ import assert from 'node:assert/strict';
 import { cartridge } from './cartridge-harness.mjs';
 import { loadSave } from './mesen-f390-oracle.mjs';
 import { exploreLive } from './explore-live.mjs';
-import { renderMode1Frame } from '../src/video/ppu-frame.mjs';
-import { hdmaRows } from '../src/video/hdma.mjs';
 
 test(
   'live system 3 matrix initializes and renders its 16x16 BG layers, then returns to apartment',
@@ -29,13 +27,10 @@ test(
       onCommand: (index, command, game) => {
         if (command[0] === 'matrix')
           game.frames.onNmi = () => {
-            const p = game.bus.ppu,
-              mode = p.register(0x2105),
-              tm = p.register(0x212c),
-              ts = p.register(0x212d);
-            observed.push({ mode, tm, ts });
+            const p = game.picture;
+            observed.push({ mode: p.mode, large: p.largeTiles, tm: p.main, ts: p.sub });
             try {
-              renderMode1Frame(p, { objects: true, rows: hdmaRows(game.bus) });
+              game.render();
             } catch (error) {
               if (errors.length === 0)
                 errors.push({ frame: game.nmis, message: error.message, details: error.details });
@@ -44,7 +39,7 @@ test(
       },
     });
     assert.ok(
-      observed.some((v) => (v.mode & 0x33) === 0x31),
+      observed.some((v) => v.mode === 1 && (v.large & 0x03) === 0x03),
       'recorded system 3 enables 16x16 BG1/BG2 in mode 1',
     );
     assert.ok(
