@@ -1,7 +1,7 @@
 {
   "updated": "2026-11-25",
-  "focus": "Phase 5: live play draws from the register-free picture back end src/video/picture-video.mjs. Batch: HANDOFF.md.",
-  "next_step": "Phase 5: producers own palettes, sprites, layers, scroll and colour effects as typed state (docs/FRAME-DESCRIPTION.md). Delivery: HANDOFF.md.",
+  "focus": "Phase 5: live play draws from the register-free picture back end; the sprite list is typed state (src/state/sprites.mjs). Batch: HANDOFF.md.",
+  "next_step": "Phase 5: further producers - BG layers, scroll, colour effects, palettes as typed state (docs/FRAME-DESCRIPTION.md). Delivery: HANDOFF.md.",
   "porting_resume": "216 original-form bytes remain: 121 code and 95 unidentified data. Read/hardware/data boundaries: docs/ROM-CODE-AUDIT.md. Unknown bytes and unused graphics stay preserved; unrecorded paths can report rom_byte_absent.",
   "open_issues": [
     "Keyword overflow: synthetic insertion of a 51st retained topic corrupts flags in European source and lifted code. Marking does not free storage. A reachable regular story route and a compatible gameplay correction remain unproved; see docs/BUGFIXES.md.",
