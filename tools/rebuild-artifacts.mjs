@@ -13,7 +13,6 @@ import { releaseGenerators } from './generator-dependencies.mjs';
 
 // Inputs that need Mesen recordings or are retained; see GENERATOR-INPUT-SOURCES.json.
 export const retainedInputs = [
-  'analysis/mesen-coverage.json',
   'analysis/rom-code-observed.json',
   'analysis/rom-palettes.json',
   'analysis/rom-reads.json',
@@ -22,7 +21,6 @@ export const retainedInputs = [
 export const generatedDirectories = ['analysis', 'assets'];
 // ROM-only producers whose outputs no release generator reads.
 const extraCommands = [
-  'extract:slot-action-data',
   'extract:slot-target-data',
   'extract:motion-postpass-data',
 ];

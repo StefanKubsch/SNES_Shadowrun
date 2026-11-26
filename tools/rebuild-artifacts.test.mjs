@@ -18,14 +18,14 @@ test('Rebuild runs outside producers before the release generators and ends with
   );
   for (const group of catalogue.groups.filter((group) => group.kind === 'generated-outside-graph'))
     assert.ok(names.indexOf(group.npm_command ?? group.command) < firstRelease, group.command);
-  assert.ok(names.indexOf('extract:slot-action-data') < firstRelease);
+  assert.ok(names.indexOf('extract:slot-target-data') < firstRelease);
   assert.throws(
-    () => rebuildSequence({ ...scripts, 'extract:slot-action-data': undefined }, catalogue),
+    () => rebuildSequence({ ...scripts, 'extract:slot-target-data': undefined }, catalogue),
     /Missing producer/,
   );
   assert.throws(
     () =>
-      rebuildSequence({ ...scripts, 'extract:slot-action-data': 'node a.mjs && rm x' }, catalogue),
+      rebuildSequence({ ...scripts, 'extract:slot-target-data': 'node a.mjs && rm x' }, catalogue),
     /Unsupported command/,
   );
 });

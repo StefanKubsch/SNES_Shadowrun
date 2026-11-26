@@ -80,7 +80,7 @@ the lifted request calls the lifted entry directly, so only a reference request
 reaches the reference entry.
 
 [tools/main-loop-motion.test.mjs](../tools/main-loop-motion.test.mjs),
-[tools/main-transition.test.mjs](../tools/main-transition.test.mjs),
+`tools/main-transition.test.mjs` (removed),
 tools/main-initialize.test.mjs (removed) and
 tools/main-loop.test.mjs (removed) keep proving the reference
 against the ROM, alone and inside the main loop.

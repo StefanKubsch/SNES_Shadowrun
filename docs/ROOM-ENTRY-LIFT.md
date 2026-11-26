@@ -299,7 +299,7 @@ out.
 [tools/game-start-lift-functions.test.mjs](../tools/game-start-lift-functions.test.mjs)
 now runs the room start with the reference entry and stubs for its frame callees.
 
-[tools/main-transition.test.mjs](../tools/main-transition.test.mjs) keeps
+`tools/main-transition.test.mjs` (removed) keeps
 proving the reference against the ROM, alone and inside its callers 80:8000 and
 80:CC4B. The scene request 80:CC4B is lifted too and calls the lifted entry
 directly ([SCENE-REQUEST-LIFT.md](SCENE-REQUEST-LIFT.md)); the session after the

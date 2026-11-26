@@ -118,3 +118,20 @@ mostly script natives (src/script 56 %).
      7E:1EDC-1EF0 (docs/SCENE-SHAPE-EDITING.md).
 5. Delete the register modules, src/system/register-compat.mjs, the recorded branches
    in live modules and the register path of src/video/video-port.mjs.
+   User decisions 2026-11-26: proof/ goes as a whole (it is too densely linked to free
+   modules test by test). The Mesen oracle family (tools/mesen-f390-oracle.mjs, its
+   test, mesen-coverage, rom-code-coverage) is deleted without replacement, and so is
+   analysis/rom-code-observed.json; the audits that read it (rom-map, rom-code-audit,
+   rom-unread-audit, text-reference-inventory, vm-cartridge.test) are reworked without
+   Mesen execution data. Tests and tools that only test or run proof code go with
+   proof/; proof/crt (no register content) moves to tools/crt.
+   - 5a (done): 40 proof-only tests, the run-*.mjs runners, fixture and analysis tools
+     only they used, the oracle family with analysis/mesen-coverage.json, and the 21
+     proof modules only they imported. tools/retire-doc-links.mjs turns Markdown links
+     to removed files into plain text marked "(removed)".
+   - Next: rework the audits without rom-code-observed.json; move proof/crt; freeze or
+     port the remaining mixed tests (cheats, text-edits, packed-text-contract, scene
+     edits and audits, picture-video, sprite-state, OBJ time over); move the scaffolding
+     of the frozen tests to tools/; remove the register picture path of the golden
+     traces and video-port.mjs; then delete the rest of proof/ and the register
+     modules.

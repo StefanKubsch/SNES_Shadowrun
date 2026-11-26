@@ -211,7 +211,7 @@ task, heap, frame, state, slot and motion reports, script data and frame
 profiles. Three tools have no npm command:
 [analyze-motion-helper-81b4.mjs](../tools/analyze-motion-helper-81b4.mjs),
 [analyze-motion-helper-c9e0.mjs](../tools/analyze-motion-helper-c9e0.mjs)
-and [extract-slot-motion-direction-data.mjs](../tools/extract-slot-motion-direction-data.mjs).
+and `extract-slot-motion-direction-data.mjs` (removed).
 Their relevant outputs are two assembly listings and motion direction data.
 The AC analyzer is outside this graph but already runs as the release
 check's separate AC-source step; its missing graph edge does not mean that
@@ -219,11 +219,11 @@ the release fails to check it.
 
 The three recording-dependent reports require more than ROM bytes:
 
-| Report                            | Producer                                                | Required observations                                                                                |
-| --------------------------------- | ------------------------------------------------------- | ---------------------------------------------------------------------------------------------------- |
-| `analysis/rom-code-observed.json` | [rom-code-coverage.mjs](../tools/rom-code-coverage.mjs) | Mesen scenario executions; merges into retained instruction states and the data reads in banks 80/81 |
-| `analysis/rom-reads.json`         | [rom-reads.mjs](../tools/rom-reads.mjs)                 | `.cache/rom-reads.bin`; merges into retained read ranges                                             |
-| `analysis/rom-vram.json`          | [rom-vram.mjs](../tools/rom-vram.mjs)                   | `.cache/rom-vram/*.json`, including recorded screen uses; also reads ROM and the palette list        |
+| Report                            | Producer                                | Required observations                                                                                |
+| --------------------------------- | --------------------------------------- | ---------------------------------------------------------------------------------------------------- |
+| `analysis/rom-code-observed.json` | `rom-code-coverage.mjs` (removed)       | Mesen scenario executions; merges into retained instruction states and the data reads in banks 80/81 |
+| `analysis/rom-reads.json`         | [rom-reads.mjs](../tools/rom-reads.mjs) | `.cache/rom-reads.bin`; merges into retained read ranges                                             |
+| `analysis/rom-vram.json`          | [rom-vram.mjs](../tools/rom-vram.mjs)   | `.cache/rom-vram/*.json`, including recorded screen uses; also reads ROM and the palette list        |
 
 The palette list, `analysis/rom-palettes.json`, describes bounded palette
 tables plus observed direct CGRAM transfers. Its retained scope and the

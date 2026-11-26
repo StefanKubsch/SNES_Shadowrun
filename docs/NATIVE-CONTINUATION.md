@@ -641,7 +641,7 @@ four used slots and also checks the previously wrong return bytes.
 The WORD contract test (removed) also runs
 the complete F963 allocation with budget one against the original instructions
 and compares every NMI return state with all registers and the whole WRAM. The
-[text continuation test](../tools/main-text-continuation.test.mjs) runs FEC1,
+`text continuation test` (removed) runs FEC1,
 FE69, E270 and FF14 with their real helpers once synchronously and once with
 budget one. Interrupt, device and DMA records are synthetic; the busy poll
 alternates, so that every NMI taken pauses in 9E0B. Registers, WRAM, the device
@@ -649,7 +649,7 @@ chronology and the use of all records match. The own instructions of
 FF14/E270/BF3B stay checked against the original by the
 camera test (removed) with 1000 cases per routine.
 
-The [bridge test](../tools/vm-native-continuation.test.mjs) calls FEC1, FF79,
+The `bridge test` (removed) calls FEC1, FF79,
 CDA8, CD9D, D079, F953, E1CF, 936C, 8D0B, 9BC6, E014, F254, CE6D, 9BA0, 8E36 and
 935B through F4F6 with an explicit F509 task frame, once synchronously and once
 with budget one through `TaskScheduler.resume`. Registers, WRAM, the access
