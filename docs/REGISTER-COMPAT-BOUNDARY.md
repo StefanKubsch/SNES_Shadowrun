@@ -95,7 +95,7 @@ mostly script natives (src/script 56 %).
    stand-ins (window, menu, input, portrait routines) and the portrait upload callee.
    src imports no proof module; its comments that name proof paths go with step 5.
 4. Decouple the product tools and tests that reach proof only for data or helpers
-   (done 2026-11-26, except scene-shape-audit):
+   (done 2026-11-26):
    - Golden scenarios: the input plans and saved games moved from
      tools/mesen-f390-oracle.mjs to tools/mesen-plans.mjs (25 tests and tools import
      them there); the WRAM projection moved from proof/state/to-wram.mjs to
@@ -111,9 +111,10 @@ mostly script natives (src/script 56 %).
      bits read, so the audits keep their bit and token counts.
    - The shared harnesses (task-native-dialog, text-window-caller, lift-function) reach
      no proof module; member-menu-caller-harness keeps its callee scaffolding (step 5).
-   - Open: tools/scene-shape-audit.mjs observes the register-level scene load
-     (proof/system/main-scene-load.mjs) through routine hooks; moving it to
-     src/game/scene-load.mjs needs observation hooks there (grid writes, tile stack
-     allocation, phase ends).
+   - tools/scene-shape-audit.mjs observes the lifted scene load through the optional
+     `observeSceneLoad` observer of src/game/scene-load.mjs (shape cell writes, tile
+     stack interning, the ascending reset and phase ends). Every audit observation is
+     unchanged; the WRAM checksums differ only in the former caller stack bytes
+     7E:1EDC-1EF0 (docs/SCENE-SHAPE-EDITING.md).
 5. Delete the register modules, src/system/register-compat.mjs, the recorded branches
    in live modules and the register path of src/video/video-port.mjs.

@@ -180,15 +180,38 @@ const pointed = (mem, wram, dp, offset) => readWord(mem, longPointer(wram, dp) +
 const pointedByte = (mem, wram, dp, offset) =>
   mem.read8((longPointer(wram, dp) + offset) & LONG_MASK);
 
+// An optional observer of the scene load for the read-only audit
+// tools/scene-shape-audit.mjs (null in play): gridWrite(offset, value) for each shape
+// cell written after the grid clear, intern(freeBefore, freeAfter, stack) for each tile
+// stack interning, highReset() before the free stack turns ascending (81:8FF0), and
+// before(phase) and after(phase) around the grid blocks ('grid-blocks', 81:8EDF), each
+// object list ('objects', 81:903E, DP 3E names the layer) and the wall tiles
+// ('wall-tiles', 81:940A).
+let observer = null;
+export function observeSceneLoad(next) {
+  const previous = observer;
+  observer = next;
+  return previous;
+}
+function phase(name, run) {
+  observer?.before?.(name);
+  run();
+  observer?.after?.(name);
+}
+
 // --- Shapes (81:8DE2) ---
 
 const GRID = wramAt(SHAPE_GRID);
+const setCell = (wram, x, value) => {
+  setWord(wram, GRID + x, value);
+  observer?.gridWrite?.(x, value & WORD_MASK);
+};
 // Write the shape value into DP 26 + 1 cells from x along a diagonal step (81:8D09
 // left, 81:8D23 right); cells past the grid are skipped. Returns the cell after.
 function diagonal(wram, x, step) {
   if (word(wram, DP_CELLS) & WORD_SIGN) return x;
   do {
-    if (x < GRID_LAST) setWord(wram, GRID + x, word(wram, DP_VALUE));
+    if (x < GRID_LAST) setCell(wram, x, word(wram, DP_VALUE));
     x = (x + step) & WORD_MASK;
     setWord(wram, DP_CELLS, word(wram, DP_CELLS) - 1);
   } while (!(word(wram, DP_CELLS) & WORD_SIGN));
@@ -196,7 +219,7 @@ function diagonal(wram, x, step) {
 }
 // A corner value at x when it lies in the grid.
 function corner(wram, x, value) {
-  if (x < GRID_LAST) setWord(wram, GRID + x, value);
+  if (x < GRID_LAST) setCell(wram, x, value);
 }
 // The border of a rectangle from x (81:8D3D): its edges take the values v+1 to v+4,
 // its corners the edge value plus 6, 3, 2 and 4. The shape value is kept.
@@ -210,7 +233,7 @@ function drawRectangleBorder(wram, start) {
     };
   const first = edge();
   if (start >= SHAPE_GRID_ROW_BYTES)
-    setWord(wram, GRID + start - SHAPE_GRID_ROW_BYTES, first + CORNER_ABOVE);
+    setCell(wram, start - SHAPE_GRID_ROW_BYTES, first + CORNER_ABOVE);
   setWord(wram, DP_CELLS, width - 1);
   let x = diagonal(wram, (start - 2) & WORD_MASK, STEP_LEFT);
   corner(wram, x, edge() + CORNER_FIRST_TURN);
@@ -242,7 +265,7 @@ function fillRectangle(wram, x) {
   }
 }
 // Clear the grid and draw the record's shapes (81:8DE2); the record pointer moves on.
-function drawSceneShapes(mem, wram) {
+export function drawSceneShapes(mem, wram) {
   for (let x = SHAPE_GRID_BYTES - 2; x >= 0; x -= 2) setWord(wram, GRID + x, 0);
   if (!word(wram, DP_SCENE_COUNT)) return;
   const byte = (y) => pointedByte(mem, wram, DP_SCENE_RECORD, y),
@@ -282,6 +305,13 @@ const HEADS = wramAt(TILE_STACK_HEADS);
 // same ids up to one common flip is used once more, otherwise a free entry is taken
 // and hashed in. Returns the entry number with the common flip bits.
 export function internTileStack(wram) {
+  if (!observer?.intern) return internStack(wram);
+  const before = word(wram, DP_TILE_FREE),
+    stack = internStack(wram);
+  observer.intern(before, word(wram, DP_TILE_FREE), stack);
+  return stack;
+}
+function internStack(wram) {
   const first = word(wram, DP_TILE_FIRST),
     second = word(wram, DP_TILE_SECOND),
     third = word(wram, DP_TILE_THIRD),
@@ -337,6 +367,7 @@ function resetTileStacks(wram) {
 }
 // The free stack in ascending order, the uses kept but entry 0's (81:8FF0).
 function resetTileStacksAscending(wram) {
+  observer?.highReset?.();
   setWord(wram, DP_TILE_FREE, TILE_STACK_LAST);
   for (let x = TILE_STACK_LAST, n = 2; x !== 0; x -= 2, n += 2)
     setWord(wram, TILE_STACK_FREE - 2 + x, n);
@@ -851,7 +882,7 @@ export function* loadSceneSequence(h, scene) {
     // WRAM at the register addresses (7E:4340 and 7E:4341), not in the hardware.
     resetScenePalettes(wram, { write: (address, value) => writeStateByte(wram, address, value) });
     clearSceneLayers(wram);
-    placeGridBlocks(mem, wram);
+    phase('grid-blocks', () => placeGridBlocks(mem, wram));
     clearWallMap(wram);
     setWord(wram, DP_OBJECT_LISTS, word(wram, DP_SCENE_RECORD));
   };
@@ -863,7 +894,7 @@ export function* loadSceneSequence(h, scene) {
       setWord(wram, DP_SCENE_COUNT, count);
       setWord(wram, DP_SCENE_LAYER, SCENE_LAYER_LOW);
       setWord(wram, DP_SCENE_LAYER_BITS, 0);
-      buildLayerTileStacks(mem, wram);
+      phase('objects', () => buildLayerTileStacks(mem, wram));
       clearWallMap(wram);
     }
     count = nextByte();
@@ -872,8 +903,8 @@ export function* loadSceneSequence(h, scene) {
       setWord(wram, DP_SCENE_LAYER, SCENE_LAYER_HIGH);
       setWord(wram, DP_SCENE_LAYER_BITS, TILE_PRIORITY);
       resetTileStacksAscending(wram);
-      buildLayerTileStacks(mem, wram);
+      phase('objects', () => buildLayerTileStacks(mem, wram));
     }
-    buildWallTiles(wram);
+    phase('wall-tiles', () => buildWallTiles(wram));
   };
 }

@@ -12,9 +12,8 @@ import { sceneLoadSpecs } from './main-scene-load-source.mjs';
 import { DialogTestMemory, decodeWindows } from './task-native-dialog-harness.mjs';
 import { runReference } from './w65c816-reference.mjs';
 import { VmMemory } from '../src/vm/memory.mjs';
-import { TaskAccessor } from '../src/vm/task-accessor.mjs';
-import { dialogAccess } from '../src/system/native-dialog-support.mjs';
-import { loadScene } from '../proof/system/main-scene-load.mjs';
+import { loadSceneSequence } from '../src/game/scene-load.mjs';
+import { drainNativeSequence } from '../src/system/sequence-runner.mjs';
 import { fnv1a } from '../src/data/fnv.mjs';
 import {
   SCENE_RECORD,
@@ -160,21 +159,8 @@ test('audit covers all footprints and records actual resource peaks without muta
   );
   for (const s of audit.streams) {
     const mem = new VmMemory(cartridge.rom, new Uint8Array(0x20000), null, cartridge.present);
-    const a = new TaskAccessor({
-      mem,
-      a: s.scene_index,
-      x: 0,
-      y: 0,
-      s: 0x1ef0,
-      d: 0,
-      dbr: 0x7e,
-      p: 0,
-      pc: 0xa518,
-    });
-    a.load();
-    a.ctx.programBank = 0x80;
-    const h = dialogAccess(a);
-    h.call(0x80a518, 0x81a117, () => loadScene(h), true);
+    // The unobserved lifted load leaves the same WRAM as the observed one.
+    drainNativeSequence(loadSceneSequence({ a: { mem } }, s.scene_index));
     assert.equal(s.construction.wram_checksum, fnv1a(mem.wram), s.address);
   }
   const image = { rom: cartridge.rom.slice(), present: cartridge.present.slice() };

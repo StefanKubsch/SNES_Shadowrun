@@ -12,17 +12,19 @@ node tools/scene-shape-audit.mjs > .cache/logs/scene-shape-audit.json
 ```
 
 The tool checks that the supplied records, scene pointers and six tilesets
-match the assembled cartridge, then observes actual native drawing and full
-scene construction. It does not open a ROM. Its report describes the current
-assets; it is not a trusted capacity manifest for future edits. Checksums are
-diagnostic comparisons, not authentication.
+match the assembled cartridge, then observes the lifted drawing and full scene
+construction of [scene-load.mjs](../src/game/scene-load.mjs) through its optional
+observer (`observeSceneLoad`: shape cell writes, tile stack interning and phase
+ends). It does not open a ROM. Its report describes the current assets; it is not
+a trusted capacity manifest for future edits. Checksums are diagnostic
+comparisons, not authentication.
 
 ## Shape coordinates and writes
 
 Sources are the original loader `81:8DE2`, diagonals `81:8D09` and `81:8D23`,
 rectangle border `81:8D3D`, rectangle fill `81:8DC0`, and block placement
-`81:8EDF`. Their native equations are in
-[main-scene-load.mjs](../proof/system/main-scene-load.mjs); the pinned source windows
+`81:8EDF`. Their lifted equations are in
+[scene-load.mjs](../src/game/scene-load.mjs); the pinned source windows
 and existing original-instruction comparisons are in
 [main-scene-load-source.mjs](../tools/main-scene-load-source.mjs) and
 main-scene-load.test.mjs (removed).
@@ -121,12 +123,14 @@ and the palette peak at `8B:F015`. These observations are not spare capacity
 promises for edits. Changing block tile words can change triple sharing and
 allocation order while the footprint stays identical.
 
-[Regression tests](../tools/scene-shape-audit.test.mjs) compare the native
+[Regression tests](../tools/scene-shape-audit.test.mjs) compare the lifted
 write sequence with actual original ROM instructions for all 209 original
 shapes and seven synthetic boundary cases. They compare every original
-record and all six tilesets with the European ROM. Instrumented full native
-construction is checked against uninstrumented construction for all 165
-scenes. Inconsistent records, identities, ordering, metadata and tilesets
+record and all six tilesets with the European ROM. Observed full construction is
+checked against unobserved construction for all 165 scenes. Since 2026-11-26 the
+audit runs the lifted load instead of the register-level one; every observation is
+unchanged, and the WRAM checksums differ only in the former caller stack bytes
+7E:1EDC-1EF0. Inconsistent records, identities, ordering, metadata and tilesets
 are rejected. The isolated callers begin with synthetic zero WRAM; these
 are source and construction checks, not route, hardware or timing observations.
 

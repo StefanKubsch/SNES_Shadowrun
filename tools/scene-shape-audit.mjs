@@ -1,4 +1,4 @@
-// Read-only native shape footprints and scene-build resource observations.
+// Read-only shape footprints and scene-build resource observations.
 import { readFileSync } from 'node:fs';
 import { pathToFileURL } from 'node:url';
 import { cartridge } from './cartridge-harness.mjs';
@@ -9,12 +9,10 @@ import { placedReader, requireRomAddress } from '../src/data/rom-bytes.mjs';
 import { readTilesets } from '../src/data/tilesets.mjs';
 import { encodeScene } from '../src/data/scenes.mjs';
 import { TILE_NAME_MASK } from '../src/constants/ppu.mjs';
-import { WORD_BITS, BYTE_BITS } from '../src/constants/bits.mjs';
-import { WRAM_BANK } from '../src/constants/memory-map.mjs';
+import { WORD_BITS, BYTE_BITS, BYTE_MASK } from '../src/constants/bits.mjs';
 import { VmMemory, WRAM_SIZE } from '../src/vm/memory.mjs';
-import { TaskAccessor } from '../src/vm/task-accessor.mjs';
-import { dialogAccess } from '../src/system/native-dialog-support.mjs';
-import { SCENE_LOAD_ROUTINES, loadScene } from '../proof/system/main-scene-load.mjs';
+import { drawSceneShapes, loadSceneSequence, observeSceneLoad } from '../src/game/scene-load.mjs';
+import { drainNativeSequence } from '../src/system/sequence-runner.mjs';
 import {
   SHAPE_GRID,
   SHAPE_GRID_BYTES,
@@ -24,7 +22,6 @@ import {
   DP_SCENE_COUNT,
   DP_SCENE_LAYER,
   DP_SCENE_RECORD,
-  DP_TILE_FREE,
   DP_WALL_NEXT,
   SCENE_PALETTE_COUNT,
   SCENE_LAYER_LOW,
@@ -37,14 +34,10 @@ import {
   TILE_STACK_SECOND,
   TILE_STACK_THIRD,
 } from '../src/data/wram.mjs';
-import '../proof/system/dialog-register-helpers.mjs';
 
 const WORD_BYTES = 2,
   WORD_MASK = 0xffff,
   WRAM_BASE = 0x7e0000;
-const STACK_TOP = 0x1ef0; // Isolated test caller, as in the native comparison harness.
-const SHAPE_CALL = 0x81a16d,
-  SCENE_CALL = 0x80a518;
 const SCENE_HEADER_BYTES = 4,
   GRID_POSITION_MASK = 0x3ffe;
 const GRID_VISIBLE_COLUMNS = 32,
@@ -61,25 +54,23 @@ const visible = (offset) =>
   offset < SHAPE_GRID_BYTES &&
   offset % SHAPE_GRID_ROW_BYTES < GRID_VISIBLE_COLUMNS * WORD_BYTES;
 
-function accessor(mem, value, caller) {
-  const a = new TaskAccessor({
-    mem,
-    a: value,
-    x: 0,
-    y: 0,
-    s: STACK_TOP,
-    d: 0,
-    dbr: WRAM_BANK,
-    p: 0,
-    pc: caller & WORD_MASK,
-  });
-  a.load();
-  a.ctx.programBank = caller >>> WORD_BITS;
-  return dialogAccess(a);
+const dpWord = (mem, at) => mem.wram[at] | (mem.wram[at + 1] << BYTE_BITS);
+const setDpWord = (mem, at, value) => {
+  mem.wram[at] = value & BYTE_MASK;
+  mem.wram[at + 1] = (value >>> BYTE_BITS) & BYTE_MASK;
+};
+// Run with the scene load observer of src/game/scene-load.mjs.
+function observing(observer, run) {
+  const previous = observeSceneLoad(observer);
+  try {
+    return run();
+  } finally {
+    observeSceneLoad(previous);
+  }
 }
 
 // Isolated synthetic WRAM contains the caller's shape and empty object lists.
-// The native decoder and its real nested calls provide the write sequence.
+// The lifted shape decoder (81:8DE2) provides the write sequence after its grid clear.
 export function traceSceneShape(shape) {
   const data = encodeScene({
     backdrop: '0000',
@@ -90,22 +81,18 @@ export function traceSceneShape(shape) {
   });
   const mem = new VmMemory(cartridge.rom, new Uint8Array(WRAM_SIZE), null, cartridge.present);
   mem.wram.set(data, SCENE_RECORD - WRAM_BASE);
-  const h = accessor(mem, 0, SHAPE_CALL);
-  h.dpWrite(DP_SCENE_RECORD, (SCENE_RECORD + SCENE_HEADER_BYTES) & WORD_MASK, WORD_BYTES);
-  h.dpWrite(DP_SCENE_RECORD + WORD_BYTES, SCENE_RECORD >>> WORD_BITS, 1);
-  h.dpWrite(DP_SCENE_COUNT, 1, WORD_BYTES);
-  const writes = [],
-    write = h.write;
-  let cleared = 0;
-  h.write = (address, value, width = WORD_BYTES) => {
-    if (cleared < SHAPE_GRID_BYTES / WORD_BYTES) cleared++;
-    else writes.push({ offset: address - SHAPE_GRID, value: value & WORD_MASK, width });
-    write(address, value, width);
-  };
-  h.call(0x81a16d, 0x818de2, () => SCENE_LOAD_ROUTINES.get(0x818de2)(h), false);
+  setDpWord(mem, DP_SCENE_RECORD, (SCENE_RECORD + SCENE_HEADER_BYTES) & WORD_MASK);
+  mem.wram[DP_SCENE_RECORD + WORD_BYTES] = SCENE_RECORD >>> WORD_BITS;
+  setDpWord(mem, DP_SCENE_COUNT, 1);
+  const writes = [];
+  observing(
+    { gridWrite: (offset, value) => writes.push({ offset, value, width: WORD_BYTES }) },
+    () => drawSceneShapes(mem, mem.wram),
+  );
   return {
     writes,
-    consumed_bytes: h.dp(DP_SCENE_RECORD) - ((SCENE_RECORD + SCENE_HEADER_BYTES) & WORD_MASK),
+    consumed_bytes:
+      dpWord(mem, DP_SCENE_RECORD) - ((SCENE_RECORD + SCENE_HEADER_BYTES) & WORD_MASK),
   };
 }
 
@@ -137,9 +124,7 @@ function shapeSummary(shape, index, blocks) {
 
 export function observeSceneBuild(image, sceneIndex, blockCount) {
   const mem = new VmMemory(image.rom, new Uint8Array(WRAM_SIZE), null, image.present);
-  const h = accessor(mem, sceneIndex, SCENE_CALL);
-  const routines = new Map(SCENE_LOAD_ROUTINES),
-    phases = [];
+  const phases = [];
   let minimumFree = TILE_STACK_LAST,
     exhaustedAllocations = 0;
   let grid = null;
@@ -148,45 +133,8 @@ export function observeSceneBuild(image, sceneIndex, blockCount) {
   const retainedLow = new Set(),
     overlaps = new Set(),
     retainedTriples = new Map();
-  // 8FC2 allocates low-layer entries downwards. 8FF0 resets the free stack
-  // to allocate high-layer entries upwards without clearing low-layer data.
-  const highReset = routines.get(0x818ff0);
-  routines.set(0x818ff0, (h, e, r) => {
-    for (let offset = 0; offset < SCENE_LAYER_BYTES; offset += WORD_BYTES) {
-      const index = mem.read16(WRAM_BASE + SCENE_LAYER_LOW + offset) & TILE_NAME_MASK;
-      if (index) retainedLow.add(index);
-    }
-    for (const index of retainedLow)
-      retainedTriples.set(
-        index,
-        [TILE_STACK_FIRST, TILE_STACK_SECOND, TILE_STACK_THIRD].map((at) =>
-          mem.read16(WRAM_BASE + at + index * WORD_BYTES),
-        ),
-      );
-    highPass = true;
-    return highReset(h, e, r);
-  });
-  const intern = routines.get(0x818e57);
-  routines.set(0x818e57, (h, e, r) => {
-    const before = h.dp(DP_TILE_FREE, WORD_BYTES),
-      result = intern(h, e, r);
-    const after = h.dp(DP_TILE_FREE, WORD_BYTES);
-    if (before === WORD_MASK - 1 && after !== before) exhaustedAllocations++;
-    const allocated = after === ((before - WORD_BYTES) & WORD_MASK);
-    if (highPass && allocated && retainedLow.has(h.ctx.a & TILE_NAME_MASK))
-      overlaps.add(h.ctx.a & TILE_NAME_MASK);
-    const used =
-      after === WORD_MASK - 1
-        ? TILE_STACK_CAPACITY
-        : TILE_STACK_CAPACITY - (after / WORD_BYTES + 1);
-    combinedPeak = Math.max(combinedPeak, used + (highPass ? retainedLow.size : 0));
-    if (after <= TILE_STACK_LAST) minimumFree = Math.min(minimumFree, after);
-    else if (after === WORD_MASK - 1) minimumFree = -WORD_BYTES;
-    else throw new Error('Native tile free pointer escaped its table');
-    return result;
-  });
   const snapshot = (name) => {
-    const wall = h.dp(DP_WALL_NEXT, WORD_BYTES),
+    const wall = dpWord(mem, DP_WALL_NEXT),
       palettes = mem.read16(WRAM_BASE + SCENE_PALETTE_COUNT);
     phases.push({
       name,
@@ -196,38 +144,64 @@ export function observeSceneBuild(image, sceneIndex, blockCount) {
       palettes_within_capacity: palettes <= PALETTE_CAPACITY,
     });
   };
-  for (const [target, name] of [
-    [0x818edf, 'shape_blocks'],
-    [0x81903e, 'objects'],
-    [0x81940a, 'wall_tiles'],
-  ]) {
-    const run = routines.get(target);
-    routines.set(target, (h, e, r) => {
-      if (target === 0x818edf) {
-        const cells = [];
-        for (let offset = GRID_VISIBLE_START; offset < SHAPE_GRID_BYTES; offset += WORD_BYTES)
-          if (visible(offset)) {
-            const value = mem.read16(SHAPE_GRID + offset);
-            if (value) cells.push({ offset, block: value });
-          }
-        grid = {
-          visible_nonzero_cells: cells.length,
-          blocks: [...new Set(cells.map((c) => c.block))].sort((a, b) => a - b),
-          unowned_cells: cells.filter((c) => c.block >= blockCount),
-        };
+  const observer = {
+    // 8FC2 allocates low-layer entries downwards. 8FF0 resets the free stack
+    // to allocate high-layer entries upwards without clearing low-layer data.
+    highReset() {
+      for (let offset = 0; offset < SCENE_LAYER_BYTES; offset += WORD_BYTES) {
+        const index = mem.read16(WRAM_BASE + SCENE_LAYER_LOW + offset) & TILE_NAME_MASK;
+        if (index) retainedLow.add(index);
       }
-      const layer =
-        target === 0x81903e
-          ? h.dp(DP_SCENE_LAYER, WORD_BYTES) === SCENE_LAYER_LOW
+      for (const index of retainedLow)
+        retainedTriples.set(
+          index,
+          [TILE_STACK_FIRST, TILE_STACK_SECOND, TILE_STACK_THIRD].map((at) =>
+            mem.read16(WRAM_BASE + at + index * WORD_BYTES),
+          ),
+        );
+      highPass = true;
+    },
+    intern(before, after, stack) {
+      if (before === WORD_MASK - 1 && after !== before) exhaustedAllocations++;
+      const allocated = after === ((before - WORD_BYTES) & WORD_MASK);
+      if (highPass && allocated && retainedLow.has(stack & TILE_NAME_MASK))
+        overlaps.add(stack & TILE_NAME_MASK);
+      const used =
+        after === WORD_MASK - 1
+          ? TILE_STACK_CAPACITY
+          : TILE_STACK_CAPACITY - (after / WORD_BYTES + 1);
+      combinedPeak = Math.max(combinedPeak, used + (highPass ? retainedLow.size : 0));
+      if (after <= TILE_STACK_LAST) minimumFree = Math.min(minimumFree, after);
+      else if (after === WORD_MASK - 1) minimumFree = -WORD_BYTES;
+      else throw new Error('Native tile free pointer escaped its table');
+    },
+    before(name) {
+      if (name !== 'grid-blocks') return;
+      const cells = [];
+      for (let offset = GRID_VISIBLE_START; offset < SHAPE_GRID_BYTES; offset += WORD_BYTES)
+        if (visible(offset)) {
+          const value = mem.read16(SHAPE_GRID + offset);
+          if (value) cells.push({ offset, block: value });
+        }
+      grid = {
+        visible_nonzero_cells: cells.length,
+        blocks: [...new Set(cells.map((c) => c.block))].sort((a, b) => a - b),
+        unowned_cells: cells.filter((c) => c.block >= blockCount),
+      };
+    },
+    after(name) {
+      snapshot(
+        name === 'objects'
+          ? dpWord(mem, DP_SCENE_LAYER) === SCENE_LAYER_LOW
             ? 'low_objects'
             : 'high_objects'
-          : name;
-      const result = run(h, e, r);
-      snapshot(layer);
-      return result;
-    });
-  }
-  h.call(0x80a518, 0x81a117, () => loadScene(h, null, routines), true);
+          : name === 'grid-blocks'
+            ? 'shape_blocks'
+            : 'wall_tiles',
+      );
+    },
+  };
+  observing(observer, () => drainNativeSequence(loadSceneSequence({ a: { mem } }, sceneIndex)));
   return {
     grid,
     phases,
