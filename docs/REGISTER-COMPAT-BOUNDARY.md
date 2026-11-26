@@ -129,7 +129,13 @@ mostly script natives (src/script 56 %).
      only they used, the oracle family with analysis/mesen-coverage.json, and the 21
      proof modules only they imported. tools/retire-doc-links.mjs turns Markdown links
      to removed files into plain text marked "(removed)".
-   - Next: rework the audits without rom-code-observed.json; move proof/crt; freeze or
+   - 5b (done): analysis/rom-code-observed.json is gone. tools/rom-map.mjs traces code
+     from proven entries only and reaches the same 51,325 code bytes (traced code is
+     class code, code_static is empty); the package is byte-identical (216 raw bytes).
+     rom-code-audit now explains the 121 retained code bytes as 40 product reads and 81
+     data margins; rom-unread-audit and text-reference-inventory decode the traced
+     starts only (docs/ROM-CODE-AUDIT.md).
+   - Next: move proof/crt; freeze or
      port the remaining mixed tests (cheats, text-edits, packed-text-contract, scene
      edits and audits, picture-video, sprite-state, OBJ time over); move the scaffolding
      of the frozen tests to tools/; remove the register picture path of the golden

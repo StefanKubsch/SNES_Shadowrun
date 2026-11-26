@@ -13,7 +13,6 @@ import { releaseGenerators } from './generator-dependencies.mjs';
 
 // Inputs that need Mesen recordings or are retained; see GENERATOR-INPUT-SOURCES.json.
 export const retainedInputs = [
-  'analysis/rom-code-observed.json',
   'analysis/rom-palettes.json',
   'analysis/rom-reads.json',
   'analysis/rom-vram.json',

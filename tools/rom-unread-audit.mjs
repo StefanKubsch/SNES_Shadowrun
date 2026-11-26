@@ -7,7 +7,6 @@ import { inspectRom, cpuToOffset, offsetToCpu, cpuLabel } from './rom.mjs';
 import { decode } from './disassemble.mjs';
 import { loadCartridge } from '../src/data/cartridge.mjs';
 import { BYTE_BITS, WORD_MASK, HEX_RADIX } from '../src/constants/bits.mjs';
-import { FLAG_MEMORY_8BIT, FLAG_INDEX_8BIT } from '../src/constants/cpu-flags.mjs';
 
 const WORD_BYTES = 2;
 const READ_MNEMONICS = new Set([
@@ -40,19 +39,10 @@ const read = (name) => readFileSync(new URL(`../${name}`, import.meta.url));
 const json = (name) => JSON.parse(read(name));
 const address = (text) => parseInt(text.replace(':', ''), HEX_RADIX);
 
-// Include every observed E/M/X state as well as the map's first traced state.
-export function auditInstructionStarts(map, observed) {
-  const starts = new Set(map.traced_starts);
-  for (const [offset, states] of Object.entries(observed.starts)) {
-    for (const state of states) {
-      const [p, e] = state.split(' ');
-      const status = parseInt(p, HEX_RADIX);
-      starts.add(
-        `${offset}:${e}${Number(Boolean(+e || status & FLAG_MEMORY_8BIT))}${Number(Boolean(+e || status & FLAG_INDEX_8BIT))}`,
-      );
-    }
-  }
-  return [...starts].sort();
+// The map's traced instruction starts with their E/M/X state, sorted. Until 2026-11-26
+// the states observed in Mesen were added as well (docs/ROM-UNREAD-AUDIT.md).
+export function auditInstructionStarts(map) {
+  return [...new Set(map.traced_starts)].sort();
 }
 
 // Match operands naming a byte in a range, including a word starting one
@@ -106,13 +96,12 @@ export async function auditUnreadRom() {
   const { bytes, metadata } = inspectRom(read('Shadowrun (E).smc'));
   const manifest = json('assets/vm-cartridge.json');
   const map = json('analysis/vm-rom-map.json');
-  const observed = json('analysis/rom-code-observed.json');
   const reads = json('analysis/rom-reads.json');
   const raw = json('assets/vm-raw.json');
   if (metadata.rom_sha256 !== manifest.source_rom_sha256 || map.rom_sha256 !== metadata.rom_sha256)
     throw new Error('Audit inputs must belong to the same European ROM');
   const cartridge = await loadCartridge(async (name) => new Uint8Array(read(`assets/${name}`)));
-  const starts = auditInstructionStarts(map, observed);
+  const starts = auditInstructionStarts(map);
   const matchesOriginal = (cpu, length) => {
     const offset = cpuToOffset(cpu, bytes.length);
     for (let i = 0; i < length; i++)
@@ -141,14 +130,6 @@ export async function auditUnreadRom() {
         return at < offset + data.length + 1 && at + r.length > offset - 1;
       }),
       recorded_native_read_bytes: overlap(offset, data.length, reads.ranges),
-      original_code_bank_recording_applies: offset <= WORD_MASK,
-      recorded_original_read_bytes:
-        offset <= WORD_MASK
-          ? Object.keys(observed.reads).filter((key) => {
-              const at = parseInt(key, HEX_RADIX);
-              return at >= offset && at < offset + data.length;
-            }).length
-          : null,
       operand_candidates: unreadOperandCandidates(bytes, starts, cpu, data.length),
       preserved_in_product: matchesOriginal(cpu, data.length),
     };
@@ -193,7 +174,8 @@ export async function auditUnreadRom() {
     traced_instruction_starts: map.traced_starts.length,
     decoded_states: starts.length,
     map_conflicts: map.conflicts,
-    original_read_scope: 'Existing original read recordings cover banks 80/81 only, not 8B/8D.',
+    original_read_scope:
+      'The original read recordings in Mesen were removed on 2026-11-26; only the product reads of the live runs remain.',
     indirect_limit:
       'An index, computed pointer, transfer or another bank can reach a range without naming its base. Review neighboring readers separately.',
     unread_bytes: ranges.reduce((n, r) => n + r.bytes, 0),

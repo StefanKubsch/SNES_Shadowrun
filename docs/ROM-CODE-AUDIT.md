@@ -6,6 +6,28 @@ Checked on 2026-11-09. This follows the
 [unidentified-data audit](ROM-UNREAD-AUDIT.md); its 95 unknown data bytes and
 all decoded graphics, including unused content, remain unchanged.
 
+## Update 2026-11-26: without the Mesen recordings
+
+By user decision the original read and execution recordings
+(`analysis/rom-code-observed.json`, Mesen) were removed with the register-level
+interpreter ([REGISTER-COMPAT-BOUNDARY.md](REGISTER-COMPAT-BOUNDARY.md), step 5). The
+ROM map now traces code statically from proven entries only; it reaches the same
+51,325 code bytes, so every traced byte outside the unused-entry passes is class
+`code` and `code_static` is empty. The package is byte-identical: 121 retained code
+bytes, 216 raw bytes, 52,319 absent code bytes. The audit now has two categories:
+
+| Evidence category                                  | Bytes |
+| -------------------------------------------------- | ----: |
+| CPU data reads recorded in the product's live runs |    40 |
+| Data-boundary margins                              |    81 |
+| Total retained code bytes                          |   121 |
+
+The six bytes kept earlier only for original reads (`80:9A5E`, `9A5F`, `81:CDF8`,
+`D02A`, `D10D`, `E446`) stay retained as margins or product reads. Without the
+observed M/X states the trace reports 88 state conflicts instead of 4; they do not
+change any class. The hardware-only HDMA range below no longer enters the audit. The
+sections that follow record the state of 2026-11-09 to 2026-11-17.
+
 ## Result
 
 The previous package kept 293 code bytes in 288 runs. Of these, 200 were

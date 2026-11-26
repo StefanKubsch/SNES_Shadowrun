@@ -5,30 +5,22 @@ import { pathToFileURL } from 'node:url';
 import { inspectRom, cpuToOffset, offsetToCpu, cpuLabel } from './rom.mjs';
 import { loadCartridge } from '../src/data/cartridge.mjs';
 import { HEX_RADIX } from '../src/constants/bits.mjs';
-import {
-  ROM_CODE_CLASSES,
-  isDataToCodeBoundary,
-  isHardwareOnlyCodeRead,
-} from './rom-code-retention.mjs';
+import { ROM_CODE_CLASSES, isDataToCodeBoundary } from './rom-code-retention.mjs';
 
 const read = (name) => readFileSync(new URL(`../${name}`, import.meta.url));
 const json = (name) => JSON.parse(read(name));
 const address = (text) => parseInt(text.replace(':', ''), HEX_RADIX);
-const ROM_OFFSET_HEX_DIGITS = 5; // Physical offsets in the one MiB coverage recording.
 
-export function classifyRetainedCode(classOf, nativeReads, originalReads, runs, romSize) {
-  const original = new Map(
-    Object.entries(originalReads).map(([at, pc]) => [parseInt(at, HEX_RADIX), pc]),
-  );
+// Each retained code byte: read by the product in the live runs (analysis/rom-reads.json),
+// a data read margin, or unexplained. The original's reads recorded in Mesen were a
+// third source until 2026-11-26 (docs/ROM-CODE-AUDIT.md).
+export function classifyRetainedCode(classOf, nativeReads, runs, romSize) {
   const rows = [];
   for (const run of runs) {
     const offset = cpuToOffset(address(run.address), romSize);
     for (let i = 0; i < run.hex.length / 2; i++) {
       const at = offset + i;
       const native = Boolean(nativeReads[at]);
-      const nextPc = original.get(at) ?? null;
-      const hardwareOnly = nextPc !== null && isHardwareOnlyCodeRead(at);
-      const cpuRead = native || (nextPc !== null && !hardwareOnly);
       const margin = isDataToCodeBoundary(classOf, at);
       rows.push({
         address: cpuLabel(offsetToCpu(at)),
@@ -37,16 +29,8 @@ export function classifyRetainedCode(classOf, nativeReads, originalReads, runs, 
         code_class: classOf[at],
         previous_class: classOf[at - 1] ?? null,
         native_recorded: native,
-        original_recorded_next_pc: nextPc,
-        original_hardware_only: hardwareOnly,
         data_boundary: margin,
-        category: cpuRead
-          ? 'recorded_cpu_read'
-          : hardwareOnly
-            ? 'hardware_only_and_margin'
-            : margin
-              ? 'unobserved_data_margin'
-              : 'unexplained',
+        category: native ? 'recorded_cpu_read' : margin ? 'data_margin' : 'unexplained',
       });
     }
   }
@@ -58,7 +42,6 @@ export async function auditRetainedCode() {
   const map = json('analysis/vm-rom-map.json');
   const raw = json('assets/vm-raw.json');
   const manifest = json('assets/vm-cartridge.json');
-  const observed = json('analysis/rom-code-observed.json');
   const reads = json('analysis/rom-reads.json');
   if (
     [map.rom_sha256, raw.source_rom_sha256, manifest.source_rom_sha256].some(
@@ -74,7 +57,7 @@ export async function auditRetainedCode() {
   const native = new Uint8Array(bytes.length);
   for (const [offset, length] of reads.ranges) native.fill(1, offset, offset + length);
   const cartridge = await loadCartridge(async (name) => new Uint8Array(read(`assets/${name}`)));
-  const rows = classifyRetainedCode(classOf, native, observed.reads, raw.code_bytes, bytes.length);
+  const rows = classifyRetainedCode(classOf, native, raw.code_bytes, bytes.length);
   for (const row of rows) {
     const at = row.offset;
     if (
@@ -102,10 +85,6 @@ export async function auditRetainedCode() {
       previous_class: previous,
       absent: !cartridge.present[at],
       native_recorded: Boolean(native[at]),
-      original_recorded:
-        observed.reads[
-          at.toString(HEX_RADIX).toUpperCase().padStart(ROM_OFFSET_HEX_DIGITS, '0')
-        ] !== undefined,
     });
   }
   const categories = {};

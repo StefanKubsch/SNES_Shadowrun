@@ -1405,17 +1405,6 @@ test('every byte the live runs read is in the package', () => {
       if (!cartridge.present[o]) assert.fail(`read byte ${o.toString(16)} missing`);
 });
 
-test('every byte the original reads in banks 80/81 in the coverage scenarios is in the package', () => {
-  // Script tours (script_tour_reads) and the HDMA reads behind the table 81:D463 that the native
-  // product never makes (HARDWARE_ONLY_READS in tools/rom-map.mjs) are left out.
-  const observed = JSON.parse(readFileSync('analysis/rom-code-observed.json', 'utf8'));
-  const missing = Object.keys(observed.reads)
-    .map((key) => parseInt(key, 16))
-    .filter((o) => !cartridge.present[o] && !(o >= 0xd479 && o <= 0xd577));
-  assert.deepEqual(missing, []);
-  assert.ok(Object.keys(observed.reads).length > 10000);
-});
-
 test('reading an absent code byte is a fault, not an invented value', () => {
   const memory = new VmMemory(cartridge.rom, undefined, null, cartridge.present);
   const offset = cartridge.present.indexOf(0),

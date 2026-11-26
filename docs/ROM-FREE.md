@@ -90,6 +90,13 @@ output. Release results are recorded in HANDOFF.md.
 
 ## Step 1: procedure
 
+Update 2026-11-26: the Mesen code coverage of item 1 and its
+`analysis/rom-code-observed.json` were removed by user decision
+([REGISTER-COMPAT-BOUNDARY.md](REGISTER-COMPAT-BOUNDARY.md), step 5). The ROM map now
+finds code by its static trace alone, which reaches the same code bytes; the package
+is unchanged ([ROM-CODE-AUDIT.md](ROM-CODE-AUDIT.md)). The procedure below is the
+historical one.
+
 1. **Code coverage** (`node tools/rom-code-coverage.mjs [scenario]`, needs
    Mesen): every instruction start executed in Mesen with P and E at its
    first execution, merged into `analysis/rom-code-observed.json`.

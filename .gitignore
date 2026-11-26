@@ -9,7 +9,6 @@ node_modules/
 # Generated analysis reports; rebuild them with npm run rebuild:artifacts.
 # Recorded and retained inputs stay versioned.
 /analysis/*
-!/analysis/rom-code-observed.json
 !/analysis/rom-palettes.json
 !/analysis/rom-reads.json
 !/analysis/rom-vram.json

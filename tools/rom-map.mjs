@@ -1,19 +1,17 @@
 // ROM map for the ROM-free target (docs/ROM-FREE.md): classifies every byte
 // of the European ROM as code, script data or undetermined.
 //
-// Executed code: every instruction executed in Mesen (analysis/rom-code-observed.json,
-// tools/rom-code-coverage.mjs) with its length in the observed state. All code
-// classes are absent from the package except bytes read as data or true data margins.
-//
-// Static code: tracing with the M/X
-// state from the observed instructions and proven entries (vectors, native
+// Code: tracing with the M/X state from proven entries (vectors, native
 // table 82:D7B8, opcode table 80:F2B4 with E0 M0 X0 like the dispatch
 // listings, all entries of the listings in analysis/*.asm.txt with the state
 // proven there). Conditional branches follow both paths, JSR/JSL return with
 // the caller's state (assumption), PLP restores the state of the matching
-// PHP on the same path. At an observed instruction the observed state
-// applies, because a call can return with changed M/X. Indirect jumps end
-// the path and are reported. A byte reached with two states, or as both an
+// PHP on the same path. Indirect jumps end the path and are reported. Until
+// 2026-11-26 the instructions executed in Mesen (analysis/rom-code-observed.json)
+// were seeds and state corrections as well; the static trace alone reaches the same
+// code bytes (docs/ROM-FREE.md). Traced code that the unused-entry passes below do not
+// reclassify is class code. All code classes are absent from the package except bytes
+// read as data or true data margins. A byte reached with two states, or as both an
 // instruction middle and an instruction start, is a conflict; the first
 // state stays. Bytes traced only from natives that no script names are
 // code_unused_native or code_unused_opcode (see the trace below).
@@ -99,8 +97,7 @@
 //
 // Bytes read: analysis/rom-reads.json (tools/rom-reads.mjs, recorded in the
 // live tests) and the original's data reads in banks 80/81 from the Mesen
-// coverage scenarios (reads in analysis/rom-code-observed.json, without the
-// script tours with foreign arguments). A read byte
+// coverage scenarios until 2026-11-26 (no longer recorded). A read byte
 // of executed code stays in the package (code_kept;
 // for example the text reader reads a word at the terminator 81:D59D and thus
 // the first byte of the following routine). As a margin for such word reads,
@@ -109,7 +106,7 @@ import { readFile, writeFile, readdir } from 'node:fs/promises';
 import { resolve } from 'node:path';
 import { inspectRom, cpuToOffset, cpuLabel, hex } from './rom.mjs';
 import { decode } from './disassemble.mjs';
-import { isDataToCodeBoundary, isHardwareOnlyCodeRead } from './rom-code-retention.mjs';
+import { isDataToCodeBoundary } from './rom-code-retention.mjs';
 import { decodeScript } from '../src/script/codec.mjs';
 import { inspectScriptTables, europeanTables } from './scripts.mjs';
 import { readTextTree, readText, TEXT_TREE } from '../src/data/texts.mjs';
@@ -300,24 +297,6 @@ const CLASS_NAMES = [
 ];
 const kind = new Uint8Array(SIZE);
 const cpuOf = (offset) => ((0x80 + (offset >> 15)) << 16) | 0x8000 | (offset & 0x7fff);
-const flags = (ps, e) => ({ e, m: e ? 1 : (ps >> 5) & 1, x: e ? 1 : (ps >> 4) & 1, c: null });
-
-// Safe code from Mesen.
-const observed = JSON.parse(await readFile('analysis/rom-code-observed.json', 'utf8'));
-const observedState = new Map(); // Offset -> state 'emx' of the first observed state
-let observedMulti = 0;
-for (const [key, states] of Object.entries(observed.starts)) {
-  const offset = parseInt(key, 16);
-  if (states.length > 1) observedMulti++;
-  for (const s of states) {
-    const [ps, e] = s.split(' ');
-    const state = flags(parseInt(ps, 16), +e),
-      ins = decode(bytes, cpuOf(offset), state);
-    for (let i = 0; i < ins.length; i++)
-      kind[cpuToOffset((ins.cpu & 0xff0000) | ((ins.cpu + i) & 0xffff), SIZE)] = CODE;
-    if (!observedState.has(offset)) observedState.set(offset, state);
-  }
-}
 
 // Static tracing.
 const start = new Uint8Array(SIZE),
@@ -327,8 +306,7 @@ const conflicts = [],
   outside = new Map(),
   seeds = [];
 let callReturns = 0,
-  plpUnknown = 0,
-  corrected = 0;
+  plpUnknown = 0;
 const seed = (cpu, e, m, x, source) =>
   seeds.push({ cpu, state: { e, m, x, c: null }, php: [], source });
 seed(bytes.readUInt16LE(0x7ffc), 1, 1, 1, 'reset vector');
@@ -361,8 +339,6 @@ for (const file of Object.keys(listingEntries).sort())
     const [label, [e, m, x]] = entry.split(' ');
     seed(parseInt(label.replace(':', ''), HEX_RADIX), +e, +m, +x, `analysis/${file}`);
   }
-for (const [offset, state] of observedState)
-  seeds.push({ cpu: cpuOf(offset), state: { ...state }, php: [], source: 'observed' });
 
 const STOPS = new Set(['RTS', 'RTL', 'RTI', 'STP', 'BRK', 'COP']);
 const stateKey = (s) => `${s.e}${s.m}${s.x}`;
@@ -375,11 +351,6 @@ function trace({ cpu, state, php, source }) {
       outside.set(cpuLabel(cpu), source);
       return;
     }
-    const seen = observedState.get(offset);
-    if (seen && stateKey(seen) !== stateKey(state)) {
-      corrected++;
-      state = { ...seen, c: state.c };
-    }
     if (start[offset]) {
       if (stateAt[offset] !== stateKey(state))
         conflicts.push({
@@ -391,7 +362,7 @@ function trace({ cpu, state, php, source }) {
         });
       return;
     }
-    if (kind[offset] === STATIC || (kind[offset] === CODE && !seen)) {
+    if (kind[offset] === STATIC) {
       conflicts.push({ at: cpuLabel(cpu), kind: 'inside instruction', source });
       return;
     }
@@ -400,7 +371,7 @@ function trace({ cpu, state, php, source }) {
       const o = cpuToOffset((cpu & 0xff0000) | ((cpu + i) & 0xffff), SIZE);
       if (i && start[o])
         conflicts.push({ at: cpuLabel(cpu), kind: 'overlaps instruction start', source });
-      if (kind[o] !== CODE) kind[o] = STATIC;
+      kind[o] = STATIC;
     }
     start[offset] = 1;
     stateAt[offset] = stateKey(state);
@@ -534,12 +505,7 @@ const opcodeList = Array.from({ length: 0xc4 / 2 }, (_, k) => 2 * k);
 const liveOpcodeEntries = new Set(opcodeList.filter((op) => usedOpcodes.has(op)).map(opcodeCpu));
 const unusedOpcodes = opcodeList.filter((op) => !liveOpcodeEntries.has(opcodeCpu(op)));
 const unusedEntries = new Set([...unusedNatives.map(nativeCpu), ...unusedOpcodes.map(opcodeCpu)]);
-// Observed instructions first, so that their states lead the trace.
-const pass1 = seeds.filter((s) => s.source === 'observed' || !unusedEntries.has(s.cpu));
-const work = [
-  ...pass1.filter((s) => s.source !== 'observed'),
-  ...pass1.filter((s) => s.source === 'observed'),
-];
+const work = seeds.filter((s) => !unusedEntries.has(s.cpu));
 while (work.length) trace(work.pop());
 const passOne = kind.slice(),
   beforeUnused = kind.slice();
@@ -916,6 +882,9 @@ for (let o = 0; o < SIZE;) {
   o = e;
 }
 
+// Code reached by the trace and not reclassified as unused is class code.
+for (let o = 0; o < SIZE; o++) if (kind[o] === STATIC) kind[o] = CODE;
+
 // Bytes read and margin.
 const readsFile = JSON.parse(await readFile('analysis/rom-reads.json', 'utf8'));
 const readBy = Object.fromEntries(CLASS_NAMES.map((n) => [n, 0])),
@@ -928,30 +897,7 @@ for (const [offset, length] of readsFile.ranges)
       kind[o] = KEPT;
     }
   }
-// The original's reads from the coverage scenarios: bytes of every code class change to code_kept,
-// since the data package leaves out all code classes (tools/build-cartridge.mjs).
-// Excluded are reads the native product never makes, each with its proof:
-// - 81:D479 to 81:D577 (ROM offsets D479 to D577), the NMI callback code right behind the
-//   terminator 00 at 81:D478 of the channel 7 window HDMA table 81:D463. In tourplay4 Mesen
-//   reads it in ascending order within one frame, a few bytes per scan line, while the CPU waits
-//   in the sound command loop 81:F00E: a channel enabled during the field continues from its A2
-//   address 43x8/43x9 behind that terminator. Book I PDF 144 (420C) has the initial settings made
-//   for every field and PDF 152 (43x8) the A2 address count up; the continuation inside a field
-//   is Mesen's behaviour, not stated there. proof/video/hdma.mjs starts every table at its A1
-//   address 43x2 to 43x4 for each frame and never reads past the terminator.
 const CODE_CLASSES = new Set([CODE, STATIC, CODE_DEAD, CODE_UNUSED_NATIVE, CODE_UNUSED_OPCODE]);
-const observedReadCode = [],
-  hardwareOnlyReads = [];
-for (const [key, pc] of Object.entries(observed.reads ?? {})) {
-  const o = parseInt(key, 16);
-  if (!CODE_CLASSES.has(kind[o])) continue;
-  if (isHardwareOnlyCodeRead(o)) {
-    hardwareOnlyReads.push(`${hex(o, 5)} ${pc}`);
-    continue;
-  }
-  observedReadCode.push(`${hex(o, 5)} ${pc}`);
-  kind[o] = KEPT;
-}
 let margin = 0;
 // All code classes are absent from the product; a transition from static,
 // unused or dead code to executed code is not a data boundary.
@@ -986,15 +932,9 @@ const report = {
   rom_sha256: ROM_SHA256,
   scope:
     'ROM classification for the ROM-free product. Code of every class is left out of the data package except code_kept (bytes a data reader touches); everything else is kept.',
-  observed: {
-    instruction_starts: observedState.size,
-    addresses_with_several_states: observedMulti,
-    scenarios: observed.scenarios,
-  },
   static_seeds: { total: seeds.length, listings: Object.keys(listingEntries).length },
   counts,
   call_return_assumptions: callReturns,
-  observed_state_corrections: corrected,
   plp_without_php: plpUnknown,
   script_bytes_also_traced_statically: scriptOverStatic,
   text_regions: textRegions,
@@ -1004,18 +944,11 @@ const report = {
     by_class_before_keeping: readBy,
     executed_code_read: readCode,
   },
-  observed_reads: {
-    total: Object.keys(observed.reads ?? {}).length,
-    script_tours_not_kept: Object.keys(observed.script_tour_reads ?? {}).length,
-    executed_code_read: observedReadCode,
-    hardware_only_not_kept: hardwareOnlyReads.length,
-  },
   margin_bytes_kept: margin,
   dead_code: deadCode,
   unused_natives: unusedNativeReport,
   unused_opcodes: unusedOpcodeReport,
-  // Traced instruction starts with their state (E, M, X) as "offset:emx", for the coverage guard
-  // of tools/rom-code-coverage.mjs.
+  // Traced instruction starts with their state (E, M, X) as "offset:emx".
   traced_starts: tracedStarts,
   conflicts: conflicts.length,
   conflict_samples: conflicts.slice(0, 40),
@@ -1029,11 +962,9 @@ console.log(
   JSON.stringify({
     counts,
     conflicts: conflicts.length,
-    corrected,
     plpUnknown,
     scriptOverStatic,
     margin,
     executed_code_read: readCode,
-    observed_executed_code_read: observedReadCode,
   }),
 );

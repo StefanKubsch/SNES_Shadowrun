@@ -28,7 +28,9 @@ word beginning one byte before them. Absolute operands retain an unresolved
 data bank; indexed operands retain an unresolved index. Immediate values
 and `PEA` operands are reported separately, not treated as data reads.
 
-Inputs are `analysis/vm-rom-map.json`, `analysis/rom-code-observed.json`,
+Inputs are `analysis/vm-rom-map.json`, `analysis/rom-code-observed.json` (removed
+2026-11-26 with the Mesen recordings; the audit now decodes the map's traced starts
+only, and the map reports 88 state conflicts without the observed states),
 `analysis/rom-reads.json`, the original ROM and the product assets. The
 existing map supplies 23,001 instruction starts; including alternative
 observed modes gives 23,002 decoded states. It contains four trace conflicts.

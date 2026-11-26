@@ -217,7 +217,8 @@ The AC analyzer is outside this graph but already runs as the release
 check's separate AC-source step; its missing graph edge does not mean that
 the release fails to check it.
 
-The three recording-dependent reports require more than ROM bytes:
+The recording-dependent reports require more than ROM bytes (the first row is
+historical: `analysis/rom-code-observed.json` was removed on 2026-11-26):
 
 | Report                            | Producer                                | Required observations                                                                                |
 | --------------------------------- | --------------------------------------- | ---------------------------------------------------------------------------------------------------- |

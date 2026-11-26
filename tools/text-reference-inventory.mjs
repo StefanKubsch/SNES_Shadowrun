@@ -249,7 +249,6 @@ export function inventoryTextReferences() {
   const texts = json('assets/vm-texts.json');
   const manifest = json('assets/vm-cartridge.json');
   const map = json('analysis/vm-rom-map.json');
-  const observed = json('analysis/rom-code-observed.json');
   if (
     [texts.source_rom_sha256, manifest.source_rom_sha256, map.rom_sha256].some(
       (sha) => sha !== metadata.rom_sha256,
@@ -282,7 +281,7 @@ export function inventoryTextReferences() {
   }
   const nativeCandidates = [];
   const nativeSlots = new Set(native.map((r) => r.slot));
-  for (const start of auditInstructionStarts(map, observed)) {
+  for (const start of auditInstructionStarts(map)) {
     const [at, flags] = start.split(':');
     const ins = decode(bytes, offsetToCpu(parseInt(at, HEX_RADIX)), {
       e: +flags[0],

@@ -27,11 +27,10 @@ test('operand candidates retain mirror, word-boundary and unresolved bank/index 
   assert.ok(!found.some((f) => f.pc === '80:800E'), 'distant base is outside this bounded search');
 });
 
-test('the audit decodes alternative observed M/X states instead of trusting only the first trace', () => {
-  const starts = auditInstructionStarts(
-    { traced_starts: ['00010:000'] },
-    { starts: { '00010': ['00 0', '20 0'], '00020': ['00 1'] } },
-  );
+test('the audit decodes the traced M/X states of the map once each, in order', () => {
+  const starts = auditInstructionStarts({
+    traced_starts: ['00020:111', '00010:000', '00010:010', '00010:000'],
+  });
   assert.deepEqual(starts, ['00010:000', '00010:010', '00020:111']);
 });
 
