@@ -224,7 +224,7 @@ historical: `analysis/rom-code-observed.json` was removed on 2026-11-26):
 | --------------------------------- | --------------------------------------- | ---------------------------------------------------------------------------------------------------- |
 | `analysis/rom-code-observed.json` | `rom-code-coverage.mjs` (removed)       | Mesen scenario executions; merges into retained instruction states and the data reads in banks 80/81 |
 | `analysis/rom-reads.json`         | [rom-reads.mjs](../tools/rom-reads.mjs) | `.cache/rom-reads.bin`; merges into retained read ranges                                             |
-| `analysis/rom-vram.json`          | [rom-vram.mjs](../tools/rom-vram.mjs)   | `.cache/rom-vram/*.json`, including recorded screen uses; also reads ROM and the palette list        |
+| `analysis/rom-vram.json`          | `rom-vram.mjs` (removed)                | Retained since 2026-11-26: its probe patched the retired register PPU model                          |
 
 The palette list, `analysis/rom-palettes.json`, describes bounded palette
 tables plus observed direct CGRAM transfers. Its retained scope and the

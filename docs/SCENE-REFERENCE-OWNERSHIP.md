@@ -208,9 +208,9 @@ The register-level unpacker 80:9F49/9F4D/9E7E served only the window map unpack
 above, the start, initialization and scene graphics references, the unpack proof and
 the packed-asset audits; it moved unchanged to `proof/system/native-unpack.mjs`. The
 game unpacks through `src/system/unpack.mjs` and `native-unpack-body.mjs`. The VRAM
-probe hook in `tools/rom-unpack-loader.mjs` follows the new path; it wraps only this
-register-level unpacker, so a new probe run over the live tests would not see the
-lifted unpacks (the recorded `analysis/rom-vram.json` is unchanged).
+probe hook `tools/rom-unpack-loader.mjs` (removed 2026-11-26 with the probe) wrapped
+only this register-level unpacker; the recorded `analysis/rom-vram.json` is retained
+unchanged.
 
 The register-level WORD upload waits 81:ACAF, ACBD, ACC3 and ACC9 and their request
 entries 81:ACB5, AEF4 and AEFC moved from `src/system/main-wait-interrupt.mjs` to

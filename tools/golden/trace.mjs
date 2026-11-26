@@ -11,8 +11,6 @@ import { toWram } from '../to-wram.mjs';
 import { readFileSync, writeFileSync } from 'node:fs';
 import { gzipSync, gunzipSync, constants as zlib } from 'node:zlib';
 import { LiveGame } from '../../src/video/live-game.mjs';
-import { renderMode1Frame } from '../../proof/video/ppu-frame.mjs';
-import { hdmaRows } from '../../proof/video/hdma.mjs';
 import { renderFrame } from '../../src/video/frame-renderer.mjs';
 import { fnv1a, FNV_OFFSET } from '../../src/data/fnv.mjs';
 
@@ -67,35 +65,23 @@ function hash(array, h = FNV_OFFSET) {
 
 // The picture at NMI entry, as LiveGame's onFrame draws it; none before the first
 // write to 2100. `key` hashes everything the renderer reads (video memories, the
-// picture settings or the PPU registers and scroll and, with HDMA on, the DMA set-up
-// and the WRAM tables); an unchanged key gives the previous picture without drawing it
-// again. Both picture back ends (LiveGame's `video` option) hold the same video memory
-// bytes, the palette as 16-bit little-endian colours, so a trace replays against either.
+// picture settings and, with HDMA on, the WRAM tables); an unchanged key gives the
+// previous picture without drawing it again. The video memory hash takes the palette
+// as 16-bit little-endian colours, the CGRAM bytes the traces were first recorded with.
 function picture(game, cache, key) {
-  const { bus } = game;
-  if (game.picture ? !game.picture.displaySet : !bus.ppu.registerKnown[0]) return FNV_OFFSET;
+  if (!game.picture.displaySet) return FNV_OFFSET;
   if (cache.key === key) return cache.picture;
-  const pixels = game.picture
-    ? renderFrame(game.picture.describe())
-    : renderMode1Frame(bus.ppu, { objects: true, rows: hdmaRows(bus) });
   cache.key = key;
-  cache.picture = hash(pixels);
+  cache.picture = hash(renderFrame(game.picture.describe()));
   return cache.picture;
 }
 function frameHashes(game, state, cache) {
-  const { bus } = game,
-    ppu = game.picture ?? bus.ppu;
-  const video = hash(ppu.oam, hash(game.picture ? ppu.palette : ppu.cgram, hash(ppu.vram)));
+  const p = game.picture;
+  const video = hash(p.oam, hash(p.palette, hash(p.vram)));
   const audio = hash(game.apu.dsp.regs, hash(game.apu.ram));
   toWram(game.memory, state);
-  let key;
-  if (game.picture) {
-    key = hash(game.picture.settings(), video);
-    if (game.picture.hdma) key = hash(state, key);
-  } else {
-    key = hash(ppu.scroll, hash(ppu.registers, video));
-    if (ppu.hdmaEnabled) key = hash(state, hash(bus.dma, key ^ ppu.hdmaEnabled));
-  }
+  let key = hash(p.settings(), video);
+  if (p.hdma) key = hash(state, key);
   const gameHash = hash(maskScratch(state));
   return [picture(game, cache, key), gameHash, video, audio, hash(game.memory.sram)];
 }

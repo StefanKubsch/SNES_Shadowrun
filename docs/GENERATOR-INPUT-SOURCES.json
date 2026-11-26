@@ -283,18 +283,15 @@
       "note": "Merges recorded native ROM reads with retained ranges; the retained report is an input as well as an output."
     },
     {
-      "kind": "recording-dependent",
-      "tool": "tools/rom-vram.mjs",
+      "kind": "retained-input",
+      "tool": null,
       "npm_command": null,
-      "command": "node tools/rom-vram.mjs",
-      "prerequisites": [
-        ".cache/rom-vram/*.json",
-        "Shadowrun (E).smc",
-        "analysis/rom-palettes.json"
-      ],
+      "command": null,
+      "prerequisites": [],
       "outputs": ["analysis/rom-vram.json"],
-      "evidence": ["rom-vram.json"],
-      "note": "Builds DMA and unpacking observations from recorded live runs, including screen-use classification."
+      "evidence": ["General DMA from ROM to VRAM in all live tests", "\"streams\""],
+      "evidence_file": "analysis/rom-vram.json",
+      "note": "Recorded DMA and unpacking observations of the live tests with screen-use classification. Its probe (tools/rom-vram-hook.mjs, tools/rom-vram.mjs) patched the retired register PPU model and was removed on 2026-11-26. rom-map and extract-vram read this input. Preserve the checked-in file."
     },
     {
       "kind": "retained-input",

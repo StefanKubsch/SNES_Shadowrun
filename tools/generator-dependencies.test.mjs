@@ -311,8 +311,8 @@ test('The source catalogue classifies 54 retained inputs with existing paths, co
   assert.deepEqual(classified.counts, {
     inputs: 54,
     'generated-outside-graph': 51,
-    'recording-dependent': 2,
-    'retained-input': 1,
+    'recording-dependent': 1,
+    'retained-input': 2,
     unclassified: 0,
   });
   assert.deepEqual(classified.catalogued_inputs_outside_current_gaps, []);
@@ -329,6 +329,6 @@ test('The source catalogue classifies 54 retained inputs with existing paths, co
   const retained = classified.inputs.filter((input) => input.source.kind === 'retained-input');
   assert.deepEqual(
     retained.map((input) => input.path),
-    ['analysis/rom-palettes.json'],
+    ['analysis/rom-vram.json', 'analysis/rom-palettes.json'],
   );
 });

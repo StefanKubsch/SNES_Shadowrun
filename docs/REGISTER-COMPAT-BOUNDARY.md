@@ -156,7 +156,12 @@ mostly script natives (src/script 56 %).
      (known-memory flags, the observed write window, raster write hooks) are gone with
      it. picture-video compares with frozen hashes of the SNES back end results; the
      PPU multiplier case of frame-events uses PictureVideo.readProduct.
-   - Next: move the scaffolding of the frozen tests to tools/; remove the register
-     picture path of the golden traces (tools/golden/trace.mjs), tools/rom-vram-hook.mjs's
-     PPU bus and video-port.mjs; then delete the rest of proof/ and the register
-     modules.
+   - The golden traces hash only the picture back end, and the VRAM probe
+     (tools/rom-vram-hook.mjs, rom-vram.mjs, rom-unpack-loader.mjs) is gone; it patched
+     the register PPU model, so analysis/rom-vram.json is a retained input (done).
+   - Next: move the scaffolding of the frozen tests to tools/. VideoPort
+     (src/video/video-port.mjs) stays until then: a measured run on 2026-11-26 found
+     about 70 fast test files whose harnesses have no picture bus, so sceneRuntime and
+     videoOf fall back to register writes (most of them frozen lift and caller tests,
+     a few calls in the golden, flow and audit tests). Then delete the rest of proof/
+     and the register modules.

@@ -286,9 +286,10 @@ port), format description, decoder, encoder and way-back test:
   characters per range). Generator `extract:vm-vram`, code
   [src/data/vram-tiles.mjs](../src/data/vram-tiles.mjs). 80 ranges, 2408
   characters, 76.704 bytes in banks 8D to 95.
-  - Probe (kept in the repo this time): `node --import
+  - Probe (removed 2026-11-26; it patched the retired register PPU model, and
+    `analysis/rom-vram.json` is now a retained input): `node --import
 ./tools/rom-vram-hook.mjs --test --test-concurrency=1
-tools/live-*.test.mjs`, then `node tools/rom-vram.mjs` writes
+tools/live-*.test.mjs`, then `node tools/rom-vram.mjs` wrote
     `analysis/rom-vram.json`. The hook records every DMA from ROM to
     2118/2119 with source, length, VMAIN and VRAM address, owns each written
     VRAM byte by its transfer and marks at every NMI entry how the visible
