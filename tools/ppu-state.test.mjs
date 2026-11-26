@@ -1,63 +1,60 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { PpuState, PpuBus } from '../proof/video/ppu-state.mjs';
-import { renderMode1Frame } from '../proof/video/ppu-frame.mjs';
+import { newPicture, writeRegisters, frameOf, pixel } from './picture-fixture.mjs';
 
-// Synthetic fixtures check the manual's port/bitplane contracts only. The
-// separate boot-logo-browser test establishes actual cold original evidence.
-test('PPU VRAM word wrap and CGRAM latches keep byte order and known state', () => {
-  const p = new PpuState();
-  assert.throws(() => p.requireComplete(), /ppu_initial_memory_required/);
-  p.writeByte(0x2100, 0x80);
-  p.writeByte(0x2115, 0x80);
-  p.writeByte(0x2116, 255);
-  p.writeByte(0x2117, 255);
-  p.writeByte(0x2118, 0x12);
-  p.writeByte(0x2119, 0x34);
+// Synthetic fixtures check the manual's port/bitplane contracts only (Book I chapter
+// 27: 2115-2119 PDF 121-122, 2121-2122 PDF 125, DMA PDF 143 and 149-152), on the
+// register interface of the picture back end. The separate boot-logo-browser test
+// establishes actual cold original evidence.
+test('VRAM word wrap and CGRAM byte pairs keep byte order', () => {
+  const p = newPicture();
+  writeRegisters(p, [
+    [0x2100, 0x80],
+    [0x2115, 0x80],
+    [0x2116, 255],
+    [0x2117, 255],
+    [0x2118, 0x12],
+    [0x2119, 0x34],
+  ]);
   assert.equal(p.vramAddress, 0);
   assert.deepEqual(Array.from(p.vram.subarray(65534)), [0x12, 0x34]);
-  p.writeByte(0x2121, 255);
-  p.writeByte(0x2122, 0x56);
-  assert.equal(p.cgramKnown[510], 0);
-  p.writeByte(0x2122, 0xff);
+  writeRegisters(p, [
+    [0x2121, 255],
+    [0x2122, 0x56],
+  ]);
+  assert.equal(p.palette[255], 0, 'the low byte waits for its high byte');
+  p.writeRegister(0x2122, 0xff);
   assert.deepEqual(Array.from(p.cgram.subarray(510)), [0x56, 0x7f]);
-  assert.equal(p.cgAddress, 0);
-  p.writeByte(0x2100, 15);
-  assert.throws(() => p.writeByte(0x2118, 0), /ppu_observed_write_window_required/);
-  p.writeByte(0x2100, 128);
-  p.writeByte(0x2115, 4);
-  assert.throws(() => p.writeByte(0x2118, 0), /ppu_vram_remap_required/);
+  assert.equal(p.colourIndex, 0);
+  p.writeRegister(0x2115, 4);
+  assert.throws(() => p.writeRegister(0x2118, 0), /picture_vram_remap_required/);
 });
-test('PPU DMA fixed source and zero DAS compute all 65536 bytes from live memory', () => {
-  const p = new PpuState();
-  p.writeByte(0x2100, 128);
-  p.writeByte(0x2115, 128);
-  p.writeByte(0x2116, 0);
-  p.writeByte(0x2117, 0);
+test('DMA with a fixed source and zero byte count copies all 65536 bytes from memory', () => {
   let reads = 0;
-  const bus = new PpuBus(
-    {
-      read8(address) {
-        assert.equal(address, 0x808000);
-        reads++;
-        return 0x5a;
-      },
+  const p = newPicture({
+    read8(address) {
+      assert.equal(address, 0x808000);
+      reads++;
+      return 0x5a;
     },
-    p,
-  );
-  [9, 0x18, 0, 0x80, 0x80, 0, 0].forEach((value, n) => bus.write(0x123456, 0x804300 + n, value, 1));
-  bus.write(0x123456, 0x80420b, 1, 1);
+  });
+  writeRegisters(p, [
+    [0x2100, 128],
+    [0x2115, 128],
+    [0x2116, 0],
+    [0x2117, 0],
+  ]);
+  [9, 0x18, 0, 0x80, 0x80, 0, 0].forEach((value, n) => p.write(0x123456, 0x804300 + n, value, 1));
+  p.write(0x123456, 0x80420b, 1, 1);
   assert.equal(reads, 65536);
-  assert.equal(bus.dmaBytes, 65536);
   assert.ok(p.vram.every((v) => v === 0x5a));
-  assert.ok(p.vramKnown.every((v) => v === 1));
   assert.equal(p.vramAddress, 0x8000);
-  assert.deepEqual(Array.from(bus.dma.subarray(2, 7)), [0, 0x80, 0x80, 0, 0]);
+  const c = p.channels[0];
+  assert.deepEqual([c.source, c.bank, c.bytes], [0x8000, 0x80, 0]);
 });
 function fixture() {
-  const p = new PpuState();
-  for (const name of ['vramKnown', 'cgramKnown', 'oamKnown']) p[name].fill(1);
-  for (const [port, value] of [
+  const p = newPicture();
+  writeRegisters(p, [
     [0x2100, 15],
     [0x2105, 1],
     [0x2106, 0],
@@ -69,32 +66,31 @@ function fixture() {
     [0x2130, 0x30],
     [0x2131, 0],
     [0x2133, 0],
-  ])
-    p.writeByte(port, value);
-  for (let port = 0x210d; port <= 0x2110; port++) {
-    p.writeByte(port, 0);
-    p.writeByte(port, 0);
-  }
+  ]);
+  for (let port = 0x210d; port <= 0x2110; port++)
+    writeRegisters(p, [
+      [port, 0],
+      [port, 0],
+    ]);
   return p;
 }
-const pixel = (frame, x, y) => Array.from(frame.subarray((y * 256 + x) * 4, (y * 256 + x) * 4 + 4));
 test('mode 1 bitplanes use the manual BG row origin, tile flips and BG priority', () => {
   const p = fixture();
   p.vram[0x2002] = 0x80;
   p.cgram[2] = 31;
-  let frame = renderMode1Frame(p);
+  let frame = frameOf(p);
   assert.deepEqual(pixel(frame, 0, 0), [255, 0, 0, 255]);
   assert.deepEqual(pixel(frame, 1, 0), [0, 0, 0, 255]);
   p.vram[1] = 0xc0;
-  frame = renderMode1Frame(p);
+  frame = frameOf(p);
   assert.deepEqual(pixel(frame, 7, 5), [255, 0, 0, 255]);
   assert.deepEqual(pixel(frame, 0, 0), [0, 0, 0, 255]);
   p.vram[1] = 0;
   p.vram[0x4002] = 0x80;
   p.vram[0x801] = 0x24;
   p.cgram[35] = 0x7c;
-  p.writeByte(0x212c, 3);
-  assert.deepEqual(pixel(renderMode1Frame(p), 0, 0), [0, 0, 255, 255]);
+  p.writeRegister(0x212c, 3);
+  assert.deepEqual(pixel(frameOf(p), 0, 0), [0, 0, 255, 255]);
   p.vram[0x801] = 4;
-  assert.deepEqual(pixel(renderMode1Frame(p), 0, 0), [255, 0, 0, 255]);
+  assert.deepEqual(pixel(frameOf(p), 0, 0), [255, 0, 0, 255]);
 });

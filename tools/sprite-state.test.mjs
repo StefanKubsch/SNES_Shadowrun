@@ -12,8 +12,6 @@ import { MATRIX_FIELDS } from '../src/state/matrix.mjs';
 import { storageContract, blankMemory, WRAM } from './state-storage-contract.mjs';
 import { toWram } from './to-wram.mjs';
 import { PictureVideo } from '../src/video/picture-video.mjs';
-import { VideoPort } from '../src/video/video-port.mjs';
-import { PpuBus, PpuState } from '../proof/video/ppu-state.mjs';
 import { LiveGame } from '../src/video/live-game.mjs';
 import { ROM_SIZE } from '../src/vm/memory.mjs';
 import { OAM_BUFFER, OAM_HIGH_TABLE } from '../src/data/wram.mjs';
@@ -50,25 +48,22 @@ test('byte writers reach the sprite fields and the projection keeps the buffer l
   assert.deepEqual(spriteBytes(table), reference.wram.subarray(OAM_BUFFER, OAM_BUFFER + OAM_BYTES));
 });
 
-test('the picture back end takes the sprite table as the SNES back end takes the bytes', () => {
+test('the picture back end takes the sprite table as it takes the bytes', () => {
   const mem = blankMemory(),
     table = detachSprites(mem.wram);
-  for (let n = 0; n < OAM_BYTES; n++) mem.write8(WRAM + OAM_BUFFER + n, (n * 37 + 11) & 0xff);
-  const bus = new PpuBus(mem, new PpuState());
-  bus.ppu.observedVblank = true;
-  const snes = new VideoPort((address, value, width) => bus.write(0, address, value, width)),
-    fromTable = new PictureVideo(mem),
+  const sent = Uint8Array.from({ length: OAM_BYTES }, (_, n) => (n * 37 + 11) & 0xff);
+  sent.forEach((value, n) => mem.write8(WRAM + OAM_BUFFER + n, value));
+  const fromTable = new PictureVideo(mem),
     fromBytes = new PictureVideo(mem);
-  for (const v of [snes, fromTable, fromBytes]) {
+  for (const v of [fromTable, fromBytes]) {
     v.setDisplay(0x80);
     v.setUpDma([[2, { to: 'oam', source: WRAM }]], ['mode', 'target', 'bank']);
   }
   const sites = {};
-  snes.sendOamBuffer(OAM_BUFFER, OAM_BYTES, PRIORITY_ROTATION_WORD, sites);
   fromTable.sendOamBuffer(OAM_BUFFER, OAM_BYTES, PRIORITY_ROTATION_WORD, sites, table);
   fromBytes.sendOamBuffer(OAM_BUFFER, OAM_BYTES, PRIORITY_ROTATION_WORD, sites);
-  assert.deepEqual(fromTable.oam, bus.ppu.oam);
-  assert.deepEqual(fromBytes.oam, bus.ppu.oam);
+  assert.deepEqual(fromTable.oam, sent);
+  assert.deepEqual(fromBytes.oam, sent);
   assert.deepEqual(fromTable.settings(), fromBytes.settings());
   assert.equal(fromTable.oamByte, fromBytes.oamByte);
 });

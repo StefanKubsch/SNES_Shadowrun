@@ -105,7 +105,8 @@ however, no longer needs to name registers:
 - Both back ends hold the same VRAM, OAM and palette bytes, so the golden video
   memory hash stays binding as well.
 - Evidence: tools/picture-video.test.mjs (both back ends from the same calls give
-  equal descriptions, pixels, memories, product and read-back); block check
+  equal descriptions, pixels, memories, product and read-back; since 2026-11-26 the
+  SNES back end results are frozen hashes); block check
   4966/4966 in 584 seconds with all five golden traces replayed through the picture
   back end unchanged; tools/recording.test.mjs 2/2.
 

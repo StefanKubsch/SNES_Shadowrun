@@ -1,17 +1,15 @@
 // The register-free picture back end of live play (src/video/picture-video.mjs,
-// docs/FRAME-DESCRIPTION.md step 5) against the SNES back end: the same video
-// interface calls and register data give the same frame description, pixels, video
-// memory and register reads. The golden traces replay every recorded frame through
-// the picture back end; these cases also reach set-ups the scenarios do not.
+// docs/FRAME-DESCRIPTION.md step 5): video interface calls and register data give the
+// frame description, video memory and register reads the retired SNES back end
+// (proof/video) gave; its results are frozen as hashes (removal plan step 5,
+// docs/REGISTER-COMPAT-BOUNDARY.md). The golden traces replay every recorded frame
+// through the picture back end; these cases also reach set-ups the scenarios do not.
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { PictureVideo, PictureBoundary } from '../src/video/picture-video.mjs';
-import { VideoPort } from '../src/video/video-port.mjs';
-import { PpuBus, PpuState } from '../proof/video/ppu-state.mjs';
-import { describeMode1Frame } from '../proof/video/ppu-frame.mjs';
-import { hdmaRows } from '../proof/video/hdma.mjs';
-import { renderFrame } from '../src/video/frame-renderer.mjs';
+import { PictureBoundary } from '../src/video/picture-video.mjs';
 import { BG_1, BG_2, BG_3 } from '../src/constants/ppu.mjs';
+import { assertFrozenRun, useLiftVectors } from './lift-function-harness.mjs';
+import { flatMemory, newPicture } from './picture-fixture.mjs';
 import {
   BG1SC,
   BG12NBA,
@@ -26,11 +24,8 @@ import {
   WH0,
 } from '../src/constants/hardware-registers.mjs';
 
-// A flat 24-bit address space as CPU memory.
-const memory = () => {
-  const bytes = new Uint8Array(1 << 24);
-  return { bytes, read8: (a) => bytes[a], write8: (a, v) => (bytes[a] = v) };
-};
+useLiftVectors(import.meta.url);
+
 // Bytes from a seed (xorshift), for the memories the transfers copy.
 function fill(bytes, at, length, seed) {
   let x = seed;
@@ -52,40 +47,25 @@ const ZERO = 0x81ff00,
   HDMA_SCROLL = 0x7e5200,
   TEXT_MASK = 0x7e2ae0;
 
-// Both back ends over equal memories; snes.write also serves as register data.
-function pair() {
-  const a = memory(),
-    b = memory();
-  for (const m of [a, b]) {
-    fill(m.bytes, CHARACTERS, 0x8000, 7);
-    fill(m.bytes, COLOURS, 0x200, 11);
-    for (let n = 0; n < 0x200; n += 2) m.bytes[COLOURS + n + 1] &= 0x7f;
-    fill(m.bytes, SPRITES, 0x220, 13);
-    fill(m.bytes, MAP, 0x800, 17);
-    // TM per line: 40 lines BG1+OBJ, then 1 line each BG1-3+OBJ (repeat) for 8 lines.
-    m.bytes.set([40, 0x11, 0x88, 0x17, 0x13, 0x17, 0x15, 0x17, 0x13, 0x17, 0x11, 0], HDMA_TM);
-    m.bytes.set([60, 10, 200, 0x82, 20, 120, 30, 100, 0], HDMA_EDGES);
-    m.bytes.set([100, 0, 0, 0x81, 5, 1, 0], HDMA_SCROLL);
-  }
-  const bus = new PpuBus(a, new PpuState());
-  bus.ppu.observedVblank = true;
-  bus.reverseDma = (bytes) => bytes.forEach((v, n) => a.write8(TEXT_MASK + n, v));
-  const snes = new VideoPort(
-    (address, value, width) => bus.write(0, address, value, width),
-    (address) => bus.readVram(address),
-  );
-  const picture = new PictureVideo(b);
-  picture.system = () => {};
-  return { a, b, bus, snes, picture, both: (f) => (f(snes), f(picture)) };
+// The picture back end over a memory with the transfer sources.
+function setUp() {
+  const m = flatMemory();
+  fill(m.bytes, CHARACTERS, 0x8000, 7);
+  fill(m.bytes, COLOURS, 0x200, 11);
+  for (let n = 0; n < 0x200; n += 2) m.bytes[COLOURS + n + 1] &= 0x7f;
+  fill(m.bytes, SPRITES, 0x220, 13);
+  fill(m.bytes, MAP, 0x800, 17);
+  // TM per line: 40 lines BG1+OBJ, then 1 line each BG1-3+OBJ (repeat) for 8 lines.
+  m.bytes.set([40, 0x11, 0x88, 0x17, 0x13, 0x17, 0x15, 0x17, 0x13, 0x17, 0x11, 0], HDMA_TM);
+  m.bytes.set([60, 10, 200, 0x82, 20, 120, 30, 100, 0], HDMA_EDGES);
+  m.bytes.set([100, 0, 0, 0x81, 5, 1, 0], HDMA_SCROLL);
+  const picture = newPicture(m);
+  return { memory: m, picture, run: (f) => f(picture) };
 }
-const describeBoth = ({ bus, picture }) => [
-  describeMode1Frame(bus.ppu, { objects: true, rows: hdmaRows(bus) }),
-  picture.describe(),
-];
 
 // A mode 1 scene with every memory written, three layers, sprites and colour math.
 function scene(p) {
-  p.both((v) => {
+  p.run((v) => {
     v.resetRegisters();
     v.setDisplay(0x80);
     v.clearVram(ZERO);
@@ -140,23 +120,20 @@ function scene(p) {
 }
 
 test('the picture back end describes a scene as the SNES back end does', () => {
-  const p = pair();
+  const p = setUp();
   scene(p);
-  const [snes, picture] = describeBoth(p);
-  assert.deepEqual(picture, snes);
-  assert.deepEqual(renderFrame(picture), renderFrame(snes));
-  assert.deepEqual(p.picture.oam, p.bus.ppu.oam);
-  assert.deepEqual(
-    new Uint8Array(p.picture.palette.buffer),
-    p.bus.ppu.cgram,
-    'the palette holds the CGRAM bytes',
-  );
+  const picture = p.picture.describe();
+  assertFrozenRun({
+    picture,
+    oam: p.picture.oam,
+    cgram: new Uint8Array(p.picture.palette.buffer),
+  });
 });
 
 test('windows, H-DMA rows and the text read-back match the SNES back end', () => {
-  const p = pair();
+  const p = setUp();
   scene(p);
-  p.both((v) => {
+  p.run((v) => {
     v.setObjectSelect(0x0362, 0);
     v.setMainWindowLayers(0x01);
     v.setWindowAreas(0x02, 0, 0x20);
@@ -172,25 +149,24 @@ test('windows, H-DMA rows and the text read-back match the SNES back end', () =>
     v.transfer(6, { to: 'bg2Scroll', source: HDMA_SCROLL }, ['mode', 'target', 'source', 'bank']);
     v.enableHdma(0x58);
   });
-  const [snes, picture] = describeBoth(p);
+  const picture = p.picture.describe();
   assert.ok(picture.rows.some((row) => row?.some((change) => change[0] === 'scroll')));
-  assert.deepEqual(picture, snes);
-  assert.deepEqual(renderFrame(picture), renderFrame(snes));
+  assertFrozenRun(picture);
   // The text read-back of channel 5 (81:A9E1) after its set-up by the font upload.
-  p.both((v) => {
+  p.run((v) => {
     v.enableHdmaWord(0, 0);
     v.setUpDma([[5, { to: 'vramRead', source: 0x7e0000 }]], ['mode', 'target', 'bank']);
     v.readVramToWram(0x6000, 16, TEXT_MASK & 0xffff, {});
   });
-  assert.deepEqual(
-    p.b.bytes.subarray(TEXT_MASK, TEXT_MASK + 16),
-    p.a.bytes.subarray(TEXT_MASK, TEXT_MASK + 16),
+  assertFrozenRun(p.memory.bytes.slice(TEXT_MASK, TEXT_MASK + 16));
+  assert.notDeepEqual(
+    [...p.memory.bytes.subarray(TEXT_MASK, TEXT_MASK + 16)],
+    new Array(16).fill(0),
   );
-  assert.notDeepEqual([...p.b.bytes.subarray(TEXT_MASK, TEXT_MASK + 16)], new Array(16).fill(0));
 });
 
 test('register data reaches the picture state as it reaches the PPU', () => {
-  const p = pair();
+  const p = setUp();
   scene(p);
   const registers = [
     [BG1SC, 0x61],
@@ -204,27 +180,28 @@ test('register data reaches the picture state as it reaches the PPU', () => {
     [WH0, 9],
   ];
   for (const [port, value] of registers) {
-    p.bus.write(0, port, value, 1);
     p.picture.write(0, port, value, 1);
   }
-  const [snes, picture] = describeBoth(p);
-  assert.deepEqual(picture, snes);
+  const picture = p.picture.describe();
+  assertFrozenRun(picture);
   // The window tile multiplication: signed M7A times signed M7B.
   for (const [port, value] of [
     [M7A, 0xf0],
     [M7A, 0xff],
     [M7B, 0x07],
   ]) {
-    p.bus.write(0, port, value, 1);
     p.picture.write(0, port, value, 1);
   }
-  for (let n = 0; n < 3; n++)
-    assert.equal(p.picture.readProduct(MPYL + n), p.bus.readProduct(MPYL + n));
-  assert.equal(p.picture.readVram(RDVRAMH), p.bus.readVram(RDVRAMH));
+  // -16 * 7 = -112 as a 24-bit product.
+  assert.deepEqual(
+    [0, 1, 2].map((n) => p.picture.readProduct(MPYL + n)),
+    [0x90, 0xff, 0xff],
+  );
+  assertFrozenRun(p.picture.readVram(RDVRAMH));
 });
 
 test('the picture back end rejects what the renderer cannot draw', () => {
-  const p = pair();
+  const p = setUp();
   scene(p);
   p.picture.setBgMode(0x03);
   assert.throws(

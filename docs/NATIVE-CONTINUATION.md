@@ -693,10 +693,10 @@ The browser live mode uses the same path ([PPU-ROOM.md](PPU-ROOM.md)).
 With a PPU bus, `LiveDevices` answers two more device reads from the PPU model,
 independent of time:
 
-| Read                                        | Source                                                                                                                                                                                                                                               |
-| ------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| 2134-2136, for example F963 at 80:FA01/FA19 | product from [PpuState](../proof/video/ppu-state.mjs): Book I PDF 124 (2-27-10), 16 bits at 211B in two writes low/high, 8 bits once at 211C; PDF 134 (2-27-20), 24-bit result in two's complement. Another M7 write between low and high is a limit |
-| 213A at 81:AA8E (BYTE)                      | VRAM prefetch of A9E1 from the PPU model                                                                                                                                                                                                             |
+| Read                                        | Source                                                                                                                                                                                                                                                                                                 |
+| ------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| 2134-2136, for example F963 at 80:FA01/FA19 | product from [PictureVideo](../src/video/picture-video.mjs) `readProduct` (formerly the PpuState model): Book I PDF 124 (2-27-10), 16 bits at 211B in two writes low/high, 8 bits once at 211C; PDF 134 (2-27-20), 24-bit result in two's complement. Another M7 write between low and high is a limit |
+| 213A at 81:AA8E (BYTE)                      | VRAM prefetch of A9E1 from the PPU model                                                                                                                                                                                                                                                               |
 
 The channel 5 DMA of the text mask (A9E1, 2139/213A to 7E2AE0) is carried out by
 the PPU bus in live mode and writes the 16 bytes to WRAM; A9E1 then uses no

@@ -149,9 +149,14 @@ mostly script natives (src/script 56 %).
      loop tests (main-loop-motion, main-motion-helpers, confirm-key-lift,
      replay-boundary, scene-observed-calls), the 8E36 fixture chain and 30 proof modules
      only they used are gone.
-   - Next: freeze or
-     port the remaining mixed tests (cheats, text-edits, packed-text-contract, scene
-     edits and audits, picture-video, sprite-state, OBJ time over); move the scaffolding
-     of the frozen tests to tools/; remove the register picture path of the golden
-     traces and video-port.mjs; then delete the rest of proof/ and the register
+   - Video tests moved off proof/video (done): ppu-state, ppu-large-bg,
+     ppu-window-hdma, room-observed, sprite-state and the native side of the OBJ time
+     over check run on the register interface of PictureVideo with renderFrame
+     (tools/picture-fixture.mjs). Assertions about state only the SNES back end kept
+     (known-memory flags, the observed write window, raster write hooks) are gone with
+     it. picture-video compares with frozen hashes of the SNES back end results; the
+     PPU multiplier case of frame-events uses PictureVideo.readProduct.
+   - Next: move the scaffolding of the frozen tests to tools/; remove the register
+     picture path of the golden traces (tools/golden/trace.mjs), tools/rom-vram-hook.mjs's
+     PPU bus and video-port.mjs; then delete the rest of proof/ and the register
      modules.

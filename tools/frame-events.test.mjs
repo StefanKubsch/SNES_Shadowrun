@@ -272,12 +272,18 @@ test('recorded device streams are consumed before a live device answers', () => 
 });
 
 test('the PPU multiplier is signed 16 x 8 bits and rejects an interleaved latch', async () => {
-  const { PpuState } = await import('../proof/video/ppu-state.mjs');
+  const { newPicture, writeRegisters } = await import('./picture-fixture.mjs');
+  const operands = (a, b) => {
+    const p = newPicture();
+    writeRegisters(p, [
+      [0x211b, a & 255],
+      [0x211b, a >>> 8],
+      [0x211c, b],
+    ]);
+    return p;
+  };
   const product = (a, b) => {
-    const p = new PpuState();
-    p.writeByte(0x211b, a & 255);
-    p.writeByte(0x211b, a >>> 8);
-    p.writeByte(0x211c, b);
+    const p = operands(a, b);
     return [0x2134, 0x2135, 0x2136]
       .map((port) => p.readProduct(port))
       .reduce((x, v, n) => x | (v << (8 * n)), 0);
@@ -291,25 +297,18 @@ test('the PPU multiplier is signed 16 x 8 bits and rejects an interleaved latch'
     [0x1234, 0xff, 0xffedcc],
   ])
     assert.equal(product(a, b), expected, a.toString(16) + '*' + b.toString(16));
-  const p = new PpuState();
+  const p = newPicture();
+  p.writeRegister(0x211b, 1);
   assert.throws(
-    () => p.readProduct(0x2134),
-    (e) => e.reason === 'ppu_multiplier_operands_required',
+    () => p.writeRegister(0x211c, 1),
+    (e) => e.reason === 'picture_multiplier_pair_required',
   );
-  p.writeByte(0x211b, 1);
-  assert.throws(
-    () => p.writeByte(0x211c, 1),
-    (e) => e.reason === 'ppu_multiplier_latch_required',
-  );
-  // Live devices answer 2134 from the picture hardware (here the PPU model); without
-  // a PPU the text mask DMA is a boundary.
-  const q = new PpuState();
-  q.writeByte(0x211b, 7);
-  q.writeByte(0x211b, 0);
-  q.writeByte(0x211c, 6);
+  // Live devices answer 2134 from the picture hardware; without it the text mask DMA
+  // is a boundary.
+  const q = operands(7, 6);
   const frames = new LagFreeFrames({ nmitimen: 0x81 }),
     live = new LiveDevices(frames, GAME_NMI_ROUTINES, {
-      bus: { ppu: q, write() {}, readProduct: (port) => q.readProduct(port) },
+      bus: { write() {}, readProduct: (port) => q.readProduct(port) },
     });
   assert.equal(live.read(0x802134, 2, 0x80fa01), 42);
   assert.equal(live.read(0x802136, 1, 0x80fa19), 0);

@@ -12,8 +12,7 @@ import { mkdtempSync, writeFileSync, rmSync } from 'node:fs';
 import { join } from 'node:path';
 import { tmpdir } from 'node:os';
 import { findMesen, prepareScript, runMesen } from './mesen.mjs';
-import { PpuState } from '../proof/video/ppu-state.mjs';
-import { renderMode1Frame } from '../proof/video/ppu-frame.mjs';
+import { newPicture, writeRegisters, oamBytes, frameOf } from './picture-fixture.mjs';
 
 const CGRAM_SOURCE = 0x1000,
   OAM_SOURCE = 0x1400,
@@ -115,9 +114,8 @@ function runs(colourAt, width) {
 const sequence = (rows) => rows.filter((r, i) => r && r !== rows[i - 1]);
 
 function nativeRows() {
-  const p = new PpuState();
-  for (const name of ['vramKnown', 'cgramKnown', 'oamKnown']) p[name].fill(1);
-  for (const [port, value] of [
+  const p = newPicture();
+  writeRegisters(p, [
     [0x2100, 15],
     [0x2101, 0],
     [0x2103, 0],
@@ -130,17 +128,17 @@ function nativeRows() {
     [0x2130, 0x30],
     [0x2131, 0],
     [0x2133, 0],
-  ])
-    p.writeByte(port, value);
-  for (let port = 0x210d; port <= 0x210e; port++) {
-    p.writeByte(port, 0);
-    p.writeByte(port, 0);
-  }
+  ]);
+  for (let port = 0x210d; port <= 0x210e; port++)
+    writeRegisters(p, [
+      [port, 0],
+      [port, 0],
+    ]);
   const { cgram, vram, oam } = timeOverMemory();
   p.cgram.set(cgram);
   p.vram.set(vram);
-  p.oam.set(oam);
-  const frame = renderMode1Frame(p, { objects: true });
+  oamBytes(p).set(oam);
+  const frame = frameOf(p);
   return Array.from({ length: 224 }, (_, y) =>
     runs((x) => {
       const at = (y * 256 + x) * 4;
