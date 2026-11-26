@@ -1,6 +1,6 @@
 // Reproduce the bounded convergence approximation review; no GPU or ROM needed.
 // Run: node tools/crt-convergence-review.mjs [--quick]
-import { createConvergenceProbe } from '../proof/crt/convergence.mjs';
+import { createConvergenceProbe } from './crt/convergence.mjs';
 import { SNES_PAL_RGB as source, SONY_PVM_20M2E } from '../src/crt/profiles.mjs';
 import { srgbEncode } from '../src/crt/signal.mjs';
 

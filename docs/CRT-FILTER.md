@@ -1047,7 +1047,7 @@ couple the formerly separable horizontal and vertical beam calculations.
 Reproduce with `node tools/crt-convergence-review.mjs`; `--quick` runs two
 checkerboard cases with lower quadrature orders. The full report is
 `.cache/logs/crt-convergence-review.log`, about 269 seconds on this host.
-The diagnostic lives in [proof/crt/convergence.mjs](../proof/crt/convergence.mjs)
+The diagnostic lives in [tools/crt/convergence.mjs](../tools/crt/convergence.mjs)
 and is never imported by the game.
 
 The full-report numbers below are historical: they precede the nominal PAL
@@ -1127,7 +1127,7 @@ orders six and ten. `--tiny` additionally requests the much more expensive
 review; an earlier exploratory run was interrupted and its partial log is
 preserved as `.cache/logs/crt-curved-area-review-tiny-interrupted.log`.
 
-[proof/crt/curved-area.mjs](../proof/crt/curved-area.mjs) integrates three modes:
+[tools/crt/curved-area.mjs](../tools/crt/curved-area.mjs) integrates three modes:
 
 - **Local:** the renderer's centre intersection, diagonal footprint and
   constant centre convergence displacement.

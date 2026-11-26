@@ -135,7 +135,8 @@ mostly script natives (src/script 56 %).
      rom-code-audit now explains the 121 retained code bytes as 40 product reads and 81
      data margins; rom-unread-audit and text-reference-inventory decode the traced
      starts only (docs/ROM-CODE-AUDIT.md).
-   - Next: move proof/crt; freeze or
+   - proof/crt moved to tools/crt (done).
+   - Next: freeze or
      port the remaining mixed tests (cheats, text-edits, packed-text-contract, scene
      edits and audits, picture-video, sprite-state, OBJ time over); move the scaffolding
      of the frozen tests to tools/; remove the register picture path of the golden

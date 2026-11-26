@@ -1,6 +1,6 @@
 // Reproduce the sampled combined curvature/convergence approximation review.
 // Run: node tools/crt-curved-area-review.mjs [--quick] [--tiny]
-import { createCurvedAreaProbe } from '../proof/crt/curved-area.mjs';
+import { createCurvedAreaProbe } from './crt/curved-area.mjs';
 import { surfaceToOutput } from '../src/crt/geometry.mjs';
 import { SNES_PAL_RGB as source, SONY_PVM_20M2E as monitor } from '../src/crt/profiles.mjs';
 import { srgbEncode } from '../src/crt/signal.mjs';

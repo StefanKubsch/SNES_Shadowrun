@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { createConvergenceProbe, gaussLegendre } from '../proof/crt/convergence.mjs';
+import { createConvergenceProbe, gaussLegendre } from './crt/convergence.mjs';
 import { tubeReference } from '../src/crt/beam.mjs';
 import { SRGB } from '../src/crt/colour.mjs';
 import { srgbEncode } from '../src/crt/signal.mjs';

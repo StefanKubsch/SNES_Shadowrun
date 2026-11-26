@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { createCurvedAreaProbe, intersectCylinder } from '../proof/crt/curved-area.mjs';
+import { createCurvedAreaProbe, intersectCylinder } from './crt/curved-area.mjs';
 import { tubeReference } from '../src/crt/beam.mjs';
 import { surfaceToOutput, outputToSurface, outputLayout } from '../src/crt/geometry.mjs';
 import { SNES_PAL_RGB as source, SONY_PVM_20M2E as monitor } from '../src/crt/profiles.mjs';
