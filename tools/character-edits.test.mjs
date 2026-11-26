@@ -13,10 +13,7 @@ import { readBmp } from '../src/data/tiles.mjs';
 import { lzBits, lzDecode } from '../src/data/lz.mjs';
 import { requireRomAddress, romOffset } from '../src/data/rom-bytes.mjs';
 import { VmMemory } from '../src/vm/memory.mjs';
-import { TaskAccessor } from '../src/vm/task-accessor.mjs';
-import { unpackStreamLong } from '../proof/system/native-unpack.mjs';
-import { unpackPortrait } from '../proof/system/native-dialog-portrait.mjs';
-import { dialogAccess } from '../src/system/native-dialog-support.mjs';
+import { unpackLong, UNPACK_7E, UNPACK_7F } from '../src/system/unpack.mjs';
 import { buildLanguage, installLanguage } from '../src/data/language.mjs';
 import { LiveGame } from '../src/video/live-game.mjs';
 import { startMenuWaiting } from '../src/game/credits.mjs';
@@ -115,22 +112,8 @@ test('shorter recompressed sources preserve headers, old tails and unchanged cha
   assert.deepEqual(target.rom, expected);
   const mem = new VmMemory(target.rom, new Uint8Array(0x20000), null, target.present);
   mem.wram.fill(0x5a, 0x3fff, 0x4001 + data.length);
-  mem.write16(0x1ef1, 0x1234);
   const cpu = requireRomAddress(s.address);
-  const accessor = new TaskAccessor({
-    mem,
-    a: cpu & 0xffff,
-    y: cpu >>> 16,
-    x: 0x4000,
-    s: 0x1ef0,
-    d: 0,
-    dbr: 0x80,
-    p: 0,
-    pc: 0x9f49,
-  });
-  accessor.load();
-  accessor.ctx.programBank = 0x80;
-  unpackStreamLong(accessor);
+  unpackLong(mem, cpu & 0xffff, cpu >>> 16, 0x4000, UNPACK_7E);
   assert.deepEqual(mem.wram.slice(0x4000, 0x4000 + data.length), data);
   assert.equal(mem.wram[0x3fff], 0x5a);
   assert.equal(mem.wram[0x4000 + data.length], 0x5a);
@@ -282,23 +265,8 @@ test('native unpack respects output guards in every format and shared portrait a
       const portraitSource = s === portrait;
       const offset = portraitSource ? 0x15250 : 0x4000;
       mem.wram.fill(0x5a, offset - 1, offset + length + 1);
-      mem.write16(0x1ef1, 0x1234);
-      const vm = {
-        mem,
-        a: cpu & 0xffff,
-        y: cpu >>> 16,
-        x: offset & 0xffff,
-        s: 0x1ef0,
-        d: 0,
-        dbr: 0x80,
-        p: 0,
-        pc: 0x9f49,
-      };
-      const a = new TaskAccessor(vm);
-      a.load();
-      a.ctx.programBank = 0x80;
-      if (portraitSource) unpackPortrait(dialogAccess(a));
-      else unpackStreamLong(a);
+      if (portraitSource) unpackLong(mem, cpu & 0xffff, cpu >>> 16, offset & 0xffff, UNPACK_7F);
+      else unpackLong(mem, cpu & 0xffff, cpu >>> 16, offset & 0xffff, UNPACK_7E);
       assert.deepEqual(
         mem.wram.slice(offset, offset + length),
         bytes.get(s.address).map((v) => v ^ 255),

@@ -93,10 +93,27 @@ mostly script natives (src/script 56 %).
    three proof modules nobody imports any more were deleted. Remaining proof imports of
    these tests are scaffolding of the lifted side: RTS/RTL forms (jsr-forms), callee
    stand-ins (window, menu, input, portrait routines) and the portrait upload callee.
-   Several src modules still import proof/caller modules; that is part of step 5.
-4. Decouple the product tools and tests that reach proof only for data or helpers:
-   the golden scenarios (through tools/mesen-f390-oracle.mjs and proof/vm/main-loop.mjs),
-   rom-map, extract-tables, extract-texts-de, the editing audits (through
-   proof/system/native-unpack.mjs) and the shared test harnesses.
+   src imports no proof module; its comments that name proof paths go with step 5.
+4. Decouple the product tools and tests that reach proof only for data or helpers
+   (done 2026-11-26, except scene-shape-audit):
+   - Golden scenarios: the input plans and saved games moved from
+     tools/mesen-f390-oracle.mjs to tools/mesen-plans.mjs (25 tests and tools import
+     them there); the WRAM projection moved from proof/state/to-wram.mjs to
+     tools/to-wram.mjs. The golden chain now reaches proof only through the register
+     picture path of tools/golden/trace.mjs (proof/video/ppu-frame.mjs, hdma.mjs), which
+     goes with step 5.
+   - rom-map and extract-tables take the jump table targets from src
+     (`STATUS_SUBMENUS`, `SCENE_LIST_COMMAND_TARGETS`, `KARMA_LISTS`) and the eight depth
+     compare targets from tools/depth-compare-targets.mjs; analysis/vm-rom-map.json and
+     assets/vm-tables.json are unchanged. extract-texts-de lost an unused import.
+   - The editing audits (character, map, room tile, packed asset and packed text) use
+     the lifted unpacker src/system/unpack.mjs; `unpackWithState` now also reports the
+     bits read, so the audits keep their bit and token counts.
+   - The shared harnesses (task-native-dialog, text-window-caller, lift-function) reach
+     no proof module; member-menu-caller-harness keeps its callee scaffolding (step 5).
+   - Open: tools/scene-shape-audit.mjs observes the register-level scene load
+     (proof/system/main-scene-load.mjs) through routine hooks; moving it to
+     src/game/scene-load.mjs needs observation hooks there (grid writes, tile stack
+     allocation, phase ends).
 5. Delete the register modules, src/system/register-compat.mjs, the recorded branches
    in live modules and the register path of src/video/video-port.mjs.

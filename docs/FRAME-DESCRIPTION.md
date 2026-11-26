@@ -130,7 +130,7 @@ however, no longer needs to name registers:
   typed fields per sprite (x, y, name, attributes) and the size bytes of the high
   table. Live play detaches it like the other subsystems; byte writers of the object
   pass (src/game/object-sprites.mjs, sprite-list.mjs) reach the fields through the
-  shared byte boundary, and proof/state/to-wram.mjs projects them back, so the game
+  shared byte boundary, and tools/to-wram.mjs projects them back, so the game
   state hash keeps its layout.
 - The game NMI's OAM job (81:A98E) hands the table to the video interface. The
   picture back end, whose own sprites are now the same typed fields, copies them

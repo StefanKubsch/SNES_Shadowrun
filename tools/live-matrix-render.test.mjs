@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { cartridge } from './cartridge-harness.mjs';
-import { loadSave } from './mesen-f390-oracle.mjs';
+import { loadSave } from './mesen-plans.mjs';
 import { exploreLive } from './explore-live.mjs';
 
 test(

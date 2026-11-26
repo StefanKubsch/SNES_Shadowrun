@@ -10,7 +10,7 @@ import { SCENE_ROOM_FIELDS } from '../src/state/scene-room.mjs';
 import { FRONTEND_FIELDS } from '../src/state/frontend.mjs';
 import { MATRIX_FIELDS } from '../src/state/matrix.mjs';
 import { storageContract, blankMemory, WRAM } from './state-storage-contract.mjs';
-import { toWram } from '../proof/state/to-wram.mjs';
+import { toWram } from './to-wram.mjs';
 import { PictureVideo } from '../src/video/picture-video.mjs';
 import { VideoPort } from '../src/video/video-port.mjs';
 import { PpuBus, PpuState } from '../proof/video/ppu-state.mjs';

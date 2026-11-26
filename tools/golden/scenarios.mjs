@@ -4,7 +4,7 @@
 // is why the trace keeps the inputs they produced instead of the plans.
 import { LiveGame } from '../../src/video/live-game.mjs';
 import { counterBytes } from '../../src/vm/frame-events.mjs';
-import { loadSave, ALLEY_PLAN as ALLEY_PLAN_FROM_ROOM } from '../mesen-f390-oracle.mjs';
+import { loadSave, ALLEY_PLAN as ALLEY_PLAN_FROM_ROOM } from '../mesen-plans.mjs';
 import { livePlanDriver } from '../live-plan-driver.mjs';
 import { exploreLive } from '../explore-live.mjs';
 import { BADGE_BUY_LIVE_PLAN } from '../live-plans.mjs';
@@ -48,7 +48,7 @@ const TITLE = (k) =>
       : 0;
 
 // Game Over: the new game route of BENCHMARK_ROUTE up to the walk, then ALLEY_PLAN of
-// tools/mesen-f390-oracle.mjs (out of the morgue, along the street into the alley), where
+// tools/mesen-plans.mjs (out of the morgue, along the street into the alley), where
 // the orc assassin shoots Jake (the owner takes over again near NMI 15760). Without input
 // the menu times out to the title, back to the menu, to the attract demo and back to the
 // menu again; then Start begins a new game from the menu owner.

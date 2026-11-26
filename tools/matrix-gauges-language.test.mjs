@@ -1,10 +1,10 @@
-import { toWram } from '../proof/state/to-wram.mjs';
+import { toWram } from './to-wram.mjs';
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import { cartridge } from './cartridge-harness.mjs';
 import { exploreLive } from './explore-live.mjs';
-import { loadSave } from './mesen-f390-oracle.mjs';
+import { loadSave } from './mesen-plans.mjs';
 import { buildLanguage } from '../src/data/language.mjs';
 import { lzBits, lzDecode } from '../src/data/lz.mjs';
 

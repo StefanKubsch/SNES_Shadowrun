@@ -2,9 +2,9 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { gameStartSequence } from '../src/game/game-start.mjs';
 import { LiveGame } from '../src/video/live-game.mjs';
-import { toWram } from '../proof/state/to-wram.mjs';
+import { toWram } from './to-wram.mjs';
 import { cartridge } from './cartridge-harness.mjs';
-import { loadSave } from './mesen-f390-oracle.mjs';
+import { loadSave } from './mesen-plans.mjs';
 
 for (const choice of [0xffff, 0, 1])
   test(`game setup uses explicit choice ${choice} despite a stale direct-page value`, () => {

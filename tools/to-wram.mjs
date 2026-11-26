@@ -1,17 +1,17 @@
-import { FRONTEND_FIELDS, frontendState } from '../../src/state/frontend.mjs';
-import { MATRIX_FIELDS, matrixState } from '../../src/state/matrix.mjs';
-import { SCENE_ROOM_FIELDS, sceneRoomState } from '../../src/state/scene-room.mjs';
-import { COMBAT_FIELDS, combatState } from '../../src/state/combat.mjs';
-import { WINDOW_TEXT_FIELDS, windowsText } from '../../src/state/windows-text.mjs';
-import { CAMERA_MAP_FIELDS, cameraMaps } from '../../src/state/camera-maps.mjs';
-import { COLLISION_FIELDS, collisionTable } from '../../src/state/collision.mjs';
-import { SPRITE_FIELDS, spriteTable } from '../../src/state/sprites.mjs';
+import { FRONTEND_FIELDS, frontendState } from '../src/state/frontend.mjs';
+import { MATRIX_FIELDS, matrixState } from '../src/state/matrix.mjs';
+import { SCENE_ROOM_FIELDS, sceneRoomState } from '../src/state/scene-room.mjs';
+import { COMBAT_FIELDS, combatState } from '../src/state/combat.mjs';
+import { WINDOW_TEXT_FIELDS, windowsText } from '../src/state/windows-text.mjs';
+import { CAMERA_MAP_FIELDS, cameraMaps } from '../src/state/camera-maps.mjs';
+import { COLLISION_FIELDS, collisionTable } from '../src/state/collision.mjs';
+import { SPRITE_FIELDS, spriteTable } from '../src/state/sprites.mjs';
 // A diagnostic projection, never imported by the product. The unconverted state
 // retains its bytes; the live object fields supply their original little-endian
 // positions, including matrix, intro and OAM aliases. Projection does not mutate
 // either the game state or the raw compatibility store.
-import { OBJECT_FIELDS, objectTable, hasDetachedObjects } from '../../src/state/objects.mjs';
-import { BYTE_BITS, BYTE_MASK } from '../../src/constants/bits.mjs';
+import { OBJECT_FIELDS, objectTable, hasDetachedObjects } from '../src/state/objects.mjs';
+import { BYTE_BITS, BYTE_MASK } from '../src/constants/bits.mjs';
 
 // Contiguous fields can copy their existing bytes on little-endian hosts. Other
 // hosts and strided records retain the explicit little-endian projection below.

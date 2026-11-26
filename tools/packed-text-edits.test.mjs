@@ -11,8 +11,7 @@ import {
   CREDITS_EDIT,
   PACKED_TEXT_DOMAINS,
 } from '../src/data/packed-text-edits.mjs';
-import { buildLanguage, installLanguage } from '../src/data/language.mjs';
-import { redirectLanguageStream } from '../proof/system/native-unpack.mjs';
+import { buildLanguage, installLanguage, languageStreamSource } from '../src/data/language.mjs';
 import { VmMemory, PACKED_TEXT_BANK } from '../src/vm/memory.mjs';
 import { lzBits, lzDecode } from '../src/data/lz.mjs';
 import { LiveGame } from '../src/video/live-game.mjs';
@@ -40,15 +39,7 @@ function memoryFor(edits, language = null) {
   return memory;
 }
 function unpack(memory, cpu) {
-  const dp = new Map([
-    [0xe1, cpu & 0xffff],
-    [0xe3, cpu >>> 16],
-  ]);
-  redirectLanguageStream(memory, {
-    dp: (at) => dp.get(at),
-    dpWrite: (at, value) => dp.set(at, value),
-  });
-  const source = (dp.get(0xe3) << 16) | dp.get(0xe1);
+  const source = languageStreamSource(memory, cpu);
   const bits = lzBits((i) => memory.read8(0x80a033 + i));
   return {
     source,

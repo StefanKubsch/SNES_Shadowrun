@@ -5,7 +5,7 @@ import { COMBAT_FIELDS, detachCombat } from '../src/state/combat.mjs';
 import { detachCollisionStorage, collisionTable } from '../src/state/collision.mjs';
 import { storageContract, blankMemory, WRAM } from './state-storage-contract.mjs';
 import { LiveGame } from '../src/video/live-game.mjs';
-import { toWram } from '../proof/state/to-wram.mjs';
+import { toWram } from './to-wram.mjs';
 import { requestRoomChange } from '../src/game/script-requests.mjs';
 import { warpToDebugRoom, DEBUG_ROOM_ENTRY } from '../src/browser/debug-room.mjs';
 import { saveGame } from '../src/game/save-slots.mjs';

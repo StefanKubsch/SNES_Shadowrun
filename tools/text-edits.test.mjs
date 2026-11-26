@@ -1,4 +1,4 @@
-import { toWram } from '../proof/state/to-wram.mjs';
+import { toWram } from './to-wram.mjs';
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
@@ -26,7 +26,7 @@ import { translatedListWindow } from '../src/data/menu-layout.mjs';
 import { fitListWindow } from '../proof/system/menu-layout-registers.mjs';
 import { TEXT_BUFFER, WINDOW_MAP_BUFFER, WRAM, GLOVE_NAME_WINDOW } from '../src/data/wram.mjs';
 import { ORIGINAL_GAMEPLAY } from '../src/game/bugfixes.mjs';
-import { loadSave } from './mesen-f390-oracle.mjs';
+import { loadSave } from './mesen-plans.mjs';
 import { livePlanDriver } from './live-plan-driver.mjs';
 import '../proof/system/dialog-register-helpers.mjs';
 

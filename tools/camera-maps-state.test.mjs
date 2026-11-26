@@ -6,7 +6,7 @@ import { CAMERA_MAP_FIELDS, cameraMaps, detachCameraMaps } from '../src/state/ca
 import { readStateByte, writeStateByte, fillStateBytes } from '../src/state/objects.mjs';
 import { COLLISION_FIELDS } from '../src/state/collision.mjs';
 import { OBJECT_FIELDS, OBJECT_SLOTS } from '../src/state/objects.mjs';
-import { toWram, restoreWram } from '../proof/state/to-wram.mjs';
+import { toWram, restoreWram } from './to-wram.mjs';
 import { updateTileBuffers, uploadMapEdges } from '../src/game/camera-scroll.mjs';
 import {
   CAMERA_X,

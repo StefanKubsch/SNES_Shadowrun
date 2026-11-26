@@ -38,7 +38,7 @@ import {
 } from '../src/data/wram.mjs';
 import { ORIGINAL_GAMEPLAY } from '../src/game/bugfixes.mjs';
 import { SLOT_OFFSETS_FOUR } from '../src/game/save-slots.mjs';
-import { loadSave } from './mesen-f390-oracle.mjs';
+import { loadSave } from './mesen-plans.mjs';
 
 const originals = JSON.parse(readFileSync('assets/vm-texts.json')).texts;
 const menus = JSON.parse(readFileSync('assets/vm-menu-texts.json')).texts;

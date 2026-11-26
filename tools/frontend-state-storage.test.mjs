@@ -10,7 +10,7 @@ import { COLLISION_FIELDS } from '../src/state/collision.mjs';
 import { WINDOW_TEXT_FIELDS, windowsText } from '../src/state/windows-text.mjs';
 import { OBJECT_FIELDS, OBJECT_SLOTS, objectTable } from '../src/state/objects.mjs';
 import { storageContract, blankMemory, WRAM } from './state-storage-contract.mjs';
-import { toWram } from '../proof/state/to-wram.mjs';
+import { toWram } from './to-wram.mjs';
 import { takePadPresses } from '../src/system/joypad.mjs';
 import { stepBrightnessFade } from '../src/game/game-nmi.mjs';
 import { scriptStateAddresses } from './script-state-addresses.mjs';

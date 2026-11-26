@@ -1,9 +1,9 @@
-import { toWram } from '../proof/state/to-wram.mjs';
+import { toWram } from './to-wram.mjs';
 import { readStateWord } from '../src/state/objects.mjs';
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { cartridge } from './cartridge-harness.mjs';
-import { loadSave, MORGUE_DOOR_PLAN } from './mesen-f390-oracle.mjs';
+import { loadSave, MORGUE_DOOR_PLAN } from './mesen-plans.mjs';
 import { livePlanDriver } from './live-plan-driver.mjs';
 import { LiveGame } from '../src/video/live-game.mjs';
 import {

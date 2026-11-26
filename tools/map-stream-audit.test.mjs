@@ -7,8 +7,7 @@ import { cartridge } from './cartridge-harness.mjs';
 import { requireRomAddress, romOffset } from '../src/data/rom-bytes.mjs';
 import { lzBits, lzDecode } from '../src/data/lz.mjs';
 import { VmMemory } from '../src/vm/memory.mjs';
-import { TaskAccessor } from '../src/vm/task-accessor.mjs';
-import { unpackStreamLong } from '../proof/system/native-unpack.mjs';
+import { unpackWithState } from '../src/system/unpack.mjs';
 
 const json = (name) => JSON.parse(readFileSync(`assets/${name}.json`));
 const result = await auditMapStreams();
@@ -69,23 +68,8 @@ test('all map words match the original ROM and native unpack with destination gu
     const mem = new VmMemory(cartridge.rom);
     mem.present = cartridge.present;
     mem.wram.fill(0xa5);
-    mem.write16(0x1ef1, 0x1234);
-    const vm = {
-      mem,
-      a: cpu & 0xffff,
-      x: 0x4000,
-      y: cpu >>> 16,
-      s: 0x1ef0,
-      d: 0,
-      dbr: 0x80,
-      p: 0,
-      pc: 0x9f49,
-    };
-    const accessor = new TaskAccessor(vm);
-    accessor.load();
-    accessor.ctx.programBank = 0x80;
-    const unpacked = unpackStreamLong(accessor, true, 0x809f49);
-    assert.equal(unpacked.literalBytes + unpacked.referenceBytes, row.output_bytes, row.address);
+    const unpacked = unpackWithState(mem, cpu, 0x7e, 0x4000);
+    assert.equal(unpacked.count, row.output_bytes, row.address);
     assert.deepEqual(mem.wram.slice(0x4000, 0x4000 + row.output_bytes), expected, row.address);
     assert.equal(mem.wram[0x3fff], 0xa5, row.address);
     assert.equal(mem.wram[0x4000 + row.output_bytes], 0xa5, row.address);

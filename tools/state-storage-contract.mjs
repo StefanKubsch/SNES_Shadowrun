@@ -4,7 +4,7 @@ import { OBJECT_FIELDS, OBJECT_SLOTS } from '../src/state/objects.mjs';
 import { COLLISION_FIELDS } from '../src/state/collision.mjs';
 import { CAMERA_MAP_FIELDS } from '../src/state/camera-maps.mjs';
 import { WINDOW_TEXT_FIELDS } from '../src/state/windows-text.mjs';
-import { toWram, restoreWram } from '../proof/state/to-wram.mjs';
+import { toWram, restoreWram } from './to-wram.mjs';
 import { BYTE_BITS, BYTE_MASK, WORD_MASK } from '../src/constants/bits.mjs';
 
 // A deterministic, nonuniform fixture pattern and distinct replacement words.

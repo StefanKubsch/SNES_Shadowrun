@@ -3,7 +3,7 @@ import assert from 'node:assert/strict';
 import { COMBAT_FIELDS, combatState, detachCombat } from '../src/state/combat.mjs';
 import { storageContract, blankMemory, WRAM } from './state-storage-contract.mjs';
 import { LiveGame } from '../src/video/live-game.mjs';
-import { toWram } from '../proof/state/to-wram.mjs';
+import { toWram } from './to-wram.mjs';
 import { appendToFightList, isInFightList } from '../src/game/fight-list.mjs';
 import { shakeHitPlayer } from '../src/game/player-hit.mjs';
 import { saveGame, slotChecksum } from '../src/game/save-slots.mjs';

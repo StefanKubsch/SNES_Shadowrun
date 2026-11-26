@@ -38,8 +38,9 @@ export const unpack = (mem, source, outputBank, start) =>
   unpackWithState(mem, source, outputBank, start).cursor;
 
 // The unpacker's run: limit is the output length (the stream's first word unless
-// given). Returns the final state, the original's direct page fields.
-function unpackWithState(mem, source, outputBank, start, length = null) {
+// given). Returns the final state, the original's direct page fields, and the bits
+// read (for the stream audits in tools/).
+export function unpackWithState(mem, source, outputBank, start, length = null) {
   const read = (offset) => mem.read8((source + offset) & LONG_MASK),
     readWord = (offset) => read(offset) | (read(offset + 1) << BYTE_BITS),
     write = (offset, value) => mem.write8((outputBank << BANK_SHIFT) | (offset & WORD_MASK), value),
@@ -57,7 +58,8 @@ function unpackWithState(mem, source, outputBank, start, length = null) {
     // after a reference (its MVN steps Y along the output); its X: the cursor after a
     // literal run, the copy's source after a reference (the MVN steps X along it).
     endIndex = 0,
-    endSource = 0;
+    endSource = 0,
+    bitsRead = 0;
   // Bits come in stream order: each word is read with its first byte on top, the
   // highest bit first.
   const nextBit = () => {
@@ -69,6 +71,7 @@ function unpackWithState(mem, source, outputBank, start, length = null) {
     }
     const bit = (bits & WORD_SIGN) !== 0;
     bits = (bits << 1) & WORD_MASK;
+    bitsRead++;
     return bit;
   };
   // A gamma code: from 1, while a 0 bit follows append the next bit.
@@ -147,6 +150,7 @@ function unpackWithState(mem, source, outputBank, start, length = null) {
     bits,
     endIndex,
     endSource,
+    bitsRead,
   };
 }
 

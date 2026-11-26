@@ -17,7 +17,7 @@ import {
   readStateByte,
   writeStateByte,
 } from '../src/state/objects.mjs';
-import { toWram, restoreWram } from '../proof/state/to-wram.mjs';
+import { toWram, restoreWram } from './to-wram.mjs';
 import { queueVramCopy } from '../src/matrix/matrix-runtime.mjs';
 import { hideAllSprites } from '../src/system/nmi.mjs';
 import { DMA_RECORD_COUNT, OAM_SHADOW } from '../src/data/wram.mjs';

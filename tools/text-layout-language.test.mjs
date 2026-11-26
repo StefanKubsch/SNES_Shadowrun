@@ -3,7 +3,7 @@ import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import { cartridge } from './cartridge-harness.mjs';
 import { LiveGame } from '../src/video/live-game.mjs';
-import { loadSave } from './mesen-f390-oracle.mjs';
+import { loadSave } from './mesen-plans.mjs';
 import { livePlanDriver } from './live-plan-driver.mjs';
 import { buildLanguage, GERMAN } from '../src/data/language.mjs';
 import { ORIGINAL_GAMEPLAY } from '../src/game/bugfixes.mjs';

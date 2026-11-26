@@ -12,8 +12,7 @@ import { lzBits, lzDecode } from '../src/data/lz.mjs';
 import { readBmp, sheetToStream, streamToSheet } from '../src/data/tiles.mjs';
 import { romOffset, requireRomAddress } from '../src/data/rom-bytes.mjs';
 import { VmMemory } from '../src/vm/memory.mjs';
-import { TaskAccessor } from '../src/vm/task-accessor.mjs';
-import { unpackFixedStream } from '../proof/system/native-unpack.mjs';
+import { unpackLong, UNPACK_FIXED_7E } from '../src/system/unpack.mjs';
 import { LiveGame } from '../src/video/live-game.mjs';
 import { SHAPE_GRID, SHAPE_GRID_BYTES } from '../src/data/wram.mjs';
 
@@ -163,23 +162,8 @@ test('native 9E7E produces edited pixels with intact destination neighbors and s
     apply(target, [entry]);
     const mem = new VmMemory(target.rom, new Uint8Array(0x20000), null, target.present);
     mem.wram.fill(0x5a, 0x1fff, 0x2081);
-    mem.write16(0x1ef1, 0x1234);
     const pointer = cpuOf(entry) - 2;
-    const vm = {
-      mem,
-      a: pointer & 0xffff,
-      y: pointer >>> 16,
-      x: 0x2000,
-      s: 0x1ef0,
-      d: 0,
-      dbr: 0x80,
-      p: 0,
-      pc: 0x9e7e,
-    };
-    const accessor = new TaskAccessor(vm);
-    accessor.load();
-    accessor.ctx.programBank = 0x80;
-    unpackFixedStream(accessor);
+    unpackLong(mem, pointer & 0xffff, pointer >>> 16, 0x2000, UNPACK_FIXED_7E);
     assert.deepEqual(mem.wram.slice(0x2000, 0x2080), decoded(target.rom, entry).data);
     assert.equal(mem.wram[0x1fff], 0x5a);
     assert.equal(mem.wram[0x2080], 0x5a);

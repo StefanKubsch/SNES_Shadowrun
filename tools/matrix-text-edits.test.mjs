@@ -1,5 +1,5 @@
 import { fillStateBytes } from '../src/state/objects.mjs';
-import { toWram, restoreWram } from '../proof/state/to-wram.mjs';
+import { toWram, restoreWram } from './to-wram.mjs';
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
@@ -10,7 +10,7 @@ import { MATRIX_EDIT_COLUMNS, MATRIX_EDIT_STREAM_LIMIT } from '../src/data/matri
 import { buildLanguage } from '../src/data/language.mjs';
 import { LiveGame } from '../src/video/live-game.mjs';
 import { queueText, resetTextWindow, typeText } from '../src/matrix/matrix-text.mjs';
-import { loadSave } from './mesen-f390-oracle.mjs';
+import { loadSave } from './mesen-plans.mjs';
 // The BG3 tile word of each character and the row the typed characters gather in
 // (src/matrix/matrix-text.mjs).
 const CHARACTER_TILES = 0x7effc0,

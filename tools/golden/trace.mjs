@@ -7,7 +7,7 @@
 // picture, game state, video memory, audio and SRAM. Every SNAPSHOT_EVERY frames it
 // keeps the masked WRAM so that a difference can be located by address.
 import { WRAM } from '../../src/data/wram.mjs';
-import { toWram } from '../../proof/state/to-wram.mjs';
+import { toWram } from '../to-wram.mjs';
 import { readFileSync, writeFileSync } from 'node:fs';
 import { gzipSync, gunzipSync, constants as zlib } from 'node:zlib';
 import { LiveGame } from '../../src/video/live-game.mjs';

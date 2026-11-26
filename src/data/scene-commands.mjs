@@ -20,6 +20,8 @@ const OPERATIONS = new Map([
   [0x81ecd0, SCENE_COMMAND_NOOP],
 ]);
 const COMMAND_BANK = 0x810000;
+// The commands the table may name (81:EC28 JMP (EC2F,X)).
+export const SCENE_LIST_COMMAND_TARGETS = Object.freeze([...OPERATIONS.keys()]);
 
 export function sceneListCommands(mem) {
   return decodeOnce(mem, 'scene_list_operations', (image) =>

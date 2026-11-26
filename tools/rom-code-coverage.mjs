@@ -28,7 +28,7 @@ import {
   ITEMS_PLAN,
   BED_SAVE_KARMA_PLAN,
   BADGE_OFFER_PLAN,
-} from './mesen-f390-oracle.mjs';
+} from './mesen-plans.mjs';
 
 const OUT = 'analysis/rom-code-observed.json';
 // The read callbacks of the coverage (explore.lua "XR") slow Mesen down; every time limit gets this factor.

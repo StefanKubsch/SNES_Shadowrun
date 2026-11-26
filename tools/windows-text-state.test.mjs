@@ -6,7 +6,7 @@ import { WINDOW_TEXT_FIELDS, windowsText, detachWindowsText } from '../src/state
 import { CAMERA_MAP_FIELDS, detachCameraMaps } from '../src/state/camera-maps.mjs';
 import { COLLISION_FIELDS } from '../src/state/collision.mjs';
 import { OBJECT_FIELDS, OBJECT_SLOTS, writeStateByte } from '../src/state/objects.mjs';
-import { toWram, restoreWram } from '../proof/state/to-wram.mjs';
+import { toWram, restoreWram } from './to-wram.mjs';
 import { drawWindow } from '../src/game/window-list.mjs';
 import { clearTextTiles } from '../src/game/game-nmi.mjs';
 import { readBit } from '../src/game/text-print.mjs';

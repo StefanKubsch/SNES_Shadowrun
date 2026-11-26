@@ -126,6 +126,13 @@ export const NATIVE_ENTRY = 0x80ea6e,
   ITEMS_ENTRY = 0x80ea8e;
 const SKILLS_MENU = 0x80e834,
   NOTES_MENU = 0x80e8c8;
+// The submenus the jump table 80:ED2E (JMP (ED2E,X) at 80:ECEA) may name.
+export const STATUS_SUBMENUS = Object.freeze([
+  ...Object.keys(ITEM_ENTRIES).map(Number),
+  STATUS_ENTRY,
+  SKILLS_MENU,
+  NOTES_MENU,
+]);
 // The attribute labels follow the rows; the attributes from index 6 down, the record's
 // byte after the third attribute is skipped; the submenus' jump table; the restored
 // sound level; the mark set; the first submenu (items) for 1F64.

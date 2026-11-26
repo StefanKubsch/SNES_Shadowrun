@@ -9,8 +9,7 @@ import { readBmp } from '../src/data/tiles.mjs';
 import { sheetsToCharacters } from '../src/data/vram-tiles.mjs';
 import { lzDecode, lzBits } from '../src/data/lz.mjs';
 import { VmMemory } from '../src/vm/memory.mjs';
-import { TaskAccessor } from '../src/vm/task-accessor.mjs';
-import { unpackStreamLong } from '../proof/system/native-unpack.mjs';
+import { unpackWithState } from '../src/system/unpack.mjs';
 
 const readJson = (name) => JSON.parse(readFileSync(new URL(`../${name}`, import.meta.url)));
 const result = await auditCharacterStreams();
@@ -49,23 +48,8 @@ test('all decoded outputs match original ROM bytes and actual native unpack', ()
     const expected = lzDecode((n) => bytes[romOffset(cpu + 2 + n)], length, bitsFor).data;
     const mem = new VmMemory(cartridge.rom);
     mem.present = cartridge.present;
-    mem.write16(0x1ef1, 0x1234);
-    const vm = {
-      mem,
-      a: cpu & 0xffff,
-      x: 0x2000,
-      y: cpu >>> 16,
-      s: 0x1ef0,
-      d: 0,
-      dbr: 0x80,
-      p: 0,
-      pc: 0x9f49,
-    };
-    const accessor = new TaskAccessor(vm);
-    accessor.load();
-    accessor.ctx.programBank = 0x80;
-    const unpacked = unpackStreamLong(accessor, true, 0x809f49);
-    assert.equal(unpacked.literalBytes + unpacked.referenceBytes, length, row.address);
+    const unpacked = unpackWithState(mem, cpu, 0x7e, 0x2000);
+    assert.equal(unpacked.count, length, row.address);
     assert.deepEqual(mem.wram.slice(0x2000, 0x2000 + length), expected, row.address);
   }
 });

@@ -1,4 +1,4 @@
-import { toWram } from '../proof/state/to-wram.mjs';
+import { toWram } from './to-wram.mjs';
 // Text language (src/data/language.mjs, docs/LANGUAGES.md): the German asset
 // covers every English text exactly once, its characters fit the free font
 // codes, the glyphs go into the game's own ROM copy only, and a live game
@@ -18,8 +18,8 @@ import {
   UMLAUTS,
   ENGLISH,
   GERMAN,
+  languageStreamSource,
 } from '../src/data/language.mjs';
-import { redirectLanguageStream } from '../proof/system/native-unpack.mjs';
 import { parseRecording } from '../src/browser/recording.mjs';
 import { VmMemory, LANGUAGE_BANK } from '../src/vm/memory.mjs';
 import { lzBits, lzDecode } from '../src/data/lz.mjs';
@@ -144,12 +144,7 @@ test('the German streams are read from the language bank', () => {
   const bitsFor = lzBits((i) => memory.read8(0x80a033 + i)),
     read8 = (cpu) => memory.read8(cpu);
   const unpack = (english, expectedBank = LANGUAGE_BANK) => {
-    const dp = new Map([
-      [0xe1, english & 0xffff],
-      [0xe3, english >>> 16],
-    ]);
-    redirectLanguageStream(memory, { dp: (o) => dp.get(o), dpWrite: (o, v) => dp.set(o, v) });
-    const source = (dp.get(0xe3) << 16) | dp.get(0xe1);
+    const source = languageStreamSource(memory, english);
     assert.equal(source >>> 16, expectedBank, english.toString(16));
     const length = read8(source) | (read8(source + 1) << 8);
     return Buffer.from(

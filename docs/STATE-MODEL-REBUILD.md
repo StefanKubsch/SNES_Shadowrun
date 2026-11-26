@@ -622,7 +622,7 @@ own commit after `npm run test:block` and the golden trace test. One shared
 - 2026-11-20, detached object storage: the normal LiveGame loop imports the initial
   bytes once into independent Uint16Array fields. Raw proof fixtures and the injected
   reference loop keep WRAM views. The product does not maintain a byte mirror of the
-  object arrays. [to-wram.mjs](../proof/state/to-wram.mjs) produces a separate,
+  object arrays. [to-wram.mjs](../tools/to-wram.mjs) produces a separate,
   side-effect-free projection for diagnostics and the golden state hashes.
 - A shared byte boundary in src/state/objects.mjs resolves the original aliases into
   the detached fields. VmMemory, intro/title/OAM and matrix consumers use it; byte

@@ -5,7 +5,7 @@ import { COMBAT_FIELDS } from '../src/state/combat.mjs';
 import { SCENE_ROOM_FIELDS } from '../src/state/scene-room.mjs';
 import { storageContract, blankMemory, WRAM } from './state-storage-contract.mjs';
 import { detachObjectStorage, objectTable } from '../src/state/objects.mjs';
-import { toWram } from '../proof/state/to-wram.mjs';
+import { toWram } from './to-wram.mjs';
 import { queueVramCopy, sendVramCopies } from '../src/matrix/matrix-runtime.mjs';
 import { queueText, resetTextWindow } from '../src/matrix/matrix-text.mjs';
 import { LiveGame } from '../src/video/live-game.mjs';

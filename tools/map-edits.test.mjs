@@ -8,8 +8,7 @@ import { auditMapStreams } from './map-stream-audit.mjs';
 import { lzBits, lzDecode } from '../src/data/lz.mjs';
 import { requireRomAddress, romOffset } from '../src/data/rom-bytes.mjs';
 import { VmMemory } from '../src/vm/memory.mjs';
-import { TaskAccessor } from '../src/vm/task-accessor.mjs';
-import { unpackStreamLong } from '../proof/system/native-unpack.mjs';
+import { unpackStream } from '../src/system/unpack.mjs';
 import { buildLanguage, installLanguage } from '../src/data/language.mjs';
 import { LiveGame } from '../src/video/live-game.mjs';
 import { startMenuWaiting } from '../src/game/credits.mjs';
@@ -221,21 +220,7 @@ test('native unpack preserves transfer tails and aliases in both languages for e
     for (const s of shared) {
       const cpu = requireRomAddress(s.address);
       mem.wram.fill(0x5a, 0x46a7, 0x4ea9);
-      mem.write16(0x1ef1, 0x1234);
-      const a = new TaskAccessor({
-        mem,
-        a: cpu & 65535,
-        y: cpu >>> 16,
-        x: 0x46a8,
-        s: 0x1ef0,
-        d: 0,
-        dbr: 0x80,
-        p: 0,
-        pc: 0x9f4d,
-      });
-      a.load();
-      a.ctx.programBank = 0x80;
-      unpackStreamLong(a, true, 0x809f4d);
+      unpackStream(mem, cpu, 0x46a8);
       assert.deepEqual(
         mem.wram.slice(0x46a8, 0x46a8 + s.output_bytes),
         bytes.get(s.address).map((v) => v ^ 255),

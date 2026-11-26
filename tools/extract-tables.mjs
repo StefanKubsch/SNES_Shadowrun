@@ -12,10 +12,10 @@ import {
   MATRIX_TRACK_CALLS,
 } from '../src/matrix/matrix-tables.mjs';
 import { CUTSCENE_ANIMATIONS } from '../src/cutscene/cutscene-animation.mjs';
-import { KARMA_LISTS } from '../proof/replay/native-main-menu.mjs';
-import { SUBMENU_SEQUENCES } from '../proof/replay/native-status-screen.mjs';
-import { SCENE_VIDEO_COMMANDS } from '../proof/system/main-scene-video.mjs';
-import { COMPARE } from '../proof/replay/native-scene-sprites.mjs';
+import { KARMA_LISTS } from '../src/system/native-main-menu.mjs';
+import { STATUS_SUBMENUS } from '../src/game/status-screen.mjs';
+import { SCENE_LIST_COMMAND_TARGETS } from '../src/data/scene-commands.mjs';
+import { DEPTH_COMPARE_FIRST, DEPTH_COMPARE_SECOND } from './depth-compare-targets.mjs';
 
 const ROM_SHA256 = '91dbfecf9017264b01885e065cf015840223b8e8d2f95dfa62c4c0d654c2f690';
 const { bytes, metadata } = inspectRom(await readFile(process.argv[2] ?? 'Shadowrun (E).smc'));
@@ -92,16 +92,11 @@ for (const [name, targets, step, firstZero] of [
     new Set([...CUTSCENE_ANIMATIONS.keys()].map((t) => SCENE_CODE_BANK | t)),
     1,
   ],
-  [
-    'status_submenu_calls',
-    new Set([...SUBMENU_SEQUENCES.keys()].map((t) => 0x800000 | t)),
-    1,
-    true,
-  ],
-  ['scene_list_commands', SCENE_VIDEO_COMMANDS, 1, true],
+  ['status_submenu_calls', new Set(STATUS_SUBMENUS), 1, true],
+  ['scene_list_commands', new Set(SCENE_LIST_COMMAND_TARGETS), 1, true],
   ...['compare_calls_b0e3', 'compare_calls_b126'].map((name) => [
     name,
-    new Set([...COMPARE.keys()].map((t) => 0x800000 | t)),
+    new Set([...DEPTH_COMPARE_FIRST, ...DEPTH_COMPARE_SECOND]),
     1,
     true,
   ]),

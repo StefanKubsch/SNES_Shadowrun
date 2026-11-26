@@ -8,7 +8,7 @@ import {
   detachCollisionStorage,
 } from '../src/state/collision.mjs';
 import { readStateByte, writeStateByte } from '../src/state/objects.mjs';
-import { toWram, restoreWram } from '../proof/state/to-wram.mjs';
+import { toWram, restoreWram } from './to-wram.mjs';
 import { TILE_CACHE_NEXT, TILE_CACHE_KEYS, TILE_CACHE_DATA } from '../src/data/wram.mjs';
 import { buildCollisionGrid } from '../src/game/collision-grid.mjs';
 

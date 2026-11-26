@@ -10,8 +10,7 @@ import { CUTSCENE_ANIMATIONS } from '../src/cutscene/cutscene-animation.mjs';
 import { lzBits, lzDecode, lzEncode } from '../src/data/lz.mjs';
 import { readLzStreams } from '../src/data/lz-streams.mjs';
 import { romOffset } from '../src/data/rom-bytes.mjs';
-import { buildLanguage, installLanguage } from '../src/data/language.mjs';
-import { redirectLanguageStream } from '../proof/system/native-unpack.mjs';
+import { buildLanguage, installLanguage, languageStreamSource } from '../src/data/language.mjs';
 import { VmMemory } from '../src/vm/memory.mjs';
 import '../proof/system/dialog-register-helpers.mjs';
 
@@ -265,16 +264,9 @@ test('credits M8 indexing aliases high character bytes and preserves the map hig
 test('language switches select the source at unpack time and do not replace loaded WRAM', () => {
   const memory = new VmMemory(cartridge.rom, undefined, null, cartridge.present);
   for (const domain of domains) {
-    const dp = new Map([
-      [0xe1, domain.address & 0xffff],
-      [0xe3, domain.address >>> 16],
-    ]);
-    const access = { dp: (at) => dp.get(at), dpWrite: (at, value) => dp.set(at, value) };
-    redirectLanguageStream(memory, access);
-    assert.equal((dp.get(0xe3) << 16) | dp.get(0xe1), domain.address);
+    assert.equal(languageStreamSource(memory, domain.address), domain.address);
     installLanguage(memory, german);
-    redirectLanguageStream(memory, access);
-    const source = (dp.get(0xe3) << 16) | dp.get(0xe1);
+    const source = languageStreamSource(memory, domain.address);
     assert.equal(source, german.streams.get(domain.address));
     const data = unpack((cpu) => memory.read8(cpu), source).data;
     memory.wram.set(data, 0x62a8);

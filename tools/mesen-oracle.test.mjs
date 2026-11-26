@@ -7,9 +7,8 @@ import {
   instructionPc,
   sequencedLine,
   ORACLE_WINDOWS,
-  SAVES,
-  loadSave,
 } from './mesen-f390-oracle.mjs';
+import { SAVES, loadSave } from './mesen-plans.mjs';
 import { ORACLE_NATIVES } from '../proof/vm/oracle-natives.mjs';
 import { SPECIAL_NATIVES } from '../proof/vm/special-natives.mjs';
 

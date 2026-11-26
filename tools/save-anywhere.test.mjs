@@ -1,9 +1,9 @@
 import { readStateWord } from '../src/state/objects.mjs';
-import { toWram } from '../proof/state/to-wram.mjs';
+import { toWram } from './to-wram.mjs';
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { cartridge } from './cartridge-harness.mjs';
-import { loadSave } from './mesen-f390-oracle.mjs';
+import { loadSave } from './mesen-plans.mjs';
 import { LiveGame } from '../src/video/live-game.mjs';
 import { MouseControl } from '../src/browser/mouse-control.mjs';
 import {

@@ -169,8 +169,8 @@ import {
   GRAPHIC_TABLE,
   GRAPHICS,
 } from '../src/data/object-graphics.mjs';
-import { COMPARE } from '../proof/replay/native-scene-sprites.mjs';
-import { SUBMENU_SEQUENCES } from '../proof/replay/native-status-screen.mjs';
+import { DEPTH_COMPARE_FIRST, DEPTH_COMPARE_SECOND } from './depth-compare-targets.mjs';
+import { STATUS_SUBMENUS } from '../src/game/status-screen.mjs';
 import {
   MATRIX_DIRECTION_CALLS,
   MATRIX_STATE_CALLS,
@@ -178,7 +178,7 @@ import {
   MATRIX_TRACK_CALLS,
 } from '../src/matrix/matrix-tables.mjs';
 import { CUTSCENE_ANIMATIONS } from '../src/cutscene/cutscene-animation.mjs';
-import { SCENE_VIDEO_COMMANDS } from '../proof/system/main-scene-video.mjs';
+import { SCENE_LIST_COMMAND_TARGETS } from '../src/data/scene-commands.mjs';
 import { CALLBACKS } from '../src/system/nmi-call.mjs';
 
 // The cutscene animations lie in bank 81 (src/cutscene/cutscene-animation.mjs).
@@ -191,9 +191,9 @@ const SCENE_CODE_BANK = 0x810000;
 // the port (long addresses, set through 81:C109).
 const JUMP_TABLES = new Map([
   ['80:C14F', { targets: [...CALLBACKS], long: true }],
-  ['80:B0AC', { table: 0x80b0e3, targets: [...COMPARE.keys()].filter((t) => t < 0xb0e3) }],
-  ['80:B0EF', { table: 0x80b126, targets: [...COMPARE.keys()].filter((t) => t > 0xb0e3) }],
-  ['80:ECEA', { table: 0x80ed2e, targets: [...SUBMENU_SEQUENCES.keys()] }],
+  ['80:B0AC', { table: 0x80b0e3, targets: DEPTH_COMPARE_FIRST.map((t) => t & 0xffff) }],
+  ['80:B0EF', { table: 0x80b126, targets: DEPTH_COMPARE_SECOND.map((t) => t & 0xffff) }],
+  ['80:ECEA', { table: 0x80ed2e, targets: STATUS_SUBMENUS.map((t) => t & 0xffff) }],
   ['81:B307', { table: 0x81b370, targets: [...MATRIX_TEXT_COMMANDS] }],
   ['81:BA93', { table: 0x81bb56, targets: [...MATRIX_DIRECTION_CALLS] }],
   ['81:BC09', { table: 0x81bc1b, targets: [...MATRIX_TRACK_CALLS] }],
@@ -202,7 +202,7 @@ const JUMP_TABLES = new Map([
     '81:CF76',
     { table: 0x81d41f, targets: [...CUTSCENE_ANIMATIONS.keys()].map((t) => SCENE_CODE_BANK | t) },
   ],
-  ['81:EC28', { table: 0x81ec2f, targets: [...SCENE_VIDEO_COMMANDS.keys()] }],
+  ['81:EC28', { table: 0x81ec2f, targets: [...SCENE_LIST_COMMAND_TARGETS] }],
 ]);
 
 const ROM_SHA256 = '91dbfecf9017264b01885e065cf015840223b8e8d2f95dfa62c4c0d654c2f690';

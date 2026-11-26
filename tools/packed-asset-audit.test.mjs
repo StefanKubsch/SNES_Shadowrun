@@ -7,8 +7,7 @@ import { cartridge } from './cartridge-harness.mjs';
 import { requireRomAddress, romOffset } from '../src/data/rom-bytes.mjs';
 import { lzDecode, lzBits } from '../src/data/lz.mjs';
 import { VmMemory } from '../src/vm/memory.mjs';
-import { TaskAccessor } from '../src/vm/task-accessor.mjs';
-import { unpackStreamLong } from '../proof/system/native-unpack.mjs';
+import { unpackWithState } from '../src/system/unpack.mjs';
 
 const audit = await auditPackedAssets();
 const bitsFor = lzBits((n) => cartridge.rom[romOffset(0x80a033 + n)]);
@@ -97,7 +96,6 @@ test('actual native unpack reads match audited endpoints and bit counts across f
   }
   for (const row of selected.values()) {
     const cpu = requireRomAddress(row.address);
-    const entry = row.header_bytes ? 0x809f49 : 0x809e7e;
     const pointer = row.header_bytes ? cpu : cpu - 2;
     const mem = new VmMemory(cartridge.rom);
     mem.present = cartridge.present;
@@ -107,24 +105,9 @@ test('actual native unpack reads match audited endpoints and bit counts across f
       if (address >= cpu && address >>> 16 === cpu >>> 16) reads.push(address);
       return read8(address);
     };
-    mem.write16(0x1ef1, 0x1234);
-    const vm = {
-      mem,
-      a: pointer & 0xffff,
-      x: 0x2000,
-      y: pointer >>> 16,
-      s: 0x1ef0,
-      d: 0,
-      dbr: 0x80,
-      p: 0,
-      pc: entry & 0xffff,
-    };
-    const accessor = new TaskAccessor(vm);
-    accessor.load();
-    accessor.ctx.programBank = 0x80;
-    const result = unpackStreamLong(accessor, true, entry);
-    assert.equal(result.bits, row.bit_count, row.address);
-    assert.equal(result.literalBytes + result.referenceBytes, row.token_output_bytes, row.address);
+    const result = unpackWithState(mem, pointer, 0x7e, 0x2000, row.header_bytes ? null : 0x80);
+    assert.equal(result.bitsRead, row.bit_count, row.address);
+    assert.equal(result.count, row.token_output_bytes, row.address);
     assert.equal(
       Math.max(...reads) + 1,
       cpu + row.header_bytes + row.native_read_bytes,

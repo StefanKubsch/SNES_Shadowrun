@@ -17,7 +17,7 @@ import { SPRITE_FIELDS, spriteByte, setSpriteByte } from './sprites.mjs';
 // The live game owns independent typed arrays. The original byte addresses remain
 // an explicit compatibility boundary for overlapping intro, OAM and matrix data and
 // indirect native arguments. Proof fixtures can retain views onto their input WRAM;
-// proof/state/to-wram.mjs projects the live fields for comparisons.
+// tools/to-wram.mjs projects the live fields for comparisons.
 //
 // Scripts also pass values that are no slot, above all FFFF for "none". The original
 // then reads or writes the word at field + value: through its data bank 80 (the low
