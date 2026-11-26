@@ -1,18 +1,19 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
+import { assertFrozenRun, useLiftVectors } from './lift-function-harness.mjs';
 import { compareRun } from './member-menu-caller-harness.mjs';
 import { cartridge } from './cartridge-harness.mjs';
 import { LiveGame } from '../src/video/live-game.mjs';
 import { selectObjectAnimation } from '../src/game/object-turn.mjs';
 import { controlPlayerSequence as directControl } from '../src/game/player-control.mjs';
-import { controlPlayerSequence as formerControl } from '../proof/caller/player-control.mjs';
 import { partyStatusSequence } from '../proof/caller/party-status.mjs';
 import { selectAnimationRegisters, turnRegisters } from '../proof/script/native-object-turn.mjs';
 import { CAMERA_ROTATION_SRAM } from '../src/data/native-player-control.mjs';
 import * as W from '../src/data/wram.mjs';
 
+useLiftVectors(import.meta.url);
+
 function runPlayer(
-  direct,
   variant,
   budget,
   realDrawing = false,
@@ -21,9 +22,8 @@ function runPlayer(
   control = null,
 ) {
   return compareRun(
-    (h, events, renderer) =>
-      direct ? directControl(h, events, renderer) : formerControl(h, events, renderer),
-    direct,
+    (h, events, renderer) => directControl(h, events, renderer),
+    true,
     ({ put, mem }) => {
       put(W.PLAYER_OBJECT, 2);
       put(W.PAD_PRESSED, variant === 'party' ? 0x2000 : variant === 'weapon notice' ? 0x80 : 0x40);
@@ -66,11 +66,8 @@ for (const budget of [1, 7])
     for (const leaderOnly of [false, true])
       for (const realDrawing of [false, true])
         test(`player party status: ${members} members, leader only ${leaderOnly}, budget ${budget}, glyphs ${realDrawing}`, () => {
-          const actual = runPlayer(true, 'party', budget, realDrawing, members, leaderOnly);
-          assert.deepEqual(
-            actual,
-            runPlayer(false, 'party', budget, realDrawing, members, leaderOnly),
-          );
+          const actual = runPlayer('party', budget, realDrawing, members, leaderOnly);
+          assertFrozenRun(actual);
           assert.equal(actual.input, 1);
           assert.equal(actual.wram[0] | (actual.wram[1] << 8), 0);
           if (realDrawing) assert.ok(actual.uploads.some(([pc]) => pc === 0x81accc));
@@ -80,8 +77,8 @@ for (const budget of [1, 7])
   for (const variant of ['weapon notice', 'spell notice'])
     for (const realDrawing of [false, true])
       test(`player ${variant}, budget ${budget}, glyphs ${realDrawing}`, () => {
-        const actual = runPlayer(true, variant, budget, realDrawing);
-        assert.deepEqual(actual, runPlayer(false, variant, budget, realDrawing));
+        const actual = runPlayer(variant, budget, realDrawing);
+        assertFrozenRun(actual);
         assert.equal(actual.input, 1);
         assert.equal(
           actual.wram[W.OBJECT_SELECTION + 2] | (actual.wram[W.OBJECT_SELECTION + 3] << 8),
@@ -110,8 +107,8 @@ for (const budget of [1, 7])
             [W.PLAYER_IDLE, idle],
             [CAMERA_ROTATION_SRAM, rotation],
           ]);
-          const actual = runPlayer(true, 'control', budget, false, 1, false, control);
-          assert.deepEqual(actual, runPlayer(false, 'control', budget, false, 1, false, control));
+          const actual = runPlayer('control', budget, false, 1, false, control);
+          assertFrozenRun(actual);
           assert.equal(actual.input, 0);
           assert.equal(actual.wram[0] | (actual.wram[1] << 8), 0);
         });
@@ -201,8 +198,8 @@ for (const budget of [1, 7])
           [W.GLOVE_Y, edge],
           ...changes,
         ]);
-        const actual = runPlayer(true, 'control', budget, false, 1, false, control);
-        assert.deepEqual(actual, runPlayer(false, 'control', budget, false, 1, false, control));
+        const actual = runPlayer('control', budget, false, 1, false, control);
+        assertFrozenRun(actual);
         assert.equal(actual.input, 0);
         assert.equal(actual.wram[0] | (actual.wram[1] << 8), result);
       });

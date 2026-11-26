@@ -1,13 +1,12 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { chooseFromMenuSequence as direct } from '../src/game/menu-choice.mjs';
-import { chooseFromMenuSequence as dispatched } from '../proof/caller/menu-choice.mjs';
 import { runFrameWait, runPadPresses } from '../proof/caller/input-routines.mjs';
 import { playSoundEffectJsr } from '../proof/caller/jsr-forms.mjs';
 import { NativeCallContinuation } from '../src/system/native-call-continuation.mjs';
 import { WAIT_PAUSED } from '../src/system/native-wait-continuation.mjs';
 import { LagFreeFrames } from '../src/vm/frame-events.mjs';
-import { createSide } from './lift-function-harness.mjs';
+import { createSide, assertFrozenRun, useLiftVectors } from './lift-function-harness.mjs';
 import {
   PAD_HELD,
   RANDOM_STATE,
@@ -19,6 +18,8 @@ import {
   WINDOW_TILE_START,
   WINDOW_TILE_COUNT,
 } from '../src/data/wram.mjs';
+
+useLiftVectors(import.meta.url);
 
 const NAVIGATE = [0x400, 0, 0x400, 0, 0x10, 0, 0x20, 0, ...Array(23).fill(0x400), 0, 0x800, 0];
 
@@ -109,9 +110,8 @@ for (const budget of [1, 7])
       ['hotkey or confirm', [0x100, 0, 0x8000]],
     ])
       test(`direct menu ${entry.toString(16)}: ${name}, budget ${budget}`, () => {
-        const actual = run(direct, entry, pads, budget),
-          previous = run(dispatched, entry, pads, budget);
-        assert.deepEqual(actual, previous);
+        const actual = run(direct, entry, pads, budget);
+        assertFrozenRun(actual);
         if (name.startsWith('cancel')) assert.equal(actual.result, 0xffff);
         else assert.ok(actual.result < 7, 'selection is a row in the list');
         if (name === 'hotkey or confirm' && entry === 0x80a6a5) {

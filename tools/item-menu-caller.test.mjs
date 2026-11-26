@@ -1,5 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
+import { assertFrozenRun, useLiftVectors } from './lift-function-harness.mjs';
 import {
   compareRun,
   configureMemberPortrait,
@@ -7,9 +8,10 @@ import {
 } from './member-menu-caller-harness.mjs';
 import * as liftedItem from '../src/game/item-menu.mjs';
 import { itemMenuJsr, useItemJsr } from '../proof/caller/jsr-forms.mjs';
-import * as formerItem from '../proof/caller/item-menu.mjs';
 import { equipmentRowsSequence } from '../proof/caller/equipment-window.mjs';
 import * as W from '../src/data/wram.mjs';
+
+useLiftVectors(import.meta.url);
 
 // The lifted module with its RTS forms (proof/caller/jsr-forms.mjs), named as the former.
 const directItem = { ...liftedItem, itemMenuSequence: itemMenuJsr, useItemSequence: useItemJsr };
@@ -76,7 +78,7 @@ for (const budget of [1, 7])
     ])
       test(`item use: actor ${actor}, effect ${JSON.stringify(effect)}, budget ${budget}`, () => {
         const actual = runUse(directItem, true, actor, effect, budget);
-        assert.deepEqual(actual, runUse(formerItem, false, actor, effect, budget));
+        assertFrozenRun(actual);
         assert.equal(actual.input, !effect.end && effect.notice ? 1 : 0);
         assert.equal(actual.calls.filter((c) => c[0] === 'service').length, 1);
         assert.equal(
@@ -95,7 +97,7 @@ for (const budget of [1, 7])
 for (const budget of [1, 7])
   test(`item use default glyphs, budget ${budget}`, () => {
     const actual = runUse(directItem, true, 0, {}, budget, true);
-    assert.deepEqual(actual, runUse(formerItem, false, 0, {}, budget, true));
+    assertFrozenRun(actual);
     assert.ok(actual.uploads.some(([pc]) => pc === 0x81accc));
   });
 
@@ -164,7 +166,7 @@ function runItemMenu(module, direct, entry, variant, budget, realDrawing = false
       bind(0x80a6ad, () => chooseFromMenuSequence(h, events, routines, 0x80a6ad));
       bind(0x80fa67, () => requestTileClearSequence(h, events));
       bind(0x80e9c5, () => equipmentRowsSequence(h, events, routines));
-      bind(0x80e4f3, () => formerItem.useItemSequence(h, events, routines));
+
       routines.set(0x80a835, (callee) => createObject(callee.a));
       routines.set(0x80c1ca, (callee) => {
         // The visit reads no registers (user decision 2026-11-17).
@@ -182,7 +184,7 @@ for (const budget of [1, 7])
     for (const variant of ['empty', 'Exit', 'cancel', 'use', 'rebuild'])
       test(`item menu: entry ${entry}, ${variant}, budget ${budget}`, () => {
         const actual = runItemMenu(directItem, true, entry, variant, budget);
-        assert.deepEqual(actual, runItemMenu(formerItem, false, entry, variant, budget));
+        assertFrozenRun(actual);
         assert.equal(
           actual.input,
           variant === 'empty' ? 0 : variant === 'rebuild' ? 5 : variant === 'use' ? 3 : 1,
@@ -195,7 +197,7 @@ for (const budget of [1, 7])
 for (const budget of [1, 7])
   test(`item menu default glyphs, budget ${budget}`, () => {
     const actual = runItemMenu(directItem, true, 0x80e572, 'rebuild', budget, true);
-    assert.deepEqual(actual, runItemMenu(formerItem, false, 0x80e572, 'rebuild', budget, true));
+    assertFrozenRun(actual);
     assert.ok(actual.uploads.some(([pc]) => pc === 0x81accc));
   });
 
@@ -203,7 +205,7 @@ for (const budget of [1, 7])
   test(`item redraw with live glyphs, budget ${budget}`, () => {
     const effect = { redraw: true, notice: true };
     const actual = runUse(directItem, true, 7, effect, budget, true);
-    assert.deepEqual(actual, runUse(formerItem, false, 7, effect, budget, true));
+    assertFrozenRun(actual);
     assert.ok(actual.uploads.some(([pc]) => pc === 0x81accc));
     assert.equal(actual.calls.filter((c) => c[0] === 'portrait upload').length, 2);
   });

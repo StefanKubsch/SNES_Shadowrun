@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
+import { assertFrozenRun, useLiftVectors } from './lift-function-harness.mjs';
 import { drawTextBufferSequence as direct } from '../src/game/text-draw.mjs';
-import { drawTextBufferSequence as former } from '../proof/caller/text-draw.mjs';
 import { textWindowSide, finishTextWindow } from './text-window-caller-harness.mjs';
 import {
   TEXT_BUFFER,
@@ -12,6 +12,8 @@ import {
   WINDOW_CURSOR_PIXEL,
   WINDOW_LEFT_PIXEL,
 } from '../src/data/wram.mjs';
+
+useLiftVectors(import.meta.url);
 
 function run(sequence, budget, style, request, variant) {
   const side = textWindowSide(),
@@ -47,7 +49,7 @@ for (const budget of [1, 7])
       test(`live glyph uploads: ${variant}, style ${style}, budget ${budget}`, () => {
         for (const request of [0, 0xfffe, 0xffff]) {
           const actual = run(direct, budget, style, request, variant);
-          assert.deepEqual(actual, run(former, budget, style, request, variant));
+          assertFrozenRun(actual);
           if (request === 0xffff)
             assert.ok(
               !actual.uploads.some(([pc]) => pc === 0x81accc),

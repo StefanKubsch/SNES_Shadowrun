@@ -1,11 +1,13 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
+import { assertFrozenRun, useLiftVectors } from './lift-function-harness.mjs';
 import { compareRun } from './member-menu-caller-harness.mjs';
 import { hitObjectJsr as liftedHit } from '../proof/caller/jsr-forms.mjs';
-import { hitObjectSequence as formerHit } from '../proof/caller/object-hit.mjs';
 import { runDrawWindowList } from '../proof/caller/window-list.mjs';
 import * as W from '../src/data/wram.mjs';
 import * as V from '../src/vm/layout.mjs';
+
+useLiftVectors(import.meta.url);
 
 // The lifted hit takes the damage, target and shooter as parameters (A, X and Y in the
 // original; user decision 2026-11-17), here from the registers the scenario sets.
@@ -59,10 +61,7 @@ for (const budget of [1, 7])
                 free,
                 budget,
               );
-              assert.deepEqual(
-                actual,
-                runHit(formerHit, player, armour, count, request, free, budget),
-              );
+              assertFrozenRun(actual);
               const word = (at) => actual.wram[at] | (actual.wram[at + 1] << 8);
               assert.equal(word(W.PLAYER_HIT_FRAMES), player ? 11 : 0);
               assert.equal(actual.uploads.length > 0, player && request !== 0xffff);

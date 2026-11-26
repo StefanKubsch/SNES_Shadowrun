@@ -1,14 +1,14 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
+import { assertFrozenRun, useLiftVectors } from './lift-function-harness.mjs';
 import { compareRun } from './member-menu-caller-harness.mjs';
 import { moveAndAnimateJsr } from '../proof/caller/jsr-forms.mjs';
-import { moveAndAnimate as formerMotion } from '../proof/caller/object-motion.mjs';
-import { walkTowardsTarget } from '../src/game/object-target.mjs';
-import { stepAnimation } from '../src/game/object-animation.mjs';
 import { segmentSequence } from '../src/system/native-call-continuation.mjs';
 import { ACTION_TABLE } from '../src/data/actions.mjs';
 import * as W from '../src/data/wram.mjs';
 import * as V from '../src/vm/layout.mjs';
+
+useLiftVectors(import.meta.url);
 
 // Find a real action with a nonempty first picture. Both callers use its actual
 // frame stream, picture cells, VRAM allocation and queued tile uploads.
@@ -27,27 +27,9 @@ function action(mem) {
   assert.fail('fixture requires a real action and picture');
 }
 
-function runMotion(direct, count, flags, target, mode, animation, slots, budget) {
+function runMotion(count, flags, target, mode, animation, slots, budget) {
   return compareRun(
-    (h, events) =>
-      segmentSequence(() =>
-        direct
-          ? moveAndAnimateJsr(h, events)
-          : formerMotion(
-              h,
-              events,
-              new Map([
-                [
-                  0x80c9e0,
-                  (h) => {
-                    walkTowardsTarget(h.a, h.ctx.x);
-                    return h.rts();
-                  },
-                ],
-                [0x80ac2f, (h, e) => stepAnimation(h, e, h.ctx.x)],
-              ]),
-            ),
-      ),
+    (h, events) => segmentSequence(() => moveAndAnimateJsr(h, events)),
     false,
     ({ put, mem }) => {
       const record = action(mem);
@@ -109,13 +91,8 @@ for (const budget of [1, 7])
                 (flags === 0 && target === 0 && mode === 0 && animation === 'still' && slots === 0)
               )
                 test(`motion actual callees: count ${count}, flags ${flags}, target ${target}, mode ${mode}, animation ${animation}, slots ${slots}, budget ${budget}`, () => {
-                  const got = runMotion(true, count, flags, target, mode, animation, slots, budget);
-                  assert.deepEqual(
-                    withoutMoveScratch(got),
-                    withoutMoveScratch(
-                      runMotion(false, count, flags, target, mode, animation, slots, budget),
-                    ),
-                  );
+                  const got = runMotion(count, flags, target, mode, animation, slots, budget);
+                  assertFrozenRun(withoutMoveScratch(got));
                   if (count && !(flags & W.OBJECT_HALTED)) {
                     if (animation === 'ended')
                       assert.ok(got.wram[V.TASK_EVENTS] & 8, 'actual animation completion event');

@@ -1,27 +1,16 @@
-import {
-  playSoundEffectJsr,
-  clearFixedColourJsl,
-  setWindowTextWidthJsr,
-  closeDialogJsr,
-  shiftPortraitRowsJsr as liveShift,
-} from '../proof/caller/jsr-forms.mjs';
-import * as formerText from '../proof/caller/dialog-text.mjs';
-import * as formerMenus from '../proof/caller/dialog-menus.mjs';
-import { drawTextBufferSequence as formerDraw } from '../proof/caller/text-draw.mjs';
+import { closeDialogJsr } from '../proof/caller/jsr-forms.mjs';
 import { gloveActionJsr as directGloveAction } from '../proof/caller/jsr-forms.mjs';
-import { gloveActionSequence as formerGloveAction } from '../proof/caller/glove-action.mjs';
 import { TASK_WAIT, TASK_EVENTS } from '../src/vm/layout.mjs';
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { setMusicModeRoutine } from '../proof/caller/audio-routines.mjs';
+import { assertFrozenRun, useLiftVectors } from './lift-function-harness.mjs';
 import * as direct from '../src/game/dialog-talk.mjs';
-import * as former from '../proof/caller/dialog-talk.mjs';
 import { buildSpriteList } from '../proof/replay/native-scene-sprites.mjs';
 import { reloadObjectTiles } from '../proof/system/native-scene-tiles.mjs';
 import * as W from '../src/data/wram.mjs';
 import { closePortraitWindowSequence } from '../proof/caller/portrait-window.mjs';
 import { frameWaitCallSequence } from '../src/system/live-input-calls.mjs';
-import { runFrameWait, runPadPresses } from '../proof/caller/input-routines.mjs';
+import { runPadPresses } from '../proof/caller/input-routines.mjs';
 import {
   NativeCallContinuation,
   NATIVE_CALL_CONTINUATIONS,
@@ -36,7 +25,9 @@ import {
   PAD_PRESSED,
 } from '../src/data/wram.mjs';
 
-function runClose(module, shadow, counter, held, budget) {
+useLiftVectors(import.meta.url);
+
+function runClose(shadow, counter, held, budget) {
   const side = textWindowSide(),
     { h, a, mem, put, events } = side;
   // Keep nested call frames away from the live HDMA fields at 01C4.
@@ -95,11 +86,7 @@ function runClose(module, shadow, counter, held, budget) {
   try {
     let pressed, finalShadow;
     function* sequence() {
-      const result = yield* (module === direct ? closeDialogJsr : module.closeDialogSequence)(
-        h,
-        events,
-        table,
-      );
+      const result = yield* closeDialogJsr(h, events, table);
       pressed = mem.read16(PAD_PRESSED);
       finalShadow = mem.wram[HDMAEN_SHADOW];
       return result;
@@ -117,8 +104,8 @@ for (const budget of [1, 7])
     for (const counter of [0, 0xffff])
       for (const held of [0, 0x8000, 0x000f])
         test(`dialog close: shadow ${shadow}, counter ${counter}, pad ${held}, budget ${budget}`, () => {
-          const actual = runClose(direct, shadow, counter, held, budget);
-          assert.deepEqual(actual, runClose(former, shadow, counter, held, budget));
+          const actual = runClose(shadow, counter, held, budget);
+          assertFrozenRun(actual);
           assert.equal(actual.calls.filter((call) => call[0] === 'frame').length, 12);
           assert.equal(actual.finalShadow, shadow & ~1);
           assert.equal(actual.wram[W.OAM_BUFFER + 5], 0xf0, 'unused sprite hidden');
@@ -148,7 +135,6 @@ import {
 // The former orchestrator keeps its dispatched call graph. Real live callees
 // isolate composition from the NMI service; real music commands retain driver echo.
 function runTalk(
-  module,
   variant,
   budget,
   { alternate = 0, music = 0, mirror = 0, token = 0, glove = null } = {},
@@ -296,79 +282,27 @@ function runTalk(
     put(RANDOM_STATE, mem.read16(RANDOM_STATE) + 1);
     return true;
   };
-  const table = new Map([
-    [0x8099eb, live.runChooseAction],
-    [0x80936c, live.runTalk],
-    [0x80adf4, reloadObjectTiles],
-    [0x80b8de, buildSpriteList],
-    [0x81886a, clearFixedColourJsl],
-    [0x80fa92, setWindowTextWidthJsr],
-    [0x80bcb2, live.runPutGloveAway],
-    [0x80ff79, live.runReleaseNoticeWindows],
-    [0x80f963, live.runOpenWindow],
-    [0x80fa3e, live.runReleaseWindow],
-    [0x809f6d, liveUnpack],
-    [0x808f20, liveShift],
-    [0x809022, live.runUploadFirstPortrait],
-    [0x80905e, live.runUploadSecondPortrait],
-    [0x808f3a, live.runOpenPortraitWindow],
-    [0x808f97, live.runClosePortraitWindow],
-    [0x81b0a1, runFrameWait],
-    [0x809e1a, runPadPresses],
-    [0x809178, live.runDialogText],
-    [0x8091e2, live.runDialogMenu],
-    [0x809215, live.runDialogTopics],
-    [0x81ef47, setMusicModeRoutine],
-    [0x80c46e, playSoundEffectJsr],
-  ]);
-  // Former orchestration must retain independent text and menu callers too.
-  const bindings = [];
-  for (const [target, body] of [
-    [0x809178, () => formerText.showDialogTextSequence(h, events, events.text, table)],
-    [0x8091e2, () => formerMenus.chooseDialogActionSequence(h, events, events.text, table)],
-    [0x809215, () => formerMenus.chooseDialogTopicSequence(h, events, events.text, table)],
-    [0x80fb39, () => formerDraw(h, events)],
-  ]) {
-    const run = () => assert.fail('former caller requires continuation');
-    table.set(target, run);
-    bindings.push(run);
-    NATIVE_CALL_CONTINUATIONS.set(run, {
-      run,
-      create: () => new NativeCallContinuation(h.a, body()),
-    });
-  }
-  if (module === direct && glove !== false)
-    Object.defineProperty(events, 'text', {
-      get: () => assert.fail('live dialog must not read legacy text services'),
-      set: () => {
-        assert.fail('live dialog must not allocate legacy text services');
-      },
-    });
-  let result;
-  try {
-    result = finishTextWindow(
-      side,
-      glove === null
-        ? module.talkSequence(h, events, ...(module === direct ? [] : [table]))
-        : glove
-          ? directGloveAction(h, events)
-          : formerGloveAction(h, events, table),
-      budget,
-    );
-  } finally {
-    for (const run of bindings) NATIVE_CALL_CONTINUATIONS.delete(run);
-  }
+  Object.defineProperty(events, 'text', {
+    get: () => assert.fail('live dialog must not read legacy text services'),
+    set: () => {
+      assert.fail('live dialog must not allocate legacy text services');
+    },
+  });
+  const result = finishTextWindow(
+    side,
+    glove ? directGloveAction(h, events) : direct.talkSequence(h, events),
+    budget,
+  );
   // Exclude only the relocated CPU stack from final and upload snapshots.
   result.wram.fill(0, 0x1e80, 0x1ef0);
   for (const [, wram] of result.uploads) wram.fill(0, 0x1e80 - 0x1cc, 0x1ef0 - 0x1cc);
   return { ...result, frames, input, requests };
 }
-import { unpackPortraitRoutine as liveUnpack } from '../proof/caller/portrait-routines.mjs';
 for (const budget of [1, 7])
   for (const variant of ['exit', 'cancel', 'talk', 'topic'])
     test(`talk window composition: ${variant}, budget ${budget}`, () => {
-      const actual = runTalk(direct, variant, budget);
-      assert.deepEqual(actual, runTalk(former, variant, budget));
+      const actual = runTalk(variant, budget);
+      assertFrozenRun(actual);
       assert.equal(actual.requests, 2);
       assert.ok(actual.frames >= 85, 'opening, greeting, menu and close all wait');
       assert.ok(actual.input > 0);
@@ -381,8 +315,8 @@ for (const budget of [1, 7])
       for (const mirror of [0, 0x80])
         test(`talk portraits: alternate ${alternate}, music ${music}, mirror ${mirror}, budget ${budget}`, () => {
           const options = { alternate, music, mirror },
-            actual = runTalk(direct, 'exit', budget, options);
-          assert.deepEqual(actual, runTalk(former, 'exit', budget, options));
+            actual = runTalk('exit', budget, options);
+          assertFrozenRun(actual);
           assert.equal(actual.requests, 2);
           assert.equal(
             actual.writes.filter((write) => write === '8514,8224,2').length,
@@ -397,8 +331,8 @@ for (const budget of [1, 7])
 for (const budget of [1, 7])
   for (const variant of ['empty topics', 'topic cancel', 'talk ends', 'topic ends'])
     test(`talk text/menu boundary: ${variant}, budget ${budget}`, () => {
-      const actual = runTalk(direct, variant, budget);
-      assert.deepEqual(actual, runTalk(former, variant, budget));
+      const actual = runTalk(variant, budget);
+      assertFrozenRun(actual);
       assert.equal(
         actual.calls.filter((call) => call[0] === 'topic action').length,
         variant.endsWith('ends') ? 1 : 0,
@@ -414,17 +348,14 @@ for (const budget of [1, 7])
   for (const token of [254, 255])
     test(`talk real music token wrap: ${token}, budget ${budget}`, () => {
       const options = { music: 1, token };
-      assert.deepEqual(
-        runTalk(direct, 'exit', budget, options),
-        runTalk(former, 'exit', budget, options),
-      );
+      assertFrozenRun(runTalk('exit', budget, options));
     });
 
 for (const budget of [1, 7])
   for (const variant of ['exit', 'cancel', 'talk ends'])
     test(`glove action real dialog: ${variant}, budget ${budget}`, () => {
-      const actual = runTalk(direct, variant, budget, { glove: true });
-      assert.deepEqual(actual, runTalk(direct, variant, budget, { glove: false }));
+      const actual = runTalk(variant, budget, { glove: true });
+      assertFrozenRun(actual);
       assert.equal(actual.requests, 2);
       assert.ok(actual.input > 2);
       assert.equal(actual.wram[TASK_EVENTS] | (actual.wram[TASK_EVENTS + 1] << 8), 0x1000);

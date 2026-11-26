@@ -1,15 +1,13 @@
-import { drawTextBufferSequence as formerDraw } from '../proof/caller/text-draw.mjs';
-import * as formerParty from '../proof/caller/party-status.mjs';
+import { drawTextBufferSequence as drawTextBuffer } from '../src/game/text-draw.mjs';
 import {
   putGloveAwayCallSequence,
   releaseNoticeWindowsCallSequence,
 } from '../proof/caller/window-release.mjs';
 import { STATE_COUNT } from '../src/data/actors.mjs';
-import * as formerSubmenus from '../proof/caller/status-submenus.mjs';
 import { waitForConfirmKeySequence } from '../proof/caller/confirm-key.mjs';
-import * as formerEquipment from '../proof/caller/equipment-window.mjs';
 import test from 'node:test';
 import assert from 'node:assert/strict';
+import { assertFrozenRun, useLiftVectors } from './lift-function-harness.mjs';
 import * as directSpell from '../src/game/spell-choice.mjs';
 import {
   equipmentRowsJsr,
@@ -17,7 +15,6 @@ import {
   partyStatusJsr,
   skillsJsr,
 } from '../proof/caller/jsr-forms.mjs';
-import * as formerSpell from '../proof/caller/spell-choice.mjs';
 import { openWindowSequence } from '../proof/caller/window-open.mjs';
 import { releaseWindowSequence } from '../proof/caller/window-release.mjs';
 import { chooseFromMenuSequence } from '../proof/caller/menu-choice.mjs';
@@ -32,6 +29,8 @@ import {
 } from '../src/system/native-call-continuation.mjs';
 import { textWindowSide, finishTextWindow } from './text-window-caller-harness.mjs';
 import * as W from '../src/data/wram.mjs';
+
+useLiftVectors(import.meta.url);
 
 function compareRun(sequence, direct, prepare, budget, pads = [], realDrawing = false) {
   const side = textWindowSide(),
@@ -79,7 +78,7 @@ function compareRun(sequence, direct, prepare, budget, pads = [], realDrawing = 
   bind(0x80ff79, () => releaseNoticeWindowsCallSequence(h, events));
   bind(0x80f953, () => waitForConfirmKeySequence(h, events, routines));
   bind(0x80fb39, () => side.render(h, events));
-  if (realDrawing) side.render = formerDraw;
+  if (realDrawing) side.render = drawTextBuffer;
   prepare(side);
   try {
     const result = finishTextWindow(
@@ -113,10 +112,7 @@ for (const budget of [1, 7])
         [...spells, 0].forEach((value, n) => put(W.SPELL_LIST + 2 * n, value));
       };
       const actual = compareRun(directSpell.chooseSpellSequence, true, prepare, budget, pads);
-      assert.deepEqual(
-        actual,
-        compareRun(formerSpell.chooseSpellSequence, false, prepare, budget, pads),
-      );
+      assertFrozenRun(actual);
       assert.equal(actual.wram[0] | (actual.wram[1] << 8), chosen);
       assert.equal(actual.input, pads.length);
       if (spells.length) assert.ok(actual.uploads.length >= 3);
@@ -142,10 +138,7 @@ for (const budget of [1, 7])
           put(W.SELECTED_SPELL_NAME, 0x714d);
         };
         const actual = compareRun(equipmentRowsJsr, true, prepare, budget);
-        assert.deepEqual(
-          actual,
-          compareRun(formerEquipment.equipmentRowsSequence, false, prepare, budget),
-        );
+        assertFrozenRun(actual);
         assert.equal(actual.calls.length, leader ? 6 : 5);
         const number = actual.calls[leader ? 4 : 3][2];
         assert.equal(
@@ -170,10 +163,7 @@ for (const budget of [1, 7])
         };
         const pads = skills.some(Boolean) ? [button] : [];
         const actual = compareRun(skillsJsr, true, prepare, budget, pads);
-        assert.deepEqual(
-          actual,
-          compareRun(formerSubmenus.skillsSequence, false, prepare, budget, pads),
-        );
+        assertFrozenRun(actual);
         assert.equal(actual.calls.length, skills.filter(Boolean).length * 2);
         assert.equal(
           actual.wram[W.DIALOG_END] | (actual.wram[W.DIALOG_END + 1] << 8),
@@ -198,10 +188,7 @@ for (const budget of [1, 7])
       };
       const pads = jake || datajack ? [0x8000] : [];
       const actual = compareRun(notesJsr, true, prepare, budget, pads);
-      assert.deepEqual(
-        actual,
-        compareRun(formerSubmenus.notesSequence, false, prepare, budget, pads),
-      );
+      assertFrozenRun(actual);
       assert.equal(
         actual.calls.length,
         jake ? 2 + [1, 2, 4].filter((bit) => flags & bit).length : datajack ? 1 : 0,
@@ -240,10 +227,7 @@ for (const budget of [1, 7])
         mem.wram[record + 5] = 255;
       };
       const actual = compareRun(partyStatusJsr, true, prepare, budget, [0x8000]);
-      assert.deepEqual(
-        actual,
-        compareRun(formerParty.partyStatusSequence, false, prepare, budget, [0x8000]),
-      );
+      assertFrozenRun(actual);
       assert.equal(actual.calls.length, 1 + (leaderOnly ? 1 : count) * 7);
       assert.equal(actual.input, 1);
       assert.equal(actual.wram[W.GLOVE_KIND], 0);
@@ -251,11 +235,10 @@ for (const budget of [1, 7])
     });
 
 for (const budget of [1, 7])
-  for (const [name, direct, former, prepare, pads] of [
+  for (const [name, direct, prepare, pads] of [
     [
       'spell choice',
       directSpell.chooseSpellSequence,
-      formerSpell.chooseSpellSequence,
       ({ put }) => {
         put(W.SPELL_LIST, 1);
         put(W.SPELL_LIST + 2, 0);
@@ -265,7 +248,6 @@ for (const budget of [1, 7])
     [
       'equipment',
       equipmentRowsJsr,
-      formerEquipment.equipmentRowsSequence,
       ({ put }) => {
         put(W.STATUS_WINDOW, 0);
         put(W.MEMBER_INDEX, 0);
@@ -279,7 +261,6 @@ for (const budget of [1, 7])
     [
       'skills',
       skillsJsr,
-      formerSubmenus.skillsSequence,
       ({ put, mem }) => {
         put(W.DP_MEMBER_RECORD, 0x6000);
         mem.wram[W.DP_MEMBER_RECORD_BANK] = 0x7e;
@@ -290,7 +271,6 @@ for (const budget of [1, 7])
     [
       'notes',
       notesJsr,
-      formerSubmenus.notesSequence,
       ({ put, mem }) => {
         put(W.MEMBER_NUMBER, 0x08b2);
         mem.wram[W.JAKE_DERMAL_ARMOUR] = 1;
@@ -300,7 +280,6 @@ for (const budget of [1, 7])
     [
       'party',
       partyStatusJsr,
-      formerParty.partyStatusSequence,
       ({ put, mem }) => {
         put(W.GLOVE_TARGET_TAG, 0xffff);
         for (let n = 0; n <= W.NOTICE_WINDOW_LAST; n += 2) put(W.NOTICE_WINDOWS + n, 0xffff);
@@ -320,7 +299,7 @@ for (const budget of [1, 7])
   ])
     test(`default live renderer: ${name}, budget ${budget}`, () => {
       const actual = compareRun(direct, true, prepare, budget, pads, true);
-      assert.deepEqual(actual, compareRun(former, false, prepare, budget, pads, true));
+      assertFrozenRun(actual);
       assert.ok(
         actual.uploads.some(([pc]) => pc === 0x81accc),
         'real glyph upload',

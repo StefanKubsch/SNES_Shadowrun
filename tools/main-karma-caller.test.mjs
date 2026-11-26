@@ -1,17 +1,15 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
+import { assertFrozenRun, useLiftVectors } from './lift-function-harness.mjs';
 import { compareRun } from './member-menu-caller-harness.mjs';
 import { liftedMainMenuSequence } from '../src/game/main-upkeep.mjs';
 import { raiseStateCountSequence } from '../proof/caller/runner-state-call.mjs';
 import { raiseMemberMagicPointsReference } from '../proof/game-reference/runner-state.mjs';
 import * as liftedMain from '../src/game/main-menu.mjs';
-import * as formerMain from '../proof/caller/main-menu.mjs';
 import { installPortExtension } from '../src/data/port-extension.mjs';
 import { occupiedSlots } from '../src/game/save-slots.mjs';
 import * as liftedKarma from '../src/game/karma-menu.mjs';
-import * as formerKarma from '../proof/caller/karma-menu.mjs';
 import { requestTileClearSequence } from '../proof/caller/window-open.mjs';
-import { chooseFromMenuSequence as formerChoose } from '../proof/caller/menu-choice.mjs';
 import { KARMA_LISTS } from '../src/system/native-main-menu.mjs';
 import {
   buyStepJsr,
@@ -20,6 +18,8 @@ import {
   karmaMenuJsr,
   saveMenuJsr,
 } from '../proof/caller/jsr-forms.mjs';
+
+useLiftVectors(import.meta.url);
 
 // The lifted menus with their RTS forms (proof/caller/jsr-forms.mjs), named as the former.
 const directMain = { ...liftedMain, saveMenuSequence: saveMenuJsr };
@@ -47,19 +47,13 @@ function prepareLeader({ put, mem }) {
   mem.wram[W.MAGIC_POINTS] = 1;
 }
 
-function runMain(direct, budget, pads, realDrawing = false, liveEntry = false) {
-  let services;
+function runMain(budget, pads, realDrawing = false, liveEntry = false) {
   return compareRun(
     (h, events, renderer) =>
-      liveEntry && direct
+      liveEntry
         ? liftedMainMenuSequence(h, events)
-        : (direct ? directMain : formerMain).mainMenuSequence(
-            h,
-            events,
-            ...(!direct ? [services] : []),
-            direct ? renderer : undefined,
-          ),
-    direct,
+        : directMain.mainMenuSequence(h, events, renderer),
+    true,
     ({ put, mem }) => {
       prepareLeader({ put, mem });
       put(W.TIMER, 0xffff);
@@ -87,11 +81,7 @@ function runMain(direct, budget, pads, realDrawing = false, liveEntry = false) {
     pads,
     realDrawing,
     ({ routines, bind, h, events }) => {
-      services = routines;
-      bind(0x80cdd6, () => formerMain.saveMenuSequence(h, events, routines));
-      bind(0x80ee57, () => formerKarma.karmaMenuSequence(h, events, routines));
       bind(0x80fa67, () => requestTileClearSequence(h, events));
-      bind(0x80ef82, () => formerKarma.karmaLineSequence(h, events, routines));
       bind(0x80cecb, () => raiseStateCountSequence(h, events));
       routines.set(0x80cf2e, (callee) => raiseMemberMagicPointsReference(callee.a, false));
     },
@@ -106,8 +96,8 @@ for (const budget of [1, 7])
     ['karma', [0x400, 0, 0x400, 0, 0x8000, 0, 0x8000, 0, 0x8000], 0],
   ])
     test(`main windows: ${name}, budget ${budget}`, () => {
-      const actual = runMain(true, budget, pads);
-      assert.deepEqual(actual, runMain(false, budget, pads));
+      const actual = runMain(budget, pads);
+      assertFrozenRun(actual);
       assert.equal(actual.input, pads.length);
       assert.equal(actual.calls.filter((c) => c[0] === 'submenu').length, submenus);
     });
@@ -115,59 +105,43 @@ for (const budget of [1, 7])
 for (const budget of [1, 7])
   test(`main default glyphs, budget ${budget}`, () => {
     const pads = [0x8000];
-    const actual = runMain(true, budget, pads, true);
-    assert.deepEqual(actual, runMain(false, budget, pads, true));
+    const actual = runMain(budget, pads, true);
+    assertFrozenRun(actual);
     assert.ok(actual.uploads.length > 2);
   });
 
-function runBlocked(direct, budget, timer, realDrawing = false) {
-  let services;
+function runBlocked(budget, timer, realDrawing = false) {
   return compareRun(
-    (h, events, renderer) =>
-      (direct ? directMain : formerMain).saveMenuSequence(
-        h,
-        events,
-        ...(!direct ? [services] : []),
-        direct ? renderer : undefined,
-      ),
-    direct,
+    (h, events, renderer) => directMain.saveMenuSequence(h, events, renderer),
+    true,
     ({ put }) => put(W.TIMER, timer),
     budget,
     [0, 0x8000],
     realDrawing,
-    ({ routines }) => {
-      services = routines;
-    },
   );
 }
 for (const budget of [1, 7])
   for (const timer of [0, 1, 0x7fff])
     test(`blocked save: timer ${timer}, budget ${budget}`, () => {
-      const actual = runBlocked(true, budget, timer);
-      assert.deepEqual(actual, runBlocked(false, budget, timer));
+      const actual = runBlocked(budget, timer);
+      assertFrozenRun(actual);
       assert.equal(actual.input, 2);
       assert.equal(actual.calls.filter((c) => c[0] === 'text').length, 1);
     });
 for (const budget of [1, 7])
   test(`blocked save default glyphs, budget ${budget}`, () => {
-    const actual = runBlocked(true, budget, 0, true);
-    assert.deepEqual(actual, runBlocked(false, budget, 0, true));
+    const actual = runBlocked(budget, 0, true);
+    assertFrozenRun(actual);
     assert.ok(actual.uploads.length > 2);
   });
 
-function runSave(direct, budget, slot, four = false, realDrawing = false, voices = 0, token = 0) {
-  let services, sram, saveSound;
+function runSave(budget, slot, four = false, realDrawing = false, voices = 0, token = 0) {
+  let sram, saveSound;
   const pads =
     slot < 0 ? [0x2000] : [...Array.from({ length: slot }, () => [0x400, 0]).flat(), 0x8000];
   const result = compareRun(
-    (h, e, r) =>
-      (direct ? directMain : formerMain).saveMenuSequence(
-        h,
-        e,
-        ...(!direct ? [services] : []),
-        direct ? r : undefined,
-      ),
-    direct,
+    (h, e, r) => directMain.saveMenuSequence(h, e, r),
+    true,
     ({ put, mem, a }) => {
       put(W.TIMER, 0x8000);
       mem.wram[W.SOUND_VOICE_MASK] = voices;
@@ -182,9 +156,6 @@ function runSave(direct, budget, slot, four = false, realDrawing = false, voices
     budget,
     pads,
     realDrawing,
-    ({ routines }) => {
-      services = routines;
-    },
   );
   return { ...result, sram: sram.slice(), saveSound };
 }
@@ -192,8 +163,8 @@ for (const budget of [1, 7])
   for (const four of [false, true])
     for (const slot of [-1, 0, 1, 2, ...(four ? [3, 4] : [])])
       test(`save slots: ${slot}, four ${four}, budget ${budget}`, () => {
-        const actual = runSave(true, budget, slot, four);
-        assert.deepEqual(actual, runSave(false, budget, slot, four));
+        const actual = runSave(budget, slot, four);
+        assertFrozenRun(actual);
         assert.deepEqual(
           occupiedSlots(actual.sram),
           Array.from({ length: four ? 4 : 2 }, (_, n) => n === slot - 1),
@@ -203,28 +174,16 @@ for (const budget of [1, 7])
       });
 for (const budget of [1, 7])
   test(`save slots default glyphs, budget ${budget}`, () => {
-    const actual = runSave(true, budget, 4, true, true);
-    assert.deepEqual(actual, runSave(false, budget, 4, true, true));
+    const actual = runSave(budget, 4, true, true);
+    assertFrozenRun(actual);
     assert.equal(occupiedSlots(actual.sram)[3], true);
   });
 
-function runKarma(name, direct, budget, prepare, pads = [], realDrawing = false, entry) {
-  let services;
+function runKarma(name, budget, prepare, pads = [], realDrawing = false, entry) {
   return compareRun(
-    (h, e, r) => {
-      const m = direct ? directKarma : formerKarma;
-      return name === 'karmaMenuSequence' || name === 'karmaListSequence'
-        ? m[name](
-            h,
-            e,
-            ...(!direct ? [services] : []),
-            ...(name === 'karmaListSequence'
-              ? [entry, direct ? r : undefined]
-              : [direct ? r : undefined]),
-          )
-        : m[name](h, e, direct ? r : services);
-    },
-    direct,
+    (h, e, r) =>
+      name === 'karmaListSequence' ? directKarma[name](h, e, entry, r) : directKarma[name](h, e, r),
+    true,
     (side) => {
       prepareLeader(side);
       prepare(side);
@@ -233,13 +192,7 @@ function runKarma(name, direct, budget, prepare, pads = [], realDrawing = false,
     pads,
     realDrawing,
     ({ routines, bind, h, events }) => {
-      services = routines;
       bind(0x80fa67, () => requestTileClearSequence(h, events));
-      bind(0x80a6b8, () => formerChoose(h, events, routines, 0x80a6b8));
-      bind(0x80ef82, () => formerKarma.karmaLineSequence(h, events, routines));
-      bind(0x80f006, () => formerKarma.buyStepSequence(h, events, routines));
-      for (const entry of Object.keys(KARMA_LISTS).map(Number))
-        bind(entry, () => formerKarma.karmaListSequence(h, events, routines, entry));
       bind(0x80cecb, () => raiseStateCountSequence(h, events));
       routines.set(0x80cf2e, (callee) => raiseMemberMagicPointsReference(callee.a, false));
     },
@@ -252,8 +205,8 @@ for (const budget of [1, 7])
         put(W.KARMA, karma);
         put(W.KARMA_BALANCE_WINDOW, 0);
       };
-      const actual = runKarma('karmaLineSequence', true, budget, prepare);
-      assert.deepEqual(actual, runKarma('karmaLineSequence', false, budget, prepare));
+      const actual = runKarma('karmaLineSequence', budget, prepare);
+      assertFrozenRun(actual);
       assert.equal(
         actual.wram[W.DP_KARMA_DISPLAY] | (actual.wram[W.DP_KARMA_DISPLAY + 1] << 8),
         karma >>> 3,
@@ -262,8 +215,8 @@ for (const budget of [1, 7])
 for (const budget of [1, 7])
   test(`karma balance default glyphs, budget ${budget}`, () => {
     const prepare = ({ put }) => put(W.KARMA, 0xffff);
-    const actual = runKarma('karmaLineSequence', true, budget, prepare, [], true);
-    assert.deepEqual(actual, runKarma('karmaLineSequence', false, budget, prepare, [], true));
+    const actual = runKarma('karmaLineSequence', budget, prepare, [], true);
+    assertFrozenRun(actual);
     assert.ok(actual.uploads.length > 1);
   });
 
@@ -288,8 +241,8 @@ for (const budget of [1, 7])
           mem.write8(address, value);
         };
         const pads = paid ? [] : [0, 0x8000];
-        const actual = runKarma('buyStepSequence', true, budget, prepare, pads);
-        assert.deepEqual(actual, runKarma('buyStepSequence', false, budget, prepare, pads));
+        const actual = runKarma('buyStepSequence', budget, prepare, pads);
+        assertFrozenRun(actual);
         assert.equal(actual.wram[address - 0x7e0000], paid ? (value + 1) & 255 : value);
         assert.equal(
           actual.wram[W.KARMA] | (actual.wram[W.KARMA + 1] << 8),
@@ -307,8 +260,8 @@ for (const budget of [1, 7])
       put(W.DP_KARMA_VALUE_BANK, 0x7e);
       mem.wram[0x6000] = 1;
     };
-    const actual = runKarma('buyStepSequence', true, budget, prepare, [0x8000], true);
-    assert.deepEqual(actual, runKarma('buyStepSequence', false, budget, prepare, [0x8000], true));
+    const actual = runKarma('buyStepSequence', budget, prepare, [0x8000], true);
+    assertFrozenRun(actual);
     assert.ok(actual.uploads.length > 2);
   });
 
@@ -345,11 +298,8 @@ for (const budget of [1, 7])
       test(`karma list rendering: ${entry}, ${variant}, budget ${budget}`, () => {
         const prepare = listFixture(entry, variant),
           pads = [0x8000];
-        const actual = runKarma('karmaListSequence', true, budget, prepare, pads, false, entry);
-        assert.deepEqual(
-          actual,
-          runKarma('karmaListSequence', false, budget, prepare, pads, false, entry),
-        );
+        const actual = runKarma('karmaListSequence', budget, prepare, pads, false, entry);
+        assertFrozenRun(actual);
         const list = KARMA_LISTS[entry],
           count = ['empty', 'limit'].includes(variant)
             ? 0
@@ -367,11 +317,8 @@ for (const budget of [1, 7])
   for (const entry of Object.keys(KARMA_LISTS).map(Number))
     test(`karma list rendering default glyphs: ${entry}, budget ${budget}`, () => {
       const prepare = listFixture(entry, 'all');
-      const actual = runKarma('karmaListSequence', true, budget, prepare, [0x8000], true, entry);
-      assert.deepEqual(
-        actual,
-        runKarma('karmaListSequence', false, budget, prepare, [0x8000], true, entry),
-      );
+      const actual = runKarma('karmaListSequence', budget, prepare, [0x8000], true, entry);
+      assertFrozenRun(actual);
       assert.ok(actual.uploads.length > 2);
     });
 
@@ -392,11 +339,8 @@ for (const budget of [1, 7])
           put(W.KARMA, paid ? oldValue * 8 : oldValue * 8 - 1);
         };
         const pads = [0x400, 0, 0x8000, ...(paid ? [] : [0, 0x8000]), 0, 0x2000];
-        const actual = runKarma('karmaListSequence', true, budget, prepare, pads, false, entry);
-        assert.deepEqual(
-          actual,
-          runKarma('karmaListSequence', false, budget, prepare, pads, false, entry),
-        );
+        const actual = runKarma('karmaListSequence', budget, prepare, pads, false, entry);
+        assertFrozenRun(actual);
         assert.equal(actual.wram[pointer], oldValue + (paid ? 1 : 0));
         assert.equal(
           actual.wram[W.KARMA] | (actual.wram[W.KARMA + 1] << 8),
@@ -411,11 +355,8 @@ for (const budget of [1, 7])
     const entry = 0x80f0f3,
       prepare = listFixture(entry, 'all'),
       pads = [0x400, 0, 0x8000, 0, 0x2000];
-    const actual = runKarma('karmaListSequence', true, budget, prepare, pads, true, entry);
-    assert.deepEqual(
-      actual,
-      runKarma('karmaListSequence', false, budget, prepare, pads, true, entry),
-    );
+    const actual = runKarma('karmaListSequence', budget, prepare, pads, true, entry);
+    assertFrozenRun(actual);
   });
 
 function karmaMenuFixture(variant = 'none') {
@@ -448,8 +389,8 @@ for (const budget of [1, 7])
     for (const pads of [[0x8000], [0x2000]])
       test(`karma windows: ${variant}, pad ${pads[0]}, budget ${budget}`, () => {
         const prepare = karmaMenuFixture(variant);
-        const actual = runKarma('karmaMenuSequence', true, budget, prepare, pads);
-        assert.deepEqual(actual, runKarma('karmaMenuSequence', false, budget, prepare, pads));
+        const actual = runKarma('karmaMenuSequence', budget, prepare, pads);
+        assertFrozenRun(actual);
         assert.equal(actual.wram[0x6202], 40);
         assert.equal(actual.wram[W.GLOVE_KIND], 0);
         assert.equal(actual.input, pads.length);
@@ -466,16 +407,16 @@ for (const budget of [1, 7])
         0x8000,
       ];
       const prepare = karmaMenuFixture();
-      const actual = runKarma('karmaMenuSequence', true, budget, prepare, pads);
-      assert.deepEqual(actual, runKarma('karmaMenuSequence', false, budget, prepare, pads));
+      const actual = runKarma('karmaMenuSequence', budget, prepare, pads);
+      assertFrozenRun(actual);
       assert.equal(actual.input, pads.length);
     });
 for (const budget of [1, 7])
   test(`karma windows default glyphs, budget ${budget}`, () => {
     const prepare = karmaMenuFixture('both'),
       pads = [0x8000];
-    const actual = runKarma('karmaMenuSequence', true, budget, prepare, pads, true);
-    assert.deepEqual(actual, runKarma('karmaMenuSequence', false, budget, prepare, pads, true));
+    const actual = runKarma('karmaMenuSequence', budget, prepare, pads, true);
+    assertFrozenRun(actual);
   });
 
 for (const budget of [1, 7])
@@ -507,8 +448,8 @@ for (const budget of [1, 7])
           0,
           0x8000,
         ];
-        const actual = runKarma('karmaMenuSequence', true, budget, prepare, pads);
-        assert.deepEqual(actual, runKarma('karmaMenuSequence', false, budget, prepare, pads));
+        const actual = runKarma('karmaMenuSequence', budget, prepare, pads);
+        assertFrozenRun(actual);
         assert.equal(actual.wram[pointer], paid ? 2 : 1);
         assert.equal(actual.wram[W.KARMA] | (actual.wram[W.KARMA + 1] << 8), paid ? 0 : 7);
         assert.equal(actual.input, pads.length);
@@ -526,8 +467,8 @@ for (const budget of [1, 7])
           0,
           0x8000,
         ];
-      const actual = runKarma('karmaMenuSequence', true, budget, prepare, pads, true);
-      assert.deepEqual(actual, runKarma('karmaMenuSequence', false, budget, prepare, pads, true));
+      const actual = runKarma('karmaMenuSequence', budget, prepare, pads, true);
+      assertFrozenRun(actual);
     });
 for (const budget of [1, 7])
   for (const row of [1, 2])
@@ -540,8 +481,8 @@ for (const budget of [1, 7])
         0,
         0x8000,
       ];
-      const actual = runMain(true, budget, pads, true);
-      assert.deepEqual(actual, runMain(false, budget, pads, true));
+      const actual = runMain(budget, pads, true);
+      assertFrozenRun(actual);
     });
 
 for (const budget of [1, 7])
@@ -552,8 +493,8 @@ for (const budget of [1, 7])
         0x8000,
         ...(row ? [0, 0x8000, 0, 0x8000] : []),
       ];
-      const actual = runMain(true, budget, pads, true, true);
-      assert.deepEqual(actual, runMain(false, budget, pads, true, true));
+      const actual = runMain(budget, pads, true, true);
+      assertFrozenRun(actual);
       if (row === 2) {
         assert.equal(actual.wram[0x6202], 40);
         assert.equal(actual.wram[W.MAGIC_POINTS], 30);
@@ -570,8 +511,8 @@ for (const budget of [1, 7])
           side.mem.wram[record + 1] = magic;
           side.mem.wram[W.MAGIC_POINTS] = points;
         };
-        const actual = runKarma('karmaMenuSequence', true, budget, prepare, [0x2000]);
-        assert.deepEqual(actual, runKarma('karmaMenuSequence', false, budget, prepare, [0x2000]));
+        const actual = runKarma('karmaMenuSequence', budget, prepare, [0x2000]);
+        assertFrozenRun(actual);
         assert.equal(actual.wram[W.MAGIC_POINTS], Math.min(points + 255, magic * 10) & 0xff);
       });
 
@@ -587,8 +528,8 @@ for (const budget of [1, 7])
             side.mem.wram[0x6202] = count;
             if (!hasRecord) side.put(W.OBJECT_RECORD + 2, 0);
           };
-          const actual = runKarma('karmaMenuSequence', true, budget, prepare, [0x2000]);
-          assert.deepEqual(actual, runKarma('karmaMenuSequence', false, budget, prepare, [0x2000]));
+          const actual = runKarma('karmaMenuSequence', budget, prepare, [0x2000]);
+          assertFrozenRun(actual);
           assert.equal(actual.wram[0x6202], hasRecord ? maximum : count);
         });
 
@@ -596,8 +537,8 @@ for (const budget of [1, 7])
   for (const voices of [0, 255])
     for (const token of [0xfe, 0xff])
       test(`save sound: voices ${voices}, token ${token}, budget ${budget}`, () => {
-        const actual = runSave(true, budget, 1, false, false, voices, token);
-        assert.deepEqual(actual, runSave(false, budget, 1, false, false, voices, token));
+        const actual = runSave(budget, 1, false, false, voices, token);
+        assertFrozenRun(actual);
         assert.ok(actual.writes.includes(`8514,${0xff00 | actual.saveSound},2`));
         const commands = actual.writes.filter((write) => write.startsWith('8512,')).length;
         assert.equal(actual.wram[W.APU_COMMAND_TOKEN], (token + commands) & 0xff);

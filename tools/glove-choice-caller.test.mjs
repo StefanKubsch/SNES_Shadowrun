@@ -1,10 +1,12 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
+import { assertFrozenRun, useLiftVectors } from './lift-function-harness.mjs';
 import { compareRun } from './member-menu-caller-harness.mjs';
+
+useLiftVectors(import.meta.url);
 // Retain the controlled movement boundary of the earlier service composition.
 // Actual movement callers are compared in glove-choice-movement-caller.test.mjs.
 import * as direct from '../proof/caller/glove-choice-services.mjs';
-import * as former from '../proof/caller/glove-target.mjs';
 import { showNoticeSequence } from '../proof/caller/notice-show.mjs';
 import {
   runDrawWindowList,
@@ -96,7 +98,7 @@ for (const budget of [1, 7])
       test(`glove choice real frame wait: target ${target}, pads ${pads}, budget ${budget}`, () => {
         const name = 'chooseObjectUnderGloveSequence';
         const actual = runChoice(direct, name, budget, target, pads);
-        assert.deepEqual(actual, runChoice(former, name, budget, target, pads));
+        assertFrozenRun(actual);
         assert.equal(actual.input, pads.length);
         assert.equal(actual.wram[0] | (actual.wram[1] << 8), target ? 2 : 0xffff);
       });
@@ -106,7 +108,7 @@ for (const budget of [1, 7])
     test(`glove choice real input: pads ${pads}, budget ${budget}`, () => {
       const name = 'chooseObjectUnderGloveSequence';
       const actual = runChoice(direct, name, budget, true, pads);
-      assert.deepEqual(actual, runChoice(former, name, budget, true, pads));
+      assertFrozenRun(actual);
       assert.equal(actual.input, pads.length);
       assert.equal(actual.wram[W.PAD_PRESSED] | (actual.wram[W.PAD_PRESSED + 1] << 8), 0);
     });
@@ -118,18 +120,17 @@ for (const budget of [1, 7])
         const name = 'spellGloveTargetSequence';
         const options = { menu: true, close: true, shadow };
         const actual = runChoice(direct, name, budget, target, [0x8000], options);
-        assert.deepEqual(actual, runChoice(former, name, budget, target, [0x8000], options));
+        assertFrozenRun(actual);
         assert.equal(actual.finalShadow, shadow & ~1);
         assert.equal(actual.writes.length, 17);
         assert.equal(actual.input, 1);
       });
-for (const module of [direct, former])
-  test(`glove choice preserves reset boundary: ${module === direct ? 'direct' : 'former'}`, () => {
-    assert.throws(
-      () => runChoice(module, 'chooseObjectUnderGloveSequence', 1, true, [0x3030]),
-      (error) => error.reason === 'task_reset_source_required',
-    );
-  });
+test('glove choice preserves reset boundary', () => {
+  assert.throws(
+    () => runChoice(direct, 'chooseObjectUnderGloveSequence', 1, true, [0x3030]),
+    (error) => error.reason === 'task_reset_source_required',
+  );
+});
 
 const choices = [
   'chooseObjectUnderGloveSequence',
@@ -146,7 +147,7 @@ for (const budget of [1, 7])
         test(`glove choice real release: ${name}, target ${target}, request ${request}, budget ${budget}`, () => {
           const options = { name: true, request };
           const actual = runChoice(direct, name, budget, target, [0x8000], options);
-          assert.deepEqual(actual, runChoice(former, name, budget, target, [0x8000], options));
+          assertFrozenRun(actual);
           assert.equal(actual.wram[W.GLOVE_KIND] | (actual.wram[W.GLOVE_KIND + 1] << 8), 0);
           assert.equal(
             actual.wram[W.SCRIPT_GLOVE_CHOICE] | (actual.wram[W.SCRIPT_GLOVE_CHOICE + 1] << 8),
@@ -177,7 +178,7 @@ for (const budget of [1, 7])
         test(`glove choice reach notice: ${name}, distance ${distance}, height ${height}, menu ${menu}, budget ${budget}`, () => {
           const options = { distance, height, menu };
           const actual = runChoice(direct, name, budget, true, [0x8000], options);
-          assert.deepEqual(actual, runChoice(former, name, budget, true, [0x8000], options));
+          assertFrozenRun(actual);
           assert.equal(
             actual.wram[0] | (actual.wram[1] << 8),
             near ? (name.includes('Number') ? 0x1234 : 2) : 0xffff,
@@ -192,7 +193,7 @@ for (const budget of [1, 7])
         pads = [0x8000, 0, 0x8000],
         options = { reject: 1, name: true, request };
       const actual = runChoice(direct, name, budget, true, pads, options);
-      assert.deepEqual(actual, runChoice(former, name, budget, true, pads, options));
+      assertFrozenRun(actual);
       assert.equal(actual.input, 3);
       assert.equal(
         actual.wram[W.SPELL_TARGET_OBJECT] | (actual.wram[W.SPELL_TARGET_OBJECT + 1] << 8),
@@ -206,7 +207,7 @@ for (const budget of [1, 7])
       const name = 'choosePlaceWithGloveSequence',
         options = { camera, name: true };
       const actual = runChoice(direct, name, budget, true, [0x8000], options);
-      assert.deepEqual(actual, runChoice(former, name, budget, true, [0x8000], options));
+      assertFrozenRun(actual);
       assert.equal(actual.wram[W.MOTION_ACTIVE + 4], 1);
       assert.ok(actual.uploads.length > 0);
     });

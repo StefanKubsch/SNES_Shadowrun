@@ -1,22 +1,21 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import * as liftedList from '../src/game/window-list.mjs';
-import * as previous from '../proof/caller/window-list.mjs';
 import * as liveRelease from '../src/game/window-release.mjs';
-import * as previousRelease from '../proof/caller/window-release.mjs';
 import * as liftedOpen from '../src/game/window-open.mjs';
 import {
   openWindowJsr,
   requestTileClearJsr,
   resetWindowListJsl,
 } from '../proof/caller/jsr-forms.mjs';
-import * as previousOpen from '../proof/caller/window-open.mjs';
 import { NativeCallContinuation } from '../src/system/native-call-continuation.mjs';
 import { WAIT_PAUSED } from '../src/system/native-wait-continuation.mjs';
 import { LagFreeFrames } from '../src/vm/frame-events.mjs';
-import { createSide } from './lift-function-harness.mjs';
+import { createSide, assertFrozenRun, useLiftVectors } from './lift-function-harness.mjs';
 import { windowMapSource, windowTables } from './lift-window-samples.mjs';
 import { prng } from './task-native-dialog-harness.mjs';
+
+useLiftVectors(import.meta.url);
 
 // The lifted modules with their RTS and RTL forms (proof/caller/jsr-forms.mjs), named as the
 // former.
@@ -101,10 +100,7 @@ for (const budget of [1, 7])
     test(`live window caller matches former ${name}, budget ${budget}`, () => {
       for (let seed = 1; seed <= 40; seed++)
         for (const request of [0, 0xfffe, 0xffff])
-          assert.deepEqual(
-            run(live, name, seed, budget, request),
-            run(previous, name, seed, budget, request),
-          );
+          assertFrozenRun(run(live, name, seed, budget, request));
     });
 
 for (const budget of [1, 7])
@@ -120,10 +116,7 @@ for (const budget of [1, 7])
     test(`live release matches former ${name}, budget ${budget}`, () => {
       for (let seed = 1; seed <= 40; seed++)
         for (const request of [0, 0xfffe, 0xffff])
-          assert.deepEqual(
-            run(liveRelease, name, seed, budget, request),
-            run(previousRelease, name, seed, budget, request),
-          );
+          assertFrozenRun(run(liveRelease, name, seed, budget, request));
     });
 
 for (const budget of [1, 7])
@@ -131,8 +124,5 @@ for (const budget of [1, 7])
     test(`live opening matches former ${name}, budget ${budget}`, () => {
       for (let seed = 1; seed <= 40; seed++)
         for (const request of [0, 0xfffe, 0xffff])
-          assert.deepEqual(
-            run(liveOpen, name, seed, budget, request),
-            run(previousOpen, name, seed, budget, request),
-          );
+          assertFrozenRun(run(liveOpen, name, seed, budget, request));
     });

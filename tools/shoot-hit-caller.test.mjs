@@ -1,8 +1,9 @@
 import { compareRun } from './member-menu-caller-harness.mjs';
-import { hitObjectSequence as formerHit } from '../proof/caller/object-hit.mjs';
 import { runDrawWindowList } from '../proof/caller/window-list.mjs';
 import * as V from '../src/vm/layout.mjs';
 import * as S from '../src/data/native-object-shoot.mjs';
+
+useLiftVectors(import.meta.url);
 
 // Real sight, random draws, hit effects, task allocation, notices and window lists.
 // Upload completion and pad input are serviced by the shared caller fixture.
@@ -67,8 +68,7 @@ function runShot(sequence, direct, options) {
     budget,
     notice ? [0, 0x8000] : [],
     true,
-    ({ h, mem, put, events, routines, bind, calls }) => {
-      bind(0x808691, () => formerHit(h, events, routines));
+    ({ mem, put, events, routines, calls }) => {
       routines.set(0x81ad92, runDrawWindowList);
       const service = events.interrupts.textWait;
       let noticeWaits = 0;
@@ -89,8 +89,8 @@ function runShot(sequence, direct, options) {
 
 import test from 'node:test';
 import assert from 'node:assert/strict';
+import { assertFrozenRun, useLiftVectors } from './lift-function-harness.mjs';
 import * as actual from '../src/game/object-shoot.mjs';
-import * as former from '../proof/caller/object-shoot.mjs';
 import * as W from '../src/data/wram.mjs';
 
 const entries = [
@@ -117,7 +117,7 @@ for (const name of entries)
             test(`actual shot/hit: ${name}, kind ${kind}, ${JSON.stringify(scenario)}, request ${request}, budget ${budget}`, () => {
               const options = { kind, budget, request, ...scenario };
               const got = runShot(actual[name], true, options);
-              assert.deepEqual(got, runShot(former[name], false, options));
+              assertFrozenRun(got);
               if (scenario.notice) {
                 assert.equal(got.input, 2);
                 assert.equal(got.calls.length, 30);

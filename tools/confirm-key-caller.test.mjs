@@ -1,10 +1,12 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
+import { assertFrozenRun, useLiftVectors } from './lift-function-harness.mjs';
 import { waitForConfirmKeySequence as direct } from '../src/game/confirm-key.mjs';
-import { waitForConfirmKeySequence as former } from '../proof/caller/confirm-key.mjs';
 import { runFrameWait, runPadPresses } from '../proof/caller/input-routines.mjs';
 import { textWindowSide, finishTextWindow } from './text-window-caller-harness.mjs';
 import { PAD_HELD, PAD_PREVIOUS, PAD_PRESSED, RANDOM_STATE } from '../src/data/wram.mjs';
+
+useLiftVectors(import.meta.url);
 
 function run(sequence, pads, previous, budget) {
   const side = textWindowSide(),
@@ -45,7 +47,7 @@ for (const budget of [1, 7])
             button,
           ],
           actual = run(direct, pads, previous, budget);
-        assert.deepEqual(actual, run(former, pads, previous, budget));
+        assertFrozenRun(actual);
         assert.equal(actual.input, pads.length, 'held, other and invalid buttons cannot confirm');
         assert.equal(actual.wram[PAD_PRESSED] | (actual.wram[PAD_PRESSED + 1] << 8), button);
       });

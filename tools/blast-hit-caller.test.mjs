@@ -1,12 +1,13 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
+import { assertFrozenRun, useLiftVectors } from './lift-function-harness.mjs';
 import { compareRun } from './member-menu-caller-harness.mjs';
 import { hitObjectsInBlastSequence } from '../src/game/object-blast.mjs';
-import { hitObjectsInBlastSequence as formerBlast } from '../proof/caller/object-blast.mjs';
-import { hitObjectSequence as formerHit } from '../proof/caller/object-hit.mjs';
 import { runDrawWindowList } from '../proof/caller/window-list.mjs';
 import * as W from '../src/data/wram.mjs';
 import * as V from '../src/vm/layout.mjs';
+
+useLiftVectors(import.meta.url);
 
 function runBlast(sequence, axis, distance, hits, player, request, budget) {
   const reached = distance === 0x5f || distance === -0x5f;
@@ -42,8 +43,7 @@ function runBlast(sequence, axis, distance, hits, player, request, budget) {
     budget,
     notice ? [0, 0x8000] : [],
     true,
-    ({ h, mem, put, events, routines, bind, calls }) => {
-      bind(0x808691, () => formerHit(h, events, routines));
+    ({ mem, put, events, routines, calls }) => {
       routines.set(0x81ad92, runDrawWindowList);
       const service = events.interrupts.textWait;
       let noticeWaits = 0;
@@ -78,10 +78,7 @@ for (const budget of [1, 7])
                 request,
                 budget,
               );
-              assert.deepEqual(
-                got,
-                runBlast(formerBlast, axis, distance, hits, player, request, budget),
-              );
+              assertFrozenRun(got);
               if (player) {
                 assert.equal(got.wram[W.PLAYER_HIT_FRAMES], 11);
                 assert.equal(got.wram[W.RECORD_COUNT + 0x3000], 1);

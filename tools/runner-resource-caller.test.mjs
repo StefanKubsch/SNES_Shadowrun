@@ -1,10 +1,12 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
+import { assertFrozenRun, useLiftVectors } from './lift-function-harness.mjs';
 import { compareRun } from './member-menu-caller-harness.mjs';
 import * as direct from '../src/game/runner-state-call.mjs';
-import * as former from '../proof/caller/runner-state-call.mjs';
 import * as W from '../src/data/wram.mjs';
 import { ACTOR_TABLE, ACTOR_RECORD } from '../src/data/actors.mjs';
+
+useLiftVectors(import.meta.url);
 
 function run(module, name, budget, amount, request, hasRecord) {
   let stateRecord;
@@ -47,7 +49,7 @@ for (const budget of [1, 7])
         for (const hasRecord of [false, true])
           test(`runner resource caller: ${name}, amount ${amount}, request ${request}, record ${hasRecord}, budget ${budget}`, () => {
             const actual = run(direct, name, budget, amount, request, hasRecord);
-            assert.deepEqual(actual, run(former, name, budget, amount, request, hasRecord));
+            assertFrozenRun(actual);
             assert.equal(actual.uploads.length, request === 0xffff ? 0 : 1);
             assert.equal(
               actual.count,

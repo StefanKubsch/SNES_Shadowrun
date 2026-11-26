@@ -1,8 +1,8 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
+import { assertFrozenRun, useLiftVectors } from './lift-function-harness.mjs';
 import { compareRun } from './member-menu-caller-harness.mjs';
 import * as direct from '../src/game/glove-target.mjs';
-import * as former from '../proof/caller/glove-target.mjs';
 import { gloveMoveSequence } from '../proof/caller/glove-move.mjs';
 import { showNoticeSequence } from '../proof/caller/notice-show.mjs';
 import {
@@ -11,6 +11,8 @@ import {
   runUnpackWindowMap,
 } from '../proof/caller/window-list.mjs';
 import * as W from '../src/data/wram.mjs';
+
+useLiftVectors(import.meta.url);
 
 function runChoice(module, name, budget, target, pads, request = 0, far = false) {
   return compareRun(
@@ -96,7 +98,7 @@ for (const budget of [1, 7])
         for (const pads of [[0x8000], [0, 0x8000], [0x100, 0x200, 0, 0x8000]])
           test(`choice with actual movement: ${name}, target ${target}, request ${request}, pads ${pads}, budget ${budget}`, () => {
             const actual = runChoice(direct, name, budget, target, pads, request);
-            assert.deepEqual(actual, runChoice(former, name, budget, target, pads, request));
+            assertFrozenRun(actual);
             assert.equal(actual.input, pads.length);
             assert.equal(actual.wram[W.GLOVE_KIND], 0);
             if (name === 'spellGloveTargetSequence' || name === 'choosePlaceWithGloveSequence')
@@ -117,7 +119,7 @@ for (const budget of [1, 7])
   for (const name of choices.slice(1, 4))
     test(`choice with actual movement rejects far height: ${name}, budget ${budget}`, () => {
       const actual = runChoice(direct, name, budget, true, [0x8000], 0, true);
-      assert.deepEqual(actual, runChoice(former, name, budget, true, [0x8000], 0, true));
+      assertFrozenRun(actual);
       assert.equal(actual.wram[0] | (actual.wram[1] << 8), 0xffff);
       assert.ok(actual.uploads.length > 0);
     });

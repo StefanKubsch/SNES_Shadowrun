@@ -1,21 +1,21 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
+import { assertFrozenRun, useLiftVectors } from './lift-function-harness.mjs';
 import { compareRun } from './member-menu-caller-harness.mjs';
 import { spendMagicPointsSequence as directMagic } from '../src/game/magic-points.mjs';
-import { spendMagicPointsSequence as formerMagic } from '../proof/caller/magic-points.mjs';
 import { showNoticeSequence } from '../proof/caller/notice-show.mjs';
 import { releaseGloveSequence as directGlove } from '../src/game/glove-release.mjs';
-import { releaseGloveSequence as formerGlove } from '../proof/caller/glove-release.mjs';
 import { runDrawWindowList } from '../proof/caller/window-list.mjs';
 import { removeFromFightListSequence as directFight } from '../src/game/fight-list.mjs';
-import { removeFromFightListSequence as formerFight } from '../proof/caller/fight-list.mjs';
 import { setMusicModeRoutine } from '../proof/caller/audio-routines.mjs';
 import * as W from '../src/data/wram.mjs';
 
-function runMagic(direct, budget, member, points, cost, glyphs) {
+useLiftVectors(import.meta.url);
+
+function runMagic(budget, member, points, cost, glyphs) {
   return compareRun(
-    direct ? directMagic : formerMagic,
-    direct,
+    directMagic,
+    true,
     ({ mem, put }) => {
       put(W.MEMBER_INDEX, member * 2);
       mem.wram[W.MAGIC_POINTS + member] = points;
@@ -41,18 +41,17 @@ for (const budget of [1, 7])
     ])
       for (const glyphs of [false, true])
         test(`magic notice actual caller: member ${member}, points ${points}, cost ${cost}, glyphs ${glyphs}, budget ${budget}`, () => {
-          const actual = runMagic(true, budget, member, points, cost, glyphs);
-          assert.deepEqual(actual, runMagic(false, budget, member, points, cost, glyphs));
+          const actual = runMagic(budget, member, points, cost, glyphs);
+          assertFrozenRun(actual);
           const paid = points >= (cost & 255);
           assert.equal(actual.wram[W.MAGIC_POINTS + member], paid ? points - (cost & 255) : points);
           assert.equal(actual.wram[0] | (actual.wram[1] << 8), paid ? 0xffff : 0);
           assert.equal(actual.uploads.length > 0, !paid);
         });
 
-function runGlove(direct, budget, name, request) {
-  let services;
+function runGlove(budget, name, request) {
   return compareRun(
-    (h, events) => (direct ? directGlove(h, events) : formerGlove(h, events, services)),
+    (h, events) => directGlove(h, events),
     true,
     ({ put }) => {
       put(W.DIALOG_WINDOW, 0xffff);
@@ -66,7 +65,6 @@ function runGlove(direct, budget, name, request) {
     false,
     ({ routines }) => {
       routines.set(0x81ad92, runDrawWindowList);
-      services = routines;
     },
   );
 }
@@ -74,8 +72,8 @@ for (const budget of [1, 7])
   for (const name of [false, true])
     for (const request of [0, 0xfffe, 0xffff])
       test(`script glove release: name ${name}, request ${request}, budget ${budget}`, () => {
-        const actual = runGlove(true, budget, name, request);
-        assert.deepEqual(actual, runGlove(false, budget, name, request));
+        const actual = runGlove(budget, name, request);
+        assertFrozenRun(actual);
         assert.equal(actual.wram[W.DIALOG_WINDOW] | (actual.wram[W.DIALOG_WINDOW + 1] << 8), 0);
         assert.equal(actual.wram[W.GLOVE_KIND], 0);
         assert.equal(
@@ -89,7 +87,6 @@ for (const budget of [1, 7])
       });
 
 function runFight(
-  direct,
   budget,
   karma,
   base,
@@ -101,9 +98,8 @@ function runFight(
   savedMusic = 0,
 ) {
   return compareRun(
-    (h, events, renderer) =>
-      direct ? directFight(h, events, renderer) : formerFight(h, events, renderer),
-    direct,
+    (h, events, renderer) => directFight(h, events, renderer),
+    true,
     ({ put, mem }) => {
       put(0, variant === 'missing' ? 8 : 2);
       put(W.FIGHT_LIST_INDEX, variant === 'remaining' ? 2 : 0);
@@ -148,8 +144,8 @@ for (const budget of [1, 7])
     for (const variant of ['missing', 'remaining', 'ended'])
       for (const glyphs of [false, true])
         test(`fight end real caller: karma ${karma}, base ${base}, ${variant}, glyphs ${glyphs}, budget ${budget}`, () => {
-          const actual = runFight(true, budget, karma, base, variant, glyphs);
-          assert.deepEqual(actual, runFight(false, budget, karma, base, variant, glyphs));
+          const actual = runFight(budget, karma, base, variant, glyphs);
+          assertFrozenRun(actual);
           const gain = ((karma >>> 3) - base) & 65535;
           assert.equal(actual.uploads.length > 0, variant === 'ended' && gain !== 0);
           const index =
@@ -162,8 +158,8 @@ for (const budget of [1, 7])
   for (const token of [254, 255])
     for (const voices of [0, 7])
       test(`fight reward sound: token ${token}, voices ${voices}, budget ${budget}`, () => {
-        const actual = runFight(true, budget, 80, 0, 'ended', true, 0, token, voices);
-        assert.deepEqual(actual, runFight(false, budget, 80, 0, 'ended', true, 0, token, voices));
+        const actual = runFight(budget, 80, 0, 'ended', true, 0, token, voices);
+        assertFrozenRun(actual);
         assert.equal(actual.wram[W.SOUND_VOICE_MASK], 7);
         assert.ok(actual.writes.includes('8514,7,2') === (voices !== 7));
       });
@@ -173,22 +169,8 @@ for (const budget of [1, 7])
     for (const savedMusic of [0, 1, 255, 65535])
       for (const karma of [0, 80])
         test(`fight music restore: options ${options}, saved ${savedMusic}, karma ${karma}, budget ${budget}`, () => {
-          const actual = runFight(
-            true,
-            budget,
-            karma,
-            0,
-            'ended',
-            false,
-            options,
-            255,
-            0,
-            savedMusic,
-          );
-          assert.deepEqual(
-            actual,
-            runFight(false, budget, karma, 0, 'ended', false, options, 255, 0, savedMusic),
-          );
+          const actual = runFight(budget, karma, 0, 'ended', false, options, 255, 0, savedMusic);
+          assertFrozenRun(actual);
           const expected = !options ? 0 : savedMusic === 65535 ? 8 : savedMusic;
           assert.equal(actual.wram[W.MUSIC] | (actual.wram[W.MUSIC + 1] << 8), expected);
           assert.equal(

@@ -1,10 +1,12 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
+import { assertFrozenRun, useLiftVectors } from './lift-function-harness.mjs';
 import { dialogTopicSequence as direct } from '../src/game/dialog-text.mjs';
-import { dialogTopicSequence as former } from '../proof/caller/dialog-topic.mjs';
 import { textWindowSide, finishTextWindow } from './text-window-caller-harness.mjs';
 import { NativeCallContinuation } from '../src/system/native-call-continuation.mjs';
 import * as V from '../src/vm/layout.mjs';
+
+useLiftVectors(import.meta.url);
 
 function run(sequence, script, budget, hook = 'nested') {
   const side = textWindowSide(),
@@ -61,7 +63,7 @@ for (const budget of [1, 7])
   for (const script of [0x80, 0x10f])
     test(`dialog topic actual append: script ${script}, budget ${budget}`, () => {
       const actual = run(direct, script, budget);
-      assert.deepEqual(actual, run(former, script, budget));
+      assertFrozenRun(actual);
       assert.equal(actual.calls.length, 1);
       assert.equal(actual.calls[0][2], 0x91d6);
     });

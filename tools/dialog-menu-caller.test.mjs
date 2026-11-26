@@ -1,9 +1,9 @@
-import { drawTextBufferSequence as formerDraw } from '../proof/caller/text-draw.mjs';
+import { drawTextBufferSequence as drawTextBuffer } from '../src/game/text-draw.mjs';
 import test from 'node:test';
 import assert from 'node:assert/strict';
+import { assertFrozenRun, useLiftVectors } from './lift-function-harness.mjs';
 import * as liftedMenus from '../src/game/dialog-menus.mjs';
 import { chooseDialogActionJsr, chooseDialogTopicJsr } from '../proof/caller/jsr-forms.mjs';
-import * as previous from '../proof/caller/dialog-menus.mjs';
 import { dialogTextRoutines } from '../proof/replay/native-dialog-text.mjs';
 import { runFrameWait, runPadPresses } from '../proof/caller/input-routines.mjs';
 import { playSoundEffectJsr } from '../proof/caller/jsr-forms.mjs';
@@ -19,6 +19,8 @@ import {
   WINDOW_ACTIVE,
   TEXT_MAP_UPLOAD,
 } from '../src/data/wram.mjs';
+
+useLiftVectors(import.meta.url);
 
 // The lifted module with its RTS and RTL forms (proof/caller/jsr-forms.mjs), named as the
 // former.
@@ -69,7 +71,7 @@ function run(module, variant, budget, realDrawing = false, counter = 0) {
     put(RANDOM_STATE, mem.read16(RANDOM_STATE) + 1);
     return true;
   };
-  if (realDrawing) side.render = formerDraw;
+  if (realDrawing) side.render = drawTextBuffer;
   if (module === direct)
     Object.defineProperty(events, 'text', {
       get: () => assert.fail('live menu must not read legacy services'),
@@ -111,7 +113,7 @@ for (const budget of [1, 7])
   ])
     test(`live dialog menu: ${variant}, budget ${budget}`, () => {
       const actual = run(direct, variant, budget);
-      assert.deepEqual(actual, run(previous, variant, budget));
+      assertFrozenRun(actual);
       const word = (at) => actual.wram[at] | (actual.wram[at + 1] << 8),
         absent = variant === 'empty' || variant === 'flagged',
         cancelled = variant.endsWith('cancel');
@@ -146,7 +148,7 @@ for (const budget of [1, 7])
 for (const budget of [1, 7])
   for (const variant of ['main confirm', 'main cancel', 'topic confirm'])
     test(`default live dialog renderer: ${variant}, budget ${budget}`, () => {
-      assert.deepEqual(run(direct, variant, budget, true), run(previous, variant, budget, true));
+      assertFrozenRun(run(direct, variant, budget, true));
     });
 
 for (const budget of [1, 7])
@@ -154,6 +156,6 @@ for (const budget of [1, 7])
     for (const variant of ['topic confirm', 'topic cancel'])
       test(`dialog topic release upload wrap: ${variant}, counter ${counter}, budget ${budget}`, () => {
         const actual = run(direct, variant, budget, false, counter);
-        assert.deepEqual(actual, run(previous, variant, budget, false, counter));
+        assertFrozenRun(actual);
         assert.equal(actual.wram[TEXT_MAP_UPLOAD] | (actual.wram[TEXT_MAP_UPLOAD + 1] << 8), 0);
       });

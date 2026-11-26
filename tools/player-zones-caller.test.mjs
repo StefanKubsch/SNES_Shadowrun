@@ -1,22 +1,16 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
+import { assertFrozenRun, useLiftVectors } from './lift-function-harness.mjs';
 import { compareRun } from './member-menu-caller-harness.mjs';
 import { playerZonesJsr } from '../proof/caller/jsr-forms.mjs';
-import { playerZonesSequence as formerZones } from '../proof/caller/player-zones.mjs';
-import { appendScriptTaskCall } from '../proof/caller/task-append-call.mjs';
-import { enterRoom } from '../proof/system/main-transition.mjs';
 import * as W from '../src/data/wram.mjs';
 import * as V from '../src/vm/layout.mjs';
 
-function runZones(sequence, axis, coordinate, count, absent, budget, full = false) {
+useLiftVectors(import.meta.url);
+
+function runZones(axis, coordinate, count, absent, budget, full = false) {
   return compareRun(
-    (h, events) =>
-      sequence === playerZonesJsr
-        ? sequence(h, events)
-        : sequence(h, events, {
-            c34a: appendScriptTaskCall,
-            a4bf: () => assert.fail('script-only zone fixture cannot change rooms'),
-          }),
+    (h, events) => playerZonesJsr(h, events),
     false,
     ({ put, mem }) => {
       put(W.PLAYER_OBJECT, absent ? 0xffff : 0);
@@ -51,11 +45,8 @@ for (const budget of [1, 7])
       for (const count of [0, 1, 2])
         for (const absent of [false, true])
           test(`actual zone task: axis ${axis}, coordinate ${coordinate}, count ${count}, absent ${absent}, budget ${budget}`, () => {
-            const actual = runZones(playerZonesJsr, axis, coordinate, count, absent, budget);
-            assert.deepEqual(
-              actual,
-              runZones(formerZones, axis, coordinate, count, absent, budget),
-            );
+            const actual = runZones(axis, coordinate, count, absent, budget);
+            assertFrozenRun(actual);
             const triggered = !absent && coordinate >= 0x3f && coordinate <= 0x41;
             const word = (at) => actual.wram[at] | (actual.wram[at + 1] << 8);
             assert.equal(word(V.TASK_LIST_HEAD), triggered && count ? (count - 1) * 2 : 0xffff);
@@ -63,19 +54,15 @@ for (const budget of [1, 7])
 
 for (const budget of [1, 7])
   test(`zone task allocation failure remains explicit at budget ${budget}`, () => {
-    for (const sequence of [playerZonesJsr, formerZones])
-      assert.throws(
-        () => runZones(sequence, W.OBJECT_X, 0x40, 1, false, budget, true),
-        (error) => error.reason === 'task_slot_required',
-      );
+    assert.throws(
+      () => runZones(W.OBJECT_X, 0x40, 1, false, budget, true),
+      (error) => error.reason === 'task_slot_required',
+    );
   });
 
-function runRoomZone(sequence, room, budget) {
+function runRoomZone(room, budget) {
   return compareRun(
-    (h, events) =>
-      sequence === playerZonesJsr
-        ? sequence(h, events)
-        : sequence(h, events, { c34a: appendScriptTaskCall, a4bf: enterRoom }),
+    (h, events) => playerZonesJsr(h, events),
     false,
     ({ put, mem }) => {
       put(W.PLAYER_OBJECT, 0);
@@ -102,9 +89,8 @@ function runRoomZone(sequence, room, budget) {
       const service = events.interrupts.textWait;
       events.interrupts.textWait = (callee, frameEvents, status, pc) => {
         if (pc === 0x81b0a9) {
-          const live = sequence === playerZonesJsr;
-          assert.equal(mem.read16(0x7e0000 | (h.ctx.s + 1)), live ? 0x1234 : 0x80af);
-          if (live) assert.equal(h.ctx.s, 0x1eed, 'room wait preserves the outer caller stack');
+          assert.equal(mem.read16(0x7e0000 | (h.ctx.s + 1)), 0x1234);
+          assert.equal(h.ctx.s, 0x1eed, 'room wait preserves the outer caller stack');
           assert.equal(
             h.ctx.programBank,
             0x81,
@@ -128,8 +114,8 @@ function runRoomZone(sequence, room, budget) {
 for (const budget of [1, 7])
   for (const room of [0, 3, 0xab, 0xd2, 0x159])
     test(`zone enters actual room ${room} at budget ${budget}`, () => {
-      const actual = runRoomZone(playerZonesJsr, room, budget);
-      assert.deepEqual(actual, runRoomZone(formerZones, room, budget));
+      const actual = runRoomZone(room, budget);
+      assertFrozenRun(actual);
       assert.equal(actual.wram[W.ROOM] | (actual.wram[W.ROOM + 1] << 8), room);
       assert.ok(actual.calls.some((call) => call[0] === 'room frame'));
       assert.ok(actual.writes.length > 0);

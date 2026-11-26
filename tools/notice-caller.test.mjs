@@ -1,19 +1,8 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
+import { assertFrozenRun, useLiftVectors } from './lift-function-harness.mjs';
 import { showNoticeSequence as direct } from '../src/game/notice-show.mjs';
-import { showNoticeSequence as former } from '../proof/caller/notice-show.mjs';
-import { openWindowSequence as formerOpen } from '../proof/caller/window-open.mjs';
-import { printTextSequence as formerText } from '../proof/caller/text-print.mjs';
-import {
-  printNumberSequence as formerNumber,
-  setTextCursorRoutine as formerCursor,
-} from '../proof/caller/window-text.mjs';
 import { timeLimitJsr as directTimer } from '../proof/caller/jsr-forms.mjs';
-import { timeLimitSequence as formerTimer } from '../proof/caller/time-limit.mjs';
-import {
-  NativeCallContinuation,
-  NATIVE_CALL_CONTINUATIONS,
-} from '../src/system/native-call-continuation.mjs';
 import { textWindowSide, finishTextWindow } from './text-window-caller-harness.mjs';
 import {
   NOTICE_WINDOWS,
@@ -30,9 +19,11 @@ import {
   TIMER_FRAMES,
 } from '../src/data/wram.mjs';
 
+useLiftVectors(import.meta.url);
+
 function run(sequence, mode, budget, effect, timer) {
   const side = textWindowSide(),
-    { h, a, events, put } = side;
+    { h, events, put } = side;
   put(WINDOW_LAST_INDEX, 6);
   put(WINDOW_NEXT_TILE, 0x2200);
   for (let x = 0; x <= 6; x += 2) {
@@ -54,40 +45,11 @@ function run(sequence, mode, budget, effect, timer) {
     [12, 180],
   ])
     put(at, value);
-  const routines = new Map(),
-    bindings = [];
-  function bind(target, body) {
-    const run = () => assert.fail('callee must retain cooperative continuation'),
-      binding = { run, create: () => new NativeCallContinuation(a, body()) };
-    routines.set(target, run);
-    bindings.push(run);
-    NATIVE_CALL_CONTINUATIONS.set(run, binding);
-  }
-  bind(0x80f963, () => formerOpen(h, events));
-  bind(0x80fe69, () => formerText(h, events, routines));
-  bind(0x80fb39, () => side.render(h, events));
-  bind(0x80fec1, () => former(h, events, routines));
-  bind(0x80fd80, () => formerNumber(h, events, routines));
-  bind(0x80faac, function* () {
-    let result;
-    yield () => {
-      result = formerCursor(h);
-    };
-    return result;
-  });
   if (timer) {
     put(TIMER, timer[0]);
     put(TIMER_FRAMES, timer[1]);
   }
-  try {
-    return finishTextWindow(
-      side,
-      sequence(h, events, sequence === direct || sequence === directTimer ? side.render : routines),
-      budget,
-    );
-  } finally {
-    for (const run of bindings) NATIVE_CALL_CONTINUATIONS.delete(run);
-  }
+  return finishTextWindow(side, sequence(h, events, side.render), budget);
 }
 
 for (const budget of [1, 7])
@@ -95,7 +57,7 @@ for (const budget of [1, 7])
     for (const effect of [false, true])
       test(`direct notice: ${mode}, effect ${effect}, budget ${budget}`, () => {
         const actual = run(direct, mode, budget, effect);
-        assert.deepEqual(actual, run(former, mode, budget, effect));
+        assertFrozenRun(actual);
         const slot = mode === 'free' || mode === 'last' ? 6 : mode === 'mixed' ? 4 : 2,
           word = (at) => actual.wram[at] | (actual.wram[at + 1] << 8);
         assert.equal(
@@ -121,7 +83,7 @@ for (const budget of [1, 7])
   ])
     test(`direct timer: hours ${timer[0]}, frames ${timer[1]}, budget ${budget}`, () => {
       const actual = run(directTimer, 'ties', budget, false, timer);
-      assert.deepEqual(actual, run(formerTimer, 'ties', budget, false, timer));
+      assertFrozenRun(actual);
       const word = (at) => actual.wram[at] | (actual.wram[at + 1] << 8);
       if (timer[1] === 0 && timer[0] > 0 && timer[0] < 0x8000) {
         assert.equal(word(TIMER), timer[0] - 1);

@@ -1,4 +1,4 @@
-import { drawTextBufferSequence as formerDraw } from '../proof/caller/text-draw.mjs';
+import { drawTextBufferSequence as drawTextBuffer } from '../src/game/text-draw.mjs';
 import {
   putGloveAwayCallSequence,
   releaseNoticeWindowsCallSequence,
@@ -95,7 +95,7 @@ export function compareRun(
   bind(0x80ff79, () => releaseNoticeWindowsCallSequence(h, events));
   bind(0x80f953, () => waitForConfirmKeySequence(h, events, routines));
   bind(0x80fb39, () => side.render(h, events));
-  if (realDrawing) side.render = formerDraw;
+  if (realDrawing) side.render = drawTextBuffer;
   const finish =
     configure({ ...side, routines, bind, remainingInput: () => pads.length - input }) ??
     ((result) => result);

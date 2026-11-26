@@ -1,9 +1,12 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
+import { assertFrozenRun, useLiftVectors } from './lift-function-harness.mjs';
 import * as lifted from '../src/game/portrait-upload.mjs';
 import * as former from '../proof/caller/portrait-upload.mjs';
 import { uploadFirstPortraitJsr, uploadSecondPortraitJsr } from '../proof/caller/jsr-forms.mjs';
 import { uploadPortraitTilesSequence } from '../proof/caller/portrait-routines.mjs';
+
+useLiftVectors(import.meta.url);
 
 // The lifted uploads; the DMA job's register form takes the VRAM address in X.
 // The lifted uploads in their RTS forms (proof/caller/jsr-forms.mjs), named as the former.
@@ -73,7 +76,7 @@ for (const budget of [1, 7]) {
           const options = { mirror, jobs, delay: 3 },
             actual = run(direct, name, options, budget),
             first = name.startsWith('uploadFirst');
-          assert.deepEqual(actual, run(former, name, options, budget));
+          assertFrozenRun(actual);
           assert.equal(actual.waits, 3, 'DMA completion can span repeated waits');
           assert.equal(actual.request, first ? 0x8000 : 0x8800);
           const word = (at) => actual.wram[at] | (actual.wram[at + 1] << 8);
@@ -85,7 +88,7 @@ for (const budget of [1, 7]) {
     test(`direct portrait DMA: destination ${destination}, budget ${budget}`, () => {
       const options = { destination },
         actual = run(direct, 'uploadPortraitTilesSequence', options, budget);
-      assert.deepEqual(actual, run(former, 'uploadPortraitTilesSequence', options, budget));
+      assertFrozenRun(actual);
       assert.equal(actual.request, destination | 0x8000);
       assert.equal(actual.waits, destination & 0x8000 ? 0 : 1);
       assert.equal(actual.writes.length, 6, 'complete DMA channel setup');

@@ -83,8 +83,17 @@ mostly script natives (src/script 56 %).
    stand-ins and routine tables (proof/replay, proof/system) and data tables. A
    helper's reference parameter was removed only together with the matching argument
    of every call (checked per call), so no reference runs in place of lifted code.
-3. The same for the caller tests (tools/text-window-caller-harness.mjs,
-   tools/member-menu-caller-harness.mjs) and the remaining hand-written comparisons.
+3. The same for the caller tests (done 2026-11-26): `assertFrozenRun` in
+   tools/lift-function-harness.mjs keeps a hash of the former caller's result (a
+   canonical text, equal exactly when `assert.deepEqual` holds) per test name and
+   comparison site, in the same vector files. 119 sites in 34 tests (8,334 frozen
+   results) no longer run a former proof/caller module; `LIFT_VECTORS=record` keeps the
+   vectors of retired sites. The `direct` flags and former branches of the run helpers
+   went, the real-glyph runs use the lifted text renderer (src/game/text-draw.mjs), and
+   three proof modules nobody imports any more were deleted. Remaining proof imports of
+   these tests are scaffolding of the lifted side: RTS/RTL forms (jsr-forms), callee
+   stand-ins (window, menu, input, portrait routines) and the portrait upload callee.
+   Several src modules still import proof/caller modules; that is part of step 5.
 4. Decouple the product tools and tests that reach proof only for data or helpers:
    the golden scenarios (through tools/mesen-f390-oracle.mjs and proof/vm/main-loop.mjs),
    rom-map, extract-tables, extract-texts-de, the editing audits (through

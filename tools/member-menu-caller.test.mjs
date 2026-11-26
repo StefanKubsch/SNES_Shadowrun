@@ -1,12 +1,14 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
+import { assertFrozenRun, useLiftVectors } from './lift-function-harness.mjs';
 import {
   compareRun,
   configureMemberPortrait,
   configureScriptVisit,
 } from './member-menu-caller-harness.mjs';
 import { decimalNumberJsr as directDecimal } from '../proof/caller/jsr-forms.mjs';
-import { decimalNumberSequence as formerDecimal } from '../proof/caller/decimal-number.mjs';
+
+useLiftVectors(import.meta.url);
 for (const budget of [1, 7])
   for (const value of [0, 9, 10, 999, 1000, 999999, 1000000, 1000000000, 0xffffffff])
     for (const realDrawing of [false, true])
@@ -16,10 +18,7 @@ for (const budget of [1, 7])
           put(4, value >>> 16);
         };
         const actual = compareRun(directDecimal, true, prepare, budget, [], realDrawing);
-        assert.deepEqual(
-          actual,
-          compareRun(formerDecimal, false, prepare, budget, [], realDrawing),
-        );
+        assertFrozenRun(actual);
         if (realDrawing) assert.ok(actual.uploads.some(([pc]) => pc === 0x81accc));
         else {
           const bytes = actual.calls[0][2];
@@ -32,7 +31,6 @@ for (const budget of [1, 7])
 
 import * as liftedMember from '../src/game/member-spell-menu.mjs';
 import { spellMenuJsr } from '../proof/caller/jsr-forms.mjs';
-import * as formerMember from '../proof/caller/member-spell-menu.mjs';
 import { equipmentRowsSequence } from '../proof/caller/equipment-window.mjs';
 import * as W from '../src/data/wram.mjs';
 
@@ -117,10 +115,7 @@ for (const budget of [1, 7])
           budget,
           realDrawing,
         );
-        assert.deepEqual(
-          actual,
-          runMember(formerMember, false, entry, levels, leader, pads, budget, realDrawing),
-        );
+        assertFrozenRun(actual);
         assert.equal(actual.input, pads.length);
         if (name === 'leader selection')
           assert.notEqual(
@@ -143,7 +138,7 @@ for (const budget of [1, 7])
       const run = (module, direct) =>
         runMember(module, direct, 0x80e693, [1, 0, 0, 0, 0, 0], false, pads, budget, false, script);
       const actual = run(directMember, true);
-      assert.deepEqual(actual, run(formerMember, false));
+      assertFrozenRun(actual);
       assert.equal(actual.input, pads.length);
       assert.equal(actual.calls.filter((c) => c[0] === 'service').length, 1);
       assert.equal(
@@ -182,10 +177,7 @@ for (const budget of [1, 7])
     for (const realDrawing of [false, true])
       test(`member native entry: ${name}, budget ${budget}, real drawing ${realDrawing}`, () => {
         const actual = runOpenMember(directMember, true, levels, pads, budget, realDrawing);
-        assert.deepEqual(
-          actual,
-          runOpenMember(formerMember, false, levels, pads, budget, realDrawing),
-        );
+        assertFrozenRun(actual);
         assert.equal(actual.input, pads.length);
         assert.equal(
           actual.wram[W.MEMBER_MENU_ACTIVE] | (actual.wram[W.MEMBER_MENU_ACTIVE + 1] << 8),
@@ -209,20 +201,7 @@ for (const budget of [1, 7])
       true,
       script,
     );
-    assert.deepEqual(
-      actual,
-      runMember(
-        formerMember,
-        false,
-        0x80e693,
-        [1, 0, 0, 0, 0, 0],
-        false,
-        pads,
-        budget,
-        true,
-        script,
-      ),
-    );
+    assertFrozenRun(actual);
     assert.ok(actual.uploads.some(([pc]) => pc === 0x81accc));
     assert.equal(actual.calls.filter((c) => c[0] === 'portrait upload').length, 2);
   });

@@ -1,21 +1,19 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { cutsceneSequence, playCutscene as cutsceneBody } from '../src/cutscene/cutscene-scene.mjs';
-import { cutsceneSequence as former } from '../proof/caller/cutscene-scene.mjs';
 import { introSequence, playIntro as introBody } from '../src/intro/intro-scene.mjs';
-import { introSequence as formerIntro } from '../proof/caller/intro-scene.mjs';
 import { matrixSceneSequence, playMatrix as matrixBody } from '../src/matrix/matrix-scene.mjs';
-import { matrixSceneSequence as formerMatrix } from '../proof/caller/matrix-scene.mjs';
 import { playCutscene, playIntro, playMatrixScene } from '../proof/caller/scene-entries.mjs';
-import { createSide } from './lift-function-harness.mjs';
+import { createSide, assertFrozenRun, useLiftVectors } from './lift-function-harness.mjs';
 import { LagFreeFrames } from '../src/vm/frame-events.mjs';
 import {
   NativeCallContinuation,
   NATIVE_CALL_CONTINUATIONS,
-  drainNativeSequence,
 } from '../src/system/native-call-continuation.mjs';
 import { WAIT_PAUSED } from '../src/system/native-wait-continuation.mjs';
 import * as W from '../src/data/wram.mjs';
+
+useLiftVectors(import.meta.url);
 
 // The lifted cutscene with the scene and argument from A and X, as the scenario sets them.
 const direct = (h, events) => cutsceneSequence(h, events, h.ctx.a, h.ctx.x);
@@ -46,47 +44,26 @@ function run(sequence, scene, budget, status = 0, frameless = false) {
       h.rtl =
         () => assert.fail('scene body must not use CPU frames');
   }
-  const routines = new Map();
-  const runIntro = (callee, e, r) => drainNativeSequence(formerIntro(callee, e, r)),
-    runCutscene = (callee, e, r) => drainNativeSequence(former(callee, e, r));
-  routines.set(0x81dfe7, runIntro);
-  routines.set(0x81cdf8, runCutscene);
-  NATIVE_CALL_CONTINUATIONS.set(runIntro, {
-    run: runIntro,
-    create: () => new NativeCallContinuation(a, formerIntro(h, events, routines)),
-  });
-  NATIVE_CALL_CONTINUATIONS.set(runCutscene, {
-    run: runCutscene,
-    create: () => new NativeCallContinuation(a, former(h, events, routines)),
-  });
-  const legacy =
-    sequence === former || sequence === formerIntro || sequence === formerMatrix
-      ? routines
-      : { get: () => assert.fail('live scene must not select a routine table') };
+  const legacy = { get: () => assert.fail('live scene must not select a routine table') };
   const continuation = new NativeCallContinuation(a, sequence(h, events, legacy));
-  try {
-    const before = mem.wram.slice();
-    assert.equal(continuation.run(0), WAIT_PAUSED);
-    assert.deepEqual(mem.wram, before);
-    let calls = 0;
-    while (continuation.run(budget) === WAIT_PAUSED) assert.ok(++calls < 100000);
-    if (frameless) assert.equal(h.ctx.s, stack, 'scene preserves the caller stack');
-    // Game state only (user decision 2026-11-17): no A, X, Y and flags, nor the
-    // interrupted A and S the NMI saves (7E:1C78-1C7B).
-    const { a: _a, x: _x, y: _y, status: _status, ...ctx } = a.ctx,
-      wram = mem.wram.slice();
-    wram.fill(0, W.NMI_SAVED_A, W.NMI_SAVED_STACK + 2);
-    return {
-      wram,
-      writes: side.writes,
-      waits,
-      result: continuation.result,
-      ctx,
-    };
-  } finally {
-    NATIVE_CALL_CONTINUATIONS.delete(runIntro);
-    NATIVE_CALL_CONTINUATIONS.delete(runCutscene);
-  }
+  const before = mem.wram.slice();
+  assert.equal(continuation.run(0), WAIT_PAUSED);
+  assert.deepEqual(mem.wram, before);
+  let calls = 0;
+  while (continuation.run(budget) === WAIT_PAUSED) assert.ok(++calls < 100000);
+  if (frameless) assert.equal(h.ctx.s, stack, 'scene preserves the caller stack');
+  // Game state only (user decision 2026-11-17): no A, X, Y and flags, nor the
+  // interrupted A and S the NMI saves (7E:1C78-1C7B).
+  const { a: _a, x: _x, y: _y, status: _status, ...ctx } = a.ctx,
+    wram = mem.wram.slice();
+  wram.fill(0, W.NMI_SAVED_A, W.NMI_SAVED_STACK + 2);
+  return {
+    wram,
+    writes: side.writes,
+    waits,
+    result: continuation.result,
+    ctx,
+  };
 }
 
 for (const budget of [1, 7])
@@ -113,7 +90,7 @@ for (const budget of [1, 7])
 for (const budget of [1, 7])
   test(`matrix setup, login and return own their waits, budget ${budget}`, () => {
     const actual = run(matrixSceneSequence, 0, budget);
-    assert.deepEqual(actual, run(formerMatrix, 0, budget));
+    assertFrozenRun(actual);
     assert.ok(actual.waits.length > 16);
     assert.equal(actual.ctx.pc, 0x1235);
   });
@@ -122,7 +99,7 @@ for (const budget of [1, 7])
   for (const status of [0, 0x30])
     test(`cutscene intro tail owns the existing frame, budget ${budget}, status ${status}`, () => {
       const actual = run(direct, 0x14, budget, status);
-      assert.deepEqual(actual, run(former, 0x14, budget, status));
+      assertFrozenRun(actual);
       assert.equal(actual.ctx.s, 0x1c9);
       assert.equal(actual.ctx.programBank, 0x80);
       assert.equal(actual.ctx.pc, 0x1235);
@@ -131,15 +108,15 @@ for (const budget of [1, 7])
 for (const budget of [1, 7])
   for (const scene of [0, 1, 2, 3, 4, 0x8000, 0x8001, 0x8002, 0x8003, 0x8004])
     test(`actual cutscene body and mirror ${scene}, budget ${budget}`, () => {
-      assert.deepEqual(run(direct, scene, budget), run(former, scene, budget));
+      assertFrozenRun(run(direct, scene, budget));
     });
 
 for (const budget of [1, 7])
   for (const synchronous of [false, true])
-    for (const [entry, previous, target, scene] of [
-      [playCutscene, former, 0x81cdf8, 0x14],
-      [playIntro, formerIntro, 0x81dfe7, 0x14],
-      [playMatrixScene, formerMatrix, 0x81c3ca, 0],
+    for (const [entry, target, scene] of [
+      [playCutscene, 0x81cdf8, 0x14],
+      [playIntro, 0x81dfe7, 0x14],
+      [playMatrixScene, 0x81c3ca, 0],
     ])
       test(`live scene entry ${target.toString(16)}, synchronous ${synchronous}, budget ${budget}`, () => {
         function* sequence(h, events, legacy) {
@@ -157,14 +134,14 @@ for (const budget of [1, 7])
             }),
           };
         }
-        assert.deepEqual(run(sequence, scene, budget), run(previous, scene, budget));
+        assertFrozenRun(run(sequence, scene, budget));
       });
 
 for (const budget of [1, 7])
   for (const status of [0, 0x30])
     test(`intro owns the nested mirrored credits call, budget ${budget}, status ${status}`, () => {
       const actual = run(introSequence, 0x14, budget, status);
-      assert.deepEqual(actual, run(formerIntro, 0x14, budget, status));
+      assertFrozenRun(actual);
       assert.ok(actual.waits.length > 16);
       assert.equal(actual.ctx.bank, 0x80);
       assert.equal(actual.ctx.pc, 0x1235);

@@ -1,14 +1,11 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { isDeepStrictEqual } from 'node:util';
+import { assertFrozenRun, useLiftVectors } from './lift-function-harness.mjs';
 import { compareRun } from './member-menu-caller-harness.mjs';
 import { controlPlayerSequence as directPlayer } from '../src/game/player-control.mjs';
-import { controlPlayerSequence as formerPlayer } from '../proof/caller/player-control.mjs';
 import * as directStatus from '../src/game/status-screen.mjs';
-import * as formerStatus from '../proof/caller/status-screen.mjs';
 import { decimalNumberSequence } from '../proof/caller/decimal-number.mjs';
 import { equipmentRowsSequence } from '../proof/caller/equipment-window.mjs';
-import { closeDialogSequence as formerClose } from '../proof/caller/dialog-talk.mjs';
 import { closePortraitWindowSequence } from '../proof/caller/portrait-window.mjs';
 import { reloadObjectTiles } from '../proof/system/native-scene-tiles.mjs';
 import { buildSpriteList } from '../proof/replay/native-scene-sprites.mjs';
@@ -26,28 +23,9 @@ import {
 import { unpackPortraitRoutine } from '../proof/caller/portrait-routines.mjs';
 import { clearFixedColourJsl, shiftPortraitRowsJsr } from '../proof/caller/jsr-forms.mjs';
 
-// Keep every comparison, but report the first differing field/entry instead of
-// formatting all nested upload snapshots (which can exhaust the test process).
-function assertStatusEqual(actual, expected) {
-  assert.deepEqual(Object.keys(actual), Object.keys(expected));
-  for (const key of Object.keys(expected)) {
-    const left = actual[key],
-      right = expected[key];
-    if (Array.isArray(right) || ArrayBuffer.isView(right)) {
-      assert.equal(left.length, right.length, `${key} length`);
-      const first = left.findIndex((value, index) => !isDeepStrictEqual(value, right[index]));
-      assert.equal(first, -1, `${key}[${first}] differs`);
-    } else assert.equal(isDeepStrictEqual(left, right), true, `${key} differs`);
-  }
-  assert.equal(
-    isDeepStrictEqual(actual, expected),
-    true,
-    'status result type or properties differ',
-  );
-}
+useLiftVectors(import.meta.url);
+
 function runStatus(
-  module,
-  direct,
   entry,
   runner,
   variant,
@@ -80,12 +58,12 @@ function runStatus(
   const result = compareRun(
     function* (h, e, r) {
       const returned = player
-        ? yield* direct ? directPlayer(h, e, r) : formerPlayer(h, e, r)
-        : yield* module.statusScreenSequence(h, e, ...(direct ? [entry, r] : [r, entry]));
+        ? yield* directPlayer(h, e, r)
+        : yield* directStatus.statusScreenSequence(h, e, entry, r);
       captureFinal();
       return returned;
     },
-    direct,
+    true,
     ({ put, mem }) => {
       const number = mem.read16(0x809700 + 2 * runner),
         jake = mem.read16(0x809700),
@@ -187,7 +165,6 @@ function runStatus(
       routines.set(0x80adf4, reloadObjectTiles);
       routines.set(0x80b8de, buildSpriteList);
       bind(0x808f97, () => closePortraitWindowSequence(h, events, routines));
-      bind(0x8092c5, () => formerClose(h, events, routines));
       bind(0x80fdcf, () => decimalNumberSequence(h, events, routines));
       bind(0x80e9c5, () => equipmentRowsSequence(h, events, routines));
       bind(0x80a6ad, () => chooseFromMenuSequence(h, events, routines, 0x80a6ad));
@@ -196,8 +173,6 @@ function runStatus(
       bind(STATUS_ENTRY, () => spellMenuSequence(h, events, routines, STATUS_ENTRY));
       bind(0x80e834, () => skillsSequence(h, events, routines));
       bind(0x80e8c8, () => notesSequence(h, events, routines));
-      for (const target of [0x80ea89, 0x80ea8e])
-        bind(target, () => formerStatus.statusScreenSequence(h, events, routines, target));
     },
   );
   result.wram.fill(0, 0x1e80, 0x1ef0);
@@ -215,8 +190,8 @@ for (const budget of [1, 7])
       [0x80ea89, 'submenu'],
     ])
       test(`status caller: entry ${entry}, runner ${runner}, ${variant}, budget ${budget}`, () => {
-        const actual = runStatus(directStatus, true, entry, runner, variant, budget);
-        assertStatusEqual(actual, runStatus(formerStatus, false, entry, runner, variant, budget));
+        const actual = runStatus(entry, runner, variant, budget);
+        assertFrozenRun(actual);
         assert.equal(actual.input, entry === 0x80ea8e ? 1 : variant === 'submenu' ? 5 : 1);
         assert.equal(
           actual.wram[W.MEMBER_MENU_ACTIVE] | (actual.wram[W.MEMBER_MENU_ACTIVE + 1] << 8),
@@ -236,21 +211,15 @@ for (const budget of [1, 7])
 for (const budget of [1, 7])
   for (const runner of [0, 1])
     test(`status default glyphs: runner ${runner}, budget ${budget}`, () => {
-      const actual = runStatus(directStatus, true, 0x80ea89, runner, 'Exit', budget, true);
-      assertStatusEqual(
-        actual,
-        runStatus(formerStatus, false, 0x80ea89, runner, 'Exit', budget, true),
-      );
+      const actual = runStatus(0x80ea89, runner, 'Exit', budget, true);
+      assertFrozenRun(actual);
       assert.ok(actual.uploads.some(([pc]) => pc === 0x81accc));
     });
 
 for (const budget of [1, 7])
   test(`status alternate Jake portrait, budget ${budget}`, () => {
-    const actual = runStatus(directStatus, true, 0x80ea89, 0, 'Exit', budget, false, true);
-    assertStatusEqual(
-      actual,
-      runStatus(formerStatus, false, 0x80ea89, 0, 'Exit', budget, false, true),
-    );
+    const actual = runStatus(0x80ea89, 0, 'Exit', budget, false, true);
+    assertFrozenRun(actual);
     assert.equal(actual.calls.filter((c) => c[0] === 'portrait frame').length, 11);
     assert.equal(actual.calls.filter((c) => c[0] === 'scene close frame').length, 12);
     assert.equal(actual.wram[W.HDMAEN_SHADOW] & 1, 0);
@@ -261,19 +230,8 @@ for (const budget of [1, 7])
   for (const row of [1, 2, 3, 4, 5, 6])
     for (const realDrawing of [false, true])
       test(`status real submenu: row ${row}, budget ${budget}, glyphs ${realDrawing}`, () => {
-        const actual = runStatus(
-          directStatus,
-          true,
-          0x80ea89,
-          0,
-          'submenu-' + row,
-          budget,
-          realDrawing,
-        );
-        assertStatusEqual(
-          actual,
-          runStatus(formerStatus, false, 0x80ea89, 0, 'submenu-' + row, budget, realDrawing),
-        );
+        const actual = runStatus(0x80ea89, 0, 'submenu-' + row, budget, realDrawing);
+        assertFrozenRun(actual);
         assert.equal(actual.input, 2 * row + 3 + ([5, 6].includes(row) ? 2 : 0));
         if (realDrawing) assert.ok(actual.uploads.some(([pc]) => pc === 0x81accc));
       });
@@ -281,11 +239,8 @@ for (const budget of [1, 7])
 for (const budget of [1, 7]) {
   for (const row of [5, 6])
     test(`status Select in submenu: row ${row}, budget ${budget}`, () => {
-      const actual = runStatus(directStatus, true, 0x80ea89, 0, 'submenu-' + row + '-end', budget);
-      assertStatusEqual(
-        actual,
-        runStatus(formerStatus, false, 0x80ea89, 0, 'submenu-' + row + '-end', budget),
-      );
+      const actual = runStatus(0x80ea89, 0, 'submenu-' + row + '-end', budget);
+      assertFrozenRun(actual);
       assert.equal(actual.input, 2 * row + 3 + (row === 6 ? 2 : 0));
       assert.equal(
         actual.wram[W.DIALOG_END] | (actual.wram[W.DIALOG_END + 1] << 8),
@@ -293,44 +248,27 @@ for (const budget of [1, 7]) {
       );
     });
   test(`status rejects an unknown submenu before its frame, budget ${budget}`, () => {
-    for (const [module, direct] of [
-      [directStatus, true],
-      [formerStatus, false],
-    ])
-      assert.throws(
-        () => runStatus(module, direct, 0x80ea89, 0, 'unknown', budget),
-        (error) => {
-          assert.deepEqual(error, {
-            taskBoundary: true,
-            reason: 'task_ea6e_submenu_open',
-            pc: 0x80ecea,
-            x: 2,
-            target: 0x801234,
-          });
-          return true;
-        },
-      );
+    assert.throws(
+      () => runStatus(0x80ea89, 0, 'unknown', budget),
+      (error) => {
+        assert.deepEqual(error, {
+          taskBoundary: true,
+          reason: 'task_ea6e_submenu_open',
+          pc: 0x80ecea,
+          x: 2,
+          target: 0x801234,
+        });
+        return true;
+      },
+    );
   });
 }
 
 for (const budget of [1, 7])
   for (const token of [0xfe, 0xff])
     test(`status sound token wrap: ${token}, budget ${budget}`, () => {
-      const actual = runStatus(
-        directStatus,
-        true,
-        0x80ea89,
-        0,
-        'cancel',
-        budget,
-        false,
-        false,
-        token,
-      );
-      assertStatusEqual(
-        actual,
-        runStatus(formerStatus, false, 0x80ea89, 0, 'cancel', budget, false, false, token),
-      );
+      const actual = runStatus(0x80ea89, 0, 'cancel', budget, false, false, token);
+      assertFrozenRun(actual);
       assert.equal(actual.wram[W.APU_COMMAND_TOKEN], (token + 2) & 0xff);
       assert.equal(actual.writes.filter((write) => write === '8513,2,1').length, 2);
     });
@@ -339,22 +277,8 @@ for (const budget of [1, 7])
   for (const variant of ['Exit', 'cancel', 'submenu-5-end'])
     for (const glyphs of [false, true])
       test(`player Start actual status: ${variant}, budget ${budget}, glyphs ${glyphs}`, () => {
-        const actual = runStatus(
-          directStatus,
-          true,
-          0x80ea89,
-          0,
-          variant,
-          budget,
-          glyphs,
-          false,
-          0,
-          true,
-        );
-        assertStatusEqual(
-          actual,
-          runStatus(formerStatus, false, 0x80ea89, 0, variant, budget, glyphs, false, 0, true),
-        );
+        const actual = runStatus(0x80ea89, 0, variant, budget, glyphs, false, 0, true);
+        assertFrozenRun(actual);
         assert.equal(actual.wram[0] | (actual.wram[1] << 8), 0);
         assert.ok(actual.input > 0);
         assert.ok(actual.writes.includes('8514,32639,2'));
@@ -364,22 +288,8 @@ for (const budget of [1, 7])
   for (const runner of [0, 1])
     for (const glyphs of [false, true])
       test(`player immediate items: runner ${runner}, budget ${budget}, glyphs ${glyphs}`, () => {
-        const actual = runStatus(
-          directStatus,
-          true,
-          0x80ea8e,
-          runner,
-          'items',
-          budget,
-          glyphs,
-          false,
-          0,
-          true,
-        );
-        assertStatusEqual(
-          actual,
-          runStatus(formerStatus, false, 0x80ea8e, runner, 'items', budget, glyphs, false, 0, true),
-        );
+        const actual = runStatus(0x80ea8e, runner, 'items', budget, glyphs, false, 0, true);
+        assertFrozenRun(actual);
         assert.equal(actual.input, 1);
         assert.equal(actual.wram[0] | (actual.wram[1] << 8), 0);
         assert.ok(actual.calls.some((call) => call[0] === 'scene close frame'));

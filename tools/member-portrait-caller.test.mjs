@@ -1,8 +1,8 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
+import { assertFrozenRun, useLiftVectors } from './lift-function-harness.mjs';
 import * as liftedPortrait from '../src/game/member-portrait.mjs';
 import { memberPortraitJsr } from '../proof/caller/jsr-forms.mjs';
-import * as former from '../proof/caller/member-portrait.mjs';
 import * as upload from '../proof/caller/portrait-upload.mjs';
 import { unpackPortraitRoutine } from '../proof/caller/portrait-routines.mjs';
 import { frameWaitCallSequence } from '../src/system/live-input-calls.mjs';
@@ -24,6 +24,8 @@ import {
   TMW_SHADOW,
 } from '../src/data/wram.mjs';
 import { shiftPortraitRowsJsr } from '../proof/caller/jsr-forms.mjs';
+
+useLiftVectors(import.meta.url);
 
 // The lifted module with its RTS forms (proof/caller/jsr-forms.mjs), named as the former.
 const direct = { ...liftedPortrait, memberPortraitSequence: memberPortraitJsr };
@@ -103,7 +105,7 @@ for (const budget of [1, 7])
       for (const shadow of [0, 0xfe])
         test(`member portrait: member ${member}, jobs ${jobs}, shadow ${shadow}, budget ${budget}`, () => {
           const actual = run(direct, member, jobs, shadow, budget);
-          assert.deepEqual(actual, run(former, member, jobs, shadow, budget));
+          assertFrozenRun(actual);
           assert.equal(actual.requests, 2);
           assert.equal(actual.frames, 11);
           assert.equal(actual.final[0], shadow | 1);

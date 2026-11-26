@@ -1,12 +1,12 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { printNumberJsr, printTextJsr } from '../proof/caller/jsr-forms.mjs';
-import { printTextSequence as formerText } from '../proof/caller/text-print.mjs';
-import { printNumberSequence as formerNumber } from '../proof/caller/window-text.mjs';
 import { NativeCallContinuation } from '../src/system/native-call-continuation.mjs';
 import { WAIT_PAUSED } from '../src/system/native-wait-continuation.mjs';
-import { createSide } from './lift-function-harness.mjs';
+import { createSide, assertFrozenRun, useLiftVectors } from './lift-function-harness.mjs';
 import { TEXT_BUFFER } from '../src/data/wram.mjs';
+
+useLiftVectors(import.meta.url);
 
 // The depth of the free stack bytes ignored below the entry S (as the lift function
 // harness ignores them).
@@ -68,11 +68,7 @@ function run(sequence, id, budget, translated) {
         },
       ],
     ]),
-    continuation = new NativeCallContinuation(
-      a,
-      sequence(h, {}, sequence === formerText || sequence === formerNumber ? routines : renderer),
-      factories,
-    );
+    continuation = new NativeCallContinuation(a, sequence(h, {}, renderer), factories);
   const before = mem.wram.slice();
   assert.equal(continuation.run(0), WAIT_PAUSED);
   assert.deepEqual(mem.wram, before);
@@ -93,9 +89,8 @@ for (const budget of [1, 7])
       test(`text renderer interface: ${id.toString(16)}, budget ${budget}, translation ${translated}`, () => {
         // Game state only (user decision 2026-11-17): the lifted text print leaves no A,
         // X, Y and flags; the Y below is the stub renderer's.
-        const actual = run(printTextJsr, id, budget, translated),
-          previous = run(formerText, id, budget, translated);
-        assert.deepEqual(strip(actual), strip(previous));
+        const actual = run(printTextJsr, id, budget, translated);
+        assertFrozenRun(strip(actual));
         assert.equal(actual.calls.length, 2);
         assert.equal(actual.ctx.bank, 0x95);
         assert.equal(actual.ctx.pc, 0x1235);
@@ -107,9 +102,8 @@ for (const budget of [1, 7])
     test(`number renderer interface: ${value}, budget ${budget}`, () => {
       // Game state only (user decision 2026-11-17): the lifted number leaves no A, X, Y
       // and flags.
-      const actual = run(printNumberJsr, value, budget, false),
-        previous = run(formerNumber, value, budget, false);
-      assert.deepEqual(strip(actual), strip(previous));
+      const actual = run(printNumberJsr, value, budget, false);
+      assertFrozenRun(strip(actual));
       const bytes = actual.calls[0][2],
         end = bytes.indexOf(0);
       assert.equal(String.fromCharCode(...bytes.subarray(0, end)), String(value));

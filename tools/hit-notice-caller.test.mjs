@@ -1,9 +1,11 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
+import { assertFrozenRun, useLiftVectors } from './lift-function-harness.mjs';
 import { compareRun } from './member-menu-caller-harness.mjs';
 import { hitObjectJsr as liftedHit } from '../proof/caller/jsr-forms.mjs';
-import { hitObjectSequence as formerHit } from '../proof/caller/object-hit.mjs';
 import * as W from '../src/data/wram.mjs';
+
+useLiftVectors(import.meta.url);
 
 // The lifted hit takes the damage, target and shooter as parameters (A, X and Y in the
 // original; user decision 2026-11-17), here from the registers the scenario sets.
@@ -46,7 +48,7 @@ for (const budget of [1, 7])
       for (const request of [0, 0xfffe, 0xffff])
         test(`hit notice real caller: hits ${hits}, karma ${karma}, request ${request}, budget ${budget}`, () => {
           const actual = runHit(hitObjectSequence, hits, karma, request, budget);
-          assert.deepEqual(actual, runHit(formerHit, hits, karma, request, budget));
+          assertFrozenRun(actual);
           const word = (at) => actual.wram[at] | (actual.wram[at + 1] << 8);
           const notice = hits === 3 || (hits === 7 && karma >= 8);
           assert.equal(word(W.HARMLESS_HITS), hits === 7 ? 0 : (hits + 1) & 0xffff);
@@ -66,6 +68,6 @@ for (const budget of [1, 7])
       test(`hit confirmation: hits ${hits}, key ${key}, budget ${budget}`, () => {
         const pads = [0, 0x100, 0, key];
         const actual = runHit(hitObjectSequence, hits, 8, 0, budget, pads);
-        assert.deepEqual(actual, runHit(formerHit, hits, 8, 0, budget, pads));
+        assertFrozenRun(actual);
         assert.equal(actual.input, pads.length);
       });

@@ -1,15 +1,17 @@
-import { drawTextBufferSequence as formerDraw } from '../proof/caller/text-draw.mjs';
+import { drawTextBufferSequence as drawTextBuffer } from '../src/game/text-draw.mjs';
 import test from 'node:test';
 import assert from 'node:assert/strict';
+import { assertFrozenRun, useLiftVectors } from './lift-function-harness.mjs';
 import * as liftedText from '../src/game/dialog-text.mjs';
 import { showDialogTextJsr } from '../proof/caller/jsr-forms.mjs';
-import * as previous from '../proof/caller/dialog-text.mjs';
 import { dialogTextRoutines, dialogTopic } from '../proof/replay/native-dialog-text.mjs';
 import { appendScriptTask } from '../proof/system/task-append.mjs';
 import * as V from '../src/vm/layout.mjs';
 import { NATIVE_CALL_CONTINUATIONS } from '../src/system/native-call-continuation.mjs';
 import { TOPIC_LIST, TOPIC_FLAGS } from '../src/data/wram.mjs';
 import { textWindowSide, finishTextWindow, rendererTable } from './text-window-caller-harness.mjs';
+
+useLiftVectors(import.meta.url);
 
 // The lifted module with its RTS and RTL forms (proof/caller/jsr-forms.mjs), named as the
 // former.
@@ -73,7 +75,7 @@ function run(module, name, variant, budget, realDrawing = false) {
     )(callee);
   };
   if (name !== 'showDialogTextSequence') put(0, variant);
-  if (realDrawing) side.render = formerDraw;
+  if (realDrawing) side.render = drawTextBuffer;
   if (module === direct)
     Object.defineProperty(events, 'text', {
       get: () => assert.fail('live text must not read legacy services'),
@@ -99,7 +101,7 @@ for (const budget of [1, 7]) {
   for (const variant of ['greeting', 'talk', 'topics and action', 'fallback', 'missing'])
     test(`dialog renderer: ${variant}, budget ${budget}`, () => {
       const actual = run(direct, 'showDialogTextSequence', variant, budget);
-      assert.deepEqual(actual, run(previous, 'showDialogTextSequence', variant, budget));
+      assertFrozenRun(actual);
       assert.equal(
         actual.calls.filter(([kind]) => kind === 'text').length,
         variant === 'missing' ? 0 : 1,
@@ -113,7 +115,7 @@ for (const budget of [1, 7]) {
     for (const number of [0, 4])
       test(`script dialog renderer: ${name}, text ${number}, budget ${budget}`, () => {
         const actual = run(direct, name, number, budget);
-        assert.deepEqual(actual, run(previous, name, number, budget));
+        assertFrozenRun(actual);
         assert.equal(actual.calls.length, 1);
         assert.equal(actual.uploads.length, name === 'printTopicTextSequence' ? 1 : 0);
       });
@@ -122,8 +124,5 @@ for (const budget of [1, 7]) {
 for (const budget of [1, 7])
   for (const variant of ['greeting', 'talk', 'fallback', 'missing'])
     test(`dialog text default glyphs: ${variant}, budget ${budget}`, () => {
-      assert.deepEqual(
-        run(direct, 'showDialogTextSequence', variant, budget, true),
-        run(previous, 'showDialogTextSequence', variant, budget, true),
-      );
+      assertFrozenRun(run(direct, 'showDialogTextSequence', variant, budget, true));
     });

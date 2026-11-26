@@ -1,11 +1,10 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
+import { assertFrozenRun, useLiftVectors } from './lift-function-harness.mjs';
 import * as liftedAction from '../src/game/action-menu.mjs';
 import { chooseActionJsr } from '../proof/caller/jsr-forms.mjs';
 import { chooseActionRoutineSequence } from '../proof/caller/upkeep-routines.mjs';
-import * as formerAction from '../proof/caller/action-menu.mjs';
 import * as directQuestion from '../src/game/yes-no-question.mjs';
-import * as formerQuestion from '../proof/caller/yes-no-question.mjs';
 import { openWindowSequence } from '../proof/caller/window-open.mjs';
 import { releaseWindowSequence } from '../proof/caller/window-release.mjs';
 import { chooseFromMenuSequence } from '../proof/caller/menu-choice.mjs';
@@ -24,6 +23,8 @@ import {
   WINDOW_ACTIVE,
 } from '../src/data/wram.mjs';
 
+useLiftVectors(import.meta.url);
+
 // The lifted module with its RTS and RTL forms (proof/caller/jsr-forms.mjs), named as the
 // former.
 const directAction = { ...liftedAction, chooseActionSequence: chooseActionJsr };
@@ -31,7 +32,7 @@ const directAction = { ...liftedAction, chooseActionSequence: chooseActionJsr };
 function run(module, { mask, override = 0, pads, script = false }, budget) {
   const side = textWindowSide(),
     { h, a, mem, events, put } = side,
-    question = module === directQuestion || module === formerQuestion;
+    question = module === directQuestion;
   put(WINDOW_ACTIVE, 0xffff);
   put(SOUND_LOADED_SET, mem.read16(0x80c4b3 + 0x4c));
   put(ACTION_MENU_OVERRIDE, override);
@@ -82,16 +83,14 @@ function run(module, { mask, override = 0, pads, script = false }, budget) {
         ? 'askYesNoSequence'
         : script
           ? 'chooseScriptActionSequence'
-          : module === directAction
-            ? // The register form: the actions in A, the chosen flag left in A.
-              'chooseActionRoutineSequence'
-            : 'chooseActionSequence',
+          : // The register form: the actions in A, the chosen flag left in A.
+            'chooseActionRoutineSequence',
       result = finishTextWindow(
         side,
         (name === 'chooseActionRoutineSequence' ? chooseActionRoutineSequence : module[name])(
           h,
           events,
-          module === directAction || module === directQuestion ? side.render : routines,
+          side.render,
         ),
         budget,
       );
@@ -116,7 +115,7 @@ for (const budget of [1, 7])
   ])
     test(`direct action menu: ${name}, budget ${budget}`, () => {
       const actual = run(directAction, options, budget);
-      assert.deepEqual(actual, run(formerAction, options, budget));
+      assertFrozenRun(actual);
       assert.equal(actual.chosen, chosen);
       assert.equal(actual.wram[ACTION_MENU_OVERRIDE], 0);
       if (!options.mask && !options.override) assert.equal(actual.uploads.length, 0);
@@ -135,7 +134,7 @@ for (const budget of [1, 7])
     test(`direct question: ${name}, budget ${budget}`, () => {
       const options = { mask: 0, pads },
         actual = run(directQuestion, options, budget);
-      assert.deepEqual(actual, run(formerQuestion, options, budget));
+      assertFrozenRun(actual);
       assert.equal(actual.wram[0] | (actual.wram[1] << 8), answer);
       assert.equal(actual.input, pads.length);
       assert.ok(actual.uploads.length >= 3, 'question opens and releases its window');

@@ -6,7 +6,7 @@
 // or stop at the same frontier. Game state only (user, 2026-11-14): registers, flags
 // and stack bytes count only where a callee or caller reads them as an argument or
 // result; stand-ins record their inputs with calleeRecord. Shared by the *-lift-functions tests.
-import test, { after } from 'node:test';
+import test, { after, beforeEach } from 'node:test';
 import assert from 'node:assert/strict';
 import { createHash } from 'node:crypto';
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs';
@@ -197,6 +197,10 @@ export function useLiftVectors(testUrl) {
     VECTOR_DIRECTORY,
   );
   vectors = existsSync(vectorFile) ? JSON.parse(gunzipSync(readFileSync(vectorFile))) : {};
+  beforeEach((t) => {
+    currentTest = t.fullName;
+    currentSite = 0;
+  });
   if (!recording) return;
   const file = vectorFile,
     store = vectors;
@@ -237,6 +241,67 @@ export function matchesFrozen(name, index, want, got) {
   const entry = vectors?.[name]?.[index];
   if (entry === undefined) throw new Error(`no frozen vector ${name} ${index}`);
   return outcomeKey(got, (Number(entry[0]) & RESULT_FLAG) !== 0) === entry.slice(1);
+}
+
+// A canonical text of a caller result for its hash: equal under assert.deepEqual (strict)
+// means equal text. Typed arrays keep their type, objects their sorted keys and class.
+function canonical(value) {
+  if (value === null) return 'null';
+  switch (typeof value) {
+    case 'undefined':
+      return 'u';
+    case 'number':
+      return Object.is(value, -0) ? 'n-0' : `n${value}`;
+    case 'bigint':
+      return `i${value}`;
+    case 'string':
+      return JSON.stringify(value);
+    case 'boolean':
+      return value ? 't' : 'f';
+    case 'object':
+      break;
+    default:
+      throw new Error(`a frozen caller result cannot hold a ${typeof value}`);
+  }
+  if (ArrayBuffer.isView(value))
+    return `${value.constructor.name}(${Buffer.from(value.buffer, value.byteOffset, value.byteLength).toString('hex')})`;
+  if (Array.isArray(value)) return `[${Array.from(value, canonical).join(',')}]`;
+  if (value instanceof Map)
+    return `Map{${[...value].map(([k, v]) => `${canonical(k)}:${canonical(v)}`).join(',')}}`;
+  if (value instanceof Set) return `Set{${[...value].map(canonical).join(',')}}`;
+  const prototype = Object.getPrototypeOf(value),
+    kind = prototype === null ? 'null' : prototype.constructor?.name;
+  return `${kind}{${Object.keys(value)
+    .sort()
+    .map((k) => `${JSON.stringify(k)}:${canonical(value[k])}`)
+    .join(',')}}`;
+}
+const callerKey = (value) =>
+  createHash('sha256').update(canonical(value)).digest('hex').slice(0, KEY_DIGITS);
+
+// Frozen caller comparisons (removal plan step 3): a caller test compared a fixed scenario
+// run with the lifted module and with the former proof/caller module. The former result
+// is kept as a hash per test name and comparison site (the n-th call within the test);
+// former() runs the former module only while recording (LIFT_VECTORS=record) and is null
+// once the module is retired. The test's name comes from a beforeEach hook that
+// useLiftVectors installs.
+let currentTest = null,
+  currentSite = 0;
+export function assertFrozenRun(got, former, message) {
+  if (currentTest === null) throw new Error('assertFrozenRun needs useLiftVectors');
+  const name = `${currentTest}#${currentSite++}`;
+  // A retired site keeps its frozen vector while other sites of the file are recorded.
+  if (recording && former) {
+    const want = former();
+    assert.deepEqual(got, want, message);
+    const key = callerKey(want);
+    assert.equal(callerKey(got), key, `${name}: equal results have one key`);
+    vectors[name] = key;
+    return;
+  }
+  const key = vectors?.[name];
+  if (key === undefined) throw new Error(`no frozen caller vector ${name}`);
+  assert.equal(callerKey(got), key, message ?? `${name}: matches the former caller`);
 }
 
 // Register one test per case. outside: lifted stops that mark a sample outside the

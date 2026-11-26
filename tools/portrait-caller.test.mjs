@@ -1,8 +1,10 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
+import { assertFrozenRun, useLiftVectors } from './lift-function-harness.mjs';
 import { closePortraitWindowJsr, openPortraitWindowJsr } from '../proof/caller/jsr-forms.mjs';
-import * as former from '../proof/caller/portrait-window.mjs';
 import { runFrameWait } from '../proof/caller/input-routines.mjs';
+
+useLiftVectors(import.meta.url);
 
 // The lifted portrait window in its RTS forms (proof/caller/jsr-forms.mjs), named as the
 // former.
@@ -48,7 +50,7 @@ for (const budget of [1, 7])
       for (const name of ['openPortraitWindowSequence', 'closePortraitWindowSequence'])
         test(`direct portrait ${name}: shadow ${shadow}, counter ${counter}, budget ${budget}`, () => {
           const actual = run(direct, name, shadow, counter, budget);
-          assert.deepEqual(actual, run(former, name, shadow, counter, budget));
+          assertFrozenRun(actual);
           assert.equal(actual.calls.length, 11, 'eleven frame waits');
           const opening = name.startsWith('open');
           assert.equal(actual.final[0], opening ? shadow | 1 : shadow & ~1);

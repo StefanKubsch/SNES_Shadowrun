@@ -1,10 +1,11 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
+import { assertFrozenRun, useLiftVectors } from './lift-function-harness.mjs';
 import { compareRun } from './member-menu-caller-harness.mjs';
 import { gloveMoveJsr, objectSearchJsr } from '../proof/caller/jsr-forms.mjs';
-import { objectSearchSequence as formerSearch } from '../proof/caller/object-search.mjs';
-import { gloveMoveSequence as formerMove } from '../proof/caller/glove-move.mjs';
 import * as W from '../src/data/wram.mjs';
+
+useLiftVectors(import.meta.url);
 
 function runSearch(sequence, budget, options = {}) {
   return compareRun(
@@ -51,7 +52,7 @@ for (const budget of [1, 7])
         test(`object search actual name window: kind ${kind}, marked ${marked}, request ${request}, budget ${budget}`, () => {
           const options = { kind, marked, request };
           const actual = runSearch(objectSearchJsr, budget, options);
-          assert.deepEqual(actual, runSearch(formerSearch, budget, options));
+          assertFrozenRun(actual);
           assert.equal(actual.wram[W.GLOVE_TARGET_OBJECT], 2);
           assert.ok(actual.uploads.length > 0);
         });
@@ -62,7 +63,7 @@ for (const budget of [1, 7])
       test(`actual glove movement: held ${held}, marked ${marked}, budget ${budget}`, () => {
         const options = { held, marked };
         const actual = runSearch(gloveMoveJsr, budget, options);
-        assert.deepEqual(actual, runSearch(formerMove, budget, options));
+        assertFrozenRun(actual);
         if (held && marked) assert.equal(actual.wram[W.GLOVE_TARGET_TAG], 0xff);
         if (!held) assert.equal(actual.wram[W.GLOVE_TARGET_OBJECT], 2);
       });
@@ -78,8 +79,5 @@ for (const budget of [1, 7])
     for (const glove of [0, 0xffff, 0xfffd])
       test(`glove movement speed and position boundary: ${held}/${speed}/${position}/${glove}, budget ${budget}`, () => {
         const options = { held, speed, position, glove, marked: true };
-        assert.deepEqual(
-          runSearch(gloveMoveJsr, budget, options),
-          runSearch(formerMove, budget, options),
-        );
+        assertFrozenRun(runSearch(gloveMoveJsr, budget, options));
       });
