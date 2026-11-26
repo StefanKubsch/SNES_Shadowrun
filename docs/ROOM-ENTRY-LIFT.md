@@ -15,7 +15,7 @@ The room entry 80:A4BF, which the room start, the scene return of the main loop
 equations to plain code, after the game screen set-up
 ([GAME-SCREEN-LIFT.md](GAME-SCREEN-LIFT.md)); method in
 [MATRIX-LIFT.md](MATRIX-LIFT.md). The register-level version stays as reference
-in [proof/game-reference/room-entry.mjs](../proof/game-reference/room-entry.mjs)
+in `proof/game-reference/room-entry.mjs` (removed)
 (`ROOM_ENTRY_REFERENCE_ENTRIES`, `withRoomEntryReference`).
 
 ## State model composition (2026-11-21)
@@ -56,7 +56,7 @@ PCs remain diagnostic metadata.
 | [game-screen.mjs](../src/game/game-screen.mjs)             | The task scheduler reset 80:C1A6, the object slots 81:A772 and the window map 81:A9B2 with Jake's state bar 81:AF1F, exported for the entry and the window list.                                                                                                                                               |
 | [main-transition.mjs](../proof/replay/main-transition.mjs) | The table entry `enterRoom` (80:A4BF, the room in A) for register-level callers, and the register-level callees, which other callers still use.                                                                                                                                                                |
 | [game-start.mjs](../src/game/game-start.mjs)               | The room start 80:9699 calls `enterRoomSequence` directly.                                                                                                                                                                                                                                                     |
-| [room-entry.mjs](../proof/game-reference/room-entry.mjs)   | The register-level 80:A4BF (`enterRoomReference`), moved from main-transition.mjs.                                                                                                                                                                                                                             |
+| `room-entry.mjs` (removed)                                 | The register-level 80:A4BF (`enterRoomReference`), moved from main-transition.mjs.                                                                                                                                                                                                                             |
 
 ## Boundaries
 

@@ -12,7 +12,7 @@ VRAM, single-register and empty commands. It no longer constructs an array of
 allowed instruction addresses for each command. Resolution is cached once per
 loaded image, as before; command lists and their arguments are never cached.
 
-[The former caller](../proof/caller/scene-list.mjs) retains the original
+`The former caller` (removed) retains the original
 address-based selection independently. [Composition tests](../tools/scene-command-composition.test.mjs)
 compare complete WRAM, source reads, ordered video/port writes and frontier
 details for every supported target, edited aliases, mixed commands, a palette

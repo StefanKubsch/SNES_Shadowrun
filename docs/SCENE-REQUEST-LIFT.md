@@ -14,7 +14,7 @@ The scene request 80:CC4B, which the main loop calls in every pass after the zon
 gate 80:8000 (80:96C8), is lifted from register-level 65816 equations to plain
 code, after the room entry ([ROOM-ENTRY-LIFT.md](ROOM-ENTRY-LIFT.md)); method in
 [MATRIX-LIFT.md](MATRIX-LIFT.md). The register-level version stays as reference in
-[proof/game-reference/scene-request.mjs](../proof/game-reference/scene-request.mjs)
+`proof/game-reference/scene-request.mjs` (removed)
 (`SCENE_REQUEST_REFERENCE_ENTRIES`).
 
 Script code asks for a new scene through the request word 7E:1CE9: FFFF asks for
@@ -29,13 +29,13 @@ a request, and the main loop then starts its next pass at its top (80:96AB).
 
 ## Modules
 
-| Module                                                         | Content                                                                                                                                                                                                                                                                                                           |
-| -------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| [scene-request.mjs](../src/game/scene-request.mjs)             | `sceneRequestSequence` (80:CC4B), which the live main loop composes directly without its JSR frame (RTS form `sceneRequestJsr` in proof/caller/jsr-forms.mjs); its run wrapper `processSceneRequest` with the carry as register form and its native call continuation are in proof/caller/live-loop-routines.mjs. |
-| [room-entry.mjs](../src/game/room-entry.mjs)                   | The forced blank 81:B0BD, the frame wait 81:B0A1 (`waitForFrameCall`) and the room entry 80:A4BF, which the request calls directly.                                                                                                                                                                               |
-| [game-screen.mjs](../src/game/game-screen.mjs)                 | The game screen set-up 80:9629, called directly.                                                                                                                                                                                                                                                                  |
-| [main-loop-motion.mjs](../proof/replay/main-loop-motion.mjs)   | `MAIN_MOTION_ROUTINES` keeps the register-level callees of the reference: 81:B0BD, 81:B0A1, 80:9629 and 80:A4BF.                                                                                                                                                                                                  |
-| [scene-request.mjs](../proof/game-reference/scene-request.mjs) | The register-level 80:CC4B (`processSceneRequestReference`), moved from main-loop-motion.mjs.                                                                                                                                                                                                                     |
+| Module                                                       | Content                                                                                                                                                                                                                                                                                                           |
+| ------------------------------------------------------------ | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| [scene-request.mjs](../src/game/scene-request.mjs)           | `sceneRequestSequence` (80:CC4B), which the live main loop composes directly without its JSR frame (RTS form `sceneRequestJsr` in proof/caller/jsr-forms.mjs); its run wrapper `processSceneRequest` with the carry as register form and its native call continuation are in proof/caller/live-loop-routines.mjs. |
+| [room-entry.mjs](../src/game/room-entry.mjs)                 | The forced blank 81:B0BD, the frame wait 81:B0A1 (`waitForFrameCall`) and the room entry 80:A4BF, which the request calls directly.                                                                                                                                                                               |
+| [game-screen.mjs](../src/game/game-screen.mjs)               | The game screen set-up 80:9629, called directly.                                                                                                                                                                                                                                                                  |
+| [main-loop-motion.mjs](../proof/replay/main-loop-motion.mjs) | `MAIN_MOTION_ROUTINES` keeps the register-level callees of the reference: 81:B0BD, 81:B0A1, 80:9629 and 80:A4BF.                                                                                                                                                                                                  |
+| `scene-request.mjs` (removed)                                | The register-level 80:CC4B (`processSceneRequestReference`), moved from main-loop-motion.mjs.                                                                                                                                                                                                                     |
 
 ## Boundaries
 
@@ -79,7 +79,7 @@ The room entry's matrix session moved here from tools/room-entry-lift.test.mjs:
 the lifted request calls the lifted entry directly, so only a reference request
 reaches the reference entry.
 
-[tools/main-loop-motion.test.mjs](../tools/main-loop-motion.test.mjs),
+`tools/main-loop-motion.test.mjs` (removed),
 `tools/main-transition.test.mjs` (removed),
 tools/main-initialize.test.mjs (removed) and
 tools/main-loop.test.mjs (removed) keep proving the reference

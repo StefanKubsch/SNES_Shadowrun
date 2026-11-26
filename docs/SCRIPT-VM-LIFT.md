@@ -331,7 +331,7 @@ registerLevelLoop})`); the observed rooms and boot replays keep the driver direc
   startup, software reset, and the reference-only sprite, sight and observation
   helpers. Mixed modules retain only the constants and shared helpers the game
   imports in `src/task/`. The recorded main interval is
-  [proof/vm/main-loop.mjs](../proof/vm/main-loop.mjs); the existing recorded drivers,
+  `proof/vm/main-loop.mjs` (removed); the existing recorded drivers,
   Mesen tools and cold boot comparisons import these proof modules.
 - The recorded main interval binds the zone, scene request, notice timeout, timer
   and glove references directly, so direct oracle table calls also stay on the

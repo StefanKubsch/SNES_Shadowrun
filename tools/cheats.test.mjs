@@ -3,13 +3,15 @@ import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import { cartridge } from './cartridge-harness.mjs';
 import { VmMemory } from '../src/vm/memory.mjs';
-import { ScriptInterpreter } from '../proof/vm/interpreter.mjs';
+import { compareRun } from './member-menu-caller-harness.mjs';
 import { TaskAccessor } from '../src/vm/task-accessor.mjs';
 import { takeDamage } from '../src/matrix/matrix-world.mjs';
-import { hitObject } from '../proof/replay/native-object-hit.mjs';
+import { hitObject } from '../src/game/object-hit.mjs';
+import { HIT_EVENT } from '../src/data/native-object-hit.mjs';
+import * as W from '../src/data/wram.mjs';
+import * as V from '../src/vm/layout.mjs';
 import { setObjectRecordCount } from '../src/script/native-object-record-count-set.mjs';
 import { decrementObjectStateCount } from '../src/script/native-object-record-count-decrement.mjs';
-import { task8E36Fixture } from './task-native-8e36-fixtures.mjs';
 import { CHEAT, CHEAT_MASK, CHEAT_EVENTS } from '../src/game/cheat-settings.mjs';
 import { applyCheats, JAKE_STATE_RECORD } from '../src/game/cheats.mjs';
 import { RECORD_ATTRIBUTE, RECORD_SKILL, RECORD_SPELL } from '../src/data/runners.mjs';
@@ -17,24 +19,13 @@ import { LiveGame } from '../src/video/live-game.mjs';
 import { counterBytes } from '../src/vm/frame-events.mjs';
 import { Recorder, parseRecording, replayRecording } from '../src/browser/recording.mjs';
 
+// The game state the cheat checks read: memory and the cheat mask of the accessor's VM.
 function fixture(mask = 0) {
   const memory = new VmMemory(cartridge.rom),
-    vm = new ScriptInterpreter(memory);
+    vm = { mem: memory, a: 0, x: 0, y: 0, s: 0x1eee, d: 0, dbr: 0x80, p: 0, pc: 0x8691 };
   vm.cheats = mask;
-  vm.setContext({
-    a: 0,
-    x: 0,
-    y: 0,
-    s: 0x1eee,
-    d: 0,
-    bank: 0x80,
-    status: 0,
-    programBank: 0x80,
-    pc: 0x8691,
-  });
   const a = new TaskAccessor(vm);
   a.load();
-  memory.write16(0x1eef, 0xf508);
   return { memory, vm, a };
 }
 const initialize = (f) => {
@@ -95,29 +86,39 @@ test('all sixteen combinations preserve other runners and unused state; disablin
   }
 });
 
-test('real 8691 lethal damage cannot kill Jake with protection, but still kills other records', () => {
+test('lethal 8691 damage cannot kill Jake with protection, but still kills other records', () => {
   for (const [mask, record, expected] of [
-    [0, 0x33dc, 0],
-    [CHEAT.health, 0x33dc, 30],
-    [CHEAT_MASK, 0x33dc, 200],
+    [0, JAKE_STATE_RECORD, 0],
+    [CHEAT.health, JAKE_STATE_RECORD, 30],
+    [CHEAT_MASK, JAKE_STATE_RECORD, 200],
     [CHEAT.health, 0x3400, 0],
   ]) {
-    const f = fixture(mask),
-      sample = task8E36Fixture({ flags: 0xa000, record, health: 1 });
-    for (const [address, value] of sample.data.snapshot().bytes) {
-      if (
-        (address >= 0x7e0000 && address < 0x800000) ||
-        (!(address & 0x400000) && (address & 65535) < 0x2000)
-      )
-        f.memory.write8(address, value);
-    }
-    f.memory.wram[0x3c00] = mask === CHEAT_MASK ? 200 : 30;
-    Object.assign(f.a.ctx, { a: 1, x: 16, y: 65535, s: 0x1eee, bank: 0x80, pc: 0x8691 });
-    f.a.io = sample.ioObservations;
-    hitObject(f.a, { calls: [], waitEvents: [] });
-    assert.equal(f.memory.wram[record + 2], expected);
+    // The lifted hit (src/game/object-hit.mjs) on the damageable object in slot 4 with
+    // one health point left; no shooter, no player object, one free object slot.
+    const got = compareRun(
+      (h, events, renderer) => hitObject(h, events, renderer, 0xff, 4, 0xffff),
+      true,
+      ({ put, mem, a }) => {
+        a.vm.cheats = mask;
+        for (const field of [W.OBJECT_X, W.OBJECT_Y, W.OBJECT_HEIGHT]) put(field + 4, 0x500);
+        put(W.OBJECT_FLAGS + 4, W.OBJECT_HITTABLE | W.OBJECT_DAMAGEABLE);
+        put(W.PLAYER_OBJECT, 0xffff);
+        put(W.OBJECT_RECORD + 4, record);
+        put(W.OBJECT_TASK + 4, 0);
+        mem.wram[W.RECORD_COUNT + record] = 1;
+        mem.wram[W.JAKE_BODY + RECORD_ATTRIBUTE.count_max] = mask === CHEAT_MASK ? 200 : 30;
+        put(W.OBJECT_KIND + W.OBJECT_LAST_SLOT, 0xffff);
+        put(V.TASK_FREE_LIST, 0);
+        put(V.TASK_NEXT, 0xffff);
+        put(V.TASK_LIST_HEAD, 0xffff);
+        put(V.HEAP_SIZE_WORD, 0x400);
+        put(V.HEAP_NEXT_WORD, 0);
+      },
+      1,
+    );
+    assert.equal(got.wram[W.RECORD_COUNT + record], expected, `mask ${mask} record ${record}`);
     assert.equal(
-      !!(f.memory.read16(0xc62) & 0x800),
+      !!((got.wram[V.TASK_EVENTS] | (got.wram[V.TASK_EVENTS + 1] << 8)) & HIT_EVENT),
       expected === 0,
       'death task event matches survival',
     );

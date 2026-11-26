@@ -79,7 +79,7 @@ byte written by either side; all other bytes are equal through the shared start.
 - The SRAM content at the first sync point is recorded; SRAM writes in the
   window carry `S` before the offset in the same write sequence and are compared
   like WRAM bytes (since 2026-10-15, saving in the bed menu `$CE6D`).
-  Oracle-checked natives ([oracle-natives.mjs](../proof/vm/oracle-natives.mjs))
+  Oracle-checked natives (`oracle-natives.mjs` (removed))
   run in the comparison.
 - Special natives get the hardware reads of their interval as `ObservedDevices`
   set. Mesen reports the PC after the operands; the instruction address is

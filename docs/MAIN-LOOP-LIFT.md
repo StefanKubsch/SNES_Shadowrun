@@ -31,7 +31,7 @@ bindings remain in [live-loop-routines.mjs](../proof/caller/live-loop-routines.m
 [jsr-forms.mjs](../proof/caller/jsr-forms.mjs) and
 [input-routines.mjs](../proof/caller/input-routines.mjs).
 proof/caller/main-loop.mjs (removed) preserves the former
-live dispatch; [proof/vm/main-loop.mjs](../proof/vm/main-loop.mjs) preserves
+live dispatch; `proof/vm/main-loop.mjs` (removed) preserves
 instruction-based recorded replay. These references are frozen under the rebuild
 rules.
 
@@ -99,7 +99,7 @@ requirements. [NATIVE-MODULES.md](NATIVE-MODULES.md) maps the other script nativ
 - **entries**: [main-upkeep.mjs](../src/game/main-upkeep.mjs). The main loop's table entries (RTL or RTS as the original) and the native call continuation of 80:FF14.
 
 Register-level palette equations are in
-[palette-cycles-equations.mjs](../proof/render/palette-cycles-equations.mjs).
+`palette-cycles-equations.mjs` (removed).
 Original routine contracts remain in [reference/](reference/README.md).
 
 ## Free stack bytes
@@ -207,7 +207,7 @@ It is a lookup aid, not a hand-maintained block-test selection:
 - [fight-list-remove-lift-functions.test.mjs](../tools/fight-list-remove-lift-functions.test.mjs)
 - [magic-points-lift-functions.test.mjs](../tools/magic-points-lift-functions.test.mjs)
 - [glove-release-lift-functions.test.mjs](../tools/glove-release-lift-functions.test.mjs)
-- [confirm-key-lift.test.mjs](../tools/confirm-key-lift.test.mjs)
+- `confirm-key-lift.test.mjs` (removed)
 - [glove-target-lift-functions.test.mjs](../tools/glove-target-lift-functions.test.mjs)
 - [object-shoot-lift-functions.test.mjs](../tools/object-shoot-lift-functions.test.mjs)
 - [object-blast-lift-functions.test.mjs](../tools/object-blast-lift-functions.test.mjs)
@@ -234,6 +234,6 @@ It is a lookup aid, not a hand-maintained block-test selection:
 - game-nmi-lift.test.mjs (removed)
 - main-upkeep-lift.test.mjs (removed)
 - main-loop-camera.test.mjs (removed)
-- [main-motion-helpers.test.mjs](../tools/main-motion-helpers.test.mjs)
-- [main-loop-motion.test.mjs](../tools/main-loop-motion.test.mjs)
+- `main-motion-helpers.test.mjs` (removed)
+- `main-loop-motion.test.mjs` (removed)
 - `main-text-continuation.test.mjs` (removed)

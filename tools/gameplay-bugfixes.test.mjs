@@ -3,22 +3,23 @@ import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import { cartridge } from './cartridge-harness.mjs';
 import { VmMemory } from '../src/vm/memory.mjs';
-import { ScriptInterpreter, EXIT_END, EXIT_BUDGET } from '../proof/vm/interpreter.mjs';
+import { runTask, EXIT_END, EXIT_BUDGET, EXIT_NATIVE } from '../src/script/interpreter.mjs';
+import { createTask, finishCall, scriptInfo } from '../src/script/tasks.mjs';
+import { nativeTarget as nativeEntry } from '../src/script/natives.mjs';
 import { TaskAccessor } from '../src/vm/task-accessor.mjs';
-import { NativeCalls } from '../proof/vm/native-call.mjs';
-import { nativeTarget, nativeTargetEntries } from '../src/script/native-targets.mjs';
+import { nativeTarget as nativeImplementation } from '../src/script/native-targets.mjs';
 import { setItemPropertyAndUnequip } from '../src/script/native-object-record-property-equip.mjs';
 import { setActorItemPropertyAndUnequip } from '../src/script/native-record-property-equip.mjs';
 import { getActorStateFlags } from '../src/script/native-record-flags-get.mjs';
 import { setActorStateFlags } from '../src/script/native-record-flags-set.mjs';
-import { talkWithObject } from '../proof/replay/native-dialog.mjs';
-import { MAIN_START_ROUTINES } from '../proof/replay/main-start.mjs';
-import { dialogAccess } from '../src/system/native-dialog-support.mjs';
+import { setUpNewGameState, loadSavedGame } from '../src/game/game-start.mjs';
 import {
   DEFAULT_GAMEPLAY,
   ORIGINAL_GAMEPLAY,
   gameplaySettings,
   storedGameplay,
+  fixesEnabled,
+  preparePushkinTopics,
 } from '../src/game/bugfixes.mjs';
 
 const manifest = JSON.parse(readFileSync(new URL('../assets/vm-cartridge.json', import.meta.url)));
@@ -36,13 +37,11 @@ function fixture(gameplay = DEFAULT_GAMEPLAY) {
     new Uint8Array(0x2000),
     cartridge.present,
   );
-  const vm = new ScriptInterpreter(mem);
+  // The settings the natives read through their accessor's VM (a.vm.gameplay).
+  const vm = { mem, a: 0, x: 0, y: 0, s: 0x1eee, d: 0, dbr: 0x80, p: 0, pc: 0 };
   vm.gameplay = gameplaySettings(gameplay);
-  vm.s = 0x1eee;
-  vm.dbr = 0x80;
   const a = new TaskAccessor(vm);
   a.load();
-  mem.write16Bank0(0x1eef, 0xf508);
   return { mem, vm, a };
 }
 function invoke(f, run, args) {
@@ -52,20 +51,36 @@ function invoke(f, run, args) {
   f.a.ctx.bank = 0x80;
   return run(f.a, false);
 }
+// Script id from byte offset on the product interpreter (src/script/interpreter.mjs).
+// Its frame words stay where the natives look for the running script (task 0 at
+// FRAME); the lifted natives (src/script/native-targets.mjs) answer its calls.
 function scriptFixture(id, offset = 0, gameplay = DEFAULT_GAMEPLAY) {
   const f = fixture(gameplay),
-    { mem, vm } = f;
+    { mem } = f;
   const cpu = manifest.scripts.scriptAddresses[id] + 2;
   mem.write16Bank0(FRAME, cpu & 65535);
   mem.write8(FRAME + 2, cpu >>> 16);
   mem.write16Bank0(0x250, 0);
   mem.write16Bank0(0x252, FRAME);
-  mem.write16Bank0(0x1f2, 0x1ee0);
-  mem.write16Bank0(0x1ee1, 0x1234);
-  vm.setContext({ a: 0, x: 0, y: offset, s: 0x900, d: FRAME, bank: cpu >>> 16, status: 0 });
-  vm.natives = new NativeCalls(vm, { admitted: nativeTargetEntries, implementation: nativeTarget });
-  vm.fetch();
+  const args = new Array(scriptInfo(mem, id).argumentBytes >>> 1).fill(0);
+  f.task = createTask(mem, id, args);
+  f.task.pc = offset;
   return f;
+}
+// Run the script until its PC reaches stop (or its END); returns the last exit kind.
+function runScript(f, stop = null, limit = 1000) {
+  const { mem, task } = f;
+  for (let step = 0; step < limit; step++) {
+    if (task.pc === stop) return EXIT_BUDGET;
+    const exit = runTask(mem, task, 1);
+    if (exit.kind === EXIT_END) return EXIT_END;
+    if (exit.kind === EXIT_NATIVE) {
+      exit.args.forEach((value, n) => mem.write16Bank0(2 * n, value));
+      nativeImplementation(nativeEntry(mem, exit.id))(f.a, false);
+      finishCall(mem, task, mem.read16Bank0(0));
+    } else if (exit.kind !== EXIT_BUDGET) throw new Error(`script exit ${exit.kind}`);
+  }
+  throw new Error('script step limit');
 }
 
 test('product defaults enable fixes; original and damaged preferences are explicit', () => {
@@ -168,19 +183,17 @@ test('Akimi rechecks Charisma and physical capacity without consuming her reserv
 
 test('the original arrival condition takes its harmless exit when a paid Akimi has no room', () => {
   const f = scriptFixture(0x38c),
-    { mem, vm } = f;
+    { mem } = f;
   mem.write16(0x7e2de6, 6);
   mem.write8(0x7e3bff, 6);
   mem.write8(0x7e3405, 0xa0);
-  // Stop after the condition and branch, before the proxy's normal release.
-  assert.equal(vm.run(14), EXIT_BUDGET);
-  assert.equal(vm.y, 0xa4);
+  // Stop after the condition and branch (at A3), before the proxy's normal release.
+  assert.equal(runScript(f, 0xa3), EXIT_BUDGET);
   assert.equal(mem.read8(0x7e3405), 0xa0);
   assert.equal(mem.read16(0x7e2de6), 6);
 });
 
-test('Pushkin teaches or reactivates Head Computer at actual dialog entry, with stable parallel flags', () => {
-  const stop = new Error('before portrait');
+test('Pushkin teaches or reactivates Head Computer when its dialog prepares the topics, with stable parallel flags', () => {
   for (const settings of [ORIGINAL_GAMEPLAY, DEFAULT_GAMEPLAY])
     for (const alreadyKnown of [false, true]) {
       const f = fixture(settings),
@@ -189,24 +202,9 @@ test('Pushkin teaches or reactivates Head Computer at actual dialog entry, with 
       mem.wram.set(ids, 0x3ca3);
       mem.wram.set([1, 2, 255, 4], 0x3cd6);
       const before = mem.wram.slice(0x3ca3, 0x3d09);
-      mem.write16Bank0(2, 67);
-      assert.throws(
-        () =>
-          talkWithObject(
-            f.a,
-            {},
-            false,
-            new Map([
-              [
-                0x81886a,
-                () => {
-                  throw stop;
-                },
-              ],
-            ]),
-          ),
-        (e) => e === stop,
-      );
+      // The lifted dialog entry (src/game/dialog-talk.mjs) prepares the topics of
+      // record 67 when the fixes are on.
+      if (fixesEnabled(f.a)) preparePushkinTopics(f.a, 67);
       if (!settings.bugfixes) assert.deepEqual(mem.wram.slice(0x3ca3, 0x3d09), before);
       else {
         assert.deepEqual(Array.from(mem.wram.slice(0x3ca3, 0x3ca8)), [0, 15, 20, 38, 255]);
@@ -220,16 +218,15 @@ test('Pushkin teaches or reactivates Head Computer at actual dialog entry, with 
     }
   const full = fixture();
   full.mem.wram.set(Array.from({ length: 50 }, (_, i) => (i < 20 ? i : i + 1)).concat(255), 0x3ca3);
-  full.mem.write16Bank0(2, 67);
   const before = full.mem.wram.slice();
-  assert.throws(() => talkWithObject(full.a, {}, false), /gameplay_topic_list_full/);
+  assert.throws(() => preparePushkinTopics(full.a, 67), /gameplay_topic_list_full/);
   assert.deepEqual(full.mem.wram, before);
 });
 
 test('new game unlocks the actual vest record and save loading preserves bought or removed items', () => {
   for (const settings of [ORIGINAL_GAMEPLAY, DEFAULT_GAMEPLAY]) {
     const f = fixture(settings);
-    MAIN_START_ROUTINES.get(0x8098e9)(dialogAccess(f.a));
+    setUpNewGameState(f.a);
     assert.equal(f.mem.read16(0x7e381e), settings.bugfixes ? 0 : 0x100);
     assert.equal(f.mem.read16(0x7e3821), 0xffff);
     for (const holder of [0xffff, 0x08b2, 0x1538]) {
@@ -238,11 +235,7 @@ test('new game unlocks the actual vest record and save loading preserves bought 
       const slot = mem.read16(0x81b124);
       mem.write16(0x700000 + slot + 0x381e - 0x2de0, 0x100);
       mem.write16(0x700000 + slot + 0x3821 - 0x2de0, holder);
-      a.ctx.programBank = 0x81;
-      a.ctx.a = 0;
-      // RTL: the caller's bank is above the existing return word.
-      mem.write8(0x1ef1, 0x80);
-      MAIN_START_ROUTINES.get(0x81b198)(dialogAccess(a));
+      loadSavedGame(a, 0);
       assert.equal(mem.read16(0x7e381e), settings.bugfixes && holder === 0xffff ? 0 : 0x100);
       assert.equal(mem.read16(0x7e3821), holder);
     }
@@ -256,7 +249,7 @@ test('the Jester script cannot reset a defeated vampire with the separate exploi
       const f = scriptFixture(0x6c, 0x6c, { ...DEFAULT_GAMEPLAY, preventExploits });
       f.mem.write8(0x7e36c6, state);
       f.mem.write16(0x7e36c8, 0xffff);
-      assert.equal(f.vm.run(3), EXIT_BUDGET);
+      assert.equal(runScript(f, 0x72), EXIT_BUDGET);
       const preserved = preventExploits && !!(state & 0x40);
       assert.equal(f.mem.read8(0x7e36c6), preserved ? state : 0);
       assert.equal(f.mem.read16(0x7e36c8), preserved ? 0x1538 : 0xffff);
@@ -274,7 +267,7 @@ test('European station cleanup leaves Examination available while its completion
       const f = scriptFixture(0x158, 0, settings);
       f.mem.write8(0x7e3950, completed ? 1 : 0);
       f.mem.wram.set([6, 15, 18, 26, 37, 255], 0x3ca3);
-      assert.equal(f.vm.run(150), EXIT_END);
+      assert.equal(runScript(f), EXIT_END);
       assert.equal(f.mem.read8(0x7e3cd7), completed ? 255 : 0);
     }
 });

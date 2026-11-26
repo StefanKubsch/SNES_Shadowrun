@@ -143,6 +143,12 @@ mostly script natives (src/script 56 %).
      interpreter and scheduler with frozen hashes of the register-level runs
      (`frozenData` keeps the scheduler start states); LIFT_VECTORS=record still runs the
      reference.
+   - cheats and gameplay-bugfixes run on product code (lifted hit 80:8691, product
+     interpreter with the lifted natives, setUpNewGameState, loadSavedGame,
+     preparePushkinTopics); scene-command-composition is frozen; the proof-level main
+     loop tests (main-loop-motion, main-motion-helpers, confirm-key-lift,
+     replay-boundary, scene-observed-calls), the 8E36 fixture chain and 30 proof modules
+     only they used are gone.
    - Next: freeze or
      port the remaining mixed tests (cheats, text-edits, packed-text-contract, scene
      edits and audits, picture-video, sprite-state, OBJ time over); move the scaffolding

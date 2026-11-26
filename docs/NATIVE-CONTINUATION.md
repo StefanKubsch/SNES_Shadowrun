@@ -181,7 +181,7 @@ existing source proof are kept: [mainSceneSpecs](../tools/main-scene-source.mjs)
 sceneIntroSpecs (removed).
 
 [A4BF and 8BD9](../proof/replay/main-transition.mjs) pass their B0A1 pauses on
-through both main loop callers: [8000/803B](../proof/replay/main-zone-gate.mjs)
+through both main loop callers: `8000/803B` (removed)
 keeps the real JSR frame 802B, CC4B still its own scene frame. Sources:
 [transitionSpecs](../tools/main-transition-source.mjs),
 [mainGate8000Spec](../tools/main-gate-8000-source.mjs) and the existing CC4B
@@ -608,7 +608,7 @@ instructions and actual matrix helpers. All captured states after NMI/RTI at the
 wait and input points, the complete WRAM and the device bytes match. An extra
 NMI at 9E26 checks the input continuation. Both brightness loops are also
 compared with 48 fresh BYTE hardware polls each and an explicitly observed NMI
-absence. The [CC4B test](../tools/main-loop-motion.test.mjs) checks all original
+absence. The `CC4B test` (removed) checks all original
 scene branches with their real frames; the main loop test uses the real CC4B
 entry. These additional cases stay synthetic.
 

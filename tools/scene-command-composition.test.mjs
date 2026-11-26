@@ -1,10 +1,12 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { runSceneList as direct } from '../src/system/scene-list.mjs';
-import { runSceneList as former } from '../proof/caller/scene-list.mjs';
 import { sceneListCommands } from '../src/data/scene-commands.mjs';
 import { DialogTestMemory, rom } from './task-native-dialog-harness.mjs';
 import { cpuToOffset } from './rom.mjs';
+import { assertFrozenRun, useLiftVectors } from './lift-function-harness.mjs';
+
+useLiftVectors(import.meta.url);
 
 function run(execute, bytes, target, list = 0x7e2000) {
   const image = rom.slice();
@@ -57,14 +59,14 @@ for (const [target, args] of [
   test(`scene command alias resolves established target ${target.toString(16)}`, () => {
     const bytes = [1, ...args, 0];
     const actual = run(direct, bytes, target);
-    assert.deepEqual(actual, run(former, bytes, target));
+    assertFrozenRun(actual);
     assert.equal(actual.stop, undefined);
   });
 
 test('mixed scene commands retain argument order, packed uploads and word callback bank', () => {
   const bytes = [1, 2, ...CALLBACK, 3, ...PACKED, 4, ...PALETTE, 5, ...REGISTER, 6, 7, 8, 0];
   const actual = run(direct, bytes);
-  assert.deepEqual(actual, run(former, bytes));
+  assertFrozenRun(actual);
   assert.equal(actual.wram[0x70], 0x81);
   assert.equal(actual.wram[0x71], 0xab);
   assert.ok(actual.writes.some(([kind, at]) => kind === 'video' && at === 0x420b));
@@ -73,7 +75,7 @@ test('mixed scene commands retain argument order, packed uploads and word callba
 test('zero palette count retains the full wrapping byte transfer', () => {
   const bytes = [4, 0, 0xff, 0x7f, 0, 0, 0, 0],
     actual = run(direct, bytes);
-  assert.deepEqual(actual, run(former, bytes));
+  assertFrozenRun(actual);
   assert.equal(actual.writes.length, 65537);
 });
 
@@ -84,7 +86,7 @@ for (const [bytes, target] of [
 ])
   test(`scene command frontier retains target and command index ${bytes[0]}`, () => {
     const actual = run(direct, bytes, target);
-    assert.deepEqual(actual, run(former, bytes, target));
+    assertFrozenRun(actual);
     assert.deepEqual(actual.stop, {
       reason: 'main_scene_command_frontier',
       target: target === undefined ? null : 0x810000 | target,
@@ -96,7 +98,7 @@ for (const [bytes, target] of [
 test('list arguments remain live across register writes into the list itself', () => {
   const bytes = [5, 7, 0x18, 0x80, 5, 0, 0x21, 0x0f, 0],
     actual = run(direct, bytes, undefined, 0x7e1800);
-  assert.deepEqual(actual, run(former, bytes, undefined, 0x7e1800));
+  assertFrozenRun(actual);
   assert.deepEqual(actual.writes[0], ['port', 0x801807, 0x80, 1, 0x81ecc7]);
   assert.deepEqual(actual.writes[1], ['port', 0x802100, 0x80, 1, 0x81ecc7]);
 });

@@ -17,9 +17,9 @@ the module that implements it.
 | Former name              | Module                                                                                                     |
 | ------------------------ | ---------------------------------------------------------------------------------------------------------- |
 | `append-c34a`            | [task-append.mjs](../proof/system/task-append.mjs)                                                         |
-| `main-gate-8000`         | [main-zone-gate.mjs](../proof/replay/main-zone-gate.mjs)                                                   |
+| `main-gate-8000`         | `main-zone-gate.mjs` (removed)                                                                             |
 | `native-8371`            | [native-object-collision.mjs](../src/script/native-object-collision.mjs)                                   |
-| `native-8521`            | [native-fight-list-append.mjs](../proof/game-reference/fight-list-append.mjs)                              |
+| `native-8521`            | `native-fight-list-append.mjs` (removed)                                                                   |
 | `native-855e`            | [native-fight-list-remove.mjs](../proof/replay/native-fight-list-remove.mjs)                               |
 | `native-8631`            | [native-fight-list-previous.mjs](../src/script/native-fight-list-previous.mjs)                             |
 | `native-8656`            | [native-fight-list-contains.mjs](../src/script/native-fight-list-contains.mjs)                             |
@@ -31,7 +31,7 @@ the module that implements it.
 | `native-8b16`            | [native-runner-armour-equip.mjs](../src/script/native-runner-armour-equip.mjs)                             |
 | `native-8b8a`            | [native-magic-points-add.mjs](../src/script/native-magic-points-add.mjs)                                   |
 | `native-8b9f`            | [native-runner-weapon-equip.mjs](../src/script/native-runner-weapon-equip.mjs)                             |
-| `native-8bc5`            | [enemy-target-choice.mjs](../proof/game-reference/enemy-target-choice.mjs)                                 |
+| `native-8bc5`            | `enemy-target-choice.mjs` (removed)                                                                        |
 | `native-8e36`            | [native-object-hit.mjs](../proof/replay/native-object-hit.mjs)                                             |
 | `native-8e36-tables`     | [native-object-hit-tables.mjs](../proof/replay/native-object-hit-tables.mjs)                               |
 | `native-8e96`            | [native-object-halt-set.mjs](../src/script/native-object-halt-set.mjs)                                     |
