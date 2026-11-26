@@ -153,7 +153,7 @@ budget)` runs opcodes until END (`{kind: 'end', result}`), a native or script ca
   the result of its parent's script call.
 - The game needs no heap: the optional observers `onCreate` and `onRelease` let the
   conversion layer replay it.
-  [proof/script/task-layout.mjs](../proof/script/task-layout.mjs) reads a state the
+  [tools/task-layout.mjs](../tools/task-layout.mjs) reads a state the
   original left in WRAM into a JS scheduler, replays the allocator 80:C242/C2BD on a copy
   of the heap and projects the live bytes back: the task tables, the headers of the heap
   chain and each frame's code pointer, PC, return pointer, operand stack pointer, call ID
@@ -306,7 +306,7 @@ budget)` runs opcodes until END (`{kind: 'end', result}`), a native or script ca
   builds the former live loop on them (`new LiveGame(cartridge, {loop:
 registerLevelLoop})`); the observed rooms and boot replays keep the driver directly.
   tools/production-boundary.test.mjs has no exemption left.
-- [proof/script/task-layout.mjs](../proof/script/task-layout.mjs) `followScheduler` follows
+- [tools/task-layout.mjs](../tools/task-layout.mjs) `followScheduler` follows
   a live JS scheduler from the start and replays the original heap from the first C1A6
   on (nothing is projected before it; PREVIOUS of slots 1-47 is projected once the slot
   is allocated). proof/script/live-tasks.mjs (removed) replaces

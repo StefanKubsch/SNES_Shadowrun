@@ -9,15 +9,13 @@ import { readSceneTable } from '../src/data/lz-streams.mjs';
 import { lzBits, lzDecode } from '../src/data/lz.mjs';
 import { requireRomAddress, romOffset } from '../src/data/rom-bytes.mjs';
 import { VmMemory } from '../src/vm/memory.mjs';
-import { TaskAccessor } from '../src/vm/task-accessor.mjs';
-import { dialogAccess } from '../src/system/native-dialog-support.mjs';
-import { loadScene } from '../proof/system/main-scene-load.mjs';
-import { SCENE_COLLISION_ROUTINES } from '../proof/system/main-scene-collision.mjs';
+import { loadSceneSequence } from '../src/game/scene-load.mjs';
+import { buildCollisionGrid } from '../src/game/collision-grid.mjs';
+import { drainNativeSequence } from '../src/system/sequence-runner.mjs';
 import { SCENE_RECORD, SCENE_BACKDROP, DP_SCENE_RECORD, ROOM } from '../src/data/wram.mjs';
 import { buildLanguage, installLanguage } from '../src/data/language.mjs';
 import { LiveGame } from '../src/video/live-game.mjs';
 import { inspectRom } from './rom.mjs';
-import '../proof/system/dialog-register-helpers.mjs';
 
 const json = (name) => JSON.parse(readFileSync(`assets/vm-${name}.json`));
 const baseline = json('lz'),
@@ -41,7 +39,7 @@ const load = (edits) =>
       : readAsset(name),
   );
 
-// Native construction, followed by both static object collision lists. Empty
+// Lifted construction, followed by both static object collision lists. Empty
 // synthetic room-zone lists isolate these consumers from route initialization.
 function construct(target, index, language = null) {
   const mem = new VmMemory(target.rom, new Uint8Array(0x20000), null, target.present);
@@ -49,27 +47,14 @@ function construct(target, index, language = null) {
   for (const selected of [language, null, language]) installLanguage(mem, selected);
   const end = SCENE_RECORD + encodeScene(scenes.scenes[index]).length;
   mem.write8(end, 0xa5);
-  const a = new TaskAccessor({
-    mem,
-    a: index,
-    x: 0,
-    y: 0,
-    s: 0x1ef0,
-    d: 0,
-    dbr: 0x7e,
-    p: 0,
-    pc: 0xa518,
-  });
-  a.load();
-  a.ctx.programBank = 0x80;
-  const h = dialogAccess(a);
-  h.call(0x80a518, 0x81a117, () => loadScene(h), true);
-  assert.equal(h.dp(DP_SCENE_RECORD), end & 65535);
+  drainNativeSequence(loadSceneSequence({ a: { mem } }, index));
+  assert.equal(mem.read16(0x7e0000 | DP_SCENE_RECORD), end & 65535);
   assert.equal(mem.read8(end), 0xa5);
-  h.dpWrite(0x9a, 0x1000, 2);
-  h.dpWrite(0x9c, 0x7e, 1);
+  // Empty synthetic room lists at 7E:1000 (DP 9A, bank DP 9C).
+  mem.write16(0x7e0000 | 0x9a, 0x1000);
+  mem.write8(0x7e0000 | 0x9c, 0x7e);
   mem.wram.fill(0, 0x1000, 0x1008);
-  h.call(0x80a584, 0x818756, () => SCENE_COLLISION_ROUTINES.get(0x818756)(h), true);
+  buildCollisionGrid(mem, mem.wram);
   return mem;
 }
 

@@ -9,15 +9,15 @@
 // headers of the heap blocks in the chain and the live bytes of each task frame. Dead
 // bytes (free block data, operand stack residue below S, unused local return words, the
 // call ID of a task without a pending call) are not part of the projection.
-import { taskStop } from '../../src/system/task-stop.mjs';
-import { CALL_NATIVE, CALL_SCRIPT, scriptInfo, stackCapacity } from '../../src/script/tasks.mjs';
+import { taskStop } from '../src/system/task-stop.mjs';
+import { CALL_NATIVE, CALL_SCRIPT, scriptInfo, stackCapacity } from '../src/script/tasks.mjs';
 import {
   Scheduler,
   NONE,
   TASK_SLOTS,
   RESUME_CHILD,
   RESUME_WAIT,
-} from '../../src/script/scheduler.mjs';
+} from '../src/script/scheduler.mjs';
 import {
   FRAME_CALL_ID,
   FRAME_LOCALS,
@@ -42,14 +42,8 @@ import {
   TASK_NEXT,
   TASK_PREVIOUS,
   TASK_WAIT,
-} from '../../src/vm/layout.mjs';
-import {
-  BYTE_BITS,
-  BYTE_MASK,
-  HEX_RADIX,
-  WORD_BITS,
-  WORD_MASK,
-} from '../../src/constants/bits.mjs';
+} from '../src/vm/layout.mjs';
+import { BYTE_BITS, BYTE_MASK, HEX_RADIX, WORD_BITS, WORD_MASK } from '../src/constants/bits.mjs';
 
 const SCRIPT_COUNT = 937;
 // Return words the original saves as continuations (RTS to F495 and F509).

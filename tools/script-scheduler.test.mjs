@@ -2,7 +2,7 @@
 // scheduler (proof/vm/scheduler.mjs), docs/SCRIPT-VM-LIFT.md phase 2.
 //
 // Each scenario starts from random WRAM: the register-level side runs C1A6 and appends
-// one to four ROM scripts through C34A; the conversion layer (proof/script/task-layout.mjs)
+// one to four ROM scripts through C34A; the conversion layer (tools/task-layout.mjs)
 // reads that state into a JS scheduler. Both sides then run the same rounds (C1E3). The
 // wait native (C401) runs inside both schedulers; every other native returns the same
 // random result on both sides and may, as natives do in the game, append a task and visit
@@ -39,7 +39,7 @@ import {
   WAIT_EVENTS,
   WAIT_HALTED,
 } from '../src/script/scheduler.mjs';
-import { loadScheduler } from '../proof/script/task-layout.mjs';
+import { loadScheduler } from './task-layout.mjs';
 
 const rom = new Uint8Array(readFileSync(new URL('../Shadowrun (E).smc', import.meta.url)));
 const SCRIPT_COUNT = 937;

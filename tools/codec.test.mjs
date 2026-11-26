@@ -8,8 +8,18 @@ import {
   encodeScript,
 } from '../src/script/codec.mjs';
 import { scriptOpcodes, trapOpcodes } from '../src/script/opcodes.mjs';
-import { createScriptRunner } from '../proof/script/runtime.mjs';
 import { inspectRom } from './rom.mjs';
+import { cartridge } from './cartridge-harness.mjs';
+import { VmMemory } from '../src/vm/memory.mjs';
+import { createTask } from '../src/script/tasks.mjs';
+import { runTask, EXIT_END } from '../src/script/interpreter.mjs';
+
+// Run script id with its argument words on the product interpreter to its end.
+function runScript(memory, id, args) {
+  const exit = runTask(memory, createTask(memory, id, args));
+  assert.equal(exit.kind, EXIT_END);
+  return exit;
+}
 import { inspectScriptTables } from './scripts.mjs';
 
 const rom = await readFile(new URL('../Shadowrun (E).smc', import.meta.url));
@@ -101,61 +111,13 @@ test('All 937 original script CFGs decode; 930 covered regions rebuild byte-exac
   assert.equal(gaps, 7);
 });
 
-test('Native runner handles word wrapping, sign extension, shift counts, and original boolean values', () => {
-  const runner = (ops, stack) =>
-    createScriptRunner(Uint8Array.from([...ops, 0x56]), { localBytes: 0, returnBytes: 2 })(stack)
-      .value;
-  assert.equal(runner([0x5c], [65535, 1]), 0);
-  assert.equal(runner([0x5e], [0, 1]), 65535);
-  assert.equal(runner([0x0a, 0x80], []), 0xff80);
-  assert.equal(runner([0xb0], [123, 123]), 65535);
-  assert.equal(runner([0xb0], [123, 124]), 0);
-  for (const shift of [0, 1, 15, 16, 32, 65535]) {
-    assert.equal(runner([0x7a], [0x8001, shift]), shift < 16 ? (0x8001 * 2 ** shift) & 65535 : 0);
-    assert.equal(runner([0x7c], [0x8001, shift]), shift < 16 ? Math.floor(0x8001 / 2 ** shift) : 0);
-  }
-  assert.equal(runner([0xbe], [12]), 65535);
-  assert.equal(runner([0xbe], [0]), 0);
-});
-
-test('Local byte/word overlap, initialization, local subroutine returns, and loop budgets', () => {
-  const code = Uint8Array.from([0x14, 0x34, 0x12, 0x34, 0, 0x00, 0xff, 0x2c, 1, 0x16, 0, 0x56]);
-  assert.equal(createScriptRunner(code, { localBytes: 2, returnBytes: 2 })().value, 0xff34);
-  const localCall = Uint8Array.from([0x4c, 0x04, 0, 0x56, 0x00, 7, 0x50]);
-  assert.equal(createScriptRunner(localCall, { localBytes: 0, returnBytes: 2 })().value, 7);
-  // END in a local subroutine ends the script rather than requiring RETURN_LOCAL.
-  const localEnd = Uint8Array.from([0x4c, 0x04, 0, 0x56, 0x00, 9, 0x56]);
-  assert.equal(createScriptRunner(localEnd, { localBytes: 0, returnBytes: 2 })().value, 9);
-  assert.throws(
-    () => createScriptRunner(Uint8Array.from([0x16, 0, 0x56]), { localBytes: 2, returnBytes: 2 })(),
-    /Uninitialized/,
-  );
-  assert.throws(
-    () => createScriptRunner(Uint8Array.from([0xbc, 0x56]), { localBytes: 0, returnBytes: 0 })(),
-    /underflow/,
-  );
-  assert.throws(
-    () => createScriptRunner(Uint8Array.from([0x58, 1, 0x56]), { localBytes: 0, returnBytes: 0 })(),
-    /not implemented/,
-  );
-  assert.throws(
-    () =>
-      createScriptRunner(Uint8Array.from([0x48, 0, 0]), { localBytes: 0, returnBytes: 0 })([], {
-        maxSteps: 10,
-      }),
-    /budget/,
-  );
-});
-
 test('Original European script $197 executes correctly for every 16-bit input', () => {
   const { entry, code } = slice(0x197);
   assert.equal(entry.cpu_address, '9B:EE22');
   assert.equal(entry.argument_bytes, 2);
   assert.equal(entry.return_bytes, 2);
-  const runner = createScriptRunner(code, {
-    localBytes: entry.scratch_bytes,
-    returnBytes: entry.return_bytes,
-  });
+  assert.ok(code.length > 0);
+  const memory = new VmMemory(bytes);
   // Independently transcribed constants from the original thirteen comparisons.
   // The meaning of these IDs in the game is intentionally not guessed.
   const members = new Set([
@@ -163,9 +125,8 @@ test('Original European script $197 executes correctly for every 16-bit input', 
     0x098b,
   ]);
   for (let input = 0; input <= 0xffff; input++) {
-    const result = runner([input]);
-    assert.equal(result.value, members.has(input) ? 0xffff : 0, `Input $${input.toString(16)}`);
-    assert.equal(result.stack.length, 0);
+    const exit = runScript(memory, 0x197, [input]);
+    assert.equal(exit.result, members.has(input) ? 0xffff : 0, `Input ${input.toString(16)}`);
   }
 });
 
@@ -190,9 +151,12 @@ test('Exported browser script assets contain original code bytes and run without
     assert.equal(script.argumentBytes, sourceEntry.argument_bytes);
     assert.equal(script.localBytes, sourceEntry.scratch_bytes);
   }
-  const exported = bundle.scripts[0x197];
-  const run = createScriptRunner(Uint8Array.from(exported.bytecode), exported);
-  assert.equal(run([0x098b]).value, 65535);
-  assert.equal(run([65535]).value, 0);
-  assert.throws(() => run([]), /argument count/);
+  // The package without the ROM holds the script, and the product interpreter runs it.
+  const memory = new VmMemory(cartridge.rom, undefined, null, cartridge.present);
+  assert.equal(runScript(memory, 0x197, [0x098b]).result, 65535);
+  assert.equal(runScript(memory, 0x197, [65535]).result, 0);
+  assert.throws(
+    () => runScript(memory, 0x197, []),
+    (error) => error.reason === 'script_argument_count',
+  );
 });

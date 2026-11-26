@@ -12,7 +12,6 @@ import { readLzStreams } from '../src/data/lz-streams.mjs';
 import { romOffset } from '../src/data/rom-bytes.mjs';
 import { buildLanguage, installLanguage, languageStreamSource } from '../src/data/language.mjs';
 import { VmMemory } from '../src/vm/memory.mjs';
-import '../proof/system/dialog-register-helpers.mjs';
 
 const assets = JSON.parse(readFileSync('assets/vm-lz.json', 'utf8'));
 const germanAsset = JSON.parse(readFileSync('assets/vm-texts-de.json', 'utf8'));

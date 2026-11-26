@@ -3,7 +3,7 @@
 // of API calls (appends, wait masks with halts and child waits, events, the task that
 // runs for a waiting parent, the script of a task, resets) run on WramTasks over one
 // WRAM and on JsTasks over a scheduler loaded from a copy of it by the conversion layer
-// (proof/script/task-layout.mjs). Every call must return the same value or stop at the
+// (tools/task-layout.mjs). Every call must return the same value or stop at the
 // same frontier, and the projection of the JS state must equal the tables and heap of the
 // WRAM side after every call (frame locals excepted: C2C8 leaves heap residue there).
 import test from 'node:test';
@@ -14,7 +14,7 @@ import { TaskAccessor } from '../src/vm/task-accessor.mjs';
 import { createTask } from '../src/script/tasks.mjs';
 import { TASK_SLOTS, WAIT_HALTED } from '../src/script/scheduler.mjs';
 import { JsTasks, WramTasks, sendEvents, waitingTask } from '../src/script/task-api.mjs';
-import { loadScheduler } from '../proof/script/task-layout.mjs';
+import { loadScheduler } from './task-layout.mjs';
 
 const rom = new Uint8Array(readFileSync(new URL('../Shadowrun (E).smc', import.meta.url)));
 const SCRIPT_COUNT = 937,

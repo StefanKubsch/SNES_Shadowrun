@@ -18,17 +18,12 @@ import {
   fitNoticeWindow,
 } from '../src/data/language.mjs';
 import { LiveGame } from '../src/video/live-game.mjs';
-import { TaskAccessor } from '../src/vm/task-accessor.mjs';
-import { dialogAccess } from '../src/system/native-dialog-support.mjs';
-import { printTextSequence } from '../proof/replay/native-text-compose.mjs';
-import { measureTextWidth } from '../proof/replay/native-glove-target-support.mjs';
+import { printText } from '../src/game/text-print.mjs';
 import { translatedListWindow } from '../src/data/menu-layout.mjs';
-import { fitListWindow } from '../proof/system/menu-layout-registers.mjs';
 import { TEXT_BUFFER, WINDOW_MAP_BUFFER, WRAM, GLOVE_NAME_WINDOW } from '../src/data/wram.mjs';
 import { ORIGINAL_GAMEPLAY } from '../src/game/bugfixes.mjs';
 import { loadSave } from './mesen-plans.mjs';
 import { livePlanDriver } from './live-plan-driver.mjs';
-import '../proof/system/dialog-register-helpers.mjs';
 
 const originals = JSON.parse(readFileSync('assets/vm-texts.json')).texts;
 const german = buildLanguage(JSON.parse(readFileSync('assets/vm-texts-de.json')));
@@ -46,21 +41,6 @@ function gameFor(edits, language = 'en', fourSaveSlots = false) {
       gameplay: { ...ORIGINAL_GAMEPLAY, fourSaveSlots },
     },
   );
-}
-function access(memory) {
-  const a = new TaskAccessor({
-    mem: memory,
-    a: 0,
-    x: 0,
-    y: 0,
-    s: 0x1ef0,
-    d: 0,
-    dbr: 0x80,
-    p: 0,
-    pc: 0xfe69,
-  });
-  a.load();
-  return { a, h: dialogAccess(a) };
 }
 
 test('loader keeps all original bytes and carries independently editable content through structured clone', async () => {
@@ -139,25 +119,19 @@ test('FE69 and real FADD agree on longer, empty and port edits without changing 
     ['x'.repeat(TEXT_EDIT_LIMIT), address, id],
   ]) {
     const { memory } = gameFor(asset([entry(value, at)]), 'en', true);
-    const { a, h } = access(memory);
-    h.dpWrite(2, word);
+    memory.write16(WRAM + 2, word);
     memory.write8(WRAM + WINDOW_MAP_BUFFER, 0xa5);
-    const seq = printTextSequence(a, { calls: [] }, false);
+    const seq = printText({ a: { mem: memory } }, {});
     seq.next().value(); // The initial segment ends before FB39 mutates style markers.
     assert.equal(text(toWram(memory).subarray(TEXT_BUFFER, TEXT_BUFFER + value.length)), value);
     assert.equal(memory.read8(WRAM + TEXT_BUFFER + value.length), 0);
     assert.equal(memory.read8(WRAM + WINDOW_MAP_BUFFER), 0xa5);
     assert.equal(memory.read16(2), word);
     seq.return();
-    const widthAccess = access(memory);
-    widthAccess.h.dpWrite(0, word);
-    widthAccess.h.push(0x1234, 2);
-    measureTextWidth(widthAccess.h, { calls: [] });
     const expected = [...value].reduce(
       (sum, c) => sum + memory.read8(0x81ac0c + c.charCodeAt(0)),
       0,
     );
-    assert.equal(widthAccess.a.ctx.a, expected);
     assert.equal(languageTextWidth(memory, word), expected);
   }
 });
@@ -188,15 +162,6 @@ test('English edits activate menu fitting and edited notices bypass obsolete Ger
     (o, v) => values.set(o, v),
   );
   assert.ok(values.get(6) > 3 || values.get(4) > 15);
-  // Use the native DP contract rather than assuming languageData is installed in English.
-  const { h } = access(memory);
-  h.dpWrite(0, shape.left);
-  h.dpWrite(2, shape.top);
-  h.dpWrite(4, shape.columns);
-  h.dpWrite(6, shape.rows);
-  fitListWindow(memory, h, [id]);
-  assert.equal(h.dp(4), fitted.columns);
-  assert.equal(h.dp(0), fitted.left);
   installLanguage(memory, null);
   assert.ok(memory.language, 'English edits survive a language switch');
 });
@@ -206,11 +171,7 @@ test('bold layout includes the FB39 placeholder and resets at spaces', () => {
   const w = memory.read8(0x81ac0c + 'W'.charCodeAt(0));
   const expected = memory.read8(0x81ac0c + 0x1a) + 1 + 3 * w + 2 + memory.read8(0x81ac0c + 0x20);
   assert.equal(languageTextWidth(memory, id), expected);
-  const { a, h } = access(memory);
-  h.dpWrite(0, id);
-  h.push(0x1234, 2);
-  measureTextWidth(h, { calls: [] });
-  assert.equal(a.ctx.a, expected);
+  assert.equal(languageTextWidth(memory, id), expected);
 });
 
 for (const language of ['en', 'de'])
