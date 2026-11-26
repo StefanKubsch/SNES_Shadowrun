@@ -12,6 +12,8 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
+import { createHash } from 'node:crypto';
+import { assertFrozenRun, useLiftVectors } from './lift-function-harness.mjs';
 import { VmMemory, VmFault } from '../src/vm/memory.mjs';
 import {
   ScriptInterpreter,
@@ -43,6 +45,10 @@ import {
 } from '../src/script/interpreter.mjs';
 
 const rom = new Uint8Array(readFileSync(new URL('../Shadowrun (E).smc', import.meta.url)));
+// Frozen reference (removal plan step 5): the register-level interpreter runs only while
+// LIFT_VECTORS=record writes the vectors; otherwise the JS side is compared with them.
+const REFERENCE = process.env.LIFT_VECTORS === 'record';
+useLiftVectors(import.meta.url);
 const SCRIPT_COUNT = 937;
 
 function prng(seed) {
@@ -114,19 +120,22 @@ function compareScript(id, seed, maxSteps = 1000) {
   put(TASK_CURSOR, TASK_SLOT);
   put(TASK_FRAME + TASK_SLOT, frame);
 
-  const oldMem = new VmMemory(rom, wram.slice()),
-    newMem = new VmMemory(rom, wram.slice());
-  const vm = new ScriptInterpreter(oldMem);
-  vm.setContext({ a: 0, x: 0, y: 0, s, d: frame, bank, status: 0 });
-  vm.fetch();
+  const newMem = new VmMemory(rom, wram.slice()),
+    oldMem = REFERENCE ? new VmMemory(rom, wram.slice()) : null;
+  const vm = REFERENCE ? new ScriptInterpreter(oldMem) : null;
+  vm?.setContext({ a: 0, x: 0, y: 0, s, d: frame, bank, status: 0 });
+  vm?.fetch();
   const task = createTask(newMem, id, args);
+  // The JS side's trace: exit, PC, stacks and written locals after every opcode.
+  const trace = [];
   const fail = (what, steps) => {
     throw Error(`script ${id} seed ${seed} step ${steps}: ${what}`);
   };
   // Local bytes the script has written; only these are compared.
   const written = new Uint8Array(info.localBytes);
   let steps = 0,
-    result = 'equal';
+    result = 'equal',
+    unknownResult = false;
   for (; steps < maxSteps; steps++) {
     const opcode = newMem.read8(task.code + task.pc),
       operand = newMem.read8(task.code + task.pc + 1),
@@ -144,12 +153,13 @@ function compareScript(id, seed, maxSteps = 1000) {
     if (opcode === OPCODE.STORE_LOCAL_U8) written[operand] = 1;
     if (opcode === OPCODE.STORE_LOCAL_U16) written[operand] = written[operand + 1] = 1;
     let oldExit;
-    try {
-      oldExit = vm.run(1);
-    } catch (error) {
-      if (!(error instanceof VmFault)) throw error;
-      oldExit = `fault:${error.reason}`;
-    }
+    if (vm)
+      try {
+        oldExit = vm.run(1);
+      } catch (error) {
+        if (!(error instanceof VmFault)) throw error;
+        oldExit = `fault:${error.reason}`;
+      }
     let newExit;
     try {
       newExit = runTask(newMem, task, 1);
@@ -158,13 +168,39 @@ function compareScript(id, seed, maxSteps = 1000) {
       result = `frontier:${error.reason}`;
       break;
     }
+    trace.push([
+      newExit.kind,
+      newExit.id ?? null,
+      newExit.args ?? null,
+      newExit.result ?? null,
+      task.pc,
+      [...task.stack],
+      [...task.returns],
+      task.locals.map((value, n) => (written[n] ? value : 0)),
+    ]);
+    if (!vm) {
+      if (newExit.kind === EXIT_END) {
+        unknownResult = newExit.result === null;
+        if (!unknownResult) newMem.write16(0x7e0000, newExit.result);
+        break;
+      }
+      if (newExit.kind === EXIT_NATIVE || newExit.kind === EXIT_SCRIPT) {
+        newExit.args.forEach((value, n) => newMem.write16(0x7e0000 + 2 * n, value));
+        const value = randomWord(rnd);
+        newMem.write16(0x7e0000, value);
+        finishCall(newMem, task, value);
+      }
+      continue;
+    }
     if (oldExit === VM_BUDGET) {
       if (newExit.kind !== EXIT_BUDGET) fail(`JS exit ${newExit.kind}`, steps);
     } else if (oldExit === VM_END) {
       if (newExit.kind !== EXIT_END) fail(`JS exit ${newExit.kind} at END`, steps);
       // An empty stack leaves the original's result undefined (the word above the frame).
-      if (newExit.result === null) newMem.write16(0x7e0000, word(oldMem.wram, 0));
-      else if (word(oldMem.wram, 0) !== newExit.result) fail('END result', steps);
+      if (newExit.result === null) {
+        unknownResult = true;
+        newMem.write16(0x7e0000, word(oldMem.wram, 0));
+      } else if (word(oldMem.wram, 0) !== newExit.result) fail('END result', steps);
       else newMem.write16(0x7e0000, newExit.result);
       break;
     } else if (oldExit === EXIT_NATIVE_CALL || oldExit === EXIT_SCRIPT_CALL) {
@@ -196,9 +232,16 @@ function compareScript(id, seed, maxSteps = 1000) {
     (n >= frame && n < frame + info.frameBytes) ||
     (n >= ARITHMETIC_SCRATCH && n < ARITHMETIC_SCRATCH + 8) ||
     (n >= OUTER_S - 2 && n <= OUTER_S);
-  for (let n = 0; n < wram.length; n++)
-    if (oldMem.wram[n] !== newMem.wram[n] && !masked(n))
-      fail(`WRAM 7E:${n.toString(16)} ${oldMem.wram[n]} / ${newMem.wram[n]}`, steps);
+  if (oldMem)
+    for (let n = 0; n < wram.length; n++)
+      if (oldMem.wram[n] !== newMem.wram[n] && !masked(n))
+        fail(`WRAM 7E:${n.toString(16)} ${oldMem.wram[n]} / ${newMem.wram[n]}`, steps);
+  // The final WRAM as compared, without the undefined result word.
+  const final = newMem.wram.slice();
+  for (let n = 0; n < final.length; n++) if (masked(n) || (unknownResult && n < 2)) final[n] = 0;
+  const outcome = { result, trace, wram: createHash('sha256').update(final).digest('hex') };
+  // While recording, the step checks above have compared this outcome with the reference.
+  assertFrozenRun(outcome, REFERENCE ? () => outcome : null, `script ${id} seed ${seed}`);
   return result;
 }
 
@@ -241,14 +284,17 @@ function runSynthetic(bytes, steps) {
   wram.set(bytes, 0x0800);
   wram[frame + 1] = 0x08;
   wram[frame + 2] = 0x80;
-  const oldMem = new VmMemory(rom, wram.slice()),
-    newMem = new VmMemory(rom, wram.slice());
-  const vm = new ScriptInterpreter(oldMem);
-  vm.setContext({ a: 0, x: 0, y: 0, s: stackTop, d: frame, bank: 0x80, status: 0 });
-  vm.fetch();
-  vm.run(steps);
-  const stack = [];
-  for (let at = stackTop - 1; at > vm.s; at -= 2) stack.push(word(oldMem.wram, at));
+  const newMem = new VmMemory(rom, wram.slice());
+  let stack = null;
+  if (REFERENCE) {
+    const oldMem = new VmMemory(rom, wram.slice()),
+      vm = new ScriptInterpreter(oldMem);
+    vm.setContext({ a: 0, x: 0, y: 0, s: stackTop, d: frame, bank: 0x80, status: 0 });
+    vm.fetch();
+    vm.run(steps);
+    stack = [];
+    for (let at = stackTop - 1; at > vm.s; at -= 2) stack.push(word(oldMem.wram, at));
+  }
   const task = {
     script: -1,
     code: 0x800800,
@@ -278,7 +324,11 @@ test('every implemented arithmetic, logic and comparison opcode matches at edge 
       for (const right of values) {
         const program = [0x14, left & 0xff, left >>> 8, 0x14, right & 0xff, right >>> 8, op];
         const { old, js } = runSynthetic(program, 3);
-        assert.deepEqual(js, old, `opcode ${op.toString(16)} ${left} ${right}`);
+        assertFrozenRun(
+          js,
+          REFERENCE ? () => old : null,
+          `opcode ${op.toString(16)} ${left} ${right}`,
+        );
       }
 });
 
@@ -288,7 +338,7 @@ test('the multiply follows the original, not the true product', () => {
     [0x14, 0x2c, 0x01, 0x14, 0x2c, 0x01, OPCODE.MULTIPLY_UU_HANDLER],
     3,
   );
-  assert.deepEqual(old, [0x3490]);
+  if (REFERENCE) assert.deepEqual(old, [0x3490]);
   assert.deepEqual(js, [0x3490]);
 });
 

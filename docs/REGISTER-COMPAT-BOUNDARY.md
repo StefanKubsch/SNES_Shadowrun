@@ -136,6 +136,13 @@ mostly script natives (src/script 56 %).
      data margins; rom-unread-audit and text-reference-inventory decode the traced
      starts only (docs/ROM-CODE-AUDIT.md).
    - proof/crt moved to tools/crt (done).
+   - Mixed tests moved off proof (done): scene-stream-audit and scene-edits on the lifted
+     scene load and collision grid, text-edits on the lifted text print and width, codec
+     on the product interpreter; the WRAM/JS task conversion moved to
+     tools/task-layout.mjs. script-interpreter and script-scheduler compare the product
+     interpreter and scheduler with frozen hashes of the register-level runs
+     (`frozenData` keeps the scheduler start states); LIFT_VECTORS=record still runs the
+     reference.
    - Next: freeze or
      port the remaining mixed tests (cheats, text-edits, packed-text-contract, scene
      edits and audits, picture-video, sprite-state, OBJ time over); move the scaffolding

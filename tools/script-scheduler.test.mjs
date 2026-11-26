@@ -17,6 +17,8 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
+import { createHash } from 'node:crypto';
+import { assertFrozenRun, frozenData, useLiftVectors } from './lift-function-harness.mjs';
 import { VmMemory } from '../src/vm/memory.mjs';
 import { ScriptInterpreter } from '../proof/vm/interpreter.mjs';
 import { nativeBridge } from '../proof/vm/native-call.mjs';
@@ -42,6 +44,7 @@ import {
 import { loadScheduler } from './task-layout.mjs';
 
 const rom = new Uint8Array(readFileSync(new URL('../Shadowrun (E).smc', import.meta.url)));
+useLiftVectors(import.meta.url);
 const SCRIPT_COUNT = 937;
 // Below the game stack top 7E:1CBB (src/data/wram.mjs); scripts write state words above.
 const OUTER_S = 0x1c80,
@@ -144,9 +147,13 @@ function oldLiveSlots(wram) {
   return slots;
 }
 
-function oldWorld(rnd, ids, effects) {
+function randomWram(rnd) {
   const wram = new Uint8Array(0x20000);
   for (let n = 0; n < wram.length; n++) wram[n] = rnd() < 0.5 ? 0 : (rnd() * 256) | 0;
+  return wram;
+}
+
+function oldWorld(wram, ids, effects) {
   const mem = new VmMemory(rom, wram),
     vm = new ScriptInterpreter(mem),
     world = { mem, vm, wram: mem.wram, log: [], calls: 0, running: [] };
@@ -324,30 +331,64 @@ function compareWorlds(old, js, label) {
 }
 
 // One scenario: rounds until a frontier, a fresh read or the native budget.
+// The JS side's state after a round, as compareWorlds compares it.
+function jsSnapshot(js) {
+  const wram = js.mem.wram.slice();
+  for (let n = 0; n < wram.length; n++)
+    if (inside(n, SCHEDULER_BYTES) || WORK_BYTES.some((range) => inside(n, range))) wram[n] = 0;
+  return {
+    log: js.log.map((call) => [...call]),
+    projection: [...js.project()],
+    wram: createHash('sha256').update(wram).digest('hex'),
+  };
+}
+
+// One scenario: rounds until a frontier, a fresh read or the native budget. The
+// register-level side runs only while LIFT_VECTORS=record writes the vectors: it then
+// also supplies the start state (frozen as its WRAM bytes changed by C1A6 and C34A).
 function scenario(seed, stats) {
   const rnd = prng(seed),
     ids = Array.from(
       { length: 1 + ((rnd() * 4) | 0) },
       () => STARTABLE[(rnd() * STARTABLE.length) | 0].id,
     ),
-    old = oldWorld(rnd, ids, effectStream(seed)),
-    js = jsWorld(old.wram, effectStream(seed), stats);
-  compareWorlds(old, js, `seed ${seed} start`);
+    wram = randomWram(rnd);
+  let old = null;
+  const changes = frozenData(`start ${seed}`, () => {
+    old = oldWorld(wram.slice(), ids, effectStream(seed));
+    const list = [];
+    for (let n = 0; n < wram.length; n++) if (old.wram[n] !== wram[n]) list.push(n, old.wram[n]);
+    return list;
+  });
+  for (let n = 0; n < changes.length; n += 2) wram[changes[n]] = changes[n + 1];
+  const js = jsWorld(wram, effectStream(seed), stats),
+    snapshots = [];
+  const finish = (result) => {
+    const outcome = { result, snapshots };
+    // While recording, compareWorlds has checked every snapshot against the reference.
+    assertFrozenRun(outcome, old ? () => outcome : null, `seed ${seed}`);
+    return result;
+  };
+  if (old) compareWorlds(old, js, `seed ${seed} start`);
+  snapshots.push(jsSnapshot(js));
   for (let round = 0; round < 12; round++) {
     // The JS side first: where it stops at a frontier, the original goes on to paths no
     // ROM script takes with real natives (unused status returns).
     try {
       js.scheduler.round();
     } catch (error) {
-      if (error?.nativeBudget) return 'native-budget';
-      if (error?.taskBoundary) return `frontier:${error.reason}`;
-      if (error?.freshRead) return `fresh:${error.freshRead}`;
+      if (error?.nativeBudget) return finish('native-budget');
+      if (error?.taskBoundary) return finish(`frontier:${error.reason}`);
+      if (error?.freshRead) return finish(`fresh:${error.freshRead}`);
       throw error;
     }
-    old.round();
-    compareWorlds(old, js, `seed ${seed} round ${round}`);
+    if (old) {
+      old.round();
+      compareWorlds(old, js, `seed ${seed} round ${round}`);
+    }
+    snapshots.push(jsSnapshot(js));
   }
-  return 'equal';
+  return finish('equal');
 }
 
 test('the JS scheduler runs rounds as the register-level scheduler', () => {
@@ -397,8 +438,16 @@ test('slot and heap exhaustion and re-entry stop at frontiers', () => {
   for (let n = 0; n < TASK_SLOTS; n++) assert.equal(scheduler.append(small), n);
   stopsWith('task_slot_required', () => scheduler.append(small));
   // The conversion layer replays the heap: about 2 KiB of frames.
-  const world = oldWorld(prng(5), [], effectStream(5)),
-    { scheduler: loaded } = loadScheduler(new VmMemory(rom, world.wram.slice()), world.wram);
+  const start = randomWram(prng(5)),
+    changes = frozenData('exhaustion start', () => {
+      const world = oldWorld(start.slice(), [], effectStream(5)),
+        list = [];
+      for (let n = 0; n < start.length; n++)
+        if (world.wram[n] !== start[n]) list.push(n, world.wram[n]);
+      return list;
+    });
+  for (let n = 0; n < changes.length; n += 2) start[changes[n]] = changes[n + 1];
+  const { scheduler: loaded } = loadScheduler(new VmMemory(rom, start.slice()), start);
   const large = STARTABLE.reduce((best, entry) =>
     createTask(scratch, entry.id, new Array(entry.args).fill(0)).frameBytes >
     createTask(scratch, best.id, new Array(best.args).fill(0)).frameBytes

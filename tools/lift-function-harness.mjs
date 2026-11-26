@@ -279,6 +279,16 @@ function canonical(value) {
 const callerKey = (value) =>
   createHash('sha256').update(canonical(value)).digest('hex').slice(0, KEY_DIGITS);
 
+// Frozen input data (removal plan step 5): a value only a retired reference can produce,
+// such as the WRAM a register-level initialization leaves. While recording, produce()
+// makes it and it is stored under name; otherwise the stored value is returned.
+export function frozenData(name, produce) {
+  if (recording) return (vectors[name] = produce());
+  const value = vectors?.[name];
+  if (value === undefined) throw new Error(`no frozen data ${name}`);
+  return value;
+}
+
 // Frozen caller comparisons (removal plan step 3): a caller test compared a fixed scenario
 // run with the lifted module and with the former proof/caller module. The former result
 // is kept as a hash per test name and comparison site (the n-th call within the test);
