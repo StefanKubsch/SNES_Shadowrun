@@ -1,7 +1,8 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
-import { fillerKind, placeFillers, scriptJumpEnds } from '../src/data/fillers.mjs';
+import { placeFillers } from '../src/data/fillers.mjs';
+import { fillerKind, scriptJumpEnds } from './filler-scan.mjs';
 import { romOffset } from '../src/data/rom-bytes.mjs';
 
 const rom = readFileSync('Shadowrun (E).smc');

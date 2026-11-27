@@ -1,7 +1,8 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
-import { placeOrphanScripts, checkOrphan, checkTail } from '../src/data/orphan-scripts.mjs';
+import { placeOrphanScripts } from '../src/data/orphan-scripts.mjs';
+import { checkOrphan, checkTail } from './orphan-script-scan.mjs';
 import { romOffset } from '../src/data/rom-bytes.mjs';
 
 const rom = readFileSync('Shadowrun (E).smc');
@@ -52,12 +53,12 @@ test('Only complete scripts and tails in their owner frame are accepted', () => 
   assert.equal(checkTail(owner, tail), 71);
   // Decoded on its own, the loop jump of the tail misses its frame.
   assert.throws(() => checkTail(Uint8Array.of(0x56), tail));
+  // The asset holds complete scripts (the game places their bytes without decoding them).
+  for (const { bytecode } of asset.scripts)
+    assert.equal(checkOrphan(Uint8Array.from(bytecode), counts), bytecode.length);
+  assert.throws(() => checkOrphan(Uint8Array.from(asset.scripts[0].bytecode.slice(0, -1)), counts));
   const fresh = () => [new Uint8Array(rom.length), new Uint8Array(rom.length)];
   const bad = [
-    {
-      scripts: [{ ...asset.scripts[0], bytecode: asset.scripts[0].bytecode.slice(0, -1) }],
-      tails: [],
-    },
     { scripts: [{ ...asset.scripts[0], address: '7E:0000' }], tails: [] },
     { scripts: [], tails: [{ ...asset.tails[0], entry: 6 }] },
     { scripts: [], tails: [{ ...asset.tails[0], address: '9C:E721' }] },

@@ -191,3 +191,10 @@ traces; release and push as in [WORKFLOW.md](WORKFLOW.md).
   handed to one takes its name. 61 of the 158 started scripts are named, among them the
   doors (openDoorOnRequest, closeDoorOnRequest, closedDoor, openDoor). About 3,400
   plain locals remain.
+- 2026-11-27, phase 2 step 5 (bytecode out of src/): the script codec and the opcode
+  table moved to `tools/script-codec.mjs` and `tools/script-opcodes.mjs`; nothing in
+  `src/` decodes bytecode any more. The scans for fillers and unreferenced scripts
+  (`tools/filler-scan.mjs`, `tools/orphan-script-scan.mjs`) went with them; the game
+  places those bytes from the assets with bounds checks only, and
+  `tools/orphan-scripts.test.mjs` checks that the asset holds complete scripts. Ratchet:
+  1,194 ROM literals, 2,807 address comments.

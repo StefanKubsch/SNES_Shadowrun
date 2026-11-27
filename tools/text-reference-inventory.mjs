@@ -7,7 +7,7 @@ import { inspectRom, cpuToOffset, offsetToCpu, cpuLabel } from './rom.mjs';
 import { decode } from './disassemble.mjs';
 import { auditInstructionStarts } from './rom-unread-audit.mjs';
 import { NATIVE_TEXT_GROUPS } from './text-reference-contracts.mjs';
-import { decodeScript } from '../src/script/codec.mjs';
+import { decodeScript } from './script-codec.mjs';
 import { textPointerWord } from '../src/data/rom-bytes.mjs';
 import { LOOKUP_TABLES } from '../src/data/tables.mjs';
 import { KIND_TABLE, KINDS } from '../src/data/kinds.mjs';

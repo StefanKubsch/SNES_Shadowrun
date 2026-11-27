@@ -8,7 +8,7 @@ import { pathToFileURL } from 'node:url';
 import { resolve } from 'node:path';
 import { inspectRom } from './rom.mjs';
 import { inspectScriptTables } from './scripts.mjs';
-import { decodeScript } from '../src/script/codec.mjs';
+import { decodeScript } from './script-codec.mjs';
 import { nativeOpcodeTargets } from '../src/data/native-opcode-targets.mjs';
 
 // Natives, die der Scriptbody-Lauf über eigene bewiesene Module bedient

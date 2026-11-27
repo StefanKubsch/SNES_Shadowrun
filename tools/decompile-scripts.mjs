@@ -14,7 +14,7 @@
 import { readFileSync, writeFileSync, mkdirSync, readdirSync, rmSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import { format } from 'prettier';
-import { decodeScript } from '../src/script/codec.mjs';
+import { decodeScript } from './script-codec.mjs';
 import { nativeTarget as nativeEntry } from '../src/script/natives.mjs';
 import { nativeTarget as targetFunction } from '../src/script/native-targets.mjs';
 import { NATIVE_POINTERS } from '../src/vm/layout.mjs';

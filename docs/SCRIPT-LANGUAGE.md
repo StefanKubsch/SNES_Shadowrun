@@ -92,7 +92,7 @@ fully derived before assigning standard maths (later done, see
 
 ## Decoder and round-trip check
 
-`src/script/codec.mjs` follows both ways of conditional jumps; for local
+`tools/script-codec.mjs` follows both ways of conditional jumps; for local
 subroutines target and continuation (without claiming a continuation is reached
 at runtime). Native calls and calls of other scripts are decoded structurally
 with a static continuation and referenced in the report. The next script

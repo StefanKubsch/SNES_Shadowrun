@@ -107,7 +107,7 @@ import { resolve } from 'node:path';
 import { inspectRom, cpuToOffset, cpuLabel, hex } from './rom.mjs';
 import { decode } from './disassemble.mjs';
 import { isDataToCodeBoundary } from './rom-code-retention.mjs';
-import { decodeScript } from '../src/script/codec.mjs';
+import { decodeScript } from './script-codec.mjs';
 import { inspectScriptTables, europeanTables } from './scripts.mjs';
 import { readTextTree, readText, TEXT_TREE } from '../src/data/texts.mjs';
 import { readTiles, TILE_TABLE, TILE_STREAMS } from '../src/data/tiles.mjs';
@@ -141,8 +141,8 @@ import { LOOKUP_TABLES, MATRIX_ANIMATIONS, MATRIX_ANIMATIONS_END } from '../src/
 import { readMatrixTexts, MATRIX_LISTS, MATRIX_END } from '../src/data/matrix-texts.mjs';
 import { FONT, FONT_END } from '../src/data/font.mjs';
 import { HEADER, HEADER_END } from '../src/data/header.mjs';
-import { fillerKind, scriptJumpEnds } from '../src/data/fillers.mjs';
-import { ORPHAN_SCRIPTS, SCRIPT_TAILS, readOrphan, readTail } from '../src/data/orphan-scripts.mjs';
+import { fillerKind, scriptJumpEnds } from './filler-scan.mjs';
+import { ORPHAN_SCRIPTS, SCRIPT_TAILS, readOrphan, readTail } from './orphan-script-scan.mjs';
 import { readDialogs, DIALOG_DATA, DIALOG_END } from '../src/data/dialogs.mjs';
 import { readRunners, RUNNER_TABLE, RUNNER_END } from '../src/data/runners.mjs';
 import {

@@ -37,7 +37,7 @@ import { readTopics } from '../src/data/topics.mjs';
 import { DIALOG_TABLE, DIALOGS } from '../src/data/portraits.mjs';
 import { KIND_TABLE, KINDS } from '../src/data/kinds.mjs';
 import { LOOKUP_TABLES } from '../src/data/tables.mjs';
-import { decodeScript } from '../src/script/codec.mjs';
+import { decodeScript } from './script-codec.mjs';
 import { lzBits, lzDecode, lzEncode } from '../src/data/lz.mjs';
 import { UMLAUTS, LANGUAGE_FORMAT } from '../src/data/language.mjs';
 import { LOROM_OFFSET, LOROM_OFFSET_MASK } from '../src/constants/memory-map.mjs';

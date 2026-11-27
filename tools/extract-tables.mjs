@@ -4,7 +4,7 @@
 import { readFile, writeFile } from 'node:fs/promises';
 import { inspectRom, cpuToOffset } from './rom.mjs';
 import { readTables, readAnimations } from '../src/data/tables.mjs';
-import { scriptOpcodes } from '../src/script/opcodes.mjs';
+import { scriptOpcodes } from './script-opcodes.mjs';
 import {
   MATRIX_DIRECTION_CALLS,
   MATRIX_STATE_CALLS,

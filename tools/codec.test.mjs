@@ -6,8 +6,8 @@ import {
   encodeInstruction,
   decodeScript,
   encodeScript,
-} from '../src/script/codec.mjs';
-import { scriptOpcodes, trapOpcodes } from '../src/script/opcodes.mjs';
+} from './script-codec.mjs';
+import { scriptOpcodes, trapOpcodes } from './script-opcodes.mjs';
 import { inspectRom } from './rom.mjs';
 import { cartridge } from './cartridge-harness.mjs';
 import { VmMemory } from '../src/vm/memory.mjs';

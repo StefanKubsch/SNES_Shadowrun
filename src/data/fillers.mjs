@@ -7,41 +7,16 @@
 // - bank_end: FF up to the last byte of a bank.
 // - zero_run / ff_run: any other run of only 00 or only FF between data.
 // Other single bytes and mixed runs stay unknown. Native form
-// assets/vm-fillers.json: address, length, value and kind per run.
+// assets/vm-fillers.json: address, length, value and kind per run. The scan that
+// finds them is tools/filler-scan.mjs.
 import { VmFault } from '../vm/memory.mjs';
-import { decodeScript } from '../script/codec.mjs';
-import { OPCODE } from '../script/opcodes.mjs';
 import { romAddress, romWriter } from './rom-bytes.mjs';
 import { WORD_MASK, BANK_SIZE } from '../constants/bits.mjs';
 
-const FILLER_KINDS = ['script_end', 'bank_end', 'zero_run', 'ff_run'];
-const SCRIPT_END = OPCODE.END,
+export const FILLER_KINDS = ['script_end', 'bank_end', 'zero_run', 'ff_run'];
+// The script opcode end; FF fills.
+export const SCRIPT_END = 0x56,
   FILL_FF = 0xff;
-
-// CPU addresses right behind every script whose last decoded instruction is
-// the jump 48; scripts: [{address, bytecode}] with the header at address.
-export function scriptJumpEnds(scripts) {
-  const ends = new Set();
-  for (const { address, bytecode } of scripts) {
-    const last = decodeScript(Uint8Array.from(bytecode)).instructions.reduce((a, b) =>
-      b.pc > a.pc ? b : a,
-    );
-    if (last.opcode === OPCODE.JUMP && last.nextPc === bytecode.length)
-      ends.add(address + 2 + bytecode.length);
-  }
-  return ends;
-}
-
-// scriptEnds: the result of scriptJumpEnds.
-export function fillerKind(read8, start, length, scriptEnds) {
-  const value = read8(start);
-  for (let i = 1; i < length; i++) if (read8(start + i) !== value) return null;
-  if (length === 1 && value === SCRIPT_END && scriptEnds.has(start)) return 'script_end';
-  if (value === FILL_FF && ((start + length) & WORD_MASK) === 0) return 'bank_end';
-  if (value === 0x00) return 'zero_run';
-  if (value === FILL_FF) return 'ff_run';
-  return null;
-}
 
 export function placeFillers(rom, present, { fillers }) {
   const put = romWriter(rom, present, 'filler_layout_changed');

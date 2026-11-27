@@ -41,7 +41,7 @@ import {
   WORD_MASK,
   WORD_SIGN,
 } from '../src/constants/bits.mjs';
-import { OPCODE } from '../src/script/opcodes.mjs';
+import { OPCODE } from './script-opcodes.mjs';
 import { WRAM } from '../src/data/wram.mjs';
 
 // Two header bytes before the first opcode: local bytes and operand stack bytes.

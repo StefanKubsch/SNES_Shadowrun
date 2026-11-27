@@ -21,7 +21,7 @@
 //   list E1CF (numbers from 7E:3C1C) and the notices FEC1 (DP0A); written
 //   as text addresses,
 // - opcode_handlers 80:F2B4: the handler of each even script opcode 00 to C2,
-//   read by JMP ($F2B4,X) at 80:F390 (src/script/opcodes.mjs; the VM checks
+//   read by JMP ($F2B4,X) at 80:F390 (tools/script-opcodes.mjs; the VM checks
 //   it with verifyOpcodeTable),
 // - the matrix control tables of bank 81 (named data for the lifted matrix in
 //   src/matrix/matrix-tables.mjs, used by src/matrix/matrix-world.mjs; the register-level

@@ -3,8 +3,8 @@ import { resolve } from 'node:path';
 import { createHash } from 'node:crypto';
 import { inspectRom, hex } from './rom.mjs';
 import { inspectScriptTables } from './scripts.mjs';
-import { decodeScript, encodeScript } from '../src/script/codec.mjs';
-import { scriptOpcodes, trapOpcodes } from '../src/script/opcodes.mjs';
+import { decodeScript, encodeScript } from './script-codec.mjs';
+import { scriptOpcodes, trapOpcodes } from './script-opcodes.mjs';
 import { disassembleBlock, formatBlock } from './disassemble.mjs';
 
 const { bytes, metadata } = inspectRom(await readFile(process.argv[2] ?? 'Shadowrun (E).smc'));

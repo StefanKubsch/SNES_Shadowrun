@@ -1,4 +1,4 @@
-import { scriptOpcodes, trapOpcodes } from './opcodes.mjs';
+import { scriptOpcodes, trapOpcodes } from './script-opcodes.mjs';
 import {
   BANK_SIZE,
   BYTE_BITS,
@@ -6,7 +6,7 @@ import {
   BYTE_MASK,
   HEX_RADIX,
   WORD_MASK,
-} from '../constants/bits.mjs';
+} from '../src/constants/bits.mjs';
 
 // One opcode byte followed by the little-endian word operand.
 const WORD_OPERAND_INSTRUCTION_BYTES = 3;

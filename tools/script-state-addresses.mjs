@@ -1,10 +1,10 @@
 // The WRAM addresses the script bytecode reads or writes itself (opcodes load_state_*
-// and store_state_*, src/script/opcodes.mjs), over all scripts of assets/scripts.json.
+// and store_state_*, tools/script-opcodes.mjs), over all scripts of assets/scripts.json.
 // Everything else the scripts touch goes through natives. docs/STATE-MODEL-REBUILD.md:
 // these addresses stay a named byte store when the rest of the state leaves WRAM.
 //   node tools/script-state-addresses.mjs [--json]
 import { readFileSync } from 'node:fs';
-import { decodeScript } from '../src/script/codec.mjs';
+import { decodeScript } from './script-codec.mjs';
 
 const STATE_OPCODE = /^(load|store)_state_(u8|i8|u16)$/,
   HEX = 16,

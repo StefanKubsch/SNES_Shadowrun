@@ -5,8 +5,8 @@
 import {readFile, writeFile} from 'node:fs/promises';
 import {inspectRom, cpuToOffset, cpuLabel} from './rom.mjs';
 import {inspectScriptTables} from './scripts.mjs';
-import {fillerKind, scriptJumpEnds} from '../src/data/fillers.mjs';
-import {ORPHAN_SCRIPTS, readOrphan} from '../src/data/orphan-scripts.mjs';
+import {fillerKind, scriptJumpEnds} from './filler-scan.mjs';
+import {ORPHAN_SCRIPTS, readOrphan} from './orphan-script-scan.mjs';
 
 const ROM_SHA256 = '91dbfecf9017264b01885e065cf015840223b8e8d2f95dfa62c4c0d654c2f690';
 const {bytes, metadata} = inspectRom(await readFile(process.argv[2] ?? 'Shadowrun (E).smc'));
