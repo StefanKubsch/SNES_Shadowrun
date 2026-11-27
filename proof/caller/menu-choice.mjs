@@ -30,7 +30,12 @@
 // which the original sets up and restores without playing it) stay below the stack.
 import { dialogCallBody } from '../../src/system/native-call-continuation.mjs';
 import { dialogCallSequence } from '../../tools/register-forms/native-call-sequences.mjs';
-import { drawListSequence, markRowSequence, MARK, UNMARK } from '../../tools/register-forms/menu-list.mjs';
+import {
+  drawListSequence,
+  markRowSequence,
+  MARK,
+  UNMARK,
+} from '../../tools/register-forms/menu-list.mjs';
 import { requestTileClearSequence } from './window-open.mjs';
 import {
   DP_LIST_TOKEN_BANK,

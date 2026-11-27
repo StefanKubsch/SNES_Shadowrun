@@ -6,7 +6,10 @@ import {
   drainNativeSequence,
   dialogCallBody,
 } from '../../src/system/native-call-continuation.mjs';
-import { dialogCallSequence, nativeTailSequence } from '../../tools/register-forms/native-call-sequences.mjs';
+import {
+  dialogCallSequence,
+  nativeTailSequence,
+} from '../../tools/register-forms/native-call-sequences.mjs';
 import { TALK_ROUTINES, validateDialogTaskOptions } from './native-dialog.mjs';
 import { lagFree } from '../../src/system/main-wait-interrupt.mjs';
 import {
