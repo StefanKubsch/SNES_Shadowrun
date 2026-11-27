@@ -13,6 +13,29 @@ const ADDRESS_SPACE = 1 << 24,
   OAM_ENTRY_SHIFT = 2,
   RGBA_BYTES = 4;
 
+// The DMA channel set-up of live play as [mode, B-bus port, bank] per channel (measured
+// on the golden scenarios 2026-11-26): channels 2-7 keep the set-up of the font upload
+// 81:AB2C and the scene lists (OAM, VRAM, CGRAM, the text read-back, the fixed fill from
+// bank 81, VRAM); 0 and 1 change with each transfer.
+const LIVE_CHANNELS = [
+  [0x01, 0x2118, 0x7e],
+  [0x01, 0x2118, 0x7e],
+  [0x00, 0x2104, 0x7e],
+  [0x01, 0x2118, 0x7e],
+  [0x00, 0x2122, 0x8d],
+  [0x81, 0x2139, 0x7e],
+  [0x09, 0x2118, 0x81],
+  [0x01, 0x2118, 0x7e],
+];
+// Gives a picture the channel set-up of live play: lifted code relies on the channels the
+// game set up earlier.
+export function setLiveChannels(picture) {
+  LIVE_CHANNELS.forEach(([mode, port, bank], n) =>
+    Object.assign(picture.channels[n], { mode, port, bank }),
+  );
+  return picture;
+}
+
 // A flat 24-bit address space as CPU memory.
 export function flatMemory() {
   const bytes = new Uint8Array(ADDRESS_SPACE);

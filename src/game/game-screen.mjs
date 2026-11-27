@@ -86,6 +86,10 @@ import {
   WRAM,
 } from '../data/wram.mjs';
 import {
+  BBAD0,
+  CGDATA,
+  DMA_CHANNEL_STRIDE,
+  DMAP0,
   NMITIMEN,
   NMITIMEN_AUTO_JOYPAD,
   NMITIMEN_NMI_ENABLE,
@@ -102,6 +106,7 @@ import {
   CGADSUB_BACKDROP,
   CGSWSEL_SUB_SCREEN,
   CHARACTER_BASE_STEP,
+  DMAP_ONE_PORT,
   INIDISP_FORCED_BLANK,
   LAYER_BG1,
   LAYER_BG2,
@@ -239,11 +244,18 @@ function resetCamera(wram, video) {
   video.setUpDma([[MAP_CHANNEL, { to: 'vram', source: WRAM_SOURCE }]], ['mode', 'target', 'bank']);
 }
 // The scene palette slots free, DMA channel 4 for CGRAM, the palette request and
-// both palette cycles reset (81:8CB9 with 81:8000).
-export function resetScenePalettes(wram, video) {
+// both palette cycles reset (81:8CB9 with 81:8000). Without video (the scene load
+// 81:A117 runs it with data bank 7E), the channel's mode and B-bus target bytes land in
+// WRAM at the register addresses 7E:4340 and 7E:4341 instead of the hardware.
+export function resetScenePalettes(wram, video = null) {
   setWord(wram, SCENE_PALETTE_COUNT, 0);
   fillWordList(wram, SCENE_PALETTE_SLOTS - WRAM, SCENE_PALETTE_LAST, NONE);
-  videoOf(video).setUpDma([[PALETTE_CHANNEL, { to: 'cgram' }]], ['mode', 'target']);
+  if (video) video.setUpDma([[PALETTE_CHANNEL, { to: 'cgram' }]], ['mode', 'target']);
+  else {
+    const channel = PALETTE_CHANNEL * DMA_CHANNEL_STRIDE;
+    writeStateByte(wram, DMAP0 + channel, DMAP_ONE_PORT);
+    writeStateByte(wram, BBAD0 + channel, CGDATA & BYTE_MASK);
+  }
   setWord(wram, SCENE_PALETTE_UPLOAD, 0);
   setWords(wram, [PALETTE_REQUEST_POINTER, PALETTE_SLOT_END], 0);
   for (const at of [2, 0])

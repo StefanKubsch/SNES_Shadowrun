@@ -7,6 +7,8 @@ import { readStateByte, writeStateByte, fillStateBytes } from '../src/state/obje
 import { COLLISION_FIELDS } from '../src/state/collision.mjs';
 import { OBJECT_FIELDS, OBJECT_SLOTS } from '../src/state/objects.mjs';
 import { toWram, restoreWram } from './to-wram.mjs';
+import { newPicture, setLiveChannels } from './picture-fixture.mjs';
+import { pictureState } from './lift-function-harness.mjs';
 import { updateTileBuffers, uploadMapEdges } from '../src/game/camera-scroll.mjs';
 import {
   CAMERA_X,
@@ -122,9 +124,10 @@ for (const [x, y, dx, dy] of [
       writes = [];
     for (const mem of [reference, live]) {
       updateTileBuffers(mem.wram);
-      const sent = [];
-      uploadMapEdges(mem.wram, { write: (...args) => sent.push(args) });
-      writes.push(sent);
+      // The edge uploads as the picture they leave.
+      const picture = setLiveChannels(newPicture(mem));
+      uploadMapEdges(mem.wram, picture);
+      writes.push(pictureState(picture));
     }
     assert.deepEqual(toWram(live), reference.wram);
     assert.deepEqual(writes[1], writes[0]);

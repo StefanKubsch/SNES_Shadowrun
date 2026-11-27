@@ -34,6 +34,7 @@ function fixture(target, args, budget, valueServices, unused = false) {
         frameJobs: () => assert.fail('fixture services all waits'),
       };
     },
+    bus: a.devices.bus,
     read: (...values) => a.devices.read(...values),
     write: (...values) => a.devices.write(...values),
   };

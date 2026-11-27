@@ -22,7 +22,6 @@ import { readStateByte, fillStateBytes } from '../state/objects.mjs';
 // direct page words the original uses are written as in the original; the Mesen
 // oracle compares them.
 import { writeStateByte } from '../state/objects.mjs';
-import { sceneRuntime } from '../system/scene-runtime.mjs';
 import { UNPACK_7F, unpackLong } from '../system/unpack.mjs';
 import { resetScenePalettes } from './game-screen.mjs';
 import {
@@ -845,9 +844,10 @@ function buildLayerTileStacks(mem, wram) {
 // --- The scene load (81:A117) ---
 
 // Load scene (81:A117) directly. Every helper receives memory explicitly, and the
-// original data-bank-7E palette writes use the WRAM writer below.
+// original data-bank-7E palette channel bytes go to WRAM (resetScenePalettes).
 export function* loadSceneSequence(h, scene) {
-  const { mem, wram } = sceneRuntime(h);
+  const mem = h.a.mem,
+    { wram } = mem;
   const nextByte = () => {
     const value = pointedByte(mem, wram, DP_SCENE_RECORD, 0);
     setWord(wram, DP_SCENE_RECORD, word(wram, DP_SCENE_RECORD) + 1);
@@ -880,7 +880,7 @@ export function* loadSceneSequence(h, scene) {
     resetTileStacks(wram);
     // The original runs 81:8CB9 with data bank 7E: its DMA channel set-up lands in
     // WRAM at the register addresses (7E:4340 and 7E:4341), not in the hardware.
-    resetScenePalettes(wram, { write: (address, value) => writeStateByte(wram, address, value) });
+    resetScenePalettes(wram);
     clearSceneLayers(wram);
     phase('grid-blocks', () => placeGridBlocks(mem, wram));
     clearWallMap(wram);

@@ -74,6 +74,8 @@ function invoke(game, target, { a = 0, x = 0, y = 0 } = {}) {
   });
   accessor.load();
   accessor.ctx.programBank = 0x81;
+  // The menu drawing reaches the game's picture back end directly.
+  accessor.devices = { bus: game.picture };
   const h = dialogAccess(accessor),
     m = sceneRuntime(h);
   // The lifted menu functions of the original routines.

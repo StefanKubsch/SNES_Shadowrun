@@ -174,9 +174,12 @@ mostly script natives (src/script 56 %).
      or disappears fails). Cross-check: with the lifted code calling the picture
      directly instead of through VideoPort's register writes, the whole fast suite
      passes against the re-keyed vectors unchanged.
-   - Next: move the scaffolding of the frozen tests to tools/. VideoPort
-     (src/video/video-port.mjs) stays until then: a measured run on 2026-11-26 found
-     about 70 fast test files whose harnesses have no picture bus, so sceneRuntime and
-     videoOf fall back to register writes (most of them frozen lift and caller tests,
-     a few calls in the golden, flow and audit tests). Then delete the rest of proof/
-     and the register modules.
+   - No test reaches VideoPort any more (measured over the whole fast suite on
+     2026-11-27): the scene load writes its data-bank-7E palette channel bytes to WRAM
+     itself (resetScenePalettes without video), loadSceneSequence no longer builds a
+     scene runtime, and the remaining fixtures (text caller, native services, front-end
+     text edits, camera and text state, scene command composition) give their
+     accessors a picture bus or compare a PictureVideo.
+   - Next: delete VideoPort (src/video/video-port.mjs) and the register fallback of
+     sceneRuntime and videoOf; move the scaffolding of the frozen tests to tools/; then
+     delete the rest of proof/ and the register modules.

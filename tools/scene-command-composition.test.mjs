@@ -4,7 +4,8 @@ import { runSceneList as direct } from '../src/system/scene-list.mjs';
 import { sceneListCommands } from '../src/data/scene-commands.mjs';
 import { DialogTestMemory, rom } from './task-native-dialog-harness.mjs';
 import { cpuToOffset } from './rom.mjs';
-import { assertFrozenRun, useLiftVectors } from './lift-function-harness.mjs';
+import { assertFrozenRun, pictureState, useLiftVectors } from './lift-function-harness.mjs';
+import { newPicture, setLiveChannels } from './picture-fixture.mjs';
 
 useLiftVectors(import.meta.url);
 
@@ -24,13 +25,17 @@ function run(execute, bytes, target, list = 0x7e2000) {
     reads.push(at);
     return read(at);
   };
-  const video = { write: (...args) => writes.push(['video', ...args]) },
-    port = {
-      write: (...args) => {
-        writes.push(['port', ...args]);
-        mem.write8(args[0], args[1]);
-      },
-    };
+  // The picture back end with the live channel set-up; data counts its VRAM, CGRAM and
+  // OAM data bytes.
+  const video = setLiveChannels(newPicture(mem));
+  let data = 0;
+  video.onData = () => data++;
+  const port = {
+    write: (...args) => {
+      writes.push(['port', ...args]);
+      mem.write8(args[0], args[1]);
+    },
+  };
   let stop;
   try {
     execute(mem, video, port, list);
@@ -38,7 +43,7 @@ function run(execute, bytes, target, list = 0x7e2000) {
     if (!error.taskBoundary) throw error;
     stop = { reason: error.reason, target: error.target, commandIndex: error.commandIndex };
   }
-  return { wram: mem.wram, writes, reads, stop };
+  return { wram: mem.wram, writes, reads, stop, picture: pictureState(video), data };
 }
 
 const CALLBACK = [0x34, 0x12, 0x81, 0xab],
@@ -69,14 +74,14 @@ test('mixed scene commands retain argument order, packed uploads and word callba
   assertFrozenRun(actual);
   assert.equal(actual.wram[0x70], 0x81);
   assert.equal(actual.wram[0x71], 0xab);
-  assert.ok(actual.writes.some(([kind, at]) => kind === 'video' && at === 0x420b));
+  assert.ok(actual.data > 0, 'the packed upload and the palette reach the picture');
 });
 
 test('zero palette count retains the full wrapping byte transfer', () => {
   const bytes = [4, 0, 0xff, 0x7f, 0, 0, 0, 0],
     actual = run(direct, bytes);
   assertFrozenRun(actual);
-  assert.equal(actual.writes.length, 65537);
+  assert.equal(actual.data, 65536);
 });
 
 for (const [bytes, target] of [
@@ -93,6 +98,7 @@ for (const [bytes, target] of [
       commandIndex: bytes[0] * 2,
     });
     assert.equal(actual.writes.length, 0);
+    assert.equal(actual.data, 0);
   });
 
 test('list arguments remain live across register writes into the list itself', () => {

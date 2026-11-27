@@ -7,6 +7,8 @@ import { CAMERA_MAP_FIELDS, detachCameraMaps } from '../src/state/camera-maps.mj
 import { COLLISION_FIELDS } from '../src/state/collision.mjs';
 import { OBJECT_FIELDS, OBJECT_SLOTS, writeStateByte } from '../src/state/objects.mjs';
 import { toWram, restoreWram } from './to-wram.mjs';
+import { newPicture, setLiveChannels } from './picture-fixture.mjs';
+import { pictureState } from './lift-function-harness.mjs';
 import { drawWindow } from '../src/game/window-list.mjs';
 import { clearTextTiles } from '../src/game/game-nmi.mjs';
 import { readBit } from '../src/game/text-print.mjs';
@@ -137,15 +139,10 @@ for (const bytes of [0x20, 0x1400, 0x1402])
     detachWindowsText(live.wram);
     const before = live.wram.slice();
     for (const mem of [reference, live]) {
-      const sent = [];
-      clearTextTiles(mem.wram, {
-        write: (...args) => sent.push(args),
-        read: (...args) => {
-          sent.push(args);
-          return 0;
-        },
-      });
-      calls.push(sent);
+      // The clear and read-back as the picture and WRAM they leave.
+      const picture = setLiveChannels(newPicture(mem));
+      clearTextTiles(mem.wram, picture);
+      calls.push(pictureState(picture));
     }
     assert.deepEqual(calls[1], calls[0]);
     assert.deepEqual(toWram(live), reference.wram);

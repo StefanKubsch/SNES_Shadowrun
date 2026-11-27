@@ -117,7 +117,7 @@ test('legacy byte assignments preserve their value when chained across stores', 
 test('scene palette setup with WRAM as data bank retains its collision-field writes', () => {
   const mem = memory();
   detachObjectStorage(mem.wram);
-  resetScenePalettes(mem.wram, { write: (at, value) => writeStateByte(mem.wram, at, value) });
+  resetScenePalettes(mem.wram);
   const objects = objectTable(mem.wram),
     index = (DMAP4 - OBJECT_FIELDS.boxY1) / Uint16Array.BYTES_PER_ELEMENT;
   assert.equal(objects.boxY1[index], mem.read16(WRAM + DMAP4));

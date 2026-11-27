@@ -17,6 +17,7 @@ import { DialogTestMemory, prng } from './task-native-dialog-harness.mjs';
 import { dialogAccess } from '../src/system/native-dialog-support.mjs';
 import { TaskAccessor } from '../src/vm/task-accessor.mjs';
 import { PictureVideo } from '../src/video/picture-video.mjs';
+import { setLiveChannels } from './picture-fixture.mjs';
 import {
   DMAP0,
   HDMAEN,
@@ -61,21 +62,6 @@ const STACK = 0x1c9,
   // The last DMA channel register (channel 7, 437F).
   DMA_REGISTERS_END = 0x437f;
 
-// The DMA channel set-up of live play as [mode, B-bus port, bank] per channel (measured
-// on the golden scenarios 2026-11-26): channels 2-7 keep the set-up of the font upload
-// 81:AB2C and the scene lists (OAM, VRAM, CGRAM, the text read-back, the fixed fill from
-// bank 81, VRAM); 0 and 1 change with each transfer. A side's picture starts with it,
-// as the lifted code relies on the channels the game set up earlier.
-const LIVE_CHANNELS = [
-  [0x01, 0x2118, 0x7e],
-  [0x01, 0x2118, 0x7e],
-  [0x00, 0x2104, 0x7e],
-  [0x01, 0x2118, 0x7e],
-  [0x00, 0x2122, 0x8d],
-  [0x81, 0x2139, 0x7e],
-  [0x09, 0x2118, 0x81],
-  [0x01, 0x2118, 0x7e],
-];
 // Sides built while legacy is set have no picture back end: their PPU register writes
 // are listed as before the picture state was compared (the rekey check below).
 let legacy = false;
@@ -168,9 +154,7 @@ export function createSide(s, routines, prepare = () => {}) {
     },
     write8: (address, value) => mem.write8(address, value),
   });
-  LIVE_CHANNELS.forEach(([mode, port, bank], n) =>
-    Object.assign(picture.channels[n], { mode, port, bank }),
-  );
+  setLiveChannels(picture);
   // The CPU registers of the scene default reach the write list as hardware writes.
   picture.system = record;
   const pictureRead = (at) => {

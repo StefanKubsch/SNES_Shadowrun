@@ -26,6 +26,7 @@ function run(sequence, id, budget, translated) {
     remainder = 0;
   const writes = [];
   a.devices = {
+    bus: side.picture,
     write(pc, address, value, width) {
       writes.push([pc, address, value, width]);
       if ((address & 0xffff) === 0x4204) dividend = value;
