@@ -531,6 +531,11 @@ export const COLOUR_PHASE = 0x1fde;
 // Spell choice list of 80:E1CF: header Exit, then the spell names.
 export const SPELL_CHOICE_HEADER = 0x1d73;
 export const SPELL_CHOICE_NAMES = 0x1d75;
+// The spell scripts' running effects (read and written by scripts only).
+export const ARMOUR_SPELLS_ACTIVE = 0x1d6f; // armour spells running, at most four
+export const FREEZE_SPELLS_ACTIVE = 0x1d70; // freeze spells running, at most four
+export const SPIRIT_SUMMONED = 0x1d71; // 1 while a summoned spirit fights
+export const SPELL_EFFECT_BUSY = 0x1d72; // FF while heal or summon runs: no other spell
 
 // Swarm work area 1CEF-1D59, shared by three programs: the path swarm (80:D7DD starts four
 // members, 80:D85B moves them), the wave swarm (80:D260 starts twelve, 80:D2E7 moves them)
@@ -540,6 +545,9 @@ export const SWARM_MEMBERS = 0x1cef; // member slots, the orbit phases of D604/D
 export const SWARM_FOUR_ORIGIN = 0x1cf7; // origin object of the path swarm (D7DD)
 export const CIRCLE_FOLLOWERS = 0x1cff; // follower slots of the circling leader (D63C)
 export const SWARM_TWELVE_ORIGIN = 0x1d07; // origin object of the wave swarm (D260)
+// Scripts only: FFFF while the circling leader fights (script 19E); its orbiting and
+// bobbing objects leave when it is 0.
+export const CIRCLE_LEADER_ALIVE = 0x1d09;
 export const SWARM_ORIGIN_X = 0x1d0b;
 export const SWARM_ORIGIN_Y = 0x1d0d;
 export const SWARM_ORIGIN_HEIGHT = 0x1d0f;
@@ -602,6 +610,16 @@ export const PLAYER_HIT_FRAMES = 0x1d65; // set by 80:881C, counted down by 80:D
 export const SCRIPT_VARIABLES = 0x3bbb; // script words, two bytes each
 export const JAKE_CHARISMA = 0x3bff; // runner record byte 4 (80:EA6E)
 export const JAKE_BODY = 0x3bfb; // runner record byte 0 (80:F0F3)
+// More bytes of Jake's runner record (src/data/runners.mjs) that scripts read or set.
+export const JAKE_MAGIC = 0x3bfc; // byte 1
+export const JAKE_COMPUTER = 0x3c04; // byte 9
+export const JAKE_NEGOTIATION = 0x3c06; // byte 11
+export const JAKE_POWERBALL = 0x3c07; // bytes 12 to 17: the spell levels
+export const JAKE_HEAL = 0x3c08;
+export const JAKE_INVISIBILITY = 0x3c09;
+export const JAKE_ARMOUR_SPELL = 0x3c0a;
+export const JAKE_SUMMON_SPIRIT = 0x3c0b;
+export const JAKE_FREEZE = 0x3c0c;
 export const NUYEN = 0x3c0d; // low word, high word at NUYEN + 2
 export const KARMA = 0x3c11;
 export const SPELL_LIST = 0x3c1c; // learned spells, 0 ends the list

@@ -157,3 +157,16 @@ traces; release and push as in [WORKFLOW.md](WORKFLOW.md).
   address. Next: names for locals, arguments and state from what the scripts do; script
   calls by name; `src/script/codec.mjs` and the opcode table leave `src/` with the data
   readers that still decode bytecode.
+- 2026-11-27, phase 2 step 2 (decompiler output tidied): expressions carry the variables
+  they read and the calls the variables they may change, so a pending value becomes a
+  temporary only when the next statement or a call before it could change it (`const t =
+  local1` and argument copies are gone; a word stored and tested reads back from the
+  local, `x = word(x - 1); if (x === 0)`). Jumps that fall through to where they lead go
+  (a break at the end of its block, a continue at the end of its loop, a plain return at
+  the end of a subroutine), empty branches go and an empty then turns its condition;
+  `truth(a) & truth(b)` becomes `a && b` when b has no call. The natives table lists the
+  183 natives some script calls, all by name (the factory-made ones from the names in
+  `src/script/native-targets.mjs`). Every state access in the scripts has a name: the
+  spell effects 1D6F to 1D72, the circling leader flag and nine bytes of Jake's runner
+  record joined `src/data/wram.mjs`. `src/scripts/` shrank from 31,700 to 26,400 lines.
+  Next: names for the 87 scripts other scripts call and for arguments and locals.

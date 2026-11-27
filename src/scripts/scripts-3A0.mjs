@@ -15,82 +15,66 @@ export function* script3A0(state, arg0, arg1, arg2, arg3, arg4, arg5) {
     local6 = 0,
     local7 = 0;
   block199: {
-    const t1 = arg5;
-    const t2 = arg4;
-    const t3 = arg3;
-    const t4 = arg2;
-    const t5 = arg1;
     local0 = arg0 & 0xff;
-    local1 = t5 & 0xff;
-    local2 = t4 & 0xff;
-    local3 = t3 & 0xff;
-    local4 = t2 & 0xff;
-    local5 = t1 & 0xff;
+    local1 = arg1 & 0xff;
+    local2 = arg2 & 0xff;
+    local3 = arg3 & 0xff;
+    local4 = arg4 & 0xff;
+    local5 = arg5 & 0xff;
     if ((yield* script(0x07e, local1)) === 0) {
       yield* game.removeObject(local0);
-      break block199;
-    }
-    yield* game.setObjectActionAndDirection(local0, 6, 3);
-    yield* game.wait(1, 0x3c);
-    yield* game.setObjectRecordCount(local0, local3);
-    loop39: for (;;) {
-      block119: {
-        const t6 = yield* game.chooseEnemyTarget(local0);
-        local7 = t6 & 0xff;
+    } else {
+      yield* game.setObjectActionAndDirection(local0, 6, 3);
+      yield* game.wait(1, 0x3c);
+      yield* game.setObjectRecordCount(local0, local3);
+      for (;;) {
+        const t1 = yield* game.chooseEnemyTarget(local0);
+        local7 = t1 & 0xff;
         if (
-          (truth(t6 !== 0xffff) &
+          (truth(t1 !== 0xffff) &
             truth(
               less(
                 yield* game.getObjectCoarseY(signed(local7)),
                 yield* game.getObjectCoarseY(local0),
               ),
-            )) ===
+            )) !==
           0
         ) {
-          break block119;
-        }
-        block97: {
           yield* game.setObjectAnimation(local0, 1);
           yield* game.shootAtObject(local0, signed(local7), local2, 0, local4, signed(local5));
           yield* game.turnObjectToObject(local0, signed(local7));
-          if (!less(yield* game.getObjectDirection(local0), 3)) {
-            break block97;
+          if (less(yield* game.getObjectDirection(local0), 3)) {
+            yield* game.setObjectDirection(local0, 4);
           }
-          yield* game.setObjectDirection(local0, 4);
-          break block97;
+          yield* game.playSoundEffect(local0, 0xc, 0xff, 3);
+          if (local1 !== 0) {
+            yield* game.appendToFightList(local0);
+            local1 = 0;
+          }
         }
-        yield* game.playSoundEffect(local0, 0xc, 0xff, 3);
-        if (local1 === 0) {
-          break block119;
+        const t2 = truth(
+          ((yield* game.wait(0x801, word(0x64 + ((yield* game.randomByte()) & 0x1f)))) & 0x800) !==
+            0,
+        );
+        local6 = t2 & 0xff;
+        if (t2 !== 0) {
+          yield* game.addKarma(1);
+          yield* game.fightListRemove(local0);
+          yield* game.playSoundEffect(local0, 0x14, 0xff, 3);
+          yield* game.setObjectDirection(local0, 3);
+          yield* game.setObjectAnimation(local0, 6);
+          if ((yield* game.getObjectRecordFlags(local0)) !== 0) {
+            yield* game.setObjectRecordFlags(
+              local0,
+              word((yield* game.getObjectRecordFlags(local0)) - 1),
+            );
+          } else {
+            yield* game.resetObjectRecordProperty(local0);
+          }
+          yield* game.clearObjectTask(local0);
+          break block199;
         }
-        yield* game.appendToFightList(local0);
-        local1 = 0;
-        break block119;
       }
-      const t7 = truth(
-        ((yield* game.wait(0x801, word(0x64 + ((yield* game.randomByte()) & 0x1f)))) & 0x800) !== 0,
-      );
-      local6 = t7 & 0xff;
-      if (t7 === 0) {
-        continue loop39;
-      }
-      block190: {
-        yield* game.addKarma(1);
-        yield* game.fightListRemove(local0);
-        yield* game.playSoundEffect(local0, 0x14, 0xff, 3);
-        yield* game.setObjectDirection(local0, 3);
-        yield* game.setObjectAnimation(local0, 6);
-        if ((yield* game.getObjectRecordFlags(local0)) !== 0) {
-          const t8 = word((yield* game.getObjectRecordFlags(local0)) - 1);
-          const t9 = local0;
-          yield* game.setObjectRecordFlags(t9, t8);
-          break block190;
-        }
-        yield* game.resetObjectRecordProperty(local0);
-        break block190;
-      }
-      yield* game.clearObjectTask(local0);
-      break block199;
     }
   }
   return null;
@@ -106,18 +90,14 @@ export function* script3A1(state, arg0) {
 
 // Script 3A2: no arguments.
 export function* script3A2(state) {
-  block44: {
-    if (
-      ((yield* game.isActorStateProperty(0x8b2, 0x15bd)) &
-        (yield* game.isActorStateProperty(0x8b2, 0x13a2))) ===
-      0
-    ) {
-      break block44;
-    }
+  if (
+    ((yield* game.isActorStateProperty(0x8b2, 0x15bd)) &
+      (yield* game.isActorStateProperty(0x8b2, 0x13a2))) !==
+    0
+  ) {
     yield* game.setActorStateHolder(0x15bd, 0x1538);
     yield* game.setActorStateHolder(0x13a2, 0x1538);
     yield* game.setActorStateHolder(0x230, 0x8b2);
-    break block44;
   }
   return null;
 }
@@ -126,33 +106,25 @@ export function* script3A2(state) {
 export function* script3A3(state) {
   let local0 = 0,
     local2 = 0;
-  block66: {
-    const t1 = yield* game.getScriptVariable(0x20);
-    local2 = t1;
-    if (t1 !== 2) {
-      if (local2 !== 3) {
-        if (local2 !== 4) {
-          if (local2 !== 5) {
-            break block66;
-          }
+  const t1 = yield* game.getScriptVariable(0x20);
+  local2 = t1;
+  if (local2 !== 2) {
+    if (local2 !== 3) {
+      if (local2 !== 4) {
+        if (local2 === 5) {
           local0 = 0x178;
-          break block66;
         }
+      } else {
         local0 = 0x172;
-        break block66;
       }
+    } else {
       local0 = 0x16b;
-      break block66;
     }
+  } else {
     local0 = 0x164;
-    break block66;
   }
-  block78: {
-    if (local2 !== 2) {
-      break block78;
-    }
+  if (local2 === 2) {
     yield* game.raiseStoryStage(6);
-    break block78;
   }
   yield* game.setActorStateFlags(0x16c0, 0);
   yield* game.changeScene(3, word(local2 - 1), local0);
@@ -163,11 +135,10 @@ export function* script3A3(state) {
 export function* script3A4(state, arg0, arg1) {
   let local0 = 0,
     local1 = 0;
-  const t1 = arg1;
   local0 = arg0 & 0xff;
-  local1 = t1 & 0xff;
+  local1 = arg1 & 0xff;
   yield* game.setObjectAnimation(local0, 2);
-  yield* game.native81(local0, local1);
+  yield* game.moveObjectStraightToWaypoint(local0, local1);
   yield* game.wait(4, 0);
   return null;
 }

@@ -42,9 +42,13 @@ const scriptName = (id) => `script${hex(id)}`;
 // Names: natives from their lifted functions, state from the WRAM layout.
 
 function nativeNames(mem, count) {
+  // The names the native tables give their entries (factory-made functions have none).
   const special = new Map();
-  const text = readFileSync(new URL('src/vm/special-natives.mjs', ROOT), 'utf8');
-  for (const m of text.matchAll(/\[(0x80[0-9a-f]{4}),\s*(\w+)\]/g)) special.set(Number(m[1]), m[2]);
+  for (const file of ['src/vm/special-natives.mjs', 'src/script/native-targets.mjs']) {
+    const text = readFileSync(new URL(file, ROOT), 'utf8');
+    for (const m of text.matchAll(/\[(0x80[0-9a-f]{4}),\s*(\w+)\]/g))
+      if (!special.has(Number(m[1]))) special.set(Number(m[1]), m[2]);
+  }
   const clean = (name) => {
     const bare = name
       .replace(/^lifted/, '')
@@ -81,7 +85,9 @@ const stateRef = (address) =>
     : `0x${hex(address, ADDRESS_DIGITS).toLowerCase()}`;
 
 // ---------------------------------------------------------------------------------------
-// Expressions: { text, prec, pure (no call), constant (value or null), bool }.
+// Expressions: { text, prec, pure (no call), constant (value or null), bool, deps }. The
+// deps of a pure expression are the variables it reads: local names, 'locals' (the byte
+// array) and STATE (the game state).
 
 const ATOM = 100,
   UNARY = 15,
@@ -89,21 +95,39 @@ const ATOM = 100,
   EQUALITY = 9,
   BIT_AND = 8,
   BIT_XOR = 7,
-  BIT_OR = 6;
+  BIT_OR = 6,
+  LOGICAL_AND = 4,
+  LOGICAL_OR = 3;
+const STATE = '@state';
+const union = (...es) => [...new Set(es.flatMap((e) => e.deps ?? []))];
+// The variables the calls in expressions may change: STATE for game functions and
+// scripts, ALL for local subroutines (they change locals too).
+const ALL = '*';
+const writesOf = (...es) => [...new Set(es.flatMap((e) => e.writes ?? []))];
 const literal = (value) => ({
   text: value < DECIMAL_BELOW ? String(value) : `0x${value.toString(HEX)}`,
   prec: ATOM,
   pure: true,
   constant: value,
+  deps: [],
 });
-const atom = (text, pure = true) => ({ text, prec: ATOM, pure, constant: null });
+const atom = (text, pure = true, deps = [], writes = []) => ({
+  text,
+  prec: ATOM,
+  pure,
+  constant: null,
+  deps,
+  writes,
+});
 const paren = (e, min) => (e.prec < min ? `(${e.text})` : e.text);
 // A word value of an expression (a condition becomes truth(...)).
-const value = (e) => (e.bool ? atom(`truth(${e.text})`, e.pure) : e);
+const value = (e) => (e.bool ? atom(`truth(${e.text})`, e.pure, e.deps, e.writes) : e);
 const call = (fn, ...args) =>
   atom(
     `${fn}(${args.map((a) => value(a).text).join(', ')})`,
     args.every((a) => a.pure),
+    union(...args),
+    writesOf(...args),
   );
 const binary = (op, prec, l, r, bool = false) => ({
   text: `${paren(value(l), prec)} ${op} ${paren(value(r), prec + 1)}`,
@@ -111,14 +135,40 @@ const binary = (op, prec, l, r, bool = false) => ({
   pure: l.pure && r.pure,
   constant: null,
   bool,
+  deps: union(l, r),
+  writes: writesOf(l, r),
 });
+// Two conditions joined by & or |: && and || when the right one has no effect to skip.
+const logical = (op, prec, wordOp, wordPrec) => (l, r) =>
+  l.bool && r.bool && r.pure
+    ? {
+        text: `${paren(l, prec)} ${op} ${paren(r, prec + 1)}`,
+        prec,
+        pure: l.pure,
+        constant: null,
+        bool: true,
+        deps: union(l, r),
+        writes: writesOf(l, r),
+      }
+    : binary(wordOp, wordPrec, l, r);
 // A condition of an expression: a word is true when not zero.
 const condition = (e) =>
   e.bool ? e : { ...binary('!==', EQUALITY, e, literal(0), true), op: '!==', l: e, r: literal(0) };
 const INVERSE = { '===': '!==', '!==': '===', '<=': '>', '>': '<=' };
 function negate(c) {
-  if (c.op && INVERSE[c.op]) return { ...binary(INVERSE[c.op], c.prec, c.l, c.r, true) };
-  return { text: `!${paren(c, UNARY)}`, prec: UNARY, pure: c.pure, constant: null, bool: true };
+  if (c.op && INVERSE[c.op])
+    return { ...binary(INVERSE[c.op], c.prec, c.l, c.r, true), op: INVERSE[c.op], l: c.l, r: c.r };
+  if (c.negated) return c.negated;
+  return {
+    negated: c,
+    text: `!${paren(c, UNARY)}`,
+    prec: UNARY,
+    pure: c.pure,
+    constant: null,
+    bool: true,
+    deps: c.deps,
+    writes: c.writes,
+  };
 }
 const comparison = (op, prec) => (l, r) => ({ ...binary(op, prec, l, r, true), op, l, r });
 const helper = (name) => (l, r) => ({ ...call(name, l, r), bool: true });
@@ -130,8 +180,8 @@ const BINARY = {
   multiply_su_handler: (l, r) => call('multiplySignedLeft', l, r),
   multiply_us_handler: (l, r) => call('multiplySignedRight', l, r),
   multiply_ss_handler: (l, r) => call('multiplySigned', l, r),
-  bit_and: (l, r) => binary('&', BIT_AND, l, r),
-  bit_or: (l, r) => binary('|', BIT_OR, l, r),
+  bit_and: logical('&&', LOGICAL_AND, '&', BIT_AND),
+  bit_or: logical('||', LOGICAL_OR, '|', BIT_OR),
   bit_xor: (l, r) => binary('^', BIT_XOR, l, r),
   shift_left: (l, r) => call('shiftLeft', l, r),
   shift_right: (l, r) => call('shiftRight', l, r),
@@ -158,7 +208,14 @@ const BINARY = {
 };
 // The '+'/'-' inside word(...) need no word wrap of their own operands.
 const UNARY_OPS = {
-  negate: (v) => call('word', { text: `-${paren(value(v), UNARY)}`, prec: UNARY, pure: v.pure }),
+  negate: (v) =>
+    call('word', {
+      text: `-${paren(value(v), UNARY)}`,
+      prec: UNARY,
+      pure: v.pure,
+      deps: union(v),
+      writes: writesOf(v),
+    }),
   bit_not: (v) => binary('^', BIT_XOR, v, literal(0xffff)),
   increment: (v) => call('word', binary('+', 12, value(v), literal(1))),
   decrement: (v) => call('word', binary('-', 12, value(v), literal(1))),
@@ -275,14 +332,19 @@ class ScriptDecompiler {
   localName(at) {
     return `local${at}`;
   }
+  // The variable a local lives in (for the deps of expressions).
+  localVariable(at) {
+    return this.plainLocals ? this.localName(at) : 'locals';
+  }
   loadLocal(at, bytes, signedByte) {
+    const deps = [this.localVariable(at)];
     let e;
-    if (this.plainLocals) e = atom(this.localName(at));
+    if (this.plainLocals) e = atom(this.localName(at), true, deps);
     else {
-      e = atom(`${bytes === 2 ? 'localWord' : 'localByte'}(locals, ${at})`);
+      e = atom(`${bytes === 2 ? 'localWord' : 'localByte'}(locals, ${at})`, true, deps);
     }
     if (signedByte) {
-      e = atom(`signed(${e.text})`);
+      e = atom(`signed(${e.text})`, true, deps);
     }
     return { ...e, local: true };
   }
@@ -442,41 +504,62 @@ class ScriptDecompiler {
       if (!stack.length) this.error('operand stack underflow', block.pc);
       return stack.pop();
     };
-    // Before a statement: evaluate the pending non-constant values in their order.
-    const spill = () => {
+    // Whether `writes` may change a variable that `deps` reads.
+    const touches = (writes, deps = []) =>
+      deps.length > 0 && (writes.includes(ALL) || deps.some((d) => writes.includes(d)));
+    // Before a statement that may change `writes`: evaluate, in their order, the pending
+    // values with a call and the pure ones that the statement or a pending call above them
+    // may change (and the top value when `forceTop`).
+    const spill = (writes, forceTop = false) => {
+      const above = new Array(stack.length);
+      let pending = writes;
+      for (let n = stack.length - 1; n >= 0; n--) {
+        above[n] = pending;
+        if (!stack[n].pure) pending = [...pending, ...(stack[n].writes ?? [ALL])];
+      }
       for (let n = 0; n < stack.length; n++) {
         const e = stack[n];
         if (e.constant !== null && e.constant !== undefined) continue;
         if (e.temp) continue;
+        if (e.pure && !touches(above[n], e.deps) && !(forceTop && n === stack.length - 1)) continue;
         const name = `t${++this.temps}`;
         lines.push(`const ${name} = ${value(e).text.replace(/^\((yield\* .*)\)$/, '$1')};`);
         stack[n] = { ...atom(name), temp: true };
       }
     };
-    const statement = (text) => {
-      spill();
+    const statement = (text, writes) => {
+      spill(writes);
       lines.push(text);
     };
-    // Arguments in the order the callee sees them (args[0] the top word); evaluated in
-    // the original's push order when more than one of them could change state.
+    // Arguments in the order the callee sees them (args[0] the top word). The text
+    // evaluates them in that order, the original in the reverse: they are evaluated
+    // first in the original's order when that could change a result.
     const takeArguments = (count) => {
       const args = [];
       for (let n = 0; n < count; n++) args.push(pop());
       const calls = args.filter((a) => !a.pure).length;
-      if (calls && args.filter((a) => a.constant === null || a.constant === undefined).length > 1) {
+      const hazard =
+        calls > 1 ||
+        args.some(
+          (a, i) =>
+            !a.pure && args.some((b, j) => j > i && b.pure && touches(a.writes ?? [ALL], b.deps)),
+        );
+      if (hazard) {
         stack.push(...args.slice().reverse());
-        spill();
+        spill([]);
         args.length = 0;
         for (let n = 0; n < count; n++) args.push(pop());
       }
       return args;
     };
-    const yieldExpr = (text) => ({
+    const yieldExpr = (text, writes) => ({
       text: `(${text})`,
       prec: ATOM,
       pure: false,
       constant: null,
       yields: text,
+      deps: [],
+      writes,
     });
     let terminator = null;
     for (const i of block.body) {
@@ -489,30 +572,37 @@ class ScriptDecompiler {
       else if (n === 'load_local_i8') stack.push(this.loadLocal(i.operand, 1, true));
       else if (n === 'load_local_u16') stack.push(this.loadLocal(i.operand, 2, false));
       else if (n === 'load_local0_u8') stack.push(this.loadLocal(0, 1, false));
-      else if (n === 'load_state_u8') stack.push(atom(`state.byte(${stateRef(i.operand)})`));
+      else if (n === 'load_state_u8')
+        stack.push(atom(`state.byte(${stateRef(i.operand)})`, true, [STATE]));
       else if (n === 'load_state_i8') {
-        stack.push(atom(`signed(state.byte(${stateRef(i.operand)}))`));
-      } else if (n === 'load_state_u16') stack.push(atom(`state.word(${stateRef(i.operand)})`));
+        stack.push(atom(`signed(state.byte(${stateRef(i.operand)}))`, true, [STATE]));
+      } else if (n === 'load_state_u16')
+        stack.push(atom(`state.word(${stateRef(i.operand)})`, true, [STATE]));
       else if (n === 'store_local_u8' || n === 'store_local_u16') {
-        const v = pop();
-        statement(this.storeLocal(i.operand, n.endsWith('16') ? 2 : 1, v));
+        const v = pop(),
+          bytes = n.endsWith('16') ? 2 : 1;
+        // A word stored and kept (x = x - 1, then tested) reads back from the local.
+        const kept = bytes === 2 && stack[stack.length - 1] === v && pop();
+        statement(this.storeLocal(i.operand, bytes, v), [this.localVariable(i.operand)]);
+        if (kept) stack.push(this.loadLocal(i.operand, 2, false));
       } else if (n === 'store_state_u8' || n === 'store_state_u16') {
         const v = pop();
         statement(
           `state.${n.endsWith('16') ? 'setWord' : 'setByte'}(${stateRef(i.operand)}, 0, ${value(v).text});`,
+          [STATE],
         );
       } else if (n === 'duplicate') {
         const v = pop();
         if (v.constant === null || v.constant === undefined) {
-          if (!v.temp && !(v.pure && v.local)) {
+          if (!v.pure) {
             stack.push(v);
-            spill();
+            spill([], true);
             stack.push(stack[stack.length - 1]);
           } else stack.push(v, v);
         } else stack.push(v, v);
       } else if (n === 'drop') {
         const v = pop();
-        if (!v.pure) statement(`${v.yields ?? value(v).text};`);
+        if (!v.pure) statement(`${v.yields ?? value(v).text};`, v.writes ?? [ALL]);
       } else if (n in BINARY) {
         const r = pop(),
           l = pop();
@@ -529,23 +619,24 @@ class ScriptDecompiler {
           name = this.nativeNames[i.operand];
         this.usedNatives.add(i.operand);
         const text = `yield* game.${name}(${args.map((a) => value(a).text).join(', ')})`;
-        if (info.returnBytes) stack.push(yieldExpr(text));
-        else statement(`${text};`);
+        if (info.returnBytes) stack.push(yieldExpr(text, [STATE]));
+        else statement(`${text};`, [STATE]);
       } else if (n === 'call_script') {
         const info = this.scripts[i.operand],
           args = takeArguments(info.argumentBytes >>> 1);
         const text = `yield* script(0x${hex(i.operand)}${args.map((a) => `, ${value(a).text}`).join('')})`;
-        if (info.returnBytes) stack.push(yieldExpr(text));
-        else statement(`${text};`);
+        if (info.returnBytes) stack.push(yieldExpr(text, [STATE]));
+        else statement(`${text};`, [STATE]);
       } else if (n === 'call_local') {
         const sub = this.subs.get(i.operand),
           args = takeArguments(sub.inputs),
           name = `sub${i.operand}`;
         const text = `${sub.yields ? 'yield* ' : ''}${name}(${args.map((a) => value(a).text).join(', ')})`;
-        if (sub.outputs === 0) statement(`${text};`);
-        else if (sub.outputs === 1) stack.push(sub.yields ? yieldExpr(text) : atom(text, false));
+        if (sub.outputs === 0) statement(`${text};`, [ALL]);
+        else if (sub.outputs === 1)
+          stack.push(sub.yields ? yieldExpr(text, [ALL]) : atom(text, false, [], [ALL]));
         else {
-          spill();
+          spill([ALL]);
           const names = Array.from({ length: sub.outputs }, () => `t${++this.temps}`);
           lines.push(`const [${names.join(', ')}] = ${text};`);
           // The first output is the deepest.
@@ -553,7 +644,7 @@ class ScriptDecompiler {
         }
       } else if (n === 'jump_if_zero' || n === 'jump_if_nonzero') {
         const c = condition(pop());
-        spill();
+        spill([]);
         terminator = { kind: 'branch', when: n === 'jump_if_zero' ? negate(c) : c };
       } else if (n === 'jump') terminator = { kind: 'goto' };
       else if (n === 'end' || n === 'return_local') {
@@ -626,9 +717,8 @@ class ScriptDecompiler {
       for (const next of blocks.get(pc).next) if (!stackAt.has(next)) stackAt.set(next, []);
     }
 
-    const labels = new Set();
     const out = [];
-    const emit = (indent, text) => out.push({ indent, text });
+    const emit = (indent, text, extra = {}) => out.push({ indent, text, ...extra });
     const doTree = (x, context, indent) => {
       const ys = children
         .get(x)
@@ -669,7 +759,7 @@ class ScriptDecompiler {
         return;
       }
       if (term.kind === 'branch') {
-        emit(indent, `if (${term.when.text}) {`);
+        emit(indent, `if (${term.when.text}) {`, { negated: `if (${negate(term.when).text}) {` });
         doBranch(x, next[0], context, indent + 1);
         emit(indent, '} else {');
         doBranch(x, next[1], context, indent + 1);
@@ -679,16 +769,12 @@ class ScriptDecompiler {
       doBranch(x, next[0], context, indent);
     };
     const doBranch = (from, to, context, indent) => {
-      if (backward(from, to)) {
-        labels.add(`loop${to}`);
-        emit(indent, `continue loop${to};`);
-      } else if (merge(to)) {
-        labels.add(`block${to}`);
-        emit(indent, `break block${to};`);
-      } else doTree(to, context, indent);
+      if (backward(from, to)) emit(indent, `continue loop${to};`);
+      else if (merge(to)) emit(indent, `break block${to};`);
+      else doTree(to, context, indent);
     };
     doTree(entry, [], 0);
-    return tidy(out, labels);
+    return tidy(out, !isMain);
   }
 
   source() {
@@ -721,18 +807,71 @@ class ScriptDecompiler {
   }
 }
 
-// Labels nobody jumps to go, with their braces when they wrap a block; an else whose
-// then-branch ends in a jump becomes the code after the if. Lines carry their depth.
+// Tidying of a function's lines (each with its depth), until nothing changes:
+// - a jump that falls through to where it leads goes (a break at the end of its block, a
+//   continue at the end of its loop, a plain return at the end of a subroutine);
+// - an else whose then-branch ends in a jump becomes the code after the if;
+// - labels nobody jumps to go, with their braces when they wrap a block.
 const JUMP = /^(break|continue|return|throw)\b/;
-function tidy(out, labels) {
-  let lines = out.slice();
+const OPENER = /\{$/;
+const NAMED_JUMP = /^(break|continue) (\w+);$/;
+function tidy(out, isSub) {
+  const lines = out.slice();
+  // The line that opens the construct line `close` closes.
+  const openerOf = (close) => {
+    for (let m = close - 1; m >= 0; m--)
+      if (lines[m].indent === lines[close].indent && OPENER.test(lines[m].text)) return m;
+    return -1;
+  };
+  // The closing line of the if-else whose else starts at `at`.
+  const endOfElse = (at) =>
+    lines.findIndex((l, m) => m > at && l.indent === lines[at].indent && l.text === '}');
+  // Whether jump line n leads where falling through would go.
+  const fallsThrough = (n) => {
+    const jump = NAMED_JUMP.exec(lines[n].text);
+    if (!jump && !(isSub && lines[n].text === 'return;')) return false;
+    for (let m = n + 1; ; m++) {
+      if (m === lines.length) return !jump;
+      const { text } = lines[m];
+      if (text === '} else {') {
+        m = endOfElse(m);
+        continue;
+      }
+      if (text !== '}') return false;
+      const opener = lines[openerOf(m)].text;
+      const label = /^(\w+): /.exec(opener)?.[1];
+      const loop = / for \(;;\) \{$/.test(opener);
+      if (jump && label === jump[2]) return jump[1] === (loop ? 'continue' : 'break');
+      if (loop) return false;
+    }
+  };
+  const usedLabels = () => new Set(lines.map((l) => NAMED_JUMP.exec(l.text)?.[2]).filter(Boolean));
   for (let changed = true; changed;) {
     changed = false;
-    for (let n = 0; n < lines.length; n++) {
+    const used = usedLabels();
+    for (let n = 0; n < lines.length && !changed; n++) {
       const { indent, text } = lines[n];
+      if (fallsThrough(n)) {
+        lines.splice(n, 1);
+        changed = true;
+        break;
+      }
+      // An empty branch of an if-else goes (the condition turns for an empty then).
+      const nextLine = lines[n + 1];
+      if (nextLine?.indent === indent && lines[n].negated && nextLine.text === '} else {') {
+        lines[n] = { indent, text: lines[n].negated };
+        lines.splice(n + 1, 1);
+        changed = true;
+        break;
+      }
+      if (text === '} else {' && nextLine?.indent === indent && nextLine.text === '}') {
+        lines.splice(n, 1);
+        changed = true;
+        break;
+      }
       const label = /^(block\d+): \{$/.exec(text);
       const elseAfterJump = text === '} else {' && JUMP.test(lines[n - 1]?.text ?? '');
-      if (!(label && !labels.has(label[1])) && !elseAfterJump) continue;
+      if (!(label && !used.has(label[1])) && !elseAfterJump) continue;
       const close = lines.findIndex((l, m) => m > n && l.indent === indent && l.text === '}');
       // The wrapped lines move out one level.
       for (let m = n + 1; m < close; m++) lines[m] = { ...lines[m], indent: lines[m].indent - 1 };
@@ -740,12 +879,12 @@ function tidy(out, labels) {
       if (elseAfterJump) lines[n] = { indent, text: '}' };
       else lines.splice(n, 1);
       changed = true;
-      break;
     }
   }
+  const used = usedLabels();
   return lines.map(({ indent, text }) => {
     const loop = /^(loop\d+): for \(;;\) \{$/.exec(text);
-    return `${'  '.repeat(indent)}${loop && !labels.has(loop[1]) ? 'for (;;) {' : text}`;
+    return `${'  '.repeat(indent)}${loop && !used.has(loop[1]) ? 'for (;;) {' : text}`;
   });
 }
 
@@ -770,6 +909,7 @@ export async function decompileAll(mem) {
   const names = nativeNames(mem, natives.length);
   const files = new Map();
   const index = [];
+  const allUsed = new Set();
   for (let first = 0; first < scripts.length; first += GROUP) {
     const group = scripts.slice(first, first + GROUP),
       bodies = [],
@@ -777,7 +917,7 @@ export async function decompileAll(mem) {
     for (const s of group) {
       const d = new ScriptDecompiler(s, scripts, natives, names);
       bodies.push(d.source());
-      for (const id of d.usedNatives) used.add(id);
+      for (const id of d.usedNatives) (used.add(id), allUsed.add(id));
     }
     const file = `scripts-${hex(first)}.mjs`;
     // The runtime helpers the group's code names.
@@ -793,7 +933,7 @@ export async function decompileAll(mem) {
     files.set(file, await render(`${head.join('\n')}\n\n${bodies.join('\n\n')}`));
     for (const s of group) index.push([s.id, file]);
   }
-  // The natives table.
+  // The natives table: the game functions some script calls.
   const nativeLines = [
     '// The game functions (natives) the scripts call, by name, generated by',
     '// tools/decompile-scripts.mjs (docs/READABLE-GAME.md, phase 2). A call yields the',
@@ -801,9 +941,9 @@ export async function decompileAll(mem) {
     "import { native } from './runtime.mjs';",
     '',
     'export const game = Object.freeze({',
-    ...names.map(
-      (name, id) => `  ${name}: (...args) => native(0x${hex(id, NATIVE_DIGITS)}, ...args),`,
-    ),
+    ...[...allUsed]
+      .sort((a, b) => a - b)
+      .map((id) => `  ${names[id]}: (...args) => native(0x${hex(id, NATIVE_DIGITS)}, ...args),`),
     '});',
   ];
   files.set('natives.mjs', await render(nativeLines.join('\n')));
