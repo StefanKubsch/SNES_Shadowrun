@@ -3,21 +3,14 @@ import assert from 'node:assert/strict';
 import { assertFrozenRun, useLiftVectors } from './lift-function-harness.mjs';
 import { compareRun } from './member-menu-caller-harness.mjs';
 import * as direct from '../src/game/glove-target.mjs';
-import { gloveMoveSequence } from '../proof/caller/glove-move.mjs';
-import { showNoticeSequence } from '../proof/caller/notice-show.mjs';
-import {
-  runDrawWindowList,
-  runRequestUpload,
-  runUnpackWindowMap,
-} from '../proof/caller/window-list.mjs';
 import * as W from '../src/data/wram.mjs';
 
 useLiftVectors(import.meta.url);
 
-function runChoice(module, name, budget, target, pads, request = 0, far = false) {
+function runChoice(name, budget, target, pads, request = 0, far = false) {
   return compareRun(
-    (h, events, renderer) => module[name](h, events, renderer),
-    module === direct,
+    (h, events, renderer) => direct[name](h, events, renderer),
+    true,
     ({ put }) => {
       put(W.PLAYER_OBJECT, 0);
       put(0, 4);
@@ -43,13 +36,8 @@ function runChoice(module, name, budget, target, pads, request = 0, far = false)
     budget,
     pads,
     true,
-    ({ h, events, routines, bind, mem, calls }) => {
-      if (module === direct) events.frameJobs = () => assert.fail('fixture services every wait');
-      bind(0x80be6d, () => gloveMoveSequence(h, events, routines));
-      routines.set(0x81ad92, runDrawWindowList);
-      routines.set(0x81a9b2, runUnpackWindowMap);
-      routines.set(0x81acb5, runRequestUpload);
-      bind(0x80fec1, () => showNoticeSequence(h, events, routines));
+    ({ h, events, mem, calls }) => {
+      events.frameJobs = () => assert.fail('fixture services every wait');
       const service = events.interrupts.textWait;
       let prepared = false;
       events.interrupts.textWait = (callee, frameEvents, status, pc) => {
@@ -60,17 +48,8 @@ function runChoice(module, name, budget, target, pads, request = 0, far = false)
           (name === 'spellGloveTargetSequence' || name === 'choosePlaceWithGloveSequence')
         ) {
           prepared = true;
-          if (module === direct) {
-            assert.equal(h.ctx.s, 0x1c7, 'preparation keeps only the outer native frame');
-            assert.equal(h.ctx.programBank, 0x80);
-          } else {
-            assert.equal(mem.read16(0x7e0000 | (h.ctx.s + 4)), 0xaebf);
-            assert.equal(
-              mem.read16(0x7e0000 | (h.ctx.s + 7)),
-              name === 'spellGloveTargetSequence' ? 0x9bde : 0xc736,
-            );
-            assert.equal(mem.read8(0x7e0000 | (h.ctx.s + 9)), 0x80);
-          }
+          assert.equal(h.ctx.s, 0x1c7, 'preparation keeps only the outer native frame');
+          assert.equal(h.ctx.programBank, 0x80);
           calls.push([
             'prepare upload',
             mem.read16(W.WINDOW_FIRST_INDEX),
@@ -97,7 +76,7 @@ for (const budget of [1, 7])
       for (const request of [0, 0xffff])
         for (const pads of [[0x8000], [0, 0x8000], [0x100, 0x200, 0, 0x8000]])
           test(`choice with actual movement: ${name}, target ${target}, request ${request}, pads ${pads}, budget ${budget}`, () => {
-            const actual = runChoice(direct, name, budget, target, pads, request);
+            const actual = runChoice(name, budget, target, pads, request);
             assertFrozenRun(actual);
             assert.equal(actual.input, pads.length);
             assert.equal(actual.wram[W.GLOVE_KIND], 0);
@@ -118,7 +97,7 @@ for (const budget of [1, 7])
 for (const budget of [1, 7])
   for (const name of choices.slice(1, 4))
     test(`choice with actual movement rejects far height: ${name}, budget ${budget}`, () => {
-      const actual = runChoice(direct, name, budget, true, [0x8000], 0, true);
+      const actual = runChoice(name, budget, true, [0x8000], 0, true);
       assertFrozenRun(actual);
       assert.equal(actual.wram[0] | (actual.wram[1] << 8), 0xffff);
       assert.ok(actual.uploads.length > 0);
