@@ -102,3 +102,9 @@ export function* releaseGloveNameWindowSequence(h, events) {
 export function* releaseNoticeWindowsCallSequence(h, events) {
   yield* releaseNoticeWindowsSequence(h, events);
 }
+
+// Release the window with this number and redraw the window list.
+export function* releaseWindowAt(h, events, window) {
+  yield () => setWord(sceneRuntime(h).wram, DP_WINDOW, window);
+  yield* releaseWindowSequence(h, events);
+}

@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { dialogTopicSequence } from '../src/game/dialog-text.mjs';
+import { startDialogScript } from '../src/game/dialog-text.mjs';
 import { spellMenu } from '../src/game/member-spell-menu.mjs';
 import { SPELL_SLOT_FIRST } from '../src/data/native-member-spell-menu.mjs';
 import { JsTasks, tasksOf, argumentWords } from '../src/script/task-api.mjs';
@@ -123,7 +123,7 @@ for (const js of [false, true])
             visit();
             return { wait: [script], input: [OBJECT] };
           };
-        finish(side, dialogTopicSequence(h, events, ACTION_OFFSET));
+        finish(side, startDialogScript(h, events, script));
         assert.equal(visits, 1);
         checkTask(side, script, expected);
         if (!nested) {
@@ -189,7 +189,7 @@ for (const js of [false, true])
     events.round = () => {
       throw failure;
     };
-    const runner = new SequenceRunner(dialogTopicSequence(h, events, ACTION_OFFSET));
+    const runner = new SequenceRunner(startDialogScript(h, events, SCRIPT));
     assert.throws(
       () => runner.run(STEP_LIMIT),
       (error) => error === failure,

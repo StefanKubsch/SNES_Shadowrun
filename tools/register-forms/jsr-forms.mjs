@@ -16,46 +16,14 @@ import { startNewGame } from '../../src/game/game-start.mjs';
 import { gloveMove } from '../../src/game/glove-move.mjs';
 import { buildSpritesInPlace } from '../../src/game/sprite-list.mjs';
 import { moveAndAnimateInPlace } from '../../src/game/object-motion.mjs';
-import { noticeTimeoutSequence } from '../../src/game/notice-timeout.mjs';
 import { timeLimitSequence } from '../../src/game/time-limit.mjs';
 import { gloveActionSequence } from '../../src/game/glove-action.mjs';
 import { playerZonesSequence } from '../../src/game/player-zones.mjs';
 import { sceneRequestSequence } from '../../src/game/scene-request.mjs';
 import { drawTextBuffer } from '../../src/game/text-draw.mjs';
-import { FLAG_MEMORY_8BIT } from '../../src/constants/cpu-flags.mjs';
 import { waitForCounterWord } from '../../src/system/frame-wait.mjs';
-import { drawList, markRow } from '../../src/game/menu-list.mjs';
-import { chooseFromMenu } from '../../src/game/menu-choice.mjs';
-import {
-  releaseGloveNameWindowSequence,
-  putGloveAwaySequence,
-} from '../../src/game/window-release.mjs';
 import { transferPortraitTiles } from '../../src/game/portrait-upload.mjs';
-import { updateGameFrame } from '../../src/game/game-nmi.mjs';
-import {
-  clearFixedColourInPlace,
-  setWindowTextWidthInPlace,
-  closeDialog,
-} from '../../src/game/dialog-talk.mjs';
-import {
-  shiftPortraitRowsInPlace,
-  uploadFirstPortrait,
-  uploadSecondPortrait,
-} from '../../src/game/portrait-upload.mjs';
-import { openPortraitWindow, closePortraitWindow } from '../../src/game/portrait-window.mjs';
-import { buyStep, karmaLine, karmaList, karmaMenu } from '../../src/game/karma-menu.mjs';
-import { saveMenu } from '../../src/game/main-menu.mjs';
-import { equipmentRows } from '../../src/game/equipment-window.mjs';
-import { partyStatus } from '../../src/game/party-status.mjs';
-import { notes, skills } from '../../src/game/status-submenus.mjs';
-import { itemMenu, useItem } from '../../src/game/item-menu.mjs';
-import { spellMenu } from '../../src/game/member-spell-menu.mjs';
-import { memberPortrait } from '../../src/game/member-portrait.mjs';
-import { chooseAction } from '../../src/game/action-menu.mjs';
-import { chooseDialogAction, chooseDialogTopic } from '../../src/game/dialog-menus.mjs';
-import { showDialogText } from '../../src/game/dialog-text.mjs';
-import { openWindow, requestTileClear } from '../../src/game/window-open.mjs';
-import { resetWindowList } from '../../src/game/window-list.mjs';
+import { shiftPortraitRowsInPlace } from '../../src/game/portrait-upload.mjs';
 
 function* rts(h) {
   let result;
@@ -160,12 +128,6 @@ export function moveAndAnimateJsr(h) {
   return h.rts();
 }
 
-// The notice timeouts 80:FF14; their window releases wait for the NMI of their uploads.
-export function* noticeTimeoutJsr(h, events) {
-  yield* noticeTimeoutSequence(h, events);
-  return yield* rts(h);
-}
-
 // The time limit 80:E270; its notice and text wait for the NMI of their uploads.
 export function* timeLimitJsr(h, events, renderBuffer = drawTextBuffer) {
   yield* timeLimitSequence(h, events, renderBuffer);
@@ -192,198 +154,10 @@ export function* sceneRequestJsr(h, events, request = {}) {
   return yield* rts(h);
 }
 
-// 81:886A as called with JSL; returns with its RTL.
-export function clearFixedColourJsl(h) {
-  clearFixedColourInPlace(h);
-  return h.rtl();
-}
-
-// 80:FA92 as called with JSR; returns with its RTS.
-export function setWindowTextWidthJsr(h) {
-  setWindowTextWidthInPlace(h);
-  return h.rts();
-}
-
-// The dialog close as called with JSR (80:92C5); returns with its RTS.
-export function* closeDialogJsr(h, events) {
-  yield* closeDialog(h, events);
-  return yield* rts(h);
-}
-
 // 80:8F20 as called with JSR; returns with its RTS.
 export function shiftPortraitRowsJsr(h) {
   shiftPortraitRowsInPlace(h);
   return h.rts();
-}
-
-// The first upload as called with JSR (80:9022); returns with its RTS.
-export function* uploadFirstPortraitJsr(h, events) {
-  yield* uploadFirstPortrait(h, events);
-  return yield* rts(h);
-}
-
-// The second upload as called with JSR (80:905E); returns with its RTS.
-export function* uploadSecondPortraitJsr(h, events) {
-  yield* uploadSecondPortrait(h, events);
-  return yield* rts(h);
-}
-
-// The opening as called with JSR (80:8F3A); returns with its RTS.
-export function* openPortraitWindowJsr(h, events) {
-  yield* openPortraitWindow(h, events);
-  return yield* rts(h);
-}
-
-// The closing as called with JSR (80:8F97); returns with its RTS.
-export function* closePortraitWindowJsr(h, events) {
-  yield* closePortraitWindow(h, events);
-  return yield* rts(h);
-}
-
-// The step bought as called with JSR (80:F006); returns with its RTS.
-export function* buyStepJsr(h, events, renderBuffer = drawTextBuffer) {
-  yield* buyStep(h, events, renderBuffer);
-  return yield* rts(h);
-}
-
-// The karma line as called with JSR (80:EF82); returns with its RTS.
-export function* karmaLineJsr(h, events, renderBuffer = drawTextBuffer) {
-  yield* karmaLine(h, events, renderBuffer);
-  return yield* rts(h);
-}
-
-// The karma list as called with JSR; returns with its RTS.
-export function* karmaListJsr(h, events, entry, renderBuffer = drawTextBuffer) {
-  yield* karmaList(h, events, entry, renderBuffer);
-  return yield* rts(h);
-}
-
-// The karma menu as called with JSR (80:EE57); returns with its RTS.
-export function* karmaMenuJsr(h, events, renderBuffer = drawTextBuffer) {
-  yield* karmaMenu(h, events, renderBuffer);
-  return yield* rts(h);
-}
-
-// The save menu as called with JSR (80:CDD6); returns with its RTS.
-export function* saveMenuJsr(h, events, renderBuffer = drawTextBuffer) {
-  yield* saveMenu(h, events, renderBuffer);
-  return yield* rts(h);
-}
-
-// The rows as called with JSR (80:E9C5); returns with its RTS.
-export function* equipmentRowsJsr(h, events, renderBuffer = drawTextBuffer) {
-  yield* equipmentRows(h, events, renderBuffer);
-  let result;
-  yield () => {
-    result = h.rts();
-  };
-  return result;
-}
-
-// The party status as called with JSR (80:ED3C); returns with its RTS.
-export function* partyStatusJsr(h, events, renderBuffer = drawTextBuffer) {
-  yield* partyStatus(h, events, renderBuffer);
-  let result;
-  yield () => {
-    result = h.rts();
-  };
-  return result;
-}
-
-// The notes as called with JSR (80:E8C8); return with their RTS.
-export function* notesJsr(h, events, renderBuffer = drawTextBuffer) {
-  yield* notes(h, events, renderBuffer);
-  return yield* rts(h);
-}
-
-// The skills as called with JSR (80:E834); return with their RTS.
-export function* skillsJsr(h, events, renderBuffer = drawTextBuffer) {
-  yield* skills(h, events, renderBuffer);
-  return yield* rts(h);
-}
-
-// The item submenu as called with JSR; returns with its RTS.
-export function* itemMenuJsr(h, events, entry, renderBuffer = drawTextBuffer) {
-  yield* itemMenu(h, events, entry, renderBuffer);
-  return yield* rts(h);
-}
-
-// The item use as called with JSR (80:E4F3); returns with its RTS.
-export function* useItemJsr(h, events, renderBuffer, actor) {
-  yield* useItem(h, events, renderBuffer, actor);
-  return yield* rts(h);
-}
-
-// The spell menu as called with JSR; returns with its RTS.
-export function* spellMenuJsr(
-  h,
-  events,
-  entry, // undefined: the menu entry 80:E693
-  renderBuffer = drawTextBuffer,
-) {
-  yield* spellMenu(h, events, entry, renderBuffer);
-  return yield* rts(h);
-}
-
-// The portrait as called with JSR (80:E4B3); returns with its RTS.
-export function* memberPortraitJsr(h, events) {
-  yield* memberPortrait(h, events);
-  return yield* rts(h);
-}
-
-// The action menu as called with JSR (80:99EB); returns with its RTS.
-export function* chooseActionJsr(h, events, renderBuffer = drawTextBuffer, accepted, choice = {}) {
-  yield* chooseAction(h, events, renderBuffer, accepted, choice);
-  return yield* rts(h);
-}
-
-// The main menu as called with JSR (80:91E2), a sequence for a native call
-// continuation; returns with its RTS.
-export function* chooseDialogActionJsr(h, events, renderBuffer = drawTextBuffer) {
-  yield* chooseDialogAction(h, events, renderBuffer);
-  return yield* rts(h);
-}
-
-// The topic choice as called with JSR (80:9215), a sequence for a native call
-// continuation; returns with its RTS.
-export function* chooseDialogTopicJsr(h, events, renderBuffer = drawTextBuffer) {
-  yield* chooseDialogTopic(h, events, renderBuffer);
-  return yield* rts(h);
-}
-
-// The dialog text as called with JSR (80:9178), a sequence for a native call
-// continuation; returns with its RTS.
-export function* showDialogTextJsr(h, events, renderBuffer = drawTextBuffer, key) {
-  yield* showDialogText(h, events, renderBuffer, key);
-  let result;
-  yield () => {
-    result = h.rts();
-  };
-  return result;
-}
-
-// The window opening as called with JSR (80:F963), a sequence for a native call
-// continuation whose caller has pushed the frame; returns with its RTS.
-export function* openWindowJsr(h, events) {
-  yield* openWindow(h, events);
-  return yield* rts(h);
-}
-
-// The tile request as other routines call it with JSR (their sequence pushes the
-// frame); the existing JSR frame is consumed.
-export function* requestTileClearJsr(h, events) {
-  yield* requestTileClear(h, events);
-  return yield* rts(h);
-}
-
-// 81:AEB0 as called with JSL; returns with its RTL (which takes the bank from the stack).
-export function* resetWindowListJsl(h, events) {
-  yield* resetWindowList(h, events);
-  let result;
-  yield () => {
-    result = h.rtl();
-  };
-  return result;
 }
 
 // A sequence, then the RTS (or RTL) of its register-level entry.
@@ -397,41 +171,6 @@ function* thenReturn(h, sequence, long = false) {
 }
 // The word wait 81:B0A1 as called with JSL.
 export const frameWaitJsl = (h, events) => thenReturn(h, waitForCounterWord(h, events), true);
-// The menu list's mark or removal (80:A5F9, 80:A5DB) and the list drawing (80:A617).
-export const markRowJsr = (h, events, renderBuffer, form, index) =>
-  thenReturn(h, markRow(h, events, renderBuffer, form, index));
-export const drawListJsr = (h, events, renderBuffer) =>
-  thenReturn(h, drawList(h, events, renderBuffer));
-// The menu choice (80:A6A5 to 80:A6C7): a confirmed choice leaves the sound entry's
-// code bank 80 as the data bank.
-const MENU_CHOICE_NONE = 0xffff,
-  MENU_CHOICE_BANK = 0x80;
-export function* chooseFromMenuJsr(h, events, renderBuffer, entry, row = 0) {
-  const selected = yield* chooseFromMenu(h, events, renderBuffer, entry, row);
-  let result;
-  yield () => {
-    if (selected !== MENU_CHOICE_NONE) h.ctx.bank = MENU_CHOICE_BANK;
-    result = h.rts();
-  };
-  return result;
-}
-// The name window release as called with JSR (80:BE5B) and the glove's release (80:BCB2).
-export const releaseNameWindowJsr = (h, events) =>
-  thenReturn(h, releaseGloveNameWindowSequence(h, events));
-export const putGloveAwayJsr = (h, events) => thenReturn(h, putGloveAwaySequence(h, events));
 // The portrait DMA job (80:8FF5) with the VRAM address as a value.
 export const uploadPortraitTilesJsr = (h, events, vram) =>
   thenReturn(h, transferPortraitTiles(h, events, vram));
-// The game NMI handler 80:C152 as reached through its callback with JSL.
-export function handleGameNmiJsl(h) {
-  updateGameFrame(h);
-  return h.rtl();
-}
-// The text buffer 80:FB39 as entered with JSR: it leaves 16-bit A and returns.
-export function* drawTextBufferJsr(h, events) {
-  yield* drawTextBuffer(h, events);
-  return yield () => {
-    h.ctx.status &= ~FLAG_MEMORY_8BIT;
-    return h.rts();
-  };
-}

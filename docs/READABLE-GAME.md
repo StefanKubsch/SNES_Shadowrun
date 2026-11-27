@@ -45,6 +45,15 @@ layout for the golden traces.
 4. **Pilot: the dialog** with portraits and windows, as the pattern for every later
    subsystem.
 5. **No references to WRAM, ROM or hardware** in `src/` (user, 2026-11-27).
+6. **Platform boundary** (user, 2026-11-27): game logic and data in `src/` are
+   agnostic; the platform layer (renderer, audio player, input) implements the drawing,
+   sound output and input for its system. The browser renderer keeps reproducing the
+   original picture from tiles and palettes, so the golden pictures stay pixel-identical;
+   another system (Amiga) would bring its own platform layer.
+7. **Audio is sample-identical** (user, 2026-11-27): music and effects become note
+   sequences, instruments and samples played by a neutral mixer that reproduces the
+   original filters, envelopes, pitch interpolation and echo; the golden audio check
+   compares the mixed samples.
 
 ## Golden traces during the rebuild
 
@@ -89,11 +98,7 @@ traces; release and push as in [WORKFLOW.md](WORKFLOW.md).
 
 ## Open decisions
 
-- **Audio.** Music and sound effects run today on an emulation of the SNES sound
-  processor and its driver (SPC700, DSP). A system-agnostic form means note sequences,
-  instruments and samples played by a neutral mixer. Whether the sound must stay
-  sample-identical (then the mixer reproduces the DSP's filters, envelopes and echo) or
-  only sound the same decides how the golden audio hash is replaced.
+- None.
 
 ## Progress
 
@@ -105,3 +110,14 @@ traces; release and push as in [WORKFLOW.md](WORKFLOW.md).
   tools/agnostic-ratchet.test.mjs keeps them from growing: 1,253 ROM address literals,
   158 WRAM layout imports, 27 hardware register imports, 2,416 direct page names and
   2,946 addresses in comments.
+- 2026-11-27, phase 1 step 1 (dialog flow): the dialog reads its records from a content
+  layer (`src/content/dialogs.mjs`, `src/content/texts.mjs`: portrait, music, mirror,
+  entries with key, topics, script and text, the menu and topic names) and keeps its
+  state in `src/state/dialog.mjs` (end word, record flags, windows, partner, topics).
+  `talk` takes the partner and dialog number as arguments; windows, text and menus go
+  through named entries (`openWindowAt`, `releaseWindowAt`, `setWindowTextArea`,
+  `printTextIn`, `chooseFromList`). The portrait and screen work sits in
+  `src/game/dialog-screen.mjs` for the next steps. The scratch mask gained the direct
+  page long pointer 41 to 43 (a local of several routines; traces re-recorded with the
+  old code first). Ratchet: 1,248 ROM literals, 157 WRAM imports, 2,326 direct page
+  names, 2,888 address comments.

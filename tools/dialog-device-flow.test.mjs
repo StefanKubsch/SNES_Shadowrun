@@ -3,7 +3,6 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { reloadObjectTiles } from '../src/game/object-tiles.mjs';
 import { closeDialog, talk } from '../src/game/dialog-talk.mjs';
-import { DIALOG_TABLE, DIALOG_BANK_BASE } from '../src/data/portraits.mjs';
 import { SequenceRunner } from '../src/system/sequence-runner.mjs';
 import { WAIT_PAUSED } from '../src/system/native-wait-continuation.mjs';
 import { textWindowSide } from './text-window-caller-harness.mjs';
@@ -150,21 +149,7 @@ for (const operation of [reloadObjectTiles, closeDialog]) {
 for (const failGreeting of [false, true])
   test(`the talk prefix composes portrait and greeting waits directly, failure ${failGreeting}`, () => {
     const side = fixture({ tiles: 0 }),
-      { h, mem, put, events } = side,
-      read = mem.read8.bind(mem),
-      record = mem.read16(DIALOG_TABLE),
-      header = Array.from({ length: 3 }, (_, n) => read(DIALOG_BANK_BASE + record + n)),
-      bytes = [...header, 0, 0xf8]; // Real portrait; no text/action entries.
-    mem.read8 = (address) =>
-      address === DIALOG_TABLE
-        ? 0
-        : address === DIALOG_TABLE + 1
-          ? 0x60
-          : address >= 0x8d6000 && address < 0x8d6000 + bytes.length
-            ? bytes[address - 0x8d6000]
-            : read(address);
-    put(0, 0x40);
-    put(2, 0);
+      { h, mem, put, events } = side;
     put(W.GLOVE_TARGET_TAG, 0xffff);
     put(W.WINDOW_ACTIVE, 0xffff);
     for (let slot = 0; slot <= W.NOTICE_WINDOW_LAST; slot += 2)
@@ -185,7 +170,7 @@ for (const failGreeting of [false, true])
       } else return service(...args);
       return true;
     };
-    const runner = new SequenceRunner(talk(h, events));
+    const runner = new SequenceRunner(talk(h, events, undefined, 0x40, 0));
     const advance = () => {
       let steps = 0;
       // Eleven opening frames and sixty-one greeting frames, before the menu.

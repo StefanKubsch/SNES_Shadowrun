@@ -197,3 +197,24 @@ export function* openWindow(h, events) {
   yield () => drawWindow(wram, x);
   yield* requestUploadCall(h, events);
 }
+
+// Named entries for callers that hold their windows by number (docs/READABLE-GAME.md):
+// open a window over the cells [left, top, columns, rows] with its attributes and return
+// its number (with no window free, the left column, as the original leaves its result);
+// clear the text of a window.
+export function* openWindowAt(h, events, [left, top, columns, rows], attributes = 0) {
+  const { wram } = h.a.mem;
+  yield () => {
+    setWord(wram, DP_LEFT, left);
+    setWord(wram, DP_TOP, top);
+    setWord(wram, DP_WINDOW_COLUMNS, columns);
+    setWord(wram, DP_WINDOW_ROWS, rows);
+    setWord(wram, DP_WINDOW_ATTRIBUTES, attributes);
+  };
+  yield* openWindow(h, events);
+  return word(wram, DP_LEFT);
+}
+export function* clearWindowText(h, events, window) {
+  yield () => setWord(h.a.mem.wram, DP_LEFT, window);
+  yield* clearTiles(h, events, window);
+}

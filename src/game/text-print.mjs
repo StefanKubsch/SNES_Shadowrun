@@ -39,7 +39,8 @@ import {
   WORD_SIGN,
 } from '../constants/bits.mjs';
 
-const DP_TEXT = 0x02,
+const DP_WINDOW = 0x00,
+  DP_TEXT = 0x02,
   // Bank 9D in the bank byte with FF below it; a negative number adds one (bank 9E).
   SOURCE_BANK_SEED = 0x9dff,
   CODE_TREE = 0x9d8000,
@@ -130,3 +131,13 @@ export function* printText(h, events, renderBuffer = drawTextBuffer) {
   yield* renderTextBuffer(h, events, renderBuffer);
 }
 // The RTS form for register-level callers is printTextJsr in tools/register-forms/jsr-forms.mjs.
+
+// Print a text into a window at its cursor.
+export function* printTextIn(h, events, renderBuffer, window, text) {
+  yield () => {
+    const { wram } = h.a.mem;
+    setWord(wram, DP_WINDOW, window);
+    setWord(wram, DP_TEXT, text);
+  };
+  yield* printText(h, events, renderBuffer);
+}

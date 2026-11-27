@@ -4,7 +4,7 @@ import { unpackWindowMap } from './game-screen.mjs';
 import { sceneRuntime } from '../system/scene-runtime.mjs';
 import { gloveMove } from './glove-move.mjs';
 import { drawTextBuffer } from './text-draw.mjs';
-import { closeDialog } from './dialog-talk.mjs';
+import { closeDialog } from './dialog-screen.mjs';
 import { showNotice } from './notice-show.mjs';
 import { putGloveAwaySequence } from './window-release.mjs';
 import { takePad } from '../system/live-input-calls.mjs';

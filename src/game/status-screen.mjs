@@ -39,7 +39,7 @@ import { decimalNumber } from './decimal-number.mjs';
 import { drawTextBuffer } from './text-draw.mjs';
 import { equipmentRows } from './equipment-window.mjs';
 import { memberPortrait } from './member-portrait.mjs';
-import { closeDialog, clearFixedColourInPlace } from './dialog-talk.mjs';
+import { closeDialog, clearFixedColourInPlace } from './dialog-screen.mjs';
 import { sendApuCommandInPlace } from '../apu/audio-routines.mjs';
 import { chooseFromMenu, MENU } from './menu-choice.mjs';
 import { itemMenu, ITEM_ENTRIES } from './item-menu.mjs';

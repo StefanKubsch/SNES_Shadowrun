@@ -307,3 +307,30 @@ export function* chooseFromMenu(h, events, renderBuffer = drawTextBuffer, entry,
     }
   }
 }
+
+// A choice from a list of texts (docs/READABLE-GAME.md): the window, the list's column,
+// row and visible rows, and its texts. The texts go to the menu list buffer, which the
+// list drawing reads; returns the chosen row, or NO_CHOICE after a cancel.
+export const NO_CHOICE = NONE;
+const MENU_LIST_BUFFER = 0x154,
+  MENU_LIST_BANK = 0x7e;
+export function* chooseFromList(
+  h,
+  events,
+  renderBuffer,
+  { window, column, row, visibleRows, items },
+) {
+  const { wram } = h.a.mem;
+  yield () => {
+    items.forEach((item, n) => setWord(wram, MENU_LIST_BUFFER + 2 * n, item));
+    setWord(wram, MENU_LIST_BUFFER + 2 * items.length, 0);
+    setWord(wram, DP_RESULT, window);
+    setWord(wram, DP_MENU_COLUMN, column);
+    setWord(wram, DP_MENU_ROW, row);
+    setWord(wram, DP_MENU_VISIBLE_ROWS, visibleRows);
+    setWord(wram, DP_LIST_TOKENS, MENU_LIST_BUFFER);
+    setWord(wram, DP_LIST_TOKEN_BANK, MENU_LIST_BANK);
+  };
+  yield* chooseFromMenu(h, events, renderBuffer, MENU);
+  return word(wram, DP_RESULT);
+}

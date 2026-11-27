@@ -28,7 +28,9 @@ import {
   WINDOW_COLUMNS,
   WINDOW_CURSOR_PIXEL,
   WINDOW_CURSOR_TILE,
+  WINDOW_LEFT_PIXEL,
   WINDOW_TILE_START,
+  WINDOW_WIDTH_PIXELS,
 } from '../data/wram.mjs';
 import {
   RDDIVL,
@@ -38,7 +40,7 @@ import {
   WRMPYA,
   WRMPYB,
 } from '../constants/hardware-registers.mjs';
-import { BYTE_BITS, BYTE_MASK, WORD_MASK } from '../constants/bits.mjs';
+import { BYTE_BITS, BYTE_MASK, WORD_MASK, WORD_SIGN } from '../constants/bits.mjs';
 
 const DP_WINDOW = 0x00,
   DP_VALUE = 0x02,
@@ -120,3 +122,23 @@ export function* printNumber(h, events, renderBuffer = drawTextBuffer) {
   yield* renderTextBuffer(h, events, renderBuffer);
 }
 // The RTS form for register-level callers is printNumberJsr in tools/register-forms/jsr-forms.mjs.
+
+// Put the text cursor of a window at a cell of its text area (column, row).
+export function setTextCursorAt(h, window, column = 0, row = 0) {
+  const { wram } = sceneRuntime(h);
+  setWord(wram, DP_WINDOW, window);
+  setWord(wram, DP_VALUE, column);
+  setWord(wram, DP_CURSOR_ROW, row);
+  setTextCursor(h);
+}
+
+// Set the text area of a window: its left pixel and its width in pixels; a width of 0 or
+// less is added to the window's columns less its two border columns.
+const BORDER_CELLS = 2;
+export function setWindowTextArea(h, window, leftPixel, width) {
+  const { wram } = sceneRuntime(h);
+  setWord(wram, WINDOW_LEFT_PIXEL + window, leftPixel);
+  if (width === 0 || width & WORD_SIGN)
+    width = (width + word(wram, WINDOW_COLUMNS + window) - BORDER_CELLS) & WORD_MASK;
+  setWord(wram, WINDOW_WIDTH_PIXELS + window, width);
+}

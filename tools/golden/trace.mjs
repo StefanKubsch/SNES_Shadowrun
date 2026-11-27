@@ -29,6 +29,9 @@ export const SCRATCH = Object.freeze([
   // A direct page local word of several routines (the move's old coordinate, sprite,
   // palette and scene scratch), each writing it before reading it.
   [0x006b, 0x006d],
+  // A direct page local long pointer (the object tiles' picture, the camera, collision,
+  // sprite and scene loaders' locals), each writing it before reading it.
+  [0x0041, 0x0044],
   [0x0100, 0x01ca],
   [0x1c78, 0x1cbc],
 ]);

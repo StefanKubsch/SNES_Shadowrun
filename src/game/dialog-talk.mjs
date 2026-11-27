@@ -1,349 +1,121 @@
-import { readStateByte, writeStateByte } from '../state/objects.mjs';
-// Talking with an object (lifted from 80:936C with the dialog close 80:92C5; the
-// register-level versions in proof/replay/native-dialog.mjs stay the reference and serve
-// the other callers).
+// Talking with someone (docs/READABLE-GAME.md, dialog pilot).
 //
-// The glove action passes the object in the direct page word 00 and its dialog record
-// number in 02 (the record pointer from 80:94F7, bank 8D). The dialog clears the colour
-// effect (81:886A), puts the glove away (80:BCB2), releases the notice windows (80:FF79)
-// and, when the record's flag byte 3 names a music (bits 0 to 6, table 80:94E8) other
-// than the current one and the music option is on, changes the music (81:EF47); the old
-// music, or FFFF, is kept for restoration. It opens the portrait frame (1, 1, 1E x D; moved to
-// pixel 54 and narrowed by 8 with 80:FA92) and the text window (1, E, 1E x D), unpacks and
-// uploads Jake's portrait (dialog record 4E, or 4F when 7E:3C17 says so) and the
-// partner's (80:9F6D, 80:8F20, 80:9022, 80:905E), opens the portrait window (80:8F3A),
-// shows the greeting (80:9178 with FFFF) and waits 61 frames. Then the menu (80:91E2:
-// Exit, Talk, Ask about) runs until Exit or the end word 7E:1D63: Talk shows the talk
-// text (FFFE), Ask about a topic chosen with 80:9215 from the topic list 7E:3CA3. At the
-// end the dialog closes (80:92C5: the portrait window closed, the object tiles reloaded,
-// a frame waited, the two font blocks uploaded from 8D:FB78 and 8D:FD78 to VRAM 0000 and
-// 0100 by DMA, the pad read and the sprites rebuilt), both windows are released and the
-// old music comes back.
+// The glove action starts a dialog with the partner and the partner's dialog number. The
+// dialog clears the colour effect, puts the glove away and closes the notices. If the
+// dialog has its own music and the music option is on, that music plays and the old
+// music comes back at the end. It opens the text window at the top of the screen (its
+// text starting right of the portraits) and the menu window below it, shows Jake's
+// portrait (his alternate one when the story says so) and the partner's, opens the
+// portrait window, shows the greeting and waits a second.
 //
-// All callees compose directly through their established frames with the
-// original arguments; the music changes and the dialog texts take theirs as parameters.
-// Registers (user decision 2026-11-17): game state only; the routine, the dialog close,
-// the colour clear and the text width leave no A, X, Y or flags. The old music and the
-// two windows wait on the stack as in the original.
-import { segmentSequence } from '../system/sequence-runner.mjs';
+// Then the main menu runs until Exit or until something ends the dialog: Talk shows the
+// talk text, Ask about shows the text for a topic chosen from the known topics. At the
+// end the dialog's screen closes, both windows are released and the old music returns.
 import { setMusicModeInPlace } from '../apu/audio-routines.mjs';
-import { showDialogText } from './dialog-text.mjs';
+import { showDialogText, GREETING_KEY, TALK_KEY } from './dialog-text.mjs';
 import { chooseDialogAction, chooseDialogTopic } from './dialog-menus.mjs';
 import { drawTextBuffer } from './text-draw.mjs';
-import { reloadObjectTiles } from './object-tiles.mjs';
-import { buildSpritesInPlace } from './sprite-list.mjs';
-import { openWindow } from './window-open.mjs';
+import { openWindowAt } from './window-open.mjs';
+import { setWindowTextArea } from './window-text.mjs';
 import {
   putGloveAwaySequence,
   releaseNoticeWindowsSequence,
-  releaseWindowSequence,
+  releaseWindowAt,
 } from './window-release.mjs';
-import { closePortraitWindow, openPortraitWindow } from './portrait-window.mjs';
-import {
-  unpackPortraitStream,
-  shiftPortraitRowsInPlace,
-  uploadFirstPortrait,
-  uploadSecondPortrait,
-} from './portrait-upload.mjs';
-import { takePad } from '../system/live-input-calls.mjs';
+import { openPortraitWindow } from './portrait-window.mjs';
+import { clearFixedColourInPlace, closeDialog, showPortraits } from './dialog-screen.mjs';
 import { waitForCounterWord } from '../system/frame-wait.mjs';
-import { sceneRuntime } from '../system/scene-runtime.mjs';
-import { videoOf } from '../video/picture-video.mjs';
 import { fixesEnabled, preparePushkinTopics } from './bugfixes.mjs';
-import { DIALOG_TABLE, DIALOG_BANK_BASE } from '../data/portraits.mjs';
+import { dialogContent } from '../content/dialogs.mjs';
+import { dialogState, NONE } from '../state/dialog.mjs';
+import { FIRST_ARGUMENT, SECOND_ARGUMENT, leafArgument } from '../system/native-leaf-support.mjs';
 import { JAKE_PORTRAIT_DIALOG, JAKE_ALTERNATE_PORTRAIT_DIALOG } from '../data/runners.mjs';
-import {
-  DP_PORTRAIT_BANK,
-  DP_PORTRAIT_POINTER,
-  DP_PIXEL_WIDTH,
-  PORTRAIT_BUFFER,
-  PORTRAIT_OBJSEL,
-  PORTRAIT_RECORD_BANK_BYTE,
-  FIXED_COLOUR_BLACK,
-} from '../system/native-dialog-portrait.mjs';
-import {
-  DIALOG_END,
-  DIALOG_RECORD_FLAGS,
-  DP_WINDOW_ATTRIBUTES,
-  DP_WINDOW_COLUMNS,
-  DP_WINDOW_LEFT,
-  DP_WINDOW_ROWS,
-  DP_WINDOW_TOP,
-  GAME_OPTIONS,
-  JAKE_ALTERNATE_PORTRAIT,
-  MUSIC,
-  OPTION_MUSIC,
-  PALETTE_UPLOAD_LIST_BYTES,
-  TOPIC_LIST,
-  WINDOW_COLUMNS,
-  WINDOW_LEFT_PIXEL,
-  WINDOW_WIDTH_PIXELS,
-} from '../data/wram.mjs';
-import {
-  BYTE_BITS,
-  BYTE_MASK,
-  LONG_MASK,
-  WORD_BITS,
-  WORD_MASK,
-  WORD_SIGN,
-} from '../constants/bits.mjs';
 
-// The direct page words of the dialog: the object, the record pointer (bank in 13), the
-// portrait frame and the text window.
-const DP_OBJECT = 0x00,
-  DP_RECORD_NUMBER = 0x02,
-  DP_DIALOG_OBJECT = 0x26,
-  DP_RECORD = 0x11,
-  DP_RECORD_BANK = 0x13,
-  DP_PORTRAIT_FRAME = 0x14,
-  DP_TEXT_WINDOW = 0x17;
-const RECORD_FLAG_BYTE = 3,
-  MUSIC_BITS = 0x7f,
-  MUSIC_TABLE = 0x8094e8,
-  NO_MUSIC = WORD_MASK,
-  RECORD_BANK = DIALOG_BANK_BASE >>> WORD_BITS,
-  PORTRAIT_FRAME = Object.freeze([1, 1, 0x1e, 0x0d]),
-  TEXT_WINDOW = Object.freeze([1, 0x0e, 0x1e, 0x0d]),
-  FRAME_LEFT_PIXEL = 0x54,
-  FRAME_WIDTH_CHANGE = -8 & WORD_MASK,
-  GREETING_TEXT = WORD_MASK,
-  TALK_TEXT = 0xfffe,
-  GREETING_WAIT_FRAMES = 0x3c,
-  NO_TOPIC = BYTE_MASK,
-  MENU_EXIT = 0,
-  MENU_TALK = 1;
-// The two font blocks of the dialog close: VRAM word address and source in bank 8D, 40
-// bytes by DMA channel 0 (word mode to VMDATA, increment after the high byte), each with
-// the sites of its eight writes.
-const fontSites = (address, bytes, source, bank, target, increment, mode, start) =>
-  Object.freeze({ address, bytes, source, bank, target, increment, mode, start });
-const FONT_BLOCKS = Object.freeze([
-    [
-      0,
-      0x8dfb78,
-      fontSites(0x8092d8, 0x8092de, 0x8092e4, 0x8092eb, 0x8092f0, 0x8092f5, 0x8092fa, 0x8092ff),
-    ],
-    [
-      0x100,
-      0x8dfd78,
-      fontSites(0x809307, 0x80930d, 0x809313, 0x80931a, 0x80931f, 0x809324, 0x809329, 0x80932e),
-    ],
-  ]),
-  FONT_BYTES = 0x40;
-const OBJSEL_SITE = 0x809412,
-  CLOSE_OBJSEL_SITE = 0x8092cb,
-  COLDATA_SITE = 0x81886e,
-  CGADSUB_SITE = 0x818871,
-  BORDER_COLUMNS = 2;
+export { clearFixedColourInPlace, closeDialog };
 
-const word = (wram, at) => readStateByte(wram, at) | (readStateByte(wram, at + 1) << BYTE_BITS);
-const setWord = (wram, at, value) => {
-  writeStateByte(wram, at, value & BYTE_MASK);
-  writeStateByte(wram, at + 1, (value >>> BYTE_BITS) & BYTE_MASK);
-};
-const longWord = (mem, at) =>
-  mem.read8(at & LONG_MASK) | (mem.read8((at + 1) & LONG_MASK) << BYTE_BITS);
-// The long pointer in the direct page at dp, plus y.
-const pointer = (wram, dp, y) =>
-  ((word(wram, dp) | (readStateByte(wram, dp + 2) << WORD_BITS)) + y) & LONG_MASK;
+// The windows in cells [left, top, columns, rows]: the text window and the menu window;
+// the text starts at pixel 84, and its width is the window's less 8 pixels.
+const TEXT_WINDOW = Object.freeze([1, 1, 30, 13]),
+  MENU_WINDOW = Object.freeze([1, 14, 30, 13]),
+  TEXT_LEFT_PIXEL = 84,
+  TEXT_WIDTH_CHANGE = -8 & NONE;
+// The rows of the main menu.
+const EXIT = 0,
+  TALK = 1;
+// The greeting stays a second (61 frames) before the menu.
+const GREETING_FRAMES = 61;
+// The record flags: the music number, and the partner's portrait mirrored.
+const MIRRORED = 0x80;
+// A music word with this bit set names no music.
+const MUSIC_NONE_BIT = 0x8000;
 
-// Clear the fixed colour (81:886A), called with JSL: COLDATA black on all planes, no
-// colour math (CGADSUB 0).
-export function clearFixedColourInPlace(h) {
-  const video = videoOf(sceneRuntime(h).port);
-  video.setFixedColour(FIXED_COLOUR_BLACK, COLDATA_SITE);
-  video.setColourMathLayers(0, CGADSUB_SITE);
-}
-// Set the text area of the window in the direct page word 00 (80:FA92), called with JSR:
-// its left text pixel from 02, its width in pixels from 04, or, for 0 or less, the
-// window's columns plus 04 less two (as the original adds them).
-export function setWindowTextWidthInPlace(h) {
-  const { wram } = sceneRuntime(h),
-    x = word(wram, DP_OBJECT);
-  setWord(wram, WINDOW_LEFT_PIXEL + x, word(wram, DP_RECORD_NUMBER));
-  let width = word(wram, DP_PIXEL_WIDTH);
-  if (width === 0 || width & WORD_SIGN)
-    width = (width + word(wram, WINDOW_COLUMNS + x) - BORDER_COLUMNS) & WORD_MASK;
-  setWord(wram, WINDOW_WIDTH_PIXELS + x, width);
-}
-
-// Close the dialog (80:92C5) with live portrait, frame and input calls, for lifted
-// callers without the JSR frame (the caller's return word lies only in free stack
-// bytes). Tile restoration, counter waits, font DMA and sprite rebuilding compose
-// directly, preserving device order without internal CPU call frames.
-export function* closeDialog(h, events) {
-  const video = videoOf(sceneRuntime(h).port);
-  yield* closePortraitWindow(h, events);
-  yield () => video.setObjectSelect(0, CLOSE_OBJSEL_SITE);
-  yield* reloadObjectTiles(h, events);
-  yield* waitForCounterWord(h, events);
-  yield () => {
-    for (const [vram, source, sites] of FONT_BLOCKS)
-      video.sendToVram(source, FONT_BYTES, vram, sites);
-  };
-  yield* segmentSequence(() => takePad(h, events));
-  yield () => buildSpritesInPlace(h);
-}
-
-// Talk with the object (80:936C) for lifted callers, without the JSR frame (the
-// caller's return word lies only in free stack bytes). Greeting and device waits
-// and topic task creation compose directly. Recorded unpacking and legacy
-// scheduler hooks retain their compatibility adapters.
-// The glove action supplies direct page 0 and data bank 80;
-// renderBuffer draws text.
-export function* talk(h, events, renderBuffer = drawTextBuffer) {
-  const m = sceneRuntime(h),
-    { mem, wram, port } = m;
-  if (fixesEnabled(h.a)) preparePushkinTopics(h.a, word(wram, DP_RECORD_NUMBER));
-  // Load a portrait record (pointer in F6, bank in F8) for the unpacker: its address and
-  // bank and the buffer.
-  function* portrait() {
-    let stream;
-    yield () => {
-      const at =
-        word(wram, DP_PORTRAIT_POINTER) | (readStateByte(wram, DP_PORTRAIT_BANK) << WORD_BITS);
-      stream = [longWord(mem, at), longWord(mem, at + PORTRAIT_RECORD_BANK_BYTE) & BYTE_MASK];
-    };
-    yield () => unpackPortraitStream(h, ...stream, PORTRAIT_BUFFER);
-    yield () => shiftPortraitRowsInPlace(h);
-  }
-  // Set the window of the direct page words 00 to 08.
-  const window = ([left, top, columns, rows]) => {
-    setWord(wram, DP_WINDOW_LEFT, left);
-    setWord(wram, DP_WINDOW_TOP, top);
-    setWord(wram, DP_WINDOW_COLUMNS, columns);
-    setWord(wram, DP_WINDOW_ROWS, rows);
-    setWord(wram, DP_WINDOW_ATTRIBUTES, 0);
-  };
-  // The music to change to, then the music to restore.
-  const music = function* (mode) {
-    yield () => setMusicModeInPlace(h, mode.value);
-  };
+// Talk with the partner through the dialog number.
+export function* talk(h, events, renderBuffer = drawTextBuffer, partner, number) {
+  const { mem } = h.a,
+    state = dialogState(mem),
+    content = dialogContent(mem),
+    dialog = content.dialogs[number];
+  if (fixesEnabled(h.a)) preparePushkinTopics(h.a, number);
   yield () => clearFixedColourInPlace(h);
   yield () => {
-    setWord(wram, DIALOG_END, 0);
-    setWord(wram, DP_DIALOG_OBJECT, word(wram, DP_OBJECT));
+    state.endWord = 0;
+    state.partner = partner;
   };
   yield* putGloveAwaySequence(h, events);
-  yield () => {
-    writeStateByte(wram, DP_RECORD_BANK, RECORD_BANK);
-    const number = word(wram, DP_RECORD_NUMBER);
-    setWord(wram, DP_RECORD, longWord(mem, DIALOG_TABLE + ((number << 1) & WORD_MASK)));
-  };
   yield* releaseNoticeWindowsSequence(h, events);
-  // The dialog's music. The original keeps the old music (or FFFF) on the stack over the
-  // dialog, and later the two windows over the close; those words lie only in free stack
-  // bytes and are kept in locals here (game state only, user decision 2026-11-17).
-  let change = null,
-    oldMusic;
+  // The dialog's music, and the music to bring back afterwards (none if unchanged).
+  let music = null,
+    oldMusic = NONE;
   yield () => {
-    const flags = longWord(mem, pointer(wram, DP_RECORD, RECORD_FLAG_BYTE)) & BYTE_MASK;
-    setWord(wram, DIALOG_RECORD_FLAGS, flags);
-    if (flags & MUSIC_BITS && word(wram, GAME_OPTIONS) & OPTION_MUSIC) {
-      const value = longWord(mem, MUSIC_TABLE + ((flags & MUSIC_BITS) << 1)),
-        current = word(wram, MUSIC);
-      if (value !== current) change = { value };
+    state.recordFlags = dialog.music | (dialog.mirror ? MIRRORED : 0);
+    if (dialog.music && state.musicOption) {
+      const value = content.music[dialog.music - 1];
+      if (value !== state.music) music = value;
     }
-    oldMusic = change ? word(wram, MUSIC) : NO_MUSIC;
+    if (music !== null) oldMusic = state.music;
   };
-  if (change) yield* music(change);
-  yield () => window(PORTRAIT_FRAME);
-  yield* openWindow(h, events);
+  if (music !== null) yield () => setMusicModeInPlace(h, music);
+  const textWindow = yield* openWindowAt(h, events, TEXT_WINDOW);
   yield () => {
-    setWord(wram, DP_PORTRAIT_FRAME, word(wram, DP_OBJECT));
-    setWord(wram, DP_RECORD_NUMBER, FRAME_LEFT_PIXEL);
-    setWord(wram, DP_PIXEL_WIDTH, FRAME_WIDTH_CHANGE);
+    state.textWindow = textWindow;
+    setWindowTextArea(h, textWindow, TEXT_LEFT_PIXEL, TEXT_WIDTH_CHANGE);
   };
-  yield () => setWindowTextWidthInPlace(h);
-  yield () => window(TEXT_WINDOW);
-  yield* openWindow(h, events);
-  // Jake's portrait record, then the partner's from the dialog record.
-  yield () => {
-    setWord(wram, DP_TEXT_WINDOW, word(wram, DP_OBJECT));
-    videoOf(port).setObjectSelect(PORTRAIT_OBJSEL, OBJSEL_SITE);
-    setWord(wram, PALETTE_UPLOAD_LIST_BYTES, 0);
-    const jake = readStateByte(wram, JAKE_ALTERNATE_PORTRAIT)
-        ? JAKE_ALTERNATE_PORTRAIT_DIALOG
-        : JAKE_PORTRAIT_DIALOG,
-      record = longWord(mem, DIALOG_TABLE + (jake << 1));
-    writeStateByte(
-      wram,
-      DP_PORTRAIT_BANK,
-      mem.read8(DIALOG_BANK_BASE + PORTRAIT_RECORD_BANK_BYTE + record),
-    );
-    setWord(wram, DP_PORTRAIT_POINTER, longWord(mem, DIALOG_BANK_BASE + record));
-  };
-  yield* portrait();
-  yield* uploadFirstPortrait(h, events);
-  yield () => {
-    writeStateByte(
-      wram,
-      DP_PORTRAIT_BANK,
-      mem.read8(pointer(wram, DP_RECORD, PORTRAIT_RECORD_BANK_BYTE)),
-    );
-    setWord(wram, DP_PORTRAIT_POINTER, longWord(mem, pointer(wram, DP_RECORD, 0)));
-  };
-  yield* portrait();
-  yield* uploadSecondPortrait(h, events);
+  const menuWindow = yield* openWindowAt(h, events, MENU_WINDOW);
+  yield () => (state.menuWindow = menuWindow);
+  const jake =
+    content.dialogs[state.jakeAlternate ? JAKE_ALTERNATE_PORTRAIT_DIALOG : JAKE_PORTRAIT_DIALOG];
+  yield* showPortraits(h, events, jake.portrait, dialog.portrait);
   yield* openPortraitWindow(h, events);
-  yield () => setWord(wram, DP_OBJECT, word(wram, DP_PORTRAIT_FRAME));
-  yield* showDialogText(h, events, renderBuffer, GREETING_TEXT);
-  // The greeting waits until the frame count passes below 0.
-  for (let frames = GREETING_WAIT_FRAMES; !(frames & WORD_SIGN); frames = (frames - 1) & WORD_MASK)
-    yield* waitForCounterWord(h, events);
-  // The menu until Exit or the end word.
+  yield* showDialogText(h, events, renderBuffer, GREETING_KEY, dialog);
+  for (let frame = 0; frame < GREETING_FRAMES; frame++) yield* waitForCounterWord(h, events);
   for (;;) {
-    yield* chooseDialogAction(h, events, renderBuffer);
-    let next, key;
-    yield () => {
-      // The menu leaves its row in the direct page word 00.
-      const row = word(wram, DP_OBJECT);
-      if (row === MENU_EXIT || word(wram, DIALOG_END)) return void (next = 'end');
-      if (row === MENU_TALK) {
-        key = TALK_TEXT;
-        return void (next = 'talk');
-      }
-      next = 'topics';
-    };
-    if (next === 'end') break;
-    if (next === 'topics') {
-      yield* chooseDialogTopic(h, events, renderBuffer);
-      yield () => {
-        if (word(wram, DIALOG_END)) return void (next = 'end');
-        const topic = word(wram, DP_OBJECT);
-        if (topic === NO_TOPIC) return void (next = 'menu');
-        key = word(wram, TOPIC_LIST + topic) & BYTE_MASK;
-      };
-      if (next === 'end') break;
-      if (next === 'menu') continue;
+    const row = yield* chooseDialogAction(h, events, renderBuffer);
+    if (row === EXIT || state.ended) break;
+    let key = TALK_KEY;
+    if (row !== TALK) {
+      const place = yield* chooseDialogTopic(h, events, renderBuffer);
+      if (state.ended) break;
+      // With no topic to show, the original takes the byte just before the list of known
+      // topics as the key (a quirk kept as it is).
+      key = state.topic(place);
     }
-    yield* showDialogText(h, events, renderBuffer, key);
-    let stop;
-    yield () => {
-      stop = word(wram, DIALOG_END) !== 0;
-    };
-    if (stop) break;
+    yield* showDialogText(h, events, renderBuffer, key, dialog);
+    if (state.ended) break;
   }
-  // Close, release both windows and restore the old music.
-  let frameWindow, textWindow;
-  yield () => {
-    frameWindow = word(wram, DP_PORTRAIT_FRAME);
-    textWindow = word(wram, DP_TEXT_WINDOW);
-  };
   yield* closeDialog(h, events);
-  yield () => setWord(wram, DP_OBJECT, textWindow);
-  yield* releaseWindowSequence(h, events);
-  yield () => setWord(wram, DP_OBJECT, frameWindow);
-  yield* releaseWindowSequence(h, events);
-  let restore = null;
-  yield () => {
-    const value = oldMusic;
-    if (!(value & WORD_SIGN)) restore = { value, restore: true };
-  };
-  if (restore) yield* music(restore);
+  yield* releaseWindowAt(h, events, menuWindow);
+  yield* releaseWindowAt(h, events, textWindow);
+  // A music word with its top bit set (none) is not brought back.
+  if (!(oldMusic & MUSIC_NONE_BIT)) yield () => setMusicModeInPlace(h, oldMusic);
 }
-// The talk as called with JSR (80:936C), a sequence for a native call continuation;
-// returns with its RTS.
+
+// The dialog as a script native: the partner and the dialog number are its arguments.
 export function* talkSequence(h, events, renderBuffer = drawTextBuffer) {
-  yield* talk(h, events, renderBuffer);
+  yield* talk(
+    h,
+    events,
+    renderBuffer,
+    leafArgument(h.a, FIRST_ARGUMENT),
+    leafArgument(h.a, SECOND_ARGUMENT),
+  );
 }

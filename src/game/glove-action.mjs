@@ -76,11 +76,8 @@ const GLOVE_BUTTONS = PAD_B | PAD_L | PAD_R,
   TALK_ACTION = 2,
   ACTION_WITHOUT_DIALOG = 2,
   NOTICE = Object.freeze({ left: 2, top: 2, columns: 0x0c, rows: 3, text: 0, frames: 0x3c });
-// The direct page word the original keeps the pressed buttons in, then the x distance;
-// the dialog's object and record.
-const DP_SCRATCH = 0x6b,
-  DP_DIALOG_OBJECT = 0x00,
-  DP_DIALOG_RECORD = 0x02;
+// The direct page word the original keeps the pressed buttons in, then the x distance.
+const DP_SCRATCH = 0x6b;
 
 const word = (wram, at) => readStateByte(wram, at) | (readStateByte(wram, at + 1) << BYTE_BITS);
 const setWord = (wram, at, value) => {
@@ -179,11 +176,9 @@ export function* gloveActionSequence(h, events, renderBuffer = drawTextBuffer) {
         action = ACTION_WITHOUT_DIALOG;
         return;
       }
-      setWord(wram, DP_DIALOG_OBJECT, object);
-      setWord(wram, DP_DIALOG_RECORD, dialog);
     };
     if (dialog) {
-      yield* talk(h, events, renderBuffer);
+      yield* talk(h, events, renderBuffer, object, dialog);
       yield () => {
         action = 0;
       };
