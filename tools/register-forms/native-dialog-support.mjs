@@ -1,5 +1,5 @@
-import { taskStop } from './task-stop.mjs';
-import { installRegisterCompat } from './register-compat.mjs';
+import { taskStop } from '../../src/system/task-stop.mjs';
+import { installRegisterCompat } from '../../src/system/register-compat.mjs';
 // Every recorded accessor comes from here; loading the other register-level
 // entries with it installs them for the recorded branches of live modules.
 import './main-wait-interrupt.mjs';
@@ -15,14 +15,14 @@ import {
   BYTE_BITS,
   BYTE_SIGN,
   WORD_SIGN,
-} from '../constants/bits.mjs';
+} from '../../src/constants/bits.mjs';
 import {
   FLAG_MEMORY_8BIT,
   FLAG_INDEX_8BIT,
   FLAG_ZERO,
   FLAG_NEGATIVE,
   FLAG_CARRY,
-} from '../constants/cpu-flags.mjs';
+} from '../../src/constants/cpu-flags.mjs';
 
 const JSR_RETURN_OFFSET = 2,
   JSL_RETURN_OFFSET = 3;

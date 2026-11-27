@@ -26,7 +26,7 @@ import { buildWeb } from './build-web.mjs';
 import { soundCatalog, romReader } from './sound-catalog.mjs';
 import { bootSchedule, runSchedule } from './sound-apu-schedule.mjs';
 
-const evidence = JSON.parse(readFileSync('proof/apu/tribute-song-identification.json'));
+const evidence = JSON.parse(readFileSync('tools/tribute-song-identification.json'));
 const tracks = [...Object.values(TRIBUTE_TRACKS), TRIBUTE_MAIN_THEME];
 test('named active SPC pattern fingerprints match every European song and the tribute mapping', () => {
   const dirs = soundCatalog(),

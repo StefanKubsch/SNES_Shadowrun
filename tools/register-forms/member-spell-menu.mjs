@@ -20,7 +20,7 @@
 // equipment window is drawn at the end (80:E9C5). The callees run through their frames
 // from the routine table, each with its own callees.
 import { nativeCallSequence } from './native-call-sequences.mjs';
-import { dialogCallBody } from '../../src/system/native-call-continuation.mjs';
+import { dialogCallBody } from './native-call-continuation.mjs';
 import { dataBankWord, setDataBankWord } from '../../src/system/data-bank.mjs';
 import {
   SPELL_LEVEL_NAMES,

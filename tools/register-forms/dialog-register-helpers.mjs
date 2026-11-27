@@ -3,7 +3,7 @@
 // lifted code keeps no register arithmetic). Importing this module adds them to every
 // accessor dialogAccess creates; the register-level references and their tests import
 // it. Widths follow M and X in the current status, as before.
-import { extendDialogAccess } from '../../src/system/native-dialog-support.mjs';
+import { extendDialogAccess } from './native-dialog-support.mjs';
 import { taskStop } from '../../src/system/task-stop.mjs';
 import {
   BANK_WRAP,

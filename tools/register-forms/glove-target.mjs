@@ -20,7 +20,7 @@
 // list first; it takes only objects with bit 15 of their flags set. The place choice
 // (80:C724) turns the glove's position into a place on the floor for an object's walk.
 import { nativeCallSequence } from './native-call-sequences.mjs';
-import { dialogCallBody } from '../../src/system/native-call-continuation.mjs';
+import { dialogCallBody } from './native-call-continuation.mjs';
 import { dataBankWord } from '../../src/system/data-bank.mjs';
 import {
   GLOVE_LIMITS,

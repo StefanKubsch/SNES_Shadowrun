@@ -15,8 +15,9 @@ register-level modules from the live import graph.
 | src/system/native-call-continuation.mjs | register snapshot guard, JSR/JSL frames (`dialogCallBody`)    | only the neutral helpers `segmentSequence`, `drainNativeSequence` and the continuation map |
 | src/system/native-dialog-support.mjs    | register helpers `dialogAccess`                               | none; reached only on recorded branches                                                    |
 
-All four are imported by frozen proof modules (5 to 98 proof importers each), so
-they keep their paths: moving them would edit frozen proof code.
+All four were imported by frozen proof modules (5 to 98 proof importers each), so
+they kept their paths until proof/ was deleted. On 2026-11-27 they moved to
+tools/register-forms/, where the frozen tests load them.
 
 ## Boundary
 
@@ -31,29 +32,26 @@ they keep their paths: moving them would edit frozen proof code.
   nmi-call and native-call-continuation with it. A recorded branch without an
   installed entry stops with `register_compat_required`.
 - The unused src copy of the JSR-entered window release
-  (`releaseWindowJsrSequence`) was removed; recorded callers keep the retained
-  sequence in proof/caller/window-release.mjs.
+  (`releaseWindowJsrSequence`) was removed.
 
 ## Contract
 
 tools/register-compat-boundary.test.mjs follows the static imports of the browser
 entries (src/browser/game-worker.mjs and start.mjs): none of the four modules, and
-nothing in proof/ or tools/, is reached. The live-loop contract
+nothing in tools/, is reached. The live-loop contract
 (tools/live-loop-services.test.mjs) has the same clean graph, so its run from
 power-on through title, menu and new game to NMI 4200 proves at run time that live
-play installs and needs no compatibility entry. The golden traces load proof modules
-and therefore run with the entries installed; they prove unchanged behaviour.
+play installs and needs no compatibility entry.
 
-User decision 2026-11-24: tools/production-boundary.test.mjs, which otherwise
-requires every src module to be loaded by the game (decision of 2026-11-01), lists
-these four modules as the only permitted exception and also requires that the game
-does not load them.
+tools/production-boundary.test.mjs requires every src module to be loaded by the game
+(decision of 2026-11-01) and no src module to import tools/. From 2026-11-24 it listed
+the four modules as the only exception; since they moved to tools/register-forms on
+2026-11-27 it has none.
 
 ## Remaining limits
 
-- The register modules stay in src/ as long as frozen proof modules import them.
-  They can be deleted only together with those proof modules, once golden traces
-  cover their paths.
+- The register modules and src/system/register-compat.mjs remain: the frozen caller
+  and lift-function tests load the register forms, which install their entries.
 - Recorded branches inside live modules (data bank and status setup for injected
   renderers, the recorded intro ending, attract and script visit frames) remain as
   compatibility code; they no longer pull register modules into the live graph.
@@ -190,6 +188,16 @@ mostly script natives (src/script 56 %).
      tools/register-forms/. The 41 test files that execute nothing else no longer
      import proof/; their bindings of retired register-level callees, used only by
      the former side, are gone, and their frozen vectors still match unchanged.
-   - Next: the 20 test files that still execute register-level proof code
-     (proof/system, proof/replay and caller modules built on them) as callees of the
-     lifted code under test; then delete the rest of proof/ and the register modules.
+   - The last ten test files moved off proof (2026-11-27): glove choice, scene entry,
+     script interpreter and scheduler, game start, room entry and main upkeep run the
+     lifted src forms or tools/register-forms; frame-events lost its register-level
+     wait cases (user decision 2026-11-27). Vectors whose former outcome came from a
+     proof composition were re-keyed with `rekeyFrom`: the former outcome confirmed the
+     old vector, and the lifted game state was compared with the former one.
+   - proof/ is deleted (2026-11-27). Its last tree is commit 1b1a524; the proof/ paths
+     that comments in src/ and tools/ and the "(removed)" names in the documentation
+     still give refer to it (`git show 1b1a524:proof/...`). The tribute identification
+     evidence moved to tools/tribute-song-identification.json, and the four register
+     modules to tools/register-forms/.
+   - Open: the register modules, src/system/register-compat.mjs and the recorded
+     branches in live modules remain as long as the frozen tests use the register forms.

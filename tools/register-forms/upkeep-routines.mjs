@@ -7,7 +7,7 @@ import {
   NativeCallContinuation,
   NATIVE_CALL_CONTINUATIONS,
   drainNativeSequence,
-} from '../../src/system/native-call-continuation.mjs';
+} from './native-call-continuation.mjs';
 import { showNoticeSequence } from '../../src/game/notice-show.mjs';
 import { releaseWindowSequence } from '../../src/game/window-release.mjs';
 import {

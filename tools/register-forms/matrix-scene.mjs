@@ -117,7 +117,7 @@ import { runSceneList } from '../../src/system/scene-list.mjs';
 import { setMusicMode } from '../../src/apu/music-mode.mjs';
 import { fadeIn, fadeOut } from '../../src/video/fades.mjs';
 import { waitForFrame } from '../../src/system/frame-wait.mjs';
-import { lagFree } from '../../src/system/main-wait-interrupt.mjs';
+import { lagFree } from './main-wait-interrupt.mjs';
 import { BYTE_BITS, BYTE_MASK, WORD_BITS, WORD_MASK } from '../../src/constants/bits.mjs';
 
 // The register-level frame wait, for recorded interrupt observations.

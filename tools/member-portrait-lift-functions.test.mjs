@@ -15,7 +15,7 @@
 import { prng } from './task-native-dialog-harness.mjs';
 import { createSide, registerCases, useLiftVectors } from './lift-function-harness.mjs';
 import { MEMBER_PORTRAIT } from '../src/data/wram.mjs';
-import { drainNativeSequence } from '../src/system/native-call-continuation.mjs';
+import { drainNativeSequence } from './register-forms/native-call-continuation.mjs';
 import { memberPortraitSequence } from './register-forms/member-portrait.mjs';
 import { unpackPortraitRoutine } from './register-forms/portrait-routines.mjs';
 import { shiftPortraitRowsJsr } from './register-forms/jsr-forms.mjs';

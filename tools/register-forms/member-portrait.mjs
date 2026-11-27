@@ -12,7 +12,7 @@
 // The callees run through their frames from the routine table; 80:E48D and 80:E433
 // run as the JSR bodies the original calls, so a wait takes its NMI at the same S.
 import { nativeCallSequence } from './native-call-sequences.mjs';
-import { dialogCallBody } from '../../src/system/native-call-continuation.mjs';
+import { dialogCallBody } from './native-call-continuation.mjs';
 import { dataBankWord, setDataBankWord } from '../../src/system/data-bank.mjs';
 import { accessorPort } from '../../src/system/hardware-port.mjs';
 import {

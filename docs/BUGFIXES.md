@@ -70,7 +70,7 @@ These are game-state corrections; no new hardware or timing premise is needed.
 - For Norbert, object `0196` consequently becomes kind `96`, damage `01`
   and signed range `96` instead of kind 1, damage 6 and range 3.
   The consumer `80:8860` in
-  [native-8ab5.mjs](../proof/replay/native-object-shoot.mjs) reads these runtime fields.
+  `native-8ab5.mjs` (removed) reads these runtime fields.
 - With fixes enabled both paths restore all five weapon bytes from their
   own default row. Armour and other runners are unchanged. Empty defaults
   remain empty; equipment values are not rebalanced.
@@ -109,7 +109,7 @@ These are game-state corrections; no new hardware or timing premise is needed.
   It inserts into the sorted list at `7E:3CA3` and moves the parallel flags
   at `7E:3CD6`; an existing hidden topic is reactivated. The correction is
   scoped to the actual dialog entry in
-  [native-936c.mjs](../proof/replay/native-dialog.mjs), not the start of the game.
+  `native-936c.mjs` (removed), not the start of the game.
   The normal dialog actions, including the Raitsov route, stay intact.
 - An unterminated or full topic list is rejected before any write. Other topic
   flags stay attached to their own topics. Reentering the dialog does not
@@ -125,7 +125,7 @@ These are game-state corrections; no new hardware or timing premise is needed.
   in the high state byte and refuses the sale.
 - The correction clears that byte only for this exact unavailable, unowned
   record. It runs after new-game decompression and after an SRAM load in
-  [main-start.mjs](../proof/replay/main-start.mjs). The price, requirements and
+  `main-start.mjs` (removed). The price, requirements and
   purchase sequence are unchanged. Buying moves the holder through CBF7;
   a held, removed or otherwise changed record is not restocked.
 - The SRAM bytes and their validity checks are untouched. The correction

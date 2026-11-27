@@ -6,7 +6,7 @@ import { cartridge } from './cartridge-harness.mjs';
 import { resetHardware } from '../src/system/main-reset.mjs';
 import { mainStartupSequence } from '../src/system/main-startup.mjs';
 import { accessorPort } from '../src/system/hardware-port.mjs';
-import { NativeCallContinuation } from '../src/system/native-call-continuation.mjs';
+import { NativeCallContinuation } from './register-forms/native-call-continuation.mjs';
 import { WAIT_PAUSED, WAIT_RETURNED } from '../src/system/native-wait-continuation.mjs';
 
 // The register-level reset reference (proof/replay/main-reset.mjs) was retired on

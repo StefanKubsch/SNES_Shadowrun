@@ -1,9 +1,9 @@
-import { taskStop } from './task-stop.mjs';
+import { taskStop } from '../../src/system/task-stop.mjs';
 import { runObservedNmi, ObservedNmiContinuation } from './nmi-call.mjs';
 import { NativeCallContinuation } from './native-call-continuation.mjs';
-import { lagFree } from '../vm/frame-events.mjs';
-import { installRegisterCompat } from './register-compat.mjs';
-import { WORD_BITS, WORD_MASK } from '../constants/bits.mjs';
+import { lagFree } from '../../src/vm/frame-events.mjs';
+import { installRegisterCompat } from '../../src/system/register-compat.mjs';
+import { WORD_BITS, WORD_MASK } from '../../src/constants/bits.mjs';
 
 const NMI = Object.freeze({ nmi: true }),
   NO_NMI = Object.freeze({ nmi: false });

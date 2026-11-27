@@ -1,6 +1,6 @@
 // The register-level compatibility entries stay outside the live import graph
-// (docs/REGISTER-COMPAT-BOUNDARY.md). The browser entries reach none of them, and
-// neither proof/ nor tools/. The live-loop contract keeps the same clean graph, so
+// (docs/REGISTER-COMPAT-BOUNDARY.md), in tools/register-forms since proof/ went on
+// 2026-11-27. The browser entries reach none of them and nothing in tools/. The live-loop contract keeps the same clean graph, so
 // its run from power-on into the main loop proves that live play never needs an
 // installed compatibility entry.
 import test from 'node:test';
@@ -12,10 +12,10 @@ import { registerCompat, installRegisterCompat } from '../src/system/register-co
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const REGISTER_MODULES = [
-  'src/system/nmi-call.mjs',
-  'src/system/native-dialog-support.mjs',
-  'src/system/main-wait-interrupt.mjs',
-  'src/system/native-call-continuation.mjs',
+  'tools/register-forms/nmi-call.mjs',
+  'tools/register-forms/native-dialog-support.mjs',
+  'tools/register-forms/main-wait-interrupt.mjs',
+  'tools/register-forms/native-call-continuation.mjs',
 ];
 const SPECIFIER =
   /(?:import|export)\s[^'"]*?from\s*['"]([^'"]+)['"]|import\s*['"]([^'"]+)['"]|import\(\s*['"]([^'"]+)['"]\s*\)/g;
@@ -43,7 +43,7 @@ function assertClean(entries) {
   assert.ok(graph.size > 100, 'the graph reaches the game');
   for (const [file, from] of graph) {
     assert.ok(!REGISTER_MODULES.includes(file), `${file} is imported by ${from}`);
-    assert.ok(!/^(proof|tools)\//.test(file), `${file} is imported by ${from}`);
+    assert.ok(!/^tools\//.test(file), `${file} is imported by ${from}`);
   }
   assert.ok(graph.has('src/system/register-compat.mjs'), 'live modules keep the hook');
 }
@@ -58,7 +58,6 @@ test('the live-loop contract runs without installed compatibility entries', () =
   graph.delete('tools/cartridge-harness.mjs');
   for (const [file, from] of graph) {
     assert.ok(!REGISTER_MODULES.includes(file), `${file} is imported by ${from}`);
-    assert.ok(!/^proof\//.test(file), `${file} is imported by ${from}`);
   }
 });
 

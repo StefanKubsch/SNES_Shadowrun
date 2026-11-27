@@ -4,7 +4,7 @@
 import {
   JSL_RETURN_OFFSET,
   JSR_RETURN_OFFSET,
-} from '../../src/system/native-call-continuation.mjs';
+} from './native-call-continuation.mjs';
 import { WORD_MASK, WORD_BITS } from '../../src/constants/bits.mjs';
 import { taskStop } from '../../src/system/task-stop.mjs';
 

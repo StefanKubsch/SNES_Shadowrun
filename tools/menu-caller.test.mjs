@@ -3,7 +3,7 @@ import assert from 'node:assert/strict';
 import { chooseFromMenuSequence as direct } from '../src/game/menu-choice.mjs';
 import { runFrameWait, runPadPresses } from './register-forms/input-routines.mjs';
 import { playSoundEffectJsr } from './register-forms/jsr-forms.mjs';
-import { NativeCallContinuation } from '../src/system/native-call-continuation.mjs';
+import { NativeCallContinuation } from './register-forms/native-call-continuation.mjs';
 import { WAIT_PAUSED } from '../src/system/native-wait-continuation.mjs';
 import { LagFreeFrames } from '../src/vm/frame-events.mjs';
 import {

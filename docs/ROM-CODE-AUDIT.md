@@ -91,7 +91,7 @@ Read evidence still takes precedence; it is not removed by this correction.
 
 The first four words have complementary recordings: the 9906/9A66 words
 occur in the native alley-bus regression, while 98FE/9A5E occur in the
-original room tours. Sources: [native-object-turn.mjs](../proof/script/native-object-turn.mjs),
+original room tours. Sources: `native-object-turn.mjs` (removed),
 [live-alley-bus.test.mjs](../tools/live-alley-bus.test.mjs) and the original
 read records in `analysis/rom-code-observed.json`.
 
@@ -107,7 +107,7 @@ the game state; its further action-table reads stay in decoded data or the
 open bus.
 
 The remaining readers are implemented in
-[main-scene-video.mjs](../proof/system/main-scene-video.mjs),
+`main-scene-video.mjs` (removed),
 [cutscene-animation.mjs](../src/cutscene/cutscene-animation.mjs),
 start-menu-text.mjs (removed) (with its lifted form
 [start-menu.mjs](../src/frontend/start-menu.mjs)) and

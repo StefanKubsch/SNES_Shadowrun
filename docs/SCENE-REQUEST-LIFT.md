@@ -34,7 +34,7 @@ a request, and the main loop then starts its next pass at its top (80:96AB).
 | [scene-request.mjs](../src/game/scene-request.mjs)           | `sceneRequestSequence` (80:CC4B), which the live main loop composes directly without its JSR frame (RTS form `sceneRequestJsr` in tools/register-forms/jsr-forms.mjs); its run wrapper `processSceneRequest` with the carry as register form and its native call continuation are in proof/caller/live-loop-routines.mjs. |
 | [room-entry.mjs](../src/game/room-entry.mjs)                 | The forced blank 81:B0BD, the frame wait 81:B0A1 (`waitForFrameCall`) and the room entry 80:A4BF, which the request calls directly.                                                                                                                                                                               |
 | [game-screen.mjs](../src/game/game-screen.mjs)               | The game screen set-up 80:9629, called directly.                                                                                                                                                                                                                                                                  |
-| [main-loop-motion.mjs](../proof/replay/main-loop-motion.mjs) | `MAIN_MOTION_ROUTINES` keeps the register-level callees of the reference: 81:B0BD, 81:B0A1, 80:9629 and 80:A4BF.                                                                                                                                                                                                  |
+| `main-loop-motion.mjs` (removed) | `MAIN_MOTION_ROUTINES` keeps the register-level callees of the reference: 81:B0BD, 81:B0A1, 80:9629 and 80:A4BF.                                                                                                                                                                                                  |
 | `scene-request.mjs` (removed)                                | The register-level 80:CC4B (`processSceneRequestReference`), moved from main-loop-motion.mjs.                                                                                                                                                                                                                     |
 
 ## Boundaries
@@ -94,9 +94,9 @@ the shared call-frame helper; their internal helper tables and register/NMI
 interfaces remain unchanged.
 
 The previous composition remains independently in
-[proof/caller/room-entry.mjs](../proof/caller/room-entry.mjs),
-[proof/caller/scene-request.mjs](../proof/caller/scene-request.mjs) and
-[proof/caller/game-start.mjs](../proof/caller/game-start.mjs). Recorded drivers
+`proof/caller/room-entry.mjs` (removed),
+`proof/caller/scene-request.mjs` (removed) and
+`proof/caller/game-start.mjs` (removed). Recorded drivers
 and the existing function/reference comparisons use those versions.
 transition-caller.test.mjs (removed) compares the
 previous and direct callers on the same JS scheduler and devices, at budgets one

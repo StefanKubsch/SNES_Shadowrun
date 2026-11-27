@@ -16,15 +16,15 @@ the module that implements it.
 
 | Former name              | Module                                                                                                     |
 | ------------------------ | ---------------------------------------------------------------------------------------------------------- |
-| `append-c34a`            | [task-append.mjs](../proof/system/task-append.mjs)                                                         |
+| `append-c34a`            | `task-append.mjs` (removed)                                                         |
 | `main-gate-8000`         | `main-zone-gate.mjs` (removed)                                                                             |
 | `native-8371`            | [native-object-collision.mjs](../src/script/native-object-collision.mjs)                                   |
 | `native-8521`            | `native-fight-list-append.mjs` (removed)                                                                   |
-| `native-855e`            | [native-fight-list-remove.mjs](../proof/replay/native-fight-list-remove.mjs)                               |
+| `native-855e`            | `native-fight-list-remove.mjs` (removed)                               |
 | `native-8631`            | [native-fight-list-previous.mjs](../src/script/native-fight-list-previous.mjs)                             |
 | `native-8656`            | [native-fight-list-contains.mjs](../src/script/native-fight-list-contains.mjs)                             |
 | `native-866f`            | [native-fight-list-any-active.mjs](../src/script/native-fight-list-any-active.mjs)                         |
-| `native-8ab5`            | [native-object-shoot.mjs](../proof/replay/native-object-shoot.mjs)                                         |
+| `native-8ab5`            | `native-object-shoot.mjs` (removed)                                         |
 | `native-8af1`            | [native-object-armour-set.mjs](../src/script/native-object-armour-set.mjs)                                 |
 | `native-8afa`            | [native-object-armour-add.mjs](../src/script/native-object-armour-add.mjs)                                 |
 | `native-8b08`            | [native-object-armour-subtract.mjs](../src/script/native-object-armour-subtract.mjs)                       |
@@ -32,8 +32,8 @@ the module that implements it.
 | `native-8b8a`            | [native-magic-points-add.mjs](../src/script/native-magic-points-add.mjs)                                   |
 | `native-8b9f`            | [native-runner-weapon-equip.mjs](../src/script/native-runner-weapon-equip.mjs)                             |
 | `native-8bc5`            | `enemy-target-choice.mjs` (removed)                                                                        |
-| `native-8e36`            | [native-object-hit.mjs](../proof/replay/native-object-hit.mjs)                                             |
-| `native-8e36-tables`     | [native-object-hit-tables.mjs](../proof/replay/native-object-hit-tables.mjs)                               |
+| `native-8e36`            | `native-object-hit.mjs` (removed)                                             |
+| `native-8e36-tables`     | `native-object-hit-tables.mjs` (removed)                               |
 | `native-8e96`            | [native-object-halt-set.mjs](../src/script/native-object-halt-set.mjs)                                     |
 | `native-8eb8`            | [native-object-halt-clear.mjs](../src/script/native-object-halt-clear.mjs)                                 |
 | `native-8eda`            | [native-task-append-from-list.mjs](../src/script/native-task-append-from-list.mjs)                         |
@@ -41,11 +41,11 @@ the module that implements it.
 | `native-90eb`            | [native-topic-add.mjs](../src/script/native-topic-add.mjs)                                                 |
 | `native-913c`            | [native-topic-mark.mjs](../src/script/native-topic-mark.mjs)                                               |
 | `native-9159`            | [native-topic-known.mjs](../src/script/native-topic-known.mjs)                                             |
-| `native-933a-bba0`       | [native-selection.mjs](../proof/replay/native-selection.mjs)                                               |
-| `native-936c`            | [native-dialog.mjs](../proof/replay/native-dialog.mjs)                                                     |
+| `native-933a-bba0`       | `native-selection.mjs` (removed)                                               |
+| `native-936c`            | `native-dialog.mjs` (removed)                                                     |
 | `native-94ee`            | [native-object-dialog-set.mjs](../src/script/native-object-dialog-set.mjs)                                 |
-| `native-9bc6`            | [native-glove-target.mjs](../proof/replay/native-glove-target.mjs)                                         |
-| `native-9bc6-support`    | [native-glove-target-support.mjs](../proof/replay/native-glove-target-support.mjs)                         |
+| `native-9bc6`            | `native-glove-target.mjs` (removed)                                         |
+| `native-9bc6-support`    | `native-glove-target-support.mjs` (removed)                         |
 | `native-9ce4`            | [native-record-property-equip.mjs](../src/script/native-record-property-equip.mjs)                         |
 | `native-9d15`            | [native-object-record-property-equip.mjs](../src/script/native-object-record-property-equip.mjs)           |
 | `native-9d6a`            | [native-object-record-property-from-group.mjs](../src/script/native-object-record-property-from-group.mjs) |
@@ -59,7 +59,7 @@ the module that implements it.
 | `native-a1e6`            | [native-scene-object-add.mjs](../src/script/native-scene-object-add.mjs)                                   |
 | `native-a297`            | [native-group-member-position.mjs](../src/script/native-group-member-position.mjs)                         |
 | `native-a2b5`            | [native-group-remove.mjs](../src/script/native-group-remove.mjs)                                           |
-| `native-a835`            | [native-object-create.mjs](../proof/script/native-object-create.mjs)                                       |
+| `native-a835`            | `native-object-create.mjs` (removed)                                       |
 | `native-a8f5`            | [native-object-release.mjs](../src/script/native-object-release.mjs)                                       |
 | `native-a91d`            | [native-object-task-clear.mjs](../src/script/native-object-task-clear.mjs)                                 |
 | `native-a926`            | [native-object-task-bind.mjs](../src/script/native-object-task-bind.mjs)                                   |
@@ -72,10 +72,10 @@ the module that implements it.
 | `native-a96d`            | [native-object-height.mjs](../src/script/native-object-height.mjs)                                         |
 | `native-a977`            | [native-object-height-add.mjs](../src/script/native-object-height-add.mjs)                                 |
 | `native-a985`            | [native-object-action-apply.mjs](../src/script/native-object-action-apply.mjs)                             |
-| `native-a9b2`            | [native-render-unpack.mjs](../proof/system/native-render-unpack.mjs)                                       |
+| `native-a9b2`            | `native-render-unpack.mjs` (removed)                                       |
 | `native-aa4c`            | [native-object-release-direct.mjs](../src/script/native-object-release-direct.mjs)                         |
 | `native-aaaf`            | [native-object-action-set.mjs](../src/script/native-object-action-set.mjs)                                 |
-| `native-af1f`            | [native-bar-tiles.mjs](../proof/script/native-bar-tiles.mjs)                                               |
+| `native-af1f`            | `native-bar-tiles.mjs` (removed)                                               |
 | `native-bb2c`            | [native-formation-place.mjs](../src/script/native-formation-place.mjs)                                     |
 | `native-bb90`            | [native-object-selection-empty.mjs](../src/script/native-object-selection-empty.mjs)                       |
 | `native-bc83`            | [native-glove-crosshair-limits.mjs](../src/script/native-glove-crosshair-limits.mjs)                       |
@@ -126,26 +126,26 @@ the module that implements it.
 | `native-cccc`            | [native-room-entry.mjs](../src/script/native-room-entry.mjs)                                               |
 | `native-ccdb`            | [native-nuyen-add.mjs](../src/script/native-nuyen-add.mjs)                                                 |
 | `native-cd97`            | [native-player-object.mjs](../src/script/native-player-object.mjs)                                         |
-| `native-cd9d`            | [native-glove-release.mjs](../proof/replay/native-glove-release.mjs)                                       |
-| `native-cda8`            | [native-window-list-redraw.mjs](../proof/replay/native-window-list-redraw.mjs)                             |
+| `native-cd9d`            | `native-glove-release.mjs` (removed)                                       |
+| `native-cda8`            | `native-window-list-redraw.mjs` (removed)                             |
 | `native-cdb2`            | [native-karma-add.mjs](../src/script/native-karma-add.mjs)                                                 |
 | `native-cdcf`            | [native-dialog-end.mjs](../src/script/native-dialog-end.mjs)                                               |
-| `native-ce6d`            | [native-main-menu.mjs](../proof/replay/native-main-menu.mjs)                                               |
-| `native-cecb`            | [native-state-count-raise.mjs](../proof/replay/native-state-count-raise.mjs)                               |
+| `native-ce6d`            | `native-main-menu.mjs` (removed)                                               |
+| `native-cecb`            | `native-state-count-raise.mjs` (removed)                               |
 | `native-cf2e`            | [native-magic-points-raise.mjs](../src/script/native-magic-points-raise.mjs)                               |
 | `native-cf93`            | [native-object-face-object.mjs](../src/script/native-object-face-object.mjs)                               |
-| `native-clear-ff79`      | [native-slot-release.mjs](../proof/replay/native-slot-release.mjs)                                         |
-| `native-counter-b0a1`    | [native-frame-wait.mjs](../proof/system/native-frame-wait.mjs)                                             |
+| `native-clear-ff79`      | `native-slot-release.mjs` (removed)                                         |
+| `native-counter-b0a1`    | `native-frame-wait.mjs` (removed)                                             |
 | `native-d016`            | [native-room-reload.mjs](../src/script/native-room-reload.mjs)                                             |
 | `native-d067`            | [native-runner-record-byte.mjs](../src/script/native-runner-record-byte.mjs)                               |
-| `native-d079`            | [native-runners-restore.mjs](../proof/replay/native-runners-restore.mjs)                                   |
+| `native-d079`            | `native-runners-restore.mjs` (removed)                                   |
 | `native-d0d3`            | [native-sprite-mode-from-flags.mjs](../src/script/native-sprite-mode-from-flags.mjs)                       |
 | `native-d0fc`            | [native-record-kind-get.mjs](../src/script/native-record-kind-get.mjs)                                     |
 | `native-d105`            | [native-object-to-waypoint.mjs](../src/script/native-object-to-waypoint.mjs)                               |
 | `native-d134`            | [native-story-stage-get.mjs](../src/script/native-story-stage-get.mjs)                                     |
 | `native-d13e`            | [native-object-velocity-clear.mjs](../src/script/native-object-velocity-clear.mjs)                         |
 | `native-d14a`            | [native-object-position-set.mjs](../src/script/native-object-position-set.mjs)                             |
-| `native-d15c`            | [native-object-turn.mjs](../proof/script/native-object-turn.mjs)                                           |
+| `native-d15c`            | `native-object-turn.mjs` (removed)                                           |
 | `native-d16d`            | [native-sprite-mode-set.mjs](../src/script/native-sprite-mode-set.mjs)                                     |
 | `native-d17b`            | [native-sprite-mode-get.mjs](../src/script/native-sprite-mode-get.mjs)                                     |
 | `native-d186`            | [native-player-object-break.mjs](../src/script/native-player-object-break.mjs)                             |
@@ -180,16 +180,16 @@ the module that implements it.
 | `native-d9a7`            | [native-shift-right-signed.mjs](../src/script/native-shift-right-signed.mjs)                               |
 | `native-d9ad`            | [native-signed-offset-set.mjs](../src/script/native-signed-offset-set.mjs)                                 |
 | `native-de7e`            | [native-player-control-reset.mjs](../src/script/native-player-control-reset.mjs)                           |
-| `native-e014`            | [native-player-control.mjs](../proof/replay/native-player-control.mjs)                                     |
+| `native-e014`            | `native-player-control.mjs` (removed)                                     |
 | `native-e1b3`            | [native-spell-add.mjs](../src/script/native-spell-add.mjs)                                                 |
-| `native-e1cf`            | [native-spell-choice.mjs](../proof/replay/native-spell-choice.mjs)                                         |
+| `native-e1cf`            | `native-spell-choice.mjs` (removed)                                         |
 | `native-e24e`            | [native-timer-stop.mjs](../src/script/native-timer-stop.mjs)                                               |
 | `native-e255`            | [native-timer-start.mjs](../src/script/native-timer-start.mjs)                                             |
 | `native-e262`            | [native-timer-running.mjs](../src/script/native-timer-running.mjs)                                         |
 | `native-e30f`            | [native-matrix-enter.mjs](../src/script/native-matrix-enter.mjs)                                           |
-| `native-ea6e`            | [native-status-screen.mjs](../proof/replay/native-status-screen.mjs)                                       |
-| `native-f254`            | [native-member-spell-menu.mjs](../proof/replay/native-member-spell-menu.mjs)                               |
-| `native-f963`            | [native-window-open.mjs](../proof/replay/native-window-open.mjs)                                           |
-| `native-fec1`            | [native-notice.mjs](../proof/replay/native-notice.mjs)                                                     |
-| `native-input-wait-f953` | [native-input-wait.mjs](../proof/replay/native-input-wait.mjs)                                             |
-| `sight-a25f`             | [line-of-sight.mjs](../proof/replay/line-of-sight.mjs)                                                     |
+| `native-ea6e`            | `native-status-screen.mjs` (removed)                                       |
+| `native-f254`            | `native-member-spell-menu.mjs` (removed)                               |
+| `native-f963`            | `native-window-open.mjs` (removed)                                           |
+| `native-fec1`            | `native-notice.mjs` (removed)                                                     |
+| `native-input-wait-f953` | `native-input-wait.mjs` (removed)                                             |
+| `sight-a25f`             | `line-of-sight.mjs` (removed)                                                     |

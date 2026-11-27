@@ -83,7 +83,7 @@ Matrix words are metatile identities plus attributes. `81:B4B9` converts
 their row and column into a top-left character index. `81:B4D3` records
 node coordinates for identities `21` through `27`; movement, node actions
 and map mutations read the selected WRAM map. Editing them can change
-gameplay. See [main-scene.mjs](../proof/replay/main-scene.mjs),
+gameplay. See `main-scene.mjs` (removed),
 [matrix-world.mjs](../src/matrix/matrix-world.mjs) and
 [matrix-scene.mjs](../src/matrix/matrix-scene.mjs).
 

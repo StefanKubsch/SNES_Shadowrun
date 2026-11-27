@@ -18,13 +18,13 @@ proof/.
 | File                                                 | Content                                                                                                                                                                                                                                                                               |
 | ---------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | [memory.mjs](../src/vm/memory.mjs)                   | `VmMemory`: WRAM (128 KiB, one `Uint8Array`), LoROM (1 MiB), arithmetic unit `$4202–$4217`. Mapping like `renderAddress`. Unmapped accesses throw `VmFault`. Optional SRAM (8 KiB, banks `$70–$7D`/`$F0–$FD` below `$8000`, mirrored); without supplied content accesses stay faults. |
-| [handlers.mjs](../proof/vm/handlers.mjs)             | One handler per opcode family with original address. `OPCODE_TABLE` lists all 98 even opcodes `$00–$C2` with original target.                                                                                                                                                         |
-| [native-call.mjs](../proof/vm/native-call.mjs)       | Bridge `$F4F6`, jump via DP `$A2`, resume `$F509` (native, flag-exact); `NativeCalls` binds admitted targets.                                                                                                                                                                         |
+| `handlers.mjs` (removed)             | One handler per opcode family with original address. `OPCODE_TABLE` lists all 98 even opcodes `$00–$C2` with original target.                                                                                                                                                         |
+| `native-call.mjs` (removed)       | Bridge `$F4F6`, jump via DP `$A2`, resume `$F509` (native, flag-exact); `NativeCalls` binds admitted targets.                                                                                                                                                                         |
 | [task-accessor.mjs](../src/vm/task-accessor.mjs)     | Thin adapter: the accessor interface of the proven modules directly on `VmMemory`, without a log; access limit per native against cyclic data.                                                                                                                                        |
-| [scheduler.mjs](../proof/vm/scheduler.mjs)           | `TaskScheduler`: task management, heap, scheduler, script call `$F488` (child task), native wait `$C401`, resume `$F495`/`$F509`.                                                                                                                                                     |
+| `scheduler.mjs` (removed)           | `TaskScheduler`: task management, heap, scheduler, script call `$F488` (child task), native wait `$C401`, resume `$F495`/`$F509`.                                                                                                                                                     |
 | [devices.mjs](../src/vm/devices.mjs)                 | Hardware environment of the natives: `ObservedDevices` supplies one observation set per native call (device reads, wait and input words).                                                                                                                                             |
 | [special-natives.mjs](../src/vm/special-natives.mjs) | Special natives with hardware values: target → proven module.                                                                                                                                                                                                                         |
-| [interpreter.mjs](../proof/vm/interpreter.mjs)       | `ScriptInterpreter`: registers `a x y s d dbr p pc`, stack/stream helpers, `fetch()` like `$F389–$F390`, `run(maxOpcodes)`.                                                                                                                                                           |
+| `interpreter.mjs` (removed)       | `ScriptInterpreter`: registers `a x y s d dbr p pc`, stack/stream helpers, `fetch()` like `$F389–$F390`, `run(maxOpcodes)`.                                                                                                                                                           |
 
 State between two opcodes as in the original at `$80:F390`: X = A = opcode,
 Y = offset in the bytecode, D = task frame (`[D]` = bytecode pointer, locals
@@ -192,7 +192,7 @@ The matrix NMI (register-level reference main-matrix-nmi.mjs, retired on 2026-11
 [matrix-scene.mjs](../src/matrix/matrix-scene.mjs)) followed the native
 vector `$00:FFEA = C112`. `runObservedMatrixNmi` receives the really
 interrupted register state and pushes PB, PC and P onto its stack through the
-shared flow in [observed-nmi.mjs](../src/system/nmi-call.mjs). The handler
+shared flow in [observed-nmi.mjs](../tools/register-forms/nmi-call.mjs). The handler
 runs in program bank **00**. Its first WORD read of `$4210` still uses the
 interrupted DBR and needs that observation. Only after the stack switch to
 `$1CBB` and saving A, X, Y, DBR and D does it set D = 0 and DBR = **00** via
@@ -272,7 +272,7 @@ both fade-in lists.
 
 ## Scene initialisation 9629
 
-[main-initialize.mjs](../proof/system/main-initialize.mjs) binds the complete
+`main-initialize.mjs` (removed) binds the complete
 original init call `$80:9629`. Entry E0/M0/X0, D0, binary arithmetic and the
 real DBR with valid memory/device addresses. It first writes BYTE `$420D=1`,
 `$4200=0`, `$420C=0`; then display defaults `$B064`, portrait reset `$8FB3`,
@@ -320,7 +320,7 @@ bound transition `$A4BF`.
 
 ## Game NMI C152
 
-[main-game-nmi.mjs](../proof/replay/main-game-nmi.mjs) binds the installed
+`main-game-nmi.mjs` (removed) binds the installed
 callback `$80:C152` with its eleven original children to the shared VM memory
 and real JSR/JSL frames. Order: `$8949`, `$A9E1`, `$999A`, `$80C4`, `$A919`,
 `$A958`, `$A98E`, `$8FBA`, `$9E0B`, `$C06B`, `$B0D1`.
@@ -359,7 +359,7 @@ and device values are synthetic inputs.
 
 ## Waits and input with explicitly given interrupts
 
-[main-wait-interrupt.mjs](../src/system/main-wait-interrupt.mjs) connects
+[main-wait-interrupt.mjs](../tools/register-forms/main-wait-interrupt.mjs) connects
 `$81:B0A1`, `$80:9E1A` and `$81:EEBB` with the NMI handler up to RTI. A shared
 `events` object holds `interrupts` as a frozen array of frozen `{pc, nmi}`
 records, `interruptIndex: 0` and `interruptRoutines` as explicitly chosen
@@ -433,7 +433,7 @@ required transfer is missing).
 
 ## Observed DMA masks and further wait callers
 
-[main-dma-readback.mjs](../proof/system/main-dma-readback.mjs) takes exactly one
+`main-dma-readback.mjs` (removed) takes exactly one
 observed channel 5 transfer at the original BYTE STA `$81:AA93`. The shared set
 holds `dmaTransfers` and the running `dmaIndex`; array, records and each
 `bytes` array must be frozen. A record has `pc: 0x81AA93`, `address:
@@ -503,7 +503,7 @@ answers.
 
 The observed adapters for hints, windows, menus, dialogs, target choice,
 player control and combat pass `options.interruptEvents` on.
-[observed-native-events.mjs](../proof/replay/observed-native-events.mjs) binds the
+`observed-native-events.mjs` (removed) binds the
 interrupt/DMA lists, their running indices and the chosen callback table to the
 local event set; indices stay live references to the same outer set (a
 sub-call replays no earlier occurrence). The old wait/input lists keep their
@@ -538,7 +538,7 @@ checks appending after a round and the kept consumption index.
 The reference chain uses main-reset.mjs (removed),
 main-startup.mjs (removed),
 main-frontend.mjs (removed) and
-[main-start.mjs](../proof/replay/main-start.mjs) for reset, prelude, menu owner
+`main-start.mjs` (removed) for reset, prelude, menu owner
 and new/load entry before the first scheduler round. These are proof/replay
 contracts; current frontend composition is documented separately.
 

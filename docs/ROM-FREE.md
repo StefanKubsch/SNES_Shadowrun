@@ -784,7 +784,7 @@ tools/live-*.test.mjs`, then `node tools/rom-vram.mjs` wrote
     81:B307 (matrix text commands), 81:BA93/BC09/BD52 (matrix control),
     81:CF76 (scene animation), 81:EC28 (scene command lists), and for the
     NMI's JML [$006E] at 80:C14F the ten proven callback roots of
-    src/system/nmi-call.mjs. Each table target must be one of the
+    tools/register-forms/nmi-call.mjs. Each table target must be one of the
     table's first 64 words in the ROM. `unknown` falls from 13.712 to
     11.036 bytes, `code_static` grows from 18.260 to 20.936; the package
     is unchanged (static code stays in it). One new conflict: 81:D9D5 is

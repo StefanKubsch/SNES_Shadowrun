@@ -5,7 +5,7 @@ import { assertFrozenRun, useLiftVectors } from './lift-function-harness.mjs';
 import * as liftedText from '../src/game/dialog-text.mjs';
 import { showDialogTextJsr } from './register-forms/jsr-forms.mjs';
 import * as V from '../src/vm/layout.mjs';
-import { NATIVE_CALL_CONTINUATIONS } from '../src/system/native-call-continuation.mjs';
+import { NATIVE_CALL_CONTINUATIONS } from './register-forms/native-call-continuation.mjs';
 import { TOPIC_LIST, TOPIC_FLAGS } from '../src/data/wram.mjs';
 import { textWindowSide, finishTextWindow, rendererTable } from './text-window-caller-harness.mjs';
 

@@ -54,7 +54,7 @@ PCs remain diagnostic metadata.
 | [unpack.mjs](../src/system/unpack.mjs)                     | The long entries of the unpacker (`unpackLong`): 80:9F49 into bank 7E with the language's stream, 80:9E7E with 128 bytes, 80:9F69 (80:9F6D) into bank 7F; each leaves the direct page fields 7E:00DB-00F2 as the original.                                                                                     |
 | [window-release.mjs](../src/game/window-release.mjs)       | The glove 80:BCB2 with the name window release 80:BE5B and the notice windows 80:FF79, both through the window release 80:FA3E, which redraws the lifted window list; the other callers keep the register-level versions.                                                                                      |
 | [game-screen.mjs](../src/game/game-screen.mjs)             | The task scheduler reset 80:C1A6, the object slots 81:A772 and the window map 81:A9B2 with Jake's state bar 81:AF1F, exported for the entry and the window list.                                                                                                                                               |
-| [main-transition.mjs](../proof/replay/main-transition.mjs) | The table entry `enterRoom` (80:A4BF, the room in A) for register-level callers, and the register-level callees, which other callers still use.                                                                                                                                                                |
+| `main-transition.mjs` (removed) | The table entry `enterRoom` (80:A4BF, the room in A) for register-level callers, and the register-level callees, which other callers still use.                                                                                                                                                                |
 | [game-start.mjs](../src/game/game-start.mjs)               | The room start 80:9699 calls `enterRoomSequence` directly.                                                                                                                                                                                                                                                     |
 | `room-entry.mjs` (removed)                                 | The register-level 80:A4BF (`enterRoomReference`), moved from main-transition.mjs.                                                                                                                                                                                                                             |
 
@@ -314,9 +314,9 @@ the shared call-frame helper; their internal helper tables and register/NMI
 interfaces remain unchanged.
 
 The previous composition remains independently in
-[proof/caller/room-entry.mjs](../proof/caller/room-entry.mjs),
-[proof/caller/scene-request.mjs](../proof/caller/scene-request.mjs) and
-[proof/caller/game-start.mjs](../proof/caller/game-start.mjs). Recorded drivers
+`proof/caller/room-entry.mjs` (removed),
+`proof/caller/scene-request.mjs` (removed) and
+`proof/caller/game-start.mjs` (removed). Recorded drivers
 and the existing function/reference comparisons use those versions.
 transition-caller.test.mjs (removed) compares the
 previous and direct callers on the same JS scheduler and devices, at budgets one

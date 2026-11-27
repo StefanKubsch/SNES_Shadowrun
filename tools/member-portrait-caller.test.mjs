@@ -8,7 +8,7 @@ import { frameWaitCallSequence } from '../src/system/live-input-calls.mjs';
 import {
   NativeCallContinuation,
   NATIVE_CALL_CONTINUATIONS,
-} from '../src/system/native-call-continuation.mjs';
+} from './register-forms/native-call-continuation.mjs';
 import { textWindowSide, finishTextWindow } from './text-window-caller-harness.mjs';
 import {
   MEMBER_PORTRAIT,

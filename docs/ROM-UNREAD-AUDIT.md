@@ -89,7 +89,7 @@ a hit the load at `81:8038` reads its pointer at FD76 + X. These bounded
 table accesses cannot run backward into FD61 to FD74. The selected cycle
 records begin at FD87 and fill the region to FE15, exclusively. Sources:
 [palette-cycles.mjs](../src/data/palette-cycles.mjs) and
-[main-scene-load.mjs](../proof/system/main-scene-load.mjs).
+`main-scene-load.mjs` (removed).
 
 No known decoded memory operand or immediate pointer names the unidentified
 block. The native read recording does not touch it. An independent indirect
@@ -117,7 +117,7 @@ not a universal runtime invariant for modified scripts or damaged state.
 The dialog catalog's topic IDs are below 64; this does not prove every
 possible script argument or saved-state value. Sources:
 [topics.mjs](../src/data/topics.mjs),
-[native-dialog-text.mjs](../proof/replay/native-dialog-text.mjs),
+`native-dialog-text.mjs` (removed),
 [native-topic-add.mjs](../src/script/native-topic-add.mjs) and
 [the dialog catalog checks](../tools/vm-cartridge.test.mjs).
 

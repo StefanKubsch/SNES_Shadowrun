@@ -7,7 +7,7 @@
 // (docs/REGISTER-COMPAT-BOUNDARY.md, removal plan).
 import { prng } from './task-native-dialog-harness.mjs';
 import { createSide, registerCases, useLiftVectors } from './lift-function-harness.mjs';
-import { drainNativeSequence } from '../src/system/native-call-continuation.mjs';
+import { drainNativeSequence } from './register-forms/native-call-continuation.mjs';
 import { spendMagicPointsSequence } from './register-forms/magic-points.mjs';
 
 useLiftVectors(import.meta.url);

@@ -20,7 +20,7 @@ import {
 } from './lift-function-harness.mjs';
 import { mainMenuSequence, saveMenuSequence } from './register-forms/main-menu.mjs';
 import { TIMER } from '../src/data/wram.mjs';
-import { drainNativeSequence } from '../src/system/native-call-continuation.mjs';
+import { drainNativeSequence } from './register-forms/native-call-continuation.mjs';
 
 useLiftVectors(import.meta.url);
 

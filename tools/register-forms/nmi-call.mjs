@@ -1,4 +1,4 @@
-import { taskStop } from './task-stop.mjs';
+import { taskStop } from '../../src/system/task-stop.mjs';
 import { dialogAccess } from './native-dialog-support.mjs';
 import { NativeCallContinuation, drainNativeSequence } from './native-call-continuation.mjs';
 import {
@@ -9,8 +9,8 @@ import {
   NMI_SAVED_A,
   NMI_SAVED_STACK,
   NMI_STACK_TOP,
-} from '../data/wram.mjs';
-import { RDNMI } from '../constants/hardware-registers.mjs';
+} from '../../src/data/wram.mjs';
+import { RDNMI } from '../../src/constants/hardware-registers.mjs';
 import {
   FLAG_ZERO,
   FLAG_NEGATIVE,
@@ -18,7 +18,7 @@ import {
   FLAG_IRQ_DISABLE,
   FLAG_INDEX_8BIT,
   FLAG_MEMORY_8BIT,
-} from '../constants/cpu-flags.mjs';
+} from '../../src/constants/cpu-flags.mjs';
 import {
   BANK_WRAP,
   WORD_BITS,
@@ -26,8 +26,8 @@ import {
   BYTE_BITS,
   BYTE_MASK,
   WORD_SIGN,
-} from '../constants/bits.mjs';
-import { CODE_BANK } from '../constants/memory-map.mjs';
+} from '../../src/constants/bits.mjs';
+import { CODE_BANK } from '../../src/constants/memory-map.mjs';
 
 // Native vector and the fixed entry/long-call return sites in 00:C112.
 const NATIVE_NMI_VECTOR = 0xffea,

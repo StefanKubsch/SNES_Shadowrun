@@ -9,7 +9,7 @@
 import { prng } from './task-native-dialog-harness.mjs';
 import { createSide, registerCases, useLiftVectors } from './lift-function-harness.mjs';
 
-import { drainNativeSequence } from '../src/system/native-call-continuation.mjs';
+import { drainNativeSequence } from './register-forms/native-call-continuation.mjs';
 import { decimalNumberSequence } from './register-forms/decimal-number.mjs';
 
 useLiftVectors(import.meta.url);

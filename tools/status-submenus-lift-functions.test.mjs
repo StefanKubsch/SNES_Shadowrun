@@ -19,7 +19,7 @@ import {
   MEMBER_NUMBER,
   PAD_PRESSED,
 } from '../src/data/wram.mjs';
-import { drainNativeSequence } from '../src/system/native-call-continuation.mjs';
+import { drainNativeSequence } from './register-forms/native-call-continuation.mjs';
 
 useLiftVectors(import.meta.url);
 

@@ -3,7 +3,7 @@ import { WH0 } from '../constants/hardware-registers.mjs';
 import { BYTE_MASK } from '../constants/bits.mjs';
 // Window and portrait setup of the dialog $936C. Each function starts at the original entry (frame from the
 // caller via h.call) and ends with the original RTS/RTL. h comes from dialogAccess
-// (native-dialog-support.mjs); events is the shared observation set of the native.
+// (tools/register-forms/native-dialog-support.mjs); events is the shared observation set of the native.
 
 // Portrait windows of 8F3A/8F97 and of E433 (native-member-spell-menu.mjs): the W12SEL/W34SEL
 // word and TMW layers, HDMA channel 0 in mode 1 to WH0/WH1 from bank 7E, and edges that move by

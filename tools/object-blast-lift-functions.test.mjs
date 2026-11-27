@@ -17,7 +17,7 @@ import {
   OBJECT_X,
   OBJECT_Y,
 } from '../src/data/wram.mjs';
-import { drainNativeSequence } from '../src/system/native-call-continuation.mjs';
+import { drainNativeSequence } from './register-forms/native-call-continuation.mjs';
 import { hitObjectsInBlastSequence } from './register-forms/object-blast.mjs';
 
 useLiftVectors(import.meta.url);

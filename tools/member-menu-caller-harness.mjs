@@ -9,7 +9,7 @@ import {
   NativeCallContinuation,
   NATIVE_CALL_CONTINUATIONS,
   segmentSequence,
-} from '../src/system/native-call-continuation.mjs';
+} from './register-forms/native-call-continuation.mjs';
 import { textWindowSide, finishTextWindow } from './text-window-caller-harness.mjs';
 import * as W from '../src/data/wram.mjs';
 import { WORD_MASK } from '../src/constants/bits.mjs';

@@ -3,7 +3,7 @@
 The live start calls `gameStartSequence` directly. It does not own a helper
 address table. The former tables remain independently in
 the caller (removed) and
-[the replay](../proof/replay/main-start.mjs).
+`the replay` (removed).
 
 The consumer inventory starts at `FRONTEND_ROUTINES`, passed to `LiveDevices`
 as interrupt bindings. Since 2026-11-18 it holds only the NMI callbacks; the main
@@ -47,7 +47,7 @@ not spread the scene entry table. The former live frontend uses its independent
 replay NMI table, preserving helper dependencies for dispatched caller tests.
 
 The register entry adapters and their broad helper table now live in
-[scene-entries.mjs](../proof/caller/scene-entries.mjs). The game invokes the actual
+`scene-entries.mjs` (removed). The game invokes the actual
 cutscene, intro and matrix sequences directly. Existing entry fixture and original
 frame comparisons still use those same adapters to call the actual game sequences;
 their physical frames and observation handling have not changed.
@@ -70,7 +70,7 @@ camera references, the dialog routine table and the status flags were no longer
 loaded by the game. They now live in `proof/system/` and `proof/script/`;
 their callers and original comparisons import them from there unchanged.
 The register-level text upload 81:A9E1 lives in
-[main-text-upload.mjs](../proof/system/main-text-upload.mjs), shared by the
+`main-text-upload.mjs` (removed), shared by the
 register-level game NMI and initialization references. The instant text option
 runs the lifted job of `src/game/game-nmi.mjs` instead, which the existing
 lift comparisons check against the reference. The reference's port-write PCs,
@@ -81,7 +81,7 @@ palette resets) were then no longer loaded by the game and moved to
 The live game always runs lag-free frames, so its frontend interrupt table now
 binds the lifted game NMI jobs of `src/game/game-nmi.mjs` directly. The
 composition that falls back to the register-level jobs in recorded runs moved
-to [game-nmi-jobs.mjs](../proof/replay/game-nmi-jobs.mjs), together with the
+to `game-nmi-jobs.mjs` (removed), together with the
 handler's recorded joypad-wait continuation. The register-level game NMI was
 then no longer loaded by the game and moved to
 `proof/system/main-game-nmi.mjs`; its comparisons are unchanged.
@@ -90,7 +90,7 @@ The live intro NMI table likewise binds only the lifted title-object and intro
 callbacks (81:DAD6, 81:DF0E). The register-level helpers that recorded runs and
 the register-level reference loop reach through the interrupt table (81:D9D5,
 81:ED8B, 81:EDD7, 81:EE0C, 80:F290, 81:F007) are composed in
-[intro-nmi-routines.mjs](../proof/replay/intro-nmi-routines.mjs). The reference
+`intro-nmi-routines.mjs` (removed). The reference
 loop (`proof/script/register-level-loop.mjs`) builds its own interrupt devices
 on the same lag-free frames with those helpers added, so the shared live
 interrupt table is not mutated.
@@ -213,7 +213,7 @@ only this register-level unpacker; the recorded `analysis/rom-vram.json` is reta
 unchanged.
 
 The register-level WORD upload waits 81:ACAF, ACBD, ACC3 and ACC9 and their request
-entries 81:ACB5, AEF4 and AEFC moved from `src/system/main-wait-interrupt.mjs` to
+entries 81:ACB5, AEF4 and AEFC moved from `tools/register-forms/main-wait-interrupt.mjs` to
 `proof/system/main-word-wait.mjs`; only the register-level window, text and menu
 references call them. The live module exports its entry check and wait bank for
 them and keeps the interrupt steps, observed waits, frame wait and fade poll.
@@ -395,7 +395,7 @@ accessor (`cmp`, `adc`, `sbc`, shifts, `xba`, `sep`, `pha`/`phx`/`phy`, `move`, 
 `dpWrite`, `port` and the direct page `modify`) moved to
 `tools/register-forms/dialog-register-helpers.mjs` on 2026-11-19; importing it adds them to
 every accessor `dialogAccess` creates (`extendDialogAccess` in
-`src/system/native-dialog-support.mjs`), and each proof or test file that calls them
+`tools/register-forms/native-dialog-support.mjs`), and each proof or test file that calls them
 imports it. The lifted code calls none of them. In the same batch the game NMI job
 entries moved to `tools/register-forms/game-nmi-jobs.mjs` (the live table binds the handler
 80:C152 only), the direct page form of the language stream redirect to

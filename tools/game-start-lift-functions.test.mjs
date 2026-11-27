@@ -29,7 +29,7 @@ import {
   setUpNewGameState,
   startNewGame,
 } from '../src/game/game-start.mjs';
-import { drainNativeSequence } from '../src/system/native-call-continuation.mjs';
+import { drainNativeSequence } from './register-forms/native-call-continuation.mjs';
 import { WORD_MASK } from '../src/constants/bits.mjs';
 import { SRAM_SIZE } from '../src/vm/memory.mjs';
 import {

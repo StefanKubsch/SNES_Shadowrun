@@ -22,7 +22,7 @@ The pinned original instructions are in
 and [main-scene-source.mjs](../tools/main-scene-source.mjs).
 The readers are [matrix-text.mjs](../src/matrix/matrix-text.mjs),
 [matrix-world.mjs](../src/matrix/matrix-world.mjs) and
-[main-scene.mjs](../proof/replay/main-scene.mjs) (the register-level matrix reference
+`main-scene.mjs` (removed) (the register-level matrix reference
 was retired on 2026-11-25).
 
 | Identity  | Original purpose         | Established reference                               |

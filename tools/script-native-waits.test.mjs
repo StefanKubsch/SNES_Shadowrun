@@ -11,7 +11,7 @@ import { Scheduler } from '../src/script/scheduler.mjs';
 import { LagFreeFrames } from '../src/vm/frame-events.mjs';
 // These calls take the register-level native path without value services, so they
 // install the compatibility entries (docs/REGISTER-COMPAT-BOUNDARY.md).
-import '../src/system/native-dialog-support.mjs';
+import './register-forms/native-dialog-support.mjs';
 
 function fixture(target, args, budget, unused = false) {
   const mem = new VmMemory(cartridge.rom, new Uint8Array(0x20000), null, cartridge.present);

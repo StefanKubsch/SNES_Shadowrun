@@ -9,7 +9,7 @@
 // unless a button is held. It fades out, plays cutscene 5 mirrored and sets up the
 // game's sounds again.
 import { nativeCallSequence } from './native-call-sequences.mjs';
-import { lagFree } from '../../src/system/main-wait-interrupt.mjs';
+import { lagFree } from './main-wait-interrupt.mjs';
 import { sceneRuntime } from '../../src/system/scene-runtime.mjs';
 import { startSceneScreen, enableNmiAndJoypad, disableNmi } from '../../src/system/nmi.mjs';
 import { runSceneList } from '../../src/system/scene-list.mjs';

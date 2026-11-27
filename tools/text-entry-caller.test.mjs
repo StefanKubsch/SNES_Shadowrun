@@ -2,7 +2,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { assertFrozenRun, useLiftVectors } from './lift-function-harness.mjs';
 import { runPrintNumber, runPrintText } from './register-forms/upkeep-routines.mjs';
-import { NATIVE_CALL_CONTINUATIONS } from '../src/system/native-call-continuation.mjs';
+import { NATIVE_CALL_CONTINUATIONS } from './register-forms/native-call-continuation.mjs';
 import { textWindowSide, finishTextWindow } from './text-window-caller-harness.mjs';
 import { TEXT_BUFFER_READBACK, TEXT_BUFFER_UPLOAD, WINDOW_STYLE } from '../src/data/wram.mjs';
 

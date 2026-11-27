@@ -29,7 +29,7 @@ frames in the native port, about 70 of them in these four waits.
 
 The lag-free frame model (src/vm/frame-events.mjs) delivers an NMI only at the
 back branch of a blocking wait. With `instantText` on, the interrupt step
-([main-wait-interrupt.mjs](../src/system/main-wait-interrupt.mjs)) first asks
+([main-wait-interrupt.mjs](../tools/register-forms/main-wait-interrupt.mjs)) first asks
 [instant-text.mjs](../src/game/instant-text.mjs) whether the wait is one of
 the four text waits and the current NMI callback is 80:C152. If so, it calls
 the unchanged A9E1 routine with the register state the handler has at 80:C15F

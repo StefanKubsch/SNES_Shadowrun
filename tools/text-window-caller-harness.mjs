@@ -11,7 +11,7 @@ import assert from 'node:assert/strict';
 import { createSide, pictureState } from './lift-function-harness.mjs';
 import { windowMapSource } from './lift-window-samples.mjs';
 import { LagFreeFrames } from '../src/vm/frame-events.mjs';
-import { NativeCallContinuation } from '../src/system/native-call-continuation.mjs';
+import { NativeCallContinuation } from './register-forms/native-call-continuation.mjs';
 import { WAIT_PAUSED } from '../src/system/native-wait-continuation.mjs';
 import {
   TEXT_BUFFER,

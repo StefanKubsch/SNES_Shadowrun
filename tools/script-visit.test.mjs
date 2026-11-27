@@ -9,7 +9,7 @@ import { SequenceRunner } from '../src/system/sequence-runner.mjs';
 import {
   NativeCallContinuation,
   drainNativeSequence,
-} from '../src/system/native-call-continuation.mjs';
+} from './register-forms/native-call-continuation.mjs';
 import { WAIT_PAUSED, WAIT_RETURNED } from '../src/system/native-wait-continuation.mjs';
 
 test('script visit keeps a pausing child and its result without synchronous fallback', () => {

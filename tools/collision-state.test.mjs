@@ -73,7 +73,7 @@ test('owner gaps and bytes beyond each table keep their original storage', () =>
   assert.equal(mem.wram[0xfffc], VALUE & 0xff);
 });
 
-test('proof fixtures remain byte-backed and only the shipped loop detaches collision state', () => {
+test('test fixtures remain byte-backed and only the shipped loop detaches collision state', () => {
   const mem = memory();
   mem.write16(WRAM + TILE_CACHE_NEXT, VALUE);
   assert.equal(collisionTable(mem.wram), undefined);

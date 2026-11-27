@@ -71,7 +71,7 @@ async function listModules(root, dir, out) {
 // Module texts and the static importers of each module (relative specifiers only).
 export async function moduleGraph(root) {
   const paths = [];
-  for (const dir of ['src', 'proof', 'tools'])
+  for (const dir of ['src', 'tools'])
     if (existsSync(join(root, dir))) await listModules(root, dir, paths);
   const texts = new Map();
   for (const path of paths) texts.set(path, await readFile(join(root, path), 'utf8'));

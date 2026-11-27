@@ -28,13 +28,13 @@ task state.
 
 - Every script native runs lifted code (docs/MAIN-LOOP-LIFT.md, blocks up to 115), and
   every special native has a lifted sequence for lag-free frames.
-- Register-level are still: the interpreter ([proof/vm/interpreter.mjs](../proof/vm/interpreter.mjs),
-  [handlers.mjs](../proof/vm/handlers.mjs): D = frame, S = operand stack, DBR = script
+- Register-level are still: the interpreter (`proof/vm/interpreter.mjs` (removed),
+  `handlers.mjs` (removed): D = frame, S = operand stack, DBR = script
   bank, all in emulated memory), the scheduler
-  ([scheduler.mjs](../proof/vm/scheduler.mjs): C1A6 init, C1CA head, C1E3 round, C1F9 visit,
+  (`scheduler.mjs` (removed): C1A6 init, C1CA head, C1E3 round, C1F9 visit,
   C20B tail, C242/C2C8 heap and frame, C34A append, C36A child, C396 release, C3C9
   ready, C401 native wait, F378 enter, F488/F495 script call), the native bridge
-  ([native-call.mjs](../proof/vm/native-call.mjs), nested rounds from natives such as
+  (`native-call.mjs` (removed), nested rounds from natives such as
   the dialog's JSR C1CA), and the drivers
   (main-driver.mjs (removed),
   [live-game.mjs](../src/video/live-game.mjs)), which run the boot, the owner and the
@@ -340,7 +340,7 @@ registerLevelLoop})`); the observed rooms and boot replays keep the driver direc
 - [src/vm/special-natives.mjs](../src/vm/special-natives.mjs) binds the lifted game
   sequences directly, with one adapter for synchronous and pausing calls. Its
   sequence adapter rejects recorded observations before accessing game state.
-  [proof/vm/special-natives.mjs](../proof/vm/special-natives.mjs) preserves the former
+  `proof/vm/special-natives.mjs` (removed) preserves the former
   register-level forms and their observation validation for replay tests.
 - The live main interval and attract rounds no longer select register-level waits.
   The live startup uses the lifted boot screens; the reference startup retains the
@@ -371,7 +371,7 @@ registerLevelLoop})`); the observed rooms and boot replays keep the driver direc
   their bindings in [src/script/](../src/script/), and shared caller, reset, wait, NMI,
   text, unpacking and rendering support in [src/system/](../src/system/).
   [task-stop.mjs](../src/system/task-stop.mjs) defines the common `taskStop` boundary;
-  [nmi-call.mjs](../src/system/nmi-call.mjs) retains the shared interrupt call frame.
+  [nmi-call.mjs](../tools/register-forms/nmi-call.mjs) retains the shared interrupt call frame.
 - The reference-only modules moved in phases 5 and 6 stay in `proof/`. Proof and game
   consumers import the same shared constants and execution helpers directly, without
   compatibility re-exports. Shared helpers retain the observation checks that their

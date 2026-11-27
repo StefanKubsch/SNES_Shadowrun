@@ -9,7 +9,7 @@
 // 8C:EFB0. The cursor (80:FAAC), text (80:FE69) and number (80:FD80) run through their
 // frames from the routine table.
 import { nativeCallSequence } from './native-call-sequences.mjs';
-import { dialogCallBody } from '../../src/system/native-call-continuation.mjs';
+import { dialogCallBody } from './native-call-continuation.mjs';
 import { dataBankWord } from '../../src/system/data-bank.mjs';
 import {
   DP_SCRATCH,

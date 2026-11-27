@@ -26,7 +26,7 @@
 // row and the rows left are written as the original; the registers are those of the
 // last call, or after a first page A 0 with zero set and X, Y, the carry and the
 // overflow of what ran last.
-import { dialogCallBody, segmentSequence } from '../../src/system/native-call-continuation.mjs';
+import { dialogCallBody, segmentSequence } from './native-call-continuation.mjs';
 import { printNumberSequence, setTextCursorRoutine } from './window-text.mjs';
 import { printTextSequence } from './text-print.mjs';
 import {

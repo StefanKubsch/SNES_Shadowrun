@@ -5,7 +5,7 @@ import { introSequence, playIntro as introBody } from '../src/intro/intro-scene.
 import { matrixSceneSequence, playMatrix as matrixBody } from '../src/matrix/matrix-scene.mjs';
 import { createSide, assertFrozenRun, useLiftVectors } from './lift-function-harness.mjs';
 import { LagFreeFrames } from '../src/vm/frame-events.mjs';
-import { NativeCallContinuation } from '../src/system/native-call-continuation.mjs';
+import { NativeCallContinuation } from './register-forms/native-call-continuation.mjs';
 import { WAIT_PAUSED } from '../src/system/native-wait-continuation.mjs';
 import * as W from '../src/data/wram.mjs';
 

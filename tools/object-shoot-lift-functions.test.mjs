@@ -44,7 +44,7 @@ import {
   TASK_LIST_HEAD,
   TASK_NEXT,
 } from '../src/vm/layout.mjs';
-import { drainNativeSequence } from '../src/system/native-call-continuation.mjs';
+import { drainNativeSequence } from './register-forms/native-call-continuation.mjs';
 
 useLiftVectors(import.meta.url);
 

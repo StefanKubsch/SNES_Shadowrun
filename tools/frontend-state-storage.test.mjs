@@ -151,7 +151,7 @@ test('all direct script operands and every saved byte have an independent owner'
     assert.ok(owned.has(at), 'saved ' + at.toString(16));
 });
 
-test('proof fixtures keep raw frontend bytes; only the normal live loop detaches', () => {
+test('test fixtures keep raw frontend bytes; only the normal live loop detaches', () => {
   const mem = blankMemory();
   assert.equal(frontendState(mem.wram), undefined);
   mem.write16(W.PAD_HELD, 0x1234);

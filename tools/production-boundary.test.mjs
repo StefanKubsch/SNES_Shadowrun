@@ -5,22 +5,12 @@ import { dirname, join, relative, resolve } from 'node:path';
 
 // src holds exactly the shipped game: every module there is reached by a static
 // import chain from the page, worker or audio worklet entry, and none of them
-// imports from proof/. Proof models used only by tools and tests live in proof/
-// (user decision 2026-11-01).
+// imports from tools/. Register-level forms used only by tests live in
+// tools/register-forms (proof/ was deleted on 2026-11-27).
 const entries = [
   'src/browser/start.mjs',
   'src/browser/game-worker.mjs',
   'src/browser/audio-worklet.mjs',
-];
-// User decision 2026-11-24: the register compatibility modules stay in src/ although
-// the game no longer loads them, because frozen proof modules import them by these
-// paths (docs/REGISTER-COMPAT-BOUNDARY.md). They leave src only together with those
-// proof modules. No other module may be unreached.
-const REGISTER_COMPAT_MODULES = [
-  'src/system/main-wait-interrupt.mjs',
-  'src/system/native-call-continuation.mjs',
-  'src/system/native-dialog-support.mjs',
-  'src/system/nmi-call.mjs',
 ];
 const importPattern =
   /(?:(?:import|export)\s[^'";]*?from\s*|import\s*\(\s*|import\s+|new URL\(\s*)(['"])(\.{1,2}\/[^'"]+)\1/g;
@@ -40,33 +30,30 @@ function imports(file) {
   );
 }
 
-test('every src module is loaded by the game and none imports proof code', () => {
+test('every src module is loaded by the game and none imports test code', () => {
   assert.equal(existsSync('src/task'), false, 'the former task directory must stay dissolved');
   const reached = new Set(entries),
     pending = [...entries],
-    proofImports = [],
+    toolImports = [],
     missing = [];
   while (pending.length) {
     const file = pending.pop();
     for (const target of imports(file)) {
-      if (target.startsWith('proof/')) proofImports.push(`${file} -> ${target}`);
+      if (target.startsWith('tools/')) toolImports.push(`${file} -> ${target}`);
       else if (!existsSync(target)) missing.push(`${file} -> ${target}`);
       else if (!reached.has(target)) (reached.add(target), pending.push(target));
     }
   }
-  assert.deepEqual(proofImports, [], 'game modules must not import proof/');
+  assert.deepEqual(toolImports, [], 'game modules must not import tools/');
   assert.deepEqual(missing, [], 'game imports resolve');
-  const unreached = modules('src').filter((file) => !reached.has(file));
   assert.deepEqual(
-    unreached.filter((file) => !REGISTER_COMPAT_MODULES.includes(file)),
+    modules('src').filter((file) => !reached.has(file)),
     [],
-    'modules the game never loads belong in proof/',
+    'modules the game never loads belong in tools/',
   );
-  for (const file of REGISTER_COMPAT_MODULES)
-    assert.ok(!reached.has(file), `${file} must stay outside the game graph`);
 });
 
-test('atomic task plan APIs belong in proof modules', () => {
+test('atomic task plan APIs stay out of src', () => {
   const planApi = /\b(?:prepareTask\w*|commitTaskPlan|isLatestCommittedTaskPlan)\b/;
   for (const file of modules('src')) {
     const source = readFileSync(file, 'utf8');

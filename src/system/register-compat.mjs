@@ -1,14 +1,14 @@
 // Register-level compatibility entries for recorded comparisons. Live play never
 // reaches them: game code takes game services and frame jobs. Recorded callers
-// (frozen proof references and the oracle comparisons) still pass an accessor
+// (the frozen caller and lift-function tests in tools/) still pass an accessor
 // whose CPU context carries the original registers, stack frames and interrupt
 // records. The modules that implement those equations install themselves here
 // when they load, so the live import graph contains none of them
 // (docs/REGISTER-COMPAT-BOUNDARY.md):
-//   dialogAccess          src/system/native-dialog-support.mjs
-//   dialogCallBody        src/system/native-call-continuation.mjs
-//   observedContinuation  src/system/native-call-continuation.mjs
-//   interruptAtBranch     src/system/main-wait-interrupt.mjs
+//   dialogAccess          tools/register-forms/native-dialog-support.mjs
+//   dialogCallBody        tools/register-forms/native-call-continuation.mjs
+//   observedContinuation  tools/register-forms/native-call-continuation.mjs
+//   interruptAtBranch     tools/register-forms/main-wait-interrupt.mjs
 // Every recorded accessor comes from dialogAccess, whose module loads the others.
 import { taskStop } from './task-stop.mjs';
 

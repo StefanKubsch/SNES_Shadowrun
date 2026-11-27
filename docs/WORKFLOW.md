@@ -179,8 +179,8 @@ checkout needs the rebuild first. When adding a generator, keep producers
 before consumers; `node tools/order-generators.mjs` reports backward
 dependencies from the recorded graph and `--write` fixes the order.
 
-The release check starts with `prettier --check src proof` (user decision
-2026-11-01); unformatted code stops delivery before any generator runs.
+The release check starts with `prettier --check src` (user decision 2026-11-01;
+`proof/` was checked too until it was deleted on 2026-11-27); unformatted code stops delivery before any generator runs.
 Format every changed file with Prettier right away.
 
 ## Agent hooks
@@ -204,7 +204,7 @@ in the repository root.
 - `post-edit.mjs` formats each edited file with
   Prettier, then reports findings on lines changed since HEAD (new files
   count fully):
-  - Magic numbers in `src/`, `proof/` and `tools/` (tests excluded). Replace
+  - Magic numbers in `src/` and `tools/` (tests excluded). Replace
     each with a descriptive `UPPER_SNAKE_CASE` constant; values inside such a
     definition, including tables, and 0, 1, -1 and 2 are allowed. ROM
     program addresses written as six hex digits (banks `$00`–`$1F` and
@@ -258,17 +258,17 @@ in files you edit.
 
 `src/` holds exactly the shipped game: every module there is reached by a
 static import chain from `src/browser/start.mjs`, `game-worker.mjs` or
-`audio-worklet.mjs`. Proof models, specs and observation helpers used only
-by tools and tests live in `proof/` with the same subfolders (user decision
-2026-11-01). Proof code may import game modules, never the other way round;
-[production-boundary.test.mjs](../tools/production-boundary.test.mjs) checks
-both directions. The browser server serves only `src/`.
+`audio-worklet.mjs`. Register-level forms and helpers used only by tests live
+in `tools/register-forms/`; tools may import game modules, never the other way
+round, and [production-boundary.test.mjs](../tools/production-boundary.test.mjs)
+checks both directions. `proof/` (user decision 2026-11-01) was deleted on
+2026-11-27; its last tree is commit 1b1a524 (docs/REGISTER-COMPAT-BOUNDARY.md). The browser server serves only `src/`.
 
 The native dispatch proof plan (`proof/task/`, the atomic task plan APIs, the manual
 native catalog and the native and opcode source proofs against the ROM) was retired on
 2026-11-25 (user decision, [STATE-MODEL-REBUILD.md](STATE-MODEL-REBUILD.md), Progress).
-The register-level references in `proof/game-reference/` and the lift-function tests
-that compare `src/` against them remain. docs/PORTIERUNGSSTAND.json is a historical
+The register-level references went with `proof/`; the lift-function and caller tests
+compare `src/` with their frozen outcomes (tools/lift-vectors/). docs/PORTIERUNGSSTAND.json is a historical
 record; no tool validates its evidence any more.
 
 All `.mjs` modules are syntax-checked together in one Node process using

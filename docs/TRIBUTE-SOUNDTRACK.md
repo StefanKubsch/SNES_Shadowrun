@@ -70,7 +70,7 @@ the first 32 pattern bytes against the European catalogue at the same track
 index. Relocated pointers in a complete file and leftover music elsewhere in
 SPC RAM are unsuitable identity tests.
 
-[Retained identification evidence](../proof/apu/tribute-song-identification.json)
+[Retained identification evidence](../tools/tribute-song-identification.json)
 records the archive and dump SHA-256 hashes, tags, variable and pointer addresses,
 and matching active pattern prefixes. The regression test reconstructs the
 European ARAM lists and verifies those pointers and prefixes without downloading

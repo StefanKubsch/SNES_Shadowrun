@@ -75,8 +75,8 @@ with the first allocated entry at `0D00` and slot seven at `0D0C`. An eighth
 entry aliases the upload flag at `0D0E`. The NMI uploader `80:999A` and tile
 palette bits also consume these slots. The scene's 74-entry palette lookup
 is a lookup by identity, not permission for 74 simultaneous BG palettes.
-Sources: [main-initialize.mjs](../proof/system/main-initialize.mjs),
-[main-game-nmi.mjs](../proof/replay/main-game-nmi.mjs), and
+Sources: `main-initialize.mjs` (removed),
+`main-game-nmi.mjs` (removed), and
 [wram.mjs](../src/data/wram.mjs).
 
 ## Shared tile stacks and walls
@@ -92,7 +92,7 @@ both a per-pass peak and the combined peak including retained low entries.
 Free-stack exhaustion and allocation overlap must be rejected by a future
 preflight before any data publication.
 
-Object drawing in [main-scene-layers.mjs](../proof/system/main-scene-layers.mjs)
+Object drawing in `main-scene-layers.mjs` (removed)
 allocates wall records in groups of four cells of six bytes: 24 bytes per
 new wall-map word. The height array starts at `7F:0C00`, the tile array at
 `7F:69C0`, and the next owner, the tile-stack hash heads, at `7F:C780`.

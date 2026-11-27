@@ -9,7 +9,7 @@ import { FRONTEND_TEXT_LIMIT } from '../src/data/frontend-text-edits.mjs';
 import { buildLanguage, languageMenuText, languageMenuArrowShift } from '../src/data/language.mjs';
 import { LiveGame } from '../src/video/live-game.mjs';
 import { TaskAccessor } from '../src/vm/task-accessor.mjs';
-import { dialogAccess } from '../src/system/native-dialog-support.mjs';
+import { dialogAccess } from './register-forms/native-dialog-support.mjs';
 import { sceneRuntime } from '../src/system/scene-runtime.mjs';
 import { saveSlotCount } from '../src/game/save-slots.mjs';
 import {

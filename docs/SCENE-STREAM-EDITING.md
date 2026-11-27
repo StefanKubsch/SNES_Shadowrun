@@ -48,8 +48,8 @@ room header and entry selecting that scene.
 
 Sources: [lz-streams.mjs](../src/data/lz-streams.mjs),
 [rooms.mjs](../src/data/rooms.mjs),
-[main-transition.mjs](../proof/replay/main-transition.mjs), and
-[main-scene-load.mjs](../proof/system/main-scene-load.mjs).
+`main-transition.mjs` (removed), and
+`main-scene-load.mjs` (removed).
 
 ## Record structure and downstream ownership
 
@@ -76,7 +76,7 @@ The backdrop is copied to `7E:0D12`; the game NMI writes its two bytes as
 CGRAM colour zero at `80:99DC` and `80:99E2`. Three original backdrops are
 nonzero (`0025`, `0026`, `0022`); the other 162 are `0000`. This field has an
 independent colour output. It does not select a scene palette or create a
-new palette identity. See [main-game-nmi.mjs](../proof/replay/main-game-nmi.mjs).
+new palette identity. See `main-game-nmi.mjs` (removed).
 
 The tileset byte selects one of six block/attribute pointer pairs at
 `8D:F1A0` and `8D:F1AC`. `81:8DE2` clears the shape grid at `7F:CA14`
@@ -100,7 +100,7 @@ one dependency row per used type with its graphic indices and attributes.
 Matching graphics or type numbers do not make two placed objects identical.
 See [object-types.mjs](../src/data/object-types.mjs),
 [object-graphics.mjs](../src/data/object-graphics.mjs), and
-[main-scene-layers.mjs](../proof/system/main-scene-layers.mjs).
+`main-scene-layers.mjs` (removed).
 
 `81:A117` retains a pointer to the first object-list count in DP `77`/`79`.
 Later `80:A584` calls `81:8756`, which calls `81:84DE` twice to consume
@@ -112,7 +112,7 @@ in total. This is a dependency count, not a guarantee of free collision
 capacity, generated node count or route reachability. Room actors, script
 trigger boxes, exits, points and sight lists remain separate room data.
 Changing a scene object can change both appearance and collision. See
-[main-scene-collision.mjs](../proof/system/main-scene-collision.mjs).
+`main-scene-collision.mjs` (removed).
 
 All 165 identities are shared by English and German, with no packed language
 replacement. That does not grant ownership of fonts, text, room actors,

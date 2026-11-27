@@ -33,7 +33,7 @@ observations. The static groups overlap:
   sets a DMA length from the list, unpacks through `80:F2A0` into `7E:46A8`,
   then transfers from that buffer to the command's VRAM word address.
   [scene-lists.mjs](../src/data/scene-lists.mjs) records the list/register
-  contracts; [main-scene-video.mjs](../proof/system/main-scene-video.mjs),
+  contracts; `main-scene-video.mjs` (removed),
   `81:EC68` through `81:ECB2`, implements the reader. Continuations retain
   the existing list ordering, including `81:F529` continuing into `81:F53E`.
 - Thirty-seven OBJ sources serve 139 portrait records. Each unpacks 64
@@ -45,7 +45,7 @@ observations. The static groups overlap:
 - `80:FF98` supplies the window style characters. `81:AA9C` reads the
   pointer table `80:FFAD`, unpacks through `80:9F49` into `7E:23A0` and
   uses the unpacked length for DMA; see
-  [main-initialize.mjs](../proof/system/main-initialize.mjs).
+  `main-initialize.mjs` (removed).
 - `87:D71A` and `84:F9E8` supply large and small frontend frames. Calls
   `81:E1A3` and `81:E1B0` unpack them through `80:F2A4` into `7F:0018`
   and `7F:8018`. `84:DAF2` also has a direct frontend font consumer in

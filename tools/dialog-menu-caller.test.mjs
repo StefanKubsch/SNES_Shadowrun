@@ -6,7 +6,7 @@ import * as liftedMenus from '../src/game/dialog-menus.mjs';
 import { chooseDialogActionJsr, chooseDialogTopicJsr } from './register-forms/jsr-forms.mjs';
 import { runFrameWait, runPadPresses } from './register-forms/input-routines.mjs';
 import { playSoundEffectJsr } from './register-forms/jsr-forms.mjs';
-import { NATIVE_CALL_CONTINUATIONS } from '../src/system/native-call-continuation.mjs';
+import { NATIVE_CALL_CONTINUATIONS } from './register-forms/native-call-continuation.mjs';
 import { textWindowSide, finishTextWindow, rendererTable } from './text-window-caller-harness.mjs';
 import {
   TOPIC_LIST,

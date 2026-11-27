@@ -38,7 +38,7 @@ import {
   runReleaseNoticeWindows,
 } from './register-forms/upkeep-routines.mjs';
 import { stepAnimation } from '../src/game/object-animation.mjs';
-import { drainNativeSequence } from '../src/system/native-call-continuation.mjs';
+import { drainNativeSequence } from './register-forms/native-call-continuation.mjs';
 import { drawTextBufferSequence } from '../src/game/text-draw.mjs';
 import { LagFreeFrames } from '../src/vm/frame-events.mjs';
 import { unpackPortraitRoutine } from './register-forms/portrait-routines.mjs';

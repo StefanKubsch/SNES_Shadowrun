@@ -234,14 +234,13 @@ export async function verifyRelease(root, { full = false } = {}) {
     const statusFindings = checkProjectStatus(root);
     if (statusFindings.length) throw Error(statusFindings.map(({ text }) => text).join('\n'));
     const cache = await createReleaseCache({ root, trackDir: join(logDir, 'track'), full });
-    // Game and proof code stay Prettier-formatted; checked first because it is cheap.
+    // Game code stays Prettier-formatted; checked first because it is cheap.
     await run('format', process.execPath, [
       join(root, 'node_modules/prettier/bin/prettier.cjs'),
       '--check',
       'src',
-      'proof',
     ]);
-    console.log('Format: src and proof match Prettier.');
+    console.log('Format: src matches Prettier.');
     const pkg = JSON.parse(await readFile(join(root, 'package.json'), 'utf8'));
     const generators = Object.entries(pkg.scripts).filter(([name]) =>
       /^(analyze|extract|probe):(render|vm)-/.test(name),
@@ -277,7 +276,6 @@ export async function verifyRelease(root, { full = false } = {}) {
     step = 'syntax';
     const files = [
       ...(await modules(root, 'src')),
-      ...(await modules(root, 'proof')),
       ...(await modules(root, 'tools')),
     ];
     const syntaxStarted = Date.now(),

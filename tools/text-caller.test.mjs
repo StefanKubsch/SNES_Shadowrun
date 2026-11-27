@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { printNumberJsr, printTextJsr } from './register-forms/jsr-forms.mjs';
-import { NativeCallContinuation } from '../src/system/native-call-continuation.mjs';
+import { NativeCallContinuation } from './register-forms/native-call-continuation.mjs';
 import { WAIT_PAUSED } from '../src/system/native-wait-continuation.mjs';
 import { createSide, assertFrozenRun, useLiftVectors } from './lift-function-harness.mjs';
 import { TEXT_BUFFER } from '../src/data/wram.mjs';

@@ -1,12 +1,12 @@
-import { taskStop } from './task-stop.mjs';
+import { taskStop } from '../../src/system/task-stop.mjs';
 import {
   SequenceRunner,
   NATIVE_CALL_CONTINUATIONS,
   drainNativeSequence,
   segmentSequence,
-} from './sequence-runner.mjs';
-import { installRegisterCompat } from './register-compat.mjs';
-import { WORD_MASK, WORD_BITS } from '../constants/bits.mjs';
+} from '../../src/system/sequence-runner.mjs';
+import { installRegisterCompat } from '../../src/system/register-compat.mjs';
+import { WORD_MASK, WORD_BITS } from '../../src/constants/bits.mjs';
 
 export const JSR_RETURN_OFFSET = 2,
   JSL_RETURN_OFFSET = 3;

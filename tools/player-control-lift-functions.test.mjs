@@ -25,7 +25,7 @@ import {
   RUNNER_WEAPON_KIND,
   SELECTED_SPELL_SCRIPT,
 } from '../src/data/wram.mjs';
-import { drainNativeSequence } from '../src/system/native-call-continuation.mjs';
+import { drainNativeSequence } from './register-forms/native-call-continuation.mjs';
 import { controlPlayerSequence } from './register-forms/player-control.mjs';
 
 useLiftVectors(import.meta.url);

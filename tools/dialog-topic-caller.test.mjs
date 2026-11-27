@@ -3,7 +3,7 @@ import assert from 'node:assert/strict';
 import { assertFrozenRun, useLiftVectors } from './lift-function-harness.mjs';
 import { dialogTopicSequence as direct } from '../src/game/dialog-text.mjs';
 import { textWindowSide, finishTextWindow } from './text-window-caller-harness.mjs';
-import { NativeCallContinuation } from '../src/system/native-call-continuation.mjs';
+import { NativeCallContinuation } from './register-forms/native-call-continuation.mjs';
 import * as V from '../src/vm/layout.mjs';
 
 useLiftVectors(import.meta.url);

@@ -27,7 +27,7 @@ NativeCallContinuation. Preserve the first pass, upkeep order, both carry
 short circuits and exit-before-reload priority.
 
 The live routine table holds NMI callbacks. Former caller and return-frame
-bindings remain in [live-loop-routines.mjs](../proof/caller/live-loop-routines.mjs),
+bindings remain in `live-loop-routines.mjs` (removed),
 [jsr-forms.mjs](../tools/register-forms/jsr-forms.mjs) and
 [input-routines.mjs](../tools/register-forms/input-routines.mjs).
 proof/caller/main-loop.mjs (removed) preserves the former

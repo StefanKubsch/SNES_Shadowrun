@@ -5,7 +5,7 @@ import { runReference } from './w65c816-reference.mjs';
 import { VmMemory } from '../src/vm/memory.mjs';
 import { TaskAccessor } from '../src/vm/task-accessor.mjs';
 import { isIoAddress, isArithmeticRegister } from '../src/vm/devices.mjs';
-import { dialogAccess } from '../src/system/native-dialog-support.mjs';
+import { dialogAccess } from './register-forms/native-dialog-support.mjs';
 
 // Test tool: the dialog routines ($936C) against the original instructions (w65c816-reference.mjs).
 // Both sides start with the same WRAM, the same registers and the same return frame; external

@@ -74,7 +74,7 @@ the output frames; no general raster renderer is claimed.
 Since 2026-10-20 the Y item list and the Start status screen run live with
 picture output until closing, with three hardware parts:
 
-- **HDMA** ([hdma.mjs](../proof/video/hdma.mjs)): `PpuBus` remembers 420C
+- **HDMA** (`hdma.mjs` (removed)): `PpuBus` remembers 420C
   instead of aborting. For every live picture `hdmaRows` computes from channel
   registers 43x0–43x4 and the table in memory the B-bus writes before each of
   the 224 output lines: header byte with C bit and line count, C=0 one record
@@ -88,7 +88,7 @@ picture output until closing, with three hardware parts:
   picture model does not keep a picture's last HDMA value). Writes to 420C and
   to 43x0–43x4 of active channels outside the NMI count like PPU writes as
   unknown raster.
-- **Windows** ([ppu-frame.mjs](../proof/video/ppu-frame.mjs)): TMW (212E) masks
+- **Windows** (`ppu-frame.mjs` (removed)): TMW (212E) masks
   BG1–4 and OBJ in their window area (2123–2125). Window 1 or 2 covers [left,
   right] including both edges; left > right is empty; IN/OUT inverts. Both
   windows on one layer (logic 212A/212B), TSW, colour math and the other 212E

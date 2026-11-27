@@ -11,7 +11,7 @@ import {
   PAD_BUTTONS,
 } from '../src/vm/frame-events.mjs';
 import { TaskAccessor } from '../src/vm/task-accessor.mjs';
-import { dialogAccess } from '../src/system/native-dialog-support.mjs';
+import { dialogAccess } from './register-forms/native-dialog-support.mjs';
 import { DialogTestMemory, rom } from './task-native-dialog-harness.mjs';
 
 // No NMI handler runs in these cases.

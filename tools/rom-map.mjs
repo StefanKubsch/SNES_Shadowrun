@@ -176,7 +176,7 @@ import {
 } from '../src/matrix/matrix-tables.mjs';
 import { CUTSCENE_ANIMATIONS } from '../src/cutscene/cutscene-animation.mjs';
 import { SCENE_LIST_COMMAND_TARGETS } from '../src/data/scene-commands.mjs';
-import { CALLBACKS } from '../src/system/nmi-call.mjs';
+import { CALLBACKS } from './register-forms/nmi-call.mjs';
 
 // The cutscene animations lie in bank 81 (src/cutscene/cutscene-animation.mjs).
 const SCENE_CODE_BANK = 0x810000;

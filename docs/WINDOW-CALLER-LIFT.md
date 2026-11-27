@@ -1,8 +1,8 @@
 # Window caller composition
 
 The live window chain uses lag-free frames. Recorded observations retain the
-former caller composition independently in [proof/caller/window-list.mjs](../proof/caller/window-list.mjs)
-and [proof/caller/window-release.mjs](../proof/caller/window-release.mjs).
+former caller composition independently in `proof/caller/window-list.mjs` (removed)
+and `proof/caller/window-release.mjs` (removed).
 The original equations and hardware contracts remain in
 [ROOM-ENTRY-LIFT.md](ROOM-ENTRY-LIFT.md). This work changes caller composition;
 it introduces no new hardware effects or timing assumptions.
@@ -90,7 +90,7 @@ The retained release imports the retained list, independently of the live path.
 upload directly, always through the live waits. It no longer imports a tile
 routine table or selects recorded observations. The previous opening and
 standalone tile-clear entry remain in
-[proof/caller/window-open.mjs](../proof/caller/window-open.mjs), importing the
+`proof/caller/window-open.mjs` (removed), importing the
 retained list rather than the live upload implementation.
 
 Four additional isolated comparisons cover opening and standalone tile clearing
@@ -103,7 +103,7 @@ The existing 800 opening samples against the register-level original and the
 dialog/menu integration comparisons retain their separate hardware coverage.
 
 The recorded random menu comparisons also retain their former caller in
-[proof/caller/menu-choice.mjs](../proof/caller/menu-choice.mjs), which imports the
+`proof/caller/menu-choice.mjs` (removed), which imports the
 retained tile-clear entry. Its four recorded menu variants continue to compare
 against the register-level original. Live menu caller simplification follows in
 phase 4; recorded polls no longer pass through live tile clearing.

@@ -10,7 +10,7 @@ import { playSoundEffectJsr } from './register-forms/jsr-forms.mjs';
 import {
   NativeCallContinuation,
   NATIVE_CALL_CONTINUATIONS,
-} from '../src/system/native-call-continuation.mjs';
+} from './register-forms/native-call-continuation.mjs';
 import { textWindowSide, finishTextWindow } from './text-window-caller-harness.mjs';
 import {
   ACTION_MENU_OVERRIDE,

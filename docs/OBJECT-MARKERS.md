@@ -33,7 +33,7 @@ and vampire farming prevention. It keeps its independent live preference.
 ## Which objects
 
 - The glove check 80:BCBE (see
-  [native-glove.mjs](../proof/replay/native-glove.mjs)) offers an object of the
+  `native-glove.mjs` (removed)) offers an object of the
   draw list 14B2 (last word index 14B0) that has a picture (1090) and whose
   kind has a name in the kind table 8C:EFB0 (word +0 not FFFF,
   [kinds.mjs](../src/data/kinds.mjs)). The markers use the same rule.

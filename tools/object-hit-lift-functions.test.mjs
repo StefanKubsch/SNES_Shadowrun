@@ -44,7 +44,7 @@ import {
   TASK_PREVIOUS,
   TASK_WAIT,
 } from '../src/vm/layout.mjs';
-import { drainNativeSequence } from '../src/system/native-call-continuation.mjs';
+import { drainNativeSequence } from './register-forms/native-call-continuation.mjs';
 import { hitObjectSequence } from './register-forms/object-hit.mjs';
 
 useLiftVectors(import.meta.url);

@@ -23,7 +23,7 @@ import {
   STATUS_ITEMS_AT_ONCE,
   STORY_STAGE,
 } from '../src/data/wram.mjs';
-import { drainNativeSequence } from '../src/system/native-call-continuation.mjs';
+import { drainNativeSequence } from './register-forms/native-call-continuation.mjs';
 import { itemMenuSequence, useItemSequence } from './register-forms/item-menu.mjs';
 
 useLiftVectors(import.meta.url);

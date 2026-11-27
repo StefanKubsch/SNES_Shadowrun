@@ -3,13 +3,13 @@
 // src/system/live-input-calls.mjs, whose lifted forms leave no registers).
 import { frameWaitCallSequence } from '../../src/system/live-input-calls.mjs';
 import { takePadPresses } from '../../src/system/joypad.mjs';
-import { lagFree } from '../../src/system/main-wait-interrupt.mjs';
+import { lagFree } from './main-wait-interrupt.mjs';
 import { taskStop } from '../../src/system/task-stop.mjs';
 import {
   NativeCallContinuation,
   NATIVE_CALL_CONTINUATIONS,
   drainNativeSequence,
-} from '../../src/system/native-call-continuation.mjs';
+} from './native-call-continuation.mjs';
 import { PAD_HELD, RANDOM_STATE } from '../../src/data/wram.mjs';
 import { BYTE_BITS } from '../../src/constants/bits.mjs';
 import { FLAG_CARRY, FLAG_NEGATIVE, FLAG_ZERO } from '../../src/constants/cpu-flags.mjs';

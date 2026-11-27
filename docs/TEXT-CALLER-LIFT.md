@@ -78,7 +78,7 @@ explicit compatibility adapter.
 matching and fallback dialog texts and the two script text natives. Main-upkeep
 supplies live drawing directly. Custom dialog service objects and topic actions
 retain their existing interface; this block does not change task scheduling.
-The former [dialog text caller](../proof/caller/dialog-text.mjs) imports the
+The former `dialog text caller` (removed) imports the
 retained text and cursor producers.
 
 [dialog-text-caller.test.mjs](../tools/dialog-text-caller.test.mjs) compares
@@ -106,7 +106,7 @@ five; its result and the count since the preceding release belong in HANDOFF.md.
 
 [text-draw.mjs](../src/game/text-draw.mjs) always uses live upload waits and no
 longer selects startup observations or dispatches recorded polling routines.
-The independent [former renderer](../proof/caller/text-draw.mjs) retains both
+The independent `former renderer` (removed) retains both
 recorded modes. The existing random glyph, list and menu comparisons now use
 that former renderer explicitly for recorded polls; real live integrations
 continue through the product renderer.
@@ -125,7 +125,7 @@ unchanged. The fixture services uploads rather than emulating NMI hardware.
 text directly, passing a renderer sequence. The native entry and script notice
 no longer supply an opening/text routine table. Slot allocation, equal-time
 replacement order, effect duration, minimum tracking and release are unchanged.
-The [former notice caller](../proof/caller/notice-show.mjs) retains dispatch and
+The `former notice caller` (removed) retains dispatch and
 imports the retained release. Existing random stand-in comparisons use it.
 
 [notice-caller.test.mjs](../tools/notice-caller.test.mjs) compares the direct
@@ -157,7 +157,7 @@ frame counts, decimal payload and number of rendered texts are also asserted.
 [dialog-menus.mjs](../src/game/dialog-menus.mjs) always composes live menus for
 standard dialog services. Its default renderer is live glyph drawing; it no
 longer selects register-level menu composition when no renderer was passed.
-Custom service objects keep their existing interface. The [former caller](../proof/caller/dialog-menus.mjs)
+Custom service objects keep their existing interface. The `former caller` (removed)
 retains the previous table interface and recorded register-level path, importing
 independent retained menus, opening and release. Existing recorded random
 comparisons import it explicitly.
@@ -182,7 +182,7 @@ policy. The remaining dialog orchestration and other caller tables stay separate
 [action-menu.mjs](../src/game/action-menu.mjs) opens its window and runs the
 hotkey menu directly, passing a renderer sequence. Both the glove entry and
 the script native use this composition; main-upkeep no longer forwards a
-helper table. The [former caller](../proof/caller/action-menu.mjs) retains
+helper table. The `former caller` (removed) retains
 independent window release and the injected opening/menu interface. Existing
 600 random original comparisons explicitly use that retained caller.
 
@@ -208,7 +208,7 @@ remain unchanged. Main-upkeep supplies no helper table to this native.
 
 [confirm-key.mjs](../src/game/confirm-key.mjs) calls the live word wait and
 pad reader directly. Main-upkeep no longer allocates a two-entry helper table
-for each confirming wait. The [former loop](../proof/caller/confirm-key.mjs)
+for each confirming wait. The `former loop` (removed)
 retains the injected callees and its existing source-contract test.
 
 [confirm-key-caller.test.mjs](../tools/confirm-key-caller.test.mjs) compares
@@ -241,7 +241,7 @@ and real dialog integrations retain hardware coverage.
 
 [portrait-upload.mjs](../src/game/portrait-upload.mjs) composes first and
 second portrait DMA jobs directly, with live completion waits. Main-upkeep
-no longer forwards a dialog helper table. The [former upload](../proof/caller/portrait-upload.mjs)
+no longer forwards a dialog helper table. The `former upload` (removed)
 retains recorded polling and injected DMA callees; the random original
 comparisons bind this implementation independently. The shared NMI channel
 setup remains unchanged. The unpacker's separate startup-interrupt fallback
@@ -266,7 +266,7 @@ remaining register/service boundaries are subsequent work.
 
 [dialog-talk.mjs](../src/game/dialog-talk.mjs) closes the portrait window, waits
 for a live frame and reads the pad directly. Object tile reload and sprite
-composition retain their existing service table. The independent [former caller](../proof/caller/dialog-talk.mjs)
+composition retain their existing service table. The independent `former caller` (removed)
 retains the previous talk and close sequences, including injected callees.
 The original random dialog comparison now explicitly exercises that reference.
 
