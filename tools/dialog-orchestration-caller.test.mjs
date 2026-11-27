@@ -15,7 +15,7 @@ import {
   NativeCallContinuation,
   NATIVE_CALL_CONTINUATIONS,
 } from '../src/system/native-call-continuation.mjs';
-import { textWindowSide, finishTextWindow } from './text-window-caller-harness.mjs';
+import { textWindowSide, finishTextWindow, fontUploaded } from './text-window-caller-harness.mjs';
 import {
   DIALOG_HDMA_TABLE,
   HDMAEN_SHADOW,
@@ -110,7 +110,7 @@ for (const budget of [1, 7])
           assert.equal(actual.finalShadow, shadow & ~1);
           assert.equal(actual.wram[W.OAM_BUFFER + 5], 0xf0, 'unused sprite hidden');
           assert.equal(actual.wram[W.NMI_JOB_LISTS], 1, 'sprite upload counted');
-          assert.equal(actual.writes.length, 17, 'OBJSEL and both complete font DMA setups');
+          assert.ok(fontUploaded(actual), 'OBJSEL and both complete font DMAs');
         });
 
 import * as live from '../proof/caller/upkeep-routines.mjs';

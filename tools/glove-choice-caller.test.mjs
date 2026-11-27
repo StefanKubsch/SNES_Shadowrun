@@ -2,6 +2,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { assertFrozenRun, useLiftVectors } from './lift-function-harness.mjs';
 import { compareRun } from './member-menu-caller-harness.mjs';
+import { fontUploaded } from './text-window-caller-harness.mjs';
 
 useLiftVectors(import.meta.url);
 // Retain the controlled movement boundary of the earlier service composition.
@@ -122,7 +123,7 @@ for (const budget of [1, 7])
         const actual = runChoice(direct, name, budget, target, [0x8000], options);
         assertFrozenRun(actual);
         assert.equal(actual.finalShadow, shadow & ~1);
-        assert.equal(actual.writes.length, 17);
+        assert.ok(fontUploaded(actual), 'OBJSEL and both complete font DMAs');
         assert.equal(actual.input, 1);
       });
 test('glove choice preserves reset boundary', () => {

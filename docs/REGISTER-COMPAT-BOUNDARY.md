@@ -159,6 +159,21 @@ mostly script natives (src/script 56 %).
    - The golden traces hash only the picture back end, and the VRAM probe
      (tools/rom-vram-hook.mjs, rom-vram.mjs, rom-unpack-loader.mjs) is gone; it patched
      the register PPU model, so analysis/rom-vram.json is a retained input (done).
+   - The frozen lift and caller tests compare the picture state (user decision
+     2026-11-26): createSide (tools/lift-function-harness.mjs) gives each side a
+     PictureVideo as its device bus, started with the DMA channel set-up of live play
+     and reading open bus as 0 for unmapped DMA sources. Register-level code reaches it
+     through its PPU and DMA register writes, lifted code calls it directly; only the
+     other device writes stay in the write list, and the outcome hashes video memory,
+     palette, OAM and settings. Tests that counted PPU writes check the picture instead
+     (font upload, portrait channel set-up, fixed colour and colour math resets, the
+     portrait channel restore of handleGameNmi). The vectors were re-keyed with
+     LIFT_VECTORS=rekey: per sample, the lifted outcome with listed register writes is
+     first checked against the old vector, and only a confirmed sample gets the new
+     key (a caller vector after a passing run with the old vectors; a stop that appears
+     or disappears fails). Cross-check: with the lifted code calling the picture
+     directly instead of through VideoPort's register writes, the whole fast suite
+     passes against the re-keyed vectors unchanged.
    - Next: move the scaffolding of the frozen tests to tools/. VideoPort
      (src/video/video-port.mjs) stays until then: a measured run on 2026-11-26 found
      about 70 fast test files whose harnesses have no picture bus, so sceneRuntime and

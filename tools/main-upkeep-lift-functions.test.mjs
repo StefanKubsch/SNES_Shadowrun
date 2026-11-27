@@ -981,16 +981,17 @@ registerCases([NOTICE_SHOW, GLOVE_RELEASE], {
   ignored: [[0x1e80, 0x1ee2]],
 });
 
-// The hardware multiplier and divider (Book I 2-15-1) and the PPU's signed multiplier
-// (M7A written twice, M7B, MPYL; Book I 2-27-1) on both sides of the cursor, number,
-// text and window tests, so that the loops end as in the game; the device writes are
-// still recorded.
-const MATH = { a: 0, dividend: 0, product: 0, quotient: 0, m7a: 0, m7latch: 0, m7product: 0 };
+// The hardware multiplier and divider (Book I 2-15-1) on both sides of the cursor,
+// number, text and window tests, so that the loops end as in the game (the PPU's signed
+// multiplier comes from the side's picture back end); the device writes are still
+// recorded.
+const MATH = { a: 0, dividend: 0, product: 0, quotient: 0 };
 function mathSide(s, routines) {
   const state = createSide(s, routines),
     { read, write } = state.a.devices,
     math = { ...MATH };
   state.a.devices = {
+    bus: state.picture,
     read: (address, width) => {
       const at = address & 0xffff,
         value =
@@ -1002,24 +1003,13 @@ function mathSide(s, routines) {
                 ? math.product
                 : at === 0x4217
                   ? math.product >>> 8
-                  : at === 0x2134
-                    ? math.m7product
-                    : at === 0x2135
-                      ? math.m7product >>> 8
-                      : at === 0x2136
-                        ? math.m7product >>> 16
-                        : null;
+                  : null;
       return value === null ? read(address, width) : value & (width === 1 ? 0xff : 0xffff);
     },
     write(pc, address, value, width) {
       write(pc, address, value, width);
       const at = address & 0xffff;
-      if (at === 0x211b) {
-        math.m7a = ((value & 0xff) << 8) | math.m7latch;
-        math.m7latch = value & 0xff;
-      } else if (at === 0x211c)
-        math.m7product = (((math.m7a << 16) >> 16) * ((value << 24) >> 24)) & 0xffffff;
-      else if (at === 0x4202) math.a = value & 0xff;
+      if (at === 0x4202) math.a = value & 0xff;
       else if (at === 0x4203) math.product = math.a * (value & 0xff);
       else if (at === 0x4204)
         math.dividend = width === 2 ? value & 0xffff : (math.dividend & 0xff00) | (value & 0xff);

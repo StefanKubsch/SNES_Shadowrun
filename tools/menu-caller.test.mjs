@@ -6,7 +6,12 @@ import { playSoundEffectJsr } from '../proof/caller/jsr-forms.mjs';
 import { NativeCallContinuation } from '../src/system/native-call-continuation.mjs';
 import { WAIT_PAUSED } from '../src/system/native-wait-continuation.mjs';
 import { LagFreeFrames } from '../src/vm/frame-events.mjs';
-import { createSide, assertFrozenRun, useLiftVectors } from './lift-function-harness.mjs';
+import {
+  createSide,
+  assertFrozenRun,
+  pictureState,
+  useLiftVectors,
+} from './lift-function-harness.mjs';
 import {
   PAD_HELD,
   RANDOM_STATE,
@@ -99,7 +104,15 @@ function run(sequence, entry, pads, budget) {
   const result = mem.read16(0);
   mem.wram.fill(0, 0x100, 0x1ca);
   mem.wram.fill(0, 0x1c78, 0x1cbc);
-  return { result, input, texts, waits, wram: mem.wram, writes: side.writes };
+  return {
+    result,
+    input,
+    texts,
+    waits,
+    wram: mem.wram,
+    writes: side.writes,
+    picture: pictureState(side.picture),
+  };
 }
 
 for (const budget of [1, 7])

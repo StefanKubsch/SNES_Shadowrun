@@ -1,10 +1,5 @@
-import { BYTE_BITS, WORD_BITS, BYTE_MASK, WORD_MASK, LONG_MASK } from '../src/constants/bits.mjs';
+import { BYTE_BITS, BYTE_MASK, WORD_MASK } from '../src/constants/bits.mjs';
 import {
-  M7A,
-  M7B,
-  MPYL,
-  MPYM,
-  MPYH,
   WRMPYA,
   WRMPYB,
   WRDIVL,
@@ -13,7 +8,7 @@ import {
   RDMPYL,
 } from '../src/constants/hardware-registers.mjs';
 import assert from 'node:assert/strict';
-import { createSide } from './lift-function-harness.mjs';
+import { createSide, pictureState } from './lift-function-harness.mjs';
 import { windowMapSource } from './lift-window-samples.mjs';
 import { LagFreeFrames } from '../src/vm/frame-events.mjs';
 import { NativeCallContinuation } from '../src/system/native-call-continuation.mjs';
@@ -41,9 +36,17 @@ const HEX_RADIX = 16,
   CALLER_RETURN = 0x1234,
   CODE_BANK = 0x80,
   DIALOG_ENTRY = 0x9178,
-  SIGNED_BYTE_SHIFT = 24,
   MASK_BYTES = 32,
   CAPTURE_BYTES = 256,
+  // White (all three 5-bit components at 31).
+  FIXTURE_FIXED_COLOUR = 0x7fff,
+  // CGADSUB bits 0-5: BG1-BG4, OBJ and the back area.
+  FIXTURE_MATH_LAYERS = 0x3f,
+  // The dialog font DMAs (81:AB2C): 64 bytes each, the second to VRAM word 100.
+  FONT_DMA_BYTES = 0x40,
+  FONT_SOURCE = 0x8dfb78,
+  FONT_SECOND_SOURCE = 0x8dfd78,
+  FONT_SECOND_VRAM = 0x200,
   STEP_LIMIT = 100000;
 const DEFAULT_WINDOW_FIELDS = [
   [WINDOW_COLUMNS, 14],
@@ -61,7 +64,7 @@ const UPLOAD_REQUESTS = new Map([
 ]);
 
 // Isolate caller contracts with deterministic arithmetic and serviced upload
-// branches. Existing integration comparisons retain actual devices and NMIs.
+// branches (the mode 7 product comes from the side's picture back end). Existing integration comparisons retain actual devices and NMIs.
 export function textWindowSide() {
   const side = createSide({ seed: FIXTURE_SEED, wram: new Uint8Array(WRAM_BYTES) }, new Map()),
     { a, mem } = side,
@@ -80,25 +83,12 @@ export function textWindowSide() {
   let multiplier = 0,
     product = 0,
     dividend = 0,
-    quotient = 0,
-    latch = 0,
-    mode7 = 0,
-    mode7product = 0;
+    quotient = 0;
   a.devices = {
+    bus: side.picture,
     read(address, width) {
       const at = address & WORD_MASK;
-      const value =
-        at === RDDIVL
-          ? quotient
-          : at === RDMPYL
-            ? product
-            : at === MPYL
-              ? mode7product
-              : at === MPYM
-                ? mode7product >>> BYTE_BITS
-                : at === MPYH
-                  ? mode7product >>> WORD_BITS
-                  : null;
+      const value = at === RDDIVL ? quotient : at === RDMPYL ? product : null;
       return value === null ? read(address, width) : value & (width === 1 ? BYTE_MASK : WORD_MASK);
     },
     write(pc, address, value, width) {
@@ -110,14 +100,7 @@ export function textWindowSide() {
       else if (at === WRDIVB) {
         quotient = value ? Math.floor(dividend / value) : WORD_MASK;
         product = value ? dividend % value : dividend;
-      } else if (at === M7A) {
-        mode7 = ((value & BYTE_MASK) << BYTE_BITS) | latch;
-        latch = value & BYTE_MASK;
-      } else if (at === M7B)
-        mode7product =
-          (((mode7 << WORD_BITS) >> WORD_BITS) *
-            ((value << SIGNED_BYTE_SHIFT) >> SIGNED_BYTE_SHIFT)) &
-          LONG_MASK;
+      }
     },
   };
   const frames = new LagFreeFrames({ nmitimen: CODE_BANK }),
@@ -134,6 +117,10 @@ export function textWindowSide() {
     return true;
   };
   Object.assign(a.ctx, { programBank: CODE_BANK, bank: CODE_BANK, pc: DIALOG_ENTRY });
+  // A lit fixed colour and colour math on every layer, so that their resets show in
+  // the picture state.
+  side.picture.fixedColour = FIXTURE_FIXED_COLOUR;
+  side.picture.mathLayers = FIXTURE_MATH_LAYERS;
   side.put = put;
   side.events = { interrupts: frames };
   side.uploads = uploads;
@@ -154,6 +141,26 @@ export function textWindowSide() {
   return side;
 }
 
+// The picture back end behind a result's picture state (results are often copied).
+const pictures = new WeakMap();
+export const pictureVideoOf = (result) => pictures.get(result.picture);
+
+// Whether the picture holds the dialog font set-up: OBJSEL 0 and the two 64-byte font
+// DMAs from 8D:FB78 and 8D:FD78 to VRAM words 0 and 100.
+export function fontUploaded(result) {
+  const video = pictureVideoOf(result),
+    same = (at, source) =>
+      Array.from({ length: FONT_DMA_BYTES }, (_, n) => video.memory.read8(source + n)).every(
+        (v, n) => v === video.vram[at + n],
+      );
+  return (
+    video.objectSizes === 0 &&
+    video.objectBase === 0 &&
+    same(0, FONT_SOURCE) &&
+    same(FONT_SECOND_VRAM, FONT_SECOND_SOURCE)
+  );
+}
+
 export function finishTextWindow(side, sequence, budget) {
   const { a, h, mem } = side;
   h.push(CALLER_RETURN, 2);
@@ -166,11 +173,14 @@ export function finishTextWindow(side, sequence, budget) {
     assert.ok(++steps < STEP_LIMIT, 'bounded caller');
   mem.wram.fill(0, CPU_STACK_START, CPU_STACK_END);
   mem.wram.fill(0, SAVED_REGISTERS_START, SAVED_REGISTERS_END);
+  const picture = pictureState(side.picture);
+  pictures.set(picture, side.picture);
   return {
     wram: mem.wram,
     calls: side.calls,
     uploads: side.uploads,
     writes: side.writes,
+    picture,
     result: continuation.result,
   };
 }

@@ -11,12 +11,10 @@ import { prng } from './task-native-dialog-harness.mjs';
 import {
   createSide,
   liftedOutcome,
-  matchesFrozen,
   registerCases,
   useLiftVectors,
 } from './lift-function-harness.mjs';
 import { GAME_NMI_LIFTED_ROUTINES } from '../proof/caller/game-nmi-jobs.mjs';
-import { writePortraitTileChannel } from '../src/game/portrait-upload.mjs';
 import {
   BRIGHTNESS_FADE,
   BRIGHTNESS_FADE_FRAMES,
@@ -42,6 +40,10 @@ import {
 } from '../src/data/wram.mjs';
 
 useLiftVectors(import.meta.url);
+
+// The portrait tiles the job sends (7F:5250, 4 KiB; src/game/portrait-upload.mjs).
+const PORTRAIT_TILES = 0x15250,
+  PORTRAIT_TILE_BYTES = 0x1000;
 
 const WRAM_BYTES = 0x20000,
   HEX = 16,
@@ -197,35 +199,28 @@ registerCases(CASES, {
 
 // The correction for a palette cycle step and a waiting portrait in the same NMI (the
 // user's videophone call to Glutman stopped with ppu_dma_source_required): the lifted
-// handler writes the portrait's channel 0 setup again right before the portrait job and
-// otherwise leaves the same WRAM and device writes as the register-level one.
+// handler sets up the portrait's channel 0 again right before the portrait job, so the
+// whole 4 KiB of portrait tiles from 7F:5250 reach VRAM at the requested word address.
 test('handleGameNmi 80:C152 restores the portrait channel after a palette cycle step', () => {
-  const channel = [];
-  writePortraitTileChannel({
-    write: (address, value, width) => channel.push([address & 0xffff, value, width].join()),
-  });
   const handler = { ...CASES[0], prepare: handlerInput },
     options = { side, runtime: (h) => h, ignored: IGNORED };
+  let checked = 0;
   for (let seed = 1; seed <= 100; seed++) {
-    const sampleOf = () => {
-      const s = sample(seed);
-      setWord(s.wram, PALETTE_REQUEST_POINTER, 0x8000 | s.rnd(0x8000));
-      s.wram[PORTRAIT_DMA_REQUEST + 1] &= 0x7f;
-      return s;
-    };
-    const s = sampleOf(),
-      request = word(s.wram, PORTRAIT_DMA_REQUEST),
+    const s = sample(seed);
+    setWord(s.wram, PALETTE_REQUEST_POINTER, 0x8000 | s.rnd(0x8000));
+    // A waiting request whose 2 K words neither wrap nor meet the font at words 0-11F.
+    setWord(s.wram, PORTRAIT_DMA_REQUEST, 0x400 + s.rnd(0x7000));
+    const request = word(s.wram, PORTRAIT_DMA_REQUEST),
+      tiles = s.wram.slice(PORTRAIT_TILES, PORTRAIT_TILES + PORTRAIT_TILE_BYTES),
       got = liftedOutcome(handler, s, options);
     if (got.stop) continue;
-    const writes = got.writes,
-      at = writes.findIndex((_, n) => channel.every((w, k) => writes[n + k] === w));
-    assert.ok(at >= 0, `seed ${seed}: no channel restore`);
-    assert.equal(writes[at + channel.length], `${0x2116},${request},2`, `seed ${seed}`);
-    // Without the restore, the outcome is the frozen register-level handler's.
-    const without = writes.slice(0, at).concat(writes.slice(at + channel.length));
+    checked++;
+    const vram = got.picture.subarray(0, 0x10000),
+      at = (request & 0x7fff) * 2;
     assert.ok(
-      matchesFrozen('handleGameNmi portrait channel', seed, null, { ...got, writes: without }),
-      `seed ${seed}`,
+      tiles.every((v, n) => vram[(at + n) & 0xffff] === v),
+      `seed ${seed}: the portrait tiles at VRAM word ${request.toString(16)}`,
     );
   }
+  assert.ok(checked > 50, `${checked} samples reached the portrait job`);
 });

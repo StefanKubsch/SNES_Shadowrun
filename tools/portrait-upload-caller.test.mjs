@@ -20,7 +20,7 @@ import {
   NativeCallContinuation,
   NATIVE_CALL_CONTINUATIONS,
 } from '../src/system/native-call-continuation.mjs';
-import { textWindowSide, finishTextWindow } from './text-window-caller-harness.mjs';
+import { textWindowSide, finishTextWindow, pictureVideoOf } from './text-window-caller-harness.mjs';
 import {
   DIALOG_RECORD_FLAGS,
   NMI_JOB_LISTS,
@@ -91,6 +91,12 @@ for (const budget of [1, 7]) {
       assertFrozenRun(actual);
       assert.equal(actual.request, destination | 0x8000);
       assert.equal(actual.waits, destination & 0x8000 ? 0 : 1);
-      assert.equal(actual.writes.length, 6, 'complete DMA channel setup');
+      // The NMI's portrait job starts the transfer; the caller sets up channel 0.
+      const channel = pictureVideoOf(actual).channels[0];
+      assert.deepEqual(
+        [channel.mode, channel.port, channel.bank, channel.source, channel.bytes],
+        [1, 0x2118, 0x7f, 0x5250, 0x1000],
+        'complete DMA channel set-up for the 4 KiB from 7F:5250',
+      );
     });
 }

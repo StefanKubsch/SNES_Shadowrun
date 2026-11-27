@@ -2,6 +2,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { assertFrozenRun, useLiftVectors } from './lift-function-harness.mjs';
 import { compareRun } from './member-menu-caller-harness.mjs';
+import { pictureVideoOf } from './text-window-caller-harness.mjs';
 import { controlPlayerSequence as directPlayer } from '../src/game/player-control.mjs';
 import * as directStatus from '../src/game/status-screen.mjs';
 import { decimalNumberSequence } from '../proof/caller/decimal-number.mjs';
@@ -204,8 +205,8 @@ for (const budget of [1, 7])
           actual.wram[W.APU_COMMAND_TOKEN],
           actual.writes.filter((write) => write.startsWith('8512,')).length & 0xff,
         );
-        assert.ok(actual.writes.includes('8498,224,1'), 'fixed colour reset');
-        assert.ok(actual.writes.includes('8497,0,1'), 'colour math disabled');
+        assert.equal(pictureVideoOf(actual).fixedColour, 0, 'fixed colour reset');
+        assert.equal(pictureVideoOf(actual).mathLayers, 0, 'colour math disabled');
       });
 
 for (const budget of [1, 7])

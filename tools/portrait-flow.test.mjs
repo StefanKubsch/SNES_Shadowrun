@@ -11,6 +11,7 @@ import { memberPortrait } from '../src/game/member-portrait.mjs';
 import { SequenceRunner } from '../src/system/sequence-runner.mjs';
 import { WAIT_PAUSED } from '../src/system/native-wait-continuation.mjs';
 import { textWindowSide } from './text-window-caller-harness.mjs';
+import { pictureState } from './lift-function-harness.mjs';
 import * as W from '../src/data/wram.mjs';
 
 const operations = [
@@ -53,7 +54,20 @@ function fixture(jobs) {
     }
     return true;
   };
-  return { ...side, unchanged, polls };
+  // Portrait channel set-ups (the 4 KiB of tiles from 7F:5250 on channel 0).
+  const setUps = [],
+    setUp = side.picture.setUpVramTransfer.bind(side.picture);
+  side.picture.setUpVramTransfer = (...args) => {
+    setUps.push(args[0]);
+    return setUp(...args);
+  };
+  return { ...side, unchanged, polls, setUps };
+}
+// One portrait channel set-up, complete on channel 0.
+function assertOnePortraitSetUp(side) {
+  assert.deepEqual(side.setUps, [0x7f5250]);
+  const c = side.picture.channels[0];
+  assert.deepEqual([c.mode, c.port, c.bank, c.source, c.bytes], [1, 0x2118, 0x7f, 0x5250, 0x1000]);
 }
 
 for (const operation of operations) {
@@ -88,10 +102,12 @@ for (const operation of operations) {
       );
       const completed = side.mem.wram.slice(),
         writes = side.writes.length,
+        picture = pictureState(side.picture),
         polls = side.polls.length;
       runner.run(1000);
       assert.deepEqual(side.mem.wram, completed);
       assert.equal(side.writes.length, writes);
+      assert.deepEqual(pictureState(side.picture), picture);
       assert.equal(side.polls.length, polls, 'completed portraits do not repeat waits');
     });
 
@@ -124,7 +140,7 @@ for (const destination of [0x8000, 0xffff])
     side.unchanged();
     assert.equal(side.polls.length, 0);
     assert.equal(side.mem.read16(W.PORTRAIT_DMA_REQUEST), destination);
-    assert.equal(side.writes.length, 6);
+    assertOnePortraitSetUp(side);
   });
 
 test('a portrait transfer pauses once per actual frame without repeating its DMA setup', () => {
@@ -143,5 +159,5 @@ test('a portrait transfer pauses once per actual frame without repeating its DMA
   runner.run(1000);
   assert.equal(runner.done, true);
   side.unchanged();
-  assert.equal(side.writes.length, 6);
+  assertOnePortraitSetUp(side);
 });

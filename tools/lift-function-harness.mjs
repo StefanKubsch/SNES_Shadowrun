@@ -2,7 +2,7 @@
 // (docs/MATRIX-LIFT.md). A sample is a random WRAM image; both sides run one
 // routine on their own copy and must leave the same game state: the same WRAM (outside
 // the ignored scratch, the CPU stacks and the free bytes below the entry S), the same
-// device writes and the same result,
+// device writes, the same picture state and the same result,
 // or stop at the same frontier. Game state only (user, 2026-11-14): registers, flags
 // and stack bytes count only where a callee or caller reads them as an argument or
 // result; stand-ins record their inputs with calleeRecord. Shared by the *-lift-functions tests.
@@ -16,6 +16,18 @@ import { fileURLToPath } from 'node:url';
 import { DialogTestMemory, prng } from './task-native-dialog-harness.mjs';
 import { dialogAccess } from '../src/system/native-dialog-support.mjs';
 import { TaskAccessor } from '../src/vm/task-accessor.mjs';
+import { PictureVideo } from '../src/video/picture-video.mjs';
+import {
+  DMAP0,
+  HDMAEN,
+  INIDISP,
+  MDMAEN,
+  MPYH,
+  MPYL,
+  RDVRAMH,
+  RDVRAML,
+  SETINI,
+} from '../src/constants/hardware-registers.mjs';
 
 const STACK = 0x1c9,
   // The main and NMI stacks: return words and saved registers, no game state.
@@ -45,11 +57,71 @@ const STACK = 0x1c9,
   // beyond the reference budget.
   STOPPED_FLAG = 1,
   RESULT_FLAG = 2,
-  KEY_DIGITS = 12;
+  KEY_DIGITS = 12,
+  // The last DMA channel register (channel 7, 437F).
+  DMA_REGISTERS_END = 0x437f;
+
+// The DMA channel set-up of live play as [mode, B-bus port, bank] per channel (measured
+// on the golden scenarios 2026-11-26): channels 2-7 keep the set-up of the font upload
+// 81:AB2C and the scene lists (OAM, VRAM, CGRAM, the text read-back, the fixed fill from
+// bank 81, VRAM); 0 and 1 change with each transfer. A side's picture starts with it,
+// as the lifted code relies on the channels the game set up earlier.
+const LIVE_CHANNELS = [
+  [0x01, 0x2118, 0x7e],
+  [0x01, 0x2118, 0x7e],
+  [0x00, 0x2104, 0x7e],
+  [0x01, 0x2118, 0x7e],
+  [0x00, 0x2122, 0x8d],
+  [0x81, 0x2139, 0x7e],
+  [0x09, 0x2118, 0x81],
+  [0x01, 0x2118, 0x7e],
+];
+// Sides built while legacy is set have no picture back end: their PPU register writes
+// are listed as before the picture state was compared (the rekey check below).
+let legacy = false;
+const withLegacySides = (run) => {
+  legacy = true;
+  try {
+    return run();
+  } finally {
+    legacy = false;
+  }
+};
+
+// The register ports the picture back end takes: the PPU registers, the DMA starts and
+// the DMA channel registers.
+const isPicturePort = (at) =>
+  (at >= INIDISP && at <= SETINI) ||
+  at === MDMAEN ||
+  at === HDMAEN ||
+  (at >= DMAP0 && at <= DMA_REGISTERS_END);
+// The picture state of a side as one byte array: video memory, palette, OAM and the
+// scalar settings (removal plan step 5: the frozen tests compare the picture state, not
+// the PPU register writes; user decision 2026-11-26).
+export function pictureState(picture) {
+  const settings = picture.settings(),
+    parts = [
+      picture.vram,
+      new Uint8Array(picture.palette.buffer),
+      picture.oam,
+      new Uint8Array(settings.buffer, settings.byteOffset, settings.byteLength),
+    ],
+    out = new Uint8Array(parts.reduce((n, p) => n + p.length, 0));
+  let at = 0;
+  for (const part of parts) {
+    out.set(part, at);
+    at += part.length;
+  }
+  return out;
+}
 
 // One side: a task accessor on its own copy of the sample's WRAM with its device
-// writes recorded. The sound driver echoes the command token on APU port 0; other
-// reads (beam counters, joypad) get the same sequence of the sample on both sides.
+// writes recorded. The picture back end (src/video/picture-video.mjs) is the device bus:
+// lifted code calls it directly, register-level code reaches it through its PPU and
+// DMA register writes, and only the other device writes are listed. The sound driver
+// echoes the command token on APU port 0; the multiplication product and VRAM read-back
+// come from the picture; other reads (beam counters, joypad) get the same sequence of
+// the sample on both sides.
 // prepare(mem, s) may add language state to the memory.
 export function createSide(s, routines, prepare = () => {}) {
   // The sample's SRAM, if it has one.
@@ -69,18 +141,61 @@ export function createSide(s, routines, prepare = () => {}) {
   a.load();
   a.ctx.programBank = LONG_CALLER_BANK;
   const writes = [],
-    counter = prng(s.seed ^ COUNTER_SALT);
+    counter = prng(s.seed ^ COUNTER_SALT),
+    record = (address, value, width) =>
+      writes.push([address & (WORD_VALUES - 1), value, width].join());
+  if (legacy) {
+    a.io = [];
+    a.devices = {
+      read: (address, width) =>
+        (address & (WORD_VALUES - 1)) === APU_PORT_0
+          ? mem.wram[APU_COMMAND_TOKEN]
+          : Math.floor(counter() * WORD_VALUES) & (width === 1 ? BYTE_VALUES - 1 : WORD_VALUES - 1),
+      write: (_pc, address, value, width) => record(address, value, width),
+    };
+    return { mem, a, h: dialogAccess(a), writes, picture: null, routines };
+  }
+  // DMA sources of random states may point at unmapped addresses, where the hardware
+  // reads open bus; both sides read 0 there.
+  const picture = new PictureVideo({
+    read8(address) {
+      try {
+        return mem.read8(address);
+      } catch (error) {
+        if (error.reason !== 'unmapped_read') throw error;
+        return 0;
+      }
+    },
+    write8: (address, value) => mem.write8(address, value),
+  });
+  LIVE_CHANNELS.forEach(([mode, port, bank], n) =>
+    Object.assign(picture.channels[n], { mode, port, bank }),
+  );
+  // The CPU registers of the scene default reach the write list as hardware writes.
+  picture.system = record;
+  const pictureRead = (at) => {
+    if (at === RDVRAML || at === RDVRAMH) return picture.readVram(at);
+    if (at >= MPYL && at <= MPYH) return picture.readProduct(at);
+    return null;
+  };
   a.io = [];
   a.devices = {
-    read: (address, width) =>
-      (address & (WORD_VALUES - 1)) === APU_PORT_0
-        ? mem.wram[APU_COMMAND_TOKEN]
-        : Math.floor(counter() * WORD_VALUES) & (width === 1 ? BYTE_VALUES - 1 : WORD_VALUES - 1),
-    write(_pc, address, value, width) {
-      writes.push([address & (WORD_VALUES - 1), value, width].join());
+    bus: picture,
+    read(address, width) {
+      const at = address & (WORD_VALUES - 1);
+      if (at === APU_PORT_0) return mem.wram[APU_COMMAND_TOKEN];
+      const low = pictureRead(at);
+      if (low !== null) return width === 1 ? low : low | (pictureRead(at + 1) << BYTE_BITS);
+      return (
+        Math.floor(counter() * WORD_VALUES) & (width === 1 ? BYTE_VALUES - 1 : WORD_VALUES - 1)
+      );
+    },
+    write(pc, address, value, width) {
+      if (isPicturePort(address & (WORD_VALUES - 1))) picture.write(pc, address, value, width);
+      else record(address, value, width);
     },
   };
-  return { mem, a, h: dialogAccess(a), writes, routines };
+  return { mem, a, h: dialogAccess(a), writes, picture, routines };
 }
 // A stand-in's record of one call: its target, the direct page words it reads (dp, a list
 // of offsets) and the registers it reads as arguments (registers, a list of names such
@@ -102,7 +217,14 @@ export function outcome(state, run, ignored) {
   }
   const wram = state.mem.wram.slice();
   for (const [from, to] of [...CPU_STACKS, ...ignored]) wram.fill(0, from, to);
-  return { result, stop, wram, sram: state.mem.sram?.slice(), writes: state.writes };
+  return {
+    result,
+    stop,
+    wram,
+    sram: state.mem.sram?.slice(),
+    writes: state.writes,
+    picture: state.picture ? pictureState(state.picture) : null,
+  };
 }
 export function differences({ want, got }) {
   const out = [];
@@ -118,6 +240,7 @@ export function differences({ want, got }) {
   if (want.sram && want.sram.some((v, i) => v !== got.sram[i])) out.push('sram');
   if (want.writes.join(';') !== got.writes.join(';'))
     out.push(`writes ${want.writes.length} / ${got.writes.length}`);
+  if (want.picture && !want.picture.every((v, i) => v === got.picture?.[i])) out.push('picture');
   return out;
 }
 
@@ -188,7 +311,13 @@ function readsIgnoredBytes(c, sampleOf, options, got) {
 // only the reference can record). LIFT_VECTORS=record runs the references and writes the
 // vectors of every case a test file registers.
 const VECTOR_DIRECTORY = new URL('./lift-vectors/', import.meta.url);
-const recording = process.env.LIFT_VECTORS === 'record';
+const recording = process.env.LIFT_VECTORS === 'record',
+  // Re-keying (removal plan step 5, 2026-11-26): the frozen vectors are re-hashed from the
+  // lifted outcomes after a harness change that alters what an outcome holds (the PPU
+  // register writes became the picture state). Its evidence is a passing run with the
+  // old vectors on the same lifted code just before; a stop that appears or disappears
+  // with the change fails instead of being frozen.
+  rekeying = process.env.LIFT_VECTORS === 'rekey';
 let vectorFile = null,
   vectors = null;
 export function useLiftVectors(testUrl) {
@@ -201,7 +330,7 @@ export function useLiftVectors(testUrl) {
     currentTest = t.fullName;
     currentSite = 0;
   });
-  if (!recording) return;
+  if (!recording && !rekeying) return;
   const file = vectorFile,
     store = vectors;
   after(() => {
@@ -219,6 +348,7 @@ function outcomeKey(o, withResult) {
   hash.update(o.wram);
   if (o.sram) hash.update(o.sram);
   hash.update(o.writes.join(';'));
+  if (o.picture) hash.update(o.picture);
   return hash.digest('hex').slice(0, KEY_DIGITS);
 }
 const vectorEntry = (want) =>
@@ -240,7 +370,18 @@ export function matchesFrozen(name, index, want, got) {
   }
   const entry = vectors?.[name]?.[index];
   if (entry === undefined) throw new Error(`no frozen vector ${name} ${index}`);
+  if (rekeying) {
+    vectors[name][index] = rekeyedEntry(entry, got, name);
+    return true;
+  }
   return outcomeKey(got, (Number(entry[0]) & RESULT_FLAG) !== 0) === entry.slice(1);
+}
+// A frozen entry re-hashed from the lifted outcome, with the reference's flags.
+function rekeyedEntry(entry, got, name) {
+  const flags = Number(entry[0]);
+  if (!!(flags & STOPPED_FLAG) !== !!got.stop)
+    throw new Error(`${name}: rekeying changed whether the outcome stops (${got.stop})`);
+  return `${flags}${outcomeKey(got, (flags & RESULT_FLAG) !== 0)}`;
 }
 
 // A canonical text of a caller result for its hash: equal under assert.deepEqual (strict)
@@ -311,6 +452,10 @@ export function assertFrozenRun(got, former, message) {
   }
   const key = vectors?.[name];
   if (key === undefined) throw new Error(`no frozen caller vector ${name}`);
+  if (rekeying) {
+    vectors[name] = callerKey(got);
+    return;
+  }
   assert.equal(callerKey(got), key, message ?? `${name}: matches the former caller`);
 }
 
@@ -330,6 +475,7 @@ export function registerCases(
         beyond = 0;
       const count = c.samples ?? samples,
         frozen = !recording && store?.[c.name],
+        rekeyed = rekeying ? (store[c.name] = frozen.slice()) : null,
         record = recording && store ? (store[c.name] = []) : null;
       if (frozen) assert.equal(frozen.length, count, 'frozen vectors cover every sample');
       for (let seed = 1; seed <= count; seed++) {
@@ -347,6 +493,14 @@ export function registerCases(
             continue;
           }
           const flags = Number(entry[0]);
+          if (rekeyed) {
+            // Only a sample whose outcome with listed register writes still matches its
+            // old vector gets a new one; the others keep theirs (outside the domain).
+            const old = withLegacySides(() => liftedOutcome(c, sampleOf(), options));
+            if (outcomeKey(old, (flags & RESULT_FLAG) !== 0) !== entry.slice(1)) beyond++;
+            else rekeyed[seed - 1] = rekeyedEntry(entry, got, `${c.name} seed ${seed}`);
+            continue;
+          }
           if (outcomeKey(got, (flags & RESULT_FLAG) !== 0) !== entry.slice(1)) {
             const shaken = liftedOutcome(c, sampleOf(), options, true);
             if (differences({ want: got, got: shaken }).length) {
