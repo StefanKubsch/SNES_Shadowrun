@@ -1,18 +1,18 @@
-// Differential of the JS scheduler (src/script/scheduler.mjs) against the register-level
-// scheduler (proof/vm/scheduler.mjs), docs/SCRIPT-VM-LIFT.md phase 2.
+// The JS scheduler (src/script/scheduler.mjs) against the frozen outcomes of the
+// register-level scheduler (retired with proof/vm), docs/SCRIPT-VM-LIFT.md phase 2.
 //
-// Each scenario starts from random WRAM: the register-level side runs C1A6 and appends
-// one to four ROM scripts through C34A; the conversion layer (tools/task-layout.mjs)
-// reads that state into a JS scheduler. Both sides then run the same rounds (C1E3). The
-// wait native (C401) runs inside both schedulers; every other native returns the same
-// random result on both sides and may, as natives do in the game, append a task and visit
-// it at once (C34A, C1CA, a nested round), send events to a task or toggle its halt bit.
-// After every round the native calls (ID and arguments) must match, the projected task
-// tables, heap headers and live frame bytes must equal the register-level WRAM, and the
-// rest of the WRAM must be equal outside the interpreter's work bytes.
+// Each scenario starts from random WRAM in which the register-level side ran C1A6 and
+// appended one to four ROM scripts through C34A (frozen as the bytes it changed); the
+// conversion layer (tools/task-layout.mjs) reads that state into a JS scheduler, which
+// then runs rounds (C1E3). The wait native (C401) runs inside the scheduler; every other
+// native returns a random result and may, as natives do in the game, append a task and
+// visit it at once (C34A, C1CA, a nested round), send events to a task or toggle its
+// halt bit. After every round the native calls (ID and arguments), the projected task
+// tables, heap headers and live frame bytes and the rest of the WRAM outside the
+// interpreter's work bytes form the snapshot that the frozen outcome holds.
 //
 // New JS frames start zeroed, the original's hold heap residue: the locals of tasks
-// created during a run are compared once written, and a load of an unwritten local ends
+// created during a run are projected once written, and a load of an unwritten local ends
 // the scenario as a fresh read (phase 1: script DD and seven value-chain sites).
 import test from 'node:test';
 import assert from 'node:assert/strict';
@@ -20,17 +20,6 @@ import { readFileSync } from 'node:fs';
 import { createHash } from 'node:crypto';
 import { assertFrozenRun, frozenData, useLiftVectors } from './lift-function-harness.mjs';
 import { VmMemory } from '../src/vm/memory.mjs';
-import { ScriptInterpreter } from '../proof/vm/interpreter.mjs';
-import { nativeBridge } from '../proof/vm/native-call.mjs';
-import { TaskScheduler, STOP_NATIVE, STOP_RETURNED } from '../proof/vm/scheduler.mjs';
-import {
-  NATIVE_ARGUMENT_COUNTS,
-  TASK_CURSOR,
-  TASK_EVENTS,
-  TASK_LIST_HEAD,
-  TASK_NEXT,
-  TASK_WAIT,
-} from '../src/vm/layout.mjs';
 import { createTask } from '../src/script/tasks.mjs';
 import {
   Scheduler,
@@ -46,10 +35,6 @@ import { loadScheduler } from './task-layout.mjs';
 const rom = new Uint8Array(readFileSync(new URL('../Shadowrun (E).smc', import.meta.url)));
 useLiftVectors(import.meta.url);
 const SCRIPT_COUNT = 937;
-// Below the game stack top 7E:1CBB (src/data/wram.mjs); scripts write state words above.
-const OUTER_S = 0x1c80,
-  OUTER_RETURN = 0x9998,
-  NESTED_RETURN = 0x9990;
 const NATIVE_LIMIT = 3000;
 // Interpreter and scheduler work bytes outside the projection: the argument and result
 // words 00.., the C2C8/C3C9 direct page words 71-75, the status words of F927, the
@@ -82,11 +67,6 @@ const randomWord = (rnd) =>
     : rnd() < 0.5
       ? (rnd() * 0x10) | 0
       : (rnd() * 0x10000) | 0;
-const word = (wram, at) => wram[at] | (wram[at + 1] << 8);
-const putWord = (wram, at, value) => {
-  wram[at] = value & 0xff;
-  wram[at + 1] = value >>> 8;
-};
 
 // Scripts a task can be created for (even argument bytes, frame size without carry).
 const scratch = new VmMemory(rom, new Uint8Array(0x20000));
@@ -125,90 +105,10 @@ function effectStream(seed) {
 }
 const pick = (list, r) => (list.length ? list[(r * list.length) | 0] : NONE);
 
-// --- Register-level side -----------------------------------------------------------
-
-function callOld(vm, entry, onNative) {
-  vm.d = 0;
-  vm.dbr = 0x80;
-  vm.push16(entry === 0xc1e3 || entry === 0xc1a6 ? OUTER_RETURN : NESTED_RETURN);
-  const scheduler = new TaskScheduler(vm);
-  let stop = scheduler.call(entry);
-  while (stop === STOP_NATIVE) {
-    onNative(vm);
-    stop = scheduler.resume();
-  }
-  if (stop !== STOP_RETURNED) throw Error(`register-level stop ${stop} at ${vm.pc.toString(16)}`);
-}
-
-function oldLiveSlots(wram) {
-  const slots = [];
-  for (let x = word(wram, TASK_LIST_HEAD); x !== 0xffff; x = word(wram, TASK_NEXT + x))
-    slots.push(x >>> 1);
-  return slots;
-}
-
 function randomWram(rnd) {
   const wram = new Uint8Array(0x20000);
   for (let n = 0; n < wram.length; n++) wram[n] = rnd() < 0.5 ? 0 : (rnd() * 256) | 0;
   return wram;
-}
-
-function oldWorld(wram, ids, effects) {
-  const mem = new VmMemory(rom, wram),
-    vm = new ScriptInterpreter(mem),
-    world = { mem, vm, wram: mem.wram, log: [], calls: 0, running: [] };
-  vm.setContext({ a: 0, x: 0, y: 0, s: OUTER_S, d: 0, bank: 0x80, status: 0 });
-  const native = (vm) => {
-    const id = vm.x >>> 1,
-      args = Array.from({ length: mem.read8(NATIVE_ARGUMENT_COUNTS + id) }, (_, n) =>
-        word(world.wram, 2 * n),
-      );
-    world.log.push([id, ...args]);
-    world.running.push(word(world.wram, TASK_CURSOR) >>> 1);
-    nativeBridge(vm);
-    const effect = effects(world.calls++);
-    if (effect.kind === 'append') {
-      effect.args.forEach((value, n) => putWord(world.wram, 2 * n, value));
-      vm.x = effect.script;
-      callOld(vm, 0xc34a, native);
-      if (effect.visit) callOld(vm, 0xc1ca, native);
-    } else if (effect.kind === 'events') {
-      const slot = pick(oldLiveSlots(world.wram), effect.pick);
-      if (slot !== NONE)
-        putWord(
-          world.wram,
-          TASK_EVENTS + 2 * slot,
-          word(world.wram, TASK_EVENTS + 2 * slot) | effect.bits,
-        );
-    } else if (effect.kind === 'halt') {
-      const slots = oldLiveSlots(world.wram).filter((slot) => !world.running.includes(slot)),
-        slot = pick(slots, effect.pick);
-      if (slot !== NONE)
-        putWord(
-          world.wram,
-          TASK_WAIT + 2 * slot,
-          word(world.wram, TASK_WAIT + 2 * slot) ^ WAIT_HALTED,
-        );
-    }
-    world.running.pop();
-    putWord(world.wram, 0, effect.result);
-    vm.d = 0;
-    vm.dbr = 0x80;
-    vm.pc = (vm.pull16() + 1) & 0xffff;
-  };
-  world.round = () => {
-    vm.s = OUTER_S;
-    callOld(vm, 0xc1e3, native);
-  };
-  vm.s = OUTER_S;
-  callOld(vm, 0xc1a6, native);
-  for (const id of ids) {
-    vm.s = OUTER_S;
-    vm.x = id;
-    callOld(vm, 0xc34a, native);
-  }
-  putWord(world.wram, TASK_CURSOR, word(world.wram, TASK_LIST_HEAD));
-  return world;
 }
 
 // --- JS side ---------------------------------------------------------------------
@@ -309,29 +209,9 @@ function jsWorld(wram, effects, stats) {
   return world;
 }
 
-// --- Comparison --------------------------------------------------------------------
-
 const inside = (n, [start, end]) => n >= start && n < end;
-function compareWorlds(old, js, label) {
-  assert.deepEqual(js.log, old.log, `${label}: native calls`);
-  for (const [at, value] of js.project())
-    if (old.wram[at] !== value)
-      throw Error(
-        `${label}: WRAM 7E:${at.toString(16)} register-level ${old.wram[at]}, JS ${value}`,
-      );
-  for (let n = 0; n < old.wram.length; n++)
-    if (
-      old.wram[n] !== js.mem.wram[n] &&
-      !inside(n, SCHEDULER_BYTES) &&
-      !WORK_BYTES.some((range) => inside(n, range))
-    )
-      throw Error(
-        `${label}: WRAM 7E:${n.toString(16)} register-level ${old.wram[n]}, JS ${js.mem.wram[n]}`,
-      );
-}
 
-// One scenario: rounds until a frontier, a fresh read or the native budget.
-// The JS side's state after a round, as compareWorlds compares it.
+// The JS side's state after a round.
 function jsSnapshot(js) {
   const wram = js.mem.wram.slice();
   for (let n = 0; n < wram.length; n++)
@@ -343,37 +223,32 @@ function jsSnapshot(js) {
   };
 }
 
-// One scenario: rounds until a frontier, a fresh read or the native budget. The
-// register-level side runs only while LIFT_VECTORS=record writes the vectors: it then
-// also supplies the start state (frozen as its WRAM bytes changed by C1A6 and C34A).
+// The register-level start state can no longer be recorded.
+const retired = () => {
+  throw new Error('the register-level scheduler is retired; its start states cannot be recorded');
+};
+
+// One scenario: rounds until a frontier, a fresh read or the native budget, from the
+// frozen start state (the WRAM bytes the register-level C1A6 and C34A changed).
 function scenario(seed, stats) {
-  const rnd = prng(seed),
-    ids = Array.from(
-      { length: 1 + ((rnd() * 4) | 0) },
-      () => STARTABLE[(rnd() * STARTABLE.length) | 0].id,
-    ),
-    wram = randomWram(rnd);
-  let old = null;
-  const changes = frozenData(`start ${seed}`, () => {
-    old = oldWorld(wram.slice(), ids, effectStream(seed));
-    const list = [];
-    for (let n = 0; n < wram.length; n++) if (old.wram[n] !== wram[n]) list.push(n, old.wram[n]);
-    return list;
-  });
+  const rnd = prng(seed);
+  // The draws of the appended scripts (their count, then one per script) come first.
+  const appended = 1 + ((rnd() * 4) | 0);
+  for (let n = 0; n < appended; n++) rnd();
+  const wram = randomWram(rnd);
+  const changes = frozenData(`start ${seed}`, retired);
   for (let n = 0; n < changes.length; n += 2) wram[changes[n]] = changes[n + 1];
   const js = jsWorld(wram, effectStream(seed), stats),
     snapshots = [];
   const finish = (result) => {
     const outcome = { result, snapshots };
-    // While recording, compareWorlds has checked every snapshot against the reference.
-    assertFrozenRun(outcome, old ? () => outcome : null, `seed ${seed}`);
+    assertFrozenRun(outcome, null, `seed ${seed}`);
     return result;
   };
-  if (old) compareWorlds(old, js, `seed ${seed} start`);
   snapshots.push(jsSnapshot(js));
   for (let round = 0; round < 12; round++) {
-    // The JS side first: where it stops at a frontier, the original goes on to paths no
-    // ROM script takes with real natives (unused status returns).
+    // Where the JS side stops at a frontier, the original went on to paths no ROM script
+    // takes with real natives (unused status returns).
     try {
       js.scheduler.round();
     } catch (error) {
@@ -381,10 +256,6 @@ function scenario(seed, stats) {
       if (error?.taskBoundary) return finish(`frontier:${error.reason}`);
       if (error?.freshRead) return finish(`fresh:${error.freshRead}`);
       throw error;
-    }
-    if (old) {
-      old.round();
-      compareWorlds(old, js, `seed ${seed} round ${round}`);
     }
     snapshots.push(jsSnapshot(js));
   }
@@ -439,13 +310,7 @@ test('slot and heap exhaustion and re-entry stop at frontiers', () => {
   stopsWith('task_slot_required', () => scheduler.append(small));
   // The conversion layer replays the heap: about 2 KiB of frames.
   const start = randomWram(prng(5)),
-    changes = frozenData('exhaustion start', () => {
-      const world = oldWorld(start.slice(), [], effectStream(5)),
-        list = [];
-      for (let n = 0; n < start.length; n++)
-        if (world.wram[n] !== start[n]) list.push(n, world.wram[n]);
-      return list;
-    });
+    changes = frozenData('exhaustion start', retired);
   for (let n = 0; n < changes.length; n += 2) start[changes[n]] = changes[n + 1];
   const { scheduler: loaded } = loadScheduler(new VmMemory(rom, start.slice()), start);
   const large = STARTABLE.reduce((best, entry) =>

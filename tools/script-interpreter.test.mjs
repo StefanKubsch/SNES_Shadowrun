@@ -1,34 +1,23 @@
-// Differential of the JS script interpreter (src/script/interpreter.mjs) against the
-// register-level interpreter (proof/vm/interpreter.mjs), docs/SCRIPT-VM-LIFT.md phase 1.
+// The JS script interpreter (src/script/interpreter.mjs) against the frozen outcomes of
+// the register-level interpreter (retired with proof/vm), docs/SCRIPT-VM-LIFT.md phase 1.
 //
-// Corpus: each ROM script starts on both sides from the same random WRAM. The
-// register-level side gets a frame as 80:C2C8 builds it, with random residue in the
-// locals; the JS task starts with zeroed locals. Each native and script call returns
-// the same random result on both sides (80:F509 and 80:F495 on the register-level side,
-// finishCall on the JS side), so the run goes on through the script. After every opcode
-// the PC, operand stack, local return stack and written locals are compared; at the end
-// the WRAM, without the frame and the interpreter's work bytes. A local load of a byte
-// the script has not written (the fresh read guard) ends the run with its site.
+// Corpus: each ROM script starts from a random WRAM with a frame as 80:C2C8 builds it;
+// the JS task starts with zeroed locals. Each native and script call returns a random
+// result (finishCall), so the run goes on through the script. The trace holds the PC,
+// operand stack, local return stack and written locals after every opcode; the outcome
+// adds the final WRAM without the frame and the interpreter's work bytes. A local load
+// of a byte the script has not written (the fresh read guard) ends the run with its site.
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import { createHash } from 'node:crypto';
 import { assertFrozenRun, useLiftVectors } from './lift-function-harness.mjs';
-import { VmMemory, VmFault } from '../src/vm/memory.mjs';
-import {
-  ScriptInterpreter,
-  EXIT_BUDGET as VM_BUDGET,
-  EXIT_END as VM_END,
-  EXIT_NATIVE_CALL,
-  EXIT_SCRIPT_CALL,
-} from '../proof/vm/interpreter.mjs';
-import { nativeResume } from '../proof/vm/native-call.mjs';
+import { VmMemory } from '../src/vm/memory.mjs';
 import {
   ARITHMETIC_SCRATCH,
   FRAME_PC,
   FRAME_RETURN,
   FRAME_RETURN_BASE,
-  FRAME_LOCALS,
   OUTER_STACK,
   SCRIPT_RETURN_BYTES,
   TASK_CURSOR,
@@ -36,18 +25,11 @@ import {
 } from '../src/vm/layout.mjs';
 import { createTask, finishCall, scriptInfo, CALL_SCRIPT } from '../src/script/tasks.mjs';
 import { OPCODE, scriptOpcodes, trapOpcodes } from '../src/script/opcodes.mjs';
-import {
-  runTask,
-  EXIT_BUDGET,
-  EXIT_END,
-  EXIT_NATIVE,
-  EXIT_SCRIPT,
-} from '../src/script/interpreter.mjs';
+import { runTask, EXIT_END, EXIT_NATIVE, EXIT_SCRIPT } from '../src/script/interpreter.mjs';
 
 const rom = new Uint8Array(readFileSync(new URL('../Shadowrun (E).smc', import.meta.url)));
-// Frozen reference (removal plan step 5): the register-level interpreter runs only while
-// LIFT_VECTORS=record writes the vectors; otherwise the JS side is compared with them.
-const REFERENCE = process.env.LIFT_VECTORS === 'record';
+// Frozen reference (removal plan step 5): the outcomes of the register-level interpreter
+// (retired with proof/vm) are kept as vectors; the JS side is compared with them.
 useLiftVectors(import.meta.url);
 const SCRIPT_COUNT = 937;
 
@@ -70,8 +52,6 @@ const randomWord = (rnd) =>
 
 const OUTER_S = 0x1c00,
   TASK_SLOT = 0x10;
-const word = (wram, at) => wram[at & 0xffff] | (wram[(at + 1) & 0xffff] << 8);
-const same = (a, b) => a.length === b.length && a.every((v, n) => v === b[n]);
 
 // Local loads and the bytes they read (index from the operand unless fixed).
 const LOCAL_READS = {
@@ -81,21 +61,8 @@ const LOCAL_READS = {
   [OPCODE.LOAD_LOCAL0_U8]: { bytes: 1, index: 0 },
 };
 
-// Register-level task state in the same shape as the JS task.
-function vmState(vm, wram, frame, info) {
-  const top = frame + info.frameBytes - 1,
-    stack = [];
-  for (let at = top - 1; at > vm.s; at -= 2) stack.push(word(wram, at));
-  const pointer = word(wram, frame + FRAME_RETURN),
-    returns = [];
-  for (let at = frame + FRAME_RETURN_BASE; at > pointer; at -= 2) returns.push(word(wram, at));
-  const locals = wram.slice(frame + FRAME_LOCALS, frame + FRAME_LOCALS + info.localBytes);
-  return { stack, returns, locals, underflow: vm.s > top };
-}
-
 // One script from one seed. Returns 'equal' (budget or END), 'fresh:<script>@<pc>',
-// 'frontier:<reason>' (the JS side stops where the register-level side goes on), or
-// throws on a difference.
+// or 'frontier:<reason>' (the JS side stops where the register-level side went on).
 function compareScript(id, seed, maxSteps = 1000) {
   const rnd = prng(seed * 0x10000 + id);
   const wram = new Uint8Array(0x20000);
@@ -120,17 +87,10 @@ function compareScript(id, seed, maxSteps = 1000) {
   put(TASK_CURSOR, TASK_SLOT);
   put(TASK_FRAME + TASK_SLOT, frame);
 
-  const newMem = new VmMemory(rom, wram.slice()),
-    oldMem = REFERENCE ? new VmMemory(rom, wram.slice()) : null;
-  const vm = REFERENCE ? new ScriptInterpreter(oldMem) : null;
-  vm?.setContext({ a: 0, x: 0, y: 0, s, d: frame, bank, status: 0 });
-  vm?.fetch();
+  const newMem = new VmMemory(rom, wram.slice());
   const task = createTask(newMem, id, args);
   // The JS side's trace: exit, PC, stacks and written locals after every opcode.
   const trace = [];
-  const fail = (what, steps) => {
-    throw Error(`script ${id} seed ${seed} step ${steps}: ${what}`);
-  };
   // Local bytes the script has written; only these are compared.
   const written = new Uint8Array(info.localBytes);
   let steps = 0,
@@ -152,14 +112,6 @@ function compareScript(id, seed, maxSteps = 1000) {
     }
     if (opcode === OPCODE.STORE_LOCAL_U8) written[operand] = 1;
     if (opcode === OPCODE.STORE_LOCAL_U16) written[operand] = written[operand + 1] = 1;
-    let oldExit;
-    if (vm)
-      try {
-        oldExit = vm.run(1);
-      } catch (error) {
-        if (!(error instanceof VmFault)) throw error;
-        oldExit = `fault:${error.reason}`;
-      }
     let newExit;
     try {
       newExit = runTask(newMem, task, 1);
@@ -178,70 +130,30 @@ function compareScript(id, seed, maxSteps = 1000) {
       [...task.returns],
       task.locals.map((value, n) => (written[n] ? value : 0)),
     ]);
-    if (!vm) {
-      if (newExit.kind === EXIT_END) {
-        unknownResult = newExit.result === null;
-        if (!unknownResult) newMem.write16(0x7e0000, newExit.result);
-        break;
-      }
-      if (newExit.kind === EXIT_NATIVE || newExit.kind === EXIT_SCRIPT) {
-        newExit.args.forEach((value, n) => newMem.write16(0x7e0000 + 2 * n, value));
-        const value = randomWord(rnd);
-        newMem.write16(0x7e0000, value);
-        finishCall(newMem, task, value);
-      }
-      continue;
-    }
-    if (oldExit === VM_BUDGET) {
-      if (newExit.kind !== EXIT_BUDGET) fail(`JS exit ${newExit.kind}`, steps);
-    } else if (oldExit === VM_END) {
-      if (newExit.kind !== EXIT_END) fail(`JS exit ${newExit.kind} at END`, steps);
-      // An empty stack leaves the original's result undefined (the word above the frame).
-      if (newExit.result === null) {
-        unknownResult = true;
-        newMem.write16(0x7e0000, word(oldMem.wram, 0));
-      } else if (word(oldMem.wram, 0) !== newExit.result) fail('END result', steps);
-      else newMem.write16(0x7e0000, newExit.result);
+    // An empty stack leaves the original's result undefined (the word above the frame).
+    if (newExit.kind === EXIT_END) {
+      unknownResult = newExit.result === null;
+      if (!unknownResult) newMem.write16(0x7e0000, newExit.result);
       break;
-    } else if (oldExit === EXIT_NATIVE_CALL || oldExit === EXIT_SCRIPT_CALL) {
-      const kind = oldExit === EXIT_NATIVE_CALL ? EXIT_NATIVE : EXIT_SCRIPT;
-      if (newExit.kind !== kind || newExit.id !== vm.exitId) fail(`call ${newExit.kind}`, steps);
-      // The register-level side passes the arguments in the words 00.. (80:F4CB, 80:F460).
-      newExit.args.forEach((value, n) => {
-        if (word(oldMem.wram, 2 * n) !== value) fail(`argument ${n}`, steps);
-        newMem.write16(0x7e0000 + 2 * n, value);
-      });
-      if (word(oldMem.wram, frame + FRAME_PC) !== task.pc) fail('call PC', steps);
+    }
+    // Each native and script call returns a random result in DP 00, with the
+    // arguments in the words 00.. as the original passes them (80:F4CB, 80:F460).
+    if (newExit.kind === EXIT_NATIVE || newExit.kind === EXIT_SCRIPT) {
+      newExit.args.forEach((value, n) => newMem.write16(0x7e0000 + 2 * n, value));
       const value = randomWord(rnd);
-      oldMem.write16(0x7e0000, value);
       newMem.write16(0x7e0000, value);
-      vm.s = vm.a;
-      if (kind === EXIT_NATIVE) nativeResume(vm);
-      else nativeResume(vm, SCRIPT_RETURN_BYTES);
       finishCall(newMem, task, value);
-    } else fail(`register-level exit ${oldExit}`, steps);
-    const state = vmState(vm, oldMem.wram, frame, info);
-    if (state.underflow) fail('register-level operand stack above the frame', steps);
-    if (((vm.y - 1) & 0xffff) !== task.pc) fail(`PC ${vm.y - 1} / ${task.pc}`, steps);
-    if (!same(state.stack, task.stack)) fail(`stack ${state.stack} / ${task.stack}`, steps);
-    if (!same(state.returns, task.returns)) fail('local returns', steps);
-    if (!state.locals.every((value, n) => !written[n] || value === task.locals[n]))
-      fail('locals', steps);
+    }
   }
   const masked = (n) =>
     (n >= frame && n < frame + info.frameBytes) ||
     (n >= ARITHMETIC_SCRATCH && n < ARITHMETIC_SCRATCH + 8) ||
     (n >= OUTER_S - 2 && n <= OUTER_S);
-  if (oldMem)
-    for (let n = 0; n < wram.length; n++)
-      if (oldMem.wram[n] !== newMem.wram[n] && !masked(n))
-        fail(`WRAM 7E:${n.toString(16)} ${oldMem.wram[n]} / ${newMem.wram[n]}`, steps);
   // The final WRAM as compared, without the undefined result word.
   const final = newMem.wram.slice();
   for (let n = 0; n < final.length; n++) if (masked(n) || (unknownResult && n < 2)) final[n] = 0;
   const outcome = { result, trace, wram: createHash('sha256').update(final).digest('hex') };
-  // While recording, the step checks above have compared this outcome with the reference.
-  assertFrozenRun(outcome, REFERENCE ? () => outcome : null, `script ${id} seed ${seed}`);
+  assertFrozenRun(outcome, null, `script ${id} seed ${seed}`);
   return result;
 }
 
@@ -276,25 +188,14 @@ test('every ROM script runs on the JS interpreter as on the register-level inter
   assert.ok(tally.equal > 1800, JSON.stringify(tally));
 });
 
-// A synthetic program in WRAM 0800 (bank 80) on both sides.
+// A synthetic program in WRAM 0800 (bank 80); returns the operand stack.
 function runSynthetic(bytes, steps) {
   const wram = new Uint8Array(0x20000),
-    frame = 0x0400,
-    stackTop = 0x1e00;
+    frame = 0x0400;
   wram.set(bytes, 0x0800);
   wram[frame + 1] = 0x08;
   wram[frame + 2] = 0x80;
   const newMem = new VmMemory(rom, wram.slice());
-  let stack = null;
-  if (REFERENCE) {
-    const oldMem = new VmMemory(rom, wram.slice()),
-      vm = new ScriptInterpreter(oldMem);
-    vm.setContext({ a: 0, x: 0, y: 0, s: stackTop, d: frame, bank: 0x80, status: 0 });
-    vm.fetch();
-    vm.run(steps);
-    stack = [];
-    for (let at = stackTop - 1; at > vm.s; at -= 2) stack.push(word(oldMem.wram, at));
-  }
   const task = {
     script: -1,
     code: 0x800800,
@@ -306,7 +207,7 @@ function runSynthetic(bytes, steps) {
     call: null,
   };
   runTask(newMem, task, steps);
-  return { old: stack, js: task.stack };
+  return task.stack;
 }
 
 test('every implemented arithmetic, logic and comparison opcode matches at edge values', () => {
@@ -323,22 +224,14 @@ test('every implemented arithmetic, logic and comparison opcode matches at edge 
     for (const left of values)
       for (const right of values) {
         const program = [0x14, left & 0xff, left >>> 8, 0x14, right & 0xff, right >>> 8, op];
-        const { old, js } = runSynthetic(program, 3);
-        assertFrozenRun(
-          js,
-          REFERENCE ? () => old : null,
-          `opcode ${op.toString(16)} ${left} ${right}`,
-        );
+        const js = runSynthetic(program, 3);
+        assertFrozenRun(js, null, `opcode ${op.toString(16)} ${left} ${right}`);
       }
 });
 
 test('the multiply follows the original, not the true product', () => {
   // 80:F584 takes left high x right high for the third product.
-  const { old, js } = runSynthetic(
-    [0x14, 0x2c, 0x01, 0x14, 0x2c, 0x01, OPCODE.MULTIPLY_UU_HANDLER],
-    3,
-  );
-  if (REFERENCE) assert.deepEqual(old, [0x3490]);
+  const js = runSynthetic([0x14, 0x2c, 0x01, 0x14, 0x2c, 0x01, OPCODE.MULTIPLY_UU_HANDLER], 3);
   assert.deepEqual(js, [0x3490]);
 });
 

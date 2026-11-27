@@ -1,7 +1,6 @@
 import { assertPinnedTaskSource } from './pinned-task-source.mjs';
 import { decodeTaskWindows } from './task-partial-source.mjs';
 import { proveAudioStack } from './render-audio-stack-proof.mjs';
-import { taskRandomTableSources } from '../proof/replay/native-random-tables.mjs';
 export const randomWindows = [
   { start: 0x80c51f, hex: 'A500F01C8502A2FEFFE8E80A90FBBD40C585042060C5A5002504C502B0F5850060' },
   {
@@ -12,7 +11,18 @@ export const randomWindows = [
   },
   { start: 0x80c58c, hex: '60' },
 ];
-export const randomTables = taskRandomTableSources;
+// Individually checked original ROM data, never an executable ROM stream.
+// The random routine tables (80:C540 masks, 80:C58D permutation) as the ROM holds them.
+export const randomTables = Object.freeze([
+  Object.freeze({
+    start: 0x80c540,
+    hex: 'FFFFFF7FFF3FFF1FFF0FFF07FF03FF01FF007F003F001F000F00070003000100',
+  }),
+  Object.freeze({
+    start: 0x80c58d,
+    hex: '1A8F462608A1E7FC21B566A35A89F040CD25F4F34FBC33D2E51D3D48F53F5B996577A2523CCF0F34EFE8BED802B8738ADBC087FE71F77F63B1EC141F2D72B46FD3037680D6D5C86DB0BAA72C04D00E969FC4CA6B2EFB5444C547A8EA3EF851F1E100EEF6A983570B7079BF677C81EB6974DA5D824CAA688410B3110C1B3B556E917D2445FA9B399359C9ED5F0D5EB2CB8D4A5886136C12CC94DEB60AFFC7DD5643AC85383122ABB7D4FD619237097B6A1850C1203032B94295BB3A19D12FA67EC24D9C9A7A90F9DF8C5C2A23E378059862ADE6C601A4A0A54197E48EAFE9CE2BD79E061C17E28B4975BD9D2807D9F229DC151EE027604E16364BAE35C3538864',
+  }),
+]);
 export const randomAnchors = [
   { kind: 'pointer', start: 0x82d834, hex: '1FC5' },
   { kind: 'argument-metadata', start: 0x82da8a, hex: '0102' },

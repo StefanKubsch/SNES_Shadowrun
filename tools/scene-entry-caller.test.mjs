@@ -3,13 +3,9 @@ import assert from 'node:assert/strict';
 import { cutsceneSequence, playCutscene as cutsceneBody } from '../src/cutscene/cutscene-scene.mjs';
 import { introSequence, playIntro as introBody } from '../src/intro/intro-scene.mjs';
 import { matrixSceneSequence, playMatrix as matrixBody } from '../src/matrix/matrix-scene.mjs';
-import { playCutscene, playIntro, playMatrixScene } from '../proof/caller/scene-entries.mjs';
 import { createSide, assertFrozenRun, useLiftVectors } from './lift-function-harness.mjs';
 import { LagFreeFrames } from '../src/vm/frame-events.mjs';
-import {
-  NativeCallContinuation,
-  NATIVE_CALL_CONTINUATIONS,
-} from '../src/system/native-call-continuation.mjs';
+import { NativeCallContinuation } from '../src/system/native-call-continuation.mjs';
 import { WAIT_PAUSED } from '../src/system/native-wait-continuation.mjs';
 import * as W from '../src/data/wram.mjs';
 
@@ -110,32 +106,6 @@ for (const budget of [1, 7])
     test(`actual cutscene body and mirror ${scene}, budget ${budget}`, () => {
       assertFrozenRun(run(direct, scene, budget));
     });
-
-for (const budget of [1, 7])
-  for (const synchronous of [false, true])
-    for (const [entry, target, scene] of [
-      [playCutscene, 0x81cdf8, 0x14],
-      [playIntro, 0x81dfe7, 0x14],
-      [playMatrixScene, 0x81c3ca, 0],
-    ])
-      test(`live scene entry ${target.toString(16)}, synchronous ${synchronous}, budget ${budget}`, () => {
-        function* sequence(h, events, legacy) {
-          if (synchronous) return yield () => entry(h, events, legacy);
-          const factory =
-            NATIVE_CALL_CONTINUATIONS.get(entry) ?? NATIVE_CALL_CONTINUATIONS.get(target);
-          assert.strictEqual(factory.run, entry);
-          return yield {
-            continuation: factory.create({
-              h,
-              events,
-              get routines() {
-                return assert.fail('live scene factory must not read the legacy table');
-              },
-            }),
-          };
-        }
-        assertFrozenRun(run(sequence, scene, budget));
-      });
 
 for (const budget of [1, 7])
   for (const status of [0, 0x30])
