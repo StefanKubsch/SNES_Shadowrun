@@ -51,7 +51,6 @@ import {
   NATIVE_CALL_CONTINUATIONS,
   drainNativeSequence,
 } from '../system/sequence-runner.mjs';
-import { registerCompat } from '../system/register-compat.mjs';
 import { lagFree } from './frame-events.mjs';
 import { taskStop } from '../system/task-stop.mjs';
 import { raiseStateCountSequence, restoreRunnersSequence } from '../game/runner-state-call.mjs';
@@ -69,18 +68,14 @@ function nativeSequence(a, options, sequence) {
     inputs: options?.inputObservations,
     inputIndex: 0,
     ...options?.interruptEvents,
-    ...(options?.valueServices
-      ? { headVisit: options.headVisit, nestedHeadVisit: options.nestedHeadVisit }
-      : { round: options?.round, nestedRound: options?.nestedRound }),
+    headVisit: options?.headVisit,
+    nestedHeadVisit: options?.nestedHeadVisit,
     valueRounds: options?.valueRounds,
   };
   if (!lagFree(events)) taskStop('script_native_lag_free_required');
-  if (options?.valueServices && !events.frameJobs) taskStop('script_native_frame_jobs_required');
-  return sequence(
-    options?.valueServices ? { a } : registerCompat('dialogAccess')(a),
-    events,
-    !options?.valueReturn,
-  );
+  if (!events.frameJobs) taskStop('script_native_frame_jobs_required');
+  // The natives take game services and return values; no CPU frame.
+  return sequence({ a }, events, false);
 }
 export const SPECIAL_NATIVES = new Map();
 export const SPECIAL_NATIVE_CONTINUATIONS = new Map();
@@ -119,15 +114,11 @@ for (const [target, sequence] of [
     drainNativeSequence(nativeSequence(a, options, sequence)),
   );
   SPECIAL_NATIVE_CONTINUATIONS.set(target, (a, options) => {
-    const steps = nativeSequence(a, options, sequence);
-    if (options?.valueReturn) {
-      const continuation = new SequenceRunner(steps, NATIVE_CALL_CONTINUATIONS);
-      return { continuation, finish: () => continuation.result };
-    }
-    return registerCompat('observedContinuation')(a, {
-      sequence: steps,
-      finish: (result) => result,
-    });
+    const continuation = new SequenceRunner(
+      nativeSequence(a, options, sequence),
+      NATIVE_CALL_CONTINUATIONS,
+    );
+    return { continuation, finish: () => continuation.result };
   });
 }
 export const DEVICE_NATIVE_LEAVES = new Map([

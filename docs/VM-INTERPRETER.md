@@ -192,7 +192,7 @@ The matrix NMI (register-level reference main-matrix-nmi.mjs, retired on 2026-11
 [matrix-scene.mjs](../src/matrix/matrix-scene.mjs)) followed the native
 vector `$00:FFEA = C112`. `runObservedMatrixNmi` receives the really
 interrupted register state and pushes PB, PC and P onto its stack through the
-shared flow in [observed-nmi.mjs](../tools/register-forms/nmi-call.mjs). The handler
+shared flow in `observed-nmi.mjs` (removed). The handler
 runs in program bank **00**. Its first WORD read of `$4210` still uses the
 interrupted DBR and needs that observation. Only after the stack switch to
 `$1CBB` and saving A, X, Y, DBR and D does it set D = 0 and DBR = **00** via
@@ -359,7 +359,7 @@ and device values are synthetic inputs.
 
 ## Waits and input with explicitly given interrupts
 
-[main-wait-interrupt.mjs](../tools/register-forms/main-wait-interrupt.mjs) connects
+`main-wait-interrupt.mjs` (removed) connects
 `$81:B0A1`, `$80:9E1A` and `$81:EEBB` with the NMI handler up to RTI. A shared
 `events` object holds `interrupts` as a frozen array of frozen `{pc, nmi}`
 records, `interruptIndex: 0` and `interruptRoutines` as explicitly chosen

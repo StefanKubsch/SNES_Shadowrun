@@ -1,15 +1,8 @@
-// The nested head visit 80:C1CA uses the scheduler continuation when available.
-// Frozen callback callers keep their frame; live visits return ordinary values.
+// The nested head visit 80:C1CA uses the scheduler continuation when available;
+// visits return ordinary values and use no CPU frame.
 import { taskStop } from './task-stop.mjs';
-import { recordedCallBody } from './register-compat.mjs';
 
 export const SCRIPT_VISIT = 0x80c1ca;
-
-export function* scriptVisitCallSequence(h, events, pc, missingReason, onRound) {
-  const visit = () => scriptVisitSequence(events, missingReason, onRound);
-  if (events.valueRounds) return yield* visit();
-  return yield* recordedCallBody(h, pc, SCRIPT_VISIT, visit);
-}
 
 export function* scriptVisitSequence(events, missingReason = 'task_f254_visit_open', onRound) {
   const round = events.nestedHeadVisit

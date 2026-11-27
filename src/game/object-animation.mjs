@@ -40,7 +40,6 @@ import {
   longObjectWord,
   setLongObjectWord,
 } from '../state/objects.mjs';
-import { recordedRoutine } from '../system/recorded-routines.mjs';
 import { taskStop } from '../system/task-stop.mjs';
 import {
   DP_VRAM_UPLOAD_INDEX,
@@ -114,17 +113,8 @@ const setWord = (wram, at, value) => {
 const longWord = (mem, at) =>
   mem.read8(at & LONG_MASK) | (mem.read8((at + 1) & LONG_MASK) << BYTE_BITS);
 
-// Step the animation of the object in slot (80:AC2F, called with JSR); returns with
-// its RTS. A recorded run takes the register-level step.
-export function stepAnimation(h, events, slot) {
-  const recorded = recordedRoutine(events, 'object-animation');
-  if (recorded) return recorded(h, events, slot);
-  stepAnimationInPlace(h, slot);
-  return h.rts();
-}
-
-// The animation step 80:AC2F for lifted callers, without the JSR frame (its return
-// word lies only in free stack bytes); the caller has ruled out a recorded run.
+// The animation step 80:AC2F of the object in slot, without the JSR frame (its return
+// word lies only in free stack bytes).
 export function stepAnimationInPlace(h, slot) {
   const { mem } = h.a,
     { wram } = mem;

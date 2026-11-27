@@ -15,8 +15,6 @@ function fixture() {
   const mem = new VmMemory(cartridge.rom, new Uint8Array(0x20000), null, cartridge.present);
   const natives = new ScriptNatives(mem, { admitted: nativeTargetEntries, implementation });
   const scheduler = new Scheduler(mem);
-  // Ordinary calls need no scheduler entry frame or CPU accessor.
-  natives.accessor = () => assert.fail('ordinary leaf allocated a CPU accessor');
   const call = (target, args) => {
     let id = 0;
     while (nativeTarget(mem, id) !== target) {
@@ -34,7 +32,6 @@ test('script leaves return values without CPU entry registers or a return stack'
     assert.equal(call(0x80ca0d, [slot, 0x1234]), slot);
     assert.equal(call(0x80ca05, [slot]), 0x1234);
   }
-  assert.equal(natives.accessors.length, 0);
   assert.equal(natives.depth, 0);
   assert.equal(natives.calls, 8);
   assert.equal('ctx' in natives.leaf, false);
@@ -70,7 +67,6 @@ test('device leaves use ordered observations without allocating CPU contexts', (
   assert.equal(call(0x80cd20, [0]), 0xffff);
   assert.deepEqual(taken, [0x80c51f, 0x80c560, 0x80cd20]);
   assert.equal(natives.depth, 0);
-  assert.equal(natives.accessors.length, 0);
   assert.equal(natives.leaf.io, null);
 });
 

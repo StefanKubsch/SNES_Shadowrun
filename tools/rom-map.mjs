@@ -176,7 +176,12 @@ import {
 } from '../src/matrix/matrix-tables.mjs';
 import { CUTSCENE_ANIMATIONS } from '../src/cutscene/cutscene-animation.mjs';
 import { SCENE_LIST_COMMAND_TARGETS } from '../src/data/scene-commands.mjs';
-import { CALLBACKS } from './register-forms/nmi-call.mjs';
+// The proven NMI callback roots (long addresses, set through 81:C109), formerly kept by
+// the observed NMI of the register-level game (removed 2026-11-27).
+const NMI_CALLBACKS = [
+  0x81bec3, 0x81dad6, 0x81df0e, 0x81d479, 0x80c152, 0x81e6ae, 0x81dd54, 0x81d93e, 0x81dcac,
+  0x81e839,
+];
 
 // The cutscene animations lie in bank 81 (src/cutscene/cutscene-animation.mjs).
 const SCENE_CODE_BANK = 0x810000;
@@ -187,7 +192,7 @@ const SCENE_CODE_BANK = 0x810000;
 // at 80:C14F has no table: its targets are the proven NMI callback roots of
 // the port (long addresses, set through 81:C109).
 const JUMP_TABLES = new Map([
-  ['80:C14F', { targets: [...CALLBACKS], long: true }],
+  ['80:C14F', { targets: NMI_CALLBACKS, long: true }],
   ['80:B0AC', { table: 0x80b0e3, targets: DEPTH_COMPARE_FIRST.map((t) => t & 0xffff) }],
   ['80:B0EF', { table: 0x80b126, targets: DEPTH_COMPARE_SECOND.map((t) => t & 0xffff) }],
   ['80:ECEA', { table: 0x80ed2e, targets: STATUS_SUBMENUS.map((t) => t & 0xffff) }],

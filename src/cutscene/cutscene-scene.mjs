@@ -9,7 +9,7 @@
 import { readStateByte, writeStateByte } from '../state/objects.mjs';
 import { sceneFrames } from '../system/scene-frames.mjs';
 import { waitStatus } from '../system/wait-status.mjs';
-import { introSequence, playIntro } from '../intro/intro-scene.mjs';
+import { playIntro } from '../intro/intro-scene.mjs';
 import { heldPad, menuCreditsRunning, CREDITS_SEQUENCE } from '../game/credits.mjs';
 import {
   beginPackedTextEdit,
@@ -81,7 +81,6 @@ import {
 import { FLAG_MEMORY_8BIT, FLAG_NEGATIVE, FLAG_ZERO } from '../constants/cpu-flags.mjs';
 
 const INTRO_SCENE = 0x14,
-  INTRO = 0x81dfe7,
   // The scene lists 81:F48D: one word per scene, lists in bank 81.
   SCENE_LISTS = 0x81f48d,
   LIST_BANK = SCENE_LISTS & ~WORD_MASK,
@@ -114,24 +113,9 @@ const setWord = (wram, at, value) => {
 };
 
 // 81:CDF8: play the cutscene scene with its argument (A and X in the original; user
-// decision 2026-11-17: callers pass them as values, register-level ones from their A
-// and X, as proof/caller/scene-entries.mjs does).
-// h is the accessor of the native call from the main loop (80:CC4B) or the frontend
-// (intro end, credits).
-export function* cutsceneSequence(h, events, scene, argument) {
-  const { ctx } = h;
-  if (scene === INTRO_SCENE) {
-    yield () => {
-      ctx.programBank = INTRO >>> WORD_BITS;
-      ctx.pc = INTRO & WORD_MASK;
-    };
-    return yield* introSequence(h, events);
-  }
-  yield* playCutscene(h, events, scene, argument);
-  return yield () => h.rtl();
-}
-
-// Ordinary playback composes the intro directly and owns no return frame.
+// decision 2026-11-17: callers pass them as values). h gives the game services of the
+// main loop (80:CC4B) or the frontend (intro end, credits). The intro scene composes
+// the intro directly; no CPU return frame.
 export function* playCutscene(h, events, scene, argument) {
   if (scene === INTRO_SCENE) return yield* playIntro(h, events);
   const clock = sceneFrames(h, events, 'cutscene');

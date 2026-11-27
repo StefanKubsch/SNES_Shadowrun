@@ -26,8 +26,7 @@
 import { readStateByte, writeStateByte, objectIndex, objectTable } from '../state/objects.mjs';
 import { taskStop } from '../system/task-stop.mjs';
 import { moveObject } from './object-move.mjs';
-import { stepAnimation, stepAnimationInPlace } from './object-animation.mjs';
-import { recordedRoutine } from '../system/recorded-routines.mjs';
+import { stepAnimationInPlace } from './object-animation.mjs';
 import {
   CELL_COORDINATE_MASK,
   COLLISION_BOX_BOTTOM,
@@ -79,9 +78,6 @@ const DP_X = 0x1a,
   DP_CELL_X1_Y0 = 0x56,
   DP_CELL_X0_Y1 = 0x59,
   DP_NODE = 0xa0;
-// Original call site of the animation step.
-const ANIMATION_CALL = 0xaff4,
-  ANIMATION_TARGET = 0x80ac2f;
 
 const word = (wram, at) =>
   readStateByte(wram, at % WRAM_SIZE) | (readStateByte(wram, (at + 1) % WRAM_SIZE) << BYTE_BITS);
@@ -181,7 +177,7 @@ function buildCollisionList(wram) {
 // movement, target walking and animation compose their actual bodies directly. The main
 // loop runs it without its JSR frame; the RTS form for register-level callers is
 // moveAndAnimateJsr in tools/register-forms/jsr-forms.mjs.
-export function moveAndAnimateInPlace(h, events) {
+export function moveAndAnimateInPlace(h) {
   const { wram } = h.a.mem,
     objects = objectTable(wram);
   buildCollisionList(wram);
@@ -196,9 +192,5 @@ export function moveAndAnimateInPlace(h, events) {
   };
   pass((slot) => moveObject(h.a.mem.wram, h.a, slot));
   setWord(wram, DP_FRAME_BANK, FRAME_BANK);
-  // A recorded run's register-level step returns through the JSR frame; the lifted step
-  // runs without it.
-  if (recordedRoutine(events, 'object-animation'))
-    pass((slot) => h.call(ANIMATION_CALL, ANIMATION_TARGET, () => stepAnimation(h, events, slot)));
-  else pass((slot) => stepAnimationInPlace(h, slot));
+  pass((slot) => stepAnimationInPlace(h, slot));
 }

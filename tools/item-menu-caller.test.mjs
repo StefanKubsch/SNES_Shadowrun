@@ -45,7 +45,7 @@ function runUse(module, direct, actor, effect, budget, realDrawing = false) {
       tasksOf(h.a).reset();
       put(W.OBJECT_KIND + 4, 0xffff);
       for (const target of [0x80c1ca])
-        routines.set(target, (callee) => {
+        routines.set(target, () => {
           // The visit reads task state, not registers (user decision 2026-11-17).
           calls.push(['service', target]);
           if (target === 0x80a835) put(0, 4);
@@ -53,7 +53,6 @@ function runUse(module, direct, actor, effect, budget, realDrawing = false) {
             put(W.DIALOG_END, effect.end ? 0xffff : 0);
             put(W.MEMBER_PORTRAIT_REDRAW, effect.redraw ? 1 : 0);
           }
-          return target === 0x81aeb0 ? callee.rtl() : callee.rts();
         });
       bind(0x80e9c5, () => equipmentRowsSequence(h, events, routines));
       configureScriptVisit(side, budget === 1);
@@ -159,12 +158,11 @@ function runItemMenu(module, direct, entry, variant, budget, realDrawing = false
       put(W.OBJECT_KIND + 4, 0xffff);
       bind(0x80e9c5, () => equipmentRowsSequence(h, events, routines));
 
-      routines.set(0x80c1ca, (callee) => {
+      routines.set(0x80c1ca, () => {
         // The visit reads no registers (user decision 2026-11-17).
         calls.push(['visit']);
         if (variant === 'use') put(W.DIALOG_END, 0xffff);
         else put(heldRecord + STATE_HOLDER, 0);
-        return callee.rts();
       });
       configureScriptVisit(side, budget === 1);
     },

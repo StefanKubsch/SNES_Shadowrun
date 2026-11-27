@@ -12,8 +12,10 @@ useLiftVectors(import.meta.url);
 // harness ignores them).
 const FREE_STACK_DEPTH = 0x70;
 
-// A renderer with multiple cooperative segments exposes lost replies, premature
-// bank restoration and missed returns without coupling the producer to a table.
+// A renderer with multiple cooperative segments exposes lost replies without coupling
+// the producer to a table. The renderer is a plain sequence: it leaves the caller's data
+// bank and registers alone (re-keyed 2026-11-27, when the JSR frame and data bank 7E of
+// the register-level renderer contract went).
 function run(sequence, id, budget, translated) {
   const side = createSide({ seed: 17, wram: new Uint8Array(0x20000) }, new Map()),
     { h, a, mem } = side,
@@ -45,18 +47,9 @@ function run(sequence, id, budget, translated) {
   Object.assign(a.ctx, { programBank: 0x80, bank: 0x95, pc: 0xfe69, y: 71 });
   h.push(0x1234, 2);
   const entryStack = a.ctx.s;
-  function* renderer(callee) {
-    yield () =>
-      calls.push(['enter', callee.ctx.bank, mem.wram.slice(TEXT_BUFFER, TEXT_BUFFER + 256)]);
-    yield () => calls.push(['resume', callee.ctx.bank]);
-    let result;
-    yield () => {
-      callee.ctx.a = 42;
-      callee.ctx.x = 43;
-      callee.ctx.y = 44;
-      result = callee.rts();
-    };
-    return result;
+  function* renderer() {
+    yield () => calls.push(['enter', mem.wram.slice(TEXT_BUFFER, TEXT_BUFFER + 256)]);
+    yield () => calls.push(['resume']);
   }
   const routines = new Map([[0x80fb39, () => assert.fail('renderer must run cooperatively')]]),
     runRenderer = routines.get(0x80fb39),
@@ -89,13 +82,12 @@ for (const budget of [1, 7])
     for (const translated of [false, true])
       test(`text renderer interface: ${id.toString(16)}, budget ${budget}, translation ${translated}`, () => {
         // Game state only (user decision 2026-11-17): the lifted text print leaves no A,
-        // X, Y and flags; the Y below is the stub renderer's.
+        // X, Y and flags.
         const actual = run(printTextJsr, id, budget, translated);
         assertFrozenRun(strip(actual));
         assert.equal(actual.calls.length, 2);
         assert.equal(actual.ctx.bank, 0x95);
         assert.equal(actual.ctx.pc, 0x1235);
-        assert.equal(actual.ctx.y, 44);
       });
 
 for (const budget of [1, 7])
@@ -105,7 +97,7 @@ for (const budget of [1, 7])
       // and flags.
       const actual = run(printNumberJsr, value, budget, false);
       assertFrozenRun(strip(actual));
-      const bytes = actual.calls[0][2],
+      const bytes = actual.calls[0][1],
         end = bytes.indexOf(0);
       assert.equal(String.fromCharCode(...bytes.subarray(0, end)), String(value));
       assert.equal(actual.ctx.bank, 0x95);

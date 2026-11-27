@@ -1,10 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import {
-  scriptVisitSequence,
-  scriptVisitCallSequence,
-  SCRIPT_VISIT,
-} from '../src/system/script-visit.mjs';
+import { scriptVisitSequence, SCRIPT_VISIT } from '../src/system/script-visit.mjs';
 import { SequenceRunner } from '../src/system/sequence-runner.mjs';
 import {
   NativeCallContinuation,
@@ -80,7 +76,6 @@ test('script visit preserves the caller frontier and observes synchronous result
 
 for (const pc of [0x8091d4, 0x80e545, 0x80e78e])
   test(`ordinary head visit at ${pc.toString(16)} returns a paused child without a caller frame`, () => {
-    const h = new Proxy({}, { get: () => assert.fail('ordinary visit accessed CPU helpers') });
     let visits = 0;
     const child = new SequenceRunner(
       (function* () {
@@ -90,17 +85,12 @@ for (const pc of [0x8091d4, 0x80e545, 0x80e78e])
       })(),
     );
     const parent = new SequenceRunner(
-      scriptVisitCallSequence(
-        h,
-        {
-          valueRounds: true,
-          nestedRound(target) {
-            assert.equal(target, SCRIPT_VISIT);
-            return child;
-          },
+      scriptVisitSequence({
+        nestedRound(target) {
+          assert.equal(target, SCRIPT_VISIT);
+          return child;
         },
-        pc,
-      ),
+      }),
     );
     assert.equal(parent.run(0), WAIT_PAUSED);
     assert.equal(visits, 0);

@@ -371,7 +371,7 @@ registerLevelLoop})`); the observed rooms and boot replays keep the driver direc
   their bindings in [src/script/](../src/script/), and shared caller, reset, wait, NMI,
   text, unpacking and rendering support in [src/system/](../src/system/).
   [task-stop.mjs](../src/system/task-stop.mjs) defines the common `taskStop` boundary;
-  [nmi-call.mjs](../tools/register-forms/nmi-call.mjs) retains the shared interrupt call frame.
+  `nmi-call.mjs` (removed) retains the shared interrupt call frame.
 - The reference-only modules moved in phases 5 and 6 stay in `proof/`. Proof and game
   consumers import the same shared constants and execution helpers directly, without
   compatibility re-exports. Shared helpers retain the observation checks that their

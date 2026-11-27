@@ -1,8 +1,8 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { cutsceneSequence, playCutscene as cutsceneBody } from '../src/cutscene/cutscene-scene.mjs';
-import { introSequence, playIntro as introBody } from '../src/intro/intro-scene.mjs';
-import { matrixSceneSequence, playMatrix as matrixBody } from '../src/matrix/matrix-scene.mjs';
+import { playCutscene } from '../src/cutscene/cutscene-scene.mjs';
+import { playIntro } from '../src/intro/intro-scene.mjs';
+import { playMatrix } from '../src/matrix/matrix-scene.mjs';
 import { createSide, assertFrozenRun, useLiftVectors } from './lift-function-harness.mjs';
 import { LagFreeFrames } from '../src/vm/frame-events.mjs';
 import { NativeCallContinuation } from './register-forms/native-call-continuation.mjs';
@@ -11,10 +11,19 @@ import * as W from '../src/data/wram.mjs';
 
 useLiftVectors(import.meta.url);
 
-// The lifted cutscene with the scene and argument from A and X, as the scenario sets them.
-const direct = (h, events) => cutsceneSequence(h, events, h.ctx.a, h.ctx.x);
+// The scenes 81:C3CA (matrix), 81:CDF8 (cutscene, with the intro 81:DFE7 as scene 14)
+// play from game services without CPU frames. Game state only (user decision
+// 2026-11-17): the outcome holds WRAM without the CPU stack and the interrupted A and S
+// the NMI saves, the device writes and the serviced waits.
+//
+// Re-keyed on 2026-11-27, when the register-level scene entries (with their JSL return
+// frame and the intro's nested cutscene frame) went: until then a test compared each
+// scene body with its entry and found the same WRAM outside the CPU stack, the same
+// device writes, waits and data bank.
+const CPU_STACK_START = 0x100,
+  CPU_STACK_END = 0x1ca;
 
-function run(sequence, scene, budget, status = 0, frameless = false) {
+function run(sequence, budget, status = 0) {
   const side = createSide({ seed: 17, wram: new Uint8Array(0x20000) }, new Map()),
     { h, a, mem } = side;
   a.vm.menuCredits = true;
@@ -29,90 +38,51 @@ function run(sequence, scene, budget, status = 0, frameless = false) {
     mem.write16(W.PAD_HELD, W.PAD_START);
     return true;
   };
-  Object.assign(a.ctx, { a: scene, x: 0, status, programBank: 0x81, bank: 0x80, pc: 0xcdf8 });
-  h.pushByte(0x80);
-  h.a.pushWord(0x1234);
+  Object.assign(a.ctx, { status, programBank: 0x81, bank: 0x80, pc: 0xcdf8 });
   const stack = h.ctx.s;
-  if (frameless) {
-    h.pushByte =
-      h.a.pushWord =
-      h.rts =
-      h.rtl =
-        () => assert.fail('scene body must not use CPU frames');
-  }
-  const legacy = { get: () => assert.fail('live scene must not select a routine table') };
-  const continuation = new NativeCallContinuation(a, sequence(h, events, legacy));
+  h.pushByte =
+    h.a.pushWord =
+    h.rts =
+    h.rtl =
+      () => assert.fail('scene body must not use CPU frames');
+  const continuation = new NativeCallContinuation(a, sequence(h, events));
   const before = mem.wram.slice();
   assert.equal(continuation.run(0), WAIT_PAUSED);
   assert.deepEqual(mem.wram, before);
   let calls = 0;
   while (continuation.run(budget) === WAIT_PAUSED) assert.ok(++calls < 100000);
-  if (frameless) assert.equal(h.ctx.s, stack, 'scene preserves the caller stack');
-  // Game state only (user decision 2026-11-17): no A, X, Y and flags, nor the
-  // interrupted A and S the NMI saves (7E:1C78-1C7B).
-  const { a: _a, x: _x, y: _y, status: _status, ...ctx } = a.ctx,
-    wram = mem.wram.slice();
+  assert.equal(h.ctx.s, stack, 'scene preserves the caller stack');
+  const wram = mem.wram.slice();
+  wram.fill(0, CPU_STACK_START, CPU_STACK_END);
   wram.fill(0, W.NMI_SAVED_A, W.NMI_SAVED_STACK + 2);
-  return {
-    wram,
-    writes: side.writes,
-    waits,
-    result: continuation.result,
-    ctx,
-  };
+  return { wram, writes: side.writes, waits, result: continuation.result };
 }
 
-for (const budget of [1, 7])
-  for (const [body, wrapper, scene] of [
-    [matrixBody, matrixSceneSequence, 0],
-    [introBody, introSequence, 0x14],
-    ...[0, 1, 2, 3, 4, 0x14, 0x8000, 0x8001, 0x8002, 0x8003, 0x8004].map((scene) => [
-      (h, events) => cutsceneBody(h, events, scene, 0),
-      direct,
-      scene,
-    ]),
-  ])
-    test(`direct scene graph preserves state and waits without CPU frames, scene ${scene}, budget ${budget}, ${body.name}`, () => {
-      const actual = run(body, scene, budget, 0, true),
-        expected = run(wrapper, scene, budget);
-      // CPU stack bytes and return metadata belong only to the compatibility entry.
-      for (const result of [actual, expected]) result.wram.fill(0, 0x100, 0x1ca);
-      assert.deepEqual(actual.wram, expected.wram);
-      assert.deepEqual(actual.writes, expected.writes);
-      assert.deepEqual(actual.waits, expected.waits);
-      assert.equal(actual.ctx.bank, expected.ctx.bank);
-    });
+const cutscene = (scene) => (h, events) => playCutscene(h, events, scene, 0);
 
 for (const budget of [1, 7])
   test(`matrix setup, login and return own their waits, budget ${budget}`, () => {
-    const actual = run(matrixSceneSequence, 0, budget);
+    const actual = run(playMatrix, budget);
     assertFrozenRun(actual);
     assert.ok(actual.waits.length > 16);
-    assert.equal(actual.ctx.pc, 0x1235);
   });
 
 for (const budget of [1, 7])
   for (const status of [0, 0x30])
     test(`cutscene intro tail owns the existing frame, budget ${budget}, status ${status}`, () => {
-      const actual = run(direct, 0x14, budget, status);
-      assertFrozenRun(actual);
-      assert.equal(actual.ctx.s, 0x1c9);
-      assert.equal(actual.ctx.programBank, 0x80);
-      assert.equal(actual.ctx.pc, 0x1235);
+      assertFrozenRun(run(cutscene(0x14), budget, status));
     });
 
 for (const budget of [1, 7])
   for (const scene of [0, 1, 2, 3, 4, 0x8000, 0x8001, 0x8002, 0x8003, 0x8004])
     test(`actual cutscene body and mirror ${scene}, budget ${budget}`, () => {
-      assertFrozenRun(run(direct, scene, budget));
+      assertFrozenRun(run(cutscene(scene), budget));
     });
 
 for (const budget of [1, 7])
   for (const status of [0, 0x30])
     test(`intro owns the nested mirrored credits call, budget ${budget}, status ${status}`, () => {
-      const actual = run(introSequence, 0x14, budget, status);
+      const actual = run(playIntro, budget, status);
       assertFrozenRun(actual);
       assert.ok(actual.waits.length > 16);
-      assert.equal(actual.ctx.bank, 0x80);
-      assert.equal(actual.ctx.pc, 0x1235);
     });

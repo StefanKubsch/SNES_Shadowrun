@@ -30,7 +30,6 @@ import { readStateByte, writeStateByte } from '../state/objects.mjs';
 // comparisons retain their independent register-level callers, including interrupts
 // inside a glyph. The compatibility renderer consumes its caller's outer RTS only.
 import { sceneRuntime } from '../system/scene-runtime.mjs';
-import { recordedCallBody } from '../system/register-compat.mjs';
 import { nmiAtBranch } from '../system/frame-wait.mjs';
 import {
   TEXT_BUFFER,
@@ -124,8 +123,6 @@ const READBACK = Object.freeze({
     request: TEXT_BUFFER_UPLOAD,
     branch: 0x81acc6,
   });
-const TEXT_DRAW_ENTRY = 0x80fb39,
-  TEXT_DATA_BANK = 0x7e;
 
 const word = (wram, at) => readStateByte(wram, at) | (readStateByte(wram, at + 1) << BYTE_BITS);
 const setWord = (wram, at, value) => {
@@ -502,17 +499,9 @@ export function* drawTextBuffer(h, events) {
   if (pending) yield* requestUpload(h, events, wram, LINE_UPLOAD);
 }
 
-// Injected register-level renderers retain their old entry contract. The normal
-// renderer composes directly and never reads or changes the caller's data bank.
-export function* renderTextBuffer(h, events, renderer, site) {
+// The text buffer through the renderer a caller passes: the lifted one, or a test's
+// stand-in sequence. Neither reads or changes the caller's data bank.
+export function* renderTextBuffer(h, events, renderer) {
   if (renderer === drawTextBufferSequence) return yield* drawTextBuffer(h, events);
-  const bank = h.ctx.bank;
-  try {
-    yield () => {
-      h.ctx.bank = TEXT_DATA_BANK;
-    };
-    yield* recordedCallBody(h, site, TEXT_DRAW_ENTRY, () => renderer(h, events));
-  } finally {
-    h.ctx.bank = bank;
-  }
+  return yield* renderer(h, events);
 }

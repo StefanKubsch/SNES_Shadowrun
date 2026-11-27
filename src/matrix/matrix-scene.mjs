@@ -246,14 +246,8 @@ function* setUpScreen(m, wait) {
   };
 }
 
-// 81:C3CA: play the matrix until the decker jacks out or the health runs out. h is
-// the accessor of the native call from the main loop (80:CC4B).
-export function* matrixSceneSequence(h, events) {
-  yield* playMatrix(h, events);
-  return yield () => h.rtl();
-}
-
-// Ordinary scene playback owns no CPU return frame.
+// 81:C3CA: play the matrix until the decker jacks out or the health runs out. h gives
+// the game services of the main loop (80:CC4B); no CPU return frame.
 export function* playMatrix(h, events) {
   const clock = sceneFrames(h, events, 'matrix'),
     wait = () => clock.wait(m);

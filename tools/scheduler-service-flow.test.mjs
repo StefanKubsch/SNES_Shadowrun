@@ -2,18 +2,14 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { ScriptNatives } from '../src/script/natives.mjs';
 import { GameLoop } from '../src/script/game-loop.mjs';
-import { scriptVisitCallSequence } from '../src/system/script-visit.mjs';
+import { scriptVisitSequence } from '../src/system/script-visit.mjs';
 import { SequenceRunner } from '../src/system/sequence-runner.mjs';
 import { WAIT_PAUSED, WAIT_RETURNED } from '../src/system/native-wait-continuation.mjs';
 import { LagFreeFrames } from '../src/vm/frame-events.mjs';
 
 function fixture() {
-  const natives = new ScriptNatives(
-    {},
-    { admitted: [], implementation: null, valueServices: true },
-  );
+  const natives = new ScriptNatives({}, { admitted: [], implementation: null });
   const forbidden = () => assert.fail('live scheduler touched CPU workspace or an entry selector');
-  natives.stacks = new Proxy([], { get: forbidden, set: forbidden });
   const loop = Object.create(GameLoop.prototype);
   loop.natives = natives;
   loop.accessor = new Proxy({}, { get: forbidden });
@@ -68,8 +64,7 @@ test('named nested head visit never evaluates the numeric legacy callbacks', () 
       return forbidden();
     },
   };
-  const h = new Proxy({}, { get: forbidden });
-  const runner = new SequenceRunner(scriptVisitCallSequence(h, events, 0x8091d4));
+  const runner = new SequenceRunner(scriptVisitSequence(events));
   assert.equal(runner.run(0), WAIT_PAUSED);
   while (!runner.done) runner.run(1);
   assert.equal(visits, 1);
@@ -162,13 +157,7 @@ test('named synchronous head visits return and report values without legacy fall
     },
   };
   const runner = new SequenceRunner(
-    scriptVisitCallSequence(
-      new Proxy({}, { get: forbidden }),
-      events,
-      0x8091d4,
-      undefined,
-      (value) => observed.push(value),
-    ),
+    scriptVisitSequence(events, undefined, (value) => observed.push(value)),
   );
   while (!runner.done) runner.run(1);
   assert.equal(runner.result, result);

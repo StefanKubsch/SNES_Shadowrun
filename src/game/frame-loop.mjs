@@ -31,7 +31,7 @@ export function* update(h, events) {
   yield* sceneRequestSequence(h, events, request);
   if (request.taken) return null;
   yield () => shakeHitPlayer(wram);
-  yield () => moveAndAnimateInPlace(h, events);
+  yield () => moveAndAnimateInPlace(h);
   yield () => recordFormationStep(wram);
   yield () => followPlayerWithCamera(h.a.mem, wram);
   yield () => updateTileBuffers(wram);

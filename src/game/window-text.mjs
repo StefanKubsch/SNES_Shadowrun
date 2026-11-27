@@ -54,8 +54,7 @@ const ROW_SITE = 0x80fab8,
   DIVIDEND_SITE = 0x80fd8c,
   DIVISOR_SITE = 0x80fd93,
   REMAINDER_SITE = 0x80fd9e,
-  QUOTIENT_SITE = 0x80fda7,
-  DRAW_SITE = 0x80fdca;
+  QUOTIENT_SITE = 0x80fda7;
 
 const word = (wram, at) => readStateByte(wram, at) | (readStateByte(wram, at + 1) << BYTE_BITS);
 const setWord = (wram, at, value) => {
@@ -118,6 +117,6 @@ export function* printNumber(h, events, renderBuffer = drawTextBufferSequence) {
       }
     }
   };
-  yield* renderTextBuffer(h, events, renderBuffer, DRAW_SITE);
+  yield* renderTextBuffer(h, events, renderBuffer);
 }
 // The RTS form for register-level callers is printNumberJsr in tools/register-forms/jsr-forms.mjs.

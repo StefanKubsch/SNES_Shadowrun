@@ -13,18 +13,17 @@ import { accessorPort } from '../src/system/hardware-port.mjs';
 import { textWindowSide } from './text-window-caller-harness.mjs';
 import * as W from '../src/data/wram.mjs';
 
-test('wait status keeps recorded caller bits and needs no live CPU context', () => {
-  for (let status = 0; status <= 0xff; status++)
-    for (const [clear, set] of [
-      [0x82, 0x21],
-      [0xa0, 3],
-      [0xa2, 0],
-      [0xa2, 0x80],
-    ]) {
-      assert.equal(waitStatus({ ctx: { status } }, {}, clear, set), (status & ~clear) | set);
-      const h = new Proxy({}, { get: () => assert.fail('live status read CPU context') });
-      assert.equal(waitStatus(h, { frameJobs: () => {} }, clear, set), set);
-    }
+test('wait status gives the branch condition bits and needs no CPU context', () => {
+  const h = new Proxy({}, { get: () => assert.fail('wait status read CPU context') });
+  for (const [clear, set] of [
+    [0x82, 0x21],
+    [0xa0, 3],
+    [0xa2, 0],
+    [0xa2, 0x80],
+  ]) {
+    assert.equal(waitStatus(h, {}, clear, set), set);
+    assert.equal(waitStatus(h, { frameJobs: () => {} }, clear, set), set);
+  }
 });
 
 const operations = [

@@ -198,7 +198,6 @@ function runTalk(
     assert.equal(mem.read16(V.TASK_LIST_HEAD), 0);
     side.calls.push(['topic action', 0x80]);
     put(DIALOG_END, 0xffff);
-    return h.rts();
   };
   const serviceUpload = events.interrupts.textWait;
   const pads = variant.startsWith('talk')

@@ -33,7 +33,7 @@ import { memberPortrait } from './member-portrait.mjs';
 import { resetWindowList } from './window-list.mjs';
 import { drawTextBufferSequence } from './text-draw.mjs';
 import { dataBankWord, setDataBankWord } from '../system/data-bank.mjs';
-import { scriptVisitCallSequence } from '../system/script-visit.mjs';
+import { scriptVisitSequence } from '../system/script-visit.mjs';
 import { createObject } from './object-create.mjs';
 import {
   DP_ITEM_FLAGS,
@@ -98,8 +98,6 @@ const KIND_NAMES = 0x8cefb0,
   KIND_CLASS = 0x8cefb4;
 // The entries and their item classes.
 export const ITEM_ENTRIES = Object.freeze({ 0x80e572: 0, 0x80e577: 1, 0x80e57f: 2 });
-// The callees and their call sites.
-const VISIT = 0x80e545;
 // The list starts after Exit; a count of one is shown as none; the menu's first column.
 const FIRST_ITEM = 2,
   SINGLE = 1,
@@ -263,7 +261,7 @@ export function* useItem(h, events, renderBuffer, actor) {
     setObjectWord(mem, 'record', slot, word(wram, DP_ITEM_RECORD));
     setDataBankWord(mem, MEMBER_PORTRAIT_REDRAW, 0, 0);
   };
-  yield* scriptVisitCallSequence(h, events, VISIT);
+  yield* scriptVisitSequence(events);
   let ended, redraw;
   yield () => {
     ended = dataBankWord(mem, DIALOG_END) !== 0;

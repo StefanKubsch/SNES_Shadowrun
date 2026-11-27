@@ -47,8 +47,6 @@ const DP_TEXT = 0x02,
   TEXT_END = 0x0a,
   REFILL_BITS = 0x0f,
   BRANCH_BYTES = 2;
-// The call of the text buffer.
-const DRAW_SITE = 0x80febc;
 
 const word = (wram, at) => readStateByte(wram, at) | (readStateByte(wram, at + 1) << BYTE_BITS);
 const setWord = (wram, at, value) => {
@@ -129,6 +127,6 @@ export function* printText(h, events, renderBuffer = drawTextBufferSequence) {
     }
     writeStateByte(wram, TEXT_BUFFER + y, 0);
   };
-  yield* renderTextBuffer(h, events, renderBuffer, DRAW_SITE);
+  yield* renderTextBuffer(h, events, renderBuffer);
 }
 // The RTS form for register-level callers is printTextJsr in tools/register-forms/jsr-forms.mjs.

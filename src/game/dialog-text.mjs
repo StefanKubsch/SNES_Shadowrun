@@ -34,7 +34,7 @@ import { setTextCursor } from './window-text.mjs';
 import { drawTextBufferSequence } from './text-draw.mjs';
 import { printText } from './text-print.mjs';
 import { appendScript } from '../script/task-api.mjs';
-import { scriptVisitCallSequence } from '../system/script-visit.mjs';
+import { scriptVisitSequence } from '../system/script-visit.mjs';
 import { taskStop } from '../system/task-stop.mjs';
 import { TOPIC_FLAGS, TOPIC_LIST } from '../data/wram.mjs';
 import {
@@ -226,7 +226,7 @@ export function* dialogTopicSequence(h, events, at) {
     setWord(wram, DP_WINDOW, word(wram, DP_DIALOG_OBJECT));
   };
   yield () => appendScript(h.a, script);
-  yield* scriptVisitCallSequence(h, events, 0x8091d4, 'task_dialog_topic_visit_open', (more) => {
+  yield* scriptVisitSequence(events, 'task_dialog_topic_visit_open', (more) => {
     if (more?.wait?.length) events.values = Object.freeze([...(events.values ?? []), ...more.wait]);
     if (more?.input?.length)
       events.inputs = Object.freeze([...(events.inputs ?? []), ...more.input]);

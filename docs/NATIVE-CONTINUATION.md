@@ -76,7 +76,7 @@ choose the size of the pieces processed synchronously.
 
 [NativeCallContinuation](../tools/register-forms/native-call-continuation.mjs) assembles
 fixed JavaScript caller segments. The synchronous and resumable paths of
-[00:C112](../tools/register-forms/nmi-call.mjs) and
+`00:C112` (removed) and
 `80:C152` (removed) use the same equations. The pinned
 sources remain matrixNmiSpecs, nmi (removed) with
 the hardware/handler stack lemma and gameNmiSpecs (removed)

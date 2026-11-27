@@ -6,6 +6,10 @@ Live play already passes game services only and never touches the accessor's CPU
 context ([LIVE-LOOP-SERVICES.md](LIVE-LOOP-SERVICES.md)). This step also removes the
 register-level modules from the live import graph.
 
+Status (2026-11-27): the compatibility code is removed from src/ (see "Removal of the
+compatibility code" at the end). The Boundary, Contract and Remaining limits sections
+below describe the state of 2026-11-24.
+
 ## Audit of the remaining src register adapters (2026-11-24)
 
 | Module                                  | Register content                                              | Live use before this step                                                                  |
@@ -50,8 +54,7 @@ the four modules as the only exception; since they moved to tools/register-forms
 
 ## Remaining limits
 
-- The register modules and src/system/register-compat.mjs remain: the frozen caller
-  and lift-function tests load the register forms, which install their entries.
+- (Resolved 2026-11-27, see the end of this document.)
 - Recorded branches inside live modules (data bank and status setup for injected
   renderers, the recorded intro ending, attract and script visit frames) remain as
   compatibility code; they no longer pull register modules into the live graph.
@@ -199,5 +202,43 @@ mostly script natives (src/script 56 %).
      still give refer to it (`git show 1b1a524:proof/...`). The tribute identification
      evidence moved to tools/tribute-song-identification.json, and the four register
      modules to tools/register-forms/.
-   - Open: the register modules, src/system/register-compat.mjs and the recorded
-     branches in live modules remain as long as the frozen tests use the register forms.
+   - The compatibility code went on 2026-11-27 (next section).
+
+## Removal of the compatibility code (2026-11-27)
+
+User decision 2026-11-27: remove the register compatibility code. A probe that made
+every `registerCompat` lookup throw showed 2,302 tests on recorded branches; each branch
+was then removed and its tests moved to the value form.
+
+- Frame waits: `nmiAtBranch` (src/system/frame-wait.mjs) has one lag-free path. A
+  test's `textWait` services the wait; an NMI without frame jobs stops with
+  `frame_jobs_required`. The 2,091 tests that only reached the recorded interrupt step
+  pass with unchanged vectors.
+- Injected text renderers run as plain sequences without the JSR frame and data bank
+  7E (`renderTextBuffer`); the caller harness's stand-in records the constant bank 7E,
+  so those vectors are unchanged. text-caller, which checked the renderer contract
+  itself, was re-keyed.
+- Script visits (80:C1CA) use `scriptVisitSequence` without a frame; the visit
+  stand-ins no longer return through RTS. dialog-topic-caller, which recorded the
+  return word, was re-keyed.
+- Script natives, the game loop and the special natives run with game services only:
+  ScriptNatives lost its accessor, workspace stacks and entry selector, GameLoop
+  requires frame jobs, and the special natives no longer return through RTS.
+  script-native-waits and the register cases of script-round-values went.
+- The scene entries with their RTL (`cutsceneSequence`, `introSequence`,
+  `matrixSceneSequence`) went; scene-entry-caller runs the scene bodies and was
+  re-keyed (a test had shown the bodies leave the same game state as the entries).
+- The `events.frameJobs ? null : h.ctx` branches of the boot screens, start menu,
+  title, title cycle, intro and game owner, the caller status kept by `waitStatus`,
+  the recorded PC of the game start, the recorded portrait unpacks and
+  src/system/recorded-routines.mjs went.
+- Deleted: src/system/register-compat.mjs and the register modules main-wait-interrupt
+  and nmi-call (rom-map keeps the NMI callback roots). tools/register-forms keeps
+  native-dialog-support and native-call-continuation as test scaffolding.
+- tools/register-compat-boundary.test.mjs now checks that the browser graph reaches
+  nothing in tools/, that the live-loop contract reaches no register form and that no
+  src module keeps a compatibility hook.
+
+Remaining: src/ still has register-level entry forms for test callers (sequences with
+an `outerReturn` RTS/RTL and accessor context reads), about 40 `h.rts()`/`h.rtl()`
+sites.

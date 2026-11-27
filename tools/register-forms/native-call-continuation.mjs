@@ -5,7 +5,6 @@ import {
   drainNativeSequence,
   segmentSequence,
 } from '../../src/system/sequence-runner.mjs';
-import { installRegisterCompat } from '../../src/system/register-compat.mjs';
 import { WORD_MASK, WORD_BITS } from '../../src/constants/bits.mjs';
 
 export const JSR_RETURN_OFFSET = 2,
@@ -42,13 +41,6 @@ export class NativeCallContinuation extends SequenceRunner {
   }
 }
 
-// A scheduler special native: its observed sequence plus the unchanged
-// end-of-native observation checks, applied only after the real return.
-export function observedContinuation(a, { sequence, finish }) {
-  const continuation = new NativeCallContinuation(a, sequence);
-  return { continuation, finish: () => finish(continuation.result) };
-}
-
 // The same unlabelled frame around a callee given as its own sequence.
 export function* dialogCallBody(h, pc, target, body, long = false) {
   const bank = h.ctx.programBank,
@@ -71,5 +63,3 @@ export function* dialogCallBody(h, pc, target, body, long = false) {
   };
   return result;
 }
-
-installRegisterCompat({ dialogCallBody, observedContinuation });

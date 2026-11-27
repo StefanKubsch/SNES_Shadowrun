@@ -19,11 +19,10 @@
 import { taskStop } from '../system/task-stop.mjs';
 import { TaskAccessor } from '../vm/task-accessor.mjs';
 import { Scheduler } from './scheduler.mjs';
-import { ScriptNatives, ROUND, HEAD_VISIT, nativeTarget } from './natives.mjs';
+import { ScriptNatives, nativeTarget } from './natives.mjs';
 import { JsTasks } from './task-api.mjs';
 import { interruptEventsOf } from '../vm/devices.mjs';
 import { SequenceRunner, NATIVE_CALL_CONTINUATIONS } from '../system/sequence-runner.mjs';
-import { registerCompat } from '../system/register-compat.mjs';
 import { resetHardware } from '../system/main-reset.mjs';
 import { accessorPort } from '../system/hardware-port.mjs';
 import { mainStartupSequence } from '../system/main-startup.mjs';
@@ -46,21 +45,6 @@ const RESET_CONTEXT = Object.freeze({
   d: 0,
   bank: 0,
   status: 0x34,
-});
-// The registers the reset leaves at the startup 80:A133 (E=0, 16-bit A/X/Y, S=013F,
-// D=0, data bank 80, P = I and C). The reset service takes no context; this is the
-// compatibility workspace of injected recorded loops without frame jobs.
-export const STARTUP_CONTEXT = Object.freeze({
-  e: 0,
-  programBank: 0x80,
-  pc: 0xa133,
-  a: 1,
-  x: 0xff,
-  y: 0,
-  s: 0x13f,
-  d: 0,
-  bank: 0x80,
-  status: 0x05,
 });
 const ROUND_RESUME = 0x8096c3;
 
@@ -115,46 +99,24 @@ export class GameLoop {
         inputs: set.input,
         inputIndex: 0,
         ...interruptEventsOf(set, target),
-        ...(set.frameJobs
-          ? {
-              schedulerRound: () => this.schedulerRound(),
-              nestedHeadVisit: () => this.headVisit(),
-            }
-          : {
-              // Recorded callers retain their original entry selector.
-              round: (entry) => taskStop('game_loop_synchronous_round', { entry }),
-              nestedRound: (entry) => this.round(entry),
-            }),
+        schedulerRound: () => this.schedulerRound(),
+        nestedHeadVisit: () => this.headVisit(),
         valueRounds: true,
       };
+    if (!events.frameJobs) taskStop('game_loop_frame_jobs_required', { target });
     const a = this.accessor;
-    this.natives.valueServices = Boolean(events.frameJobs);
     a.resetAccessBudget(target);
     a.io = set.io;
     a.ioIndex = 0;
     return events;
   }
 
-  // Ordinary rounds and head visits have no entry selector or CPU workspace.
+  // Rounds and head visits have no entry selector or CPU workspace.
   schedulerRound() {
-    return this.natives.valueServices
-      ? this.budgetedVisit(this.natives.roundContinuation(this.scheduler))
-      : this.round(ROUND);
+    return this.budgetedVisit(this.natives.roundContinuation(this.scheduler));
   }
   headVisit() {
-    return this.natives.valueServices
-      ? this.budgetedVisit(this.natives.headContinuation(this.scheduler))
-      : this.round(HEAD_VISIT);
-  }
-
-  // Compatibility entry selector for recorded callers and injected reference loops.
-  round(entry) {
-    const natives = this.natives,
-      visit =
-        entry === ROUND
-          ? natives.roundContinuation(this.scheduler, this.accessor.ctx.s)
-          : natives.visitContinuation(this.accessor, this.scheduler, entry);
-    return this.budgetedVisit(visit);
+    return this.budgetedVisit(this.natives.headContinuation(this.scheduler));
   }
 
   budgetedVisit(visit) {
@@ -183,20 +145,15 @@ export class GameLoop {
       routines = this.routines;
     let events = this.interval(CODE_BANK_BASE | RESET_CONTEXT.pc);
     // Live play takes game services only and never touches the accessor's CPU
-    // context: game code reads the data bank 80 as a value. Injected recorded loops
-    // without frame jobs keep the context the reset leaves
-    // (docs/LIVE-LOOP-SERVICES.md).
-    const live = Boolean(events.frameJobs),
-      services = () => (live ? this.services : registerCompat('dialogAccess')(a));
+    // context: game code reads the data bank 80 as a value (docs/LIVE-LOOP-SERVICES.md).
     yield () => {
       resetHardware(accessorPort(a), a.mem);
-      if (live) a.dataBank = CODE_BANK;
-      else Object.assign(a.ctx, STARTUP_CONTEXT);
+      a.dataBank = CODE_BANK;
     };
-    yield* mainStartupSequence(services(), events);
+    yield* mainStartupSequence(this.services, events);
     let showTitle = true;
     for (;;) {
-      const h = services(),
+      const h = this.services,
         choice = yield* gameOwnerSequence(h, events, routines, showTitle);
       showTitle = false;
       this.ownsGame = true;

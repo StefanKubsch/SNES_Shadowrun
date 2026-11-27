@@ -9,7 +9,7 @@ import { textWindowSide } from './text-window-caller-harness.mjs';
 import * as W from '../src/data/wram.mjs';
 import { WAIT_PAUSED, WAIT_RETURNED } from '../src/system/native-wait-continuation.mjs';
 
-function fixture(target, args, budget, valueServices, unused = false) {
+function fixture(target, args, budget, unused = false) {
   const side = textWindowSide(),
     { a, mem, put, events } = side;
   put(W.WINDOW_ACTIVE, 0xffff);
@@ -42,10 +42,7 @@ function fixture(target, args, budget, valueServices, unused = false) {
     admitted: nativeTargetEntries,
     implementation,
     devices,
-    valueServices,
   });
-  if (valueServices) natives.accessor = () => assert.fail('live native allocated a CPU accessor');
-  else natives.stacks.push(0x139);
   natives.workBudget = budget;
   const scheduler = { slots: [{ task: { pc: 0x1234 } }] };
   let id = 0;
@@ -72,13 +69,10 @@ for (const budget of [1, 7, Infinity])
     [0x808e36, [0, 0]],
     [0x808ab5, [0, 0xffff]],
   ])
-    test(`native services match compatibility state: ${target.toString(16)}, budget ${budget}`, () => {
-      const direct = fixture(target, args, budget, true);
-      const former = fixture(target, args, budget, false);
-      assert.equal(finish(direct), finish(former));
-      assert.deepEqual(direct.mem.wram, former.mem.wram);
+    test(`native services own one service set: ${target.toString(16)}, budget ${budget}`, () => {
+      const direct = fixture(target, args, budget);
+      finish(direct);
       assert.deepEqual(direct.targets, [target]);
-      assert.equal(direct.natives.accessors.length, 0);
       assert.equal(direct.natives.services.length, 1);
       assert.equal('ctx' in direct.natives.services[0], false);
       assert.equal(direct.natives.services[0].io, null);
@@ -90,7 +84,7 @@ for (const budget of [1, 7, Infinity])
     });
 
 test('failed service natives close observations once and reject replay', () => {
-  const side = fixture(0x80cda8, [], 1, true, true);
+  const side = fixture(0x80cda8, [], 1, true);
   const pending = side.call();
   assert.throws(
     () => {
@@ -107,7 +101,7 @@ test('failed service natives close observations once and reject replay', () => {
 });
 
 test('nested service calls retain distinct owners across parent and child pauses', () => {
-  const side = fixture(0x80f953, [], 1, true);
+  const side = fixture(0x80f953, [], 1);
   const parent = side.call();
   assert.equal(parent.resume(), false);
   assert.equal(side.natives.depth, 1);
@@ -125,23 +119,17 @@ test('nested service calls retain distinct owners across parent and child pauses
 });
 
 test('service nested scheduler entry never reads a caller CPU workspace', () => {
-  const side = fixture(0x80f953, [], 1, true);
+  const side = fixture(0x80f953, [], 1);
   let visits = 0;
-  const a = new Proxy({}, { get: () => assert.fail('scheduler read native CPU workspace') });
-  const visit = side.natives.visitContinuation(
-    a,
-    {
-      *headVisit() {
-        visits++;
-        yield;
-      },
+  const visit = side.natives.headContinuation({
+    *headVisit() {
+      visits++;
+      yield;
     },
-    0x80c1ca,
-  );
+  });
   assert.equal(visit.run(0), WAIT_PAUSED);
   assert.equal(visits, 0);
   assert.equal(visit.run(1), WAIT_PAUSED);
   assert.equal(visit.run(1), WAIT_RETURNED);
   assert.equal(visits, 1);
-  assert.deepEqual(side.natives.stacks, []);
 });

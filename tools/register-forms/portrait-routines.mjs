@@ -2,16 +2,13 @@
 // register-level callers (moved from src/game/portrait-upload.mjs, whose lifted forms
 // take their inputs as parameters and leave no registers).
 import { unpackPortraitStream, uploadPortraitTiles } from '../../src/game/portrait-upload.mjs';
-import { recordedRoutine } from '../../src/system/recorded-routines.mjs';
 import { PORTRAIT_DMA_REQUEST } from '../../src/data/wram.mjs';
 import { BYTE_BITS } from '../../src/constants/bits.mjs';
 import { FLAG_NEGATIVE, FLAG_ZERO } from '../../src/constants/cpu-flags.mjs';
 
 // The stream in A and Y, the offset in X; A, X and Y as the original's copy leaves them.
-export function unpackPortraitRoutine(h, events) {
-  const { ctx } = h,
-    recorded = recordedRoutine(events, 'portrait-unpack');
-  if (recorded) return recorded(h, events, ctx.a, ctx.y, ctx.x);
+export function unpackPortraitRoutine(h) {
+  const { ctx } = h;
   const unpacked = unpackPortraitStream(h, ctx.a, ctx.y, ctx.x);
   Object.assign(ctx, { a: unpacked.length, x: unpacked.sourceEnd, y: unpacked.outputEnd });
   return h.rts();

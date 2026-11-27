@@ -11,8 +11,7 @@ import { readStateByte, writeStateByte } from '../state/objects.mjs';
 // restored (PLP, PLB); the bytes of its pushes (status, data bank, the bank pair and the
 // length) and of its bit reads' JSR frames lie only in free stack bytes and are not
 // reproduced (game state only, user decision 2026-11-17).
-// A startup recording runs the register-level one (src/system/recorded-routines.mjs).
-// Lifted callers use unpackPortrait and uploadPortraitTiles, which take the stream, its
+// Lifted callers use unpackPortraitStream and uploadPortraitTiles, which take the stream, its
 // bank word, the offset and the VRAM address as parameters and leave no registers (user
 // decision 2026-11-17); the routine forms keep the register interface for
 // register-level callers.
@@ -41,7 +40,6 @@ import { readStateByte, writeStateByte } from '../state/objects.mjs';
 // overflow unchanged, as the original.
 import { sceneRuntime } from '../system/scene-runtime.mjs';
 import { nmiAtBranch } from '../system/frame-wait.mjs';
-import { recordedRoutine } from '../system/recorded-routines.mjs';
 import { UNPACK_7F, unpackLong } from '../system/unpack.mjs';
 import { videoOf } from '../video/picture-video.mjs';
 import {
@@ -110,12 +108,6 @@ const setWord = (wram, at, value) => {
 // whose values the register form (tools/register-forms/portrait-routines.mjs) leaves in A, X, Y.
 export function unpackPortraitStream(h, source, bank, offset) {
   return unpackLong(h.a.mem, source, bank, offset, UNPACK_7F);
-}
-export function unpackPortrait(h, events, source, bank, offset) {
-  const recorded = recordedRoutine(events, 'portrait-unpack');
-  if (recorded) return recorded(h, events, source, bank, offset);
-  unpackPortraitStream(h, source, bank, offset);
-  return h.rts();
 }
 // Move the portrait rows apart (80:8F20) for lifted callers, without the JSR frame.
 export function shiftPortraitRowsInPlace(h) {

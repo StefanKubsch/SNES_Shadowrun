@@ -16,7 +16,6 @@
 // continuation, and a nested visit inside it pauses with it.
 import { taskStop } from '../system/task-stop.mjs';
 import { DeviceAccess } from '../vm/device-access.mjs';
-import { TaskAccessor } from '../vm/task-accessor.mjs';
 import { JsTasks } from './task-api.mjs';
 import { interruptEventsOf } from '../vm/devices.mjs';
 import {
@@ -26,77 +25,44 @@ import {
 } from '../vm/special-natives.mjs';
 import { WAIT_PAUSED, WAIT_RETURNED } from '../system/native-wait-continuation.mjs';
 import { NATIVE_POINTERS } from '../vm/layout.mjs';
-import { WORD_BITS, WORD_MASK, WORD_SIGN } from '../constants/bits.mjs';
 import { CODE_BANK, CODE_BANK_BASE, WRAM_BASE } from '../constants/memory-map.mjs';
-import { FLAG_NEGATIVE, FLAG_ZERO } from '../constants/cpu-flags.mjs';
 
-// Original scheduler entry names used by the remaining callback interface.
-export const HEAD_VISIT = 0xc1ca;
-export const ROUND = 0xc1e3;
 // Work units of one resumption of a nested visit (the budget belongs to its natives).
 const VISIT_WORK = 1;
 
-const flagsOf = (value) => (value & WORD_SIGN ? FLAG_NEGATIVE : 0) | (value === 0 ? FLAG_ZERO : 0);
 export const nativeTarget = (mem, id) => CODE_BANK_BASE | mem.read16(NATIVE_POINTERS + 2 * id);
 
 export class ScriptNatives {
   // admitted and implementation: the lifted natives without devices (target -> run);
   // devices: the observation source of the special natives (LiveDevices); host: the
   // game's settings as the natives' accessors see them (a.vm: gameplay, cheats).
-  constructor(
-    mem,
-    { admitted, implementation, devices = null, host = { mem }, valueServices = false },
-  ) {
+  constructor(mem, { admitted, implementation, devices = null, host = { mem } }) {
     this.mem = mem;
     this.host = host;
     this.admitted = new Set(admitted);
     this.implementation = implementation;
     this.devices = devices;
-    this.valueServices = valueServices;
     // Finite: special natives with a resumable sequence pause at their own limits.
     this.workBudget = Infinity;
-    // Recorded interrupt adapters alone borrow CPU workspace (innermost last).
-    this.stacks = [];
-    // One accessor per nesting depth of native calls (a nested visit's natives).
-    this.accessors = [];
+    // One set of game services per nesting depth of native calls (a nested visit's
+    // natives).
     this.services = [];
     this.depth = 0;
     // Synchronous lifted leaves need only game services, never CPU registers.
     this.leaf = new DeviceAccess(host);
     Object.assign(this.leaf, { dataBank: CODE_BANK, valueReturn: true, devices });
     this.calls = 0;
-    // The scheduler callback: native(id, args, scheduler, slot).
-    this.native = (id, args, scheduler, slot) => this.call(id, args, scheduler, slot);
+    // The scheduler callback: native(id, args, scheduler).
+    this.native = (id, args, scheduler) => this.call(id, args, scheduler);
   }
 
-  // A nested scheduler visit borrows workspace but returns through its generator.
-  visit(a, scheduler, entry) {
-    const steps = this.enter(a, scheduler, entry);
-    for (;;) if (steps.next().done) return;
-  }
-  // The same as a resumable continuation of a native sequence (work budget units).
-  visitContinuation(a, scheduler, entry) {
-    return this.continuation(this.enter(a, scheduler, entry));
-  }
-
-  // Normal game and attract rounds have no CPU workspace. Recorded callers
-  // retain the explicit workspace parameter of their compatibility adapter.
-  roundContinuation(scheduler, workspace) {
-    return this.continuation(
-      this.valueServices ? scheduler.rounds() : this.roundSteps(scheduler, workspace),
-    );
+  // Rounds and head visits as resumable continuations (work budget units); they use no
+  // CPU workspace.
+  roundContinuation(scheduler) {
+    return this.continuation(scheduler.rounds());
   }
   headContinuation(scheduler) {
     return this.continuation(scheduler.headVisit());
-  }
-  *roundSteps(scheduler, workspace, entry = ROUND) {
-    this.stacks.push(workspace);
-    try {
-      yield* entry === ROUND ? scheduler.rounds() : scheduler.headVisit();
-    } finally {
-      this.stacks.pop();
-    }
-    return { wait: [], input: [] };
   }
 
   continuation(steps) {
@@ -129,26 +95,6 @@ export class ScriptNatives {
       },
     };
   }
-  *enter(a, scheduler, entry) {
-    const at = entry & WORD_MASK;
-    if (at !== ROUND && at !== HEAD_VISIT) taskStop('script_scheduler_entry_unknown', { entry });
-    if (this.valueServices) {
-      yield* at === ROUND ? scheduler.rounds() : scheduler.headVisit();
-      return { wait: [], input: [] };
-    }
-    return yield* this.roundSteps(scheduler, a.ctx.s, at);
-  }
-
-  accessor() {
-    const depth = this.depth++;
-    if (depth === this.accessors.length) {
-      const a = new TaskAccessor(this.host);
-      a.devices = this.devices;
-      this.accessors.push(a);
-    }
-    return this.accessors[depth];
-  }
-
   // A waiting live native owns only game services, reused at its nesting depth.
   service() {
     const depth = this.depth++;
@@ -161,7 +107,7 @@ export class ScriptNatives {
   }
 
   // F4F6 to F509 for script native `id` with its argument words.
-  call(id, args, scheduler, slot) {
+  call(id, args, scheduler) {
     const mem = this.mem,
       target = nativeTarget(mem, id);
     args.forEach((value, n) => mem.write16(WRAM_BASE + 2 * n, value));
@@ -184,27 +130,10 @@ export class ScriptNatives {
         a.io = null;
       }
     }
-    if (!this.valueServices && this.stacks.length === 0)
-      taskStop('script_native_outside_visit', { native: id });
-    const a = this.valueServices ? this.service() : this.accessor();
+    const a = this.service();
     // Game code inside the native reaches the tasks through the task API.
     a.tasks = scheduler.tasks ??= new JsTasks(scheduler);
     a.resetAccessBudget?.(target);
-    if (!this.valueServices) {
-      const pointer = target & WORD_MASK;
-      Object.assign(a.ctx, {
-        e: 0,
-        programBank: CODE_BANK,
-        pc: pointer,
-        a: pointer,
-        x: (2 * id) & WORD_MASK,
-        y: scheduler.slots[slot].task.pc,
-        s: this.stacks[this.stacks.length - 1],
-        d: 0,
-        bank: CODE_BANK,
-        status: flagsOf(pointer),
-      });
-    }
     this.calls++;
     const resumable =
       this.workBudget !== Infinity && !this.admitted.has(target)
@@ -221,7 +150,7 @@ export class ScriptNatives {
     }
   }
 
-  // Both service and recorded calls consume only the shared result word here.
+  // The caller consumes only the shared result word.
   finish() {
     const result = this.mem.read16(WRAM_BASE);
     this.depth--;
@@ -231,34 +160,17 @@ export class ScriptNatives {
   options(a, target, scheduler, set, interruptEvents) {
     return {
       valueReturn: true,
-      valueServices: this.valueServices,
       valueRounds: true,
       waitMode: 'record-observations',
       waitObservations: set.wait,
       inputMode: 'record-observations',
       inputObservations: set.input,
       interruptEvents,
-      ...(this.valueServices
-        ? {
-            headVisit: () => {
-              scheduler.visitHead();
-              return { wait: [], input: [] };
-            },
-            nestedHeadVisit: () => this.headContinuation(scheduler),
-          }
-        : {
-            round: (entry) => {
-              if (entry >>> WORD_BITS !== CODE_BANK)
-                taskStop('script_visit_bank', { target, entry });
-              this.visit(a, scheduler, entry);
-              return { wait: [], input: [] };
-            },
-            nestedRound: (entry) => {
-              if (entry >>> WORD_BITS !== CODE_BANK)
-                taskStop('script_visit_bank', { target, entry });
-              return this.visitContinuation(a, scheduler, entry);
-            },
-          }),
+      headVisit: () => {
+        scheduler.visitHead();
+        return { wait: [], input: [] };
+      },
+      nestedHeadVisit: () => this.headContinuation(scheduler),
     };
   }
 

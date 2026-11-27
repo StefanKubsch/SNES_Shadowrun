@@ -32,7 +32,6 @@ const DP_NUMBER_LOW = 2,
   DP_NUMBER_HIGH = 4,
   DP_REMAINDER_LOW = 0xa2,
   DP_DIGIT_OFFSET = 0xa5;
-const DRAW_SITE = 0x80fe40;
 
 const word = (wram, at) => readStateByte(wram, at) | (readStateByte(wram, at + 1) << BYTE_BITS);
 const setWord = (wram, at, value) => {
@@ -83,7 +82,7 @@ export function* decimalNumber(h, events, renderBuffer = drawTextBufferSequence)
     writeStateByte(wram, TEXT_BUFFER + offset + 1, LINE_END);
     writeStateByte(wram, TEXT_BUFFER + offset + 2, 0);
   };
-  yield* renderTextBuffer(h, events, renderBuffer, DRAW_SITE);
+  yield* renderTextBuffer(h, events, renderBuffer);
 }
 // The RTS form for register-level callers is decimalNumberJsr in
 // tools/register-forms/jsr-forms.mjs.

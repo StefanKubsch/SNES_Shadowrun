@@ -74,12 +74,7 @@ import {
   WORD_MASK,
   WORD_SIGN,
 } from '../constants/bits.mjs';
-import {
-  FLAG_INDEX_8BIT,
-  FLAG_MEMORY_8BIT,
-  FLAG_NEGATIVE,
-  FLAG_ZERO,
-} from '../constants/cpu-flags.mjs';
+import { FLAG_MEMORY_8BIT, FLAG_NEGATIVE, FLAG_ZERO } from '../constants/cpu-flags.mjs';
 
 const LONG_MASK = 0xffffff,
   // Sources in bank 7E given by their address word.
@@ -130,9 +125,7 @@ const TITLE_PAN_WAIT = 0x34,
   TITLE_PAN_LIST = 0x81f6df,
   TITLE_SCROLL_LIST = 0x81f6e5,
   MENU_FONT_PACKED = 0x84daf2,
-  TITLE_SCROLL_COLOURS_BYTES = 0x60,
-  // 81:D83E (in the intro screen) leaves the data bank at 81.
-  TITLE_DATA_BANK = 0x81;
+  TITLE_SCROLL_COLOURS_BYTES = 0x60;
 // The music beat polls (LDA 2142 / BNE) of the title, by the site of their LDA.
 const BEAT_BEFORE_FADE_IN = 0x81d6ba,
   BEAT_BEFORE_PICTURE = 0x81d782,
@@ -398,11 +391,7 @@ export function* titleSequence(h, events, routines, shown = {}) {
 
 // Ordinary scene playback returns whether input ended the title early.
 export function* playTitle(h, events, routines) {
-  // Recorded comparisons only; live scenes take game services (docs/FRONTEND-SERVICE-COMPOSITION.md).
-  const ctx = events.frameJobs ? null : h.ctx,
-    status = ctx?.status,
-    clock = sceneFrames(h, events, 'title', routines);
-  if (ctx) ctx.status &= ~(FLAG_MEMORY_8BIT | FLAG_INDEX_8BIT);
+  const clock = sceneFrames(h, events, 'title', routines);
   let m;
   const wait = () => clock.wait(m),
     input = () => clock.input(m),
@@ -444,7 +433,6 @@ export function* playTitle(h, events, routines) {
       m.video.setColourSelect(CGSWSEL_SUB_SCREEN);
       m.video.setColourMathLayers(BLEND_MATH);
     };
-    if (ctx) ctx.bank = TITLE_DATA_BANK;
     for (let step = BLEND_FADE_FIRST; step !== BLEND_FADE_END; step++) {
       yield* wait();
       yield () => fadeTitleBlend(m, step);
@@ -477,9 +465,6 @@ export function* playTitle(h, events, routines) {
       else m.video.enableHdma(0);
     };
     if (!key) yield* beat(BEAT_AT_END);
-    yield () => {
-      if (ctx) ctx.status = key ? status : status & ~FLAG_MEMORY_8BIT;
-    };
     return key;
   };
 
@@ -492,7 +477,6 @@ export function* playTitle(h, events, routines) {
   if (yield* prologue()) return yield* finish(true);
   yield () => {
     setUpIntroScene(m);
-    if (ctx) ctx.bank = TITLE_DATA_BANK;
     setUpIntroWindow(m);
   };
   yield* beat(BEAT_BEFORE_FADE_IN);

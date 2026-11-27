@@ -1,8 +1,6 @@
 import { taskStop } from '../../src/system/task-stop.mjs';
-import { installRegisterCompat } from '../../src/system/register-compat.mjs';
 // Every recorded accessor comes from here; loading the other register-level
 // entries with it installs them for the recorded branches of live modules.
-import './main-wait-interrupt.mjs';
 import {
   HIGH_BYTE_MASK,
   LONG_MASK,
@@ -188,4 +186,3 @@ export function dialogAccess(a) {
   return h;
 }
 
-installRegisterCompat({ dialogAccess });

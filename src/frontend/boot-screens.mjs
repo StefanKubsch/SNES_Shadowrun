@@ -26,7 +26,6 @@ import { setSceneScreen } from '../video/scene-screen.mjs';
 import { restoreDefaultSettings, sendOutputMode, settingsValid } from './settings.mjs';
 import { SETTINGS_CONTROL_TYPE_A, SETTINGS_STEREO, SETTINGS_STEREO_ON } from '../data/wram.mjs';
 import { BYTE_BITS, BYTE_MASK } from '../constants/bits.mjs';
-import { FLAG_INDEX_8BIT, FLAG_IRQ_DISABLE, FLAG_MEMORY_8BIT } from '../constants/cpu-flags.mjs';
 
 // The two screens: their scene lists and the frames they are held.
 const LOGO_LIST = 0x8a8000,
@@ -46,9 +45,6 @@ const CLEARED_WORD = 0x10;
 // stack bytes). The RTL form for register-level callers is in
 // proof/frontend-caller/boot-screens.mjs.
 export function* bootScreensInPlace(h, events) {
-  // Recorded comparisons only: their interrupt path combines the caller's status.
-  const ctx = events.frameJobs ? null : h.ctx,
-    status = ctx?.status;
   let m;
   const wait = () => waitForFrame(h, events, m.port),
     hold = function* (frames) {
@@ -57,7 +53,6 @@ export function* bootScreensInPlace(h, events) {
     showScreen = function* (list) {
       yield () => {
         // 81:EB97 sets the interrupt disable flag; the screen start's own PLP keeps it.
-        if (ctx) ctx.status |= FLAG_IRQ_DISABLE;
         startSceneScreen(m.wram, m.video, m.port);
         runSceneList(m.mem, m.video, m.port, list);
         setSceneScreen(m.video);
@@ -67,7 +62,6 @@ export function* bootScreensInPlace(h, events) {
     };
   yield () => {
     m = sceneRuntime(h);
-    if (ctx) ctx.status &= ~(FLAG_MEMORY_8BIT | FLAG_INDEX_8BIT);
     m.wram[CLEARED_WORD] = 0;
     m.wram[CLEARED_WORD + 1] = 0;
   };
@@ -93,6 +87,5 @@ export function* bootScreensInPlace(h, events) {
   yield () => disableNmi(m.wram, m.port);
   yield () => {
     sendOutputMode(m);
-    if (ctx) ctx.status = status;
   };
 }

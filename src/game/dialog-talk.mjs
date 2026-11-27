@@ -26,7 +26,6 @@ import { readStateByte, writeStateByte } from '../state/objects.mjs';
 // the colour clear and the text width leave no A, X, Y or flags. The old music and the
 // two windows wait on the stack as in the original.
 import { segmentSequence } from '../system/sequence-runner.mjs';
-import { recordedCallBody } from '../system/register-compat.mjs';
 import { setMusicModeInPlace } from '../apu/audio-routines.mjs';
 import { showDialogText } from './dialog-text.mjs';
 import { chooseDialogAction, chooseDialogTopic } from './dialog-menus.mjs';
@@ -41,7 +40,6 @@ import {
 } from './window-release.mjs';
 import { closePortraitWindow, openPortraitWindow } from './portrait-window.mjs';
 import {
-  unpackPortrait,
   unpackPortraitStream,
   shiftPortraitRowsInPlace,
   uploadFirstPortrait,
@@ -132,11 +130,6 @@ const FONT_BLOCKS = Object.freeze([
     ],
   ]),
   FONT_BYTES = 0x40;
-// Original call sites and callees.
-const CALL = Object.freeze({
-  jakeUnpack: [0x80944d, 0x809f6d],
-  partnerUnpack: [0x809470, 0x809f6d],
-});
 const OBJSEL_SITE = 0x809412,
   CLOSE_OBJSEL_SITE = 0x8092cb,
   COLDATA_SITE = 0x81886e,
@@ -204,18 +197,14 @@ export function* talk(h, events, renderBuffer = drawTextBufferSequence) {
   if (fixesEnabled(h.a)) preparePushkinTopics(h.a, word(wram, DP_RECORD_NUMBER));
   // Load a portrait record (pointer in F6, bank in F8) for the unpacker: its address and
   // bank and the buffer.
-  function* portrait(unpack) {
+  function* portrait() {
     let stream;
     yield () => {
       const at =
         word(wram, DP_PORTRAIT_POINTER) | (readStateByte(wram, DP_PORTRAIT_BANK) << WORD_BITS);
       stream = [longWord(mem, at), longWord(mem, at + PORTRAIT_RECORD_BANK_BYTE) & BYTE_MASK];
     };
-    if (events?.startupInterrupts)
-      yield* recordedCallBody(h, ...unpack, () =>
-        segmentSequence(() => unpackPortrait(h, events, ...stream, PORTRAIT_BUFFER)),
-      );
-    else yield () => unpackPortraitStream(h, ...stream, PORTRAIT_BUFFER);
+    yield () => unpackPortraitStream(h, ...stream, PORTRAIT_BUFFER);
     yield () => shiftPortraitRowsInPlace(h);
   }
   // Set the window of the direct page words 00 to 08.
@@ -284,7 +273,7 @@ export function* talk(h, events, renderBuffer = drawTextBufferSequence) {
     );
     setWord(wram, DP_PORTRAIT_POINTER, longWord(mem, DIALOG_BANK_BASE + record));
   };
-  yield* portrait(CALL.jakeUnpack);
+  yield* portrait();
   yield* uploadFirstPortrait(h, events);
   yield () => {
     writeStateByte(
@@ -294,7 +283,7 @@ export function* talk(h, events, renderBuffer = drawTextBufferSequence) {
     );
     setWord(wram, DP_PORTRAIT_POINTER, longWord(mem, pointer(wram, DP_RECORD, 0)));
   };
-  yield* portrait(CALL.partnerUnpack);
+  yield* portrait();
   yield* uploadSecondPortrait(h, events);
   yield* openPortraitWindow(h, events);
   yield () => setWord(wram, DP_OBJECT, word(wram, DP_PORTRAIT_FRAME));

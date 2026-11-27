@@ -26,7 +26,6 @@ import {
 } from '../game/credits.mjs';
 import { MUSIC, TIMER, TIMER_STOPPED } from '../data/wram.mjs';
 import { APU_COMMAND_VOLUME_TARGET, SOUND_DIRECTORY_TITLE } from '../constants/sound-commands.mjs';
-import { CODE_BANK } from '../constants/memory-map.mjs';
 import { BYTE_BITS, BYTE_MASK, WORD_MASK } from '../constants/bits.mjs';
 
 // The title song; the start menu's answer of a cancel or timeout; the attract room.
@@ -34,11 +33,6 @@ const SONG_NONE = 0,
   SONG_TITLE = 1,
   MENU_CANCELLED = 0xfffe,
   ATTRACT_ROOM = 0xab;
-// 81:DDB1 (the title's audio) leaves the data bank at 81.
-const TITLE_AUDIO_BANK = 0x81;
-
-// The compatibility context of recorded callers without frame jobs.
-const cpuOf = (h, events) => (events.frameJobs ? null : h.ctx);
 
 const setWord = (wram, at, value) => {
   writeStateByte(wram, at, value & BYTE_MASK);
@@ -51,17 +45,12 @@ const setWord = (wram, at, value) => {
 // calls; no entry PCs, saved return words or return checks select their flow.
 // Compatibility scene entries retain their original returns separately.
 export function* titleCycle(h, events, routines, title) {
-  // Recorded comparisons only; live scenes take game services
-  // (docs/FRONTEND-SERVICE-COMPOSITION.md).
-  const ctx = cpuOf(h, events),
-    status = ctx?.status,
-    afterGame = !title;
+  const afterGame = !title;
   let m;
   // The menu times out sooner right after the whole title.
   const menu = (shortTimeout) => chooseStartGame(h, events, routines, shortTimeout);
   yield () => {
     m = sceneRuntime(h);
-    if (ctx) ctx.bank = CODE_BANK;
     startSong(m.mem, m.port, SONG_NONE);
     loadSoundDirectory(m.mem, m.port, SOUND_DIRECTORY_TITLE);
   };
@@ -69,7 +58,6 @@ export function* titleCycle(h, events, routines, title) {
   if (afterGame) {
     yield () => {
       setUpTitleAudio(m);
-      if (ctx) ctx.bank = TITLE_AUDIO_BANK;
       startSong(m.mem, m.port, SONG_TITLE);
     };
     choice = yield* menu(false);
@@ -98,23 +86,16 @@ export function* titleCycle(h, events, routines, title) {
       titleNext = true;
     }
   }
-  yield () => {
-    if (!ctx) return;
-    ctx.bank = CODE_BANK;
-    ctx.status = status;
-  };
   return choice;
 }
 
 // The credits from the start menu's Credits row (src/game/credits.mjs) set up the game's sounds,
 // play the ending room's music and afterwards stop it and load the title's sounds.
 function* playMenuCredits(h, events, m) {
-  const ctx = cpuOf(h, events);
   // The room music field does not describe the title audio. Always load the game
   // directory: the credits also play game sound 2E, which is invalid in the title.
   yield () => {
     setUpGameAudio(m);
-    if (ctx) ctx.bank = CODE_BANK;
     setMusicMode(m.mem, m.port, endingMusic(m.mem));
   };
   yield () => markMenuCredits(h.a.vm, true);
@@ -122,7 +103,6 @@ function* playMenuCredits(h, events, m) {
   yield () => markMenuCredits(h.a.vm, false);
   // The music stop 81:EF94 with its sound command 81:F007.
   yield () => {
-    if (ctx) ctx.bank = CODE_BANK;
     setWord(h.a.mem.wram, MUSIC, WORD_MASK);
     sendApuCommandInPlace(h, APU_COMMAND_VOLUME_TARGET, 0);
   };
@@ -136,12 +116,10 @@ function* playMenuCredits(h, events, m) {
 // in free stack bytes). The game's sounds, the demo, then the scene screen and the
 // title's sounds again for the start menu.
 export function* attractGame(h, events, routines) {
-  const ctx = cpuOf(h, events);
   let m;
   yield () => {
     m = sceneRuntime(h);
     setUpGameAudio(m);
-    if (ctx) ctx.bank = CODE_BANK;
   };
   yield* attractDemo(h, events, routines);
   yield () => {
@@ -149,7 +127,6 @@ export function* attractGame(h, events, routines) {
     startSong(m.mem, m.port, SONG_NONE);
     loadSoundDirectory(m.mem, m.port, SOUND_DIRECTORY_TITLE);
     setUpTitleAudio(m);
-    if (ctx) ctx.bank = TITLE_AUDIO_BANK;
   };
 }
 
@@ -157,9 +134,7 @@ export function* attractGame(h, events, routines) {
 // until the demo ends. The room and demo return through generator composition;
 // their scheduler visits still retain the separate native compatibility adapter.
 export function* attractDemo(h, events, routines) {
-  const ctx = cpuOf(h, events);
   yield () => {
-    if (ctx) ctx.bank = CODE_BANK;
     setWord(h.a.mem.wram, TIMER, TIMER_STOPPED);
   };
   yield () => startNewGame(h.a);

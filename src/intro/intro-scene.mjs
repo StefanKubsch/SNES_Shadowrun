@@ -8,9 +8,8 @@
 // unless a button is held. It fades out, plays cutscene 5 mirrored and sets up the
 // game's sounds again.
 import { readStateByte, writeStateByte } from '../state/objects.mjs';
-import { recordedCallBody } from '../system/register-compat.mjs';
 import { sceneFrames } from '../system/scene-frames.mjs';
-import { cutsceneSequence, playCutscene } from '../cutscene/cutscene-scene.mjs';
+import { playCutscene } from '../cutscene/cutscene-scene.mjs';
 import { sceneRuntime } from '../system/scene-runtime.mjs';
 import { startSceneScreen, enableNmiAndJoypad, disableNmi } from '../system/nmi.mjs';
 import { runSceneList } from '../system/scene-list.mjs';
@@ -67,11 +66,7 @@ import {
   SOUND_DIRECTORY_TITLE,
 } from '../constants/sound-commands.mjs';
 import { BYTE_BITS, BYTE_MASK, WORD_BITS, WORD_MASK, WORD_SIGN } from '../constants/bits.mjs';
-import { FLAG_INDEX_8BIT, FLAG_MEMORY_8BIT } from '../constants/cpu-flags.mjs';
 
-// The nested cutscene, called from its original site.
-const CUTSCENE = 0x81cdf8,
-  CUTSCENE_SITE = 0x81e120;
 // The scene lists 81:F6EF (screen) and 81:F79F (NMI callback and more).
 const SCREEN_LIST = 0x81f6ef,
   SCENE_LIST = 0x81f79f;
@@ -110,10 +105,7 @@ const FREE = WORD_MASK,
 // (8-bit X counted down to FF) as its argument.
 export const INTRO_FRAMES = 300,
   END_SCENE = WORD_SIGN | 5,
-  END_SCENE_ARGUMENT = 0xff,
-  INTRO_DATA_BANK = 0x81,
-  // 81:EF63 leaves the data bank at 80.
-  RETURN_DATA_BANK = 0x80;
+  END_SCENE_ARGUMENT = 0xff;
 
 const word = (wram, at) => readStateByte(wram, at) | (readStateByte(wram, at + 1) << BYTE_BITS);
 const setWord = (wram, at, value) => {
@@ -174,21 +166,7 @@ export function setUpGameAudio(m) {
   m.sound(APU_COMMAND_FADE_STEP, GAME_FADE_STEP);
 }
 
-// 81:DFE7: play the intro. h is the accessor of the native call that 81:CDF8
-// passes on.
-export function* introSequence(h, events) {
-  yield* introPlayback(h, events, () =>
-    recordedCallBody(
-      h,
-      CUTSCENE_SITE,
-      CUTSCENE,
-      () => cutsceneSequence(h, events, END_SCENE, END_SCENE_ARGUMENT),
-      true,
-    ),
-  );
-  return yield () => h.rtl();
-}
-
+// 81:DFE7: play the intro; it ends with the cutscene 81:CDF8 of its end scene.
 export function* playIntro(h, events) {
   yield* introPlayback(h, events, () => playCutscene(h, events, END_SCENE, END_SCENE_ARGUMENT));
 }
@@ -197,13 +175,7 @@ export function* playIntro(h, events) {
 function* introPlayback(h, events, ending) {
   // The original saves the status and runs with 16-bit registers in data bank 81.
   // Recorded comparisons only; live scenes take game services.
-  const ctx = events.frameJobs ? null : h.ctx,
-    status = ctx?.status,
-    clock = sceneFrames(h, events, 'intro');
-  if (ctx) {
-    ctx.status &= ~(FLAG_MEMORY_8BIT | FLAG_INDEX_8BIT);
-    ctx.bank = INTRO_DATA_BANK;
-  }
+  const clock = sceneFrames(h, events, 'intro');
   let m;
   const wait = () => clock.wait(m),
     input = () => clock.input(m);
@@ -251,13 +223,7 @@ function* introPlayback(h, events, ending) {
     disableNmi(m.wram, m.port);
   };
   yield* ending();
-  yield () => {
-    setUpGameAudio(m);
-    if (ctx) {
-      ctx.bank = RETURN_DATA_BANK;
-      ctx.status = status;
-    }
-  };
+  yield () => setUpGameAudio(m);
 }
 
 // 81:DF0E: the NMI callback of the intro (src/intro/intro-objects.mjs).

@@ -24,7 +24,7 @@ import { readStateByte, writeStateByte } from '../state/objects.mjs';
 // Registers (user decision 2026-11-17): game state only; the script task append 80:C34A
 // takes the script as a parameter (X in the original). No register values are left.
 import { objectWord } from '../state/objects.mjs';
-import { scriptVisitCallSequence } from '../system/script-visit.mjs';
+import { scriptVisitSequence } from '../system/script-visit.mjs';
 import { appendScript } from '../script/task-api.mjs';
 import { openWindow } from './window-open.mjs';
 import { chooseFromMenu } from './menu-choice.mjs';
@@ -97,8 +97,6 @@ import {
 } from '../constants/bits.mjs';
 import { WRAM_BANK } from '../constants/memory-map.mjs';
 
-// The callees and their call sites.
-const VISIT_SCRIPT = 0x80e78e;
 // The entry from the status screen, which runs no scripts.
 export const STATUS_ENTRY = 0x80e68e;
 const MENU_ENTRY = 0x80e693;
@@ -275,7 +273,7 @@ export function* spellMenu(h, events, entry = MENU_ENTRY, renderBuffer = drawTex
     if (script) {
       yield () => appendScript(h.a, spellScript);
       yield () => setWord(wram, MEMBER_PORTRAIT_REDRAW, 0);
-      yield* scriptVisitCallSequence(h, events, VISIT_SCRIPT);
+      yield* scriptVisitSequence(events);
       yield* afterScriptSequence(h, events);
     }
     yield () => setWord(wram, 0, dataBankWord(mem, STATUS_SUBMENU_WINDOW));

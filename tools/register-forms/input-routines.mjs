@@ -3,7 +3,7 @@
 // src/system/live-input-calls.mjs, whose lifted forms leave no registers).
 import { frameWaitCallSequence } from '../../src/system/live-input-calls.mjs';
 import { takePadPresses } from '../../src/system/joypad.mjs';
-import { lagFree } from './main-wait-interrupt.mjs';
+import { lagFree } from '../../src/vm/frame-events.mjs';
 import { taskStop } from '../../src/system/task-stop.mjs';
 import {
   NativeCallContinuation,

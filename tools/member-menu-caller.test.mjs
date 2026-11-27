@@ -74,7 +74,7 @@ function runMember(
         tasksOf(h.a).reset();
         routines.set(0x80c34a, (callee) => appendScriptTaskCall(callee.a));
         for (const target of [0x80c1ca])
-          routines.set(target, (callee) => {
+          routines.set(target, () => {
             // The visit reads task state, not registers (user decision 2026-11-17).
             calls.push(['service', target]);
             if (target === 0x80c1ca) {
@@ -82,7 +82,6 @@ function runMember(
               put(W.MEMBER_PORTRAIT_REDRAW, script.redraw ? 1 : 0);
               if (script.notice) put(W.NOTICE_WINDOWS, 0);
             }
-            return target === 0x81aeb0 ? callee.rtl() : callee.rts();
           });
       }
       if (script) configureScriptVisit(side, budget === 1);

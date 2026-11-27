@@ -90,13 +90,7 @@ import {
   WORD_MASK,
   WORD_SIGN,
 } from '../constants/bits.mjs';
-import {
-  FLAG_CARRY,
-  FLAG_INDEX_8BIT,
-  FLAG_MEMORY_8BIT,
-  FLAG_NEGATIVE,
-  FLAG_ZERO,
-} from '../constants/cpu-flags.mjs';
+import { FLAG_CARRY, FLAG_MEMORY_8BIT, FLAG_NEGATIVE, FLAG_ZERO } from '../constants/cpu-flags.mjs';
 
 const LONG_MASK = 0xffffff,
   FRONTEND_BANK = 0x81;
@@ -574,11 +568,7 @@ export function* startMenuSequence(h, events, routines, afterTitle, menu = {}) {
 
 // Ordinary menu playback returns the selected game, cancel or timeout marker.
 export function* chooseStartGame(h, events, routines, afterTitle) {
-  // Recorded comparisons only; live scenes take game services (docs/FRONTEND-SERVICE-COMPOSITION.md).
-  const ctx = events.frameJobs ? null : h.ctx,
-    status = ctx?.status,
-    clock = sceneFrames(h, events, 'start-menu', routines);
-  if (ctx) ctx.status &= ~(FLAG_MEMORY_8BIT | FLAG_INDEX_8BIT);
+  const clock = sceneFrames(h, events, 'start-menu', routines);
   let m;
   const wait = () => clock.wait(m),
     input = () => clock.input(m),
@@ -602,9 +592,8 @@ export function* chooseStartGame(h, events, routines, afterTitle) {
       yield* clock.atBranch(site + CUE_BRANCH_OFFSET, after);
     }
   };
-  // The menu draws in data bank 81 (81:E38D), which the arrow text uses; recorded
-  // callers read the bank their context holds.
-  const menuBank = () => (ctx ? ctx.bank : FRONTEND_BANK);
+  // The menu draws in data bank 81 (81:E38D), which the arrow text uses.
+  const menuBank = () => FRONTEND_BANK;
   const disabled = () => word(m.wram, MENU_ROW_DISABLED + ((cursor() << 1) & WORD_MASK)) !== 0;
   const next = (rows) =>
     moveArrow(
@@ -666,7 +655,6 @@ export function* chooseStartGame(h, events, routines, afterTitle) {
     yield* fadeOut(m.video, wait);
     yield () => {
       disableNmi(m.wram, m.port);
-      if (ctx) ctx.status = status;
     };
     return result;
   };
@@ -697,7 +685,6 @@ export function* chooseStartGame(h, events, routines, afterTitle) {
   };
   for (;;) {
     yield () => {
-      if (ctx) ctx.bank = FRONTEND_BANK;
       drawStartMenu(m);
       setWord(m.wram, DP_MENU_CURSOR, 0);
     };
@@ -759,7 +746,6 @@ export function* chooseStartGame(h, events, routines, afterTitle) {
 
   // 81:E50C: the title start after the music cue.
   function* titleStart() {
-    if (ctx) ctx.bank = FRONTEND_BANK;
     yield* cue(TITLE_CUE_SITE, TITLE_MUSIC_CUE);
     const { mem, wram } = m,
       gradient = (at, value) => writeLongWord(mem, TITLE_GRADIENT + at, value);

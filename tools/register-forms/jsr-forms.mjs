@@ -145,8 +145,8 @@ export function buildSpritesJsr(h) {
 }
 
 // The motion pass 80:AFC4; nothing in it waits.
-export function moveAndAnimateJsr(h, events) {
-  moveAndAnimateInPlace(h, events);
+export function moveAndAnimateJsr(h) {
+  moveAndAnimateInPlace(h);
   return h.rts();
 }
 

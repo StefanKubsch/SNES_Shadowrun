@@ -30,17 +30,8 @@ function run(sequence, script, budget, hook = 'nested') {
         yield () => {
           assert.equal(mem.read16(V.TASK_LIST_HEAD), 0);
           assert.equal(mem.read16(0), 0x40);
-          side.calls.push([
-            'visit',
-            mem.read16(V.TASK_FRAME),
-            mem.read16(0x7e0000 | (h.ctx.s + 1)),
-          ]);
+          side.calls.push(['visit', mem.read16(V.TASK_FRAME)]);
         };
-        let result;
-        yield () => {
-          result = h.rts();
-        };
-        return result;
       })(),
     );
   };
@@ -52,7 +43,6 @@ function run(sequence, script, budget, hook = 'nested') {
       assert.equal(target, 0x80c1ca);
       assert.equal(mem.read16(V.TASK_LIST_HEAD), 0);
       side.calls.push(['sync visit', mem.read16(0)]);
-      h.rts();
       return { wait: [11, 12], input: [13] };
     };
   }
@@ -65,7 +55,6 @@ for (const budget of [1, 7])
       const actual = run(direct, script, budget);
       assertFrozenRun(actual);
       assert.equal(actual.calls.length, 1);
-      assert.equal(actual.calls[0][2], 0x91d6);
     });
 
 for (const budget of [1, 7])

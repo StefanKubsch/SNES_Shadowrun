@@ -37,6 +37,7 @@ const HEX_RADIX = 16,
   CODE_BANK = 0x80,
   DIALOG_ENTRY = 0x9178,
   MASK_BYTES = 32,
+  TEXT_DATA_BANK = 0x7e,
   CAPTURE_BYTES = 256,
   // White (all three 5-bit components at 31).
   FIXTURE_FIXED_COLOUR = 0x7fff,
@@ -125,18 +126,15 @@ export function textWindowSide() {
   side.events = { interrupts: frames };
   side.uploads = uploads;
   side.calls = calls;
-  side.render = function* (callee) {
+  // The text buffer stand-in records the buffer with the text data bank 7E that the
+  // original entry 80:FB39 runs in (the record kept its former shape).
+  side.render = function* () {
     yield () =>
       calls.push([
         'text',
-        callee.ctx.bank,
+        TEXT_DATA_BANK,
         mem.wram.slice(TEXT_BUFFER, TEXT_BUFFER + CAPTURE_BYTES),
       ]);
-    let result;
-    yield () => {
-      result = callee.rts();
-    };
-    return result;
   };
   return side;
 }

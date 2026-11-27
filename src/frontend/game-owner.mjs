@@ -16,7 +16,6 @@ import {
   TIMER,
   TIMER_STOPPED,
 } from '../data/wram.mjs';
-import { CODE_BANK } from '../constants/memory-map.mjs';
 import { BYTE_BITS, BYTE_MASK } from '../constants/bits.mjs';
 
 // The owner's entry after the start-up, its resume point after a game, and the
@@ -49,8 +48,6 @@ export function* gameOwnerSequence(h, events, routines, showTitle = true) {
     setUpGameAudio(sceneRuntime(h));
     // The game starts without a countdown.
     setWord(wram, TIMER, TIMER_STOPPED);
-    // Recorded callers see the data bank 80 the original leaves.
-    if (!events.frameJobs) h.ctx.bank = CODE_BANK;
   };
   return choice;
 }

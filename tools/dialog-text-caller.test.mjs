@@ -62,7 +62,6 @@ function run(module, name, variant, budget, realDrawing = false) {
     assert.equal(target, 0x80c1ca);
     assert.equal(mem.read16(V.TASK_LIST_HEAD), 0);
     side.calls.push(['action', 0x80]);
-    return h.rts();
   };
   if (name !== 'showDialogTextSequence') put(0, variant);
   if (realDrawing) side.render = drawTextBuffer;

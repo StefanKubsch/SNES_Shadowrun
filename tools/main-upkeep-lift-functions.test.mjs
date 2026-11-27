@@ -37,7 +37,7 @@ import {
   runOpenWindow,
   runReleaseNoticeWindows,
 } from './register-forms/upkeep-routines.mjs';
-import { stepAnimation } from '../src/game/object-animation.mjs';
+import { stepAnimationInPlace } from '../src/game/object-animation.mjs';
 import { drainNativeSequence } from './register-forms/native-call-continuation.mjs';
 import { drawTextBufferSequence } from '../src/game/text-draw.mjs';
 import { LagFreeFrames } from '../src/vm/frame-events.mjs';
@@ -565,7 +565,8 @@ const OBJECT_ANIMATION = {
     Object.assign(h.ctx, input);
     h.ctx.programBank = 0x80;
     h.push(0x1234, 2);
-    stepAnimation(h, null, input.x);
+    stepAnimationInPlace(h, input.x);
+    h.a.pullWord();
     return dataBank(h);
   },
 };

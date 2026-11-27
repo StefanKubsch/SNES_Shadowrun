@@ -17,10 +17,7 @@ import { readStateByte, writeStateByte } from '../state/objects.mjs';
 // and the tile upload 80:8FF5 take their stream, offset and VRAM address as parameters
 // (A, Y and X in the original); the window step (X) is a local, and no registers or
 // flags are left.
-import { segmentSequence } from '../system/sequence-runner.mjs';
-import { recordedCallBody } from '../system/register-compat.mjs';
 import {
-  unpackPortrait,
   unpackPortraitStream,
   shiftPortraitRowsInPlace,
   uploadFirstPortrait,
@@ -60,16 +57,15 @@ import { WRAM_BANK } from '../constants/memory-map.mjs';
 const HDMA_TABLE_SOURCE = 0x80e480,
   HDMA_TABLE_LAST = 0x0c;
 // The callees and their call sites; the instruction sites of the port writes.
-const UNPACK = [0x80e4e3, 0x809f6d],
-  SITES = Object.freeze({
-    objsel: 0x80e4bf,
-    window: 0x80e436,
-    logic: 0x80e439,
-    table: 0x80e43f,
-    mode: 0x80e453,
-    target: 0x80e458,
-    bank: 0x80e45d,
-  });
+const SITES = Object.freeze({
+  objsel: 0x80e4bf,
+  window: 0x80e436,
+  logic: 0x80e439,
+  table: 0x80e43f,
+  mode: 0x80e453,
+  target: 0x80e458,
+  bank: 0x80e45d,
+});
 
 const word = (wram, at) => readStateByte(wram, at) | (readStateByte(wram, at + 1) << BYTE_BITS);
 const setWord = (wram, at, value) => {
@@ -107,11 +103,7 @@ export function* memberPortrait(h, events) {
       word(wram, DP_PORTRAIT_POINTER) | (readStateByte(wram, DP_PORTRAIT_BANK) << WORD_BITS);
     stream = [longWord(mem, pointer), mem.read8((pointer + PORTRAIT_RECORD_BANK_BYTE) & LONG_MASK)];
   };
-  if (events?.startupInterrupts)
-    yield* recordedCallBody(h, ...UNPACK, () =>
-      segmentSequence(() => unpackPortrait(h, events, ...stream, PORTRAIT_BUFFER)),
-    );
-  else yield () => unpackPortraitStream(h, ...stream, PORTRAIT_BUFFER);
+  yield () => unpackPortraitStream(h, ...stream, PORTRAIT_BUFFER);
   yield () => shiftPortraitRowsInPlace(h);
   yield* uploadFirstPortrait(h, events);
   yield* secondChannel(h, events);

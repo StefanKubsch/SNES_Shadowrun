@@ -8,10 +8,10 @@ import { readStateByte } from '../state/objects.mjs';
 // The NMI comes from the lag-free frame model (src/vm/frame-events.mjs), which
 // delivers it only at a blocking loop branch of the original. The normal game
 // dispatches frame jobs directly with the branch condition and carry as values.
-// Recorded comparisons retain the original interrupt context: branch 81:EED1,
-// an equal byte compare, and the handler's push/restore before returning here.
+// Test fixtures without frame jobs service the wait themselves (textWait); an NMI
+// they leave to the frame model has no handler and stops.
 import { lagFree } from '../vm/frame-events.mjs';
-import { registerCompat } from './register-compat.mjs';
+import { taskStop } from './task-stop.mjs';
 import { WAIT_PAUSED, WAIT_RETURNED } from './native-wait-continuation.mjs';
 import { NMITIMEN_SHADOW, RANDOM_STATE } from '../data/wram.mjs';
 import { HVBJOY, HVBJOY_VBLANK, NMITIMEN_NMI_ENABLE } from '../constants/hardware-registers.mjs';
@@ -49,34 +49,29 @@ class FramePause {
 }
 
 // One pass of the lag-free frame model at the blocking branch of an original wait
-// loop: frame jobs, or audio time at a sound wait with the NMI disabled. Normal
-// live execution does not change the caller's CPU context. The compatibility
-// path below restores its temporary interrupt context. A frame pauses the call.
+// loop: frame jobs, or audio time at a sound wait with the NMI disabled. It does not
+// change the caller's CPU context. A frame pauses the call.
 export function* nmiAtBranch(h, events, branch, status) {
   const frames = lagFree(events);
-  if (frames && events.frameJobs) {
-    const nmis = frames.nmis;
-    yield () => {
-      if (frames.textWait?.(h, events, status, branch)) return;
-      const samples = frames.audioSamples;
-      if (!frames.nmiAt(status, branch)) {
-        if (frames.audioSamples !== samples) h.a.resetAccessBudget?.(h.a.entry);
-        return;
-      }
-      h.a.resetAccessBudget?.(h.a.entry);
-      frames.enterNmi();
-      try {
-        events.frameJobs(h.a, status & FLAG_CARRY ? 1 : 0);
-      } finally {
-        frames.leaveNmi();
-      }
-    };
-    if (frames.nmis !== nmis) yield { continuation: new FramePause() };
-    return;
-  }
-  const nmis = lagFree(events)?.nmis;
-  yield* registerCompat('interruptAtBranch')(h, events, branch, status);
-  if (lagFree(events)?.nmis !== nmis) yield { continuation: new FramePause() };
+  if (!frames) taskStop('frame_model_required', { pc: branch });
+  const nmis = frames.nmis;
+  yield () => {
+    if (frames.textWait?.(h, events, status, branch)) return;
+    const samples = frames.audioSamples;
+    if (!frames.nmiAt(status, branch)) {
+      if (frames.audioSamples !== samples) h.a.resetAccessBudget?.(h.a.entry);
+      return;
+    }
+    if (!events.frameJobs) taskStop('frame_jobs_required', { pc: branch });
+    h.a.resetAccessBudget?.(h.a.entry);
+    frames.enterNmi();
+    try {
+      events.frameJobs(h.a, status & FLAG_CARRY ? 1 : 0);
+    } finally {
+      frames.leaveNmi();
+    }
+  };
+  if (frames.nmis !== nmis) yield { continuation: new FramePause() };
 }
 
 // A sequence (yield* waitForFrame(...)) for a native call continuation. h is the

@@ -91,11 +91,6 @@ function runRoomZone(room, budget) {
         if (pc === 0x81b0a9) {
           assert.equal(mem.read16(0x7e0000 | (h.ctx.s + 1)), 0x1234);
           assert.equal(h.ctx.s, 0x1eed, 'room wait preserves the outer caller stack');
-          assert.equal(
-            h.ctx.programBank,
-            0x81,
-            'comparison interrupt adapter selects the wait bank',
-          );
           calls.push(['room frame', pc]);
           put(W.RANDOM_STATE, mem.read16(W.RANDOM_STATE) + 1);
           return true;
