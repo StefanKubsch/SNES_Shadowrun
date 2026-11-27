@@ -48,4 +48,4 @@ export function paletteSlotInPlace(wram, palette) {
   return slot;
 }
 // The RTS form for register-level callers is paletteSlotJsr in
-// proof/caller/jsr-forms.mjs.
+// tools/register-forms/jsr-forms.mjs.

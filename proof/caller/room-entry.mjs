@@ -34,7 +34,7 @@
 // through their frames (docs/AUDIO-ROUTINES-LIFT.md keeps EF47 in the table for this
 // caller).
 import { tasksOf } from '../../src/script/task-api.mjs';
-import { nativeCallSequence } from '../system/native-call-sequences.mjs';
+import { nativeCallSequence } from '../../tools/register-forms/native-call-sequences.mjs';
 import { lagFree } from '../../src/system/main-wait-interrupt.mjs';
 import { waitForCounterWord } from '../../src/system/frame-wait.mjs';
 import { sceneRuntime } from '../../src/system/scene-runtime.mjs';

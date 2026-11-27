@@ -1,13 +1,13 @@
-import { moveAndAnimate as runObjectMotion } from '../proof/caller/object-motion.mjs';
-import { gloveActionSequence as formerGloveActionSequence } from '../proof/caller/glove-action.mjs';
+import { moveAndAnimate as runObjectMotion } from './register-forms/object-motion.mjs';
+import { gloveActionSequence as formerGloveActionSequence } from './register-forms/glove-action.mjs';
 import { talkSequence } from '../proof/caller/dialog-talk.mjs';
 import { chooseActionSequence as recordedActionSequence } from '../proof/caller/action-menu.mjs';
-import { timeLimitSequence as recordedTimeLimitSequence } from '../proof/caller/time-limit.mjs';
+import { timeLimitSequence as recordedTimeLimitSequence } from './register-forms/time-limit.mjs';
 import { showNoticeSequence as recordedNoticeSequence } from '../proof/caller/notice-show.mjs';
 import { drawTextBufferSequence as recordedTextBufferSequence } from '../proof/caller/text-draw.mjs';
-import { textBufferRenderer } from '../proof/caller/text-renderer.mjs';
-import { printNumberSequence as formerNumberSequence } from '../proof/caller/window-text.mjs';
-import { printTextSequence as formerTextSequence } from '../proof/caller/text-print.mjs';
+import { textBufferRenderer } from './register-forms/text-renderer.mjs';
+import { printNumberSequence as formerNumberSequence } from './register-forms/window-text.mjs';
+import { printTextSequence as formerTextSequence } from './register-forms/text-print.mjs';
 
 // Random per-function tests of the main loop's lifted upkeep (src/game/main-upkeep.mjs)
 // against the frozen outcomes (tools/lift-vectors/) of the former register-level
@@ -64,7 +64,7 @@ import { showDialogTextSequence } from '../proof/caller/dialog-text.mjs';
 import {
   openPortraitWindowSequence,
   closePortraitWindowSequence,
-} from '../proof/caller/portrait-window.mjs';
+} from './register-forms/portrait-window.mjs';
 import {
   shiftPortraitRowsRoutine,
   unpackPortraitRoutine,
@@ -88,7 +88,7 @@ import {
   setTextCursorJsr,
   clearFixedColourJsl,
   setWindowTextWidthJsr,
-} from '../proof/caller/jsr-forms.mjs';
+} from './register-forms/jsr-forms.mjs';
 import {
   CAMERA_BOX,
   CAMERA_SPEED_X,

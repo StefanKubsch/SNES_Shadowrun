@@ -2,16 +2,16 @@ import { withInterruptEvents } from './observed-native-events.mjs';
 import { lagFree } from '../../src/system/main-wait-interrupt.mjs';
 import { taskStop } from '../../src/system/task-stop.mjs';
 import { FIRST_ARGUMENT, leafAccess, finishLeaf } from '../system/native-leaf-support.mjs';
-import { runReleaseWindowCall } from '../../proof/caller/window-release.mjs';
+import { runReleaseWindowCall } from '../caller/window-release.mjs';
 import { af1fRegisters } from '../script/native-bar-tiles.mjs';
 import { dialogAccess } from '../../src/system/native-dialog-support.mjs';
-import { nativeCallSequence } from '../system/native-call-sequences.mjs';
+import { nativeCallSequence } from '../../tools/register-forms/native-call-sequences.mjs';
 import {
   observedContinuation,
   NativeCallContinuation,
   drainNativeSequence,
 } from '../../src/system/native-call-continuation.mjs';
-import { NATIVE_CALL_CONTINUATIONS } from './continuations.mjs';
+import { NATIVE_CALL_CONTINUATIONS } from '../../tools/register-forms/continuations.mjs';
 import { BANK_WRAP, WORD_MASK, LONG_MASK } from '../../src/constants/bits.mjs';
 import { FLAG_NEGATIVE } from '../../src/constants/cpu-flags.mjs';
 import {

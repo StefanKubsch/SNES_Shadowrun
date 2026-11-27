@@ -1,13 +1,13 @@
 import { withInterruptEvents } from './observed-native-events.mjs';
 import { taskStop } from '../../src/system/task-stop.mjs';
-import { fitListWindow } from '../system/menu-layout-registers.mjs';
+import { fitListWindow } from '../../tools/register-forms/menu-layout-registers.mjs';
 import { leafAccess, finishLeaf } from '../system/native-leaf-support.mjs';
 import {
   observedContinuation,
   drainNativeSequence,
   dialogCallBody,
 } from '../../src/system/native-call-continuation.mjs';
-import { dialogCallSequence } from '../system/native-call-sequences.mjs';
+import { dialogCallSequence } from '../../tools/register-forms/native-call-sequences.mjs';
 import { lagFree } from '../../src/system/main-wait-interrupt.mjs';
 import { dialogAccess } from '../../src/system/native-dialog-support.mjs';
 import { taskSelectionSupport } from '../script/native-object-turn.mjs';
@@ -103,7 +103,7 @@ import {
   FLAG_INDEX_8BIT,
 } from '../../src/constants/cpu-flags.mjs';
 import { CODE_BANK } from '../../src/constants/memory-map.mjs';
-import '../system/dialog-register-helpers.mjs';
+import '../../tools/register-forms/dialog-register-helpers.mjs';
 
 // DEC7: the pad directions index pad_directions 80:DF4B (10: none), turned by the camera
 // rotation word in SRAM and masked to the even directions, then walk_step_x/y DF27/DF39

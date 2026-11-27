@@ -2,20 +2,20 @@
 // Control returns as values; program counters and return words belong only to
 // the remaining boot/native compatibility adapters, never to frame decisions.
 import { readStateWord } from '../state/objects.mjs';
-import { gloveMove } from '../game/glove-move.mjs';
-import { sceneRequestSequence } from '../game/scene-request.mjs';
-import { shakeHitPlayer } from '../game/player-hit.mjs';
-import { recordFormationStep } from '../game/formation-trail.mjs';
-import { moveAndAnimateInPlace } from '../game/object-motion.mjs';
-import { noticeTimeoutSequence } from '../game/notice-timeout.mjs';
-import { timeLimitSequence } from '../game/time-limit.mjs';
-import { gloveActionSequence } from '../game/glove-action.mjs';
-import { playerZonesSequence } from '../game/player-zones.mjs';
-import { buildSpritesInPlace } from '../game/sprite-list.mjs';
-import { updateTileBuffers } from '../game/camera-scroll.mjs';
-import { followPlayerWithCamera } from '../game/camera-follow.mjs';
-import { advancePaletteCycles } from '../game/palette-cycles.mjs';
-import { applyColourEffect } from '../game/fixed-colour.mjs';
+import { gloveMove } from './glove-move.mjs';
+import { sceneRequestSequence } from './scene-request.mjs';
+import { shakeHitPlayer } from './player-hit.mjs';
+import { recordFormationStep } from './formation-trail.mjs';
+import { moveAndAnimateInPlace } from './object-motion.mjs';
+import { noticeTimeoutSequence } from './notice-timeout.mjs';
+import { timeLimitSequence } from './time-limit.mjs';
+import { gloveActionSequence } from './glove-action.mjs';
+import { playerZonesSequence } from './player-zones.mjs';
+import { buildSpritesInPlace } from './sprite-list.mjs';
+import { updateTileBuffers } from './camera-scroll.mjs';
+import { followPlayerWithCamera } from './camera-follow.mjs';
+import { advancePaletteCycles } from './palette-cycles.mjs';
+import { applyColourEffect } from './fixed-colour.mjs';
 import { sceneRuntime } from '../system/scene-runtime.mjs';
 import { MAIN_LOOP_EXIT, MAIN_LOOP_RELOAD } from '../data/wram.mjs';
 

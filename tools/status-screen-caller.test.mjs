@@ -5,24 +5,24 @@ import { compareRun } from './member-menu-caller-harness.mjs';
 import { pictureVideoOf } from './text-window-caller-harness.mjs';
 import { controlPlayerSequence as directPlayer } from '../src/game/player-control.mjs';
 import * as directStatus from '../src/game/status-screen.mjs';
-import { decimalNumberSequence } from '../proof/caller/decimal-number.mjs';
-import { equipmentRowsSequence } from '../proof/caller/equipment-window.mjs';
-import { closePortraitWindowSequence } from '../proof/caller/portrait-window.mjs';
+import { decimalNumberSequence } from './register-forms/decimal-number.mjs';
+import { equipmentRowsSequence } from './register-forms/equipment-window.mjs';
+import { closePortraitWindowSequence } from './register-forms/portrait-window.mjs';
 import { reloadObjectTiles } from '../proof/system/native-scene-tiles.mjs';
 import { buildSpriteList } from '../proof/replay/native-scene-sprites.mjs';
 import * as W from '../src/data/wram.mjs';
 import { sendApuCommand } from '../proof/system/native-input-apu.mjs';
-import { itemMenuSequence } from '../proof/caller/item-menu.mjs';
-import { spellMenuSequence, STATUS_ENTRY } from '../proof/caller/member-spell-menu.mjs';
-import { skillsSequence, notesSequence } from '../proof/caller/status-submenus.mjs';
+import { itemMenuSequence } from './register-forms/item-menu.mjs';
+import { spellMenuSequence, STATUS_ENTRY } from './register-forms/member-spell-menu.mjs';
+import { skillsSequence, notesSequence } from './register-forms/status-submenus.mjs';
 import { chooseFromMenuSequence } from '../proof/caller/menu-choice.mjs';
-import { memberPortraitSequence } from '../proof/caller/member-portrait.mjs';
+import { memberPortraitSequence } from './register-forms/member-portrait.mjs';
 import {
   uploadFirstPortraitSequence,
   uploadPortraitTilesSequence,
 } from '../proof/caller/portrait-upload.mjs';
-import { unpackPortraitRoutine } from '../proof/caller/portrait-routines.mjs';
-import { clearFixedColourJsl, shiftPortraitRowsJsr } from '../proof/caller/jsr-forms.mjs';
+import { unpackPortraitRoutine } from './register-forms/portrait-routines.mjs';
+import { clearFixedColourJsl, shiftPortraitRowsJsr } from './register-forms/jsr-forms.mjs';
 
 useLiftVectors(import.meta.url);
 

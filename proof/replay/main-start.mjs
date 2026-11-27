@@ -7,7 +7,7 @@ import { unpackStream } from '../system/native-unpack.mjs';
 import { MAIN_INITIALIZE_ROUTINES } from '../system/main-initialize.mjs';
 import { TRANSITION_ROUTINES } from './main-transition.mjs';
 import { NativeCallContinuation } from '../../src/system/native-call-continuation.mjs';
-import { NATIVE_CALL_CONTINUATIONS } from './continuations.mjs';
+import { NATIVE_CALL_CONTINUATIONS } from '../../tools/register-forms/continuations.mjs';
 import {
   GAME_START,
   requireGameStartEntry,

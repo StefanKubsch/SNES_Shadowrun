@@ -26,7 +26,7 @@ import {
   drawWindowListSequence as drawWindowListReference,
 } from '../system/native-render-compose.mjs';
 import { dialogAccess } from '../../src/system/native-dialog-support.mjs';
-import { nativeCallSequence } from '../system/native-call-sequences.mjs';
+import { nativeCallSequence } from '../../tools/register-forms/native-call-sequences.mjs';
 import {
   NATIVE_CALL_CONTINUATIONS,
   NativeCallContinuation,

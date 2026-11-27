@@ -28,11 +28,11 @@ interfaces, saves, frame policy, shape editing and S-MIX remain outside this wor
 than a dispatch table. Without an injected renderer it composes
 [text-draw.mjs](../src/game/text-draw.mjs) directly. The original call frame and
 bank restoration remain around the renderer, including cooperative pauses.
-[text-renderer.mjs](../proof/caller/text-renderer.mjs) adapts callers that still
+[text-renderer.mjs](../tools/register-forms/text-renderer.mjs) adapts callers that still
 supply tables, preserving function-identity continuation lookup and the missing
 helper frontier. Table lookup happens when the renderer is reached.
 
-The former caller remains in [proof/caller/text-print.mjs](../proof/caller/text-print.mjs).
+The former caller remains in [tools/register-forms/text-print.mjs](../tools/register-forms/text-print.mjs).
 [text-caller.test.mjs](../tools/text-caller.test.mjs) compares both compositions
 with a renderer that pauses across several segments, at budgets one and seven.
 Cases include both source banks, terminal texts and language replacements;
@@ -46,7 +46,7 @@ decoder, menu and dialog comparisons continue through the compatibility adapter.
 same renderer sequence interface, defaulting to live text-buffer drawing.
 Decimal conversion, divider traffic, digit relocation and the bank/return
 contract are unchanged. The former caller and cursor remain in
-[proof/caller/window-text.mjs](../proof/caller/window-text.mjs).
+[tools/register-forms/window-text.mjs](../tools/register-forms/window-text.mjs).
 
 The cooperative comparisons add zero, digit-count boundaries and the maximum
 unsigned word, at both budgets. They assert the actual decimal buffer as well
@@ -63,7 +63,7 @@ reads or adapts a routine table. Menus and dialog menus receive the same
 sequence, and main-upkeep supplies the live renderer directly; the former
 one-entry menu text table is removed.
 
-The former [menu list](../proof/caller/menu-list.mjs) imports the retained text
+The former [menu list](../tools/register-forms/menu-list.mjs) imports the retained text
 and number producers. The retained menu choice imports this list, so recorded
 comparisons cannot silently adopt the new list or producers. The existing 24
 menu caller comparisons now supply a sequence on the direct side and a table
@@ -144,7 +144,7 @@ passed. The product arithmetic and window code did not require a correction.
 [time-limit.mjs](../src/game/time-limit.mjs) composes its notice, cursor, number
 and suffix directly with the same renderer sequence. The main-loop entry no
 longer forwards an upkeep table to the timer. Warning sounds, countdown,
-hour reload and script timer APIs are unchanged. The [former timer caller](../proof/caller/time-limit.mjs)
+hour reload and script timer APIs are unchanged. The [former timer caller](../tools/register-forms/time-limit.mjs)
 retains dispatch for the independent original/random comparisons.
 
 The notice caller suite adds disabled and expired timers, ordinary countdown,
@@ -223,7 +223,7 @@ each wait, final pressed mask, input count, result and game state.
 
 [portrait-window.mjs](../src/game/portrait-window.mjs) opens and closes with
 the live frame wait directly. Its HDMA setup, edge arithmetic and eleven-frame
-sequences are unchanged. The [former window](../proof/caller/portrait-window.mjs)
+sequences are unchanged. The [former window](../tools/register-forms/portrait-window.mjs)
 keeps the recorded/injected wait interface; the existing random comparisons
 against the original import it explicitly. Main-upkeep supplies no table to
 the live window entry points or their continuation factories.
@@ -320,7 +320,7 @@ No save, task scheduling or lag-free frame policy changes.
 [member-portrait.mjs](../src/game/member-portrait.mjs) composes unpacking, row
 separation, the first upload, the second DMA job and eleven live colour-window
 frames directly. Main-upkeep no longer constructs a portrait helper table.
-The [former member caller](../proof/caller/member-portrait.mjs) retains all
+The [former member caller](../tools/register-forms/member-portrait.mjs) retains all
 injected callees, and the existing random original comparisons bind it explicitly.
 
 [member-portrait-caller.test.mjs](../tools/member-portrait-caller.test.mjs) adds
@@ -336,7 +336,7 @@ startup fallback remain outside this batch.
 
 [spell-choice.mjs](../src/game/spell-choice.mjs) composes live window opening,
 plain menu selection and release directly with an explicit renderer. Main-upkeep
-no longer constructs its helper table. The [former caller](../proof/caller/spell-choice.mjs)
+no longer constructs its helper table. The [former caller](../tools/register-forms/spell-choice.mjs)
 retains injection, and the existing 400 random original comparisons use it.
 [menu-status-caller.test.mjs](../tools/menu-status-caller.test.mjs) adds twelve
 comparisons at budgets one and seven: empty list, Exit, first/last spell,
@@ -352,7 +352,7 @@ and party status. Each retains independent original and caller comparisons.
 
 [equipment-window.mjs](../src/game/equipment-window.mjs) composes cursor,
 text and number printing directly with the renderer sequence. Main-upkeep
-removes its equipment table. The [former caller](../proof/caller/equipment-window.mjs)
+removes its equipment table. The [former caller](../tools/register-forms/equipment-window.mjs)
 retains injected callees for original random comparisons. The caller suite adds
 twelve cases across leader and other members, absent/present items, dermal
 armour and byte-rating wrap, with both budgets. It compares full text payloads,
@@ -363,7 +363,7 @@ Original item lookup, stack-held equipment and bonus arithmetic stay unchanged.
 
 The skills sequence in [status-submenus.mjs](../src/game/status-submenus.mjs)
 composes opening, cursor, text, number, confirming input and release directly.
-Its renderer is passed through text and numbers. The [former submenus](../proof/caller/status-submenus.mjs)
+Its renderer is passed through text and numbers. The [former submenus](../tools/register-forms/status-submenus.mjs)
 retain both routines independently for the existing random original comparisons.
 Sixteen new caller comparisons cover no, one, sparse and all skills, including
 byte value 255, confirmation and Select ending the status screen, at both
@@ -388,7 +388,7 @@ remain as before; the existing original comparisons remain independent.
 [party-status.mjs](../src/game/party-status.mjs) composes glove and notice
 release, window opening, cursor/text/numbers, confirming input and final
 release directly with the renderer sequence. Main-upkeep removes the party
-status table. The [former caller](../proof/caller/party-status.mjs) retains
+status table. The [former caller](../tools/register-forms/party-status.mjs) retains
 injection for the original random comparisons. Twelve new caller cases cover
 one, two and four members, leader-only display, an odd last index and pending
 glove/notice cleanup, at both budgets. Byte maxima and real runner records
@@ -527,7 +527,7 @@ frame policy retain their established contracts.
 [main-menu.mjs](../src/game/main-menu.mjs) composes opening, plain menu selection
 and release directly, forwarding a renderer sequence. The choice remains on its
 original frame across release. Save and karma remain services until block 4.
-The [former caller](../proof/caller/main-menu.mjs) retains dispatch for the
+The [former caller](../tools/register-forms/main-menu.mjs) retains dispatch for the
 original random comparisons. [Caller comparisons](../tools/main-karma-caller.test.mjs)
 cover Exit, cancellation, both submenu choices and real default glyphs with
 budgets one and seven. Uploads are serviced; existing real NMI integrations

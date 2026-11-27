@@ -11,7 +11,7 @@ import { prng } from './task-native-dialog-harness.mjs';
 import { createSide, registerCases, useLiftVectors } from './lift-function-harness.mjs';
 import { SPELL_LIST } from '../src/data/wram.mjs';
 import { drainNativeSequence } from '../src/system/native-call-continuation.mjs';
-import { chooseSpellSequence } from '../proof/caller/spell-choice.mjs';
+import { chooseSpellSequence } from './register-forms/spell-choice.mjs';
 
 useLiftVectors(import.meta.url);
 

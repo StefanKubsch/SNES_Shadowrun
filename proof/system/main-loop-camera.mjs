@@ -28,7 +28,7 @@ import {
 import { WRAM_BANK_PAIR } from '../../src/constants/memory-map.mjs';
 import { BYTE_BITS, WORD_MASK } from '../../src/constants/bits.mjs';
 import { FLAG_ZERO, FLAG_CARRY, FLAG_NEGATIVE } from '../../src/constants/cpu-flags.mjs';
-import './dialog-register-helpers.mjs';
+import '../../tools/register-forms/dialog-register-helpers.mjs';
 // Camera clamping $8A05 and tile rows $8A91 (the camera $81:8C2E is lifted in
 // src/game/camera-follow.mjs, its reference in proof/game-reference/main-camera.mjs). All data and the real
 // JSL/DBR frames live in VM memory. The publication at CD0/CD6 performs no DMA.

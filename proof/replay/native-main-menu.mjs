@@ -6,12 +6,12 @@ import {
   drainNativeSequence,
   dialogCallBody,
 } from '../../src/system/native-call-continuation.mjs';
-import { dialogCallSequence } from '../system/native-call-sequences.mjs';
+import { dialogCallSequence } from '../../tools/register-forms/native-call-sequences.mjs';
 import { validateDialogTaskOptions } from './native-dialog.mjs';
 import { lagFree } from '../../src/system/main-wait-interrupt.mjs';
 import { STATUS_SCREEN_ROUTINES } from './native-status-screen.mjs';
 import { chooseFromNumberedMenuWithSelectionAdapter } from './native-menu-compose.mjs';
-import { playSoundEffectJsr } from '../caller/jsr-forms.mjs';
+import { playSoundEffectJsr } from '../../tools/register-forms/jsr-forms.mjs';
 import { raiseMemberStateCount } from './native-state-count-raise.mjs';
 import { raiseMemberMagicPoints } from '../../src/script/native-magic-points-raise.mjs';
 
@@ -79,7 +79,7 @@ import {
   PORT_TEXTS,
 } from '../../src/data/port-extension.mjs';
 import { listTextIds } from '../../src/data/menu-layout.mjs';
-import { fitListWindow } from '../system/menu-layout-registers.mjs';
+import { fitListWindow } from '../../tools/register-forms/menu-layout-registers.mjs';
 import { RUNNER_RECORD_POINTERS, RUNNER_RECORD_BANKS } from '../../src/data/runners.mjs';
 import { BYTE_MASK, WORD_MASK, WORD_BITS, BANK_WRAP } from '../../src/constants/bits.mjs';
 import {
@@ -95,7 +95,7 @@ import {
   WRAM_BANK,
   SRAM_FIRST_BANK,
 } from '../../src/constants/memory-map.mjs';
-import '../system/dialog-register-helpers.mjs';
+import '../../tools/register-forms/dialog-register-helpers.mjs';
 
 // CE6D/CDD6 window geometry and row counts from their pinned F963/A6C7 calls.
 const MAIN_WINDOW = Object.freeze({

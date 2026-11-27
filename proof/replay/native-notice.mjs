@@ -6,13 +6,13 @@ import { taskTextAccess } from '../system/native-text-prerequisites.mjs';
 import { f963Sequence } from './native-window-open.mjs';
 import { printTextSequence } from './native-text-compose.mjs';
 import { fitNoticeWindow } from '../../src/data/language.mjs';
-import { releaseWindowJsrSequence } from '../../proof/caller/window-release.mjs';
+import { releaseWindowJsrSequence } from '../caller/window-release.mjs';
 import {
   observedContinuation,
   NativeCallContinuation,
   drainNativeSequence,
 } from '../../src/system/native-call-continuation.mjs';
-import { NATIVE_CALL_CONTINUATIONS } from './continuations.mjs';
+import { NATIVE_CALL_CONTINUATIONS } from '../../tools/register-forms/continuations.mjs';
 import { WORD_MASK, BANK_WRAP, BANK_SIZE, LONG_MASK } from '../../src/constants/bits.mjs';
 import {
   WRAM,
@@ -46,7 +46,7 @@ import {
   RDMPYL,
   RDMPYH,
 } from '../../src/constants/hardware-registers.mjs';
-import '../system/dialog-register-helpers.mjs';
+import '../../tools/register-forms/dialog-register-helpers.mjs';
 const devices = Object.freeze({
   writes: Object.freeze([M7A, M7B, WRMPYA, WRMPYB, WRDIVL, WRDIVH, WRDIVB]),
   reads: Object.freeze([MPYL, MPYM, RDDIVL, RDDIVH, RDMPYL, RDMPYH]),

@@ -1,4 +1,4 @@
-// Random per-function tests of the retained former shooting natives (proof/caller/object-shoot.mjs)
+// Random per-function tests of the retained former shooting natives (tools/register-forms/object-shoot.mjs)
 // against the register-level natives (src/data/native-object-shoot.mjs). Both sides run
 // their real callees (the line of sight 81:A25F over a cell list with boxes on the
 // shot's line, the random number 80:C51F, the object slot 80:A835 with its task append
@@ -23,7 +23,7 @@ import {
   shootAtGloveTargetSequence,
   shootAtObjectSequence,
   shootWithOwnWeaponSequence,
-} from '../proof/caller/object-shoot.mjs';
+} from './register-forms/object-shoot.mjs';
 import {
   DRAW_LIST_INDEX,
   OBJECT_ACTION_DIRECTIONS,

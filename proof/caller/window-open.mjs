@@ -22,7 +22,7 @@
 // drawing's own pushes are not reproduced.
 import { sceneRuntime } from '../../src/system/scene-runtime.mjs';
 import { lagFree } from '../../src/system/main-wait-interrupt.mjs';
-import { nativeCallSequence } from '../system/native-call-sequences.mjs';
+import { nativeCallSequence } from '../../tools/register-forms/native-call-sequences.mjs';
 import {
   requestWindowUploadAdapter,
   requestWindowUploadSequence,

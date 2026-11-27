@@ -182,5 +182,14 @@ mostly script natives (src/script 56 %).
      accessors a picture bus or compare a PictureVideo.
    - VideoPort (src/video/video-port.mjs) and the register fallback of sceneRuntime
      and videoOf are deleted (2026-11-27); PictureVideo is the only video interface.
-   - Next: move the scaffolding of the frozen tests to tools/; then delete the rest of
-     proof/ and the register modules.
+   - Test scaffolding moved (2026-11-27): a V8 coverage run of the fast suite showed
+     which proof functions still execute outside recording. The 44 modules whose import
+     closure is only scaffolding (the register forms of lifted routines from
+     proof/caller and the call helpers native-call-sequences, routine-call,
+     continuations, menu-layout-registers and dialog-register-helpers) moved to
+     tools/register-forms/. The 41 test files that execute nothing else no longer
+     import proof/; their bindings of retired register-level callees, used only by
+     the former side, are gone, and their frozen vectors still match unchanged.
+   - Next: the 20 test files that still execute register-level proof code
+     (proof/system, proof/replay and caller modules built on them) as callees of the
+     lifted code under test; then delete the rest of proof/ and the register modules.

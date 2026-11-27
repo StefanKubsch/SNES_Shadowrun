@@ -3,7 +3,7 @@
 // joypad reads 80:9E0B/F290 and the observed byte wait of polling loops. The game
 // waits, fades and reads the joypad through its lifted code.
 import { NativeWaitContinuation } from './native-wait-continuation.mjs';
-import { nativeCallSequence } from './native-call-sequences.mjs';
+import { nativeCallSequence } from '../../tools/register-forms/native-call-sequences.mjs';
 import {
   NativeCallContinuation,
   NATIVE_CALL_CONTINUATIONS,
@@ -21,7 +21,7 @@ import {
   FLAG_ZERO,
   FLAG_INDEX_8BIT,
 } from '../../src/constants/cpu-flags.mjs';
-import './dialog-register-helpers.mjs';
+import '../../tools/register-forms/dialog-register-helpers.mjs';
 
 // 81:EEDD: fade the screen in, one brightness step per frame.
 export function fadeInScreen(h, events) {

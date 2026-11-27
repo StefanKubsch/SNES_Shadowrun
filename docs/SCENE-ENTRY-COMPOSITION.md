@@ -38,7 +38,7 @@ adds no original route, elapsed-time or hardware evidence.
 The intro calls the mirrored credits body directly inside its original long call
 frame at 81:E120. It restores its saved status and data bank after the credits
 return and the game sound directory is reinstalled. The former intro remains in
-`proof/caller/intro-scene.mjs`; replay binds it independently with the former
+`tools/register-forms/intro-scene.mjs`; replay binds it independently with the former
 cutscene. The caller cases now compare both complete entry directions with that
 retained chain, including actual packed data, graphics and sound commands.
 
@@ -64,7 +64,7 @@ live body. No dependency is selected from a caller table in either scene.
 The matrix entry composes its fixed recorded frame wait directly, including
 setup, fades, login, grid and exit phases. Its API no longer receives a routine
 table. The former matrix orchestration remains independently in
-`proof/caller/matrix-scene.mjs` for replay. Full fixture cases compare actual
+`tools/register-forms/matrix-scene.mjs` for replay. Full fixture cases compare actual
 matrix setup, packed maps, login text and return; the shared observed-call
 comparisons also pin its original bridge frame at 81:C3CA.
 

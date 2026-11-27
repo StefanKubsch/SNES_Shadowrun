@@ -6,8 +6,7 @@ import { cartridge } from './cartridge-harness.mjs';
 import { LiveGame } from '../src/video/live-game.mjs';
 import { selectObjectAnimation } from '../src/game/object-turn.mjs';
 import { controlPlayerSequence as directControl } from '../src/game/player-control.mjs';
-import { partyStatusSequence } from '../proof/caller/party-status.mjs';
-import { selectAnimationRegisters, turnRegisters } from '../proof/script/native-object-turn.mjs';
+import { partyStatusSequence } from './register-forms/party-status.mjs';
 import { CAMERA_ROTATION_SRAM } from '../src/data/native-player-control.mjs';
 import * as W from '../src/data/wram.mjs';
 
@@ -54,8 +53,6 @@ function runPlayer(
     variant === 'party' || variant.endsWith('notice') ? [0x8000] : [],
     realDrawing,
     ({ h, events, routines, bind }) => {
-      routines.set(0x80a985, (callee) => selectAnimationRegisters(callee.a));
-      routines.set(0x80aaaf, (callee) => turnRegisters(callee.a));
       bind(0x80ed3c, () => partyStatusSequence(h, events, routines));
     },
   );

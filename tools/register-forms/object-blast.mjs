@@ -6,7 +6,7 @@
 // it holds an object that can be hit (flag bit 15) and lies less than 60 from the centre
 // on each axis: X, Y and height. The hit runs through its frame from the routine table,
 // with its own callees.
-import { nativeCallSequence } from '../system/native-call-sequences.mjs';
+import { nativeCallSequence } from './native-call-sequences.mjs';
 import { dataBankWord } from '../../src/system/data-bank.mjs';
 import {
   OBJECT_FLAGS,

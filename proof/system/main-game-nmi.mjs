@@ -8,7 +8,7 @@ import {
   GLOVE_KIND_CROSSHAIR,
   GLOVE_KIND_SPELL,
 } from '../../src/script/native-glove-crosshair-limits.mjs';
-import { nativeCallSequence } from './native-call-sequences.mjs';
+import { nativeCallSequence } from '../../tools/register-forms/native-call-sequences.mjs';
 import {
   NativeCallContinuation,
   NATIVE_CALL_CONTINUATIONS,
@@ -124,7 +124,7 @@ import {
   WORD_BITS,
   WORD_MASK,
 } from '../../src/constants/bits.mjs';
-import './dialog-register-helpers.mjs';
+import '../../tools/register-forms/dialog-register-helpers.mjs';
 // C152 and its original callback graph on the shared VM memory. Port stores
 // are requests; reads require chronological observations. Channel-5 readback
 // can consume explicit transfer bytes in A9E1; no automatic DMA or clock.

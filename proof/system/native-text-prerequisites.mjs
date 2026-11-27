@@ -56,7 +56,7 @@ import {
   FLAG_DECIMAL,
   FLAG_OVERFLOW,
 } from '../../src/constants/cpu-flags.mjs';
-import './dialog-register-helpers.mjs';
+import '../../tools/register-forms/dialog-register-helpers.mjs';
 
 // Text geometry (pixel shift and mask, tile width, reserved rows, DP line width and
 // position) and the fixed return words and mask sizes of the pinned text roots.

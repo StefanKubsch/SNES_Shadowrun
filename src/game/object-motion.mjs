@@ -180,7 +180,7 @@ function buildCollisionList(wram) {
 // Move and animate the objects (80:AFC4) on the main loop's access h (data bank 80);
 // movement, target walking and animation compose their actual bodies directly. The main
 // loop runs it without its JSR frame; the RTS form for register-level callers is
-// moveAndAnimateJsr in proof/caller/jsr-forms.mjs.
+// moveAndAnimateJsr in tools/register-forms/jsr-forms.mjs.
 export function moveAndAnimateInPlace(h, events) {
   const { wram } = h.a.mem,
     objects = objectTable(wram);

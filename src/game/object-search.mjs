@@ -269,4 +269,4 @@ export function* objectSearch(h, events, renderBuffer = drawTextBufferSequence) 
   yield* printText(h, events, renderBuffer);
 }
 // The RTS form for register-level callers is objectSearchJsr in
-// proof/caller/jsr-forms.mjs.
+// tools/register-forms/jsr-forms.mjs.

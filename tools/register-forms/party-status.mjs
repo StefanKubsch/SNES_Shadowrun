@@ -9,7 +9,7 @@
 // byte 5) and the magic points and their maximum (ten times the record's magic byte).
 // After a key (80:F953) the window is released (80:FA3E). The callees run through their
 // frames from the routine table, each with its own callees.
-import { nativeCallSequence } from '../system/native-call-sequences.mjs';
+import { nativeCallSequence } from './native-call-sequences.mjs';
 import { dataBankWord, setDataBankWord } from '../../src/system/data-bank.mjs';
 import { TEXT_SLASH } from '../../src/system/native-status-screen.mjs';
 import {

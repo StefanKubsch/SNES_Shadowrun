@@ -107,7 +107,7 @@ const setWord = (wram, at, value) => {
 
 // Unpack the portrait stream (pointer, bank word) into bank 7F from the offset
 // (80:9F6D, called with JSR); returns the unpacker's result (src/system/unpack.mjs),
-// whose values the register form (proof/caller/portrait-routines.mjs) leaves in A, X, Y.
+// whose values the register form (tools/register-forms/portrait-routines.mjs) leaves in A, X, Y.
 export function unpackPortraitStream(h, source, bank, offset) {
   return unpackLong(h.a.mem, source, bank, offset, UNPACK_7F);
 }

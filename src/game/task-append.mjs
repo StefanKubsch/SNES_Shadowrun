@@ -15,7 +15,7 @@
 // reaches it: the heap, the task tables, the frame fields and the argument source
 // (FFFE plus the argument offset) through the data bank with a 24-bit index, the
 // direct page words and the copied arguments in bank 0. Every caller runs with the
-// direct page at 0 (the register-level caller in proof/caller/task-append-call.mjs
+// direct page at 0 (the register-level caller in tools/register-forms/task-append-call.mjs
 // checks it), so those words lie at their own addresses. In the game these all lie in WRAM below 2000; a damaged heap or task word
 // reaches what the original reaches. Words the original reads again after writing are
 // read again here. A full heap or no free task slot, after which the original writes

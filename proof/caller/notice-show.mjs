@@ -20,7 +20,7 @@
 // comparison, or of the callee that ran last. The text number must point within bank
 // 80 (notice_text_required past it).
 import { taskStop } from '../../src/system/task-stop.mjs';
-import { nativeCallSequence } from '../system/native-call-sequences.mjs';
+import { nativeCallSequence } from '../../tools/register-forms/native-call-sequences.mjs';
 import { fitNoticeWindow } from '../../src/data/language.mjs';
 import { releaseWindowSequence } from './window-release.mjs';
 import {

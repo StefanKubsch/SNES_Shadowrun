@@ -1,7 +1,7 @@
 // The routine table of the lifted main loop's callees (moved from src/vm/main-loop.mjs;
 // the live main loop composes them directly and looks up no routine table). Register-
 // level callers and the tests that check the bindings use it.
-import { runFrameWait, runPadPresses } from './input-routines.mjs';
+import { runFrameWait, runPadPresses } from '../../tools/register-forms/input-routines.mjs';
 import { SCENE_REQUEST_ENTRY } from './scene-request.mjs';
 import {
   buildSpritesJsr,
@@ -12,7 +12,7 @@ import {
   playerZonesJsr,
   sceneRequestJsr,
   timeLimitJsr,
-} from './jsr-forms.mjs';
+} from '../../tools/register-forms/jsr-forms.mjs';
 import { shakeHitPlayer } from '../../src/game/player-hit.mjs';
 import { recordFormationStep } from '../../src/game/formation-trail.mjs';
 import { updateTileBuffers } from '../../src/game/camera-scroll.mjs';

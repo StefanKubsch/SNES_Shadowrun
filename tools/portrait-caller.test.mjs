@@ -1,12 +1,12 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { assertFrozenRun, useLiftVectors } from './lift-function-harness.mjs';
-import { closePortraitWindowJsr, openPortraitWindowJsr } from '../proof/caller/jsr-forms.mjs';
-import { runFrameWait } from '../proof/caller/input-routines.mjs';
+import { closePortraitWindowJsr, openPortraitWindowJsr } from './register-forms/jsr-forms.mjs';
+import { runFrameWait } from './register-forms/input-routines.mjs';
 
 useLiftVectors(import.meta.url);
 
-// The lifted portrait window in its RTS forms (proof/caller/jsr-forms.mjs), named as the
+// The lifted portrait window in its RTS forms (tools/register-forms/jsr-forms.mjs), named as the
 // former.
 const direct = {
   openPortraitWindowSequence: openPortraitWindowJsr,

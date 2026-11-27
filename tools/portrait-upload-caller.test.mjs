@@ -2,24 +2,19 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { assertFrozenRun, useLiftVectors } from './lift-function-harness.mjs';
 import * as lifted from '../src/game/portrait-upload.mjs';
-import * as former from '../proof/caller/portrait-upload.mjs';
-import { uploadFirstPortraitJsr, uploadSecondPortraitJsr } from '../proof/caller/jsr-forms.mjs';
-import { uploadPortraitTilesSequence } from '../proof/caller/portrait-routines.mjs';
+import { uploadFirstPortraitJsr, uploadSecondPortraitJsr } from './register-forms/jsr-forms.mjs';
+import { uploadPortraitTilesSequence } from './register-forms/portrait-routines.mjs';
 
 useLiftVectors(import.meta.url);
 
 // The lifted uploads; the DMA job's register form takes the VRAM address in X.
-// The lifted uploads in their RTS forms (proof/caller/jsr-forms.mjs), named as the former.
+// The lifted uploads in their RTS forms (tools/register-forms/jsr-forms.mjs), named as the former.
 const direct = {
   ...lifted,
   uploadPortraitTilesSequence,
   uploadFirstPortraitSequence: uploadFirstPortraitJsr,
   uploadSecondPortraitSequence: uploadSecondPortraitJsr,
 };
-import {
-  NativeCallContinuation,
-  NATIVE_CALL_CONTINUATIONS,
-} from '../src/system/native-call-continuation.mjs';
 import { textWindowSide, finishTextWindow, pictureVideoOf } from './text-window-caller-harness.mjs';
 import {
   DIALOG_RECORD_FLAGS,
@@ -30,7 +25,7 @@ import {
 
 function run(module, name, { mirror = 0, jobs = 0, destination = 0, delay = 1 }, budget) {
   const side = textWindowSide(),
-    { h, a, mem, put, events } = side;
+    { h, mem, put, events } = side;
   put(DIALOG_RECORD_FLAGS, mirror);
   put(NMI_JOB_LISTS, jobs);
   put(PORTRAIT_DMA_REQUEST, 0x1234);
@@ -48,12 +43,7 @@ function run(module, name, { mirror = 0, jobs = 0, destination = 0, delay = 1 },
     assert.ok(waits <= delay, 'bounded DMA service');
     return true;
   };
-  const upload = () => assert.fail('former upload must use its continuation'),
-    routines = new Map([[0x808ff5, upload]]);
-  NATIVE_CALL_CONTINUATIONS.set(upload, {
-    run: upload,
-    create: () => new NativeCallContinuation(a, former.uploadPortraitTilesSequence(h, events)),
-  });
+  const routines = new Map();
   let request, palette;
   function* sequence() {
     const result = yield* module[name](h, events, routines);
@@ -61,11 +51,7 @@ function run(module, name, { mirror = 0, jobs = 0, destination = 0, delay = 1 },
     palette = mem.read16(PORTRAIT_PALETTE_START);
     return result;
   }
-  try {
-    return { ...finishTextWindow(side, sequence(), budget), request, palette, waits };
-  } finally {
-    NATIVE_CALL_CONTINUATIONS.delete(upload);
-  }
+  return { ...finishTextWindow(side, sequence(), budget), request, palette, waits };
 }
 
 for (const budget of [1, 7]) {

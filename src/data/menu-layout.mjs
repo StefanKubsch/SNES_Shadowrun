@@ -35,7 +35,7 @@ export function listTextIds(memory, pointer, count) {
 // leave the cursor stride, tile allocation and DMA length inconsistent. The window
 // shape lies in the direct page words of its callers (D = 0), read and written as words
 // in WRAM (user decision 2026-11-17: no register widths; the register-level form for
-// register-level callers is in proof/system/menu-layout-registers.mjs).
+// register-level callers is in tools/register-forms/menu-layout-registers.mjs).
 const word = (wram, at) => wram[at] | (wram[at + 1] << BYTE_BITS);
 const setWord = (wram, at, value) => {
   wram[at] = value & BYTE_MASK;

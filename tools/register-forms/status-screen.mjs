@@ -20,7 +20,7 @@
 // 7E:1D63 or the menu ends; 1F64 set runs the first submenu once and keeps no menu
 // window. At the end 80:92C5, the windows are released, 1F62 is cleared and the sound
 // restored (7F7F). The callees run through their frames from the routine table.
-import { nativeCallSequence } from '../system/native-call-sequences.mjs';
+import { nativeCallSequence } from './native-call-sequences.mjs';
 import { taskStop } from '../../src/system/task-stop.mjs';
 import { dataBankWord, setDataBankWord } from '../../src/system/data-bank.mjs';
 import { DP_SCRATCH, STATUS_LAYOUT } from '../../src/data/native-member-spell-menu.mjs';

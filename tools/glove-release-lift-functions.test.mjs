@@ -9,7 +9,7 @@
 import { prng } from './task-native-dialog-harness.mjs';
 import { createSide, registerCases, useLiftVectors } from './lift-function-harness.mjs';
 import { drainNativeSequence } from '../src/system/native-call-continuation.mjs';
-import { releaseGloveSequence } from '../proof/caller/glove-release.mjs';
+import { releaseGloveSequence } from './register-forms/glove-release.mjs';
 
 useLiftVectors(import.meta.url);
 

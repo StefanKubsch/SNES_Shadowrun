@@ -1,7 +1,7 @@
 import { OAM_HIGH_TABLE, WRAM } from '../../src/data/wram.mjs';
 import { FLAG_MEMORY_8BIT } from '../../src/constants/cpu-flags.mjs';
 import { DP_OAM_OFFSET } from '../../src/game/sprite-list.mjs';
-import '../system/dialog-register-helpers.mjs';
+import '../../tools/register-forms/dialog-register-helpers.mjs';
 export { DP_OAM_OFFSET };
 
 // Direct page and indexed field access shared by the scene sprite modules.

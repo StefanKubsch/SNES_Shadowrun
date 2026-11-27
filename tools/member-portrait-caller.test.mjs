@@ -2,9 +2,8 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { assertFrozenRun, useLiftVectors } from './lift-function-harness.mjs';
 import * as liftedPortrait from '../src/game/member-portrait.mjs';
-import { memberPortraitJsr } from '../proof/caller/jsr-forms.mjs';
-import * as upload from '../proof/caller/portrait-upload.mjs';
-import { unpackPortraitRoutine } from '../proof/caller/portrait-routines.mjs';
+import { memberPortraitJsr } from './register-forms/jsr-forms.mjs';
+import { unpackPortraitRoutine } from './register-forms/portrait-routines.mjs';
 import { frameWaitCallSequence } from '../src/system/live-input-calls.mjs';
 import {
   NativeCallContinuation,
@@ -23,11 +22,11 @@ import {
   PORTRAIT_WINDOW_RIGHT,
   TMW_SHADOW,
 } from '../src/data/wram.mjs';
-import { shiftPortraitRowsJsr } from '../proof/caller/jsr-forms.mjs';
+import { shiftPortraitRowsJsr } from './register-forms/jsr-forms.mjs';
 
 useLiftVectors(import.meta.url);
 
-// The lifted module with its RTS forms (proof/caller/jsr-forms.mjs), named as the former.
+// The lifted module with its RTS forms (tools/register-forms/jsr-forms.mjs), named as the former.
 const direct = { ...liftedPortrait, memberPortraitSequence: memberPortraitJsr };
 
 function run(module, member, jobs, shadow, budget) {
@@ -72,11 +71,7 @@ function run(module, member, jobs, shadow, budget) {
       [0x808f20, shiftPortraitRowsJsr],
     ]),
     bindings = [];
-  for (const [target, sequence] of [
-    [0x809022, upload.uploadFirstPortraitSequence],
-    [0x808ff5, upload.uploadPortraitTilesSequence],
-    [0x81b0a1, frameWaitCallSequence],
-  ]) {
+  for (const [target, sequence] of [[0x81b0a1, frameWaitCallSequence]]) {
     const run = () => assert.fail('former callee must resume cooperatively');
     table.set(target, run);
     bindings.push(run);

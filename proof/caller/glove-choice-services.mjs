@@ -3,7 +3,7 @@ import { runUnpackWindowMap } from './window-list.mjs';
 import { showNoticeSequence } from '../../src/game/notice-show.mjs';
 import { putGloveAwayCallSequence as putGloveAwayRoutineSequence } from './window-release.mjs';
 import { frameWaitCallSequence } from '../../src/system/live-input-calls.mjs';
-import { runPadPresses } from './input-routines.mjs';
+import { runPadPresses } from '../../tools/register-forms/input-routines.mjs';
 // Choosing with the action or spell glove (lifted from the script natives 80:8D0B and its
 // relatives; register-level version in proof/replay/native-glove-target.mjs, which
 // recorded waits and inputs replay).
@@ -25,7 +25,7 @@ import { runPadPresses } from './input-routines.mjs';
 // The spell glove (80:9BD3) closes an open member menu's dialog and prepares the window
 // list first; it takes only objects with bit 15 of their flags set. The place choice
 // (80:C724) turns the glove's position into a place on the floor for an object's walk.
-import { nativeCallSequence } from '../system/native-call-sequences.mjs';
+import { nativeCallSequence } from '../../tools/register-forms/native-call-sequences.mjs';
 import { dialogCallBody, segmentSequence } from '../../src/system/native-call-continuation.mjs';
 import { dataBankWord } from '../../src/system/data-bank.mjs';
 import {
@@ -83,8 +83,8 @@ import {
   FLAG_OVERFLOW,
   FLAG_ZERO,
 } from '../../src/constants/cpu-flags.mjs';
-import '../system/dialog-register-helpers.mjs';
-import { closeDialogJsr } from './jsr-forms.mjs';
+import '../../tools/register-forms/dialog-register-helpers.mjs';
+import { closeDialogJsr } from '../../tools/register-forms/jsr-forms.mjs';
 
 // The choice ends on a newly pressed A, B, X or Y.
 const CHOICE_BUTTONS = PAD_A | PAD_B | PAD_X | PAD_Y;

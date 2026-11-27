@@ -19,7 +19,7 @@
 // the portrait is redrawn if the script asks for it (81:AEB0, 80:E4B3), a key awaited
 // while a notice window is open (80:F953, 80:FF79) and the equipment rows redrawn
 // (80:E9C5). The callees run through their frames from the routine table.
-import { nativeCallSequence } from '../system/native-call-sequences.mjs';
+import { nativeCallSequence } from './native-call-sequences.mjs';
 import { dataBankWord, setDataBankWord } from '../../src/system/data-bank.mjs';
 import {
   DP_ITEM_FLAGS,

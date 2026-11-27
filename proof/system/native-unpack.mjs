@@ -42,7 +42,7 @@ import {
   CODE_BANK_BASE,
 } from '../../src/constants/memory-map.mjs';
 import { interruptStep } from './main-wait-interrupt.mjs';
-import './dialog-register-helpers.mjs';
+import '../../tools/register-forms/dialog-register-helpers.mjs';
 
 // The unpacker 80:9F49 keeps its source in DP E1 (offset) and E3 (bank); a stream with a
 // translation is read from the language bank instead (languageStreamSource of

@@ -6,7 +6,7 @@ import {
   configureMemberPortrait,
   configureScriptVisit,
 } from './member-menu-caller-harness.mjs';
-import { decimalNumberJsr as directDecimal } from '../proof/caller/jsr-forms.mjs';
+import { decimalNumberJsr as directDecimal } from './register-forms/jsr-forms.mjs';
 
 useLiftVectors(import.meta.url);
 for (const budget of [1, 7])
@@ -30,15 +30,14 @@ for (const budget of [1, 7])
       });
 
 import * as liftedMember from '../src/game/member-spell-menu.mjs';
-import { spellMenuJsr } from '../proof/caller/jsr-forms.mjs';
-import { equipmentRowsSequence } from '../proof/caller/equipment-window.mjs';
+import { spellMenuJsr } from './register-forms/jsr-forms.mjs';
+import { equipmentRowsSequence } from './register-forms/equipment-window.mjs';
 import * as W from '../src/data/wram.mjs';
 
-// The lifted module with its RTS forms (proof/caller/jsr-forms.mjs), named as the former.
+// The lifted module with its RTS forms (tools/register-forms/jsr-forms.mjs), named as the former.
 const directMember = { ...liftedMember, spellMenuSequence: spellMenuJsr };
-import { runResetWindowList } from '../proof/caller/window-list.mjs';
 import { tasksOf } from '../src/script/task-api.mjs';
-import { appendScriptTaskCall } from '../proof/caller/task-append-call.mjs';
+import { appendScriptTaskCall } from './register-forms/task-append-call.mjs';
 function runMember(
   module,
   direct,
@@ -88,7 +87,6 @@ function runMember(
       }
       if (script) configureScriptVisit(side, budget === 1);
       bind(0x80e9c5, () => equipmentRowsSequence(h, events, routines));
-      routines.set(0x81aeb0, runResetWindowList);
       const finish = configureMemberPortrait(side);
       return finish;
     },

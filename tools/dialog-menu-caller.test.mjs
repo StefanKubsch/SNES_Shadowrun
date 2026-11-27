@@ -3,10 +3,10 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { assertFrozenRun, useLiftVectors } from './lift-function-harness.mjs';
 import * as liftedMenus from '../src/game/dialog-menus.mjs';
-import { chooseDialogActionJsr, chooseDialogTopicJsr } from '../proof/caller/jsr-forms.mjs';
+import { chooseDialogActionJsr, chooseDialogTopicJsr } from './register-forms/jsr-forms.mjs';
 import { dialogTextRoutines } from '../proof/replay/native-dialog-text.mjs';
-import { runFrameWait, runPadPresses } from '../proof/caller/input-routines.mjs';
-import { playSoundEffectJsr } from '../proof/caller/jsr-forms.mjs';
+import { runFrameWait, runPadPresses } from './register-forms/input-routines.mjs';
+import { playSoundEffectJsr } from './register-forms/jsr-forms.mjs';
 import { NATIVE_CALL_CONTINUATIONS } from '../src/system/native-call-continuation.mjs';
 import { textWindowSide, finishTextWindow, rendererTable } from './text-window-caller-harness.mjs';
 import {
@@ -22,7 +22,7 @@ import {
 
 useLiftVectors(import.meta.url);
 
-// The lifted module with its RTS and RTL forms (proof/caller/jsr-forms.mjs), named as the
+// The lifted module with its RTS and RTL forms (tools/register-forms/jsr-forms.mjs), named as the
 // former.
 const direct = {
   ...liftedMenus,

@@ -26,10 +26,10 @@
 import { dialogCallBody, segmentSequence } from '../../src/system/native-call-continuation.mjs';
 import { releaseNameWindowCallSequence as releaseNameWindowRoutineSequence } from './window-release.mjs';
 import { routineCall } from '../replay/native-glove-target-support.mjs';
-import { measureTextWidthRoutine } from './text-width.mjs';
+import { measureTextWidthRoutine } from '../../tools/register-forms/text-width.mjs';
 import { GLOVE_KIND_SPELL } from '../../src/script/native-glove-crosshair-limits.mjs';
 import { taskStop } from '../../src/system/task-stop.mjs';
-import { CarryArithmetic } from './carry-arithmetic.mjs';
+import { CarryArithmetic } from '../../tools/register-forms/carry-arithmetic.mjs';
 import {
   AIMING_SPELL,
   CAMERA_X,
@@ -82,7 +82,7 @@ import {
   FLAG_OVERFLOW,
   FLAG_ZERO,
 } from '../../src/constants/cpu-flags.mjs';
-import '../system/dialog-register-helpers.mjs';
+import '../../tools/register-forms/dialog-register-helpers.mjs';
 
 // Kind 0B is only offered to the spell glove or an open spell aim or script choice.
 const RESTRICTED_KIND = 0x0b,

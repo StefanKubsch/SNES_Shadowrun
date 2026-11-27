@@ -2,7 +2,7 @@ import { tasksOf } from '../../src/script/task-api.mjs';
 import { setNmiCallback } from './main-scene-video.mjs';
 import { unpackStreamLong } from './native-unpack.mjs';
 import { unpackWindowMap } from './native-render-unpack.mjs';
-import { routineCaller } from './routine-call.mjs';
+import { routineCaller } from '../../tools/register-forms/routine-call.mjs';
 import { BG3_MAP_VRAM, TEXT_CLEAR_SOURCE, clearTextTiles } from './main-text-upload.mjs';
 import { setUpGameScreen } from '../../src/game/game-screen.mjs';
 import { sceneRuntime } from '../../src/system/scene-runtime.mjs';
@@ -163,7 +163,7 @@ import {
   FLAG_ZERO,
 } from '../../src/constants/cpu-flags.mjs';
 import { BYTE_MASK, NIBBLE_BITS, WORD_BITS, WORD_MASK } from '../../src/constants/bits.mjs';
-import './dialog-register-helpers.mjs';
+import '../../tools/register-forms/dialog-register-helpers.mjs';
 const callFor = (h, e, r) => routineCaller(h, e, r, true);
 
 // Value written to mark a pointer, slot or request as unset (negative).

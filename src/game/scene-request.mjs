@@ -20,7 +20,7 @@ import { readStateByte, writeStateByte } from '../state/objects.mjs';
 // Registers (user decision 2026-11-17): game state only; the cutscene takes the scene
 // and its argument as parameters and the routine leaves no A, X, Y or flags.
 // The main loop runs it without its JSR frame. Its RTS form is sceneRequestJsr in
-// proof/caller/jsr-forms.mjs; sceneRequestRoutineSequence in
+// tools/register-forms/jsr-forms.mjs; sceneRequestRoutineSequence in
 // proof/caller/live-loop-routines.mjs is the register form for the routine table: the
 // carry set when the request was taken.
 import { tasksOf } from '../script/task-api.mjs';

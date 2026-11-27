@@ -35,7 +35,7 @@
 // object_slot_required or task_slot_required, and a task chain that never ends (the
 // original would hang) at task_chain_required.
 import { taskStop } from '../../src/system/task-stop.mjs';
-import { nativeCallSequence } from '../system/native-call-sequences.mjs';
+import { nativeCallSequence } from './native-call-sequences.mjs';
 import {
   ACTION_MENU_OVERRIDE,
   AIMING_SPELL,

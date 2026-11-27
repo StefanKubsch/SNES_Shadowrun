@@ -18,7 +18,7 @@ import {
   scriptChooseObjectNumberSequence,
   scriptChooseObjectSequence,
   spellGloveTargetSequence,
-} from '../proof/caller/glove-target.mjs';
+} from './register-forms/glove-target.mjs';
 import {
   MEMBER_MENU_ACTIVE,
   OBJECT_FLAGS,

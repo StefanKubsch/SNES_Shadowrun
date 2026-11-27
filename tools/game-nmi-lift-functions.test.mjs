@@ -14,7 +14,7 @@ import {
   registerCases,
   useLiftVectors,
 } from './lift-function-harness.mjs';
-import { GAME_NMI_LIFTED_ROUTINES } from '../proof/caller/game-nmi-jobs.mjs';
+import { GAME_NMI_LIFTED_ROUTINES } from './register-forms/game-nmi-jobs.mjs';
 import {
   BRIGHTNESS_FADE,
   BRIGHTNESS_FADE_FRAMES,

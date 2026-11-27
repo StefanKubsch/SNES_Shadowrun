@@ -17,8 +17,8 @@ import {
   readJoypad,
   waitForFrame,
 } from '../system/main-scene-wait.mjs';
-import { sendApuCommandRoutine } from './audio-routines.mjs';
-import { setMusicModeRoutine } from './audio-routines.mjs';
+import { sendApuCommandRoutine } from '../../tools/register-forms/audio-routines.mjs';
+import { setMusicModeRoutine } from '../../tools/register-forms/audio-routines.mjs';
 import { randomBelow, randomBelowLong } from '../replay/native-random.mjs';
 import { handleMatrixNmi, matrixSceneSequence } from '../../src/matrix/matrix-scene.mjs';
 import { cutsceneSequence, handleCutsceneNmi } from '../../src/cutscene/cutscene-scene.mjs';
@@ -30,7 +30,7 @@ import { GAME_NMI_ROUTINES } from '../system/main-game-nmi.mjs';
 import { GAME_NMI_LIFTED_JOBS } from '../replay/game-nmi-jobs.mjs';
 import { ObservedWaitContinuation } from '../system/main-wait-interrupt.mjs';
 import { TRANSITION_ROUTINES } from '../system/main-transition.mjs';
-import { nativeCallSequence } from '../system/native-call-sequences.mjs';
+import { nativeCallSequence } from '../../tools/register-forms/native-call-sequences.mjs';
 import {
   NativeCallContinuation,
   NATIVE_CALL_CONTINUATIONS,

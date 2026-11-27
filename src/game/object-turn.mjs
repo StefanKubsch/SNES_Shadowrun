@@ -176,4 +176,4 @@ export function turnObjectCall(h) {
 }
 
 // The animation selection's RTS form (80:A985) for register-level callers is
-// selectAnimationJsr in proof/caller/jsr-forms.mjs.
+// selectAnimationJsr in tools/register-forms/jsr-forms.mjs.

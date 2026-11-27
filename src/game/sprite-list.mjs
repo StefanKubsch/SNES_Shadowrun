@@ -118,4 +118,4 @@ export function buildSpritesInPlace(h) {
   setWord(wram, NMI_JOB_LISTS, (lowField(wram, NMI_JOB_LISTS, 0) + 1) & WORD_MASK);
 }
 // The RTS form for register-level callers is buildSpritesJsr in
-// proof/caller/jsr-forms.mjs.
+// tools/register-forms/jsr-forms.mjs.

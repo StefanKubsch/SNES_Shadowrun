@@ -260,7 +260,7 @@ export function* playMatrix(h, events) {
   let m, more;
   // Entered by JSL from the scene request of the main loop (80:CC4B); the scene changes
   // neither the status nor the data bank it returns with and reads no register width
-  // (user decision 2026-11-17; the register-level caller in proof/caller/matrix-scene.mjs
+  // (user decision 2026-11-17; the register-level caller in tools/register-forms/matrix-scene.mjs
   // keeps the original's 16-bit check).
   yield () => {
     m = matrixRuntime(h);

@@ -24,7 +24,7 @@ import { menuComposeSequence } from '../replay/native-menu-compose.mjs';
 import { isStandardTextRoutines } from '../replay/native-dialog-text.mjs';
 import { chooseFromMenuSequence } from './menu-choice.mjs';
 import { listTextIds } from '../../src/data/menu-layout.mjs';
-import { fitListWindow } from '../system/menu-layout-registers.mjs';
+import { fitListWindow } from '../../tools/register-forms/menu-layout-registers.mjs';
 import { TOPICS } from '../../src/data/topics.mjs';
 import { openWindowSequence } from './window-open.mjs';
 import { releaseWindowSequence } from './window-release.mjs';

@@ -18,7 +18,7 @@ import {
   registerCases,
   useLiftVectors,
 } from './lift-function-harness.mjs';
-import { mainMenuSequence, saveMenuSequence } from '../proof/caller/main-menu.mjs';
+import { mainMenuSequence, saveMenuSequence } from './register-forms/main-menu.mjs';
 import { TIMER } from '../src/data/wram.mjs';
 import { drainNativeSequence } from '../src/system/native-call-continuation.mjs';
 

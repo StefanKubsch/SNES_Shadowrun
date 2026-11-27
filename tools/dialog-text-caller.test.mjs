@@ -3,7 +3,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { assertFrozenRun, useLiftVectors } from './lift-function-harness.mjs';
 import * as liftedText from '../src/game/dialog-text.mjs';
-import { showDialogTextJsr } from '../proof/caller/jsr-forms.mjs';
+import { showDialogTextJsr } from './register-forms/jsr-forms.mjs';
 import { dialogTextRoutines, dialogTopic } from '../proof/replay/native-dialog-text.mjs';
 import { appendScriptTask } from '../proof/system/task-append.mjs';
 import * as V from '../src/vm/layout.mjs';
@@ -13,7 +13,7 @@ import { textWindowSide, finishTextWindow, rendererTable } from './text-window-c
 
 useLiftVectors(import.meta.url);
 
-// The lifted module with its RTS and RTL forms (proof/caller/jsr-forms.mjs), named as the
+// The lifted module with its RTS and RTL forms (tools/register-forms/jsr-forms.mjs), named as the
 // former.
 const direct = { ...liftedText, showDialogTextSequence: showDialogTextJsr };
 

@@ -28,7 +28,7 @@ import {
   setActorStateHolderNative,
   faceRoomDirectionNative,
 } from '../src/script/native-script-leaves.mjs';
-import { selectAnimationJsr } from '../proof/caller/jsr-forms.mjs';
+import { selectAnimationJsr } from './register-forms/jsr-forms.mjs';
 
 useLiftVectors(import.meta.url);
 

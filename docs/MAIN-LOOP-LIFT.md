@@ -28,8 +28,8 @@ short circuits and exit-before-reload priority.
 
 The live routine table holds NMI callbacks. Former caller and return-frame
 bindings remain in [live-loop-routines.mjs](../proof/caller/live-loop-routines.mjs),
-[jsr-forms.mjs](../proof/caller/jsr-forms.mjs) and
-[input-routines.mjs](../proof/caller/input-routines.mjs).
+[jsr-forms.mjs](../tools/register-forms/jsr-forms.mjs) and
+[input-routines.mjs](../tools/register-forms/input-routines.mjs).
 proof/caller/main-loop.mjs (removed) preserves the former
 live dispatch; `proof/vm/main-loop.mjs` (removed) preserves
 instruction-based recorded replay. These references are frozen under the rebuild
@@ -52,49 +52,49 @@ requirements. [NATIVE-MODULES.md](NATIVE-MODULES.md) maps the other script nativ
 - **81:8877**: [fixed-colour.mjs](../src/game/fixed-colour.mjs). `applyColourEffect` (table entry `runColourEffect` in proof/caller/live-loop-routines.mjs)
 - **81:8076**: [palette-cycles.mjs](../src/game/palette-cycles.mjs). `advancePaletteCycles` (table entry `runPaletteCycles` in proof/caller/live-loop-routines.mjs)
 - **80:DE94**: [player-hit.mjs](../src/game/player-hit.mjs). `shakeHitPlayer` (table entry `runHitShake` in proof/caller/live-loop-routines.mjs)
-- **80:FF14**: [notice-timeout.mjs](../src/game/notice-timeout.mjs). `noticeTimeoutSequence` (RTS form `noticeTimeoutJsr` in proof/caller/jsr-forms.mjs)
+- **80:FF14**: [notice-timeout.mjs](../src/game/notice-timeout.mjs). `noticeTimeoutSequence` (RTS form `noticeTimeoutJsr` in tools/register-forms/jsr-forms.mjs)
 - **80:BAD5**: [formation-trail.mjs](../src/game/formation-trail.mjs). `recordFormationStep` (table entry `runFormationStep` in proof/caller/live-loop-routines.mjs)
 - **81:8C2E**: [camera-follow.mjs](../src/game/camera-follow.mjs). `followPlayerWithCamera` (table entry `runCameraFollow` in proof/caller/live-loop-routines.mjs)
 - **81:8A91**: [camera-scroll.mjs](../src/game/camera-scroll.mjs). `updateTileBuffers` (table entry `runTileBuffers` in proof/caller/live-loop-routines.mjs), lifted with the room entry, now also called by the main loop.
-- **80:E270**: [time-limit.mjs](../src/game/time-limit.mjs). `timeLimitSequence` (RTS form `timeLimitJsr` in proof/caller/jsr-forms.mjs)
-- **80:BF3B**: [glove-action.mjs](../src/game/glove-action.mjs). `gloveActionSequence` (RTS form `gloveActionJsr` in proof/caller/jsr-forms.mjs)
-- **81:B0A1**: [frame-wait.mjs](../src/system/frame-wait.mjs). `waitForCounterWord` (table entry `runFrameWait` in proof/caller/input-routines.mjs)
-- **80:9E1A**: [joypad.mjs](../src/system/joypad.mjs). `takePadPresses` (table entry `runPadPresses` in proof/caller/input-routines.mjs)
-- **80:BE6D**: [glove-move.mjs](../src/game/glove-move.mjs). `gloveMove` (RTS form `gloveMoveJsr` in proof/caller/jsr-forms.mjs; table entry `runGloveMove` in proof/caller/live-loop-routines.mjs)
-- **80:8000**: [player-zones.mjs](../src/game/player-zones.mjs). `playerZonesSequence` (RTS form `playerZonesJsr` in proof/caller/jsr-forms.mjs; table entry `runPlayerZones` in proof/caller/live-loop-routines.mjs)
-- **80:AFC4**: [object-motion.mjs](../src/game/object-motion.mjs). `moveAndAnimateInPlace` (RTS form `moveAndAnimateJsr` in proof/caller/jsr-forms.mjs)
+- **80:E270**: [time-limit.mjs](../src/game/time-limit.mjs). `timeLimitSequence` (RTS form `timeLimitJsr` in tools/register-forms/jsr-forms.mjs)
+- **80:BF3B**: [glove-action.mjs](../src/game/glove-action.mjs). `gloveActionSequence` (RTS form `gloveActionJsr` in tools/register-forms/jsr-forms.mjs)
+- **81:B0A1**: [frame-wait.mjs](../src/system/frame-wait.mjs). `waitForCounterWord` (table entry `runFrameWait` in tools/register-forms/input-routines.mjs)
+- **80:9E1A**: [joypad.mjs](../src/system/joypad.mjs). `takePadPresses` (table entry `runPadPresses` in tools/register-forms/input-routines.mjs)
+- **80:BE6D**: [glove-move.mjs](../src/game/glove-move.mjs). `gloveMove` (RTS form `gloveMoveJsr` in tools/register-forms/jsr-forms.mjs; table entry `runGloveMove` in proof/caller/live-loop-routines.mjs)
+- **80:8000**: [player-zones.mjs](../src/game/player-zones.mjs). `playerZonesSequence` (RTS form `playerZonesJsr` in tools/register-forms/jsr-forms.mjs; table entry `runPlayerZones` in proof/caller/live-loop-routines.mjs)
+- **80:AFC4**: [object-motion.mjs](../src/game/object-motion.mjs). `moveAndAnimateInPlace` (RTS form `moveAndAnimateJsr` in tools/register-forms/jsr-forms.mjs)
 - **80:AB26**: [object-move.mjs](../src/game/object-move.mjs). `moveObject`
 - **80:C9E0**: [object-target.mjs](../src/game/object-target.mjs). `walkTowardsTarget`
-- **80:80B2 to 80:82BC**: [object-collision.mjs](../src/game/object-collision.mjs). `upperXEdge`, `lowerXEdge`, `upperYEdge`, `lowerYEdge`, `heightCells` (register forms `searchUpperXEdge` and the others in proof/caller/object-collision.mjs)
-- **80:B8DE**: [sprite-list.mjs](../src/game/sprite-list.mjs). `buildSpritesInPlace` (RTS form `buildSpritesJsr` in proof/caller/jsr-forms.mjs)
-- **80:AFFC**: [depth-sort.mjs](../src/game/depth-sort.mjs). `sortDrawListInPlace` (RTS form `sortDrawListJsr` in proof/caller/jsr-forms.mjs)
-- **80:AB0A, 81:A840**: [palette-slots.mjs](../src/game/palette-slots.mjs). `paletteSlotInPlace` (RTS form `paletteSlotJsr` in proof/caller/jsr-forms.mjs), `clearPaletteSlots` (in [game-screen.mjs](../src/game/game-screen.mjs))
-- **80:BCBE**: [object-search.mjs](../src/game/object-search.mjs). `objectSearch` (RTS form `objectSearchJsr` in proof/caller/jsr-forms.mjs)
-- **80:C34A**: [task-append.mjs](../src/game/task-append.mjs). `appendScriptTask`, `appendTask`, `appendScriptReturn` (register-level call form in proof/caller/task-append-call.mjs)
+- **80:80B2 to 80:82BC**: [object-collision.mjs](../src/game/object-collision.mjs). `upperXEdge`, `lowerXEdge`, `upperYEdge`, `lowerYEdge`, `heightCells` (register forms `searchUpperXEdge` and the others in tools/register-forms/object-collision.mjs)
+- **80:B8DE**: [sprite-list.mjs](../src/game/sprite-list.mjs). `buildSpritesInPlace` (RTS form `buildSpritesJsr` in tools/register-forms/jsr-forms.mjs)
+- **80:AFFC**: [depth-sort.mjs](../src/game/depth-sort.mjs). `sortDrawListInPlace` (RTS form `sortDrawListJsr` in tools/register-forms/jsr-forms.mjs)
+- **80:AB0A, 81:A840**: [palette-slots.mjs](../src/game/palette-slots.mjs). `paletteSlotInPlace` (RTS form `paletteSlotJsr` in tools/register-forms/jsr-forms.mjs), `clearPaletteSlots` (in [game-screen.mjs](../src/game/game-screen.mjs))
+- **80:BCBE**: [object-search.mjs](../src/game/object-search.mjs). `objectSearch` (RTS form `objectSearchJsr` in tools/register-forms/jsr-forms.mjs)
+- **80:C34A**: [task-append.mjs](../src/game/task-append.mjs). `appendScriptTask`, `appendTask`, `appendScriptReturn` (register-level call form in tools/register-forms/task-append-call.mjs)
 - **80:AAAF**: [object-turn.mjs](../src/game/object-turn.mjs). `turnObjectCall`
 - **80:AC2F**: [object-animation.mjs](../src/game/object-animation.mjs). `stepAnimation`
 - **80:B20A**: [object-sprites.mjs](../src/game/object-sprites.mjs). `enterObjectSprites`
 - **80:FEC1**: [notice-show.mjs](../src/game/notice-show.mjs). `showNoticeSequence` (`runShowNotice`)
 - **80:BCB2**: [window-release.mjs](../src/game/window-release.mjs). `putGloveAwayCallSequence` (`runPutGloveAway`)
-- **80:FAAC, 80:FD80**: [window-text.mjs](../src/game/window-text.mjs). `setTextCursor`, `printNumber` (RTS forms `setTextCursorJsr` and `printNumberJsr` in proof/caller/jsr-forms.mjs, `runPrintNumber`)
-- **80:FE69, 81:AF04**: [text-print.mjs](../src/game/text-print.mjs). `printText` (RTS form `printTextJsr` in proof/caller/jsr-forms.mjs, `runPrintText`)
+- **80:FAAC, 80:FD80**: [window-text.mjs](../src/game/window-text.mjs). `setTextCursor`, `printNumber` (RTS forms `setTextCursorJsr` and `printNumberJsr` in tools/register-forms/jsr-forms.mjs, `runPrintNumber`)
+- **80:FE69, 81:AF04**: [text-print.mjs](../src/game/text-print.mjs). `printText` (RTS form `printTextJsr` in tools/register-forms/jsr-forms.mjs, `runPrintText`)
 - **80:FB39**: [text-draw.mjs](../src/game/text-draw.mjs). `drawTextBufferSequence` (`runDrawTextBuffer`)
-- **80:F963**: [window-open.mjs](../src/game/window-open.mjs). `openWindow` (RTS form `openWindowJsr` in proof/caller/jsr-forms.mjs; `runOpenWindow`)
-- **80:99EB**: [action-menu.mjs](../src/game/action-menu.mjs). `chooseAction` (RTS form `chooseActionJsr` in proof/caller/jsr-forms.mjs; `runChooseAction`)
-- **80:FADD, 80:FB2A**: [text-width.mjs](../src/game/text-width.mjs). `measureTextWidth` (register form `measureTextWidthRoutine` in proof/caller/text-width.mjs)
-- **80:936C, 80:92C5**: [dialog-talk.mjs](../src/game/dialog-talk.mjs). `talkSequence` (`runTalk`), `closeDialog` (RTS form `closeDialogJsr` in proof/caller/jsr-forms.mjs)
-- **81:886A, 80:FA92**: [dialog-talk.mjs](../src/game/dialog-talk.mjs). `clearFixedColourInPlace`, `setWindowTextWidthInPlace` (RTL and RTS forms `clearFixedColourJsl` and `setWindowTextWidthJsr` in proof/caller/jsr-forms.mjs)
+- **80:F963**: [window-open.mjs](../src/game/window-open.mjs). `openWindow` (RTS form `openWindowJsr` in tools/register-forms/jsr-forms.mjs; `runOpenWindow`)
+- **80:99EB**: [action-menu.mjs](../src/game/action-menu.mjs). `chooseAction` (RTS form `chooseActionJsr` in tools/register-forms/jsr-forms.mjs; `runChooseAction`)
+- **80:FADD, 80:FB2A**: [text-width.mjs](../src/game/text-width.mjs). `measureTextWidth` (register form `measureTextWidthRoutine` in tools/register-forms/text-width.mjs)
+- **80:936C, 80:92C5**: [dialog-talk.mjs](../src/game/dialog-talk.mjs). `talkSequence` (`runTalk`), `closeDialog` (RTS form `closeDialogJsr` in tools/register-forms/jsr-forms.mjs)
+- **81:886A, 80:FA92**: [dialog-talk.mjs](../src/game/dialog-talk.mjs). `clearFixedColourInPlace`, `setWindowTextWidthInPlace` (RTL and RTS forms `clearFixedColourJsl` and `setWindowTextWidthJsr` in tools/register-forms/jsr-forms.mjs)
 - **80:FF79**: [window-release.mjs](../src/game/window-release.mjs). `releaseNoticeWindowsCallSequence` (`runReleaseNoticeWindows`)
 - **81:AD92, 80:FA3E (script natives)**: [window-list.mjs](../src/game/window-list.mjs), [window-release.mjs](../src/game/window-release.mjs). `drawWindowListJslSequence` (`runDrawWindowList`), `releaseWindowJsrSequence` (`runReleaseWindowCall`)
-- **80:91E2, 80:9215**: [dialog-menus.mjs](../src/game/dialog-menus.mjs). `chooseDialogAction` (RTS form `chooseDialogActionJsr` in proof/caller/jsr-forms.mjs; `runDialogMenu`), `chooseDialogTopic` (RTS form `chooseDialogTopicJsr`; `runDialogTopics`)
-- **80:9178, 80:908C**: [dialog-text.mjs](../src/game/dialog-text.mjs). `showDialogText` (RTS form `showDialogTextJsr` in proof/caller/jsr-forms.mjs; `runDialogText`)
-- **80:FA67**: [window-open.mjs](../src/game/window-open.mjs). `requestTileClear` (RTS form `requestTileClearJsr` in proof/caller/jsr-forms.mjs)
-- **80:8F3A, 80:8F97**: [portrait-window.mjs](../src/game/portrait-window.mjs). `openPortraitWindow`, `closePortraitWindow` (RTS forms `openPortraitWindowJsr` and `closePortraitWindowJsr` in proof/caller/jsr-forms.mjs; `runOpenPortraitWindow`, `runClosePortraitWindow`)
-- **80:9F6D, 80:8F20, 80:9022, 80:905E, 80:8FF5**: [portrait-upload.mjs](../src/game/portrait-upload.mjs). `unpackPortrait`, `shiftPortraitRowsInPlace`, `uploadFirstPortrait`, `uploadSecondPortrait`, `uploadPortraitTiles` (RTS forms `shiftPortraitRowsJsr`, `uploadFirstPortraitJsr` and `uploadSecondPortraitJsr` in proof/caller/jsr-forms.mjs; register forms `unpackPortraitRoutine` and `uploadPortraitTilesSequence` in proof/caller/portrait-routines.mjs) (`runPortraitTiles`)
+- **80:91E2, 80:9215**: [dialog-menus.mjs](../src/game/dialog-menus.mjs). `chooseDialogAction` (RTS form `chooseDialogActionJsr` in tools/register-forms/jsr-forms.mjs; `runDialogMenu`), `chooseDialogTopic` (RTS form `chooseDialogTopicJsr`; `runDialogTopics`)
+- **80:9178, 80:908C**: [dialog-text.mjs](../src/game/dialog-text.mjs). `showDialogText` (RTS form `showDialogTextJsr` in tools/register-forms/jsr-forms.mjs; `runDialogText`)
+- **80:FA67**: [window-open.mjs](../src/game/window-open.mjs). `requestTileClear` (RTS form `requestTileClearJsr` in tools/register-forms/jsr-forms.mjs)
+- **80:8F3A, 80:8F97**: [portrait-window.mjs](../src/game/portrait-window.mjs). `openPortraitWindow`, `closePortraitWindow` (RTS forms `openPortraitWindowJsr` and `closePortraitWindowJsr` in tools/register-forms/jsr-forms.mjs; `runOpenPortraitWindow`, `runClosePortraitWindow`)
+- **80:9F6D, 80:8F20, 80:9022, 80:905E, 80:8FF5**: [portrait-upload.mjs](../src/game/portrait-upload.mjs). `unpackPortrait`, `shiftPortraitRowsInPlace`, `uploadFirstPortrait`, `uploadSecondPortrait`, `uploadPortraitTiles` (RTS forms `shiftPortraitRowsJsr`, `uploadFirstPortraitJsr` and `uploadSecondPortraitJsr` in tools/register-forms/jsr-forms.mjs; register forms `unpackPortraitRoutine` and `uploadPortraitTilesSequence` in tools/register-forms/portrait-routines.mjs) (`runPortraitTiles`)
 - **80:ADF4, 80:AE12**: [object-tiles.mjs](../src/game/object-tiles.mjs). `reloadObjectTiles` (RTS form and `runReloadObjectTiles` in proof/caller/upkeep-routines.mjs)
 - **80:A617, 80:A5F9, 80:A5DB**: [menu-list.mjs](../src/game/menu-list.mjs). `drawListSequence`, `markRowSequence` (`MARK`, `UNMARK`)
 - **80:A6A5 to 80:A845**: [menu-choice.mjs](../src/game/menu-choice.mjs). `chooseFromMenuSequence` (`runMenuWithHotkeys`)
-- **80:C152 with its jobs**: [game-nmi.mjs](../src/game/game-nmi.mjs). `uploadScenePalettes`, `uploadPaletteCycleStep`, `uploadObjectPalettes`, `uploadVramRecords`, `uploadOam`, `stepBrightnessFade`, `uploadPortraitGraphics`, `uploadGlove`, `uploadReadyMapEdges`, `clearTextTiles`, `handleGameNmi` (the live routine table binds the handler only; the jobs' table entries `GAME_NMI_LIFTED_ROUTINES` are in proof/caller/game-nmi-jobs.mjs; the entries of `GAME_NMI_LIFTED_JOBS`, bound in MAIN_SCENE_ROUTINES of proof/replay/main-scene.mjs, run them with lag-free frames and the register-level jobs for recorded runs; proof/scene-reference-routines.mjs keeps the register-level jobs for the ROM proofs)
+- **80:C152 with its jobs**: [game-nmi.mjs](../src/game/game-nmi.mjs). `uploadScenePalettes`, `uploadPaletteCycleStep`, `uploadObjectPalettes`, `uploadVramRecords`, `uploadOam`, `stepBrightnessFade`, `uploadPortraitGraphics`, `uploadGlove`, `uploadReadyMapEdges`, `clearTextTiles`, `handleGameNmi` (the live routine table binds the handler only; the jobs' table entries `GAME_NMI_LIFTED_ROUTINES` are in tools/register-forms/game-nmi-jobs.mjs; the entries of `GAME_NMI_LIFTED_JOBS`, bound in MAIN_SCENE_ROUTINES of proof/replay/main-scene.mjs, run them with lag-free frames and the register-level jobs for recorded runs; proof/scene-reference-routines.mjs keeps the register-level jobs for the ROM proofs)
 - **80:96AB**: main-frame-adapter.mjs (removed). The loop's own instructions
 - **entries**: [main-upkeep.mjs](../src/game/main-upkeep.mjs). The main loop's table entries (RTL or RTS as the original) and the native call continuation of 80:FF14.
 

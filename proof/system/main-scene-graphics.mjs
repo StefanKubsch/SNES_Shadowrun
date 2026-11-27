@@ -1,5 +1,5 @@
 import { unpackStep, unpackFixedStream } from './native-unpack.mjs';
-import { routineCaller } from './routine-call.mjs';
+import { routineCaller } from '../../tools/register-forms/routine-call.mjs';
 import { SCENE_COLLISION_ROUTINES } from './main-scene-collision.mjs';
 import { BYTE_MASK } from '../../src/constants/bits.mjs';
 import { WRAM_BANK_PAIR } from '../../src/constants/memory-map.mjs';
@@ -30,7 +30,7 @@ import {
   FLAG_ZERO,
   FLAG_CARRY,
 } from '../../src/constants/cpu-flags.mjs';
-import './dialog-register-helpers.mjs';
+import '../../tools/register-forms/dialog-register-helpers.mjs';
 // Cache of original 128-byte tile streams, reflected/composited into DP0CDE.
 // PPU writes are requests at the original PCs; no VRAM/DMA effect is inferred.
 

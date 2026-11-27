@@ -2,7 +2,7 @@
 // register-level version in proof/replay/native-glove-release.mjs, which recorded waits
 // replay): the dialog window cleared (7E:1D61), the glove put away with its target's
 // name window released (80:BCB2) and the window list redrawn (81:AD92).
-import { nativeCallSequence } from '../system/native-call-sequences.mjs';
+import { nativeCallSequence } from './native-call-sequences.mjs';
 import { DIALOG_WINDOW } from '../../src/data/wram.mjs';
 
 const GLOVE_CALL = [0x80cda0, 0x80bcb2],

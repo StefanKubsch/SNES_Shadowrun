@@ -1,5 +1,5 @@
 // Shared lifted callees of the main loop and its remaining call tables.
-import { runFrameWait, runPadPresses } from './input-routines.mjs';
+import { runFrameWait, runPadPresses } from '../../tools/register-forms/input-routines.mjs';
 import {
   runShowNotice,
   runPrintNumber,
@@ -11,8 +11,8 @@ import {
   runReleaseWindow,
   runOpenWindow,
 } from './upkeep-routines.mjs';
-import { setTextCursorJsr } from './jsr-forms.mjs';
-import { playSoundEffectJsr } from './jsr-forms.mjs';
+import { setTextCursorJsr } from '../../tools/register-forms/jsr-forms.mjs';
+import { playSoundEffectJsr } from '../../tools/register-forms/jsr-forms.mjs';
 import { randomByteNative, randomBelowNative } from '../../src/script/native-script-leaves.mjs';
 export const MAIN_UPKEEP_ROUTINES = new Map([
   [0x81b0a1, runFrameWait],

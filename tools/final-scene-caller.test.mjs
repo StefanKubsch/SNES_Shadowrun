@@ -3,11 +3,9 @@ import assert from 'node:assert/strict';
 import { assertFrozenRun, useLiftVectors } from './lift-function-harness.mjs';
 import { compareRun } from './member-menu-caller-harness.mjs';
 import { spendMagicPointsSequence as directMagic } from '../src/game/magic-points.mjs';
-import { showNoticeSequence } from '../proof/caller/notice-show.mjs';
 import { releaseGloveSequence as directGlove } from '../src/game/glove-release.mjs';
-import { runDrawWindowList } from '../proof/caller/window-list.mjs';
 import { removeFromFightListSequence as directFight } from '../src/game/fight-list.mjs';
-import { setMusicModeRoutine } from '../proof/caller/audio-routines.mjs';
+import { setMusicModeRoutine } from './register-forms/audio-routines.mjs';
 import * as W from '../src/data/wram.mjs';
 
 useLiftVectors(import.meta.url);
@@ -25,9 +23,7 @@ function runMagic(budget, member, points, cost, glyphs) {
     budget,
     [],
     glyphs,
-    ({ h, events, routines, bind }) => {
-      bind(0x80fec1, () => showNoticeSequence(h, events, routines));
-    },
+    () => {},
   );
 }
 for (const budget of [1, 7])
@@ -63,9 +59,7 @@ function runGlove(budget, name, request) {
     budget,
     [],
     false,
-    ({ routines }) => {
-      routines.set(0x81ad92, runDrawWindowList);
-    },
+    () => {},
   );
 }
 for (const budget of [1, 7])
@@ -126,8 +120,7 @@ function runFight(
     budget,
     [],
     glyphs,
-    ({ h, events, routines, bind }) => {
-      bind(0x80fec1, () => showNoticeSequence(h, events, routines));
+    ({ routines }) => {
       routines.set(0x81ef47, setMusicModeRoutine);
     },
   );

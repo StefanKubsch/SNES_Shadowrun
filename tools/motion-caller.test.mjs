@@ -2,7 +2,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { assertFrozenRun, useLiftVectors } from './lift-function-harness.mjs';
 import { compareRun } from './member-menu-caller-harness.mjs';
-import { moveAndAnimateJsr } from '../proof/caller/jsr-forms.mjs';
+import { moveAndAnimateJsr } from './register-forms/jsr-forms.mjs';
 import { segmentSequence } from '../src/system/native-call-continuation.mjs';
 import { ACTION_TABLE } from '../src/data/actions.mjs';
 import * as W from '../src/data/wram.mjs';

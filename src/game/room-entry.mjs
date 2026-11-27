@@ -337,4 +337,4 @@ export function* enterRoomSequence(h, events, room) {
     startBrightnessFade(wram, FADE_IN);
   };
 }
-// The RTS form for register-level callers is enterRoomJsr in proof/caller/jsr-forms.mjs.
+// The RTS form for register-level callers is enterRoomJsr in tools/register-forms/jsr-forms.mjs.

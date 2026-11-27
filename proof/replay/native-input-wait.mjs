@@ -10,7 +10,7 @@ import {
   drainNativeSequence,
   NativeCallContinuation,
 } from '../../src/system/native-call-continuation.mjs';
-import { NATIVE_CALL_CONTINUATIONS } from './continuations.mjs';
+import { NATIVE_CALL_CONTINUATIONS } from '../../tools/register-forms/continuations.mjs';
 import { PAD_HELD, PAD_PRESSED } from '../../src/data/wram.mjs';
 import { FLAG_INDEX_8BIT, FLAG_MEMORY_8BIT, FLAG_ZERO } from '../../src/constants/cpu-flags.mjs';
 import { WORD_MASK, WORD_BITS, LONG_WRAP, BANK_WRAP } from '../../src/constants/bits.mjs';

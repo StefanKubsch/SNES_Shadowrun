@@ -8,9 +8,9 @@
 // read (A, X, the status flags, the stack pointer and the program counter).
 import { prng, DialogTestMemory } from './task-native-dialog-harness.mjs';
 import { createSide, registerCases, useLiftVectors } from './lift-function-harness.mjs';
-import { sendApuCommandRoutine } from '../proof/caller/audio-routines.mjs';
-import { setMusicModeRoutine } from '../proof/caller/audio-routines.mjs';
-import { playSoundEffectJsr } from '../proof/caller/jsr-forms.mjs';
+import { sendApuCommandRoutine } from './register-forms/audio-routines.mjs';
+import { setMusicModeRoutine } from './register-forms/audio-routines.mjs';
+import { playSoundEffectJsr } from './register-forms/jsr-forms.mjs';
 
 useLiftVectors(import.meta.url);
 

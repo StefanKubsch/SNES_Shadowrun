@@ -81,7 +81,7 @@ import { RUNNERS, RUNNER_TABLE } from '../src/data/runners.mjs';
 import { ACTORS, ACTOR_BYTES, ACTOR_TABLE } from '../src/data/actors.mjs';
 import { MAIN_START_ROUTINES } from '../proof/replay/main-start.mjs';
 import { TRANSITION_ROUTINES, enterRoom } from '../proof/replay/main-transition.mjs';
-import { appendTableTaskCall } from '../proof/caller/task-append-call.mjs';
+import { appendTableTaskCall } from './register-forms/task-append-call.mjs';
 import {
   putGloveAwaySequence,
   releaseNoticeWindowsSequence,

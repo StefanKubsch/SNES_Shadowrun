@@ -1,12 +1,9 @@
-import { timeLimitJsr } from '../proof/caller/jsr-forms.mjs';
-import { chooseFromMenuSequence } from '../proof/caller/menu-choice.mjs';
+import { timeLimitJsr } from './register-forms/jsr-forms.mjs';
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { assertFrozenRun, useLiftVectors } from './lift-function-harness.mjs';
 import { compareRun } from './member-menu-caller-harness.mjs';
-import { gloveActionJsr as directAction } from '../proof/caller/jsr-forms.mjs';
-import { showNoticeSequence } from '../proof/caller/notice-show.mjs';
-import { chooseActionSequence } from '../proof/caller/action-menu.mjs';
+import { gloveActionJsr as directAction } from './register-forms/jsr-forms.mjs';
 import * as W from '../src/data/wram.mjs';
 import { TASK_WAIT, TASK_EVENTS, TASK_PREVIOUS } from '../src/vm/layout.mjs';
 
@@ -40,11 +37,7 @@ function runAction(budget, variant, glyphs, name = false, request = 0, held = 0,
     budget,
     pads ?? (menu ? [0, W.PAD_B] : []),
     glyphs,
-    ({ h, events, routines, bind }) => {
-      bind(0x80a6a5, () => chooseFromMenuSequence(h, events, routines, 0x80a6a5));
-      bind(0x80fec1, () => showNoticeSequence(h, events, routines));
-      bind(0x8099eb, () => chooseActionSequence(h, events, routines));
-    },
+    () => {},
   );
 }
 
@@ -127,9 +120,7 @@ for (const budget of [1, 7])
           budget,
           [],
           true,
-          ({ h, events, routines, bind }) => {
-            bind(0x80fec1, () => showNoticeSequence(h, events, routines));
-          },
+          () => {},
         );
       const actual = run();
       assertFrozenRun(actual);

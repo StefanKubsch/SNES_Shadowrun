@@ -17,14 +17,14 @@ import {
   readJoypad,
   waitForFrame,
 } from '../system/main-scene-wait.mjs';
-import { sendApuCommandRoutine } from '../caller/audio-routines.mjs';
-import { setMusicModeRoutine } from '../caller/audio-routines.mjs';
+import { sendApuCommandRoutine } from '../../tools/register-forms/audio-routines.mjs';
+import { setMusicModeRoutine } from '../../tools/register-forms/audio-routines.mjs';
 import { randomBelow, randomBelowLong } from './native-random.mjs';
-import { matrixSceneSequence } from '../caller/matrix-scene.mjs';
+import { matrixSceneSequence } from '../../tools/register-forms/matrix-scene.mjs';
 import { handleMatrixNmi } from '../../src/matrix/matrix-scene.mjs';
 import { cutsceneSequence } from '../caller/cutscene-scene.mjs';
 import { handleCutsceneNmi } from '../../src/cutscene/cutscene-scene.mjs';
-import { introSequence } from '../caller/intro-scene.mjs';
+import { introSequence } from '../../tools/register-forms/intro-scene.mjs';
 import { setUpGameAudioRoutine } from '../caller/scene-routine-adapters.mjs';
 import { MAIN_UPKEEP_ROUTINES } from './main-loop-upkeep.mjs';
 import { INTRO_NMI_ROUTINES } from './intro-nmi-routines.mjs';
@@ -32,12 +32,12 @@ import { GAME_NMI_ROUTINES } from './main-game-nmi.mjs';
 import { GAME_NMI_LIFTED_JOBS } from './game-nmi-jobs.mjs';
 import { ObservedWaitContinuation } from '../system/main-wait-interrupt.mjs';
 import { TRANSITION_ROUTINES } from './main-transition.mjs';
-import { nativeCallSequence } from '../system/native-call-sequences.mjs';
+import { nativeCallSequence } from '../../tools/register-forms/native-call-sequences.mjs';
 import {
   NativeCallContinuation,
   drainNativeSequence,
 } from '../../src/system/native-call-continuation.mjs';
-import { NATIVE_CALL_CONTINUATIONS } from './continuations.mjs';
+import { NATIVE_CALL_CONTINUATIONS } from '../../tools/register-forms/continuations.mjs';
 
 import { FLAG_INDEX_8BIT, FLAG_MEMORY_8BIT } from '../../src/constants/cpu-flags.mjs';
 // CDF8 and Matrix setup, control and object display with observed waits.

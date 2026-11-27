@@ -2,13 +2,13 @@ import { withInterruptEvents } from './observed-native-events.mjs';
 import { taskStop } from '../../src/system/task-stop.mjs';
 import { dialogAccess } from '../../src/system/native-dialog-support.mjs';
 import { FIRST_ARGUMENT, SECOND_ARGUMENT } from '../../src/system/native-leaf-support.mjs';
-import { runDrawWindowList } from '../../proof/caller/window-list.mjs';
+import { runDrawWindowList } from '../caller/window-list.mjs';
 import { raiseStateCount } from '../../src/game/runner-state.mjs';
 import {
   observedContinuation,
   drainNativeSequence,
 } from '../../src/system/native-call-continuation.mjs';
-import { dialogCallSequence } from '../system/native-call-sequences.mjs';
+import { dialogCallSequence } from '../../tools/register-forms/native-call-sequences.mjs';
 import { validateGloveTaskOptions } from './native-glove-target.mjs';
 import {
   DP_RESOURCE_RECORD,

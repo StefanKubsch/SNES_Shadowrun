@@ -18,7 +18,7 @@ import {
   openSpellMenuSequence,
   spellMenuSequence,
   STATUS_ENTRY,
-} from '../proof/caller/member-spell-menu.mjs';
+} from './register-forms/member-spell-menu.mjs';
 import {
   DIALOG_END,
   MEMBER_PORTRAIT_REDRAW,

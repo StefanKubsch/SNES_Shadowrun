@@ -11,7 +11,7 @@
 import { prng } from './task-native-dialog-harness.mjs';
 import { createSide, registerCases, useLiftVectors } from './lift-function-harness.mjs';
 import { drainNativeSequence } from '../src/system/native-call-continuation.mjs';
-import { removeFromFightListSequence } from '../proof/caller/fight-list.mjs';
+import { removeFromFightListSequence } from './register-forms/fight-list.mjs';
 
 useLiftVectors(import.meta.url);
 

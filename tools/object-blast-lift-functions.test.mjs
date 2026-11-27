@@ -1,4 +1,4 @@
-// Random per-function tests of the retained former blast (proof/caller/object-blast.mjs) against the
+// Random per-function tests of the retained former blast (tools/register-forms/object-blast.mjs) against the
 // register-level native 80:8E36 (src/data/native-object-hit.mjs). Both sides call the
 // same stand-in for the hit 80:8691: it records A, X, Y, the flags N, V, Z and C and the
 // direct page words 00 and 02, writes a result to DP B4 and leaves registers and flags
@@ -18,7 +18,7 @@ import {
   OBJECT_Y,
 } from '../src/data/wram.mjs';
 import { drainNativeSequence } from '../src/system/native-call-continuation.mjs';
-import { hitObjectsInBlastSequence } from '../proof/caller/object-blast.mjs';
+import { hitObjectsInBlastSequence } from './register-forms/object-blast.mjs';
 
 useLiftVectors(import.meta.url);
 

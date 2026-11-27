@@ -7,16 +7,14 @@ import {
   configureScriptVisit,
 } from './member-menu-caller-harness.mjs';
 import * as liftedItem from '../src/game/item-menu.mjs';
-import { itemMenuJsr, useItemJsr } from '../proof/caller/jsr-forms.mjs';
-import { equipmentRowsSequence } from '../proof/caller/equipment-window.mjs';
+import { itemMenuJsr, useItemJsr } from './register-forms/jsr-forms.mjs';
+import { equipmentRowsSequence } from './register-forms/equipment-window.mjs';
 import * as W from '../src/data/wram.mjs';
 
 useLiftVectors(import.meta.url);
 
-// The lifted module with its RTS forms (proof/caller/jsr-forms.mjs), named as the former.
+// The lifted module with its RTS forms (tools/register-forms/jsr-forms.mjs), named as the former.
 const directItem = { ...liftedItem, itemMenuSequence: itemMenuJsr, useItemSequence: useItemJsr };
-import { runResetWindowList } from '../proof/caller/window-list.mjs';
-import { createObject } from '../proof/script/native-object-create.mjs';
 import { tasksOf } from '../src/script/task-api.mjs';
 function runUse(module, direct, actor, effect, budget, realDrawing = false) {
   const pads = !effect.end && effect.notice ? [0x8000] : [];
@@ -46,7 +44,6 @@ function runUse(module, direct, actor, effect, budget, realDrawing = false) {
       const { h, events, put, routines, bind, calls } = side;
       tasksOf(h.a).reset();
       put(W.OBJECT_KIND + 4, 0xffff);
-      routines.set(0x80a835, (callee) => createObject(callee.a));
       for (const target of [0x80c1ca])
         routines.set(target, (callee) => {
           // The visit reads task state, not registers (user decision 2026-11-17).
@@ -59,7 +56,6 @@ function runUse(module, direct, actor, effect, budget, realDrawing = false) {
           return target === 0x81aeb0 ? callee.rtl() : callee.rts();
         });
       bind(0x80e9c5, () => equipmentRowsSequence(h, events, routines));
-      routines.set(0x81aeb0, runResetWindowList);
       configureScriptVisit(side, budget === 1);
       const finish = configureMemberPortrait(side);
       return finish;
@@ -108,8 +104,6 @@ import {
   STATE_HOLDER,
   STATE_COUNT,
 } from '../src/data/actors.mjs';
-import { chooseFromMenuSequence } from '../proof/caller/menu-choice.mjs';
-import { requestTileClearSequence } from '../proof/caller/window-open.mjs';
 function runItemMenu(module, direct, entry, variant, budget, realDrawing = false) {
   const selected = variant === 'use' || variant === 'rebuild';
   const pads =
@@ -163,11 +157,8 @@ function runItemMenu(module, direct, entry, variant, budget, realDrawing = false
       const { h, events, put, routines, bind, calls } = side;
       tasksOf(h.a).reset();
       put(W.OBJECT_KIND + 4, 0xffff);
-      bind(0x80a6ad, () => chooseFromMenuSequence(h, events, routines, 0x80a6ad));
-      bind(0x80fa67, () => requestTileClearSequence(h, events));
       bind(0x80e9c5, () => equipmentRowsSequence(h, events, routines));
 
-      routines.set(0x80a835, (callee) => createObject(callee.a));
       routines.set(0x80c1ca, (callee) => {
         // The visit reads no registers (user decision 2026-11-17).
         calls.push(['visit']);

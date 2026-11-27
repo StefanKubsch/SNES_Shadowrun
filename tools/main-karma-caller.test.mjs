@@ -17,11 +17,11 @@ import {
   karmaListJsr,
   karmaMenuJsr,
   saveMenuJsr,
-} from '../proof/caller/jsr-forms.mjs';
+} from './register-forms/jsr-forms.mjs';
 
 useLiftVectors(import.meta.url);
 
-// The lifted menus with their RTS forms (proof/caller/jsr-forms.mjs), named as the former.
+// The lifted menus with their RTS forms (tools/register-forms/jsr-forms.mjs), named as the former.
 const directMain = { ...liftedMain, saveMenuSequence: saveMenuJsr };
 const directKarma = {
   ...liftedKarma,

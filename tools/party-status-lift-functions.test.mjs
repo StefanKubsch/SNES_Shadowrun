@@ -12,7 +12,7 @@ import { DialogTestMemory, prng } from './task-native-dialog-harness.mjs';
 import { createSide, registerCases, useLiftVectors } from './lift-function-harness.mjs';
 import { GROUP_INDEX, GROUP_LEADER_ONLY, GROUP_NUMBERS, GROUP_SLOTS } from '../src/data/wram.mjs';
 import { drainNativeSequence } from '../src/system/native-call-continuation.mjs';
-import { partyStatusSequence } from '../proof/caller/party-status.mjs';
+import { partyStatusSequence } from './register-forms/party-status.mjs';
 
 useLiftVectors(import.meta.url);
 

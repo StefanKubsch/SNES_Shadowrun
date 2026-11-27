@@ -110,4 +110,4 @@ export function sortDrawListInPlace(h) {
   } while (position < last);
 }
 // The RTS form for register-level callers is sortDrawListJsr in
-// proof/caller/jsr-forms.mjs.
+// tools/register-forms/jsr-forms.mjs.

@@ -2,7 +2,7 @@
 // the dialog and glove references call; the game releases the glove through
 // src/game/window-release.mjs.
 import { releaseWindowAdapter } from './native-render-compose.mjs';
-import { nativeCallSequence } from './native-call-sequences.mjs';
+import { nativeCallSequence } from '../../tools/register-forms/native-call-sequences.mjs';
 import {
   NativeCallContinuation,
   NATIVE_CALL_CONTINUATIONS,
@@ -16,7 +16,7 @@ import {
 } from '../../src/data/wram.mjs';
 import { WORD_MASK } from '../../src/constants/bits.mjs';
 import { FLAG_NEGATIVE } from '../../src/constants/cpu-flags.mjs';
-import './dialog-register-helpers.mjs';
+import '../../tools/register-forms/dialog-register-helpers.mjs';
 
 // 80:BCB2: glove off ($01D8 = 0); a non-negative $01DA frees the buffer $01DC via BE5B (FA3E).
 export function putGloveAway(h, events, routines = null) {

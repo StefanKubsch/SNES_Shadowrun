@@ -8,7 +8,7 @@
 // the window DP 0E is released (80:FA3E; without spells the original releases the unset
 // DP 0E) and the result goes to DP 00. The callees run through their frames from the
 // routine table, each with its own callees.
-import { nativeCallSequence } from '../system/native-call-sequences.mjs';
+import { nativeCallSequence } from './native-call-sequences.mjs';
 import { dataBankWord, setDataBankWord } from '../../src/system/data-bank.mjs';
 import { taskStop } from '../../src/system/task-stop.mjs';
 import {
@@ -34,7 +34,7 @@ import {
 } from '../../src/data/wram.mjs';
 import { TEXT_EXIT } from '../../src/data/port-extension.mjs';
 import { listTextIds } from '../../src/data/menu-layout.mjs';
-import { fitListWindow } from '../system/menu-layout-registers.mjs';
+import { fitListWindow } from './menu-layout-registers.mjs';
 import {
   BYTE_BITS,
   BYTE_MASK,

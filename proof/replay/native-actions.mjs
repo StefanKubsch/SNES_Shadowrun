@@ -16,7 +16,7 @@ import {
 } from '../../src/data/wram.mjs';
 import { TEXT_EXIT } from '../../src/data/port-extension.mjs';
 import { listTextIds } from '../../src/data/menu-layout.mjs';
-import { fitListWindow } from '../system/menu-layout-registers.mjs';
+import { fitListWindow } from '../../tools/register-forms/menu-layout-registers.mjs';
 import { M7A, M7B, MPYL, MPYM } from '../../src/constants/hardware-registers.mjs';
 import { withInterruptEvents } from './observed-native-events.mjs';
 import { lagFree } from '../../src/system/main-wait-interrupt.mjs';
@@ -25,14 +25,14 @@ import { dialogAccess } from '../../src/system/native-dialog-support.mjs';
 import { taskTextAccess } from '../system/native-text-prerequisites.mjs';
 import { f963Sequence } from './native-window-open.mjs';
 import { menuComposeSequence, taskMenuDevices } from './native-menu-compose.mjs';
-import { releaseWindowJsrSequence } from '../../proof/caller/window-release.mjs';
+import { releaseWindowJsrSequence } from '../caller/window-release.mjs';
 import { af1fRegisters } from '../script/native-bar-tiles.mjs';
 import {
   observedContinuation,
   drainNativeSequence,
   NativeCallContinuation,
 } from '../../src/system/native-call-continuation.mjs';
-import { NATIVE_CALL_CONTINUATIONS } from './continuations.mjs';
+import { NATIVE_CALL_CONTINUATIONS } from '../../tools/register-forms/continuations.mjs';
 import {
   BANK_WRAP,
   WORD_MASK,
@@ -47,7 +47,7 @@ import {
   FLAG_CARRY,
 } from '../../src/constants/cpu-flags.mjs';
 import { CODE_BANK, WRAM_BANK } from '../../src/constants/memory-map.mjs';
-import '../system/dialog-register-helpers.mjs';
+import '../../tools/register-forms/dialog-register-helpers.mjs';
 
 const JSR_BYTES = 3;
 // Masks and text pointers in the pinned 99EB source. Original text ids are

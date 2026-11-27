@@ -35,7 +35,7 @@
 // recorded observations or interrupts are replayed as by the register-level job. It
 // leaves A the request word with its sign set and zero clear, X, Y, the carry and the
 // overflow unchanged, as the original.
-import { dialogCallSequence } from '../system/native-call-sequences.mjs';
+import { dialogCallSequence } from '../../tools/register-forms/native-call-sequences.mjs';
 import { sceneRuntime } from '../../src/system/scene-runtime.mjs';
 import { nmiAtBranch } from '../../src/system/frame-wait.mjs';
 import { lagFree } from '../../src/system/main-wait-interrupt.mjs';

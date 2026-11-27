@@ -3,7 +3,6 @@ import assert from 'node:assert/strict';
 import { assertFrozenRun, useLiftVectors } from './lift-function-harness.mjs';
 import { compareRun } from './member-menu-caller-harness.mjs';
 import { hitObjectsInBlastSequence } from '../src/game/object-blast.mjs';
-import { runDrawWindowList } from '../proof/caller/window-list.mjs';
 import * as W from '../src/data/wram.mjs';
 import * as V from '../src/vm/layout.mjs';
 
@@ -43,8 +42,7 @@ function runBlast(sequence, axis, distance, hits, player, request, budget) {
     budget,
     notice ? [0, 0x8000] : [],
     true,
-    ({ mem, put, events, routines, calls }) => {
-      routines.set(0x81ad92, runDrawWindowList);
+    ({ mem, put, events, calls }) => {
       const service = events.interrupts.textWait;
       let noticeWaits = 0;
       events.interrupts.textWait = (callee, frameEvents, status, pc) => {

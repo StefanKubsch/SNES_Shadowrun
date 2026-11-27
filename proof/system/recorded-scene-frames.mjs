@@ -5,7 +5,7 @@
 // consumes its recorded observations. Importing this module installs the driver.
 import { installRecordedSceneFrames } from '../../src/system/scene-frames.mjs';
 import { sceneFrameCallSequence, sceneInputCallSequence } from './scene-observed-calls.mjs';
-import { nativeCallSequence } from './native-call-sequences.mjs';
+import { nativeCallSequence } from '../../tools/register-forms/native-call-sequences.mjs';
 import { FadePollContinuation } from './main-wait-interrupt.mjs';
 import { sceneWaitByte } from './main-scene-wait.mjs';
 import { taskStop } from '../../src/system/task-stop.mjs';

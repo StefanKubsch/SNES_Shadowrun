@@ -26,8 +26,8 @@
 // around the text (PLP restores the status with the carry of the action bit, which the
 // routine leaves); the topic add's own frame is pushed and pulled as the original.
 import { dialogCallBody, segmentSequence } from '../../src/system/native-call-continuation.mjs';
-import { setTextCursorRoutine } from './window-text.mjs';
-import { printTextSequence } from './text-print.mjs';
+import { setTextCursorRoutine } from '../../tools/register-forms/window-text.mjs';
+import { printTextSequence } from '../../tools/register-forms/text-print.mjs';
 import {
   dialogTopicSequence,
   isStandardTextRoutines,
@@ -51,7 +51,7 @@ import {
   FLAG_OVERFLOW,
   FLAG_ZERO,
 } from '../../src/constants/cpu-flags.mjs';
-import { requestTileClearJsr } from './jsr-forms.mjs';
+import { requestTileClearJsr } from '../../tools/register-forms/jsr-forms.mjs';
 
 const DP_WINDOW = 0x00,
   DP_TEXT = 0x02,

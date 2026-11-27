@@ -1,6 +1,6 @@
 import { unpackStep } from './native-unpack.mjs';
 import { SCENE_LOAD_ROUTINES } from './main-scene-load.mjs';
-import { routineCaller } from './routine-call.mjs';
+import { routineCaller } from '../../tools/register-forms/routine-call.mjs';
 import {
   DP_SCENE_COUNT,
   DP_SCENE_LAYER,
@@ -53,7 +53,7 @@ import {
   FLAG_OVERFLOW,
   FLAG_NEGATIVE,
 } from '../../src/constants/cpu-flags.mjs';
-import './dialog-register-helpers.mjs';
+import '../../tools/register-forms/dialog-register-helpers.mjs';
 
 // Value written to mark a wall height as empty (negative).
 const NONE = WORD_MASK;

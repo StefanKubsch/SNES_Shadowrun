@@ -1,6 +1,6 @@
 import { taskStop } from '../../src/system/task-stop.mjs';
 import { listTextIds } from '../../src/data/menu-layout.mjs';
-import { fitListWindow } from '../system/menu-layout-registers.mjs';
+import { fitListWindow } from '../../tools/register-forms/menu-layout-registers.mjs';
 import { TOPICS } from '../../src/data/topics.mjs';
 import {
   requestWindowUpload,
@@ -19,7 +19,7 @@ import {
   drainNativeSequence,
 } from '../../src/system/native-call-continuation.mjs';
 import { appendScriptTask } from '../system/task-append.mjs';
-import { appendScriptTaskCall } from '../caller/task-append-call.mjs';
+import { appendScriptTaskCall } from '../../tools/register-forms/task-append-call.mjs';
 
 import { DIALOG_END, TOPIC_FLAGS, TOPIC_LIST, WRAM } from '../../src/data/wram.mjs';
 import { NIBBLE_MASK, BYTE_MASK, WORD_MASK } from '../../src/constants/bits.mjs';
@@ -30,7 +30,7 @@ import {
   FLAG_MEMORY_8BIT,
   FLAG_NEGATIVE,
 } from '../../src/constants/cpu-flags.mjs';
-import '../system/dialog-register-helpers.mjs';
+import '../../tools/register-forms/dialog-register-helpers.mjs';
 
 const DP_DIALOG_RECORD = 0x11;
 const DP_TOPIC_TASK_ARGUMENT = 0x26;

@@ -1,5 +1,5 @@
-import { closeDialogJsr } from '../proof/caller/jsr-forms.mjs';
-import { gloveActionJsr as directGloveAction } from '../proof/caller/jsr-forms.mjs';
+import { closeDialogJsr } from './register-forms/jsr-forms.mjs';
+import { gloveActionJsr as directGloveAction } from './register-forms/jsr-forms.mjs';
 import { TASK_WAIT, TASK_EVENTS } from '../src/vm/layout.mjs';
 import test from 'node:test';
 import assert from 'node:assert/strict';
@@ -8,9 +8,9 @@ import * as direct from '../src/game/dialog-talk.mjs';
 import { buildSpriteList } from '../proof/replay/native-scene-sprites.mjs';
 import { reloadObjectTiles } from '../proof/system/native-scene-tiles.mjs';
 import * as W from '../src/data/wram.mjs';
-import { closePortraitWindowSequence } from '../proof/caller/portrait-window.mjs';
+import { closePortraitWindowSequence } from './register-forms/portrait-window.mjs';
 import { frameWaitCallSequence } from '../src/system/live-input-calls.mjs';
-import { runPadPresses } from '../proof/caller/input-routines.mjs';
+import { runPadPresses } from './register-forms/input-routines.mjs';
 import {
   NativeCallContinuation,
   NATIVE_CALL_CONTINUATIONS,

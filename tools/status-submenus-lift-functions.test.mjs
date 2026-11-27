@@ -10,7 +10,7 @@
 // (docs/REGISTER-COMPAT-BOUNDARY.md, removal plan).
 import { DialogTestMemory, prng } from './task-native-dialog-harness.mjs';
 import { createSide, registerCases, useLiftVectors } from './lift-function-harness.mjs';
-import { notesSequence, skillsSequence } from '../proof/caller/status-submenus.mjs';
+import { notesSequence, skillsSequence } from './register-forms/status-submenus.mjs';
 import {
   JAKE_DERMAL_ARMOUR,
   JAKE_SKILLSOFT,

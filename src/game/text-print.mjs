@@ -131,4 +131,4 @@ export function* printText(h, events, renderBuffer = drawTextBufferSequence) {
   };
   yield* renderTextBuffer(h, events, renderBuffer, DRAW_SITE);
 }
-// The RTS form for register-level callers is printTextJsr in proof/caller/jsr-forms.mjs.
+// The RTS form for register-level callers is printTextJsr in tools/register-forms/jsr-forms.mjs.

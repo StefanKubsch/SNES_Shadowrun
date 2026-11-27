@@ -2,11 +2,11 @@ import { withInterruptEvents } from './observed-native-events.mjs';
 import { lagFree } from '../../src/system/main-wait-interrupt.mjs';
 import { dialogAccess } from '../../src/system/native-dialog-support.mjs';
 import { taskStop } from '../../src/system/task-stop.mjs';
-import { fitListWindow } from '../system/menu-layout-registers.mjs';
+import { fitListWindow } from '../../tools/register-forms/menu-layout-registers.mjs';
 import { taskTextAccess } from '../system/native-text-prerequisites.mjs';
 import { f963Sequence } from './native-window-open.mjs';
 import { menuComposeSequence } from './native-menu-compose.mjs';
-import { releaseWindowJsrSequence } from '../../proof/caller/window-release.mjs';
+import { releaseWindowJsrSequence } from '../caller/window-release.mjs';
 import { printTextSequence } from './native-text-compose.mjs';
 import {
   observedContinuation,
@@ -36,7 +36,7 @@ import {
   FLAG_ZERO,
 } from '../../src/constants/cpu-flags.mjs';
 import { CODE_BANK } from '../../src/constants/memory-map.mjs';
-import '../system/dialog-register-helpers.mjs';
+import '../../tools/register-forms/dialog-register-helpers.mjs';
 export const modalDevices = Object.freeze(
   Object.fromEntries(
     ['writes', 'reads', 'observationPcs'].map((key) => [

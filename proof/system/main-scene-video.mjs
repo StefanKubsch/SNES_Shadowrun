@@ -91,7 +91,7 @@ import {
   FLAG_NEGATIVE,
   FLAG_IRQ_DISABLE,
 } from '../../src/constants/cpu-flags.mjs';
-import './dialog-register-helpers.mjs';
+import '../../tools/register-forms/dialog-register-helpers.mjs';
 // Shared display initialization for 81:CDF8/C3CA. Hardware stores are requests with original PCs;
 // no DMA, NMI callback or elapsed frame is executed. h operates on the one VM memory/stack.
 

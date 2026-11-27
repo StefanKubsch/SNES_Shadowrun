@@ -1,5 +1,5 @@
-import { routineCaller } from './routine-call.mjs';
-import { enterRoomJsr } from '../caller/jsr-forms.mjs';
+import { routineCaller } from '../../tools/register-forms/routine-call.mjs';
+import { enterRoomJsr } from '../../tools/register-forms/jsr-forms.mjs';
 import { SCENE_GRAPHICS_ROUTINES } from './main-scene-graphics.mjs';
 import { TALK_ROUTINES } from '../script/native-dialog.mjs';
 import { createObject } from '../script/native-object-create.mjs';
@@ -10,7 +10,7 @@ import { clampToCameraBox, updateCameraTileBuffers } from './main-loop-camera.mj
 import { clearFixedColour } from './native-dialog-portrait.mjs';
 import { ObservedWaitContinuation } from './main-wait-interrupt.mjs';
 import { uploadMapEdgesAndScroll } from './main-game-nmi.mjs';
-import { nativeCallSequence } from './native-call-sequences.mjs';
+import { nativeCallSequence } from '../../tools/register-forms/native-call-sequences.mjs';
 import {
   NativeCallContinuation,
   NATIVE_CALL_CONTINUATIONS,
@@ -76,7 +76,7 @@ import {
   FLAG_CARRY,
   FLAG_ZERO,
 } from '../../src/constants/cpu-flags.mjs';
-import './dialog-register-helpers.mjs';
+import '../../tools/register-forms/dialog-register-helpers.mjs';
 
 // The room entry 80:A4BF for register-level callers: the room in A (moved from
 // src/game/room-entry.mjs, whose callers pass the room as a value).

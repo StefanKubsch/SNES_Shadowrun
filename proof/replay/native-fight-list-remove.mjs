@@ -53,7 +53,7 @@ import {
   LONG_BYTES,
 } from '../../src/constants/bits.mjs';
 import { CODE_BANK } from '../../src/constants/memory-map.mjs';
-import '../system/dialog-register-helpers.mjs';
+import '../../tools/register-forms/dialog-register-helpers.mjs';
 // 80:855E: remove the object (first argument) from the fight list 1FB2 (searched downward from X = 1FB0, missing
 // returns). The first removal (1FCE = 0, DEC to FFFF) counts down the nonzero words 7E2DF8+X for
 // X = 7E2DE6 down to 0, unless 1D6B or 7E2DE6 is negative. A nonempty list returns after 1FB0 -= 2.

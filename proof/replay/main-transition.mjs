@@ -1,4 +1,4 @@
-import { routineCaller } from '../system/routine-call.mjs';
+import { routineCaller } from '../../tools/register-forms/routine-call.mjs';
 import { enterRoomSequence } from '../caller/room-entry.mjs';
 import { unpackStep } from '../system/native-unpack.mjs';
 import { SCENE_GRAPHICS_ROUTINES } from '../system/main-scene-graphics.mjs';
@@ -10,12 +10,12 @@ import { sendApuCommand } from '../system/native-input-apu.mjs';
 import { clampToCameraBox, updateCameraTileBuffers } from '../system/main-loop-camera.mjs';
 import { clearFixedColour } from '../system/native-dialog-portrait.mjs';
 import { ObservedWaitContinuation } from '../system/main-wait-interrupt.mjs';
-import { nativeCallSequence } from '../system/native-call-sequences.mjs';
+import { nativeCallSequence } from '../../tools/register-forms/native-call-sequences.mjs';
 import {
   NativeCallContinuation,
   drainNativeSequence,
 } from '../../src/system/native-call-continuation.mjs';
-import { NATIVE_CALL_CONTINUATIONS } from './continuations.mjs';
+import { NATIVE_CALL_CONTINUATIONS } from '../../tools/register-forms/continuations.mjs';
 import {
   BRIGHTNESS_FADE,
   BRIGHTNESS_FADE_FRAMES,
@@ -103,7 +103,7 @@ import {
   FLAG_CARRY,
   FLAG_ZERO,
 } from '../../src/constants/cpu-flags.mjs';
-import '../system/dialog-register-helpers.mjs';
+import '../../tools/register-forms/dialog-register-helpers.mjs';
 
 // Value written to mark a slot or the music as unset (negative).
 const NONE = WORD_MASK;

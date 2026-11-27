@@ -30,7 +30,7 @@
 // 80:FE69, number 80:FD80, key wait 80:F953, release 80:FA3E, numbered menu 80:A6B8,
 // state count 80:CECB and the line and purchase above) run through their frames from
 // the routine table.
-import { nativeCallSequence } from '../system/native-call-sequences.mjs';
+import { nativeCallSequence } from './native-call-sequences.mjs';
 import { KARMA_LISTS, KARMA_WINDOWS } from '../../src/system/native-main-menu.mjs';
 import { TEXT_EXIT } from '../../src/data/port-extension.mjs';
 import {
@@ -71,7 +71,7 @@ import {
   WRAM,
 } from '../../src/data/wram.mjs';
 import { listTextIds } from '../../src/data/menu-layout.mjs';
-import { fitListWindow } from '../system/menu-layout-registers.mjs';
+import { fitListWindow } from './menu-layout-registers.mjs';
 import { RUNNER_RECORD_BANKS, RUNNER_RECORD_POINTERS } from '../../src/data/runners.mjs';
 import { dataBankWord, setDataBankWord } from '../../src/system/data-bank.mjs';
 import { CODE_BANK, CODE_BANK_BASE, WRAM_BANK } from '../../src/constants/memory-map.mjs';

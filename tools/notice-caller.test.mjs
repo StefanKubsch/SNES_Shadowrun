@@ -2,7 +2,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { assertFrozenRun, useLiftVectors } from './lift-function-harness.mjs';
 import { showNoticeSequence as direct } from '../src/game/notice-show.mjs';
-import { timeLimitJsr as directTimer } from '../proof/caller/jsr-forms.mjs';
+import { timeLimitJsr as directTimer } from './register-forms/jsr-forms.mjs';
 import { textWindowSide, finishTextWindow } from './text-window-caller-harness.mjs';
 import {
   NOTICE_WINDOWS,

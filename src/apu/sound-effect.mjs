@@ -124,4 +124,4 @@ export function playSoundEffectCall(h) {
   setDataBankOf(h.a, CODE_BANK);
 }
 // The RTS form for register-level callers is playSoundEffectJsr in
-// proof/caller/jsr-forms.mjs.
+// tools/register-forms/jsr-forms.mjs.

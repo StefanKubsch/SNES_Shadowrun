@@ -86,4 +86,4 @@ export function* decimalNumber(h, events, renderBuffer = drawTextBufferSequence)
   yield* renderTextBuffer(h, events, renderBuffer, DRAW_SITE);
 }
 // The RTS form for register-level callers is decimalNumberJsr in
-// proof/caller/jsr-forms.mjs.
+// tools/register-forms/jsr-forms.mjs.

@@ -252,7 +252,7 @@ budget)` runs opcodes until END (`{kind: 'end', result}`), a native or script ca
   scheduler's when one is attached (`a.tasks`), else the WRAM tables;
   `appendScriptCall(a, script)` is C34A as lifted callers call it with JSR on either,
   leaving no registers; the register-level call form `appendScriptTaskCall(a)` lives in
-  [proof/caller/task-append-call.mjs](../proof/caller/task-append-call.mjs).
+  [tools/register-forms/task-append-call.mjs](../tools/register-forms/task-append-call.mjs).
 - Game code on the API: the halt natives (object-halt.mjs), object hits, the glove
   action, the object animation and motion target (events), the task bind 80:A926, the
   Akimi bug fix (the current task's script), the game screen and room entry (reset), the
@@ -351,7 +351,7 @@ registerLevelLoop})`); the observed rooms and boot replays keep the driver direc
   A differential checks both complete call sequences against the register-level
   references across single-work-unit pauses and resource amount boundaries.
 - Live and reference tables can coexist in a test process. Their registration adapter
-  [continuations.mjs](../proof/replay/continuations.mjs) preserves both factories by
+  [continuations.mjs](../tools/register-forms/continuations.mjs) preserves both factories by
   function identity when they share a ROM target. This avoids replacing a live
   continuation with a different reference function and accidentally running a
   title wait synchronously. The lift comparison discovers tables in both source

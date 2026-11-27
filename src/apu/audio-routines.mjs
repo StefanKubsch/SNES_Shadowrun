@@ -1,7 +1,7 @@
 // The lifted sound driver command 81:F007 (src/apu/apu-command.mjs) and music change
 // 81:EF47 (src/apu/music-mode.mjs) as calls for lifted callers. Their register-level
 // versions are the references in proof/apu-reference/audio-routines.mjs; the routine
-// table entries of both are in proof/caller/audio-routines.mjs.
+// table entries of both are in tools/register-forms/audio-routines.mjs.
 //
 // Lifted callers run both without the JSL frame (its return address lies only in free
 // stack bytes); the RTL call forms had no callers left and went. Both take the command,

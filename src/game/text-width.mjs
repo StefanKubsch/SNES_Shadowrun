@@ -17,7 +17,7 @@ import { readStateByte, writeStateByte } from '../state/objects.mjs';
 //
 // Registers (user decision 2026-11-17): measureTextWidth leaves no registers; its
 // callers read the width from the direct page word BA. The register form for
-// register-level callers is in proof/caller/text-width.mjs.
+// register-level callers is in tools/register-forms/text-width.mjs.
 import { languageTextWidth } from '../data/language.mjs';
 import { readBit, startTextSource } from './text-print.mjs';
 import { TEXT_BITS_REMAINING, TEXT_CHARACTER_INDEX, TEXT_WORK_WORD } from '../data/wram.mjs';

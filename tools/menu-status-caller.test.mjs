@@ -1,10 +1,5 @@
 import { drawTextBufferSequence as drawTextBuffer } from '../src/game/text-draw.mjs';
-import {
-  putGloveAwayCallSequence,
-  releaseNoticeWindowsCallSequence,
-} from '../proof/caller/window-release.mjs';
 import { STATE_COUNT } from '../src/data/actors.mjs';
-import { waitForConfirmKeySequence } from '../proof/caller/confirm-key.mjs';
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { assertFrozenRun, useLiftVectors } from './lift-function-harness.mjs';
@@ -14,14 +9,11 @@ import {
   notesJsr,
   partyStatusJsr,
   skillsJsr,
-} from '../proof/caller/jsr-forms.mjs';
-import { openWindowSequence } from '../proof/caller/window-open.mjs';
-import { releaseWindowSequence } from '../proof/caller/window-release.mjs';
-import { chooseFromMenuSequence } from '../proof/caller/menu-choice.mjs';
-import { setTextCursorRoutine, printNumberSequence } from '../proof/caller/window-text.mjs';
-import { printTextSequence } from '../proof/caller/text-print.mjs';
-import { runFrameWait, runPadPresses } from '../proof/caller/input-routines.mjs';
-import { playSoundEffectJsr } from '../proof/caller/jsr-forms.mjs';
+} from './register-forms/jsr-forms.mjs';
+import { setTextCursorRoutine, printNumberSequence } from './register-forms/window-text.mjs';
+import { printTextSequence } from './register-forms/text-print.mjs';
+import { runFrameWait, runPadPresses } from './register-forms/input-routines.mjs';
+import { playSoundEffectJsr } from './register-forms/jsr-forms.mjs';
 import {
   NativeCallContinuation,
   NATIVE_CALL_CONTINUATIONS,
@@ -61,22 +53,9 @@ function compareRun(sequence, direct, prepare, budget, pads = [], realDrawing = 
       create: () => new NativeCallContinuation(a, body()),
     });
   }
-  bind(0x80f963, () => openWindowSequence(h, events));
-  bind(0x80a6c7, () => chooseFromMenuSequence(h, events, routines, 0x80a6c7));
-  bind(0x80fa3e, function* () {
-    yield* releaseWindowSequence(h, events);
-    let result;
-    yield () => {
-      result = h.rts();
-    };
-    return result;
-  });
   bind(0x80faac, () => segmentSequence(() => setTextCursorRoutine(h)));
   bind(0x80fe69, () => printTextSequence(h, events, routines));
   bind(0x80fd80, () => printNumberSequence(h, events, routines));
-  bind(0x80bcb2, () => putGloveAwayCallSequence(h, events));
-  bind(0x80ff79, () => releaseNoticeWindowsCallSequence(h, events));
-  bind(0x80f953, () => waitForConfirmKeySequence(h, events, routines));
   bind(0x80fb39, () => side.render(h, events));
   if (realDrawing) side.render = drawTextBuffer;
   prepare(side);

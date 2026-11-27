@@ -85,4 +85,4 @@ export function* gloveMove(h, events, renderBuffer = drawTextBufferSequence) {
   if (next === 'search') yield* objectSearch(h, events, renderBuffer);
   else if (next === 'release') yield* releaseGloveNameWindowSequence(h, events);
 }
-// The RTS form for register-level callers is gloveMoveJsr in proof/caller/jsr-forms.mjs.
+// The RTS form for register-level callers is gloveMoveJsr in tools/register-forms/jsr-forms.mjs.

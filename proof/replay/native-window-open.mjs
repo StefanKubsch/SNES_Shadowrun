@@ -44,7 +44,7 @@ import {
   BYTE_MASK,
 } from '../../src/constants/bits.mjs';
 import { FLAG_CARRY, FLAG_MEMORY_8BIT } from '../../src/constants/cpu-flags.mjs';
-import '../system/dialog-register-helpers.mjs';
+import '../../tools/register-forms/dialog-register-helpers.mjs';
 
 const TEXT_TILE_PIXEL_SHIFT = 0x3;
 const TEXT_TILE_VRAM_BEFORE_START = 0x4fff;

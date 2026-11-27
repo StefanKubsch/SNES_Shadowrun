@@ -1,5 +1,4 @@
 import { compareRun } from './member-menu-caller-harness.mjs';
-import { runDrawWindowList } from '../proof/caller/window-list.mjs';
 import * as V from '../src/vm/layout.mjs';
 import * as S from '../src/data/native-object-shoot.mjs';
 
@@ -68,8 +67,7 @@ function runShot(sequence, direct, options) {
     budget,
     notice ? [0, 0x8000] : [],
     true,
-    ({ mem, put, events, routines, calls }) => {
-      routines.set(0x81ad92, runDrawWindowList);
+    ({ mem, put, events, calls }) => {
       const service = events.interrupts.textWait;
       let noticeWaits = 0;
       events.interrupts.textWait = (callee, frameEvents, status, pc) => {

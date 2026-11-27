@@ -19,7 +19,7 @@
 // The spell glove (80:9BD3) closes an open member menu's dialog and prepares the window
 // list first; it takes only objects with bit 15 of their flags set. The place choice
 // (80:C724) turns the glove's position into a place on the floor for an object's walk.
-import { nativeCallSequence } from '../system/native-call-sequences.mjs';
+import { nativeCallSequence } from './native-call-sequences.mjs';
 import { dialogCallBody } from '../../src/system/native-call-continuation.mjs';
 import { dataBankWord } from '../../src/system/data-bank.mjs';
 import {
@@ -77,7 +77,7 @@ import {
   FLAG_OVERFLOW,
   FLAG_ZERO,
 } from '../../src/constants/cpu-flags.mjs';
-import '../system/dialog-register-helpers.mjs';
+import './dialog-register-helpers.mjs';
 
 // The choice ends on a newly pressed A, B, X or Y.
 const CHOICE_BUTTONS = PAD_A | PAD_B | PAD_X | PAD_Y;

@@ -15,7 +15,7 @@ import {
   runUnpackWindowMap,
 } from '../proof/caller/window-list.mjs';
 import * as W from '../src/data/wram.mjs';
-import { closeDialogJsr } from '../proof/caller/jsr-forms.mjs';
+import { closeDialogJsr } from './register-forms/jsr-forms.mjs';
 
 function runChoice(module, name, budget, target, pads, options = {}) {
   let finalShadow;

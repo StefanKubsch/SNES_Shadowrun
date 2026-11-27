@@ -18,7 +18,7 @@ import {
   RDMPYL,
   RDMPYH,
 } from '../../src/constants/hardware-registers.mjs';
-import '../system/dialog-register-helpers.mjs';
+import '../../tools/register-forms/dialog-register-helpers.mjs';
 
 // Fixed AF1F positions within the A9B2 window map buffer (81:AF3E..AF9D).
 const BAR_TOP_CAP_ADDRESS = WRAM + WINDOW_MAP_BUFFER + 0x7c;

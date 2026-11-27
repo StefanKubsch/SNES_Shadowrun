@@ -19,7 +19,7 @@ import {
   NATIVE_ENTRY,
   START_ENTRY,
   statusScreenSequence,
-} from '../proof/caller/status-screen.mjs';
+} from './register-forms/status-screen.mjs';
 import {
   DIALOG_END,
   GLOVE_TARGET_OBJECT,

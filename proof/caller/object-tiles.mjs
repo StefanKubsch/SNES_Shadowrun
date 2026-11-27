@@ -26,12 +26,12 @@
 // interrupts are replayed as by the register-level routine. The word wait comes from
 // the caller's routine table.
 import { dialogCallBody, segmentSequence } from '../../src/system/native-call-continuation.mjs';
-import { dialogCallSequence } from '../system/native-call-sequences.mjs';
+import { dialogCallSequence } from '../../tools/register-forms/native-call-sequences.mjs';
 import { nmiWords, waitWord } from '../system/native-dialog-portrait.mjs';
 import { lagFree } from '../../src/system/main-wait-interrupt.mjs';
 import { nmiAtBranch } from '../../src/system/frame-wait.mjs';
 import { stepObjectAnimation } from '../system/native-scene-tiles.mjs';
-import { CarryArithmetic } from './carry-arithmetic.mjs';
+import { CarryArithmetic } from '../../tools/register-forms/carry-arithmetic.mjs';
 import { taskStop } from '../../src/system/task-stop.mjs';
 import {
   DP_VRAM_UPLOAD_INDEX,
@@ -63,7 +63,7 @@ import {
   FLAG_OVERFLOW,
   FLAG_ZERO,
 } from '../../src/constants/cpu-flags.mjs';
-import '../system/dialog-register-helpers.mjs';
+import '../../tools/register-forms/dialog-register-helpers.mjs';
 
 // The direct page words: the frame stream with its bank, the picture with its bank and
 // the tiles left to queue.

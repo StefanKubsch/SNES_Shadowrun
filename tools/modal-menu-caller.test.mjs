@@ -2,14 +2,14 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { assertFrozenRun, useLiftVectors } from './lift-function-harness.mjs';
 import * as liftedAction from '../src/game/action-menu.mjs';
-import { chooseActionJsr } from '../proof/caller/jsr-forms.mjs';
+import { chooseActionJsr } from './register-forms/jsr-forms.mjs';
 import { chooseActionRoutineSequence } from '../proof/caller/upkeep-routines.mjs';
 import * as directQuestion from '../src/game/yes-no-question.mjs';
 import { openWindowSequence } from '../proof/caller/window-open.mjs';
 import { releaseWindowSequence } from '../proof/caller/window-release.mjs';
 import { chooseFromMenuSequence } from '../proof/caller/menu-choice.mjs';
-import { runFrameWait, runPadPresses } from '../proof/caller/input-routines.mjs';
-import { playSoundEffectJsr } from '../proof/caller/jsr-forms.mjs';
+import { runFrameWait, runPadPresses } from './register-forms/input-routines.mjs';
+import { playSoundEffectJsr } from './register-forms/jsr-forms.mjs';
 import {
   NativeCallContinuation,
   NATIVE_CALL_CONTINUATIONS,
@@ -25,7 +25,7 @@ import {
 
 useLiftVectors(import.meta.url);
 
-// The lifted module with its RTS and RTL forms (proof/caller/jsr-forms.mjs), named as the
+// The lifted module with its RTS and RTL forms (tools/register-forms/jsr-forms.mjs), named as the
 // former.
 const directAction = { ...liftedAction, chooseActionSequence: chooseActionJsr };
 

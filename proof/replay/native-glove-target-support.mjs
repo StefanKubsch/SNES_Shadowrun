@@ -1,12 +1,12 @@
 import { taskStop } from '../../src/system/task-stop.mjs';
 import { drainNativeSequence } from '../../src/system/native-call-continuation.mjs';
-import { dialogCallSequence } from '../system/native-call-sequences.mjs';
+import { dialogCallSequence } from '../../tools/register-forms/native-call-sequences.mjs';
 import { TALK_ROUTINES } from './native-dialog.mjs';
 import { showNoticeAdapter } from './native-notice.mjs';
 import { printTextAdapter } from './native-text-compose.mjs';
 import { readTextBit } from '../system/native-text-prerequisites.mjs';
 import { requestTextMapUpload } from '../system/native-render-compose.mjs';
-import { runDrawWindowList } from '../../proof/caller/window-list.mjs';
+import { runDrawWindowList } from '../caller/window-list.mjs';
 import { unpackWindowMap } from '../system/native-render-unpack.mjs';
 import { clc } from '../system/status-flags.mjs';
 import { languageTextWidth } from '../../src/data/language.mjs';
@@ -25,7 +25,7 @@ import {
   TEXT_BITS_REMAINING,
 } from '../../src/data/wram.mjs';
 import { WORD_MASK, HIGH_BYTE_MASK, WORD_SIGN, WORD_BITS } from '../../src/constants/bits.mjs';
-import '../system/dialog-register-helpers.mjs';
+import '../../tools/register-forms/dialog-register-helpers.mjs';
 
 // DP BA: the text width FADD sums and returns.
 const DP_TEXT_WIDTH = TEXT_WORK_WORD;

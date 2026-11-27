@@ -1,4 +1,4 @@
-// Random per-function tests of the retained member portrait (proof/caller/member-portrait.mjs)
+// Random per-function tests of the retained member portrait (tools/register-forms/member-portrait.mjs)
 // against the register-level 80:E4B3 with 80:E48D, 80:E433 and 80:E41F
 // (src/data/native-member-spell-menu.mjs). Both sides call the same stand-ins for the
 // unpack 80:9F6D, the uploads 80:8F20, 80:9022 and 80:8FF5 and the word wait 81:B0A1
@@ -16,10 +16,10 @@ import { prng } from './task-native-dialog-harness.mjs';
 import { createSide, registerCases, useLiftVectors } from './lift-function-harness.mjs';
 import { MEMBER_PORTRAIT } from '../src/data/wram.mjs';
 import { drainNativeSequence } from '../src/system/native-call-continuation.mjs';
-import { memberPortraitSequence } from '../proof/caller/member-portrait.mjs';
+import { memberPortraitSequence } from './register-forms/member-portrait.mjs';
 import { TALK_ROUTINES } from '../proof/replay/native-dialog.mjs';
-import { unpackPortraitRoutine } from '../proof/caller/portrait-routines.mjs';
-import { shiftPortraitRowsJsr } from '../proof/caller/jsr-forms.mjs';
+import { unpackPortraitRoutine } from './register-forms/portrait-routines.mjs';
+import { shiftPortraitRowsJsr } from './register-forms/jsr-forms.mjs';
 
 useLiftVectors(import.meta.url);
 

@@ -41,7 +41,7 @@ import {
   RUNNER_RECORD_POINTERS,
 } from '../../src/data/runners.mjs';
 import { ACTOR_RECORD, ACTOR_TABLE } from '../../src/data/actors.mjs';
-import '../system/dialog-register-helpers.mjs';
+import '../../tools/register-forms/dialog-register-helpers.mjs';
 
 // 80:CECB register-level body (before its JSL 81:AD92).
 export function raiseStateCountRegisters(h) {

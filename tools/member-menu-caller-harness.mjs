@@ -8,11 +8,11 @@ import assert from 'node:assert/strict';
 import { openWindowSequence } from '../proof/caller/window-open.mjs';
 import { releaseWindowSequence } from '../proof/caller/window-release.mjs';
 import { chooseFromMenuSequence } from '../proof/caller/menu-choice.mjs';
-import { setTextCursorRoutine, printNumberSequence } from '../proof/caller/window-text.mjs';
-import { printTextSequence } from '../proof/caller/text-print.mjs';
+import { setTextCursorRoutine, printNumberSequence } from './register-forms/window-text.mjs';
+import { printTextSequence } from './register-forms/text-print.mjs';
 import { frameWaitCallSequence } from '../src/system/live-input-calls.mjs';
-import { runPadPresses } from '../proof/caller/input-routines.mjs';
-import { playSoundEffectJsr, shiftPortraitRowsJsr } from '../proof/caller/jsr-forms.mjs';
+import { runPadPresses } from './register-forms/input-routines.mjs';
+import { playSoundEffectJsr, shiftPortraitRowsJsr } from './register-forms/jsr-forms.mjs';
 import {
   NativeCallContinuation,
   NATIVE_CALL_CONTINUATIONS,
@@ -21,12 +21,12 @@ import {
 import { textWindowSide, finishTextWindow } from './text-window-caller-harness.mjs';
 import * as W from '../src/data/wram.mjs';
 import { WORD_MASK } from '../src/constants/bits.mjs';
-import { memberPortraitSequence } from '../proof/caller/member-portrait.mjs';
+import { memberPortraitSequence } from './register-forms/member-portrait.mjs';
 import {
   uploadFirstPortraitSequence,
   uploadPortraitTilesSequence,
 } from '../proof/caller/portrait-upload.mjs';
-import { unpackPortraitRoutine } from '../proof/caller/portrait-routines.mjs';
+import { unpackPortraitRoutine } from './register-forms/portrait-routines.mjs';
 const MENU_SOUND_INDEX = 0x4c,
   PORTRAIT_STACK_TOP = 0x1eef,
   PORTRAIT_STACK_START = 0x1e80,

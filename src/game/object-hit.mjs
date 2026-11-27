@@ -255,7 +255,7 @@ function* playerHitSequence(h, events, target) {
 // 80:8691: the hit with the damage on the target by the shooter, for lifted callers
 // without the JSR frame (the caller's return word lies only in free stack bytes).
 // renderBuffer draws text. Its live callers run with the direct page at 0; no register
-// is checked (the register-level caller in proof/caller/object-hit.mjs keeps that check).
+// is checked (the register-level caller in tools/register-forms/object-hit.mjs keeps that check).
 export function* hitObject(
   h,
   events,
@@ -286,4 +286,4 @@ export function* hitObject(
     yield* playerHitSequence(h, events, target);
   }
 }
-// The RTS form for register-level callers is hitObjectJsr in proof/caller/jsr-forms.mjs.
+// The RTS form for register-level callers is hitObjectJsr in tools/register-forms/jsr-forms.mjs.

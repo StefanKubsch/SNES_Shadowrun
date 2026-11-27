@@ -1,4 +1,4 @@
-// Random per-function tests of the retained former hit (proof/caller/object-hit.mjs) against the
+// Random per-function tests of the retained former hit (tools/register-forms/object-hit.mjs) against the
 // register-level hit 80:8691 with the player hit 80:881C (src/data/native-object-hit.mjs).
 // Both sides run their real random number 80:C51F, object slots 80:A835 (with the task
 // append on free heap blocks) and sound 80:C46E; the notices' window 80:F963, text
@@ -45,7 +45,7 @@ import {
   TASK_WAIT,
 } from '../src/vm/layout.mjs';
 import { drainNativeSequence } from '../src/system/native-call-continuation.mjs';
-import { hitObjectSequence } from '../proof/caller/object-hit.mjs';
+import { hitObjectSequence } from './register-forms/object-hit.mjs';
 
 useLiftVectors(import.meta.url);
 

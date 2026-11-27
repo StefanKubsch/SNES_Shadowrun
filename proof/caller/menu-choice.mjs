@@ -29,8 +29,8 @@
 // move's pushes of the direct page words 00 and 06 (around the move sound's arguments,
 // which the original sets up and restores without playing it) stay below the stack.
 import { dialogCallBody } from '../../src/system/native-call-continuation.mjs';
-import { dialogCallSequence } from '../system/native-call-sequences.mjs';
-import { drawListSequence, markRowSequence, MARK, UNMARK } from './menu-list.mjs';
+import { dialogCallSequence } from '../../tools/register-forms/native-call-sequences.mjs';
+import { drawListSequence, markRowSequence, MARK, UNMARK } from '../../tools/register-forms/menu-list.mjs';
 import { requestTileClearSequence } from './window-open.mjs';
 import {
   DP_LIST_TOKEN_BANK,

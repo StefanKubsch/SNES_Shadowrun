@@ -84,7 +84,7 @@ export function setTextCursor(h) {
   setWord(wram, WINDOW_CURSOR_PIXEL + x, 0);
 }
 // The RTS form for register-level callers is setTextCursorJsr in
-// proof/caller/jsr-forms.mjs.
+// tools/register-forms/jsr-forms.mjs.
 
 // Print the number in the direct page word 02 into the window at its cursor (80:FD80)
 // for lifted callers, without the JSR frame (the caller's return word lies only in free
@@ -120,4 +120,4 @@ export function* printNumber(h, events, renderBuffer = drawTextBufferSequence) {
   };
   yield* renderTextBuffer(h, events, renderBuffer, DRAW_SITE);
 }
-// The RTS form for register-level callers is printNumberJsr in proof/caller/jsr-forms.mjs.
+// The RTS form for register-level callers is printNumberJsr in tools/register-forms/jsr-forms.mjs.

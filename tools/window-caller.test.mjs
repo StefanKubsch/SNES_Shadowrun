@@ -7,7 +7,7 @@ import {
   openWindowJsr,
   requestTileClearJsr,
   resetWindowListJsl,
-} from '../proof/caller/jsr-forms.mjs';
+} from './register-forms/jsr-forms.mjs';
 import { NativeCallContinuation } from '../src/system/native-call-continuation.mjs';
 import { WAIT_PAUSED } from '../src/system/native-wait-continuation.mjs';
 import { LagFreeFrames } from '../src/vm/frame-events.mjs';
@@ -17,7 +17,7 @@ import { prng } from './task-native-dialog-harness.mjs';
 
 useLiftVectors(import.meta.url);
 
-// The lifted modules with their RTS and RTL forms (proof/caller/jsr-forms.mjs), named as the
+// The lifted modules with their RTS and RTL forms (tools/register-forms/jsr-forms.mjs), named as the
 // former.
 const liveOpen = {
   ...liftedOpen,

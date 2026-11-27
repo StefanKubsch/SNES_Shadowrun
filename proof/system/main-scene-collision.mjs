@@ -1,6 +1,6 @@
 import { unpackStep } from './native-unpack.mjs';
 import { SCENE_LOAD_ROUTINES } from './main-scene-load.mjs';
-import { routineCaller } from './routine-call.mjs';
+import { routineCaller } from '../../tools/register-forms/routine-call.mjs';
 import { BYTE_MASK, BYTE_SIGN, HIGH_BYTE_MASK, WORD_MASK } from '../../src/constants/bits.mjs';
 import {
   FLAG_NEGATIVE,
@@ -26,7 +26,7 @@ import {
   STATIC_CELL_HEADS,
   STATIC_NODE_END,
 } from '../../src/data/wram.mjs';
-import './dialog-register-helpers.mjs';
+import '../../tools/register-forms/dialog-register-helpers.mjs';
 // Scene geometry from the original two layer streams and three zone lists.
 // Coordinates, list links and counters stay in the shared WRAM. No host map.
 

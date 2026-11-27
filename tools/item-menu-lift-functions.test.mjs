@@ -24,7 +24,7 @@ import {
   STORY_STAGE,
 } from '../src/data/wram.mjs';
 import { drainNativeSequence } from '../src/system/native-call-continuation.mjs';
-import { itemMenuSequence, useItemSequence } from '../proof/caller/item-menu.mjs';
+import { itemMenuSequence, useItemSequence } from './register-forms/item-menu.mjs';
 
 useLiftVectors(import.meta.url);
 

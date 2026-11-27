@@ -12,7 +12,7 @@ export const FRONTEND_NMI_ROUTINES = new Map([
   ...INTRO_NMI_ROUTINES,
   // The live game always runs lag-free frames, so it binds the lifted game NMI handler,
   // which calls its jobs directly; the jobs' table entries for register-level callers live
-  // in proof/caller/game-nmi-jobs.mjs, and recorded runs compose their register-level
+  // in tools/register-forms/game-nmi-jobs.mjs, and recorded runs compose their register-level
   // references in proof/replay/game-nmi-jobs.mjs.
   [0x80c152, handleGameNmi],
   [0x81bec3, handleMatrixNmi],

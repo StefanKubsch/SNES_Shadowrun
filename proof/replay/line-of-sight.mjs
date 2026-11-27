@@ -34,7 +34,7 @@ import {
   OBJECT_X,
   OBJECT_Y,
 } from '../../src/data/wram.mjs';
-import '../system/dialog-register-helpers.mjs';
+import '../../tools/register-forms/dialog-register-helpers.mjs';
 
 // 81:A25F line of sight between object X (target) and object Y (viewer) through the map boxes
 // of the current cell list [$FC] (count byte, then 12-byte records from +1: x0, y0, unused word,

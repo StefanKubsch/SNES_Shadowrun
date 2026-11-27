@@ -107,7 +107,7 @@ function reach(wram, player, object) {
 // continuation: h the main loop's access (direct page 0, data bank 80), events its
 // frame events and renderBuffer the text renderer. The main loop runs it without its JSR
 // frame; the RTS form for register-level callers is gloveActionJsr in
-// proof/caller/jsr-forms.mjs.
+// tools/register-forms/jsr-forms.mjs.
 export function* gloveActionSequence(h, events, renderBuffer = drawTextBufferSequence) {
   const { wram } = h.a.mem,
     tasks = tasksOf(h.a);

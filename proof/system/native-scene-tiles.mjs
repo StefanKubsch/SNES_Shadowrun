@@ -35,7 +35,7 @@ import {
 import { BYTE_MASK, WORD_MASK, HIGH_BYTE_MASK, BYTE_SIGN } from '../../src/constants/bits.mjs';
 import { interruptStep } from './main-wait-interrupt.mjs';
 import { TASK_EVENTS, TASK_PREVIOUS, TASK_WAIT } from '../../src/vm/layout.mjs';
-import './dialog-register-helpers.mjs';
+import '../../tools/register-forms/dialog-register-helpers.mjs';
 
 // Direct page bank byte of the picture stream.
 const DP_STREAM_BANK = 0x40;

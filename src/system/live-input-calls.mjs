@@ -9,7 +9,7 @@ import { taskStop } from './task-stop.mjs';
 // both run lifted: the word wait (frame-wait.mjs) and the newly pressed
 // buttons (joypad.mjs). Recorded interrupt replays use the register-level
 // routines and instruction continuations in proof/vm/main-loop.mjs; the table entries
-// with the original's registers are in proof/caller/input-routines.mjs.
+// with the original's registers are in tools/register-forms/input-routines.mjs.
 export function* frameWaitCallSequence(h, events) {
   yield* waitForCounterWord(h, events);
   let result;

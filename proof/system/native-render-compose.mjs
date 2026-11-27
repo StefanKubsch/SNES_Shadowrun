@@ -26,7 +26,7 @@ import {
   runInterruptRequestWait,
   RequestWaitContinuation,
 } from './main-word-wait.mjs';
-import { nativeCallSequence } from './native-call-sequences.mjs';
+import { nativeCallSequence } from '../../tools/register-forms/native-call-sequences.mjs';
 import {
   NativeCallContinuation,
   NATIVE_CALL_CONTINUATIONS,
@@ -40,7 +40,7 @@ import {
   FLAG_INDEX_8BIT,
   FLAG_MEMORY_8BIT,
 } from '../../src/constants/cpu-flags.mjs';
-import './dialog-register-helpers.mjs';
+import '../../tools/register-forms/dialog-register-helpers.mjs';
 
 const DP_DRAW_ATTRIBUTES = 0xc9;
 const DP_DRAW_MAP_ROW = 0xc3;

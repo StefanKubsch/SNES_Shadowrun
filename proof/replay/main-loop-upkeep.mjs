@@ -8,7 +8,7 @@ import { TALK_ROUTINES, talkWithObjectAdapter } from './native-dialog.mjs';
 import { showNoticeAdapter } from './native-notice.mjs';
 import { setTextCursor, printNumber } from './native-list-prerequisites.mjs';
 import { printTextAdapter, drawTextBufferAdapter } from './native-text-compose.mjs';
-import { playSoundEffectJsr } from '../caller/jsr-forms.mjs';
+import { playSoundEffectJsr } from '../../tools/register-forms/jsr-forms.mjs';
 import { randomByte, randomBelow } from './native-random.mjs';
 import { chooseActionAdapter } from './native-actions.mjs';
 

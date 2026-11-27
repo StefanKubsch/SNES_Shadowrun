@@ -1,7 +1,7 @@
 // The game NMI jobs for recorded runs: each entry runs the lifted job of
 // src/game/game-nmi.mjs with lag-free frames and its register-level reference
 // otherwise. The live game binds the lifted handler directly (main-frontend-nmi.mjs).
-import { GAME_NMI_LIFTED_ROUTINES } from '../caller/game-nmi-jobs.mjs';
+import { GAME_NMI_LIFTED_ROUTINES } from '../../tools/register-forms/game-nmi-jobs.mjs';
 import { GAME_NMI_ROUTINES } from '../system/main-game-nmi.mjs';
 import { lagFree } from '../../src/system/main-wait-interrupt.mjs';
 import { NATIVE_CALL_CONTINUATIONS } from '../../src/system/native-call-continuation.mjs';

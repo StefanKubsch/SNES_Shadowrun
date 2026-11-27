@@ -1,4 +1,4 @@
-import { runFrameWait, runPadPresses } from '../caller/input-routines.mjs';
+import { runFrameWait, runPadPresses } from '../../tools/register-forms/input-routines.mjs';
 import {
   runCloseDialog,
   runPutGloveAway,
@@ -15,15 +15,15 @@ import {
   runOpenWindow,
 } from '../caller/upkeep-routines.mjs';
 
-import { unpackPortraitRoutine } from '../caller/portrait-routines.mjs';
+import { unpackPortraitRoutine } from '../../tools/register-forms/portrait-routines.mjs';
 
-import { setMusicModeRoutine } from '../caller/audio-routines.mjs';
+import { setMusicModeRoutine } from '../../tools/register-forms/audio-routines.mjs';
 import {
   buildSpritesJsr,
   clearFixedColourJsl,
   setWindowTextWidthJsr,
   shiftPortraitRowsJsr,
-} from '../caller/jsr-forms.mjs';
+} from '../../tools/register-forms/jsr-forms.mjs';
 
 export const TALK_ROUTINES = new Map([
   [0x8092c5, runCloseDialog],

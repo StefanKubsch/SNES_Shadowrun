@@ -6,7 +6,7 @@ import {
   drainNativeSequence,
   dialogCallBody,
 } from '../../src/system/native-call-continuation.mjs';
-import { dialogCallSequence, nativeTailSequence } from '../system/native-call-sequences.mjs';
+import { dialogCallSequence, nativeTailSequence } from '../../tools/register-forms/native-call-sequences.mjs';
 import { TALK_ROUTINES, validateDialogTaskOptions } from './native-dialog.mjs';
 import { lagFree } from '../../src/system/main-wait-interrupt.mjs';
 import {
@@ -127,9 +127,9 @@ import { KIND_ITEM_CLASS_MASK } from '../../src/data/kinds.mjs';
 import { TEXT_EXIT } from '../../src/data/port-extension.mjs';
 import { languageTextWidth } from '../../src/data/language.mjs';
 import { translatedListWindow } from '../../src/data/menu-layout.mjs';
-import { fitListWindow } from '../system/menu-layout-registers.mjs';
+import { fitListWindow } from '../../tools/register-forms/menu-layout-registers.mjs';
 import { itemCountColumns } from '../../src/system/native-status-screen.mjs';
-import '../system/dialog-register-helpers.mjs';
+import '../../tools/register-forms/dialog-register-helpers.mjs';
 
 // EA6E dims both sound channels with command 2 and ECF5 restores the full level.
 export const STATUS_VOLUME_TARGET = 0x2f2f,

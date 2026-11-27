@@ -1,7 +1,7 @@
 import { readStateByte, writeStateByte } from '../state/objects.mjs';
 // The jobs of the game NMI handler 80:C152 (lifted; the register-level versions in
 // proof/replay/main-game-nmi.mjs are the references, GAME_NMI_ROUTINES; the jobs' table
-// entries for register-level callers are in proof/caller/game-nmi-jobs.mjs; recorded runs
+// entries for register-level callers are in tools/register-forms/game-nmi-jobs.mjs; recorded runs
 // compose both in proof/replay/game-nmi-jobs.mjs).
 //
 // The handler calls its jobs once per NMI with the direct page at 0 and the data bank

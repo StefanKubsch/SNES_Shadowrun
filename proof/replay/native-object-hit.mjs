@@ -4,16 +4,16 @@ import { taskTextAccess } from '../system/native-text-prerequisites.mjs';
 import { randomBelow, taskRandomDevices } from './native-random.mjs';
 import { createObject } from '../script/native-object-create.mjs';
 import { playSoundEffect, taskAudioDevices } from './native-audio-compose.mjs';
-import { releaseWindowJsrSequence } from '../../proof/caller/window-release.mjs';
+import { releaseWindowJsrSequence } from '../caller/window-release.mjs';
 import { f963Sequence } from './native-window-open.mjs';
-import { fitListWindow } from '../system/menu-layout-registers.mjs';
+import { fitListWindow } from '../../tools/register-forms/menu-layout-registers.mjs';
 import { printTextSequence } from './native-text-compose.mjs';
 import { waitForRandomStateChange } from '../system/native-frame-wait.mjs';
 import { waitForConfirmKeySequence } from './native-input-wait.mjs';
 import { dialogAccess } from '../../src/system/native-dialog-support.mjs';
 import { ObservedWaitContinuation } from '../system/main-wait-interrupt.mjs';
 import { lagFree } from '../../src/system/main-wait-interrupt.mjs';
-import { drawWindowListJslSequence } from '../../proof/caller/window-list.mjs';
+import { drawWindowListJslSequence } from '../caller/window-list.mjs';
 import {
   observedContinuation,
   drainNativeSequence,
@@ -76,7 +76,7 @@ import {
   FLAG_NEGATIVE,
 } from '../../src/constants/cpu-flags.mjs';
 import { CODE_BANK } from '../../src/constants/memory-map.mjs';
-import '../system/dialog-register-helpers.mjs';
+import '../../tools/register-forms/dialog-register-helpers.mjs';
 // Result word and shooter slot of a hit (8691), shared with the shots of 8AB5/8A51/8A8C:
 // the result is 0, FFFF after a kill flag or 1 after a notice; a negative shooter (8E36)
 // places no impact object.

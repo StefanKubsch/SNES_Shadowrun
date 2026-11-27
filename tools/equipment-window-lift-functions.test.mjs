@@ -20,7 +20,7 @@ import {
   RUNNER_WEAPON,
 } from '../src/data/wram.mjs';
 import { drainNativeSequence } from '../src/system/native-call-continuation.mjs';
-import { equipmentRowsSequence } from '../proof/caller/equipment-window.mjs';
+import { equipmentRowsSequence } from './register-forms/equipment-window.mjs';
 
 useLiftVectors(import.meta.url);
 

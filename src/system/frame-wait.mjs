@@ -96,7 +96,7 @@ export function* waitForFrame(h, events, port) {
 // changed the frame counter word 7E:1C76, whatever the NMITIMEN shadow says. The NMI
 // arrives at the branch with the compare equal in 16-bit mode. Lifted callers read no
 // registers (user decision 2026-11-17); the register form with the counter in A is in
-// proof/caller/input-routines.mjs.
+// tools/register-forms/input-routines.mjs.
 export function* waitForCounterWord(h, events) {
   const { wram } = h.a.mem,
     counter = () =>

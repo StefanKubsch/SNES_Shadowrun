@@ -6,8 +6,8 @@ import {
   drainNativeSequence,
   dialogCallBody,
 } from '../../src/system/native-call-continuation.mjs';
-import { dialogCallSequence } from '../system/native-call-sequences.mjs';
-import { NATIVE_CALL_CONTINUATIONS } from './continuations.mjs';
+import { dialogCallSequence } from '../../tools/register-forms/native-call-sequences.mjs';
+import { NATIVE_CALL_CONTINUATIONS } from '../../tools/register-forms/continuations.mjs';
 import { TALK_ROUTINES, validateDialogTaskOptions } from './native-dialog.mjs';
 import { uploadPortraitTiles } from '../system/native-dialog-portrait.mjs';
 import {
@@ -110,7 +110,7 @@ import {
 import { DIALOG_TABLE, DIALOG_BANK_BASE } from '../../src/data/portraits.mjs';
 import { TEXT_EXIT } from '../../src/data/port-extension.mjs';
 import { translatedListWindow } from '../../src/data/menu-layout.mjs';
-import '../system/dialog-register-helpers.mjs';
+import '../../tools/register-forms/dialog-register-helpers.mjs';
 
 // E433 uses the portrait window values of 80:8F3A (native-dialog-portrait.mjs) with
 // the 13-byte table 80:E480 and only the left window's edges (E41F).

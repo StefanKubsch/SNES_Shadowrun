@@ -4,7 +4,7 @@ import { lagFree } from '../../src/system/main-wait-interrupt.mjs';
 import { dialogAccess } from '../../src/system/native-dialog-support.mjs';
 import { taskStop } from '../../src/system/task-stop.mjs';
 import { FIRST_ARGUMENT, leafAccess, finishLeaf } from '../system/native-leaf-support.mjs';
-import { drawWindowListJslSequence } from '../../proof/caller/window-list.mjs';
+import { drawWindowListJslSequence } from '../caller/window-list.mjs';
 import {
   observedContinuation,
   drainNativeSequence,

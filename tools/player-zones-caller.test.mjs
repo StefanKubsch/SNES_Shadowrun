@@ -2,7 +2,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { assertFrozenRun, useLiftVectors } from './lift-function-harness.mjs';
 import { compareRun } from './member-menu-caller-harness.mjs';
-import { playerZonesJsr } from '../proof/caller/jsr-forms.mjs';
+import { playerZonesJsr } from './register-forms/jsr-forms.mjs';
 import * as W from '../src/data/wram.mjs';
 import * as V from '../src/vm/layout.mjs';
 

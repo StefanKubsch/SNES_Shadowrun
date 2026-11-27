@@ -28,7 +28,7 @@ const JSR_RETURN_OFFSET = 2,
   JSL_RETURN_OFFSET = 3;
 
 // Helpers further modules add to every accessor: the register-level ALU, compare, flag,
-// push and direct page helpers of the references (proof/system/dialog-register-helpers.mjs,
+// push and direct page helpers of the references (tools/register-forms/dialog-register-helpers.mjs,
 // user decision 2026-11-17: the lifted code uses none of them).
 const EXTENSIONS = [];
 export function extendDialogAccess(extend) {
@@ -76,7 +76,7 @@ export function dialogAccess(a) {
   const pointer = (offset) =>
     a.readWord(offset & WORD_MASK, BANK_WRAP) | (a.read((offset + 2) & WORD_MASK) << WORD_BITS);
   // Memory INC/DEC/ASL of a long address with the A width (the direct page form is
-  // added by proof/system/dialog-register-helpers.mjs).
+  // added by tools/register-forms/dialog-register-helpers.mjs).
   const modify = (address, op) => {
     const bytes = wa(),
       mask = bytes === 1 ? BYTE_MASK : WORD_MASK;

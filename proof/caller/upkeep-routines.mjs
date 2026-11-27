@@ -29,7 +29,7 @@ import {
   chooseDialogTopicJsr,
   showDialogTextJsr,
   openWindowJsr,
-} from './jsr-forms.mjs';
+} from '../../tools/register-forms/jsr-forms.mjs';
 import { drawTextBufferSequence } from '../../src/game/text-draw.mjs';
 import { BYTE_BITS, WORD_MASK, WORD_SIGN } from '../../src/constants/bits.mjs';
 import { FLAG_CARRY, FLAG_NEGATIVE, FLAG_ZERO } from '../../src/constants/cpu-flags.mjs';

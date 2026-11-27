@@ -66,7 +66,7 @@ const setWord = (wram, at, value) => {
 // frame events. Both task creation and room entry compose directly. zones.changed
 // tells whether a zone changed the scene (the carry in the original). The main loop
 // runs it without its JSR frame; the RTS form is playerZonesJsr in
-// proof/caller/jsr-forms.mjs.
+// tools/register-forms/jsr-forms.mjs.
 export function* playerZonesSequence(h, events, zones = {}) {
   const { a } = h,
     { mem } = a,

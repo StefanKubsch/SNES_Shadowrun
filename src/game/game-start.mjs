@@ -212,4 +212,4 @@ export function* roomStartSequence(h, events, room) {
 }
 
 // The title cycle's demo runs startNewGame (80:960D) without the frame; the RTS form
-// for register-level harnesses is startNewGameJsr in proof/caller/jsr-forms.mjs.
+// for register-level harnesses is startNewGameJsr in tools/register-forms/jsr-forms.mjs.

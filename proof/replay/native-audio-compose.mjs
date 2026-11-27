@@ -57,7 +57,7 @@ import {
   WRMPYB,
   RDMPYH,
 } from '../../src/constants/hardware-registers.mjs';
-import '../system/dialog-register-helpers.mjs';
+import '../../tools/register-forms/dialog-register-helpers.mjs';
 
 const JSR_BYTES = 3,
   JSL_BYTES = 4,
