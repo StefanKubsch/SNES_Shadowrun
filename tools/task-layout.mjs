@@ -10,7 +10,7 @@
 // bytes (free block data, operand stack residue below S, unused local return words, the
 // call ID of a task without a pending call) are not part of the projection.
 import { taskStop } from '../src/system/task-stop.mjs';
-import { CALL_NATIVE, CALL_SCRIPT, scriptInfo, stackCapacity } from '../src/script/tasks.mjs';
+import { CALL_NATIVE, CALL_SCRIPT, scriptInfo } from './script-interpreter.mjs';
 import {
   Scheduler,
   NONE,
@@ -128,6 +128,23 @@ function heapModel(heap) {
 }
 const HEAP_BYTES = HEAP_HEADER_BYTES + HEAP_INITIAL_SIZE;
 
+// The frame of a JS task in the original's terms. The decompiled scripts keep no PC,
+// operand stack or locals, so only a task that has not run yet has one: PC 0, its
+// arguments on the operand stack and zeroed locals.
+function frameView(mem, task) {
+  if (task.run !== null) throw Error(`script ${task.script} has run; its frame is gone`);
+  const info = scriptInfo(mem, task.script);
+  return {
+    code: info.code,
+    frameBytes: info.frameBytes,
+    pc: 0,
+    locals: new Uint8Array(info.localBytes),
+    stack: task.args.slice().reverse(),
+    returns: [],
+    call: task.call,
+  };
+}
+
 // Live bytes of the original layout as a map from WRAM offset to byte value.
 // includeLocal(task, index) can leave out locals (a test's unwritten fresh locals).
 function projectLayout(scheduler, frames, unknown, heapWord, { includeLocal = () => true } = {}) {
@@ -158,9 +175,10 @@ function projectLayout(scheduler, frames, unknown, heapWord, { includeLocal = ()
     offset = heapWord(offset + 2);
     if (offset === 0) break;
   }
-  scheduler.slots.forEach(({ task }, slot) => {
-    if (task === null) return;
-    const frame = frames[slot],
+  scheduler.slots.forEach(({ task: running }, slot) => {
+    if (running === null) return;
+    const task = frameView(scheduler.mem, running),
+      frame = frames[slot],
       end = frame + task.frameBytes;
     put16(frame, task.code);
     put8(frame + FRAME_BANK, task.code >>> WORD_BITS);
@@ -170,7 +188,7 @@ function projectLayout(scheduler, frames, unknown, heapWord, { includeLocal = ()
     if (task.call !== null) put16(frame + FRAME_CALL_ID, task.call.id);
     task.returns.forEach((value, n) => put16(frame + FRAME_RETURN_BASE - 2 * n, value));
     task.locals.forEach((value, n) => {
-      if (includeLocal(task, n)) put8(frame + FRAME_LOCALS + n, value);
+      if (includeLocal(running, n)) put8(frame + FRAME_LOCALS + n, value);
     });
     task.stack.forEach((value, n) => put16(end - 2 - 2 * n, value));
   });
@@ -194,7 +212,7 @@ export function loadScheduler(mem, wram, { native = null, onCreate = null } = {}
   const scheduler = new Scheduler(mem, {
     native,
     onCreate(slot, task) {
-      frames[slot] = model.allocate(task.frameBytes);
+      frames[slot] = model.allocate(scriptInfo(mem, task.script).frameBytes);
       unknown.delete(`previous:${slot}`);
       unknown.delete(`continuation:${slot}`);
       onCreate?.(slot, task);
@@ -265,15 +283,14 @@ export function loadScheduler(mem, wram, { native = null, onCreate = null } = {}
       returns.push(word(at));
     for (let at = top - 1; at > word(frame + FRAME_OPERAND_STACK); at -= 2) stack.push(word(at));
     const callId = word(frame + FRAME_CALL_ID);
+    // A decompiled script starts at its beginning; a frame past it cannot be loaded.
+    if (word(frame + FRAME_PC) !== 0 || returns.length)
+      throw Error(`slot ${slot}: script ${id} has run; its frame cannot be loaded`);
     return {
       script: id,
-      code,
-      frameBytes: info.frameBytes,
-      pc: word(frame + FRAME_PC),
-      locals: wram.slice(frame + FRAME_LOCALS, frame + FRAME_LOCALS + info.localBytes),
-      stack,
-      stackCapacity: stackCapacity(info),
-      returns,
+      args: stack.slice().reverse(),
+      run: null,
+      input: undefined,
       call:
         continuation === RESUME_CHILD
           ? { kind: CALL_SCRIPT, id: callId }
@@ -313,7 +330,7 @@ export function followScheduler(scheduler, { onCreate = null } = {}) {
       : own;
   scheduler.onCreate = chain(scheduler.onCreate, (slot, task) => {
     if (!started) taskStop('task_created_before_reset', { slot });
-    frames[slot] = model.allocate(task.frameBytes);
+    frames[slot] = model.allocate(scriptInfo(scheduler.mem, task.script).frameBytes);
     unknown.delete(`previous:${slot}`);
     onCreate?.(slot, task);
   });

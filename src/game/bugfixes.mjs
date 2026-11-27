@@ -15,7 +15,7 @@ const CHARISMA_ONE_FOLLOWER_MAX = 3,
 const AKIMI_OBJECT = 0x1b6d,
   AKIMI_RESERVED = 0x80,
   AKIMI_ARRIVED = 0x40,
-  AKIMI_ARRIVAL_SCRIPT = 0x9ef44b;
+  AKIMI_ARRIVAL_SCRIPT = 0x38c;
 // Original state record layout (src/data/lz-streams.mjs).
 const STATE_FLAGS = 1,
   STATE_COUNT = 2,
@@ -132,7 +132,7 @@ export function akimiArrivalFlags(a, object, flags) {
   )
     return flags;
   const tasks = tasksOf(a);
-  if (tasks.code(tasks.current()) !== AKIMI_ARRIVAL_SCRIPT || canAkimiJoin(a)) return flags;
+  if (tasks.script(tasks.current()) !== AKIMI_ARRIVAL_SCRIPT || canAkimiJoin(a)) return flags;
   // The proxy leaves without consuming the reservation. Revisiting Daley
   // Station after making room retries the original arrival sequence.
   return flags & (BYTE_MASK ^ AKIMI_RESERVED);

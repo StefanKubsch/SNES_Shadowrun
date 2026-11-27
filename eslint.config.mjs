@@ -23,4 +23,10 @@ export default [
     // A rest destructuring may drop named fields on purpose ({ handled, ...rest }).
     rules: { 'no-unused-vars': ['error', { ignoreRestSiblings: true }] },
   },
+  {
+    // The decompiled scripts keep the original's dead stores, zeroed locals and unused
+    // state parameter, and every script is a generator (tools/decompile-scripts.mjs).
+    files: ['src/scripts/scripts-*.mjs'],
+    rules: { 'no-unused-vars': 'off', 'no-useless-assignment': 'off', 'require-yield': 'off' },
+  },
 ];

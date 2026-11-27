@@ -5,7 +5,6 @@ import { spellMenu } from '../src/game/member-spell-menu.mjs';
 import { SPELL_SLOT_FIRST } from '../src/data/native-member-spell-menu.mjs';
 import { JsTasks, tasksOf, argumentWords } from '../src/script/task-api.mjs';
 import { Scheduler, NONE } from '../src/script/scheduler.mjs';
-import { scriptInfo } from '../src/script/tasks.mjs';
 import { SequenceRunner } from '../src/system/sequence-runner.mjs';
 import { WAIT_PAUSED } from '../src/system/native-wait-continuation.mjs';
 import { textWindowSide } from './text-window-caller-harness.mjs';
@@ -50,15 +49,14 @@ function fixture(js) {
 }
 
 function checkTask(side, script, args) {
-  const { a, mem, js } = side,
-    info = scriptInfo(mem, script);
-  assert.equal(tasksOf(a).code(0), info.code);
+  const { a, mem, js } = side;
+  assert.equal(tasksOf(a).script(0), script);
   if (js) {
     const scheduler = a.tasks.scheduler;
     assert.equal(scheduler.head, 0);
     assert.equal(scheduler.slots[0].next, NONE);
     assert.equal(scheduler.free, 1, 'exactly one task was appended');
-    assert.deepEqual(scheduler.slots[0].task.stack.slice().reverse(), args);
+    assert.deepEqual(scheduler.slots[0].task.args, args);
   } else {
     assert.equal(mem.read16(V.TASK_LIST_HEAD), 0);
     assert.equal(mem.read16(V.TASK_NEXT), ENDED);

@@ -1,6 +1,6 @@
 // The task API of game code (docs/SCRIPT-VM-LIFT.md, phase 4). Game code reaches the
 // script tasks only through it: the current task, the wait mask and event bits of a
-// task, the task a waiting parent waits for, the script of a task, a new task for a
+// task, the task a waiting parent waits for, the script number of a task, a new task for a
 // script (80:C34A) and the reset of all tasks (80:C1A6).
 //
 // A task is named by its task word, the value objects keep in their task field
@@ -19,6 +19,7 @@ import { WRAM } from '../data/wram.mjs';
 import { appendScriptTask } from '../game/task-append.mjs';
 import { NONE, TASK_SLOTS, WAIT_FOR_CHILD } from './scheduler.mjs';
 import { scriptArgumentWords } from './tasks.mjs';
+import { SCRIPTS } from '../scripts/index.mjs';
 import {
   HEAP_INITIAL_SIZE,
   HEAP_NEXT_WORD,
@@ -31,6 +32,8 @@ import {
   TASK_NEXT,
   TASK_PREVIOUS,
   TASK_WAIT,
+  SCRIPT_BANKS,
+  SCRIPT_POINTERS,
 } from '../vm/layout.mjs';
 import { LONG_MASK, WORD_BITS, WORD_MASK, WORD_SIGN } from '../constants/bits.mjs';
 
@@ -39,6 +42,9 @@ export const NO_TASK = WORD_MASK;
 const WAITS_FOR_CHILD = WAIT_FOR_CHILD & WORD_SIGN;
 // The frame byte of the script's bank (frame bytes 0-2: the bytecode address).
 const FRAME_CODE_BANK = 2;
+// The scripts, and the header bytes before a script's first opcode.
+const SCRIPT_COUNT = SCRIPTS.length,
+  SCRIPT_HEADER_BYTES = 2;
 
 const isTask = (task) =>
   Number.isInteger(task) && !(task & 1) && task >= 0 && task < 2 * TASK_SLOTS;
@@ -98,11 +104,11 @@ export class JsTasks {
   setEvents(task, bits) {
     this.entry(task).events = bits & WORD_MASK;
   }
-  // The long address of the task's bytecode.
-  code(task) {
+  // The number of the script the task runs.
+  script(task) {
     const { task: state } = this.entry(task);
     if (state === null) taskStop('task_slot_free', { task });
-    return state.code;
+    return state.script;
   }
   // 80:C34A: a new task for `script` at the head of the task list; returns its word.
   append(script, args) {
@@ -145,13 +151,19 @@ export class WramTasks {
   setEvents(task, bits) {
     this.setWord(TASK_EVENTS, task, bits);
   }
-  code(task) {
+  // The script whose bytecode the task's frame points to (none: NO_TASK).
+  script(task) {
     const frame = this.word(TASK_FRAME, task),
       { mem } = this;
-    return (
+    const code =
       mem.read16(WRAM + frame) |
-      (mem.read8((WRAM + frame + FRAME_CODE_BANK) & LONG_MASK) << WORD_BITS)
-    );
+      (mem.read8((WRAM + frame + FRAME_CODE_BANK) & LONG_MASK) << WORD_BITS);
+    for (let id = 0; id < SCRIPT_COUNT; id++) {
+      const header =
+        (mem.read8(SCRIPT_BANKS + id) << WORD_BITS) | mem.read16(SCRIPT_POINTERS + 2 * id);
+      if (((header + SCRIPT_HEADER_BYTES) & LONG_MASK) === code) return id;
+    }
+    return NO_TASK;
   }
   append(script, args) {
     args.forEach((value, n) => this.mem.write16(WRAM + 2 * n, value));

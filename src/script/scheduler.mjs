@@ -20,8 +20,8 @@
 // task run are generators that yield while a native pauses; round() and visitHead() run
 // them to the end, beginRound() and continueRound() hand each pause to the caller.
 import { taskStop } from '../system/task-stop.mjs';
-import { createTask, finishCall } from './tasks.mjs';
-import { runTask, EXIT_END, EXIT_SCRIPT } from './interpreter.mjs';
+import { createTask, finishCall, stepTask, EXIT_END, CALL_SCRIPT } from './tasks.mjs';
+import { SCRIPTS } from '../scripts/index.mjs';
 import { NATIVE_POINTERS } from '../vm/layout.mjs';
 import { BYTE_SIGN, WORD_MASK, WORD_SIGN } from '../constants/bits.mjs';
 
@@ -79,8 +79,13 @@ function freeSlot(next) {
 export class Scheduler {
   // native(id, args, scheduler, slot) runs a script native other than the wait and
   // returns its result word (null when it leaves none) or a pending call when it paused.
-  constructor(mem, { native = null, onCreate = null, onRelease = null, onReset = null } = {}) {
+  // scripts: the script generators by number (the decompiled scripts by default).
+  constructor(
+    mem,
+    { native = null, onCreate = null, onRelease = null, onReset = null, scripts = SCRIPTS } = {},
+  ) {
     this.mem = mem;
+    this.scripts = scripts;
     this.native = native;
     this.onCreate = onCreate;
     this.onRelease = onRelease;
@@ -91,7 +96,7 @@ export class Scheduler {
     this.head = NONE;
     this.free = 0;
     this.cursor = NONE; // the task being visited
-    this.running = new Set(); // slots whose bytecode runs (a native may visit others)
+    this.running = new Set(); // slots whose script runs (a native may visit others)
     this.job = null; // a round paused by a native (beginRound)
     // A task keeps its JS generator across child and counter/event suspension.
     // Weak keys also let reset, release and proof-import replacement discard it.
@@ -268,9 +273,9 @@ export class Scheduler {
     const entry = this.slots[slot];
     if (task.call !== null) finishCall(this.mem, task, importedInput);
     for (;;) {
-      const exit = runTask(this.mem, task);
+      const exit = stepTask(this.mem, task, this.scripts);
       if (exit.kind === EXIT_END) return { ended: true, word: exit.result };
-      if (exit.kind === EXIT_SCRIPT) {
+      if (exit.kind === CALL_SCRIPT) {
         this.child(exit.id, exit.args);
         const result = yield { ended: false, word: null };
         finishCall(this.mem, task, result);

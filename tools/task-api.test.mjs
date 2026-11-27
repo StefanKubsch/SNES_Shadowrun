@@ -111,7 +111,7 @@ function scenario(seed) {
         tasks.wait(t),
         tasks.events(t),
         used ? tasks.previous(t) : null,
-        used ? tasks.code(t) : null,
+        used ? tasks.script(t) : null,
       ];
     } else if (r < 0.92) {
       call = (tasks) => tasks.reset();

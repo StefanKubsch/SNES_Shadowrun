@@ -11,10 +11,9 @@ import { scriptOpcodes, trapOpcodes } from '../src/script/opcodes.mjs';
 import { inspectRom } from './rom.mjs';
 import { cartridge } from './cartridge-harness.mjs';
 import { VmMemory } from '../src/vm/memory.mjs';
-import { createTask } from '../src/script/tasks.mjs';
-import { runTask, EXIT_END } from '../src/script/interpreter.mjs';
+import { createTask, runTask, EXIT_END } from './script-interpreter.mjs';
 
-// Run script id with its argument words on the product interpreter to its end.
+// Run script id with its argument words on the reference interpreter to its end.
 function runScript(memory, id, args) {
   const exit = runTask(memory, createTask(memory, id, args));
   assert.equal(exit.kind, EXIT_END);
@@ -151,7 +150,7 @@ test('Exported browser script assets contain original code bytes and run without
     assert.equal(script.argumentBytes, sourceEntry.argument_bytes);
     assert.equal(script.localBytes, sourceEntry.scratch_bytes);
   }
-  // The package without the ROM holds the script, and the product interpreter runs it.
+  // The package without the ROM holds the script, and the reference interpreter runs it.
   const memory = new VmMemory(cartridge.rom, undefined, null, cartridge.present);
   assert.equal(runScript(memory, 0x197, [0x098b]).result, 65535);
   assert.equal(runScript(memory, 0x197, [65535]).result, 0);

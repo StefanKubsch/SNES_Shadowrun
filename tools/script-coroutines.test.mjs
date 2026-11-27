@@ -1,17 +1,26 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { Scheduler, NONE } from '../src/script/scheduler.mjs';
-import { OPCODE as O } from '../src/script/opcodes.mjs';
+import { native, script } from '../src/scripts/runtime.mjs';
 import {
-  SCRIPT_BANKS,
-  SCRIPT_POINTERS,
   SCRIPT_RETURN_BYTES,
   NATIVE_POINTERS,
   NATIVE_ARGUMENT_COUNTS,
   NATIVE_RETURN_BYTES,
 } from '../src/vm/layout.mjs';
 
-// Small scripts isolate scheduler suspension from the native/device bridge.
+// Small scripts isolate scheduler suspension from the native/device bridge. Native 1 is
+// the wait (two arguments, a result), native 2 takes one argument; script 1 returns 42.
+function* waitsAndChild() {
+  yield* native(2, yield* native(1, 1, 1));
+  yield* native(2, yield* script(1));
+  yield* native(2, yield* native(1, 1, 2));
+  return null;
+}
+// eslint-disable-next-line require-yield -- a script is a generator even without calls
+function* answer() {
+  return 42;
+}
 function fixture(native) {
   const bytes = new Map();
   const mem = {
@@ -25,43 +34,12 @@ function fixture(native) {
       this.write8(at + 1, value >>> 8);
     },
   };
-  const script = (id, code) => {
-    const pointer = 0x8000 + id * 0x100;
-    mem.write8(SCRIPT_BANKS + id, 0x90);
-    mem.write16(SCRIPT_POINTERS + 2 * id, pointer);
-    [0, 32, ...code].forEach((byte, offset) => mem.write8(0x900000 + pointer + offset, byte));
-  };
   mem.write16(NATIVE_POINTERS + 2, 0xc401);
   mem.write8(NATIVE_ARGUMENT_COUNTS + 1, 2);
   mem.write8(NATIVE_RETURN_BYTES + 1, 2);
   mem.write8(NATIVE_ARGUMENT_COUNTS + 2, 1);
   mem.write8(SCRIPT_RETURN_BYTES + 1, 2);
-  script(0, [
-    O.PUSH_U8,
-    1,
-    O.PUSH_U8,
-    1,
-    O.CALL_NATIVE,
-    1,
-    O.CALL_NATIVE,
-    2,
-    O.CALL_SCRIPT,
-    1,
-    0,
-    O.CALL_NATIVE,
-    2,
-    O.PUSH_U8,
-    2,
-    O.PUSH_U8,
-    1,
-    O.CALL_NATIVE,
-    1,
-    O.CALL_NATIVE,
-    2,
-    O.END,
-  ]);
-  script(1, [O.PUSH_U8, 42, O.END]);
-  const scheduler = new Scheduler(mem, { native });
+  const scheduler = new Scheduler(mem, { native, scripts: [waitsAndChild, answer] });
   return scheduler;
 }
 

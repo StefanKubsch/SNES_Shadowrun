@@ -134,3 +134,26 @@ traces; release and push as in [WORKFLOW.md](WORKFLOW.md).
   opening (2 to 32 in steps of 3, closing from 31) and the order of the dialog's screen
   steps. Ratchet: 1,212 ROM literals, 153 WRAM imports, 26 hardware imports, 2,319 direct
   page names, 2,850 address comments.
+- 2026-11-27, member portrait: the status and spell menus' portrait goes through
+  `showMemberPortrait` and the member window of the presentation layer.
+- 2026-11-27, phase 2 step 1 (scripts decompiled and running):
+  `tools/decompile-scripts.mjs` turns the 937 scripts into generator functions in
+  `src/scripts/` (32 files of 32 scripts, about 31,000 lines; `index.mjs` by number,
+  `natives.mjs` the native calls by name, `runtime.mjs` the word arithmetic and the
+  original's comparison quirks). The operand stack becomes expressions, locals become
+  variables (seven scripts that read a local at two widths keep a byte array), local
+  subroutines nested functions, and jumps structured code along the dominator tree
+  (N. Ramsey, "Beyond Relooper"). All scripts have reducible control flow and no stack
+  value across a jump. The scheduler runs the generators (`stepTask` in
+  `src/script/tasks.mjs`); the bytecode interpreter moved to
+  `tools/script-interpreter.mjs` as the reference. `tools/decompile-scripts.test.mjs`
+  runs every script 16 times on both, with arguments, native results and first state
+  reads steered by the script's own constants, and compares calls, state writes and
+  results (about 85 to 90 percent of the bytecode is reached; long AI loops stay partly
+  unvisited); it also checks that `src/scripts/` matches the decompiler. All ten golden
+  traces and the slow replays pass unchanged. Dropped frontiers: the interpreter's
+  endless-loop guard and the operand stack and local call depth checks (no script
+  reaches them). Task identity is the script number (`tasks.script`), not the bytecode
+  address. Next: names for locals, arguments and state from what the scripts do; script
+  calls by name; `src/script/codec.mjs` and the opcode table leave `src/` with the data
+  readers that still decode bytecode.

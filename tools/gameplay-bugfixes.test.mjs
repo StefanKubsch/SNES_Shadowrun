@@ -3,8 +3,15 @@ import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import { cartridge } from './cartridge-harness.mjs';
 import { VmMemory } from '../src/vm/memory.mjs';
-import { runTask, EXIT_END, EXIT_BUDGET, EXIT_NATIVE } from '../src/script/interpreter.mjs';
-import { createTask, finishCall, scriptInfo } from '../src/script/tasks.mjs';
+import {
+  createTask,
+  finishCall,
+  scriptInfo,
+  runTask,
+  EXIT_END,
+  EXIT_BUDGET,
+  EXIT_NATIVE,
+} from './script-interpreter.mjs';
 import { nativeTarget as nativeEntry } from '../src/script/natives.mjs';
 import { TaskAccessor } from './register-forms/task-accessor.mjs';
 import { nativeTarget as nativeImplementation } from '../src/script/native-targets.mjs';
@@ -57,7 +64,7 @@ function invoke(f, run, args) {
   f.a.ctx.bank = 0x80;
   return run(f.a, false);
 }
-// Script id from byte offset on the product interpreter (src/script/interpreter.mjs).
+// Script id from byte offset on the reference interpreter (tools/script-interpreter.mjs).
 // Its frame words stay where the natives look for the running script (task 0 at
 // FRAME); the lifted natives (src/script/native-targets.mjs) answer its calls.
 function scriptFixture(id, offset = 0, gameplay = DEFAULT_GAMEPLAY) {
