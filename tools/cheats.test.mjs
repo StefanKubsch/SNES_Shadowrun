@@ -4,7 +4,7 @@ import { readFileSync } from 'node:fs';
 import { cartridge } from './cartridge-harness.mjs';
 import { VmMemory } from '../src/vm/memory.mjs';
 import { compareRun } from './member-menu-caller-harness.mjs';
-import { TaskAccessor } from '../src/vm/task-accessor.mjs';
+import { TaskAccessor } from './register-forms/task-accessor.mjs';
 import { takeDamage } from '../src/matrix/matrix-world.mjs';
 import { hitObject } from '../src/game/object-hit.mjs';
 import { HIT_EVENT } from '../src/data/native-object-hit.mjs';

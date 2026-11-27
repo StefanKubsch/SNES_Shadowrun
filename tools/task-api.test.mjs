@@ -10,7 +10,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import { VmMemory } from '../src/vm/memory.mjs';
-import { TaskAccessor } from '../src/vm/task-accessor.mjs';
+import { TaskAccessor } from './register-forms/task-accessor.mjs';
 import { createTask } from '../src/script/tasks.mjs';
 import { TASK_SLOTS, WAIT_HALTED } from '../src/script/scheduler.mjs';
 import { JsTasks, WramTasks, sendEvents, waitingTask } from '../src/script/task-api.mjs';

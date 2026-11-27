@@ -17,10 +17,10 @@ import * as W from '../src/data/wram.mjs';
 // the complete ordinary frontend/attract chain.
 for (const budget of [1, 7])
   for (const [name, sequence, expected, button] of [
-    ['title skip', (h, e, r) => playTitle(h, e, r), true, W.PAD_START],
-    ['new game', (h, e, r) => chooseStartGame(h, e, r, false), 0xffff, W.PAD_START],
-    ['title cycle', (h, e, r) => titleCycle(h, e, r, true), 0xffff, W.PAD_START],
-    ['menu timeout', (h, e, r) => chooseStartGame(h, e, r, true), 0xfffe, 0],
+    ['title skip', (h, e) => playTitle(h, e), true, W.PAD_START],
+    ['new game', (h, e) => chooseStartGame(h, e, false), 0xffff, W.PAD_START],
+    ['title cycle', (h, e) => titleCycle(h, e, true), 0xffff, W.PAD_START],
+    ['menu timeout', (h, e) => chooseStartGame(h, e, true), 0xfffe, 0],
     ['cutscene', (h, e) => playCutscene(h, e, 0, 0), undefined, W.PAD_START],
     ['intro', (h, e) => playIntro(h, e), undefined, W.PAD_START],
     ['intro scene', (h, e) => playCutscene(h, e, 0x14, 0), undefined, W.PAD_START],

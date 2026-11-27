@@ -15,7 +15,7 @@ import { basename } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { DialogTestMemory, prng } from './task-native-dialog-harness.mjs';
 import { dialogAccess } from './register-forms/native-dialog-support.mjs';
-import { TaskAccessor } from '../src/vm/task-accessor.mjs';
+import { TaskAccessor } from './register-forms/task-accessor.mjs';
 import { PictureVideo } from '../src/video/picture-video.mjs';
 import { setLiveChannels } from './picture-fixture.mjs';
 import {

@@ -47,7 +47,6 @@ const CHOOSING = new Set([0x809bc6, 0x809bb9, 0x809bd3, 0x809c33, 0x808d0b]);
 const gameLoop = (game) =>
   new GameLoop(game.vm, {
     devices: game.devices,
-    routines: new Map(),
     admitted: nativeOpcodeTargets,
     implementation: nativeTarget,
   });

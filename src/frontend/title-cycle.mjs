@@ -44,11 +44,11 @@ const setWord = (wram, at, value) => {
 // is returned directly. The title, menu, credits and demo are ordinary generator
 // calls; no entry PCs, saved return words or return checks select their flow.
 // Compatibility scene entries retain their original returns separately.
-export function* titleCycle(h, events, routines, title) {
+export function* titleCycle(h, events, title) {
   const afterGame = !title;
   let m;
   // The menu times out sooner right after the whole title.
-  const menu = (shortTimeout) => chooseStartGame(h, events, routines, shortTimeout);
+  const menu = (shortTimeout) => chooseStartGame(h, events, shortTimeout);
   yield () => {
     m = sceneRuntime(h);
     startSong(m.mem, m.port, SONG_NONE);
@@ -63,7 +63,7 @@ export function* titleCycle(h, events, routines, title) {
     choice = yield* menu(false);
     titleNext = true;
   } else {
-    const key = yield* playTitle(h, events, routines);
+    const key = yield* playTitle(h, events);
     // A held button ends the title early.
     const wholeTitle = !key;
     choice = yield* menu(wholeTitle);
@@ -77,11 +77,11 @@ export function* titleCycle(h, events, routines, title) {
       choice = yield* menu(false);
       titleNext = true;
     } else if (titleNext) {
-      yield* playTitle(h, events, routines);
+      yield* playTitle(h, events);
       choice = yield* menu(false);
       titleNext = false;
     } else {
-      yield* attractGame(h, events, routines);
+      yield* attractGame(h, events);
       choice = yield* menu(false);
       titleNext = true;
     }
@@ -115,13 +115,13 @@ function* playMenuCredits(h, events, m) {
 // 80:A168: the attract game, without the cycle's JSR frame (its return word lies only
 // in free stack bytes). The game's sounds, the demo, then the scene screen and the
 // title's sounds again for the start menu.
-export function* attractGame(h, events, routines) {
+export function* attractGame(h, events) {
   let m;
   yield () => {
     m = sceneRuntime(h);
     setUpGameAudio(m);
   };
-  yield* attractDemo(h, events, routines);
+  yield* attractDemo(h, events);
   yield () => {
     startSceneScreen(m.wram, m.video, m.port);
     startSong(m.mem, m.port, SONG_NONE);
@@ -133,10 +133,10 @@ export function* attractGame(h, events, routines) {
 // 80:96F3: no countdown, a new game's state and the ordinary game rounds in room AB
 // until the demo ends. The room and demo return through generator composition;
 // their scheduler visits still retain the separate native compatibility adapter.
-export function* attractDemo(h, events, routines) {
+export function* attractDemo(h, events) {
   yield () => {
     setWord(h.a.mem.wram, TIMER, TIMER_STOPPED);
   };
   yield () => startNewGame(h.a);
-  yield* runAttractRounds(h, events, routines, ATTRACT_ROOM);
+  yield* runAttractRounds(h, events, ATTRACT_ROOM);
 }

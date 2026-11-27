@@ -542,8 +542,8 @@ function showTitleObjects(m) {
 }
 
 // Ordinary menu playback returns the selected game, cancel or timeout marker.
-export function* chooseStartGame(h, events, routines, afterTitle) {
-  const clock = sceneFrames(h, events, 'start-menu', routines);
+export function* chooseStartGame(h, events, afterTitle) {
+  const clock = sceneFrames(h, events, 'start-menu');
   let m;
   const wait = () => clock.wait(m),
     input = () => clock.input(m),

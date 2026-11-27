@@ -1,12 +1,10 @@
-// Lean adapter: provides the accessor interface of the proven modules
-// (proof/task/plan.mjs, prepareTaskPlan) directly over VmMemory, without an
-// access log, labels or budgets. This way the proven native
-// implementations run unchanged in the VM core. Interim solution: frequently used
-// natives can later follow as allocation-free VM functions of their own.
-import { VmFault } from './memory.mjs';
-import { DeviceAccess } from './device-access.mjs';
-import { OPCODE_LOOP } from './layout.mjs';
-import { FLAG_ZERO, FLAG_NEGATIVE } from '../constants/cpu-flags.mjs';
+// The CPU accessor of the register forms and frozen tests (moved from src/vm on
+// 2026-11-27): a register context, stack and access budget over VmMemory. The game
+// itself runs on DeviceAccess (src/vm/device-access.mjs) without a CPU context.
+import { VmFault } from '../../src/vm/memory.mjs';
+import { DeviceAccess } from '../../src/vm/device-access.mjs';
+import { OPCODE_LOOP } from '../../src/vm/layout.mjs';
+import { FLAG_ZERO, FLAG_NEGATIVE } from '../../src/constants/cpu-flags.mjs';
 import {
   LONG_MASK,
   BYTE_BITS,
@@ -15,8 +13,8 @@ import {
   WORD_MASK,
   LONG_WRAP,
   BANK_SIZE,
-} from '../constants/bits.mjs';
-import { CODE_BANK } from '../constants/memory-map.mjs';
+} from '../../src/constants/bits.mjs';
+import { CODE_BANK } from '../../src/constants/memory-map.mjs';
 
 // Upper limit of memory accesses per native call. Real natives stay far
 // below it; cyclic data thus lead to an error instead of a hang.
@@ -64,6 +62,14 @@ export class TaskAccessor extends DeviceAccess {
     };
     const mem = this.mem,
       ctx = this.ctx;
+    // The services' data bank (src/system/data-bank.mjs) is the context's.
+    Object.defineProperty(this, 'dataBank', {
+      get: () => ctx.bank,
+      set: (bank) => {
+        ctx.bank = bank;
+      },
+      configurable: true,
+    });
     // Create the methods once as bound arrow functions; the modules call them detached.
     const count = () => {
       if (++this.accesses > NATIVE_ACCESS_LIMIT)

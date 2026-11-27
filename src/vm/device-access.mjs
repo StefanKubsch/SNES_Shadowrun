@@ -1,8 +1,9 @@
-// Device access for ordinary game services and the compatibility CPU accessor.
-// Observation ordering, live fallback and arithmetic semantics share one boundary.
+// Device access for the game's services (and the CPU accessor of the register forms in
+// tools/register-forms/task-accessor.mjs). Observation ordering, live fallback and
+// arithmetic semantics share one boundary.
 import { VmFault } from './memory.mjs';
 import { isIoAddress, isArithmeticRegister } from './devices.mjs';
-import { BYTE_MASK, WORD_MASK, LONG_WRAP } from '../constants/bits.mjs';
+import { BYTE_MASK, WORD_MASK, LONG_MASK, LONG_WRAP } from '../constants/bits.mjs';
 
 export class DeviceAccess {
   // The register-free picture back end of live play (src/video/picture-video.mjs), when
@@ -18,6 +19,9 @@ export class DeviceAccess {
     this.ioIndex = 0;
     this.trace = null;
     this.observeArithmetic = false;
+    // Bytes and words at full addresses (the game's fixes read and write through them).
+    this.read = (address) => mem.read8(address & LONG_MASK);
+    this.write = (address, value) => mem.write8(address & LONG_MASK, value);
     this.readWord = (address) => mem.read16(address);
     this.writeWord = (address, value) => mem.write16(address, value);
     // A read at a full bus address, independent of the data bank: the hardware

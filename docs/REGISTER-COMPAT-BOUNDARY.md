@@ -256,7 +256,18 @@ take `outerReturn`, `leafRts` (leaf-return.mjs) the RTS and return record of a n
 and jsr-forms.mjs holds the moved forms. The whole fast suite passed with every frozen
 vector unchanged.
 
-Remaining: `TaskAccessor` (src/vm/task-accessor.mjs) still carries a CPU context, which
-the game loop's accessor resets; `dataBankOf` falls back to it and the task append reads
-its data bank. The `routines` parameter is still passed through the front end and game
-loop although nothing reads it.
+### CPU context and routine tables (2026-11-27)
+
+src/ reads and writes no CPU register any more. The game loop runs on `DeviceAccess`
+(src/vm/device-access.mjs), which gained plain byte access for the game's fixes;
+`TaskAccessor`, the CPU context with stack and access budget, moved to
+tools/register-forms/task-accessor.mjs and maps the services' data bank to its context.
+`dataBankOf` reads the services' data bank only, and the task append reads it through
+`dataBankOf`. The `routines` parameter left the front end, title cycle, attract demo,
+game owner and game loop, and the recorded scene frame driver hook
+(`installRecordedSceneFrames`) went: scenes need the lag-free frame model.
+
+What src/ keeps is generic: `SequenceRunner` still runs actions of the form
+`{ target, run, h, events }` through a continuation map, which the register forms in
+tools/ use; the optional access budget reset (`resetAccessBudget?.`) serves the test
+accessor.

@@ -9,12 +9,11 @@ import { LONG_MASK } from '../constants/bits.mjs';
 
 const address = (offset, index) => (CODE_BANK_BASE + offset + index) & LONG_MASK;
 
-// Ordinary native services supply their bank as data. Reference callers retain
-// their original register, including unusual banks and cross-bank indices.
-export const dataBankOf = (services) => services.dataBank ?? services.ctx.bank;
+// The services supply their data bank as a value (register-level test accessors map it
+// to their CPU context).
+export const dataBankOf = (services) => services.dataBank;
 export function setDataBankOf(services, bank) {
-  if (services.dataBank !== undefined) services.dataBank = bank;
-  else services.ctx.bank = bank;
+  services.dataBank = bank;
 }
 
 // The word at offset + index through the data bank 80.

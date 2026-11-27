@@ -17,7 +17,7 @@ export class HardwarePort {
     this.video = video;
   }
 }
-// The hardware port of a task accessor (src/vm/task-accessor.mjs).
+// The hardware port of an accessor (src/vm/device-access.mjs).
 export const accessorPort = (a) =>
   new HardwarePort(
     (address, width, site) => a.busRead(address, width, site, true),

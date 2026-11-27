@@ -10,7 +10,7 @@ import {
   BLOCKING_BRANCHES,
   PAD_BUTTONS,
 } from '../src/vm/frame-events.mjs';
-import { TaskAccessor } from '../src/vm/task-accessor.mjs';
+import { TaskAccessor } from './register-forms/task-accessor.mjs';
 import { dialogAccess } from './register-forms/native-dialog-support.mjs';
 import { DialogTestMemory, rom } from './task-native-dialog-harness.mjs';
 

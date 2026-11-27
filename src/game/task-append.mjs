@@ -23,6 +23,7 @@
 // `task_slot_required`; a script with an odd number of argument bytes (none has one),
 // whose copy loop never ends, at `script_arguments_required`.
 import { taskStop } from '../system/task-stop.mjs';
+import { dataBankOf } from '../system/data-bank.mjs';
 import { NO_TASK } from '../data/wram.mjs';
 import {
   FRAME_ARGUMENT_BYTES,
@@ -67,7 +68,7 @@ const ARGUMENT_SOURCE = 0xfffe;
 const HEAP_MIN_SPLIT_BYTES = HEAP_HEADER_BYTES + 1;
 
 // A word through the data bank at offset (absolute indexed: a 24-bit address).
-const bankAddress = (a, offset) => ((a.ctx.bank << WORD_BITS) + offset) & LONG_MASK;
+const bankAddress = (a, offset) => ((dataBankOf(a) << WORD_BITS) + offset) & LONG_MASK;
 const bankWord = (a, offset) => a.mem.read16(bankAddress(a, offset));
 const setBankWord = (a, offset, value) => a.mem.write16(bankAddress(a, offset), value & WORD_MASK);
 // A direct page word (the direct page at 0) in bank 0.

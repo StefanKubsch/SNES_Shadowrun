@@ -17,7 +17,7 @@
 // game waits for one. step(budget) runs up to `budget` work units (caller segments and
 // wait instructions); the state at each NMI does not depend on where steps end.
 import { taskStop } from '../system/task-stop.mjs';
-import { TaskAccessor } from '../vm/task-accessor.mjs';
+import { DeviceAccess } from '../vm/device-access.mjs';
 import { Scheduler } from './scheduler.mjs';
 import { ScriptNatives, nativeTarget } from './natives.mjs';
 import { JsTasks } from './task-api.mjs';
@@ -31,32 +31,17 @@ import { gameStartSequence } from '../game/game-start.mjs';
 import { update, endOfFrame } from '../game/frame-loop.mjs';
 import { CODE_BANK, CODE_BANK_BASE } from '../constants/memory-map.mjs';
 
-// The power-on registers (as after reset: E=1, P=34, S=01FF) at the reset entry 00:E382:
-// the seed of recorded callers that run the register-level reset on this accessor.
-// Live play never reads or writes the accessor's CPU context.
-const RESET_CONTEXT = Object.freeze({
-  e: 1,
-  programBank: 0,
-  pc: 0xe382,
-  a: 0,
-  x: 0,
-  y: 0,
-  s: 0x1ff,
-  d: 0,
-  bank: 0,
-  status: 0x34,
-});
+// The reset entry 00:E382 (the first interval's target).
+const RESET_ENTRY = 0xe382;
 const ROUND_RESUME = 0x8096c3;
 
 export class GameLoop {
   // host: the game's settings as the accessors see them (a.vm: mem, gameplay, cheats,
-  // startMenuCredits); devices: LiveDevices; routines: the NMI callbacks
-  // (src/system/main-frontend.mjs FRONTEND_ROUTINES);
+  // startMenuCredits); devices: LiveDevices;
   // admitted and implementation: the lifted natives without devices.
-  constructor(host, { devices, routines, admitted, implementation }) {
+  constructor(host, { devices, admitted, implementation }) {
     const mem = host.mem;
     this.devices = devices;
-    this.routines = routines;
     this.natives = new ScriptNatives(mem, { admitted, implementation, devices, host });
     // onNative(target) sees every native call before it runs (the browser's mouse control).
     this.onNative = null;
@@ -67,10 +52,9 @@ export class GameLoop {
       },
     });
     this.tasks = this.scheduler.tasks = new JsTasks(this.scheduler);
-    const a = (this.accessor = new TaskAccessor(host));
+    const a = (this.accessor = new DeviceAccess(host));
     a.devices = devices;
     a.tasks = this.tasks;
-    Object.assign(a.ctx, RESET_CONTEXT);
     // The game services of live play (docs/LIVE-LOOP-SERVICES.md): no CPU context.
     this.services = Object.freeze({ a });
     // Main loop rounds since the reset; the owner's rounds (attract demo) do not count.
@@ -82,7 +66,7 @@ export class GameLoop {
 
   // Runs up to `budget` work units; a native that pauses inside a round pauses the loop.
   step(budget) {
-    this.accessor.resetAccessBudget();
+    this.accessor.resetAccessBudget?.();
     this.work.run(budget);
   }
 
@@ -105,7 +89,7 @@ export class GameLoop {
       };
     if (!events.frameJobs) taskStop('game_loop_frame_jobs_required', { target });
     const a = this.accessor;
-    a.resetAccessBudget(target);
+    a.resetAccessBudget?.(target);
     a.io = set.io;
     a.ioIndex = 0;
     return events;
@@ -141,9 +125,8 @@ export class GameLoop {
   }
 
   *game() {
-    const a = this.accessor,
-      routines = this.routines;
-    let events = this.interval(CODE_BANK_BASE | RESET_CONTEXT.pc);
+    const a = this.accessor;
+    let events = this.interval(CODE_BANK_BASE | RESET_ENTRY);
     // Live play takes game services only and never touches the accessor's CPU
     // context: game code reads the data bank 80 as a value (docs/LIVE-LOOP-SERVICES.md).
     yield () => {
@@ -154,7 +137,7 @@ export class GameLoop {
     let showTitle = true;
     for (;;) {
       const h = this.services,
-        choice = yield* gameOwnerSequence(h, events, routines, showTitle);
+        choice = yield* gameOwnerSequence(h, events, showTitle);
       showTitle = false;
       this.ownsGame = true;
       yield* gameStartSequence(h, events, choice);

@@ -27,15 +27,8 @@ for (const budget of [1, 7])
           key === 'a' ? target.a : assert.fail(`live play read h.${String(key)}`),
       },
     );
-    // Every register of the accessor's context fails on any read or write, also
-    // through the accessor's own helpers, which share the same object.
-    for (const key of Object.keys(a.ctx))
-      Object.defineProperty(a.ctx, key, {
-        get: () => assert.fail(`live play read the CPU register ${key}`),
-        set: () => {
-          assert.fail(`live play wrote the CPU register ${key}`);
-        },
-      });
+    // The live accessor has no CPU context at all (since 2026-11-27).
+    assert.equal('ctx' in a, false, 'the live accessor carries no CPU registers');
     let steps = 0;
     while (game.nmis < GAME_NMIS) {
       game.step({ budget });

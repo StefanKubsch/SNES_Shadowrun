@@ -354,8 +354,8 @@ export function updateTitleScrollFrame(h) {
 }
 
 // Ordinary scene playback returns whether input ended the title early.
-export function* playTitle(h, events, routines) {
-  const clock = sceneFrames(h, events, 'title', routines);
+export function* playTitle(h, events) {
+  const clock = sceneFrames(h, events, 'title');
   let m;
   const wait = () => clock.wait(m),
     input = () => clock.input(m),

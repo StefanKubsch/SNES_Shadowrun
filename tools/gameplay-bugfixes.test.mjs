@@ -6,7 +6,7 @@ import { VmMemory } from '../src/vm/memory.mjs';
 import { runTask, EXIT_END, EXIT_BUDGET, EXIT_NATIVE } from '../src/script/interpreter.mjs';
 import { createTask, finishCall, scriptInfo } from '../src/script/tasks.mjs';
 import { nativeTarget as nativeEntry } from '../src/script/natives.mjs';
-import { TaskAccessor } from '../src/vm/task-accessor.mjs';
+import { TaskAccessor } from './register-forms/task-accessor.mjs';
 import { nativeTarget as nativeImplementation } from '../src/script/native-targets.mjs';
 import { setItemPropertyAndUnequip as setItemPropertyAndUnequipLifted } from '../src/script/native-object-record-property-equip.mjs';
 import { setActorItemPropertyAndUnequip as setActorItemPropertyAndUnequipLifted } from '../src/script/native-record-property-equip.mjs';

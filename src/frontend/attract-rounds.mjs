@@ -7,7 +7,7 @@ import { WORD_MASK } from '../constants/bits.mjs';
 const MAIN_ROUND = 0x80c1e3 & WORD_MASK;
 
 // Ordinary demo playback and its live scheduler rounds return to their caller.
-export function* runAttractRounds(h, e, r, room, roomStart = () => roomStartSequence(h, e, room)) {
+export function* runAttractRounds(h, e, room, roomStart = () => roomStartSequence(h, e, room)) {
   yield* roomStart();
   for (;;) {
     yield* endOfFrame(h, e);

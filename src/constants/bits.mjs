@@ -35,7 +35,7 @@ export const WORD_BITS = 16;
 /** Bytes per 64 KiB bank; bank * BANK_SIZE + offset gives a long address. */
 export const BANK_SIZE = 0x10000;
 
-// Address wrap of the word accessors readWord/writeWord (src/vm/task-accessor.mjs).
+// Address wrap of the word accessors readWord/writeWord (tools/register-forms/task-accessor.mjs).
 /** The second byte wraps inside the 16-bit bank (direct page, stack, bank 0). */
 export const BANK_WRAP = 16;
 /** The second byte continues in the full 24-bit address space. */

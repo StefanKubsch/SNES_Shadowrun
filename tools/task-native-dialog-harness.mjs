@@ -3,7 +3,7 @@ import { inspectRom } from './rom.mjs';
 import { decodeTaskWindows } from './task-partial-source.mjs';
 import { runReference } from './w65c816-reference.mjs';
 import { VmMemory } from '../src/vm/memory.mjs';
-import { TaskAccessor } from '../src/vm/task-accessor.mjs';
+import { TaskAccessor } from './register-forms/task-accessor.mjs';
 import { isIoAddress, isArithmeticRegister } from '../src/vm/devices.mjs';
 import { dialogAccess } from './register-forms/native-dialog-support.mjs';
 
