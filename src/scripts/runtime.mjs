@@ -13,7 +13,7 @@ export const TRUE = WORD_MASK;
 
 // The events a waiting task ends on (wait(events, frames) returns the met ones): the
 // counter, the glove's actions on the object (the action menu), the end of its
-// motion and animation, and a hit.
+// motion and animation, and its defeat (the count of its record falls to 0).
 export const EVENT = Object.freeze({
   TIMER: 0x1,
   TALK: 0x2,
@@ -26,7 +26,7 @@ export const EVENT = Object.freeze({
   USE: 0x100,
   OPEN: 0x200,
   CLOSE: 0x400,
-  HIT: 0x800,
+  DEFEATED: 0x800,
   TARGET: 0x2000,
   MOVE_TO: 0x4000,
 });

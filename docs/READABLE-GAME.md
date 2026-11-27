@@ -183,10 +183,10 @@ traces; release and push as in [WORKFLOW.md](WORKFLOW.md).
   unnamed scripts are mostly fight behaviours with parameters.
 - 2026-11-27, phase 2 step 4 (events and parameters): a wait names the task events it
   ends on (`EVENT` in `src/scripts/runtime.mjs`: TIMER, TALK, ARRIVED, ANIMATION_END,
-  the glove actions PICK_UP to MOVE_TO and HIT, from the action menu, the motion and
-  animation ends and the hit), in its mask and in tests of its result
-  (`wait(EVENT.HIT | EVENT.TIMER, 0xc) & EVENT.HIT`). The 37 most used game functions
-  have parameter names (PARAMETERS in the decompiler; `natives.mjs` shows them as
+  the glove actions PICK_UP to MOVE_TO and DEFEATED, from the action menu, the motion
+  and animation ends and the defeat, when the count of its record falls to 0), in its
+  mask and in tests of its result (`wait(EVENT.DEFEATED | EVENT.TIMER, 0xc) &
+  EVENT.DEFEATED`). The 37 most used game functions have parameter names (PARAMETERS in the decompiler; `natives.mjs` shows them as
   signatures, `notice(left, top, columns, rows, attributes, text, frames)`), and a local
   handed to one takes its name. 61 of the 158 started scripts are named, among them the
   doors (openDoorOnRequest, closeDoorOnRequest, closedDoor, openDoor). About 3,400
@@ -198,3 +198,14 @@ traces; release and push as in [WORKFLOW.md](WORKFLOW.md).
   places those bytes from the assets with bounds checks only, and
   `tools/orphan-scripts.test.mjs` checks that the asset holds complete scripts. Ratchet:
   1,194 ROM literals, 2,807 address comments.
+- 2026-11-27, phase 2 step 6 (actors, defeat, more names): the task event 800 is
+  DEFEATED, not a hit: object-hit sends it only when the count of the target's record
+  falls to 0. Constant actor numbers (byte offsets of the seven-byte actor rows) carry
+  the name of their kind as a comment (`isActorStateProperty(0x8b2 /* "Me" */, 0x15bd /*
+  "Detonator" */)`). A call result stored and kept is assigned directly
+  (`local = yield* game.wait(...)`), and a local that only holds wait results is named
+  `events`, its tests by event. 91 of the 158 started scripts are named; new are the
+  ending (script variable 2C counts its 13 scenes, playEndingScene and endingScene1 to
+  13), NPCs that talk or strike back, item scripts (combineTimeBomb, playPickUpSound)
+  and fight rounds (shootRound, standAndShoot, chaseAndFight; script variable 2A counts
+  the active spawned fighters). The 67 unnamed ones are longer fight behaviours.

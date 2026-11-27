@@ -22,7 +22,7 @@ export function* script3A0(state, arg0, arg1, arg2, arg3, arg4, arg5) {
     local3 = arg3 & 0xff;
     local4 = arg4 & 0xff;
     local5 = arg5 & 0xff;
-    if ((yield* run.script07E(local1)) === 0) {
+    if ((yield* run.rollEnemySpawn(local1)) === 0) {
       yield* game.removeObject(object);
     } else {
       yield* game.setObjectActionAndDirection(object, 6, 3);
@@ -55,10 +55,10 @@ export function* script3A0(state, arg0, arg1, arg2, arg3, arg4, arg5) {
         }
         const t2 = truth(
           ((yield* game.wait(
-            EVENT.TIMER | EVENT.HIT,
+            EVENT.TIMER | EVENT.DEFEATED,
             word(0x64 + ((yield* game.randomByte()) & 0x1f)),
           )) &
-            EVENT.HIT) !==
+            EVENT.DEFEATED) !==
             0,
         );
         local6 = t2 & 0xff;
@@ -94,15 +94,15 @@ export function* script3A1(state, arg0) {
 }
 
 // Script 3A2: no arguments.
-export function* script3A2(state) {
+export function* combineTimeBomb(state) {
   if (
-    ((yield* game.isActorStateProperty(0x8b2, 0x15bd)) &
-      (yield* game.isActorStateProperty(0x8b2, 0x13a2))) !==
+    ((yield* game.isActorStateProperty(0x8b2 /* "Me" */, 0x15bd /* "Detonator" */)) &
+      (yield* game.isActorStateProperty(0x8b2 /* "Me" */, 0x13a2 /* "Explosives" */))) !==
     0
   ) {
-    yield* game.setActorStateHolder(0x15bd, 0x1538);
-    yield* game.setActorStateHolder(0x13a2, 0x1538);
-    yield* game.setActorStateHolder(0x230, 0x8b2);
+    yield* game.setActorStateHolder(0x15bd /* "Detonator" */, 0x1538 /* "Dog Food" */);
+    yield* game.setActorStateHolder(0x13a2 /* "Explosives" */, 0x1538 /* "Dog Food" */);
+    yield* game.setActorStateHolder(0x230 /* "Time Bomb" */, 0x8b2 /* "Me" */);
   }
   return null;
 }
@@ -111,8 +111,7 @@ export function* script3A2(state) {
 export function* script3A3(state) {
   let local0 = 0,
     local2 = 0;
-  const t1 = yield* game.getScriptVariable(0x20);
-  local2 = t1;
+  local2 = yield* game.getScriptVariable(0x20);
   if (local2 !== 2) {
     if (local2 !== 3) {
       if (local2 !== 4) {
@@ -131,7 +130,7 @@ export function* script3A3(state) {
   if (local2 === 2) {
     yield* game.raiseStoryStage(6);
   }
-  yield* game.setActorStateFlags(0x16c0, 0);
+  yield* game.setActorStateFlags(0x16c0 /* "Computer" */, 0);
   yield* game.changeScene(3, word(local2 - 1), local0);
   return null;
 }
@@ -185,8 +184,8 @@ export function* script3A7(state, arg0) {
 export function* script3A8(state, arg0) {
   let object = 0;
   object = arg0 & 0xff;
-  if (((yield* game.getActorStateFlags(0x15d2)) & 0x80) === 0) {
-    yield* run.script06E(object, 0x15d2, 0, 0x7e, 0x2000);
+  if (((yield* game.getActorStateFlags(0x15d2 /* "Decker" */)) & 0x80) === 0) {
+    yield* run.talkOrStrikeBack(object, 0x15d2, 0, 0x7e, 0x2000);
     yield* game.notice(7, 3, 0x10, 3, 0x400, 0x191 /* "A wise choice human." */, 0xb4);
     yield* game.removeObject(object);
     yield* game.addSceneObject(0xd, 0, 0, 0, 0, 0x15d2, 0x28);

@@ -286,7 +286,7 @@ export function* script04A(state, arg0) {
 }
 
 // Script 04B: no arguments.
-export function* script04B(state) {
+export function* playPickUpSound(state) {
   yield* game.wait(EVENT.TIMER, 5);
   yield* game.playSoundEffect(0xffff, 0x38, 0xff, 3);
   return null;
@@ -305,7 +305,7 @@ export function* lockedCabinet(state, arg0, arg1, arg2, arg3) {
     actor = arg3;
     yield* game.keepObjectFlagBits(object, 0xfeff);
     yield* game.setObjectActionAndDirection(object, 2, 5);
-    if (((yield* game.getActorStateFlags(0x7fc)) & 4) === 0) {
+    if (((yield* game.getActorStateFlags(0x7fc /* "Mortician" */)) & 4) === 0) {
       for (;;) {
         if (((yield* game.wait(EVENT.TIMER | EVENT.OPEN, 1)) & EVENT.OPEN) !== 0) {
           yield* game.notice(2, 0x15, 0x12, 3, 0x800, 0x89 /* "This cabinet is locked." */, 0xf0);
@@ -343,7 +343,7 @@ export function* lockedCabinet(state, arg0, arg1, arg2, arg3) {
 
 // Script 04D: no arguments.
 export function* script04D(state) {
-  if (((yield* game.getActorStateFlags(0xb05)) & 1) === 0) {
+  if (((yield* game.getActorStateFlags(0xb05 /* "LoneStar Badge" */)) & 1) === 0) {
     yield* game.topicText(
       0xb8 /* "So you wanna play Rent-A-Cop! I might be able to accommodate..." */,
     );
@@ -354,8 +354,8 @@ export function* script04D(state) {
         yield* game.topicText(0xba /* "You ain't got enough cash, chum!" */);
       } else {
         yield* game.topicText(0xb7 /* "Impersonating a cop is risky man! Don't get caught!" */);
-        yield* game.setActorStateFlagBits(0xb05, 1);
-        yield* game.setActorStateHolder(0xb05, 0x8b2);
+        yield* game.setActorStateFlagBits(0xb05 /* "LoneStar Badge" */, 1);
+        yield* game.setActorStateHolder(0xb05 /* "LoneStar Badge" */, 0x8b2 /* "Me" */);
       }
     }
   } else {
@@ -365,7 +365,7 @@ export function* script04D(state) {
 }
 
 // Script 04E: 1 argument.
-export function* script04E(state, arg0) {
+export function* spawnedShooter(state, arg0) {
   let object = 0,
     local1 = 0,
     local2 = 0;
@@ -381,9 +381,11 @@ export function* script04E(state, arg0) {
     const t1 = yield* game.chooseEnemyTarget(object);
     local2 = t1 & 0xff;
     if (t1 === 0xffff) {
-      local1 = truth(((yield* game.wait(EVENT.TIMER | EVENT.HIT, 0x28)) & EVENT.HIT) !== 0) & 0xff;
+      local1 =
+        truth(((yield* game.wait(EVENT.TIMER | EVENT.DEFEATED, 0x28)) & EVENT.DEFEATED) !== 0) &
+        0xff;
     } else {
-      local1 = (yield* run.script235(object, signed(local2), 1, 0, 4, 0, 0x3c)) & 0xff;
+      local1 = (yield* run.shootRound(object, signed(local2), 1, 0, 4, 0, 0x3c)) & 0xff;
     }
     if (signed(local1) !== 0) {
       yield* game.addKarma(9);
@@ -402,7 +404,7 @@ export function* script04F(state, arg0) {
   object = arg0 & 0xff;
   for (;;) {
     yield* game.wait(EVENT.TIMER, 6);
-    if (((yield* game.getActorStateFlags(0xd6d)) & 1) !== 0) {
+    if (((yield* game.getActorStateFlags(0xd6d /* "Heavy Dude" */)) & 1) !== 0) {
       yield* game.wait(EVENT.TIMER, word(((yield* game.randomByte()) & 7) + 1));
       yield* game.setObjectActionAndDirection(object, 0, 5);
       yield* game.wait(EVENT.ANIMATION_END, 0);
@@ -411,7 +413,7 @@ export function* script04F(state, arg0) {
       yield* game.releaseObjectGraphics(object);
       for (;;) {
         yield* game.wait(EVENT.TIMER, 1);
-        if (((yield* game.getActorStateFlags(0xd6d)) & 2) !== 0) {
+        if (((yield* game.getActorStateFlags(0xd6d /* "Heavy Dude" */)) & 2) !== 0) {
           yield* game.wait(EVENT.TIMER, word(((yield* game.randomByte()) & 7) + 1));
           yield* game.setObjectVelocity(object, 0, 0, 3);
           yield* game.setObjectActionAndDirection(object, 0, 5);
@@ -429,8 +431,8 @@ export function* script04F(state, arg0) {
 export function* script050(state, arg0) {
   let object = 0;
   object = arg0 & 0xff;
-  if (((yield* game.getActorStateFlags(0x1458)) & 0x80) === 0) {
-    yield* run.script06E(object, 0x1458, 1, 0x78, 0x2000);
+  if (((yield* game.getActorStateFlags(0x1458 /* "Dwarf" */)) & 0x80) === 0) {
+    yield* run.talkOrStrikeBack(object, 0x1458, 1, 0x78, 0x2000);
     yield* game.notice(0xd, 3, 0xd, 3, 0x400, 0x190 /* "Tee hee yo har." */, 0xb4);
     yield* game.removeObject(object);
     yield* game.addSceneObject(5, 0, 0, 0, 0, 0x1458, 0x28);
@@ -463,7 +465,7 @@ export function* script051(state, arg0) {
       );
     } else {
       block240: {
-        if (((yield* game.getActorStateFlags(0x27d)) & 1) === 0) {
+        if (((yield* game.getActorStateFlags(0x27d /* "Switch" */)) & 1) === 0) {
           yield* game.playSoundEffect(object, 0x2c, 0xff, 3);
           if (((yield* game.getObjectRecordFlags(object)) & 1) === 0) {
             yield* game.setObjectDirection(object, 1);
@@ -479,14 +481,14 @@ export function* script051(state, arg0) {
               0x20a /* "Water Chamber filled - Maximum Pressure." */,
               0xc8,
             );
-            if (((yield* game.getActorStateFlags(0x63c)) & 0x40) === 0) {
+            if (((yield* game.getActorStateFlags(0x63c /* "Safe" */)) & 0x40) === 0) {
               count = 4;
               for (;;) {
                 yield* game.playSoundEffect(object, 0x14, 0xff, 3);
                 yield* game.wait(EVENT.TIMER, 8);
                 count = word(count - 1);
                 if (count === 0) {
-                  yield* game.setActorStateFlagBits(0x63c, 0x40);
+                  yield* game.setActorStateFlagBits(0x63c /* "Safe" */, 0x40);
                   break block240;
                 }
               }
@@ -610,19 +612,17 @@ export function* script057(state, arg0) {
     actor = 0;
   object = arg0 & 0xff;
   if ((yield* game.hasObjectRecordProperty(object)) !== 0) {
-    const t1 = yield* game.scriptAction(0x180);
-    local1 = t1;
+    local1 = yield* game.scriptAction(0x180);
     if ((local1 & 0x80) === 0) {
       if ((local1 & 0x100) !== 0) {
         yield* run.promptUseOn();
-        const t2 = yield* game.chooseNumber();
-        actor = t2;
+        actor = yield* game.chooseNumber();
         if (actor !== 0xffff) {
           if (actor !== 0x188) {
             yield* run.refuseToUseOn(actor);
           } else {
             yield* game.endDialog();
-            if (((yield* game.getActorStateFlags(0x188)) & 0x80) === 0) {
+            if (((yield* game.getActorStateFlags(0x188 /* "Vampire!" */)) & 0x80) === 0) {
               yield* game.notice(
                 2,
                 0x15,
@@ -668,12 +668,11 @@ export function* script058(state, arg0) {
   }
   for (;;) {
     local1 = (yield* game.hasObjectRecordProperty(object)) & 0xff;
-    const t1 = yield* run.script2AB(signed(local1), 0);
-    local2 = t1;
+    local2 = yield* run.awaitExamineOrPickUp(signed(local1), 0);
     if (local2 !== 0x80) {
       if (local2 === 0x10) {
         yield* game.setObjectRecordPropertyFromGroup(object);
-        yield* run.script04B();
+        yield* run.playPickUpSound();
         local1 = 255;
       }
     } else {
@@ -719,14 +718,12 @@ export function* script059(state, arg0) {
   yield* run.script089(object);
   for (;;) {
     local1 = (yield* game.hasObjectRecordProperty(object)) & 0xff;
-    const t1 = yield* run.script2AB(signed(local1), 0x40);
-    local2 = t1;
+    local2 = yield* run.awaitExamineOrPickUp(signed(local1), 0x40);
     if (local2 !== 0x80) {
       if (local2 !== 0x10) {
         if (local2 === 0x40) {
           yield* run.promptGiveTo();
-          const t2 = yield* game.chooseNumber();
-          local4 = t2;
+          local4 = yield* game.chooseNumber();
           if (local4 !== 0xffff) {
             if (local4 !== 0x185d) {
               yield* run.refuseToGiveTo(local4);
@@ -737,7 +734,7 @@ export function* script059(state, arg0) {
         }
       } else {
         yield* game.setObjectRecordPropertyFromGroup(object);
-        yield* run.script04B();
+        yield* run.playPickUpSound();
         local1 = 255;
       }
     } else {
@@ -786,7 +783,7 @@ export function* script05B(state, arg0) {
     yield* game.setSpriteMode(object, 0);
     yield* game.setObjectFlagBits(object, 0x140);
     local2 = 1;
-    if ((yield* run.script07E(4)) === 0) {
+    if ((yield* run.rollEnemySpawn(4)) === 0) {
       yield* game.removeObject(object);
     } else {
       yield* game.setObjectRecordCount(object, word((yield* game.randomBelow(3)) + 5));
@@ -810,10 +807,10 @@ export function* script05B(state, arg0) {
           local4 =
             truth(
               ((yield* game.wait(
-                EVENT.TIMER | EVENT.HIT,
+                EVENT.TIMER | EVENT.DEFEATED,
                 word(((yield* game.randomByte()) & 0x3f) + 0x50),
               )) &
-                EVENT.HIT) !==
+                EVENT.DEFEATED) !==
                 0,
             ) & 0xff;
         } else {
@@ -821,10 +818,10 @@ export function* script05B(state, arg0) {
           local4 =
             truth(
               ((yield* game.wait(
-                EVENT.TIMER | EVENT.HIT,
+                EVENT.TIMER | EVENT.DEFEATED,
                 word(0x3c + ((yield* game.randomByte()) & 0x1f)),
               )) &
-                EVENT.HIT) !==
+                EVENT.DEFEATED) !==
                 0,
             ) & 0xff;
         }
@@ -859,12 +856,11 @@ export function* script05D(state, arg0) {
   }
   for (;;) {
     local1 = (yield* game.hasObjectRecordProperty(object)) & 0xff;
-    const t1 = yield* run.script2AB(signed(local1), 0);
-    local2 = t1;
+    local2 = yield* run.awaitExamineOrPickUp(signed(local1), 0);
     if (local2 !== 0x80) {
       if (local2 === 0x10) {
         yield* game.setObjectRecordPropertyFromGroup(object);
-        yield* run.script04B();
+        yield* run.playPickUpSound();
         local1 = 255;
       }
     } else {

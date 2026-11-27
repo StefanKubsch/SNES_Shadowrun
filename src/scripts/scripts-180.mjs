@@ -23,16 +23,16 @@ export function* script181(state) {
 export function* script182(state, arg0) {
   let local0 = 0;
   local0 = arg0 & 0xff;
-  if (((yield* game.getActorStateFlags(0x317)) & 2) === 0) {
+  if (((yield* game.getActorStateFlags(0x317 /* "Street Doc" */)) & 2) === 0) {
     yield* game.addNuyen(0x1f4);
-    yield* game.setActorStateFlagBits(0x317, 2);
+    yield* game.setActorStateFlagBits(0x317 /* "Street Doc" */, 2);
     return null;
   }
   return null;
 }
 
 // Script 183: 1 argument.
-export function* script183(state, arg0) {
+export function* endingScene11(state, arg0) {
   let object = 0;
   object = arg0 & 0xff;
   yield* run.setLeaderOnly();
@@ -43,7 +43,7 @@ export function* script183(state, arg0) {
   yield* run.walkToWaypoint(object, 2);
   yield* game.notice(5, 4, 0x18, 3, 0x400, 0xf5 /* "We'll meet again in Shadowrun II!" */, 0xf0);
   yield* run.shootRandomTargets(object, 8);
-  yield* run.goToRoom(0xf0);
+  yield* run.nextEndingScene(0xf0);
   return null;
 }
 
@@ -162,7 +162,7 @@ export function* script18A(state, arg0) {
   function* sub5(in0, in1) {
     local3 = in0;
     frames = in1;
-    if (((yield* game.wait(local3 | 0x800, frames)) & EVENT.HIT) !== 0) {
+    if (((yield* game.wait(local3 | 0x800, frames)) & EVENT.DEFEATED) !== 0) {
       local2 = 255;
     }
   }
@@ -257,8 +257,7 @@ export function* script18C(state, arg0) {
   yield* game.setObjectAnimation(object, 0);
   yield* game.wait(EVENT.TIMER | EVENT.TALK, word(((yield* game.randomByte()) & 0x3f) + 1));
   for (;;) {
-    const t1 = yield* game.randomBelow(6);
-    local1 = t1;
+    local1 = yield* game.randomBelow(6);
     if (local1 !== 0) {
       if (local1 !== 1) {
         if (local1 !== 2) {
@@ -288,11 +287,11 @@ export function* script18C(state, arg0) {
 // Script 18D: no arguments.
 export function* script18D(state) {
   yield* game.releaseGlove();
-  if (((yield* game.getActorStateFlags(0x78c)) & 0x80) !== 0) {
-    yield* game.keepActorStateFlagBits(0x78c, 0xff7f);
+  if (((yield* game.getActorStateFlags(0x78c /* "Orc" */)) & 0x80) !== 0) {
+    yield* game.keepActorStateFlagBits(0x78c /* "Orc" */, 0xff7f);
   }
-  if (((yield* game.getActorStateFlags(0xba6)) & 0x80) !== 0) {
-    yield* game.keepActorStateFlagBits(0xba6, 0xff7f);
+  if (((yield* game.getActorStateFlags(0xba6 /* "Jamaican" */)) & 0x80) !== 0) {
+    yield* game.keepActorStateFlagBits(0xba6 /* "Jamaican" */, 0xff7f);
   }
   yield* game.createObject(0xb0, 0x249, 0x237, 0x40, 0x326);
   yield* game.createObject(0xb1, 0x242, 0x230, 0x40, 0x2f6);
@@ -424,8 +423,7 @@ export function* script193(state, arg0) {
   }
   for (;;) {
     local1 = (yield* game.hasObjectRecordProperty(object)) & 0xff;
-    const t1 = yield* run.script2AB(signed(local1), 0x100);
-    local2 = t1;
+    local2 = yield* run.awaitExamineOrPickUp(signed(local1), 0x100);
     if (local2 !== 0x80) {
       if (local2 !== 0x10) {
         if (local2 === 0x100) {
@@ -442,7 +440,7 @@ export function* script193(state, arg0) {
         }
       } else {
         yield* game.setObjectRecordPropertyFromGroup(object);
-        yield* run.script04B();
+        yield* run.playPickUpSound();
         local1 = 255;
       }
     } else {
@@ -462,7 +460,8 @@ export function* script194(state, arg0) {
   object = arg0 & 0xff;
   yield* game.faceRoomDirection(object);
   yield* game.setObjectFlagBits(object, 0x60);
-  local1 = truth(((yield* game.wait(EVENT.TIMER | EVENT.HIT, 0xc)) & EVENT.HIT) !== 0) & 0xff;
+  local1 =
+    truth(((yield* game.wait(EVENT.TIMER | EVENT.DEFEATED, 0xc)) & EVENT.DEFEATED) !== 0) & 0xff;
   yield* game.keepObjectFlagBits(object, 0xff9f);
   yield* game.clearObjectVelocity(object);
   yield* game.setObjectAnimation(object, 0);
@@ -489,7 +488,7 @@ export function* script195(state, arg0, arg1, arg2, arg3, arg4, arg5) {
     local5 = arg3 & 0xff;
     local6 = arg4 & 0xff;
     local7 = arg5 & 0xff;
-    if ((yield* run.script07E(local6)) === 0) {
+    if ((yield* run.rollEnemySpawn(local6)) === 0) {
       yield* game.removeObject(object);
     } else {
       yield* game.setObjectRecordCount(object, local7);
@@ -524,10 +523,10 @@ export function* script195(state, arg0, arg1, arg2, arg3, arg4, arg5) {
             local8 =
               truth(
                 ((yield* game.wait(
-                  EVENT.TIMER | EVENT.HIT,
+                  EVENT.TIMER | EVENT.DEFEATED,
                   word(((yield* game.randomByte()) & 0xf) + 0x1e),
                 )) &
-                  EVENT.HIT) !==
+                  EVENT.DEFEATED) !==
                   0,
               ) & 0xff;
           }
@@ -541,7 +540,8 @@ export function* script195(state, arg0, arg1, arg2, arg3, arg4, arg5) {
           break block228;
         }
         local8 =
-          truth(((yield* game.wait(EVENT.TIMER | EVENT.HIT, 0x14)) & EVENT.HIT) !== 0) & 0xff;
+          truth(((yield* game.wait(EVENT.TIMER | EVENT.DEFEATED, 0x14)) & EVENT.DEFEATED) !== 0) &
+          0xff;
       }
     }
   }
@@ -633,7 +633,12 @@ export function* script199(state, arg0) {
             ((yield* game.wait(EVENT.TIMER | EVENT.TALK | EVENT.EXAMINE, 1)) & EVENT.EXAMINE) ===
             0
           ) {
-            if ((yield* game.isActorStateProperty(0xfce, 0x237)) !== 0) {
+            if (
+              (yield* game.isActorStateProperty(
+                0xfce /* "Heavy Bouncer" */,
+                0x237 /* "Tickets" */,
+              )) !== 0
+            ) {
               local1 = 255;
             }
           } else {
@@ -738,7 +743,7 @@ export function* script19E(state, arg0) {
       count = 0;
       for (;;) {
         yield* game.circleSwarmLeader(0);
-        if (((yield* game.wait(yield* game.getScriptVariable(0x10), 1)) & EVENT.HIT) !== 0) {
+        if (((yield* game.wait(yield* game.getScriptVariable(0x10), 1)) & EVENT.DEFEATED) !== 0) {
           yield* game.setObjectRecordCount(object, 0x28);
           const t1 = word(local3 + 1);
           local3 = word(local3 + 1) & 0xff;
@@ -828,10 +833,10 @@ export function* script19E(state, arg0) {
             if (count === 0) {
               yield* game.clearObjectVelocity(object);
               yield* game.wait(EVENT.PICK_UP, 0);
-              yield* run.script04B();
+              yield* run.playPickUpSound();
               yield* game.resetObjectRecordProperty(object);
               yield* game.removeObject(object);
-              yield* game.setActorStateHolder(0xb98, 0x8b2);
+              yield* game.setActorStateHolder(0xb98 /* "Jester Spirit" */, 0x8b2 /* "Me" */);
               yield* game.markTopic(0x23 /* "Nirwanda" */);
               yield* game.markTopic(0x1c /* "Laughlyn" */);
               yield* game.markTopic(4 /* "Bremerton" */);
@@ -864,19 +869,18 @@ export function* script19F(state, arg0) {
     if (state.word('PLAYER_HIT_FRAMES') === 0) {
       yield* game.moveSwarmAlongPath(object);
     }
-    const t1 = word(
+    local14 = word(
       0x140 -
         shiftRight(
           word((yield* game.getObjectCoarseX(yield* game.getPlayerObjectCopy())) - 0x17c),
           1,
         ),
     );
-    local14 = t1;
     yield* game.setSwarmPathPhaseTarget(local14);
     yield* game.setSwarmPathSpeedTarget(
       word((yield* game.getObjectCoarseX(yield* game.getPlayerObjectCopy())) + 0xff04),
     );
-    return truth(((yield* game.wait(EVENT.TIMER | EVENT.HIT, 1)) & EVENT.HIT) !== 0);
+    return truth(((yield* game.wait(EVENT.TIMER | EVENT.DEFEATED, 1)) & EVENT.DEFEATED) !== 0);
   }
   object = arg0 & 0xff;
   yield* game.setScriptVariable(0x14, 0);
@@ -944,70 +948,70 @@ export function* script19F(state, arg0) {
               if (count2 !== 0) {
                 count2 = word(count2 - 1);
               }
-              const t11 = yield* game.getObjectDirection(object);
-              local2 = t11 & 0xff;
-              if (t11 <= 5) {
+              const t9 = yield* game.getObjectDirection(object);
+              local2 = t9 & 0xff;
+              if (t9 <= 5) {
                 if (local2 !== 5) {
                   if (local2 !== 4) {
                     if (local2 !== 3) {
                       if (less(local2, 3)) {
-                        const t29 = word((yield* game.randomBelow(2)) - 0xfffb);
-                        const t30 = yield* game.getObjectCoarseHeight(object);
-                        const t31 = word((yield* game.getObjectCoarseY(object)) - 0xa);
-                        const t32 = word((yield* game.getObjectCoarseX(object)) + 0xa);
+                        const t27 = word((yield* game.randomBelow(2)) - 0xfffb);
+                        const t28 = yield* game.getObjectCoarseHeight(object);
+                        const t29 = word((yield* game.getObjectCoarseY(object)) - 0xa);
+                        const t30 = word((yield* game.getObjectCoarseX(object)) + 0xa);
                         yield* game.setObjectVelocity(
-                          yield* game.createObject(0x8d, t32, t31, t30, 0x1b0),
-                          t29,
+                          yield* game.createObject(0x8d, t30, t29, t28, 0x1b0),
+                          t27,
                           0xfffd,
                           0xfffa,
                         );
                       }
                     } else {
-                      const t25 = word((yield* game.randomBelow(2)) - 0xfffb);
-                      const t26 = yield* game.getObjectCoarseHeight(object);
-                      const t27 = word((yield* game.getObjectCoarseY(object)) - 0x14);
-                      const t28 = yield* game.getObjectCoarseX(object);
+                      const t23 = word((yield* game.randomBelow(2)) - 0xfffb);
+                      const t24 = yield* game.getObjectCoarseHeight(object);
+                      const t25 = word((yield* game.getObjectCoarseY(object)) - 0x14);
+                      const t26 = yield* game.getObjectCoarseX(object);
                       yield* game.setObjectVelocity(
-                        yield* game.createObject(0x8d, t28, t27, t26, 0x1b0),
-                        t25,
+                        yield* game.createObject(0x8d, t26, t25, t24, 0x1b0),
+                        t23,
                         0xfffa,
                         0xfffa,
                       );
                     }
                   } else {
-                    const t21 = word((yield* game.randomBelow(2)) - 1);
-                    const t22 = word((yield* game.getObjectCoarseHeight(object)) - 5);
-                    const t23 = word((yield* game.getObjectCoarseY(object)) - 0x19);
-                    const t24 = word((yield* game.getObjectCoarseX(object)) - 5);
+                    const t19 = word((yield* game.randomBelow(2)) - 1);
+                    const t20 = word((yield* game.getObjectCoarseHeight(object)) - 5);
+                    const t21 = word((yield* game.getObjectCoarseY(object)) - 0x19);
+                    const t22 = word((yield* game.getObjectCoarseX(object)) - 5);
                     yield* game.setObjectVelocity(
-                      yield* game.createObject(0x8d, t24, t23, t22, 0x1b0),
-                      t21,
+                      yield* game.createObject(0x8d, t22, t21, t20, 0x1b0),
+                      t19,
                       0xfffa,
                       0xfffa,
                     );
                   }
                 } else {
-                  const t16 = word((yield* game.randomBelow(4)) + 0xfffc);
-                  const t17 = word((yield* game.randomBelow(4)) + 0xfffc);
-                  const t18 = word((yield* game.getObjectCoarseHeight(object)) - 5);
-                  const t19 = word((yield* game.getObjectCoarseY(object)) - 0xa);
-                  const t20 = word((yield* game.getObjectCoarseX(object)) - 0xa);
+                  const t14 = word((yield* game.randomBelow(4)) + 0xfffc);
+                  const t15 = word((yield* game.randomBelow(4)) + 0xfffc);
+                  const t16 = word((yield* game.getObjectCoarseHeight(object)) - 5);
+                  const t17 = word((yield* game.getObjectCoarseY(object)) - 0xa);
+                  const t18 = word((yield* game.getObjectCoarseX(object)) - 0xa);
                   yield* game.setObjectVelocity(
-                    yield* game.createObject(0x8d, t20, t19, t18, 0x1b0),
-                    t17,
-                    t16,
+                    yield* game.createObject(0x8d, t18, t17, t16, 0x1b0),
+                    t15,
+                    t14,
                     0xfffa,
                   );
                 }
               } else {
-                const t12 = word((yield* game.randomBelow(2)) + 0xfffd);
-                const t13 = word((yield* game.getObjectCoarseHeight(object)) - 5);
-                const t14 = word((yield* game.getObjectCoarseY(object)) - 5);
-                const t15 = word((yield* game.getObjectCoarseX(object)) - 0x19);
+                const t10 = word((yield* game.randomBelow(2)) + 0xfffd);
+                const t11 = word((yield* game.getObjectCoarseHeight(object)) - 5);
+                const t12 = word((yield* game.getObjectCoarseY(object)) - 5);
+                const t13 = word((yield* game.getObjectCoarseX(object)) - 0x19);
                 yield* game.setObjectVelocity(
-                  yield* game.createObject(0x8d, t15, t14, t13, 0x1b0),
+                  yield* game.createObject(0x8d, t13, t12, t11, 0x1b0),
                   0xfff8,
-                  t12,
+                  t10,
                   0xfffa,
                 );
               }
@@ -1015,16 +1019,16 @@ export function* script19F(state, arg0) {
               count = 0xf;
             } else {
               block670: {
-                const t2 = yield* game.findNearestVisibleMember(object);
-                local4 = t2 & 0xff;
-                if (t2 !== 0xffff) {
+                const t1 = yield* game.findNearestVisibleMember(object);
+                local4 = t1 & 0xff;
+                if (t1 !== 0xffff) {
                   yield* game.turnObjectToObject(object, signed(local4));
                   yield* game.wait(EVENT.TIMER, 0x14);
                   count3 = word(4 + (yield* game.randomBelow(5)));
                   loop442: for (;;) {
-                    const t3 = yield* game.getObjectDirection(object);
-                    local2 = t3 & 0xff;
-                    if (t3 <= 5) {
+                    const t2 = yield* game.getObjectDirection(object);
+                    local2 = t2 & 0xff;
+                    if (t2 <= 5) {
                       if (local2 !== 5) {
                         if (local2 !== 4) {
                           if (local2 !== 3) {
@@ -1051,19 +1055,18 @@ export function* script19F(state, arg0) {
                       local20 = 5;
                       local22 = 5;
                     }
-                    const t4 = word((yield* game.getObjectCoarseHeight(object)) - local22);
-                    const t5 = word((yield* game.getObjectCoarseY(object)) - local20);
-                    const t6 = word((yield* game.getObjectCoarseX(object)) - local18);
-                    created = (yield* game.createObject(0x8d, t6, t5, t4, 0x1b0)) & 0xff;
+                    const t3 = word((yield* game.getObjectCoarseHeight(object)) - local22);
+                    const t4 = word((yield* game.getObjectCoarseY(object)) - local20);
+                    const t5 = word((yield* game.getObjectCoarseX(object)) - local18);
+                    created = (yield* game.createObject(0x8d, t5, t4, t3, 0x1b0)) & 0xff;
                     yield* game.moveObjectTowardsObject(created, signed(local4));
                     local18 = yield* game.getObjectVelocityX(created);
                     local20 = yield* game.getObjectVelocityY(created);
-                    const t7 = yield* game.getObjectVelocityZ(created);
-                    local22 = t7;
-                    const t8 = yield* game.halveArgumentSigned(local22);
-                    const t9 = yield* game.halveArgumentSigned(local20);
-                    const t10 = yield* game.halveArgumentSigned(local18);
-                    yield* game.setObjectVelocity(created, t10, t9, t8);
+                    local22 = yield* game.getObjectVelocityZ(created);
+                    const t6 = yield* game.halveArgumentSigned(local22);
+                    const t7 = yield* game.halveArgumentSigned(local20);
+                    const t8 = yield* game.halveArgumentSigned(local18);
+                    yield* game.setObjectVelocity(created, t8, t7, t6);
                     yield* game.playSoundEffect(object, 0x66, 0xff, 3);
                     count4 = 0xf;
                     for (;;) {

@@ -190,13 +190,12 @@ const EVENT_NAMES = [
   [0x100, 'USE'],
   [0x200, 'OPEN'],
   [0x400, 'CLOSE'],
-  [0x800, 'HIT'],
+  [0x800, 'DEFEATED'],
   [0x2000, 'TARGET'],
   [0x4000, 'MOVE_TO'],
 ];
-function events(e) {
-  if (e.constant === null || e.constant === undefined || e.constant === 0) return e;
-  let rest = e.constant;
+function eventNames(mask) {
+  let rest = mask;
   const parts = [];
   for (const [bit, name] of EVENT_NAMES)
     if (rest & bit) {
@@ -204,6 +203,11 @@ function events(e) {
       rest &= ~bit;
     }
   if (rest) parts.push(`0x${rest.toString(HEX)}`);
+  return parts;
+}
+function events(e) {
+  if (e.constant === null || e.constant === undefined || e.constant === 0) return e;
+  const parts = eventNames(e.constant);
   return { ...e, text: parts.join(' | '), prec: parts.length > 1 ? BIT_OR : ATOM };
 }
 
@@ -337,16 +341,31 @@ const NOTED_ARGUMENTS = Object.freeze({
   markTopic: { 0: 'topic' },
   isTopicKnown: { 0: 'topic' },
   createObject: { 0: 'kind' },
+  getActorStateFlags: { 0: 'actor' },
+  setActorStateFlags: { 0: 'actor' },
+  setActorStateFlagBits: { 0: 'actor' },
+  keepActorStateFlagBits: { 0: 'actor' },
+  getActorStateCount: { 0: 'actor' },
+  addActorStateCount: { 0: 'actor' },
+  getActorStateProperty: { 0: 'actor' },
+  getActorKind: { 0: 'actor' },
+  getActorKindFlags: { 0: 'actor' },
+  getActorKindValue: { 0: 'actor' },
+  isActorStateProperty: { 0: 'actor', 1: 'actor' },
+  setActorStateHolder: { 0: 'actor', 1: 'actor' },
 });
-const NO_NOTES = { text: () => null, topic: () => null, kind: () => null };
+const NO_NOTES = { text: () => null, topic: () => null, kind: () => null, actor: () => null };
+// Actor numbers are byte offsets of seven-byte rows (src/data/actors.mjs).
+const ACTOR_BYTES = 7;
 const NOTE_LENGTH = 60;
-// The texts by number, the topics and the kind names, as comments.
+// The texts by number, the topics, the kind names and the actors (by kind), as comments.
 function textNotes() {
   const asset = (name) => JSON.parse(readFileSync(new URL(`assets/${name}`, ROOT), 'utf8'));
   const texts = new Map(asset('vm-texts.json').texts.map((t) => [t.address, t.text]));
   const numbers = asset('vm-tables.json').tables.find((t) => t.name === 'text_numbers').values;
   const topics = asset('vm-topics.json').topics;
   const kinds = asset('vm-kinds.json').kinds;
+  const actors = asset('vm-actors.json').actors;
   const note = (address) => {
     const text = texts.get(address);
     if (!text) return null;
@@ -357,6 +376,10 @@ function textNotes() {
     text: (n) => note(numbers[n]),
     topic: (n) => note(topics[n & BYTE]),
     kind: (n) => note(kinds[n]?.name),
+    actor: (n) =>
+      n % ACTOR_BYTES === 0 && actors[n / ACTOR_BYTES]
+        ? note(kinds[actors[n / ACTOR_BYTES].kind]?.name)
+        : null,
   };
 }
 
@@ -642,7 +665,12 @@ class ScriptDecompiler {
       writes,
     });
     let terminator = null;
-    for (const i of block.body) {
+    let skip = false;
+    for (const [index, i] of block.body.entries()) {
+      if (skip) {
+        skip = false;
+        continue;
+      }
       const n = i.name;
       if (n === 'push_u8' || n === 'push_u16') stack.push(literal(i.operand));
       else if (n === 'push_zero') stack.push(literal(0));
@@ -672,8 +700,14 @@ class ScriptDecompiler {
           [STATE],
         );
       } else if (n === 'duplicate') {
-        const v = pop();
-        if (v.constant === null || v.constant === undefined) {
+        const v = pop(),
+          next = block.body[index + 1];
+        if (!v.pure && next?.name === 'store_local_u16') {
+          // A call's result stored and kept: the copy reads the local back.
+          statement(this.storeLocal(next.operand, 2, v), [this.localVariable(next.operand)]);
+          stack.push({ ...this.loadLocal(next.operand, 2, false), waits: v.waits });
+          skip = true;
+        } else if (v.constant === null || v.constant === undefined) {
           if (!v.pure) {
             stack.push(v);
             spill([], true);
@@ -1003,6 +1037,17 @@ function nameLocals(text) {
   for (const local of order) give(local, created.has(local) ? 'created' : 'object');
   for (const m of text.matchAll(/(local\d+) = word\(\1 - 1\);/g))
     if (!names.has(m[1])) give(m[1], 'count');
+  // A local that only ever holds a wait's result holds its events: its tests read them.
+  const body = text.replace(/^let [^;]*;$/m, '');
+  for (const local of new Set([...body.matchAll(/\b(local\d+) = /g)].map((m) => m[1]))) {
+    const stores = [...body.matchAll(new RegExp(`\\b${local} = ([^;]*);`, 'g'))].map((m) => m[1]);
+    if (names.has(local) || !stores.every((v) => /^(\(?yield\* )?game\.wait\(/.test(v))) continue;
+    give(local, 'events');
+    text = text.replace(new RegExp(`\\(${local} & (0x[0-9a-f]+|\\d+)\\)`, 'g'), (_, mask) => {
+      const parts = eventNames(Number(mask));
+      return `(${local} & ${parts.length > 1 ? `(${parts.join(' | ')})` : parts[0]})`;
+    });
+  }
   // A local handed to a named parameter of a game function takes the parameter's name
   // (the first such use).
   for (const { name, args } of gameCalls(text))
