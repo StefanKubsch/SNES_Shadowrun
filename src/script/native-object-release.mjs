@@ -5,7 +5,7 @@ import { removeObject as removeLiftedObject } from '../game/object-release.mjs';
 // proof/game-reference/object-release.mjs): remove the object (first argument) from the
 // scene: its graphics are released (80:AA4C), its kind becomes FFFF and it leaves the
 // draw list.
-export const removeObject = (a, outerReturn = true) => {
+export const removeObject = (a) => {
   removeLiftedObject(a.mem, a);
-  return finishLeaf(a, outerReturn);
+  return finishLeaf(a);
 };

@@ -9,10 +9,16 @@
 // (docs/REGISTER-COMPAT-BOUNDARY.md, removal plan).
 import { prng } from './task-native-dialog-harness.mjs';
 import { createSide, registerCases, useLiftVectors } from './lift-function-harness.mjs';
-import { getScriptVariable } from '../src/script/native-script-variable-get.mjs';
-import { setScriptVariable } from '../src/script/native-script-variable-set.mjs';
-import { setScriptVariableBits } from '../src/script/native-script-variable-or.mjs';
-import { keepScriptVariableBits } from '../src/script/native-script-variable-and.mjs';
+import { getScriptVariable as getScriptVariableLifted } from '../src/script/native-script-variable-get.mjs';
+import { setScriptVariable as setScriptVariableLifted } from '../src/script/native-script-variable-set.mjs';
+import { setScriptVariableBits as setScriptVariableBitsLifted } from '../src/script/native-script-variable-or.mjs';
+import { keepScriptVariableBits as keepScriptVariableBitsLifted } from '../src/script/native-script-variable-and.mjs';
+import { leafRts } from './register-forms/leaf-return.mjs';
+// The natives with the RTS of their register-level entry (2026-11-27).
+const getScriptVariable = leafRts(getScriptVariableLifted);
+const setScriptVariable = leafRts(setScriptVariableLifted);
+const setScriptVariableBits = leafRts(setScriptVariableBitsLifted);
+const keepScriptVariableBits = leafRts(keepScriptVariableBitsLifted);
 
 useLiftVectors(import.meta.url);
 

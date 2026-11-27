@@ -5,7 +5,6 @@
 // 81:A958, 81:A98E and 81:B0D1 with JSL.
 import {
   clearTextTiles,
-  handleGameNmi,
   stepBrightnessFade,
   uploadGlove,
   uploadObjectPalettes,
@@ -17,6 +16,7 @@ import {
   uploadVramRecords,
 } from '../../src/game/game-nmi.mjs';
 import { accessorPort } from '../../src/system/hardware-port.mjs';
+import { handleGameNmiJsl } from './jsr-forms.mjs';
 import { sceneRuntime } from '../../src/system/scene-runtime.mjs';
 
 // A job on WRAM and the hardware port, returning by RTS or RTL.
@@ -47,5 +47,5 @@ export const GAME_NMI_LIFTED_ROUTINES = new Map([
     },
   ],
   [0x81a9e1, longJob(clearTextTiles)],
-  [0x80c152, handleGameNmi],
+  [0x80c152, handleGameNmiJsl],
 ]);

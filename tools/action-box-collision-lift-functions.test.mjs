@@ -11,7 +11,7 @@
 // the device writes and the return must be equal.
 import { prng } from './task-native-dialog-harness.mjs';
 import { createSide, registerCases, useLiftVectors } from './lift-function-harness.mjs';
-import { testObjectCollision } from '../src/script/native-object-collision.mjs';
+import { testObjectCollision as testObjectCollisionLifted } from '../src/script/native-object-collision.mjs';
 import {
   COLLISION_BOX_X0,
   COLLISION_CELL_HEADS,
@@ -24,6 +24,9 @@ import {
   OBJECT_Y,
   PLAYER_OBJECT,
 } from '../src/data/wram.mjs';
+import { leafRts } from './register-forms/leaf-return.mjs';
+// The natives with the RTS of their register-level entry (2026-11-27).
+const testObjectCollision = leafRts(testObjectCollisionLifted);
 
 useLiftVectors(import.meta.url);
 

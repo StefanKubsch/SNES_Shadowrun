@@ -399,15 +399,6 @@ function* requestUpload(h, events, wram, request) {
   }
 }
 
-// The register-level entry (80:FB39) consumes its caller's return frame.
-export function* drawTextBufferSequence(h, events) {
-  yield* drawTextBuffer(h, events);
-  return yield () => {
-    h.ctx.status &= ~FLAG_MEMORY_8BIT;
-    return h.rts();
-  };
-}
-
 // The direct renderer used by ordinary text and number printing.
 export function* drawTextBuffer(h, events) {
   const s = textState(h),
@@ -502,6 +493,5 @@ export function* drawTextBuffer(h, events) {
 // The text buffer through the renderer a caller passes: the lifted one, or a test's
 // stand-in sequence. Neither reads or changes the caller's data bank.
 export function* renderTextBuffer(h, events, renderer) {
-  if (renderer === drawTextBufferSequence) return yield* drawTextBuffer(h, events);
   return yield* renderer(h, events);
 }

@@ -31,7 +31,7 @@ import { waitForConfirmKey } from './confirm-key.mjs';
 import { equipmentRows } from './equipment-window.mjs';
 import { memberPortrait } from './member-portrait.mjs';
 import { resetWindowList } from './window-list.mjs';
-import { drawTextBufferSequence } from './text-draw.mjs';
+import { drawTextBuffer } from './text-draw.mjs';
 import { dataBankWord, setDataBankWord } from '../system/data-bank.mjs';
 import { scriptVisitSequence } from '../system/script-visit.mjs';
 import { createObject } from './object-create.mjs';
@@ -153,7 +153,7 @@ function listItems(mem) {
 
 // 80:E572, 80:E577 or 80:E57F: the item submenu (see above), for lifted callers without
 // the JSR frame; the menu choice and the confirm key keep their own.
-export function* itemMenu(h, events, entry, renderBuffer = drawTextBufferSequence) {
+export function* itemMenu(h, events, entry, renderBuffer = drawTextBuffer) {
   const { mem } = h.a,
     { wram } = mem;
   yield () => {

@@ -3,7 +3,7 @@ import { startTimeLimit } from '../game/time-limit.mjs';
 
 // 80:E255 (lifted in src/game/time-limit.mjs; register-level reference in
 // proof/game-reference/script-timer.mjs): start the countdown timer.
-export const startTimer = (a, outerReturn = true) => {
+export const startTimer = (a) => {
   startTimeLimit(a.mem);
-  return finishLeaf(a, outerReturn);
+  return finishLeaf(a);
 };

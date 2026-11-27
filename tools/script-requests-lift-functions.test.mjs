@@ -8,12 +8,20 @@
 // return must be equal.
 import { prng } from './task-native-dialog-harness.mjs';
 import { createSide, registerCases, useLiftVectors } from './lift-function-harness.mjs';
-import { changeRoom } from '../src/script/native-room-change.mjs';
-import { changeScene } from '../src/script/native-scene-change.mjs';
-import { requestRoomReload } from '../src/script/native-room-reload.mjs';
-import { requestMainLoopExit } from '../src/script/native-main-loop-exit.mjs';
-import { endDialog } from '../src/script/native-dialog-end.mjs';
-import { resetPlayerControl } from '../src/script/native-player-control-reset.mjs';
+import { changeRoom as changeRoomLifted } from '../src/script/native-room-change.mjs';
+import { changeScene as changeSceneLifted } from '../src/script/native-scene-change.mjs';
+import { requestRoomReload as requestRoomReloadLifted } from '../src/script/native-room-reload.mjs';
+import { requestMainLoopExit as requestMainLoopExitLifted } from '../src/script/native-main-loop-exit.mjs';
+import { endDialog as endDialogLifted } from '../src/script/native-dialog-end.mjs';
+import { resetPlayerControl as resetPlayerControlLifted } from '../src/script/native-player-control-reset.mjs';
+import { leafRts } from './register-forms/leaf-return.mjs';
+// The natives with the RTS of their register-level entry (2026-11-27).
+const changeRoom = leafRts(changeRoomLifted);
+const changeScene = leafRts(changeSceneLifted);
+const requestRoomReload = leafRts(requestRoomReloadLifted);
+const requestMainLoopExit = leafRts(requestMainLoopExitLifted);
+const endDialog = leafRts(endDialogLifted);
+const resetPlayerControl = leafRts(resetPlayerControlLifted);
 
 useLiftVectors(import.meta.url);
 

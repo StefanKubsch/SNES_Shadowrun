@@ -36,7 +36,7 @@ import { takePad } from '../system/live-input-calls.mjs';
 import { waitForCounterWord } from '../system/frame-wait.mjs';
 import { playSoundEffect } from '../apu/sound-effect.mjs';
 import { accessorPort } from '../system/hardware-port.mjs';
-import { drawTextBufferSequence } from './text-draw.mjs';
+import { drawTextBuffer } from './text-draw.mjs';
 import { drawList, markRow, MARK, UNMARK } from './menu-list.mjs';
 import { requestTileClear } from './window-open.mjs';
 import {
@@ -104,7 +104,7 @@ const subtractRowsTwice = (start, rows) => {
 // Choose from the menu list directly and return the selected row (FFFF on cancel).
 // The renderer is a sequence. row is
 // the preselected row of 80:A6B8 (A in the original).
-export function* chooseFromMenu(h, events, renderBuffer = drawTextBufferSequence, entry, row = 0) {
+export function* chooseFromMenu(h, events, renderBuffer = drawTextBuffer, entry, row = 0) {
   const { mem } = h.a,
     { wram } = mem;
   // The row's word index (Y in the original).
@@ -306,16 +306,4 @@ export function* chooseFromMenu(h, events, renderBuffer = drawTextBufferSequence
       }
     }
   }
-}
-
-// Compatibility entry for register-level callers; internal menus use the value above.
-export function* chooseFromMenuSequence(h, events, renderBuffer, entry, row = 0) {
-  const selected = yield* chooseFromMenu(h, events, renderBuffer, entry, row);
-  let result;
-  yield () => {
-    // The original sound entry leaves its code bank on confirmed choices.
-    if (selected !== NONE) h.ctx.bank = MENU >>> WORD_BITS;
-    result = h.rts();
-  };
-  return result;
 }

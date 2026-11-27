@@ -10,10 +10,8 @@ import {
 } from './native-call-continuation.mjs';
 import { showNoticeSequence } from '../../src/game/notice-show.mjs';
 import { releaseWindowSequence } from '../../src/game/window-release.mjs';
-import {
-  putGloveAwayCallSequence as putGloveAwayRoutineSequence,
-  releaseNoticeWindowsCallSequence as releaseNoticeWindowsRoutineSequence,
-} from '../../src/game/window-release.mjs';
+import { putGloveAwayJsr as putGloveAwayRoutineSequence } from './jsr-forms.mjs';
+import { releaseNoticeWindowsCallSequence as releaseNoticeWindowsRoutineSequence } from '../../src/game/window-release.mjs';
 import { talkSequence } from '../../src/game/dialog-talk.mjs';
 import { reloadObjectTiles } from '../../src/game/object-tiles.mjs';
 import {
@@ -30,7 +28,7 @@ import {
   showDialogTextJsr,
   openWindowJsr,
 } from './jsr-forms.mjs';
-import { drawTextBufferSequence } from '../../src/game/text-draw.mjs';
+import { drawTextBuffer } from '../../src/game/text-draw.mjs';
 import { BYTE_BITS, WORD_MASK, WORD_SIGN } from '../../src/constants/bits.mjs';
 import { FLAG_CARRY, FLAG_NEGATIVE, FLAG_ZERO } from '../../src/constants/cpu-flags.mjs';
 
@@ -71,11 +69,11 @@ NATIVE_CALL_CONTINUATIONS.set(runPrintText, {
 });
 // 80:FB39, called with JSR; its upload requests wait for the NMI.
 export function runDrawTextBuffer(h, events) {
-  return drainNativeSequence(drawTextBufferSequence(h, events));
+  return drainNativeSequence(drawTextBuffer(h, events));
 }
 NATIVE_CALL_CONTINUATIONS.set(runDrawTextBuffer, {
   run: runDrawTextBuffer,
-  create: ({ h, events }) => new NativeCallContinuation(h.a, drawTextBufferSequence(h, events)),
+  create: ({ h, events }) => new NativeCallContinuation(h.a, drawTextBuffer(h, events)),
 });
 // 80:F963, called with JSR; its tile request and map upload wait for the NMI.
 export function runOpenWindow(h, events) {
@@ -122,17 +120,17 @@ NATIVE_CALL_CONTINUATIONS.set(runReleaseNoticeWindows, {
 });
 // 80:91E2 and 80:9215 compose their live menus with the text renderer.
 export function runDialogMenu(h, events) {
-  return drainNativeSequence(dialogActionRoutineSequence(h, events, drawTextBufferSequence));
+  return drainNativeSequence(dialogActionRoutineSequence(h, events, drawTextBuffer));
 }
 export function runDialogTopics(h, events) {
-  return drainNativeSequence(chooseDialogTopicJsr(h, events, drawTextBufferSequence));
+  return drainNativeSequence(chooseDialogTopicJsr(h, events, drawTextBuffer));
 }
 // 80:9178 composes live clearing, cursor, text and topic task actions; the register
 // form takes the text key in A.
 const dialogTextRoutineSequence = (h, events, renderBuffer) =>
   showDialogTextJsr(h, events, renderBuffer, h.ctx.a);
 export function runDialogText(h, events) {
-  return drainNativeSequence(dialogTextRoutineSequence(h, events, drawTextBufferSequence));
+  return drainNativeSequence(dialogTextRoutineSequence(h, events, drawTextBuffer));
 }
 for (const [run, sequence] of [
   [runDialogMenu, dialogActionRoutineSequence],
@@ -141,8 +139,7 @@ for (const [run, sequence] of [
 ])
   NATIVE_CALL_CONTINUATIONS.set(run, {
     run,
-    create: ({ h, events }) =>
-      new NativeCallContinuation(h.a, sequence(h, events, drawTextBufferSequence)),
+    create: ({ h, events }) => new NativeCallContinuation(h.a, sequence(h, events, drawTextBuffer)),
   });
 // 80:8F3A and 80:8F97, the portrait window opened and closed over frames.
 export function runOpenPortraitWindow(h, events) {
@@ -218,7 +215,7 @@ const signAndZero = (ctx, value) => {
   flag(ctx, FLAG_ZERO, value === 0);
 };
 // 80:91E2: A the chosen row (00) with the carry, sign and zero of CMP #FFFF.
-export function* dialogActionRoutineSequence(h, events, renderBuffer = drawTextBufferSequence) {
+export function* dialogActionRoutineSequence(h, events, renderBuffer = drawTextBuffer) {
   const result = yield* chooseDialogActionJsr(h, events, renderBuffer),
     { ctx } = h,
     { wram } = h.a.mem,
@@ -229,14 +226,14 @@ export function* dialogActionRoutineSequence(h, events, renderBuffer = drawTextB
   return result;
 }
 // 80:99EB: the accepted actions in A, the chosen flag left in A.
-export function* chooseActionRoutineSequence(h, events, renderBuffer = drawTextBufferSequence) {
+export function* chooseActionRoutineSequence(h, events, renderBuffer = drawTextBuffer) {
   const choice = {},
     result = yield* chooseActionJsr(h, events, renderBuffer, h.ctx.a, choice);
   h.ctx.a = choice.action;
   return result;
 }
 // 80:FEC1: A the window with its sign and zero and X the slot, as the original leaves them.
-export function* noticeRoutineSequence(h, events, renderBuffer = drawTextBufferSequence) {
+export function* noticeRoutineSequence(h, events, renderBuffer = drawTextBuffer) {
   const shown = {},
     result = yield* showNoticeSequence(h, events, renderBuffer, shown),
     { ctx } = h;

@@ -25,7 +25,7 @@ import { taskStop } from '../system/task-stop.mjs';
 import { openWindow, requestTileClear } from './window-open.mjs';
 import { waitForConfirmKey } from './confirm-key.mjs';
 import { printText } from './text-print.mjs';
-import { drawTextBufferSequence } from './text-draw.mjs';
+import { drawTextBuffer } from './text-draw.mjs';
 import { fitNoticeWindow } from '../data/language.mjs';
 import { releaseWindowSequence } from './window-release.mjs';
 import {
@@ -95,7 +95,7 @@ function* pagesSequence(h, events, renderBuffer, { id, pages }) {
 // return word lies only in free stack bytes): h the caller's access (direct page 0,
 // data bank 80), events its frame events, and renderBuffer the text-buffer renderer
 // sequence; shown receives the window and the slot.
-export function* showNotice(h, events, renderBuffer = drawTextBufferSequence, shown = {}) {
+export function* showNotice(h, events, renderBuffer = drawTextBuffer, shown = {}) {
   const { mem } = h.a,
     { wram } = mem;
   let paged = null,
@@ -153,17 +153,6 @@ export function* showNotice(h, events, renderBuffer = drawTextBufferSequence, sh
 }
 // The notice as called with JSR (80:FEC1), a sequence for a native call continuation;
 // returns with its RTS.
-export function* showNoticeSequence(
-  h,
-  events,
-  renderBuffer = drawTextBufferSequence,
-  shown = {},
-  outerReturn = true,
-) {
+export function* showNoticeSequence(h, events, renderBuffer = drawTextBuffer, shown = {}) {
   yield* showNotice(h, events, renderBuffer, shown);
-  let result;
-  yield () => {
-    if (outerReturn) result = h.rts();
-  };
-  return result;
 }

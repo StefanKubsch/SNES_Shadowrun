@@ -97,29 +97,8 @@ export function* releaseGloveNameWindowSequence(h, events) {
   };
 }
 
-// The name window release as called with JSR (80:BE5B), a sequence for the glove's
-// movement and object search; returns with its RTS.
-export function* releaseNameWindowCallSequence(h, events) {
-  yield* releaseGloveNameWindowSequence(h, events);
-  return yield* rts(h);
-}
-
-// Compatibility JSR entry: cleanup composes directly, then consumes the outer RTS.
-export function* putGloveAwayCallSequence(h, events) {
-  yield* putGloveAwaySequence(h, events);
-  return yield* rts(h);
-}
-
 // The notice windows' release as called with JSR (80:FF79), a sequence for the dialog.
 // Returns with its RTS.
-export function* releaseNoticeWindowsCallSequence(h, events, outerReturn = true) {
+export function* releaseNoticeWindowsCallSequence(h, events) {
   yield* releaseNoticeWindowsSequence(h, events);
-  if (outerReturn) return yield* rts(h);
-}
-function* rts(h) {
-  let result;
-  yield () => {
-    result = h.rts();
-  };
-  return result;
 }

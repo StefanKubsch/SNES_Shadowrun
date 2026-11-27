@@ -1,4 +1,5 @@
 import { compareRun } from './member-menu-caller-harness.mjs';
+import { withRts } from './register-forms/rts-forms.mjs';
 import * as V from '../src/vm/layout.mjs';
 import * as S from '../src/data/native-object-shoot.mjs';
 
@@ -88,7 +89,8 @@ function runShot(sequence, direct, options) {
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { assertFrozenRun, useLiftVectors } from './lift-function-harness.mjs';
-import * as actual from '../src/game/object-shoot.mjs';
+import * as actualLifted from '../src/game/object-shoot.mjs';
+const actual = withRts(actualLifted);
 import * as W from '../src/data/wram.mjs';
 
 const entries = [

@@ -14,7 +14,7 @@ import { readStateByte, writeStateByte } from '../state/objects.mjs';
 //
 // Registers (user decision 2026-11-17): game state only; the routine leaves no A, X, Y
 // or flags (the glove action, the object search and the scheduler round read none).
-import { drawTextBufferSequence } from './text-draw.mjs';
+import { drawTextBuffer } from './text-draw.mjs';
 import { objectSearch } from './object-search.mjs';
 import { releaseGloveNameWindowSequence } from './window-release.mjs';
 import {
@@ -67,7 +67,7 @@ function axisPosition(position, speed, limit) {
 // Move the glove (80:BE6D) for lifted callers, without the JSR frame (the caller's
 // return word lies only in free stack bytes): h the main loop's access (data bank 80),
 // events its frame events, renderBuffer the text-buffer renderer used for an object name.
-export function* gloveMove(h, events, renderBuffer = drawTextBufferSequence) {
+export function* gloveMove(h, events, renderBuffer = drawTextBuffer) {
   const { wram } = h.a.mem;
   let next = 'return';
   yield () => {

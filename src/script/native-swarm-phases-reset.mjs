@@ -5,7 +5,7 @@ import { resetSwarmOrbit } from '../game/swarm-setup.mjs';
 // proof/game-reference/swarm-setup.mjs): reset the swarm orbit: no circle follower yet,
 // the countdown to the first follower, and every one of the sixteen member phases at the
 // start phase.
-export const resetSwarmPhases = (a, outerReturn = true) => {
+export const resetSwarmPhases = (a) => {
   resetSwarmOrbit(a.mem);
-  return finishLeaf(a, outerReturn);
+  return finishLeaf(a);
 };

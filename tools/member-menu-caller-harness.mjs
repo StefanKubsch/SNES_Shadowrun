@@ -1,8 +1,8 @@
-import { drawTextBufferSequence as drawTextBuffer } from '../src/game/text-draw.mjs';
+import { drawTextBuffer } from '../src/game/text-draw.mjs';
 import assert from 'node:assert/strict';
 import { setTextCursorRoutine, printNumberSequence } from './register-forms/window-text.mjs';
 import { printTextSequence } from './register-forms/text-print.mjs';
-import { frameWaitCallSequence } from '../src/system/live-input-calls.mjs';
+import { frameWaitJsl as frameWaitCallSequence } from './register-forms/jsr-forms.mjs';
 import { runPadPresses } from './register-forms/input-routines.mjs';
 import { playSoundEffectJsr, shiftPortraitRowsJsr } from './register-forms/jsr-forms.mjs';
 import {

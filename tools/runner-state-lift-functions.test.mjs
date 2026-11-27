@@ -6,8 +6,11 @@
 // the stack, including the direct page values both leave, or the same stop.
 import { prng, DialogTestMemory } from './task-native-dialog-harness.mjs';
 import { createSide, registerCases, useLiftVectors } from './lift-function-harness.mjs';
-import { raiseMemberMagicPoints } from '../src/script/native-magic-points-raise.mjs';
+import { raiseMemberMagicPoints as raiseMemberMagicPointsLifted } from '../src/script/native-magic-points-raise.mjs';
 import { raiseStateCountBody, restoreRunnersBody } from './register-forms/runner-state-bodies.mjs';
+import { leafRts } from './register-forms/leaf-return.mjs';
+// The natives with the RTS of their register-level entry (2026-11-27).
+const raiseMemberMagicPoints = leafRts(raiseMemberMagicPointsLifted);
 
 useLiftVectors(import.meta.url);
 

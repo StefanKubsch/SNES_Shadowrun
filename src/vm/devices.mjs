@@ -7,7 +7,7 @@
 // VmMemory.
 //
 // Observation set: {target, io, wait, input}, all lists frozen.
-// Optional: interrupts [{pc,nmi}], interruptRoutines (explicit proved Map),
+// Optional: interrupts [{pc,nmi}],
 // dmaTransfers (including frozen bytes), startupInterrupts for the complete
 // observed SPC instructions and title-buffer MVN iterations. No elapsed time is inferred.
 //   io     [{pc, address, width, value}]  device reads in read order
@@ -40,7 +40,6 @@ export function interruptEventsOf(set, target) {
     : {
         interrupts: set.interrupts,
         interruptIndex: 0,
-        interruptRoutines: set.interruptRoutines,
         ...(set.frameJobs ? { frameJobs: set.frameJobs } : {}),
         dmaTransfers: set.dmaTransfers,
         dmaIndex: 0,

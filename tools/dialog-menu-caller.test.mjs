@@ -1,4 +1,4 @@
-import { drawTextBufferSequence as drawTextBuffer } from '../src/game/text-draw.mjs';
+import { drawTextBuffer } from '../src/game/text-draw.mjs';
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { assertFrozenRun, useLiftVectors } from './lift-function-harness.mjs';

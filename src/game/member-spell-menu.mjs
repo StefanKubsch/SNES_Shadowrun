@@ -33,7 +33,7 @@ import { waitForConfirmKey } from './confirm-key.mjs';
 import { equipmentRows } from './equipment-window.mjs';
 import { memberPortrait } from './member-portrait.mjs';
 import { resetWindowList } from './window-list.mjs';
-import { drawTextBufferSequence } from './text-draw.mjs';
+import { drawTextBuffer } from './text-draw.mjs';
 import { dataBankWord, setDataBankWord } from '../system/data-bank.mjs';
 import {
   SPELL_LEVEL_NAMES,
@@ -122,13 +122,6 @@ const negative = (value) => (value & WORD_SIGN) !== 0;
 function add(left, right, carry = false) {
   const sum = left + right + (carry ? 1 : 0);
   return { value: sum & WORD_MASK, carry: sum > WORD_MASK };
-}
-function* returnSequence(h, outerReturn = true) {
-  let result;
-  yield () => {
-    if (outerReturn) result = h.rts();
-  };
-  return result;
 }
 
 // The level byte of a spell slot in the runner's record (long pointer DP F9).
@@ -224,7 +217,7 @@ function* afterScriptSequence(h, events) {
 // 80:E693 (or the entry 80:E68E): the spell menu of the member in 1F5C with its record
 // at DP F9. Menu selection and task creation compose directly; legacy scheduler
 // hooks alone retain their visit adapter.
-export function* spellMenu(h, events, entry = MENU_ENTRY, renderBuffer = drawTextBufferSequence) {
+export function* spellMenu(h, events, entry = MENU_ENTRY, renderBuffer = drawTextBuffer) {
   const { mem } = h.a,
     { wram } = mem;
   let known = 0;
@@ -288,12 +281,7 @@ export function* spellMenu(h, events, entry = MENU_ENTRY, renderBuffer = drawTex
 
 // 80:F254: the spell menu of the object DP 00 (see above). A sequence that ends with the
 // native's RTS.
-export function* openSpellMenuSequence(
-  h,
-  events,
-  renderBuffer = drawTextBufferSequence,
-  outerReturn = true,
-) {
+export function* openSpellMenuSequence(h, events, renderBuffer = drawTextBuffer) {
   const { mem } = h.a,
     { wram } = mem;
   yield () => {
@@ -319,5 +307,4 @@ export function* openSpellMenuSequence(
   };
   yield* spellMenu(h, events, MENU_ENTRY, renderBuffer);
   yield () => setWord(wram, MEMBER_MENU_ACTIVE, 0);
-  return yield* returnSequence(h, outerReturn);
 }

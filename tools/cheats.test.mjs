@@ -10,14 +10,18 @@ import { hitObject } from '../src/game/object-hit.mjs';
 import { HIT_EVENT } from '../src/data/native-object-hit.mjs';
 import * as W from '../src/data/wram.mjs';
 import * as V from '../src/vm/layout.mjs';
-import { setObjectRecordCount } from '../src/script/native-object-record-count-set.mjs';
-import { decrementObjectStateCount } from '../src/script/native-object-record-count-decrement.mjs';
+import { setObjectRecordCount as setObjectRecordCountLifted } from '../src/script/native-object-record-count-set.mjs';
+import { decrementObjectStateCount as decrementObjectStateCountLifted } from '../src/script/native-object-record-count-decrement.mjs';
 import { CHEAT, CHEAT_MASK, CHEAT_EVENTS } from '../src/game/cheat-settings.mjs';
 import { applyCheats, JAKE_STATE_RECORD } from '../src/game/cheats.mjs';
 import { RECORD_ATTRIBUTE, RECORD_SKILL, RECORD_SPELL } from '../src/data/runners.mjs';
 import { LiveGame } from '../src/video/live-game.mjs';
 import { counterBytes } from '../src/vm/frame-events.mjs';
 import { Recorder, parseRecording, replayRecording } from '../src/browser/recording.mjs';
+import { leafRts } from './register-forms/leaf-return.mjs';
+// The natives with the RTS of their register-level entry (2026-11-27).
+const setObjectRecordCount = leafRts(setObjectRecordCountLifted);
+const decrementObjectStateCount = leafRts(decrementObjectStateCountLifted);
 
 // The game state the cheat checks read: memory and the cheat mask of the accessor's VM.
 function fixture(mask = 0) {

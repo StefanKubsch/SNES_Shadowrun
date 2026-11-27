@@ -31,11 +31,6 @@ export function* waitForConfirmKey(h, events) {
 }
 
 // Compatibility entry consumes only the supplied outer native frame.
-export function* waitForConfirmKeySequence(h, events, outerReturn = true) {
+export function* waitForConfirmKeySequence(h, events) {
   yield* waitForConfirmKey(h, events);
-  let result;
-  yield () => {
-    if (outerReturn) result = h.rts();
-  };
-  return result;
 }

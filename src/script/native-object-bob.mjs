@@ -11,12 +11,12 @@ export {
   HALF_PHASE,
 } from '../game/object-bob.mjs';
 // 80:D714: bob the object (first argument) by the first bob phase.
-export const bobObject = (a, outerReturn = true) => {
+export const bobObject = (a) => {
   bob(a.mem, leafArgument(a, FIRST_ARGUMENT), false);
-  return finishLeaf(a, outerReturn);
+  return finishLeaf(a);
 };
 // 80:D73B: bob the object (first argument) by the second bob phase, half a period later.
-export const bobSecondObject = (a, outerReturn = true) => {
+export const bobSecondObject = (a) => {
   bob(a.mem, leafArgument(a, FIRST_ARGUMENT), true);
-  return finishLeaf(a, outerReturn);
+  return finishLeaf(a);
 };

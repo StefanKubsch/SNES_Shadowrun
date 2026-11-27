@@ -9,7 +9,7 @@ import { objectCoarseY } from '../game/object-fields.mjs';
 // 80:A963 (lifted in src/game/object-fields.mjs; register-level reference in
 // proof/game-reference/object-fields.mjs): return the Y position of the object (first
 // argument) divided by four.
-export const getObjectCoarseY = (a, outerReturn = true) => {
+export const getObjectCoarseY = (a) => {
   setLeafResult(a, objectCoarseY(a.mem, leafArgument(a, FIRST_ARGUMENT)));
-  return finishLeaf(a, outerReturn);
+  return finishLeaf(a);
 };

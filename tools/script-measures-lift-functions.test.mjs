@@ -8,12 +8,19 @@
 // outside the stacks, the device writes and the return must be equal.
 import { prng } from './task-native-dialog-harness.mjs';
 import { createSide, registerCases, useLiftVectors } from './lift-function-harness.mjs';
-import { limitCrosshair } from '../src/script/native-glove-crosshair-limits.mjs';
-import { limitSpellGlove } from '../src/script/native-glove-spell-limits.mjs';
-import { getDistanceToPlayer } from '../src/script/native-object-distance.mjs';
-import { getDistanceBetweenObjects } from '../src/script/native-object-distance-direct.mjs';
-import { halveArgumentSigned } from '../src/script/native-shift-right-signed.mjs';
+import { limitCrosshair as limitCrosshairLifted } from '../src/script/native-glove-crosshair-limits.mjs';
+import { limitSpellGlove as limitSpellGloveLifted } from '../src/script/native-glove-spell-limits.mjs';
+import { getDistanceToPlayer as getDistanceToPlayerLifted } from '../src/script/native-object-distance.mjs';
+import { getDistanceBetweenObjects as getDistanceBetweenObjectsLifted } from '../src/script/native-object-distance-direct.mjs';
+import { halveArgumentSigned as halveArgumentSignedLifted } from '../src/script/native-shift-right-signed.mjs';
 import { OBJECT_X, PLAYER_OBJECT } from '../src/data/wram.mjs';
+import { leafRts } from './register-forms/leaf-return.mjs';
+// The natives with the RTS of their register-level entry (2026-11-27).
+const limitCrosshair = leafRts(limitCrosshairLifted);
+const limitSpellGlove = leafRts(limitSpellGloveLifted);
+const getDistanceToPlayer = leafRts(getDistanceToPlayerLifted);
+const getDistanceBetweenObjects = leafRts(getDistanceBetweenObjectsLifted);
+const halveArgumentSigned = leafRts(halveArgumentSignedLifted);
 
 useLiftVectors(import.meta.url);
 

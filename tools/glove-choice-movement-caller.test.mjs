@@ -1,8 +1,10 @@
 import test from 'node:test';
+import { withRts } from './register-forms/rts-forms.mjs';
 import assert from 'node:assert/strict';
 import { assertFrozenRun, useLiftVectors } from './lift-function-harness.mjs';
 import { compareRun } from './member-menu-caller-harness.mjs';
-import * as direct from '../src/game/glove-target.mjs';
+import * as directLifted from '../src/game/glove-target.mjs';
+const direct = withRts(directLifted);
 import * as W from '../src/data/wram.mjs';
 
 useLiftVectors(import.meta.url);

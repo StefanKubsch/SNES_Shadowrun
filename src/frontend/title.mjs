@@ -257,13 +257,6 @@ function showTitlePicture(video) {
   video.setVerticalScroll(BG_2, BG2_VIEWS[0]);
 }
 
-// 81:DD54: the NMI callback of the prologue: the text tilemap to VRAM, the BG3
-// scroll, then the joypad.
-export function handlePrologueNmi(h) {
-  updatePrologueFrame(h);
-  return h.rtl();
-}
-
 // Frame jobs return directly; the compatibility entry above owns the original RTL.
 export function updatePrologueFrame(h) {
   const { wram, video, port } = sceneRuntime(h);
@@ -286,25 +279,12 @@ function sendMap(video, source, vram) {
     ['increment', 'mode', 'target', 'source', 'bank', 'bytes', 'address', 'start'],
   );
 }
-// 81:DAD6: the NMI callback of the title's first frames: the OAM buffer, then the
-// objects (81:D9D5).
-export function handleTitleObjectsNmi(h) {
-  updateTitleObjectsFrame(h);
-  return h.rtl();
-}
 
 // Frame jobs return directly; the compatibility entry above owns the original RTL.
 export function updateTitleObjectsFrame(h) {
   const m = sceneRuntime(h);
   m.video.copyToOam(WRAM + OAM_SHADOW, OAM_BYTES);
   drawPanObjects(m, word(m.wram, DP_TITLE_POSITION));
-}
-// 81:D93E: the NMI callback of the pan: the OAM buffer; until position 0401 the
-// speed, position and horizontal scrolls and a map upload at the positions of the
-// table; then the objects (81:D9D5).
-export function handleTitlePanNmi(h) {
-  updateTitlePanFrame(h);
-  return h.rtl();
 }
 
 // Frame jobs return directly; the compatibility entry above owns the original RTL.
@@ -331,13 +311,6 @@ export function updateTitlePanFrame(h) {
       }
   }
   drawPanObjects(m, word(wram, DP_TITLE_POSITION));
-}
-// 81:DCAC: the NMI callback of the vertical scroll: the OAM buffer, the speed by one
-// toward its target, the position, the scrolls or the title colours, a map upload
-// once the position passes the next entry of the table, then the joypad.
-export function handleTitleScrollNmi(h) {
-  updateTitleScrollFrame(h);
-  return h.rtl();
 }
 
 // Frame jobs return directly; the compatibility entry above owns the original RTL.
@@ -378,15 +351,6 @@ export function updateTitleScrollFrame(h) {
     sendMap(video, t.scrollUploads(n + 1), t.scrollUploads(n + 2));
   }
   setWord(wram, PAD_HELD, readJoypad(m.port));
-}
-
-// 81:D694: play the prologue and the title. h is the accessor of the native call
-// from the title cycle 80:A18C. shown.key tells whether a held button ended the title
-// (A = 1 in the original, 0 after the whole title); no A, X, Y or flags are left
-// (user decision 2026-11-17), only the status width the original restores.
-export function* titleSequence(h, events, routines, shown = {}) {
-  shown.key = yield* playTitle(h, events, routines);
-  return yield () => h.rtl();
 }
 
 // Ordinary scene playback returns whether input ended the title early.

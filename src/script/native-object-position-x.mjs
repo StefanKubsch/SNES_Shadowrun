@@ -9,7 +9,7 @@ import { objectCoarseX } from '../game/object-fields.mjs';
 // 80:A959 (lifted in src/game/object-fields.mjs; register-level reference in
 // proof/game-reference/object-fields.mjs): return the X position of the object (first
 // argument) divided by four.
-export const getObjectCoarseX = (a, outerReturn = true) => {
+export const getObjectCoarseX = (a) => {
   setLeafResult(a, objectCoarseX(a.mem, leafArgument(a, FIRST_ARGUMENT)));
-  return finishLeaf(a, outerReturn);
+  return finishLeaf(a);
 };

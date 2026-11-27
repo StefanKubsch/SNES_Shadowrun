@@ -10,7 +10,7 @@ import { readStateByte, writeStateByte } from '../state/objects.mjs';
 import { openWindow } from './window-open.mjs';
 import { releaseWindowSequence } from './window-release.mjs';
 import { chooseFromMenu } from './menu-choice.mjs';
-import { drawTextBufferSequence } from './text-draw.mjs';
+import { drawTextBuffer } from './text-draw.mjs';
 import { fitListWindow } from '../data/menu-layout.mjs';
 import {
   DP_LIST_TOKEN_BANK,
@@ -49,12 +49,7 @@ const setWord = (wram, at, value) => {
 };
 
 // 80:CD43 composes opening, selection and release with an explicit renderer.
-export function* askYesNoSequence(
-  h,
-  events,
-  renderBuffer = drawTextBufferSequence,
-  outerReturn = true,
-) {
+export function* askYesNoSequence(h, events, renderBuffer = drawTextBuffer) {
   const { mem } = h.a,
     { wram } = mem;
   yield () => {
@@ -82,10 +77,7 @@ export function* askYesNoSequence(
     setWord(wram, DP_WINDOW, word(wram, DP_QUESTION_WINDOW));
   };
   yield* releaseWindowSequence(h, events);
-  let result;
   yield () => {
     setWord(wram, DP_WINDOW, answer);
-    if (outerReturn) result = h.rts();
   };
-  return result;
 }

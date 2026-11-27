@@ -1,9 +1,11 @@
-import { drawTextBufferSequence as drawTextBuffer } from '../src/game/text-draw.mjs';
+import { drawTextBuffer } from '../src/game/text-draw.mjs';
+import { withRts } from './register-forms/rts-forms.mjs';
 import { STATE_COUNT } from '../src/data/actors.mjs';
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { assertFrozenRun, useLiftVectors } from './lift-function-harness.mjs';
-import * as directSpell from '../src/game/spell-choice.mjs';
+import * as directSpellLifted from '../src/game/spell-choice.mjs';
+const directSpell = withRts(directSpellLifted);
 import {
   equipmentRowsJsr,
   notesJsr,

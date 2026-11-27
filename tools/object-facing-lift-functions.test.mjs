@@ -7,9 +7,9 @@
 // device writes and the return must be equal.
 import { prng } from './task-native-dialog-harness.mjs';
 import { createSide, registerCases, useLiftVectors } from './lift-function-harness.mjs';
-import { turnObjectToObject } from '../src/script/native-object-face-object.mjs';
-import { turnObjectToPlayer } from '../src/script/native-player-direction-slot.mjs';
-import { getDirectionToPlayer } from '../src/script/native-player-direction.mjs';
+import { turnObjectToObject as turnObjectToObjectLifted } from '../src/script/native-object-face-object.mjs';
+import { turnObjectToPlayer as turnObjectToPlayerLifted } from '../src/script/native-player-direction-slot.mjs';
+import { getDirectionToPlayer as getDirectionToPlayerLifted } from '../src/script/native-player-direction.mjs';
 import {
   OBJECT_DIRECTION,
   OBJECT_FRAME_COUNT,
@@ -19,6 +19,11 @@ import {
   OBJECT_Y,
   PLAYER_OBJECT,
 } from '../src/data/wram.mjs';
+import { leafRts } from './register-forms/leaf-return.mjs';
+// The natives with the RTS of their register-level entry (2026-11-27).
+const turnObjectToObject = leafRts(turnObjectToObjectLifted);
+const turnObjectToPlayer = leafRts(turnObjectToPlayerLifted);
+const getDirectionToPlayer = leafRts(getDirectionToPlayerLifted);
 
 useLiftVectors(import.meta.url);
 

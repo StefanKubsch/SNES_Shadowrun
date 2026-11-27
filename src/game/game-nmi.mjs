@@ -454,16 +454,6 @@ const SCREEN_SHADOWS = Object.freeze([
 ]);
 const BLANK_SITE = 0x80c156;
 
-// 80:C152: the game NMI handler. With the screen blanked it runs its jobs in the
-// original order (map edges, text uploads, scene palettes, palette cycle, object
-// palettes, VRAM records, OAM, portrait, joypad, glove, brightness fade), then copies
-// the screen shadows to INIDISP, TM, TS, TMW and HDMAEN. The jobs' frames are not
-// pushed (they lie below the NMI stack's top and nothing reads them).
-export function handleGameNmi(h) {
-  updateGameFrame(h);
-  return h.rtl();
-}
-
 // Frame jobs return directly; the compatibility entry above owns the original RTL.
 export function updateGameFrame(h) {
   const scene = sceneRuntime(h).video,

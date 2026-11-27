@@ -37,7 +37,7 @@ import { readStateByte, writeStateByte } from '../state/objects.mjs';
 import { printText } from './text-print.mjs';
 import { waitForConfirmKey } from './confirm-key.mjs';
 import { releaseWindowSequence } from './window-release.mjs';
-import { drawTextBufferSequence } from './text-draw.mjs';
+import { drawTextBuffer } from './text-draw.mjs';
 import { waitForCounterWord } from '../system/frame-wait.mjs';
 import { openWindow } from './window-open.mjs';
 import { drawWindowListSequence } from './window-list.mjs';
@@ -256,14 +256,7 @@ function* playerHitSequence(h, events, target) {
 // without the JSR frame (the caller's return word lies only in free stack bytes).
 // renderBuffer draws text. Its live callers run with the direct page at 0; no register
 // is checked (the register-level caller in tools/register-forms/object-hit.mjs keeps that check).
-export function* hitObject(
-  h,
-  events,
-  renderBuffer = drawTextBufferSequence,
-  damage,
-  target,
-  shooter,
-) {
+export function* hitObject(h, events, renderBuffer = drawTextBuffer, damage, target, shooter) {
   const { mem } = h.a,
     { wram } = mem;
   setWord(wram, 0, damage);

@@ -29,7 +29,7 @@ import { segmentSequence } from '../system/sequence-runner.mjs';
 import { setMusicModeInPlace } from '../apu/audio-routines.mjs';
 import { showDialogText } from './dialog-text.mjs';
 import { chooseDialogAction, chooseDialogTopic } from './dialog-menus.mjs';
-import { drawTextBufferSequence } from './text-draw.mjs';
+import { drawTextBuffer } from './text-draw.mjs';
 import { reloadObjectTiles } from './object-tiles.mjs';
 import { buildSpritesInPlace } from './sprite-list.mjs';
 import { openWindow } from './window-open.mjs';
@@ -191,7 +191,7 @@ export function* closeDialog(h, events) {
 // scheduler hooks retain their compatibility adapters.
 // The glove action supplies direct page 0 and data bank 80;
 // renderBuffer draws text.
-export function* talk(h, events, renderBuffer = drawTextBufferSequence) {
+export function* talk(h, events, renderBuffer = drawTextBuffer) {
   const m = sceneRuntime(h),
     { mem, wram, port } = m;
   if (fixesEnabled(h.a)) preparePushkinTopics(h.a, word(wram, DP_RECORD_NUMBER));
@@ -344,16 +344,6 @@ export function* talk(h, events, renderBuffer = drawTextBufferSequence) {
 }
 // The talk as called with JSR (80:936C), a sequence for a native call continuation;
 // returns with its RTS.
-export function* talkSequence(
-  h,
-  events,
-  renderBuffer = drawTextBufferSequence,
-  outerReturn = true,
-) {
+export function* talkSequence(h, events, renderBuffer = drawTextBuffer) {
   yield* talk(h, events, renderBuffer);
-  let result;
-  yield () => {
-    if (outerReturn) result = h.rts();
-  };
-  return result;
 }

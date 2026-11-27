@@ -25,7 +25,7 @@ import { selectObjectAnimation, turnObject } from './object-turn.mjs';
 import { releaseWindowSequence, putGloveAwaySequence } from './window-release.mjs';
 import { START_ENTRY, ITEMS_ENTRY, statusScreen } from './status-screen.mjs';
 import { partyStatus } from './party-status.mjs';
-import { drawTextBufferSequence } from './text-draw.mjs';
+import { drawTextBuffer } from './text-draw.mjs';
 import { segmentSequence } from '../system/sequence-runner.mjs';
 import { dataBankWord } from '../system/data-bank.mjs';
 import { placeGloveOverPlayer } from './glove-target.mjs';
@@ -263,21 +263,11 @@ function aimResult(h) {
 
 // 80:E014: one frame of the player's control (see above). A sequence that ends with the
 // native's RTS.
-export function* controlPlayerSequence(
-  h,
-  events,
-  renderBuffer = drawTextBufferSequence,
-  outerReturn = true,
-) {
+export function* controlPlayerSequence(h, events, renderBuffer = drawTextBuffer) {
   const { mem } = h.a,
     { wram } = mem;
   const finish = function* (result = 0) {
     yield () => setWord(wram, 0, result);
-    let returned;
-    yield () => {
-      if (outerReturn) returned = h.rts();
-    };
-    return returned;
   };
   let path, player;
   yield () => {

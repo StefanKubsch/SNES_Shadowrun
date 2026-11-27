@@ -1,10 +1,7 @@
 // Routine-table call sequences used only by register-level references: the
 // labelled call frame (nativeCallSequence), the unlabelled call frame
 // (dialogCallSequence) and the original tail jump (nativeTailSequence). The game composes its callees directly.
-import {
-  JSL_RETURN_OFFSET,
-  JSR_RETURN_OFFSET,
-} from './native-call-continuation.mjs';
+import { JSL_RETURN_OFFSET, JSR_RETURN_OFFSET } from './native-call-continuation.mjs';
 import { WORD_MASK, WORD_BITS } from '../../src/constants/bits.mjs';
 import { taskStop } from '../../src/system/task-stop.mjs';
 

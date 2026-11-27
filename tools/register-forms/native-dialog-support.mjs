@@ -185,4 +185,3 @@ export function dialogAccess(a) {
   for (const extend of EXTENSIONS) Object.assign(h, extend(h));
   return h;
 }
-

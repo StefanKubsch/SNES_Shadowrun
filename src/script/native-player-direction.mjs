@@ -4,7 +4,7 @@ import { getDirectionToPlayer as directionToPlayer } from '../game/object-facing
 // 80:D1DD (lifted in src/game/object-facing.mjs; register-level reference in
 // proof/game-reference/object-facing.mjs): return the direction from the object in the
 // first argument towards the player object.
-export const getDirectionToPlayer = (a, outerReturn = true) => {
+export const getDirectionToPlayer = (a) => {
   directionToPlayer(a.mem);
-  return finishLeaf(a, outerReturn);
+  return finishLeaf(a);
 };

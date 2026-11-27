@@ -11,12 +11,12 @@ import { setItemProperty } from '../game/runner-equipment.mjs';
 // proof/game-reference/runner-equipment.mjs): set the property word of the record of the
 // item object (first argument) to the second argument and take the item off any runner
 // who has it equipped.
-export const setItemPropertyAndUnequip = (a, outerReturn = true) => {
+export const setItemPropertyAndUnequip = (a) => {
   setItemProperty(
     a.mem,
     leafArgument(a, FIRST_ARGUMENT),
     leafArgument(a, SECOND_ARGUMENT),
     fixesEnabled(a),
   );
-  return finishLeaf(a, outerReturn);
+  return finishLeaf(a);
 };

@@ -14,8 +14,6 @@ import { TaskAccessor } from '../src/vm/task-accessor.mjs';
 import { dialogAccess } from './register-forms/native-dialog-support.mjs';
 import { DialogTestMemory, rom } from './task-native-dialog-harness.mjs';
 
-// No NMI handler runs in these cases.
-const NO_NMI_ROUTINES = new Map();
 const romAt = (address) => rom[((address >>> 16) & 0x7f) * 0x8000 + (address & 0x7fff)];
 // Synthetic WRAM; not a PAL timing fixture.
 function side({
@@ -61,7 +59,7 @@ function side({
       return pad;
     },
   });
-  a.devices = new LiveDevices(frames, NO_NMI_ROUTINES);
+  a.devices = new LiveDevices(frames);
   a.io = Object.freeze([]);
   a.trace = [];
   return {
@@ -70,7 +68,7 @@ function side({
     h,
     frames,
     pads,
-    events: { interrupts: frames, interruptRoutines: NO_NMI_ROUTINES },
+    events: { interrupts: frames },
   };
 }
 test('every blocking branch is the original backward branch onto its read, with the ROM condition', () => {
@@ -127,7 +125,7 @@ test('NMITIMEN, pad words and nested NMIs are boundaries, never assumptions', ()
     (e) => e.reason === 'frame_nmitimen_required',
   );
   assert.throws(
-    () => new LiveDevices(nested, null),
+    () => new LiveDevices(null),
     (e) => e.reason === 'frame_devices_required',
   );
 });
@@ -182,13 +180,13 @@ test('the PPU multiplier is signed 16 x 8 bits and rejects an interleaved latch'
   // is a boundary.
   const q = operands(7, 6);
   const frames = new LagFreeFrames({ nmitimen: 0x81 }),
-    live = new LiveDevices(frames, NO_NMI_ROUTINES, {
+    live = new LiveDevices(frames, {
       bus: { write() {}, readProduct: (port) => q.readProduct(port) },
     });
   assert.equal(live.read(0x802134, 2, 0x80fa01), 42);
   assert.equal(live.read(0x802136, 1, 0x80fa19), 0);
   assert.equal(live.read(0x7e2134, 2, 0x80fa01), undefined);
-  const bare = new LiveDevices(frames, NO_NMI_ROUTINES);
+  const bare = new LiveDevices(frames);
   assert.throws(
     () => bare.write(0x81aa93, 0x80420b, 0x20, 1),
     (e) => e.reason === 'frame_text_dma_device_required',

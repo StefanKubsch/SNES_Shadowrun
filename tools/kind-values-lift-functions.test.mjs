@@ -7,13 +7,19 @@
 // return must be equal.
 import { prng } from './task-native-dialog-harness.mjs';
 import { createSide, registerCases, useLiftVectors } from './lift-function-harness.mjs';
-import { getObjectKindValue } from '../src/script/native-object-kind-attribute.mjs';
-import { getActorKindValue } from '../src/script/native-record-kind-attribute.mjs';
-import { getActorKindFlags } from '../src/script/native-record-kind-second-attribute.mjs';
-import { getActorKind } from '../src/script/native-record-kind-get.mjs';
+import { getObjectKindValue as getObjectKindValueLifted } from '../src/script/native-object-kind-attribute.mjs';
+import { getActorKindValue as getActorKindValueLifted } from '../src/script/native-record-kind-attribute.mjs';
+import { getActorKindFlags as getActorKindFlagsLifted } from '../src/script/native-record-kind-second-attribute.mjs';
+import { getActorKind as getActorKindLifted } from '../src/script/native-record-kind-get.mjs';
 import { ACTOR_BYTES, ACTORS } from '../src/data/actors.mjs';
 import { KINDS } from '../src/data/kinds.mjs';
 import { OBJECT_KIND } from '../src/data/wram.mjs';
+import { leafRts } from './register-forms/leaf-return.mjs';
+// The natives with the RTS of their register-level entry (2026-11-27).
+const getObjectKindValue = leafRts(getObjectKindValueLifted);
+const getActorKindValue = leafRts(getActorKindValueLifted);
+const getActorKindFlags = leafRts(getActorKindFlagsLifted);
+const getActorKind = leafRts(getActorKindLifted);
 
 useLiftVectors(import.meta.url);
 

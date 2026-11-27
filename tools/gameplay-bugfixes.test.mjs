@@ -8,10 +8,10 @@ import { createTask, finishCall, scriptInfo } from '../src/script/tasks.mjs';
 import { nativeTarget as nativeEntry } from '../src/script/natives.mjs';
 import { TaskAccessor } from '../src/vm/task-accessor.mjs';
 import { nativeTarget as nativeImplementation } from '../src/script/native-targets.mjs';
-import { setItemPropertyAndUnequip } from '../src/script/native-object-record-property-equip.mjs';
-import { setActorItemPropertyAndUnequip } from '../src/script/native-record-property-equip.mjs';
-import { getActorStateFlags } from '../src/script/native-record-flags-get.mjs';
-import { setActorStateFlags } from '../src/script/native-record-flags-set.mjs';
+import { setItemPropertyAndUnequip as setItemPropertyAndUnequipLifted } from '../src/script/native-object-record-property-equip.mjs';
+import { setActorItemPropertyAndUnequip as setActorItemPropertyAndUnequipLifted } from '../src/script/native-record-property-equip.mjs';
+import { getActorStateFlags as getActorStateFlagsLifted } from '../src/script/native-record-flags-get.mjs';
+import { setActorStateFlags as setActorStateFlagsLifted } from '../src/script/native-record-flags-set.mjs';
 import { setUpNewGameState, loadSavedGame } from '../src/game/game-start.mjs';
 import {
   DEFAULT_GAMEPLAY,
@@ -21,6 +21,12 @@ import {
   fixesEnabled,
   preparePushkinTopics,
 } from '../src/game/bugfixes.mjs';
+import { leafRts } from './register-forms/leaf-return.mjs';
+// The natives with the RTS of their register-level entry (2026-11-27).
+const setItemPropertyAndUnequip = leafRts(setItemPropertyAndUnequipLifted);
+const setActorItemPropertyAndUnequip = leafRts(setActorItemPropertyAndUnequipLifted);
+const getActorStateFlags = leafRts(getActorStateFlagsLifted);
+const setActorStateFlags = leafRts(setActorStateFlagsLifted);
 
 const manifest = JSON.parse(readFileSync(new URL('../assets/vm-cartridge.json', import.meta.url)));
 const scripts = JSON.parse(

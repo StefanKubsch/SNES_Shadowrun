@@ -9,7 +9,7 @@ import { spriteMode } from '../game/object-fields.mjs';
 // 80:D17B (lifted in src/game/object-fields.mjs; register-level reference in
 // proof/game-reference/object-fields.mjs): return the sprite mode bits of the depth order
 // word of the object (first argument).
-export const getSpriteMode = (a, outerReturn = true) => {
+export const getSpriteMode = (a) => {
   setLeafResult(a, spriteMode(a.mem, leafArgument(a, FIRST_ARGUMENT)));
-  return finishLeaf(a, outerReturn);
+  return finishLeaf(a);
 };

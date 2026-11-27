@@ -5,7 +5,7 @@ import { addSceneObject as addLiftedSceneObject } from '../game/scene-object-add
 // proof/game-reference/scene-object-add.mjs): add a group member's object to the scene.
 // Arguments: the object kind, the direction (word 08), the actor entry (word 0A) and the
 // position (word 0C).
-export const addSceneObject = (a, outerReturn = true) => {
+export const addSceneObject = (a) => {
   addLiftedSceneObject(a.mem, a);
-  return finishLeaf(a, outerReturn);
+  return finishLeaf(a);
 };

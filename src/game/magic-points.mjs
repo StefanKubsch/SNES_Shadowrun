@@ -10,7 +10,7 @@ import { readStateWord } from '../state/objects.mjs';
 // Game state only (user decision 2026-11-17): no register values are left; the notice
 // takes no register input.
 import { showNotice } from './notice-show.mjs';
-import { drawTextBufferSequence } from './text-draw.mjs';
+import { drawTextBuffer } from './text-draw.mjs';
 import {
   DP_NOTICE_FRAMES,
   DP_NOTICE_TEXT,
@@ -35,12 +35,7 @@ const setWord = (wram, at, value) => {
 };
 
 // 80:8B43, ending with the native's RTS and composing its notice directly.
-export function* spendMagicPointsSequence(
-  h,
-  events,
-  renderBuffer = drawTextBufferSequence,
-  outerReturn = true,
-) {
+export function* spendMagicPointsSequence(h, events, renderBuffer = drawTextBuffer) {
   const { wram } = h.a.mem;
   let paid = false;
   yield () => {
@@ -67,9 +62,4 @@ export function* spendMagicPointsSequence(
     yield* showNotice(h, events, renderBuffer);
     yield () => setWord(wram, 0, NOT_PAID);
   }
-  let result;
-  yield () => {
-    if (outerReturn) result = h.rts();
-  };
-  return result;
 }

@@ -11,8 +11,8 @@ import { akimiArrivalFlags } from '../game/bugfixes.mjs';
 // proof/game-reference/actor-state.mjs): return the flag byte of the state record of the
 // actor entry (first argument). With bug fixes enabled, Akimi's arrival flags are
 // corrected (src/game/bugfixes.mjs).
-export const getActorStateFlags = (a, outerReturn = true) => {
+export const getActorStateFlags = (a) => {
   const actor = leafArgument(a, FIRST_ARGUMENT);
   setLeafResult(a, akimiArrivalFlags(a, actor, actorStateFlags(a.mem, actor)));
-  return finishLeaf(a, outerReturn);
+  return finishLeaf(a);
 };

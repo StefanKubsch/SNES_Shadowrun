@@ -6,9 +6,13 @@
 // return must be equal.
 import { prng } from './task-native-dialog-harness.mjs';
 import { createSide, registerCases, useLiftVectors } from './lift-function-harness.mjs';
-import { getGroupMemberPosition } from '../src/script/native-group-member-position.mjs';
-import { removeGroupMember } from '../src/script/native-group-remove.mjs';
+import { getGroupMemberPosition as getGroupMemberPositionLifted } from '../src/script/native-group-member-position.mjs';
+import { removeGroupMember as removeGroupMemberLifted } from '../src/script/native-group-remove.mjs';
 import { GROUP_INDEX, GROUP_SLOTS } from '../src/data/wram.mjs';
+import { leafRts } from './register-forms/leaf-return.mjs';
+// The natives with the RTS of their register-level entry (2026-11-27).
+const getGroupMemberPosition = leafRts(getGroupMemberPositionLifted);
+const removeGroupMember = leafRts(removeGroupMemberLifted);
 
 useLiftVectors(import.meta.url);
 

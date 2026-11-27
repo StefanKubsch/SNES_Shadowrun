@@ -146,15 +146,6 @@ function* requestUploadSequence(h, events) {
 // The text map upload for direct callers such as window opening.
 export const requestUploadCall = (h, events) => requestUploadSequence(h, events);
 
-// Compatibility upload for retained register-level callers with an outer JSL frame.
-export function* requestUploadJslSequence(h, events) {
-  yield* requestUploadSequence(h, events);
-  let result;
-  yield () => {
-    result = h.rtl();
-  };
-  return result;
-}
 // Draw the window list (81:AD92) and wait for its upload directly.
 export function* drawWindowListSequence(h, events) {
   yield* windowListBody(h, events);
@@ -162,15 +153,10 @@ export function* drawWindowListSequence(h, events) {
 
 // The dialog window's list redrawn (80:CDA8), a sequence for the script native: the
 // dialog window as the list's first argument, then its redraw and optional RTS.
-export function* redrawDialogWindowListSequence(h, events, outerReturn = true) {
+export function* redrawDialogWindowListSequence(h, events) {
   const { wram } = h.a.mem;
   yield () => setWord(wram, 0, word(wram, DIALOG_WINDOW));
   yield* drawWindowListSequence(h, events);
-  let result;
-  yield () => {
-    if (outerReturn) result = h.rts();
-  };
-  return result;
 }
 
 // 81:AEB0: redraw from the first window after clearing the first index.

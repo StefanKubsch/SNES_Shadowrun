@@ -8,11 +8,16 @@ import { prng } from './task-native-dialog-harness.mjs';
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { createSide, registerCases, useLiftVectors } from './lift-function-harness.mjs';
-import { isTopicKnown } from '../src/script/native-topic-known.mjs';
-import { markTopic } from '../src/script/native-topic-mark.mjs';
-import { addTopic } from '../src/script/native-topic-add.mjs';
+import { isTopicKnown as isTopicKnownLifted } from '../src/script/native-topic-known.mjs';
+import { markTopic as markTopicLifted } from '../src/script/native-topic-mark.mjs';
+import { addTopic as addTopicLifted } from '../src/script/native-topic-add.mjs';
 import { TOPIC_LIST, TOPIC_FLAGS, TOPIC_MARKED } from '../src/data/wram.mjs';
 import { addTopic as addKnownTopic, markTopic as markKnownTopic } from '../src/game/topic-list.mjs';
+import { leafRts } from './register-forms/leaf-return.mjs';
+// The natives with the RTS of their register-level entry (2026-11-27).
+const isTopicKnown = leafRts(isTopicKnownLifted);
+const markTopic = leafRts(markTopicLifted);
+const addTopic = leafRts(addTopicLifted);
 
 useLiftVectors(import.meta.url);
 

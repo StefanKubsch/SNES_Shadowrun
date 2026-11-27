@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { chooseFromMenuSequence as direct } from '../src/game/menu-choice.mjs';
+import { chooseFromMenuJsr as direct } from './register-forms/jsr-forms.mjs';
 import { runFrameWait, runPadPresses } from './register-forms/input-routines.mjs';
 import { playSoundEffectJsr } from './register-forms/jsr-forms.mjs';
 import { NativeCallContinuation } from './register-forms/native-call-continuation.mjs';

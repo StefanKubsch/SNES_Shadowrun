@@ -11,7 +11,7 @@ import { readStateByte, writeStateByte } from '../state/objects.mjs';
 // Registers (user decision 2026-11-17): game state only. The hit takes the damage, the
 // slot and the shooter as parameters (A, X and Y in the original); no registers are left.
 import { hitObject } from './object-hit.mjs';
-import { drawTextBufferSequence } from './text-draw.mjs';
+import { drawTextBuffer } from './text-draw.mjs';
 import { OBJECT_HITTABLE, OBJECT_LAST_SLOT } from '../data/wram.mjs';
 import { BYTE_BITS, BYTE_MASK, WORD_MASK, WORD_SIGN } from '../constants/bits.mjs';
 import { objectWord, objectWordIn } from '../state/objects.mjs';
@@ -43,12 +43,7 @@ function blastReaches(mem, centre, slot) {
 
 // 80:8E36: hit every object the blast around DP 00 reaches with the damage DP 02. A
 // sequence that ends with the native's RTS.
-export function* hitObjectsInBlastSequence(
-  h,
-  events,
-  renderBuffer = drawTextBufferSequence,
-  outerReturn = true,
-) {
+export function* hitObjectsInBlastSequence(h, events, renderBuffer = drawTextBuffer) {
   const { mem } = h.a,
     { wram } = mem,
     centre = word(wram, 0);
@@ -64,9 +59,4 @@ export function* hitObjectsInBlastSequence(
     };
     if (reached) yield* hitObject(h, events, renderBuffer, damage, slot, NO_SHOOTER);
   }
-  let result;
-  yield () => {
-    if (outerReturn) result = h.rts();
-  };
-  return result;
 }

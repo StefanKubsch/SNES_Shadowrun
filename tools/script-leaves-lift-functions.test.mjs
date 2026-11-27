@@ -11,24 +11,40 @@
 import { prng, DialogTestMemory } from './task-native-dialog-harness.mjs';
 import { finishLeaf } from '../src/system/native-leaf-support.mjs';
 import { createSide, registerCases, useLiftVectors } from './lift-function-harness.mjs';
-import { setObjectActionAndDirection } from '../src/script/native-object-action-direction.mjs';
-import { setObjectDirection } from '../src/script/native-object-action-set.mjs';
+import { setObjectActionAndDirection as setObjectActionAndDirectionLifted } from '../src/script/native-object-action-direction.mjs';
+import { setObjectDirection as setObjectDirectionLifted } from '../src/script/native-object-action-set.mjs';
 import { setActionAndDirection } from '../src/game/member-facing.mjs';
-import { setObjectAnimation } from '../src/script/native-object-action-apply.mjs';
+import { setObjectAnimation as setObjectAnimationLifted } from '../src/script/native-object-action-apply.mjs';
 import {
-  appendToFightListNative,
-  panSongLevelToObject,
-  playSoundEffectNative,
-  randomBelowNative,
-  randomByteNative,
-  moveObjectTowardsObject,
-  jumpObjectTowardsObject,
-  jumpObjectTowardsPoint,
-  payNuyenNative,
-  setActorStateHolderNative,
-  faceRoomDirectionNative,
+  appendToFightListNative as appendToFightListNativeLifted,
+  panSongLevelToObject as panSongLevelToObjectLifted,
+  playSoundEffectNative as playSoundEffectNativeLifted,
+  randomBelowNative as randomBelowNativeLifted,
+  randomByteNative as randomByteNativeLifted,
+  moveObjectTowardsObject as moveObjectTowardsObjectLifted,
+  jumpObjectTowardsObject as jumpObjectTowardsObjectLifted,
+  jumpObjectTowardsPoint as jumpObjectTowardsPointLifted,
+  payNuyenNative as payNuyenNativeLifted,
+  setActorStateHolderNative as setActorStateHolderNativeLifted,
+  faceRoomDirectionNative as faceRoomDirectionNativeLifted,
 } from '../src/script/native-script-leaves.mjs';
 import { selectAnimationJsr } from './register-forms/jsr-forms.mjs';
+import { leafRts } from './register-forms/leaf-return.mjs';
+// The natives with the RTS of their register-level entry (2026-11-27).
+const setObjectActionAndDirection = leafRts(setObjectActionAndDirectionLifted);
+const setObjectDirection = leafRts(setObjectDirectionLifted);
+const setObjectAnimation = leafRts(setObjectAnimationLifted);
+const appendToFightListNative = leafRts(appendToFightListNativeLifted);
+const panSongLevelToObject = leafRts(panSongLevelToObjectLifted);
+const playSoundEffectNative = leafRts(playSoundEffectNativeLifted);
+const randomBelowNative = leafRts(randomBelowNativeLifted);
+const randomByteNative = leafRts(randomByteNativeLifted);
+const moveObjectTowardsObject = leafRts(moveObjectTowardsObjectLifted);
+const jumpObjectTowardsObject = leafRts(jumpObjectTowardsObjectLifted);
+const jumpObjectTowardsPoint = leafRts(jumpObjectTowardsPointLifted);
+const payNuyenNative = leafRts(payNuyenNativeLifted);
+const setActorStateHolderNative = leafRts(setActorStateHolderNativeLifted);
+const faceRoomDirectionNative = leafRts(faceRoomDirectionNativeLifted);
 
 useLiftVectors(import.meta.url);
 
@@ -309,10 +325,12 @@ const CASES = [
       word(s.wram, OBJECT_FRAME_COUNT + object, s.pick([0, 0x80, s.rnd(0x80), s.rnd(65536)]));
       return { bank: CODE_BANK, status: s.rnd(256) & 0xc3 };
     },
-    lifted: lifted((a, outerReturn) => {
-      setActionAndDirection(a.mem);
-      return finishLeaf(a, outerReturn);
-    }),
+    lifted: lifted(
+      leafRts((a) => {
+        setActionAndDirection(a.mem);
+        return finishLeaf(a);
+      }),
+    ),
   },
   {
     // The script natives 80:A985, 80:AAAF and 80:D15C as the script VM calls them.

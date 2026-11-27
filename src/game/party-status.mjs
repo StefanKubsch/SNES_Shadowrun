@@ -22,7 +22,7 @@ import {
 } from './window-release.mjs';
 import { setTextCursor, printNumber } from './window-text.mjs';
 import { printText } from './text-print.mjs';
-import { drawTextBufferSequence } from './text-draw.mjs';
+import { drawTextBuffer } from './text-draw.mjs';
 import { waitForConfirmKey } from './confirm-key.mjs';
 import { dataBankWord, setDataBankWord } from '../system/data-bank.mjs';
 import { TEXT_SLASH } from '../system/native-status-screen.mjs';
@@ -117,7 +117,7 @@ function prepareMember(mem, member) {
 
 // 80:ED3C: the party status (see above) for lifted callers, without the JSR frame (the
 // caller's return word lies only in free stack bytes).
-export function* partyStatus(h, events, renderBuffer = drawTextBufferSequence) {
+export function* partyStatus(h, events, renderBuffer = drawTextBuffer) {
   const { mem } = h.a,
     { wram } = mem;
   // DP 02 gets value before a lifted callee, which runs without a JSR frame.

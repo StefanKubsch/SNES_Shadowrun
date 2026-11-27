@@ -9,13 +9,19 @@
 import { prng } from './task-native-dialog-harness.mjs';
 import { createSide, registerCases, useLiftVectors } from './lift-function-harness.mjs';
 import {
-  chooseEnemyTargetNative,
-  findNearestVisibleMemberNative,
-  chooseRandomFightTargetNative,
-  canAttackNative,
+  chooseEnemyTargetNative as chooseEnemyTargetNativeLifted,
+  findNearestVisibleMemberNative as findNearestVisibleMemberNativeLifted,
+  chooseRandomFightTargetNative as chooseRandomFightTargetNativeLifted,
+  canAttackNative as canAttackNativeLifted,
 } from '../src/script/native-script-leaves.mjs';
 import { lineOfSight } from '../src/game/line-of-sight.mjs';
 import { accessorPort } from '../src/system/hardware-port.mjs';
+import { leafRts } from './register-forms/leaf-return.mjs';
+// The natives with the RTS of their register-level entry (2026-11-27).
+const chooseEnemyTargetNative = leafRts(chooseEnemyTargetNativeLifted);
+const findNearestVisibleMemberNative = leafRts(findNearestVisibleMemberNativeLifted);
+const chooseRandomFightTargetNative = leafRts(chooseRandomFightTargetNativeLifted);
+const canAttackNative = leafRts(canAttackNativeLifted);
 
 useLiftVectors(import.meta.url);
 

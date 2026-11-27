@@ -6,12 +6,20 @@
 // 2026-11-14): WRAM outside the stacks, the device writes and the return must be equal.
 import { prng } from './task-native-dialog-harness.mjs';
 import { createSide, registerCases, useLiftVectors } from './lift-function-harness.mjs';
-import { getPadHeld } from '../src/script/native-pad-held.mjs';
-import { getPadPressed } from '../src/script/native-pad-pressed.mjs';
-import { getPlayerObject } from '../src/script/native-player-object.mjs';
-import { getPlayerObjectCopy } from '../src/script/native-player-object-second.mjs';
-import { getGloveScreenX } from '../src/script/native-glove-screen-x.mjs';
-import { getGloveScreenY } from '../src/script/native-glove-screen-y.mjs';
+import { getPadHeld as getPadHeldLifted } from '../src/script/native-pad-held.mjs';
+import { getPadPressed as getPadPressedLifted } from '../src/script/native-pad-pressed.mjs';
+import { getPlayerObject as getPlayerObjectLifted } from '../src/script/native-player-object.mjs';
+import { getPlayerObjectCopy as getPlayerObjectCopyLifted } from '../src/script/native-player-object-second.mjs';
+import { getGloveScreenX as getGloveScreenXLifted } from '../src/script/native-glove-screen-x.mjs';
+import { getGloveScreenY as getGloveScreenYLifted } from '../src/script/native-glove-screen-y.mjs';
+import { leafRts } from './register-forms/leaf-return.mjs';
+// The natives with the RTS of their register-level entry (2026-11-27).
+const getPadHeld = leafRts(getPadHeldLifted);
+const getPadPressed = leafRts(getPadPressedLifted);
+const getPlayerObject = leafRts(getPlayerObjectLifted);
+const getPlayerObjectCopy = leafRts(getPlayerObjectCopyLifted);
+const getGloveScreenX = leafRts(getGloveScreenXLifted);
+const getGloveScreenY = leafRts(getGloveScreenYLifted);
 
 useLiftVectors(import.meta.url);
 

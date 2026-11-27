@@ -226,12 +226,6 @@ function* introPlayback(h, events, ending) {
   yield () => setUpGameAudio(m);
 }
 
-// 81:DF0E: the NMI callback of the intro (src/intro/intro-objects.mjs).
-export function handleIntroNmi(h) {
-  updateIntroFrame(h);
-  return h.rtl();
-}
-
 // Frame jobs return directly; the compatibility entry above owns the original RTL.
 export function updateIntroFrame(h) {
   drawIntroObjects(sceneRuntime(h));

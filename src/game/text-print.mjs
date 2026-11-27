@@ -19,7 +19,7 @@ import { readStateByte, writeStateByte } from '../state/objects.mjs';
 //
 // Registers (user decision 2026-11-17): game state only. FB39 sets its own registers
 // before reading them, and no A, X, Y or flags are left; the data bank is restored.
-import { drawTextBufferSequence, renderTextBuffer } from './text-draw.mjs';
+import { drawTextBuffer, renderTextBuffer } from './text-draw.mjs';
 import { portTextAddress } from '../data/port-extension.mjs';
 import { languageText } from '../data/language.mjs';
 import {
@@ -112,7 +112,7 @@ function decodeText(mem, wram) {
 // callers, without the JSR frame: the return word of the caller's JSR lies only in free
 // stack bytes (game state only, user decision 2026-11-17). renderBuffer is a sequence,
 // defaulting to the live renderer.
-export function* printText(h, events, renderBuffer = drawTextBufferSequence) {
+export function* printText(h, events, renderBuffer = drawTextBuffer) {
   const { mem } = h.a,
     { wram } = mem;
   yield () => {

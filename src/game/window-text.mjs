@@ -20,7 +20,7 @@ import { readStateByte, writeStateByte } from '../state/objects.mjs';
 //
 // Registers (user decision 2026-11-17): game state only. A, X, Y and the flags the
 // original leaves are not kept; every caller sets its own before reading them.
-import { drawTextBufferSequence, renderTextBuffer } from './text-draw.mjs';
+import { drawTextBuffer, renderTextBuffer } from './text-draw.mjs';
 import { sceneRuntime } from '../system/scene-runtime.mjs';
 import {
   DP_CURSOR_ROW,
@@ -88,7 +88,7 @@ export function setTextCursor(h) {
 // Print the number in the direct page word 02 into the window at its cursor (80:FD80)
 // for lifted callers, without the JSR frame (the caller's return word lies only in free
 // stack bytes); renderBuffer is the renderer sequence.
-export function* printNumber(h, events, renderBuffer = drawTextBufferSequence) {
+export function* printNumber(h, events, renderBuffer = drawTextBuffer) {
   const { wram, port } = sceneRuntime(h);
   yield () => {
     setWord(wram, TEXT_BUFFER + DIGITS, 0);

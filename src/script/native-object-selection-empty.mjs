@@ -9,7 +9,7 @@ import { hasNoAnimation } from '../game/object-fields.mjs';
 // 80:BB90 (lifted in src/game/object-fields.mjs; register-level reference in
 // proof/game-reference/object-fields.mjs): return TRUE (FFFF) when the object (first
 // argument) has no animation selected, else FALSE (0).
-export const hasNoObjectAnimation = (a, outerReturn = true) => {
+export const hasNoObjectAnimation = (a) => {
   setLeafResult(a, hasNoAnimation(a.mem, leafArgument(a, FIRST_ARGUMENT)));
-  return finishLeaf(a, outerReturn);
+  return finishLeaf(a);
 };

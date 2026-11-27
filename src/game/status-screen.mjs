@@ -36,7 +36,7 @@ import {
 import { setTextCursor, printNumber } from './window-text.mjs';
 import { printText } from './text-print.mjs';
 import { decimalNumber } from './decimal-number.mjs';
-import { drawTextBufferSequence } from './text-draw.mjs';
+import { drawTextBuffer } from './text-draw.mjs';
 import { equipmentRows } from './equipment-window.mjs';
 import { memberPortrait } from './member-portrait.mjs';
 import { closeDialog, clearFixedColourInPlace } from './dialog-talk.mjs';
@@ -163,22 +163,10 @@ const setWord = (wram, at, value) => {
 const negative = (value) => (value & WORD_SIGN) !== 0;
 // A long word read: WRAM fields indexed past their bank reach the next one.
 const longWord = (mem, address) => mem.read16(address & LONG_MASK);
-function* returnSequence(h, outerReturn = true) {
-  let result;
-  yield () => {
-    if (outerReturn) result = h.rts();
-  };
-  return result;
-}
 
 // 80:EA6E, 80:EA89 or 80:EA8E: the status screen (see above) for lifted callers, without
 // the JSR frame (the caller's return word lies only in free stack bytes).
-export function* statusScreen(
-  h,
-  events,
-  entry = NATIVE_ENTRY,
-  renderBuffer = drawTextBufferSequence,
-) {
+export function* statusScreen(h, events, entry = NATIVE_ENTRY, renderBuffer = drawTextBuffer) {
   const { mem } = h.a,
     { wram } = mem,
     native = entry === NATIVE_ENTRY;
@@ -412,11 +400,9 @@ export function* statusScreenSequence(
   h,
   events,
   entry = NATIVE_ENTRY,
-  renderBuffer = drawTextBufferSequence,
-  outerReturn = true,
+  renderBuffer = drawTextBuffer,
 ) {
   yield* statusScreen(h, events, entry, renderBuffer);
-  return yield* returnSequence(h, outerReturn);
 }
 
 // ECF5: the cleanup, the status window released, the mark cleared and the sound

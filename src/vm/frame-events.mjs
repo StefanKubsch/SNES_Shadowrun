@@ -216,14 +216,9 @@ export function isApuPort(address) {
 }
 export class LiveDevices {
   // counter(port, pc) returns the counter byte for the random routine (default counterBytes()).
-  constructor(
-    frames,
-    interruptRoutines,
-    { bus = null, counter = counterBytes(), apu = null, frameJobs = null } = {},
-  ) {
+  constructor(frames, { bus = null, counter = counterBytes(), apu = null, frameJobs = null } = {}) {
     if (
       !(frames instanceof LagFreeFrames) ||
-      !(interruptRoutines instanceof Map) ||
       typeof counter !== 'function' ||
       (frameJobs !== null && typeof frameJobs !== 'function')
     )
@@ -238,7 +233,6 @@ export class LiveDevices {
       wait: EMPTY,
       input: EMPTY,
       interrupts: frames,
-      interruptRoutines,
       ...(frameJobs ? { frameJobs } : {}),
     });
     this.calls = 0;

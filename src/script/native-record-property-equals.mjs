@@ -11,10 +11,10 @@ import { isActorStateProperty as hasProperty } from '../game/actor-state.mjs';
 // proof/game-reference/actor-state.mjs): return TRUE (FFFF) when the property word of the
 // state record of the actor entry (second argument) equals the first argument, else
 // FALSE (0); FALSE without a record.
-export const isActorStateProperty = (a, outerReturn = true) => {
+export const isActorStateProperty = (a) => {
   setLeafResult(
     a,
     hasProperty(a.mem, leafArgument(a, SECOND_ARGUMENT), leafArgument(a, FIRST_ARGUMENT)),
   );
-  return finishLeaf(a, outerReturn);
+  return finishLeaf(a);
 };

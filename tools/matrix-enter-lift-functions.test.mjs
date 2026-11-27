@@ -8,9 +8,12 @@
 // the device writes and the return must be equal.
 import { DialogTestMemory, prng } from './task-native-dialog-harness.mjs';
 import { createSide, registerCases, useLiftVectors } from './lift-function-harness.mjs';
-import { enterMatrix } from '../src/script/native-matrix-enter.mjs';
+import { enterMatrix as enterMatrixLifted } from '../src/script/native-matrix-enter.mjs';
 import { GROUP_NUMBERS, GROUP_SLOTS, OBJECT_RECORD } from '../src/data/wram.mjs';
 import { RUNNERS, RUNNER_OBJECT_NUMBERS } from '../src/data/runners.mjs';
+import { leafRts } from './register-forms/leaf-return.mjs';
+// The natives with the RTS of their register-level entry (2026-11-27).
+const enterMatrix = leafRts(enterMatrixLifted);
 
 useLiftVectors(import.meta.url);
 

@@ -5,7 +5,7 @@ import { turnObject } from '../game/object-turn.mjs';
 // proof/game-reference/object-turn.mjs): turn the object (first argument) to the
 // direction in the second argument and move its frame to that direction, or restart its
 // last animation when the frame count does not allow a direct switch.
-export const setObjectDirection = (a, outerReturn = true) => {
+export const setObjectDirection = (a) => {
   turnObject(a.mem, a.mem.wram);
-  return finishLeaf(a, outerReturn);
+  return finishLeaf(a);
 };

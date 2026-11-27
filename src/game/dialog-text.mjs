@@ -31,7 +31,7 @@ import { readStateByte, writeStateByte } from '../state/objects.mjs';
 import { segmentSequence } from '../system/sequence-runner.mjs';
 import { requestTileClear } from './window-open.mjs';
 import { setTextCursor } from './window-text.mjs';
-import { drawTextBufferSequence } from './text-draw.mjs';
+import { drawTextBuffer } from './text-draw.mjs';
 import { printText } from './text-print.mjs';
 import { appendScript } from '../script/task-api.mjs';
 import { scriptVisitSequence } from '../system/script-visit.mjs';
@@ -162,7 +162,7 @@ function searchEntry(mem, wram, acc) {
 // Show the dialog text for the key (80:9178, A in the original) for lifted callers,
 // without the JSR frame (the caller's return word lies only in free stack bytes); an
 // optional text renderer.
-export function* showDialogText(h, events, renderBuffer = drawTextBufferSequence, key) {
+export function* showDialogText(h, events, renderBuffer = drawTextBuffer, key) {
   const { mem } = h.a,
     { wram } = mem;
   for (;;) {
@@ -238,7 +238,7 @@ export function* dialogTopicSequence(h, events, at) {
 // clears the window's text tiles (80:FA67) and sets its cursor to the top left (80:FAAC),
 // with the number pushed around them. renderBuffer is the text-buffer renderer sequence.
 const TEXT_NUMBERS = 0x80d9b8;
-function* printTextNumber(h, events, renderBuffer, number, outerReturn) {
+function* printTextNumber(h, events, renderBuffer, number) {
   const { mem } = h.a,
     { wram } = mem;
   yield () => {
@@ -247,28 +247,13 @@ function* printTextNumber(h, events, renderBuffer, number, outerReturn) {
     setWord(wram, DP_WINDOW, word(wram, DP_TEXT_WINDOW));
   };
   yield* printText(h, events, renderBuffer);
-  let result;
-  yield () => {
-    if (outerReturn) result = h.rts();
-  };
-  return result;
 }
 // 80:935B: the text number printed at the window's cursor.
-export function printWindowTextSequence(
-  h,
-  events,
-  renderBuffer = drawTextBufferSequence,
-  outerReturn = true,
-) {
-  return printTextNumber(h, events, renderBuffer, word(h.a.mem.wram, 0), outerReturn);
+export function printWindowTextSequence(h, events, renderBuffer = drawTextBuffer) {
+  return printTextNumber(h, events, renderBuffer, word(h.a.mem.wram, 0));
 }
 // 80:933A: the window cleared, the cursor at its top left, the text number printed.
-export function* printTopicTextSequence(
-  h,
-  events,
-  renderBuffer = drawTextBufferSequence,
-  outerReturn = true,
-) {
+export function* printTopicTextSequence(h, events, renderBuffer = drawTextBuffer) {
   const { wram } = h.a.mem,
     number = word(wram, 0);
   yield () => setWord(wram, DP_WINDOW, word(wram, DP_TEXT_WINDOW));
@@ -278,5 +263,5 @@ export function* printTopicTextSequence(
     setWord(wram, DP_CURSOR_ROW, 0);
   };
   yield* segmentSequence(() => setTextCursor(h));
-  return yield* printTextNumber(h, events, renderBuffer, number, outerReturn);
+  return yield* printTextNumber(h, events, renderBuffer, number);
 }

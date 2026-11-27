@@ -1,7 +1,9 @@
 import test from 'node:test';
+import { rtsForm } from './register-forms/rts-forms.mjs';
 import assert from 'node:assert/strict';
 import { assertFrozenRun, useLiftVectors } from './lift-function-harness.mjs';
-import { showNoticeSequence as direct } from '../src/game/notice-show.mjs';
+import { showNoticeSequence as directLifted } from '../src/game/notice-show.mjs';
+const direct = rtsForm(directLifted);
 import { timeLimitJsr as directTimer } from './register-forms/jsr-forms.mjs';
 import { textWindowSide, finishTextWindow } from './text-window-caller-harness.mjs';
 import {

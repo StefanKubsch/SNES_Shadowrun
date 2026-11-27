@@ -47,7 +47,7 @@ import {
   releaseWindowSequence,
 } from './window-release.mjs';
 import { waitForConfirmKey } from './confirm-key.mjs';
-import { drawTextBufferSequence } from './text-draw.mjs';
+import { drawTextBuffer } from './text-draw.mjs';
 import { raiseStateCountAndRedraw } from './runner-state-call.mjs';
 import { raiseMemberMagicPointsInPlace } from '../script/native-magic-points-raise.mjs';
 import { KARMA_LISTS, KARMA_WINDOWS } from '../system/native-main-menu.mjs';
@@ -140,7 +140,7 @@ const valueAddress = (wram) =>
 
 // 80:EF82: the karma line (see above), for lifted callers without the JSR frame (the
 // caller's return word lies only in free stack bytes).
-export function* karmaLine(h, events, renderBuffer = drawTextBufferSequence) {
+export function* karmaLine(h, events, renderBuffer = drawTextBuffer) {
   const { mem } = h.a,
     { wram } = mem;
   yield () => setWord(wram, 0, dataBankWord(mem, KARMA_BALANCE_WINDOW));
@@ -167,7 +167,7 @@ export function* karmaLine(h, events, renderBuffer = drawTextBufferSequence) {
 
 // 80:F006: one step bought (see above), for lifted callers without the JSR frame; the
 // confirm key keeps its own.
-export function* buyStep(h, events, renderBuffer = drawTextBufferSequence) {
+export function* buyStep(h, events, renderBuffer = drawTextBuffer) {
   const { mem } = h.a,
     { wram } = mem;
   let paid;
@@ -203,7 +203,7 @@ const negative = (value) => (value & WORD_SIGN) !== 0;
 
 // 80:F054, 80:F0F3 or 80:F1B5: a karma list (see above), for lifted callers without the
 // JSR frame; the menu choice keeps its own.
-export function* karmaList(h, events, entry, renderBuffer = drawTextBufferSequence) {
+export function* karmaList(h, events, entry, renderBuffer = drawTextBuffer) {
   const { mem } = h.a,
     { wram } = mem,
     list = KARMA_LISTS[entry];
@@ -286,7 +286,7 @@ export function* karmaList(h, events, entry, renderBuffer = drawTextBufferSequen
 
 // 80:EE57: the karma menu (see above), for lifted callers without the JSR frame; the
 // menu choices keep their own.
-export function* karmaMenu(h, events, renderBuffer = drawTextBufferSequence) {
+export function* karmaMenu(h, events, renderBuffer = drawTextBuffer) {
   const { mem } = h.a,
     { wram } = mem,
     { language } = mem;

@@ -22,7 +22,7 @@ import { openWindow } from './window-open.mjs';
 import { releaseWindowSequence } from './window-release.mjs';
 import { setTextCursor, printNumber } from './window-text.mjs';
 import { printText } from './text-print.mjs';
-import { drawTextBufferSequence } from './text-draw.mjs';
+import { drawTextBuffer } from './text-draw.mjs';
 import { waitForConfirmKey } from './confirm-key.mjs';
 import { dataBankWord, setDataBankWord } from '../system/data-bank.mjs';
 import {
@@ -93,7 +93,7 @@ function setWindow(h, { left, top, columns }, rows) {
 
 // 80:E834: the skills, composing live callees directly, for lifted callers without the
 // JSR frame (the confirm key keeps its own).
-export function* skills(h, events, renderBuffer = drawTextBufferSequence) {
+export function* skills(h, events, renderBuffer = drawTextBuffer) {
   const { mem } = h.a,
     { wram } = mem,
     window = translatedSkillWindow(h.a.mem);
@@ -141,7 +141,7 @@ export function* skills(h, events, renderBuffer = drawTextBufferSequence) {
 
 // 80:E8C8: the notes (see above), for lifted callers without the JSR frame (the confirm
 // key keeps its own).
-export function* notes(h, events, renderBuffer = drawTextBufferSequence) {
+export function* notes(h, events, renderBuffer = drawTextBuffer) {
   const { mem } = h.a,
     { wram } = mem;
   const text = function* (value) {

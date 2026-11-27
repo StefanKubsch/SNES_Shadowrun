@@ -9,7 +9,7 @@ import { objectVelocityY } from '../game/object-fields.mjs';
 // 80:A949 (lifted in src/game/object-fields.mjs; register-level reference in
 // proof/game-reference/object-fields.mjs): return the Y velocity of the object (first
 // argument).
-export const getObjectVelocityY = (a, outerReturn = true) => {
+export const getObjectVelocityY = (a) => {
   setLeafResult(a, objectVelocityY(a.mem, leafArgument(a, FIRST_ARGUMENT)));
-  return finishLeaf(a, outerReturn);
+  return finishLeaf(a);
 };

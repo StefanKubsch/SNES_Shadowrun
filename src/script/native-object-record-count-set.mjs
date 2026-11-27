@@ -12,12 +12,12 @@ import { protectedJakeHealth } from '../game/cheats.mjs';
 // body) of the record of the object (first argument) to the low byte of the second
 // argument; no record, no change. With cheats on, Jake's health is protected
 // (src/game/cheats.mjs).
-export const setObjectRecordCount = (a, outerReturn = true) => {
+export const setObjectRecordCount = (a) => {
   setRecordCount(
     a.mem,
     leafArgument(a, FIRST_ARGUMENT),
     leafArgument(a, SECOND_ARGUMENT),
     (record, count) => protectedJakeHealth(a, record, count),
   );
-  return finishLeaf(a, outerReturn);
+  return finishLeaf(a);
 };

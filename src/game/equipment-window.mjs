@@ -16,7 +16,7 @@ import { readStateByte, writeStateByte } from '../state/objects.mjs';
 import { segmentSequence } from '../system/sequence-runner.mjs';
 import { setTextCursor, printNumber } from './window-text.mjs';
 import { printText } from './text-print.mjs';
-import { drawTextBufferSequence } from './text-draw.mjs';
+import { drawTextBuffer } from './text-draw.mjs';
 import { dataBankWord } from '../system/data-bank.mjs';
 import {
   DP_SCRATCH,
@@ -75,7 +75,7 @@ function* itemText(h, events, renderBuffer, item) {
 }
 
 // 80:E9C5: the equipment rows (see above) for lifted callers, without the JSR frame.
-export function* equipmentRows(h, events, renderBuffer = drawTextBufferSequence) {
+export function* equipmentRows(h, events, renderBuffer = drawTextBuffer) {
   const { mem } = h.a,
     { wram } = mem;
   const leader = () => dataBankWord(mem, MEMBER_OBJECT) === dataBankWord(mem, PLAYER_OBJECT);

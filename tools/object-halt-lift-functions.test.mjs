@@ -8,9 +8,16 @@
 // the stacks, the device writes and the return must be equal.
 import { prng } from './task-native-dialog-harness.mjs';
 import { createSide, registerCases, useLiftVectors } from './lift-function-harness.mjs';
-import { haltObject, resumeObject } from '../src/script/native-object-halt-set.mjs';
+import {
+  haltObject as haltObjectLifted,
+  resumeObject as resumeObjectLifted,
+} from '../src/script/native-object-halt-set.mjs';
 import { OBJECT_TASK } from '../src/data/wram.mjs';
 import { TASK_PREVIOUS, TASK_WAIT } from '../src/vm/layout.mjs';
+import { leafRts } from './register-forms/leaf-return.mjs';
+// The natives with the RTS of their register-level entry (2026-11-27).
+const haltObject = leafRts(haltObjectLifted);
+const resumeObject = leafRts(resumeObjectLifted);
 
 useLiftVectors(import.meta.url);
 

@@ -21,7 +21,17 @@ import { timeLimitSequence } from '../../src/game/time-limit.mjs';
 import { gloveActionSequence } from '../../src/game/glove-action.mjs';
 import { playerZonesSequence } from '../../src/game/player-zones.mjs';
 import { sceneRequestSequence } from '../../src/game/scene-request.mjs';
-import { drawTextBufferSequence } from '../../src/game/text-draw.mjs';
+import { drawTextBuffer } from '../../src/game/text-draw.mjs';
+import { FLAG_MEMORY_8BIT } from '../../src/constants/cpu-flags.mjs';
+import { waitForCounterWord } from '../../src/system/frame-wait.mjs';
+import { drawList, markRow } from '../../src/game/menu-list.mjs';
+import { chooseFromMenu } from '../../src/game/menu-choice.mjs';
+import {
+  releaseGloveNameWindowSequence,
+  putGloveAwaySequence,
+} from '../../src/game/window-release.mjs';
+import { transferPortraitTiles } from '../../src/game/portrait-upload.mjs';
+import { updateGameFrame } from '../../src/game/game-nmi.mjs';
 import {
   clearFixedColourInPlace,
   setWindowTextWidthInPlace,
@@ -56,13 +66,13 @@ function* rts(h) {
 }
 
 // The text print 80:FE69; renderBuffer is the renderer sequence (the live one by default).
-export function* printTextJsr(h, events, renderBuffer = drawTextBufferSequence) {
+export function* printTextJsr(h, events, renderBuffer = drawTextBuffer) {
   yield* printText(h, events, renderBuffer);
   return yield* rts(h);
 }
 
 // The number print 80:FD80; renderBuffer as for the text print.
-export function* printNumberJsr(h, events, renderBuffer = drawTextBufferSequence) {
+export function* printNumberJsr(h, events, renderBuffer = drawTextBuffer) {
   yield* printNumber(h, events, renderBuffer);
   return yield* rts(h);
 }
@@ -107,7 +117,7 @@ export function selectAnimationJsr(h) {
 }
 
 // The decimal number 80:FDCF; renderBuffer as for the text print.
-export function* decimalNumberJsr(h, events, renderBuffer = drawTextBufferSequence) {
+export function* decimalNumberJsr(h, events, renderBuffer = drawTextBuffer) {
   yield* decimalNumber(h, events, renderBuffer);
   return yield* rts(h);
 }
@@ -120,7 +130,7 @@ export function* hitObjectJsr(h, events, renderBuffer, damage, target, shooter) 
 }
 
 // The glove's object search 80:BCBE; renderBuffer as for the text print.
-export function* objectSearchJsr(h, events, renderBuffer = drawTextBufferSequence) {
+export function* objectSearchJsr(h, events, renderBuffer = drawTextBuffer) {
   yield* objectSearch(h, events, renderBuffer);
   return yield* rts(h);
 }
@@ -133,7 +143,7 @@ export function startNewGameJsr(h) {
 }
 
 // The glove movement 80:BE6D; renderBuffer as for the text print.
-export function* gloveMoveJsr(h, events, renderBuffer = drawTextBufferSequence) {
+export function* gloveMoveJsr(h, events, renderBuffer = drawTextBuffer) {
   yield* gloveMove(h, events, renderBuffer);
   return yield* rts(h);
 }
@@ -157,13 +167,13 @@ export function* noticeTimeoutJsr(h, events) {
 }
 
 // The time limit 80:E270; its notice and text wait for the NMI of their uploads.
-export function* timeLimitJsr(h, events, renderBuffer = drawTextBufferSequence) {
+export function* timeLimitJsr(h, events, renderBuffer = drawTextBuffer) {
   yield* timeLimitSequence(h, events, renderBuffer);
   return yield* rts(h);
 }
 
 // The glove action 80:BF3B; its notice, menu, dialog and input wait for the NMI.
-export function* gloveActionJsr(h, events, renderBuffer = drawTextBufferSequence) {
+export function* gloveActionJsr(h, events, renderBuffer = drawTextBuffer) {
   yield* gloveActionSequence(h, events, renderBuffer);
   return yield* rts(h);
 }
@@ -231,37 +241,37 @@ export function* closePortraitWindowJsr(h, events) {
 }
 
 // The step bought as called with JSR (80:F006); returns with its RTS.
-export function* buyStepJsr(h, events, renderBuffer = drawTextBufferSequence) {
+export function* buyStepJsr(h, events, renderBuffer = drawTextBuffer) {
   yield* buyStep(h, events, renderBuffer);
   return yield* rts(h);
 }
 
 // The karma line as called with JSR (80:EF82); returns with its RTS.
-export function* karmaLineJsr(h, events, renderBuffer = drawTextBufferSequence) {
+export function* karmaLineJsr(h, events, renderBuffer = drawTextBuffer) {
   yield* karmaLine(h, events, renderBuffer);
   return yield* rts(h);
 }
 
 // The karma list as called with JSR; returns with its RTS.
-export function* karmaListJsr(h, events, entry, renderBuffer = drawTextBufferSequence) {
+export function* karmaListJsr(h, events, entry, renderBuffer = drawTextBuffer) {
   yield* karmaList(h, events, entry, renderBuffer);
   return yield* rts(h);
 }
 
 // The karma menu as called with JSR (80:EE57); returns with its RTS.
-export function* karmaMenuJsr(h, events, renderBuffer = drawTextBufferSequence) {
+export function* karmaMenuJsr(h, events, renderBuffer = drawTextBuffer) {
   yield* karmaMenu(h, events, renderBuffer);
   return yield* rts(h);
 }
 
 // The save menu as called with JSR (80:CDD6); returns with its RTS.
-export function* saveMenuJsr(h, events, renderBuffer = drawTextBufferSequence) {
+export function* saveMenuJsr(h, events, renderBuffer = drawTextBuffer) {
   yield* saveMenu(h, events, renderBuffer);
   return yield* rts(h);
 }
 
 // The rows as called with JSR (80:E9C5); returns with its RTS.
-export function* equipmentRowsJsr(h, events, renderBuffer = drawTextBufferSequence) {
+export function* equipmentRowsJsr(h, events, renderBuffer = drawTextBuffer) {
   yield* equipmentRows(h, events, renderBuffer);
   let result;
   yield () => {
@@ -271,7 +281,7 @@ export function* equipmentRowsJsr(h, events, renderBuffer = drawTextBufferSequen
 }
 
 // The party status as called with JSR (80:ED3C); returns with its RTS.
-export function* partyStatusJsr(h, events, renderBuffer = drawTextBufferSequence) {
+export function* partyStatusJsr(h, events, renderBuffer = drawTextBuffer) {
   yield* partyStatus(h, events, renderBuffer);
   let result;
   yield () => {
@@ -281,19 +291,19 @@ export function* partyStatusJsr(h, events, renderBuffer = drawTextBufferSequence
 }
 
 // The notes as called with JSR (80:E8C8); return with their RTS.
-export function* notesJsr(h, events, renderBuffer = drawTextBufferSequence) {
+export function* notesJsr(h, events, renderBuffer = drawTextBuffer) {
   yield* notes(h, events, renderBuffer);
   return yield* rts(h);
 }
 
 // The skills as called with JSR (80:E834); return with their RTS.
-export function* skillsJsr(h, events, renderBuffer = drawTextBufferSequence) {
+export function* skillsJsr(h, events, renderBuffer = drawTextBuffer) {
   yield* skills(h, events, renderBuffer);
   return yield* rts(h);
 }
 
 // The item submenu as called with JSR; returns with its RTS.
-export function* itemMenuJsr(h, events, entry, renderBuffer = drawTextBufferSequence) {
+export function* itemMenuJsr(h, events, entry, renderBuffer = drawTextBuffer) {
   yield* itemMenu(h, events, entry, renderBuffer);
   return yield* rts(h);
 }
@@ -309,7 +319,7 @@ export function* spellMenuJsr(
   h,
   events,
   entry, // undefined: the menu entry 80:E693
-  renderBuffer = drawTextBufferSequence,
+  renderBuffer = drawTextBuffer,
 ) {
   yield* spellMenu(h, events, entry, renderBuffer);
   return yield* rts(h);
@@ -322,34 +332,28 @@ export function* memberPortraitJsr(h, events) {
 }
 
 // The action menu as called with JSR (80:99EB); returns with its RTS.
-export function* chooseActionJsr(
-  h,
-  events,
-  renderBuffer = drawTextBufferSequence,
-  accepted,
-  choice = {},
-) {
+export function* chooseActionJsr(h, events, renderBuffer = drawTextBuffer, accepted, choice = {}) {
   yield* chooseAction(h, events, renderBuffer, accepted, choice);
   return yield* rts(h);
 }
 
 // The main menu as called with JSR (80:91E2), a sequence for a native call
 // continuation; returns with its RTS.
-export function* chooseDialogActionJsr(h, events, renderBuffer = drawTextBufferSequence) {
+export function* chooseDialogActionJsr(h, events, renderBuffer = drawTextBuffer) {
   yield* chooseDialogAction(h, events, renderBuffer);
   return yield* rts(h);
 }
 
 // The topic choice as called with JSR (80:9215), a sequence for a native call
 // continuation; returns with its RTS.
-export function* chooseDialogTopicJsr(h, events, renderBuffer = drawTextBufferSequence) {
+export function* chooseDialogTopicJsr(h, events, renderBuffer = drawTextBuffer) {
   yield* chooseDialogTopic(h, events, renderBuffer);
   return yield* rts(h);
 }
 
 // The dialog text as called with JSR (80:9178), a sequence for a native call
 // continuation; returns with its RTS.
-export function* showDialogTextJsr(h, events, renderBuffer = drawTextBufferSequence, key) {
+export function* showDialogTextJsr(h, events, renderBuffer = drawTextBuffer, key) {
   yield* showDialogText(h, events, renderBuffer, key);
   let result;
   yield () => {
@@ -380,4 +384,54 @@ export function* resetWindowListJsl(h, events) {
     result = h.rtl();
   };
   return result;
+}
+
+// A sequence, then the RTS (or RTL) of its register-level entry.
+function* thenReturn(h, sequence, long = false) {
+  yield* sequence;
+  let result;
+  yield () => {
+    result = long ? h.rtl() : h.rts();
+  };
+  return result;
+}
+// The word wait 81:B0A1 as called with JSL.
+export const frameWaitJsl = (h, events) => thenReturn(h, waitForCounterWord(h, events), true);
+// The menu list's mark or removal (80:A5F9, 80:A5DB) and the list drawing (80:A617).
+export const markRowJsr = (h, events, renderBuffer, form, index) =>
+  thenReturn(h, markRow(h, events, renderBuffer, form, index));
+export const drawListJsr = (h, events, renderBuffer) =>
+  thenReturn(h, drawList(h, events, renderBuffer));
+// The menu choice (80:A6A5 to 80:A6C7): a confirmed choice leaves the sound entry's
+// code bank 80 as the data bank.
+const MENU_CHOICE_NONE = 0xffff,
+  MENU_CHOICE_BANK = 0x80;
+export function* chooseFromMenuJsr(h, events, renderBuffer, entry, row = 0) {
+  const selected = yield* chooseFromMenu(h, events, renderBuffer, entry, row);
+  let result;
+  yield () => {
+    if (selected !== MENU_CHOICE_NONE) h.ctx.bank = MENU_CHOICE_BANK;
+    result = h.rts();
+  };
+  return result;
+}
+// The name window release as called with JSR (80:BE5B) and the glove's release (80:BCB2).
+export const releaseNameWindowJsr = (h, events) =>
+  thenReturn(h, releaseGloveNameWindowSequence(h, events));
+export const putGloveAwayJsr = (h, events) => thenReturn(h, putGloveAwaySequence(h, events));
+// The portrait DMA job (80:8FF5) with the VRAM address as a value.
+export const uploadPortraitTilesJsr = (h, events, vram) =>
+  thenReturn(h, transferPortraitTiles(h, events, vram));
+// The game NMI handler 80:C152 as reached through its callback with JSL.
+export function handleGameNmiJsl(h) {
+  updateGameFrame(h);
+  return h.rtl();
+}
+// The text buffer 80:FB39 as entered with JSR: it leaves 16-bit A and returns.
+export function* drawTextBufferJsr(h, events) {
+  yield* drawTextBuffer(h, events);
+  return yield () => {
+    h.ctx.status &= ~FLAG_MEMORY_8BIT;
+    return h.rts();
+  };
 }

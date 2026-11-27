@@ -7,10 +7,10 @@
 // stacks, the device writes and the return must be equal.
 import { prng } from './task-native-dialog-harness.mjs';
 import { createSide, registerCases, useLiftVectors } from './lift-function-harness.mjs';
-import { equipRunnerArmour } from '../src/script/native-runner-armour-equip.mjs';
-import { equipRunnerWeapon } from '../src/script/native-runner-weapon-equip.mjs';
-import { setItemPropertyAndUnequip } from '../src/script/native-object-record-property-equip.mjs';
-import { setActorItemPropertyAndUnequip } from '../src/script/native-record-property-equip.mjs';
+import { equipRunnerArmour as equipRunnerArmourLifted } from '../src/script/native-runner-armour-equip.mjs';
+import { equipRunnerWeapon as equipRunnerWeaponLifted } from '../src/script/native-runner-weapon-equip.mjs';
+import { setItemPropertyAndUnequip as setItemPropertyAndUnequipLifted } from '../src/script/native-object-record-property-equip.mjs';
+import { setActorItemPropertyAndUnequip as setActorItemPropertyAndUnequipLifted } from '../src/script/native-record-property-equip.mjs';
 import {
   GLOVE_TARGET_TAG,
   GLOVE_TARGET_OBJECT,
@@ -20,6 +20,12 @@ import {
   OBJECT_RECORD,
   RUNNER_ARMOUR,
 } from '../src/data/wram.mjs';
+import { leafRts } from './register-forms/leaf-return.mjs';
+// The natives with the RTS of their register-level entry (2026-11-27).
+const equipRunnerArmour = leafRts(equipRunnerArmourLifted);
+const equipRunnerWeapon = leafRts(equipRunnerWeaponLifted);
+const setItemPropertyAndUnequip = leafRts(setItemPropertyAndUnequipLifted);
+const setActorItemPropertyAndUnequip = leafRts(setActorItemPropertyAndUnequipLifted);
 
 useLiftVectors(import.meta.url);
 

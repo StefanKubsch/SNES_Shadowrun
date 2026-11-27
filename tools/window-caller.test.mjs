@@ -1,7 +1,16 @@
 import test from 'node:test';
+import { withRts } from './register-forms/rts-forms.mjs';
 import assert from 'node:assert/strict';
-import * as liftedList from '../src/game/window-list.mjs';
-import * as liveRelease from '../src/game/window-release.mjs';
+import * as liftedListLifted from '../src/game/window-list.mjs';
+const liftedList = withRts(liftedListLifted);
+import * as liftedRelease from '../src/game/window-release.mjs';
+import { putGloveAwayJsr, releaseNameWindowJsr } from './register-forms/jsr-forms.mjs';
+// The JSR-entered releases are register forms in tools/register-forms (2026-11-27).
+const liveRelease = {
+  ...withRts(liftedRelease),
+  releaseNameWindowCallSequence: releaseNameWindowJsr,
+  putGloveAwayCallSequence: putGloveAwayJsr,
+};
 import * as liftedOpen from '../src/game/window-open.mjs';
 import {
   openWindowJsr,

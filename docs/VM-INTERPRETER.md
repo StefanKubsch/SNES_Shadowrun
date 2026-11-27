@@ -227,7 +227,7 @@ wrap with a valid hardware frame, counter wrap, fresh DP32, changed follow-up
 jobs, wrong vector, real shared text/map producers. Device answers and
 interrupt occurrences are synthetic.
 
-The intro callbacks in [main-intro-nmi.mjs](../src/system/main-intro-nmi.mjs) (the sprite
+The intro callbacks in `main-intro-nmi.mjs` (removed) (the sprite
 grid `$E83A` and `$E971` as reference in
 intro-sprites.mjs (removed); `$DF0E` lifted in
 src/intro, its register-level reference retired on 2026-11-25) use the same outer NMI flow:

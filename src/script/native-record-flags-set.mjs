@@ -13,9 +13,9 @@ import { BYTE_MASK } from '../constants/bits.mjs';
 // actor entry (first argument) to the low byte of the second argument; no record, no
 // change. With exploit prevention, a defeated vampire stays defeated
 // (src/game/bugfixes.mjs).
-export const setActorStateFlags = (a, outerReturn = true) => {
+export const setActorStateFlags = (a) => {
   const actor = leafArgument(a, FIRST_ARGUMENT),
     flags = leafArgument(a, SECOND_ARGUMENT) & BYTE_MASK;
   setFlags(a.mem, actor, flags, (state) => keepVampireDefeated(a, actor, flags, state));
-  return finishLeaf(a, outerReturn);
+  return finishLeaf(a);
 };

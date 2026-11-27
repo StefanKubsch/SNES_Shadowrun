@@ -11,7 +11,7 @@ import {
 // proof/game-reference/runner-equipment.mjs): equip the member shown in the menus with
 // the weapon item object (first argument); the low bytes of the second to fourth
 // argument are its kind, damage and range.
-export const equipRunnerWeapon = (a, outerReturn = true) => {
+export const equipRunnerWeapon = (a) => {
   const { wram } = a.mem;
   equipWeapon(
     a.mem,
@@ -20,5 +20,5 @@ export const equipRunnerWeapon = (a, outerReturn = true) => {
     readStateByte(wram, DP_EQUIP_WEAPON_DAMAGE),
     readStateByte(wram, DP_EQUIP_WEAPON_RANGE),
   );
-  return finishLeaf(a, outerReturn);
+  return finishLeaf(a);
 };

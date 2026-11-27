@@ -23,7 +23,7 @@ import { fitListWindow, listTextIds } from '../data/menu-layout.mjs';
 import { TEXT_EXIT } from '../data/port-extension.mjs';
 import { openWindow } from './window-open.mjs';
 import { chooseFromMenu } from './menu-choice.mjs';
-import { drawTextBufferSequence } from './text-draw.mjs';
+import { drawTextBuffer } from './text-draw.mjs';
 import { releaseWindowSequence } from './window-release.mjs';
 import {
   ACTION_MENU_FLAGS,
@@ -107,13 +107,7 @@ function listActions(wram, accepted) {
 // (the caller's return word lies only in free stack bytes): h is the caller's access
 // (direct page 0, data bank 80); renderBuffer draws text, accepted are the accepted
 // actions and choice receives the chosen flag (0 for none).
-export function* chooseAction(
-  h,
-  events,
-  renderBuffer = drawTextBufferSequence,
-  accepted,
-  choice = {},
-) {
+export function* chooseAction(h, events, renderBuffer = drawTextBuffer, accepted, choice = {}) {
   const { mem } = h.a,
     { wram } = mem;
   let count = 0;
@@ -165,20 +159,12 @@ export function* chooseAction(
 }
 // The action menu as the script native 80:9BA0, a sequence: no override, the mask from
 // the first argument, the menu and the chosen flag as the result.
-export function* chooseScriptActionSequence(
-  h,
-  events,
-  renderBuffer = drawTextBufferSequence,
-  outerReturn = true,
-) {
+export function* chooseScriptActionSequence(h, events, renderBuffer = drawTextBuffer) {
   const { wram } = h.a.mem,
     choice = {};
   yield () => setWord(wram, ACTION_MENU_OVERRIDE, 0);
   yield* chooseAction(h, events, renderBuffer, word(wram, 0), choice);
-  let result;
   yield () => {
     setWord(wram, 0, choice.action);
-    if (outerReturn) result = h.rts();
   };
-  return result;
 }

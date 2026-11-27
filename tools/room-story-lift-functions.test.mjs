@@ -7,11 +7,17 @@
 // device writes and the return must be equal.
 import { prng } from './task-native-dialog-harness.mjs';
 import { createSide, registerCases, useLiftVectors } from './lift-function-harness.mjs';
-import { getRoomHeader } from '../src/script/native-room-entry.mjs';
-import { getCurrentRoomHeader } from '../src/script/native-room-entry-current.mjs';
-import { getStoryStage } from '../src/script/native-story-stage-get.mjs';
-import { raiseStoryStage } from '../src/script/native-story-stage-raise.mjs';
+import { getRoomHeader as getRoomHeaderLifted } from '../src/script/native-room-entry.mjs';
+import { getCurrentRoomHeader as getCurrentRoomHeaderLifted } from '../src/script/native-room-entry-current.mjs';
+import { getStoryStage as getStoryStageLifted } from '../src/script/native-story-stage-get.mjs';
+import { raiseStoryStage as raiseStoryStageLifted } from '../src/script/native-story-stage-raise.mjs';
 import { ROOM, STORY_STAGE } from '../src/data/wram.mjs';
+import { leafRts } from './register-forms/leaf-return.mjs';
+// The natives with the RTS of their register-level entry (2026-11-27).
+const getRoomHeader = leafRts(getRoomHeaderLifted);
+const getCurrentRoomHeader = leafRts(getCurrentRoomHeaderLifted);
+const getStoryStage = leafRts(getStoryStageLifted);
+const raiseStoryStage = leafRts(raiseStoryStageLifted);
 
 useLiftVectors(import.meta.url);
 

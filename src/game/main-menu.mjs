@@ -29,7 +29,7 @@ import { playSoundEffectCall } from '../apu/sound-effect.mjs';
 import { karmaMenu } from './karma-menu.mjs';
 import { printText } from './text-print.mjs';
 import { waitForConfirmKey } from './confirm-key.mjs';
-import { drawTextBufferSequence } from './text-draw.mjs';
+import { drawTextBuffer } from './text-draw.mjs';
 import { FOUR_SAVE_SLOTS, ORIGINAL_SAVE_SLOTS, saveGame, saveSlotCount } from './save-slots.mjs';
 import {
   DP_LIST_TOKEN_BANK,
@@ -85,13 +85,6 @@ const setWord = (wram, at, value) => {
   writeStateByte(wram, at + 1, (value >>> BYTE_BITS) & BYTE_MASK);
 };
 const negative = (value) => (value & WORD_SIGN) !== 0;
-function* returnSequence(h, outerReturn = true) {
-  let result;
-  yield () => {
-    if (outerReturn) result = h.rts();
-  };
-  return result;
-}
 // A window's place, size and plain attributes, fitted to the texts in
 // another language.
 function setWindow(h, left, top, columns, rows, ids, options) {
@@ -121,7 +114,7 @@ function* releaseMenuWindow(h, events) {
 
 // 80:CDD6: the save menu (see above), for lifted callers without the JSR frame; the
 // confirm key and the menu choice keep their own.
-export function* saveMenu(h, events, renderBuffer = drawTextBufferSequence) {
+export function* saveMenu(h, events, renderBuffer = drawTextBuffer) {
   const { mem } = h.a,
     { wram } = mem;
   let stopped;
@@ -190,12 +183,7 @@ export function* saveMenu(h, events, renderBuffer = drawTextBufferSequence) {
 }
 
 // 80:CE6D: the main menu (see above). A sequence that ends with its RTS.
-export function* mainMenuSequence(
-  h,
-  events,
-  renderBuffer = drawTextBufferSequence,
-  outerReturn = true,
-) {
+export function* mainMenuSequence(h, events, renderBuffer = drawTextBuffer) {
   const { mem } = h.a,
     { wram } = mem,
     ids = mem.language
@@ -220,5 +208,4 @@ export function* mainMenuSequence(
     if (chosen === SAVE_ROW) yield* saveMenu(h, events, renderBuffer);
     else yield* karmaMenu(h, events, renderBuffer);
   }
-  return yield* returnSequence(h, outerReturn);
 }

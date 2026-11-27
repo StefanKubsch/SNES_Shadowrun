@@ -37,12 +37,6 @@ const setWord = (wram, at, value) => {
   writeStateByte(wram, at + 1, (value >>> BYTE_BITS) & BYTE_MASK);
 };
 
-// Measure the text in the direct page word 00 into the direct page word BA (80:FADD),
-// called with JSR: h the caller's access (direct page 0). Returns with its RTS.
-export function measureTextWidth(h) {
-  measure(h, 0);
-  return h.rts();
-}
 // The measurement; returns the last tree or table index (X in the original), from x.
 export function measure(h, x) {
   const { mem } = h.a,

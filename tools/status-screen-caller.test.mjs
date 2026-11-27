@@ -1,10 +1,13 @@
 import test from 'node:test';
+import { rtsForm, withRts } from './register-forms/rts-forms.mjs';
 import assert from 'node:assert/strict';
 import { assertFrozenRun, useLiftVectors } from './lift-function-harness.mjs';
 import { compareRun } from './member-menu-caller-harness.mjs';
 import { pictureVideoOf } from './text-window-caller-harness.mjs';
-import { controlPlayerSequence as directPlayer } from '../src/game/player-control.mjs';
-import * as directStatus from '../src/game/status-screen.mjs';
+import { controlPlayerSequence as directPlayerLifted } from '../src/game/player-control.mjs';
+const directPlayer = rtsForm(directPlayerLifted);
+import * as directStatusLifted from '../src/game/status-screen.mjs';
+const directStatus = withRts(directStatusLifted);
 import { decimalNumberSequence } from './register-forms/decimal-number.mjs';
 import { equipmentRowsSequence } from './register-forms/equipment-window.mjs';
 import { closePortraitWindowSequence } from './register-forms/portrait-window.mjs';

@@ -6,10 +6,15 @@
 // stacks, the device writes and the return must be equal.
 import { prng } from './task-native-dialog-harness.mjs';
 import { createSide, registerCases, useLiftVectors } from './lift-function-harness.mjs';
-import { startTimer } from '../src/script/native-timer-start.mjs';
-import { stopTimer } from '../src/script/native-timer-stop.mjs';
-import { isTimerRunning } from '../src/script/native-timer-running.mjs';
+import { startTimer as startTimerLifted } from '../src/script/native-timer-start.mjs';
+import { stopTimer as stopTimerLifted } from '../src/script/native-timer-stop.mjs';
+import { isTimerRunning as isTimerRunningLifted } from '../src/script/native-timer-running.mjs';
 import { TIMER, TIMER_FRAMES } from '../src/data/wram.mjs';
+import { leafRts } from './register-forms/leaf-return.mjs';
+// The natives with the RTS of their register-level entry (2026-11-27).
+const startTimer = leafRts(startTimerLifted);
+const stopTimer = leafRts(stopTimerLifted);
+const isTimerRunning = leafRts(isTimerRunningLifted);
 
 useLiftVectors(import.meta.url);
 

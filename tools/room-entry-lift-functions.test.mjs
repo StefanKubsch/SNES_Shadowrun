@@ -41,13 +41,13 @@ import { SCENES } from '../src/data/lz-streams.mjs';
 import { TILE_STREAMS } from '../src/data/tiles.mjs';
 import { OBJECT_TYPES } from '../src/data/object-types.mjs';
 import { drainNativeSequence } from './register-forms/native-call-continuation.mjs';
-import { createObjectNative } from '../src/script/native-object-create.mjs';
-import { addSceneObject } from '../src/script/native-scene-object-add.mjs';
-import { appendSelectedSpellTask } from '../src/script/native-task-append-from-list.mjs';
+import { createObjectNative as createObjectNativeLifted } from '../src/script/native-object-create.mjs';
+import { addSceneObject as addSceneObjectLifted } from '../src/script/native-scene-object-add.mjs';
+import { appendSelectedSpellTask as appendSelectedSpellTaskLifted } from '../src/script/native-task-append-from-list.mjs';
 import {
-  circleSwarmLeader,
-  startPathSwarm,
-  startWaveSwarm,
+  circleSwarmLeader as circleSwarmLeaderLifted,
+  startPathSwarm as startPathSwarmLifted,
+  startWaveSwarm as startWaveSwarmLifted,
 } from '../src/script/native-swarm-start.mjs';
 import {
   OBJECT_ACTION_DIRECTIONS,
@@ -89,6 +89,14 @@ import { enterRoomSequence } from '../src/game/room-entry.mjs';
 import { liveWindowEvents } from './lift-window-samples.mjs';
 import { RANDOM_STATE } from '../src/data/wram.mjs';
 import { WORD_MASK } from '../src/constants/bits.mjs';
+import { leafRts } from './register-forms/leaf-return.mjs';
+const circleSwarmLeader = leafRts(circleSwarmLeaderLifted);
+const startPathSwarm = leafRts(startPathSwarmLifted);
+const startWaveSwarm = leafRts(startWaveSwarmLifted);
+// The natives with the RTS of their register-level entry (2026-11-27).
+const createObjectNative = leafRts(createObjectNativeLifted);
+const addSceneObject = leafRts(addSceneObjectLifted);
+const appendSelectedSpellTask = leafRts(appendSelectedSpellTaskLifted);
 
 useLiftVectors(import.meta.url);
 

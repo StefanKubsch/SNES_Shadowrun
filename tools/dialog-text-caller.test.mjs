@@ -1,8 +1,10 @@
-import { drawTextBufferSequence as drawTextBuffer } from '../src/game/text-draw.mjs';
+import { drawTextBuffer } from '../src/game/text-draw.mjs';
+import { withRts } from './register-forms/rts-forms.mjs';
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { assertFrozenRun, useLiftVectors } from './lift-function-harness.mjs';
-import * as liftedText from '../src/game/dialog-text.mjs';
+import * as liftedTextLifted from '../src/game/dialog-text.mjs';
+const liftedText = withRts(liftedTextLifted);
 import { showDialogTextJsr } from './register-forms/jsr-forms.mjs';
 import * as V from '../src/vm/layout.mjs';
 import { NATIVE_CALL_CONTINUATIONS } from './register-forms/native-call-continuation.mjs';

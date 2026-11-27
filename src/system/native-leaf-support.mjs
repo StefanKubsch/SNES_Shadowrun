@@ -1,9 +1,8 @@
 import { readStateByte, writeStateByte } from '../state/objects.mjs';
-import { BYTE_BITS, BANK_WRAP, BYTE_MASK, WORD_MASK } from '../constants/bits.mjs';
-import { CODE_BANK_BASE } from '../constants/memory-map.mjs';
-// The script natives' arguments, result and outer return for lifted callees (game state
-// only, user decision 2026-11-17). The register accessor of the register-level leaf
-// references (leafAccess, leaf) lives in proof/system/native-leaf-support.mjs.
+import { BYTE_BITS, BYTE_MASK } from '../constants/bits.mjs';
+// The script natives' arguments and result for lifted callees (game state only, user
+// decision 2026-11-17). Register-level test callers add the native's RTS with leafRts
+// (tools/register-forms/leaf-return.mjs).
 // No ROM instructions are decoded or dispatched by this module.
 
 // Script arguments arrive as consecutive words at the start of the direct page
@@ -30,24 +29,8 @@ export function setLeafWord(a, offset, value) {
   writeStateByte(wram, offset, value & BYTE_MASK);
   writeStateByte(wram, offset + 1, (value >>> BYTE_BITS) & BYTE_MASK);
 }
-export function finishLeaf(a, outerReturn = true) {
-  // Ordinary script calls return their result through the shared argument word.
-  // They have no CPU context or return word to consume.
-  if (a.valueReturn) return leafArgument(a, FIRST_ARGUMENT);
-  const rawReturnWord = a.readWord(
-    (a.ctx.s + 1) & WORD_MASK,
-    BANK_WRAP,
-    'leaf-outer-RTS',
-    outerReturn,
-  );
-  a.ctx.s = (a.ctx.s + 2) & WORD_MASK;
-  a.ctx.pc = (rawReturnWord + 1) & WORD_MASK;
-  return {
-    rawReturnWord,
-    returnTarget: CODE_BANK_BASE | a.ctx.pc,
-    frontier: 'observed-outer-RTS-target',
-    scope: 'manual-source-specific-native-leaf-return-target-not-executed',
-    dynamicDispatchExecuted: false,
-    returnTargetExecuted: false,
-  };
+// The end of a native: script calls return their result through the shared argument
+// word; there is no CPU context or return word to consume.
+export function finishLeaf(a) {
+  return leafArgument(a, FIRST_ARGUMENT);
 }

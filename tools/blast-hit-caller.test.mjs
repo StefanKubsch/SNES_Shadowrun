@@ -1,8 +1,10 @@
 import test from 'node:test';
+import { rtsForm } from './register-forms/rts-forms.mjs';
 import assert from 'node:assert/strict';
 import { assertFrozenRun, useLiftVectors } from './lift-function-harness.mjs';
 import { compareRun } from './member-menu-caller-harness.mjs';
-import { hitObjectsInBlastSequence } from '../src/game/object-blast.mjs';
+import { hitObjectsInBlastSequence as hitObjectsInBlastSequenceLifted } from '../src/game/object-blast.mjs';
+const hitObjectsInBlastSequence = rtsForm(hitObjectsInBlastSequenceLifted);
 import * as W from '../src/data/wram.mjs';
 import * as V from '../src/vm/layout.mjs';
 

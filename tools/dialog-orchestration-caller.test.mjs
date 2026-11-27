@@ -1,13 +1,15 @@
 import { closeDialogJsr } from './register-forms/jsr-forms.mjs';
+import { withRts } from './register-forms/rts-forms.mjs';
 import { gloveActionJsr as directGloveAction } from './register-forms/jsr-forms.mjs';
 import { TASK_WAIT, TASK_EVENTS } from '../src/vm/layout.mjs';
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { assertFrozenRun, useLiftVectors } from './lift-function-harness.mjs';
-import * as direct from '../src/game/dialog-talk.mjs';
+import * as directLifted from '../src/game/dialog-talk.mjs';
+const direct = withRts(directLifted);
 import * as W from '../src/data/wram.mjs';
 import { closePortraitWindowSequence } from './register-forms/portrait-window.mjs';
-import { frameWaitCallSequence } from '../src/system/live-input-calls.mjs';
+import { frameWaitJsl as frameWaitCallSequence } from './register-forms/jsr-forms.mjs';
 import { runPadPresses } from './register-forms/input-routines.mjs';
 import {
   NativeCallContinuation,

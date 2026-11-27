@@ -62,7 +62,6 @@ import {
   TITLE_PALETTE_BYTES,
   TITLE_STRIPE_SOURCES,
   PAD_HELD,
-  NMI_SAVED_STACK,
   WRAM,
 } from '../data/wram.mjs';
 import { APUIO2 } from '../constants/hardware-registers.mjs';
@@ -447,20 +446,6 @@ function nextRandom(mem, carry) {
   return { value: rolled, carry: low >>> (WORD_BITS - 1) };
 }
 
-// 81:E6AE: the NMI callback of the start menu: the OAM buffer, the menu tilemap and
-// the title colours; after the first frame the animation stripes, the animation
-// steps, the frame count and a random restart; then the joypad. The random numbers
-// take the carry of the interrupted code, as in the original (user decision
-// 2026-11-18): the NMI entry 00:C112 pushes the interrupted P on the game stack before
-// it stores S in 7E:1C7A, so the callback reads that byte from the interrupt frame.
-export function handleStartMenuNmi(h) {
-  const { wram } = h.a.mem;
-  const carry =
-    readStateByte(wram, (word(wram, NMI_SAVED_STACK) + 1) & WORD_MASK) & FLAG_CARRY ? 1 : 0;
-  updateStartMenuFrame(h, carry);
-  return h.rtl();
-}
-
 // Frame jobs return directly; the compatibility entry above owns the original RTL.
 export function updateStartMenuFrame(h, carry) {
   const m = sceneRuntime(h),
@@ -554,16 +539,6 @@ function showTitleObjects(m) {
     FRONTEND_FRAME_COUNTER,
     (readStateByte(wram, FRONTEND_FRAME_COUNTER) + 1) & BYTE_MASK,
   );
-}
-
-// 81:E14A: the start menu. h is the accessor of the native call from the title
-// cycle 80:A18C, afterTitle true right after the title (the shorter timeout; A nonzero
-// in the original). menu.choice receives the choice (A in the original): the save
-// slot, FFFF for a new game or FFFE after a cancel or timeout. No A, X, Y or flags are
-// left (user decision 2026-11-17), only the status the original restores.
-export function* startMenuSequence(h, events, routines, afterTitle, menu = {}) {
-  menu.choice = yield* chooseStartGame(h, events, routines, afterTitle);
-  return yield () => h.rtl();
 }
 
 // Ordinary menu playback returns the selected game, cancel or timeout marker.

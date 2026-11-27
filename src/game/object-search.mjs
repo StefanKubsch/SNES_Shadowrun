@@ -27,7 +27,7 @@ import { lowObjectWord, longObjectWord } from '../state/objects.mjs';
 import { segmentSequence } from '../system/sequence-runner.mjs';
 import { releaseGloveNameWindowSequence } from './window-release.mjs';
 import { printText } from './text-print.mjs';
-import { drawTextBufferSequence } from './text-draw.mjs';
+import { drawTextBuffer } from './text-draw.mjs';
 import { openWindow } from './window-open.mjs';
 import { measure } from './text-width.mjs';
 import { GLOVE_KIND_SPELL } from '../script/native-glove-crosshair-limits.mjs';
@@ -116,7 +116,7 @@ const kindEntry = (kind) => {
 // Search the glove's object (80:BCBE) for lifted callers, without the JSR frame (the
 // caller's return word lies only in free stack bytes): h the main loop's access (direct
 // page 0, data bank 80), events its frame events, renderBuffer the text-buffer renderer.
-export function* objectSearch(h, events, renderBuffer = drawTextBufferSequence) {
+export function* objectSearch(h, events, renderBuffer = drawTextBuffer) {
   const { mem } = h.a,
     { wram } = mem;
   // A field below 2000, read in the data bank 80 as the original; a field of the

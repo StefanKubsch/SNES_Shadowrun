@@ -1,10 +1,14 @@
 import test from 'node:test';
+import { rtsForm } from './register-forms/rts-forms.mjs';
 import assert from 'node:assert/strict';
 import { assertFrozenRun, useLiftVectors } from './lift-function-harness.mjs';
 import { compareRun } from './member-menu-caller-harness.mjs';
-import { spendMagicPointsSequence as directMagic } from '../src/game/magic-points.mjs';
-import { releaseGloveSequence as directGlove } from '../src/game/glove-release.mjs';
-import { removeFromFightListSequence as directFight } from '../src/game/fight-list.mjs';
+import { spendMagicPointsSequence as directMagicLifted } from '../src/game/magic-points.mjs';
+const directMagic = rtsForm(directMagicLifted);
+import { releaseGloveSequence as directGloveLifted } from '../src/game/glove-release.mjs';
+const directGlove = rtsForm(directGloveLifted);
+import { removeFromFightListSequence as directFightLifted } from '../src/game/fight-list.mjs';
+const directFight = rtsForm(directFightLifted);
 import { setMusicModeRoutine } from './register-forms/audio-routines.mjs';
 import * as W from '../src/data/wram.mjs';
 

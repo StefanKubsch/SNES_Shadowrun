@@ -8,20 +8,31 @@
 // 2026-11-14): WRAM outside the stacks, the device writes and the return must be equal.
 import { prng } from './task-native-dialog-harness.mjs';
 import { createSide, registerCases, useLiftVectors } from './lift-function-harness.mjs';
-import { getActorStateFlags } from '../src/script/native-record-flags-get.mjs';
-import { getActorStateCount } from '../src/script/native-record-count-get.mjs';
-import { getActorStateProperty } from '../src/script/native-record-property-get.mjs';
-import { setActorStateFlags } from '../src/script/native-record-flags-set.mjs';
-import { setActorStateFlagBits } from '../src/script/native-record-flags-or.mjs';
-import { keepActorStateFlagBits } from '../src/script/native-record-flags-and.mjs';
-import { isActorStateProperty } from '../src/script/native-record-property-equals.mjs';
-import { decrementObjectStateCount } from '../src/script/native-object-record-count-decrement.mjs';
-import { addActorStateCount } from '../src/script/native-record-count-add.mjs';
+import { getActorStateFlags as getActorStateFlagsLifted } from '../src/script/native-record-flags-get.mjs';
+import { getActorStateCount as getActorStateCountLifted } from '../src/script/native-record-count-get.mjs';
+import { getActorStateProperty as getActorStatePropertyLifted } from '../src/script/native-record-property-get.mjs';
+import { setActorStateFlags as setActorStateFlagsLifted } from '../src/script/native-record-flags-set.mjs';
+import { setActorStateFlagBits as setActorStateFlagBitsLifted } from '../src/script/native-record-flags-or.mjs';
+import { keepActorStateFlagBits as keepActorStateFlagBitsLifted } from '../src/script/native-record-flags-and.mjs';
+import { isActorStateProperty as isActorStatePropertyLifted } from '../src/script/native-record-property-equals.mjs';
+import { decrementObjectStateCount as decrementObjectStateCountLifted } from '../src/script/native-object-record-count-decrement.mjs';
+import { addActorStateCount as addActorStateCountLifted } from '../src/script/native-record-count-add.mjs';
 import { CHEAT } from '../src/game/cheat-settings.mjs';
 import { JAKE_STATE_RECORD } from '../src/game/cheats.mjs';
 import { OBJECT_NUMBER } from '../src/data/wram.mjs';
 import { ACTOR_BYTES, ACTOR_RECORD, ACTOR_TABLE, ACTORS } from '../src/data/actors.mjs';
 import { DialogTestMemory } from './task-native-dialog-harness.mjs';
+import { leafRts } from './register-forms/leaf-return.mjs';
+// The natives with the RTS of their register-level entry (2026-11-27).
+const getActorStateFlags = leafRts(getActorStateFlagsLifted);
+const getActorStateCount = leafRts(getActorStateCountLifted);
+const getActorStateProperty = leafRts(getActorStatePropertyLifted);
+const setActorStateFlags = leafRts(setActorStateFlagsLifted);
+const setActorStateFlagBits = leafRts(setActorStateFlagBitsLifted);
+const keepActorStateFlagBits = leafRts(keepActorStateFlagBitsLifted);
+const isActorStateProperty = leafRts(isActorStatePropertyLifted);
+const decrementObjectStateCount = leafRts(decrementObjectStateCountLifted);
+const addActorStateCount = leafRts(addActorStateCountLifted);
 
 useLiftVectors(import.meta.url);
 

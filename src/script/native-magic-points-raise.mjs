@@ -33,7 +33,7 @@ function raiseMagicPointsBody(mem, object, amount) {
 // The raise for lifted callers, without the JSR frame and its RTS.
 export const raiseMemberMagicPointsInPlace = (a) =>
   raiseMagicPointsBody(a.mem, leafArgument(a, FIRST_ARGUMENT), leafArgument(a, SECOND_ARGUMENT));
-export const raiseMemberMagicPoints = (a, outerReturn = true) => {
+export const raiseMemberMagicPoints = (a) => {
   raiseMemberMagicPointsInPlace(a);
-  return finishLeaf(a, outerReturn);
+  return finishLeaf(a);
 };

@@ -6,7 +6,7 @@
 // return must be equal.
 import { prng } from './task-native-dialog-harness.mjs';
 import { createSide, registerCases, useLiftVectors } from './lift-function-harness.mjs';
-import { placeObjectInFormation } from '../src/script/native-formation-place.mjs';
+import { placeObjectInFormation as placeObjectInFormationLifted } from '../src/script/native-formation-place.mjs';
 import {
   FORMATION_HEIGHT,
   FORMATION_INDEX,
@@ -19,6 +19,9 @@ import {
   OBJECT_NUMBER,
   OBJECT_SELECTION,
 } from '../src/data/wram.mjs';
+import { leafRts } from './register-forms/leaf-return.mjs';
+// The natives with the RTS of their register-level entry (2026-11-27).
+const placeObjectInFormation = leafRts(placeObjectInFormationLifted);
 
 useLiftVectors(import.meta.url);
 

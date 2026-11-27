@@ -7,11 +7,11 @@ import {
 // 80:8E96 and 80:8EB8 (lifted in src/game/object-halt.mjs; register-level references in
 // proof/game-reference/object-halt.mjs): halt or resume the object (first argument) and
 // its task.
-const run = (a, outerReturn, lifted) => {
+const run = (a, lifted) => {
   lifted(a.mem, a);
-  return finishLeaf(a, outerReturn);
+  return finishLeaf(a);
 };
 // 80:8E96: halt the object (first argument) and its task.
-export const haltObject = (a, outerReturn = true) => run(a, outerReturn, haltLiftedObject);
+export const haltObject = (a) => run(a, haltLiftedObject);
 // 80:8EB8: resume the object (first argument) and its task.
-export const resumeObject = (a, outerReturn = true) => run(a, outerReturn, resumeLiftedObject);
+export const resumeObject = (a) => run(a, resumeLiftedObject);

@@ -11,12 +11,12 @@ import { setActorItemProperty } from '../game/runner-equipment.mjs';
 // proof/game-reference/runner-equipment.mjs): as 80:9D15 for an actor entry (first
 // argument): its state record gets the property word (second argument) and its item is
 // taken off any runner who has it equipped.
-export const setActorItemPropertyAndUnequip = (a, outerReturn = true) => {
+export const setActorItemPropertyAndUnequip = (a) => {
   setActorItemProperty(
     a.mem,
     leafArgument(a, FIRST_ARGUMENT),
     leafArgument(a, SECOND_ARGUMENT),
     fixesEnabled(a),
   );
-  return finishLeaf(a, outerReturn);
+  return finishLeaf(a);
 };

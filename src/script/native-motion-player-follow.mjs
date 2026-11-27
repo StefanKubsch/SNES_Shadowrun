@@ -11,7 +11,7 @@ import { moveToPlayer } from '../game/motion-targets.mjs';
 // proof/game-reference/motion-targets.mjs): move the object (first
 // argument) straight towards the player object; the player object becomes the second
 // argument.
-export const moveObjectStraightToPlayer = (a, outerReturn = true) => {
+export const moveObjectStraightToPlayer = (a) => {
   setLeafWord(a, SECOND_ARGUMENT, moveToPlayer(a.mem, leafArgument(a, FIRST_ARGUMENT), true));
-  return finishLeaf(a, outerReturn);
+  return finishLeaf(a);
 };

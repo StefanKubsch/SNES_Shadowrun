@@ -1,4 +1,5 @@
 import test from 'node:test';
+import { withRts } from './register-forms/rts-forms.mjs';
 import assert from 'node:assert/strict';
 import { assertFrozenRun, useLiftVectors } from './lift-function-harness.mjs';
 import {
@@ -29,7 +30,8 @@ for (const budget of [1, 7])
         }
       });
 
-import * as liftedMember from '../src/game/member-spell-menu.mjs';
+import * as liftedMemberLifted from '../src/game/member-spell-menu.mjs';
+const liftedMember = withRts(liftedMemberLifted);
 import { spellMenuJsr } from './register-forms/jsr-forms.mjs';
 import { equipmentRowsSequence } from './register-forms/equipment-window.mjs';
 import * as W from '../src/data/wram.mjs';

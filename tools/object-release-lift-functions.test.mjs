@@ -8,8 +8,8 @@
 // return must be equal.
 import { prng } from './task-native-dialog-harness.mjs';
 import { createSide, registerCases, useLiftVectors } from './lift-function-harness.mjs';
-import { removeObject } from '../src/script/native-object-release.mjs';
-import { releaseObjectGraphics } from '../src/script/native-object-release-direct.mjs';
+import { removeObject as removeObjectLifted } from '../src/script/native-object-release.mjs';
+import { releaseObjectGraphics as releaseObjectGraphicsLifted } from '../src/script/native-object-release-direct.mjs';
 import {
   DRAW_LIST,
   DRAW_LIST_INDEX,
@@ -19,6 +19,10 @@ import {
   VRAM_SLOT_FREE_LIST,
   VRAM_SLOT_NEXT,
 } from '../src/data/wram.mjs';
+import { leafRts } from './register-forms/leaf-return.mjs';
+// The natives with the RTS of their register-level entry (2026-11-27).
+const removeObject = leafRts(removeObjectLifted);
+const releaseObjectGraphics = leafRts(releaseObjectGraphicsLifted);
 
 useLiftVectors(import.meta.url);
 

@@ -1,10 +1,13 @@
 import test from 'node:test';
+import { withRts } from './register-forms/rts-forms.mjs';
 import assert from 'node:assert/strict';
 import { assertFrozenRun, useLiftVectors } from './lift-function-harness.mjs';
-import * as liftedAction from '../src/game/action-menu.mjs';
+import * as liftedActionLifted from '../src/game/action-menu.mjs';
+const liftedAction = withRts(liftedActionLifted);
 import { chooseActionJsr } from './register-forms/jsr-forms.mjs';
 import { chooseActionRoutineSequence } from './register-forms/upkeep-routines.mjs';
-import * as directQuestion from '../src/game/yes-no-question.mjs';
+import * as directQuestionLifted from '../src/game/yes-no-question.mjs';
+const directQuestion = withRts(directQuestionLifted);
 import { runFrameWait, runPadPresses } from './register-forms/input-routines.mjs';
 import { playSoundEffectJsr } from './register-forms/jsr-forms.mjs';
 import {

@@ -39,7 +39,7 @@ import { putGloveAwaySequence } from './window-release.mjs';
 // object_slot_required or task_slot_required, and a task chain that never ends (the
 // original would hang) at task_chain_required.
 import { showNotice } from './notice-show.mjs';
-import { drawTextBufferSequence } from './text-draw.mjs';
+import { drawTextBuffer } from './text-draw.mjs';
 import { segmentSequence } from '../system/sequence-runner.mjs';
 import {
   ACTION_MENU_OVERRIDE,
@@ -108,7 +108,7 @@ function reach(wram, player, object) {
 // frame events and renderBuffer the text renderer. The main loop runs it without its JSR
 // frame; the RTS form for register-level callers is gloveActionJsr in
 // tools/register-forms/jsr-forms.mjs.
-export function* gloveActionSequence(h, events, renderBuffer = drawTextBufferSequence) {
+export function* gloveActionSequence(h, events, renderBuffer = drawTextBuffer) {
   const { wram } = h.a.mem,
     tasks = tasksOf(h.a);
   let path = 'return',

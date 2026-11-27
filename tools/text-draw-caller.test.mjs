@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { assertFrozenRun, useLiftVectors } from './lift-function-harness.mjs';
-import { drawTextBufferSequence as direct } from '../src/game/text-draw.mjs';
+import { drawTextBufferJsr as direct } from './register-forms/jsr-forms.mjs';
 import { textWindowSide, finishTextWindow } from './text-window-caller-harness.mjs';
 import {
   TEXT_BUFFER,

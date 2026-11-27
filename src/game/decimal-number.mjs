@@ -12,7 +12,7 @@ import { readStateByte, writeStateByte } from '../state/objects.mjs';
 // Registers (user decision 2026-11-17): game state only; A, X, Y and the flags the
 // original leaves are not kept (80:FB39 sets its own before reading them). Live
 // rendering uses explicit memory access without changing the data bank.
-import { drawTextBufferSequence, renderTextBuffer } from './text-draw.mjs';
+import { drawTextBuffer, renderTextBuffer } from './text-draw.mjs';
 import { dataBankWord } from '../system/data-bank.mjs';
 import { TEXT_BUFFER } from '../data/wram.mjs';
 import { BYTE_BITS, BYTE_MASK } from '../constants/bits.mjs';
@@ -69,7 +69,7 @@ function writeDigits(mem) {
 
 // 80:FDCF: the number DP 04:02 as decimal text (see above), for lifted callers without
 // CPU call frames or a saved data-bank stack byte.
-export function* decimalNumber(h, events, renderBuffer = drawTextBufferSequence) {
+export function* decimalNumber(h, events, renderBuffer = drawTextBuffer) {
   const { mem } = h.a,
     { wram } = mem;
   yield () => {

@@ -183,12 +183,3 @@ export function* transferPortraitTiles(h, events, vram) {
     yield* nmiAtBranch(h, events, REQUEST_BRANCH, status);
   }
 }
-// Compatibility entry for register-level callers that supplied an RTS frame.
-export function* uploadPortraitTiles(h, events, vram) {
-  yield* transferPortraitTiles(h, events, vram);
-  let result;
-  yield () => {
-    result = h.rts();
-  };
-  return result;
-}

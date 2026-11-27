@@ -20,7 +20,7 @@ import { readStateByte, writeStateByte } from '../state/objects.mjs';
 import { setTextCursor, printNumber } from './window-text.mjs';
 import { printText } from './text-print.mjs';
 import { showNotice } from './notice-show.mjs';
-import { drawTextBufferSequence } from './text-draw.mjs';
+import { drawTextBuffer } from './text-draw.mjs';
 import { setMusicModeInPlace } from '../apu/audio-routines.mjs';
 import { playSoundEffectCall } from '../apu/sound-effect.mjs';
 import { setMusicMode } from '../apu/music-mode.mjs';
@@ -106,12 +106,7 @@ const negative = (value) => (value & WORD_SIGN) !== 0;
 
 // Remove the object (the direct page word 00) from the fight list (80:855E), a sequence
 // that ends with the native's RTS and composes all reward and audio callees directly.
-export function* removeFromFightListSequence(
-  h,
-  events,
-  renderBuffer = drawTextBufferSequence,
-  outerReturn = true,
-) {
+export function* removeFromFightListSequence(h, events, renderBuffer = drawTextBuffer) {
   const { mem } = h.a,
     { wram } = mem;
   let state = 'missing';
@@ -189,11 +184,6 @@ export function* removeFromFightListSequence(
     };
     if (mode !== null) yield () => setMusicModeInPlace(h, mode);
   }
-  let result;
-  yield () => {
-    if (outerReturn) result = h.rts();
-  };
-  return result;
 }
 
 // The fight list's script queries (lifted from 80:8656, 80:866F and 80:8631; register-level

@@ -5,10 +5,6 @@ import { roomStartSequence } from '../game/game-start.mjs';
 import { update, endOfFrame } from '../game/frame-loop.mjs';
 import { WORD_MASK } from '../constants/bits.mjs';
 const MAIN_ROUND = 0x80c1e3 & WORD_MASK;
-export function* attractRoundsSequence(h, e, r, room, roomStart) {
-  yield* runAttractRounds(h, e, r, room, roomStart);
-  h.rts();
-}
 
 // Ordinary demo playback and its live scheduler rounds return to their caller.
 export function* runAttractRounds(h, e, r, room, roomStart = () => roomStartSequence(h, e, room)) {

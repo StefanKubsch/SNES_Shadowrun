@@ -1,9 +1,12 @@
 import test from 'node:test';
+import { rtsForm, withRts } from './register-forms/rts-forms.mjs';
 import assert from 'node:assert/strict';
 import { assertFrozenRun, useLiftVectors } from './lift-function-harness.mjs';
 import { compareRun } from './member-menu-caller-harness.mjs';
-import { liftedMainMenuSequence } from '../src/game/main-upkeep.mjs';
-import * as liftedMain from '../src/game/main-menu.mjs';
+import { liftedMainMenuSequence as liftedMainMenuSequenceLifted } from '../src/game/main-upkeep.mjs';
+const liftedMainMenuSequence = rtsForm(liftedMainMenuSequenceLifted);
+import * as liftedMainLifted from '../src/game/main-menu.mjs';
+const liftedMain = withRts(liftedMainLifted);
 import { installPortExtension } from '../src/data/port-extension.mjs';
 import { occupiedSlots } from '../src/game/save-slots.mjs';
 import * as liftedKarma from '../src/game/karma-menu.mjs';

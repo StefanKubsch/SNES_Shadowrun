@@ -18,7 +18,7 @@ import { readStateByte, writeStateByte } from '../state/objects.mjs';
 // input and the routines leave no registers (the result is in the direct page word 00).
 // The register form of the main menu for register-level callers (A the result with the
 // flags of its CMP #FFFF) lives in tools/register-forms/upkeep-routines.mjs.
-import { drawTextBufferSequence } from './text-draw.mjs';
+import { drawTextBuffer } from './text-draw.mjs';
 import { chooseFromMenu, MENU } from './menu-choice.mjs';
 import { fitListWindow, listTextIds } from '../data/menu-layout.mjs';
 import { TOPICS } from '../data/topics.mjs';
@@ -54,7 +54,7 @@ const setWords = (wram, from, values) =>
 
 // The dialog's main menu (80:91E2) for lifted callers, without the JSR frame (the
 // caller's return word lies only in free stack bytes). Selection composes directly.
-export function* chooseDialogAction(h, events, renderBuffer = drawTextBufferSequence) {
+export function* chooseDialogAction(h, events, renderBuffer = drawTextBuffer) {
   const { wram } = h.a.mem;
   yield () => {
     setWord(wram, DP_RESULT, word(wram, DP_TEXT_WINDOW));
@@ -67,7 +67,7 @@ export function* chooseDialogAction(h, events, renderBuffer = drawTextBufferSequ
 }
 // The dialog's topic choice (80:9215) for lifted callers, without the JSR frame (the
 // caller's return word lies only in free stack bytes). Selection composes directly.
-export function* chooseDialogTopic(h, events, renderBuffer = drawTextBufferSequence) {
+export function* chooseDialogTopic(h, events, renderBuffer = drawTextBuffer) {
   const { mem } = h.a,
     { wram } = mem;
   let none = false;

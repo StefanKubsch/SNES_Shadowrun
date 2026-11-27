@@ -7,12 +7,10 @@ import {
 
 // The swarm start natives (lifted in src/game/swarm-start.mjs; register-level references
 // in proof/game-reference/swarm-start.mjs).
-const lifted =
-  (run) =>
-  (a, outerReturn = true) => {
-    run(a.mem, a);
-    return finishLeaf(a, outerReturn);
-  };
+const lifted = (run) => (a) => {
+  run(a.mem, a);
+  return finishLeaf(a);
+};
 // 80:D7DD: start the path swarm around the object (first argument).
 export const startPathSwarm = lifted(startPath);
 // 80:D260: start the wave swarm around the object (first argument).

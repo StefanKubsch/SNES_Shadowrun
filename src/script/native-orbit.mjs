@@ -5,9 +5,9 @@ import { advanceOrbit as advance } from '../game/object-bob.mjs';
 // and D793 (lifted in src/game/object-bob.mjs; register-level reference in
 // proof/game-reference/object-bob.mjs): advance the object (first argument) one step on
 // its orbit in phase slot Y.
-export const advanceOrbit = (a, slot, outerReturn = true) => {
+export const advanceOrbit = (a, slot) => {
   advance(a.mem, leafArgument(a, FIRST_ARGUMENT), slot);
-  return finishLeaf(a, outerReturn);
+  return finishLeaf(a);
 };
 // Entry -> phase slot Y: the n-th entry loads Y = 2n.
 export const D796_ENTRIES = Object.freeze(

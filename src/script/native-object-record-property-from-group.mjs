@@ -5,7 +5,7 @@ import { setRecordPropertyFromGroup } from '../game/object-fields.mjs';
 // proof/game-reference/object-fields.mjs): set the property word of the record of the
 // object (first argument) to the first word of the group numbers; an object without a
 // record is unchanged.
-export const setObjectRecordPropertyFromGroup = (a, outerReturn = true) => {
+export const setObjectRecordPropertyFromGroup = (a) => {
   setRecordPropertyFromGroup(a.mem, leafArgument(a, FIRST_ARGUMENT));
-  return finishLeaf(a, outerReturn);
+  return finishLeaf(a);
 };

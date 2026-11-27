@@ -18,7 +18,7 @@ function side({ frameJobs, nmitimen = 0x81, apu = null } = {}) {
     },
   });
   const frames = new LagFreeFrames({ nmitimen, apu });
-  const devices = new LiveDevices(frames, new Map(), { frameJobs });
+  const devices = new LiveDevices(frames, { frameJobs });
   const events = interruptEventsOf(devices.take(0), 0);
   return { mem, a, frames, events, h: { a } };
 }
@@ -105,10 +105,10 @@ test('instant text and disabled-NMI audio waits do not dispatch a frame', () => 
 
 test('the recorded compatibility channel does not acquire live frame jobs', () => {
   const frames = new LagFreeFrames();
-  const devices = new LiveDevices(frames, new Map());
+  const devices = new LiveDevices(frames);
   assert.equal(Object.hasOwn(interruptEventsOf(devices.take(0), 0), 'frameJobs'), false);
   assert.throws(
-    () => new LiveDevices(frames, new Map(), { frameJobs: {} }),
+    () => new LiveDevices(frames, { frameJobs: {} }),
     (e) => e.reason === 'frame_devices_required',
   );
 });

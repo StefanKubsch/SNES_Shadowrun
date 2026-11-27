@@ -29,7 +29,7 @@ import { segmentSequence } from '../system/sequence-runner.mjs';
 import { showNotice } from './notice-show.mjs';
 import { setTextCursor, printNumber } from './window-text.mjs';
 import { printText } from './text-print.mjs';
-import { drawTextBufferSequence } from './text-draw.mjs';
+import { drawTextBuffer } from './text-draw.mjs';
 import { accessorPort } from '../system/hardware-port.mjs';
 import { playSoundEffect } from '../apu/sound-effect.mjs';
 import {
@@ -77,7 +77,7 @@ const setWord = (wram, at, value) => {
 // renderBuffer its text-buffer renderer sequence. The main loop runs it without its JSR
 // frame; the RTS form for register-level callers is timeLimitJsr in
 // tools/register-forms/jsr-forms.mjs.
-export function* timeLimitSequence(h, events, renderBuffer = drawTextBufferSequence) {
+export function* timeLimitSequence(h, events, renderBuffer = drawTextBuffer) {
   const { mem } = h.a,
     { wram } = mem;
   let path = 'return';

@@ -7,9 +7,17 @@
 // return must be equal.
 import { prng } from './task-native-dialog-harness.mjs';
 import { createSide, registerCases, useLiftVectors } from './lift-function-harness.mjs';
-import { bobObject, bobSecondObject } from '../src/script/native-object-bob.mjs';
-import { advanceOrbit, D796_ENTRIES } from '../src/script/native-orbit.mjs';
+import {
+  bobObject as bobObjectLifted,
+  bobSecondObject as bobSecondObjectLifted,
+} from '../src/script/native-object-bob.mjs';
+import { advanceOrbit as advanceOrbitLifted, D796_ENTRIES } from '../src/script/native-orbit.mjs';
 import { BOB_PHASE, BOB_SECOND_PHASE, SWARM_MEMBERS } from '../src/data/wram.mjs';
+import { leafRts } from './register-forms/leaf-return.mjs';
+// The natives with the RTS of their register-level entry (2026-11-27).
+const bobObject = leafRts(bobObjectLifted);
+const bobSecondObject = leafRts(bobSecondObjectLifted);
+const advanceOrbit = leafRts(advanceOrbitLifted);
 
 useLiftVectors(import.meta.url);
 

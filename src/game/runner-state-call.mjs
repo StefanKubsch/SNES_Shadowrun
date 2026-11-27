@@ -8,17 +8,11 @@ function* redraw(h, events, body) {
   yield () => body(h);
   yield* drawWindowListSequence(h, events);
 }
-function* redrawAndReturn(h, events, body, outerReturn) {
+function* redrawAndReturn(h, events, body) {
   yield* redraw(h, events, body);
-  let result;
-  yield () => {
-    if (outerReturn) result = h.rts();
-  };
-  return result;
 }
 // 80:CECB for lifted callers: the caller's return word lies only in free stack bytes.
 export const raiseStateCountAndRedraw = (h, events) => redraw(h, events, raiseStateCountBody);
-export const raiseStateCountSequence = (h, events, outerReturn = true) =>
-  redrawAndReturn(h, events, raiseStateCountBody, outerReturn);
-export const restoreRunnersSequence = (h, events, outerReturn = true) =>
-  redrawAndReturn(h, events, restoreRunnersBody, outerReturn);
+export const raiseStateCountSequence = (h, events) =>
+  redrawAndReturn(h, events, raiseStateCountBody);
+export const restoreRunnersSequence = (h, events) => redrawAndReturn(h, events, restoreRunnersBody);

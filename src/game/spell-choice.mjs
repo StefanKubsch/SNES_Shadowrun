@@ -16,7 +16,7 @@ import { readStateByte, writeStateByte } from '../state/objects.mjs';
 import { openWindow } from './window-open.mjs';
 import { releaseWindowSequence } from './window-release.mjs';
 import { chooseFromMenu } from './menu-choice.mjs';
-import { drawTextBufferSequence } from './text-draw.mjs';
+import { drawTextBuffer } from './text-draw.mjs';
 import { dataBankWord, setDataBankWord } from '../system/data-bank.mjs';
 import { taskStop } from '../system/task-stop.mjs';
 import { DP_SPELL_WINDOW, LIST_ENTRY_LIMIT, SPELL_WINDOW } from '../data/native-spell-choice.mjs';
@@ -82,12 +82,7 @@ function chosenSpell(wram, row) {
 
 // 80:E1CF: choose one of the learned spells; DP 00 gets it or 0. A sequence that ends
 // with the native's RTS.
-export function* chooseSpellSequence(
-  h,
-  events,
-  renderBuffer = drawTextBufferSequence,
-  outerReturn = true,
-) {
+export function* chooseSpellSequence(h, events, renderBuffer = drawTextBuffer) {
   const { mem } = h.a,
     { wram } = mem;
   let spells,
@@ -130,10 +125,7 @@ export function* chooseSpellSequence(
   // The result is kept over the window's release (on the stack in the original).
   yield () => setWord(wram, 0, word(wram, DP_SPELL_WINDOW));
   yield* releaseWindowSequence(h, events);
-  let result;
   yield () => {
     setWord(wram, 0, spell ?? NO_SPELL);
-    if (outerReturn) result = h.rts();
   };
-  return result;
 }

@@ -39,11 +39,15 @@ import {
 } from './register-forms/upkeep-routines.mjs';
 import { stepAnimationInPlace } from '../src/game/object-animation.mjs';
 import { drainNativeSequence } from './register-forms/native-call-continuation.mjs';
-import { drawTextBufferSequence } from '../src/game/text-draw.mjs';
+import { drawTextBuffer } from '../src/game/text-draw.mjs';
 import { LagFreeFrames } from '../src/vm/frame-events.mjs';
 import { unpackPortraitRoutine } from './register-forms/portrait-routines.mjs';
 import { portraitStreams } from '../src/data/portraits.mjs';
-import { MARK, UNMARK, drawListSequence, markRowSequence } from '../src/game/menu-list.mjs';
+import { MARK, UNMARK } from '../src/game/menu-list.mjs';
+import {
+  drawListJsr as drawListSequence,
+  markRowJsr as markRowSequence,
+} from './register-forms/jsr-forms.mjs';
 import {
   setTextCursorJsr,
   shiftPortraitRowsJsr,
@@ -991,9 +995,7 @@ const MENU_MARKS = [
     Object.assign(h.ctx, input);
     h.ctx.programBank = 0x80;
     h.push(0x1234, 2);
-    drainNativeSequence(
-      markRowSequence(h, liveTextEvents(h), drawTextBufferSequence, form, input.y),
-    );
+    drainNativeSequence(markRowSequence(h, liveTextEvents(h), drawTextBuffer, form, input.y));
     return dataBank(h);
   },
 }));
@@ -1038,7 +1040,7 @@ const MENU_LIST = {
     Object.assign(h.ctx, input);
     h.ctx.programBank = 0x80;
     h.push(0x1234, 2);
-    drainNativeSequence(drawListSequence(h, liveTextEvents(h), drawTextBufferSequence));
+    drainNativeSequence(drawListSequence(h, liveTextEvents(h), drawTextBuffer));
     return dataBank(h);
   },
 };

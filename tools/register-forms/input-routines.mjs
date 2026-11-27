@@ -1,7 +1,7 @@
 // The frame wait 81:B0A1 and the pad word 80:9E1A as routine table entries with the
 // original's registers, for register-level callers (moved from
 // src/system/live-input-calls.mjs, whose lifted forms leave no registers).
-import { frameWaitCallSequence } from '../../src/system/live-input-calls.mjs';
+import { frameWaitJsl as frameWaitCallSequence } from './jsr-forms.mjs';
 import { takePadPresses } from '../../src/system/joypad.mjs';
 import { lagFree } from '../../src/vm/frame-events.mjs';
 import { taskStop } from '../../src/system/task-stop.mjs';

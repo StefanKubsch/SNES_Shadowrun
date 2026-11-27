@@ -4,7 +4,7 @@ import { assertFrozenRun, useLiftVectors } from './lift-function-harness.mjs';
 import * as liftedPortrait from '../src/game/member-portrait.mjs';
 import { memberPortraitJsr } from './register-forms/jsr-forms.mjs';
 import { unpackPortraitRoutine } from './register-forms/portrait-routines.mjs';
-import { frameWaitCallSequence } from '../src/system/live-input-calls.mjs';
+import { frameWaitJsl as frameWaitCallSequence } from './register-forms/jsr-forms.mjs';
 import {
   NativeCallContinuation,
   NATIVE_CALL_CONTINUATIONS,

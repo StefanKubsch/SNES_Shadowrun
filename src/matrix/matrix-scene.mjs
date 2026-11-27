@@ -374,13 +374,6 @@ function scrollToPersona(m) {
   }
 }
 
-// 81:BEC3: the matrix NMI callback: sprites, colours, blink, scroll, the message row,
-// the queued VRAM copies and the text cursor, then the joypad.
-export function handleMatrixNmi(h) {
-  updateMatrixFrame(h);
-  return h.rtl();
-}
-
 // Frame jobs return directly; the compatibility entry above owns the original RTL.
 export function updateMatrixFrame(h) {
   const m = matrixRuntime(h),

@@ -11,11 +11,11 @@ import { BYTE_MASK } from '../constants/bits.mjs';
 // proof/game-reference/actor-state.mjs): add the second argument's low byte to the count
 // byte of the state record of the actor entry (first argument), at most six; no record,
 // no change.
-export const addActorStateCount = (a, outerReturn = true) => {
+export const addActorStateCount = (a) => {
   raiseActorStateCount(
     a.mem,
     leafArgument(a, FIRST_ARGUMENT),
     leafArgument(a, SECOND_ARGUMENT) & BYTE_MASK,
   );
-  return finishLeaf(a, outerReturn);
+  return finishLeaf(a);
 };

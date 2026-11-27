@@ -8,19 +8,31 @@
 // WRAM outside the stacks, the device writes and the return must be equal.
 import { prng } from './task-native-dialog-harness.mjs';
 import { createSide, registerCases, useLiftVectors } from './lift-function-harness.mjs';
-import { moveObjectStraightToObject } from '../src/script/native-motion-object-follow.mjs';
-import { moveObjectToObject } from '../src/script/native-motion-object-move.mjs';
-import { moveObjectStraightToPlayer } from '../src/script/native-motion-player-follow.mjs';
-import { moveObjectToPlayer } from '../src/script/native-motion-player-move.mjs';
-import { moveObjectStraightToPoint } from '../src/script/native-motion-point-follow.mjs';
-import { moveObjectToPoint } from '../src/script/native-motion-point-move.mjs';
-import { stopMotion } from '../src/script/native-motion-stop.mjs';
+import { moveObjectStraightToObject as moveObjectStraightToObjectLifted } from '../src/script/native-motion-object-follow.mjs';
+import { moveObjectToObject as moveObjectToObjectLifted } from '../src/script/native-motion-object-move.mjs';
+import { moveObjectStraightToPlayer as moveObjectStraightToPlayerLifted } from '../src/script/native-motion-player-follow.mjs';
+import { moveObjectToPlayer as moveObjectToPlayerLifted } from '../src/script/native-motion-player-move.mjs';
+import { moveObjectStraightToPoint as moveObjectStraightToPointLifted } from '../src/script/native-motion-point-follow.mjs';
+import { moveObjectToPoint as moveObjectToPointLifted } from '../src/script/native-motion-point-move.mjs';
+import { stopMotion as stopMotionLifted } from '../src/script/native-motion-stop.mjs';
 import {
-  moveObjectStraightToWaypoint,
-  moveObjectToWaypoint,
+  moveObjectStraightToWaypoint as moveObjectStraightToWaypointLifted,
+  moveObjectToWaypoint as moveObjectToWaypointLifted,
 } from '../src/script/native-motion-waypoint-move.mjs';
-import { placeObjectOnWaypoint } from '../src/script/native-object-to-waypoint.mjs';
+import { placeObjectOnWaypoint as placeObjectOnWaypointLifted } from '../src/script/native-object-to-waypoint.mjs';
 import { DP_POINT_LIST } from '../src/data/wram.mjs';
+import { leafRts } from './register-forms/leaf-return.mjs';
+const moveObjectStraightToWaypoint = leafRts(moveObjectStraightToWaypointLifted);
+const moveObjectToWaypoint = leafRts(moveObjectToWaypointLifted);
+// The natives with the RTS of their register-level entry (2026-11-27).
+const moveObjectStraightToObject = leafRts(moveObjectStraightToObjectLifted);
+const moveObjectToObject = leafRts(moveObjectToObjectLifted);
+const moveObjectStraightToPlayer = leafRts(moveObjectStraightToPlayerLifted);
+const moveObjectToPlayer = leafRts(moveObjectToPlayerLifted);
+const moveObjectStraightToPoint = leafRts(moveObjectStraightToPointLifted);
+const moveObjectToPoint = leafRts(moveObjectToPointLifted);
+const stopMotion = leafRts(stopMotionLifted);
+const placeObjectOnWaypoint = leafRts(placeObjectOnWaypointLifted);
 
 useLiftVectors(import.meta.url);
 

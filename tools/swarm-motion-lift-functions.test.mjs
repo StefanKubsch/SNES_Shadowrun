@@ -7,9 +7,13 @@
 // and the return must be equal.
 import { prng } from './task-native-dialog-harness.mjs';
 import { createSide, registerCases, useLiftVectors } from './lift-function-harness.mjs';
-import { moveSwarmAlongPath } from '../src/script/native-swarm-follow-path.mjs';
-import { moveSwarmWave } from '../src/script/native-swarm-wave.mjs';
+import { moveSwarmAlongPath as moveSwarmAlongPathLifted } from '../src/script/native-swarm-follow-path.mjs';
+import { moveSwarmWave as moveSwarmWaveLifted } from '../src/script/native-swarm-wave.mjs';
 import { SWARM_MEMBERS } from '../src/data/wram.mjs';
+import { leafRts } from './register-forms/leaf-return.mjs';
+// The natives with the RTS of their register-level entry (2026-11-27).
+const moveSwarmAlongPath = leafRts(moveSwarmAlongPathLifted);
+const moveSwarmWave = leafRts(moveSwarmWaveLifted);
 
 useLiftVectors(import.meta.url);
 

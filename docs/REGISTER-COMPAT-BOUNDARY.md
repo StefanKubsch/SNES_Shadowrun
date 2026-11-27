@@ -239,6 +239,24 @@ was then removed and its tests moved to the value form.
   nothing in tools/, that the live-loop contract reaches no register form and that no
   src module keeps a compatibility hook.
 
-Remaining: src/ still has register-level entry forms for test callers (sequences with
-an `outerReturn` RTS/RTL and accessor context reads), about 40 `h.rts()`/`h.rtl()`
-sites.
+### RTS and RTL entry forms (2026-11-27)
+
+src/ has no RTS or RTL any more (user decision 2026-11-27). The `outerReturn` parameter
+went from 165 modules: the script natives end with `finishLeaf(a)`, which returns the
+result word, and the lifted sequences end without a CPU frame. The register entry forms
+that only tests used left src: the text buffer with its RTS (the renderer is now
+`drawTextBuffer` everywhere), the scene NMI handlers with their RTL and their routine
+tables (live frame jobs run the `update…Frame` functions; `LiveDevices` takes no
+routine table), the title, start menu and attract entries, and the JSR/JSL forms of the
+frame wait, menu list, menu choice, window releases and portrait DMA job.
+
+Test callers that enter with JSR get the return from tools/register-forms:
+`rtsForm`/`withRts` (rts-forms.mjs) add the RTS after the 50 sequences that used to
+take `outerReturn`, `leafRts` (leaf-return.mjs) the RTS and return record of a native,
+and jsr-forms.mjs holds the moved forms. The whole fast suite passed with every frozen
+vector unchanged.
+
+Remaining: `TaskAccessor` (src/vm/task-accessor.mjs) still carries a CPU context, which
+the game loop's accessor resets; `dataBankOf` falls back to it and the task append reads
+its data bank. The `routines` parameter is still passed through the front end and game
+loop although nothing reads it.

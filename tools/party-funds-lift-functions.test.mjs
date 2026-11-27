@@ -8,12 +8,19 @@
 // return must be equal.
 import { prng } from './task-native-dialog-harness.mjs';
 import { createSide, registerCases, useLiftVectors } from './lift-function-harness.mjs';
-import { learnSpell } from '../src/script/native-spell-add.mjs';
-import { startBrightnessFade } from '../src/script/native-signed-offset-set.mjs';
-import { addKarma } from '../src/script/native-karma-add.mjs';
-import { addNuyen } from '../src/script/native-nuyen-add.mjs';
-import { addMagicPoints } from '../src/script/native-magic-points-add.mjs';
+import { learnSpell as learnSpellLifted } from '../src/script/native-spell-add.mjs';
+import { startBrightnessFade as startBrightnessFadeLifted } from '../src/script/native-signed-offset-set.mjs';
+import { addKarma as addKarmaLifted } from '../src/script/native-karma-add.mjs';
+import { addNuyen as addNuyenLifted } from '../src/script/native-nuyen-add.mjs';
+import { addMagicPoints as addMagicPointsLifted } from '../src/script/native-magic-points-add.mjs';
 import { MEMBER_INDEX, NUYEN, SPELL_LIST } from '../src/data/wram.mjs';
+import { leafRts } from './register-forms/leaf-return.mjs';
+// The natives with the RTS of their register-level entry (2026-11-27).
+const learnSpell = leafRts(learnSpellLifted);
+const startBrightnessFade = leafRts(startBrightnessFadeLifted);
+const addKarma = leafRts(addKarmaLifted);
+const addNuyen = leafRts(addNuyenLifted);
+const addMagicPoints = leafRts(addMagicPointsLifted);
 useLiftVectors(import.meta.url);
 
 const WRAM_BYTES = 0x20000,

@@ -6,12 +6,20 @@
 // 2026-11-14): WRAM outside the stacks, the device writes and the return must be equal.
 import { prng } from './task-native-dialog-harness.mjs';
 import { createSide, registerCases, useLiftVectors } from './lift-function-harness.mjs';
-import { setSwarmHeightPhaseTarget } from '../src/script/native-swarm-height-phase-target.mjs';
-import { setSwarmPathPhaseTarget } from '../src/script/native-swarm-path-phase-target.mjs';
-import { setSwarmPathSpeedTarget } from '../src/script/native-swarm-path-speed-target.mjs';
-import { setSwarmHeightSpeedTarget } from '../src/script/native-swarm-height-speed-target.mjs';
-import { resetSwarmPhases } from '../src/script/native-swarm-phases-reset.mjs';
-import { startSwarmOrbit } from '../src/script/native-swarm-orbit-start.mjs';
+import { setSwarmHeightPhaseTarget as setSwarmHeightPhaseTargetLifted } from '../src/script/native-swarm-height-phase-target.mjs';
+import { setSwarmPathPhaseTarget as setSwarmPathPhaseTargetLifted } from '../src/script/native-swarm-path-phase-target.mjs';
+import { setSwarmPathSpeedTarget as setSwarmPathSpeedTargetLifted } from '../src/script/native-swarm-path-speed-target.mjs';
+import { setSwarmHeightSpeedTarget as setSwarmHeightSpeedTargetLifted } from '../src/script/native-swarm-height-speed-target.mjs';
+import { resetSwarmPhases as resetSwarmPhasesLifted } from '../src/script/native-swarm-phases-reset.mjs';
+import { startSwarmOrbit as startSwarmOrbitLifted } from '../src/script/native-swarm-orbit-start.mjs';
+import { leafRts } from './register-forms/leaf-return.mjs';
+// The natives with the RTS of their register-level entry (2026-11-27).
+const setSwarmHeightPhaseTarget = leafRts(setSwarmHeightPhaseTargetLifted);
+const setSwarmPathPhaseTarget = leafRts(setSwarmPathPhaseTargetLifted);
+const setSwarmPathSpeedTarget = leafRts(setSwarmPathSpeedTargetLifted);
+const setSwarmHeightSpeedTarget = leafRts(setSwarmHeightSpeedTargetLifted);
+const resetSwarmPhases = leafRts(resetSwarmPhasesLifted);
+const startSwarmOrbit = leafRts(startSwarmOrbitLifted);
 
 useLiftVectors(import.meta.url);
 

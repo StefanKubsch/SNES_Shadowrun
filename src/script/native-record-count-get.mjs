@@ -10,7 +10,7 @@ import { actorStateCount } from '../game/actor-state.mjs';
 // proof/game-reference/actor-state.mjs): return the count byte of the state record of
 // the actor entry (first argument). An actor without a record reads its count from
 // 7E:0002.
-export const getActorStateCount = (a, outerReturn = true) => {
+export const getActorStateCount = (a) => {
   setLeafResult(a, actorStateCount(a.mem, leafArgument(a, FIRST_ARGUMENT)));
-  return finishLeaf(a, outerReturn);
+  return finishLeaf(a);
 };

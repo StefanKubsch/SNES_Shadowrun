@@ -6,10 +6,15 @@
 // 2026-11-14): WRAM outside the stacks, the device writes and the return must be equal.
 import { prng } from './task-native-dialog-harness.mjs';
 import { createSide, registerCases, useLiftVectors } from './lift-function-harness.mjs';
-import { isInFightList } from '../src/script/native-fight-list-contains.mjs';
-import { hasFightTarget } from '../src/script/native-fight-list-any-active.mjs';
-import { getPreviousFightObject } from '../src/script/native-fight-list-previous.mjs';
+import { isInFightList as isInFightListLifted } from '../src/script/native-fight-list-contains.mjs';
+import { hasFightTarget as hasFightTargetLifted } from '../src/script/native-fight-list-any-active.mjs';
+import { getPreviousFightObject as getPreviousFightObjectLifted } from '../src/script/native-fight-list-previous.mjs';
 import { FIGHT_LIST, FIGHT_LIST_INDEX } from '../src/data/wram.mjs';
+import { leafRts } from './register-forms/leaf-return.mjs';
+// The natives with the RTS of their register-level entry (2026-11-27).
+const isInFightList = leafRts(isInFightListLifted);
+const hasFightTarget = leafRts(hasFightTargetLifted);
+const getPreviousFightObject = leafRts(getPreviousFightObjectLifted);
 
 useLiftVectors(import.meta.url);
 

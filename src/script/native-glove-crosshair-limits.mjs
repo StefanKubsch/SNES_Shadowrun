@@ -23,7 +23,7 @@ export const GLOVE_OVER_PLAYER = Object.freeze({
 // 80:BC83 (lifted in src/game/glove-target.mjs; register-level reference in
 // proof/game-reference/script-measures.mjs): switch to the crosshair limits (the tail of
 // 80:BC80 after its JSR 80:BC36).
-export const limitCrosshair = (a, outerReturn = true) => {
+export const limitCrosshair = (a) => {
   setGloveLimits(a.mem, GLOVE_LIMITS.crosshair);
-  return finishLeaf(a, outerReturn);
+  return finishLeaf(a);
 };

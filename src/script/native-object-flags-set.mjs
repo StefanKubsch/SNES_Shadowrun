@@ -9,7 +9,7 @@ import { setObjectFlags as setFlags } from '../game/object-fields.mjs';
 // 80:CA0D (lifted in src/game/object-fields.mjs; register-level reference in
 // proof/game-reference/object-fields.mjs): replace the flag word of the object (first
 // argument) with the second argument.
-export const setObjectFlags = (a, outerReturn = true) => {
+export const setObjectFlags = (a) => {
   setFlags(a.mem, leafArgument(a, FIRST_ARGUMENT), leafArgument(a, SECOND_ARGUMENT));
-  return finishLeaf(a, outerReturn);
+  return finishLeaf(a);
 };

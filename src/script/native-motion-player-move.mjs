@@ -11,7 +11,7 @@ import { moveToPlayer } from '../game/motion-targets.mjs';
 // proof/game-reference/motion-targets.mjs): move the object (first
 // argument) axis by axis towards the player object; the player object becomes the
 // second argument.
-export const moveObjectToPlayer = (a, outerReturn = true) => {
+export const moveObjectToPlayer = (a) => {
   setLeafWord(a, SECOND_ARGUMENT, moveToPlayer(a.mem, leafArgument(a, FIRST_ARGUMENT)));
-  return finishLeaf(a, outerReturn);
+  return finishLeaf(a);
 };

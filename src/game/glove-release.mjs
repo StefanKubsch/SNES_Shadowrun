@@ -8,7 +8,7 @@ import { drawWindowListSequence } from './window-list.mjs';
 import { DIALOG_WINDOW } from '../data/wram.mjs';
 
 // 80:CD9D, ending with the native's RTS; both cleanup callees compose directly.
-export function* releaseGloveSequence(h, events, outerReturn = true) {
+export function* releaseGloveSequence(h, events) {
   const { wram } = h.a.mem;
   yield () => {
     writeStateByte(wram, DIALOG_WINDOW, 0);
@@ -16,9 +16,4 @@ export function* releaseGloveSequence(h, events, outerReturn = true) {
   };
   yield* putGloveAwaySequence(h, events);
   yield* drawWindowListSequence(h, events);
-  let result;
-  yield () => {
-    if (outerReturn) result = h.rts();
-  };
-  return result;
 }

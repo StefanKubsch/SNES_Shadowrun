@@ -7,10 +7,14 @@
 // return must be equal.
 import { DialogTestMemory, prng } from './task-native-dialog-harness.mjs';
 import { createSide, registerCases, useLiftVectors } from './lift-function-harness.mjs';
-import { getRunnerStrength } from '../src/script/native-runner-record-byte.mjs';
-import { getPlayerObjectAfterBreak } from '../src/script/native-player-object-break.mjs';
+import { getRunnerStrength as getRunnerStrengthLifted } from '../src/script/native-runner-record-byte.mjs';
+import { getPlayerObjectAfterBreak as getPlayerObjectAfterBreakLifted } from '../src/script/native-player-object-break.mjs';
 import { OBJECT_NUMBER } from '../src/data/wram.mjs';
 import { RUNNERS, RUNNER_OBJECT_NUMBERS } from '../src/data/runners.mjs';
+import { leafRts } from './register-forms/leaf-return.mjs';
+// The natives with the RTS of their register-level entry (2026-11-27).
+const getRunnerStrength = leafRts(getRunnerStrengthLifted);
+const getPlayerObjectAfterBreak = leafRts(getPlayerObjectAfterBreakLifted);
 
 useLiftVectors(import.meta.url);
 
