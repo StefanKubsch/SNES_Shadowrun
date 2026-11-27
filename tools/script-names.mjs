@@ -98,8 +98,8 @@ export const SCRIPT_NAMES = Object.freeze({
   0x183: 'endingScene11',
   0x097: 'endingScene12', // "The Shadowrunners were..."
   0x1d1: 'endingScene13',
-  // Fights: a round returns true when the fighter was defeated in it. Script variable
-  // 2A counts the spawned fighters that are active.
+  // Fights: a round returns true when the fighter was defeated in it. Script variables are
+  // per-room scratch words: in the rooms of the spawned fighters, 2A counts the active ones.
   0x235: 'shootRound', // turn to the target and shoot
   0x221: 'shootOrCloseInRound', // shoot, then move closer to a far target
   0x28e: 'standAndShoot',

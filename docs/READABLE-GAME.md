@@ -207,5 +207,6 @@ traces; release and push as in [WORKFLOW.md](WORKFLOW.md).
   `events`, its tests by event. 91 of the 158 started scripts are named; new are the
   ending (script variable 2C counts its 13 scenes, playEndingScene and endingScene1 to
   13), NPCs that talk or strike back, item scripts (combineTimeBomb, playPickUpSound)
-  and fight rounds (shootRound, standAndShoot, chaseAndFight; script variable 2A counts
-  the active spawned fighters). The 67 unnamed ones are longer fight behaviours.
+  and fight rounds (shootRound, standAndShoot, chaseAndFight). Script variables other than
+  2C are per-room scratch words (2A counts the active spawned fighters in their rooms and
+  holds other values elsewhere). The 67 unnamed ones are longer fight behaviours.
