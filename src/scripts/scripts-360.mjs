@@ -9,7 +9,7 @@ import { run } from './started.mjs';
 export function* fightAndDropNuyen(state, arg0) {
   let object = 0;
   object = arg0 & 0xff;
-  yield* run.script2F7(object, 3, 2, 1, 0x1e);
+  yield* run.chaseAndShoot(object, 3, 2, 1, 0x1e);
   yield* run.dropNuyen15F(yield* run.leaveBody(object));
   return null;
 }
@@ -283,7 +283,7 @@ export function* closeDoorWhenClear(state, arg0, arg1, arg2, arg3, arg4, arg5) {
 }
 
 // Script 36D: 4 arguments.
-export function* script36D(state, arg0, arg1, arg2, arg3) {
+export function* wanderAround(state, arg0, arg1, arg2, arg3) {
   let object = 0,
     limit = 0,
     frames = 0,
@@ -428,7 +428,7 @@ export function* script370(state, arg0) {
 }
 
 // Script 371: 8 arguments.
-export function* script371(state, arg0, arg1, arg2, arg3, arg4, arg5, arg6, arg7) {
+export function* waypointShooterB(state, arg0, arg1, arg2, arg3, arg4, arg5, arg6, arg7) {
   let object = 0,
     local1 = 0,
     waypoint2 = 0,
@@ -520,7 +520,7 @@ export function* script372(state, arg0) {
     );
     yield* game.wait(EVENT.TIMER, 0xa);
     yield* game.appendToFightList(object);
-    if ((yield* run.script111(object, 0x102, 0, 0x300, 0x401, 0x204, 0x201)) === 0) {
+    if ((yield* run.guardRoute(object, 0x102, 0, 0x300, 0x401, 0x204, 0x201)) === 0) {
       yield* game.notice(9, 5, 9, 3, 0x400, 0x24f /* "You! You..." */, 0x78);
       yield* game.addKarma(0xc);
       yield* game.fightListRemove(object);

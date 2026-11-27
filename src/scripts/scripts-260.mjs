@@ -77,7 +77,7 @@ export function* script262(state, arg0) {
     yield* game.wait(EVENT.TIMER, 2);
     if ((yield* game.getDistanceToPlayer(object)) <= 0x28) {
       yield* game.appendToFightList(object);
-      if ((yield* run.script093(object)) !== 0) {
+      if ((yield* run.approachAndShootPlayer(object)) !== 0) {
         yield* sub5(4);
         yield* sub5(8);
         yield* sub5(0xc);
@@ -102,7 +102,7 @@ export function* script263(state, arg0) {
   yield* game.setObjectAnimation(object, 2);
   yield* game.moveObjectStraightToWaypoint(object, 0);
   yield* game.wait(EVENT.TIMER | EVENT.ARRIVED, 0x3c);
-  yield* run.script20B(object);
+  yield* run.chargeAndShoot(object);
   return null;
 }
 
@@ -113,7 +113,7 @@ export function* script264(state, arg0) {
   for (;;) {
     yield* game.wait(EVENT.TIMER, 6);
     if (((yield* game.getActorStateFlags(0xadb /* "Mage" */)) & 1) !== 0) {
-      yield* run.script371(object, 8, 9, 2, 0x80, 4, 0, 5);
+      yield* run.waypointShooterB(object, 8, 9, 2, 0x80, 4, 0, 5);
       return null;
     }
   }
@@ -250,7 +250,7 @@ export function* script268(state, arg0) {
 export function* script269(state, arg0) {
   let local0 = 0;
   local0 = arg0 & 0xff;
-  yield* run.dropNuyen15F(yield* run.script07A(0x700 | local0, 0x506, 0x243, 0x306));
+  yield* run.dropNuyen15F(yield* run.patrolAndShoot(0x700 | local0, 0x506, 0x243, 0x306));
   return null;
 }
 
@@ -456,7 +456,7 @@ export function* script274(state, arg0) {
 }
 
 // Script 275: 3 arguments.
-export function* script275(state, arg0, arg1, arg2) {
+export function* orbiterAttacks(state, arg0, arg1, arg2) {
   let object = 0,
     local1 = 0,
     actor = 0,
@@ -552,7 +552,7 @@ export function* script277(state, arg0) {
 export function* script278(state, arg0) {
   let local0 = 0;
   local0 = arg0 & 0xff;
-  yield* run.dropNuyen15F(yield* run.script07A(0x800 | local0, 0x607, 0x244, 0x306));
+  yield* run.dropNuyen15F(yield* run.patrolAndShoot(0x800 | local0, 0x607, 0x244, 0x306));
   return null;
 }
 
@@ -784,7 +784,7 @@ export function* script27B(state, arg0) {
 }
 
 // Script 27C: 5 arguments, returns a word.
-export function* script27C(state, arg0, arg1, arg2, arg3, arg4) {
+export function* patrolAndShootB(state, arg0, arg1, arg2, arg3, arg4) {
   let local0 = 0,
     local2 = 0,
     text = 0,
@@ -818,7 +818,7 @@ export function* script27C(state, arg0, arg1, arg2, arg3, arg4) {
         yield* game.moveObjectStraightToWaypoint(object, shiftRight(local0, 8));
       }
     }
-    if ((yield* run.script241(object, 0x64, 0x3c, 0x32, 0xb, local15)) === 0) {
+    if ((yield* run.approachUntilInRange(object, 0x64, 0x3c, 0x32, 0xb, local15)) === 0) {
       local14 = 0;
       for (;;) {
         const t1 = yield* game.chooseEnemyTarget(object);
@@ -963,6 +963,6 @@ export function* script27E(state, arg0) {
 export function* script27F(state, arg0) {
   let local0 = 0;
   local0 = arg0 & 0xff;
-  yield* run.dropNuyen15F(yield* run.script07A(0x800 | local0, 0x607, 0x245, 0x306));
+  yield* run.dropNuyen15F(yield* run.patrolAndShoot(0x800 | local0, 0x607, 0x245, 0x306));
   return null;
 }

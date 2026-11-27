@@ -9,7 +9,7 @@ import { run } from './started.mjs';
 export function* script2C0(state, arg0) {
   let object = 0;
   object = arg0 & 0xff;
-  yield* run.script380(object, 3, 0xa, 1, 5);
+  yield* run.spawnedGunmanE(object, 3, 0xa, 1, 5);
   return null;
 }
 
@@ -17,7 +17,7 @@ export function* script2C0(state, arg0) {
 export function* script2C1(state, arg0) {
   let local0 = 0;
   local0 = arg0 & 0xff;
-  yield* run.dropNuyen164(yield* run.script07A(0x900 | local0, 0xb0a, 0, 0x70c));
+  yield* run.dropNuyen164(yield* run.patrolAndShoot(0x900 | local0, 0xb0a, 0, 0x70c));
   return null;
 }
 
@@ -367,7 +367,7 @@ export function* script2CA(state, arg0) {
 export function* script2CB(state, arg0) {
   let object = 0;
   object = arg0 & 0xff;
-  yield* run.script1AD(object, 4, 0x5a, 0x70, 0x600);
+  yield* run.hiredRunner(object, 4, 0x5a, 0x70, 0x600);
   return null;
 }
 
@@ -749,7 +749,7 @@ export function* script2D9(state, arg0) {
 export function* script2DA(state) {
   const t1 = yield* run.byNegotiation(0x1f4, 0x190, 0x12c);
   const t2 = yield* run.byNegotiationB(0x166, 0x167, 0x168);
-  yield* run.script162(0x78c, t2, t1, 0x165, 0x164);
+  yield* run.offerToHire(0x78c, t2, t1, 0x165, 0x164);
   return null;
 }
 
@@ -757,7 +757,7 @@ export function* script2DA(state) {
 export function* script2DB(state, arg0) {
   let local0 = 0;
   local0 = arg0 & 0xff;
-  yield* run.dropNuyen164(yield* run.script27C(0x200 | local0, 1, 0, 0x804, 0xc06));
+  yield* run.dropNuyen164(yield* run.patrolAndShootB(0x200 | local0, 1, 0, 0x804, 0xc06));
   return null;
 }
 
@@ -792,7 +792,7 @@ export function* script2DC(state, arg0) {
 export function* script2DD(state, arg0) {
   let local0 = 0;
   local0 = arg0 & 0xff;
-  yield* run.dropNuyen164(yield* run.script27C(0x200 | local0, 0x100, 0, 0x804, 0xc06));
+  yield* run.dropNuyen164(yield* run.patrolAndShootB(0x200 | local0, 0x100, 0, 0x804, 0xc06));
   return null;
 }
 
@@ -885,6 +885,6 @@ export function* script2DE(state, arg0) {
 export function* script2DF(state, arg0) {
   let local0 = 0;
   local0 = arg0 & 0xff;
-  yield* run.dropNuyen164(yield* run.script27C(0x300 | local0, 0x102, 0, 0x804, 0xc06));
+  yield* run.dropNuyen164(yield* run.patrolAndShootB(0x300 | local0, 0x102, 0, 0x804, 0xc06));
   return null;
 }

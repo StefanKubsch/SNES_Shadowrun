@@ -6,7 +6,7 @@ import { game } from './natives.mjs';
 import { run } from './started.mjs';
 
 // Script 380: 5 arguments.
-export function* script380(state, arg0, arg1, arg2, arg3, arg4) {
+export function* spawnedGunmanE(state, arg0, arg1, arg2, arg3, arg4) {
   let object = 0,
     local1 = 0,
     local2 = 0,
@@ -186,7 +186,7 @@ export function* script384(state, arg0) {
   object = arg0 & 0xff;
   const t1 = yield* game.getObjectCoarseY(object);
   const t2 = yield* game.getObjectCoarseX(object);
-  yield* run.script195(object, t2, t1, 0, 4, 0xa);
+  yield* run.spawnedGunmanD(object, t2, t1, 0, 4, 0xa);
   return null;
 }
 
@@ -356,7 +356,7 @@ export function* script387(state, arg0) {
 export function* script388(state) {
   const t1 = yield* run.byNegotiation(0x3e8, 0x384, 0x320);
   const t2 = yield* run.byNegotiationB(0x170, 0x171, 0x172);
-  yield* run.script162(0xd2e, t2, t1, 0x16f, 0x16e);
+  yield* run.offerToHire(0xd2e, t2, t1, 0x16f, 0x16e);
   return null;
 }
 
@@ -460,7 +460,7 @@ export function* script38D(state, arg0) {
     yield* game.wait(EVENT.TIMER, 0x32);
     yield* game.appendToFightList(object);
     yield* game.setObjectArmour(object, 4);
-    yield* run.script0EF(object, 2, 0, 5, 2);
+    yield* run.sentrySeesPlayerB(object, 2, 0, 5, 2);
     yield* game.addKarma(0x28);
     yield* game.fightListRemove(object);
     yield* run.leaveBodyAndResetRecord(object);
@@ -625,7 +625,7 @@ export function* script394(state, arg0) {
 export function* script395(state, arg0) {
   let object = 0;
   object = arg0 & 0xff;
-  yield* run.script179(object, 0x27d);
+  yield* run.followActorSwitch(object, 0x27d);
   return null;
 }
 
@@ -638,7 +638,7 @@ export function* script396(state, arg0) {
 }
 
 // Script 397: 3 arguments.
-export function* script397(state, arg0, arg1, arg2) {
+export function* phoneCall(state, arg0, arg1, arg2) {
   let object = 0,
     local1 = 0,
     local3 = 0,
@@ -721,12 +721,12 @@ export function* script397(state, arg0, arg1, arg2) {
 export function* script398(state, arg0) {
   let object = 0;
   object = arg0 & 0xff;
-  yield* run.script380(object, 3, 0xa, 1, 0);
+  yield* run.spawnedGunmanE(object, 3, 0xa, 1, 0);
   return null;
 }
 
 // Script 399: 4 arguments.
-export function* script399(state, arg0, arg1, arg2, arg3) {
+export function* spawnedBrawler(state, arg0, arg1, arg2, arg3) {
   let object = 0,
     local1 = 0,
     local2 = 0,
@@ -914,7 +914,7 @@ export function* script39D(state) {
 export function* script39E(state, arg0) {
   let object = 0;
   object = arg0 & 0xff;
-  yield* run.script329(object, 0x6a);
+  yield* run.hiredRunnerB(object, 0x6a);
   return null;
 }
 

@@ -41,7 +41,7 @@ export function* script161(state, arg0) {
 }
 
 // Script 162: 5 arguments.
-export function* script162(state, arg0, arg1, arg2, arg3, arg4) {
+export function* offerToHire(state, arg0, arg1, arg2, arg3, arg4) {
   let actor = 0,
     text = 0,
     nuyen = 0,
@@ -184,7 +184,7 @@ export function* lightSwitch(state, arg0, arg1) {
 export function* script166(state, arg0) {
   let object = 0;
   object = arg0 & 0xff;
-  yield* run.script179(object, 0x2a7);
+  yield* run.followActorSwitch(object, 0x2a7);
   return null;
 }
 
@@ -386,7 +386,7 @@ export function* script171(state) {
 export function* script172(state, arg0) {
   let object = 0;
   object = arg0 & 0xff;
-  yield* run.script1AD(object, 4, 0x78, 0x79, 0);
+  yield* run.hiredRunner(object, 4, 0x78, 0x79, 0);
   return null;
 }
 
@@ -394,12 +394,12 @@ export function* script172(state, arg0) {
 export function* script173(state, arg0) {
   let object = 0;
   object = arg0 & 0xff;
-  yield* run.script2AA(object, 1, 0x203, 0x401, 0x803, 0x2d04);
+  yield* run.patrolGunman(object, 1, 0x203, 0x401, 0x803, 0x2d04);
   return null;
 }
 
 // Script 174: 6 arguments.
-export function* script174(state, arg0, arg1, arg2, arg3, arg4, arg5) {
+export function* spawnedGunmanC(state, arg0, arg1, arg2, arg3, arg4, arg5) {
   let object = 0,
     local1 = 0,
     local2 = 0,
@@ -488,7 +488,7 @@ export function* script176(state, arg0) {
   let object = 0;
   object = arg0 & 0xff;
   yield* game.setActorStateFlagBits(0x1d96, 8);
-  yield* run.script2AA(object, 1, 0x203, 0x401, 0x904, 0x2804);
+  yield* run.patrolGunman(object, 1, 0x203, 0x401, 0x904, 0x2804);
   return null;
 }
 
@@ -506,12 +506,12 @@ export function* script177(state, arg0) {
 export function* script178(state, arg0) {
   let object = 0;
   object = arg0 & 0xff;
-  yield* run.script2AA(object, 1, 0x203, 0x401, 0xa04, 0x3705);
+  yield* run.patrolGunman(object, 1, 0x203, 0x401, 0xa04, 0x3705);
   return null;
 }
 
 // Script 179: 2 arguments.
-export function* script179(state, arg0, arg1) {
+export function* followActorSwitch(state, arg0, arg1) {
   let object = 0,
     actor = 0;
   object = arg0 & 0xff;
@@ -562,7 +562,7 @@ export function* script17A(state, arg0) {
 export function* script17B(state, arg0) {
   let object = 0;
   object = arg0 & 0xff;
-  yield* run.script2AA(object, 1, 0x203, 0x401, 0x903, 0x2d04);
+  yield* run.patrolGunman(object, 1, 0x203, 0x401, 0x903, 0x2d04);
   return null;
 }
 
@@ -570,7 +570,7 @@ export function* script17B(state, arg0) {
 export function* script17C(state, arg0) {
   let object = 0;
   object = arg0 & 0xff;
-  yield* run.script2AA(object, 0x809, 0xa0b, 0x401, 0xa04, 0x3705);
+  yield* run.patrolGunman(object, 0x809, 0xa0b, 0x401, 0xa04, 0x3705);
   return null;
 }
 
@@ -601,7 +601,7 @@ export function* script17D(state, arg0) {
 export function* script17E(state, arg0) {
   let object = 0;
   object = arg0 & 0xff;
-  yield* run.script2AA(object, 0x405, 0x607, 0x401, 0xb04, 0x3c07);
+  yield* run.patrolGunman(object, 0x405, 0x607, 0x401, 0xb04, 0x3c07);
   return null;
 }
 

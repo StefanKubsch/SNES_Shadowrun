@@ -107,4 +107,57 @@ export const SCRIPT_NAMES = Object.freeze({
   0x07e: 'rollEnemySpawn', // a chance in ten, and fewer than four active
   0x076: 'chaseAndFight',
   0x2cf: 'spawnedChaser',
+  // Patrols and guards. approachUntilInRange returns 0 when the fighter stops near Jake or
+  // its target (and turns to the target), FFFF when it was defeated on the way.
+  0x241: 'approachUntilInRange',
+  0x07a: 'patrolAndShoot', // waypoints, shooting, a body when defeated
+  0x27c: 'patrolAndShootB',
+  0x10c: 'patrolAndShootC',
+  0x0ab: 'patrolAndShootD',
+  0x111: 'guardRoute', // waypoints and Jake, shooting; no karma (its caller gives it)
+  0x1a0: 'guardRouteB',
+  0x1c7: 'guardRouteC',
+  0x2ec: 'guardRouteD',
+  0x251: 'guardRouteE',
+  0x2aa: 'patrolGunman', // karma 5
+  0x2f2: 'waypointShooter', // shootRound from waypoints, karma 10
+  0x371: 'waypointShooterB', // karma 11
+  0x00f: 'sentrySeesPlayer', // "I can see you!"
+  0x0ef: 'sentrySeesPlayerB',
+  0x093: 'approachAndShootPlayer',
+  0x20b: 'chargeAndShoot', // karma 7
+  0x2f7: 'chaseAndShoot', // karma 2
+  0x252: 'grenadeThrower',
+  0x13e: 'grenadeHostageTaker', // "...you come any closer and I blow everyone to bits"
+  // Spawned fighters (rollEnemySpawn): karma 1, they leave or drop nuyen.
+  0x083: 'spawnedGunman',
+  0x157: 'spawnedGunmanB',
+  0x174: 'spawnedGunmanC',
+  0x195: 'spawnedGunmanD',
+  0x380: 'spawnedGunmanE',
+  0x3a0: 'spawnedGunmanF',
+  0x399: 'spawnedBrawler', // chases instead of shooting
+  0x0a7: 'enterWhenRoomClear', // once no spawned fighter is active (2A is 0)
+  // Creatures and swarms.
+  0x00b: 'waveSwarm',
+  0x275: 'orbiterAttacks', // an orbiting object chases and jumps at a group member
+  0x0a0: 'waterCreature', // surfaces with bubbles
+  0x336: 'waterCreatureB',
+  // Runners and NPCs.
+  0x197: 'isRunnerActor', // Jake or one of the twelve runners
+  0x162: 'offerToHire', // "If you have a few less runners, I may consider..."
+  0x1ad: 'hiredRunner', // follows, fights, casts; leaves when the contract ends
+  0x329: 'hiredRunnerB',
+  0x1f1: 'meetKitsune',
+  // Places and machines.
+  0x02b: 'rideToNextStop', // "Next Stop:", Jake shakes until a button is pressed
+  0x1a2: 'passingVehicle', // moves along with a rising and falling sound
+  0x2a6: 'passingVehicleB',
+  0x25d: 'dataTerminal', // "This terminal is not accessible."
+  0x28d: 'buyFromCase', // "Buy?", "Inside the case:", "The case is empty."
+  0x397: 'phoneCall', // the numbers Jake knows (Akimi, Drake, Bronze Gate, ...)
+  0x0ca: 'doorWithNotice', // opens and closes; examining shows a text
+  0x179: 'followActorSwitch', // shows bit 1 of an actor's flags (on, off) with a sound
+  0x36d: 'wanderAround', // to random points near its start until defeated
+  0x10d: 'ratShamanFight', // its end sets the Dog spirit flag, brings the Jester Spirit, marks the topic Rat
 });

@@ -148,7 +148,7 @@ export function* script0E6(state, arg0) {
 export function* script0E7(state, arg0) {
   let object = 0;
   object = arg0 & 0xff;
-  yield* run.script25D(object, 0x1dd, 0x18);
+  yield* run.dataTerminal(object, 0x1dd, 0x18);
   return null;
 }
 
@@ -219,7 +219,7 @@ export function* script0EB(state, arg0) {
 export function* script0EC(state, arg0) {
   let object = 0;
   object = arg0 & 0xff;
-  yield* run.script13E(object);
+  yield* run.grenadeHostageTaker(object);
   return null;
 }
 
@@ -279,7 +279,7 @@ export function* script0EE(state, arg0) {
 }
 
 // Script 0EF: 5 arguments.
-export function* script0EF(state, arg0, arg1, arg2, arg3, arg4) {
+export function* sentrySeesPlayerB(state, arg0, arg1, arg2, arg3, arg4) {
   let object = 0,
     local1 = 0,
     local2 = 0,
@@ -792,7 +792,7 @@ export function* script0F6(state, arg0) {
   } else {
     yield* game.setObjectDialog(object, 0x55);
   }
-  yield* run.script36D(object, 0x1e, 0xf0, 0x3c);
+  yield* run.wanderAround(object, 0x1e, 0xf0, 0x3c);
   yield* run.leaveBodyAndResetRecord(object);
   return null;
 }

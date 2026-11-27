@@ -28,7 +28,7 @@ export function* script060(state, arg0) {
 export function* script061(state, arg0) {
   let object = 0;
   object = arg0 & 0xff;
-  yield* run.script2F2(object, 2, 1, 4, 1);
+  yield* run.waypointShooter(object, 2, 1, 4, 1);
   return null;
 }
 
@@ -79,7 +79,7 @@ export function* script063(state, arg0) {
     count = word(count - 1);
     if (count === 0 || state.word('CIRCLE_LEADER_ALIVE') === 0) {
       if (state.word('CIRCLE_LEADER_ALIVE') !== 0) {
-        yield* run.script275(object, 3, 0xb75);
+        yield* run.orbiterAttacks(object, 3, 0xb75);
       } else {
         yield* game.setObjectVelocity(object, 0, 0, 8);
         yield* game.wait(EVENT.TIMER, 0x3c);
@@ -152,7 +152,7 @@ export function* script066(state, arg0) {
     count = word(count - 1);
     if (count === 0 || state.word('CIRCLE_LEADER_ALIVE') === 0) {
       if (state.word('CIRCLE_LEADER_ALIVE') !== 0) {
-        yield* run.script275(object, 4, 0xb6e);
+        yield* run.orbiterAttacks(object, 4, 0xb6e);
       } else {
         yield* game.setObjectVelocity(object, 0, 0, 8);
         yield* game.wait(EVENT.TIMER, 0x3c);
@@ -201,7 +201,7 @@ export function* script069(state, arg0) {
     count = word(count - 1);
     if (count === 0 || state.word('CIRCLE_LEADER_ALIVE') === 0) {
       if (state.word('CIRCLE_LEADER_ALIVE') !== 0) {
-        yield* run.script275(object, 5, 0xb6e);
+        yield* run.orbiterAttacks(object, 5, 0xb6e);
       } else {
         yield* game.setObjectVelocity(object, 0, 0, 8);
         yield* game.wait(EVENT.TIMER, 0x3c);
@@ -226,7 +226,7 @@ export function* script06A(state, arg0) {
     count = word(count - 1);
     if (count === 0 || state.word('CIRCLE_LEADER_ALIVE') === 0) {
       if (state.word('CIRCLE_LEADER_ALIVE') !== 0) {
-        yield* run.script275(object, 6, 0xb6e);
+        yield* run.orbiterAttacks(object, 6, 0xb6e);
       } else {
         yield* game.setObjectVelocity(object, 0, 0, 8);
         yield* game.wait(EVENT.TIMER, 0x3c);
@@ -244,7 +244,7 @@ export function* script06B(state, arg0) {
   if ((yield* game.getObjectRecordFlags(object)) === 0) {
     yield* game.setObjectRecordFlags(object, 0xa);
   }
-  yield* run.script3A0(object, 2, 2, 3, 3, 0);
+  yield* run.spawnedGunmanF(object, 2, 2, 3, 3, 0);
   return null;
 }
 
@@ -491,7 +491,7 @@ export function* script070(state, arg0) {
     count = word(count - 1);
     if (count === 0 || state.word('CIRCLE_LEADER_ALIVE') === 0) {
       if (state.word('CIRCLE_LEADER_ALIVE') !== 0) {
-        yield* run.script275(object, 7, 0xb6e);
+        yield* run.orbiterAttacks(object, 7, 0xb6e);
         yield* game.resetSwarmPhases();
       } else {
         yield* game.setObjectVelocity(object, 0, 0, 8);
@@ -511,7 +511,7 @@ export function* script071(state, arg0) {
   if ((yield* game.getObjectRecordFlags(object)) === 0) {
     yield* game.setObjectRecordFlags(object, 0xa);
   }
-  yield* run.script3A0(object, 3, 2, 3, 1, 0);
+  yield* run.spawnedGunmanF(object, 3, 2, 3, 1, 0);
   return null;
 }
 
@@ -520,9 +520,9 @@ export function* script072(state, arg0) {
   let local0 = 0;
   local0 = arg0 & 0xff;
   if ((yield* game.getScriptVariable(0x2c)) !== 0) {
-    yield* run.script10D(shiftLeft(local0, 8) | 3, 0x303, 0x404);
+    yield* run.ratShamanFight(shiftLeft(local0, 8) | 3, 0x303, 0x404);
   } else {
-    yield* run.script10D(shiftLeft(local0, 8), 0x102, 0x304);
+    yield* run.ratShamanFight(shiftLeft(local0, 8), 0x102, 0x304);
   }
   return null;
 }
@@ -581,7 +581,7 @@ export function* script075(state, arg0) {
     yield* game.setObjectRecordCount(object, 0x24);
     yield* game.wait(EVENT.TIMER, 0x23);
     yield* game.appendToFightList(object);
-    if ((yield* run.script111(0x800 | object, 0x403, 0, 0x400, 0x501, 0x204, 0x201)) === 0) {
+    if ((yield* run.guardRoute(0x800 | object, 0x403, 0, 0x400, 0x501, 0x204, 0x201)) === 0) {
       yield* game.addKarma(0xd);
       yield* game.fightListRemove(object);
       yield* run.leaveBodyAndResetRecord(object);
@@ -734,7 +734,7 @@ export function* script079(state, arg0) {
 }
 
 // Script 07A: 4 arguments, returns a word.
-export function* script07A(state, arg0, arg1, arg2, arg3) {
+export function* patrolAndShoot(state, arg0, arg1, arg2, arg3) {
   let local0 = 0,
     local2 = 0,
     text = 0,
@@ -775,7 +775,7 @@ export function* script07A(state, arg0, arg1, arg2, arg3) {
         yield* game.moveObjectStraightToWaypoint(object, shiftRight(local0, 8));
       }
     }
-    if ((yield* run.script241(object, 0x64, 0x3c, 0x32, 0xb, local16)) === 0) {
+    if ((yield* run.approachUntilInRange(object, 0x64, 0x3c, 0x32, 0xb, local16)) === 0) {
       const t1 = yield* game.chooseEnemyTarget(object);
       local14 = t1 & 0xff;
       if (t1 === 0xffff) {

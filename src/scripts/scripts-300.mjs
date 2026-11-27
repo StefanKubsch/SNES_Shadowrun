@@ -10,7 +10,7 @@ export function* script300(state, arg0) {
   let object = 0;
   object = arg0 & 0xff;
   yield* game.setActorStateFlagBits(0x1d96, 4);
-  yield* run.script252(object, 1, 0x203, 0x405, 0);
+  yield* run.grenadeThrower(object, 1, 0x203, 0x405, 0);
   return null;
 }
 
@@ -41,7 +41,7 @@ export function* script301(state, arg0) {
 export function* script302(state, arg0) {
   let object = 0;
   object = arg0 & 0xff;
-  yield* run.script28D(object, 0x28, 0x1f4, 0x17c3, 0);
+  yield* run.buyFromCase(object, 0x28, 0x1f4, 0x17c3, 0);
   return null;
 }
 
@@ -168,7 +168,7 @@ export function* talkFacingPlayer(state, arg0, arg1) {
 export function* script308(state, arg0) {
   let object = 0;
   object = arg0 & 0xff;
-  yield* run.script28D(object, 0x2a, 0xfa0, 0x150, 0);
+  yield* run.buyFromCase(object, 0x2a, 0xfa0, 0x150, 0);
   return null;
 }
 
@@ -176,7 +176,7 @@ export function* script308(state, arg0) {
 export function* script309(state, arg0) {
   let object = 0;
   object = arg0 & 0xff;
-  yield* run.script252(object, 0x405, 1, 0x203, 6);
+  yield* run.grenadeThrower(object, 0x405, 1, 0x203, 6);
   return null;
 }
 
@@ -224,7 +224,7 @@ export function* script30A(state, arg0) {
 export function* script30B(state, arg0) {
   let local0 = 0;
   local0 = arg0 & 0xff;
-  yield* run.dropNuyen164(yield* run.script27C(0x200 | local0, 0xa09, 0, 0x804, 0xc06));
+  yield* run.dropNuyen164(yield* run.patrolAndShootB(0x200 | local0, 0xa09, 0, 0x804, 0xc06));
   return null;
 }
 
@@ -260,7 +260,7 @@ export function* script30C(state, arg0) {
 export function* script30D(state, arg0) {
   let object = 0;
   object = arg0 & 0xff;
-  yield* run.script28D(object, 0x38, 0x1388, 0x850, 0);
+  yield* run.buyFromCase(object, 0x38, 0x1388, 0x850, 0);
   return null;
 }
 
@@ -268,7 +268,7 @@ export function* script30D(state, arg0) {
 export function* script30E(state, arg0) {
   let object = 0;
   object = arg0 & 0xff;
-  yield* run.script252(object, 0x607, 0x809, 0xa0b, 6);
+  yield* run.grenadeThrower(object, 0x607, 0x809, 0xa0b, 6);
   return null;
 }
 
@@ -282,7 +282,7 @@ export function* script30F(state) {
 export function* script310(state, arg0) {
   let object = 0;
   object = arg0 & 0xff;
-  yield* run.script28D(object, 0x2d, 0x3a98, 0x261, 0);
+  yield* run.buyFromCase(object, 0x2d, 0x3a98, 0x261, 0);
   return null;
 }
 
@@ -324,7 +324,7 @@ export function* scatterBubbles(state, arg0) {
 export function* script313(state, arg0) {
   let local0 = 0;
   local0 = arg0 & 0xff;
-  yield* run.dropNuyen164(yield* run.script27C(0x900 | local0, 0x206, 0, 0x804, 0xc06));
+  yield* run.dropNuyen164(yield* run.patrolAndShootB(0x900 | local0, 0x206, 0, 0x804, 0xc06));
   return null;
 }
 
@@ -332,7 +332,7 @@ export function* script313(state, arg0) {
 export function* script314(state, arg0) {
   let object = 0;
   object = arg0 & 0xff;
-  yield* run.script28D(object, 0x29, 0x7d0, 0x12f3, 0);
+  yield* run.buyFromCase(object, 0x29, 0x7d0, 0x12f3, 0);
   return null;
 }
 
@@ -352,7 +352,7 @@ export function* script315(state, arg0) {
         local3 = t1 & 0xff;
         if (t1 !== 0xffff) {
           local4 = yield* game.getObjectNumber(signed(local3));
-          if ((truth(local4 === 0xbc9) | (yield* run.script197(local4))) === 0) {
+          if ((truth(local4 === 0xbc9) | (yield* run.isRunnerActor(local4))) === 0) {
             yield* run.refuseToUseOn(yield* game.getObjectNumber(signed(local3)));
           } else {
             if (local4 !== 0xbc9) {
@@ -387,7 +387,7 @@ export function* script316(state, arg0) {
 export function* script317(state, arg0) {
   let object = 0;
   object = arg0 & 0xff;
-  yield* run.script28D(object, 0x2c, 0x2328, 0x13b, 0);
+  yield* run.buyFromCase(object, 0x2c, 0x2328, 0x13b, 0);
   return null;
 }
 
@@ -446,7 +446,7 @@ export function* script318(state, arg0) {
 export function* script319(state, arg0) {
   let local0 = 0;
   local0 = arg0 & 0xff;
-  yield* run.dropNuyen164(yield* run.script10C(0x200 | local0, 0x403, 0x24a));
+  yield* run.dropNuyen164(yield* run.patrolAndShootC(0x200 | local0, 0x403, 0x24a));
   return null;
 }
 
@@ -455,7 +455,7 @@ export function* script31A(state, arg0) {
   let object = 0;
   object = arg0 & 0xff;
   yield* game.setObjectActionAndDirection(object, 0, 3);
-  yield* run.script2A6(object, 1, 1, 0);
+  yield* run.passingVehicleB(object, 1, 1, 0);
   return null;
 }
 
@@ -603,7 +603,7 @@ export function* noticeTrashDataDiscarded(state) {
 export function* script31D(state, arg0) {
   let object = 0;
   object = arg0 & 0xff;
-  yield* run.script2F2(object, 1, 0, 2, 0);
+  yield* run.waypointShooter(object, 1, 0, 2, 0);
   return null;
 }
 
@@ -611,7 +611,7 @@ export function* script31D(state, arg0) {
 export function* script31E(state, arg0) {
   let local0 = 0;
   local0 = arg0 & 0xff;
-  yield* run.dropNuyen164(yield* run.script10C(0x500 | local0, 0x104, 0));
+  yield* run.dropNuyen164(yield* run.patrolAndShootC(0x500 | local0, 0x104, 0));
   return null;
 }
 

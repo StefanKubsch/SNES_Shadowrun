@@ -332,7 +332,7 @@ export function* script108(state, arg0) {
   let object = 0;
   object = arg0 & 0xff;
   yield* game.setActorStateFlagBits(0x1d96, 2);
-  yield* run.script13E(object);
+  yield* run.grenadeHostageTaker(object);
   return null;
 }
 
@@ -340,7 +340,7 @@ export function* script108(state, arg0) {
 export function* script109(state, arg0) {
   let object = 0;
   object = arg0 & 0xff;
-  yield* run.script02B(object, 0xffff);
+  yield* run.rideToNextStop(object, 0xffff);
   return null;
 }
 
@@ -363,7 +363,7 @@ export function* script10B(state) {
 }
 
 // Script 10C: 3 arguments, returns a word.
-export function* script10C(state, arg0, arg1, arg2) {
+export function* patrolAndShootC(state, arg0, arg1, arg2) {
   let local0 = 0,
     local2 = 0,
     text = 0,
@@ -389,7 +389,7 @@ export function* script10C(state, arg0, arg1, arg2) {
         yield* game.moveObjectStraightToWaypoint(object, shiftRight(local0, 8));
       }
     }
-    if ((yield* run.script241(object, 0x64, 0x3c, 0x32, 0xb, local11)) === 0) {
+    if ((yield* run.approachUntilInRange(object, 0x64, 0x3c, 0x32, 0xb, local11)) === 0) {
       local10 = 0;
       for (;;) {
         const t1 = yield* game.chooseEnemyTarget(object);
@@ -460,7 +460,7 @@ export function* script10C(state, arg0, arg1, arg2) {
 }
 
 // Script 10D: 3 arguments.
-export function* script10D(state, arg0, arg1, arg2) {
+export function* ratShamanFight(state, arg0, arg1, arg2) {
   let local0 = 0,
     local2 = 0,
     local4 = 0,
@@ -634,7 +634,7 @@ export function* script110(state, arg0) {
 }
 
 // Script 111: 7 arguments, returns a word.
-export function* script111(state, arg0, arg1, arg2, arg3, arg4, arg5, arg6) {
+export function* guardRoute(state, arg0, arg1, arg2, arg3, arg4, arg5, arg6) {
   let local0 = 0,
     local2 = 0,
     text = 0,
@@ -675,7 +675,7 @@ export function* script111(state, arg0, arg1, arg2, arg3, arg4, arg5, arg6) {
         yield* game.moveObjectStraightToWaypoint(object, shiftRight(local0, 8));
       }
     }
-    if ((yield* run.script241(object, 0x64, 0x3c, 0x37, 0xf, local14)) === 0) {
+    if ((yield* run.approachUntilInRange(object, 0x64, 0x3c, 0x37, 0xf, local14)) === 0) {
       block387: {
         local16 = (yield* game.chooseEnemyTarget(object)) & 0xff;
         if (!(less(yield* game.getDistanceToPlayer(object), 0x78) && signed(local16) !== 0xffff)) {

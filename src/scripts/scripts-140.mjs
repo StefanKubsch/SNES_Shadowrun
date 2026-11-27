@@ -342,7 +342,7 @@ export function* script14B(state, arg0) {
 export function* script14C(state, arg0) {
   let object = 0;
   object = arg0 & 0xff;
-  yield* run.script28D(object, 0x32, 0x9c40, 0x1b5f, 0);
+  yield* run.buyFromCase(object, 0x32, 0x9c40, 0x1b5f, 0);
   return null;
 }
 
@@ -485,7 +485,7 @@ export function* script156(state) {
 }
 
 // Script 157: 5 arguments.
-export function* script157(state, arg0, arg1, arg2, arg3, arg4) {
+export function* spawnedGunmanB(state, arg0, arg1, arg2, arg3, arg4) {
   let object = 0,
     local1 = 0,
     local2 = 0,
@@ -669,7 +669,7 @@ export function* script15B(state, arg0) {
   } else {
     local2 = 7;
   }
-  yield* run.script111(shiftLeft(local2, 8) | object, 0, 0xffff, 0x300, 0x301, 0, 0);
+  yield* run.guardRoute(shiftLeft(local2, 8) | object, 0, 0xffff, 0x300, 0x301, 0, 0);
   if ((yield* game.getScriptVariable(0x2a)) !== 0) {
     yield* game.setScriptVariable(0x2a, word((yield* game.getScriptVariable(0x2a)) - 1));
   }

@@ -17,7 +17,7 @@ import { game } from './natives.mjs';
 import { run } from './started.mjs';
 
 // Script 1A0: 7 arguments, returns a word.
-export function* script1A0(state, arg0, arg1, arg2, arg3, arg4, arg5, arg6) {
+export function* guardRouteB(state, arg0, arg1, arg2, arg3, arg4, arg5, arg6) {
   let local0 = 0,
     local2 = 0,
     local4 = 0,
@@ -63,7 +63,7 @@ export function* script1A0(state, arg0, arg1, arg2, arg3, arg4, arg5, arg6) {
         yield* game.moveObjectStraightToWaypoint(object, shiftRight(local0, 8));
       }
     }
-    if ((yield* run.script241(object, 0x64, 0x3c, 0x32, 0xc, local14)) === 0) {
+    if ((yield* run.approachUntilInRange(object, 0x64, 0x3c, 0x32, 0xc, local14)) === 0) {
       local17 = 0;
       for (;;) {
         if (!less(yield* game.getDistanceToPlayer(object), 0x64)) {
@@ -179,7 +179,7 @@ export function* script1A1(state, arg0) {
 }
 
 // Script 1A2: 5 arguments.
-export function* script1A2(state, arg0, arg1, arg2, arg3, arg4) {
+export function* passingVehicle(state, arg0, arg1, arg2, arg3, arg4) {
   const locals = new Uint8Array(13);
   function* sub47(in0) {
     locals[9] = in0 & 0xff;
@@ -338,7 +338,7 @@ export function* script1A4(state, arg0) {
   if ((yield* game.getObjectRecordFlags(object)) === 0) {
     yield* game.setObjectRecordFlags(object, 0xa);
   }
-  yield* run.script083(object, 0xffff, 3, 3, 1, 2, 2);
+  yield* run.spawnedGunman(object, 0xffff, 3, 3, 1, 2, 2);
   return null;
 }
 
@@ -413,7 +413,7 @@ export function* script1AA(state, arg0) {
     yield* game.wait(EVENT.TIMER, 0xa);
     if (((yield* game.getActorStateFlags(0x16c0 /* "Computer" */)) & 0x80) !== 0) {
       yield* game.wait(EVENT.TIMER, 0x64);
-      yield* run.dropNuyen164(yield* run.script0AB(object, 1, 0, 0x10));
+      yield* run.dropNuyen164(yield* run.patrolAndShootD(object, 1, 0, 0x10));
       return null;
     }
   }
@@ -480,7 +480,7 @@ export function* script1AC(state, arg0) {
 }
 
 // Script 1AD: 5 arguments.
-export function* script1AD(state, arg0, arg1, arg2, arg3, arg4) {
+export function* hiredRunner(state, arg0, arg1, arg2, arg3, arg4) {
   let object = 0,
     local1 = 0,
     frames = 0,
@@ -656,7 +656,7 @@ export function* script1AE(state, arg0) {
     yield* game.wait(EVENT.TIMER, 0xa);
     if (((yield* game.getActorStateFlags(0x16c0 /* "Computer" */)) & 0x80) !== 0) {
       yield* game.wait(EVENT.TIMER, 0x64);
-      yield* run.dropNuyen164(yield* run.script0AB(object, 1, 0, 0x10));
+      yield* run.dropNuyen164(yield* run.patrolAndShootD(object, 1, 0, 0x10));
       return null;
     }
   }
@@ -666,7 +666,7 @@ export function* script1AE(state, arg0) {
 export function* script1AF(state, arg0) {
   let object = 0;
   object = arg0 & 0xff;
-  yield* run.script2AA(object, 1, 0x203, 0x401, 0x403, 0x1e03);
+  yield* run.patrolGunman(object, 1, 0x203, 0x401, 0x403, 0x1e03);
   return null;
 }
 
@@ -813,7 +813,7 @@ export function* dropNuyen15C(state, arg0) {
 export function* script1B5(state) {
   const t1 = yield* run.byNegotiation(0x1388, 0x1194, 0xfa0);
   const t2 = yield* run.byNegotiationB(0x189, 0x18a, 0x18b);
-  yield* run.script162(0x15d2, t2, t1, 0x188, 0x187);
+  yield* run.offerToHire(0x15d2, t2, t1, 0x188, 0x187);
   return null;
 }
 
@@ -873,7 +873,7 @@ export function* script1B8(state, arg0) {
 export function* script1B9(state, arg0) {
   let object = 0;
   object = arg0 & 0xff;
-  yield* run.script2AA(object, 1, 0x203, 0x401, 0x601, 0x2803);
+  yield* run.patrolGunman(object, 1, 0x203, 0x401, 0x601, 0x2803);
   return null;
 }
 

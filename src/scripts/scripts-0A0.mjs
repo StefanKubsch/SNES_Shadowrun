@@ -18,7 +18,7 @@ import { game } from './natives.mjs';
 import { run } from './started.mjs';
 
 // Script 0A0: 2 arguments.
-export function* script0A0(state, arg0, arg1) {
+export function* waterCreature(state, arg0, arg1) {
   let object = 0,
     local1 = 0,
     dy = 0,
@@ -122,7 +122,7 @@ export function* script0A2(state, arg0) {
     yield* game.notice(4, 4, 0x14, 3, 0x400, 0x24d /* "I will avenge you brother!" */, 0x78);
     yield* game.wait(EVENT.TIMER, 0xa);
     yield* game.appendToFightList(object);
-    if ((yield* run.script2EC(0x400 | object, 0x805, 0, 0x200, 0x401, 5, 0)) === 0) {
+    if ((yield* run.guardRouteD(0x400 | object, 0x805, 0, 0x200, 0x401, 5, 0)) === 0) {
       yield* game.addKarma(0x14);
       yield* game.fightListRemove(object);
       yield* run.leaveBodyAndResetRecord(object);
@@ -146,7 +146,7 @@ export function* script0A3(state, arg0) {
     yield* game.wait(EVENT.TIMER, 0xa);
     yield* game.notice(0xa, 4, 9, 3, 0x400, 0x251 /* "Hey kiddo!" */, 0x78);
     yield* game.appendToFightList(object);
-    yield* run.script1C7(0x400 | object, 0x305, 0x252, 0x204, 0);
+    yield* run.guardRouteC(0x400 | object, 0x305, 0x252, 0x204, 0);
     yield* game.notice(6, 4, 6, 3, 0x400, 0x253 /* "Help..." */, 0x78);
     yield* game.addKarma(0x1a);
     yield* game.fightListRemove(object);
@@ -195,7 +195,7 @@ export function* script0A6(state, arg0) {
 }
 
 // Script 0A7: 3 arguments.
-export function* script0A7(state, arg0, arg1, arg2) {
+export function* enterWhenRoomClear(state, arg0, arg1, arg2) {
   let object = 0,
     waypoint = 0,
     frames = 0;
@@ -284,7 +284,7 @@ export function* script0AA(state, arg0) {
 }
 
 // Script 0AB: 4 arguments, returns a word.
-export function* script0AB(state, arg0, arg1, arg2, arg3) {
+export function* patrolAndShootD(state, arg0, arg1, arg2, arg3) {
   let local0 = 0,
     local2 = 0,
     text = 0,
@@ -313,7 +313,7 @@ export function* script0AB(state, arg0, arg1, arg2, arg3) {
         yield* game.moveObjectStraightToWaypoint(object, shiftRight(local0, 8));
       }
     }
-    if ((yield* run.script241(object, 0x64, 0x3c, 0x32, 0x13, local12)) === 0) {
+    if ((yield* run.approachUntilInRange(object, 0x64, 0x3c, 0x32, 0x13, local12)) === 0) {
       local11 = 0;
       for (;;) {
         const t1 = yield* game.chooseEnemyTarget(object);
@@ -595,7 +595,7 @@ export function* script0B3(state, arg0) {
 export function* script0B4(state, arg0) {
   let object = 0;
   object = arg0 & 0xff;
-  yield* run.script28D(object, 0x2b, 0xbb8, 0x157, 0);
+  yield* run.buyFromCase(object, 0x2b, 0xbb8, 0x157, 0);
   return null;
 }
 
@@ -603,7 +603,7 @@ export function* script0B4(state, arg0) {
 export function* script0B5(state, arg0) {
   let object = 0;
   object = arg0 & 0xff;
-  yield* run.script157(object, 3, 0xa, 1, 5);
+  yield* run.spawnedGunmanB(object, 3, 0xa, 1, 5);
   return null;
 }
 
@@ -635,7 +635,7 @@ export function* script0B8(state, arg0) {
 export function* script0B9(state, arg0) {
   let object = 0;
   object = arg0 & 0xff;
-  yield* run.script28D(object, 0x2e, 0x2ee0, 0x276, 0);
+  yield* run.buyFromCase(object, 0x2e, 0x2ee0, 0x276, 0);
   return null;
 }
 
@@ -680,7 +680,7 @@ export function* endingScene3(state, arg0) {
 export function* script0BC(state, arg0) {
   let object = 0;
   object = arg0 & 0xff;
-  yield* run.script1AD(object, 4, 0x5a, 0x7d, 0);
+  yield* run.hiredRunner(object, 4, 0x5a, 0x7d, 0);
   return null;
 }
 
@@ -688,7 +688,7 @@ export function* script0BC(state, arg0) {
 export function* script0BD(state, arg0) {
   let object = 0;
   object = arg0 & 0xff;
-  yield* run.script28D(object, 0x31, 0x7530, 0x1a4, 0);
+  yield* run.buyFromCase(object, 0x31, 0x7530, 0x1a4, 0);
   return null;
 }
 

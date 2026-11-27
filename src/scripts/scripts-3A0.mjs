@@ -6,7 +6,7 @@ import { game } from './natives.mjs';
 import { run } from './started.mjs';
 
 // Script 3A0: 6 arguments.
-export function* script3A0(state, arg0, arg1, arg2, arg3, arg4, arg5) {
+export function* spawnedGunmanF(state, arg0, arg1, arg2, arg3, arg4, arg5) {
   let object = 0,
     local1 = 0,
     local2 = 0,
@@ -89,7 +89,7 @@ export function* script3A0(state, arg0, arg1, arg2, arg3, arg4, arg5) {
 export function* script3A1(state, arg0) {
   let object = 0;
   object = arg0 & 0xff;
-  yield* run.script1AD(object, 4, 0x78, 0x72, 0);
+  yield* run.hiredRunner(object, 4, 0x78, 0x72, 0);
   return null;
 }
 

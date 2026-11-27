@@ -12,7 +12,7 @@ export function* script220(state, arg0) {
   if ((yield* game.getObjectRecordFlags(object)) === 0) {
     yield* game.setObjectRecordFlags(object, 0xa);
   }
-  yield* run.script083(object, 0, 2, 0x14, 3, 1, 5);
+  yield* run.spawnedGunman(object, 0, 2, 0x14, 3, 1, 5);
   return null;
 }
 
@@ -412,7 +412,7 @@ export function* script22B(state, arg0) {
   object = arg0 & 0xff;
   const t1 = yield* game.getObjectCoarseX(object);
   const t2 = yield* game.getObjectCoarseY(object);
-  yield* run.script195(object, t2, t1, 0xffff, 5, 0x14);
+  yield* run.spawnedGunmanD(object, t2, t1, 0xffff, 5, 0x14);
   return null;
 }
 
@@ -420,7 +420,7 @@ export function* script22B(state, arg0) {
 export function* script22C(state, arg0) {
   let object = 0;
   object = arg0 & 0xff;
-  yield* run.script1AD(object, 4, 0x2a, 0x77, 0);
+  yield* run.hiredRunner(object, 4, 0x2a, 0x77, 0);
   return null;
 }
 
@@ -786,7 +786,7 @@ export function* script236(state, arg0) {
   } else {
     yield* game.setObjectRecordCount(object, 0x14);
     yield* game.setObjectArmour(object, 3);
-    yield* run.script2F7(object, 3, 5, 1, 0x1e);
+    yield* run.chaseAndShoot(object, 3, 5, 1, 0x1e);
     yield* run.dropNuyen15F(yield* run.leaveBody(object));
   }
   return null;
@@ -945,7 +945,7 @@ export function* script23C(state, arg0) {
         }
       }
     } else {
-      yield* run.script25D(object, 0x1dc, 0x14);
+      yield* run.dataTerminal(object, 0x1dc, 0x14);
     }
   }
   return null;

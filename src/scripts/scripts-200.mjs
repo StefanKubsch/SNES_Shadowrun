@@ -60,7 +60,7 @@ export function* script201(state, arg0) {
 export function* script202(state, arg0) {
   let object = 0;
   object = arg0 & 0xff;
-  yield* run.script2AA(object, 1, 0x203, 0x401, 0x402, 0x2305);
+  yield* run.patrolGunman(object, 1, 0x203, 0x401, 0x402, 0x2305);
   return null;
 }
 
@@ -208,7 +208,7 @@ export function* usePhone(state, arg0) {
               yield* game.wait(EVENT.TIMER, word(8 + ((yield* game.randomByte()) & 7)));
               count = word(count - 1);
               if (count <= 0) {
-                yield* run.script397(object, local1, 0);
+                yield* run.phoneCall(object, local1, 0);
                 yield* game.notice(
                   5,
                   5,
@@ -380,13 +380,13 @@ export function* script209(state, arg0) {
 export function* script20A(state, arg0) {
   let object = 0;
   object = arg0 & 0xff;
-  yield* run.script329(object, 0x66);
+  yield* run.hiredRunnerB(object, 0x66);
   yield* game.keepObjectRecordFlagBits(object, 0xff97);
   return null;
 }
 
 // Script 20B: 1 argument.
-export function* script20B(state, arg0) {
+export function* chargeAndShoot(state, arg0) {
   let object = 0,
     local1 = 0;
   object = arg0 & 0xff;
@@ -518,7 +518,7 @@ export function* script20D(state, arg0) {
     yield* game.wait(EVENT.TIMER, 0xf);
     if ((yield* game.getDistanceToPlayer(object)) <= 0x3c) {
       yield* game.appendToFightList(object);
-      const t6 = yield* run.script093(object);
+      const t6 = yield* run.approachAndShootPlayer(object);
       local1 = t6 & 0xff;
       if (t6 !== 0) {
         yield* game.addKarma(2);
@@ -587,7 +587,7 @@ export function* script20E(state, arg0) {
   if ((yield* run.script391(object)) !== 0) {
     yield* game.setObjectRecordCount(object, 0x1e);
     yield* game.appendToFightList(object);
-    yield* run.script00F(object, 7, 1, 0xa, 5);
+    yield* run.sentrySeesPlayer(object, 7, 1, 0xa, 5);
     yield* game.addKarma(0x19);
     yield* game.fightListRemove(object);
     yield* run.leaveBodyAndResetRecord(object);
@@ -697,7 +697,7 @@ export function* script215(state, arg0) {
   let object = 0;
   object = arg0 & 0xff;
   yield* game.setObjectActionAndDirection(object, 0, 2);
-  yield* run.script1A2(object, 2, 2, 0xffff, 0);
+  yield* run.passingVehicle(object, 2, 2, 0xffff, 0);
   return null;
 }
 
@@ -785,7 +785,7 @@ export function* script21C(state, arg0) {
   object = arg0 & 0xff;
   const t1 = yield* game.getObjectCoarseX(object);
   const t2 = yield* game.getObjectCoarseY(object);
-  yield* run.script195(object, t2, t1, 0xffff, 4, 0xa);
+  yield* run.spawnedGunmanD(object, t2, t1, 0xffff, 4, 0xa);
   return null;
 }
 

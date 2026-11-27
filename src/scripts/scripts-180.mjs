@@ -15,7 +15,7 @@ export function* script180(state) {
 export function* script181(state) {
   const t1 = yield* run.byNegotiation(0x7d0, 0x6a4, 0x3e8);
   const t2 = yield* run.byNegotiationB(0x15c, 0x15d, 0x15e);
-  yield* run.script162(0x98b, t2, t1, 0x15b, 0x15a);
+  yield* run.offerToHire(0x98b, t2, t1, 0x15b, 0x15a);
   return null;
 }
 
@@ -99,7 +99,7 @@ export function* script186(state, arg0) {
   let object = 0;
   object = arg0 & 0xff;
   yield* game.setObjectActionAndDirection(object, 0, 2);
-  yield* run.script1A2(object, 3, 0, 0xffff, 0);
+  yield* run.passingVehicle(object, 3, 0, 0xffff, 0);
   return null;
 }
 
@@ -108,7 +108,7 @@ export function* script187(state, arg0) {
   let object = 0;
   object = arg0 & 0xff;
   yield* game.setObjectActionAndDirection(object, 0, 2);
-  yield* run.script1A2(object, 3, 0, 0xffff, 0);
+  yield* run.passingVehicle(object, 3, 0, 0xffff, 0);
   return null;
 }
 
@@ -118,7 +118,7 @@ export function* script188(state, arg0) {
   object = arg0 & 0xff;
   yield* run.setLeaderOnly();
   yield* game.setScriptVariable(8, 0x7d9);
-  yield* run.script00B(object, 1, 2, 0xc0, 0);
+  yield* run.waveSwarm(object, 1, 2, 0xc0, 0);
   yield* game.removeObject(object);
   return null;
 }
@@ -325,7 +325,7 @@ export function* script18D(state) {
 export function* script18E(state, arg0) {
   let object = 0;
   object = arg0 & 0xff;
-  yield* run.script2F2(object, 1, 2, 3, 1);
+  yield* run.waypointShooter(object, 1, 2, 3, 1);
   return null;
 }
 
@@ -399,7 +399,7 @@ export function* script191(state, arg0) {
   let object = 0;
   object = arg0 & 0xff;
   yield* game.setObjectActionAndDirection(object, 0, 0);
-  yield* run.script1A2(object, 3, 0, 0xffff, 0xffff);
+  yield* run.passingVehicle(object, 3, 0, 0xffff, 0xffff);
   return null;
 }
 
@@ -408,7 +408,7 @@ export function* script192(state, arg0) {
   let object = 0;
   object = arg0 & 0xff;
   yield* game.setObjectActionAndDirection(object, 0, 0);
-  yield* run.script1A2(object, 3, 0, 0xffff, 0xffff);
+  yield* run.passingVehicle(object, 3, 0, 0xffff, 0xffff);
   return null;
 }
 
@@ -469,7 +469,7 @@ export function* script194(state, arg0) {
 }
 
 // Script 195: 6 arguments.
-export function* script195(state, arg0, arg1, arg2, arg3, arg4, arg5) {
+export function* spawnedGunmanD(state, arg0, arg1, arg2, arg3, arg4, arg5) {
   let object = 0,
     local1 = 0,
     local3 = 0,
@@ -555,12 +555,12 @@ export function* script196(state, arg0) {
   yield* game.wait(EVENT.TIMER, 6);
   yield* game.setScriptVariable(0x2a, word((yield* game.getScriptVariable(0x2a)) + 1));
   yield* game.setObjectArmour(object, 1);
-  yield* run.script336(object, 0x12, 0x32);
+  yield* run.waterCreatureB(object, 0x12, 0x32);
   return null;
 }
 
 // Script 197: 1 argument, returns a word.
-export function* script197(state, arg0) {
+export function* isRunnerActor(state, arg0) {
   let local0 = 0;
   local0 = arg0;
   if (local0 !== 0x8b2) {
@@ -612,7 +612,7 @@ export function* script198(state, arg0) {
   yield* game.wait(EVENT.TIMER, 5);
   yield* game.setScriptVariable(0x2a, word((yield* game.getScriptVariable(0x2a)) + 1));
   yield* game.setObjectArmour(object, 1);
-  yield* run.script336(object, 0x32, 0xc);
+  yield* run.waterCreatureB(object, 0x32, 0xc);
   return null;
 }
 
@@ -680,7 +680,7 @@ export function* script199(state, arg0) {
 export function* script19A(state) {
   const t1 = yield* run.byNegotiation(0x3e8, 0x384, 0x320);
   const t2 = yield* run.byNegotiationB(0x157, 0x158, 0x159);
-  yield* run.script162(0x89d, t2, t1, 0x156, 0x155);
+  yield* run.offerToHire(0x89d, t2, t1, 0x156, 0x155);
   return null;
 }
 
@@ -688,7 +688,7 @@ export function* script19A(state) {
 export function* script19B(state, arg0) {
   let object = 0;
   object = arg0 & 0xff;
-  yield* run.script1AD(object, 4, 0x64, 0x6e, 0);
+  yield* run.hiredRunner(object, 4, 0x64, 0x6e, 0);
   return null;
 }
 

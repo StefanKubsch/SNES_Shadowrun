@@ -46,7 +46,7 @@ export function* giveArmour(state, arg0, arg1, arg2) {
         yield* run.promptGiveTo();
         local6 = yield* game.scriptChooseNumber();
         if (local6 !== 0xffff) {
-          if ((yield* run.script197(local6)) === 0) {
+          if ((yield* run.isRunnerActor(local6)) === 0) {
             value = 0xcadd;
             if (local6 !== 0x189c) {
               if (local6 !== 0x145f) {
@@ -170,7 +170,7 @@ export function* script323(state, arg0) {
 export function* script324(state, arg0) {
   let local0 = 0;
   local0 = arg0 & 0xff;
-  yield* run.dropNuyen164(yield* run.script10C(0x200 | local0, 0x100, 0));
+  yield* run.dropNuyen164(yield* run.patrolAndShootC(0x200 | local0, 0x100, 0));
   return null;
 }
 
@@ -206,7 +206,7 @@ export function* script326(state, arg0) {
 export function* script327(state, arg0) {
   let local0 = 0;
   local0 = arg0 & 0xff;
-  yield* run.dropNuyen164(yield* run.script10C(0x500 | local0, 0x304, 0));
+  yield* run.dropNuyen164(yield* run.patrolAndShootC(0x500 | local0, 0x304, 0));
   return null;
 }
 
@@ -217,7 +217,7 @@ export function* script328(state) {
 }
 
 // Script 329: 2 arguments.
-export function* script329(state, arg0, arg1) {
+export function* hiredRunnerB(state, arg0, arg1) {
   let object = 0,
     dialog = 0,
     local3 = 0,
@@ -611,7 +611,7 @@ export function* script32C(state, arg0) {
 export function* script32D(state, arg0) {
   let local0 = 0;
   local0 = arg0 & 0xff;
-  yield* run.dropNuyen164(yield* run.script10C(0x500 | local0, 4, 0));
+  yield* run.dropNuyen164(yield* run.patrolAndShootC(0x500 | local0, 4, 0));
   return null;
 }
 
@@ -671,7 +671,7 @@ export function* script333(state) {
 export function* script334(state, arg0) {
   let local0 = 0;
   local0 = arg0 & 0xff;
-  yield* run.dropNuyen164(yield* run.script27C(0x800 | local0, 0x607, 0, 0x804, 0xc06));
+  yield* run.dropNuyen164(yield* run.patrolAndShootB(0x800 | local0, 0x607, 0, 0x804, 0xc06));
   return null;
 }
 
@@ -679,12 +679,12 @@ export function* script334(state, arg0) {
 export function* script335(state, arg0) {
   let local0 = 0;
   local0 = arg0 & 0xff;
-  yield* run.dropNuyen164(yield* run.script10C(0x400 | local0, 0x203, 0));
+  yield* run.dropNuyen164(yield* run.patrolAndShootC(0x400 | local0, 0x203, 0));
   return null;
 }
 
 // Script 336: 3 arguments.
-export function* script336(state, arg0, arg1, arg2) {
+export function* waterCreatureB(state, arg0, arg1, arg2) {
   const locals = new Uint8Array(20);
   function* sub9(in0, in1) {
     setLocalWord(locals, 15, in0);
@@ -939,7 +939,7 @@ export function* script339(state, arg0) {
 export function* script33A(state, arg0) {
   let local0 = 0;
   local0 = arg0 & 0xff;
-  yield* run.dropNuyen164(yield* run.script10C(0x500 | local0, 0x304, 0));
+  yield* run.dropNuyen164(yield* run.patrolAndShootC(0x500 | local0, 0x304, 0));
   return null;
 }
 
@@ -1017,6 +1017,6 @@ export function* script33E(state) {
 export function* script33F(state, arg0) {
   let local0 = 0;
   local0 = arg0 & 0xff;
-  yield* run.dropNuyen164(yield* run.script10C(0x500 | local0, 0x304, 0));
+  yield* run.dropNuyen164(yield* run.patrolAndShootC(0x500 | local0, 0x304, 0));
   return null;
 }

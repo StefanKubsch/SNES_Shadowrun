@@ -210,3 +210,12 @@ traces; release and push as in [WORKFLOW.md](WORKFLOW.md).
   and fight rounds (shootRound, standAndShoot, chaseAndFight). Script variables other than
   2C are per-room scratch words (2A counts the active spawned fighters in their rooms and
   holds other values elsewhere). The 67 unnamed ones are longer fight behaviours.
+- 2026-11-27, phase 2 step 7 (fight behaviours named): 138 of the 158 started scripts
+  have names. A feature pass (karma, waypoints, chasing, shooting, created kinds, texts,
+  callers) sorted the long ones into patrols (patrolAndShoot, guardRoute,
+  approachUntilInRange), spawned fighters (spawnedGunman, spawnedBrawler), creatures
+  (waveSwarm, orbiterAttacks, waterCreature), runners (offerToHire, hiredRunner,
+  isRunnerActor) and places (rideToNextStop, passingVehicle, dataTerminal, buyFromCase,
+  phoneCall). Variants of one behaviour with other constants carry a letter (B to F).
+  The 20 unnamed ones are short helpers whose action and direction numbers have no
+  established meaning yet.

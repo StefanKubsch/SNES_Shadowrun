@@ -187,7 +187,7 @@ export function* script2A5(state, arg0) {
 }
 
 // Script 2A6: 4 arguments.
-export function* script2A6(state, arg0, arg1, arg2, arg3) {
+export function* passingVehicleB(state, arg0, arg1, arg2, arg3) {
   let object = 0,
     waypoint2 = 0,
     waypoint = 0,
@@ -258,7 +258,7 @@ export function* script2A6(state, arg0, arg1, arg2, arg3) {
 export function* script2A7(state, arg0) {
   let local0 = 0;
   local0 = arg0 & 0xff;
-  yield* run.dropNuyen164(yield* run.script07A(0x800 | local0, 0x706, 0, 0x70c));
+  yield* run.dropNuyen164(yield* run.patrolAndShoot(0x800 | local0, 0x706, 0, 0x70c));
   return null;
 }
 
@@ -349,7 +349,7 @@ export function* script2A9(state, arg0) {
 }
 
 // Script 2AA: 6 arguments.
-export function* script2AA(state, arg0, arg1, arg2, arg3, arg4, arg5) {
+export function* patrolGunman(state, arg0, arg1, arg2, arg3, arg4, arg5) {
   let object = 0,
     local1 = 0,
     local3 = 0,
@@ -649,7 +649,7 @@ export function* script2AC(state, arg0) {
 export function* script2AD(state, arg0) {
   let object = 0;
   object = arg0 & 0xff;
-  yield* run.script1AD(object, 4, 0x4e, 0x6c, 0);
+  yield* run.hiredRunner(object, 4, 0x4e, 0x6c, 0);
   return null;
 }
 
@@ -657,7 +657,7 @@ export function* script2AD(state, arg0) {
 export function* script2AE(state, arg0) {
   let local0 = 0;
   local0 = arg0 & 0xff;
-  yield* run.dropNuyen164(yield* run.script07A(0xa00 | local0, 0x907, 0, 0x70c));
+  yield* run.dropNuyen164(yield* run.patrolAndShoot(0xa00 | local0, 0x907, 0, 0x70c));
   return null;
 }
 
@@ -684,7 +684,7 @@ export function* script2AF(state, arg0) {
 export function* script2B0(state, arg0) {
   let object = 0;
   object = arg0 & 0xff;
-  yield* run.script0CA(object, 0x97);
+  yield* run.doorWithNotice(object, 0x97);
   return null;
 }
 
@@ -789,7 +789,7 @@ export function* script2B6(state, arg0) {
 export function* script2B7(state, arg0) {
   let object = 0;
   object = arg0 & 0xff;
-  yield* run.script0CA(object, 0x98);
+  yield* run.doorWithNotice(object, 0x98);
   return null;
 }
 

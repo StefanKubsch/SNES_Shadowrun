@@ -18,7 +18,7 @@ import { run } from './started.mjs';
 export function* script120(state, arg0) {
   let object = 0;
   object = arg0 & 0xff;
-  yield* run.script25D(object, 0x1de, 0x1a);
+  yield* run.dataTerminal(object, 0x1de, 0x1a);
   return null;
 }
 
@@ -109,7 +109,7 @@ export function* script124(state, arg0) {
 export function* script125(state, arg0) {
   let object = 0;
   object = arg0 & 0xff;
-  yield* run.script0A0(object, 0xffff);
+  yield* run.waterCreature(object, 0xffff);
   return null;
 }
 
@@ -331,7 +331,7 @@ export function* script12C(state, arg0) {
     yield* game.wait(EVENT.TIMER, 0x1e);
     yield* game.notice(2, 4, 0x11, 3, 0x400, 0x48 /* "Time to rock and roll!" */, 0x78);
     yield* game.appendToFightList(object);
-    if ((yield* run.script1A0(0x200 | object, 7, 0x603, 0x201, 0x901, 0x204, 0x401)) === 0) {
+    if ((yield* run.guardRouteB(0x200 | object, 7, 0x603, 0x201, 0x901, 0x204, 0x401)) === 0) {
       yield* game.addKarma(9);
       yield* game.fightListRemove(object);
       yield* run.leaveBodyAndResetRecord(object);
@@ -374,7 +374,7 @@ export function* script12D(state, arg0) {
 export function* script12E(state, arg0) {
   let object = 0;
   object = arg0 & 0xff;
-  yield* run.script0A7(object, 2, 0x64);
+  yield* run.enterWhenRoomClear(object, 2, 0x64);
   return null;
 }
 
@@ -698,7 +698,7 @@ export function* script13B(state, arg0) {
   let object = 0;
   object = arg0 & 0xff;
   yield* game.setObjectActionAndDirection(object, 0, 6);
-  yield* run.script1A2(object, 0, 0, 0, 0);
+  yield* run.passingVehicle(object, 0, 0, 0, 0);
   return null;
 }
 
@@ -724,7 +724,7 @@ export function* script13D(state, arg0) {
 }
 
 // Script 13E: 1 argument.
-export function* script13E(state, arg0) {
+export function* grenadeHostageTaker(state, arg0) {
   let object = 0,
     local1 = 0,
     created = 0,

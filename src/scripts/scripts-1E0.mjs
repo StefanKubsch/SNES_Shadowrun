@@ -734,7 +734,7 @@ export function* script1EB(state, arg0) {
   object = arg0 & 0xff;
   if ((yield* run.script391(object)) !== 0) {
     yield* game.setObjectRecordCount(object, 0x28);
-    yield* run.script0AB(object, 0x506, 0, 0x1c);
+    yield* run.patrolAndShootD(object, 0x506, 0, 0x1c);
     yield* game.setActorStateFlagBits(0x1b66 /* "Arena owner" */, 1);
     yield* game.wait(EVENT.TIMER, 0x64);
     yield* game.changeRoom(0xae);
@@ -846,13 +846,13 @@ export function* script1F0(state, arg0) {
   let object = 0;
   object = arg0 & 0xff;
   yield* game.setScriptVariable(8, 0x7bd);
-  yield* run.script00B(object, 0, 1, 0, 0x1d);
+  yield* run.waveSwarm(object, 0, 1, 0, 0x1d);
   yield* game.removeObject(object);
   return null;
 }
 
 // Script 1F1: 1 argument.
-export function* script1F1(state, arg0) {
+export function* meetKitsune(state, arg0) {
   let object = 0;
   object = arg0 & 0xff;
   if (((yield* game.getActorStateFlags(0xb52 /* "Kitsune" */)) & 0x80) === 0) {
@@ -878,7 +878,7 @@ export function* script1F2(state, arg0) {
   yield* game.setObjectActionAndDirection(object, 0, 0);
   yield* game.wait(EVENT.TIMER, 2);
   yield* game.notice(0xc, 0x14, 0xe, 3, 0x400, 0x246 /* "Playtime for Otto!" */, 0xc8);
-  yield* run.dropNuyen164(yield* run.script0AB(0x200 | object, 0x700, 0x247, 0x10));
+  yield* run.dropNuyen164(yield* run.patrolAndShootD(0x200 | object, 0x700, 0x247, 0x10));
   yield* game.notice(3, 0x14, 0xf, 3, 0x400, 0x248 /* "Aaaargghh, I'm hit!" */, 0x78);
   return null;
 }
@@ -944,7 +944,7 @@ export function* script1F5(state, arg0) {
   let object = 0;
   object = arg0 & 0xff;
   yield* game.setScriptVariable(8, 0x7d2);
-  yield* run.script00B(object, 0, 1, 0, 0x24);
+  yield* run.waveSwarm(object, 0, 1, 0, 0x24);
   yield* game.removeObject(object);
   return null;
 }
@@ -1374,7 +1374,7 @@ export function* script1FA(state, arg0) {
     object2 = 0;
   object = arg0 & 0xff;
   yield* game.setScriptVariable(8, 0x7cb);
-  yield* run.script00B(object, 0, 1, 0xc0, 0x32);
+  yield* run.waveSwarm(object, 0, 1, 0xc0, 0x32);
   const t1 = yield* game.getActorStateFlags(0x3cd /* "Serpent Scales" */);
   object2 = t1 & 0xff;
   if (t1 !== 1) {
@@ -1591,6 +1591,6 @@ export function* script1FE(state) {
 export function* script1FF(state) {
   const t1 = yield* run.byNegotiation(0x7d0, 0x708, 0x5dc);
   const t2 = yield* run.byNegotiationB(0x184, 0x185, 0x186);
-  yield* run.script162(0xa4f, t2, t1, 0x183, 0x182);
+  yield* run.offerToHire(0xa4f, t2, t1, 0x183, 0x182);
   return null;
 }

@@ -53,7 +53,7 @@ export function* script280(state, arg0) {
 export function* script281(state, arg0) {
   let local0 = 0;
   local0 = arg0 & 0xff;
-  yield* run.dropNuyen164(yield* run.script07A(0x500 | local0, 0x506, 0, 0x70c));
+  yield* run.dropNuyen164(yield* run.patrolAndShoot(0x500 | local0, 0x506, 0, 0x70c));
   return null;
 }
 
@@ -172,7 +172,7 @@ export function* script289(state, arg0) {
   let object = 0;
   object = arg0 & 0xff;
   yield* game.setObjectActionAndDirection(object, 0, 3);
-  yield* run.script2A6(object, 4, 1, 0);
+  yield* run.passingVehicleB(object, 4, 1, 0);
   return null;
 }
 
@@ -181,7 +181,7 @@ export function* script28A(state, arg0) {
   let object = 0;
   object = arg0 & 0xff;
   yield* game.setObjectActionAndDirection(object, 0, 3);
-  yield* run.script2A6(object, 4, 1, 0);
+  yield* run.passingVehicleB(object, 4, 1, 0);
   return null;
 }
 
@@ -235,7 +235,7 @@ export function* rewardNuyenAndKarma(state, arg0, arg1, arg2, arg3) {
 }
 
 // Script 28D: 5 arguments.
-export function* script28D(state, arg0, arg1, arg2, arg3, arg4) {
+export function* buyFromCase(state, arg0, arg1, arg2, arg3, arg4) {
   let object = 0,
     text = 0,
     nuyen = 0,
@@ -348,7 +348,7 @@ export function* standAndShoot(state, arg0) {
 export function* script28F(state, arg0) {
   let local0 = 0;
   local0 = arg0 & 0xff;
-  yield* run.dropNuyen164(yield* run.script07A(0x700 | local0, 0x506, 0, 0x70c));
+  yield* run.dropNuyen164(yield* run.patrolAndShoot(0x700 | local0, 0x506, 0, 0x70c));
   return null;
 }
 
@@ -357,7 +357,7 @@ export function* script290(state, arg0) {
   let object = 0;
   object = arg0 & 0xff;
   yield* game.setObjectActionAndDirection(object, 0, 7);
-  yield* run.script2A6(object, 5, 2, 0xffff);
+  yield* run.passingVehicleB(object, 5, 2, 0xffff);
   return null;
 }
 
@@ -366,7 +366,7 @@ export function* script291(state, arg0) {
   let object = 0;
   object = arg0 & 0xff;
   yield* game.setObjectActionAndDirection(object, 0, 7);
-  yield* run.script2A6(object, 5, 2, 0xffff);
+  yield* run.passingVehicleB(object, 5, 2, 0xffff);
   return null;
 }
 
@@ -528,7 +528,7 @@ export function* script294(state, arg0) {
 export function* script295(state, arg0) {
   let local0 = 0;
   local0 = arg0 & 0xff;
-  yield* run.dropNuyen164(yield* run.script07A(0x800 | local0, 0x607, 0, 0x70c));
+  yield* run.dropNuyen164(yield* run.patrolAndShoot(0x800 | local0, 0x607, 0, 0x70c));
   return null;
 }
 
@@ -579,7 +579,7 @@ export function* script297(state, arg0) {
 export function* script298(state, arg0) {
   let local0 = 0;
   local0 = arg0 & 0xff;
-  yield* run.dropNuyen164(yield* run.script07A(0x800 | local0, 0x607, 0, 0x70c));
+  yield* run.dropNuyen164(yield* run.patrolAndShoot(0x800 | local0, 0x607, 0, 0x70c));
   return null;
 }
 
@@ -704,7 +704,7 @@ export function* script29C(state, arg0) {
 export function* script29D(state, arg0) {
   let local0 = 0;
   local0 = arg0 & 0xff;
-  yield* run.dropNuyen164(yield* run.script07A(0x400 | local0, 0x304, 0, 0x70c));
+  yield* run.dropNuyen164(yield* run.patrolAndShoot(0x400 | local0, 0x304, 0, 0x70c));
   return null;
 }
 

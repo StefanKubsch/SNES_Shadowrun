@@ -16,7 +16,7 @@ export function* promptGiveTo(state) {
 }
 
 // Script 241: 6 arguments, returns a word.
-export function* script241(state, arg0, arg1, arg2, arg3, arg4, arg5) {
+export function* approachUntilInRange(state, arg0, arg1, arg2, arg3, arg4, arg5) {
   let object = 0,
     local1 = 0,
     local2 = 0,
@@ -368,7 +368,7 @@ export function* script250(state, arg0) {
 }
 
 // Script 251: 7 arguments, returns a word.
-export function* script251(state, arg0, arg1, arg2, arg3, arg4, arg5, arg6) {
+export function* guardRouteE(state, arg0, arg1, arg2, arg3, arg4, arg5, arg6) {
   let object = 0,
     local1 = 0,
     text = 0,
@@ -537,7 +537,7 @@ export function* script251(state, arg0, arg1, arg2, arg3, arg4, arg5, arg6) {
 }
 
 // Script 252: 5 arguments.
-export function* script252(state, arg0, arg1, arg2, arg3, arg4) {
+export function* grenadeThrower(state, arg0, arg1, arg2, arg3, arg4) {
   let object = 0,
     local1 = 0,
     local3 = 0,
@@ -645,7 +645,7 @@ export function* script254(state, arg0) {
   for (;;) {
     yield* game.wait(EVENT.TIMER, 6);
     if (((yield* game.getActorStateFlags(0xadb /* "Mage" */)) & 1) !== 0) {
-      yield* run.script371(object, 4, 5, 2, 0x80, 4, 0, 5);
+      yield* run.waypointShooterB(object, 4, 5, 2, 0x80, 4, 0, 5);
       return null;
     }
   }
@@ -811,14 +811,14 @@ export function* script25C(state, arg0) {
   for (;;) {
     yield* game.wait(EVENT.TIMER, 6);
     if (((yield* game.getActorStateFlags(0xadb /* "Mage" */)) & 1) !== 0) {
-      yield* run.script371(object, 6, 7, 2, 0x80, 4, 0, 5);
+      yield* run.waypointShooterB(object, 6, 7, 2, 0x80, 4, 0, 5);
       return null;
     }
   }
 }
 
 // Script 25D: 3 arguments.
-export function* script25D(state, arg0, arg1, arg2) {
+export function* dataTerminal(state, arg0, arg1, arg2) {
   let object = 0,
     text = 0,
     columns = 0,

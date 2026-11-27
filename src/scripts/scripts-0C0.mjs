@@ -18,7 +18,7 @@ import { run } from './started.mjs';
 export function* script0C0(state, arg0) {
   let object = 0;
   object = arg0 & 0xff;
-  yield* run.script28D(object, 0x30, 0x5dc0, 0xbf3, 0);
+  yield* run.buyFromCase(object, 0x30, 0x5dc0, 0xbf3, 0);
   return null;
 }
 
@@ -27,7 +27,7 @@ export function* script0C1(state, arg0) {
   let object = 0;
   object = arg0 & 0xff;
   yield* game.setObjectActionAndDirection(object, 0, 6);
-  yield* run.script1A2(object, 5, 2, 0, 0);
+  yield* run.passingVehicle(object, 5, 2, 0, 0);
   return null;
 }
 
@@ -36,7 +36,7 @@ export function* script0C2(state, arg0) {
   let object = 0;
   object = arg0 & 0xff;
   yield* game.setObjectActionAndDirection(object, 0, 6);
-  yield* run.script1A2(object, 5, 2, 0, 0);
+  yield* run.passingVehicle(object, 5, 2, 0, 0);
   return null;
 }
 
@@ -277,7 +277,7 @@ export function* script0C6(state, arg0) {
 export function* script0C7(state, arg0) {
   let object = 0;
   object = arg0 & 0xff;
-  yield* run.script28D(object, 0x24, 0x50, 0x105a, 0xffff);
+  yield* run.buyFromCase(object, 0x24, 0x50, 0x105a, 0xffff);
   return null;
 }
 
@@ -306,12 +306,12 @@ export function* offerForNuyen(state, arg0, arg1, arg2) {
 export function* script0C9(state, arg0) {
   let object = 0;
   object = arg0 & 0xff;
-  yield* run.script28D(object, 0x34, 0x1f40, 0x18a3, 0);
+  yield* run.buyFromCase(object, 0x34, 0x1f40, 0x18a3, 0);
   return null;
 }
 
 // Script 0CA: 2 arguments.
-export function* script0CA(state, arg0, arg1) {
+export function* doorWithNotice(state, arg0, arg1) {
   let object = 0,
     text = 0;
   object = arg0 & 0xff;
@@ -363,7 +363,7 @@ export function* script0CB(state, arg0) {
   let object = 0;
   object = arg0 & 0xff;
   yield* game.setObjectActionAndDirection(object, 0, 4);
-  yield* run.script1A2(object, 4, 1, 0, 0xffff);
+  yield* run.passingVehicle(object, 4, 1, 0, 0xffff);
   return null;
 }
 
@@ -372,7 +372,7 @@ export function* script0CC(state, arg0) {
   let object = 0;
   object = arg0 & 0xff;
   yield* game.setObjectActionAndDirection(object, 0, 4);
-  yield* run.script1A2(object, 4, 1, 0, 0xffff);
+  yield* run.passingVehicle(object, 4, 1, 0, 0xffff);
   return null;
 }
 
@@ -398,7 +398,7 @@ export function* script0CD(state, arg0) {
 export function* script0CE(state, arg0) {
   let object = 0;
   object = arg0 & 0xff;
-  yield* run.script28D(object, 0x35, 0x32c8, 0x1696, 0);
+  yield* run.buyFromCase(object, 0x35, 0x32c8, 0x1696, 0);
   return null;
 }
 
@@ -406,7 +406,7 @@ export function* script0CE(state, arg0) {
 export function* script0CF(state, arg0) {
   let object = 0;
   object = arg0 & 0xff;
-  yield* run.script28D(object, 0x36, 0x4e20, 0x770, 0);
+  yield* run.buyFromCase(object, 0x36, 0x4e20, 0x770, 0);
   return null;
 }
 
@@ -414,7 +414,7 @@ export function* script0CF(state, arg0) {
 export function* script0D0(state, arg0) {
   let object = 0;
   object = arg0 & 0xff;
-  yield* run.script28D(object, 0x37, 0x7530, 0x129f, 0);
+  yield* run.buyFromCase(object, 0x37, 0x7530, 0x129f, 0);
   return null;
 }
 
@@ -448,7 +448,7 @@ export function* script0D2(state, arg0) {
 export function* script0D3(state) {
   const t1 = yield* run.byNegotiation(0x5dc, 0x4b0, 0x320);
   const t2 = yield* run.byNegotiationB(0x16b, 0x16c, 0x16d);
-  yield* run.script162(0xba6, t2, t1, 0x16a, 0x169);
+  yield* run.offerToHire(0xba6, t2, t1, 0x16a, 0x169);
   return null;
 }
 
@@ -521,7 +521,7 @@ export function* script0D8(state, arg0) {
   } else {
     yield* game.setObjectArmour(object, 2);
     yield* game.setObjectRecordCount(object, 0xf);
-    yield* run.script2F7(object, 2, 4, 0, 0x32);
+    yield* run.chaseAndShoot(object, 2, 4, 0, 0x32);
     yield* run.dropNuyen15E(yield* run.leaveBody(object));
   }
   return null;
@@ -580,7 +580,7 @@ export function* script0DC(state, arg0) {
   if ((yield* game.getObjectRecordFlags(object)) === 0) {
     yield* game.setObjectRecordFlags(object, 0xa);
   }
-  yield* run.script174(object, 4, 1, 0xf, 5, 0);
+  yield* run.spawnedGunmanC(object, 4, 1, 0xf, 5, 0);
   return null;
 }
 

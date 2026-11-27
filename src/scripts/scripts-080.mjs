@@ -29,12 +29,12 @@ export function* script081(state) {
 export function* script082(state, arg0) {
   let object = 0;
   object = arg0 & 0xff;
-  yield* run.script02B(object, 0);
+  yield* run.rideToNextStop(object, 0);
   return null;
 }
 
 // Script 083: 7 arguments.
-export function* script083(state, arg0, arg1, arg2, arg3, arg4, arg5, arg6) {
+export function* spawnedGunman(state, arg0, arg1, arg2, arg3, arg4, arg5, arg6) {
   let object = 0,
     local1 = 0,
     local2 = 0,
@@ -235,7 +235,7 @@ export function* script088(state, arg0) {
     yield* game.setObjectRecordCount(object, 0x19);
     yield* game.wait(EVENT.TIMER, 0x1e);
     yield* game.appendToFightList(object);
-    if ((yield* run.script251(object, 0x100, 0x46, 0x400, 0x404, 0x602, 0xc)) === 0) {
+    if ((yield* run.guardRouteE(object, 0x100, 0x46, 0x400, 0x404, 0x602, 0xc)) === 0) {
       yield* game.addKarma(0x16);
       yield* game.fightListRemove(object);
       yield* run.leaveBodyAndResetRecord(object);
@@ -504,7 +504,7 @@ export function* script092(state, arg0) {
 }
 
 // Script 093: 1 argument, returns a word.
-export function* script093(state, arg0) {
+export function* approachAndShootPlayer(state, arg0) {
   let object = 0,
     local1 = 0,
     local2 = 0;
@@ -588,7 +588,7 @@ export function* script096(state, arg0) {
   block115: {
     object = arg0 & 0xff;
     if ((yield* game.getCurrentRoomHeader()) !== (yield* game.getRoomHeader(0x185))) {
-      yield* run.script1AD(object, 4, 0x48, 0x7b, 0x600);
+      yield* run.hiredRunner(object, 4, 0x48, 0x7b, 0x600);
     } else {
       yield* game.removeGroupMember(object);
       yield* game.wait(EVENT.TIMER, 0xa);
@@ -750,7 +750,7 @@ export function* endingScene12(state, arg0) {
 export function* script098(state) {
   const t1 = yield* run.byNegotiation(0x5dc, 0x4b0, 0x3e8);
   const t2 = yield* run.byNegotiationB(0x161, 0x162, 0x163);
-  yield* run.script162(0x79a, t2, t1, 0x160, 0x15f);
+  yield* run.offerToHire(0x79a, t2, t1, 0x160, 0x15f);
   return null;
 }
 
@@ -823,7 +823,7 @@ export function* script09D(state, arg0) {
     );
     yield* game.wait(EVENT.TIMER, 0x1e);
     yield* game.appendToFightList(object);
-    if ((yield* run.script2EC(0x800 | object, 0x706, 0, 0x100, 0x201, 2, 0)) === 0) {
+    if ((yield* run.guardRouteD(0x800 | object, 0x706, 0, 0x100, 0x201, 2, 0)) === 0) {
       yield* game.addKarma(8);
       yield* game.fightListRemove(object);
       yield* run.leaveBodyAndResetRecord(object);
@@ -985,6 +985,6 @@ export function* script09F(state, arg0) {
   if ((yield* game.getObjectRecordFlags(object)) === 0) {
     yield* game.setObjectRecordFlags(object, 0xa);
   }
-  yield* run.script083(object, 0xffff, 2, 0x14, 3, 1, 5);
+  yield* run.spawnedGunman(object, 0xffff, 2, 0x14, 3, 1, 5);
   return null;
 }

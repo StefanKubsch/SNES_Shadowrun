@@ -9,7 +9,7 @@ import { run } from './started.mjs';
 export function* script040(state, arg0) {
   let local0 = 0;
   local0 = arg0 & 0xff;
-  yield* run.dropNuyen15F(yield* run.script27C(0x500 | local0, 0x304, 0, 0x403, 0x903));
+  yield* run.dropNuyen15F(yield* run.patrolAndShootB(0x500 | local0, 0x304, 0, 0x403, 0x903));
   return null;
 }
 
@@ -78,7 +78,7 @@ export function* script043(state, arg0) {
   yield* game.setObjectFlagBits(object, 0x140);
   yield* game.setObjectDialog(object, 0x59);
   yield* run.script0AE(object);
-  yield* run.script36D(object, 0x3c, 0xc8, 0x3c);
+  yield* run.wanderAround(object, 0x3c, 0xc8, 0x3c);
   yield* run.leaveBodyAndResetRecord(object);
   return null;
 }
@@ -237,7 +237,7 @@ export function* shootRandomTargets(state, arg0, arg1) {
 export function* script046(state) {
   const t1 = yield* run.byNegotiation(0x7d0, 0x708, 0x5dc);
   const t2 = yield* run.byNegotiationB(0x17a, 0x17b, 0x17c);
-  yield* run.script162(0x1458, t2, t1, 0x179, 0x178);
+  yield* run.offerToHire(0x1458, t2, t1, 0x179, 0x178);
   return null;
 }
 
@@ -254,7 +254,7 @@ export function* script047(state, arg0) {
 export function* script048(state, arg0) {
   let object = 0;
   object = arg0 & 0xff;
-  yield* run.script2F2(object, 0, 3, 3, 0);
+  yield* run.waypointShooter(object, 0, 3, 3, 0);
   return null;
 }
 
@@ -281,7 +281,7 @@ export function* script04A(state, arg0) {
   yield* game.wait(EVENT.TIMER, 0x3c);
   yield* game.turnObjectToPlayer(object);
   yield* game.wait(EVENT.TIMER, 0x3c);
-  yield* run.script371(object, 1, 2, 2, 0x28, 6, 0, 2);
+  yield* run.waypointShooterB(object, 1, 2, 2, 0x28, 6, 0, 2);
   return null;
 }
 
@@ -522,7 +522,7 @@ export function* script052(state, arg0) {
   object = arg0 & 0xff;
   const t1 = yield* game.getObjectCoarseY(object);
   const t2 = yield* game.getObjectCoarseX(object);
-  yield* run.script195(object, t2, t1, 0, 5, 0x14);
+  yield* run.spawnedGunmanD(object, t2, t1, 0, 5, 0x14);
   return null;
 }
 
@@ -589,7 +589,7 @@ export function* script055(state, arg0) {
     count = word(count - 1);
     if (count === 0 || state.word('CIRCLE_LEADER_ALIVE') === 0) {
       if (state.word('CIRCLE_LEADER_ALIVE') !== 0) {
-        yield* run.script275(object, 0, 0xb75);
+        yield* run.orbiterAttacks(object, 0, 0xb75);
       } else {
         yield* game.setObjectVelocity(object, 0, 0, 8);
         yield* game.wait(EVENT.TIMER, 0x3c);
@@ -761,7 +761,7 @@ export function* script05A(state, arg0) {
     count = word(count - 1);
     if (count === 0 || state.word('CIRCLE_LEADER_ALIVE') === 0) {
       if (state.word('CIRCLE_LEADER_ALIVE') !== 0) {
-        yield* run.script275(object, 1, 0xb75);
+        yield* run.orbiterAttacks(object, 1, 0xb75);
       } else {
         yield* game.setObjectVelocity(object, 0, 0, 8);
         yield* game.wait(EVENT.TIMER, 0x3c);
@@ -841,7 +841,7 @@ export function* script05B(state, arg0) {
 export function* script05C(state, arg0) {
   let object = 0;
   object = arg0 & 0xff;
-  yield* run.script2F2(object, 2, 3, 2, 1);
+  yield* run.waypointShooter(object, 2, 3, 2, 1);
   return null;
 }
 
@@ -930,7 +930,7 @@ export function* script05F(state, arg0) {
     count = word(count - 1);
     if (count === 0 || state.word('CIRCLE_LEADER_ALIVE') === 0) {
       if (state.word('CIRCLE_LEADER_ALIVE') !== 0) {
-        yield* run.script275(object, 2, 0xb75);
+        yield* run.orbiterAttacks(object, 2, 0xb75);
       } else {
         yield* game.setObjectVelocity(object, 0, 0, 8);
         yield* game.wait(EVENT.TIMER, 0x3c);

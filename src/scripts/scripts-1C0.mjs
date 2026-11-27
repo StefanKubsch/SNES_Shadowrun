@@ -76,7 +76,7 @@ export function* dropNuyen164(state, arg0) {
 export function* script1C3(state, arg0) {
   let object = 0;
   object = arg0 & 0xff;
-  yield* run.script0A0(object, 0);
+  yield* run.waterCreature(object, 0);
   return null;
 }
 
@@ -164,7 +164,7 @@ export function* script1C6(state, arg0) {
 }
 
 // Script 1C7: 5 arguments.
-export function* script1C7(state, arg0, arg1, arg2, arg3, arg4) {
+export function* guardRouteC(state, arg0, arg1, arg2, arg3, arg4) {
   let local0 = 0,
     local2 = 0,
     text = 0,
@@ -204,7 +204,7 @@ export function* script1C7(state, arg0, arg1, arg2, arg3, arg4) {
         yield* game.moveObjectStraightToWaypoint(object, shiftRight(local0, 8));
       }
     }
-    if ((yield* run.script241(object, 0x64, 0x3c, 0x28, 0xf, local10)) === 0) {
+    if ((yield* run.approachUntilInRange(object, 0x64, 0x3c, 0x28, 0xf, local10)) === 0) {
       local14 = 0;
       for (;;) {
         local13 = (yield* game.chooseEnemyTarget(object)) & 0xff;
@@ -511,7 +511,7 @@ export function* script1CE(state, arg0) {
   if (((yield* game.getActorStateFlags(0x7b6 /* "Nuyen" */)) & 0x80) === 0) {
     yield* game.removeObject(object);
   } else {
-    yield* run.script399(object, 5, 0xa, 0x64);
+    yield* run.spawnedBrawler(object, 5, 0xa, 0x64);
     yield* game.setObjectArmour(object, 2);
   }
   return null;
@@ -694,7 +694,7 @@ export function* script1D5(state, arg0) {
     yield* game.wait(EVENT.TIMER, 0xdc);
   }
   yield* game.appendToFightList(object);
-  yield* run.script251(object, 0, 0x47, 0x40a, 0x100, 0x300, 0x50);
+  yield* run.guardRouteE(object, 0, 0x47, 0x40a, 0x100, 0x300, 0x50);
   yield* game.addKarma(1);
   yield* game.fightListRemove(object);
   const t3 = yield* sub5(object);
@@ -743,7 +743,7 @@ export function* script1D7(state, arg0) {
 export function* script1D8(state, arg0) {
   let object = 0;
   object = arg0 & 0xff;
-  yield* run.script2AA(object, 1, 0x203, 0x401, 0x602, 0x2c03);
+  yield* run.patrolGunman(object, 1, 0x203, 0x401, 0x602, 0x2c03);
   return null;
 }
 
@@ -907,7 +907,7 @@ export function* script1DA(state) {
 export function* script1DB(state, arg0) {
   let object = 0;
   object = arg0 & 0xff;
-  yield* run.script0A7(object, 1, 0xb4);
+  yield* run.enterWhenRoomClear(object, 1, 0xb4);
   return null;
 }
 
@@ -928,7 +928,7 @@ export function* script1DD(state, arg0) {
   let object = 0;
   object = arg0 & 0xff;
   yield* game.setObjectArmour(object, 3);
-  yield* run.script399(object, 4, 0xf, word(0x32 + ((yield* game.randomByte()) & 0x1f)));
+  yield* run.spawnedBrawler(object, 4, 0xf, word(0x32 + ((yield* game.randomByte()) & 0x1f)));
   return null;
 }
 

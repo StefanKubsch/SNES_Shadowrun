@@ -108,7 +108,7 @@ export function* script000(state, arg0) {
 export function* script001(state, arg0) {
   let object = 0;
   object = arg0 & 0xff;
-  yield* run.script157(object, 3, 0xa, 1, 0);
+  yield* run.spawnedGunmanB(object, 3, 0xa, 1, 0);
   return null;
 }
 
@@ -116,7 +116,7 @@ export function* script001(state, arg0) {
 export function* script002(state) {
   const t1 = yield* run.byNegotiation(0xbb8, 0xa8c, 0x960);
   const t2 = yield* run.byNegotiationB(0x175, 0x176, 0x177);
-  yield* run.script162(0xb52, t2, t1, 0x174, 0x173);
+  yield* run.offerToHire(0xb52, t2, t1, 0x174, 0x173);
   return null;
 }
 
@@ -217,7 +217,7 @@ export function* script008(state, arg0) {
 export function* script009(state, arg0) {
   let object = 0;
   object = arg0 & 0xff;
-  yield* run.script179(object, 0x2a0);
+  yield* run.followActorSwitch(object, 0x2a0);
   return null;
 }
 
@@ -279,7 +279,7 @@ export function* script00A(state, arg0, arg1, arg2, arg3, arg4) {
 }
 
 // Script 00B: 5 arguments.
-export function* script00B(state, arg0, arg1, arg2, arg3, arg4) {
+export function* waveSwarm(state, arg0, arg1, arg2, arg3, arg4) {
   let object = 0,
     local1 = 0,
     local2 = 0,
@@ -534,7 +534,7 @@ export function* script00E(state, arg0) {
           yield* game.createObject(0x56, t9, t8, t7, 0x149);
           yield* sub220();
           yield* game.setObjectFlags(object, 0);
-          yield* run.script1F1(object);
+          yield* run.meetKitsune(object);
           break block388;
         }
       }
@@ -545,7 +545,7 @@ export function* script00E(state, arg0) {
 }
 
 // Script 00F: 5 arguments.
-export function* script00F(state, arg0, arg1, arg2, arg3, arg4) {
+export function* sentrySeesPlayer(state, arg0, arg1, arg2, arg3, arg4) {
   let object = 0,
     local1 = 0,
     local2 = 0,
@@ -734,7 +734,7 @@ export function* script010(state, arg0) {
   yield* game.setObjectActionAndDirection(object, 0, 0);
   yield* game.wait(EVENT.TIMER, 2);
   yield* game.notice(4, 5, 0x15, 3, 0x400, 0x238 /* "Don't let him off this floor." */, 0xc8);
-  yield* run.dropNuyen15F(yield* run.script27C(0x200 | object, 1, 0x239, 0x403, 0x903));
+  yield* run.dropNuyen15F(yield* run.patrolAndShootB(0x200 | object, 1, 0x239, 0x403, 0x903));
   yield* game.notice(3, 7, 0x11, 3, 0x400, 0x23d /* "Aargh! I'm hit! I'm hit!" */, 0x78);
   return null;
 }
@@ -761,7 +761,7 @@ export function* giveWeapon(state, arg0, arg1, arg2, arg3, arg4) {
         yield* run.promptGiveTo();
         local7 = yield* game.scriptChooseNumber();
         if (local7 !== 0xffff) {
-          if ((yield* run.script197(local7)) === 0) {
+          if ((yield* run.isRunnerActor(local7)) === 0) {
             value = 0xcadd;
             if (local7 !== 0x189c) {
               if (local7 !== 0x145f) {
@@ -824,7 +824,7 @@ export function* script012(state, arg0) {
 export function* script013(state, arg0) {
   let object = 0;
   object = arg0 & 0xff;
-  yield* run.dropNuyen15F(yield* run.script27C(object, 0x102, 0, 0x403, 0x903));
+  yield* run.dropNuyen15F(yield* run.patrolAndShootB(object, 0x102, 0, 0x403, 0x903));
   return null;
 }
 
@@ -921,7 +921,7 @@ export function* script016(state, arg0) {
 export function* script017(state, arg0) {
   let local0 = 0;
   local0 = arg0 & 0xff;
-  yield* run.dropNuyen15F(yield* run.script27C(0x200 | local0, 0x201, 0x23a, 0x403, 0x903));
+  yield* run.dropNuyen15F(yield* run.patrolAndShootB(0x200 | local0, 0x201, 0x23a, 0x403, 0x903));
   yield* game.notice(3, 7, 0xd, 3, 0x400, 0x23e /* "Ugh! Get them....." */, 0x78);
   return null;
 }
@@ -930,7 +930,7 @@ export function* script017(state, arg0) {
 export function* script018(state, arg0) {
   let local0 = 0;
   local0 = arg0 & 0xff;
-  yield* run.dropNuyen15F(yield* run.script27C(0x100 | local0, 0x103, 0x23b, 0x403, 0x903));
+  yield* run.dropNuyen15F(yield* run.patrolAndShootB(0x100 | local0, 0x103, 0x23b, 0x403, 0x903));
   return null;
 }
 
@@ -938,7 +938,7 @@ export function* script018(state, arg0) {
 export function* script019(state, arg0) {
   let local0 = 0;
   local0 = arg0 & 0xff;
-  yield* run.dropNuyen15F(yield* run.script27C(0x100 | local0, 1, 0, 0x403, 0x903));
+  yield* run.dropNuyen15F(yield* run.patrolAndShootB(0x100 | local0, 1, 0, 0x403, 0x903));
   return null;
 }
 
@@ -993,7 +993,7 @@ export function* script01B(state, arg0) {
 export function* script01C(state, arg0) {
   let local0 = 0;
   local0 = arg0 & 0xff;
-  yield* run.dropNuyen15F(yield* run.script27C(0x300 | local0, 0x300, 0, 0x403, 0x903));
+  yield* run.dropNuyen15F(yield* run.patrolAndShootB(0x300 | local0, 0x300, 0, 0x403, 0x903));
   return null;
 }
 
@@ -1001,7 +1001,7 @@ export function* script01C(state, arg0) {
 export function* script01D(state, arg0) {
   let local0 = 0;
   local0 = arg0 & 0xff;
-  yield* run.dropNuyen15F(yield* run.script27C(0x200 | local0, 1, 0, 0x403, 0x903));
+  yield* run.dropNuyen15F(yield* run.patrolAndShootB(0x200 | local0, 1, 0, 0x403, 0x903));
   return null;
 }
 
@@ -1009,7 +1009,7 @@ export function* script01D(state, arg0) {
 export function* script01E(state, arg0) {
   let local0 = 0;
   local0 = arg0 & 0xff;
-  yield* run.dropNuyen15F(yield* run.script27C(0x100 | local0, 1, 0, 0x403, 0x903));
+  yield* run.dropNuyen15F(yield* run.patrolAndShootB(0x100 | local0, 1, 0, 0x403, 0x903));
   return null;
 }
 
