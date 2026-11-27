@@ -2,6 +2,7 @@
 // bytecode by tools/decompile-scripts.mjs (docs/READABLE-GAME.md, phase 2). Generated:
 // edit the decompiler, not this file.
 import {
+  EVENT,
   less,
   localByte,
   localWord,
@@ -66,7 +67,7 @@ export function* script1A0(state, arg0, arg1, arg2, arg3, arg4, arg5, arg6) {
       local17 = 0;
       for (;;) {
         if (!less(yield* game.getDistanceToPlayer(object), 0x64)) {
-          if (((yield* game.wait(0x801, 0xc)) & 0x800) !== 0) {
+          if (((yield* game.wait(EVENT.TIMER | EVENT.HIT, 0xc)) & EVENT.HIT) !== 0) {
             return 0xffff;
           }
         } else {
@@ -77,7 +78,7 @@ export function* script1A0(state, arg0, arg1, arg2, arg3, arg4, arg5, arg6) {
               yield* game.setObjectAnimation(object, 5);
               yield* game.turnObjectToPlayer(object);
               yield* game.playSoundEffect(object, 2, 0xff, 0xff);
-              if (((yield* game.wait(0x808, 0)) & 0x800) === 0) {
+              if (((yield* game.wait(EVENT.ANIMATION_END | EVENT.HIT, 0)) & EVENT.HIT) === 0) {
                 yield* game.shootAtObject(
                   object,
                   yield* game.getPlayerObjectCopy(),
@@ -99,7 +100,7 @@ export function* script1A0(state, arg0, arg1, arg2, arg3, arg4, arg5, arg6) {
             if (t2 !== 0xffff) {
               yield* game.setObjectAnimation(object, 4);
               yield* game.turnObjectToPlayer(object);
-              if (((yield* game.wait(0x808, 0)) & 0x800) === 0) {
+              if (((yield* game.wait(EVENT.ANIMATION_END | EVENT.HIT, 0)) & EVENT.HIT) === 0) {
                 if (less(local17, 9)) {
                   yield* game.playSoundEffect(object, 0x42, 0xff, 0xff);
                 }
@@ -120,13 +121,13 @@ export function* script1A0(state, arg0, arg1, arg2, arg3, arg4, arg5, arg6) {
             }
           }
         }
-        if (((yield* game.wait(0x801, 1)) & 0x800) === 0) {
+        if (((yield* game.wait(EVENT.TIMER | EVENT.HIT, 1)) & EVENT.HIT) === 0) {
           if (
             (truth(local17 === 5) |
               truth(less(yield* game.getObjectRecordCount(object), 0xc) && local14 !== 0xff)) !==
             0
           ) {
-            if (((yield* game.wait(0x801, 1)) & 0x800) === 0) {
+            if (((yield* game.wait(EVENT.TIMER | EVENT.HIT, 1)) & EVENT.HIT) === 0) {
               return 0;
             }
             return 0xffff;
@@ -165,7 +166,7 @@ export function* script1A1(state, arg0) {
   object = arg0 & 0xff;
   yield* game.setObjectActionAndDirection(object, 2, 5);
   for (;;) {
-    if ((yield* game.wait(0x201, 1)) !== 1) {
+    if ((yield* game.wait(EVENT.TIMER | EVENT.OPEN, 1)) !== 1) {
       yield* game.notice(8, 0x15, 0x10, 3, 0x800, 0x9b /* "This door is locked." */, 0xf0);
     }
   }
@@ -188,7 +189,7 @@ export function* script1A2(state, arg0, arg1, arg2, arg3, arg4) {
     } else {
       yield* game.setObjectVelocity(localByte(locals, 0), 0, localWord(locals, 11), 0);
     }
-    yield* game.wait(1, localWord(locals, 9));
+    yield* game.wait(EVENT.TIMER, localWord(locals, 9));
   }
   locals[0] = arg0 & 0xff;
   locals[1] = arg1 & 0xff;
@@ -208,10 +209,10 @@ export function* script1A2(state, arg0, arg1, arg2, arg3, arg4) {
     block264: {
       yield* game.keepObjectRecordFlagBits(localByte(locals, 0), 0x7f);
       if (signed(localByte(locals, 5)) !== 0) {
-        yield* game.wait(1, 0xc8);
+        yield* game.wait(EVENT.TIMER, 0xc8);
         locals[7] = 0x14 & 0xff;
         for (;;) {
-          yield* game.wait(1, 0xa);
+          yield* game.wait(EVENT.TIMER, 0xa);
           yield* sub47(0x50);
           const t1 = word(localByte(locals, 7) - 1);
           locals[7] = word(localByte(locals, 7) - 1) & 0xff;
@@ -245,7 +246,7 @@ export function* script1A2(state, arg0, arg1, arg2, arg3, arg4) {
         }
       }
     }
-    yield* game.wait(1, 0x14);
+    yield* game.wait(EVENT.TIMER, 0x14);
     if (signed(localByte(locals, 8)) === 0) {
       yield* sub47(0x14);
     }
@@ -288,7 +289,7 @@ export function* script1A2(state, arg0, arg1, arg2, arg3, arg4) {
       if (signed(localByte(locals, 8)) === 0) {
         yield* sub47(localByte(locals, 6));
       }
-      yield* game.wait(1, 0xa);
+      yield* game.wait(EVENT.TIMER, 0xa);
       if (localByte(locals, 6) === 0) {
         yield* game.clearObjectVelocity(localByte(locals, 0));
         continue loop73;
@@ -347,7 +348,7 @@ export function* script1A5(state, arg0) {
     yield* game.setActorStateFlagBits(0x63c, 0x80);
     yield* game.keepActorStateFlagBits(0x63c, 0xfffe);
     yield* game.playSoundEffect(object, 0xa, 0xff, 3);
-    yield* game.wait(1, 0x3c);
+    yield* game.wait(EVENT.TIMER, 0x3c);
   }
   yield* game.clearObjectTask(object);
   return null;
@@ -355,29 +356,29 @@ export function* script1A5(state, arg0) {
 
 // Script 1A6: 1 argument.
 export function* script1A6(state, arg0) {
-  let local0 = 0;
-  local0 = arg0 & 0xff;
+  let object = 0;
+  object = arg0 & 0xff;
   if ((yield* game.getStoryStage()) !== 1) {
-    yield* run.script2B5(local0);
+    yield* run.closedDoorB(object);
   } else {
-    yield* run.script1DC(local0);
+    yield* run.alwaysLockedDoorB(object);
   }
   return null;
 }
 
 // Script 1A7: 1 argument.
 export function* script1A7(state, arg0) {
-  let local0 = 0;
-  local0 = arg0 & 0xff;
-  yield* run.giveWeapon(local0, 1, 8, 3, 4);
+  let object = 0;
+  object = arg0 & 0xff;
+  yield* run.giveWeapon(object, 1, 8, 3, 4);
   return null;
 }
 
 // Script 1A8: 1 argument.
 export function* script1A8(state, arg0) {
-  let local0 = 0;
-  local0 = arg0 & 0xff;
-  yield* run.giveArmour(local0, 2, 2);
+  let object = 0;
+  object = arg0 & 0xff;
+  yield* run.giveArmour(object, 2, 2);
   return null;
 }
 
@@ -392,7 +393,7 @@ export function* script1A9(state, arg0) {
   const t1 = word(((yield* game.randomByte()) & 7) - 3);
   const t2 = word(((yield* game.randomByte()) & 7) - 3);
   yield* game.setObjectVelocity(object, t2, t1, 5);
-  yield* game.wait(1, 0x78);
+  yield* game.wait(EVENT.TIMER, 0x78);
   yield* game.removeObject(object);
   return null;
 }
@@ -403,9 +404,9 @@ export function* script1AA(state, arg0) {
   object = arg0 & 0xff;
   yield* game.setObjectRecordCount(object, 0x1e);
   for (;;) {
-    yield* game.wait(1, 0xa);
+    yield* game.wait(EVENT.TIMER, 0xa);
     if (((yield* game.getActorStateFlags(0x16c0)) & 0x80) !== 0) {
-      yield* game.wait(1, 0x64);
+      yield* game.wait(EVENT.TIMER, 0x64);
       yield* run.dropNuyen164(yield* run.script0AB(object, 1, 0, 0x10));
       return null;
     }
@@ -435,7 +436,7 @@ export function* script1AB(state, arg0) {
   yield* game.setObjectActionAndDirection(object, 2, 5);
   yield* game.setObjectFlagBits(object, 0x80);
   for (;;) {
-    yield* game.wait(0x80, 0);
+    yield* game.wait(EVENT.EXAMINE, 0);
     if (((yield* game.getObjectRecordFlags(object)) & 1) === 0) {
       local1 = yield* game.randomBelow(8);
       yield* game.setObjectRecordFlagBits(object, 1);
@@ -467,7 +468,7 @@ export function* script1AC(state, arg0) {
   yield* game.keepObjectFlagBits(object, 0xdfff);
   yield* game.setObjectFlagBits(object, 0x140);
   yield* game.setObjectActionAndDirection(object, 0, 4);
-  yield* run.script08E(object, 4, 0xa, 8, 3, 0x1c2);
+  yield* run.answerWithNotice(object, 4, 0xa, 8, 3, 0x1c2);
   yield* game.removeObject(object);
   return null;
 }
@@ -476,8 +477,8 @@ export function* script1AC(state, arg0) {
 export function* script1AD(state, arg0, arg1, arg2, arg3, arg4) {
   let object = 0,
     local1 = 0,
-    local2 = 0,
-    local4 = 0,
+    frames = 0,
+    dialog = 0,
     local6 = 0,
     local8 = 0,
     local9 = 0,
@@ -486,10 +487,10 @@ export function* script1AD(state, arg0, arg1, arg2, arg3, arg4) {
     local12 = 0;
   object = arg0 & 0xff;
   local1 = arg1 & 0xff;
-  local2 = arg2;
-  local4 = arg3;
+  frames = arg2;
+  dialog = arg3;
   local6 = arg4;
-  yield* game.wait(1, 6);
+  yield* game.wait(EVENT.TIMER, 6);
   if (((yield* game.getObjectRecordFlags(object)) & 0x80) !== 0) {
     block472: {
       if ((yield* game.getObjectRecordCount(object)) !== 0) {
@@ -515,7 +516,7 @@ export function* script1AD(state, arg0, arg1, arg2, arg3, arg4) {
                       local12 = yield* run.script29F(object, 0x1e, 0x1e);
                     }
                   } else {
-                    yield* game.talk(object, local4);
+                    yield* game.talk(object, dialog);
                   }
                 }
                 local11 = truth((local12 & 0x800) !== 0) & 0xff;
@@ -550,12 +551,19 @@ export function* script1AD(state, arg0, arg1, arg2, arg3, arg4) {
                                 yield* game.setObjectFlagBits(object, 0x40);
                                 local10 =
                                   (yield* game.shootWithOwnWeapon(object, signed(local8))) & 0xff;
-                                local12 = yield* game.wait(0x6881 | local6, local2);
+                                local12 = yield* game.wait(0x6881 | local6, frames);
                                 yield* game.keepObjectFlagBits(object, 0xffbf);
                               }
                             } else {
                               yield* game.statusScreen(object);
-                              local12 = yield* game.wait(0x6881, 1);
+                              local12 = yield* game.wait(
+                                EVENT.TIMER |
+                                  EVENT.EXAMINE |
+                                  EVENT.HIT |
+                                  EVENT.TARGET |
+                                  EVENT.MOVE_TO,
+                                1,
+                              );
                             }
                           } else {
                             local12 = yield* run.script29F(object, 0x1e, 0x1e);
@@ -612,7 +620,7 @@ export function* script1AD(state, arg0, arg1, arg2, arg3, arg4) {
     if (signed(local11) === 0) {
       yield* run.script194(object);
       yield* game.turnObjectToPlayer(object);
-      yield* game.wait(1, 0x14);
+      yield* game.wait(EVENT.TIMER, 0x14);
       yield* game.notice(
         3,
         3,
@@ -640,9 +648,9 @@ export function* script1AE(state, arg0) {
   object = arg0 & 0xff;
   yield* game.setObjectRecordCount(object, 0x1e);
   for (;;) {
-    yield* game.wait(1, 0xa);
+    yield* game.wait(EVENT.TIMER, 0xa);
     if (((yield* game.getActorStateFlags(0x16c0)) & 0x80) !== 0) {
-      yield* game.wait(1, 0x64);
+      yield* game.wait(EVENT.TIMER, 0x64);
       yield* run.dropNuyen164(yield* run.script0AB(object, 1, 0, 0x10));
       return null;
     }
@@ -651,9 +659,9 @@ export function* script1AE(state, arg0) {
 
 // Script 1AF: 1 argument.
 export function* script1AF(state, arg0) {
-  let local0 = 0;
-  local0 = arg0 & 0xff;
-  yield* run.script2AA(local0, 1, 0x203, 0x401, 0x403, 0x1e03);
+  let object = 0;
+  object = arg0 & 0xff;
+  yield* run.script2AA(object, 1, 0x203, 0x401, 0x403, 0x1e03);
   return null;
 }
 
@@ -663,10 +671,10 @@ export function* script1B0(state, arg0) {
   object = arg0 & 0xff;
   yield* game.setObjectActionAndDirection(object, 0, 0);
   yield* game.setSpriteMode(object, 0x8001);
-  yield* game.wait(1, 0xf);
+  yield* game.wait(EVENT.TIMER, 0xf);
   for (;;) {
     yield* game.blast(object, 0x14);
-    if (((yield* game.wait(9, 0xf)) & 8) !== 0) {
+    if (((yield* game.wait(EVENT.TIMER | EVENT.ANIMATION_END, 0xf)) & EVENT.ANIMATION_END) !== 0) {
       yield* game.removeObject(object);
       return null;
     }
@@ -676,18 +684,18 @@ export function* script1B0(state, arg0) {
 // Script 1B1: 1 argument.
 export function* refuseToGiveTo(state, arg0) {
   let local0 = 0,
-    local2 = 0;
+    text = 0;
   local0 = arg0;
   if (((yield* game.getActorKindFlags(local0)) & 0x8000) === 0) {
-    local2 = 0xb;
+    text = 0xb;
   } else {
     if (((yield* game.getActorKindFlags(local0)) & 0x4000) === 0) {
-      local2 = 0xd;
+      text = 0xd;
     } else {
-      local2 = 0xc;
+      text = 0xc;
     }
   }
-  yield* game.notice(2, 0x15, 0x13, 3, 0x800, local2, 0x78);
+  yield* game.notice(2, 0x15, 0x13, 3, 0x800, text, 0x78);
   return null;
 }
 
@@ -702,38 +710,38 @@ export function* script1B2(state, arg0) {
         yield* game.setObjectRecordFlagBits(object, 1);
         yield* game.setObjectActionAndDirection(object, 2, 5);
         for (;;) {
-          yield* game.wait(1, 5);
+          yield* game.wait(EVENT.TIMER, 5);
           if (((yield* game.getObjectRecordFlags(object)) & 0x80) !== 0) {
             yield* game.playSoundEffect(object, 0x2c, 0xff, 3);
             yield* game.keepObjectRecordFlagBits(object, 0x7f);
             yield* game.setObjectAnimation(object, 4);
-            yield* game.wait(8, 0);
+            yield* game.wait(EVENT.ANIMATION_END, 0);
             yield* game.setObjectAnimation(object, 0);
             for (;;) {
-              yield* game.wait(1, 5);
+              yield* game.wait(EVENT.TIMER, 5);
               if (((yield* game.getObjectRecordFlags(object)) & 0x80) !== 0) {
                 yield* game.keepObjectRecordFlagBits(object, 0x7f);
                 yield* game.setObjectAnimation(object, 6);
-                yield* game.wait(8, 0);
+                yield* game.wait(EVENT.ANIMATION_END, 0);
                 yield* game.setObjectAnimation(object, 2);
                 yield* game.playSoundEffect(object, 0x2e, 0xff, 3);
                 for (;;) {
                   yield* game.setObjectAnimation(object, 2);
-                  yield* game.wait(0x200, 0);
+                  yield* game.wait(EVENT.OPEN, 0);
                   if (((yield* game.getObjectRecordFlags(object)) & 2) === 0) {
                     yield* game.setActorStateFlagBits(0x7ee, 2);
                     yield* game.setObjectRecordFlagBits(object, 2);
                   }
                   yield* game.playSoundEffect(object, 0x2c, 0xff, 3);
                   yield* game.setObjectAnimation(object, 4);
-                  yield* game.wait(1, 0xa);
+                  yield* game.wait(EVENT.TIMER, 0xa);
                   if ((yield* game.testObjectCollision(object, 0)) === 0) {
-                    yield* game.wait(8, 0);
-                    yield* run.script074(object, 0, 6, 2, 0x2e);
+                    yield* game.wait(EVENT.ANIMATION_END, 0);
+                    yield* run.closeDoorOnRequest(object, 0, 6, 2, 0x2e);
                     break block237;
                   }
                   yield* game.playSoundEffect(object, 0x20, 0xff, 3);
-                  yield* game.wait(1, 5);
+                  yield* game.wait(EVENT.TIMER, 5);
                   yield* game.playSoundEffect(object, 0x2e, 0xff, 3);
                 }
               }
@@ -741,7 +749,7 @@ export function* script1B2(state, arg0) {
           }
         }
       } else {
-        yield* run.script2B5(object);
+        yield* run.closedDoorB(object);
       }
     }
   }
@@ -765,18 +773,18 @@ export function* script1B3(state, arg0) {
   yield* game.setScriptVariable(0x28, 0);
   yield* game.setScriptVariable(0x2c, 0);
   yield* game.setScriptVariable(0x32, 0);
-  yield* game.wait(1, 6);
+  yield* game.wait(EVENT.TIMER, 6);
   for (;;) {
-    yield* game.wait(1, 1);
+    yield* game.wait(EVENT.TIMER, 1);
     if (((yield* game.getObjectRecordFlags(object)) & 0x80) !== 0) {
       yield* game.setObjectActionAndDirection(object, 0, 0);
       yield* game.notice(2, 0x11, 0xf, 3, 0x800, 0x40 /* "Oh, Ooooh my head." */, 0xf0);
-      yield* game.wait(1, 0x8c);
+      yield* game.wait(EVENT.TIMER, 0x8c);
       yield* game.notice(4, 0x14, 0x11, 3, 0x800, 0x41 /* "My brain feels burnt..." */, 0xf0);
-      yield* game.wait(1, 0x8c);
+      yield* game.wait(EVENT.TIMER, 0x8c);
       yield* game.notice(6, 0x17, 0x12, 3, 0x800, 0x42 /* "Where am I? Who am I?" */, 0xf0);
       yield* game.addSceneObject(0xb, 0x166, 0x1f5, 0x40, 6, 0x8b2, 0x32);
-      yield* game.wait(1, 1);
+      yield* game.wait(EVENT.TIMER, 1);
       yield* game.removeObject(object);
       return null;
     }
@@ -813,14 +821,19 @@ export function* script1B6(state, arg0) {
   yield* game.setObjectRecordCount(object, 0x1e);
   yield* game.setObjectActionAndDirection(object, 0, 2);
   yield* game.appendToFightList(object);
-  yield* game.wait(1, 0x50);
+  yield* game.wait(EVENT.TIMER, 0x50);
   for (;;) {
     const t1 = yield* game.getObjectCoarseHeight(object);
     const t2 = yield* game.getObjectCoarseY(object);
     const t3 = yield* game.getObjectCoarseX(object);
     yield* game.createObject(0x78 /* "Jester Spirit" */, t3, t2, t1, 0x3e);
     const t4 = truth(
-      ((yield* game.wait(0x801, word(0x64 + ((yield* game.randomByte()) & 0x1f)))) & 0x800) !== 0,
+      ((yield* game.wait(
+        EVENT.TIMER | EVENT.HIT,
+        word(0x64 + ((yield* game.randomByte()) & 0x1f)),
+      )) &
+        EVENT.HIT) !==
+        0,
     );
     local1 = t4 & 0xff;
     if (t4 !== 0) {
@@ -845,7 +858,7 @@ export function* script1B8(state, arg0) {
   object = arg0 & 0xff;
   yield* game.setObjectActionAndDirection(object, 0, 4);
   yield* game.keepObjectFlagBits(object, 0xdfff);
-  yield* game.wait(1, 1);
+  yield* game.wait(EVENT.TIMER, 1);
   yield* game.updateObjectDepthMode(object);
   yield* game.clearObjectTask(object);
   return null;
@@ -853,9 +866,9 @@ export function* script1B8(state, arg0) {
 
 // Script 1B9: 1 argument.
 export function* script1B9(state, arg0) {
-  let local0 = 0;
-  local0 = arg0 & 0xff;
-  yield* run.script2AA(local0, 1, 0x203, 0x401, 0x601, 0x2803);
+  let object = 0;
+  object = arg0 & 0xff;
+  yield* run.script2AA(object, 1, 0x203, 0x401, 0x601, 0x2803);
   return null;
 }
 
@@ -942,9 +955,9 @@ export function* script1BD(state) {
 
 // Script 1BE: 1 argument.
 export function* script1BE(state, arg0) {
-  let local0 = 0;
-  local0 = arg0 & 0xff;
-  yield* run.giveArmour(local0, 6, 6);
+  let object = 0;
+  object = arg0 & 0xff;
+  yield* run.giveArmour(object, 6, 6);
   return null;
 }
 
@@ -960,7 +973,7 @@ export function* script1BF(state, arg0) {
         yield* game.placeObjectOnWaypoint(object, 1);
         yield* game.setObjectActionAndDirection(object, 0, 0);
         for (;;) {
-          if (((yield* game.wait(0x90, 0)) & 0x80) === 0) {
+          if (((yield* game.wait(EVENT.PICK_UP | EVENT.EXAMINE, 0)) & EVENT.EXAMINE) === 0) {
             yield* game.setObjectRecordFlagBits(object, 8);
             yield* game.setObjectRecordPropertyFromGroup(object);
             yield* run.script04B();

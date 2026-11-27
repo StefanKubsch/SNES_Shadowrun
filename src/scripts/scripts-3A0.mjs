@@ -1,7 +1,7 @@
 // Scripts 3A0 to 3A8, decompiled from the original
 // bytecode by tools/decompile-scripts.mjs (docs/READABLE-GAME.md, phase 2). Generated:
 // edit the decompiler, not this file.
-import { less, signed, truth, word } from './runtime.mjs';
+import { EVENT, less, signed, truth, word } from './runtime.mjs';
 import { game } from './natives.mjs';
 import { run } from './started.mjs';
 
@@ -26,7 +26,7 @@ export function* script3A0(state, arg0, arg1, arg2, arg3, arg4, arg5) {
       yield* game.removeObject(object);
     } else {
       yield* game.setObjectActionAndDirection(object, 6, 3);
-      yield* game.wait(1, 0x3c);
+      yield* game.wait(EVENT.TIMER, 0x3c);
       yield* game.setObjectRecordCount(object, local3);
       for (;;) {
         const t1 = yield* game.chooseEnemyTarget(object);
@@ -54,7 +54,11 @@ export function* script3A0(state, arg0, arg1, arg2, arg3, arg4, arg5) {
           }
         }
         const t2 = truth(
-          ((yield* game.wait(0x801, word(0x64 + ((yield* game.randomByte()) & 0x1f)))) & 0x800) !==
+          ((yield* game.wait(
+            EVENT.TIMER | EVENT.HIT,
+            word(0x64 + ((yield* game.randomByte()) & 0x1f)),
+          )) &
+            EVENT.HIT) !==
             0,
         );
         local6 = t2 & 0xff;
@@ -83,9 +87,9 @@ export function* script3A0(state, arg0, arg1, arg2, arg3, arg4, arg5) {
 
 // Script 3A1: 1 argument.
 export function* script3A1(state, arg0) {
-  let local0 = 0;
-  local0 = arg0 & 0xff;
-  yield* run.script1AD(local0, 4, 0x78, 0x72, 0);
+  let object = 0;
+  object = arg0 & 0xff;
+  yield* run.script1AD(object, 4, 0x78, 0x72, 0);
   return null;
 }
 
@@ -135,12 +139,12 @@ export function* script3A3(state) {
 // Script 3A4: 2 arguments.
 export function* walkToWaypoint(state, arg0, arg1) {
   let object = 0,
-    local1 = 0;
+    waypoint = 0;
   object = arg0 & 0xff;
-  local1 = arg1 & 0xff;
+  waypoint = arg1 & 0xff;
   yield* game.setObjectAnimation(object, 2);
-  yield* game.moveObjectStraightToWaypoint(object, local1);
-  yield* game.wait(4, 0);
+  yield* game.moveObjectStraightToWaypoint(object, waypoint);
+  yield* game.wait(EVENT.ARRIVED, 0);
   return null;
 }
 
@@ -149,7 +153,7 @@ export function* script3A5(state, arg0) {
   let object = 0;
   object = arg0 & 0xff;
   yield* game.setObjectActionAndDirection(object, 0, 0);
-  yield* game.wait(1, 0x3c);
+  yield* game.wait(EVENT.TIMER, 0x3c);
   yield* game.removeObject(object);
   return null;
 }
@@ -159,7 +163,7 @@ export function* script3A6(state, arg0) {
   let object = 0;
   object = arg0 & 0xff;
   yield* game.setObjectActionAndDirection(object, 0, 0);
-  yield* game.wait(0x10, 0);
+  yield* game.wait(EVENT.PICK_UP, 0);
   yield* game.addNuyen(0xbb8);
   yield* game.notice(0xb, 0x15, 0xb, 3, 0x800, 0x1f4 /* "3,000 nuyen." */, 0xb4);
   yield* game.resetObjectRecordProperty(object);
@@ -172,7 +176,7 @@ export function* script3A7(state, arg0) {
   let object = 0;
   object = arg0 & 0xff;
   yield* game.setObjectActionAndDirection(object, 1, 5);
-  yield* game.wait(1, 0x14);
+  yield* game.wait(EVENT.TIMER, 0x14);
   yield* game.removeObject(object);
   return null;
 }

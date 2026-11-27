@@ -52,4 +52,24 @@ export const SCRIPT_NAMES = Object.freeze({
   0x206: 'usePhone', // ECOTEL
   0x2cd: 'buyCyberware',
   0x2e8: 'jackIntoMatrix',
+  0x006: 'alwaysLockedDoor', // "This door is locked." on examine or open
+  0x1dc: 'alwaysLockedDoorB', // the same with action 2
+  0x342: 'examineDgcPanel', // until record flag 80
+  0x08e: 'answerWithNotice', // the same notice each time Jake talks to the object
+  0x0c8: 'offerForNuyen', // yes and paid: the dialog ends and the actor flag 80 is set
+  0x118: 'offerArenaFight',
+  // Fights.
+  0x045: 'shootRandomTargets', // the given number of shots at random fight targets
+  0x005: 'shootPlayerWhenNear', // while counting down, or until hit
+  0x0ac: 'walkAndShootPlayer', // to a waypoint, shooting at Jake when near
+  0x360: 'fightAndDropNuyen', // script 2F7's fight, then a body and nuyen
+  0x276: 'scatterGhoulBones',
+  // Doors: open on the glove's Open, close on its Close, unless something stands in them.
+  0x2a3: 'openDoorOnRequest',
+  0x074: 'closeDoorOnRequest',
+  0x36c: 'closeDoorWhenClear',
+  0x0ad: 'closedDoor', // opens and closes for ever, starting closed
+  0x2b5: 'closedDoorB',
+  0x0e2: 'openDoor', // starting open
+  0x2e7: 'openDoorB',
 });

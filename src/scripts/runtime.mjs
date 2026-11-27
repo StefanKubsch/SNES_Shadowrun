@@ -10,6 +10,26 @@ import * as NAMES from '../data/wram.mjs';
 import { BYTE_BITS, BYTE_MASK, BYTE_SIGN, WORD_MASK, WORD_SIGN } from '../constants/bits.mjs';
 
 export const TRUE = WORD_MASK;
+
+// The events a waiting task ends on (wait(events, frames) returns the met ones): the
+// counter, the glove's actions on the object (the action menu), the end of its
+// motion and animation, and a hit.
+export const EVENT = Object.freeze({
+  TIMER: 0x1,
+  TALK: 0x2,
+  ARRIVED: 0x4,
+  ANIMATION_END: 0x8,
+  PICK_UP: 0x10,
+  BUY: 0x20,
+  GIVE: 0x40,
+  EXAMINE: 0x80,
+  USE: 0x100,
+  OPEN: 0x200,
+  CLOSE: 0x400,
+  HIT: 0x800,
+  TARGET: 0x2000,
+  MOVE_TO: 0x4000,
+});
 export const NATIVE = 'native';
 export const SCRIPT = 'script';
 

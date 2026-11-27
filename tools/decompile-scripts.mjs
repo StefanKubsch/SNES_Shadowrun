@@ -176,6 +176,37 @@ function negate(c) {
 const comparison = (op, prec) => (l, r) => ({ ...binary(op, prec, l, r, true), op, l, r });
 const helper = (name) => (l, r) => ({ ...call(name, l, r), bool: true });
 
+// The task events a wait ends on (src/scripts/runtime.mjs, EVENT).
+const WAIT_NAME = 'wait';
+const EVENT_NAMES = [
+  [0x1, 'TIMER'],
+  [0x2, 'TALK'],
+  [0x4, 'ARRIVED'],
+  [0x8, 'ANIMATION_END'],
+  [0x10, 'PICK_UP'],
+  [0x20, 'BUY'],
+  [0x40, 'GIVE'],
+  [0x80, 'EXAMINE'],
+  [0x100, 'USE'],
+  [0x200, 'OPEN'],
+  [0x400, 'CLOSE'],
+  [0x800, 'HIT'],
+  [0x2000, 'TARGET'],
+  [0x4000, 'MOVE_TO'],
+];
+function events(e) {
+  if (e.constant === null || e.constant === undefined || e.constant === 0) return e;
+  let rest = e.constant;
+  const parts = [];
+  for (const [bit, name] of EVENT_NAMES)
+    if (rest & bit) {
+      parts.push(`EVENT.${name}`);
+      rest &= ~bit;
+    }
+  if (rest) parts.push(`0x${rest.toString(HEX)}`);
+  return { ...e, text: parts.join(' | '), prec: parts.length > 1 ? BIT_OR : ATOM };
+}
+
 const BINARY = {
   add: (l, r) => call('word', { ...binary('+', 12, value(l), value(r)) }),
   subtract: (l, r) => call('word', { ...binary('-', 12, value(l), value(r)) }),
@@ -183,7 +214,8 @@ const BINARY = {
   multiply_su_handler: (l, r) => call('multiplySignedLeft', l, r),
   multiply_us_handler: (l, r) => call('multiplySignedRight', l, r),
   multiply_ss_handler: (l, r) => call('multiplySigned', l, r),
-  bit_and: logical('&&', LOGICAL_AND, '&', BIT_AND),
+  // The events of a wait's result read by name.
+  bit_and: (l, r) => logical('&&', LOGICAL_AND, '&', BIT_AND)(l, l.waits ? events(r) : r),
   bit_or: logical('||', LOGICAL_OR, '|', BIT_OR),
   bit_xor: (l, r) => binary('^', BIT_XOR, l, r),
   shift_left: (l, r) => call('shiftLeft', l, r),
@@ -398,8 +430,10 @@ class ScriptDecompiler {
     return `locals[${at}] = ${paren(value(v), BIT_AND + 1)} & 0xff;`;
   }
 
-  // An argument of a game function; a constant text or topic number carries its text.
+  // An argument of a game function; a constant text or topic number carries its text,
+  // a wait's mask names its events.
   noted(name, n, a) {
+    if (name === WAIT_NAME && n === 0) return events(a).text;
     const v = value(a).text;
     const kind = NOTED_ARGUMENTS[name]?.[n];
     if (!kind || a.constant === null || a.constant === undefined) return v;
@@ -665,7 +699,8 @@ class ScriptDecompiler {
           name = this.nativeNames[i.operand];
         this.usedNatives.add(i.operand);
         const text = `yield* game.${name}(${args.map((a, n) => this.noted(name, n, a)).join(', ')})`;
-        if (info.returnBytes) stack.push(yieldExpr(text, [STATE]));
+        if (info.returnBytes)
+          stack.push({ ...yieldExpr(text, [STATE]), waits: name === WAIT_NAME });
         else statement(`${text};`, [STATE]);
       } else if (n === 'call_script') {
         const info = this.scripts[i.operand],
@@ -875,6 +910,69 @@ const NOT_OBJECT_FIRST = new Set([
 ]);
 const takesObject = (name) =>
   !NOT_OBJECT_FIRST.has(name) && (OBJECT_FIRST.has(name) || /Object(?!s)/.test(name));
+// The parameter names of the most used game functions, as their code reads them.
+export const PARAMETERS = Object.freeze({
+  wait: ['events', 'frames'],
+  notice: ['left', 'top', 'columns', 'rows', 'attributes', 'text', 'frames'],
+  topicText: ['text'],
+  windowText: ['text'],
+  createObject: ['kind', 'x', 'y', 'height', 'script'],
+  setObjectActionAndDirection: ['object', 'action', 'direction'],
+  setObjectAnimation: ['object', 'animation'],
+  setObjectDirection: ['object', 'direction'],
+  getObjectDirection: ['object'],
+  setObjectVelocity: ['object', 'dx', 'dy', 'dz'],
+  setObjectPosition: ['object', 'x', 'y', 'height'],
+  playSoundEffect: ['object', 'effect', 'level', 'voices'],
+  setSpriteMode: ['object', 'mode'],
+  setObjectDialog: ['object', 'dialog'],
+  talk: ['object', 'dialog'],
+  moveObjectToWaypoint: ['object', 'waypoint'],
+  moveObjectStraightToWaypoint: ['object', 'waypoint'],
+  placeObjectOnWaypoint: ['object', 'waypoint'],
+  turnObjectToObject: ['object', 'target'],
+  setObjectFlagBits: ['object', 'bits'],
+  keepObjectFlagBits: ['object', 'mask'],
+  setObjectRecordFlagBits: ['object', 'bits'],
+  keepObjectRecordFlagBits: ['object', 'mask'],
+  setObjectArmour: ['object', 'armour'],
+  changeRoom: ['room'],
+  getScriptVariable: ['variable'],
+  setScriptVariable: ['variable', 'value'],
+  setScriptVariableBits: ['variable', 'bits'],
+  keepScriptVariableBits: ['variable', 'mask'],
+  getActorStateFlags: ['actor'],
+  setActorStateFlagBits: ['actor', 'bits'],
+  keepActorStateFlagBits: ['actor', 'mask'],
+  addNuyen: ['nuyen'],
+  payNuyen: ['nuyen'],
+  addKarma: ['karma'],
+  randomBelow: ['limit'],
+});
+// The calls of game functions in a function's text: name and argument texts.
+function* gameCalls(text) {
+  for (const m of text.matchAll(/game\.(\w+)\(/g)) {
+    const args = [];
+    let depth = 0,
+      start = m.index + m[0].length;
+    for (let at = start; at < text.length; at++) {
+      const c = text[at];
+      if (c === '/' && text[at + 1] === '*') {
+        at = text.indexOf('*/', at) + 1;
+        continue;
+      }
+      if (c === '(') depth++;
+      else if (c === ')' && depth-- === 0) {
+        args.push(text.slice(start, at).trim());
+        break;
+      } else if (c === ',' && depth === 0) {
+        args.push(text.slice(start, at).trim());
+        start = at + 1;
+      }
+    }
+    yield { name: m[1], args: args.filter(Boolean) };
+  }
+}
 // Locals named by their use: an object (the first argument of a game function on objects;
 // the one from the first argument is `object`, one from createObject `created`) or a
 // counter that counts down (`count`). The rest keep localN.
@@ -885,6 +983,9 @@ function nameLocals(text) {
   const fromArgument = new Map(
     [...text.matchAll(/(local\d+) = arg(\d+)(?: & 0xff)?;/g)].map((m) => [m[1], Number(m[2])]),
   );
+  // The script's own object (its first argument as a byte) handed first to another script.
+  for (const m of text.matchAll(/(local\d+) = arg0 & 0xff;/g))
+    if (new RegExp(`run\\.\\w+\\(${m[1]}[,)]`).test(text)) objects.add(m[1]);
   const created = new Set(
     [...text.matchAll(/(local\d+) = \(yield\* game\.createObject\(/g)].map((m) => m[1]),
   );
@@ -902,6 +1003,13 @@ function nameLocals(text) {
   for (const local of order) give(local, created.has(local) ? 'created' : 'object');
   for (const m of text.matchAll(/(local\d+) = word\(\1 - 1\);/g))
     if (!names.has(m[1])) give(m[1], 'count');
+  // A local handed to a named parameter of a game function takes the parameter's name
+  // (the first such use).
+  for (const { name, args } of gameCalls(text))
+    args.forEach((arg, n) => {
+      const parameter = PARAMETERS[name]?.[n];
+      if (parameter && /^local\d+$/.test(arg) && !names.has(arg)) give(arg, parameter);
+    });
   return names.size ? text.replace(/\blocal\d+\b/g, (local) => names.get(local) ?? local) : text;
 }
 
@@ -1024,7 +1132,10 @@ export async function decompileAll(mem) {
     const file = `scripts-${hex(first)}.mjs`;
     // The runtime helpers the group's code names.
     const text = bodies.join('\n'),
-      imports = HELPERS.filter((h) => new RegExp(`\\b${h}\\(`).test(text)).sort();
+      imports = [
+        ...HELPERS.filter((h) => new RegExp(`\\b${h}\\(`).test(text)),
+        ...(/\bEVENT\./.test(text) ? ['EVENT'] : []),
+      ].sort();
     const head = [
       `// Scripts ${hex(first)} to ${hex(first + group.length - 1)}, decompiled from the original`,
       '// bytecode by tools/decompile-scripts.mjs (docs/READABLE-GAME.md, phase 2). Generated:',
@@ -1046,7 +1157,12 @@ export async function decompileAll(mem) {
     'export const game = Object.freeze({',
     ...[...allUsed]
       .sort((a, b) => a - b)
-      .map((id) => `  ${names[id]}: (...args) => native(0x${hex(id, NATIVE_DIGITS)}, ...args),`),
+      .map((id) => {
+        const params = PARAMETERS[names[id]]?.join(', ');
+        return params
+          ? `  ${names[id]}: (${params}) => native(0x${hex(id, NATIVE_DIGITS)}, ${params}),`
+          : `  ${names[id]}: (...args) => native(0x${hex(id, NATIVE_DIGITS)}, ...args),`;
+      }),
     '});',
   ];
   files.set('natives.mjs', await render(nativeLines.join('\n')));

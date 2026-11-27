@@ -170,7 +170,7 @@ traces; release and push as in [WORKFLOW.md](WORKFLOW.md).
   spell effects 1D6F to 1D72, the circling leader flag and nine bytes of Jake's runner
   record joined `src/data/wram.mjs`. `src/scripts/` shrank from 31,700 to 26,400 lines.
   Next: names for the 87 scripts other scripts call and for arguments and locals.
-- 2026-11-27, phase 2 step 3 (names in the scripts): 44 of the 87 scripts that other
+- 2026-11-27, phase 2 step 3 (names in the scripts): 44 of the scripts that other
   scripts start have names (tools/script-names.mjs: leaveBody, waitUntilDefeated,
   walkToWaypoint, goToRoom, giveWeapon, lockedDoor, usePhone and more); scripts start
   them through the generated table `run` in `src/scripts/started.mjs`
@@ -181,3 +181,13 @@ traces; release and push as in [WORKFLOW.md](WORKFLOW.md).
   function on objects are named `object` (the one from the first argument), `created`
   (from createObject) or `object2`; counters that count down are `count`. The remaining
   unnamed scripts are mostly fight behaviours with parameters.
+- 2026-11-27, phase 2 step 4 (events and parameters): a wait names the task events it
+  ends on (`EVENT` in `src/scripts/runtime.mjs`: TIMER, TALK, ARRIVED, ANIMATION_END,
+  the glove actions PICK_UP to MOVE_TO and HIT, from the action menu, the motion and
+  animation ends and the hit), in its mask and in tests of its result
+  (`wait(EVENT.HIT | EVENT.TIMER, 0xc) & EVENT.HIT`). The 37 most used game functions
+  have parameter names (PARAMETERS in the decompiler; `natives.mjs` shows them as
+  signatures, `notice(left, top, columns, rows, attributes, text, frames)`), and a local
+  handed to one takes its name. 61 of the 158 started scripts are named, among them the
+  doors (openDoorOnRequest, closeDoorOnRequest, closedDoor, openDoor). About 3,400
+  plain locals remain.
