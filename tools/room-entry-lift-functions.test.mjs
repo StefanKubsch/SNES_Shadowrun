@@ -1,21 +1,25 @@
-// Random per-function test of the lifted room entry 80:A4BF (src/game/room-entry.mjs,
-// table entry enterRoom in proof/system/main-transition.mjs) against the frozen outcomes (tools/lift-vectors/) of the former register-level
-// reference (proof/game-reference/room-entry.mjs), docs/ROOM-ENTRY-LIFT.md. The
-// glove 80:BCB2 and the notice windows 80:FF79 release their windows for real on both
-// sides (each release redraws the window list). The routines both sides still call
-// through their frames answer as stubs that record
-// each call (target, return address, data bank) with the inputs they read: the argument words 00 to 08 for the object creation 80:A835
-// (which answers with a slot in word 00) and the turn 80:AAAF. The group 80:A2FA, the
-// actors 80:A3B6, the camera box clamp 81:8A05, the scene load 81:A117, the scene
-// tiles 81:9AE6, the camera jump 81:8BD9, the collision grid 81:8756 and the window
-// list 81:AD92 (with its real window map unpack and one recorded upload poll) run lifted on one side and register-level on the other; they
-// are also compared alone, the actors on a synthetic header with any actor of the
-// table, the grid on synthetic object and room lists, the tiles on tile stacks of
-// real streams, the scene load on random scenes (twice their number). Both sides must
-// leave the same WRAM outside the scratch, the same device writes and the same calls.
+// Random per-function test of the lifted room entry 80:A4BF (src/game/room-entry.mjs)
+// against the frozen outcomes (tools/lift-vectors/) of the former register-level
+// reference (retired with proof/), docs/ROOM-ENTRY-LIFT.md. The glove 80:BCB2 and the
+// notice windows 80:FF79 release their windows for real (each release redraws the
+// window list); the room entry's frame waits (81:B0A1) see the frame counter advance.
+// The group 80:A2FA, the actors 80:A3B6, the camera box clamp 81:8A05, the scene load
+// 81:A117, the scene tiles 81:9AE6, the camera jump 81:8BD9, the collision grid
+// 81:8756 and the window list 81:AD92 (with its real window map unpack) run lifted;
+// they are also compared alone, the actors on a synthetic header with any actor of the
+// table, the grid on synthetic object and room lists, the tiles on tile stacks of real
+// streams, the scene load on random scenes (twice their number). The outcomes hold the
+// WRAM outside the scratch and the device writes.
+//
+// Re-keyed on 2026-11-27 from the register-level caller forms of proof/: the room entry
+// and both releases compare game state only (user decision 2026-11-17). Each sample's
+// former outcome confirmed its old vector, and the lifted outcome left the same game
+// state as the former one outside the sample loader state 7E:0089-008B and 008F-0099
+// (docs/MATRIX-LIFT.md); for the room entry the former form's frame wait stub advanced
+// the frame counter for that comparison.
 import { DialogTestMemory, prng } from './task-native-dialog-harness.mjs';
 import { createSide, registerCases, useLiftVectors } from './lift-function-harness.mjs';
-import { uploadEvents, windowMapSource, windowTables } from './lift-window-samples.mjs';
+import { windowMapSource, windowTables } from './lift-window-samples.mjs';
 import { clampToCameraBox } from '../src/game/camera-box.mjs';
 import { createGroupSequence, placeRoomActorsSequence } from '../src/game/room-actors.mjs';
 import { buildCollisionGrid } from '../src/game/collision-grid.mjs';
@@ -79,20 +83,18 @@ import {
 } from '../src/data/wram.mjs';
 import { RUNNERS, RUNNER_TABLE } from '../src/data/runners.mjs';
 import { ACTORS, ACTOR_BYTES, ACTOR_TABLE } from '../src/data/actors.mjs';
-import { MAIN_START_ROUTINES } from '../proof/replay/main-start.mjs';
-import { TRANSITION_ROUTINES, enterRoom } from '../proof/replay/main-transition.mjs';
 import { appendTableTaskCall } from './register-forms/task-append-call.mjs';
-import {
-  putGloveAwaySequence,
-  releaseNoticeWindowsSequence,
-} from '../proof/caller/window-release.mjs';
+import { putGloveAwaySequence, releaseNoticeWindowsSequence } from '../src/game/window-release.mjs';
+import { enterRoomSequence } from '../src/game/room-entry.mjs';
+import { liveWindowEvents } from './lift-window-samples.mjs';
+import { RANDOM_STATE } from '../src/data/wram.mjs';
+import { WORD_MASK } from '../src/constants/bits.mjs';
 
 useLiftVectors(import.meta.url);
 
 const WRAM_BYTES = 0x20000,
   // The cartridge, read through an empty WRAM.
   ROM_MEMORY = new DialogTestMemory(new Uint8Array(0x20000)),
-  HEX = 16,
   // The game's sound directory pointer (98:FFFA), which the sample loader follows,
   SOUND_DIRECTORY = [0, 1, 2].map((n) => ROM_MEMORY.read8(0x98fffa + n)),
   ROOMS = 498,
@@ -118,9 +120,6 @@ const WRAM_BYTES = 0x20000,
     [0x0000, 0x0034],
     [0x1e80, GAME_STACK],
   ];
-// The routines called through their frames, long (RTL) or not, and the direct page
-// words a stub records.
-const STUBS = [[0x81b0a1, true, []]];
 
 // The object creation's inputs on both sides: object slots, half of them free, or one
 // (often the first); a draw
@@ -223,38 +222,7 @@ function tileStacks(wram, rnd, pick) {
   }
 }
 
-function stubbedRoutines() {
-  const routines = new Map([...MAIN_START_ROUTINES, ...TRANSITION_ROUTINES]);
-  for (const [target, long, words, readsA] of STUBS)
-    routines.set(target, (h) => {
-      const { ctx } = h,
-        wram = h.a.mem.wram;
-      (h.a.callLog ??= []).push(
-        [
-          target,
-          h.a.stackWord(),
-          ctx.bank,
-          ...(readsA ? [ctx.a] : []),
-          ...words.map((at) => wram[at] | (wram[at + 1] << 8)),
-          // The words the caller pushed around the frame wait.
-          ...(target === 0x81b0a1 ? [3, 5, 7].map((n) => h.a.stackWord(n)) : []),
-        ]
-          .map((v) => v.toString(HEX))
-          .join(':'),
-      );
-      // The callees leave other registers.
-      ctx.a = 0xbeef;
-      return long ? h.rtl() : h.rts();
-    });
-  return routines;
-}
-const side = (s) => {
-  const state = createSide(s, stubbedRoutines());
-  state.a.routines = state.routines;
-  return state;
-};
-const summary = (h) =>
-  [...(h.a.callLog ?? []), ['bank', 's', 'pc'].map((r) => h.ctx[r].toString(HEX)).join()].join(' ');
+const side = (s) => createSide(s, new Map());
 
 const CASES = [
   {
@@ -276,11 +244,25 @@ const CASES = [
       Object.assign(h.ctx, input);
       h.ctx.programBank = 0x80;
       h.push(0x1234, 2);
-      enterRoom(h, uploadEvents(), h.a.routines);
-      return summary(h);
+      drainNativeSequence(enterRoomSequence(h, frameEvents(h), h.ctx.a & WORD_MASK));
+      h.rts();
     },
   },
 ];
+// The room entry's frame waits (81:B0A1, blocking at 81:B0A9) see the frame counter
+// advance once each; the window uploads are serviced.
+const COUNTER_BRANCH = 0x81b0a9;
+function frameEvents(h) {
+  const events = liveWindowEvents(h),
+    frames = events.interrupts,
+    service = frames.textWait;
+  frames.textWait = (callee, frameEvents, status, pc) => {
+    if (pc !== COUNTER_BRANCH) return service(callee, frameEvents, status, pc);
+    h.a.mem.write16(RANDOM_STATE, (h.a.mem.read16(RANDOM_STATE) + 1) & WORD_MASK);
+    return true;
+  };
+  return events;
+}
 
 // The camera box clamp alone, any camera position (direct page 0E and 11).
 // They write the direct page words the original uses as locals, which the Mesen
@@ -508,6 +490,13 @@ ALONE.push({
 // register-level window map 81:A9B2 (the low byte of its JSL frame for the state bar,
 // at 1EE1) and window drawing 81:ACCF, whose frames the lifted window list does not
 // reproduce: neither waits.
+const releaseForm = (sequence) => (h, input) => {
+  Object.assign(h.ctx, input);
+  h.ctx.programBank = 0x80;
+  h.push(0x1234, 2);
+  drainNativeSequence(sequence(h, liveWindowEvents(h)));
+  h.a.pullWord();
+};
 const RELEASES = [
   ['glove 80:BCB2', 0x80bcb2, putGloveAwaySequence],
   ['notice windows 80:FF79', 0x80ff79, releaseNoticeWindowsSequence],
@@ -515,13 +504,7 @@ const RELEASES = [
   name,
   entry,
   prepare: () => ({ bank: 0x80, s: GAME_STACK }),
-  lifted: (h, input) => {
-    Object.assign(h.ctx, input);
-    h.ctx.programBank = 0x80;
-    h.push(0x1234, 2);
-    drainNativeSequence(sequence(h, uploadEvents()));
-    h.a.pullWord();
-  },
+  lifted: releaseForm(sequence),
 }));
 
 // The object creation alone, called from bank 80 (return word 1234) with the stack
@@ -551,7 +534,7 @@ const OBJECT_CREATION = {
 // The script task append alone, called with JSR from bank 80 (return word 1234) with
 // the stack compared too: any script of the table in X, the arguments in the direct
 // page words, the heap and task slots of the object creation; A, X, Y, sign,
-// overflow, zero and carry as the original leaves them (proof/system/task-append.mjs).
+// overflow, zero and carry as the original leaves them.
 // The script natives that create objects (80:A835 alone, the swarm starts 80:D7DD,
 // 80:D260 and the circling leader 80:D63C), called by the script VM (return word 1234)
 // with the stack compared too: an origin object (with or without its flag bit), the

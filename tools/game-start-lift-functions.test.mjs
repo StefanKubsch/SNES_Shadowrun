@@ -1,27 +1,36 @@
 // Random per-function tests of the lifted start of a game (src/game/game-start.mjs)
-// against the frozen outcomes (tools/lift-vectors/) of the former register-level reference (proof/game-reference/game-start.mjs): the
-// new game state 80:98E9, the new game 80:960D, the save load 81:B198 for every
-// slot, and the main start 80:9688 with both choices (docs/MATRIX-LIFT.md). The
-// reference calls the register-level game screen set-up 80:9629, room entry 80:A4BF
-// and fixed colour 81:8861 through their original frames, the lifted start calls
-// their lifted functions directly. The routines the room entry still calls through
-// their frames answer as stubs (the glove 80:BCB2 and the notice windows 80:FF79
-// release real windows on both sides) that record each call (target, return address, data
-// bank, and A for the scene load 81:A117); the object creation 80:A835 creates real
-// objects and tasks on both sides, and the turn 80:AAAF turns them.
-// Both sides must leave the same WRAM outside the scratch, the same SRAM, device
-// writes and the registers their callers read.
+// against the frozen outcomes (tools/lift-vectors/) of the former register-level
+// reference (retired with proof/): the new game state 80:98E9, the new game 80:960D,
+// the save load 81:B198 for every slot, and the main start 80:9688 with both choices
+// (docs/MATRIX-LIFT.md). The main start runs the lifted game screen set-up, room entry
+// and fixed colour directly; the glove 80:BCB2 and the notice windows 80:FF79 release
+// real windows, the object creation 80:A835 creates real objects and tasks, and the
+// turn 80:AAAF turns them. Its frame waits (81:B0A1) see the frame counter advance.
+// The outcomes are game state only (user decision 2026-11-17): WRAM outside the
+// scratch, SRAM and device writes.
+//
+// Re-keyed on 2026-11-27 from the register-level caller forms of proof/caller: each
+// sample's former outcome confirmed its old vector, and the lifted outcome left the
+// same game state as the former one outside the sample loader state 7E:0089-008B and
+// 008F-0099 (docs/MATRIX-LIFT.md); for the main start the former form's frame wait
+// stub advanced the frame counter for that comparison.
 import { prng } from './task-native-dialog-harness.mjs';
 import { createSide, registerCases, useLiftVectors } from './lift-function-harness.mjs';
-import { uploadEvents, windowMapSource, windowTables } from './lift-window-samples.mjs';
-import { MAIN_START_ROUTINES } from '../proof/replay/main-start.mjs';
+import {
+  liveWindowEvents,
+  uploadEvents,
+  windowMapSource,
+  windowTables,
+} from './lift-window-samples.mjs';
 import { DialogTestMemory } from './task-native-dialog-harness.mjs';
 import {
-  runGameStart,
-  runNewGame,
-  runNewGameState,
-  runSaveLoad,
-} from '../proof/caller/game-start.mjs';
+  gameStartSequence,
+  loadSavedGame,
+  setUpNewGameState,
+  startNewGame,
+} from '../src/game/game-start.mjs';
+import { drainNativeSequence } from '../src/system/native-call-continuation.mjs';
+import { WORD_MASK } from '../src/constants/bits.mjs';
 import { SRAM_SIZE } from '../src/vm/memory.mjs';
 import {
   HEAP_NEXT_WORD,
@@ -32,6 +41,7 @@ import {
   TASK_NEXT,
 } from '../src/vm/layout.mjs';
 import {
+  RANDOM_STATE,
   DRAW_LIST_INDEX,
   OBJECT_KIND,
   TILE_STACK_LAST,
@@ -40,8 +50,9 @@ import {
 
 useLiftVectors(import.meta.url);
 
+// The frame wait 81:B0A1 blocks at its branch 81:B0A9 until the counter changes.
+const COUNTER_BRANCH = 0x81b0a9;
 const WRAM_BYTES = 0x20000,
-  HEX = 16,
   // Every case runs on the main stack of the game (the harness's own stack at 01C9
   // lies on the screen shadows 01BC-01C7 that the game screen set-up writes).
   GAME_STACK = 0x1ef0,
@@ -128,46 +139,42 @@ function sample(seed) {
   return { seed, wram, sram, rnd, pick };
 }
 
-// The routines the room entry calls through their frames, long (RTL) or not, and
-// whether the stub records A.
-const STUBS = [[0x81b0a1, true]];
-function stubbedRoutines() {
-  // The routines the lifted start reaches through its routine table (the main start
-  // routines) and the stubs.
-  const routines = new Map([...MAIN_START_ROUTINES]);
-  for (const [target, long, readsA] of STUBS)
-    routines.set(target, (h) => {
-      const { ctx } = h;
-      (h.a.callLog ??= []).push(
-        [target, h.a.stackWord(), ctx.bank, ...(readsA ? [ctx.a] : [])]
-          .map((v) => v.toString(HEX))
-          .join(':'),
-      );
-      // The callees leave other registers.
-      ctx.a = 0xbeef;
-      return long ? h.rtl() : h.rts();
-    });
-  return routines;
-}
-const side = (s) => {
-  const state = createSide(s, stubbedRoutines());
-  state.a.routines = state.routines;
-  return state;
-};
-const summary = (registers) => (h) =>
-  [
-    ...(h.a.callLog ?? []),
-    [...registers, 'bank', 's'].map((r) => h.ctx[r].toString(HEX)).join(),
-  ].join(' ');
-// The lifted side starts with the reference's registers and caller frame.
-const lifted = (run, long, registers) => (h, input) => {
+const side = (s) => createSide(s, new Map());
+
+// The lifted forms with the frames of their original callers.
+const lift = (run, long) => (h, input) => {
   Object.assign(h.ctx, input);
   h.ctx.programBank = input.programBank ?? 0x80;
   if (long) h.pushByte(0x81);
   h.push(0x1234, 2);
-  run(h, uploadEvents(), h.a.routines);
-  return summary(registers)(h);
+  run(h, uploadEvents());
 };
+const NEW_GAME_STATE = (h) => {
+    setUpNewGameState(h.a);
+    return h.rts();
+  },
+  NEW_GAME = (h) => {
+    startNewGame(h.a);
+    return h.rts();
+  },
+  SAVE_LOAD = (h) => {
+    loadSavedGame(h.a, h.ctx.a & WORD_MASK);
+    return h.rtl();
+  },
+  GAME_START = (h) => drainNativeSequence(gameStartSequence(h, frameEvents(h)));
+// The room entry's frame waits (81:B0A1) see the frame counter advance once each; the
+// window uploads are serviced.
+function frameEvents(h) {
+  const events = liveWindowEvents(h),
+    frames = events.interrupts,
+    service = frames.textWait;
+  frames.textWait = (callee, frameEvents, status, pc) => {
+    if (pc !== COUNTER_BRANCH) return service(callee, frameEvents, status, pc);
+    h.a.mem.write16(RANDOM_STATE, (h.a.mem.read16(RANDOM_STATE) + 1) & WORD_MASK);
+    return true;
+  };
+  return events;
+}
 
 const CASES = [
   {
@@ -175,14 +182,14 @@ const CASES = [
     entry: 0x8098e9,
     samples: 40,
     prepare: () => ({ bank: 0x80, s: GAME_STACK }),
-    lifted: lifted(runNewGameState, false, []),
+    lifted: lift(NEW_GAME_STATE, false),
   },
   {
     name: 'new game 80:960D',
     entry: 0x80960d,
     samples: 40,
     prepare: () => ({ bank: 0x80, s: GAME_STACK }),
-    lifted: lifted(runNewGame, false, ['a']),
+    lifted: lift(NEW_GAME, false),
   },
   {
     name: 'save load 81:B198',
@@ -194,15 +201,14 @@ const CASES = [
       status: s.pick([0, 0x43]),
       s: GAME_STACK,
     }),
-    lifted: (h, input) => lifted(runSaveLoad, true, ['status'])(h, { ...input, programBank: 0x81 }),
+    lifted: (h, input) => lift(SAVE_LOAD, true)(h, { ...input, programBank: 0x81 }),
   },
   {
     name: 'main start 80:9688',
     entry: 0x809688,
     samples: 60,
     prepare: () => ({ pc: 0x9688, bank: 0x80, s: GAME_STACK }),
-    // The room entry passes its frame events on to its callees.
-    lifted: lifted(runGameStart, false, ['pc']),
+    lifted: lift(GAME_START, false),
   },
 ];
 
