@@ -19,6 +19,7 @@ import { nativeTarget as nativeEntry } from '../src/script/natives.mjs';
 import { nativeTarget as targetFunction } from '../src/script/native-targets.mjs';
 import { NATIVE_POINTERS } from '../src/vm/layout.mjs';
 import * as WRAM_NAMES from '../src/data/wram.mjs';
+import { SCRIPT_NAMES } from './script-names.mjs';
 
 const WORD_SUFFIX = '16';
 const ROOT = new URL('../', import.meta.url);
@@ -36,7 +37,9 @@ const HEX = 16,
   SIGN_EXTEND = 0xff00;
 
 const hex = (n, digits = SCRIPT_DIGITS) => n.toString(HEX).toUpperCase().padStart(digits, '0');
-const scriptName = (id) => `script${hex(id)}`;
+const scriptName = (id) => SCRIPT_NAMES[id] ?? `script${hex(id)}`;
+if (new Set(Object.values(SCRIPT_NAMES)).size !== Object.keys(SCRIPT_NAMES).length)
+  throw new Error('script names repeat');
 
 // ---------------------------------------------------------------------------------------
 // Names: natives from their lifted functions, state from the WRAM layout.
@@ -248,7 +251,6 @@ const HELPERS = [
   'localWord',
   'setLocalWord',
   'ScriptEnd',
-  'script',
 ];
 
 // ---------------------------------------------------------------------------------------
@@ -293,8 +295,42 @@ const LOADS = new Set([
   'load_state_u16',
 ]);
 
+// Game function arguments that are text or topic numbers (notice: left, top, columns,
+// rows, attributes, text, frames) or object kinds.
+const NOTED_ARGUMENTS = Object.freeze({
+  notice: { 5: 'text' },
+  windowText: { 0: 'text' },
+  topicText: { 0: 'text' },
+  addTopic: { 0: 'topic' },
+  markTopic: { 0: 'topic' },
+  isTopicKnown: { 0: 'topic' },
+  createObject: { 0: 'kind' },
+});
+const NO_NOTES = { text: () => null, topic: () => null, kind: () => null };
+const NOTE_LENGTH = 60;
+// The texts by number, the topics and the kind names, as comments.
+function textNotes() {
+  const asset = (name) => JSON.parse(readFileSync(new URL(`assets/${name}`, ROOT), 'utf8'));
+  const texts = new Map(asset('vm-texts.json').texts.map((t) => [t.address, t.text]));
+  const numbers = asset('vm-tables.json').tables.find((t) => t.name === 'text_numbers').values;
+  const topics = asset('vm-topics.json').topics;
+  const kinds = asset('vm-kinds.json').kinds;
+  const note = (address) => {
+    const text = texts.get(address);
+    if (!text) return null;
+    const flat = text.replace(/\s+/g, ' ').replace(/\*\//g, '* /').trim();
+    return JSON.stringify(flat.length > NOTE_LENGTH ? `${flat.slice(0, NOTE_LENGTH)}...` : flat);
+  };
+  return {
+    text: (n) => note(numbers[n]),
+    topic: (n) => note(topics[n & BYTE]),
+    kind: (n) => note(kinds[n]?.name),
+  };
+}
+
 class ScriptDecompiler {
-  constructor(script, scripts, natives, nativeNames) {
+  constructor(script, scripts, natives, nativeNames, notes = NO_NOTES) {
+    this.notes = notes;
     this.script = script;
     this.scripts = scripts;
     this.natives = natives;
@@ -303,6 +339,7 @@ class ScriptDecompiler {
     const decoded = decodeScript(this.code);
     this.ins = new Map(decoded.instructions.map((i) => [i.pc, i]));
     this.usedNatives = new Set();
+    this.usedScripts = new Set();
     this.temps = 0;
     this.locals();
   }
@@ -359,6 +396,15 @@ class ScriptDecompiler {
       return `setLocalWord(locals, ${at}, ${text});`;
     }
     return `locals[${at}] = ${paren(value(v), BIT_AND + 1)} & 0xff;`;
+  }
+
+  // An argument of a game function; a constant text or topic number carries its text.
+  noted(name, n, a) {
+    const v = value(a).text;
+    const kind = NOTED_ARGUMENTS[name]?.[n];
+    if (!kind || a.constant === null || a.constant === undefined) return v;
+    const note = this.notes[kind](a.constant);
+    return note ? `${v} /* ${note} */` : v;
   }
 
   // The functions: main (entry 0) and the local subroutines.
@@ -618,13 +664,14 @@ class ScriptDecompiler {
           args = takeArguments(info.argumentWords),
           name = this.nativeNames[i.operand];
         this.usedNatives.add(i.operand);
-        const text = `yield* game.${name}(${args.map((a) => value(a).text).join(', ')})`;
+        const text = `yield* game.${name}(${args.map((a, n) => this.noted(name, n, a)).join(', ')})`;
         if (info.returnBytes) stack.push(yieldExpr(text, [STATE]));
         else statement(`${text};`, [STATE]);
       } else if (n === 'call_script') {
         const info = this.scripts[i.operand],
           args = takeArguments(info.argumentBytes >>> 1);
-        const text = `yield* script(0x${hex(i.operand)}${args.map((a) => `, ${value(a).text}`).join('')})`;
+        this.usedScripts.add(i.operand);
+        const text = `yield* run.${scriptName(i.operand)}(${args.map((a) => value(a).text).join(', ')})`;
         if (info.returnBytes) stack.push(yieldExpr(text, [STATE]));
         else statement(`${text};`, [STATE]);
       } else if (n === 'call_local') {
@@ -803,8 +850,59 @@ class ScriptDecompiler {
     }
     lines.push(...this.functionCode(0, true));
     lines.push('}');
-    return lines.join('\n');
+    return nameLocals(lines.join('\n'));
   }
+}
+
+// Game functions whose first argument is an object (beyond the names with "Object").
+const OBJECT_FIRST = new Set([
+  'setSpriteMode',
+  'getSpriteMode',
+  'appendToFightList',
+  'fightListRemove',
+  'isInFightList',
+  'talk',
+  'faceRoomDirection',
+  'updateObjectDepthMode',
+]);
+const NOT_OBJECT_FIRST = new Set([
+  'createObject',
+  'addSceneObject',
+  'getPlayerObject',
+  'getPlayerObjectCopy',
+  'getPlayerObjectAfterBreak',
+  'getPreviousFightObject',
+]);
+const takesObject = (name) =>
+  !NOT_OBJECT_FIRST.has(name) && (OBJECT_FIRST.has(name) || /Object(?!s)/.test(name));
+// Locals named by their use: an object (the first argument of a game function on objects;
+// the one from the first argument is `object`, one from createObject `created`) or a
+// counter that counts down (`count`). The rest keep localN.
+function nameLocals(text) {
+  const objects = new Set();
+  for (const m of text.matchAll(/game\.(\w+)\((local\d+)[,)]/g))
+    if (takesObject(m[1])) objects.add(m[2]);
+  const fromArgument = new Map(
+    [...text.matchAll(/(local\d+) = arg(\d+)(?: & 0xff)?;/g)].map((m) => [m[1], Number(m[2])]),
+  );
+  const created = new Set(
+    [...text.matchAll(/(local\d+) = \(yield\* game\.createObject\(/g)].map((m) => m[1]),
+  );
+  const names = new Map(),
+    taken = new Set();
+  const give = (local, base) => {
+    let name = base;
+    for (let n = 2; taken.has(name); n++) name = `${base}${n}`;
+    taken.add(name);
+    names.set(local, name);
+  };
+  const order = [...objects].sort(
+    (a, b) => (fromArgument.get(a) ?? Infinity) - (fromArgument.get(b) ?? Infinity),
+  );
+  for (const local of order) give(local, created.has(local) ? 'created' : 'object');
+  for (const m of text.matchAll(/(local\d+) = word\(\1 - 1\);/g))
+    if (!names.has(m[1])) give(m[1], 'count');
+  return names.size ? text.replace(/\blocal\d+\b/g, (local) => names.get(local) ?? local) : text;
 }
 
 // Tidying of a function's lines (each with its depth), until nothing changes:
@@ -907,17 +1005,21 @@ export async function decompileAll(mem) {
   const assets = JSON.parse(readFileSync(new URL('assets/scripts.json', ROOT), 'utf8'));
   const { scripts, nativeFunctions: natives } = assets;
   const names = nativeNames(mem, natives.length);
+  const notes = textNotes();
   const files = new Map();
   const index = [];
-  const allUsed = new Set();
+  const allUsed = new Set(),
+    allStarted = new Set();
   for (let first = 0; first < scripts.length; first += GROUP) {
     const group = scripts.slice(first, first + GROUP),
       bodies = [],
-      used = new Set();
+      used = new Set(),
+      started = new Set();
     for (const s of group) {
-      const d = new ScriptDecompiler(s, scripts, natives, names);
+      const d = new ScriptDecompiler(s, scripts, natives, names, notes);
       bodies.push(d.source());
       for (const id of d.usedNatives) (used.add(id), allUsed.add(id));
+      for (const id of d.usedScripts) (started.add(id), allStarted.add(id));
     }
     const file = `scripts-${hex(first)}.mjs`;
     // The runtime helpers the group's code names.
@@ -929,6 +1031,7 @@ export async function decompileAll(mem) {
       '// edit the decompiler, not this file.',
       imports.length ? `import { ${imports.join(', ')} } from './runtime.mjs';` : '',
       used.size ? "import { game } from './natives.mjs';" : '',
+      started.size ? "import { run } from './started.mjs';" : '',
     ].filter(Boolean);
     files.set(file, await render(`${head.join('\n')}\n\n${bodies.join('\n\n')}`));
     for (const s of group) index.push([s.id, file]);
@@ -947,6 +1050,20 @@ export async function decompileAll(mem) {
     '});',
   ];
   files.set('natives.mjs', await render(nativeLines.join('\n')));
+  // The scripts that scripts start, by name.
+  const startedLines = [
+    '// The scripts that other scripts start, by name, generated by tools/decompile-scripts.mjs',
+    '// (names in tools/script-names.mjs). A start yields the script number and its',
+    '// arguments to the scheduler, which runs it as a child task and resumes with its result.',
+    "import { script } from './runtime.mjs';",
+    '',
+    'export const run = Object.freeze({',
+    ...[...allStarted]
+      .sort((a, b) => a - b)
+      .map((id) => `  ${scriptName(id)}: (...args) => script(0x${hex(id)}, ...args),`),
+    '});',
+  ];
+  files.set('started.mjs', await render(startedLines.join('\n')));
   // The index: script number to function.
   const byFile = new Map();
   for (const [id, file] of index) (byFile.get(file) ?? byFile.set(file, []).get(file)).push(id);

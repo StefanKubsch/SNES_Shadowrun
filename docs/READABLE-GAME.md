@@ -170,3 +170,14 @@ traces; release and push as in [WORKFLOW.md](WORKFLOW.md).
   spell effects 1D6F to 1D72, the circling leader flag and nine bytes of Jake's runner
   record joined `src/data/wram.mjs`. `src/scripts/` shrank from 31,700 to 26,400 lines.
   Next: names for the 87 scripts other scripts call and for arguments and locals.
+- 2026-11-27, phase 2 step 3 (names in the scripts): 44 of the 87 scripts that other
+  scripts start have names (tools/script-names.mjs: leaveBody, waitUntilDefeated,
+  walkToWaypoint, goToRoom, giveWeapon, lockedDoor, usePhone and more); scripts start
+  them through the generated table `run` in `src/scripts/started.mjs`
+  (`yield* run.leaveBody(object)`), the others keep their number (`run.script045`).
+  Constant text numbers, topics and object kinds carry their text as a comment
+  (`notice(..., 0x9b /* "This door is locked." */, ...)`, `addTopic(7 /* "Cortex Bomb" */)`,
+  `createObject(0x78 /* "Jester Spirit" */, ...)`). Locals passed first to a game
+  function on objects are named `object` (the one from the first argument), `created`
+  (from createObject) or `object2`; counters that count down are `count`. The remaining
+  unnamed scripts are mostly fight behaviours with parameters.

@@ -1,22 +1,23 @@
 // Scripts 240 to 25F, decompiled from the original
 // bytecode by tools/decompile-scripts.mjs (docs/READABLE-GAME.md, phase 2). Generated:
 // edit the decompiler, not this file.
-import { less, script, shiftRight, signed, truth, word } from './runtime.mjs';
+import { less, shiftRight, signed, truth, word } from './runtime.mjs';
 import { game } from './natives.mjs';
+import { run } from './started.mjs';
 
 // Script 240: no arguments.
-export function* script240(state) {
+export function* promptGiveTo(state) {
   yield* game.endDialog();
   yield* game.wait(1, 1);
   yield* game.releaseNoticeWindows();
   yield* game.wait(1, 1);
-  yield* game.notice(2, 0x17, 8, 3, 0, 0x10, 1);
+  yield* game.notice(2, 0x17, 8, 3, 0, 0x10 /* "Give to:" */, 1);
   return null;
 }
 
 // Script 241: 6 arguments, returns a word.
 export function* script241(state, arg0, arg1, arg2, arg3, arg4, arg5) {
-  let local0 = 0,
+  let object = 0,
     local1 = 0,
     local2 = 0,
     local3 = 0,
@@ -25,7 +26,7 @@ export function* script241(state, arg0, arg1, arg2, arg3, arg4, arg5) {
     local6 = 0,
     local7 = 0,
     local9 = 0;
-  local0 = arg0 & 0xff;
+  object = arg0 & 0xff;
   local1 = arg1 & 0xff;
   local2 = arg2 & 0xff;
   local3 = arg3 & 0xff;
@@ -38,23 +39,23 @@ export function* script241(state, arg0, arg1, arg2, arg3, arg4, arg5) {
     if ((local7 & 0x800) === 0) {
       if (
         (truth(local6 === 0) |
-          truth(less(yield* game.getDistanceToPlayer(local0), local3) && less(local6, local2)) |
+          truth(less(yield* game.getDistanceToPlayer(object), local3) && less(local6, local2)) |
           (truth(
-            ((yield* game.getObjectVelocityX(local0)) |
-              (yield* game.getObjectVelocityY(local0))) !==
+            ((yield* game.getObjectVelocityX(object)) |
+              (yield* game.getObjectVelocityY(object))) !==
               0,
           ) ^
             0xffff) |
-          truth(less(yield* game.getObjectRecordCount(local0), local4) && local5 !== 0xff) |
+          truth(less(yield* game.getObjectRecordCount(object), local4) && local5 !== 0xff) |
           truth((local7 & 4) !== 0)) !==
         0
       ) {
-        yield* game.stopMotion(local0);
-        yield* game.clearObjectVelocity(local0);
-        yield* game.setObjectAnimation(local0, 0);
-        const t2 = yield* game.chooseEnemyTarget(local0);
+        yield* game.stopMotion(object);
+        yield* game.clearObjectVelocity(object);
+        yield* game.setObjectAnimation(object, 0);
+        const t2 = yield* game.chooseEnemyTarget(object);
         local9 = t2 & 0xff;
-        yield* game.turnObjectToObject(local0, t2);
+        yield* game.turnObjectToObject(object, t2);
         return 0;
       }
       local6 = word(local6 - 1) & 0xff;
@@ -66,20 +67,20 @@ export function* script241(state, arg0, arg1, arg2, arg3, arg4, arg5) {
 
 // Script 242: 2 arguments, returns a word.
 export function* script242(state, arg0, arg1) {
-  let local0 = 0,
+  let object = 0,
     local1 = 0,
     local3 = 0;
-  local0 = arg0 & 0xff;
+  object = arg0 & 0xff;
   local1 = arg1;
-  yield* game.keepObjectFlagBits(local0, 0xffef);
+  yield* game.keepObjectFlagBits(object, 0xffef);
   if (local1 !== 0x600) {
-    yield* game.setObjectAnimation(local0, 4);
+    yield* game.setObjectAnimation(object, 4);
   } else {
-    yield* game.setObjectAnimation(local0, 5);
+    yield* game.setObjectAnimation(object, 5);
   }
-  yield* game.turnObjectToObject(local0, yield* game.getPlayerObjectCopy());
-  yield* game.shootAtObject(local0, yield* game.getPlayerObject(), 3, 0, 3, 2);
-  yield* game.playSoundEffect(local0, 0xc, 0xff, 0xff);
+  yield* game.turnObjectToObject(object, yield* game.getPlayerObjectCopy());
+  yield* game.shootAtObject(object, yield* game.getPlayerObject(), 3, 0, 3, 2);
+  yield* game.playSoundEffect(object, 0xc, 0xff, 0xff);
   const t1 = yield* game.wait(0x801, 0x3c);
   local3 = t1;
   return truth((local3 & 0x800) !== 0);
@@ -87,78 +88,78 @@ export function* script242(state, arg0, arg1) {
 
 // Script 243: 1 argument.
 export function* script243(state, arg0) {
-  let local0 = 0;
-  local0 = arg0 & 0xff;
-  if (((yield* game.getObjectRecordFlags(local0)) & 1) !== 0) {
+  let object = 0;
+  object = arg0 & 0xff;
+  if (((yield* game.getObjectRecordFlags(object)) & 1) !== 0) {
     yield* game.wait(1, 0x23);
     if ((state.byte('DECKER_DATA_BITS') & 0x80) !== 0) {
-      yield* script(0x0fc, 0x175a);
+      yield* run.activateElevator(0x175a);
     }
-    yield* game.keepObjectRecordFlagBits(local0, 0xff7e);
+    yield* game.keepObjectRecordFlagBits(object, 0xff7e);
   }
-  yield* game.setObjectActionAndDirection(local0, 0, 5);
-  yield* script(0x101, local0);
-  yield* game.setObjectRecordFlagBits(local0, 1);
-  yield* script(0x2e8, local0, 4, 0x17d, 0, 2);
+  yield* game.setObjectActionAndDirection(object, 0, 5);
+  yield* run.waitUntilDefeated(object);
+  yield* game.setObjectRecordFlagBits(object, 1);
+  yield* run.jackIntoMatrix(object, 4, 0x17d, 0, 2);
   return null;
 }
 
 // Script 244: 1 argument.
 export function* script244(state, arg0) {
-  let local0 = 0;
-  local0 = arg0 & 0xff;
-  if (((yield* game.getObjectRecordFlags(local0)) & 1) !== 0) {
+  let object = 0;
+  object = arg0 & 0xff;
+  if (((yield* game.getObjectRecordFlags(object)) & 1) !== 0) {
     yield* game.wait(1, 0x23);
     if ((state.byte('DECKER_DATA_BITS') & 0x80) !== 0) {
-      yield* script(0x0fc, 0x16c0);
+      yield* run.activateElevator(0x16c0);
     }
-    yield* game.keepObjectRecordFlagBits(local0, 0xff7e);
+    yield* game.keepObjectRecordFlagBits(object, 0xff7e);
   }
-  yield* game.setObjectActionAndDirection(local0, 0, 5);
-  yield* script(0x101, local0);
-  yield* game.setObjectRecordFlagBits(local0, 1);
+  yield* game.setObjectActionAndDirection(object, 0, 5);
+  yield* run.waitUntilDefeated(object);
+  yield* game.setObjectRecordFlagBits(object, 1);
   if ((yield* game.isActorStateProperty(0x8b2, 0x762)) === 0) {
-    yield* script(0x2e8, local0, 3, 0x1d7, 0, 3);
+    yield* run.jackIntoMatrix(object, 3, 0x1d7, 0, 3);
   } else {
-    yield* script(0x2e8, local0, 3, 0x1d7, 2, 3);
+    yield* run.jackIntoMatrix(object, 3, 0x1d7, 2, 3);
   }
   return null;
 }
 
 // Script 245: 1 argument.
 export function* script245(state, arg0) {
-  let local0 = 0;
-  local0 = arg0 & 0xff;
-  yield* game.setObjectActionAndDirection(local0, 0, 0);
+  let object = 0;
+  object = arg0 & 0xff;
+  yield* game.setObjectActionAndDirection(object, 0, 0);
   return null;
 }
 
 // Script 246: 1 argument.
 export function* script246(state, arg0) {
-  let local0 = 0,
+  let object = 0,
     local1 = 0,
     local2 = 0;
-  local0 = arg0 & 0xff;
-  if ((yield* game.hasObjectRecordProperty(local0)) === 0) {
-    yield* script(0x245, local0);
+  object = arg0 & 0xff;
+  if ((yield* game.hasObjectRecordProperty(object)) === 0) {
+    yield* run.script245(object);
   }
   for (;;) {
-    local1 = (yield* game.hasObjectRecordProperty(local0)) & 0xff;
-    const t1 = yield* script(0x2ab, signed(local1), 0);
+    local1 = (yield* game.hasObjectRecordProperty(object)) & 0xff;
+    const t1 = yield* run.script2AB(signed(local1), 0);
     local2 = t1;
     if (local2 !== 0x80) {
       if (local2 === 0x10) {
-        yield* game.setObjectRecordPropertyFromGroup(local0);
-        yield* script(0x04b);
+        yield* game.setObjectRecordPropertyFromGroup(object);
+        yield* run.script04B();
         local1 = 255;
       }
     } else {
-      yield* game.notice(2, 0x15, 0xd, 3, 0x800, 0x88, 0xf0);
+      yield* game.notice(2, 0x15, 0xd, 3, 0x800, 0x88 /* "Sassie 702-826." */, 0xf0);
       yield* game.learnSpell(0x4f);
       yield* game.setScriptVariable(0, word((yield* game.getScriptVariable(0)) + 1));
     }
     if (signed(local1) !== 0) {
-      yield* game.removeObject(local0);
+      yield* game.removeObject(object);
       return null;
     }
   }
@@ -166,32 +167,32 @@ export function* script246(state, arg0) {
 
 // Script 247: no arguments.
 export function* script247(state) {
-  yield* script(0x10e, 0x3b);
+  yield* run.enterWithoutRunners(0x3b);
   return null;
 }
 
 // Script 248: 1 argument.
 export function* script248(state, arg0) {
-  let local0 = 0,
+  let object = 0,
     local1 = 0,
     local3 = 0;
-  local0 = arg0 & 0xff;
-  yield* game.setObjectFlagBits(local0, 0x20);
-  yield* game.setObjectActionAndDirection(local0, 0, 0);
-  yield* game.setObjectVelocity(local0, 0, 0xfffa, 0xf);
-  local3 = yield* game.getObjectCoarseHeight(local0);
+  object = arg0 & 0xff;
+  yield* game.setObjectFlagBits(object, 0x20);
+  yield* game.setObjectActionAndDirection(object, 0, 0);
+  yield* game.setObjectVelocity(object, 0, 0xfffa, 0xf);
+  local3 = yield* game.getObjectCoarseHeight(object);
   for (;;) {
     local1 = local3;
     yield* game.wait(1, 1);
-    local3 = yield* game.getObjectCoarseHeight(local0);
+    local3 = yield* game.getObjectCoarseHeight(object);
     if (local1 === local3) {
-      yield* game.clearObjectVelocity(local0);
+      yield* game.clearObjectVelocity(object);
       for (;;) {
         local1 = local3;
         yield* game.wait(1, 0xa);
-        local3 = yield* game.getObjectCoarseHeight(local0);
+        local3 = yield* game.getObjectCoarseHeight(object);
         if (local1 === local3) {
-          yield* script(0x15e, local0);
+          yield* run.findNuyen(object);
           return null;
         }
       }
@@ -203,126 +204,126 @@ export function* script248(state, arg0) {
 export function* script249(state, arg0) {
   let local0 = 0;
   local0 = arg0 & 0xff;
-  yield* script(0x00a, local0, 0x22, 0x26, 0x80, 0x175a);
+  yield* run.script00A(local0, 0x22, 0x26, 0x80, 0x175a);
   return null;
 }
 
 // Script 24A: 1 argument.
 export function* script24A(state, arg0) {
-  let local0 = 0;
-  local0 = arg0 & 0xff;
-  if (((yield* game.getObjectRecordFlags(local0)) & 1) !== 0) {
+  let object = 0;
+  object = arg0 & 0xff;
+  if (((yield* game.getObjectRecordFlags(object)) & 1) !== 0) {
     yield* game.wait(1, 0x23);
     if ((state.byte('DECKER_DOWNLOAD_BITS') & 0x15) > 0) {
-      yield* script(0x31c);
+      yield* run.noticeTrashDataDiscarded();
     }
     if ((state.byte('DECKER_DOWNLOAD_BITS') & 8) !== 0) {
-      yield* script(0x25b, local0, 0x1f40, 0x21a, 2);
+      yield* run.transferAccount(object, 0x1f40, 0x21a, 2);
     }
     if ((state.byte('DECKER_DOWNLOAD_BITS') & 0x80) !== 0) {
-      yield* script(0x0fe, 0x159a);
+      yield* run.obtainDataFilePart(0x159a);
     }
-    yield* game.keepObjectRecordFlagBits(local0, 0xff7e);
+    yield* game.keepObjectRecordFlagBits(object, 0xff7e);
   }
-  yield* game.setObjectActionAndDirection(local0, 0, 5);
-  yield* script(0x101, local0);
-  yield* game.setObjectRecordFlagBits(local0, 1);
-  yield* script(0x2e8, local0, 5, 0x163, 0, 2);
+  yield* game.setObjectActionAndDirection(object, 0, 5);
+  yield* run.waitUntilDefeated(object);
+  yield* game.setObjectRecordFlagBits(object, 1);
+  yield* run.jackIntoMatrix(object, 5, 0x163, 0, 2);
   return null;
 }
 
 // Script 24B: 1 argument.
 export function* script24B(state, arg0) {
-  let local0 = 0;
-  local0 = arg0 & 0xff;
-  if (((yield* game.getObjectRecordFlags(local0)) & 1) !== 0) {
+  let object = 0;
+  object = arg0 & 0xff;
+  if (((yield* game.getObjectRecordFlags(object)) & 1) !== 0) {
     yield* game.wait(1, 0x23);
     if ((state.byte('DECKER_DOWNLOAD_BITS') & 0x41) > 0) {
-      yield* script(0x31c);
+      yield* run.noticeTrashDataDiscarded();
     }
     if ((state.byte('DECKER_DOWNLOAD_BITS') & 0x80) !== 0) {
-      yield* script(0x0fe, 0x1593);
+      yield* run.obtainDataFilePart(0x1593);
     }
-    yield* game.keepObjectRecordFlagBits(local0, 0xff7e);
+    yield* game.keepObjectRecordFlagBits(object, 0xff7e);
   }
-  yield* game.setObjectActionAndDirection(local0, 0, 5);
-  yield* script(0x101, local0);
-  yield* game.setObjectRecordFlagBits(local0, 1);
-  yield* script(0x2e8, local0, 6, 0x180, 0, 2);
+  yield* game.setObjectActionAndDirection(object, 0, 5);
+  yield* run.waitUntilDefeated(object);
+  yield* game.setObjectRecordFlagBits(object, 1);
+  yield* run.jackIntoMatrix(object, 6, 0x180, 0, 2);
   return null;
 }
 
 // Script 24C: 1 argument.
 export function* script24C(state, arg0) {
-  let local0 = 0;
-  local0 = arg0 & 0xff;
-  if (((yield* game.getObjectRecordFlags(local0)) & 1) !== 0) {
+  let object = 0;
+  object = arg0 & 0xff;
+  if (((yield* game.getObjectRecordFlags(object)) & 1) !== 0) {
     yield* game.wait(1, 0x23);
     if ((state.byte('DECKER_DATA_BITS') & 0x80) !== 0) {
-      yield* script(0x0fc, 0x16c0);
+      yield* run.activateElevator(0x16c0);
     }
-    yield* game.keepObjectRecordFlagBits(local0, 0xff7e);
+    yield* game.keepObjectRecordFlagBits(object, 0xff7e);
   }
-  yield* game.setObjectActionAndDirection(local0, 0, 5);
-  yield* script(0x101, local0);
-  yield* game.setObjectRecordFlagBits(local0, 1);
-  yield* script(0x2e8, local0, 0xc, 0x1e1, 0, 3);
+  yield* game.setObjectActionAndDirection(object, 0, 5);
+  yield* run.waitUntilDefeated(object);
+  yield* game.setObjectRecordFlagBits(object, 1);
+  yield* run.jackIntoMatrix(object, 0xc, 0x1e1, 0, 3);
   return null;
 }
 
 // Script 24D: 1 argument.
 export function* script24D(state, arg0) {
-  let local0 = 0;
-  local0 = arg0 & 0xff;
-  if (((yield* game.getObjectRecordFlags(local0)) & 1) !== 0) {
+  let object = 0;
+  object = arg0 & 0xff;
+  if (((yield* game.getObjectRecordFlags(object)) & 1) !== 0) {
     yield* game.wait(1, 0x23);
     if ((state.byte('DECKER_DOWNLOAD_BITS') & 1) !== 0) {
-      yield* script(0x31c);
+      yield* run.noticeTrashDataDiscarded();
     }
     if ((state.byte('DECKER_DATA_BITS') & 0x80) !== 0) {
-      yield* script(0x0fc, 0x175a);
+      yield* run.activateElevator(0x175a);
     }
-    yield* game.keepObjectRecordFlagBits(local0, 0xff7e);
+    yield* game.keepObjectRecordFlagBits(object, 0xff7e);
   }
-  yield* game.setObjectActionAndDirection(local0, 0, 5);
-  yield* script(0x101, local0);
-  yield* game.setObjectRecordFlagBits(local0, 1);
-  yield* script(0x2e8, local0, 7, 0x1a6, 0, 2);
+  yield* game.setObjectActionAndDirection(object, 0, 5);
+  yield* run.waitUntilDefeated(object);
+  yield* game.setObjectRecordFlagBits(object, 1);
+  yield* run.jackIntoMatrix(object, 7, 0x1a6, 0, 2);
   return null;
 }
 
 // Script 24E: 1 argument.
 export function* script24E(state, arg0) {
-  let local0 = 0;
-  local0 = arg0 & 0xff;
-  if (((yield* game.getObjectRecordFlags(local0)) & 1) !== 0) {
+  let object = 0;
+  object = arg0 & 0xff;
+  if (((yield* game.getObjectRecordFlags(object)) & 1) !== 0) {
     yield* game.wait(1, 0x23);
     if ((state.byte('DECKER_DOWNLOAD_BITS') & 0x2f) > 0) {
-      yield* script(0x31c);
+      yield* run.noticeTrashDataDiscarded();
     }
     if ((state.byte('DECKER_DOWNLOAD_BITS') & 0x10) !== 0) {
-      yield* script(0x0fe, 0x158c);
+      yield* run.obtainDataFilePart(0x158c);
     }
-    yield* game.keepObjectRecordFlagBits(local0, 0xff7e);
+    yield* game.keepObjectRecordFlagBits(object, 0xff7e);
   }
-  yield* game.setObjectActionAndDirection(local0, 0, 5);
-  yield* script(0x101, local0);
-  yield* game.setObjectRecordFlagBits(local0, 1);
-  yield* script(0x2e8, local0, 8, 0x1a9, 0, 2);
+  yield* game.setObjectActionAndDirection(object, 0, 5);
+  yield* run.waitUntilDefeated(object);
+  yield* game.setObjectRecordFlagBits(object, 1);
+  yield* run.jackIntoMatrix(object, 8, 0x1a9, 0, 2);
   return null;
 }
 
 // Script 24F: 1 argument.
 export function* script24F(state, arg0) {
-  let local0 = 0;
-  local0 = arg0 & 0xff;
-  if (((yield* game.getObjectRecordFlags(local0)) & 1) !== 0) {
+  let object = 0;
+  object = arg0 & 0xff;
+  if (((yield* game.getObjectRecordFlags(object)) & 1) !== 0) {
     yield* game.wait(1, 0x23);
     if ((state.byte('DECKER_DOWNLOAD_BITS') & 0x19) > 0) {
-      yield* script(0x31c);
+      yield* run.noticeTrashDataDiscarded();
     }
     if ((state.byte('DECKER_DOWNLOAD_BITS') & 4) !== 0) {
-      yield* script(0x0d1, 0x15af);
+      yield* run.obtainDataFile(0x15af);
     }
     if (
       (truth((state.byte('DECKER_DOWNLOAD_BITS') & 0x80) !== 0) &
@@ -330,47 +331,47 @@ export function* script24F(state, arg0) {
       0
     ) {
       yield* game.setActorStateFlags(0xd5f, 0x80);
-      yield* game.notice(5, 2, 0x15, 3, 0, 0x216, 1);
+      yield* game.notice(5, 2, 0x15, 3, 0, 0x216 /* "LEVEL 3 NODE DEACTIVATED." */, 1);
       yield* game.confirmKey();
       yield* game.wait(1, 1);
     }
-    yield* game.keepObjectRecordFlagBits(local0, 0xff7e);
+    yield* game.keepObjectRecordFlagBits(object, 0xff7e);
   }
-  yield* game.setObjectActionAndDirection(local0, 0, 5);
-  yield* script(0x101, local0);
-  yield* game.setObjectRecordFlagBits(local0, 1);
-  yield* script(0x2e8, local0, 5, 0x1e2, 0, 3);
+  yield* game.setObjectActionAndDirection(object, 0, 5);
+  yield* run.waitUntilDefeated(object);
+  yield* game.setObjectRecordFlagBits(object, 1);
+  yield* run.jackIntoMatrix(object, 5, 0x1e2, 0, 3);
   return null;
 }
 
 // Script 250: 1 argument.
 export function* script250(state, arg0) {
-  let local0 = 0;
-  local0 = arg0 & 0xff;
-  if (((yield* game.getObjectRecordFlags(local0)) & 1) !== 0) {
+  let object = 0;
+  object = arg0 & 0xff;
+  if (((yield* game.getObjectRecordFlags(object)) & 1) !== 0) {
     yield* game.wait(1, 0x23);
     if ((state.byte('DECKER_DOWNLOAD_BITS') & 0xfb) > 0) {
-      yield* script(0x31c);
+      yield* run.noticeTrashDataDiscarded();
     }
     if ((state.byte('DECKER_DATA_BITS') & 0x80) !== 0) {
-      yield* script(0x0fc, 0x16c0);
+      yield* run.activateElevator(0x16c0);
     }
-    yield* game.keepObjectRecordFlagBits(local0, 0xff7e);
+    yield* game.keepObjectRecordFlagBits(object, 0xff7e);
   }
-  yield* game.setObjectActionAndDirection(local0, 0, 5);
-  yield* script(0x101, local0);
-  yield* game.setObjectRecordFlagBits(local0, 1);
+  yield* game.setObjectActionAndDirection(object, 0, 5);
+  yield* run.waitUntilDefeated(object);
+  yield* game.setObjectRecordFlagBits(object, 1);
   if (((yield* game.getActorStateFlags(0xd5f)) & 0x80) === 0) {
-    yield* script(0x2e8, local0, 0xe, 0x1e3, 0, 3);
+    yield* run.jackIntoMatrix(object, 0xe, 0x1e3, 0, 3);
   } else {
-    yield* script(0x2e8, local0, 0xe, 0x1e3, 2, 3);
+    yield* run.jackIntoMatrix(object, 0xe, 0x1e3, 2, 3);
   }
   return null;
 }
 
 // Script 251: 7 arguments, returns a word.
 export function* script251(state, arg0, arg1, arg2, arg3, arg4, arg5, arg6) {
-  let local0 = 0,
+  let object = 0,
     local1 = 0,
     local3 = 0,
     local5 = 0,
@@ -378,7 +379,7 @@ export function* script251(state, arg0, arg1, arg2, arg3, arg4, arg5, arg6) {
     local9 = 0,
     local11 = 0,
     local13 = 0,
-    local14 = 0,
+    count = 0,
     local16 = 0,
     local17 = 0,
     local18 = 0,
@@ -392,28 +393,28 @@ export function* script251(state, arg0, arg1, arg2, arg3, arg4, arg5, arg6) {
     local28 = 0,
     local29 = 0;
   function* sub17() {
-    yield* game.setObjectAnimation(local0, 0);
-    const t1 = yield* game.chooseEnemyTarget(local0);
+    yield* game.setObjectAnimation(object, 0);
+    const t1 = yield* game.chooseEnemyTarget(object);
     local28 = t1 & 0xff;
     if (t1 !== 0xffff) {
-      yield* game.turnObjectToObject(local0, signed(local28));
+      yield* game.turnObjectToObject(object, signed(local28));
     }
     if (((yield* game.wait(0x801, 0x1e)) & 0x800) === 0) {
       block206: {
-        if ((yield* game.getDistanceToPlayer(local0)) > 0xf) {
+        if ((yield* game.getDistanceToPlayer(object)) > 0xf) {
           local13 = 0;
           for (;;) {
-            const t2 = yield* game.chooseEnemyTarget(local0);
+            const t2 = yield* game.chooseEnemyTarget(object);
             local28 = t2 & 0xff;
             if (t2 !== 0xffff) {
-              yield* game.setObjectAnimation(local0, 2);
-              yield* game.moveObjectStraightToPlayer(local0);
+              yield* game.setObjectAnimation(object, 2);
+              yield* game.moveObjectStraightToPlayer(object);
               for (;;) {
                 if (((yield* game.wait(0x801, 5)) & 0x800) === 0) {
-                  if (less(yield* game.getDistanceToPlayer(local0), local11)) {
+                  if (less(yield* game.getDistanceToPlayer(object), local11)) {
                     break block206;
                   }
-                  if ((yield* game.getDistanceToPlayer(local0)) > local22) {
+                  if ((yield* game.getDistanceToPlayer(object)) > local22) {
                     local20 = word(local20 + 1);
                     if (local20 === 0x12c) {
                       local20 = 0;
@@ -430,7 +431,7 @@ export function* script251(state, arg0, arg1, arg2, arg3, arg4, arg5, arg6) {
                 }
               }
             } else {
-              yield* game.setObjectActionAndDirection(local0, 0, 4);
+              yield* game.setObjectActionAndDirection(object, 0, 4);
               if (((yield* game.wait(0x801, 0x14)) & 0x800) !== 0) {
                 return 0xffff;
               }
@@ -438,19 +439,19 @@ export function* script251(state, arg0, arg1, arg2, arg3, arg4, arg5, arg6) {
           }
         }
       }
-      yield* game.stopMotion(local0);
-      yield* game.clearObjectVelocity(local0);
-      yield* game.setObjectAnimation(local0, local25);
+      yield* game.stopMotion(object);
+      yield* game.clearObjectVelocity(object);
+      yield* game.setObjectAnimation(object, local25);
       if (((yield* game.wait(0x808, 0)) & 0x800) === 0) {
         yield* game.shootAtObject(
-          local0,
+          object,
           yield* game.getPlayerObjectCopy(),
           local16,
           local17,
           local18,
           signed(local19),
         );
-        yield* game.playSoundEffect(local0, local26, 0xff, 3);
+        yield* game.playSoundEffect(object, local26, 0xff, 3);
         if (signed(local27) !== 0) {
           if ((yield* game.getObjectRecordCount(yield* game.getPlayerObjectCopy())) <= 5) {
             return 0xffff;
@@ -461,25 +462,25 @@ export function* script251(state, arg0, arg1, arg2, arg3, arg4, arg5, arg6) {
           local13 = word(local13 + 1) & 0xff;
           if (t3 === 3) {
             local13 = 0;
-            yield* game.setObjectAnimation(local0, 2);
-            yield* game.moveObjectStraightToWaypoint(local0, local24);
+            yield* game.setObjectAnimation(object, 2);
+            yield* game.moveObjectStraightToWaypoint(object, local24);
             if (((yield* game.wait(0x805, 0x28)) & 0x800) === 0) {
-              yield* game.stopMotion(local0);
-              yield* game.clearObjectVelocity(local0);
-              yield* game.setObjectAnimation(local0, 0);
-              yield* game.turnObjectToPlayer(local0);
+              yield* game.stopMotion(object);
+              yield* game.clearObjectVelocity(object);
+              yield* game.setObjectAnimation(object, 0);
+              yield* game.turnObjectToPlayer(object);
               if (((yield* game.wait(0x801, 0x3c)) & 0x800) === 0) {
-                local14 = 0x3c;
+                count = 0x3c;
                 for (;;) {
                   if (((yield* game.wait(0x801, 1)) & 0x800) === 0) {
                     if (
-                      (truth(local14 === 0) |
-                        truth(less(yield* game.getDistanceToPlayer(local0), 0x32))) !==
+                      (truth(count === 0) |
+                        truth(less(yield* game.getDistanceToPlayer(object), 0x32))) !==
                       0
                     ) {
                       break block393;
                     }
-                    local14 = word(local14 - 1);
+                    count = word(count - 1);
                   } else {
                     return 0xffff;
                   }
@@ -498,7 +499,7 @@ export function* script251(state, arg0, arg1, arg2, arg3, arg4, arg5, arg6) {
     }
     return 0xffff;
   }
-  local0 = arg0 & 0xff;
+  object = arg0 & 0xff;
   local1 = arg1;
   local3 = arg2;
   local5 = arg3;
@@ -518,11 +519,11 @@ export function* script251(state, arg0, arg1, arg2, arg3, arg4, arg5, arg6) {
   local22 = word(local11 + 0x64);
   for (;;) {
     if ((yield* sub17()) !== 0) {
-      yield* game.setObjectActionAndDirection(local0, 0, 0);
+      yield* game.setObjectActionAndDirection(object, 0, 0);
       if (signed(local27) === 0) {
         return 0;
       }
-      if ((yield* game.getObjectRecordCount(local0)) !== 0) {
+      if ((yield* game.getObjectRecordCount(object)) !== 0) {
         return 0xffff;
       }
       return 0;
@@ -532,7 +533,7 @@ export function* script251(state, arg0, arg1, arg2, arg3, arg4, arg5, arg6) {
 
 // Script 252: 5 arguments.
 export function* script252(state, arg0, arg1, arg2, arg3, arg4) {
-  let local0 = 0,
+  let object = 0,
     local1 = 0,
     local3 = 0,
     local5 = 0,
@@ -547,10 +548,10 @@ export function* script252(state, arg0, arg1, arg2, arg3, arg4) {
     local15 = 0;
   function* sub13(in0) {
     local15 = in0 & 0xff;
-    yield* game.setObjectActionAndDirection(local0, 7, local7);
-    yield* game.createObject(0xb9, local0, local15, 0, 0x217);
+    yield* game.setObjectActionAndDirection(object, 7, local7);
+    yield* game.createObject(0xb9 /* "Grenade" */, object, local15, 0, 0x217);
     yield* game.wait(1, 0x14);
-    yield* game.setObjectAnimation(local0, 0);
+    yield* game.setObjectAnimation(object, 0);
     if (((yield* game.wait(0x801, 0x28)) & 0x800) === 0) {
       return 0;
     }
@@ -558,15 +559,15 @@ export function* script252(state, arg0, arg1, arg2, arg3, arg4) {
   }
   function* sub65(in0) {
     local15 = in0 & 0xff;
-    yield* game.setObjectAnimation(local0, 2);
-    yield* game.moveObjectToWaypoint(local0, local15);
+    yield* game.setObjectAnimation(object, 2);
+    yield* game.moveObjectToWaypoint(object, local15);
     if (((yield* game.wait(0x804, 0)) & 0x800) === 0) {
-      yield* game.setObjectActionAndDirection(local0, 0, local7);
+      yield* game.setObjectActionAndDirection(object, 0, local7);
       return 0;
     }
     return 0xffff;
   }
-  local0 = arg0 & 0xff;
+  object = arg0 & 0xff;
   local1 = arg1;
   local3 = arg2;
   local5 = arg3;
@@ -577,9 +578,9 @@ export function* script252(state, arg0, arg1, arg2, arg3, arg4) {
   local12 = local3 & 0xff;
   local13 = shiftRight(local5, 8) & 0xff;
   local14 = local5 & 0xff;
-  yield* game.setObjectActionAndDirection(local0, 0, 6);
+  yield* game.setObjectActionAndDirection(object, 0, 6);
   local8 = 0;
-  yield* game.appendToFightList(local0);
+  yield* game.appendToFightList(object);
   for (;;) {
     if ((yield* sub13(local11)) === 0) {
       if ((yield* sub65(local9)) === 0) {
@@ -613,19 +614,19 @@ export function* script252(state, arg0, arg1, arg2, arg3, arg4) {
       local8 = 255;
     }
     if (signed(local8) !== 0) {
-      yield* game.fightListRemove(local0);
+      yield* game.fightListRemove(object);
       yield* game.addKarma(1);
-      yield* script(0x35d, local0);
+      yield* run.leaveBodyAndResetRecord(object);
       return null;
     }
   }
 }
 
 // Script 253: no arguments.
-export function* script253(state) {
+export function* promptTarget(state) {
   yield* game.releaseNoticeWindows();
   yield* game.wait(1, 1);
-  yield* game.notice(2, 0x17, 9, 3, 0, 0x13, 1);
+  yield* game.notice(2, 0x17, 9, 3, 0, 0x13 /* "Target:" */, 1);
   return null;
 }
 
@@ -636,7 +637,7 @@ export function* script254(state, arg0) {
   for (;;) {
     yield* game.wait(1, 6);
     if (((yield* game.getActorStateFlags(0xadb)) & 1) !== 0) {
-      yield* script(0x371, local0, 4, 5, 2, 0x80, 4, 0, 5);
+      yield* run.script371(local0, 4, 5, 2, 0x80, 4, 0, 5);
       return null;
     }
   }
@@ -644,45 +645,45 @@ export function* script254(state, arg0) {
 
 // Script 255: 1 argument.
 export function* script255(state, arg0) {
-  let local0 = 0;
-  local0 = arg0 & 0xff;
-  if (((yield* game.getObjectRecordFlags(local0)) & 1) !== 0) {
+  let object = 0;
+  object = arg0 & 0xff;
+  if (((yield* game.getObjectRecordFlags(object)) & 1) !== 0) {
     yield* game.wait(1, 0x23);
     if ((state.byte('DECKER_DOWNLOAD_BITS') & 0x3f) > 0) {
-      yield* script(0x31c);
+      yield* run.noticeTrashDataDiscarded();
     }
-    yield* game.keepObjectRecordFlagBits(local0, 0xff7e);
+    yield* game.keepObjectRecordFlagBits(object, 0xff7e);
   }
-  yield* game.setObjectActionAndDirection(local0, 0, 5);
-  yield* script(0x101, local0);
-  yield* game.setObjectRecordFlagBits(local0, 1);
-  yield* script(0x2e8, local0, 8, 0x1a7, 0, 2);
+  yield* game.setObjectActionAndDirection(object, 0, 5);
+  yield* run.waitUntilDefeated(object);
+  yield* game.setObjectRecordFlagBits(object, 1);
+  yield* run.jackIntoMatrix(object, 8, 0x1a7, 0, 2);
   return null;
 }
 
 // Script 256: 1 argument.
 export function* script256(state, arg0) {
-  let local0 = 0;
-  local0 = arg0 & 0xff;
-  if (((yield* game.getObjectRecordFlags(local0)) & 1) !== 0) {
+  let object = 0;
+  object = arg0 & 0xff;
+  if (((yield* game.getObjectRecordFlags(object)) & 1) !== 0) {
     yield* game.wait(1, 0x23);
     if ((state.byte('DECKER_DATA_BITS') & 0x80) !== 0) {
-      yield* script(0x0fc, 0x175a);
+      yield* run.activateElevator(0x175a);
     }
-    yield* game.keepObjectRecordFlagBits(local0, 0xff7e);
+    yield* game.keepObjectRecordFlagBits(object, 0xff7e);
   }
-  yield* game.setObjectActionAndDirection(local0, 0, 5);
-  yield* script(0x101, local0);
-  yield* game.setObjectRecordFlagBits(local0, 1);
-  yield* script(0x2e8, local0, 4, 0x1a8, 0, 2);
+  yield* game.setObjectActionAndDirection(object, 0, 5);
+  yield* run.waitUntilDefeated(object);
+  yield* game.setObjectRecordFlagBits(object, 1);
+  yield* run.jackIntoMatrix(object, 4, 0x1a8, 0, 2);
   return null;
 }
 
 // Script 257: 1 argument.
 export function* script257(state, arg0) {
-  let local0 = 0;
-  local0 = arg0 & 0xff;
-  if (((yield* game.getObjectRecordFlags(local0)) & 1) !== 0) {
+  let object = 0;
+  object = arg0 & 0xff;
+  if (((yield* game.getObjectRecordFlags(object)) & 1) !== 0) {
     yield* game.wait(1, 0x23);
     if (
       (truth((state.byte('DECKER_DOWNLOAD_BITS') & 1) !== 0) &
@@ -690,74 +691,82 @@ export function* script257(state, arg0) {
       0
     ) {
       yield* game.setActorStateFlags(0xfc7, 0x80);
-      yield* game.notice(5, 2, 0x15, 3, 0, 0x215, 1);
+      yield* game.notice(5, 2, 0x15, 3, 0, 0x215 /* "LEVEL 6 NODE DEACTIVATED." */, 1);
       yield* game.confirmKey();
       yield* game.wait(1, 1);
     }
     if ((state.byte('DECKER_DATA_BITS') & 0x80) !== 0) {
-      yield* script(0x0fc, 0x175a);
+      yield* run.activateElevator(0x175a);
     }
-    yield* game.keepObjectRecordFlagBits(local0, 0xff7e);
+    yield* game.keepObjectRecordFlagBits(object, 0xff7e);
   }
-  yield* game.setObjectActionAndDirection(local0, 0, 5);
-  yield* script(0x101, local0);
-  yield* game.setObjectRecordFlagBits(local0, 1);
-  yield* script(0x2e8, local0, 7, 0x1df, 0, 2);
+  yield* game.setObjectActionAndDirection(object, 0, 5);
+  yield* run.waitUntilDefeated(object);
+  yield* game.setObjectRecordFlagBits(object, 1);
+  yield* run.jackIntoMatrix(object, 7, 0x1df, 0, 2);
   return null;
 }
 
 // Script 258: 1 argument.
 export function* script258(state, arg0) {
-  let local0 = 0;
-  local0 = arg0 & 0xff;
-  if (((yield* game.getObjectRecordFlags(local0)) & 1) !== 0) {
+  let object = 0;
+  object = arg0 & 0xff;
+  if (((yield* game.getObjectRecordFlags(object)) & 1) !== 0) {
     yield* game.wait(1, 0x23);
     if ((state.byte('DECKER_DOWNLOAD_BITS') & 8) !== 0) {
-      yield* script(0x25b, local0, 0x2710, 0x21b, 2);
+      yield* run.transferAccount(object, 0x2710, 0x21b, 2);
     }
     if ((state.byte('DECKER_DOWNLOAD_BITS') & 0x20) !== 0) {
-      yield* script(0x25b, local0, 0x30d4, 0x21c, 4);
+      yield* run.transferAccount(object, 0x30d4, 0x21c, 4);
     }
     if ((state.byte('DECKER_DOWNLOAD_BITS') & 0x10) !== 0) {
-      yield* script(0x31c);
+      yield* run.noticeTrashDataDiscarded();
     }
     if ((state.byte('DECKER_DOWNLOAD_BITS') & 0x80) !== 0) {
-      yield* script(0x0d1, 0x15b6);
+      yield* run.obtainDataFile(0x15b6);
     }
-    yield* game.keepObjectRecordFlagBits(local0, 0xff7e);
+    yield* game.keepObjectRecordFlagBits(object, 0xff7e);
   }
-  yield* game.setObjectActionAndDirection(local0, 0, 5);
-  yield* script(0x101, local0);
-  yield* game.setObjectRecordFlagBits(local0, 1);
-  yield* script(0x2e8, local0, 0xa, 0x1e4, 0, 3);
+  yield* game.setObjectActionAndDirection(object, 0, 5);
+  yield* run.waitUntilDefeated(object);
+  yield* game.setObjectRecordFlagBits(object, 1);
+  yield* run.jackIntoMatrix(object, 0xa, 0x1e4, 0, 3);
   return null;
 }
 
 // Script 259: 1 argument.
 export function* script259(state, arg0) {
-  let local0 = 0;
-  local0 = arg0 & 0xff;
-  if (((yield* game.getObjectRecordFlags(local0)) & 1) !== 0) {
+  let object = 0;
+  object = arg0 & 0xff;
+  if (((yield* game.getObjectRecordFlags(object)) & 1) !== 0) {
     yield* game.wait(1, 0x23);
     if ((state.byte('DECKER_DATA_BITS') & 0x80) !== 0) {
-      yield* script(0x0fc, 0x16c0);
+      yield* run.activateElevator(0x16c0);
     }
-    yield* game.keepObjectRecordFlagBits(local0, 0xff7e);
+    yield* game.keepObjectRecordFlagBits(object, 0xff7e);
   }
-  yield* game.setObjectActionAndDirection(local0, 0, 5);
-  yield* script(0x101, local0);
-  yield* game.setObjectRecordFlagBits(local0, 1);
-  yield* script(0x2e8, local0, 9, 0x1e5, 0, 3);
+  yield* game.setObjectActionAndDirection(object, 0, 5);
+  yield* run.waitUntilDefeated(object);
+  yield* game.setObjectRecordFlagBits(object, 1);
+  yield* run.jackIntoMatrix(object, 9, 0x1e5, 0, 3);
   return null;
 }
 
 // Script 25A: 1 argument.
 export function* script25A(state, arg0) {
-  let local0 = 0;
-  local0 = arg0 & 0xff;
-  if (((yield* game.getObjectRecordFlags(local0)) & 1) === 0) {
-    if (((yield* game.getObjectRecordFlags(local0)) & 0x40) !== 0) {
-      yield* game.notice(2, 2, 0x1c, 3, 0x400, 0xcd, 0xf0);
+  let object = 0;
+  object = arg0 & 0xff;
+  if (((yield* game.getObjectRecordFlags(object)) & 1) === 0) {
+    if (((yield* game.getObjectRecordFlags(object)) & 0x40) !== 0) {
+      yield* game.notice(
+        2,
+        2,
+        0x1c,
+        3,
+        0x400,
+        0xcd /* "Hey, where do you think you're going?" */,
+        0xf0,
+      );
     }
     return null;
   }
@@ -765,17 +774,17 @@ export function* script25A(state, arg0) {
 }
 
 // Script 25B: 4 arguments.
-export function* script25B(state, arg0, arg1, arg2, arg3) {
-  let local0 = 0,
+export function* transferAccount(state, arg0, arg1, arg2, arg3) {
+  let object = 0,
     local1 = 0,
     local3 = 0,
     local5 = 0;
-  local0 = arg0 & 0xff;
+  object = arg0 & 0xff;
   local1 = arg1;
   local3 = arg2;
   local5 = arg3 & 0xff;
-  if (((yield* game.getObjectRecordFlags(local0)) & local5) === 0) {
-    yield* game.setObjectRecordFlagBits(local0, local5);
+  if (((yield* game.getObjectRecordFlags(object)) & local5) === 0) {
+    yield* game.setObjectRecordFlagBits(object, local5);
     yield* game.addNuyen(local1);
   } else {
     local3 = 0x213;
@@ -793,7 +802,7 @@ export function* script25C(state, arg0) {
   for (;;) {
     yield* game.wait(1, 6);
     if (((yield* game.getActorStateFlags(0xadb)) & 1) !== 0) {
-      yield* script(0x371, local0, 6, 7, 2, 0x80, 4, 0, 5);
+      yield* run.script371(local0, 6, 7, 2, 0x80, 4, 0, 5);
       return null;
     }
   }
@@ -801,12 +810,12 @@ export function* script25C(state, arg0) {
 
 // Script 25D: 3 arguments.
 export function* script25D(state, arg0, arg1, arg2) {
-  let local0 = 0,
+  let object = 0,
     local1 = 0,
     local3 = 0,
     local4 = 0,
     local6 = 0;
-  local0 = arg0 & 0xff;
+  object = arg0 & 0xff;
   local1 = arg1;
   local3 = arg2 & 0xff;
   if ((yield* game.hasFightTarget()) === 0) {
@@ -816,7 +825,7 @@ export function* script25D(state, arg0, arg1, arg2) {
   }
   if (local4 !== 0x80) {
     if (local4 === 0x100) {
-      yield* script(0x0f9);
+      yield* run.promptUseOn();
       const t1 = yield* game.chooseNumber();
       local6 = t1;
       if (local6 !== 0xffff) {
@@ -857,15 +866,23 @@ export function* script25D(state, arg0, arg1, arg2) {
           local6 === 0x1b7b
         )) {
           if ((yield* game.getActorKind(local6)) !== 0xb2) {
-            yield* script(0x085, local6);
+            yield* run.refuseToUseOn(local6);
           } else {
-            yield* game.notice(2, 0x16, 0x18, 3, 0x800, 0x11a, 0xb4);
+            yield* game.notice(
+              2,
+              0x16,
+              0x18,
+              3,
+              0x800,
+              0x11a /* "This terminal is not accessible." */,
+              0xb4,
+            );
           }
         } else {
           yield* game.endDialog();
           yield* game.setScriptVariable(
             0xc,
-            yield* game.getActorStateProperty(yield* game.getObjectNumber(local0)),
+            yield* game.getActorStateProperty(yield* game.getObjectNumber(object)),
           );
           if (
             (truth(state.byte('GROUP_INDEX') > 0 && local6 === 0x1b7b) &
@@ -874,7 +891,15 @@ export function* script25D(state, arg0, arg1, arg2) {
           ) {
             yield* game.setActorStateFlagBits(local6, 0x80);
           } else {
-            yield* game.notice(2, 0x15, 0x1d, 3, 0x400, 0x25b, 0xf0);
+            yield* game.notice(
+              2,
+              0x15,
+              0x1d,
+              3,
+              0x400,
+              0x25b /* "JAKE! You have the data! I can't do it!" */,
+              0xf0,
+            );
           }
         }
       }
@@ -882,49 +907,49 @@ export function* script25D(state, arg0, arg1, arg2) {
   } else {
     yield* game.notice(2, 0x15, local3, 3, 0x800, local1, 0xf0);
   }
-  yield* game.removeObject(local0);
+  yield* game.removeObject(object);
   return null;
 }
 
 // Script 25E: 1 argument.
 export function* script25E(state, arg0) {
-  let local0 = 0;
-  local0 = arg0 & 0xff;
-  if (((yield* game.getObjectRecordFlags(local0)) & 1) !== 0) {
+  let object = 0;
+  object = arg0 & 0xff;
+  if (((yield* game.getObjectRecordFlags(object)) & 1) !== 0) {
     yield* game.wait(1, 0x23);
     if ((state.byte('DECKER_DOWNLOAD_BITS') & 0x80) !== 0) {
-      yield* script(0x0d1, 0x154d);
+      yield* run.obtainDataFile(0x154d);
     }
     if ((state.byte('DECKER_DOWNLOAD_BITS') & 0x40) !== 0) {
-      yield* script(0x25b, local0, 0x7d0, 0x218, 2);
+      yield* run.transferAccount(object, 0x7d0, 0x218, 2);
     }
-    yield* game.keepObjectRecordFlagBits(local0, 0xff7e);
+    yield* game.keepObjectRecordFlagBits(object, 0xff7e);
   }
-  yield* game.setObjectActionAndDirection(local0, 0, 5);
-  yield* script(0x101, local0);
-  yield* game.setObjectRecordFlagBits(local0, 1);
-  yield* script(0x2e8, local0, 0, 0x15f, 0, 5);
+  yield* game.setObjectActionAndDirection(object, 0, 5);
+  yield* run.waitUntilDefeated(object);
+  yield* game.setObjectRecordFlagBits(object, 1);
+  yield* run.jackIntoMatrix(object, 0, 0x15f, 0, 5);
   return null;
 }
 
 // Script 25F: 1 argument.
 export function* script25F(state, arg0) {
-  let local0 = 0;
-  local0 = arg0 & 0xff;
-  if (((yield* game.getObjectRecordFlags(local0)) & 1) !== 0) {
+  let object = 0;
+  object = arg0 & 0xff;
+  if (((yield* game.getObjectRecordFlags(object)) & 1) !== 0) {
     yield* game.wait(1, 0x23);
     if ((state.byte('DECKER_DATA_BITS') & 0x80) !== 0) {
-      yield* script(0x0fc, 0x175a);
+      yield* run.activateElevator(0x175a);
     }
-    yield* game.keepObjectRecordFlagBits(local0, 0xff7e);
+    yield* game.keepObjectRecordFlagBits(object, 0xff7e);
   }
-  yield* game.setObjectActionAndDirection(local0, 0, 5);
-  yield* script(0x101, local0);
-  yield* game.setObjectRecordFlagBits(local0, 1);
+  yield* game.setObjectActionAndDirection(object, 0, 5);
+  yield* run.waitUntilDefeated(object);
+  yield* game.setObjectRecordFlagBits(object, 1);
   if (((yield* game.getActorStateFlags(0xfc7)) & 0x80) === 0) {
-    yield* script(0x2e8, local0, 3, 0x1e0, 0, 2);
+    yield* run.jackIntoMatrix(object, 3, 0x1e0, 0, 2);
   } else {
-    yield* script(0x2e8, local0, 3, 0x1e0, 2, 2);
+    yield* run.jackIntoMatrix(object, 3, 0x1e0, 2, 2);
   }
   return null;
 }
