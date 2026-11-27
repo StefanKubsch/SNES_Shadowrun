@@ -9,6 +9,7 @@ import {
   DIALOG_RECORD_FLAGS,
   GAME_OPTIONS,
   JAKE_ALTERNATE_PORTRAIT,
+  MEMBER_PORTRAIT,
   MUSIC,
   OPTION_MUSIC,
   TOPIC_FLAGS,
@@ -41,6 +42,10 @@ export function dialogState(mem) {
     // The end word: 0 runs on, any other value (FFFF from a cancel) ends the dialog.
     set endWord(value) {
       setWord(wram, DIALOG_END, value);
+    },
+    // The dialog whose portrait the status and spell menus show for the chosen member.
+    get memberPortrait() {
+      return word(wram, MEMBER_PORTRAIT);
     },
     get recordFlags() {
       return word(wram, DIALOG_RECORD_FLAGS);

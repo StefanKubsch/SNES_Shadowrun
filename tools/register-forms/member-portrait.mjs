@@ -59,6 +59,10 @@ import {
 import { WRAM_BANK } from '../../src/constants/memory-map.mjs';
 import { FLAG_CARRY, FLAG_NEGATIVE, FLAG_ZERO } from '../../src/constants/cpu-flags.mjs';
 
+// The member window's opening steps (X in the original).
+const EDGE_FIRST = 2,
+  EDGE_STEP = 3,
+  EDGE_END = 0x21;
 // The colour window's HDMA table in the ROM and its last byte.
 const HDMA_TABLE_SOURCE = 0x80e480,
   HDMA_TABLE_LAST = 0x0c;
@@ -196,7 +200,7 @@ function* colourWindowSequence(h, events, routines) {
     wram[HDMAEN_SHADOW] = shown | PORTRAIT_WINDOW.hdmaChannel;
     ctx.a = PORTRAIT_WINDOW.layers;
     setDataBankWord(mem, TMW_SHADOW, 0, PORTRAIT_WINDOW.layers);
-    ctx.x = PORTRAIT_WINDOW.edgeFirst;
+    ctx.x = EDGE_FIRST;
     setSignZero(ctx, ctx.x);
   };
   // X counts the edges (the word wait keeps it).
@@ -205,10 +209,10 @@ function* colourWindowSequence(h, events, routines) {
     yield* call(h, events, routines, FRAME_WAIT, true);
     yield () => {
       setWindowEdges(h);
-      const edge = (ctx.x + PORTRAIT_WINDOW.edgeStep) & WORD_MASK;
+      const edge = (ctx.x + EDGE_STEP) & WORD_MASK;
       ctx.x = edge;
-      setSignZero(ctx, (edge - PORTRAIT_WINDOW.edgeEnd) & WORD_MASK);
-      more = edge < PORTRAIT_WINDOW.edgeEnd;
+      setSignZero(ctx, (edge - EDGE_END) & WORD_MASK);
+      more = edge < EDGE_END;
       setFlag(ctx, FLAG_CARRY, !more);
     };
   } while (more);

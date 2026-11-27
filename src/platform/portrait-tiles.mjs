@@ -103,7 +103,8 @@ const TILE_BYTES = 0x1000,
     mode: 0x809014,
   }),
   REQUEST_BRANCH = 0x80901f,
-  OBJSEL_SITE = 0x809412;
+  OBJSEL_SITE = 0x809412,
+  MEMBER_OBJSEL_SITE = 0x80e4bf;
 
 const word = (wram, at) => readStateByte(wram, at) | (readStateByte(wram, at + 1) << BYTE_BITS);
 const setWord = (wram, at, value) => {
@@ -216,4 +217,16 @@ export function* showDialogPortraits(h, events, left, right, mirrored) {
   yield* uploadFirstPortrait(h, events);
   yield* loadPortrait(h, right);
   yield* uploadSecondPortrait(h, events, mirrored);
+}
+
+// Show a party member's portrait (80:E4B3 with 80:E48D): one portrait, uploaded as both
+// the first and the second portrait.
+export function* showMemberPortrait(h, events, portrait) {
+  yield () => {
+    videoOf(sceneRuntime(h).port).setObjectSelect(PORTRAIT_OBJSEL, MEMBER_OBJSEL_SITE);
+    setWord(h.a.mem.wram, PALETTE_UPLOAD_LIST_BYTES, 0);
+  };
+  yield* loadPortrait(h, portrait);
+  yield* uploadFirstPortrait(h, events);
+  yield* uploadSecondPortrait(h, events);
 }

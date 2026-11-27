@@ -21,24 +21,23 @@ import {
   RIGHT_WINDOW_LEFT_EDGE,
   RIGHT_WINDOW_RIGHT_EDGE,
   TMW_SHADOW,
+  PORTRAIT_HDMA_TABLE,
+  PORTRAIT_WINDOW_LEFT,
+  PORTRAIT_WINDOW_RIGHT,
 } from '../data/wram.mjs';
 import { WH0 } from '../constants/hardware-registers.mjs';
 import { BYTE_BITS, BYTE_MASK, WORD_BITS } from '../constants/bits.mjs';
 
-// The portrait windows of the dialog and of the member portrait (src/game/member-portrait.mjs):
-// the W12SEL/W34SEL word and TMW layers, HDMA channel 0 in mode 1 to WH0/WH1 from bank
-// 7E, and the edges' biases: the step is added to them for the right edges and its
-// complement for the left edges of the left and the right window. edgeFirst, edgeStep
-// and edgeEnd are the member portrait's opening steps.
+// The portrait windows of the dialog and of the member portrait: the W12SEL/W34SEL word
+// and TMW layers, HDMA channel 0 in mode 1 to WH0/WH1 from bank 7E, and the edges'
+// biases: the opening is added to them for the right edges and its complement for the
+// left edges of the left and the right window.
 export const PORTRAIT_WINDOW = Object.freeze({
   select: 0x2222,
   layers: 0x0f,
   hdmaMode: 1,
   hdmaTarget: WH0 & BYTE_MASK,
   hdmaChannel: 1,
-  edgeFirst: 2,
-  edgeStep: 3,
-  edgeEnd: 0x21,
   leftWindowRightBias: 0x39,
   leftWindowLeftBias: 0x3b,
   rightWindowRightBias: 0xc5,
@@ -122,4 +121,51 @@ export function endPortraitWindow(h) {
     HDMAEN_SHADOW,
     readStateByte(wram, HDMAEN_SHADOW) & ~PORTRAIT_WINDOW.hdmaChannel,
   );
+}
+
+// The member portrait's window (80:E433, 80:E41F): only the left window, from the
+// 13-byte HDMA table 80:E480 copied to 7E:1F3F, with its edges 7E:1F43 and 7E:1F44.
+const MEMBER_HDMA_SOURCE = 0x80e480,
+  MEMBER_HDMA_LAST_BYTE = 0x0c,
+  MEMBER_SITES = Object.freeze({
+    select: 0x80e436,
+    logic: 0x80e439,
+    table: 0x80e43f,
+    mode: 0x80e453,
+    target: 0x80e458,
+    bank: 0x80e45d,
+  });
+
+// Set up the member portrait's window, still closed.
+export function beginMemberPortraitWindow(h) {
+  const { mem, wram, port } = sceneRuntime(h),
+    video = videoOf(port);
+  video.setWindowSelect(PORTRAIT_WINDOW.select, MEMBER_SITES.select);
+  video.setWindowLogic(0, MEMBER_SITES.logic);
+  for (let n = 0; n <= MEMBER_HDMA_LAST_BYTE; n++)
+    writeStateByte(wram, PORTRAIT_HDMA_TABLE + n, mem.read8(MEMBER_HDMA_SOURCE + n));
+  video.setUpHdmaTable(
+    PORTRAIT_WINDOW.hdmaMode,
+    PORTRAIT_WINDOW.hdmaTarget,
+    (WRAM_BANK << WORD_BITS) | PORTRAIT_HDMA_TABLE,
+    MEMBER_SITES,
+  );
+  writeStateByte(
+    wram,
+    HDMAEN_SHADOW,
+    readStateByte(wram, HDMAEN_SHADOW) | PORTRAIT_WINDOW.hdmaChannel,
+  );
+  setWord(wram, TMW_SHADOW, PORTRAIT_WINDOW.layers);
+}
+
+// Open the member portrait's window this far: the left window's right edge from 39, its
+// left edge from 3B around the complement with that carry.
+export function setMemberPortraitWindowOpening(h, opening) {
+  const { wram } = sceneRuntime(h),
+    edge = opening & BYTE_MASK,
+    right = edge + PORTRAIT_WINDOW.leftWindowRightBias,
+    left =
+      ((edge ^ BYTE_MASK) + PORTRAIT_WINDOW.leftWindowLeftBias + (right >>> BYTE_BITS)) & BYTE_MASK;
+  writeStateByte(wram, PORTRAIT_WINDOW_RIGHT, right & BYTE_MASK);
+  writeStateByte(wram, PORTRAIT_WINDOW_LEFT, left);
 }
