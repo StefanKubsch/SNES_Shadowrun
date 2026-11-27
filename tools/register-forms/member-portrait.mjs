@@ -21,11 +21,11 @@ import {
   PORTRAIT_BUFFER,
   PORTRAIT_OBJSEL,
   PORTRAIT_RECORD_BANK_BYTE,
-  PORTRAIT_WINDOW,
   SECOND_PORTRAIT_HDMA,
   SECOND_PORTRAIT_PALETTE,
   SECOND_PORTRAIT_VRAM,
-} from '../../src/system/native-dialog-portrait.mjs';
+} from '../../src/platform/portrait-tiles.mjs';
+import { PORTRAIT_WINDOW } from '../../src/platform/portrait-window.mjs';
 import {
   HDMAEN_SHADOW,
   MEMBER_PORTRAIT,

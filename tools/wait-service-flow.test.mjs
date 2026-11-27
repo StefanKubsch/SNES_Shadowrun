@@ -5,7 +5,7 @@ import { waitForCounterWord, waitForFrame } from '../src/system/frame-wait.mjs';
 import { openWindow } from '../src/game/window-open.mjs';
 import { drawWindowListSequence } from '../src/game/window-list.mjs';
 import { drawTextBuffer } from '../src/game/text-draw.mjs';
-import { transferPortraitTiles } from '../src/game/portrait-upload.mjs';
+import { transferPortraitTiles } from '../src/platform/portrait-tiles.mjs';
 import { reloadObjectTiles } from '../src/game/object-tiles.mjs';
 import { SequenceRunner } from '../src/system/sequence-runner.mjs';
 import { WAIT_PAUSED } from '../src/system/native-wait-continuation.mjs';

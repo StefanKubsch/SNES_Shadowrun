@@ -22,8 +22,8 @@ import { playerZonesSequence } from '../../src/game/player-zones.mjs';
 import { sceneRequestSequence } from '../../src/game/scene-request.mjs';
 import { drawTextBuffer } from '../../src/game/text-draw.mjs';
 import { waitForCounterWord } from '../../src/system/frame-wait.mjs';
-import { transferPortraitTiles } from '../../src/game/portrait-upload.mjs';
-import { shiftPortraitRowsInPlace } from '../../src/game/portrait-upload.mjs';
+import { transferPortraitTiles } from '../../src/platform/portrait-tiles.mjs';
+import { shiftPortraitRowsInPlace } from '../../src/platform/portrait-tiles.mjs';
 
 function* rts(h) {
   let result;

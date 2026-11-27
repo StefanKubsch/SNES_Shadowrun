@@ -16,9 +16,9 @@ import { videoOf } from '../video/picture-video.mjs';
 import { sceneRuntime } from '../system/scene-runtime.mjs';
 import { uploadMapEdges } from './camera-scroll.mjs';
 import { readJoypad } from '../system/joypad.mjs';
-import { writePortraitTileChannel } from './portrait-upload.mjs';
+import { writePortraitTileChannel } from '../platform/portrait-tiles.mjs';
 import { taskStop } from '../system/task-stop.mjs';
-import { DP_PORTRAIT_BANK, DP_PORTRAIT_POINTER } from '../system/native-dialog-portrait.mjs';
+import { DP_PORTRAIT_BANK, DP_PORTRAIT_POINTER } from '../platform/portrait-tiles.mjs';
 import {
   GLOVE_KIND_CROSSHAIR,
   GLOVE_KIND_SPELL,

@@ -2,7 +2,7 @@
 // step 2; packing in src/data/lz.mjs). On entry A is the source offset, Y the
 // source bank and X the destination in bank 7E (9F6D: 7F); the stream starts
 // with the output length as a word, the packed data follow (d = source + 2;
-// proof/system/native-unpack.mjs, native-dialog-portrait.mjs). The streams and the
+// proof/system/native-unpack.mjs and src/platform/portrait-tiles.mjs). The streams and the
 // format of their output come from the probe over all live tests
 // (analysis/rom-vram.json, tools/rom-vram-hook.mjs).
 // Native form assets/vm-lz.json, per stream: address, format, the original

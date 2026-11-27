@@ -5,7 +5,7 @@ import {
   transferPortraitTiles,
   uploadFirstPortrait,
   uploadSecondPortrait,
-} from '../src/game/portrait-upload.mjs';
+} from '../src/platform/portrait-tiles.mjs';
 import { openPortraitWindow, closePortraitWindow } from '../src/game/portrait-window.mjs';
 import { memberPortrait } from '../src/game/member-portrait.mjs';
 import { SequenceRunner } from '../src/system/sequence-runner.mjs';

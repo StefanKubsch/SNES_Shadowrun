@@ -22,22 +22,20 @@ import {
   shiftPortraitRowsInPlace,
   uploadFirstPortrait,
   transferPortraitTiles,
-} from './portrait-upload.mjs';
-import { waitForCounterWord } from '../system/frame-wait.mjs';
-import { dataBankWord, setDataBankWord } from '../system/data-bank.mjs';
-import { accessorPort } from '../system/hardware-port.mjs';
-import { videoOf } from '../video/picture-video.mjs';
-import {
   DP_PORTRAIT_BANK,
   DP_PORTRAIT_POINTER,
   PORTRAIT_BUFFER,
   PORTRAIT_OBJSEL,
   PORTRAIT_RECORD_BANK_BYTE,
-  PORTRAIT_WINDOW,
   SECOND_PORTRAIT_HDMA,
   SECOND_PORTRAIT_PALETTE,
   SECOND_PORTRAIT_VRAM,
-} from '../system/native-dialog-portrait.mjs';
+} from '../platform/portrait-tiles.mjs';
+import { waitForCounterWord } from '../system/frame-wait.mjs';
+import { dataBankWord, setDataBankWord } from '../system/data-bank.mjs';
+import { accessorPort } from '../system/hardware-port.mjs';
+import { videoOf } from '../video/picture-video.mjs';
+import { PORTRAIT_WINDOW } from '../platform/portrait-window.mjs';
 import {
   HDMAEN_SHADOW,
   MEMBER_PORTRAIT,

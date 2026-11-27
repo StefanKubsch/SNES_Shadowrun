@@ -49,7 +49,11 @@ layout for the golden traces.
    agnostic; the platform layer (renderer, audio player, input) implements the drawing,
    sound output and input for its system. The browser renderer keeps reproducing the
    original picture from tiles and palettes, so the golden pictures stay pixel-identical;
-   another system (Amiga) would bring its own platform layer.
+   another system (Amiga) would bring its own platform layer. The SNES presentation
+   layer lives in `src/platform/`: the game calls it in neutral terms (show these
+   portraits, open the portrait window this far), and it turns them into the original's
+   video memory, HDMA tables and register writes. tools/agnostic-counts.mjs counts it
+   apart and the ratchet does not limit it.
 7. **Audio is sample-identical** (user, 2026-11-27): music and effects become note
    sequences, instruments and samples played by a neutral mixer that reproduces the
    original filters, envelopes, pitch interpolation and echo; the golden audio check
@@ -121,3 +125,12 @@ traces; release and push as in [WORKFLOW.md](WORKFLOW.md).
   page long pointer 41 to 43 (a local of several routines; traces re-recorded with the
   old code first). Ratchet: 1,248 ROM literals, 157 WRAM imports, 2,326 direct page
   names, 2,888 address comments.
+- 2026-11-27, phase 1 step 2 (portraits and portrait window): the presentation layer
+  `src/platform/` begins with the portrait tiles (unpack, row shift, VRAM uploads, the
+  dialog's `showDialogPortraits`), the portrait window (`beginPortraitWindow`,
+  `setPortraitWindowOpening`, `endPortraitWindow`) and the dialog's screen effects
+  (`clearColourEffect`, `hidePortraits`, `restoreFont`).
+  `src/system/native-dialog-portrait.mjs` is gone. The game side keeps only the window's
+  opening (2 to 32 in steps of 3, closing from 31) and the order of the dialog's screen
+  steps. Ratchet: 1,212 ROM literals, 153 WRAM imports, 26 hardware imports, 2,319 direct
+  page names, 2,850 address comments.

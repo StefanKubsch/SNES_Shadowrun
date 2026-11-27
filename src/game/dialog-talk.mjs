@@ -84,7 +84,7 @@ export function* talk(h, events, renderBuffer = drawTextBuffer, partner, number)
   yield () => (state.menuWindow = menuWindow);
   const jake =
     content.dialogs[state.jakeAlternate ? JAKE_ALTERNATE_PORTRAIT_DIALOG : JAKE_PORTRAIT_DIALOG];
-  yield* showPortraits(h, events, jake.portrait, dialog.portrait);
+  yield* showPortraits(h, events, jake.portrait, dialog.portrait, dialog.mirror);
   yield* openPortraitWindow(h, events);
   yield* showDialogText(h, events, renderBuffer, GREETING_KEY, dialog);
   for (let frame = 0; frame < GREETING_FRAMES; frame++) yield* waitForCounterWord(h, events);

@@ -1,7 +1,7 @@
 // The portrait unpack 80:9F6D and the portrait DMA job 80:8FF5 as register forms for
-// register-level callers (moved from src/game/portrait-upload.mjs, whose lifted forms
+// register-level callers (moved from src/platform/portrait-tiles.mjs, whose lifted forms
 // take their inputs as parameters and leave no registers).
-import { unpackPortraitStream } from '../../src/game/portrait-upload.mjs';
+import { unpackPortraitStream } from '../../src/platform/portrait-tiles.mjs';
 import { uploadPortraitTilesJsr } from './jsr-forms.mjs';
 import { PORTRAIT_DMA_REQUEST } from '../../src/data/wram.mjs';
 import { BYTE_BITS } from '../../src/constants/bits.mjs';
