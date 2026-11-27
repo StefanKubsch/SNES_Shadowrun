@@ -17,7 +17,6 @@ import { createSide, registerCases, useLiftVectors } from './lift-function-harne
 import { MEMBER_PORTRAIT } from '../src/data/wram.mjs';
 import { drainNativeSequence } from '../src/system/native-call-continuation.mjs';
 import { memberPortraitSequence } from './register-forms/member-portrait.mjs';
-import { TALK_ROUTINES } from '../proof/replay/native-dialog.mjs';
 import { unpackPortraitRoutine } from './register-forms/portrait-routines.mjs';
 import { shiftPortraitRowsJsr } from './register-forms/jsr-forms.mjs';
 
@@ -92,8 +91,8 @@ const returned = (h, calls) =>
   ' ' +
   calls.join(' ');
 let current;
-// The case with the real unpack and row shift (bind: the map of target to routine).
-const portraitCase = (name, referenceBind, liftedBind, samples) => ({
+// The case with the real unpack and row shift (liftedBind: target and routine pairs).
+const portraitCase = (name, liftedBind, samples) => ({
   name,
   entry: 0x80e4b3,
   samples,
@@ -121,10 +120,6 @@ registerCases(
   [
     portraitCase(
       'memberPortrait 80:E4B3 with the real unpack and row shift',
-      [
-        [UNPACK, TALK_ROUTINES.get(UNPACK)],
-        [SHIFT_ROWS, TALK_ROUTINES.get(SHIFT_ROWS)],
-      ],
       [
         [UNPACK, unpackPortraitRoutine],
         [SHIFT_ROWS, shiftPortraitRowsJsr],

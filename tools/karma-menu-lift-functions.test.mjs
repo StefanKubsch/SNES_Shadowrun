@@ -15,7 +15,7 @@
 import { prng } from './task-native-dialog-harness.mjs';
 import { createSide, registerCases, useLiftVectors } from './lift-function-harness.mjs';
 import { DialogTestMemory } from './task-native-dialog-harness.mjs';
-import { KARMA_LISTS } from '../proof/replay/native-main-menu.mjs';
+import { KARMA_LISTS } from '../src/system/native-main-menu.mjs';
 import {
   buyStepSequence,
   karmaLineSequence,

@@ -8,7 +8,9 @@
 import { prng } from './task-native-dialog-harness.mjs';
 import { createSide, registerCases, useLiftVectors } from './lift-function-harness.mjs';
 import { DIALOG_WINDOW, GROUP_INDEX, JAKE_COUNT_MAX } from '../src/data/wram.mjs';
-import { MAIN_INITIALIZE_ROUTINES } from '../proof/system/main-initialize.mjs';
+import { setUpGameScreen } from '../src/game/game-screen.mjs';
+import { sceneRuntime } from '../src/system/scene-runtime.mjs';
+import { tasksOf } from '../src/script/task-api.mjs';
 
 useLiftVectors(import.meta.url);
 
@@ -66,7 +68,9 @@ const CASES = [
       Object.assign(h.ctx, input);
       h.ctx.programBank = 0x80;
       h.push(0x1234, 2);
-      MAIN_INITIALIZE_ROUTINES.get(0x809629)(h);
+      // The lifted set-up in the original JSR frame.
+      setUpGameScreen(sceneRuntime(h), tasksOf(h.a));
+      h.rts();
       return registers(h);
     },
   },

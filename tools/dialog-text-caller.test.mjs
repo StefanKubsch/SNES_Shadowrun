@@ -4,8 +4,6 @@ import assert from 'node:assert/strict';
 import { assertFrozenRun, useLiftVectors } from './lift-function-harness.mjs';
 import * as liftedText from '../src/game/dialog-text.mjs';
 import { showDialogTextJsr } from './register-forms/jsr-forms.mjs';
-import { dialogTextRoutines, dialogTopic } from '../proof/replay/native-dialog-text.mjs';
-import { appendScriptTask } from '../proof/system/task-append.mjs';
 import * as V from '../src/vm/layout.mjs';
 import { NATIVE_CALL_CONTINUATIONS } from '../src/system/native-call-continuation.mjs';
 import { TOPIC_LIST, TOPIC_FLAGS } from '../src/data/wram.mjs';
@@ -52,7 +50,6 @@ function run(module, name, variant, budget, realDrawing = false) {
   }
   mem.wram.set([0, 0, 0, 0, ...records, 0xf8], 0x6000);
   h.ctx.a = key;
-  events.text = dialogTextRoutines(events);
   if (variant === 'topics and action') {
     put(V.TASK_FREE_LIST, 0);
     put(V.TASK_NEXT, 2);
@@ -66,13 +63,6 @@ function run(module, name, variant, budget, realDrawing = false) {
     assert.equal(mem.read16(V.TASK_LIST_HEAD), 0);
     side.calls.push(['action', 0x80]);
     return h.rts();
-  };
-  events.text.topic = (callee) => {
-    assert.equal(mem.read16(0x7e6000 + callee.ctx.y), 0x80, 'restored action position');
-    return dialogTopic(
-      (a) => appendScriptTask(a, false),
-      () => events.round(0x80c1ca),
-    )(callee);
   };
   if (name !== 'showDialogTextSequence') put(0, variant);
   if (realDrawing) side.render = drawTextBuffer;

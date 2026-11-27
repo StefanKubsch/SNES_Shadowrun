@@ -4,7 +4,6 @@ import assert from 'node:assert/strict';
 import { assertFrozenRun, useLiftVectors } from './lift-function-harness.mjs';
 import * as liftedMenus from '../src/game/dialog-menus.mjs';
 import { chooseDialogActionJsr, chooseDialogTopicJsr } from './register-forms/jsr-forms.mjs';
-import { dialogTextRoutines } from '../proof/replay/native-dialog-text.mjs';
 import { runFrameWait, runPadPresses } from './register-forms/input-routines.mjs';
 import { playSoundEffectJsr } from './register-forms/jsr-forms.mjs';
 import { NATIVE_CALL_CONTINUATIONS } from '../src/system/native-call-continuation.mjs';
@@ -61,7 +60,6 @@ function run(module, variant, budget, realDrawing = false, counter = 0) {
     variant === 'flagged' ? [1, 1] : variant === 'topic sparse confirm' ? [1, 0, 0] : [0, 0],
     TOPIC_FLAGS,
   );
-  events.text = dialogTextRoutines(events);
   const serviceUpload = events.interrupts.textWait;
   let input = 0;
   events.interrupts.textWait = (callee, frameEvents, status, pc) => {

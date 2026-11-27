@@ -3,13 +3,10 @@ import assert from 'node:assert/strict';
 import { assertFrozenRun, useLiftVectors } from './lift-function-harness.mjs';
 import { compareRun } from './member-menu-caller-harness.mjs';
 import { liftedMainMenuSequence } from '../src/game/main-upkeep.mjs';
-import { raiseStateCountSequence } from '../proof/caller/runner-state-call.mjs';
-import { raiseMemberMagicPointsReference } from '../proof/game-reference/runner-state.mjs';
 import * as liftedMain from '../src/game/main-menu.mjs';
 import { installPortExtension } from '../src/data/port-extension.mjs';
 import { occupiedSlots } from '../src/game/save-slots.mjs';
 import * as liftedKarma from '../src/game/karma-menu.mjs';
-import { requestTileClearSequence } from '../proof/caller/window-open.mjs';
 import { KARMA_LISTS } from '../src/system/native-main-menu.mjs';
 import {
   buyStepJsr,
@@ -80,11 +77,7 @@ function runMain(budget, pads, realDrawing = false, liveEntry = false) {
     budget,
     pads,
     realDrawing,
-    ({ routines, bind, h, events }) => {
-      bind(0x80fa67, () => requestTileClearSequence(h, events));
-      bind(0x80cecb, () => raiseStateCountSequence(h, events));
-      routines.set(0x80cf2e, (callee) => raiseMemberMagicPointsReference(callee.a, false));
-    },
+    () => {},
   );
 }
 
@@ -191,11 +184,7 @@ function runKarma(name, budget, prepare, pads = [], realDrawing = false, entry) 
     budget,
     pads,
     realDrawing,
-    ({ routines, bind, h, events }) => {
-      bind(0x80fa67, () => requestTileClearSequence(h, events));
-      bind(0x80cecb, () => raiseStateCountSequence(h, events));
-      routines.set(0x80cf2e, (callee) => raiseMemberMagicPointsReference(callee.a, false));
-    },
+    () => {},
   );
 }
 for (const budget of [1, 7])

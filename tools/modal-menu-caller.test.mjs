@@ -5,9 +5,6 @@ import * as liftedAction from '../src/game/action-menu.mjs';
 import { chooseActionJsr } from './register-forms/jsr-forms.mjs';
 import { chooseActionRoutineSequence } from './register-forms/upkeep-routines.mjs';
 import * as directQuestion from '../src/game/yes-no-question.mjs';
-import { openWindowSequence } from '../proof/caller/window-open.mjs';
-import { releaseWindowSequence } from '../proof/caller/window-release.mjs';
-import { chooseFromMenuSequence } from '../proof/caller/menu-choice.mjs';
 import { runFrameWait, runPadPresses } from './register-forms/input-routines.mjs';
 import { playSoundEffectJsr } from './register-forms/jsr-forms.mjs';
 import {
@@ -66,17 +63,6 @@ function run(module, { mask, override = 0, pads, script = false }, budget) {
       create: () => new NativeCallContinuation(a, body()),
     });
   }
-  bind(0x80f963, () => openWindowSequence(h, events));
-  bind(0x80a6a5, () => chooseFromMenuSequence(h, events, routines, 0x80a6a5));
-  bind(0x80a6c7, () => chooseFromMenuSequence(h, events, routines, 0x80a6c7));
-  bind(0x80fa3e, function* () {
-    yield* releaseWindowSequence(h, events);
-    let result;
-    yield () => {
-      result = h.rts();
-    };
-    return result;
-  });
   bind(0x80fb39, () => side.render(h, events));
   try {
     const name = question

@@ -5,8 +5,6 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { assertFrozenRun, useLiftVectors } from './lift-function-harness.mjs';
 import * as direct from '../src/game/dialog-talk.mjs';
-import { buildSpriteList } from '../proof/replay/native-scene-sprites.mjs';
-import { reloadObjectTiles } from '../proof/system/native-scene-tiles.mjs';
 import * as W from '../src/data/wram.mjs';
 import { closePortraitWindowSequence } from './register-forms/portrait-window.mjs';
 import { frameWaitCallSequence } from '../src/system/live-input-calls.mjs';
@@ -69,8 +67,6 @@ function runClose(shadow, counter, held, budget) {
   const table = new Map([
     [0x8099eb, live.runChooseAction],
     [0x80936c, live.runTalk],
-    [0x80adf4, reloadObjectTiles],
-    [0x80b8de, buildSpriteList],
     [0x808f97, portrait],
     [0x81b0a1, wait],
     [0x809e1a, (callee, e) => runPadPresses(callee, e)],
@@ -114,8 +110,6 @@ for (const budget of [1, 7])
         });
 
 import * as live from './register-forms/upkeep-routines.mjs';
-import { dialogTextRoutines, dialogTopic } from '../proof/replay/native-dialog-text.mjs';
-import { appendScriptTask } from '../proof/system/task-append.mjs';
 import * as V from '../src/vm/layout.mjs';
 import { DIALOG_TABLE, DIALOG_BANK_BASE } from '../src/data/portraits.mjs';
 import {
@@ -191,7 +185,6 @@ function runTalk(
         : address >= 0x8d6000 && address < 0x8d6000 + bytes.length
           ? bytes[address - 0x8d6000]
           : read(address);
-  events.text = dialogTextRoutines(events);
   if (variant.endsWith('ends')) {
     put(V.TASK_FREE_LIST, 0);
     put(V.TASK_NEXT, 2);
@@ -206,13 +199,6 @@ function runTalk(
     side.calls.push(['topic action', 0x80]);
     put(DIALOG_END, 0xffff);
     return h.rts();
-  };
-  events.text.topic = (callee) => {
-    assert.equal(mem.read16(0x8d0000 + mem.read16(0x11) + callee.ctx.y), 0x80);
-    return dialogTopic(
-      (a) => appendScriptTask(a, false),
-      () => events.round(0x80c1ca),
-    )(callee);
   };
   const serviceUpload = events.interrupts.textWait;
   const pads = variant.startsWith('talk')

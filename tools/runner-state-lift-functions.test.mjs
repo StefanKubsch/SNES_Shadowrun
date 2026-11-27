@@ -7,8 +7,7 @@
 import { prng, DialogTestMemory } from './task-native-dialog-harness.mjs';
 import { createSide, registerCases, useLiftVectors } from './lift-function-harness.mjs';
 import { raiseMemberMagicPoints } from '../src/script/native-magic-points-raise.mjs';
-import { raiseStateCountBody } from '../proof/replay/native-state-count-raise.mjs';
-import { restoreRunnersBody } from '../proof/replay/native-runners-restore.mjs';
+import { raiseStateCountBody, restoreRunnersBody } from './register-forms/runner-state-bodies.mjs';
 
 useLiftVectors(import.meta.url);
 
