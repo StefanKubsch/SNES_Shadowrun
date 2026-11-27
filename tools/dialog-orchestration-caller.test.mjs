@@ -113,7 +113,7 @@ for (const budget of [1, 7])
           assert.ok(fontUploaded(actual), 'OBJSEL and both complete font DMAs');
         });
 
-import * as live from '../proof/caller/upkeep-routines.mjs';
+import * as live from './register-forms/upkeep-routines.mjs';
 import { dialogTextRoutines, dialogTopic } from '../proof/replay/native-dialog-text.mjs';
 import { appendScriptTask } from '../proof/system/task-append.mjs';
 import * as V from '../src/vm/layout.mjs';

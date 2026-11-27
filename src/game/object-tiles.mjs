@@ -113,7 +113,7 @@ function* waitForJobLists(h, events, site) {
 // live frame wait, for lifted callers without the JSR frame (the caller's return word
 // lies only in free stack bytes); the per-object request (80:AE12) runs without its
 // frame as well. The RTS form for register-level call tables is in
-// proof/caller/upkeep-routines.mjs.
+// tools/register-forms/upkeep-routines.mjs.
 export function* reloadObjectTiles(h, events) {
   const { mem } = h.a,
     { wram } = mem;

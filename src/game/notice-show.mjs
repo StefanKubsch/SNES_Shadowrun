@@ -20,7 +20,7 @@ import { readStateByte, writeStateByte } from '../state/objects.mjs';
 //
 // Registers (user decision 2026-11-17): game state only. The notice returns its window
 // in shown.window (A in the original) and leaves no registers; the register form for
-// register-level callers lives in proof/caller/upkeep-routines.mjs.
+// register-level callers lives in tools/register-forms/upkeep-routines.mjs.
 import { taskStop } from '../system/task-stop.mjs';
 import { openWindow, requestTileClear } from './window-open.mjs';
 import { waitForConfirmKey } from './confirm-key.mjs';

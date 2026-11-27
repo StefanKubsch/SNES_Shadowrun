@@ -10,7 +10,7 @@ import {
   runPutGloveAway,
   runReleaseWindow,
   runOpenWindow,
-} from './upkeep-routines.mjs';
+} from '../../tools/register-forms/upkeep-routines.mjs';
 import { setTextCursorJsr } from '../../tools/register-forms/jsr-forms.mjs';
 import { playSoundEffectJsr } from '../../tools/register-forms/jsr-forms.mjs';
 import { randomByteNative, randomBelowNative } from '../../src/script/native-script-leaves.mjs';

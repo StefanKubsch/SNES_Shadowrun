@@ -3,7 +3,7 @@ import assert from 'node:assert/strict';
 import { assertFrozenRun, useLiftVectors } from './lift-function-harness.mjs';
 import * as liftedAction from '../src/game/action-menu.mjs';
 import { chooseActionJsr } from './register-forms/jsr-forms.mjs';
-import { chooseActionRoutineSequence } from '../proof/caller/upkeep-routines.mjs';
+import { chooseActionRoutineSequence } from './register-forms/upkeep-routines.mjs';
 import * as directQuestion from '../src/game/yes-no-question.mjs';
 import { openWindowSequence } from '../proof/caller/window-open.mjs';
 import { releaseWindowSequence } from '../proof/caller/window-release.mjs';

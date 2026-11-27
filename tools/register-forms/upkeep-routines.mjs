@@ -13,7 +13,7 @@ import { releaseWindowSequence } from '../../src/game/window-release.mjs';
 import {
   putGloveAwayCallSequence as putGloveAwayRoutineSequence,
   releaseNoticeWindowsCallSequence as releaseNoticeWindowsRoutineSequence,
-} from './window-release.mjs';
+} from '../../src/game/window-release.mjs';
 import { talkSequence } from '../../src/game/dialog-talk.mjs';
 import { reloadObjectTiles } from '../../src/game/object-tiles.mjs';
 import {
@@ -29,7 +29,7 @@ import {
   chooseDialogTopicJsr,
   showDialogTextJsr,
   openWindowJsr,
-} from '../../tools/register-forms/jsr-forms.mjs';
+} from './jsr-forms.mjs';
 import { drawTextBufferSequence } from '../../src/game/text-draw.mjs';
 import { BYTE_BITS, WORD_MASK, WORD_SIGN } from '../../src/constants/bits.mjs';
 import { FLAG_CARRY, FLAG_NEGATIVE, FLAG_ZERO } from '../../src/constants/cpu-flags.mjs';

@@ -18,7 +18,7 @@ import { readStateByte, writeStateByte } from '../state/objects.mjs';
 // original) are a parameter and the chosen flag is returned in choice.action; the menu
 // leaves no registers. The flag the original keeps on the stack over the window release
 // is a local. The register form for register-level callers (the actions in A, the
-// chosen flag left in A) lives in proof/caller/upkeep-routines.mjs.
+// chosen flag left in A) lives in tools/register-forms/upkeep-routines.mjs.
 import { fitListWindow, listTextIds } from '../data/menu-layout.mjs';
 import { TEXT_EXIT } from '../data/port-extension.mjs';
 import { openWindow } from './window-open.mjs';

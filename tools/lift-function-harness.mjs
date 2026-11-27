@@ -62,18 +62,6 @@ const STACK = 0x1c9,
   // The last DMA channel register (channel 7, 437F).
   DMA_REGISTERS_END = 0x437f;
 
-// Sides built while legacy is set have no picture back end: their PPU register writes
-// are listed as before the picture state was compared (the rekey check below).
-let legacy = false;
-const withLegacySides = (run) => {
-  legacy = true;
-  try {
-    return run();
-  } finally {
-    legacy = false;
-  }
-};
-
 // The register ports the picture back end takes: the PPU registers, the DMA starts and
 // the DMA channel registers.
 const isPicturePort = (at) =>
@@ -130,17 +118,6 @@ export function createSide(s, routines, prepare = () => {}) {
     counter = prng(s.seed ^ COUNTER_SALT),
     record = (address, value, width) =>
       writes.push([address & (WORD_VALUES - 1), value, width].join());
-  if (legacy) {
-    a.io = [];
-    a.devices = {
-      read: (address, width) =>
-        (address & (WORD_VALUES - 1)) === APU_PORT_0
-          ? mem.wram[APU_COMMAND_TOKEN]
-          : Math.floor(counter() * WORD_VALUES) & (width === 1 ? BYTE_VALUES - 1 : WORD_VALUES - 1),
-      write: (_pc, address, value, width) => record(address, value, width),
-    };
-    return { mem, a, h: dialogAccess(a), writes, picture: null, routines };
-  }
   // DMA sources of random states may point at unmapped addresses, where the hardware
   // reads open bus; both sides read 0 there.
   const picture = new PictureVideo({
@@ -297,10 +274,13 @@ function readsIgnoredBytes(c, sampleOf, options, got) {
 const VECTOR_DIRECTORY = new URL('./lift-vectors/', import.meta.url);
 const recording = process.env.LIFT_VECTORS === 'record',
   // Re-keying (removal plan step 5, 2026-11-26): the frozen vectors are re-hashed from the
-  // lifted outcomes after a harness change that alters what an outcome holds (the PPU
-  // register writes became the picture state). Its evidence is a passing run with the
-  // old vectors on the same lifted code just before; a stop that appears or disappears
-  // with the change fails instead of being frozen.
+  // lifted outcomes after a change that alters what an outcome holds (2026-11-26: the PPU
+  // register writes became the picture state; 2026-11-27: register forms of proof/ gave
+  // way to lifted ones). A sample of registerCases gets a new vector only when its
+  // former outcome (the case's rekeyFrom.lifted, else its lifted) still matches the old
+  // one; rekeyFrom.dropResult drops the compared registers (game state only). A caller
+  // vector's evidence is a passing run with the old vectors just before. A stop that
+  // appears or disappears with the change fails instead of being frozen.
   rekeying = process.env.LIFT_VECTORS === 'rekey';
 let vectorFile = null,
   vectors = null;
@@ -361,8 +341,8 @@ export function matchesFrozen(name, index, want, got) {
   return outcomeKey(got, (Number(entry[0]) & RESULT_FLAG) !== 0) === entry.slice(1);
 }
 // A frozen entry re-hashed from the lifted outcome, with the reference's flags.
-function rekeyedEntry(entry, got, name) {
-  const flags = Number(entry[0]);
+function rekeyedEntry(entry, got, name, drop = 0) {
+  const flags = Number(entry[0]) & ~drop;
   if (!!(flags & STOPPED_FLAG) !== !!got.stop)
     throw new Error(`${name}: rekeying changed whether the outcome stops (${got.stop})`);
   return `${flags}${outcomeKey(got, (flags & RESULT_FLAG) !== 0)}`;
@@ -478,11 +458,18 @@ export function registerCases(
           }
           const flags = Number(entry[0]);
           if (rekeyed) {
-            // Only a sample whose outcome with listed register writes still matches its
-            // old vector gets a new one; the others keep theirs (outside the domain).
-            const old = withLegacySides(() => liftedOutcome(c, sampleOf(), options));
+            // Only a sample whose former outcome still matches its old vector gets a
+            // new one; the others keep theirs (outside the domain).
+            const former = c.rekeyFrom ? { ...c, lifted: c.rekeyFrom.lifted } : c,
+              old = liftedOutcome(former, sampleOf(), options);
             if (outcomeKey(old, (flags & RESULT_FLAG) !== 0) !== entry.slice(1)) beyond++;
-            else rekeyed[seed - 1] = rekeyedEntry(entry, got, `${c.name} seed ${seed}`);
+            else
+              rekeyed[seed - 1] = rekeyedEntry(
+                entry,
+                got,
+                `${c.name} seed ${seed}`,
+                c.rekeyFrom?.dropResult ? RESULT_FLAG : 0,
+              );
             continue;
           }
           if (outcomeKey(got, (flags & RESULT_FLAG) !== 0) !== entry.slice(1)) {

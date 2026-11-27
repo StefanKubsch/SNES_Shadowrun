@@ -1,13 +1,5 @@
 import { drawTextBufferSequence as drawTextBuffer } from '../src/game/text-draw.mjs';
-import {
-  putGloveAwayCallSequence,
-  releaseNoticeWindowsCallSequence,
-} from '../proof/caller/window-release.mjs';
-import { waitForConfirmKeySequence } from '../proof/caller/confirm-key.mjs';
 import assert from 'node:assert/strict';
-import { openWindowSequence } from '../proof/caller/window-open.mjs';
-import { releaseWindowSequence } from '../proof/caller/window-release.mjs';
-import { chooseFromMenuSequence } from '../proof/caller/menu-choice.mjs';
 import { setTextCursorRoutine, printNumberSequence } from './register-forms/window-text.mjs';
 import { printTextSequence } from './register-forms/text-print.mjs';
 import { frameWaitCallSequence } from '../src/system/live-input-calls.mjs';
@@ -22,10 +14,6 @@ import { textWindowSide, finishTextWindow } from './text-window-caller-harness.m
 import * as W from '../src/data/wram.mjs';
 import { WORD_MASK } from '../src/constants/bits.mjs';
 import { memberPortraitSequence } from './register-forms/member-portrait.mjs';
-import {
-  uploadFirstPortraitSequence,
-  uploadPortraitTilesSequence,
-} from '../proof/caller/portrait-upload.mjs';
 import { unpackPortraitRoutine } from './register-forms/portrait-routines.mjs';
 const MENU_SOUND_INDEX = 0x4c,
   PORTRAIT_STACK_TOP = 0x1eef,
@@ -78,22 +66,9 @@ export function compareRun(
   // Keep the fixture's live wait independent of register-level factories installed
   // by scene imports for the same target.
   bind(0x81b0a1, () => frameWaitCallSequence(h, events));
-  bind(0x80f963, () => openWindowSequence(h, events));
-  bind(0x80a6c7, () => chooseFromMenuSequence(h, events, routines, 0x80a6c7));
-  bind(0x80fa3e, function* () {
-    yield* releaseWindowSequence(h, events);
-    let result;
-    yield () => {
-      result = h.rts();
-    };
-    return result;
-  });
   bind(0x80faac, () => segmentSequence(() => setTextCursorRoutine(h)));
   bind(0x80fe69, () => printTextSequence(h, events, routines));
   bind(0x80fd80, () => printNumberSequence(h, events, routines));
-  bind(0x80bcb2, () => putGloveAwayCallSequence(h, events));
-  bind(0x80ff79, () => releaseNoticeWindowsCallSequence(h, events));
-  bind(0x80f953, () => waitForConfirmKeySequence(h, events, routines));
   bind(0x80fb39, () => side.render(h, events));
   if (realDrawing) side.render = drawTextBuffer;
   const finish =
@@ -150,8 +125,6 @@ export function configureMemberPortrait({ h, mem, events, put, routines, bind, c
   };
   routines.set(0x809f6d, unpackPortraitRoutine);
   routines.set(0x808f20, shiftPortraitRowsJsr);
-  bind(0x809022, () => uploadFirstPortraitSequence(h, events, routines));
-  bind(0x808ff5, () => uploadPortraitTilesSequence(h, events, routines));
   bind(0x80e4b3, () => memberPortraitSequence(h, events, routines));
   return (result) => {
     calls.push(['final portrait', ...snapshot()]);

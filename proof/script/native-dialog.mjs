@@ -13,7 +13,7 @@ import {
   runReleaseNoticeWindows,
   runReleaseWindow,
   runOpenWindow,
-} from '../caller/upkeep-routines.mjs';
+} from '../../tools/register-forms/upkeep-routines.mjs';
 
 import { unpackPortraitRoutine } from '../../tools/register-forms/portrait-routines.mjs';
 

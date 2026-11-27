@@ -50,7 +50,7 @@ import {
   runPutGloveAway,
   runOpenWindow,
   runReleaseNoticeWindows,
-} from '../proof/caller/upkeep-routines.mjs';
+} from './register-forms/upkeep-routines.mjs';
 import { MAIN_MOTION_ROUTINES, moveAndAnimateObjects } from '../proof/replay/main-loop-motion.mjs';
 import { moveGlove } from '../proof/replay/native-glove.mjs';
 import { objectSearchSequence } from '../proof/caller/object-search.mjs';
@@ -947,8 +947,8 @@ const NOTICE_SHOW = {
     return roundRegisters(h);
   },
 };
-// The glove release 80:BCB2: a glove target or none; the name window release runs
-// register-level in the reference and lifted in the lifted release.
+// The glove release 80:BCB2: a glove target or none, compared on game state only (the
+// lifted release leaves no registers).
 const GLOVE_RELEASE = {
   name: 'glove release 80:BCB2',
   entry: 0x80bcb2,
@@ -969,7 +969,6 @@ const GLOVE_RELEASE = {
     h.ctx.programBank = 0x80;
     h.push(0x1234, 2);
     runPutGloveAway(h, liveWindowEvents(h));
-    return roundRegisters(h);
   },
 };
 // The lifted window release does not reproduce the frames of the window map unpack
@@ -1427,7 +1426,8 @@ const DIALOG_SMALL = [
       for (let x = 0; x < 8; x += 2) if (s.rnd(3) === 0) s.put(NOTICE_WINDOWS + x, 0xffff);
       return wordInput(s);
     },
-    lifted: plainLifted(runReleaseNoticeWindows, false, liveWindowEvents),
+    // Game state only: the lifted release leaves no registers.
+    lifted: plainLifted(runReleaseNoticeWindows, false, liveWindowEvents, () => undefined),
   },
 ];
 // The window release's map unpack frames below the caller's are not reproduced.

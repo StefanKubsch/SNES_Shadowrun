@@ -8,19 +8,11 @@ import * as directStatus from '../src/game/status-screen.mjs';
 import { decimalNumberSequence } from './register-forms/decimal-number.mjs';
 import { equipmentRowsSequence } from './register-forms/equipment-window.mjs';
 import { closePortraitWindowSequence } from './register-forms/portrait-window.mjs';
-import { reloadObjectTiles } from '../proof/system/native-scene-tiles.mjs';
-import { buildSpriteList } from '../proof/replay/native-scene-sprites.mjs';
 import * as W from '../src/data/wram.mjs';
-import { sendApuCommand } from '../proof/system/native-input-apu.mjs';
 import { itemMenuSequence } from './register-forms/item-menu.mjs';
 import { spellMenuSequence, STATUS_ENTRY } from './register-forms/member-spell-menu.mjs';
 import { skillsSequence, notesSequence } from './register-forms/status-submenus.mjs';
-import { chooseFromMenuSequence } from '../proof/caller/menu-choice.mjs';
 import { memberPortraitSequence } from './register-forms/member-portrait.mjs';
-import {
-  uploadFirstPortraitSequence,
-  uploadPortraitTilesSequence,
-} from '../proof/caller/portrait-upload.mjs';
 import { unpackPortraitRoutine } from './register-forms/portrait-routines.mjs';
 import { clearFixedColourJsl, shiftPortraitRowsJsr } from './register-forms/jsr-forms.mjs';
 
@@ -158,17 +150,11 @@ function runStatus(
       };
       routines.set(0x809f6d, unpackPortraitRoutine);
       routines.set(0x808f20, shiftPortraitRowsJsr);
-      bind(0x809022, () => uploadFirstPortraitSequence(h, events, routines));
-      bind(0x808ff5, () => uploadPortraitTilesSequence(h, events, routines));
       bind(0x80e4b3, () => memberPortraitSequence(h, events, routines));
       routines.set(0x81886a, clearFixedColourJsl);
-      routines.set(0x81f007, (callee) => sendApuCommand(callee.a, false));
-      routines.set(0x80adf4, reloadObjectTiles);
-      routines.set(0x80b8de, buildSpriteList);
       bind(0x808f97, () => closePortraitWindowSequence(h, events, routines));
       bind(0x80fdcf, () => decimalNumberSequence(h, events, routines));
       bind(0x80e9c5, () => equipmentRowsSequence(h, events, routines));
-      bind(0x80a6ad, () => chooseFromMenuSequence(h, events, routines, 0x80a6ad));
       for (const target of [0x80e572, 0x80e577, 0x80e57f])
         bind(target, () => itemMenuSequence(h, events, routines, target));
       bind(STATUS_ENTRY, () => spellMenuSequence(h, events, routines, STATUS_ENTRY));

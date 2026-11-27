@@ -17,7 +17,7 @@ import { readStateByte, writeStateByte } from '../state/objects.mjs';
 // Registers (user decision 2026-11-17): game state only; the menus take no register
 // input and the routines leave no registers (the result is in the direct page word 00).
 // The register form of the main menu for register-level callers (A the result with the
-// flags of its CMP #FFFF) lives in proof/caller/upkeep-routines.mjs.
+// flags of its CMP #FFFF) lives in tools/register-forms/upkeep-routines.mjs.
 import { drawTextBufferSequence } from './text-draw.mjs';
 import { chooseFromMenu, MENU } from './menu-choice.mjs';
 import { fitListWindow, listTextIds } from '../data/menu-layout.mjs';
