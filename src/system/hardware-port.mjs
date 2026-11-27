@@ -10,7 +10,7 @@ export class HardwarePort {
   // read(address, width, site) and write(address, value, width, site) reach the
   // devices at a bank-0 bus address.
   // video: the register-free picture back end of live play (src/video/picture-video.mjs)
-  // or null; videoOf (src/video/video-port.mjs) prefers it to the registers.
+  // or null; videoOf (src/video/picture-video.mjs) hands it to the lifted code.
   constructor(read, write, video = null) {
     this.read = read;
     this.write = write;

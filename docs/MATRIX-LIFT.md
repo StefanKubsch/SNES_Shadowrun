@@ -25,7 +25,7 @@ writer. The sections below on what was compared record the evidence of the lift.
 | [matrix-text.mjs](../src/matrix/matrix-text.mjs)       | Message ring, typing and text commands, language edits of matrix texts, gauges.                   |
 | [matrix-runtime.mjs](../src/matrix/matrix-runtime.mjs) | Word access to WRAM and cartridge tables, VRAM copy queue, bridge to shared routines.             |
 | [matrix-tables.mjs](../src/matrix/matrix-tables.mjs)   | The control tables of bank 81 and the animation lists as named data (`m.tables`).                 |
-| [video-port.mjs](../src/video/video-port.mjs)          | Video interface: VRAM words and copies, OAM copy, colours, scroll, layers, colour math, H-DMA.    |
+| `video-port.mjs` (removed)                             | Video interface: VRAM words and copies, OAM copy, colours, scroll, layers, colour math, H-DMA.    |
 | [hardware-port.mjs](../src/system/hardware-port.mjs)   | Hardware interface: system register reads and writes, each with the site of the original.         |
 | [joypad.mjs](../src/system/joypad.mjs)                 | Joypad word after the automatic read (80:9E0B), newly pressed buttons (80:9E1A).                  |
 | [nmi.mjs](../src/system/nmi.mjs)                       | NMI enable and disable, NMI callback, hidden sprites, scene screen start (81:EB97).               |

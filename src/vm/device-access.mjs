@@ -59,8 +59,8 @@ export class DeviceAccess {
       if (this.trace !== null) this.trace.push({ kind: 'read', pc, address, width, value });
       return value;
     };
-    // A write at a full bus address, independent of the data bank: the video
-    // and sound interfaces (src/video/video-port.mjs) reach the devices here.
+    // A write at a full bus address, independent of the data bank: the hardware
+    // and sound interfaces of lifted code reach the devices here.
     // anyBank marks the hardware port of lifted code, as for busRead.
     // eslint-disable-next-line no-unused-vars
     this.busWrite = (address, value, width, pc = 0, anyBank = false) => {

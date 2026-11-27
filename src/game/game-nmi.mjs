@@ -6,15 +6,13 @@ import { readStateByte, writeStateByte } from '../state/objects.mjs';
 //
 // The handler calls its jobs once per NMI with the direct page at 0 and the data bank
 // at 0, so the fields below 2000 lie in WRAM. Each job states its transfers through
-// the video interface (src/video/video-port.mjs) with the original instruction sites;
-// its SNES back end makes the original writes in the original order, so the PPU model
-// sees the same writes. Register-level callers pass a hardware port, which the jobs
-// wrap in that interface. The handler restores the
+// the video interface (src/video/picture-video.mjs) with the original instruction sites;
+// callers pass a hardware port that carries it. The handler restores the
 // interrupted registers afterwards, so the jobs leave no registers to their caller
 // except the 16-bit modes they came with.
 import { accessorPort } from '../system/hardware-port.mjs';
 import { spriteTable } from '../state/sprites.mjs';
-import { videoOf } from '../video/video-port.mjs';
+import { videoOf } from '../video/picture-video.mjs';
 import { sceneRuntime } from '../system/scene-runtime.mjs';
 import { uploadMapEdges } from './camera-scroll.mjs';
 import { readJoypad } from '../system/joypad.mjs';

@@ -180,6 +180,7 @@ mostly script natives (src/script 56 %).
      scene runtime, and the remaining fixtures (text caller, native services, front-end
      text edits, camera and text state, scene command composition) give their
      accessors a picture bus or compare a PictureVideo.
-   - Next: delete VideoPort (src/video/video-port.mjs) and the register fallback of
-     sceneRuntime and videoOf; move the scaffolding of the frozen tests to tools/; then
-     delete the rest of proof/ and the register modules.
+   - VideoPort (src/video/video-port.mjs) and the register fallback of sceneRuntime
+     and videoOf are deleted (2026-11-27); PictureVideo is the only video interface.
+   - Next: move the scaffolding of the frozen tests to tools/; then delete the rest of
+     proof/ and the register modules.

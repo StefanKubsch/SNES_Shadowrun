@@ -43,7 +43,7 @@ import { sceneRuntime } from '../system/scene-runtime.mjs';
 import { nmiAtBranch } from '../system/frame-wait.mjs';
 import { recordedRoutine } from '../system/recorded-routines.mjs';
 import { UNPACK_7F, unpackLong } from '../system/unpack.mjs';
-import { videoOf } from '../video/video-port.mjs';
+import { videoOf } from '../video/picture-video.mjs';
 import {
   DIALOG_RECORD_FLAGS,
   NMI_JOB_LISTS,

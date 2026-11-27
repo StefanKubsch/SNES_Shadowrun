@@ -12,7 +12,7 @@ import { readStateByte, writeStateByte } from '../state/objects.mjs';
 // enabled.
 import { objectTable } from '../state/objects.mjs';
 import { setNmiCallback } from '../system/nmi.mjs';
-import { videoOf } from '../video/video-port.mjs';
+import { videoOf } from '../video/picture-video.mjs';
 import { UNPACK_7E, unpackLong, unpackStream } from '../system/unpack.mjs';
 import { languageStreamSource } from '../data/language.mjs';
 import { drawJakeStateBar } from './state-bar.mjs';

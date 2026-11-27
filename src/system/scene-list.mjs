@@ -18,7 +18,7 @@ import {
   SCENE_COMMAND_REGISTER,
 } from '../data/scene-commands.mjs';
 import { unpackStream } from './unpack.mjs';
-import { videoOf } from '../video/video-port.mjs';
+import { videoOf } from '../video/picture-video.mjs';
 import {
   NMI_CALLBACK,
   NMI_CALLBACK_BANK,

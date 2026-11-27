@@ -1,5 +1,5 @@
 // Random per-function tests of the shared scene routines the matrix, cutscenes and
-// intro call (src/system, src/apu and the VideoPort) against their register-level
+// intro call (src/system, src/apu and the video interface) against their register-level
 // versions (proof/system, proof/replay, proof/apu-reference). They were part of
 // tools/matrix-lift-functions.test.mjs until the register-level matrix reference was
 // retired on 2026-11-25 (docs/STATE-MODEL-REBUILD.md); the samples keep the matrix's
@@ -259,7 +259,7 @@ function prepareMemory(mem, s) {
 // (and may narrow the sample); samples overrides SAMPLES for rarely reached branches;
 // lifted(m, input) runs the lifted function; result(h) reads the reference result.
 const CASES = [
-  // Shared routines, lifted for the matrix (src/system, src/apu, VideoPort).
+  // Shared routines, lifted for the matrix (src/system, src/apu, the video interface).
   {
     name: 'randomBelow 80:F2A8',
     long: true,

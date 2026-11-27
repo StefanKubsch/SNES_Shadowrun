@@ -51,7 +51,7 @@ export function queueVramCopy(wram, bytes, source, address) {
   setWord(wram, DMA_RECORD_COUNT + DMA_RECORD_BYTES + at, 0);
   setWord(wram, MATRIX_DMA_END, at + DMA_RECORD_BYTES);
 }
-// The queued copies one after another for VideoPort.copyToVram, then an empty queue.
+// The queued copies one after another for the video interface's copyToVram, then an empty queue.
 export function sendVramCopies(wram, video) {
   if (word(wram, MATRIX_DMA_RECORDS) !== 0) {
     let at = 0;

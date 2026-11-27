@@ -37,7 +37,7 @@ import {
   SCENE_LAYER_LOW,
   SCENE_LAYER_ROW_BYTES,
 } from '../data/wram.mjs';
-import { videoOf } from '../video/video-port.mjs';
+import { videoOf } from '../video/picture-video.mjs';
 import { BG_1, BG_2, VMAINC_INCREMENT_AFTER_HIGH, VMAINC_STEP_32 } from '../constants/ppu.mjs';
 import { BYTE_BITS, BYTE_MASK, WORD_MASK, WORD_SIGN } from '../constants/bits.mjs';
 

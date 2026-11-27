@@ -2,7 +2,7 @@
 // proof/system/main-scene-video.mjs): BG1 map at VRAM word 0000, BG2 at 0400, BG3 at
 // 0800, the character bases and sprite sizes of the scenes, mode 1 with BG3
 // priority, and BG1-3 with sprites on the main screen, in the original's order.
-import { videoOf } from './video-port.mjs';
+import { videoOf } from './picture-video.mjs';
 import {
   BG_1,
   BG_2,

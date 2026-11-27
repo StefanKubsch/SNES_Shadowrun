@@ -195,3 +195,15 @@ however, no longer needs to name registers:
   state).
 - The picture back end does not prove that every value a frame reads was written
   (the SNES back end's known flags); its memories start at zero.
+
+## Step 10: the register-writing video interface is gone (2026-11-27)
+
+- The frozen lift and caller tests compare the picture state (PictureVideo as the
+  device bus of each side) instead of the PPU register writes; their vectors were
+  re-keyed after a check against the old ones (docs/REGISTER-COMPAT-BOUNDARY.md).
+- The scene load writes its data-bank-7E palette channel bytes to WRAM itself, so no
+  game code and no test reaches the register fallback any more.
+- VideoPort (src/video/video-port.mjs) is deleted. PictureVideo is the only video
+  interface; `videoOf`, `DMA_TARGETS` and `dmaMode` moved to
+  src/video/picture-video.mjs, and `sceneRuntime` hands lifted code the devices'
+  picture back end without a register fallback.

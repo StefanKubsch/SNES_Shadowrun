@@ -50,7 +50,7 @@ import {
 import { takePad } from '../system/live-input-calls.mjs';
 import { waitForCounterWord } from '../system/frame-wait.mjs';
 import { sceneRuntime } from '../system/scene-runtime.mjs';
-import { videoOf } from '../video/video-port.mjs';
+import { videoOf } from '../video/picture-video.mjs';
 import { fixesEnabled, preparePushkinTopics } from './bugfixes.mjs';
 import { DIALOG_TABLE, DIALOG_BANK_BASE } from '../data/portraits.mjs';
 import { JAKE_PORTRAIT_DIALOG, JAKE_ALTERNATE_PORTRAIT_DIALOG } from '../data/runners.mjs';

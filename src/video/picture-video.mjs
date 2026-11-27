@@ -1,8 +1,14 @@
-// The picture back end of live play (docs/FRAME-DESCRIPTION.md, phase 5 step 5): it
-// implements the video interface of src/video/video-port.mjs on a typed picture state
-// (display, BG layers, screens, windows, colour effects, sprites, palette, character
-// and map memory) instead of PPU registers, and builds the frame description of
-// src/video/frame-renderer.mjs from that state.
+// The picture back end (docs/FRAME-DESCRIPTION.md, phase 5 step 5) and the video
+// interface of lifted game code (docs/STRATEGY.md, "Lifted code"): game code states what
+// the screen needs (a VRAM word, a colour, a scroll position, a layer selection, a
+// transfer with its source, size and destination), and this back end keeps it as a
+// typed picture state (display, BG layers, screens, windows, colour effects, sprites,
+// palette, character and map memory) instead of PPU registers. It builds the frame
+// description of src/video/frame-renderer.mjs from that state. Another platform
+// implements the same methods on its own display. The methods keep the original's
+// order and their site arguments (the original instructions); this back end ignores
+// the sites. The register-level SNES back end of the same interface (VideoPort) was
+// removed on 2026-11-27 (docs/REGISTER-COMPAT-BOUNDARY.md).
 //
 // Register numbers remain only where the game hands over register data:
 // - writeRegister decodes one register byte. The power-on reset (80:E3xx), the scene
@@ -91,6 +97,7 @@ import {
   DMAP_ONE_PORT,
   DMAP_TRANSFER_MODE_MASK,
   DMAP_TWO_PORTS,
+  DMAP_WRITE_TWICE,
   DMA_CHANNELS,
   DMA_ZERO_COUNT_LENGTH,
   HDMA_LINE_COUNT_MASK,
@@ -121,11 +128,34 @@ import {
   OBJ_LAYER,
   WINDOW_AREAS,
 } from './frame-renderer.mjs';
-import { DMA_TARGETS, dmaMode } from './video-port.mjs';
 import { spriteBytes } from '../state/sprites.mjs';
 
 // A transfer or frame the picture state cannot describe (as PpuBoundary of the SNES
 // back end).
+// The B-bus register of each transfer destination and its channel mode. H-DMA tables
+// name their per-line target: 'mainLayers' (one TM byte), 'bg2Scroll' (the BG2
+// horizontal offset, written twice) or 'windowEdges' (WH0 and WH1).
+const SCROLL_REGISTERS_PER_LAYER = 2;
+export const DMA_TARGETS = {
+  vram: [VMDATAL, DMAP_TWO_PORTS],
+  vramRead: [RDVRAML, DMAP_B_TO_A | DMAP_TWO_PORTS],
+  cgram: [CGDATA, DMAP_ONE_PORT],
+  oam: [OAMDATA, DMAP_ONE_PORT],
+  mainLayers: [TM, DMAP_ONE_PORT],
+  bg2Scroll: [BG1HOFS + SCROLL_REGISTERS_PER_LAYER, DMAP_WRITE_TWICE],
+  windowEdges: [WH0, DMAP_TWO_PORTS],
+};
+// The channel mode of a transfer: its destination's pattern, with a fixed source.
+export const dmaMode = (t) => DMA_TARGETS[t.to][1] | (t.fixed ? DMAP_FIXED_SOURCE : 0);
+
+// The video interface of a hardware port (src/system/hardware-port.mjs) or of the picture
+// back end itself.
+export function videoOf(port) {
+  const video = port.video;
+  if (!video) throw new PictureBoundary('picture_video_required');
+  return video;
+}
+
 export class PictureBoundary extends Error {
   constructor(reason, details = null) {
     super(reason);
@@ -228,7 +258,7 @@ const WRIO_ALL_HIGH = 0xff,
   MEMSEL_FAST_ROM = 1,
   // CPU registers 4200-420E that the scene default clears with the window registers.
   CPU_REGISTERS_CLEARED = CGADSUB - W12SEL + 1;
-// The DMA channels of the video interface (video-port.mjs): general transfers, VRAM
+// The DMA channels of the video interface: general transfers, VRAM
 // records, the OAM buffer, palettes, the text read-back, text tile clears and WRAM
 // copies to VRAM.
 const GENERAL = 0,
@@ -703,7 +733,7 @@ export class PictureVideo {
     return this.#vramRead(port === RDVRAMH ? 1 : 0);
   }
 
-  // ---- The video interface (src/video/video-port.mjs) -----------------------------
+  // ---- The video interface -------------------------------------------------------
   setVramWord(address, value) {
     this.#vramWordAddress(address);
     this.#vramWord(value);

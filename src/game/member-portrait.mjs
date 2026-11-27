@@ -29,7 +29,7 @@ import {
 import { waitForCounterWord } from '../system/frame-wait.mjs';
 import { dataBankWord, setDataBankWord } from '../system/data-bank.mjs';
 import { accessorPort } from '../system/hardware-port.mjs';
-import { videoOf } from '../video/video-port.mjs';
+import { videoOf } from '../video/picture-video.mjs';
 import {
   DP_PORTRAIT_BANK,
   DP_PORTRAIT_POINTER,

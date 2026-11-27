@@ -80,7 +80,7 @@ export const COLDATA_RED = 0x20;
 export const COLDATA_GREEN = 0x40;
 export const COLDATA_BLUE = 0x80;
 
-// BG layer numbers of the video interface (src/video/video-port.mjs).
+// BG layer numbers of the video interface (src/video/picture-video.mjs).
 export const BG_1 = 1;
 export const BG_2 = 2;
 export const BG_3 = 3;

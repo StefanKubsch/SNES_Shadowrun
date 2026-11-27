@@ -28,7 +28,7 @@ import {
   RIGHT_WINDOW_RIGHT_EDGE,
   TMW_SHADOW,
 } from '../data/wram.mjs';
-import { videoOf } from '../video/video-port.mjs';
+import { videoOf } from '../video/picture-video.mjs';
 import { BYTE_BITS, BYTE_MASK, WORD_BITS, WORD_MASK, WORD_SIGN } from '../constants/bits.mjs';
 
 const HDMA_SOURCE = 0x808f87,
