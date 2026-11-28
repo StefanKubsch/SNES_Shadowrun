@@ -27,6 +27,7 @@ export function memberMenuState(mem) {
     redrawPortrait: 'portraitRedraw',
     endWord: 'dialogEnd',
     runSpell: 'spellRunsScript',
+    itemClass: 'itemClass',
   }))
     descriptors[name] = field(owner);
   for (const [index, name] of ['window', 'menuWindow', 'submenuWindow', 'extraWindow'].entries())
@@ -45,6 +46,7 @@ export function memberMenuState(mem) {
   const notices = Array.from({ length: 4 }, (_, index) => field('noticeWindows', index));
   Object.defineProperties(state, {
     player: stateField(mem, SCENE_ROOM_FIELDS, sceneRoomState, 'playerObject'),
+    storyStage: stateField(mem, SCENE_ROOM_FIELDS, sceneRoomState, 'storyStage'),
     hasNotices: { get: () => notices.some((notice) => !(notice.get() & WORD_SIGN)) },
     selectPressed: { get: () => (pressed.get() & PAD_SELECT) !== 0 },
     details: { get: () => runnerMetadata(mem, state.runnerIndex) },
@@ -72,6 +74,22 @@ export function memberMenuState(mem) {
       state.prepareRecord(state.runnerIndex, value);
     },
   });
+  const inventory = new Map();
+  state.inventoryRow = (index) => {
+    let row = inventory.get(index);
+    if (!row) {
+      row = Object.defineProperties(
+        {},
+        {
+          text: field('listNames', index),
+          actor: field('listIndices', index),
+          count: field('listValues', index),
+        },
+      );
+      inventory.set(index, row);
+    }
+    return row;
+  };
   states.set(mem, state);
   return state;
 }

@@ -324,3 +324,13 @@ EVENT.DEFEATED`). The 37 most used game functions have parameter names (PARAMETE
   shared renderer workspace and the original state schemas remain migration boundaries.
   Ratchet: 1,165 ROM literals, 144 WRAM imports, 26 hardware imports, 2,158 direct page
   names and 2,610 address comments.
+- 2026-11-28, phase 3 step 11 (inventory and item use): inventory reads named actor,
+  kind and saved actor-record fields. Story stage, item class and holder remain separate
+  filters, actors retain reverse order and single/zero counts remain unnumbered. Shared
+  menu rows retain their original aliases, including rereads of class/member per actor.
+  Item use creates the actor at the member's coarse position through a named creation
+  entry, completes number/depth/record fields before the nested task visit and preserves
+  notice/portrait/equipment cleanup. Creation workspace stays in its existing adapter;
+  actor record identifiers and the data readers remain temporary migration boundaries.
+  Ratchet: 1,163 ROM literals, 144 WRAM imports, 26 hardware imports, 2,146 direct page
+  names and 2,591 address comments.

@@ -1,3 +1,4 @@
+import { DP_ITEM_FLAGS, DP_ITEM_RECORD } from '../system/native-status-screen.mjs';
 import { dataBankOf } from '../system/data-bank.mjs';
 import { readStateByte, writeStateByte } from '../state/objects.mjs';
 // The object creation (lifted from 80:A835; register-level version in
@@ -116,4 +117,19 @@ export function createObject(mem, wram, a) {
 export function createObjectCall(h) {
   const { mem, wram } = sceneRuntime(h);
   createObject(mem, wram, h.a);
+}
+
+// Create an actor's item at a position expressed in the creation function's units.
+// Compatibility arguments stay here; callers keep coordinates and actor fields by name.
+export function createActorItem(mem, a, actor, position) {
+  const { wram } = mem;
+  setWord(wram, DP_ITEM_FLAGS, actor.flags);
+  setWord(wram, DP_ITEM_RECORD, actor.record);
+  setWord(wram, DP_OBJECT_KIND, actor.kind);
+  setWord(wram, DP_OBJECT_SCRIPT, actor.script);
+  setWord(wram, DP_OBJECT_X, position.x);
+  setWord(wram, DP_OBJECT_Y, position.y);
+  setWord(wram, DP_OBJECT_HEIGHT, position.height);
+  createObject(mem, wram, a);
+  return word(wram, 0);
 }
