@@ -248,3 +248,12 @@ EVENT.DEFEATED`). The 37 most used game functions have parameter names (PARAMETE
   during migration. Legacy, unused address declarations remain in data/wram.mjs until
   its phase 3 cleanup. Ratchet: 1,192 ROM literals, 150 WRAM imports, 26 hardware
   imports, 2,313 direct page names and 2,776 address comments.
+- 2026-11-28, phase 3 step 3 (party records): membership, scene creation, targeting,
+  status displays, runner recovery and matrix entry use cached named member records
+  (kind, number, position and object slot). No game consumer imports the group layout
+  constants. Scripts and saves share the existing independent arrays. Removal keeps
+  the extra copy after the last member, including adjacent saved fields. The party
+  bridge provides ordinary member indices; unmigrated callers temporarily retain a
+  doubled lastIndex, which the later consumer cleanup must remove. The original state
+  schemas and raw fixture bridge remain a phase 3 boundary. Ratchet: 1,192 ROM literals,
+  149 WRAM imports, 26 hardware imports, 2,313 direct page names, 2,767 address comments.

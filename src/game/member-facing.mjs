@@ -1,3 +1,4 @@
+import { partyState } from '../state/party.mjs';
 import { readStateByte, writeStateByte } from '../state/objects.mjs';
 // A group member turned to the room's direction (lifted from the script native 80:BBA0
 // with 80:D15C; register-level version in proof/replay/native-selection.mjs).
@@ -8,7 +9,7 @@ import { readStateByte, writeStateByte } from '../state/objects.mjs';
 // tables 80:BBFA for x and 80:BC0A for y), the walking action 2 (80:A985, unless
 // selected) and the direction (the turn 80:AAAF, src/game/object-turn.mjs).
 import { selectObjectAnimation, turnObject } from './object-turn.mjs';
-import { GROUP_INDEX, GROUP_NUMBERS, ROOM } from '../data/wram.mjs';
+import { ROOM } from '../data/wram.mjs';
 import { BYTE_BITS, BYTE_MASK, LONG_MASK, WORD_MASK, WORD_SIGN } from '../constants/bits.mjs';
 import { setObjectWord, objectWord } from '../state/objects.mjs';
 
@@ -38,9 +39,9 @@ const setWord = (wram, at, value) => {
 const romWord = (mem, at) => mem.read8(at) | (mem.read8((at + 1) & LONG_MASK) << BYTE_BITS);
 
 // The group index of the object number, from the last member down; negative if none.
-function memberIndex(wram, number) {
-  let index = word(wram, GROUP_INDEX);
-  while (word(wram, GROUP_NUMBERS + index) !== number) {
+function memberIndex(mem, number) {
+  let index = partyState(mem).lastIndex;
+  while (partyState(mem).member(index / 2).number !== number) {
     index = (index - 2) & WORD_MASK;
     if (index & WORD_SIGN) break;
   }
@@ -56,7 +57,7 @@ export function faceRoomDirection(mem) {
       (((room << ROOM_SHIFT) & WORD_MASK) + room + ((room >>> ROOM_CARRY_BIT) & 1)) & WORD_MASK,
     roomDirection = mem.read8((ROOM_DIRECTIONS + record) & LONG_MASK);
   setWord(wram, DP_ROOM_DIRECTION, roomDirection);
-  const index = memberIndex(wram, objectWord(mem, 'number', object));
+  const index = memberIndex(mem, objectWord(mem, 'number', object));
   let direction = roomDirection;
   if (index === SECOND_MEMBER) direction++;
   else if (index === THIRD_MEMBER) direction--;

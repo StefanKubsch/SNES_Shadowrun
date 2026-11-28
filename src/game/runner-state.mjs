@@ -1,3 +1,4 @@
+import { partyState } from '../state/party.mjs';
 import { readStateByte, writeStateByte } from '../state/objects.mjs';
 // The runners' state counts and magic points (lifted from 80:CECB, 80:CF2E and 80:D079
 // with 80:D08A; register-level references in proof/game-reference/runner-state.mjs). The
@@ -11,13 +12,7 @@ import { readStateByte, writeStateByte } from '../state/objects.mjs';
 import { taskStop } from '../system/task-stop.mjs';
 import { dataBankWord } from '../system/data-bank.mjs';
 import { pointerWord } from '../system/open-bus.mjs';
-import {
-  GROUP_INDEX,
-  GROUP_NUMBERS,
-  MAGIC_POINTS,
-  PLAYER_OBJECT,
-  RECORD_COUNT,
-} from '../data/wram.mjs';
+import { MAGIC_POINTS, PLAYER_OBJECT, RECORD_COUNT } from '../data/wram.mjs';
 import {
   RECORD_COUNT_MAX,
   RECORD_MAGIC,
@@ -74,9 +69,12 @@ function runnerRecord(mem, row, offset) {
 // object and its runner row (FFFE when the number is no runner's).
 function findMember(mem, object, stop) {
   const { wram } = mem,
-    groupNumber = (at) => wramWord(wram, at),
-    inGroup = (number) =>
-      !(searchDown(groupNumber, GROUP_NUMBERS, wramWord(wram, GROUP_INDEX), number) & WORD_SIGN);
+    inGroup = (number) => {
+      const party = partyState(mem);
+      for (let member = party.lastMember; member >= 0; member--)
+        if (party.member(member).number === number) return true;
+      return false;
+    };
   let number = objectWord(mem, 'number', object);
   if (!inGroup(number)) {
     object = wramWord(wram, PLAYER_OBJECT);

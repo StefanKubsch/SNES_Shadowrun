@@ -1,3 +1,4 @@
+import { partyState } from '../state/party.mjs';
 import { fillStateBytes } from '../state/objects.mjs';
 import { readStateByte, writeStateByte } from '../state/objects.mjs';
 // The start of a game (lifted from 80:9688, 80:9699, 80:960D, 80:98E9 and 81:B198;
@@ -33,7 +34,6 @@ import {
 } from '../data/runners.mjs';
 import { TEXT_NONE } from '../data/native-member-spell-menu.mjs';
 import {
-  GROUP_INDEX,
   JAKE_ALTERNATE_PORTRAIT,
   JAKE_BODY,
   JAKE_DERMAL_ARMOUR,
@@ -68,7 +68,6 @@ const NEW_GAME_STREAM = 0x8bfbd2,
   NEW_GAME_ROOM = 3,
   FIRST_STORY_STAGE = 1,
   NO_TOPICS = 0xffff,
-  GROUP_EMPTY = 0xfffe,
   SCRIPT_WORDS = 32;
 // Jake's new-game record (src/data/runners.mjs): Body, Strength and Charisma 3,
 // state-count maximum 30, Firearms and Computer 1; the listed bytes 0.
@@ -134,7 +133,7 @@ export function startNewGame(a) {
   setUpNewGameState(a);
   setWord(wram, TOPIC_LIST, NO_TOPICS);
   setWord(wram, STORY_STAGE, FIRST_STORY_STAGE);
-  setWord(wram, GROUP_INDEX, GROUP_EMPTY);
+  partyState(a.mem).lastMember = -1;
   return NEW_GAME_ROOM;
 }
 

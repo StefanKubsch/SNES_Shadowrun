@@ -1,3 +1,4 @@
+import { partyState } from '../state/party.mjs';
 import { dataBankOf } from '../system/data-bank.mjs';
 // A group member's object added to the scene (lifted from the script native 80:A1E6;
 // register-level reference in proof/game-reference/scene-object-add.mjs).
@@ -27,11 +28,6 @@ import {
   DP_SCENE_OBJECT_NUMBER,
   DP_SCENE_OBJECT_POSITION,
   DP_SCENE_OBJECT_SCRATCH,
-  GROUP_INDEX,
-  GROUP_NUMBERS,
-  GROUP_OBJECTS,
-  GROUP_POSITIONS,
-  GROUP_SLOTS,
   OBJECT_CLASS_MASK,
   PLAYER_OBJECT,
   RUNNER_ARMOUR_RATING,
@@ -56,7 +52,6 @@ const ENTRY_BYTES = 2,
 
 const wramAddress = (offset) => (WRAM + offset) & LONG_MASK;
 const wramWord = (mem, offset) => mem.read16(wramAddress(offset));
-const setWramWord = (mem, offset, value) => mem.write16(wramAddress(offset), value & WORD_MASK);
 const bankAddress = (a, offset) => ((dataBankOf(a) << WORD_BITS) + offset) & LONG_MASK;
 const bankWord = (a, offset) => a.mem.read16(bankAddress(a, offset));
 const setBankWord = (a, offset, value) => a.mem.write16(bankAddress(a, offset), value & WORD_MASK);
@@ -67,9 +62,9 @@ const actorWord = (mem, offset) => mem.read16((ACTOR_TABLE + offset) & LONG_MASK
 // 80:A1E6: add the group member's object of the arguments to the scene.
 export function addSceneObject(mem, a) {
   const { wram } = mem;
-  const index = (wramWord(mem, GROUP_INDEX) + ENTRY_BYTES) & WORD_MASK;
-  setWramWord(mem, GROUP_INDEX, index);
-  setWramWord(mem, GROUP_OBJECTS + index, directWord(mem, DP_OBJECT));
+  const index = (partyState(mem).lastIndex + ENTRY_BYTES) & WORD_MASK;
+  partyState(mem).lastIndex = index;
+  partyState(mem).member(index / 2).kind = directWord(mem, DP_OBJECT);
   // The position plus the coarse position times the row factor (16-bit sums).
   const rows = wramWord(mem, SCENE_OBJECT_ROW_FACTOR) & BYTE_MASK;
   setDirectWord(
@@ -80,9 +75,9 @@ export function addSceneObject(mem, a) {
   let position = 0;
   for (let n = rows; n; n--)
     position = (position + directWord(mem, DP_SCENE_OBJECT_SCRATCH)) & WORD_MASK;
-  setWramWord(mem, GROUP_POSITIONS + index, position + directWord(mem, DP_SCENE_OBJECT_POSITION));
+  partyState(mem).member(index / 2).position = position + directWord(mem, DP_SCENE_OBJECT_POSITION);
   const number = directWord(mem, DP_SCENE_OBJECT_NUMBER);
-  setWramWord(mem, GROUP_NUMBERS + index, number);
+  partyState(mem).member(index / 2).number = number;
   // The creation takes the actor's script; the direction waits in word 6B.
   setDirectWord(mem, DP_SCENE_OBJECT_SCRATCH, directWord(mem, DP_OBJECT_SCRIPT));
   setDirectWord(mem, DP_OBJECT_SCRIPT, actorWord(mem, ACTOR_SCRIPT + number));
@@ -92,15 +87,15 @@ export function addSceneObject(mem, a) {
     actor = number;
   setDirectWord(mem, DP_DIRECTION, directWord(mem, DP_SCENE_OBJECT_SCRATCH));
   turnObject(mem, wram);
-  if (wramWord(mem, GROUP_INDEX) === 0) setBankWord(a, PLAYER_OBJECT, directWord(mem, DP_OBJECT));
+  if (partyState(mem).lastIndex === 0) setBankWord(a, PLAYER_OBJECT, directWord(mem, DP_OBJECT));
   setBankObjectWord(a, 'number', slot, actor);
   // The depth flags (bits 6 and 7) go to the high byte, then rotate left by one.
   const flags = (actorWord(mem, actor) & ACTOR_DEPTH_FLAGS) << BYTE_BITS;
   setBankObjectWord(a, 'depthOrder', slot, (flags << 1) + (flags >>> TOP_BIT));
   setBankObjectWord(a, 'record', slot, actorWord(mem, ACTOR_RECORD + actor));
-  if (wramWord(mem, GROUP_INDEX) === 0)
+  if (partyState(mem).lastIndex === 0)
     setBankObjectWord(a, 'flags', slot, bankObjectWord(a, 'flags', slot) | OBJECT_CLASS_MASK);
-  setBankWord(a, GROUP_SLOTS + wramWord(mem, GROUP_INDEX), slot);
+  partyState(mem).member(partyState(mem).lastIndex / 2).slot = slot;
   // The runner with the object's number, searched from the last one down.
   const objectNumber = bankObjectWord(a, 'number', slot);
   let runner = RUNNER_LAST_INDEX;

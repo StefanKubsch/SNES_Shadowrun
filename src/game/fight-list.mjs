@@ -1,3 +1,4 @@
+import { partyState } from '../state/party.mjs';
 import { readStateByte, writeStateByte } from '../state/objects.mjs';
 // The fight list (lifted from 80:8521 and 80:855E; register-level references in
 // proof/game-reference/fight-list-append.mjs and proof/replay/native-fight-list-remove.mjs).
@@ -40,9 +41,6 @@ import {
   DP_WINDOW_TOP,
   FIGHT_FIRST_REMOVAL,
   FIGHT_KARMA,
-  GROUP_INDEX,
-  GROUP_LEADER_ONLY,
-  GROUP_POSITIONS,
   OPTION_MUSIC_RESTORE,
   FIGHT_LIST,
   FIGHT_LIST_INDEX,
@@ -122,11 +120,11 @@ export function* removeFromFightListSequence(h, events, renderBuffer = drawTextB
     } while (x < word(wram, FIGHT_LIST_INDEX));
     if (word(wram, FIGHT_FIRST_REMOVAL) === 0) {
       setWord(wram, FIGHT_FIRST_REMOVAL, WORD_MASK);
-      const members = word(wram, GROUP_INDEX);
-      if (!negative(word(wram, GROUP_LEADER_ONLY)) && !negative(members))
+      const members = partyState(mem).lastIndex;
+      if (!negative(partyState(mem).leaderOnly) && !negative(members))
         for (let m = members; !negative(m); m = (m - 2) & WORD_MASK) {
-          const position = word(wram, GROUP_POSITIONS + m);
-          if (position !== 0) setWord(wram, GROUP_POSITIONS + m, position - 1);
+          const position = partyState(mem).member(m / 2).position;
+          if (position !== 0) partyState(mem).member(m / 2).position = position - 1;
         }
     }
     const last = (word(wram, FIGHT_LIST_INDEX) - 2) & WORD_MASK;

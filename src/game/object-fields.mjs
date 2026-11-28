@@ -1,3 +1,4 @@
+import { partyState } from '../state/party.mjs';
 // Object fields that scripts read and change (lifted from the script natives 80:CA05,
 // 80:CA0D, 80:CA15 and 80:CA20 for the flag word and 80:CA2B, 80:CA3A, 80:CA49, 80:CA58,
 // 80:CAA2, 80:CAB4, 80:CACA and 80:CAE0 for the record, 80:8EF5, 80:8AF1, 80:8AFA and
@@ -22,7 +23,6 @@ import {
   NO_TASK,
   OBJECT_HIDDEN,
   OBJECT_COVERED,
-  GROUP_NUMBERS,
   RECORD_PROPERTY_RESET,
   RECORD_COUNT,
   RECORD_FLAGS,
@@ -168,7 +168,7 @@ function setRecordProperty(mem, object, value) {
 }
 // 80:9D6A: the record property set to the first group member's number (7E:2DF0).
 export const setRecordPropertyFromGroup = (mem, object) =>
-  setRecordProperty(mem, object, mem.read16(WRAM + GROUP_NUMBERS));
+  setRecordProperty(mem, object, partyState(mem).member(0).number);
 // 80:9D7A: the record property reset to 1538.
 export const resetRecordProperty = (mem, object) =>
   setRecordProperty(mem, object, RECORD_PROPERTY_RESET);

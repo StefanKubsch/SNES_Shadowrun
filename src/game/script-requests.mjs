@@ -1,3 +1,4 @@
+import { partyState } from '../state/party.mjs';
 // The scripts' requests to the main loop (lifted from the script natives 80:CC97, 80:CC33,
 // 80:D016, 80:D9A0, 80:CDCF and 80:DE7E; register-level references in
 // proof/game-reference/script-requests.mjs).
@@ -15,7 +16,6 @@ import {
   AIMING_SPELL,
   AIMING_WEAPON,
   DIALOG_END,
-  GROUP_LEADER_ONLY,
   PLAYER_HIT_FRAMES,
   PLAYER_IDLE,
   SCRIPT_GLOVE_CHOICE,
@@ -51,13 +51,8 @@ export const requestMainLoopExit = (mem) =>
 export const endDialog = (mem) => setDataBankWord(mem, DIALOG_END, 0, WORD_MASK);
 // 80:DE7E: reset the player control for a scene change.
 export function resetPlayerControl(mem) {
+  partyState(mem).leaderOnly = 0;
   setDataBankWord(mem, PLAYER_IDLE, 0, WORD_MASK);
-  for (const field of [
-    AIMING_WEAPON,
-    AIMING_SPELL,
-    PLAYER_HIT_FRAMES,
-    GROUP_LEADER_ONLY,
-    SCRIPT_GLOVE_CHOICE,
-  ])
+  for (const field of [AIMING_WEAPON, AIMING_SPELL, PLAYER_HIT_FRAMES, SCRIPT_GLOVE_CHOICE])
     setDataBankWord(mem, field, 0, 0);
 }

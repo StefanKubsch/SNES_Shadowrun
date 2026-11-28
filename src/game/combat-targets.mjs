@@ -1,3 +1,4 @@
+import { partyState } from '../state/party.mjs';
 import { readStateByte } from '../state/objects.mjs';
 // Targets in a fight by line of sight (lifted from the script natives 80:8BC5, 80:8C08,
 // 80:8C8D and 80:8CCF; register-level references in
@@ -11,15 +12,7 @@ import { readStateByte } from '../state/objects.mjs';
 import { lineOfSight } from './line-of-sight.mjs';
 import { randomBelow } from '../system/random.mjs';
 import { dataBankWord } from '../system/data-bank.mjs';
-import {
-  FIGHT_LIST,
-  FIGHT_LIST_INDEX,
-  GROUP_INDEX,
-  GROUP_LEADER_ONLY,
-  GROUP_SLOTS,
-  OBJECT_NO_TARGET,
-  OBJECT_ON_SCREEN,
-} from '../data/wram.mjs';
+import { FIGHT_LIST, FIGHT_LIST_INDEX, OBJECT_NO_TARGET, OBJECT_ON_SCREEN } from '../data/wram.mjs';
 import { BYTE_BITS, WORD_MASK, WORD_SIGN } from '../constants/bits.mjs';
 import { objectWord } from '../state/objects.mjs';
 
@@ -33,7 +26,7 @@ const flags = (mem, object) => objectWord(mem, 'flags', object);
 const onScreen = (mem, object) => (flags(mem, object) & OBJECT_ON_SCREEN) !== 0;
 const isNoTarget = (mem, object) => (flags(mem, object) & OBJECT_NO_TARGET) !== 0;
 const fightListEntry = (mem, index) => dataBankWord(mem, FIGHT_LIST, index);
-const groupSlot = (mem, index) => dataBankWord(mem, GROUP_SLOTS, index);
+const groupSlot = (mem, index) => partyState(mem).member(index / 2).slot;
 const wramWord = (wram, at) => readStateByte(wram, at) | (readStateByte(wram, at + 1) << BYTE_BITS);
 const negative = (index) => (index & WORD_SIGN) !== 0;
 const sees = (mem, port, viewer, target) => !lineOfSight(mem, port, viewer, target).blocked;
@@ -49,12 +42,11 @@ function randomEntry(mem, port, lastIndex) {
 // group's leader goes alone) if the enemy sees it. Returns { target, range }: the
 // target or NO_TARGET, and the random range or null without a draw.
 export function chooseEnemyTarget(mem, port, enemy) {
-  const { wram } = mem;
   if (!onScreen(mem, enemy)) return { target: NO_TARGET, range: null };
   let index = 0,
     range = null;
-  if (wramWord(wram, GROUP_LEADER_ONLY) === 0)
-    ({ index, range } = randomEntry(mem, port, wramWord(wram, GROUP_INDEX)));
+  if (partyState(mem).leaderOnly === 0)
+    ({ index, range } = randomEntry(mem, port, partyState(mem).lastIndex));
   const member = groupSlot(mem, index);
   if (isNoTarget(mem, member) || !sees(mem, port, enemy, member))
     return { target: NO_TARGET, range };
@@ -79,9 +71,8 @@ function axisDistance(mem, from, to) {
 // NO_TARGET, its distance (FFFF without one) and the original's working distance of
 // the last member (its full distance when that was nearer, else its x plus y).
 export function findNearestVisibleMember(mem, port, object) {
-  const { wram } = mem;
   if (!onScreen(mem, object)) return null;
-  let index = wramWord(wram, GROUP_LEADER_ONLY) === 0 ? wramWord(wram, GROUP_INDEX) : 0,
+  let index = partyState(mem).leaderOnly === 0 ? partyState(mem).lastIndex : 0,
     member = NO_TARGET,
     nearest = WORD_MASK,
     lastDistance;

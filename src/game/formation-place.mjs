@@ -1,3 +1,4 @@
+import { partyState } from '../state/party.mjs';
 import { readStateByte, writeStateByte } from '../state/objects.mjs';
 // An object takes its place in the group's formation (lifted from the script native
 // 80:BB2C; register-level reference in proof/game-reference/formation-place.mjs).
@@ -13,8 +14,6 @@ import { readStateByte, writeStateByte } from '../state/objects.mjs';
 import { selectObjectAnimation, turnObject } from './object-turn.mjs';
 import { dataBankWord } from '../system/data-bank.mjs';
 import {
-  GROUP_INDEX,
-  GROUP_NUMBERS,
   FORMATION_INDEX,
   FORMATION_X,
   FORMATION_Y,
@@ -53,8 +52,8 @@ export function placeInFormation(mem) {
   const { wram } = mem,
     object = word(wram, DP_OBJECT),
     number = objectWord(mem, 'number', object);
-  let member = wramWord(mem, GROUP_INDEX);
-  while (number !== wramWord(mem, GROUP_NUMBERS + member)) {
+  let member = partyState(mem).lastIndex;
+  while (number !== partyState(mem).member(member / 2).number) {
     member = (member - MEMBER_BYTES) & WORD_MASK;
     if (member & WORD_SIGN) break;
   }

@@ -1,3 +1,4 @@
+import { partyState } from '../state/party.mjs';
 import { dataBankOf } from '../system/data-bank.mjs';
 // Entering the Matrix (lifted from the script native 80:E30F; register-level reference in
 // proof/game-reference/matrix-enter.mjs).
@@ -20,8 +21,6 @@ import {
   DECKER_HEALTH,
   DECKER_MEMORY,
   DECKER_RECORD,
-  GROUP_NUMBERS,
-  GROUP_SLOTS,
   MATRIX_EXTRA_NODES,
   MATRIX_MESSAGES,
   MATRIX_SYSTEM,
@@ -58,7 +57,6 @@ const bankAddress = (a, offset) => ((dataBankOf(a) << WORD_BITS) + offset) & LON
 const bankWord = (a, offset) => a.mem.read16(bankAddress(a, offset));
 const setBankWord = (a, offset, value) => a.mem.write16(bankAddress(a, offset), value);
 const setBankByte = (a, offset, value) => a.mem.write8(bankAddress(a, offset), value & BYTE_MASK);
-const wramWord = (mem, offset) => mem.read16((WRAM + offset) & LONG_MASK);
 const directWord = (mem, offset) => mem.read16Bank0(offset);
 
 // The index from start down whose table word is the value, or -1 (the original's index
@@ -94,11 +92,11 @@ export function enterMatrix(mem, a) {
   setBankByte(a, DECKER_COMPUTER_SKILL, mem.read8((record + RECORD_COMPUTER) & LONG_MASK));
   const member = searchDown(
     runner,
-    (x) => wramWord(mem, GROUP_NUMBERS + x),
+    (x) => partyState(mem).member(x / 2).number,
     directWord(mem, DP_DECKER),
   );
   if (member < 0) return;
-  const objectRecord = bankObjectWord(a, 'record', bankWord(a, GROUP_SLOTS + member));
+  const objectRecord = bankObjectWord(a, 'record', partyState(mem).member(member / 2).slot);
   if (objectRecord === 0) return;
   setBankByte(a, DECKER_HEALTH, mem.read8((WRAM + RECORD_COUNT + objectRecord) & LONG_MASK));
   setBankWord(a, DECKER_RECORD, objectRecord);

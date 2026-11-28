@@ -1,3 +1,4 @@
+import { partyState } from '../state/party.mjs';
 import { readStateByte, writeStateByte } from '../state/objects.mjs';
 // The status screen of a group member (lifted from 80:EA6E, 80:EA89 and 80:EA8E;
 // register-level version statusSequence in proof/replay/native-status-screen.mjs, which
@@ -77,8 +78,6 @@ import {
   DP_WINDOW_TOP,
   GLOVE_TARGET_OBJECT,
   GLOVE_TARGET_TAG,
-  GROUP_INDEX,
-  GROUP_NUMBERS,
   JAKE_ALTERNATE_PORTRAIT,
   KARMA,
   MAGIC_POINTS,
@@ -202,8 +201,8 @@ export function* statusScreen(h, events, entry = NATIVE_ENTRY, renderBuffer = dr
   // Whether the object's number is in the group (searched from the group's index down).
   const inGroup = (object) => {
     const objectNumber = objectWord(mem, 'number', object);
-    for (let at = word(wram, GROUP_INDEX); !negative(at); at = (at - 2) & WORD_MASK)
-      if (longWord(mem, WRAM + GROUP_NUMBERS + at) === objectNumber) return true;
+    for (let at = partyState(mem).lastIndex; !negative(at); at = (at - 2) & WORD_MASK)
+      if (partyState(mem).member(at / 2).number === objectNumber) return true;
     return false;
   };
 

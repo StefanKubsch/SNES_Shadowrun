@@ -1,9 +1,10 @@
+import { partyState } from '../state/party.mjs';
 // Optional departures from the European original. Source contracts and
 // regression cases: docs/BUGFIXES.md. Oracle callers keep ORIGINAL_GAMEPLAY.
 import { VmFault } from '../vm/memory.mjs';
 import { BYTE_MASK, WORD_MASK } from '../constants/bits.mjs';
 import { tasksOf } from '../script/task-api.mjs';
-import { GROUP_INDEX, JAKE_CHARISMA, TOPIC_FLAGS, TOPIC_LIST, WRAM } from '../data/wram.mjs';
+import { JAKE_CHARISMA, TOPIC_FLAGS, TOPIC_LIST, WRAM } from '../data/wram.mjs';
 
 // Script 162: Charisma limits and the last word index including Jake.
 const CHARISMA_ONE_FOLLOWER_MAX = 3,
@@ -110,7 +111,7 @@ export const aimReleaseFixed = (a) => fixesEnabled(a) && a.vm?.gameplay?.aimRele
 // 2DE6 is the last WORD index, including Jake. Four WORDs fit in each
 // roster column. Script 162 uses the same Charisma thresholds at hire time.
 export function canAkimiJoin(a) {
-  const last = a.readWord(WRAM + GROUP_INDEX),
+  const last = partyState(a.mem).lastIndex,
     charisma = a.read(WRAM + JAKE_CHARISMA);
   const limit =
     charisma <= CHARISMA_ONE_FOLLOWER_MAX

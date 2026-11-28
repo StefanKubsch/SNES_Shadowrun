@@ -1,3 +1,4 @@
+import { partyState } from '../state/party.mjs';
 // The group and the room's actors (lifted from 80:A2FA and 80:A3B6; register-level
 // reference in proof/replay/main-transition.mjs, which proof/game-reference/room-entry.mjs
 // calls).
@@ -30,10 +31,6 @@ import {
   DP_OBJECT_SCRIPT,
   DP_OBJECT_X,
   DP_OBJECT_Y,
-  GROUP_INDEX,
-  GROUP_NUMBERS,
-  GROUP_OBJECTS,
-  GROUP_SLOTS,
   JAKE_DERMAL_ARMOUR,
   OBJECT_CLASS_MASK,
   PLAYER_OBJECT,
@@ -119,18 +116,18 @@ export function* createGroupSequence(h) {
     setWord(wram, DIALOG_WINDOW, NONE);
   };
   for (
-    let member = word(wram, GROUP_INDEX);
+    let member = partyState(mem).lastIndex;
     !(member & WORD_SIGN);
     member = (member - 2) & WORD_MASK
   ) {
-    const kind = word(wram, GROUP_OBJECTS + member);
+    const kind = partyState(mem).member(member / 2).kind;
     yield () => {
       setWord(wram, DP_MEMBER, member);
       setWord(wram, DP_OBJECT_X, word(wram, DP_START_X));
       setWord(wram, DP_OBJECT_Y, word(wram, DP_START_Y));
       setWord(wram, DP_OBJECT_HEIGHT, word(wram, DP_START_Z));
       setWord(wram, DP_OBJECT_KIND, kind);
-      const number = word(wram, GROUP_NUMBERS + member);
+      const number = partyState(mem).member(member / 2).number;
       setWord(wram, DP_OBJECT_SCRIPT, readWord(mem, ACTOR_TABLE + ACTOR_SCRIPT + number));
     };
     yield () => createObjectCall(h);
@@ -141,7 +138,7 @@ export function* createGroupSequence(h) {
     yield () => turnObjectCall(h);
     yield () => {
       const slot = word(wram, DP_OBJECT_KIND),
-        number = word(wram, GROUP_NUMBERS + member);
+        number = partyState(mem).member(member / 2).number;
       // Only a failed creation (no free slot) and a turn through the selection path
       // leave a slot past the object tables, which the original reaches through its
       // data bank 80 (in ROM above 2000).
@@ -155,7 +152,7 @@ export function* createGroupSequence(h) {
         setObjectWordIn(wram, 'flags', slot, objectWordIn(wram, 'flags', slot) | OBJECT_CLASS_MASK);
       else if (readStateByte(wram, JAKE_DERMAL_ARMOUR))
         setObjectWordIn(wram, 'armour', slot, armour + DERMAL_ARMOUR_BONUS);
-      setWord(wram, GROUP_SLOTS + member, slot);
+      partyState(mem).member(member / 2).slot = slot;
     };
   }
 }

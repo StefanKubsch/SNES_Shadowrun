@@ -1,3 +1,4 @@
+import { partyState } from '../state/party.mjs';
 import { readStateByte, writeStateByte } from '../state/objects.mjs';
 // The party status (lifted from 80:ED3C, which the player control 80:E014 calls on
 // Select; register-level version in proof/replay/native-player-control.mjs).
@@ -35,10 +36,6 @@ import {
   DP_WINDOW_LEFT,
   DP_WINDOW_ROWS,
   DP_WINDOW_TOP,
-  GROUP_INDEX,
-  GROUP_LEADER_ONLY,
-  GROUP_NUMBERS,
-  GROUP_SLOTS,
   MAGIC_POINTS,
   MEMBER_INDEX,
   MEMBER_STATE_COUNT,
@@ -92,8 +89,8 @@ const recordByte = (mem, offset) => {
 function prepareMember(mem, member) {
   const { wram } = mem;
   setWord(wram, DP_PARTY_MEMBER, member);
-  const slot = dataBankWord(mem, GROUP_SLOTS, member),
-    number = word(wram, GROUP_NUMBERS + member);
+  const slot = partyState(mem).member(member / 2).slot,
+    number = partyState(mem).member(member / 2).number;
   let runner = RUNNER_LAST_INDEX;
   while (number !== dataBankWord(mem, RUNNER_OBJECT_NUMBERS, runner)) {
     runner = (runner - 2) & WORD_MASK;
@@ -132,8 +129,8 @@ export function* partyStatus(h, events, renderBuffer = drawTextBuffer) {
     setWord(wram, DP_WINDOW_TOP, PARTY_WINDOW.top);
     setWord(wram, DP_WINDOW_COLUMNS, PARTY_WINDOW.columns);
     let rows = PARTY_WINDOW.baseRows;
-    if (!dataBankWord(mem, GROUP_LEADER_ONLY)) {
-      const last = word(wram, GROUP_INDEX);
+    if (!partyState(mem).leaderOnly) {
+      const last = partyState(mem).lastIndex;
       rows = ((last >>> 1) + PARTY_WINDOW.baseRows + (last & 1)) & WORD_MASK;
     }
     setWord(wram, DP_WINDOW_ROWS, rows);
@@ -179,7 +176,7 @@ export function* partyStatus(h, events, renderBuffer = drawTextBuffer) {
     yield () => {
       const next = (word(wram, DP_PARTY_MEMBER) + 1) & WORD_MASK;
       member = (next + 1) & WORD_MASK;
-      more = next < word(wram, GROUP_INDEX) && dataBankWord(mem, GROUP_LEADER_ONLY) === 0;
+      more = next < partyState(mem).lastIndex && partyState(mem).leaderOnly === 0;
     };
   } while (more);
   yield* waitForConfirmKey(h, events);
