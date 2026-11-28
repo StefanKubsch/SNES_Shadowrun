@@ -10,8 +10,8 @@ const CEILINGS = Object.freeze({
   romLiterals: 1159,
   wramImports: 132,
   hardwareImports: 26,
-  directPageNames: 1937,
-  addressComments: 2475,
+  directPageNames: 1905,
+  addressComments: 2462,
 });
 
 test('src/ gains no new references to the original system', () => {

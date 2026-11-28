@@ -394,3 +394,12 @@ EVENT.DEFEATED`). The 37 most used game functions have parameter names (PARAMETE
   Encoded box limits, map scrolling/upload and other camera consumers remain
   migration boundaries. Ratchet: 1,159 ROM literals, 132 WRAM imports, 26 hardware
   imports, 1,937 direct page names and 2,475 address comments.
+
+- 2026-11-28, phase 3 step 19 (glove motion and object search): movement, speeds,
+  marked-object offsets, projection bases, camera/input reads and name-window state
+  share a named glove view. Reverse draw order, restricted-kind filtering, snapping,
+  name lookup, translated width and window replacement retain their behaviour.
+  Draw-list bounds and shared search scratch remain compatibility bridges; encoded
+  kind/runner names and object identifiers remain phase 4 migration work. Ratchet:
+  1,159 ROM literals, 132 WRAM imports, 26 hardware imports, 1,905 direct page names
+  and 2,462 address comments.
