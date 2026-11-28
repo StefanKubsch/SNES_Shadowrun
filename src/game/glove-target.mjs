@@ -1,4 +1,7 @@
-import { readStateByte, writeStateByte } from '../state/objects.mjs';
+// Choose an object, spell target or floor destination with the active glove.
+// Selection locals survive window and input waits; shared state is read live.
+import { gloveState } from '../state/glove.mjs';
+import { workspaceMemory } from '../state/workspace.mjs';
 import { requestUploadCall, resetWindowList } from './window-list.mjs';
 import { unpackWindowMap } from './game-screen.mjs';
 import { sceneRuntime } from '../system/scene-runtime.mjs';
@@ -9,68 +12,11 @@ import { showNotice } from './notice-show.mjs';
 import { putGloveAwaySequence } from './window-release.mjs';
 import { takePad } from '../system/live-input-calls.mjs';
 import { waitForCounterWord } from '../system/frame-wait.mjs';
-// Choosing with the action or spell glove (lifted from the script natives 80:8D0B and its
-// relatives; register-level version in proof/replay/native-glove-target.mjs, which
-// recorded waits and inputs replay).
-//
-// The glove appears over the player figure (80:BC36 with 80:BC67 or 80:BC99). Each frame
-// the word wait 81:B0A1, the newly pressed buttons 80:9E1A and the glove movement
-// 80:BE6D run, until A, B, X or Y is newly pressed. The object under the glove
-// (7E:01DE, while 7E:01DA is not negative) is the choice; the glove is put away
-// (80:BCB2) and the pad word taken once more. Wait, pad, release, notice and
-// redraw compose directly; movement, map preparation and close also compose directly.
-//
-// The choice with a reach check (80:9C40) takes an object only when the summed X and Y
-// distances from the player figure and the height distance are each below 81; a farther
-// object shows the out-of-reach notice (window 2, 2, C x 3, text 0, 3C frames, 80:FEC1)
-// and counts as none. Without an open member menu (7E:1F62 zero) the window list is
-// redrawn (81:AEB0). 80:9BC6 turns the slot into the object's number, 80:9BB9 and
-// 80:9C33 mark the choice as the script's (7E:1D6D FFFF) while it runs.
-//
-// The spell glove (80:9BD3) closes an open member menu's dialog and prepares the window
-// list first; it takes only objects with bit 15 of their flags set. The place choice
-// (80:C724) turns the glove's position into a place on the floor for an object's walk.
-//
-// Registers (user decision 2026-11-17): game state only; the natives leave no A, X, Y or
-// flags (the script interpreter replaces them and reads DP 00). Chosen slots and
-// the place choice's object stay in generator locals across waits.
 import { segmentSequence } from '../system/sequence-runner.mjs';
 import { GLOVE_LIMITS, GLOVE_OVER_PLAYER } from '../script/native-glove-crosshair-limits.mjs';
-import {
-  CAMERA_X,
-  CAMERA_Y,
-  GLOVE_BASE_X,
-  GLOVE_BASE_Y,
-  GLOVE_KIND,
-  GLOVE_LIMIT_KIND,
-  GLOVE_TARGET_OBJECT,
-  GLOVE_TARGET_TAG,
-  GLOVE_X,
-  GLOVE_Y,
-  PAD_A,
-  PAD_B,
-  PAD_PRESSED,
-  PAD_X,
-  PAD_Y,
-  PLAYER_OBJECT,
-} from '../data/wram.mjs';
-import {
-  DP_NOTICE_FRAMES,
-  DP_NOTICE_TEXT,
-  DP_WINDOW_ATTRIBUTES,
-  DP_WINDOW_COLUMNS,
-  DP_WINDOW_LEFT,
-  DP_WINDOW_ROWS,
-  DP_WINDOW_TOP,
-  MEMBER_MENU_ACTIVE,
-  SCRIPT_GLOVE_CHOICE,
-  SPELL_TARGET_OBJECT,
-  WINDOW_FIRST_INDEX,
-  WINDOW_LAST_INDEX,
-} from '../data/wram.mjs';
-import { DP_SCRATCH } from '../data/native-member-spell-menu.mjs';
+import { PAD_A, PAD_B, PAD_X, PAD_Y } from '../data/wram.mjs';
 import { GLOVE_REACH, OUT_OF_REACH_NOTICE } from '../data/native-glove-target.mjs';
-import { BYTE_BITS, BYTE_MASK, WORD_MASK, WORD_SIGN } from '../constants/bits.mjs';
+import { BYTE_BITS, WORD_MASK, WORD_SIGN } from '../constants/bits.mjs';
 import { objectWord, setObjectWordIn } from '../state/objects.mjs';
 
 // The choice ends on a newly pressed A, B, X or Y.
@@ -83,17 +29,9 @@ const POSITION_SHIFT = 2;
 // The place choice's screen pixels of the glove (its position words shifted right six
 // times) in the direct page, and the bases of its projection back onto the floor.
 const PIXEL_SHIFT = 6,
-  DP_GLOVE_PIXEL_X = 0xa8,
-  DP_GLOVE_HALF_PIXEL_X = 0xa2,
-  DP_GLOVE_PIXEL_Y = 0xa5,
   PLACE_Y_BASE = 0x900,
   PLACE_X_BASE = 0x600;
 
-const word = (wram, at) => readStateByte(wram, at) | (readStateByte(wram, at + 1) << BYTE_BITS);
-const setWord = (wram, at, value) => {
-  writeStateByte(wram, at, value & BYTE_MASK);
-  writeStateByte(wram, at + 1, (value >>> BYTE_BITS) & BYTE_MASK);
-};
 const swapBytes = (value) => ((value >>> BYTE_BITS) | (value << BYTE_BITS)) & WORD_MASK;
 
 // Subtract each value in turn with the borrow passed on (SEC, then SBC each); returns
@@ -114,22 +52,22 @@ function subtractChain(start, values) {
 // height, the camera Y and 48.
 export function placeGloveOverPlayer(h) {
   const { mem } = h.a,
-    { wram } = mem,
-    player = word(wram, PLAYER_OBJECT),
+    glove = gloveState(mem),
+    player = glove.player,
     field = (name) => objectWord(mem, name, player);
   const down = subtractChain(GLOVE_OVER_PLAYER.yBase, [
     field('diagonal'),
     field('height'),
-    word(wram, CAMERA_Y),
+    glove.camera.y,
     GLOVE_OVER_PLAYER.yOffset,
   ]);
-  setWord(wram, GLOVE_Y, swapBytes(down >>> POSITION_SHIFT));
+  glove.y = swapBytes(down >>> POSITION_SHIFT);
   const across = subtractChain((GLOVE_OVER_PLAYER.xBase + field('y')) & WORD_MASK, [
     field('x'),
-    word(wram, CAMERA_X),
+    glove.camera.x,
     GLOVE_OVER_PLAYER.xOffset,
   ]);
-  setWord(wram, GLOVE_X, swapBytes(across >>> POSITION_SHIFT));
+  glove.x = swapBytes(across >>> POSITION_SHIFT);
 }
 
 // Put the glove on (80:BC67 action, 80:BC99 spell) without the JSR frames of the entry
@@ -144,25 +82,26 @@ function putGloveOn(h, limits) {
 // choosing button is newly pressed. The glove movement
 // receives the name renderer.
 export function* gloveFramesSequence(h, events, renderBuffer) {
-  const { wram } = h.a.mem;
+  const glove = gloveState(h.a.mem);
   let pressed;
   do {
     yield* waitForCounterWord(h, events);
     yield* segmentSequence(() => takePad(h, events));
     yield* gloveMove(h, events, renderBuffer);
     yield () => {
-      pressed = word(wram, PAD_PRESSED) & CHOICE_BUTTONS;
+      pressed = glove.pressed & CHOICE_BUTTONS;
     };
   } while (pressed === 0);
 }
 
 // The object slot under the glove, or null when it points at none.
 export function gloveTarget(wram) {
-  return word(wram, GLOVE_TARGET_TAG) & WORD_SIGN ? null : word(wram, GLOVE_TARGET_OBJECT);
+  const glove = gloveState(workspaceMemory(wram));
+  return glove.targetTag & WORD_SIGN ? null : glove.targetObject;
 }
 
 // Store the result word in DP 00.
-const setResult = (h, value) => setWord(h.a.mem.wram, 0, value);
+const setResult = (h, value) => (gloveState(h.a.mem).result = value);
 // The original keeps the chosen slot on the stack while the glove is put away (PHA,
 // PLA); that word lies only in free stack bytes, and the slot is kept in a local here
 // (game state only, user decision 2026-11-17).
@@ -170,12 +109,11 @@ const setResult = (h, value) => setWord(h.a.mem.wram, 0, value);
 // 80:8D0B: choose the object under the action glove, without a reach check. DP 00 gets
 // its slot or FFFF; a sequence that ends with the native's RTS.
 export function* chooseObjectUnderGloveSequence(h, events, renderBuffer = drawTextBuffer) {
-  const { wram } = h.a.mem;
   yield () => putGloveOn(h, GLOVE_LIMITS.action);
   yield* gloveFramesSequence(h, events, renderBuffer);
   let target;
   yield () => {
-    target = gloveTarget(wram);
+    target = gloveTarget(h.a.mem.wram);
   };
   if (target !== null) {
     yield* putGloveAwaySequence(h, events);
@@ -199,35 +137,34 @@ function axisDistance(mem, name, from, to) {
 // distance.
 function outOfReach(h, target) {
   const { mem } = h.a,
-    player = word(mem.wram, PLAYER_OBJECT),
+    glove = gloveState(mem),
+    player = glove.player,
     across = axisDistance(mem, 'x', player, target),
     down = axisDistance(mem, 'y', player, target),
     sum = (down + across) & WORD_MASK;
-  setWord(mem.wram, DP_SCRATCH, across);
+  glove.actionScratch = across;
   return sum >= GLOVE_REACH || axisDistance(mem, 'height', player, target) >= GLOVE_REACH;
 }
 // The out-of-reach notice's window, text and frames in the direct page.
 function prepareOutOfReachNotice(h) {
-  const { wram } = h.a.mem,
+  const glove = gloveState(h.a.mem),
     notice = OUT_OF_REACH_NOTICE;
-  // The window's top gets the left column's value still in A.
-  for (const [offset, value] of [
-    [DP_WINDOW_LEFT, notice.left],
-    [DP_WINDOW_TOP, notice.left],
-    [DP_WINDOW_COLUMNS, notice.columns],
-    [DP_WINDOW_ROWS, notice.rows],
-    [DP_WINDOW_ATTRIBUTES, 0],
-    [DP_NOTICE_TEXT, 0],
-    [DP_NOTICE_FRAMES, notice.frames],
-  ])
-    setWord(wram, offset, value);
+  Object.assign(glove.windows.opening, {
+    left: notice.left,
+    top: notice.left,
+    columns: notice.columns,
+    rows: notice.rows,
+    attributes: 0,
+  });
+  glove.notices.textNumber = 0;
+  glove.notices.frames = notice.frames;
 }
 // The window list is redrawn from its first window (81:AEB0 without its JSL frame)
 // unless a member menu is open.
 function* redrawUnlessMenuSequence(h, events) {
   let open;
   yield () => {
-    open = word(h.a.mem.wram, MEMBER_MENU_ACTIVE) !== 0;
+    open = gloveState(h.a.mem).memberMenuActive !== 0;
   };
   if (!open) yield* resetWindowList(h, events);
 }
@@ -236,7 +173,8 @@ function* redrawUnlessMenuSequence(h, events) {
 // lies only in free stack bytes): choose an object in
 // reach with the action glove; DP 00 gets its slot or FFFF.
 function* chooseInReach(h, events, renderBuffer) {
-  const { wram } = h.a.mem;
+  const { wram } = h.a.mem,
+    glove = gloveState(h.a.mem);
   yield () => putGloveOn(h, GLOVE_LIMITS.action);
   yield* gloveFramesSequence(h, events, renderBuffer);
   let target, far;
@@ -251,7 +189,7 @@ function* chooseInReach(h, events, renderBuffer) {
     yield* redrawUnlessMenuSequence(h, events);
     let chosen;
     yield () => {
-      chosen = word(wram, GLOVE_TARGET_OBJECT);
+      chosen = glove.targetObject;
     };
     yield* putGloveAwaySequence(h, events);
     yield () => setResult(h, chosen);
@@ -269,7 +207,7 @@ function* chooseNumberBodySequence(h, events, renderBuffer) {
   yield* chooseInReach(h, events, renderBuffer);
   yield () => {
     const { mem } = h.a,
-      slot = word(mem.wram, 0);
+      slot = gloveState(mem).result;
     if (!(slot & WORD_SIGN)) setResult(h, objectWord(mem, 'number', slot));
   };
 }
@@ -280,9 +218,10 @@ export function* chooseObjectNumberSequence(h, events, renderBuffer = drawTextBu
 }
 // Mark the glove choice as the script's while body runs (7E:1D6D FFFF, then 0).
 function* scriptChoiceSequence(h, body) {
-  yield () => setWord(h.a.mem.wram, SCRIPT_GLOVE_CHOICE, WORD_MASK);
+  const glove = gloveState(h.a.mem);
+  yield () => (glove.scriptChoice = WORD_MASK);
   yield* body();
-  yield () => setWord(h.a.mem.wram, SCRIPT_GLOVE_CHOICE, 0);
+  yield () => (glove.scriptChoice = 0);
 }
 // 80:9BB9: 80:9BC6 as the script's choice, without the JSR frame of 80:9BC6 (its
 // return word lies only in free stack bytes).
@@ -300,8 +239,8 @@ export function* prepareWindowListSequence(h, events) {
   yield () => unpackWindowMap(sceneRuntime(h));
   yield* requestUploadCall(h, events);
   yield () => {
-    const { wram } = h.a.mem;
-    setWord(wram, WINDOW_FIRST_INDEX, word(wram, WINDOW_LAST_INDEX) + 1);
+    const glove = gloveState(h.a.mem);
+    glove.windows.firstIndex = glove.windows.lastIndex + 1;
   };
 }
 
@@ -311,10 +250,11 @@ export function* prepareWindowListSequence(h, events) {
 // DP 00 and 7E:1FD2. A sequence that ends with the native's RTS.
 export function* spellGloveTargetSequence(h, events, renderBuffer = drawTextBuffer) {
   const { mem } = h.a,
-    { wram } = mem;
+    { wram } = mem,
+    glove = gloveState(mem);
   let open;
   yield () => {
-    open = word(wram, MEMBER_MENU_ACTIVE) !== 0;
+    open = glove.memberMenuActive !== 0;
   };
   if (open) yield* closeDialog(h, events);
   yield* prepareWindowListSequence(h, events);
@@ -333,7 +273,7 @@ export function* spellGloveTargetSequence(h, events, renderBuffer = drawTextBuff
   if (target !== null) {
     yield* redrawUnlessMenuSequence(h, events);
     yield () => {
-      setWord(wram, SPELL_TARGET_OBJECT, target);
+      glove.spellTarget = target;
     };
     yield* putGloveAwaySequence(h, events);
     yield () => setResult(h, target);
@@ -342,7 +282,7 @@ export function* spellGloveTargetSequence(h, events, renderBuffer = drawTextBuff
     yield* putGloveAwaySequence(h, events);
     yield* redrawUnlessMenuSequence(h, events);
     yield () => {
-      setWord(wram, SPELL_TARGET_OBJECT, NO_CHOICE);
+      glove.spellTarget = NO_CHOICE;
       setResult(h, NO_CHOICE);
     };
     yield* segmentSequence(() => takePad(h, events));
@@ -356,16 +296,16 @@ export function* spellGloveTargetSequence(h, events, renderBuffer = drawTextBuff
 // the height (with the borrow passed on), doubled, plus the camera X and halved; across:
 // that plus 600 less the pixel across and the camera X. Returns both.
 function gloveFloorPlace(mem, object) {
-  const { wram } = mem,
-    pixelX = word(wram, GLOVE_X) >>> PIXEL_SHIFT,
+  const glove = gloveState(mem),
+    pixelX = glove.x >>> PIXEL_SHIFT,
     halfPixelX = pixelX >>> 1,
-    pixelY = word(wram, GLOVE_Y) >>> PIXEL_SHIFT,
-    cameraX = word(wram, CAMERA_X);
-  setWord(wram, DP_GLOVE_PIXEL_X, pixelX);
-  setWord(wram, DP_GLOVE_HALF_PIXEL_X, halfPixelX);
-  setWord(wram, DP_GLOVE_PIXEL_Y, pixelY);
+    pixelY = glove.y >>> PIXEL_SHIFT,
+    cameraX = glove.camera.x;
+  glove.place.pixelX = pixelX;
+  glove.place.halfPixelX = halfPixelX;
+  glove.place.pixelY = pixelY;
   const raised = subtractChain((PLACE_Y_BASE + halfPixelX) & WORD_MASK, [
-    word(wram, CAMERA_Y),
+    glove.camera.y,
     pixelY,
     objectWord(mem, 'height', object),
   ]);
@@ -380,11 +320,12 @@ function gloveFloorPlace(mem, object) {
 // and redrawn after the choice. A sequence that ends with the native's RTS.
 export function* choosePlaceWithGloveSequence(h, events, renderBuffer = drawTextBuffer) {
   const { mem } = h.a,
-    { wram } = mem;
+    { wram } = mem,
+    glove = gloveState(mem);
   let object;
   yield () => {
     // The original keeps the object's index on the stack during the choice.
-    object = word(wram, 0);
+    object = glove.result;
     setObjectWordIn(wram, 'motionMode', object, 0);
   };
   yield* prepareWindowListSequence(h, events);
@@ -403,9 +344,9 @@ export function* choosePlaceWithGloveSequence(h, events, renderBuffer = drawText
 // 80:BC83 and 80:BC9C (the script natives' tails of 80:BC80 and 80:BC99): the projection
 // bases and the kind of a GLOVE_LIMITS entry, and the kind as the active glove kind.
 export function setGloveLimits(mem, [baseX, baseY, kind]) {
-  const { wram } = mem;
-  setWord(wram, GLOVE_BASE_X, baseX);
-  setWord(wram, GLOVE_BASE_Y, baseY);
-  setWord(wram, GLOVE_LIMIT_KIND, kind);
-  setWord(wram, GLOVE_KIND, kind);
+  const glove = gloveState(mem);
+  glove.baseX = baseX;
+  glove.baseY = baseY;
+  glove.limitKind = kind;
+  glove.kind = kind;
 }

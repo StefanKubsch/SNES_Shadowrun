@@ -403,3 +403,12 @@ EVENT.DEFEATED`). The 37 most used game functions have parameter names (PARAMETE
   kind/runner names and object identifiers remain phase 4 migration work. Ratchet:
   1,159 ROM literals, 132 WRAM imports, 26 hardware imports, 1,905 direct page names
   and 2,462 address comments.
+
+- 2026-11-28, phase 3 step 20 (glove selection and action dispatch): object/number,
+  spell and floor choices, script-choice markers, reach notices and task actions
+  use shared named glove, camera, window, notice and player state. Borrow chains,
+  separate action/choice reach thresholds, late target/task rereads, spell filters
+  and result/input ordering are retained. Caller result and projection scratch
+  remain compatibility bridges; action-menu rows are the next shared consumer.
+  Ratchet: 1,159 ROM literals, 130 WRAM imports, 26 hardware imports, 1,866 direct
+  page names and 2,429 address comments.

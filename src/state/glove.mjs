@@ -1,5 +1,7 @@
 // Shared glove movement, targeting and name-window state over the existing owners.
 // Search scratch and draw-list access remain explicit compatibility bridges.
+import { SCENE_ROOM_FIELDS, sceneRoomState } from './scene-room.mjs';
+import { noticeState } from './notices.mjs';
 import { FRONTEND_FIELDS, frontendState } from './frontend.mjs';
 import { workspaceMemory, scratchWord } from './workspace.mjs';
 import { cameraState } from './camera.mjs';
@@ -14,7 +16,10 @@ const SEARCH_SCRATCH = {
   objectY: 0x17,
   kindIndex: 0x1a,
 };
-const LOW_MIRROR_END = 0x2000;
+const INTERACTION_SCRATCH = { result: 0, actionScratch: 0x6b };
+const PLACE_SCRATCH = { pixelX: 0xa8, halfPixelX: 0xa2, pixelY: 0xa5 };
+const LOW_MIRROR_END = 0x2000,
+  ACTION_OVERRIDE_ROW = 7;
 import { COMBAT_FIELDS, combatState } from './combat.mjs';
 import { WINDOW_TEXT_FIELDS, windowsText } from './windows-text.mjs';
 import { stateField } from './named-fields.mjs';
@@ -27,6 +32,13 @@ export function gloveState(mem) {
   state = Object.defineProperties(
     {
       camera: cameraState(mem.wram),
+      notices: noticeState(mem),
+      place: Object.defineProperties(
+        {},
+        Object.fromEntries(
+          Object.entries(PLACE_SCRATCH).map(([name, at]) => [name, scratchWord(raw, at)]),
+        ),
+      ),
       windows: windowManagerState(mem),
       decoding: textDecodingState(mem.wram),
       search: Object.defineProperties(
@@ -42,6 +54,21 @@ export function gloveState(mem) {
       },
     },
     {
+      ...Object.fromEntries(
+        Object.entries(INTERACTION_SCRATCH).map(([name, at]) => [name, scratchWord(raw, at)]),
+      ),
+      player: stateField(mem, SCENE_ROOM_FIELDS, sceneRoomState, 'playerObject'),
+      memberMenuActive: stateField(mem, WINDOW_TEXT_FIELDS, windowsText, 'memberActive'),
+      dialogWindow: stateField(mem, WINDOW_TEXT_FIELDS, windowsText, 'dialogWindow'),
+      actionOverride: stateField(
+        mem,
+        WINDOW_TEXT_FIELDS,
+        windowsText,
+        'actionFlags',
+        ACTION_OVERRIDE_ROW,
+      ),
+      aimingWeapon: field('aimingWeapon'),
+      spellTarget: field('spellTarget'),
       kind: field('gloveKind'),
       x: field('gloveX'),
       y: field('gloveY'),
