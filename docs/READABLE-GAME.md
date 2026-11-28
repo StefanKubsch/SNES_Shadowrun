@@ -368,3 +368,11 @@ EVENT.DEFEATED`). The 37 most used game functions have parameter names (PARAMETE
   cached compatibility view; hardware map presentation remains phase 5 work.
   Ratchet: 1,160 ROM literals, 137 WRAM imports, 26 hardware imports, 1,986 direct
   page names and 2,508 address comments.
+
+- 2026-11-28, phase 3 step 16 (text decoding and measurement): the decoder,
+  text-buffer writes and width measurement share named state. Bit refill order,
+  source-pointer/bank overlap, paired characters, translated replacements and
+  the second-character width-table index's retained high byte are preserved.
+  Encoded tree/glyph readers, caller arguments and compatibility scratch remain
+  explicit migration boundaries. Ratchet: 1,160 ROM literals, 135 WRAM imports,
+  26 hardware imports, 1,974 direct page names and 2,495 address comments.
