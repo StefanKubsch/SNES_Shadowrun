@@ -275,3 +275,13 @@ EVENT.DEFEATED`). The 37 most used game functions have parameter names (PARAMETE
   and karma choices still use indirect record pointers; their migration belongs with
   the window/menu and content work. Native return metadata and raw-fixture aliases
   remain temporary boundaries, alongside the legacy state schemas.
+- 2026-11-28, phase 3 step 6 (party formation): the leader's trail and followers use
+  named step records, ordinary step indices and a moving flag. The frame loop records
+  movement; room entry clears only the first X/Y and all heights, as before. Follower
+  spacing comes from named content. Ring wrap, hits that suspend recording, the empty
+  height marker, directions and walking/standing selection retain their behaviour.
+  The temporary state bridge keeps unaligned and overrun aliases. It also distinguishes
+  a missing party slot's low-mirror alias from the member number's long alias.
+  Ratchet: 1,192 ROM literals, 147 WRAM imports, 26 hardware imports, 2,307 direct page
+  names and 2,736 address comments. The original state schemas, doubled indices of
+  other consumers and indirect menu records remain migration work.

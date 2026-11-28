@@ -1,3 +1,4 @@
+import { resetFormationTrail } from './formation-trail.mjs';
 import { readStateByte, writeStateByte } from '../state/objects.mjs';
 // The room entry (lifted from 80:A4BF with 80:A44D, 81:B0AC, 81:B0BD, 80:A464,
 // 81:8D05, 80:8511 and 80:BABB; register-level reference in
@@ -51,11 +52,6 @@ import {
   FIGHT_LIST_INDEX,
   FIGHT_MUSIC,
   FIGHT_UNREAD,
-  FORMATION_HEIGHT,
-  FORMATION_INDEX,
-  FORMATION_LAST,
-  FORMATION_X,
-  FORMATION_Y,
   GAME_OPTIONS,
   HARMLESS_HITS,
   INIDISP_SHADOW,
@@ -160,14 +156,6 @@ export function forceBlank(wram) {
 function resetFightList(wram) {
   setWord(wram, FIGHT_LIST_INDEX, EMPTY_LIST);
   for (const at of [FIGHT_FIRST_REMOVAL, FIGHT_UNREAD, HARMLESS_HITS]) setWord(wram, at, 0);
-}
-// The formation trail of the player figure cleared (80:BABB): only the first X and Y
-// words, all height words.
-function resetFormationTrail(wram) {
-  setWord(wram, FORMATION_INDEX, 0);
-  setWord(wram, FORMATION_X, 0);
-  setWord(wram, FORMATION_Y, 0);
-  for (let x = FORMATION_LAST; x >= 0; x -= 2) setWord(wram, FORMATION_HEIGHT + x, 0);
 }
 // The word at offset of the room header, read through its direct page pointer.
 const headerWord = (mem, wram, offset) => readWord(mem, longPointer(wram, DP_ROOM_HEADER) + offset);
@@ -328,7 +316,7 @@ export function* enterRoomSequence(h, events, room) {
   yield () => {
     resetFightList(wram);
     findRoomLists(mem, wram);
-    resetFormationTrail(wram);
+    resetFormationTrail(mem);
     setWord(wram, DIALOG_WINDOW, 0);
   };
   yield* drawWindowListSequence(h, events);

@@ -1,3 +1,4 @@
+import { CODE_BANK_BASE } from '../constants/memory-map.mjs';
 // Party members share the combat owner's saved fields. Member numbers are ordinary
 // array indices; lastMember is -1 for an empty party. Only this migration bridge
 // knows the old doubled indices used by scripts and unmigrated callers.
@@ -9,7 +10,15 @@ const states = new WeakMap();
 export function partyState(mem) {
   let state = states.get(mem);
   if (state) return state;
-  const field = (name, index = 0) => stateField(mem, COMBAT_FIELDS, combatState, name, index),
+  const field = (name, index = 0) =>
+      stateField(
+        mem,
+        COMBAT_FIELDS,
+        combatState,
+        name,
+        index,
+        name === 'groupSlots' ? CODE_BANK_BASE : undefined,
+      ),
     records = new Map();
   state = Object.defineProperties(
     {},

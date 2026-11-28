@@ -55,5 +55,12 @@ for (const detached of [false, true]) {
     assert.equal(party.member(0.5).kind, 0xa537);
     party.member(0.5).slot = 0x3912;
     assert.equal(mem.read16(W.WRAM + W.GROUP_SLOTS + 1), 0x3912);
+    // A missing slot wraps through the low mirror; the long number column does not.
+    mem.write16(W.WRAM + W.GROUP_SLOTS - 2, 0x5731);
+    mem.write16(W.WRAM + W.GROUP_NUMBERS + 0xfffe, 0x2496);
+    assert.equal(party.member(-1).slot, 0x5731);
+    assert.equal(party.member(-1).number, 0x2496);
+    party.member(-1).slot = 0x7531;
+    assert.equal(mem.read16(W.WRAM + W.GROUP_SLOTS - 2), 0x7531);
   });
 }

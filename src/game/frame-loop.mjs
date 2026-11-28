@@ -32,7 +32,7 @@ export function* update(h, events) {
   if (request.taken) return null;
   yield () => shakeHitPlayer(wram);
   yield () => moveAndAnimateInPlace(h);
-  yield () => recordFormationStep(wram);
+  yield () => recordFormationStep(h.a.mem);
   yield () => followPlayerWithCamera(h.a.mem, wram);
   yield () => updateTileBuffers(wram);
   yield () => buildSpritesInPlace(h);

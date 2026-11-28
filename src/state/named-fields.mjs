@@ -4,9 +4,9 @@
 import { WRAM_BASE } from '../constants/memory-map.mjs';
 import { BYTE_MASK, WORD_MASK, LONG_MASK } from '../constants/bits.mjs';
 
-export function stateField(mem, schema, owner, name, index = 0) {
+export function stateField(mem, schema, owner, name, index = 0, bankBase = WRAM_BASE) {
   const { base, count, bytes, stride = bytes } = schema[name],
-    address = (WRAM_BASE + base + index * stride) & LONG_MASK,
+    address = (bankBase + base + index * stride) & LONG_MASK,
     inRange = Number.isInteger(index) && index >= 0 && index < count,
     mask = bytes === 1 ? BYTE_MASK : WORD_MASK;
   return {
