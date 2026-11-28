@@ -1,3 +1,4 @@
+import { jakeState } from '../state/jake.mjs';
 import { readStateByte, writeStateByte } from '../state/objects.mjs';
 // The skills and notes submenus of the status screen (lifted from 80:E834 and 80:E8C8;
 // register-level versions in proof/replay/native-status-screen.mjs).
@@ -45,9 +46,6 @@ import {
   DP_WINDOW_LEFT,
   DP_WINDOW_ROWS,
   DP_WINDOW_TOP,
-  JAKE_DERMAL_ARMOUR,
-  JAKE_SKILLSOFT,
-  JAKE_WIRED_REFLEXES,
   MEMBER_DATAJACK,
   MEMBER_NUMBER,
   PAD_PRESSED,
@@ -64,9 +62,9 @@ const SKILL_EXTRA_ROWS = 2,
   ENDED = WORD_MASK;
 // Jake's cyberware: its flag byte and text.
 const CYBERWARE = Object.freeze([
-  [JAKE_DERMAL_ARMOUR, TEXT_DERMAL_ARMOUR],
-  [JAKE_SKILLSOFT, TEXT_SKILLSOFT],
-  [JAKE_WIRED_REFLEXES, TEXT_WIRED_REFLEXES],
+  ['dermalArmour', TEXT_DERMAL_ARMOUR],
+  ['skillsoft', TEXT_SKILLSOFT],
+  ['wiredReflexes', TEXT_WIRED_REFLEXES],
 ]);
 
 const word = (wram, at) => readStateByte(wram, at) | (readStateByte(wram, at + 1) << BYTE_BITS);
@@ -81,6 +79,9 @@ function recordByte(mem, offset) {
       word(wram, DP_MEMBER_RECORD) | (readStateByte(wram, DP_MEMBER_RECORD_BANK) << WORD_BITS);
   return mem.read8((record + offset) & LONG_MASK);
 }
+// Skillsoft and Leadership intentionally share the original saved byte.
+const cyberware = (mem, name) =>
+  name === 'skillsoft' ? jakeState(mem).skills.leadership : jakeState(mem)[name];
 // The window's place, size and plain attributes in the direct page.
 function setWindow(h, { left, top, columns }, rows) {
   const { wram } = h.a.mem;
@@ -153,7 +154,7 @@ export function* notes(h, events, renderBuffer = drawTextBuffer) {
     jake = dataBankWord(mem, MEMBER_NUMBER) === JAKE_OBJECT_NUMBER;
     if (jake) {
       let rows = NOTES_WINDOW.jakeRows;
-      for (const [flag] of CYBERWARE) if (readStateByte(wram, flag)) rows++;
+      for (const [flag] of CYBERWARE) if (cyberware(mem, flag)) rows++;
       setWindow(h, NOTES_WINDOW, rows);
       fitListWindow(mem, [TEXT_HEAD_COMPUTER, TEXT_DATAJACK, ...CYBERWARE.map(([, id]) => id)], {
         column: 0,
@@ -186,7 +187,7 @@ export function* notes(h, events, renderBuffer = drawTextBuffer) {
   for (const [flag, id] of CYBERWARE) {
     let fitted;
     yield () => {
-      fitted = readStateByte(wram, flag);
+      fitted = cyberware(mem, flag);
       if (!fitted) return;
       setWord(wram, 2, 0);
       setWord(wram, DP_CURSOR_ROW, (word(wram, DP_CURSOR_ROW) + 1) & WORD_MASK);

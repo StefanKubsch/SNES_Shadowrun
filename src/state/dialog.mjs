@@ -1,3 +1,4 @@
+import { jakeState } from './jake.mjs';
 // The dialog's state by name (docs/READABLE-GAME.md, phase 1): whether the dialog has
 // ended, the current record's flags, the dialog's windows and partner, the known topics,
 // and the music and options the dialog reads. The game code uses these names only; where
@@ -8,7 +9,6 @@ import {
   DIALOG_END,
   DIALOG_RECORD_FLAGS,
   GAME_OPTIONS,
-  JAKE_ALTERNATE_PORTRAIT,
   MEMBER_PORTRAIT,
   MUSIC,
   OPTION_MUSIC,
@@ -73,7 +73,7 @@ export function dialogState(mem) {
     },
     // Jake shows his alternate portrait.
     get jakeAlternate() {
-      return readStateByte(wram, JAKE_ALTERNATE_PORTRAIT) !== 0;
+      return jakeState(mem).alternatePortrait !== 0;
     },
     get music() {
       return word(wram, MUSIC);

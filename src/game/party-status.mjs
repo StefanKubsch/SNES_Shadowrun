@@ -1,3 +1,4 @@
+import { runnerState } from '../state/runners.mjs';
 import { partyState } from '../state/party.mjs';
 import { readStateByte, writeStateByte } from '../state/objects.mjs';
 // The party status (lifted from 80:ED3C, which the player control 80:E014 calls on
@@ -36,7 +37,6 @@ import {
   DP_WINDOW_LEFT,
   DP_WINDOW_ROWS,
   DP_WINDOW_TOP,
-  MAGIC_POINTS,
   MEMBER_INDEX,
   MEMBER_STATE_COUNT,
   STATUS_WINDOW,
@@ -164,7 +164,7 @@ export function* partyStatus(h, events, renderBuffer = drawTextBuffer) {
     yield* printNumber(h, events, renderBuffer);
     yield* withArgument(COLUMNS.magic, () => segmentSequence(() => setTextCursor(h)));
     yield* withArgument(
-      () => readStateByte(wram, MAGIC_POINTS + (dataBankWord(mem, MEMBER_INDEX) >>> 1)),
+      () => runnerState(mem, dataBankWord(mem, MEMBER_INDEX) >>> 1).magicPoints,
       () => printNumber(h, events, renderBuffer),
     );
     yield* withArgument(COLUMNS.magicSlash, () => segmentSequence(() => setTextCursor(h)));

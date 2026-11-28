@@ -1,3 +1,5 @@
+import { jakeState } from './jake.mjs';
+import { runnerContent } from '../content/runners.mjs';
 // Mutable runner resources and equipment, shared with scripts and saved games.
 // Records are cached per game; equipment aliases outside the thirteen regular
 // runners stay in the temporary schema bridge.
@@ -34,6 +36,10 @@ export function runnerState(mem, index) {
     },
     { magicPoints: field('magic', index) },
   );
+  Object.defineProperty(record, 'stats', {
+    enumerable: true,
+    get: () => (index === 0 ? jakeState(mem) : runnerContent(mem)[index]?.stats),
+  });
   records.set(index, record);
   return record;
 }

@@ -1,3 +1,4 @@
+import { jakeState } from '../state/jake.mjs';
 import { runnerState } from '../state/runners.mjs';
 import { readStateByte, writeStateByte } from '../state/objects.mjs';
 // The equipment rows of the status window (lifted from 80:E9C5 with its item text
@@ -27,7 +28,6 @@ import {
 } from '../data/native-member-spell-menu.mjs';
 import {
   DP_CURSOR_ROW,
-  JAKE_DERMAL_ARMOUR,
   MEMBER_INDEX,
   MEMBER_OBJECT,
   PLAYER_OBJECT,
@@ -104,7 +104,7 @@ export function* equipmentRows(h, events, renderBuffer = drawTextBuffer) {
     const runner = runnerState(mem, (dataBankWord(mem, MEMBER_INDEX) & 0x3fff) / 2);
     armour = runner.armour.object;
     rating = runner.armour.rating;
-    if (leader() && readStateByte(wram, JAKE_DERMAL_ARMOUR)) rating += DERMAL_ARMOUR_BONUS;
+    if (leader() && jakeState(mem).dermalArmour) rating += DERMAL_ARMOUR_BONUS;
     rating &= BYTE_MASK;
     weapon = runner.weapon.object;
   };

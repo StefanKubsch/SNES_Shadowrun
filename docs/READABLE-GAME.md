@@ -264,3 +264,14 @@ EVENT.DEFEATED`). The 37 most used game functions have parameter names (PARAMETE
   The extra unequip scan row still aliases the first magic bytes, and both the original
   weapon-default bug and its optional correction retain their behaviour. The content
   reader and the selected member's legacy index remain temporary migration bridges.
+- 2026-11-28, phase 3 step 5 (runner attributes and resources): Jake's attributes,
+  six skills, six spell levels and three portrait/cyberware flags have a shared named
+  view. New Game, cheats, armour bonuses, portraits, health bars, karma health increases
+  and notes use it. Leadership still shares the Skillsoft byte. The unidentified fourth
+  attribute stays untouched by New Game. Runner records provide the other runners'
+  immutable named stats through the content boundary. Recovery and shot bonuses use
+  them; every magic-point consumer now uses named runner resources. Word arithmetic,
+  byte truncation and optional cheats retain their behaviour. Status/skill/spell menus
+  and karma choices still use indirect record pointers; their migration belongs with
+  the window/menu and content work. Native return metadata and raw-fixture aliases
+  remain temporary boundaries, alongside the legacy state schemas.

@@ -1,3 +1,4 @@
+import { jakeState } from '../state/jake.mjs';
 import { readStateByte, writeStateByte } from '../state/objects.mjs';
 // The karma menu of the main menu (lifted from 80:EE57, 80:EF82, 80:F006 and the lists
 // 80:F054, 80:F0F3 and 80:F1B5; register-level versions in proof/replay/native-main-menu.mjs,
@@ -63,7 +64,6 @@ import {
   DP_MENU_ROW,
   DP_MENU_VISIBLE_ROWS,
   JAKE_BODY,
-  JAKE_COUNT_MAX,
   KARMA_LIST_WINDOW,
   KARMA_MENU_INDICES,
   KARMA_MENU_NAMES,
@@ -270,11 +270,7 @@ export function* karmaList(h, events, entry, renderBuffer = drawTextBuffer) {
         body = word(wram, DP_KARMA_VALUE_POINTER) === JAKE_BODY;
         if (!body) return;
         // The count maximum is a byte.
-        writeStateByte(
-          wram,
-          JAKE_COUNT_MAX,
-          (readStateByte(wram, JAKE_COUNT_MAX) + BODY_COUNT_INCREMENT) & BYTE_MASK,
-        );
+        jakeState(mem).maxHealth += BODY_COUNT_INCREMENT;
         setWord(wram, 0, dataBankWord(mem, PLAYER_OBJECT));
         setWord(wram, 2, BODY_COUNT_INCREMENT);
       };

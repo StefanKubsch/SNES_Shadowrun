@@ -1,3 +1,4 @@
+import { jakeState } from '../state/jake.mjs';
 import { runnerState } from '../state/runners.mjs';
 import { partyState } from '../state/party.mjs';
 // The group and the room's actors (lifted from 80:A2FA and 80:A3B6; register-level
@@ -32,7 +33,6 @@ import {
   DP_OBJECT_SCRIPT,
   DP_OBJECT_X,
   DP_OBJECT_Y,
-  JAKE_DERMAL_ARMOUR,
   OBJECT_CLASS_MASK,
   PLAYER_OBJECT,
   STORY_STAGE,
@@ -148,7 +148,7 @@ export function* createGroupSequence(h) {
       setObjectWordIn(wram, 'armour', slot, armour);
       if (kind !== JAKE_KIND)
         setObjectWordIn(wram, 'flags', slot, objectWordIn(wram, 'flags', slot) | OBJECT_CLASS_MASK);
-      else if (readStateByte(wram, JAKE_DERMAL_ARMOUR))
+      else if (jakeState(mem).dermalArmour)
         setObjectWordIn(wram, 'armour', slot, armour + DERMAL_ARMOUR_BONUS);
       partyState(mem).member(member / 2).slot = slot;
     };

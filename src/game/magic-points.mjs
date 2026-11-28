@@ -1,3 +1,4 @@
+import { runnerState } from '../state/runners.mjs';
 import { readStateByte, writeStateByte } from '../state/objects.mjs';
 import { readStateWord } from '../state/objects.mjs';
 // Spending magic points (lifted from the script native 80:8B43; register-level version
@@ -19,7 +20,6 @@ import {
   DP_WINDOW_LEFT,
   DP_WINDOW_ROWS,
   DP_WINDOW_TOP,
-  MAGIC_POINTS,
   MEMBER_INDEX,
 } from '../data/wram.mjs';
 import { BYTE_BITS, BYTE_MASK, WORD_MASK } from '../constants/bits.mjs';
@@ -36,14 +36,15 @@ const setWord = (wram, at, value) => {
 
 // 80:8B43, ending with the native's RTS and composing its notice directly.
 export function* spendMagicPointsSequence(h, events, renderBuffer = drawTextBuffer) {
-  const { wram } = h.a.mem;
+  const { mem } = h.a,
+    { wram } = mem;
   let paid = false;
   yield () => {
-    const at = MAGIC_POINTS + (word(wram, MEMBER_INDEX) >>> 1),
-      left = readStateByte(wram, at) - readStateByte(wram, 0);
+    const runner = runnerState(mem, word(wram, MEMBER_INDEX) >>> 1),
+      left = runner.magicPoints - readStateByte(wram, 0);
     paid = left >= 0;
     if (paid) {
-      writeStateByte(wram, at, left);
+      runner.magicPoints = left;
       setWord(wram, 0, PAID);
       return;
     }

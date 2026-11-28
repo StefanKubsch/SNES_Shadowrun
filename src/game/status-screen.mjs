@@ -1,3 +1,5 @@
+import { runnerState } from '../state/runners.mjs';
+import { jakeState } from '../state/jake.mjs';
 import { partyState } from '../state/party.mjs';
 import { readStateByte, writeStateByte } from '../state/objects.mjs';
 // The status screen of a group member (lifted from 80:EA6E, 80:EA89 and 80:EA8E;
@@ -78,9 +80,7 @@ import {
   DP_WINDOW_TOP,
   GLOVE_TARGET_OBJECT,
   GLOVE_TARGET_TAG,
-  JAKE_ALTERNATE_PORTRAIT,
   KARMA,
-  MAGIC_POINTS,
   MEMBER_DATAJACK,
   MEMBER_INDEX,
   MEMBER_MENU_ACTIVE,
@@ -244,7 +244,7 @@ export function* statusScreen(h, events, entry = NATIVE_ENTRY, renderBuffer = dr
   yield () => {
     const runner = dataBankWord(mem, MEMBER_INDEX);
     setWord(wram, DP_MEMBER_RECORD, dataBankWord(mem, RUNNER_RECORD_POINTERS, runner));
-    const alternate = runner === 0 && readStateByte(wram, JAKE_ALTERNATE_PORTRAIT) !== 0;
+    const alternate = runner === 0 && jakeState(mem).alternatePortrait !== 0;
     setWord(
       wram,
       MEMBER_PORTRAIT,
@@ -297,9 +297,7 @@ export function* statusScreen(h, events, entry = NATIVE_ENTRY, renderBuffer = dr
   yield* text(TEXT_SLASH);
   yield* number(nextRecordByte);
   yield* cursor(STATUS_ROWS.countColumn, STATUS_ROWS.magicRow);
-  yield* number(
-    () => longWord(mem, WRAM + MAGIC_POINTS + (dataBankWord(mem, MEMBER_INDEX) >>> 1)) & BYTE_MASK,
-  );
+  yield* number(() => runnerState(mem, dataBankWord(mem, MEMBER_INDEX) >>> 1).magicPoints);
   yield* text(TEXT_SLASH);
   yield* number(() => word(wram, DP_MAGIC_MAXIMUM));
   let jake;

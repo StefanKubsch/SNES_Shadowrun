@@ -1,3 +1,4 @@
+import { runnerState } from '../state/runners.mjs';
 // The party's karma, nuyen, magic points and learned spells as scripts add to them (lifted
 // from the script natives 80:CDB2, 80:CCDB, 80:8B8A and 80:E1B3; register-level references
 // in proof/game-reference/party-funds.mjs).
@@ -12,8 +13,8 @@
 // 32768 words would keep the original scanning forever; it stops the task instead.
 import { taskStop } from '../system/task-stop.mjs';
 import { dataBankWord } from '../system/data-bank.mjs';
-import { KARMA, MAGIC_POINTS, MEMBER_INDEX, NUYEN, SPELL_LIST, WRAM } from '../data/wram.mjs';
-import { BYTE_MASK, LONG_MASK, WORD_MASK } from '../constants/bits.mjs';
+import { KARMA, MEMBER_INDEX, NUYEN, SPELL_LIST, WRAM } from '../data/wram.mjs';
+import { LONG_MASK, WORD_MASK } from '../constants/bits.mjs';
 
 const NUYEN_LOW = WRAM + NUYEN,
   NUYEN_HIGH = NUYEN_LOW + 2,
@@ -38,8 +39,8 @@ export function addNuyen(mem, amount) {
 
 // 80:8B8A: the shown member's magic points plus the low byte of amount.
 export function addMemberMagicPoints(mem, amount) {
-  const address = (WRAM + MAGIC_POINTS + (dataBankWord(mem, MEMBER_INDEX) >>> 1)) & LONG_MASK;
-  mem.write8(address, (mem.read8(address) + amount) & BYTE_MASK);
+  const runner = runnerState(mem, dataBankWord(mem, MEMBER_INDEX) >>> 1);
+  runner.magicPoints += amount;
 }
 
 const SPELL_BYTES = 2,

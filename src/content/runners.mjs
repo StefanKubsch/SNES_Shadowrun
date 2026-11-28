@@ -5,11 +5,37 @@ import { CODE_BANK_BASE } from '../constants/memory-map.mjs';
 import { BYTE_BITS, BYTE_MASK, HEX_RADIX } from '../constants/bits.mjs';
 
 const cache = new WeakMap();
+const namedStats = (stats) =>
+  stats && {
+    body: stats.body,
+    magic: stats.magic,
+    strength: stats.strength,
+    unidentifiedAttribute: stats.byte3,
+    charisma: stats.charisma,
+    maxHealth: stats.count_max,
+    skills: {
+      firearms: stats.skills.firearms,
+      unarmedCombat: stats.skills.unarmed_combat,
+      armedCombat: stats.skills.armed_combat,
+      computer: stats.skills.computer,
+      leadership: stats.skills.leadership,
+      negotiation: stats.skills.negotiation,
+    },
+    spells: {
+      powerball: stats.spells.powerball,
+      heal: stats.spells.heal,
+      invisibility: stats.spells.invisibility,
+      armour: stats.spells.armour,
+      summonSpirit: stats.spells.summon_spirit,
+      freeze: stats.spells.freeze,
+    },
+  };
 export function runnerContent(mem) {
   let rows = cache.get(mem);
   if (!rows) {
     rows = readRunners((at) => mem.read8(at)).map((row) => ({
       ...row,
+      stats: namedStats(row.stats),
       object: parseInt(row.object, HEX_RADIX),
       armour: { object: parseInt(row.armour.object, HEX_RADIX), rating: row.armour.rating },
       weapon: {

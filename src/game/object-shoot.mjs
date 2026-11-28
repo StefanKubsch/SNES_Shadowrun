@@ -168,10 +168,11 @@ function takeWeapon(run, shooter) {
       mem.read8(((pointer | ((bank & BYTE_MASK) << WORD_BITS)) + offset) & LONG_MASK);
   setWord(wram, DP_WEAPON_RECORD, pointer);
   setWord(wram, DP_WEAPON_RECORD_BANK, bank);
-  setWord(wram, DP_BONUS_KIND_5, record(RECORD_BONUS_KIND_5));
-  const ranged = record(RECORD_BONUS_RANGED);
+  const stats = runnerState(mem, owner / 2).stats;
+  setWord(wram, DP_BONUS_KIND_5, stats ? stats.skills.unarmedCombat : record(RECORD_BONUS_KIND_5));
+  const ranged = stats ? stats.skills.armedCombat : record(RECORD_BONUS_RANGED);
   setWord(wram, DP_BONUS_RANGED, (ranged >>> 1) + (ranged & 1));
-  setWord(wram, DP_BONUS_CLOSE, record(RECORD_BONUS_CLOSE));
+  setWord(wram, DP_BONUS_CLOSE, stats ? stats.skills.firearms : record(RECORD_BONUS_CLOSE));
   const weapon = runnerState(mem, owner / 2).weapon,
     kind = weapon.kind,
     range = weapon.range;

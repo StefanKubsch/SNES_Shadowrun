@@ -1,3 +1,4 @@
+import { runnerState } from '../state/runners.mjs';
 import { partyState } from '../state/party.mjs';
 import { readStateByte, writeStateByte } from '../state/objects.mjs';
 // The runners' state counts and magic points (lifted from 80:CECB, 80:CF2E and 80:D079
@@ -12,7 +13,7 @@ import { readStateByte, writeStateByte } from '../state/objects.mjs';
 import { taskStop } from '../system/task-stop.mjs';
 import { dataBankWord } from '../system/data-bank.mjs';
 import { pointerWord } from '../system/open-bus.mjs';
-import { MAGIC_POINTS, PLAYER_OBJECT, RECORD_COUNT } from '../data/wram.mjs';
+import { PLAYER_OBJECT, RECORD_COUNT } from '../data/wram.mjs';
 import {
   RECORD_COUNT_MAX,
   RECORD_MAGIC,
@@ -99,7 +100,7 @@ export function raiseStateCount(mem, object, amount) {
   const { wram } = mem,
     { object: member, row } = findMember(mem, object, 'task_cecb_endless_search'),
     record = runnerRecord(mem, row, RECORD_COUNT_MAX),
-    max = mem.read8(record),
+    max = row <= RUNNER_LAST_INDEX ? runnerState(mem, row / 2).stats.maxHealth : mem.read8(record),
     objectRecord = objectWord(mem, 'record', member);
   if (objectRecord !== 0) {
     const raised = readStateByte(wram, RECORD_COUNT + objectRecord) + amount;
@@ -117,15 +118,16 @@ export function raiseStateCount(mem, object, amount) {
 // original's direct page values: the record pointer's bank, twice the magic attribute
 // (which the original stores over the pointer's word) and the maximum.
 export function raiseMagicPoints(mem, object, amount) {
-  const { wram } = mem,
-    { row } = findMember(mem, object, 'task_native_cf2e_player_outside_group'),
+  const { row } = findMember(mem, object, 'task_native_cf2e_player_outside_group'),
     record = runnerRecord(mem, row, RECORD_MAGIC),
-    doubleMagic = mem.read8(record) << MAGIC_DOUBLE_SHIFT,
+    doubleMagic =
+      (row <= RUNNER_LAST_INDEX ? runnerState(mem, row / 2).stats.magic : mem.read8(record)) <<
+      MAGIC_DOUBLE_SHIFT,
     // Eight times the attribute plus twice it.
     max = (doubleMagic << (MAGIC_EIGHT_SHIFT - MAGIC_DOUBLE_SHIFT)) + doubleMagic,
-    points = MAGIC_POINTS + (row >>> 1),
-    raised = (readStateByte(wram, points) + amount) & WORD_MASK;
-  writeStateByte(wram, points, (raised >= max ? max : raised) & BYTE_MASK);
+    runner = runnerState(mem, row >>> 1),
+    raised = (runner.magicPoints + amount) & WORD_MASK;
+  runner.magicPoints = raised >= max ? max : raised;
   return { bank: record >>> WORD_BITS, doubleMagic, max };
 }
 
@@ -142,15 +144,12 @@ export function restoreRunners(mem) {
     const number = romWord(mem, CODE_BANK_BASE + RUNNER_OBJECT_NUMBERS + row),
       objectRecord = romWord(mem, ACTOR_TABLE + ACTOR_RECORD + number);
     if (objectRecord === 0) continue;
-    const magic = mem.read8(record);
+    const magic = runnerState(mem, row / 2).stats.magic;
     doubleMagic = (magic << MAGIC_DOUBLE_SHIFT) & BYTE_MASK;
-    writeStateByte(
-      wram,
-      MAGIC_POINTS + (row >>> 1),
-      (((magic << MAGIC_EIGHT_SHIFT) & BYTE_MASK) + doubleMagic) & BYTE_MASK,
-    );
+    runnerState(mem, row >>> 1).magicPoints =
+      ((magic << MAGIC_EIGHT_SHIFT) & BYTE_MASK) + doubleMagic;
     record = (record & ~WORD_MASK) | ((record + RECORD_COUNT_MAX - RECORD_MAGIC) & WORD_MASK);
-    writeStateByte(wram, RECORD_COUNT + objectRecord, mem.read8(record));
+    writeStateByte(wram, RECORD_COUNT + objectRecord, runnerState(mem, row / 2).stats.maxHealth);
   }
   return { record, doubleMagic };
 }
@@ -177,7 +176,10 @@ function runnerRecordByte(mem) {
     bank = mem.read8((CODE_BANK_BASE + RUNNER_RECORD_BANKS + runner) & LONG_MASK);
   setWramWord(wram, DP_RECORD_POINTER, pointer);
   writeStateByte(wram, DP_RECORD_BANK, bank);
-  const value = pointerWord(mem, (bank << WORD_BITS) | pointer, wramWord(wram, DP_RECORD_OFFSET));
+  const value =
+    runner <= RUNNER_LAST_INDEX
+      ? runnerState(mem, runner / 2).stats.strength
+      : pointerWord(mem, (bank << WORD_BITS) | pointer, wramWord(wram, DP_RECORD_OFFSET));
   setWramWord(wram, 0, value & BYTE_MASK);
 }
 // 80:D067: the Strength (record byte 2) of the runner object in word 00, returned in word

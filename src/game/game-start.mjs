@@ -1,3 +1,4 @@
+import { jakeState } from '../state/jake.mjs';
 import { runnerContent } from '../content/runners.mjs';
 import { runnerState } from '../state/runners.mjs';
 import { partyState } from '../state/party.mjs';
@@ -25,13 +26,8 @@ import { enterRoomSequence } from './room-entry.mjs';
 import { fourSaveSlots } from './bugfixes.mjs';
 import { readSaveSlot } from '../storage/srm.mjs';
 import { savedGameState } from '../state/saved-game.mjs';
-import { RECORD_ATTRIBUTE, RECORD_SKILL, RECORD_SPELL } from '../data/runners.mjs';
 import { TEXT_NONE } from '../data/native-member-spell-menu.mjs';
 import {
-  JAKE_ALTERNATE_PORTRAIT,
-  JAKE_BODY,
-  JAKE_DERMAL_ARMOUR,
-  JAKE_WIRED_REFLEXES,
   KARMA,
   MAIN_LOOP_EXIT,
   MAIN_LOOP_RELOAD,
@@ -65,22 +61,6 @@ const NEW_GAME_STREAM = 0x8bfbd2,
 const JAKE_START_ATTRIBUTE = 3,
   JAKE_START_COUNT_MAX = 0x1e,
   JAKE_START_SKILL = 1,
-  JAKE_CLEARED_BYTES = [
-    JAKE_ALTERNATE_PORTRAIT,
-    JAKE_DERMAL_ARMOUR,
-    JAKE_WIRED_REFLEXES,
-    JAKE_BODY + RECORD_SKILL.unarmed_combat,
-    JAKE_BODY + RECORD_SKILL.armed_combat,
-    JAKE_BODY + RECORD_SKILL.leadership,
-    JAKE_BODY + RECORD_SKILL.negotiation,
-    JAKE_BODY + RECORD_ATTRIBUTE.magic,
-    JAKE_BODY + RECORD_SPELL.powerball,
-    JAKE_BODY + RECORD_SPELL.invisibility,
-    JAKE_BODY + RECORD_SPELL.summon_spirit,
-    JAKE_BODY + RECORD_SPELL.freeze,
-    JAKE_BODY + RECORD_SPELL.heal,
-    JAKE_BODY + RECORD_SPELL.armour,
-  ],
   CLEARED_WORDS = [NUYEN, NUYEN + 2, KARMA, SELECTED_SPELL_SCRIPT, SPELL_LIST];
 const word = (wram, at) => readStateByte(wram, at) | (readStateByte(wram, at + 1) << BYTE_BITS);
 const setWord = (wram, at, value) => {
@@ -102,12 +82,14 @@ export function setUpNewGameState(a) {
     Object.assign(runner.weapon, defaults.weapon);
     runner.magicPoints = defaults.magic_points;
   }
-  for (const field of ['body', 'strength', 'charisma'])
-    writeStateByte(wram, JAKE_BODY + RECORD_ATTRIBUTE[field], JAKE_START_ATTRIBUTE);
-  writeStateByte(wram, JAKE_BODY + RECORD_ATTRIBUTE.count_max, JAKE_START_COUNT_MAX);
-  for (const at of JAKE_CLEARED_BYTES) writeStateByte(wram, at, 0);
-  writeStateByte(wram, JAKE_BODY + RECORD_SKILL.firearms, JAKE_START_SKILL);
-  writeStateByte(wram, JAKE_BODY + RECORD_SKILL.computer, JAKE_START_SKILL);
+  const jake = jakeState(mem);
+  for (const field of ['body', 'strength', 'charisma']) jake[field] = JAKE_START_ATTRIBUTE;
+  jake.maxHealth = JAKE_START_COUNT_MAX;
+  jake.magic = 0;
+  jake.alternatePortrait = jake.dermalArmour = jake.wiredReflexes = 0;
+  for (const name of Object.keys(jake.skills)) jake.skills[name] = 0;
+  for (const name of Object.keys(jake.spells)) jake.spells[name] = 0;
+  jake.skills.firearms = jake.skills.computer = JAKE_START_SKILL;
   for (const at of CLEARED_WORDS) setWord(wram, at, 0);
   setWord(wram, SELECTED_SPELL_NAME, TEXT_NONE);
 }
