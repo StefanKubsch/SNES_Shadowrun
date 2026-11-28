@@ -1,4 +1,4 @@
-import { readStateByte } from '../state/objects.mjs';
+import { navigationState } from '../state/menu.mjs';
 // Waiting for a confirming key (lifted from the script native 80:F953; register-level
 // version in proof/replay/native-input-wait.mjs, which recorded waits and inputs replay):
 // each frame the word wait 81:B0A1 and the newly pressed buttons 80:9E1A, until one of
@@ -8,23 +8,19 @@ import { readStateByte } from '../state/objects.mjs';
 import { segmentSequence } from '../system/sequence-runner.mjs';
 import { takePad } from '../system/live-input-calls.mjs';
 import { waitForCounterWord } from '../system/frame-wait.mjs';
-import { PAD_PRESSED } from '../data/wram.mjs';
-import { BYTE_BITS } from '../constants/bits.mjs';
 
 // B, Y and Select in the high byte, A and X in the low byte.
 const CONFIRM_BUTTONS = 0xe0c0;
 
 // 80:F953 composes the live word wait through its frame and reads the pad directly.
 export function* waitForConfirmKey(h, events) {
-  const { wram } = h.a.mem;
+  const state = navigationState(h.a);
   let pressed = 0;
   do {
     yield* waitForCounterWord(h, events);
     yield* segmentSequence(() => takePad(h, events));
     yield () => {
-      pressed =
-        (readStateByte(wram, PAD_PRESSED) | (readStateByte(wram, PAD_PRESSED + 1) << BYTE_BITS)) &
-        CONFIRM_BUTTONS;
+      pressed = state.pressed & CONFIRM_BUTTONS;
     };
   } while (pressed === 0);
   return pressed;

@@ -343,3 +343,11 @@ EVENT.DEFEATED`). The 37 most used game functions have parameter names (PARAMETE
   provide named columns/rows for corner marks and are shared with the next window block.
   Ratchet: 1,163 ROM literals, 142 WRAM imports, 26 hardware imports, 2,073 direct page
   names and 2,560 address comments.
+- 2026-11-28, phase 3 step 13 (notice lifecycle): show, replacement, expiry, release
+  and game-screen reset share four named notice records and effect duration. Free-slot
+  search, equal-minimum replacement order, zero-duration wrap, translated pages and
+  cursor restoration retain their behaviour. Reset clears window handles without
+  clearing stale durations. Text-bank validation and effect arguments live in content;
+  confirmation reads named input. Caller argument fitting and serialized shown.slot
+  stay explicit compatibility boundaries. Ratchet: 1,160 ROM literals, 140 WRAM imports,
+  26 hardware imports, 2,049 direct page names and 2,542 address comments.

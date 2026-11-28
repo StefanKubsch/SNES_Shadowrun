@@ -1,3 +1,4 @@
+import { noticeState } from '../state/notices.mjs';
 import { readStateByte, writeStateByte } from '../state/objects.mjs';
 // The window releases of the room entry (lifted from 80:FA3E, 80:FF79, 80:BCB2 and
 // 80:BE5B; register-level versions in proof/system/native-render-compose.mjs,
@@ -28,8 +29,6 @@ import {
   GLOVE_NAME_WINDOW,
   GLOVE_TARGET_OBJECT,
   GLOVE_TARGET_TAG,
-  NOTICE_WINDOWS,
-  NOTICE_WINDOW_LAST,
   WINDOW_ACTIVE,
   WINDOW_FIRST_INDEX,
   WINDOW_LAST_INDEX,
@@ -66,13 +65,16 @@ export function* releaseWindowSequence(h, events) {
 // Release every used notice window, from the last slot down, and reset the first window
 // index (80:FF79).
 export function* releaseNoticeWindowsSequence(h, events) {
-  const { wram } = sceneRuntime(h);
-  for (let x = NOTICE_WINDOW_LAST; x >= 0; x -= 2) {
-    const window = word(wram, NOTICE_WINDOWS + x);
+  const { mem, wram } = sceneRuntime(h),
+    state = noticeState(mem);
+  for (let index = state.slots.length - 1; index >= 0; index--) {
+    const slot = state.slots[index],
+      window = slot.window;
     if (window & WORD_SIGN) continue;
-    yield () => setWord(wram, DP_WINDOW, window);
-    yield* releaseWindowSequence(h, events);
-    yield () => setWord(wram, NOTICE_WINDOWS + x, NONE);
+    yield* releaseWindowAt(h, events, window);
+    yield () => {
+      slot.window = NONE;
+    };
   }
   yield () => setWord(wram, WINDOW_FIRST_INDEX, 0);
 }

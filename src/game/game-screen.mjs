@@ -1,3 +1,4 @@
+import { noticeState } from '../state/notices.mjs';
 import { readStateByte, writeStateByte } from '../state/objects.mjs';
 // The game screen set-up (lifted from 80:9629 with 81:B064, 80:8FB3, 80:BC1A,
 // 81:891A, 81:8CB9, 81:8000, 81:A840, 81:A772, 81:AB2C, 81:AA9C, 81:A9B2, 81:A9E1,
@@ -41,9 +42,6 @@ import {
   MEMBER_MENU_ACTIVE,
   MUSIC,
   NMI_JOB_LISTS,
-  NOTICE_EFFECT_FRAMES,
-  NOTICE_WINDOW_LAST,
-  NOTICE_WINDOWS,
   OBJECT_PALETTE_COUNT,
   PALETTE_INDEX,
   PALETTE_PROGRESS,
@@ -439,7 +437,7 @@ function uploadFont(m) {
   writeStateByte(wram, TM_SHADOW, readStateByte(wram, TM_SHADOW) | LAYER_BG3);
   fillWordList(wram, WINDOW_ACTIVE, WINDOW_LAST_SLOT, 0);
   setWord(wram, LOADED_WINDOW_STYLE, NONE);
-  fillWordList(wram, NOTICE_WINDOWS, NOTICE_WINDOW_LAST, NONE);
+  noticeState(m.mem).resetWindows();
   loadWindowStyle(m, FIRST_WINDOW_STYLE);
   setWord(wram, WINDOW_NEXT_TILE, WINDOW_FIRST_TILE);
   setWords(
@@ -450,10 +448,10 @@ function uploadFont(m) {
       TEXT_BUFFER_UPLOAD,
       TEXT_BUFFER_READBACK,
       WINDOW_FIRST_INDEX,
-      NOTICE_EFFECT_FRAMES,
     ],
     0,
   );
+  noticeState(m.mem).effectFrames = 0;
   setWord(wram, WINDOW_LAST_INDEX, EMPTY_LIST);
   setWord(wram, TEXT_MAP_UPLOAD, word(wram, TEXT_MAP_UPLOAD) + 1);
   runTextUploads(m);
