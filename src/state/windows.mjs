@@ -58,6 +58,7 @@ export function windowManagerState(mem) {
       tileUploadAddress: 'tileAddress',
       tileUploadBytes: 'tileBytes',
       tileUploadRequest: 'tileUpload',
+      mapUploadRequest: 'mapUpload',
     };
   state = Object.defineProperties(
     {

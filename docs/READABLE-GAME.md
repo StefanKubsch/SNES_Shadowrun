@@ -360,3 +360,11 @@ EVENT.DEFEATED`). The 37 most used game functions have parameter names (PARAMETE
   original state schemas and raw fixtures still use explicit bridges. Ratchet: 1,160 ROM
   literals, 138 WRAM imports, 26 hardware imports, 2,014 direct page names and 2,514
   address comments.
+
+- 2026-11-28, phase 3 step 15 (window list rendering): border and text map drawing
+  use named window records, map cells and drawing workspace. Active-window holes,
+  the first/last range, live tile-range rereads, word-loop wrap and upload request
+  waits retain their behaviour. Shared scratch and out-of-span aliases stay in a
+  cached compatibility view; hardware map presentation remains phase 5 work.
+  Ratchet: 1,160 ROM literals, 137 WRAM imports, 26 hardware imports, 1,986 direct
+  page names and 2,508 address comments.

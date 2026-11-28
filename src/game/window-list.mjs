@@ -1,49 +1,15 @@
 import { waitStatus } from '../system/wait-status.mjs';
-import { readStateByte, writeStateByte } from '../state/objects.mjs';
-// The window list (lifted from 81:AD92 with the window drawing 81:ACCF; register-level
-// versions in proof/system/native-render-compose.mjs, which recorded runs replay).
-//
-// Every active window from the first window index to the last is drawn into the window
-// map buffer: its border and its text tile area, whose tiles count up from the
-// window's initial tile and wrap within its tile range. The window map is unpacked
-// first (81:A9B2, lifted in game-screen.mjs; its unpacker leaves the direct page state
-// of the original) and the upload is requested afterwards (81:ACB5): the request word
-// counts up and the request waits until the NMI has taken the upload (81:ACAF).
-//
-// Live uploads compose the drawing and blocking wait directly without CPU frames
-// or temporary banks. Entry wrappers consume only their caller-provided frame.
-// Recorded observations use proof/caller/window-list.mjs independently.
-//
-// The direct page words of the window drawing (the map row C3, the columns C6, the
-// attributes C9, the cells left CC, the window CF and the next tile D2) are written as
-// in the original; the Mesen oracle compares them.
+// Draw active windows through named records, preserving live map and workspace aliases.
+import { windowDrawingState } from '../state/window-drawing.mjs';
 import { sceneRuntime } from '../system/scene-runtime.mjs';
 import { nmiAtBranch } from '../system/frame-wait.mjs';
 import { unpackWindowMap } from './game-screen.mjs';
-import {
-  DIALOG_WINDOW,
-  TEXT_MAP_UPLOAD,
-  WINDOW_ACTIVE,
-  WINDOW_ATTRIBUTES,
-  WINDOW_COLUMNS,
-  WINDOW_FIRST_INDEX,
-  WINDOW_LAST_INDEX,
-  WINDOW_MAP_BUFFER,
-  WINDOW_MAP_OFFSET,
-  WINDOW_ROWS,
-  WINDOW_TILE_COUNT,
-  WINDOW_TILE_INITIAL,
-  WINDOW_TILE_START,
-} from '../data/wram.mjs';
-import { BYTE_BITS, BYTE_MASK, WORD_MASK, WORD_SIGN } from '../constants/bits.mjs';
+import { windowManagerState } from '../state/windows.mjs';
+import { WINDOW_TEXT_FIELDS, windowsText } from '../state/windows-text.mjs';
+import { stateField } from '../state/named-fields.mjs';
+import { WORD_MASK, WORD_SIGN } from '../constants/bits.mjs';
 import { FLAG_MEMORY_8BIT, FLAG_NEGATIVE, FLAG_ZERO } from '../constants/cpu-flags.mjs';
 
-const DP_MAP_ROW = 0xc3,
-  DP_COLUMNS = 0xc6,
-  DP_ATTRIBUTES = 0xc9,
-  DP_CELLS_LEFT = 0xcc,
-  DP_WINDOW = 0xcf,
-  DP_TILE = 0xd2;
 // Border tiles: corners, edges (flip bits 14 and 15 mirror them).
 const BORDER_TOP_LEFT = 0x2001,
   BORDER_TOP = 0x2002,
@@ -58,65 +24,56 @@ const BORDER_TOP_LEFT = 0x2001,
 // The original wait's branch back to its load, retained for device observations.
 const UPLOAD_WAIT_BRANCH = 0x81acb2;
 
-const word = (wram, at) => readStateByte(wram, at) | (readStateByte(wram, at + 1) << BYTE_BITS);
-const setWord = (wram, at, value) => {
-  writeStateByte(wram, at, value & BYTE_MASK);
-  writeStateByte(wram, at + 1, (value >>> BYTE_BITS) & BYTE_MASK);
-};
-
-// Draw window x (a word index) into the window map buffer (81:ACCF): the top border,
-// the rows with the text tiles between the side borders, the bottom border. Counts
-// run as the original's 16-bit loops (a count of 0 wraps). Game state only (user
-// decision 2026-11-17): the Y, carry and overflow the original leaves are produced by
-// the register-level copy in proof/caller/window-list.mjs.
+// Counts retain word wrap, including a zero count's full loop.
 export function drawWindow(wram, x) {
-  const field = (table) => word(wram, table + x);
+  const state = windowDrawingState(wram),
+    record = state.record(x);
   let y;
   const put = (tile) => {
-    setWord(wram, WINDOW_MAP_BUFFER + y, tile | word(wram, DP_ATTRIBUTES));
+    state.writeMap(y, tile | state.attributes);
     y = (y + 2) & WORD_MASK;
   };
   const nextRow = () => {
-    const next = (word(wram, DP_MAP_ROW) + MAP_ROW_BYTES) & WORD_MASK;
-    setWord(wram, DP_MAP_ROW, next);
+    const next = (state.mapRow + MAP_ROW_BYTES) & WORD_MASK;
+    state.mapRow = next;
     y = next;
   };
   const across = (tile) => {
-    let n = word(wram, DP_COLUMNS);
+    let n = state.columns;
     do {
       put(tile);
       n = (n - 1) & WORD_MASK;
     } while (n);
   };
-  setWord(wram, DP_WINDOW, x);
-  setWord(wram, DP_TILE, field(WINDOW_TILE_INITIAL));
-  setWord(wram, DP_ATTRIBUTES, field(WINDOW_ATTRIBUTES));
-  setWord(wram, DP_MAP_ROW, field(WINDOW_MAP_OFFSET));
-  y = word(wram, DP_MAP_ROW);
+  state.window = x;
+  state.tile = record.initialTile;
+  state.attributes = record.attributes;
+  state.mapRow = record.mapOffset;
+  y = state.mapRow;
   put(BORDER_TOP_LEFT);
-  setWord(wram, DP_COLUMNS, field(WINDOW_COLUMNS) - BORDER_CELLS);
+  state.columns = record.columns - BORDER_CELLS;
   across(BORDER_TOP);
   put(BORDER_TOP_RIGHT);
-  let rows = (field(WINDOW_ROWS) - BORDER_CELLS) & WORD_MASK;
+  let rows = (record.rows - BORDER_CELLS) & WORD_MASK;
   do {
     nextRow();
     put(BORDER_LEFT);
-    setWord(wram, DP_CELLS_LEFT, word(wram, DP_COLUMNS));
+    state.cellsLeft = state.columns;
     // The map word counts up on its own, from the tile with the attributes.
-    let tile = word(wram, DP_TILE) | word(wram, DP_ATTRIBUTES);
+    let tile = state.tile | state.attributes;
     do {
-      setWord(wram, WINDOW_MAP_BUFFER + y, tile);
+      state.writeMap(y, tile);
       tile = (tile + 1) & WORD_MASK;
-      setWord(wram, DP_TILE, word(wram, DP_TILE) + 1);
+      state.tile = state.tile + 1;
       y = (y + 2) & WORD_MASK;
-      setWord(wram, DP_CELLS_LEFT, word(wram, DP_CELLS_LEFT) - 1);
-    } while (word(wram, DP_CELLS_LEFT));
+      state.cellsLeft = state.cellsLeft - 1;
+    } while (state.cellsLeft);
     put(BORDER_RIGHT);
     // The tiles wrap to the window's first text tile at the end of its range.
-    const window = word(wram, DP_WINDOW),
-      start = word(wram, WINDOW_TILE_START + window);
-    if (((word(wram, DP_TILE) - start) & WORD_MASK) >= word(wram, WINDOW_TILE_COUNT + window))
-      setWord(wram, DP_TILE, start);
+    const window = state.window,
+      current = state.record(window),
+      start = current.firstTile;
+    if (((state.tile - start) & WORD_MASK) >= current.tileCount) state.tile = start;
     rows = (rows - 1) & WORD_MASK;
   } while (rows);
   nextRow();
@@ -128,11 +85,11 @@ export function drawWindow(wram, x) {
 // Request the text map upload and wait until the NMI takes it (81:ACB5/81:ACAF).
 // The request word and frame jobs govern progress; no CPU frame is created.
 function* requestUploadSequence(h, events) {
-  const { wram } = h.a.mem;
+  const state = windowManagerState(h.a.mem);
   yield () => {
-    setWord(wram, TEXT_MAP_UPLOAD, word(wram, TEXT_MAP_UPLOAD) + 1);
+    state.mapUploadRequest++;
   };
-  for (let request; (request = word(wram, TEXT_MAP_UPLOAD)) !== 0;) {
+  for (let request; (request = state.mapUploadRequest) !== 0;) {
     // After LDA of a nonzero word in 16-bit mode: Z clear, N from bit 15.
     const status = waitStatus(
       h,
@@ -154,15 +111,19 @@ export function* drawWindowListSequence(h, events) {
 // The dialog window's list redrawn (80:CDA8), a sequence for the script native: the
 // dialog window as the list's first argument, then its redraw and optional RTS.
 export function* redrawDialogWindowListSequence(h, events) {
-  const { wram } = h.a.mem;
-  yield () => setWord(wram, 0, word(wram, DIALOG_WINDOW));
+  const mem = h.a.mem,
+    manager = windowManagerState(mem),
+    dialogWindow = stateField(mem, WINDOW_TEXT_FIELDS, windowsText, 'dialogWindow');
+  yield () => {
+    manager.windowArgument = dialogWindow.get();
+  };
   yield* drawWindowListSequence(h, events);
 }
 
 // 81:AEB0: redraw from the first window after clearing the first index.
 export function* resetWindowList(h, events) {
   yield () => {
-    setWord(h.a.mem.wram, WINDOW_FIRST_INDEX, 0);
+    windowManagerState(h.a.mem).firstIndex = 0;
   };
   yield* drawWindowListSequence(h, events);
 }
@@ -172,10 +133,12 @@ function* windowListBody(h, events) {
     { wram } = m;
   yield () => unpackWindowMap(m);
   yield () => {
-    const last = word(wram, WINDOW_LAST_INDEX);
+    const state = windowDrawingState(wram),
+      manager = state.manager,
+      last = manager.lastIndex;
     if (last & WORD_SIGN) return;
     for (let x = 0; x <= last; x += 2)
-      if (x >= word(wram, WINDOW_FIRST_INDEX) && word(wram, WINDOW_ACTIVE + x)) drawWindow(wram, x);
+      if (x >= manager.firstIndex && state.record(x).active) drawWindow(wram, x);
   };
   yield* requestUploadSequence(h, events);
 }
