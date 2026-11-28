@@ -15,7 +15,8 @@ import {
   SCRIPT_RETURN_BYTES,
 } from '../vm/layout.mjs';
 import { SCRIPTS } from '../scripts/index.mjs';
-import { ScriptEnd, scriptState, NATIVE, SCRIPT } from '../scripts/runtime.mjs';
+import { ScriptEnd, NATIVE, SCRIPT } from '../scripts/runtime.mjs';
+import { scriptState } from '../state/scripts.mjs';
 
 export const CALL_NATIVE = NATIVE;
 export const CALL_SCRIPT = SCRIPT;

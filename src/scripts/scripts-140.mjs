@@ -214,7 +214,7 @@ export function* script145(state, arg0) {
     yield* game.wait(EVENT.TIMER, 0x14);
     if (((yield* game.getActorStateFlags(0x1d96)) & 1) !== 0) {
       yield* game.setObjectActionAndDirection(object, 1, 5);
-      state.setWord('COLOUR_REQUEST', 0, 4);
+      state.screen.colourRequest = 4;
       yield* game.clearObjectTask(object);
       return null;
     }
@@ -301,7 +301,7 @@ export function* script148(state, arg0) {
     yield* game.wait(EVENT.TIMER, 0x14);
     if (((yield* game.getActorStateFlags(0x1d96)) & 2) !== 0) {
       yield* game.setObjectActionAndDirection(object, 1, 5);
-      state.setWord('COLOUR_REQUEST', 0, 4);
+      state.screen.colourRequest = 4;
       yield* game.clearObjectTask(object);
       return null;
     }
@@ -350,7 +350,7 @@ export function* script14C(state, arg0) {
 export function* script14D(state, arg0) {
   let object = 0;
   object = arg0 & 0xff;
-  state.setWord('MEMBER_INDEX', 0, 0);
+  state.menu.memberIndex = 0;
   yield* game.equipRunnerWeapon(object, 1, 8, 3);
   yield* game.wait(EVENT.TIMER, 1);
   yield* game.removeObject(object);
@@ -389,7 +389,7 @@ export function* script14F(state, arg0) {
     yield* game.wait(EVENT.TIMER, 0x14);
     if (((yield* game.getActorStateFlags(0x1d96)) & 4) !== 0) {
       yield* game.setObjectActionAndDirection(object, 1, 5);
-      state.setWord('COLOUR_REQUEST', 0, 4);
+      state.screen.colourRequest = 4;
       yield* game.clearObjectTask(object);
       return null;
     }
@@ -471,7 +471,7 @@ export function* script155(state, arg0) {
     yield* game.wait(EVENT.TIMER, 0x14);
     if (((yield* game.getActorStateFlags(0x1d96)) & 8) !== 0) {
       yield* game.setObjectActionAndDirection(object, 1, 5);
-      state.setWord('COLOUR_REQUEST', 0, 4);
+      state.screen.colourRequest = 4;
       yield* game.clearObjectTask(object);
       return null;
     }
@@ -730,9 +730,9 @@ export function* script15D(state, arg0) {
     if (t1 === 0) {
       if (((yield* game.getObjectRecordFlags(object)) & 1) === 0) {
         yield* game.setObjectRecordFlagBits(object, 1);
-        state.setWord('COLOUR_REQUEST', 0, 1);
+        state.screen.colourRequest = 1;
         yield* game.wait(EVENT.TIMER, 0x20);
-        state.setWord('COLOUR_REQUEST', 0, 2);
+        state.screen.colourRequest = 2;
       }
       yield* game.clearObjectTask(object);
       return null;

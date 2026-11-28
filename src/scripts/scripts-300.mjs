@@ -49,7 +49,7 @@ export function* script302(state, arg0) {
 export function* script303(state, arg0) {
   let object = 0;
   object = arg0 & 0xff;
-  state.setWord('MEMBER_INDEX', 0, 0);
+  state.menu.memberIndex = 0;
   yield* game.equipRunnerWeapon(object, 0, 0, 0);
   yield* game.wait(EVENT.TIMER, 1);
   yield* game.removeObject(object);

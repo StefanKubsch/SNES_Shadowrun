@@ -6,7 +6,6 @@
 // (a native) or starts another script by yielding the call; the scheduler runs it and
 // resumes the script with the result. The game state the scripts read and write is
 // reached by name through `state`.
-import * as NAMES from '../data/wram.mjs';
 import { BYTE_BITS, BYTE_MASK, BYTE_SIGN, WORD_MASK, WORD_SIGN } from '../constants/bits.mjs';
 
 export const TRUE = WORD_MASK;
@@ -113,17 +112,4 @@ export const localWord = (locals, at) => locals[at] | (locals[at + 1] << BYTE_BI
 export function setLocalWord(locals, at, value) {
   locals[at] = value & BYTE_MASK;
   locals[at + 1] = value >>> BYTE_BITS;
-}
-
-// The game state by name (until phase 3 the names of src/data/wram.mjs, or a plain
-// offset for state without a name).
-const at = (name) => (typeof name === 'number' ? name : NAMES[name]);
-export function scriptState(mem) {
-  return {
-    byte: (name, offset = 0) => mem.read8(NAMES.WRAM + at(name) + offset),
-    word: (name, offset = 0) => mem.read16(NAMES.WRAM + at(name) + offset),
-    setByte: (name, offset, value) => mem.write8(NAMES.WRAM + at(name) + offset, value & BYTE_MASK),
-    setWord: (name, offset, value) =>
-      mem.write16(NAMES.WRAM + at(name) + offset, value & WORD_MASK),
-  };
 }

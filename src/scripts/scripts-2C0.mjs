@@ -333,22 +333,22 @@ export function* script2CA(state, arg0) {
   let local0 = 0,
     created = 0;
   local0 = arg0 & 0xff;
-  state.setWord('MEMBER_INDEX', 0, 0);
-  const t1 = state.byte('AIM_TARGET_OBJECT');
+  state.menu.memberIndex = 0;
+  const t1 = state.combat.aimTarget;
   const t2 = yield* game.getPlayerObjectCopy();
   if ((yield* game.canAttack(t2, t1)) !== 0) {
     if ((yield* game.spendMagic(word(4 + local0))) !== 0) {
-      state.setByte('SPELL_EFFECT_BUSY', 0, 0xffff);
-      const t3 = word((yield* game.getObjectCoarseHeight(state.byte('PLAYER_OBJECT'))) + 0x20);
-      const t4 = yield* game.getObjectCoarseY(state.byte('PLAYER_OBJECT'));
-      const t5 = yield* game.getObjectCoarseX(state.byte('PLAYER_OBJECT'));
+      state.spells.effectBusy = 0xffff;
+      const t3 = word((yield* game.getObjectCoarseHeight(state.room.player)) + 0x20);
+      const t4 = yield* game.getObjectCoarseY(state.room.player);
+      const t5 = yield* game.getObjectCoarseX(state.room.player);
       created = (yield* game.createObject(0xdc, t5, t4, t3, 0xa1)) & 0xff;
       yield* game.setObjectDirection(created, shiftRight(word(local0 - 1), 1));
       yield* game.setObjectAnimation(created, 0);
       yield* game.playSoundEffect(created, 0x1e, 0xff, 0xff);
       yield* game.wait(
         EVENT.TIMER,
-        yield* game.moveObjectTowardsObject(created, state.byte('AIM_TARGET_OBJECT')),
+        yield* game.moveObjectTowardsObject(created, state.combat.aimTarget),
       );
       yield* game.removeObject(created);
       const t6 = yield* game.getObjectCoarseHeight(created);
@@ -357,7 +357,7 @@ export function* script2CA(state, arg0) {
       created = (yield* game.createObject(0xb8, t8, t7, t6, 0x382)) & 0xff;
       yield* game.wait(EVENT.TIMER, 0xa);
       yield* game.blast(created, multiply(local0, 6));
-      state.setByte('SPELL_EFFECT_BUSY', 0, 0);
+      state.spells.effectBusy = 0;
     }
   }
   return null;
@@ -420,17 +420,14 @@ export function* buyCyberware(state, arg0, arg1, arg2, arg3, arg4, arg5) {
             }
           }
           if (signed(local12) !== 0) {
-            if (state.byte('JAKE_SKILLSOFT') === 0 && actor === 0x3aa) {
-              state.setByte('JAKE_SKILLSOFT', 0, 1);
+            if (state.jake.leadership === 0 && actor === 0x3aa) {
+              state.jake.leadership = 1;
             }
-            if (state.byte('JAKE_DERMAL_ARMOUR') === 0 && actor === 0x15c4) {
-              state.setByte('JAKE_DERMAL_ARMOUR', 0, 1);
+            if (state.jake.dermalArmour === 0 && actor === 0x15c4) {
+              state.jake.dermalArmour = 1;
             }
-            if (
-              (truth(actor === 0x192f) & (signed(state.byte('JAKE_WIRED_REFLEXES')) ^ 0xffff)) !==
-              0
-            ) {
-              state.setByte('JAKE_WIRED_REFLEXES', 0, 0xffff);
+            if ((truth(actor === 0x192f) & (signed(state.jake.wiredReflexes) ^ 0xffff)) !== 0) {
+              state.jake.wiredReflexes = 0xffff;
             }
             yield* game.setActorStateFlagBits(actor, 0xc0);
             yield* game.resetObjectRecordProperty(object);
@@ -725,9 +722,9 @@ export function* script2D9(state, arg0) {
     if (t1 === 0xffff) {
       yield* game.addMagicPoints(word(4 + local0));
     } else {
-      const t2 = word((yield* game.getObjectCoarseHeight(state.byte('MEMBER_OBJECT'))) + 0x20);
-      const t3 = yield* game.getObjectCoarseY(state.byte('MEMBER_OBJECT'));
-      const t4 = yield* game.getObjectCoarseX(state.byte('MEMBER_OBJECT'));
+      const t2 = word((yield* game.getObjectCoarseHeight(state.menu.memberObject)) + 0x20);
+      const t3 = yield* game.getObjectCoarseY(state.menu.memberObject);
+      const t4 = yield* game.getObjectCoarseX(state.menu.memberObject);
       created = (yield* game.createObject(0xdc, t4, t3, t2, 0xa1)) & 0xff;
       yield* game.setObjectDirection(created, shiftRight(word(local0 - 1), 1));
       yield* game.setObjectAnimation(created, 0);

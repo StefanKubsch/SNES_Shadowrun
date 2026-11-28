@@ -52,7 +52,7 @@ export function* script042(state, arg0) {
   yield* game.clearObjectVelocity(object);
   yield* game.setObjectAnimation(object, 0);
   yield* game.turnObjectToPlayer(object);
-  state.setWord('COLOUR_REQUEST', 0, 1);
+  state.screen.colourRequest = 1;
   yield* game.notice(6, 5, 0x15, 3, 0x400, 0x25c /* "You have reached the end." */, 0x270f);
   yield* game.wait(EVENT.TIMER, 0xf0);
   yield* game.notice(
@@ -587,8 +587,8 @@ export function* script055(state, arg0) {
     yield* game.advanceOrbitSlot1(object);
     yield* game.wait(EVENT.TIMER, 1);
     count = word(count - 1);
-    if (count === 0 || state.word('CIRCLE_LEADER_ALIVE') === 0) {
-      if (state.word('CIRCLE_LEADER_ALIVE') !== 0) {
+    if (count === 0 || state.motion.circleLeaderAlive === 0) {
+      if (state.motion.circleLeaderAlive !== 0) {
         yield* run.orbiterAttacks(object, 0, 0xb75);
       } else {
         yield* game.setObjectVelocity(object, 0, 0, 8);
@@ -759,8 +759,8 @@ export function* script05A(state, arg0) {
     yield* game.advanceOrbitSlot2(object);
     yield* game.wait(EVENT.TIMER, 1);
     count = word(count - 1);
-    if (count === 0 || state.word('CIRCLE_LEADER_ALIVE') === 0) {
-      if (state.word('CIRCLE_LEADER_ALIVE') !== 0) {
+    if (count === 0 || state.motion.circleLeaderAlive === 0) {
+      if (state.motion.circleLeaderAlive !== 0) {
         yield* run.orbiterAttacks(object, 1, 0xb75);
       } else {
         yield* game.setObjectVelocity(object, 0, 0, 8);
@@ -928,8 +928,8 @@ export function* script05F(state, arg0) {
     yield* game.advanceOrbitSlot3(object);
     yield* game.wait(EVENT.TIMER, 1);
     count = word(count - 1);
-    if (count === 0 || state.word('CIRCLE_LEADER_ALIVE') === 0) {
-      if (state.word('CIRCLE_LEADER_ALIVE') !== 0) {
+    if (count === 0 || state.motion.circleLeaderAlive === 0) {
+      if (state.motion.circleLeaderAlive !== 0) {
         yield* run.orbiterAttacks(object, 2, 0xb75);
       } else {
         yield* game.setObjectVelocity(object, 0, 0, 8);

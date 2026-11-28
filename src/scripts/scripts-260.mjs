@@ -11,10 +11,10 @@ export function* script260(state, arg0) {
   object = arg0 & 0xff;
   if (((yield* game.getObjectRecordFlags(object)) & 1) !== 0) {
     yield* game.wait(EVENT.TIMER, 0x23);
-    if ((state.byte('DECKER_DOWNLOAD_BITS') & 0x80) !== 0) {
+    if ((state.matrix.downloadBits & 0x80) !== 0) {
       yield* run.transferAccount(object, 0x61a8, 0x21d, 2);
     }
-    if ((state.byte('DECKER_DOWNLOAD_BITS') & 0x70) > 0) {
+    if ((state.matrix.downloadBits & 0x70) > 0) {
       yield* run.noticeTrashDataDiscarded();
     }
     yield* game.keepObjectRecordFlagBits(object, 0xff7e);
@@ -32,16 +32,16 @@ export function* script261(state, arg0) {
   object = arg0 & 0xff;
   if (((yield* game.getObjectRecordFlags(object)) & 1) !== 0) {
     yield* game.wait(EVENT.TIMER, 0x23);
-    if ((state.byte('DECKER_DOWNLOAD_BITS') & 0x3c) > 0) {
+    if ((state.matrix.downloadBits & 0x3c) > 0) {
       yield* run.noticeTrashDataDiscarded();
     }
-    if ((state.byte('DECKER_DOWNLOAD_BITS') & 1) !== 0) {
+    if ((state.matrix.downloadBits & 1) !== 0) {
       yield* run.transferAccount(object, 0xc350, 0x21e, 2);
     }
-    if ((state.byte('DECKER_DOWNLOAD_BITS') & 0x40) !== 0) {
+    if ((state.matrix.downloadBits & 0x40) !== 0) {
       yield* run.transferAccount(object, 0x4e20, 0x21f, 4);
     }
-    if ((state.byte('DECKER_DOWNLOAD_BITS') & 0x80) !== 0) {
+    if ((state.matrix.downloadBits & 0x80) !== 0) {
       yield* run.transferAccount(object, 0x3a98, 0x220, 8);
     }
     yield* game.keepObjectRecordFlagBits(object, 0xff7e);
@@ -125,14 +125,14 @@ export function* script265(state, arg0) {
   object = arg0 & 0xff;
   if (((yield* game.getObjectRecordFlags(object)) & 1) !== 0) {
     yield* game.wait(EVENT.TIMER, 0x23);
-    if ((state.byte('DECKER_DOWNLOAD_BITS') & 1) !== 0) {
+    if ((state.matrix.downloadBits & 1) !== 0) {
       yield* run.obtainDataFilePart(0x1585);
     }
-    if ((state.byte('DECKER_DOWNLOAD_BITS') & 0x40) !== 0) {
+    if ((state.matrix.downloadBits & 0x40) !== 0) {
       yield* run.obtainDataFile(0x1577);
       yield* game.learnSpell(0x56);
     }
-    if ((state.byte('DECKER_DOWNLOAD_BITS') & 0x80) !== 0) {
+    if ((state.matrix.downloadBits & 0x80) !== 0) {
       yield* run.transferAccount(object, 0x2710, 0x224, 2);
     }
     yield* game.keepObjectRecordFlagBits(object, 0xff7e);
@@ -285,7 +285,7 @@ export function* script26B(state, arg0) {
 export function* script26C(state, arg0) {
   let object = 0;
   object = arg0 & 0xff;
-  state.setWord('MEMBER_INDEX', 0, 0);
+  state.menu.memberIndex = 0;
   yield* game.equipRunnerArmour(object, 5);
   yield* game.wait(EVENT.TIMER, 1);
   yield* game.removeObject(object);
@@ -631,7 +631,7 @@ export function* script279(state, arg0) {
     for (;;) {
       yield* game.wait(EVENT.TIMER, 2);
       if ((yield* game.getDistanceToPlayer(object)) <= 0x50) {
-        if (signed(state.byte('JAKE_ALTERNATE_PORTRAIT')) === 0) {
+        if (signed(state.jake.alternatePortrait) === 0) {
           yield* game.setObjectDirection(object, 4);
           yield* game.wait(EVENT.TIMER, 0x1e);
           yield* game.notice(2, 2, 0xf, 3, 0x400, 0x57 /* "Oh no! The zombie!!" */, 0xf0);
@@ -730,7 +730,7 @@ export function* script279(state, arg0) {
 
 // Script 27A: no arguments.
 export function* script27A(state) {
-  if (state.byte('JAKE_NEGOTIATION') !== 0) {
+  if (state.jake.negotiation !== 0) {
     yield* game.topicText(0xcc /* "I can negotiate with the president, my boy!" */);
   } else {
     yield* game.topicText(
@@ -747,7 +747,7 @@ export function* script27A(state) {
         yield* game.topicText(
           0xca /* "Okay! Here's how it goes.... Always act cool, never attract ..." */,
         );
-        state.setByte('JAKE_NEGOTIATION', 0, 1);
+        state.jake.negotiation = 1;
         yield* game.markTopic(0x22 /* "Negotiation" */);
       }
     }

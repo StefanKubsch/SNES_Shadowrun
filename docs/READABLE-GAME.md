@@ -160,7 +160,7 @@ traces; release and push as in [WORKFLOW.md](WORKFLOW.md).
 - 2026-11-27, phase 2 step 2 (decompiler output tidied): expressions carry the variables
   they read and the calls the variables they may change, so a pending value becomes a
   temporary only when the next statement or a call before it could change it (`const t =
-  local1` and argument copies are gone; a word stored and tested reads back from the
+local1` and argument copies are gone; a word stored and tested reads back from the
   local, `x = word(x - 1); if (x === 0)`). Jumps that fall through to where they lead go
   (a break at the end of its block, a continue at the end of its loop, a plain return at
   the end of a subroutine), empty branches go and an empty then turns its condition;
@@ -186,7 +186,7 @@ traces; release and push as in [WORKFLOW.md](WORKFLOW.md).
   the glove actions PICK_UP to MOVE_TO and DEFEATED, from the action menu, the motion
   and animation ends and the defeat, when the count of its record falls to 0), in its
   mask and in tests of its result (`wait(EVENT.DEFEATED | EVENT.TIMER, 0xc) &
-  EVENT.DEFEATED`). The 37 most used game functions have parameter names (PARAMETERS in the decompiler; `natives.mjs` shows them as
+EVENT.DEFEATED`). The 37 most used game functions have parameter names (PARAMETERS in the decompiler; `natives.mjs` shows them as
   signatures, `notice(left, top, columns, rows, attributes, text, frames)`), and a local
   handed to one takes its name. 61 of the 158 started scripts are named, among them the
   doors (openDoorOnRequest, closeDoorOnRequest, closedDoor, openDoor). About 3,400
@@ -202,7 +202,7 @@ traces; release and push as in [WORKFLOW.md](WORKFLOW.md).
   DEFEATED, not a hit: object-hit sends it only when the count of the target's record
   falls to 0. Constant actor numbers (byte offsets of the seven-byte actor rows) carry
   the name of their kind as a comment (`isActorStateProperty(0x8b2 /* "Me" */, 0x15bd /*
-  "Detonator" */)`). A call result stored and kept is assigned directly
+"Detonator" */)`). A call result stored and kept is assigned directly
   (`local = yield* game.wait(...)`), and a local that only holds wait results is named
   `events`, its tests by event. 91 of the 158 started scripts are named; new are the
   ending (script variable 2C counts its 13 scenes, playEndingScene and endingScene1 to
@@ -219,3 +219,18 @@ traces; release and push as in [WORKFLOW.md](WORKFLOW.md).
   phoneCall). Variants of one behaviour with other constants carry a letter (B to F).
   The 20 unnamed ones are short helpers whose action and direction numbers have no
   established meaning yet.
+- 2026-11-28, phase 3 step 1 (script state): all 41 direct state operands of the
+  decompiled scripts use named, typed fields (`state.room.number`,
+  `state.jake.spells.heal`, `state.combat.aimingWeapon`). `src/state/scripts.mjs`
+  shares the existing owners' independent arrays with game functions, masks byte and
+  word writes, and preserves the high byte on byte writes to word fields. The view is
+  cached per game, with no field-name lookup or allocation per access. The decompiler's
+  address-to-field projection lives in `tools/script-state-fields.mjs`; an unrecognized
+  operand or width stops generation. Raw diagnostic fixtures temporarily use a schema
+  bridge; the state owners' original schemas and other consumers remain for phase 3.
+  Original-source check of the handoff's Leadership/Skillsoft question: both uses are
+  real. In the European ROM, 80:E90D and 80:E971 read 7E:3C05 for the notes window's
+  Skillsoft row; the six skill labels at 80:E8BC name record byte 10 Leadership.
+  Jake's record begins at 7E:3BFB, so these uses alias. The new field is
+  `jake.leadership`; the existing Skillsoft note keeps sharing it. No behaviour or
+  recorded trace is changed, and no separate cyberware flag is invented.

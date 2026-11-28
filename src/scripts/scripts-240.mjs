@@ -90,7 +90,7 @@ export function* script243(state, arg0) {
   object = arg0 & 0xff;
   if (((yield* game.getObjectRecordFlags(object)) & 1) !== 0) {
     yield* game.wait(EVENT.TIMER, 0x23);
-    if ((state.byte('DECKER_DATA_BITS') & 0x80) !== 0) {
+    if ((state.matrix.dataBits & 0x80) !== 0) {
       yield* run.activateElevator(0x175a);
     }
     yield* game.keepObjectRecordFlagBits(object, 0xff7e);
@@ -108,7 +108,7 @@ export function* script244(state, arg0) {
   object = arg0 & 0xff;
   if (((yield* game.getObjectRecordFlags(object)) & 1) !== 0) {
     yield* game.wait(EVENT.TIMER, 0x23);
-    if ((state.byte('DECKER_DATA_BITS') & 0x80) !== 0) {
+    if ((state.matrix.dataBits & 0x80) !== 0) {
       yield* run.activateElevator(0x16c0);
     }
     yield* game.keepObjectRecordFlagBits(object, 0xff7e);
@@ -211,13 +211,13 @@ export function* script24A(state, arg0) {
   object = arg0 & 0xff;
   if (((yield* game.getObjectRecordFlags(object)) & 1) !== 0) {
     yield* game.wait(EVENT.TIMER, 0x23);
-    if ((state.byte('DECKER_DOWNLOAD_BITS') & 0x15) > 0) {
+    if ((state.matrix.downloadBits & 0x15) > 0) {
       yield* run.noticeTrashDataDiscarded();
     }
-    if ((state.byte('DECKER_DOWNLOAD_BITS') & 8) !== 0) {
+    if ((state.matrix.downloadBits & 8) !== 0) {
       yield* run.transferAccount(object, 0x1f40, 0x21a, 2);
     }
-    if ((state.byte('DECKER_DOWNLOAD_BITS') & 0x80) !== 0) {
+    if ((state.matrix.downloadBits & 0x80) !== 0) {
       yield* run.obtainDataFilePart(0x159a);
     }
     yield* game.keepObjectRecordFlagBits(object, 0xff7e);
@@ -235,10 +235,10 @@ export function* script24B(state, arg0) {
   object = arg0 & 0xff;
   if (((yield* game.getObjectRecordFlags(object)) & 1) !== 0) {
     yield* game.wait(EVENT.TIMER, 0x23);
-    if ((state.byte('DECKER_DOWNLOAD_BITS') & 0x41) > 0) {
+    if ((state.matrix.downloadBits & 0x41) > 0) {
       yield* run.noticeTrashDataDiscarded();
     }
-    if ((state.byte('DECKER_DOWNLOAD_BITS') & 0x80) !== 0) {
+    if ((state.matrix.downloadBits & 0x80) !== 0) {
       yield* run.obtainDataFilePart(0x1593);
     }
     yield* game.keepObjectRecordFlagBits(object, 0xff7e);
@@ -256,7 +256,7 @@ export function* script24C(state, arg0) {
   object = arg0 & 0xff;
   if (((yield* game.getObjectRecordFlags(object)) & 1) !== 0) {
     yield* game.wait(EVENT.TIMER, 0x23);
-    if ((state.byte('DECKER_DATA_BITS') & 0x80) !== 0) {
+    if ((state.matrix.dataBits & 0x80) !== 0) {
       yield* run.activateElevator(0x16c0);
     }
     yield* game.keepObjectRecordFlagBits(object, 0xff7e);
@@ -274,10 +274,10 @@ export function* script24D(state, arg0) {
   object = arg0 & 0xff;
   if (((yield* game.getObjectRecordFlags(object)) & 1) !== 0) {
     yield* game.wait(EVENT.TIMER, 0x23);
-    if ((state.byte('DECKER_DOWNLOAD_BITS') & 1) !== 0) {
+    if ((state.matrix.downloadBits & 1) !== 0) {
       yield* run.noticeTrashDataDiscarded();
     }
-    if ((state.byte('DECKER_DATA_BITS') & 0x80) !== 0) {
+    if ((state.matrix.dataBits & 0x80) !== 0) {
       yield* run.activateElevator(0x175a);
     }
     yield* game.keepObjectRecordFlagBits(object, 0xff7e);
@@ -295,10 +295,10 @@ export function* script24E(state, arg0) {
   object = arg0 & 0xff;
   if (((yield* game.getObjectRecordFlags(object)) & 1) !== 0) {
     yield* game.wait(EVENT.TIMER, 0x23);
-    if ((state.byte('DECKER_DOWNLOAD_BITS') & 0x2f) > 0) {
+    if ((state.matrix.downloadBits & 0x2f) > 0) {
       yield* run.noticeTrashDataDiscarded();
     }
-    if ((state.byte('DECKER_DOWNLOAD_BITS') & 0x10) !== 0) {
+    if ((state.matrix.downloadBits & 0x10) !== 0) {
       yield* run.obtainDataFilePart(0x158c);
     }
     yield* game.keepObjectRecordFlagBits(object, 0xff7e);
@@ -316,14 +316,14 @@ export function* script24F(state, arg0) {
   object = arg0 & 0xff;
   if (((yield* game.getObjectRecordFlags(object)) & 1) !== 0) {
     yield* game.wait(EVENT.TIMER, 0x23);
-    if ((state.byte('DECKER_DOWNLOAD_BITS') & 0x19) > 0) {
+    if ((state.matrix.downloadBits & 0x19) > 0) {
       yield* run.noticeTrashDataDiscarded();
     }
-    if ((state.byte('DECKER_DOWNLOAD_BITS') & 4) !== 0) {
+    if ((state.matrix.downloadBits & 4) !== 0) {
       yield* run.obtainDataFile(0x15af);
     }
     if (
-      (truth((state.byte('DECKER_DOWNLOAD_BITS') & 0x80) !== 0) &
+      (truth((state.matrix.downloadBits & 0x80) !== 0) &
         (truth(((yield* game.getActorStateFlags(0xd5f /* "Heavy Dude" */)) & 0x80) !== 0) ^
           0xffff)) !==
       0
@@ -348,10 +348,10 @@ export function* script250(state, arg0) {
   object = arg0 & 0xff;
   if (((yield* game.getObjectRecordFlags(object)) & 1) !== 0) {
     yield* game.wait(EVENT.TIMER, 0x23);
-    if ((state.byte('DECKER_DOWNLOAD_BITS') & 0xfb) > 0) {
+    if ((state.matrix.downloadBits & 0xfb) > 0) {
       yield* run.noticeTrashDataDiscarded();
     }
-    if ((state.byte('DECKER_DATA_BITS') & 0x80) !== 0) {
+    if ((state.matrix.dataBits & 0x80) !== 0) {
       yield* run.activateElevator(0x16c0);
     }
     yield* game.keepObjectRecordFlagBits(object, 0xff7e);
@@ -657,7 +657,7 @@ export function* script255(state, arg0) {
   object = arg0 & 0xff;
   if (((yield* game.getObjectRecordFlags(object)) & 1) !== 0) {
     yield* game.wait(EVENT.TIMER, 0x23);
-    if ((state.byte('DECKER_DOWNLOAD_BITS') & 0x3f) > 0) {
+    if ((state.matrix.downloadBits & 0x3f) > 0) {
       yield* run.noticeTrashDataDiscarded();
     }
     yield* game.keepObjectRecordFlagBits(object, 0xff7e);
@@ -675,7 +675,7 @@ export function* script256(state, arg0) {
   object = arg0 & 0xff;
   if (((yield* game.getObjectRecordFlags(object)) & 1) !== 0) {
     yield* game.wait(EVENT.TIMER, 0x23);
-    if ((state.byte('DECKER_DATA_BITS') & 0x80) !== 0) {
+    if ((state.matrix.dataBits & 0x80) !== 0) {
       yield* run.activateElevator(0x175a);
     }
     yield* game.keepObjectRecordFlagBits(object, 0xff7e);
@@ -694,7 +694,7 @@ export function* script257(state, arg0) {
   if (((yield* game.getObjectRecordFlags(object)) & 1) !== 0) {
     yield* game.wait(EVENT.TIMER, 0x23);
     if (
-      (truth((state.byte('DECKER_DOWNLOAD_BITS') & 1) !== 0) &
+      (truth((state.matrix.downloadBits & 1) !== 0) &
         (truth(((yield* game.getActorStateFlags(0xfc7 /* "Heavy Dude" */)) & 0x80) !== 0) ^
           0xffff)) !==
       0
@@ -704,7 +704,7 @@ export function* script257(state, arg0) {
       yield* game.confirmKey();
       yield* game.wait(EVENT.TIMER, 1);
     }
-    if ((state.byte('DECKER_DATA_BITS') & 0x80) !== 0) {
+    if ((state.matrix.dataBits & 0x80) !== 0) {
       yield* run.activateElevator(0x175a);
     }
     yield* game.keepObjectRecordFlagBits(object, 0xff7e);
@@ -722,16 +722,16 @@ export function* script258(state, arg0) {
   object = arg0 & 0xff;
   if (((yield* game.getObjectRecordFlags(object)) & 1) !== 0) {
     yield* game.wait(EVENT.TIMER, 0x23);
-    if ((state.byte('DECKER_DOWNLOAD_BITS') & 8) !== 0) {
+    if ((state.matrix.downloadBits & 8) !== 0) {
       yield* run.transferAccount(object, 0x2710, 0x21b, 2);
     }
-    if ((state.byte('DECKER_DOWNLOAD_BITS') & 0x20) !== 0) {
+    if ((state.matrix.downloadBits & 0x20) !== 0) {
       yield* run.transferAccount(object, 0x30d4, 0x21c, 4);
     }
-    if ((state.byte('DECKER_DOWNLOAD_BITS') & 0x10) !== 0) {
+    if ((state.matrix.downloadBits & 0x10) !== 0) {
       yield* run.noticeTrashDataDiscarded();
     }
-    if ((state.byte('DECKER_DOWNLOAD_BITS') & 0x80) !== 0) {
+    if ((state.matrix.downloadBits & 0x80) !== 0) {
       yield* run.obtainDataFile(0x15b6);
     }
     yield* game.keepObjectRecordFlagBits(object, 0xff7e);
@@ -749,7 +749,7 @@ export function* script259(state, arg0) {
   object = arg0 & 0xff;
   if (((yield* game.getObjectRecordFlags(object)) & 1) !== 0) {
     yield* game.wait(EVENT.TIMER, 0x23);
-    if ((state.byte('DECKER_DATA_BITS') & 0x80) !== 0) {
+    if ((state.matrix.dataBits & 0x80) !== 0) {
       yield* run.activateElevator(0x16c0);
     }
     yield* game.keepObjectRecordFlagBits(object, 0xff7e);
@@ -893,7 +893,7 @@ export function* dataTerminal(state, arg0, arg1, arg2) {
             yield* game.getActorStateProperty(yield* game.getObjectNumber(object)),
           );
           if (
-            (truth(state.byte('GROUP_INDEX') > 0 && actor === 0x1b7b) &
+            (truth(state.party.lastIndex > 0 && actor === 0x1b7b) &
               truth((yield* game.getScriptVariable(0xc)) !== 0x8b2)) ===
             0
           ) {
@@ -925,10 +925,10 @@ export function* script25E(state, arg0) {
   object = arg0 & 0xff;
   if (((yield* game.getObjectRecordFlags(object)) & 1) !== 0) {
     yield* game.wait(EVENT.TIMER, 0x23);
-    if ((state.byte('DECKER_DOWNLOAD_BITS') & 0x80) !== 0) {
+    if ((state.matrix.downloadBits & 0x80) !== 0) {
       yield* run.obtainDataFile(0x154d);
     }
-    if ((state.byte('DECKER_DOWNLOAD_BITS') & 0x40) !== 0) {
+    if ((state.matrix.downloadBits & 0x40) !== 0) {
       yield* run.transferAccount(object, 0x7d0, 0x218, 2);
     }
     yield* game.keepObjectRecordFlagBits(object, 0xff7e);
@@ -946,7 +946,7 @@ export function* script25F(state, arg0) {
   object = arg0 & 0xff;
   if (((yield* game.getObjectRecordFlags(object)) & 1) !== 0) {
     yield* game.wait(EVENT.TIMER, 0x23);
-    if ((state.byte('DECKER_DATA_BITS') & 0x80) !== 0) {
+    if ((state.matrix.dataBits & 0x80) !== 0) {
       yield* run.activateElevator(0x175a);
     }
     yield* game.keepObjectRecordFlagBits(object, 0xff7e);

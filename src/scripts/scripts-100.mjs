@@ -187,13 +187,13 @@ export function* script105(state, arg0) {
       if (((yield* game.getObjectRecordFlags(localByte(locals, 0))) & 1) !== 0) {
         yield* game.wait(EVENT.TIMER, 1);
         yield* game.keepObjectRecordFlagBits(localByte(locals, 0), 0xff7e);
-        if ((state.byte('DECKER_DATA_BITS') & 0x80) !== 0) {
+        if ((state.matrix.dataBits & 0x80) !== 0) {
           yield* game.notice(8, 2, 0x10, 3, 0, 0x25a /* "PROGRAM DOWNLOADED" */, 1);
           yield* game.confirmKey();
           yield* game.setObjectRecordFlagBits(localByte(locals, 0), 0x40);
           yield* game.setScriptVariable(0x20, 5);
           yield* game.setScriptVariable(0x24, 0);
-          state.setWord('GAME_OPTIONS', 0, 3);
+          state.settings.options = 3;
           yield* game.changeRoom(0xa0);
           yield* game.wait(EVENT.TIMER, 1);
         }
@@ -583,8 +583,8 @@ export function* ratShamanFight(state, arg0, arg1, arg2) {
 export function* enterWithoutRunners(state, arg0) {
   let room = 0;
   room = arg0;
-  if (state.byte('GROUP_INDEX') > 0) {
-    if (state.byte('GROUP_INDEX') <= 2) {
+  if (state.party.lastIndex > 0) {
+    if (state.party.lastIndex <= 2) {
       yield* game.notice(
         5,
         6,
@@ -607,14 +607,14 @@ export function* enterWithoutRunners(state, arg0) {
 export function* script10F(state, arg0) {
   let object = 0;
   object = arg0 & 0xff;
-  if (less(state.word('FIGHT_UNREAD'), 0xc)) {
-    state.setWord('FIGHT_UNREAD', 0, word(state.word('FIGHT_UNREAD') + 1));
+  if (less(state.combat.fightUnread, 0xc)) {
+    state.combat.fightUnread = word(state.combat.fightUnread + 1);
     const t1 = (yield* game.getObjectArmour(object)) & 7;
     const t2 = shiftRight(yield* game.getObjectArmour(object), 3);
     yield* game.setObjectActionAndDirection(object, t2, t1);
     yield* game.setObjectVelocity(object, 0, 0, 1);
     yield* game.wait(EVENT.TIMER, 0x28);
-    state.setWord('FIGHT_UNREAD', 0, word(state.word('FIGHT_UNREAD') - 1));
+    state.combat.fightUnread = word(state.combat.fightUnread - 1);
   }
   yield* game.removeObject(object);
   return null;
@@ -793,7 +793,7 @@ export function* script114(state, arg0) {
       yield* game.setObjectActionAndDirection(object, 2, 3);
     }
     yield* game.wait(EVENT.TIMER, 1);
-    if (state.word('CIRCLE_LEADER_ALIVE') === 0) {
+    if (state.motion.circleLeaderAlive === 0) {
       yield* game.resetObjectRecordProperty(object);
       yield* game.removeObject(object);
       return null;
@@ -920,10 +920,10 @@ export function* script11C(state, arg0) {
   object = arg0 & 0xff;
   if (((yield* game.getObjectRecordFlags(object)) & 1) !== 0) {
     yield* game.wait(EVENT.TIMER, 0x23);
-    if ((state.byte('DECKER_DOWNLOAD_BITS') & 0x80) !== 0) {
+    if ((state.matrix.downloadBits & 0x80) !== 0) {
       yield* run.obtainDataFile(0x15a1);
     }
-    if ((state.byte('DECKER_DOWNLOAD_BITS') & 3) > 0) {
+    if ((state.matrix.downloadBits & 3) > 0) {
       yield* run.noticeTrashDataDiscarded();
     }
     yield* game.keepObjectRecordFlagBits(object, 0xff7e);
@@ -940,13 +940,13 @@ export function* script11C(state, arg0) {
 export function* script11D(state) {
   yield* game.notice(2, 2, 0x1c, 3, 0, 0x25f /* "Winter CES'93 Las Vegas - Warp!" */, 0xa);
   yield* game.setScriptVariable(0x16, 1);
-  state.setByte('JAKE_MAGIC', 0, 4);
-  state.setByte('JAKE_COMPUTER', 0, 5);
-  state.setByte('JAKE_INVISIBILITY', 0, 2);
-  state.setByte('JAKE_SUMMON_SPIRIT', 0, 2);
-  state.setByte('JAKE_POWERBALL', 0, 2);
-  state.setByte('JAKE_FREEZE', 0, 2);
-  state.setByte('JAKE_HEAL', 0, 2);
+  state.jake.magic = 4;
+  state.jake.computer = 5;
+  state.jake.spells.invisibility = 2;
+  state.jake.spells.summonSpirit = 2;
+  state.jake.spells.powerball = 2;
+  state.jake.spells.freeze = 2;
+  state.jake.spells.heal = 2;
   yield* game.restoreRunners();
   yield* game.confirmKey();
   yield* game.changeRoom(0xd2);

@@ -10,7 +10,8 @@ import { cartridge } from './cartridge-harness.mjs';
 import { VmMemory } from '../src/vm/memory.mjs';
 import { createTask, finishCall, runTask, EXIT_END } from './script-interpreter.mjs';
 import { SCRIPTS } from '../src/scripts/index.mjs';
-import { ScriptEnd, scriptState, NATIVE } from '../src/scripts/runtime.mjs';
+import { ScriptEnd, NATIVE } from '../src/scripts/runtime.mjs';
+import { scriptState } from '../src/state/scripts.mjs';
 import { decompileAll } from './decompile-scripts.mjs';
 
 const assets = JSON.parse(readFileSync(new URL('../assets/scripts.json', import.meta.url), 'utf8'));

@@ -36,13 +36,13 @@ export function* script022(state, arg0) {
     object2 = 0;
   block225: {
     count = arg0;
-    state.setWord('MEMBER_INDEX', 0, 0);
-    if (less(state.byte('FREEZE_SPELLS_ACTIVE'), 4)) {
-      if ((yield* game.isInFightList(state.byte('AIM_TARGET_OBJECT'))) !== 0) {
+    state.menu.memberIndex = 0;
+    if (less(state.spells.freezeActive, 4)) {
+      if ((yield* game.isInFightList(state.combat.aimTarget)) !== 0) {
         if ((yield* game.spendMagic(word(4 + count))) !== 0) {
-          state.setByte('FREEZE_SPELLS_ACTIVE', 0, word(state.byte('FREEZE_SPELLS_ACTIVE') + 1));
-          object = state.byte('AIM_TARGET_OBJECT') & 0xff;
-          yield* game.haltObject(state.byte('AIM_TARGET_OBJECT'));
+          state.spells.freezeActive = word(state.spells.freezeActive + 1);
+          object = state.combat.aimTarget & 0xff;
+          yield* game.haltObject(state.combat.aimTarget);
           yield* game.wait(EVENT.TIMER, 1);
           const t1 = yield* game.getObjectCoarseHeight(object);
           const t2 = word((yield* game.getObjectCoarseY(object)) - 4);
@@ -74,11 +74,7 @@ export function* script022(state, arg0) {
                 if (count <= 0) {
                   yield* game.resumeObject(object);
                   yield* game.removeObject(object2);
-                  state.setByte(
-                    'FREEZE_SPELLS_ACTIVE',
-                    0,
-                    word(state.byte('FREEZE_SPELLS_ACTIVE') - 1),
-                  );
+                  state.spells.freezeActive = word(state.spells.freezeActive - 1);
                   break block225;
                 }
               }
@@ -281,7 +277,7 @@ export function* rideToNextStop(state, arg0, arg1) {
       const t3 = yield* game.getPlayerObjectCopy();
       yield* game.setObjectVelocity(t3, t2, t1, 0);
       yield* game.wait(EVENT.TIMER, 1);
-      if ((state.word('PAD_HELD') & 0xf0f0) === 0) {
+      if ((state.input.held & 0xf0f0) === 0) {
         if (count === 0) {
           return 0;
         }
@@ -368,7 +364,7 @@ export function* rideToNextStop(state, arg0, arg1) {
     yield* game.notice(0xb, 0x13, 0xa, 3, 0x400, yield* game.getScriptVariable(0x30), 0x270f);
     if ((yield* game.getScriptVariable(0x30)) === 0x123) {
       yield* game.notice(9, 0x16, 0xe, 3, 0x400, 0x124 /* "Maximum Security" */, 0x270f);
-      state.setWord('COLOUR_REQUEST', 0, 4);
+      state.screen.colourRequest = 4;
     }
   }
   yield* sub7();
@@ -553,12 +549,12 @@ export function* script037(state, arg0) {
   block238: {
     count = arg0;
     yield* game.endDialog();
-    if (less(state.byte('FREEZE_SPELLS_ACTIVE'), 4)) {
+    if (less(state.spells.freezeActive, 4)) {
       if ((yield* game.spendMagic(word(4 + count))) !== 0) {
         const t1 = yield* game.spellGloveTarget();
         local2 = t1 & 0xff;
         if ((truth(t1 === 0xffff) | ((yield* game.isInFightList(signed(local2))) ^ 0xffff)) === 0) {
-          state.setByte('FREEZE_SPELLS_ACTIVE', 0, word(state.byte('FREEZE_SPELLS_ACTIVE') + 1));
+          state.spells.freezeActive = word(state.spells.freezeActive + 1);
           yield* game.haltObject(signed(local2));
           yield* game.wait(EVENT.TIMER, 1);
           const t2 = yield* game.getObjectCoarseHeight(signed(local2));
@@ -591,11 +587,7 @@ export function* script037(state, arg0) {
                 if (count <= 0) {
                   yield* game.resumeObject(signed(local2));
                   yield* game.removeObject(object);
-                  state.setByte(
-                    'FREEZE_SPELLS_ACTIVE',
-                    0,
-                    word(state.byte('FREEZE_SPELLS_ACTIVE') - 1),
-                  );
+                  state.spells.freezeActive = word(state.spells.freezeActive - 1);
                   break block238;
                 }
               }
@@ -814,8 +806,8 @@ export function* byNegotiation(state, arg0, arg1, arg2) {
   local0 = arg0;
   local2 = arg1;
   local4 = arg2;
-  if (!less(state.byte('JAKE_NEGOTIATION'), 3)) {
-    if (!(state.byte('JAKE_NEGOTIATION') > 2 && less(state.byte('JAKE_NEGOTIATION'), 5))) {
+  if (!less(state.jake.negotiation, 3)) {
+    if (!(state.jake.negotiation > 2 && less(state.jake.negotiation, 5))) {
       return local4;
     }
     return local2;

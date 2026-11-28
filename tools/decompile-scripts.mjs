@@ -18,7 +18,7 @@ import { decodeScript } from './script-codec.mjs';
 import { nativeTarget as nativeEntry } from '../src/script/natives.mjs';
 import { nativeTarget as targetFunction } from '../src/script/native-targets.mjs';
 import { NATIVE_POINTERS } from '../src/vm/layout.mjs';
-import * as WRAM_NAMES from '../src/data/wram.mjs';
+import { scriptStateField } from './script-state-fields.mjs';
 import { SCRIPT_NAMES } from './script-names.mjs';
 
 const WORD_SUFFIX = '16';
@@ -28,9 +28,7 @@ const GROUP = 32;
 const WAIT_NATIVE = 0xc401;
 const HEX = 16,
   SCRIPT_DIGITS = 3,
-  ADDRESS_DIGITS = 4,
   NATIVE_DIGITS = 2,
-  STATE_END = 0x10000,
   DECIMAL_BELOW = 10,
   BYTE = 0xff,
   BYTE_SIGN = 0x80,
@@ -76,16 +74,6 @@ function nativeNames(mem, count) {
   }
   return names;
 }
-
-// State names: the exact WRAM layout names (the first in the file for an address).
-const STATE_NAMES = new Map();
-for (const [name, value] of Object.entries(WRAM_NAMES))
-  if (typeof value === 'number' && value >= 0 && value < STATE_END && !STATE_NAMES.has(value))
-    STATE_NAMES.set(value, name);
-const stateRef = (address) =>
-  STATE_NAMES.has(address)
-    ? `'${STATE_NAMES.get(address)}'`
-    : `0x${hex(address, ADDRESS_DIGITS).toLowerCase()}`;
 
 // ---------------------------------------------------------------------------------------
 // Expressions: { text, prec, pure (no call), constant (value or null), bool, deps }. The
@@ -681,11 +669,11 @@ class ScriptDecompiler {
       else if (n === 'load_local_u16') stack.push(this.loadLocal(i.operand, 2, false));
       else if (n === 'load_local0_u8') stack.push(this.loadLocal(0, 1, false));
       else if (n === 'load_state_u8')
-        stack.push(atom(`state.byte(${stateRef(i.operand)})`, true, [STATE]));
+        stack.push(atom(scriptStateField(i.operand, 1), true, [STATE]));
       else if (n === 'load_state_i8') {
-        stack.push(atom(`signed(state.byte(${stateRef(i.operand)}))`, true, [STATE]));
+        stack.push(atom(`signed(${scriptStateField(i.operand, 1)})`, true, [STATE]));
       } else if (n === 'load_state_u16')
-        stack.push(atom(`state.word(${stateRef(i.operand)})`, true, [STATE]));
+        stack.push(atom(scriptStateField(i.operand, 2), true, [STATE]));
       else if (n === 'store_local_u8' || n === 'store_local_u16') {
         const v = pop(),
           bytes = n.endsWith('16') ? 2 : 1;
@@ -695,10 +683,9 @@ class ScriptDecompiler {
         if (kept) stack.push(this.loadLocal(i.operand, 2, false));
       } else if (n === 'store_state_u8' || n === 'store_state_u16') {
         const v = pop();
-        statement(
-          `state.${n.endsWith('16') ? 'setWord' : 'setByte'}(${stateRef(i.operand)}, 0, ${value(v).text});`,
-          [STATE],
-        );
+        statement(`${scriptStateField(i.operand, n.endsWith('16') ? 2 : 1)} = ${value(v).text};`, [
+          STATE,
+        ]);
       } else if (n === 'duplicate') {
         const v = pop(),
           next = block.body[index + 1];

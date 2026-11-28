@@ -167,14 +167,14 @@ export function* jackIntoMatrix(state, arg0, arg1, arg2, arg3, arg4) {
   ) {
     yield* game.enterMatrix(local1, local2, local4, local5, yield* game.getScriptVariable(0xc));
   } else {
-    state.setWord('COLOUR_REQUEST', 0, 1);
+    state.screen.colourRequest = 1;
     const t1 = yield* game.getObjectCoarseHeight(object);
     const t2 = yield* game.getObjectCoarseY(object);
     const t3 = yield* game.getObjectCoarseX(object);
     yield* game.createObject(0xe6, t3, t2, t1, 0x99);
     yield* game.playSoundEffect(0xffff, 0xa, 0xff, 0xff);
     yield* game.wait(EVENT.TIMER, 0xa);
-    state.setWord('COLOUR_REQUEST', 0, 2);
+    state.screen.colourRequest = 2;
     yield* game.enterMatrix(2, local2, 0, 0, 0x8b2);
   }
   return null;
@@ -531,7 +531,7 @@ export function* script2F6(state, arg0) {
   for (;;) {
     yield* game.wait(EVENT.TIMER, 1);
     count = word(count - 1);
-    if (count === 0 || (state.word('PAD_HELD') & 0xf0f0) !== 0) {
+    if (count === 0 || (state.input.held & 0xf0f0) !== 0) {
       yield* game.markTopic(0x17 /* "HitMen" */);
       yield* game.markTopic(0x1f /* "Maria" */);
       yield* game.markTopic(0x1d /* "Lone Star" */);

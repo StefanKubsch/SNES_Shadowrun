@@ -131,8 +131,8 @@ export function* script189(state, arg0) {
     count = in0;
     for (;;) {
       yield* game.wait(EVENT.TIMER, 1);
-      if ((state.word('PAD_HELD') & 0xf0f0) !== 0) {
-        state.setWord('MAIN_LOOP_RELOAD', 0, 0xffff);
+      if ((state.input.held & 0xf0f0) !== 0) {
+        state.room.reload = 0xffff;
       }
       count = word(count - 1);
       if (count === 0) {
@@ -148,7 +148,7 @@ export function* script189(state, arg0) {
   yield* sub5(0x64);
   yield* game.startBrightnessFade(4);
   yield* sub5(0x32);
-  state.setWord('MAIN_LOOP_RELOAD', 0, 0xffff);
+  state.room.reload = 0xffff;
   return null;
 }
 
@@ -429,11 +429,7 @@ export function* script193(state, arg0) {
         if (local2 === 0x100) {
           yield* game.endDialog();
           yield* game.wait(EVENT.TIMER, 1);
-          state.setByte(
-            'JAKE_ALTERNATE_PORTRAIT',
-            0,
-            signed(state.byte('JAKE_ALTERNATE_PORTRAIT')) ^ 0xffff,
-          );
+          state.jake.alternatePortrait = signed(state.jake.alternatePortrait) ^ 0xffff;
           yield* game.notice(2, 0x16, 0x12, 3, 0x800, 0x9e /* "I'll just put these on..." */, 0xf0);
           yield* game.resetObjectRecordProperty(object);
           local1 = 255;
@@ -729,7 +725,7 @@ export function* script19E(state, arg0) {
     object = arg0 & 0xff;
     yield* game.addTopic(0xe /* "Drake" */);
     yield* game.setScriptVariable(0x12, 0);
-    state.setWord('CIRCLE_LEADER_ALIVE', 0, 0xffff);
+    state.motion.circleLeaderAlive = 0xffff;
     local3 = 0;
     yield* game.setObjectRecordCount(object, 0x14);
     yield* game.setObjectFlagBits(object, 0x2000);
@@ -772,10 +768,10 @@ export function* script19E(state, arg0) {
         count = word(count + 1);
         if (count === 0xf0) {
           yield* game.playSoundEffect(0xffff, 0x56, 0xff, 4);
-          state.setWord('CIRCLE_PHASE_SPEED', 0, 8);
+          state.motion.circlePhaseSpeed = 8;
         }
         if (count === 0x130) {
-          state.setWord('CIRCLE_PHASE_SPEED', 0, 0);
+          state.motion.circlePhaseSpeed = 0;
           count = 0;
         }
         if (((yield* game.getObjectRecordFlags(object)) & 0x80) !== 0) {
@@ -786,7 +782,7 @@ export function* script19E(state, arg0) {
       }
     }
   }
-  state.setWord('CIRCLE_LEADER_ALIVE', 0, 0);
+  state.motion.circleLeaderAlive = 0;
   yield* game.keepObjectFlagBits(object, 0xdfff);
   yield* game.setObjectActionAndDirection(object, 1, 4);
   yield* game.setObjectVelocity(object, 0, 0xfffe, 0);
@@ -866,7 +862,7 @@ export function* script19F(state, arg0) {
     local20 = 0,
     local22 = 0;
   function* sub5() {
-    if (state.word('PLAYER_HIT_FRAMES') === 0) {
+    if (state.combat.playerHitFrames === 0) {
       yield* game.moveSwarmAlongPath(object);
     }
     local14 = word(
@@ -1128,9 +1124,9 @@ export function* script19F(state, arg0) {
         count3 = word(count3 - 1);
         if (count3 === 0) {
           yield* game.setObjectDirection(object, 7);
-          state.setWord('COLOUR_REQUEST', 0, 1);
+          state.screen.colourRequest = 1;
           yield* game.wait(EVENT.TIMER, 0x20);
-          state.setWord('COLOUR_REQUEST', 0, 2);
+          state.screen.colourRequest = 2;
           yield* game.wait(EVENT.TIMER, 0x28);
           yield* game.resetObjectRecordProperty(object);
           yield* game.changeRoom(0x38);

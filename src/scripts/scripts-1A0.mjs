@@ -500,7 +500,7 @@ export function* hiredRunner(state, arg0, arg1, arg2, arg3, arg4) {
   if (((yield* game.getObjectRecordFlags(object)) & 0x80) !== 0) {
     block472: {
       if ((yield* game.getObjectRecordCount(object)) !== 0) {
-        if (state.word('GROUP_LEADER_ONLY') === 0) {
+        if (state.party.leaderOnly === 0) {
           yield* run.script209(object);
           local11 = 0;
           if ((yield* game.getGroupMemberPosition(object)) > 0) {

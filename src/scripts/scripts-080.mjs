@@ -9,11 +9,11 @@ import { run } from './started.mjs';
 export function* script080(state, arg0) {
   let object = 0;
   object = arg0 & 0xff;
-  if (less(state.word('FIGHT_UNREAD'), 0xc)) {
-    state.setWord('FIGHT_UNREAD', 0, word(state.word('FIGHT_UNREAD') + 1));
+  if (less(state.combat.fightUnread, 0xc)) {
+    state.combat.fightUnread = word(state.combat.fightUnread + 1);
     yield* game.setObjectActionAndDirection(object, 0, yield* game.getObjectArmour(object));
     yield* game.wait(EVENT.ANIMATION_END, 0);
-    state.setWord('FIGHT_UNREAD', 0, word(state.word('FIGHT_UNREAD') - 1));
+    state.combat.fightUnread = word(state.combat.fightUnread - 1);
   }
   yield* game.removeObject(object);
   return null;

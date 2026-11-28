@@ -46,7 +46,7 @@ export function* script0C3(state) {
   yield* game.topicText(
     0xe4 /* "I don't care who got you in here. You're on my property now!..." */,
   );
-  if (state.byte('JAKE_NEGOTIATION') <= 1) {
+  if (state.jake.negotiation <= 1) {
     nuyen = 0xfa0;
     yield* game.windowText(0xd9 /* "4,000" */);
   } else {
@@ -439,7 +439,7 @@ export function* script0D2(state, arg0) {
   let object = 0;
   object = arg0 & 0xff;
   yield* game.wait(EVENT.TIMER, 2);
-  state.setWord('GROUP_LEADER_ONLY', 0, 0xffff);
+  state.party.leaderOnly = 0xffff;
   yield* game.removeObject(object);
   return null;
 }

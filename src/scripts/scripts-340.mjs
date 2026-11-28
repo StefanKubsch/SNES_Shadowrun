@@ -175,24 +175,24 @@ export function* script346(state, arg0) {
   let object = 0;
   object = arg0 & 0xff;
   yield* run.rewardNuyenAndKarma(object, 0x1b, 0x1388, 0x14);
-  if (state.byte('JAKE_MAGIC') === 0) {
-    state.setByte('JAKE_MAGIC', 0, 0xa);
+  if (state.jake.magic === 0) {
+    state.jake.magic = 0xa;
     yield* game.raiseMemberMagicPoints(yield* game.getPlayerObjectCopy(), 0x64);
   }
-  if (state.byte('JAKE_SUMMON_SPIRIT') === 0) {
-    state.setByte('JAKE_SUMMON_SPIRIT', 0, 1);
+  if (state.jake.spells.summonSpirit === 0) {
+    state.jake.spells.summonSpirit = 1;
   }
-  if (state.byte('JAKE_FREEZE') === 0) {
-    state.setByte('JAKE_FREEZE', 0, 1);
+  if (state.jake.spells.freeze === 0) {
+    state.jake.spells.freeze = 1;
   }
-  if (state.byte('JAKE_ARMOUR_SPELL') === 0) {
-    state.setByte('JAKE_ARMOUR_SPELL', 0, 1);
+  if (state.jake.spells.armour === 0) {
+    state.jake.spells.armour = 1;
   }
-  if (state.byte('JAKE_POWERBALL') === 0) {
-    state.setByte('JAKE_POWERBALL', 0, 1);
+  if (state.jake.spells.powerball === 0) {
+    state.jake.spells.powerball = 1;
   }
-  if (state.byte('JAKE_INVISIBILITY') === 0) {
-    state.setByte('JAKE_INVISIBILITY', 0, 1);
+  if (state.jake.spells.invisibility === 0) {
+    state.jake.spells.invisibility = 1;
   }
   return null;
 }
@@ -578,7 +578,7 @@ export function* script35B(state, arg0) {
 // Script 35C: no arguments.
 export function* setLeaderOnly(state) {
   yield* game.wait(EVENT.TIMER, 2);
-  state.setWord('GROUP_LEADER_ONLY', 0, 0xffff);
+  state.party.leaderOnly = 0xffff;
   return null;
 }
 
@@ -614,10 +614,10 @@ export function* script35F(state, arg0) {
     if (((yield* game.getObjectRecordFlags(object)) & 0x40) !== 0) {
       if (((yield* game.getObjectRecordFlags(object)) & 1) !== 0) {
         yield* game.wait(EVENT.TIMER, 0x23);
-        if ((state.byte('DECKER_DOWNLOAD_BITS') & 1) !== 0) {
+        if ((state.matrix.downloadBits & 1) !== 0) {
           yield* run.obtainDataFile(0x155b);
         }
-        if ((state.byte('DECKER_DOWNLOAD_BITS') & 0x80) !== 0) {
+        if ((state.matrix.downloadBits & 0x80) !== 0) {
           yield* run.noticeTrashDataDiscarded();
         }
         yield* game.keepObjectRecordFlagBits(object, 0xff7e);

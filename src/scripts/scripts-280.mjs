@@ -116,10 +116,10 @@ export function* script286(state, arg0) {
   object = arg0 & 0xff;
   if (((yield* game.getObjectRecordFlags(object)) & 1) !== 0) {
     yield* game.wait(EVENT.TIMER, 0x23);
-    if ((state.byte('DECKER_DOWNLOAD_BITS') & 0x40) !== 0) {
+    if ((state.matrix.downloadBits & 0x40) !== 0) {
       yield* run.transferAccount(object, 0x3e8, 0x217, 2);
     }
-    if ((state.byte('DECKER_DOWNLOAD_BITS') & 0x80) !== 0) {
+    if ((state.matrix.downloadBits & 0x80) !== 0) {
       yield* run.obtainDataFile(0x15a8);
     }
     yield* game.keepObjectRecordFlagBits(object, 0xff7e);
@@ -760,8 +760,8 @@ export function* runnerCastsSpellB(state, arg0, arg1, arg2) {
       yield* game.setObjectAnimation(object, 0);
     } else {
       yield* game.spellMenu(object);
-      if (signed(state.byte('SPELL_TARGET_OBJECT')) !== 0xffff) {
-        yield* game.turnObjectToObject(object, signed(state.byte('SPELL_TARGET_OBJECT')));
+      if (signed(state.spells.target) !== 0xffff) {
+        yield* game.turnObjectToObject(object, signed(state.spells.target));
       }
       events = yield* game.wait(
         EVENT.TIMER |

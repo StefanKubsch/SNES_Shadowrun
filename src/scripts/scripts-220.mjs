@@ -1085,7 +1085,7 @@ export function* script23F(state, arg0) {
   object = arg0 & 0xff;
   if (((yield* game.getObjectRecordFlags(object)) & 1) !== 0) {
     yield* game.wait(EVENT.TIMER, 0x23);
-    if ((state.byte('DECKER_DATA_BITS') & 0x80) !== 0) {
+    if ((state.matrix.dataBits & 0x80) !== 0) {
       yield* run.activateElevator(0x175a);
     }
     yield* game.keepObjectRecordFlagBits(object, 0xff7e);

@@ -844,10 +844,10 @@ export function* script0F7(state, arg0) {
 // Script 0F8: no arguments.
 export function* script0F8(state) {
   if (
-    ((truth(state.byte('JAKE_DERMAL_ARMOUR') === 0) &
+    ((truth(state.jake.dermalArmour === 0) &
       truth(((yield* game.getActorStateFlags(0x15c4 /* "Dermal Plating" */)) & 1) !== 0)) |
-      truth(state.byte('JAKE_SKILLSOFT') === 0) |
-      (signed(state.byte('JAKE_WIRED_REFLEXES')) ^ 0xffff)) ===
+      truth(state.jake.leadership === 0) |
+      (signed(state.jake.wiredReflexes) ^ 0xffff)) ===
     0
   ) {
     yield* game.topicText(

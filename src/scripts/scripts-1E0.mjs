@@ -29,11 +29,11 @@ export function* script1E0(state, arg0) {
     if (local1 === 0x100) {
       yield* game.endDialog();
       yield* game.wait(EVENT.TIMER, 0x14);
-      state.setWord('COLOUR_REQUEST', 0, (state.word('COLOUR_REQUEST') & 0xfffc) | 1);
+      state.screen.colourRequest = (state.screen.colourRequest & 0xfffc) | 1;
       yield* game.wait(EVENT.TIMER, 5);
-      state.setWord('COLOUR_REQUEST', 0, (state.word('COLOUR_REQUEST') & 0xfffc) | 2);
+      state.screen.colourRequest = (state.screen.colourRequest & 0xfffc) | 2;
       yield* game.wait(EVENT.TIMER, 0xa);
-      state.setWord('COLOUR_REQUEST', 0, state.word('COLOUR_REQUEST') | 0x8000);
+      state.screen.colourRequest = state.screen.colourRequest | 0x8000;
       if ((yield* game.getCurrentRoomHeader()) === (yield* game.getRoomHeader(0x13d))) {
         yield* game.setActorStateFlagBits(0x188 /* "Vampire!" */, 0x80);
       }
@@ -67,15 +67,15 @@ export function* script1E2(state, arg0) {
     local4 = 0;
   block435: {
     count = arg0;
-    state.setWord('MEMBER_INDEX', 0, 0);
-    if (less(state.byte('ARMOUR_SPELLS_ACTIVE'), 4)) {
+    state.menu.memberIndex = 0;
+    if (less(state.spells.armourActive, 4)) {
       if (
-        ((yield* game.getObjectFlags(state.byte('AIM_TARGET_OBJECT'))) & 3) === 3 ||
-        state.byte('AIM_TARGET_OBJECT') === state.byte('PLAYER_OBJECT')
+        ((yield* game.getObjectFlags(state.combat.aimTarget)) & 3) === 3 ||
+        state.combat.aimTarget === state.room.player
       ) {
         if ((yield* game.spendMagic(word(4 + count))) !== 0) {
-          state.setByte('ARMOUR_SPELLS_ACTIVE', 0, word(state.byte('ARMOUR_SPELLS_ACTIVE') + 1));
-          object = state.byte('AIM_TARGET_OBJECT') & 0xff;
+          state.spells.armourActive = word(state.spells.armourActive + 1);
+          object = state.combat.aimTarget & 0xff;
           const t1 = yield* game.getObjectCoarseHeight(object);
           const t2 = word((yield* game.getObjectCoarseY(object)) - 6);
           const t3 = word((yield* game.getObjectCoarseX(object)) - 6);
@@ -170,11 +170,7 @@ export function* script1E2(state, arg0) {
                               }
                               yield* game.subtractObjectArmour(object, 0x1e);
                               yield* game.removeObject(object2);
-                              state.setByte(
-                                'ARMOUR_SPELLS_ACTIVE',
-                                0,
-                                word(state.byte('ARMOUR_SPELLS_ACTIVE') - 1),
-                              );
+                              state.spells.armourActive = word(state.spells.armourActive - 1);
                               break block435;
                             }
                           }
@@ -536,7 +532,7 @@ export function* script1E9(state, arg0) {
     local5 = 0;
   object = arg0 & 0xff;
   yield* game.wait(EVENT.TIMER, 6);
-  if (state.word('GROUP_LEADER_ONLY') === 0) {
+  if (state.party.leaderOnly === 0) {
     local4 = 0;
     yield* game.setObjectRecordFlagBits(object, 0x80);
     yield* game.keepObjectFlagBits(object, 0xfe9f);
@@ -751,32 +747,32 @@ export function* script1EC(state, arg0) {
     local3 = 0;
   block374: {
     local0 = arg0 & 0xff;
-    state.setWord('MEMBER_INDEX', 0, 0);
-    if (state.byte('SPIRIT_SUMMONED') === 0) {
+    state.menu.memberIndex = 0;
+    if (state.spells.spiritSummoned === 0) {
       if ((yield* game.spendMagic(word(8 + shiftLeft(local0, 1)))) !== 0) {
         if ((yield* game.getPreviousFightObject(0xffff)) !== 0xffff) {
-          state.setByte('SPIRIT_SUMMONED', 0, 1);
-          state.setByte('SPELL_EFFECT_BUSY', 0, 0xffff);
-          const t1 = word((yield* game.getObjectCoarseHeight(state.byte('PLAYER_OBJECT'))) + 0x20);
-          const t2 = yield* game.getObjectCoarseY(state.byte('PLAYER_OBJECT'));
-          const t3 = yield* game.getObjectCoarseX(state.byte('PLAYER_OBJECT'));
+          state.spells.spiritSummoned = 1;
+          state.spells.effectBusy = 0xffff;
+          const t1 = word((yield* game.getObjectCoarseHeight(state.room.player)) + 0x20);
+          const t2 = yield* game.getObjectCoarseY(state.room.player);
+          const t3 = yield* game.getObjectCoarseX(state.room.player);
           created = (yield* game.createObject(0xc4, t3, t2, t1, 0xa1)) & 0xff;
           yield* game.setObjectDirection(created, 0);
           yield* game.setObjectAnimation(created, 2);
-          state.setWord('COLOUR_REQUEST', 0, (state.word('COLOUR_REQUEST') & 0xfffc) | 1);
+          state.screen.colourRequest = (state.screen.colourRequest & 0xfffc) | 1;
           yield* game.wait(EVENT.TIMER, 0xa);
           yield* game.playSoundEffect(0xffff, 0xa, 0xff, 0xff);
-          state.setWord('COLOUR_REQUEST', 0, (state.word('COLOUR_REQUEST') & 0xfffc) | 2);
+          state.screen.colourRequest = (state.screen.colourRequest & 0xfffc) | 2;
           yield* game.wait(EVENT.TIMER, 0xa);
-          state.setWord('COLOUR_REQUEST', 0, (state.word('COLOUR_REQUEST') & 0xfffc) | 1);
+          state.screen.colourRequest = (state.screen.colourRequest & 0xfffc) | 1;
           yield* game.wait(EVENT.TIMER, 0x1e);
           yield* game.playSoundEffect(0xffff, 0xa, 0xff, 0xff);
-          state.setWord('COLOUR_REQUEST', 0, (state.word('COLOUR_REQUEST') & 0xfffc) | 2);
+          state.screen.colourRequest = (state.screen.colourRequest & 0xfffc) | 2;
           yield* game.wait(EVENT.TIMER, 0xa);
           yield* game.playSoundEffect(0xffff, 0xa, 0xff, 0xff);
-          state.setWord('COLOUR_REQUEST', 0, (state.word('COLOUR_REQUEST') & 0xfffc) | 2);
+          state.screen.colourRequest = (state.screen.colourRequest & 0xfffc) | 2;
           yield* game.wait(EVENT.TIMER, 0xa);
-          state.setWord('COLOUR_REQUEST', 0, (state.word('COLOUR_REQUEST') & 0xfffc) | 1);
+          state.screen.colourRequest = (state.screen.colourRequest & 0xfffc) | 1;
           local3 = 255;
           for (;;) {
             const t4 = yield* game.getPreviousFightObject(signed(local3));
@@ -784,9 +780,9 @@ export function* script1EC(state, arg0) {
             if (t4 === 0xffff) {
               yield* game.removeObject(created);
               yield* game.wait(EVENT.TIMER, 0x14);
-              state.setWord('COLOUR_REQUEST', 0, state.word('COLOUR_REQUEST') | 0x8000);
-              state.setByte('SPELL_EFFECT_BUSY', 0, 0);
-              state.setByte('SPIRIT_SUMMONED', 0, 0);
+              state.screen.colourRequest = state.screen.colourRequest | 0x8000;
+              state.spells.effectBusy = 0;
+              state.spells.spiritSummoned = 0;
               break block374;
             }
             yield* game.turnObjectToObject(created, signed(local3));
@@ -797,10 +793,10 @@ export function* script1EC(state, arg0) {
             }
             yield* game.wait(EVENT.TIMER, frames);
             yield* game.playSoundEffect(created, 0x5a, 0xc0, 0xff);
-            state.setWord('COLOUR_REQUEST', 0, (state.word('COLOUR_REQUEST') & 0xfffc) | 2);
+            state.screen.colourRequest = (state.screen.colourRequest & 0xfffc) | 2;
             yield* game.wait(EVENT.TIMER, 5);
             yield* game.shootAtObject(created, signed(local3), 0xff, 0, multiply(local0, 6), 0);
-            state.setWord('COLOUR_REQUEST', 0, (state.word('COLOUR_REQUEST') & 0xfffc) | 1);
+            state.screen.colourRequest = (state.screen.colourRequest & 0xfffc) | 1;
           }
         } else {
           yield* game.addMagicPoints(word(8 + shiftLeft(local0, 1)));
@@ -890,14 +886,14 @@ export function* script1F3(state, arg0) {
     created = 0;
   block155: {
     local0 = arg0 & 0xff;
-    state.setWord('MEMBER_INDEX', 0, 0);
+    state.menu.memberIndex = 0;
     if (
-      ((yield* game.getObjectFlags(state.byte('AIM_TARGET_OBJECT'))) & 3) === 3 ||
-      state.byte('AIM_TARGET_OBJECT') === state.byte('PLAYER_OBJECT')
+      ((yield* game.getObjectFlags(state.combat.aimTarget)) & 3) === 3 ||
+      state.combat.aimTarget === state.room.player
     ) {
       if ((yield* game.spendMagic(word(4 + local0))) !== 0) {
-        state.setByte('SPELL_EFFECT_BUSY', 0, 0xffff);
-        object = state.byte('AIM_TARGET_OBJECT') & 0xff;
+        state.spells.effectBusy = 0xffff;
+        object = state.combat.aimTarget & 0xff;
         yield* game.raiseStateCount(object, multiply(local0, 0xf));
         const t1 = yield* game.getObjectCoarseHeight(object);
         const t2 = word((yield* game.getObjectCoarseY(object)) - 1);
@@ -917,7 +913,7 @@ export function* script1F3(state, arg0) {
           local0 = word(local0 - 1) & 0xff;
           if (t7 <= 0) {
             yield* game.removeObject(created);
-            state.setByte('SPELL_EFFECT_BUSY', 0, 0);
+            state.spells.effectBusy = 0;
             break block155;
           }
         }
@@ -1104,32 +1100,32 @@ export function* script1F7(state, arg0) {
       0
     ) {
       locals[9] = 0xffff & 0xff;
-      if (!(localByte(locals, 5) === 2 && state.byte('JAKE_SUMMON_SPIRIT') === 0)) {
-        if (!(localByte(locals, 5) === 4 && state.byte('JAKE_FREEZE') === 0)) {
-          if (!(localByte(locals, 5) === 8 && state.byte('JAKE_ARMOUR_SPELL') === 0)) {
-            if (!(localByte(locals, 5) === 0x10 && state.byte('JAKE_POWERBALL') === 0)) {
-              if (localByte(locals, 5) === 0x20 && state.byte('JAKE_INVISIBILITY') === 0) {
+      if (!(localByte(locals, 5) === 2 && state.jake.spells.summonSpirit === 0)) {
+        if (!(localByte(locals, 5) === 4 && state.jake.spells.freeze === 0)) {
+          if (!(localByte(locals, 5) === 8 && state.jake.spells.armour === 0)) {
+            if (!(localByte(locals, 5) === 0x10 && state.jake.spells.powerball === 0)) {
+              if (localByte(locals, 5) === 0x20 && state.jake.spells.invisibility === 0) {
                 if (((yield* game.getActorStateFlags(localWord(locals, 1))) & 3) !== 3) {
                   locals[9] = 0 & 0xff;
                 } else {
-                  state.setByte('JAKE_INVISIBILITY', 0, 1);
+                  state.jake.spells.invisibility = 1;
                 }
               }
             } else {
-              state.setByte('JAKE_POWERBALL', 0, 1);
+              state.jake.spells.powerball = 1;
             }
           } else {
-            state.setByte('JAKE_ARMOUR_SPELL', 0, 1);
+            state.jake.spells.armour = 1;
           }
         } else {
           if (((yield* game.getActorStateFlags(localWord(locals, 1))) & 1) === 0) {
             locals[9] = 0 & 0xff;
           } else {
-            state.setByte('JAKE_FREEZE', 0, 1);
+            state.jake.spells.freeze = 1;
           }
         }
       } else {
-        state.setByte('JAKE_SUMMON_SPIRIT', 0, 1);
+        state.jake.spells.summonSpirit = 1;
       }
       if (signed(localByte(locals, 9)) !== 0) {
         yield* game.playSoundEffect(localByte(locals, 0), 0x32, 0xff, 3);
@@ -1142,11 +1138,11 @@ export function* script1F7(state, arg0) {
   function* sub5() {
     block241: {
       if (
-        state.byte('JAKE_SUMMON_SPIRIT') === 0 ||
-        state.byte('JAKE_FREEZE') === 0 ||
-        state.byte('JAKE_ARMOUR_SPELL') === 0 ||
-        state.byte('JAKE_POWERBALL') === 0 ||
-        state.byte('JAKE_INVISIBILITY') === 0
+        state.jake.spells.summonSpirit === 0 ||
+        state.jake.spells.freeze === 0 ||
+        state.jake.spells.armour === 0 ||
+        state.jake.spells.powerball === 0 ||
+        state.jake.spells.invisibility === 0
       ) {
         setLocalWord(locals, 1, 0);
         for (;;) {
@@ -1156,34 +1152,34 @@ export function* script1F7(state, arg0) {
             if (localByte(locals, 3) !== 1) {
               if (localByte(locals, 3) !== 2) {
                 if (localByte(locals, 3) !== 3) {
-                  if (state.byte('JAKE_ARMOUR_SPELL') === 0) {
+                  if (state.jake.spells.armour === 0) {
                     setLocalWord(locals, 1, 0x1cf);
                     locals[4] = 0x18 & 0xff;
                     locals[5] = 5 & 0xff;
                   }
                 } else {
-                  if (state.byte('JAKE_INVISIBILITY') === 0) {
+                  if (state.jake.spells.invisibility === 0) {
                     setLocalWord(locals, 1, 0x1d2);
                     locals[4] = 0x1b & 0xff;
                     locals[5] = 4 & 0xff;
                   }
                 }
               } else {
-                if (state.byte('JAKE_SUMMON_SPIRIT') === 0) {
+                if (state.jake.spells.summonSpirit === 0) {
                   setLocalWord(locals, 1, 0x1d1);
                   locals[4] = 0x19 & 0xff;
                   locals[5] = 4 & 0xff;
                 }
               }
             } else {
-              if (state.byte('JAKE_FREEZE') === 0) {
+              if (state.jake.spells.freeze === 0) {
                 setLocalWord(locals, 1, 0x1d3);
                 locals[4] = 0x19 & 0xff;
                 locals[5] = 4 & 0xff;
               }
             }
           } else {
-            if (state.byte('JAKE_POWERBALL') === 0) {
+            if (state.jake.spells.powerball === 0) {
               setLocalWord(locals, 1, 0x1d0);
               locals[4] = 0x17 & 0xff;
               locals[5] = 5 & 0xff;
@@ -1263,11 +1259,11 @@ export function* script1F7(state, arg0) {
                 0x1c9 /* "You have done well, take this spell... it will heal your mor..." */,
                 0xb4,
               );
-              if (state.byte('JAKE_HEAL') === 0) {
-                state.setByte('JAKE_HEAL', 0, 1);
+              if (state.jake.spells.heal === 0) {
+                state.jake.spells.heal = 1;
               }
-              if (state.byte('JAKE_MAGIC') === 0) {
-                state.setByte('JAKE_MAGIC', 0, 1);
+              if (state.jake.magic === 0) {
+                state.jake.magic = 1;
                 yield* game.raiseMemberMagicPoints(yield* game.getPlayerObjectCopy(), 0xa);
               }
               yield* game.setObjectRecordFlagBits(localByte(locals, 0), 0x40);
@@ -1408,7 +1404,7 @@ export function* script1FC(state, arg0) {
   block445: {
     count = arg0;
     yield* game.endDialog();
-    if (less(state.byte('ARMOUR_SPELLS_ACTIVE'), 4)) {
+    if (less(state.spells.armourActive, 4)) {
       if ((yield* game.spendMagic(word(4 + count))) !== 0) {
         const t1 = yield* game.spellGloveTarget();
         local2 = t1 & 0xff;
@@ -1416,11 +1412,11 @@ export function* script1FC(state, arg0) {
           (truth(t1 === 0xffff) |
             truth(
               ((yield* game.getObjectFlags(signed(local2))) & 3) !== 3 &&
-                notEqualOrNegativeLeft(signed(local2), state.byte('PLAYER_OBJECT')),
+                notEqualOrNegativeLeft(signed(local2), state.room.player),
             )) ===
           0
         ) {
-          state.setByte('ARMOUR_SPELLS_ACTIVE', 0, word(state.byte('ARMOUR_SPELLS_ACTIVE') + 1));
+          state.spells.armourActive = word(state.spells.armourActive + 1);
           const t2 = yield* game.getObjectCoarseHeight(signed(local2));
           const t3 = word((yield* game.getObjectCoarseY(signed(local2))) - 6);
           const t4 = word((yield* game.getObjectCoarseX(signed(local2))) - 6);
@@ -1522,11 +1518,7 @@ export function* script1FC(state, arg0) {
                               }
                               yield* game.subtractObjectArmour(signed(local2), 0x1e);
                               yield* game.removeObject(object);
-                              state.setByte(
-                                'ARMOUR_SPELLS_ACTIVE',
-                                0,
-                                word(state.byte('ARMOUR_SPELLS_ACTIVE') - 1),
-                              );
+                              state.spells.armourActive = word(state.spells.armourActive - 1);
                               break block445;
                             }
                           }

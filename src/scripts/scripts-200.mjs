@@ -96,30 +96,30 @@ export function* script205(state, arg0) {
   block363: {
     local0 = arg0 & 0xff;
     yield* game.endDialog();
-    if (state.byte('SPIRIT_SUMMONED') === 0) {
+    if (state.spells.spiritSummoned === 0) {
       if ((yield* game.spendMagic(word(8 + shiftLeft(local0, 1)))) !== 0) {
         if ((yield* game.getPreviousFightObject(0xffff)) !== 0xffff) {
-          state.setByte('SPIRIT_SUMMONED', 0, 1);
-          const t1 = word((yield* game.getObjectCoarseHeight(state.byte('MEMBER_OBJECT'))) + 0x20);
-          const t2 = yield* game.getObjectCoarseY(state.byte('MEMBER_OBJECT'));
-          const t3 = yield* game.getObjectCoarseX(state.byte('MEMBER_OBJECT'));
+          state.spells.spiritSummoned = 1;
+          const t1 = word((yield* game.getObjectCoarseHeight(state.menu.memberObject)) + 0x20);
+          const t2 = yield* game.getObjectCoarseY(state.menu.memberObject);
+          const t3 = yield* game.getObjectCoarseX(state.menu.memberObject);
           created = (yield* game.createObject(0xc4, t3, t2, t1, 0xa1)) & 0xff;
           yield* game.setObjectDirection(created, 0);
           yield* game.setObjectAnimation(created, 2);
-          state.setWord('COLOUR_REQUEST', 0, (state.word('COLOUR_REQUEST') & 0xfffc) | 1);
+          state.screen.colourRequest = (state.screen.colourRequest & 0xfffc) | 1;
           yield* game.wait(EVENT.TIMER, 0xa);
           yield* game.playSoundEffect(0xffff, 0xa, 0xff, 0xff);
-          state.setWord('COLOUR_REQUEST', 0, (state.word('COLOUR_REQUEST') & 0xfffc) | 2);
+          state.screen.colourRequest = (state.screen.colourRequest & 0xfffc) | 2;
           yield* game.wait(EVENT.TIMER, 0xa);
-          state.setWord('COLOUR_REQUEST', 0, (state.word('COLOUR_REQUEST') & 0xfffc) | 1);
+          state.screen.colourRequest = (state.screen.colourRequest & 0xfffc) | 1;
           yield* game.wait(EVENT.TIMER, 0x1e);
           yield* game.playSoundEffect(0xffff, 0xa, 0xff, 0xff);
-          state.setWord('COLOUR_REQUEST', 0, (state.word('COLOUR_REQUEST') & 0xfffc) | 2);
+          state.screen.colourRequest = (state.screen.colourRequest & 0xfffc) | 2;
           yield* game.wait(EVENT.TIMER, 0xa);
           yield* game.playSoundEffect(0xffff, 0xa, 0xff, 0xff);
-          state.setWord('COLOUR_REQUEST', 0, (state.word('COLOUR_REQUEST') & 0xfffc) | 2);
+          state.screen.colourRequest = (state.screen.colourRequest & 0xfffc) | 2;
           yield* game.wait(EVENT.TIMER, 0xa);
-          state.setWord('COLOUR_REQUEST', 0, (state.word('COLOUR_REQUEST') & 0xfffc) | 1);
+          state.screen.colourRequest = (state.screen.colourRequest & 0xfffc) | 1;
           local3 = 255;
           for (;;) {
             const t4 = yield* game.getPreviousFightObject(signed(local3));
@@ -127,8 +127,8 @@ export function* script205(state, arg0) {
             if (t4 === 0xffff) {
               yield* game.removeObject(created);
               yield* game.wait(EVENT.TIMER, 0x14);
-              state.setWord('COLOUR_REQUEST', 0, state.word('COLOUR_REQUEST') | 0x8000);
-              state.setByte('SPIRIT_SUMMONED', 0, 0);
+              state.screen.colourRequest = state.screen.colourRequest | 0x8000;
+              state.spells.spiritSummoned = 0;
               break block363;
             }
             yield* game.turnObjectToObject(created, signed(local3));
@@ -139,10 +139,10 @@ export function* script205(state, arg0) {
             }
             yield* game.wait(EVENT.TIMER, frames);
             yield* game.playSoundEffect(created, 0x5a, 0xc0, 0xff);
-            state.setWord('COLOUR_REQUEST', 0, (state.word('COLOUR_REQUEST') & 0xfffc) | 2);
+            state.screen.colourRequest = (state.screen.colourRequest & 0xfffc) | 2;
             yield* game.wait(EVENT.TIMER, 5);
             yield* game.shootAtObject(created, signed(local3), 0xff, 0, multiply(local0, 6), 0);
-            state.setWord('COLOUR_REQUEST', 0, (state.word('COLOUR_REQUEST') & 0xfffc) | 1);
+            state.screen.colourRequest = (state.screen.colourRequest & 0xfffc) | 1;
           }
         } else {
           yield* game.addMagicPoints(word(8 + shiftLeft(local0, 1)));
@@ -447,7 +447,7 @@ export function* script20C(state, arg0) {
         (truth(t1 === 0xffff) |
           truth(
             ((yield* game.getObjectFlags(signed(local1))) & 3) !== 3 &&
-              notEqualOrNegativeLeft(signed(local1), state.byte('PLAYER_OBJECT')),
+              notEqualOrNegativeLeft(signed(local1), state.room.player),
           )) ===
         0
       ) {

@@ -81,7 +81,7 @@ export function* giveArmour(state, arg0, arg1, arg2) {
         }
       }
     } else {
-      if (!less(yield* game.getRunnerStrength(state.byte('MEMBER_OBJECT')), local3)) {
+      if (!less(yield* game.getRunnerStrength(state.menu.memberObject), local3)) {
         yield* game.equipRunnerArmour(object, local1);
       } else {
         yield* game.notice(2, 0x15, 0xf, 3, 0x800, 0x14 /* "Not strong enough." */, 0xf0);
@@ -229,7 +229,7 @@ export function* hiredRunnerB(state, arg0, arg1) {
   dialog = arg1;
   yield* game.wait(EVENT.TIMER, 6);
   if (((yield* game.getObjectRecordFlags(object)) & 0x80) !== 0) {
-    if (state.word('GROUP_LEADER_ONLY') === 0) {
+    if (state.party.leaderOnly === 0) {
       block501: {
         yield* run.script209(object);
         local4 = 0;
@@ -877,7 +877,7 @@ export function* script337(state, arg0) {
     } else {
       yield* game.placeObjectOnWaypoint(object, 3);
       yield* game.setObjectActionAndDirection(object, 0, 2);
-      if (signed(state.byte('JAKE_ALTERNATE_PORTRAIT')) === 0) {
+      if (signed(state.jake.alternatePortrait) === 0) {
         for (;;) {
           yield* game.wait(EVENT.TIMER, 2);
           if (((yield* game.getObjectRecordFlags(object)) & 2) !== 0) {

@@ -796,7 +796,7 @@ export function* giveWeapon(state, arg0, arg1, arg2, arg3, arg4) {
         }
       }
     } else {
-      if (!less(yield* game.getRunnerStrength(state.byte('MEMBER_OBJECT')), local4)) {
+      if (!less(yield* game.getRunnerStrength(state.menu.memberObject), local4)) {
         yield* game.equipRunnerWeapon(object, local1, local2, signed(local3));
       } else {
         yield* game.notice(2, 0x15, 0xf, 3, 0x800, 0x14 /* "Not strong enough." */, 0xf0);

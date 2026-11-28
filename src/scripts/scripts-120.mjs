@@ -28,10 +28,10 @@ export function* script121(state, arg0) {
   object = arg0 & 0xff;
   if (((yield* game.getObjectRecordFlags(object)) & 1) !== 0) {
     yield* game.wait(EVENT.TIMER, 0x23);
-    if ((state.byte('DECKER_DOWNLOAD_BITS') & 0x80) !== 0) {
+    if ((state.matrix.downloadBits & 0x80) !== 0) {
       yield* run.transferAccount(object, 0x2710, 0x219, 2);
     }
-    if ((state.byte('DECKER_DOWNLOAD_BITS') & 1) !== 0) {
+    if ((state.matrix.downloadBits & 1) !== 0) {
       yield* run.noticeTrashDataDiscarded();
     }
     yield* game.keepObjectRecordFlagBits(object, 0xff7e);
@@ -184,7 +184,7 @@ export function* script126(state, arg0) {
     }
   } else {
     if (((yield* game.scriptAction(0x200)) & 0x200) !== 0) {
-      yield* game.setScriptVariable(0x1a, state.word('ROOM'));
+      yield* game.setScriptVariable(0x1a, state.room.number);
       yield* game.endDialog();
       yield* game.changeRoom(0xd2);
       yield* game.wait(EVENT.TIMER, 1);
@@ -362,7 +362,7 @@ export function* script12D(state, arg0) {
       yield* game.setObjectActionAndDirection(object, 2, 4);
     }
     yield* game.wait(EVENT.TIMER, 1);
-    if (state.word('CIRCLE_LEADER_ALIVE') === 0) {
+    if (state.motion.circleLeaderAlive === 0) {
       yield* game.resetObjectRecordProperty(object);
       yield* game.removeObject(object);
       return null;

@@ -53,10 +53,10 @@ export function* offerToHire(state, arg0, arg1, arg2, arg3, arg4) {
   text2 = arg3;
   text3 = arg4;
   if (!(
-    (state.byte('JAKE_CHARISMA') === 3 && state.byte('GROUP_INDEX') > 0) ||
-    (state.byte('JAKE_CHARISMA') === 4 && state.byte('GROUP_INDEX') > 2) ||
-    (state.byte('JAKE_CHARISMA') === 5 && state.byte('GROUP_INDEX') > 2) ||
-    (state.byte('JAKE_CHARISMA') === 6 && state.byte('GROUP_INDEX') > 4)
+    (state.jake.charisma === 3 && state.party.lastIndex > 0) ||
+    (state.jake.charisma === 4 && state.party.lastIndex > 2) ||
+    (state.jake.charisma === 5 && state.party.lastIndex > 2) ||
+    (state.jake.charisma === 6 && state.party.lastIndex > 4)
   )) {
     yield* game.topicText(text);
     if ((yield* game.question(0x12, 0xa)) === 0) {

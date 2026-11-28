@@ -38,13 +38,13 @@ export function* script062(state, arg0) {
     object = 0;
   block109: {
     count = arg0;
-    state.setWord('MEMBER_INDEX', 0, 0);
+    state.menu.memberIndex = 0;
     if (
-      ((yield* game.getObjectFlags(state.byte('AIM_TARGET_OBJECT'))) & 3) === 3 ||
-      state.byte('AIM_TARGET_OBJECT') === state.byte('PLAYER_OBJECT')
+      ((yield* game.getObjectFlags(state.combat.aimTarget)) & 3) === 3 ||
+      state.combat.aimTarget === state.room.player
     ) {
       if ((yield* game.spendMagic(word(4 + count))) !== 0) {
-        object = state.byte('AIM_TARGET_OBJECT') & 0xff;
+        object = state.combat.aimTarget & 0xff;
         count = multiply(count, 0x96);
         yield* game.playSoundEffect(object, 0x36, 0xff, 0xff);
         yield* game.setObjectFlagBits(object, 0x1000);
@@ -77,8 +77,8 @@ export function* script063(state, arg0) {
     yield* game.advanceOrbitSlot4(object);
     yield* game.wait(EVENT.TIMER, 1);
     count = word(count - 1);
-    if (count === 0 || state.word('CIRCLE_LEADER_ALIVE') === 0) {
-      if (state.word('CIRCLE_LEADER_ALIVE') !== 0) {
+    if (count === 0 || state.motion.circleLeaderAlive === 0) {
+      if (state.motion.circleLeaderAlive !== 0) {
         yield* run.orbiterAttacks(object, 3, 0xb75);
       } else {
         yield* game.setObjectVelocity(object, 0, 0, 8);
@@ -150,8 +150,8 @@ export function* script066(state, arg0) {
     yield* game.advanceOrbitSlot5(object);
     yield* game.wait(EVENT.TIMER, 1);
     count = word(count - 1);
-    if (count === 0 || state.word('CIRCLE_LEADER_ALIVE') === 0) {
-      if (state.word('CIRCLE_LEADER_ALIVE') !== 0) {
+    if (count === 0 || state.motion.circleLeaderAlive === 0) {
+      if (state.motion.circleLeaderAlive !== 0) {
         yield* run.orbiterAttacks(object, 4, 0xb6e);
       } else {
         yield* game.setObjectVelocity(object, 0, 0, 8);
@@ -199,8 +199,8 @@ export function* script069(state, arg0) {
     yield* game.advanceOrbitSlot6(object);
     yield* game.wait(EVENT.TIMER, 1);
     count = word(count - 1);
-    if (count === 0 || state.word('CIRCLE_LEADER_ALIVE') === 0) {
-      if (state.word('CIRCLE_LEADER_ALIVE') !== 0) {
+    if (count === 0 || state.motion.circleLeaderAlive === 0) {
+      if (state.motion.circleLeaderAlive !== 0) {
         yield* run.orbiterAttacks(object, 5, 0xb6e);
       } else {
         yield* game.setObjectVelocity(object, 0, 0, 8);
@@ -224,8 +224,8 @@ export function* script06A(state, arg0) {
     yield* game.advanceOrbitSlot7(object);
     yield* game.wait(EVENT.TIMER, 1);
     count = word(count - 1);
-    if (count === 0 || state.word('CIRCLE_LEADER_ALIVE') === 0) {
-      if (state.word('CIRCLE_LEADER_ALIVE') !== 0) {
+    if (count === 0 || state.motion.circleLeaderAlive === 0) {
+      if (state.motion.circleLeaderAlive !== 0) {
         yield* run.orbiterAttacks(object, 6, 0xb6e);
       } else {
         yield* game.setObjectVelocity(object, 0, 0, 8);
@@ -436,7 +436,7 @@ export function* talkOrStrikeBack(state, arg0, arg1, arg2, arg3, arg4) {
             yield* sub13();
           }
           if (((yield* game.getActorStateFlags(actor)) & 0x80) !== 0) {
-            state.setWord('GROUP_LEADER_ONLY', 0, 0);
+            state.party.leaderOnly = 0;
             return null;
           }
           count = 0x64;
@@ -489,8 +489,8 @@ export function* script070(state, arg0) {
     yield* game.advanceOrbitSlot8(object);
     yield* game.wait(EVENT.TIMER, 1);
     count = word(count - 1);
-    if (count === 0 || state.word('CIRCLE_LEADER_ALIVE') === 0) {
-      if (state.word('CIRCLE_LEADER_ALIVE') !== 0) {
+    if (count === 0 || state.motion.circleLeaderAlive === 0) {
+      if (state.motion.circleLeaderAlive !== 0) {
         yield* run.orbiterAttacks(object, 7, 0xb6e);
         yield* game.resetSwarmPhases();
       } else {
@@ -683,7 +683,7 @@ export function* script077(state, arg0) {
         (truth(t1 === 0xffff) |
           truth(
             ((yield* game.getObjectFlags(signed(local2))) & 3) !== 3 &&
-              notEqualOrNegativeLeft(signed(local2), state.byte('PLAYER_OBJECT')),
+              notEqualOrNegativeLeft(signed(local2), state.room.player),
           )) ===
         0
       ) {
@@ -925,7 +925,7 @@ export function* script07B(state) {
 export function* script07C(state, arg0) {
   let object = 0;
   object = arg0 & 0xff;
-  state.setWord('MEMBER_INDEX', 0, 0);
+  state.menu.memberIndex = 0;
   yield* game.equipRunnerArmour(object, 0x23);
   yield* game.wait(EVENT.TIMER, 1);
   yield* game.removeObject(object);

@@ -465,8 +465,8 @@ export function* byNegotiationB(state, arg0, arg1, arg2) {
   local0 = arg0;
   local2 = arg1;
   local4 = arg2;
-  if (!less(state.byte('JAKE_NEGOTIATION'), 3)) {
-    if (!(state.byte('JAKE_NEGOTIATION') > 2 && less(state.byte('JAKE_NEGOTIATION'), 5))) {
+  if (!less(state.jake.negotiation, 3)) {
+    if (!(state.jake.negotiation > 2 && less(state.jake.negotiation, 5))) {
       return local4;
     }
     return local2;
