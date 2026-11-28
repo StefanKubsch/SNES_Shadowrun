@@ -257,3 +257,10 @@ EVENT.DEFEATED`). The 37 most used game functions have parameter names (PARAMETE
   doubled lastIndex, which the later consumer cleanup must remove. The original state
   schemas and raw fixture bridge remain a phase 3 boundary. Ratchet: 1,192 ROM literals,
   149 WRAM imports, 26 hardware imports, 2,313 direct page names, 2,767 address comments.
+- 2026-11-28, phase 3 step 4 (runner equipment): equipping, unequipping, shots,
+  aiming, scene creation and the equipment display use cached runner records with
+  named armour and weapon fields. New-game initialization takes named default records
+  through the content boundary. Magic points share the same record and saved owner.
+  The extra unequip scan row still aliases the first magic bytes, and both the original
+  weapon-default bug and its optional correction retain their behaviour. The content
+  reader and the selected member's legacy index remain temporary migration bridges.

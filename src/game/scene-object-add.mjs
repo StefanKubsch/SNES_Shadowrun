@@ -1,3 +1,4 @@
+import { runnerState } from '../state/runners.mjs';
 import { partyState } from '../state/party.mjs';
 import { dataBankOf } from '../system/data-bank.mjs';
 // A group member's object added to the scene (lifted from the script native 80:A1E6;
@@ -30,7 +31,6 @@ import {
   DP_SCENE_OBJECT_SCRATCH,
   OBJECT_CLASS_MASK,
   PLAYER_OBJECT,
-  RUNNER_ARMOUR_RATING,
   SCENE_OBJECT_ROW_FACTOR,
   WRAM,
 } from '../data/wram.mjs';
@@ -42,10 +42,8 @@ import { bankObjectWord, setBankObjectWord, setLongObjectWord } from '../state/o
 // The kind and the direction argument (words 00 and 02 of the creation and the turn).
 const DP_OBJECT = 0,
   DP_DIRECTION = 2;
-// The position's coarse step (/ 8) and the runner armour rows (four bytes per runner
-// index word).
-const POSITION_SHIFT = 3,
-  ARMOUR_ROW_SHIFT = 2;
+// The position's coarse step (/ 8).
+const POSITION_SHIFT = 3;
 const ENTRY_BYTES = 2,
   INDEX_TURN = (WORD_MASK + 1) / ENTRY_BYTES,
   TOP_BIT = WORD_BITS - 1;
@@ -103,6 +101,6 @@ export function addSceneObject(mem, a) {
     if (step === INDEX_TURN) taskStop('runner_number_required', { number: objectNumber });
     runner = (runner - ENTRY_BYTES) & WORD_MASK;
   }
-  const rating = wramWord(mem, RUNNER_ARMOUR_RATING + ((runner << ARMOUR_ROW_SHIFT) & WORD_MASK));
+  const rating = runnerState(mem, runner / 2).armour.rating;
   setLongObjectWord(mem, 'armour', slot, rating & BYTE_MASK);
 }

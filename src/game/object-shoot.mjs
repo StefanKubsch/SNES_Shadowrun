@@ -1,3 +1,4 @@
+import { runnerState } from '../state/runners.mjs';
 import { readStateByte, writeStateByte } from '../state/objects.mjs';
 // Shooting (lifted from the script natives 80:8AB5, 80:8A51 and 80:8A8C; register-level
 // version in proof/replay/native-object-shoot.mjs, which recorded waits and inputs replay).
@@ -77,7 +78,6 @@ import {
   SHOT_SOUND_KIND_1,
   SHOT_SOUND_KIND_6,
   SHOT_SOUND_LEVEL_VOICES,
-  WEAPON_DAMAGE,
   WEAPON_OWNERS,
   WEAPON_OWNERS_END,
   WEAPON_RECORD_BANKS,
@@ -97,8 +97,6 @@ import {
   GLOVE_TARGET_TAG,
   OBJECT_ATTACKED,
   PLAYER_OBJECT,
-  RUNNER_WEAPON_KIND,
-  RUNNER_WEAPON_RANGE,
 } from '../data/wram.mjs';
 import {
   BYTE_BITS,
@@ -112,9 +110,8 @@ import {
 } from '../constants/bits.mjs';
 import { objectWord, objectWordIn, setObjectWord, setObjectWordIn } from '../state/objects.mjs';
 
-// The result of 80:8A51 when the sight is blocked; the weapon entries are four bytes.
+// The result when the glove's sight is blocked.
 const GLOVE_BLOCKED = 1,
-  WEAPON_ENTRY_SHIFT = 2,
   // Box units: coordinates over 4.
   BOX_SHIFT = 2,
   // A low box lowers the close bonus by this much.
@@ -175,11 +172,11 @@ function takeWeapon(run, shooter) {
   const ranged = record(RECORD_BONUS_RANGED);
   setWord(wram, DP_BONUS_RANGED, (ranged >>> 1) + (ranged & 1));
   setWord(wram, DP_BONUS_CLOSE, record(RECORD_BONUS_CLOSE));
-  const entry = (owner << WEAPON_ENTRY_SHIFT) & WORD_MASK,
-    kind = readStateByte(wram, RUNNER_WEAPON_KIND + entry),
-    range = readStateByte(wram, RUNNER_WEAPON_RANGE + entry);
+  const weapon = runnerState(mem, owner / 2).weapon,
+    kind = weapon.kind,
+    range = weapon.range;
   setWord(wram, DP_WEAPON_KIND, kind);
-  setWord(wram, DP_WEAPON_DAMAGE, readStateByte(wram, WEAPON_DAMAGE + entry));
+  setWord(wram, DP_WEAPON_DAMAGE, weapon.damage);
   setWord(wram, DP_WEAPON_PENALTY, range >= BYTE_SIGN ? range | HIGH_BYTE_MASK : range);
   const sound = shotSound(kind);
   if (sound === null) return;

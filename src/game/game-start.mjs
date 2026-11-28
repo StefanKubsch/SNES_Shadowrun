@@ -1,3 +1,5 @@
+import { runnerContent } from '../content/runners.mjs';
+import { runnerState } from '../state/runners.mjs';
 import { partyState } from '../state/party.mjs';
 import { fillStateBytes } from '../state/objects.mjs';
 import { readStateByte, writeStateByte } from '../state/objects.mjs';
@@ -23,15 +25,7 @@ import { enterRoomSequence } from './room-entry.mjs';
 import { fourSaveSlots } from './bugfixes.mjs';
 import { readSaveSlot } from '../storage/srm.mjs';
 import { savedGameState } from '../state/saved-game.mjs';
-import {
-  RECORD_ATTRIBUTE,
-  RECORD_SKILL,
-  RECORD_SPELL,
-  RUNNERS,
-  RUNNER_EQUIPMENT_BYTES,
-  RUNNER_EQUIPMENT_ROWS,
-  RUNNER_MAGIC_POINT_ROWS,
-} from '../data/runners.mjs';
+import { RECORD_ATTRIBUTE, RECORD_SKILL, RECORD_SPELL } from '../data/runners.mjs';
 import { TEXT_NONE } from '../data/native-member-spell-menu.mjs';
 import {
   JAKE_ALTERNATE_PORTRAIT,
@@ -39,12 +33,10 @@ import {
   JAKE_DERMAL_ARMOUR,
   JAKE_WIRED_REFLEXES,
   KARMA,
-  MAGIC_POINTS,
   MAIN_LOOP_EXIT,
   MAIN_LOOP_RELOAD,
   NUYEN,
   ROOM,
-  RUNNER_ARMOUR,
   SCRIPT_VARIABLES,
   SELECTED_SPELL_NAME,
   SELECTED_SPELL_SCRIPT,
@@ -52,7 +44,6 @@ import {
   STORY_STAGE,
   TOPIC_LIST,
 } from '../data/wram.mjs';
-import { CODE_BANK_BASE } from '../constants/memory-map.mjs';
 import { BYTE_BITS, BYTE_MASK, WORD_SIGN } from '../constants/bits.mjs';
 
 // The main start and the room start.
@@ -105,18 +96,12 @@ export function setUpNewGameState(a) {
   unpackStream(mem, NEW_GAME_STREAM, NEW_GAME_TARGET);
   unlockBulletproofVest(a);
   fillStateBytes(wram, 0, SCRIPT_VARIABLES, SCRIPT_VARIABLES + SCRIPT_WORDS * 2);
-  for (let i = 0; i < RUNNERS * RUNNER_EQUIPMENT_BYTES; i++)
-    writeStateByte(
-      wram,
-      RUNNER_ARMOUR + i,
-      mem.read8(CODE_BANK_BASE | (RUNNER_EQUIPMENT_ROWS + i)),
-    );
-  for (let i = 0; i < RUNNERS; i++)
-    writeStateByte(
-      wram,
-      MAGIC_POINTS + i,
-      mem.read8(CODE_BANK_BASE | (RUNNER_MAGIC_POINT_ROWS + i)),
-    );
+  for (const [index, defaults] of runnerContent(mem).entries()) {
+    const runner = runnerState(mem, index);
+    Object.assign(runner.armour, defaults.armour);
+    Object.assign(runner.weapon, defaults.weapon);
+    runner.magicPoints = defaults.magic_points;
+  }
   for (const field of ['body', 'strength', 'charisma'])
     writeStateByte(wram, JAKE_BODY + RECORD_ATTRIBUTE[field], JAKE_START_ATTRIBUTE);
   writeStateByte(wram, JAKE_BODY + RECORD_ATTRIBUTE.count_max, JAKE_START_COUNT_MAX);

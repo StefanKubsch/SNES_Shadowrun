@@ -1,3 +1,4 @@
+import { runnerState } from '../state/runners.mjs';
 import { readStateByte, writeStateByte } from '../state/objects.mjs';
 import { readSaveSettings } from '../storage/srm.mjs';
 // The player's control for one frame (lifted from the script native 80:E014;
@@ -88,8 +89,6 @@ import {
   PAD_Y,
   PLAYER_IDLE,
   PLAYER_OBJECT,
-  RUNNER_WEAPON,
-  RUNNER_WEAPON_KIND,
   SELECTED_SPELL_SCRIPT,
 } from '../data/wram.mjs';
 import { fitListWindow } from '../data/menu-layout.mjs';
@@ -254,7 +253,7 @@ function aimResult(h) {
     const target = word(wram, GLOVE_TARGET_OBJECT);
     if (negative(objectWord(mem, 'flags', target))) {
       setWord(wram, AIM_TARGET_OBJECT, target);
-      if (readStateByte(wram, RUNNER_WEAPON_KIND) === TWO_BUTTON_WEAPON) return both();
+      if (runnerState(mem, 0).weapon.kind === TWO_BUTTON_WEAPON) return both();
       return pressed(AIM_BUTTONS);
     }
   }
@@ -315,10 +314,10 @@ function* freeSequence(h, events, finish, renderBuffer, player) {
   if (test(PAD_A)) {
     let armed;
     yield () => {
-      armed = !negative(word(wram, RUNNER_WEAPON));
+      armed = !negative(runnerState(mem, 0).weapon.object);
       if (!armed) return;
       putGloveOn(h, GLOVE_LIMITS.crosshair);
-      const heavy = readStateByte(wram, RUNNER_WEAPON_KIND + 1) >= HEAVY_WEAPON_DAMAGE,
+      const heavy = runnerState(mem, 0).weapon.damage >= HEAVY_WEAPON_DAMAGE,
         action = heavy ? HEAVY_AIM_ACTION : AIM_ACTION;
       setWord(wram, 2, action);
       setWord(wram, AIM_ACTION_NEXT, action + 1);

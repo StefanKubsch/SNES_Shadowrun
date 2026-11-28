@@ -11,7 +11,7 @@ const CEILINGS = Object.freeze({
   wramImports: 149,
   hardwareImports: 26,
   directPageNames: 2313,
-  addressComments: 2767,
+  addressComments: 2752,
 });
 
 test('src/ gains no new references to the original system', () => {

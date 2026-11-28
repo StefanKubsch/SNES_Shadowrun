@@ -1,3 +1,4 @@
+import { runnerState } from '../state/runners.mjs';
 import { partyState } from '../state/party.mjs';
 // The group and the room's actors (lifted from 80:A2FA and 80:A3B6; register-level
 // reference in proof/replay/main-transition.mjs, which proof/game-reference/room-entry.mjs
@@ -34,7 +35,6 @@ import {
   JAKE_DERMAL_ARMOUR,
   OBJECT_CLASS_MASK,
   PLAYER_OBJECT,
-  RUNNER_ARMOUR_RATING,
   STORY_STAGE,
 } from '../data/wram.mjs';
 import {
@@ -83,8 +83,6 @@ const ACTOR_COORDINATE_MASK = 0x7ff,
 // Actor flags bits 6 and 7 become bits 15 and 0 of the depth order.
 const DEPTH_FRONT_SHIFT = 9,
   DEPTH_BACK_SHIFT = 7;
-// The runner armour is read at four times the runner's word index.
-const ARMOUR_INDEX_SHIFT = 2;
 
 const word = (wram, at) => readStateByte(wram, at) | (readStateByte(wram, at + 1) << BYTE_BITS);
 const setWord = (wram, at, value) => {
@@ -146,7 +144,7 @@ export function* createGroupSequence(h) {
       setObjectWordIn(wram, 'depthOrder', slot, depthOrder(mem.read8(ACTOR_TABLE + number)));
       setObjectWordIn(wram, 'record', slot, readWord(mem, ACTOR_TABLE + ACTOR_RECORD + number));
       const index = runnerIndex(mem, number),
-        armour = readStateByte(wram, RUNNER_ARMOUR_RATING + (index << ARMOUR_INDEX_SHIFT));
+        armour = runnerState(mem, index / 2).armour.rating;
       setObjectWordIn(wram, 'armour', slot, armour);
       if (kind !== JAKE_KIND)
         setObjectWordIn(wram, 'flags', slot, objectWordIn(wram, 'flags', slot) | OBJECT_CLASS_MASK);
