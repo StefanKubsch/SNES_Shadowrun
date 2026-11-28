@@ -7,6 +7,14 @@ import { dataBankOf } from '../system/data-bank.mjs';
 import * as W from '../data/wram.mjs';
 import { BYTE_BITS, LONG_MASK, WORD_BITS } from '../constants/bits.mjs';
 import { WRAM_BANK } from '../constants/memory-map.mjs';
+const LIST_STORAGE = Object.freeze({
+  member: { texts: WINDOW_TEXT_FIELDS.listNames.base, values: WINDOW_TEXT_FIELDS.listValues.base },
+  action: {
+    texts: WINDOW_TEXT_FIELDS.actionNames.base,
+    values: WINDOW_TEXT_FIELDS.actionHotkeys.base,
+  },
+  choice: { texts: 0x154, values: 0x180 },
+});
 const states = new WeakMap();
 export function navigationState(a) {
   let state = states.get(a);
@@ -56,16 +64,18 @@ export function navigationState(a) {
   state.valueAt = (offset) =>
     word(((dataBankOf(a) << WORD_BITS) | mem.read16Bank0(W.DP_LIST_VALUES)) + offset);
   state.configure = ({ window, column, row, visibleRows, items, values, storage }) => {
-    const texts = storage === 'member' ? WINDOW_TEXT_FIELDS.listNames.base : 0x154,
-      numbers = storage === 'member' ? WINDOW_TEXT_FIELDS.listValues.base : 0x180;
-    // Member rows are already serialized, including any aliases changed while a
+    const serialized = storage === 'member' || storage === 'action',
+      buffers = serialized ? LIST_STORAGE[storage] : LIST_STORAGE.choice,
+      texts = buffers.texts,
+      numbers = buffers.values;
+    // Member and action rows are already serialized, including aliases changed while a
     // window opens. Read them live; rewriting a terminator would change overflow.
-    if (storage !== 'member') {
+    if (!serialized) {
       items.forEach((item, index) => mem.write16Bank0(texts + 2 * index, item));
       mem.write16Bank0(texts + 2 * items.length, 0);
     }
     if (values) {
-      if (storage !== 'member')
+      if (!serialized)
         values.forEach((value, index) => mem.write16Bank0(numbers + 2 * index, value));
       mem.write16Bank0(W.DP_LIST_VALUES, numbers);
     }

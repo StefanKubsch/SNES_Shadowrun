@@ -421,3 +421,13 @@ EVENT.DEFEATED`). The 37 most used game functions have parameter names (PARAMETE
   keeps its public upload entry. Byte offsets and target-address arithmetic remain
   phase 5 presentation work. Ratchet: 1,159 ROM literals, 129 WRAM imports,
   26 hardware imports, 1,844 direct page names and 2,426 address comments.
+
+- 2026-11-28, phase 3 step 22 (action-menu rows and choice): action names, flags,
+  hotkeys, override, accepted mask and saved window have a shared named view. The
+  menu uses named window/navigation arguments and reads its existing rows live.
+  Exit/cancel, cast versus open/close, no-action return and override clearing keep
+  their order. Flag row seven still aliases the override, and name overflow still
+  aliases hotkeys; tests cover both raw and detached owners and row-index wrap.
+  Encoded action texts, original schemas and caller argument projection remain
+  migration boundaries. Ratchet: 1,157 ROM literals, 128 WRAM imports, 26 hardware
+  imports, 1,813 direct page names and 2,416 address comments.

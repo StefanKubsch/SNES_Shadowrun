@@ -2,6 +2,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { cartridge } from './cartridge-harness.mjs';
 import { VmMemory } from '../src/vm/memory.mjs';
+import { actionMenuState } from '../src/state/action-menu.mjs';
 import { navigationState } from '../src/state/menu.mjs';
 import { windowState } from '../src/state/windows.mjs';
 import { memberMenuState } from '../src/state/member-menu.mjs';
@@ -67,3 +68,29 @@ for (const detached of [false, true]) {
     assert.equal(state.textAt(0), 0xa537);
   });
 }
+
+for (const detached of [false, true])
+  test(`action rows retain override, overflow and live menu aliases (${detached ? 'live' : 'fixture'})`, () => {
+    const mem = new VmMemory(cartridge.rom, undefined, null, cartridge.present),
+      a = { mem, dataBank: 0x80 },
+      actions = actionMenuState(mem),
+      navigation = navigationState(a);
+    if (detached) detachWindowsText(mem.wram);
+    actions.row(0).text = 0x70d9;
+    actions.row(0).hotkey = 0x20;
+    actions.row(7).flag = 0x610;
+    assert.equal(actions.override, 0x610);
+    actions.override = 0x80;
+    assert.equal(actions.row(7).flag, 0x80);
+    assert.equal(actions.row(0x8007), actions.row(7));
+    // The first name after the name column aliases the first hotkey.
+    actions.row(12).text = 0x4567;
+    assert.equal(actions.row(0).hotkey, 0x4567);
+    actions.windows.windowArgument = 2;
+    actions.configureChoice(a, 1, 8);
+    assert.equal(navigation.textAt(0), 0x70d9);
+    assert.equal(navigation.valueAt(0), 0x4567, 'configuration must not rewrite hotkeys');
+    assert.equal(actions.row(7).flag, 0x80, 'configuration must not rewrite flags');
+    mem.write16(W.WRAM + W.ACTION_MENU_NAMES + 2, 0x707d);
+    assert.equal(navigation.textAt(2), 0x707d);
+  });

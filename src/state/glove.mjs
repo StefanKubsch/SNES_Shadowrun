@@ -1,5 +1,6 @@
 // Shared glove movement, targeting and name-window state over the existing owners.
 // Search scratch and draw-list access remain explicit compatibility bridges.
+import { ACTION_OVERRIDE_ROW } from './action-menu.mjs';
 import { SCENE_ROOM_FIELDS, sceneRoomState } from './scene-room.mjs';
 import { noticeState } from './notices.mjs';
 import { FRONTEND_FIELDS, frontendState } from './frontend.mjs';
@@ -18,8 +19,7 @@ const SEARCH_SCRATCH = {
 };
 const INTERACTION_SCRATCH = { result: 0, actionScratch: 0x6b };
 const PLACE_SCRATCH = { pixelX: 0xa8, halfPixelX: 0xa2, pixelY: 0xa5 };
-const LOW_MIRROR_END = 0x2000,
-  ACTION_OVERRIDE_ROW = 7;
+const LOW_MIRROR_END = 0x2000;
 import { COMBAT_FIELDS, combatState } from './combat.mjs';
 import { WINDOW_TEXT_FIELDS, windowsText } from './windows-text.mjs';
 import { stateField } from './named-fields.mjs';
