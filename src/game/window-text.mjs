@@ -1,37 +1,8 @@
-import { readStateByte, writeStateByte } from '../state/objects.mjs';
-// The text cursor and the number print of a window (lifted from 80:FAAC and 80:FD80;
-// register-level references remain in proof/replay/native-list-prerequisites.mjs).
-//
-// A window's text cursor is a tile number: the window's first text tile plus the
-// column in the direct page word 02 plus the row in the low byte of 04 times the
-// window's columns less two (the border). Its pixel offset starts at 0. The window is
-// the one in the direct page word 00.
-//
-// A number (the direct page word 02) is printed by its decimal digits: they are written
-// from the right into the text buffer 7E:21A0 (ending at 21A5, which is cleared), moved
-// to its start, and the buffer is drawn into the window at the cursor by 80:FB39, which
-// composes directly without a CPU frame or a temporary data bank.
-//
-// The products and quotients run on the hardware multiplier and divider through the
-// port, as in the original (Book I 2-15-1; on another platform: row * (columns - 2),
-// value / 10 and value % 10). Both routines push the data bank and the bank pair they
-// select (PHB, PEA, PLB, PLB). Explicit memory access replaces those operations.
-// The cursor's bank 80 is read by none of its accesses.
-//
-// Registers (user decision 2026-11-17): game state only. A, X, Y and the flags the
-// original leaves are not kept; every caller sets its own before reading them.
-import { drawTextBuffer, renderTextBuffer } from './text-draw.mjs';
+// Text cursor and decimal digits over named window/buffer fields. Hardware
+// arithmetic stays at the existing presentation boundary until phase 5.
+import { windowState, windowManagerState } from '../state/windows.mjs';
+import { renderTextBuffer, drawTextBuffer } from './text-draw.mjs';
 import { sceneRuntime } from '../system/scene-runtime.mjs';
-import {
-  DP_CURSOR_ROW,
-  TEXT_BUFFER,
-  WINDOW_COLUMNS,
-  WINDOW_CURSOR_PIXEL,
-  WINDOW_CURSOR_TILE,
-  WINDOW_LEFT_PIXEL,
-  WINDOW_TILE_START,
-  WINDOW_WIDTH_PIXELS,
-} from '../data/wram.mjs';
 import {
   RDDIVL,
   RDMPYL,
@@ -40,16 +11,11 @@ import {
   WRMPYA,
   WRMPYB,
 } from '../constants/hardware-registers.mjs';
-import { BYTE_BITS, BYTE_MASK, WORD_MASK, WORD_SIGN } from '../constants/bits.mjs';
-
-const DP_WINDOW = 0x00,
-  DP_VALUE = 0x02,
-  BORDER_COLUMNS = 2,
+import { BYTE_MASK, WORD_MASK, WORD_SIGN } from '../constants/bits.mjs';
+const BORDER_COLUMNS = 2,
   DIGITS = 5,
   RADIX = 10,
   CHARACTER_ZERO = 0x30;
-// Original instructions of the multiplier and divider accesses, the sites of the device
-// model, and the call of the text buffer.
 const ROW_SITE = 0x80fab8,
   COLUMNS_SITE = 0x80fac1,
   PRODUCT_SITE = 0x80facd,
@@ -57,88 +23,56 @@ const ROW_SITE = 0x80fab8,
   DIVISOR_SITE = 0x80fd93,
   REMAINDER_SITE = 0x80fd9e,
   QUOTIENT_SITE = 0x80fda7;
-
-const word = (wram, at) => readStateByte(wram, at) | (readStateByte(wram, at + 1) << BYTE_BITS);
-const setWord = (wram, at, value) => {
-  writeStateByte(wram, at, value & BYTE_MASK);
-  writeStateByte(wram, at + 1, (value >>> BYTE_BITS) & BYTE_MASK);
-};
-
-// Set the text cursor of the window in the direct page word 00 (80:FAAC) for lifted
-// callers, without the JSR frame (the caller's return word lies only in free stack
-// bytes).
 export function setTextCursor(h) {
-  const { wram, port } = sceneRuntime(h);
-  const x = word(wram, DP_WINDOW);
-  port.write(WRMPYA, readStateByte(wram, DP_CURSOR_ROW), 1, ROW_SITE);
-  port.write(
-    WRMPYB,
-    (readStateByte(wram, WINDOW_COLUMNS + x) - BORDER_COLUMNS) & BYTE_MASK,
-    1,
-    COLUMNS_SITE,
-  );
-  const start = word(wram, WINDOW_TILE_START + x) + word(wram, DP_VALUE),
+  const { mem, port } = sceneRuntime(h),
+    state = windowManagerState(mem),
+    record = windowState(mem, state.windowArgument);
+  port.write(WRMPYA, state.cursorRowArgument & BYTE_MASK, 1, ROW_SITE);
+  port.write(WRMPYB, ((record.columns & BYTE_MASK) - BORDER_COLUMNS) & BYTE_MASK, 1, COLUMNS_SITE);
+  const start = record.firstTile + state.valueArgument,
     left = start & WORD_MASK,
-    product = port.read(RDMPYL, 2, PRODUCT_SITE),
-    tile = (left + product + (start > WORD_MASK ? 1 : 0)) & WORD_MASK;
-  setWord(wram, WINDOW_CURSOR_TILE + x, tile);
-  setWord(wram, WINDOW_CURSOR_PIXEL + x, 0);
+    product = port.read(RDMPYL, 2, PRODUCT_SITE);
+  record.cursorTile = left + product + (start > WORD_MASK ? 1 : 0);
+  record.cursorPixel = 0;
 }
-// The RTS form for register-level callers is setTextCursorJsr in
-// tools/register-forms/jsr-forms.mjs.
-
-// Print the number in the direct page word 02 into the window at its cursor (80:FD80)
-// for lifted callers, without the JSR frame (the caller's return word lies only in free
-// stack bytes); renderBuffer is the renderer sequence.
 export function* printNumber(h, events, renderBuffer = drawTextBuffer) {
-  const { wram, port } = sceneRuntime(h);
+  const { mem, port } = sceneRuntime(h),
+    state = windowManagerState(mem);
   yield () => {
-    setWord(wram, TEXT_BUFFER + DIGITS, 0);
-    let x = DIGITS,
-      value = word(wram, DP_VALUE);
+    state.writeTextWord(DIGITS, 0);
+    let index = DIGITS,
+      value = state.valueArgument;
     do {
       port.write(WRDIVL, value, 2, DIVIDEND_SITE);
       port.write(WRDIVB, RADIX, 1, DIVISOR_SITE);
-      x = (x - 1) & WORD_MASK;
-      writeStateByte(
-        wram,
-        TEXT_BUFFER + x,
-        (CHARACTER_ZERO + port.read(RDMPYL, 1, REMAINDER_SITE)) & BYTE_MASK,
-      );
+      index = (index - 1) & WORD_MASK;
+      state.writeTextByte(index, CHARACTER_ZERO + port.read(RDMPYL, 1, REMAINDER_SITE));
       value = port.read(RDDIVL, 2, QUOTIENT_SITE);
     } while (value !== 0);
-    // The digits move to the buffer's start, up to the cleared end byte.
-    if (x !== 0) {
-      let y = 0;
+    if (index !== 0) {
+      let target = 0;
       for (;;) {
-        const byte = readStateByte(wram, TEXT_BUFFER + x);
-        writeStateByte(wram, TEXT_BUFFER + y, byte);
-        if (byte === 0) break;
-        x = (x + 1) & WORD_MASK;
-        y = (y + 1) & WORD_MASK;
+        const value = state.readTextByte(index);
+        state.writeTextByte(target, value);
+        if (value === 0) break;
+        index = (index + 1) & WORD_MASK;
+        target = (target + 1) & WORD_MASK;
       }
     }
   };
   yield* renderTextBuffer(h, events, renderBuffer);
 }
-// The RTS form for register-level callers is printNumberJsr in tools/register-forms/jsr-forms.mjs.
-
-// Put the text cursor of a window at a cell of its text area (column, row).
 export function setTextCursorAt(h, window, column = 0, row = 0) {
-  const { wram } = sceneRuntime(h);
-  setWord(wram, DP_WINDOW, window);
-  setWord(wram, DP_VALUE, column);
-  setWord(wram, DP_CURSOR_ROW, row);
+  const state = windowManagerState(h.a.mem);
+  state.windowArgument = window;
+  state.valueArgument = column;
+  state.cursorRowArgument = row;
   setTextCursor(h);
 }
-
-// Set the text area of a window: its left pixel and its width in pixels; a width of 0 or
-// less is added to the window's columns less its two border columns.
-const BORDER_CELLS = 2;
 export function setWindowTextArea(h, window, leftPixel, width) {
-  const { wram } = sceneRuntime(h);
-  setWord(wram, WINDOW_LEFT_PIXEL + window, leftPixel);
+  const record = windowState(h.a.mem, window);
+  record.leftPixel = leftPixel;
   if (width === 0 || width & WORD_SIGN)
-    width = (width + word(wram, WINDOW_COLUMNS + window) - BORDER_CELLS) & WORD_MASK;
-  setWord(wram, WINDOW_WIDTH_PIXELS + window, width);
+    width = (width + record.columns - BORDER_COLUMNS) & WORD_MASK;
+  record.widthPixels = width;
 }

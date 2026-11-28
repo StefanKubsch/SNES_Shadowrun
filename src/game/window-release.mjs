@@ -1,71 +1,27 @@
+// Release window handles and rewind text allocation after the last active window.
+// Notice and glove cleanup share the same named state as their game consumers.
+import { windowState, windowManagerState } from '../state/windows.mjs';
 import { noticeState } from '../state/notices.mjs';
-import { readStateByte, writeStateByte } from '../state/objects.mjs';
-// The window releases of the room entry (lifted from 80:FA3E, 80:FF79, 80:BCB2 and
-// 80:BE5B; register-level versions in proof/system/native-render-compose.mjs,
-// proof/replay/native-slot-release.mjs; the script
-// natives call the live release; recorded callers remain in proof/caller/).
-//
-// A window is released by clearing its active word; releasing the last window moves
-// the last index down to the previous active one and the next free tile back to the
-// start of the window after it. The window list is redrawn after every release
-// (window-list.mjs), so each release requests a window map upload and waits for the
-// NMI. The notice windows release every used notice slot; putting the glove away
-// releases the name window of the glove's target.
-//
-// The calls are JSRs within bank 80 (the redraw a JSL). Their return words and the slot
-// index the notice windows push around a release lie only in free stack bytes and are
-// kept in locals. The redraw and upload wait compose directly without frames.
-// Each release passes its window in the direct page word
-// 00, as the original. Window indices are game-sized
-// (below 0100), so the tables are read in bank 7E.
-//
-// Registers (user decision 2026-11-17): the call forms leave no A, X or flags of their
-// own. The register forms for register-level callers live in
-// proof/caller/window-release.mjs.
-import { sceneRuntime } from '../system/scene-runtime.mjs';
+import { gloveState } from '../state/glove.mjs';
 import { drawWindowListSequence } from './window-list.mjs';
-import {
-  GLOVE_KIND,
-  GLOVE_NAME_WINDOW,
-  GLOVE_TARGET_OBJECT,
-  GLOVE_TARGET_TAG,
-  WINDOW_ACTIVE,
-  WINDOW_FIRST_INDEX,
-  WINDOW_LAST_INDEX,
-  WINDOW_NEXT_TILE,
-  WINDOW_TILE_START,
-} from '../data/wram.mjs';
-import { BYTE_BITS, BYTE_MASK, WORD_MASK, WORD_SIGN } from '../constants/bits.mjs';
-
-const NONE = WORD_MASK,
-  DP_WINDOW = 0x00;
-const word = (wram, at) => readStateByte(wram, at) | (readStateByte(wram, at + 1) << BYTE_BITS);
-const setWord = (wram, at, value) => {
-  writeStateByte(wram, at, value & BYTE_MASK);
-  writeStateByte(wram, at + 1, (value >>> BYTE_BITS) & BYTE_MASK);
-};
-
-// Release the window in the direct page word 00 (80:FA3E) and redraw the window list.
+import { WORD_MASK, WORD_SIGN } from '../constants/bits.mjs';
 export function* releaseWindowSequence(h, events) {
-  const { wram } = sceneRuntime(h);
+  const { mem } = h.a,
+    state = windowManagerState(mem);
   yield () => {
-    let x = word(wram, DP_WINDOW);
-    setWord(wram, WINDOW_ACTIVE + x, 0);
-    if (x !== word(wram, WINDOW_LAST_INDEX)) return;
-    // Down to the previous active window, or past the first (index FFFE).
-    do x = (x - 2) & WORD_MASK;
-    while (!(x & WORD_SIGN) && !word(wram, WINDOW_ACTIVE + x));
-    const next = (x + 2) & WORD_MASK;
-    setWord(wram, WINDOW_NEXT_TILE, word(wram, WINDOW_TILE_START + next));
-    setWord(wram, WINDOW_LAST_INDEX, x);
+    let handle = state.windowArgument;
+    windowState(mem, handle).active = 0;
+    if (handle !== state.lastIndex) return;
+    do handle = (handle - 2) & WORD_MASK;
+    while (!(handle & WORD_SIGN) && !windowState(mem, handle).active);
+    const next = (handle + 2) & WORD_MASK;
+    state.nextTile = windowState(mem, next).firstTile;
+    state.lastIndex = handle;
   };
   yield* drawWindowListSequence(h, events);
 }
-
-// Release every used notice window, from the last slot down, and reset the first window
-// index (80:FF79).
 export function* releaseNoticeWindowsSequence(h, events) {
-  const { mem, wram } = sceneRuntime(h),
+  const { mem } = h.a,
     state = noticeState(mem);
   for (let index = state.slots.length - 1; index >= 0; index--) {
     const slot = state.slots[index],
@@ -73,40 +29,40 @@ export function* releaseNoticeWindowsSequence(h, events) {
     if (window & WORD_SIGN) continue;
     yield* releaseWindowAt(h, events, window);
     yield () => {
-      slot.window = NONE;
+      slot.window = WORD_MASK;
     };
   }
-  yield () => setWord(wram, WINDOW_FIRST_INDEX, 0);
-}
-
-// Put the glove away (80:BCB2); with a target under it, release the target's name
-// window and forget the target (80:BE5B).
-export function* putGloveAwaySequence(h, events) {
-  const { wram } = sceneRuntime(h);
-  yield () => setWord(wram, GLOVE_KIND, 0);
-  if (word(wram, GLOVE_TARGET_TAG) & WORD_SIGN) return;
-  yield* releaseGloveNameWindowSequence(h, events);
-}
-// Release the name window of the glove's target and forget the target (80:BE5B); the
-// glove movement (src/game/glove-move.mjs) runs it in its JSR frame.
-export function* releaseGloveNameWindowSequence(h, events) {
-  const { wram } = sceneRuntime(h);
-  yield () => setWord(wram, DP_WINDOW, word(wram, GLOVE_NAME_WINDOW));
-  yield* releaseWindowSequence(h, events);
   yield () => {
-    setWord(wram, GLOVE_TARGET_TAG, NONE);
-    setWord(wram, GLOVE_TARGET_OBJECT, NONE);
+    windowManagerState(mem).firstIndex = 0;
   };
 }
-
-// The notice windows' release as called with JSR (80:FF79), a sequence for the dialog.
-// Returns with its RTS.
+export function* putGloveAwaySequence(h, events) {
+  const state = gloveState(h.a.mem);
+  yield () => {
+    state.kind = 0;
+  };
+  if (state.targetTag & WORD_SIGN) return;
+  yield* releaseGloveNameWindowSequence(h, events);
+}
+export function* releaseGloveNameWindowSequence(h, events) {
+  const { mem } = h.a,
+    glove = gloveState(mem),
+    state = windowManagerState(mem);
+  yield () => {
+    state.windowArgument = glove.nameWindow;
+  };
+  yield* releaseWindowSequence(h, events);
+  yield () => {
+    glove.targetTag = WORD_MASK;
+    glove.targetObject = WORD_MASK;
+  };
+}
 export function* releaseNoticeWindowsCallSequence(h, events) {
   yield* releaseNoticeWindowsSequence(h, events);
 }
-
-// Release the window with this number and redraw the window list.
 export function* releaseWindowAt(h, events, window) {
-  yield () => setWord(sceneRuntime(h).wram, DP_WINDOW, window);
+  yield () => {
+    windowManagerState(h.a.mem).windowArgument = window;
+  };
   yield* releaseWindowSequence(h, events);
 }

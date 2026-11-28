@@ -351,3 +351,12 @@ EVENT.DEFEATED`). The 37 most used game functions have parameter names (PARAMETE
   confirmation reads named input. Caller argument fitting and serialized shown.slot
   stay explicit compatibility boundaries. Ratchet: 1,160 ROM literals, 140 WRAM imports,
   26 hardware imports, 2,049 direct page names and 2,542 address comments.
+- 2026-11-28, phase 3 step 14 (window management and text cursor): allocation,
+  release, notice/glove cleanup, cursor positioning and decimal digits use named window,
+  manager, glove and text-buffer fields. Clamp quirks, no-free-window result, tile wrap,
+  active-window holes, relative text area widths and byte/word truncation are retained.
+  The existing hardware arithmetic, access sites and upload/wait protocol are unchanged;
+  they remain the phase 5 presentation boundary. Legacy caller arguments, opaque handles,
+  original state schemas and raw fixtures still use explicit bridges. Ratchet: 1,160 ROM
+  literals, 138 WRAM imports, 26 hardware imports, 2,014 direct page names and 2,514
+  address comments.
