@@ -7,11 +7,11 @@ import assert from 'node:assert/strict';
 import { agnosticCounts } from './agnostic-counts.mjs';
 
 const CEILINGS = Object.freeze({
-  romLiterals: 1160,
-  wramImports: 134,
+  romLiterals: 1159,
+  wramImports: 132,
   hardwareImports: 26,
-  directPageNames: 1964,
-  addressComments: 2481,
+  directPageNames: 1937,
+  addressComments: 2475,
 });
 
 test('src/ gains no new references to the original system', () => {

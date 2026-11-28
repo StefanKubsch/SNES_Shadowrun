@@ -385,3 +385,12 @@ EVENT.DEFEATED`). The 37 most used game functions have parameter names (PARAMETE
   and upload waits are unchanged. Encoded font/mask data and hardware presentation
   remain phase 4/5 boundaries. Ratchet: 1,160 ROM literals, 134 WRAM imports,
   26 hardware imports, 1,964 direct page names and 2,481 address comments.
+
+- 2026-11-28, phase 3 step 18 (camera tracking and bounds): player targeting,
+  projected position, room-axis clamping and follow speeds use named camera and
+  scene state. Missing-player/no-box exits, minimum/maximum order, unsigned axis
+  arithmetic, dead zone, speed caps and step rounding retain their behaviour.
+  The source box bytes and projected scratch still have compatibility views.
+  Encoded box limits, map scrolling/upload and other camera consumers remain
+  migration boundaries. Ratchet: 1,159 ROM literals, 132 WRAM imports, 26 hardware
+  imports, 1,937 direct page names and 2,475 address comments.

@@ -1,7 +1,7 @@
 {
   "updated": "2026-11-28",
   "focus": "Readable game, phase 3: named game state (docs/READABLE-GAME.md). Batch: HANDOFF.md.",
-  "next_step": "Continue phase 3 with window-list and text decoding/drawing state, then remaining glove, camera and combat consumers. Caller bridges, opaque record IDs and legacy schemas remain migration work.",
+  "next_step": "Continue phase 3 with glove interaction, camera scrolling and remaining combat consumers. Text/window caller bridges, opaque record IDs and legacy schemas remain migration work.",
   "porting_resume": "216 original-form bytes remain: 121 code and 95 unidentified data. Read/hardware/data boundaries: docs/ROM-CODE-AUDIT.md. Unknown bytes and unused graphics stay preserved; unrecorded paths can report rom_byte_absent.",
   "open_issues": [
     "Keyword overflow: synthetic insertion of a 51st retained topic corrupts flags in European source and lifted code. Marking does not free storage. A reachable regular story route and a compatible gameplay correction remain unproved; see docs/BUGFIXES.md.",
