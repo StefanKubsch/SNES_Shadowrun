@@ -334,3 +334,12 @@ EVENT.DEFEATED`). The 37 most used game functions have parameter names (PARAMETE
   actor record identifiers and the data readers remain temporary migration boundaries.
   Ratchet: 1,163 ROM literals, 144 WRAM imports, 26 hardware imports, 2,146 direct page
   names and 2,591 address comments.
+- 2026-11-28, phase 3 step 12 (shared menus): navigation and list drawing share named
+  selection, page, repeat, input and rendering state. Caller list/number arguments and
+  doubled row offsets remain in a temporary bridge. Texts and values are reread for
+  every row, with the caller's current data bank. Item menus now use the shared choice
+  and window APIs; their existing member row storage is read live without rewriting
+  terminators after window opening. This retains long-list aliases. Window records
+  provide named columns/rows for corner marks and are shared with the next window block.
+  Ratchet: 1,163 ROM literals, 142 WRAM imports, 26 hardware imports, 2,073 direct page
+  names and 2,560 address comments.
