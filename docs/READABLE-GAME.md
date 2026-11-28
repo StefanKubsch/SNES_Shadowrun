@@ -412,3 +412,12 @@ EVENT.DEFEATED`). The 37 most used game functions have parameter names (PARAMETE
   remain compatibility bridges; action-menu rows are the next shared consumer.
   Ratchet: 1,159 ROM literals, 130 WRAM imports, 26 hardware imports, 1,866 direct
   page names and 2,429 address comments.
+
+- 2026-11-28, phase 3 step 21 (camera scrolling and map edges): movement clamps,
+  tile-crossing detection and edge-buffer copies use named camera, map and scrolling
+  state. Direction-dependent offsets, ring wrap, layer overflow aliases, request
+  counters and stopped speeds remain unchanged. The existing edge uploads and
+  scroll-register writes move unchanged to src/platform/map-edges.mjs; the game
+  keeps its public upload entry. Byte offsets and target-address arithmetic remain
+  phase 5 presentation work. Ratchet: 1,159 ROM literals, 129 WRAM imports,
+  26 hardware imports, 1,844 direct page names and 2,426 address comments.

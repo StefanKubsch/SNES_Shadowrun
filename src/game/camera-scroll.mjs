@@ -1,46 +1,12 @@
-import { readStateByte, writeStateByte } from '../state/objects.mjs';
-// The camera scroll of the room entry's camera jump (lifted from 81:8A91 and 81:8954;
-// register-level versions in proof/system/main-loop-camera.mjs and
-// proof/replay/main-transition.mjs, which the main loop and the game NMI still call).
-//
-// The scene's two layer maps lie in WRAM (SCENE_LAYER_HIGH for BG1, SCENE_LAYER_LOW
-// for BG2), one layer row of 0x80 bytes per screen column. The BG maps in VRAM hold
-// 32 x 32 tiles and wrap. When the camera crosses a tile column or row, the tile
-// buffers copy the 32 words of the newly visible map column or row into the edge
-// buffers and mark them; the map edge upload sends marked buffers to VRAM by DMA and
-// sets the scroll registers of both layers.
-//
-// The tile buffers write the direct page words the original uses as locals: the old
-// and new column and row (11, 17, 0E, 14), the row as a word offset (1A), the column
-// as a layer offset (1D) and the end of the column copy (20); the row copy leaves its
-// end in 0E. The clamped positions are at most CAMERA_X_MAX and CAMERA_Y_MAX, so none
-// of the original's additions carries.
-import {
-  CAMERA_SPEED_X,
-  CAMERA_SPEED_Y,
-  CAMERA_X,
-  CAMERA_X_MAX,
-  CAMERA_Y,
-  CAMERA_Y_MAX,
-  MAP_COLUMN_BG1,
-  MAP_COLUMN_BG2,
-  MAP_COLUMN_UPLOAD,
-  MAP_COLUMN_VRAM_BG1,
-  MAP_COLUMN_VRAM_BG2,
-  MAP_LINE_BYTES,
-  MAP_ROW_BG1,
-  MAP_ROW_BG2,
-  MAP_ROW_UPLOAD,
-  MAP_ROW_VRAM_BG1,
-  MAP_ROW_VRAM_BG2,
-  SCENE_LAYER_HIGH,
-  SCENE_LAYER_LOW,
-  SCENE_LAYER_ROW_BYTES,
-} from '../data/wram.mjs';
-import { videoOf } from '../video/picture-video.mjs';
-import { BG_1, BG_2, VMAINC_INCREMENT_AFTER_HIGH, VMAINC_STEP_32 } from '../constants/ppu.mjs';
-import { BYTE_BITS, BYTE_MASK, WORD_MASK, WORD_SIGN } from '../constants/bits.mjs';
-
+// Move the camera and populate newly visible map rows and columns through named
+// state. Map byte offsets and address arithmetic remain the presentation boundary.
+import { cameraScrollingState } from '../state/camera-scrolling.mjs';
+import { WORD_MASK, WORD_SIGN } from '../constants/bits.mjs';
+export { uploadMapEdges } from '../platform/map-edges.mjs';
+const CAMERA_X_MAX = 0x800,
+  CAMERA_Y_MAX = 0x47c,
+  SCENE_LAYER_ROW_BYTES = 0x80,
+  MAP_LINE_BYTES = 0x40;
 // VRAM word addresses of the BG1 and BG2 maps (src/game/game-screen.mjs).
 const BG1_MAP_VRAM = 0x7000,
   BG2_MAP_VRAM = 0x7400;
@@ -56,45 +22,28 @@ const CAMERA_TILE_SHIFT = 5,
 // column copy one word further, moving right the row copy one layer row further.
 const COLUMN_AHEAD = MAP_TILES * SCENE_LAYER_ROW_BYTES,
   ROW_AHEAD = MAP_LINE_BYTES;
-// The direct page words of the tile buffers.
-const DP_COLUMN = 0x0e,
-  DP_OLD_COLUMN = 0x11,
-  DP_ROW = 0x14,
-  DP_OLD_ROW = 0x17,
-  DP_ROW_OFFSET = 0x1a,
-  DP_COLUMN_OFFSET = 0x1d,
-  DP_COLUMN_END = 0x20;
-// The map edges use DMA channel 3; the scroll registers take camera / 4.
-const MAP_CHANNEL = 3,
-  SCROLL_SHIFT = 2;
-
-const word = (wram, at) => readStateByte(wram, at) | (readStateByte(wram, at + 1) << BYTE_BITS);
-const setWord = (wram, at, value) => {
-  writeStateByte(wram, at, value & BYTE_MASK);
-  writeStateByte(wram, at + 1, (value >>> BYTE_BITS) & BYTE_MASK);
-};
 const negative = (value) => (value & WORD_SIGN) !== 0;
 
 // Move one camera axis by its speed, clamped to 0 and the maximum (a clamp stops the
 // axis); return the tile before the move.
-function moveAxis(wram, position, speed, maximum) {
-  const before = word(wram, position) >>> CAMERA_TILE_SHIFT;
-  let value = (word(wram, position) + word(wram, speed)) & WORD_MASK;
+function moveAxis(camera, position, speed, maximum) {
+  const before = camera[position] >>> CAMERA_TILE_SHIFT;
+  let value = (camera[position] + camera[speed]) & WORD_MASK;
   if (negative(value) || value >= maximum) {
-    setWord(wram, speed, 0);
+    camera[speed] = 0;
     value = negative(value) ? 0 : maximum;
   }
-  setWord(wram, position, value);
+  camera[position] = value;
   return before;
 }
 
 // Copy 32 words of both layers into the edge buffers, starting at layer offset from
 // and buffer offset start, which wraps after one map line.
-function copyEdge(wram, from, step, start, bg1, bg2) {
+function copyEdge(state, from, step, start, edge) {
   let at = start;
   do {
-    setWord(wram, bg1 + at, word(wram, SCENE_LAYER_HIGH + from));
-    setWord(wram, bg2 + at, word(wram, SCENE_LAYER_LOW + from));
+    edge.writeHigh(at, state.readHigh(from));
+    edge.writeLow(at, state.readLow(from));
     from = (from + step) & WORD_MASK;
     at += WORD_BYTES;
     if (at === MAP_LINE_BYTES) at = 0;
@@ -105,100 +54,52 @@ function copyEdge(wram, from, step, start, bg1, bg2) {
 // column or row (81:8A91). Game state only (user decision 2026-11-17): the X and Y the
 // original leaves are not produced.
 export function updateTileBuffers(wram) {
-  setWord(wram, DP_OLD_COLUMN, moveAxis(wram, CAMERA_X, CAMERA_SPEED_X, CAMERA_X_MAX));
-  setWord(wram, DP_OLD_ROW, moveAxis(wram, CAMERA_Y, CAMERA_SPEED_Y, CAMERA_Y_MAX));
+  const state = cameraScrollingState(wram);
+  state.oldColumn = moveAxis(state.camera, 'x', 'speedX', CAMERA_X_MAX);
+  state.oldRow = moveAxis(state.camera, 'y', 'speedY', CAMERA_Y_MAX);
   // Moving left or up, the old tile counts one further, as the new one.
-  const left = negative(word(wram, CAMERA_SPEED_X)),
-    up = negative(word(wram, CAMERA_SPEED_Y));
-  let row = word(wram, CAMERA_Y) >>> CAMERA_TILE_SHIFT;
+  const left = negative(state.camera.speedX),
+    up = negative(state.camera.speedY);
+  let row = state.camera.y >>> CAMERA_TILE_SHIFT;
   if (up) {
-    setWord(wram, DP_OLD_ROW, word(wram, DP_OLD_ROW) + 1);
+    state.oldRow = state.oldRow + 1;
     row++;
   }
-  setWord(wram, DP_ROW, row);
-  setWord(wram, DP_ROW_OFFSET, row * WORD_BYTES);
-  let column = word(wram, CAMERA_X) >>> CAMERA_TILE_SHIFT;
+  state.row = row;
+  state.rowOffset = row * WORD_BYTES;
+  let column = state.camera.x >>> CAMERA_TILE_SHIFT;
   if (left) {
-    setWord(wram, DP_OLD_COLUMN, word(wram, DP_OLD_COLUMN) + 1);
+    state.oldColumn = state.oldColumn + 1;
     column++;
   }
-  setWord(wram, DP_COLUMN, column);
-  setWord(wram, DP_COLUMN_OFFSET, column * SCENE_LAYER_ROW_BYTES);
-  if (column !== word(wram, DP_OLD_COLUMN)) {
+  state.column = column;
+  state.columnOffset = column * SCENE_LAYER_ROW_BYTES;
+  if (column !== state.oldColumn) {
     const vram = (column & MAP_TILE_MASK) + BG1_MAP_VRAM;
-    setWord(wram, MAP_COLUMN_VRAM_BG1, vram);
-    setWord(wram, MAP_COLUMN_VRAM_BG2, vram + BG2_MAP_VRAM - BG1_MAP_VRAM);
+    state.columnEdge.addressHigh = vram;
+    state.columnEdge.addressLow = vram + BG2_MAP_VRAM - BG1_MAP_VRAM;
     const from =
       column * SCENE_LAYER_ROW_BYTES +
       (left ? 0 : COLUMN_AHEAD) +
       row * WORD_BYTES +
       (up ? 0 : WORD_BYTES);
     const start = ((row + (up ? 0 : 1)) & MAP_TILE_MASK) * WORD_BYTES;
-    setWord(wram, DP_COLUMN_END, start);
-    copyEdge(wram, from, WORD_BYTES, start, MAP_COLUMN_BG1, MAP_COLUMN_BG2);
-    setWord(wram, MAP_COLUMN_UPLOAD, word(wram, MAP_COLUMN_UPLOAD) + 1);
+    state.columnEnd = start;
+    copyEdge(state, from, WORD_BYTES, start, state.columnEdge);
+    state.columnEdge.pending = state.columnEdge.pending + 1;
   }
-  if (row !== word(wram, DP_OLD_ROW)) {
+  if (row !== state.oldRow) {
     const vram = ((row & MAP_TILE_MASK) << MAP_ROW_WORDS_SHIFT) + BG1_MAP_VRAM;
-    setWord(wram, MAP_ROW_VRAM_BG1, vram);
-    setWord(wram, MAP_ROW_VRAM_BG2, vram + BG2_MAP_VRAM - BG1_MAP_VRAM);
+    state.rowEdge.addressHigh = vram;
+    state.rowEdge.addressLow = vram + BG2_MAP_VRAM - BG1_MAP_VRAM;
     const from =
       row * WORD_BYTES +
       (up ? 0 : ROW_AHEAD) +
-      word(wram, DP_COLUMN_OFFSET) +
+      state.columnOffset +
       (left ? 0 : SCENE_LAYER_ROW_BYTES);
     const start = ((column + (left ? 0 : 1)) & MAP_TILE_MASK) * WORD_BYTES;
-    setWord(wram, DP_COLUMN, start);
-    copyEdge(wram, from, SCENE_LAYER_ROW_BYTES, start, MAP_ROW_BG1, MAP_ROW_BG2);
-    setWord(wram, MAP_ROW_UPLOAD, word(wram, MAP_ROW_UPLOAD) + 1);
-  }
-}
-
-// Send the marked map column (VRAM step 32) and row (step 1) of BG1 and BG2 by DMA,
-// then the scroll registers of both layers (81:8954). The DMA channel's mode, B-bus
-// register and source bank are set by the game screen.
-export function uploadMapEdges(wram, video) {
-  const v = videoOf(video);
-  for (const [pending, bg1, bg2, vram1, vram2, increment] of [
-    [
-      MAP_COLUMN_UPLOAD,
-      MAP_COLUMN_BG1,
-      MAP_COLUMN_BG2,
-      MAP_COLUMN_VRAM_BG1,
-      MAP_COLUMN_VRAM_BG2,
-      VMAINC_INCREMENT_AFTER_HIGH | VMAINC_STEP_32,
-    ],
-    [
-      MAP_ROW_UPLOAD,
-      MAP_ROW_BG1,
-      MAP_ROW_BG2,
-      MAP_ROW_VRAM_BG1,
-      MAP_ROW_VRAM_BG2,
-      VMAINC_INCREMENT_AFTER_HIGH,
-    ],
-  ]) {
-    if (!word(wram, pending)) continue;
-    v.transfer(
-      MAP_CHANNEL,
-      { to: 'vram', source: bg1, bytes: MAP_LINE_BYTES, address: word(wram, vram1), increment },
-      ['source', 'bytes', 'address', 'increment', 'start'],
-    );
-    v.transfer(
-      MAP_CHANNEL,
-      { to: 'vram', source: bg2, bytes: MAP_LINE_BYTES, address: word(wram, vram2) },
-      ['source', 'bytes', 'address', 'start'],
-    );
-    setWord(wram, pending, 0);
-  }
-  // Each scroll offset takes the low byte, then a zero high byte: both horizontal
-  // offsets, then both vertical ones.
-  for (const [position, vertical] of [
-    [CAMERA_X, false],
-    [CAMERA_Y, true],
-  ]) {
-    const scroll = (word(wram, position) >>> SCROLL_SHIFT) & BYTE_MASK;
-    for (const layer of [BG_1, BG_2])
-      if (vertical) v.setVerticalScroll(layer, scroll);
-      else v.setHorizontalScroll(layer, scroll);
+    state.column = start;
+    copyEdge(state, from, SCENE_LAYER_ROW_BYTES, start, state.rowEdge);
+    state.rowEdge.pending = state.rowEdge.pending + 1;
   }
 }
