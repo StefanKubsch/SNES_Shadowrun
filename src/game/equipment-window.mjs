@@ -1,20 +1,8 @@
+import { memberMenuState } from '../state/member-menu.mjs';
 import { jakeState } from '../state/jake.mjs';
-import { runnerState } from '../state/runners.mjs';
 import { readStateByte, writeStateByte } from '../state/objects.mjs';
-// The equipment rows of the status window (lifted from 80:E9C5 with its item text
-// 80:E9A8; register-level version in proof/replay/native-member-spell-menu.mjs).
-//
-// In the status window (1F4C) the leader's selected spell name goes to row 14 (column
-// 0A). The shown runner's entry (7E:3C2E + 4 x its index 1F60) gives the weapon's name
-// in row 15 and in row 16 the armour rating (+2 for the leader with dermal armour,
-// 7E:3C18) and the armour's name; each row is first blanked. An item's name is "none"
-// for a negative number, otherwise the kind of 8D:B022 by item, six bytes a kind in
-// 8C:EFB0. The cursor (80:FAAC), text (80:FE69) and number (80:FD80) run through their
-// original frames with direct composition.
-//
-// Registers (user decision 2026-11-17): game state only; no callee takes a register
-// input and no register values are left. Armour, rating and weapon, which the original
-// keeps on the stack over the rows (PHA, PLA), are locals.
+// The selected member's spell, weapon and armour rows. Dermal armour adds two
+// to the leader's displayed rating.
 import { segmentSequence } from '../system/sequence-runner.mjs';
 import { setTextCursor, printNumber } from './window-text.mjs';
 import { printText } from './text-print.mjs';
@@ -26,14 +14,7 @@ import {
   TEXT_BLANK_FIELD,
   TEXT_NONE,
 } from '../data/native-member-spell-menu.mjs';
-import {
-  DP_CURSOR_ROW,
-  MEMBER_INDEX,
-  MEMBER_OBJECT,
-  PLAYER_OBJECT,
-  SELECTED_SPELL_NAME,
-  STATUS_WINDOW,
-} from '../data/wram.mjs';
+import { DP_CURSOR_ROW, PLAYER_OBJECT, SELECTED_SPELL_NAME } from '../data/wram.mjs';
 import { BYTE_BITS, BYTE_MASK, LONG_MASK, WORD_MASK, WORD_SIGN } from '../constants/bits.mjs';
 
 // The items' kinds (by item number) and the kinds' name texts (six bytes a kind); the
@@ -75,7 +56,7 @@ function* itemText(h, events, renderBuffer, item) {
 export function* equipmentRows(h, events, renderBuffer = drawTextBuffer) {
   const { mem } = h.a,
     { wram } = mem;
-  const leader = () => dataBankWord(mem, MEMBER_OBJECT) === dataBankWord(mem, PLAYER_OBJECT);
+  const leader = () => memberMenuState(mem).object === dataBankWord(mem, PLAYER_OBJECT);
   // The cursor at the value column of row.
   const cursor = function* (row) {
     yield () => {
@@ -90,7 +71,7 @@ export function* equipmentRows(h, events, renderBuffer = drawTextBuffer) {
   };
   let isLeader;
   yield () => {
-    setWord(wram, 0, dataBankWord(mem, STATUS_WINDOW));
+    setWord(wram, 0, memberMenuState(mem).window);
     isLeader = leader();
   };
   if (isLeader) {
@@ -101,7 +82,7 @@ export function* equipmentRows(h, events, renderBuffer = drawTextBuffer) {
   // Armour, rating and weapon are read before the rows (the original pushes them).
   let armour, rating, weapon;
   yield () => {
-    const runner = runnerState(mem, (dataBankWord(mem, MEMBER_INDEX) & 0x3fff) / 2);
+    const runner = memberMenuState(mem).equipment;
     armour = runner.armour.object;
     rating = runner.armour.rating;
     if (leader() && jakeState(mem).dermalArmour) rating += DERMAL_ARMOUR_BONUS;

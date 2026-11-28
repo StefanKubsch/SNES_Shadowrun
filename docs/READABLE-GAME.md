@@ -285,3 +285,12 @@ EVENT.DEFEATED`). The 37 most used game functions have parameter names (PARAMETE
   Ratchet: 1,192 ROM literals, 147 WRAM imports, 26 hardware imports, 2,307 direct page
   names and 2,736 address comments. The original state schemas, doubled indices of
   other consumers and indirect menu records remain migration work.
+- 2026-11-28, phase 3 step 7 (member status displays): a shared named menu state
+  owns selection, portrait, datajack, health and window handles over the existing
+  independent storage. Status attributes and party maxima read runner records; labels
+  and rows come from named content. Equipment uses the same selected member, retaining
+  odd-index aliases. Status no longer reads or walks a member-record pointer. A temporary
+  producer supplies the old skill/spell consumers until their next blocks. The content
+  boundary retains the missing runner row for raw diagnostic fixtures. Ratchet: 1,192
+  ROM literals, 147 WRAM imports, 26 hardware imports, 2,276 direct page names and
+  2,694 address comments.
