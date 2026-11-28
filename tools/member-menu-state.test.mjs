@@ -10,9 +10,28 @@ import { jakeState } from '../src/state/jake.mjs';
 import { scriptState } from '../src/state/scripts.mjs';
 import { findRunnerIndex, runnerContent } from '../src/content/runners.mjs';
 import { memberMenuContent } from '../src/content/member-menus.mjs';
+import { skills, notes } from '../src/game/status-submenus.mjs';
 import * as W from '../src/data/wram.mjs';
 
 for (const detached of [false, true]) {
+  test(`empty skills and absent datajack ignore an obsolete record pointer (${detached ? 'live' : 'fixture'})`, () => {
+    const mem = new VmMemory(cartridge.rom, undefined, null, cartridge.present);
+    if (detached) {
+      detachWindowsText(mem.wram);
+      detachSceneRoom(mem.wram);
+    }
+    const state = memberMenuState(mem);
+    state.runnerIndex = 0;
+    mem.write16Bank0(W.DP_MEMBER_RECORD, 0xffff);
+    mem.write8(W.DP_MEMBER_RECORD_BANK, 0xff);
+    for (const body of [skills, notes]) {
+      const sequence = body({ a: { mem } }, {});
+      sequence.next().value();
+      assert.equal(sequence.next().done, true);
+    }
+    assert.equal(state.endWord, 0);
+    assert.equal(state.submenuWindow, 0);
+  });
   test(`member selection shares scripts and late detached owners (${detached ? 'live' : 'fixture'})`, () => {
     const mem = new VmMemory(cartridge.rom, undefined, null, cartridge.present),
       state = memberMenuState(mem);

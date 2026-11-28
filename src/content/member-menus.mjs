@@ -1,3 +1,4 @@
+import { SKILL_NAMES } from '../state/jake.mjs';
 // Labels and rows of member menus, decoded once per game's content.
 import { readTables } from '../data/tables.mjs';
 import { textPointerWord } from '../data/rom-bytes.mjs';
@@ -16,6 +17,10 @@ export function memberMenuContent(mem) {
       ),
       fields = ['charisma', 'strength', 'magic', 'body'];
     content = {
+      skills: SKILL_NAMES.map((field, index) => ({
+        field,
+        text: textId(tables.skill_names[index]),
+      })),
       attributes: fields
         .map((field, index) => ({
           field,

@@ -1,10 +1,11 @@
+import { FRONTEND_FIELDS, frontendState } from './frontend.mjs';
 // Selection and windows shared by the party, status, item and spell menus.
 // Named fields use the existing independent window owner during phase 3.
 import { WINDOW_TEXT_FIELDS, windowsText } from './windows-text.mjs';
 import { stateField } from './named-fields.mjs';
 import { runnerState } from './runners.mjs';
 import { runnerMetadata, memberRecordAddress } from '../content/runners.mjs';
-import { DP_MEMBER_RECORD, DP_MEMBER_RECORD_BANK } from '../data/wram.mjs';
+import { DP_MEMBER_RECORD, DP_MEMBER_RECORD_BANK, PAD_SELECT } from '../data/wram.mjs';
 import { WORD_MASK, WORD_SIGN, WORD_BITS } from '../constants/bits.mjs';
 
 const states = new WeakMap();
@@ -39,7 +40,9 @@ export function memberMenuState(mem) {
     },
   };
   state = Object.defineProperties({}, descriptors);
+  const pressed = stateField(mem, FRONTEND_FIELDS, frontendState, 'padPressed');
   Object.defineProperties(state, {
+    selectPressed: { get: () => (pressed.get() & PAD_SELECT) !== 0 },
     details: { get: () => runnerMetadata(mem, state.runnerIndex) },
     stats: {
       get: () =>

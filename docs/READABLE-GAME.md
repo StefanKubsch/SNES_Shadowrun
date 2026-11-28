@@ -294,3 +294,11 @@ EVENT.DEFEATED`). The 37 most used game functions have parameter names (PARAMETE
   boundary retains the missing runner row for raw diagnostic fixtures. Ratchet: 1,192
   ROM literals, 147 WRAM imports, 26 hardware imports, 2,276 direct page names and
   2,694 address comments.
+- 2026-11-28, phase 3 step 8 (skills and notes): the skill display reads the selected
+  runner's named skills and content labels; it has no member-record pointer input.
+  Skills and notes open and release windows by handle, retaining the nonzero-skill
+  filter, Select-to-close behaviour, datajack handling and Leadership/Skillsoft alias.
+  Translated skill widths use the same named labels. The state bridge supplies the
+  original compatibility cursor for the still unmigrated spell menu and golden metadata.
+  Ratchet: 1,191 ROM literals, 146 WRAM imports, 26 hardware imports, 2,254 direct page
+  names and 2,678 address comments.
