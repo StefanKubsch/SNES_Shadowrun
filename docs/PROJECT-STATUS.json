@@ -1,7 +1,7 @@
 {
   "updated": "2026-11-28",
-  "focus": "Readable game, phase 3: named game state and one .srm serializer (docs/READABLE-GAME.md). Batch: HANDOFF.md.",
-  "next_step": "Continue phase 3 with named status, skill, spell and karma menu state. Replace indirect member-record and upgrade pointers. Legacy schemas and other doubled indices remain migration work.",
+  "focus": "Readable game, phase 3: named game state (docs/READABLE-GAME.md). Batch: HANDOFF.md.",
+  "next_step": "Continue phase 3 with item inventory and item-use menu state, then shared menu, text and window state. Compatibility serialization, raw fixtures and legacy schemas remain migration work.",
   "porting_resume": "216 original-form bytes remain: 121 code and 95 unidentified data. Read/hardware/data boundaries: docs/ROM-CODE-AUDIT.md. Unknown bytes and unused graphics stay preserved; unrecorded paths can report rom_byte_absent.",
   "open_issues": [
     "Keyword overflow: synthetic insertion of a 51st retained topic corrupts flags in European source and lifted code. Marking does not free storage. A reachable regular story route and a compatible gameplay correction remain unproved; see docs/BUGFIXES.md.",

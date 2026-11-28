@@ -12,7 +12,7 @@ import {
   MATRIX_TRACK_CALLS,
 } from '../src/matrix/matrix-tables.mjs';
 import { CUTSCENE_ANIMATIONS } from '../src/cutscene/cutscene-animation.mjs';
-import { KARMA_LISTS } from '../src/system/native-main-menu.mjs';
+import { KARMA_LISTS } from './karma-source-layout.mjs';
 import { STATUS_SUBMENUS } from '../src/game/status-screen.mjs';
 import { SCENE_LIST_COMMAND_TARGETS } from '../src/data/scene-commands.mjs';
 import { DEPTH_COMPARE_FIRST, DEPTH_COMPARE_SECOND } from './depth-compare-targets.mjs';

@@ -18,7 +18,40 @@ export function memberMenuContent(mem) {
       fields = ['charisma', 'strength', 'magic', 'body'];
     const levelTable = decoded.find((table) => table.name === 'spell_level_names'),
       levelNames = tables.spell_level_names.map(textId);
+    const upgrades = (group, fields) =>
+      fields.map((field, index) => ({
+        field,
+        text: textId(tables['karma_' + group + '_names'][index]),
+        limit: tables['karma_' + group + '_limits'][index],
+      }));
     content = {
+      karmaCategories: tables.karma_menu_items.filter(Boolean).map(textId),
+      karma: {
+        attributes: {
+          text: 0x7490,
+          upgrades: upgrades('attribute', ['body', 'magic', 'strength', 'charisma']),
+        },
+        skills: {
+          text: 0x70bb,
+          upgrades: upgrades('skill', [
+            'skills.firearms',
+            'skills.computer',
+            'skills.leadership',
+            'skills.negotiation',
+          ]),
+        },
+        spells: {
+          text: 0x709d,
+          upgrades: upgrades('spell', [
+            'spells.powerball',
+            'spells.invisibility',
+            'spells.summonSpirit',
+            'spells.freeze',
+            'spells.heal',
+            'spells.armour',
+          ]),
+        },
+      },
       spells: SPELL_NAMES.map((field, index) => ({
         field,
         name: textId(tables.spell_names[index]),

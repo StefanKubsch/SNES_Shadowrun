@@ -313,17 +313,22 @@ export function* chooseFromMenu(h, events, renderBuffer = drawTextBuffer, entry,
 // list drawing reads; returns the chosen row, or NO_CHOICE after a cancel.
 export const NO_CHOICE = NONE;
 const MENU_LIST_BUFFER = 0x154,
-  MENU_LIST_BANK = 0x7e;
+  MENU_LIST_BANK = 0x7e,
+  MENU_VALUE_BUFFER = 0x180;
 export function* chooseFromList(
   h,
   events,
   renderBuffer,
-  { window, column, row, visibleRows, items },
+  { window, column, row, visibleRows, items, values, selectedRow = 0 },
 ) {
   const { wram } = h.a.mem;
   yield () => {
     items.forEach((item, n) => setWord(wram, MENU_LIST_BUFFER + 2 * n, item));
     setWord(wram, MENU_LIST_BUFFER + 2 * items.length, 0);
+    if (values) {
+      values.forEach((value, n) => setWord(wram, MENU_VALUE_BUFFER + 2 * n, value));
+      setWord(wram, DP_LIST_VALUES, MENU_VALUE_BUFFER);
+    }
     setWord(wram, DP_RESULT, window);
     setWord(wram, DP_MENU_COLUMN, column);
     setWord(wram, DP_MENU_ROW, row);
@@ -331,6 +336,6 @@ export function* chooseFromList(
     setWord(wram, DP_LIST_TOKENS, MENU_LIST_BUFFER);
     setWord(wram, DP_LIST_TOKEN_BANK, MENU_LIST_BANK);
   };
-  yield* chooseFromMenu(h, events, renderBuffer, MENU);
+  yield* chooseFromMenu(h, events, renderBuffer, values ? MENU_WITH_NUMBERS_AT : MENU, selectedRow);
   return word(wram, DP_RESULT);
 }

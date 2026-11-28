@@ -57,21 +57,21 @@ export function memberMenuState(mem) {
     equipment: { get: () => runnerState(mem, (selected.get() & 0x3fff) / 2) },
     resources: { get: () => runnerState(mem, selected.get() >>> 1) },
   });
-  // Write-only compatibility cursor for the old submenu readers and the golden
-  // projection. The display reads named stats, never this serialized pointer.
+  // Write-only compatibility cursor for the golden projection and raw caller
+  // fixtures. Live menus read named stats, never this serialized pointer.
+  state.prepareRecord = (index, position = 0) => {
+    const address = memberRecordAddress(mem, index);
+    mem.write16Bank0(DP_MEMBER_RECORD, (address + position) & WORD_MASK);
+    mem.write8(DP_MEMBER_RECORD_BANK, address >>> WORD_BITS);
+  };
   let recordPosition = 0;
   Object.defineProperty(state, 'recordPosition', {
     get: () => recordPosition,
     set(value) {
       recordPosition = value;
-      const address = memberRecordAddress(mem, state.runnerIndex);
-      mem.write16Bank0(DP_MEMBER_RECORD, (address + value) & WORD_MASK);
-      mem.write8(DP_MEMBER_RECORD_BANK, address >>> WORD_BITS);
+      state.prepareRecord(state.runnerIndex, value);
     },
   });
-  state.prepareLegacySkills = () => {
-    state.recordPosition = 6;
-  };
   states.set(mem, state);
   return state;
 }

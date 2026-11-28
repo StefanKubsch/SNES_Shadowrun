@@ -311,3 +311,16 @@ EVENT.DEFEATED`). The 37 most used game functions have parameter names (PARAMETE
   Jake selection, other runners' nested scripts, status-only mode, notices, portrait
   redraw and translated windows retain their behaviour. Ratchet: 1,189 ROM literals,
   145 WRAM imports, 26 hardware imports, 2,219 direct page names, 2,651 address comments.
+- 2026-11-28, phase 3 step 10 (karma upgrades): named upgrade records connect labels,
+  limits and Jake's attribute/skill/spell fields. The purchase checks its complete cost
+  before mutation; the UI still excludes zero and capped values. Body health increases,
+  health/magic refill, failed-purchase notices, translated window fitting and numbered
+  choices retain their behaviour. Source table locations moved to tools/karma-source-layout.mjs
+  for the extractor. The shared choice API accepts named numeric values and a selected
+  row. Counts and the selected row are ordinary game values; only an actual change
+  in the available row count resets the selection. Source check: DP_CURSOR_ROW is 04,
+  DP_KARMA_PREVIOUS_ROW_BYTES is 1D; they are independent. Live status, skills, spells and karma no longer
+  read member-record or upgrade pointers; compatibility serialization, raw fixtures,
+  shared renderer workspace and the original state schemas remain migration boundaries.
+  Ratchet: 1,165 ROM literals, 144 WRAM imports, 26 hardware imports, 2,158 direct page
+  names and 2,610 address comments.
