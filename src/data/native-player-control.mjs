@@ -7,8 +7,7 @@ export const PAD_DIRECTION_TABLE = 0xdf4b,
   WALK_STEP_X = 0xdf27,
   WALK_STEP_Y = 0xdf39,
   NO_DIRECTION = 0x10,
-  DIRECTION_MASK = 0x0e,
-  CAMERA_ROTATION_SRAM = 0x701ffd;
+  DIRECTION_MASK = 0x0e;
 
 // A985 actions of E014 (DP02): idle 0, walking 2, spell 3, crosshair 4 or 7 for a weapon
 // damage of 7 on (7E:3C34, the byte after RUNNER_WEAPON_KIND).

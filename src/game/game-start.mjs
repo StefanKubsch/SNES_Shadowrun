@@ -19,13 +19,9 @@ import { unlockBulletproofVest } from './bugfixes.mjs';
 import { setUpGameScreen } from './game-screen.mjs';
 import { resetFixedColour } from './fixed-colour.mjs';
 import { enterRoomSequence } from './room-entry.mjs';
-import {
-  SLOT_OFFSETS_FOUR,
-  saveSlotCount,
-  FOUR_SAVE_SLOTS,
-  ORIGINAL_SAVE_SLOTS,
-} from './save-slots.mjs';
-import { SLOT_CHECKED_BYTES, CHECKSUM_WORD_BYTES } from './save-slots.mjs';
+import { fourSaveSlots } from './bugfixes.mjs';
+import { readSaveSlot } from '../storage/srm.mjs';
+import { savedGameState } from '../state/saved-game.mjs';
 import {
   RECORD_ATTRIBUTE,
   RECORD_SKILL,
@@ -49,7 +45,6 @@ import {
   NUYEN,
   ROOM,
   RUNNER_ARMOUR,
-  SAVE_STATE_START,
   SCRIPT_VARIABLES,
   SELECTED_SPELL_NAME,
   SELECTED_SPELL_SCRIPT,
@@ -57,8 +52,8 @@ import {
   STORY_STAGE,
   TOPIC_LIST,
 } from '../data/wram.mjs';
-import { CODE_BANK_BASE, SRAM_FIRST_BANK } from '../constants/memory-map.mjs';
-import { BYTE_BITS, BYTE_MASK, WORD_MASK, WORD_SIGN } from '../constants/bits.mjs';
+import { CODE_BANK_BASE } from '../constants/memory-map.mjs';
+import { BYTE_BITS, BYTE_MASK, WORD_SIGN } from '../constants/bits.mjs';
 
 // The main start and the room start.
 export const GAME_START = 0x9688,
@@ -97,18 +92,11 @@ const JAKE_START_ATTRIBUTE = 3,
     JAKE_BODY + RECORD_SPELL.armour,
   ],
   CLEARED_WORDS = [NUYEN, NUYEN + 2, KARMA, SELECTED_SPELL_SCRIPT, SPELL_LIST];
-// The save slot offsets 81:B124 (two original slots; four with the option,
-// src/game/save-slots.mjs). A slot holds its checksum word and the save state.
-const SLOT_OFFSETS = 0x81b124,
-  SAVE_SLOT_BYTES = SLOT_CHECKED_BYTES + CHECKSUM_WORD_BYTES;
-const SRAM_BASE = SRAM_FIRST_BANK << 16;
-
 const word = (wram, at) => readStateByte(wram, at) | (readStateByte(wram, at + 1) << BYTE_BITS);
 const setWord = (wram, at, value) => {
   writeStateByte(wram, at, value & BYTE_MASK);
   writeStateByte(wram, at + 1, (value >>> BYTE_BITS) & BYTE_MASK);
 };
-const readRomWord = (mem, at) => mem.read8(at) | (mem.read8(at + 1) << BYTE_BITS);
 
 // 80:98E9: the new game's state: the packed state, cleared script words, every
 // runner's starting equipment and magic points, and Jake's record.
@@ -150,25 +138,9 @@ export function startNewGame(a) {
   return NEW_GAME_ROOM;
 }
 
-// The SRAM offset of a save slot (81:B11A).
-export function saveSlotOffset(a, slot) {
-  const index = (slot << 1) & WORD_MASK;
-  if (index >= ORIGINAL_SAVE_SLOTS * 2 && saveSlotCount(a) === FOUR_SAVE_SLOTS)
-    return SLOT_OFFSETS_FOUR[index >> 1];
-  return readRomWord(a.mem, SLOT_OFFSETS + index);
-}
-
-// 81:B198: load the save slot from SRAM (the checksum word included). The caller
-// checked the slot's validity before.
+// Load the selected slot after the title has checked its checksum.
 export function loadSavedGame(a, slot) {
-  const { mem } = a,
-    offset = saveSlotOffset(a, slot);
-  for (let i = 0; i < SAVE_SLOT_BYTES; i++)
-    writeStateByte(
-      mem.wram,
-      SAVE_STATE_START + i,
-      mem.read8(SRAM_BASE | ((offset + i) & WORD_MASK)),
-    );
+  readSaveSlot(a.mem.sram, slot, savedGameState(a.mem), fourSaveSlots(a));
   unlockBulletproofVest(a);
 }
 

@@ -1,7 +1,7 @@
 {
   "updated": "2026-11-28",
   "focus": "Readable game, phase 3: named game state and one .srm serializer (docs/READABLE-GAME.md). Batch: HANDOFF.md.",
-  "next_step": "Complete the shared save serializer, then continue replacing the remaining state consumers with named fields. Script state uses named fields; the legacy state-owner schemas remain a migration boundary.",
+  "next_step": "Continue phase 3 with named party and runner records and their game consumers. Scripts use named fields; saves use one serializer. Legacy state schemas remain a migration boundary.",
   "porting_resume": "216 original-form bytes remain: 121 code and 95 unidentified data. Read/hardware/data boundaries: docs/ROM-CODE-AUDIT.md. Unknown bytes and unused graphics stay preserved; unrecorded paths can report rom_byte_absent.",
   "open_issues": [
     "Keyword overflow: synthetic insertion of a 51st retained topic corrupts flags in European source and lifted code. Marking does not free storage. A reachable regular story route and a compatible gameplay correction remain unproved; see docs/BUGFIXES.md.",

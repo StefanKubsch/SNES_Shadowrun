@@ -2,15 +2,12 @@
 import {
   occupiedSlots,
   SLOT_OFFSETS_FOUR,
-  SLOT_CHECKED_BYTES,
-  CHECKSUM_WORD_BYTES,
-} from '../game/save-slots.mjs';
-import { ROOM, SAVE_STATE_START } from '../data/wram.mjs';
+  inspectSaveSlot,
+  FOUR_SAVE_SLOTS,
+} from '../storage/srm.mjs';
 import { saveToText } from './save-file.mjs';
-import { BYTE_BITS } from '../constants/bits.mjs';
 
 export const SAVE_DETAILS_KEY = 'shadowrun.save-details.1';
-const SAVED_BYTES = SLOT_CHECKED_BYTES + CHECKSUM_WORD_BYTES;
 // A 128 x 112 RGBA PNG fits below this even without useful compression.
 const MAX_PREVIEW_URL_LENGTH = 100000;
 const validPreview = (image) =>
@@ -32,11 +29,11 @@ export function parseSaveDetails(text) {
 
 // Exact slot bytes bind optional metadata to the save, including after import.
 export function describeSaveSlots(sram, details = []) {
-  return occupiedSlots(sram).map((valid, slot) => {
+  const slots = occupiedSlots(sram);
+  return slots.map((valid, slot) => {
     if (!valid) return null;
-    const offset = SLOT_OFFSETS_FOUR[slot],
-      roomOffset = offset + ROOM - SAVE_STATE_START,
-      identity = saveToText(sram.subarray(offset, offset + SAVED_BYTES)),
+    const saved = inspectSaveSlot(sram, slot, slots.length === FOUR_SAVE_SLOTS),
+      identity = saveToText(saved.bytes),
       detail = details[slot],
       savedAt =
         detail?.identity === identity &&
@@ -47,7 +44,7 @@ export function describeSaveSlots(sram, details = []) {
     const preview =
       detail?.identity === identity && validPreview(detail.preview) ? detail.preview : null;
     return {
-      room: sram[roomOffset] | (sram[roomOffset + 1] << BYTE_BITS),
+      room: saved.room,
       identity,
       savedAt,
       preview,

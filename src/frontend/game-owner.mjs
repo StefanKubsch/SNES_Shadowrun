@@ -12,11 +12,11 @@ import {
   GAME_OPTIONS,
   OPTION_MUSIC,
   OPTION_MUSIC_RESTORE,
-  SETTINGS_MUSIC,
   TIMER,
   TIMER_STOPPED,
 } from '../data/wram.mjs';
 import { BYTE_BITS, BYTE_MASK } from '../constants/bits.mjs';
+import { readSaveSettings } from '../storage/srm.mjs';
 
 // The owner's entry after the start-up, its resume point after a game, and the
 // return word of its JSR 9688 at A154 (the main loop's final RTS lands on A157).
@@ -44,7 +44,7 @@ export function* gameOwnerSequence(h, events, showTitle = true) {
   yield () => {
     setWord(wram, CHOICE, choice);
     // The game plays music as the saved setting says.
-    setWord(wram, GAME_OPTIONS, h.a.mem.read16(SETTINGS_MUSIC));
+    setWord(wram, GAME_OPTIONS, readSaveSettings(h.a.mem.sram).musicWord);
     setUpGameAudio(sceneRuntime(h));
     // The game starts without a countdown.
     setWord(wram, TIMER, TIMER_STOPPED);

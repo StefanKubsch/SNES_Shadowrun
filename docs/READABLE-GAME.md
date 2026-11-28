@@ -234,3 +234,17 @@ EVENT.DEFEATED`). The 37 most used game functions have parameter names (PARAMETE
   Jake's record begins at 7E:3BFB, so these uses alias. The new field is
   `jake.leadership`; the existing Skillsoft note keeps sharing it. No behaviour or
   recorded trace is changed, and no separate cyberware flag is invented.
+- 2026-11-28, phase 3 step 2 (save serializer): `src/storage/srm.mjs` is the single
+  codec for saved game fields, slot offsets, both checksums and global settings.
+  Saving, title loading and the browser's slot descriptions use it. It serializes
+  every byte from the scene and combat owners by field name, including odd word
+  positions, interleaved equipment, actor records, script scratch words and topics.
+  `src/state/saved-game.mjs` bridges the current owners; live games use independent
+  arrays, raw fixtures keep a temporary schema bridge. No save operation needs the
+  cartridge's slot-offset table or copies a work-memory range. The two original
+  slots, optional slots 3/4, padding, global options and completed-save notifications
+  keep their behaviour. Invalid slot numbers and short images fail before mutation.
+  The global settings view is cached and preserves existing complete-word consumers
+  during migration. Legacy, unused address declarations remain in data/wram.mjs until
+  its phase 3 cleanup. Ratchet: 1,192 ROM literals, 150 WRAM imports, 26 hardware
+  imports, 2,313 direct page names and 2,776 address comments.

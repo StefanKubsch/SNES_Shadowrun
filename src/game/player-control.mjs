@@ -1,4 +1,5 @@
 import { readStateByte, writeStateByte } from '../state/objects.mjs';
+import { readSaveSettings } from '../storage/srm.mjs';
 // The player's control for one frame (lifted from the script native 80:E014;
 // register-level version in proof/replay/native-player-control.mjs, which recorded waits
 // and inputs replay).
@@ -33,7 +34,6 @@ import { GLOVE_LIMITS } from '../script/native-glove-crosshair-limits.mjs';
 import {
   AIM_ACTION,
   AIM_BUTTONS,
-  CAMERA_ROTATION_SRAM,
   DIRECTION_MASK,
   DP_FACING_GLOVE_X,
   DP_FACING_GLOVE_Y,
@@ -127,7 +127,7 @@ function* walkByPadSequence(h, player) {
       entry = dataBankWord(mem, PAD_DIRECTION_TABLE, pressed >>> (BYTE_BITS - 1));
     direction = entry;
     if (entry < NO_DIRECTION) {
-      const rotation = mem.read16(CAMERA_ROTATION_SRAM),
+      const rotation = readSaveSettings(mem.sram).controlMusicWord,
         turned = subtract(subtract(entry, rotation), rotation);
       direction = turned & DIRECTION_MASK;
     }

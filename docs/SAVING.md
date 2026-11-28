@@ -6,6 +6,18 @@ As of 2026-11-09. Code: [save-file.mjs](../src/browser/save-file.mjs),
 [live-save.test.mjs](../tools/live-save.test.mjs) (native),
 [live-game-browser.test.mjs](../tools/live-game-browser.test.mjs) (real Edge).
 
+## Shared serializer (2026-11-28)
+
+[srm.mjs](../src/storage/srm.mjs) owns the saved field layout, slot offsets, slot
+checksum, global settings and settings checksum. Saving, title loading and slot
+descriptions all use this codec. [saved-game.mjs](../src/state/saved-game.mjs) reads
+and restores the scene and combat owners by field name. The serializer covers every
+saved byte, including interleaved equipment and odd word positions; it does not need
+the original cartridge or an image of work memory. Original 8 KiB saves and the
+16 KiB extension remain compatible. Invalid slots and incomplete images are rejected
+before mutation. [srm.test.mjs](../tools/srm.test.mjs) checks the Mesen save fixture,
+complete layout coverage, both storage modes and isolation of slots and settings.
+
 ## Slot descriptions (2026-11-22)
 
 The Save/load game overlay shows a card for each available slot, including
@@ -15,8 +27,7 @@ local save date and time. Unknown dates are omitted. Empty slots are labelled ex
 their save actions are hidden. Loading still uses the game's title menu.
 
 [save-details.mjs](../src/browser/save-details.mjs) validates slots with the
-existing checksum and reads the room WORD at slot offset 2: `ROOM` (2DE2)
-minus `SAVE_STATE_START` (2DE0). New-game room 3 is the morgue
+shared serializer's checksum and saved room field. New-game room 3 is the morgue
 (`src/game/game-start.mjs`); the recorded apartment fixture
 `tools/mesen/saves/apartment.srm` holds room 345. These two entries have
 English/German names. Other entries display their decimal room number until

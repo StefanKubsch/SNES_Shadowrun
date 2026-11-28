@@ -10,6 +10,7 @@
 // Up and Select or Down move; the menu times out as if cancelled. It returns the
 // save slot (FFFF: a new game) or FFFE (cancelled).
 import { readStateByte, writeStateByte, fillStateBytes } from '../state/objects.mjs';
+import { readSaveSettings, writeSaveSettings } from '../storage/srm.mjs';
 import { sceneFrames } from '../system/scene-frames.mjs';
 import { waitStatus } from '../system/wait-status.mjs';
 import { decodeOnce, tableEntries } from '../data/named-tables.mjs';
@@ -49,13 +50,10 @@ import {
   PAD_SELECT,
   PAD_START,
   PAD_UP,
-  SETTINGS_CONTROL,
   SETTINGS_CONTROL_TYPE_A,
-  SETTINGS_MUSIC,
   SETTINGS_MUSIC_EVENT,
   SETTINGS_MUSIC_FULL,
   SETTINGS_MUSIC_MASK,
-  SETTINGS_STEREO,
   SETTINGS_STEREO_ON,
   TITLE_ANIMATION_FRAMES,
   TITLE_PALETTE,
@@ -373,18 +371,17 @@ export const validSaveSlot = (h) => (slot) =>
 export function drawOptionsMenu(m) {
   const { mem } = m;
   clearMenuTilemap(mem);
-  const music = mem.read8(SETTINGS_MUSIC) & SETTINGS_MUSIC_MASK;
+  const settings = readSaveSettings(mem.sram),
+    music = settings.music & SETTINGS_MUSIC_MASK;
   drawMenuText(
     mem,
     menuRow(1),
-    mem.read8(SETTINGS_STEREO) & SETTINGS_STEREO_ON ? TEXT_STEREOPHONIC : TEXT_MONOPHONIC,
+    settings.stereo & SETTINGS_STEREO_ON ? TEXT_STEREOPHONIC : TEXT_MONOPHONIC,
   );
   drawMenuText(
     mem,
     menuRow(0),
-    mem.read8(SETTINGS_CONTROL) & SETTINGS_CONTROL_TYPE_A
-      ? TEXT_CONTROL_TYPE_A
-      : TEXT_CONTROL_TYPE_B,
+    settings.control & SETTINGS_CONTROL_TYPE_A ? TEXT_CONTROL_TYPE_A : TEXT_CONTROL_TYPE_B,
   );
   drawMenuText(
     mem,
@@ -703,18 +700,17 @@ export function* chooseStartGame(h, events, afterTitle) {
       if (option & WORD_SIGN) return yield* finish(MENU_CANCELLED);
       if (option === OPTIONS_ROWS - 1) break;
       yield () => {
-        const { mem } = m;
+        const { mem } = m,
+          settings = readSaveSettings(mem.sram);
         if (option === 0)
-          mem.write8(
-            SETTINGS_CONTROL,
-            (mem.read8(SETTINGS_CONTROL) ^ SETTINGS_CONTROL_TYPE_A) & SETTINGS_CONTROL_TYPE_A,
-          );
+          writeSaveSettings(mem.sram, {
+            control: (settings.control ^ SETTINGS_CONTROL_TYPE_A) & SETTINGS_CONTROL_TYPE_A,
+          });
         else if (option === 1)
-          mem.write8(
-            SETTINGS_STEREO,
-            (mem.read8(SETTINGS_STEREO) ^ SETTINGS_STEREO_ON) & SETTINGS_STEREO_ON,
-          );
-        else mem.write8(SETTINGS_MUSIC, (mem.read8(SETTINGS_MUSIC) || MUSIC_SETTING_CYCLE) >>> 1);
+          writeSaveSettings(mem.sram, {
+            stereo: (settings.stereo ^ SETTINGS_STEREO_ON) & SETTINGS_STEREO_ON,
+          });
+        else writeSaveSettings(mem.sram, { music: (settings.music || MUSIC_SETTING_CYCLE) >>> 1 });
       };
     }
   }

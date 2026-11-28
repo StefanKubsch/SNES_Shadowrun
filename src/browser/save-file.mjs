@@ -5,7 +5,7 @@
 // option the SRAM has 16 KiB (src/game/save-slots.mjs): the first 8 KiB stay
 // under SAVE_KEY as before, slots 3/4 under SAVE_EXTRA_KEY, and the .srm file
 // then has 16 KiB.
-import { SRAM_SIZE, SRAM_SIZE_FOUR_SLOTS } from '../vm/memory.mjs';
+import { SRAM_SIZE, SRAM_SIZE_FOUR_SLOTS } from '../storage/srm.mjs';
 import { fnv1a } from '../data/fnv.mjs';
 export const SAVE_KEY = 'shadowrun.sram.1',
   SAVE_EXTRA_KEY = 'shadowrun.sram.extra.1';

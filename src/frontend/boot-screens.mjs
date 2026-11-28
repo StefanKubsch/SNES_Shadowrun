@@ -24,16 +24,14 @@ import { waitForFrame } from '../system/frame-wait.mjs';
 import { fadeIn, fadeOut } from '../video/fades.mjs';
 import { setSceneScreen } from '../video/scene-screen.mjs';
 import { restoreDefaultSettings, sendOutputMode, settingsValid } from './settings.mjs';
-import { SETTINGS_CONTROL_TYPE_A, SETTINGS_STEREO, SETTINGS_STEREO_ON } from '../data/wram.mjs';
-import { BYTE_BITS, BYTE_MASK } from '../constants/bits.mjs';
+import { SETTINGS_CONTROL_TYPE_A, SETTINGS_STEREO_ON } from '../data/wram.mjs';
+import { readSaveSettings, writeSaveSettings } from '../storage/srm.mjs';
 
 // The two screens: their scene lists and the frames they are held.
 const LOGO_LIST = 0x8a8000,
   LOGO_FRAMES = 0x96,
   SECOND_SCREEN_LIST = 0x89ec26,
   SECOND_SCREEN_FRAMES = 0xb4;
-// The settings word keeps the output mode (low byte) and the control type (high byte).
-const SETTINGS_WORD_BITS = SETTINGS_STEREO_ON | (SETTINGS_CONTROL_TYPE_A << BYTE_BITS);
 // Direct page word 10, cleared at boot (no reader is known).
 const CLEARED_WORD = 0x10;
 // The settings checksum leaves X past its first byte.
@@ -74,11 +72,11 @@ export function* bootScreensInPlace(h, events) {
     // The settings word keeps its known bits; an invalid checksum restores the
     // defaults.
     const { mem } = m,
-      kept =
-        (mem.read8(SETTINGS_STEREO) | (mem.read8(SETTINGS_STEREO + 1) << BYTE_BITS)) &
-        SETTINGS_WORD_BITS;
-    mem.write8(SETTINGS_STEREO, kept & BYTE_MASK);
-    mem.write8(SETTINGS_STEREO + 1, kept >>> BYTE_BITS);
+      settings = readSaveSettings(mem.sram);
+    writeSaveSettings(mem.sram, {
+      stereo: settings.stereo & SETTINGS_STEREO_ON,
+      control: settings.control & SETTINGS_CONTROL_TYPE_A,
+    });
     if (!settingsValid(mem)) restoreDefaultSettings(mem);
   };
   yield* showScreen(SECOND_SCREEN_LIST);

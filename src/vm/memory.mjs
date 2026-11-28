@@ -9,6 +9,8 @@
 // logged with their address. In bank $00 they arise only from overflows of the stack or direct page and remain
 // a proof limit (error). Everything else is an error, no invented values.
 import { readStateByte, writeStateByte } from '../state/objects.mjs';
+import { SRAM_SIZE, SRAM_SIZE_FOUR_SLOTS } from '../storage/srm.mjs';
+export { SRAM_SIZE, SRAM_SIZE_FOUR_SLOTS } from '../storage/srm.mjs';
 import {
   WORD_BITS,
   WORD_MASK,
@@ -63,9 +65,6 @@ export class VmFault extends Error {
 
 export const WRAM_SIZE = 0x20000;
 export const ROM_SIZE = 0x100000;
-export const SRAM_SIZE = 0x2000;
-// Four save slots (docs/SAVING.md): slots 3/4 from 2000 and 2FFE.
-export const SRAM_SIZE_FOUR_SLOTS = 0x4000;
 export const PORT_BANK = 0xa0;
 // Packed streams of the text language at $A1:8000 (src/data/language.mjs, only when installed).
 export const LANGUAGE_BANK = 0xa1;
