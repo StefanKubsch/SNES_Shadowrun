@@ -376,3 +376,12 @@ EVENT.DEFEATED`). The 37 most used game functions have parameter names (PARAMETE
   Encoded tree/glyph readers, caller arguments and compatibility scratch remain
   explicit migration boundaries. Ratchet: 1,160 ROM literals, 135 WRAM imports,
   26 hardware imports, 1,974 direct page names and 2,495 address comments.
+
+- 2026-11-28, phase 3 step 17 (text composition and drawing): glyph composition,
+  word measurement/wrap, style changes, cursor geometry, mask buffers and upload
+  requests use named window and text state. Byte writes retain neighbouring scratch
+  bytes; empty line breaks retain the running index's unusual window alias.
+  Mask overflow, partial tiles, translated glyph fitting, arithmetic access sites
+  and upload waits are unchanged. Encoded font/mask data and hardware presentation
+  remain phase 4/5 boundaries. Ratchet: 1,160 ROM literals, 134 WRAM imports,
+  26 hardware imports, 1,964 direct page names and 2,481 address comments.

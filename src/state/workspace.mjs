@@ -34,3 +34,11 @@ export function scratchWord(mem, at) {
     set: (value) => mem.write16Bank0(at, value),
   };
 }
+
+export function scratchByte(wram, at) {
+  return {
+    enumerable: true,
+    get: () => readStateByte(wram, at),
+    set: (value) => writeStateByte(wram, at, value & BYTE_MASK),
+  };
+}

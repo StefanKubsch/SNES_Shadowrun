@@ -8,10 +8,10 @@ import { agnosticCounts } from './agnostic-counts.mjs';
 
 const CEILINGS = Object.freeze({
   romLiterals: 1160,
-  wramImports: 135,
+  wramImports: 134,
   hardwareImports: 26,
-  directPageNames: 1974,
-  addressComments: 2495,
+  directPageNames: 1964,
+  addressComments: 2481,
 });
 
 test('src/ gains no new references to the original system', () => {
