@@ -302,3 +302,12 @@ EVENT.DEFEATED`). The 37 most used game functions have parameter names (PARAMETE
   original compatibility cursor for the still unmigrated spell menu and golden metadata.
   Ratchet: 1,191 ROM literals, 146 WRAM imports, 26 hardware imports, 2,254 direct page
   names and 2,678 address comments.
+- 2026-11-28, phase 3 step 9 (member spells): spell menus build named choices from
+  runner spell levels and content definitions (name, level text and both scripts).
+  The game code neither walks a member-record pointer nor reads the selected-level
+  reference. A state bridge serializes the legacy choice columns and saved selection;
+  casting rereads the current named level. Raw caller fixtures retain their explicit
+  record argument; unusual levels and the original address carry retain content aliases.
+  Jake selection, other runners' nested scripts, status-only mode, notices, portrait
+  redraw and translated windows retain their behaviour. Ratchet: 1,189 ROM literals,
+  145 WRAM imports, 26 hardware imports, 2,219 direct page names, 2,651 address comments.

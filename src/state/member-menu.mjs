@@ -1,3 +1,4 @@
+import { SCENE_ROOM_FIELDS, sceneRoomState } from './scene-room.mjs';
 import { FRONTEND_FIELDS, frontendState } from './frontend.mjs';
 // Selection and windows shared by the party, status, item and spell menus.
 // Named fields use the existing independent window owner during phase 3.
@@ -41,12 +42,15 @@ export function memberMenuState(mem) {
   };
   state = Object.defineProperties({}, descriptors);
   const pressed = stateField(mem, FRONTEND_FIELDS, frontendState, 'padPressed');
+  const notices = Array.from({ length: 4 }, (_, index) => field('noticeWindows', index));
   Object.defineProperties(state, {
+    player: stateField(mem, SCENE_ROOM_FIELDS, sceneRoomState, 'playerObject'),
+    hasNotices: { get: () => notices.some((notice) => !(notice.get() & WORD_SIGN)) },
     selectPressed: { get: () => (pressed.get() & PAD_SELECT) !== 0 },
     details: { get: () => runnerMetadata(mem, state.runnerIndex) },
     stats: {
       get: () =>
-        state.runnerIndex >= 0 && state.runnerIndex < 13
+        Number.isInteger(state.runnerIndex) && state.runnerIndex >= 0 && state.runnerIndex < 13
           ? runnerState(mem, state.runnerIndex).stats
           : state.details.stats,
     },

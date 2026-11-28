@@ -10,10 +10,48 @@ import { jakeState } from '../src/state/jake.mjs';
 import { scriptState } from '../src/state/scripts.mjs';
 import { findRunnerIndex, runnerContent } from '../src/content/runners.mjs';
 import { memberMenuContent } from '../src/content/member-menus.mjs';
+import { memberSpellState } from '../src/state/member-spells.mjs';
+import { buildMemberSpellChoices } from '../src/game/member-spell-menu.mjs';
+import { detachObjectStorage } from '../src/state/objects.mjs';
+import { savedGameState } from '../src/state/saved-game.mjs';
 import { skills, notes } from '../src/game/status-submenus.mjs';
 import * as W from '../src/data/wram.mjs';
 
 for (const detached of [false, true]) {
+  test(`spell choices keep their scripts and reread the selected level (${detached ? 'live' : 'fixture'})`, () => {
+    const mem = new VmMemory(cartridge.rom, undefined, null, cartridge.present);
+    if (detached) {
+      detachWindowsText(mem.wram);
+      detachCombat(mem.wram);
+      detachSceneRoom(mem.wram);
+      detachObjectStorage(mem.wram);
+    }
+    const menu = memberMenuState(mem),
+      jake = jakeState(mem),
+      spells = memberSpellState(mem);
+    menu.runnerIndex = 0;
+    menu.recordPosition = 6;
+    jake.spells.heal = 2;
+    jake.spells.armour = 3;
+    const items = buildMemberSpellChoices(mem),
+      content = memberMenuContent(mem);
+    assert.equal(items.length, 3);
+    assert.equal(spells.choice(1).spell, 1);
+    assert.equal(spells.choice(1).script, content.spells[1].script);
+    assert.equal(spells.choice(2).spell, 3);
+    assert.equal(mem.read16(W.WRAM + W.SPELL_MENU_LEVEL_POINTERS + 2), W.JAKE_BODY + 13);
+    spells.select(1);
+    assert.equal(savedGameState(mem).get('combat', 'spellLevelPointer', 0), W.JAKE_BODY + 13);
+    assert.equal(spells.selectedLevel, 2);
+    jake.spells.heal = 5;
+    spells.prepareCast();
+    assert.equal(mem.read16Bank0(0), 5);
+    assert.equal(mem.read16Bank0(W.DP_SELECTION_POINTER), W.JAKE_BODY + 13);
+    assert.equal(spells.script, content.spells[1].leaderScript);
+    // Retain the original unaligned carry and the bytes beyond level six.
+    assert.equal(content.spellLevelName(0, 1, 1), mem.read16(0x80e7c9));
+    assert.equal(content.spellLevelName(0, 7), mem.read16(0x80e810));
+  });
   test(`empty skills and absent datajack ignore an obsolete record pointer (${detached ? 'live' : 'fixture'})`, () => {
     const mem = new VmMemory(cartridge.rom, undefined, null, cartridge.present);
     if (detached) {
